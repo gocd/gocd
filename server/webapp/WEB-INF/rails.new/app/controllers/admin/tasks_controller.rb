@@ -30,7 +30,7 @@ module Admin
     end
 
     def edit
-      assert_load :artifact_id_to_plugin_id, go_config_service.artifactIdToPluginIdForFetchPluggableArtifact(params[:pipeline_name], params[:stage_name]).to_hash
+      assert_load :artifact_id_to_plugin_id, go_config_service.artifactIdToPluginIdForFetchPluggableArtifact(params[:stage_parent], params[:pipeline_name], params[:stage_name]).to_hash
       assert_load :artifact_plugin_to_fetch_view, default_plugin_info_finder.pluginIdToFetchViewTemplate()
       @task_view_model = task_view_service.getViewModel(@task, 'edit')
       assert_load :on_cancel_task_vms, task_view_service.getOnCancelTaskViewModels(@task)
@@ -40,7 +40,7 @@ module Admin
 
     def new
       type = params[:type]
-      assert_load :artifact_id_to_plugin_id, go_config_service.artifactIdToPluginIdForFetchPluggableArtifact(params[:pipeline_name], params[:stage_name]).to_hash
+      assert_load :artifact_id_to_plugin_id, go_config_service.artifactIdToPluginIdForFetchPluggableArtifact(params[:stage_parent], params[:pipeline_name], params[:stage_name]).to_hash
       assert_load :artifact_plugin_to_fetch_view, default_plugin_info_finder.pluginIdToFetchViewTemplate()
       assert_load :task, task_view_service.taskInstanceFor(type)
       assert_load :task_view_model, task_view_service.getViewModel(@task, 'new')
@@ -52,6 +52,7 @@ module Admin
     def create
       type = params[:type]
       assert_load :task, task_view_service.taskInstanceFor(type)
+      assert_load :artifact_plugin_to_fetch_view, default_plugin_info_finder.pluginIdToFetchViewTemplate()
       @task.setConfigAttributes(params[:task], task_view_service)
       create_failure_handler = proc do |result, all_errors|
         @errors = flatten_all_errors(all_errors)
@@ -147,7 +148,7 @@ module Admin
         assert_load :task, adapt_fetch_task_if_needed(@subject)
         load_modify_task_variables
         assert_load :artifact_ids, ["foo", "bar"].to_json
-        assert_load :artifact_plugin_to_fetch_view, default_plugin_info_finder.pluginIdToFetchViewTemplate().to_hash
+        assert_load :artifact_plugin_to_fetch_view, default_plugin_info_finder.pluginIdToFetchViewTemplate()
       end
     end
 

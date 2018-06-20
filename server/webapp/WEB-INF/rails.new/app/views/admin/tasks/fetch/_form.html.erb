@@ -51,74 +51,51 @@
   var routeFetchTask          = "<%== scope[:routeFetch] %>";
   var routeFetchPluggableTask = "<%== scope[:routeFetchPluggable] %>";
   var currentPipelineName     = '<%= @pipeline.name() %>';
+  var isFormEdited            = false;
 
   Util.on_load(function () {
     var pipelines       = <%== @pipeline_json %>;
     var fetchTaskEditor = new TaskEditor.FetchTaskEditor();
     fetchTaskEditor.wireInAutocomplete(jQuery("#task_pipelineName"), jQuery("#task_stage"), jQuery("#task_job"), pipelines, currentPipelineName);
-    jQuery("#task_job").result(initArtifactIdAutoComplete);
+    jQuery('#task_form input[type="radio"]').on('change', showFetchTaskView);
+    jQuery('#task_pipelineName, #task_stage, #task_job').on('input propertychange paste result', function () {
+      showFetchTaskView(true);
+    });
 
-    renderFetchArtifactView();
-    renderPluginViewOptions();
-
-    jQuery('#task_form input[type="radio"]').on('change', renderFetchArtifactView);
-    jQuery('#task_pipelineName, #task_stage, #task_job').result(initArtifactIdAutoComplete);
+    showFetchTaskView(false);
   });
 
-  function getSelectedTaskType() {
-    return jQuery('input[name="task[selectedTaskType]"]:checked', '#task_form').val();
+  function showFetchTaskView(isEdited) {
+    isFormEdited = isEdited;
+    getSelectedTaskType() === "external" ? renderExternalFetchTaskView() : renderGoCDFetchTaskView();
   }
 
-  function renderFetchArtifactView() {
-    switch (getSelectedTaskType()) {
-      case "gocd":
-        renderGoCDFetchArtifactView();
-        break;
-      case "external":
-        renderArtifactIdView();
-        break;
-      default:
-        renderGoCDFetchArtifactView();
-        break;
-    }
-  }
-
-  function renderGoCDFetchArtifactView() {
+  function renderGoCDFetchTaskView() {
     jQuery("#task_form").attr("action", routeFetchTask);
     jQuery(".fetch-artifact-config").html(getTemplate("gocd-fetch-artifact_template"));
   }
 
-  function renderArtifactIdView() {
+  function renderExternalFetchTaskView() {
     jQuery("#task_form").attr("action", routeFetchPluggableTask);
     jQuery(".fetch-artifact-config").html(getTemplate("external-fetch-artifact_template"));
-    jQuery('#task_pipelineName, #task_stage, #task_job').result(initArtifactIdAutoComplete);
-    jQuery("#task_artifactId").on('input propertychange change paste result', renderPluginViewOptions);
-    initArtifactIdAutoComplete();
+    clearArtifactId();
+
+    if (isAnyParameterized('task_pipelineName', 'task_stage', 'task_job')) {
+      showPluginSelectionDropdown();
+    } else {
+      hidePluginSelectionDropdown();
+      initArtifactIdAutoComplete();
+      jQuery("#task_artifactId").on("input propertychange paste result", renderViewForSelectedArtifactId)
+    }
   }
 
-  function initArtifactIdAutoComplete() {
-    if (getSelectedTaskType() === 'gocd') {
-      return;
+  function clearArtifactId() {
+    if (isFormEdited) {
+      jQuery("#task_artifactId").val("");
     }
-
-    var pipelineName        = jQuery("#task_pipelineName").val() || currentPipelineName;
-    var artifactInJob       = getAllArtifactsFor(pipelineName, jQuery("#task_stage").val(), jQuery("#task_job").val());
-    var allArtifactIdsInJob = [];
-
-    for (var artifactId in artifactInJob) {
-      allArtifactIdsInJob.push(artifactId);
-    }
-
-    jQuery("#task_artifactId").autocomplete(allArtifactIdsInJob, {
-      multiple:      false,
-      minChars:      0,
-      matchContains: true,
-      selectFirst:   false,
-      width:         248
-    });
   }
 
-  function renderPluginViewOptions() {
+  function renderViewForSelectedArtifactId() {
     var artifactId = jQuery("#task_artifactId").val();
     if (!artifactId || artifactId.trim().length === 0) {
       hidePluginSelectionDropdown();
@@ -131,19 +108,68 @@
     }
 
     var pluginId = determinePluginId(artifactId);
-    jQuery("#fetch_pluggable_task_view").html("");
     if (pluginId) {
       hidePluginSelectionDropdown();
       renderPluginView(pluginId);
     } else {
       showPluginSelectionDropdown();
+      resetPluginDropdown();
+      jQuery("#fetch_pluggable_task_view").html("");
     }
   }
 
+  function resetPluginDropdown() {
+    jQuery("#FetchArtifact_pluginId").prop("selectedIndex", 0);
+  }
+
+  function renderPluginView(pluginId) {
+    jQuery("#task_pluginId").val(pluginId);
+    jQuery("#fetch_pluggable_task_view").html(getFetchArtifactView(pluginId));
+    initializeAngular();
+  }
+
+  function getFetchArtifactView(pluginId) {
+    for (var i in pluginToFetchView) {
+      if (pluginId === pluginToFetchView[i].id) {
+        return pluginToFetchView[i].view;
+      }
+    }
+    return "";
+  }
+
+  function showPluginSelectionDropdown() {
+    jQuery(".artifact_plugin_selection").show();
+    jQuery("#FetchArtifact_pluginId").change(function () {
+      renderPluginView(jQuery(this).val());
+    });
+  }
+
+  function hidePluginSelectionDropdown() {
+    jQuery(".artifact_plugin_selection").hide();
+  }
+
+  function initArtifactIdAutoComplete() {
+    jQuery("#task_artifactId").autocomplete(getAllArtifactIdsInJob(pipeline(), stage(), job()), {
+      multiple:      false,
+      minChars:      0,
+      matchContains: true,
+      selectFirst:   false,
+      width:         248
+    });
+  }
+
   function determinePluginId(artifactId) {
-    var pipelineName  = jQuery("#task_pipelineName").val() || currentPipelineName;
-    var artifactInJob = getAllArtifactsFor(pipelineName, jQuery("#task_stage").val(), jQuery("#task_job").val());
+    var artifactInJob = getAllArtifactsFor(pipeline(), stage(), job());
     return artifactInJob ? artifactInJob[artifactId] : null;
+  }
+
+  function getAllArtifactIdsInJob(pipelineName, stageName, jobName) {
+    var artifactInJob       = getAllArtifactsFor(pipelineName, stageName, jobName);
+    var allArtifactIdsInJob = [];
+    for (var artifactId in artifactInJob) {
+      allArtifactIdsInJob.push(artifactId);
+    }
+    return allArtifactIdsInJob;
   }
 
   function getAllArtifactsFor(pipelineName, stageName, jobName) {
@@ -159,38 +185,43 @@
     return artifactInStage[jobName];
   }
 
-  function renderPluginView(pluginId) {
-    jQuery("#task_pluginId").val(pluginId);
-    var fetchView = getFetchArtifactView(pluginId);
-    if (fetchView) {
-      jQuery("#fetch_pluggable_task_view").html(fetchView);
-      initializeAngular();
+  function isAnyParameterized() {
+    if (arguments.length === 0) {
+      return false;
     }
-  }
-
-  function getFetchArtifactView(pluginId) {
-    for (var i in pluginToFetchView) {
-      if (pluginId === pluginToFetchView[i].id) {
-        return pluginToFetchView[i].view;
+    for (var i in arguments) {
+      var value = jQuery("#" + arguments[i]).val();
+      if (value != null && value.startsWith("#{")) {
+        return true;
       }
     }
+    return false;
   }
 
-  function showPluginSelectionDropdown() {
-    jQuery(".artifact_plugin_selection").show();
-    jQuery("#FetchArtifact_pluginId").change(function () {
-      jQuery("#fetch_pluggable_task_view").html("");
-      renderPluginView(jQuery(this).val());
-    });
-  }
-
-  function hidePluginSelectionDropdown() {
-    jQuery(".artifact_plugin_selection").hide();
+  function getSelectedTaskType() {
+    return jQuery('input[name="task[selectedTaskType]"]:checked', '#task_form').val();
   }
 
   function getTemplate(template_id) {
     var template = jQuery("#" + template_id).val();
     return template ? template : "";
+  }
+
+  function pipeline() {
+    var selectedPipelineNameWithAncestor = jQuery("#task_pipelineName").val();
+    if (selectedPipelineNameWithAncestor) {
+      selectedPipelineNameWithAncestor = selectedPipelineNameWithAncestor.split("/")[0];
+    }
+
+    return selectedPipelineNameWithAncestor || currentPipelineName;
+  }
+
+  function stage() {
+    return jQuery("#task_stage").val();
+  }
+
+  function job() {
+    return jQuery("#task_job").val();
   }
 
   function initializeAngular() {

@@ -35,10 +35,10 @@ describe "admin/tasks/fetch/new.html.erb" do
     downstream.addMaterialConfig(DependencyMaterialConfig.new(CaseInsensitiveString.new("upstream"), CaseInsensitiveString.new("stage1")))
     assign(:pipelines_for_fetch, [upstream, downstream])
     assign(:pipeline, downstream)
-    assign(:artifact_plugin_to_fetch_view, java.util.Collections.singletonMap("Foo", "bar"))
+    assign(:artifact_plugin_to_fetch_view, [{:id => 'cd.go.docker', :name => 'foo', :view => '<input type="text"/>'}])
   end
 
-  describe 'Fetch task' do
+  describe 'GoCD fetch task' do
     it 'create - should render as default view' do
       task = assign(:task, com.thoughtworks.go.config.FetchTaskAdapter.new)
       assign(:task_view_model, Spring.bean("taskViewService").getViewModel(task, 'new'))
@@ -59,13 +59,23 @@ describe "admin/tasks/fetch/new.html.erb" do
     end
   end
 
-  describe 'Fetch pluggable task' do
-    it 'should render pluggable fetch task view on click of external radio button' do
+  describe 'External fetch task' do
+    it 'should render pluggable fetch task view' do
       external_fetch_task = FetchPluggableArtifactTask.new(CaseInsensitiveString.new("upstream"), CaseInsensitiveString.new("stage1"), CaseInsensitiveString.new("job"), "docker")
       task = assign(:task, com.thoughtworks.go.config.FetchTaskAdapter.new(external_fetch_task))
       assign(:task_view_model, Spring.bean("taskViewService").getViewModel(task, 'new'))
 
       render :template => "/admin/tasks/plugin/new.html.erb"
+
+      assert_external_artifact
+    end
+
+    it 'should render a simple fetch task for edit' do
+      external_fetch_task = FetchPluggableArtifactTask.new(CaseInsensitiveString.new("upstream"), CaseInsensitiveString.new("stage1"), CaseInsensitiveString.new("job"), "docker")
+      task = assign(:task, com.thoughtworks.go.config.FetchTaskAdapter.new(external_fetch_task))
+      assign(:task_view_model, Spring.bean("taskViewService").getViewModel(task, 'edit'))
+
+      render :template => "admin/tasks/plugin/edit.html.erb"
 
       assert_external_artifact
     end

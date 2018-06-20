@@ -8,7 +8,7 @@
 <div class="form_item_block artifact_plugin_selection hidden">
   <span>Could not determine the plugin from the store. Please choose a plugin to configure the plugin properties.</span>
   <label>Plugin ID</label>
-  <%= select("FetchArtifact", "pluginId", scope[:artifact_plugin_to_fetch_view].collect {|p| [p.get("name"), p.get("id")]}, {include_blank: true}) %>
+  <%= select("FetchArtifact", "pluginId", scope[:artifact_plugin_to_fetch_view].collect {|p| [p.to_hash["name"], p.to_hash["id"]]}, {include_blank: true}) %>
 </div>
 <input type="hidden" name="task[pluginId]" id="task_pluginId"/>
 <div class="form_item_block" id="fetch_pluggable_task_view">

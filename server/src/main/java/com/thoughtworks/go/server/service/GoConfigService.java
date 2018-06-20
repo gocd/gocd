@@ -1237,9 +1237,11 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
         return registry;
     }
 
-    public Map<String, Map> artifactIdToPluginIdForFetchPluggableArtifact(String currentPipelineName,
+    public Map<String, Map> artifactIdToPluginIdForFetchPluggableArtifact(String stagePatent,
+                                                                          String currentPipelineName,
                                                                           String currentStageName) {
-        final List<PipelineConfig> pipelineConfigs = pipelinesForFetchArtifacts(currentPipelineName);
+
+        final List<PipelineConfig> pipelineConfigs = stagePatent.equals("templates") ? getAllPipelineConfigs() : pipelinesForFetchArtifacts(currentPipelineName);
         Map<String, Map> allArtifacts = new HashMap<>();
 
         pipelineConfigs.forEach(pipelineConfig -> {

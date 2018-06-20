@@ -30,6 +30,7 @@ import com.thoughtworks.go.config.merge.MergeConfigOrigin;
 import com.thoughtworks.go.config.pluggabletask.PluggableTask;
 import com.thoughtworks.go.config.preprocessor.ConfigParamPreprocessor;
 import com.thoughtworks.go.config.preprocessor.ConfigRepoPartialPreprocessor;
+import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
 import com.thoughtworks.go.config.remote.ConfigOrigin;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.config.remote.FileConfigOrigin;
@@ -60,20 +61,20 @@ import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 import com.thoughtworks.go.plugin.api.task.TaskConfig;
 import com.thoughtworks.go.plugin.api.task.TaskExecutor;
 import com.thoughtworks.go.plugin.api.task.TaskView;
-import com.thoughtworks.go.security.*;
-import com.thoughtworks.go.util.ConfigElementImplementationRegistryMother;
-import com.thoughtworks.go.util.ReflectionUtil;
-import com.thoughtworks.go.util.SystemEnvironment;
-import com.thoughtworks.go.util.XsdValidationException;
+import com.thoughtworks.go.security.AESCipherProvider;
+import com.thoughtworks.go.security.AESEncrypter;
+import com.thoughtworks.go.security.GoCipher;
+import com.thoughtworks.go.security.ResetCipher;
+import com.thoughtworks.go.util.*;
 import com.thoughtworks.go.util.command.HgUrlArgument;
 import com.thoughtworks.go.util.command.UrlArgument;
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.hamcrest.Matchers;
 import org.hamcrest.core.Is;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -106,15 +107,21 @@ import static org.junit.Assert.*;
 
 @RunWith(JunitExtRunner.class)
 public class MagicalGoConfigXmlLoaderTest {
+    @Rule
+    public final ResetCipher resetCipher = new ResetCipher();
+
     private MagicalGoConfigXmlLoader xmlLoader;
     static final String INVALID_DESTINATION_DIRECTORY_MESSAGE = "Invalid Destination Directory. Every material needs a different destination directory and the directories should not be nested";
     private ConfigCache configCache = new ConfigCache();
     private final SystemEnvironment systemEnvironment = new SystemEnvironment();
+    private MagicalGoConfigXmlWriter xmlWriter;
 
     @Before
     public void setup() throws Exception {
         RepositoryMetadataStoreHelper.clear();
-        xmlLoader = new MagicalGoConfigXmlLoader(configCache, ConfigElementImplementationRegistryMother.withNoPlugins());
+        ConfigElementImplementationRegistry registry = ConfigElementImplementationRegistryMother.withNoPlugins();
+        xmlLoader = new MagicalGoConfigXmlLoader(configCache, registry);
+        xmlWriter = new MagicalGoConfigXmlWriter(configCache, registry);
     }
 
     @After
@@ -3676,8 +3683,7 @@ public class MagicalGoConfigXmlLoaderTest {
 
     @Test
     public void shouldMigrateEncryptedEnvironmentVariablesWithNewlineAndSpaces_XslMigrationFrom88To90() throws Exception {
-        ReflectionUtil.setField(new DESCipherProvider(systemEnvironment), "cachedKey", null);
-        FileUtils.writeStringToFile(systemEnvironment.getDESCipherFile(), "269298bc31c44620", UTF_8);
+        resetCipher.setupDESCipherFile();
 
         String plainText = "user-password!";
         // "user-password!" encrypted using the above key
@@ -3708,8 +3714,7 @@ public class MagicalGoConfigXmlLoaderTest {
 
     @Test
     public void shouldMigrateEncryptedPluginPropertyValueWithNewlineAndSpaces_XslMigrationFrom88To90() throws Exception {
-        ReflectionUtil.setField(new DESCipherProvider(systemEnvironment), "cachedKey", null);
-        FileUtils.writeStringToFile(systemEnvironment.getDESCipherFile(), "269298bc31c44620", UTF_8);
+        resetCipher.setupDESCipherFile();
 
         String plainText = "user-password!";
         // "user-password!" encrypted using the above key
@@ -3740,8 +3745,7 @@ public class MagicalGoConfigXmlLoaderTest {
 
     @Test
     public void shouldMigrateEncryptedMaterialPasswordWithNewlineAndSpaces_XslMigrationFrom88To90() throws Exception {
-        ReflectionUtil.setField(new DESCipherProvider(systemEnvironment), "cachedKey", null);
-        FileUtils.writeStringToFile(systemEnvironment.getDESCipherFile(), "269298bc31c44620", UTF_8);
+        resetCipher.setupDESCipherFile();
 
         String plainText = "user-password!";
         // "user-password!" encrypted using the above key
@@ -3788,8 +3792,7 @@ public class MagicalGoConfigXmlLoaderTest {
 
     @Test
     public void shouldMigrateServerMailhostEncryptedPasswordWithNewlineAndSpaces_XslMigrationFrom88To90() throws Exception {
-        ReflectionUtil.setField(new DESCipherProvider(systemEnvironment), "cachedKey", null);
-        FileUtils.writeStringToFile(systemEnvironment.getDESCipherFile(), "269298bc31c44620", UTF_8);
+        resetCipher.setupDESCipherFile();
 
         String plainText = "user-password!";
         // "user-password!" encrypted using the above key
@@ -4138,8 +4141,7 @@ public class MagicalGoConfigXmlLoaderTest {
 
     @Test
     public void shouldMigrateDESEncryptedEnvironmentVariables_XslMigrationFrom108To109() throws Exception {
-        ReflectionUtil.setField(new DESCipherProvider(systemEnvironment), "cachedKey", null);
-        FileUtils.writeStringToFile(systemEnvironment.getDESCipherFile(), "269298bc31c44620", UTF_8);
+        resetCipher.setupDESCipherFile();
 
         String clearText = "user-password!";
         // "user-password!" encrypted using the above key
@@ -4172,9 +4174,46 @@ public class MagicalGoConfigXmlLoaderTest {
     }
 
     @Test
+    public void shouldRemoveEmptySCMPasswordAndEncryptedPasswordAttributes_XslMigrationFrom109To110() throws Exception {
+        resetCipher.setupDESCipherFile();
+
+        String content = configWithPipeline(
+                "<pipeline name='some_pipeline'>"
+                        + "    <materials>"
+                        + "      <svn url='svn1' username='bob' encryptedPassword='' dest='svn1'/>"
+                        + "      <svn url='svn2' username='bob' password='' dest='svn2'/>"
+                        + "      <tfs url='tfsurl1' username='user' domain='domain' encryptedPassword='' projectPath='path' dest='tfs1' />"
+                        + "      <tfs url='tfsurl2' username='user' domain='domain' password='' projectPath='path' dest='tfs2' />"
+                        + "      <p4 port='host:9999' username='user' encryptedPassword='' dest='perforce1'>" +
+                        "          <view><![CDATA[view]]></view>" +
+                        "        </p4>"
+                        + "      <p4 port='host:9999' username='user' password='' dest='perforce2'>" +
+                        "          <view><![CDATA[view]]></view>" +
+                        "        </p4>"
+                        + "    </materials>"
+                        + "  <stage name='some_stage'>"
+                        + "    <jobs>"
+                        + "      <job name='some_job'>"
+                        + "      </job>"
+                        + "    </jobs>"
+                        + "  </stage>"
+                        + "</pipeline>", 109);
+
+        assertThat(XpathUtils.nodeExists(content, "//*[@password='']"), is(true));
+        assertThat(XpathUtils.nodeExists(content, "//*[@encryptedPassword='']"), is(true));
+
+
+        CruiseConfig config = ConfigMigrator.loadWithMigration(content).config;
+
+        String xmlPartial = xmlWriter.toXmlPartial(config);
+
+        assertThat(XpathUtils.nodeExists(xmlPartial, "//@password"), is(false));
+        assertThat(XpathUtils.nodeExists(xmlPartial, "//@encryptedPassword"), is(false));
+    }
+
+    @Test
     public void shouldMigrateDESEncryptedPluginPropertyValue_XslMigrationFrom108To109() throws Exception {
-        ReflectionUtil.setField(new DESCipherProvider(systemEnvironment), "cachedKey", null);
-        FileUtils.writeStringToFile(systemEnvironment.getDESCipherFile(), "269298bc31c44620", UTF_8);
+        resetCipher.setupDESCipherFile();
 
         String clearText = "user-password!";
         // "user-password!" encrypted using the above key
@@ -4208,8 +4247,7 @@ public class MagicalGoConfigXmlLoaderTest {
 
     @Test
     public void shouldMigrateDESEncryptedMaterialPassword_XslMigrationFrom108To109() throws Exception {
-        ReflectionUtil.setField(new DESCipherProvider(systemEnvironment), "cachedKey", null);
-        FileUtils.writeStringToFile(systemEnvironment.getDESCipherFile(), "269298bc31c44620", UTF_8);
+        resetCipher.setupDESCipherFile();
 
         String clearText = "user-password!";
         // "user-password!" encrypted using the above key
@@ -4249,8 +4287,7 @@ public class MagicalGoConfigXmlLoaderTest {
 
     @Test
     public void shouldMigrateDESServerMailhostEncryptedPassword_XslMigrationFrom108To109() throws Exception {
-        ReflectionUtil.setField(new DESCipherProvider(systemEnvironment), "cachedKey", null);
-        FileUtils.writeStringToFile(systemEnvironment.getDESCipherFile(), "269298bc31c44620", UTF_8);
+        resetCipher.setupDESCipherFile();
 
         String clearText = "user-password!";
         // "user-password!" encrypted using the above key

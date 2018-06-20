@@ -33,7 +33,6 @@ public class PasswordDeserializer {
     }
 
     public String deserialize(String password, String encryptedPassword, AbstractMaterialConfig materialConfig) {
-        String pass = null;
         if (isNotBlank(password) && isNotBlank(encryptedPassword)) {
             materialConfig.addError(PASSWORD, "You may only specify `password` or `encrypted_password`, not both!");
             materialConfig.addError(ScmMaterialConfig.ENCRYPTED_PASSWORD, "You may only specify `password` or `encrypted_password`, not both!");
@@ -41,7 +40,7 @@ public class PasswordDeserializer {
 
         if (isNotBlank(password)) {
             try {
-                pass = goCipher.encrypt(password);
+                return goCipher.encrypt(password);
             } catch (CryptoException e) {
                 materialConfig.addError(PASSWORD, "Could not encrypt the password. This usually happens when the cipher text is invalid");
             }
@@ -51,9 +50,9 @@ public class PasswordDeserializer {
             } catch (Exception e) {
                 materialConfig.addError(ENCRYPTED_PASSWORD, "Encrypted value for password is invalid. This usually happens when the cipher text is invalid.");
             }
-            pass = encryptedPassword;
-        }
 
-        return pass;
+            return goCipher.maybeReEncryptForPostConstructWithoutExceptions(encryptedPassword);
+        }
+        return null;
     }
 }

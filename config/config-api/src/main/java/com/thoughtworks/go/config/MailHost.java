@@ -35,8 +35,8 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
 public class MailHost implements Validatable, PasswordEncrypter {
     @ConfigAttribute(value = "hostname", optional = false) private String hostName;
     @ConfigAttribute(value = "port", optional = false) private int port;
-    @ConfigAttribute(value = "username", optional = true, allowNull = true) private String username = "";
-    @ConfigAttribute(value = "password", optional = true, allowNull = true) private String password = "";//should never be used, will be converted to encrypted password on load, is used by magical-loader
+    @ConfigAttribute(value = "username", optional = true, allowNull = true) private String username;
+    @ConfigAttribute(value = "password", optional = true, allowNull = true) private String password;
     @ConfigAttribute(value = "encryptedPassword", optional = true, allowNull = true) private String encryptedPassword = null;
     @ConfigAttribute(value = "tls", optional = false) private Boolean tls;
     @ConfigAttribute(value = "from", optional = false) private String from;
@@ -181,16 +181,17 @@ public class MailHost implements Validatable, PasswordEncrypter {
 
     @PostConstruct
     public void ensureEncrypted() {
+        this.username = StringUtils.stripToNull(username);
+
         setPasswordIfNotBlank(password);
 
         if (encryptedPassword != null) {
-            goCipher.maybeReEncrypt(encryptedPassword, this::setEncryptedPassword);
+            setEncryptedPassword(goCipher.maybeReEncryptForPostConstructWithoutExceptions(encryptedPassword));
         }
     }
 
     private void setEncryptedPassword(String encryptedPassword) {
         this.encryptedPassword = encryptedPassword;
-        this.password = "";
     }
 
     public String getEncryptedPassword() {
@@ -221,7 +222,10 @@ public class MailHost implements Validatable, PasswordEncrypter {
     }
 
     private void setPasswordIfNotBlank(String password) {
-        if (StringUtils.isBlank(password)) {
+        this.password = StringUtils.stripToNull(password);
+        this.encryptedPassword = StringUtils.stripToNull(encryptedPassword);
+
+        if (this.password == null) {
             return;
         }
         try {
@@ -229,12 +233,12 @@ public class MailHost implements Validatable, PasswordEncrypter {
         } catch (Exception e) {
             bomb("Password encryption failed. Please verify your cipher key.", e);
         }
-        this.password = "";
+        this.password = null;
     }
 
     public String getCurrentPassword() {
         try {
-            return isBlank(encryptedPassword) ? "" : this.goCipher.decrypt(encryptedPassword);
+            return isBlank(encryptedPassword) ? null : this.goCipher.decrypt(encryptedPassword);
         } catch (CryptoException e) {
             throw new RuntimeException(e);
         }

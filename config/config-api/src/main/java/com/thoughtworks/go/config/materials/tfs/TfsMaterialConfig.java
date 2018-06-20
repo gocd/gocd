@@ -31,7 +31,6 @@ import org.apache.commons.lang3.builder.ToStringStyle;
 
 import javax.annotation.PostConstruct;
 import java.util.Map;
-import java.util.function.Consumer;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static java.lang.String.format;
@@ -220,15 +219,11 @@ public class TfsMaterialConfig extends ScmMaterialConfig implements ParamsAttrib
     @PostConstruct
     @Override
     public void ensureEncrypted() {
+        this.userName = StringUtils.stripToNull(this.userName);
         setPasswordIfNotBlank(password);
 
         if (encryptedPassword != null) {
-            goCipher.maybeReEncrypt(encryptedPassword, new Consumer<String>() {
-                @Override
-                public void accept(String encryptedPassword) {
-                    setEncryptedPassword(encryptedPassword);
-                }
-            });
+            setEncryptedPassword(goCipher.maybeReEncryptForPostConstructWithoutExceptions(encryptedPassword));
         }
     }
 
@@ -246,7 +241,10 @@ public class TfsMaterialConfig extends ScmMaterialConfig implements ParamsAttrib
     }
 
     private void setPasswordIfNotBlank(String password) {
-        if (StringUtils.isBlank(password)) {
+        this.password = StringUtils.stripToNull(password);
+        this.encryptedPassword = StringUtils.stripToNull(encryptedPassword);
+
+        if (this.password == null) {
             return;
         }
         try {

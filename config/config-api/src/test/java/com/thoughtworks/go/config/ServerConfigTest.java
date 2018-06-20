@@ -108,7 +108,7 @@ public class ServerConfigTest {
         assertThat(serverConfig.mailHost().getEncryptedPassword(), Is.is(encryptedPassword));
 
         serverConfig.updateMailHost(new MailHost("abc", 12, "admin", null, "", true, true, "anc@mail.com", "anc@mail.com"));
-        assertThat(serverConfig.mailHost().getPassword(), Is.is(""));
+        assertThat(serverConfig.mailHost().getPassword(), Is.is(nullValue()));
         assertThat(serverConfig.mailHost().getEncryptedPassword(), Is.is(nullValue()));
     }
 

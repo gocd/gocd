@@ -376,7 +376,10 @@ public class P4Material extends ScmMaterial implements PasswordEncrypter, Passwo
     }
 
     private void setPasswordIfNotBlank(String password) {
-        if (StringUtils.isBlank(password)) {
+        this.password = StringUtils.stripToNull(password);
+        this.encryptedPassword = StringUtils.stripToNull(encryptedPassword);
+
+        if (this.password == null) {
             return;
         }
         try {
@@ -389,9 +392,10 @@ public class P4Material extends ScmMaterial implements PasswordEncrypter, Passwo
 
     @PostConstruct
     public void ensureEncrypted() {
+        this.userName = StringUtils.stripToNull(this.userName);
         setPasswordIfNotBlank(password);
         if (encryptedPassword != null) {
-            goCipher.maybeReEncrypt(encryptedPassword, this::setEncryptedPassword);
+            setEncryptedPassword(goCipher.maybeReEncryptForPostConstructWithoutExceptions(encryptedPassword));
         }
     }
 

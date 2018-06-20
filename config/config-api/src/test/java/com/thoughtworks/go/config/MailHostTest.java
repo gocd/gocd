@@ -21,6 +21,7 @@ import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.ReflectionUtil;
 import org.junit.Test;
 
+import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
@@ -43,6 +44,7 @@ public class MailHostTest {
     public void shouldDecryptMailHostPassword() throws CryptoException {
         GoCipher mockGoCipher = mock(GoCipher.class);
         when(mockGoCipher.decrypt("encrypted")).thenReturn("password");
+        when(mockGoCipher.maybeReEncryptForPostConstructWithoutExceptions("encrypted")).thenReturn("encrypted");
 
         MailHost mailHost = new MailHost("hostname", 42, "username", null, null, true, true, "from", "mail@admin.com", mockGoCipher);
         ReflectionUtil.setField(mailHost, "encryptedPassword", "encrypted");
@@ -65,8 +67,17 @@ public class MailHostTest {
     @Test
     public void shouldReturnNullIfPasswordIsNotSetAndEncryptedPasswordIsEmpty() {
         MailHost mailHost = new MailHost("blah", 42, "blah", "", "", false, true, "from", "to", null);
-        assertThat(mailHost.getCurrentPassword(), is(""));
+        mailHost.ensureEncrypted();
+        assertThat(mailHost.getCurrentPassword(), is(nullValue()));
         mailHost = new MailHost("blah", 42, "blah", "", null, false, true, "from", "to", null);
-        assertThat(mailHost.getCurrentPassword(), is(""));
+        mailHost.ensureEncrypted();
+        assertThat(mailHost.getCurrentPassword(), is(nullValue()));
+    }
+
+    @Test
+    public void shouldNullifyPasswordIfBlank() {
+        MailHost mailHost = new MailHost("blah", 42, "", "", "", false, true, "from", "to", null);
+        mailHost.ensureEncrypted();
+        assertThat(mailHost.getUserName(), is(nullValue()));
     }
 }

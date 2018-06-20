@@ -72,7 +72,7 @@ public class ConfigurationPropertyRepresenter {
             String key = jsonReader.getString("key");
             String value = jsonReader.optString("value").orElse(null);
             String encryptedValue = jsonReader.optString("encrypted_value").orElse(null);
-            return ConfigurationProperty.deserialize(key, value, encryptedValue);
+            return new ConfigurationProperty().deserialize(key, value, encryptedValue);
         } catch (Exception e) {
             throw new JsonParseException("Could not parse configuration property");
         }

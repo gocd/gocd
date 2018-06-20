@@ -161,6 +161,7 @@ public class TfsMaterialConfigUpdateTest {
      public void shouldEncryptTfsPasswordAndMarkPasswordAsNull() throws Exception {
         GoCipher mockGoCipher = mock(GoCipher.class);
         when(mockGoCipher.encrypt("password")).thenReturn("encrypted");
+        when(mockGoCipher.maybeReEncryptForPostConstructWithoutExceptions("encrypted")).thenReturn("encrypted");
 
         TfsMaterialConfig materialConfig = new TfsMaterialConfig(mockGoCipher, new UrlArgument("http://10.4.4.101:8080/tfs/Sample"), "loser", "CORPORATE", "password", "walk_this_path");
         materialConfig.ensureEncrypted();
@@ -173,6 +174,7 @@ public class TfsMaterialConfigUpdateTest {
      public void shouldDecryptTfsPassword() throws Exception {
         GoCipher mockGoCipher = mock(GoCipher.class);
         when(mockGoCipher.decrypt("encrypted")).thenReturn("password");
+        when(mockGoCipher.maybeReEncryptForPostConstructWithoutExceptions("encrypted")).thenReturn("encrypted");
 
         TfsMaterialConfig materialConfig = new TfsMaterialConfig(mockGoCipher, new UrlArgument("http://10.4.4.101:8080/tfs/Sample"), "loser", "CORPORATE", "secret", "walk_this_path");
         ReflectionUtil.setField(materialConfig, "encryptedPassword", "encrypted");

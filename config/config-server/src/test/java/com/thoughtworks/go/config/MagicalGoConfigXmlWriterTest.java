@@ -37,14 +37,13 @@ import com.thoughtworks.go.helper.ConfigFileFixture;
 import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.helper.PartialConfigMother;
 import com.thoughtworks.go.helper.PipelineConfigMother;
-import com.thoughtworks.go.security.CipherProviderHelper;
 import com.thoughtworks.go.security.GoCipher;
+import com.thoughtworks.go.security.ResetCipher;
 import com.thoughtworks.go.util.ConfigElementImplementationRegistryMother;
 import com.thoughtworks.go.util.ReflectionUtil;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.XsdValidationException;
 import com.thoughtworks.go.util.command.UrlArgument;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.hamcrest.core.Is;
@@ -58,7 +57,6 @@ import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.SchemaFactory;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 
 import static com.thoughtworks.go.util.DataStructureUtils.m;
 import static com.thoughtworks.go.util.GoConstants.CONFIG_SCHEMA_VERSION;
@@ -73,6 +71,9 @@ public class MagicalGoConfigXmlWriterTest {
     private MagicalGoConfigXmlWriter xmlWriter;
     public SystemEnvironment systemEnvironment;
     private MagicalGoConfigXmlLoader xmlLoader;
+
+    @Rule
+    public final ResetCipher resetCipher = new ResetCipher();
 
     @Rule
     public ExpectedException thrown = ExpectedException.none();
@@ -395,10 +396,7 @@ public class MagicalGoConfigXmlWriterTest {
 
     @Test
     public void shouldEncryptPasswordBeforeWriting() throws Exception {
-        CipherProviderHelper.clearCachedCipher();
-        File cipherFile = new SystemEnvironment().getDESCipherFile();
-        FileUtils.deleteQuietly(cipherFile);
-        FileUtils.writeStringToFile(cipherFile, "269298bc31c44620", UTF_8);
+        resetCipher.setupDESCipherFile();
         String content = "<cruise schemaVersion='" + CONFIG_SCHEMA_VERSION + "'>\n"
                 + "<server artifactsdir='artifactsDir' >"
                 + "<mailhost hostname=\"10.18.3.171\" port=\"25\" username=\"cruise2\" password=\"password\" tls=\"false\" from=\"cruise2@cruise.com\" admin=\"ps@somewhere.com\" />"

@@ -83,8 +83,12 @@ public class DESCipherProvider implements Serializable {
     }
 
     public void resetCipher() {
+        removeCachedKey();
+        primeKeyCache();
+    }
+
+    public void removeCachedKey() {
         cachedKey = null;
         FileUtils.deleteQuietly(cipherFile);
-        primeKeyCache();
     }
 }

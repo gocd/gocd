@@ -288,7 +288,7 @@ public class EnvironmentVariableConfig implements Serializable, Validatable, Par
 
         if (isSecure && encryptedValue != null) {
             String encryptedValue = this.encryptedValue.getValue();
-            goCipher.maybeReEncrypt(encryptedValue, this::setEncryptedValue);
+            setEncryptedValue(goCipher.maybeReEncryptForPostConstructWithoutExceptions(encryptedValue));
         }
     }
 
@@ -306,7 +306,7 @@ public class EnvironmentVariableConfig implements Serializable, Validatable, Par
         }
 
         if (encryptedValue != null) {
-            setEncryptedValue(new EncryptedVariableValueConfig(encryptedValue));
+           setEncryptedValue(goCipher.maybeReEncryptForPostConstructWithoutExceptions(encryptedValue));
         }
 
         if (isSecure) {

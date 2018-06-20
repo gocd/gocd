@@ -19,25 +19,29 @@ package com.thoughtworks.go.config.materials;
 import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
 import com.thoughtworks.go.security.CryptoException;
 import com.thoughtworks.go.security.GoCipher;
-import org.junit.Before;
+import com.thoughtworks.go.security.ResetCipher;
+import org.junit.Rule;
 import org.junit.Test;
 
+import java.io.IOException;
 import java.util.Arrays;
 
+import static org.hamcrest.CoreMatchers.startsWith;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 
 public class PasswordDeserializerTest {
-    @Before
-    public void setUp() throws Exception {
-    }
+
+    @Rule
+    public final ResetCipher resetCipher = new ResetCipher();
+
 
     @Test
-    public void shouldErrorOutWhenBothPasswordAndEncryptedPasswordAreGivenForDeserialization() {
+    public void shouldErrorOutWhenBothPasswordAndEncryptedPasswordAreGivenForDeserialization() throws CryptoException {
         SvnMaterialConfig svnMaterialConfig = new SvnMaterialConfig();
         PasswordDeserializer passwordDeserializer = new PasswordDeserializer();
-        passwordDeserializer.deserialize("password", "encryptedPassword", svnMaterialConfig);
+        passwordDeserializer.deserialize("password", new GoCipher().encrypt("encryptedPassword"), svnMaterialConfig);
         assertThat(svnMaterialConfig.errors().getAllOn("password"), is(Arrays.asList("You may only specify `password` or `encrypted_password`, not both!")));
         assertThat(svnMaterialConfig.errors().getAllOn("encryptedPassword"), is(Arrays.asList("You may only specify `password` or `encrypted_password`, not both!")));
     }
@@ -90,5 +94,18 @@ public class PasswordDeserializerTest {
         String encrypted = passwordDeserializer.deserialize(null, "", svnMaterialConfig);
         assertNull(encrypted);
     }
+
+    @Test
+    public void shouldReEncryptedDESPasswords() throws IOException {
+        resetCipher.setupAESCipherFile();
+        resetCipher.setupDESCipherFile();
+
+        SvnMaterialConfig svnMaterialConfig = new SvnMaterialConfig();
+        PasswordDeserializer passwordDeserializer = new PasswordDeserializer();
+
+        String encrypted = passwordDeserializer.deserialize(null, "mvcX9yrQsM4iPgm1tDxN1A==", svnMaterialConfig);
+        assertThat(encrypted, startsWith("AES:"));
+    }
+
 
 }

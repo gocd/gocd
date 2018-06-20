@@ -25,7 +25,6 @@ import org.springframework.util.Assert;
 
 import java.io.Serializable;
 import java.util.Objects;
-import java.util.function.Consumer;
 
 public class GoCipher implements Serializable {
 
@@ -151,13 +150,17 @@ public class GoCipher implements Serializable {
         return encrypt(plainText);
     }
 
-    public void maybeReEncrypt(String encryptedValue, Consumer<String> consumer) {
+    public String maybeReEncryptForPostConstructWithoutExceptions(String encryptedValue) {
         try {
-            if (!isAES(encryptedValue)) {
-                consumer.accept(_desToAES(encryptedValue));
+            if (isAES(encryptedValue)) {
+                return encryptedValue;
+            } else {
+                return _desToAES(encryptedValue);
             }
-        } catch (CryptoException e) {
-            throw new RuntimeException(e);
+        } catch (Exception ignore) {
+            // this method is called at the time of deserializing from xml or APIs.
+            // The validation done after this will handle exceptions due to bad cipher texts
+            return encryptedValue;
         }
     }
 }

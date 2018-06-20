@@ -67,6 +67,9 @@ public class ConfigurationPropertyBuilder {
             }
         }
 
+        if (isNotBlank(configurationProperty.getEncryptedValue())) {
+            configurationProperty.setEncryptedValue(new EncryptedConfigurationValue(new GoCipher().maybeReEncryptForPostConstructWithoutExceptions(configurationProperty.getEncryptedValue())));
+        }
         return configurationProperty;
     }
 

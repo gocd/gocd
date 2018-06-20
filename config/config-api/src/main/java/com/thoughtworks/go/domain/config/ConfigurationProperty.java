@@ -267,8 +267,8 @@ public class ConfigurationProperty implements Serializable, Validatable {
             configurationValue = new ConfigurationValue("");
         }
 
-        if (encryptedValue != null) {
-            cipher.maybeReEncrypt(encryptedValue.getValue(), this::setEncryptedValue);
+        if (encryptedValue != null && isNotBlank(encryptedValue.getValue())) {
+            setEncryptedValue(cipher.maybeReEncryptForPostConstructWithoutExceptions(encryptedValue.getValue()));
         }
     }
 
@@ -315,22 +315,21 @@ public class ConfigurationProperty implements Serializable, Validatable {
         return configurationKey;
     }
 
-    public static ConfigurationProperty deserialize(String name, String value, String encryptedValue) {
-        ConfigurationProperty configurationProperty = new ConfigurationProperty();
-        configurationProperty.setKey(new ConfigurationKey(name));
+    public ConfigurationProperty deserialize(String name, String value, String encryptedValue) {
+        setKey(new ConfigurationKey(name));
 
         if (isNotBlank(value) && isNotBlank(encryptedValue)) {
-            configurationProperty.addError("value", "You may only specify `value` or `encrypted_value`, not both!");
-            configurationProperty.addError(ENCRYPTED_VALUE, "You may only specify `value` or `encrypted_value`, not both!");
+            addError("value", "You may only specify `value` or `encrypted_value`, not both!");
+            addError(ENCRYPTED_VALUE, "You may only specify `value` or `encrypted_value`, not both!");
         }
 
         if (isNotBlank(encryptedValue)) {
-            configurationProperty.setEncryptedValue(new EncryptedConfigurationValue(encryptedValue));
+            setEncryptedValue(new EncryptedConfigurationValue(new GoCipher().maybeReEncryptForPostConstructWithoutExceptions(encryptedValue)));
         }
 
         if (isNotBlank(value)) {
-            configurationProperty.setConfigurationValue(new ConfigurationValue(value));
+            setConfigurationValue(new ConfigurationValue(value));
         }
-        return configurationProperty;
+        return this;
     }
 }

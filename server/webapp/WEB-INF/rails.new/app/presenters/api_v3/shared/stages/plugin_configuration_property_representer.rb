@@ -39,20 +39,14 @@ module ApiV3
           configuration_property.getEncryptedValue if configuration_property.isSecure
         end
 
-        def value=(val)
-          configuration_property.setConfigurationValue(ConfigurationValue.new(val))
-        end
-
-        def encrypted_value=(encrypted_val)
-          configuration_property.setEncryptedValue(EncryptedConfigurationValue.new(encrypted_val))
-        end
-
         def key
           configuration_property.getConfigurationKey.getName
         end
 
-        def key=(value)
-          configuration_property.setConfigurationKey(ConfigurationKey.new(value))
+        def from_hash(data, options={})
+          data = data.with_indifferent_access
+          configuration_property.deserialize(data[:key], data[:value], data[:encrypted_value])
+          configuration_property
         end
       end
     end

@@ -16,17 +16,15 @@
 
 package com.thoughtworks.go.util;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
+import org.apache.commons.io.IOUtils;
+import org.xml.sax.InputSource;
+
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
-
-import org.apache.commons.io.IOUtils;
-import org.xml.sax.InputSource;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
 
 public class XpathUtils {
 
@@ -43,13 +41,14 @@ public class XpathUtils {
         }
     }
 
-    public static boolean nodeExists(File file, String xpath) throws XPathExpressionException, FileNotFoundException {
-        FileInputStream stream = new FileInputStream(file);
-        try {
-            return nodeExists(new InputSource(stream), xpath);
-        } finally {
-            IOUtils.closeQuietly(stream);
+    public static boolean nodeExists(File file, String xpath) throws XPathExpressionException, IOException {
+        try (FileInputStream stream = new FileInputStream(file)) {
+            return nodeExists(stream, xpath);
         }
+    }
+
+    public static boolean nodeExists(InputStream stream, String xpath) throws XPathExpressionException {
+        return nodeExists(new InputSource(stream), xpath);
     }
 
     public static boolean nodeExists(InputSource inputSource, String xpath) throws XPathExpressionException {
@@ -59,9 +58,14 @@ public class XpathUtils {
         return b != null && b;
     }
 
+    public static boolean nodeExists(String xmlPartial, String xpath) throws XPathExpressionException {
+        return nodeExists(new ByteArrayInputStream(xmlPartial.getBytes(StandardCharsets.UTF_8)), xpath);
+    }
+
     private static String evaluate(XPathFactory factory, InputSource inputSource, String xpath)
             throws XPathExpressionException {
         XPathExpression expression = factory.newXPath().compile(xpath);
         return expression.evaluate(inputSource).trim();
     }
+
 }

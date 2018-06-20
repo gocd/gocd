@@ -77,8 +77,14 @@ public class AESCipherProvider implements Serializable {
     }
 
     public void resetCipher() {
-        cachedKey = null;
-        FileUtils.deleteQuietly(cipherFile);
+        removeCachedKey();
         primeKeyCache();
     }
+
+    public void removeCachedKey() {
+        cachedKey = null;
+        FileUtils.deleteQuietly(cipherFile);
+    }
+
+
 }

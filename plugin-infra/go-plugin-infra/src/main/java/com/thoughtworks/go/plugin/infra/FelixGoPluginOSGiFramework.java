@@ -164,7 +164,7 @@ public class FelixGoPluginOSGiFramework implements GoPluginOSGiFramework {
         return frameworkFactories.get(0).newFramework(generateOSGiFrameworkConfig());
     }
 
-    private HashMap<String, String> generateOSGiFrameworkConfig() {
+    protected HashMap<String, String> generateOSGiFrameworkConfig() {
         String osgiFrameworkPackage = Bundle.class.getPackage().getName();
         String goPluginApiPackage = GoPluginApiMarker.class.getPackage().getName();
         String subPackagesOfGoPluginApiPackage = goPluginApiPackage + ".*";

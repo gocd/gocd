@@ -11,7 +11,7 @@
     <%= register_defaultable_list("job>artifactConfigs") %>
 
     <div class="fieldset">
-        <%= render :partial => "artifact_configs.html", :locals => {:scope => {:form => f, :collection => @job.artifactConfigs()}} %>
+        <%= render :partial => "artifact_configs.html", :locals => {:scope => {:form => f, :collection => @job.artifactConfigs().getBuiltInArtifactConfigs()}} %>
     </div>
 
     <%= render :partial => 'shared/convert_tool_tips.html', :locals => {:scope => {}} %>

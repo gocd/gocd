@@ -33,6 +33,7 @@ import com.thoughtworks.go.util.ZipUtil;
 import lib.test.DummyTestPluginInLibDirectory;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.felix.framework.util.FelixConstants;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -46,6 +47,7 @@ import org.osgi.framework.*;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.zip.ZipInputStream;
 
 import static org.hamcrest.CoreMatchers.is;
@@ -67,7 +69,14 @@ public class DefaultGoPluginActivatorIntegrationTest {
     public void setUp() throws IOException {
         tmpDir = temporaryFolder.newFolder();
         registry = new StubOfDefaultPluginRegistry();
-        framework = new FelixGoPluginOSGiFramework(registry, new SystemEnvironment());
+        framework = new FelixGoPluginOSGiFramework(registry, new SystemEnvironment()) {
+            @Override
+            protected HashMap<String, String> generateOSGiFrameworkConfig() {
+                HashMap<String, String> config = super.generateOSGiFrameworkConfig();
+                config.put(FelixConstants.RESOLVER_PARALLELISM, "1");
+                return config;
+            }
+        };
         framework.start();
     }
 

@@ -23,6 +23,7 @@ import com.thoughtworks.go.util.ReflectionUtil;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.ZipUtil;
 import org.apache.commons.io.FileUtils;
+import org.apache.felix.framework.util.FelixConstants;
 import org.junit.*;
 import org.junit.contrib.java.lang.system.RestoreSystemProperties;
 import org.junit.rules.TemporaryFolder;
@@ -34,6 +35,7 @@ import org.osgi.framework.ServiceReference;
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.HashMap;
 import java.util.zip.ZipInputStream;
 
 import static org.hamcrest.CoreMatchers.is;
@@ -59,7 +61,14 @@ public class FelixGoPluginOSGiFrameworkIntegrationTest {
     @Before
     public void setUp() throws Exception {
         registry = new DefaultPluginRegistry();
-        pluginOSGiFramework = new FelixGoPluginOSGiFramework(registry, new SystemEnvironment());
+        pluginOSGiFramework = new FelixGoPluginOSGiFramework(registry, new SystemEnvironment()) {
+            @Override
+            protected HashMap<String, String> generateOSGiFrameworkConfig() {
+                HashMap<String, String> config = super.generateOSGiFrameworkConfig();
+                config.put(FelixConstants.RESOLVER_PARALLELISM, "1");
+                return config;
+            }
+        };
         pluginOSGiFramework.start();
 
         try (ZipInputStream zippedOSGiBundleFile = new ZipInputStream(FileUtils.openInputStream(pathOfFileInDefaultFiles("descriptor-aware-test-plugin.osgi.jar")))) {

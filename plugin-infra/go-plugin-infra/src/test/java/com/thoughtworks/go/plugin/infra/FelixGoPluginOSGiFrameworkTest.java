@@ -23,6 +23,7 @@ import com.thoughtworks.go.plugin.infra.service.DefaultPluginLoggingService;
 import com.thoughtworks.go.plugin.internal.api.LoggingService;
 import com.thoughtworks.go.plugin.internal.api.PluginHealthService;
 import com.thoughtworks.go.util.SystemEnvironment;
+import org.apache.felix.framework.util.FelixConstants;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -32,10 +33,7 @@ import org.osgi.framework.*;
 import org.osgi.framework.launch.Framework;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Dictionary;
+import java.util.*;
 
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.*;
@@ -58,7 +56,14 @@ public class FelixGoPluginOSGiFrameworkTest {
     @Before
     public void setUp() {
         initMocks(this);
-        FelixGoPluginOSGiFramework goPluginOSGiFramwork = new FelixGoPluginOSGiFramework(registry, systemEnvironment);
+        FelixGoPluginOSGiFramework goPluginOSGiFramwork = new FelixGoPluginOSGiFramework(registry, systemEnvironment) {
+            @Override
+            protected HashMap<String, String> generateOSGiFrameworkConfig() {
+                HashMap<String, String> config = super.generateOSGiFrameworkConfig();
+                config.put(FelixConstants.RESOLVER_PARALLELISM, "1");
+                return config;
+            }
+        };
 
         spy = spy(goPluginOSGiFramwork);
         when(framework.getBundleContext()).thenReturn(bundleContext);

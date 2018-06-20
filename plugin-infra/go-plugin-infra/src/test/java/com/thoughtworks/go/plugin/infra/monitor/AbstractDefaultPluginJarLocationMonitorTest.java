@@ -28,9 +28,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.nio.file.Files;
-
-import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
 public abstract class AbstractDefaultPluginJarLocationMonitorTest {
     @Rule
@@ -46,10 +43,7 @@ public abstract class AbstractDefaultPluginJarLocationMonitorTest {
     protected void copyPluginToThePluginDirectory(File pluginDir, String destinationFilenameOfPlugin) throws IOException, URISyntaxException {
         URL resource = getClass().getClassLoader().getResource("defaultFiles/descriptor-aware-test-plugin.jar");
 
-        FileUtils.copyURLToFile(resource, tempSource);
-
-        File destination = new File(pluginDir, destinationFilenameOfPlugin);
-        Files.move(tempSource.toPath(), destination.toPath(), REPLACE_EXISTING);
+        FileUtils.copyURLToFile(resource, new File(pluginDir, destinationFilenameOfPlugin));
     }
 
     protected void updateFileContents(File someFile) {

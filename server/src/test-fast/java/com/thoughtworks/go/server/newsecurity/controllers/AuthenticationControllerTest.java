@@ -32,9 +32,12 @@ import com.thoughtworks.go.server.security.userdetail.GoUserPrinciple;
 import com.thoughtworks.go.server.service.SecurityAuthConfigService;
 import com.thoughtworks.go.server.service.SecurityService;
 import com.thoughtworks.go.server.web.GoVelocityView;
+import com.thoughtworks.go.util.SystemEnvironment;
+import com.thoughtworks.go.util.TestingClock;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.springframework.security.web.savedrequest.SavedRequest;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 
@@ -55,7 +58,9 @@ class AuthenticationControllerTest {
     private final SecurityService securityService = mock(SecurityService.class);
     private final WebBasedPluginAuthenticationProvider webBasedPluginAuthenticationProvider = mock(WebBasedPluginAuthenticationProvider.class);
     private final SecurityAuthConfigService securityAuthConfigService = mock(SecurityAuthConfigService.class);
-    private final AuthenticationController controller = new AuthenticationController(securityService, securityAuthConfigService, authenticationProvider, webBasedPluginAuthenticationProvider);
+    private final SystemEnvironment systemEnvironment = mock(SystemEnvironment.class);
+    private final TestingClock clock = new TestingClock();
+    private final AuthenticationController controller = new AuthenticationController(securityService, securityAuthConfigService, systemEnvironment, clock, authenticationProvider, webBasedPluginAuthenticationProvider);
     private final MockHttpServletRequest request = HttpRequestBuilder.GET("/").build();
     private final MockHttpServletResponse response = new MockHttpServletResponse();
     private HttpSession originalSession = request.getSession(true);
@@ -206,8 +211,12 @@ class AuthenticationControllerTest {
 
             @Test
             void shouldRedirectToHomepageIfUserIsAlreadyAuthenticated() {
+                when(systemEnvironment.isReAuthenticationEnabled()).thenReturn(true);
+                when(systemEnvironment.getReAuthenticationTimeInterval()).thenReturn(15000L);
+
                 final GoUserPrinciple goUserPrinciple = new GoUserPrinciple(BOB, DISPLAY_NAME);
-                final AuthenticationToken<UsernamePassword> usernamePasswordAuthenticationToken = new AuthenticationToken<>(goUserPrinciple, CREDENTIALS, null, 0, null);
+                final AuthenticationToken<UsernamePassword> usernamePasswordAuthenticationToken = new AuthenticationToken<>(goUserPrinciple, CREDENTIALS, null, clock.currentTimeMillis(), null);
+                clock.addMillis(10000);
 
                 SessionUtils.setAuthenticationTokenAfterRecreatingSession(usernamePasswordAuthenticationToken, request);
                 originalSession = request.getSession(false);
@@ -216,6 +225,43 @@ class AuthenticationControllerTest {
 
                 assertThat(redirectView.getUrl()).isEqualTo("/pipelines");
                 assertThat(originalSession).isSameAs(request.getSession(false));
+            }
+
+            @Test
+            void shouldRedirectToLoginPageIfAuthenticationTokenIsExpired() {
+                when(systemEnvironment.isReAuthenticationEnabled()).thenReturn(true);
+                when(systemEnvironment.getReAuthenticationTimeInterval()).thenReturn(5000L);
+
+                final GoUserPrinciple goUserPrinciple = new GoUserPrinciple(BOB, DISPLAY_NAME);
+                final AuthenticationToken<UsernamePassword> usernamePasswordAuthenticationToken = new AuthenticationToken<>(goUserPrinciple, CREDENTIALS, null, clock.currentTimeMillis(), null);
+                clock.addMillis(10000);
+
+                SessionUtils.setAuthenticationTokenAfterRecreatingSession(usernamePasswordAuthenticationToken, request);
+                originalSession = request.getSession(false);
+
+                final ModelAndView modelAndView = (ModelAndView) controller.renderLoginPage(request, response);
+
+                assertThat(modelAndView.getViewName()).isEqualTo("auth/login");
+            }
+
+            @Test
+            void shouldRememberUrlBeforeLogin() {
+                when(systemEnvironment.isReAuthenticationEnabled()).thenReturn(true);
+                when(systemEnvironment.getReAuthenticationTimeInterval()).thenReturn(5000L);
+                SavedRequest savedRequest = mock(SavedRequest.class);
+
+                final GoUserPrinciple goUserPrinciple = new GoUserPrinciple(BOB, DISPLAY_NAME);
+                final AuthenticationToken<UsernamePassword> usernamePasswordAuthenticationToken = new AuthenticationToken<>(goUserPrinciple, CREDENTIALS, null, clock.currentTimeMillis(), null);
+                clock.addMillis(10000);
+
+                SessionUtils.setAuthenticationTokenAfterRecreatingSession(usernamePasswordAuthenticationToken, request);
+                originalSession = request.getSession(false);
+
+                SessionUtils.saveRequest(request, savedRequest);
+                final ModelAndView modelAndView = (ModelAndView) controller.renderLoginPage(request, response);
+
+                assertThat(modelAndView.getViewName()).isEqualTo("auth/login");
+                assertThat(SessionUtils.savedRequest(request)).isEqualTo(savedRequest);
             }
 
             @Test

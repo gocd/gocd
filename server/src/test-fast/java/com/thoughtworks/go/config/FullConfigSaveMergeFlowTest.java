@@ -96,24 +96,6 @@ public class FullConfigSaveMergeFlowTest {
     }
 
     @Test
-    public void shouldAttemptToEncryptSecurePropertiesInPipelineConfigs() throws Exception {
-        BasicCruiseConfig basicCruiseConfig = GoConfigMother.defaultCruiseConfig();
-        PipelineConfig mockPipelineConfig = mock(PipelineConfig.class);
-        basicCruiseConfig.addPipelineWithoutValidation("group", mockPipelineConfig);
-
-        when(writer.documentFrom(basicCruiseConfig)).thenReturn(document);
-        when(loader.loadConfigHolder(nullable(String.class), any(MagicalGoConfigXmlLoader.Callback.class)))
-                .thenReturn(new GoConfigHolder(new BasicCruiseConfig(), new BasicCruiseConfig()));
-
-
-        FullConfigUpdateCommand fullConfigUpdateCommand = new FullConfigUpdateCommand(basicCruiseConfig, "md5");
-
-        flow.execute(fullConfigUpdateCommand, partials, null);
-
-        verify(mockPipelineConfig).encryptSecureProperties(basicCruiseConfig);
-    }
-
-    @Test
     public void shouldValidateDomRepresentationOfCruiseConfig() throws Exception {
         when(loader.loadConfigHolder(nullable(String.class), any(MagicalGoConfigXmlLoader.Callback.class)))
                 .thenReturn(new GoConfigHolder(new BasicCruiseConfig(), new BasicCruiseConfig()));

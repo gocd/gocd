@@ -90,21 +90,6 @@ public class FullConfigSaveNormalFlowTest {
     }
 
     @Test
-    public void shouldAttemptToEncryptSecurePropertiesInPipelineConfigs() throws Exception {
-        BasicCruiseConfig basicCruiseConfig = GoConfigMother.defaultCruiseConfig();
-        PipelineConfig mockPipelineConfig = mock(PipelineConfig.class);
-        basicCruiseConfig.addPipelineWithoutValidation("group", mockPipelineConfig);
-
-        when(writer.documentFrom(basicCruiseConfig)).thenReturn(document);
-
-        FullConfigUpdateCommand fullConfigUpdateCommand = new FullConfigUpdateCommand(basicCruiseConfig, "md5");
-
-        flow.execute(fullConfigUpdateCommand, partials, null);
-
-        verify(mockPipelineConfig).encryptSecureProperties(basicCruiseConfig);
-    }
-
-    @Test
     public void shouldValidateDomRepresentationOfCruiseConfig() throws Exception {
         flow.execute(updateConfigCommand, partials, null);
 

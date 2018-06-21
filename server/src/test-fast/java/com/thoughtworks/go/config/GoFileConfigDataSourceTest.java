@@ -440,56 +440,6 @@ public class GoFileConfigDataSourceTest {
         assertThat(goConfigSaveResult.getConfigSaveState(), is(ConfigSaveState.MERGED));
     }
 
-    @Test
-    public void unmergedConfig_shouldEncryptSecurePropertiesInAllPipelineConfigs() throws Exception {
-        PipelineConfig mockPipelineConfig = mock(PipelineConfig.class);
-        GoConfigHolder goConfigHolder = dataSource.forceLoad(dataSource.fileLocation());
-        String originalMd5 = goConfigHolder.configForEdit.getMd5();
-
-        MagicalGoConfigXmlLoader loader = mock(MagicalGoConfigXmlLoader.class);
-        MagicalGoConfigXmlWriter writer = mock(MagicalGoConfigXmlWriter.class);
-        GoConfigMigration migration = mock(GoConfigMigration.class);
-        ServerHealthService serverHealthService = mock(ServerHealthService.class);
-        CachedGoPartials cachedGoPartials = mock(CachedGoPartials.class);
-        ConfigRepository configRepository = mock(ConfigRepository.class);
-        when(loader.loadConfigHolder(nullable(String.class), ArgumentMatchers.any(MagicalGoConfigXmlLoader.Callback.class))).thenReturn(goConfigHolder);
-        dataSource = new GoFileConfigDataSource(migration, configRepository, systemEnvironment, timeProvider, loader, writer, serverHealthService, cachedGoPartials, null, null, null, mock(GoConfigFileWriter.class));
-
-        GoFileConfigDataSource.GoConfigSaveResult goConfigSaveResult = dataSource.writeWithLock(configHelper.addPipelineCommand(originalMd5, mockPipelineConfig), goConfigHolder);
-
-        verify(mockPipelineConfig).encryptSecureProperties(ArgumentMatchers.any(BasicCruiseConfig.class));
-        assertThat(goConfigSaveResult.getConfigSaveState(), is(ConfigSaveState.UPDATED));
-    }
-
-    @Test
-    public void mergedConfig_shouldEncryptSecurePropertiesInAllPipelineConfigs() throws Exception {
-        configHelper.addMailHost(getMailHost("mailhost.local.old"));
-        String originalMd5 = dataSource.forceLoad(dataSource.fileLocation()).configForEdit.getMd5();
-        configHelper.addMailHost(getMailHost("mailhost.local"));
-        GoConfigHolder goConfigHolder = dataSource.forceLoad(dataSource.fileLocation());
-
-        PipelineConfig mockPipelineConfig = mock(PipelineConfig.class);
-
-        MagicalGoConfigXmlLoader loader = mock(MagicalGoConfigXmlLoader.class);
-        MagicalGoConfigXmlWriter writer = mock(MagicalGoConfigXmlWriter.class);
-        GoConfigMigration migration = mock(GoConfigMigration.class);
-        ServerHealthService serverHealthService = mock(ServerHealthService.class);
-        CachedGoPartials cachedGoPartials = mock(CachedGoPartials.class);
-        ConfigRepository configRepository = mock(ConfigRepository.class);
-        GoConfigRevision goConfigRevision = mock(GoConfigRevision.class);
-
-        when(configRepository.getRevision(originalMd5)).thenReturn(goConfigRevision);
-        when(goConfigRevision.getContent()).thenReturn("xml at revision");
-        when(loader.fromXmlPartial(anyString(), eq(BasicCruiseConfig.class))).thenReturn(new BasicCruiseConfig());
-        when(loader.loadConfigHolder(nullable(String.class), ArgumentMatchers.any(MagicalGoConfigXmlLoader.Callback.class))).thenReturn(goConfigHolder);
-        dataSource = new GoFileConfigDataSource(migration, configRepository, systemEnvironment, timeProvider, loader, writer, serverHealthService, cachedGoPartials, null, null, null, mock(GoConfigFileWriter.class));
-
-        GoFileConfigDataSource.GoConfigSaveResult goConfigSaveResult = dataSource.writeWithLock(configHelper.addPipelineCommand(originalMd5, mockPipelineConfig), goConfigHolder);
-
-        verify(mockPipelineConfig).encryptSecureProperties(ArgumentMatchers.any(BasicCruiseConfig.class));
-        assertThat(goConfigSaveResult.getConfigSaveState(), is(ConfigSaveState.MERGED));
-    }
-
     private MailHost getMailHost(String hostName) {
         return new MailHost(hostName, 9999, "user", "password", true, false, "from@local", "admin@local");
     }

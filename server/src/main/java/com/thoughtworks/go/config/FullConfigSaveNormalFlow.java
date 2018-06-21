@@ -55,7 +55,6 @@ public class FullConfigSaveNormalFlow extends FullConfigSaveFlow {
         LOGGER.debug("[Config Save] Starting Config Save using FullConfigSaveNormalFlow");
 
         CruiseConfig configForEdit = configForEditWithPartials(updatingCommand, partials);
-        encryptSecurePropertiesInAllPipelineConfigs(configForEdit);
 
         String configForEditXmlString = toXmlString(configForEdit);
 

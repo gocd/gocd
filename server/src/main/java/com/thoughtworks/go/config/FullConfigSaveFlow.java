@@ -143,10 +143,4 @@ public abstract class FullConfigSaveFlow {
         validatedConfigHolder.mergedConfigForEdit = mergedCruiseConfigForEdit;
         LOGGER.debug("[Config Save] Updating GoConfigHolder with mergedCruiseConfigForEdit: Done.");
     }
-
-    protected void encryptSecurePropertiesInAllPipelineConfigs(CruiseConfig configForEdit) {
-        for (PipelineConfig pipelineConfig : configForEdit.getAllPipelineConfigs()) {
-            pipelineConfig.encryptSecureProperties(configForEdit);
-        }
-    }
 }

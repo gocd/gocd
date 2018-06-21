@@ -58,7 +58,6 @@ public class FullConfigSaveMergeFlow extends FullConfigSaveFlow{
         LOGGER.debug("[Config Save] Starting Config Save using FullConfigSaveMergeFlow");
 
         CruiseConfig configForEdit = configForEditWithPartials(updatingCommand, partials);
-        encryptSecurePropertiesInAllPipelineConfigs(configForEdit);
 
         String configForEditXml = toXmlString(configForEdit, updatingCommand.unmodifiedMd5());
 

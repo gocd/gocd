@@ -16,14 +16,17 @@
 
 package com.thoughtworks.go.util;
 
+
+import org.bouncycastle.util.io.pem.PemReader;
+
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
+import java.io.FileReader;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.security.*;
+import java.security.spec.EncodedKeySpec;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
@@ -33,21 +36,15 @@ import static org.apache.commons.codec.CharEncoding.UTF_8;
 
 public class RSAEncryptionHelper {
     private static PublicKey getPublicKeyFrom(String path) throws IOException, NoSuchAlgorithmException, InvalidKeySpecException {
-        String publicKeyContent = new String(Files.readAllBytes(Paths.get(path)));
-        publicKeyContent = publicKeyContent.replaceAll("\\n", "")
-                .replace("-----BEGIN PUBLIC KEY-----", "")
-                .replace("-----END PUBLIC KEY-----", "");
-
-        return KeyFactory.getInstance("RSA").generatePublic(new X509EncodedKeySpec(Base64.getDecoder().decode(publicKeyContent)));
+        PemReader reader = new PemReader(new FileReader(path));
+        EncodedKeySpec spec = new X509EncodedKeySpec(reader.readPemObject().getContent());
+        return KeyFactory.getInstance("RSA").generatePublic(spec);
     }
 
     private static PrivateKey getPrivateKeyFrom(String path) throws IOException, NoSuchAlgorithmException, InvalidKeySpecException {
-        String privateKeyContent = new String(Files.readAllBytes(Paths.get(path)));
-        privateKeyContent = privateKeyContent.replaceAll("\\n", "")
-                .replace("-----BEGIN PRIVATE KEY-----", "")
-                .replace("-----END PRIVATE KEY-----", "");
-
-        return KeyFactory.getInstance("RSA").generatePrivate(new PKCS8EncodedKeySpec(Base64.getDecoder().decode(privateKeyContent)));
+        PemReader reader = new PemReader(new FileReader(path));
+        PKCS8EncodedKeySpec spec = new PKCS8EncodedKeySpec(reader.readPemObject().getContent());
+        return KeyFactory.getInstance("RSA").generatePrivate(spec);
     }
 
     public static String encrypt(String plainText, String publicKeyPath) throws InvalidKeyException, NoSuchPaddingException, NoSuchAlgorithmException, IOException, BadPaddingException, IllegalBlockSizeException, InvalidKeySpecException {

@@ -124,7 +124,7 @@ describe("Data Sharing Settings Widget", () => {
   });
 
   it('should show the consent for collected metrics list', () => {
-    expect($root.find('.consent-for-wrapper .consent-for')).toHaveLength(2);
+    expect($root.find('.consent-for-wrapper .consent-for')).toHaveLength(3);
     const consentFor = $root.find('.consent-for-wrapper .consent-for');
 
     const pipelineConsentKey         = 'Number of pipelines';
@@ -133,11 +133,17 @@ describe("Data Sharing Settings Widget", () => {
     const agentConsentKey          = 'Number of agents';
     const agentsConsentDescription = 'This allows the calculation of the average number of agents a GoCD instance has. This will help us ensure GoCD can handle a reasonable number of requests from the average number of agents.';
 
+    const oldestPipelineRuntimeKey         = 'Oldest pipeline run time';
+    const oldestPipelineRuntimeDescription = 'This provides data around the age of the GoCD instance. Along with the number of pipelines data point, it helps establish an expected growth in the number of pipelines. With performance related data which might be shared later (with your permission), this will help to see whether a GoCD instance becomes slower over time, as more pipelines and pipeline runs happen';
+
     expect($(consentFor.get(0))).toContainText(pipelineConsentKey);
     expect($(consentFor.get(0))).toContainText(pipelineConsentDescription);
 
     expect($(consentFor.get(1))).toContainText(agentConsentKey);
     expect($(consentFor.get(1))).toContainText(agentsConsentDescription);
+
+    expect($(consentFor.get(2))).toContainText(oldestPipelineRuntimeKey);
+    expect($(consentFor.get(2))).toContainText(oldestPipelineRuntimeDescription);
   });
 
   it('should show what data will be sent when GoCD data sharing is allowed', () => {

@@ -58,6 +58,12 @@ const ToggleConsentWidget = {
           This allows the calculation of the average number of agents a GoCD instance has. This
           will help us ensure GoCD can handle a reasonable number of requests from the average number of agents.
         </div>
+        <div class="consent-for">
+          <span class="key">Oldest pipeline run time:</span>
+          This provides data around the age of the GoCD instance.
+          Along with the number of pipelines data point, it helps establish an expected growth in the number of pipelines.
+          With performance related data which might be shared later (with your permission), this will help to see whether a GoCD instance becomes slower over time, as more pipelines and pipeline runs happen.
+        </div>
       </div>
     </div>;
   }

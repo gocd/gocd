@@ -36,6 +36,7 @@ import com.thoughtworks.go.security.CryptoException;
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.Node;
 import org.junit.Test;
+import org.mockito.ArgumentMatchers;
 
 import java.util.*;
 
@@ -1002,9 +1003,9 @@ public class PipelineConfigTest {
         StageConfig mockStageConfig = mock(StageConfig.class);
         pipelineConfig.addStageWithoutValidityAssertion(mockStageConfig);
 
-        pipelineConfig.encryptSecureProperties(new BasicCruiseConfig());
+        pipelineConfig.encryptSecureProperties(new BasicCruiseConfig(), pipelineConfig);
 
-        verify(mockStageConfig, never()).encryptSecureProperties(new BasicCruiseConfig(), pipelineConfig);
+        verify(mockStageConfig, never()).encryptSecureProperties(eq(new BasicCruiseConfig()), eq(pipelineConfig), ArgumentMatchers.any(StageConfig.class));
     }
 
     @Test
@@ -1013,9 +1014,9 @@ public class PipelineConfigTest {
         StageConfig mockStageConfig = mock(StageConfig.class);
         pipelineConfig.add(mockStageConfig);
 
-        pipelineConfig.encryptSecureProperties(new BasicCruiseConfig());
+        pipelineConfig.encryptSecureProperties(new BasicCruiseConfig(), pipelineConfig);
 
-        verify(mockStageConfig).encryptSecureProperties(new BasicCruiseConfig(), pipelineConfig);
+        verify(mockStageConfig).encryptSecureProperties(eq(new BasicCruiseConfig()), eq(pipelineConfig), ArgumentMatchers.any(StageConfig.class));
     }
 
     private StageConfig completedStage() {

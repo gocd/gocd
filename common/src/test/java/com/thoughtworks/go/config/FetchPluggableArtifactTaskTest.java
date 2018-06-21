@@ -478,7 +478,7 @@ public class FetchPluggableArtifactTaskTest {
 
         BasicCruiseConfig cruiseConfig = GoConfigMother.defaultCruiseConfig();
         task.addConfigurations(configurationProperties);
-        task.encryptSecureProperties(cruiseConfig, PipelineConfigMother.pipelineConfig("p1"));
+        task.encryptSecureProperties(cruiseConfig, PipelineConfigMother.pipelineConfig("p1"), task);
 
         assertThat(task.getConfiguration(), is(configurationProperties));
     }
@@ -496,7 +496,7 @@ public class FetchPluggableArtifactTaskTest {
         cruiseConfig.addPipelineWithoutValidation("foo", pipelineConfig);
 
         task.addConfigurations(configurationProperties);
-        task.encryptSecureProperties(cruiseConfig, pipelineConfig);
+        task.encryptSecureProperties(cruiseConfig, pipelineConfig, task);
 
         assertThat(task.getConfiguration(), is(configurationProperties));
     }
@@ -514,7 +514,7 @@ public class FetchPluggableArtifactTaskTest {
         cruiseConfig.addPipelineWithoutValidation("foo", pipelineConfig);
 
         task.addConfigurations(configurationProperties);
-        task.encryptSecureProperties(cruiseConfig, pipelineConfig);
+        task.encryptSecureProperties(cruiseConfig, pipelineConfig, task);
 
         assertThat(task.getConfiguration(), is(configurationProperties));
     }
@@ -532,7 +532,7 @@ public class FetchPluggableArtifactTaskTest {
         cruiseConfig.addPipelineWithoutValidation("foo", pipelineConfig);
 
         task.addConfigurations(configurationProperties);
-        task.encryptSecureProperties(cruiseConfig, pipelineConfig);
+        task.encryptSecureProperties(cruiseConfig, pipelineConfig, task);
 
         assertThat(task.getConfiguration(), is(configurationProperties));
     }
@@ -552,7 +552,7 @@ public class FetchPluggableArtifactTaskTest {
         cruiseConfig.addPipelineWithoutValidation("foo", pipelineConfig);
 
         task.addConfigurations(configurationProperties);
-        task.encryptSecureProperties(cruiseConfig, pipelineConfig);
+        task.encryptSecureProperties(cruiseConfig, pipelineConfig, task);
 
         assertThat(task.getConfiguration(), is(configurationProperties));
     }
@@ -568,14 +568,13 @@ public class FetchPluggableArtifactTaskTest {
 
         PipelineConfig pipelineConfig = PipelineConfigMother.createPipelineConfig("pipeline", "stage", "job");
         PluggableArtifactConfig pluggableArtifactConfig = new PluggableArtifactConfig("s3", "aws");
-        pluggableArtifactConfig.setArtifactStore(new ArtifactStore("aws", "cd.go.s3"));
         pipelineConfig.getStage("stage").jobConfigByConfigName("job").artifactConfigs().add(pluggableArtifactConfig);
 
         BasicCruiseConfig cruiseConfig = GoConfigMother.defaultCruiseConfig();
         cruiseConfig.addPipelineWithoutValidation("foo", pipelineConfig);
 
         task.addConfigurations(configurationProperties);
-        task.encryptSecureProperties(cruiseConfig, pipelineConfig);
+        task.encryptSecureProperties(cruiseConfig, pipelineConfig, task);
 
         assertThat(task.getConfiguration(), is(configurationProperties));
     }
@@ -591,11 +590,11 @@ public class FetchPluggableArtifactTaskTest {
 
         PipelineConfig pipelineConfig = PipelineConfigMother.createPipelineConfig("pipeline", "stage", "job");
         PluggableArtifactConfig pluggableArtifactConfig = new PluggableArtifactConfig("s3", "aws");
-        pluggableArtifactConfig.setArtifactStore(new ArtifactStore("aws", "cd.go.s3"));
         pipelineConfig.getStage("stage").jobConfigByConfigName("job").artifactConfigs().add(pluggableArtifactConfig);
 
         BasicCruiseConfig cruiseConfig = GoConfigMother.defaultCruiseConfig();
         cruiseConfig.addPipelineWithoutValidation("foo", pipelineConfig);
+        cruiseConfig.getArtifactStores().add(new ArtifactStore("aws", artifactPluginInfo.getDescriptor().id()));
 
 
         FetchPluggableArtifactTask task = new FetchPluggableArtifactTask(new CaseInsensitiveString("pipeline"), new CaseInsensitiveString("stage"), new CaseInsensitiveString("job"), "s3");
@@ -612,7 +611,7 @@ public class FetchPluggableArtifactTaskTest {
 
 
         task.addConfigurations(configurationProperties);
-        task.encryptSecureProperties(cruiseConfig, pipelineConfig);
+        task.encryptSecureProperties(cruiseConfig, pipelineConfig, task);
 
         assertThat(task.getConfiguration().size(), is(3));
         assertThat(task.getConfiguration(), is(expectedConfigurationProperties));
@@ -629,14 +628,14 @@ public class FetchPluggableArtifactTaskTest {
 
         PipelineConfig pipelineConfig = PipelineConfigMother.createPipelineConfig("pipeline", "stage", "job");
         PluggableArtifactConfig pluggableArtifactConfig = new PluggableArtifactConfig("s3", "aws");
-        pluggableArtifactConfig.setArtifactStore(new ArtifactStore("aws", "cd.go.s3"));
         pipelineConfig.getStage("stage").jobConfigByConfigName("job").artifactConfigs().add(pluggableArtifactConfig);
 
         BasicCruiseConfig cruiseConfig = GoConfigMother.defaultCruiseConfig();
         cruiseConfig.addPipelineWithoutValidation("foo", pipelineConfig);
-
+        cruiseConfig.getArtifactStores().add(new ArtifactStore("aws", artifactPluginInfo.getDescriptor().id()));
 
         FetchPluggableArtifactTask task = new FetchPluggableArtifactTask(new CaseInsensitiveString("#{pipeline}"), new CaseInsensitiveString("#{stage}"), new CaseInsensitiveString("#{job}"), "#{artifactId}");
+        FetchPluggableArtifactTask preprocessedTask = new FetchPluggableArtifactTask(new CaseInsensitiveString("pipeline"), new CaseInsensitiveString("stage"), new CaseInsensitiveString("job"), "s3");
 
         ArrayList<ConfigurationProperty> configurationProperties = new ArrayList<>();
         configurationProperties.add(new ConfigurationProperty(new ConfigurationKey("plain"), new ConfigurationValue("plain")));
@@ -653,7 +652,7 @@ public class FetchPluggableArtifactTaskTest {
         PipelineConfig pipelineWhichHasTheFetchTask = PipelineConfigMother.createPipelineConfigWithStage("p2", "anotherStage");
         pipelineWhichHasTheFetchTask.first().getJobs().first().addTask(task);
         pipelineWhichHasTheFetchTask.setParams(new ParamsConfig(new ParamConfig("pipeline", "pipeline"), new ParamConfig("stage", "stage"), new ParamConfig("job", "job"), new ParamConfig("artifactId", "s3")));
-        task.encryptSecureProperties(cruiseConfig, pipelineWhichHasTheFetchTask);
+        task.encryptSecureProperties(cruiseConfig, pipelineWhichHasTheFetchTask, preprocessedTask);
 
         assertThat(task.getConfiguration().size(), is(3));
         assertThat(task.getConfiguration(), is(expectedConfigurationProperties));

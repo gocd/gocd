@@ -297,7 +297,7 @@ public class GoFileConfigDataSource {
         modifiedConfig.setPartials(partials);
         CruiseConfig preprocessedConfig = cloner.deepClone(modifiedConfig);
         MagicalGoConfigXmlLoader.preprocess(preprocessedConfig);
-
+        updatingCommand.encrypt(preprocessedConfig);
         if (updatingCommand.isValid(preprocessedConfig)) {
             try {
                 LOGGER.info("[Configuration Changed] Saving updated configuration.");

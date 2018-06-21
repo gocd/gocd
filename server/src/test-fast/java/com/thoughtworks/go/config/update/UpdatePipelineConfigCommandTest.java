@@ -88,6 +88,21 @@ public class UpdatePipelineConfigCommandTest {
 
 
     @Test
+    public void shouldEncryptSecurePropertiesOfPipelineConfig() {
+        PipelineConfig pipelineConfig = mock(PipelineConfig.class);
+        UpdatePipelineConfigCommand command = new UpdatePipelineConfigCommand(goConfigService, null,
+                pipelineConfig, username, "stale_md5", localizedOperationResult, externalArtifactsService);
+
+        when(pipelineConfig.name()).thenReturn(new CaseInsensitiveString("p1"));
+        CruiseConfig preprocessedConfig = mock(CruiseConfig.class);
+        when(preprocessedConfig.getPipelineConfigByName(new CaseInsensitiveString("p1"))).thenReturn(mock(PipelineConfig.class));
+
+        command.encrypt(preprocessedConfig);
+
+        verify(pipelineConfig).encryptSecureProperties(eq(preprocessedConfig), any(PipelineConfig.class));
+    }
+
+    @Test
     public void updatePipelineConfigShouldValidateAllExternalArtifacts() {
         PluggableArtifactConfig s3 = mock(PluggableArtifactConfig.class);
         PluggableArtifactConfig docker = mock(PluggableArtifactConfig.class);
@@ -140,6 +155,6 @@ public class UpdatePipelineConfigCommandTest {
         command.isValid(preprocessedConfig);
 
 
-        verify(externalArtifactsService, times(2)).validateFetchExternalArtifactTask(any(FetchPluggableArtifactTask.class), any(), any());
+        verify(externalArtifactsService, times(2)).validateFetchExternalArtifactTask(any(FetchPluggableArtifactTask.class), any(), any(), eq(preprocessedConfig));
     }
 }

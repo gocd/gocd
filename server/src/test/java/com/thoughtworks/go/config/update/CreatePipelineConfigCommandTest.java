@@ -24,7 +24,6 @@ import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.helper.JobConfigMother;
 import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.server.domain.Username;
-import com.thoughtworks.go.server.service.EntityHashingService;
 import com.thoughtworks.go.server.service.ExternalArtifactsService;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
@@ -79,6 +78,21 @@ public class CreatePipelineConfigCommandTest {
     }
 
     @Test
+    public void shouldEncryptSecurePropertiesOfPipelineConfig() {
+        PipelineConfig pipelineConfig = mock(PipelineConfig.class);
+        CreatePipelineConfigCommand command = new CreatePipelineConfigCommand(goConfigService,
+                pipelineConfig, username, localizedOperationResult, "group1", externalArtifactsService);
+
+        when(pipelineConfig.name()).thenReturn(new CaseInsensitiveString("p1"));
+        CruiseConfig preprocessedConfig = mock(CruiseConfig.class);
+        when(preprocessedConfig.getPipelineConfigByName(new CaseInsensitiveString("p1"))).thenReturn(mock(PipelineConfig.class));
+
+        command.encrypt(preprocessedConfig);
+
+        verify(pipelineConfig).encryptSecureProperties(eq(preprocessedConfig), any(PipelineConfig.class));
+    }
+
+    @Test
     public void createPipelineConfigShouldValidateAllExternalArtifacts() {
         PluggableArtifactConfig s3 = mock(PluggableArtifactConfig.class);
         PluggableArtifactConfig docker = mock(PluggableArtifactConfig.class);
@@ -130,6 +144,6 @@ public class CreatePipelineConfigCommandTest {
         command.isValid(preprocessedConfig);
 
 
-        verify(externalArtifactsService, times(2)).validateFetchExternalArtifactTask(any(FetchPluggableArtifactTask.class), any(), any());
+        verify(externalArtifactsService, times(2)).validateFetchExternalArtifactTask(any(FetchPluggableArtifactTask.class), any(), any(), eq(preprocessedConfig));
     }
 }

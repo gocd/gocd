@@ -20,7 +20,6 @@ import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.domain.config.Configuration;
 import com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother;
 import com.thoughtworks.go.helper.GoConfigMother;
-import com.thoughtworks.go.helper.JobConfigMother;
 import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.plugin.access.artifact.ArtifactExtension;
 import com.thoughtworks.go.plugin.access.artifact.ArtifactMetadataStore;
@@ -74,9 +73,11 @@ public class ExternalArtifactsServiceTest {
         PipelineConfigSaveValidationContext validationContext = PipelineConfigSaveValidationContext.forChain(true, "group", cruiseConfig);
         Configuration configuration = new Configuration(ConfigurationPropertyMother.create("Image", false, "foo"));
         pluggableArtifactConfig.setConfiguration(configuration);
-
+        ArtifactStore artifactStore = mock(ArtifactStore.class);
+        when(artifactStore.getPluginId()).thenReturn(pluginId);
         when(artifactExtension.validatePluggableArtifactConfig(any(), eq(configuration.getConfigurationAsMap(true)))).thenReturn(new ValidationResult());
-        externalArtifactsService.validateExternalArtifactConfig(pluggableArtifactConfig, mock(ArtifactStore.class), validationContext);
+
+        externalArtifactsService.validateExternalArtifactConfig(pluggableArtifactConfig, artifactStore, validationContext);
 
         assertFalse(pluggableArtifactConfig.hasErrors());
     }
@@ -86,11 +87,10 @@ public class ExternalArtifactsServiceTest {
         PipelineConfigSaveValidationContext validationContext = PipelineConfigSaveValidationContext.forChain(true, "group", cruiseConfig);
         Configuration configuration = new Configuration(ConfigurationPropertyMother.create("Dest", false, "foo"));
 
-        pluggableArtifactConfig.setArtifactStore(new ArtifactStore("bar", pluginId));
         fetchPluggableArtifactTask.setConfiguration(configuration);
         when(artifactExtension.validateFetchArtifactConfig(any(), eq(configuration.getConfigurationAsMap(true)))).thenReturn(new ValidationResult());
 
-        externalArtifactsService.validateFetchExternalArtifactTask(fetchPluggableArtifactTask, validationContext, pipelineConfig );
+        externalArtifactsService.validateFetchExternalArtifactTask(fetchPluggableArtifactTask, validationContext, pipelineConfig, cruiseConfig);
         assertTrue(fetchPluggableArtifactTask.errors().isEmpty());
     }
 
@@ -107,7 +107,7 @@ public class ExternalArtifactsServiceTest {
     public void shouldSkipValidationAgainstPluginIfFetchExternalArtifactIsInvalid() {
         cruiseConfig.getArtifactStores().clear();
 
-        externalArtifactsService.validateFetchExternalArtifactTask(fetchPluggableArtifactTask, PipelineConfigSaveValidationContext.forChain(true, "group", cruiseConfig), pipelineConfig);
+        externalArtifactsService.validateFetchExternalArtifactTask(fetchPluggableArtifactTask, PipelineConfigSaveValidationContext.forChain(true, "group", cruiseConfig), pipelineConfig, cruiseConfig);
 
         verifyZeroInteractions(artifactExtension);
     }
@@ -141,10 +141,11 @@ public class ExternalArtifactsServiceTest {
         ValidationResult validationResult = new ValidationResult();
         validationResult.addError(new ValidationError("configuration", "Either Image or BuildFile is required"));
 
-
+        ArtifactStore artifactStore = mock(ArtifactStore.class);
+        when(artifactStore.getPluginId()).thenReturn(pluginId);
         when(artifactExtension.validatePluggableArtifactConfig(any(), any())).thenReturn(validationResult);
 
-        externalArtifactsService.validateExternalArtifactConfig(pluggableArtifactConfig, mock(ArtifactStore.class), PipelineConfigSaveValidationContext.forChain(true, "group", cruiseConfig));
+        externalArtifactsService.validateExternalArtifactConfig(pluggableArtifactConfig, artifactStore, PipelineConfigSaveValidationContext.forChain(true, "group", cruiseConfig));
 
         assertThat(pluggableArtifactConfig.errors().getAllOn("configuration").get(0), is("Either Image or BuildFile is required"));
     }

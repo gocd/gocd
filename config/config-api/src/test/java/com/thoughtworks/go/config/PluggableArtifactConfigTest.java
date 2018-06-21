@@ -219,7 +219,7 @@ public class PluggableArtifactConfigTest {
         BasicCruiseConfig cruiseConfig = GoConfigMother.defaultCruiseConfig();
         cruiseConfig.getArtifactStores().add(new ArtifactStore("store-id", "cd.go.s3"));
 
-        pluggableArtifactConfig.encryptSecureProperties(cruiseConfig, new ParamsConfig());
+        pluggableArtifactConfig.encryptSecureProperties(cruiseConfig, pluggableArtifactConfig);
 
         assertThat(secureProperty.isSecure(), is(true));
         assertThat(secureProperty.getEncryptedConfigurationValue(), is(notNullValue()));
@@ -242,11 +242,12 @@ public class PluggableArtifactConfigTest {
         ConfigurationProperty secureProperty = new ConfigurationProperty(new ConfigurationKey("key1"), new ConfigurationValue("value1"), null, goCipher);
         ConfigurationProperty nonSecureProperty = new ConfigurationProperty(new ConfigurationKey("key2"), new ConfigurationValue("value2"), null, goCipher);
         PluggableArtifactConfig pluggableArtifactConfig = new PluggableArtifactConfig("id", "#{storeId}", secureProperty, nonSecureProperty);
+        PluggableArtifactConfig preprocessedPluggableArtifactConfig = new PluggableArtifactConfig("id", "store-id", secureProperty, nonSecureProperty);
 
         BasicCruiseConfig cruiseConfig = GoConfigMother.defaultCruiseConfig();
         cruiseConfig.getArtifactStores().add(new ArtifactStore("store-id", "cd.go.s3"));
 
-        pluggableArtifactConfig.encryptSecureProperties(cruiseConfig, new ParamsConfig(new ParamConfig("storeId", "store-id")));
+        pluggableArtifactConfig.encryptSecureProperties(cruiseConfig, preprocessedPluggableArtifactConfig);
 
         assertThat(secureProperty.isSecure(), is(true));
         assertThat(secureProperty.getEncryptedConfigurationValue(), is(notNullValue()));
@@ -273,7 +274,7 @@ public class PluggableArtifactConfigTest {
         BasicCruiseConfig cruiseConfig = GoConfigMother.defaultCruiseConfig();
         cruiseConfig.getArtifactStores().add(new ArtifactStore("store-id", "cd.go.s3"));
 
-        pluggableArtifactConfig1.encryptSecureProperties(cruiseConfig, new ParamsConfig(new ParamConfig("storeId", "store-id")));
+        pluggableArtifactConfig1.encryptSecureProperties(cruiseConfig, pluggableArtifactConfig1);
 
         assertThat(secureProperty.isSecure(), is(false));
         assertThat(secureProperty.getValue(), is("value1"));
@@ -301,8 +302,8 @@ public class PluggableArtifactConfigTest {
         BasicCruiseConfig cruiseConfig = GoConfigMother.defaultCruiseConfig();
         cruiseConfig.getArtifactStores().add(new ArtifactStore("store-id", "cd.go.s3"));
 
-        pluggableArtifactConfig1.encryptSecureProperties(cruiseConfig, new ParamsConfig());
-        pluggableArtifactConfig2.encryptSecureProperties(cruiseConfig, null);
+        pluggableArtifactConfig1.encryptSecureProperties(cruiseConfig, pluggableArtifactConfig1);
+        pluggableArtifactConfig2.encryptSecureProperties(cruiseConfig, pluggableArtifactConfig2);
 
         assertThat(secureProperty1.isSecure(), is(false));
         assertThat(secureProperty1.getValue(), is("value1"));
@@ -331,7 +332,7 @@ public class PluggableArtifactConfigTest {
         BasicCruiseConfig cruiseConfig = GoConfigMother.defaultCruiseConfig();
         cruiseConfig.getArtifactStores().add(new ArtifactStore("store-id", "cd.go.s3"));
 
-        pluggableArtifactConfig.encryptSecureProperties(cruiseConfig, new ParamsConfig(new ParamConfig("storeId", "store-id")));
+        pluggableArtifactConfig.encryptSecureProperties(cruiseConfig, pluggableArtifactConfig);
 
         assertThat(secureProperty.isSecure(), is(false));
         assertThat(secureProperty.getValue(), is("value1"));
@@ -356,7 +357,7 @@ public class PluggableArtifactConfigTest {
         BasicCruiseConfig cruiseConfig = GoConfigMother.defaultCruiseConfig();
         cruiseConfig.getArtifactStores().add(new ArtifactStore("store-id", "cd.go.s3"));
 
-        pluggableArtifactConfig.encryptSecureProperties(cruiseConfig, new ParamsConfig(new ParamConfig("storeId", "store-id")));
+        pluggableArtifactConfig.encryptSecureProperties(cruiseConfig, pluggableArtifactConfig);
 
         assertThat(secureProperty.isSecure(), is(false));
         assertThat(secureProperty.getValue(), is("value1"));
@@ -421,9 +422,7 @@ public class PluggableArtifactConfigTest {
     public void hasValidPluginAndStore_shouldReturnFalseIfStoreDoesNotExist() {
         PluggableArtifactConfig pluggableArtifactConfig = new PluggableArtifactConfig("dist", "s3");
 
-        final ArtifactStores artifactStores = new ArtifactStores(new ArtifactStore("docker", "cd.go.docker"));
-
-        assertFalse(pluggableArtifactConfig.hasValidPluginAndStore(ValidationContextMother.validationContext(artifactStores)));
+        assertFalse(pluggableArtifactConfig.hasValidPluginAndStore(new ArtifactStore("docker", "cd.go.docker")));
     }
 
     @Test
@@ -433,7 +432,7 @@ public class PluggableArtifactConfigTest {
 
         final ArtifactStores artifactStores = new ArtifactStores(new ArtifactStore("s3", "cd.go.s3"));
 
-        assertFalse(pluggableArtifactConfig.hasValidPluginAndStore(ValidationContextMother.validationContext(artifactStores)));
+        assertFalse(pluggableArtifactConfig.hasValidPluginAndStore(new ArtifactStore("s3", "cd.go.s3")));
     }
 
     @Test
@@ -442,6 +441,6 @@ public class PluggableArtifactConfigTest {
 
         final ArtifactStores artifactStores = new ArtifactStores(new ArtifactStore("s3", "cd.go.s3"));
 
-        assertTrue(pluggableArtifactConfig.hasValidPluginAndStore(ValidationContextMother.validationContext(artifactStores)));
+        assertTrue(pluggableArtifactConfig.hasValidPluginAndStore(new ArtifactStore("s3", "cd.go.s3")));
     }
 }

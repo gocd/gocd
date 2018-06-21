@@ -549,9 +549,9 @@ public class JobConfigTest {
         FetchPluggableArtifactTask mockFetchExternalArtifactTask = mock(FetchPluggableArtifactTask.class);
         jobConfig.addTask(mockFetchExternalArtifactTask);
 
-        jobConfig.encryptSecureProperties(new BasicCruiseConfig(), new PipelineConfig());
+        jobConfig.encryptSecureProperties(any(CruiseConfig.class), any(PipelineConfig.class), any(JobConfig.class));
 
-        verify(mockFetchExternalArtifactTask).encryptSecureProperties(new BasicCruiseConfig(), new PipelineConfig());
+        verify(mockFetchExternalArtifactTask).encryptSecureProperties(any(CruiseConfig.class), any(PipelineConfig.class), any(FetchPluggableArtifactTask.class));
     }
 
     private JobConfig createJobAndValidate(final String name) {

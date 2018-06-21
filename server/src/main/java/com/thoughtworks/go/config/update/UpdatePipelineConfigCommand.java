@@ -52,7 +52,6 @@ public class UpdatePipelineConfigCommand extends PipelineConfigCommand {
     @Override
     public void update(CruiseConfig cruiseConfig) {
         cruiseConfig.update(getPipelineGroup(), pipelineConfig.name().toString(), pipelineConfig);
-        pipelineConfig.encryptSecureProperties(cruiseConfig);
     }
 
     @Override
@@ -60,7 +59,7 @@ public class UpdatePipelineConfigCommand extends PipelineConfigCommand {
         preprocessedPipelineConfig = preprocessedConfig.getPipelineConfigByName(pipelineConfig.name());
         PipelineConfigSaveValidationContext validationContext = PipelineConfigSaveValidationContext.forChain(false, getPipelineGroup(), preprocessedConfig, preprocessedPipelineConfig);
         validateExternalArtifacts(preprocessedPipelineConfig, validationContext);
-        validateFetchExternalArtifactTasks(preprocessedPipelineConfig, validationContext);
+        validateFetchExternalArtifactTasks(preprocessedPipelineConfig, validationContext, preprocessedConfig);
         boolean isValid = preprocessedPipelineConfig.validateTree(validationContext)
                           && preprocessedPipelineConfig.getAllErrors().isEmpty();
         if (!isValid) {

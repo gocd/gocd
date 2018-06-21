@@ -30,7 +30,7 @@ public abstract class PipelineConfigCommand implements EntityConfigUpdateCommand
     protected PipelineConfig pipelineConfig;
     protected GoConfigService goConfigService;
     private ExternalArtifactsService externalArtifactsService;
-    protected PipelineConfig preprocessedPipelineConfig;
+    PipelineConfig preprocessedPipelineConfig;
 
     PipelineConfigCommand(PipelineConfig pipelineConfig, GoConfigService goConfigService, ExternalArtifactsService externalArtifactsService) {
         this.pipelineConfig = pipelineConfig;
@@ -48,16 +48,22 @@ public abstract class PipelineConfigCommand implements EntityConfigUpdateCommand
         return preprocessedPipelineConfig;
     }
 
+    @Override
+    public void encrypt(CruiseConfig preprocessedConfig) {
+        preprocessedPipelineConfig = preprocessedConfig.getPipelineConfigByName(pipelineConfig.name());
+        pipelineConfig.encryptSecureProperties(preprocessedConfig, preprocessedPipelineConfig);
+    }
 
-    protected void validateExternalArtifacts(PipelineConfig pipelineConfig, ValidationContext validationContext) {
+
+    void validateExternalArtifacts(PipelineConfig pipelineConfig, ValidationContext validationContext) {
         for (PluggableArtifactConfig pluggableArtifactConfig : getExternalArtifactConfigs(pipelineConfig)) {
             externalArtifactsService.validateExternalArtifactConfig(pluggableArtifactConfig, goConfigService.artifactStores().find(pluggableArtifactConfig.getStoreId()), validationContext);
         }
     }
 
-    protected void validateFetchExternalArtifactTasks(PipelineConfig pipelineConfig, ValidationContext validationContext) {
+    void validateFetchExternalArtifactTasks(PipelineConfig pipelineConfig, ValidationContext validationContext, CruiseConfig preprocessedConfig) {
         for (FetchPluggableArtifactTask fetchPluggableArtifactTask : getAllFetchPluggableArtifactTasks(pipelineConfig)) {
-            externalArtifactsService.validateFetchExternalArtifactTask(fetchPluggableArtifactTask, validationContext, pipelineConfig);
+            externalArtifactsService.validateFetchExternalArtifactTask(fetchPluggableArtifactTask, validationContext, pipelineConfig, preprocessedConfig);
         }
     }
 

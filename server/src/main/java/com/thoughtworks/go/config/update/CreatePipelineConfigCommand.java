@@ -17,15 +17,10 @@
 package com.thoughtworks.go.config.update;
 
 import com.thoughtworks.go.config.*;
-import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
-import com.thoughtworks.go.domain.Task;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.ExternalArtifactsService;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import static com.thoughtworks.go.config.update.PipelineConfigErrorCopier.copyErrors;
 import static com.thoughtworks.go.i18n.LocalizedMessage.forbiddenToEditGroup;
@@ -47,7 +42,6 @@ public class CreatePipelineConfigCommand extends PipelineConfigCommand {
     @Override
     public void update(CruiseConfig cruiseConfig) {
         cruiseConfig.addPipelineWithoutValidation(groupName, pipelineConfig);
-        pipelineConfig.encryptSecureProperties(cruiseConfig);
     }
 
     @Override
@@ -55,7 +49,7 @@ public class CreatePipelineConfigCommand extends PipelineConfigCommand {
         preprocessedPipelineConfig = preprocessedConfig.getPipelineConfigByName(pipelineConfig.name());
         PipelineConfigSaveValidationContext validationContext = PipelineConfigSaveValidationContext.forChain(true, groupName, preprocessedConfig, preprocessedPipelineConfig);
         validateExternalArtifacts(preprocessedPipelineConfig, validationContext);
-        validateFetchExternalArtifactTasks(preprocessedPipelineConfig, validationContext);
+        validateFetchExternalArtifactTasks(preprocessedPipelineConfig, validationContext, preprocessedConfig);
         boolean isValid = preprocessedPipelineConfig.validateTree(validationContext)
                 && preprocessedPipelineConfig.getAllErrors().isEmpty();
 

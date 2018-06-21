@@ -167,12 +167,12 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
         return new PipelineConfigTreeValidator(this).validate(validationContext);
     }
 
-    public void encryptSecureProperties(CruiseConfig cruiseConfig) {
+    public void encryptSecureProperties(CruiseConfig preprocessedConfig, PipelineConfig preprocessedPipelineConfig) {
         if (hasTemplate()) {
             return;
         }
         for (StageConfig stageConfig : getStages()) {
-            stageConfig.encryptSecureProperties(cruiseConfig, this);
+            stageConfig.encryptSecureProperties(preprocessedConfig, preprocessedPipelineConfig, preprocessedPipelineConfig.getStage(stageConfig.name()));
         }
     }
 

@@ -25,6 +25,7 @@ import com.thoughtworks.go.service.TaskFactory;
 import com.thoughtworks.go.util.XmlUtils;
 import org.apache.commons.lang3.StringUtils;
 
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
@@ -329,15 +330,24 @@ public class JobConfig implements Validatable, ParamsAttributeAware, Environment
         return isValid;
     }
 
-    public void encryptSecureProperties(CruiseConfig cruiseConfig, PipelineConfig pipelineConfig) {
-        for (Task task : getTasks()) {
-            if (task instanceof FetchPluggableArtifactTask) {
-                ((FetchPluggableArtifactTask) task).encryptSecureProperties(cruiseConfig, pipelineConfig);
+    public void encryptSecureProperties(CruiseConfig preprocessedConfig, PipelineConfig preprocessedPipelineConfig, JobConfig preprocessedJobConfig) {
+        Tasks modifiedTasks = getTasks();
+        Tasks preprocessedTasks = preprocessedJobConfig.getTasks();
+        for (int i = 0; i < modifiedTasks.size(); i++) {
+            Task modifiedTask = modifiedTasks.get(i);
+            if (modifiedTask instanceof FetchPluggableArtifactTask) {
+                FetchPluggableArtifactTask preprocessedTask = (FetchPluggableArtifactTask) preprocessedTasks.get(i);
+                ((FetchPluggableArtifactTask) modifiedTask).encryptSecureProperties(preprocessedConfig, preprocessedPipelineConfig, preprocessedTask);
             }
         }
 
-        for (PluggableArtifactConfig pluggableArtifactConfig : artifactConfigs().getPluggableArtifactConfigs()) {
-            pluggableArtifactConfig.encryptSecureProperties(cruiseConfig, pipelineConfig.getParams());
+        List<PluggableArtifactConfig> modifiedArtifactConfigs = artifactConfigs().getPluggableArtifactConfigs();
+        List<PluggableArtifactConfig> preprocessedPluggableArtifactConfigs = preprocessedJobConfig.artifactConfigs().getPluggableArtifactConfigs();
+        for (int i = 0; i < modifiedArtifactConfigs.size(); i++) {
+            PluggableArtifactConfig pluggableArtifactConfig = modifiedArtifactConfigs.get(i);
+            PluggableArtifactConfig preprocessedPluggableArtifactConfig = preprocessedPluggableArtifactConfigs.get(i);
+
+            pluggableArtifactConfig.encryptSecureProperties(preprocessedConfig, preprocessedPluggableArtifactConfig);
         }
     }
 

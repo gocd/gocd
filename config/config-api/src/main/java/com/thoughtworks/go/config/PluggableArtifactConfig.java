@@ -17,8 +17,6 @@
 package com.thoughtworks.go.config;
 
 import com.google.gson.Gson;
-import com.thoughtworks.go.config.builder.ConfigurationPropertyBuilder;
-import com.thoughtworks.go.config.helper.ParamFinder;
 import com.thoughtworks.go.domain.ArtifactType;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.config.Configuration;
@@ -30,8 +28,6 @@ import org.apache.commons.lang3.StringUtils;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
@@ -45,11 +41,6 @@ public class PluggableArtifactConfig implements ArtifactConfig {
     private String storeId;
     @ConfigSubtag
     private Configuration configuration = new Configuration();
-
-    @IgnoreTraversal
-    private ArtifactStore artifactStore;
-
-    private static final String PARAM_PATTERN = "#\\{(.*?)\\}";
 
     public PluggableArtifactConfig() {
     }
@@ -100,13 +91,10 @@ public class PluggableArtifactConfig implements ArtifactConfig {
         return !hasErrors();
     }
 
-    public void encryptSecureProperties(CruiseConfig cruiseConfig, ParamsConfig paramConfigs) {
+    public void encryptSecureProperties(CruiseConfig preprocessedCruiseConfig, PluggableArtifactConfig preprocessedPluggableArtifactConfig) {
         if (storeId != null) {
-            ParamFinder paramFinder = new ParamFinder();
-            String artifactStoreId = paramFinder.isAttributeAParam(storeId) ?  paramFinder.getParamValue(paramConfigs, storeId) : storeId;
-            ArtifactStore artifactStore = cruiseConfig.getArtifactStores().find(artifactStoreId);
-            setArtifactStore(artifactStore);
-            encryptSecureConfigurations();
+            ArtifactStore artifactStore = preprocessedCruiseConfig.getArtifactStores().find(preprocessedPluggableArtifactConfig.getStoreId());
+            encryptSecureConfigurations(artifactStore);
         }
     }
 
@@ -139,8 +127,7 @@ public class PluggableArtifactConfig implements ArtifactConfig {
         }
     }
 
-    public boolean hasValidPluginAndStore(ValidationContext validationContext) {
-        ArtifactStore artifactStore = validationContext.artifactStores().find(storeId);
+    public boolean hasValidPluginAndStore(ArtifactStore artifactStore) {
         if (artifactStore == null) {
             return false;
         }
@@ -192,20 +179,12 @@ public class PluggableArtifactConfig implements ArtifactConfig {
         errors.add(fieldName, message);
     }
 
-    private void encryptSecureConfigurations() {
-        if (artifactStore != null && hasPluginInfo()) {
+    private void encryptSecureConfigurations(ArtifactStore artifactStore) {
+        if (artifactStore != null && hasPluginInfo(artifactStore)) {
             for (ConfigurationProperty configuration : getConfiguration()) {
-                configuration.handleSecureValueConfiguration(isSecure(configuration.getConfigKeyName()));
+                configuration.handleSecureValueConfiguration(isSecure(configuration.getConfigKeyName(), artifactStore));
             }
         }
-    }
-
-    public  void setArtifactStore(ArtifactStore artifactStore) {
-        this.artifactStore = artifactStore;
-    }
-
-    public ArtifactStore getArtifactStore() {
-        return artifactStore;
     }
 
     @Override
@@ -236,8 +215,8 @@ public class PluggableArtifactConfig implements ArtifactConfig {
                 '}';
     }
 
-    private boolean isSecure(String configKeyName) {
-        ArtifactPluginInfo pluginInfo = getPluginInfo();
+    private boolean isSecure(String configKeyName, ArtifactStore artifactStore) {
+        ArtifactPluginInfo pluginInfo = getPluginInfo(artifactStore);
         return pluginInfo != null
                 && pluginInfo.getArtifactConfigSettings() != null
                 && pluginInfo.getArtifactConfigSettings().getConfiguration(configKeyName) != null
@@ -245,11 +224,11 @@ public class PluggableArtifactConfig implements ArtifactConfig {
 
     }
 
-    private boolean hasPluginInfo() {
-        return getPluginInfo() != null;
+    private boolean hasPluginInfo(ArtifactStore artifactStore) {
+        return getPluginInfo(artifactStore) != null;
     }
 
-    private ArtifactPluginInfo getPluginInfo() {
+    private ArtifactPluginInfo getPluginInfo(ArtifactStore artifactStore) {
         return ArtifactMetadataStore.instance().getPluginInfo(artifactStore.getPluginId());
     }
 

@@ -99,55 +99,49 @@ public class FetchPluggableArtifactTask extends AbstractFetchTask {
         configuration.validateUniqueness("Fetch pluggable artifact");
     }
 
-    public void encryptSecureProperties(CruiseConfig cruiseConfig, PipelineConfig pipelineConfig) {
+    public void encryptSecureProperties(CruiseConfig preprocessedCruiseConfig, PipelineConfig preprocessedPipelineConfig, FetchPluggableArtifactTask preprocessedTask) {
         if (artifactId != null) {
-            PluggableArtifactConfig externalArtifact = getSpecifiedExternalArtifact(cruiseConfig, pipelineConfig);
+            PluggableArtifactConfig externalArtifact = getSpecifiedExternalArtifact(preprocessedCruiseConfig, preprocessedPipelineConfig, preprocessedTask);
 
-            if (externalArtifact != null && externalArtifact.getArtifactStore() != null) {
-                ArtifactPluginInfo pluginInfo = ArtifactMetadataStore.instance().getPluginInfo(externalArtifact.getArtifactStore().getPluginId());
-                if (pluginInfo == null || pluginInfo.getFetchArtifactSettings() == null) {
-                    return;
-                }
-                for (ConfigurationProperty configurationProperty : getConfiguration()) {
-                    configurationProperty.handleSecureValueConfiguration(isSecure(configurationProperty.getConfigKeyName(), pluginInfo.getFetchArtifactSettings()));
+            if (externalArtifact != null) {
+                ArtifactStore artifactStore = preprocessedCruiseConfig.getArtifactStores().find(externalArtifact.getStoreId());
+                if (artifactStore != null) {
+                    ArtifactPluginInfo pluginInfo = ArtifactMetadataStore.instance().getPluginInfo(artifactStore.getPluginId());
+                    if (pluginInfo == null || pluginInfo.getFetchArtifactSettings() == null) {
+                        return;
+                    }
+                    for (ConfigurationProperty configurationProperty : getConfiguration()) {
+                        configurationProperty.handleSecureValueConfiguration(isSecure(configurationProperty.getConfigKeyName(), pluginInfo.getFetchArtifactSettings()));
+                    }
+
                 }
             }
         }
     }
 
-    public PluggableArtifactConfig getSpecifiedExternalArtifact(CruiseConfig cruiseConfig, PipelineConfig pipelineConfig) {
+    public PluggableArtifactConfig getSpecifiedExternalArtifact(CruiseConfig cruiseConfig, PipelineConfig pipelineConfig, FetchPluggableArtifactTask preprocessedTask) {
         PipelineConfig dependencyMaterial = null;
         PluggableArtifactConfig externalArtifact = null;
-        ParamFinder paramFinder = new ParamFinder();
-        ParamsConfig params = pipelineConfig.getParams();
 
-        if (pipelineName == null || CaseInsensitiveString.isBlank(getPipelineAncestorName(paramFinder, params)) || getPipelineAncestorName(paramFinder, params).equals(pipelineConfig.name())) {
+        if (preprocessedTask.getPipelineName() == null || CaseInsensitiveString.isBlank(preprocessedTask.getTargetPipelineName()) || preprocessedTask.getTargetPipelineName().equals(pipelineConfig.name())) {
             dependencyMaterial = pipelineConfig;
         } else {
             try {
-                dependencyMaterial = cruiseConfig.pipelineConfigByName(getPipelineAncestorName(paramFinder, params));
+                dependencyMaterial = cruiseConfig.pipelineConfigByName(preprocessedTask.getTargetPipelineName());
             } catch (PipelineNotFoundException e) {
                 // ignore
             }
         }
         if (dependencyMaterial != null) {
-            CaseInsensitiveString stageName = this.stage != null && paramFinder.isAttributeAParam(this.stage) ? new CaseInsensitiveString(paramFinder.getParamValue(params, this.stage)) : this.stage;
-            StageConfig upstreamStage = dependencyMaterial.getStage(stageName);
+            StageConfig upstreamStage = dependencyMaterial.getStage(preprocessedTask.getStage());
             if (upstreamStage != null) {
-                CaseInsensitiveString jobName = this.job != null && paramFinder.isAttributeAParam(this.job) ? new CaseInsensitiveString(paramFinder.getParamValue(params, this.job)) : this.job;
-                JobConfig jobConfig = upstreamStage.jobConfigByConfigName(jobName);
+                JobConfig jobConfig = upstreamStage.jobConfigByConfigName(preprocessedTask.getJob());
                 if (jobConfig != null) {
-                    String artifactRef = this.artifactId != null && paramFinder.isAttributeAParam(this.artifactId) ? paramFinder.getParamValue(params, this.artifactId) : this.artifactId;
-                    externalArtifact = jobConfig.artifactConfigs().findByArtifactId(artifactRef);
+                    externalArtifact = jobConfig.artifactConfigs().findByArtifactId(preprocessedTask.getArtifactId());
                 }
             }
         }
         return externalArtifact;
-    }
-
-    private CaseInsensitiveString getPipelineAncestorName(ParamFinder paramFinder, ParamsConfig paramConfigs) {
-        CaseInsensitiveString pipelineAncestorName = pipelineName.getAncestorName();
-        return paramFinder.isAttributeAParam(pipelineAncestorName) ? new CaseInsensitiveString(paramFinder.getParamValue(paramConfigs, pipelineAncestorName)) : pipelineAncestorName;
     }
 
     @Override

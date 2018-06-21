@@ -1013,6 +1013,7 @@ public class PipelineConfigTest {
         PipelineConfig pipelineConfig = new PipelineConfig();
         StageConfig mockStageConfig = mock(StageConfig.class);
         pipelineConfig.add(mockStageConfig);
+        when(mockStageConfig.name()).thenReturn(new CaseInsensitiveString("stage"));
 
         pipelineConfig.encryptSecureProperties(new BasicCruiseConfig(), pipelineConfig);
 

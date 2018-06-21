@@ -52,7 +52,6 @@ module Admin
     def create
       type = params[:type]
       assert_load :task, task_view_service.taskInstanceFor(type)
-      assert_load :artifact_plugin_to_fetch_view, default_plugin_info_finder.pluginIdToFetchViewTemplate()
       @task.setConfigAttributes(params[:task], task_view_service)
       create_failure_handler = proc do |result, all_errors|
         @errors = flatten_all_errors(all_errors)
@@ -90,7 +89,8 @@ module Admin
       end.new(params, current_user.getUsername(), security_service, @task, pluggable_task_service), create_failure_handler, {:controller => '/admin/tasks', :current_tab => params[:current_tab]}) do
         assert_load :job, @node
         assert_load :task, @subject
-        assert_load :artifact_ids, ["foo", "bar"].to_json
+        assert_load :artifact_plugin_to_fetch_view, default_plugin_info_finder.pluginIdToFetchViewTemplate()
+        assert_load :artifact_id_to_plugin_id, go_config_service.artifactIdToPluginIdForFetchPluggableArtifact(params[:stage_parent], params[:pipeline_name], params[:stage_name]).to_hash
         load_modify_task_variables
       end
     end
@@ -147,8 +147,8 @@ module Admin
       end.new(params, current_user.getUsername(), security_service, task_view_service, pluggable_task_service), update_failure_handler, {:controller => '/admin/tasks', :current_tab => params[:current_tab]}) do
         assert_load :task, adapt_fetch_task_if_needed(@subject)
         load_modify_task_variables
-        assert_load :artifact_ids, ["foo", "bar"].to_json
         assert_load :artifact_plugin_to_fetch_view, default_plugin_info_finder.pluginIdToFetchViewTemplate()
+        assert_load :artifact_id_to_plugin_id, go_config_service.artifactIdToPluginIdForFetchPluggableArtifact(params[:stage_parent], params[:pipeline_name], params[:stage_name]).to_hash
       end
     end
 

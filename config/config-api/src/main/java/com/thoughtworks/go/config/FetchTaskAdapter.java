@@ -34,6 +34,7 @@ public class FetchTaskAdapter implements Task {
     private FetchTask fetchTask = new FetchTask();
     private FetchPluggableArtifactTask fetchPluggableArtifactTask = new FetchPluggableArtifactTask();
     private String selectedTaskType = "gocd";
+    private transient String pluginId;
 
     public FetchTaskAdapter() {
     }
@@ -266,6 +267,13 @@ public class FetchTaskAdapter implements Task {
         fetchTask.setDest(dest);
     }
 
+    public void setPluginId(String pluginId) {
+        this.pluginId = pluginId;
+    }
+
+    public String getPluginId() {
+        return pluginId;
+    }
 
     private boolean isExternal() {
         return "external".equals(selectedTaskType);

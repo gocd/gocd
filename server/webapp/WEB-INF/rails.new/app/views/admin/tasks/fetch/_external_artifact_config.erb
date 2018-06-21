@@ -5,15 +5,15 @@
   <%= error_message_on(@task, com.thoughtworks.go.config.FetchPluggableArtifactTask::ARTIFACT_ID, :css_class => "form_error") %>
 </div>
 
-<div class="form_item_block artifact_plugin_selection hidden">
+<div class="form_item_block artifact_plugin_selection">
   <span>Could not determine the plugin from the store. Please choose a plugin to configure the plugin properties.</span>
   <label>Plugin ID</label>
-  <%= select("FetchArtifact", "pluginId", scope[:artifact_plugin_to_fetch_view].collect {|p| [p.to_hash["name"], p.to_hash["id"]]}, {include_blank: true}) %>
+  <%= scope[:var_form].select("pluginId", scope[:artifact_plugin_to_fetch_view].collect {|p| [p.to_hash["name"], p.to_hash["id"]]}, {:prompt => 'Select Plugin'}) %>
+  <%= error_message_on(@task, "pluginId", :css_class => "form_error") %>
 </div>
-<input type="hidden" name="task[pluginId]" id="task_pluginId"/>
 <div class="form_item_block" id="fetch_pluggable_task_view">
 </div>
 
-<span id="fetch_pluggable_artifact_data" class="plugged_material_data" style="display: none">
+<span id="fetch_external_artifact_data" style="display: none">
     <%== com.google.gson.Gson.new.toJson(scope[:task].configAsMap()) %>
 </span>

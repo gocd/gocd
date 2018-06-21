@@ -97,7 +97,7 @@ describe "admin/tasks/fetch/new.html.erb" do
         expect(divs[0]).to have_selector("label", :text => "Plugin ID")
         expect(divs[0]).to have_selector("select[name='FetchArtifact[pluginId]']")
         expect(divs[0]).to have_selector("input[name='task[pluginId]']", :visible => false)
-        expect(divs[0]).to have_selector("span[id=fetch_pluggable_artifact_data]", :visible => false)
+        expect(divs[0]).to have_selector("span[id=fetch_external_artifact_data]", :visible => false)
       end
     end
   end

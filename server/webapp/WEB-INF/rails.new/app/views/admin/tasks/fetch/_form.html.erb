@@ -33,7 +33,7 @@
     <div class="contextual_help has_go_tip_right" title="The name of the job to fetch artifacts from."></div>
     <%= error_message_on(@task, com.thoughtworks.go.config.FetchTask::JOB, :css_class => "form_error") %>
   </div>
-  <% if scope[:task].getAppropriateTask().getTaskType() == 'fetch_pluggable_artifact' %>
+  <% if external_fetch_task %>
     <div class="fetch-artifact-config">
       <%= render :partial => 'admin/tasks/fetch/external_artifact_config', :locals => {:scope => {
         :var_form => scope[:form], :task => scope[:task], :artifact_plugin_to_fetch_view => scope[:artifact_plugin_to_fetch_view]}} %>
@@ -85,6 +85,7 @@
     } else {
       hidePluginSelectionDropdown();
       initArtifactIdAutoComplete();
+      renderViewForSelectedArtifactId();
       jQuery("#task_artifactId").on("input propertychange paste result", renderViewForSelectedArtifactId)
     }
   }
@@ -102,7 +103,7 @@
       return;
     }
 
-    if (artifactId && artifactId.startsWith("#{")) {
+    if (isParameterized(artifactId)) {
       showPluginSelectionDropdown();
       return;
     }
@@ -110,6 +111,7 @@
     var pluginId = determinePluginId(artifactId);
     if (pluginId) {
       hidePluginSelectionDropdown();
+      jQuery("#task_pluginId").val(pluginId);
       renderPluginView(pluginId);
     } else {
       showPluginSelectionDropdown();
@@ -119,11 +121,10 @@
   }
 
   function resetPluginDropdown() {
-    jQuery("#FetchArtifact_pluginId").prop("selectedIndex", 0);
+    jQuery("#task_pluginId").prop("selectedIndex", 0);
   }
 
   function renderPluginView(pluginId) {
-    jQuery("#task_pluginId").val(pluginId);
     jQuery("#fetch_pluggable_task_view").html(getFetchArtifactView(pluginId));
     initializeAngular();
   }
@@ -139,7 +140,7 @@
 
   function showPluginSelectionDropdown() {
     jQuery(".artifact_plugin_selection").show();
-    jQuery("#FetchArtifact_pluginId").change(function () {
+    jQuery("#task_pluginId").change(function () {
       renderPluginView(jQuery(this).val());
     });
   }
@@ -191,11 +192,15 @@
     }
     for (var i in arguments) {
       var value = jQuery("#" + arguments[i]).val();
-      if (value != null && value.startsWith("#{")) {
+      if (isParameterized(value)) {
         return true;
       }
     }
     return false;
+  }
+
+  function isParameterized(value) {
+    return value != null && value.indexOf("#{") !== -1
   }
 
   function getSelectedTaskType() {
@@ -225,7 +230,7 @@
   }
 
   function initializeAngular() {
-    new TaskPluginView().initialize("fetch_pluggable_task_view", "fetch_pluggable_artifact_data", "task");
+    new TaskPluginView().initialize("fetch_pluggable_task_view", "fetch_external_artifact_data", "task[<%==com.thoughtworks.go.config.FetchPluggableArtifactTask::CONFIGURATION%>]");
     new TaskPluginView().bootstrapAngular();
   }
 </script>

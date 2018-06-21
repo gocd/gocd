@@ -387,6 +387,8 @@ sharedTest { thisTask ->
 }
 
 fastUnitTest { thisTask ->
+  forkEvery 512
+
   doFirst {
     def files = project.files([])
     project.sourceSets[thisTask.name].java.srcDirs.each { srcDir ->

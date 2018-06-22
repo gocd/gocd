@@ -48,7 +48,7 @@ public class CreatePipelineConfigCommand extends PipelineConfigCommand {
     public boolean isValid(CruiseConfig preprocessedConfig) {
         preprocessedPipelineConfig = preprocessedConfig.getPipelineConfigByName(pipelineConfig.name());
         PipelineConfigSaveValidationContext validationContext = PipelineConfigSaveValidationContext.forChain(true, groupName, preprocessedConfig, preprocessedPipelineConfig);
-        validatePublishAndFetchExternalConfigs(preprocessedPipelineConfig, validationContext, preprocessedConfig);
+        validatePublishAndFetchExternalConfigs(preprocessedPipelineConfig, preprocessedConfig);
         boolean isValid = preprocessedPipelineConfig.validateTree(validationContext)
                 && preprocessedPipelineConfig.getAllErrors().isEmpty();
 

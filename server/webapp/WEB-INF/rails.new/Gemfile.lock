@@ -212,6 +212,3 @@ DEPENDENCIES
   uglifier
   validatable (>= 1.6.0)
   versionist
-
-BUNDLED WITH
-   1.14.6

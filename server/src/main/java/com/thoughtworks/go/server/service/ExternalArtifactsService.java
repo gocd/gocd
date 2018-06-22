@@ -39,7 +39,7 @@ public class ExternalArtifactsService {
         this.artifactExtension = artifactExtension;
     }
 
-    public void validateExternalArtifactConfig(PluggableArtifactConfig preprocessedPluggableArtifactConfig, ArtifactStore artifactStore, ValidationContext validationContext) {
+    public void validateExternalArtifactConfig(PluggableArtifactConfig preprocessedPluggableArtifactConfig, ArtifactStore artifactStore) {
         if (preprocessedPluggableArtifactConfig.hasValidPluginAndStore(artifactStore)) {
             String pluginId = artifactStore.getPluginId();
             try {
@@ -54,8 +54,8 @@ public class ExternalArtifactsService {
         }
     }
 
-    public void validateFetchExternalArtifactTask(FetchPluggableArtifactTask preprocessedFetchPluggableArtifactTask, ValidationContext validationContext, PipelineConfig pipelineConfig, CruiseConfig preprocessedConfig) {
-        PluggableArtifactConfig specifiedExternalArtifact = preprocessedFetchPluggableArtifactTask.getSpecifiedExternalArtifact(validationContext.getCruiseConfig(), pipelineConfig, preprocessedFetchPluggableArtifactTask);
+    public void validateFetchExternalArtifactTask(FetchPluggableArtifactTask preprocessedFetchPluggableArtifactTask, PipelineConfig pipelineConfig, CruiseConfig preprocessedConfig) {
+        PluggableArtifactConfig specifiedExternalArtifact = preprocessedFetchPluggableArtifactTask.getSpecifiedExternalArtifact(preprocessedConfig, pipelineConfig, preprocessedFetchPluggableArtifactTask);
         if (specifiedExternalArtifact != null) {
             ArtifactStore artifactStore = preprocessedConfig.getArtifactStores().find(specifiedExternalArtifact.getStoreId());
             if (specifiedExternalArtifact.hasValidPluginAndStore(artifactStore)) {

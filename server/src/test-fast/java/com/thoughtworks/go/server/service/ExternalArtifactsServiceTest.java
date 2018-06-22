@@ -79,7 +79,7 @@ public class ExternalArtifactsServiceTest {
         when(artifactStore.getPluginId()).thenReturn(pluginId);
         when(artifactExtension.validatePluggableArtifactConfig(any(), eq(configuration.getConfigurationAsMap(true)))).thenReturn(new ValidationResult());
 
-        externalArtifactsService.validateExternalArtifactConfig(pluggableArtifactConfig, artifactStore, validationContext);
+        externalArtifactsService.validateExternalArtifactConfig(pluggableArtifactConfig, artifactStore);
 
         assertFalse(pluggableArtifactConfig.hasErrors());
     }
@@ -92,7 +92,7 @@ public class ExternalArtifactsServiceTest {
         fetchPluggableArtifactTask.setConfiguration(configuration);
         when(artifactExtension.validateFetchArtifactConfig(any(), eq(configuration.getConfigurationAsMap(true)))).thenReturn(new ValidationResult());
 
-        externalArtifactsService.validateFetchExternalArtifactTask(fetchPluggableArtifactTask, validationContext, pipelineConfig, cruiseConfig);
+        externalArtifactsService.validateFetchExternalArtifactTask(fetchPluggableArtifactTask, pipelineConfig, cruiseConfig);
         assertTrue(fetchPluggableArtifactTask.errors().isEmpty());
     }
 
@@ -100,7 +100,7 @@ public class ExternalArtifactsServiceTest {
     public void shouldSkipValidationAgainstPluginIfExternalArtifactIsInvalid() {
         cruiseConfig.getArtifactStores().clear();
 
-        externalArtifactsService.validateExternalArtifactConfig(pluggableArtifactConfig, mock(ArtifactStore.class), PipelineConfigSaveValidationContext.forChain(true, "group", cruiseConfig));
+        externalArtifactsService.validateExternalArtifactConfig(pluggableArtifactConfig, mock(ArtifactStore.class));
 
         verifyZeroInteractions(artifactExtension);
     }
@@ -109,7 +109,7 @@ public class ExternalArtifactsServiceTest {
     public void shouldSkipValidationAgainstPluginIfFetchExternalArtifactIsInvalid() {
         cruiseConfig.getArtifactStores().clear();
 
-        externalArtifactsService.validateFetchExternalArtifactTask(fetchPluggableArtifactTask, PipelineConfigSaveValidationContext.forChain(true, "group", cruiseConfig), pipelineConfig, cruiseConfig);
+        externalArtifactsService.validateFetchExternalArtifactTask(fetchPluggableArtifactTask, pipelineConfig, cruiseConfig);
 
         verifyZeroInteractions(artifactExtension);
     }
@@ -118,7 +118,7 @@ public class ExternalArtifactsServiceTest {
     public void shouldAddErrorWhenPluggableArtifactDoesNotHaveValidStore() {
         cruiseConfig.getArtifactStores().clear();
 
-        externalArtifactsService.validateExternalArtifactConfig(pluggableArtifactConfig, mock(ArtifactStore.class), PipelineConfigSaveValidationContext.forChain(true, "group", cruiseConfig));
+        externalArtifactsService.validateExternalArtifactConfig(pluggableArtifactConfig, mock(ArtifactStore.class));
 
         verifyZeroInteractions(artifactExtension);
 
@@ -142,7 +142,7 @@ public class ExternalArtifactsServiceTest {
 
         when(artifactExtension.validatePluggableArtifactConfig(any(String.class), any())).thenReturn(validationResult);
 
-        externalArtifactsService.validateExternalArtifactConfig(pluggableArtifactConfig, artifactStore, PipelineConfigSaveValidationContext.forChain(true, "group", cruiseConfig));
+        externalArtifactsService.validateExternalArtifactConfig(pluggableArtifactConfig, artifactStore);
 
         assertThat(configuration.getProperty("Image").errors().get("Image").get(0), is("invalid"));
         assertThat(configuration.getProperty("Tag").errors().get("Tag").get(0), is("invalid"));
@@ -159,7 +159,7 @@ public class ExternalArtifactsServiceTest {
         when(artifactStore.getPluginId()).thenReturn(pluginId);
         when(artifactExtension.validatePluggableArtifactConfig(any(), any())).thenReturn(validationResult);
 
-        externalArtifactsService.validateExternalArtifactConfig(pluggableArtifactConfig, artifactStore, PipelineConfigSaveValidationContext.forChain(true, "group", cruiseConfig));
+        externalArtifactsService.validateExternalArtifactConfig(pluggableArtifactConfig, artifactStore);
 
         assertThat(pluggableArtifactConfig.errors().getAllOn("configuration").get(0), is("Either Image or BuildFile is required"));
     }

@@ -18,12 +18,8 @@ package com.thoughtworks.go.config.update;
 
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
-import com.thoughtworks.go.domain.Task;
 import com.thoughtworks.go.server.service.ExternalArtifactsService;
 import com.thoughtworks.go.server.service.GoConfigService;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public abstract class PipelineConfigCommand implements EntityConfigUpdateCommand<PipelineConfig> {
 
@@ -54,15 +50,13 @@ public abstract class PipelineConfigCommand implements EntityConfigUpdateCommand
         pipelineConfig.encryptSecureProperties(preprocessedConfig, preprocessedPipelineConfig);
     }
 
-    void validatePublishAndFetchExternalConfigs(PipelineConfig pipelineConfig, ValidationContext validationContext, CruiseConfig preprocessedConfig) {
-        pipelineConfig.cachePublishAndFetchExternalConfig();
-
+    void validatePublishAndFetchExternalConfigs(PipelineConfig pipelineConfig, CruiseConfig preprocessedConfig) {
         for (PluggableArtifactConfig pluggableArtifactConfig : pipelineConfig.getExternalArtifactConfigs()) {
-            externalArtifactsService.validateExternalArtifactConfig(pluggableArtifactConfig, goConfigService.artifactStores().find(pluggableArtifactConfig.getStoreId()), validationContext);
+            externalArtifactsService.validateExternalArtifactConfig(pluggableArtifactConfig, goConfigService.artifactStores().find(pluggableArtifactConfig.getStoreId()));
         }
 
         for (FetchPluggableArtifactTask fetchPluggableArtifactTask : pipelineConfig.getFetchExternalArtifactTasks()) {
-            externalArtifactsService.validateFetchExternalArtifactTask(fetchPluggableArtifactTask, validationContext, pipelineConfig, preprocessedConfig);
+            externalArtifactsService.validateFetchExternalArtifactTask(fetchPluggableArtifactTask, pipelineConfig, preprocessedConfig);
         }
     }
 }

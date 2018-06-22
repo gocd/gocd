@@ -1,7 +1,0 @@
-{
-  "devDependencies": {
-    "babel-eslint": "^8.2.2",
-    "eslint": "^4.17.0",
-    "eslint-plugin-react": "^7.3.0"
-  }
-}

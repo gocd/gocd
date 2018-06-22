@@ -52,6 +52,7 @@ class YarnRunTask extends DefaultTask {
   }
 
   @OutputDirectory
+  @Optional
   File getDestinationDir() {
     return destinationDir
   }
@@ -94,7 +95,9 @@ class YarnRunTask extends DefaultTask {
     }
 
     if (shouldExecute) {
-      project.delete(getDestinationDir())
+      if (getDestinationDir() != null) {
+        project.delete(getDestinationDir())
+      }
 
       project.exec { ExecSpec execSpec ->
         execSpec.standardOutput = System.out

@@ -1006,6 +1006,7 @@ task licenseReportAggregate {
 apply from: 'rails.gradle'
 apply from: 'jasmine.gradle'
 apply from: 'helpers.gradle'
+apply from: 'lint.gradle'
 
 generateLicenseReport.dependsOn(compileAssetsWebpackProd)
 

@@ -7,7 +7,8 @@
     "webpack-dev": "webpack --config config/webpack.config.js",
     "webpack-prod": "webpack --config config/webpack.config.js --env.production=true",
     "jasmine-ci": "karma start --single-run",
-    "karma": "karma start"
+    "karma": "karma start",
+    "eslint": "eslint --color --ext .js --ext .msx --format stylish webpack/ spec/webpack/ --ignore-pattern gen/"
   },
   "dependencies": {
     "angular": "1.0.8",
@@ -29,12 +30,15 @@
   },
   "devDependencies": {
     "babel-core": "^6.24.1",
+    "babel-eslint": "^8.2.3",
     "babel-loader": "^7.0.0",
     "babel-plugin-transform-class-properties": "^6.24.1",
     "babel-plugin-transform-es2015-destructuring": "^6.23.0",
     "babel-plugin-transform-react-jsx": "^6.24.1",
     "babel-preset-env": "^1.5.1",
     "babel-preset-stage-2": "^6.24.1",
+    "eslint": "^4.19.1",
+    "eslint-plugin-react": "^7.9.1",
     "fs-extra": "^5.0.0",
     "happypack": "^4.0.1",
     "html-webpack-plugin": "^2.28.0",

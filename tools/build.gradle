@@ -1,6 +1,4 @@
 import com.thoughtworks.go.build.ExtractJRubyTask
-import com.thoughtworks.go.build.YarnInstallTask
-
 /*
  * Copyright 2016 ThoughtWorks, Inc.
  *
@@ -18,7 +16,6 @@ import com.thoughtworks.go.build.YarnInstallTask
  */
 
 description = 'GoCD build tools'
-apply from: 'lint.gradle'
 
 repositories {
   maven { url 'http://rubygems-proxy.torquebox.org/releases/' }
@@ -32,8 +29,6 @@ configurations {
 dependencies {
   jrubyDist group: 'org.jruby', name: 'jruby-dist', version: '1.7.26', classifier: 'bin', ext: 'tar.gz'
   jrubyGems group: 'rubygems', name: 'bundler', version: '1.9.9'
-
-  jrubyGems group: 'rubygems', name: 'scss_lint', version: '0.50.1'
 }
 
 task prepareJRuby(type: ExtractJRubyTask) {
@@ -41,17 +36,11 @@ task prepareJRuby(type: ExtractJRubyTask) {
   gems = project.configurations.jrubyGems
 }
 
-task yarnInstall(type: YarnInstallTask) {
-  workingDir = project.projectDir
-}
-
 clean {
   delete('jruby')
   delete('jruby-1.7.11')
-  delete('node_modules')
 }
 
 task prepare {
   dependsOn prepareJRuby
-  dependsOn yarnInstall
 }

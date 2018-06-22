@@ -36,3 +36,7 @@ group :development, :test do
   gem 'ruby-debug-base'
   gem 'ruby-debug-ide'
 end
+
+group :development do
+  gem 'scss_lint', '0.50.1'
+end

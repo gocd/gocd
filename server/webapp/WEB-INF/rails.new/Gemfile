@@ -38,5 +38,5 @@ group :development, :test do
 end
 
 group :development do
-  gem 'scss_lint', '0.50.1'
+  gem 'scss_lint', '0.50.1', require: false
 end

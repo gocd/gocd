@@ -32,6 +32,7 @@ import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.helper.*;
 import com.thoughtworks.go.listener.ConfigChangedListener;
 import com.thoughtworks.go.server.domain.Username;
+import com.thoughtworks.go.server.service.ExternalArtifactsService;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.result.DefaultLocalizedOperationResult;
 import com.thoughtworks.go.serverhealth.*;
@@ -97,6 +98,8 @@ public class CachedGoConfigIntegrationTest {
     private GoFileConfigDataSource goFileConfigDataSource;
     @Autowired
     private ConfigRepository configRepository;
+    @Autowired
+    private ExternalArtifactsService externalArtifactsService;
 
     @Rule
     public final TemporaryFolder temporaryFolder = new TemporaryFolder();
@@ -272,7 +275,7 @@ public class CachedGoConfigIntegrationTest {
         PipelineConfig dupPipelineConfig = PipelineMother.twoBuildPlansWithResourcesAndSvnMaterialsAtUrl("pipe1", "ut",
                 "www.spring.com");
         try {
-            goConfigDao.updateConfig(new CreatePipelineConfigCommand(goConfigService, dupPipelineConfig, Username.ANONYMOUS, new DefaultLocalizedOperationResult(), "default"), Username.ANONYMOUS);
+            goConfigDao.updateConfig(new CreatePipelineConfigCommand(goConfigService, dupPipelineConfig, Username.ANONYMOUS, new DefaultLocalizedOperationResult(), "default", externalArtifactsService), Username.ANONYMOUS);
             fail("Should have thrown");
         } catch (RuntimeException ex) {
             PipelineConfig pipe1 = goConfigService.pipelineConfigNamed(new CaseInsensitiveString("pipe1"));

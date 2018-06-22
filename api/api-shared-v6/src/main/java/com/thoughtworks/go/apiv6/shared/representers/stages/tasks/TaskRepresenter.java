@@ -20,6 +20,7 @@ import com.thoughtworks.go.api.base.OutputListWriter;
 import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.api.representers.ErrorGetter;
 import com.thoughtworks.go.api.representers.JsonReader;
+import com.thoughtworks.go.apiv6.shared.representers.stages.ConfigHelperOptions;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.exceptions.UnprocessableEntityException;
 import com.thoughtworks.go.config.pluggabletask.PluggableTask;
@@ -70,7 +71,7 @@ public class TaskRepresenter {
                 jsonWriter.addChild("attributes", attributeWriter -> ExecTaskRepresenter.toJSON(attributeWriter, (ExecTask) task));
                 break;
             case FetchTask.TYPE:
-                jsonWriter.addChild("attributes", attributeWriter -> FetchTaskRepresenter.toJSON(attributeWriter, (FetchTask) task));
+                jsonWriter.addChild("attributes", attributeWriter -> FetchTaskRepresenter.toJSON(attributeWriter, (AbstractFetchTask) task));
                 break;
         }
     }

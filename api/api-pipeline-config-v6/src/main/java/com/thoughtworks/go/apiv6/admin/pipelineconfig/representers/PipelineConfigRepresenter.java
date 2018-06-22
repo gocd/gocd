@@ -24,11 +24,9 @@ import com.thoughtworks.go.apiv6.admin.pipelineconfig.representers.trackingtool.
 import com.thoughtworks.go.apiv6.shared.representers.EnvironmentVariableRepresenter;
 import com.thoughtworks.go.apiv6.shared.representers.configorigin.ConfigRepoOriginRepresenter;
 import com.thoughtworks.go.apiv6.shared.representers.configorigin.ConfigXmlOriginRepresenter;
+import com.thoughtworks.go.apiv6.shared.representers.stages.ConfigHelperOptions;
 import com.thoughtworks.go.apiv6.shared.representers.stages.StageRepresenter;
-import com.thoughtworks.go.config.MingleConfig;
-import com.thoughtworks.go.config.PipelineConfig;
-import com.thoughtworks.go.config.TimerConfig;
-import com.thoughtworks.go.config.TrackingTool;
+import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.remote.ConfigOrigin;
 import com.thoughtworks.go.config.remote.FileConfigOrigin;
 import com.thoughtworks.go.config.remote.RepoConfigOrigin;

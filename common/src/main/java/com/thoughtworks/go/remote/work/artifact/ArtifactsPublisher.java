@@ -73,7 +73,7 @@ public class ArtifactsPublisher implements Serializable {
 
             for (ArtifactPlan artifactPlan : mergedPlans) {
                 try {
-                    artifactPlan.publish(goPublisher, workingDirectory);
+                    artifactPlan.publishBuiltInArtifacts(goPublisher, workingDirectory);
                 } catch (Exception e) {
                     failedArtifact.add(artifactPlan);
                 }

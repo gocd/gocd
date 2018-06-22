@@ -25,6 +25,7 @@ import com.thoughtworks.go.service.TaskFactory;
 import com.thoughtworks.go.util.XmlUtils;
 import org.apache.commons.lang3.StringUtils;
 
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
@@ -327,6 +328,20 @@ public class JobConfig implements Validatable, ParamsAttributeAware, Environment
         isValid = tabs.validateTree(contextForChildren) && isValid;
         isValid = artifactConfigs.validateTree(contextForChildren) && isValid;
         return isValid;
+    }
+
+    public void encryptSecureProperties(CruiseConfig preprocessedConfig, PipelineConfig preprocessedPipelineConfig, JobConfig preprocessedJobConfig) {
+        List<PluggableArtifactConfig> artifactConfigs = artifactConfigs().getPluggableArtifactConfigs();
+        List<PluggableArtifactConfig> preprocessedArtifactConfigs = preprocessedJobConfig.artifactConfigs().getPluggableArtifactConfigs();
+        artifactConfigs.forEach(artifactConfig -> {
+            artifactConfig.encryptSecureProperties(preprocessedConfig, preprocessedArtifactConfigs.get(artifactConfigs.indexOf(artifactConfig)));
+        });
+
+        tasks.forEach(task -> {
+            if (task instanceof FetchPluggableArtifactTask) {
+                ((FetchPluggableArtifactTask) task).encryptSecureProperties(preprocessedConfig, preprocessedPipelineConfig, (FetchPluggableArtifactTask) preprocessedJobConfig.getTasks().get(tasks.indexOf(task)));
+            }
+        });
     }
 
     public void validate(ValidationContext validationContext) {

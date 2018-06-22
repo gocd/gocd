@@ -19,6 +19,7 @@ package com.thoughtworks.go.apiv6.shared.representers.stages
 import com.thoughtworks.go.api.util.GsonTransformer
 import com.thoughtworks.go.config.*
 import com.thoughtworks.go.config.exceptions.UnprocessableEntityException
+import com.thoughtworks.go.config.materials.PasswordDeserializer
 import com.thoughtworks.go.helper.JobConfigMother
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -27,6 +28,7 @@ import static com.thoughtworks.go.api.base.JsonUtils.toObject
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
 import static org.junit.jupiter.api.Assertions.*
+import static org.mockito.Mockito.mock
 
 class JobRepresenterTest {
   @Nested
@@ -346,7 +348,7 @@ class JobRepresenterTest {
       ])
 
       def exception = assertThrows(UnprocessableEntityException.class, { JobRepresenter.fromJSON(jsonReader) })
-      assertEquals("Invalid Artifact type: 'invalid'. It has to be one of build,test.", exception.getMessage())
+      assertEquals("Invalid Artifact type: 'invalid'. It has to be one of build,test,external.", exception.getMessage())
     }
 
     @Test
@@ -419,6 +421,7 @@ class JobRepresenterTest {
           attributes:
           [
             pipeline: '',
+            origin: 'gocd',
             stage: '',
             job: '',
             is_source_a_file: false,

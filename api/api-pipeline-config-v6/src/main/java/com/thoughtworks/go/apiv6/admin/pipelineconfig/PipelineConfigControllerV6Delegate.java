@@ -24,7 +24,7 @@ import com.thoughtworks.go.api.CrudController;
 import com.thoughtworks.go.api.representers.JsonReader;
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
 import com.thoughtworks.go.api.util.GsonTransformer;
-import com.thoughtworks.go.apiv6.admin.pipelineconfig.representers.ConfigHelperOptions;
+import com.thoughtworks.go.apiv6.shared.representers.stages.ConfigHelperOptions;
 import com.thoughtworks.go.apiv6.admin.pipelineconfig.representers.PipelineConfigRepresenter;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
@@ -43,7 +43,6 @@ import spark.Request;
 import spark.Response;
 
 import java.io.IOException;
-import java.util.HashMap;
 
 import static com.thoughtworks.go.api.util.HaltApiResponses.*;
 import static spark.Spark.*;

@@ -17,16 +17,19 @@
 package com.thoughtworks.go.apiv6.shared.representers.stages.tasks
 
 import com.thoughtworks.go.config.CaseInsensitiveString
-import com.thoughtworks.go.config.FetchTask
+import com.thoughtworks.go.config.FetchPluggableArtifactTask
+import com.thoughtworks.go.domain.config.Configuration
+import com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother
 
-class FetchTaskRepresenterTest implements TaskRepresenterTest {
+class FetchExternalTaskRepresenterTest implements TaskRepresenterTest{
+
   def existingTask() {
-    def task = new FetchTask()
+    def task = new FetchPluggableArtifactTask()
     task.setPipelineName(new CaseInsensitiveString('pipeline'))
     task.setStage(new CaseInsensitiveString('stage'))
     task.setJob(new CaseInsensitiveString('job'))
-    task.setSrcfile("src")
-    task.setDest("dest")
+    task.setArtifactId("yay")
+    task.setConfiguration(new Configuration(ConfigurationPropertyMother.create("foo", false, "bar")))
     return task
   }
 
@@ -34,13 +37,17 @@ class FetchTaskRepresenterTest implements TaskRepresenterTest {
     [
       type      : 'fetch',
       attributes: [
-        origin     : 'gocd',
+        origin     : 'external',
         pipeline   : 'pipeline',
         stage      : 'stage',
         job        : 'job',
-        is_source_a_file: true,
-        source     : 'src',
-        destination: 'dest',
+        artifact_id: 'yay',
+        configuration: [
+          [
+            key: 'foo',
+            value: 'bar'
+          ]
+        ],
         run_if           : []
       ]
     ]
@@ -49,14 +56,18 @@ class FetchTaskRepresenterTest implements TaskRepresenterTest {
     [
       type      : 'fetch',
       attributes: [
-        origin     : 'gocd',
+        origin     : 'external',
         run_if     : ['passed', 'failed', 'any'],
         pipeline   : 'pipeline',
         stage      : 'stage',
         job        : 'job',
-        source     : 'src',
-        is_source_a_file: true,
-        destination: 'dest'
+        artifact_id: 'yay',
+        configuration: [
+          [
+            key: 'foo',
+            value: 'bar'
+          ]
+        ]
       ]
     ]
 
@@ -64,13 +75,17 @@ class FetchTaskRepresenterTest implements TaskRepresenterTest {
     [
       type      : 'fetch',
       attributes: [
-        origin     : 'gocd',
+        origin     : 'external',
         pipeline   : 'pipeline',
         stage      : 'stage',
         job        : 'job',
-        source     : 'src',
-        is_source_a_file: true,
-        destination: 'dest',
+        artifact_id: 'yay',
+        configuration: [
+          [
+            key: 'foo',
+            value: 'bar'
+          ]
+        ],
         run_if           : [],
         on_cancel      : ["type": "ant", attributes:[
           run_if: [],
@@ -80,5 +95,4 @@ class FetchTaskRepresenterTest implements TaskRepresenterTest {
         ]]
       ]
     ]
-
 }

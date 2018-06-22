@@ -18,6 +18,7 @@ package com.thoughtworks.go.apiv6.shared.representers.stages
 
 import com.thoughtworks.go.api.util.GsonTransformer
 import com.thoughtworks.go.config.*
+import com.thoughtworks.go.config.materials.PasswordDeserializer
 import com.thoughtworks.go.helper.JobConfigMother
 import com.thoughtworks.go.helper.StageConfigMother
 import org.junit.jupiter.api.Nested
@@ -28,6 +29,7 @@ import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
 import static org.junit.jupiter.api.Assertions.assertEquals
 import static org.junit.jupiter.api.Assertions.assertTrue
+import static org.mockito.Mockito.mock
 
 
 class StageRepresenterTest  {

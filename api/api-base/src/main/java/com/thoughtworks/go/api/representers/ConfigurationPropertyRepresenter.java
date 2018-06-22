@@ -21,6 +21,7 @@ import com.thoughtworks.go.api.base.OutputListWriter;
 import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 
@@ -51,6 +52,19 @@ public class ConfigurationPropertyRepresenter {
                 put("configurationKey", "configuration_key");
             }}).toJSON(errorWriter, configurationProperty));
         }
+    }
+
+    public static List<ConfigurationProperty> fromJSONArray(JsonReader jsonReader, String arrayKey) {
+        List<ConfigurationProperty> configurationProperties = new ArrayList<>();
+        jsonReader.readArrayIfPresent(arrayKey, properties -> {
+            properties.forEach(property -> {
+                JsonReader configPropertyReader = new JsonReader(property.getAsJsonObject());
+                ConfigurationProperty configurationProperty = fromJSON(configPropertyReader);
+                configurationProperties.add(configurationProperty);
+            });
+
+        });
+        return configurationProperties;
     }
 
     public static ConfigurationProperty fromJSON(JsonReader jsonReader) {

@@ -18,10 +18,9 @@ package com.thoughtworks.go.config;
 
 import com.thoughtworks.go.config.helper.ValidationContextMother;
 import com.thoughtworks.go.domain.ArtifactType;
-import com.thoughtworks.go.domain.config.Configuration;
-import com.thoughtworks.go.domain.config.ConfigurationKey;
-import com.thoughtworks.go.domain.config.ConfigurationProperty;
-import com.thoughtworks.go.domain.config.ConfigurationValue;
+import com.thoughtworks.go.domain.config.*;
+import com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother;
+import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.plugin.access.artifact.ArtifactMetadataStore;
 import com.thoughtworks.go.plugin.api.info.PluginDescriptor;
@@ -31,6 +30,8 @@ import com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings;
 import com.thoughtworks.go.plugin.domain.common.PluginConfiguration;
 import com.thoughtworks.go.security.CryptoException;
 import com.thoughtworks.go.security.GoCipher;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -44,13 +45,29 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class PluggableArtifactConfigTest {
+
+    private ArtifactPluginInfo artifactPluginInfo;
+
+    @Before
+    public void setup() {
+        artifactPluginInfo = mock(ArtifactPluginInfo.class);
+        PluginDescriptor pluginDescriptor = mock(PluginDescriptor.class);
+        when(artifactPluginInfo.getDescriptor()).thenReturn(pluginDescriptor);
+        when(pluginDescriptor.id()).thenReturn("cd.go.s3");
+        ArtifactMetadataStore.instance().setPluginInfo(artifactPluginInfo);
+    }
+    @After
+    public void clear() {
+        ArtifactMetadataStore.instance().setPluginInfo(null);
+    }
+
     @Test
     public void shouldCreatePluggableArtifact() {
         final PluggableArtifactConfig artifactConfig = new PluggableArtifactConfig("Artifact-ID", "Store-ID", create("Foo", false, "Bar"));
 
         assertThat(artifactConfig.getId(), is("Artifact-ID"));
         assertThat(artifactConfig.getStoreId(), is("Store-ID"));
-        assertThat(artifactConfig.getArtifactType(), is(ArtifactType.plugin));
+        assertThat(artifactConfig.getArtifactType(), is(ArtifactType.external));
         assertThat(artifactConfig.getArtifactTypeValue(), is("Pluggable Artifact"));
         assertThat(artifactConfig.getConfiguration().get(0), is(create("Foo", false, "Bar")));
     }
@@ -154,21 +171,12 @@ public class PluggableArtifactConfigTest {
         final boolean result = artifactConfig.validateTree(ValidationContextMother.validationContext(artifactStores));
 
         assertFalse(result);
+        assertThat(artifactConfig.errors().getAllOn("id"), is(Arrays.asList("\"Id\" is required for PluggableArtifact", "Invalid pluggable artifact id name ''. This must be alphanumeric and can contain underscores and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.")));
     }
 
     @Test
     public void validateTree_shouldValidateNullId() {
         PluggableArtifactConfig artifactConfig = new PluggableArtifactConfig(null, "s3");
-
-        final ArtifactStores artifactStores = new ArtifactStores(new ArtifactStore("s3", "cd.go.s3"));
-        final boolean result = artifactConfig.validateTree(ValidationContextMother.validationContext(artifactStores));
-
-        assertFalse(result);
-    }
-
-    @Test
-    public void validateTree_presenceStoreId() {
-        PluggableArtifactConfig artifactConfig = new PluggableArtifactConfig("installer", "");
 
         final ArtifactStores artifactStores = new ArtifactStores(new ArtifactStore("s3", "cd.go.s3"));
         final boolean result = artifactConfig.validateTree(ValidationContextMother.validationContext(artifactStores));
@@ -184,17 +192,23 @@ public class PluggableArtifactConfigTest {
         final boolean result = artifactConfig.validateTree(ValidationContextMother.validationContext(artifactStores));
 
         assertFalse(result);
+        assertThat(artifactConfig.errors().getAllOn("storeId"), is(Arrays.asList("\"Store id\" is required for PluggableArtifact")));
     }
 
     @Test
-    public void postConstruct_shouldHandleEncryptionOfConfigProperties() throws CryptoException {
-        GoCipher goCipher = new GoCipher();
+    public void validate_shouldAddAnErrorIfArtifactIdIsInvalid() {
+        PluggableArtifactConfig artifactConfig = new PluggableArtifactConfig("asf@%", "f");
 
-        ArtifactPluginInfo artifactPluginInfo = mock(ArtifactPluginInfo.class);
-        PluginDescriptor pluginDescriptor = mock(PluginDescriptor.class);
-        when(artifactPluginInfo.getDescriptor()).thenReturn(pluginDescriptor);
-        when(pluginDescriptor.id()).thenReturn("cd.go.s3");
-        ArtifactMetadataStore.instance().setPluginInfo(artifactPluginInfo);
+        final ArtifactStores artifactStores = new ArtifactStores(new ArtifactStore("docker", "cd.go.docker"));
+        final boolean result = artifactConfig.validateTree(ValidationContextMother.validationContext(artifactStores));
+
+        assertFalse(result);
+        assertThat(artifactConfig.errors().getAllOn("id"), is(Arrays.asList("Invalid pluggable artifact id name 'asf@%'. This must be alphanumeric and can contain underscores and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.")));
+    }
+
+    @Test
+    public void shouldHandleEncryptionOfConfigProperties() throws CryptoException {
+        GoCipher goCipher = new GoCipher();
 
         ArrayList<PluginConfiguration> pluginConfigurations = new ArrayList<>();
         pluginConfigurations.add(new PluginConfiguration("key1", new Metadata(true, true)));
@@ -204,9 +218,11 @@ public class PluggableArtifactConfigTest {
         ConfigurationProperty secureProperty = new ConfigurationProperty(new ConfigurationKey("key1"), new ConfigurationValue("value1"), null, goCipher);
         ConfigurationProperty nonSecureProperty = new ConfigurationProperty(new ConfigurationKey("key2"), new ConfigurationValue("value2"), null, goCipher);
         PluggableArtifactConfig pluggableArtifactConfig = new PluggableArtifactConfig("id", "store-id", secureProperty, nonSecureProperty);
-        pluggableArtifactConfig.setArtifactStore(new ArtifactStore("store-id", "cd.go.s3"));
 
-        pluggableArtifactConfig.encryptSecureConfigurations();
+        BasicCruiseConfig cruiseConfig = GoConfigMother.defaultCruiseConfig();
+        cruiseConfig.getArtifactStores().add(new ArtifactStore("store-id", "cd.go.s3"));
+
+        pluggableArtifactConfig.encryptSecureProperties(cruiseConfig, pluggableArtifactConfig);
 
         assertThat(secureProperty.isSecure(), is(true));
         assertThat(secureProperty.getEncryptedConfigurationValue(), is(notNullValue()));
@@ -214,5 +230,216 @@ public class PluggableArtifactConfigTest {
 
         assertThat(nonSecureProperty.isSecure(), is(false));
         assertThat(nonSecureProperty.getValue(), is("value2"));
+
+    }
+
+    @Test
+    public void shouldHandleEncryptionOfConfigPropertiesIfStoreIdIsAValidParam() throws Exception {
+        GoCipher goCipher = new GoCipher();
+
+        ArrayList<PluginConfiguration> pluginConfigurations = new ArrayList<>();
+        pluginConfigurations.add(new PluginConfiguration("key1", new Metadata(true, true)));
+        pluginConfigurations.add(new PluginConfiguration("key2", new Metadata(true, false)));
+        when(artifactPluginInfo.getArtifactConfigSettings()).thenReturn(new PluggableInstanceSettings(pluginConfigurations));
+
+        ConfigurationProperty secureProperty = new ConfigurationProperty(new ConfigurationKey("key1"), new ConfigurationValue("value1"), null, goCipher);
+        ConfigurationProperty nonSecureProperty = new ConfigurationProperty(new ConfigurationKey("key2"), new ConfigurationValue("value2"), null, goCipher);
+        PluggableArtifactConfig pluggableArtifactConfig = new PluggableArtifactConfig("id", "#{storeId}", secureProperty, nonSecureProperty);
+        PluggableArtifactConfig preprocessedPluggableArtifactConfig = new PluggableArtifactConfig("id", "store-id", secureProperty, nonSecureProperty);
+
+        BasicCruiseConfig cruiseConfig = GoConfigMother.defaultCruiseConfig();
+        cruiseConfig.getArtifactStores().add(new ArtifactStore("store-id", "cd.go.s3"));
+
+        pluggableArtifactConfig.encryptSecureProperties(cruiseConfig, preprocessedPluggableArtifactConfig);
+
+        assertThat(secureProperty.isSecure(), is(true));
+        assertThat(secureProperty.getEncryptedConfigurationValue(), is(notNullValue()));
+        assertThat(secureProperty.getEncryptedValue(), is(goCipher.encrypt("value1")));
+
+        assertThat(nonSecureProperty.isSecure(), is(false));
+        assertThat(nonSecureProperty.getValue(), is("value2"));
+
+    }
+
+    @Test
+    public void shouldIgnoreEncryptionOfSecurePropertyForNonExistentParam() {
+        GoCipher goCipher = new GoCipher();
+
+        ArrayList<PluginConfiguration> pluginConfigurations = new ArrayList<>();
+        pluginConfigurations.add(new PluginConfiguration("key1", new Metadata(true, true)));
+        pluginConfigurations.add(new PluginConfiguration("key2", new Metadata(true, false)));
+        when(artifactPluginInfo.getArtifactConfigSettings()).thenReturn(new PluggableInstanceSettings(pluginConfigurations));
+
+        ConfigurationProperty secureProperty = new ConfigurationProperty(new ConfigurationKey("key1"), new ConfigurationValue("value1"), null, goCipher);
+        ConfigurationProperty nonSecureProperty = new ConfigurationProperty(new ConfigurationKey("key2"), new ConfigurationValue("value2"), null, goCipher);
+        PluggableArtifactConfig pluggableArtifactConfig1 = new PluggableArtifactConfig("id", "#{non-existent-param}", secureProperty, nonSecureProperty);
+
+        BasicCruiseConfig cruiseConfig = GoConfigMother.defaultCruiseConfig();
+        cruiseConfig.getArtifactStores().add(new ArtifactStore("store-id", "cd.go.s3"));
+
+        pluggableArtifactConfig1.encryptSecureProperties(cruiseConfig, pluggableArtifactConfig1);
+
+        assertThat(secureProperty.isSecure(), is(false));
+        assertThat(secureProperty.getValue(), is("value1"));
+
+        assertThat(nonSecureProperty.isSecure(), is(false));
+        assertThat(nonSecureProperty.getValue(), is("value2"));
+    }
+
+    @Test
+    public void shouldIgnoreEncryptionOfSecurePropertyIfParamsIsUndefined() {
+        GoCipher goCipher = new GoCipher();
+
+        ArrayList<PluginConfiguration> pluginConfigurations = new ArrayList<>();
+        pluginConfigurations.add(new PluginConfiguration("key1", new Metadata(true, true)));
+        pluginConfigurations.add(new PluginConfiguration("key2", new Metadata(true, false)));
+        when(artifactPluginInfo.getArtifactConfigSettings()).thenReturn(new PluggableInstanceSettings(pluginConfigurations));
+
+        ConfigurationProperty secureProperty1 = new ConfigurationProperty(new ConfigurationKey("key1"), new ConfigurationValue("value1"), null, goCipher);
+        ConfigurationProperty secureProperty2 = new ConfigurationProperty(new ConfigurationKey("key1"), new ConfigurationValue("value1"), null, goCipher);
+        ConfigurationProperty nonSecureProperty1 = new ConfigurationProperty(new ConfigurationKey("key2"), new ConfigurationValue("value2"), null, goCipher);
+        ConfigurationProperty nonSecureProperty2 = new ConfigurationProperty(new ConfigurationKey("key2"), new ConfigurationValue("value2"), null, goCipher);
+        PluggableArtifactConfig pluggableArtifactConfig1 = new PluggableArtifactConfig("id", "#{storeId}", secureProperty1, nonSecureProperty1);
+        PluggableArtifactConfig pluggableArtifactConfig2 = new PluggableArtifactConfig("id", "#{storeId}", secureProperty2, nonSecureProperty2);
+
+        BasicCruiseConfig cruiseConfig = GoConfigMother.defaultCruiseConfig();
+        cruiseConfig.getArtifactStores().add(new ArtifactStore("store-id", "cd.go.s3"));
+
+        pluggableArtifactConfig1.encryptSecureProperties(cruiseConfig, pluggableArtifactConfig1);
+        pluggableArtifactConfig2.encryptSecureProperties(cruiseConfig, pluggableArtifactConfig2);
+
+        assertThat(secureProperty1.isSecure(), is(false));
+        assertThat(secureProperty1.getValue(), is("value1"));
+        assertThat(nonSecureProperty1.isSecure(), is(false));
+        assertThat(nonSecureProperty1.getValue(), is("value2"));
+
+        assertThat(secureProperty2.isSecure(), is(false));
+        assertThat(secureProperty2.getValue(), is("value1"));
+        assertThat(nonSecureProperty2.isSecure(), is(false));
+        assertThat(nonSecureProperty2.getValue(), is("value2"));
+    }
+
+    @Test
+    public void shouldIgnoreEncryptionOfSecurePropertyForInvalidParamSpecification() {
+        GoCipher goCipher = new GoCipher();
+
+        ArrayList<PluginConfiguration> pluginConfigurations = new ArrayList<>();
+        pluginConfigurations.add(new PluginConfiguration("key1", new Metadata(true, true)));
+        pluginConfigurations.add(new PluginConfiguration("key2", new Metadata(true, false)));
+        when(artifactPluginInfo.getArtifactConfigSettings()).thenReturn(new PluggableInstanceSettings(pluginConfigurations));
+
+        ConfigurationProperty secureProperty = new ConfigurationProperty(new ConfigurationKey("key1"), new ConfigurationValue("value1"), null, goCipher);
+        ConfigurationProperty nonSecureProperty = new ConfigurationProperty(new ConfigurationKey("key2"), new ConfigurationValue("value2"), null, goCipher);
+        PluggableArtifactConfig pluggableArtifactConfig = new PluggableArtifactConfig("id", "#{#{invalid}}", secureProperty, nonSecureProperty);
+
+        BasicCruiseConfig cruiseConfig = GoConfigMother.defaultCruiseConfig();
+        cruiseConfig.getArtifactStores().add(new ArtifactStore("store-id", "cd.go.s3"));
+
+        pluggableArtifactConfig.encryptSecureProperties(cruiseConfig, pluggableArtifactConfig);
+
+        assertThat(secureProperty.isSecure(), is(false));
+        assertThat(secureProperty.getValue(), is("value1"));
+
+        assertThat(nonSecureProperty.isSecure(), is(false));
+        assertThat(nonSecureProperty.getValue(), is("value2"));
+    }
+
+    @Test
+    public void shouldIgnoreEncryptionOfSecurePropertyIfStoreIdIsNull() {
+        GoCipher goCipher = new GoCipher();
+
+        ArrayList<PluginConfiguration> pluginConfigurations = new ArrayList<>();
+        pluginConfigurations.add(new PluginConfiguration("key1", new Metadata(true, true)));
+        pluginConfigurations.add(new PluginConfiguration("key2", new Metadata(true, false)));
+        when(artifactPluginInfo.getArtifactConfigSettings()).thenReturn(new PluggableInstanceSettings(pluginConfigurations));
+
+        ConfigurationProperty secureProperty = new ConfigurationProperty(new ConfigurationKey("key1"), new ConfigurationValue("value1"), null, goCipher);
+        ConfigurationProperty nonSecureProperty = new ConfigurationProperty(new ConfigurationKey("key2"), new ConfigurationValue("value2"), null, goCipher);
+        PluggableArtifactConfig pluggableArtifactConfig = new PluggableArtifactConfig("id", null, secureProperty, nonSecureProperty);
+
+        BasicCruiseConfig cruiseConfig = GoConfigMother.defaultCruiseConfig();
+        cruiseConfig.getArtifactStores().add(new ArtifactStore("store-id", "cd.go.s3"));
+
+        pluggableArtifactConfig.encryptSecureProperties(cruiseConfig, pluggableArtifactConfig);
+
+        assertThat(secureProperty.isSecure(), is(false));
+        assertThat(secureProperty.getValue(), is("value1"));
+
+        assertThat(nonSecureProperty.isSecure(), is(false));
+        assertThat(nonSecureProperty.getValue(), is("value2"));
+    }
+
+    @Test
+    public void addConfigurations_shouldLeaveUserEnteredValuesAsIsIfArtifactStoreIsNull() throws CryptoException {
+        PluggableArtifactConfig pluggableArtifactConfig = new PluggableArtifactConfig("id", "non-existent-store-id");
+        ArrayList<ConfigurationProperty> configurationProperties = new ArrayList<>();
+        configurationProperties.add(ConfigurationPropertyMother.create("plain", false, "plain"));
+        configurationProperties.add(ConfigurationPropertyMother.create("secure", true, new GoCipher().encrypt("password")));
+
+        pluggableArtifactConfig.addConfigurations(configurationProperties);
+
+        assertThat(pluggableArtifactConfig.getConfiguration(), is(configurationProperties));
+    }
+
+    @Test
+    public void addConfigurations_shouldLeaveUserEnteredValuesAsIsIfPluginIsMissing() throws CryptoException {
+        ArtifactMetadataStore.instance().remove("cd.go.s3");
+        PluggableArtifactConfig pluggableArtifactConfig = new PluggableArtifactConfig("id", "storeId");
+        ArrayList<ConfigurationProperty> configurationProperties = new ArrayList<>();
+        configurationProperties.add(ConfigurationPropertyMother.create("plain", false, "plain"));
+        configurationProperties.add(ConfigurationPropertyMother.create("secure", true, new GoCipher().encrypt("password")));
+
+        BasicCruiseConfig cruiseConfig = GoConfigMother.defaultCruiseConfig();
+        cruiseConfig.getArtifactStores().add(new ArtifactStore("storeId", "cd.go.s3"));
+
+        pluggableArtifactConfig.addConfigurations(configurationProperties);
+
+        assertThat(pluggableArtifactConfig.getConfiguration(), is(configurationProperties));
+    }
+
+    @Test
+    public void addConfigurations_shouldSetUserSpecifiedConfigurationAsIs() throws CryptoException {
+        ArrayList<PluginConfiguration> pluginConfigurations = new ArrayList<>();
+
+        pluginConfigurations.add(new PluginConfiguration("secure_property1", new Metadata(true, true)));
+        pluginConfigurations.add(new PluginConfiguration("secure_property2", new Metadata(true, true)));
+        pluginConfigurations.add(new PluginConfiguration("plain", new Metadata(true, false)));
+        when(artifactPluginInfo.getArtifactConfigSettings()).thenReturn(new PluggableInstanceSettings(pluginConfigurations));
+
+        PluggableArtifactConfig pluggableArtifactConfig = new PluggableArtifactConfig("id", "storeId");
+
+        ArrayList<ConfigurationProperty> configurationProperties = new ArrayList<>();
+        configurationProperties.add(new ConfigurationProperty(new ConfigurationKey("plain"), new ConfigurationValue("plain")));
+        configurationProperties.add(new ConfigurationProperty(new ConfigurationKey("secure_property1"), new ConfigurationValue("password") ));
+        configurationProperties.add(new ConfigurationProperty(new ConfigurationKey("secure_property2"), new EncryptedConfigurationValue(new GoCipher().encrypt("secret"))));
+
+        BasicCruiseConfig cruiseConfig = GoConfigMother.defaultCruiseConfig();
+        cruiseConfig.getArtifactStores().add(new ArtifactStore("storeId", "cd.go.s3"));
+
+        pluggableArtifactConfig.addConfigurations(configurationProperties);
+
+        assertThat(pluggableArtifactConfig.getConfiguration(), is(configurationProperties));
+    }
+
+    @Test
+    public void hasValidPluginAndStore_shouldReturnFalseIfStoreDoesNotExist() {
+        PluggableArtifactConfig pluggableArtifactConfig = new PluggableArtifactConfig("dist", "s3");
+
+        assertFalse(pluggableArtifactConfig.hasValidPluginAndStore(new ArtifactStore("docker", "cd.go.docker")));
+    }
+
+    @Test
+    public void hasValidPluginAndStore_shouldReturnFalseIfPluginDoesNotExist() {
+        ArtifactMetadataStore.instance().remove("cd.go.s3");
+        PluggableArtifactConfig pluggableArtifactConfig = new PluggableArtifactConfig("dist", "s3");
+
+        assertFalse(pluggableArtifactConfig.hasValidPluginAndStore(new ArtifactStore("s3", "cd.go.s3")));
+    }
+
+    @Test
+    public void hasValidPluginAndStore_shouldReturnTrueIfPluginAndStoreExist() {
+        PluggableArtifactConfig pluggableArtifactConfig = new PluggableArtifactConfig("dist", "s3");
+
+        assertTrue(pluggableArtifactConfig.hasValidPluginAndStore(new ArtifactStore("s3", "cd.go.s3")));
     }
 }

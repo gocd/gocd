@@ -107,7 +107,15 @@ public abstract class AbstractFetchTask extends AbstractTask implements FetchArt
         return taskProperties;
     }
 
+    @Override
+    public String getTaskType() {
+        return "fetch";
+    }
+
+
     protected abstract File destOnAgent(String pipelineName);
+
+    public abstract String getOrigin();
 
     protected void validateTask(ValidationContext validationContext) {
         if (stageAndOrJobIsBlank()) {

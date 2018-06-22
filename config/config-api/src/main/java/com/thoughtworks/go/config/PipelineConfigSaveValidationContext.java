@@ -266,4 +266,9 @@ public class PipelineConfigSaveValidationContext implements ValidationContext {
     public ArtifactStores artifactStores() {
        return this.cruiseConfig.getArtifactStores();
     }
+
+    @Override
+    public CruiseConfig getCruiseConfig() {
+        return this.cruiseConfig;
+    }
 }

@@ -114,4 +114,9 @@ public abstract class DelegatingValidationContext implements ValidationContext {
     public ArtifactStores artifactStores() {
         return validationContext.artifactStores();
     }
+
+    @Override
+    public CruiseConfig getCruiseConfig() {
+        return validationContext.getCruiseConfig();
+    }
 }

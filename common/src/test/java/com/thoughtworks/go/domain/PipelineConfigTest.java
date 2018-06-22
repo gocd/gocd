@@ -36,6 +36,7 @@ import com.thoughtworks.go.security.CryptoException;
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.Node;
 import org.junit.Test;
+import org.mockito.ArgumentMatchers;
 
 import java.util.*;
 
@@ -993,6 +994,47 @@ public class PipelineConfigTest {
     public void shouldReturnConfigRepoOriginDisplayNameWhenOriginIsNotSet() {
         PipelineConfig pipelineConfig = new PipelineConfig();
         assertThat(pipelineConfig.getOriginDisplayName(), is("cruise-config.xml"));
+    }
+
+    @Test
+    public void shouldNotEncryptSecurePropertiesInStagesIfPipelineHasATemplate() {
+        PipelineConfig pipelineConfig = new PipelineConfig();
+        pipelineConfig.setTemplateName(new CaseInsensitiveString("some-template"));
+        StageConfig mockStageConfig = mock(StageConfig.class);
+        pipelineConfig.addStageWithoutValidityAssertion(mockStageConfig);
+
+        pipelineConfig.encryptSecureProperties(new BasicCruiseConfig(), pipelineConfig);
+
+        verify(mockStageConfig, never()).encryptSecureProperties(eq(new BasicCruiseConfig()), eq(pipelineConfig), ArgumentMatchers.any(StageConfig.class));
+    }
+
+    @Test
+    public void shouldEncryptSecurePropertiesInStagesIfPipelineHasStagesDefined() {
+        PipelineConfig pipelineConfig = new PipelineConfig();
+        StageConfig mockStageConfig = mock(StageConfig.class);
+        pipelineConfig.add(mockStageConfig);
+        JobConfig jobConfig = new JobConfig(new CaseInsensitiveString("job"));
+        jobConfig.artifactConfigs().add(new PluggableArtifactConfig("foo", "bar"));
+        when(mockStageConfig.getJobs()).thenReturn(new JobConfigs(jobConfig));
+        when(mockStageConfig.name()).thenReturn(new CaseInsensitiveString("stage"));
+
+        pipelineConfig.encryptSecureProperties(new BasicCruiseConfig(), pipelineConfig);
+
+        verify(mockStageConfig).encryptSecureProperties(eq(new BasicCruiseConfig()), eq(pipelineConfig), ArgumentMatchers.any(StageConfig.class));
+    }
+
+    @Test
+    public void shouldNotAttemptToEncryptPropertiesIfThereAreNoPluginConfigs() {
+        PipelineConfig pipelineConfig = new PipelineConfig();
+        StageConfig mockStageConfig = mock(StageConfig.class);
+        pipelineConfig.add(mockStageConfig);
+        JobConfig jobConfig = new JobConfig(new CaseInsensitiveString("job"));
+        when(mockStageConfig.getJobs()).thenReturn(new JobConfigs(jobConfig));
+        when(mockStageConfig.name()).thenReturn(new CaseInsensitiveString("stage"));
+
+        pipelineConfig.encryptSecureProperties(new BasicCruiseConfig(), pipelineConfig);
+
+        verify(mockStageConfig, never()).encryptSecureProperties(eq(new BasicCruiseConfig()), eq(pipelineConfig), ArgumentMatchers.any(StageConfig.class));
     }
 
     private StageConfig completedStage() {

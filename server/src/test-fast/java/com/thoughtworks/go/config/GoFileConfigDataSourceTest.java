@@ -57,8 +57,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.*;
 
-import static com.thoughtworks.go.server.newsecurity.SessionUtilsHelper.loginAs;
 import static com.thoughtworks.go.helper.ConfigFileFixture.VALID_XML_3169;
+import static com.thoughtworks.go.server.newsecurity.SessionUtilsHelper.loginAs;
 import static com.thoughtworks.go.util.GoConfigFileHelper.loadAndMigrate;
 import static com.thoughtworks.go.util.LogFixture.logFixtureFor;
 import static java.nio.charset.StandardCharsets.UTF_8;

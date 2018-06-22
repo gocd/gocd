@@ -128,6 +128,9 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
 
     private boolean templateApplied;
 
+    private List<PluggableArtifactConfig> externalArtifactConfigs = null;
+    private List<FetchPluggableArtifactTask> fetchExternalArtifactTasks = null;
+
     private ConfigErrors errors = new ConfigErrors();
     public static final String NAME = "name";
     public static final String INTEGRATION_TYPE = "integrationType";
@@ -165,6 +168,53 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
 
     public boolean validateTree(PipelineConfigSaveValidationContext validationContext) {
         return new PipelineConfigTreeValidator(this).validate(validationContext);
+    }
+
+    public void encryptSecureProperties(CruiseConfig preprocessedConfig, PipelineConfig preprocessedPipelineConfig) {
+        if (hasTemplate() || doesNotHavePublishAndFetchExternalConfig()) {
+            return;
+        }
+        for (StageConfig stageConfig : getStages()) {
+            stageConfig.encryptSecureProperties(preprocessedConfig, preprocessedPipelineConfig, preprocessedPipelineConfig.getStage(stageConfig.name()));
+        }
+    }
+
+    private boolean doesNotHavePublishAndFetchExternalConfig() {
+        if (externalArtifactConfigs == null || fetchExternalArtifactTasks == null) {
+            cachePublishAndFetchExternalConfig();
+        }
+        return externalArtifactConfigs.isEmpty() && fetchExternalArtifactTasks.isEmpty();
+    }
+
+    private void cachePublishAndFetchExternalConfig() {
+        externalArtifactConfigs = new ArrayList<>();
+        fetchExternalArtifactTasks = new ArrayList<>();
+        for (StageConfig stageConfig : getStages()) {
+            for (JobConfig jobConfig : stageConfig.getJobs()) {
+                externalArtifactConfigs.addAll(jobConfig.artifactConfigs().getPluggableArtifactConfigs());
+                for (Task task : jobConfig.getTasks()) {
+                    if (task instanceof FetchPluggableArtifactTask) {
+                        fetchExternalArtifactTasks.add((FetchPluggableArtifactTask) task);
+                    }
+                }
+            }
+        }
+    }
+
+    public List<PluggableArtifactConfig> getExternalArtifactConfigs() {
+        if (externalArtifactConfigs == null) {
+            cachePublishAndFetchExternalConfig();
+        }
+
+        return externalArtifactConfigs;
+    }
+
+    public List<FetchPluggableArtifactTask> getFetchExternalArtifactTasks() {
+        if (fetchExternalArtifactTasks == null) {
+            cachePublishAndFetchExternalConfig();
+        }
+
+        return fetchExternalArtifactTasks;
     }
 
     public void validate(ValidationContext validationContext) {

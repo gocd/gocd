@@ -26,4 +26,7 @@ public interface EntityConfigUpdateCommand<T> extends CheckedUpdateCommand {
     void clearErrors();
 
     T getPreprocessedEntityConfig();
+
+    default void encrypt(CruiseConfig preProcessedConfig) {
+    }
 }

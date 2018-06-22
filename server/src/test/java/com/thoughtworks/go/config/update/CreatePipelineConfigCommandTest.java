@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,15 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.thoughtworks.go.config.update;
+
 
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.domain.ConfigErrors;
+import com.thoughtworks.go.domain.PipelineGroups;
 import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.helper.JobConfigMother;
 import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.server.domain.Username;
-import com.thoughtworks.go.server.service.EntityHashingService;
 import com.thoughtworks.go.server.service.ExternalArtifactsService;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
@@ -29,21 +31,20 @@ import org.junit.Before;
 import org.junit.Test;
 
 import static org.junit.Assert.assertFalse;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
-public class UpdatePipelineConfigCommandTest {
+public class CreatePipelineConfigCommandTest {
 
-    private EntityHashingService entityHashingService;
     private GoConfigService goConfigService;
     private Username username;
     private LocalizedOperationResult localizedOperationResult;
     private PipelineConfig pipelineConfig;
     private ExternalArtifactsService externalArtifactsService;
 
-
     @Before
-    public void setUp() throws Exception {
-        entityHashingService = mock(EntityHashingService.class);
+    public void setUp() {
         externalArtifactsService = mock(ExternalArtifactsService.class);
         goConfigService = mock(GoConfigService.class);
         username = mock(Username.class);
@@ -52,46 +53,35 @@ public class UpdatePipelineConfigCommandTest {
     }
 
     @Test
-    public void shouldDisallowStaleRequest() {
-        UpdatePipelineConfigCommand command = new UpdatePipelineConfigCommand(goConfigService, entityHashingService,
-                pipelineConfig, username, "stale_md5", localizedOperationResult, externalArtifactsService);
-
-        when(goConfigService.findGroupNameByPipeline(pipelineConfig.name())).thenReturn("group1");
-        when(goConfigService.canEditPipeline(pipelineConfig.name().toString(), username, localizedOperationResult, "group1")).thenReturn(true);
-        when(entityHashingService.md5ForEntity(pipelineConfig)).thenReturn("latest_md5");
-
-        BasicCruiseConfig basicCruiseConfig = new BasicCruiseConfig(new BasicPipelineConfigs(pipelineConfig));
-        assertFalse(command.canContinue(basicCruiseConfig));
-    }
-
-    @Test
-    public void shouldDisallowUpdateIfPipelineEditIsDisAllowed() throws Exception {
-        UpdatePipelineConfigCommand command = new UpdatePipelineConfigCommand(goConfigService, null,
-                pipelineConfig, username, "stale_md5", localizedOperationResult, externalArtifactsService);
-
-        when(goConfigService.findGroupNameByPipeline(pipelineConfig.name())).thenReturn("group1");
-        when(goConfigService.canEditPipeline(pipelineConfig.name().toString(),username,localizedOperationResult,"group1")).thenReturn(false);
-        assertFalse(command.canContinue(mock(CruiseConfig.class)));
-    }
-
-    @Test
-    public void shouldInvokeUpdateMethodOfCruiseConfig() throws Exception {
-        UpdatePipelineConfigCommand command = new UpdatePipelineConfigCommand(goConfigService, null,
-                pipelineConfig, username, "stale_md5", localizedOperationResult, externalArtifactsService);
+    public void shouldInvokeAddPipelineMethodOfCruiseConfig() {
+        CreatePipelineConfigCommand command = new CreatePipelineConfigCommand(goConfigService,
+                pipelineConfig, username, localizedOperationResult, "group1", externalArtifactsService);
 
         CruiseConfig cruiseConfig = mock(CruiseConfig.class);
         when(goConfigService.findGroupNameByPipeline(pipelineConfig.name())).thenReturn("group1");
 
         command.update(cruiseConfig);
-        verify(cruiseConfig).update("group1", pipelineConfig.name().toString(),pipelineConfig);
+        verify(cruiseConfig).addPipelineWithoutValidation("group1", pipelineConfig);
     }
 
+    @Test
+    public void shouldDisallowAddIfUserIsNotAGroupAdmin() {
+        CreatePipelineConfigCommand command = new CreatePipelineConfigCommand(goConfigService,
+                pipelineConfig, username, localizedOperationResult, "group1", externalArtifactsService);
+
+        PipelineGroups mock = mock(PipelineGroups.class);
+        when(goConfigService.groups()).thenReturn(mock);
+        when(mock.hasGroup("group1")).thenReturn(true);
+        when(goConfigService.isUserAdminOfGroup(username.getUsername(), "group1")).thenReturn(false);
+
+        assertFalse(command.canContinue(mock(CruiseConfig.class)));
+    }
 
     @Test
     public void shouldEncryptSecurePropertiesOfPipelineConfig() {
         PipelineConfig pipelineConfig = mock(PipelineConfig.class);
-        UpdatePipelineConfigCommand command = new UpdatePipelineConfigCommand(goConfigService, null,
-                pipelineConfig, username, "stale_md5", localizedOperationResult, externalArtifactsService);
+        CreatePipelineConfigCommand command = new CreatePipelineConfigCommand(goConfigService,
+                pipelineConfig, username, localizedOperationResult, "group1", externalArtifactsService);
 
         when(pipelineConfig.name()).thenReturn(new CaseInsensitiveString("p1"));
         CruiseConfig preprocessedConfig = mock(CruiseConfig.class);
@@ -103,7 +93,7 @@ public class UpdatePipelineConfigCommandTest {
     }
 
     @Test
-    public void updatePipelineConfigShouldValidateAllExternalArtifacts() {
+    public void createPipelineConfigShouldValidateAllExternalArtifacts() {
         PluggableArtifactConfig s3 = mock(PluggableArtifactConfig.class);
         PluggableArtifactConfig docker = mock(PluggableArtifactConfig.class);
         when(goConfigService.artifactStores()).thenReturn(mock(ArtifactStores.class));
@@ -120,8 +110,7 @@ public class UpdatePipelineConfigCommandTest {
         PipelineConfig pipeline = PipelineConfigMother.pipelineConfig("P1", new StageConfig(new CaseInsensitiveString("S1"), new JobConfigs(job1)),
                 new StageConfig(new CaseInsensitiveString("S2"), new JobConfigs(job2)));
 
-        UpdatePipelineConfigCommand command = new UpdatePipelineConfigCommand(goConfigService, null,
-                pipeline, username, "stale_md5", localizedOperationResult, externalArtifactsService);
+        CreatePipelineConfigCommand command = new CreatePipelineConfigCommand(goConfigService, pipeline, username, localizedOperationResult, "group", externalArtifactsService);
 
         BasicCruiseConfig preprocessedConfig = GoConfigMother.defaultCruiseConfig();
         preprocessedConfig.addPipelineWithoutValidation("group", pipeline);
@@ -132,7 +121,7 @@ public class UpdatePipelineConfigCommandTest {
     }
 
     @Test
-    public void updatePipelineConfigShouldValidateAllFetchExternalArtifactTasks() {
+    public void createPipelineConfigShouldValidateAllFetchExternalArtifactTasks() {
         JobConfig job1 = JobConfigMother.jobWithNoResourceRequirement();
         JobConfig job2 = JobConfigMother.jobWithNoResourceRequirement();
 
@@ -147,8 +136,8 @@ public class UpdatePipelineConfigCommandTest {
         PipelineConfig pipeline = PipelineConfigMother.pipelineConfig("P1", new StageConfig(new CaseInsensitiveString("S1"), new JobConfigs(job1)),
                 new StageConfig(new CaseInsensitiveString("S2"), new JobConfigs(job2)));
 
-        UpdatePipelineConfigCommand command = new UpdatePipelineConfigCommand(goConfigService, null,
-                pipeline, username, "stale_md5", localizedOperationResult, externalArtifactsService);
+        CreatePipelineConfigCommand command = new CreatePipelineConfigCommand(goConfigService, pipeline, username, localizedOperationResult, "group", externalArtifactsService);
+
 
         BasicCruiseConfig preprocessedConfig = GoConfigMother.defaultCruiseConfig();
         preprocessedConfig.addPipelineWithoutValidation("group", pipeline);

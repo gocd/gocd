@@ -176,6 +176,11 @@ abstract class RoleConfigCommand implements EntityConfigUpdateCommand<Role> {
             public ArtifactStores artifactStores() {
                 return null;
             }
+
+            @Override
+            public CruiseConfig getCruiseConfig() {
+                return null;
+            }
         };
     }
 

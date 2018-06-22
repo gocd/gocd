@@ -50,6 +50,7 @@ public class PipelineConfigServiceTest {
     private GoConfigService goConfigService;
     private SecurityService securityService;
     private PluggableTaskService pluggableTaskService;
+    private ExternalArtifactsService externalArtifactsService;
 
     @Before
     public void setUp() throws Exception {
@@ -64,12 +65,13 @@ public class PipelineConfigServiceTest {
         goConfigService = mock(GoConfigService.class);
         securityService = mock(SecurityService.class);
         pluggableTaskService = mock(PluggableTaskService.class);
+        externalArtifactsService = mock(ExternalArtifactsService.class);
         when(goConfigService.getCurrentConfig()).thenReturn(cruiseConfig);
         when(goConfigService.cruiseConfig()).thenReturn(cruiseConfig);
         when(goConfigService.getConfigForEditing()).thenReturn(cruiseConfig);
         when(goConfigService.getMergedConfigForEditing()).thenReturn(cruiseConfig);
         when(goConfigService.getAllPipelineConfigs()).thenReturn(cruiseConfig.getAllPipelineConfigs());
-        pipelineConfigService = new PipelineConfigService(goConfigService, securityService, pluggableTaskService, null);
+        pipelineConfigService = new PipelineConfigService(goConfigService, securityService, pluggableTaskService, null, externalArtifactsService);
     }
 
     @Test

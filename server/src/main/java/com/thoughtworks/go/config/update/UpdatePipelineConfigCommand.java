@@ -17,31 +17,26 @@
 package com.thoughtworks.go.config.update;
 
 import com.thoughtworks.go.config.*;
-import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
-import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.EntityHashingService;
+import com.thoughtworks.go.server.service.ExternalArtifactsService;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 
 import static com.thoughtworks.go.config.update.PipelineConfigErrorCopier.copyErrors;
 import static com.thoughtworks.go.i18n.LocalizedMessage.staleResourceConfig;
 
-public class UpdatePipelineConfigCommand implements EntityConfigUpdateCommand<PipelineConfig> {
-    private final GoConfigService goConfigService;
+public class UpdatePipelineConfigCommand extends PipelineConfigCommand {
     private final EntityHashingService entityHashingService;
-    private final PipelineConfig pipelineConfig;
     private final Username currentUser;
     private final String md5;
     private final LocalizedOperationResult result;
     public String group;
-    private PipelineConfig preprocessedPipelineConfig;
 
     public UpdatePipelineConfigCommand(GoConfigService goConfigService, EntityHashingService entityHashingService, PipelineConfig pipelineConfig,
-                                       Username currentUser, String md5, LocalizedOperationResult result) {
-        this.goConfigService = goConfigService;
+                                       Username currentUser, String md5, LocalizedOperationResult result, ExternalArtifactsService externalArtifactsService) {
+        super(pipelineConfig, goConfigService, externalArtifactsService);
         this.entityHashingService = entityHashingService;
-        this.pipelineConfig = pipelineConfig;
         this.currentUser = currentUser;
         this.md5 = md5;
         this.result = result;
@@ -62,22 +57,14 @@ public class UpdatePipelineConfigCommand implements EntityConfigUpdateCommand<Pi
     @Override
     public boolean isValid(CruiseConfig preprocessedConfig) {
         preprocessedPipelineConfig = preprocessedConfig.getPipelineConfigByName(pipelineConfig.name());
-        boolean isValid = preprocessedPipelineConfig.validateTree(PipelineConfigSaveValidationContext.forChain(false, getPipelineGroup(), preprocessedConfig, preprocessedPipelineConfig))
+        PipelineConfigSaveValidationContext validationContext = PipelineConfigSaveValidationContext.forChain(false, getPipelineGroup(), preprocessedConfig, preprocessedPipelineConfig);
+        validatePublishAndFetchExternalConfigs(preprocessedPipelineConfig, preprocessedConfig);
+        boolean isValid = preprocessedPipelineConfig.validateTree(validationContext)
                           && preprocessedPipelineConfig.getAllErrors().isEmpty();
         if (!isValid) {
             copyErrors(preprocessedPipelineConfig, pipelineConfig);
         }
         return isValid;
-    }
-
-    @Override
-    public void clearErrors() {
-        BasicCruiseConfig.clearErrors(pipelineConfig);
-    }
-
-    @Override
-    public PipelineConfig getPreprocessedEntityConfig() {
-        return preprocessedPipelineConfig;
     }
 
     @Override

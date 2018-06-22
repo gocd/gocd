@@ -19,7 +19,7 @@ package com.thoughtworks.go.domain;
 public enum ArtifactType {
     test,
     build,
-    plugin;
+    external;
 
     public boolean isTest() {
         return this.equals(test);

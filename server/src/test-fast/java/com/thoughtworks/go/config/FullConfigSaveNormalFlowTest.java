@@ -21,6 +21,7 @@ import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
 import com.thoughtworks.go.config.remote.PartialConfig;
 import com.thoughtworks.go.config.update.FullConfigUpdateCommand;
 import com.thoughtworks.go.domain.GoConfigRevision;
+import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.service.ConfigRepository;
 import com.thoughtworks.go.util.TimeProvider;
 import org.hamcrest.core.Is;
@@ -68,14 +69,14 @@ public class FullConfigSaveNormalFlowTest {
 
         flow = new FullConfigSaveNormalFlow(loader, writer, configElementImplementationRegistry, timeProvider,
                 configRepository, cachedGoPartials, fileWriter);
+
+        when(writer.documentFrom(configForEdit)).thenReturn(document);
+        when(loader.preprocessAndValidate(configForEdit)).thenReturn(new BasicCruiseConfig());
+        when(writer.toString(document)).thenReturn("cruise_config");
     }
 
     @Test
     public void shouldUpdateGivenConfigWithPartials() throws Exception {
-        when(writer.documentFrom(configForEdit)).thenReturn(document);
-        when(writer.toString(document)).thenReturn("cruise_config");
-        when(loader.preprocessAndValidate(configForEdit)).thenReturn(new BasicCruiseConfig());
-
         flow.execute(updateConfigCommand, partials, null);
 
         assertThat(configForEdit.getPartials(), Is.<List<PartialConfig>>is(partials));
@@ -83,10 +84,6 @@ public class FullConfigSaveNormalFlowTest {
 
     @Test
     public void shouldPreprocessAndValidateTheUpdatedConfigForEdit() throws Exception {
-        when(writer.documentFrom(configForEdit)).thenReturn(document);
-        when(writer.toString(document)).thenReturn("cruise_config");
-        when(loader.preprocessAndValidate(configForEdit)).thenReturn(new BasicCruiseConfig());
-
         flow.execute(updateConfigCommand, partials, null);
 
         verify(loader).preprocessAndValidate(configForEdit);
@@ -94,10 +91,6 @@ public class FullConfigSaveNormalFlowTest {
 
     @Test
     public void shouldValidateDomRepresentationOfCruiseConfig() throws Exception {
-        when(writer.documentFrom(configForEdit)).thenReturn(document);
-        when(writer.toString(document)).thenReturn("cruise_config");
-        when(loader.preprocessAndValidate(configForEdit)).thenReturn(new BasicCruiseConfig());
-
         flow.execute(updateConfigCommand, partials, null);
 
         verify(writer).verifyXsdValid(document);
@@ -107,9 +100,7 @@ public class FullConfigSaveNormalFlowTest {
     public void shouldPersistXmlRepresentationOfConfigForEdit() throws Exception {
         String configAsXml = "cruise config as xml";
 
-        when(writer.documentFrom(configForEdit)).thenReturn(document);
         when(writer.toString(document)).thenReturn(configAsXml);
-        when(loader.preprocessAndValidate(configForEdit)).thenReturn(new BasicCruiseConfig());
 
         flow.execute(updateConfigCommand, partials, null);
 
@@ -122,9 +113,7 @@ public class FullConfigSaveNormalFlowTest {
         Date currentTime = mock(Date.class);
         ArgumentCaptor<GoConfigRevision> revisionArgumentCaptor = ArgumentCaptor.forClass(GoConfigRevision.class);
 
-        when(writer.documentFrom(configForEdit)).thenReturn(document);
         when(writer.toString(document)).thenReturn(configAsXml);
-        when(loader.preprocessAndValidate(configForEdit)).thenReturn(new BasicCruiseConfig());
         when(timeProvider.currentTime()).thenReturn(currentTime);
         doNothing().when(configRepository).checkin(revisionArgumentCaptor.capture());
 
@@ -143,9 +132,7 @@ public class FullConfigSaveNormalFlowTest {
     public void shouldUpdateCachedGoPartialsWithValidPartialsPostAllSteps() throws Exception {
         String configAsXml = "cruise config as xml";
 
-        when(writer.documentFrom(configForEdit)).thenReturn(document);
         when(writer.toString(document)).thenReturn(configAsXml);
-        when(loader.preprocessAndValidate(configForEdit)).thenReturn(new BasicCruiseConfig());
         InOrder inOrder = inOrder(configRepository, fileWriter, cachedGoPartials);
 
         flow.execute(updateConfigCommand, partials, null);

@@ -259,6 +259,12 @@ public class StageConfig implements Validatable, ParamsAttributeAware, Environme
         return isValid;
     }
 
+    public void encryptSecureProperties(CruiseConfig preprocessedConfig, PipelineConfig preprocessedPipelineConfig, StageConfig preprocessedStageConfig) {
+        for (JobConfig jobConfig : getJobs()) {
+            jobConfig.encryptSecureProperties(preprocessedConfig, preprocessedPipelineConfig, preprocessedStageConfig.jobConfigByConfigName(jobConfig.name()));
+        }
+    }
+
     public void validate(ValidationContext validationContext) {
         isNameValid();
     }

@@ -543,6 +543,17 @@ public class JobConfigTest {
         assertThat(configErrors.on(JobConfig.RUN_TYPE), is("Job cannot be set to 'run on all agents' when assigned to an elastic agent"));
     }
 
+    @Test
+    public void shouldEncryptSecurePropertiesForOnlyFetchExternalArtifactTask() {
+        JobConfig jobConfig = new JobConfig(new CaseInsensitiveString("job"));
+        FetchPluggableArtifactTask mockFetchExternalArtifactTask = mock(FetchPluggableArtifactTask.class);
+        jobConfig.addTask(mockFetchExternalArtifactTask);
+
+        jobConfig.encryptSecureProperties(new BasicCruiseConfig(), new PipelineConfig(), jobConfig);
+
+        verify(mockFetchExternalArtifactTask).encryptSecureProperties(any(CruiseConfig.class), any(PipelineConfig.class), any(FetchPluggableArtifactTask.class));
+    }
+
     private JobConfig createJobAndValidate(final String name) {
         JobConfig jobConfig = new JobConfig(name);
         jobConfig.validate(ConfigSaveValidationContext.forChain(new BasicCruiseConfig()));

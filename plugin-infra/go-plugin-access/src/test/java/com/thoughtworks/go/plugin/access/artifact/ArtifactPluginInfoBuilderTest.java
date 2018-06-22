@@ -87,7 +87,8 @@ public class ArtifactPluginInfoBuilderTest {
     public void shouldBuildPluginInfoWithFetchArtifactConfigSettings() {
         GoPluginDescriptor descriptor = new GoPluginDescriptor("plugin1", null, null, null, null, false);
         List<PluginConfiguration> pluginConfigurations = Arrays.asList(
-                new PluginConfiguration("FILENAME", new Metadata(true, false))
+                new PluginConfiguration("FILENAME", new Metadata(true, false)),
+                new PluginConfiguration("SECURE", new Metadata(true, true))
         );
 
         when(extension.getFetchArtifactMetadata(descriptor.id())).thenReturn(pluginConfigurations);

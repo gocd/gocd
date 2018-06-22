@@ -68,5 +68,7 @@ public interface ValidationContext {
     }
 
     ArtifactStores artifactStores();
+
+    CruiseConfig getCruiseConfig();
 }
 

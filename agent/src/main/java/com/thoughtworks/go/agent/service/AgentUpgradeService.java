@@ -74,7 +74,7 @@ public class AgentUpgradeService {
         HttpGet method = getAgentLatestStatusGetMethod();
         try (final CloseableHttpResponse response = httpClient.execute(method)) {
             if (response.getStatusLine().getStatusCode() != 200) {
-                LOGGER.error("[Agent Upgrade] Got status %d {} from Go", response.getStatusLine().getStatusCode(), response.getStatusLine());
+                LOGGER.error("[Agent Upgrade] Got status {} {} from GoCD", response.getStatusLine().getStatusCode(), response.getStatusLine());
                 return;
             }
             validateMd5(agentMd5, response, SystemEnvironment.AGENT_CONTENT_MD5_HEADER, "itself");

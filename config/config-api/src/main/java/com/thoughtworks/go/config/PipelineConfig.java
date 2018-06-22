@@ -128,6 +128,9 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
 
     private boolean templateApplied;
 
+    List<PluggableArtifactConfig> externalArtifactConfigs = new ArrayList<>();
+    List<FetchPluggableArtifactTask> fetchExternalArtifactTasks = new ArrayList<>();
+
     private ConfigErrors errors = new ConfigErrors();
     public static final String NAME = "name";
     public static final String INTEGRATION_TYPE = "integrationType";
@@ -136,6 +139,7 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
     public static final String INTEGRATION_TYPE_TRACKING_TOOL = "trackingTool";
     public static final String MATERIALS = "materials";
     public static final String STAGE = "stage";
+    private boolean traversed;
 
     public PipelineConfig() {
     }
@@ -168,12 +172,41 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
     }
 
     public void encryptSecureProperties(CruiseConfig preprocessedConfig, PipelineConfig preprocessedPipelineConfig) {
-        if (hasTemplate()) {
+        if (hasTemplate() || doesNotHavePublishAndFetchExternalConfig()) {
             return;
         }
         for (StageConfig stageConfig : getStages()) {
             stageConfig.encryptSecureProperties(preprocessedConfig, preprocessedPipelineConfig, preprocessedPipelineConfig.getStage(stageConfig.name()));
         }
+    }
+
+    private boolean doesNotHavePublishAndFetchExternalConfig() {
+        cachePublishAndFetchExternalConfig();
+        return externalArtifactConfigs.isEmpty() && fetchExternalArtifactTasks.isEmpty();
+    }
+
+    public void cachePublishAndFetchExternalConfig() {
+        if (!traversed) {
+            for (StageConfig stageConfig : getStages()) {
+                for (JobConfig jobConfig : stageConfig.getJobs()) {
+                    externalArtifactConfigs.addAll(jobConfig.artifactConfigs().getPluggableArtifactConfigs());
+                    for (Task task : jobConfig.getTasks()) {
+                        if (task instanceof FetchPluggableArtifactTask) {
+                            fetchExternalArtifactTasks.add((FetchPluggableArtifactTask) task);
+                        }
+                    }
+                }
+            }
+            traversed = true;
+        }
+    }
+
+    public List<PluggableArtifactConfig> getExternalArtifactConfigs() {
+        return externalArtifactConfigs;
+    }
+
+    public List<FetchPluggableArtifactTask> getFetchExternalArtifactTasks() {
+        return fetchExternalArtifactTasks;
     }
 
     public void validate(ValidationContext validationContext) {

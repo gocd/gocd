@@ -54,40 +54,15 @@ public abstract class PipelineConfigCommand implements EntityConfigUpdateCommand
         pipelineConfig.encryptSecureProperties(preprocessedConfig, preprocessedPipelineConfig);
     }
 
+    void validatePublishAndFetchExternalConfigs(PipelineConfig pipelineConfig, ValidationContext validationContext, CruiseConfig preprocessedConfig) {
+        pipelineConfig.cachePublishAndFetchExternalConfig();
 
-    void validateExternalArtifacts(PipelineConfig pipelineConfig, ValidationContext validationContext) {
-        for (PluggableArtifactConfig pluggableArtifactConfig : getExternalArtifactConfigs(pipelineConfig)) {
+        for (PluggableArtifactConfig pluggableArtifactConfig : pipelineConfig.getExternalArtifactConfigs()) {
             externalArtifactsService.validateExternalArtifactConfig(pluggableArtifactConfig, goConfigService.artifactStores().find(pluggableArtifactConfig.getStoreId()), validationContext);
         }
-    }
 
-    void validateFetchExternalArtifactTasks(PipelineConfig pipelineConfig, ValidationContext validationContext, CruiseConfig preprocessedConfig) {
-        for (FetchPluggableArtifactTask fetchPluggableArtifactTask : getAllFetchPluggableArtifactTasks(pipelineConfig)) {
+        for (FetchPluggableArtifactTask fetchPluggableArtifactTask : pipelineConfig.getFetchExternalArtifactTasks()) {
             externalArtifactsService.validateFetchExternalArtifactTask(fetchPluggableArtifactTask, validationContext, pipelineConfig, preprocessedConfig);
         }
-    }
-
-    private List<FetchPluggableArtifactTask> getAllFetchPluggableArtifactTasks(PipelineConfig pipelineConfig) {
-        ArrayList<FetchPluggableArtifactTask> fetchExternalArtifactTasks = new ArrayList<>();
-        for (StageConfig stageConfig : pipelineConfig.getStages()) {
-            for (JobConfig jobConfig : stageConfig.getJobs()) {
-                for (Task task : jobConfig.getTasks()) {
-                    if (task instanceof FetchPluggableArtifactTask) {
-                        fetchExternalArtifactTasks.add((FetchPluggableArtifactTask) task);
-                    }
-                }
-            }
-        }
-        return fetchExternalArtifactTasks;
-    }
-
-    private List<PluggableArtifactConfig> getExternalArtifactConfigs(PipelineConfig pipelineConfig) {
-        List<PluggableArtifactConfig> externalArtifactConfigs = new ArrayList<>();
-        for (StageConfig stageConfig : pipelineConfig.getStages()) {
-            for (JobConfig jobConfig : stageConfig.getJobs()) {
-                externalArtifactConfigs.addAll(jobConfig.artifactConfigs().getPluggableArtifactConfigs());
-            }
-        }
-        return externalArtifactConfigs;
     }
 }

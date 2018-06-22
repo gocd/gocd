@@ -331,24 +331,17 @@ public class JobConfig implements Validatable, ParamsAttributeAware, Environment
     }
 
     public void encryptSecureProperties(CruiseConfig preprocessedConfig, PipelineConfig preprocessedPipelineConfig, JobConfig preprocessedJobConfig) {
-        List<PluggableArtifactConfig> modifiedArtifactConfigs = artifactConfigs().getPluggableArtifactConfigs();
-        List<PluggableArtifactConfig> preprocessedPluggableArtifactConfigs = preprocessedJobConfig.artifactConfigs().getPluggableArtifactConfigs();
-        for (int i = 0; i < modifiedArtifactConfigs.size(); i++) {
-            PluggableArtifactConfig pluggableArtifactConfig = modifiedArtifactConfigs.get(i);
-            PluggableArtifactConfig preprocessedPluggableArtifactConfig = preprocessedPluggableArtifactConfigs.get(i);
+        List<PluggableArtifactConfig> artifactConfigs = artifactConfigs().getPluggableArtifactConfigs();
+        List<PluggableArtifactConfig> preprocessedArtifactConfigs = preprocessedJobConfig.artifactConfigs().getPluggableArtifactConfigs();
+        artifactConfigs.forEach(artifactConfig -> {
+            artifactConfig.encryptSecureProperties(preprocessedConfig, preprocessedArtifactConfigs.get(artifactConfigs.indexOf(artifactConfig)));
+        });
 
-            pluggableArtifactConfig.encryptSecureProperties(preprocessedConfig, preprocessedPluggableArtifactConfig);
-        }
-
-        Tasks modifiedTasks = getTasks();
-        Tasks preprocessedTasks = preprocessedJobConfig.getTasks();
-        for (int i = 0; i < modifiedTasks.size(); i++) {
-            Task modifiedTask = modifiedTasks.get(i);
-            if (modifiedTask instanceof FetchPluggableArtifactTask) {
-                FetchPluggableArtifactTask preprocessedTask = (FetchPluggableArtifactTask) preprocessedTasks.get(i);
-                ((FetchPluggableArtifactTask) modifiedTask).encryptSecureProperties(preprocessedConfig, preprocessedPipelineConfig, preprocessedTask);
+        tasks.forEach(task -> {
+            if (task instanceof FetchPluggableArtifactTask) {
+                ((FetchPluggableArtifactTask) task).encryptSecureProperties(preprocessedConfig, preprocessedPipelineConfig, (FetchPluggableArtifactTask) preprocessedJobConfig.getTasks().get(tasks.indexOf(task)));
             }
-        }
+        });
     }
 
     public void validate(ValidationContext validationContext) {

@@ -16,7 +16,6 @@
 
 package com.thoughtworks.go.config;
 
-import com.thoughtworks.go.config.validation.NameTypeValidator;
 import com.thoughtworks.go.domain.config.Configuration;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
 import com.thoughtworks.go.domain.config.SecureKeyInfoProvider;
@@ -100,7 +99,7 @@ public class FetchPluggableArtifactTask extends AbstractFetchTask {
     }
 
     public void encryptSecureProperties(CruiseConfig preprocessedCruiseConfig, PipelineConfig preprocessedPipelineConfig, FetchPluggableArtifactTask preprocessedTask) {
-        if (artifactId != null) {
+        if (isNotBlank(artifactId)) {
             PluggableArtifactConfig externalArtifact = getSpecifiedExternalArtifact(preprocessedCruiseConfig, preprocessedPipelineConfig, preprocessedTask);
 
             if (externalArtifact != null) {

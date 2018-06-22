@@ -205,8 +205,6 @@ DEPENDENCIES
   roar
   rspec-rails (= 3.6.0)
   rspec_junit_formatter
-  ruby-debug-base
-  ruby-debug-ide
   sass-rails
   scss_lint (= 0.50.1)
   selenium-webdriver
@@ -214,3 +212,6 @@ DEPENDENCIES
   uglifier
   validatable (>= 1.6.0)
   versionist
+
+BUNDLED WITH
+   1.14.6

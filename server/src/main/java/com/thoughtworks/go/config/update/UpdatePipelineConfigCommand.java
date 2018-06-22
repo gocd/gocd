@@ -58,8 +58,7 @@ public class UpdatePipelineConfigCommand extends PipelineConfigCommand {
     public boolean isValid(CruiseConfig preprocessedConfig) {
         preprocessedPipelineConfig = preprocessedConfig.getPipelineConfigByName(pipelineConfig.name());
         PipelineConfigSaveValidationContext validationContext = PipelineConfigSaveValidationContext.forChain(false, getPipelineGroup(), preprocessedConfig, preprocessedPipelineConfig);
-        validateExternalArtifacts(preprocessedPipelineConfig, validationContext);
-        validateFetchExternalArtifactTasks(preprocessedPipelineConfig, validationContext, preprocessedConfig);
+        validatePublishAndFetchExternalConfigs(preprocessedPipelineConfig, validationContext, preprocessedConfig);
         boolean isValid = preprocessedPipelineConfig.validateTree(validationContext)
                           && preprocessedPipelineConfig.getAllErrors().isEmpty();
         if (!isValid) {

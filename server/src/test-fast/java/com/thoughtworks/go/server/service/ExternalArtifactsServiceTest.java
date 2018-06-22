@@ -30,6 +30,8 @@ import com.thoughtworks.go.plugin.domain.artifact.ArtifactPluginInfo;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.Arrays;
+
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
@@ -110,6 +112,18 @@ public class ExternalArtifactsServiceTest {
         externalArtifactsService.validateFetchExternalArtifactTask(fetchPluggableArtifactTask, PipelineConfigSaveValidationContext.forChain(true, "group", cruiseConfig), pipelineConfig, cruiseConfig);
 
         verifyZeroInteractions(artifactExtension);
+    }
+
+    @Test
+    public void shouldAddErrorWhenPluggableArtifactDoesNotHaveValidStore() {
+        cruiseConfig.getArtifactStores().clear();
+
+        externalArtifactsService.validateExternalArtifactConfig(pluggableArtifactConfig, mock(ArtifactStore.class), PipelineConfigSaveValidationContext.forChain(true, "group", cruiseConfig));
+
+        verifyZeroInteractions(artifactExtension);
+
+        assertTrue(pluggableArtifactConfig.hasErrors());
+        assertThat(pluggableArtifactConfig.errors().getAllOn("pluginId"), is(Arrays.asList("Could not determine the plugin to perform the plugin validations. Possible reasons: artifact store does not exist or plugin is not installed.")));
     }
 
     @Test

@@ -17,6 +17,7 @@
 package com.thoughtworks.go.config;
 
 import com.google.gson.Gson;
+import com.thoughtworks.go.config.validation.NameTypeValidator;
 import com.thoughtworks.go.domain.ArtifactType;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.config.Configuration;
@@ -101,11 +102,12 @@ public class PluggableArtifactConfig implements ArtifactConfig {
     @Override
     public void validate(ValidationContext validationContext) {
         validateMandatoryAttributes();
-        if (hasErrors()) {
-            return;
+        configuration.validateUniqueness(getArtifactTypeValue());
+
+        if (!new NameTypeValidator().isNameValid(id)) {
+            errors.add("id", NameTypeValidator.errorMessage("pluggable artifact id", id));
         }
 
-        configuration.validateUniqueness(getArtifactTypeValue());
         if (validationContext.isWithinPipelines()) {
             if (isNotBlank(storeId)) {
                 final ArtifactStore artifactStore = validationContext.artifactStores().find(storeId);

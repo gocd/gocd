@@ -169,7 +169,7 @@ public class FetchPluggableArtifactTaskTest {
         task.validate(ConfigSaveValidationContext.forChain(config, new BasicPipelineConfigs(), downstream, downstream.getStage(new CaseInsensitiveString("stage"))));
 
         assertFalse(task.errors().on("artifactId").isEmpty());
-        assertThat(task.errors().on("artifactId"), is("Invalid fetch artifact artifactId name ''. This must be alphanumeric and can contain underscores and periods (however, it cannot start with a period). The maximum allowed length is 255 characters."));
+        assertThat(task.errors().on("artifactId"), is("Artifact Id cannot be blank."));
     }
 
     @Test
@@ -179,7 +179,7 @@ public class FetchPluggableArtifactTaskTest {
         task.validate(ConfigSaveValidationContext.forChain(config, new BasicPipelineConfigs(), downstream, downstream.getStage(new CaseInsensitiveString("stage"))));
 
         assertFalse(task.errors().on("artifactId").isEmpty());
-        assertThat(task.errors().on("artifactId"), is("Invalid fetch artifact artifactId name 'null'. This must be alphanumeric and can contain underscores and periods (however, it cannot start with a period). The maximum allowed length is 255 characters."));
+        assertThat(task.errors().on("artifactId"), is("Artifact Id cannot be blank."));
     }
 
     @Test

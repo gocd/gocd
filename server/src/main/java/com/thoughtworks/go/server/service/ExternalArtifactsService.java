@@ -50,7 +50,7 @@ public class ExternalArtifactsService {
                 preprocessedPluggableArtifactConfig.addError("pluginId", String.format("Plugin with id `%s` is not found.", pluginId));
             }
         } else {
-            preprocessedPluggableArtifactConfig.addError("pluginId", "Could not determine the plugin to perform the plugin validations. Usually this happens when the plugin is not installed.");
+            preprocessedPluggableArtifactConfig.addError("pluginId", "Could not determine the plugin to perform the plugin validations. Possible reasons: artifact store does not exist or plugin is not installed.");
         }
     }
 
@@ -67,7 +67,7 @@ public class ExternalArtifactsService {
                     preprocessedFetchPluggableArtifactTask.addError("pluginId", String.format("Plugin with id `%s` is not found.", artifactStore.getPluginId()));
                 }
             } else {
-                preprocessedFetchPluggableArtifactTask.addError("pluginId", "Could not determine the plugin to perform the plugin validations. Usually this happens when the plugin is not installed.");
+                preprocessedFetchPluggableArtifactTask.addError("pluginId", "Could not determine the plugin to perform the plugin validations. Possible reasons: artifact store does not exist or plugin is not installed.");
             }
         }
     }

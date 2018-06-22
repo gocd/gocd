@@ -171,21 +171,12 @@ public class PluggableArtifactConfigTest {
         final boolean result = artifactConfig.validateTree(ValidationContextMother.validationContext(artifactStores));
 
         assertFalse(result);
+        assertThat(artifactConfig.errors().getAllOn("id"), is(Arrays.asList("\"Id\" is required for PluggableArtifact", "Invalid pluggable artifact id name ''. This must be alphanumeric and can contain underscores and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.")));
     }
 
     @Test
     public void validateTree_shouldValidateNullId() {
         PluggableArtifactConfig artifactConfig = new PluggableArtifactConfig(null, "s3");
-
-        final ArtifactStores artifactStores = new ArtifactStores(new ArtifactStore("s3", "cd.go.s3"));
-        final boolean result = artifactConfig.validateTree(ValidationContextMother.validationContext(artifactStores));
-
-        assertFalse(result);
-    }
-
-    @Test
-    public void validateTree_presenceStoreId() {
-        PluggableArtifactConfig artifactConfig = new PluggableArtifactConfig("installer", "");
 
         final ArtifactStores artifactStores = new ArtifactStores(new ArtifactStore("s3", "cd.go.s3"));
         final boolean result = artifactConfig.validateTree(ValidationContextMother.validationContext(artifactStores));
@@ -201,6 +192,18 @@ public class PluggableArtifactConfigTest {
         final boolean result = artifactConfig.validateTree(ValidationContextMother.validationContext(artifactStores));
 
         assertFalse(result);
+        assertThat(artifactConfig.errors().getAllOn("storeId"), is(Arrays.asList("\"Store id\" is required for PluggableArtifact")));
+    }
+
+    @Test
+    public void validate_shouldAddAnErrorIfArtifactIdIsInvalid() {
+        PluggableArtifactConfig artifactConfig = new PluggableArtifactConfig("asf@%", "f");
+
+        final ArtifactStores artifactStores = new ArtifactStores(new ArtifactStore("docker", "cd.go.docker"));
+        final boolean result = artifactConfig.validateTree(ValidationContextMother.validationContext(artifactStores));
+
+        assertFalse(result);
+        assertThat(artifactConfig.errors().getAllOn("id"), is(Arrays.asList("Invalid pluggable artifact id name 'asf@%'. This must be alphanumeric and can contain underscores and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.")));
     }
 
     @Test
@@ -430,16 +433,12 @@ public class PluggableArtifactConfigTest {
         ArtifactMetadataStore.instance().remove("cd.go.s3");
         PluggableArtifactConfig pluggableArtifactConfig = new PluggableArtifactConfig("dist", "s3");
 
-        final ArtifactStores artifactStores = new ArtifactStores(new ArtifactStore("s3", "cd.go.s3"));
-
         assertFalse(pluggableArtifactConfig.hasValidPluginAndStore(new ArtifactStore("s3", "cd.go.s3")));
     }
 
     @Test
     public void hasValidPluginAndStore_shouldReturnTrueIfPluginAndStoreExist() {
         PluggableArtifactConfig pluggableArtifactConfig = new PluggableArtifactConfig("dist", "s3");
-
-        final ArtifactStores artifactStores = new ArtifactStores(new ArtifactStore("s3", "cd.go.s3"));
 
         assertTrue(pluggableArtifactConfig.hasValidPluginAndStore(new ArtifactStore("s3", "cd.go.s3")));
     }

@@ -23,6 +23,7 @@ import com.thoughtworks.go.domain.config.SecureKeyInfoProvider;
 import com.thoughtworks.go.plugin.access.artifact.ArtifactMetadataStore;
 import com.thoughtworks.go.plugin.domain.artifact.ArtifactPluginInfo;
 import com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
 import java.util.Arrays;
@@ -79,8 +80,8 @@ public class FetchPluggableArtifactTask extends AbstractFetchTask {
 
     @Override
     protected void validateAttributes(ValidationContext validationContext) {
-        if (!new NameTypeValidator().isNameValid(artifactId)) {
-            errors.add("artifactId", NameTypeValidator.errorMessage("fetch artifact artifactId", artifactId));
+        if (StringUtils.isBlank(artifactId)) {
+            errors.add("artifactId", "Artifact Id cannot be blank.");
         }
 
         if (isNotBlank(artifactId) && validationContext.isWithinPipelines()) {

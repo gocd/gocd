@@ -55,13 +55,15 @@ public class TemplateConfigService {
     private Cloner cloner = new Cloner();
     private EntityHashingService entityHashingService;
     private PluggableTaskService pluggableTaskService;
+    private ExternalArtifactsService externalArtifactsService;
 
     @Autowired
-    public TemplateConfigService(GoConfigService goConfigService, SecurityService securityService, EntityHashingService entityHashingService, PluggableTaskService pluggableTaskService) {
+    public TemplateConfigService(GoConfigService goConfigService, SecurityService securityService, EntityHashingService entityHashingService, PluggableTaskService pluggableTaskService, ExternalArtifactsService externalArtifactsService) {
         this.goConfigService = goConfigService;
         this.securityService = securityService;
         this.entityHashingService = entityHashingService;
         this.pluggableTaskService = pluggableTaskService;
+        this.externalArtifactsService = externalArtifactsService;
     }
 
     public Map<CaseInsensitiveString, List<CaseInsensitiveString>> templatesWithPipelinesForUser(CaseInsensitiveString username) {
@@ -110,23 +112,23 @@ public class TemplateConfigService {
 
     public void createTemplateConfig(final Username currentUser, final PipelineTemplateConfig templateConfig, final LocalizedOperationResult result) {
         validatePluggableTasks(templateConfig);
-        CreateTemplateConfigCommand command = new CreateTemplateConfigCommand(templateConfig, currentUser, securityService, result);
+        CreateTemplateConfigCommand command = new CreateTemplateConfigCommand(templateConfig, currentUser, securityService, result, externalArtifactsService);
         update(currentUser, result, command, templateConfig);
     }
 
     public void updateTemplateConfig(final Username currentUser, final PipelineTemplateConfig templateConfig, final LocalizedOperationResult result, String md5) {
         validatePluggableTasks(templateConfig);
-        UpdateTemplateConfigCommand command = new UpdateTemplateConfigCommand(templateConfig, currentUser, securityService, result, md5, entityHashingService);
+        UpdateTemplateConfigCommand command = new UpdateTemplateConfigCommand(templateConfig, currentUser, securityService, result, md5, entityHashingService, externalArtifactsService);
         update(currentUser, result, command, templateConfig);
     }
 
     public void updateTemplateAuthConfig(final Username currentUser, final PipelineTemplateConfig templateConfig, final Authorization authorization, final LocalizedOperationResult result, String md5) {
-        UpdateTemplateAuthConfigCommand command = new UpdateTemplateAuthConfigCommand(templateConfig, authorization, currentUser, securityService, result, md5, entityHashingService);
+        UpdateTemplateAuthConfigCommand command = new UpdateTemplateAuthConfigCommand(templateConfig, authorization, currentUser, securityService, result, md5, entityHashingService, externalArtifactsService);
         update(currentUser, result, command, templateConfig);
     }
 
     public void deleteTemplateConfig(final Username currentUser, final PipelineTemplateConfig templateConfig, final LocalizedOperationResult result) {
-        DeleteTemplateConfigCommand command = new DeleteTemplateConfigCommand(templateConfig, result, securityService, currentUser);
+        DeleteTemplateConfigCommand command = new DeleteTemplateConfigCommand(templateConfig, result, securityService, currentUser, externalArtifactsService);
         update(currentUser, result, command, templateConfig);
         if (result.isSuccessful()) {
             result.setMessage(LocalizedMessage.resourceDeleteSuccessful("template", templateConfig.name().toString()));

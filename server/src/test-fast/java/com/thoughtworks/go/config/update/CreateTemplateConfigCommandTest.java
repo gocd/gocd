@@ -17,9 +17,10 @@
 package com.thoughtworks.go.config.update;
 
 import com.thoughtworks.go.config.*;
-import com.thoughtworks.go.helper.GoConfigMother;
-import com.thoughtworks.go.helper.StageConfigMother;
+import com.thoughtworks.go.domain.ConfigErrors;
+import com.thoughtworks.go.helper.*;
 import com.thoughtworks.go.server.domain.Username;
+import com.thoughtworks.go.server.service.ExternalArtifactsService;
 import com.thoughtworks.go.server.service.SecurityService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import org.junit.Before;
@@ -31,13 +32,18 @@ import org.mockito.Mock;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsEqual.equalTo;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 public class CreateTemplateConfigCommandTest {
 
     @Mock
     private SecurityService securityService;
+
+    @Mock
+    private ExternalArtifactsService externalArtifactsService;
 
 
     private HttpLocalizedOperationResult result;
@@ -61,7 +67,7 @@ public class CreateTemplateConfigCommandTest {
 
     @Test
     public void shouldAddNewTemplateToGivenConfig() throws Exception {
-        CreateTemplateConfigCommand createTemplateConfigCommand = new CreateTemplateConfigCommand(pipelineTemplateConfig, currentUser, securityService, result);
+        CreateTemplateConfigCommand createTemplateConfigCommand = new CreateTemplateConfigCommand(pipelineTemplateConfig, currentUser, securityService, result, externalArtifactsService);
         assertThat(cruiseConfig.getTemplates().contains(pipelineTemplateConfig), is(false));
         createTemplateConfigCommand.update(cruiseConfig);
         assertThat(cruiseConfig.getTemplates().contains(pipelineTemplateConfig), is(true));
@@ -70,7 +76,7 @@ public class CreateTemplateConfigCommandTest {
     @Test
     public void shouldAddNewTemplateToConfigWithAuthorizationSetForGroupAdmin() throws Exception {
         when(securityService.isUserGroupAdmin(currentUser)).thenReturn(true);
-        CreateTemplateConfigCommand createTemplateConfigCommand = new CreateTemplateConfigCommand(pipelineTemplateConfig, currentUser, securityService, result);
+        CreateTemplateConfigCommand createTemplateConfigCommand = new CreateTemplateConfigCommand(pipelineTemplateConfig, currentUser, securityService, result, externalArtifactsService);
         assertThat(cruiseConfig.getTemplates().contains(pipelineTemplateConfig), is(false));
         createTemplateConfigCommand.update(cruiseConfig);
         assertThat(cruiseConfig.getTemplates().contains(pipelineTemplateConfig), is(true));
@@ -80,7 +86,7 @@ public class CreateTemplateConfigCommandTest {
     @Test
     public void shouldAddNewTemplateToConfigWithoutAuthorizationForSuperAdmin() throws Exception {
         when(securityService.isUserGroupAdmin(currentUser)).thenReturn(false);
-        CreateTemplateConfigCommand createTemplateConfigCommand = new CreateTemplateConfigCommand(pipelineTemplateConfig, currentUser, securityService, result);
+        CreateTemplateConfigCommand createTemplateConfigCommand = new CreateTemplateConfigCommand(pipelineTemplateConfig, currentUser, securityService, result, externalArtifactsService);
         assertThat(cruiseConfig.getTemplates().contains(pipelineTemplateConfig), is(false));
         createTemplateConfigCommand.update(cruiseConfig);
         assertThat(cruiseConfig.getTemplates().contains(pipelineTemplateConfig), is(true));
@@ -91,7 +97,7 @@ public class CreateTemplateConfigCommandTest {
     public void shouldNotContinueWithConfigSaveIfUserIsUnauthorized() {
         when(securityService.isUserAdmin(currentUser)).thenReturn(false);
 
-        CreateTemplateConfigCommand command = new CreateTemplateConfigCommand(pipelineTemplateConfig, currentUser, securityService, result);
+        CreateTemplateConfigCommand command = new CreateTemplateConfigCommand(pipelineTemplateConfig, currentUser, securityService, result, externalArtifactsService);
 
         assertThat(command.canContinue(cruiseConfig), is(false));
         assertThat(result.message(), equalTo("Unauthorized to edit."));
@@ -102,8 +108,23 @@ public class CreateTemplateConfigCommandTest {
         when(securityService.isUserAdmin(currentUser)).thenReturn(false);
         when(securityService.isUserGroupAdmin(currentUser)).thenReturn(true);
 
-        CreateTemplateConfigCommand command = new CreateTemplateConfigCommand(pipelineTemplateConfig, currentUser, securityService, result);
+        CreateTemplateConfigCommand command = new CreateTemplateConfigCommand(pipelineTemplateConfig, currentUser, securityService, result, externalArtifactsService);
 
         assertThat(command.canContinue(cruiseConfig), is(true));
+    }
+
+
+    @Test
+    public void shouldEncryptSecurePropertiesOfPipelineConfig() {
+        PipelineTemplateConfig template = mock(PipelineTemplateConfig.class);
+        CreateTemplateConfigCommand command = new CreateTemplateConfigCommand(template, null, securityService, result, externalArtifactsService);
+
+        when(template.name()).thenReturn(new CaseInsensitiveString("p1"));
+        CruiseConfig preprocessedConfig = mock(CruiseConfig.class);
+        when(preprocessedConfig.findTemplate(new CaseInsensitiveString("p1"))).thenReturn(template);
+
+        command.encrypt(preprocessedConfig);
+
+        verify(template).encryptSecureProperties(eq(preprocessedConfig), any(PipelineTemplateConfig.class));
     }
 }

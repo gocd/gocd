@@ -18,10 +18,10 @@ package com.thoughtworks.go.apiv4.shared.representers.stages.tasks;
 
 import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.api.representers.JsonReader;
-import com.thoughtworks.go.apiv4.shared.representers.stages.ConfigHelperOptions;
 import com.thoughtworks.go.config.AntTask;
 
 public class AntTaskRepresenter {
+
     public static void toJSON(OutputWriter jsonWriter, AntTask antTask) {
         BaseTaskRepresenter.toJSON(jsonWriter, antTask);
         jsonWriter.add("working_directory", antTask.workingDirectory());
@@ -29,9 +29,12 @@ public class AntTaskRepresenter {
         jsonWriter.add("target", antTask.getTarget());
     }
 
-    public static AntTask fromJSON(JsonReader jsonReader, ConfigHelperOptions options) {
+    public static AntTask fromJSON(JsonReader jsonReader) {
         AntTask antTask = new AntTask();
-        BaseTaskRepresenter.fromJSON(jsonReader, antTask, options);
+        if (jsonReader == null) {
+            return antTask;
+        }
+        BaseTaskRepresenter.fromJSON(jsonReader, antTask);
         jsonReader.readStringIfPresent("working_directory", antTask::setWorkingDirectory);
         jsonReader.readStringIfPresent("build_file", antTask::setBuildFile);
         jsonReader.readStringIfPresent("target", antTask::setTarget);

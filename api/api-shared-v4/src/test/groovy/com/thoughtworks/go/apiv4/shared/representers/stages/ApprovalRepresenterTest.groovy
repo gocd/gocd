@@ -17,6 +17,7 @@
 package com.thoughtworks.go.apiv4.shared.representers.stages
 
 import com.thoughtworks.go.api.util.GsonTransformer
+import com.thoughtworks.go.apiv4.shared.representers.stages.ApprovalRepresenter
 import com.thoughtworks.go.config.*
 import org.junit.jupiter.api.Test
 

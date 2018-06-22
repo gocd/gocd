@@ -22,6 +22,7 @@ import com.thoughtworks.go.config.PipelineTemplateConfig;
 import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.helper.StageConfigMother;
 import com.thoughtworks.go.server.domain.Username;
+import com.thoughtworks.go.server.service.ExternalArtifactsService;
 import com.thoughtworks.go.server.service.SecurityService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import org.junit.Before;
@@ -40,6 +41,9 @@ public class DeleteTemplateConfigCommandTest {
 
     @Mock
     private SecurityService securityService;
+
+    @Mock
+    private ExternalArtifactsService externalArtifactsService;
 
     private HttpLocalizedOperationResult result;
     private Username currentUser;
@@ -62,7 +66,7 @@ public class DeleteTemplateConfigCommandTest {
     @Test
     public void shouldDeleteTemplateFromTheGivenConfig() throws Exception {
         cruiseConfig.addTemplate(pipelineTemplateConfig);
-        DeleteTemplateConfigCommand command = new DeleteTemplateConfigCommand(pipelineTemplateConfig, result, securityService, currentUser);
+        DeleteTemplateConfigCommand command = new DeleteTemplateConfigCommand(pipelineTemplateConfig, result, securityService, currentUser, externalArtifactsService);
         assertThat(cruiseConfig.getTemplates().contains(pipelineTemplateConfig), is(true));
         command.update(cruiseConfig);
         assertThat(cruiseConfig.getTemplates().contains(pipelineTemplateConfig), is(false));
@@ -71,7 +75,7 @@ public class DeleteTemplateConfigCommandTest {
     @Test
     public  void shouldValidateWhetherTemplateIsAssociatedWithPipelines() {
         new GoConfigMother().addPipelineWithTemplate(cruiseConfig, "p1", pipelineTemplateConfig.name().toString(), "s1", "j1");
-        DeleteTemplateConfigCommand command = new DeleteTemplateConfigCommand(pipelineTemplateConfig, result, securityService, currentUser);
+        DeleteTemplateConfigCommand command = new DeleteTemplateConfigCommand(pipelineTemplateConfig, result, securityService, currentUser, externalArtifactsService);
 
         thrown.expectMessage("The template 'template' is being referenced by pipeline(s): [p1]");
         assertThat(command.isValid(cruiseConfig), is(false));
@@ -83,7 +87,7 @@ public class DeleteTemplateConfigCommandTest {
         cruiseConfig.addTemplate(pipelineTemplateConfig);
         when(securityService.isAuthorizedToEditTemplate(new CaseInsensitiveString("template"), currentUser)).thenReturn(false);
 
-        DeleteTemplateConfigCommand command = new DeleteTemplateConfigCommand(pipelineTemplateConfig, result, securityService, currentUser);
+        DeleteTemplateConfigCommand command = new DeleteTemplateConfigCommand(pipelineTemplateConfig, result, securityService, currentUser, externalArtifactsService);
 
         assertThat(command.canContinue(cruiseConfig), is(false));
         assertThat(result.message(), equalTo("Unauthorized to edit."));
@@ -94,7 +98,7 @@ public class DeleteTemplateConfigCommandTest {
         cruiseConfig.addTemplate(pipelineTemplateConfig);
         when(securityService.isAuthorizedToEditTemplate(new CaseInsensitiveString("template"), currentUser)).thenReturn(true);
 
-        DeleteTemplateConfigCommand command = new DeleteTemplateConfigCommand(pipelineTemplateConfig, result, securityService, currentUser);
+        DeleteTemplateConfigCommand command = new DeleteTemplateConfigCommand(pipelineTemplateConfig, result, securityService, currentUser, externalArtifactsService);
 
         assertThat(command.canContinue(cruiseConfig), is(true));
     }
@@ -103,7 +107,7 @@ public class DeleteTemplateConfigCommandTest {
     public void shouldNotContinueWhenTemplateNoLongerExists() {
         when(securityService.isAuthorizedToEditTemplate(new CaseInsensitiveString("template"), currentUser)).thenReturn(true);
 
-        DeleteTemplateConfigCommand command = new DeleteTemplateConfigCommand(pipelineTemplateConfig, result, securityService, currentUser);
+        DeleteTemplateConfigCommand command = new DeleteTemplateConfigCommand(pipelineTemplateConfig, result, securityService, currentUser, externalArtifactsService);
 
         assertThat(command.canContinue(cruiseConfig), is(false));
     }

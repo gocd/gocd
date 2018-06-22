@@ -55,7 +55,16 @@ public class ExternalArtifactsService {
     }
 
     public void validateFetchExternalArtifactTask(FetchPluggableArtifactTask preprocessedFetchPluggableArtifactTask, PipelineConfig pipelineConfig, CruiseConfig preprocessedConfig) {
-        PluggableArtifactConfig specifiedExternalArtifact = preprocessedFetchPluggableArtifactTask.getSpecifiedExternalArtifact(preprocessedConfig, pipelineConfig, preprocessedFetchPluggableArtifactTask);
+        PluggableArtifactConfig specifiedExternalArtifact = preprocessedFetchPluggableArtifactTask.getSpecifiedExternalArtifact(preprocessedConfig, pipelineConfig, preprocessedFetchPluggableArtifactTask, true, pipelineConfig.name());
+        validateFetchTasks(preprocessedFetchPluggableArtifactTask, preprocessedConfig, specifiedExternalArtifact);
+    }
+
+    public void validateFetchExternalArtifactTask(FetchPluggableArtifactTask preprocessedFetchPluggableArtifactTask, PipelineTemplateConfig pipelineTemplateConfig, CruiseConfig preprocessedConfig) {
+        PluggableArtifactConfig specifiedExternalArtifact = preprocessedFetchPluggableArtifactTask.getSpecifiedExternalArtifact(preprocessedConfig, pipelineTemplateConfig, preprocessedFetchPluggableArtifactTask, false, pipelineTemplateConfig.name());
+        validateFetchTasks(preprocessedFetchPluggableArtifactTask, preprocessedConfig, specifiedExternalArtifact);
+    }
+
+    private void validateFetchTasks(FetchPluggableArtifactTask preprocessedFetchPluggableArtifactTask, CruiseConfig preprocessedConfig, PluggableArtifactConfig specifiedExternalArtifact) {
         if (specifiedExternalArtifact != null) {
             ArtifactStore artifactStore = preprocessedConfig.getArtifactStores().find(specifiedExternalArtifact.getStoreId());
             if (specifiedExternalArtifact.hasValidPluginAndStore(artifactStore)) {

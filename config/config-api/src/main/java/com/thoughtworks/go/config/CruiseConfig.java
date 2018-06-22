@@ -223,6 +223,8 @@ public interface CruiseConfig extends Validatable, ConfigOriginTraceable {
 
     List<CaseInsensitiveString> pipelinesAssociatedWithTemplate(CaseInsensitiveString templateName);
 
+    List<PipelineConfig> pipelineConfigsAssociatedWithTemplate(CaseInsensitiveString templateName);
+
     boolean isArtifactCleanupProhibited(String pipelineName, String stageName);
 
     MaterialConfig materialConfigFor(String fingerprint);

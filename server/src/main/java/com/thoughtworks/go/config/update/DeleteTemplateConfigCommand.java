@@ -22,6 +22,7 @@ import com.thoughtworks.go.config.PipelineTemplateConfig;
 import com.thoughtworks.go.config.TemplatesConfig;
 import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
 import com.thoughtworks.go.server.domain.Username;
+import com.thoughtworks.go.server.service.ExternalArtifactsService;
 import com.thoughtworks.go.server.service.SecurityService;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 
@@ -35,8 +36,8 @@ public class DeleteTemplateConfigCommand extends TemplateConfigCommand {
 
     private SecurityService securityService;
 
-    public DeleteTemplateConfigCommand(PipelineTemplateConfig templateConfig, LocalizedOperationResult result, SecurityService securityService, Username currentUser) {
-        super(templateConfig, result, currentUser);
+    public DeleteTemplateConfigCommand(PipelineTemplateConfig templateConfig, LocalizedOperationResult result, SecurityService securityService, Username currentUser, ExternalArtifactsService externalArtifactsService) {
+        super(templateConfig, result, currentUser, externalArtifactsService);
         this.securityService = securityService;
     }
 
@@ -56,6 +57,10 @@ public class DeleteTemplateConfigCommand extends TemplateConfigCommand {
             throw new GoConfigInvalidException(preprocessedConfig, String.format("The template '%s' is being referenced by pipeline(s): %s", templateConfig.name(), pipelinesAssociatedWithTemplate));
         }
         return true;
+    }
+
+    @Override
+    public void encrypt(CruiseConfig preProcessedConfig) {
     }
 
     @Override

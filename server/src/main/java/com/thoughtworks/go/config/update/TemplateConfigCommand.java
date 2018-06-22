@@ -20,7 +20,10 @@ import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
 import com.thoughtworks.go.config.exceptions.NoSuchTemplateException;
 import com.thoughtworks.go.server.domain.Username;
+import com.thoughtworks.go.server.service.ExternalArtifactsService;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
+
+import java.util.List;
 
 import static com.thoughtworks.go.i18n.LocalizedMessage.resourceNotFound;
 import static com.thoughtworks.go.serverhealth.HealthStateType.notFound;
@@ -32,12 +35,14 @@ public abstract class TemplateConfigCommand implements EntityConfigUpdateCommand
     protected final LocalizedOperationResult result;
     protected PipelineTemplateConfig templateConfig;
     protected final Username currentUser;
+    protected ExternalArtifactsService externalArtifactsService;
 
 
-    TemplateConfigCommand(PipelineTemplateConfig templateConfig, LocalizedOperationResult result, Username currentUser) {
+    TemplateConfigCommand(PipelineTemplateConfig templateConfig, LocalizedOperationResult result, Username currentUser, ExternalArtifactsService externalArtifactsService) {
         this.templateConfig = templateConfig;
         this.result = result;
         this.currentUser = currentUser;
+        this.externalArtifactsService = externalArtifactsService;
     }
 
 
@@ -54,6 +59,12 @@ public abstract class TemplateConfigCommand implements EntityConfigUpdateCommand
         return false;
     }
 
+    @Override
+    public void encrypt(CruiseConfig preprocessedConfig) {
+        preprocessedTemplateConfig = findAddedTemplate(preprocessedConfig);
+        templateConfig.encryptSecureProperties(preprocessedConfig, preprocessedTemplateConfig);
+    }
+
     PipelineTemplateConfig findAddedTemplate(CruiseConfig cruiseConfig) {
         if (templateConfig == null || templateConfig.name() == null || templateConfig.name().isBlank()) {
             result.unprocessableEntity("The template config is invalid. Attribute 'name' cannot be null.");
@@ -65,6 +76,19 @@ public abstract class TemplateConfigCommand implements EntityConfigUpdateCommand
                 throw new NoSuchTemplateException(templateConfig.name());
             }
             return pipelineTemplateConfig;
+        }
+    }
+
+    void validatePublishAndFetchExternalConfigs(PipelineTemplateConfig pipelineTemplateConfig, CruiseConfig preprocessedConfig) {
+        List<PipelineConfig> associatedPipelineConfigs = preprocessedConfig.pipelineConfigsAssociatedWithTemplate(templateConfig.name());
+        for (PipelineConfig associatedPipelineConfig : associatedPipelineConfigs) {
+            for (PluggableArtifactConfig pluggableArtifactConfig : associatedPipelineConfig.getExternalArtifactConfigs()) {
+                externalArtifactsService.validateExternalArtifactConfig(pluggableArtifactConfig, preprocessedConfig.getArtifactStores().find(pluggableArtifactConfig.getStoreId()));
+            }
+
+            for (FetchPluggableArtifactTask fetchPluggableArtifactTask : associatedPipelineConfig.getFetchExternalArtifactTasks()) {
+                externalArtifactsService.validateFetchExternalArtifactTask(fetchPluggableArtifactTask, pipelineTemplateConfig, preprocessedConfig);
+            }
         }
     }
 

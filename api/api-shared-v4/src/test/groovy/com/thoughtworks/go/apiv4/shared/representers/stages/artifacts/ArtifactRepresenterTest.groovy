@@ -17,17 +17,14 @@
 package com.thoughtworks.go.apiv4.shared.representers.stages.artifacts
 
 import com.thoughtworks.go.api.util.GsonTransformer
-import com.thoughtworks.go.apiv4.shared.representers.stages.ConfigHelperOptions
+import com.thoughtworks.go.apiv4.shared.representers.stages.artifacts.ArtifactRepresenter
 import com.thoughtworks.go.config.*
-import com.thoughtworks.go.config.materials.PasswordDeserializer
 import com.thoughtworks.go.config.validation.FilePathTypeValidator
 import com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother
-import com.thoughtworks.go.helper.GoConfigMother
 import org.junit.jupiter.api.Test
 
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
-import static org.mockito.Mockito.mock
 
 class ArtifactRepresenterTest {
 
@@ -123,7 +120,7 @@ class ArtifactRepresenterTest {
     expected.setDestination('reports')
 
     def jsonReader = GsonTransformer.instance.jsonReaderFrom(testArtifactHash)
-    def actualArtifactConfig = ArtifactRepresenter.fromJSON(jsonReader, new ConfigHelperOptions(mock(BasicCruiseConfig.class), mock(PasswordDeserializer.class)))
+    def actualArtifactConfig = ArtifactRepresenter.fromJSON(jsonReader)
 
     assertThatJson(actualArtifactConfig).isEqualTo(expected)
   }
@@ -131,12 +128,8 @@ class ArtifactRepresenterTest {
   @Test
   void 'should deserialize external artifact'() {
     def config = new PluggableArtifactConfig("docker-image-stable", "dockerhub", ConfigurationPropertyMother.create("image", false, "alpine"))
-    def cruiseConfig = GoConfigMother.defaultCruiseConfig()
-    def artifactStore = new ArtifactStore("dockerhub", "cd.go.artifact.docker.plugin")
-    cruiseConfig.getArtifactStores().add(artifactStore)
-    config.setArtifactStore(artifactStore)
     def jsonReader = GsonTransformer.instance.jsonReaderFrom(externalArtifactHash)
-    def actualArtifactConfig = ArtifactRepresenter.fromJSON(jsonReader, new ConfigHelperOptions(cruiseConfig, mock(PasswordDeserializer.class)))
+    def actualArtifactConfig = ArtifactRepresenter.fromJSON(jsonReader)
 
     assertThatJson(actualArtifactConfig).isEqualTo(config)
 

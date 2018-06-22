@@ -19,6 +19,7 @@ package com.thoughtworks.go.config.update;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.EntityHashingService;
+import com.thoughtworks.go.server.service.ExternalArtifactsService;
 import com.thoughtworks.go.server.service.SecurityService;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 
@@ -26,8 +27,8 @@ public class UpdateTemplateAuthConfigCommand extends UpdateTemplateConfigCommand
 
     private final Authorization authorization;
 
-    public UpdateTemplateAuthConfigCommand(PipelineTemplateConfig templateConfig, Authorization authorization, Username currentUser, SecurityService securityService, LocalizedOperationResult result, String md5, EntityHashingService entityHashingService) {
-        super(templateConfig, currentUser, securityService, result, md5, entityHashingService);
+    public UpdateTemplateAuthConfigCommand(PipelineTemplateConfig templateConfig, Authorization authorization, Username currentUser, SecurityService securityService, LocalizedOperationResult result, String md5, EntityHashingService entityHashingService, ExternalArtifactsService externalArtifactsService) {
+        super(templateConfig, currentUser, securityService, result, md5, entityHashingService, externalArtifactsService);
         this.authorization = authorization;
     }
 
@@ -35,6 +36,10 @@ public class UpdateTemplateAuthConfigCommand extends UpdateTemplateConfigCommand
     public void update(CruiseConfig modifiedConfig) {
         PipelineTemplateConfig existingTemplateConfig = findAddedTemplate(modifiedConfig);
         existingTemplateConfig.setAuthorization(authorization);
+    }
+
+    @Override
+    public void encrypt(CruiseConfig preProcessedConfig) {
     }
 
     @Override

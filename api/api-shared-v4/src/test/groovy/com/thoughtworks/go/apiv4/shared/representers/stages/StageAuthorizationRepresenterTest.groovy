@@ -17,7 +17,12 @@
 package com.thoughtworks.go.apiv4.shared.representers.stages
 
 import com.thoughtworks.go.api.util.GsonTransformer
-import com.thoughtworks.go.config.*
+import com.thoughtworks.go.apiv4.shared.representers.stages.StageAuthorizationRepresenter
+import com.thoughtworks.go.config.AdminRole
+import com.thoughtworks.go.config.AdminUser
+import com.thoughtworks.go.config.AdminsConfig
+import com.thoughtworks.go.config.AuthConfig
+import com.thoughtworks.go.config.CaseInsensitiveString
 import org.junit.jupiter.api.Test
 
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString

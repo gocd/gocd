@@ -31,7 +31,7 @@ public class TemplateConfigControllerV4 implements SparkSpringController {
 
   @Autowired
   public TemplateConfigControllerV4(TemplateConfigService templateConfigService, ApiAuthenticationHelper apiAuthenticationHelper, EntityHashingService entityHashingService, GoConfigService goConfigService) {
-    delegate = new TemplateConfigControllerV4Delegate(templateConfigService, apiAuthenticationHelper, entityHashingService, goConfigService);
+    delegate = new TemplateConfigControllerV4Delegate(templateConfigService, apiAuthenticationHelper, entityHashingService);
   }
 
   @Override

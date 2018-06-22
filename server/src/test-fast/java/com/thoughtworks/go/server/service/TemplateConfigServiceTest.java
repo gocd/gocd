@@ -46,6 +46,7 @@ public class TemplateConfigServiceTest {
     private TemplateConfigService service;
     private EntityHashingService entityHashingService;
     private PluggableTaskService pluggableTaskService;
+    private ExternalArtifactsService externalArtifactsService;
 
     @Before
     public void setup() {
@@ -53,7 +54,8 @@ public class TemplateConfigServiceTest {
         securityService = mock(SecurityService.class);
         entityHashingService = mock(EntityHashingService.class);
         pluggableTaskService = mock(PluggableTaskService.class);
-        service = new TemplateConfigService(goConfigService, securityService, entityHashingService, pluggableTaskService);
+        externalArtifactsService = mock(ExternalArtifactsService.class);
+        service = new TemplateConfigService(goConfigService, securityService, entityHashingService, pluggableTaskService, externalArtifactsService);
     }
 
     @Test
@@ -270,7 +272,7 @@ public class TemplateConfigServiceTest {
         CruiseConfig cruiseConfig = new BasicCruiseConfig();
         cruiseConfig.addTemplate(emptyTemplate);
 
-        TemplateConfigService service = new TemplateConfigService(goConfigService, securityService, entityHashingService, pluggableTaskService);
+        TemplateConfigService service = new TemplateConfigService(goConfigService, securityService, entityHashingService, pluggableTaskService, externalArtifactsService);
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         service.removeTemplate("not_found_template", cruiseConfig, "md5", result);

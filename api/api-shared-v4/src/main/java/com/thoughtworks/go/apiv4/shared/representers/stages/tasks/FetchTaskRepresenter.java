@@ -19,7 +19,6 @@ package com.thoughtworks.go.apiv4.shared.representers.stages.tasks;
 import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.api.representers.ConfigurationPropertyRepresenter;
 import com.thoughtworks.go.api.representers.JsonReader;
-import com.thoughtworks.go.apiv4.shared.representers.stages.ConfigHelperOptions;
 import com.thoughtworks.go.config.AbstractFetchTask;
 import com.thoughtworks.go.config.FetchPluggableArtifactTask;
 import com.thoughtworks.go.config.FetchTask;
@@ -62,22 +61,28 @@ public class FetchTaskRepresenter {
         jsonWriter.add("destination", fetchTask.getDest());
     }
 
-    public static AbstractFetchTask fromJSON(JsonReader jsonReader, ConfigHelperOptions options) {
+    public static AbstractFetchTask fromJSON(JsonReader jsonReader) {
+        if (jsonReader == null) {
+            return null;
+        }
         String origin = jsonReader.getString("origin");
         switch (origin) {
             case "gocd":
-                return fetchTaskFromJson(jsonReader, options);
+                return fetchTaskFromJson(jsonReader);
             case "external":
-                return fetchExternalTaskFromJson(jsonReader, options);
+                return fetchExternalTaskFromJson(jsonReader);
             default:
                 throw new UnprocessableEntityException(String.format("Invalid task type %s. It has to be one of '%s'.", origin, String.join(",", "gocd", "external")));
 
         }
     }
 
-    private static AbstractFetchTask fetchTaskFromJson(JsonReader jsonReader, ConfigHelperOptions options) {
+    private static AbstractFetchTask fetchTaskFromJson(JsonReader jsonReader) {
         FetchTask fetchTask = new FetchTask();
-        setBaseTask(jsonReader, fetchTask, options);
+        if (jsonReader == null) {
+            return fetchTask;
+        }
+        setBaseTask(jsonReader, fetchTask);
 
         Optional<Boolean> isSourceAFileValue = jsonReader.optBoolean("is_source_a_file");
         Boolean isSourceAFile = isSourceAFileValue.orElse(false);
@@ -92,17 +97,20 @@ public class FetchTaskRepresenter {
         return fetchTask;
     }
 
-    private static AbstractFetchTask fetchExternalTaskFromJson(JsonReader jsonReader, ConfigHelperOptions options) {
+    private static AbstractFetchTask fetchExternalTaskFromJson(JsonReader jsonReader) {
         FetchPluggableArtifactTask fetchExternalArtifactTask = new FetchPluggableArtifactTask();
-        setBaseTask(jsonReader, fetchExternalArtifactTask, options);
+        if (jsonReader == null) {
+            return fetchExternalArtifactTask;
+        }
+        setBaseTask(jsonReader, fetchExternalArtifactTask);
         jsonReader.readStringIfPresent("artifact_id", fetchExternalArtifactTask::setArtifactId);
         fetchExternalArtifactTask.addConfigurations(ConfigurationPropertyRepresenter.fromJSONArray(jsonReader, "configuration"));
 
         return fetchExternalArtifactTask;
     }
 
-    private static void setBaseTask(JsonReader jsonReader, AbstractFetchTask abstractFetchArtifactTask, ConfigHelperOptions options) {
-        BaseTaskRepresenter.fromJSON(jsonReader, abstractFetchArtifactTask, options);
+    private static void setBaseTask(JsonReader jsonReader, AbstractFetchTask abstractFetchArtifactTask) {
+        BaseTaskRepresenter.fromJSON(jsonReader, abstractFetchArtifactTask);
         jsonReader.readCaseInsensitiveStringIfPresent("pipeline", abstractFetchArtifactTask::setPipelineName);
         jsonReader.readCaseInsensitiveStringIfPresent("stage", abstractFetchArtifactTask::setStage);
         jsonReader.readCaseInsensitiveStringIfPresent("job", abstractFetchArtifactTask::setJob);

@@ -18,7 +18,6 @@ package com.thoughtworks.go.apiv4.shared.representers.stages.tasks;
 
 import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.api.representers.JsonReader;
-import com.thoughtworks.go.apiv4.shared.representers.stages.ConfigHelperOptions;
 import com.thoughtworks.go.config.RakeTask;
 
 public class RakeTaskRepresenter {
@@ -29,9 +28,12 @@ public class RakeTaskRepresenter {
         jsonWriter.addIfNotNull("target", rakeTask.getTarget());
     }
 
-    public static RakeTask fromJSON(JsonReader jsonReader, ConfigHelperOptions options) {
+    public static RakeTask fromJSON(JsonReader jsonReader) {
         RakeTask rakeTask = new RakeTask();
-        BaseTaskRepresenter.fromJSON(jsonReader, rakeTask, options);
+        if (jsonReader == null) {
+            return rakeTask;
+        }
+        BaseTaskRepresenter.fromJSON(jsonReader, rakeTask);
         jsonReader.readStringIfPresent("working_directory", rakeTask::setWorkingDirectory);
         jsonReader.readStringIfPresent("build_file", rakeTask::setBuildFile);
         jsonReader.readStringIfPresent("target", rakeTask::setTarget);

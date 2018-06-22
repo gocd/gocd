@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.config;
 
+import com.thoughtworks.go.domain.BaseCollection;
 import com.thoughtworks.go.domain.config.Configuration;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
 import com.thoughtworks.go.domain.config.SecureKeyInfoProvider;
@@ -100,39 +101,55 @@ public class FetchPluggableArtifactTask extends AbstractFetchTask {
 
     public void encryptSecureProperties(CruiseConfig preprocessedCruiseConfig, PipelineConfig preprocessedPipelineConfig, FetchPluggableArtifactTask preprocessedTask) {
         if (isNotBlank(artifactId)) {
-            PluggableArtifactConfig externalArtifact = getSpecifiedExternalArtifact(preprocessedCruiseConfig, preprocessedPipelineConfig, preprocessedTask);
+            PluggableArtifactConfig externalArtifact = getSpecifiedExternalArtifact(preprocessedCruiseConfig, preprocessedPipelineConfig, preprocessedTask, true, preprocessedPipelineConfig.name());
+            encryptSecurePluginConfiguration(preprocessedCruiseConfig, externalArtifact);
+        }
+    }
 
-            if (externalArtifact != null) {
-                ArtifactStore artifactStore = preprocessedCruiseConfig.getArtifactStores().find(externalArtifact.getStoreId());
-                if (artifactStore != null) {
-                    ArtifactPluginInfo pluginInfo = ArtifactMetadataStore.instance().getPluginInfo(artifactStore.getPluginId());
-                    if (pluginInfo == null || pluginInfo.getFetchArtifactSettings() == null) {
-                        return;
-                    }
-                    for (ConfigurationProperty configurationProperty : getConfiguration()) {
-                        configurationProperty.handleSecureValueConfiguration(isSecure(configurationProperty.getConfigKeyName(), pluginInfo.getFetchArtifactSettings()));
-                    }
+    public void encryptSecureProperties(CruiseConfig preprocessedCruiseConfig, PipelineTemplateConfig pipelineTemplateConfig) {
+        if (isNotBlank(artifactId)) {
+            PluggableArtifactConfig externalArtifact = getSpecifiedExternalArtifact(preprocessedCruiseConfig, pipelineTemplateConfig, this, false, pipelineTemplateConfig.name());
+            encryptSecurePluginConfiguration(preprocessedCruiseConfig, externalArtifact);
+        }
+    }
 
+    private void encryptSecurePluginConfiguration(CruiseConfig preprocessedCruiseConfig, PluggableArtifactConfig externalArtifact) {
+        if (externalArtifact != null) {
+            ArtifactStore artifactStore = preprocessedCruiseConfig.getArtifactStores().find(externalArtifact.getStoreId());
+            if (artifactStore != null) {
+                ArtifactPluginInfo pluginInfo = ArtifactMetadataStore.instance().getPluginInfo(artifactStore.getPluginId());
+                if (pluginInfo == null || pluginInfo.getFetchArtifactSettings() == null) {
+                    return;
                 }
+                for (ConfigurationProperty configurationProperty : getConfiguration()) {
+                    configurationProperty.handleSecureValueConfiguration(isSecure(configurationProperty.getConfigKeyName(), pluginInfo.getFetchArtifactSettings()));
+                }
+
             }
         }
     }
 
-    public PluggableArtifactConfig getSpecifiedExternalArtifact(CruiseConfig cruiseConfig, PipelineConfig pipelineConfig, FetchPluggableArtifactTask preprocessedTask) {
-        PipelineConfig dependencyMaterial = null;
+    public PluggableArtifactConfig getSpecifiedExternalArtifact(CruiseConfig cruiseConfig, BaseCollection<StageConfig> pipelineOrTemplate, FetchPluggableArtifactTask preprocessedTask, boolean isPipeline, CaseInsensitiveString pipelineOrTemplateName) {
+        BaseCollection<StageConfig> dependencyMaterial = null;
         PluggableArtifactConfig externalArtifact = null;
-
-        if (preprocessedTask.getPipelineName() == null || CaseInsensitiveString.isBlank(preprocessedTask.getTargetPipelineName()) || preprocessedTask.getTargetPipelineName().equals(pipelineConfig.name())) {
-            dependencyMaterial = pipelineConfig;
+        boolean isUpstreamAPipeline = isPipeline;
+        if (preprocessedTask.getPipelineName() == null || CaseInsensitiveString.isBlank(preprocessedTask.getTargetPipelineName()) || preprocessedTask.getTargetPipelineName().equals(pipelineOrTemplateName)) {
+            dependencyMaterial = pipelineOrTemplate;
         } else {
             try {
                 dependencyMaterial = cruiseConfig.pipelineConfigByName(preprocessedTask.getTargetPipelineName());
+                isUpstreamAPipeline = true;
             } catch (PipelineNotFoundException e) {
                 // ignore
             }
         }
-        if (dependencyMaterial != null) {
-            StageConfig upstreamStage = dependencyMaterial.getStage(preprocessedTask.getStage());
+        StageConfig upstreamStage;
+        if (dependencyMaterial != null && !dependencyMaterial.isEmpty()) {
+            if (isUpstreamAPipeline) {
+                upstreamStage = ((PipelineConfig) dependencyMaterial).getStage(preprocessedTask.getStage());
+            } else {
+                upstreamStage = ((PipelineTemplateConfig) dependencyMaterial).getStage(preprocessedTask.getStage());
+            }
             if (upstreamStage != null) {
                 JobConfig jobConfig = upstreamStage.jobConfigByConfigName(preprocessedTask.getJob());
                 if (jobConfig != null) {

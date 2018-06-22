@@ -55,14 +55,12 @@ public class TemplateConfigControllerV4Delegate extends ApiController implements
   private final TemplateConfigService templateConfigService;
   private final ApiAuthenticationHelper apiAuthenticationHelper;
   private final EntityHashingService entityHashingService;
-  private GoConfigService goConfigService;
 
-  public TemplateConfigControllerV4Delegate(TemplateConfigService templateConfigService, ApiAuthenticationHelper apiAuthenticationHelper, EntityHashingService entityHashingService, GoConfigService goConfigService) {
+  public TemplateConfigControllerV4Delegate(TemplateConfigService templateConfigService, ApiAuthenticationHelper apiAuthenticationHelper, EntityHashingService entityHashingService) {
     super(ApiVersion.v4);
     this.templateConfigService = templateConfigService;
     this.apiAuthenticationHelper = apiAuthenticationHelper;
     this.entityHashingService = entityHashingService;
-    this.goConfigService = goConfigService;
   }
 
   @Override
@@ -77,9 +75,8 @@ public class TemplateConfigControllerV4Delegate extends ApiController implements
 
   @Override
   public PipelineTemplateConfig getEntityFromRequestBody(Request req) {
-    ConfigHelperOptions options = new ConfigHelperOptions(goConfigService.getCurrentConfig(), null);
     JsonReader jsonReader = GsonTransformer.getInstance().jsonReaderFrom(req.body());
-      return TemplateConfigRepresenter.fromJSON(jsonReader, options);
+      return TemplateConfigRepresenter.fromJSON(jsonReader);
   }
 
   @Override

@@ -21,15 +21,18 @@ import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.api.representers.ErrorGetter;
 import com.thoughtworks.go.api.representers.JsonReader;
 import com.thoughtworks.go.apiv4.shared.representers.EnvironmentVariableRepresenter;
-import com.thoughtworks.go.config.JobConfigs;
-import com.thoughtworks.go.config.PipelineConfig;
-import com.thoughtworks.go.config.PipelineTemplateConfig;
-import com.thoughtworks.go.config.StageConfig;
+import com.thoughtworks.go.config.*;
 
 import java.util.HashMap;
 import java.util.function.Consumer;
 
 public class StageRepresenter {
+
+  public static void toJSONArray(OutputListWriter stagesWriter, PipelineConfig pipelineConfig) {
+    pipelineConfig.getStages().forEach(stage -> {
+      stagesWriter.addChild(stageWriter -> toJSON(stageWriter, stage));
+    });
+  }
 
   public static void toJSONArray(OutputListWriter stagesWriter, PipelineTemplateConfig pipelineTemplateConfig) {
     pipelineTemplateConfig.getStages().forEach(stage -> {
@@ -62,25 +65,25 @@ public class StageRepresenter {
     };
   }
 
-  public static StageConfig fromJSON(JsonReader jsonReader, ConfigHelperOptions options) {
+  public static StageConfig fromJSON(JsonReader jsonReader) {
     StageConfig stageConfig = new StageConfig();
     jsonReader.readCaseInsensitiveStringIfPresent("name", stageConfig::setName);
     jsonReader.optBoolean("fetch_materials").ifPresent(stageConfig::setFetchMaterials);
     jsonReader.optBoolean("clean_working_directory").ifPresent(stageConfig::setCleanWorkingDir);
     jsonReader.optBoolean("never_cleanup_artifacts").ifPresent(stageConfig::setArtifactCleanupProhibited);
     stageConfig.setVariables(EnvironmentVariableRepresenter.fromJSONArray(jsonReader));
-    setJobs(jsonReader, stageConfig, options);
+    setJobs(jsonReader, stageConfig);
     jsonReader.optJsonObject("approval").ifPresent(approvalReader -> {
       stageConfig.setApproval(ApprovalRepresenter.fromJSON(approvalReader));
     });
     return stageConfig;
   }
 
-  private static void setJobs(JsonReader jsonReader, StageConfig stageConfig, ConfigHelperOptions options) {
+  private static void setJobs(JsonReader jsonReader, StageConfig stageConfig) {
     JobConfigs allJobs = new JobConfigs();
     jsonReader.readArrayIfPresent("jobs", jobs -> {
       jobs.forEach(job -> {
-        allJobs.add(JobRepresenter.fromJSON(new JsonReader(job.getAsJsonObject()), options));
+        allJobs.add(JobRepresenter.fromJSON(new JsonReader(job.getAsJsonObject())));
       });
     });
 

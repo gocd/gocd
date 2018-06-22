@@ -19,7 +19,6 @@ package com.thoughtworks.go.apiv4.shared.representers.stages.artifacts;
 import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.api.representers.ErrorGetter;
 import com.thoughtworks.go.api.representers.JsonReader;
-import com.thoughtworks.go.apiv4.shared.representers.stages.ConfigHelperOptions;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.exceptions.UnprocessableEntityException;
 
@@ -35,6 +34,7 @@ public class ArtifactRepresenter {
                 errorMapping.put("dest", "destination");
                 errorMapping.put("id", "artifact_id");
                 errorMapping.put("storeId", "store_id");
+                errorMapping.put("pluginId", "plugin_id");
 
                 new ErrorGetter(errorMapping).toJSON(errorWriter, artifactConfig);
             });
@@ -52,7 +52,7 @@ public class ArtifactRepresenter {
 
     }
 
-    public static ArtifactConfig fromJSON(JsonReader jsonReader, ConfigHelperOptions options) {
+    public static ArtifactConfig fromJSON(JsonReader jsonReader) {
         String type = jsonReader.getString("type");
         ArtifactConfig artifactConfig;
         switch (type) {
@@ -63,10 +63,10 @@ public class ArtifactRepresenter {
                 artifactConfig = BuiltinArtifactConfigRepresenter.fromJSON(jsonReader, new TestArtifactConfig());
                 break;
             case "external":
-                artifactConfig = ExternalArtifactConfigRepresenter.fromJSON(jsonReader, new PluggableArtifactConfig(), options);
+                artifactConfig = ExternalArtifactConfigRepresenter.fromJSON(jsonReader, new PluggableArtifactConfig());
                 break;
             default:
-                throw new UnprocessableEntityException(String.format("Invalid Artifact type: '%s'. It has to be one of %s.", type, String.join(",", "build", "test")));
+                throw new UnprocessableEntityException(String.format("Invalid Artifact type: '%s'. It has to be one of %s.", type, String.join(",", "build", "test", "external")));
         }
         return artifactConfig;
     }

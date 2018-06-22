@@ -58,7 +58,7 @@ class TemplateConfigControllerV4DelegateTest implements SecurityServiceTrait, Co
 
   @Override
   TemplateConfigControllerV4Delegate createControllerInstance() {
-    return new TemplateConfigControllerV4Delegate(templateConfigService, new ApiAuthenticationHelper(securityService, goConfigService), entityHashingService, goConfigService)
+    return new TemplateConfigControllerV4Delegate(templateConfigService, new ApiAuthenticationHelper(securityService, goConfigService), entityHashingService)
   }
 
   @Nested

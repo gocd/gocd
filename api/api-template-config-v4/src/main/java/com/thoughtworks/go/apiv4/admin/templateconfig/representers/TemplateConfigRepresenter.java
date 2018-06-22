@@ -19,7 +19,6 @@ package com.thoughtworks.go.apiv4.admin.templateconfig.representers;
 import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.api.representers.ErrorGetter;
 import com.thoughtworks.go.api.representers.JsonReader;
-import com.thoughtworks.go.apiv4.shared.representers.stages.ConfigHelperOptions;
 import com.thoughtworks.go.apiv4.shared.representers.stages.StageRepresenter;
 import com.thoughtworks.go.config.PipelineTemplateConfig;
 import com.thoughtworks.go.spark.Routes;
@@ -53,18 +52,18 @@ public class TemplateConfigRepresenter {
         }
     }
 
-    public static PipelineTemplateConfig fromJSON(JsonReader jsonReader, ConfigHelperOptions options) {
+    public static PipelineTemplateConfig fromJSON(JsonReader jsonReader) {
         PipelineTemplateConfig pipelineTemplateConfig = new PipelineTemplateConfig();
         jsonReader.readStringIfPresent("name", pipelineTemplateConfig::setName);
-        setStages(jsonReader, pipelineTemplateConfig, options);
+        setStages(jsonReader, pipelineTemplateConfig);
         return pipelineTemplateConfig;
     }
 
-    private static void setStages(JsonReader jsonReader, PipelineTemplateConfig pipelineTemplateConfig, ConfigHelperOptions options) {
+    private static void setStages(JsonReader jsonReader, PipelineTemplateConfig pipelineTemplateConfig) {
         pipelineTemplateConfig.getStages().clear();
         jsonReader.readArrayIfPresent("stages", stages -> {
             stages.forEach(stage -> {
-                pipelineTemplateConfig.addStageWithoutValidityAssertion(StageRepresenter.fromJSON(new JsonReader(stage.getAsJsonObject()), options));
+                pipelineTemplateConfig.addStageWithoutValidityAssertion(StageRepresenter.fromJSON(new JsonReader(stage.getAsJsonObject())));
             });
         });
     }

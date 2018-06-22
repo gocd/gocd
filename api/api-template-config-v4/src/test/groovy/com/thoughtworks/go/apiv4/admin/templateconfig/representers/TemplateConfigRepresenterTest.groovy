@@ -17,8 +17,6 @@
 package com.thoughtworks.go.apiv4.admin.templateconfig.representers
 
 import com.thoughtworks.go.api.util.GsonTransformer
-import com.thoughtworks.go.apiv4.shared.representers.stages.ConfigHelperOptions
-import com.thoughtworks.go.config.BasicCruiseConfig
 import com.thoughtworks.go.config.CaseInsensitiveString
 import com.thoughtworks.go.config.JobConfig
 import com.thoughtworks.go.config.JobConfigs
@@ -29,7 +27,6 @@ import org.junit.jupiter.api.Test
 
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
-import static org.mockito.Mockito.mock
 import static org.junit.jupiter.api.Assertions.assertEquals
 
 
@@ -52,7 +49,7 @@ class TemplateConfigRepresenterTest {
   @Test
   void  'should deserialize given json to PipelineTemplateConfig object'() {
     def jsonReader = GsonTransformer.instance.jsonReaderFrom(templateHash)
-    def deserializedObject = TemplateConfigRepresenter.fromJSON(jsonReader, new ConfigHelperOptions(mock(BasicCruiseConfig.class), null))
+    def deserializedObject = TemplateConfigRepresenter.fromJSON(jsonReader)
 
     assertEquals(pipelineTemplateConfig, deserializedObject)
   }

@@ -27,6 +27,7 @@ import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.Task;
 import com.thoughtworks.go.domain.config.Admin;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -54,6 +55,9 @@ public class PipelineTemplateConfig extends BaseCollection<StageConfig> implemen
     @SkipParameterResolution
     private Authorization authorization = new Authorization();
 
+    private List<PluggableArtifactConfig> externalArtifactConfigs = null;
+    private List<FetchPluggableArtifactTask> fetchExternalArtifactTasks = null;
+
     private final ConfigErrors configErrors = new ConfigErrors();
 
     public PipelineTemplateConfig() {
@@ -79,6 +83,37 @@ public class PipelineTemplateConfig extends BaseCollection<StageConfig> implemen
             validateDependencies(preprocessedConfig);
         }
         validateStageConfig(validationContext);
+    }
+
+    public void encryptSecureProperties(CruiseConfig preprocessedConfig, PipelineTemplateConfig pipelineTemplateConfig) {
+        if (doesNotHavePublishAndFetchExternalConfig()) {
+            return;
+        }
+        for (StageConfig stageConfig : getStages()) {
+            stageConfig.encryptSecureProperties(preprocessedConfig, pipelineTemplateConfig);
+        }
+    }
+
+    private boolean doesNotHavePublishAndFetchExternalConfig() {
+        if (externalArtifactConfigs == null || fetchExternalArtifactTasks == null) {
+            cachePublishAndFetchExternalConfig();
+        }
+        return externalArtifactConfigs.isEmpty() && fetchExternalArtifactTasks.isEmpty();
+    }
+
+    private void cachePublishAndFetchExternalConfig() {
+        externalArtifactConfigs = new ArrayList<>();
+        fetchExternalArtifactTasks = new ArrayList<>();
+        for (StageConfig stageConfig : getStages()) {
+            for (JobConfig jobConfig : stageConfig.getJobs()) {
+                externalArtifactConfigs.addAll(jobConfig.artifactConfigs().getPluggableArtifactConfigs());
+                for (Task task : jobConfig.getTasks()) {
+                    if (task instanceof FetchPluggableArtifactTask) {
+                        fetchExternalArtifactTasks.add((FetchPluggableArtifactTask) task);
+                    }
+                }
+            }
+        }
     }
 
     private void validateDependencies(CruiseConfig preprocessedConfig) {

@@ -144,6 +144,6 @@ public class CreatePipelineConfigCommandTest {
         command.isValid(preprocessedConfig);
 
 
-        verify(externalArtifactsService, times(2)).validateFetchExternalArtifactTask(any(FetchPluggableArtifactTask.class), any(), eq(preprocessedConfig));
+        verify(externalArtifactsService, times(2)).validateFetchExternalArtifactTask(any(FetchPluggableArtifactTask.class), any(PipelineConfig.class), eq(preprocessedConfig));
     }
 }

@@ -21,6 +21,7 @@ import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.helper.StageConfigMother;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.EntityHashingService;
+import com.thoughtworks.go.server.service.ExternalArtifactsService;
 import com.thoughtworks.go.server.service.SecurityService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import org.junit.Before;
@@ -38,6 +39,9 @@ import static org.mockito.MockitoAnnotations.initMocks;
 public class UpdateTemplateAuthConfigCommandTest {
     @Mock
     private EntityHashingService entityHashingService;
+
+    @Mock
+    private ExternalArtifactsService externalArtifactsService;
 
     @Mock
     private SecurityService securityService;
@@ -64,7 +68,7 @@ public class UpdateTemplateAuthConfigCommandTest {
         updatedTemplateConfig.setAuthorization(templateAuthorization);
         cruiseConfig.addTemplate(pipelineTemplateConfig);
 
-        UpdateTemplateAuthConfigCommand command = new UpdateTemplateAuthConfigCommand(updatedTemplateConfig, templateAuthorization, new Username(new CaseInsensitiveString("user")), securityService, new HttpLocalizedOperationResult(), "md5", entityHashingService);
+        UpdateTemplateAuthConfigCommand command = new UpdateTemplateAuthConfigCommand(updatedTemplateConfig, templateAuthorization, new Username(new CaseInsensitiveString("user")), securityService, new HttpLocalizedOperationResult(), "md5", entityHashingService, externalArtifactsService);
         command.update(cruiseConfig);
 
         assertThat(cruiseConfig.getTemplates().contains(pipelineTemplateConfig), is(true));
@@ -83,7 +87,7 @@ public class UpdateTemplateAuthConfigCommandTest {
         updatedTemplateConfig.setAuthorization(templateAuthorization);
         cruiseConfig.addTemplate(updatedTemplateConfig);
 
-        UpdateTemplateAuthConfigCommand command = new UpdateTemplateAuthConfigCommand(updatedTemplateConfig, templateAuthorization, new Username(new CaseInsensitiveString("user")), securityService, new HttpLocalizedOperationResult(), "md5", entityHashingService);
+        UpdateTemplateAuthConfigCommand command = new UpdateTemplateAuthConfigCommand(updatedTemplateConfig, templateAuthorization, new Username(new CaseInsensitiveString("user")), securityService, new HttpLocalizedOperationResult(), "md5", entityHashingService, externalArtifactsService);
         assertFalse(command.isValid(cruiseConfig));
 
         assertThat(templateAuthorization.getAllErrors().get(0).getAllOn("roles"), is(Arrays.asList("Role \"\" does not exist.")));

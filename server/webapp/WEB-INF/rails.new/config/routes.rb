@@ -298,7 +298,6 @@ Go::Application.routes.draw do
     api_version(:module => 'ApiV3', header: {name: 'Accept', value: 'application/vnd.go.cd.v3+json'}) do
       namespace :admin do
         resources :templates, param: :template_name, except: [:new, :edit], constraints: {template_name: TEMPLATE_NAME_FORMAT}
-        resources :plugin_info, controller: :plugin_infos, param: :id, only: [:index, :show], constraints: {id: PLUGIN_ID_FORMAT}
       end
 
       match '*url', via: :all, to: 'errors#not_found'

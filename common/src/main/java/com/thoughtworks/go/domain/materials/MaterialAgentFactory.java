@@ -36,8 +36,11 @@ public class MaterialAgentFactory {
     private PackageRepositoryExtension packageRepositoryExtension;
     private SCMExtension scmExtension;
 
-    public MaterialAgentFactory(ConsoleOutputStreamConsumer consumer, File workingDirectory, AgentIdentifier agentIdentifier,
-                                PackageRepositoryExtension packageRepositoryExtension, SCMExtension scmExtension) {
+    public MaterialAgentFactory(ConsoleOutputStreamConsumer consumer,
+                                File workingDirectory,
+                                AgentIdentifier agentIdentifier,
+                                PackageRepositoryExtension packageRepositoryExtension,
+                                SCMExtension scmExtension) {
         this.consumer = consumer;
         this.workingDirectory = workingDirectory;
         this.agentIdentifier = agentIdentifier;
@@ -52,7 +55,7 @@ public class MaterialAgentFactory {
         } else if (material instanceof PackageMaterial) {
             return MaterialAgent.NO_OP;
         } else if (material instanceof PluggableSCMMaterial) {
-            return new PluggableSCMMaterialAgent(scmExtension, revision, workingDirectory);
+            return new PluggableSCMMaterialAgent(scmExtension, revision, workingDirectory, consumer);
         } else if (material instanceof ScmMaterial) {
             String destFolderPath = ((ScmMaterial) material).workingdir(workingDirectory).getAbsolutePath();
             return new AbstractMaterialAgent(revision, consumer, workingDirectory, new AgentSubprocessExecutionContext(agentIdentifier, destFolderPath));

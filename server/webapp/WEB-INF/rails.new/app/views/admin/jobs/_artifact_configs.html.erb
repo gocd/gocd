@@ -61,7 +61,7 @@
         addFormRowFor('#artifact_template_external');
         hookupStoresAutoComplete();
         addOnSelectListenerForPluginDropdown();
-        jQuery("input[name='job[artifactConfigs][][storeId]']").keyup(addOnChangeListenerForStoreInput);
+        jQuery("input[name='job[artifactConfigs][][storeId]']").on('input propertychange paste result',addOnChangeListenerForStoreInput);
         break;
     }
   }

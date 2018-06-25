@@ -28,7 +28,7 @@
               <% if is_exec_task? tvm_of_task_listing.getTaskType()
                    @tvm_of_custom_command = tvm_of_task_listing
               %>
-              <% elsif tvm_of_task_listing.getTaskType() != "fetch_pluggable_artifact" %>
+              <% elsif tvm_of_task_listing.getTypeForDisplay() != com.thoughtworks.go.config.FetchPluggableArtifactTask::FETCH_EXTERNAL_ARTIFACT %>
                 <li>
                   <%= link_to tvm_of_task_listing.getTypeForDisplay(), '#',
                               :onclick => "Modalbox.show('#{admin_task_new_path(:type => tvm_of_task_listing.getTaskType())}', {overlayClose: false, title: '#{'Add new task'} - #{tvm_of_task_listing.getTypeForDisplay}'})",

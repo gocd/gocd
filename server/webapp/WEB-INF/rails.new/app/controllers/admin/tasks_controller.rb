@@ -52,6 +52,7 @@ module Admin
     def create
       type = params[:type]
       assert_load :task, task_view_service.taskInstanceFor(type)
+      @task.setSelectedTaskType(params[:task][:selectedTaskType])
       @task.setConfigAttributes(params[:task], task_view_service)
       create_failure_handler = proc do |result, all_errors|
         @errors = flatten_all_errors(all_errors)

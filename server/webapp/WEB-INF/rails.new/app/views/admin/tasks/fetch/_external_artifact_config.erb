@@ -20,6 +20,7 @@
     <dl class="key-value-pair">
       <dt><%= config_property[0] %></dt>
       <dd><%= config_property[1] %></dd>
+      <input type="hidden" name="task[configuration][<%= config_property[0] %>]" value="<%= config_property[1] %>"/>
     </dl>
   </div>
 <% end %>

@@ -1,5 +1,5 @@
 <div class="form_item">
-  <% external_fetch_task = (scope[:task].getAppropriateTask().getTaskType() == 'fetch_pluggable_artifact') %>
+  <% external_fetch_task = (scope[:task].getAppropriateTask().getOrigin() == 'external') %>
   <textarea id="gocd-fetch-artifact_template" class="template">
     <%= render :partial => 'admin/tasks/fetch/gocd_artifact_config', :locals => {:scope => {:var_form => scope[:form]}} %>
   </textarea>
@@ -46,12 +46,10 @@
 </div>
 
 <script type="text/javascript">
-  var artifactIdToPluginId    = <%== com.google.gson.Gson.new.toJson(scope[:artifact_id_to_plugin_id]) %>;
-  var pluginToFetchView       = <%== com.google.gson.Gson.new.toJson(scope[:artifact_plugin_to_fetch_view]) %>;
-  var routeFetchTask          = "<%== scope[:routeFetch] %>";
-  var routeFetchPluggableTask = "<%== scope[:routeFetchPluggable] %>";
-  var currentPipelineName     = '<%= @pipeline.name() %>';
-  var isFormEdited            = false;
+  var artifactIdToPluginId = <%== com.google.gson.Gson.new.toJson(scope[:artifact_id_to_plugin_id]) %>;
+  var pluginToFetchView    = <%== com.google.gson.Gson.new.toJson(scope[:artifact_plugin_to_fetch_view]) %>;
+  var currentPipelineName  = '<%= @pipeline.name() %>';
+  var isFormEdited         = false;
 
   Util.on_load(function () {
     var pipelines       = <%== @pipeline_json %>;
@@ -71,12 +69,10 @@
   }
 
   function renderGoCDFetchTaskView() {
-    jQuery("#task_form").attr("action", routeFetchTask);
     jQuery(".fetch-artifact-config").html(getTemplate("gocd-fetch-artifact_template"));
   }
 
   function renderExternalFetchTaskView() {
-    jQuery("#task_form").attr("action", routeFetchPluggableTask);
     jQuery(".fetch-artifact-config").html(getTemplate("external-fetch-artifact_template"));
     clearArtifactId();
 
@@ -86,7 +82,10 @@
       hidePluginSelectionDropdown();
       initArtifactIdAutoComplete();
       renderViewForSelectedArtifactId();
-      jQuery("#task_artifactId").on("input propertychange paste result", renderViewForSelectedArtifactId)
+      jQuery("#task_artifactId").on("input propertychange paste result", function () {
+        isFormEdited = true;
+        renderViewForSelectedArtifactId();
+      })
     }
   }
 
@@ -103,8 +102,15 @@
       return;
     }
 
-    if (isParameterized(artifactId)) {
+    var parameterized = isParameterized(artifactId);
+    if (parameterized && isFormEdited) {
       showPluginSelectionDropdown();
+      jQuery(".plugin_key_value").hide();
+      return;
+    }
+
+    if (parameterized && !isFormEdited) {
+      jQuery(".plugin_key_value").show();
       return;
     }
 

@@ -1,8 +1,6 @@
 <%= render :partial => "admin/tasks/fetch/form.html", :locals => {:scope => {:task => scope[:task],
                                                                              :artifact_id_to_plugin_id => @artifact_id_to_plugin_id,
                                                                              :artifact_plugin_to_fetch_view => @artifact_plugin_to_fetch_view,
-                                                                             :routeFetch => admin_task_create_path(:type => com.thoughtworks.go.config.FetchTask.new.getTaskType()),
-                                                                             :routeFetchPluggable => admin_task_create_path(:type => com.thoughtworks.go.config.FetchPluggableArtifactTask.new.getTaskType()),
                                                                              :form => scope[:form]}} %>
 <script type="text/javascript">
   Util.on_load(function () {

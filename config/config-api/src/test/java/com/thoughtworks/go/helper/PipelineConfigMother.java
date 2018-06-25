@@ -160,5 +160,14 @@ public class PipelineConfigMother {
         pipelineConfig.first().setApproval(Approval.manualApproval());
         return pipelineConfig;
     }
+
+    public static PipelineConfig pipelineConfigWithExternalArtifact(String pipelineName, ArtifactConfig artifactConfig) {
+        final String stageName = pipelineName + ".stage";
+        final String jobName = pipelineName + ".job";
+        PipelineConfig pipelineConfig = createPipelineConfig(pipelineName, stageName, jobName);
+        final JobConfig jobConfig = pipelineConfig.getStage(stageName).jobConfigByConfigName(jobName);
+        jobConfig.artifactConfigs().add(artifactConfig);
+        return pipelineConfig;
+    }
 }
 

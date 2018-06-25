@@ -66,7 +66,7 @@ trait GroupAdminUserSecurity {
   }
 
   @Test
-  void 'should disallow allow template admin users, with security enabled'() {
+  void 'should disallow template admin users, with security enabled'() {
     enableSecurity()
     loginAsTemplateAdmin()
 

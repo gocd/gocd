@@ -18,6 +18,7 @@ package com.thoughtworks.go.config.update;
 
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.server.domain.Username;
+import com.thoughtworks.go.server.service.ExternalArtifactsService;
 import com.thoughtworks.go.server.service.SecurityService;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 
@@ -29,8 +30,8 @@ public class CreateTemplateConfigCommand extends TemplateConfigCommand {
 
     private SecurityService securityService;
 
-    public CreateTemplateConfigCommand(PipelineTemplateConfig templateConfig, Username currentUser, SecurityService securityService, LocalizedOperationResult result) {
-        super(templateConfig, result, currentUser);
+    public CreateTemplateConfigCommand(PipelineTemplateConfig templateConfig, Username currentUser, SecurityService securityService, LocalizedOperationResult result, ExternalArtifactsService externalArtifactsService) {
+        super(templateConfig, result, currentUser, externalArtifactsService);
         this.securityService = securityService;
     }
 

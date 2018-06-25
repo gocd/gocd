@@ -130,6 +130,18 @@ trait SecurityServiceTrait {
     when(securityService.isAuthorizedToViewTemplates(username)).thenReturn(true)
   }
 
+  void loginAsTemplateViewUser() {
+    Username username = loginAsRandomUser()
+
+    when(securityService.isUserAdmin(username)).thenReturn(false)
+    when(securityService.isUserGroupAdmin(username)).thenReturn(false)
+    when(securityService.isUserAdminOfGroup(eq(username) as Username, any(String.class))).thenReturn(false)
+    when(securityService.isAuthorizedToViewAndEditTemplates(username)).thenReturn(false)
+    when(securityService.isAuthorizedToEditTemplate(any() as CaseInsensitiveString, eq(username))).thenReturn(false)
+    when(securityService.isAuthorizedToViewTemplate(any() as CaseInsensitiveString, eq(username))).thenReturn(true)
+    when(securityService.isAuthorizedToViewTemplates(username)).thenReturn(true)
+  }
+
   void loginAsPipelineViewUser(String pipelineName) {
     Username username = loginAsRandomUser()
     String groupName = generateGroupName()

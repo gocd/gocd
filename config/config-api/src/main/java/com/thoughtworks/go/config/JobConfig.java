@@ -344,6 +344,20 @@ public class JobConfig implements Validatable, ParamsAttributeAware, Environment
         });
     }
 
+    public void encryptSecureProperties(CruiseConfig preprocessedConfig, PipelineTemplateConfig pipelineTemplateConfig) {
+        List<PluggableArtifactConfig> artifactConfigs = artifactConfigs().getPluggableArtifactConfigs();
+        artifactConfigs.forEach(artifactConfig -> {
+            artifactConfig.encryptSecureProperties(preprocessedConfig, artifactConfig);
+        });
+
+        tasks.forEach(task -> {
+            if (task instanceof FetchPluggableArtifactTask) {
+                FetchPluggableArtifactTask fetchPluggableArtifactTask = (FetchPluggableArtifactTask) task;
+                fetchPluggableArtifactTask.encryptSecureProperties(preprocessedConfig, pipelineTemplateConfig);
+            }
+        });
+    }
+
     public void validate(ValidationContext validationContext) {
 
         if (isBlank(CaseInsensitiveString.str(jobName))) {

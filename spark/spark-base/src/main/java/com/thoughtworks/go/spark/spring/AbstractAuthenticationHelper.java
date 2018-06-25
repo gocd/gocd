@@ -84,6 +84,35 @@ public abstract class AbstractAuthenticationHelper {
         }
     }
 
+    public void checkAdminOrTemplateAdminAnd403(Request request, Response response) {
+        if (!securityService.isSecurityEnabled() || securityService.isUserAdmin(currentUsername())) {
+            return;
+        }
+        String templateName = request.params("template_name");
+        if (StringUtils.isNotBlank(templateName) && !securityService.isAuthorizedToEditTemplate(new CaseInsensitiveString(templateName), currentUsername())) {
+            throw renderForbiddenResponse();
+        }
+
+        if (StringUtils.isBlank(templateName) && !securityService.isAuthorizedToViewAndEditTemplates(currentUsername())) {
+            throw renderForbiddenResponse();
+        }
+    }
+
+    public void checkViewAccessToTemplateAnd403(Request request, Response response) {
+        if (!securityService.isSecurityEnabled() || securityService.isUserAdmin(currentUsername())) {
+            return;
+        }
+
+        String templateName = request.params("template_name");
+        if (StringUtils.isNotBlank(templateName) && !securityService.isAuthorizedToViewTemplate(new CaseInsensitiveString(templateName), currentUsername())) {
+            throw renderForbiddenResponse();
+        }
+
+        if (StringUtils.isBlank(templateName) && !securityService.isAuthorizedToViewTemplates(currentUsername())) {
+            throw renderForbiddenResponse();
+        }
+    }
+
     public void checkPipelineCreationAuthorizationAnd403(Request request, Response response) {
         if (!securityService.isSecurityEnabled() || securityService.isUserAdmin(currentUsername())) {
             return;

@@ -447,6 +447,10 @@ tasks.withType(Test) {
   maxHeapSize '3072m'
   jvmArgs("-XX:+HeapDumpOnOutOfMemoryError", "-XX:HeapDumpPath=${buildDir}/heap-dumps")
 
+  doFirst {
+    project.mkdir("${buildDir}/heap-dumps")
+  }
+
   systemProperties += project.testSystemProperties
 
   classpath += project.files(project.configurations.additionalClasspath.files)

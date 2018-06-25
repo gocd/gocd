@@ -1,5 +1,5 @@
 #*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,6 +36,11 @@
   <link rel="stylesheet" type="text/css" href="$req.getContextPath()/$concatenatedNewThemeCssFilePath" media="all"/>
   <script type="text/javascript" src="$req.getContextPath()/$concatenatedJavascriptFilePath"></script>
   <script type="text/javascript"> var contextPath = "$req.getContextPath()"; </script>
+
+  #foreach( $js in ${webpackAssetsService.getAssetPaths("single_page_apps/notification_center")})
+      <script src="${js}"></script>
+  #end
+
   <title>
       #if($title)
           $title
@@ -90,19 +95,6 @@
                             </li>
                           </ul>
                         #end
-
-                        #if( $goUpdateCheckEnabled && $goUpdate)
-                          <div class="notifications">
-                            <span class="bell"></span>
-
-                            <div class="hover-container">
-                              <div class="hover">
-                                <span>A new release of GoCD - <a href="https://www.gocd.org/download/"
-                                                                 target="_blank">$goUpdate</a> is available.</span>
-                              </div>
-                            </div>
-                          </div>
-                        #end
                       <ul class="tabs">
                         <li id="cruise-header-tab-recent-activity"
                             class="#if($current_tab == 'pipeline' || $current_tab == 'Current Activity') current #end">
@@ -145,6 +137,7 @@
                         <div id="cruise_message_counts" class="cruise_messages"></div>
                         <div id="cruise_message_body" style="display:none;" class="cruise_message_body"></div>
                       </div>
+                      <div id="system-notifications" class="system-notifications"></div>
                     </div>
               </div>
             </div>

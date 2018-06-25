@@ -1,5 +1,5 @@
 ##########################################################################
-# Copyright 2016 ThoughtWorks, Inc.
+# Copyright 2018 ThoughtWorks, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -126,6 +126,35 @@ describe ApiV1::VersionInfosController do
         expect(JSON.parse(response.body)).to be_empty
       end
     end
+
+    describe "latest_version" do
+      before(:each) do
+        login_as_user
+
+        @version_info_service = double('version_info_service')
+        # @system_environment = double('system_environment', :getUpdateServerUrl => 'https://update.example.com/some/path?foo=bar')
+
+        allow(controller).to receive(:version_info_service).and_return(@version_info_service)
+      end
+
+      it 'should return the latest_version available' do
+        expect(@version_info_service).to receive(:getGoUpdate).and_return("1.2.3-4567")
+
+        get_with_api_header :latest_version
+
+        expect(response).to be_ok
+        expect(actual_response).to eq({latest_version: "1.2.3-4567"})
+      end
+
+      it 'should return an empty response if the service does not return a version to update' do
+        expect(@version_info_service).to receive(:getGoUpdate).and_return(nil)
+
+        get_with_api_header :latest_version
+
+        expect(response).to be_ok
+        expect(JSON.parse(response.body)).to be_empty
+      end
+    end
   end
 
   describe "as_anonymous_user" do
@@ -145,6 +174,14 @@ describe ApiV1::VersionInfosController do
     describe "stale" do
       it 'should return a 404' do
         get_with_api_header :stale
+
+        expect(response.code).to eq('404')
+      end
+    end
+
+    describe "latest_version" do
+      it 'should return a 404' do
+        get_with_api_header :latest_version
 
         expect(response.code).to eq('404')
       end

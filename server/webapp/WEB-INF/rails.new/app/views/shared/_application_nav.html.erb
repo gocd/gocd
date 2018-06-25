@@ -19,16 +19,6 @@
             <% end %>
         </ul>
 
-    <% if check_go_updates? and go_update %>
-        <div class="notifications">
-            <span class="bell"></span>
-            <div class="hover-container">
-                <div class="hover">
-                    <span>A new release of GoCD - <a href="https://www.gocd.org/download/" target="_blank"><%= go_update %></a> is available.</span>
-                </div>
-            </div>
-        </div>
-    <% end %>
 
   <% unless @no_tabs %>
     <ul class="tabs">
@@ -69,6 +59,7 @@
         </li>
     </ul>
     <%= render :partial => "shared/error_messaging_counter" %>
+    <div id="system-notifications" class="system-notifications"></div>
   <% end %>
 </div>
 <div id="back_to_top" class='back_to_top' title="Scroll to Top">Top</div>

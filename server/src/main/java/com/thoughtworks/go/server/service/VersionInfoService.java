@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -51,6 +51,7 @@ public class VersionInfoService {
     }
 
     public String getGoUpdate() {
+        if (!isGOUpdateCheckEnabled()) return null;
         return this.manager.getGoUpdate();
     }
 

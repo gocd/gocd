@@ -269,6 +269,7 @@ Go::Application.routes.draw do
       match 'version', controller: :version, action: :show, as: :version, via: %w(get head)
 
       get 'version_infos/stale', controller: :version_infos, action: :stale, as: :stale_version_info
+      get 'version_infos/latest_version', controller: :version_infos, action: :latest_version, as: :latest_version_info
       patch 'version_infos/go_server', controller: :version_infos, action: :update_server, as: :update_server_version_info
 
       match '*url', via: :all, to: 'errors#not_found'

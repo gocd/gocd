@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ const $        = require('jquery');
 const _        = require('lodash');
 const mrequest = require('helpers/mrequest');
 const Routes   = require('gen/js-routes');
+const SystemNotifications = require('models/notifications/system_notifications');
 
 const VersionUpdater = function () {
   this.update = () => {
@@ -50,7 +51,7 @@ const VersionUpdater = function () {
       beforeSend: mrequest.xhrConfig.forVersion('v1'),
       url:        Routes.apiv1UpdateServerVersionInfoPath(),
       data:       JSON.stringify(data)
-    }).then(markUpdateDone);
+    }).then(markUpdateDoneAndNotify);
   };
 
   const canUpdateVersion = () => {
@@ -67,6 +68,38 @@ const VersionUpdater = function () {
   const markUpdateDone = () => {
     const versionCheckInfo = JSON.stringify({last_updated_at: new Date().getTime()}); //eslint-disable-line camelcase
     localStorage.setItem('versionCheckInfo', versionCheckInfo);
+  };
+
+  const get = function () {
+    return $.Deferred(function () {
+        const deferred = this;
+
+        const jqXHR = $.ajax({
+            method:      "GET",
+            url:         Routes.apiv1LatestVersionInfoPath(),
+            timeout:     mrequest.timeout,
+            beforeSend:  mrequest.xhrConfig.forVersion("v1"),
+            contentType: false
+        });
+
+        const didFulfill = (data, _textStatus) => {
+            const latestVersion = data.latest_version;
+            deferred.resolve(latestVersion);
+        };
+
+        const didReject = () => {
+            deferred.reject(null);
+        };
+
+        jqXHR.then(didFulfill, didReject);
+    }).promise();
+  };
+
+  const markUpdateDoneAndNotify = () => {
+    markUpdateDone();
+    get().then((latestVersionNumber) => {
+        SystemNotifications.notifyNewMessage("UpdateCheck", `A new version of GoCD - ${latestVersionNumber} is available.`, "https://www.gocd.org/download/", "Learn more ...");
+    });
   };
 };
 

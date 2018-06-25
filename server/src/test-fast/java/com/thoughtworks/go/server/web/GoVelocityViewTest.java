@@ -24,6 +24,7 @@ import com.thoughtworks.go.plugin.domain.common.CombinedPluginInfo;
 import com.thoughtworks.go.server.security.GoAuthority;
 import com.thoughtworks.go.server.service.RailsAssetsService;
 import com.thoughtworks.go.server.service.VersionInfoService;
+import com.thoughtworks.go.server.service.WebpackAssetsService;
 import com.thoughtworks.go.server.service.plugins.builder.DefaultPluginInfoFinder;
 import com.thoughtworks.go.server.service.support.toggle.FeatureToggleService;
 import com.thoughtworks.go.server.service.support.toggle.Toggles;
@@ -65,6 +66,8 @@ public class GoVelocityViewTest {
     private VersionInfoService versionInfoService;
     @Mock
     private DefaultPluginInfoFinder pluginInfoFinder;
+    @Mock
+    private WebpackAssetsService webpackAssetsService;
 
     @Before
     public void setUp() throws Exception {
@@ -75,6 +78,7 @@ public class GoVelocityViewTest {
         doReturn(railsAssetsService).when(view).getRailsAssetsService();
         doReturn(versionInfoService).when(view).getVersionInfoService();
         doReturn(pluginInfoFinder).when(view).getPluginInfoFinder();
+        doReturn(webpackAssetsService).when(view).webpackAssetsService();
         request = new MockHttpServletRequest();
         velocityContext = new VelocityContext();
     }
@@ -183,6 +187,7 @@ public class GoVelocityViewTest {
         doReturn(railsAssetsService).when(view).getRailsAssetsService();
         doReturn(versionInfoService).when(view).getVersionInfoService();
         doReturn(pluginInfoFinder).when(view).getPluginInfoFinder();
+        doReturn(webpackAssetsService).when(view).webpackAssetsService();
         Request servletRequest = mock(Request.class);
         when(servletRequest.getSession()).thenReturn(mock(HttpSession.class));
 
@@ -210,6 +215,7 @@ public class GoVelocityViewTest {
         doReturn(railsAssetsService).when(view).getRailsAssetsService();
         doReturn(versionInfoService).when(view).getVersionInfoService();
         doReturn(pluginInfoFinder).when(view).getPluginInfoFinder();
+        doReturn(webpackAssetsService).when(view).webpackAssetsService();
         Request servletRequest = mock(Request.class);
         when(servletRequest.getSession()).thenReturn(mock(HttpSession.class));
 

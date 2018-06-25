@@ -108,16 +108,7 @@
       return;
     }
 
-    var pluginId = determinePluginId(artifactId);
-    if (pluginId) {
-      hidePluginSelectionDropdown();
-      jQuery("#task_pluginId").val(pluginId);
-      renderPluginView(pluginId);
-    } else {
-      showPluginSelectionDropdown();
-      resetPluginDropdown();
-      jQuery("#fetch_pluggable_task_view").html("");
-    }
+    renderPluginView(determinePluginId(artifactId));
   }
 
   function resetPluginDropdown() {
@@ -125,8 +116,18 @@
   }
 
   function renderPluginView(pluginId) {
-    jQuery("#fetch_pluggable_task_view").html(getFetchArtifactView(pluginId));
-    initializeAngular();
+    if (pluginId) {
+      hidePluginSelectionDropdown();
+      jQuery("#task_pluginId").val(pluginId);
+      jQuery(".plugin_key_value").hide();
+      jQuery("#fetch_pluggable_task_view").html(getFetchArtifactView(pluginId));
+      initializeAngular();
+    } else {
+      jQuery(".plugin_key_value").show();
+      showPluginSelectionDropdown();
+      resetPluginDropdown();
+      jQuery("#fetch_pluggable_task_view").html("");
+    }
   }
 
   function getFetchArtifactView(pluginId) {

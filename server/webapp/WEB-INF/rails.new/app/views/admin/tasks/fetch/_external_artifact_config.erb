@@ -11,8 +11,18 @@
   <%= scope[:var_form].select("pluginId", scope[:artifact_plugin_to_fetch_view].collect {|p| [p.to_hash["name"], p.to_hash["id"]]}, {:prompt => 'Select Plugin'}) %>
   <%= error_message_on(@task, "pluginId", :css_class => "form_error") %>
 </div>
+
 <div class="form_item_block" id="fetch_pluggable_task_view">
 </div>
+
+<% scope[:task].getConfiguration().getConfigurationAsMap(true).to_hash.each do |config_property| %>
+  <div class="plugin-config-read-only show plugin_key_value hidden">
+    <dl class="key-value-pair">
+      <dt><%= config_property[0] %></dt>
+      <dd><%= config_property[1] %></dd>
+    </dl>
+  </div>
+<% end %>
 
 <span id="fetch_external_artifact_data" style="display: none">
     <%== com.google.gson.Gson.new.toJson(scope[:task].configAsMap()) %>

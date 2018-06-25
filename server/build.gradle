@@ -444,7 +444,7 @@ tasks.withType(Test) {
   dependsOn prepareNoRails
 
   minHeapSize '1024m'
-  maxHeapSize '2048m'
+  maxHeapSize '3072m'
 
   systemProperties += project.testSystemProperties
 

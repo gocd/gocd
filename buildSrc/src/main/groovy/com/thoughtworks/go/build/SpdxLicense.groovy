@@ -129,7 +129,7 @@ enum SpdxLicense {
   DOTSEQN("Dotseqn", "Dotseqn License"),
   DSDP("DSDP", "DSDP License"),
   DVIPDFM("dvipdfm", "dvipdfm License"),
-  EPL_1_0("EPL-1.0", "Eclipse Public License 1.0", "Eclipse Public License - v 1.0", "Eclipse Public License - Version 1.0", "EPL 1.0"),
+  EPL_1_0("EPL-1.0", "Eclipse Public License 1.0", "Eclipse Public License - v 1.0", "Eclipse Public License - Version 1.0"),
   ECL_1_0("ECL-1.0", "Educational Community License v1.0"),
   ECL_2_0("ECL-2.0", "Educational Community License v2.0"),
   EGENIX("eGenix", "eGenix.com Public License 1.1.0"),

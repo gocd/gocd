@@ -135,15 +135,13 @@ public class H2Database implements Database {
     }
 
     private String dburl(Boolean mvccEnabled) {
-        return "jdbc:h2:" + systemEnvironment.getDbPath().getAbsolutePath() + "/" + configuration.getName()
+        return "jdbc:h2:" + systemEnvironment.getDbPath() + "/" + configuration.getName()
                 + ";DB_CLOSE_DELAY=-1"
                 + ";DB_CLOSE_ON_EXIT=FALSE"
                 + ";MVCC=" + mvccEnabled.toString().toUpperCase()
-                + ";MV_STORE=FALSE"
                 + ";CACHE_SIZE=" + systemEnvironment.getCruiseDbCacheSize()
                 + ";TRACE_LEVEL_FILE=" + systemEnvironment.getCruiseDbTraceLevel()
                 + ";TRACE_MAX_FILE_SIZE=" + systemEnvironment.getCruiseDbTraceFileSize()
-                + ";LOB_TIMEOUT=" + systemEnvironment.getLobTimeoutInMilliSeconds()
 //                Commented out until H2 fix their bug
 //                + ";CACHE_TYPE=SOFT_LRU" //See http://www.h2database.com/html/changelog.html
                 + ";DATABASE_EVENT_LISTENER='" + H2EventListener.class.getName() + "'";

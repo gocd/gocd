@@ -445,6 +445,7 @@ tasks.withType(Test) {
 
   minHeapSize '1024m'
   maxHeapSize '3072m'
+  jvmArgs("-XX:+HeapDumpOnOutOfMemoryError", "-XX:HeapDumpPath=${buildDir}/heap-dumps")
 
   systemProperties += project.testSystemProperties
 

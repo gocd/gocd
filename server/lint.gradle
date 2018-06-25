@@ -19,7 +19,7 @@ import com.thoughtworks.go.build.YarnRunTask
 task scssLint(type: Exec) {
   dependsOn ':tools:prepareJRuby'
   description "Run scss-lint"
-  def inputDir = "${project.railsRoot}/app/assets/new_stylesheets"
+  def inputDir = project.file("${project.railsRoot}/app/assets/new_stylesheets")
   inputs.dir(inputDir)
 
   standardOutput = System.out
@@ -33,7 +33,7 @@ task scssLint(type: Exec) {
     commandLine = [project.findProject(':tools').file("rails/bin/jruby")]
   }
 
-  commandLine += ['--2.0', '-S', 'bundle', 'exec', 'scss-lint', "--config", 'scss-lint.yml', inputDir]
+  commandLine += ['--2.0', '-S', 'bin/scss-lint', "--config", 'scss-lint.yml', inputDir]
 
   doFirst {
     println commandLine.join(" ")

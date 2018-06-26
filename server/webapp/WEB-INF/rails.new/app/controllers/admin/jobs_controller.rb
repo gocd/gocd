@@ -52,10 +52,12 @@ module Admin
         include ::ConfigUpdate::JobsNode
         include ::ConfigUpdate::RefsAsUpdatedRefs
 
-        def initialize(params, user, security_service, job, pluggable_task_service)
+        def initialize(params, user, security_service, job, pluggable_task_service, external_artifacts_service, go_config_service)
           super(params, user, security_service)
           @job = job
           @pluggable_task_service = pluggable_task_service
+          @external_artifacts_service = external_artifacts_service
+          @go_config_service = go_config_service
         end
 
         def subject(jobs)
@@ -66,11 +68,11 @@ module Admin
           task = @job.getTasks().first()
           @pluggable_task_service.validate(task) if task.instance_of? com.thoughtworks.go.config.pluggabletask.PluggableTask
           @job.artifactConfigs().getPluggableArtifactConfigs().each do |external_artifact_config|
-            @external_artifacts_service.validateExternalArtifactConfig(external_artifact_config, @go_config_service.getArtifactStores().find(external_artifact_config.getStoreId))
+            @external_artifacts_service.validateExternalArtifactConfig(external_artifact_config, @go_config_service.artifactStores().find(external_artifact_config.getStoreId), false)
           end
           jobs.addJobWithoutValidityAssertion(@job)
         end
-      end.new(params, current_user.getUsername(), security_service, @job, pluggable_task_service), failure_handler({:action => :new, :layout => false}), {:current_tab => params[:current_tab]}) do
+      end.new(params, current_user.getUsername(), security_service, @job, pluggable_task_service, external_artifacts_service, go_config_service), failure_handler({:action => :new, :layout => false}), {:current_tab => params[:current_tab]}) do
         assert_load :job, @subject
         assert_load :task_view_models, task_view_service.getTaskViewModelsWith(@job.tasks().first()) unless @update_result.isSuccessful()
         load_artifact_related_data
@@ -83,6 +85,12 @@ module Admin
         include ::ConfigUpdate::NodeAsSubject
         include ::ConfigUpdate::RefsAsUpdatedRefs
 
+        def initialize params, user, security_service, external_artifacts_service, go_config_service
+          super(params, user, security_service)
+          @external_artifacts_service = external_artifacts_service
+          @go_config_service = go_config_service
+        end
+
         def updatedNode(cruise_config)
           stage = load_stage(cruise_config)
           load_job_from_stage_named(stage, CaseInsensitiveString.new(params[:job][:name] || params[:job_name]))
@@ -90,8 +98,11 @@ module Admin
 
         def update(job)
           job.setConfigAttributes(params[:job])
+          job.artifactConfigs().getPluggableArtifactConfigs().each do |external_artifact_config|
+            @external_artifacts_service.validateExternalArtifactConfig(external_artifact_config, @go_config_service.artifactStores().find(external_artifact_config.getStoreId), false)
+          end
         end
-      end.new(params, current_user.getUsername(), security_service), failure_handler({:action => params[:current_tab], :layout => nil}), {:current_tab => params[:current_tab], :action => :edit, :job_name => params[:job][:name] || params[:job_name]}) do
+      end.new(params, current_user.getUsername(), security_service, external_artifacts_service, go_config_service), failure_handler({:action => params[:current_tab], :layout => nil}), {:current_tab => params[:current_tab], :action => :edit, :job_name => params[:job][:name] || params[:job_name]}) do
         @should_not_render_layout = true
         load_pipeline_and_stage
         assert_load :job, @node

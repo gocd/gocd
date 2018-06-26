@@ -69,6 +69,23 @@
         <%= render :partial => 'shared/convert_tool_tips.html' %>
       </div>
     </div>
+    <% if scope[:store_id_to_plugin_id][external_artifact_config.getStoreId()].blank? %>
+      <div class="row expanded plugin_form_background">
+        <div class="columns medium-8 medium-offset-2 large-8 end">
+          <% scope[:external_artifact].getConfiguration().getConfigurationAsMap(true).to_hash.each do |config_property| %>
+            <% if !config_property[1].blank? %>
+              <div class="plugin-config-read-only show plugin_key_value">
+                <dl class="key-value-pair">
+                  <%= artifact_form.hidden_field "configurationProperty", :class => "form_input artifact_source", :id => nil, :name => "job[artifactConfigs][][configuration][#{config_property[0]}]", :value => config_property[1] -%>
+                  <dt><%= config_property[0] %></dt>
+                  <dd><%= config_property[1] %></dd>
+                </dl>
+              </div>
+            <% end %>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
     <script type="text/javascript">
       jQuery(document).ready(function () {
         initializeAngular("<%= plugged_artifact_angular_controller_element_id %>", "<%= plugged_artifact_data_element_id %>");

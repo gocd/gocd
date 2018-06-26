@@ -17,12 +17,8 @@
     <%- end -%>
 
     <% scope[:external_artifact_collection].each do |external_artifact| %>
-      <% if scope[:store_id_to_plugin_id][external_artifact.getStoreId].blank? %>
-        <%= render :partial => 'external_artifact_key_value_form', :locals => {:scope => {:external_artifact => external_artifact, :var_form => scope[:form]}} %>
-      <% else %>
-        <%= render :partial => 'external_artifact_form', :locals => {:scope => {:var_form => scope[:form], :external_artifact => external_artifact, :artifact_meta_data_store => scope[:artifact_meta_data_store], :store_id_to_plugin_id => scope[:store_id_to_plugin_id], :plugin_name_to_id => scope[:plugin_name_to_id]}} %>
-      <% end %>
-      <%- end -%>
+      <%= render :partial => 'external_artifact_form', :locals => {:scope => {:var_form => scope[:form], :external_artifact => external_artifact, :artifact_meta_data_store => scope[:artifact_meta_data_store], :store_id_to_plugin_id => scope[:store_id_to_plugin_id], :plugin_name_to_id => scope[:plugin_name_to_id]}} %>
+    <%- end -%>
   </div>
 
   <div class="row expanded add_new_artifact">
@@ -79,6 +75,7 @@
     var selectedInput        = event.currentTarget || event.target;
     var externalArtifactForm = inputElement.closest('.artifact');
     externalArtifactForm.find(".plugged_artifact_template").addClass('hidden');
+    externalArtifactForm.find(".plugin-config-read-only").addClass('hidden');
     var storeIdToPluginId = <%== scope[:store_id_to_plugin_id].to_json %>;
     var pluginId          = storeIdToPluginId[selectedInput.value];
     externalArtifactForm.find('.artifact_plugin_selection').val(pluginId);
@@ -106,7 +103,7 @@
   }
 
   function initializeAngular(pluggedArtifactAngularControllerElementId, pluggedArtifactDataElementId) {
-    var form_name_prefix                               = "job[artifactConfigs][]";
+    var form_name_prefix                               = "job[artifactConfigs][][configuration]";
     var angular_html = jQuery("#" + pluggedArtifactAngularControllerElementId).html();
     if (angular_html) {
       var taskPluginView = new TaskPluginView();

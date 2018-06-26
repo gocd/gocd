@@ -232,7 +232,7 @@ public class UpdateTemplateConfigCommandTest {
 
         command.isValid(preprocessedConfig);
 
-        verify(externalArtifactsService, times(2)).validateExternalArtifactConfig(any(PluggableArtifactConfig.class), eq(new ArtifactStore("id", "pluginId")));
+        verify(externalArtifactsService, times(2)).validateExternalArtifactConfig(any(PluggableArtifactConfig.class), eq(new ArtifactStore("id", "pluginId")), eq(true));
     }
 
     @Test

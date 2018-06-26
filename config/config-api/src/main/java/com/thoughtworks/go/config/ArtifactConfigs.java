@@ -19,7 +19,6 @@ package com.thoughtworks.go.config;
 import com.thoughtworks.go.domain.BaseCollection;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.config.Configuration;
-import com.thoughtworks.go.domain.config.ConfigurationValue;
 import com.thoughtworks.go.plugin.access.artifact.ArtifactMetadataStore;
 import com.thoughtworks.go.plugin.domain.artifact.ArtifactPluginInfo;
 import com.thoughtworks.go.plugin.domain.common.PluginConfiguration;
@@ -109,15 +108,17 @@ public class ArtifactConfigs extends BaseCollection<ArtifactConfig> implements V
                     this.add(new BuildArtifactConfig(source, destination));
                 }
 
-            }
-            else {
+            } else {
                 String artifactId = (String) attrMap.get(PluggableArtifactConfig.ID);
                 String storeId = (String) attrMap.get(PluggableArtifactConfig.STORE_ID);
                 String pluginId = (String) attrMap.get("pluginId");
-
+                Map<String, String> configuration = (Map<String, String>) attrMap.get("configuration");
                 PluggableArtifactConfig pluggableArtifactConfig = new PluggableArtifactConfig(artifactId, storeId);
+                Configuration pluginConfigurations = pluggableArtifactConfig.getConfiguration();
+                for (String key : configuration.keySet()) {
+                    pluginConfigurations.addNewConfigurationWithValue(key, configuration.get(key), false);
+                }
 
-                // TODO: set artifact store
                 if (StringUtils.isNotBlank(pluginId)) {
                     setPluginConfigurationAttributes(attrMap, pluginId, pluggableArtifactConfig);
                 }
@@ -139,7 +140,6 @@ public class ArtifactConfigs extends BaseCollection<ArtifactConfig> implements V
                     if (configuration.getProperty(key) == null) {
                         configuration.addNewConfiguration(pluginConfiguration.getKey(), pluginConfiguration.isSecure());
                     }
-                    configuration.getProperty(key).setConfigurationValue(new ConfigurationValue((String) attributes.get(key)));
                     configuration.getProperty(key).handleSecureValueConfiguration(pluginConfiguration.isSecure());
                 }
             }

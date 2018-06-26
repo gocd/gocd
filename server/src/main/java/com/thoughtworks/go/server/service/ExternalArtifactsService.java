@@ -39,7 +39,7 @@ public class ExternalArtifactsService {
         this.artifactExtension = artifactExtension;
     }
 
-    public void validateExternalArtifactConfig(PluggableArtifactConfig preprocessedPluggableArtifactConfig, ArtifactStore artifactStore) {
+    public void validateExternalArtifactConfig(PluggableArtifactConfig preprocessedPluggableArtifactConfig, ArtifactStore artifactStore, boolean addPluginIdError) {
         if (preprocessedPluggableArtifactConfig.hasValidPluginAndStore(artifactStore)) {
             String pluginId = artifactStore.getPluginId();
             try {
@@ -50,7 +50,9 @@ public class ExternalArtifactsService {
                 preprocessedPluggableArtifactConfig.addError("pluginId", String.format("Plugin with id `%s` is not found.", pluginId));
             }
         } else {
-            preprocessedPluggableArtifactConfig.addError("pluginId", "Could not determine the plugin to perform the plugin validations. Possible reasons: artifact store does not exist or plugin is not installed.");
+            if (addPluginIdError) {
+                preprocessedPluggableArtifactConfig.addError("pluginId", "Could not determine the plugin to perform the plugin validations. Possible reasons: artifact store does not exist or plugin is not installed.");
+            }
         }
     }
 

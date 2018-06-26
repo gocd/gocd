@@ -52,7 +52,7 @@ public abstract class PipelineConfigCommand implements EntityConfigUpdateCommand
 
     void validatePublishAndFetchExternalConfigs(PipelineConfig pipelineConfig, CruiseConfig preprocessedConfig) {
         for (PluggableArtifactConfig pluggableArtifactConfig : pipelineConfig.getExternalArtifactConfigs()) {
-            externalArtifactsService.validateExternalArtifactConfig(pluggableArtifactConfig, goConfigService.artifactStores().find(pluggableArtifactConfig.getStoreId()));
+            externalArtifactsService.validateExternalArtifactConfig(pluggableArtifactConfig, goConfigService.artifactStores().find(pluggableArtifactConfig.getStoreId()), true);
         }
 
         for (FetchPluggableArtifactTask fetchPluggableArtifactTask : pipelineConfig.getFetchExternalArtifactTasks()) {

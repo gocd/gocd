@@ -386,8 +386,28 @@ sharedTest { thisTask ->
   }
 }
 
+test { Test thisTask ->
+  doFirst {
+    def files = project.files([])
+    project.sourceSets[thisTask.name].java.srcDirs.each { srcDir ->
+      files = files.plus(project.fileTree(dir: srcDir, includes: ['**/*.java']))
+    }
+
+    def badFiles = files.findAll { eachFile ->
+      def text = eachFile.getText("utf-8")
+      text.contains("@Test")
+    }
+
+    if (!badFiles.isEmpty()) {
+      throw new GradleException("${thisTask} is not supposed to contain any unit tests. Move the tests to fast-test or integration-test as appropriate. The following files contained what looks like test code:\n${badFiles.collect { f -> "  - ${f}" }.join("\n")}")
+    }
+  }
+}
+
 fastUnitTest { thisTask ->
   forkEvery 512
+  minHeapSize '1024m'
+  maxHeapSize '4096m'
 
   doFirst {
     def files = project.files([])
@@ -408,6 +428,8 @@ fastUnitTest { thisTask ->
 
 integrationTest { thisTask ->
   forkEvery System.properties.containsKey('idea.home.path') ? 0 : 1
+  minHeapSize '1024m'
+  maxHeapSize '2048m'
 
   doFirst {
     def excludes = [
@@ -444,8 +466,6 @@ tasks.withType(Test) {
   dependsOn prepareNoRails
 
   def heapDumpDir = project.file("${buildDir}/heap-dumps")
-  minHeapSize '1024m'
-  maxHeapSize '3072m'
   jvmArgs("-XX:+HeapDumpOnOutOfMemoryError", "-XX:HeapDumpPath=${heapDumpDir}")
 
   doFirst {

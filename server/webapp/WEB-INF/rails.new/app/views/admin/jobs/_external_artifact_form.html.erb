@@ -3,8 +3,8 @@
     <% external_artifact_config = scope[:external_artifact] %>
     <% form_name_provider_obj = form_name_provider(artifact_form) %>
     <% publish_dom_id = external_artifact_config.getId().blank? ? random_dom_id : external_artifact_config.getId() %>
-    <% plugged_artifact_angular_controller_element_id = form_name_provider_obj.css_id_for("angular_" + publish_dom_id) %>
-    <% plugged_artifact_data_element_id = form_name_provider_obj.css_id_for("data_" + publish_dom_id) %>
+    <% plugged_artifact_angular_controller_element_id = random_dom_id("angular_" + publish_dom_id) %>
+    <% plugged_artifact_data_element_id = random_dom_id("data_" + publish_dom_id) %>
 
     <div class="row expanded">
       <div class="columns medium-2 large-2"><h4 class="type">Type</h4>

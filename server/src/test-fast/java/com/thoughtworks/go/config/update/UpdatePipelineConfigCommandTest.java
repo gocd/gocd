@@ -127,8 +127,8 @@ public class UpdatePipelineConfigCommandTest {
         preprocessedConfig.addPipelineWithoutValidation("group", pipeline);
         command.isValid(preprocessedConfig);
 
-        verify(externalArtifactsService).validateExternalArtifactConfig(eq(s3), any(), true);
-        verify(externalArtifactsService).validateExternalArtifactConfig(eq(docker), any(), true);
+        verify(externalArtifactsService).validateExternalArtifactConfig(eq(s3), any(), eq(true));
+        verify(externalArtifactsService).validateExternalArtifactConfig(eq(docker), any(), eq(true));
     }
 
     @Test

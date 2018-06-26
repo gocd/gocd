@@ -1,20 +1,19 @@
 <div class="artifact">
   <%= scope[:var_form].fields_for com.thoughtworks.go.config.JobConfig::ARTIFACT_CONFIGS, scope[:external_artifact], :index => "" do |artifact_form| %>
     <% external_artifact_config = scope[:external_artifact] %>
-    <% form_name_provider_obj = form_name_provider(artifact_form) %>
-    <% publish_dom_id = external_artifact_config.getId().blank? ? random_dom_id : external_artifact_config.getId() %>
-    <% plugged_artifact_angular_controller_element_id = random_dom_id("angular_" + publish_dom_id) %>
-    <% plugged_artifact_data_element_id = random_dom_id("data_" + publish_dom_id) %>
+    <% uuid = random_dom_id %>
+    <% plugged_artifact_angular_controller_element_id = random_dom_id("angular_" + uuid) %>
+    <% plugged_artifact_data_element_id = random_dom_id("data_" + uuid) %>
 
     <div class="row expanded">
       <div class="columns medium-2 large-2"><h4 class="type">Type</h4>
-        <span class="contextual_help has_go_tip_right" title="There are 3 types of artifacts - build, test and external. When 'Test Artifact' is selected, Go will use this artifact to generate a test report. Test information is placed in the Failures and Test sub-tabs. Test results from multiple jobs are aggregated on the stage detail pages. This allows you to see the results of tests from both functional and unit tests even if they are run in different jobs. When artifact type external is selected, you can configure the external artifact store to which you can push an artifact." />
+        <span class="contextual_help has_go_tip_right" title="There are 3 types of artifacts - build, test and external. When 'Test Artifact' is selected, Go will use this artifact to generate a test report. Test information is placed in the Failures and Test sub-tabs. Test results from multiple jobs are aggregated on the stage detail pages. This allows you to see the results of tests from both functional and unit tests even if they are run in different jobs. When artifact type external is selected, you can configure the external artifact store to which you can push an artifact."/>
       </div>
       <div class="columns medium-3 large-3"><h4 class="src">Artifact ID</h4>
-        <span class="contextual_help has_go_tip_right" title="This id is used to identify the artifact that is pushed to an external store. The id is used later in a downstream pipeline to fetch the artifact from the external store." />
+        <span class="contextual_help has_go_tip_right" title="This id is used to identify the artifact that is pushed to an external store. The id is used later in a downstream pipeline to fetch the artifact from the external store."/>
       </div>
       <div class="columns medium-3 large-3 end"><h4 class="dest">Artifact Store ID</h4>
-        <span class="contextual_help has_go_tip_right" title="This is a reference to the global artifact store defined in the config. At the time of publishing the artifact to an external store, the plugin makes use of the global properties associated with this store id." />
+        <span class="contextual_help has_go_tip_right" title="This is a reference to the global artifact store defined in the config. At the time of publishing the artifact to an external store, the plugin makes use of the global properties associated with this store id."/>
       </div>
     </div>
 
@@ -32,7 +31,7 @@
         <%= error_message_on(scope[:external_artifact], "storeId", :css_class => "form_error") %>
       </div>
       <div class="name_value_cell columns medium-4 large-4 end">
-        <span class="icon_remove delete_artifact" />
+        <span class="icon_remove delete_artifact"/>
       </div>
     </div>
 
@@ -73,14 +72,14 @@
       <div class="row expanded plugin_form_background">
         <div class="columns medium-8 medium-offset-2 large-8 end">
           <% scope[:external_artifact].getConfiguration().getPropertyMetadataAndValuesAsMap().to_hash.each do |config_property| %>
-              <div class="plugin-config-read-only show plugin_key_value">
-                <dl class="key-value-pair">
-                  <%= artifact_form.hidden_field "configurationProperty", :class => "form_input artifact_source", :id => nil, :name => "job[artifactConfigs][][configuration][#{config_property[0]}][value]", :value => config_property[1]['value'] -%>
-                  <%= artifact_form.hidden_field "configurationProperty", :class => "form_input artifact_source", :id => nil, :name => "job[artifactConfigs][][configuration][#{config_property[0]}][isSecure]", :value => config_property[1]['isSecure'] -%>
-                  <dt><%= config_property[0] %></dt>
-                  <dd><%= config_property[1]['displayValue'] %></dd>
-                </dl>
-              </div>
+            <div class="plugin-config-read-only show plugin_key_value">
+              <dl class="key-value-pair">
+                <%= artifact_form.hidden_field "configurationProperty", :class => "form_input artifact_source", :id => nil, :name => "job[artifactConfigs][][configuration][#{config_property[0]}][value]", :value => config_property[1]['value'] -%>
+                <%= artifact_form.hidden_field "configurationProperty", :class => "form_input artifact_source", :id => nil, :name => "job[artifactConfigs][][configuration][#{config_property[0]}][isSecure]", :value => config_property[1]['isSecure'] -%>
+                <dt><%= config_property[0] %></dt>
+                <dd><%= config_property[1]['displayValue'] %></dd>
+              </dl>
+            </div>
           <% end %>
         </div>
       </div>

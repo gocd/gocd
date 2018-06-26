@@ -449,6 +449,7 @@ tasks.withType(Test) {
 
   doFirst {
     project.mkdir("${buildDir}/heap-dumps")
+    project.file("${buildDir}/heap-dumps/ignore.txt").createNewFile()
   }
 
   systemProperties += project.testSystemProperties

@@ -20,15 +20,11 @@ import com.thoughtworks.go.config.AgentConfig;
 import com.thoughtworks.go.config.BasicCruiseConfig;
 import com.thoughtworks.go.domain.JobState;
 import com.thoughtworks.go.domain.JobStateTransition;
-import com.thoughtworks.go.domain.DataSharingSettings;
 import com.thoughtworks.go.domain.UsageStatisticsReporting;
-import com.thoughtworks.go.helper.AgentMother;
 import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.server.dao.JobInstanceSqlMapDao;
 import com.thoughtworks.go.server.dao.UsageStatisticsReportingSqlMapDao;
-import com.thoughtworks.go.server.dao.DataSharingSettingsSqlMapDao;
 import com.thoughtworks.go.server.dao.UsageStatisticsReportingSqlMapDao.DuplicateMetricReporting;
-import com.thoughtworks.go.server.domain.UsageStatistics;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.junit.Before;
@@ -44,16 +40,14 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
-public class DataSharingServiceTest {
-    private DataSharingService service;
+public class DataSharingUsageStatisticsReportingServiceTest {
+    private DataSharingUsageStatisticsReportingService service;
     @Mock
     private GoConfigService goConfigService;
     @Mock
     private JobInstanceSqlMapDao jobInstanceSqlMapDao;
     @Mock
     private UsageStatisticsReportingSqlMapDao usageStatisticsReportingSqlMapDao;
-    @Mock
-    private DataSharingSettingsSqlMapDao dataSharingSettingsSqlMapDao;
     @Mock
     private EntityHashingService entityHashingService;
     @Mock
@@ -65,7 +59,7 @@ public class DataSharingServiceTest {
     @Before
     public void setUp() throws Exception {
         initMocks(this);
-        service = new DataSharingService(goConfigService, jobInstanceSqlMapDao, usageStatisticsReportingSqlMapDao, dataSharingSettingsSqlMapDao, entityHashingService, systemEnvironment);
+        service = new DataSharingUsageStatisticsReportingService(usageStatisticsReportingSqlMapDao, entityHashingService, systemEnvironment);
         goConfig = GoConfigMother.configWithPipelines("p1", "p2");
         goConfig.agents().add(new AgentConfig("agent1"));
         when(goConfigService.cruiseConfig()).thenReturn(goConfig);
@@ -74,33 +68,9 @@ public class DataSharingServiceTest {
     }
 
     @Test
-    public void shouldGetUsageStatistics() {
-        UsageStatistics usageStatistics = service.getUsageStatistics();
-        assertThat(usageStatistics.pipelineCount(), is(2l));
-        assertThat(usageStatistics.agentCount(), is(1l));
-        assertThat(usageStatistics.oldestPipelineExecutionTime(), is(oldestBuild.getStateChangeTime().getTime()));
-    }
-
-    @Test
-    public void shouldReturnOldestPipelineExecutionTimeAsZeroIfNoneOfThePipelinesHaveEverRun() {
-        when(jobInstanceSqlMapDao.oldestBuild()).thenReturn(null);
-        UsageStatistics usageStatistics = service.getUsageStatistics();
-        assertThat(usageStatistics.pipelineCount(), is(2l));
-        assertThat(usageStatistics.agentCount(), is(1l));
-        assertThat(usageStatistics.oldestPipelineExecutionTime(), is(0l));
-    }
-
-    @Test
-    public void shouldNotIncludeElasticAgentsInTheCount() {
-        goConfig.agents().add(AgentMother.elasticAgent());
-        UsageStatistics usageStatistics = service.getUsageStatistics();
-        assertThat(usageStatistics.agentCount(), is(1l));
-    }
-
-    @Test
     public void shouldThrowErrorWhenStatsSharedAtTimeIsNotProvidedWhileUpdatingStatsSharedAtTime() throws DuplicateMetricReporting {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        service.updateUsageStatisticsReporting(new UsageStatisticsReporting(), result);
+        service.update(new UsageStatisticsReporting(), result);
 
         assertThat(result.isSuccessful(), is(false));
         assertThat(result.message(), is("Validations failed. Please correct and resubmit."));
@@ -111,7 +81,7 @@ public class DataSharingServiceTest {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         UsageStatisticsReporting reporting = new UsageStatisticsReporting();
         reporting.setLastReportedAt(new Date(-1));
-        service.updateUsageStatisticsReporting(reporting, result);
+        service.update(reporting, result);
 
         assertThat(result.isSuccessful(), is(false));
         assertThat(result.message(), is("Validations failed. Please correct and resubmit."));
@@ -128,26 +98,11 @@ public class DataSharingServiceTest {
 
         UsageStatisticsReporting reporting = new UsageStatisticsReporting();
         reporting.setLastReportedAt(statsUpdatedAtTime);
-        service.updateUsageStatisticsReporting(reporting, result);
+        service.update(reporting, result);
 
         assertThat(result.isSuccessful(), is(true));
         verify(usageStatisticsReportingSqlMapDao).saveOrUpdate(argumentCaptor.capture());
         UsageStatisticsReporting newMetricReporting = argumentCaptor.getValue();
         assertThat(newMetricReporting.lastReportedAt().toInstant(), is(statsUpdatedAtTime.toInstant()));
-    }
-
-    @Test
-    public void shouldUpdateDataSharingSettings() throws Exception {
-        boolean newConsent = false;
-        String consentedBy = "Bob";
-        ArgumentCaptor<DataSharingSettings> argumentCaptor = ArgumentCaptor.forClass(DataSharingSettings.class);
-
-        service.updateDataSharingSettings(new DataSharingSettings(newConsent, consentedBy, new Date()));
-
-        verify(dataSharingSettingsSqlMapDao).saveOrUpdate(argumentCaptor.capture());
-        DataSharingSettings updatedDataSharingSettings = argumentCaptor.getValue();
-
-        assertThat(updatedDataSharingSettings.allowSharing(), is(newConsent));
-        assertThat(updatedDataSharingSettings.updatedBy(), is(consentedBy));
     }
 }

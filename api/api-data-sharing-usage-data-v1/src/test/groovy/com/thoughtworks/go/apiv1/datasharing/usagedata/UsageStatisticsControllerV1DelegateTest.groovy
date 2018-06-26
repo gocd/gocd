@@ -20,12 +20,12 @@ import com.thoughtworks.go.api.SecurityTestTrait
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
 import com.thoughtworks.go.apiv1.datasharing.usagedata.representers.UsageStatisticsRepresenter
 import com.thoughtworks.go.server.domain.UsageStatistics
-import com.thoughtworks.go.server.service.DataSharingService
+import com.thoughtworks.go.server.service.DataSharingUsageDataService
+import com.thoughtworks.go.server.util.RSAEncryptionHelper
 import com.thoughtworks.go.spark.AdminUserSecurity
 import com.thoughtworks.go.spark.ControllerTrait
 import com.thoughtworks.go.spark.NormalUserSecurity
 import com.thoughtworks.go.spark.SecurityServiceTrait
-import com.thoughtworks.go.server.util.RSAEncryptionHelper
 import com.thoughtworks.go.util.SystemEnvironment
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
@@ -43,7 +43,7 @@ class UsageStatisticsControllerV1DelegateTest implements SecurityServiceTrait, C
     initMocks(this)
   }
   @Mock
-  DataSharingService dataSharingService
+  DataSharingUsageDataService dataSharingService
 
   @Mock
   SystemEnvironment systemEnvironment

@@ -16,11 +16,8 @@
 
 package com.thoughtworks.go.server.service;
 
-import com.thoughtworks.go.domain.DataSharingSettings;
 import com.thoughtworks.go.domain.UsageStatisticsReporting;
-import com.thoughtworks.go.server.dao.DataSharingSettingsSqlMapDao.DuplicateDataSharingSettingsException;
 import com.thoughtworks.go.server.dao.UsageStatisticsReportingSqlMapDao;
-import com.thoughtworks.go.server.dao.DataSharingSettingsSqlMapDao;
 import com.thoughtworks.go.server.dao.UsageStatisticsReportingSqlMapDao.DuplicateMetricReporting;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.util.SystemEnvironment;
@@ -39,7 +36,8 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.core.Is.is;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {
@@ -47,13 +45,11 @@ import static org.junit.jupiter.api.Assertions.*;
         "classpath:WEB-INF/applicationContext-dataLocalAccess.xml",
         "classpath:testPropertyConfigurer.xml"
 })
-public class DataSharingServiceIntegrationTest {
+public class DataSharingUsageStatisticsReportingServiceIntegrationTest {
     @Autowired
-    private DataSharingService dataSharingService;
+    private DataSharingUsageStatisticsReportingService dataSharingUsageStatisticsReportingService;
     @Autowired
     private UsageStatisticsReportingSqlMapDao usageStatisticsReportingSqlMapDao;
-    @Autowired
-    private DataSharingSettingsSqlMapDao dataSharingSettingsSqlMapDao;
     @Autowired
     private EntityHashingService entityHashingService;
     @Autowired
@@ -62,7 +58,7 @@ public class DataSharingServiceIntegrationTest {
     @Before
     public void setup() throws Exception {
         dbHelper.onSetUp();
-        dataSharingService.initialize();
+        dataSharingUsageStatisticsReportingService.initialize();
     }
 
     @After
@@ -75,7 +71,7 @@ public class DataSharingServiceIntegrationTest {
         dbHelper.onTearDown();//to start on a clean slate
 
         assertNull(usageStatisticsReportingSqlMapDao.load());
-        dataSharingService.initialize();
+        dataSharingUsageStatisticsReportingService.initialize();
         UsageStatisticsReporting usageStatisticsReporting = usageStatisticsReportingSqlMapDao.load();
         assertNotNull(usageStatisticsReporting);
         assertNotNull(usageStatisticsReporting.getServerId());
@@ -86,43 +82,12 @@ public class DataSharingServiceIntegrationTest {
         dbHelper.onTearDown();//to start on a clean slate
 
         assertNull(usageStatisticsReportingSqlMapDao.load());
-        dataSharingService.initialize();
+        dataSharingUsageStatisticsReportingService.initialize();
         UsageStatisticsReporting saved = usageStatisticsReportingSqlMapDao.load();
         assertNotNull(saved);
-        dataSharingService.initialize();
+        dataSharingUsageStatisticsReportingService.initialize();
         UsageStatisticsReporting loaded = usageStatisticsReportingSqlMapDao.load();
         assertThat(saved.getServerId(), is(loaded.getServerId()));
-    }
-
-    @Test
-    public void shouldInitializeDataSharingSettingsOnFirstStartup() throws Exception {
-        dbHelper.onTearDown();//to start on a clean slate
-
-        assertNull(dataSharingSettingsSqlMapDao.load());
-        dataSharingService.initialize();
-        DataSharingSettings dataSharingSettings = dataSharingSettingsSqlMapDao.load();
-        assertNotNull(dataSharingSettings);
-    }
-
-    @Test
-    public void shouldNotReInitializeDataSharingSettingsOnSubsequentStartups() throws Exception {
-        dbHelper.onTearDown();//to start on a clean slate
-
-        assertNull(dataSharingSettingsSqlMapDao.load());
-        dataSharingService.initialize();
-        DataSharingSettings dataSharingSettings = dataSharingSettingsSqlMapDao.load();
-        assertNotNull(dataSharingSettings);
-        assertTrue(dataSharingSettings.allowSharing());
-    }
-
-    @Test
-    public void shouldFetchDataSharingSettings() throws Exception {
-        DataSharingSettings saved = new DataSharingSettings(true, "Bob", new Date());
-        dataSharingSettingsSqlMapDao.saveOrUpdate(saved);
-
-        DataSharingSettings loaded = dataSharingService.getDataSharingSettings();
-
-        assertThat(loaded, is(saved));
     }
 
     @Test
@@ -132,7 +97,7 @@ public class DataSharingServiceIntegrationTest {
         UsageStatisticsReporting statisticsReporting = new UsageStatisticsReporting(serverId, lastReportedAt);
         usageStatisticsReportingSqlMapDao.saveOrUpdate(statisticsReporting);
 
-        UsageStatisticsReporting loaded = dataSharingService.getUsageStatisticsReporting();
+        UsageStatisticsReporting loaded = dataSharingUsageStatisticsReportingService.get();
 
         assertThat(loaded.getServerId(), is(statisticsReporting.getServerId()));
         assertThat(loaded.lastReportedAt().toInstant(), is(statisticsReporting.lastReportedAt().toInstant()));
@@ -150,7 +115,7 @@ public class DataSharingServiceIntegrationTest {
         UsageStatisticsReporting reporting = new UsageStatisticsReporting();
         Date lastReportedAt = new Date();
         reporting.setLastReportedAt(lastReportedAt);
-        dataSharingService.updateUsageStatisticsReporting(reporting, result);
+        dataSharingUsageStatisticsReportingService.update(reporting, result);
 
         UsageStatisticsReporting loaded = usageStatisticsReportingSqlMapDao.load();
         assertThat(loaded.lastReportedAt().toInstant(), is(lastReportedAt.toInstant()));
@@ -166,7 +131,7 @@ public class DataSharingServiceIntegrationTest {
         assertNotNull(existing.lastReportedAt());
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        dataSharingService.updateUsageStatisticsReporting(new UsageStatisticsReporting(), result);
+        dataSharingUsageStatisticsReportingService.update(new UsageStatisticsReporting(), result);
 
         UsageStatisticsReporting loaded = usageStatisticsReportingSqlMapDao.load();
         assertNotNull(loaded);
@@ -177,35 +142,6 @@ public class DataSharingServiceIntegrationTest {
     }
 
     @Test
-    public void shouldUpdateDataSharingSettings() throws Exception {
-        DataSharingSettings existing = dataSharingSettingsSqlMapDao.load();
-        assertNotNull(existing);
-        assertThat(existing.allowSharing(), is(true));
-        assertThat(existing.updatedBy(), is("Default"));
-
-        boolean newConsent = false;
-        String consentedBy = "Bob";
-        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        dataSharingService.updateDataSharingSettings(new DataSharingSettings(newConsent, consentedBy, new Date()));
-
-        DataSharingSettings loaded = dataSharingSettingsSqlMapDao.load();
-        assertThat(loaded.allowSharing(), is(newConsent));
-        assertThat(loaded.updatedBy(), is(consentedBy));
-
-        assertThat(result.isSuccessful(), is(true));
-    }
-
-    @Test
-    public void shouldUpdateMd5SumOfDataSharingSettingsUponSave() throws DuplicateDataSharingSettingsException {
-        String originalMd5 = entityHashingService.md5ForEntity(dataSharingSettingsSqlMapDao.load());
-        assertThat(originalMd5, is(not(nullValue())));
-        dataSharingService.updateDataSharingSettings(new DataSharingSettings(true, "me", new Date()));
-
-        String md5AfterUpdate = entityHashingService.md5ForEntity(dataSharingSettingsSqlMapDao.load());
-        assertThat(originalMd5, is(not(md5AfterUpdate)));
-    }
-
-    @Test
     public void shouldUpdateMd5SumOfUsageStatisticsReportingUponSave() throws DuplicateMetricReporting {
         String originalMd5 = entityHashingService.md5ForEntity(usageStatisticsReportingSqlMapDao.load());
         assertThat(originalMd5, is(not(nullValue())));
@@ -213,7 +149,7 @@ public class DataSharingServiceIntegrationTest {
         Date lastReportedAt = new Date();
         lastReportedAt.setTime(lastReportedAt.getTime() + 10000);
         reporting.setLastReportedAt(lastReportedAt);
-        dataSharingService.updateUsageStatisticsReporting(reporting, new HttpLocalizedOperationResult());
+        dataSharingUsageStatisticsReportingService.update(reporting, new HttpLocalizedOperationResult());
 
         String md5AfterUpdate = entityHashingService.md5ForEntity(usageStatisticsReportingSqlMapDao.load());
         assertThat(originalMd5, is(not(md5AfterUpdate)));

@@ -20,7 +20,7 @@ import com.thoughtworks.go.api.SecurityTestTrait
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
 import com.thoughtworks.go.apiv1.datasharing.reporting.representers.UsageStatisticsReportingRepresenter
 import com.thoughtworks.go.domain.UsageStatisticsReporting
-import com.thoughtworks.go.server.service.DataSharingService
+import com.thoughtworks.go.server.service.DataSharingUsageStatisticsReportingService
 import com.thoughtworks.go.server.service.EntityHashingService
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult
 import com.thoughtworks.go.spark.ControllerTrait
@@ -44,7 +44,7 @@ class UsageStatisticsReportingControllerV1DelegateTest implements SecurityServic
     }
 
     @Mock
-    DataSharingService dataSharingService
+    DataSharingUsageStatisticsReportingService dataSharingService
     @Mock
     EntityHashingService entityHashingService
 
@@ -81,7 +81,7 @@ class UsageStatisticsReportingControllerV1DelegateTest implements SecurityServic
             void 'get usage statistics reporting'() {
                 def usageStatisticsReporting = new UsageStatisticsReporting("server-id", new Date())
 
-                when(dataSharingService.getUsageStatisticsReporting()).thenReturn(usageStatisticsReporting)
+                when(dataSharingService.get()).thenReturn(usageStatisticsReporting)
                 def etag = "md5"
                 when(entityHashingService.md5ForEntity(any() as UsageStatisticsReporting)).thenReturn(etag)
                 getWithApiHeader(controller.controllerPath())
@@ -130,8 +130,8 @@ class UsageStatisticsReportingControllerV1DelegateTest implements SecurityServic
                 UsageStatisticsReporting metricsReporting = new UsageStatisticsReporting("server-id", new Date())
                 metricsReporting.setLastReportedAt(reportsSharedAt)
 
-                doNothing().when(dataSharingService).updateUsageStatisticsReporting(any() as UsageStatisticsReporting, any() as HttpLocalizedOperationResult)
-                doReturn(metricsReporting).when(dataSharingService).getUsageStatisticsReporting()
+                doNothing().when(dataSharingService).update(any() as UsageStatisticsReporting, any() as HttpLocalizedOperationResult)
+                doReturn(metricsReporting).when(dataSharingService).get()
 
                 when(entityHashingService.md5ForEntity(any() as UsageStatisticsReporting)).thenReturn("cached-md5")
 
@@ -202,7 +202,7 @@ class UsageStatisticsReportingControllerV1DelegateTest implements SecurityServic
                     HttpLocalizedOperationResult result = invocation.arguments.last()
                     result.unprocessableEntity(errorMsg)
                     usageStatisticsReportingReturnedByServer = reporting
-                }).when(dataSharingService).updateUsageStatisticsReporting(any() as UsageStatisticsReporting, any() as HttpLocalizedOperationResult)
+                }).when(dataSharingService).update(any() as UsageStatisticsReporting, any() as HttpLocalizedOperationResult)
                 when(entityHashingService.md5ForEntity(any() as UsageStatisticsReporting)).thenReturn("cached-md5")
 
                 def headers = [
@@ -231,7 +231,7 @@ class UsageStatisticsReportingControllerV1DelegateTest implements SecurityServic
                     HttpLocalizedOperationResult result = invocation.arguments.last()
                     result.unprocessableEntity(errorMsg)
                     usageStatisticsReportingReturnedByServer = reporting
-                }).when(dataSharingService).updateUsageStatisticsReporting(any() as UsageStatisticsReporting, any() as HttpLocalizedOperationResult)
+                }).when(dataSharingService).update(any() as UsageStatisticsReporting, any() as HttpLocalizedOperationResult)
                 when(entityHashingService.md5ForEntity(any() as UsageStatisticsReporting)).thenReturn("cached-md5")
 
                 def headers = [

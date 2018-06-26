@@ -136,7 +136,9 @@ public class ApplicationInitializerTest {
     @Mock
     private PipelineLabelCorrector pipelineLabelCorrector;
     @Mock
-    private DataSharingService dataSharingService;
+    private DataSharingSettingsService dataSharingSettingsService;
+    @Mock
+    private DataSharingUsageStatisticsReportingService dataSharingUsageStatisticsReportingService;
     @InjectMocks
     ApplicationInitializer initializer = new ApplicationInitializer();
 
@@ -171,8 +173,13 @@ public class ApplicationInitializerTest {
     }
 
     @Test
+    public void shouldInitializeDataSharingConsentSettings() throws Exception {
+        verify(dataSharingSettingsService, times(1)).initialize();
+    }
+
+    @Test
     public void shouldInitializeServerStatsToBeCollected() throws Exception {
-        verify(dataSharingService, times(1)).initialize();
+        verify(dataSharingUsageStatisticsReportingService, times(1)).initialize();
     }
 
     private void verifyOrder(Initializer... initializers) {

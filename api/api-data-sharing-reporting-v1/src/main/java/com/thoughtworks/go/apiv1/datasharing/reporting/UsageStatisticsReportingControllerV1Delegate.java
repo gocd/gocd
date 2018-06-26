@@ -27,7 +27,7 @@ import com.thoughtworks.go.api.util.GsonTransformer;
 import com.thoughtworks.go.apiv1.datasharing.reporting.representers.UsageStatisticsReportingRepresenter;
 import com.thoughtworks.go.domain.UsageStatisticsReporting;
 import com.thoughtworks.go.server.dao.UsageStatisticsReportingSqlMapDao.DuplicateMetricReporting;
-import com.thoughtworks.go.server.service.DataSharingService;
+import com.thoughtworks.go.server.service.DataSharingUsageStatisticsReportingService;
 import com.thoughtworks.go.server.service.EntityHashingService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.spark.Routes.DataSharing;
@@ -42,17 +42,16 @@ import static com.thoughtworks.go.api.util.HaltApiResponses.haltBecauseRenameOfE
 import static spark.Spark.*;
 
 public class UsageStatisticsReportingControllerV1Delegate extends ApiController implements CrudController<UsageStatisticsReporting> {
-
     private final ApiAuthenticationHelper apiAuthenticationHelper;
-    private final DataSharingService dataSharingService;
+    private final DataSharingUsageStatisticsReportingService usageStatisticsReportingService;
     private final EntityHashingService entityHashingService;
     private final String SERVER_ID_KEY = "server_id";
     private final String DATA_SHARING_SERVER_URL_KEY = "data_sharing_server_url";
 
-    public UsageStatisticsReportingControllerV1Delegate(ApiAuthenticationHelper apiAuthenticationHelper, DataSharingService dataSharingService, EntityHashingService entityHashingService) {
+    public UsageStatisticsReportingControllerV1Delegate(ApiAuthenticationHelper apiAuthenticationHelper, DataSharingUsageStatisticsReportingService UsageStatisticsReportingService, EntityHashingService entityHashingService) {
         super(ApiVersion.v1);
         this.apiAuthenticationHelper = apiAuthenticationHelper;
-        this.dataSharingService = dataSharingService;
+        this.usageStatisticsReportingService = UsageStatisticsReportingService;
         this.entityHashingService = entityHashingService;
     }
 
@@ -77,7 +76,7 @@ public class UsageStatisticsReportingControllerV1Delegate extends ApiController 
     }
 
     public String getUsageStatisticsReporting(Request request, Response response) {
-        UsageStatisticsReporting usageStatisticsReporting = dataSharingService.getUsageStatisticsReporting();
+        UsageStatisticsReporting usageStatisticsReporting = usageStatisticsReportingService.get();
         setEtagHeader(response, etagFor(usageStatisticsReporting));
         return jsonize(request, usageStatisticsReporting);
     }
@@ -92,13 +91,13 @@ public class UsageStatisticsReportingControllerV1Delegate extends ApiController 
         if (bodyAsJSON.get(DATA_SHARING_SERVER_URL_KEY) != null) {
             throw haltBecauseRenameOfEntityIsNotSupported(DATA_SHARING_SERVER_URL_KEY);
         }
-        if (!isPutRequestFresh(request, dataSharingService.getUsageStatisticsReporting())) {
+        if (!isPutRequestFresh(request, usageStatisticsReportingService.get())) {
             throw haltBecauseEtagDoesNotMatch();
         }
         UsageStatisticsReporting statisticsReporting = getEntityFromRequestBody(request);
-        dataSharingService.updateUsageStatisticsReporting(statisticsReporting, result);
+        usageStatisticsReportingService.update(statisticsReporting, result);
         if (result.isSuccessful()) {
-            statisticsReporting = dataSharingService.getUsageStatisticsReporting();
+            statisticsReporting = usageStatisticsReportingService.get();
         }
         return handleCreateOrUpdateResponse(request, response, statisticsReporting, result);
     }

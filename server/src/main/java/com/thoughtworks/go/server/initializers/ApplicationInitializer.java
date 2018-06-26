@@ -88,7 +88,8 @@ public class ApplicationInitializer implements ApplicationListener<ContextRefres
     @Autowired private SCMMaterialSource scmMaterialSource;
     @Autowired private ResourceMonitoring resourceMonitoring;
     @Autowired private PipelineLabelCorrector pipelineLabelCorrector;
-    @Autowired private DataSharingService dataSharingService;
+    @Autowired private DataSharingSettingsService dataSharingSettingsService;
+    @Autowired private DataSharingUsageStatisticsReportingService dataSharingUsageStatisticsReportingService;
     @Value("${cruise.daemons.enabled}")
     private boolean daemonsEnabled;
 
@@ -149,7 +150,8 @@ public class ApplicationInitializer implements ApplicationListener<ContextRefres
 
             dependencyMaterialUpdateNotifier.initialize();
             scmMaterialSource.initialize();
-            dataSharingService.initialize();
+            dataSharingSettingsService.initialize();
+            dataSharingUsageStatisticsReportingService.initialize();
 
             if ("Y".equals(System.getProperty("delay.gocd.startup.wait.for.file", "N"))) {
                 File file = new File("/tmp/webapp");

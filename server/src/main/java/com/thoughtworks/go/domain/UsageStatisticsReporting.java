@@ -23,6 +23,7 @@ public class UsageStatisticsReporting extends PersistentObject {
     private String serverId;
     private String dataSharingServerUrl = null;
     private Timestamp lastReportedAt = new Timestamp(0);
+    private boolean canReport = true;
 
     public UsageStatisticsReporting() {
     }
@@ -54,5 +55,13 @@ public class UsageStatisticsReporting extends PersistentObject {
 
     public void setServerId(String serverId) {
         this.serverId = serverId;
+    }
+
+    public boolean canReport() {
+        return canReport;
+    }
+
+    public void canReport(boolean canReport) {
+        this.canReport = canReport;
     }
 }

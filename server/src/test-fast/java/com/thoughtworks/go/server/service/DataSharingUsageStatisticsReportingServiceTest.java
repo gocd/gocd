@@ -16,9 +16,9 @@
 
 package com.thoughtworks.go.server.service;
 
+import com.thoughtworks.go.domain.DataSharingSettings;
 import com.thoughtworks.go.domain.UsageStatisticsReporting;
 import com.thoughtworks.go.server.dao.UsageStatisticsReportingSqlMapDao;
-import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.junit.Before;
 import org.junit.Test;
@@ -27,8 +27,9 @@ import org.mockito.Mock;
 
 import java.util.Date;
 
+import static org.hamcrest.Matchers.not;
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
@@ -38,32 +39,98 @@ public class DataSharingUsageStatisticsReportingServiceTest {
     @Mock
     private UsageStatisticsReportingSqlMapDao usageStatisticsReportingSqlMapDao;
     @Mock
-    private EntityHashingService entityHashingService;
+    private DataSharingSettingsService dataSharingSettingsService;
     @Mock
     private SystemEnvironment systemEnvironment;
+    private String goUsageDataRemoteServerURL;
+    private DataSharingSettings dataSharingSetting;
 
     @Before
     public void setUp() throws Exception {
         initMocks(this);
-        service = new DataSharingUsageStatisticsReportingService(usageStatisticsReportingSqlMapDao, entityHashingService, systemEnvironment);
+        service = new DataSharingUsageStatisticsReportingService(usageStatisticsReportingSqlMapDao, dataSharingSettingsService, systemEnvironment);
+        goUsageDataRemoteServerURL = "https://datasharing.gocd.org";
+        when(systemEnvironment.getGoDataSharingServerUrl()).thenReturn(goUsageDataRemoteServerURL);
+
+        dataSharingSetting = new DataSharingSettings();
+        when(dataSharingSettingsService.get()).thenReturn(dataSharingSetting);
+        when(systemEnvironment.isProductionMode()).thenReturn(true);
     }
 
     @Test
-    public void shouldUpdateStatsSharedAtTime() throws Exception {
-        Date statsUpdatedAtTime = new Date();
-        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        ArgumentCaptor<UsageStatisticsReporting> argumentCaptor = ArgumentCaptor.forClass(UsageStatisticsReporting.class);
+    public void shouldSetDataSharingServerUrlOnTheLoadedDataSharingUsageReporting() {
+        UsageStatisticsReporting existingMetric = new UsageStatisticsReporting("server-id", new Date());
+        assertNull(existingMetric.getDataSharingServerUrl());
+        when(usageStatisticsReportingSqlMapDao.load()).thenReturn(existingMetric);
+        UsageStatisticsReporting statisticsReporting = service.get();
+        assertThat(statisticsReporting.getDataSharingServerUrl(), is(goUsageDataRemoteServerURL));
+    }
 
+    @Test
+    public void shouldDisallowReportingIfDataSharingSettingsIsNotAllowed() {
+        UsageStatisticsReporting existingMetric = new UsageStatisticsReporting("server-id", new Date());
+        assertTrue(existingMetric.canReport());
+        when(usageStatisticsReportingSqlMapDao.load()).thenReturn(existingMetric);
+
+        dataSharingSetting = new DataSharingSettings();
+        dataSharingSetting.setAllowSharing(false);
+        when(dataSharingSettingsService.get()).thenReturn(dataSharingSetting);
+
+        UsageStatisticsReporting statisticsReporting = service.get();
+        assertFalse(statisticsReporting.canReport());
+    }
+
+    @Test
+    public void shouldDisallowReportingDataSharingIfAlreadyReportedToday() {
+        UsageStatisticsReporting existingMetric = new UsageStatisticsReporting("server-id", new Date());
+        assertThat(existingMetric.lastReportedAt().getDate(), is(new Date().getDate()));
+        when(usageStatisticsReportingSqlMapDao.load()).thenReturn(existingMetric);
+
+        UsageStatisticsReporting statisticsReporting = service.get();
+        assertFalse(statisticsReporting.canReport());
+    }
+
+    @Test
+    public void shouldAllowReportingDataSharingIfDataIsNotReportedToday() {
+        Date lastReportedAt = new Date();
+        lastReportedAt.setDate(lastReportedAt.getDate() - 1);
+        UsageStatisticsReporting existingMetric = new UsageStatisticsReporting("server-id", lastReportedAt);
+        assertThat(existingMetric.lastReportedAt().getDate(), is(new Date().getDate() - 1));
+        when(usageStatisticsReportingSqlMapDao.load()).thenReturn(existingMetric);
+
+        UsageStatisticsReporting statisticsReporting = service.get();
+        assertTrue(statisticsReporting.canReport());
+    }
+
+    @Test
+    public void shouldDisallowReportingDataSharingIfReportingIsInProgress() {
+        Date lastReportedAt = new Date();
+        lastReportedAt.setDate(lastReportedAt.getDate() - 1);
+        UsageStatisticsReporting existingMetric = new UsageStatisticsReporting("server-id", lastReportedAt);
+        when(usageStatisticsReportingSqlMapDao.load()).thenReturn(existingMetric);
+
+        UsageStatisticsReporting statisticsReporting = service.get();
+        assertTrue(statisticsReporting.canReport());
+        statisticsReporting = service.get();
+        assertFalse(statisticsReporting.canReport());
+    }
+
+    @Test
+    public void shouldDisallowReportingForDevelopmentServer() {
+        when(systemEnvironment.isProductionMode()).thenReturn(false);
         UsageStatisticsReporting existingMetric = new UsageStatisticsReporting("server-id", new Date());
         when(usageStatisticsReportingSqlMapDao.load()).thenReturn(existingMetric);
 
-        UsageStatisticsReporting reporting = new UsageStatisticsReporting();
-        reporting.setLastReportedAt(statsUpdatedAtTime);
-        service.update(reporting);
+        UsageStatisticsReporting statisticsReporting = service.get();
+        assertFalse(statisticsReporting.canReport());
+    }
 
-        assertThat(result.isSuccessful(), is(true));
-        verify(usageStatisticsReportingSqlMapDao).saveOrUpdate(argumentCaptor.capture());
-        UsageStatisticsReporting newMetricReporting = argumentCaptor.getValue();
-        assertThat(newMetricReporting.lastReportedAt().toInstant(), is(statsUpdatedAtTime.toInstant()));
+    @Test
+    public void shouldUpdateStatsSharedAtTime() {
+        UsageStatisticsReporting existingMetric = new UsageStatisticsReporting("server-id", new Date());
+        when(usageStatisticsReportingSqlMapDao.load()).thenReturn(existingMetric);
+
+        UsageStatisticsReporting updatedReporting = service.updateLastReportedTime();
+        assertThat(updatedReporting.lastReportedAt().toInstant(), is(not(existingMetric.lastReportedAt())));
     }
 }

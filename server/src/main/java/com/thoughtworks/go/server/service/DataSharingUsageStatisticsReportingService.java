@@ -18,11 +18,12 @@ package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.domain.UsageStatisticsReporting;
 import com.thoughtworks.go.server.dao.UsageStatisticsReportingSqlMapDao;
-import com.thoughtworks.go.server.dao.UsageStatisticsReportingSqlMapDao.DuplicateMetricReporting;
 import com.thoughtworks.go.util.SystemEnvironment;
+import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Calendar;
 import java.util.Date;
 import java.util.UUID;
 
@@ -30,24 +31,26 @@ import java.util.UUID;
 @Service
 public class DataSharingUsageStatisticsReportingService {
     private final UsageStatisticsReportingSqlMapDao usageStatisticsReportingSqlMapDao;
-    private final EntityHashingService entityHashingService;
+    private DataSharingSettingsService dataSharingSettingsService;
     private final SystemEnvironment systemEnvironment;
-    private final Object mutexForUsageStatisticsReporting = new Object();
+    private final Object mutexForReportingUsageData = new Object();
+
+    private DateTime reportingStartedTime = null;
 
     @Autowired
     public DataSharingUsageStatisticsReportingService(UsageStatisticsReportingSqlMapDao usageStatisticsReportingSqlMapDao,
-                                                      EntityHashingService entityHashingService,
+                                                      DataSharingSettingsService dataSharingSettingsService,
                                                       SystemEnvironment systemEnvironment) {
         this.usageStatisticsReportingSqlMapDao = usageStatisticsReportingSqlMapDao;
-        this.entityHashingService = entityHashingService;
+        this.dataSharingSettingsService = dataSharingSettingsService;
         this.systemEnvironment = systemEnvironment;
     }
 
-    public void initialize() throws DuplicateMetricReporting {
+    public void initialize() {
         UsageStatisticsReporting existingUsageStatisticsReporting = usageStatisticsReportingSqlMapDao.load();
 
         if (existingUsageStatisticsReporting == null) {
-            update(new UsageStatisticsReporting(UUID.randomUUID().toString(), new Date()));
+            create();
         }
 
         if (new SystemEnvironment().shouldFailStartupOnDataError()) {
@@ -55,17 +58,57 @@ public class DataSharingUsageStatisticsReportingService {
         }
     }
 
+    private void create() {
+        UsageStatisticsReporting reporting = new UsageStatisticsReporting(UUID.randomUUID().toString(), new Date());
+        usageStatisticsReportingSqlMapDao.saveOrUpdate(reporting);
+    }
+
     public UsageStatisticsReporting get() {
+        synchronized (mutexForReportingUsageData) {
+            UsageStatisticsReporting loaded = getUsageStatisticsReportingInfo();
+            reportingStartedTime = new DateTime();
+            return loaded;
+        }
+    }
+
+    private UsageStatisticsReporting getUsageStatisticsReportingInfo() {
         UsageStatisticsReporting loaded = usageStatisticsReportingSqlMapDao.load();
         loaded.setDataSharingServerUrl(systemEnvironment.getGoDataSharingServerUrl());
-
+        boolean canReport = !isDevelopmentServer() && dataSharingSettingsService.get().allowSharing()
+                && !isToday(loaded.lastReportedAt()) && !isReportingInProgressFresh();
+        loaded.canReport(canReport);
         return loaded;
     }
 
-    public void update(UsageStatisticsReporting reporting) throws DuplicateMetricReporting {
-        synchronized (mutexForUsageStatisticsReporting) {
-            usageStatisticsReportingSqlMapDao.saveOrUpdate(reporting);
-            entityHashingService.removeFromCache(reporting, reporting.getServerId());
+    private boolean isReportingInProgressFresh() {
+        if (reportingStartedTime == null) {
+            return false;
         }
+
+        DateTime halfHourAgo = new DateTime(System.currentTimeMillis() - 30 * 60 * 1000);
+        return reportingStartedTime.isAfter(halfHourAgo);
+    }
+
+    public UsageStatisticsReporting updateLastReportedTime() {
+        synchronized (mutexForReportingUsageData) {
+            UsageStatisticsReporting reporting = usageStatisticsReportingSqlMapDao.load();
+            reporting.setLastReportedAt(new Date());
+            usageStatisticsReportingSqlMapDao.saveOrUpdate(reporting);
+            reportingStartedTime = null;
+            return getUsageStatisticsReportingInfo();
+        }
+    }
+
+    private boolean isToday(Date date) {
+        Calendar today = Calendar.getInstance();
+        Calendar otherDay = Calendar.getInstance();
+        otherDay.setTime(date);
+
+        return (today.get(Calendar.YEAR) == otherDay.get(Calendar.YEAR) &&
+                today.get(Calendar.DAY_OF_YEAR) == otherDay.get(Calendar.DAY_OF_YEAR));
+    }
+
+    private boolean isDevelopmentServer() {
+        return !systemEnvironment.isProductionMode();
     }
 }

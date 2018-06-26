@@ -38,9 +38,10 @@ class UsageStatisticsReportingRepresenterTest {
                     self: [href: 'http://test.host/go/api/internal/data_sharing/reporting']
                 ],
                 "_embedded": [
-                  server_id                : metricsReporting.getServerId(),
-                  data_sharing_server_url  : dataSharingServerUrl,
-                  last_reported_at         : metricsReporting.lastReportedAt().getTime()
+                  server_id              : metricsReporting.getServerId(),
+                  data_sharing_server_url: dataSharingServerUrl,
+                  last_reported_at       : metricsReporting.lastReportedAt().getTime(),
+                  can_report             : true
                 ]
         ]
 
@@ -61,7 +62,8 @@ class UsageStatisticsReportingRepresenterTest {
                 "_embedded": [
                   server_id                : metricsReporting.getServerId(),
                   data_sharing_server_url  : dataSharingServerUrl,
-                  last_reported_at         : 0
+                  last_reported_at         : 0,
+                  can_report               : true
                 ]
         ]
 

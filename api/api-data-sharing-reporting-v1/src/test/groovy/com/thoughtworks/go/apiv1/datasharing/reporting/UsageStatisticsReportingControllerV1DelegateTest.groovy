@@ -94,7 +94,7 @@ class UsageStatisticsReportingControllerV1DelegateTest implements SecurityServic
 
             @Override
             String getControllerMethodUnderTest() {
-                return "updateUsageStatisticsReporting"
+                return "updateUsageStatisticsReportingLastReportedTime"
             }
 
             @Override
@@ -118,8 +118,7 @@ class UsageStatisticsReportingControllerV1DelegateTest implements SecurityServic
                 UsageStatisticsReporting metricsReporting = new UsageStatisticsReporting("server-id", new Date())
                 metricsReporting.setLastReportedAt(reportsSharedAt)
 
-                doNothing().when(dataSharingService).update(any() as UsageStatisticsReporting)
-                doReturn(metricsReporting).when(dataSharingService).get()
+                doReturn(metricsReporting).when(dataSharingService).updateLastReportedTime()
 
                 def headers = [
                   'accept'        : controller.mimeType,

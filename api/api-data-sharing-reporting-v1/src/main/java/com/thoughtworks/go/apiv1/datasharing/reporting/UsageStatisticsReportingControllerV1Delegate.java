@@ -22,13 +22,10 @@ import com.thoughtworks.go.api.ApiVersion;
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
 import com.thoughtworks.go.apiv1.datasharing.reporting.representers.UsageStatisticsReportingRepresenter;
 import com.thoughtworks.go.domain.UsageStatisticsReporting;
-import com.thoughtworks.go.server.dao.UsageStatisticsReportingSqlMapDao.DuplicateMetricReporting;
 import com.thoughtworks.go.server.service.DataSharingUsageStatisticsReportingService;
 import com.thoughtworks.go.spark.Routes.DataSharing;
 import spark.Request;
 import spark.Response;
-
-import java.util.Date;
 
 import static spark.Spark.*;
 
@@ -59,7 +56,7 @@ public class UsageStatisticsReportingControllerV1Delegate extends ApiController 
             before("/reported", mimeType, apiAuthenticationHelper::checkUserAnd403);
 
             get("/info", this::getUsageStatisticsReporting);
-            post("/reported", mimeType, this::updateUsageStatisticsReporting);
+            post("/reported", mimeType, this::updateUsageStatisticsReportingLastReportedTime);
         });
     }
 
@@ -68,10 +65,8 @@ public class UsageStatisticsReportingControllerV1Delegate extends ApiController 
         return jsonizeAsTopLevelObject(request, writer -> UsageStatisticsReportingRepresenter.toJSON(writer, usageStatisticsReporting));
     }
 
-    public String updateUsageStatisticsReporting(Request request, Response response) throws DuplicateMetricReporting {
-        UsageStatisticsReporting statisticsReporting = usageStatisticsReportingService.get();
-        statisticsReporting.setLastReportedAt(new Date());
-        usageStatisticsReportingService.update(statisticsReporting);
-        return jsonizeAsTopLevelObject(request, writer -> UsageStatisticsReportingRepresenter.toJSON(writer, usageStatisticsReportingService.get()));
+    public String updateUsageStatisticsReportingLastReportedTime(Request request, Response response) {
+        UsageStatisticsReporting usageStatisticsReporting = usageStatisticsReportingService.updateLastReportedTime();
+        return jsonizeAsTopLevelObject(request, writer -> UsageStatisticsReportingRepresenter.toJSON(writer, usageStatisticsReporting));
     }
 }

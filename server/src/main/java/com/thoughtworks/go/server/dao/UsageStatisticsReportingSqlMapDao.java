@@ -37,15 +37,7 @@ public class UsageStatisticsReportingSqlMapDao extends HibernateDaoSupport {
         setSessionFactory(sessionFactory);
     }
 
-    public void saveOrUpdate(UsageStatisticsReporting usageStatisticsReporting) throws DuplicateMetricReporting {
-        UsageStatisticsReporting existingServerStats = load();
-        if(usageStatisticsReporting.hasId() && usageStatisticsReporting.getId() != existingServerStats.getId()){
-            throw new DuplicateMetricReporting();
-        }
-        if (existingServerStats != null && !usageStatisticsReporting.hasId()) {
-            usageStatisticsReporting.setId(existingServerStats.getId());
-            usageStatisticsReporting.setServerId(existingServerStats.getServerId());
-        }
+    public void saveOrUpdate(UsageStatisticsReporting usageStatisticsReporting) {
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
             @Override
             protected void doInTransactionWithoutResult(TransactionStatus status) {

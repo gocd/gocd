@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,7 +38,7 @@ public class ConsoleOutViewTest {
 
         MockHttpServletResponse response = new MockHttpServletResponse();
         view.render(null, null, response);
-        assertThat(response.getCharacterEncoding(), is(randomCharset()));
+        assertThat(response.getCharacterEncoding(), is(randomCharset().toString()));
     }
 
     @Test

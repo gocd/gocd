@@ -443,13 +443,22 @@ tasks.withType(Test) {
   dependsOn copyAgentSideJarsToServerDir
   dependsOn prepareNoRails
 
+  def heapDumpDir = project.file("${buildDir}/heap-dumps")
   minHeapSize '1024m'
   maxHeapSize '3072m'
-  jvmArgs("-XX:+HeapDumpOnOutOfMemoryError", "-XX:HeapDumpPath=${buildDir}/heap-dumps")
+  jvmArgs("-XX:+HeapDumpOnOutOfMemoryError", "-XX:HeapDumpPath=${heapDumpDir}")
 
   doFirst {
-    project.mkdir("${buildDir}/heap-dumps")
-    project.file("${buildDir}/heap-dumps/ignore.txt").createNewFile()
+    project.delete(heapDumpDir)
+    project.mkdir(heapDumpDir)
+    project.file("${heapDumpDir}/ignore.txt").createNewFile()
+  }
+
+  doLast {
+    project.fileTree(heapDumpDir).files.each { File eachFile ->
+      ant.gzip(src: eachFile, destfile: "${eachFile}.gz")
+      project.delete eachFile
+    }
   }
 
   systemProperties += project.testSystemProperties

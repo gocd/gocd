@@ -240,6 +240,7 @@ spark/spark-base/target/
 spark/spark-spa/logs/
 spark/spark-spa/out/
 spark/spark-spa/target/
+target/
 test/http-mocks/out/
 test/http-mocks/target/
 test/test-addon/out/

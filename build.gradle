@@ -600,16 +600,15 @@ task allTests { thisTask ->
   finalizedBy 'allTestsJunitHtmlReport'
 }
 
-task allTestsJunitHtmlReport(type: TestReport) { thisTask ->
-  dependsOn allTests
+task allTestsJunitHtmlReport(type: TestReport) { TestReport thisTask ->
   group LifecycleBasePlugin.VERIFICATION_GROUP
   description = "Run all api tests"
 
   forAllTask { Test eachTestTask ->
-    thisTask.reportOn eachTestTask
+    thisTask.reportOn eachTestTask.binResultsDir
+    eachTestTask.finalizedBy(thisTask)
   }
-  def htmlOutputDir = file("${project.buildDir}/reports/tests/allTests")
-  destinationDir = htmlOutputDir
+  destinationDir = file("${project.buildDir}/reports/tests/allTests")
 }
 
 task newApi {

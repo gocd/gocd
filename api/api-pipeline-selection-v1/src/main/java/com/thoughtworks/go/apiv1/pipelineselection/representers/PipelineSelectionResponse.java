@@ -17,21 +17,26 @@
 package com.thoughtworks.go.apiv1.pipelineselection.representers;
 
 import com.thoughtworks.go.config.PipelineConfigs;
-import com.thoughtworks.go.server.domain.user.PipelineSelections;
 
 import java.util.List;
 
 public class PipelineSelectionResponse {
-    private final PipelineSelections selectedPipelines;
+    private final List<String> pipelines;
+    private final boolean blacklist;
     private final List<PipelineConfigs> pipelineConfigs;
 
-    public PipelineSelectionResponse(PipelineSelections selectedPipelines, List<PipelineConfigs> pipelineConfigs) {
-        this.selectedPipelines = selectedPipelines;
+    public PipelineSelectionResponse(List<String> pipelines, boolean blacklist, List<PipelineConfigs> pipelineConfigs) {
+        this.pipelines = pipelines;
+        this.blacklist = blacklist;
         this.pipelineConfigs = pipelineConfigs;
     }
 
-    public PipelineSelections getSelectedPipelines() {
-        return selectedPipelines;
+    public List<String> selections() {
+        return pipelines;
+    }
+
+    public boolean blacklist() {
+        return blacklist;
     }
 
     public List<PipelineConfigs> getPipelineConfigs() {

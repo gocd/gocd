@@ -77,10 +77,10 @@ public class PipelineSelectionControllerDelegate extends ApiController {
     public String show(Request request, Response response) throws IOException {
         String fromCookie = request.cookie("selected_pipelines");
 
-        PipelineSelections selectedPipelines = pipelineSelectionsService.getSelectedPipelines(fromCookie, currentUserId(request));
+        PipelineSelections selectedPipelines = pipelineSelectionsService.getPersistedSelectedPipelines(fromCookie, currentUserId(request));
         List<PipelineConfigs> pipelineConfigs = pipelineConfigService.viewableGroupsFor(currentUsername());
 
-        PipelineSelectionResponse pipelineSelectionResponse = new PipelineSelectionResponse(selectedPipelines, pipelineConfigs);
+        PipelineSelectionResponse pipelineSelectionResponse = new PipelineSelectionResponse(selectedPipelines.pipelineList(), selectedPipelines.isBlacklist(), pipelineConfigs);
 
         return writerForTopLevelObject(request, response, writer -> PipelineSelectionsRepresenter.toJSON(writer, pipelineSelectionResponse));
     }
@@ -92,7 +92,7 @@ public class PipelineSelectionControllerDelegate extends ApiController {
 
         PipelineSelectionResponse selectionResponse = PipelineSelectionsRepresenter.fromJSON(jsonReader);
 
-        Long recordId = pipelineSelectionsService.persistSelectedPipelines(fromCookie, currentUserId(request), selectionResponse.getSelectedPipelines().pipelineList(), selectionResponse.getSelectedPipelines().isBlacklist());
+        Long recordId = pipelineSelectionsService.persistSelectedPipelines(fromCookie, currentUserId(request), selectionResponse.selections(), selectionResponse.blacklist());
 
         if (!apiAuthenticationHelper.securityEnabled()) {
             response.cookie("/go", "selected_pipelines", String.valueOf(recordId), ONE_YEAR, systemEnvironment.isSessionCookieSecure(), true);

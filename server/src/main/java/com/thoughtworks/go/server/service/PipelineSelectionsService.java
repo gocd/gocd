@@ -17,7 +17,6 @@
 package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.CaseInsensitiveString;
-import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.server.domain.user.PipelineSelections;
 import com.thoughtworks.go.server.persistence.PipelineRepository;
 import com.thoughtworks.go.util.Clock;
@@ -41,69 +40,40 @@ public class PipelineSelectionsService {
     }
 
     public PipelineSelections getPersistedSelectedPipelines(String id, Long userId) {
-        PipelineSelections pipelineSelections = getPersistedPipelineSelections(id, userId);
+        PipelineSelections pipelineSelections = loadByIdOrUserId(id, userId);
+
         if (pipelineSelections == null) {
             pipelineSelections = PipelineSelections.ALL;
         }
-        return pipelineSelections;
-    }
 
-    public PipelineSelections getSelectedPipelines(String id, Long userId){
-        PipelineSelections persistedPipelineSelections = getPersistedSelectedPipelines(id, userId);
-        if(persistedPipelineSelections.isBlacklist()){
-            List<String> invertedPipelineSelections = invertSelections(persistedPipelineSelections.pipelineList());
-            return new PipelineSelections(invertedPipelineSelections, persistedPipelineSelections.lastUpdated(), persistedPipelineSelections.userId(), persistedPipelineSelections.isBlacklist());
-        }
-        return persistedPipelineSelections;
+        return pipelineSelections;
     }
 
     public long persistSelectedPipelines(String id, Long userId, List<String> selectedPipelines, boolean isBlacklist) {
         PipelineSelections pipelineSelections = findOrCreateCurrentPipelineSelectionsFor(id, userId);
-
-        if (isBlacklist) {
-            List<String> unselectedPipelines = invertSelections(selectedPipelines);
-            pipelineSelections.update(unselectedPipelines, clock.currentTime(), userId, isBlacklist);
-        } else {
-            pipelineSelections.update(selectedPipelines, clock.currentTime(), userId, isBlacklist);
-        }
-
+        pipelineSelections.update(selectedPipelines, clock.currentTime(), userId, isBlacklist);
         return pipelineRepository.saveSelectedPipelines(pipelineSelections);
     }
 
     private PipelineSelections findOrCreateCurrentPipelineSelectionsFor(String id, Long userId) {
-        PipelineSelections pipelineSelections = goConfigService.isSecurityEnabled() ? pipelineRepository.findPipelineSelectionsByUserId(userId) : pipelineRepository.findPipelineSelectionsById(id);
+        PipelineSelections pipelineSelections = loadByIdOrUserId(id, userId);
+
         if (pipelineSelections == null) {
-            pipelineSelections = new PipelineSelections(new ArrayList<>(), clock.currentTime(), userId, true);
+            return new PipelineSelections(new ArrayList<>(), clock.currentTime(), userId, true);
         }
+
         return pipelineSelections;
     }
 
-    private List<String> invertSelections(List<String> selectedPipelines) {
-        List<String> unselectedPipelines = new ArrayList<>();
-        List<PipelineConfig> pipelineConfigList = goConfigService.getAllPipelineConfigs();
-        for (PipelineConfig pipelineConfig : pipelineConfigList) {
-            String pipelineName = CaseInsensitiveString.str(pipelineConfig.name());
-            if (!selectedPipelines.contains(pipelineName)) {
-                unselectedPipelines.add(pipelineName);
-            }
-        }
-        return unselectedPipelines;
-    }
-
-    private PipelineSelections getPersistedPipelineSelections(String id, Long userId) {
-        if (goConfigService.isSecurityEnabled()) {
-            return pipelineRepository.findPipelineSelectionsByUserId(userId);
-        } else {
-            return pipelineRepository.findPipelineSelectionsById(id);
-        }
+    private PipelineSelections loadByIdOrUserId(String id, Long userId) {
+        return goConfigService.isSecurityEnabled() ? pipelineRepository.findPipelineSelectionsByUserId(userId) : pipelineRepository.findPipelineSelectionsById(id);
     }
 
     public void updateUserPipelineSelections(String id, Long userId, CaseInsensitiveString pipelineToAdd) {
         PipelineSelections currentSelections = findOrCreateCurrentPipelineSelectionsFor(id, userId);
-        if (!currentSelections.isBlacklist()) {
-            currentSelections.addPipelineToSelections(pipelineToAdd);
+
+        if (currentSelections.ensurePipelineVisible(pipelineToAdd)) {
             pipelineRepository.saveSelectedPipelines(currentSelections);
         }
     }
-
 }

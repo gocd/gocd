@@ -37,14 +37,14 @@ const PipelineSelection = function (pipelineGroups, selections, blacklist) {
     const selections   = [];
 
     _.each(allPipelines, (selection, pipelineName) => {
-      if (selection()) {
+      if (self.blacklist() ^ selection()) {
         selections.push(pipelineName);
       }
     });
 
     const payload = {
       selections,
-      'blacklist': self.blacklist()
+      "blacklist": self.blacklist()
     };
 
     return AjaxHelper.PUT({
@@ -58,14 +58,14 @@ const PipelineSelection = function (pipelineGroups, selections, blacklist) {
 PipelineSelection.fromJSON = (json) => {
   const pipelineGroups = json.pipelines;
   const selections     = {};
-
+  const blacklist      = json.blacklist;
   _.each(_.keys(pipelineGroups), (group) => {
     _.each(pipelineGroups[group], (pipeline) => {
-      selections[pipeline] = Stream(_.includes(json.selections, pipeline));
+      selections[pipeline] = Stream(!!(blacklist ^ _.includes(json.selections, pipeline)));
     });
   });
 
-  return new PipelineSelection(Stream(pipelineGroups), selections, Stream(json.blacklist));
+  return new PipelineSelection(Stream(pipelineGroups), selections, Stream(blacklist));
 };
 
 PipelineSelection.get = () => {

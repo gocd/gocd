@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class PipelineSelections extends PersistentObject implements Serializable {
 
@@ -150,13 +151,25 @@ public class PipelineSelections extends PersistentObject implements Serializable
         return ToStringBuilder.reflectionToString(this);
     }
 
-    public PipelineSelections addPipelineToSelections(CaseInsensitiveString pipelineToAdd) {
-        ArrayList<String> updatedListOfPipelines = new ArrayList<>();
-        updatedListOfPipelines.addAll(pipelines);
-        updatedListOfPipelines.add(CaseInsensitiveString.str(pipelineToAdd));
+    public boolean ensurePipelineVisible(CaseInsensitiveString pipelineToAdd) {
+        boolean requiresSave = false;
 
-        this.updateSelections(updatedListOfPipelines);
-        return this;
+        if (this.isBlacklist()) {
+            if (caseInsensitivePipelineList.contains(pipelineToAdd)) {
+                caseInsensitivePipelineList.remove(pipelineToAdd);
+                lastUpdate = new Date();
+                requiresSave = true;
+            }
+        } else {
+            if (!caseInsensitivePipelineList.contains(pipelineToAdd)) {
+                caseInsensitivePipelineList.add(pipelineToAdd);
+                lastUpdate = new Date();
+                requiresSave = true;
+            }
+        }
+
+        pipelines = caseInsensitivePipelineList.stream().map(CaseInsensitiveString::str).collect(Collectors.toList());
+        return requiresSave;
     }
 
     private void updateSelections(List<String> selections) {

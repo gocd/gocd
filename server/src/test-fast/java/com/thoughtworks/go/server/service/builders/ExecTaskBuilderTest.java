@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,8 @@ package com.thoughtworks.go.server.service.builders;
 import com.googlecode.junit.ext.JunitExtRunner;
 import com.googlecode.junit.ext.RunIf;
 import com.thoughtworks.go.config.ExecTask;
-import com.thoughtworks.go.domain.TasksTest;
+import com.thoughtworks.go.domain.NullPipeline;
+import com.thoughtworks.go.domain.Pipeline;
 import com.thoughtworks.go.domain.builder.CommandBuilder;
 import com.thoughtworks.go.junitext.EnhancedOSChecker;
 import com.thoughtworks.go.server.service.UpstreamPipelineResolver;
@@ -44,6 +45,20 @@ public class ExecTaskBuilderTest {
     private ExecTaskBuilder execTaskBuilder;
     private BuilderFactory builderFactory;
 
+    public static Pipeline pipelineStub(final String label, final String defaultWorkingFolder) {
+        return new NullPipeline() {
+            @Override
+            public String getLabel() {
+                return label;
+            }
+
+            @Override
+            public File defaultWorkingFolder() {
+                return new File(defaultWorkingFolder);
+            }
+        };
+    }
+
     @Before
     public void setUp() {
         resolver = mock(UpstreamPipelineResolver.class);
@@ -60,7 +75,7 @@ public class ExecTaskBuilderTest {
         ExecTask task = new ExecTask("command", "", (String) null);
         final File defaultWorkingDir = new File("foo");
 
-        CommandBuilder builder = (CommandBuilder) execTaskBuilder.createBuilder(builderFactory, task, TasksTest.pipelineStub("label", "foo"), resolver);
+        CommandBuilder builder = (CommandBuilder) execTaskBuilder.createBuilder(builderFactory, task, pipelineStub("label", "foo"), resolver);
 
         assertThat(builder.getWorkingDir(), isSamePath(defaultWorkingDir));
     }
@@ -70,7 +85,7 @@ public class ExecTaskBuilderTest {
     public void shouldNormalizeWorkingDirectory() throws Exception {
         ExecTask execTask = new ExecTask("ant", "", "folder\\child");
 
-        CommandBuilder builder = (CommandBuilder) execTaskBuilder.createBuilder(builderFactory, execTask, TasksTest.pipelineStub("label", "."), resolver);
+        CommandBuilder builder = (CommandBuilder) execTaskBuilder.createBuilder(builderFactory, execTask, pipelineStub("label", "."), resolver);
 
         assertThat(builder.getWorkingDir().getPath(), is("./folder/child"));
     }

@@ -1,18 +1,18 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.server.service.builders;
 
@@ -24,7 +24,6 @@ import com.thoughtworks.go.config.NantTask;
 import com.thoughtworks.go.domain.builder.CommandBuilder;
 import com.thoughtworks.go.domain.NullPipeline;
 import com.thoughtworks.go.domain.Pipeline;
-import com.thoughtworks.go.domain.TasksTest;
 import com.thoughtworks.go.junitext.EnhancedOSChecker;
 import com.thoughtworks.go.server.service.UpstreamPipelineResolver;
 import org.hamcrest.core.Is;
@@ -70,7 +69,7 @@ public class NantTaskBuilderTest {
     @Test
     public void shouldUseDefaultWorkingDirectoryByDefault() throws Exception {
         NantTask nantTask = new NantTask();
-        CommandBuilder commandBuilder = (CommandBuilder) nantTaskBuilder.createBuilder(builderFactory, nantTask, TasksTest.pipelineStub("label", "/cruise"), resolver);
+        CommandBuilder commandBuilder = (CommandBuilder) nantTaskBuilder.createBuilder(builderFactory, nantTask, ExecTaskBuilderTest.pipelineStub("label", "/cruise"), resolver);
         assertThat(commandBuilder.getWorkingDir(), is(new File("/cruise")));
     }
 
@@ -120,7 +119,7 @@ public class NantTaskBuilderTest {
     public void nantTaskShouldNormalizeWorkingDirectory() throws Exception {
         NantTask nantTask = new NantTask();
         nantTask.setWorkingDirectory("folder1\\folder2");
-        CommandBuilder builder = (CommandBuilder) nantTaskBuilder.createBuilder(builderFactory, nantTask, TasksTest.pipelineStub("label", "/var/cruise-agent/pipelines/cruise"), resolver);
+        CommandBuilder builder = (CommandBuilder) nantTaskBuilder.createBuilder(builderFactory, nantTask, ExecTaskBuilderTest.pipelineStub("label", "/var/cruise-agent/pipelines/cruise"), resolver);
         assertThat(builder.getWorkingDir(), Is.is(new File("/var/cruise-agent/pipelines/cruise/folder1/folder2")));
     }
 

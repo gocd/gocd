@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,28 +14,22 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.domain;
+package com.thoughtworks.go.config;
 
-import java.io.File;
-import java.util.HashMap;
-
-import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.domain.config.Arguments;
 import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.service.TaskFactory;
 import org.junit.Test;
 
+import java.util.HashMap;
+
 import static junit.framework.Assert.assertFalse;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class TasksTest {
-
-    Pipeline pipeline = new NullPipeline();
 
     @Test
     public void shouldReturnEmptyTasks() throws Exception {
@@ -156,17 +150,4 @@ public class TasksTest {
         return taskAttributes;
     }
 
-    public static Pipeline pipelineStub(final String label, final String defaultWorkingFolder) {
-        return new NullPipeline() {
-            @Override
-            public String getLabel() {
-                return label;
-            }
-
-            @Override
-            public File defaultWorkingFolder() {
-                return new File(defaultWorkingFolder);
-            }
-        };
-    }
 }

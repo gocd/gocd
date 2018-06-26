@@ -22,7 +22,6 @@ import com.thoughtworks.go.config.AntTask;
 import com.thoughtworks.go.config.ExecTask;
 import com.thoughtworks.go.domain.Pipeline;
 import com.thoughtworks.go.domain.StubGoPublisher;
-import com.thoughtworks.go.domain.TasksTest;
 import com.thoughtworks.go.domain.builder.Builder;
 import com.thoughtworks.go.domain.builder.CommandBuilder;
 import com.thoughtworks.go.junitext.EnhancedOSChecker;
@@ -49,7 +48,7 @@ public class AntTaskBuilderTest {
     private AntTask antTask;
     private static final String DEFAULT_WORKING_DIRECTORY = "default/working/directory";
     private static final String PIPELINE_LABEL = "label";
-    private Pipeline pipeline = TasksTest.pipelineStub(PIPELINE_LABEL, DEFAULT_WORKING_DIRECTORY);
+    private Pipeline pipeline = ExecTaskBuilderTest.pipelineStub(PIPELINE_LABEL, DEFAULT_WORKING_DIRECTORY);
 
     private UpstreamPipelineResolver resolver;
     private AntTaskBuilder antTaskBuilder;
@@ -94,7 +93,7 @@ public class AntTaskBuilderTest {
         String buildXml = "./build.xml";
         antTask.setBuildFile(buildXml);
         antTask.setTarget(target);
-        Builder builder = antTaskBuilder.createBuilder(builderFactory, antTask, TasksTest.pipelineStub(PIPELINE_LABEL, "."), resolver);
+        Builder builder = antTaskBuilder.createBuilder(builderFactory, antTask, ExecTaskBuilderTest.pipelineStub(PIPELINE_LABEL, "."), resolver);
 
         try {
             builder.build(new StubGoPublisher(), new EnvironmentVariableContext(), taskEntension, null, null,"utf-8");
@@ -117,7 +116,7 @@ public class AntTaskBuilderTest {
         AntTask task = new AntTask();
         task.setWorkingDirectory("folder1\\folder2");
 
-        CommandBuilder commandBuilder = (CommandBuilder) antTaskBuilder.createBuilder(builderFactory, task, TasksTest.pipelineStub("label", "/var/cruise-agent/pipelines/cruise"), resolver);
+        CommandBuilder commandBuilder = (CommandBuilder) antTaskBuilder.createBuilder(builderFactory, task, ExecTaskBuilderTest.pipelineStub("label", "/var/cruise-agent/pipelines/cruise"), resolver);
 
         assertThat(commandBuilder.getWorkingDir().getPath(), is("/var/cruise-agent/pipelines/cruise/folder1/folder2"));
     }

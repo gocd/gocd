@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,19 +14,16 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.domain;
+package com.thoughtworks.go.config;
+
+import com.thoughtworks.go.helper.PipelineConfigMother;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import com.thoughtworks.go.config.ParamConfig;
-import com.thoughtworks.go.config.ParamsConfig;
-import com.thoughtworks.go.config.ValidationContext;
-import com.thoughtworks.go.helper.PipelineConfigMother;
-import org.junit.Before;
-import org.junit.Test;
 
 import static com.thoughtworks.go.util.TestUtils.contains;
 import static org.hamcrest.core.Is.is;

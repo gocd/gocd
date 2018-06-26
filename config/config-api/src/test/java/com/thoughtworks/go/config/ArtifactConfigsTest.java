@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.domain;
+package com.thoughtworks.go.config;
 
-import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.validation.FilePathTypeValidator;
 import org.hamcrest.Matchers;
 import org.junit.Test;

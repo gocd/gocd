@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,11 +31,11 @@ import org.apache.commons.lang3.StringUtils;
 import org.hamcrest.core.Is;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.contrib.java.lang.system.RestoreSystemProperties;
 import org.junit.rules.TemporaryFolder;
 
 import java.io.IOException;
 import java.util.Date;
-import java.util.Map;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
@@ -43,6 +43,8 @@ import static org.junit.Assert.assertThat;
 public class EnvironmentVariableContextTest {
     @Rule
     public final TemporaryFolder temporaryFolder = new TemporaryFolder();
+    @Rule
+    public final RestoreSystemProperties restoreSystemProperties = new RestoreSystemProperties();
 
     private String pipelineName = "pipeline-name";
     private String pipelineLabel = "pipeline-label";

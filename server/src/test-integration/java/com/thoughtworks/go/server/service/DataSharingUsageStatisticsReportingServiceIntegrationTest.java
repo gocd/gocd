@@ -115,30 +115,13 @@ public class DataSharingUsageStatisticsReportingServiceIntegrationTest {
         UsageStatisticsReporting reporting = new UsageStatisticsReporting();
         Date lastReportedAt = new Date();
         reporting.setLastReportedAt(lastReportedAt);
-        dataSharingUsageStatisticsReportingService.update(reporting, result);
+        dataSharingUsageStatisticsReportingService.update(reporting);
 
         UsageStatisticsReporting loaded = usageStatisticsReportingSqlMapDao.load();
         assertThat(loaded.lastReportedAt().toInstant(), is(lastReportedAt.toInstant()));
         assertThat(loaded.lastReportedAt().toInstant(), is(not(existing.lastReportedAt())));
 
         assertThat(result.isSuccessful(), is(true));
-    }
-
-    @Test
-    public void shouldThrowErrorOccurredWhileUpdatingUsageStatisticsReportingWithIncorrectTime() throws Exception {
-        UsageStatisticsReporting existing = usageStatisticsReportingSqlMapDao.load();
-        assertNotNull(existing);
-        assertNotNull(existing.lastReportedAt());
-
-        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        dataSharingUsageStatisticsReportingService.update(new UsageStatisticsReporting(), result);
-
-        UsageStatisticsReporting loaded = usageStatisticsReportingSqlMapDao.load();
-        assertNotNull(loaded);
-        assertThat(existing, is(loaded));
-
-        assertThat(result.isSuccessful(), is(false));
-        assertThat(result.message(), is("Validations failed. Please correct and resubmit."));
     }
 
     @Test
@@ -149,7 +132,7 @@ public class DataSharingUsageStatisticsReportingServiceIntegrationTest {
         Date lastReportedAt = new Date();
         lastReportedAt.setTime(lastReportedAt.getTime() + 10000);
         reporting.setLastReportedAt(lastReportedAt);
-        dataSharingUsageStatisticsReportingService.update(reporting, new HttpLocalizedOperationResult());
+        dataSharingUsageStatisticsReportingService.update(reporting);
 
         String md5AfterUpdate = entityHashingService.md5ForEntity(usageStatisticsReportingSqlMapDao.load());
         assertThat(originalMd5, is(not(md5AfterUpdate)));

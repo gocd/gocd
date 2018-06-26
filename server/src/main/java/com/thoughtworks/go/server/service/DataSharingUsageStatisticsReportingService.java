@@ -19,7 +19,6 @@ package com.thoughtworks.go.server.service;
 import com.thoughtworks.go.domain.UsageStatisticsReporting;
 import com.thoughtworks.go.server.dao.UsageStatisticsReportingSqlMapDao;
 import com.thoughtworks.go.server.dao.UsageStatisticsReportingSqlMapDao.DuplicateMetricReporting;
-import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -48,8 +47,7 @@ public class DataSharingUsageStatisticsReportingService {
         UsageStatisticsReporting existingUsageStatisticsReporting = usageStatisticsReportingSqlMapDao.load();
 
         if (existingUsageStatisticsReporting == null) {
-            UsageStatisticsReporting usageStatisticsReporting = new UsageStatisticsReporting(UUID.randomUUID().toString(), new Date());
-            update(usageStatisticsReporting, new HttpLocalizedOperationResult());
+            update(new UsageStatisticsReporting(UUID.randomUUID().toString(), new Date()));
         }
 
         if (new SystemEnvironment().shouldFailStartupOnDataError()) {
@@ -64,13 +62,7 @@ public class DataSharingUsageStatisticsReportingService {
         return loaded;
     }
 
-    public void update(UsageStatisticsReporting reporting, HttpLocalizedOperationResult result) throws DuplicateMetricReporting {
-        reporting.validate(null);
-        if (!reporting.errors().isEmpty()) {
-            result.unprocessableEntity("Validations failed. Please correct and resubmit.");
-            return;
-        }
-
+    public void update(UsageStatisticsReporting reporting) throws DuplicateMetricReporting {
         synchronized (mutexForUsageStatisticsReporting) {
             usageStatisticsReportingSqlMapDao.saveOrUpdate(reporting);
             entityHashingService.removeFromCache(reporting, reporting.getServerId());

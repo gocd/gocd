@@ -16,13 +16,11 @@
 
 package com.thoughtworks.go.apiv1.datasharing.reporting.representers
 
-import com.thoughtworks.go.api.util.GsonTransformer
 import com.thoughtworks.go.domain.UsageStatisticsReporting
 import org.junit.jupiter.api.Test
 
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
-import static org.junit.jupiter.api.Assertions.assertEquals
 
 class UsageStatisticsReportingRepresenterTest {
     def dataSharingServerUrl = 'https://datasharing.gocd.org'
@@ -48,28 +46,6 @@ class UsageStatisticsReportingRepresenterTest {
 
         assertThatJson(actualJson).isEqualTo(expectedJson)
     }
-    @Test
-    void "should map errors"() {
-        def reporting = new UsageStatisticsReporting("server-id", new Date(0l))
-        reporting.setDataSharingServerUrl(dataSharingServerUrl)
-        reporting.validate(null)
-
-        def actualJson = toObjectString({ UsageStatisticsReportingRepresenter.toJSON(it, reporting) })
-
-      def expectedJson = [
-        _links     : [
-          self: [href: 'http://test.host/go/api/internal/data_sharing/reporting']
-        ],
-        "_embedded": [
-          server_id                : reporting.getServerId(),
-          data_sharing_server_url  : dataSharingServerUrl,
-          last_reported_at         : reporting.lastReportedAt().getTime(),
-          errors                   : [last_reported_at: ["Invalid time"]]
-        ]
-      ]
-
-      assertThatJson(actualJson).isEqualTo(expectedJson)
-    }
 
     @Test
     void "should represent usage statistics reporting when last_reported_at is unset"() {
@@ -90,16 +66,5 @@ class UsageStatisticsReportingRepresenterTest {
         ]
 
         assertThatJson(actualJson).isEqualTo(expectedJson)
-    }
-
-    @Test
-    void "should deserialize usage statistics reporting"() {
-        def date = new Date()
-        def json = [
-          last_reported_at: date.getTime()
-        ]
-        def jsonReader = GsonTransformer.instance.jsonReaderFrom(json)
-        UsageStatisticsReporting reporting = UsageStatisticsReportingRepresenter.fromJSON(jsonReader)
-        assertEquals(reporting.lastReportedAt().toInstant(), date.toInstant())
     }
 }

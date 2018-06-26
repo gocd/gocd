@@ -34,20 +34,6 @@ public class UsageStatisticsReportingRepresenter {
                             .add("server_id", usageStatisticsReporting.getServerId())
                             .add("last_reported_at", usageStatisticsReporting.lastReportedAt().getTime())
                             .add("data_sharing_server_url", usageStatisticsReporting.getDataSharingServerUrl());
-                    if (!usageStatisticsReporting.errors().isEmpty()) {
-                        outputWriter.addChild("errors", errorWriter -> {
-                            HashMap<String, String> errorMapping = new HashMap<>();
-                            errorMapping.put("lastReportedAt", "last_reported_at");
-                            new ErrorGetter(errorMapping).toJSON(errorWriter, usageStatisticsReporting);
-                        });
-                    }
                 });
-    }
-
-    public static UsageStatisticsReporting fromJSON(JsonReader jsonReader) {
-        UsageStatisticsReporting usageStatisticsReporting = new UsageStatisticsReporting();
-        Long lastReportedAt = jsonReader.optLong("last_reported_at").orElse(0l);
-        usageStatisticsReporting.setLastReportedAt(new Date(lastReportedAt));
-        return usageStatisticsReporting;
     }
 }

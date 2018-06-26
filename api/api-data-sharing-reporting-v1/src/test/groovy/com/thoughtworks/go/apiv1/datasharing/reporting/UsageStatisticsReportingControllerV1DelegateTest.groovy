@@ -22,7 +22,6 @@ import com.thoughtworks.go.apiv1.datasharing.reporting.representers.UsageStatist
 import com.thoughtworks.go.domain.UsageStatisticsReporting
 import com.thoughtworks.go.server.service.DataSharingUsageStatisticsReportingService
 import com.thoughtworks.go.server.service.EntityHashingService
-import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult
 import com.thoughtworks.go.spark.ControllerTrait
 import com.thoughtworks.go.spark.NormalUserSecurity
 import com.thoughtworks.go.spark.SecurityServiceTrait
@@ -30,9 +29,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.Mock
-import org.mockito.invocation.InvocationOnMock
 
-import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
 import static org.mockito.ArgumentMatchers.any
 import static org.mockito.Mockito.*
 import static org.mockito.MockitoAnnotations.initMocks
@@ -45,12 +42,10 @@ class UsageStatisticsReportingControllerV1DelegateTest implements SecurityServic
 
     @Mock
     DataSharingUsageStatisticsReportingService dataSharingService
-    @Mock
-    EntityHashingService entityHashingService
 
     @Override
     UsageStatisticsReportingControllerV1Delegate createControllerInstance() {
-        new UsageStatisticsReportingControllerV1Delegate(new ApiAuthenticationHelper(securityService, goConfigService), dataSharingService, entityHashingService)
+        new UsageStatisticsReportingControllerV1Delegate(new ApiAuthenticationHelper(securityService, goConfigService), dataSharingService)
     }
 
     @Nested
@@ -65,7 +60,7 @@ class UsageStatisticsReportingControllerV1DelegateTest implements SecurityServic
 
             @Override
             void makeHttpCall() {
-                getWithApiHeader(controller.controllerPath())
+                getWithApiHeader(controller.controllerPath('/info'))
             }
         }
 
@@ -82,13 +77,10 @@ class UsageStatisticsReportingControllerV1DelegateTest implements SecurityServic
                 def usageStatisticsReporting = new UsageStatisticsReporting("server-id", new Date())
 
                 when(dataSharingService.get()).thenReturn(usageStatisticsReporting)
-                def etag = "md5"
-                when(entityHashingService.md5ForEntity(any() as UsageStatisticsReporting)).thenReturn(etag)
-                getWithApiHeader(controller.controllerPath())
+                getWithApiHeader(controller.controllerPath('/info'))
 
                 assertThatResponse()
                         .isOk()
-                        .hasEtag('"' + etag + '"')
                         .hasContentType(controller.mimeType)
                         .hasBodyWithJsonObject(usageStatisticsReporting, UsageStatisticsReportingRepresenter.class)
             }
@@ -96,7 +88,7 @@ class UsageStatisticsReportingControllerV1DelegateTest implements SecurityServic
     }
 
     @Nested
-    class patchDataSharingReporting {
+    class postDataSharingReporting {
         @Nested
         class Security implements SecurityTestTrait, NormalUserSecurity {
 
@@ -107,7 +99,7 @@ class UsageStatisticsReportingControllerV1DelegateTest implements SecurityServic
 
             @Override
             void makeHttpCall() {
-                patchWithApiHeader(controller.controllerBasePath(), [:])
+                postWithApiHeader(controller.controllerPath('/reported'), [:])
             }
         }
 
@@ -123,25 +115,18 @@ class UsageStatisticsReportingControllerV1DelegateTest implements SecurityServic
             @Test
             void 'should update usage statistics reporting time'() {
                 def reportsSharedAt = new Date()
-                def data = [
-                  last_reported_at: reportsSharedAt.getTime(),
-                ]
-
                 UsageStatisticsReporting metricsReporting = new UsageStatisticsReporting("server-id", new Date())
                 metricsReporting.setLastReportedAt(reportsSharedAt)
 
-                doNothing().when(dataSharingService).update(any() as UsageStatisticsReporting, any() as HttpLocalizedOperationResult)
+                doNothing().when(dataSharingService).update(any() as UsageStatisticsReporting)
                 doReturn(metricsReporting).when(dataSharingService).get()
 
-                when(entityHashingService.md5ForEntity(any() as UsageStatisticsReporting)).thenReturn("cached-md5")
-
                 def headers = [
-                  'accept'      : controller.mimeType,
-                  'If-Match'    : 'cached-md5',
-                  'content-type': 'application/json'
+                  'accept'        : controller.mimeType,
+                  'X-GoCD-Confirm': true
                 ]
 
-                patchWithApiHeader(controller.controllerBasePath(), headers, data)
+                postWithApiHeader(controller.controllerPath('/reported'), headers)
 
                 assertThatResponse()
                         .isOk()
@@ -149,104 +134,6 @@ class UsageStatisticsReportingControllerV1DelegateTest implements SecurityServic
                         .hasBodyWithJsonObject(metricsReporting, UsageStatisticsReportingRepresenter.class)
             }
 
-            @Test
-            void 'should reject if server_id is being updated in request'() {
-                def reportsSharedAt = new Date()
-                def data = [
-                  server_id: "something-new",
-                  last_reported_at: reportsSharedAt.getTime(),
-                ]
-                when(entityHashingService.md5ForEntity(any() as UsageStatisticsReporting)).thenReturn("cached-md5")
-                def headers = [
-                  'accept'      : controller.mimeType,
-                  'If-Match'    : 'cached-md5',
-                  'content-type': 'application/json'
-                ]
-                patchWithApiHeader(controller.controllerBasePath(), headers, data)
-
-                assertThatResponse()
-                  .isUnprocessableEntity()
-                  .hasContentType(controller.mimeType)
-                  .hasJsonMessage("Renaming of server_id is not supported by this API.")
-            }
-
-            @Test
-            void 'should reject if data_sharing_server_url is being updated in request'() {
-                def reportsSharedAt = new Date()
-                def data = [
-                  last_reported_at       : reportsSharedAt.getTime(),
-                  data_sharing_server_url: "something-new"
-                ]
-                when(entityHashingService.md5ForEntity(any() as UsageStatisticsReporting)).thenReturn("cached-md5")
-                def headers = [
-                  'accept'      : controller.mimeType,
-                  'If-Match'    : 'cached-md5',
-                  'content-type': 'application/json'
-                ]
-                patchWithApiHeader(controller.controllerBasePath(), headers, data)
-
-                assertThatResponse()
-                  .isUnprocessableEntity()
-                  .hasContentType(controller.mimeType)
-                  .hasJsonMessage("Renaming of data_sharing_server_url is not supported by this API.")
-            }
-
-            @Test
-            void 'should return error occurred validation fails'() {
-                def errorMsg = "Please provide last_reported_at time."
-                def data = [last_reported_at: null]
-                UsageStatisticsReporting usageStatisticsReportingReturnedByServer
-                doAnswer({ InvocationOnMock invocation ->
-                    UsageStatisticsReporting reporting = invocation.arguments.first()
-                    reporting.addError("lastReportedAt", "error message")
-                    HttpLocalizedOperationResult result = invocation.arguments.last()
-                    result.unprocessableEntity(errorMsg)
-                    usageStatisticsReportingReturnedByServer = reporting
-                }).when(dataSharingService).update(any() as UsageStatisticsReporting, any() as HttpLocalizedOperationResult)
-                when(entityHashingService.md5ForEntity(any() as UsageStatisticsReporting)).thenReturn("cached-md5")
-
-                def headers = [
-                  'accept'      : controller.mimeType,
-                  'If-Match'    : 'cached-md5',
-                  'content-type': 'application/json'
-                ]
-
-                patchWithApiHeader(controller.controllerBasePath(), headers, data)
-
-                def jsonDataWithErrors = toObjectString({ UsageStatisticsReportingRepresenter.toJSON(it, usageStatisticsReportingReturnedByServer) })
-                assertThatResponse()
-                        .isUnprocessableEntity()
-                        .hasJsonMessage(errorMsg)
-                        .hasJsonAttribute("data", jsonDataWithErrors)
-            }
-
-            @Test
-            void 'should reject if etag does not match'() {
-                def errorMsg = "Please provide last_reported_at time."
-                def data = [last_reported_at: null]
-                UsageStatisticsReporting usageStatisticsReportingReturnedByServer
-                doAnswer({ InvocationOnMock invocation ->
-                    UsageStatisticsReporting reporting = invocation.arguments.first()
-                    reporting.addError("lastReportedAt", "error message")
-                    HttpLocalizedOperationResult result = invocation.arguments.last()
-                    result.unprocessableEntity(errorMsg)
-                    usageStatisticsReportingReturnedByServer = reporting
-                }).when(dataSharingService).update(any() as UsageStatisticsReporting, any() as HttpLocalizedOperationResult)
-                when(entityHashingService.md5ForEntity(any() as UsageStatisticsReporting)).thenReturn("cached-md5")
-
-                def headers = [
-                  'accept'      : controller.mimeType,
-                  'If-Match'    : 'old-md5',
-                  'content-type': 'application/json'
-                ]
-
-                patchWithApiHeader(controller.controllerBasePath(), headers, data)
-
-                assertThatResponse()
-                        .isPreconditionFailed()
-                        .hasJsonMessage("Someone has modified the entity. Please update your copy with the changes and try again.")
-            }
         }
     }
 }
-

@@ -17,42 +17,29 @@
 package com.thoughtworks.go.apiv1.datasharing.reporting;
 
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.thoughtworks.go.api.ApiController;
 import com.thoughtworks.go.api.ApiVersion;
-import com.thoughtworks.go.api.CrudController;
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
-import com.thoughtworks.go.api.util.GsonTransformer;
 import com.thoughtworks.go.apiv1.datasharing.reporting.representers.UsageStatisticsReportingRepresenter;
 import com.thoughtworks.go.domain.UsageStatisticsReporting;
 import com.thoughtworks.go.server.dao.UsageStatisticsReportingSqlMapDao.DuplicateMetricReporting;
 import com.thoughtworks.go.server.service.DataSharingUsageStatisticsReportingService;
-import com.thoughtworks.go.server.service.EntityHashingService;
-import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.spark.Routes.DataSharing;
 import spark.Request;
 import spark.Response;
 
-import java.io.IOException;
-import java.util.Map;
+import java.util.Date;
 
-import static com.thoughtworks.go.api.util.HaltApiResponses.haltBecauseEtagDoesNotMatch;
-import static com.thoughtworks.go.api.util.HaltApiResponses.haltBecauseRenameOfEntityIsNotSupported;
 import static spark.Spark.*;
 
-public class UsageStatisticsReportingControllerV1Delegate extends ApiController implements CrudController<UsageStatisticsReporting> {
+public class UsageStatisticsReportingControllerV1Delegate extends ApiController {
     private final ApiAuthenticationHelper apiAuthenticationHelper;
     private final DataSharingUsageStatisticsReportingService usageStatisticsReportingService;
-    private final EntityHashingService entityHashingService;
-    private final String SERVER_ID_KEY = "server_id";
-    private final String DATA_SHARING_SERVER_URL_KEY = "data_sharing_server_url";
 
-    public UsageStatisticsReportingControllerV1Delegate(ApiAuthenticationHelper apiAuthenticationHelper, DataSharingUsageStatisticsReportingService UsageStatisticsReportingService, EntityHashingService entityHashingService) {
+    public UsageStatisticsReportingControllerV1Delegate(ApiAuthenticationHelper apiAuthenticationHelper, DataSharingUsageStatisticsReportingService UsageStatisticsReportingService) {
         super(ApiVersion.v1);
         this.apiAuthenticationHelper = apiAuthenticationHelper;
         this.usageStatisticsReportingService = UsageStatisticsReportingService;
-        this.entityHashingService = entityHashingService;
     }
 
     @Override
@@ -68,63 +55,23 @@ public class UsageStatisticsReportingControllerV1Delegate extends ApiController 
             before("", this::verifyContentType);
             before("/*", this::verifyContentType);
 
-            before("", mimeType, apiAuthenticationHelper::checkUserAnd403);
+            before("/info", mimeType, apiAuthenticationHelper::checkUserAnd403);
+            before("/reported", mimeType, apiAuthenticationHelper::checkUserAnd403);
 
-            get("", this::getUsageStatisticsReporting);
-            patch("", mimeType, this::updateUsageStatisticsReporting);
+            get("/info", this::getUsageStatisticsReporting);
+            post("/reported", mimeType, this::updateUsageStatisticsReporting);
         });
     }
 
     public String getUsageStatisticsReporting(Request request, Response response) {
         UsageStatisticsReporting usageStatisticsReporting = usageStatisticsReportingService.get();
-        setEtagHeader(response, etagFor(usageStatisticsReporting));
-        return jsonize(request, usageStatisticsReporting);
-    }
-
-    public String updateUsageStatisticsReporting(Request request, Response response) throws IOException, DuplicateMetricReporting {
-        Map<String, Object> bodyAsJSON = readRequestBodyAsJSON(request);
-
-        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        if (bodyAsJSON.get(SERVER_ID_KEY) != null) {
-            throw haltBecauseRenameOfEntityIsNotSupported(SERVER_ID_KEY);
-        }
-        if (bodyAsJSON.get(DATA_SHARING_SERVER_URL_KEY) != null) {
-            throw haltBecauseRenameOfEntityIsNotSupported(DATA_SHARING_SERVER_URL_KEY);
-        }
-        if (!isPutRequestFresh(request, usageStatisticsReportingService.get())) {
-            throw haltBecauseEtagDoesNotMatch();
-        }
-        UsageStatisticsReporting statisticsReporting = getEntityFromRequestBody(request);
-        usageStatisticsReportingService.update(statisticsReporting, result);
-        if (result.isSuccessful()) {
-            statisticsReporting = usageStatisticsReportingService.get();
-        }
-        return handleCreateOrUpdateResponse(request, response, statisticsReporting, result);
-    }
-
-    @Override
-    public String etagFor(UsageStatisticsReporting usageStatisticsReporting) {
-        return entityHashingService.md5ForEntity(usageStatisticsReporting);
-    }
-
-    @Override
-    public UsageStatisticsReporting doGetEntityFromConfig(String name) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public UsageStatisticsReporting getEntityFromRequestBody(Request request) {
-        Map<String, Object> bodyAsJSON = readRequestBodyAsJSON(request);
-        return UsageStatisticsReportingRepresenter.fromJSON(GsonTransformer.getInstance().jsonReaderFrom(bodyAsJSON));
-    }
-
-    @Override
-    public String jsonize(Request request, UsageStatisticsReporting usageStatisticsReporting) {
         return jsonizeAsTopLevelObject(request, writer -> UsageStatisticsReportingRepresenter.toJSON(writer, usageStatisticsReporting));
     }
 
-    @Override
-    public JsonNode jsonNode(Request request, UsageStatisticsReporting reporting) throws IOException {
-        return new ObjectMapper().readTree(jsonize(request, reporting));
+    public String updateUsageStatisticsReporting(Request request, Response response) throws DuplicateMetricReporting {
+        UsageStatisticsReporting statisticsReporting = usageStatisticsReportingService.get();
+        statisticsReporting.setLastReportedAt(new Date());
+        usageStatisticsReportingService.update(statisticsReporting);
+        return jsonizeAsTopLevelObject(request, writer -> UsageStatisticsReportingRepresenter.toJSON(writer, usageStatisticsReportingService.get()));
     }
 }

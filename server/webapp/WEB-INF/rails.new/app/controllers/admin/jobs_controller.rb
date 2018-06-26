@@ -65,6 +65,9 @@ module Admin
         def update(jobs)
           task = @job.getTasks().first()
           @pluggable_task_service.validate(task) if task.instance_of? com.thoughtworks.go.config.pluggabletask.PluggableTask
+          @job.artifactConfigs().getPluggableArtifactConfigs().each do |external_artifact_config|
+            @external_artifacts_service.validateExternalArtifactConfig(external_artifact_config, @go_config_service.getArtifactStores().find(external_artifact_config.getStoreId))
+          end
           jobs.addJobWithoutValidityAssertion(@job)
         end
       end.new(params, current_user.getUsername(), security_service, @job, pluggable_task_service), failure_handler({:action => :new, :layout => false}), {:current_tab => params[:current_tab]}) do

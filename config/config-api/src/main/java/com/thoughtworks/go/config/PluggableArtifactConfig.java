@@ -44,10 +44,6 @@ public class PluggableArtifactConfig implements ArtifactConfig {
     @ConfigSubtag
     private Configuration configuration = new Configuration();
 
-    @IgnoreTraversal
-    @ConfigReferenceElement(referenceAttribute = "storeId", referenceCollection = "artifactStores")
-    private ArtifactStore artifactStore;
-
     public static final String ID = "id";
     public static final String STORE_ID = "storeId";
     public static final String VALUE_KEY = "value";
@@ -210,14 +206,6 @@ public class PluggableArtifactConfig implements ArtifactConfig {
                 configuration.handleSecureValueConfiguration(isSecure(configuration.getConfigKeyName(), artifactStore));
             }
         }
-    }
-
-    public ArtifactStore getArtifactStore() {
-        return artifactStore;
-    }
-
-    public String getPluginId() {
-        return artifactStore == null ? null : artifactStore.getPluginId();
     }
 
     @Override

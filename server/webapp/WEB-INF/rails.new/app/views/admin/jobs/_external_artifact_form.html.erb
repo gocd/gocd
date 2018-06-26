@@ -41,7 +41,7 @@
         <div class="plugin-select-form">
           <span>Could not determine the plugin from the store. Please choose a plugin to configure the plugin properties.</span>
           <label>Plugin</label>
-          <%= artifact_form.select("pluginId", scope[:plugin_name_to_id].keys, {:include_blank => true}, {:class => 'artifact_plugin_selection'}) %>
+          <%= select("", "pluginId", scope[:plugin_name_to_id], {:include_blank => true}, {:class => 'artifact_plugin_selection', :name => "job[artifactConfigs][][pluginId]"}) %>
         </div>
       </div>
     </div>
@@ -55,7 +55,7 @@
               <div id="<%= plugged_artifact_angular_controller_element_id %>" name="<%= plugged_artifact_angular_controller_element_id %>" class="plugged_artifact">
                 <div class="form_item">
                   <div class="plugged_artifact_template">
-                    <%== scope[:artifact_meta_data_store].publishTemplate(external_artifact_config.getPluginId()) %>
+                    <%== scope[:artifact_meta_data_store].publishTemplate(scope[:store_id_to_plugin_id][external_artifact_config.getStoreId()]) %>
                   </div>
 
                   <span id="<%= plugged_artifact_data_element_id %>" class="plugged_artifact_data" style="display: none">

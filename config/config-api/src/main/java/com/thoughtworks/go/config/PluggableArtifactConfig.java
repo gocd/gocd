@@ -17,6 +17,7 @@
 package com.thoughtworks.go.config;
 
 import com.google.gson.Gson;
+import com.thoughtworks.go.config.preprocessor.SkipParameterResolution;
 import com.thoughtworks.go.config.validation.NameTypeValidator;
 import com.thoughtworks.go.domain.ArtifactType;
 import com.thoughtworks.go.domain.ConfigErrors;
@@ -29,7 +30,6 @@ import org.apache.commons.lang3.StringUtils;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
@@ -37,6 +37,7 @@ import static org.apache.commons.lang3.StringUtils.isNotBlank;
 public class PluggableArtifactConfig implements ArtifactConfig {
     private final ConfigErrors errors = new ConfigErrors();
 
+    @SkipParameterResolution
     @ConfigAttribute(value = "id", allowNull = true)
     protected String id;
     @ConfigAttribute(value = "storeId", allowNull = true)
@@ -97,7 +98,8 @@ public class PluggableArtifactConfig implements ArtifactConfig {
         return !hasErrors();
     }
 
-    public void encryptSecureProperties(CruiseConfig preprocessedCruiseConfig, PluggableArtifactConfig preprocessedPluggableArtifactConfig) {
+    public void encryptSecureProperties(CruiseConfig preprocessedCruiseConfig,
+                                        PluggableArtifactConfig preprocessedPluggableArtifactConfig) {
         if (storeId != null) {
             ArtifactStore artifactStore = preprocessedCruiseConfig.getArtifactStores().find(preprocessedPluggableArtifactConfig.getStoreId());
             encryptSecureConfigurations(artifactStore);

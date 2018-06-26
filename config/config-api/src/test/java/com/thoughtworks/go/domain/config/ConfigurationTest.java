@@ -16,7 +16,13 @@
 
 package com.thoughtworks.go.domain.config;
 
+import com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother;
+import com.thoughtworks.go.security.CryptoException;
+import com.thoughtworks.go.security.GoCipher;
 import org.junit.Test;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import static java.util.Arrays.asList;
 import static org.hamcrest.core.Is.is;
@@ -143,5 +149,45 @@ public class ConfigurationTest {
 
         verify(outputDirectory).hasErrors();
         verify(inputDirectory).hasErrors();
+    }
+
+    @Test
+    public void shouldReturnConfigWithErrorsAsMap() {
+        ConfigurationProperty configurationProperty = ConfigurationPropertyMother.create("key", false, "value");
+        configurationProperty.addError("key", "invalid key");
+        Configuration configuration = new Configuration(configurationProperty);
+        Map<String, Map<String, String>> configWithErrorsAsMap = configuration.getConfigWithErrorsAsMap();
+        HashMap<Object, Object> expectedMap = new HashMap<>();
+        HashMap<Object, Object> errorsMap = new HashMap<>();
+        errorsMap.put("value", "value");
+        errorsMap.put("errors", "invalid key");
+        expectedMap.put("key", errorsMap);
+
+        assertThat(configWithErrorsAsMap, is(expectedMap));
+    }
+
+    @Test
+    public void shouldReturnConfigWithMatadataAsMap() throws CryptoException {
+        ConfigurationProperty configurationProperty1 = ConfigurationPropertyMother.create("key", false, "value");
+        String password = new GoCipher().encrypt("password");
+        ConfigurationProperty configurationProperty2 = ConfigurationPropertyMother.create("secure");
+        configurationProperty2.setEncryptedValue(new EncryptedConfigurationValue(password));
+        Configuration configuration = new Configuration(configurationProperty1, configurationProperty2);
+        Map<String, Map<String, Object>> metadataAndValuesAsMap = configuration.getPropertyMetadataAndValuesAsMap();
+        HashMap<Object, Object> expectedMap = new HashMap<>();
+        HashMap<Object, Object> metadataMap1 = new HashMap<>();
+        metadataMap1.put("value", "value");
+        metadataMap1.put("displayValue", "value");
+        metadataMap1.put("isSecure", false);
+        expectedMap.put("key", metadataMap1);
+
+        HashMap<Object, Object> metadataMap2 = new HashMap<>();
+        metadataMap2.put("value", password);
+        metadataMap2.put("displayValue", "****");
+        metadataMap2.put("isSecure", true);
+        expectedMap.put("secure", metadataMap2);
+
+        assertThat(metadataAndValuesAsMap, is(expectedMap));
+
     }
 }

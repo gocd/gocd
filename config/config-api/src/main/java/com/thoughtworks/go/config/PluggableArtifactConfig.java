@@ -46,8 +46,6 @@ public class PluggableArtifactConfig implements ArtifactConfig {
 
     public static final String ID = "id";
     public static final String STORE_ID = "storeId";
-    public static final String VALUE_KEY = "value";
-    public static final String ERRORS_KEY = "errors";
 
     public PluggableArtifactConfig() {
     }
@@ -62,18 +60,6 @@ public class PluggableArtifactConfig implements ArtifactConfig {
         return configuration;
     }
 
-    public Map<String, Map<String, String>> getConfigAsMap() {
-        Map<String, Map<String, String>> configMap = new HashMap<>();
-        for (ConfigurationProperty property : getConfiguration()) {
-            Map<String, String> mapValue = new HashMap<>();
-            mapValue.put(VALUE_KEY, property.getValue());
-            if (!property.errors().isEmpty()) {
-                mapValue.put(ERRORS_KEY, StringUtils.join(property.errors().getAll(), ", "));
-            }
-            configMap.put(property.getConfigKeyName(), mapValue);
-        }
-        return configMap;
-    }
 
     public void setConfiguration(Configuration configuration) {
         this.configuration = configuration;

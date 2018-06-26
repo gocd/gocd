@@ -19,6 +19,8 @@ package com.thoughtworks.go.config;
 import com.thoughtworks.go.domain.BaseCollection;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.config.Configuration;
+import com.thoughtworks.go.domain.config.ConfigurationValue;
+import com.thoughtworks.go.domain.config.EncryptedConfigurationValue;
 import com.thoughtworks.go.plugin.access.artifact.ArtifactMetadataStore;
 import com.thoughtworks.go.plugin.domain.artifact.ArtifactPluginInfo;
 import com.thoughtworks.go.plugin.domain.common.PluginConfiguration;
@@ -112,15 +114,26 @@ public class ArtifactConfigs extends BaseCollection<ArtifactConfig> implements V
                 String artifactId = (String) attrMap.get(PluggableArtifactConfig.ID);
                 String storeId = (String) attrMap.get(PluggableArtifactConfig.STORE_ID);
                 String pluginId = (String) attrMap.get("pluginId");
-                Map<String, String> configuration = (Map<String, String>) attrMap.get("configuration");
+                Map<String, Object> userSpecifiedConfiguration = (Map<String, Object>) attrMap.get("configuration");
                 PluggableArtifactConfig pluggableArtifactConfig = new PluggableArtifactConfig(artifactId, storeId);
-                Configuration pluginConfigurations = pluggableArtifactConfig.getConfiguration();
-                for (String key : configuration.keySet()) {
-                    pluginConfigurations.addNewConfigurationWithValue(key, configuration.get(key), false);
-                }
-
                 if (StringUtils.isNotBlank(pluginId)) {
-                    setPluginConfigurationAttributes(attrMap, pluginId, pluggableArtifactConfig);
+                    setPluginConfigurationAttributes(userSpecifiedConfiguration, pluginId, pluggableArtifactConfig);
+                } else {
+                    Configuration configuration = pluggableArtifactConfig.getConfiguration();
+                    for (String key : userSpecifiedConfiguration.keySet()) {
+                        Map<String, String> configurationMetadata = (Map<String, String>) userSpecifiedConfiguration.get(key);
+                        if (configurationMetadata != null) {
+                            boolean isSecure = Boolean.parseBoolean(configurationMetadata.get("isSecure"));
+                            if (configuration.getProperty(key) == null) {
+                                configuration.addNewConfiguration(key, isSecure);
+                            }
+                            if (isSecure) {
+                                configuration.getProperty(key).setEncryptedValue(new EncryptedConfigurationValue(configurationMetadata.get("value")));
+                            } else {
+                                configuration.getProperty(key).setConfigurationValue(new ConfigurationValue(configurationMetadata.get("value")));
+                            }
+                        }
+                    }
                 }
 
                 this.add(pluggableArtifactConfig);
@@ -140,6 +153,7 @@ public class ArtifactConfigs extends BaseCollection<ArtifactConfig> implements V
                     if (configuration.getProperty(key) == null) {
                         configuration.addNewConfiguration(pluginConfiguration.getKey(), pluginConfiguration.isSecure());
                     }
+                    configuration.getProperty(key).setConfigurationValue(new ConfigurationValue((String) attributes.get(key)));
                     configuration.getProperty(key).handleSecureValueConfiguration(pluginConfiguration.isSecure());
                 }
             }

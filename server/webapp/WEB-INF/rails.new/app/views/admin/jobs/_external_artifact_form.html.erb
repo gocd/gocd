@@ -41,7 +41,7 @@
         <div class="plugin-select-form">
           <span>Could not determine the plugin from the store. Please choose a plugin to configure the plugin properties.</span>
           <label>Plugin</label>
-          <%= select("", "pluginId", scope[:plugin_name_to_id], {:include_blank => true}, {:class => 'artifact_plugin_selection', :name => "job[artifactConfigs][][pluginId]"}) %>
+          <%= select("", "pluginId", scope[:plugin_name_to_id], {:include_blank => true, :selected => scope[:store_id_to_plugin_id][external_artifact_config.getStoreId]}, {:class => 'artifact_plugin_selection', :name => "job[artifactConfigs][][pluginId]"}) %>
         </div>
       </div>
     </div>
@@ -59,7 +59,7 @@
                   </div>
 
                   <span id="<%= plugged_artifact_data_element_id %>" class="plugged_artifact_data" style="display: none">
-                      <%= com.google.gson.Gson.new.toJson(external_artifact_config.getConfigAsMap()) %>
+                      <%= com.google.gson.Gson.new.toJson(external_artifact_config.getConfiguration().getConfigWithErrorsAsMap()) %>
                     </span>
                 </div>
               </div>
@@ -72,16 +72,15 @@
     <% if scope[:store_id_to_plugin_id][external_artifact_config.getStoreId()].blank? %>
       <div class="row expanded plugin_form_background">
         <div class="columns medium-8 medium-offset-2 large-8 end">
-          <% scope[:external_artifact].getConfiguration().getConfigurationAsMap(true).to_hash.each do |config_property| %>
-            <% if !config_property[1].blank? %>
+          <% scope[:external_artifact].getConfiguration().getPropertyMetadataAndValuesAsMap().to_hash.each do |config_property| %>
               <div class="plugin-config-read-only show plugin_key_value">
                 <dl class="key-value-pair">
-                  <%= artifact_form.hidden_field "configurationProperty", :class => "form_input artifact_source", :id => nil, :name => "job[artifactConfigs][][configuration][#{config_property[0]}]", :value => config_property[1] -%>
+                  <%= artifact_form.hidden_field "configurationProperty", :class => "form_input artifact_source", :id => nil, :name => "job[artifactConfigs][][configuration][#{config_property[0]}][value]", :value => config_property[1]['value'] -%>
+                  <%= artifact_form.hidden_field "configurationProperty", :class => "form_input artifact_source", :id => nil, :name => "job[artifactConfigs][][configuration][#{config_property[0]}][isSecure]", :value => config_property[1]['isSecure'] -%>
                   <dt><%= config_property[0] %></dt>
-                  <dd><%= config_property[1] %></dd>
+                  <dd><%= config_property[1]['displayValue'] %></dd>
                 </dl>
               </div>
-            <% end %>
           <% end %>
         </div>
       </div>

@@ -116,10 +116,15 @@ public class ArtifactConfigs extends BaseCollection<ArtifactConfig> implements V
                 String pluginId = (String) attrMap.get("pluginId");
                 Map<String, Object> userSpecifiedConfiguration = (Map<String, Object>) attrMap.get("configuration");
                 PluggableArtifactConfig pluggableArtifactConfig = new PluggableArtifactConfig(artifactId, storeId);
+                this.add(pluggableArtifactConfig);
+
                 if (StringUtils.isNotBlank(pluginId)) {
                     setPluginConfigurationAttributes(userSpecifiedConfiguration, pluginId, pluggableArtifactConfig);
                 } else {
                     Configuration configuration = pluggableArtifactConfig.getConfiguration();
+                    if (userSpecifiedConfiguration == null) {
+                        return;
+                    }
                     for (String key : userSpecifiedConfiguration.keySet()) {
                         Map<String, String> configurationMetadata = (Map<String, String>) userSpecifiedConfiguration.get(key);
                         if (configurationMetadata != null) {
@@ -135,15 +140,13 @@ public class ArtifactConfigs extends BaseCollection<ArtifactConfig> implements V
                         }
                     }
                 }
-
-                this.add(pluggableArtifactConfig);
-
             }
-
         }
     }
 
-    protected void setPluginConfigurationAttributes(Map attributes, String pluginId, PluggableArtifactConfig pluggableArtifactConfig) {
+    protected void setPluginConfigurationAttributes(Map attributes,
+                                                    String pluginId,
+                                                    PluggableArtifactConfig pluggableArtifactConfig) {
         ArtifactPluginInfo pluginInfo = getArtifactPluginInfo(pluginId);
         if (pluginInfo != null && pluginInfo.getArtifactConfigSettings() != null) {
             for (PluginConfiguration pluginConfiguration : pluginInfo.getArtifactConfigSettings().getConfigurations()) {

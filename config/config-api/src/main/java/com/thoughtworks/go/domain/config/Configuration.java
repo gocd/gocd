@@ -24,6 +24,7 @@ import org.apache.commons.lang3.StringUtils;
 import java.util.*;
 
 import static java.lang.String.format;
+import static java.util.stream.Collectors.toList;
 
 @ConfigTag("configuration")
 @ConfigCollection(value = ConfigurationProperty.class)
@@ -168,9 +169,9 @@ public class Configuration extends BaseCollection<ConfigurationProperty> impleme
             Map<String, Object> mapValue = new HashMap<>();
             mapValue.put("isSecure", property.isSecure());
             if (property.isSecure()) {
-                mapValue.put("value", property.getEncryptedValue());
+                mapValue.put(VALUE_KEY, property.getEncryptedValue());
             } else {
-                mapValue.put("value", property.getConfigurationValue().getValue());
+                mapValue.put(VALUE_KEY, property.getConfigurationValue().getValue());
             }
             mapValue.put("displayValue", property.getDisplayValue());
             configMap.put(property.getConfigKeyName(), mapValue);
@@ -182,9 +183,13 @@ public class Configuration extends BaseCollection<ConfigurationProperty> impleme
         Map<String, Map<String, String>> configMap = new HashMap<>();
         for (ConfigurationProperty property : this) {
             Map<String, String> mapValue = new HashMap<>();
-            mapValue.put(VALUE_KEY, property.getValue());
-            if (!property.errors().isEmpty()) {
-                mapValue.put(ERRORS_KEY, StringUtils.join(property.errors().getAll(), ", "));
+            if (property.isSecure()) {
+                mapValue.put(VALUE_KEY, property.getEncryptedValue());
+            } else {
+                mapValue.put(VALUE_KEY, property.getConfigurationValue().getValue());
+            }
+            if (!property.getAllErrors().isEmpty()) {
+                mapValue.put(ERRORS_KEY, StringUtils.join(property.getAllErrors().stream().map(ConfigErrors::getAll).collect(toList()), ", "));
             }
             configMap.put(property.getConfigKeyName(), mapValue);
         }

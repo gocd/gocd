@@ -30,7 +30,6 @@ describe "admin/jobs/artifacts.html.erb" do
     build_artifact_config = BuildArtifactConfig.new("build-source", "build-dest")
     test_artifact_config = TestArtifactConfig.new("test-source", "test-dest")
     external_artifact_config = PluggableArtifactConfig.new("artifact_id", "store_id", ConfigurationPropertyMother.create('KEY1', false, 'value1'), ConfigurationPropertyMother.create('key2', false, 'value2'))
-    external_artifact_config.setArtifactStore(ArtifactStore.new("store_id", PLUGIN_ID))
     @job.artifactConfigs().add(build_artifact_config)
     @job.artifactConfigs().add(test_artifact_config)
     @job.artifactConfigs().add(external_artifact_config)
@@ -42,8 +41,10 @@ describe "admin/jobs/artifacts.html.erb" do
     @artifact_metadata_store = double('artifact_metadata_store')
     allow(@artifact_metadata_store).to receive(:publishTemplate).and_return(ARTIFACT_PLUGIN_TEMPLATE)
     assign(:plugin_name_to_id, {"Foo Plugin" => "foo"})
+    assign(:store_id_to_plugin_id, {"store_id" => "foo"})
     assign(:artifact_meta_data_store, @artifact_metadata_store)
     @cruise_config.addPipeline("group-1", pipeline)
+    @cruise_config.artifactStores().add(ArtifactStore.new("store_id", PLUGIN_ID))
 
     in_params(:stage_parent => "pipelines", :pipeline_name => "foo_bar", :stage_name => "stage-name", :action => "edit", :controller => "admin/stages", :job_name => "foo_bar_baz", :current_tab => "environment_variables")
   end

@@ -85,14 +85,8 @@
       </div>
     <% end %>
     <script type="text/javascript">
-      jQuery(document).ready(function () {
+      Util.on_load(function () {
         initializeAngular("<%= plugged_artifact_angular_controller_element_id %>", "<%= plugged_artifact_data_element_id %>");
-        var keyValueDiv = jQuery(".plugin_key_value");
-        for (var i in keyValueDiv) {
-          if (jQuery(keyValueDiv[i]).find(".plugin-config-read-only")) {
-            jQuery(keyValueDiv[i]).addClass('plugin_form_background');
-          }
-        }
       })
     </script>
   <% end %>

@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.domain.config;
 
+import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother;
 import com.thoughtworks.go.security.CryptoException;
 import com.thoughtworks.go.security.GoCipher;
@@ -160,7 +161,9 @@ public class ConfigurationTest {
         HashMap<Object, Object> expectedMap = new HashMap<>();
         HashMap<Object, Object> errorsMap = new HashMap<>();
         errorsMap.put("value", "value");
-        errorsMap.put("errors", "invalid key");
+        ConfigErrors configErrors = new ConfigErrors();
+        configErrors.add("key", "invalid key");
+        errorsMap.put("errors", configErrors.getAll().toString());
         expectedMap.put("key", errorsMap);
 
         assertThat(configWithErrorsAsMap, is(expectedMap));

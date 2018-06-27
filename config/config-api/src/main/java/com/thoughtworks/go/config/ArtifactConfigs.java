@@ -117,14 +117,15 @@ public class ArtifactConfigs extends BaseCollection<ArtifactConfig> implements V
                 Map<String, Object> userSpecifiedConfiguration = (Map<String, Object>) attrMap.get("configuration");
                 PluggableArtifactConfig pluggableArtifactConfig = new PluggableArtifactConfig(artifactId, storeId);
                 this.add(pluggableArtifactConfig);
+                if (userSpecifiedConfiguration == null) {
+                    return;
+                }
 
                 if (StringUtils.isNotBlank(pluginId)) {
                     setPluginConfigurationAttributes(userSpecifiedConfiguration, pluginId, pluggableArtifactConfig);
                 } else {
                     Configuration configuration = pluggableArtifactConfig.getConfiguration();
-                    if (userSpecifiedConfiguration == null) {
-                        return;
-                    }
+
                     for (String key : userSpecifiedConfiguration.keySet()) {
                         Map<String, String> configurationMetadata = (Map<String, String>) userSpecifiedConfiguration.get(key);
                         if (configurationMetadata != null) {

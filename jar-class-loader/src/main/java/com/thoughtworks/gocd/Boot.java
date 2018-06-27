@@ -102,10 +102,20 @@ public class Boot {
                     .collect(Collectors.toList());
 
             List<URL> urls = new ArrayList<>();
+            urls.add(currentJarFile().toURI().toURL());
             urls.addAll(additionalJarsInLibsDirectoryInCWD());
             urls.addAll(jarsInJar);
 
-            ClassLoader jcl = new URLClassLoader(urls.toArray(new URL[0]), getClass().getClassLoader());
+            ClassLoader jcl = new URLClassLoader(urls.toArray(new URL[0]), getClass().getClassLoader()) {
+                @Override
+                public Class<?> loadClass(String name) throws ClassNotFoundException {
+                    try {
+                        return findClass(name);
+                    } catch (Throwable e) {
+                        return super.loadClass(name);
+                    }
+                }
+            };
             Thread.currentThread().setContextClassLoader(jcl);
             Class<?> mainClass = jcl.loadClass(mainClassName);
             mainClass.getMethod("main", String[].class).invoke(null, new Object[]{args});

@@ -22,6 +22,7 @@ const Dashboard       = require('models/dashboard/dashboard');
 const DashboardWidget = require('views/dashboard/dashboard_widget');
 const PluginInfos     = require('models/shared/plugin_infos');
 const AjaxPoller      = require('helpers/ajax_poller');
+const PageLoadError   = require('views/shared/page_load_error');
 
 $(() => {
   const dashboardElem              = $('#dashboard');
@@ -49,7 +50,7 @@ $(() => {
       }
       onResponse(data);
     };
-    const onerror   = (_jqXHR, textStatus, errorThrown) => {
+    const onerror   = (jqXHR, textStatus, errorThrown) => {
       if (textStatus === 'parsererror') {
         const message = {
           type:    "alert",
@@ -60,12 +61,20 @@ $(() => {
         return;
       }
 
+      if (jqXHR.responseJSON && jqXHR.responseJSON.message) {
+        const message = {
+          type:    'warning',
+          content: jqXHR.responseJSON.message,
+        };
+        onResponse({}, message);
+        return;
+      }
+
       const message = {
         type:    'warning',
         content: 'There was an unknown error ',
       };
       onResponse({}, message);
-      return;
     };
 
     return new AjaxPoller(() => Dashboard.get()
@@ -97,7 +106,7 @@ $(() => {
       }
     };
 
-    m.route($("#dashboard").get(0), '', {
+    m.route(dashboardElem.get(0), '', {
       '':             component,
       '/:searchedBy': component
     });
@@ -118,5 +127,13 @@ $(() => {
     renderView();
   };
 
-  PluginInfos.all(null, {type: 'analytics'}).then(onPluginInfosResponse, onPluginInfosResponse);
+  const onPluginInfoApiFailure = (response) => {
+    m.mount(dashboardElem.get(0), {
+      view() {
+        return (<PageLoadError message={response}/>);
+      }
+    });
+  };
+
+  PluginInfos.all(null, {type: 'analytics'}).then(onPluginInfosResponse, onPluginInfoApiFailure);
 });

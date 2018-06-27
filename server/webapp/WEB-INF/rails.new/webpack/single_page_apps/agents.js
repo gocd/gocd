@@ -19,6 +19,7 @@ const m              = require('mithril');
 const Stream         = require('mithril/stream');
 const Agents         = require('models/agents/agents');
 const AgentsWidget   = require('views/agents/agents_widget');
+const PageLoadError  = require('views/shared/page_load_error');
 const AgentsVM       = require('views/agents/models/agents_widget_view_model');
 const RouteHandler   = require('views/agents/models/route_handler');
 const PluginInfos    = require('models/shared/plugin_infos');
@@ -52,7 +53,7 @@ $(() => {
   const permanentMessage = Stream({});
   const currentRepeater  = Stream(createRepeater());
 
-  const onResponse = (pluginInfos) => {
+  const onPluginsInfoApiSuccess = (pluginInfos) => {
     const EAPluginInfos  = pluginInfos.filterByType('elastic-agent');
     const allPluginInfos = pluginInfos.filterByType('analytics');
 
@@ -92,7 +93,15 @@ $(() => {
     sortOrder().initialize();
   };
 
-  PluginInfos.all().then(onResponse, onResponse);
+  const onPluginInfoApiFailure = (response) => {
+    m.mount($agentElem.get(0), {
+      view() {
+        return (<PageLoadError message={response}/>);
+      }
+    });
+  };
+
+  PluginInfos.all().then(onPluginsInfoApiSuccess, onPluginInfoApiFailure);
 })
 ;
 

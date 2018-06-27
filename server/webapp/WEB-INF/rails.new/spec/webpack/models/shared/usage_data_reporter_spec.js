@@ -20,9 +20,9 @@ describe('Usage Data Reporter', () => {
 
   const USAGE_DATA_LAST_REPORTED_TIME_KEY = "usage_data_last_reported_time";
 
-  const usageDataURL           = '/go/api/internal/data_sharing/usagedata';
-  const dataReportingURL       = '/go/api/internal/data_sharing/reporting';
-  const dataSharingSettingsURL = '/go/api/data_sharing/settings';
+  const usageDataURL          = '/go/api/internal/data_sharing/usagedata';
+  const usageReportingGetURL  = '/go/api/internal/data_sharing/reporting/info';
+  const usageReportingPostURL = '/go/api/internal/data_sharing/reporting/reported';
 
   let reporter;
   beforeEach(() => {
@@ -36,71 +36,69 @@ describe('Usage Data Reporter', () => {
   });
 
 
-  it('should do nothing when usage data is already reported for the day (lookup in local storage)', () => {
-    lastReportedToday();
+  it('should do nothing when usage data is already reported within 30 mins(lookup in local storage)', () => {
+    triedReportingWithin30Minutes();
 
     reporter.report();
     expect(jasmine.Ajax.requests.count()).toBe(0);
   });
 
-  it('should update reported time at local storage when usage data is not reported today (lookup in local storage) and data sharing is not allowed', (done) => {
+  it('should do nothing when reporting is not allowed', async () => {
     const yesterday = lastReportedYesterday();
-    mockDataSharingSettingsAPIAndReturn(notAllowedDataSharingSettingsJSON);
+    mockDataSharingReportingGetAPIAndReturn(notAllowedReportingJSON);
 
     expect(localStorage.getItem(USAGE_DATA_LAST_REPORTED_TIME_KEY)).toBe(`${yesterday}`);
+    await reporter.report();
 
-    reporter.report().then(() => {
-      expect(jasmine.Ajax.requests.count()).toBe(1);
-      expect(jasmine.Ajax.requests.at(0).url).toBe(dataSharingSettingsURL);
+    expect(jasmine.Ajax.requests.count()).toBe(1);
+    expect(jasmine.Ajax.requests.at(0).url).toBe(usageReportingGetURL);
 
-      // verify if the last reported time is updated in the local storage
-      expect(new Date(+localStorage.getItem(USAGE_DATA_LAST_REPORTED_TIME_KEY)).getDate()).toBe(new Date().getDate());
-
-      done();
-    });
+    // verify if the last reported time is updated in the local storage
+    expect(new Date(+localStorage.getItem(USAGE_DATA_LAST_REPORTED_TIME_KEY)).getDate()).toBe(new Date().getDate());
   });
 
-  it('should update local storage when data is not reported today (lookup in local storage) and  data sharing is allowed and if latest data reporting has last usage reported time being today', (done) => {
+  it('should report usage data to remote server', async () => {
     const yesterday = lastReportedYesterday();
-    mockDataSharingSettingsAPIAndReturn(allowedDataSharingSettingsJSON);
-    const reportingJSON = reportedTodayDataReportingJSON;
-    mockDataReportingAPIAndReturn(reportingJSON);
-
-    expect(localStorage.getItem(USAGE_DATA_LAST_REPORTED_TIME_KEY)).toBe(`${yesterday}`);
-
-    reporter.report().then(() => {
-      expect(jasmine.Ajax.requests.count()).toBe(2);
-
-      expect(jasmine.Ajax.requests.at(0).url).toBe(dataSharingSettingsURL);
-      expect(jasmine.Ajax.requests.at(1).url).toBe(dataReportingURL);
-
-      expect(localStorage.getItem(USAGE_DATA_LAST_REPORTED_TIME_KEY)).toBe(`${reportingJSON._embedded.last_reported_at}`);
-      done();
-    });
-  });
-
-  it('should report usage data to remote data reporting server url', (done) => {
-    const yesterday = lastReportedYesterday();
-    mockDataSharingSettingsAPIAndReturn(allowedDataSharingSettingsJSON);
-    mockDataReportingAPIAndReturn(reportedYesterdayDataReportingJSON);
+    mockDataSharingReportingGetAPIAndReturn(allowedReportingJSON);
     mockUsageDataAPIAndReturn(usageDataJSON);
-    mockDataSharingServerAPIAndReturn();
-    mockDataReportingUpdateAPIAndReturn(reportedTodayDataReportingJSON);
+    mockDataSharingServerAPIAndPass();
+    mockDataSharingReportingPostAPIAndReturn(allowedReportingJSON);
+
+    expect(localStorage.getItem(USAGE_DATA_LAST_REPORTED_TIME_KEY)).toBe(`${yesterday}`);
+    await reporter.report();
+
+    expect(jasmine.Ajax.requests.count()).toBe(4);
+    expect(jasmine.Ajax.requests.at(0).url).toBe(usageReportingGetURL);
+    expect(jasmine.Ajax.requests.at(1).url).toBe(usageDataURL);
+    expect(jasmine.Ajax.requests.at(2).url).toBe(allowedReportingJSON._embedded.data_sharing_server_url);
+    expect(jasmine.Ajax.requests.at(2).method).toBe('POST');
+    expect(jasmine.Ajax.requests.at(3).url).toBe(usageReportingPostURL);
+    expect(jasmine.Ajax.requests.at(3).method).toBe('POST');
+
+    // verify if the last reported time is updated in the local storage
+    expect(new Date(+localStorage.getItem(USAGE_DATA_LAST_REPORTED_TIME_KEY)).getDate()).toBe(new Date().getDate());
+  });
+
+  it('should not update last reported time if reporting to remote server fails', async () => {
+    const yesterday = lastReportedYesterday();
+    mockDataSharingReportingGetAPIAndReturn(allowedReportingJSON);
+    mockUsageDataAPIAndReturn(usageDataJSON);
+    mockDataSharingServerAPIAndFail();
 
     expect(localStorage.getItem(USAGE_DATA_LAST_REPORTED_TIME_KEY)).toBe(`${yesterday}`);
 
-    reporter.report().then(() => {
-      expect(jasmine.Ajax.requests.count()).toBe(5);
-
-      expect(jasmine.Ajax.requests.at(0).url).toBe(dataSharingSettingsURL);
-      expect(jasmine.Ajax.requests.at(1).url).toBe(dataReportingURL);
-      expect(jasmine.Ajax.requests.at(2).url).toBe(usageDataURL);
-      expect(jasmine.Ajax.requests.at(3).url).toBe(reportedYesterdayDataReportingJSON._embedded.data_sharing_server_url);
+    try {
+      await reporter.report();
+    } catch (e) {
+      expect(jasmine.Ajax.requests.count()).toBe(3);
+      expect(jasmine.Ajax.requests.at(0).url).toBe(usageReportingGetURL);
+      expect(jasmine.Ajax.requests.at(1).url).toBe(usageDataURL);
+      expect(jasmine.Ajax.requests.at(2).url).toBe(allowedReportingJSON._embedded.data_sharing_server_url);
+      expect(jasmine.Ajax.requests.at(2).method).toBe('POST');
 
       // verify if the last reported time is updated in the local storage
       expect(new Date(+localStorage.getItem(USAGE_DATA_LAST_REPORTED_TIME_KEY)).getDate()).toBe(new Date().getDate());
-      done();
-    });
+    }
   });
 
   function today() {
@@ -113,7 +111,7 @@ describe('Usage Data Reporter', () => {
     return date.getTime();
   }
 
-  function lastReportedToday() {
+  function triedReportingWithin30Minutes() {
     const date = today();
     localStorage.setItem(USAGE_DATA_LAST_REPORTED_TIME_KEY, date);
     return date;
@@ -125,8 +123,8 @@ describe('Usage Data Reporter', () => {
     return date;
   }
 
-  function mockDataSharingSettingsAPIAndReturn(json) {
-    jasmine.Ajax.stubRequest(dataSharingSettingsURL, undefined, 'GET').andReturn({
+  function mockDataSharingReportingGetAPIAndReturn(json) {
+    jasmine.Ajax.stubRequest(usageReportingGetURL, undefined, 'GET').andReturn({
       responseText:    JSON.stringify(json),
       status:          200,
       responseHeaders: {
@@ -135,18 +133,8 @@ describe('Usage Data Reporter', () => {
     });
   }
 
-  function mockDataReportingAPIAndReturn(json) {
-    jasmine.Ajax.stubRequest(dataReportingURL, undefined, 'GET').andReturn({
-      responseText:    JSON.stringify(json),
-      status:          200,
-      responseHeaders: {
-        'Content-Type': 'application/vnd.go.cd.v1+json'
-      }
-    });
-  }
-
-  function mockDataReportingUpdateAPIAndReturn(json) {
-    jasmine.Ajax.stubRequest(dataReportingURL, undefined, 'PATCH').andReturn({
+  function mockDataSharingReportingPostAPIAndReturn(json) {
+    jasmine.Ajax.stubRequest(usageReportingPostURL, undefined, 'POST').andReturn({
       responseText:    JSON.stringify(json),
       status:          200,
       responseHeaders: {
@@ -165,43 +153,34 @@ describe('Usage Data Reporter', () => {
     });
   }
 
-  function mockDataSharingServerAPIAndReturn() {
-    jasmine.Ajax.stubRequest(reportedYesterdayDataReportingJSON._embedded.data_sharing_server_url, undefined, 'POST').andReturn({
+  function mockDataSharingServerAPIAndPass() {
+    jasmine.Ajax.stubRequest(allowedReportingJSON._embedded.data_sharing_server_url, undefined, 'POST').andReturn({
       responseText: JSON.stringify({}),
       status:       200
     });
   }
 
+  function mockDataSharingServerAPIAndFail() {
+    jasmine.Ajax.stubRequest(allowedReportingJSON._embedded.data_sharing_server_url, undefined, 'POST').andReturn({
+      status: 500
+    });
+  }
 
-  const allowedDataSharingSettingsJSON = {
-    "_embedded": {
-      "allow":      true,
-      "updated_by": "Admin",
-      "updated_on": "2018-06-14T05:45:30Z"
-    }
-  };
-
-  const notAllowedDataSharingSettingsJSON = {
-    "_embedded": {
-      "allow":      false,
-      "updated_by": "Admin",
-      "updated_on": "2018-06-14T05:45:30Z"
-    }
-  };
-
-  const reportedTodayDataReportingJSON = {
+  const notAllowedReportingJSON = {
     "_embedded": {
       "server_id":               "621bf5cb-25fa-4c75-9dd2-097ef6b3bdd1",
-      "last_reported_at":        today(),
-      "data_sharing_server_url": "https://datasharing.gocd.org/v1"
+      "last_reported_at":        1529308350019,
+      "data_sharing_server_url": "https://datasharing.gocd.org/v1",
+      "can_report":              false
     }
   };
 
-  const reportedYesterdayDataReportingJSON = {
+  const allowedReportingJSON = {
     "_embedded": {
       "server_id":               "621bf5cb-25fa-4c75-9dd2-097ef6b3bdd1",
-      "last_reported_at":        yesterday(),
-      "data_sharing_server_url": "https://datasharing.gocd.org/v1"
+      "last_reported_at":        1529308350019,
+      "data_sharing_server_url": "https://datasharing.gocd.org/v1",
+      "can_report":              true
     }
   };
 

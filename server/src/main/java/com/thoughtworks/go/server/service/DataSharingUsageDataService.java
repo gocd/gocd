@@ -35,7 +35,7 @@ public class DataSharingUsageDataService {
         this.jobInstanceSqlMapDao = jobInstanceSqlMapDao;
     }
 
-    public UsageStatistics getUsageStatistics() {
+    public UsageStatistics get() {
         CruiseConfig config = goConfigService.cruiseConfig();
         JobStateTransition jobStateTransition = jobInstanceSqlMapDao.oldestBuild();
         Long oldestPipelineExecutionTime = jobStateTransition == null ? null : jobStateTransition.getStateChangeTime().getTime();

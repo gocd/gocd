@@ -22,7 +22,6 @@ import com.thoughtworks.go.server.dao.UsageStatisticsReportingSqlMapDao;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 
 import java.util.Date;
@@ -30,7 +29,6 @@ import java.util.Date;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.*;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 

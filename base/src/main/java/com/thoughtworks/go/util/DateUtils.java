@@ -22,13 +22,13 @@ import org.joda.time.format.ISODateTimeFormat;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 
 public class DateUtils {
-
     private static final DateTimeFormatter formatter = ISODateTimeFormat.dateTimeNoMillis();
     private static final DateTimeFormatter formatterUtc = formatter.withZoneUTC();
     private static final TimeZone UTC = TimeZone.getTimeZone("UTC");
@@ -102,6 +102,15 @@ public class DateUtils {
         }
 
         return sb.toString();
+    }
+
+    public static boolean isToday(Date date) {
+        Calendar today = Calendar.getInstance();
+        Calendar otherDay = Calendar.getInstance();
+        otherDay.setTime(date);
+
+        return (today.get(Calendar.YEAR) == otherDay.get(Calendar.YEAR) &&
+                today.get(Calendar.DAY_OF_YEAR) == otherDay.get(Calendar.DAY_OF_YEAR));
     }
 
     private static SimpleDateFormat dateFormatFor(String simpleDateFormat) {

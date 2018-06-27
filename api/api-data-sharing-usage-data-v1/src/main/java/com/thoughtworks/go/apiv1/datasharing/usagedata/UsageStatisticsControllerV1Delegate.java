@@ -32,13 +32,13 @@ import static spark.Spark.*;
 
 public class UsageStatisticsControllerV1Delegate extends ApiController {
     private final ApiAuthenticationHelper apiAuthenticationHelper;
-    private DataSharingUsageDataService dataSharingUsageReportingService;
+    private DataSharingUsageDataService dataSharingUsageDataService;
     private SystemEnvironment systemEnvironment;
 
     public UsageStatisticsControllerV1Delegate(ApiAuthenticationHelper apiAuthenticationHelper, DataSharingUsageDataService dataSharingUsageDataService, SystemEnvironment systemEnvironment) {
         super(ApiVersion.v1);
         this.apiAuthenticationHelper = apiAuthenticationHelper;
-        this.dataSharingUsageReportingService = dataSharingUsageDataService;
+        this.dataSharingUsageDataService = dataSharingUsageDataService;
         this.systemEnvironment = systemEnvironment;
     }
 
@@ -64,7 +64,7 @@ public class UsageStatisticsControllerV1Delegate extends ApiController {
     }
 
     public String getUsageStatistics(Request request, Response response) {
-        UsageStatistics usageStatistics = dataSharingUsageReportingService.getUsageStatistics();
+        UsageStatistics usageStatistics = dataSharingUsageDataService.get();
         return jsonizeAsTopLevelObject(request, writer -> UsageStatisticsRepresenter.toJSON(writer, usageStatistics));
     }
 

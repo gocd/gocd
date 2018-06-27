@@ -58,7 +58,7 @@ public class DataSharingUsageDataServiceTest {
 
     @Test
     public void shouldGetUsageStatistics() {
-        UsageStatistics usageStatistics = service.getUsageStatistics();
+        UsageStatistics usageStatistics = service.get();
         assertThat(usageStatistics.pipelineCount(), is(2l));
         assertThat(usageStatistics.agentCount(), is(1l));
         assertThat(usageStatistics.oldestPipelineExecutionTime(), is(oldestBuild.getStateChangeTime().getTime()));
@@ -67,7 +67,7 @@ public class DataSharingUsageDataServiceTest {
     @Test
     public void shouldReturnOldestPipelineExecutionTimeAsZeroIfNoneOfThePipelinesHaveEverRun() {
         when(jobInstanceSqlMapDao.oldestBuild()).thenReturn(null);
-        UsageStatistics usageStatistics = service.getUsageStatistics();
+        UsageStatistics usageStatistics = service.get();
         assertThat(usageStatistics.pipelineCount(), is(2l));
         assertThat(usageStatistics.agentCount(), is(1l));
         assertThat(usageStatistics.oldestPipelineExecutionTime(), is(0l));
@@ -76,7 +76,7 @@ public class DataSharingUsageDataServiceTest {
     @Test
     public void shouldNotIncludeElasticAgentsInTheCount() {
         goConfig.agents().add(AgentMother.elasticAgent());
-        UsageStatistics usageStatistics = service.getUsageStatistics();
+        UsageStatistics usageStatistics = service.get();
         assertThat(usageStatistics.agentCount(), is(1l));
     }
 }

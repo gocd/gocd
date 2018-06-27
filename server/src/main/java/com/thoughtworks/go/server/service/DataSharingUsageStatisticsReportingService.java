@@ -27,6 +27,8 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.UUID;
 
+import static com.thoughtworks.go.util.DateUtils.isToday;
+
 
 @Service
 public class DataSharingUsageStatisticsReportingService {
@@ -66,7 +68,9 @@ public class DataSharingUsageStatisticsReportingService {
     public UsageStatisticsReporting get() {
         synchronized (mutexForReportingUsageData) {
             UsageStatisticsReporting loaded = getUsageStatisticsReportingInfo();
-            reportingStartedTime = new DateTime();
+            if (loaded.canReport()) {
+                reportingStartedTime = new DateTime();
+            }
             return loaded;
         }
     }
@@ -97,15 +101,6 @@ public class DataSharingUsageStatisticsReportingService {
             reportingStartedTime = null;
             return getUsageStatisticsReportingInfo();
         }
-    }
-
-    private boolean isToday(Date date) {
-        Calendar today = Calendar.getInstance();
-        Calendar otherDay = Calendar.getInstance();
-        otherDay.setTime(date);
-
-        return (today.get(Calendar.YEAR) == otherDay.get(Calendar.YEAR) &&
-                today.get(Calendar.DAY_OF_YEAR) == otherDay.get(Calendar.DAY_OF_YEAR));
     }
 
     private boolean isDevelopmentServer() {

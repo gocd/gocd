@@ -60,7 +60,7 @@ class UsageStatisticsControllerV1DelegateTest implements SecurityServiceTrait, C
 
       @Override
       String getControllerMethodUnderTest() {
-        return "getUsageStatistics"
+        return "get"
       }
 
       @Override
@@ -80,7 +80,7 @@ class UsageStatisticsControllerV1DelegateTest implements SecurityServiceTrait, C
       @Test
       void 'get usage statistics'() {
         def metrics = new UsageStatistics(10l, 20l, 1527244129553)
-        when(dataSharingService.getUsageStatistics()).thenReturn(metrics)
+        when(dataSharingService.get()).thenReturn(metrics)
 
         getWithApiHeader(controller.controllerPath())
         assertThatResponse()
@@ -122,7 +122,7 @@ class UsageStatisticsControllerV1DelegateTest implements SecurityServiceTrait, C
         File publicKeyFile = new File(getClass().getClassLoader().getResource("public_key.pem").getFile())
 
         when(systemEnvironment.getUpdateServerPublicKeyPath()).thenReturn(publicKeyFile.getAbsolutePath())
-        when(dataSharingService.getUsageStatistics()).thenReturn(metrics)
+        when(dataSharingService.get()).thenReturn(metrics)
 
         def expectedJson = toObjectString({ UsageStatisticsRepresenter.toJSON(it, metrics) })
 

@@ -14,67 +14,54 @@
  * limitations under the License.
  */
 
+const _          = require('lodash');
 const AjaxHelper = require('helpers/ajax_helper');
 
-const UsageData           = require('models/shared/data_sharing/usage_data');
-const DataReporting       = require('models/shared/data_sharing/data_reporting');
-const DataSharingSettings = require('models/shared/data_sharing/data_sharing_settings');
+const UsageData     = require('models/shared/data_sharing/usage_data');
+const DataReporting = require('models/shared/data_sharing/data_reporting');
 
 const USAGE_DATA_LAST_REPORTED_TIME_KEY = "usage_data_last_reported_time";
 
-const isUsageDataReportedToday = function (lastReportedTime) {
-  if (lastReportedTime === null) {
-    return false;
+const reportToGoCDDataSharingServer = function (url, data) {
+  return AjaxHelper.POST({url, data, contentType: 'application/octet-stream'});
+};
+
+const canTryToReportingUsageData = () => {
+  let lastReportedTime = localStorage.getItem(USAGE_DATA_LAST_REPORTED_TIME_KEY);
+  if (_.isEmpty(lastReportedTime)) {
+    return true;
   }
 
-  const now          = new Date();
-  const lastReported = new Date(+lastReportedTime);
-
-  return (now.getDate() === lastReported.getDate() &&
-    now.getMonth() === lastReported.getMonth() &&
-    now.getFullYear() === lastReported.getFullYear());
+  lastReportedTime   = JSON.parse(lastReportedTime);
+  const lastUpdateAt = new Date(lastReportedTime);
+  const halfHourAgo  = new Date(_.now() - 30 * 60 * 1000);
+  return halfHourAgo > lastUpdateAt;
 };
 
-const reportToGoCDDataSharingServer = function (url, data) {
-  return AjaxHelper.POST({url, data});
-};
-
-const canReportUsageData = () => {
-  const lastReportedTime = localStorage.getItem(USAGE_DATA_LAST_REPORTED_TIME_KEY);
-  return !isUsageDataReportedToday(lastReportedTime);
-};
-
-const markReportingDone = (reportedTime) => {
-  localStorage.setItem(USAGE_DATA_LAST_REPORTED_TIME_KEY, `${reportedTime}`);
+const markReportingCheckDone = () => {
+  localStorage.setItem(USAGE_DATA_LAST_REPORTED_TIME_KEY, `${new Date().getTime()}`);
 };
 
 const UsageDataReporter = function () {
   this.report = async () => {
-    if (!canReportUsageData()) {
+    if (!canTryToReportingUsageData()) {
       return;
     }
 
-    const settings = await DataSharingSettings.get();
-    if (!settings.allowed()) {
-      return markReportingDone(new Date().getTime());
+    const reportingInfo = await DataReporting.get();
+
+    try {
+      if (reportingInfo.canReport()) {
+        const encryptedUsageData = await UsageData.getEncrypted();
+        await reportToGoCDDataSharingServer(reportingInfo.dataSharingServerUrl(), encryptedUsageData);
+        await DataReporting.markReported();
+      }
+    } finally {
+      markReportingCheckDone();
     }
-
-    const dataReporting = await DataReporting.get();
-
-    const lastReportedTime = dataReporting.lastReportedAt().getTime();
-    if (isUsageDataReportedToday(lastReportedTime)) {
-      return markReportingDone(lastReportedTime);
-    }
-
-    const usageData              = await UsageData.get();
-    const latestDataReportedTime = new Date();
-    await reportToGoCDDataSharingServer(dataReporting.dataSharingServerUrl(), JSON.parse(usageData.represent()));
-
-    dataReporting.lastReportedAt(latestDataReportedTime);
-
-    await dataReporting.save();
-    markReportingDone(latestDataReportedTime.getTime());
   };
 };
 
 module.exports = UsageDataReporter;
+
+

@@ -19,29 +19,14 @@ const Stream = require('mithril/stream');
 const AjaxHelper  = require('helpers/ajax_helper');
 const SparkRoutes = require("helpers/spark_routes");
 
-const DataReporting = function (initialData, etag) {
+const DataReporting = function (initialData) {
   const reporting = this;
-
-  let _etag  = etag;
-  const data = initialData._embedded;
+  const data      = initialData._embedded;
 
   reporting.serverId             = () => data.server_id;
   reporting.lastReportedAt       = Stream(new Date(data.last_reported_at));
   reporting.dataSharingServerUrl = () => data.data_sharing_server_url;
-
-
-  reporting.save = () => {
-    return AjaxHelper.PATCH({
-      url:        SparkRoutes.DataReportingPath(),
-      apiVersion: DataReporting.API_VERSION,
-      payload:    {'last_reported_at': reporting.lastReportedAt().getTime()},
-      etag:       _etag
-    }).then((data, _textStatus, jqXHR) => {
-      _etag = jqXHR.getResponseHeader('etag');
-      reporting.lastReportedAt(new Date(data._embedded.last_reported_at));
-    });
-  };
-
+  reporting.canReport            = () => data.can_report;
 };
 
 DataReporting.fromJSON = function (json, jqXHR) {
@@ -52,7 +37,15 @@ DataReporting.API_VERSION = 'v1';
 
 DataReporting.get = () => {
   return AjaxHelper.GET({
-    url:        SparkRoutes.DataReportingPath(),
+    url:        SparkRoutes.DataReportingGetPath(),
+    apiVersion: DataReporting.API_VERSION,
+    type:       DataReporting
+  });
+};
+
+DataReporting.markReported = () => {
+  return AjaxHelper.POST({
+    url:        SparkRoutes.DataReportingPostPath(),
     apiVersion: DataReporting.API_VERSION,
     type:       DataReporting
   });

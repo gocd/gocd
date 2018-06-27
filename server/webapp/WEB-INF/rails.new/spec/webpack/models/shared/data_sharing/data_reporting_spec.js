@@ -15,14 +15,16 @@
  */
 
 describe('Data Reporting', () => {
-  const DataReporting    = require('models/shared/data_sharing/data_reporting');
-  const DataReportingURL = '/go/api/internal/data_sharing/reporting';
+  const DataReporting        = require('models/shared/data_sharing/data_reporting');
+  const DataReportingGetURL  = '/go/api/internal/data_sharing/reporting/info';
+  const DataReportingPostURL = '/go/api/internal/data_sharing/reporting/reported';
 
   const dataReportingJSON = {
     "_embedded": {
       "server_id":               "621bf5cb-25fa-4c75-9dd2-097ef6b3bdd1",
       "last_reported_at":        1529308350019,
-      "data_sharing_server_url": "https://datasharing.gocd.org/v1"
+      "data_sharing_server_url": "https://datasharing.gocd.org/v1",
+      "can_report":              true
     }
   };
 
@@ -32,11 +34,12 @@ describe('Data Reporting', () => {
     expect(reportingInfo.serverId()).toBe(dataReportingJSON._embedded.server_id);
     expect(reportingInfo.lastReportedAt()).toEqual(new Date(dataReportingJSON._embedded.last_reported_at));
     expect(reportingInfo.dataSharingServerUrl()).toBe(dataReportingJSON._embedded.data_sharing_server_url);
+    expect(reportingInfo.canReport()).toBe(dataReportingJSON._embedded.can_report);
   });
 
   it('should fetch data reporting information', () => {
     jasmine.Ajax.withMock(() => {
-      jasmine.Ajax.stubRequest(DataReportingURL).andReturn({
+      jasmine.Ajax.stubRequest(DataReportingGetURL).andReturn({
         responseText:    JSON.stringify(dataReportingJSON),
         status:          200,
         responseHeaders: {
@@ -48,6 +51,7 @@ describe('Data Reporting', () => {
         expect(reportingInfo.serverId()).toBe(dataReportingJSON._embedded.server_id);
         expect(reportingInfo.lastReportedAt()).toEqual(new Date(dataReportingJSON._embedded.last_reported_at));
         expect(reportingInfo.dataSharingServerUrl()).toBe(dataReportingJSON._embedded.data_sharing_server_url);
+        expect(reportingInfo.canReport()).toBe(dataReportingJSON._embedded.can_report);
       });
 
       DataReporting.get().then(successCallback);
@@ -57,32 +61,22 @@ describe('Data Reporting', () => {
 
   it('should patch data reporting information', () => {
     jasmine.Ajax.withMock(() => {
-      const updatedDataReportingJSON = {
-        "_embedded": {
-          "server_id":               "621bf5cb-25fa-4c75-9dd2-097ef6b3bdd1",
-          "last_reported_at":        1529308350020,
-          "data_sharing_server_url": "https://datasharing.gocd.org/v1"
-        }
-      };
-
-      jasmine.Ajax.stubRequest(DataReportingURL, undefined, 'PATCH').andReturn({
-        responseText:    JSON.stringify(updatedDataReportingJSON),
+      jasmine.Ajax.stubRequest(DataReportingPostURL, null, 'POST').andReturn({
+        responseText:    JSON.stringify(dataReportingJSON),
         status:          200,
         responseHeaders: {
-          'Content-Type': 'application/vnd.go.cd.v1+json',
-          'ETag':         'ETag'
+          'Content-Type': 'application/vnd.go.cd.v1+json'
         }
       });
 
-      const dataReportingSettings = DataReporting.fromJSON(dataReportingJSON, {getResponseHeader: () => 'ETag'});
-
-      const successCallback = jasmine.createSpy().and.callFake(() => {
-        expect(dataReportingSettings.lastReportedAt().getTime()).toBe(updatedDataReportingJSON._embedded.last_reported_at);
+      const successCallback = jasmine.createSpy().and.callFake((reportingInfo) => {
+        expect(reportingInfo.serverId()).toBe(dataReportingJSON._embedded.server_id);
+        expect(reportingInfo.lastReportedAt()).toEqual(new Date(dataReportingJSON._embedded.last_reported_at));
+        expect(reportingInfo.dataSharingServerUrl()).toBe(dataReportingJSON._embedded.data_sharing_server_url);
+        expect(reportingInfo.canReport()).toBe(dataReportingJSON._embedded.can_report);
       });
 
-      expect(dataReportingSettings.lastReportedAt().getTime()).toBe(dataReportingJSON._embedded.last_reported_at);
-
-      dataReportingSettings.save().then(successCallback);
+      DataReporting.markReported().then(successCallback);
       expect(successCallback).toHaveBeenCalled();
     });
   });

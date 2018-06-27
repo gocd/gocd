@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright 2018 ThoughtWorks, Inc.
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<cruise xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="cruise-config.xsd"
+        schemaVersion="110">
+    <server artifactsdir="artifacts" agentAutoRegisterKey="323040d4-f2e4-4b8a-8394-7a2d122054d1"
+            webhookSecret="3d5cd2f5-7fe7-43c0-ba34-7e01678ba8b6" commandRepositoryLocation="default"
+            serverId="60f5f682-5248-4ba9-bb35-72c92841bd75"
+            tokenGenerationKey="8c3c8dc9-08bf-4cd7-ac80-cecb3e7ae86c"></server>
+    <artifactStores>
+        <artifactStore id="dockerhub" pluginId="cd.go.artifact.docker.registry">
+            <property>
+                <key>RegistryURL</key>
+                <value>https://index.docker.io/v1/</value>
+            </property>
+            <property>
+                <key>Username</key>
+                <value>docker-user</value>
+            </property>
+            <property>
+                <key>Password</key>
+                <value>SECRET</value>
+            </property>
+        </artifactStore>
+    </artifactStores>
+    <pipelines group="first">
+        <pipeline name="ancestor">
+            <params>
+                <param name="STOREID">dockerhub</param>
+            </params>
+            <materials>
+                <git url="https://git_url"/>
+            </materials>
+            <stage name="defaultStage">
+                <jobs>
+                    <job name="defaultJob">
+                        <tasks>
+                            <exec command="ls"/>
+                        </tasks>
+                        <artifacts>
+                            <artifact type="external" id="artifact_generated_by_ancestor" storeId="#{STOREID}">
+                                <configuration>
+                                    <property>
+                                        <key>BuildFile</key>
+                                        <value/>
+                                    </property>
+                                    <property>
+                                        <key>Image</key>
+                                        <value>SECRET</value>
+                                    </property>
+                                    <property>
+                                        <key>Tag</key>
+                                        <value>ancestor_tag_${GO_PIPELINE_COUNTER}</value>
+                                    </property>
+                                </configuration>
+                            </artifact>
+                        </artifacts>
+                    </job>
+                </jobs>
+            </stage>
+        </pipeline>
+        <pipeline name="parent">
+            <params>
+                <param name="STOREID">dockerhub</param>
+            </params>
+            <materials>
+                <git url="https://git_url"/>
+                <pipeline pipelineName="ancestor" stageName="defaultStage"/>
+            </materials>
+            <stage name="defaultStage">
+                <jobs>
+                    <job name="defaultJob">
+                        <tasks>
+                            <exec command="ls"/>
+                        </tasks>
+                        <artifacts>
+                            <artifact type="external" id="artifact_generated_by_parent" storeId="#{STOREID}">
+                                <configuration>
+                                    <property>
+                                        <key>BuildFile</key>
+                                        <value/>
+                                    </property>
+                                    <property>
+                                        <key>Image</key>
+                                        <value>SECRET</value>
+                                    </property>
+                                    <property>
+                                        <key>Tag</key>
+                                        <value>parent_tag_${GO_PIPELINE_COUNTER}</value>
+                                    </property>
+                                </configuration>
+                            </artifact>
+                        </artifacts>
+                    </job>
+                </jobs>
+            </stage>
+        </pipeline>
+        <pipeline name="child">
+            <params>
+                <param name="ANCESTOR_PIPELINE_NAME">ancestor/parent</param>
+                <param name="PARENT_PIPELINE_NAME">parent</param>
+                <param name="STAGE_NAME">defaultStage</param>
+                <param name="JOB_NAME">defaultJob</param>
+                <param name="ANCESTOR_ARTIFACT_ID">artifact_generated_by_ancestor</param>
+                <param name="PARENT_ARTIFACT_ID">artifact_generated_by_parent</param>
+            </params>
+            <materials>
+                <git url="https://git_url"/>
+                <pipeline pipelineName="parent" stageName="defaultStage"/>
+            </materials>
+            <stage name="defaultStage">
+                <jobs>
+                    <job name="defaultJob">
+                        <tasks>
+                            <fetchartifact origin="external" artifactId="#{ANCESTOR_ARTIFACT_ID}"
+                                           pipeline="#{ANCESTOR_PIPELINE_NAME}" stage="#{STAGE_NAME}" job="#{JOB_NAME}">
+                                <configuration>
+                                    <property>
+                                        <key>FetchProperty</key>
+                                        <value>SECRET</value>
+                                    </property>
+                                    <property>
+                                        <key>Tag</key>
+                                        <value>ancestor_tag</value>
+                                    </property>
+                                </configuration>
+                                <runif status="passed"/>
+                            </fetchartifact>
+                            <fetchartifact origin="external" artifactId="#{PARENT_ARTIFACT_ID}"
+                                           pipeline="#{PARENT_PIPELINE_NAME}" stage="#{STAGE_NAME}" job="#{JOB_NAME}">
+                                <configuration>
+                                    <property>
+                                        <key>BuildFile</key>
+                                        <value/>
+                                    </property>
+                                    <property>
+                                        <key>FetchProperty</key>
+                                        <value>SECRET</value>
+                                    </property>
+                                    <property>
+                                        <key>Tag</key>
+                                        <value>parent_tag</value>
+                                    </property>
+                                </configuration>
+                                <runif status="passed"/>
+                            </fetchartifact>
+                        </tasks>
+                    </job>
+                </jobs>
+            </stage>
+        </pipeline>
+    </pipelines>
+</cruise>

@@ -1526,6 +1526,13 @@ public class BasicCruiseConfig implements CruiseConfig {
     }
 
     @Override
+    public void encryptSecureProperties(CruiseConfig preprocessed) {
+        for (PipelineConfig pipelineConfig : getAllPipelineConfigs()) {
+            pipelineConfig.encryptSecureProperties(preprocessed, preprocessed.pipelineConfigByName(pipelineConfig.name()));
+        }
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof BasicCruiseConfig)) return false;

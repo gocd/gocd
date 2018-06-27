@@ -68,11 +68,11 @@
         <%= render :partial => 'shared/convert_tool_tips.html' %>
       </div>
     </div>
-    <% if !scope[:new] && scope[:store_id_to_plugin_id][external_artifact_config.getStoreId()].blank? %>
-      <div class="row expanded plugin_form_background">
+    <% if scope[:store_id_to_plugin_id][external_artifact_config.getStoreId()].blank? %>
+      <div class="row expanded plugin_key_value">
         <div class="columns medium-8 medium-offset-2 large-8 end">
           <% scope[:external_artifact].getConfiguration().getPropertyMetadataAndValuesAsMap().to_hash.each do |config_property| %>
-            <div class="plugin-config-read-only show plugin_key_value">
+            <div class="plugin-config-read-only show" id="plugin_key_value_<%= uuid %>">
               <dl class="key-value-pair">
                 <%= artifact_form.hidden_field "configurationProperty", :class => "form_input artifact_source", :id => nil, :name => "job[artifactConfigs][][configuration][#{config_property[0]}][value]", :value => config_property[1]['value'] -%>
                 <%= artifact_form.hidden_field "configurationProperty", :class => "form_input artifact_source", :id => nil, :name => "job[artifactConfigs][][configuration][#{config_property[0]}][isSecure]", :value => config_property[1]['isSecure'] -%>
@@ -87,6 +87,12 @@
     <script type="text/javascript">
       jQuery(document).ready(function () {
         initializeAngular("<%= plugged_artifact_angular_controller_element_id %>", "<%= plugged_artifact_data_element_id %>");
+        var keyValueDiv = jQuery(".plugin_key_value");
+        for (var i in keyValueDiv) {
+          if (jQuery(keyValueDiv[i]).find(".plugin-config-read-only")) {
+            jQuery(keyValueDiv[i]).addClass('plugin_form_background');
+          }
+        }
       })
     </script>
   <% end %>

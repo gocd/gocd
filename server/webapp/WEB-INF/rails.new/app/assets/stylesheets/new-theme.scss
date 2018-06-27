@@ -4013,7 +4013,7 @@ ul.entity_title {
   }
 }
 
-.plugin_form_background, .plugin_key_value {
+.plugin_form_background {
   background-color: $artifact-plugin-form-background;
 }
 
@@ -4041,4 +4041,8 @@ ul.entity_title {
 .add_artifact_button {
   float:   none;
   display: inline-block;
+}
+
+.plugin_key_value .plugin-config-read-only {
+  line-height: 20px;
 }

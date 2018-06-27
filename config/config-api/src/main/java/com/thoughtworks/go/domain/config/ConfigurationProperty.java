@@ -18,10 +18,7 @@ package com.thoughtworks.go.domain.config;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
-import com.thoughtworks.go.config.ConfigSubtag;
-import com.thoughtworks.go.config.ConfigTag;
-import com.thoughtworks.go.config.Validatable;
-import com.thoughtworks.go.config.ValidationContext;
+import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.security.CryptoException;
 import com.thoughtworks.go.security.GoCipher;
@@ -196,6 +193,10 @@ public class ConfigurationProperty implements Serializable, Validatable {
     @Override
     public ConfigErrors errors() {
         return configErrors;
+    }
+
+    public List<ConfigErrors> getAllErrors() {
+        return ErrorCollector.getAllErrors(this);
     }
 
     public boolean hasErrors() {

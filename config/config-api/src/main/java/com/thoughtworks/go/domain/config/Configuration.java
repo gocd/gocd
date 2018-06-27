@@ -24,6 +24,7 @@ import org.apache.commons.lang3.StringUtils;
 import java.util.*;
 
 import static java.lang.String.format;
+import static java.util.stream.Collectors.toList;
 
 @ConfigTag("configuration")
 @ConfigCollection(value = ConfigurationProperty.class)
@@ -31,6 +32,9 @@ public class Configuration extends BaseCollection<ConfigurationProperty> impleme
 
     public static final String CONFIGURATION = "configuration";
     public static final String METADATA = "metadata";
+    public static final String VALUE_KEY = "value";
+    public static final String ERRORS_KEY = "errors";
+
     private ConfigErrors errors = new ConfigErrors();
 
     public Configuration() {
@@ -157,5 +161,38 @@ public class Configuration extends BaseCollection<ConfigurationProperty> impleme
             }
         }
         return configurationMap;
+    }
+
+    public Map<String, Map<String, Object>> getPropertyMetadataAndValuesAsMap() {
+        Map<String, Map<String, Object>> configMap = new HashMap<>();
+        for (ConfigurationProperty property : this) {
+            Map<String, Object> mapValue = new HashMap<>();
+            mapValue.put("isSecure", property.isSecure());
+            if (property.isSecure()) {
+                mapValue.put(VALUE_KEY, property.getEncryptedValue());
+            } else {
+                mapValue.put(VALUE_KEY, property.getConfigurationValue().getValue());
+            }
+            mapValue.put("displayValue", property.getDisplayValue());
+            configMap.put(property.getConfigKeyName(), mapValue);
+        }
+        return configMap;
+    }
+
+    public Map<String, Map<String, String>> getConfigWithErrorsAsMap() {
+        Map<String, Map<String, String>> configMap = new HashMap<>();
+        for (ConfigurationProperty property : this) {
+            Map<String, String> mapValue = new HashMap<>();
+            if (property.isSecure()) {
+                mapValue.put(VALUE_KEY, property.getEncryptedValue());
+            } else {
+                mapValue.put(VALUE_KEY, property.getConfigurationValue().getValue());
+            }
+            if (!property.getAllErrors().isEmpty()) {
+                mapValue.put(ERRORS_KEY, StringUtils.join(property.getAllErrors().stream().map(ConfigErrors::getAll).collect(toList()), ", "));
+            }
+            configMap.put(property.getConfigKeyName(), mapValue);
+        }
+        return configMap;
     }
 }

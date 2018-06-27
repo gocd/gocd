@@ -64,6 +64,7 @@ module JavaSpecImports
   java_import com.thoughtworks.go.config.AdminUser unless defined? AdminUser
   java_import com.thoughtworks.go.config.AdminRole unless defined? AdminRole
   java_import com.thoughtworks.go.config.Authorization unless defined? Authorization
+  java_import com.thoughtworks.go.config.ArtifactStore unless defined? ArtifactStore
   java_import com.thoughtworks.go.config.PipelineTemplateConfig unless defined? PipelineTemplateConfig
   java_import com.thoughtworks.go.config.TemplatesConfig unless defined? TemplatesConfig
   java_import com.thoughtworks.go.server.presentation.CanDeleteResult unless defined? CanDeleteResult

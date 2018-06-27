@@ -17,12 +17,22 @@
 package com.thoughtworks.go.config;
 
 import com.thoughtworks.go.config.validation.FilePathTypeValidator;
+import com.thoughtworks.go.domain.ArtifactType;
+import com.thoughtworks.go.plugin.access.artifact.ArtifactMetadataStore;
+import com.thoughtworks.go.plugin.api.info.PluginDescriptor;
+import com.thoughtworks.go.plugin.domain.artifact.ArtifactPluginInfo;
+import com.thoughtworks.go.plugin.domain.common.Metadata;
+import com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings;
+import com.thoughtworks.go.plugin.domain.common.PluginConfiguration;
+import com.thoughtworks.go.security.CryptoException;
+import com.thoughtworks.go.security.GoCipher;
 import org.hamcrest.Matchers;
 import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static com.thoughtworks.go.config.BuildArtifactConfig.DEST;
 import static com.thoughtworks.go.config.BuildArtifactConfig.SRC;
@@ -30,6 +40,8 @@ import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class ArtifactConfigsTest {
     @Test
@@ -97,6 +109,84 @@ public class ArtifactConfigsTest {
         plan.setDestination("something");
         assertThat(artifactConfigs.get(0), is(plan));
         assertThat(artifactConfigs.get(1), is(new BuildArtifactConfig("blah2", "something2")));
+    }
+
+    @Test
+    public void setConfigAttributes_shouldSetExternalArtifact() throws CryptoException {
+        ArtifactPluginInfo artifactPluginInfo = mock(ArtifactPluginInfo.class);
+        PluginDescriptor pluginDescriptor = mock(PluginDescriptor.class);
+        when(artifactPluginInfo.getDescriptor()).thenReturn(pluginDescriptor);
+        when(pluginDescriptor.id()).thenReturn("cd.go.artifact.foo");
+        PluginConfiguration image = new PluginConfiguration("Image", new Metadata(true, true));
+        PluginConfiguration tag = new PluginConfiguration("Tag", new Metadata(true, false));
+        ArrayList<PluginConfiguration> pluginMetadata = new ArrayList<>();
+        pluginMetadata.add(image);
+        pluginMetadata.add(tag);
+        when(artifactPluginInfo.getArtifactConfigSettings()).thenReturn(new PluggableInstanceSettings(pluginMetadata));
+        ArtifactMetadataStore.instance().setPluginInfo(artifactPluginInfo);
+
+
+        HashMap<Object, Object> configurationMap1 = new HashMap<>();
+        configurationMap1.put("Image", "gocd/gocd-server");
+        configurationMap1.put("Tag", "v18.6.0");
+
+        HashMap<String, Object> artifactPlan1 = new HashMap<>();
+        artifactPlan1.put("artifactTypeValue", "Pluggable Artifact");
+        artifactPlan1.put("id", "artifactId");
+        artifactPlan1.put("storeId", "storeId");
+        artifactPlan1.put("pluginId", "cd.go.artifact.foo");
+        artifactPlan1.put("configuration", configurationMap1);
+
+        List<Map> artifactPlansList = new ArrayList<>();
+        artifactPlansList.add(artifactPlan1);
+
+        ArtifactConfigs artifactConfigs = new ArtifactConfigs();
+        artifactConfigs.setConfigAttributes(artifactPlansList);
+
+        assertThat(artifactConfigs.size(), is(1));
+
+        PluggableArtifactConfig artifactConfig = (PluggableArtifactConfig) artifactConfigs.get(0);
+        assertThat(artifactConfig.getArtifactType(), is(ArtifactType.external));
+        assertThat(artifactConfig.getId(), is("artifactId"));
+        assertThat(artifactConfig.getStoreId(), is("storeId"));
+        assertThat(artifactConfig.getConfiguration().getProperty("Image").isSecure(), is(true));
+    }
+
+    @Test
+    public void setConfigAttributes_shouldSetConfigurationAsIsIfPluginIdIsBlank() throws CryptoException {
+        HashMap<Object, Object> imageMap = new HashMap<>();
+        imageMap.put("value", new GoCipher().encrypt("some-encrypted-value"));
+        imageMap.put("isSecure", "true");
+
+        HashMap<Object, Object> tagMap = new HashMap<>();
+        tagMap.put("value", "18.6.0");
+        tagMap.put("isSecure", "false");
+
+        HashMap<Object, Object> configurationMap1 = new HashMap<>();
+        configurationMap1.put("Image", imageMap);
+        configurationMap1.put("Tag", tagMap);
+
+        HashMap<String, Object> artifactPlan1 = new HashMap<>();
+        artifactPlan1.put("artifactTypeValue", "Pluggable Artifact");
+        artifactPlan1.put("id", "artifactId");
+        artifactPlan1.put("storeId", "storeId");
+        artifactPlan1.put("pluginId", "");
+        artifactPlan1.put("configuration", configurationMap1);
+
+        List<Map> artifactPlansList = new ArrayList<>();
+        artifactPlansList.add(artifactPlan1);
+
+        ArtifactConfigs artifactConfigs = new ArtifactConfigs();
+        artifactConfigs.setConfigAttributes(artifactPlansList);
+
+        assertThat(artifactConfigs.size(), is(1));
+
+        PluggableArtifactConfig artifactConfig = (PluggableArtifactConfig) artifactConfigs.get(0);
+        assertThat(artifactConfig.getArtifactType(), is(ArtifactType.external));
+        assertThat(artifactConfig.getId(), is("artifactId"));
+        assertThat(artifactConfig.getStoreId(), is("storeId"));
+        assertThat(artifactConfig.getConfiguration().getProperty("Image").getValue(), is("some-encrypted-value"));
+        assertThat(artifactConfig.getConfiguration().getProperty("Tag").getValue(), is("18.6.0"));
     }
 
     @Test

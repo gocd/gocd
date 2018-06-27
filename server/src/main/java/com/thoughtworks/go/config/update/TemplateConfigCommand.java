@@ -83,7 +83,7 @@ public abstract class TemplateConfigCommand implements EntityConfigUpdateCommand
         List<PipelineConfig> associatedPipelineConfigs = preprocessedConfig.pipelineConfigsAssociatedWithTemplate(templateConfig.name());
         for (PipelineConfig associatedPipelineConfig : associatedPipelineConfigs) {
             for (PluggableArtifactConfig pluggableArtifactConfig : associatedPipelineConfig.getExternalArtifactConfigs()) {
-                externalArtifactsService.validateExternalArtifactConfig(pluggableArtifactConfig, preprocessedConfig.getArtifactStores().find(pluggableArtifactConfig.getStoreId()));
+                externalArtifactsService.validateExternalArtifactConfig(pluggableArtifactConfig, preprocessedConfig.getArtifactStores().find(pluggableArtifactConfig.getStoreId()), true);
             }
 
             for (FetchPluggableArtifactTask fetchPluggableArtifactTask : associatedPipelineConfig.getFetchExternalArtifactTasks()) {

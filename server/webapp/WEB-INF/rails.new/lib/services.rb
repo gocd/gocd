@@ -104,7 +104,9 @@ module Services
     :version_info_service,
     :xml_api_service,
     :elastic_agent_plugin_service,
-    :webpack_assets_service
+    :webpack_assets_service,
+    :artifact_store_service,
+    :external_artifacts_service
   )
 
   service_with_alias_name(:go_config_service_for_url, "goConfigService")

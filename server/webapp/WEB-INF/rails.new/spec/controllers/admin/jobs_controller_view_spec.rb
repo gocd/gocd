@@ -52,23 +52,6 @@ describe Admin::JobsController, "view" do
     describe "edit artifacts" do
       include FormUI
 
-      it "should display artifacts title, instruction and list of artifacts" do
-        get :edit,:stage_parent=> "pipelines", :current_tab => "artifacts", :pipeline_name => @pipeline.name().to_s, :stage_name => @pipeline.get(0).name().to_s, :job_name => @pipeline.get(0).getJobs().get(0).name().to_s
-        expect(response.status).to eq(200)
-        expect(response.body).to have_selector("h3", :text=>"Artifacts")
-
-        Capybara.string(response.body).find("table[class='artifact']").tap do |table|
-          expect(table).to have_selector("input[class='form_input artifact_source'][value='src']")
-          expect(table).to have_selector("input[class='form_input artifact_destination'][value='dest']")
-          expect(table).to have_selector("input[class='form_input artifact_source'][value='src2']")
-          expect(table).to have_selector("input[class='form_input artifact_destination'][value='dest2']")
-          table.all("select[class='small']").tap do |select|
-            expect(select[0]).to have_selector("option",:text=>"Test Artifact")
-            expect(select[0]).to have_selector("option",:text=>"Build Artifact")
-          end
-        end
-      end
-
       it "should display errors on artifact" do
         error = config_error(BuildArtifactConfig::SRC, "Source is wrong")
         error.add(BuildArtifactConfig::DEST, "Dest is wrong")
@@ -78,12 +61,13 @@ describe Admin::JobsController, "view" do
 
         expect(response.status).to eq(200)
         expect(response.body).to have_selector("h3", :text=>"Artifacts")
-        Capybara.string(response.body).find("table[class='artifact']").tap do |table|
-          expect(table).to have_selector("div.field_with_errors input[class='form_input artifact_source'][value='src']")
-          expect(table).to have_selector("div.form_error", :text=>"Source is wrong")
-          expect(table).to have_selector("div.field_with_errors input[class='form_input artifact_destination'][value='dest']")
-          expect(table).to have_selector("div.form_error", :text=>"Dest is wrong")
-        end
+        expect(response.body).to have_selector("div[class='artifact-container'] div[class='artifact'] input[class='form_input artifact_source'][value='src']")
+        expect(response.body).to have_selector("div[class='artifact-container'] div.form_error", :text => "Source is wrong")
+        expect(response.body).to have_selector("div[class='artifact-container'] div[class='artifact'] div.field_with_errors input[class='form_input artifact_destination'][value='dest']")
+        expect(response.body).to have_selector("div[class='artifact-container'] div.form_error", :text => "Dest is wrong")
+
+        expect(response.body).to have_selector("div[class='artifact-container'] div[class='artifact'] input[class='form_input artifact_source'][value='src2']")
+        expect(response.body).to have_selector("div[class='artifact-container'] div[class='artifact'] input[class='form_input artifact_destination'][value='dest2']")
       end
     end
   end

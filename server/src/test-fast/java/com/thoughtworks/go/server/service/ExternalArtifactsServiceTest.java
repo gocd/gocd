@@ -79,7 +79,7 @@ public class ExternalArtifactsServiceTest {
         when(artifactStore.getPluginId()).thenReturn(pluginId);
         when(artifactExtension.validatePluggableArtifactConfig(any(), eq(configuration.getConfigurationAsMap(true)))).thenReturn(new ValidationResult());
 
-        externalArtifactsService.validateExternalArtifactConfig(pluggableArtifactConfig, artifactStore);
+        externalArtifactsService.validateExternalArtifactConfig(pluggableArtifactConfig, artifactStore, true);
 
         assertFalse(pluggableArtifactConfig.hasErrors());
     }
@@ -100,7 +100,7 @@ public class ExternalArtifactsServiceTest {
     public void shouldSkipValidationAgainstPluginIfExternalArtifactIsInvalid() {
         cruiseConfig.getArtifactStores().clear();
 
-        externalArtifactsService.validateExternalArtifactConfig(pluggableArtifactConfig, mock(ArtifactStore.class));
+        externalArtifactsService.validateExternalArtifactConfig(pluggableArtifactConfig, mock(ArtifactStore.class), true);
 
         verifyZeroInteractions(artifactExtension);
     }
@@ -118,7 +118,7 @@ public class ExternalArtifactsServiceTest {
     public void shouldAddErrorWhenPluggableArtifactDoesNotHaveValidStore() {
         cruiseConfig.getArtifactStores().clear();
 
-        externalArtifactsService.validateExternalArtifactConfig(pluggableArtifactConfig, mock(ArtifactStore.class));
+        externalArtifactsService.validateExternalArtifactConfig(pluggableArtifactConfig, mock(ArtifactStore.class), true);
 
         verifyZeroInteractions(artifactExtension);
 
@@ -142,7 +142,7 @@ public class ExternalArtifactsServiceTest {
 
         when(artifactExtension.validatePluggableArtifactConfig(any(String.class), any())).thenReturn(validationResult);
 
-        externalArtifactsService.validateExternalArtifactConfig(pluggableArtifactConfig, artifactStore);
+        externalArtifactsService.validateExternalArtifactConfig(pluggableArtifactConfig, artifactStore, true);
 
         assertThat(configuration.getProperty("Image").errors().get("Image").get(0), is("invalid"));
         assertThat(configuration.getProperty("Tag").errors().get("Tag").get(0), is("invalid"));
@@ -159,7 +159,7 @@ public class ExternalArtifactsServiceTest {
         when(artifactStore.getPluginId()).thenReturn(pluginId);
         when(artifactExtension.validatePluggableArtifactConfig(any(), any())).thenReturn(validationResult);
 
-        externalArtifactsService.validateExternalArtifactConfig(pluggableArtifactConfig, artifactStore);
+        externalArtifactsService.validateExternalArtifactConfig(pluggableArtifactConfig, artifactStore, true);
 
         assertThat(pluggableArtifactConfig.errors().getAllOn("configuration").get(0), is("Either Image or BuildFile is required"));
     }

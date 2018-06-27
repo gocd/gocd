@@ -28,6 +28,9 @@ import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @Component
 public class ArtifactStoreService extends PluginProfilesService<ArtifactStore> {
     private final ArtifactExtension artifactExtension;
@@ -60,5 +63,13 @@ public class ArtifactStoreService extends PluginProfilesService<ArtifactStore> {
         if (result.isSuccessful()) {
             result.setMessage(LocalizedMessage.resourceDeleteSuccessful("artifactStore", newArtifactStore.getId()));
         }
+    }
+
+    public Map<String, String> storeIdToPluginId() {
+        HashMap<String, String> artifactStoreToPluginId = new HashMap<>();
+        for (ArtifactStore artifactStore : getPluginProfiles()) {
+            artifactStoreToPluginId.put(artifactStore.getId(), artifactStore.getPluginId());
+        }
+        return artifactStoreToPluginId;
     }
 }

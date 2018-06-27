@@ -30,6 +30,7 @@ module JavaImports
   java_import com.thoughtworks.go.config.Approval unless defined? Approval
   java_import com.thoughtworks.go.config.ArtifactConfigs unless defined? ArtifactConfigs
   java_import com.thoughtworks.go.config.BuildArtifactConfig unless defined? BuildArtifactConfig
+  java_import com.thoughtworks.go.config.PluggableArtifactConfig unless defined? PluggableArtifactConfig
   java_import com.thoughtworks.go.config.preprocessor.ParamSubstitutionHandler unless defined? ParamSubstitutionHandler
   java_import com.thoughtworks.go.domain.ArtifactType unless defined? ArtifactType
   java_import com.thoughtworks.go.domain.buildcause.BuildCause unless defined? BuildCause
@@ -284,6 +285,7 @@ module JavaImports
   java_import com.thoughtworks.go.plugin.domain.pluggabletask.PluggableTaskPluginInfo unless defined? PluggableTaskPluginInfo
   java_import com.thoughtworks.go.plugin.domain.scm.SCMPluginInfo unless defined? SCMPluginInfo
   java_import com.thoughtworks.go.plugin.domain.artifact.ArtifactPluginInfo unless defined? ArtifactPluginInfo
+  java_import com.thoughtworks.go.plugin.access.artifact.ArtifactMetadataStore unless defined? ArtifactMetadataStore
   java_import com.thoughtworks.go.plugin.domain.analytics.AnalyticsPluginInfo unless defined? AnalyticsPluginInfo
   java_import com.thoughtworks.go.plugin.domain.common.CombinedPluginInfo unless defined? CombinedPluginInfo
 end

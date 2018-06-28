@@ -666,10 +666,11 @@ public class FetchPluggableArtifactTaskTest {
     }
 
     @Test
-    public void shouldSetConfiguration() {
+    public void shouldSetConfiguration_whenPluginIsProvided() {
         final HashMap<Object, Object> configAttrs = new HashMap<>();
         configAttrs.put(FetchPluggableArtifactTask.ARTIFACT_ID, "installers");
         configAttrs.put(FetchPluggableArtifactTask.CONFIGURATION, Collections.singletonMap("NAME", "gocd.zip"));
+        configAttrs.put("pluginId", "cd.go.artifact.s3");
 
         FetchPluggableArtifactTask task = new FetchPluggableArtifactTask(new CaseInsensitiveString("#{pipeline}"), new CaseInsensitiveString("#{stage}"), new CaseInsensitiveString("#{job}"), "#{artifactId}");
         task.setFetchTaskAttributes(configAttrs);
@@ -678,6 +679,24 @@ public class FetchPluggableArtifactTaskTest {
         Assertions.assertThat(task.getConfiguration())
                 .hasSize(1)
                 .contains(new ConfigurationProperty(new ConfigurationKey("NAME"), new ConfigurationValue("gocd.zip")));
+    }
+
+    @Test
+    public void shouldSetConfiguration_whenPluginIsNotProvided() throws CryptoException {
+        final HashMap<Object, Object> configAttrs = new HashMap<>();
+        configAttrs.put(FetchPluggableArtifactTask.ARTIFACT_ID, "installers");
+        configAttrs.put(FetchPluggableArtifactTask.CONFIGURATION, Collections.singletonMap("NAME", new HashMap<String, String>() {{
+            put("value", new GoCipher().encrypt("gocd.zip"));
+            put("isSecure", "true");
+        }}));
+
+        FetchPluggableArtifactTask task = new FetchPluggableArtifactTask(new CaseInsensitiveString("#{pipeline}"), new CaseInsensitiveString("#{stage}"), new CaseInsensitiveString("#{job}"), "#{artifactId}");
+        task.setFetchTaskAttributes(configAttrs);
+
+        Assertions.assertThat(task.getArtifactId()).isEqualTo("installers");
+        Assertions.assertThat(task.getConfiguration())
+                .hasSize(1)
+                .contains(new ConfigurationProperty(new ConfigurationKey("NAME"), new EncryptedConfigurationValue(new GoCipher().encrypt("gocd.zip"))));
     }
 
     @Test
@@ -691,32 +710,5 @@ public class FetchPluggableArtifactTaskTest {
 
         Assertions.assertThat(task.getArtifactId()).isEmpty();
         Assertions.assertThat(task.getConfiguration()).isEmpty();
-    }
-
-    @Test
-    public void shouldReturnConfigurationAsMap() {
-        final ConfigurationProperty installerName = new ConfigurationProperty(new ConfigurationKey("NAME"), new ConfigurationValue("gocd"));
-        installerName.addError("NAME", "some error");
-
-        FetchPluggableArtifactTask task = new FetchPluggableArtifactTask(
-                new CaseInsensitiveString("#{pipeline}"),
-                new CaseInsensitiveString("#{stage}"),
-                new CaseInsensitiveString("#{job}"), "#{artifactId}",
-                installerName,
-                new ConfigurationProperty(new ConfigurationKey("TYPE"), new ConfigurationValue("zip"))
-        );
-
-        final Map<String, Map<String, String>> configAsMap = task.getConfigAsMap();
-
-        Assertions.assertThat(configAsMap).hasSize(2);
-        Assertions.assertThat(configAsMap)
-                .containsKey("NAME").containsKey("TYPE");
-        Assertions.assertThat(configAsMap.get("NAME"))
-                .hasSize(2)
-                .containsEntry("value", "gocd")
-                .containsEntry("errors", "some error");
-        Assertions.assertThat(configAsMap.get("TYPE"))
-                .hasSize(1)
-                .containsEntry("value", "zip");
     }
 }

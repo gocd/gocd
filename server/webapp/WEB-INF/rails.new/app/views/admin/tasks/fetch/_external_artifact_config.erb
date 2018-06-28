@@ -5,26 +5,29 @@
   <%= error_message_on(@task, com.thoughtworks.go.config.FetchPluggableArtifactTask::ARTIFACT_ID, :css_class => "form_error") %>
 </div>
 
-<div class="form_item_block artifact_plugin_selection">
-  <span>Could not determine the plugin from the store. Please choose a plugin to configure the plugin properties.</span>
-  <label>Plugin ID</label>
-  <%= scope[:var_form].select("pluginId", scope[:artifact_plugin_to_fetch_view].collect {|p| [p.to_hash["name"], p.to_hash["id"]]}, {:prompt => 'Select Plugin'}) %>
-  <%= error_message_on(@task, "pluginId", :css_class => "form_error") %>
-</div>
-
-<div class="form_item_block" id="fetch_pluggable_task_view">
-</div>
-
-<% scope[:task].getConfiguration().getConfigurationAsMap(true).to_hash.each do |config_property| %>
-  <div class="plugin-config-read-only show plugin_key_value hidden">
-    <dl class="key-value-pair">
-      <dt><%= config_property[0] %></dt>
-      <dd><%= config_property[1] %></dd>
-      <input type="hidden" name="task[configuration][<%= config_property[0] %>]" value="<%= config_property[1] %>"/>
-    </dl>
+<div class="plugin_form_background">
+  <div class="form_item_block artifact_plugin_selection plugin_dropdown_background">
+    <span>Could not determine the plugin from the store. Please choose a plugin to configure the plugin properties.</span>
+    <label>Plugin ID</label>
+    <%= scope[:var_form].select("pluginId", scope[:artifact_plugin_to_fetch_view].collect {|p| [p.to_hash["name"], p.to_hash["id"]]}, {:prompt => 'Select Plugin'}) %>
+    <%= error_message_on(@task, "pluginId", :css_class => "form_error") %>
   </div>
-<% end %>
 
-<span id="fetch_external_artifact_data" style="display: none">
-    <%== com.google.gson.Gson.new.toJson(scope[:task].configAsMap()) %>
+  <div class="form_item_block hidden" id="fetch_pluggable_task_view">
+  </div>
+
+  <div class="plugin-config-read-only plugin_key_value hidden">
+    <% scope[:task].getConfiguration().getPropertyMetadataAndValuesAsMap().to_hash.each do |config_property| %>
+      <dl class="key-value-pair">
+        <dt><%= config_property[0] %></dt>
+        <dd><%= config_property[1]['displayValue'] %></dd>
+        <input type="hidden" name="task[configuration][<%= config_property[0] %>][value]" value="<%= config_property[1]['value'] %>"/>
+        <input type="hidden" name="task[configuration][<%= config_property[0] %>][isSecure]" value="<%= config_property[1]['isSecure'] %>"/>
+      </dl>
+    <% end %>
+  </div>
+
+  <span id="fetch_external_artifact_data" style="display: none">
+    <%== com.google.gson.Gson.new.toJson(scope[:task].getConfiguration().getConfigWithErrorsAsMap()) %>
 </span>
+</div>

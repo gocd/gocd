@@ -60,6 +60,7 @@
       showFetchTaskView(true);
     });
 
+
     showFetchTaskView(false);
   });
 
@@ -105,7 +106,7 @@
     var parameterized = isParameterized(artifactId);
     if (parameterized && isFormEdited) {
       showPluginSelectionDropdown();
-      jQuery(".plugin_key_value").hide();
+      jQuery(".plugin_key_value").remove();
       return;
     }
 
@@ -126,6 +127,7 @@
       hidePluginSelectionDropdown();
       jQuery("#task_pluginId").val(pluginId);
       jQuery(".plugin_key_value").hide();
+      jQuery("#fetch_pluggable_task_view").show();
       jQuery("#fetch_pluggable_task_view").html(getFetchArtifactView(pluginId));
       initializeAngular();
     } else {
@@ -133,6 +135,7 @@
       showPluginSelectionDropdown();
       resetPluginDropdown();
       jQuery("#fetch_pluggable_task_view").html("");
+      jQuery("#fetch_pluggable_task_view").hide();
     }
   }
 

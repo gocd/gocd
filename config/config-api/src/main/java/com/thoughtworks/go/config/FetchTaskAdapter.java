@@ -178,11 +178,6 @@ public class FetchTaskAdapter implements Task {
         return fetchPluggableArtifactTask.getConfiguration();
     }
 
-    @SuppressWarnings("unused") //rails
-    public Map<String, Map<String, String>> getConfigAsMap() {
-        return fetchPluggableArtifactTask.getConfigAsMap();
-    }
-
     @Override
     public void validate(ValidationContext validationContext) {
         oneOf(fetchPluggableArtifactTask::validate, fetchTask::validate, validationContext);

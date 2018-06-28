@@ -26,6 +26,7 @@ import com.thoughtworks.go.plugin.access.artifact.ArtifactMetadataStore;
 import com.thoughtworks.go.plugin.domain.artifact.ArtifactPluginInfo;
 import com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings;
 import com.thoughtworks.go.plugin.domain.common.PluginConfiguration;
+import com.thoughtworks.go.domain.config.EncryptedConfigurationValue;
 import com.thoughtworks.go.plugin.access.artifact.ArtifactMetadataStore;
 import com.thoughtworks.go.plugin.domain.artifact.ArtifactPluginInfo;
 import com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings;
@@ -194,13 +195,32 @@ public class FetchPluggableArtifactTask extends AbstractFetchTask {
             return;
         }
 
-        final Map<String, String> configurations = (Map<String, String>) attributeMap.get(CONFIGURATION);
-        if (configurations == null) {
+        final Map<String, Object> userSpecifiedConfiguration = (Map<String, Object>) attributeMap.get(CONFIGURATION);
+        if (userSpecifiedConfiguration == null) {
             return;
         }
 
-        for (Map.Entry<String, String> configuration : configurations.entrySet()) {
-            this.configuration.addNewConfigurationWithValue(configuration.getKey(), configuration.getValue(), false);
+        final String pluginId = (String) attributeMap.get("pluginId");
+        if (StringUtils.isBlank(pluginId)) {
+            for (String key : userSpecifiedConfiguration.keySet()) {
+                Map<String, String> configurationMetadata = (Map<String, String>) userSpecifiedConfiguration.get(key);
+                if (configurationMetadata != null) {
+                    boolean isSecure = Boolean.parseBoolean(configurationMetadata.get("isSecure"));
+                    if (configuration.getProperty(key) == null) {
+                        configuration.addNewConfiguration(key, isSecure);
+                    }
+                    if (isSecure) {
+                        configuration.getProperty(key).setEncryptedValue(new EncryptedConfigurationValue(configurationMetadata.get("value")));
+                    } else {
+                        configuration.getProperty(key).setConfigurationValue(new ConfigurationValue(configurationMetadata.get("value")));
+                    }
+                }
+            }
+
+        } else {
+            for (Map.Entry<String, Object> configuration : userSpecifiedConfiguration.entrySet()) {
+                this.configuration.addNewConfigurationWithValue(configuration.getKey(), String.valueOf(configuration.getValue()), false);
+            }
         }
     }
 

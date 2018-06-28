@@ -69,7 +69,7 @@
       </div>
     </div>
     <% if scope[:store_id_to_plugin_id][external_artifact_config.getStoreId()].blank? %>
-      <div class="row expanded plugin_key_value">
+      <div class="row expanded plugin_key_value plugin_form_background">
         <div class="columns medium-8 medium-offset-2 large-8 end">
           <% scope[:external_artifact].getConfiguration().getPropertyMetadataAndValuesAsMap().to_hash.each do |config_property| %>
             <div class="plugin-config-read-only show" id="plugin_key_value_<%= uuid %>">

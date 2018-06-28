@@ -89,6 +89,19 @@
     }
   }
 
+  function addPluginFromBackground() {
+    var allPluginViews = jQuery('.plugged_artifact_template');
+    if (!allPluginViews) {
+      return;
+    }
+
+    for (var i = 0; i < allPluginViews.length; i++) {
+      if (allPluginViews[i].hasChildNodes()) {
+        jQuery(allPluginViews[i]).closest('.row').addClass("plugin_form_background");
+      }
+    }
+  }
+
   function showAppropriatePluginView(pluginId, inputElement) {
     var externalArtifactForm = inputElement.closest('.artifact');
     var viewTemplate         = <%== scope[:artifact_plugin_to_view].to_json%>;
@@ -136,5 +149,6 @@
       jQuery(this).closest('.artifact').remove();
     });
     hookupStoresAutoComplete();
+    addPluginFromBackground();
   });
 </script>

@@ -25,7 +25,7 @@ import java.util.Collection;
 
 public class CRFetchPluggableArtifactTask extends CRAbstractFetchTask {
 
-    public static final String TYPE_NAME = "fetch_pluggable_artifact";
+    public static final String ORIGIN = "external";
 
     private String artifact_id;
     private Collection<CRConfigurationProperty> configuration;

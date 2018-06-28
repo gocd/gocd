@@ -27,11 +27,11 @@ public class ArtifactTypeAdapter extends TypeAdapter implements JsonDeserializer
 
     @Override
     public com.thoughtworks.go.plugin.access.configrepo.contract.CRArtifact deserialize(JsonElement json, Type type, JsonDeserializationContext context) throws JsonParseException {
-        return (CRArtifact) determineJsonElementForDistinguishingImplementers(json, context, TYPE);
+        return (CRArtifact) determineJsonElementForDistinguishingImplementers(json, context, TYPE, ORIGIN);
     }
 
     @Override
-    protected Class<?> classForName(String typeName) {
+    protected Class<?> classForName(String typeName, String origin) {
         if(typeName.equals("external"))
             return CRPluggableArtifact.class;
         if (typeName.equals("build") || typeName.equals("test"))

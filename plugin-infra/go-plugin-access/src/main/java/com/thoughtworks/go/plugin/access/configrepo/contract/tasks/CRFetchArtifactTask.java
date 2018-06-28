@@ -18,8 +18,7 @@ package com.thoughtworks.go.plugin.access.configrepo.contract.tasks;
 import com.thoughtworks.go.plugin.access.configrepo.ErrorCollection;
 
 public class CRFetchArtifactTask extends CRAbstractFetchTask {
-
-    public static final String TYPE_NAME = "fetch";
+    public static final String ORIGIN = "gocd";
 
     private String source;
     // when missing, will be false, which is default - source is directory

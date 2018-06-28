@@ -17,6 +17,7 @@
 package com.thoughtworks.go.plugin.access.configrepo.contract.tasks;
 
 public abstract class CRAbstractFetchTask extends CRTask {
+    public static final String TYPE_NAME = "fetch";
     protected String pipeline;
     protected String stage;
     protected String job;

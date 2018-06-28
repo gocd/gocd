@@ -26,11 +26,11 @@ public class MaterialTypeAdapter extends TypeAdapter implements JsonDeserializer
 
     @Override
     public CRMaterial deserialize(JsonElement json, Type type, JsonDeserializationContext context) throws JsonParseException {
-        return determineJsonElementForDistinguishingImplementers(json, context, TYPE);
+        return determineJsonElementForDistinguishingImplementers(json, context, TYPE, ORIGIN);
     }
 
     @Override
-    protected Class<?> classForName(String typeName) {
+    protected Class<?> classForName(String typeName, String origin) {
         if(typeName.equals(CRDependencyMaterial.TYPE_NAME))
             return CRDependencyMaterial.class;
         if(typeName.equals(CRPackageMaterial.TYPE_NAME))

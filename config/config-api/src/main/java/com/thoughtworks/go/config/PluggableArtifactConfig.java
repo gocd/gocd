@@ -183,6 +183,10 @@ public class PluggableArtifactConfig implements ArtifactConfig {
         return !errors.isEmpty() || configuration.hasErrors();
     }
 
+    public List<ConfigErrors> getAllErrors() {
+        return ErrorCollector.getAllErrors(this);
+    }
+
     @Override
     public void addError(String fieldName, String message) {
         errors.add(fieldName, message);

@@ -17,6 +17,7 @@
 package com.thoughtworks.go.config;
 
 import com.thoughtworks.go.domain.BaseCollection;
+import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.config.Configuration;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
 import com.thoughtworks.go.domain.config.SecureKeyInfoProvider;
@@ -76,6 +77,10 @@ public class FetchPluggableArtifactTask extends AbstractFetchTask {
 
     public Configuration getConfiguration() {
         return configuration;
+    }
+
+    public List<ConfigErrors> getAllErrors() {
+        return ErrorCollector.getAllErrors(this);
     }
 
     @Override

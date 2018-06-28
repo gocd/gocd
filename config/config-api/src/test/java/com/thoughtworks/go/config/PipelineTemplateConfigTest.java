@@ -214,6 +214,43 @@ public class PipelineTemplateConfigTest {
         assertThat(template.errors().getAllOn("pipeline"), is(Arrays.asList("\"pipeline :: stage :: defaultJob\" tries to fetch artifact from pipeline \"non-existent-pipeline\" which does not exist.")));
     }
 
+
+    @Test
+    public void shouldValidateFetchPluggableTasksOfATemplateInTheContextOfPipelinesUsingTheTemplate() throws Exception {
+        JobConfig jobConfig = new JobConfig(new CaseInsensitiveString("defaultJob"));
+        jobConfig.addTask(new FetchPluggableArtifactTask(new CaseInsensitiveString("non-existent-pipeline"), new CaseInsensitiveString("stage"), new CaseInsensitiveString("job"), "artifactId"));
+        JobConfigs jobConfigs = new JobConfigs(jobConfig);
+        StageConfig stageConfig = StageConfigMother.custom("stage", jobConfigs);
+        PipelineTemplateConfig template = PipelineTemplateConfigMother.createTemplate("template", stageConfig);
+        PipelineConfig pipelineConfig = PipelineConfigMother.pipelineConfigWithTemplate("pipeline", "template");
+        pipelineConfig.usingTemplate(template);
+        BasicCruiseConfig cruiseConfig = GoConfigMother.defaultCruiseConfig();
+        cruiseConfig.addTemplate(template);
+        cruiseConfig.addPipelineWithoutValidation("group", pipelineConfig);
+
+        template.validateTree(ConfigSaveValidationContext.forChain(cruiseConfig), cruiseConfig, false);
+
+        assertThat(template.errors().getAllOn("pipeline"), is(Arrays.asList("\"pipeline :: stage :: defaultJob\" tries to fetch artifact from pipeline \"non-existent-pipeline\" which does not exist.")));
+    }
+
+    @Test
+    public void shouldValidatePublishExternalArtifactOfATemplateInTheContextOfPipelinesUsingTheTemplate() throws Exception {
+        JobConfig jobConfig = new JobConfig(new CaseInsensitiveString("defaultJob"));
+        jobConfig.artifactConfigs().add(new PluggableArtifactConfig("some-id", "non-existent-store-id"));
+        JobConfigs jobConfigs = new JobConfigs(jobConfig);
+        StageConfig stageConfig = StageConfigMother.custom("stage", jobConfigs);
+        PipelineTemplateConfig template = PipelineTemplateConfigMother.createTemplate("template", stageConfig);
+        PipelineConfig pipelineConfig = PipelineConfigMother.pipelineConfigWithTemplate("pipeline", "template");
+        pipelineConfig.usingTemplate(template);
+        BasicCruiseConfig cruiseConfig = GoConfigMother.defaultCruiseConfig();
+        cruiseConfig.addTemplate(template);
+        cruiseConfig.addPipelineWithoutValidation("group", pipelineConfig);
+
+        template.validateTree(ConfigSaveValidationContext.forChain(cruiseConfig), cruiseConfig, false);
+
+        assertThat(template.errors().getAllOn("storeId"), is(Arrays.asList("Artifact store with id `non-existent-store-id` does not exist. Please correct the `storeId` attribute on pipeline `pipeline`.")));
+    }
+
     @Test
     public void shouldValidateStageApprovalAuthorizationOfATemplateInTheContextOfPipelinesUsingTheTemplate() throws Exception {
         JobConfig jobConfig = new JobConfig(new CaseInsensitiveString("defaultJob"));

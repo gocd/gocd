@@ -21,12 +21,9 @@ import com.thoughtworks.go.server.domain.UsageStatistics;
 import com.thoughtworks.go.spark.Routes.DataSharing;
 
 public class UsageStatisticsRepresenter {
-    public static void toJSON(OutputWriter outputWriter, UsageStatistics usageStatistics, boolean includeLinks) {
-        if (includeLinks) {
-            outputWriter.addLinks(linksWriter -> linksWriter.addLink("self", DataSharing.USAGE_DATA_PATH));
-        }
-
+    public static void toJSON(OutputWriter outputWriter, UsageStatistics usageStatistics) {
         outputWriter
+                .addLinks(linksWriter -> linksWriter.addLink("self", DataSharing.USAGE_DATA_PATH))
                 .addChild("_embedded", childWriter -> {
                     childWriter
                             .add("pipeline_count", usageStatistics.pipelineCount())

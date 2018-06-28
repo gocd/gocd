@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.util;
+package com.thoughtworks.go.server.util;
 
 import org.junit.jupiter.api.Test;
 

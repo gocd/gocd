@@ -23,7 +23,7 @@ import com.thoughtworks.go.apiv1.datasharing.usagedata.representers.UsageStatist
 import com.thoughtworks.go.server.domain.UsageStatistics;
 import com.thoughtworks.go.server.service.DataSharingService;
 import com.thoughtworks.go.spark.Routes.DataSharing;
-import com.thoughtworks.go.util.RSAEncryptionHelper;
+import com.thoughtworks.go.server.util.RSAEncryptionHelper;
 import com.thoughtworks.go.util.SystemEnvironment;
 import spark.Request;
 import spark.Response;
@@ -65,15 +65,10 @@ public class UsageStatisticsControllerV1Delegate extends ApiController {
 
     public String getUsageStatistics(Request request, Response response) {
         UsageStatistics usageStatistics = dataSharingService.getUsageStatistics();
-        return jsonizeAsTopLevelObject(request, writer -> UsageStatisticsRepresenter.toJSON(writer, usageStatistics, true));
+        return jsonizeAsTopLevelObject(request, writer -> UsageStatisticsRepresenter.toJSON(writer, usageStatistics));
     }
 
     public String getEncryptedUsageStatistics(Request request, Response response) throws Exception {
-        UsageStatistics usageStatistics = dataSharingService.getUsageStatistics();
-        return encrypt(jsonizeAsTopLevelObject(request, writer -> UsageStatisticsRepresenter.toJSON(writer, usageStatistics, false)));
-    }
-
-    private String encrypt(String toEncrypt) throws Exception {
-        return RSAEncryptionHelper.encrypt(toEncrypt, systemEnvironment.getUpdateServerPublicKeyPath());
+        return RSAEncryptionHelper.encrypt(getUsageStatistics(request, response), systemEnvironment.getUpdateServerPublicKeyPath());
     }
 }

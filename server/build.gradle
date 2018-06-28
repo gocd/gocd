@@ -405,9 +405,9 @@ test { Test thisTask ->
 }
 
 fastUnitTest { thisTask ->
-  forkEvery 512
-  minHeapSize '1024m'
-  maxHeapSize '4096m'
+  forkEvery 256
+  minHeapSize '1g'
+  maxHeapSize '4g'
 
   doFirst {
     def files = project.files([])

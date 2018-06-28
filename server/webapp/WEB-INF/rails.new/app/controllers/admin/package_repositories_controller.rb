@@ -135,7 +135,7 @@ class Admin::PackageRepositoriesController < AdminController
     end
 
     def get_cloner_instance
-      @cloner ||= Cloner.new
+      @cloner ||= GoConfigCloner.new
     end
 
     def set_tab_name

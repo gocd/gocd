@@ -15,7 +15,6 @@
 ##########################GO-LICENSE-END##################################
 
 module JavaImports
-  java_import com.rits.cloning.Cloner unless defined? Cloner
   java_import com.thoughtworks.go.server.newsecurity.utils.SessionUtils unless defined? SessionUtils
   java_import com.thoughtworks.go.config.ExecTask unless defined? ExecTask
   java_import com.thoughtworks.go.config.AntTask unless defined? AntTask
@@ -289,4 +288,5 @@ module JavaImports
   java_import com.thoughtworks.go.plugin.domain.analytics.AnalyticsPluginInfo unless defined? AnalyticsPluginInfo
   java_import com.thoughtworks.go.plugin.domain.common.CombinedPluginInfo unless defined? CombinedPluginInfo
   java_import com.thoughtworks.go.server.service.WebpackAssetsService unless defined? WebpackAssetsService
+  java_import com.thoughtworks.go.config.GoConfigCloner unless defined? GoConfigCloner
 end

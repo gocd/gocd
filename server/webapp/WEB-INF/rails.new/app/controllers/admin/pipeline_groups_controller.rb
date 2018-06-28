@@ -15,7 +15,7 @@
 ##########################GO-LICENSE-END##################################
 
 class Admin::PipelineGroupsController < AdminController
-  CLONER = Cloner.new()
+  CLONER = GoConfigCloner.new()
 
   before_filter :load_config_for_edit
   before_filter :load_groups_for_edit, :only => [:edit, :show]

@@ -18,7 +18,7 @@ class Admin::PipelinesSnippetController < AdminController
   before_filter :set_tab_name
   before_filter :load_config_for_edit, :only => [:edit]
 
-  CLONER = Cloner.new
+  CLONER = GoConfigCloner.new
 
   def show
     set_group_data

@@ -20,7 +20,7 @@ module Admin
     include ::Admin::PipelinesHelper
     ERROR_PATTERN = /#{ParamSubstitutionHandler::NO_PARAM_FOUND_MSG.gsub("'%s'", "'([^']*)'")}/
 
-    CLONER = Cloner.new
+    CLONER = GoConfigCloner.new
 
     include PipelineConfigLoader
     include ::Admin::DependencyMaterialAutoSuggestions
@@ -244,7 +244,7 @@ module Admin
           renamed_config = changed_param_configs.getParamNamed(renamed[:name])
           renamed_config.addError(ParamConfig::NAME, "Parameter '#{param_name}' cannot be renamed because it is referenced by other elements")
         elsif param_deleted?(param_name, request_params)
-          param_config = Cloner.new.deepClone(original_param_configs.getParamNamed(param_name))
+          param_config = GoConfigCloner.new.deepClone(original_param_configs.getParamNamed(param_name))
           param_config.addError(ParamConfig::NAME, "Parameter cannot be deleted because it is referenced by other elements")
           changed_param_configs.add(original_param_configs.getIndex(param_name), param_config)
         else

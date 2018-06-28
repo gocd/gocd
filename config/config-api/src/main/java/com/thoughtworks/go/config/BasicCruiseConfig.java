@@ -46,7 +46,6 @@ import org.apache.commons.lang3.StringUtils;
 import javax.annotation.PostConstruct;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 import java.util.function.Function;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
@@ -95,14 +94,16 @@ public class BasicCruiseConfig implements CruiseConfig {
     private String md5;
     private ConfigErrors errors = new ConfigErrors();
 
-    private ConcurrentMap<CaseInsensitiveString, PipelineConfig> pipelineNameToConfigMap = new ConcurrentHashMap<>();
-    private List<PipelineConfig> allPipelineConfigs;
+    @IgnoreTraversal
+    private PipelineNameToConfigMap pipelineNameToConfigMap;
+    @IgnoreTraversal
+    private AllPipelineConfigs allPipelineConfigs;
 
     @IgnoreTraversal
     private List<PartialConfig> partials = new ArrayList<>();
 
     @IgnoreTraversal
-    private transient Map<CaseInsensitiveString, Map<CaseInsensitiveString, Authorization>> allTemplatesWithAssociatedPipelines;
+    private transient AllTemplatesWithAssociatedPipelines allTemplatesWithAssociatedPipelines;
 
     public BasicCruiseConfig() {
         strategy = new BasicStrategy();
@@ -129,13 +130,13 @@ public class BasicCruiseConfig implements CruiseConfig {
         }
         partList = removePartialsThatDoNotCorrespondToTheCurrentConfigReposList(partList);
 
-        if (this.strategy instanceof MergeStrategy)
+        if (strategy instanceof MergeStrategy)
             throw new RuntimeException("cannot merge partials to already merged configuration");
         MergeStrategy mergeStrategy = new MergeStrategy(partList, forEdit);
         this.strategy = mergeStrategy;
         groups = mergeStrategy.mergePipelineConfigs();
         environments = mergeStrategy.mergeEnvironmentConfigs();
-        this.resetAllPipelineConfigsCache();
+        resetAllPipelineConfigsCache();
     }
 
     private List<PartialConfig> removePartialsThatDoNotCorrespondToTheCurrentConfigReposList(List<PartialConfig> partList) {
@@ -153,8 +154,8 @@ public class BasicCruiseConfig implements CruiseConfig {
 
     private void resetAllPipelineConfigsCache() {
         allPipelineConfigs = null;
-        //TODO temporary to check if this causes #1901
-        pipelineNameToConfigMap = new ConcurrentHashMap<>();
+        pipelineNameToConfigMap = null;
+        allTemplatesWithAssociatedPipelines = null;
     }
 
     private void createMergedConfig(BasicCruiseConfig main, List<PartialConfig> partList, boolean forEdit) {
@@ -209,8 +210,6 @@ public class BasicCruiseConfig implements CruiseConfig {
         List<PartialConfig> getMergedPartials();
 
         boolean isLocal();
-
-        CruiseConfig cloneForValidation();
     }
 
     private class BasicStrategy implements CruiseStrategy {
@@ -250,12 +249,6 @@ public class BasicCruiseConfig implements CruiseConfig {
         @Override
         public boolean isLocal() {
             return true;
-        }
-
-        @Override
-        public CruiseConfig cloneForValidation() {
-            Cloner cloner = new Cloner();
-            return cloner.deepClone(BasicCruiseConfig.this);
         }
     }
 
@@ -470,21 +463,15 @@ public class BasicCruiseConfig implements CruiseConfig {
         public boolean isLocal() {
             return false;
         }
-
-        @Override
-        public CruiseConfig cloneForValidation() {
-            Cloner cloner = new Cloner();
-            BasicCruiseConfig configForValidation = cloner.deepClone(BasicCruiseConfig.this);
-            // and this must be initialized again, we don't want _same_ instances in groups and in allPipelineConfigs
-            configForValidation.allPipelineConfigs = null;
-            configForValidation.pipelineNameToConfigMap = new ConcurrentHashMap<>();
-            return configForValidation;
-        }
     }
 
     @Override
     public CruiseConfig cloneForValidation() {
-        return strategy.cloneForValidation();
+        Cloner cloner = new Cloner();
+        BasicCruiseConfig configForValidation = cloner.deepClone(BasicCruiseConfig.this);
+        // This needs to be done clear the cached fields else the cloned object will all get them.
+        configForValidation.resetAllPipelineConfigsCache();
+        return configForValidation;
     }
 
     @Override
@@ -617,6 +604,9 @@ public class BasicCruiseConfig implements CruiseConfig {
 
     @Override
     public PipelineConfig pipelineConfigByName(final CaseInsensitiveString name) {
+        if (pipelineNameToConfigMap == null) {
+            pipelineNameToConfigMap = new PipelineNameToConfigMap();
+        }
         if (pipelineNameToConfigMap.containsKey(name)) {
             return pipelineNameToConfigMap.get(name);
         }
@@ -988,7 +978,7 @@ public class BasicCruiseConfig implements CruiseConfig {
     @Override
     public List<PipelineConfig> getAllPipelineConfigs() {
         if (allPipelineConfigs == null) {
-            List<PipelineConfig> configs = new ArrayList<>();
+            AllPipelineConfigs configs = new AllPipelineConfigs();
             PipelineGroups groups = getGroups();
             for (PipelineConfigs group : groups) {
                 for (PipelineConfig pipelineConfig : group) {
@@ -1318,7 +1308,7 @@ public class BasicCruiseConfig implements CruiseConfig {
     @Override
     public Map<CaseInsensitiveString, Map<CaseInsensitiveString, Authorization>> templatesWithAssociatedPipelines() {
         if (allTemplatesWithAssociatedPipelines == null) {
-            allTemplatesWithAssociatedPipelines = new HashMap<>();
+            allTemplatesWithAssociatedPipelines = new AllTemplatesWithAssociatedPipelines();
             for (PipelineTemplateConfig templateConfig : getTemplates()) {
                 if (!allTemplatesWithAssociatedPipelines.containsKey(templateConfig.name())) {
                     allTemplatesWithAssociatedPipelines.put(templateConfig.name(), new HashMap<>());
@@ -1561,5 +1551,14 @@ public class BasicCruiseConfig implements CruiseConfig {
         result = 31 * result + (environments != null ? environments.hashCode() : 0);
         result = 31 * result + (agents != null ? agents.hashCode() : 0);
         return result;
+    }
+
+    public class AllTemplatesWithAssociatedPipelines extends HashMap<CaseInsensitiveString, Map<CaseInsensitiveString, Authorization>> {
+    }
+
+    public class AllPipelineConfigs extends ArrayList<PipelineConfig> {
+    }
+
+    public class PipelineNameToConfigMap extends ConcurrentHashMap<CaseInsensitiveString, PipelineConfig> {
     }
 }

@@ -548,7 +548,7 @@ public class GoConfigFileHelper {
     public CruiseConfig load() {
         try {
             goConfigDao.forceReload();
-            return new Cloner().deepClone(goConfigDao.loadForEditing());
+            return new GoConfigCloner().deepClone(goConfigDao.loadForEditing());
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -557,7 +557,7 @@ public class GoConfigFileHelper {
     public CruiseConfig loadForEdit() {
         try {
             goConfigDao.forceReload();
-            return new Cloner().deepClone(goConfigDao.loadForEditing());
+            return new GoConfigCloner().deepClone(goConfigDao.loadForEditing());
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

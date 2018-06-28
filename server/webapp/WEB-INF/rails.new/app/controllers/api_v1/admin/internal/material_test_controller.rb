@@ -53,7 +53,7 @@ module ApiV1
 
           pipeline_config = PipelineConfig.new
           pipeline_config.name = params[:pipeline_name]
-          pipeline_config.params = Cloner.new.deepClone(existing_pipeline.getParams)
+          pipeline_config.params = GoConfigCloner.new.deepClone(existing_pipeline.getParams)
           pipeline_config.material_configs << material_config
 
           ConfigParamPreprocessor.new.process(pipeline_config)

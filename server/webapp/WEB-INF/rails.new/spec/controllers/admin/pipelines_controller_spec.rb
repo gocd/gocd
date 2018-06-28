@@ -413,7 +413,7 @@ describe Admin::PipelinesController do
       repos = PackageRepositories.new
       repos.add(@repository1)
       @cruise_config.setPackageRepositories(repos)
-      expect(@go_config_service).to receive(:getConfigForEditing).and_return(Cloner.new().deepClone(@cruise_config))
+      expect(@go_config_service).to receive(:getConfigForEditing).and_return(GoConfigCloner.new().deepClone(@cruise_config))
       allow(@go_config_service).to receive(:registry)
       ReflectionUtil.setField(@cruise_config, "md5", "1234abcd")
       @pause_info = PipelinePauseInfo.paused("just for fun", "loser")
@@ -430,7 +430,7 @@ describe Admin::PipelinesController do
 
     it "should populate group name from the submitted value if it is present" do
       expect(@template_config_service).to receive(:getTemplateViewModels).with(anything).and_return([])
-      expect(@go_config_service).to receive(:getCurrentConfig).twice.and_return(Cloner.new().deepClone(@cruise_config))
+      expect(@go_config_service).to receive(:getCurrentConfig).twice.and_return(GoConfigCloner.new().deepClone(@cruise_config))
 
       stub_save_for_success
       expect(@pipeline_pause_service).to receive(:pause).with("new-pip", "Under construction", @user)
@@ -442,7 +442,7 @@ describe Admin::PipelinesController do
 
     it "should create a new pipeline in a new pipeline group and pause the pipeline" do
       expect(@template_config_service).to receive(:getTemplateViewModels).with(anything).and_return([])
-      expect(@go_config_service).to receive(:getCurrentConfig).twice.and_return(Cloner.new().deepClone(@cruise_config))
+      expect(@go_config_service).to receive(:getCurrentConfig).twice.and_return(GoConfigCloner.new().deepClone(@cruise_config))
 
       stub_save_for_success
       expect(@pipeline_pause_service).to receive(:pause).with("new-pip", "Under construction", @user)
@@ -466,7 +466,7 @@ describe Admin::PipelinesController do
       selected_pipeline_id = "456"
       allow(controller).to receive(:cookies).and_return(cookiejar={:selected_pipelines => selected_pipeline_id})
 
-      expect(@go_config_service).to receive(:getCurrentConfig).twice.and_return(Cloner.new().deepClone(@cruise_config))
+      expect(@go_config_service).to receive(:getCurrentConfig).twice.and_return(GoConfigCloner.new().deepClone(@cruise_config))
       expect(@pipeline_pause_service).to receive(:pause).with("new-pip", "Under construction", @user)
       expect(@pipeline_selections_service).to receive(:updateUserPipelineSelections).with(selected_pipeline_id, current_user_entity_id, CaseInsensitiveString.new(pipeline_name))
 
@@ -483,7 +483,7 @@ describe Admin::PipelinesController do
 
       pipeline_name = "new-pip"
 
-      expect(@go_config_service).to receive(:getCurrentConfig).twice.and_return(Cloner.new().deepClone(@cruise_config))
+      expect(@go_config_service).to receive(:getCurrentConfig).twice.and_return(GoConfigCloner.new().deepClone(@cruise_config))
       expect(@pipeline_selections_service).not_to receive(:updateUserPipelineSelections)
 
       stub_save_for_validation_error do |result, _, _|
@@ -498,7 +498,7 @@ describe Admin::PipelinesController do
       list_of_templates = [TemplatesViewModel.new(@cruise_config.getTemplateByName(CaseInsensitiveString.new(template_name)), true, true)]
       expect(@template_config_service).to receive(:getTemplateViewModels).with(anything).and_return(list_of_templates)
 
-      expect(@go_config_service).to receive(:getCurrentConfig).twice.and_return(Cloner.new().deepClone(@cruise_config))
+      expect(@go_config_service).to receive(:getCurrentConfig).twice.and_return(GoConfigCloner.new().deepClone(@cruise_config))
 
       stub_save_for_success
       expect(@pipeline_pause_service).to receive(:pause).with("new-pip", "Under construction", @user)
@@ -522,7 +522,7 @@ describe Admin::PipelinesController do
       expect(@task_view_service).to receive(:getModelOfType).with(anything, anything).and_return(TaskViewModel.new(nil, nil))
       allow(@security_service).to receive(:hasViewOrOperatePermissionForPipeline).and_return(true)
 
-      expect(@go_config_service).to receive(:getCurrentConfig).twice.and_return(Cloner.new().deepClone(@cruise_config))
+      expect(@go_config_service).to receive(:getCurrentConfig).twice.and_return(GoConfigCloner.new().deepClone(@cruise_config))
 
       @pause_info = PipelinePauseInfo.paused("just for fun", "loser")
       expect(@pipeline_pause_service).to receive(:pipelinePauseInfo).with("").and_return(@pause_info)
@@ -566,7 +566,7 @@ describe Admin::PipelinesController do
       expect(@security_service).to receive(:modifiableGroupsForUser).with(@user).and_return(["group1", "group2"])
       allow(@security_service).to receive(:hasViewOrOperatePermissionForPipeline).and_return(true)
 
-      expect(@go_config_service).to receive(:getCurrentConfig).twice.and_return(Cloner.new().deepClone(@cruise_config))
+      expect(@go_config_service).to receive(:getCurrentConfig).twice.and_return(GoConfigCloner.new().deepClone(@cruise_config))
 
       @pause_info = PipelinePauseInfo.paused("just for fun", "loser")
       expect(@pipeline_pause_service).to receive(:pipelinePauseInfo).with("").and_return(@pause_info)
@@ -597,7 +597,7 @@ describe Admin::PipelinesController do
       expect(@task_view_service).to receive(:getViewModel).with(anything, anything).and_return(TaskViewModel.new(nil, nil))
       expect(@task_view_service).to receive(:getModelOfType).with(anything, anything).and_return(TaskViewModel.new(nil, nil))
       @cruise_config_mother.addPipeline(@cruise_config, "pipeline2", "stage-2", ["job-2"].to_java(java.lang.String))
-      expect(@go_config_service).to receive(:getCurrentConfig).twice.and_return(Cloner.new().deepClone(@cruise_config))
+      expect(@go_config_service).to receive(:getCurrentConfig).twice.and_return(GoConfigCloner.new().deepClone(@cruise_config))
 
       stub_save_for_validation_error do |result, cruise_config, node|
         result.forbidden("unauthorized", nil)
@@ -612,7 +612,7 @@ describe Admin::PipelinesController do
 
     it "should populate new package material with submitted value if it is present" do
       expect(@template_config_service).to receive(:getTemplateViewModels).with(anything).and_return([])
-      expect(@go_config_service).to receive(:getCurrentConfig).twice.and_return(Cloner.new().deepClone(@cruise_config))
+      expect(@go_config_service).to receive(:getCurrentConfig).twice.and_return(GoConfigCloner.new().deepClone(@cruise_config))
 
       stub_save_for_success
       expect(@pipeline_pause_service).to receive(:pause).with("new-pip", "Under construction", @user)
@@ -628,7 +628,7 @@ describe Admin::PipelinesController do
 
     it "should create new package material with submitted value if it is present" do
       expect(@template_config_service).to receive(:getTemplateViewModels).with(anything).and_return([])
-      expect(@go_config_service).to receive(:getCurrentConfig).twice.and_return(Cloner.new().deepClone(@cruise_config))
+      expect(@go_config_service).to receive(:getCurrentConfig).twice.and_return(GoConfigCloner.new().deepClone(@cruise_config))
 
       stub_save_for_success
       expect(@pipeline_pause_service).to receive(:pause).with("new-pip", "Under construction", @user)
@@ -652,7 +652,7 @@ describe Admin::PipelinesController do
       package_material_config.setPackageDefinition(PackageDefinitionMother.create("pkg-id", "package3-name", nil, @repository1))
       @pipeline = @cruise_config_mother.addPipeline(@cruise_config, "pipeline2", "stage-2", MaterialConfigs.new([package_material_config].to_java(com.thoughtworks.go.domain.materials.MaterialConfig)), ["job-2"].to_java(java.lang.String))
       @subject = @pipeline
-      expect(@go_config_service).to receive(:getCurrentConfig).twice.and_return(Cloner.new().deepClone(@cruise_config))
+      expect(@go_config_service).to receive(:getCurrentConfig).twice.and_return(GoConfigCloner.new().deepClone(@cruise_config))
 
       stub_save_for_validation_error do |result, cruise_config, node|
         result.forbidden("unauthorized", nil)
@@ -674,7 +674,7 @@ describe Admin::PipelinesController do
       allow(@pluggable_task_service).to receive(:validate)
       @new_task = PluggableTask.new( PluginConfiguration.new("curl.plugin", "1.0"), Configuration.new([ConfigurationPropertyMother.create("Url", false, nil)].to_java(ConfigurationProperty)))
       expect(@task_view_service).to receive(:taskInstanceFor).with("pluggableTask").and_return(@new_task)
-      expect(@go_config_service).to receive(:getCurrentConfig).twice.and_return(Cloner.new().deepClone(@cruise_config))
+      expect(@go_config_service).to receive(:getCurrentConfig).twice.and_return(GoConfigCloner.new().deepClone(@cruise_config))
       stub_save_for_success
       pipeline_name = "new-pip"
       expect(@pipeline_pause_service).to receive(:pause).with(pipeline_name, "Under construction", @user)
@@ -701,7 +701,7 @@ describe Admin::PipelinesController do
       expect(@task_view_service).to receive(:taskInstanceFor).with("pluggableTask").and_return(@new_task)
       expect(@task_view_service).to receive(:getViewModel).with(@new_task, "new").and_return(TaskViewModel.new(nil, nil))
       expect(@task_view_service).to receive(:getModelOfType).with(anything, anything).and_return(TaskViewModel.new(nil, nil))
-      expect(@go_config_service).to receive(:getCurrentConfig).twice.and_return(Cloner.new().deepClone(@cruise_config))
+      expect(@go_config_service).to receive(:getCurrentConfig).twice.and_return(GoConfigCloner.new().deepClone(@cruise_config))
       stub_save_for_validation_error do |result, cruise_config, pipeline|
         result.badRequest("Save failed, see errors below")
       end

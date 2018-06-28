@@ -161,6 +161,7 @@ public class CachedGoConfigIntegrationTest {
         for (PartialConfig partial : cachedGoPartials.lastKnownPartials()) {
             assertThat(ErrorCollector.getAllErrors(partial).isEmpty(), is(true));
         }
+        configHelper.onTearDown();
     }
 
     @Test

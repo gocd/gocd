@@ -66,7 +66,7 @@ public class MagicalGoConfigXmlLoader {
 
     public static final List<GoConfigXMLValidator> XML_VALIDATORS = Arrays.asList((GoConfigXMLValidator) new UniqueOnCancelValidator());
 
-    private static final Cloner CLONER = new Cloner();
+    private static final GoConfigCloner CLONER = new GoConfigCloner();
     private ConfigCache configCache;
     private final ConfigElementImplementationRegistry registry;
 

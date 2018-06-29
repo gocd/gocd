@@ -59,24 +59,4 @@ public class SparkOrRailsToggleTest {
 
         verify(request).setAttribute("newUrl", "/spark/dashboard");
     }
-
-    @Test
-    public void shouldForwardTheRequestToSparkIfTemplatesToggleIsEnabled() {
-        SparkOrRailsToggle sparkOrRailsToggle = new SparkOrRailsToggle();
-        when(featureToggleService.isToggleOn(Toggles.TEMPLATES_APIV4_KEY)).thenReturn(true);
-
-        sparkOrRailsToggle.templateConfigApi(request, null);
-
-        verify(request).setAttribute("sparkOrRails", "spark");
-    }
-
-    @Test
-    public void shouldForwardTheRequestToRailsIfTemplatesToggleIsDisabled() {
-        SparkOrRailsToggle sparkOrRailsToggle = new SparkOrRailsToggle();
-        when(featureToggleService.isToggleOn(Toggles.TEMPLATES_APIV4_KEY)).thenReturn(false);
-
-        sparkOrRailsToggle.templateConfigApi(request, null);
-
-        verify(request).setAttribute("sparkOrRails", "rails");
-    }
 }

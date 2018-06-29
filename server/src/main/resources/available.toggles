@@ -30,11 +30,6 @@
         "key": "artifact_extension_key",
         "description": "Disable artifact extension (implicit) by disabling the pluggable artifact specific config elements",
         "value": false
-      },
-      {
-        "key": "templates_apiv4_key",
-        "description": "This toggle determines whether a template api request is forwarded to rails or spark",
-        "value": true
       }
   ]
 }

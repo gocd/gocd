@@ -22,7 +22,6 @@ public class Toggles {
     public static String BROWSER_CONSOLE_LOG_WS = "browser_console_log_ws_key";
     public static String ARTIFACT_EXTENSION_KEY = "artifact_extension_key";
     public static String NEW_DASHBOARD_PAGE_DEFAULT = "new_dashboard_page_default";
-    public static String TEMPLATES_APIV4_KEY = "templates_apiv4_key";
 
     private static FeatureToggleService service;
 

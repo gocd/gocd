@@ -94,7 +94,7 @@ public class DataSharingSettingsControllerV1Delegate extends ApiController imple
             throw haltBecauseEtagDoesNotMatch();
         }
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        dataSharingSettingsService.update(getEntityFromRequestBody(request));
+        dataSharingSettingsService.createOrUpdate(getEntityFromRequestBody(request));
         return handleCreateOrUpdateResponse(request, response, dataSharingSettingsService.get(), result);
     }
 

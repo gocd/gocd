@@ -19,14 +19,16 @@ package com.thoughtworks.go.server.service;
 import com.thoughtworks.go.domain.DataSharingSettings;
 import com.thoughtworks.go.domain.UsageStatisticsReporting;
 import com.thoughtworks.go.server.dao.UsageStatisticsReportingSqlMapDao;
+import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.util.SystemEnvironment;
+import com.thoughtworks.go.util.TestingClock;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
 import java.util.Date;
 
-import static org.hamcrest.Matchers.not;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.when;
@@ -42,11 +44,12 @@ public class DataSharingUsageStatisticsReportingServiceTest {
     private SystemEnvironment systemEnvironment;
     private String goUsageDataRemoteServerURL;
     private DataSharingSettings dataSharingSetting;
+    private TestingClock clock = new TestingClock();
 
     @Before
     public void setUp() throws Exception {
         initMocks(this);
-        service = new DataSharingUsageStatisticsReportingService(usageStatisticsReportingSqlMapDao, dataSharingSettingsService, systemEnvironment);
+        service = new DataSharingUsageStatisticsReportingService(usageStatisticsReportingSqlMapDao, dataSharingSettingsService, systemEnvironment, clock);
         goUsageDataRemoteServerURL = "https://datasharing.gocd.org";
         when(systemEnvironment.getGoDataSharingServerUrl()).thenReturn(goUsageDataRemoteServerURL);
 
@@ -109,8 +112,30 @@ public class DataSharingUsageStatisticsReportingServiceTest {
 
         UsageStatisticsReporting statisticsReporting = service.get();
         assertTrue(statisticsReporting.canReport());
+        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+        service.startReporting(result);
+        assertTrue(result.isSuccessful());
         statisticsReporting = service.get();
         assertFalse(statisticsReporting.canReport());
+    }
+
+    @Test
+    public void shouldAllowReportingDataSharingWhenCurrentInProgressReportingIsStale() {
+        Date lastReportedAt = new Date();
+        lastReportedAt.setDate(lastReportedAt.getDate() - 1);
+        UsageStatisticsReporting existingMetric = new UsageStatisticsReporting("server-id", lastReportedAt);
+        when(usageStatisticsReportingSqlMapDao.load()).thenReturn(existingMetric);
+
+        UsageStatisticsReporting statisticsReporting = service.get();
+        assertTrue(statisticsReporting.canReport());
+        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+        service.startReporting(result);
+        assertTrue(result.isSuccessful());
+
+        clock.addSeconds(60 * 31);
+
+        statisticsReporting = service.get();
+        assertTrue(statisticsReporting.canReport());
     }
 
     @Test
@@ -124,11 +149,35 @@ public class DataSharingUsageStatisticsReportingServiceTest {
     }
 
     @Test
-    public void shouldUpdateStatsSharedAtTime() {
-        UsageStatisticsReporting existingMetric = new UsageStatisticsReporting("server-id", new Date());
-        when(usageStatisticsReportingSqlMapDao.load()).thenReturn(existingMetric);
+    public void shouldFailStartingReportingIfReportingHasAlreadyBeenStarted() {
+        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+        service.startReporting(result);
+        result = new HttpLocalizedOperationResult();
+        service.startReporting(result);
 
-        UsageStatisticsReporting updatedReporting = service.updateLastReportedTime();
-        assertThat(updatedReporting.lastReportedAt().toInstant(), is(not(existingMetric.lastReportedAt())));
+        assertFalse(result.isSuccessful());
+        assertThat(result.message(), is("Cannot start usage statistics reporting as it is already in progress."));
+    }
+
+    @Test
+    public void shouldAllowStartingReportingAgainIfReportingHasAlreadyBeenStartedPriorToHalfAnHour() {
+        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+        service.startReporting(result);
+
+        clock.addSeconds(60 * 31);
+
+        result = new HttpLocalizedOperationResult();
+        service.startReporting(result);
+
+        assertTrue(result.isSuccessful());
+    }
+
+    @Test
+    public void shouldFailCompletingReportingIfReportingHasAlreadyBeenCompleted() {
+        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+        service.completeReporting(result);
+
+        assertFalse(result.isSuccessful());
+        assertThat(result.message(), is("Cannot complete usage statistics reporting as it has already completed."));
     }
 }

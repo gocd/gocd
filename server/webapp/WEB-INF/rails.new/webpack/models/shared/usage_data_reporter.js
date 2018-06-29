@@ -52,9 +52,10 @@ const UsageDataReporter = function () {
 
     try {
       if (reportingInfo.canReport()) {
+        await DataReporting.startReporting();
         const encryptedUsageData = await UsageData.getEncrypted();
         await reportToGoCDDataSharingServer(reportingInfo.dataSharingServerUrl(), encryptedUsageData);
-        await DataReporting.markReported();
+        await DataReporting.completeReporting();
       }
     } finally {
       markReportingCheckDone();

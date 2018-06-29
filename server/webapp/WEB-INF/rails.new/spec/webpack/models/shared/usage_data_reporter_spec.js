@@ -20,9 +20,10 @@ describe('Usage Data Reporter', () => {
 
   const USAGE_DATA_LAST_REPORTED_TIME_KEY = "usage_data_last_reported_time";
 
-  const usageDataURL          = '/go/api/internal/data_sharing/usagedata';
-  const usageReportingGetURL  = '/go/api/internal/data_sharing/reporting/info';
-  const usageReportingPostURL = '/go/api/internal/data_sharing/reporting/reported';
+  const encryptedUsageDataURL     = '/go/api/internal/data_sharing/usagedata/encrypted';
+  const usageReportingGetURL      = '/go/api/internal/data_sharing/reporting/info';
+  const usageReportingStartURL    = '/go/api/internal/data_sharing/reporting/start';
+  const usageReportingCompleteURL = '/go/api/internal/data_sharing/reporting/complete';
 
   let reporter;
   beforeEach(() => {
@@ -53,35 +54,45 @@ describe('Usage Data Reporter', () => {
     expect(jasmine.Ajax.requests.count()).toBe(1);
     expect(jasmine.Ajax.requests.at(0).url).toBe(usageReportingGetURL);
 
-    // verify if the last reported time is updated in the local storage
+    // verify that the last reported time is updated in the local storage
     expect(new Date(+localStorage.getItem(USAGE_DATA_LAST_REPORTED_TIME_KEY)).getDate()).toBe(new Date().getDate());
+    expect(new Date(+localStorage.getItem(USAGE_DATA_LAST_REPORTED_TIME_KEY)).getTime()).toBeGreaterThan(yesterday);
   });
 
   it('should report usage data to remote server', async () => {
     const yesterday = lastReportedYesterday();
     mockDataSharingReportingGetAPIAndReturn(allowedReportingJSON);
     mockUsageDataAPIAndReturn(usageDataJSON);
+    mockDataSharingReportingStartAPI();
     mockDataSharingServerAPIAndPass();
-    mockDataSharingReportingPostAPIAndReturn(allowedReportingJSON);
+    mockDataSharingReportingCompleteAPI();
 
     expect(localStorage.getItem(USAGE_DATA_LAST_REPORTED_TIME_KEY)).toBe(`${yesterday}`);
     await reporter.report();
 
-    expect(jasmine.Ajax.requests.count()).toBe(4);
+    expect(jasmine.Ajax.requests.count()).toBe(5);
     expect(jasmine.Ajax.requests.at(0).url).toBe(usageReportingGetURL);
-    expect(jasmine.Ajax.requests.at(1).url).toBe(usageDataURL);
-    expect(jasmine.Ajax.requests.at(2).url).toBe(allowedReportingJSON._embedded.data_sharing_server_url);
-    expect(jasmine.Ajax.requests.at(2).method).toBe('POST');
-    expect(jasmine.Ajax.requests.at(3).url).toBe(usageReportingPostURL);
+
+    expect(jasmine.Ajax.requests.at(1).url).toBe(usageReportingStartURL);
+    expect(jasmine.Ajax.requests.at(1).method).toBe('POST');
+
+    expect(jasmine.Ajax.requests.at(2).url).toBe(encryptedUsageDataURL);
+
+    expect(jasmine.Ajax.requests.at(3).url).toBe(allowedReportingJSON._embedded.data_sharing_server_url);
     expect(jasmine.Ajax.requests.at(3).method).toBe('POST');
 
-    // verify if the last reported time is updated in the local storage
+    expect(jasmine.Ajax.requests.at(4).url).toBe(usageReportingCompleteURL);
+    expect(jasmine.Ajax.requests.at(4).method).toBe('POST');
+
+    // verify that the last reported time is updated in the local storage
     expect(new Date(+localStorage.getItem(USAGE_DATA_LAST_REPORTED_TIME_KEY)).getDate()).toBe(new Date().getDate());
+    expect(new Date(+localStorage.getItem(USAGE_DATA_LAST_REPORTED_TIME_KEY)).getTime()).toBeGreaterThan(yesterday);
   });
 
   it('should not update last reported time if reporting to remote server fails', async () => {
     const yesterday = lastReportedYesterday();
     mockDataSharingReportingGetAPIAndReturn(allowedReportingJSON);
+    mockDataSharingReportingStartAPI();
     mockUsageDataAPIAndReturn(usageDataJSON);
     mockDataSharingServerAPIAndFail();
 
@@ -90,14 +101,22 @@ describe('Usage Data Reporter', () => {
     try {
       await reporter.report();
     } catch (e) {
-      expect(jasmine.Ajax.requests.count()).toBe(3);
+      expect(jasmine.Ajax.requests.count()).toBe(4);
       expect(jasmine.Ajax.requests.at(0).url).toBe(usageReportingGetURL);
-      expect(jasmine.Ajax.requests.at(1).url).toBe(usageDataURL);
-      expect(jasmine.Ajax.requests.at(2).url).toBe(allowedReportingJSON._embedded.data_sharing_server_url);
-      expect(jasmine.Ajax.requests.at(2).method).toBe('POST');
 
-      // verify if the last reported time is updated in the local storage
+      expect(jasmine.Ajax.requests.at(1).url).toBe(usageReportingStartURL);
+      expect(jasmine.Ajax.requests.at(1).method).toBe('POST');
+
+      expect(jasmine.Ajax.requests.at(2).url).toBe(encryptedUsageDataURL);
+
+      expect(jasmine.Ajax.requests.at(3).url).toBe(allowedReportingJSON._embedded.data_sharing_server_url);
+      expect(jasmine.Ajax.requests.at(3).method).toBe('POST');
+
+      expect(jasmine.Ajax.requests.filter(usageReportingCompleteURL)).toHaveLength(0);
+
+      // verify that the last reported time is updated in the local storage
       expect(new Date(+localStorage.getItem(USAGE_DATA_LAST_REPORTED_TIME_KEY)).getDate()).toBe(new Date().getDate());
+      expect(new Date(+localStorage.getItem(USAGE_DATA_LAST_REPORTED_TIME_KEY)).getTime()).toBeGreaterThan(yesterday);
     }
   });
 
@@ -133,10 +152,20 @@ describe('Usage Data Reporter', () => {
     });
   }
 
-  function mockDataSharingReportingPostAPIAndReturn(json) {
-    jasmine.Ajax.stubRequest(usageReportingPostURL, undefined, 'POST').andReturn({
-      responseText:    JSON.stringify(json),
-      status:          200,
+  function mockDataSharingReportingStartAPI() {
+    jasmine.Ajax.stubRequest(usageReportingStartURL, undefined, 'POST').andReturn({
+      responseText:    null,
+      status:          204,
+      responseHeaders: {
+        'Content-Type': 'application/vnd.go.cd.v1+json'
+      }
+    });
+  }
+
+  function mockDataSharingReportingCompleteAPI() {
+    jasmine.Ajax.stubRequest(usageReportingCompleteURL, undefined, 'POST').andReturn({
+      responseText:    null,
+      status:          204,
       responseHeaders: {
         'Content-Type': 'application/vnd.go.cd.v1+json'
       }
@@ -144,7 +173,7 @@ describe('Usage Data Reporter', () => {
   }
 
   function mockUsageDataAPIAndReturn(json) {
-    jasmine.Ajax.stubRequest(usageDataURL, undefined, 'GET').andReturn({
+    jasmine.Ajax.stubRequest(encryptedUsageDataURL, undefined, 'GET').andReturn({
       responseText:    JSON.stringify(json),
       status:          200,
       responseHeaders: {

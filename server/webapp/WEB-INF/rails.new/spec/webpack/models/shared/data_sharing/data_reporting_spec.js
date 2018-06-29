@@ -16,8 +16,9 @@
 
 describe('Data Reporting', () => {
   const DataReporting        = require('models/shared/data_sharing/data_reporting');
-  const DataReportingGetURL  = '/go/api/internal/data_sharing/reporting/info';
-  const DataReportingPostURL = '/go/api/internal/data_sharing/reporting/reported';
+  const DataReportingInfoURL  = '/go/api/internal/data_sharing/reporting/info';
+  const DataReportingStartReportingURL = '/go/api/internal/data_sharing/reporting/start';
+  const DataReportingCompleteReportingURL = '/go/api/internal/data_sharing/reporting/complete';
 
   const dataReportingJSON = {
     "_embedded": {
@@ -39,7 +40,7 @@ describe('Data Reporting', () => {
 
   it('should fetch data reporting information', () => {
     jasmine.Ajax.withMock(() => {
-      jasmine.Ajax.stubRequest(DataReportingGetURL).andReturn({
+      jasmine.Ajax.stubRequest(DataReportingInfoURL).andReturn({
         responseText:    JSON.stringify(dataReportingJSON),
         status:          200,
         responseHeaders: {
@@ -59,25 +60,38 @@ describe('Data Reporting', () => {
     });
   });
 
-  it('should patch data reporting information', () => {
+  it('should start data reporting', () => {
     jasmine.Ajax.withMock(() => {
-      jasmine.Ajax.stubRequest(DataReportingPostURL, null, 'POST').andReturn({
-        responseText:    JSON.stringify(dataReportingJSON),
-        status:          200,
+      jasmine.Ajax.stubRequest(DataReportingStartReportingURL, null, 'POST').andReturn({
+        responseText:    null,
+        status:          204,
         responseHeaders: {
           'Content-Type': 'application/vnd.go.cd.v1+json'
         }
       });
 
-      const successCallback = jasmine.createSpy().and.callFake((reportingInfo) => {
-        expect(reportingInfo.serverId()).toBe(dataReportingJSON._embedded.server_id);
-        expect(reportingInfo.lastReportedAt()).toEqual(new Date(dataReportingJSON._embedded.last_reported_at));
-        expect(reportingInfo.dataSharingServerUrl()).toBe(dataReportingJSON._embedded.data_sharing_server_url);
-        expect(reportingInfo.canReport()).toBe(dataReportingJSON._embedded.can_report);
-      });
+      const successCallback = jasmine.createSpy();
 
-      DataReporting.markReported().then(successCallback);
+      DataReporting.startReporting().then(successCallback);
       expect(successCallback).toHaveBeenCalled();
     });
   });
+
+  it('should complete data reporting', () => {
+    jasmine.Ajax.withMock(() => {
+      jasmine.Ajax.stubRequest(DataReportingCompleteReportingURL, null, 'POST').andReturn({
+        responseText:    null,
+        status:          204,
+        responseHeaders: {
+          'Content-Type': 'application/vnd.go.cd.v1+json'
+        }
+      });
+
+      const successCallback = jasmine.createSpy();
+
+      DataReporting.completeReporting().then(successCallback);
+      expect(successCallback).toHaveBeenCalled();
+    });
+  });
+
 });

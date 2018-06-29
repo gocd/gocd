@@ -37,17 +37,23 @@ DataReporting.API_VERSION = 'v1';
 
 DataReporting.get = () => {
   return AjaxHelper.GET({
-    url:        SparkRoutes.DataReportingGetPath(),
+    url:        SparkRoutes.DataReportingInfoPath(),
     apiVersion: DataReporting.API_VERSION,
     type:       DataReporting
   });
 };
 
-DataReporting.markReported = () => {
+DataReporting.startReporting = () => {
   return AjaxHelper.POST({
-    url:        SparkRoutes.DataReportingPostPath(),
-    apiVersion: DataReporting.API_VERSION,
-    type:       DataReporting
+    url:        SparkRoutes.DataReportingStartReportingPath(),
+    apiVersion: DataReporting.API_VERSION
+  });
+};
+
+DataReporting.completeReporting = () => {
+  return AjaxHelper.POST({
+    url:        SparkRoutes.DataReportingCompleteReportingPath(),
+    apiVersion: DataReporting.API_VERSION
   });
 };
 

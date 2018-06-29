@@ -60,7 +60,7 @@ class UsageStatisticsControllerV1DelegateTest implements SecurityServiceTrait, C
 
       @Override
       String getControllerMethodUnderTest() {
-        return "get"
+        return "getUsageStatistics"
       }
 
       @Override

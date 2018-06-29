@@ -22,8 +22,6 @@ import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.TransactionStatus;
-import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 
 @Component
 public class DataSharingSettingsSqlMapDao extends HibernateDaoSupport {
@@ -44,16 +42,13 @@ public class DataSharingSettingsSqlMapDao extends HibernateDaoSupport {
             throw new DuplicateDataSharingSettingsException();
         }
 
-        if (existing != null && !dataSharingSettings.hasId()) {
-            dataSharingSettings.setId(existing.getId());
+        if (existing != null) {
+            existing.copyFrom(dataSharingSettings);
+        } else {
+            existing = dataSharingSettings;
         }
 
-        transactionTemplate.execute(new TransactionCallbackWithoutResult() {
-            @Override
-            protected void doInTransactionWithoutResult(TransactionStatus status) {
-                sessionFactory.getCurrentSession().saveOrUpdate(dataSharingSettings);
-            }
-        });
+        sessionFactory.getCurrentSession().saveOrUpdate(existing);
     }
 
     public DataSharingSettings load() {

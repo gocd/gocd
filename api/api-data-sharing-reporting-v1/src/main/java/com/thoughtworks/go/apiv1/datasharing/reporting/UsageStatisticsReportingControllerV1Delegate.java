@@ -23,9 +23,12 @@ import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
 import com.thoughtworks.go.apiv1.datasharing.reporting.representers.UsageStatisticsReportingRepresenter;
 import com.thoughtworks.go.domain.UsageStatisticsReporting;
 import com.thoughtworks.go.server.service.DataSharingUsageStatisticsReportingService;
+import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.spark.Routes.DataSharing;
 import spark.Request;
 import spark.Response;
+
+import java.io.IOException;
 
 import static spark.Spark.*;
 
@@ -53,20 +56,41 @@ public class UsageStatisticsReportingControllerV1Delegate extends ApiController 
             before("/*", this::verifyContentType);
 
             before("/info", mimeType, apiAuthenticationHelper::checkUserAnd403);
-            before("/reported", mimeType, apiAuthenticationHelper::checkUserAnd403);
+            before("/start", mimeType, apiAuthenticationHelper::checkUserAnd403);
+            before("/complete", mimeType, apiAuthenticationHelper::checkUserAnd403);
 
             get("/info", this::getUsageStatisticsReporting);
-            post("/reported", mimeType, this::updateUsageStatisticsReportingLastReportedTime);
+            post("/start", mimeType, this::startReporting);
+            post("/complete", mimeType, this::completeReporting);
         });
+    }
+
+    public String startReporting(Request request, Response response) throws IOException {
+        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+        usageStatisticsReportingService.startReporting(result);
+
+        if (!result.isSuccessful()) {
+            return renderHTTPOperationResult(result, request, response);
+        }
+
+        response.status(204);
+        return NOTHING;
+    }
+
+    public String completeReporting(Request request, Response response) throws IOException {
+        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+        usageStatisticsReportingService.completeReporting(result);
+
+        if (!result.isSuccessful()) {
+            return renderHTTPOperationResult(result, request, response);
+        }
+
+        response.status(204);
+        return NOTHING;
     }
 
     public String getUsageStatisticsReporting(Request request, Response response) {
         UsageStatisticsReporting usageStatisticsReporting = usageStatisticsReportingService.get();
-        return jsonizeAsTopLevelObject(request, writer -> UsageStatisticsReportingRepresenter.toJSON(writer, usageStatisticsReporting));
-    }
-
-    public String updateUsageStatisticsReportingLastReportedTime(Request request, Response response) {
-        UsageStatisticsReporting usageStatisticsReporting = usageStatisticsReportingService.updateLastReportedTime();
         return jsonizeAsTopLevelObject(request, writer -> UsageStatisticsReportingRepresenter.toJSON(writer, usageStatisticsReporting));
     }
 }

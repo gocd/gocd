@@ -74,11 +74,15 @@ module.exports = {
     return '/go/api/internal/data_sharing/usagedata/encrypted';
   },
 
-	DataReportingGetPath: () => {
+	DataReportingInfoPath: () => {
 		return '/go/api/internal/data_sharing/reporting/info';
 	},
 
-  DataReportingPostPath: () => {
-		return '/go/api/internal/data_sharing/reporting/reported';
-	}
+  DataReportingStartReportingPath: () => {
+		return '/go/api/internal/data_sharing/reporting/start';
+	},
+
+  DataReportingCompleteReportingPath: () => {
+    return '/go/api/internal/data_sharing/reporting/complete';
+  }
 };

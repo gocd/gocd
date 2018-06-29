@@ -18,6 +18,7 @@ package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.domain.UsageStatisticsReporting;
 import com.thoughtworks.go.server.dao.UsageStatisticsReportingSqlMapDao;
+import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -28,10 +29,9 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import com.thoughtworks.go.server.dao.*;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.core.Is.is;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {
@@ -90,10 +90,14 @@ public class DataSharingUsageStatisticsReportingServiceIntegrationTest {
         UsageStatisticsReporting existing = usageStatisticsReportingSqlMapDao.load();
         assertNotNull(existing);
         assertNotNull(existing.lastReportedAt());
+        dataSharingUsageStatisticsReportingService.startReporting(new HttpLocalizedOperationResult());
 
-        dataSharingUsageStatisticsReportingService.updateLastReportedTime();
+        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+        dataSharingUsageStatisticsReportingService.completeReporting(result);
+        assertTrue(result.isSuccessful());
 
-        UsageStatisticsReporting loaded = usageStatisticsReportingSqlMapDao.load();
-        assertThat(loaded.lastReportedAt().toInstant(), is(not(existing.lastReportedAt())));
+        UsageStatisticsReporting loaded = dataSharingUsageStatisticsReportingService.get();
+
+        assertThat(loaded.lastReportedAt().getTime(), greaterThan(existing.lastReportedAt().getTime()));
     }
 }

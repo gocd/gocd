@@ -62,7 +62,6 @@ public class DataSharingSettings extends PersistentObject {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        if (!super.equals(o)) return false;
         DataSharingSettings that = (DataSharingSettings) o;
         return allowSharing == that.allowSharing &&
                 Objects.equals(updatedBy, that.updatedBy) && Objects.equals(updatedOn, that.updatedOn);
@@ -71,5 +70,11 @@ public class DataSharingSettings extends PersistentObject {
     @Override
     public int hashCode() {
         return Objects.hash(super.hashCode(), allowSharing, updatedBy, updatedOn);
+    }
+
+    public void copyFrom(DataSharingSettings from) {
+        this.allowSharing = from.allowSharing;
+        this.updatedBy = from.updatedBy;
+        this.updatedOn = from.updatedOn;
     }
 }

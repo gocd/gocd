@@ -18,9 +18,14 @@ package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.domain.DataSharingSettings;
 import com.thoughtworks.go.server.dao.DataSharingSettingsSqlMapDao;
+import com.thoughtworks.go.server.transaction.TransactionSynchronizationManager;
+import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.TransactionCallbackWithoutResult;
+import org.springframework.transaction.support.TransactionSynchronizationAdapter;
 
 import java.util.Date;
 
@@ -29,19 +34,26 @@ public class DataSharingSettingsService {
     private final Object mutexForDataSharingSettings = new Object();
 
     private final DataSharingSettingsSqlMapDao dataSharingSettingsSqlMapDao;
+    private TransactionTemplate transactionTemplate;
+    private TransactionSynchronizationManager transactionSynchronizationManager;
     private final EntityHashingService entityHashingService;
 
     @Autowired
-    public DataSharingSettingsService(DataSharingSettingsSqlMapDao dataSharingSettingsSqlMapDao, EntityHashingService entityHashingService) {
+    public DataSharingSettingsService(DataSharingSettingsSqlMapDao dataSharingSettingsSqlMapDao,
+                                      TransactionTemplate transactionTemplate,
+                                      TransactionSynchronizationManager transactionSynchronizationManager,
+                                      EntityHashingService entityHashingService) {
         this.dataSharingSettingsSqlMapDao = dataSharingSettingsSqlMapDao;
+        this.transactionTemplate = transactionTemplate;
+        this.transactionSynchronizationManager = transactionSynchronizationManager;
         this.entityHashingService = entityHashingService;
     }
 
-    public void initialize() throws DataSharingSettingsSqlMapDao.DuplicateDataSharingSettingsException {
-        DataSharingSettings existingDataSharingSettings = dataSharingSettingsSqlMapDao.load();
+    public void initialize() {
+        DataSharingSettings existingDataSharingSettings = get();
 
         if (existingDataSharingSettings == null) {
-            update(new DataSharingSettings(true, "Default", new Date()));
+            createOrUpdate(new DataSharingSettings(true, "Default", new Date()));
         }
 
         if (new SystemEnvironment().shouldFailStartupOnDataError()) {
@@ -53,10 +65,24 @@ public class DataSharingSettingsService {
         return dataSharingSettingsSqlMapDao.load();
     }
 
-    public void update(DataSharingSettings dataSharingSettings) throws DataSharingSettingsSqlMapDao.DuplicateDataSharingSettingsException {
+    public void createOrUpdate(DataSharingSettings dataSharingSettings) {
         synchronized (mutexForDataSharingSettings) {
-            dataSharingSettingsSqlMapDao.saveOrUpdate(dataSharingSettings);
-            entityHashingService.removeFromCache(dataSharingSettings, Long.toString(dataSharingSettings.getId()));
+            transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+                @Override
+                protected void doInTransactionWithoutResult(TransactionStatus status) {
+                    transactionSynchronizationManager.registerSynchronization(new TransactionSynchronizationAdapter() {
+                        @Override
+                        public void afterCommit() {
+                            entityHashingService.removeFromCache(dataSharingSettings, Long.toString(dataSharingSettings.getId()));
+                        }
+                    });
+                    try {
+                        dataSharingSettingsSqlMapDao.saveOrUpdate(dataSharingSettings);
+                    } catch (DataSharingSettingsSqlMapDao.DuplicateDataSharingSettingsException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+            });
         }
     }
 }

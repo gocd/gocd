@@ -21,7 +21,6 @@ import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
 import com.thoughtworks.go.apiv1.datasharing.reporting.representers.UsageStatisticsReportingRepresenter
 import com.thoughtworks.go.domain.UsageStatisticsReporting
 import com.thoughtworks.go.server.service.DataSharingUsageStatisticsReportingService
-import com.thoughtworks.go.server.service.EntityHashingService
 import com.thoughtworks.go.spark.ControllerTrait
 import com.thoughtworks.go.spark.NormalUserSecurity
 import com.thoughtworks.go.spark.SecurityServiceTrait
@@ -41,11 +40,11 @@ class UsageStatisticsReportingControllerV1DelegateTest implements SecurityServic
     }
 
     @Mock
-    DataSharingUsageStatisticsReportingService dataSharingService
+    DataSharingUsageStatisticsReportingService service
 
     @Override
     UsageStatisticsReportingControllerV1Delegate createControllerInstance() {
-        new UsageStatisticsReportingControllerV1Delegate(new ApiAuthenticationHelper(securityService, goConfigService), dataSharingService)
+        new UsageStatisticsReportingControllerV1Delegate(new ApiAuthenticationHelper(securityService, goConfigService), service)
     }
 
     @Nested
@@ -76,7 +75,7 @@ class UsageStatisticsReportingControllerV1DelegateTest implements SecurityServic
             void 'get usage statistics reporting'() {
                 def usageStatisticsReporting = new UsageStatisticsReporting("server-id", new Date())
 
-                when(dataSharingService.get()).thenReturn(usageStatisticsReporting)
+                when(service.get()).thenReturn(usageStatisticsReporting)
                 getWithApiHeader(controller.controllerPath('/info'))
 
                 assertThatResponse()
@@ -88,18 +87,18 @@ class UsageStatisticsReportingControllerV1DelegateTest implements SecurityServic
     }
 
     @Nested
-    class postDataSharingReporting {
+    class startReporting {
         @Nested
         class Security implements SecurityTestTrait, NormalUserSecurity {
 
             @Override
             String getControllerMethodUnderTest() {
-                return "updateUsageStatisticsReportingLastReportedTime"
+                return "startReporting"
             }
 
             @Override
             void makeHttpCall() {
-                postWithApiHeader(controller.controllerPath('/reported'), [:])
+                postWithApiHeader(controller.controllerPath('/start'), [:])
             }
         }
 
@@ -113,26 +112,67 @@ class UsageStatisticsReportingControllerV1DelegateTest implements SecurityServic
             }
 
             @Test
-            void 'should update usage statistics reporting time'() {
-                def reportsSharedAt = new Date()
-                UsageStatisticsReporting metricsReporting = new UsageStatisticsReporting("server-id", new Date())
-                metricsReporting.setLastReportedAt(reportsSharedAt)
-
-                doReturn(metricsReporting).when(dataSharingService).updateLastReportedTime()
+            void 'should start usage reporting'() {
+                doNothing().when(service).startReporting(any())
 
                 def headers = [
-                  'accept'        : controller.mimeType,
-                  'X-GoCD-Confirm': true
+                        'accept'        : controller.mimeType,
+                        'X-GoCD-Confirm': true
                 ]
 
-                postWithApiHeader(controller.controllerPath('/reported'), headers)
+                postWithApiHeader(controller.controllerPath('/start'), headers)
+
+                verify(service).startReporting(any())
 
                 assertThatResponse()
-                        .isOk()
+                        .hasNoContent()
                         .hasContentType(controller.mimeType)
-                        .hasBodyWithJsonObject(metricsReporting, UsageStatisticsReportingRepresenter.class)
+            }
+        }
+    }
+
+    @Nested
+    class completeReporting {
+        @Nested
+        class Security implements SecurityTestTrait, NormalUserSecurity {
+
+            @Override
+            String getControllerMethodUnderTest() {
+                return "completeReporting"
             }
 
+            @Override
+            void makeHttpCall() {
+                postWithApiHeader(controller.controllerPath('/complete'), [:])
+            }
+        }
+
+        @Nested
+        class AsAuthorizedUser {
+
+            @BeforeEach
+            void setUp() {
+                enableSecurity()
+                loginAsUser()
+            }
+
+            @Test
+            void 'should complete usage reporting'() {
+                doNothing().when(service).completeReporting(any())
+
+                def headers = [
+                        'accept'        : controller.mimeType,
+                        'X-GoCD-Confirm': true
+                ]
+
+                postWithApiHeader(controller.controllerPath('/complete'), headers)
+
+                verify(service).completeReporting(any())
+
+                assertThatResponse()
+                        .hasNoContent()
+                        .hasContentType(controller.mimeType)
+            }
         }
     }
 }

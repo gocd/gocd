@@ -134,7 +134,7 @@ class DataSharingSettingsControllerV1DelegateTest implements SecurityServiceTrai
                 settings.setAllowSharing(newConsent)
                 settings.setUpdatedBy("Default")
                 def captor = ArgumentCaptor.forClass(DataSharingSettings.class)
-                doNothing().when(dataSharingSettingsService).update(any())
+                doNothing().when(dataSharingSettingsService).createOrUpdate(any())
                 doReturn(settings).when(dataSharingSettingsService).get()
                 when(entityHashingService.md5ForEntity(settings)).thenReturn("cached-md5")
 
@@ -151,7 +151,7 @@ class DataSharingSettingsControllerV1DelegateTest implements SecurityServiceTrai
                         .hasContentType(controller.mimeType)
                         .hasBodyWithJsonObject(settings, DataSharingSettingsRepresenter.class)
 
-                verify(dataSharingSettingsService).update(captor.capture())
+                verify(dataSharingSettingsService).createOrUpdate(captor.capture())
                 def settingsBeingSaved = captor.getValue()
                 assertEquals(settingsBeingSaved.allowSharing(), newConsent)
                 assertEquals(settingsBeingSaved.updatedBy(), currentUsername().getUsername().toString())
@@ -165,7 +165,7 @@ class DataSharingSettingsControllerV1DelegateTest implements SecurityServiceTrai
                 settings.setAllowSharing(false)
                 settings.setUpdatedBy("user1")
                 def captor = ArgumentCaptor.forClass(DataSharingSettings.class)
-                doNothing().when(dataSharingSettingsService).update(any())
+                doNothing().when(dataSharingSettingsService).createOrUpdate(any())
                 doReturn(settings).when(dataSharingSettingsService).get()
                 when(entityHashingService.md5ForEntity(settings)).thenReturn("cached-md5")
 
@@ -182,7 +182,7 @@ class DataSharingSettingsControllerV1DelegateTest implements SecurityServiceTrai
                   .hasContentType(controller.mimeType)
                   .hasBodyWithJsonObject(settings, DataSharingSettingsRepresenter.class)
 
-                verify(dataSharingSettingsService).update(captor.capture())
+                verify(dataSharingSettingsService).createOrUpdate(captor.capture())
                 def settingsBeingSaved = captor.getValue()
                 assertEquals(settingsBeingSaved.allowSharing(), settings.allowSharing())
                 assertEquals(settingsBeingSaved.updatedBy(), currentUsername().getUsername().toString())
@@ -204,7 +204,7 @@ class DataSharingSettingsControllerV1DelegateTest implements SecurityServiceTrai
                 assertThatResponse()
                   .isPreconditionFailed()
                   .hasJsonMessage("Someone has modified the entity. Please update your copy with the changes and try again.")
-                verify(dataSharingSettingsService, never()).update(any())
+                verify(dataSharingSettingsService, never()).createOrUpdate(any())
             }
         }
     }

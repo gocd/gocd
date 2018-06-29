@@ -204,6 +204,12 @@
     </rule>
 
     <rule>
+        <name>Data Sharing Reporting APIs</name>
+        <from>^/api/internal/data_sharing/reporting/(.*)(/?)$</from>
+        <to last="true">/spark/api/internal/data_sharing/reporting/$1</to>
+    </rule>
+
+    <rule>
         <name>Initialize for_rails</name>
         <from>.*</from>
         <set name="rails_bound">false</set>

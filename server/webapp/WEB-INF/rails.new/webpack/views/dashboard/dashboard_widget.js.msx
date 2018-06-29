@@ -14,22 +14,19 @@
  * limitations under the License.
  */
 
-const m                   = require('mithril');
-const f                   = require('helpers/form_helper');
-const Stream              = require('mithril/stream');
-const _                   = require('lodash');
-const $                   = require('jquery');
-const ComponentMixins     = require('helpers/mithril_component_mixins');
-const PipelineWidget      = require('views/dashboard/pipeline_widget');
-const PersonalizeWidget   = require('views/dashboard/personalize_widget');
-const PipelineSelectionVM = require('views/dashboard/models/pipeline_selection_view_model');
-const PipelineSelection   = require('models/dashboard/pipeline_selection');
+const m                       = require('mithril');
+const f                       = require('helpers/form_helper');
+const Stream                  = require('mithril/stream');
+const _                       = require('lodash');
+const $                       = require('jquery');
+const ComponentMixins         = require('helpers/mithril_component_mixins');
+const PipelineWidget          = require('views/dashboard/pipeline_widget');
+const PersonalizedViewsWidget = require('views/dashboard/personalized_views_widget');
 
 const DashboardWidget = {
   oninit(vnode) {
     const self               = vnode.state;
-    self.pipelineSelection   = Stream();
-    self.pipelineSelectionVM = new PipelineSelectionVM();
+    self.personalizeWidgetOpen = Stream(false);
 
     self.searchTextUpdated = (e) => {
       const filterText = e.target.value;
@@ -40,12 +37,9 @@ const DashboardWidget = {
 
     self.togglePersonalizeDropdown = (e) => {
       if (vnode.attrs.vm.personalizeView.isOpen()) {
-        self.pipelineSelection(undefined);
+        self.personalizeWidgetOpen(false);
       } else {
-        PipelineSelection.get().then((selection) => {
-          self.pipelineSelection(selection);
-          self.pipelineSelectionVM.initialize(selection.pipelineGroups());
-        }).then(m.redraw);
+        self.personalizeWidgetOpen(true);
       }
 
       vnode.attrs.vm.personalizeView.toggle();
@@ -83,14 +77,11 @@ const DashboardWidget = {
         : (<f.alert>{content} </f.alert>);
     }
 
-    let personalizeView;
-
-    if (vm.personalizeView.isOpen()) {
-      personalizeView = (<PersonalizeWidget pipelineSelection={vnode.state.pipelineSelection}
-                                            doRefreshImmediately={vnode.attrs.doRefreshImmediately}
-                                            hideSelectionDropdown={vm.personalizeView.hide}
-                                            vm={vnode.state.pipelineSelectionVM}/>);
-    }
+    const tabView = (<PersonalizedViewsWidget
+      isOpen={vm.personalizeView.isOpen}
+      currentTab={vnode.attrs.dashboard.tabName}
+      doRefreshImmediately={vnode.attrs.doRefreshImmediately}
+      hideSelectionDropdown={vm.personalizeView.hide} />);
 
     return (
       <div class="pipeline_wrapper">
@@ -107,9 +98,9 @@ const DashboardWidget = {
               Filter View
             </button>
           </div>
-          {personalizeView}
         </div>
         <div class="dashboard" key="dashboard-content">
+          {tabView}
           {messageView}
           {_.map(vnode.attrs.dashboard.getPipelineGroups(), (pipelineGroup) => {
             let name, settingsIcon;
@@ -126,7 +117,6 @@ const DashboardWidget = {
             return (
               <div class="pipeline-group" key={pipelineGroup.name}>
                 <h2 class="pipeline-group_title">
-                  <span>pipeline group</span>
                   <strong>{name}</strong>
                   {settingsIcon}
                 </h2>

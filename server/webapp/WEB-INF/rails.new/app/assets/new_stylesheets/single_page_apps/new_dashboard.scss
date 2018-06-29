@@ -592,6 +592,43 @@ body {
   margin-bottom: 50px;
 }
 
+.dashboard-tabs {
+  position:      relative;
+  background-color: white;
+  border-radius: 3px;
+  line-height:   40px;
+  height: 45px;
+  margin-bottom: 20px;
+  box-shadow:    0 0 10px rgba(0, 0, 0, 0.21);
+
+  .dashboard-tab {
+    float: left;
+    height: 100%;
+    border-right: 1px solid #ccc;
+    margin-left: 5px;
+    padding: 3px 10px;
+    color: #b66fc2;
+    font-weight:   700;
+    cursor: pointer;
+
+    .tab-name {
+      text-transform: uppercase;
+      padding-left: 10px;
+      float: right;
+    }
+  }
+
+  .add-tab {
+    float: left;
+    border-right: 1px solid #ccc;
+    padding: 3px 10px;
+    height: 100%;
+    color: #b66fc2;
+    font-size:     17px;
+    cursor: pointer;
+  }
+}
+
 .pipeline-group_title {
   padding:       0;
   position:      relative;

@@ -21,12 +21,19 @@ const Stream = require('mithril/stream');
 const DashboardFilter = function (name, pipelines, type) {
   const WHITELIST_TYPE = "whitelist";
   const BLACKLIST_TYPE = "blacklist";
-  this.name      = name;
+  this.name      = name || "Default";
   this.pipelines = pipelines;
   this.type      = type;
 
   this.isBlacklist = () => {
     return this.type === BLACKLIST_TYPE;
+  };
+
+  this.displayName = () => {
+    if (!this.name) {
+      return "default";
+    }
+    return this.name;
   };
 
   this.toggleType = () => {

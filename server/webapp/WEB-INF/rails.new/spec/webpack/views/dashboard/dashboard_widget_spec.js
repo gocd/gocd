@@ -37,6 +37,10 @@ describe("Dashboard Widget", () => {
       };
     });
 
+    jasmine.Ajax.withMock(() => {
+      jasmine.Ajax.stubRequest('/go/api/internal/pipeline_selection', undefined, 'GET');
+    });
+
     [$root, root] = window.createDomElementForTest();
   });
   afterEach(() => {
@@ -432,6 +436,7 @@ describe("Dashboard Widget", () => {
       ]
     };
     dashboardJson  = {
+      "filter_name": null,
       "_embedded": {
         "pipeline_groups": [
           {

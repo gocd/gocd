@@ -44,12 +44,14 @@ describe("Dashboard Personalize Widget", () => {
 
   let pipelineSelection, vm;
   let doRefreshImmediately, hideSelectionDropdown;
+  let widgetOpen;
 
   beforeEach(() => {
     pipelineSelection     = Stream(PipelineSelection.fromJSON(json));
     vm                    = new PipelineSelectionVM();
     doRefreshImmediately  = jasmine.createSpy('do-refresh-immediately');
     hideSelectionDropdown = jasmine.createSpy('hide-selection');
+    widgetOpen            = () => { return true; };
     vm.initialize(pipelineSelection().pipelineGroups());
 
     m.mount(root, {
@@ -57,6 +59,7 @@ describe("Dashboard Personalize Widget", () => {
         return m(PersonalizeWidget, {
           pipelineSelection,
           doRefreshImmediately,
+          widgetOpen,
           hideSelectionDropdown,
           vm
         });

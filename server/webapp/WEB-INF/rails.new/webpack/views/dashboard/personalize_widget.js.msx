@@ -16,10 +16,12 @@
 
 const m = require('mithril');
 const _ = require('lodash');
+const $ = require('jquery');
 
 const PersonalizeWidget = {
   oninit(vnode) {
     const self = vnode.state;
+    self.filterName = vnode.attrs.pipelineSelection().currentFilterName();
 
     const setSelectionForAllPipelines = (isSelected) => {
       if (isSelected) {
@@ -89,6 +91,10 @@ const PersonalizeWidget = {
         .always(m.redraw);
     };
 
+    self.updateFilterName = () => {
+      self.filterName = $("#filter-name").val();
+    };
+
     this.preventPropagation = function (e) {
       e.stopPropagation();
     };
@@ -139,8 +145,9 @@ const PersonalizeWidget = {
   view(vnode) {
     const self              = vnode.state;
     const pipelineSelection = vnode.attrs.pipelineSelection();
+    const open              = vnode.attrs.widgetOpen();
 
-    if (!pipelineSelection) {
+    if (!open) {
       return (<div class="personalize-spinner-container">
         <div class="page-spinner"/>
       </div>);
@@ -174,6 +181,10 @@ const PersonalizeWidget = {
                    onclick={self.toggleBlacklist.bind(self)}/>
             <label for="show-newly-created-pipelines">Show newly created pipelines</label>
           </div>
+            <input type="text" id="filter-name"
+                   value={self.filterName}
+                   onchange={self.updateFilterName.bind(self)}/>
+            <label for="filter-name">name</label>
         </header>
         {pipelineGroupCheckboxes}
         <footer class="filter_footer">

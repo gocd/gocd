@@ -34,6 +34,7 @@ const Dashboard = function () {
   this.getPipelines      = () => pipelines.pipelines;
   this.allPipelineNames  = () => Object.keys(pipelines.pipelines);
   this.findPipeline      = (pipelineName) => pipelines.find(pipelineName);
+  this.tabName           = Stream();
 
   this.initialize = (json) => {
     const newPipelineGroups = PipelineGroups.fromJSON(_.get(json, '_embedded.pipeline_groups', []));
@@ -44,6 +45,7 @@ const Dashboard = function () {
     pipelines      = newPipelines;
 
     filteredGroups = pipelineGroups.filterBy(internalSearchText());
+    this.tabName(json.filter_name);
   };
 
   const performSearch = _.debounce(() => {
@@ -72,8 +74,9 @@ const Dashboard = function () {
 Dashboard.API_VERSION = 'v2';
 
 Dashboard.get = () => {
+  const viewName = m.parseQueryString(window.location.search).viewName;
   return AjaxHelper.GET({
-    url:        Routes.apiv2ShowDashboardPath(), //eslint-disable-line camelcase
+    url:        Routes.apiv2ShowDashboardPath({viewName}),
     apiVersion: Dashboard.API_VERSION
   });
 };

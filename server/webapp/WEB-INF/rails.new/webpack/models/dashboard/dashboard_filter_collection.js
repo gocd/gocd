@@ -17,14 +17,33 @@
 const _               = require('lodash');
 const DashboardFilter = require('models/dashboard/dashboard_filter');
 
-const DashboardFilters = function (filters) {
+function matchName(name) {
+  const n = name.toLowerCase();
+  return (f) => n === f.name.toLowerCase();
+}
+
+function DashboardFilterCollection(filters) {
+  const NAME_DEFAULT_FILTER = "Default";
+
   this.filters = _.map(filters, (filter) => {
     return new DashboardFilter(filter.name, filter.pipelines, filter.type);
   });
 
-  this.getFilterNamed = (name) => {
-    return _.find(this.filters, (filter) => { return filter.name.toLowerCase() === name.toLowerCase(); });
+  this.defaultFilter = () => {
+    return _.find(this.filters, matchName(NAME_DEFAULT_FILTER));
   };
-};
 
-module.exports = DashboardFilters;
+  this.displayNames = () => {
+    return _.map(this.filters, (filter) => { return filter.displayName(); });
+  };
+
+  this.names = () => {
+    return _.map(this.filters, "name");
+  };
+
+  this.getFilterNamed = (name) => {
+    return _.find(this.filters, matchName(name)) || this.defaultFilter();
+  };
+}
+
+module.exports = DashboardFilterCollection;

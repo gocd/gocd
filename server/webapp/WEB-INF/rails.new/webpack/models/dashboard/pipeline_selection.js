@@ -16,21 +16,42 @@
 
 const _                = require('lodash');
 const Stream           = require('mithril/stream');
-const DashboardFilters = require('models/dashboard/dashboard_filters');
+const DashboardFilterCollection = require('models/dashboard/dashboard_filter_collection');
+const DashboardFilter  = require('models/dashboard/dashboard_filter');
 const AjaxHelper       = require('helpers/ajax_helper');
 const SparkRoutes      = require('helpers/spark_routes');
-
-const NAME_DEFAULT_FILTER = "Default";
 
 const PipelineSelection = function (pipelineGroups, filters) {
   const self = this;
 
   this.pipelineGroups = pipelineGroups;
   this.filters        = filters;
-  this.currentFilter  = this.filters.getFilterNamed(NAME_DEFAULT_FILTER);
+  this.currentFilter  = this.filters.defaultFilter();
   this.selections     = this.currentFilter.findSelections(this.pipelineGroups());
 
   this.isPipelineSelected = (pipelineName) => self.selections[pipelineName]();
+
+  this.displayNames = () => {
+    return this.filters.displayNames();
+  };
+
+  this.currentFilterName = () => {
+    return this.currentFilter.name;
+  };
+
+  //NOTE: temp method for dev purposes
+  this.cloneCurrentWithName = (name) => {
+    if (!_.includes(this.filters.names(), name)) {
+      const f = new DashboardFilter(name, this.currentFilter.pipelines, this.currentFilter.type);
+      this.filters.filters.push(f);
+      this.currentFilter = f;
+    }
+  };
+
+  this.setCurrentFilter = (filterName) => {
+    this.currentFilter = this.filters.getFilterNamed(filterName);
+    this.selections = this.currentFilter.findSelections(this.pipelineGroups());
+  };
 
   this.toggleBlacklist = () => {
     this.currentFilter.toggleType();
@@ -101,7 +122,7 @@ const PipelineSelection = function (pipelineGroups, filters) {
 
 PipelineSelection.fromJSON = (json) => {
   const pipelineGroups = json.pipelines;
-  const filters        = new DashboardFilters(json.filters);
+  const filters        = new DashboardFilterCollection(json.filters);
   return new PipelineSelection(Stream(pipelineGroups), filters);
 };
 

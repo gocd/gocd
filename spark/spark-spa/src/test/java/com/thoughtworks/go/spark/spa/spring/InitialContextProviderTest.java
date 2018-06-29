@@ -97,20 +97,6 @@ class InitialContextProviderTest {
         assertThat(velocityContext.internalGet("showAnalyticsDashboard")).isEqualTo(false);
     }
 
-    @Test
-    public void shouldShowArtifactStoresWhenToggleIsEnabled() {
-        when(featureToggleService.isToggleOn(Toggles.ARTIFACT_EXTENSION_KEY)).thenReturn(true);
-        VelocityContext velocityContext = initialContextProvider.getVelocityContext(new HashMap<>(), dummySparkController.getClass(), "viewName");
-        assertThat(velocityContext.internalGet("artifactStoresEnabled")).isEqualTo(true);
-    }
-
-    @Test
-    public void shouldNotShowArtifactStoresWhenToggleIsDisabled() {
-        featureToggleService.changeValueOfToggle(Toggles.ARTIFACT_EXTENSION_KEY, false);
-        VelocityContext velocityContext = initialContextProvider.getVelocityContext(new HashMap<>(), dummySparkController.getClass(), "viewName");
-        assertThat(velocityContext.internalGet("artifactStoresEnabled")).isEqualTo(false);
-    }
-
     private AnalyticsPluginInfo analyticsPluginInfo() {
         AnalyticsPluginInfo analyticsPluginInfo = mock(AnalyticsPluginInfo.class);
         Capabilities capabilities = mock(Capabilities.class);

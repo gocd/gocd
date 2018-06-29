@@ -166,7 +166,6 @@ describe "/shared/_application_nav.html.erb" do
   describe "admin_dropdown" do
     before :each do
       allow(view).to receive(:can_view_admin_page?).and_return(true)
-      allow(view).to receive(:artifact_stores_enabled?).and_return(true)
 
       @assert_values = {"Pipelines"     => pipeline_groups_path, "Templates" => templates_path, "Config XML" => config_view_path,
                         "Server Configuration" => edit_server_config_path, "Artifact Stores" => '/go/admin/artifact_stores', "User Summary" => user_listing_path,
@@ -187,12 +186,11 @@ describe "/shared/_application_nav.html.erb" do
     end
 
     it 'should not show artifact stores when toggled off' do
-      allow(view).to receive(:artifact_stores_enabled?).and_return(false)
       render :partial => partial_page
 
       Capybara.string(response.body).find("li#cruise-header-tab-admin").tap do |ul_tabs_li|
 
-        expect(ul_tabs_li).not_to have_selector("li:contains('Artifact Stores')")
+        expect(ul_tabs_li).to have_selector("li:contains('Artifact Stores')")
       end
     end
 

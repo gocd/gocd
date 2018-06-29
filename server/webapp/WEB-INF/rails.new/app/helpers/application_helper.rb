@@ -497,10 +497,6 @@ module ApplicationHelper
     Toggles.isToggleOn(Toggles.PIPELINE_CONFIG_SINGLE_PAGE_APP)
   end
 
-  def artifact_stores_enabled?
-    Toggles.isToggleOn(Toggles.ARTIFACT_EXTENSION_KEY)
-  end
-
   def edit_path_for_pipeline(pipeline_name)
     if is_pipeline_config_spa_enabled? && is_quick_edit_page_default?
       return edit_admin_pipeline_config_path(:pipeline_name => pipeline_name)

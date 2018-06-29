@@ -74,12 +74,7 @@ public class InitialContextProvider {
         context.put("spaRefreshInterval", SystemEnvironment.goSpaRefreshInterval());
         context.put("spaTimeout", SystemEnvironment.goSpaTimeout());
         context.put("showAnalyticsDashboard", showAnalyticsDashboard());
-        context.put("artifactStoresEnabled", artifactStoresEnabled());
         return new VelocityContext(context);
-    }
-
-    private boolean artifactStoresEnabled() {
-        return Toggles.isToggleOn(Toggles.ARTIFACT_EXTENSION_KEY);
     }
 
     private String humanizedControllerName(Class<? extends SparkController> controller) {

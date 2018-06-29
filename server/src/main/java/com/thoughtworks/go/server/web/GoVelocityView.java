@@ -60,7 +60,6 @@ public class GoVelocityView extends VelocityToolboxView {
     public static final String GO_UPDATE = "goUpdate";
     public static final String GO_UPDATE_CHECK_ENABLED = "goUpdateCheckEnabled";
     public static final String SUPPORTS_ANALYTICS_DASHBOARD = "supportsAnalyticsDashboard";
-    public static final String ARTIFACT_STORES_ENABLED = "artifactStoresEnabled";
     public static final String WEBPACK_ASSETS_SERVICE = "webpackAssetsService";
 
     private final SystemEnvironment systemEnvironment;
@@ -118,7 +117,6 @@ public class GoVelocityView extends VelocityToolboxView {
         velocityContext.put(GO_UPDATE_CHECK_ENABLED, versionInfoService.isGOUpdateCheckEnabled());
 
         velocityContext.put(SUPPORTS_ANALYTICS_DASHBOARD, supportsAnalyticsDashboard());
-        velocityContext.put(ARTIFACT_STORES_ENABLED, artifactStoresEnabled());
         velocityContext.put(WEBPACK_ASSETS_SERVICE, webpackAssetsService());
         if (!SessionUtils.hasAuthenticationToken(request)) {
             return;
@@ -128,10 +126,6 @@ public class GoVelocityView extends VelocityToolboxView {
 
         setPrincipal(velocityContext, authentication);
         setAdmininstratorRole(velocityContext, authentication);
-    }
-
-    private boolean artifactStoresEnabled() {
-        return Toggles.isToggleOn(Toggles.ARTIFACT_EXTENSION_KEY);
     }
 
     private boolean supportsAnalyticsDashboard() {

@@ -140,9 +140,20 @@ public class PipelineTemplateConfig extends BaseCollection<StageConfig> implemen
             PipelineConfigSaveValidationContext contextForChildren = contextForStages.withParent(stageConfig);
             validateStageApprovalAuthorization(stageConfig, contextForChildren);
             for (JobConfig jobConfig : stageConfig.getJobs()) {
-                PipelineConfigSaveValidationContext contextForTasks = contextForChildren.withParent(jobConfig);
-                validateFetchTasks(jobConfig, contextForTasks);
-                validateElasticProfileId(jobConfig, contextForTasks);
+                PipelineConfigSaveValidationContext contextForJobChildren = contextForChildren.withParent(jobConfig);
+                validateFetchTasks(jobConfig, contextForJobChildren);
+                validateElasticProfileId(jobConfig, contextForJobChildren);
+                validatePluggableArtifactConfig(jobConfig, contextForJobChildren);
+            }
+        }
+    }
+
+    private void validatePluggableArtifactConfig(JobConfig jobConfig, PipelineConfigSaveValidationContext contextForJobChildren) {
+        for (PluggableArtifactConfig pluggableArtifactConfig : jobConfig.artifactConfigs().getPluggableArtifactConfigs()) {
+            if (!pluggableArtifactConfig.validateTree(contextForJobChildren)) {
+                for (ConfigErrors errors : pluggableArtifactConfig.getAllErrors()) {
+                    this.errors().addAll(errors);
+                }
             }
         }
     }
@@ -167,7 +178,7 @@ public class PipelineTemplateConfig extends BaseCollection<StageConfig> implemen
 
     private void validateFetchTasks(JobConfig jobConfig, PipelineConfigSaveValidationContext contextForTasks) {
         for (Task task : jobConfig.getTasks()) {
-            if (task instanceof FetchTask) {
+            if (task instanceof AbstractFetchTask) {
                 task.validate(contextForTasks);
                 this.errors().addAll(task.errors());
             }

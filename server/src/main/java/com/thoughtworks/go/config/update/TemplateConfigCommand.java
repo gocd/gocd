@@ -84,10 +84,16 @@ public abstract class TemplateConfigCommand implements EntityConfigUpdateCommand
         for (PipelineConfig associatedPipelineConfig : associatedPipelineConfigs) {
             for (PluggableArtifactConfig pluggableArtifactConfig : associatedPipelineConfig.getExternalArtifactConfigs()) {
                 externalArtifactsService.validateExternalArtifactConfig(pluggableArtifactConfig, preprocessedConfig.getArtifactStores().find(pluggableArtifactConfig.getStoreId()), true);
+                if (!pluggableArtifactConfig.getAllErrors().isEmpty()) {
+                    pipelineTemplateConfig.addError("pipeline", String.format("Error validating publish config on associated pipeline `%s`: %s", associatedPipelineConfig.name(), pluggableArtifactConfig.getAllErrors()));
+                }
             }
 
             for (FetchPluggableArtifactTask fetchPluggableArtifactTask : associatedPipelineConfig.getFetchExternalArtifactTasks()) {
                 externalArtifactsService.validateFetchExternalArtifactTask(fetchPluggableArtifactTask, pipelineTemplateConfig, preprocessedConfig);
+                if (!fetchPluggableArtifactTask.getAllErrors().isEmpty()) {
+                    pipelineTemplateConfig.addError("pipeline", String.format("Error validating publish config on associated pipeline `%s`: %s", associatedPipelineConfig.name(), fetchPluggableArtifactTask.getAllErrors()));
+                }
             }
         }
     }

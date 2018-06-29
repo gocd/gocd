@@ -22,6 +22,7 @@ import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -43,21 +44,10 @@ public class CaseInsensitiveString implements Comparable<CaseInsensitiveString>,
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-
-        if (!(o instanceof CaseInsensitiveString)) {
-            return false;
-        }
-
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
         CaseInsensitiveString that = (CaseInsensitiveString) o;
-
-        if (name != null ? !toLower().equals(that.toLower()) : that.name != null) {
-            return false;
-        }
-
-        return true;
+        return Objects.equals(lowerCaseName, that.lowerCaseName);
     }
 
     public String toLower() {
@@ -66,7 +56,7 @@ public class CaseInsensitiveString implements Comparable<CaseInsensitiveString>,
 
     @Override
     public int hashCode() {
-        return name != null ? toLower().hashCode() : 0;
+        return Objects.hash(lowerCaseName);
     }
 
     public boolean isBlank() {
@@ -98,12 +88,12 @@ public class CaseInsensitiveString implements Comparable<CaseInsensitiveString>,
         return str == null ? null : str.name;
     }
 
-    public static List<CaseInsensitiveString> caseInsensitiveStrings(List<String> roles) {
-        return roles.stream().map(CaseInsensitiveString::new).collect(Collectors.toList());
+    public static List<CaseInsensitiveString> list(List<String> strings) {
+        return toList(strings.stream());
     }
 
-    public static List<CaseInsensitiveString> caseInsensitiveStrings(String... roles) {
-        return caseInsensitiveStrings(Arrays.asList(roles));
+    public static List<CaseInsensitiveString> list(String... strings) {
+        return toList(Arrays.stream(strings));
     }
 
     public static List<String> toStringList(Collection<CaseInsensitiveString> strings) {
@@ -112,6 +102,10 @@ public class CaseInsensitiveString implements Comparable<CaseInsensitiveString>,
 
     public static List<String> toStringList(CaseInsensitiveString... strings) {
         return toStringList(Arrays.stream(strings));
+    }
+
+    private static List<CaseInsensitiveString> toList(Stream<String> stream) {
+        return stream.map(CaseInsensitiveString::new).collect(Collectors.toList());
     }
 
     private static List<String> toStringList(Stream<CaseInsensitiveString> stream) {

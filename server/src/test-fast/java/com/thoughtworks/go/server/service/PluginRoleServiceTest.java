@@ -26,11 +26,10 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
-import java.util.Arrays;
-
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 public class PluginRoleServiceTest {
@@ -59,7 +58,7 @@ public class PluginRoleServiceTest {
         securityConfig.addRole(new PluginRoleConfig("blackbird", "github"));
         PluginRoleService pluginRoleService = new PluginRoleService(goConfigService, pluginManager);
 
-        pluginRoleService.updatePluginRoles("cd.go.authorization.github", "bob", CaseInsensitiveString.caseInsensitiveStrings(Arrays.asList("blackbird")));
+        pluginRoleService.updatePluginRoles("cd.go.authorization.github", "bob", CaseInsensitiveString.list("blackbird"));
 
         assertThat(pluginRoleService.usersForPluginRole("blackbird"), hasSize(1));
         assertThat(pluginRoleService.usersForPluginRole("blackbird"), hasItem(new RoleUser("bob")));
@@ -72,7 +71,7 @@ public class PluginRoleServiceTest {
         securityConfig.addRole(new PluginRoleConfig("spacetiger", "ldap"));
         PluginRoleService pluginRoleService = new PluginRoleService(goConfigService, pluginManager);
 
-        pluginRoleService.updatePluginRoles("cd.go.authorization.github", "bob", CaseInsensitiveString.caseInsensitiveStrings(Arrays.asList("blackbird", "spacetiger")));
+        pluginRoleService.updatePluginRoles("cd.go.authorization.github", "bob", CaseInsensitiveString.list("blackbird", "spacetiger"));
 
         assertThat(pluginRoleService.usersForPluginRole("blackbird"), hasSize(1));
         assertThat(pluginRoleService.usersForPluginRole("spacetiger"), hasSize(0));
@@ -86,7 +85,7 @@ public class PluginRoleServiceTest {
         securityConfig.addRole(new PluginRoleConfig("blackbird", "github"));
         PluginRoleService pluginRoleService = new PluginRoleService(goConfigService, pluginManager);
 
-        pluginRoleService.updatePluginRoles("cd.go.authorization.github", "alice", CaseInsensitiveString.caseInsensitiveStrings(Arrays.asList("blackbird", "non_existent_role")));
+        pluginRoleService.updatePluginRoles("cd.go.authorization.github", "alice", CaseInsensitiveString.list("blackbird", "non_existent_role"));
 
         assertThat(pluginRoleService.usersForPluginRole("blackbird"), hasSize(1));
         assertThat(pluginRoleService.usersForPluginRole("blackbird"), hasItem(new RoleUser("alice")));
@@ -100,7 +99,7 @@ public class PluginRoleServiceTest {
         securityConfig.addRole(new RoleConfig(new CaseInsensitiveString("go_system_admin")));
         PluginRoleService pluginRoleService = new PluginRoleService(goConfigService, pluginManager);
 
-        pluginRoleService.updatePluginRoles("cd.go.authorization.github", "bob", CaseInsensitiveString.caseInsensitiveStrings(Arrays.asList("blackbird", "non_existent_role", "go_system_admin")));
+        pluginRoleService.updatePluginRoles("cd.go.authorization.github", "bob", CaseInsensitiveString.list("blackbird", "non_existent_role", "go_system_admin"));
 
         assertThat(pluginRoleService.usersForPluginRole("blackbird"), hasItem(new RoleUser("bob")));
         assertThat(pluginRoleService.usersForPluginRole("non_existent_role"), hasSize(0));
@@ -114,12 +113,12 @@ public class PluginRoleServiceTest {
         securityConfig.addRole(new PluginRoleConfig("spacetiger", "github"));
         PluginRoleService pluginRoleService = new PluginRoleService(goConfigService, pluginManager);
 
-        pluginRoleService.updatePluginRoles("cd.go.authorization.github", "bob", CaseInsensitiveString.caseInsensitiveStrings(Arrays.asList("blackbird", "spacetiger")));
+        pluginRoleService.updatePluginRoles("cd.go.authorization.github", "bob", CaseInsensitiveString.list("blackbird", "spacetiger"));
 
         assertThat(pluginRoleService.usersForPluginRole("blackbird"), hasItem(new RoleUser("bob")));
         assertThat(pluginRoleService.usersForPluginRole("spacetiger"), hasItem(new RoleUser("bob")));
 
-        pluginRoleService.updatePluginRoles("cd.go.authorization.github", "bob", CaseInsensitiveString.caseInsensitiveStrings(Arrays.asList("blackbird")));
+        pluginRoleService.updatePluginRoles("cd.go.authorization.github", "bob", CaseInsensitiveString.list("blackbird"));
 
         assertThat(pluginRoleService.usersForPluginRole("blackbird"), hasItem(new RoleUser("bob")));
         assertThat(pluginRoleService.usersForPluginRole("spacetiger"), not(hasItem(new RoleUser("bob"))));
@@ -132,12 +131,12 @@ public class PluginRoleServiceTest {
         securityConfig.addRole(new PluginRoleConfig("spacetiger", "github"));
         PluginRoleService pluginRoleService = new PluginRoleService(goConfigService, pluginManager);
 
-        pluginRoleService.updatePluginRoles("cd.go.authorization.github", "bob", CaseInsensitiveString.caseInsensitiveStrings(Arrays.asList("blackbird")));
+        pluginRoleService.updatePluginRoles("cd.go.authorization.github", "bob", CaseInsensitiveString.list("blackbird"));
 
         assertThat(pluginRoleService.usersForPluginRole("blackbird"), hasItem(new RoleUser("bob")));
         assertThat(pluginRoleService.usersForPluginRole("spacetiger"), not(hasItem(new RoleUser("bob"))));
 
-        pluginRoleService.updatePluginRoles("cd.go.authorization.github", "bob", CaseInsensitiveString.caseInsensitiveStrings(Arrays.asList("blackbird", "spacetiger")));
+        pluginRoleService.updatePluginRoles("cd.go.authorization.github", "bob", CaseInsensitiveString.list("blackbird", "spacetiger"));
 
         assertThat(pluginRoleService.usersForPluginRole("blackbird"), hasItem(new RoleUser("bob")));
         assertThat(pluginRoleService.usersForPluginRole("spacetiger"), hasItem(new RoleUser("bob")));
@@ -152,7 +151,7 @@ public class PluginRoleServiceTest {
         PluginRoleService pluginRoleService = new PluginRoleService(goConfigService, pluginManager);
 
         pluginRoleService.updatePluginRoles("cd.go.authorization.github", "bob",
-                CaseInsensitiveString.caseInsensitiveStrings(Arrays.asList("blackbird", "spacetiger")));
+                CaseInsensitiveString.list("blackbird", "spacetiger"));
 
         assertThat(pluginRoleService.usersForPluginRole("blackbird"), hasItem(new RoleUser("bob")));
         assertThat(pluginRoleService.usersForPluginRole("spacetiger"), hasItem(new RoleUser("bob")));
@@ -174,7 +173,7 @@ public class PluginRoleServiceTest {
 
         PluginRoleService pluginRoleService = new PluginRoleService(goConfigService, pluginManager);
 
-        pluginRoleService.updatePluginRoles("cd.go.authorization.github", "bob", CaseInsensitiveString.caseInsensitiveStrings(Arrays.asList("blackbird")));
+        pluginRoleService.updatePluginRoles("cd.go.authorization.github", "bob", CaseInsensitiveString.list("blackbird"));
 
         assertThat(pluginRoleService.usersForPluginRole("blackbird"), hasSize(1));
         assertThat(pluginRoleService.usersForPluginRole("blackbird"), hasItem(new RoleUser("bob")));
@@ -195,9 +194,9 @@ public class PluginRoleServiceTest {
 
         PluginRoleService pluginRoleService = new PluginRoleService(goConfigService, pluginManager);
 
-        pluginRoleService.updatePluginRoles("cd.go.authorization.github", "bob", CaseInsensitiveString.caseInsensitiveStrings(Arrays.asList("blackbird")));
-        pluginRoleService.updatePluginRoles("cd.go.authorization.ldap", "bob", CaseInsensitiveString.caseInsensitiveStrings(Arrays.asList("spacetiger")));
-        pluginRoleService.updatePluginRoles("cd.go.authorization.github", "alice", CaseInsensitiveString.caseInsensitiveStrings(Arrays.asList("blackbird")));
+        pluginRoleService.updatePluginRoles("cd.go.authorization.github", "bob", CaseInsensitiveString.list("blackbird"));
+        pluginRoleService.updatePluginRoles("cd.go.authorization.ldap", "bob", CaseInsensitiveString.list("spacetiger"));
+        pluginRoleService.updatePluginRoles("cd.go.authorization.github", "alice", CaseInsensitiveString.list("blackbird"));
 
         pluginRoleService.invalidateRolesFor("cd.go.authorization.github");
 

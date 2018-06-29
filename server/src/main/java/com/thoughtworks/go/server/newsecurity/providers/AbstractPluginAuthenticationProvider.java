@@ -120,7 +120,7 @@ public abstract class AbstractPluginAuthenticationProvider<T extends Credentials
             if (user != null) {
                 userService.addUserIfDoesNotExist(toDomainUser(user));
 
-                pluginRoleService.updatePluginRoles(pluginId, user.getUsername(), CaseInsensitiveString.caseInsensitiveStrings(response.getRoles()));
+                pluginRoleService.updatePluginRoles(pluginId, user.getUsername(), CaseInsensitiveString.list(response.getRoles()));
                 LOGGER.debug("Successfully authenticated user: `{}` using the authorization plugin: `{}`", user.getUsername(), pluginId);
 
                 final GoUserPrinciple goUserPrinciple = new GoUserPrinciple(user.getUsername(), user.getDisplayName(),

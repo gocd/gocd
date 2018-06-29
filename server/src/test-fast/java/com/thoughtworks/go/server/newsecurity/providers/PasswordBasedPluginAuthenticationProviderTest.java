@@ -216,7 +216,7 @@ class PasswordBasedPluginAuthenticationProviderTest {
             AuthenticationToken<UsernamePassword> authenticationToken = provider.authenticate(CREDENTIALS, null);
 
             assertThat(authenticationToken).isNotNull();
-            verify(pluginRoleService).updatePluginRoles(PLUGIN_ID_1, USERNAME, CaseInsensitiveString.caseInsensitiveStrings(Arrays.asList("blackbird", "admins")));
+            verify(pluginRoleService).updatePluginRoles(PLUGIN_ID_1, USERNAME, CaseInsensitiveString.list("blackbird", "admins"));
         }
 
         @Test
@@ -232,7 +232,7 @@ class PasswordBasedPluginAuthenticationProviderTest {
             AuthenticationToken<UsernamePassword> authenticationToken = provider.authenticate(credentials, null);
 
             assertThat(authenticationToken).isNotNull();
-            verify(pluginRoleService).updatePluginRoles(PLUGIN_ID_1, USERNAME, CaseInsensitiveString.caseInsensitiveStrings(Arrays.asList("blackbird", "admins")));
+            verify(pluginRoleService).updatePluginRoles(PLUGIN_ID_1, USERNAME, CaseInsensitiveString.list("blackbird", "admins"));
         }
 
         @Test
@@ -361,7 +361,7 @@ class PasswordBasedPluginAuthenticationProviderTest {
             assertThat(goUserPrincipal.getUsername()).isEqualTo(USERNAME);
             assertThat(newAuthenticationToken.getCredentials().getUsername()).isEqualTo("foo@bar.com");
 
-            verify(pluginRoleService).updatePluginRoles(PLUGIN_ID_1, USERNAME, CaseInsensitiveString.caseInsensitiveStrings(Arrays.asList("blackbird", "admins")));
+            verify(pluginRoleService).updatePluginRoles(PLUGIN_ID_1, USERNAME, CaseInsensitiveString.list("blackbird", "admins"));
         }
 
         @Test

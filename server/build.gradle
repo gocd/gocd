@@ -466,7 +466,9 @@ tasks.withType(Test) {
   dependsOn prepareNoRails
 
   def heapDumpDir = project.file("${buildDir}/heap-dumps")
-  jvmArgs("-XX:+HeapDumpOnOutOfMemoryError", "-XX:HeapDumpPath=${heapDumpDir}")
+  if (project.hasProperty("heapDumpOnOOM")) {
+    jvmArgs("-XX:+HeapDumpOnOutOfMemoryError", "-XX:HeapDumpPath=${heapDumpDir}")
+  }
 
   doFirst {
     project.delete(heapDumpDir)

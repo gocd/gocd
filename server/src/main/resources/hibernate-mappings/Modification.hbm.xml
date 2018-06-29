@@ -17,7 +17,7 @@
 
 <!DOCTYPE hibernate-mapping PUBLIC
         "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
-        "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+        "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
 
 <hibernate-mapping package="com.thoughtworks.go.domain.materials" default-access="field" default-lazy="false">
     <class name="com.thoughtworks.go.domain.materials.Modification" table="modifications" >
@@ -34,7 +34,7 @@
         <property name="additionalData" access="property"/>
 
         <many-to-one name="materialInstance" class="com.thoughtworks.go.domain.MaterialInstance" column="materialId"/>
-        
+
         <set name="files" order-by="id" cascade="all" fetch="join">
             <key column="modificationId" not-null="true"/>
             <one-to-many class="com.thoughtworks.go.domain.materials.ModifiedFile"/>

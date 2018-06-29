@@ -36,7 +36,7 @@ class LicenseReport {
     'dom4j BSD license',
     'Public Domain',
     'Similar to Apache License but with the acknowledgment clause removed',
-    'The H2 License, Version 1.0',
+    'MPL 2.0 or EPL 1.0',
     'The OpenSymphony Software License 1.1',
   ]
 

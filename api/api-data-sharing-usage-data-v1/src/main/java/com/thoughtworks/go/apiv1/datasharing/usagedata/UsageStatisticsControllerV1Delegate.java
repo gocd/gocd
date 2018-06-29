@@ -23,6 +23,8 @@ import com.thoughtworks.go.apiv1.datasharing.usagedata.representers.UsageStatist
 import com.thoughtworks.go.server.domain.UsageStatistics;
 import com.thoughtworks.go.server.service.DataSharingService;
 import com.thoughtworks.go.spark.Routes.DataSharing;
+import com.thoughtworks.go.server.util.RSAEncryptionHelper;
+import com.thoughtworks.go.util.SystemEnvironment;
 import spark.Request;
 import spark.Response;
 
@@ -31,11 +33,13 @@ import static spark.Spark.*;
 public class UsageStatisticsControllerV1Delegate extends ApiController {
     private final ApiAuthenticationHelper apiAuthenticationHelper;
     private DataSharingService dataSharingService;
+    private SystemEnvironment systemEnvironment;
 
-    public UsageStatisticsControllerV1Delegate(ApiAuthenticationHelper apiAuthenticationHelper, DataSharingService dataSharingService) {
+    public UsageStatisticsControllerV1Delegate(ApiAuthenticationHelper apiAuthenticationHelper, DataSharingService dataSharingService, SystemEnvironment systemEnvironment) {
         super(ApiVersion.v1);
         this.apiAuthenticationHelper = apiAuthenticationHelper;
         this.dataSharingService = dataSharingService;
+        this.systemEnvironment = systemEnvironment;
     }
 
     @Override
@@ -47,17 +51,24 @@ public class UsageStatisticsControllerV1Delegate extends ApiController {
     public void setupRoutes() {
         path(controllerPath(), () -> {
             before("", mimeType, this::setContentType);
-            before("/*", mimeType, this::setContentType);
+            before("/encrypted", this::setEncryptedContentType);
             before("", this::verifyContentType);
             before("/*", this::verifyContentType);
 
-            before("", mimeType, apiAuthenticationHelper::checkUserAnd403);
+            before("", mimeType, apiAuthenticationHelper::checkAdminUserAnd403);
+            before("/encrypted", mimeType, apiAuthenticationHelper::checkUserAnd403);
+
             get("", this::getUsageStatistics);
+            get("/encrypted", this::getEncryptedUsageStatistics);
         });
     }
 
     public String getUsageStatistics(Request request, Response response) {
         UsageStatistics usageStatistics = dataSharingService.getUsageStatistics();
         return jsonizeAsTopLevelObject(request, writer -> UsageStatisticsRepresenter.toJSON(writer, usageStatistics));
+    }
+
+    public String getEncryptedUsageStatistics(Request request, Response response) throws Exception {
+        return RSAEncryptionHelper.encrypt(getUsageStatistics(request, response), systemEnvironment.getUpdateServerPublicKeyPath());
     }
 }

@@ -517,13 +517,39 @@ module ApplicationHelper
     end.nil?
   end
 
+  def supports_vsm_analytics?
+    return false unless is_user_an_admin?
+    !default_plugin_info_finder.allPluginInfos(PluginConstants.ANALYTICS_EXTENSION).detect do |combined_plugin_info|
+      combined_plugin_info.extensionFor(PluginConstants.ANALYTICS_EXTENSION).getCapabilities().supportsVSMAnalytics()
+    end.nil?
+  end
+
   def with_analytics_dashboard_support(&block)
     return unless block_given? && is_user_an_admin?
 
     yield if supports_analytics_dashboard?
   end
 
+  def show_vsm_analytics_path
+    plugin_info = first_plugin_which_supports_vsm_analytics
+    if (plugin_info)
+      supported_analytics = plugin_info.getCapabilities().supportedVSMAnalytics().get(0)
+      show_analytics_path({plugin_id: plugin_info.getDescriptor().id(), type: 'vsm', id: supported_analytics.getId()})
+    end
+  end
+
   private
+  def show_analytics_only_for_admins?
+    system_environment.enableAnalyticsOnlyForAdmins
+  end
+
+  def first_plugin_which_supports_vsm_analytics
+    default_plugin_info_finder.allPluginInfos(PluginConstants.ANALYTICS_EXTENSION).each do |combined_plugin_info|
+      extension_info = combined_plugin_info.extensionFor(PluginConstants.ANALYTICS_EXTENSION)
+      return extension_info if extension_info.getCapabilities().supportsVSMAnalytics()
+    end
+  end
+
   def form_remote_tag(options = {})
     options[:form] = true
 

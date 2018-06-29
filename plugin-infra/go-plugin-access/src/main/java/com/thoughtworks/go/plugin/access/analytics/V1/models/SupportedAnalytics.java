@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.plugin.access.analytics.models;
+package com.thoughtworks.go.plugin.access.analytics.V1.models;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;

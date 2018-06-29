@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.plugin.access.analytics;
+package com.thoughtworks.go.plugin.access.analytics.V1;
 
 import com.google.gson.Gson;
-import com.thoughtworks.go.plugin.access.analytics.models.Capabilities;
+import com.thoughtworks.go.plugin.access.analytics.AnalyticsMessageConverter;
+import com.thoughtworks.go.plugin.access.analytics.V1.models.Capabilities;
 import com.thoughtworks.go.plugin.access.common.models.ImageDeserializer;
 import com.thoughtworks.go.plugin.domain.analytics.AnalyticsData;
 import com.thoughtworks.go.plugin.domain.common.Image;
@@ -46,7 +47,7 @@ public class AnalyticsMessageConverterV1 implements AnalyticsMessageConverter {
 
     @Override
     public AnalyticsData getAnalyticsFromResponseBody(String responseBody) {
-        com.thoughtworks.go.plugin.access.analytics.models.AnalyticsData analyticsData = com.thoughtworks.go.plugin.access.analytics.models.AnalyticsData.fromJSON(responseBody);
+        com.thoughtworks.go.plugin.access.analytics.V1.models.AnalyticsData analyticsData = com.thoughtworks.go.plugin.access.analytics.V1.models.AnalyticsData.fromJSON(responseBody);
 
         analyticsData.validate();
 

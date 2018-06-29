@@ -468,7 +468,7 @@ describe("value_stream_map_renderer", function () {
         assertEquals("pipeline should show all instance details.", "1 less...", jQuery("#downstream .show-more").find("a").text());
     });
 
-    it("shouldShowThePipelineRunDurationForACompeltedPipeline", function() {
+    it("shouldShowThePipelineRunDurationForACompletedPipeline", function() {
       var completedPipeline = '{"stages": [{"locator": "/go/pipelines/current/1/defaultStage/1","status": "Passed","name": "defaultStage", "duration": 63},' +
         '{"locator": "/go/pipelines/current/1/NextStage/1","status": "Failed","name": "NextStage", "duration": 63},' +
         '{"locator": "/go/pipelines/current/1/ManualStage/1","status": "Unknown","name": "manualStage", "duration": null}],' +

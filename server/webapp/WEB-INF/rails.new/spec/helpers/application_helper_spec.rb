@@ -599,6 +599,66 @@ describe ApplicationHelper do
     end
   end
 
+  describe "vsm_analytics" do
+    before :each do
+      @default_plugin_info_finder = double('default_plugin_info_finder')
+      vendor = GoPluginDescriptor::Vendor.new('bob', 'https://bob.example.com')
+      about = GoPluginDescriptor::About.new('Foo plugin', '1.2.3', '17.2.0', 'Does foo', vendor, ['Linux'])
+      descriptor = proc do |id| GoPluginDescriptor.new(id, '1.0', about, nil, nil, false) end
+
+      supports_analytics = proc do |supports_vsm_analytics|
+        supported = []
+        supported << com.thoughtworks.go.plugin.domain.analytics.SupportedAnalytics.new("vsm", "id1", "title1") if supports_vsm_analytics
+        supported << com.thoughtworks.go.plugin.domain.analytics.SupportedAnalytics.new("vsm", "id2", "title2") if supports_vsm_analytics
+        com.thoughtworks.go.plugin.domain.analytics.Capabilities.new(supported)
+      end
+
+      @plugin_info1 = CombinedPluginInfo.new(AnalyticsPluginInfo.new(descriptor.call('plugin1'), nil, supports_analytics.call(true), nil))
+      @plugin_info2 = CombinedPluginInfo.new(AnalyticsPluginInfo.new(descriptor.call('plugin2'), nil, supports_analytics.call(true), nil))
+      @plugin_info3 = CombinedPluginInfo.new(AnalyticsPluginInfo.new(descriptor.call('plugin3'), nil, supports_analytics.call(false), nil))
+      @plugin_info4 = CombinedPluginInfo.new(AnalyticsPluginInfo.new(descriptor.call('plugin3'), nil, supports_analytics.call(false), nil))
+
+    end
+
+    describe "show_vsm_analytics_path" do
+      it "should be the path to first plugin which supports vsm analytics" do
+        def default_plugin_info_finder; @default_plugin_info_finder; end
+        def is_user_an_admin?; true; end
+
+        allow(@default_plugin_info_finder).to receive('allPluginInfos').with(PluginConstants.ANALYTICS_EXTENSION).and_return([@plugin_info1, @plugin_info2, @plugin_info3, @plugin_info4])
+
+        expect(show_vsm_analytics_path).to eq('/analytics/plugin1/vsm/id1')
+      end
+    end
+
+    describe "supports_vsm_analytics?" do
+      it "should support vsm analytics if there is atleast one analytics plugin which supports vsm analytics" do
+        def default_plugin_info_finder; @default_plugin_info_finder; end
+        def is_user_an_admin?; true; end
+
+        allow(@default_plugin_info_finder).to receive('allPluginInfos').with(PluginConstants.ANALYTICS_EXTENSION).and_return([@plugin_info1, @plugin_info2, @plugin_info3, @plugin_info4])
+
+        expect(supports_vsm_analytics?).to eq(true)
+      end
+
+      it "should not support vsm analytics for non-admins" do
+        def default_plugin_info_finder; @default_plugin_info_finder; end
+        def is_user_an_admin?; false; end
+
+        expect(supports_vsm_analytics?).to eq(false)
+      end
+
+      it "should not support vsm analytics in absence of a analytics plugin which supports vsm analytics" do
+        def default_plugin_info_finder; @default_plugin_info_finder; end
+        def is_user_an_admin?; true; end
+
+        allow(@default_plugin_info_finder).to receive('allPluginInfos').with(PluginConstants.ANALYTICS_EXTENSION).and_return([@plugin_info3, @plugin_info4])
+
+        expect(supports_vsm_analytics?).to eq(false)
+      end
+    end
+  end
+
   it 'should encode cruise-config-md5 before allowing it to be displayed.' do
     allow(self).to receive(:cruise_config_md5).and_return("<foo>")
     expect(config_md5_field).to eq('<input id="cruise_config_md5" name="cruise_config_md5" type="hidden" value="&lt;foo&gt;" />')

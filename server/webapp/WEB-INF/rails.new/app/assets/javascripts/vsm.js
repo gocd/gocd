@@ -34,7 +34,4 @@ VSM = function(data, container, renderer, preloader){
             preloader.hide();
         }
     }
-
-
-
 };

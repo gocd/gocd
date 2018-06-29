@@ -17,6 +17,7 @@
 package com.thoughtworks.go.plugin.access.analytics;
 
 import com.google.gson.Gson;
+import com.thoughtworks.go.plugin.access.analytics.V1.AnalyticsMessageConverterV1;
 import com.thoughtworks.go.plugin.domain.analytics.AnalyticsData;
 import org.junit.Before;
 import org.junit.Rule;
@@ -54,7 +55,7 @@ public class AnalyticsMessageConverterV1Test {
     @Test
     public void shouldThrowExceptionIfDataKeyIsMissing() {
         String response = "{\"foo\": \"bar\"}";
-        thrown.expect(com.thoughtworks.go.plugin.access.analytics.models.AnalyticsData.MissingRequiredKeyException.class);
+        thrown.expect(com.thoughtworks.go.plugin.access.analytics.V1.models.AnalyticsData.MissingRequiredKeyException.class);
         thrown.expectMessage("Missing \"data\" key in analytics payload");
 
         converter.getAnalyticsFromResponseBody(response);
@@ -63,7 +64,7 @@ public class AnalyticsMessageConverterV1Test {
     @Test
     public void shouldThrowExceptionIfViewPathKeyIsMissing() {
         String response = "{\"data\": \"hi\", \"foo\": \"bar\"}";
-        thrown.expect(com.thoughtworks.go.plugin.access.analytics.models.AnalyticsData.MissingRequiredKeyException.class);
+        thrown.expect(com.thoughtworks.go.plugin.access.analytics.V1.models.AnalyticsData.MissingRequiredKeyException.class);
         thrown.expectMessage("Missing \"view_path\" key in analytics payload");
 
         converter.getAnalyticsFromResponseBody(response);

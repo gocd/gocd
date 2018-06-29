@@ -173,6 +173,7 @@ describe PipelinesHelper do
       @plugin_info4 = CombinedPluginInfo.new(AnalyticsPluginInfo.new(descriptor.call('plugin3'), nil, supports_analytics.call(false, false), nil))
 
     end
+
     it "should find the first plugin where pipeline analytics are supported" do
       def default_plugin_info_finder; @default_plugin_info_finder; end
       def is_user_an_admin?; true; end

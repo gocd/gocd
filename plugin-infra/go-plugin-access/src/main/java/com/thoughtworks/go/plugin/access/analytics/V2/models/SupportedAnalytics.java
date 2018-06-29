@@ -14,13 +14,24 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.plugin.domain.analytics;
+package com.thoughtworks.go.plugin.access.analytics.V2.models;
+
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
 
 import java.util.Objects;
 
 public class SupportedAnalytics {
+    @Expose
+    @SerializedName("type")
     private String type;
+
+    @Expose
+    @SerializedName("id")
     private String id;
+
+    @Expose
+    @SerializedName("title")
     private String title;
 
     public SupportedAnalytics(String type, String id, String title) {

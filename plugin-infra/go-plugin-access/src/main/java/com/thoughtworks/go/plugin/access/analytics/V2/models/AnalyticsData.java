@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.plugin.access.analytics.models;
+package com.thoughtworks.go.plugin.access.analytics.V2.models;
 
 
 import com.google.gson.Gson;

@@ -16,6 +16,8 @@
 
 package com.thoughtworks.go.plugin.access.analytics;
 
+import com.thoughtworks.go.plugin.access.analytics.V1.AnalyticsMessageConverterV1;
+
 import java.util.Arrays;
 import java.util.List;
 

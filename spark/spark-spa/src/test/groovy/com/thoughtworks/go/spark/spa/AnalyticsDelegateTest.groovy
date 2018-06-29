@@ -110,6 +110,17 @@ class AnalyticsDelegateTest implements ControllerTrait<AnalyticsDelegate>, Secur
         assertThatResponse().isOk().hasJsonBody(expected.toMap())
       }
 
+      @Test
+      void "should fetch analytics on a post request"() {
+        AnalyticsData expected = new AnalyticsData(GSON.toJson([1, 2, 3]), "/path/to/template")
+
+        when(analyticsExtension.getAnalytics("pluginId", "vsm", "metric", Collections.emptyMap())).thenReturn(expected)
+
+        post(controller.controllerPath("pluginId", "vsm", "metric"), Collections.emptyMap())
+
+        assertThatResponse().isOk().hasJsonBody(expected.toMap())
+      }
+
       String getPipelineName() {
         return "testPipeline"
       }

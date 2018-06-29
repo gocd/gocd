@@ -19,7 +19,7 @@
 CREATE TABLE latest_bst AS (SELECT MAX(bst.id) id, bst.buildId, bst.stageId, b.state build_state FROM buildStateTransitions bst inner join builds b on b.id = bst.buildid GROUP BY bst.buildId);
 
 ALTER TABLE latest_bst ADD COLUMN state VARCHAR(255);
-ALTER TABLE latest_bst ADD COLUMN transition_time TIMESTAMP(23, 10);
+ALTER TABLE latest_bst ADD COLUMN transition_time TIMESTAMP;
 
 UPDATE latest_bst SET state = (SELECT currentState FROM buildStateTransitions bst WHERE bst.id = latest_bst.id),
                       transition_time = (select statechangetime from buildstatetransitions bst where bst.id = latest_bst.id);

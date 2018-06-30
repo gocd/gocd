@@ -165,7 +165,7 @@ class WebBasedPluginAuthenticationProviderTest {
             when(authorizationExtension.authenticateUser(eq(PLUGIN_ID), anyMap(), anyList(), anyList())).thenReturn(authenticationResponse);
             authenticationProvider.authenticate(CREDENTIALS, PLUGIN_ID);
 
-            verify(pluginRoleService).updatePluginRoles(PLUGIN_ID, user.getUsername(), CaseInsensitiveString.caseInsensitiveStrings("admin"));
+            verify(pluginRoleService).updatePluginRoles(PLUGIN_ID, user.getUsername(), CaseInsensitiveString.list("admin"));
         }
 
         @Test

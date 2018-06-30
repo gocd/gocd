@@ -11,7 +11,7 @@
     "eslint": "eslint --color --ext .js --ext .msx --format stylish webpack/ spec/webpack/ --ignore-pattern gen/"
   },
   "dependencies": {
-    "angular": "1.0.8",
+    "angular": "file:node-vendor/angular",
     "babel-polyfill": "^6.26.0",
     "dragula": "^3.7.2",
     "filesize": "^3.5.10",

@@ -83,7 +83,7 @@ module.exports = function (env) {
     filename: production ? '[name]-[chunkhash].js' : '[name].js',
     minChunks(module, _count) {
       function isFromNPM() {
-        return new RegExp(`node_modules`).test(module.resource);
+        return new RegExp(`node_modules`).test(module.resource) || new RegExp(`node-vendor`).test(module.resource);
       }
 
       function isInside() {

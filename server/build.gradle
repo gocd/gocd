@@ -135,7 +135,7 @@ dependencies {
   copyOnlyTestData project(':test:test-agent')
 
   compile group: 'commons-dbcp', name: 'commons-dbcp', version: '1.4'
-  compile group: 'com.h2database', name: 'h2', version: '1.4.197'
+  compile group: 'com.h2database', name: 'h2', version: project.versions.h2db
   compile group: 'net.sf', name: 'dbdeploy', version: '2.11.1'
   compile(group: 'org.hibernate', name: 'hibernate-ehcache', version: project.versions.hibernate) {
     exclude(module: 'ehcache-core')
@@ -705,7 +705,7 @@ task verifyWar(type: VerifyJarTask) {
         "go-plugin-infra-${project.version}.jar",
         "gson-${project.versions.gson}.jar",
         "guava-${project.versions.guava}.jar",
-        "h2-1.4.197.jar",
+        "h2-${project.versions.h2db}.jar",
         "hibernate-commons-annotations-3.2.0.Final.jar",
         "hibernate-core-${project.versions.hibernate}.jar",
         "hibernate-ehcache-${project.versions.hibernate}.jar",

@@ -113,7 +113,7 @@ public class FetchPluggableArtifactTaskTest {
         task.validate(ConfigSaveValidationContext.forChain(config, new BasicPipelineConfigs(), downstream, stage, stage.getJobs().first()));
 
         assertThat(task.errors().isEmpty(), is(false));
-        assertThat(task.errors().on(FetchTask.ORIGIN), startsWith("\"downstream :: stage :: job\" tries to fetch artifact from job \"uppest_stream :: uppest-stage2 :: uppest-job2\" which is defined in"));
+        assertThat(task.errors().on(FetchTask.ARTIFACT_ORIGIN), startsWith("\"downstream :: stage :: job\" tries to fetch artifact from job \"uppest_stream :: uppest-stage2 :: uppest-job2\" which is defined in"));
     }
 
     @Test

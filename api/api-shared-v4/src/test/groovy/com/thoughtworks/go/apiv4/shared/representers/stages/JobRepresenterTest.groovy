@@ -17,7 +17,6 @@
 package com.thoughtworks.go.apiv4.shared.representers.stages
 
 import com.thoughtworks.go.api.util.GsonTransformer
-import com.thoughtworks.go.apiv4.shared.representers.stages.JobRepresenter
 import com.thoughtworks.go.config.*
 import com.thoughtworks.go.config.exceptions.UnprocessableEntityException
 import com.thoughtworks.go.helper.JobConfigMother
@@ -419,14 +418,14 @@ class JobRepresenterTest {
           type: 'fetch',
           attributes:
           [
-            pipeline: '',
-            origin: 'gocd',
-            stage: '',
-            job: '',
+            pipeline        : '',
+            artifact_origin : 'gocd',
+            stage           : '',
+            job             : '',
             is_source_a_file: false,
-            source: null,
-            destination: '',
-            run_if: []
+            source          : null,
+            destination     : '',
+            run_if          : []
           ],
           errors:
           [

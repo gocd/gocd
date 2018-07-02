@@ -34,14 +34,14 @@ class FetchTaskRepresenterTest implements TaskRepresenterTest {
     [
       type      : 'fetch',
       attributes: [
-        origin     : 'gocd',
-        pipeline   : 'pipeline',
-        stage      : 'stage',
-        job        : 'job',
+        artifact_origin : 'gocd',
+        pipeline        : 'pipeline',
+        stage           : 'stage',
+        job             : 'job',
         is_source_a_file: true,
-        source     : 'src',
-        destination: 'dest',
-        run_if           : []
+        source          : 'src',
+        destination     : 'dest',
+        run_if          : []
       ]
     ]
 
@@ -49,14 +49,14 @@ class FetchTaskRepresenterTest implements TaskRepresenterTest {
     [
       type      : 'fetch',
       attributes: [
-        origin     : 'gocd',
-        run_if     : ['passed', 'failed', 'any'],
-        pipeline   : 'pipeline',
-        stage      : 'stage',
-        job        : 'job',
-        source     : 'src',
+        artifact_origin : 'gocd',
+        run_if          : ['passed', 'failed', 'any'],
+        pipeline        : 'pipeline',
+        stage           : 'stage',
+        job             : 'job',
+        source          : 'src',
         is_source_a_file: true,
-        destination: 'dest'
+        destination     : 'dest'
       ]
     ]
 
@@ -64,19 +64,19 @@ class FetchTaskRepresenterTest implements TaskRepresenterTest {
     [
       type      : 'fetch',
       attributes: [
-        origin     : 'gocd',
-        pipeline   : 'pipeline',
-        stage      : 'stage',
-        job        : 'job',
-        source     : 'src',
+        artifact_origin : 'gocd',
+        pipeline        : 'pipeline',
+        stage           : 'stage',
+        job             : 'job',
+        source          : 'src',
         is_source_a_file: true,
-        destination: 'dest',
-        run_if           : [],
-        on_cancel      : ["type": "ant", attributes:[
-          run_if: [],
+        destination     : 'dest',
+        run_if          : [],
+        on_cancel       : ["type": "ant", attributes: [
+          run_if           : [],
           working_directory: null,
-          build_file: null,
-          target: null
+          build_file       : null,
+          target           : null
         ]]
       ]
     ]

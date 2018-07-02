@@ -30,8 +30,8 @@ public abstract class AbstractFetchTask extends AbstractTask implements FetchArt
     public static final String PIPELINE = "pipeline";
     public static final String STAGE = "stage";
     public static final String JOB = "job";
-    public static final String ORIGIN = "origin";
     public static final String TYPE = "fetch";
+    public static final String ARTIFACT_ORIGIN = "artifact_origin";
 
     @ConfigAttribute(value = "pipeline", allowNull = true)
     protected PathFromAncestor pipelineName;
@@ -116,7 +116,7 @@ public abstract class AbstractFetchTask extends AbstractTask implements FetchArt
 
     protected abstract File destOnAgent(String pipelineName);
 
-    public abstract String getOrigin();
+    public abstract String getArtifactOrigin();
 
     protected void validateTask(ValidationContext validationContext) {
         if (stageAndOrJobIsBlank()) {
@@ -247,7 +247,7 @@ public abstract class AbstractFetchTask extends AbstractTask implements FetchArt
             }
             if (validationContext.shouldCheckConfigRepo()) {
                 if (!validationContext.getConfigRepos().isReferenceAllowed(currentPipeline.getOrigin(), srcPipeline.getOrigin())) {
-                    addError(ORIGIN, String.format("\"%s :: %s :: %s\" tries to fetch artifact from job \"%s :: %s :: %s\" which is defined in %s - reference is not allowed",
+                    addError(ARTIFACT_ORIGIN, String.format("\"%s :: %s :: %s\" tries to fetch artifact from job \"%s :: %s :: %s\" which is defined in %s - reference is not allowed",
                             currentPipeline.name(), validationContext.getStage().name(), validationContext.getJob().name(), pipelineName.getAncestorName(), stage, job, displayNameFor(srcPipeline.getOrigin())));
                     return true;
                 }

@@ -27,7 +27,7 @@ import java.util.Map;
 
 // TODO - #2541 - Implementing serializable here because we need to send
 
-@AttributeAwareConfigTag(value = "fetchartifact", attribute = "origin", attributeValue = "gocd")
+@AttributeAwareConfigTag(value = "fetchartifact", attribute = "artifactOrigin", attributeValue = "gocd")
 public class FetchTask extends AbstractFetchTask {
     @ConfigAttribute(value = "srcfile", optional = true, allowNull = true)
     @ValidationErrorKey(value = "src")
@@ -121,7 +121,7 @@ public class FetchTask extends AbstractFetchTask {
     }
 
     @Override
-    public String getOrigin() {
+    public String getArtifactOrigin() {
         return "gocd";
     }
 

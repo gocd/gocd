@@ -12,7 +12,7 @@
           <job name="test">
             <tasks>
               <rake />
-              <fetchartifact origin="gocd" pipeline="downstream" stage="test" job="test" srcdir="bin">
+              <fetchartifact artifactOrigin="gocd" pipeline="downstream" stage="test" job="test" srcdir="bin">
                 <runif status="passed" />
               </fetchartifact>
             </tasks>

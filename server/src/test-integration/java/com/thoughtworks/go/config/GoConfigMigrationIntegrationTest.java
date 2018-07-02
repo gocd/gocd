@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -2141,9 +2141,9 @@ public class GoConfigMigrationIntegrationTest {
 
         String migratedContent = migrateXmlString(configXml, 106);
 
-        assertThat(migratedContent, containsString("<fetchartifact origin=\"gocd\" pipeline=\"foo\" stage=\"stage1\" job=\"job1\" srcfile=\"foo/foo.txt\""));
-        assertThat(migratedContent, containsString("<fetchartifact origin=\"gocd\" pipeline=\"foo\" stage=\"stage1\" job=\"job1\" srcdir=\"foo\""));
-        assertThat(migratedContent, containsString("<fetchartifact origin=\"gocd\" stage=\"stage1\" job=\"job1\" srcdir=\"foo\" dest=\"dest_on_agent\""));
+        assertThat(migratedContent, containsString("<fetchartifact artifactOrigin=\"gocd\" pipeline=\"foo\" stage=\"stage1\" job=\"job1\" srcfile=\"foo/foo.txt\""));
+        assertThat(migratedContent, containsString("<fetchartifact artifactOrigin=\"gocd\" pipeline=\"foo\" stage=\"stage1\" job=\"job1\" srcdir=\"foo\""));
+        assertThat(migratedContent, containsString("<fetchartifact artifactOrigin=\"gocd\" stage=\"stage1\" job=\"job1\" srcdir=\"foo\" dest=\"dest_on_agent\""));
     }
 
     @Test
@@ -2210,7 +2210,7 @@ public class GoConfigMigrationIntegrationTest {
 
         String migratedContent = migrateXmlString(configXml, 106);
 
-        String artifactId2 = "<fetchartifact origin=\"external\" pipeline=\"foo\" stage=\"stage1\" job=\"job1\" artifactId=\"artifactId2\">"
+        String artifactId2 = "<fetchartifact artifactOrigin=\"external\" pipeline=\"foo\" stage=\"stage1\" job=\"job1\" artifactId=\"artifactId2\">"
                 +"                         <configuration>"
                 +"                             <property>"
                 +"                                 <key>dest</key>"
@@ -2219,7 +2219,7 @@ public class GoConfigMigrationIntegrationTest {
                 +"                         </configuration>"
                 +"                     </fetchartifact>";
 
-        String artifactId3 = "<fetchartifact origin=\"external\" pipeline=\"foo\" stage=\"stage1\" job=\"job1\" artifactId=\"artifactId3\">"
+        String artifactId3 = "<fetchartifact artifactOrigin=\"external\" pipeline=\"foo\" stage=\"stage1\" job=\"job1\" artifactId=\"artifactId3\">"
                 +"                         <configuration>"
                 +"                             <property>"
                 +"                                 <key>SomeSecureProperty</key>"
@@ -2228,7 +2228,7 @@ public class GoConfigMigrationIntegrationTest {
                 +"                         </configuration>"
                 +"                     </fetchartifact>";
 
-        assertThat(migratedContent, containsString("<fetchartifact origin=\"external\" pipeline=\"foo\" stage=\"stage1\" job=\"job1\" artifactId=\"artifactId1\""));
+        assertThat(migratedContent, containsString("<fetchartifact artifactOrigin=\"external\" pipeline=\"foo\" stage=\"stage1\" job=\"job1\" artifactId=\"artifactId1\""));
         assertThat(migratedContent, containsString(artifactId2));
         assertThat(migratedContent, containsString(artifactId3));
     }
@@ -2285,6 +2285,65 @@ public class GoConfigMigrationIntegrationTest {
         assertThat(migratedContent, containsString(migratedArtifact1));
         assertThat(migratedContent, containsString(migratedArtifact2));
 
+    }
+
+    @Test
+    public void shouldRenameOriginAttributeOnFetchArtifactToArtifactOrigin_AsPartOf110To111Migration() throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
+        String configXml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
+                + "<cruise schemaVersion=\"110\">\n"
+                + "    <server artifactsdir=\"artifacts\"/>\n"
+                + "    <artifactStores>\n"
+                + "      <artifactStore id=\"foobar\" pluginId=\"cd.go.artifact.docker.registry\">\n"
+                + "        <property>\n"
+                + "          <key>RegistryURL</key>\n"
+                + "          <value>http://foo</value>\n"
+                + "        </property>\n"
+                + "      </artifactStore>\n"
+                + "    </artifactStores>"
+                + "    <pipelines>"
+                + "      <pipeline name=\"foo\">"
+                + "         <materials> "
+                + "           <hg url=\"blah\"/>"
+                + "         </materials>  "
+                + "         <stage name=\"stage1\">"
+                + "             <jobs>"
+                + "             <job name=\"job1\">"
+                + "                 <tasks>"
+                + "                    <exec command=\"ls\"/>"
+                + "                 </tasks>"
+                + "                 <artifacts>"
+                + "                     <artifact type='build' src='foo' dest='bar'/>"
+                + "                     <artifact type='external' id='artifactId1' storeId='foobar' />"
+                + "                 </artifacts>"
+                + "             </job>"
+                + "             </jobs>"
+                + "         </stage>"
+                + "         <stage name=\"stage2\">"
+                + "             <jobs>"
+                + "             <job name=\"job2\">"
+                + "                 <tasks>"
+                + "                    <exec command=\"ls\"/>"
+                + "                     <fetchartifact origin='gocd' pipeline='foo' stage='stage1' job='job1' srcdir='dist/zip' dest='target'/>"
+                + "                     <fetchartifact origin='external' pipeline='foo' stage='stage1' job='job1' artifactId='artifactId1'>"
+                + "                         <configuration>"
+                + "                             <property>"
+                + "                                 <key>dest</key>"
+                + "                                 <value>destination</value>"
+                + "                             </property>"
+                + "                         </configuration>"
+                + "                     </fetchartifact>"
+                + "                 </tasks>"
+                + "             </job>"
+                + "             </jobs>"
+                + "         </stage>"
+                + "      </pipeline>"
+                + "    </pipelines>"
+                + "</cruise>";
+
+        String migratedContent = migrateXmlString(configXml, 110);
+
+        assertThat(migratedContent, containsString("<fetchartifact artifactOrigin=\"gocd\" pipeline=\"foo\" stage=\"stage1\" job=\"job1\" srcdir=\"dist/zip\" dest=\"target\"/> "));
+        assertThat(migratedContent, containsString("<fetchartifact artifactOrigin=\"external\" pipeline=\"foo\" stage=\"stage1\" job=\"job1\" artifactId=\"artifactId1\">"));
     }
 
     private void assertStringsIgnoringCarriageReturnAreEqual(String expected, String actual) {

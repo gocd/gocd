@@ -35,7 +35,7 @@ import java.util.Map;
 import static java.lang.String.format;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
-@AttributeAwareConfigTag(value = "fetchartifact", attribute = "origin", attributeValue = "external")
+@AttributeAwareConfigTag(value = "fetchartifact", attribute = "artifactOrigin", attributeValue = "external")
 public class FetchPluggableArtifactTask extends AbstractFetchTask {
     public static final String ARTIFACT_ID = "artifactId";
     public static final String CONFIGURATION = "configuration";
@@ -256,7 +256,7 @@ public class FetchPluggableArtifactTask extends AbstractFetchTask {
     }
 
     @Override
-    public String getOrigin() {
+    public String getArtifactOrigin() {
         return "external";
     }
 

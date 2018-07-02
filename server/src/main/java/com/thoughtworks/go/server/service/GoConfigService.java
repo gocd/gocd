@@ -252,6 +252,10 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
         return getCurrentConfig().pipelineConfigByName(name);
     }
 
+    public PipelineTemplateConfig templateConfigNamed(final CaseInsensitiveString name) {
+        return getCurrentConfig().findTemplate(name);
+    }
+
     public boolean stageHasTests(String pipelineName, String stageName) {
         return stageConfigNamed(pipelineName, stageName).hasTests();
     }

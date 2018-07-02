@@ -62,13 +62,19 @@ module Admin
         render :template => "/admin/tasks/plugin/new", :status => result.httpCode(), :layout => false
       end
 
+      stage_parent = params[:stage_parent]
+
       save_popup(params[:config_md5], Class.new(::ConfigUpdate::SaveAsPipelineOrTemplateAdmin) do
         include ::ConfigUpdate::JobNode
 
-        def initialize params, user, security_service, task, pluggable_task_service
+        def initialize params, user, security_service, task, pluggable_task_service, external_artifacts_service, go_config_service, stage_parent, pipeline_name
           super(params, user, security_service)
           @task = task
           @pluggable_task_service = pluggable_task_service
+          @external_artifacts_service = external_artifacts_service
+          @go_config_service = go_config_service
+          @stage_parent = stage_parent
+          @pipeline_or_template_name = pipeline_name
         end
 
         def subject(job)
@@ -86,8 +92,27 @@ module Admin
           end
           @pluggable_task_service.validate(@task) if @task.instance_of? com.thoughtworks.go.config.pluggabletask.PluggableTask
           @pluggable_task_service.validate(@task.cancelTask()) if (!@task.cancelTask().nil?) && (@task.cancelTask().instance_of? com.thoughtworks.go.config.pluggabletask.PluggableTask)
+          if @task.instance_of? com.thoughtworks.go.config.FetchPluggableArtifactTask
+            stage_parent_config = stageParentConfig
+            if stage_parent_config
+              # need not call validate on oncancel task as it can't be fetch task from the UI.
+              # The task or the config is not preprocessed. So, it may be that for some cases, the plugin validations are deferred to runtime
+              @external_artifacts_service.validateFetchExternalArtifactTask(@task, stage_parent_config, @go_config_service.getCurrentConfig())
+
+            end
+          end
         end
-      end.new(params, current_user.getUsername(), security_service, @task, pluggable_task_service), create_failure_handler, {:controller => '/admin/tasks', :current_tab => params[:current_tab]}) do
+
+        def stageParentConfig
+          if 'pipelines'.eql?(@stage_parent)
+            parent_config = go_config_service.pipelineConfigNamed(CaseInsensitiveString.new(@pipeline_or_template_name))
+          else
+            parent_config = go_config_service.templateConfigNamed(CaseInsensitiveString.new(@pipeline_or_template_name))
+          end
+          parent_config
+        end
+
+      end.new(params, current_user.getUsername(), security_service, @task, pluggable_task_service, external_artifacts_service, go_config_service, params[:stage_parent], params[:pipeline_name]), create_failure_handler, {:controller => '/admin/tasks', :current_tab => params[:current_tab]}) do
         assert_load :job, @node
         assert_load :task, @subject
         assert_load :artifact_plugin_to_fetch_view, default_plugin_info_finder.pluginIdToFetchViewTemplate()
@@ -124,10 +149,14 @@ module Admin
         include ::ConfigUpdate::JobNode
         include ::ConfigUpdate::JobTaskSubject
 
-        def initialize(params, user, security_service, task_view_service, pluggable_task_service)
+        def initialize(params, user, security_service, task_view_service, pluggable_task_service, external_artifacts_service, go_config_service, stage_parent, pipeline_name)
           super(params, user, security_service)
           @task_view_service = task_view_service
           @pluggable_task_service = pluggable_task_service
+          @external_artifacts_service = external_artifacts_service
+          @go_config_service = go_config_service
+          @stage_parent = stage_parent
+          @pipeline_or_template_name = pipeline_name
         end
 
         def update(job)
@@ -142,10 +171,27 @@ module Admin
           task.setConfigAttributes(params[:task], @task_view_service)
           @pluggable_task_service.validate(task) if task.instance_of? com.thoughtworks.go.config.pluggabletask.PluggableTask
           @pluggable_task_service.validate(task.cancelTask()) if (!task.cancelTask().nil?) && (task.cancelTask().instance_of? com.thoughtworks.go.config.pluggabletask.PluggableTask)
+          if @task.instance_of? com.thoughtworks.go.config.FetchPluggableArtifactTask
+            stage_parent_config = stageParentConfig
+            if stage_parent_config
+              # need not call validate on oncancel task as it can't be fetch task from the UI.
+              # The task or the config is not preprocessed. So, it may be that for some cases, the plugin validations are deferred to runtime
+              @external_artifacts_service.validateFetchExternalArtifactTask(@task, stage_parent_config, @go_config_service.getCurrentConfig())
+            end
+          end
           job.getTasks().replace(task_index, task)
         end
 
-      end.new(params, current_user.getUsername(), security_service, task_view_service, pluggable_task_service), update_failure_handler, {:controller => '/admin/tasks', :current_tab => params[:current_tab]}) do
+        def stageParentConfig
+          if 'pipelines'.eql?(@stage_parent)
+            parent_config = go_config_service.pipelineConfigNamed(CaseInsensitiveString.new(@pipeline_or_template_name))
+          else
+            parent_config = go_config_service.templateConfigNamed(CaseInsensitiveString.new(@pipeline_or_template_name))
+          end
+          parent_config
+        end
+
+      end.new(params, current_user.getUsername(), security_service, task_view_service, pluggable_task_service, external_artifacts_service, go_config_service, params[:stage_parent], params[:pipeline_name]), update_failure_handler, {:controller => '/admin/tasks', :current_tab => params[:current_tab]}) do
         assert_load :task, adapt_fetch_task_if_needed(@subject)
         load_modify_task_variables
         assert_load :artifact_plugin_to_fetch_view, default_plugin_info_finder.pluginIdToFetchViewTemplate()

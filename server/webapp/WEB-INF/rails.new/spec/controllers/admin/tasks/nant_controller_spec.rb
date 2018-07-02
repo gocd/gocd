@@ -26,7 +26,7 @@ describe Admin::TasksController do
     @task_type = nant_task.getTaskType()
     @updated_payload = {:buildFile => "newB", :target => "newT", :workingDirectory => "newWD"}
     @updated_task = nant_task("newB", "newT", "newWD")
-
+    @subject = @updated_task
     @new_task = NantTask.new
 
     @create_payload= {:buildFile => 'default.build', :target => "compile",:workingDirectory => "dir"}

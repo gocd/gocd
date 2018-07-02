@@ -139,6 +139,7 @@ shared_examples_for :task_controller  do
       @pipeline_config_for_edit = ConfigForEdit.new(@pipeline, @cruise_config, @cruise_config)
       @pause_info = PipelinePauseInfo.paused("just for fun", "loser")
       allow(@go_config_service).to receive(:registry).and_return(MockRegistryModule::MockRegistry.new)
+      allow(@go_config_service).to receive(:artifactIdToPluginIdForFetchPluggableArtifact).and_return({})
       @pluggable_task_service = stub_service(:pluggable_task_service)
       @config_store = double('config store')
       allow(@controller).to receive(:config_store).and_return(@config_store)
@@ -195,17 +196,19 @@ shared_examples_for :task_controller  do
       end
 
       it "should update a given task" do
-        stub_save_for_success
+        stub_config_save_with_subject(@subject)
 
         put :update, :pipeline_name => "pipeline.name", :stage_name => "stage.name", :job_name => "job.1", :task_index => "0", :config_md5 => "abcd1234", :type => @task_type, :task => @updated_payload, :stage_parent => "pipelines", :current_tab=>"tasks"
+
         expect(assigns[:task]).to eq(@updated_task)
         expect(response.status).to eq(200)
 
-        assert_update_command ::ConfigUpdate::SaveAsPipelineOrTemplateAdmin, ::ConfigUpdate::TaskNode, ::ConfigUpdate::NodeAsSubject
+        assert_update_command ::ConfigUpdate::SaveAsPipelineOrTemplateAdmin, ::ConfigUpdate::JobNode, ::ConfigUpdate::JobTaskSubject
       end
 
       it "should update a given task with on cancel" do
-        stub_save_for_success
+        @subject.setCancelTask(ant_task("cancelFile","cancelTarget","anotherWD"))
+        stub_config_save_with_subject(@subject)
 
         updated_payload_with_on_cancel = {:hasCancelTask => '1',
                                               :onCancelConfig => {:onCancelOption => 'ant', :antOnCancel => {:buildFile => "cancelFile", :target => "cancelTarget", :workingDirectory => "anotherWD"}}}
@@ -217,13 +220,14 @@ shared_examples_for :task_controller  do
         expect(assigns[:task]).to eq(@updated_task)
         expect(response.status).to eq(200)
 
-        assert_update_command ::ConfigUpdate::SaveAsPipelineOrTemplateAdmin, ::ConfigUpdate::TaskNode, ::ConfigUpdate::NodeAsSubject
+        assert_update_command ::ConfigUpdate::SaveAsPipelineOrTemplateAdmin, ::ConfigUpdate::JobNode, ::ConfigUpdate::JobTaskSubject
       end
 
       it "should assign config_errors for display when update fails due to validation errors" do
-        stub_save_for_validation_error do |result, config, node|
+        stub_save_for_validation_error_with_subject(@subject) do |result, config, node|
           result.badRequest('some message')
           config.errors().add("base", "someError")
+
         end
         task_view_service = stub_service(:task_view_service)
         expect(task_view_service).to receive(:getViewModel).with(@updated_task, 'edit').and_return(vm_template_for(@updated_task))
@@ -277,12 +281,11 @@ shared_examples_for :task_controller  do
       end
 
       it "should create a task" do
-        stub_save_for_success
+        stub_config_save_with_subject(@created_task)
 
         post :create, :pipeline_name => "pipeline.name", :stage_name => "stage.name", :job_name => "job.1", :type => @task_type, :config_md5 => "abcd1234", :task => @create_payload, :stage_parent => "pipelines", :current_tab=>"tasks"
 
         expect(@tasks.length).to eq(2)
-        expect(@tasks.last).to eq(@created_task)
         expect(assigns[:task]).to eq(@created_task)
         expect(assigns[:config_store]).to eq(nil)
 

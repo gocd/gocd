@@ -42,6 +42,7 @@ describe Admin::TasksController do
     on_cancel_task_config_for_update = {:onCancelOption => "pluggable_task_curl_plugin", :pluggable_task_curl_pluginOnCancel => {:Url => "http://a"}}
     @updated_payload = {:buildFile => "newB", :target => "newT", :workingDirectory => "newWD", :hasCancelTask => "1", :onCancelConfig => on_cancel_task_config_for_update}
     @updated_task = ant_task("newB", "newT", "newWD")
+    @subject = @updated_task
     @updated_on_cancel_task= plugin_task
     @updated_on_cancel_task.configuration.addNewConfiguration("Url", false)
     @updated_on_cancel_task.configuration.getProperty("Url").setConfigurationValue(ConfigurationValue.new("http://a"))
@@ -78,6 +79,7 @@ describe Admin::TasksController do
       @pipeline_config_for_edit = ConfigForEdit.new(@pipeline, @cruise_config, @cruise_config)
       @pause_info = PipelinePauseInfo.paused("just for fun", "loser")
       allow(@go_config_service).to receive(:registry).and_return(MockRegistryModule::MockRegistry.new)
+      allow(@go_config_service).to receive(:artifactIdToPluginIdForFetchPluggableArtifact).and_return({})
 
       expect(@go_config_service).to receive(:loadForEdit).with("pipeline.name", @user, @result).and_return(@pipeline_config_for_edit)
       expect(@pipeline_pause_service).to receive(:pipelinePauseInfo).with("pipeline.name").and_return(@pause_info)

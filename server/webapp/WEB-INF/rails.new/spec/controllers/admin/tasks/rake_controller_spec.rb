@@ -26,7 +26,7 @@ describe Admin::TasksController do
     @task_type = rake_task.getTaskType()
     @updated_payload = {:buildFile => "newB", :target => "newT", :workingDirectory => "newWD"}
     @updated_task = rake_task("newB", "newT", "newWD")
-
+    @subject = @updated_task
     @new_task = RakeTask.new
 
     @create_payload= {:buildFile => 'rakefile', :target => "test",:workingDirectory => "dir"}

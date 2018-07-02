@@ -40,7 +40,7 @@ describe Admin::TasksController do
     @task_type = plugin_task.getTaskType()
     @updated_payload = {:Url => "http://foo/bar"}
     @updated_task = plugin_task("curl.plugin", [ConfigurationPropertyMother.create("Url", false, "http://foo/bar")])
-
+    @subject = @updated_task
     @new_task = PluggableTask.new( PluginConfiguration.new("curl.plugin", "1.0"), Configuration.new([ConfigurationPropertyMother.create("Url", false, nil)].to_java(ConfigurationProperty)))
 
     @create_payload= {:Url => "http://foo"}
@@ -70,6 +70,7 @@ describe Admin::TasksController do
       @pipeline_config_for_edit = ConfigForEdit.new(@pipeline, @cruise_config, @cruise_config)
       @pause_info = PipelinePauseInfo.paused("just for fun", "loser")
       allow(@go_config_service).to receive(:registry).and_return(MockRegistryModule::MockRegistry.new)
+      allow(@go_config_service).to receive(:artifactIdToPluginIdForFetchPluggableArtifact).and_return({})
 
       expect(@go_config_service).to receive(:loadForEdit).with("pipeline.name", @user, @result).and_return(@pipeline_config_for_edit)
       expect(@pipeline_pause_service).to receive(:pipelinePauseInfo).with("pipeline.name").and_return(@pause_info)

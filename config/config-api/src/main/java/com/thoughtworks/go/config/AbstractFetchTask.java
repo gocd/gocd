@@ -31,6 +31,7 @@ public abstract class AbstractFetchTask extends AbstractTask implements FetchArt
     public static final String STAGE = "stage";
     public static final String JOB = "job";
     public static final String ORIGIN = "origin";
+    public static final String TYPE = "fetch";
 
     @ConfigAttribute(value = "pipeline", allowNull = true)
     protected PathFromAncestor pipelineName;
@@ -109,7 +110,7 @@ public abstract class AbstractFetchTask extends AbstractTask implements FetchArt
 
     @Override
     public String getTaskType() {
-        return "fetch";
+        return TYPE;
     }
 
 
@@ -260,29 +261,31 @@ public abstract class AbstractFetchTask extends AbstractTask implements FetchArt
         return origin != null ? origin.displayName() : "cruise-config.xml";
     }
 
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
-    if (!super.equals(o)) return false;
+    @Override
+    public boolean equals(Object o) {
+        //TODO: compare abstract tasks for correct implementation -jj
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
 
-    AbstractFetchTask that = (AbstractFetchTask) o;
+        AbstractFetchTask that = (AbstractFetchTask) o;
 
-    if (pipelineName != null ? !pipelineName.equals(that.pipelineName) : that.pipelineName != null) return false;
-    if (stage != null ? !stage.equals(that.stage) : that.stage != null) return false;
-    return job != null ? job.equals(that.job) : that.job == null;
-  }
+        if (pipelineName != null ? !pipelineName.equals(that.pipelineName) : that.pipelineName != null) return false;
+        if (stage != null ? !stage.equals(that.stage) : that.stage != null) return false;
+        if (job != null ? !job.equals(that.job) : that.job != null) return false;
+        return super.equals(that);
+    }
 
-  @Override
-  public int hashCode() {
-    int result = super.hashCode();
-    result = 31 * result + (pipelineName != null ? pipelineName.hashCode() : 0);
-    result = 31 * result + (stage != null ? stage.hashCode() : 0);
-    result = 31 * result + (job != null ? job.hashCode() : 0);
-    return result;
-  }
+    @Override
+    public int hashCode() {
+        int result = super.hashCode();
+        result = 31 * result + (pipelineName != null ? pipelineName.hashCode() : 0);
+        result = 31 * result + (stage != null ? stage.hashCode() : 0);
+        result = 31 * result + (job != null ? job.hashCode() : 0);
+        return result;
+    }
 
-  @Override
+    @Override
     protected void setTaskConfigAttributes(Map attributeMap) {
         if (attributeMap == null || attributeMap.isEmpty()) {
             return;

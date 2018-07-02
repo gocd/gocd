@@ -229,6 +229,29 @@ public class FetchPluggableArtifactTask extends AbstractFetchTask {
     }
 
     @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        FetchPluggableArtifactTask fetchTask = (FetchPluggableArtifactTask) o;
+
+        if (artifactId != null ? !artifactId.equals(fetchTask.artifactId) : fetchTask.artifactId != null) {
+            return false;
+        }
+
+        if (configuration != null ? !configuration.equals(fetchTask.configuration) : fetchTask.configuration != null) {
+            return false;
+        }
+
+        return super.equals(fetchTask);
+    }
+
+
+    @Override
     public String getTypeForDisplay() {
         return FETCH_EXTERNAL_ARTIFACT;
     }

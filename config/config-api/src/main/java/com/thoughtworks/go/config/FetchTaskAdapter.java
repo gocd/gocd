@@ -221,6 +221,39 @@ public class FetchTaskAdapter implements Task {
         oneOf(fetchPluggableArtifactTask::setOnCancelConfig, fetchTask::setOnCancelConfig, onCancelConfig);
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        FetchTaskAdapter that = (FetchTaskAdapter) o;
+        if (fetchTask != null ? !fetchTask.equals(that.fetchTask) : that.fetchTask != null) return false;
+        if (fetchPluggableArtifactTask != null ? !fetchPluggableArtifactTask.equals(that.fetchPluggableArtifactTask) : that.fetchPluggableArtifactTask != null)
+            return false;
+        if (selectedTaskType != null ? !selectedTaskType.equals(that.selectedTaskType) : that.selectedTaskType != null)
+            return false;
+        return pluginId != null ? pluginId.equals(that.pluginId) : that.pluginId == null;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = fetchTask != null ? fetchTask.hashCode() : 0;
+        result = 31 * result + (fetchPluggableArtifactTask != null ? fetchPluggableArtifactTask.hashCode() : 0);
+        result = 31 * result + (selectedTaskType != null ? selectedTaskType.hashCode() : 0);
+        result = 31 * result + (pluginId != null ? pluginId.hashCode() : 0);
+        return result;
+    }
+
+    @Override
+    public String toString() {
+        return "FetchTaskAdapter{" +
+                "fetchTask=" + fetchTask +
+                ", fetchPluggableArtifactTask=" + fetchPluggableArtifactTask +
+                ", selectedTaskType='" + selectedTaskType + '\'' +
+                ", pluginId='" + pluginId + '\'' +
+                '}';
+    }
+
     //---- delegates to fetchTask ----
     public boolean isSourceAFile() {
         return fetchTask.isSourceAFile();

@@ -2367,7 +2367,6 @@ public class GoConfigMigrationIntegrationTest {
         FullConfigSaveNormalFlow normalFlow = new FullConfigSaveNormalFlow(configCache, registry, sysEnv, new TimeProvider(), configRepository, cachedGoPartials);
         GoFileConfigDataSource configDataSource = new GoFileConfigDataSource(migration, configRepository, sysEnv, new TimeProvider(), configCache,
                 registry, serverHealthService, cachedGoPartials, null, normalFlow);
-        configDataSource.upgradeIfNecessary();
         return configDataSource.forceLoad(configFile);
     }
 

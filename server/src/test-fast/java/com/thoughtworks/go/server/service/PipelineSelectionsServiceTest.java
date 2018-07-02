@@ -72,7 +72,6 @@ public class PipelineSelectionsServiceTest {
         expectLoad(cruiseConfig);
         this.clock = mock(Clock.class);
         userDao = mock(UserDao.class);
-        when(systemEnvironment.optimizeFullConfigSave()).thenReturn(false);
 
         ConfigElementImplementationRegistry registry = ConfigElementImplementationRegistryMother.withNoPlugins();
         goConfigService = mock(GoConfigService.class);

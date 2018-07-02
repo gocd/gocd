@@ -92,7 +92,6 @@ public class GoFileConfigDataSourceTest {
     @Before
     public void setup() throws Exception {
         systemEnvironment = new SystemEnvironment();
-        systemEnvironment.setProperty(SystemEnvironment.OPTIMIZE_FULL_CONFIG_SAVE.propertyName(), "false");
         configHelper = new GoConfigFileHelper();
         configHelper.onSetUp();
         configRepository = new ConfigRepository(systemEnvironment);
@@ -100,20 +99,19 @@ public class GoFileConfigDataSourceTest {
         timeProvider = mock(TimeProvider.class);
         fullConfigSaveMergeFlow = mock(FullConfigSaveMergeFlow.class);
         fullConfigSaveNormalFlow = mock(FullConfigSaveNormalFlow.class);
+        when(fullConfigSaveNormalFlow.execute(Matchers.any(FullConfigUpdateCommand.class), Matchers.any(List.class), Matchers.any(String.class))).
+                thenReturn(new GoConfigHolder(new BasicCruiseConfig(), new BasicCruiseConfig()));
         when(timeProvider.currentTime()).thenReturn(new Date());
         ConfigElementImplementationRegistry registry = ConfigElementImplementationRegistryMother.withNoPlugins();
         ServerHealthService serverHealthService = new ServerHealthService();
         cachedGoPartials = new CachedGoPartials(serverHealthService);
-        dataSource = new GoFileConfigDataSource(new GoConfigMigration(new GoConfigMigration.UpgradeFailedHandler() {
-            public void handle(Exception e) {
-                throw new RuntimeException(e);
-            }
+        dataSource = new GoFileConfigDataSource(new GoConfigMigration(e -> {
+            throw new RuntimeException(e);
         }, configRepository, new TimeProvider(), configCache, registry),
                 configRepository, systemEnvironment, timeProvider, configCache, registry, mock(ServerHealthService.class),
                 cachedGoPartials, fullConfigSaveMergeFlow, fullConfigSaveNormalFlow);
 
-        dataSource.upgradeIfNecessary();
-        CachedGoConfig cachedGoConfig = new CachedGoConfig(serverHealthService, dataSource, mock(CachedGoPartials.class), null, null);
+        CachedGoConfig cachedGoConfig = new CachedGoConfig(serverHealthService, dataSource, mock(CachedGoPartials.class), null);
         cachedGoConfig.loadConfigIfNull();
         goConfigDao = new GoConfigDao(cachedGoConfig);
         configHelper.load();
@@ -128,7 +126,6 @@ public class GoFileConfigDataSourceTest {
 
     @After
     public void teardown() throws Exception {
-        systemEnvironment.setProperty(SystemEnvironment.OPTIMIZE_FULL_CONFIG_SAVE.propertyName(), "false");
         cachedGoPartials.clear();
         configHelper.onTearDown();
         systemEnvironment.reset(SystemEnvironment.ENABLE_CONFIG_MERGE_FEATURE);
@@ -244,52 +241,6 @@ public class GoFileConfigDataSourceTest {
         GoConfigRevision commitedVersion = configRepository.getRevision(secondMd5);
         assertThat(commitedVersion.getContent(), is(xmlText));
         assertThat(commitedVersion.getUsername(), is(GoFileConfigDataSource.FILESYSTEM));
-    }
-
-    @Test
-    public void shouldEncryptSvnPasswordWhenConfigIsChangedViaFileSystem() throws Exception {
-        String configContent = ConfigFileFixture.configWithPipeline(String.format(
-                "<pipeline name='pipeline1'>"
-                        + "    <materials>"
-                        + "      <svn url='svnurl' username='admin' password='%s'/>"
-                        + "    </materials>"
-                        + "  <stage name='mingle'>"
-                        + "    <jobs>"
-                        + "      <job name='do-something'>"
-                        + "      </job>"
-                        + "    </jobs>"
-                        + "  </stage>"
-                        + "</pipeline>", "hello"), GoConstants.CONFIG_SCHEMA_VERSION);
-        FileUtils.writeStringToFile(dataSource.fileLocation(), configContent, UTF_8);
-
-        GoConfigHolder configHolder = dataSource.load();
-
-        PipelineConfig pipelineConfig = configHolder.config.pipelineConfigByName(new CaseInsensitiveString("pipeline1"));
-        SvnMaterialConfig svnMaterialConfig = (SvnMaterialConfig) pipelineConfig.materialConfigs().get(0);
-        assertThat(svnMaterialConfig.getEncryptedPassword(), is(not(nullValue())));
-    }
-
-    @Test
-    public void shouldEncryptTfsPasswordWhenConfigIsChangedViaFileSystem() throws Exception {
-        String configContent = ConfigFileFixture.configWithPipeline(String.format(
-                "<pipeline name='pipeline1'>"
-                        + "    <materials>"
-                        + "      <tfs url='http://some.repo.local' username='username@domain' password='password' projectPath='$/project_path' />"
-                        + "    </materials>"
-                        + "  <stage name='mingle'>"
-                        + "    <jobs>"
-                        + "      <job name='do-something'>"
-                        + "      </job>"
-                        + "    </jobs>"
-                        + "  </stage>"
-                        + "</pipeline>", "hello"), GoConstants.CONFIG_SCHEMA_VERSION);
-        FileUtils.writeStringToFile(dataSource.fileLocation(), configContent, UTF_8);
-
-        GoConfigHolder configHolder = dataSource.load();
-
-        PipelineConfig pipelineConfig = configHolder.config.pipelineConfigByName(new CaseInsensitiveString("pipeline1"));
-        TfsMaterialConfig tfsMaterial = (TfsMaterialConfig) pipelineConfig.materialConfigs().get(0);
-        assertThat(tfsMaterial.getEncryptedPassword(), is(not(nullValue())));
     }
 
     @Test
@@ -452,84 +403,8 @@ public class GoFileConfigDataSourceTest {
         assertThat(goConfigSaveResult.getConfigSaveState(), is(ConfigSaveState.UPDATED));
     }
 
-    @Test
-    public void shouldValidateConfigRepoLastKnownPartialsWithMainConfigAndUpdateConfigToIncludePipelinesFromPartials() {
-        String pipelineFromConfigRepo = "pipeline_from_config_repo";
-        final String pipelineInMain = "pipeline_in_main";
-        PartialConfig partialConfig = PartialConfigMother.withPipeline(pipelineFromConfigRepo, new RepoConfigOrigin(repoConfig, "1"));
-        cachedGoPartials.addOrUpdate(repoConfig.getMaterialConfig().getFingerprint(), partialConfig);
-        assertThat(cachedGoPartials.lastValidPartials().isEmpty(), is(true));
-
-        GoFileConfigDataSource.GoConfigSaveResult result = dataSource.writeWithLock(new UpdateConfigCommand() {
-            @Override
-            public CruiseConfig update(CruiseConfig cruiseConfig) throws Exception {
-                cruiseConfig.addPipeline("default", PipelineConfigMother.createPipelineConfig(pipelineInMain, "stage", "job"));
-                return cruiseConfig;
-            }
-        }, new GoConfigHolder(configHelper.currentConfig(), configHelper.currentConfig()));
-        assertThat(result.getConfigHolder().config.getAllPipelineNames().contains(new CaseInsensitiveString(pipelineFromConfigRepo)), is(true));
-        assertThat(result.getConfigHolder().config.getAllPipelineNames().contains(new CaseInsensitiveString(pipelineInMain)), is(true));
-        assertThat(cachedGoPartials.lastValidPartials().size(), is(1));
-        PartialConfig actualPartial = cachedGoPartials.lastValidPartials().get(0);
-        assertThat(actualPartial.getGroups(), is(partialConfig.getGroups()));
-        assertThat(actualPartial.getEnvironments(), is(partialConfig.getEnvironments()));
-        assertThat(actualPartial.getOrigin(), is(partialConfig.getOrigin()));
-
-    }
-
-    @Test
-    public void shouldFallbackToLastKnownValidPartialsForValidationWhenConfigSaveWithLastKnownPartialsWithMainConfigFails() {
-        String pipelineOneFromConfigRepo = "pipeline_one_from_config_repo";
-        String invalidPartial = "invalidPartial";
-        final String pipelineInMain = "pipeline_in_main";
-        PartialConfig validPartialConfig = PartialConfigMother.withPipeline(pipelineOneFromConfigRepo, new RepoConfigOrigin(repoConfig, "1"));
-        PartialConfig invalidPartialConfig = PartialConfigMother.invalidPartial(invalidPartial, new RepoConfigOrigin(repoConfig, "2"));
-        cachedGoPartials.addOrUpdate(repoConfig.getMaterialConfig().getFingerprint(), validPartialConfig);
-        cachedGoPartials.markAllKnownAsValid();
-        cachedGoPartials.addOrUpdate(repoConfig.getMaterialConfig().getFingerprint(), invalidPartialConfig);
-
-        GoFileConfigDataSource.GoConfigSaveResult result = dataSource.writeWithLock(new UpdateConfigCommand() {
-            @Override
-            public CruiseConfig update(CruiseConfig cruiseConfig) throws Exception {
-                cruiseConfig.addPipeline("default", PipelineConfigMother.createPipelineConfig(pipelineInMain, "stage", "job"));
-                return cruiseConfig;
-            }
-        }, new GoConfigHolder(configHelper.currentConfig(), configHelper.currentConfig()));
-        assertThat(result.getConfigHolder().config.getAllPipelineNames().contains(new CaseInsensitiveString(invalidPartial)), is(false));
-        assertThat(result.getConfigHolder().config.getAllPipelineNames().contains(new CaseInsensitiveString(pipelineOneFromConfigRepo)), is(true));
-        assertThat(result.getConfigHolder().config.getAllPipelineNames().contains(new CaseInsensitiveString(pipelineInMain)), is(true));
-        assertThat(cachedGoPartials.lastValidPartials().size(), is(1));
-        PartialConfig partialConfig = cachedGoPartials.lastValidPartials().get(0);
-        assertThat(partialConfig.getGroups(), is(validPartialConfig.getGroups()));
-        assertThat(partialConfig.getEnvironments(), is(validPartialConfig.getEnvironments()));
-        assertThat(partialConfig.getOrigin(), is(validPartialConfig.getOrigin()));
-    }
-
     @Rule
     public ExpectedException thrown = ExpectedException.none();
-
-    @Test
-    public void shouldNotSaveConfigIfValidationOfLastKnownValidPartialsMergedWithMainConfigFails() {
-        final PipelineConfig upstream = PipelineConfigMother.createPipelineConfig(UUID.randomUUID().toString(), "s1", "j1");
-        configHelper.addPipeline(upstream);
-        String remotePipeline = "remote_pipeline";
-        RepoConfigOrigin repoConfigOrigin = new RepoConfigOrigin(this.repoConfig, "1");
-        PartialConfig partialConfig = PartialConfigMother.pipelineWithDependencyMaterial(remotePipeline, upstream, repoConfigOrigin);
-        cachedGoPartials.addOrUpdate(this.repoConfig.getMaterialConfig().getFingerprint(), partialConfig);
-        cachedGoPartials.markAllKnownAsValid();
-        thrown.expect(RuntimeException.class);
-        thrown.expectCause(any(GoConfigInvalidException.class));
-        thrown.expectMessage(String.format("Stage with name 's1' does not exist on pipeline '%s', it is being referred to from pipeline '%s' (%s)", upstream.name(), remotePipeline, repoConfigOrigin.displayName()));
-        dataSource.writeWithLock(new UpdateConfigCommand() {
-            @Override
-            public CruiseConfig update(CruiseConfig cruiseConfig) throws Exception {
-                PipelineConfig pipelineConfig = cruiseConfig.getPipelineConfigByName(upstream.name());
-                pipelineConfig.clear();
-                pipelineConfig.add(new StageConfig(new CaseInsensitiveString("new_stage"), new JobConfigs(new JobConfig("job"))));
-                return cruiseConfig;
-            }
-        }, new GoConfigHolder(configHelper.currentConfig(), configHelper.currentConfig()));
-    }
 
     @Test
     public void shouldNotRetryConfigSaveWhenConfigRepoIsNotSetup() throws Exception {
@@ -735,8 +610,6 @@ public class GoFileConfigDataSourceTest {
 
     @Test
     public void shouldUpdateAndReloadConfigUsingFullSaveNormalFlowWithLastKnownPartials_onLoad() throws Exception {
-        systemEnvironment.setProperty(SystemEnvironment.OPTIMIZE_FULL_CONFIG_SAVE.propertyName(), "y");
-
         GoConfigFileReader goConfigFileReader = mock(GoConfigFileReader.class);
         MagicalGoConfigXmlLoader loader = mock(MagicalGoConfigXmlLoader.class);
         CruiseConfig cruiseConfig = mock(CruiseConfig.class);
@@ -767,8 +640,6 @@ public class GoFileConfigDataSourceTest {
 
     @Test
     public void shouldReloadConfigUsingFullSaveNormalFlowWithLastValidPartialsIfUpdatingWithLastKnownPartialsFails_onLoad() throws Exception {
-        systemEnvironment.setProperty(SystemEnvironment.OPTIMIZE_FULL_CONFIG_SAVE.propertyName(), "y");
-
         GoConfigFileReader goConfigFileReader = mock(GoConfigFileReader.class);
         MagicalGoConfigXmlLoader loader = mock(MagicalGoConfigXmlLoader.class);
         CruiseConfig cruiseConfig = mock(CruiseConfig.class);

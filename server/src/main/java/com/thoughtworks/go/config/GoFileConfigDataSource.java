@@ -26,10 +26,7 @@ import com.thoughtworks.go.config.remote.PartialConfig;
 import com.thoughtworks.go.config.update.FullConfigUpdateCommand;
 import com.thoughtworks.go.domain.GoConfigRevision;
 import com.thoughtworks.go.server.domain.Username;
-import com.thoughtworks.go.serverhealth.HealthStateScope;
-import com.thoughtworks.go.serverhealth.HealthStateType;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
-import com.thoughtworks.go.serverhealth.ServerHealthState;
 import com.thoughtworks.go.service.ConfigRepository;
 import com.thoughtworks.go.util.CachedDigestUtils;
 import com.thoughtworks.go.util.SystemEnvironment;
@@ -147,27 +144,7 @@ public class GoFileConfigDataSource {
 
             LOGGER.info("Config file changed at {}", result.modifiedTime);
             LOGGER.info("Reloading config file: {}", configFile);
-
-            if(systemEnvironment.optimizeFullConfigSave()) {
-                LOGGER.debug("Starting config reload using the optimized flow.");
-                return forceLoad();
-            } else {
-                encryptPasswords(configFile);
-                LOGGER.debug("Detected change in config file.");
-                return forceLoad(configFile);
-            }
-        }
-    }
-
-    private void encryptPasswords(File configFile) throws Exception {
-        String currentContent = FileUtils.readFileToString(configFile, UTF_8);
-        GoConfigHolder configHolder = magicalGoConfigXmlLoader.loadConfigHolder(currentContent);
-        ByteArrayOutputStream stream = new ByteArrayOutputStream();
-        magicalGoConfigXmlWriter.write(configHolder.configForEdit, stream, true);
-        String postEncryptContent = new String(stream.toByteArray());
-        if (!currentContent.equals(postEncryptContent)) {
-            LOGGER.debug("[Encrypt] Writing config to file");
-            FileUtils.writeStringToFile(configFile, postEncryptContent);
+            return forceLoad();
         }
     }
 
@@ -562,16 +539,6 @@ public class GoFileConfigDataSource {
         magicalGoConfigXmlWriter.write(config, outputStream, skipPreprocessingAndValidation);
         LOGGER.debug("[Config Save] === Done converting config to XML");
         return outputStream.toString();
-    }
-
-    public void upgradeIfNecessary() {
-        GoConfigMigrationResult migrationResult = this.upgrader.upgradeIfNecessary(fileLocation(), CurrentGoCDVersion.getInstance().formatted());
-
-        if (migrationResult.isUpgradeFailure()) {
-            String message = migrationResult.message();
-            serverHealthService.update(ServerHealthState.warning("Invalid Configuration", message, HealthStateType.general(HealthStateScope.forInvalidConfig())));
-            LOGGER.warn(message);
-        }
     }
 
     public String getFileLocation() {

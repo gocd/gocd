@@ -113,7 +113,6 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
 
     public static GoSystemProperty<Integer> H2_DB_TRACE_LEVEL = new GoIntSystemProperty("h2.trace.level", 1);
     public static GoSystemProperty<Integer> H2_DB_TRACE_FILE_SIZE_MB = new GoIntSystemProperty("h2.trace.file.size.mb", 16);
-    public static GoSystemProperty<Integer> H2_DB_LOB_TIMEOUT_MINUTES = new GoIntSystemProperty("h2.lob.timeout.minutes", 5);
     private static GoSystemProperty<String> CRUISE_DATABASE_DIR = new GoStringSystemProperty("cruise.database.dir", DB_DEFAULT_PATH);
 
     public static final String MATERIAL_UPDATE_IDLE_INTERVAL_PROPERTY = "material.update.idle.interval";
@@ -692,10 +691,6 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
 
     public int getCruiseDbTraceFileSize() {
         return H2_DB_TRACE_FILE_SIZE_MB.getValue();
-    }
-
-    public int getLobTimeoutInMilliSeconds() {
-        return (H2_DB_LOB_TIMEOUT_MINUTES.getValue() * 60 * 1000);
     }
 
     public Level pluginLoggingLevel(String pluginId) {

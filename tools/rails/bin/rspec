@@ -8,7 +8,7 @@ $stderr.sync = true
 at_exit do
   $stdout.flush
   $stderr.flush
-  sleep 0.1
+  sleep 1
 end
 
 require 'rubygems'

@@ -16,12 +16,12 @@
 
 package com.thoughtworks.go.util.command;
 
+import com.thoughtworks.go.util.ExceptionUtils;
+import org.apache.commons.lang3.StringUtils;
+
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
-
-import com.thoughtworks.go.util.ExceptionUtils;
-import org.apache.commons.lang3.StringUtils;
 
 public class ConsoleResult {
     private int returnValue;
@@ -104,8 +104,10 @@ public class ConsoleResult {
     }
 
     public String describe() {
-        return "--OUTPUT ---\n" + outputForDisplayAsString() + "\n"
-                + "--- ERROR ---\n" + errorForDisplayAsString() + "\n"
+        return
+                "--- EXIT CODE (" + returnValue() + ") ---\n"
+                + "--- STANDARD OUT ---\n" + outputForDisplayAsString() + "\n"
+                + "--- STANDARD ERR ---\n" + errorForDisplayAsString() + "\n"
                 + "---\n";
     }
 

@@ -16,16 +16,14 @@
 
 package com.thoughtworks.go.util.command;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.ArrayList;
-
 import org.junit.Test;
 
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
-import static org.hamcrest.Matchers.sameInstance;
 
 public class ConsoleResultTest {
 
@@ -54,5 +52,15 @@ public class ConsoleResultTest {
         secretStrings.add(new PasswordArgument("foo"));
         ConsoleResult result = new ConsoleResult(10, new ArrayList<>(), new ArrayList<>(), commands, secretStrings);
         assertThat(result.replaceSecretInfo(null), is(nullValue()));
+    }
+
+    @Test
+    public void shouldDescribeResult() {
+        List<CommandArgument> args = Arrays.asList(new StringArgument("foo"), new PasswordArgument("bar"));
+        List<SecretString> secrets = Arrays.asList((SecretString) new PasswordArgument("quux"));
+        ConsoleResult result = new ConsoleResult(42, Arrays.asList(" foo ", " bar ", " baz ", " abc "), Arrays.asList(" quux ", " bang "), args, secrets);
+        assertThat(result.describe(), containsString("--- EXIT CODE (42) ---"));
+        assertThat(result.describe(), containsString("--- STANDARD OUT ---"));
+        assertThat(result.describe(), containsString("--- STANDARD ERR ---"));
     }
 }

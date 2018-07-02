@@ -142,10 +142,16 @@
   function getFetchArtifactView(pluginId) {
     for (var i in pluginToFetchView) {
       if (pluginId === pluginToFetchView[i].id) {
-        return pluginToFetchView[i].view;
+        var view =  pluginToFetchView[i].view;
+        return isBlank(view) ? "<div class='form_error'>Plugin view not available: Looks like plugin[\" + pluginId + \"] does not support fetch artifact configuration!</div>" : view;
       }
     }
-    return "";
+
+    return "<div class='form_error'>Plugin view not available: Looks like plugin["+pluginId+"] is missing!</div>";
+  }
+
+  function isBlank(str){
+    return str === null || str === undefined || str.trim().length === 0;
   }
 
   function showPluginSelectionDropdown() {

@@ -32,10 +32,10 @@ import spark.Request;
 import spark.Response;
 import spark.TemplateEngine;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static com.thoughtworks.go.spark.Routes.AnalyticsSPA.SHOW_PATH;
 import static java.lang.String.format;
@@ -80,14 +80,17 @@ public class AnalyticsDelegate implements SparkController {
 
     public ModelAndView index(Request request, Response response) {
         HashMap<String, String> locals = new HashMap<String, String>() {{
-            List<String> pipelines = new ArrayList<>();
+            Map<String, List<String>> pipelinesMap = new HashMap<>();
             pipelineConfigService.viewableGroupsFor(SessionUtils.currentUsername()).forEach(
                     (PipelineConfigs config) -> config.getPipelines().forEach(
-                            (p) -> pipelines.add(p.name().toString())
+                            (p) -> {
+                                final List<String> stages = p.stream().map((s) -> s.name().toString()).collect(Collectors.toList());
+                                pipelinesMap.put(p.name().toString(), stages);
+                            }
                     )
             );
             put("viewTitle", "Analytics");
-            put("pipelines", GSON.toJson(pipelines));
+            put("pipelines", GSON.toJson(pipelinesMap));
         }};
         return new ModelAndView(locals, "analytics/index.vm");
     }

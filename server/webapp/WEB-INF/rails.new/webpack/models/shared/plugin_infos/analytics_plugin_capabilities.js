@@ -20,12 +20,14 @@ const _      = require('lodash');
 const Capabilities = function (data) {
   this.supportedAgentAnalytics            = Stream(data.supportedAgentAnalytics);
   this.supportedPipelineAnalytics         = Stream(data.supportedPipelineAnalytics);
+  this.supportedStageAnalytics            = Stream(data.supportedStageAnalytics);
   this.supportedAnalyticsDashboardMetrics = Stream(data.supportedAnalyticsDashboardMetrics);
 };
 
 Capabilities.fromJSON = (data = {}) => new Capabilities({
   supportedAgentAnalytics:            _.filter(data, {type: 'agent'}),
   supportedPipelineAnalytics:         _.filter(data, {type: 'pipeline'}),
+  supportedStageAnalytics:            _.filter(data, {type: 'stage'}),
   supportedAnalyticsDashboardMetrics: _.filter(data, {type: 'dashboard'})
 });
 

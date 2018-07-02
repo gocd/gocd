@@ -22,8 +22,9 @@ import java.util.stream.Collectors;
 
 public class Capabilities {
     private final List<SupportedAnalytics> supportedAnalytics;
-    private static final String DASHBOARD_TYPE = "dashboard";
-    private static final String PIPELINE_TYPE = "pipeline";
+    private static final String TYPE_DASHBOARD = "dashboard";
+    private static final String TYPE_PIPELINE = "pipeline";
+    private static final String TYPE_STAGE = "stage";
 
     public Capabilities(List<SupportedAnalytics> supportedAnalytics) {
         this.supportedAnalytics = supportedAnalytics;
@@ -33,24 +34,28 @@ public class Capabilities {
         return supportedAnalytics;
     }
 
-    public boolean supportsPipelineAnalytics() {
-        return hasSupportFor(PIPELINE_TYPE);
-    }
-
     public boolean supportsDashboardAnalytics() {
-        return hasSupportFor(DASHBOARD_TYPE);
+        return hasSupportFor(TYPE_DASHBOARD);
     }
 
-    public List<String> supportedAnalyticsDashboardMetrics() {
-        return this.supportedAnalytics.stream().filter(s -> DASHBOARD_TYPE.equalsIgnoreCase(s.getType())).map(SupportedAnalytics::getTitle).collect(Collectors.toList());
+    public boolean supportsPipelineAnalytics() {
+        return hasSupportFor(TYPE_PIPELINE);
+    }
+
+    public boolean supportsStageAnalytics() {
+        return hasSupportFor(TYPE_STAGE);
     }
 
     public List<SupportedAnalytics> supportedDashboardAnalytics() {
-        return this.supportedAnalytics.stream().filter(s -> DASHBOARD_TYPE.equalsIgnoreCase(s.getType())).collect(Collectors.toList());
+        return this.supportedAnalytics.stream().filter(s -> TYPE_DASHBOARD.equalsIgnoreCase(s.getType())).collect(Collectors.toList());
     }
 
     public List<SupportedAnalytics> supportedPipelineAnalytics() {
-        return this.supportedAnalytics.stream().filter(s -> PIPELINE_TYPE.equalsIgnoreCase(s.getType())).collect(Collectors.toList());
+        return this.supportedAnalytics.stream().filter(s -> TYPE_PIPELINE.equalsIgnoreCase(s.getType())).collect(Collectors.toList());
+    }
+
+    public List<SupportedAnalytics> supportedStageAnalytics() {
+        return this.supportedAnalytics.stream().filter(s -> TYPE_STAGE.equalsIgnoreCase(s.getType())).collect(Collectors.toList());
     }
 
     private boolean hasSupportFor(String analyticsType) {

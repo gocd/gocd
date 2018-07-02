@@ -78,7 +78,7 @@ describe("Analytics Widget", () => {
 
     m.mount(root, {
       view() {
-        return <AnalyticsWidget metrics={{}} pipelines={[]} pluginInfos={pluginInfos}/>;
+        return <AnalyticsWidget globalMetrics={{}} pipelineMetrics={{}} pipelinesAndStages={{}} pluginInfos={pluginInfos}/>;
       }
     });
     m.redraw();

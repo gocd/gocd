@@ -42,15 +42,6 @@ public class CapabilitiesTest {
     }
 
     @Test
-    public void shouldListSupportedDashBoardAnalytics() throws Exception {
-        Capabilities capabilities = new Capabilities(Arrays.asList(new SupportedAnalytics("dashboard", "id1", "title1"),
-                new SupportedAnalytics("DashBoard", "id2", "title2")));
-
-        assertThat(capabilities.supportedAnalyticsDashboardMetrics(), is(Arrays.asList("title1", "title2")));
-        assertTrue(new Capabilities(Collections.emptyList()).supportedAnalyticsDashboardMetrics().isEmpty());
-    }
-
-    @Test
     public void shouldListSupportedAnalyticsForDashboard() throws Exception {
         Capabilities capabilities = new Capabilities(Arrays.asList(new SupportedAnalytics("dashboard", "id1", "title1"),
                 new SupportedAnalytics("DashBoard", "id2", "title2")));

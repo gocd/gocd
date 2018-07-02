@@ -22,9 +22,10 @@
   const _ = require('lodash');
   const f = require("helpers/form_helper");
 
-  const Interactions = require("models/shared/analytics_interaction_manager");
-  const Models       = Interactions.ensure().ns("PipelineMetrics");
-  const init         = require("rails-shared/plugin-endpoint").init;
+  const Interactions   = require("models/shared/analytics_interaction_manager");
+  const PipelineModels = Interactions.ensure().ns("PipelineMetrics");
+  const StageModels    = Interactions.ensure().ns("StageMetrics");
+  const init           = require("rails-shared/plugin-endpoint").init;
 
   const AnalyticsiFrameWidget = require('views/shared/analytics_iframe_widget');
 
@@ -32,50 +33,80 @@
     return {pipeline_name: pipeline, context: "dashboard"}; // eslint-disable-line camelcase
   }
 
-  let currentPipeline = null;
+  function stageParams(pipeline, stage) {
+    return _.assign(pipelineParams(pipeline), {stage_name: stage}); // eslint-disable-line camelcase
+  }
 
-  const PipelineDropdown = {
-    oninit(vnode) {
-      if (!currentPipeline) {
-        currentPipeline = vnode.attrs.pipelines[0];
-      }
-    },
-
+  const StageDropdown = {
     view(vnode) {
-      const pipelineOptions = _.map(vnode.attrs.pipelines, (pipeline) => {
-        return <option selected={pipeline === currentPipeline}>{pipeline}</option>;
+      const vm = vnode.attrs.model;
+      const stageOptions = _.map(vm.stages(), (stage) => {
+        return <option value={stage || ""} selected={stage === vm.currentStage()}>{null === stage ? "Select a stage" : stage}</option>;
       });
-
-      const select = m("select", {
+      return <label>Stage: {m("select", {
+        class: "stage-selector",
         onchange() {
-          currentPipeline = $(this).val();
-          $.each(Models.all(), (uid, m) => {
-            m.url(Models.toUrl(uid, pipelineParams(currentPipeline)));
+          vm.currentStage($(this).val());
+          $.each(StageModels.all(), (uid, m) => {
+            m.url(StageModels.toUrl(uid, stageParams(vm.currentPipeline(), vm.currentStage())));
           });
         }
-      }, pipelineOptions);
+      }, stageOptions)}</label>;
+    }
+  };
 
-      return <div class="chart-pipeline-selector">Analytics For Pipeline: {select}</div>;
+  const PipelineDropdown = {
+    view(vnode) {
+      const vm = vnode.attrs.model;
+      const pipelineOptions = _.map(vm.pipelines(), (pipeline) => {
+        return <option value={pipeline} selected={pipeline === vm.currentPipeline()}>{pipeline}</option>;
+      });
+
+      return <label>Pipeline: {m("select", {
+        class: "pipeline-selector",
+        onchange() {
+          vm.currentPipeline($(this).val());
+          vm.currentStage(vm.stages()[0]);
+
+          $.each(PipelineModels.all(), (uid, m) => {
+            m.url(PipelineModels.toUrl(uid, pipelineParams(vm.currentPipeline())));
+          });
+
+          $.each(StageModels.all(), (uid, m) => {
+            m.url(StageModels.toUrl(uid, stageParams(vm.currentPipeline(), vm.currentStage())));
+          });
+        }
+      }, pipelineOptions)}</label>;
     }
   };
 
   const PipelineMetrics = {
-    oninit(vnode) {
-      if (!currentPipeline) {
-        currentPipeline = vnode.attrs.pipelines[0];
-      }
-    },
-
     view(vnode) {
-      const elements = [<PipelineDropdown pipelines={vnode.attrs.pipelines}/>];
+      const vm = vnode.attrs.model;
+      const header = m("div", {class: "chart-pipeline-selector"}, [
+        "Analytics for ",
+        <PipelineDropdown model={vm}/>,
+        <span class="crumb-sep"> {"\u226b"} </span>,
+        <StageDropdown model={vm}/>
+      ]);
+
+      const elements = [header];
 
       $.each(vnode.attrs.metrics, (pluginId, supportedAnalytics) => {
         $.each(supportedAnalytics, (idx, sa) => {
-          const uid   = Models.uid(idx, pluginId, sa.type, sa.id),
+          if (sa.type === "stage") {
+            const uid = StageModels.uid(idx, pluginId, sa.type, sa.id),
                 title = sa.title,
-                model = Models.modelFor(uid, pipelineParams(currentPipeline));
+                model = StageModels.modelFor(uid, stageParams(vm.currentPipeline(), vm.currentStage()));
 
-          elements.push(m(AnalyticsiFrameWidget, {model, pluginId, uid, title, init}));
+            elements.push(m(AnalyticsiFrameWidget, {model, pluginId, uid, title, init}));
+          } else {
+            const uid = PipelineModels.uid(idx, pluginId, sa.type, sa.id),
+                title = sa.title,
+                model = PipelineModels.modelFor(uid, pipelineParams(vm.currentPipeline()));
+
+            elements.push(m(AnalyticsiFrameWidget, {model, pluginId, uid, title, init}));
+          }
         });
       });
 

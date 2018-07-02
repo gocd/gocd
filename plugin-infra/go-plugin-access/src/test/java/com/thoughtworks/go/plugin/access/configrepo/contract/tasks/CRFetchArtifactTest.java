@@ -82,7 +82,8 @@ public class CRFetchArtifactTest extends CRBaseTest<CRFetchArtifactTask> {
                 "              \"stage\" : \"build1\",\n" +
                 "              \"job\" : \"build\",\n" +
                 "              \"source\" : \"bin\",\n" +
-                "              \"run_if\" : \"passed\"\n" +
+                "              \"run_if\" : \"passed\",\n" +
+                "              \"artifact_origin\" : \"gocd\"\n" +
                 "            }";
         CRFetchArtifactTask deserializedValue = (CRFetchArtifactTask)gson.fromJson(json,CRTask.class);
 

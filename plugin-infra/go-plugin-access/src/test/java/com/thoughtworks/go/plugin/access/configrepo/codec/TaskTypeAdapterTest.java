@@ -28,6 +28,7 @@ import org.mockito.Mock;
 
 import java.lang.reflect.Type;
 
+import static com.thoughtworks.go.plugin.access.configrepo.codec.TypeAdapter.ARTIFACT_ORIGIN;
 import static org.mockito.Mockito.verify;
 import static org.mockito.MockitoAnnotations.initMocks;
 
@@ -90,7 +91,7 @@ public class TaskTypeAdapterTest {
     public void shouldInstantiateATaskForTypeFetch() throws Exception {
         JsonObject jsonObject = new JsonObject();
         jsonObject.addProperty("type", "fetch");
-        jsonObject.addProperty("origin", "gocd");
+        jsonObject.addProperty(ARTIFACT_ORIGIN, "gocd");
         taskTypeAdapter.deserialize(jsonObject, type, jsonDeserializationContext);
 
         verify(jsonDeserializationContext).deserialize(jsonObject, CRFetchArtifactTask.class);
@@ -100,7 +101,7 @@ public class TaskTypeAdapterTest {
     public void shouldInstantiateATaskForTypeFetchPluggableArtifact() throws Exception {
         JsonObject jsonObject = new JsonObject();
         jsonObject.addProperty("type", "fetch");
-        jsonObject.addProperty("origin", "external");
+        jsonObject.addProperty(ARTIFACT_ORIGIN, "external");
         taskTypeAdapter.deserialize(jsonObject, type, jsonDeserializationContext);
 
         verify(jsonDeserializationContext).deserialize(jsonObject, CRFetchPluggableArtifactTask.class);
@@ -110,11 +111,11 @@ public class TaskTypeAdapterTest {
     public void shouldThrowExceptionForFetchIfOriginIsInvalid() throws Exception {
         JsonObject jsonObject = new JsonObject();
         jsonObject.addProperty("type", "fetch");
-        jsonObject.addProperty("origin", "fsg");
+        jsonObject.addProperty(ARTIFACT_ORIGIN, "fsg");
 
-        thrown.expectMessage("Invalid origin 'fsg' for fetch task.");
+        thrown.expectMessage("Invalid artifact origin 'fsg' for fetch task.");
         thrown.expect(JsonParseException.class);
-        
+
         taskTypeAdapter.deserialize(jsonObject, type, jsonDeserializationContext);
     }
 }

@@ -67,12 +67,13 @@ public class CRFetchPluggableArtifactTaskTest extends CRBaseTest<CRFetchPluggabl
     public void shouldDeserializeWhenConfigurationIsNull()
     {
         String json = "{\n" +
-                "              \"type\" : \"fetch_pluggable_artifact\",\n" +
+                "              \"type\" : \"fetch\",\n" +
                 "              \"pipeline\" : \"pip\",\n" +
                 "              \"stage\" : \"build1\",\n" +
                 "              \"job\" : \"build\",\n" +
                 "              \"artifact_id\" : \"s3\",\n" +
-                "              \"run_if\" : \"passed\"\n" +
+                "              \"run_if\" : \"passed\",\n" +
+                "              \"artifact_origin\" : \"external\"\n" +
                 "            }";
         CRFetchPluggableArtifactTask deserializedValue = (CRFetchPluggableArtifactTask)gson.fromJson(json,CRTask.class);
 

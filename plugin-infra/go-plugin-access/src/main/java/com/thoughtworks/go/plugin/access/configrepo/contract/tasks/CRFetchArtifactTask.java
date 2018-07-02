@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,19 +18,18 @@ package com.thoughtworks.go.plugin.access.configrepo.contract.tasks;
 import com.thoughtworks.go.plugin.access.configrepo.ErrorCollection;
 
 public class CRFetchArtifactTask extends CRAbstractFetchTask {
-    public static final String ORIGIN = "gocd";
+    public static final String ARTIFACT_ORIGIN = "gocd";
 
     private String source;
-    // when missing, will be false, which is default - source is directory
     private boolean is_source_a_file;
     private String destination;
 
     public CRFetchArtifactTask() {
-        super(TYPE_NAME);
+        super(TYPE_NAME, ArtifactOrigin.gocd);
     }
 
     public CRFetchArtifactTask(String stage, String job, String source) {
-        super(stage, job, TYPE_NAME);
+        super(stage, job, TYPE_NAME, ArtifactOrigin.gocd);
         this.source = source;
     }
 

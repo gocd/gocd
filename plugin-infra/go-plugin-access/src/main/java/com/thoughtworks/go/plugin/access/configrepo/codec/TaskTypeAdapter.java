@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,8 +24,10 @@ public class TaskTypeAdapter extends TypeAdapter implements JsonDeserializer<CRT
     private static final String TYPE = "type";
 
     @Override
-    public CRTask deserialize(JsonElement json, Type type, JsonDeserializationContext context) throws JsonParseException {
-        return determineJsonElementForDistinguishingImplementers(json, context, TYPE, ORIGIN);
+    public CRTask deserialize(JsonElement json,
+                              Type type,
+                              JsonDeserializationContext context) throws JsonParseException {
+        return determineJsonElementForDistinguishingImplementers(json, context, TYPE, ARTIFACT_ORIGIN);
     }
 
     @Override
@@ -42,13 +44,7 @@ public class TaskTypeAdapter extends TypeAdapter implements JsonDeserializer<CRT
             return CRPluggableTask.class;
 
         if (typeName.equals(CRAbstractFetchTask.TYPE_NAME)) {
-            if (CRFetchArtifactTask.ORIGIN.equals(origin)) {
-                return CRFetchArtifactTask.class;
-            }
-            if (CRFetchPluggableArtifactTask.ORIGIN.equals(origin)) {
-                return CRFetchPluggableArtifactTask.class;
-            }
-            throw new JsonParseException(String.format("Invalid origin '%s' for fetch task.", origin));
+            return CRAbstractFetchTask.ArtifactOrigin.getArtifactOrigin(origin).getArtifactTaskClass();
         }
 
         throw new JsonParseException(String.format("Invalid or unknown task type '%s'.", typeName));

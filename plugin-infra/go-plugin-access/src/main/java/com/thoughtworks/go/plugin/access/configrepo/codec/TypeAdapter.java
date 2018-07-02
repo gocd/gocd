@@ -22,7 +22,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 
 public abstract class TypeAdapter {
-    public static final String ORIGIN = "origin";
+    public static final String ARTIFACT_ORIGIN = "artifact_origin";
 
     public TypeAdapter() {
     }

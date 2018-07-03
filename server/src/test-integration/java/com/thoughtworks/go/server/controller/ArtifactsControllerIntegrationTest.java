@@ -48,6 +48,7 @@ import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
+import org.springframework.web.servlet.HandlerMapping;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
@@ -83,13 +84,20 @@ import static org.mockito.Mockito.when;
         "classpath:testPropertyConfigurer.xml"
 })
 public class ArtifactsControllerIntegrationTest {
-    @Autowired private ArtifactsController artifactsController;
-    @Autowired private ArtifactsService artifactService;
-    @Autowired private ConsoleService consoleService;
-    @Autowired private AgentService agentService;
-    @Autowired private ZipUtil zipUtil;
-    @Autowired private GoConfigDao goConfigDao;
-    @Autowired private DatabaseAccessHelper dbHelper;
+    @Autowired
+    private ArtifactsController artifactsController;
+    @Autowired
+    private ArtifactsService artifactService;
+    @Autowired
+    private ConsoleService consoleService;
+    @Autowired
+    private AgentService agentService;
+    @Autowired
+    private ZipUtil zipUtil;
+    @Autowired
+    private GoConfigDao goConfigDao;
+    @Autowired
+    private DatabaseAccessHelper dbHelper;
     private MockHttpServletRequest request;
     private MockHttpServletResponse response;
     private Pipeline pipeline;
@@ -102,7 +110,8 @@ public class ArtifactsControllerIntegrationTest {
     private File consoleLogFile;
 
 
-    @Before public void setup() throws Exception {
+    @Before
+    public void setup() throws Exception {
         configHelper = new GoConfigFileHelper();
         configHelper.onSetUp();
         configHelper.usingCruiseConfigDao(goConfigDao);
@@ -132,7 +141,8 @@ public class ArtifactsControllerIntegrationTest {
         artifactsRoot.mkdirs();
     }
 
-    @After public void teardown() throws Exception {
+    @After
+    public void teardown() throws Exception {
         for (File f : FileUtils.listFiles(artifactsRoot, null, true)) {
             String message = String.format("deleting {}, path: {}", f.getName(), f.getPath());
             System.out.println(message);
@@ -158,7 +168,8 @@ public class ArtifactsControllerIntegrationTest {
         configHelper.onTearDown();
     }
 
-    @Test public void shouldReturn404WhenFileNotFound() throws Exception {
+    @Test
+    public void shouldReturn404WhenFileNotFound() throws Exception {
         ModelAndView mav = getFileAsHtml("/foo.xml");
 
         assertThat(mav.getView().getContentType(), is(RESPONSE_CHARSET));
@@ -168,7 +179,8 @@ public class ArtifactsControllerIntegrationTest {
 
     @Test
     public void shouldReturn404WhenNoLatestBuildForGet() throws Exception {
-        ModelAndView mav = artifactsController.getArtifactAsHtml(pipelineName, "1", "stage", "1", "build2", "/foo.xml", null, null);
+        request.setAttribute(HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE, "/foo.xml");
+        ModelAndView mav = artifactsController.getArtifacts(pipelineName, "1", "stage", "1", "build2", null, null, request);
         assertValidContentAndStatus(mav, SC_NOT_FOUND, "Job " + pipelineName + "/1/stage/1/build2 not found.");
     }
 
@@ -184,7 +196,7 @@ public class ArtifactsControllerIntegrationTest {
 
     @Test
     public void shouldReturn404WhenNoLastGoodBuildForGet() throws Exception {
-        ModelAndView mav = artifactsController.getArtifactAsHtml(pipelineName, "lastgood", "stage", "1", "build", "/foo.xml", null, null);
+        ModelAndView mav = artifactsController.getArtifacts(pipelineName, "lastgood", "stage", "1", "build", null, null, request);
         int status = SC_NOT_FOUND;
         String content = "Job " + pipelineName + "/lastgood/stage/1/build not found.";
         assertValidContentAndStatus(mav, status, content);
@@ -192,15 +204,15 @@ public class ArtifactsControllerIntegrationTest {
 
     @Test
     public void shouldReturn404WhenNotAValidBuildForGet() throws Exception {
-        ModelAndView mav = artifactsController.getArtifactAsHtml(pipelineName, "whatever", "stage", "1", "build",
-                "/foo.xml",
-                null, null);
+        ModelAndView mav = artifactsController.getArtifacts(pipelineName, "whatever", "stage", "1", "build",
+                null, null, request);
         assertValidContentAndStatus(mav, SC_NOT_FOUND, "Job " + pipelineName + "/whatever/stage/1/build not found.");
     }
 
     @Test
     public void shouldHaveJobIdentifierInModelForHtmlFolderView() throws Exception {
-        ModelAndView mav = artifactsController.getArtifactAsHtml(pipeline.getName(), pipeline.getLabel(), stage.getName(), String.valueOf(stage.getCounter()), job.getName(), "", null, null);
+        request.setAttribute(HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE, "");
+        ModelAndView mav = artifactsController.getArtifacts(pipeline.getName(), pipeline.getLabel(), stage.getName(), String.valueOf(stage.getCounter()), job.getName(), null, null, request);
         assertThat(mav.getModel().get("jobIdentifier"), is(new JobIdentifier(pipeline, stage, job)));
         assertThat(mav.getViewName(), is("rest/html"));
     }
@@ -208,14 +220,15 @@ public class ArtifactsControllerIntegrationTest {
     @Test
     public void shouldReturn404WhenNoLatestBuildForPost() throws Exception {
         request.addHeader("Confirm", "true");
-        StubMultipartHttpServletRequest multipartRequest = new StubMultipartHttpServletRequest(request);
-        ModelAndView mav = artifactsController.postArtifact(pipelineName, "latest", "stage", "1", "build2", null, "/foo.xml", 1, multipartRequest);
+        MultipartHttpServletRequest multipartRequest = new StubMultipartHttpServletRequest(request);
+        ModelAndView mav = artifactsController.postArtifact(pipelineName, "latest", "stage", "1", "build2", null, 1, multipartRequest);
         assertValidContentAndStatus(mav, SC_NOT_FOUND, "Job " + pipelineName + "/latest/stage/1/build2 not found.");
     }
 
     @Test
     public void shouldReturn404WhenNoLatestBuildForPut() throws Exception {
-        ModelAndView mav = artifactsController.putArtifact(pipelineName, "latest", "stage", "1", "build2", null, "/foo.xml", null, request);
+        request.setAttribute(HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE, "/foo.xml");
+        ModelAndView mav = artifactsController.putArtifact(pipelineName, "latest", "stage", "1", "build2", null, request);
         assertValidContentAndStatus(mav, SC_NOT_FOUND, "Job " + pipelineName + "/latest/stage/1/build2 not found.");
     }
 
@@ -223,35 +236,38 @@ public class ArtifactsControllerIntegrationTest {
         agentService.requestRegistration(new Username("bob"), AgentRuntimeInfo.fromServer(new AgentConfig("uuid", "localhost", "127.0.0.1"),
                 false, "/var/lib", 0L, "linux", false));
         agentService.approve("uuid");
-        artifactsController.putArtifact(pipelineName, "latest", "stage", null, "build2", null, "/foo.xml",
-                "uuid", request);
+        artifactsController.putArtifact(pipelineName, "latest", "stage", null, "build2", null, request);
         Date olderTime = agentService.findAgentAndRefreshStatus("uuid").getLastHeardTime();
         return olderTime;
     }
 
 
-    @Test public void shouldGetArtifactFileRestfully() throws Exception {
+    @Test
+    public void shouldGetArtifactFileRestfully() throws Exception {
         createFile(artifactsRoot, "foo.xml");
 
         ModelAndView mav = getFileAsHtml("/foo.xml");
         assertThat(mav.getViewName(), is("fileView"));
     }
 
-    @Test public void shouldGetDirectoryWithHtmlView() throws Exception {
+    @Test
+    public void shouldGetDirectoryWithHtmlView() throws Exception {
         createFile(artifactsRoot, "directory/foo");
 
         ModelAndView mav = getFileAsHtml("/directory.html");
         assertThat(mav.getViewName(), is("rest/html"));
     }
 
-    @Test public void shouldReturn404WhenFooDotHtmlDoesNotExistButFooFileExists() throws Exception {
+    @Test
+    public void shouldReturn404WhenFooDotHtmlDoesNotExistButFooFileExists() throws Exception {
         createFile(artifactsRoot, "foo");
 
         ModelAndView view = getFileAsHtml("/foo.html");
         assertStatus(view, SC_NOT_FOUND);
     }
 
-    @Test public void shouldChooseFileOverDirectory() throws Exception {
+    @Test
+    public void shouldChooseFileOverDirectory() throws Exception {
         createFile(artifactsRoot, "foo.html");
         createFile(artifactsRoot, "foo/bar.xml");
 
@@ -259,28 +275,32 @@ public class ArtifactsControllerIntegrationTest {
         assertThat(mav.getViewName(), is("fileView"));
     }
 
-    @Test public void shouldReturnFolderInHtmlView() throws Exception {
+    @Test
+    public void shouldReturnFolderInHtmlView() throws Exception {
         createFile(artifactsRoot, "foo/bar.xml");
 
         ModelAndView mav = getFileAsHtml("/foo");
         assertThat(mav.getViewName(), is("rest/html"));
     }
 
-    @Test public void shouldReturnFolderInJsonView() throws Exception {
+    @Test
+    public void shouldReturnFolderInJsonView() throws Exception {
         createFile(artifactsRoot, "foo/bar.xml");
 
-        ModelAndView mav = getFolderAsJson("/foo");
+        ModelAndView mav = getFolderAsJson("/foo"+".json");
         assertEquals(RESPONSE_CHARSET_JSON, mav.getView().getContentType());
     }
 
-    @Test public void shouldReturnFolderInHtmlViewWithPathBasedRepository() throws Exception {
+    @Test
+    public void shouldReturnFolderInHtmlViewWithPathBasedRepository() throws Exception {
         createFile(artifactsRoot, "foo/bar.xml");
 
         ModelAndView mav = getFileAsHtml("/foo");
         assertThat(mav.getViewName(), is("rest/html"));
     }
 
-    @Test public void shouldReturnForbiddenWhenTryingToAccessArtifactsWithDotDot() throws Exception {
+    @Test
+    public void shouldReturnForbiddenWhenTryingToAccessArtifactsWithDotDot() throws Exception {
         createFile(artifactsRoot, "foo/1.xml");
         createFile(artifactsRoot, "bar/2.xml");
 
@@ -289,14 +309,16 @@ public class ArtifactsControllerIntegrationTest {
         // The controller already URL escapes the filePath, so this also works with %2e
     }
 
-    @Test public void shouldTreatSlashSlashAsOne() throws Exception {
+    @Test
+    public void shouldTreatSlashSlashAsOne() throws Exception {
         createFile(artifactsRoot, "tmp/1.xml");
 
         ModelAndView mav = getFileAsHtml("//tmp/1.xml");
         assertThat(mav.getViewName(), is("fileView"));
     }
 
-    @Test public void shouldCreateNewFile() throws Exception {
+    @Test
+    public void shouldCreateNewFile() throws Exception {
         createFile(artifactsRoot, "dir/foo");
 
         ModelAndView mav = postFile("/dir/bar.xml");
@@ -310,13 +332,15 @@ public class ArtifactsControllerIntegrationTest {
         assertStatus(mav, SC_CREATED);
     }
 
-    @Test public void shouldReturn403WhenPostingAlreadyExistingFile() throws Exception {
+    @Test
+    public void shouldReturn403WhenPostingAlreadyExistingFile() throws Exception {
         createFile(artifactsRoot, "dir/foo.txt");
         ModelAndView view = postFile("/dir/foo.txt");
         assertValidContentAndStatus(view, SC_FORBIDDEN, "File /dir/foo.txt already directoryExists.");
     }
 
-    @Test public void shouldCreateAndUnzipNewFileWhenFolderAlreadyExists() throws Exception {
+    @Test
+    public void shouldCreateAndUnzipNewFileWhenFolderAlreadyExists() throws Exception {
         artifactsRoot.mkdir();
         createFile(artifactsRoot, "dir/foo");
 
@@ -332,7 +356,8 @@ public class ArtifactsControllerIntegrationTest {
         assertThat(file(artifactsRoot, "dir/quux.txt"), is(not(directory())));
     }
 
-    @Test public void shouldCreateAndUnzipNewFileWhenFolderDoesNotExists() throws Exception {
+    @Test
+    public void shouldCreateAndUnzipNewFileWhenFolderDoesNotExists() throws Exception {
         createTmpFile(artifactsRoot, "notexists/bar.csv");
         createTmpFile(artifactsRoot, "notexists/quux.tmp");
 
@@ -345,21 +370,24 @@ public class ArtifactsControllerIntegrationTest {
         assertStatus(view, SC_CREATED);
     }
 
-    @Test public void shouldNotAllowPathsOutsideTheArtifactDirectory() throws Exception {
+    @Test
+    public void shouldNotAllowPathsOutsideTheArtifactDirectory() throws Exception {
         ModelAndView mav = postFile("/dir/../../foo/bar.txt");
         assertThat(file(artifactsRoot, "foo/bar.txt"), not(exists()));
         assertThat(file(artifactsRoot, "dir"), not(exists()));
         assertStatus(mav, SC_FORBIDDEN);
     }
 
-    @Test public void shouldEnforceUsingRequiredNameInMultipartRequest() throws Exception {
+    @Test
+    public void shouldEnforceUsingRequiredNameInMultipartRequest() throws Exception {
         ModelAndView mav = postFile("/foo/bar.txt", "badname");
         assertThat(file(artifactsRoot, "foo/bar.txt"), not(exists()));
         assertThat(file(artifactsRoot, "notfoo/bar.txt"), not(exists()));
         assertStatus(mav, SC_BAD_REQUEST);
     }
 
-    @Test public void shouldPutNewFile() throws Exception {
+    @Test
+    public void shouldPutNewFile() throws Exception {
         assertThat(file(artifactsRoot, "foo/bar.txt"), not(exists()));
 
         putFile("/foo/bar.txt");
@@ -458,9 +486,8 @@ public class ArtifactsControllerIntegrationTest {
         prepareConsoleOut(firstLine + secondLine + "\n");
         Stage firstStage = pipeline.getFirstStage();
         long startLineNumber = 1L;
-        ModelAndView view = artifactsController.consoleout(pipeline.getName(), pipeline.getLabel(),
-                firstStage.getName(),
-                "build", String.valueOf(firstStage.getCounter()), startLineNumber);
+        ModelAndView view = artifactsController.getConsoleJson(pipeline.getName(), pipeline.getLabel(), firstStage.getName(),
+                String.valueOf(firstStage.getCounter()), "build", startLineNumber);
 
         assertThat(view.getView(), is(instanceOf(ConsoleOutView.class)));
 
@@ -479,9 +506,8 @@ public class ArtifactsControllerIntegrationTest {
         String secondLine = "Build succeeded.";
         prepareConsoleOut(firstLine + "\n" + secondLine + "\n");
         Stage firstStage = pipeline.getFirstStage();
-        ModelAndView view = artifactsController.consoleout(pipeline.getName(), pipeline.getLabel(),
-                firstStage.getName(),
-                "build", String.valueOf(firstStage.getCounter()), null);
+        ModelAndView view = artifactsController.getConsoleJson(pipeline.getName(), pipeline.getLabel(), firstStage.getName(),
+                String.valueOf(firstStage.getCounter()), "build", 0L);
 
         assertThat(view.getView(), is(instanceOf(ConsoleOutView.class)));
 
@@ -499,7 +525,7 @@ public class ArtifactsControllerIntegrationTest {
         prepareConsoleOut("");
         Stage firstStage = pipeline.getFirstStage();
         long startLineNumber = 0L;
-        ModelAndView view = artifactsController.consoleout("snafu", "snafu", "snafu", "build", String.valueOf(firstStage.getCounter()), startLineNumber);
+        ModelAndView view = artifactsController.getConsoleJson("snafu", "snafu", "snafu", String.valueOf(firstStage.getCounter()), "build", startLineNumber);
 
         assertThat(view.getView().getContentType(), is(RESPONSE_CHARSET));
         assertThat(view.getView(), is(instanceOf((ResponseCodeView.class))));
@@ -515,7 +541,7 @@ public class ArtifactsControllerIntegrationTest {
         MockMultipartFile artifactMultipart = new MockMultipartFile("file", new FileInputStream(fooFile));
         MockMultipartFile checksumMultipart = new MockMultipartFile("file_checksum", new FileInputStream(checksumFile));
         request.addHeader("Confirm", "true");
-        StubMultipartHttpServletRequest multipartRequest = new StubMultipartHttpServletRequest(request, artifactMultipart, checksumMultipart);
+        MultipartHttpServletRequest multipartRequest = new StubMultipartHttpServletRequest(request, artifactMultipart, checksumMultipart);
         postFileWithChecksum("baz/foobar.html", multipartRequest);
 
         assertThat(file(artifactsRoot, "baz/foobar.html"), exists());
@@ -533,7 +559,7 @@ public class ArtifactsControllerIntegrationTest {
         MockMultipartFile artifactMultipart = new MockMultipartFile("file", new FileInputStream(fooFile));
         MockMultipartFile checksumMultipart = new MockMultipartFile("file_checksum", new FileInputStream(checksumFile));
         request.addHeader("Confirm", "true");
-        StubMultipartHttpServletRequest multipartRequest = new StubMultipartHttpServletRequest(request, artifactMultipart, checksumMultipart);
+        MultipartHttpServletRequest multipartRequest = new StubMultipartHttpServletRequest(request, artifactMultipart, checksumMultipart);
 
         postFileWithChecksum("baz/foobar.html", multipartRequest);
 
@@ -573,11 +599,13 @@ public class ArtifactsControllerIntegrationTest {
     }
 
     private ModelAndView getFileAsHtml(String file) throws Exception {
-        return artifactsController.getArtifactAsHtml(pipelineName, pipeline.getLabel(), "stage", "1", "build", file, null, null);
+        request.setAttribute(HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE, file);
+        return artifactsController.getArtifacts(pipelineName, pipeline.getLabel(), "stage", "1", "build", null, null, request);
     }
 
     private ModelAndView getFolderAsJson(String file) throws Exception {
-        return artifactsController.getArtifactAsJson(pipelineName, pipeline.getLabel(), "stage", "1", "build", file, null);
+        request.setAttribute(HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE, file);
+        return artifactsController.getArtifacts(pipelineName, pipeline.getLabel(), "stage", "1", "build", null, null, request);
     }
 
     private ModelAndView postFile(String file) throws Exception {
@@ -603,16 +631,17 @@ public class ArtifactsControllerIntegrationTest {
 
     private ModelAndView postFile(String requestFilename, String multipartFilename, InputStream stream,
                                   MockHttpServletResponse response) throws Exception {
+        request.setAttribute(HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE, requestFilename);
         MockMultipartFile multipartFile = new MockMultipartFile(multipartFilename, stream);
         request.addHeader("Confirm", "true");
-        StubMultipartHttpServletRequest multipartRequest = new StubMultipartHttpServletRequest(request, multipartFile);
+        MultipartHttpServletRequest multipartRequest = new StubMultipartHttpServletRequest(request, multipartFile);
         return artifactsController.postArtifact(pipelineName, pipeline.getLabel(), "stage", "LATEST", "build", buildId,
-                requestFilename,
                 null, multipartRequest);
     }
 
     private ModelAndView postFileWithChecksum(String requestFileName, MultipartHttpServletRequest multipartRequest) throws Exception {
-        return artifactsController.postArtifact(pipelineName, pipeline.getLabel(), "stage", "LATEST", "build", buildId, requestFileName, null, multipartRequest);
+        multipartRequest.setAttribute(HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE, requestFileName);
+        return artifactsController.postArtifact(pipelineName, pipeline.getLabel(), "stage", "LATEST", "build", buildId, null, multipartRequest);
     }
 
     private ModelAndView putFile(String requestFilename) throws Exception {
@@ -621,7 +650,8 @@ public class ArtifactsControllerIntegrationTest {
 
     private ModelAndView putConsoleLogContent(String requestFilename, String consoleLogContent) throws Exception {
         request.setContent(consoleLogContent.getBytes());
-        return artifactsController.putArtifact(pipelineName, pipeline.getLabel(), "stage", "LATEST", "build", buildId, requestFilename, null, request);
+        request.setAttribute(HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE, requestFilename);
+        return artifactsController.putArtifact(pipelineName, pipeline.getLabel(), "stage", "LATEST", "build", buildId, request);
     }
 
     private TypeSafeMatcher<File> exists() {
@@ -652,16 +682,16 @@ public class ArtifactsControllerIntegrationTest {
         private PrintWriter writer;
         private ByteArrayOutputStream stream;
 
-        public ResponseOutput() {
+        ResponseOutput() {
             stream = new ByteArrayOutputStream();
             writer = new PrintWriter(stream);
         }
 
-        public PrintWriter getWriter() {
+        PrintWriter getWriter() {
             return writer;
         }
 
-        public String getOutput() {
+        String getOutput() {
             return new String(stream.toByteArray());
         }
     }

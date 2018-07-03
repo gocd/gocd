@@ -50,7 +50,6 @@ import com.thoughtworks.go.spark.ControllerTrait
 import com.thoughtworks.go.spark.PipelineGroupOperateUserSecurity
 import com.thoughtworks.go.spark.Routes
 import com.thoughtworks.go.spark.SecurityServiceTrait
-import org.aspectj.lang.reflect.UnlockSignature
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test

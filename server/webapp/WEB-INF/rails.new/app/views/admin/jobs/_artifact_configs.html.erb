@@ -35,6 +35,9 @@
   </div>
 </div>
 <script type="text/javascript">
+  var storeIdToPluginId = <%== scope[:store_id_to_plugin_id].to_json %>;
+  var pluginIdCount = <%== scope[:store_id_to_plugin_id].size %>;
+
   function hookupStoresAutoComplete() {
     jQuery(".stores_auto_complete").autocomplete(<%== scope[:artifact_store_ids] %>, {
       multiple:      false,
@@ -43,6 +46,16 @@
       selectFirst:   false,
       width:         248
     });
+  }
+
+  function showExternalArtifactView() {
+    if(!_.isEmpty(storeIdToPluginId) || jQuery(".artifact-container").find(".no_artifact_store").length == 0) {
+      addFormRowFor('#artifact_template_external');
+    }
+    
+    hookupStoresAutoComplete();
+    addOnSelectListenerForPluginDropdown();
+    jQuery("input[name='job[artifactConfigs][][storeId]']").on('input propertychange paste result', addOnChangeListenerForStoreInput);
   }
 
   function determineAppropriateFormToShow() {
@@ -54,10 +67,7 @@
         addFormRowFor('#artifact_template_test');
         break;
       case 'External Artifact':
-        addFormRowFor('#artifact_template_external');
-        hookupStoresAutoComplete();
-        addOnSelectListenerForPluginDropdown();
-        jQuery("input[name='job[artifactConfigs][][storeId]']").on('input propertychange paste result',addOnChangeListenerForStoreInput);
+        showExternalArtifactView();
         break;
     }
   }
@@ -70,25 +80,51 @@
     })
   }
 
+  function hidePluginView() {
+    jQuery(".plugged_artifact_template").hide();
+  }
+
+  function showPluginView() {
+    jQuery(".plugged_artifact_template").show();
+  }
+
+  function hidePluginDropdown() {
+    jQuery(".plugin_dropdown_background").hide();
+  }
+
+  function showPluginDropdown() {
+    jQuery(".plugin_dropdown_background").show();
+  }
+
   function addOnChangeListenerForStoreInput(event) {
     var inputElement         = jQuery(this);
     var selectedInput        = event.currentTarget || event.target;
-    if (selectedInput.defaultValue === selectedInput.value) {
+    if (!_.isEmpty(selectedInput.defaultValue) && selectedInput.defaultValue === selectedInput.value) {
       return;
     }
     var externalArtifactForm = inputElement.closest('.artifact');
-    externalArtifactForm.find(".plugged_artifact_template").addClass('hidden');
     externalArtifactForm.find(".plugin-config-read-only").remove();
-    var storeIdToPluginId = <%== scope[:store_id_to_plugin_id].to_json %>;
-    var pluginId          = storeIdToPluginId[selectedInput.value];
     externalArtifactForm.find('.artifact_plugin_selection').val(pluginId);
-    if (pluginId) {
-      externalArtifactForm.find('.plugin_dropdown_background').addClass('hidden');
-      externalArtifactForm.find(".plugged_artifact_template").closest(".row").addClass("plugin_form_background");
-      showAppropriatePluginView(pluginId, inputElement)
+    hidePluginView();
+
+    if (_.isEmpty(selectedInput.value)) {
+      hidePluginView();
+      hidePluginDropdown();
+      return;
     }
-    else {
-      externalArtifactForm.find('.plugin_dropdown_background').removeClass('hidden');
+
+    var pluginId  = storeIdToPluginId[selectedInput.value];
+    if (pluginId) {
+      externalArtifactForm.find(".plugged_artifact_template").closest(".row").addClass("plugin_form_background");
+      hidePluginDropdown();
+      showAppropriatePluginView(pluginId, inputElement);
+      return;
+    }
+
+    showPluginDropdown();
+    if (pluginIdCount === 1) {
+      var onlyPluginId = <%== scope[:store_id_to_plugin_id].values %>[0];
+      showAppropriatePluginView(onlyPluginId, inputElement);
     }
   }
 
@@ -112,7 +148,7 @@
     if (pluginView) {
       var pluginTemplate = externalArtifactForm.find(".plugged_artifact_template");
       pluginTemplate.html(pluginView);
-      pluginTemplate.removeClass('hidden');
+      showPluginView();
       var pluggedArtifactAngularControllerElement = pluginTemplate.closest('.plugged_artifact');
       var pluggedArtifactAngularDataElement = pluggedArtifactAngularControllerElement.find('span.plugged_artifact_data');
       initializeAngular(pluggedArtifactAngularControllerElement.attr('id'), pluggedArtifactAngularDataElement.attr('id'));

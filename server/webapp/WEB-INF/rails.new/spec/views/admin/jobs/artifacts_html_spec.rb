@@ -90,6 +90,13 @@ describe "admin/jobs/artifacts.html.erb" do
     end
   end
 
+  it "should select default Plugin Id when there is only one plugin installed" do
+    render
+
+    plugin_id_dropdown = Capybara.string(response.body).find("div.plugin-select-form select.artifact_plugin_selection")
+    expect(plugin_id_dropdown.find('option[selected]')).to have_text("Foo Plugin")
+  end
+
   it "should render inputs for built in artifacts" do
     render
 

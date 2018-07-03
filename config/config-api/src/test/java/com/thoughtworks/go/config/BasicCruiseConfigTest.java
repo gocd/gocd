@@ -16,15 +16,37 @@
 
 package com.thoughtworks.go.config;
 
+import com.rits.cloning.Cloner;
+import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
+import com.thoughtworks.go.config.preprocessor.ConfigParamPreprocessor;
 import com.thoughtworks.go.config.remote.*;
 import com.thoughtworks.go.domain.PipelineGroups;
+import com.thoughtworks.go.domain.config.Configuration;
+import com.thoughtworks.go.domain.config.ConfigurationKey;
+import com.thoughtworks.go.domain.config.ConfigurationProperty;
+import com.thoughtworks.go.domain.config.ConfigurationValue;
 import com.thoughtworks.go.helper.*;
+import com.thoughtworks.go.plugin.access.artifact.ArtifactMetadataStore;
+import com.thoughtworks.go.plugin.api.info.PluginDescriptor;
+import com.thoughtworks.go.plugin.domain.artifact.ArtifactPluginInfo;
+import com.thoughtworks.go.plugin.domain.artifact.Capabilities;
+import com.thoughtworks.go.plugin.domain.common.Metadata;
+import com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings;
+import com.thoughtworks.go.plugin.domain.common.PluginConfiguration;
+import com.thoughtworks.go.security.CryptoException;
+import com.thoughtworks.go.security.GoCipher;
+import com.thoughtworks.go.security.ResetCipher;
 import org.hamcrest.core.Is;
+import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 
-import java.util.*;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 import static com.thoughtworks.go.helper.PipelineConfigMother.createGroup;
 import static com.thoughtworks.go.helper.PipelineConfigMother.createPipelineConfig;
@@ -32,14 +54,22 @@ import static java.util.Arrays.asList;
 import static org.hamcrest.Matchers.*;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class BasicCruiseConfigTest extends CruiseConfigTestBase {
+    @Rule
+    public final ResetCipher resetCipher = new ResetCipher();
 
     @Before
     public void setup() throws Exception {
         pipelines = new BasicPipelineConfigs("existing_group", new Authorization());
         cruiseConfig = new BasicCruiseConfig(pipelines);
         goConfigMother = new GoConfigMother();
+    }
+    @After
+    public void clear() {
+        ArtifactMetadataStore.instance().clear();
     }
 
     @Override
@@ -265,5 +295,109 @@ public class BasicCruiseConfigTest extends CruiseConfigTestBase {
 
         assertThat(groupsForUser, not(contains("group3")));
         assertThat(groupsForUser, containsInAnyOrder("group2", "group1"));
+    }
+
+    @Test
+    public void shouldEncryptSecurePluggableArtifactConfigPropertiesOfAllPipelinesInConfig() throws IOException, CryptoException {
+        // ancestor => parent => child [fetch pluggable artifact(ancestor), fetch pluggable artifact(parent)]
+
+        resetCipher.setupAESCipherFile();
+        BasicCruiseConfig config = setupPipelines();
+        BasicCruiseConfig preprocessed = new Cloner().deepClone(config);
+        new ConfigParamPreprocessor().process(preprocessed);
+        config.encryptSecureProperties(preprocessed);
+        PipelineConfig ancestor = config.pipelineConfigByName(new CaseInsensitiveString("ancestor"));
+        PipelineConfig child = config.pipelineConfigByName(new CaseInsensitiveString("child"));
+
+        Configuration ancestorPublishArtifactConfig = ancestor.getStage("stage1").jobConfigByConfigName("job1").artifactConfigs().getPluggableArtifactConfigs().get(0).getConfiguration();
+        GoCipher goCipher = new GoCipher();
+        assertThat(ancestorPublishArtifactConfig.getProperty("k1").getEncryptedValue(), is(goCipher.encrypt("pub_v1")));
+        assertThat(ancestorPublishArtifactConfig.getProperty("k1").getConfigValue(), is(nullValue()));
+        assertThat(ancestorPublishArtifactConfig.getProperty("k1").getValue(), is("pub_v1"));
+        assertThat(ancestorPublishArtifactConfig.getProperty("k2").getEncryptedValue(), is(nullValue()));
+        assertThat(ancestorPublishArtifactConfig.getProperty("k2").getConfigValue(), is("pub_v2"));
+        assertThat(ancestorPublishArtifactConfig.getProperty("k2").getValue(), is("pub_v2"));
+        assertThat(ancestorPublishArtifactConfig.getProperty("k3").getEncryptedValue(), is(goCipher.encrypt("pub_v3")));
+        assertThat(ancestorPublishArtifactConfig.getProperty("k3").getConfigValue(), is(nullValue()));
+        assertThat(ancestorPublishArtifactConfig.getProperty("k3").getValue(), is("pub_v3"));
+
+        Configuration childFetchFromAncestorConfig = ((FetchPluggableArtifactTask) child.getStage("stage1")
+                .jobConfigByConfigName("job1").tasks().get(0)).getConfiguration();
+        assertThat(childFetchFromAncestorConfig.getProperty("k1").getEncryptedValue(), is(goCipher.encrypt("fetch_v1")));
+        assertThat(childFetchFromAncestorConfig.getProperty("k1").getConfigValue(), is(nullValue()));
+        assertThat(childFetchFromAncestorConfig.getProperty("k1").getValue(), is("fetch_v1"));
+        assertThat(childFetchFromAncestorConfig.getProperty("k2").getEncryptedValue(), is(nullValue()));
+        assertThat(childFetchFromAncestorConfig.getProperty("k2").getConfigValue(), is("fetch_v2"));
+        assertThat(childFetchFromAncestorConfig.getProperty("k2").getValue(), is("fetch_v2"));
+        assertThat(childFetchFromAncestorConfig.getProperty("k3").getEncryptedValue(), is(goCipher.encrypt("fetch_v3")));
+        assertThat(childFetchFromAncestorConfig.getProperty("k3").getConfigValue(), is(nullValue()));
+        assertThat(childFetchFromAncestorConfig.getProperty("k3").getValue(), is("fetch_v3"));
+
+        Configuration childFetchFromParentConfig = ((FetchPluggableArtifactTask) child.getStage("stage1")
+                .jobConfigByConfigName("job1").tasks().get(1)).getConfiguration();
+        assertThat(childFetchFromParentConfig.getProperty("k1").getEncryptedValue(), is(goCipher.encrypt("fetch_v1")));
+        assertThat(childFetchFromParentConfig.getProperty("k1").getConfigValue(), is(nullValue()));
+        assertThat(childFetchFromParentConfig.getProperty("k1").getValue(), is("fetch_v1"));
+        assertThat(childFetchFromParentConfig.getProperty("k2").getEncryptedValue(), is(nullValue()));
+        assertThat(childFetchFromParentConfig.getProperty("k2").getConfigValue(), is("fetch_v2"));
+        assertThat(childFetchFromParentConfig.getProperty("k2").getValue(), is("fetch_v2"));
+        assertThat(childFetchFromParentConfig.getProperty("k3").getEncryptedValue(), is(goCipher.encrypt("fetch_v3")));
+        assertThat(childFetchFromParentConfig.getProperty("k3").getConfigValue(), is(nullValue()));
+        assertThat(childFetchFromParentConfig.getProperty("k3").getValue(), is("fetch_v3"));
+    }
+
+    private BasicCruiseConfig setupPipelines() {
+        BasicCruiseConfig config = GoConfigMother.configWithPipelines("ancestor", "parent", "child");
+        config.getArtifactStores().add(new ArtifactStore("cd.go.s3", "cd.go.s3"));
+        PipelineConfig ancestor = config.pipelineConfigByName(new CaseInsensitiveString("ancestor"));
+        ancestor.add(StageConfigMother.stageConfig("stage1", new JobConfigs(new JobConfig("job1"))));
+        PluggableArtifactConfig pluggableArtifactConfig = new PluggableArtifactConfig("art_1", "cd.go.s3",
+                new ConfigurationProperty(new ConfigurationKey("k1"), new ConfigurationValue("pub_v1")),
+                new ConfigurationProperty(new ConfigurationKey("k2"), new ConfigurationValue("pub_v2")),
+                new ConfigurationProperty(new ConfigurationKey("k3"), new ConfigurationValue("pub_v3")));
+        ancestor.getStage("stage1").getJobs().first().artifactConfigs().add(pluggableArtifactConfig);
+
+        PipelineConfig parent = config.pipelineConfigByName(new CaseInsensitiveString("parent"));
+        parent.add(StageConfigMother.stageConfig("stage1", new JobConfigs(new JobConfig("job1"))));
+        parent.getStage("stage1").jobConfigByConfigName("job1").artifactConfigs()
+                .add(new PluggableArtifactConfig("art_2", "cd.go.s3"));
+
+        PipelineConfig child = config.pipelineConfigByName(new CaseInsensitiveString("child"));
+        child.addParam(new ParamConfig("UPSTREAM_PIPELINE", "ancestor/parent"));
+        child.addParam(new ParamConfig("UPSTREAM_STAGE", "stage1"));
+        child.addParam(new ParamConfig("UPSTREAM_JOB", "job1"));
+        child.addParam(new ParamConfig("ARTIFACT_ID", "art_1"));
+        child.setMaterialConfigs(new MaterialConfigs(MaterialConfigsMother.dependencyMaterialConfig("parent", "stage1")));
+        child.add(StageConfigMother.stageConfig("stage1", new JobConfigs(new JobConfig("job1"))));
+        FetchPluggableArtifactTask fetchFromAncestor = new FetchPluggableArtifactTask(
+                new CaseInsensitiveString("#{UPSTREAM_PIPELINE}"),
+                new CaseInsensitiveString("#{UPSTREAM_STAGE}"),
+                new CaseInsensitiveString("#{UPSTREAM_JOB}"), "#{ARTIFACT_ID}");
+        fetchFromAncestor.addConfigurations(asList(
+                new ConfigurationProperty(new ConfigurationKey("k1"), new ConfigurationValue("fetch_v1")),
+                new ConfigurationProperty(new ConfigurationKey("k2"), new ConfigurationValue("fetch_v2")),
+                new ConfigurationProperty(new ConfigurationKey("k3"), new ConfigurationValue("fetch_v3"))));
+        child.getStage("stage1").getJobs().get(0).addTask(fetchFromAncestor);
+        FetchPluggableArtifactTask fetchFromParent = new FetchPluggableArtifactTask(
+                new CaseInsensitiveString("parent"),
+                new CaseInsensitiveString("stage1"),
+                new CaseInsensitiveString("job1"), "art_2");
+        fetchFromParent.addConfigurations(asList(
+                new ConfigurationProperty(new ConfigurationKey("k1"), new ConfigurationValue("fetch_v1")),
+                new ConfigurationProperty(new ConfigurationKey("k2"), new ConfigurationValue("fetch_v2")),
+                new ConfigurationProperty(new ConfigurationKey("k3"), new ConfigurationValue("fetch_v3"))));
+        child.getStage("stage1").getJobs().get(0).addTask(fetchFromParent);
+
+        PluginDescriptor pluginDescriptor = mock(PluginDescriptor.class);
+        PluggableInstanceSettings storeConfigSettings = new PluggableInstanceSettings(asList());
+        PluginConfiguration k1 = new PluginConfiguration("k1", new Metadata(false, true));
+        PluginConfiguration k2 = new PluginConfiguration("k2", new Metadata(false, false));
+        PluginConfiguration k3 = new PluginConfiguration("k3", new Metadata(false, true));
+        PluggableInstanceSettings publishArtifactSettings = new PluggableInstanceSettings(asList(k1, k2, k3));
+        PluggableInstanceSettings fetchArtifactSettings = new PluggableInstanceSettings(asList(k1, k2, k3));
+        ArtifactPluginInfo artifactPluginInfo = new ArtifactPluginInfo(pluginDescriptor, storeConfigSettings, publishArtifactSettings, fetchArtifactSettings, null, new Capabilities());
+        when(pluginDescriptor.id()).thenReturn("cd.go.s3");
+        ArtifactMetadataStore.instance().setPluginInfo(artifactPluginInfo);
+        return config;
     }
 }

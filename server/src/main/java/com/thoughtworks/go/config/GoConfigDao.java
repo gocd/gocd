@@ -43,7 +43,7 @@ import java.util.List;
 public class GoConfigDao {
     private static final Logger LOGGER = LoggerFactory.getLogger(GoConfigDao.class);
     private CachedGoConfig cachedConfigService;
-    private Cloner cloner = new Cloner();
+    private GoConfigCloner cloner = new GoConfigCloner();
 
     @Autowired
     public GoConfigDao(CachedGoConfig cachedConfigService) {

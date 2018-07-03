@@ -24,11 +24,14 @@ import com.thoughtworks.go.domain.builder.FetchArtifactBuilder;
 import com.thoughtworks.go.domain.builder.FetchPluggableArtifactBuilder;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.PipelineService;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import com.thoughtworks.go.util.*;
 
 import static org.hamcrest.Matchers.instanceOf;
 import static org.junit.Assert.assertThat;
@@ -46,6 +49,23 @@ public class BuilderFactoryIntegrationTest {
     private PipelineService upstreamResolver;
     @Autowired
     private GoConfigService goConfigService;
+    @Autowired
+    private GoConfigDao goConfigDao;
+    private GoConfigFileHelper configHelper;
+
+    @Before
+    public void setUp() throws Exception {
+        configHelper = new GoConfigFileHelper(goConfigDao);
+        configHelper.onSetUp();
+        goConfigService.forceNotifyListeners();
+        configHelper.addPipeline("up42", "up42_stage", "up42_job");
+        goConfigService.forceNotifyListeners();
+    }
+
+    @After
+    public void tearDown() throws Exception {
+        configHelper.onTearDown();
+    }
 
     @Test
     public void shouldCreateBuilderForFetchTask() {

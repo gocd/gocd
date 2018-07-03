@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,20 +28,41 @@ import com.thoughtworks.go.config.remote.RepoConfigOrigin;
 import com.thoughtworks.go.config.update.CreatePipelineConfigCommand;
 import com.thoughtworks.go.config.update.FullConfigUpdateCommand;
 import com.thoughtworks.go.config.validation.GoConfigValidity;
+import com.thoughtworks.go.domain.config.Configuration;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.helper.*;
 import com.thoughtworks.go.listener.ConfigChangedListener;
+import com.thoughtworks.go.plugin.access.artifact.ArtifactMetadataStore;
+import com.thoughtworks.go.plugin.api.info.PluginDescriptor;
+import com.thoughtworks.go.plugin.domain.artifact.ArtifactPluginInfo;
+import com.thoughtworks.go.plugin.domain.artifact.Capabilities;
+import com.thoughtworks.go.plugin.domain.common.Metadata;
+import com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings;
+import com.thoughtworks.go.plugin.domain.common.PluginConfiguration;
+import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
+import com.thoughtworks.go.security.CryptoException;
+import com.thoughtworks.go.security.GoCipher;
+import com.thoughtworks.go.security.ResetCipher;
 import com.thoughtworks.go.server.domain.Username;
+import com.thoughtworks.go.server.service.ArtifactStoreService;
 import com.thoughtworks.go.server.service.ExternalArtifactsService;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.result.DefaultLocalizedOperationResult;
-import com.thoughtworks.go.serverhealth.*;
+import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
+import com.thoughtworks.go.serverhealth.HealthStateScope;
+import com.thoughtworks.go.serverhealth.HealthStateType;
+import com.thoughtworks.go.serverhealth.ServerHealthService;
+import com.thoughtworks.go.serverhealth.ServerHealthState;
 import com.thoughtworks.go.service.ConfigRepository;
-import com.thoughtworks.go.util.*;
+import com.thoughtworks.go.util.GoConstants;
+import com.thoughtworks.go.util.ReflectionUtil;
+import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.command.CommandLine;
 import com.thoughtworks.go.util.command.ConsoleResult;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.eclipse.jgit.api.errors.GitAPIException;
+import org.hamcrest.CoreMatchers;
 import org.hamcrest.Matchers;
 import org.hamcrest.core.Is;
 import org.junit.*;
@@ -55,21 +76,25 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.UUID;
 import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import com.thoughtworks.go.util.*;
 
 import static com.thoughtworks.go.helper.ConfigFileFixture.DEFAULT_XML_WITH_2_AGENTS;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Arrays.asList;
+import static org.hamcrest.CoreMatchers.startsWith;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.nullValue;
 import static org.hamcrest.core.StringContains.containsString;
 import static org.junit.Assert.*;
-
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {
         "classpath:WEB-INF/applicationContext-global.xml",
@@ -100,6 +125,8 @@ public class CachedGoConfigIntegrationTest {
     private ConfigRepository configRepository;
     @Autowired
     private ExternalArtifactsService externalArtifactsService;
+    @Autowired
+    private ArtifactStoreService artifactStoreService;
 
     @Rule
     public final TemporaryFolder temporaryFolder = new TemporaryFolder();
@@ -108,6 +135,8 @@ public class CachedGoConfigIntegrationTest {
     private File externalConfigRepo;
     @Rule
     public ExpectedException thrown = ExpectedException.none();
+    @Rule
+    public final ResetCipher resetCipher = new ResetCipher();
 
     @Before
     public void setUp() throws Exception {
@@ -132,6 +161,7 @@ public class CachedGoConfigIntegrationTest {
         for (PartialConfig partial : cachedGoPartials.lastKnownPartials()) {
             assertThat(ErrorCollector.getAllErrors(partial).isEmpty(), is(true));
         }
+        configHelper.onTearDown();
     }
 
     @Test
@@ -1128,6 +1158,66 @@ public class CachedGoConfigIntegrationTest {
         assertThat(origin.getRevision(), is("r2"));
         assertTrue(cachedGoPartials.lastKnownPartials().contains(partialConfig));
         assertTrue(cachedGoPartials.lastValidPartials().contains(partialConfig));
+    }
+
+    @Test
+    public void shouldEncryptPluggablePublishArtifactPropertiesDuringSave() throws Exception {
+        resetCipher.setupAESCipherFile();
+        resetCipher.setupDESCipherFile();
+        setupMetadataForPlugin();
+        ArtifactStore artifactStore = new ArtifactStore("dockerhub", "cd.go.artifact.docker.registry");
+        artifactStoreService.create(Username.ANONYMOUS, artifactStore, new HttpLocalizedOperationResult());
+        File configFile = new File(new SystemEnvironment().getCruiseConfigFile());
+        String config = IOUtils.toString(getClass().getResourceAsStream("/data/pluggable_artifacts_with_params.xml"), UTF_8);
+        FileUtils.writeStringToFile(configFile, config, UTF_8);
+
+        cachedGoConfig.forceReload();
+
+        Configuration ancestorPluggablePublishAftifactConfigAfterEncryption = goConfigDao.loadConfigHolder()
+                .configForEdit.pipelineConfigByName(new CaseInsensitiveString("ancestor"))
+                .getExternalArtifactConfigs().get(0).getConfiguration();
+        assertThat(ancestorPluggablePublishAftifactConfigAfterEncryption.getProperty("Image").getValue(), is("SECRET"));
+        assertThat(ancestorPluggablePublishAftifactConfigAfterEncryption.getProperty("Image").getEncryptedValue(), is(new GoCipher().encrypt("SECRET")));
+        assertThat(ancestorPluggablePublishAftifactConfigAfterEncryption.getProperty("Image").getConfigValue(), is(CoreMatchers.nullValue()));
+    }
+
+    @Test
+    public void shouldEncryptPluggableFetchArtifactPropertiesDuringSave() throws IOException, CryptoException {
+        resetCipher.setupAESCipherFile();
+        resetCipher.setupDESCipherFile();
+        setupMetadataForPlugin();
+        ArtifactStore artifactStore = new ArtifactStore("dockerhub", "cd.go.artifact.docker.registry");
+        artifactStoreService.create(Username.ANONYMOUS, artifactStore, new HttpLocalizedOperationResult());
+        File configFile = new File(new SystemEnvironment().getCruiseConfigFile());
+        String config = IOUtils.toString(getClass().getResourceAsStream("/data/pluggable_artifacts_with_params.xml"), UTF_8);
+        FileUtils.writeStringToFile(configFile, config, UTF_8);
+
+        cachedGoConfig.forceReload();
+
+        PipelineConfig child = goConfigDao.loadConfigHolder().configForEdit.pipelineConfigByName(new CaseInsensitiveString("child"));
+        Configuration childFetchConfigAfterEncryption = ((FetchPluggableArtifactTask) child
+                .get(0).getJobs().get(0).tasks().get(0)).getConfiguration();
+
+        assertThat(childFetchConfigAfterEncryption.getProperty("FetchProperty").getValue(), is("SECRET"));
+        assertThat(childFetchConfigAfterEncryption.getProperty("FetchProperty").getEncryptedValue(), is(new GoCipher().encrypt("SECRET")));
+        assertThat(childFetchConfigAfterEncryption.getProperty("FetchProperty").getConfigValue(), is(CoreMatchers.nullValue()));
+    }
+
+    private void setupMetadataForPlugin() {
+        PluginDescriptor pluginDescriptor = new GoPluginDescriptor("cd.go.artifact.docker.registry", "1.0", null, null, null, false);
+        PluginConfiguration buildFile = new PluginConfiguration("BuildFile", new Metadata(false, false));
+        PluginConfiguration image = new PluginConfiguration("Image", new Metadata(false, true));
+        PluginConfiguration tag = new PluginConfiguration("Tag", new Metadata(false, false));
+        PluginConfiguration fetchProperty = new PluginConfiguration("FetchProperty", new Metadata(false, true));
+        PluginConfiguration fetchTag = new PluginConfiguration("Tag", new Metadata(false, false));
+        PluginConfiguration registryUrl = new PluginConfiguration("RegistryURL", new Metadata(true, false));
+        PluginConfiguration username = new PluginConfiguration("Username", new Metadata(false, false));
+        PluginConfiguration password = new PluginConfiguration("Password", new Metadata(false, true));
+        PluggableInstanceSettings storeConfigSettings = new PluggableInstanceSettings(asList(registryUrl, username, password));
+        PluggableInstanceSettings publishArtifactSettings = new PluggableInstanceSettings(asList(buildFile, image, tag));
+        PluggableInstanceSettings fetchArtifactSettings = new PluggableInstanceSettings(asList(fetchProperty, fetchTag));
+        ArtifactPluginInfo artifactPluginInfo = new ArtifactPluginInfo(pluginDescriptor, storeConfigSettings, publishArtifactSettings, fetchArtifactSettings, null, new Capabilities());
+        ArtifactMetadataStore.instance().setPluginInfo(artifactPluginInfo);
     }
 
     private void addPipelineWithParams(CruiseConfig cruiseConfig) {

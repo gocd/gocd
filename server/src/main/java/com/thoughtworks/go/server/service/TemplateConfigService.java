@@ -52,7 +52,7 @@ public class TemplateConfigService {
     private final GoConfigService goConfigService;
     private final SecurityService securityService;
     private org.slf4j.Logger LOGGER = LoggerFactory.getLogger(TemplateConfigService.class);
-    private Cloner cloner = new Cloner();
+    private GoConfigCloner cloner = new GoConfigCloner();
     private EntityHashingService entityHashingService;
     private PluggableTaskService pluggableTaskService;
     private ExternalArtifactsService externalArtifactsService;

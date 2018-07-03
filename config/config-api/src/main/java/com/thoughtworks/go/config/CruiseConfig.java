@@ -290,4 +290,6 @@ public interface CruiseConfig extends Validatable, ConfigOriginTraceable {
     ArtifactStores getArtifactStores();
 
     void setArtifactStores(ArtifactStores artifactStores);
+
+    void encryptSecureProperties(CruiseConfig preprocessed);
 }

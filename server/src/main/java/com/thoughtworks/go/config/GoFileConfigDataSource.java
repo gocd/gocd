@@ -16,7 +16,6 @@
 
 package com.thoughtworks.go.config;
 
-import com.rits.cloning.Cloner;
 import com.thoughtworks.go.CurrentGoCDVersion;
 import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
 import com.thoughtworks.go.config.exceptions.*;
@@ -70,7 +69,7 @@ public class GoFileConfigDataSource {
     private SystemEnvironment systemEnvironment;
     private GoConfigMigration upgrader;
     private final TimeProvider timeProvider;
-    private Cloner cloner = new Cloner();
+    private GoConfigCloner cloner = new GoConfigCloner();
     public static final String FILESYSTEM = "Filesystem";
     private ServerHealthService serverHealthService;
     private ConfigElementImplementationRegistry configElementImplementationRegistry;

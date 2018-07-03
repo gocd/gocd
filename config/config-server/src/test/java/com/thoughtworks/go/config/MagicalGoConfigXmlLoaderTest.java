@@ -48,6 +48,7 @@ import com.thoughtworks.go.domain.packagerepository.PackageRepository;
 import com.thoughtworks.go.helper.MaterialConfigsMother;
 import com.thoughtworks.go.helper.StageConfigMother;
 import com.thoughtworks.go.junitext.EnhancedOSChecker;
+import com.thoughtworks.go.plugin.access.artifact.ArtifactMetadataStore;
 import com.thoughtworks.go.plugin.access.packagematerial.PackageConfiguration;
 import com.thoughtworks.go.plugin.access.packagematerial.PackageConfigurations;
 import com.thoughtworks.go.plugin.access.packagematerial.PackageMetadataStore;
@@ -55,12 +56,19 @@ import com.thoughtworks.go.plugin.access.packagematerial.RepositoryMetadataStore
 import com.thoughtworks.go.plugin.access.pluggabletask.PluggableTaskConfigStore;
 import com.thoughtworks.go.plugin.access.pluggabletask.TaskPreference;
 import com.thoughtworks.go.plugin.api.config.Property;
+import com.thoughtworks.go.plugin.api.info.PluginDescriptor;
 import com.thoughtworks.go.plugin.api.material.packagerepository.PackageMaterialProperty;
 import com.thoughtworks.go.plugin.api.material.packagerepository.RepositoryConfiguration;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 import com.thoughtworks.go.plugin.api.task.TaskConfig;
 import com.thoughtworks.go.plugin.api.task.TaskExecutor;
 import com.thoughtworks.go.plugin.api.task.TaskView;
+import com.thoughtworks.go.plugin.domain.artifact.ArtifactPluginInfo;
+import com.thoughtworks.go.plugin.domain.artifact.Capabilities;
+import com.thoughtworks.go.plugin.domain.common.Metadata;
+import com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings;
+import com.thoughtworks.go.plugin.domain.common.PluginConfiguration;
+import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import com.thoughtworks.go.security.AESCipherProvider;
 import com.thoughtworks.go.security.AESEncrypter;
 import com.thoughtworks.go.security.GoCipher;
@@ -80,6 +88,7 @@ import org.junit.runner.RunWith;
 
 import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -128,6 +137,7 @@ public class MagicalGoConfigXmlLoaderTest {
     public void tearDown() throws Exception {
         systemEnvironment.setProperty("go.enforce.server.immutability", "N");
         RepositoryMetadataStoreHelper.clear();
+        ArtifactMetadataStore.instance().clear();
     }
 
     @Test
@@ -4304,6 +4314,63 @@ public class MagicalGoConfigXmlLoaderTest {
         assertThat(config.server().mailHost().getHostName(), is("host"));
     }
 
+    @Test
+    public void shouldEncryptPluggablePublishArtifactProperties() throws IOException {
+        PluginDescriptor pluginDescriptor = new GoPluginDescriptor("cd.go.artifact.docker.registry", "1.0", null, null, null, false);
+        PluginConfiguration buildFile = new PluginConfiguration("BuildFile", new Metadata(false, false));
+        PluginConfiguration image = new PluginConfiguration("Image", new Metadata(false, true));
+        PluginConfiguration tag = new PluginConfiguration("Tag", new Metadata(false, false));
+        PluginConfiguration fetchProperty = new PluginConfiguration("FetchProperty", new Metadata(false, true));
+        PluginConfiguration fetchTag = new PluginConfiguration("Tag", new Metadata(false, false));
+        PluginConfiguration registryUrl = new PluginConfiguration("RegistryURL", new Metadata(true, false));
+        PluginConfiguration username = new PluginConfiguration("Username", new Metadata(false, false));
+        PluginConfiguration password = new PluginConfiguration("Password", new Metadata(false, true));
+        PluggableInstanceSettings storeConfigSettings = new PluggableInstanceSettings(asList(registryUrl, username, password));
+        PluggableInstanceSettings publishArtifactSettings = new PluggableInstanceSettings(asList(buildFile, image, tag));
+        PluggableInstanceSettings fetchArtifactSettings = new PluggableInstanceSettings(asList(fetchProperty, fetchTag));
+        ArtifactPluginInfo artifactPluginInfo = new ArtifactPluginInfo(pluginDescriptor, storeConfigSettings, publishArtifactSettings, fetchArtifactSettings, null, new Capabilities());
+        ArtifactMetadataStore.instance().setPluginInfo(artifactPluginInfo);
+
+        String content = IOUtils.toString(getClass().getResourceAsStream("/data/pluggable_artifacts_with_params.xml"), UTF_8);
+
+        CruiseConfig config = ConfigMigrator.loadWithMigration(content).config;
+        PipelineConfig ancestor = config.pipelineConfigByName(new CaseInsensitiveString("ancestor"));
+        PipelineConfig parent = config.pipelineConfigByName(new CaseInsensitiveString("parent"));
+        PipelineConfig child = config.pipelineConfigByName(new CaseInsensitiveString("child"));
+
+        Configuration ancestorPublishArtifactConfig = ancestor.get(0).getJobs().first().artifactConfigs().getPluggableArtifactConfigs().get(0).getConfiguration();
+        Configuration parentPublishArtifactConfig = parent.get(0).getJobs().first().artifactConfigs().getPluggableArtifactConfigs().get(0).getConfiguration();
+        Configuration childFetchArtifactFromAncestorConfig = ((FetchPluggableArtifactTask) child.get(0).getJobs().first().tasks().get(0)).getConfiguration();
+        Configuration childFetchArtifactFromParentConfig = ((FetchPluggableArtifactTask) child.get(0).getJobs().first().tasks().get(1)).getConfiguration();
+        ArtifactStore dockerhubStore = config.getArtifactStores().first();
+
+        assertConfigProperty(ancestorPublishArtifactConfig, "Image", "SECRET", true);
+        assertConfigProperty(ancestorPublishArtifactConfig, "Tag", "ancestor_tag_${GO_PIPELINE_COUNTER}", false);
+
+        assertConfigProperty(parentPublishArtifactConfig, "Image", "SECRET", true);
+        assertConfigProperty(parentPublishArtifactConfig, "Tag", "parent_tag_${GO_PIPELINE_COUNTER}", false);
+
+
+        assertConfigProperty(childFetchArtifactFromAncestorConfig, "FetchProperty", "SECRET", true);
+        assertConfigProperty(childFetchArtifactFromAncestorConfig, "Tag", "ancestor_tag", false);
+
+        assertConfigProperty(childFetchArtifactFromParentConfig, "FetchProperty", "SECRET", true);
+        assertConfigProperty(childFetchArtifactFromParentConfig, "Tag", "parent_tag", false);
+
+        assertConfigProperty(dockerhubStore, "RegistryURL", "https://index.docker.io/v1/", false);
+        assertConfigProperty(dockerhubStore, "Username", "docker-user", false);
+        assertConfigProperty(dockerhubStore, "Password", "SECRET", true);
+    }
+
+    private void assertConfigProperty(Configuration configuration, String name, String plainTextValue, boolean shouldBeEncrypted) {
+        assertThat(configuration.getProperty(name).getValue(), is(plainTextValue));
+        if (shouldBeEncrypted) {
+            assertThat(configuration.getProperty(name).getEncryptedValue(), startsWith("AES"));
+
+        } else {
+            assertThat(configuration.getProperty(name).getEncryptedValue(), is(nullValue()));
+        }
+    }
     private void assertXsdFailureDuringLoad(String configXML, String expectedMessage) {
         assertFailureDuringLoad(configXML, expectedMessage, XsdValidationException.class);
     }

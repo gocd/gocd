@@ -42,7 +42,7 @@ public abstract class FullConfigSaveFlow {
     protected final CachedGoPartials cachedGoPartials;
     protected final GoConfigFileWriter fileWriter;
     protected final ConfigElementImplementationRegistry configElementImplementationRegistry;
-    protected final Cloner cloner = new Cloner();
+    protected final GoConfigCloner cloner = new GoConfigCloner();
     protected final Logger LOGGER = LoggerFactory.getLogger(getClass().getName());
 
     public FullConfigSaveFlow(MagicalGoConfigXmlLoader loader, MagicalGoConfigXmlWriter writer,

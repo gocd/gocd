@@ -68,7 +68,7 @@ module ConfigSaveStubbing
       assertion_map[:md5] = md5
       assertion_map[:user] = user
       assertion_map[:result] = result
-      cloner = com.rits.cloning.Cloner.new()
+      cloner = com.thoughtworks.go.config.GoConfigCloner.new()
       node = update_command.node(cruise_config)
       update_partial.call(update_command, node)
       subject = subject_partial.call(update_command, node)

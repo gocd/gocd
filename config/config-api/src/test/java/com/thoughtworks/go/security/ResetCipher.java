@@ -29,6 +29,8 @@ public class ResetCipher extends ExternalResource {
     private final SystemEnvironment systemEnvironment;
     private final AESCipherProvider aesCipherProvider;
     private final DESCipherProvider desCipherProvider;
+    private final String originalDESCipher;
+    private final String originalAESCipher;
 
     public ResetCipher() {
         this(new SystemEnvironment());
@@ -36,9 +38,14 @@ public class ResetCipher extends ExternalResource {
 
     public ResetCipher(SystemEnvironment systemEnvironment) {
         this.systemEnvironment = systemEnvironment;
-        this.aesCipherProvider = new AESCipherProvider(systemEnvironment);
-        this.desCipherProvider = new DESCipherProvider(systemEnvironment);
-
+        aesCipherProvider = new AESCipherProvider(systemEnvironment);
+        desCipherProvider = new DESCipherProvider(systemEnvironment);
+        try {
+            originalAESCipher = FileUtils.readFileToString(systemEnvironment.getAESCipherFile(), UTF_8);
+            originalDESCipher = FileUtils.readFileToString(systemEnvironment.getDESCipherFile(), UTF_8);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
@@ -49,6 +56,12 @@ public class ResetCipher extends ExternalResource {
     @Override
     protected void after() {
         removeCachedKey();
+        try {
+            setupDESCipherFile(originalDESCipher);
+            setupAESCipherFile(originalAESCipher);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private void removeCachedKey() {

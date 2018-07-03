@@ -82,7 +82,7 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
     private ConfigRepository configRepository;
     private ConfigCache configCache;
 
-    private Cloner cloner = new Cloner();
+    private GoConfigCloner cloner = new GoConfigCloner();
     private Clock clock = new SystemTimeClock();
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GoConfigService.class);

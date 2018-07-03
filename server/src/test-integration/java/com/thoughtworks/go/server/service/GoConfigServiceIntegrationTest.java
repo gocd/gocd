@@ -23,10 +23,20 @@ import com.thoughtworks.go.config.update.ConfigUpdateResponse;
 import com.thoughtworks.go.config.update.UpdateConfigFromUI;
 import com.thoughtworks.go.config.validation.GoConfigValidity;
 import com.thoughtworks.go.domain.JobIdentifier;
+import com.thoughtworks.go.domain.Task;
+import com.thoughtworks.go.domain.config.Configuration;
 import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.helper.MaterialConfigsMother;
 import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.helper.StageConfigMother;
+import com.thoughtworks.go.plugin.access.artifact.ArtifactMetadataStore;
+import com.thoughtworks.go.plugin.api.info.PluginDescriptor;
+import com.thoughtworks.go.plugin.domain.artifact.ArtifactPluginInfo;
+import com.thoughtworks.go.plugin.domain.artifact.Capabilities;
+import com.thoughtworks.go.plugin.domain.common.Metadata;
+import com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings;
+import com.thoughtworks.go.plugin.domain.common.PluginConfiguration;
+import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import com.thoughtworks.go.presentation.ConfigForEdit;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.domain.Username;
@@ -34,6 +44,8 @@ import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.util.ReflectionUtil;
+import org.apache.commons.io.IOUtils;
+import org.hamcrest.CoreMatchers;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -44,9 +56,13 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.List;
 
 import static com.thoughtworks.go.i18n.LocalizedMessage.forbiddenToEditGroup;
+import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.util.Arrays.asList;
 import static javax.servlet.http.HttpServletResponse.SC_CONFLICT;
+import static org.hamcrest.CoreMatchers.startsWith;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.sameInstance;
 import static org.hamcrest.core.Is.is;
@@ -67,6 +83,8 @@ public class GoConfigServiceIntegrationTest {
     @Autowired private CachedGoConfig cachedGoConfig;
 
     private GoConfigFileHelper configHelper;
+    @Autowired
+    private GoConfigMigration goConfigMigration;
 
     @Before
     public void setup() throws Exception {
@@ -75,12 +93,14 @@ public class GoConfigServiceIntegrationTest {
         configHelper.usingCruiseConfigDao(goConfigDao).initializeConfigFile();
         configHelper.onSetUp();
         goConfigService.forceNotifyListeners();
+        setupMetadataForPlugin();
     }
 
     @After
     public void tearDown() throws Exception {
         configHelper.onTearDown();
         dbHelper.onTearDown();
+        ArtifactMetadataStore.instance().clear();
     }
 
     @Test
@@ -779,6 +799,171 @@ public class GoConfigServiceIntegrationTest {
 
         assertThat(validity.isValid(), is(true));
     }
+
+
+    @Test
+    public void shouldEncryptPluggablePublishArtifactPropertiesDuringSave() throws IOException {
+        String xmlWithArtifactStore = goConfigMigration.upgradeIfNecessary(IOUtils.toString(getClass().getResourceAsStream("/data/pluggable_artifacts_with_params.xml"), UTF_8));
+        configHelper.writeXmlToConfigFile(xmlWithArtifactStore);
+        goConfigService.forceNotifyListeners();
+
+        String md5 = goConfigService.getConfigForEditing().getMd5();
+        goConfigService.updateConfigFromUI(new CommandToUpdatePluggablePublishArtifactProperties("ancestor",
+                "defaultStage", "defaultJob", "NEW_SECRET"), md5,
+                Username.ANONYMOUS, new HttpLocalizedOperationResult());
+
+        Configuration ancestorPluggablePublishAftifactConfigAfterEncryption = goConfigDao.loadConfigHolder()
+                .configForEdit.pipelineConfigByName(new CaseInsensitiveString("ancestor"))
+                .getExternalArtifactConfigs().get(0).getConfiguration();
+        assertThat(ancestorPluggablePublishAftifactConfigAfterEncryption.getProperty("Image").getValue(), is("NEW_SECRET"));
+        assertThat(ancestorPluggablePublishAftifactConfigAfterEncryption.getProperty("Image").getEncryptedValue(), startsWith("AES:"));
+        assertThat(ancestorPluggablePublishAftifactConfigAfterEncryption.getProperty("Image").getConfigValue(), is(CoreMatchers.nullValue()));
+    }
+
+    @Test
+    public void shouldEncryptPluggableFetchArtifactPropertiesDuringSave() throws IOException {
+        String xmlWithArtifactStore = goConfigMigration.upgradeIfNecessary(IOUtils.toString(getClass().getResourceAsStream("/data/pluggable_artifacts_with_params.xml"), UTF_8));
+        configHelper.writeXmlToConfigFile(xmlWithArtifactStore);
+        goConfigService.forceNotifyListeners();
+
+        String md5 = goConfigService.getConfigForEditing().getMd5();
+        goConfigService.updateConfigFromUI(new CommandToUpdatePluggableFetchArtifactTaskProperties("child",
+                "defaultStage", "defaultJob", "NEW_SECRET"),
+                md5, Username.ANONYMOUS, new HttpLocalizedOperationResult());
+
+        PipelineConfig child = goConfigDao.loadConfigHolder().configForEdit.pipelineConfigByName(new CaseInsensitiveString("child"));
+        Configuration childFetchConfigAfterEncryption = ((FetchPluggableArtifactTask) child
+                .get(0).getJobs().get(0).tasks().get(0)).getConfiguration();
+
+        assertThat(childFetchConfigAfterEncryption.getProperty("FetchProperty").getValue(), is("NEW_SECRET"));
+        assertThat(childFetchConfigAfterEncryption.getProperty("FetchProperty").getEncryptedValue(), startsWith("AES:"));
+        assertThat(childFetchConfigAfterEncryption.getProperty("FetchProperty").getConfigValue(), is(CoreMatchers.nullValue()));
+    }
+
+    private void setupMetadataForPlugin() {
+        PluginDescriptor pluginDescriptor = new GoPluginDescriptor("cd.go.artifact.docker.registry", "1.0", null, null, null, false);
+        PluginConfiguration buildFile = new PluginConfiguration("BuildFile", new Metadata(false, false));
+        PluginConfiguration image = new PluginConfiguration("Image", new Metadata(false, true));
+        PluginConfiguration tag = new PluginConfiguration("Tag", new Metadata(false, false));
+        PluginConfiguration fetchProperty = new PluginConfiguration("FetchProperty", new Metadata(false, true));
+        PluginConfiguration fetchTag = new PluginConfiguration("Tag", new Metadata(false, false));
+        PluginConfiguration registryUrl = new PluginConfiguration("RegistryURL", new Metadata(true, false));
+        PluginConfiguration username = new PluginConfiguration("Username", new Metadata(false, false));
+        PluginConfiguration password = new PluginConfiguration("Password", new Metadata(false, true));
+        PluggableInstanceSettings storeConfigSettings = new PluggableInstanceSettings(asList(registryUrl, username, password));
+        PluggableInstanceSettings publishArtifactSettings = new PluggableInstanceSettings(asList(buildFile, image, tag));
+        PluggableInstanceSettings fetchArtifactSettings = new PluggableInstanceSettings(asList(fetchProperty, fetchTag));
+        ArtifactPluginInfo artifactPluginInfo = new ArtifactPluginInfo(pluginDescriptor, storeConfigSettings, publishArtifactSettings, fetchArtifactSettings, null, new Capabilities());
+        ArtifactMetadataStore.instance().setPluginInfo(artifactPluginInfo);
+    }
+
+    private class CommandToUpdatePluggablePublishArtifactProperties implements UpdateConfigFromUI {
+        private final String pipeline;
+        private final String stageName;
+        private final String jobName;
+        private final String newSecret;
+
+        public CommandToUpdatePluggablePublishArtifactProperties(String pipeline, String stageName, String jobName, String newSecret) {
+            this.pipeline = pipeline;
+            this.stageName = stageName;
+            this.jobName = jobName;
+            this.newSecret = newSecret;
+        }
+
+        @Override
+        public void checkPermission(CruiseConfig cruiseConfig, LocalizedOperationResult result) {
+
+        }
+
+        @Override
+        public Validatable node(CruiseConfig cruiseConfig) {
+            return pipelineConfig(cruiseConfig);
+        }
+
+        @Override
+        public Validatable updatedNode(CruiseConfig cruiseConfig) {
+            return pipelineConfig(cruiseConfig);
+        }
+
+        private PipelineConfig pipelineConfig(CruiseConfig cruiseConfig) {
+            return cruiseConfig.pipelineConfigByName(new CaseInsensitiveString(pipeline));
+        }
+
+        @Override
+        public void update(Validatable node) {
+            PipelineConfig pipelineConfig = (PipelineConfig) node;
+            List<PluggableArtifactConfig> pluggableArtifactConfigs = pipelineConfig.getStage(stageName).getJobs()
+                    .getJob(new CaseInsensitiveString(jobName)).artifactConfigs().getPluggableArtifactConfigs();
+            for (PluggableArtifactConfig artifactConfig : pluggableArtifactConfigs) {
+                artifactConfig.getConfiguration().getProperty("Image").deserialize("Image", newSecret, null);
+            }
+        }
+
+        @Override
+        public Validatable subject(Validatable node) {
+            return node;
+        }
+
+        @Override
+        public Validatable updatedSubject(Validatable updatedNode) {
+            return updatedNode;
+        }
+    }
+    private class CommandToUpdatePluggableFetchArtifactTaskProperties implements UpdateConfigFromUI {
+        private final String pipeline;
+        private final String stageName;
+        private final String jobName;
+        private String newSecret;
+
+        public CommandToUpdatePluggableFetchArtifactTaskProperties(String pipeline, String stageName, String jobName, String newSecret) {
+            this.pipeline = pipeline;
+            this.stageName = stageName;
+            this.jobName = jobName;
+            this.newSecret = newSecret;
+        }
+
+        @Override
+        public void checkPermission(CruiseConfig cruiseConfig, LocalizedOperationResult result) {
+
+        }
+
+        @Override
+        public Validatable node(CruiseConfig cruiseConfig) {
+            return pipelineConfig(cruiseConfig);
+        }
+
+        @Override
+        public Validatable updatedNode(CruiseConfig cruiseConfig) {
+            return pipelineConfig(cruiseConfig);
+        }
+
+        private PipelineConfig pipelineConfig(CruiseConfig cruiseConfig) {
+            return cruiseConfig.pipelineConfigByName(new CaseInsensitiveString(pipeline));
+        }
+
+        @Override
+        public void update(Validatable node) {
+            PipelineConfig pipelineConfig = (PipelineConfig) node;
+
+            Tasks tasks = pipelineConfig.getStage(stageName).getJobs().getJob(new CaseInsensitiveString(jobName)).tasks();
+            Tasks pluggableFetchTasks = tasks.findByType(FetchPluggableArtifactTask.class);
+            for (Task pluggableFetchTask : pluggableFetchTasks) {
+                FetchPluggableArtifactTask fetchTask = (FetchPluggableArtifactTask) pluggableFetchTask;
+                fetchTask.getConfiguration().getProperty("FetchProperty").deserialize("FetchProperty", newSecret, null);
+            }
+        }
+
+        @Override
+        public Validatable subject(Validatable node) {
+            return node;
+        }
+
+        @Override
+        public Validatable updatedSubject(Validatable updatedNode) {
+            return updatedNode;
+        }
+    }
+
 
     private void setJobTimeoutTo(final String jobTimeout) {
         CruiseConfig config = configHelper.currentConfig();

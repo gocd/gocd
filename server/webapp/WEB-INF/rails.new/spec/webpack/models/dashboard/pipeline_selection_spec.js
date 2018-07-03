@@ -32,11 +32,11 @@ describe("Dashboard", () => {
         const successCallback = jasmine.createSpy().and.callFake((pipelineSelection) => {
           expect(pipelineSelection.blacklist).toEqual(pipelineSelection["blacklist"]);
           expect(pipelineSelection.pipelineGroups()).toEqual(pipelineSelectionData["pipelines"]);
-          expect(pipelineSelection.selections.up42()).toEqual(true);
-          expect(pipelineSelection.selections.test()).toEqual(true);
-          expect(pipelineSelection.selections.one()).toEqual(false);
-          expect(pipelineSelection.selections.two()).toEqual(false);
-          expect(pipelineSelection.selections.three()).toEqual(false);
+          expect(pipelineSelection.selections.up42()).toEqual(false);
+          expect(pipelineSelection.selections.test()).toEqual(false);
+          expect(pipelineSelection.selections.one()).toEqual(true);
+          expect(pipelineSelection.selections.two()).toEqual(true);
+          expect(pipelineSelection.selections.three()).toEqual(true);
         });
 
         PipelineSelection.get().then(successCallback);

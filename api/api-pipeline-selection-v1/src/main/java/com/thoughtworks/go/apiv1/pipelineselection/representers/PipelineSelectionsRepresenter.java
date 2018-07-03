@@ -18,37 +18,33 @@ package com.thoughtworks.go.apiv1.pipelineselection.representers;
 
 import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.api.representers.JsonReader;
-import com.thoughtworks.go.config.CaseInsensitiveString;
-import com.thoughtworks.go.config.PipelineConfig;
-import com.thoughtworks.go.server.domain.user.PipelineSelections;
 
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
 public class PipelineSelectionsRepresenter {
     public static void toJSON(OutputWriter writer, PipelineSelectionResponse pipelineSelectionResponse) {
-        writer.addChildList("selections", pipelineSelectionResponse.getSelectedPipelines().pipelineList())
-            .add("blacklist", pipelineSelectionResponse.getSelectedPipelines().isBlacklist())
-            .addChild("pipelines", pipelineGroupsWriter -> {
-                pipelineSelectionResponse.getPipelineConfigs().forEach(pipelineConfigs -> {
-                    List<String> pipelineNames = pipelineConfigs
-                            .getPipelines().stream()
-                            .map(pipelineConfig -> pipelineConfig.getName().toString())
-                            .collect(Collectors.toList());
-                    if (!pipelineNames.isEmpty()) {
-                        pipelineGroupsWriter.addChildList(pipelineConfigs.getGroup(), pipelineNames);
-                    }
+        writer.addChildList("selections", pipelineSelectionResponse.selections())
+                .add("blacklist", pipelineSelectionResponse.blacklist())
+                .addChild("pipelines", pipelineGroupsWriter -> {
+                    pipelineSelectionResponse.getPipelineConfigs().forEach(pipelineConfigs -> {
+                        List<String> pipelineNames = pipelineConfigs
+                                .getPipelines().stream()
+                                .map(pipelineConfig -> pipelineConfig.getName().toString())
+                                .collect(Collectors.toList());
+                        if (!pipelineNames.isEmpty()) {
+                            pipelineGroupsWriter.addChildList(pipelineConfigs.getGroup(), pipelineNames);
+                        }
+                    });
                 });
-            });
     }
 
     public static PipelineSelectionResponse fromJSON(JsonReader reader) {
         List<String> selections = reader.readStringArrayIfPresent("selections").orElse(Collections.emptyList());
         Boolean blacklist = reader.optBoolean("blacklist").orElse(true);
 
-        return new PipelineSelectionResponse(new PipelineSelections(selections, new Date(), -1L, blacklist), null);
+        return new PipelineSelectionResponse(selections, blacklist, null);
     }
 
 

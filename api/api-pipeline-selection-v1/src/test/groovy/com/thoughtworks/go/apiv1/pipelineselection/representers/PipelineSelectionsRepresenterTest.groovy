@@ -22,7 +22,6 @@ import com.thoughtworks.go.config.BasicPipelineConfigs
 import com.thoughtworks.go.config.CaseInsensitiveString
 import com.thoughtworks.go.config.PipelineConfig
 import com.thoughtworks.go.config.PipelineConfigs
-import com.thoughtworks.go.server.domain.user.PipelineSelections
 import net.javacrumbs.jsonunit.fluent.JsonFluentAssert
 import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.Nested
@@ -39,8 +38,6 @@ class PipelineSelectionsRepresenterTest {
   class Serialize {
     @Test
     void 'should serialize'() {
-      def selections = new PipelineSelections(["build-linux", "build-windows"], new Date(), 10, true)
-
       def group1 = new BasicPipelineConfigs(group: "grp1")
       def group2 = new BasicPipelineConfigs(group: "grp2")
 
@@ -51,23 +48,21 @@ class PipelineSelectionsRepresenterTest {
       List<PipelineConfigs> pipelineConfigs = [group1, group2]
 
       def actualJson = toObjectString({
-        PipelineSelectionsRepresenter.toJSON(it, new PipelineSelectionResponse(selections, pipelineConfigs))
+        PipelineSelectionsRepresenter.toJSON(it, new PipelineSelectionResponse(['build-linux', 'build-windows'], true, pipelineConfigs))
       })
 
       JsonFluentAssert.assertThatJson(actualJson).isEqualTo([
-        pipelines: [
+        pipelines : [
           grp1: ["pipeline3"],
           grp2: ["pipeline1", "pipeline2"]
         ],
         selections: ['build-linux', 'build-windows'],
-        blacklist: true
+        blacklist : true
       ])
     }
 
     @Test
     void 'should not serialize empty pipeline groups'() {
-      def selections = new PipelineSelections(["build-linux", "build-windows"], new Date(), 10, true)
-
       def group1 = new BasicPipelineConfigs(group: "grp1")
       def group2 = new BasicPipelineConfigs(group: "grp2")
 
@@ -77,15 +72,15 @@ class PipelineSelectionsRepresenterTest {
       List<PipelineConfigs> pipelineConfigs = [group1, group2]
 
       def actualJson = toObjectString({
-        PipelineSelectionsRepresenter.toJSON(it, new PipelineSelectionResponse(selections, pipelineConfigs))
+        PipelineSelectionsRepresenter.toJSON(it, new PipelineSelectionResponse(['build-linux', 'build-windows'], true, pipelineConfigs))
       })
 
       JsonFluentAssert.assertThatJson(actualJson).isEqualTo([
-        pipelines: [
+        pipelines : [
           grp2: ["pipeline1", "pipeline2"]
         ],
         selections: ['build-linux', 'build-windows'],
-        blacklist: true
+        blacklist : true
       ])
     }
   }
@@ -100,8 +95,8 @@ class PipelineSelectionsRepresenterTest {
       ]
 
       PipelineSelectionResponse response = PipelineSelectionsRepresenter.fromJSON(GsonTransformer.getInstance().jsonReaderFrom(json))
-      Assertions.assertThat(response.selectedPipelines.pipelineList()).isEqualTo(["build-linux", "build-windows"])
-      Assertions.assertThat(response.selectedPipelines.isBlacklist()).isTrue()
+      Assertions.assertThat(response.selections()).isEqualTo(["build-linux", "build-windows"])
+      Assertions.assertThat(response.blacklist()).isTrue()
     }
 
     @Test

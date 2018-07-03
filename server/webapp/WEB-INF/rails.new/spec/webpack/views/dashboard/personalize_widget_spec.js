@@ -115,21 +115,21 @@ describe("Dashboard Personalize Widget", () => {
   });
 
   it('should bind pipeline checkbox to pipeline selection model', () => {
-    expect(pipelineSelection().isPipelineSelected('up42')).toBe(true);
-    expect($root.find('#pipeline_up42')).toBeChecked();
+    expect(pipelineSelection().isPipelineSelected('up42')).toBe(false);
+    expect($root.find('#pipeline_up42')).not.toBeChecked();
 
     $root.find('#pipeline_up42').click();
 
-    expect(pipelineSelection().isPipelineSelected('up42')).toBe(false);
-    expect($root.find('#pipeline_up42')).not.toBeChecked();
+    expect(pipelineSelection().isPipelineSelected('up42')).toBe(true);
+    expect($root.find('#pipeline_up42')).toBeChecked();
   });
 
   it('should select all pipelines when pipeline group is checked', () => {
     $root.find('.arrow-right').get(0).click();
 
     expect($root.find('#pgroup_second')).not.toBeChecked();
-    expect($root.find('#pipeline_up43')).not.toBeChecked();
-    expect($root.find('#pipeline_up44')).toBeChecked();
+    expect($root.find('#pipeline_up43')).toBeChecked();
+    expect($root.find('#pipeline_up44')).not.toBeChecked();
 
     $root.find('#pgroup_second').click();
 
@@ -139,21 +139,21 @@ describe("Dashboard Personalize Widget", () => {
   });
 
   it('should select none pipelines when pipeline group is unchecked', () => {
-    expect($root.find('#pgroup_first')).toBeChecked();
-    expect($root.find('#pipeline_up42')).toBeChecked();
+    expect($root.find('#pgroup_first')).not.toBeChecked();
+    expect($root.find('#pipeline_up42')).not.toBeChecked();
 
     $root.find('#pgroup_first').click();
 
-    expect($root.find('#pgroup_first')).not.toBeChecked();
-    expect($root.find('#pipeline_up42')).not.toBeChecked();
+    expect($root.find('#pgroup_first')).toBeChecked();
+    expect($root.find('#pipeline_up42')).toBeChecked();
   });
 
   it('should select all pipelines from selection', () => {
     $root.find('.arrow-right').get(0).click();
 
-    expect($root.find('#pipeline_up42')).toBeChecked();
-    expect($root.find('#pipeline_up43')).not.toBeChecked();
-    expect($root.find('#pipeline_up44')).toBeChecked();
+    expect($root.find('#pipeline_up42')).not.toBeChecked();
+    expect($root.find('#pipeline_up43')).toBeChecked();
+    expect($root.find('#pipeline_up44')).not.toBeChecked();
 
     $root.find('.select-all').click();
 
@@ -165,9 +165,9 @@ describe("Dashboard Personalize Widget", () => {
   it('should select no pipelines from selection', () => {
     $root.find('.arrow-right').get(0).click();
 
-    expect($root.find('#pipeline_up42')).toBeChecked();
-    expect($root.find('#pipeline_up43')).not.toBeChecked();
-    expect($root.find('#pipeline_up44')).toBeChecked();
+    expect($root.find('#pipeline_up42')).not.toBeChecked();
+    expect($root.find('#pipeline_up43')).toBeChecked();
+    expect($root.find('#pipeline_up44')).not.toBeChecked();
 
     $root.find('.select-none').click();
 

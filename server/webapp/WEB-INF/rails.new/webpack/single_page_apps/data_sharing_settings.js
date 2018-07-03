@@ -17,18 +17,13 @@
 const $ = require('jquery');
 const m = require('mithril');
 
-const VersionUpdater       = require('models/shared/version_updater');
-const DataSharingSettings  = require('models/data_sharing_settings/data_sharing_settings');
-const DataSharingUsageData = require('models/data_sharing_settings/usage_data');
+const DataSharingSettings  = require('models/shared/data_sharing/data_sharing_settings');
+const DataSharingUsageData = require('models/shared/data_sharing/usage_data');
 
 const PageLoadError             = require('views/shared/page_load_error');
 const DataSharingSettingsWidget = require('views/data_sharing_settings/data_sharing_settings_widget');
 
-require('foundation-sites');
-require('helpers/server_health_messages_helper');
-
 $(() => {
-  new VersionUpdater().update();
   const container = $("#data-sharing-settings-container").get(0);
 
   const onSuccess = (args) => {
@@ -40,8 +35,6 @@ $(() => {
         return (<DataSharingSettingsWidget settings={settings} usageData={usageData}/>);
       }
     });
-
-    $(document).foundation();
   };
 
   const onFailure = () => {

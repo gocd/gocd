@@ -25,9 +25,6 @@ const PipelineConfigWidget = require('views/pipeline_configs/pipeline_config_wid
 const PluginInfos          = require('models/shared/plugin_infos');
 const SCMs                 = require('models/pipeline_configs/scms');
 const ElasticProfiles      = require('models/elastic_profiles/elastic_profiles');
-const VersionUpdater       = require('models/shared/version_updater');
-require('foundation-sites');
-require('helpers/server_health_messages_helper');
 
 $(() => {
   const pipelineConfigElem = $('#pipeline-config');
@@ -39,7 +36,7 @@ $(() => {
   Resources.initializeWith(allResourceNames);
   Users.initializeWith(allUserNames);
   Roles.initializeWith(allRoleNames);
-  new VersionUpdater().update();
+
   Promise.all([PluginInfos.all(), SCMs.init(), ElasticProfiles.all(), Pipelines.all()]).then((args) => {
     m.mount(pipelineConfigElem.get(0), PipelineConfigWidget({
       url:             Stream(url),
@@ -47,7 +44,6 @@ $(() => {
       pluginInfos:     Stream(args[0]),
       pipelines:       Stream(args[3])
     }));
-    $(document).foundation();
   });
 
 });

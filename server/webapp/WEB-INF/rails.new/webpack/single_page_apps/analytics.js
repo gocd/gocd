@@ -21,10 +21,6 @@ const Stream            = require("mithril/stream");
 const AnalyticsEndpoint = require("rails-shared/plugin-endpoint");
 const AnalyticsWidget   = require("views/analytics/analytics_widget");
 const PluginInfos       = require("models/shared/plugin_infos");
-const VersionUpdater    = require("models/shared/version_updater");
-
-require('foundation-sites');
-require('helpers/server_health_messages_helper');
 
 function metricsInfo(infos, method) {
   const metrics = {};
@@ -37,9 +33,6 @@ function metricsInfo(infos, method) {
 AnalyticsEndpoint.ensure("v1");
 
 $(() => {
-  $(document).foundation();
-  new VersionUpdater().update();
-
   const analyticsElem = $('.analytics-container');
   const pipelines     = JSON.parse(analyticsElem.attr('data-pipeline-list')).sort(COMPARATOR);
 

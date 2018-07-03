@@ -18,10 +18,9 @@ package com.thoughtworks.go.apiv1.datasharing.reporting
 
 import com.thoughtworks.go.api.SecurityTestTrait
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
+import com.thoughtworks.go.apiv1.datasharing.reporting.representers.UsageStatisticsReportingRepresenter
 import com.thoughtworks.go.domain.UsageStatisticsReporting
-import com.thoughtworks.go.server.service.DataSharingService
-import com.thoughtworks.go.server.service.EntityHashingService
-import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult
+import com.thoughtworks.go.server.service.DataSharingUsageStatisticsReportingService
 import com.thoughtworks.go.spark.ControllerTrait
 import com.thoughtworks.go.spark.NormalUserSecurity
 import com.thoughtworks.go.spark.SecurityServiceTrait
@@ -29,10 +28,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.Mock
-import org.mockito.invocation.InvocationOnMock
-import com.thoughtworks.go.apiv1.datasharing.reporting.representers.*;
 
-import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
 import static org.mockito.ArgumentMatchers.any
 import static org.mockito.Mockito.*
 import static org.mockito.MockitoAnnotations.initMocks
@@ -44,13 +40,11 @@ class UsageStatisticsReportingControllerV1DelegateTest implements SecurityServic
     }
 
     @Mock
-    DataSharingService dataSharingService
-    @Mock
-    EntityHashingService entityHashingService
+    DataSharingUsageStatisticsReportingService service
 
     @Override
     UsageStatisticsReportingControllerV1Delegate createControllerInstance() {
-        new UsageStatisticsReportingControllerV1Delegate(new ApiAuthenticationHelper(securityService, goConfigService), dataSharingService, entityHashingService)
+        new UsageStatisticsReportingControllerV1Delegate(new ApiAuthenticationHelper(securityService, goConfigService), service)
     }
 
     @Nested
@@ -65,7 +59,7 @@ class UsageStatisticsReportingControllerV1DelegateTest implements SecurityServic
 
             @Override
             void makeHttpCall() {
-                getWithApiHeader(controller.controllerPath())
+                getWithApiHeader(controller.controllerPath('/info'))
             }
         }
 
@@ -79,16 +73,13 @@ class UsageStatisticsReportingControllerV1DelegateTest implements SecurityServic
 
             @Test
             void 'get usage statistics reporting'() {
-                def usageStatisticsReporting = new UsageStatisticsReporting("server-id", new java.util.Date())
+                def usageStatisticsReporting = new UsageStatisticsReporting("server-id", new Date())
 
-                when(dataSharingService.getUsageStatisticsReporting()).thenReturn(usageStatisticsReporting)
-                def etag = "md5"
-                when(entityHashingService.md5ForEntity(any() as UsageStatisticsReporting)).thenReturn(etag)
-                getWithApiHeader(controller.controllerPath())
+                when(service.get()).thenReturn(usageStatisticsReporting)
+                getWithApiHeader(controller.controllerPath('/info'))
 
                 assertThatResponse()
                         .isOk()
-                        .hasEtag('"' + etag + '"')
                         .hasContentType(controller.mimeType)
                         .hasBodyWithJsonObject(usageStatisticsReporting, UsageStatisticsReportingRepresenter.class)
             }
@@ -96,18 +87,18 @@ class UsageStatisticsReportingControllerV1DelegateTest implements SecurityServic
     }
 
     @Nested
-    class patchDataSharingReporting {
+    class startReporting {
         @Nested
         class Security implements SecurityTestTrait, NormalUserSecurity {
 
             @Override
             String getControllerMethodUnderTest() {
-                return "updateUsageStatisticsReporting"
+                return "startReporting"
             }
 
             @Override
             void makeHttpCall() {
-                patchWithApiHeader(controller.controllerBasePath(), [:])
+                postWithApiHeader(controller.controllerPath('/start'), [:])
             }
         }
 
@@ -121,111 +112,67 @@ class UsageStatisticsReportingControllerV1DelegateTest implements SecurityServic
             }
 
             @Test
-            void 'should update usage statistics reporting time'() {
-                def reportsSharedAt = new Date()
-                def data = [
-                  last_reported_at: reportsSharedAt.getTime(),
-                ]
-
-                UsageStatisticsReporting metricsReporting = new UsageStatisticsReporting("server-id", new java.util.Date())
-                metricsReporting.setLastReportedAt(reportsSharedAt)
-
-                doNothing().when(dataSharingService).updateUsageStatisticsReporting(any() as UsageStatisticsReporting, any() as HttpLocalizedOperationResult)
-                doReturn(metricsReporting).when(dataSharingService).getUsageStatisticsReporting()
-
-                when(entityHashingService.md5ForEntity(any() as UsageStatisticsReporting)).thenReturn("cached-md5")
+            void 'should start usage reporting'() {
+                doNothing().when(service).startReporting(any())
 
                 def headers = [
-                  'accept'      : controller.mimeType,
-                  'If-Match'    : 'cached-md5',
-                  'content-type': 'application/json'
+                        'accept'        : controller.mimeType,
+                        'X-GoCD-Confirm': true
                 ]
 
-                patchWithApiHeader(controller.controllerBasePath(), headers, data)
+                postWithApiHeader(controller.controllerPath('/start'), headers)
+
+                verify(service).startReporting(any())
 
                 assertThatResponse()
-                        .isOk()
+                        .hasNoContent()
                         .hasContentType(controller.mimeType)
-                        .hasBodyWithJsonObject(metricsReporting, UsageStatisticsReportingRepresenter.class)
+            }
+        }
+    }
+
+    @Nested
+    class completeReporting {
+        @Nested
+        class Security implements SecurityTestTrait, NormalUserSecurity {
+
+            @Override
+            String getControllerMethodUnderTest() {
+                return "completeReporting"
+            }
+
+            @Override
+            void makeHttpCall() {
+                postWithApiHeader(controller.controllerPath('/complete'), [:])
+            }
+        }
+
+        @Nested
+        class AsAuthorizedUser {
+
+            @BeforeEach
+            void setUp() {
+                enableSecurity()
+                loginAsUser()
             }
 
             @Test
-            void 'should reject if server_id is being updated in request'() {
-                def reportsSharedAt = new Date()
-                def data = [
-                  server_id: "something-new",
-                  last_reported_at: reportsSharedAt.getTime(),
-                ]
-                when(entityHashingService.md5ForEntity(any() as UsageStatisticsReporting)).thenReturn("cached-md5")
-                def headers = [
-                  'accept'      : controller.mimeType,
-                  'If-Match'    : 'cached-md5',
-                  'content-type': 'application/json'
-                ]
-                patchWithApiHeader(controller.controllerBasePath(), headers, data)
-
-                assertThatResponse()
-                  .isUnprocessableEntity()
-                  .hasContentType(controller.mimeType)
-                  .hasJsonMessage("Renaming of server_id is not supported by this API.")
-            }
-
-            @Test
-            void 'should return error occured validation fails'() {
-                def errorMsg = "Please provide last_reported_at time."
-                def data = [last_reported_at: null]
-                UsageStatisticsReporting usageStatisticsReportingReturnedByServer;
-                doAnswer({ InvocationOnMock invocation ->
-                    UsageStatisticsReporting reporting = invocation.arguments.first()
-                    reporting.addError("lastReportedAt", "error message")
-                    HttpLocalizedOperationResult result = invocation.arguments.last()
-                    result.unprocessableEntity(errorMsg);
-                    usageStatisticsReportingReturnedByServer = reporting
-                }).when(dataSharingService).updateUsageStatisticsReporting(any() as UsageStatisticsReporting, any() as HttpLocalizedOperationResult)
-                when(entityHashingService.md5ForEntity(any() as UsageStatisticsReporting)).thenReturn("cached-md5")
+            void 'should complete usage reporting'() {
+                doNothing().when(service).completeReporting(any())
 
                 def headers = [
-                  'accept'      : controller.mimeType,
-                  'If-Match'    : 'cached-md5',
-                  'content-type': 'application/json'
+                        'accept'        : controller.mimeType,
+                        'X-GoCD-Confirm': true
                 ]
 
-                patchWithApiHeader(controller.controllerBasePath(), headers, data)
+                postWithApiHeader(controller.controllerPath('/complete'), headers)
 
-                def jsonDataWithErrors = toObjectString({ UsageStatisticsReportingRepresenter.toJSON(it, usageStatisticsReportingReturnedByServer) })
-                assertThatResponse()
-                        .isUnprocessableEntity()
-                        .hasJsonMessage(errorMsg)
-                        .hasJsonAttribute("data", jsonDataWithErrors)
-            }
-
-            @Test
-            void 'should reject if etag doesnot match'() {
-                def errorMsg = "Please provide last_reported_at time."
-                def data = [last_reported_at: null]
-                UsageStatisticsReporting usageStatisticsReportingReturnedByServer;
-                doAnswer({ InvocationOnMock invocation ->
-                    UsageStatisticsReporting reporting = invocation.arguments.first()
-                    reporting.addError("lastReportedAt", "error message")
-                    HttpLocalizedOperationResult result = invocation.arguments.last()
-                    result.unprocessableEntity(errorMsg);
-                    usageStatisticsReportingReturnedByServer = reporting
-                }).when(dataSharingService).updateUsageStatisticsReporting(any() as UsageStatisticsReporting, any() as HttpLocalizedOperationResult)
-                when(entityHashingService.md5ForEntity(any() as UsageStatisticsReporting)).thenReturn("cached-md5")
-
-                def headers = [
-                  'accept'      : controller.mimeType,
-                  'If-Match'    : 'old-md5',
-                  'content-type': 'application/json'
-                ]
-
-                patchWithApiHeader(controller.controllerBasePath(), headers, data)
+                verify(service).completeReporting(any())
 
                 assertThatResponse()
-                        .isPreconditionFailed()
-                        .hasJsonMessage("Someone has modified the entity. Please update your copy with the changes and try again.")
+                        .hasNoContent()
+                        .hasContentType(controller.mimeType)
             }
         }
     }
 }
-

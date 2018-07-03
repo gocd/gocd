@@ -31,7 +31,8 @@
     <link href="/go/${railsAssetsService.getAssetPath("single_page_apps/${controllerName}.css")}" media="screen"
           rel="stylesheet"/>
   #end
-  #foreach( $js in ${webpackAssetsService.getAssetPaths("single_page_apps/${controllerName}")})
+
+  #foreach( $js in ${webpackAssetsService.getAssetPathsFor("single_page_apps/${controllerName}", "single_page_apps/spa_commons")})
     <script src="${js}"></script>
   #end
 </head>

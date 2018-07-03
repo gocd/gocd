@@ -19,8 +19,8 @@ package com.thoughtworks.go.apiv1.datasharing.settings
 import com.thoughtworks.go.api.SecurityTestTrait
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
 import com.thoughtworks.go.apiv1.datasharing.settings.representers.DataSharingSettingsRepresenter
-import com.thoughtworks.go.domain.DataSharingSettings
-import com.thoughtworks.go.server.service.DataSharingService
+import com.thoughtworks.go.server.domain.DataSharingSettings
+import com.thoughtworks.go.server.service.DataSharingSettingsService
 import com.thoughtworks.go.server.service.EntityHashingService
 import com.thoughtworks.go.spark.AdminUserSecurity
 import com.thoughtworks.go.spark.ControllerTrait
@@ -45,7 +45,7 @@ class DataSharingSettingsControllerV1DelegateTest implements SecurityServiceTrai
     }
 
     @Mock
-    DataSharingService dataSharingService
+    DataSharingSettingsService dataSharingSettingsService
     @Mock
     EntityHashingService entityHashingService
     @Mock
@@ -53,7 +53,7 @@ class DataSharingSettingsControllerV1DelegateTest implements SecurityServiceTrai
 
     @Override
     DataSharingSettingsControllerV1Delegate createControllerInstance() {
-        new DataSharingSettingsControllerV1Delegate(new ApiAuthenticationHelper(securityService, goConfigService), dataSharingService, entityHashingService, timeProvider)
+        new DataSharingSettingsControllerV1Delegate(new ApiAuthenticationHelper(securityService, goConfigService), dataSharingSettingsService, entityHashingService, timeProvider)
     }
 
     @Nested
@@ -84,7 +84,7 @@ class DataSharingSettingsControllerV1DelegateTest implements SecurityServiceTrai
             void 'get data sharing settings'() {
                 def dataSharingSettings = new DataSharingSettings(false, "Bob", new Date())
 
-                when(dataSharingService.getDataSharingSettings()).thenReturn(dataSharingSettings)
+                when(dataSharingSettingsService.get()).thenReturn(dataSharingSettings)
                 def etag = "md5"
                 when(entityHashingService.md5ForEntity(any() as DataSharingSettings)).thenReturn(etag)
 
@@ -134,8 +134,8 @@ class DataSharingSettingsControllerV1DelegateTest implements SecurityServiceTrai
                 settings.setAllowSharing(newConsent)
                 settings.setUpdatedBy("Default")
                 def captor = ArgumentCaptor.forClass(DataSharingSettings.class)
-                doNothing().when(dataSharingService).updateDataSharingSettings(any())
-                doReturn(settings).when(dataSharingService).getDataSharingSettings()
+                doNothing().when(dataSharingSettingsService).createOrUpdate(any())
+                doReturn(settings).when(dataSharingSettingsService).get()
                 when(entityHashingService.md5ForEntity(settings)).thenReturn("cached-md5")
 
                 def headers = [
@@ -151,7 +151,7 @@ class DataSharingSettingsControllerV1DelegateTest implements SecurityServiceTrai
                         .hasContentType(controller.mimeType)
                         .hasBodyWithJsonObject(settings, DataSharingSettingsRepresenter.class)
 
-                verify(dataSharingService).updateDataSharingSettings(captor.capture())
+                verify(dataSharingSettingsService).createOrUpdate(captor.capture())
                 def settingsBeingSaved = captor.getValue()
                 assertEquals(settingsBeingSaved.allowSharing(), newConsent)
                 assertEquals(settingsBeingSaved.updatedBy(), currentUsername().getUsername().toString())
@@ -165,8 +165,8 @@ class DataSharingSettingsControllerV1DelegateTest implements SecurityServiceTrai
                 settings.setAllowSharing(false)
                 settings.setUpdatedBy("user1")
                 def captor = ArgumentCaptor.forClass(DataSharingSettings.class)
-                doNothing().when(dataSharingService).updateDataSharingSettings(any())
-                doReturn(settings).when(dataSharingService).getDataSharingSettings()
+                doNothing().when(dataSharingSettingsService).createOrUpdate(any())
+                doReturn(settings).when(dataSharingSettingsService).get()
                 when(entityHashingService.md5ForEntity(settings)).thenReturn("cached-md5")
 
                 def headers = [
@@ -182,7 +182,7 @@ class DataSharingSettingsControllerV1DelegateTest implements SecurityServiceTrai
                   .hasContentType(controller.mimeType)
                   .hasBodyWithJsonObject(settings, DataSharingSettingsRepresenter.class)
 
-                verify(dataSharingService).updateDataSharingSettings(captor.capture())
+                verify(dataSharingSettingsService).createOrUpdate(captor.capture())
                 def settingsBeingSaved = captor.getValue()
                 assertEquals(settingsBeingSaved.allowSharing(), settings.allowSharing())
                 assertEquals(settingsBeingSaved.updatedBy(), currentUsername().getUsername().toString())
@@ -192,7 +192,7 @@ class DataSharingSettingsControllerV1DelegateTest implements SecurityServiceTrai
             void 'should reject update if old etag is provided'() {
                 def data = [allow: true]
                 def settings = new DataSharingSettings()
-                doReturn(settings).when(dataSharingService).getDataSharingSettings()
+                doReturn(settings).when(dataSharingSettingsService).get()
                 when(entityHashingService.md5ForEntity(settings)).thenReturn("new-md5")
                 def headers = [
                   'accept'      : controller.mimeType,
@@ -204,7 +204,7 @@ class DataSharingSettingsControllerV1DelegateTest implements SecurityServiceTrai
                 assertThatResponse()
                   .isPreconditionFailed()
                   .hasJsonMessage("Someone has modified the entity. Please update your copy with the changes and try again.")
-                verify(dataSharingService, never()).updateDataSharingSettings(any());
+                verify(dataSharingSettingsService, never()).createOrUpdate(any())
             }
         }
     }

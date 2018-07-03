@@ -17,13 +17,8 @@
 package com.thoughtworks.go.apiv1.datasharing.reporting.representers;
 
 import com.thoughtworks.go.api.base.OutputWriter;
-import com.thoughtworks.go.api.representers.ErrorGetter;
-import com.thoughtworks.go.api.representers.JsonReader;
 import com.thoughtworks.go.domain.UsageStatisticsReporting;
 import com.thoughtworks.go.spark.Routes.DataSharing;
-
-import java.util.Date;
-import java.util.HashMap;
 
 public class UsageStatisticsReportingRepresenter {
     public static void toJSON(OutputWriter outputWriter, UsageStatisticsReporting usageStatisticsReporting) {
@@ -32,21 +27,9 @@ public class UsageStatisticsReportingRepresenter {
                 .addChild("_embedded", childWriter -> {
                     childWriter
                             .add("server_id", usageStatisticsReporting.getServerId())
-                            .add("last_reported_at", usageStatisticsReporting.lastReportedAt().getTime());
-                    if (!usageStatisticsReporting.errors().isEmpty()) {
-                        outputWriter.addChild("errors", errorWriter -> {
-                            HashMap<String, String> errorMapping = new HashMap<>();
-                            errorMapping.put("lastReportedAt", "last_reported_at");
-                            new ErrorGetter(errorMapping).toJSON(errorWriter, usageStatisticsReporting);
-                        });
-                    }
+                            .add("last_reported_at", usageStatisticsReporting.lastReportedAt().getTime())
+                            .add("data_sharing_server_url", usageStatisticsReporting.getDataSharingServerUrl())
+                            .add("can_report", usageStatisticsReporting.canReport());
                 });
-    }
-
-    public static UsageStatisticsReporting fromJSON(JsonReader jsonReader) {
-        UsageStatisticsReporting usageStatisticsReporting = new UsageStatisticsReporting();
-        Long lastReportedAt = jsonReader.optLong("last_reported_at").orElse(0l);
-        usageStatisticsReporting.setLastReportedAt(new Date(lastReportedAt));
-        return usageStatisticsReporting;
     }
 }

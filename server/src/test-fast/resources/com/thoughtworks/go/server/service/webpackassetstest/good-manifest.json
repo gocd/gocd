@@ -10,6 +10,16 @@
         "vendor-and-helpers.chunk.js",
         "single_page_apps/agents.js"
       ]
+    },
+    "single_page_apps/new_dashboard": {
+      "chunks": [
+        10,
+        2
+      ],
+      "assets": [
+        "vendor-and-helpers.chunk.js",
+        "single_page_apps/new_dashboard.js"
+      ]
     }
   }
 }

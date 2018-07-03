@@ -16,23 +16,25 @@
 
 package com.thoughtworks.go.util;
 
-import java.util.Calendar;
-import java.util.Date;
-
 import org.joda.time.DateTime;
 import org.junit.Test;
 
+import java.util.Calendar;
+import java.util.Date;
+
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
+import static org.junit.Assert.*;
 
 public class DateUtilsTest {
 
-    @Test public void shouldBeAbleToParseRFC822Dates() throws Exception {
+    @Test
+    public void shouldBeAbleToParseRFC822Dates() throws Exception {
         Date date = DateUtils.parseRFC822("Tue, 09 Dec 2008 18:56:14 +0800");
         assertThat(date, is(new DateTime("2008-12-09T18:56:14+08:00").toDate()));
     }
 
-    @Test public void shouldSerializeDateForCcTray() {
+    @Test
+    public void shouldSerializeDateForCcTray() {
         Date date = new DateTime("2008-12-09T18:56:14+08:00").toDate();
         assertThat(DateUtils.formatIso8601ForCCTray(date), is("2008-12-09T10:56:14Z"));
     }
@@ -44,5 +46,16 @@ public class DateUtilsTest {
         Date date = instance.getTime();
         String formattedDate = DateUtils.formatToSimpleDate(date);
         assertThat(formattedDate, is("05 Nov 2009"));
+    }
+
+    @Test
+    public void shouldAnswerIfTheProvidedDateIsToday() {
+        final Calendar cal = Calendar.getInstance();
+        Date today = cal.getTime();
+        cal.add(Calendar.DATE, -1);
+        Date yesterday = cal.getTime();
+
+        assertTrue(DateUtils.isToday(today));
+        assertFalse(DateUtils.isToday(yesterday));
     }
 }

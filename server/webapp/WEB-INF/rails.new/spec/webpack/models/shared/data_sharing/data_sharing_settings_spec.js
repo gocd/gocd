@@ -16,7 +16,7 @@
 
 describe('Data Sharing Settings Model', () => {
   const TimeFormatter          = require('helpers/time_formatter');
-  const DataSharingSettings    = require('models/data_sharing_settings/data_sharing_settings');
+  const DataSharingSettings    = require('models/shared/data_sharing/data_sharing_settings');
   const dataSharingSettingsURL = '/go/api/data_sharing/settings';
 
   const dataSharingSettingsJSON = {

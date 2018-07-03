@@ -31,6 +31,8 @@ import org.springframework.stereotype.Component;
 import java.util.Calendar;
 import java.util.Date;
 
+import static com.thoughtworks.go.util.DateUtils.isToday;
+
 @Component
 public class ServerVersionInfoManager {
     private VersionInfo serverVersionInfo;
@@ -106,15 +108,6 @@ public class ServerVersionInfoManager {
         if (latestVersionUpdatedAt == null) return false;
 
         return isToday(latestVersionUpdatedAt);
-    }
-
-    private boolean isToday(Date date) {
-        Calendar today = Calendar.getInstance();
-        Calendar otherDay = Calendar.getInstance();
-        otherDay.setTime(date);
-
-        return (today.get(Calendar.YEAR) == otherDay.get(Calendar.YEAR) &&
-                today.get(Calendar.DAY_OF_YEAR) == otherDay.get(Calendar.DAY_OF_YEAR));
     }
 
     private boolean isUpdateInProgress() {

@@ -19,8 +19,8 @@ describe("Data Sharing Settings Widget", () => {
   const m             = require("mithril");
   const simulateEvent = require('simulate-event');
 
-  const UsageData                 = require('models/data_sharing_settings/usage_data');
-  const DataSharingSettings       = require('models/data_sharing_settings/data_sharing_settings');
+  const UsageData                 = require('models/shared/data_sharing/usage_data');
+  const DataSharingSettings       = require('models/shared/data_sharing/data_sharing_settings');
   const DataSharingSettingsWidget = require("views/data_sharing_settings/data_sharing_settings_widget");
 
   let $root, root;

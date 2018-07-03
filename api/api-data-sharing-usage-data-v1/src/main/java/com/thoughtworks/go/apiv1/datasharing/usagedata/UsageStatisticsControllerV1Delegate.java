@@ -21,9 +21,9 @@ import com.thoughtworks.go.api.ApiVersion;
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
 import com.thoughtworks.go.apiv1.datasharing.usagedata.representers.UsageStatisticsRepresenter;
 import com.thoughtworks.go.server.domain.UsageStatistics;
-import com.thoughtworks.go.server.service.DataSharingService;
-import com.thoughtworks.go.spark.Routes.DataSharing;
+import com.thoughtworks.go.server.service.DataSharingUsageDataService;
 import com.thoughtworks.go.server.util.RSAEncryptionHelper;
+import com.thoughtworks.go.spark.Routes.DataSharing;
 import com.thoughtworks.go.util.SystemEnvironment;
 import spark.Request;
 import spark.Response;
@@ -32,13 +32,13 @@ import static spark.Spark.*;
 
 public class UsageStatisticsControllerV1Delegate extends ApiController {
     private final ApiAuthenticationHelper apiAuthenticationHelper;
-    private DataSharingService dataSharingService;
+    private DataSharingUsageDataService dataSharingUsageDataService;
     private SystemEnvironment systemEnvironment;
 
-    public UsageStatisticsControllerV1Delegate(ApiAuthenticationHelper apiAuthenticationHelper, DataSharingService dataSharingService, SystemEnvironment systemEnvironment) {
+    public UsageStatisticsControllerV1Delegate(ApiAuthenticationHelper apiAuthenticationHelper, DataSharingUsageDataService dataSharingUsageDataService, SystemEnvironment systemEnvironment) {
         super(ApiVersion.v1);
         this.apiAuthenticationHelper = apiAuthenticationHelper;
-        this.dataSharingService = dataSharingService;
+        this.dataSharingUsageDataService = dataSharingUsageDataService;
         this.systemEnvironment = systemEnvironment;
     }
 
@@ -64,7 +64,7 @@ public class UsageStatisticsControllerV1Delegate extends ApiController {
     }
 
     public String getUsageStatistics(Request request, Response response) {
-        UsageStatistics usageStatistics = dataSharingService.getUsageStatistics();
+        UsageStatistics usageStatistics = dataSharingUsageDataService.get();
         return jsonizeAsTopLevelObject(request, writer -> UsageStatisticsRepresenter.toJSON(writer, usageStatistics));
     }
 

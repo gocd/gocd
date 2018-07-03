@@ -20,12 +20,12 @@ import com.thoughtworks.go.api.SecurityTestTrait
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
 import com.thoughtworks.go.apiv1.datasharing.usagedata.representers.UsageStatisticsRepresenter
 import com.thoughtworks.go.server.domain.UsageStatistics
-import com.thoughtworks.go.server.service.DataSharingService
+import com.thoughtworks.go.server.service.DataSharingUsageDataService
+import com.thoughtworks.go.server.util.RSAEncryptionHelper
 import com.thoughtworks.go.spark.AdminUserSecurity
 import com.thoughtworks.go.spark.ControllerTrait
 import com.thoughtworks.go.spark.NormalUserSecurity
 import com.thoughtworks.go.spark.SecurityServiceTrait
-import com.thoughtworks.go.server.util.RSAEncryptionHelper
 import com.thoughtworks.go.util.SystemEnvironment
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
@@ -43,7 +43,7 @@ class UsageStatisticsControllerV1DelegateTest implements SecurityServiceTrait, C
     initMocks(this)
   }
   @Mock
-  DataSharingService dataSharingService
+  DataSharingUsageDataService dataSharingService
 
   @Mock
   SystemEnvironment systemEnvironment
@@ -80,7 +80,7 @@ class UsageStatisticsControllerV1DelegateTest implements SecurityServiceTrait, C
       @Test
       void 'get usage statistics'() {
         def metrics = new UsageStatistics(10l, 20l, 1527244129553)
-        when(dataSharingService.getUsageStatistics()).thenReturn(metrics)
+        when(dataSharingService.get()).thenReturn(metrics)
 
         getWithApiHeader(controller.controllerPath())
         assertThatResponse()
@@ -122,7 +122,7 @@ class UsageStatisticsControllerV1DelegateTest implements SecurityServiceTrait, C
         File publicKeyFile = new File(getClass().getClassLoader().getResource("public_key.pem").getFile())
 
         when(systemEnvironment.getUpdateServerPublicKeyPath()).thenReturn(publicKeyFile.getAbsolutePath())
-        when(dataSharingService.getUsageStatistics()).thenReturn(metrics)
+        when(dataSharingService.get()).thenReturn(metrics)
 
         def expectedJson = toObjectString({ UsageStatisticsRepresenter.toJSON(it, metrics) })
 

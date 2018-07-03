@@ -19,14 +19,8 @@ const m                 = require('mithril');
 const Stream            = require('mithril/stream');
 const AuthConfigsWidget = require('views/auth_configs/auth_configs_widget');
 const PluginInfos       = require('models/shared/plugin_infos');
-const VersionUpdater    = require('models/shared/version_updater');
-require('foundation-sites');
-require('helpers/server_health_messages_helper');
 
 $(() => {
-  $(document).foundation();
-  new VersionUpdater().update();
-
   const onSuccess = function (pluginInfos) {
     const component = {
       view () {

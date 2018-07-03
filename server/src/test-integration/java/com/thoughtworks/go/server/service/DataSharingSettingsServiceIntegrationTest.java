@@ -1,0 +1,163 @@
+/*
+ * Copyright 2018 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.thoughtworks.go.server.service;
+
+import com.thoughtworks.go.server.domain.DataSharingSettings;
+import com.thoughtworks.go.server.dao.DataSharingSettingsSqlMapDao;
+import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
+import org.junit.*;
+import org.junit.rules.ExpectedException;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+import java.sql.Timestamp;
+import java.util.Date;
+
+import com.thoughtworks.go.server.dao.*;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.isA;
+import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.nullValue;
+import static org.hamcrest.core.Is.is;
+import static org.junit.jupiter.api.Assertions.*;
+
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(locations = {
+        "classpath:WEB-INF/applicationContext-global.xml",
+        "classpath:WEB-INF/applicationContext-dataLocalAccess.xml",
+        "classpath:testPropertyConfigurer.xml"
+})
+public class DataSharingSettingsServiceIntegrationTest {
+    @Autowired
+    private DataSharingSettingsService dataSharingSettingsService;
+    @Autowired
+    private DataSharingSettingsSqlMapDao dataSharingSettingsSqlMapDao;
+    @Autowired
+    private EntityHashingService entityHashingService;
+    @Autowired
+    private DatabaseAccessHelper dbHelper;
+
+    @Rule
+    public ExpectedException expectedEx = ExpectedException.none();
+
+    @Before
+    public void setup() throws Exception {
+        dbHelper.onSetUp();
+        dataSharingSettingsService.initialize();
+    }
+
+    @After
+    public void teardown() throws Exception {
+        dbHelper.onTearDown();
+    }
+
+    @Test
+    public void shouldInitializeDataSharingSettingsOnFirstStartup() throws Exception {
+        dbHelper.onTearDown();//to start on a clean slate
+
+        assertNull(dataSharingSettingsSqlMapDao.load());
+        dataSharingSettingsService.initialize();
+        DataSharingSettings dataSharingSettings = dataSharingSettingsSqlMapDao.load();
+        assertNotNull(dataSharingSettings);
+    }
+
+    @Test
+    public void shouldNotReInitializeDataSharingSettingsOnSubsequentStartups() throws Exception {
+        dbHelper.onTearDown();//to start on a clean slate
+
+        assertNull(dataSharingSettingsSqlMapDao.load());
+        dataSharingSettingsService.initialize();
+        DataSharingSettings dataSharingSettings = dataSharingSettingsSqlMapDao.load();
+        assertNotNull(dataSharingSettings);
+        assertTrue(dataSharingSettings.allowSharing());
+    }
+
+    @Test
+    public void shouldFetchDataSharingSettings() throws Exception {
+        DataSharingSettings saved = new DataSharingSettings(true, "Bob", new Date());
+        dataSharingSettingsService.createOrUpdate(saved);
+
+        DataSharingSettings loaded = dataSharingSettingsService.get();
+
+        assertThat(loaded, is(saved));
+    }
+
+    @Test
+    public void shouldUpdateDataSharingSettings() throws Exception {
+        DataSharingSettings existing = dataSharingSettingsService.get();
+        assertNotNull(existing);
+        assertThat(existing.allowSharing(), is(true));
+        assertThat(existing.updatedBy(), is("Default"));
+
+        boolean newConsent = false;
+        String consentedBy = "Bob";
+        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+        dataSharingSettingsService.createOrUpdate(new DataSharingSettings(newConsent, consentedBy, new Date()));
+
+        DataSharingSettings loaded = dataSharingSettingsService.get();
+        assertThat(loaded.allowSharing(), is(newConsent));
+        assertThat(loaded.updatedBy(), is(consentedBy));
+
+        assertThat(result.isSuccessful(), is(true));
+    }
+
+    @Test
+    public void shouldUpdateMd5SumOfDataSharingSettingsUponSave() {
+        DataSharingSettings loaded = dataSharingSettingsService.get();
+
+        String originalMd5 = entityHashingService.md5ForEntity(loaded);
+        assertThat(originalMd5, is(not(nullValue())));
+
+        loaded.setAllowSharing(true);
+        loaded.setUpdatedBy("me");
+        loaded.setUpdatedOn(Timestamp.from(new Date().toInstant()));
+        dataSharingSettingsService.createOrUpdate(loaded);
+
+        String md5AfterUpdate = entityHashingService.md5ForEntity(dataSharingSettingsService.get());
+        assertThat(originalMd5, is(not(md5AfterUpdate)));
+    }
+
+    @Test
+    public void shouldAllowOnlyOneInstanceOfMetricsSettingsObjectInDB() throws Exception {
+        DataSharingSettings dataSharingSettings1 = new DataSharingSettings(true, "Bob", new Date());
+        dataSharingSettingsService.createOrUpdate(dataSharingSettings1);
+
+        DataSharingSettings dataSharingSettings2 = new DataSharingSettings(false, "John", new Date());
+        dataSharingSettingsService.createOrUpdate(dataSharingSettings2);
+
+        DataSharingSettings saved = dataSharingSettingsService.get();
+
+        Assert.assertThat(saved.allowSharing(), is(dataSharingSettings2.allowSharing()));
+        Assert.assertThat(saved.updatedBy(), is(dataSharingSettings2.updatedBy()));
+    }
+
+    @Test
+    public void shouldDisallowSavingMetricsSettingsObjectWithADifferentIdIfAnInstanceAlreadyExistsInDb() throws Exception {
+        expectedEx.expect(RuntimeException.class);
+        expectedEx.expectCause(isA(DataSharingSettingsSqlMapDao.DuplicateDataSharingSettingsException.class));
+
+        DataSharingSettings dataSharingSettings1 = new DataSharingSettings(true, "Bob", new Date());
+        dataSharingSettingsService.createOrUpdate(dataSharingSettings1);
+
+        DataSharingSettings dataSharingSettings2 = new DataSharingSettings(false, "John", new Date());
+        dataSharingSettings2.setId(100);
+
+        dataSharingSettingsService.createOrUpdate(dataSharingSettings2);
+    }
+}

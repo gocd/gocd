@@ -86,31 +86,4 @@ public class UsageStatisticsReportingSqlMapDaoIntegrationTest {
         assertThat(loaded.lastReportedAt().toInstant(), not(is(usageStatisticsReporting.lastReportedAt().toInstant())));
         assertThat(loaded.lastReportedAt().toInstant(), is(toBeUpdated.lastReportedAt().toInstant()));
     }
-
-    @Test
-    public void shouldAllowOnlyOneInstanceOfServerStatsObjectInDB() throws Exception {
-        UsageStatisticsReporting usageStatisticsReporting1 = new UsageStatisticsReporting("server-id", new Date());
-        usageStatisticsReporting1.setLastReportedAt(new Date(DateTime.now().minusDays(2).getMillis()));
-        usageStatisticsReportingSqlMapDao.saveOrUpdate(usageStatisticsReporting1);
-
-        UsageStatisticsReporting usageStatisticsReporting2 = new UsageStatisticsReporting("server-id", new Date());
-        usageStatisticsReporting2.setLastReportedAt(new Date(DateTime.now().minusDays(1).getMillis()));
-        usageStatisticsReportingSqlMapDao.saveOrUpdate(usageStatisticsReporting2);
-
-        UsageStatisticsReporting saved = usageStatisticsReportingSqlMapDao.load();
-        assertThat(saved.lastReportedAt().toInstant(), is(usageStatisticsReporting2.lastReportedAt().toInstant()));
-    }
-
-    @Test
-    public void shouldDisallowSavingServerStatsObjectWithADifferentIdIfAnInstanceAlreadyExistsInDb() throws Exception {
-        UsageStatisticsReporting usageStatisticsReporting1 = new UsageStatisticsReporting("server-id", new Date());
-        usageStatisticsReporting1.setLastReportedAt(new Date(DateTime.now().minusDays(2).getMillis()));
-        usageStatisticsReportingSqlMapDao.saveOrUpdate(usageStatisticsReporting1);
-
-        UsageStatisticsReporting usageStatisticsReporting2 = new UsageStatisticsReporting("server-id", new Date());
-        usageStatisticsReporting2.setId(100);
-        usageStatisticsReporting2.setLastReportedAt(new Date(DateTime.now().minusDays(1).getMillis()));
-
-        Assertions.assertThrows(DuplicateMetricReporting.class, () -> usageStatisticsReportingSqlMapDao.saveOrUpdate(usageStatisticsReporting2));
-    }
 }

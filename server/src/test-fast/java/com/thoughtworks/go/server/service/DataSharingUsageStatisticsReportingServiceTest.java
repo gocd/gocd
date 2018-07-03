@@ -1,0 +1,183 @@
+/*
+ * Copyright 2018 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.thoughtworks.go.server.service;
+
+import com.thoughtworks.go.server.domain.DataSharingSettings;
+import com.thoughtworks.go.domain.UsageStatisticsReporting;
+import com.thoughtworks.go.server.dao.UsageStatisticsReportingSqlMapDao;
+import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
+import com.thoughtworks.go.util.SystemEnvironment;
+import com.thoughtworks.go.util.TestingClock;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mock;
+
+import java.util.Date;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.when;
+import static org.mockito.MockitoAnnotations.initMocks;
+
+public class DataSharingUsageStatisticsReportingServiceTest {
+    private DataSharingUsageStatisticsReportingService service;
+    @Mock
+    private UsageStatisticsReportingSqlMapDao usageStatisticsReportingSqlMapDao;
+    @Mock
+    private DataSharingSettingsService dataSharingSettingsService;
+    @Mock
+    private SystemEnvironment systemEnvironment;
+    private String goUsageDataRemoteServerURL;
+    private DataSharingSettings dataSharingSetting;
+    private TestingClock clock = new TestingClock();
+
+    @Before
+    public void setUp() throws Exception {
+        initMocks(this);
+        service = new DataSharingUsageStatisticsReportingService(usageStatisticsReportingSqlMapDao, dataSharingSettingsService, systemEnvironment, clock);
+        goUsageDataRemoteServerURL = "https://datasharing.gocd.org";
+        when(systemEnvironment.getGoDataSharingServerUrl()).thenReturn(goUsageDataRemoteServerURL);
+
+        dataSharingSetting = new DataSharingSettings();
+        when(dataSharingSettingsService.get()).thenReturn(dataSharingSetting);
+        when(systemEnvironment.isProductionMode()).thenReturn(true);
+    }
+
+    @Test
+    public void shouldSetDataSharingServerUrlOnTheLoadedDataSharingUsageReporting() {
+        UsageStatisticsReporting existingMetric = new UsageStatisticsReporting("server-id", new Date());
+        assertNull(existingMetric.getDataSharingServerUrl());
+        when(usageStatisticsReportingSqlMapDao.load()).thenReturn(existingMetric);
+        UsageStatisticsReporting statisticsReporting = service.get();
+        assertThat(statisticsReporting.getDataSharingServerUrl(), is(goUsageDataRemoteServerURL));
+    }
+
+    @Test
+    public void shouldDisallowReportingIfDataSharingSettingsIsNotAllowed() {
+        UsageStatisticsReporting existingMetric = new UsageStatisticsReporting("server-id", new Date());
+        assertTrue(existingMetric.canReport());
+        when(usageStatisticsReportingSqlMapDao.load()).thenReturn(existingMetric);
+
+        dataSharingSetting = new DataSharingSettings();
+        dataSharingSetting.setAllowSharing(false);
+        when(dataSharingSettingsService.get()).thenReturn(dataSharingSetting);
+
+        UsageStatisticsReporting statisticsReporting = service.get();
+        assertFalse(statisticsReporting.canReport());
+    }
+
+    @Test
+    public void shouldDisallowReportingDataSharingIfAlreadyReportedToday() {
+        UsageStatisticsReporting existingMetric = new UsageStatisticsReporting("server-id", new Date());
+        assertThat(existingMetric.lastReportedAt().getDate(), is(new Date().getDate()));
+        when(usageStatisticsReportingSqlMapDao.load()).thenReturn(existingMetric);
+
+        UsageStatisticsReporting statisticsReporting = service.get();
+        assertFalse(statisticsReporting.canReport());
+    }
+
+    @Test
+    public void shouldAllowReportingDataSharingIfDataIsNotReportedToday() {
+        Date lastReportedAt = new Date();
+        lastReportedAt.setDate(lastReportedAt.getDate() - 1);
+        UsageStatisticsReporting existingMetric = new UsageStatisticsReporting("server-id", lastReportedAt);
+        assertThat(existingMetric.lastReportedAt().getDate(), is(new Date().getDate() - 1));
+        when(usageStatisticsReportingSqlMapDao.load()).thenReturn(existingMetric);
+
+        UsageStatisticsReporting statisticsReporting = service.get();
+        assertTrue(statisticsReporting.canReport());
+    }
+
+    @Test
+    public void shouldDisallowReportingDataSharingIfReportingIsInProgress() {
+        Date lastReportedAt = new Date();
+        lastReportedAt.setDate(lastReportedAt.getDate() - 1);
+        UsageStatisticsReporting existingMetric = new UsageStatisticsReporting("server-id", lastReportedAt);
+        when(usageStatisticsReportingSqlMapDao.load()).thenReturn(existingMetric);
+
+        UsageStatisticsReporting statisticsReporting = service.get();
+        assertTrue(statisticsReporting.canReport());
+        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+        service.startReporting(result);
+        assertTrue(result.isSuccessful());
+        statisticsReporting = service.get();
+        assertFalse(statisticsReporting.canReport());
+    }
+
+    @Test
+    public void shouldAllowReportingDataSharingWhenCurrentInProgressReportingIsStale() {
+        Date lastReportedAt = new Date();
+        lastReportedAt.setDate(lastReportedAt.getDate() - 1);
+        UsageStatisticsReporting existingMetric = new UsageStatisticsReporting("server-id", lastReportedAt);
+        when(usageStatisticsReportingSqlMapDao.load()).thenReturn(existingMetric);
+
+        UsageStatisticsReporting statisticsReporting = service.get();
+        assertTrue(statisticsReporting.canReport());
+        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+        service.startReporting(result);
+        assertTrue(result.isSuccessful());
+
+        clock.addSeconds(60 * 31);
+
+        statisticsReporting = service.get();
+        assertTrue(statisticsReporting.canReport());
+    }
+
+    @Test
+    public void shouldDisallowReportingForDevelopmentServer() {
+        when(systemEnvironment.isProductionMode()).thenReturn(false);
+        UsageStatisticsReporting existingMetric = new UsageStatisticsReporting("server-id", new Date());
+        when(usageStatisticsReportingSqlMapDao.load()).thenReturn(existingMetric);
+
+        UsageStatisticsReporting statisticsReporting = service.get();
+        assertFalse(statisticsReporting.canReport());
+    }
+
+    @Test
+    public void shouldFailStartingReportingIfReportingHasAlreadyBeenStarted() {
+        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+        service.startReporting(result);
+        result = new HttpLocalizedOperationResult();
+        service.startReporting(result);
+
+        assertFalse(result.isSuccessful());
+        assertThat(result.message(), is("Cannot start usage statistics reporting as it is already in progress."));
+    }
+
+    @Test
+    public void shouldAllowStartingReportingAgainIfReportingHasAlreadyBeenStartedPriorToHalfAnHour() {
+        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+        service.startReporting(result);
+
+        clock.addSeconds(60 * 31);
+
+        result = new HttpLocalizedOperationResult();
+        service.startReporting(result);
+
+        assertTrue(result.isSuccessful());
+    }
+
+    @Test
+    public void shouldFailCompletingReportingIfReportingHasAlreadyBeenCompleted() {
+        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+        service.completeReporting(result);
+
+        assertFalse(result.isSuccessful());
+        assertThat(result.message(), is("Cannot complete usage statistics reporting as it has already completed."));
+    }
+}

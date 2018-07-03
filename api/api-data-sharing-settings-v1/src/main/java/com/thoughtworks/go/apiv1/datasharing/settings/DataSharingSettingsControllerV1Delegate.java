@@ -25,8 +25,8 @@ import com.thoughtworks.go.api.representers.JsonReader;
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
 import com.thoughtworks.go.api.util.GsonTransformer;
 import com.thoughtworks.go.apiv1.datasharing.settings.representers.DataSharingSettingsRepresenter;
-import com.thoughtworks.go.domain.DataSharingSettings;
-import com.thoughtworks.go.server.service.DataSharingService;
+import com.thoughtworks.go.server.domain.DataSharingSettings;
+import com.thoughtworks.go.server.service.DataSharingSettingsService;
 import com.thoughtworks.go.server.service.EntityHashingService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.spark.Routes.DataSharing;
@@ -42,17 +42,17 @@ import static spark.Spark.*;
 public class DataSharingSettingsControllerV1Delegate extends ApiController implements CrudController<DataSharingSettings> {
 
     private final ApiAuthenticationHelper apiAuthenticationHelper;
-    private final DataSharingService dataSharingService;
+    private final DataSharingSettingsService dataSharingSettingsService;
     private final EntityHashingService entityHashingService;
     private final TimeProvider timeProvider;
 
     public DataSharingSettingsControllerV1Delegate(ApiAuthenticationHelper apiAuthenticationHelper,
-                                                   DataSharingService dataSharingService,
+                                                   DataSharingSettingsService dataSharingSettingsService,
                                                    EntityHashingService entityHashingService,
                                                    TimeProvider timeProvider) {
         super(ApiVersion.v1);
         this.apiAuthenticationHelper = apiAuthenticationHelper;
-        this.dataSharingService = dataSharingService;
+        this.dataSharingSettingsService = dataSharingSettingsService;
         this.entityHashingService = entityHashingService;
         this.timeProvider = timeProvider;
     }
@@ -84,18 +84,18 @@ public class DataSharingSettingsControllerV1Delegate extends ApiController imple
     }
 
     public String getDataSharingSettings(Request request, Response response) {
-        DataSharingSettings dataSharingSettings = dataSharingService.getDataSharingSettings();
+        DataSharingSettings dataSharingSettings = dataSharingSettingsService.get();
         setEtagHeader(response, etagFor(dataSharingSettings));
         return jsonize(request, dataSharingSettings);
     }
 
     public String patchDataSharingSettings(Request request, Response response) throws Exception {
-        if (!isPutRequestFresh(request, dataSharingService.getDataSharingSettings())) {
+        if (!isPutRequestFresh(request, dataSharingSettingsService.get())) {
             throw haltBecauseEtagDoesNotMatch();
         }
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        dataSharingService.updateDataSharingSettings(getEntityFromRequestBody(request));
-        return handleCreateOrUpdateResponse(request, response, dataSharingService.getDataSharingSettings(), result);
+        dataSharingSettingsService.createOrUpdate(getEntityFromRequestBody(request));
+        return handleCreateOrUpdateResponse(request, response, dataSharingSettingsService.get(), result);
     }
 
     @Override
@@ -111,7 +111,7 @@ public class DataSharingSettingsControllerV1Delegate extends ApiController imple
     @Override
     public DataSharingSettings getEntityFromRequestBody(Request request) {
         JsonReader jsonReader = GsonTransformer.getInstance().jsonReaderFrom(request.body());
-        return DataSharingSettingsRepresenter.fromJSON(jsonReader, currentUsername(), timeProvider, dataSharingService.getDataSharingSettings());
+        return DataSharingSettingsRepresenter.fromJSON(jsonReader, currentUsername(), timeProvider, dataSharingSettingsService.get());
     }
 
     @Override

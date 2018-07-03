@@ -15,8 +15,9 @@
  */
 
 describe('Data Sharing Usage Data', () => {
-  const UsageData               = require('models/data_sharing_settings/usage_data');
-  const dataSharingUsageDataURL = '/go/api/internal/data_sharing/usagedata';
+  const UsageData                        = require('models/shared/data_sharing/usage_data');
+  const dataSharingUsageDataURL          = '/go/api/internal/data_sharing/usagedata';
+  const dataSharingEncryptedUsageDataURL = '/go/api/internal/data_sharing/usagedata/encrypted';
 
   const dataSharingUsageJSON = {
     "_embedded": {
@@ -56,6 +57,27 @@ describe('Data Sharing Usage Data', () => {
       });
 
       UsageData.get().then(successCallback);
+      expect(successCallback).toHaveBeenCalled();
+    });
+  });
+
+  it('should fetch data sharing encrypted usage data', () => {
+    const encryptedData = "Something really secret";
+
+    jasmine.Ajax.withMock(() => {
+      jasmine.Ajax.stubRequest(dataSharingEncryptedUsageDataURL).andReturn({
+        responseText:    encryptedData,
+        status:          200,
+        responseHeaders: {
+          'Content-Type': 'application/octet-stream'
+        }
+      });
+
+      const successCallback = jasmine.createSpy().and.callFake((data) => {
+        expect(data).toBe(encryptedData);
+      });
+
+      UsageData.getEncrypted().then(successCallback);
       expect(successCallback).toHaveBeenCalled();
     });
   });

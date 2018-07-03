@@ -18,9 +18,8 @@
 
   const m      = require("mithril");
   const Stream = require("mithril/stream");
-  const $      = require("jquery");
+  const f      = require("helpers/form_helper");
 
-  const f                             = require("helpers/form_helper");
   const EmailSettingsWidget           = require("views/preferences/email_settings_widget");
   const NotificationFiltersListWidget = require("views/preferences/notification_filters_list_widget");
   const AddNotificationFilterWidget   = require("views/preferences/add_notification_filter_widget");
@@ -28,7 +27,6 @@
   const EmailSettings       = require("models/preferences/email_settings");
   const NotificationFilters = require("models/preferences/notification_filters");
   const Pipelines           = require("models/preferences/pipelines");
-  const VersionUpdater      = require('models/shared/version_updater');
 
   function dataAttr(node, name) {
     return node.getAttribute(`data-${name}`);
@@ -76,11 +74,6 @@
         ];
       }
     });
-
-    // boilerplate to init menus and check for updates
-    $(document).foundation();
-    require('helpers/server_health_messages_helper');
-    new VersionUpdater().update();
   });
 
 })();

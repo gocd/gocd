@@ -14,10 +14,17 @@
  * limitations under the License.
  */
 
-const $                    = require('jquery');
-const m                    = require('mithril');
-const ArtifactStoresWidget = require('views/artifact_stores/artifact_stores_widget');
+const $                 = require('jquery');
+const VersionUpdater    = require('models/shared/version_updater');
+const UsageDataReporter = require('models/shared/usage_data_reporter');
 
+require('foundation-sites');
+require('helpers/server_health_messages_helper');
+
+// boilerplate to init menus and check for updates
 $(() => {
-  m.mount($("#artifact-stores").get(0), ArtifactStoresWidget);
+  $(document).foundation();
+
+  new VersionUpdater().update();
+  new UsageDataReporter().report();
 });

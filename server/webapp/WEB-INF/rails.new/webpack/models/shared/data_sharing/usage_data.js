@@ -41,4 +41,11 @@ UsageData.get = () => {
   });
 };
 
+UsageData.getEncrypted = () => {
+	return AjaxHelper.GET({
+		url:        SparkRoutes.DataSharingUsageDataEncryptedPath(),
+		apiVersion: UsageData.API_VERSION
+	});
+};
+
 module.exports = UsageData;

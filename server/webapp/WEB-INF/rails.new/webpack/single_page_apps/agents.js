@@ -21,20 +21,14 @@ const Agents         = require('models/agents/agents');
 const AgentsWidget   = require('views/agents/agents_widget');
 const AgentsVM       = require('views/agents/models/agents_widget_view_model');
 const RouteHandler   = require('views/agents/models/route_handler');
-const VersionUpdater = require('models/shared/version_updater');
 const PluginInfos    = require('models/shared/plugin_infos');
 const AjaxPoller     = require('helpers/ajax_poller');
 
-require('foundation-sites');
-require('helpers/server_health_messages_helper');
 $(() => {
-  new VersionUpdater().update();
   const $agentElem = $('#agents');
 
   const isUserAdmin             = JSON.parse($agentElem.attr('data-is-current-user-an-admin'));
   const shouldShowAnalyticsIcon = JSON.parse($agentElem.attr('data-should-show-analytics-icon'));
-
-  $(document).foundation();
 
   function createRepeater() {
     return new AjaxPoller((xhrCB) => Agents.all(xhrCB)

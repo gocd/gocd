@@ -30,14 +30,16 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import static org.hamcrest.CoreMatchers.hasItems;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
-public class WebpackAssetServiceTest {
+public class WebpackAssetsServiceTest {
 
     @Rule
     public final TemporaryFolder tempFolder = new TemporaryFolder();
@@ -75,6 +77,17 @@ public class WebpackAssetServiceTest {
 
         List<String> assetPaths = webpackAssetsService.getAssetPaths("single_page_apps/agents");
         assertThat(assetPaths, hasItems("/go/assets/webpack/vendor-and-helpers.chunk.js", "/go/assets/webpack/single_page_apps/agents.js"));
+    }
+
+    @Test
+    public void shouldGetAllAssetPathsFromManifestJson() throws IOException {
+        try (InputStream is = getClass().getResourceAsStream("/com/thoughtworks/go/server/service/webpackassetstest/good-manifest.json")) {
+            FileUtils.copyInputStreamToFile(is, manifestFile);
+        }
+
+        Set<String> assetPaths = webpackAssetsService.getAssetPathsFor("single_page_apps/agents", "single_page_apps/new_dashboard");
+        assertThat(assetPaths.size(), is(3));
+        assertThat(assetPaths, hasItems("/go/assets/webpack/vendor-and-helpers.chunk.js", "/go/assets/webpack/single_page_apps/agents.js", "/go/assets/webpack/single_page_apps/new_dashboard.js"));
     }
 
     @Test

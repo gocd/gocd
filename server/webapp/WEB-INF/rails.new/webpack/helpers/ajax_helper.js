@@ -56,16 +56,16 @@ module.exports = class AjaxHelper {
     return makeRequest({method: 'GET', url, apiVersion, type, timeout});
   }
 
-  static PUT({url, apiVersion, timeout = mrequest.timeout, payload}) {
-    return makeRequest({method: 'PUT', url, apiVersion, timeout, payload, contentType: 'application/json'});
+  static PUT({url, apiVersion, timeout = mrequest.timeout, payload, contentType = 'application/json'}) {
+    return makeRequest({method: 'PUT', url, apiVersion, timeout, payload, contentType});
   }
 
-  static POST({url, apiVersion, timeout = mrequest.timeout, payload}) {
-    return makeRequest({method: 'POST', url, apiVersion, timeout, payload, contentType: 'application/json'});
+  static POST({url, apiVersion, timeout = mrequest.timeout, payload, type, contentType = 'application/json'}) {
+    return makeRequest({method: 'POST', url, apiVersion, timeout, type, payload, contentType});
   }
 
-  static PATCH({url, apiVersion, timeout = mrequest.timeout, payload, type, etag}) {
-    return makeRequest({method: 'PATCH', url, apiVersion, timeout, payload, type, etag, contentType: 'application/json'});
+  static PATCH({url, apiVersion, timeout = mrequest.timeout, payload, type, etag, contentType = 'application/json'}) {
+    return makeRequest({method: 'PATCH', url, apiVersion, timeout, payload, type, etag, contentType});
   }
 };
 

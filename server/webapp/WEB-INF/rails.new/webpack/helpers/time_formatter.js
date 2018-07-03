@@ -22,7 +22,6 @@ const moment    = require("moment");
 require('babel-polyfill');
 
 const LRUMap = require('lru_map').LRUMap;
-
 require("moment-duration-format");
 
 const utcOffsetInMinutes = parseInt(CONSTANTS.SERVER_TIMEZONE_UTC_OFFSET) / 60000;

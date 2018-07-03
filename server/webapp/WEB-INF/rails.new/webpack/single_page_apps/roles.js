@@ -19,12 +19,8 @@ const Stream         = require('mithril/stream');
 const RolesWidget    = require('views/roles/roles_widget');
 const PluginInfos    = require('models/shared/plugin_infos');
 const AuthConfigs    = require('models/auth_configs/auth_configs');
-const VersionUpdater = require('models/shared/version_updater');
-require('foundation-sites');
-require('helpers/server_health_messages_helper');
-$(() => {
-  new VersionUpdater().update();
 
+$(() => {
   Promise.all([PluginInfos.all(null, {type: 'authorization'}), AuthConfigs.all()]).then((args) => {
 
     let authorizationPluginInfos = args[0];
@@ -37,8 +33,6 @@ $(() => {
       allAuthConfigs:               Stream(args[1]),
       authConfigsOfInstalledPlugin: Stream(authConfigsOfInstalledPlugin)
     }));
-
-    $(document).foundation();
   });
 
 });

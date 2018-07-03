@@ -26,9 +26,7 @@ import org.springframework.web.context.ServletContextAware;
 import javax.servlet.ServletContext;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
@@ -58,6 +56,16 @@ public class WebpackAssetsService implements ServletContextAware {
         for (String asset : assets) {
             String format = String.format("/go/assets/webpack/%s", asset);
             result.add(format);
+        }
+
+        return result;
+    }
+
+    public Set<String> getAssetPathsFor(String... assetNames) throws IOException {
+        HashSet<String> result = new HashSet<>();
+
+        for (String asset : assetNames) {
+            result.addAll(getAssetPaths(asset));
         }
 
         return result;

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,6 +25,7 @@ import com.thoughtworks.go.server.newsecurity.utils.SessionUtils;
 import com.thoughtworks.go.server.security.GoAuthority;
 import com.thoughtworks.go.server.service.RailsAssetsService;
 import com.thoughtworks.go.server.service.VersionInfoService;
+import com.thoughtworks.go.server.service.WebpackAssetsService;
 import com.thoughtworks.go.server.service.plugins.builder.DefaultPluginInfoFinder;
 import com.thoughtworks.go.server.service.support.toggle.Toggles;
 import com.thoughtworks.go.util.SystemEnvironment;
@@ -60,6 +61,7 @@ public class GoVelocityView extends VelocityToolboxView {
     public static final String GO_UPDATE_CHECK_ENABLED = "goUpdateCheckEnabled";
     public static final String SUPPORTS_ANALYTICS_DASHBOARD = "supportsAnalyticsDashboard";
     public static final String ARTIFACT_STORES_ENABLED = "artifactStoresEnabled";
+    public static final String WEBPACK_ASSETS_SERVICE = "webpackAssetsService";
 
     private final SystemEnvironment systemEnvironment;
 
@@ -73,6 +75,10 @@ public class GoVelocityView extends VelocityToolboxView {
 
     RailsAssetsService getRailsAssetsService() {
         return this.getApplicationContext().getAutowireCapableBeanFactory().getBean(RailsAssetsService.class);
+    }
+
+    WebpackAssetsService webpackAssetsService() {
+        return this.getApplicationContext().getAutowireCapableBeanFactory().getBean(WebpackAssetsService.class);
     }
 
     VersionInfoService getVersionInfoService() {
@@ -113,7 +119,7 @@ public class GoVelocityView extends VelocityToolboxView {
 
         velocityContext.put(SUPPORTS_ANALYTICS_DASHBOARD, supportsAnalyticsDashboard());
         velocityContext.put(ARTIFACT_STORES_ENABLED, artifactStoresEnabled());
-
+        velocityContext.put(WEBPACK_ASSETS_SERVICE, webpackAssetsService());
         if (!SessionUtils.hasAuthenticationToken(request)) {
             return;
         }

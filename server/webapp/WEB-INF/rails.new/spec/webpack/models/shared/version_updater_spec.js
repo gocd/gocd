@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -142,6 +142,48 @@ describe("VersionUpdater", () => {
         expect(request.requestHeaders['Content-Type']).toContain('application/json');
         expect(request.requestHeaders['Accept']).toContain('application/vnd.go.cd.v1+json');
         expect(localStorage.getItem('versionCheckInfo')).toEqual('{"last_updated_at":123}');
+      });
+    });
+
+    it('should post update check message in localstorage if an update is available', () => {
+      jasmine.Ajax.withMock(() => {
+        jasmine.Ajax.stubRequest('/go/api/version_infos/stale', undefined, 'GET').andReturn({
+          responseText: JSON.stringify({'update_server_url': 'update.server.url'}),
+          status:       200
+        });
+
+        jasmine.Ajax.stubRequest('update.server.url', undefined, 'GET').andReturn({
+          responseText: JSON.stringify({}),
+          status:       200
+        });
+
+        jasmine.Ajax.stubRequest('/go/api/version_infos/go_server', undefined, 'PATCH').andReturn({
+            responseText: JSON.stringify({}),
+            headers:      {
+                'Content-Type': `application/vnd.go.cd.v1+json`
+            },
+            status:       200
+        });
+
+        jasmine.Ajax.stubRequest('/go/api/version_infos/latest_version', undefined, 'GET').andReturn({
+            responseText: JSON.stringify({'latest_version': "18.7.0-1234"}),
+            status:       200
+        });
+
+        new VersionUpdater().update();
+
+        const request = jasmine.Ajax.requests.at(3);
+        expect(request.method).toBe('GET');
+        expect(request.url).toBe('/go/api/version_infos/latest_version');
+        expect(request.requestHeaders['Accept']).toContain('application/vnd.go.cd.v1+json');
+        const notifications = JSON.parse(localStorage.getItem('system_notifications'));
+        expect(notifications.length).toBe(1);
+        expect(notifications[0].message).toBe("A new version of GoCD - 18.7.0-1234 is available.");
+        expect(notifications[0].type).toBe("UpdateCheck");
+        expect(notifications[0].link).toBe("https://www.gocd.org/download/");
+        expect(notifications[0].linkText).toBe("Learn more ...");
+        expect(notifications[0].read).toBe(false);
+        expect(notifications[0].id).not.toBeUndefined();
       });
     });
   });

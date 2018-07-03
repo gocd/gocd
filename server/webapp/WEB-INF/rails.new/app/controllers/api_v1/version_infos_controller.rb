@@ -1,5 +1,5 @@
 ##########################################################################
-# Copyright 2015 ThoughtWorks, Inc.
+# Copyright 2018 ThoughtWorks, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
 
 module ApiV1
   class VersionInfosController < ApiV1::BaseController
-    before_action :check_user_and_404, :only => [:update_server, :stale]
+    before_action :check_user_and_404
 
     def update_server
       go_latest_version = ApiV1::GoLatestVersion.new(params, system_environment)
@@ -39,6 +39,11 @@ module ApiV1
       version_info = version_info_service.getStaleVersionInfo()
 
       render DEFAULT_FORMAT => to_json_hal(version_info)
+    end
+
+    def latest_version
+      latest_version = version_info_service.getGoUpdate()
+      render DEFAULT_FORMAT => latest_version.nil? ? {} : {latest_version: latest_version}
     end
 
     private

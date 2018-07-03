@@ -1,5 +1,5 @@
-/*
- * Copyright 2017 ThoughtWorks, Inc.
+/*!
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,13 +29,14 @@
     padding-top: 5px;
   }
 
-  .hover {
+  .notification-hover {
     position:           relative;
     background:         #fff;
     color:              #000;
-    padding:            10px;
+    padding:            20px 20px 10px;
     border-radius:      5px;
-    width:              296px;
+    width:              300px;
+    box-sizing:         border-box;
     font-size:          13px;
     box-shadow:         3px 3px 5px 0 rgba(0, 0, 0, 0.2);
     &:after {
@@ -57,6 +58,32 @@
       font-size: 13px;
     }
 
+    p {
+      border-top:     1px dotted #ccc;
+      padding:        5px 25px 5px 0;
+      margin-bottom:  0;
+      position:       relative;
+      line-height:    20.8px;
+      &:first-child {
+        border: 0;
+      }
+    }
+    .close {
+      width:          17px;
+      height:         17px;
+      line-height:    17px;
+      border-radius:  50%;
+      background:     #e0dede;
+      display:        inline-block;
+      text-align:     center;
+      font-weight:    700;
+      font-size:      10px;
+      position:       absolute;
+      right:          0;
+      top:            50%;
+      transform:      translateY(-50%);
+      cursor:         pointer;
+    }
   }
   &:hover {
     .hover-container {
@@ -68,6 +95,13 @@
     @include icon-before(bell-o, $color: #fff);
     font-size: 18px;
   }
+}
+
+.system-notifications {
+  width:    100px;
+  height:   40px;
+  position: relative;
+  float:    right;
 }
 
 .top-bar .menu .notifications {

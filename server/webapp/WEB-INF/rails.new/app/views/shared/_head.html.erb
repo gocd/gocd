@@ -7,6 +7,11 @@
 <%= stylesheet_link_tag "new-theme", {media: "all", debug: Rails.env.development? && params[:debug_assets]} %>
 
 <%= javascript_include_tag "application", debug: Rails.env.development? && params[:debug_assets] %>
+
+<%- unless(Rails.env.test?) %>
+  <%= javascript_include_tag *webpack_assets_service.getAssetPaths("single_page_apps/notification_center") %>
+<%- end %>
+
 <![if !IE]>
     <%= javascript_include_tag 'lib/d3-3.1.5.min' %>
 <![endif]>

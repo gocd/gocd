@@ -63,16 +63,8 @@
           </li>
         #end
       </ul>
-      #if(${goUpdateCheckEnabled} && ${goUpdate})
-      <div class="notifications">
-        <span class="bell"></span>
-        <div class="hover-container">
-          <div class="hover">
-            <span>A new release of GoCD - <a href="https://www.gocd.org/download/" target="_blank">${goUpdate}</a> is available.</span>
-          </div>
-        </div>
-      </div>
-      #end
+
+      <div id="system-notifications" class="system-notifications"></div>
     </div>
   </div>
 </div>

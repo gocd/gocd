@@ -25,13 +25,16 @@ import com.thoughtworks.go.server.service.PipelineService;
 import com.thoughtworks.go.server.service.PropertiesService;
 import com.thoughtworks.go.server.service.RestfulService;
 import com.thoughtworks.go.util.SystemEnvironment;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.HandlerMapping;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
@@ -42,16 +45,15 @@ import static com.thoughtworks.go.server.controller.actions.BasicRestfulAction.n
 
 @Controller
 public class PropertiesController {
-    private final PropertiesService propertyService;
-    private final RestfulService restfulService;
-    private final PipelineService pipelineService;
-    private HeaderConstraint headerConstraint;
-    private static final Logger LOGGER = LoggerFactory.getLogger(PropertiesController.class);
-
     public static final String INVALID_VALUE =
             "Unable to set property with invalid characters (must be numbers, letters, or _ - . /) or a valid URI";
     public static final String VALUE_TOO_LONG = "Unable to set property with value larger than 255 characters.";
     public static final String NAME_TOO_LONG = "Unable to set property with key larger than 255 characters.";
+    private static final Logger LOGGER = LoggerFactory.getLogger(PropertiesController.class);
+    private final PropertiesService propertyService;
+    private final RestfulService restfulService;
+    private final PipelineService pipelineService;
+    private HeaderConstraint headerConstraint;
 
     @Autowired
     public PropertiesController(PropertiesService propertyService, RestfulService restfulService,
@@ -62,16 +64,19 @@ public class PropertiesController {
         this.headerConstraint = new HeaderConstraint(systemEnvironment);
     }
 
-    @RequestMapping(value = "/repository/restful/properties/post", method = RequestMethod.POST)
-    public void setProperty(@RequestParam("pipelineName") String pipelineName,
-                            @RequestParam("pipelineLabel") String pipelineLabel,
-                            @RequestParam("stageName") String stageName,
-                            @RequestParam("stageCounter") String stageCounter,
-                            @RequestParam("jobName") String buildName,
-                            @RequestParam("property") String property,
+    @RequestMapping(value = {
+            "/properties/{pipelineName}/{pipelineLabel}/{stageName}/{stageCounter}/{jobName}/*",
+            "/properties/{pipelineName}/{pipelineLabel}/{stageName}/{stageCounter}/{jobName}/**"
+    }, method = RequestMethod.POST)
+    public void setProperty(@PathVariable("pipelineName") String pipelineName,
+                            @PathVariable("pipelineLabel") String pipelineLabel,
+                            @PathVariable("stageName") String stageName,
+                            @PathVariable("stageCounter") String stageCounter,
+                            @PathVariable("jobName") String buildName,
                             @RequestParam("value") String value,
                             HttpServletResponse response, HttpServletRequest request) throws Exception {
 
+        String property = (String) request.getAttribute(HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE);
         if (!headerConstraint.isSatisfied(request)) {
             response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Missing required header 'Confirm'");
             return;
@@ -89,7 +94,7 @@ public class PropertiesController {
         propertyService.addProperty(id, property, value).respond(response);
     }
 
-    @RequestMapping("/repository/restful/properties/jobs/search")
+    @RequestMapping("/properties/search")
     public ModelAndView jobsSearch(@RequestParam("pipelineName") String pipelineName,
                                    @RequestParam("stageName") String stageName,
                                    @RequestParam("jobName") String jobName,
@@ -126,26 +131,26 @@ public class PropertiesController {
         }
     }
 
-    @RequestMapping("/repository/restful/properties/job/search")
-    public ModelAndView jobSearch(
-            @RequestParam("pipelineName") String pipelineName,
-            @RequestParam("pipelineLabel") String pipelineLabel,
-            @RequestParam("stageName") String stageName,
-            @RequestParam("stageCounter") String stageCounter,
-            @RequestParam("jobName") String buildName,
+    @RequestMapping(value = {
+            "/properties/{pipelineName}/{pipelineLabel}/{stageName}/{stageCounter}/{jobName}",
+            "/properties/{pipelineName}/{pipelineLabel}/{stageName}/{stageCounter}/{jobName}/*",
+            "/properties/{pipelineName}/{pipelineLabel}/{stageName}/{stageCounter}/{jobName}/**"})
+    public ModelAndView getProperties(
+            @PathVariable("pipelineName") String pipelineName,
+            @PathVariable("pipelineLabel") String pipelineLabel,
+            @PathVariable("stageName") String stageName,
+            @PathVariable("stageCounter") String stageCounter,
+            @PathVariable("jobName") String buildName,
             @RequestParam(value = "type", required = false) String type,
-            @RequestParam(value = "property", required = false) String propertyKey,
-            HttpServletResponse response) throws Exception {
+            HttpServletRequest request, HttpServletResponse response) throws Exception {
         JobIdentifier jobIdentifier;
+        String propertyKey = StringUtils.stripToNull((String) request.getAttribute(HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE));
         try {
-            jobIdentifier = restfulService.findJob(pipelineName, pipelineLabel, stageName,
-                    stageCounter, buildName);
+            jobIdentifier = restfulService.findJob(pipelineName, pipelineLabel, stageName, stageCounter, buildName);
             return propertyService.listPropertiesForJob(jobIdentifier, type, propertyKey).respond(response);
         } catch (Exception e) {
             return BasicRestfulAction.jobNotFound(new JobIdentifier(pipelineName, -1, pipelineLabel,
-                    stageName, stageCounter,
-                    buildName)).respond(response);
+                    stageName, stageCounter, buildName)).respond(response);
         }
     }
-
 }

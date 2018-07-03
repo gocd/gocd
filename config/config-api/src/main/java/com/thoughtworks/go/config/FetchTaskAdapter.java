@@ -318,4 +318,8 @@ public class FetchTaskAdapter implements Task {
             setterForGocdArtifact.accept(value);
         }
     }
+
+    public String getConditionsForDisplay() {
+        return isExternal() ? fetchPluggableArtifactTask.getConditionsForDisplay() : fetchTask.getConditionsForDisplay();
+    }
 }

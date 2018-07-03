@@ -22,7 +22,22 @@
 @import 'shared/action_buttons';
 
 .main-container {
-  padding: 30px 15px 0 15px;
+  padding: 60px 15px 0 15px;
+}
+
+.data-sharing {
+  background:    #fff;
+  border-radius: 5px;
+  padding:       20px;
+}
+
+.share-box {
+  display:       flex;
+  margin:        30px 0;
+}
+
+.show-data {
+  margin-left:   30px;
 }
 
 .updated-by {
@@ -42,7 +57,6 @@
 }
 
 .consent-toggle-wrapper {
-  margin:        30px 0;
   border:        1px solid #ccc;
   width:         750px;
   border-radius: 3px;
@@ -95,7 +109,7 @@
   font-size:        13px;
   color:            #fff;
   font-weight:      400;
-  padding:          10px 0 10px 25px;
+  padding:          10px 25px;
   font-family:      monaco, serif;
   margin-bottom:    15px;
 }

@@ -70,16 +70,18 @@ const DataSharingSettingsWidget = {
 
     return (<div>
       <HeaderPanel title="Help improve GoCD by sharing technical data"/>
-      <div class="main-container">
-        {flashMessage}
-        <ConsentInformationWidget/>
-        <ToggleConsentWidget settings={settings}/>
-        <DataCollectedByGoCDWidget settings={settings} usageData={vnode.attrs.usageData}/>
-        <div class="button-wrapper">
-          <f.button class="update-consent" onclick={vnode.state.save.bind(this, settings)}>Save</f.button>
-          <f.button class="reset-consent" onclick={vnode.state.reset.bind(this, settings)}>Reset</f.button>
+        <div class="data-sharing">
+            {flashMessage}
+            <ConsentInformationWidget/>
+            <div class="share-box">
+                <ToggleConsentWidget settings={settings}/>
+                <DataCollectedByGoCDWidget settings={settings} usageData={vnode.attrs.usageData}/>
+            </div>
+            <div class="button-wrapper">
+                <f.button class="update-consent" onclick={vnode.state.save.bind(this, settings)}>Save</f.button>
+                <f.button class="reset-consent" onclick={vnode.state.reset.bind(this, settings)}>Reset</f.button>
+            </div>
         </div>
-      </div>
     </div>);
   }
 };

@@ -20,7 +20,7 @@ const DataCollectedByGoCDWidget = {
   view(vnode) {
     const msg = vnode.attrs.settings.allowed() ? 'Data that will be sent:' : 'Data that would have been sent, if allowed:';
 
-    return <div>
+    return <div class="show-data">
       <p class="data-share-message">{msg}</p>
       <div class="shared-data">{vnode.attrs.usageData.represent()}</div>
     </div>;

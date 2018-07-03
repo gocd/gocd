@@ -21,7 +21,7 @@ import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.elastic.ElasticProfile;
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
-import com.thoughtworks.go.domain.DataSharingSettings;
+import com.thoughtworks.go.server.domain.DataSharingSettings;
 import com.thoughtworks.go.domain.UsageStatisticsReporting;
 import com.thoughtworks.go.domain.packagerepository.PackageDefinition;
 import com.thoughtworks.go.domain.packagerepository.PackageRepository;

@@ -17,14 +17,13 @@
 package com.thoughtworks.go.apiv1.datasharing.settings.representers
 
 import com.thoughtworks.go.api.util.GsonTransformer
-import com.thoughtworks.go.domain.DataSharingSettings
+import com.thoughtworks.go.server.domain.DataSharingSettings
 import com.thoughtworks.go.server.domain.Username
 import com.thoughtworks.go.util.TimeProvider
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.mockito.Mock
 
-import java.sql.Time
 import java.sql.Timestamp
 
 import static com.thoughtworks.go.api.base.JsonOutputWriter.jsonDate

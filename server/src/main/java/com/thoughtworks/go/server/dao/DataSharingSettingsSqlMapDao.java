@@ -16,7 +16,7 @@
 
 package com.thoughtworks.go.server.dao;
 
-import com.thoughtworks.go.domain.DataSharingSettings;
+import com.thoughtworks.go.server.domain.DataSharingSettings;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;

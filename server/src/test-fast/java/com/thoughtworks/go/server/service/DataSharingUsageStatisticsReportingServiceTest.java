@@ -16,7 +16,7 @@
 
 package com.thoughtworks.go.server.service;
 
-import com.thoughtworks.go.domain.DataSharingSettings;
+import com.thoughtworks.go.server.domain.DataSharingSettings;
 import com.thoughtworks.go.domain.UsageStatisticsReporting;
 import com.thoughtworks.go.server.dao.UsageStatisticsReportingSqlMapDao;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;

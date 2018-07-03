@@ -18,7 +18,7 @@ package com.thoughtworks.go.apiv1.datasharing.settings.representers;
 
 import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.api.representers.JsonReader;
-import com.thoughtworks.go.domain.DataSharingSettings;
+import com.thoughtworks.go.server.domain.DataSharingSettings;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.spark.Routes.DataSharing;
 import com.thoughtworks.go.util.TimeProvider;

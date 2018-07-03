@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.domain;
+package com.thoughtworks.go.server.domain;
 
 import java.sql.Timestamp;
 import java.util.Date;
 import java.util.Objects;
 
-public class DataSharingSettings extends PersistentObject {
+public class DataSharingSettings extends com.thoughtworks.go.domain.PersistentObject {
     private boolean allowSharing = true;
     private String updatedBy;
     private Timestamp updatedOn;

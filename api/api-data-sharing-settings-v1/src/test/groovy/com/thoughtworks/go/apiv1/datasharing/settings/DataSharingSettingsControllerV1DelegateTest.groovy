@@ -19,7 +19,7 @@ package com.thoughtworks.go.apiv1.datasharing.settings
 import com.thoughtworks.go.api.SecurityTestTrait
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
 import com.thoughtworks.go.apiv1.datasharing.settings.representers.DataSharingSettingsRepresenter
-import com.thoughtworks.go.domain.DataSharingSettings
+import com.thoughtworks.go.server.domain.DataSharingSettings
 import com.thoughtworks.go.server.service.DataSharingSettingsService
 import com.thoughtworks.go.server.service.EntityHashingService
 import com.thoughtworks.go.spark.AdminUserSecurity

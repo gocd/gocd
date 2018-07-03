@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.domain;
+package com.thoughtworks.go.server.domain;
 
 import org.junit.jupiter.api.Test;
 
@@ -26,7 +26,7 @@ import static org.hamcrest.Matchers.not;
 
 class DataSharingSettingsTest {
     @Test
-    void shouldCopyDataSharingAttributesFromProvidedObject() {
+    public void shouldCopyDataSharingAttributesFromProvidedObject() {
         Date currentUpdatedOn = new Date();
         currentUpdatedOn.setTime(currentUpdatedOn.getTime() - 10000);
 
@@ -45,7 +45,7 @@ class DataSharingSettingsTest {
     }
 
     @Test
-    void shouldNotCopyPersistentObjectIdWhileCopying() {
+    public void shouldNotCopyPersistentObjectIdWhileCopying() {
         DataSharingSettings current = new DataSharingSettings();
         current.setId(1);
         DataSharingSettings latest = new DataSharingSettings();

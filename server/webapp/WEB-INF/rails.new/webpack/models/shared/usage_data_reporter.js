@@ -20,7 +20,7 @@ const AjaxHelper = require('helpers/ajax_helper');
 const UsageData     = require('models/shared/data_sharing/usage_data');
 const DataReporting = require('models/shared/data_sharing/data_reporting');
 
-const USAGE_DATA_LAST_REPORTED_TIME_KEY = "usage_data_last_reported_time";
+const USAGE_DATA_LAST_REPORTED_TIME_KEY = "last_usage_data_reporting_check_time";
 
 const reportToGoCDDataSharingServer = function (url, data) {
   return AjaxHelper.POST({url, data, contentType: 'application/octet-stream'});

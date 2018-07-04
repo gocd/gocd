@@ -16,14 +16,13 @@
 
 package com.thoughtworks.go.server.service;
 
-import com.thoughtworks.go.config.AgentConfig;
-import com.thoughtworks.go.config.Agents;
-import com.thoughtworks.go.config.PipelineConfig;
+import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.elastic.ElasticProfile;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.helper.AgentMother;
 import com.thoughtworks.go.helper.JobConfigMother;
 import com.thoughtworks.go.helper.PipelineConfigMother;
+import com.thoughtworks.go.helper.StageConfigMother;
 import com.thoughtworks.go.server.domain.ElasticAgentMetadata;
 import com.thoughtworks.go.server.service.builders.BuilderFactory;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
@@ -36,6 +35,7 @@ import org.mockito.Mock;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.UUID;
 
 import static org.hamcrest.Matchers.is;
@@ -70,7 +70,8 @@ public class BuildAssignmentServiceTest {
     @Mock
     private AgentService agentService;
     private BuildAssignmentService buildAssignmentService;
-    @Mock private TransactionTemplate transactionTemplate;
+    @Mock
+    private TransactionTemplate transactionTemplate;
     private SchedulingContext schedulingContext;
     private ArrayList<JobPlan> jobPlans;
     private AgentConfig elasticAgent;
@@ -146,7 +147,7 @@ public class BuildAssignmentServiceTest {
     }
 
     @Test
-    public void shouldMatchNonElasticJobToNonElasticAgentIfResourcesMatch(){
+    public void shouldMatchNonElasticJobToNonElasticAgentIfResourcesMatch() {
         PipelineConfig pipeline = PipelineConfigMother.pipelineConfig(UUID.randomUUID().toString());
         pipeline.first().getJobs().add(JobConfigMother.jobWithNoResourceRequirement());
         pipeline.first().getJobs().add(JobConfigMother.elasticJob(elasticProfileId1));
@@ -162,4 +163,69 @@ public class BuildAssignmentServiceTest {
         verify(elasticAgentPluginService, never()).shouldAssignWork(any(ElasticAgentMetadata.class), any(String.class), any(ElasticProfile.class), any(JobIdentifier.class));
     }
 
+    @Test
+    public void shouldGetMismatchingJobPlansInCaseOfPipelineHasUpdated() {
+        StageConfig second = StageConfigMother.stageConfig("second");
+        second.getJobs().add(JobConfigMother.jobWithNoResourceRequirement());
+
+        PipelineConfig pipeline = PipelineConfigMother.pipelineConfig(UUID.randomUUID().toString());
+        pipeline.get(0).getJobs().add(JobConfigMother.jobWithNoResourceRequirement());
+        pipeline.add(second);
+
+        PipelineConfig irrelevantPipeline = PipelineConfigMother.pipelineConfig(UUID.randomUUID().toString());
+        irrelevantPipeline.get(0).getJobs().add(JobConfigMother.jobWithNoResourceRequirement());
+
+        JobPlan jobPlan1 = getJobPlan(pipeline.getName(), pipeline.get(0).name(), pipeline.get(0).getJobs().last());
+        JobPlan jobPlan2 = getJobPlan(pipeline.getName(), pipeline.get(1).name(), pipeline.get(1).getJobs().first());
+        JobPlan jobPlan3 = getJobPlan(irrelevantPipeline.getName(), irrelevantPipeline.get(0).name(), irrelevantPipeline.get(0).getJobs().first());
+
+        jobPlans.add(jobPlan1);
+        jobPlans.add(jobPlan2);
+        jobPlans.add(jobPlan3);
+
+        //delete a stage
+        pipeline.remove(1);
+
+        List<JobPlan> jobsToRemove = buildAssignmentService.getMismatchingJobPlansFromUpdatedPipeline(pipeline, jobPlans);
+
+        assertThat(jobsToRemove.size(), is(1));
+        assertThat(jobsToRemove.get(0), is(jobPlan2));
+    }
+
+    @Test
+    public void shouldGetMismatchingJobPlansInCaseOfPipelineHasBeenDeleted() {
+        StageConfig second = StageConfigMother.stageConfig("second");
+        second.getJobs().add(JobConfigMother.jobWithNoResourceRequirement());
+
+        PipelineConfig pipeline = PipelineConfigMother.pipelineConfig(UUID.randomUUID().toString());
+        pipeline.get(0).getJobs().add(JobConfigMother.jobWithNoResourceRequirement());
+        pipeline.add(second);
+
+        PipelineConfig irrelevantPipeline = PipelineConfigMother.pipelineConfig(UUID.randomUUID().toString());
+        irrelevantPipeline.get(0).getJobs().add(JobConfigMother.jobWithNoResourceRequirement());
+
+        JobPlan jobPlan1 = getJobPlan(pipeline.getName(), pipeline.get(0).name(), pipeline.get(0).getJobs().last());
+        JobPlan jobPlan2 = getJobPlan(pipeline.getName(), pipeline.get(1).name(), pipeline.get(1).getJobs().first());
+        JobPlan jobPlan3 = getJobPlan(irrelevantPipeline.getName(), irrelevantPipeline.get(0).name(), irrelevantPipeline.get(0).getJobs().first());
+
+        jobPlans.add(jobPlan1);
+        jobPlans.add(jobPlan2);
+        jobPlans.add(jobPlan3);
+
+        List<JobPlan> jobsToRemove = buildAssignmentService.getAllJobPlansFromDeletedPipeline(pipeline, jobPlans);
+
+        assertThat(jobsToRemove.size(), is(2));
+        assertThat(jobsToRemove.get(0), is(jobPlan1));
+        assertThat(jobsToRemove.get(1), is(jobPlan2));
+    }
+
+    private JobPlan getJobPlan(CaseInsensitiveString pipelineName, CaseInsensitiveString stageName, JobConfig job) {
+        JobPlan jobPlan = new InstanceFactory().createJobPlan(job, schedulingContext);
+
+        jobPlan.getIdentifier().setPipelineName(pipelineName.toString());
+        jobPlan.getIdentifier().setStageName(stageName.toString());
+        jobPlan.getIdentifier().setBuildName(job.name().toString());
+
+        return jobPlan;
+    }
 }

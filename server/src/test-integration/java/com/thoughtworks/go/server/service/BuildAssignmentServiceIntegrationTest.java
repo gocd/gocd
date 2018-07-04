@@ -703,6 +703,24 @@ public class BuildAssignmentServiceIntegrationTest {
     }
 
     @Test
+    public void shouldCancelAllScheduledJobsInCasePipelineHasBeenDeleted() throws Exception {
+        Material hgMaterial = new HgMaterial("url", "folder");
+        String[] hgRevs = new String[]{"h1"};
+        u.checkinInOrder(hgMaterial, hgRevs);
+
+        ScheduleTestUtil.AddedPipeline p1 = u.saveConfigWith("PIPELINE_WHICH_WILL_EVENTUALLY_WILL_BE_DELETED", u.m(hgMaterial));
+        BuildCause buildCause = BuildCause.createWithModifications(u.mrs(u.mr(u.m(hgMaterial).material, true, hgRevs)), "user");
+        Pipeline originalPipelineRun = scheduleService.schedulePipeline(p1.config.name(), buildCause);
+        pipelineConfigService.deletePipelineConfig(new Username("user"), p1.config, new HttpLocalizedOperationResult());
+
+        CruiseConfig cruiseConfig = configHelper.load();
+        buildAssignmentService.onTimer();   // To Reload Job Plans
+        buildAssignmentService.onConfigChange(cruiseConfig);
+        Stages allStages = stageDao.findAllStagesFor(originalPipelineRun.getName(), originalPipelineRun.getCounter());
+        assertThat(allStages.byName(CaseInsensitiveString.str(p1.config.first().name())).getState(), is(StageState.Cancelled));
+    }
+
+    @Test
     public void shouldNotCancelAScheduledJobInCaseThePipelineAndStageHaveBeenRenamedWithADifferentCase() throws Exception {
         Material hgMaterial = new HgMaterial("url", "folder");
         String[] hgRevs = new String[]{"h1"};
@@ -818,7 +836,6 @@ public class BuildAssignmentServiceIntegrationTest {
         assertThat("Should not assign work when agent status is Canceled", agent.messages.size(), is(0));
     }
 
-
     @Test
     public void shouldCallForReregisterIfAgentInstanceIsNotRegistered() throws Exception {
         AgentConfig agentConfig = AgentMother.remoteAgent();
@@ -876,5 +893,4 @@ public class BuildAssignmentServiceIntegrationTest {
     private JobInstance buildOf(Pipeline pipeline) {
         return pipeline.getStages().first().getJobInstances().first();
     }
-
 }

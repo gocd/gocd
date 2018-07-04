@@ -20,11 +20,23 @@ public class UsageStatistics {
     private final long pipelineCount;
     private final long agentCount;
     private final Long oldestPipelineExecutionTime;
+    private final String serverId;
+    private final String gocdVersion;
 
-    public UsageStatistics(Long pipelineCount, Long agentCount, Long oldestPipelineExecutionTime) {
+    public UsageStatistics(Long pipelineCount, Long agentCount, Long oldestPipelineExecutionTime, String serverId, String gocdVersion) {
         this.pipelineCount = pipelineCount;
         this.agentCount = agentCount;
         this.oldestPipelineExecutionTime = oldestPipelineExecutionTime != null ? oldestPipelineExecutionTime : 0l;
+        this.serverId = serverId;
+        this.gocdVersion = gocdVersion;
+    }
+
+    public String serverId() {
+        return serverId;
+    }
+
+    public String gocdVersion() {
+        return gocdVersion;
     }
 
     public long pipelineCount() {

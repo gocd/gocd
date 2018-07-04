@@ -49,20 +49,32 @@ const ToggleConsentWidget = {
 
       <div class="consent-for-wrapper">
         <div class="consent-for">
-          <span class="key">Number of pipelines:</span>
+          <span class="key">Number of pipelines (pipeline_count):</span>
           This allows the calculation of the average number of pipelines a GoCD instance has. Knowing the average number
           of pipelines helps us optimize the GoCD experience.
         </div>
         <div class="consent-for">
-          <span class="key">Number of agents:</span>
+          <span class="key">Number of agents (agent_count):</span>
           This allows the calculation of the average number of agents a GoCD instance has. This
           will help us ensure GoCD can handle a reasonable number of requests from the average number of agents.
         </div>
         <div class="consent-for">
-          <span class="key">Oldest pipeline run time:</span>
+          <span class="key">Oldest pipeline run time (oldest_pipeline_execution_time):</span>
           This provides data around the age of the GoCD instance.
           Along with the number of pipelines data point, it helps establish an expected growth in the number of pipelines.
           With performance related data which might be shared later (with your permission), this will help to see whether a GoCD instance becomes slower over time, as more pipelines and pipeline runs happen.
+        </div>
+        <div class="consent-for">
+          <span class="key">GoCD Version (gocd_version):</span>
+          This provides us the version of GoCD the server is on.
+        </div>
+        <div class="consent-for">
+          <span class="key">Server ID (server_id):</span>
+          An identifier for this instance of GoCD to help us correlate the data sent across.
+        </div>
+        <div class="consent-for">
+          <span class="key">Message Version (message_version):</span>
+          Schema version number for this message. This will help us with migrations should the message schema change in future.
         </div>
       </div>
     </div>;

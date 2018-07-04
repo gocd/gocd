@@ -26,32 +26,32 @@ class UsageStatisticsRepresenterTest {
 
   @Test
   void  "should represent usage statistics"() {
-    def actualJson = toObjectString({ UsageStatisticsRepresenter.toJSON(it, new UsageStatistics(100l, 10l, 1527244129553)) })
+    def actualJson = toObjectString({ UsageStatisticsRepresenter.toJSON(it, new UsageStatistics(100l, 10l, 1527244129553, "server-id", "18.7.0")) })
     def expectedJson = [
-      _links        : [
-        self: [href: 'http://test.host/go/api/internal/data_sharing/usagedata']
-      ],
-      "_embedded": [
-        pipeline_count:         100,
-        agent_count:       10,
-        oldest_pipeline_execution_time: 1527244129553
-      ]
+            "server_id"     : "server-id",
+            "message_version": 1,
+            "data"        : [
+                    pipeline_count                : 100,
+                    agent_count                   : 10,
+                    oldest_pipeline_execution_time: 1527244129553,
+                    gocd_version: "18.7.0"
+            ]
     ]
     assertThatJson(actualJson).isEqualTo(expectedJson)
   }
 
   @Test
   void  "should handle null oldest_pipeline_execution_time"() {
-    def actualJson = toObjectString({ UsageStatisticsRepresenter.toJSON(it, new UsageStatistics(100l, 10l, null)) })
+    def actualJson = toObjectString({ UsageStatisticsRepresenter.toJSON(it, new UsageStatistics(100l, 10l, null, "server-id", "18.7.0")) })
     def expectedJson = [
-      _links        : [
-        self: [href: 'http://test.host/go/api/internal/data_sharing/usagedata']
-      ],
-      "_embedded": [
-        pipeline_count:         100,
-        agent_count:       10,
-        oldest_pipeline_execution_time: 0
-      ]
+            "server_id"     : "server-id",
+            "message_version": 1,
+            "data"        : [
+                    pipeline_count                : 100,
+                    agent_count                   : 10,
+                    oldest_pipeline_execution_time: 0,
+                    gocd_version: "18.7.0"
+            ]
     ]
     assertThatJson(actualJson).isEqualTo(expectedJson)
   }

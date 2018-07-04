@@ -21,14 +21,17 @@ import com.thoughtworks.go.server.domain.UsageStatistics;
 import com.thoughtworks.go.spark.Routes.DataSharing;
 
 public class UsageStatisticsRepresenter {
+    private static final int MESSAGE_SCHEMA_VERSION = 1;
     public static void toJSON(OutputWriter outputWriter, UsageStatistics usageStatistics) {
         outputWriter
-                .addLinks(linksWriter -> linksWriter.addLink("self", DataSharing.USAGE_DATA_PATH))
-                .addChild("_embedded", childWriter -> {
+                .add("server_id", usageStatistics.serverId())
+                .add("message_version", MESSAGE_SCHEMA_VERSION)
+                .addChild("data", childWriter -> {
                     childWriter
                             .add("pipeline_count", usageStatistics.pipelineCount())
                             .add("agent_count", usageStatistics.agentCount())
-                            .add("oldest_pipeline_execution_time", usageStatistics.oldestPipelineExecutionTime());
+                            .add("oldest_pipeline_execution_time", usageStatistics.oldestPipelineExecutionTime())
+                            .add("gocd_version", usageStatistics.gocdVersion());
                 });
     }
 

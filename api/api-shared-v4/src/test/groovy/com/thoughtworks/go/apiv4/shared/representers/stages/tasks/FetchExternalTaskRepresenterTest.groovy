@@ -37,14 +37,14 @@ class FetchExternalTaskRepresenterTest implements TaskRepresenterTest{
     [
       type      : 'fetch',
       attributes: [
-        origin     : 'external',
-        pipeline   : 'pipeline',
-        stage      : 'stage',
-        job        : 'job',
-        artifact_id: 'yay',
-        configuration: [
+        artifact_origin: 'external',
+        pipeline       : 'pipeline',
+        stage          : 'stage',
+        job            : 'job',
+        artifact_id    : 'yay',
+        configuration  : [
           [
-            key: 'foo',
+            key  : 'foo',
             value: 'bar'
           ]
         ],
@@ -56,15 +56,15 @@ class FetchExternalTaskRepresenterTest implements TaskRepresenterTest{
     [
       type      : 'fetch',
       attributes: [
-        origin     : 'external',
-        run_if     : ['passed', 'failed', 'any'],
-        pipeline   : 'pipeline',
-        stage      : 'stage',
-        job        : 'job',
-        artifact_id: 'yay',
-        configuration: [
+        artifact_origin: 'external',
+        run_if         : ['passed', 'failed', 'any'],
+        pipeline       : 'pipeline',
+        stage          : 'stage',
+        job            : 'job',
+        artifact_id    : 'yay',
+        configuration  : [
           [
-            key: 'foo',
+            key  : 'foo',
             value: 'bar'
           ]
         ]
@@ -75,14 +75,14 @@ class FetchExternalTaskRepresenterTest implements TaskRepresenterTest{
     [
       type      : 'fetch',
       attributes: [
-        origin     : 'external',
-        pipeline   : 'pipeline',
-        stage      : 'stage',
-        job        : 'job',
-        artifact_id: 'yay',
-        configuration: [
+        artifact_origin: 'external',
+        pipeline       : 'pipeline',
+        stage          : 'stage',
+        job            : 'job',
+        artifact_id    : 'yay',
+        configuration  : [
           [
-            key: 'foo',
+            key  : 'foo',
             value: 'bar'
           ]
         ],

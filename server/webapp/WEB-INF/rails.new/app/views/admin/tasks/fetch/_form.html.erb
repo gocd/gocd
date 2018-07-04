@@ -1,5 +1,5 @@
 <div class="form_item">
-  <% external_fetch_task = (scope[:task].getAppropriateTask().getOrigin() == 'external') %>
+  <% external_fetch_task = (scope[:task].getAppropriateTask().getArtifactOrigin() == 'external') %>
   <textarea id="gocd-fetch-artifact_template" class="template">
     <%= render :partial => 'admin/tasks/fetch/gocd_artifact_config', :locals => {:scope => {:var_form => scope[:form]}} %>
   </textarea>

@@ -41,18 +41,18 @@ import static org.hamcrest.core.StringContains.containsString;
 import static org.junit.Assert.assertThat;
 
 public class BuildWorkArtifactFetchingTest {
-    public static final String PIPELINE_NAME = "pipeline1";
-    public static final String STAGE_NAME = "mingle";
-    public static final String JOB_NAME = "run-ant";
+    private static final String PIPELINE_NAME = "pipeline1";
+    private static final String STAGE_NAME = "mingle";
+    private static final String JOB_NAME = "run-ant";
     private static final String DEST = "lib";
 
     private static final String AGENT_UUID = "uuid";
-    File buildWorkingDirectory;
+    private File buildWorkingDirectory;
 
     private static final String WITH_FETCH_FILE =
             "<job name=\"" + JOB_NAME + "\">\n"
                     + "  <tasks>\n"
-                    + "    <fetchartifact origin='gocd' stage='pre-mingle' job='" + JOB_NAME + "' srcfile='lib/hello.jar' dest='" + DEST + "'/>\n"
+                    + "    <fetchartifact artifactOrigin='gocd' stage='pre-mingle' job='" + JOB_NAME + "' srcfile='lib/hello.jar' dest='" + DEST + "'/>\n"
                     + "    <ant target=\"--help\" >\n"
                     + "      <runif status=\"failed\" />\n"
                     + "    </ant>\n"
@@ -62,7 +62,7 @@ public class BuildWorkArtifactFetchingTest {
     private static final String WITH_FETCH_FOLDER =
             "<job name=\"" + JOB_NAME + "\">\n"
                     + "  <tasks>\n"
-                    + "    <fetchartifact origin='gocd' stage='pre-mingle' job='" + JOB_NAME + "' srcdir='lib' dest='" + DEST + "'/>\n"
+                    + "    <fetchartifact artifactOrigin='gocd' stage='pre-mingle' job='" + JOB_NAME + "' srcdir='lib' dest='" + DEST + "'/>\n"
                     + "    <ant target=\"--help\" >\n"
                     + "      <runif status=\"failed\" />\n"
                     + "    </ant>\n"

@@ -19,7 +19,6 @@ package com.thoughtworks.go.apiv6.shared.representers.stages.tasks;
 import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.api.representers.ConfigurationPropertyRepresenter;
 import com.thoughtworks.go.api.representers.JsonReader;
-import com.thoughtworks.go.apiv6.shared.representers.stages.ConfigHelperOptions;
 import com.thoughtworks.go.config.AbstractFetchTask;
 import com.thoughtworks.go.config.FetchPluggableArtifactTask;
 import com.thoughtworks.go.config.FetchTask;
@@ -29,13 +28,13 @@ import java.util.Optional;
 
 public class FetchTaskRepresenter {
     public static void toJSON(OutputWriter jsonWriter, AbstractFetchTask abstractFetchTask) {
-        jsonWriter.add("origin", abstractFetchTask.getOrigin());
+        jsonWriter.add("artifact_origin", abstractFetchTask.getArtifactOrigin());
         jsonWriter.add("pipeline", abstractFetchTask.getPipelineName());
         jsonWriter.add("stage", abstractFetchTask.getStage());
         jsonWriter.add("job", abstractFetchTask.getJob());
         BaseTaskRepresenter.toJSON(jsonWriter, abstractFetchTask);
 
-        switch (abstractFetchTask.getOrigin()) {
+        switch (abstractFetchTask.getArtifactOrigin()) {
             case "gocd":
                 representFetchTask(jsonWriter, (FetchTask) abstractFetchTask);
                 break;
@@ -66,7 +65,7 @@ public class FetchTaskRepresenter {
         if (jsonReader == null) {
             return null;
         }
-        String origin = jsonReader.getString("origin");
+        String origin = jsonReader.getString("artifact_origin");
         switch (origin) {
             case "gocd":
                 return fetchTaskFromJson(jsonReader);

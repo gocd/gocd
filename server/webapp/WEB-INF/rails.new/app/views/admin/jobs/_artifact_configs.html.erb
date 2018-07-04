@@ -73,6 +73,9 @@
   function addOnChangeListenerForStoreInput(event) {
     var inputElement         = jQuery(this);
     var selectedInput        = event.currentTarget || event.target;
+    if (selectedInput.defaultValue === selectedInput.value) {
+      return;
+    }
     var externalArtifactForm = inputElement.closest('.artifact');
     externalArtifactForm.find(".plugged_artifact_template").addClass('hidden');
     externalArtifactForm.find(".plugin-config-read-only").remove();

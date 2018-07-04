@@ -2809,6 +2809,10 @@ button.check_connection + .connection_test_message pre {
   }
 }
 
+.Failing {
+  position: relative;
+}
+
 .Building, .building-stage {
   height:     12px;
   position:   relative;
@@ -2869,7 +2873,7 @@ button.check_connection + .connection_test_message pre {
 
 }
 
-.Building, .Cancelled {
+.Building, .Cancelled, .Failing {
   a {
     position: absolute;
     left:     0;

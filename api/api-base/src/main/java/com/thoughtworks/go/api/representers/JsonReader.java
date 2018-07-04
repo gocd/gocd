@@ -41,7 +41,7 @@ public class JsonReader {
 
     public String getString(String property) {
         return optString(property)
-            .orElseThrow(() -> haltBecauseMissingJsonProperty(property));
+            .orElseThrow(() -> haltBecauseMissingJsonProperty(property, jsonObject));
     }
 
     public Optional<Long> optLong(String property) {
@@ -49,7 +49,7 @@ public class JsonReader {
             try {
                 return Optional.ofNullable(jsonObject.get(property).getAsLong());
             } catch (Exception e) {
-                throw haltBecausePropertyIsNotAJsonString(property);
+                throw haltBecausePropertyIsNotAJsonString(property, jsonObject);
             }
         }
         return Optional.empty();
@@ -60,7 +60,7 @@ public class JsonReader {
             try {
                 return Optional.ofNullable(jsonObject.get(property).getAsString());
             } catch (Exception e) {
-                throw haltBecausePropertyIsNotAJsonString(property);
+                throw haltBecausePropertyIsNotAJsonString(property, jsonObject);
             }
         }
         return Optional.empty();
@@ -71,7 +71,7 @@ public class JsonReader {
             try {
                 return Optional.of(new CaseInsensitiveString(jsonObject.get(property).getAsString()));
             } catch (Exception e) {
-                throw haltBecausePropertyIsNotAJsonString(property);
+                throw haltBecausePropertyIsNotAJsonString(property, jsonObject);
             }
         }
         return Optional.empty();
@@ -82,7 +82,7 @@ public class JsonReader {
             try {
                 return Optional.ofNullable(jsonObject.getAsJsonArray(property));
             } catch (Exception e) {
-                throw haltBecausePropertyIsNotAJsonArray(property);
+                throw haltBecausePropertyIsNotAJsonArray(property, jsonObject);
             }
         }
         return Optional.empty();
@@ -93,7 +93,7 @@ public class JsonReader {
             try {
                 return Optional.of(jsonObject.getAsJsonPrimitive(property).getAsBoolean());
             } catch (Exception e) {
-                throw haltBecausePropertyIsNotAJsonBoolean(property);
+                throw haltBecausePropertyIsNotAJsonBoolean(property, jsonObject);
             }
         }
         return Optional.empty();
@@ -104,7 +104,7 @@ public class JsonReader {
             try {
                 return Optional.of(new JsonReader(jsonObject.getAsJsonObject(property)));
             } catch (Exception e) {
-                throw haltBecausePropertyIsNotAJsonObject(property);
+                throw haltBecausePropertyIsNotAJsonObject(property, jsonObject);
             }
         }
         return Optional.empty();
@@ -112,7 +112,7 @@ public class JsonReader {
 
     public JsonReader readJsonObject(String property) {
         return optJsonObject(property)
-            .orElseThrow(() -> haltBecauseMissingJsonProperty(property));
+            .orElseThrow(() -> haltBecauseMissingJsonProperty(property, jsonObject));
     }
 
     public boolean hasJsonObject(String property) {
@@ -140,7 +140,7 @@ public class JsonReader {
                         .map(JsonElement::getAsString)
                         .collect(Collectors.toList()));
             } catch (Exception e) {
-                throw haltBecausePropertyIsNotAJsonStringArray(property);
+                throw haltBecausePropertyIsNotAJsonStringArray(property, jsonObject);
             }
         }
 

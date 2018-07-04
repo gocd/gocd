@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.api.util;
 
+import com.google.gson.JsonObject;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 
 import static java.lang.String.format;
@@ -47,7 +48,7 @@ public abstract class HaltApiMessages {
     }
 
     public static String rateLimitExceeded() {
-        return "Rate Limit Exceeded";
+        return "Rate Limit Exceeded.";
     }
 
     public static String errorWhileEncryptingMessage() {
@@ -66,27 +67,27 @@ public abstract class HaltApiMessages {
         return "Missing required header 'X-GoCD-Confirm' with value 'true'";
     }
 
-    public static String propertyIsNotAJsonString(String property) {
-        return String.format("Could not read property '%s' as a String", property);
+    public static String propertyIsNotAJsonString(String property, JsonObject jsonObject) {
+        return String.format("Could not read property '%s' as a String in json `%s` ", property, jsonObject);
     }
 
-    public static String propertyIsNotAJsonObject(String property) {
-        return String.format("Could not read property '%s' as a JsonObject", property);
+    public static String propertyIsNotAJsonObject(String property, JsonObject jsonObject) {
+        return String.format("Could not read property '%s' as a JsonObject in json `%s`", property, jsonObject);
     }
 
-    public static String propertyIsNotAJsonStringArray(String property) {
-        return String.format("Could not read property '%s' as a JsonArray containing string", property);
+    public static String propertyIsNotAJsonStringArray(String property, JsonObject jsonObject) {
+        return String.format("Could not read property '%s' as a JsonArray containing string in `%s`", property, jsonObject);
     }
 
-    public static String propertyIsNotAJsonArray(String property) {
-        return String.format("Could not read property '%s' as a JsonArray", property);
+    public static String propertyIsNotAJsonArray(String property, JsonObject jsonObject) {
+        return String.format("Could not read property '%s' as a JsonArray in json `%s`", property, jsonObject);
     }
 
-    public static String propertyIsNotAJsonBoolean(String property) {
-        return String.format("Could not read property '%s' as a Boolean", property);
+    public static String propertyIsNotAJsonBoolean(String property, JsonObject jsonObject) {
+        return String.format("Could not read property '%s' as a Boolean in json `%s` ", property, jsonObject);
     }
 
-    public static String missingJsonProperty(String property) {
-        return format("Json does not contain property '%s'", property);
+    public static String missingJsonProperty(String property, JsonObject jsonObject) {
+        return format("Json `%s` does not contain property '%s'", jsonObject, property);
     }
 }

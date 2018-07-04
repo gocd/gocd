@@ -17,6 +17,7 @@
 package com.thoughtworks.go.api.util;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.google.gson.JsonObject;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import org.springframework.http.HttpStatus;
 import spark.HaltException;
@@ -65,28 +66,28 @@ public abstract class HaltApiResponses {
         return halt(HttpStatus.BAD_REQUEST.value(), MessageJson.create(deprecatedConfirmHeaderMissing()));
     }
 
-    public static HaltException haltBecausePropertyIsNotAJsonString(String property) {
-        return halt(HttpStatus.UNPROCESSABLE_ENTITY.value(), MessageJson.create(propertyIsNotAJsonString(property)));
+    public static HaltException haltBecausePropertyIsNotAJsonString(String property, JsonObject jsonObject) {
+        return halt(HttpStatus.UNPROCESSABLE_ENTITY.value(), MessageJson.create(propertyIsNotAJsonString(property, jsonObject)));
     }
 
-    public static HaltException haltBecausePropertyIsNotAJsonArray(String property) {
-        return halt(HttpStatus.UNPROCESSABLE_ENTITY.value(), MessageJson.create(propertyIsNotAJsonArray(property)));
+    public static HaltException haltBecausePropertyIsNotAJsonArray(String property, JsonObject jsonObject) {
+        return halt(HttpStatus.UNPROCESSABLE_ENTITY.value(), MessageJson.create(propertyIsNotAJsonArray(property, jsonObject)));
     }
 
-    public static HaltException haltBecausePropertyIsNotAJsonBoolean(String property) {
-        return halt(HttpStatus.UNPROCESSABLE_ENTITY.value(), MessageJson.create(propertyIsNotAJsonBoolean(property)));
+    public static HaltException haltBecausePropertyIsNotAJsonBoolean(String property, JsonObject jsonObject) {
+        return halt(HttpStatus.UNPROCESSABLE_ENTITY.value(), MessageJson.create(propertyIsNotAJsonBoolean(property, jsonObject)));
     }
 
-    public static HaltException haltBecausePropertyIsNotAJsonObject(String property) {
-        return halt(HttpStatus.UNPROCESSABLE_ENTITY.value(), MessageJson.create(propertyIsNotAJsonObject(property)));
+    public static HaltException haltBecausePropertyIsNotAJsonObject(String property, JsonObject jsonObject) {
+        return halt(HttpStatus.UNPROCESSABLE_ENTITY.value(), MessageJson.create(propertyIsNotAJsonObject(property, jsonObject)));
     }
 
-    public static HaltException haltBecausePropertyIsNotAJsonStringArray(String property) {
-        return halt(HttpStatus.UNPROCESSABLE_ENTITY.value(), MessageJson.create(propertyIsNotAJsonStringArray(property)));
+    public static HaltException haltBecausePropertyIsNotAJsonStringArray(String property, JsonObject jsonObject) {
+        return halt(HttpStatus.UNPROCESSABLE_ENTITY.value(), MessageJson.create(propertyIsNotAJsonStringArray(property, jsonObject)));
     }
 
-    public static HaltException haltBecauseMissingJsonProperty(String property) {
-        return halt(HttpStatus.UNPROCESSABLE_ENTITY.value(), MessageJson.create(missingJsonProperty(property)));
+    public static HaltException haltBecauseMissingJsonProperty(String property, JsonObject jsonObject) {
+        return halt(HttpStatus.UNPROCESSABLE_ENTITY.value(), MessageJson.create(missingJsonProperty(property, jsonObject)));
     }
 
     public static HaltException haltBecauseOfReason(String message) {

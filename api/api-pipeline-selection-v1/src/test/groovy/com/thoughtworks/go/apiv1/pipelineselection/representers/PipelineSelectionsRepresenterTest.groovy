@@ -16,6 +16,8 @@
 
 package com.thoughtworks.go.apiv1.pipelineselection.representers
 
+import com.google.gson.JsonArray
+import com.google.gson.JsonObject
 import com.thoughtworks.go.api.util.GsonTransformer
 import com.thoughtworks.go.api.util.MessageJson
 import com.thoughtworks.go.config.BasicPipelineConfigs
@@ -101,20 +103,28 @@ class PipelineSelectionsRepresenterTest {
 
     @Test
     void 'should blow up on bad blacklist type'() {
+      def jsonObject = new JsonObject()
+      jsonObject.add("blacklist", new JsonObject())
+
       Assertions.assertThatCode({
         PipelineSelectionsRepresenter.fromJSON(GsonTransformer.getInstance().jsonReaderFrom([blacklist: [:]]))
       }).isInstanceOf(HaltException)
         .hasFieldOrPropertyWithValue("statusCode", 422)
-        .hasFieldOrPropertyWithValue("body", MessageJson.create(propertyIsNotAJsonBoolean("blacklist")))
+        .hasFieldOrPropertyWithValue("body", MessageJson.create(propertyIsNotAJsonBoolean("blacklist", jsonObject)))
     }
 
     @Test
     void 'should blow up on bad selection type'() {
+      def jsonObject = new JsonObject()
+      def array = new JsonArray()
+      array.add(new JsonObject())
+
+      jsonObject.add("selections", array)
       Assertions.assertThatCode({
         PipelineSelectionsRepresenter.fromJSON(GsonTransformer.getInstance().jsonReaderFrom([selections: [[:]]]))
       }).isInstanceOf(HaltException)
         .hasFieldOrPropertyWithValue("statusCode", 422)
-        .hasFieldOrPropertyWithValue("body", MessageJson.create(propertyIsNotAJsonStringArray("selections")))
+        .hasFieldOrPropertyWithValue("body", MessageJson.create(propertyIsNotAJsonStringArray("selections", jsonObject)))
     }
   }
 }

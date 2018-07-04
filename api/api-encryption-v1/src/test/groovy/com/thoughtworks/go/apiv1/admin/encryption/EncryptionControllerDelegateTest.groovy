@@ -30,7 +30,8 @@ import org.junit.jupiter.api.Test
 
 import java.util.concurrent.TimeUnit
 
-import static com.thoughtworks.go.api.util.HaltApiMessages.*
+import static com.thoughtworks.go.api.util.HaltApiMessages.errorWhileEncryptingMessage
+import static com.thoughtworks.go.api.util.HaltApiMessages.rateLimitExceeded
 import static org.mockito.Mockito.doThrow
 import static org.mockito.Mockito.spy
 
@@ -93,7 +94,7 @@ class EncryptionControllerDelegateTest implements SecurityServiceTrait, Controll
         assertThatResponse()
           .isUnprocessableEntity()
           .hasContentType(controller.mimeType)
-          .hasJsonMessage(missingJsonProperty("value"))
+          .hasJsonMessage("Json `{\\\"foo\\\":\\\"bar\\\"}` does not contain property 'value'")
       }
 
       @Nested

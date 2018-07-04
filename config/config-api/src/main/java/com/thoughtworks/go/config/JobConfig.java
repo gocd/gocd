@@ -28,6 +28,7 @@ import org.apache.commons.lang3.StringUtils;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
@@ -216,6 +217,19 @@ public class JobConfig implements Validatable, ParamsAttributeAware, Environment
 
     public Tasks getTasks() {
         return tasks;
+    }
+
+    @SuppressWarnings("unused") //used in rails
+    public Tasks getTasksForView() {
+        return tasks.stream().map(task -> {
+            if (task instanceof FetchTask) {
+                return new FetchTaskAdapter((FetchTask) task);
+            }
+            if (task instanceof FetchPluggableArtifactTask) {
+                return new FetchTaskAdapter((FetchPluggableArtifactTask) task);
+            }
+            return task;
+        }).collect(Collectors.toCollection(Tasks::new));
     }
 
     public void setTasks(Tasks tasks) {

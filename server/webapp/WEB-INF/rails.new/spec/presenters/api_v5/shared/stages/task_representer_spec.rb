@@ -1,5 +1,5 @@
 ##########################################################################
-# Copyright 2017 ThoughtWorks, Inc.
+# Copyright 2018 ThoughtWorks, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -371,7 +371,7 @@ describe ApiV5::Shared::Stages::Tasks::TaskRepresenter do
     it_should_behave_like 'tasks'
 
     def existing_task
-      @task ||= fetch_task
+      @task ||= fetch_task.getFetchTask()
     end
 
     def task_type
@@ -379,7 +379,7 @@ describe ApiV5::Shared::Stages::Tasks::TaskRepresenter do
     end
 
     it 'should represent errors' do
-      fetch_task         = FetchTask.new(CaseInsensitiveString.new('this_pipeline'), CaseInsensitiveString.new(''), CaseInsensitiveString.new(''), "../src", "../dest")
+      fetch_task         = FetchTaskAdapter.new(FetchTask.new(CaseInsensitiveString.new('this_pipeline'), CaseInsensitiveString.new(''), CaseInsensitiveString.new(''), "../src", "../dest"))
       validation_context = double('ValidationContext')
       validation_context.stub(:isWithinPipelines).and_return(true)
       pipeline = PipelineConfigMother::createPipelineConfigWithStage("this_pipeline", "stage")

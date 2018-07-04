@@ -21,11 +21,12 @@ shared_examples_for :fetch_task_controller do
       expect(@pipeline_pause_service).to receive(:pipelinePauseInfo).with(@pipeline_name).and_return(@pause_info)
       form_load_expectation
       allow(@go_config_service).to receive(:registry).and_return(MockRegistryModule::MockRegistry.new)
+      allow(@go_config_service).to receive(:artifactIdToPluginIdForFetchPluggableArtifact).and_return({})
     end
 
     it "should load auto-suggest data for new fetch-form" do
       get :new, :current_tab=>"tasks", :pipeline_name => @pipeline_name, :stage_name => @stage_name, :job_name => @job_name, :type => FetchTask.new.getTaskType(), :stage_parent => @parent_type
-      expect(assigns[:task]).to eq(FetchTask.new)
+      expect(assigns[:task]).to eq(FetchTaskAdapter.new(FetchTask.new))
       expect(assigns[:pipeline_json]).to eq(pipelines_json)
     end
 
@@ -37,14 +38,15 @@ shared_examples_for :fetch_task_controller do
   end
 
   describe "submission" do
-    before do
+    before (:each) do
       form_load_expectation
       expect(@pipeline_pause_service).to receive(:pipelinePauseInfo).with(@pipeline_name).and_return(@pause_info)
       allow(@go_config_service).to receive(:registry).and_return(MockRegistryModule::MockRegistry.new)
+      allow(@go_config_service).to receive(:artifactIdToPluginIdForFetchPluggableArtifact).and_return({})
     end
 
     it "should load auto-suggest(off updated config) data when updating fetch task" do
-      stub_save_for_success
+      stub_config_save_with_subject(fetch_task_with_exec_on_cancel_task("parent-pipeline", "parent-stage", "job.parent.1", "src-file", "dest-dir").getFetchTask())
       put :update, :current_tab=>"tasks", :pipeline_name => @pipeline_name, :stage_name => @stage_name, :job_name => @job_name, :config_md5 => "abcd1234", :type => fetch_task_with_exec_on_cancel_task.getTaskType(), :stage_parent => @parent_type, :task_index => '0',
           :task => @modify_payload
 
@@ -53,7 +55,7 @@ shared_examples_for :fetch_task_controller do
     end
 
     it "should load auto-suggest(off updated config) data when create fetch task" do
-      stub_save_for_success
+      stub_config_save_with_subject(fetch_task_with_exec_on_cancel_task("parent-pipeline", "parent-stage", "job.parent.1", "src-file", "dest-dir"))
       post :create, :current_tab=>"tasks", :pipeline_name => @pipeline_name, :stage_name => @stage_name, :job_name => @job_name, :config_md5 => "abcd1234", :type => fetch_task_with_exec_on_cancel_task.getTaskType(), :stage_parent => @parent_type, :task => @modify_payload
 
       expect(assigns[:task]).to eq(fetch_task_with_exec_on_cancel_task("parent-pipeline", "parent-stage", "job.parent.1", "src-file", "dest-dir"))

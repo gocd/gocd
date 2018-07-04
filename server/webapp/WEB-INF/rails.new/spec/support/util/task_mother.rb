@@ -43,7 +43,7 @@ module TaskMother
   end
 
   def fetch_task(pipeline='pipeline', stage='stage', job='job', src_file='src', dest='dest')
-    FetchTask.new(CaseInsensitiveString.new(pipeline), CaseInsensitiveString.new(stage), CaseInsensitiveString.new(job), src_file, dest)
+    FetchTaskAdapter.new(FetchTask.new(CaseInsensitiveString.new(pipeline), CaseInsensitiveString.new(stage), CaseInsensitiveString.new(job), src_file, dest))
   end
 
   def simple_exec_task

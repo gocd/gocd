@@ -26,7 +26,7 @@ describe Admin::TasksController do
     @task_type = exec_task_with_ant_oncancel_task.getTaskType()
     @updated_payload = {:command => 'lsblah', :workingDirectory => exec_task_with_ant_oncancel_task.workingDirectory(), :hasCancelTask => "1", :onCancelConfig=> { :onCancelOption => 'ant', :antOnCancel => {:buildFile => "build.xml", :target => "compile", :workingDirectory => "default/wd"}}}
     @updated_task = exec_task_with_ant_oncancel_task("lsblah")
-
+    @subject = @updated_task
     @new_task = ExecTask.new
 
     @create_payload= {:command => 'ls', :workingDirectory => "hero/ka/directory", :argListString => "-la", :hasCancelTask => "1", :onCancelConfig=> { :onCancelOption => 'ant', :antOnCancel => {:buildFile => "build.xml", :target => "compile", :workingDirectory => "default/wd"}}}

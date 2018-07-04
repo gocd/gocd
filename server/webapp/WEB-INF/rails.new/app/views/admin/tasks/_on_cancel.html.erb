@@ -17,7 +17,7 @@
             <% @on_cancel_task_vms.each do |oncancel_task_vm|
                 oncancel_task = oncancel_task_vm.getModel()
                 task_class_name = oncancel_task.getTaskType()
-                next if task_class_name == "fetch" || task_class_name == "fetch_pluggable_artifact"
+                next if task_class_name == "fetch"
             %>
                 <div class="hidden task_entry <%= task_class_name -%>">
                     <%= on_cancel_config.fields_for oncancel_task.getTaskType() + "OnCancel", oncancel_task do |task_form| %>

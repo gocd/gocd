@@ -40,7 +40,6 @@ public class FetchTask extends AbstractFetchTask {
 
     public static final String DEST = "dest";
     public static final String SRC = "src";
-    public static final String TYPE = "fetch";
 
     public static final String IS_SOURCE_A_FILE = "isSourceAFile";
     private final String FETCH_ARTIFACT = "Fetch Artifact";
@@ -187,8 +186,6 @@ public class FetchTask extends AbstractFetchTask {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-
-        //TODO: compare abstract tasks for correct implementation -jj
 
         FetchTask fetchTask = (FetchTask) o;
 

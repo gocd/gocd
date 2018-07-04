@@ -26,7 +26,7 @@ describe Admin::TasksController do
     @task_type = ant_task.getTaskType()
     @updated_payload = {:buildFile => "newB", :target => "newT", :workingDirectory => "newWD"}
     @updated_task = ant_task("newB", "newT", "newWD")
-
+    @subject = @updated_task
     @new_task = AntTask.new
     @create_payload= {:buildFile => 'build.xml', :target => "compile",:workingDirectory => "dir"}
     @created_task= ant_task("build.xml", "compile", "dir")

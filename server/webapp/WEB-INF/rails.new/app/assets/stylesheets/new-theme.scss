@@ -4043,6 +4043,10 @@ ul.entity_title {
   display: inline-block;
 }
 
-.plugin_key_value .plugin-config-read-only {
+.plugin_key_value .plugin-config-read-only, .plugin_key_value.plugin-config-read-only  {
   line-height: 20px;
+}
+
+.plugin_key_value.plugin-config-read-only {
+  padding: 10px;
 }

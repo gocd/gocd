@@ -17,6 +17,7 @@
 package com.thoughtworks.go.server.service.tasks;
 
 import com.thoughtworks.go.config.FetchPluggableArtifactTask;
+import com.thoughtworks.go.config.FetchTaskAdapter;
 import com.thoughtworks.go.config.pluggabletask.PluggableTask;
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
 import com.thoughtworks.go.domain.NullTask;
@@ -83,6 +84,9 @@ public class TaskViewService implements TaskFactory {
     }
 
     public Task taskInstanceFor(String type) {
+        if("fetch".equals(type)) {
+            return new FetchTaskAdapter();
+        }
         List<Task> tasks = allTasks();
         for (Task task : tasks) {
             if (task.getTaskType().equals(type)) {

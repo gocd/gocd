@@ -20,7 +20,8 @@ import com.thoughtworks.go.domain.BaseCollection;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.config.Configuration;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
-import com.thoughtworks.go.domain.config.SecureKeyInfoProvider;
+import com.thoughtworks.go.domain.config.ConfigurationValue;
+import com.thoughtworks.go.domain.config.EncryptedConfigurationValue;
 import com.thoughtworks.go.plugin.access.artifact.ArtifactMetadataStore;
 import com.thoughtworks.go.plugin.domain.artifact.ArtifactPluginInfo;
 import com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings;
@@ -36,7 +37,10 @@ import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 @AttributeAwareConfigTag(value = "fetchartifact", attribute = "origin", attributeValue = "external")
 public class FetchPluggableArtifactTask extends AbstractFetchTask {
+    public static final String ARTIFACT_ID = "artifactId";
+    public static final String CONFIGURATION = "configuration";
     public static final String FETCH_EXTERNAL_ARTIFACT = "Fetch External Artifact";
+
     @ConfigAttribute(value = "artifactId", optional = false)
     private String artifactId;
     @ConfigSubtag
@@ -45,19 +49,30 @@ public class FetchPluggableArtifactTask extends AbstractFetchTask {
     public FetchPluggableArtifactTask() {
     }
 
-    public FetchPluggableArtifactTask(CaseInsensitiveString pipelineName, CaseInsensitiveString stage, CaseInsensitiveString job, String artifactId, ConfigurationProperty... configurations) {
+    public FetchPluggableArtifactTask(CaseInsensitiveString pipelineName,
+                                      CaseInsensitiveString stage,
+                                      CaseInsensitiveString job,
+                                      String artifactId,
+                                      ConfigurationProperty... configurations) {
         super(pipelineName, stage, job);
         this.artifactId = artifactId;
         configuration.addAll(Arrays.asList(configurations));
     }
 
-    public FetchPluggableArtifactTask(CaseInsensitiveString stage, CaseInsensitiveString job, String artifactId, ConfigurationProperty... configurations) {
+    public FetchPluggableArtifactTask(CaseInsensitiveString stage,
+                                      CaseInsensitiveString job,
+                                      String artifactId,
+                                      ConfigurationProperty... configurations) {
         super(stage, job);
         this.artifactId = artifactId;
         configuration.addAll(Arrays.asList(configurations));
     }
 
-    public FetchPluggableArtifactTask(CaseInsensitiveString pipelineName, CaseInsensitiveString stage, CaseInsensitiveString job, String artifactId, Configuration configuration) {
+    public FetchPluggableArtifactTask(CaseInsensitiveString pipelineName,
+                                      CaseInsensitiveString stage,
+                                      CaseInsensitiveString job,
+                                      String artifactId,
+                                      Configuration configuration) {
         super(pipelineName, stage, job);
         this.artifactId = artifactId;
         this.configuration = configuration;
@@ -104,7 +119,9 @@ public class FetchPluggableArtifactTask extends AbstractFetchTask {
         configuration.validateUniqueness("Fetch pluggable artifact");
     }
 
-    public void encryptSecureProperties(CruiseConfig preprocessedCruiseConfig, PipelineConfig preprocessedPipelineConfig, FetchPluggableArtifactTask preprocessedTask) {
+    public void encryptSecureProperties(CruiseConfig preprocessedCruiseConfig,
+                                        PipelineConfig preprocessedPipelineConfig,
+                                        FetchPluggableArtifactTask preprocessedTask) {
         if (isNotBlank(artifactId)) {
             PluggableArtifactConfig externalArtifact = getSpecifiedExternalArtifact(preprocessedCruiseConfig, preprocessedPipelineConfig, preprocessedTask, true, preprocessedPipelineConfig.name());
             encryptSecurePluginConfiguration(preprocessedCruiseConfig, externalArtifact);
@@ -167,19 +184,66 @@ public class FetchPluggableArtifactTask extends AbstractFetchTask {
 
     @Override
     protected void setFetchTaskAttributes(Map attributeMap) {
-        // since encryptSecureProperties will be called after deserialization, this need not be updated.
+        this.artifactId = (String) attributeMap.get(ARTIFACT_ID);
+        if (StringUtils.isBlank(this.artifactId)) {
+            return;
+        }
 
-        configuration.setConfigAttributes(attributeMap, new SecureKeyInfoProvider() {
-            @Override
-            public boolean isSecure(String key) {
-                return false;
+        final Map<String, Object> userSpecifiedConfiguration = (Map<String, Object>) attributeMap.get(CONFIGURATION);
+        if (userSpecifiedConfiguration == null) {
+            return;
+        }
+
+        final String pluginId = (String) attributeMap.get("pluginId");
+        if (StringUtils.isBlank(pluginId)) {
+            for (String key : userSpecifiedConfiguration.keySet()) {
+                Map<String, String> configurationMetadata = (Map<String, String>) userSpecifiedConfiguration.get(key);
+                if (configurationMetadata != null) {
+                    boolean isSecure = Boolean.parseBoolean(configurationMetadata.get("isSecure"));
+                    if (configuration.getProperty(key) == null) {
+                        configuration.addNewConfiguration(key, isSecure);
+                    }
+                    if (isSecure) {
+                        configuration.getProperty(key).setEncryptedValue(new EncryptedConfigurationValue(configurationMetadata.get("value")));
+                    } else {
+                        configuration.getProperty(key).setConfigurationValue(new ConfigurationValue(configurationMetadata.get("value")));
+                    }
+                }
             }
-        });
+
+        } else {
+            for (Map.Entry<String, Object> configuration : userSpecifiedConfiguration.entrySet()) {
+                this.configuration.addNewConfigurationWithValue(configuration.getKey(), String.valueOf(configuration.getValue()), false);
+            }
+        }
     }
 
     public boolean isSecure(String key, PluggableInstanceSettings fetchArtifactSettings) {
         return fetchArtifactSettings.getConfiguration(key) != null && fetchArtifactSettings.getConfiguration(key).isSecure();
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        FetchPluggableArtifactTask fetchTask = (FetchPluggableArtifactTask) o;
+
+        if (artifactId != null ? !artifactId.equals(fetchTask.artifactId) : fetchTask.artifactId != null) {
+            return false;
+        }
+
+        if (configuration != null ? !configuration.equals(fetchTask.configuration) : fetchTask.configuration != null) {
+            return false;
+        }
+
+        return super.equals(fetchTask);
+    }
+
 
     @Override
     public String getTypeForDisplay() {

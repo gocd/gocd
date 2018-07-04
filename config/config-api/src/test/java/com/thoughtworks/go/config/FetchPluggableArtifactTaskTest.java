@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,10 @@ import com.thoughtworks.go.domain.config.ConfigurationProperty;
 import com.thoughtworks.go.domain.config.ConfigurationValue;
 import com.thoughtworks.go.domain.config.EncryptedConfigurationValue;
 import com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother;
-import com.thoughtworks.go.helper.*;
+import com.thoughtworks.go.helper.GoConfigMother;
+import com.thoughtworks.go.helper.MaterialConfigsMother;
+import com.thoughtworks.go.helper.PipelineConfigMother;
+import com.thoughtworks.go.helper.StageConfigMother;
 import com.thoughtworks.go.plugin.access.artifact.ArtifactMetadataStore;
 import com.thoughtworks.go.plugin.api.info.PluginDescriptor;
 import com.thoughtworks.go.plugin.domain.artifact.ArtifactPluginInfo;
@@ -33,12 +36,16 @@ import com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings;
 import com.thoughtworks.go.plugin.domain.common.PluginConfiguration;
 import com.thoughtworks.go.security.CryptoException;
 import com.thoughtworks.go.security.GoCipher;
+import org.assertj.core.api.Assertions;
 import org.hamcrest.core.Is;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 import static com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother.create;
 import static org.hamcrest.Matchers.is;
@@ -601,7 +608,7 @@ public class FetchPluggableArtifactTaskTest {
 
         ArrayList<ConfigurationProperty> configurationProperties = new ArrayList<>();
         configurationProperties.add(new ConfigurationProperty(new ConfigurationKey("plain"), new ConfigurationValue("plain")));
-        configurationProperties.add(new ConfigurationProperty(new ConfigurationKey("secure_property1"), new ConfigurationValue("password") ));
+        configurationProperties.add(new ConfigurationProperty(new ConfigurationKey("secure_property1"), new ConfigurationValue("password")));
         configurationProperties.add(new ConfigurationProperty(new ConfigurationKey("secure_property2"), new EncryptedConfigurationValue(new GoCipher().encrypt("secret"))));
 
         ArrayList<ConfigurationProperty> expectedConfigurationProperties = new ArrayList<>();
@@ -639,7 +646,7 @@ public class FetchPluggableArtifactTaskTest {
 
         ArrayList<ConfigurationProperty> configurationProperties = new ArrayList<>();
         configurationProperties.add(new ConfigurationProperty(new ConfigurationKey("plain"), new ConfigurationValue("plain")));
-        configurationProperties.add(new ConfigurationProperty(new ConfigurationKey("secure_property1"), new ConfigurationValue("password") ));
+        configurationProperties.add(new ConfigurationProperty(new ConfigurationKey("secure_property1"), new ConfigurationValue("password")));
         configurationProperties.add(new ConfigurationProperty(new ConfigurationKey("secure_property2"), new EncryptedConfigurationValue(new GoCipher().encrypt("secret"))));
 
         ArrayList<ConfigurationProperty> expectedConfigurationProperties = new ArrayList<>();
@@ -656,5 +663,52 @@ public class FetchPluggableArtifactTaskTest {
 
         assertThat(task.getConfiguration().size(), is(3));
         assertThat(task.getConfiguration(), is(expectedConfigurationProperties));
+    }
+
+    @Test
+    public void shouldSetConfiguration_whenPluginIsProvided() {
+        final HashMap<Object, Object> configAttrs = new HashMap<>();
+        configAttrs.put(FetchPluggableArtifactTask.ARTIFACT_ID, "installers");
+        configAttrs.put(FetchPluggableArtifactTask.CONFIGURATION, Collections.singletonMap("NAME", "gocd.zip"));
+        configAttrs.put("pluginId", "cd.go.artifact.s3");
+
+        FetchPluggableArtifactTask task = new FetchPluggableArtifactTask(new CaseInsensitiveString("#{pipeline}"), new CaseInsensitiveString("#{stage}"), new CaseInsensitiveString("#{job}"), "#{artifactId}");
+        task.setFetchTaskAttributes(configAttrs);
+
+        Assertions.assertThat(task.getArtifactId()).isEqualTo("installers");
+        Assertions.assertThat(task.getConfiguration())
+                .hasSize(1)
+                .contains(new ConfigurationProperty(new ConfigurationKey("NAME"), new ConfigurationValue("gocd.zip")));
+    }
+
+    @Test
+    public void shouldSetConfiguration_whenPluginIsNotProvided() throws CryptoException {
+        final HashMap<Object, Object> configAttrs = new HashMap<>();
+        configAttrs.put(FetchPluggableArtifactTask.ARTIFACT_ID, "installers");
+        configAttrs.put(FetchPluggableArtifactTask.CONFIGURATION, Collections.singletonMap("NAME", new HashMap<String, String>() {{
+            put("value", new GoCipher().encrypt("gocd.zip"));
+            put("isSecure", "true");
+        }}));
+
+        FetchPluggableArtifactTask task = new FetchPluggableArtifactTask(new CaseInsensitiveString("#{pipeline}"), new CaseInsensitiveString("#{stage}"), new CaseInsensitiveString("#{job}"), "#{artifactId}");
+        task.setFetchTaskAttributes(configAttrs);
+
+        Assertions.assertThat(task.getArtifactId()).isEqualTo("installers");
+        Assertions.assertThat(task.getConfiguration())
+                .hasSize(1)
+                .contains(new ConfigurationProperty(new ConfigurationKey("NAME"), new EncryptedConfigurationValue(new GoCipher().encrypt("gocd.zip"))));
+    }
+
+    @Test
+    public void shouldNotSetConfigurationWhenArtifactIdIsNotProvided() {
+        final HashMap<Object, Object> configAttrs = new HashMap<>();
+        configAttrs.put(FetchPluggableArtifactTask.ARTIFACT_ID, "");
+        configAttrs.put(FetchPluggableArtifactTask.CONFIGURATION, Collections.singletonMap("NAME", "gocd.zip"));
+
+        FetchPluggableArtifactTask task = new FetchPluggableArtifactTask(new CaseInsensitiveString("#{pipeline}"), new CaseInsensitiveString("#{stage}"), new CaseInsensitiveString("#{job}"), "#{artifactId}");
+        task.setFetchTaskAttributes(configAttrs);
+
+        Assertions.assertThat(task.getArtifactId()).isEmpty();
+        Assertions.assertThat(task.getConfiguration()).isEmpty();
     }
 }

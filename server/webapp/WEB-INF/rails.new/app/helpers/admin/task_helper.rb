@@ -35,7 +35,7 @@ module Admin
     end
 
     def is_fetch_task? task_type
-      task_type == FetchTask.new.getTaskType() || task_type == FetchPluggableArtifactTask.new.getTaskType()
+      task_type == "fetch"
     end
 
     def is_exec_task? task_type

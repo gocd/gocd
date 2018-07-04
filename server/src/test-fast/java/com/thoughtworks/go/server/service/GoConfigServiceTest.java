@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -50,6 +50,7 @@ import com.thoughtworks.go.service.ConfigRepository;
 import com.thoughtworks.go.util.*;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.SystemUtils;
+import org.assertj.core.api.Assertions;
 import org.hamcrest.Matchers;
 import org.hamcrest.core.IsInstanceOf;
 import org.jdom2.input.JDOMParseException;
@@ -68,6 +69,7 @@ import static javax.servlet.http.HttpServletResponse.SC_BAD_REQUEST;
 import static javax.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
 import static junit.framework.TestCase.assertTrue;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.*;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.nullValue;
@@ -933,7 +935,6 @@ public class GoConfigServiceTest {
     }
 
 
-
     @Test
     public void pipelineEditableViaUI_shouldReturnFalseWhenPipelineIsRemote() throws Exception {
         PipelineConfigs group = new BasicPipelineConfigs();
@@ -1102,6 +1103,43 @@ public class GoConfigServiceTest {
 
         assertThat(pipelines, contains(pipelineConfig1));
         assertThat(pipelines, not(contains(pipelineConfig2)));
+    }
+
+    @Test
+    public void shouldReturnArtifactIdToPluginIdMapForUpstreamPipelines() {
+        PipelineConfig unrelatedPipeline = PipelineConfigMother.pipelineConfig("some.random.pipeline");
+        PipelineConfig upstream = PipelineConfigMother.pipelineConfigWithExternalArtifact("upstream",
+                new PluggableArtifactConfig("docker-image", "dockerhub")
+        );
+
+        PipelineConfig downstream = PipelineConfigMother.pipelineConfigWithExternalArtifact("downstream",
+                new PluggableArtifactConfig("installer", "s3")
+        );
+        downstream.add(StageConfigMother.stageConfig("stage.2"));
+        downstream.add(StageConfigMother.stageConfig("current.stage"));
+
+        downstream.addMaterialConfig(new DependencyMaterialConfig(new CaseInsensitiveString("upstream"), new CaseInsensitiveString("upstream.stage")));
+
+        CruiseConfig cruiseConfig = configWith(upstream, downstream, unrelatedPipeline);
+        cruiseConfig.getArtifactStores().add(new ArtifactStore("dockerhub", "cd.go.docker"));
+        cruiseConfig.getArtifactStores().add(new ArtifactStore("s3", "cd.go.s3"));
+
+        when(goConfigDao.load()).thenReturn(cruiseConfig);
+
+        final Map<String, Map> artifactIdToPluginId = goConfigService.artifactIdToPluginIdForFetchPluggableArtifact("pipeline", "downstream", "current.stage");
+
+        Assertions.assertThat(artifactIdToPluginId)
+                .hasSize(2)
+                .containsKey("downstream");
+
+        Assertions.assertThat((Map<String, Map>) artifactIdToPluginId.get("downstream").get("stage.2")).isEmpty();
+        Assertions.assertThat((Map<String, Map>) artifactIdToPluginId.get("downstream").get("downstream.stage"))
+                .hasSize(1)
+                .containsEntry("downstream.job", Collections.singletonMap("installer", "cd.go.s3"));
+
+        Assertions.assertThat((Map<String, Map>) artifactIdToPluginId.get("upstream").get("upstream.stage"))
+                .hasSize(1)
+                .containsEntry("upstream.job", Collections.singletonMap("docker-image", "cd.go.docker"));
     }
 
     private PipelineConfig createPipelineConfig(String pipelineName, String stageName, String... buildNames) {

@@ -37,6 +37,13 @@ module ConfigSaveStubbing
     end
   end
 
+  def stub_save_for_validation_error_with_subject subject, cruise_config = @cruise_config, &failure
+    stub_for_config_save(cruise_config, {}, proc {|_, _| subject}) do |update_command, result, node|
+      Thread.current[:update_command] = update_command
+      failure.call(result, cruise_config, update_command.node(cruise_config))
+    end
+  end
+
   def from_thd key
     val = Thread.current[key]
     Thread.current[key] = nil

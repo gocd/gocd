@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.config;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 
@@ -40,6 +41,10 @@ public class Tasks extends BaseCollection<Task> implements Validatable {
 
     public Tasks(Task... items) {
         super(items);
+    }
+
+    public Tasks(Collection<Task> elements) {
+        super(elements);
     }
 
     public void validate(ValidationContext validationContext) {

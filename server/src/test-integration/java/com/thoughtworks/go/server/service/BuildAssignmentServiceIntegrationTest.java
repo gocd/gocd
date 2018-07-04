@@ -284,6 +284,10 @@ public class BuildAssignmentServiceIntegrationTest {
         JobInstance job = pipeline.getFirstStage().getJobInstances().first();
         assertThat(job.getState(), is(JobState.Completed));
         assertThat(job.getResult(), is(JobResult.Cancelled));
+
+        buildAssignmentService.onTimer();
+        List<JobPlan> latestJobPlans = buildAssignmentService.jobPlans();
+        assertThat(latestJobPlans.size(), is(0));
     }
 
     @Test
@@ -309,6 +313,11 @@ public class BuildAssignmentServiceIntegrationTest {
         JobInstance retainedJob = pipeline.getFirstStage().getJobInstances().getByName(fixture.DEV_STAGE_SECOND_JOB);
         assertThat(retainedJob.getState(), is(JobState.Scheduled));
         assertThat(retainedJob.getResult(), is(JobResult.Unknown));
+
+        buildAssignmentService.onTimer();
+        List<JobPlan> latestJobPlans = buildAssignmentService.jobPlans();
+        assertThat(latestJobPlans.size(), is(1));
+        assertThat(latestJobPlans.get(0).getName(), is(retainedJob.getName()));
     }
 
     @Test
@@ -332,6 +341,10 @@ public class BuildAssignmentServiceIntegrationTest {
         assertThat(job1.getResult(), is(JobResult.Cancelled));
         assertThat(job2.getState(), is(JobState.Completed));
         assertThat(job2.getResult(), is(JobResult.Cancelled));
+
+        buildAssignmentService.onTimer();
+        List<JobPlan> latestJobPlans = buildAssignmentService.jobPlans();
+        assertThat(latestJobPlans.size(), is(0));
     }
 
     @Test

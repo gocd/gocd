@@ -46,6 +46,12 @@ module TaskMother
     FetchTaskAdapter.new(FetchTask.new(CaseInsensitiveString.new(pipeline), CaseInsensitiveString.new(stage), CaseInsensitiveString.new(job), src_file, dest))
   end
 
+  def fetch_external_task(pipeline='pipeline', stage='stage', job='job', artifact_id='docker')
+    fetch_external = FetchTaskAdapter.new(FetchPluggableArtifactTask.new(CaseInsensitiveString.new(pipeline), CaseInsensitiveString.new(stage), CaseInsensitiveString.new(job), artifact_id))
+    fetch_external.setCancelTask(ExecTask.new("echo", "'failing'", "oncancel_working_dir"))
+    fetch_external
+  end
+
   def simple_exec_task
     ExecTask.new("ls", "-la", "hero/ka/directory")
   end

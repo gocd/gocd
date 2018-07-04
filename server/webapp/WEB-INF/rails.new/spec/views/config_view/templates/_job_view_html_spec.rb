@@ -429,6 +429,29 @@ describe "config_view/templates/_job_view.html.erb" do
       end
     end
 
+    it "should display fetch external artifact task" do
+      job = JobConfig.new('job1')
+      job.addTask(fetch_external_task(nil))
+      render :partial => 'config_view/templates/job_view', :locals => {:scope => {:job => job, :index => 1, :stage_id => 'stage_id', :stage_name => "stage_build"}}
+      Capybara.string(response.body).find("#stage_id_job_1").tap do |job|
+        job.find(".tab-content #tasks_stage_id_job_1 ul.tasks_view_list").tap do |list|
+          list.all("li.fetch code").tap do |items|
+            item = items[0]
+            expect(item).to have_selector("span", :text => "Fetch External Artifact -")
+            expect(item).to have_selector("span[title='Pipeline Name']", :text => "Current pipeline")
+            expect(item).to have_selector("span.path_separator", :text => ">")
+            expect(item).to have_selector("span[title='Stage Name']", :text => "stage")
+            expect(item).to have_selector("span.path_separator", :text => ">")
+            expect(item).to have_selector("span[title='Job Name']", :text => "job")
+            expect(item).to have_selector("span.delimiter", :text => ":")
+            expect(item).to have_selector("span", :text => "ArtifactID")
+            expect(item).to have_selector("span.delimiter", :text => ":")
+            expect(item).to have_selector("span[title='Artifact ID']", :text => "docker")
+          end
+        end
+      end
+    end
+
     it "should display multiple run if conditions" do
       job = JobConfig.new('job1')
       task = simple_exec_task

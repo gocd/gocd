@@ -173,18 +173,25 @@
                 <% scope[:job].getTasks().each do |task| %>
                     <li class="<%= task.getTaskType() %>">
                         <span class="condition">Run if <%= task.runIfConfigsAny() ? "#{'Failed'}, #{'Passed'}" : task.getConditionsForDisplay() %></span>
-                        <% if task.getTypeForDisplay() == "Fetch Artifact" %>
+                        <% if task.getTaskType() == "fetch" %>
                             <code>
-                                <span>Fetch Artifact - </span>
+                                <span><%=task.getTypeForDisplay()%> - </span>
                                 <span title="Pipeline Name" class="pipeline"><%= task.getPipelineName().blank? ? "[#{'Current pipeline'}]" : task.getPipelineName() %></span>
                                 <span class='path_separator'>&gt;</span>
                                 <span title="Stage Name" class="stage"><%= task.getStage() %></span>
                                 <span class='path_separator'>&gt;</span>
                                 <span title="Job Name" class="job"><%= task.getJob() %></span>
-                                <span class='delimiter'>:</span>
-                                <span title="Source" class="source"><%= task.getSrc() %></span>
-                                <span class="direction_arrow">-&gt;</span>
-                                <span title="Destination" class="destination"><%= task.getDest() %></span>
+                                <% if task.getTypeForDisplay() == "Fetch Artifact" %>
+                                  <span class='delimiter'>:</span>
+                                  <span title="Source" class="source"><%= task.getSrc() %></span>
+                                  <span class="direction_arrow">-&gt;</span>
+                                  <span title="Destination" class="destination"><%= task.getDest() %></span>
+                                <% else %>
+                                  <span class="path_separator">-&gt;</span>
+                                  <span>ArtifactID</span>
+                                  <span class='delimiter'>:</span>
+                                  <span title="Artifact ID"><%= task.getArtifactId() %></span>
+                                <% end %>
                             </code>
                         <% elsif is_a_pluggable_task(task) %>
                           <code>

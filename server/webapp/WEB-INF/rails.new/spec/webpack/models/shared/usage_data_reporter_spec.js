@@ -18,7 +18,7 @@
 describe('Usage Data Reporter', () => {
   const UsageDataReporter = require('models/shared/usage_data_reporter');
 
-  const USAGE_DATA_LAST_REPORTED_TIME_KEY = "usage_data_last_reported_time";
+  const USAGE_DATA_LAST_REPORTED_TIME_KEY = "last_usage_data_reporting_check_time";
 
   const encryptedUsageDataURL     = '/go/api/internal/data_sharing/usagedata/encrypted';
   const usageReportingGetURL      = '/go/api/internal/data_sharing/reporting/info';

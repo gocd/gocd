@@ -117,7 +117,7 @@ public class BuildAssignmentService implements ConfigChangedListener {
         };
     }
 
-    List<JobPlan> getMismatchingJobPlansFromUpdatedPipeline(PipelineConfig pipelineConfig, List<JobPlan> allJobPlans) {
+    private List<JobPlan> getMismatchingJobPlansFromUpdatedPipeline(PipelineConfig pipelineConfig, List<JobPlan> allJobPlans) {
         List<JobPlan> jobsToRemove = new ArrayList<>();
 
         for (JobPlan jobPlan : allJobPlans) {
@@ -137,7 +137,7 @@ public class BuildAssignmentService implements ConfigChangedListener {
         return jobsToRemove;
     }
 
-    List<JobPlan> getAllJobPlansFromDeletedPipeline(PipelineConfig pipelineConfig, List<JobPlan> allJobPlans) {
+    private List<JobPlan> getAllJobPlansFromDeletedPipeline(PipelineConfig pipelineConfig, List<JobPlan> allJobPlans) {
         return allJobPlans.stream()
                 .filter(jobPlan -> new CaseInsensitiveString(jobPlan.getPipelineName()).equals(pipelineConfig.name()))
                 .collect(Collectors.toList());

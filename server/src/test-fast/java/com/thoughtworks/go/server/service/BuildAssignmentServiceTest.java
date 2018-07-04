@@ -35,7 +35,6 @@ import org.mockito.Mock;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.UUID;
 
 import static org.hamcrest.Matchers.is;
@@ -179,6 +178,9 @@ public class BuildAssignmentServiceTest {
         JobPlan jobPlan2 = getJobPlan(pipeline.getName(), pipeline.get(1).name(), pipeline.get(1).getJobs().first());
         JobPlan jobPlan3 = getJobPlan(irrelevantPipeline.getName(), irrelevantPipeline.get(0).name(), irrelevantPipeline.get(0).getJobs().first());
 
+        //need to get hold of original jobPlans in the tests
+        jobPlans = (ArrayList<JobPlan>) buildAssignmentService.jobPlans();
+
         jobPlans.add(jobPlan1);
         jobPlans.add(jobPlan2);
         jobPlans.add(jobPlan3);
@@ -186,10 +188,14 @@ public class BuildAssignmentServiceTest {
         //delete a stage
         pipeline.remove(1);
 
-        List<JobPlan> jobsToRemove = buildAssignmentService.getMismatchingJobPlansFromUpdatedPipeline(pipeline, jobPlans);
+        assertThat(jobPlans.size(), is(3));
 
-        assertThat(jobsToRemove.size(), is(1));
-        assertThat(jobsToRemove.get(0), is(jobPlan2));
+        when(goConfigService.hasPipelineNamed(pipeline.getName())).thenReturn(true);
+        buildAssignmentService.pipelineConfigChangedListener().onEntityConfigChange(pipeline);
+
+        assertThat(jobPlans.size(), is(2));
+        assertThat(jobPlans.get(0), is(jobPlan1));
+        assertThat(jobPlans.get(1), is(jobPlan3));
     }
 
     @Test
@@ -208,15 +214,18 @@ public class BuildAssignmentServiceTest {
         JobPlan jobPlan2 = getJobPlan(pipeline.getName(), pipeline.get(1).name(), pipeline.get(1).getJobs().first());
         JobPlan jobPlan3 = getJobPlan(irrelevantPipeline.getName(), irrelevantPipeline.get(0).name(), irrelevantPipeline.get(0).getJobs().first());
 
+        //need to get hold of original jobPlans in the tests
+        jobPlans = (ArrayList<JobPlan>) buildAssignmentService.jobPlans();
+
         jobPlans.add(jobPlan1);
         jobPlans.add(jobPlan2);
         jobPlans.add(jobPlan3);
 
-        List<JobPlan> jobsToRemove = buildAssignmentService.getAllJobPlansFromDeletedPipeline(pipeline, jobPlans);
+        when(goConfigService.hasPipelineNamed(pipeline.getName())).thenReturn(false);
+        buildAssignmentService.pipelineConfigChangedListener().onEntityConfigChange(pipeline);
 
-        assertThat(jobsToRemove.size(), is(2));
-        assertThat(jobsToRemove.get(0), is(jobPlan1));
-        assertThat(jobsToRemove.get(1), is(jobPlan2));
+        assertThat(jobPlans.size(), is(1));
+        assertThat(jobPlans.get(0), is(jobPlan3));
     }
 
     private JobPlan getJobPlan(CaseInsensitiveString pipelineName, CaseInsensitiveString stageName, JobConfig job) {

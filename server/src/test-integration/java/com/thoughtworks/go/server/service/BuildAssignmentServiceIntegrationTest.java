@@ -312,6 +312,29 @@ public class BuildAssignmentServiceIntegrationTest {
     }
 
     @Test
+    public void shouldCancelBuildsForAllJobsWhenPipelineIsDeleted() throws Exception {
+        buildAssignmentService.initialize();
+        fixture = new PipelineWithTwoStages(materialRepository, transactionTemplate, temporaryFolder).usingTwoJobs();
+        fixture.usingConfigHelper(configHelper).usingDbHelper(dbHelper).onSetUp();
+        fixture.createPipelineWithFirstStageScheduled();
+
+        buildAssignmentService.onTimer();
+
+        PipelineConfig pipelineConfig = new Cloner().deepClone(configHelper.getCachedGoConfig().currentConfig().getPipelineConfigByName(new CaseInsensitiveString(fixture.pipelineName)));
+
+        pipelineConfigService.deletePipelineConfig(loserUser, pipelineConfig, new HttpLocalizedOperationResult());
+
+        Pipeline pipeline = pipelineDao.mostRecentPipeline(fixture.pipelineName);
+        JobInstance job1 = pipeline.getFirstStage().getJobInstances().getByName(fixture.JOB_FOR_DEV_STAGE);
+        JobInstance job2 = pipeline.getFirstStage().getJobInstances().getByName(fixture.DEV_STAGE_SECOND_JOB);
+
+        assertThat(job1.getState(), is(JobState.Completed));
+        assertThat(job1.getResult(), is(JobResult.Cancelled));
+        assertThat(job2.getState(), is(JobState.Completed));
+        assertThat(job2.getResult(), is(JobResult.Cancelled));
+    }
+
+    @Test
     public void shouldCancelBuildBelongingToNonExistentPipeline() throws Exception {
         fixture.createPipelineWithFirstStageScheduled();
         buildAssignmentService.onTimer();
@@ -700,24 +723,6 @@ public class BuildAssignmentServiceIntegrationTest {
         Pipeline p1_2 = scheduleService.schedulePipeline(renamedPipeline.config.name(), buildCauseForRenamedPipeline);
         Stages allStagesForRenamedPipeline = stageDao.findAllStagesFor(p1_2.getName(), p1_2.getCounter());
         assertThat(allStagesForRenamedPipeline.byName(p1_2.getFirstStage().getName()).getState(), is(StageState.Building));
-    }
-
-    @Test
-    public void shouldCancelAllScheduledJobsInCasePipelineHasBeenDeleted() throws Exception {
-        Material hgMaterial = new HgMaterial("url", "folder");
-        String[] hgRevs = new String[]{"h1"};
-        u.checkinInOrder(hgMaterial, hgRevs);
-
-        ScheduleTestUtil.AddedPipeline p1 = u.saveConfigWith("PIPELINE_WHICH_WILL_EVENTUALLY_WILL_BE_DELETED", u.m(hgMaterial));
-        BuildCause buildCause = BuildCause.createWithModifications(u.mrs(u.mr(u.m(hgMaterial).material, true, hgRevs)), "user");
-        Pipeline originalPipelineRun = scheduleService.schedulePipeline(p1.config.name(), buildCause);
-        pipelineConfigService.deletePipelineConfig(new Username("user"), p1.config, new HttpLocalizedOperationResult());
-
-        CruiseConfig cruiseConfig = configHelper.load();
-        buildAssignmentService.onTimer();   // To Reload Job Plans
-        buildAssignmentService.onConfigChange(cruiseConfig);
-        Stages allStages = stageDao.findAllStagesFor(originalPipelineRun.getName(), originalPipelineRun.getCounter());
-        assertThat(allStages.byName(CaseInsensitiveString.str(p1.config.first().name())).getState(), is(StageState.Cancelled));
     }
 
     @Test

@@ -40,6 +40,25 @@ describe('Data Sharing Usage Data', () => {
     expect(usageData.represent()).toBe(JSON.stringify(dataSharingUsageJSON, null, 4));
   });
 
+  it('should fetch data sharing usage data', () => {
+    jasmine.Ajax.withMock(() => {
+      jasmine.Ajax.stubRequest(dataSharingUsageDataURL).andReturn({
+        responseText:    JSON.stringify(dataSharingUsageJSON),
+        status:          200,
+        responseHeaders: {
+          'Content-Type': 'application/vnd.go.cd.v1+json'
+        }
+      });
+
+      const successCallback = jasmine.createSpy().and.callFake((usageData) => {
+        expect(usageData.represent()).toBe(JSON.stringify(dataSharingUsageJSON, null, 4));
+      });
+
+      UsageData.get().then(successCallback);
+      expect(successCallback).toHaveBeenCalled();
+    });
+  });
+
   it('should fetch data sharing encrypted usage data', () => {
     const encryptedData = "Something really secret";
 

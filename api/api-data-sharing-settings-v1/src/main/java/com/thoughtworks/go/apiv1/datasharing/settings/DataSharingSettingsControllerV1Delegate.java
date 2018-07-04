@@ -26,6 +26,7 @@ import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
 import com.thoughtworks.go.api.util.GsonTransformer;
 import com.thoughtworks.go.apiv1.datasharing.settings.representers.DataSharingSettingsRepresenter;
 import com.thoughtworks.go.server.domain.DataSharingSettings;
+import com.thoughtworks.go.server.service.datasharing.DataSharingNotification;
 import com.thoughtworks.go.server.service.datasharing.DataSharingSettingsService;
 import com.thoughtworks.go.server.service.EntityHashingService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
@@ -45,16 +46,18 @@ public class DataSharingSettingsControllerV1Delegate extends ApiController imple
     private final DataSharingSettingsService dataSharingSettingsService;
     private final EntityHashingService entityHashingService;
     private final TimeProvider timeProvider;
+    private final DataSharingNotification dataSharingNotification;
 
     public DataSharingSettingsControllerV1Delegate(ApiAuthenticationHelper apiAuthenticationHelper,
                                                    DataSharingSettingsService dataSharingSettingsService,
                                                    EntityHashingService entityHashingService,
-                                                   TimeProvider timeProvider) {
+                                                   TimeProvider timeProvider, DataSharingNotification dataSharingNotification) {
         super(ApiVersion.v1);
         this.apiAuthenticationHelper = apiAuthenticationHelper;
         this.dataSharingSettingsService = dataSharingSettingsService;
         this.entityHashingService = entityHashingService;
         this.timeProvider = timeProvider;
+        this.dataSharingNotification = dataSharingNotification;
     }
 
     @Override
@@ -72,8 +75,10 @@ public class DataSharingSettingsControllerV1Delegate extends ApiController imple
 
             before("", mimeType, apiAuthenticationHelper::checkUserAnd403);
             before("", mimeType, this::checkAdminUserAnd403OnlyForPatch);
+            before("/notification_auth", mimeType, apiAuthenticationHelper::checkUserAnd403);
             get("", this::getDataSharingSettings);
             patch("", mimeType, this::patchDataSharingSettings);
+            get("/notification_auth", this::getDataSharingNotificationForCurrentUser);
         });
     }
 
@@ -96,6 +101,11 @@ public class DataSharingSettingsControllerV1Delegate extends ApiController imple
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         dataSharingSettingsService.createOrUpdate(getEntityFromRequestBody(request));
         return handleCreateOrUpdateResponse(request, response, dataSharingSettingsService.get(), result);
+    }
+
+    public String getDataSharingNotificationForCurrentUser(Request request, Response response) {
+        boolean shouldAllow = dataSharingNotification.allowNotificationFor(currentUsername());
+        return jsonizeAsTopLevelObject(request, writer -> writer.add("show_notification", shouldAllow));
     }
 
     @Override

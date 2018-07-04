@@ -18,6 +18,7 @@ package com.thoughtworks.go.apiv1.datasharing.settings.spring;
 
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
 import com.thoughtworks.go.apiv1.datasharing.settings.DataSharingSettingsControllerV1Delegate;
+import com.thoughtworks.go.server.service.datasharing.DataSharingNotification;
 import com.thoughtworks.go.server.service.datasharing.DataSharingSettingsService;
 import com.thoughtworks.go.server.service.EntityHashingService;
 import com.thoughtworks.go.spark.spring.SparkSpringController;
@@ -30,8 +31,11 @@ public class DataSharingSettingsV1Controller implements SparkSpringController {
     private final DataSharingSettingsControllerV1Delegate delegate;
 
     @Autowired
-    public DataSharingSettingsV1Controller(DataSharingSettingsService dataSharingUsageReportingService, ApiAuthenticationHelper apiAuthenticationHelper, EntityHashingService entityHashingService, TimeProvider timeProvider) {
-        delegate = new DataSharingSettingsControllerV1Delegate(apiAuthenticationHelper, dataSharingUsageReportingService, entityHashingService, timeProvider);
+    public DataSharingSettingsV1Controller(DataSharingSettingsService dataSharingUsageReportingService,
+                                           ApiAuthenticationHelper apiAuthenticationHelper, EntityHashingService entityHashingService,
+                                           TimeProvider timeProvider, DataSharingNotification dataSharingNotification) {
+        delegate = new DataSharingSettingsControllerV1Delegate(apiAuthenticationHelper, dataSharingUsageReportingService,
+                entityHashingService, timeProvider, dataSharingNotification);
     }
 
     @Override

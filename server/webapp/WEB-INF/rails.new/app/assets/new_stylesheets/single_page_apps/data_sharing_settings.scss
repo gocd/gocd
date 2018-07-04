@@ -32,12 +32,13 @@
 }
 
 .share-box {
-  display:       flex;
-  margin:        30px 0;
+  display: flex;
+  margin:  30px 0;
 }
 
 .show-data {
-  margin-left:   30px;
+  margin-left: 30px;
+  width:       50%;
 }
 
 .updated-by {
@@ -58,7 +59,7 @@
 
 .consent-toggle-wrapper {
   border:        1px solid #ccc;
-  width:         750px;
+  width:         50%;
   border-radius: 3px;
   padding:       10px 20px;
 }

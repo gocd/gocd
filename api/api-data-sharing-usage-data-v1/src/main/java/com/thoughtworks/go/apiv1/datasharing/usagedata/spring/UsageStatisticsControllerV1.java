@@ -18,7 +18,7 @@ package com.thoughtworks.go.apiv1.datasharing.usagedata.spring;
 
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
 import com.thoughtworks.go.apiv1.datasharing.usagedata.UsageStatisticsControllerV1Delegate;
-import com.thoughtworks.go.server.service.DataSharingUsageDataService;
+import com.thoughtworks.go.server.service.datasharing.DataSharingUsageDataService;
 import com.thoughtworks.go.spark.spring.SparkSpringController;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.springframework.beans.factory.annotation.Autowired;

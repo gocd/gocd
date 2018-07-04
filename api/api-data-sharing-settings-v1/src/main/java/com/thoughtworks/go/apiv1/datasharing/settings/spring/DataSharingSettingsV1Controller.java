@@ -18,7 +18,7 @@ package com.thoughtworks.go.apiv1.datasharing.settings.spring;
 
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
 import com.thoughtworks.go.apiv1.datasharing.settings.DataSharingSettingsControllerV1Delegate;
-import com.thoughtworks.go.server.service.DataSharingSettingsService;
+import com.thoughtworks.go.server.service.datasharing.DataSharingSettingsService;
 import com.thoughtworks.go.server.service.EntityHashingService;
 import com.thoughtworks.go.spark.spring.SparkSpringController;
 import com.thoughtworks.go.util.TimeProvider;

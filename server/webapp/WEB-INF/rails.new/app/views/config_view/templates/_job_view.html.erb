@@ -47,62 +47,96 @@
 </ul>
 <div class='tab-content'>
     <div id='artifacts_<%= scope[:stage_id] %>_job_<%= scope[:index] %>' class='tab-pane'>
-        <table class="artifacts list_table">
-            <thead>
-            <tr>
-                <th>Source</th>
-                <th>Destination</th>
-                <th>Type</th>
-            </tr>
-            </thead>
-            <tbody>
-            <% if scope[:job].artifactConfigs().empty() %>
-                <tr>
-                    <td align='center' colspan="3" class="name_value_cell">No artifacts have been configured</td>
-                </tr>
-            <% end %>
-            <% scope[:job].artifactConfigs().each do |artifact_config| %>
-                <tr>
-                    <td class="name_value_cell">
-                        <%= artifact_config.getSource() %>
-                    </td>
-                    <td class="name_value_cell">
-                        <%= artifact_config.getDestination() %>
-                    </td>
-                    <td class="name_value_cell">
-                        <%= artifact_config.getArtifactTypeValue() %>
-                    </td>
-                </tr>
-            <% end %>
-            </tbody>
-        </table>
-    </div>
-    <div id="environment_variables_<%= scope[:stage_id] %>_job_<%= scope[:index] %>" class="tab-pane">
+      <% artifacts_by_type = scope[:job].artifactConfigs().group_by(&:artifactType) %>
+      <label class="artifact_title build_artifact">Build Artifact</label>
+      <% if artifacts_by_type[com.thoughtworks.go.domain.ArtifactType::build].nil? %>
+        <span class="no_build_artifact">No build artifacts have been configured</span>
+      <% else %>
+        <ul class="artifact_key_value_pair build_artifact">
+          <% Array.wrap(artifacts_by_type[com.thoughtworks.go.domain.ArtifactType::build]).each do |build_artifact| %>
+            <li>
+              <label>
+                <span class="key">Source</span>
+                <span class="value"><%= build_artifact.getSource() %></span>
+              </label>
+
+              <label>
+                <span class="key">Destination</span>
+                <span class="value"><%= build_artifact.getDestination() %></span>
+              </label>
+            </li>
+          <% end %>
+        </ul>
+      <% end %>
+
+      <label class="artifact_title test_artifact">Test Artifact</label>
+      <% if artifacts_by_type[com.thoughtworks.go.domain.ArtifactType::test].nil? %>
+        <span class="no_test_artifact">No test artifacts have been configured</span>
+      <% else %>
+        <ul class="artifact_key_value_pair test_artifact">
+          <% Array.wrap(artifacts_by_type[com.thoughtworks.go.domain.ArtifactType::test]).each do |build_artifact| %>
+            <li>
+              <label>
+                <span class="key">Source</span>
+                <span class="value"><%= build_artifact.getSource() %></span>
+              </label>
+
+              <label>
+                <span class="key">Destination</span>
+                <span class="value"><%= build_artifact.getDestination() %></span>
+              </label>
+            </li>
+          <% end %>
+        </ul>
+      <% end %>
+
+      <label class="artifact_title external_artifact">External Artifact</label>
+      <% if artifacts_by_type[com.thoughtworks.go.domain.ArtifactType::external].nil? %>
+        <span class="no_external_artifact">No external artifacts have been configured</span>
+      <% else %>
+        <ul class="artifact_key_value_pair external_artifact">
+          <% Array.wrap(artifacts_by_type[com.thoughtworks.go.domain.ArtifactType::external]).each do |build_artifact| %>
+            <li>
+              <label>
+                <span class="key">Artifact ID</span>
+                <span class="value"><%= build_artifact.getId() %></span>
+              </label>
+
+              <label>
+                <span class="key">Store ID</span>
+                <span class="value"><%= build_artifact.getStoreId() %></span>
+              </label>
+            </li>
+          <% end %>
+        </ul>
+      <% end %>
+      <div id="environment_variables_<%= scope[:stage_id] %>_job_<%= scope[:index] %>" class="tab-pane">
         <table class="variables list_table">
-            <thead>
+          <thead>
+          <tr>
+            <th>Name</th>
+            <th>Value</th>
+          </tr>
+          </thead>
+          <tbody>
+          <% if scope[:job].getVariables().isEmpty() %>
             <tr>
-                <th>Name</th>
-                <th>Value</th>
+              <td align='center' colspan="2" class="name_value_cell">No environment variables have been configured</td>
             </tr>
-            </thead>
-            <tbody>
-            <% if scope[:job].getVariables().isEmpty() %>
-                <tr>
-                    <td align='center' colspan="2" class="name_value_cell">No environment variables have been configured</td>
-                </tr>
-            <% end %>
-            <% scope[:job].getVariables().each do |environment_variable| %>
-                <tr>
-                    <td class="name_value_cell">
-                        <%= environment_variable.getName() %>
-                    </td>
-                    <td class="name_value_cell">
-                        <%= environment_variable.getDisplayValue() %>
-                    </td>
-                </tr>
-            <% end %>
-            </tbody>
+          <% end %>
+          <% scope[:job].getVariables().each do |environment_variable| %>
+            <tr>
+              <td class="name_value_cell">
+                <%= environment_variable.getName() %>
+              </td>
+              <td class="name_value_cell">
+                <%= environment_variable.getDisplayValue() %>
+              </td>
+            </tr>
+          <% end %>
+          </tbody>
         </table>
+      </div>
     </div>
     <div id="custom_tabs_<%= scope[:stage_id] %>_job_<%= scope[:index] %>" class="tab-pane">
         <table class="custom_tabs list_table">

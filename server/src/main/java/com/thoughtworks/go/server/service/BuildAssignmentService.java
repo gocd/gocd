@@ -42,6 +42,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.support.TransactionCallback;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static com.thoughtworks.go.util.ArtifactLogUtil.getConsoleOutputFolderAndFileNameUrl;
 import static org.apache.commons.collections4.CollectionUtils.forAllDo;
@@ -95,6 +96,7 @@ public class BuildAssignmentService implements ConfigChangedListener {
         goConfigService.register(pipelineConfigChangedListener());
     }
 
+
     protected EntityConfigChangedListener<PipelineConfig> pipelineConfigChangedListener() {
         return new EntityConfigChangedListener<PipelineConfig>() {
             @Override
@@ -102,24 +104,43 @@ public class BuildAssignmentService implements ConfigChangedListener {
                 LOGGER.info("[Configuration Changed] Removing deleted jobs for pipeline {}.", pipelineConfig.name());
 
                 synchronized (BuildAssignmentService.this) {
-                    List<JobPlan> jobsToRemove = new ArrayList<>();
-                    for (JobPlan jobPlan : jobPlans) {
-                        if (pipelineConfig.name().equals(new CaseInsensitiveString(jobPlan.getPipelineName()))) {
-                            StageConfig stageConfig = pipelineConfig.findBy(new CaseInsensitiveString(jobPlan.getStageName()));
-                            if (stageConfig != null) {
-                                JobConfig jobConfig = stageConfig.jobConfigByConfigName(new CaseInsensitiveString(jobPlan.getName()));
-                                if (jobConfig == null) {
-                                    jobsToRemove.add(jobPlan);
-                                }
-                            } else {
-                                jobsToRemove.add(jobPlan);
-                            }
-                        }
+                    List<JobPlan> jobsToRemove;
+                    if (goConfigService.hasPipelineNamed(pipelineConfig.name())) {
+                        jobsToRemove = getMismatchingJobPlansFromUpdatedPipeline(pipelineConfig, jobPlans);
+                    } else {
+                        jobsToRemove = getAllJobPlansFromDeletedPipeline(pipelineConfig, jobPlans);
                     }
+
                     IterableUtils.forEach(jobsToRemove, o -> removeJob(o));
                 }
             }
         };
+    }
+
+    private List<JobPlan> getMismatchingJobPlansFromUpdatedPipeline(PipelineConfig pipelineConfig, List<JobPlan> allJobPlans) {
+        List<JobPlan> jobsToRemove = new ArrayList<>();
+
+        for (JobPlan jobPlan : allJobPlans) {
+            if (pipelineConfig.name().equals(new CaseInsensitiveString(jobPlan.getPipelineName()))) {
+                StageConfig stageConfig = pipelineConfig.findBy(new CaseInsensitiveString(jobPlan.getStageName()));
+                if (stageConfig != null) {
+                    JobConfig jobConfig = stageConfig.jobConfigByConfigName(new CaseInsensitiveString(jobPlan.getName()));
+                    if (jobConfig == null) {
+                        jobsToRemove.add(jobPlan);
+                    }
+                } else {
+                    jobsToRemove.add(jobPlan);
+                }
+            }
+        }
+
+        return jobsToRemove;
+    }
+
+    private List<JobPlan> getAllJobPlansFromDeletedPipeline(PipelineConfig pipelineConfig, List<JobPlan> allJobPlans) {
+        return allJobPlans.stream()
+                .filter(jobPlan -> new CaseInsensitiveString(jobPlan.getPipelineName()).equals(pipelineConfig.name()))
+                .collect(Collectors.toList());
     }
 
     public Work assignWorkToAgent(AgentIdentifier agent) {

@@ -284,6 +284,10 @@ public class BuildAssignmentServiceIntegrationTest {
         JobInstance job = pipeline.getFirstStage().getJobInstances().first();
         assertThat(job.getState(), is(JobState.Completed));
         assertThat(job.getResult(), is(JobResult.Cancelled));
+
+        buildAssignmentService.onTimer();
+        List<JobPlan> latestJobPlans = buildAssignmentService.jobPlans();
+        assertThat(latestJobPlans.size(), is(0));
     }
 
     @Test
@@ -309,6 +313,38 @@ public class BuildAssignmentServiceIntegrationTest {
         JobInstance retainedJob = pipeline.getFirstStage().getJobInstances().getByName(fixture.DEV_STAGE_SECOND_JOB);
         assertThat(retainedJob.getState(), is(JobState.Scheduled));
         assertThat(retainedJob.getResult(), is(JobResult.Unknown));
+
+        buildAssignmentService.onTimer();
+        List<JobPlan> latestJobPlans = buildAssignmentService.jobPlans();
+        assertThat(latestJobPlans.size(), is(1));
+        assertThat(latestJobPlans.get(0).getName(), is(retainedJob.getName()));
+    }
+
+    @Test
+    public void shouldCancelBuildsForAllJobsWhenPipelineIsDeleted() throws Exception {
+        buildAssignmentService.initialize();
+        fixture = new PipelineWithTwoStages(materialRepository, transactionTemplate, temporaryFolder).usingTwoJobs();
+        fixture.usingConfigHelper(configHelper).usingDbHelper(dbHelper).onSetUp();
+        fixture.createPipelineWithFirstStageScheduled();
+
+        buildAssignmentService.onTimer();
+
+        PipelineConfig pipelineConfig = new Cloner().deepClone(configHelper.getCachedGoConfig().currentConfig().getPipelineConfigByName(new CaseInsensitiveString(fixture.pipelineName)));
+
+        pipelineConfigService.deletePipelineConfig(loserUser, pipelineConfig, new HttpLocalizedOperationResult());
+
+        Pipeline pipeline = pipelineDao.mostRecentPipeline(fixture.pipelineName);
+        JobInstance job1 = pipeline.getFirstStage().getJobInstances().getByName(fixture.JOB_FOR_DEV_STAGE);
+        JobInstance job2 = pipeline.getFirstStage().getJobInstances().getByName(fixture.DEV_STAGE_SECOND_JOB);
+
+        assertThat(job1.getState(), is(JobState.Completed));
+        assertThat(job1.getResult(), is(JobResult.Cancelled));
+        assertThat(job2.getState(), is(JobState.Completed));
+        assertThat(job2.getResult(), is(JobResult.Cancelled));
+
+        buildAssignmentService.onTimer();
+        List<JobPlan> latestJobPlans = buildAssignmentService.jobPlans();
+        assertThat(latestJobPlans.size(), is(0));
     }
 
     @Test
@@ -818,7 +854,6 @@ public class BuildAssignmentServiceIntegrationTest {
         assertThat("Should not assign work when agent status is Canceled", agent.messages.size(), is(0));
     }
 
-
     @Test
     public void shouldCallForReregisterIfAgentInstanceIsNotRegistered() throws Exception {
         AgentConfig agentConfig = AgentMother.remoteAgent();
@@ -876,5 +911,4 @@ public class BuildAssignmentServiceIntegrationTest {
     private JobInstance buildOf(Pipeline pipeline) {
         return pipeline.getStages().first().getJobInstances().first();
     }
-
 }

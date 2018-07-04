@@ -136,12 +136,15 @@ api/api-roles-config-v1/target/
 api/api-server-health-messages-v1/logs/
 api/api-server-health-messages-v1/out/
 api/api-server-health-messages-v1/target/
+api/api-server-health-v1/logs/
+api/api-server-health-v1/out/
+api/api-server-health-v1/target/
+api/api-shared-v4/out/
+api/api-shared-v4/target/
 api/api-shared-v6/config/
 api/api-shared-v6/logs/
 api/api-shared-v6/out/
 api/api-shared-v6/target/
-api/api-shared-v4/out/
-api/api-shared-v4/target/
 api/api-template-config-v4/out/
 api/api-template-config-v4/target/
 api/api-user-representers-v1/logs/

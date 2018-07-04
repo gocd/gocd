@@ -62,7 +62,7 @@ public class WebpackAssetsService implements ServletContextAware {
     }
 
     public Set<String> getAssetPathsFor(String... assetNames) throws IOException {
-        HashSet<String> result = new HashSet<>();
+        Set<String> result = new LinkedHashSet<>();
 
         for (String asset : assetNames) {
             result.addAll(getAssetPaths(asset));

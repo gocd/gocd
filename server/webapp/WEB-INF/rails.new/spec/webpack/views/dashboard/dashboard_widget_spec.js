@@ -25,12 +25,11 @@ describe("Dashboard Widget", () => {
   const Modal           = require('views/shared/new_modal');
   const SparkRoutes     = require("helpers/spark_routes");
 
-  let $root, root, dashboard, dashboardJson, buildCauseJson, doCancelPolling, doRefreshImmediately;
+  let $root, root, dashboard, dashboardJson, buildCauseJson, doCancelPolling, doRefreshImmediately, personalizeData;
   const originalDebounce = _.debounce;
   beforeEach(() => {
     doCancelPolling      = jasmine.createSpy();
     doRefreshImmediately = jasmine.createSpy();
-
     //override debounce function for tests to be called synchronously
     spyOn(_, 'debounce').and.callFake((func) => {
       return function () {
@@ -87,38 +86,52 @@ describe("Dashboard Widget", () => {
     expect($root.find('.callout.alert .dashboard-message')).toContainText('some error message');
   });
 
-  it("should show personalize view", () => {
-    jasmine.Ajax.withMock(() => {
-      jasmine.Ajax.stubRequest('/go/api/internal/pipeline_selection', undefined, 'GET').andReturn({
-        responseText:    JSON.stringify({}),
-        responseHeaders: {
-          ETag:           'etag',
-          'Content-Type': 'application/vnd.go.cd.v2+json'
-        },
-        status:          200
-      });
-
-      expect($root.find('.filter_options')).not.toBeInDOM();
-      $root.find('.filter_btn').click();
-      expect($root.find('.filter_options')).toBeInDOM();
+  describe("personalize view", () => {
+    beforeEach(() => {
+      personalizeData = {
+        filters: [
+          {
+            pipelines: [],
+            type: 'blacklist'
+          }
+        ],
+        pipelines: []
+      };
     });
-  });
 
-  it("should close an open personalize view dropdown on clicking anywhere on the screen", () => {
-    jasmine.Ajax.withMock(() => {
-      jasmine.Ajax.stubRequest('/go/api/internal/pipeline_selection', undefined, 'GET').andReturn({
-        responseText:    JSON.stringify({}),
-        responseHeaders: {
-          ETag:           'etag',
-          'Content-Type': 'application/vnd.go.cd.v2+json'
-        },
-        status:          200
+    it("should show personalize view", () => {
+      jasmine.Ajax.withMock(() => {
+        jasmine.Ajax.stubRequest('/go/api/internal/pipeline_selection', undefined, 'GET').andReturn({
+          responseText:    JSON.stringify(personalizeData),
+          responseHeaders: {
+            ETag:           'etag',
+            'Content-Type': 'application/vnd.go.cd.v2+json'
+          },
+          status:          200
+        });
+
+        expect($root.find('.filter_options')).not.toBeInDOM();
+        $root.find('.filter_btn').click();
+        expect($root.find('.filter_options')).toBeInDOM();
       });
+    });
 
-      $root.find('.filter_btn').click();
-      expect($root.find('.filter_options')).toBeInDOM();
-      $('body').click();
-      expect($root.find('.filter_options')).not.toBeInDOM();
+    it("should close an open personalize view dropdown on clicking anywhere on the screen", () => {
+      jasmine.Ajax.withMock(() => {
+        jasmine.Ajax.stubRequest('/go/api/internal/pipeline_selection', undefined, 'GET').andReturn({
+          responseText:    JSON.stringify(personalizeData),
+          responseHeaders: {
+            ETag:           'etag',
+            'Content-Type': 'application/vnd.go.cd.v2+json'
+          },
+          status:          200
+        });
+
+        $root.find('.filter_btn').click();
+        expect($root.find('.filter_options')).toBeInDOM();
+        $('body').click();
+        expect($root.find('.filter_options')).not.toBeInDOM();
+      });
     });
   });
 

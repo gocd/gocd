@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.server.service;
+package com.thoughtworks.go.server.service.datasharing;
 
-import com.thoughtworks.go.server.domain.DataSharingSettings;
 import com.thoughtworks.go.server.dao.DataSharingSettingsSqlMapDao;
+import com.thoughtworks.go.server.domain.DataSharingSettings;
+import com.thoughtworks.go.server.service.EntityHashingService;
 import com.thoughtworks.go.server.transaction.TransactionSynchronizationManager;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import org.junit.Before;
@@ -50,7 +51,8 @@ public class DataSharingSettingsServiceTest {
     @Before
     public void setUp() throws Exception {
         initMocks(this);
-        sharingSettingsService = new DataSharingSettingsService(dataSharingSettingsSqlMapDao, transactionTemplate, transactionSynchronizationManager, entityHashingService);
+        sharingSettingsService = new DataSharingSettingsService(dataSharingSettingsSqlMapDao, transactionTemplate,
+                transactionSynchronizationManager, entityHashingService);
     }
 
     @Test
@@ -72,4 +74,5 @@ public class DataSharingSettingsServiceTest {
         assertThat(updatedDataSharingSettings.allowSharing(), is(newConsent));
         assertThat(updatedDataSharingSettings.updatedBy(), is(consentedBy));
     }
+
 }

@@ -14,12 +14,15 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.server.service;
+package com.thoughtworks.go.server.service.datasharing;
 
+import com.thoughtworks.go.CurrentGoCDVersion;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.domain.JobStateTransition;
 import com.thoughtworks.go.server.dao.JobInstanceSqlMapDao;
 import com.thoughtworks.go.server.domain.UsageStatistics;
+import com.thoughtworks.go.server.service.GoConfigService;
+import com.thoughtworks.go.server.service.datasharing.DataSharingUsageStatisticsReportingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -28,19 +31,23 @@ import org.springframework.stereotype.Service;
 public class DataSharingUsageDataService {
     private final GoConfigService goConfigService;
     private final JobInstanceSqlMapDao jobInstanceSqlMapDao;
+    private final DataSharingUsageStatisticsReportingService dataSharingUsageStatisticsReportingService;
 
     @Autowired
-    public DataSharingUsageDataService(GoConfigService goConfigService, JobInstanceSqlMapDao jobInstanceSqlMapDao) {
+    public DataSharingUsageDataService(GoConfigService goConfigService, JobInstanceSqlMapDao jobInstanceSqlMapDao,
+                                       DataSharingUsageStatisticsReportingService dataSharingUsageStatisticsReportingService) {
         this.goConfigService = goConfigService;
         this.jobInstanceSqlMapDao = jobInstanceSqlMapDao;
+        this.dataSharingUsageStatisticsReportingService = dataSharingUsageStatisticsReportingService;
     }
 
     public UsageStatistics get() {
-        CruiseConfig config = goConfigService.cruiseConfig();
+        CruiseConfig config = goConfigService.getCurrentConfig();
         JobStateTransition jobStateTransition = jobInstanceSqlMapDao.oldestBuild();
         Long oldestPipelineExecutionTime = jobStateTransition == null ? null : jobStateTransition.getStateChangeTime().getTime();
         long nonElasticAgentCount = config.agents().parallelStream().filter(agentConfig -> !agentConfig.isElastic()).count();
-        long size = config.getAllPipelineConfigs().size();
-        return new UsageStatistics(size, nonElasticAgentCount, oldestPipelineExecutionTime);
+        long pipelineCount = config.getAllPipelineConfigs().size();
+        String serverId = dataSharingUsageStatisticsReportingService.get().getServerId();
+        return new UsageStatistics(pipelineCount, nonElasticAgentCount, oldestPipelineExecutionTime, serverId, CurrentGoCDVersion.getInstance().goVersion());
     }
 }

@@ -21,41 +21,93 @@ describe('DataSharingNotification', () => {
       localStorage.clear();
   });
 
+  afterEach(() => {
+      localStorage.clear();
+  });
+
   it('should create a notification for data sharing', () => {
-    DataSharingNotification.createIfNotPresent();
-    const notifications = JSON.parse(localStorage.getItem('system_notifications'));
-    expect(notifications.length).toBe(1);
-    expect(notifications[0].message).toBe("GoCD shares data so that it can be improved.");
-    expect(notifications[0].type).toBe("DataSharing");
-    expect(notifications[0].link).toBe("/go/admin/data_sharing/settings");
-    expect(notifications[0].linkText).toBe("Learn more ...");
-    expect(notifications[0].read).toBe(false);
-    expect(notifications[0].id).not.toBeUndefined();
+    jasmine.Ajax.withMock(() => {
+      jasmine.Ajax.stubRequest("/go/api/data_sharing/settings/notification_auth").andReturn({
+        responseText:    JSON.stringify({"show_notification" : true}),
+        status:          200,
+        responseHeaders: {
+          'Accept': 'application/vnd.go.cd.v1+json'
+        }
+      });
+
+      DataSharingNotification.createIfNotPresent();
+      const notifications = JSON.parse(localStorage.getItem('system_notifications'));
+      expect(notifications.length).toBe(1);
+      expect(notifications[0].message).toBe("GoCD shares data so that it can be improved.");
+      expect(notifications[0].type).toBe("DataSharing");
+      expect(notifications[0].link).toBe("/go/admin/data_sharing/settings");
+      expect(notifications[0].linkText).toBe("Learn more ...");
+      expect(notifications[0].read).toBe(false);
+      expect(notifications[0].id).not.toBeUndefined();
+
+      const request = jasmine.Ajax.requests.mostRecent();
+      expect(request.method).toBe('GET');
+      expect(request.url).toBe('/go/api/data_sharing/settings/notification_auth');
+      expect(request.requestHeaders['Content-Type']).toContain('application/json');
+      expect(request.requestHeaders['Accept']).toContain('application/vnd.go.cd.v1+json');
+    });
   });
 
   it('should not create a notification for data sharing if one already exists in the store', () => {
-    DataSharingNotification.createIfNotPresent();
+    jasmine.Ajax.withMock(() => {
+      jasmine.Ajax.stubRequest("/go/api/data_sharing/settings/notification_auth").andReturn({
+        responseText:    JSON.stringify({"show_notification" : true}),
+        status:          200,
+        responseHeaders: {
+          'Accept': 'application/vnd.go.cd.v1+json'
+        }
+      });
+      DataSharingNotification.createIfNotPresent();
 
-    const allNotifications = SystemNotifications.fromJSON(JSON.parse(localStorage.getItem('system_notifications')));
+      const allNotifications = SystemNotifications.fromJSON(JSON.parse(localStorage.getItem('system_notifications')));
 
-    const dataSharingNotification = allNotifications.findSystemNotification((m) => {
-        return m.type() === 'DataSharing';
+      const dataSharingNotification = allNotifications.findSystemNotification((m) => {
+          return m.type() === 'DataSharing';
+      });
+      expect(dataSharingNotification).not.toBeUndefined();
+      expect(dataSharingNotification.message()).toBe("GoCD shares data so that it can be improved.");
+      expect(dataSharingNotification.type()).toBe("DataSharing");
+      expect(dataSharingNotification.link()).toBe("/go/admin/data_sharing/settings");
+      expect(dataSharingNotification.linkText()).toBe("Learn more ...");
+      expect(dataSharingNotification.read()).toBe(false);
+      expect(dataSharingNotification.id()).not.toBeUndefined();
+
+
+      DataSharingNotification.createIfNotPresent();
+      const allNotificationsAfterSecondCreateCall = SystemNotifications.fromJSON(JSON.parse(localStorage.getItem('system_notifications')));
+      const dataSharingNotificationAfterSecondCreateCall = allNotificationsAfterSecondCreateCall.findSystemNotification((m) => {
+          return m.type() === 'DataSharing';
+      });
+      expect(dataSharingNotificationAfterSecondCreateCall).not.toBeUndefined();
+      expect(dataSharingNotificationAfterSecondCreateCall.id()).toBe(dataSharingNotification.id());
+
     });
-    expect(dataSharingNotification).not.toBeUndefined();
-    expect(dataSharingNotification.message()).toBe("GoCD shares data so that it can be improved.");
-    expect(dataSharingNotification.type()).toBe("DataSharing");
-    expect(dataSharingNotification.link()).toBe("/go/admin/data_sharing/settings");
-    expect(dataSharingNotification.linkText()).toBe("Learn more ...");
-    expect(dataSharingNotification.read()).toBe(false);
-    expect(dataSharingNotification.id()).not.toBeUndefined();
+  });
 
 
-    DataSharingNotification.createIfNotPresent();
-    const allNotificationsAfterSecondCreateCall = SystemNotifications.fromJSON(JSON.parse(localStorage.getItem('system_notifications')));
-    const dataSharingNotificationAfterSecondCreateCall = allNotificationsAfterSecondCreateCall.findSystemNotification((m) => {
-        return m.type() === 'DataSharing';
+  it('should not create a notification for data sharing if the server doesnot allow a notification for the user', () => {
+    jasmine.Ajax.withMock(() => {
+      jasmine.Ajax.stubRequest("/go/api/data_sharing/settings/notification_auth").andReturn({
+        responseText:    JSON.stringify({"show_notification" : false}),
+        status:          200,
+        responseHeaders: {
+          'Accept': 'application/vnd.go.cd.v1+json'
+        }
+      });
+      DataSharingNotification.createIfNotPresent();
+
+      const allNotifications = SystemNotifications.fromJSON(JSON.parse(localStorage.getItem('system_notifications')));
+      expect(allNotifications.countSystemNotification()).toBe(0);
+      const request = jasmine.Ajax.requests.mostRecent();
+      expect(request.method).toBe('GET');
+      expect(request.url).toBe('/go/api/data_sharing/settings/notification_auth');
+      expect(request.requestHeaders['Content-Type']).toContain('application/json');
+      expect(request.requestHeaders['Accept']).toContain('application/vnd.go.cd.v1+json');
     });
-    expect(dataSharingNotificationAfterSecondCreateCall).not.toBeUndefined();
-    expect(dataSharingNotificationAfterSecondCreateCall.id()).toBe(dataSharingNotification.id());
   });
 });

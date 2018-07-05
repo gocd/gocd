@@ -20,24 +20,24 @@ describe('Data Sharing Usage Data', () => {
   const dataSharingEncryptedUsageDataURL = '/go/api/internal/data_sharing/usagedata/encrypted';
 
   const dataSharingUsageJSON = {
-    "_embedded": {
+    "server_id": "some-random-string",
+    "message_version": 2,
+    "data": {
       "pipeline_count":                 1,
       "agent_count":                    0,
-      "oldest_pipeline_execution_time": 1528887811275
+      "oldest_pipeline_execution_time": 1528887811275,
+      "gocd_version": "18.9.0"
     }
   };
 
   it('should deserialize data sharing usage data from JSON', () => {
     const usageData = UsageData.fromJSON(dataSharingUsageJSON);
-
-    expect(usageData.pipelineCount()).toBe(dataSharingUsageJSON._embedded.pipeline_count);
-    expect(usageData.agentCount()).toBe(dataSharingUsageJSON._embedded.agent_count);
-    expect(usageData.oldestPipelineExecutionTime()).toBe(dataSharingUsageJSON._embedded.oldest_pipeline_execution_time);
+    expect(usageData.message()).toBe(dataSharingUsageJSON);
   });
 
   it('should represent pretty formatted data', () => {
     const usageData = UsageData.fromJSON(dataSharingUsageJSON);
-    expect(usageData.represent()).toBe(JSON.stringify(dataSharingUsageJSON._embedded, null, 4));
+    expect(usageData.represent()).toBe(JSON.stringify(dataSharingUsageJSON, null, 4));
   });
 
   it('should fetch data sharing usage data', () => {
@@ -51,9 +51,7 @@ describe('Data Sharing Usage Data', () => {
       });
 
       const successCallback = jasmine.createSpy().and.callFake((usageData) => {
-        expect(usageData.pipelineCount()).toBe(dataSharingUsageJSON._embedded.pipeline_count);
-        expect(usageData.agentCount()).toBe(dataSharingUsageJSON._embedded.agent_count);
-        expect(usageData.oldestPipelineExecutionTime()).toBe(dataSharingUsageJSON._embedded.oldest_pipeline_execution_time);
+        expect(usageData.represent()).toBe(JSON.stringify(dataSharingUsageJSON, null, 4));
       });
 
       UsageData.get().then(successCallback);

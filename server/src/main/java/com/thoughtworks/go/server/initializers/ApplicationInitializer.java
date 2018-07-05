@@ -33,6 +33,8 @@ import com.thoughtworks.go.server.materials.MaterialUpdateService;
 import com.thoughtworks.go.server.materials.SCMMaterialSource;
 import com.thoughtworks.go.server.newsecurity.filters.InvalidateAuthenticationOnSecurityConfigChangeFilter;
 import com.thoughtworks.go.server.service.*;
+import com.thoughtworks.go.server.service.datasharing.DataSharingSettingsService;
+import com.thoughtworks.go.server.service.datasharing.DataSharingUsageStatisticsReportingService;
 import com.thoughtworks.go.server.service.support.ResourceMonitoring;
 import com.thoughtworks.go.server.service.support.toggle.FeatureToggleService;
 import com.thoughtworks.go.server.service.support.toggle.Toggles;

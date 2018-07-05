@@ -17,14 +17,9 @@
 const AjaxHelper  = require('helpers/ajax_helper');
 const SparkRoutes = require("helpers/spark_routes");
 
-const UsageData = function (initialData) {
-  const data = initialData._embedded;
-
-  this.agentCount                  = () => data.agent_count;
-  this.pipelineCount               = () => data.pipeline_count;
-  this.oldestPipelineExecutionTime = () => data.oldest_pipeline_execution_time;
-
-  this.represent = () => JSON.stringify(data, null, 4);
+const UsageData = function (data) {
+  this.message                  = () => data;
+  this.represent = () => JSON.stringify(this.message(), null, 4);
 };
 
 UsageData.fromJSON = function (json) {

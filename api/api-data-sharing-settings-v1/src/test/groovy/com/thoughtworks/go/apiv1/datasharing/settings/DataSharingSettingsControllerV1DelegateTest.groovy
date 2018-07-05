@@ -20,7 +20,8 @@ import com.thoughtworks.go.api.SecurityTestTrait
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
 import com.thoughtworks.go.apiv1.datasharing.settings.representers.DataSharingSettingsRepresenter
 import com.thoughtworks.go.server.domain.DataSharingSettings
-import com.thoughtworks.go.server.service.DataSharingSettingsService
+import com.thoughtworks.go.server.service.datasharing.DataSharingNotification
+import com.thoughtworks.go.server.service.datasharing.DataSharingSettingsService
 import com.thoughtworks.go.server.service.EntityHashingService
 import com.thoughtworks.go.spark.AdminUserSecurity
 import com.thoughtworks.go.spark.ControllerTrait
@@ -50,10 +51,13 @@ class DataSharingSettingsControllerV1DelegateTest implements SecurityServiceTrai
     EntityHashingService entityHashingService
     @Mock
     TimeProvider timeProvider
+    @Mock
+    DataSharingNotification dataSharingNotification
 
     @Override
     DataSharingSettingsControllerV1Delegate createControllerInstance() {
-        new DataSharingSettingsControllerV1Delegate(new ApiAuthenticationHelper(securityService, goConfigService), dataSharingSettingsService, entityHashingService, timeProvider)
+        new DataSharingSettingsControllerV1Delegate(new ApiAuthenticationHelper(securityService, goConfigService),
+                dataSharingSettingsService, entityHashingService, timeProvider, dataSharingNotification)
     }
 
     @Nested
@@ -95,6 +99,43 @@ class DataSharingSettingsControllerV1DelegateTest implements SecurityServiceTrai
                   .hasContentType(controller.mimeType)
                   .hasEtag('"' + etag + '"')
                   .hasBodyWithJsonObject(dataSharingSettings, DataSharingSettingsRepresenter.class)
+            }
+        }
+    }
+
+    @Nested
+    class getDataSharingNotificationForCurrentUser {
+        @Nested
+        class Security implements SecurityTestTrait, NormalUserSecurity {
+
+            @Override
+            String getControllerMethodUnderTest() {
+                return "getDataSharingNotificationForCurrentUser"
+            }
+
+            @Override
+            void makeHttpCall() {
+                getWithApiHeader(controller.controllerPath('/notification_auth'))
+            }
+        }
+
+        @Nested
+        class AsNormalUser {
+            @BeforeEach
+            void setUp() {
+                enableSecurity()
+                loginAsUser()
+            }
+
+            @Test
+            void 'get data sharing settings notification'() {
+                when(dataSharingNotification.allowNotificationFor(currentUsername())).thenReturn(true);
+                getWithApiHeader(controller.controllerPath('/notification_auth'));
+
+                assertThatResponse()
+                  .isOk()
+                  .hasContentType(controller.mimeType)
+                  .hasJsonBody("{\"show_notification\" : true }");
             }
         }
     }

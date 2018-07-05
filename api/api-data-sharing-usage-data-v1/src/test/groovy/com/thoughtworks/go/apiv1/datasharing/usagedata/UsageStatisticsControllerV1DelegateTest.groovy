@@ -20,7 +20,7 @@ import com.thoughtworks.go.api.SecurityTestTrait
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
 import com.thoughtworks.go.apiv1.datasharing.usagedata.representers.UsageStatisticsRepresenter
 import com.thoughtworks.go.server.domain.UsageStatistics
-import com.thoughtworks.go.server.service.DataSharingUsageDataService
+import com.thoughtworks.go.server.service.datasharing.DataSharingUsageDataService
 import com.thoughtworks.go.server.util.RSAEncryptionHelper
 import com.thoughtworks.go.spark.AdminUserSecurity
 import com.thoughtworks.go.spark.ControllerTrait
@@ -79,7 +79,7 @@ class UsageStatisticsControllerV1DelegateTest implements SecurityServiceTrait, C
 
       @Test
       void 'get usage statistics'() {
-        def metrics = new UsageStatistics(10l, 20l, 1527244129553)
+        def metrics = new UsageStatistics(10l, 20l, 1527244129553, serverId, gocdVersion)
         when(dataSharingService.get()).thenReturn(metrics)
 
         getWithApiHeader(controller.controllerPath())
@@ -117,7 +117,7 @@ class UsageStatisticsControllerV1DelegateTest implements SecurityServiceTrait, C
 
       @Test
       void 'get encrypted usage statistics'() {
-        def metrics = new UsageStatistics(10l, 20l, 1527244129553)
+        def metrics = new UsageStatistics(10l, 20l, 1527244129553, serverId, gocdVersion)
         File privateKeyFile = new File(getClass().getClassLoader().getResource("private_key.pem").getFile())
         File publicKeyFile = new File(getClass().getClassLoader().getResource("public_key.pem").getFile())
 

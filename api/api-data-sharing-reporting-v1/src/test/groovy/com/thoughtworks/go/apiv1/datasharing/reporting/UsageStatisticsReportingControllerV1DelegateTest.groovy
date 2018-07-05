@@ -20,7 +20,7 @@ import com.thoughtworks.go.api.SecurityTestTrait
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
 import com.thoughtworks.go.apiv1.datasharing.reporting.representers.UsageStatisticsReportingRepresenter
 import com.thoughtworks.go.domain.UsageStatisticsReporting
-import com.thoughtworks.go.server.service.DataSharingUsageStatisticsReportingService
+import com.thoughtworks.go.server.service.datasharing.DataSharingUsageStatisticsReportingService
 import com.thoughtworks.go.spark.ControllerTrait
 import com.thoughtworks.go.spark.NormalUserSecurity
 import com.thoughtworks.go.spark.SecurityServiceTrait

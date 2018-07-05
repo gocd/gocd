@@ -14,16 +14,19 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.server.service;
+package com.thoughtworks.go.server.service.datasharing;
 
+import com.thoughtworks.go.CurrentGoCDVersion;
 import com.thoughtworks.go.config.AgentConfig;
 import com.thoughtworks.go.config.BasicCruiseConfig;
 import com.thoughtworks.go.domain.JobState;
 import com.thoughtworks.go.domain.JobStateTransition;
+import com.thoughtworks.go.domain.UsageStatisticsReporting;
 import com.thoughtworks.go.helper.AgentMother;
 import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.server.dao.JobInstanceSqlMapDao;
 import com.thoughtworks.go.server.domain.UsageStatistics;
+import com.thoughtworks.go.server.service.GoConfigService;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -44,16 +47,19 @@ public class DataSharingUsageDataServiceTest {
 
     private BasicCruiseConfig goConfig;
     private JobStateTransition oldestBuild;
+    @Mock
+    private DataSharingUsageStatisticsReportingService dataSharingUsageStatisticsReportingService;
 
     @Before
     public void setUp() throws Exception {
         initMocks(this);
-        service = new DataSharingUsageDataService(goConfigService, jobInstanceSqlMapDao);
+        service = new DataSharingUsageDataService(goConfigService, jobInstanceSqlMapDao, dataSharingUsageStatisticsReportingService);
         goConfig = GoConfigMother.configWithPipelines("p1", "p2");
         goConfig.agents().add(new AgentConfig("agent1"));
-        when(goConfigService.cruiseConfig()).thenReturn(goConfig);
+        when(goConfigService.getCurrentConfig()).thenReturn(goConfig);
         oldestBuild = new JobStateTransition(JobState.Scheduled, new Date());
         when(jobInstanceSqlMapDao.oldestBuild()).thenReturn(oldestBuild);
+        when(dataSharingUsageStatisticsReportingService.get()).thenReturn(new UsageStatisticsReporting("server-id", new Date()));
     }
 
     @Test
@@ -62,6 +68,8 @@ public class DataSharingUsageDataServiceTest {
         assertThat(usageStatistics.pipelineCount(), is(2l));
         assertThat(usageStatistics.agentCount(), is(1l));
         assertThat(usageStatistics.oldestPipelineExecutionTime(), is(oldestBuild.getStateChangeTime().getTime()));
+        assertThat(usageStatistics.serverId(), is("server-id"));
+        assertThat(usageStatistics.gocdVersion(), is(CurrentGoCDVersion.getInstance().goVersion()));
     }
 
     @Test

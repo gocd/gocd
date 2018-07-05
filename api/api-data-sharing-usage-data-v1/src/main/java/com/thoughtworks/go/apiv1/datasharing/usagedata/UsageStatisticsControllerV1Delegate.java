@@ -21,7 +21,7 @@ import com.thoughtworks.go.api.ApiVersion;
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
 import com.thoughtworks.go.apiv1.datasharing.usagedata.representers.UsageStatisticsRepresenter;
 import com.thoughtworks.go.server.domain.UsageStatistics;
-import com.thoughtworks.go.server.service.DataSharingUsageDataService;
+import com.thoughtworks.go.server.service.datasharing.DataSharingUsageDataService;
 import com.thoughtworks.go.server.util.RSAEncryptionHelper;
 import com.thoughtworks.go.spark.Routes.DataSharing;
 import com.thoughtworks.go.util.SystemEnvironment;

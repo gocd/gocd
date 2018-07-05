@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.server.service;
+package com.thoughtworks.go.server.service.datasharing;
 
 import com.thoughtworks.go.server.domain.DataSharingSettings;
 import com.thoughtworks.go.domain.UsageStatisticsReporting;

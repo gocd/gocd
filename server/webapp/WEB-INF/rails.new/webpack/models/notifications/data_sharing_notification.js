@@ -16,11 +16,13 @@
 
 const $              = require('jquery');
 const SystemNotifications = require('models/notifications/system_notifications');
+const DataSharingNotificationPermission = require('models/notifications/data_sharing_notification_permissions');
 
 const DataSharingNotification = function () {
 };
+
 DataSharingNotification.createIfNotPresent = () => $.Deferred(function () {
-    SystemNotifications.all().then((allNotifications) => {
+     SystemNotifications.all().then((allNotifications) => {
         const dataSharingNotification = allNotifications.findSystemNotification((m) => {
             return m.type() === 'DataSharing';
         });
@@ -28,12 +30,17 @@ DataSharingNotification.createIfNotPresent = () => $.Deferred(function () {
         if (dataSharingNotification !== undefined) {
             return;
         }
-        const message = "GoCD shares data so that it can be improved.";
-        const link = "/go/admin/data_sharing/settings";
-        const type = "DataSharing";
-        SystemNotifications.notifyNewMessage(type, message, link, "Learn more ...");
-        this.resolve({});
+        DataSharingNotificationPermission.get().then((permissions) => {
+            if (permissions.showNotification()) {
+                const message = "GoCD shares data so that it can be improved.";
+                const link = "/go/admin/data_sharing/settings";
+                const type = "DataSharing";
+                SystemNotifications.notifyNewMessage(type, message, link, "Learn more ...");
+            }
+            this.resolve({});
+        });
     });
 }).promise();
 
 module.exports = DataSharingNotification;
+

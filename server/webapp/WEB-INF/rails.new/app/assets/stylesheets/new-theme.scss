@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -4057,3 +4057,41 @@ ul.entity_title {
 #tab-content-of-artifacts .artifact {
   padding: 0 0 5px 25px;
 }
+
+//Note: this is used in Admin > Template > view
+//start: template view
+#templates .definition_view ul.artifact_key_value_pair {
+  width:         100%;
+  margin-bottom: 20px;
+}
+
+#templates .definition_view ul.artifact_key_value_pair li {
+  width:         100%;
+  border-bottom: 1px solid #ddd;
+}
+
+#templates .definition_view ul.artifact_key_value_pair li label {
+  max-width: 49%;
+  display:   inline-block;
+  width:     49%;
+  font-size: 12px;
+}
+
+#templates .definition_view ul.artifact_key_value_pair li label .key {
+  font-weight: 600;
+}
+
+#templates .definition_view ul.artifact_key_value_pair li label .key:after {
+  content: ':';
+  padding: 0 5px;
+}
+
+#templates .definition_view .artifact_title {
+  padding-bottom: 10px;
+  font-weight:    600;
+}
+
+#templates.layout.admin-entity.view .content {
+  width: auto;
+}
+//end: template view

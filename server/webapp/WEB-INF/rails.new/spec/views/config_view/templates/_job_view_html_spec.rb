@@ -1,5 +1,5 @@
 ##########################GO-LICENSE-START################################
-# Copyright 2014 ThoughtWorks, Inc.
+# Copyright 2018 ThoughtWorks, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -167,28 +167,47 @@ describe "config_view/templates/_job_view.html.erb" do
     artifact_plans.add(BuildArtifactConfig.new("build-result", "build-output"))
     test_artifact = TestArtifactConfig.new('test-result', 'test-output')
     artifact_plans.add(test_artifact)
+    artifact_plans.add(PluggableArtifactConfig.new("installer","hub.docker"))
     job = JobConfig.new(CaseInsensitiveString.new("jobName"), ResourceConfigs.new(), artifact_plans)
     job.addTask(ant_task)
     render :partial => 'config_view/templates/job_view', :locals => {:scope => {:job => job, :index => 1, :stage_id => 'stage_id', :stage_name => "stage_build"}}
     Capybara.string(response.body).find("#stage_id_job_1").tap do |job|
-      job.find(".tab-content #artifacts_stage_id_job_1.tab-pane table.artifacts.list_table").tap do |table|
-        table.find("thead").tap do |head|
-          head.find("tr").tap do |row|
-            expect(row).to have_selector("th", :text => "Source")
-            expect(row).to have_selector("th", :text => "Destination")
-            expect(row).to have_selector("th", :text => "Type")
-          end
-        end
-        table.find("tbody").tap do |body|
-          body.all("tr").tap do |rows|
-            expect(rows[0]).to have_selector("td.name_value_cell", :text => "build-result")
-            expect(rows[0]).to have_selector("td.name_value_cell", :text => "build-output")
-            expect(rows[0]).to have_selector("td.name_value_cell", :text => "Build Artifact")
-            expect(rows[1]).to have_selector("td.name_value_cell", :text => "test-result")
-            expect(rows[1]).to have_selector("td.name_value_cell", :text => "test-output")
-            expect(rows[1]).to have_selector("td.name_value_cell", :text => "Test Artifact")
-          end
-        end
+      expect(job).to have_selector(".tab-content #artifacts_stage_id_job_1.tab-pane .artifact_title.build_artifact", count: 1, text: 'Build Artifact')
+      expect(job).to have_selector(".tab-content #artifacts_stage_id_job_1.tab-pane .artifact_title.test_artifact", count: 1, text: 'Test Artifact')
+      expect(job).to have_selector(".tab-content #artifacts_stage_id_job_1.tab-pane .artifact_title.external_artifact", count: 1, text: 'External Artifact')
+
+      expect(job).not_to have_selector(".no_build_artifact")
+      expect(job).not_to have_selector(".no_test_artifact")
+      expect(job).not_to have_selector(".no_external_artifact")
+
+      job.find(".tab-content #artifacts_stage_id_job_1.tab-pane .artifact_key_value_pair.build_artifact li").tap do |li|
+        expect(li).to have_selector("label", count: 2)
+        all_labels = li.all("label")
+        expect(all_labels[0]).to have_selector("span.key", text: 'Source')
+        expect(all_labels[0]).to have_selector("span.value", text: 'build-result')
+
+        expect(all_labels[1]).to have_selector("span.key", text: 'Destination')
+        expect(all_labels[1]).to have_selector("span.value", text: 'build-output')
+      end
+
+      job.find(".tab-content #artifacts_stage_id_job_1.tab-pane .artifact_key_value_pair.test_artifact li").tap do |li|
+        expect(li).to have_selector("label", count: 2)
+        all_labels = li.all("label")
+        expect(all_labels[0]).to have_selector("span.key", text: 'Source')
+        expect(all_labels[0]).to have_selector("span.value", text: 'test-result')
+
+        expect(all_labels[1]).to have_selector("span.key", text: 'Destination')
+        expect(all_labels[1]).to have_selector("span.value", text: 'test-output')
+      end
+
+      job.find(".tab-content #artifacts_stage_id_job_1.tab-pane .artifact_key_value_pair.external_artifact li").tap do |li|
+        expect(li).to have_selector("label", count: 2)
+        all_labels = li.all("label")
+        expect(all_labels[0]).to have_selector("span.key", text: 'Artifact ID')
+        expect(all_labels[0]).to have_selector("span.value", text: 'installer')
+
+        expect(all_labels[1]).to have_selector("span.key", text: 'Store ID')
+        expect(all_labels[1]).to have_selector("span.value", text: 'hub.docker')
       end
     end
   end
@@ -198,20 +217,17 @@ describe "config_view/templates/_job_view.html.erb" do
     job.addTask(ant_task)
     render :partial => 'config_view/templates/job_view', :locals => {:scope => {:job => job, :index => 1, :stage_id => 'stage_id', :stage_name => "stage_build"}}
     Capybara.string(response.body).find("#stage_id_job_1").tap do |job|
-      job.find(".tab-content #artifacts_stage_id_job_1.tab-pane table.artifacts.list_table").tap do |table|
-        table.find("thead").tap do |head|
-          head.find("tr").tap do |row|
-            expect(row).to have_selector("th", :text => "Source")
-            expect(row).to have_selector("th", :text => "Destination")
-            expect(row).to have_selector("th", :text => "Type")
-          end
-        end
-        table.find("tbody").tap do |body|
-          body.find("tr").tap do |row|
-            expect(row).to have_selector("td.name_value_cell[align='center'][colspan='3']", :text => "No artifacts have been configured")
-          end
-        end
-      end
+      expect(job).to have_selector(".tab-content #artifacts_stage_id_job_1.tab-pane .artifact_title.build_artifact", count: 1, text: 'Build Artifact')
+      expect(job).to have_selector(".tab-content #artifacts_stage_id_job_1.tab-pane .artifact_title.test_artifact", count: 1, text: 'Test Artifact')
+      expect(job).to have_selector(".tab-content #artifacts_stage_id_job_1.tab-pane .artifact_title.external_artifact", count: 1, text: 'External Artifact')
+
+      expect(job).to have_selector(".no_build_artifact", text: 'No build artifacts have been configured')
+      expect(job).to have_selector(".no_test_artifact", text: 'No test artifacts have been configured')
+      expect(job).to have_selector(".no_external_artifact", text: 'No external artifacts have been configured')
+
+      expect(job).not_to have_selector(".tab-content #artifacts_stage_id_job_1.tab-pane .artifact_key_value_pair.build_artifact")
+      expect(job).not_to have_selector(".tab-content #artifacts_stage_id_job_1.tab-pane .artifact_key_value_pair.test_artifact")
+      expect(job).not_to have_selector(".tab-content #artifacts_stage_id_job_1.tab-pane .artifact_key_value_pair.external_artifact")
     end
   end
 
@@ -408,6 +424,29 @@ describe "config_view/templates/_job_view.html.erb" do
             expect(item).to have_selector("span[title='Source']", :text => "src")
             expect(item).to have_selector("span.direction_arrow", :text => "->")
             expect(item).to have_selector("span[title='Destination']", :text => "dest")
+          end
+        end
+      end
+    end
+
+    it "should display fetch external artifact task" do
+      job = JobConfig.new('job1')
+      job.addTask(fetch_external_task(nil))
+      render :partial => 'config_view/templates/job_view', :locals => {:scope => {:job => job, :index => 1, :stage_id => 'stage_id', :stage_name => "stage_build"}}
+      Capybara.string(response.body).find("#stage_id_job_1").tap do |job|
+        job.find(".tab-content #tasks_stage_id_job_1 ul.tasks_view_list").tap do |list|
+          list.all("li.fetch code").tap do |items|
+            item = items[0]
+            expect(item).to have_selector("span", :text => "Fetch External Artifact -")
+            expect(item).to have_selector("span[title='Pipeline Name']", :text => "Current pipeline")
+            expect(item).to have_selector("span.path_separator", :text => ">")
+            expect(item).to have_selector("span[title='Stage Name']", :text => "stage")
+            expect(item).to have_selector("span.path_separator", :text => ">")
+            expect(item).to have_selector("span[title='Job Name']", :text => "job")
+            expect(item).to have_selector("span.delimiter", :text => ":")
+            expect(item).to have_selector("span", :text => "ArtifactID")
+            expect(item).to have_selector("span.delimiter", :text => ":")
+            expect(item).to have_selector("span[title='Artifact ID']", :text => "docker")
           end
         end
       end

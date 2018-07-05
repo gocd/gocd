@@ -954,8 +954,14 @@ module PrototypeHelper
   def options_for_ajax(options)
     js_options = build_callbacks(options)
 
+    content_type = if options[:headers]
+                     key, val = options[:headers].find {|k, v| k.to_s.downcase == 'content-type'}
+                     options[:headers].delete(key)
+                   end
+
     js_options['asynchronous'] = options[:type] != :synchronous
     js_options['requestHeaders'] = quote_hash(options[:headers]) if options[:headers]
+    js_options['contentType'] = "'#{content_type}'" if content_type
     js_options['method']       = method_option_to_s(options[:method]) if options[:method]
     js_options['insertion']    = "'#{options[:position].to_s.downcase}'" if options[:position]
     js_options['evalScripts']  = options[:script].nil? || options[:script]

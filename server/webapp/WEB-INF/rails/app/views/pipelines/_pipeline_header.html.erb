@@ -21,7 +21,7 @@
             <% if @pipeline.canUnlock() %>
                 <div class="locked_instance" id='unlock'>
                   <%== blocking_link_to_remote_new :name => "Click to unlock", :method => :post, :url => "/go/api/pipelines/#{@pipeline.getName()}/unlock",
-                                                   :update => {:failure => "message_pane", :success => 'function(){}'}, :html => {}, :headers => {Confirm: 'true'}, :before => "spinny('unlock');" %>
+                                                   :update => {:failure => "message_pane", :success => 'function(){}'}, :html => {}, :headers => {'X-GoCD-Confirm' => 'true', 'Accept' => 'application/vnd.go.cd.v1+json', 'Content-Type' => 'application/json'}, :before => "spinny('unlock');" %>
                 </div>
             <% else %>
                 <div class="locked_instance">

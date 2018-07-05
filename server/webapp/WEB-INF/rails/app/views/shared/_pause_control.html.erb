@@ -1,5 +1,26 @@
 <% if scope[:pause_info].isPaused() %>
-    <form action="<%= "/go/api/pipelines/#{scope[:pipeline_name]}/unpause" -%>" method="post" onsubmit="PipelineOperations.onUnPause(this, '<%= scope[:pipeline_name] -%>', '<%= "/go/api/pipelines/#{scope[:pipeline_name]}/unpause" -%>'); return false;">
+    <script>
+    function unpausePipeline(form, pipelineName) {
+      AjaxRefreshers.disableAjax();
+      jQuery('#unpause-' + pipelineName).attr('disabled', 'disabled');
+      jQuery.ajax({
+        type:    'post',
+        url:     jQuery(form).attr('action'),
+        headers: {
+          accept:           'application/vnd.go.cd.v1+json',
+          'X-GoCD-Confirm': true
+        }
+      }).always(function () {
+        AjaxRefreshers.enableAjax();
+      }).error(function (xhr) {
+        if (xhr.status === 401) {
+          redirectToLoginPage('/go/auth/login');
+        }
+      });
+      return false;
+    }
+  </script>
+    <form action="<%= "/go/api/pipelines/#{scope[:pipeline_name]}/unpause" -%>" method="post" onsubmit="return unpausePipeline(this, '<%= scope[:pipeline_name] %>');">
         <div class='operate unpause_wrapper'>
             <%= submit_button("Unpause", :type=> "image", :class => 'primary', :id => "unpause-#{scope[:pipeline_name]}") %>
         </div>
@@ -8,14 +29,37 @@
     scope[:pause_info_id] = "pause-info-#{scope[:pipeline_name]}"
     scope[:pause_onclick] = "Modalbox.show($(\"#{scope[:pause_info_id]}\"),{title: \"Pause pipeline: #{scope[:pipeline_name]} \",overlayClose:false, class: 'small'})"
 -%>
+  <script>
+    function pausePipeline(form, pipelineName) {
+      AjaxRefreshers.disableAjax();
+      jQuery('#confirm-pause-' + pipelineName).attr('disabled', 'disabled');
+      Modalbox.hide();
+      jQuery.ajax({
+        type:    'post',
+        url:     jQuery(form).attr('action'),
+        headers: {
+          accept:           'application/vnd.go.cd.v1+json',
+          'content-type': 'application/json'
+        },
+        data: JSON.stringify({pause_cause: jQuery(form).find('[name=pause_cause]').val()})
+      }).always(function () {
+        AjaxRefreshers.enableAjax();
+      }).error(function (xhr) {
+        if (xhr.status === 401) {
+          redirectToLoginPage('/go/auth/login');
+        }
+      });
+      return false;
+    }
+    </script>
     <div class='operate pause_wrapper'>
         <%= submit_button("Pause", {:type=> "image", :id => "confirm-pause-#{scope[:pipeline_name]}", :onclick => "#{h(scope[:pause_onclick])}"}) %>
     </div>
     <div id="<%= scope[:pause_info_id] %>" style="display:none">
-        <form action="<%= "/go/api/pipelines/#{scope[:pipeline_name]}/pause" -%>" method="post" onsubmit="PipelineOperations.onPause(this, '<%= scope[:pipeline_name] -%>', '<%= "/go/api/pipelines/#{scope[:pipeline_name]}/pause" -%>'); return false;">
+          <form action="<%= "/go/api/pipelines/#{scope[:pipeline_name]}/pause" -%>" method="post" onsubmit="return pausePipeline(this, '<%= scope[:pipeline_name] %>');; return false;">
             <div class="sub_tab_container">
                 <div class='pause_reason'>
-                    Specify a reason for pausing schedule on pipeline '<%= scope[:pipeline_name] %>': <input type="text" name="pauseCause" maxlength="255"/>
+                    Specify a reason for pausing schedule on pipeline '<%= scope[:pipeline_name] %>': <input type="text" name="pause_cause" maxlength="255"/>
                 </div>
             </div>
             <div class="actions">

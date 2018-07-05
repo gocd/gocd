@@ -8,7 +8,9 @@
       ],
       "assets": [
         "vendor-and-helpers.chunk.js",
-        "single_page_apps/agents.js"
+        "vendor-and-helpers.chunk.js.map",
+        "single_page_apps/agents.js",
+        "single_page_apps/agents.js.map"
       ]
     },
     "single_page_apps/new_dashboard": {
@@ -18,7 +20,9 @@
       ],
       "assets": [
         "vendor-and-helpers.chunk.js",
-        "single_page_apps/new_dashboard.js"
+        "vendor-and-helpers.chunk.js.map",
+        "single_page_apps/new_dashboard.js",
+        "single_page_apps/new_dashboard.js.map"
       ]
     }
   }

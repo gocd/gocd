@@ -55,7 +55,9 @@ public class WebpackAssetsService implements ServletContextAware {
         List<String> result = new ArrayList<>();
         for (String asset : assets) {
             String format = String.format("/go/assets/webpack/%s", asset);
-            result.add(format);
+            if (!format.endsWith(".map")) {
+                result.add(format);
+            }
         }
 
         return result;

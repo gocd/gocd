@@ -22,17 +22,20 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 
 public abstract class TypeAdapter {
+    public static final String ARTIFACT_ORIGIN = "artifact_origin";
 
-    public TypeAdapter() {}
+    public TypeAdapter() {
+    }
 
-    public <T> T determineJsonElementForDistinguishingImplementers(JsonElement json, JsonDeserializationContext context, String field) {
-        JsonObject jsonObject =  json.getAsJsonObject();
+    public <T> T determineJsonElementForDistinguishingImplementers(JsonElement json, JsonDeserializationContext context, String field, String origin) {
+        JsonObject jsonObject = json.getAsJsonObject();
         JsonPrimitive prim = (JsonPrimitive) jsonObject.get(field);
+        JsonPrimitive originField = (JsonPrimitive) jsonObject.get(origin);
         String typeName = prim.getAsString();
 
-        Class<?> klass = classForName(typeName);
+        Class<?> klass = classForName(typeName, originField == null ? null : originField.getAsString());
         return context.deserialize(jsonObject, klass);
     }
 
-    protected abstract Class<?> classForName(String typeName);
+    protected abstract Class<?> classForName(String typeName, String origin);
 }

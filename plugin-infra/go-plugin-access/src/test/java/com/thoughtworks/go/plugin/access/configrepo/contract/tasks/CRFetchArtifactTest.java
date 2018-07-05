@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -82,7 +82,8 @@ public class CRFetchArtifactTest extends CRBaseTest<CRFetchArtifactTask> {
                 "              \"stage\" : \"build1\",\n" +
                 "              \"job\" : \"build\",\n" +
                 "              \"source\" : \"bin\",\n" +
-                "              \"run_if\" : \"passed\"\n" +
+                "              \"run_if\" : \"passed\",\n" +
+                "              \"artifact_origin\" : \"gocd\"\n" +
                 "            }";
         CRFetchArtifactTask deserializedValue = (CRFetchArtifactTask)gson.fromJson(json,CRTask.class);
 

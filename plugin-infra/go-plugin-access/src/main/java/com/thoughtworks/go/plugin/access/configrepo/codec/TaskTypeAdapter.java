@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,36 +24,37 @@ public class TaskTypeAdapter extends TypeAdapter implements JsonDeserializer<CRT
     private static final String TYPE = "type";
 
     @Override
-    public CRTask deserialize(JsonElement json, Type type, JsonDeserializationContext context) throws JsonParseException {
-        return determineJsonElementForDistinguishingImplementers(json, context, TYPE);
+    public CRTask deserialize(JsonElement json,
+                              Type type,
+                              JsonDeserializationContext context) throws JsonParseException {
+        return determineJsonElementForDistinguishingImplementers(json, context, TYPE, ARTIFACT_ORIGIN);
     }
 
     @Override
-    protected Class<?> classForName(String typeName) {
-        if(typeName.equals(CRExecTask.TYPE_NAME))
+    protected Class<?> classForName(String typeName, String origin) {
+        if (typeName.equals(CRExecTask.TYPE_NAME))
             return CRExecTask.class;
-        if(typeName.equals(CRBuildTask.RAKE_TYPE_NAME))
+        if (typeName.equals(CRBuildTask.RAKE_TYPE_NAME))
             return CRBuildTask.class;
-        if(typeName.equals(CRBuildTask.ANT_TYPE_NAME))
+        if (typeName.equals(CRBuildTask.ANT_TYPE_NAME))
             return CRBuildTask.class;
-        if(typeName.equals(CRBuildTask.NANT_TYPE_NAME))
+        if (typeName.equals(CRBuildTask.NANT_TYPE_NAME))
             return CRNantTask.class;
-        if(typeName.equals(CRPluggableTask.TYPE_NAME))
+        if (typeName.equals(CRPluggableTask.TYPE_NAME))
             return CRPluggableTask.class;
-        if(typeName.equals(CRFetchArtifactTask.TYPE_NAME))
-            return CRFetchArtifactTask.class;
-        if(typeName.equals(CRFetchPluggableArtifactTask.TYPE_NAME))
-            return CRFetchPluggableArtifactTask.class;
-        else
-            throw new JsonParseException(
-                    String.format("Invalid or unknown task type '%s'",typeName));
+
+        if (typeName.equals(CRAbstractFetchTask.TYPE_NAME)) {
+            return CRAbstractFetchTask.ArtifactOrigin.getArtifactOrigin(origin).getArtifactTaskClass();
+        }
+
+        throw new JsonParseException(String.format("Invalid or unknown task type '%s'.", typeName));
     }
 
     @Override
     public JsonElement serialize(CRTask crTask, Type type, JsonSerializationContext context) {
         JsonObject retValue = context.serialize(crTask).getAsJsonObject();
         CRTask onCancel = crTask.getOnCancel();
-        if(onCancel != null) {
+        if (onCancel != null) {
             retValue.remove("onCancel");
             retValue.add("onCancel", context.serialize(onCancel));
         }

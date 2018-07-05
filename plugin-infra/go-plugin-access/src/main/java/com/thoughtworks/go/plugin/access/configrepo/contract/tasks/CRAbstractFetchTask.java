@@ -16,12 +16,21 @@
 
 package com.thoughtworks.go.plugin.access.configrepo.contract.tasks;
 
+import com.google.gson.JsonParseException;
+import com.google.gson.annotations.SerializedName;
+
+import java.util.Arrays;
+
 public abstract class CRAbstractFetchTask extends CRTask {
+    public static final String TYPE_NAME = "fetch";
     protected String pipeline;
     protected String stage;
     protected String job;
+    @SerializedName("artifact_origin")
+    protected ArtifactOrigin artifactOrigin;
 
-    public CRAbstractFetchTask(String type) {
+    public CRAbstractFetchTask(String type,
+                               ArtifactOrigin gocd) {
         super(type);
     }
 
@@ -32,10 +41,14 @@ public abstract class CRAbstractFetchTask extends CRTask {
         this.job = job;
     }
 
-    protected CRAbstractFetchTask(String stage, String job, String type) {
+    protected CRAbstractFetchTask(String stage,
+                                  String job,
+                                  String type,
+                                  ArtifactOrigin artifactOrigin) {
         super(type);
         this.stage = stage;
         this.job = job;
+        this.artifactOrigin = artifactOrigin;
     }
 
     public CRAbstractFetchTask(CRRunIf runIf, CRTask onCancel) {
@@ -66,29 +79,35 @@ public abstract class CRAbstractFetchTask extends CRTask {
         this.job = job;
     }
 
+    public ArtifactOrigin getArtifactOrigin() {
+        return artifactOrigin;
+    }
+
+    public void setArtifactOrigin(ArtifactOrigin artifactOrigin) {
+        this.artifactOrigin = artifactOrigin;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (!(o instanceof CRAbstractFetchTask)) return false;
         if (!super.equals(o)) return false;
 
         CRAbstractFetchTask that = (CRAbstractFetchTask) o;
 
-        if (getPipelineName() != null ? !getPipelineName().equals(that.getPipelineName()) : that.getPipelineName() != null) {
-            return false;
-        }
-        if (getStage() != null ? !getStage().equals(that.getStage()) : that.getStage() != null) {
-            return false;
-        }
-        return getJob() != null ? getJob().equals(that.getJob()) : that.getJob() == null;
+        if (pipeline != null ? !pipeline.equals(that.pipeline) : that.pipeline != null) return false;
+        if (stage != null ? !stage.equals(that.stage) : that.stage != null) return false;
+        if (job != null ? !job.equals(that.job) : that.job != null) return false;
+        return artifactOrigin != null ? artifactOrigin.equals(that.artifactOrigin) : that.artifactOrigin == null;
     }
 
     @Override
     public int hashCode() {
         int result = super.hashCode();
-        result = 31 * result + (getPipelineName() != null ? getPipelineName().hashCode() : 0);
-        result = 31 * result + (getStage() != null ? getStage().hashCode() : 0);
-        result = 31 * result + (getJob() != null ? getJob().hashCode() : 0);
+        result = 31 * result + (pipeline != null ? pipeline.hashCode() : 0);
+        result = 31 * result + (stage != null ? stage.hashCode() : 0);
+        result = 31 * result + (job != null ? job.hashCode() : 0);
+        result = 31 * result + (artifactOrigin != null ? artifactOrigin.hashCode() : 0);
         return result;
     }
 
@@ -100,5 +119,28 @@ public abstract class CRAbstractFetchTask extends CRTask {
         String job = getJob() != null ? getJob() : "unknown job";
 
         return String.format("%s; fetch artifacts task from %s %s %s", myLocation, pipe, stage, job);
+    }
+
+    public enum ArtifactOrigin {
+        gocd {
+            @Override
+            public Class<? extends CRAbstractFetchTask> getArtifactTaskClass() {
+                return CRFetchArtifactTask.class;
+            }
+        }, external {
+            @Override
+            public Class<? extends CRAbstractFetchTask> getArtifactTaskClass() {
+                return CRFetchPluggableArtifactTask.class;
+            }
+        };
+
+        public abstract Class<? extends CRAbstractFetchTask> getArtifactTaskClass();
+
+        public static ArtifactOrigin getArtifactOrigin(String origin) {
+            return Arrays.stream(values())
+                    .filter(item -> item.toString().equals(origin))
+                    .findFirst()
+                    .orElseThrow(() -> new JsonParseException(String.format("Invalid artifact origin '%s' for fetch task.", origin)));
+        }
     }
 }

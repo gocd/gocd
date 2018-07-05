@@ -24,18 +24,20 @@ import java.util.Arrays;
 import java.util.Collection;
 
 public class CRFetchPluggableArtifactTask extends CRAbstractFetchTask {
-
-    public static final String TYPE_NAME = "fetch_pluggable_artifact";
+    public static final String ARTIFACT_ORIGIN = "external";
 
     private String artifact_id;
     private Collection<CRConfigurationProperty> configuration;
 
     public CRFetchPluggableArtifactTask() {
-        super(TYPE_NAME);
+        super(TYPE_NAME, ArtifactOrigin.external);
     }
 
-    public CRFetchPluggableArtifactTask(String stage, String job, String artifactId, CRConfigurationProperty... crConfigurationProperties) {
-        super(stage, job, TYPE_NAME);
+    public CRFetchPluggableArtifactTask(String stage,
+                                        String job,
+                                        String artifactId,
+                                        CRConfigurationProperty... crConfigurationProperties) {
+        super(stage, job, TYPE_NAME, ArtifactOrigin.external);
         this.artifact_id = artifactId;
         configuration = Arrays.asList(crConfigurationProperties);
     }
@@ -66,18 +68,16 @@ public class CRFetchPluggableArtifactTask extends CRAbstractFetchTask {
         errors.checkMissing(location, "stage", stage);
         errors.checkMissing(location, "job", job);
 
-        if(this.configuration != null)
-        {
-            for(CRConfigurationProperty p : configuration)
-            {
-                p.getErrors(errors,location);
+        if (this.configuration != null) {
+            for (CRConfigurationProperty p : configuration) {
+                p.getErrors(errors, location);
             }
         }
-        validateKeyUniqueness(errors,location);
+        validateKeyUniqueness(errors, location);
     }
 
-    void validateKeyUniqueness(ErrorCollection errors,String location) {
-        if(this.configuration != null) {
+    void validateKeyUniqueness(ErrorCollection errors, String location) {
+        if (this.configuration != null) {
             ArrayList<String> keys = new ArrayList<>();
             for (CRConfigurationProperty property : this.configuration) {
                 String key = property.getKey();

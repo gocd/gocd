@@ -18,13 +18,17 @@ package com.thoughtworks.go.plugin.access.configrepo.codec;
 
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParseException;
 import com.thoughtworks.go.plugin.access.configrepo.contract.tasks.*;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.mockito.Mock;
 
 import java.lang.reflect.Type;
 
+import static com.thoughtworks.go.plugin.access.configrepo.codec.TypeAdapter.ARTIFACT_ORIGIN;
 import static org.mockito.Mockito.verify;
 import static org.mockito.MockitoAnnotations.initMocks;
 
@@ -37,6 +41,9 @@ public class TaskTypeAdapterTest {
 
     @Mock
     private Type type;
+
+    @Rule
+    public ExpectedException thrown = ExpectedException.none();
 
     @Before
     public void setUp() throws Exception {
@@ -84,6 +91,7 @@ public class TaskTypeAdapterTest {
     public void shouldInstantiateATaskForTypeFetch() throws Exception {
         JsonObject jsonObject = new JsonObject();
         jsonObject.addProperty("type", "fetch");
+        jsonObject.addProperty(ARTIFACT_ORIGIN, "gocd");
         taskTypeAdapter.deserialize(jsonObject, type, jsonDeserializationContext);
 
         verify(jsonDeserializationContext).deserialize(jsonObject, CRFetchArtifactTask.class);
@@ -92,9 +100,22 @@ public class TaskTypeAdapterTest {
     @Test
     public void shouldInstantiateATaskForTypeFetchPluggableArtifact() throws Exception {
         JsonObject jsonObject = new JsonObject();
-        jsonObject.addProperty("type", "fetch_pluggable_artifact");
+        jsonObject.addProperty("type", "fetch");
+        jsonObject.addProperty(ARTIFACT_ORIGIN, "external");
         taskTypeAdapter.deserialize(jsonObject, type, jsonDeserializationContext);
 
         verify(jsonDeserializationContext).deserialize(jsonObject, CRFetchPluggableArtifactTask.class);
+    }
+
+    @Test
+    public void shouldThrowExceptionForFetchIfOriginIsInvalid() throws Exception {
+        JsonObject jsonObject = new JsonObject();
+        jsonObject.addProperty("type", "fetch");
+        jsonObject.addProperty(ARTIFACT_ORIGIN, "fsg");
+
+        thrown.expectMessage("Invalid artifact origin 'fsg' for fetch task.");
+        thrown.expect(JsonParseException.class);
+
+        taskTypeAdapter.deserialize(jsonObject, type, jsonDeserializationContext);
     }
 }

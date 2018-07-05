@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,11 +26,11 @@ public class MaterialTypeAdapter extends TypeAdapter implements JsonDeserializer
 
     @Override
     public CRMaterial deserialize(JsonElement json, Type type, JsonDeserializationContext context) throws JsonParseException {
-        return determineJsonElementForDistinguishingImplementers(json, context, TYPE);
+        return determineJsonElementForDistinguishingImplementers(json, context, TYPE, ARTIFACT_ORIGIN);
     }
 
     @Override
-    protected Class<?> classForName(String typeName) {
+    protected Class<?> classForName(String typeName, String origin) {
         if(typeName.equals(CRDependencyMaterial.TYPE_NAME))
             return CRDependencyMaterial.class;
         if(typeName.equals(CRPackageMaterial.TYPE_NAME))

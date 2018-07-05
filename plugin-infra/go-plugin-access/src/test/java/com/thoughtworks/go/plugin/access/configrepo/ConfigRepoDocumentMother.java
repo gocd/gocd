@@ -53,11 +53,23 @@ public class ConfigRepoDocumentMother {
         return JsonUtils.toJsonString(getJSONFor("/v2_comprehensive.json"));
     }
 
-    public String v3FromV2Comprehensive() {
-        return JsonUtils.toJsonString(getJSONFor("/v3_from_v2_comprehensive.json"));
+    public String v2WithFetchTask() {
+        return JsonUtils.toJsonString(getJSONFor("/v2_with_fetch_tasks.json"));
+    }
+
+    public String v2WithFetchExternalArtifactTask() {
+        return JsonUtils.toJsonString(getJSONFor("/v2_with_fetch_external_artifact_task.json"));
     }
 
     public String v3Comprehensive() {
         return JsonUtils.toJsonString(getJSONFor("/v3_comprehensive.json"));
+    }
+
+    public String v3WithFetchTask() {
+        return JsonUtils.toJsonString(getJSONFor("/v3_with_fetch_tasks.json"));
+    }
+
+    public String v3WithFetchExternalArtifactTask() {
+        return JsonUtils.toJsonString(getJSONFor("/v3_with_fetch_external_artifact_task.json"));
     }
 }

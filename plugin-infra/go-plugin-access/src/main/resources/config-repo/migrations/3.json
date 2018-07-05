@@ -7,5 +7,27 @@
       },
       "*": "&"
     }
+  },
+  {
+    "operation": "modify-define-beta",
+    "spec": {
+      "pipelines": {
+        "*": {
+          "stages": {
+            "*": {
+              "jobs": {
+                "*": {
+                  "tasks": {
+                    "*": {
+                      "artifact_origin": "^@(1,type)"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
   }
 ]

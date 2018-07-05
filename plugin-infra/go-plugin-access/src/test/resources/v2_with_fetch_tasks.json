@@ -1,5 +1,5 @@
 {
-  "target_version": "3",
+  "target_version": "2",
   "pipelines": [
     {
       "name": "firstpipe",
@@ -30,7 +30,33 @@
               "environment_variables": [],
               "tabs": [],
               "resources": [],
-              "artifacts": [],
+              "artifacts": [
+                {
+                  "source": "src1",
+                  "destination": "dest1",
+                  "type": "build"
+                },
+                {
+                  "source": "src2",
+                  "destination": "dest2",
+                  "type": "test"
+                },
+                {
+                  "type": "external",
+                  "id": "example_image",
+                  "store_id": "dockerhub",
+                  "configuration": [
+                    {
+                      "key": "Image",
+                      "value": "gocddemo/guestbook"
+                    },
+                    {
+                      "key": "Tag",
+                      "value": "v5"
+                    }
+                  ]
+                }
+              ],
               "properties": [],
               "run_instance_count": null,
               "timeout": 0,
@@ -80,6 +106,16 @@
               "tasks": [
                 {
                   "type": "rake"
+                },
+                {
+                  "type": "fetch",
+                  "run_if": "any",
+                  "pipeline": "firstpipe",
+                  "stage": "build",
+                  "job": "build",
+                  "is_source_a_file": false,
+                  "source": "result",
+                  "destination": "test"
                 }
               ]
             }

@@ -31,7 +31,7 @@ public class ConfigRepoMigratorTest {
     }
 
     @Test
-    public void shouldMigrateToV2_ByChangingEnablePipelineLockingTrue_To_LockBehaviorLockOnFailure() throws Exception {
+    public void shouldMigrateV1ToV2_ByChangingEnablePipelineLockingTrue_To_LockBehaviorLockOnFailure() throws Exception {
         ConfigRepoDocumentMother documentMother = new ConfigRepoDocumentMother();
         String oldJSON = documentMother.versionOneWithLockingSetTo(true);
         String transformedJSON = migrator.migrate(oldJSON, 2);
@@ -49,7 +49,7 @@ public class ConfigRepoMigratorTest {
     }
 
     @Test
-    public void shouldMigrateToV2_ByChangingEnablePipelineLockingFalse_To_LockBehaviorNone() throws Exception {
+    public void shouldMigrateV1ToV2_ByChangingEnablePipelineLockingFalse_To_LockBehaviorNone() throws Exception {
         ConfigRepoDocumentMother documentMother = new ConfigRepoDocumentMother();
         String oldJSON = documentMother.versionOneWithLockingSetTo(false);
         String transformedJSON = migrator.migrate(oldJSON, 2);
@@ -67,7 +67,7 @@ public class ConfigRepoMigratorTest {
     }
 
     @Test
-    public void shouldMigrateToV2_ByChangingNothing_WhenThereIsNoPipelineLockingDefined() throws Exception {
+    public void shouldMigrateV1ToV2_ByChangingNothing_WhenThereIsNoPipelineLockingDefined() throws Exception {
         ConfigRepoDocumentMother documentMother = new ConfigRepoDocumentMother();
         String oldJSON = documentMother.versionOneComprehensiveWithNoLocking();
 
@@ -88,10 +88,21 @@ public class ConfigRepoMigratorTest {
     }
 
     @Test
-    public void shouldMigrateToV3_ByChangingOnlyTargetVersion() throws JSONException {
+    public void migrateV2ToV3_shouldDoNothingIfJsonDoesNotHaveExternalArtifactConfigs() throws JSONException {
         ConfigRepoDocumentMother documentMother = new ConfigRepoDocumentMother();
+
         String oldJSON = documentMother.versionTwoComprehensive();
-        String newJson = documentMother.v3FromV2Comprehensive();
+        String newJSON = documentMother.v3Comprehensive();
+        String transformedJSON = migrator.migrate(oldJSON, 3);
+
+        JSONAssert.assertEquals(newJSON, transformedJSON, JSONCompareMode.STRICT_ORDER);
+    }
+
+    @Test
+    public void migrateV2ToV3_shouldAddArtifactOriginOnAllFetchTasks() throws JSONException {
+        ConfigRepoDocumentMother documentMother = new ConfigRepoDocumentMother();
+        String oldJSON = documentMother.v2WithFetchTask();
+        String newJson = documentMother.v3WithFetchTask();
 
         String transformedJSON = migrator.migrate(oldJSON, 3);
 
@@ -99,12 +110,13 @@ public class ConfigRepoMigratorTest {
     }
 
     @Test
-    public void shouldDoNothingIfMigratingFromV3ToV3() throws JSONException {
+    public void migrateV2ToV3_shouldDoNothingIfFetchExternalArtifactTaskIsConfiguredInV2() throws JSONException {
         ConfigRepoDocumentMother documentMother = new ConfigRepoDocumentMother();
+        String oldJSON = documentMother.v2WithFetchExternalArtifactTask();
+        String newJson = documentMother.v3WithFetchExternalArtifactTask();
 
-        String oldJSON = documentMother.v3Comprehensive();
         String transformedJSON = migrator.migrate(oldJSON, 3);
 
-        JSONAssert.assertEquals(oldJSON, transformedJSON, JSONCompareMode.STRICT_ORDER);
+        JSONAssert.assertEquals(newJson, transformedJSON, JSONCompareMode.STRICT_ORDER);
     }
 }

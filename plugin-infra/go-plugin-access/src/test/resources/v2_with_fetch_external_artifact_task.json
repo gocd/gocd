@@ -1,5 +1,5 @@
 {
-  "target_version": "3",
+  "target_version": "2",
   "pipelines": [
     {
       "name": "firstpipe",
@@ -30,7 +30,19 @@
               "environment_variables": [],
               "tabs": [],
               "resources": [],
-              "artifacts": [],
+              "artifacts": [
+                {
+                  "type": "external",
+                  "id": "no-name",
+                  "store_id": "aws-s3",
+                  "configuration": [
+                    {
+                      "key": "file",
+                      "value": "no-name.jar"
+                    }
+                  ]
+                }
+              ],
               "properties": [],
               "run_instance_count": null,
               "timeout": 0,
@@ -80,6 +92,40 @@
               "tasks": [
                 {
                   "type": "rake"
+                },
+                {
+                  "type": "exec",
+                  "run_if": "passed",
+                  "on_cancel" : null,
+                  "command": "make",
+                  "arguments": [
+                    "-j3",
+                    "docs",
+                    "install"
+                  ],
+                  "working_directory": null
+                },
+                {
+                  "type": "fetch",
+                  "artifact_origin": "gocd",
+                  "run_if": "any",
+                  "pipeline": "firstpipe",
+                  "stage": "build",
+                  "job": "build",
+                  "is_source_a_file": false,
+                  "source": "result",
+                  "destination": "test"
+                },
+                {
+                  "type": "fetch",
+                  "artifact_origin": "external",
+                  "run_if": "any",
+                  "pipeline": "firstpipe",
+                  "stage": "build",
+                  "job": "build",
+                  "is_source_a_file": false,
+                  "source": "result",
+                  "destination": "test"
                 }
               ]
             }

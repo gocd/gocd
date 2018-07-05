@@ -17,7 +17,7 @@
       %>
           <div id='selector_pipeline_<%= scope[:pipeline_name] %>' class="selector_pipeline">
             <input type="checkbox" id="<%= scope[:pipeline_id] %>" name="selector[pipeline][]" value="<%= scope[:pipeline_name] %>"
-                   <% if scope[:group_selected] || @pipeline_selections.includesPipeline(pipeline_in_pipeline_selector) %>
+                   <% if scope[:group_selected] || @pipeline_selections.includesPipeline(pipeline_in_pipeline_selector.name()) %>
                    checked="checked"
                    <% end %>
                    />

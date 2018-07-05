@@ -95,6 +95,11 @@ public class PipelineSelections extends PersistentObject implements Serializable
         return namedFilter(null).isPipelineVisible(pipelineName);
     }
 
+    @Deprecated // TODO: remove when removing old dashboard
+    public boolean isBlacklist() {
+        return namedFilter(null) instanceof BlacklistFilter;
+    }
+
     public DashboardFilter namedFilter(String name) {
         return viewFilters.named(name);
     }

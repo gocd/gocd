@@ -23,6 +23,7 @@ import com.thoughtworks.go.domain.PipelineTimelineEntry;
 import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.database.DatabaseStrategy;
 import com.thoughtworks.go.server.domain.PipelineTimeline;
+import com.thoughtworks.go.server.domain.user.Filters;
 import com.thoughtworks.go.server.domain.user.PipelineSelections;
 import com.thoughtworks.go.server.transaction.TransactionSynchronizationManager;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
@@ -80,7 +81,7 @@ public class PipelineRepositoryTest {
     @Test
     public void shouldCachePipelineSelectionForGivenUserId() throws Exception {
         String queryString = "FROM PipelineSelections WHERE userId = ?";
-        PipelineSelections pipelineSelections = new PipelineSelections();
+        PipelineSelections pipelineSelections = makePipelineSelections();
         long userId = 1L;
 
         when(hibernateTemplate.find(queryString, new Object[]{userId})).thenReturn((List) Arrays.asList(pipelineSelections));
@@ -94,9 +95,13 @@ public class PipelineRepositoryTest {
         verify(goCache).put(pipelineRepository.pipelineSelectionForUserIdKey(userId), pipelineSelections);
     }
 
+    private PipelineSelections makePipelineSelections() {
+        return new PipelineSelections(Filters.defaults(), null, null);
+    }
+
     @Test
     public void shouldCachePipelineSelectionForGivenId() throws Exception {
-        PipelineSelections pipelineSelections = new PipelineSelections();
+        PipelineSelections pipelineSelections = makePipelineSelections();
         long id = 1L;
 
         when(hibernateTemplate.get(PipelineSelections.class, id)).thenReturn(pipelineSelections);
@@ -112,9 +117,9 @@ public class PipelineRepositoryTest {
 
     @Test
     public void shouldInvalidatePipelineSelectionCacheOnSaveOrUpdate() throws Exception {
-        PipelineSelections pipelineSelections = new PipelineSelections();
+        PipelineSelections pipelineSelections = makePipelineSelections();
         pipelineSelections.setId(1);
-        pipelineSelections.update(new ArrayList<>(), new Date(), 2L, true);
+        pipelineSelections.update(Filters.defaults(), new Date(), 2L);
         pipelineRepository.saveSelectedPipelines(pipelineSelections);
 
         verify(goCache).remove(pipelineRepository.pipelineSelectionForCookieKey(1L));

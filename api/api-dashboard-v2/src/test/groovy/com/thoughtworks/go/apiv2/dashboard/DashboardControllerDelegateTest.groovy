@@ -23,6 +23,7 @@ import com.thoughtworks.go.apiv2.dashboard.representers.PipelineGroupsRepresente
 import com.thoughtworks.go.config.security.Permissions
 import com.thoughtworks.go.config.security.users.Everyone
 import com.thoughtworks.go.server.dashboard.GoDashboardPipelineGroup
+import com.thoughtworks.go.server.domain.user.Filters
 import com.thoughtworks.go.server.domain.user.PipelineSelections
 import com.thoughtworks.go.server.service.GoDashboardService
 import com.thoughtworks.go.server.service.PipelineSelectionsService
@@ -36,8 +37,7 @@ import org.junit.jupiter.api.Test
 import org.mockito.Mock
 
 import static com.thoughtworks.go.apiv2.dashboard.GoDashboardPipelineMother.dashboardPipeline
-import static org.mockito.ArgumentMatchers.any
-import static org.mockito.ArgumentMatchers.eq
+import static org.mockito.ArgumentMatchers.*
 import static org.mockito.Mockito.*
 import static org.mockito.MockitoAnnotations.initMocks
 
@@ -63,7 +63,8 @@ class DashboardControllerDelegateTest implements SecurityServiceTrait, Controlle
   @Nested
   class Dashboard {
 
-    @Nested class Security implements SecurityTestTrait, NormalUserSecurity {
+    @Nested
+    class Security implements SecurityTestTrait, NormalUserSecurity {
 
       @Override
       String getControllerMethodUnderTest() {
@@ -76,7 +77,8 @@ class DashboardControllerDelegateTest implements SecurityServiceTrait, Controlle
       }
     }
 
-    @Nested class AsAuthorizedUser {
+    @Nested
+    class AsAuthorizedUser {
       @Test
       void 'should get dashboard json'() {
         loginAsUser()
@@ -85,9 +87,9 @@ class DashboardControllerDelegateTest implements SecurityServiceTrait, Controlle
         def pipelineGroup = new GoDashboardPipelineGroup('group1', new Permissions(Everyone.INSTANCE, Everyone.INSTANCE, Everyone.INSTANCE, Everyone.INSTANCE))
         pipelineGroup.addPipeline(dashboardPipeline('pipeline1'))
         pipelineGroup.addPipeline(dashboardPipeline('pipeline2'))
-        when(pipelineSelectionsService.getPersistedSelectedPipelines(any(), any())).thenReturn(pipelineSelections)
+        when(pipelineSelectionsService.loadPipelineSelections((String) isNull(), any(Long.class))).thenReturn(pipelineSelections)
         when(goDashboardService.hasEverLoadedCurrentState()).thenReturn(true)
-        when(goDashboardService.allPipelineGroupsForDashboard(eq(pipelineSelections), eq(currentUsername()))).thenReturn([pipelineGroup])
+        when(goDashboardService.allPipelineGroupsForDashboard(eq(Filters.WILDCARD_FILTER), eq(currentUsername()))).thenReturn([pipelineGroup])
 
         getWithApiHeader(controller.controllerPath())
 
@@ -104,10 +106,10 @@ class DashboardControllerDelegateTest implements SecurityServiceTrait, Controlle
         def pipelineGroup = new GoDashboardPipelineGroup('group1', new Permissions(Everyone.INSTANCE, Everyone.INSTANCE, Everyone.INSTANCE, Everyone.INSTANCE))
         pipelineGroup.addPipeline(dashboardPipeline('pipeline1'))
         pipelineGroup.addPipeline(dashboardPipeline('pipeline2'))
-        when(pipelineSelectionsService.getPersistedSelectedPipelines(any(), any())).thenReturn(pipelineSelections)
+        when(pipelineSelectionsService.loadPipelineSelections((String) isNull(), any(Long.class))).thenReturn(pipelineSelections)
         when(goDashboardService.hasEverLoadedCurrentState()).thenReturn(true)
         def pipelineGroups = [pipelineGroup]
-        when(goDashboardService.allPipelineGroupsForDashboard(eq(pipelineSelections), eq(currentUsername()))).thenReturn(pipelineGroups)
+        when(goDashboardService.allPipelineGroupsForDashboard(eq(Filters.WILDCARD_FILTER), eq(currentUsername()))).thenReturn(pipelineGroups)
 
 
         def etag = computeEtag(pipelineGroups)
@@ -123,8 +125,8 @@ class DashboardControllerDelegateTest implements SecurityServiceTrait, Controlle
       void 'should get empty json when dashboard is empty'() {
         def noPipelineGroups = []
         def pipelineSelections = PipelineSelections.ALL
-        when(pipelineSelectionsService.getPersistedSelectedPipelines(any(), any())).thenReturn(pipelineSelections)
-        when(goDashboardService.allPipelineGroupsForDashboard(eq(pipelineSelections), eq(currentUsername()))).thenReturn(noPipelineGroups)
+        when(pipelineSelectionsService.loadPipelineSelections((String) isNull(), any(Long.class))).thenReturn(pipelineSelections)
+        when(goDashboardService.allPipelineGroupsForDashboard(eq(Filters.WILDCARD_FILTER), eq(currentUsername()))).thenReturn(noPipelineGroups)
         when(goDashboardService.hasEverLoadedCurrentState()).thenReturn(true)
 
         loginAsUser()
@@ -153,7 +155,8 @@ class DashboardControllerDelegateTest implements SecurityServiceTrait, Controlle
       }
     }
 
-    @Nested class Etag {
+    @Nested
+    class Etag {
       @Test
       void 'should account for current user when computing etag'() {
         loginAsUser()
@@ -162,10 +165,10 @@ class DashboardControllerDelegateTest implements SecurityServiceTrait, Controlle
         def pipelineGroup = new GoDashboardPipelineGroup('group1', new Permissions(Everyone.INSTANCE, Everyone.INSTANCE, Everyone.INSTANCE, Everyone.INSTANCE))
         pipelineGroup.addPipeline(dashboardPipeline('pipeline1'))
         pipelineGroup.addPipeline(dashboardPipeline('pipeline2'))
-        when(pipelineSelectionsService.getPersistedSelectedPipelines(any(), any())).thenReturn(pipelineSelections)
+        when(pipelineSelectionsService.loadPipelineSelections((String) isNull(), any(Long.class))).thenReturn(pipelineSelections)
         when(goDashboardService.hasEverLoadedCurrentState()).thenReturn(true)
         def pipelineGroups = [pipelineGroup]
-        when(goDashboardService.allPipelineGroupsForDashboard(eq(pipelineSelections), eq(currentUsername()))).thenReturn(pipelineGroups)
+        when(goDashboardService.allPipelineGroupsForDashboard(eq(Filters.WILDCARD_FILTER), eq(currentUsername()))).thenReturn(pipelineGroups)
 
         String etag = computeEtag(pipelineGroups)
         getWithApiHeader(controller.controllerBasePath(), ['if-none-match': etag])
@@ -176,7 +179,7 @@ class DashboardControllerDelegateTest implements SecurityServiceTrait, Controlle
 
         loginAsPipelineViewUser()
 
-        when(goDashboardService.allPipelineGroupsForDashboard(eq(pipelineSelections), eq(currentUsername()))).thenReturn(pipelineGroups)
+        when(goDashboardService.allPipelineGroupsForDashboard(eq(Filters.WILDCARD_FILTER), eq(currentUsername()))).thenReturn(pipelineGroups)
         getWithApiHeader(controller.controllerBasePath(), ['if-none-match': etag])
         assertThatResponse()
           .isOk()

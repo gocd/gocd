@@ -31,6 +31,7 @@ import com.thoughtworks.go.server.domain.JobDurationStrategy;
 import com.thoughtworks.go.server.domain.PipelineTimeline;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.domain.user.PipelineSelections;
+import com.thoughtworks.go.server.domain.user.PipelineSelectionsHelper;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
 import com.thoughtworks.go.server.scheduling.TriggerMonitor;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
@@ -223,17 +224,17 @@ public class PipelineHistoryServiceTest {
 
         PipelineModel pipelineModel1 = group.getPipelineModels().get(0);
         PipelineInstanceModel firstPipelinePIM = pipelineModel1.getActivePipelineInstances().get(0);
-        assertThat(firstPipelinePIM.isLockable(), is (true));
+        assertThat(firstPipelinePIM.isLockable(), is(true));
         assertThat(firstPipelinePIM.isCurrentlyLocked(), is(true));
 
         PipelineModel pipelineModel2 = group.getPipelineModels().get(1);
         PipelineInstanceModel secondPipeline = pipelineModel2.getActivePipelineInstances().get(0);
-        assertThat(secondPipeline.isLockable(), is (true));
+        assertThat(secondPipeline.isLockable(), is(true));
         assertThat(secondPipeline.isCurrentlyLocked(), is(false));
 
         PipelineModel pipelineModel3 = group.getPipelineModels().get(2);
         PipelineInstanceModel thirdPipeline = pipelineModel3.getActivePipelineInstances().get(0);
-        assertThat(thirdPipeline.isLockable(), is (false));
+        assertThat(thirdPipeline.isLockable(), is(false));
         assertThat(thirdPipeline.isCurrentlyLocked(), is(false));
     }
 
@@ -387,21 +388,21 @@ public class PipelineHistoryServiceTest {
         );
         for (String pipeline : new String[]{"pipeline1", "pipeline2", "pipeline3", "pipeline4", "non-operatable-pipeline"}) {
             stubPermisssionsForActivePipeline(foo, cruiseConfig, pipeline, true, true);
-            when(pipelineDao.loadHistory(pipeline,1,0)).thenReturn(createPipelineInstanceModels());
+            when(pipelineDao.loadHistory(pipeline, 1, 0)).thenReturn(createPipelineInstanceModels());
         }
         when(pipelineDao.loadActivePipelines()).thenReturn(activePipelineInstances);
 
 
         when(goConfigService.hasPipelineNamed(new CaseInsensitiveString(any(String.class)))).thenReturn(true);
-        List<PipelineGroupModel> groups = pipelineHistoryService.allActivePipelineInstances(foo, new PipelineSelections(Arrays.asList("pipeline1","pipeline2")));
-        assertThat(groups.size(),is(2));
-        assertThat(groups.get(0).getName(),is("defaultGroup"));
-        assertThat(groups.get(0).containsPipeline("pipeline1"),is(false));
-        assertThat(groups.get(0).containsPipeline("pipeline2"),is(false));
-        assertThat(groups.get(0).containsPipeline("pipeline3"),is(true));
-        assertThat(groups.get(0).containsPipeline("pipeline4"),is(true));
-        assertThat(groups.get(1).getName(),is("foo"));
-        assertThat(groups.get(1).containsPipeline("non-operatable-pipeline"),is(true));
+        List<PipelineGroupModel> groups = pipelineHistoryService.allActivePipelineInstances(foo, PipelineSelectionsHelper.with(Arrays.asList("pipeline1", "pipeline2")));
+        assertThat(groups.size(), is(2));
+        assertThat(groups.get(0).getName(), is("defaultGroup"));
+        assertThat(groups.get(0).containsPipeline("pipeline1"), is(false));
+        assertThat(groups.get(0).containsPipeline("pipeline2"), is(false));
+        assertThat(groups.get(0).containsPipeline("pipeline3"), is(true));
+        assertThat(groups.get(0).containsPipeline("pipeline4"), is(true));
+        assertThat(groups.get(1).getName(), is("foo"));
+        assertThat(groups.get(1).containsPipeline("non-operatable-pipeline"), is(true));
     }
 
     @Test
@@ -414,7 +415,7 @@ public class PipelineHistoryServiceTest {
 
         List<PipelineGroupModel> groups = pipelineHistoryService.allActivePipelineInstances(bar, new PipelineSelections());
 
-        assertThat(groups.isEmpty(),is(true));
+        assertThat(groups.isEmpty(), is(true));
     }
 
     @Test
@@ -449,7 +450,7 @@ public class PipelineHistoryServiceTest {
         when(pipelineDao.loadActivePipelines()).thenReturn(createPipelineInstanceModels());
         when(goConfigService.hasPipelineNamed(new CaseInsensitiveString(any(String.class)))).thenReturn(true);
         List<PipelineGroupModel> groups = pipelineHistoryService.getActivePipelineInstance(foo, "pipeline1");
-        assertThat(groups.isEmpty(),is(true));
+        assertThat(groups.isEmpty(), is(true));
     }
 
     @Test
@@ -465,17 +466,17 @@ public class PipelineHistoryServiceTest {
         );
         for (String pipeline : new String[]{"pipeline1", "pipeline2", "pipeline3", "pipeline4", "non-operatable-pipeline"}) {
             stubPermisssionsForActivePipeline(foo, cruiseConfig, pipeline, true, true);
-            when(pipelineDao.loadHistory(pipeline,1,0)).thenReturn(createPipelineInstanceModels());
+            when(pipelineDao.loadHistory(pipeline, 1, 0)).thenReturn(createPipelineInstanceModels());
         }
         when(pipelineDao.loadActivePipelines()).thenReturn(activePipelineInstances);
 
 
         when(goConfigService.hasPipelineNamed(new CaseInsensitiveString(any(String.class)))).thenReturn(true);
-        List<PipelineGroupModel> groups = pipelineHistoryService.allActivePipelineInstances(foo, new PipelineSelections(Arrays.asList("non-operatable-pipeline")));
+        List<PipelineGroupModel> groups = pipelineHistoryService.allActivePipelineInstances(foo, PipelineSelectionsHelper.with(Arrays.asList("non-operatable-pipeline")));
         assertThat(groups.size(), is(1));
         assertThat(groups.get(0).getName(), is("defaultGroup"));
         assertThat(groups.get(0).containsPipeline("pipeline1"), is(true));
-        assertThat(groups.get(0).containsPipeline("pipeline2"),is(true));
+        assertThat(groups.get(0).containsPipeline("pipeline2"), is(true));
         assertThat(groups.get(0).containsPipeline("pipeline3"), is(true));
         assertThat(groups.get(0).containsPipeline("pipeline4"), is(true));
     }
@@ -582,7 +583,8 @@ public class PipelineHistoryServiceTest {
         assertThat(pipelineInstance.isLockable(), is(true));
     }
 
-    @Test public void shouldPopulateWetherStageAndPipelineCanBeRunAccordingToOperatePermissions() throws Exception {
+    @Test
+    public void shouldPopulateWetherStageAndPipelineCanBeRunAccordingToOperatePermissions() throws Exception {
         ensureConfigHasPipeline("pipeline");
         ensureHasPermission(Username.ANONYMOUS, "pipeline");
         StageInstanceModels stages = new StageInstanceModels();
@@ -610,7 +612,8 @@ public class PipelineHistoryServiceTest {
         assertThat(models.get(1).hasOperatePermission(), is(false));
     }
 
-    @Test public void shouldPopulatePipelineInstanceModelWithTheBeforeAndAfterForTheGivenPipeline() throws Exception {
+    @Test
+    public void shouldPopulatePipelineInstanceModelWithTheBeforeAndAfterForTheGivenPipeline() throws Exception {
         DateTime now = new DateTime();
         PipelineTimelineEntry first = PipelineMaterialModificationMother.modification(Arrays.asList("first"), 1, "123", now);
         PipelineTimelineEntry second = PipelineMaterialModificationMother.modification(Arrays.asList("first"), 1, "123", now);
@@ -824,97 +827,97 @@ public class PipelineHistoryServiceTest {
         assertThat(pipelineHistoryService.getPageNumberForCounter("some-pipeline", 100, 10), is(1));
     }
 
-	@Test
-	public void shouldPopulateDataCorrectly_getPipelineStatus() {
-		CruiseConfig cruiseConfig = mock(BasicCruiseConfig.class);
-		PipelineConfig pipelineConfig = new PipelineConfig();
-        PipelinePauseInfo pipelinePauseInfo = new PipelinePauseInfo(true,"pausing pipeline for some-reason", "some-one");
-		when(cruiseConfig.getPipelineConfigByName(new CaseInsensitiveString("pipeline-name"))).thenReturn(pipelineConfig);
-		when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
-		when(securityService.hasViewPermissionForPipeline(Username.valueOf("user-name"), "pipeline-name")).thenReturn(true);
-		when(pipelinePauseService.pipelinePauseInfo("pipeline-name")).thenReturn(pipelinePauseInfo);
-		when(pipelineLockService.isLocked("pipeline-name")).thenReturn(true);
-		when(schedulingCheckerService.canManuallyTrigger(eq(pipelineConfig), eq("user-name"), any(ServerHealthStateOperationResult.class))).thenReturn(true);
+    @Test
+    public void shouldPopulateDataCorrectly_getPipelineStatus() {
+        CruiseConfig cruiseConfig = mock(BasicCruiseConfig.class);
+        PipelineConfig pipelineConfig = new PipelineConfig();
+        PipelinePauseInfo pipelinePauseInfo = new PipelinePauseInfo(true, "pausing pipeline for some-reason", "some-one");
+        when(cruiseConfig.getPipelineConfigByName(new CaseInsensitiveString("pipeline-name"))).thenReturn(pipelineConfig);
+        when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
+        when(securityService.hasViewPermissionForPipeline(Username.valueOf("user-name"), "pipeline-name")).thenReturn(true);
+        when(pipelinePauseService.pipelinePauseInfo("pipeline-name")).thenReturn(pipelinePauseInfo);
+        when(pipelineLockService.isLocked("pipeline-name")).thenReturn(true);
+        when(schedulingCheckerService.canManuallyTrigger(eq(pipelineConfig), eq("user-name"), any(ServerHealthStateOperationResult.class))).thenReturn(true);
 
-		PipelineStatusModel pipelineStatus = pipelineHistoryService.getPipelineStatus("pipeline-name", "user-name", new HttpOperationResult());
+        PipelineStatusModel pipelineStatus = pipelineHistoryService.getPipelineStatus("pipeline-name", "user-name", new HttpOperationResult());
 
-		assertThat(pipelineStatus.isPaused(), is(true));
-		assertThat(pipelineStatus.pausedCause(), is("pausing pipeline for some-reason"));
-		assertThat(pipelineStatus.pausedBy(), is("some-one"));
-		assertThat(pipelineStatus.isLocked(), is(true));
-		assertThat(pipelineStatus.isSchedulable(), is(true));
-	}
+        assertThat(pipelineStatus.isPaused(), is(true));
+        assertThat(pipelineStatus.pausedCause(), is("pausing pipeline for some-reason"));
+        assertThat(pipelineStatus.pausedBy(), is("some-one"));
+        assertThat(pipelineStatus.isLocked(), is(true));
+        assertThat(pipelineStatus.isSchedulable(), is(true));
+    }
 
-	@Test
-	public void shouldPopulateResultAsNotFound_getPipelineStatus() {
-		CruiseConfig cruiseConfig = mock(BasicCruiseConfig.class);
-		when(cruiseConfig.getPipelineConfigByName(new CaseInsensitiveString("pipeline-name"))).thenReturn(null);
-		when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
+    @Test
+    public void shouldPopulateResultAsNotFound_getPipelineStatus() {
+        CruiseConfig cruiseConfig = mock(BasicCruiseConfig.class);
+        when(cruiseConfig.getPipelineConfigByName(new CaseInsensitiveString("pipeline-name"))).thenReturn(null);
+        when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
 
-		HttpOperationResult result = new HttpOperationResult();
-		PipelineStatusModel pipelineStatus = pipelineHistoryService.getPipelineStatus("pipeline-name", "user-name", result);
+        HttpOperationResult result = new HttpOperationResult();
+        PipelineStatusModel pipelineStatus = pipelineHistoryService.getPipelineStatus("pipeline-name", "user-name", result);
 
-		assertThat(pipelineStatus, is(nullValue()));
-		assertThat(result.httpCode(), is(404));
-	}
+        assertThat(pipelineStatus, is(nullValue()));
+        assertThat(result.httpCode(), is(404));
+    }
 
-	@Test
-	public void shouldPopulateResultAsUnauthorized_getPipelineStatus() {
-		CruiseConfig cruiseConfig = mock(BasicCruiseConfig.class);
-		PipelineConfig pipelineConfig = new PipelineConfig();
-		when(cruiseConfig.getPipelineConfigByName(new CaseInsensitiveString("pipeline-name"))).thenReturn(pipelineConfig);
-		when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
-		when(securityService.hasViewPermissionForPipeline(Username.valueOf("user-name"), "pipeline-name")).thenReturn(false);
+    @Test
+    public void shouldPopulateResultAsUnauthorized_getPipelineStatus() {
+        CruiseConfig cruiseConfig = mock(BasicCruiseConfig.class);
+        PipelineConfig pipelineConfig = new PipelineConfig();
+        when(cruiseConfig.getPipelineConfigByName(new CaseInsensitiveString("pipeline-name"))).thenReturn(pipelineConfig);
+        when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
+        when(securityService.hasViewPermissionForPipeline(Username.valueOf("user-name"), "pipeline-name")).thenReturn(false);
 
-		HttpOperationResult result = new HttpOperationResult();
-		PipelineStatusModel pipelineStatus = pipelineHistoryService.getPipelineStatus("pipeline-name", "user-name", result);
+        HttpOperationResult result = new HttpOperationResult();
+        PipelineStatusModel pipelineStatus = pipelineHistoryService.getPipelineStatus("pipeline-name", "user-name", result);
 
-		assertThat(pipelineStatus, is(nullValue()));
-		assertThat(result.httpCode(), is(403));
-	}
+        assertThat(pipelineStatus, is(nullValue()));
+        assertThat(result.httpCode(), is(403));
+    }
 
-	@Test
-	public void shouldPopulateResultAsNotFoundWhenPipelineNotFound_loadMinimalData() {
-		String pipelineName = "unknown-pipeline";
-		CruiseConfig cruiseConfig = mock(BasicCruiseConfig.class);
-		when(cruiseConfig.hasPipelineNamed(new CaseInsensitiveString(pipelineName))).thenReturn(false);
-		when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
+    @Test
+    public void shouldPopulateResultAsNotFoundWhenPipelineNotFound_loadMinimalData() {
+        String pipelineName = "unknown-pipeline";
+        CruiseConfig cruiseConfig = mock(BasicCruiseConfig.class);
+        when(cruiseConfig.hasPipelineNamed(new CaseInsensitiveString(pipelineName))).thenReturn(false);
+        when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
 
-		HttpOperationResult result = new HttpOperationResult();
-		PipelineInstanceModels pipelineInstanceModels = pipelineHistoryService.loadMinimalData(pipelineName,
+        HttpOperationResult result = new HttpOperationResult();
+        PipelineInstanceModels pipelineInstanceModels = pipelineHistoryService.loadMinimalData(pipelineName,
                 Pagination.pageFor(0, 0, 10), new Username(new CaseInsensitiveString("looser")), result);
 
-		assertThat(pipelineInstanceModels, is(nullValue()));
-		assertThat(result.httpCode(), is(404));
-		assertThat(result.detailedMessage(), is("Not Found { Pipeline " + pipelineName + " not found }\n"));
-	}
+        assertThat(pipelineInstanceModels, is(nullValue()));
+        assertThat(result.httpCode(), is(404));
+        assertThat(result.detailedMessage(), is("Not Found { Pipeline " + pipelineName + " not found }\n"));
+    }
 
-	@Test
-	public void shouldPopulateResultAsUnauthorizedWhenUserNotAllowedToViewPipeline_loadMinimalData() {
-		Username noAccessUserName = new Username(new CaseInsensitiveString("foo"));
-		Username withAccessUserName = new Username(new CaseInsensitiveString("admin"));
-		String pipelineName = "no-access-pipeline";
-		CruiseConfig cruiseConfig = mock(BasicCruiseConfig.class);
-		when(cruiseConfig.hasPipelineNamed(new CaseInsensitiveString(pipelineName))).thenReturn(true);
-		when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
+    @Test
+    public void shouldPopulateResultAsUnauthorizedWhenUserNotAllowedToViewPipeline_loadMinimalData() {
+        Username noAccessUserName = new Username(new CaseInsensitiveString("foo"));
+        Username withAccessUserName = new Username(new CaseInsensitiveString("admin"));
+        String pipelineName = "no-access-pipeline";
+        CruiseConfig cruiseConfig = mock(BasicCruiseConfig.class);
+        when(cruiseConfig.hasPipelineNamed(new CaseInsensitiveString(pipelineName))).thenReturn(true);
+        when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
 
-		when(securityService.hasViewPermissionForPipeline(noAccessUserName, pipelineName)).thenReturn(false);
-		when(securityService.hasViewPermissionForPipeline(withAccessUserName, pipelineName)).thenReturn(true);
+        when(securityService.hasViewPermissionForPipeline(noAccessUserName, pipelineName)).thenReturn(false);
+        when(securityService.hasViewPermissionForPipeline(withAccessUserName, pipelineName)).thenReturn(true);
 
-		when(pipelineDao.loadHistory(pipelineName, 10, 0)).thenReturn(PipelineInstanceModels.createPipelineInstanceModels());
+        when(pipelineDao.loadHistory(pipelineName, 10, 0)).thenReturn(PipelineInstanceModels.createPipelineInstanceModels());
 
-		HttpOperationResult result = new HttpOperationResult();
-		PipelineInstanceModels pipelineInstanceModels = pipelineHistoryService.loadMinimalData(pipelineName, Pagination.pageFor(0, 1, 10), noAccessUserName, result);
+        HttpOperationResult result = new HttpOperationResult();
+        PipelineInstanceModels pipelineInstanceModels = pipelineHistoryService.loadMinimalData(pipelineName, Pagination.pageFor(0, 1, 10), noAccessUserName, result);
 
-		assertThat(pipelineInstanceModels, is(nullValue()));
-		assertThat(result.httpCode(), is(403));
+        assertThat(pipelineInstanceModels, is(nullValue()));
+        assertThat(result.httpCode(), is(403));
 
-		result = new HttpOperationResult();
-		pipelineInstanceModels = pipelineHistoryService.loadMinimalData(pipelineName, Pagination.pageFor(0, 1, 10), withAccessUserName, result);
+        result = new HttpOperationResult();
+        pipelineInstanceModels = pipelineHistoryService.loadMinimalData(pipelineName, Pagination.pageFor(0, 1, 10), withAccessUserName, result);
 
-		assertThat(pipelineInstanceModels, is(not(nullValue())));
-		assertThat(result.canContinue(), is(true));
-	}
+        assertThat(pipelineInstanceModels, is(not(nullValue())));
+        assertThat(result.canContinue(), is(true));
+    }
 
     @Test
     public void shouldUpdateCommentUsingPipelineDao() {

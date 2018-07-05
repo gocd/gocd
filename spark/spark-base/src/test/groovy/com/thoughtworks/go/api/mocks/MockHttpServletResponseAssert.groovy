@@ -32,6 +32,11 @@ class MockHttpServletResponseAssert extends com.thoughtworks.go.http.mocks.MockH
     return new MockHttpServletResponseAssert(actual, MockHttpServletResponseAssert.class)
   }
 
+  MockHttpServletResponseAssert hasBodyWithJson(String expectedJson) {
+    JsonFluentAssert.assertThatJson(actual.getContentAsString()).isEqualTo(expectedJson)
+    return this
+  }
+
   MockHttpServletResponseAssert hasBodyWithJsonObject(Object expected, Class representer) throws UnsupportedEncodingException {
     def expectedJson = toObjectString({ representer.toJSON(it , expected) })
 

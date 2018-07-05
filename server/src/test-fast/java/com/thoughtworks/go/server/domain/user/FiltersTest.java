@@ -20,11 +20,9 @@ import com.thoughtworks.go.config.CaseInsensitiveString;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 class FiltersTest {
 
@@ -43,11 +41,20 @@ class FiltersTest {
     @Test
     void toJson() {
         List<DashboardFilter> views = new ArrayList<>();
-        final List<CaseInsensitiveString> pipelines = Collections.singletonList(new CaseInsensitiveString("Pipely McPipe"));
-        final BlacklistFilter first = new BlacklistFilter("Cool Pipelines", null, pipelines);
+        final List<CaseInsensitiveString> pipelines = CaseInsensitiveString.list("Pipely McPipe");
+        final BlacklistFilter first = new BlacklistFilter("Cool Pipelines", pipelines);
         views.add(first);
         final Filters filters = new Filters(views);
 
         assertEquals("{\"filters\":[{\"name\":\"Cool Pipelines\",\"pipelines\":[\"Pipely McPipe\"],\"type\":\"blacklist\"}]}", Filters.toJson(filters));
+    }
+
+    @Test
+    void equalsIsStructuralEquality() {
+        final Filters a = Filters.single(new BlacklistFilter("foo", CaseInsensitiveString.list("p1", "p2")));
+        final Filters b = Filters.single(new BlacklistFilter("foo", CaseInsensitiveString.list("p1", "p2")));
+        final Filters c = Filters.single(new BlacklistFilter("foo", CaseInsensitiveString.list("p1", "p3")));
+        assertEquals(a, b);
+        assertNotEquals(a, c);
     }
 }

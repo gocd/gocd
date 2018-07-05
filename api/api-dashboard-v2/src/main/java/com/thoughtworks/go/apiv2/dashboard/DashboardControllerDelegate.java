@@ -25,6 +25,7 @@ import com.thoughtworks.go.apiv2.dashboard.representers.DashboardFor;
 import com.thoughtworks.go.apiv2.dashboard.representers.PipelineGroupsRepresenter;
 import com.thoughtworks.go.server.dashboard.GoDashboardPipelineGroup;
 import com.thoughtworks.go.server.domain.Username;
+import com.thoughtworks.go.server.domain.user.DashboardFilter;
 import com.thoughtworks.go.server.domain.user.PipelineSelections;
 import com.thoughtworks.go.server.service.GoDashboardService;
 import com.thoughtworks.go.server.service.PipelineSelectionsService;
@@ -80,8 +81,12 @@ public class DashboardControllerDelegate extends ApiController {
         Long userId = currentUserId(request);
         Username userName = currentUsername();
 
-        PipelineSelections selectedPipelines = pipelineSelectionsService.getPersistedSelectedPipelines(selectedPipelinesCookie, userId);
-        List<GoDashboardPipelineGroup> pipelineGroups = goDashboardService.allPipelineGroupsForDashboard(selectedPipelines, userName);
+        PipelineSelections selectedPipelines = pipelineSelectionsService.loadPipelineSelections(selectedPipelinesCookie, userId);
+
+        final String filterName = request.queryParams("viewName");
+        final DashboardFilter filter = selectedPipelines.namedFilter(filterName);
+
+        List<GoDashboardPipelineGroup> pipelineGroups = goDashboardService.allPipelineGroupsForDashboard(filter, userName);
         String pipelineGroupsEtag = pipelineGroups.stream().map(GoDashboardPipelineGroup::etag).collect(Collectors.joining("/"));
         String etag = DigestUtils.md5Hex(currentUserLoginName().toString() + "/" + pipelineGroupsEtag);
 

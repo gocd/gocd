@@ -17,14 +17,12 @@
 package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.CaseInsensitiveString;
+import com.thoughtworks.go.server.domain.user.Filters;
 import com.thoughtworks.go.server.domain.user.PipelineSelections;
 import com.thoughtworks.go.server.persistence.PipelineRepository;
 import com.thoughtworks.go.util.Clock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Service
 public class PipelineSelectionsService {
@@ -39,7 +37,7 @@ public class PipelineSelectionsService {
         this.clock = clock;
     }
 
-    public PipelineSelections getPersistedSelectedPipelines(String id, Long userId) {
+    public PipelineSelections loadPipelineSelections(String id, Long userId) {
         PipelineSelections pipelineSelections = loadByIdOrUserId(id, userId);
 
         if (pipelineSelections == null) {
@@ -49,9 +47,11 @@ public class PipelineSelectionsService {
         return pipelineSelections;
     }
 
-    public long persistSelectedPipelines(String id, Long userId, List<String> selectedPipelines, boolean isBlacklist) {
+    public long persistPipelineSelections(String id, Long userId, Filters filters) {
+
         PipelineSelections pipelineSelections = findOrCreateCurrentPipelineSelectionsFor(id, userId);
-        pipelineSelections.update(selectedPipelines, clock.currentTime(), userId, isBlacklist);
+        pipelineSelections.update(filters, clock.currentTime(), userId);
+
         return pipelineRepository.saveSelectedPipelines(pipelineSelections);
     }
 
@@ -59,7 +59,7 @@ public class PipelineSelectionsService {
         PipelineSelections pipelineSelections = loadByIdOrUserId(id, userId);
 
         if (pipelineSelections == null) {
-            return new PipelineSelections(new ArrayList<>(), clock.currentTime(), userId, true);
+            return new PipelineSelections(Filters.defaults(), clock.currentTime(), userId);
         }
 
         return pipelineSelections;

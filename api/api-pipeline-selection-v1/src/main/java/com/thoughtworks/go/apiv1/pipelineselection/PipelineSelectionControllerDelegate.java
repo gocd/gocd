@@ -19,12 +19,11 @@ package com.thoughtworks.go.apiv1.pipelineselection;
 
 import com.thoughtworks.go.api.ApiController;
 import com.thoughtworks.go.api.ApiVersion;
-import com.thoughtworks.go.api.representers.JsonReader;
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
-import com.thoughtworks.go.api.util.GsonTransformer;
 import com.thoughtworks.go.apiv1.pipelineselection.representers.PipelineSelectionResponse;
 import com.thoughtworks.go.apiv1.pipelineselection.representers.PipelineSelectionsRepresenter;
 import com.thoughtworks.go.config.PipelineConfigs;
+import com.thoughtworks.go.server.domain.user.Filters;
 import com.thoughtworks.go.server.domain.user.PipelineSelections;
 import com.thoughtworks.go.server.service.PipelineConfigService;
 import com.thoughtworks.go.server.service.PipelineSelectionsService;
@@ -76,23 +75,18 @@ public class PipelineSelectionControllerDelegate extends ApiController {
 
     public String show(Request request, Response response) throws IOException {
         String fromCookie = request.cookie("selected_pipelines");
+        List<PipelineConfigs> groups = pipelineConfigService.viewableGroupsFor(currentUsername());
+        PipelineSelections pipelineSelections = pipelineSelectionsService.loadPipelineSelections(fromCookie, currentUserId(request));
 
-        PipelineSelections selectedPipelines = pipelineSelectionsService.getPersistedSelectedPipelines(fromCookie, currentUserId(request));
-        List<PipelineConfigs> pipelineConfigs = pipelineConfigService.viewableGroupsFor(currentUsername());
+        PipelineSelectionResponse pipelineSelectionResponse = new PipelineSelectionResponse(pipelineSelections.viewFilters(), groups);
 
-        PipelineSelectionResponse pipelineSelectionResponse = new PipelineSelectionResponse(selectedPipelines.pipelineList(), selectedPipelines.isBlacklist(), pipelineConfigs);
-
-        return writerForTopLevelObject(request, response, writer -> PipelineSelectionsRepresenter.toJSON(writer, pipelineSelectionResponse));
+        return PipelineSelectionsRepresenter.toJSON(pipelineSelectionResponse);
     }
 
     public String update(Request request, Response response) {
         String fromCookie = request.cookie("selected_pipelines");
-
-        JsonReader jsonReader = GsonTransformer.getInstance().jsonReaderFrom(request.body());
-
-        PipelineSelectionResponse selectionResponse = PipelineSelectionsRepresenter.fromJSON(jsonReader);
-
-        Long recordId = pipelineSelectionsService.persistSelectedPipelines(fromCookie, currentUserId(request), selectionResponse.selections(), selectionResponse.blacklist());
+        Filters filters = Filters.fromJson(request.body());
+        Long recordId = pipelineSelectionsService.persistPipelineSelections(fromCookie, currentUserId(request), filters);
 
         if (!apiAuthenticationHelper.securityEnabled()) {
             response.cookie("/go", "selected_pipelines", String.valueOf(recordId), ONE_YEAR, systemEnvironment.isSessionCookieSecure(), true);

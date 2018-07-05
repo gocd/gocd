@@ -16,36 +16,59 @@
 
 package com.thoughtworks.go.apiv1.pipelineselection.representers;
 
-import com.thoughtworks.go.api.base.OutputWriter;
-import com.thoughtworks.go.api.representers.JsonReader;
+import com.google.gson.*;
+import com.google.gson.reflect.TypeToken;
+import com.thoughtworks.go.config.CaseInsensitiveString;
+import com.thoughtworks.go.config.PipelineConfig;
+import com.thoughtworks.go.config.PipelineConfigs;
+import com.thoughtworks.go.server.domain.user.DashboardFilter;
 
-import java.util.Collections;
+import java.lang.reflect.Type;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.thoughtworks.go.server.domain.user.Marshaling.CaseInsensitiveStringSerializer;
+import static com.thoughtworks.go.server.domain.user.Marshaling.DashboardFilterSerializer;
+
 public class PipelineSelectionsRepresenter {
-    public static void toJSON(OutputWriter writer, PipelineSelectionResponse pipelineSelectionResponse) {
-        writer.addChildList("selections", pipelineSelectionResponse.selections())
-                .add("blacklist", pipelineSelectionResponse.blacklist())
-                .addChild("pipelines", pipelineGroupsWriter -> {
-                    pipelineSelectionResponse.getPipelineConfigs().forEach(pipelineConfigs -> {
-                        List<String> pipelineNames = pipelineConfigs
-                                .getPipelines().stream()
-                                .map(pipelineConfig -> pipelineConfig.getName().toString())
-                                .collect(Collectors.toList());
-                        if (!pipelineNames.isEmpty()) {
-                            pipelineGroupsWriter.addChildList(pipelineConfigs.getGroup(), pipelineNames);
-                        }
-                    });
-                });
+    private static Type GROUPS_TYPE = new TypeToken<List<PipelineConfigs>>() {}.getType();
+    private static Gson GSON = new GsonBuilder().
+            registerTypeAdapter(PipelineSelectionResponse.class, new PersonalizationResponseSerializer()).
+            registerTypeAdapter(GROUPS_TYPE, new PipelineGroupsSerializer()).
+            registerTypeAdapter(DashboardFilter.class, new DashboardFilterSerializer()).
+            registerTypeAdapter(CaseInsensitiveString.class, new CaseInsensitiveStringSerializer()).
+            create();
+
+    public static String toJSON(PipelineSelectionResponse pipelineSelectionResponse) {
+        return GSON.toJson(pipelineSelectionResponse, PipelineSelectionResponse.class);
     }
 
-    public static PipelineSelectionResponse fromJSON(JsonReader reader) {
-        List<String> selections = reader.readStringArrayIfPresent("selections").orElse(Collections.emptyList());
-        Boolean blacklist = reader.optBoolean("blacklist").orElse(true);
-
-        return new PipelineSelectionResponse(selections, blacklist, null);
+    private static class PersonalizationResponseSerializer implements JsonSerializer<PipelineSelectionResponse> {
+        @Override
+        public JsonElement serialize(PipelineSelectionResponse src, Type typeOfSrc, JsonSerializationContext context) {
+            JsonObject serialized = new JsonObject();
+            JsonArray filters = new JsonArray();
+            src.filters().filters().forEach((f) -> {
+                filters.add(context.serialize(f, DashboardFilter.class));
+            });
+            serialized.add("filters", filters);
+            serialized.add("pipelines", context.serialize(src.getPipelineConfigs(), GROUPS_TYPE));
+            return serialized;
+        }
     }
 
-
+    private static class PipelineGroupsSerializer implements JsonSerializer<List<PipelineConfigs>> {
+        @Override
+        public JsonElement serialize(List<PipelineConfigs> src, Type typeOfSrc, JsonSerializationContext context) {
+            JsonObject serialized = new JsonObject();
+            for (PipelineConfigs group : src) {
+                final List<PipelineConfig> pipelines = group.getPipelines();
+                if (!pipelines.isEmpty()) {
+                    List<CaseInsensitiveString> pipelineNames = pipelines.stream().map(PipelineConfig::name).collect(Collectors.toList());
+                    serialized.add(group.getGroup(), context.serialize(pipelineNames));
+                }
+            }
+            return serialized;
+        }
+    }
 }

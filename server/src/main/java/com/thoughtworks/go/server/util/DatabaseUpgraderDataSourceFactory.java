@@ -16,13 +16,14 @@
 
 package com.thoughtworks.go.server.util;
 
-import java.sql.SQLException;
+import com.thoughtworks.go.database.Database;
+import com.thoughtworks.go.server.datamigration.DataMigrationRunner;
+import org.springframework.beans.factory.annotation.Autowired;
+
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.sql.DataSource;
-
-import com.thoughtworks.go.database.Database;
-import org.springframework.beans.factory.annotation.Autowired;
+import java.sql.SQLException;
 
 /**
  * @understands data source creation
@@ -48,6 +49,7 @@ public class DatabaseUpgraderDataSourceFactory {
     @PostConstruct
     public void upgradeDb() throws SQLException {
         database.upgrade();
+        DataMigrationRunner.run(dataSource());
     }
 
     @PreDestroy

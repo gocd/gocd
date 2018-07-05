@@ -23,9 +23,9 @@
         <id name="id" column="id">
             <generator class="identity"/>
         </id>
-        <property name="selections" access="property"/>
         <property name="userId" access="field"/>
         <property name="lastUpdate"/>
-        <property name="isBlacklist" access="field"/>
+        <property name="filters" access="property"/>
+        <property name="version" access="field"/>
     </class>
 </hibernate-mapping>

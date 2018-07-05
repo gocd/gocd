@@ -20,130 +20,87 @@ import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.PipelineConfigs;
 import com.thoughtworks.go.domain.PersistentObject;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
-import java.util.List;
-import java.util.stream.Collectors;
 
 public class PipelineSelections extends PersistentObject implements Serializable {
+    public static final int CURRENT_SCHEMA_VERSION = 1;
 
-    private Date lastUpdate;
-    public static final PipelineSelections ALL = new PipelineSelections() {
-        @Override public boolean includesGroup(PipelineConfigs group) {
+    public static final PipelineSelections ALL = new PipelineSelections(Filters.defaults(), null, null) {
+        @Override
+        public boolean includesGroup(PipelineConfigs group) {
             return true;
         }
 
-        @Override public boolean includesPipeline(PipelineConfig pipeline) {
+        @Override
+        public boolean includesPipeline(CaseInsensitiveString pipelineName) {
             return true;
         }
     };
-    private List<String> pipelines;
+
     private Long userId;
-    private List<CaseInsensitiveString> caseInsensitivePipelineList = new ArrayList<>();
-    private boolean isBlacklist;
+    private Date lastUpdate;
+    private Filters viewFilters = Filters.defaults();
+    private int version;
 
     public PipelineSelections() {
-        this(new ArrayList<>());
+        this(Filters.defaults(), null, null);
     }
 
-    public PipelineSelections(List<String> unselectedPipelines) {
-        this(unselectedPipelines, new Date(), null, true);
+    public PipelineSelections(Filters filters, Date date, Long userId) {
+        update(filters, date, userId);
     }
 
-    public PipelineSelections(List<String> unselectedPipelines, Date date, Long userId, boolean isBlacklist) {
-        update(unselectedPipelines, date, userId, isBlacklist);
+    public String getFilters() {
+        return Filters.toJson(this.viewFilters);
+    }
+
+    public void setFilters(String filters) {
+        this.viewFilters = Filters.fromJson(filters);
+    }
+
+    public Filters viewFilters() {
+        return viewFilters;
+    }
+
+    public int version() {
+        return version;
     }
 
     public Date lastUpdated() {
         return lastUpdate;
     }
 
-    public void update(List<String> selections, Date date, Long userId, boolean isBlacklist) {
+    public void update(Filters filters, Date date, Long userId) {
         this.userId = userId;
-        this.isBlacklist = isBlacklist;
-        updateSelections(selections);
         this.lastUpdate = date;
+        this.viewFilters = null == filters ? Filters.defaults() : filters;
+        this.version = CURRENT_SCHEMA_VERSION;
     }
 
+    @Deprecated // TODO: remove when removing old dashboard
     public boolean includesGroup(PipelineConfigs group) {
         for (PipelineConfig pipelineConfig : group) {
-            if (!includesPipeline(pipelineConfig)) {
+            if (!includesPipeline(pipelineConfig.name())) {
                 return false;
             }
         }
         return true;
     }
 
-    public boolean includesPipeline(PipelineConfig pipeline) {
-        return includesPipeline(pipeline.name());
-    }
-
-    public boolean includesPipeline(String pipelineName) {
-        return includesPipeline(new CaseInsensitiveString(pipelineName));
-    }
-
+    @Deprecated // TODO: remove when removing old dashboard
     public boolean includesPipeline(CaseInsensitiveString pipelineName) {
-        boolean isInCurrentSelection = caseInsensitivePipelineList().contains(pipelineName);
-
-        if (isBlacklist) {
-            return !isInCurrentSelection;
-        }
-        return isInCurrentSelection;
+        return namedFilter(null).isPipelineVisible(pipelineName);
     }
 
-    public List<String> pipelineList() {
-        return pipelines;
-    }
-
-    private List<CaseInsensitiveString> caseInsensitivePipelineList() {
-        return caseInsensitivePipelineList;
-    }
-
-
-    public String getSelections() {
-        return StringUtils.join(pipelineList(), ",");
-    }
-
-    private void setSelections(String unselectedPipelines) {
-        this.pipelines = Arrays.asList(StringUtils.split(unselectedPipelines, ","));
-        List<CaseInsensitiveString> pipelineList = new ArrayList<>();
-        for (String pipeline : pipelines) {
-            pipelineList.add(new CaseInsensitiveString(pipeline));
-        }
-        this.caseInsensitivePipelineList = pipelineList;
-    }
-
-    public static PipelineSelections singleSelection(final String pipelineName) {
-        return new PipelineSelections() {
-            @Override public boolean includesPipeline(PipelineConfig pipeline) {
-                return compare(pipelineName, CaseInsensitiveString.str(pipeline.name()));
-            }
-
-            @Override public boolean includesPipeline(String pipeline) {
-                return compare(pipelineName, pipeline);
-            }
-
-            @Override public boolean includesGroup(PipelineConfigs group) {
-                return true;
-            }
-
-            private boolean compare(String pipelineName, String name) {
-                return name.equalsIgnoreCase(pipelineName);
-            }
-        };
+    public DashboardFilter namedFilter(String name) {
+        return viewFilters.named(name);
     }
 
     public Long userId() {
         return userId;
-    }
-
-    public boolean isBlacklist() {
-        return isBlacklist;
     }
 
     @Override
@@ -151,28 +108,20 @@ public class PipelineSelections extends PersistentObject implements Serializable
         return ToStringBuilder.reflectionToString(this);
     }
 
+    /**
+     * Allows pipeline to be visible to entire filter set; generally used as an
+     * after-hook on pipeline creation.
+     *
+     * @param pipelineToAdd - the name of the pipeline
+     * @return true if any filters were modified, false if all filters are unchanged
+     */
     public boolean ensurePipelineVisible(CaseInsensitiveString pipelineToAdd) {
-        boolean requiresSave = false;
+        boolean modified = false;
 
-        if (this.isBlacklist()) {
-            if (caseInsensitivePipelineList.contains(pipelineToAdd)) {
-                caseInsensitivePipelineList.remove(pipelineToAdd);
-                lastUpdate = new Date();
-                requiresSave = true;
-            }
-        } else {
-            if (!caseInsensitivePipelineList.contains(pipelineToAdd)) {
-                caseInsensitivePipelineList.add(pipelineToAdd);
-                lastUpdate = new Date();
-                requiresSave = true;
-            }
+        for (DashboardFilter f : viewFilters.filters()) {
+            modified = modified || f.allowPipeline(pipelineToAdd);
         }
 
-        pipelines = caseInsensitivePipelineList.stream().map(CaseInsensitiveString::str).collect(Collectors.toList());
-        return requiresSave;
-    }
-
-    private void updateSelections(List<String> selections) {
-        this.setSelections(StringUtils.join(selections, ","));
+        return modified;
     }
 }

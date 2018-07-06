@@ -49,7 +49,11 @@
   }
 
   function showExternalArtifactView() {
-    if(!_.isEmpty(storeIdToPluginId) || jQuery(".artifact-container").find(".no_artifact_store").length == 0) {
+
+    var isArtifactStoreConfigured = !_.isEmpty(storeIdToPluginId);
+    var notAddedAFormRow = jQuery(".artifact-container").find(".no_artifact_store").length == 0;
+    var shouldAddFormRow = isArtifactStoreConfigured || notAddedAFormRow;
+    if(shouldAddFormRow) {
       addFormRowFor('#artifact_template_external');
     }
     

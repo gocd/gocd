@@ -97,6 +97,26 @@ describe "admin/jobs/artifacts.html.erb" do
     expect(plugin_id_dropdown.find('option[selected]')).to have_text("Foo Plugin")
   end
 
+  it "should prompt user to configure artifact store and provide a link to the the artifact store when it is not configured" do
+    assign(:store_id_to_plugin_id, {})
+
+    render
+
+    prompt_message = Capybara.string(response.body).find("div.information.no_artifact_store")
+    expect(prompt_message.find('div.errors')).to have_text("No artifact store is configured")
+    expect(prompt_message.find('div.errors')).to have_text("Go to artifact store page to configure artifact store.")
+    expect(prompt_message.find('div.errors')).to have_link("artifact store page",:href=>"/go/admin/artifact_stores")
+  end
+
+  it "should not prompt user to configure artifact store when it's already configured" do
+    render
+
+    artifact_divs = Capybara.string(response.body).all("div.artifact")
+    artifact_divs.each {|prompt_message_div|
+      expect(prompt_message_div).not_to have_selector("div.information.no_artifact_store")
+    }
+  end
+
   it "should render inputs for built in artifacts" do
     render
 

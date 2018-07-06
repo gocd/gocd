@@ -528,8 +528,7 @@ task sparkTestJunitHtmlReport(type: TestReport) {
 
   reportOn project(':api').subprojects*.test
   reportOn project(':spark').subprojects*.test
-  def htmlOutputDir = file("${project.buildDir}/reports/tests/sparkTest")
-  destinationDir = htmlOutputDir
+  destinationDir = file("${project.buildDir}/reports/tests/sparkTest")
 }
 
 task sparkTestJacocoMerge(type: JacocoMerge) { thisTask ->

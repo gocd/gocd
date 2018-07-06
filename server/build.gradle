@@ -25,8 +25,6 @@ import java.nio.file.FileSystems
 
 description = 'GoCD Server'
 
-apply plugin: 'com.thoughtworks.go.test-sets'
-
 buildscript {
   repositories {
     mavenCentral()
@@ -38,7 +36,56 @@ buildscript {
   }
 }
 
+sourceSets {
+  test {
+    resources {
+      srcDirs += ['properties/test', 'webapp', 'test/data']
+      exclude "WEB-INF/rails.new/"
+    }
+  }
+
+  sharedTest {
+    java {
+      srcDirs = [project.file('src/test-shared/java')]
+    }
+    resources {
+      srcDirs = [project.file('src/test-shared/resources')]
+    }
+
+    compileClasspath += sourceSets.main.output + configurations.compileOnly + configurations.testCompileOnly
+    runtimeClasspath += sourceSets.main.output + configurations.compileOnly + configurations.testCompileOnly
+  }
+
+  fastUnitTest {
+    java {
+      srcDirs = [project.file('src/test-fast/java')]
+    }
+    resources {
+      srcDirs = [project.file('src/test-fast/resources')]
+    }
+
+    compileClasspath += sourceSets.sharedTest.output + sourceSets.sharedTest.compileClasspath
+    runtimeClasspath += sourceSets.sharedTest.output + sourceSets.sharedTest.runtimeClasspath
+  }
+
+  integrationTest {
+    java {
+      srcDirs = [project.file('src/test-integration/java')]
+    }
+    resources {
+      srcDirs = [project.file('src/test-integration/resources')]
+    }
+
+    compileClasspath += sourceSets.sharedTest.output + sourceSets.sharedTest.compileClasspath
+    runtimeClasspath += sourceSets.sharedTest.output + sourceSets.sharedTest.runtimeClasspath
+  }
+}
+
 configurations {
+  sharedTestCompile.extendsFrom testCompile
+  fastUnitTestCompile.extendsFrom sharedTestCompile
+  integrationTestCompile.extendsFrom sharedTestCompile
+
   warConfig
   jarConfig
   additionalClasspath
@@ -76,49 +123,6 @@ def props = [
 ]
 props.putAll(project.hasProperty('testSystemProperties') ? project.testSystemProperties : [:])
 project.ext.testSystemProperties = props
-
-testSets {
-  sharedTest {
-    dirName = 'test-shared'
-  }
-
-//  `fastUnitTest` because `unitTest` cannot extend from `sharedTest` and cause a circular dependency
-  fastUnitTest {
-    dirName = 'test-fast'
-    extendsFrom sharedTest
-  }
-
-  integrationTest {
-    dirName = 'test-integration'
-    extendsFrom sharedTest
-  }
-}
-
-sourceSets {
-
-  test {
-    resources {
-      srcDirs += ['properties/test', 'webapp', 'test/data']
-      exclude "WEB-INF/rails.new/"
-    }
-  }
-
-  sharedTest {
-    compileClasspath += configurations.compileOnly
-    runtimeClasspath += configurations.compileOnly
-
-  }
-
-  fastUnitTest {
-    compileClasspath += configurations.compileOnly
-    runtimeClasspath += configurations.compileOnly
-  }
-
-  integrationTest {
-    compileClasspath += configurations.compileOnly
-    runtimeClasspath += configurations.compileOnly
-  }
-}
 
 dependencies {
   api project(':api').subprojects
@@ -220,21 +224,163 @@ dependencies {
   testCompile group: 'org.assertj', name: 'assertj-core', version: project.versions.assertJ
   testCompile project(':test:http-mocks')
 
-  fastUnitTestCompile sourceSets.sharedTest.output
-  integrationTestCompile sourceSets.sharedTest.output
-
   testCompileOnly group: 'junit', name: 'junit', version: project.versions.junit
   testRuntimeOnly group: 'org.junit.vintage', name: 'junit-vintage-engine', version: project.versions.junit5
   testCompile group: 'org.junit.jupiter', name: 'junit-jupiter-params', version: project.versions.junit5
   testCompile group: 'org.junit.jupiter', name: 'junit-jupiter-migrationsupport', version: project.versions.junit5
   testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: project.versions.junit5
-
 }
 
 jar {
   classifier = 'classes'
   exclude '**/*/logback.xml'
   exclude 'logback.xml'
+}
+
+idea {
+  module {
+    testSourceDirs += sourceSets.sharedTest.java.srcDirs
+    testSourceDirs += sourceSets.fastUnitTest.java.srcDirs
+    testSourceDirs += sourceSets.integrationTest.java.srcDirs
+
+    // some hax to fudge the intellij xml
+    iml.withXml {
+      def node = it.asNode()
+      def content = node.component.find { it.'@name' == 'NewModuleRootManager' }.content[0]
+      content.sourceFolder.each { sourceFolder ->
+        if(sourceFolder.@url?.endsWith('/resources')) {
+          sourceFolder.attributes().with {
+            boolean isTestSource = (remove('isTestSource') == 'true')
+            put('type', isTestSource ? 'java-test-resource' : 'java-resource')
+          }
+        }
+      }
+    }
+  }
+}
+
+task sharedTest(type: Test) { thisTask ->
+  description = 'Runs the functional tests.'
+  group = 'verification'
+  testClassesDirs = sourceSets.sharedTest.output.classesDirs
+  classpath = sourceSets.sharedTest.runtimeClasspath
+  mustRunAfter test
+
+  reports {
+    html.enabled = true
+    junitXml.enabled = true
+  }
+
+  doFirst {
+    def files = project.files([])
+    project.sourceSets[thisTask.name].java.srcDirs.each { srcDir ->
+      files = files.plus(project.fileTree(dir: srcDir, includes: ['**/*.java']))
+    }
+
+    def badFiles = files.findAll { eachFile ->
+      def text = eachFile.getText("utf-8")
+      text.contains("@Test")
+    }
+
+    if (!badFiles.isEmpty()) {
+      throw new GradleException("${thisTask} is not supposed to contain any tests. The following files contained what looks like test code:\n${badFiles.collect { f -> "  - ${f}" }.join("\n")}")
+    }
+  }
+}
+
+task fastUnitTest(type: Test) { thisTask ->
+  description = 'Runs the fast unit tests.'
+  group = 'verification'
+
+  testClassesDirs += sourceSets.fastUnitTest.output.classesDirs
+  classpath += sourceSets.fastUnitTest.runtimeClasspath
+
+  mustRunAfter test
+
+  forkEvery 256
+  minHeapSize '1g'
+  maxHeapSize '4g'
+
+  reports {
+    html.enabled = true
+    junitXml.enabled = true
+  }
+
+  doFirst {
+    def files = project.files([])
+    project.sourceSets[thisTask.name].java.srcDirs.each { srcDir ->
+      files = files.plus(project.fileTree(dir: srcDir, includes: ['**/*.java']))
+    }
+
+    def badFiles = files.findAll { eachFile ->
+      def text = eachFile.getText("utf-8")
+      text.contains("@SpringJUnit4ClassRunner") || text.contains("@ContextConfiguration") || text.contains("@GoJUnitExtSpringRunner")
+    }
+
+    if (!badFiles.isEmpty()) {
+      throw new GradleException("${thisTask} is not supposed to contain any integration tests. The following files contained what looks like integration test code:\n${badFiles.collect { f -> "  - ${f}" }.join("\n")}")
+    }
+  }
+}
+
+task integrationTest(type: Test) { thisTask ->
+  description = 'Runs the integration tests.'
+  group = 'verification'
+  testClassesDirs += sourceSets.integrationTest.output.classesDirs
+  classpath += sourceSets.integrationTest.runtimeClasspath
+  mustRunAfter test
+
+  forkEvery System.properties.containsKey('idea.home.path') ? 0 : 1
+  minHeapSize '1024m'
+  maxHeapSize '2048m'
+
+  reports {
+    html.enabled = true
+    junitXml.enabled = true
+  }
+
+  doFirst {
+    def excludes = [
+      'com/thoughtworks/go/server/materials/MaterialDatabaseGitUpdaterTest.java',
+      'com/thoughtworks/go/server/materials/MaterialDatabaseGitWithSubmodulesUpdaterTest.java',
+      'com/thoughtworks/go/server/materials/MaterialDatabaseSvnWithExternalsUpdaterTest.java'
+    ].collect { eachExclude -> FileSystems.getDefault().getPath(eachExclude) }
+
+    def files = project.files([])
+    project.sourceSets[thisTask.name].java.srcDirs.each { srcDir ->
+      files = files.plus(project.fileTree(dir: srcDir, includes: ['**/*.java']))
+    }
+
+    def badFiles = files.findAll { eachFile ->
+      def text = eachFile.getText("utf-8")
+      text.contains("@Test") && !(text.contains("@SpringJUnit4ClassRunner") || text.contains("@ContextConfiguration") || text.contains("@GoJUnitExtSpringRunner"))
+    }
+
+    badFiles.removeIf { badFile ->
+      excludes.any { eachExclude ->
+        badFile.toPath().endsWith(eachExclude)
+      }
+    }
+
+    if (!badFiles.isEmpty()) {
+      throw new GradleException("${thisTask} is not supposed to contain any unit tests. The following files contained what looks like unit test code:\n${badFiles.collect { f -> "  - ${f}" }.join("\n")}")
+    }
+  }
+
+}
+
+task sharedTestJar(type: Jar) {
+  description = "Assembles a jar archive containing the sharedTest classes."
+  group = BasePlugin.BUILD_GROUP
+  from sourceSets.sharedTest.output
+  classifier = 'shared-test'
+}
+
+task fastUnitTestJar(type: Jar) {
+  description = "Assembles a jar archive containing the fastUnitTest classes."
+  group = BasePlugin.BUILD_GROUP
+  from sourceSets.fastUnitTest.output
+  classifier = 'fast-unit-test'
 }
 
 check.dependsOn(sharedTest, fastUnitTest, integrationTest)
@@ -367,25 +513,6 @@ test {
   dependsOn prepareNoRails
 }
 
-sharedTest { thisTask ->
-
-  doFirst {
-    def files = project.files([])
-    project.sourceSets[thisTask.name].java.srcDirs.each { srcDir ->
-      files = files.plus(project.fileTree(dir: srcDir, includes: ['**/*.java']))
-    }
-
-    def badFiles = files.findAll { eachFile ->
-      def text = eachFile.getText("utf-8")
-      text.contains("@Test")
-    }
-
-    if (!badFiles.isEmpty()) {
-      throw new GradleException("${thisTask} is not supposed to contain any tests. The following files contained what looks like test code:\n${badFiles.collect { f -> "  - ${f}" }.join("\n")}")
-    }
-  }
-}
-
 test { Test thisTask ->
   doFirst {
     def files = project.files([])
@@ -402,63 +529,6 @@ test { Test thisTask ->
       throw new GradleException("${thisTask} is not supposed to contain any unit tests. Move the tests to fast-test or integration-test as appropriate. The following files contained what looks like test code:\n${badFiles.collect { f -> "  - ${f}" }.join("\n")}")
     }
   }
-}
-
-fastUnitTest { thisTask ->
-  forkEvery 256
-  minHeapSize '1g'
-  maxHeapSize '4g'
-
-  doFirst {
-    def files = project.files([])
-    project.sourceSets[thisTask.name].java.srcDirs.each { srcDir ->
-      files = files.plus(project.fileTree(dir: srcDir, includes: ['**/*.java']))
-    }
-
-    def badFiles = files.findAll { eachFile ->
-      def text = eachFile.getText("utf-8")
-      text.contains("@SpringJUnit4ClassRunner") || text.contains("@ContextConfiguration") || text.contains("@GoJUnitExtSpringRunner")
-    }
-
-    if (!badFiles.isEmpty()) {
-      throw new GradleException("${thisTask} is not supposed to contain any integration tests. The following files contained what looks like integration test code:\n${badFiles.collect { f -> "  - ${f}" }.join("\n")}")
-    }
-  }
-}
-
-integrationTest { thisTask ->
-  forkEvery System.properties.containsKey('idea.home.path') ? 0 : 1
-  minHeapSize '1024m'
-  maxHeapSize '2048m'
-
-  doFirst {
-    def excludes = [
-      'com/thoughtworks/go/server/materials/MaterialDatabaseGitUpdaterTest.java',
-      'com/thoughtworks/go/server/materials/MaterialDatabaseGitWithSubmodulesUpdaterTest.java',
-      'com/thoughtworks/go/server/materials/MaterialDatabaseSvnWithExternalsUpdaterTest.java'
-    ].collect { eachExclude -> FileSystems.getDefault().getPath(eachExclude) }
-
-    def files = project.files([])
-    project.sourceSets[thisTask.name].java.srcDirs.each { srcDir ->
-      files = files.plus(project.fileTree(dir: srcDir, includes: ['**/*.java']))
-    }
-
-    def badFiles = files.findAll { eachFile ->
-      def text = eachFile.getText("utf-8")
-      text.contains("@Test") && !(text.contains("@SpringJUnit4ClassRunner") || text.contains("@ContextConfiguration") || text.contains("@GoJUnitExtSpringRunner"))
-    }
-
-    badFiles.removeIf { badFile ->
-      excludes.any { eachExclude ->
-        badFile.toPath().endsWith(eachExclude)
-      }
-    }
-
-    if (!badFiles.isEmpty()) {
-      throw new GradleException("${thisTask} is not supposed to contain any unit tests. The following files contained what looks like unit test code:\n${badFiles.collect { f -> "  - ${f}" }.join("\n")}")
-    }
-  }
-
 }
 
 tasks.withType(Test) {

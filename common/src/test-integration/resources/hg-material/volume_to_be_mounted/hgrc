@@ -1,4 +1,0 @@
-[extensions]
-textauth =/mounted_volume/hg-textauth/textauth.py  
-[textauth]
-file=/mounted_volume/text.auth

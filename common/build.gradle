@@ -16,18 +16,7 @@
 
 description = 'GoCD Common Module'
 
-apply plugin: 'com.thoughtworks.go.test-sets'
 apply plugin: 'groovy'
-
-testSets {
-  integrationTest {
-    dirName = 'test-integration'
-  }
-}
-
-integrationTest {
-  exclude "**/*DockerTest*"
-}
 
 dependencies {
   compile project(':config:config-api')
@@ -50,4 +39,3 @@ dependencies {
   testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: project.versions.junit5
 }
 
-check.dependsOn(integrationTest)

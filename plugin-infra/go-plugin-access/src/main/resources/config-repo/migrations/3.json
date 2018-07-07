@@ -1,0 +1,33 @@
+[
+  {
+    "operation": "shift",
+    "spec": {
+      "target_version": {
+        "#3": "&1" // Set target version to 3.
+      },
+      "*": "&"
+    }
+  },
+  {
+    "operation": "modify-define-beta",
+    "spec": {
+      "pipelines": {
+        "*": {
+          "stages": {
+            "*": {
+              "jobs": {
+                "*": {
+                  "tasks": {
+                    "*": {
+                      "artifact_origin": "^@(1,type)"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+]

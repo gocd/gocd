@@ -468,9 +468,13 @@ subprojects {
     }
   }
 
-  idea {
-    module {
-      excludeDirs += project.tasks.withType(Delete)*.targetFiles*.files.flatten()
+  tasks.withType(Delete) { Delete deleteTask ->
+    project.afterEvaluate {
+      idea {
+        module {
+          excludeDirs += deleteTask.targetFiles
+        }
+      }
     }
   }
 
@@ -512,6 +516,8 @@ task compileAll { compileAllTask ->
     compileAll.dependsOn(prj.getTasks().withType(GroovyCompile))
   }
 }
+
+task prepare(dependsOn: compileAll)
 
 task sparkTest { thisTask ->
   group LifecycleBasePlugin.VERIFICATION_GROUP

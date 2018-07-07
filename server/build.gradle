@@ -602,8 +602,6 @@ clean {
   delete 'config/agentkeystore'
   delete 'config/keystore'
   delete 'config/truststore'
-  delete "${project.railsRoot}/node_modules"
-  delete "${project.railsRoot}/yarn-error.log"
 }
 
 task inlinePartials {

@@ -21,6 +21,9 @@ const $                            = require('jquery');
 const PersonalizeWidget            = require('views/dashboard/personalize_widget');
 const PipelineSelectionVM          = require('views/dashboard/models/pipeline_selection_view_model');
 const PipelineSelection            = require('models/dashboard/pipeline_selection');
+const PersonalizeEditorVM          = require('views/dashboard/models/personalize_editor_vm');
+const PersonalizationModalWidget   = require('views/dashboard/personalization_modal_widget');
+const Modal                        = require("views/shared/schmodal");
 
 const PersonalizedViewsWidget = {
   oninit(vnode) {
@@ -29,16 +32,51 @@ const PersonalizedViewsWidget = {
     self.pipelineSelectionVM = new PipelineSelectionVM();
     self.dropdown = vnode.attrs.tabDropdown;
     self.ready = Stream(false);
+    self.pipelinesByGroup = {};
 
     PipelineSelection.get().then((selection) => {
       selection.setCurrentFilter(vnode.attrs.currentTab());
       self.pipelineSelection(selection);
+      self.pipelinesByGroup = selection.pipelineGroups();
       self.pipelineSelectionVM.initialize(selection.pipelineGroups());
       self.ready = Stream(true);
     }).then(m.redraw);
 
-    this.newTabModal = () => {
-      //TODO implement
+
+    self.personalizeEditor = function personalizeEditor(template) {
+      const model = new PersonalizeEditorVM(template, self.pipelinesByGroup);
+      const existing = template.name;
+
+      new Modal({
+        title: existing ? `Edit ${template.name}`: "Create new view",
+        size: "personalize-editor",
+        body: () => {
+          return <PersonalizationModalWidget model={model}/>;
+        },
+        buttons: [{text: "Apply", onclick: () => {
+          const previousFilterSet = self.pipelineSelection().filters;
+          const updated = previousFilterSet.clone();
+          const newFilter = model.asFilter();
+
+          if (existing) {
+            updated.replaceFilter(existing, newFilter);
+          } else {
+            updated.addFilter(newFilter);
+          }
+
+          self.pipelineSelection().filters = updated;
+          self.pipelineSelection().update().done(() => {
+            self.pipelineSelection().setCurrentFilter(newFilter.name);
+            vnode.attrs.doRefreshImmediately();
+            window.location.search = m.buildQueryString({viewName: newFilter.name});
+          }).fail(() => {
+            self.pipelineSelection().filters = previousFilterSet;
+          }).always(() => {
+            Modal.close();
+            m.redraw();
+          });
+        }}, {text: "Cancel", class: "btn-link"}]
+      });
     };
 
     this.editDropdown = (e) => {
@@ -64,6 +102,7 @@ const PersonalizedViewsWidget = {
     const pipelineSelection = self.pipelineSelection();
 
     let personalizeView;
+
     if (vnode.attrs.isOpen()) {
       personalizeView = (<PersonalizeWidget pipelineSelection={self.pipelineSelection}
                                             widgetOpen={vnode.attrs.isOpen}
@@ -77,10 +116,10 @@ const PersonalizedViewsWidget = {
     let editTabDropdown;
     if (self.dropdown.isOpen()) {
       editTabDropdown = (
-        <div class="edit-dropdown" onclick={self.preventPropagation.bind(this)}>
+        <div class="edit-dropdown" onclick={self.preventPropagation}>
           more to come
-          <i class="fa fa-edit" />
-          <i class="fa fa-times" />
+          <i class="fa fa-edit" onclick={() => { self.personalizeEditor(pipelineSelection.currentFilter.definition()); } }/>
+          <i class="fa fa-trash" />
         </div>
       );
     }
@@ -117,7 +156,7 @@ const PersonalizedViewsWidget = {
       <div class="dashboard-tabs">
         {tabs}
         <div class="add-tab"
-          onclick={this.newTabModal.bind(this)}>
+          onclick={() => { self.personalizeEditor({}); }}>
           <i class="fa fa-plus" />
         </div>
         {personalizeView}

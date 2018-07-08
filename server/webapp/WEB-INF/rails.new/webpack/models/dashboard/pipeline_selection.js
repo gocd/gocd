@@ -17,7 +17,6 @@
 const _                = require('lodash');
 const Stream           = require('mithril/stream');
 const DashboardFilterCollection = require('models/dashboard/dashboard_filter_collection');
-const DashboardFilter  = require('models/dashboard/dashboard_filter');
 const AjaxHelper       = require('helpers/ajax_helper');
 const SparkRoutes      = require('helpers/spark_routes');
 
@@ -27,7 +26,7 @@ const PipelineSelection = function (pipelineGroups, filters) {
   this.pipelineGroups = pipelineGroups;
   this.filters        = filters;
   this.currentFilter  = this.filters.defaultFilter();
-  this.selections     = this.currentFilter.findSelections(this.pipelineGroups());
+  this.selections     = this.currentFilter.deriveSelectionMap(this.pipelineGroups());
 
   this.isPipelineSelected = (pipelineName) => self.selections[pipelineName]();
 
@@ -39,18 +38,9 @@ const PipelineSelection = function (pipelineGroups, filters) {
     return this.currentFilter.name;
   };
 
-  //NOTE: temp method for dev purposes
-  this.cloneCurrentWithName = (name) => {
-    if (!_.includes(this.filters.names(), name)) {
-      const f = new DashboardFilter(name, this.currentFilter.pipelines, this.currentFilter.type);
-      this.filters.filters.push(f);
-      this.currentFilter = f;
-    }
-  };
-
   this.setCurrentFilter = (filterName) => {
     this.currentFilter = this.filters.getFilterNamed(filterName);
-    this.selections = this.currentFilter.findSelections(this.pipelineGroups());
+    this.selections = this.currentFilter.deriveSelectionMap(this.pipelineGroups());
   };
 
   this.toggleBlacklist = () => {

@@ -18,15 +18,20 @@
 const _      = require('lodash');
 const Stream = require('mithril/stream');
 
-const DashboardFilter = function (name, pipelines, type) {
-  const WHITELIST_TYPE = "whitelist";
-  const BLACKLIST_TYPE = "blacklist";
-  this.name      = name || "Default";
-  this.pipelines = pipelines;
-  this.type      = type;
+function DashboardFilter(config) {
+  const TYPE_WHITELIST = "whitelist";
+  const TYPE_BLACKLIST = "blacklist";
+
+  this.name      = config.name || "Default";
+  this.pipelines = config.pipelines || [];
+  this.type      = config.type || TYPE_BLACKLIST;
+
+  this.definition = () => {
+    return _.cloneDeep({name: this.name, pipelines: this.pipelines, type: this.type});
+  };
 
   this.isBlacklist = () => {
-    return this.type === BLACKLIST_TYPE;
+    return this.type === TYPE_BLACKLIST;
   };
 
   this.displayName = () => {
@@ -37,13 +42,13 @@ const DashboardFilter = function (name, pipelines, type) {
   };
 
   this.toggleType = () => {
-    this.type = this.isBlacklist() ? WHITELIST_TYPE : BLACKLIST_TYPE;
+    this.type = this.isBlacklist() ? TYPE_WHITELIST : TYPE_BLACKLIST;
   };
 
   this.removePipeline = (pipelineName) => {
-      this.pipelines = _.reject(this.pipelines, (p) => {
-        return p === pipelineName;
-      });
+    this.pipelines = _.reject(this.pipelines, (p) => {
+      return p === pipelineName;
+    });
   };
 
   this.addPipeline = (pipelineName) => {
@@ -54,14 +59,12 @@ const DashboardFilter = function (name, pipelines, type) {
     this.pipelines = [];
   };
 
-  this.findSelections = (pipelineGroups) => {
-    const selections = {};
-    _.each(_.keys(pipelineGroups), (group) => {
-      _.each(pipelineGroups[group], (pipeline) => {
-        selections[pipeline] = Stream(!!(this.isBlacklist() ^ _.includes(this.pipelines, pipeline)));
-      });
-    });
-    return selections;
+  this.deriveSelectionMap = (pipelinesByGroup) => {
+    const invert = TYPE_BLACKLIST === this.type;
+    return _.reduce(pipelinesByGroup, (m, pip, _n) => {
+      _.each(pip, (p) => { m[p] = Stream(invert ^ _.includes(this.pipelines, p)); });
+      return m;
+    }, {});
   };
 
   this.invertPipelines = (allPipelines) => {
@@ -72,6 +75,6 @@ const DashboardFilter = function (name, pipelines, type) {
       }
     });
   };
-};
+}
 
 module.exports = DashboardFilter;

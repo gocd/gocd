@@ -1,0 +1,71 @@
+.overlay.personalize-editor {
+  width: 530px;
+  top: 10vh;
+
+  .overlay_content {
+    height: 70vh;
+  }
+}
+
+.personalize-editor_controls {
+  section {
+    border: solid 1px #ccc;
+    border-radius: 3px;
+    padding: 15px;
+    margin-bottom: 0.5rem;
+  }
+
+  .filter-name {
+    border: none;
+    padding: 0;
+
+    label {
+      display: flex;
+      justify-content: space-between;
+      align-content: center;
+
+      span {
+        flex-shrink: 1;
+        white-space: nowrap;
+        margin-right: 1rem;
+      }
+
+      .view-name {
+        width: 85%;
+        margin-bottom: 0;
+      }
+    }
+  }
+}
+
+.filter-options div {
+  display: inline-block;
+  * {
+    display: inline-block;
+    padding: 0 5px;
+  }
+}
+
+.pipeline-selections {
+  input[type="checkbox"] {
+    margin-bottom: 0.75rem;
+  }
+
+  ul {
+    list-style: none;
+    margin: 0;
+
+    li {
+      padding: 0;
+      padding-left: 25px;
+    }
+
+    &.selected-pipelines > li {
+      border-bottom: dashed 1px #ccc;
+
+      &:last-of-type {
+        border: none;
+      }
+    }
+  }
+}

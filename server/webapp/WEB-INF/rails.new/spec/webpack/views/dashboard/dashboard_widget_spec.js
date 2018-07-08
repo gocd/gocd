@@ -429,7 +429,7 @@ describe("Dashboard Widget", () => {
       ]
     };
     dashboardJson  = {
-      "filter_name": null,
+      "filter_name": "Default",
       "_embedded": {
         "pipeline_groups": [
           {

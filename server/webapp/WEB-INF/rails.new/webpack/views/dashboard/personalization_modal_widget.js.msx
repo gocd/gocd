@@ -1,0 +1,104 @@
+/*
+ * Copyright 2018 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+const m = require("mithril");
+const _ = require("lodash");
+const f = require("helpers/form_helper");
+
+const FilterNameInput = {
+  view(vnode) {
+    const model = vnode.attrs.model;
+    return <section class="filter-name">
+      <f.input label="View name" class="view-name" model={model} attrName="name" />
+    </section>;
+  }
+};
+
+const BlanketSelector = {
+  view() {
+    return <div class="blanket-selection">
+      <strong>Select pipelines</strong>
+
+      <label for="blanket-select-all">All</label>
+      <fieldset class="blanket-selection-controls">
+        <input id="blanket-select-all" type="radio" name="blanket-selection" value="all" />
+        <input id="blanket-select-none" type="radio" name="blanket-selection" value="none" />
+      </fieldset>
+      <label for="blanket-select-none">None</label>
+    </div>;
+  }
+};
+
+const StageStateCriteria = {
+  view(vnode) {
+    const model = vnode.attrs.model;
+    return m("[", [
+      <f.checkbox name="state" model={model} attrName="failing" label="Failed" />,
+      <f.checkbox name="state" model={model} attrName="building" label="Building" />
+    ]);
+  }
+};
+
+const PipelineSelectors = {
+  view(vnode) {
+    const pipelines = vnode.attrs.pipelines;
+    return m("ul", {class: "selected-pipelines-pipeline-list"},
+      _.map(pipelines, (p) => <li><f.checkbox model={p} attrName="selected" label={p.name} /></li>)
+    );
+  }
+};
+
+const PipelineGroupSelection = {
+  view(vnode) {
+    const model = vnode.attrs.model, name = vnode.attrs.name;
+    return <li class={`selected-pipelines-group-${(model.expanded ? "expanded" : "collapsed")}`}>
+      <f.checkbox model={model} attrName="selected" label={name}/>
+      <PipelineSelectors pipelines={model.pipelines} />
+    </li>;
+  }
+};
+
+const SelectedPipelineList = {
+  view(vnode) {
+    const groups = vnode.attrs.model.displayedList();
+    return m("ul", {class: "selected-pipelines"},
+      _.map(groups, (groupModel, name) => {
+        return <PipelineGroupSelection model={groupModel} name={name} />;
+      })
+    );
+  }
+};
+
+const PersonalizationModalWidget = {
+  view(vnode) {
+    const model = vnode.attrs.model;
+
+    return <div class="personalize-editor_controls">
+      <FilterNameInput model={model} />
+      <input type="text" class="search-pipelines" placeholder="Search for a Pipeline" />
+      <section class="filter-options">
+        <BlanketSelector/>
+        <StageStateCriteria model={model} />
+        <f.checkbox name="include-new-pipelines" model={model} attrName="includeNewPipelines" label="Show newly created pipelines" />
+      </section>
+      <section class="pipeline-selections">
+        <SelectedPipelineList model={model.selectionModel} />
+      </section>
+    </div>;
+  }
+};
+
+module.exports = PersonalizationModalWidget;

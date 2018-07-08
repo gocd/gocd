@@ -25,12 +25,42 @@ function matchName(name) {
 function DashboardFilterCollection(filters) {
   const NAME_DEFAULT_FILTER = "Default";
 
+  this.clone = function clone() {
+    return new DashboardFilterCollection(_.map(this.filters, (f) => f.definition()));
+  };
+
   this.filters = _.map(filters, (filter) => {
-    return new DashboardFilter(filter.name, filter.pipelines, filter.type);
+    return new DashboardFilter(filter);
   });
 
+  this.replaceFilter = function replaceFilter(oldName, updatedFilter) {
+    const idx = _.findIndex(this.filters, matchName(oldName));
+
+    if (idx !== -1) {
+      this.filters.splice(idx, 1, updatedFilter);
+
+      // make sure there is always a default filter, even if we try to rename it.
+      if (oldName.toLowerCase() === NAME_DEFAULT_FILTER.toLowerCase() && !matchName(NAME_DEFAULT_FILTER)(updatedFilter)) {
+        this.filters.unshift(new DashboardFilter({name: NAME_DEFAULT_FILTER}));
+      }
+    } else {
+      console.error(`Couldn't locate filter named [${oldName}]; this shouldn't happen. Falling back to append().`); // eslint-disable-line no-console
+      this.addFilter(updatedFilter);
+    }
+  };
+
+  this.addFilter = function addFilter(filter) {
+    this.filters.push(filter);
+  };
+
   this.defaultFilter = () => {
-    return _.find(this.filters, matchName(NAME_DEFAULT_FILTER));
+    const f = _.find(this.filters, matchName(NAME_DEFAULT_FILTER));
+    if (!f) {
+      const blank = new DashboardFilter({name: NAME_DEFAULT_FILTER});
+      this.filters.shift(blank);
+      return blank;
+    }
+    return f;
   };
 
   this.displayNames = () => {

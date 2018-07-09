@@ -42,7 +42,6 @@ const PipelineSelectionVM = function () {
     }
   };
 
-
   return viewModel;
 };
 

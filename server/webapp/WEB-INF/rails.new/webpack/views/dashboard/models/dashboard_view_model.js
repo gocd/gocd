@@ -35,7 +35,19 @@ const VM = () => {
         personalizeViewState(!personalizeViewState());
       },
 
-      isOpen: () => personalizeViewState()
+      isOpen: () => personalizeViewState(),
+
+      tabDropdown: {
+        isOpen: Stream(false),
+
+        show: () => {
+          viewModel.personalizeView.tabDropdown.isOpen(true);
+        },
+
+        hide: () => {
+          viewModel.personalizeView.tabDropdown.isOpen(false);
+        }
+      },
     },
 
     dropdown: {

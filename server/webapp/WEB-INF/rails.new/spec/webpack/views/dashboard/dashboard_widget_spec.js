@@ -20,13 +20,15 @@ describe("Dashboard Widget", () => {
   const _               = require('lodash');
   const simulateEvent   = require('simulate-event');
   const DashboardWidget = require("views/dashboard/dashboard_widget");
+  const PipelineSelection = require("models/dashboard/pipeline_selection");
   const Dashboard       = require('models/dashboard/dashboard');
   const DashboardVM     = require("views/dashboard/models/dashboard_view_model");
   const Modal           = require('views/shared/new_modal');
   const SparkRoutes     = require("helpers/spark_routes");
 
-  let $root, root, dashboard, dashboardJson, buildCauseJson, doCancelPolling, doRefreshImmediately, personalizeData;
+  let $root, root, dashboard, dashboardJson, buildCauseJson, doCancelPolling, doRefreshImmediately;
   const originalDebounce = _.debounce;
+  const originalPSG = PipelineSelection.get;
   beforeEach(() => {
     doCancelPolling      = jasmine.createSpy();
     doRefreshImmediately = jasmine.createSpy();
@@ -38,7 +40,7 @@ describe("Dashboard Widget", () => {
     });
 
     jasmine.Ajax.withMock(() => {
-      jasmine.Ajax.stubRequest('/go/api/internal/pipeline_selection', undefined, 'GET');
+      jasmine.Ajax.stubRequest(SparkRoutes.pipelineSelectionPath(), undefined, 'GET');
     });
 
     [$root, root] = window.createDomElementForTest();
@@ -49,6 +51,7 @@ describe("Dashboard Widget", () => {
   });
 
   beforeEach(mount);
+
 
   afterEach(unmount);
 
@@ -92,51 +95,41 @@ describe("Dashboard Widget", () => {
 
   describe("personalize view", () => {
     beforeEach(() => {
-      personalizeData = {
-        filters: [
-          {
-            name: "Default",
-            pipelines: [],
-            type: 'blacklist'
-          }
-        ],
-        pipelines: []
-      };
+      unmount();
+      spyOn(PipelineSelection, 'get').and.returnValue(
+        $.Deferred(function () {
+          const personalizeData = {
+            filters: [
+              {
+                name: "Default",
+                pipelines: [],
+                type: 'blacklist'
+              }
+            ],
+            pipelines: {"first": ['up42', 'up43']}
+          };
+          this.resolve(PipelineSelection.fromJSON(personalizeData));
+        })
+      );
+      mount();
     });
 
-    it("should show personalize view", () => {
-      jasmine.Ajax.withMock(() => {
-        jasmine.Ajax.stubRequest('/go/api/internal/pipeline_selection', undefined, 'GET').andReturn({
-          responseText:    JSON.stringify(personalizeData),
-          responseHeaders: {
-            ETag:           'etag',
-            'Content-Type': 'application/vnd.go.cd.v2+json'
-          },
-          status:          200
-        });
-
-        expect($root.find('.filter_options')).not.toBeInDOM();
-        $root.find('.filter_btn').click();
-        expect($root.find('.filter_options')).toBeInDOM();
-      });
+    afterEach(() => {
+      PipelineSelection.get = originalPSG;
     });
 
-    it("should close an open personalize view dropdown on clicking anywhere on the screen", () => {
-      jasmine.Ajax.withMock(() => {
-        jasmine.Ajax.stubRequest('/go/api/internal/pipeline_selection', undefined, 'GET').andReturn({
-          responseText:    JSON.stringify(personalizeData),
-          responseHeaders: {
-            ETag:           'etag',
-            'Content-Type': 'application/vnd.go.cd.v2+json'
-          },
-          status:          200
-        });
+    it("personalize view should show personalize view", () => {
+      expect($root.find('.filter_options')).not.toBeInDOM();
+      $root.find('.filter_btn').get(0).click();
+      expect($root.find('.filter_options')).toBeInDOM();
+    });
 
-        $root.find('.filter_btn').click();
-        expect($root.find('.filter_options')).toBeInDOM();
-        $('body').click();
-        expect($root.find('.filter_options')).not.toBeInDOM();
-      });
+    it("personalize view should close an open personalize view dropdown on clicking anywhere on the screen", () => {
+
+      $root.find('.filter_btn').get(0).click();
+      expect($root.find('.filter_options')).toBeInDOM();
+      $('body').click();
+      expect($root.find('.filter_options')).not.toBeInDOM();
     });
   });
 

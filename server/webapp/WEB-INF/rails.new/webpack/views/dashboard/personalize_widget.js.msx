@@ -145,9 +145,8 @@ const PersonalizeWidget = {
   view(vnode) {
     const self              = vnode.state;
     const pipelineSelection = vnode.attrs.pipelineSelection();
-    const open              = vnode.attrs.widgetOpen();
 
-    if (!open) {
+    if (!pipelineSelection) {
       return (<div class="personalize-spinner-container">
         <div class="page-spinner"/>
       </div>);

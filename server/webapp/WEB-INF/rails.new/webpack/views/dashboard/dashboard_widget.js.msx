@@ -51,6 +51,7 @@ const DashboardWidget = {
       const body = $("body");
       body.click(() => {
         vnode.attrs.vm.dropdown.hide();
+        vnode.attrs.vm.personalizeView.tabDropdown.hide();
         vnode.attrs.vm.personalizeView.hide();
         m.redraw();
       });
@@ -80,6 +81,7 @@ const DashboardWidget = {
     const tabView = (<PersonalizedViewsWidget
       isOpen={vm.personalizeView.isOpen}
       currentTab={vnode.attrs.dashboard.tabName}
+      tabDropdown={vm.personalizeView.tabDropdown}
       doRefreshImmediately={vnode.attrs.doRefreshImmediately}
       hideSelectionDropdown={vm.personalizeView.hide} />);
 
@@ -117,6 +119,7 @@ const DashboardWidget = {
             return (
               <div class="pipeline-group" key={pipelineGroup.name}>
                 <h2 class="pipeline-group_title">
+                  <span>pipeline group</span>
                   <strong>{name}</strong>
                   {settingsIcon}
                 </h2>

@@ -14,19 +14,20 @@
  * limitations under the License.
  */
 
-const m                   = require('mithril');
-const Stream              = require('mithril/stream');
-const _                   = require('lodash');
-const $                   = require('jquery');
-const PersonalizeWidget   = require('views/dashboard/personalize_widget');
-const PipelineSelectionVM = require('views/dashboard/models/pipeline_selection_view_model');
-const PipelineSelection   = require('models/dashboard/pipeline_selection');
+const m                            = require('mithril');
+const Stream                       = require('mithril/stream');
+const _                            = require('lodash');
+const $                            = require('jquery');
+const PersonalizeWidget            = require('views/dashboard/personalize_widget');
+const PipelineSelectionVM          = require('views/dashboard/models/pipeline_selection_view_model');
+const PipelineSelection            = require('models/dashboard/pipeline_selection');
 
 const PersonalizedViewsWidget = {
   oninit(vnode) {
     const self = vnode.state;
     self.pipelineSelection   = Stream();
     self.pipelineSelectionVM = new PipelineSelectionVM();
+    self.dropdown = vnode.attrs.tabDropdown;
     self.ready = Stream(false);
 
     PipelineSelection.get().then((selection) => {
@@ -35,6 +36,19 @@ const PersonalizedViewsWidget = {
       self.pipelineSelectionVM.initialize(selection.pipelineGroups());
       self.ready = Stream(true);
     }).then(m.redraw);
+
+    this.newTabModal = () => {
+      //TODO implement
+    };
+
+    this.editDropdown = (e) => {
+      self.dropdown.show();
+      e.stopPropagation();
+    };
+
+    this.preventPropagation = (e) => {
+      e.stopPropagation();
+    };
 
     this.switchTab = (e) => {
       let tabName = $(e.target).text();
@@ -60,20 +74,35 @@ const PersonalizedViewsWidget = {
 
     let tabs;
 
+    let editTabDropdown;
+    if (self.dropdown.isOpen()) {
+      editTabDropdown = (
+        <div class="edit-dropdown" onclick={self.preventPropagation.bind(this)}>
+          more to come
+          <i class="fa fa-edit" />
+          <i class="fa fa-times" />
+        </div>
+      );
+    }
+
     if (self.ready()) {
       tabs = _.map(pipelineSelection.displayNames(), (filterName) => {
         if (pipelineSelection.currentFilter.displayName() === filterName) {
           return (
             <div class="dashboard-tab current">
-            <i class="fa fa-bars" />
+            <i class="fa fa-bars drag-icon" />
             <div class="tab-name">{filterName}</div>
-            {personalizeView}
+            <div class="tab-dropdown">
+              <i class="fa fa-caret-down dropdown-btn"
+                onclick={this.editDropdown.bind(this)} />
+              {editTabDropdown}
+            </div>
             </div>
           );
         } else {
           return (
             <div class="dashboard-tab">
-              <i class="fa fa-bars" />
+              <i class="fa fa-bars drag-icon" />
               <div class="tab-name"
                 onclick={this.switchTab.bind(this)}>
                 {filterName}
@@ -87,9 +116,11 @@ const PersonalizedViewsWidget = {
     return (
       <div class="dashboard-tabs">
         {tabs}
-        <div class="add-tab">
+        <div class="add-tab"
+          onclick={this.newTabModal.bind(this)}>
           <i class="fa fa-plus" />
         </div>
+        {personalizeView}
       </div>
     );
   }

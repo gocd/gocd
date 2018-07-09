@@ -77,6 +77,10 @@ agent/logs/
 agent/out/
 agent/pipelines/
 agent/plugins_work/
+agent/agent-plugins.zip
+agent/plugins/
+agent/felix-cache/
+agent/tfs-impl.jar
 agent/target/
 api/api-artifact-store-config-v1/config/
 api/api-artifact-store-config-v1/logs/

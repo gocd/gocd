@@ -16,7 +16,6 @@
 
 package com.thoughtworks.go.server.service.tasks;
 
-import com.thoughtworks.go.config.FetchPluggableArtifactTask;
 import com.thoughtworks.go.config.FetchTaskAdapter;
 import com.thoughtworks.go.config.pluggabletask.PluggableTask;
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
@@ -31,15 +30,12 @@ import com.thoughtworks.go.plugin.api.task.TaskConfig;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import com.thoughtworks.go.plugins.presentation.PluggableViewModel;
-import com.thoughtworks.go.server.service.support.toggle.Toggles;
 import com.thoughtworks.go.service.TaskFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import static com.thoughtworks.go.server.service.support.toggle.Toggles.ARTIFACT_EXTENSION_KEY;
 
 /**
  * @understands providing view model to render a onCancelTask
@@ -66,10 +62,6 @@ public class TaskViewService implements TaskFactory {
     public List<PluggableViewModel> getTaskViewModelsWith(Task given) {
         List<PluggableViewModel> viewModels = new ArrayList<>();
         for (Task task : allTasks()) {
-            if (!Toggles.isToggleOn(ARTIFACT_EXTENSION_KEY) && task instanceof FetchPluggableArtifactTask) {
-                continue;
-            }
-
             if (task.hasSameTypeAs(given)) {
                 viewModels.add(getViewModel(given, "new"));
             } else {

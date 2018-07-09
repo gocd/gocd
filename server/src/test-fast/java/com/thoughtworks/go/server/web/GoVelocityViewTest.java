@@ -250,26 +250,4 @@ public class GoVelocityViewTest {
         assertTrue((Boolean) velocityContext.get(GoVelocityView.GO_UPDATE_CHECK_ENABLED));
         assertThat(velocityContext.get(GoVelocityView.GO_UPDATE), is("16.1.0-123"));
     }
-
-    @Test
-    public void shouldSetArtifactStoresEnabledWhenToggledOn() throws Exception {
-        Request servletRequest = mock(Request.class);
-        when(servletRequest.getSession()).thenReturn(mock(HttpSession.class));
-        when(featureToggleService.isToggleOn(Toggles.ARTIFACT_EXTENSION_KEY)).thenReturn(true);
-
-        view.exposeHelpers(velocityContext, servletRequest);
-
-        assertThat(velocityContext.get(GoVelocityView.ARTIFACT_STORES_ENABLED), is(true));
-    }
-
-    @Test
-    public void shouldNotSetArtifactStoresEnabledWhenToggledOff() throws Exception {
-        Request servletRequest = mock(Request.class);
-        when(servletRequest.getSession()).thenReturn(mock(HttpSession.class));
-        when(featureToggleService.isToggleOn(Toggles.ARTIFACT_EXTENSION_KEY)).thenReturn(false);
-
-        view.exposeHelpers(velocityContext, servletRequest);
-
-        assertThat(velocityContext.get(GoVelocityView.ARTIFACT_STORES_ENABLED), is(false));
-    }
 }

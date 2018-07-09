@@ -49,29 +49,23 @@ public class DefaultPluginInfoFinderTest {
     private DefaultPluginInfoFinder finder;
     private PluggableTaskMetadataStore taskMetadataStore;
     private NotificationMetadataStore notificationMetadataStore;
-    private AuthorizationMetadataStore authorizationMetadataStore;
-    private ElasticAgentMetadataStore elasticAgentMetadataStore;
 
     @Before
     public void setUp() throws Exception {
+        com.thoughtworks.go.ClearSingleton.clearSingletons();
         taskMetadataStore = PluggableTaskMetadataStore.instance();
         notificationMetadataStore = NotificationMetadataStore.instance();
-        authorizationMetadataStore = AuthorizationMetadataStore.instance();
-        elasticAgentMetadataStore = ElasticAgentMetadataStore.instance();
 
         finder = new DefaultPluginInfoFinder(pluginManager);
     }
 
     @After
     public void tearDown() throws Exception {
-        elasticAgentMetadataStore.clear();
-        authorizationMetadataStore.clear();
-        notificationMetadataStore.clear();
-        taskMetadataStore.clear();
+        com.thoughtworks.go.ClearSingleton.clearSingletons();
     }
 
     @Test
-    public void shouldCombineMultipleExtensionsInASinglePluginIntoOne() throws Exception {
+    public void shouldCombineMultipleExtensionsInASinglePluginIntoOne() {
         taskMetadataStore.setPluginInfo(taskPluginInfo("plugin-1"));
         taskMetadataStore.setPluginInfo(taskPluginInfo("plugin-2"));
         notificationMetadataStore.setPluginInfo(notificationPluginInfo("plugin-1"));
@@ -87,7 +81,7 @@ public class DefaultPluginInfoFinderTest {
     }
 
     @Test
-    public void shouldFetchAllPluginInfosForAType() throws Exception {
+    public void shouldFetchAllPluginInfosForAType() {
         taskMetadataStore.setPluginInfo(taskPluginInfo("plugin-1"));
         taskMetadataStore.setPluginInfo(taskPluginInfo("plugin-2"));
         notificationMetadataStore.setPluginInfo(notificationPluginInfo("plugin-1"));
@@ -105,7 +99,7 @@ public class DefaultPluginInfoFinderTest {
     }
 
     @Test
-    public void shouldGetPluginInfoForASpecifiedPluginID() throws Exception {
+    public void shouldGetPluginInfoForASpecifiedPluginID() {
         taskMetadataStore.setPluginInfo(taskPluginInfo("plugin-1"));
         taskMetadataStore.setPluginInfo(taskPluginInfo("plugin-2"));
         notificationMetadataStore.setPluginInfo(notificationPluginInfo("plugin-1"));

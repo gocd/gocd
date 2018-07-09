@@ -208,6 +208,8 @@ task rspec(type: ExecuteUnderRailsTask) {
   def rspecCommand = [project.findProject(':tools').file('rails/bin/rspec')]
   if (project.hasProperty('opts')) {
     rspecCommand += [project.property('opts')]
+  } else {
+    rspecCommand += ['spec']
   }
 
   environment += [

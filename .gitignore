@@ -239,6 +239,8 @@ server/target/
 server/test-repo/
 server/testdata/test-agent.jar
 server/tfs-impl-14.jar
+server/webapp/WEB-INF/rails.new/db/config.git/
+server/webapp/WEB-INF/rails.new/logs/
 server/webapp/WEB-INF/rails.new/node_modules/
 server/webapp/WEB-INF/rails.new/public/assets/
 server/webapp/WEB-INF/rails.new/webpack/gen/

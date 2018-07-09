@@ -162,7 +162,7 @@ task verifyJar(type: VerifyJarTask) {
       "jetty-util-${versions.jetty}.jar",
       "jetty-client-${versions.jetty}.jar",
       "jetty-http-${versions.jetty}.jar",
-      "joda-time-2.3.jar",
+      "joda-time-${project.versions.jodaTime}.jar",
       "jolt-core-${project.versions.jolt}.jar",
       "json-utils-${project.versions.jolt}.jar",
       "logback-classic-${project.versions.logback}.jar",

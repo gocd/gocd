@@ -59,7 +59,7 @@ dependencies {
   packagingInLibDir group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: project.versions.bouncyCastle
   packagingInLibDir group: 'commons-io', name: 'commons-io', version: project.versions.commonsIO
   packagingInLibDir group: 'org.apache.commons', name: 'commons-lang3', version: project.versions.commonsLang3
-  packagingInLibDir group: 'joda-time', name: 'joda-time', version: '2.3'
+  packagingInLibDir group: 'joda-time', name: 'joda-time', version: project.versions.jodaTime
   packagingInLibDir group: 'com.jezhumble', name: 'javasysmon', version: '0.3.6'
 
   // not really compile dependencies, but we want to centralize all logging using logback
@@ -278,7 +278,7 @@ task verifyFatJar(type: VerifyJarTask) {
       "jetty-webapp-${versions.jetty}.jar",
       "jetty-xml-${versions.jetty}.jar",
       "jetty-client-${versions.jetty}.jar",
-      "joda-time-2.3.jar",
+      "joda-time-${project.versions.jodaTime}.jar",
       "jul-to-slf4j-${project.versions.slf4j}.jar",
       "log4j-over-slf4j-${project.versions.slf4j}.jar",
       "logback-classic-${project.versions.logback}.jar",

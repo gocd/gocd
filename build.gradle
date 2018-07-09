@@ -177,6 +177,7 @@ rootProject.ext.versions = [
   jdom                : '2.0.6',
   jetty               : '9.4.8.v20171121',
   jgit                : '4.9.0.201710071750-r',
+  jodaTime            : '2.3', // joda-time version has to be compatible with the jruby version
   jolt                : '0.1.1',
   jruby               : '1.7.26',
   jsonAssert          : '1.5.0',

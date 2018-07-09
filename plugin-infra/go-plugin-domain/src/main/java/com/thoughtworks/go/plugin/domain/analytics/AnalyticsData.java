@@ -16,8 +16,11 @@
 
 package com.thoughtworks.go.plugin.domain.analytics;
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
+
 import java.net.URI;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -43,7 +46,8 @@ public class AnalyticsData {
         if (StringUtils.isBlank(assetRoot)) {
             return viewPath;
         }
-        return URI.create(assetRoot + "/" + viewPath).normalize().toString();
+
+        return URI.create(FilenameUtils.separatorsToUnix(Paths.get( assetRoot, viewPath).toString())).normalize().toString();
     }
 
     public Map<String, String> toMap() {

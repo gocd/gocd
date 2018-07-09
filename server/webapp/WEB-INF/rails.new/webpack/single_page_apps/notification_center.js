@@ -24,9 +24,9 @@ const AjaxPoller     = require('helpers/ajax_poller');
 require('foundation-sites');
 
 $(() => {
-
-const systemNotifications           = Stream(new SystemNotifications());
-    Promise.all([DataSharingNotification.createIfNotPresent(), SystemNotifications.all()]).then(() => {
+    DataSharingNotification.createIfNotPresent();
+    const systemNotifications           = Stream(new SystemNotifications());
+    Promise.all([SystemNotifications.all()]).then(() => {
         m.mount($("#system-notifications").get(0), {
             view() {
                 return (<SystemNotificationsWidget systemNotifications={systemNotifications} />);

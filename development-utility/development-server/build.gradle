@@ -41,7 +41,7 @@ dependencies {
   compile group: 'javax.servlet', name: 'javax.servlet-api', version: project.versions.servletApi
   compile group: 'org.jruby', name: 'jruby-complete', version: project.versions.jruby
   compile group: 'org.jruby.rack', name: 'jruby-rack', version: versions.rack
-  compile group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: '1.47'
+  compile group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: project.versions.bouncyCastle
   compile group: 'org.slf4j', name: 'slf4j-api', version: project.versions.slf4j
 
   copyOnly project(path: ':tw-go-plugins', configuration: 'pluginsZipConfig')

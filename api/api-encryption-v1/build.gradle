@@ -20,10 +20,10 @@ apply plugin: 'groovy'
 dependencies {
   compile project(':api:api-base')
   compile group: 'org.isomorphism', name: 'token-bucket', version: '1.7'
-  compileOnly group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: '1.47'
+  compileOnly group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: project.versions.bouncyCastle
 
   testCompile project(path: ':api:api-base', configuration: 'testOutput')
-  testCompile group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: '1.47'
+  testCompile group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: project.versions.bouncyCastle
   testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: project.versions.junit5
   testRuntimeOnly group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: project.versions.junit5
 }

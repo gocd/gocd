@@ -22,7 +22,7 @@ dependencies {
   compile group: 'oro', name: 'oro', version: project.versions.oro
 
   testCompile project(path: ':spark:spark-base', configuration: 'testOutput')
-  testCompile group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: '1.47'
+  testCompile group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: project.versions.bouncyCastle
   testCompile group: 'org.jsoup', name: 'jsoup', version: project.versions.jsoup
   testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: project.versions.junit5
   testRuntimeOnly group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: project.versions.junit5

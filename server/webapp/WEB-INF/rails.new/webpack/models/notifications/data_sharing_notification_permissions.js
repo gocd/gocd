@@ -25,10 +25,13 @@ DataSharingNotificationPermission.API_VERSION = 'v1';
 DataSharingNotificationPermission.get = () => {
     return AjaxHelper.GET({
         url:        "/go/api/data_sharing/settings/notification_auth",
-        apiVersion: DataSharingNotificationPermission.API_VERSION
-    }).then((data) => {
-        return new DataSharingNotificationPermission(JSON.parse(data));
+        apiVersion: DataSharingNotificationPermission.API_VERSION,
+        type:       DataSharingNotificationPermission
     });
+};
+
+DataSharingNotificationPermission.fromJSON = function (json) {
+    return new DataSharingNotificationPermission(json);
 };
 
 module.exports = DataSharingNotificationPermission;

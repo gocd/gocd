@@ -28,6 +28,7 @@ DataSharingNotification.createIfNotPresent = () => $.Deferred(function () {
         });
 
         if (dataSharingNotification !== undefined) {
+            this.resolve({});
             return;
         }
         DataSharingNotificationPermission.get().then((permissions) => {

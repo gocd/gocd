@@ -31,7 +31,7 @@ buildscript {
   }
 
   dependencies {
-    classpath group: 'org.jruby', name: 'jruby-complete', version: '1.7.26'
+    classpath group: 'org.jruby', name: 'jruby-complete', version: project.versions.jruby
     classpath group: 'org.eclipse.jgit', name: 'org.eclipse.jgit', version: project.versions.jgit
   }
 }
@@ -161,7 +161,7 @@ dependencies {
     exclude(module: 'org.osgi.core')
   }
 
-  compile group: 'org.jruby', name: 'jruby-complete', version: '1.7.26'
+  compile group: 'org.jruby', name: 'jruby-complete', version: project.versions.jruby
   compile group: 'org.jruby.rack', name: 'jruby-rack', version: versions.rack
   compile group: 'org.eclipse.rdf4j', name: 'rdf4j-queryalgebra-model', version: project.versions.rdf4j
   compile group: 'org.eclipse.rdf4j', name: 'rdf4j-queryparser-sparql', version: project.versions.rdf4j
@@ -795,7 +795,7 @@ task verifyWar(type: VerifyJarTask) {
         "jdom2-${project.versions.jdom}.jar",
         "joda-time-2.3.jar",
         "jolt-core-${project.versions.jolt}.jar",
-        "jruby-complete-1.7.26.jar",
+        "jruby-complete-${project.versions.jruby}.jar",
         "jruby-rack-${versions.rack}.jar",
         "json-utils-${project.versions.jolt}.jar",
         "jta-1.1.jar",

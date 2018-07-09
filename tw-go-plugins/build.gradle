@@ -48,9 +48,9 @@ def dependencies = [
   new GithubArtifact(
     user: 'tomzo',
     repo: 'gocd-yaml-config-plugin',
-    release: '0.6.2',
-    asset: 'yaml-config-plugin-0.6.2.jar',
-    checksum: '5d7daf7238edce409cc9f0584881b88af270009b6f045c456b60f1d3d8db0b8f'
+    release: '0.7.0',
+    asset: 'yaml-config-plugin-0.7.0.jar',
+    checksum: 'b4114ae8d145fad17e6d39dd7a42e6aa0f5191fff86b76806732f118d9214155'
   ),
   new GithubArtifact(
     user: 'tomzo',

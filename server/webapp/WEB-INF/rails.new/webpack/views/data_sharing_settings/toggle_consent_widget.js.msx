@@ -60,21 +60,19 @@ const ToggleConsentWidget = {
         </div>
         <div class="consent-for">
           <span class="key">Oldest pipeline run time (oldest_pipeline_execution_time):</span>
-          This provides data around the age of the GoCD instance.
-          Along with the number of pipelines data point, it helps establish an expected growth in the number of pipelines.
-          With performance related data which might be shared later (with your permission), this will help to see whether a GoCD instance becomes slower over time, as more pipelines and pipeline runs happen.
+            This provides data around the age of the GoCD instance. Along with the number of pipelines data point, it helps establish an expected growth in the number of pipelines.
         </div>
         <div class="consent-for">
           <span class="key">GoCD version (gocd_version):</span>
-          This provides us the version of GoCD the server is on.
+            This is the version of GoCD the server is on.
         </div>
         <div class="consent-for">
           <span class="key">Server ID (server_id):</span>
-          A randomly generated identifier to recognize unique instances of GoCD. This is different from the serverId attribute stored in GoCD's config.
+            A randomly-generated identifier for this instance of GoCD to help correlate the data. This does not tie into any other ID in this instance.
         </div>
         <div class="consent-for">
           <span class="key">Message version (message_version):</span>
-          Schema version number for this message. This will help us with migrations should the message schema change in future.
+            Schema version number for this message.
         </div>
       </div>
     </div>;

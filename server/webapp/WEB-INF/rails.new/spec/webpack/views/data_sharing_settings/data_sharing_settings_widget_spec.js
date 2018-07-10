@@ -134,7 +134,7 @@ describe("Data Sharing Settings Widget", () => {
     const agentsConsentDescription = 'This allows the calculation of the average number of agents a GoCD instance has. This will help us ensure GoCD can handle a reasonable number of requests from the average number of agents.';
 
     const oldestPipelineRuntimeKey         = 'Oldest pipeline run time (oldest_pipeline_execution_time)';
-    const oldestPipelineRuntimeDescription = 'This provides data around the age of the GoCD instance. Along with the number of pipelines data point, it helps establish an expected growth in the number of pipelines. With performance related data which might be shared later (with your permission), this will help to see whether a GoCD instance becomes slower over time, as more pipelines and pipeline runs happen';
+    const oldestPipelineRuntimeDescription = 'This provides data around the age of the GoCD instance. Along with the number of pipelines data point, it helps establish an expected growth in the number of pipelines.';
 
     expect($(consentFor.get(0))).toContainText(pipelineConsentKey);
     expect($(consentFor.get(0))).toContainText(pipelineConsentDescription);
@@ -146,13 +146,13 @@ describe("Data Sharing Settings Widget", () => {
     expect($(consentFor.get(2))).toContainText(oldestPipelineRuntimeDescription);
 
     expect($(consentFor.get(3))).toContainText("GoCD version (gocd_version)");
-    expect($(consentFor.get(3))).toContainText("This provides us the version of GoCD the server is on.");
+    expect($(consentFor.get(3))).toContainText("This is the version of GoCD the server is on.");
 
     expect($(consentFor.get(4))).toContainText("Server ID (server_id)");
-    expect($(consentFor.get(4))).toContainText("A randomly generated identifier to recognize unique instances of GoCD. This is different from the serverId attribute stored in GoCD's config.");
+    expect($(consentFor.get(4))).toContainText("A randomly-generated identifier for this instance of GoCD to help correlate the data. This does not tie into any other ID in this instance.");
 
     expect($(consentFor.get(5))).toContainText("Message version (message_version)");
-    expect($(consentFor.get(5))).toContainText("Schema version number for this message. This will help us with migrations should the message schema change in future.");
+    expect($(consentFor.get(5))).toContainText("Schema version number for this message.");
   });
 
   it('should show what data will be sent when GoCD data sharing is allowed', () => {

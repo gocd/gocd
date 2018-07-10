@@ -106,8 +106,8 @@ public class ZipUtil {
         }
     }
 
-    private void bombIfZipEntryPathContainsDirectoryTraversalCharacters(String filepath) {
-        if (filepath.contains("..")) {
+    private void failIfZipEntryPathContainsDirectoryTraversalCharacters(String filepath) {
+        if (filepath.contains("/../") || filepath.startsWith("../") || filepath.endsWith("/..")) {
             throw new IllegalPathException(String.format("File %s is outside extraction target directory", filepath));
         }
     }
@@ -128,7 +128,7 @@ public class ZipUtil {
     }
 
     private void extractTo(ZipEntry entry, InputStream entryInputStream, File toDir) throws IOException {
-        bombIfZipEntryPathContainsDirectoryTraversalCharacters(entry.getName());
+        failIfZipEntryPathContainsDirectoryTraversalCharacters(entry.getName());
         String entryName = nonRootedEntryName(entry);
 
         File outputFile = new File(toDir, entryName);

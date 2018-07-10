@@ -28,12 +28,10 @@ import org.junit.runner.RunWith;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.zip.Deflater;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
-import java.util.zip.ZipInputStream;
+import java.util.zip.*;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.hamcrest.Matchers.*;
@@ -223,13 +221,18 @@ public class ZipUtilTest {
     }
 
     @Test
-    public void shouldThrowUpWhileTryingToUnzipIfAnyOfTheFilePathsInArchiveHasAPathContainingDotDotSlashPath() throws URISyntaxException, IOException {
-        try {
-            zipUtil.unzip(new File(getClass().getResource("/archive_traversal_attack.zip").toURI()), destDir);
-            fail("squash.zip is capable of causing archive traversal attack and hence should not be allowed.");
-        } catch (IllegalPathException e) {
-            assertThat(e.getMessage(), is("File ../2.txt is outside extraction target directory"));
-        }
+    public void shouldPreventFilesFromBeingUnzippedInParentFolders() throws IOException {
+        assertFailureToUnzip("File ../2.txt is outside extraction target directory", createZipFileWithEntries("1.txt", "../2.txt"));
+        assertFailureToUnzip("File /../2.txt is outside extraction target directory", createZipFileWithEntries("1.txt", "/../2.txt"));
+        assertFailureToUnzip("File /1/../2.txt is outside extraction target directory", createZipFileWithEntries("1.txt", "/1/../2.txt"));
+        assertFailureToUnzip("File 1/../2.txt is outside extraction target directory", createZipFileWithEntries("1.txt", "1/../2.txt"));
+        assertFailureToUnzip("File /2/.. is outside extraction target directory", createZipFileWithEntries("1.txt", "/2/.."));
+        assertFailureToUnzip("File /2/../ is outside extraction target directory", createZipFileWithEntries("1.txt", "/2/../"));
+
+        assertSuccessfulUnzip(createZipFileWithEntries("1.txt", "..2.txt"));
+        assertSuccessfulUnzip(createZipFileWithEntries("1.txt", "/1/..2.."));
+        assertSuccessfulUnzip(createZipFileWithEntries("1.txt", "/1/...2..."));
+        assertSuccessfulUnzip(createZipFileWithEntries("1.txt", "/.../2.txt"));
     }
 
     @Test
@@ -255,4 +258,31 @@ public class ZipUtilTest {
         assertThat("File " + file.getPath() + " should exist", file.exists(), is(true));
         assertThat("File " + file.getPath() + " should be a directory", file.isDirectory(), is(true));
     }
+
+    private File createZipFileWithEntries(String... entries) throws IOException {
+        File zipFile = temporaryFolder.newFile();
+
+        try (ZipOutputStream stream = new ZipOutputStream(new FileOutputStream(zipFile))) {
+            for (String entry : entries) {
+                stream.putNextEntry(new ZipEntry(entry));
+                stream.write("some-data".getBytes(UTF_8));
+            }
+        }
+
+        return zipFile;
+    }
+
+    private void assertFailureToUnzip(String expectedMessage, File zipFile) throws IOException {
+        try {
+            zipUtil.unzip(zipFile, temporaryFolder.newFolder());
+            fail("This zip file is capable of causing an archive traversal attack and hence should not be allowed. Expected it to fail with this message: " + expectedMessage);
+        } catch (IllegalPathException e) {
+            assertThat(e.getMessage(), is(expectedMessage));
+        }
+    }
+
+    private void assertSuccessfulUnzip(File zipFile) throws IOException {
+        zipUtil.unzip(zipFile, temporaryFolder.newFolder());
+    }
+
 }

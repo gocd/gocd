@@ -109,6 +109,7 @@
     var externalArtifactForm = inputElement.closest('.artifact');
     externalArtifactForm.find(".plugin-config-read-only").remove();
     externalArtifactForm.find('.artifact_plugin_selection').val(pluginId);
+    externalArtifactForm.find(".plugged_artifact_template").closest(".row").addClass("plugin_form_background");
     hidePluginView();
 
     if (_.isEmpty(selectedInput.value)) {
@@ -119,7 +120,6 @@
 
     var pluginId  = storeIdToPluginId[selectedInput.value];
     if (pluginId) {
-      externalArtifactForm.find(".plugged_artifact_template").closest(".row").addClass("plugin_form_background");
       hidePluginDropdown();
       showAppropriatePluginView(pluginId, inputElement);
       return;

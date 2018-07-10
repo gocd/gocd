@@ -45,8 +45,8 @@
 
       <div class="row expanded plugin_dropdown_background hidden">
         <div class="columns medium-8 medium-offset-2 large-8 end">
-          <div class="plugin-select-form">
-            <span>Could not determine the plugin from the store. Please choose a plugin to configure the plugin properties.</span>
+            <div class="plugin-select-form">
+              <span>Cannot determine plugin to show the configuration view. Please choose a plugin to configure the plugin properties. <span class="contextual_help has_go_tip_right" title="The plugin with which the store is associated cannot be determined because: the store id is a parameter or store is non-existent."/></span>
             <label>Plugin</label>
             <% plugin_count = scope[:plugin_name_to_id].size %>
             <%= select("", "pluginId", scope[:plugin_name_to_id], {:prompt => plugin_count == 1 ? nil : 'Select plugin', :selected => scope[:store_id_to_plugin_id][external_artifact_config.getStoreId]}, {:class => 'artifact_plugin_selection', :name => "job[artifactConfigs][][pluginId]"}) %>

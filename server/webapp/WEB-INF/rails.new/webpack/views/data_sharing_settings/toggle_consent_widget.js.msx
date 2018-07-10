@@ -65,15 +65,15 @@ const ToggleConsentWidget = {
           With performance related data which might be shared later (with your permission), this will help to see whether a GoCD instance becomes slower over time, as more pipelines and pipeline runs happen.
         </div>
         <div class="consent-for">
-          <span class="key">GoCD Version (gocd_version):</span>
+          <span class="key">GoCD version (gocd_version):</span>
           This provides us the version of GoCD the server is on.
         </div>
         <div class="consent-for">
           <span class="key">Server ID (server_id):</span>
-          An identifier for this instance of GoCD to help us correlate the data sent across.
+          A randomly generated identifier to recognize unique instances of GoCD. This is different from the serverId attribute stored in GoCD's config.
         </div>
         <div class="consent-for">
-          <span class="key">Message Version (message_version):</span>
+          <span class="key">Message version (message_version):</span>
           Schema version number for this message. This will help us with migrations should the message schema change in future.
         </div>
       </div>

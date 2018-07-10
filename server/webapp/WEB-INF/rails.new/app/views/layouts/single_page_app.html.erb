@@ -16,7 +16,6 @@
   <%= stylesheet_link_tag "single_page_apps/#{controller_name}" %>
   <%= javascript_include_tag *webpack_assets_service.getAssetPaths("single_page_apps/spa_commons") %>
   <%= javascript_include_tag *webpack_assets_service.getAssetPaths("single_page_apps/#{controller_name}") %>
-  <%= javascript_include_tag *webpack_assets_service.getAssetPaths("single_page_apps/notification_center") %>
   <%= csrf_meta_tags %>
 </head>
 

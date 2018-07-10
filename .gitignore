@@ -250,6 +250,7 @@ server/webapp/WEB-INF/rails.new/db/config.git/
 server/webapp/WEB-INF/rails.new/logs/
 server/webapp/WEB-INF/rails.new/node_modules/
 server/webapp/WEB-INF/rails.new/public/assets/
+server/webapp/WEB-INF/rails.new/vendor/bundle/jruby
 server/webapp/WEB-INF/rails.new/webpack/gen/
 server/webapp/WEB-INF/rails.new/yarn-license-report/
 spark/spark-base/out/

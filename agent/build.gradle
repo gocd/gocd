@@ -63,6 +63,7 @@ dependencies {
   compile project(':common')
   compile group: 'org.objenesis', name: 'objenesis', version: project.versions.objenesis
   compile group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: project.versions.bouncyCastle
+  compile group: 'org.bouncycastle', name: 'bcpkix-jdk15on', version: project.versions.bouncyCastle
   compile group: 'org.apache.commons', name: 'commons-configuration2', version: project.versions.commonsConfiguration
   compile(group: 'org.eclipse.jetty.websocket', name: 'websocket-client', version: versions.jetty){
     exclude module: 'jetty-xml'
@@ -125,6 +126,7 @@ task verifyJar(type: VerifyJarTask) {
       "agent-${project.version}-classes.jar",
       "agent-common-${project.version}.jar",
       "base-${project.version}.jar",
+      "bcpkix-jdk15on-${project.versions.bouncyCastle}.jar",
       "bcprov-jdk15on-${project.versions.bouncyCastle}.jar",
       "cloning-${project.versions.cloning}.jar",
       "commandline-${project.version}.jar",

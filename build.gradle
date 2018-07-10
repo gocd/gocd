@@ -157,7 +157,7 @@ rootProject.ext.versions = [
   apacheHttpComponents: '4.5.5',
   apacheHttpMime      : '4.5.5',
   assertJ             : '3.10.0',
-  bouncyCastle        : '1.47', // bouncycastle version has to be compatible with the jruby version
+  bouncyCastle        : '1.59', // bouncycastle version has to be compatible with the jruby version
   cloning             : '1.9.10',
   commonsCodec        : '1.11',
   commonsCollections  : '3.2.2',
@@ -180,9 +180,9 @@ rootProject.ext.versions = [
   jdom                : '2.0.6',
   jetty               : '9.4.8.v20171121',
   jgit                : '4.9.0.201710071750-r',
-  jodaTime            : '2.3', // joda-time version has to be compatible with the jruby version
+  jodaTime            : '2.9.9', // joda-time version has to be compatible with the jruby version
   jolt                : '0.1.1',
-  jruby               : '1.7.26',
+  jruby               : '9.2.0.0',
   jsonUnit            : '1.29.0',
   jsoup               : '1.11.3',
   junit               : '4.12',

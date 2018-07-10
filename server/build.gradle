@@ -13,15 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 import com.thoughtworks.go.build.LicenseReport
 import com.thoughtworks.go.build.VerifyJarTask
 import groovy.json.JsonSlurper
 import org.eclipse.jgit.api.Git
-import org.jruby.CompatVersion
-import org.jruby.Ruby
-import org.jruby.RubyInstanceConfig
 
 import java.nio.file.FileSystems
+
+import static org.jruby.runtime.Constants.RUBY_VERSION
 
 description = 'GoCD Server'
 
@@ -34,6 +34,10 @@ buildscript {
     classpath group: 'org.jruby', name: 'jruby-complete', version: project.versions.jruby
     classpath group: 'org.eclipse.jgit', name: 'org.eclipse.jgit', version: project.versions.jgit
   }
+}
+
+repositories {
+  maven { url 'http://rubygems-proxy.torquebox.org/releases/' }
 }
 
 sourceSets {
@@ -82,6 +86,8 @@ sourceSets {
 }
 
 configurations {
+  jrubyGems
+
   sharedTestCompile.extendsFrom testCompile
   fastUnitTestCompile.extendsFrom sharedTestCompile
   integrationTestCompile.extendsFrom sharedTestCompile
@@ -109,6 +115,23 @@ configurations {
 }
 
 project.ext.railsRoot = file("${project.projectDir}/webapp/WEB-INF/rails.new")
+project.ext.bundledGemDir = file("${project.railsRoot}/vendor/bundle/jruby/${RUBY_VERSION}")
+project.ext.jrubyexec = { Closure cl ->
+    project.javaexec { JavaExecSpec javaExecSpec ->
+      cl.delegate = javaExecSpec
+      cl.call()
+
+      classpath project.configurations.compile.files { it.name == 'jruby-complete' }.first()
+      standardOutput = System.out
+      errorOutput = System.err
+
+      environment += [
+        'GEM_HOME'   : project.bundledGemDir
+      ]
+
+      main = 'org.jruby.Main'
+    }
+  }
 
 def props = [
   'go.enforce.server.immutability'  : 'N',
@@ -125,6 +148,8 @@ props.putAll(project.hasProperty('testSystemProperties') ? project.testSystemPro
 project.ext.testSystemProperties = props
 
 dependencies {
+  jrubyGems group: 'rubygems', name: 'bundler', version: '1.16.3'
+
   api project(':api').subprojects
   spark project(':spark').subprojects
   compile project(':addon-api:database')
@@ -209,6 +234,7 @@ dependencies {
   compile group: 'cglib', name: 'cglib-nodep', version: '2.2'
   compileOnly project(':app-server')
   compileOnly group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: project.versions.bouncyCastle
+  compileOnly group: 'org.bouncycastle', name: 'bcpkix-jdk15on', version: project.versions.bouncyCastle
   compileOnly group: 'org.eclipse.jetty.websocket', name: 'websocket-server', version: versions.jetty
 
   testCompile group: 'org.dbunit', name: 'dbunit', version: project.versions.dbunit
@@ -248,7 +274,7 @@ idea {
       def node = it.asNode()
       def content = node.component.find { it.'@name' == 'NewModuleRootManager' }.content[0]
       content.sourceFolder.each { sourceFolder ->
-        if(sourceFolder.@url?.endsWith('/resources')) {
+        if (sourceFolder.@url?.endsWith('/resources')) {
           sourceFolder.attributes().with {
             boolean isTestSource = (remove('isTestSource') == 'true')
             put('type', isTestSource ? 'java-test-resource' : 'java-resource')
@@ -385,50 +411,45 @@ task fastUnitTestJar(type: Jar) {
 
 check.dependsOn(sharedTest, fastUnitTest, integrationTest)
 
-def findGemsToNotPack = {
-  if (project.hasProperty('noAssets')) {
-    return []
+
+task findGemsToNotPack {
+  def outputFile = file("${project.buildDir}/gems-to-package.json")
+
+  outputs.file(outputFile)
+  outputs.cacheIf { true }
+
+  doFirst {
+    project.jrubyexec {
+      environment += [
+        'OUTPUT_FILE': outputFile
+      ]
+      args = ['-S', 'rake', '--trace', '--rakefile', 'find-gems-to-package.rake']
+    }
+    ext.gemsToExclude = new JsonSlurper().parse(outputFile)
   }
+}
 
-  def gems = []
-  Ruby ruby
-  try {
-    def config = new RubyInstanceConfig()
-    config.compatVersion = CompatVersion.RUBY2_0
-    config.output = System.out
-    config.error = System.err
-    config.compileMode = RubyInstanceConfig.CompileMode.OFF
 
-    ruby = Ruby.newInstance(config)
-    gems = ruby.evalScriptlet(
-      """
-          Dir.chdir('${project.railsRoot}') do
-            \$LOAD_PATH.unshift("vendor/bundle/jruby/1.9/gems/bundler-1.9.9/lib")
-            require 'bundler'
-            require 'json'
-            definition = ::Bundler.definition
-            all = definition.specs.to_a
-            #puts "*** All gems - #{all.collect(&:full_name)}"
+task initializeRailsGems {
+  inputs.file("${project.railsRoot}/Gemfile")
+  inputs.file("${project.railsRoot}/Gemfile.lock")
 
-            requested = definition.specs_for(definition.groups.collect(&:to_sym) - [:development, :test, :assets]).to_a
-            #puts "*** Gems that should be packaged - #{requested.collect(&:full_name)}"
+  outputs.dir(project.bundledGemDir)
+  outputs.cacheIf { true }
 
-            ignored_gems = all - requested
-            #puts "*** Ignored gems - #{ignored_gems.collect(&:full_name)}"
-            ignored_gems.collect(&:full_name)
-          end
-          """
-    )
-  } finally {
-    if (ruby != null) {
-      ruby.tearDown()
+  doFirst {
+    project.jrubyexec {
+      workingDir = project.railsRoot
+
+      args = ['-S', 'gem', 'install', '--quiet', '--no-ri', '--no-rdoc', '--local', '--ignore-dependencies', '--install-dir', project.bundledGemDir]
+      args += project.configurations.jrubyGems
+    }
+
+    project.jrubyexec {
+      workingDir = project.railsRoot
+      args = ['-S', 'bundle', 'install', '--path', 'vendor/bundle', '--binstubs', '--clean']
     }
   }
-
-  if (gems.isEmpty()) {
-    throw new UnknownError("There seems to have been a problem with detecting which gems should not be packaged!")
-  }
-  return gems
 }
 
 task cleanDb(type: Delete) {
@@ -646,8 +667,33 @@ task inlinePartials {
   }
 }
 
+
+task configureWar {
+  dependsOn findGemsToNotPack
+  doFirst {
+    war.from('webapp') { theSpec ->
+      into '/'
+      exclude('WEB-INF/web.xml')
+      exclude("**/rails.new/*.log")
+      exclude("**/rails.new/log/*")
+      exclude("**/rails.new/node_modules/")
+      exclude("**/rails.new/spec/")
+      exclude("**/rails.new/tmp/")
+      exclude("**/rails.new/**/jruby/*/cache/*.gem")
+      exclude("**/rails.new/app/assets/")
+      exclude("**/rails.new/app/views/**/*.*")
+      exclude("**/rails.new/webpack/")
+      findGemsToNotPack.gemsToExclude.each { gem ->
+        theSpec.exclude("**/rails.new/vendor/bundle/jruby/2.5.0/gems/${gem}")
+        theSpec.exclude("**/rails.new/vendor/bundle/jruby/2.5.0/specifications/${gem}.gemspec")
+        theSpec.exclude("**/rails.new/vendor/bundle/jruby/2.5.0/build_info/${gem}.info")
+      }
+    }
+  }
+}
 task war(type: Jar) {
   dependsOn rootProject.generateLicenseReport
+  dependsOn configureWar
   dependsOn ':server:jar', ':server:compileAssets', ':server:inlinePartials'
   dependsOn project.configurations.compile
   dependsOn project.configurations.api
@@ -696,24 +742,6 @@ task war(type: Jar) {
     into "/WEB-INF"
   }
 
-  from('webapp') { theSpec ->
-    into '/'
-    exclude('WEB-INF/web.xml')
-    exclude("**/rails.new/*.log")
-    exclude("**/rails.new/log/*")
-    exclude("**/rails.new/node_modules/")
-    exclude("**/rails.new/spec/")
-    exclude("**/rails.new/tmp/")
-    exclude("**/rails.new/**/jruby/*/cache/*.gem")
-    exclude("**/rails.new/app/assets/")
-    exclude("**/rails.new/app/views/**/*.*")
-    exclude("**/rails.new/webpack/")
-    findGemsToNotPack().each { gem ->
-      theSpec.exclude("**/rails.new/vendor/bundle/jruby/1.9/gems/${gem}")
-      theSpec.exclude("**/rails.new/vendor/bundle/jruby/1.9/specifications/${gem}.gemspec")
-      theSpec.exclude("**/rails.new/vendor/bundle/jruby/1.9/build_info/${gem}.info")
-    }
-  }
 
   from(inlinePartials) {
     into '/WEB-INF/rails.new/app/views'

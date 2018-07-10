@@ -177,6 +177,7 @@ GEM
 
 PLATFORMS
   java
+  universal-java-1.8
 
 DEPENDENCIES
   addressable (= 2.4.0)
@@ -204,3 +205,9 @@ DEPENDENCIES
   sprockets-rails
   uglifier
   versionist
+
+RUBY VERSION
+   ruby 2.5.0p0 (jruby 9.2.0.0)
+
+BUNDLED WITH
+   1.16.2

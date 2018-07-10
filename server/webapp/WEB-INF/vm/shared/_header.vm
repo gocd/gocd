@@ -37,7 +37,7 @@
   <script type="text/javascript" src="$req.getContextPath()/$concatenatedJavascriptFilePath"></script>
   <script type="text/javascript"> var contextPath = "$req.getContextPath()"; </script>
 
-  #foreach( $js in ${webpackAssetsService.getAssetPaths("single_page_apps/notification_center")})
+  #foreach( $js in ${webpackAssetsService.getAssetPathsFor("single_page_apps/notification_center", "single_page_apps/version_update_checker_for_rails")})
       <script src="${js}"></script>
   #end
 

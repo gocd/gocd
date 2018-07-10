@@ -9,7 +9,7 @@
 <%= javascript_include_tag "application", debug: Rails.env.development? && params[:debug_assets] %>
 
 <%- unless(Rails.env.test?) %>
-  <%= javascript_include_tag *webpack_assets_service.getAssetPaths("single_page_apps/notification_center") %>
+  <%= javascript_include_tag *webpack_assets_service.getAssetPathsFor("single_page_apps/notification_center", "single_page_apps/version_update_checker_for_rails") %>
 <%- end %>
 
 <![if !IE]>

@@ -1,1 +1,0 @@
-require 'js_routes'

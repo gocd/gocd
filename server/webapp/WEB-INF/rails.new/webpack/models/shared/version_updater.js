@@ -24,7 +24,7 @@ const VersionUpdater = function () {
   this.update = () => {
     if (canUpdateVersion()) {
       fetchStaleVersionInfo().then((data) => {
-        _.isEmpty(data) ? markUpdateDone() : fetchLatestVersion(data);
+        _.isEmpty(data) ? markUpdateDoneAndNotify() : fetchLatestVersion(data);
       });
     }
   };
@@ -98,7 +98,9 @@ const VersionUpdater = function () {
   const markUpdateDoneAndNotify = () => {
     markUpdateDone();
     get().then((latestVersionNumber) => {
-        SystemNotifications.notifyNewMessage("UpdateCheck", `A new version of GoCD - ${latestVersionNumber} is available.`, "https://www.gocd.org/download/", "Learn more ...");
+        if (latestVersionNumber !== undefined) {
+            SystemNotifications.notifyNewMessage("UpdateCheck", `A new version of GoCD - ${latestVersionNumber} is available.`, "https://www.gocd.org/download/", "Learn more ...");
+        }
     });
   };
 };

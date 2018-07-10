@@ -26,7 +26,6 @@
 
 <%- if check_go_updates? -%>
   <script type="text/javascript">
-    var updater = new VersionUpdater('<%= apiv1_stale_version_info_path %>', '<%= apiv1_update_server_version_info_path%>');
-    updater.update();
+      VersionUpdaterForRails.update();
   </script>
 <%- end -%>

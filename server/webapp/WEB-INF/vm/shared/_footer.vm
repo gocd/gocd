@@ -27,8 +27,7 @@
 
 #if( $goUpdateCheckEnabled )
 <script type="text/javascript">
-    var updater = new VersionUpdater("/go/api/version_infos/stale", "/go/api/version_infos/go_server");
-    updater.update();
+    VersionUpdaterForRails.update();
 </script>
 #end
     <script type="text/javascript">

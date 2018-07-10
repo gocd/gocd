@@ -145,13 +145,13 @@ describe("Data Sharing Settings Widget", () => {
     expect($(consentFor.get(2))).toContainText(oldestPipelineRuntimeKey);
     expect($(consentFor.get(2))).toContainText(oldestPipelineRuntimeDescription);
 
-    expect($(consentFor.get(3))).toContainText("GoCD Version (gocd_version)");
+    expect($(consentFor.get(3))).toContainText("GoCD version (gocd_version)");
     expect($(consentFor.get(3))).toContainText("This provides us the version of GoCD the server is on.");
 
     expect($(consentFor.get(4))).toContainText("Server ID (server_id)");
-    expect($(consentFor.get(4))).toContainText("An identifier for this instance of GoCD to help us correlate the data sent across.");
+    expect($(consentFor.get(4))).toContainText("A randomly generated identifier to recognize unique instances of GoCD. This is different from the serverId attribute stored in GoCD's config.");
 
-    expect($(consentFor.get(5))).toContainText("Message Version (message_version)");
+    expect($(consentFor.get(5))).toContainText("Message version (message_version)");
     expect($(consentFor.get(5))).toContainText("Schema version number for this message. This will help us with migrations should the message schema change in future.");
   });
 

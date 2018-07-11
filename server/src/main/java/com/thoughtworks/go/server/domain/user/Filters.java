@@ -34,7 +34,8 @@ public class Filters {
             registerTypeAdapter(CaseInsensitiveString.class, new CaseInsensitiveStringSerializer()).
             create();
 
-    public static final DashboardFilter WILDCARD_FILTER = new BlacklistFilter(null, Collections.emptyList()) {
+    public static final String DEFAULT_NAME = "Default";
+    public static final DashboardFilter WILDCARD_FILTER = new BlacklistFilter(DEFAULT_NAME, Collections.emptyList()) {
         @Override
         public boolean isPipelineVisible(CaseInsensitiveString pipeline) {
             return true; // optimization
@@ -60,6 +61,7 @@ public class Filters {
     }
 
     private List<DashboardFilter> filters;
+
     private Map<String, DashboardFilter> filterMap; // optimize for find by name
 
     public Filters(List<DashboardFilter> filters) {
@@ -68,8 +70,8 @@ public class Filters {
     }
 
     public DashboardFilter named(String name) {
-        if (null == name) name = "";
-        return this.filterMap.getOrDefault(name, WILDCARD_FILTER);
+        if (null == name) name = DEFAULT_NAME;
+        return this.filterMap.getOrDefault(name.toLowerCase(), WILDCARD_FILTER);
     }
 
     public List<DashboardFilter> filters() {
@@ -78,7 +80,7 @@ public class Filters {
 
     private void updateIndex() {
         this.filterMap = new HashMap<>();
-        this.filters.forEach((f) -> filterMap.put(null != f.name() ? f.name() : "", f));
+        this.filters.forEach((f) -> filterMap.put(f.name().toLowerCase(), f));
     }
 
     @Override

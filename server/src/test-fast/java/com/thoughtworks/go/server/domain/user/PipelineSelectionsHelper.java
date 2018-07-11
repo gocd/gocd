@@ -22,10 +22,12 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
+import static com.thoughtworks.go.server.domain.user.Filters.DEFAULT_NAME;
+
 public class PipelineSelectionsHelper {
     public static PipelineSelections with(List<String> pipelines, Date date, Long userId, boolean blacklist) {
         List<CaseInsensitiveString> params = CaseInsensitiveString.list(pipelines);
-        DashboardFilter filter = blacklist ? new BlacklistFilter(null, params) : new WhitelistFilter(null, params);
+        DashboardFilter filter = blacklist ? new BlacklistFilter(DEFAULT_NAME, params) : new WhitelistFilter(DEFAULT_NAME, params);
         return new PipelineSelections(new Filters(Collections.singletonList(filter)), date, userId);
     }
 

@@ -18,8 +18,9 @@ require 'rails_helper'
 
 def blacklist(*args)
   pipes = CaseInsensitiveString.list(*args)
+  name = com.thoughtworks.go.server.domain.user.Filters::DEFAULT_NAME
   filters = com.thoughtworks.go.server.domain.user.Filters.single(
-    com.thoughtworks.go.server.domain.user.BlacklistFilter.new(nil, pipes)
+    com.thoughtworks.go.server.domain.user.BlacklistFilter.new(name, pipes)
   )
   PipelineSelections.new(filters, nil, nil)
 end

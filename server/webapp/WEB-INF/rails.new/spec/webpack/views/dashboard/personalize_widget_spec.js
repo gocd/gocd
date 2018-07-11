@@ -36,6 +36,7 @@ describe("Dashboard Personalize Widget", () => {
       "second": ["up43", "up44"]
     },
     "filters": [{
+        "name": "Default",
         "pipelines": ["up42", "up44"],
         "type": "blacklist"
       }]

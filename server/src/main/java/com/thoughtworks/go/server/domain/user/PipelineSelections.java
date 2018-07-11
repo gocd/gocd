@@ -25,6 +25,8 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 import java.io.Serializable;
 import java.util.Date;
 
+import static com.thoughtworks.go.server.domain.user.Filters.DEFAULT_NAME;
+
 public class PipelineSelections extends PersistentObject implements Serializable {
     public static final int CURRENT_SCHEMA_VERSION = 1;
 
@@ -92,12 +94,12 @@ public class PipelineSelections extends PersistentObject implements Serializable
 
     @Deprecated // TODO: remove when removing old dashboard
     public boolean includesPipeline(CaseInsensitiveString pipelineName) {
-        return namedFilter(null).isPipelineVisible(pipelineName);
+        return namedFilter(DEFAULT_NAME).isPipelineVisible(pipelineName);
     }
 
     @Deprecated // TODO: remove when removing old dashboard
     public boolean isBlacklist() {
-        return namedFilter(null) instanceof BlacklistFilter;
+        return namedFilter(DEFAULT_NAME) instanceof BlacklistFilter;
     }
 
     public DashboardFilter namedFilter(String name) {

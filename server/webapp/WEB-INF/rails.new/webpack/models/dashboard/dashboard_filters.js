@@ -23,7 +23,7 @@ const DashboardFilters = function (filters) {
   });
 
   this.getFilterNamed = (name) => {
-    return _.find(this.filters, (filter) => { return filter.name === name; });
+    return _.find(this.filters, (filter) => { return filter.name.toLowerCase() === name.toLowerCase(); });
   };
 };
 

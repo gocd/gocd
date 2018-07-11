@@ -91,6 +91,7 @@ describe("Dashboard Widget", () => {
       personalizeData = {
         filters: [
           {
+            name: "Default",
             pipelines: [],
             type: 'blacklist'
           }

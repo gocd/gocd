@@ -120,7 +120,7 @@ class PipelineSelectionControllerDelegateTest implements SecurityServiceTrait, C
 
         def payload = [
           filters: [
-            [type: 'blacklist', pipelines: ['build-linux', 'build-windows']]
+            [name: 'Default', type: 'blacklist', pipelines: ['build-linux', 'build-windows']]
           ]
         ]
 
@@ -144,7 +144,7 @@ class PipelineSelectionControllerDelegateTest implements SecurityServiceTrait, C
 
         def payload = [
           filters: [
-            [type: 'blacklist', pipelines: ['build-linux', 'build-windows']]
+            [name: 'Default', type: 'blacklist', pipelines: ['build-linux', 'build-windows']]
           ]
         ]
 
@@ -170,7 +170,7 @@ class PipelineSelectionControllerDelegateTest implements SecurityServiceTrait, C
 
         def payload = [
           filters: [
-            [type: 'blacklist', pipelines: ['build-linux', 'build-windows']]
+            [name: 'Default', type: 'blacklist', pipelines: ['build-linux', 'build-windows']]
           ]
         ]
 

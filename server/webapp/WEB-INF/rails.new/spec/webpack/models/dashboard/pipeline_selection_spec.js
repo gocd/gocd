@@ -78,6 +78,7 @@ describe("Dashboard", () => {
     const pipelineSelectionData = {
       "filters": [
         {
+          "name": "Default",
           "pipelines": [
             "up42",
             "test"
@@ -101,6 +102,7 @@ describe("Dashboard", () => {
     const pipelineSelectionPostData = {
       "filters": [
         {
+          "name": "Default",
           "pipelines": [
             "up42",
             "test"

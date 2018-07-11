@@ -77,7 +77,7 @@ class M001 {
         String[] pipelines;
 
         public Filter(String selections, boolean isBlacklist) {
-            name = null;
+            name = "Default";
             pipelines = StringUtils.isBlank(selections) ? new String[]{} : StringUtils.split(selections, ",");
             type = isBlacklist ? "blacklist" : "whitelist";
         }

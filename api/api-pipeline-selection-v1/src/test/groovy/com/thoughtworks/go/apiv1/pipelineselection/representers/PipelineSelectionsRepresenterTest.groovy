@@ -49,7 +49,7 @@ class PipelineSelectionsRepresenterTest {
           grp1: ["pipeline3", "build-linux", "build-windows"],
           grp2: ["pipeline1", "pipeline2"]
         ],
-        filters  : [[type: 'blacklist', pipelines: ['build-linux', 'build-windows']]]
+        filters  : [[name: 'Default', type: 'blacklist', pipelines: ['build-linux', 'build-windows']]]
       ])
     }
 
@@ -71,7 +71,7 @@ class PipelineSelectionsRepresenterTest {
         pipelines: [
           grp2: ["pipeline1", "pipeline2", "build-linux", "build-windows"]
         ],
-        filters  : [[type: 'blacklist', pipelines: ['build-linux', 'build-windows']]]
+        filters  : [[name: 'Default', type: 'blacklist', pipelines: ['build-linux', 'build-windows']]]
       ])
     }
   }

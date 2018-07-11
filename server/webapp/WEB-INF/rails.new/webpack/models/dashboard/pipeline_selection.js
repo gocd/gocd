@@ -20,12 +20,14 @@ const DashboardFilters = require('models/dashboard/dashboard_filters');
 const AjaxHelper       = require('helpers/ajax_helper');
 const SparkRoutes      = require('helpers/spark_routes');
 
+const NAME_DEFAULT_FILTER = "Default";
+
 const PipelineSelection = function (pipelineGroups, filters) {
   const self = this;
 
   this.pipelineGroups = pipelineGroups;
   this.filters        = filters;
-  this.currentFilter  = this.filters.getFilterNamed(undefined);
+  this.currentFilter  = this.filters.getFilterNamed(NAME_DEFAULT_FILTER);
   this.selections     = this.currentFilter.findSelections(this.pipelineGroups());
 
   this.isPipelineSelected = (pipelineName) => self.selections[pipelineName]();

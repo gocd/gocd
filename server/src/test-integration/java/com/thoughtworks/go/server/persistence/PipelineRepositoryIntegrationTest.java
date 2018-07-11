@@ -56,6 +56,7 @@ import java.util.*;
 
 import static com.thoughtworks.go.helper.ModificationsMother.oneModifiedFile;
 import static com.thoughtworks.go.helper.PipelineConfigMother.createPipelineConfig;
+import static com.thoughtworks.go.server.domain.user.Filters.DEFAULT_NAME;
 import static com.thoughtworks.go.util.DataStructureUtils.a;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.core.Is.is;
@@ -326,17 +327,15 @@ public class PipelineRepositoryIntegrationTest {
 
     @Test
     public void shouldSaveSelectedPipelinesWithoutUserId() {
-        Date date = new Date();
         List<String> unSelected = Arrays.asList("pipeline1", "pipeline2");
 
         long id = pipelineRepository.saveSelectedPipelines(blacklist(unSelected, null));
         PipelineSelections found = pipelineRepository.findPipelineSelectionsById(id);
 
-        final DashboardFilter filter = found.namedFilter(null);
+        final DashboardFilter filter = found.namedFilter(DEFAULT_NAME);
         assertAllowsPipelines(filter, "pipeline3", "pipeline4");
         assertDeniesPipelines(filter, "pipeline1", "pipeline2");
         assertNull(found.userId());
-        assertEquals(date, found.lastUpdated());
     }
 
     @Test
@@ -406,13 +405,13 @@ public class PipelineRepositoryIntegrationTest {
 
     private PipelineSelections blacklist(List<String> pipelines, Long userId) {
         final List<CaseInsensitiveString> pipelineNames = CaseInsensitiveString.list(pipelines);
-        Filters filters = new Filters(Collections.singletonList(new BlacklistFilter(null, pipelineNames)));
+        Filters filters = new Filters(Collections.singletonList(new BlacklistFilter(DEFAULT_NAME, pipelineNames)));
         return new PipelineSelections(filters, new Date(), userId);
     }
 
     private PipelineSelections whitelist(List<String> pipelines, Long userId) {
         final List<CaseInsensitiveString> pipelineNames = CaseInsensitiveString.list(pipelines);
-        Filters filters = new Filters(Collections.singletonList(new WhitelistFilter(null, pipelineNames)));
+        Filters filters = new Filters(Collections.singletonList(new WhitelistFilter(DEFAULT_NAME, pipelineNames)));
         return new PipelineSelections(filters, new Date(), userId);
     }
 }

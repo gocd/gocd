@@ -31,6 +31,7 @@ import com.thoughtworks.go.server.service.GoDashboardService;
 import com.thoughtworks.go.server.service.PipelineSelectionsService;
 import com.thoughtworks.go.spark.Routes;
 import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.lang3.StringUtils;
 import spark.Request;
 import spark.Response;
 
@@ -38,6 +39,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.thoughtworks.go.server.domain.user.Filters.DEFAULT_NAME;
 import static spark.Spark.*;
 
 public class DashboardControllerDelegate extends ApiController {
@@ -83,7 +85,7 @@ public class DashboardControllerDelegate extends ApiController {
 
         PipelineSelections selectedPipelines = pipelineSelectionsService.loadPipelineSelections(selectedPipelinesCookie, userId);
 
-        final String filterName = request.queryParams("viewName");
+        final String filterName = getViewName(request);
         final DashboardFilter filter = selectedPipelines.namedFilter(filterName);
 
         List<GoDashboardPipelineGroup> pipelineGroups = goDashboardService.allPipelineGroupsForDashboard(filter, userName);
@@ -97,5 +99,10 @@ public class DashboardControllerDelegate extends ApiController {
         setEtagHeader(response, etag);
 
         return writerForTopLevelObject(request, response, outputWriter -> PipelineGroupsRepresenter.toJSON(outputWriter, new DashboardFor(pipelineGroups, userName)));
+    }
+
+    private String getViewName(Request request) {
+        final String viewName = request.queryParams("viewName");
+        return StringUtils.isBlank(viewName) ? DEFAULT_NAME : viewName;
     }
 }

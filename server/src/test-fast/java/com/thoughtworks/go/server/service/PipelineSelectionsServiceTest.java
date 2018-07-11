@@ -32,6 +32,7 @@ import java.util.Collections;
 import java.util.Date;
 
 import static com.thoughtworks.go.helper.ConfigFileFixture.configWith;
+import static com.thoughtworks.go.server.domain.user.Filters.DEFAULT_NAME;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 import static org.mockito.ArgumentMatchers.argThat;
@@ -213,11 +214,11 @@ public class PipelineSelectionsServiceTest {
     }
 
     private DashboardFilter blacklist(String... pipelines) {
-        return new BlacklistFilter(null, CaseInsensitiveString.list(pipelines));
+        return new BlacklistFilter(DEFAULT_NAME, CaseInsensitiveString.list(pipelines));
     }
 
     private DashboardFilter whitelist(String... pipelines) {
-        return new WhitelistFilter(null, CaseInsensitiveString.list(pipelines));
+        return new WhitelistFilter(DEFAULT_NAME, CaseInsensitiveString.list(pipelines));
     }
 
     private void expectLoad(final CruiseConfig result) throws Exception {

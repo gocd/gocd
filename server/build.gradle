@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+
+import com.thoughtworks.go.build.ExecuteUnderRailsTask
 import com.thoughtworks.go.build.LicenseReport
 import com.thoughtworks.go.build.VerifyJarTask
 import groovy.json.JsonSlurper
@@ -44,7 +46,7 @@ sourceSets {
   test {
     resources {
       srcDirs += ['properties/test', 'webapp', 'test/data']
-      exclude "WEB-INF/rails.new/"
+      exclude "WEB-INF/rails/"
     }
   }
 
@@ -114,24 +116,101 @@ configurations {
   spark.exclude(group: 'ch.qos.logback', module: 'logback-classic')
 }
 
-project.ext.railsRoot = file("${project.projectDir}/webapp/WEB-INF/rails.new")
-project.ext.bundledGemDir = file("${project.railsRoot}/vendor/bundle/jruby/${RUBY_VERSION}")
-project.ext.jrubyexec = { Closure cl ->
+project.ext.railsRoot = file("${project.projectDir}/webapp/WEB-INF/rails")
+project.ext.bundledGemDir = file("${project.railsRoot}/gems/jruby/${RUBY_VERSION}")
+
+project.ext.railsClasspath = project.sourceSets.test.runtimeClasspath +
+  project.sourceSets.main.runtimeClasspath +
+  project.sourceSets.sharedTest.runtimeClasspath +
+  project.sourceSets.fastUnitTest.runtimeClasspath +
+  project.configurations.spark +
+  project.rootProject.findProject(':test:test-utils').files("resource-include-in-all-projects")
+
+project.ext.jrubyOptimizationJvmArgs = [
+  '-XX:+TieredCompilation',
+  '-XX:TieredStopAtLevel=1',
+  '-Xss2048k',
+  '-client'
+]
+
+project.ext.jrubyOptimizationSystemProperties = [
+  'jruby.compile.mode'         : 'OFF',
+  'jruby.compile.invokedynamic': false
+]
+project.ext.jrubyDefaultSystemProperties = [
+  'jruby.home': 'uri:classloader://META-INF/jruby.home',
+  // turn these on for debugging some stuff with jruby not finding scripts
+  // 'jruby.debug.scriptResolution': 'true',
+  // 'jruby.debug.loadService': 'true',
+]
+
+project.ext.jrubyJar = { project.configurations.compile.files { it.name == 'jruby-complete' }.first() }
+
+project.ext.jrubyScriptsDir = project.file("scripts")
+
+project.ext.additionalJRubyPaths = [jrubyScriptsDir, project.file("${project.bundledGemDir}/bin")]
+
+project.ext.defaultJRubyEnvironment = [
+  GEM_HOME: project.bundledGemDir,
+  GEM_PATH: project.bundledGemDir,
+  RUBY    : project.file("${project.ext.jrubyScriptsDir}/jruby${org.gradle.internal.os.OperatingSystem.current().isWindows() ? '.bat' : ''}")
+]
+
+project.ext.rails = [:]
+project.ext.rails.testDataDir = project.file("${project.buildDir}/railsTests")
+project.ext.rails.testConfigDir = project.file("${project.buildDir}/railsTests/config")
+project.ext.rails.testDbDir = project.file("${project.buildDir}/railsTests/db")
+project.ext.rails.testH2DbDir = project.file("${project.rails.testDbDir}/h2db")
+project.ext.rails.testDbDeltasDir = project.file("${project.rails.testDbDir}/h2deltas")
+project.ext.rails.testPluginsDir = project.file("${project.buildDir}/railsTests/plugins")
+project.ext.rails.testBundledPluginsDir = project.file("${project.rails.testPluginsDir}/bundled")
+project.ext.rails.testExternalPluginsDir = project.file("${project.rails.testPluginsDir}/external")
+project.ext.rails.testPluginsWorkDir = project.file("${project.rails.testPluginsDir}/work")
+
+project.ext.railsSystemProperties = [
+  'always.reload.config.file'     : true,
+  'cruise.i18n.cache.life'        : 0,
+  'cruise.config.dir'             : project.rails.testConfigDir,
+  'cruise.database.dir'           : project.rails.testH2DbDir,
+  'plugins.go.provided.path'      : project.rails.testBundledPluginsDir,
+  'plugins.external.provided.path': project.rails.testExternalPluginsDir,
+  'plugins.work.path'             : project.rails.testPluginsWorkDir,
+  'rails.use.compressed.js'       : false,
+  'go.enforce.server.immutability': 'N',
+]
+
+project.ext.railsTasksDefaultDependsOn = [
+  ':server:initializeRailsGems',
+  ':server:cleanDb',
+  ':server:prepareDb',
+  ':server:createJRubyBinstubs',
+  project.sourceSets.main.runtimeClasspath,
+  project.sourceSets.test.runtimeClasspath,
+  project.configurations.spark,
+  project.sourceSets.sharedTest.runtimeClasspath,
+  project.sourceSets.fastUnitTest.runtimeClasspath
+]
+
+project.ext.jrubyexec = { Closure<JavaExecSpec> cl ->
+  try {
     project.javaexec { JavaExecSpec javaExecSpec ->
       cl.delegate = javaExecSpec
+
+      LinkedHashMap<String, Object> originalEnv = new LinkedHashMap<String, Object>(javaExecSpec.environment)
+
+      ExecuteUnderRailsTask.setup(project, javaExecSpec, false)
+
       cl.call()
 
-      classpath project.configurations.compile.files { it.name == 'jruby-complete' }.first()
-      standardOutput = System.out
-      errorOutput = System.err
-
-      environment += [
-        'GEM_HOME'   : project.bundledGemDir
-      ]
-
-      main = 'org.jruby.Main'
+      ExecuteUnderRailsTask.debugEnvironment(javaExecSpec, originalEnv)
+      ExecuteUnderRailsTask.dumpTaskCommand(javaExecSpec)
     }
+  } finally {
+    System.out.flush()
+    System.err.flush()
   }
+}
+
 
 def props = [
   'go.enforce.server.immutability'  : 'N',
@@ -392,7 +471,6 @@ task integrationTest(type: Test) { thisTask ->
       throw new GradleException("${thisTask} is not supposed to contain any unit tests. The following files contained what looks like unit test code:\n${badFiles.collect { f -> "  - ${f}" }.join("\n")}")
     }
   }
-
 }
 
 task sharedTestJar(type: Jar) {
@@ -411,43 +489,23 @@ task fastUnitTestJar(type: Jar) {
 
 check.dependsOn(sharedTest, fastUnitTest, integrationTest)
 
-
 task findGemsToNotPack {
-  def outputFile = file("${project.buildDir}/gems-to-package.json")
+  dependsOn ':server:initializeRailsGems'
 
+  inputs.file("${project.railsRoot}/Gemfile")
+  inputs.file("${project.railsRoot}/Gemfile.lock")
+  inputs.file("find-gems-to-package.rake")
+  ext.outputFile = file("${project.buildDir}/gems-to-package.json")
   outputs.file(outputFile)
   outputs.cacheIf { true }
 
   doFirst {
     project.jrubyexec {
       environment += [
-        'OUTPUT_FILE': outputFile
+        'OUTPUT_FILE': outputFile,
+        'BUNDLE_GEMFILE': file("${project.railsRoot}/Gemfile")
       ]
       args = ['-S', 'rake', '--trace', '--rakefile', 'find-gems-to-package.rake']
-    }
-    ext.gemsToExclude = new JsonSlurper().parse(outputFile)
-  }
-}
-
-
-task initializeRailsGems {
-  inputs.file("${project.railsRoot}/Gemfile")
-  inputs.file("${project.railsRoot}/Gemfile.lock")
-
-  outputs.dir(project.bundledGemDir)
-  outputs.cacheIf { true }
-
-  doFirst {
-    project.jrubyexec {
-      workingDir = project.railsRoot
-
-      args = ['-S', 'gem', 'install', '--quiet', '--no-ri', '--no-rdoc', '--local', '--ignore-dependencies', '--install-dir', project.bundledGemDir]
-      args += project.configurations.jrubyGems
-    }
-
-    project.jrubyexec {
-      workingDir = project.railsRoot
-      args = ['-S', 'bundle', 'install', '--path', 'vendor/bundle', '--binstubs', '--clean']
     }
   }
 }
@@ -527,7 +585,7 @@ task prepareNoRails {
 }
 
 task prepare {
-  dependsOn = [prepareNoRails, prepareTestGitRepo, ':server:dependencyClassPath', ':server:compileAssetsDev']
+  dependsOn = [prepareNoRails, prepareTestGitRepo, ':server:compileAssetsDev']
 }
 
 test {
@@ -627,7 +685,7 @@ clean {
 
 task inlinePartials {
   if (!project.hasProperty('fastBuild')) {
-    dependsOn ':tools:prepareJRuby'
+    dependsOn ':server:initializeRailsGems'
   }
 
   def inlinedPartialsDir = file("${project.buildDir}/inline-partials")
@@ -647,15 +705,7 @@ task inlinePartials {
     }
 
     if (!project.hasProperty('fastBuild')) {
-      exec {
-        standardOutput = System.out
-        errorOutput = System.err
-
-        if (org.gradle.internal.os.OperatingSystem.current().isWindows()) {
-          executable = project.findProject(':tools').file("rails/bin/jruby.bat")
-        } else {
-          executable = project.findProject(':tools').file("rails/bin/jruby")
-        }
+      project.jrubyexec {
 
         environment += [
           'INPUT_DIR': inlinedPartialsDir
@@ -667,30 +717,30 @@ task inlinePartials {
   }
 }
 
-
 task configureWar {
   dependsOn findGemsToNotPack
   doFirst {
     war.from('webapp') { theSpec ->
       into '/'
       exclude('WEB-INF/web.xml')
-      exclude("**/rails.new/*.log")
-      exclude("**/rails.new/log/*")
-      exclude("**/rails.new/node_modules/")
-      exclude("**/rails.new/spec/")
-      exclude("**/rails.new/tmp/")
-      exclude("**/rails.new/**/jruby/*/cache/*.gem")
-      exclude("**/rails.new/app/assets/")
-      exclude("**/rails.new/app/views/**/*.*")
-      exclude("**/rails.new/webpack/")
-      findGemsToNotPack.gemsToExclude.each { gem ->
-        theSpec.exclude("**/rails.new/vendor/bundle/jruby/2.5.0/gems/${gem}")
-        theSpec.exclude("**/rails.new/vendor/bundle/jruby/2.5.0/specifications/${gem}.gemspec")
-        theSpec.exclude("**/rails.new/vendor/bundle/jruby/2.5.0/build_info/${gem}.info")
+      exclude("**/rails/*.log")
+      exclude("**/rails/log/*")
+      exclude("**/rails/node_modules/")
+      exclude("**/rails/spec/")
+      exclude("**/rails/tmp/")
+      exclude("**/rails/**/jruby/*/cache/*.gem")
+      exclude("**/rails/app/assets/")
+      exclude("**/rails/app/views/**/*.*")
+      exclude("**/rails/webpack/")
+      new JsonSlurper().parse(findGemsToNotPack.outputFile).each { gem ->
+        theSpec.exclude("**/rails/gems/jruby/${RUBY_VERSION}/gems/${gem}")
+        theSpec.exclude("**/rails/gems/jruby/${RUBY_VERSION}/specifications/${gem}.gemspec")
+        theSpec.exclude("**/rails/gems/jruby/${RUBY_VERSION}/build_info/${gem}.info")
       }
     }
   }
 }
+
 task war(type: Jar) {
   dependsOn rootProject.generateLicenseReport
   dependsOn configureWar
@@ -720,7 +770,7 @@ task war(type: Jar) {
     into('WEB-INF/classes')
   }
 
-  from("${project(':server').projectDir}/webapp/WEB-INF/rails.new/webpack/rails-shared/plugin-endpoint.js") {
+  from("${project(':server').projectDir}/webapp/WEB-INF/rails/webpack/rails-shared/plugin-endpoint.js") {
     into('WEB-INF/classes')
   }
 
@@ -733,7 +783,7 @@ task war(type: Jar) {
   }
   from("messages/message.properties") { into('/') }
 
-  from({ compileAssets }) { into '/WEB-INF/rails.new/public/assets' }
+  from({ compileAssets }) { into '/WEB-INF/rails/public/assets' }
 
   from("webapp/WEB-INF/web.xml") {
     filter {
@@ -744,7 +794,7 @@ task war(type: Jar) {
 
 
   from(inlinePartials) {
-    into '/WEB-INF/rails.new/app/views'
+    into '/WEB-INF/rails/app/views'
   }
 }
 

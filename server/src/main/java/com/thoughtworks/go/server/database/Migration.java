@@ -16,8 +16,6 @@
 
 package com.thoughtworks.go.server.database;
 
-import java.sql.SQLException;
-
 public interface Migration {
     void migrate();
 }

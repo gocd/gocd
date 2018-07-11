@@ -14,25 +14,27 @@
  * limitations under the License.
  */
 
-import com.thoughtworks.go.build.*
+import com.thoughtworks.go.build.ExecuteUnderRailsTask
+import com.thoughtworks.go.build.YarnInstallTask
+import com.thoughtworks.go.build.YarnRunTask
+import groovy.text.SimpleTemplateEngine
+import groovy.text.Template
+import org.apache.tools.ant.types.Commandline
+import org.gradle.internal.jvm.Jvm
 
 task pathingJar(type: Jar) {
   classifier 'pathing'
-  dependsOn ':server:jar'
-  dependsOn ':server:testJar'
-  dependsOn ':server:fastUnitTestJar'
-  dependsOn ':server:sharedTestJar'
-  dependsOn project.configurations.spark
-  dependsOn project.configurations.api
+  dependsOn(project.railsTasksDefaultDependsOn)
 
   doFirst {
     manifest {
-      attributes 'Class-Path': new PrepareRailsCommandHelper(project).classpath().files.collect { it.toURI() }.join(' ')
+      attributes 'Class-Path': (project.railsClasspath.files - [project.configurations.compile.files { it.name == 'jruby-complete' }.first()]).collect { it.toURI() }.join(' ')
     }
   }
 }
 
-task generateJSRoutes(type: CacheableExecuteUnderRailsTask) {
+task generateJSRoutes(type: ExecuteUnderRailsTask) {
+  outputs.cacheIf { true }
   onlyIf { !project.hasProperty('fastBuild') }
   def outputDir = file("${project.railsRoot}/webpack/gen")
   inputs.dir(file("${project.railsRoot}/vendor"))
@@ -44,10 +46,98 @@ task generateJSRoutes(type: CacheableExecuteUnderRailsTask) {
     'OUTPUT_DIR': outputDir,
   )
 
-  railsCommand = './bin/rake --trace generated_js'
+  args = ['-S', 'rake', '--trace', 'generated_js']
 
   doFirst {
     delete outputDir
+  }
+}
+
+task createJRubyBinstubs {
+  outputs.cacheIf { true }
+  def outputDir = file("scripts")
+  inputs.dir("script-templates")
+  inputs.properties([
+    bundledGemDir: project.bundledGemDir,
+    railsRoot: project.railsRoot
+  ])
+
+  def jrubyJar = project.configurations.compile.files { it.name == 'jruby-complete' }.first()
+
+  def templateProperties = [
+    mainClassName       : 'org.jruby.Main',
+    jvmArgs             : project.jrubyOptimizationJvmArgs,
+    systemProperties    : (project.jrubyOptimizationSystemProperties + project.jrubyDefaultSystemProperties + project.railsSystemProperties),
+    classpath           : [pathingJar.archivePath],
+    jrubyJar            : jrubyJar,
+    environment         : project.defaultJRubyEnvironment,
+    additionalJRubyPaths: project.additionalJRubyPaths,
+    javaExecutable      : Jvm.current().getExecutable("java")
+  ]
+
+  inputs.properties(templateProperties)
+  outputs.dir(outputDir)
+
+  doFirst {
+    project.delete(outputDir)
+    project.mkdir(outputDir)
+
+    ['jgem', 'rspec', 'ruby', 'gem'].each { file ->
+      copy {
+        from "script-templates/${file}"
+        into outputDir
+        eachFile { FileCopyDetails fcp ->
+          fcp.mode = 0755
+        }
+      }
+    }
+
+    ['jruby', 'jruby.bat'].each { eachFile ->
+      def inputTemplate = file("script-templates/${eachFile}")
+      def engine = new SimpleTemplateEngine()
+      Template template = engine.createTemplate(inputTemplate)
+      String output = template.make(templateProperties).toString()
+
+      file("${outputDir}/${inputTemplate.name}").write(output)
+      file("${outputDir}/${inputTemplate.name}").setExecutable(true)
+    }
+  }
+}
+
+task initializeRailsGems {
+  outputs.cacheIf { true }
+  dependsOn createJRubyBinstubs
+  inputs.files(project.configurations.jrubyGems)
+  inputs.file("${project.railsRoot}/Gemfile")
+  inputs.file("${project.railsRoot}/Gemfile.lock")
+  inputs.properties([
+    bundledGemDir: project.bundledGemDir,
+    railsRoot: project.railsRoot
+  ])
+
+  def outputDirs = [
+    project.bundledGemDir,
+    "${project.railsRoot}/.bundle"
+  ]
+
+  outputDirs.each {
+    outputs.dir(it)
+  }
+
+  doFirst {
+    project.jrubyexec {
+      workingDir = project.railsRoot
+
+      args = ['-S', 'gem', 'install', '--quiet', '--no-ri', '--no-rdoc', '--local', '--ignore-dependencies', '--install-dir', project.bundledGemDir]
+      args += project.configurations.jrubyGems
+      maxHeapSize = '1g'
+    }
+
+    project.jrubyexec {
+      workingDir = project.railsRoot
+      args = ['-S', 'bundle', 'install', '--path', 'gems', '--clean', '--jobs', '4']
+      maxHeapSize = '1g'
+    }
   }
 }
 
@@ -55,30 +145,7 @@ task yarnInstall(type: YarnInstallTask) {
   workingDir = project.railsRoot
 }
 
-prepare.dependsOn
-
-
-task dependencyClassPath {
-  outputs.upToDateWhen { false }
-  dependsOn ':server:jar'
-  dependsOn ':server:testJar'
-  dependsOn ':server:fastUnitTestJar'
-  dependsOn ':server:sharedTestJar'
-
-  def systemPropertiesFile = file("${buildDir}/go-system-properties")
-
-  outputs.file(systemPropertiesFile)
-
-  doLast {
-    PrepareRailsCommandHelper helper = new PrepareRailsCommandHelper(project)
-    helper.prepare()
-
-    systemPropertiesFile.withWriter { out ->
-      out.println("JRUBY_OPTS=\"${helper.jrubyOpts.join(' \\\n')}\"")
-      out.println("GO_DEPENDENCY_CLASSPATH='${helper.classpath().join(File.pathSeparator)}'")
-    }
-  }
-}
+prepare.dependsOn(initializeRailsGems, createJRubyBinstubs, yarnInstall)
 
 task cleanRails(type: Delete) {
   delete "${buildDir}/railsTests"
@@ -93,7 +160,13 @@ task cleanRails(type: Delete) {
   delete "${project.railsRoot}/tmp"
   delete "${project.railsRoot}/webpack/gen"
   delete "${project.railsRoot}/yarn-error.log"
-  delete project.bundledGemDir
+
+  doFirst {
+    // these are purposely added as `doFirst` to avoid intellij from excluding these from the modules
+    project.delete project.jrubyScriptsDir
+    project.delete "${project.railsRoot}/.bundle"
+    project.delete project.bundledGemDir
+  }
 }
 clean.dependsOn cleanRails
 
@@ -134,7 +207,7 @@ task compileAssetsWebpackProd(type: YarnRunTask) {
   yarnCommand = ['webpack-prod', '--', "--env.outputDir", destinationDir.toPath().toString(), '--env.licenseReportFile', ext.licenseReportFile]
 }
 
-task compileRailsAssets(type: CacheableExecuteUnderRailsTask) {
+task compileRailsAssets(type: ExecuteUnderRailsTask) {
   onlyIf { !project.hasProperty('fastBuild') }
 
   def outputAssetsDir = file("${project.buildDir}/rails-assets")
@@ -146,11 +219,13 @@ task compileRailsAssets(type: CacheableExecuteUnderRailsTask) {
 
   outputs.dir(outputAssetsDir)
 
+  disableJRubyOptimization = true
+
   environment(
     'RAILS_ENV': 'production'
   )
 
-  railsCommand = './bin/rake --trace assets:clobber assets:precompile'
+  args = ['-S', 'rake', '--trace', 'assets:clobber', 'assets:precompile']
 
   doFirst {
     delete "${project.railsRoot}/tmp"
@@ -202,45 +277,71 @@ task compileAssets {
 }
 
 task rspec(type: ExecuteUnderRailsTask) {
-  outputs.upToDateWhen { false }
+  dependsOn yarnInstall
+  outputs.cacheIf { true }
+  inputs.files project.railsRoot
+  inputs.files project.railsClasspath
 
   description = "Run specs (pass '-Popts=...' to pass options)"
 
-  def rspecCommand = [project.findProject(':tools').file('rails/bin/rspec')]
-  if (project.hasProperty('opts')) {
-    rspecCommand += [project.property('opts')]
-  } else {
-    rspecCommand += ['spec']
-  }
+  disableJRubyOptimization = true
 
   environment += [
     'REPORTS_DIR': "${project.buildDir}/rspec-results"
   ]
-  railsCommand = rspecCommand.join(' ')
+
+  maxHeapSize = '6g'
+  jvmArgs += ['-XX:+UseCompressedOops', '-XX:-UseCompressedClassPointers', '-XX:+HeapDumpOnOutOfMemoryError', "-XX:HeapDumpPath=${project.buildDir}/heap-dumps"]
+
+  args = ['-S', 'rspec', '--backtrace']
+
+  if (project.hasProperty('opts')) {
+    args += Commandline.translateCommandline(project.property('opts')) as List<String>
+  }
+
+  doFirst {
+    project.mkdir("${project.buildDir}/heap-dumps")
+    project.file("${project.buildDir}/heap-dumps/foo.txt").setText("")
+  }
 }
 
 task parallelRspec(type: ExecuteUnderRailsTask) {
-  outputs.upToDateWhen { false }
+  dependsOn yarnInstall
+  outputs.cacheIf { true }
+  inputs.files project.railsRoot
+  inputs.files project.railsClasspath
 
-  description = "Run specs in parallel (pass '-Popts=...' to pass options)"
+  description = "Run specs (pass '-Popts=...' to pass options)"
+
+  disableJRubyOptimization = true
 
   environment += [
     'REPORTS_DIR': "${project.buildDir}/rspec-results"
   ]
-  railsCommand = {
-    def rspecCommand = [project.findProject(':tools').file('rails/bin/rspec')]
 
+  maxHeapSize = '6g'
+  jvmArgs += ['-XX:+UseCompressedOops', '-XX:-UseCompressedClassPointers', '-XX:+HeapDumpOnOutOfMemoryError', "-XX:HeapDumpPath=${project.buildDir}/heap-dumps"]
+
+  args = ['-S', 'rspec', '--backtrace']
+
+  if (project.hasProperty('opts')) {
+    args += Commandline.translateCommandline(project.property('opts')) as List<String>
+  }
+
+  doFirst {
+    project.mkdir("${project.buildDir}/heap-dumps")
+    project.file("${project.buildDir}/heap-dumps/foo.txt").setText("")
+  }
+
+  doFirst {
     FileTree tree = fileTree(dir: "${project.railsRoot}/spec", includes: ['**/*_spec.rb'])
-
     def files = partitionFiles(tree.files)
 
-    // relativize paths, because windows does not support very long command lines :(
-    rspecCommand += files.collect { project.railsRoot.toURI().relativize(it.toURI()).getPath() }
+    args += files.collect { project.railsRoot.toURI().relativize(it.toURI()).getPath() }
 
     if (project.hasProperty('opts')) {
-      rspecCommand += [project.property('opts')]
+      args += Commandline.translateCommandline(project.property('opts')) as List<String>
     }
-    rspecCommand.join(' ')
   }
 }
 
@@ -249,5 +350,50 @@ task railsExec(type: ExecuteUnderRailsTask) {
 
   description = "rails exec (pass '-Pcmd=...' to pass options)"
 
-  railsCommand = project.properties.get('cmd')
+  args = Commandline.translateCommandline(project.properties.get('cmd')) as List<String>
+}
+
+task brakeman {
+  description = "Run brakeman audit (pass '-Popts=...' to pass options)"
+  outputs.cacheIf { true }
+  dependsOn initializeRailsGems
+  inputs.files(project.railsRoot)
+
+  doFirst {
+    project.jrubyexec {
+      workingDir = project.railsRoot
+      args = ['-S', 'bundle', 'exec', 'brakeman', '-o', 'report.html'] + (Commandline.translateCommandline(project.properties.get('opts')) as List<String>)
+      maxHeapSize = '1g'
+    }
+  }
+}
+
+task rubyAudit {
+  description = "Run ruby audit (pass '-Popts=...' to pass options)"
+  outputs.cacheIf { true }
+  dependsOn initializeRailsGems, createJRubyBinstubs
+  inputs.files(project.railsRoot)
+
+  doFirst {
+    project.jrubyexec {
+      workingDir = project.railsRoot
+      args = ['-S', 'ruby-audit', 'check'] + (Commandline.translateCommandline(project.properties.get('opts')) as List<String>)
+      maxHeapSize = '1g'
+    }
+  }
+}
+
+task bundlerAudit {
+  description = "Run bundler audit (pass '-Popts=...' to pass options)"
+  outputs.cacheIf { true }
+  dependsOn initializeRailsGems, createJRubyBinstubs
+  inputs.files(project.railsRoot)
+
+  doFirst {
+    project.jrubyexec {
+      workingDir = project.railsRoot
+      args = ['-S', 'bundler-audit', 'check', '--update'] + (Commandline.translateCommandline(project.properties.get('opts')) as List<String>)
+      maxHeapSize = '1g'
+    }
+  }
 }

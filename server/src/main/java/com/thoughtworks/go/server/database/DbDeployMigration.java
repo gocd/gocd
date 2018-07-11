@@ -26,7 +26,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.io.File;
-import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.List;
 

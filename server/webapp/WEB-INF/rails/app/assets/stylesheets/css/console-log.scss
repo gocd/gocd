@@ -1,0 +1,348 @@
+/*!
+ * Copyright 2017 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+@import "font-awesome/scss/variables";
+@import "font-awesome/scss/mixins";
+
+$CONSOLE_SECTION_HEADER: #383838;
+$CONSOLE_SECTION_HEADER_WHITE: #F5F5F5;
+$CONSOLE_PASS: #99E343;
+$CONSOLE_PASS_WHITE: #00A600;
+$CONSOLE_FAIL: #FF4B48;
+$CONSOLE_CALLOUT: #FFA;
+$CONSOLE_CALLOUT_WHITE: #F0B400;
+$CONSOLE_INFO: grey;
+$CONSOLE_SETUP: #7992B0;
+$CONSOLE_SETUP_WHITE: darken($CONSOLE_SETUP, 13%);
+$CONSOLE_SETUP_ERR: #A567A5;
+$CONSOLE_SETUP_ERR_WHITE: darken($CONSOLE_SETUP_ERR, 10%);
+
+$PROGRESS_BAR_BG_SIZE: 70px;
+
+.console-area {
+  [data-collapsed="false"]:before {
+    content: "Collapse all"
+  }
+
+  [data-collapsed="true"]:before {
+    content: "Expand all"
+  }
+}
+
+@-webkit-keyframes progress-bar-stripes {
+  from {
+    background-position: 0 0;
+  }
+  to {
+    background-position: $PROGRESS_BAR_BG_SIZE 0;
+  }
+}
+
+@keyframes progress-bar-stripes {
+  from {
+    background-position: 0 0;
+  }
+  to {
+    background-position: $PROGRESS_BAR_BG_SIZE 0;
+  }
+}
+
+.console-log-loading {
+  font-family: Monaco, Consolas, Inconsolata, "Liberation Mono", "Courier New", monospace;
+  font-size: 13px;
+  line-height: 19px;
+  color: white;
+  padding: 10px 20px;
+  text-align: center;
+
+  background-image: linear-gradient(-45deg, rgba(128, 128, 128, 0.2) 25%, transparent 25%, transparent 50%, rgba(128, 128, 128, 0.2) 50%, rgba(128, 128, 128, 0.2) 75%, transparent 75%, transparent);
+  background-size: $PROGRESS_BAR_BG_SIZE $PROGRESS_BAR_BG_SIZE;
+}
+
+.buildoutput_pre {
+  $height-of-non-console-log-elements: 500px;
+  overflow: auto;
+
+  white-space: pre;
+  white-space: pre-wrap;
+  word-break: break-all;
+  word-wrap: break-word;
+
+  padding-left: 10px;
+  padding-bottom: 35px;
+
+  min-height: 800px; // ie < 8
+  min-height: calc(100vh - #{$height-of-non-console-log-elements});
+
+  background-color: #333;
+  color: white;
+
+  font-family: Monaco, Consolas, Inconsolata, "Liberation Mono", "Courier New", monospace;
+  font-size: 13px;
+
+  .fa {
+    font-family: FontAwesome;
+  }
+
+  .white-theme & {
+    background-color: white;
+    color: black;
+  }
+}
+
+.log-fs-line {
+  line-height: 19px;
+}
+
+.fs-multiline {
+  display: none;
+}
+
+.open .fs-multiline {
+  display: block;
+}
+
+.foldable-section {
+  margin-left: 25px;
+  position: relative;
+
+  .toggle {
+    float: left;
+    margin-left: -11px;
+    cursor: pointer;
+    text-decoration: none;
+    color: inherit;
+
+    &:before {
+      font-size: 120%;
+      content: $fa-var-caret-right;
+    }
+
+    &:last-child {
+      display: none;
+    }
+  }
+
+
+  &.open {
+    .toggle {
+      margin-left: -13px;
+    }
+
+    .toggle:before {
+      content: $fa-var-caret-down;
+    }
+  }
+}
+
+.with-timestamps .log-fs-line:before {
+  display: inline;
+  content: attr(data-timestamp) " ";
+}
+
+.log-fs-duration, .log-fs-exitcode {
+  display: inline-block;
+  border-radius: 0.5rem;
+  margin-left: 0.5rem;
+  padding: 0 0.5rem;
+  color: #333;
+  font-size: 11px;
+  background: #cacaca;
+}
+
+dt.log-fs-line, dt.log-fs-line:before {
+  background: $CONSOLE_SECTION_HEADER;
+}
+
+.log-fs-line-PREP, .log-fs-line-PUBLISH {
+  color: $CONSOLE_SETUP;
+}
+
+.log-fs-line-PREP_ERR, .log-fs-line-PUBLISH_ERR {
+  color: $CONSOLE_SETUP_ERR;
+}
+
+.log-fs-line-INFO, .log-fs-line-COMPLETED {
+  color: $CONSOLE_INFO;
+}
+
+.log-fs-line-ERR, code {
+  color: $CONSOLE_CALLOUT;
+}
+
+.log-fs-line-PASS code, .log-fs-line-JOB_PASS code {
+  color: $CONSOLE_PASS;
+  font-weight: bold;
+}
+
+.log-fs-line-FAIL code, .log-fs-line-JOB_FAIL code {
+  color: red;
+  font-weight: bold;
+}
+
+.log-fs-status {
+  &:before {
+    @include fa-icon;
+    position: absolute;
+    left: -30px;
+    top: 3px;
+  }
+
+  code {
+    font-weight: bold;
+  }
+}
+
+.log-fs-task-status-passed, .log-fs-job-status-passed {
+
+  &:before {
+    content: $fa-var-check;
+    color: $CONSOLE_PASS;
+  }
+
+  code {
+    color: $CONSOLE_PASS;
+  }
+}
+
+.log-fs-task-status-failed, .log-fs-job-status-failed, .log-fs-publish-failed {
+  &:before {
+    content: $fa-var-exclamation-circle;
+    color: red;
+  }
+
+  .log-fs-line-ERR {
+    color: $CONSOLE_FAIL;
+  }
+
+  code {
+    color: red;
+  }
+}
+
+.log-fs-type-cancel {
+  color: $CONSOLE_SETUP;
+
+  .log-fs-line-ERR, .log-fs-line-CANCEL_TASK_FAIL {
+    color: $CONSOLE_SETUP_ERR;
+  }
+
+  &.log-fs-task-status-passed {
+    &:before {
+      display: none;
+    }
+
+    code {
+      color: $CONSOLE_SETUP;
+    }
+  }
+
+  &.log-fs-task-status-failed code {
+    color: $CONSOLE_SETUP_ERR;
+  }
+}
+
+.log-fs-task-status-cancelled {
+  &:before {
+    content: $fa-var-ban;
+    color: $CONSOLE_CALLOUT;
+  }
+
+  code {
+    color: $CONSOLE_CALLOUT;
+  }
+}
+
+.white-theme {
+
+  .console-log-loading {
+    color: #000;
+  }
+
+  dt.log-fs-line, dt.log-fs-line:before {
+    background-color: $CONSOLE_SECTION_HEADER_WHITE;
+  }
+
+  .log-fs-line-PREP, .log-fs-line-PUBLISH {
+    color: $CONSOLE_SETUP_WHITE;
+  }
+
+  .log-fs-line-PREP_ERR, .log-fs-line-PUBLISH_ERR {
+    color: $CONSOLE_SETUP_ERR_WHITE;
+  }
+
+  .log-fs-line-ERR, code {
+    color: $CONSOLE_CALLOUT_WHITE;
+  }
+
+  .log-fs-task-status-cancelled {
+    &:before, code {
+      color: $CONSOLE_CALLOUT_WHITE;
+    }
+  }
+
+  .log-fs-task-status-failed, .log-fs-job-status-failed {
+    .log-fs-line-ERR {
+      color: $CONSOLE_FAIL;
+    }
+
+    code {
+      color: red;
+    }
+  }
+
+  .log-fs-task-status-passed, .log-fs-job-status-passed {
+    &:before {
+      color: $CONSOLE_PASS_WHITE;
+    }
+
+    code {
+      color: $CONSOLE_PASS_WHITE;
+    }
+  }
+
+  .log-fs-type-cancel {
+    color: $CONSOLE_SETUP_WHITE;
+
+    &.log-fs-task-status-passed code {
+      color: $CONSOLE_SETUP_WHITE;
+    }
+
+    .log-fs-line-ERR, .log-fs-line-CANCEL_TASK_FAIL, &.log-fs-task-status-failed code {
+      color: $CONSOLE_SETUP_ERR_WHITE;
+    }
+  }
+
+}
+
+@each $color in black, red, green, yellow, blue, magenta, cyan, white {
+  .ansi-#{$color}-fg {
+    color: $color;
+  }
+
+  .ansi-#{$color}-bg {
+    background-color: $color;
+  }
+
+  .ansi-bright-#{$color}-fg {
+    font-weight: bold;
+    color: lighten($color, 33%);
+  }
+
+  .ansi-bright-#{$color}-bg {
+    background-color: lighten($color, 33%);
+  }
+}

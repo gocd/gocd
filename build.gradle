@@ -122,16 +122,19 @@ def DIST_VERSION = releaseRevision()
 def GIT_REVISION = gitRevision()
 
 if (System.getenv().containsKey("GO_SERVER_URL")) {
-  println "========================================================="
+  def separator = "=".multiply(72)
+
+  println separator
   println "Gradle version:  ${gradle.gradleVersion}"
   println "JVM:             ${System.getProperty('java.version')} (${System.getProperty('java.vm.vendor')} ${System.getProperty('java.vm.version')})"
   println "OS:              ${System.getProperty('os.name')} ${System.getProperty('os.version')} ${System.getProperty('os.arch')}"
-  println "========================================================="
+  println separator
+  println("")
 
   def isWindows = org.gradle.internal.os.OperatingSystem.current().isWindows()
 
   println("Tool Versions")
-  println("============================")
+  println(separator)
   println("node: ${getVersion("node", "--version")}")
   println(" npm: ${getVersion((isWindows ? "npm.cmd" : 'npm'), "--version")}")
   println("yarn: ${getVersion((isWindows ? "yarn.cmd" : 'yarn'), "--version")}")
@@ -142,7 +145,8 @@ if (System.getenv().containsKey("GO_SERVER_URL")) {
   println(" p4d: ${getVersion("p4d", "-V").readLines().grep(~/Rev.*/).join("")}")
   println(" gcc: ${getVersion("gcc", "-dumpversion")}")
   println(" g++: ${getVersion("g++", "-dumpversion")}")
-  println("============================")
+  println(separator)
+  println("")
 }
 
 rootProject.ext.previousVersion = GO_VERSION_PREVIOUS
@@ -208,6 +212,11 @@ rootProject.ext.versions = [
   tokenBucket         : '1.7',
   velocityToolsView   : '1.4',
   xmlUnitMatchers     : '2.6.0',
+  seleniumDrivers: [
+    chromedriver: '2.41',
+    geckodriver: '0.21.0',
+    iedriverserver: '3.14.0'
+  ]
 ]
 
 allprojects {

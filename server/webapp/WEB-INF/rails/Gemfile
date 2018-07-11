@@ -1,0 +1,48 @@
+source 'https://rubygems.org'
+git_source(:github) { |repo| "https://github.com/#{repo}.git" }
+
+ruby '2.5.0'
+
+gem 'rails', '5.2.1'
+gem 'sass-rails', '5.0.7'
+gem 'uglifier'
+
+gem 'dynamic_form'
+
+gem 'roar', '1.0.1'
+gem 'representable', '2.1.7'
+
+gem 'js-routes'
+gem 'versionist'
+
+# Windows does not include zoneinfo files, so bundle the tzinfo-data gem
+gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw, :jruby]
+
+group :development, :test do
+  # we use `jasmine` gem + `selenium-webdriver` for the `jasmine:ci` task
+  # this task will run jasmine in a browser, driven by selenium
+  gem 'jasmine'
+  gem 'jasmine-jquery-rails'
+  gem 'jasmine_selenium_runner'
+
+  gem 'ruby-debug-base'
+  gem 'ruby-debug-ide', '0.7.0.beta6'
+
+  # make sure to `System.setProperty("jruby.runtime.arguments", "--debug")` before opening up pry
+  gem 'pry-debugger-jruby'
+end
+
+group :test do
+  gem 'capybara', '2.15.4'
+  gem 'rspec-rails'
+  gem 'rspec-instafail', require: false
+  gem 'rspec_junit_formatter'
+  gem 'rails-controller-testing'
+end
+
+group :development do
+  gem 'scss_lint', require: false
+  gem 'brakeman', require: false
+  gem 'bundler-audit', require: false
+  gem 'ruby_audit', require: false
+end

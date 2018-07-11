@@ -16,27 +16,21 @@ import com.thoughtworks.go.build.YarnRunTask
  * limitations under the License.
  */
 
-task scssLint(type: Exec) {
-  dependsOn ':tools:prepareJRuby'
+task scssLint {
   description "Run scss-lint"
+  dependsOn ':server:initializeRailsGems'
+
   def inputDir = project.file("${project.railsRoot}/app/assets/new_stylesheets")
   inputs.dir(inputDir)
 
-  standardOutput = System.out
-  errorOutput = System.err
-
-  workingDir = project.railsRoot
-
-  if (org.gradle.internal.os.OperatingSystem.current().isWindows()) {
-    commandLine = [project.findProject(':tools').file("rails/bin/jruby.bat")]
-  } else {
-    commandLine = [project.findProject(':tools').file("rails/bin/jruby")]
-  }
-
-  commandLine += ['--2.0', '-S', 'bin/scss-lint', "--config", 'scss-lint.yml', inputDir]
-
   doFirst {
-    println commandLine.join(" ")
+    project.jrubyexec {
+      workingDir = project.railsRoot
+
+      args = ['-S', 'bundle', 'exec', 'scss-lint', "--config", 'scss-lint.yml', inputDir]
+      maxHeapSize = '1g'
+    }
+
   }
 }
 

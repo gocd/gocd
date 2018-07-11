@@ -1,0 +1,97 @@
+/*
+ * Copyright 2016 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+// ensure that none of the files required here will output any css.
+// These should be pure mixins
+@import 'go-variables';
+@import 'variables';
+@import 'settings';
+@import 'foundation-sites/scss/foundation';
+@import "bourbon/core/bourbon";
+@import 'font-awesome-glyphs';
+
+@mixin animation($animations...) {
+  animation: $animations;
+}
+
+@mixin truncate-to-lines($line-count) {
+  $font-size: 12px;
+  $line-height: 1.6em;
+
+  @include ellipsis;
+  white-space: pre-wrap;
+
+  line-height: $line-height;
+  font-size:   $font-size;
+  // show 5 lines of commit message
+  max-height:  $line-height * $line-count;
+}
+
+@mixin truncate-to-width($max) {
+  max-width:     $max;
+  white-space:   nowrap;
+  text-overflow: ellipsis;
+  overflow-x:    hidden;
+}
+
+@mixin commit-message($line-count) {
+  @include truncate-to-lines($line-count: $line-count);
+}
+
+@mixin sort-cursor {
+  // scss-lint:disable DuplicateProperty, VendorPrefix
+  cursor: move;
+  cursor: grab;
+  cursor: -moz-grab;
+  cursor: -webkit-grab;
+}
+
+@mixin sort-cursor-active {
+  // scss-lint:disable DuplicateProperty, VendorPrefix
+  cursor: move;
+  cursor: grabbing;
+  cursor: -moz-grabbing;
+  cursor: -webkit-grabbing;
+}
+
+@mixin grip-icon($color: #ccc, $shadow-color: #333) {
+  @include unselectable;
+
+  display:        inline-block;
+
+  width:          1em;
+  height:         2.2em;
+  line-height:    0.45em;
+  letter-spacing: 0.15em;
+  color:          #9b9b9b;
+
+  vertical-align: middle;
+  text-align:     center;
+  font-family:    sans-serif;
+  overflow:       hidden;
+  white-space:    normal;
+
+  &:after {
+    content: ".. .. .. ..";
+  }
+}
+
+@mixin unselectable {
+  // scss-lint:disable ImportantRule, VendorPrefix
+  -webkit-user-select: none !important;
+  -moz-user-select:    none !important;
+  -ms-user-select:     none !important;
+  user-select:         none !important;
+}

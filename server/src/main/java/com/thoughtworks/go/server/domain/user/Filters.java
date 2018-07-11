@@ -70,7 +70,7 @@ public class Filters {
     }
 
     public DashboardFilter named(String name) {
-        if (null == name) name = DEFAULT_NAME;
+        FilterValidator.validateNamePresent(name);
         return this.filterMap.getOrDefault(name.toLowerCase(), WILDCARD_FILTER);
     }
 
@@ -80,7 +80,10 @@ public class Filters {
 
     private void updateIndex() {
         this.filterMap = new HashMap<>();
-        this.filters.forEach((f) -> filterMap.put(f.name().toLowerCase(), f));
+        this.filters.forEach((f) -> {
+            FilterValidator.validateFilter(filterMap, f);
+            filterMap.put(f.name().toLowerCase(), f);
+        });
     }
 
     @Override

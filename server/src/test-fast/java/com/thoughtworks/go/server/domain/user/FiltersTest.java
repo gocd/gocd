@@ -17,14 +17,129 @@
 package com.thoughtworks.go.server.domain.user;
 
 import com.thoughtworks.go.config.CaseInsensitiveString;
+import com.thoughtworks.go.server.domain.user.FilterValidator.*;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
+import static com.thoughtworks.go.server.domain.user.FilterValidator.*;
 import static org.junit.jupiter.api.Assertions.*;
 
+
 class FiltersTest {
+
+    private static final String TWENTY_CHAR = "0123456789abcdefghij";
+    private static final String NAME_TOO_LONG = TWENTY_CHAR + TWENTY_CHAR + TWENTY_CHAR + TWENTY_CHAR;
+
+    @Test
+    void validatesNameFormatOnConstruction() {
+        DashboardFilter a = new WhitelistFilter("¯\\_(ツ)_/¯", Collections.emptyList());
+
+        Throwable e = assertThrows(FilterValidationException.class, () -> new Filters(Collections.singletonList(a)));
+        assertEquals(MSG_NAME_FORMAT, e.getMessage());
+
+        DashboardFilter b = new WhitelistFilter(" filter", Collections.emptyList());
+
+        e = assertThrows(FilterValidationException.class, () -> new Filters(Collections.singletonList(b)));
+        assertEquals(MSG_NO_LEADING_TRAILING_SPACES, e.getMessage());
+
+        DashboardFilter c = new WhitelistFilter("filter ", Collections.emptyList());
+
+        e = assertThrows(FilterValidationException.class, () -> new Filters(Collections.singletonList(c)));
+        assertEquals(MSG_NO_LEADING_TRAILING_SPACES, e.getMessage());
+
+        DashboardFilter d = new WhitelistFilter(NAME_TOO_LONG, Collections.emptyList());
+        e = assertThrows(FilterValidationException.class, () -> new Filters(Collections.singletonList(d)));
+        assertEquals(MSG_MAX_LENGTH, e.getMessage());
+    }
+
+    @Test
+    void validatesNameFormatOnDeserialize() {
+        final String json = "{ \"filters\": [" +
+                "  {\"name\": \"¯\\\\_(\\\\u30C4)_/¯\", \"type\": \"whitelist\", \"pipelines\": []}" +
+                "] }";
+        Throwable e = assertThrows(FilterValidationException.class, () -> Filters.fromJson(json));
+        assertEquals(MSG_NAME_FORMAT, e.getMessage());
+
+        final String json1 = "{ \"filters\": [" +
+                "  {\"name\": \" filter\", \"type\": \"whitelist\", \"pipelines\": []}" +
+                "] }";
+        e = assertThrows(FilterValidationException.class, () -> Filters.fromJson(json1));
+        assertEquals(MSG_NO_LEADING_TRAILING_SPACES, e.getMessage());
+
+        final String json2 = "{ \"filters\": [" +
+                "  {\"name\": \"filter \", \"type\": \"whitelist\", \"pipelines\": []}" +
+                "] }";
+        e = assertThrows(FilterValidationException.class, () -> Filters.fromJson(json2));
+        assertEquals(MSG_NO_LEADING_TRAILING_SPACES, e.getMessage());
+
+        final String json4 = "{ \"filters\": [" +
+                "  {\"name\": \"" + NAME_TOO_LONG + "\", \"type\": \"whitelist\", \"pipelines\": []}" +
+                "] }";
+        e = assertThrows(FilterValidationException.class, () -> Filters.fromJson(json4));
+        assertEquals(MSG_MAX_LENGTH, e.getMessage());
+    }
+
+    @Test
+    void validatesNamePresenceOnConstruction() {
+        DashboardFilter a = new WhitelistFilter("", Collections.emptyList());
+
+        Throwable e = assertThrows(FilterValidationException.class, () -> new Filters(Collections.singletonList(a)));
+        assertEquals(MSG_MISSING_NAME, e.getMessage());
+
+        DashboardFilter b = new WhitelistFilter(" ", Collections.emptyList());
+
+        e = assertThrows(FilterValidationException.class, () -> new Filters(Collections.singletonList(b)));
+        assertEquals(MSG_MISSING_NAME, e.getMessage());
+
+        DashboardFilter c = new WhitelistFilter(null, Collections.emptyList());
+
+        e = assertThrows(FilterValidationException.class, () -> new Filters(Collections.singletonList(c)));
+        assertEquals(MSG_MISSING_NAME, e.getMessage());
+    }
+
+    @Test
+    void validatesNamePresenceOnDeserialize() {
+        final String json = "{ \"filters\": [" +
+                "  {\"name\": \"\", \"type\": \"whitelist\", \"pipelines\": []}" +
+                "] }";
+        Throwable e = assertThrows(FilterValidationException.class, () -> Filters.fromJson(json));
+        assertEquals(MSG_MISSING_NAME, e.getMessage());
+
+        final String json1 = "{ \"filters\": [" +
+                "  {\"name\": \" \", \"type\": \"whitelist\", \"pipelines\": []}" +
+                "] }";
+        e = assertThrows(FilterValidationException.class, () -> Filters.fromJson(json1));
+        assertEquals(MSG_MISSING_NAME, e.getMessage());
+
+        final String json2 = "{ \"filters\": [" +
+                "  {\"type\": \"whitelist\", \"pipelines\": []}" +
+                "] }";
+        e = assertThrows(FilterValidationException.class, () -> Filters.fromJson(json2));
+        assertEquals(MSG_MISSING_NAME, e.getMessage());
+    }
+
+    @Test
+    void validatesDuplicateNamesOnConstruction() {
+        DashboardFilter a = new WhitelistFilter("one", Collections.emptyList());
+        DashboardFilter b = new BlacklistFilter("one", Collections.emptyList());
+
+        Throwable e = assertThrows(FilterValidationException.class, () -> new Filters(Arrays.asList(a, b)));
+        assertEquals("Duplicate filter name: one", e.getMessage());
+    }
+
+    @Test
+    void validatesDuplicateNamesOnDeserialize() {
+        String json = "{ \"filters\": [" +
+                "  {\"name\": \"one\", \"type\": \"whitelist\", \"pipelines\": []}," +
+                "  {\"name\": \"one\", \"type\": \"whitelist\", \"pipelines\": []}" +
+                "] }";
+        Throwable e = assertThrows(FilterValidationException.class, () -> Filters.fromJson(json));
+        assertEquals("Duplicate filter name: one", e.getMessage());
+    }
 
     @Test
     void fromJson() {

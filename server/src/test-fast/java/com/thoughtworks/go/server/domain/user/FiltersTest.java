@@ -144,6 +144,22 @@ class FiltersTest {
     }
 
     @Test
+    void validatesPresenceOfDefaultFilterOnConstruction() {
+        Throwable e = assertThrows(FilterValidationException.class, () -> Filters.single(namedBlacklist("foo", "bar")));
+        assertEquals(MSG_NO_DEFAULT_FILTER, e.getMessage());
+    }
+
+    @Test
+    void validatesPresenceOfDefaultFilterOnDeserialize() {
+        final String json = "{ \"filters\": [" +
+                "  {\"name\": \"foo\", \"type\": \"whitelist\", \"pipelines\": [\"bar\"]}" +
+                "] }";
+
+        Throwable e = assertThrows(FilterValidationException.class, () -> Filters.fromJson(json));
+        assertEquals(MSG_NO_DEFAULT_FILTER, e.getMessage());
+    }
+
+    @Test
     void fromJson() {
         String json = "{ \"filters\": [{\"name\": \"Default\", \"type\": \"whitelist\", \"pipelines\": [\"p1\"]}] }";
         final Filters filters = Filters.fromJson(json);

@@ -21,6 +21,8 @@ import org.apache.commons.lang3.StringUtils;
 import java.util.Map;
 import java.util.regex.Pattern;
 
+import static com.thoughtworks.go.server.domain.user.DashboardFilter.DEFAULT_NAME;
+
 class FilterValidator {
 
     private static final Pattern LEAD_TRAIL_WHITESPACE = Pattern.compile("^\\s+.*|.*\\s+$");
@@ -36,6 +38,11 @@ class FilterValidator {
     static final String MSG_MAX_LENGTH = "Filter name cannot be more than " + MAX_NAME_LENGTH + " characters";
     static final String MSG_NAME_FORMAT = "Filter name is only allowed to contain letters, numbers, spaces, and punctuation marks";
     static final String MSG_MISSING_NAME = "Missing filter name";
+    static final String MSG_NO_DEFAULT_FILTER = "Missing default filter";
+
+    static void validateDefaultIsPresent(Map<String, DashboardFilter> current) {
+        if (!current.containsKey(DEFAULT_NAME.toLowerCase())) throw new FilterValidationException(MSG_NO_DEFAULT_FILTER);
+    }
 
     static void validateFilter(Map<String, DashboardFilter> current, DashboardFilter filter) {
         final String name = filter.name();

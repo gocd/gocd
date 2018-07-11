@@ -79,6 +79,8 @@ public class Filters {
             FilterValidator.validateFilter(filterMap, f);
             filterMap.put(f.name().toLowerCase(), f);
         });
+
+        FilterValidator.validateDefaultIsPresent(filterMap);
     }
 
     @Override

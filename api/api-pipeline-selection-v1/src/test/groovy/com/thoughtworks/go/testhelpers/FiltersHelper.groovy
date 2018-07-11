@@ -20,7 +20,7 @@ import com.thoughtworks.go.config.CaseInsensitiveString
 import com.thoughtworks.go.server.domain.user.BlacklistFilter
 import com.thoughtworks.go.server.domain.user.Filters
 
-import static com.thoughtworks.go.server.domain.user.Filters.DEFAULT_NAME
+import static com.thoughtworks.go.server.domain.user.DashboardFilter.DEFAULT_NAME
 
 class FiltersHelper {
   static Filters blacklist(List<String> pipelines) {

@@ -39,7 +39,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.thoughtworks.go.server.domain.user.Filters.DEFAULT_NAME;
+import static com.thoughtworks.go.server.domain.user.DashboardFilter.DEFAULT_NAME;
 import static spark.Spark.*;
 
 public class DashboardControllerDelegate extends ApiController {

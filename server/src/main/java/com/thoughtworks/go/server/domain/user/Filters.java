@@ -22,6 +22,7 @@ import com.thoughtworks.go.config.CaseInsensitiveString;
 
 import java.util.*;
 
+import static com.thoughtworks.go.server.domain.user.DashboardFilter.DEFAULT_NAME;
 import static com.thoughtworks.go.server.domain.user.Marshaling.*;
 
 public class Filters {
@@ -34,13 +35,7 @@ public class Filters {
             registerTypeAdapter(CaseInsensitiveString.class, new CaseInsensitiveStringSerializer()).
             create();
 
-    public static final String DEFAULT_NAME = "Default";
-    public static final DashboardFilter WILDCARD_FILTER = new BlacklistFilter(DEFAULT_NAME, Collections.emptyList()) {
-        @Override
-        public boolean isPipelineVisible(CaseInsensitiveString pipeline) {
-            return true; // optimization
-        }
-    };
+    public static final DashboardFilter WILDCARD_FILTER = new BlacklistFilter(DEFAULT_NAME, Collections.emptyList());
 
     public static Filters fromJson(String json) {
         final Filters filters = GSON.fromJson(json, Filters.class);

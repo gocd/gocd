@@ -21,7 +21,6 @@ import com.thoughtworks.go.config.CaseInsensitiveString;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 public class BlacklistFilter implements DashboardFilter {
     private final String name;
@@ -29,7 +28,7 @@ public class BlacklistFilter implements DashboardFilter {
 
     public BlacklistFilter(String name, List<CaseInsensitiveString> pipelines) {
         this.name = name;
-        this.pipelines = pipelines;
+        this.pipelines = DashboardFilter.enforceList(pipelines);
     }
 
     public List<CaseInsensitiveString> pipelines() {
@@ -43,7 +42,7 @@ public class BlacklistFilter implements DashboardFilter {
 
     @Override
     public boolean isPipelineVisible(CaseInsensitiveString pipeline) {
-        return null == pipelines || !pipelines.contains(pipeline);
+        return null == pipelines || pipelines.isEmpty() || !pipelines.contains(pipeline);
     }
 
     @Override

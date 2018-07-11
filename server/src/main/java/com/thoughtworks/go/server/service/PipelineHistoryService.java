@@ -51,7 +51,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.thoughtworks.go.server.domain.user.Filters.DEFAULT_NAME;
+import static com.thoughtworks.go.server.domain.user.DashboardFilter.DEFAULT_NAME;
 
 @Service
 public class PipelineHistoryService implements PipelineInstanceLoader {

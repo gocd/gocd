@@ -32,7 +32,7 @@ import java.util.Collections;
 import java.util.Date;
 
 import static com.thoughtworks.go.helper.ConfigFileFixture.configWith;
-import static com.thoughtworks.go.server.domain.user.Filters.DEFAULT_NAME;
+import static com.thoughtworks.go.server.domain.user.DashboardFilter.DEFAULT_NAME;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 import static org.mockito.ArgumentMatchers.argThat;

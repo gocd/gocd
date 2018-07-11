@@ -18,7 +18,17 @@ package com.thoughtworks.go.server.domain.user;
 
 import com.thoughtworks.go.config.CaseInsensitiveString;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+
 public interface DashboardFilter {
+    static <T> List<T> enforceList(List<T> list) {
+        return Optional.ofNullable(list).orElse(new ArrayList<>());
+    }
+
+    String DEFAULT_NAME = "Default";
+
     String name();
 
     boolean isPipelineVisible(CaseInsensitiveString pipeline);

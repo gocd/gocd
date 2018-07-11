@@ -25,7 +25,7 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 import java.io.Serializable;
 import java.util.Date;
 
-import static com.thoughtworks.go.server.domain.user.Filters.DEFAULT_NAME;
+import static com.thoughtworks.go.server.domain.user.DashboardFilter.DEFAULT_NAME;
 
 public class PipelineSelections extends PersistentObject implements Serializable {
     public static final int CURRENT_SCHEMA_VERSION = 1;

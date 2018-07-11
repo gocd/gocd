@@ -24,6 +24,9 @@ const PluginInfos     = require('models/shared/plugin_infos');
 const AjaxPoller      = require('helpers/ajax_poller');
 const PageLoadError   = require('views/shared/page_load_error');
 
+const PersonalizeVM   = require('views/dashboard/models/personalization_vm');
+const Personalization = require('models/dashboard/personalization');
+
 $(() => {
   const dashboardElem              = $('#dashboard');
   const dashboardVM                = new DashboardVM();
@@ -32,6 +35,23 @@ $(() => {
   const pluginsSupportingAnalytics = {};
 
   const dashboard = new Dashboard();
+  const personalizeVM = new PersonalizeVM(currentView);
+
+  let personalization;
+
+  Personalization.get().then((selection) => {
+    personalizeVM.names(selection.names());
+    personalization = selection;
+  });
+
+  function currentView(viewName) { // a stream-like object/function
+    if (viewName) {
+      window.location.search = m.buildQueryString({ viewName });
+      repeater().restart();
+      return;
+    }
+    return $.trim(m.parseQueryString(window.location.search).viewName) || "Default";
+  }
 
   function onResponse(dashboardData, message = undefined) {
     dashboard.initialize(dashboardData);
@@ -77,7 +97,7 @@ $(() => {
       onResponse({}, message);
     };
 
-    return new AjaxPoller(() => Dashboard.get()
+    return new AjaxPoller(() => Dashboard.get(currentView())
       .then(onsuccess, onerror)
       .always(() => {
         showSpinner(false);
@@ -92,16 +112,15 @@ $(() => {
       view() {
         return m(DashboardWidget, {
           dashboard,
+          personalizeVM,
+          personalization,
           showSpinner,
           isQuickEditPageEnabled,
           pluginsSupportingAnalytics,
           shouldShowAnalyticsIcon,
           vm:                   dashboardVM,
           doCancelPolling:      () => repeater().stop(),
-          doRefreshImmediately: () => {
-            repeater().stop();
-            repeater().start();
-          }
+          doRefreshImmediately: () => repeater().restart()
         });
       }
     };

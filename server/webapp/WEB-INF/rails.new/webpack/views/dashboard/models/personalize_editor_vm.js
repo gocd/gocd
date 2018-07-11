@@ -14,36 +14,34 @@
  * limitations under the License.
  */
 
-const Stream = require("mithril/stream");
 const _      = require("lodash");
+const Stream = require("mithril/stream");
 
 const PipelineListVM = require("views/dashboard/models/pipeline_list_vm");
-const DashboardFilter = require("models/dashboard/dashboard_filter");
 
 function PersonalizeEditorVM(config, pipelinesByGroup) { // config is usually the current filter
   normalize(config);
-  // const existingName = config.name;
-
-  const selectionMap = deriveSelectionMap(pipelinesByGroup, config);
 
   const name = Stream(config.name);
   const type = Stream(config.type);
   const state = Stream(config.state);
-  const pipelines = pipelineMapToList(selectionMap, type);
+
+  const inverted = () => "blacklist" === type();
 
   this.name = name;
-  this.selectionModel = new PipelineListVM(pipelinesByGroup, selectionMap);
+  this.selectionVM = PipelineListVM.create(pipelinesByGroup, inverted(), config.pipelines);
 
   boolToList(this, state, "building");
   boolToList(this, state, "failing");
 
   this.includeNewPipelines = function (boolPreviousValue) {
-    if (!arguments.length) { return "blacklist" === type(); }
+    if (!arguments.length) { return inverted(); }
     type(!boolPreviousValue ? "blacklist" : "whitelist");
   };
 
   this.asFilter = () => {
-    return new DashboardFilter({name: name(), type: type(), pipelines: pipelines(), state: state()});
+    const pipelines = this.selectionVM.pipelines(inverted());
+    return {name: name(), type: type(), pipelines, state: state()};
   };
 }
 
@@ -53,22 +51,8 @@ function normalize(config) {
   config.state = arr(config.state);
 }
 
-function pipelineMapToList(selectionMap, type) {
-  return function pipelines() {
-    const invert = "blacklist" === type();
-    return _.reduce(selectionMap, (m, v, k) => {
-      if (invert ^ v()) { m.push(k); }
-      return m;
-    }, []);
-  };
-}
-
-function deriveSelectionMap(pipelinesByGroup, filter) {
-  return new DashboardFilter(filter).deriveSelectionMap(pipelinesByGroup);
-}
-
 function arr(val) { // ensure value is an array
-  if (!val) { return []; }
+  if ("undefined" === typeof val) { return []; }
   if (val instanceof Array) { return val; }
   return [val];
 }

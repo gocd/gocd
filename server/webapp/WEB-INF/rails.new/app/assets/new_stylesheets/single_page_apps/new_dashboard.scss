@@ -26,6 +26,7 @@
 @import 'shared/analytics-common';
 @import 'pipeline_configs/accordion';
 @import 'pipeline_configs/personalize_views_editor';
+@import 'pipeline_configs/dashboard_view_tabs';
 @import "font-awesome-sprockets";
 @import "font-awesome";
 
@@ -228,9 +229,19 @@ $btn-default: #d6d5d5;
 .btn-link {
   border:     0;
   background: transparent;
+
   color:      $dark-gray;
   font-size:  16px;
 
+  &:hover {
+    color: $go-links;
+  }
+
+  &:active, &:focus, &:hover {
+    border:     0;
+    background: transparent;
+    outline:    none;
+  }
 }
 
 .small-txt {
@@ -592,76 +603,6 @@ body {
 
 .pipeline-group {
   margin-bottom: 50px;
-}
-
-.dashboard-tabs {
-  position:         relative;
-  background-color: white;
-  border-radius:    3px;
-  line-height:      40px;
-  height:           45px;
-  margin-bottom:    20px;
-  box-shadow:       0 0 10px rgba(0, 0, 0, 0.21);
-
-  .dashboard-tab {
-    float:       left;
-    height:      100%;
-    border-right: 1px solid #ccc;
-    margin-left: 5px;
-    padding:     3px 10px;
-    font-weight:  700;
-    cursor:       pointer;
-    position:     relative;
-
-    // Mock ups show using fa-grip-vertical, but grip-vertical is not available in our fontawesome version (4.7). it was release in 5.1
-    .drag-icon {
-      color: #ccc;
-    }
-
-    &.current {
-      color: #b66fc2;
-
-      .tab-dropdown {
-        display:     inline-block;
-        margin-left: 7px;
-
-        .edit-dropdown {
-          position: absolute;
-          background: white;
-          border-radius: 0 0 5px 5px;
-          left: 0;
-          z-index: 99;
-          margin-top: 3px;
-          color: black;
-          width: 300px;
-          padding: 5px 15px;
-
-          i {
-            color: #666;
-            padding: 5px;
-            margin-left: 5px;
-            border: solid 1px #ddd;
-          }
-        }
-      }
-    }
-
-    .tab-name {
-      text-transform: uppercase;
-      padding-left:   10px;
-      display:        inline-block;
-    }
-  }
-
-  .add-tab {
-    float:        left;
-    border-right: 1px solid #ccc;
-    padding:      3px 10px;
-    height:       100%;
-    color:        #b66fc2;
-    font-size:    17px;
-    cursor:       pointer;
-  }
 }
 
 .pipeline-group_title {

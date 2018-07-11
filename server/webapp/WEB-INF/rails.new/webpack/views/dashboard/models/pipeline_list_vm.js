@@ -17,6 +17,30 @@
 const _      = require("lodash");
 const Stream = require("mithril/stream");
 
+function PipelineListVM(pipelinesByGroup, currentSelection) {
+  let i = 0;
+  const displayed = _.reduce(pipelinesByGroup, (memo, pip, grp) => {
+    memo[grp] = {
+      expanded: Stream(0 === i++),
+      selected: groupSelection(currentSelection, pip),
+      pipelines: _.map(pip, (p) => { return {name: p, selected: boolByName(currentSelection, p)}; })
+    };
+    return memo;
+  }, {});
+
+  this.displayedList = function displayedList() { return displayed; };
+
+  this.pipelines = function pipelines(invert) {
+    return _.reduce(currentSelection, (m, v, k) => {
+      if (invert ^ v()) { m.push(k); }
+      return m;
+    }, []);
+  };
+
+  this.selectAll = function selectAll() { _.each(currentSelection, (s, _n) => { s(true); }); };
+  this.selectNone = function selectNone() { _.each(currentSelection, (s, _n) => { s(false); }); };
+}
+
 function boolByName(s, name) {
   return function boundToName(boolPreviousValue) {
     if (!arguments.length) { return s[name](); }
@@ -34,20 +58,19 @@ function groupSelection(s, pipelines) {
   };
 }
 
-function PipelineListVM(pipelinesByGroup, currentSelection) {
-  const displayed = _.reduce(pipelinesByGroup, (memo, pip, grp) => {
-    memo[grp] = {
-      expanded: Stream(true),
-      selected: groupSelection(currentSelection, pip),
-      pipelines: _.map(pip, (p) => { return {name: p, selected: boolByName(currentSelection, p)}; })
-    };
-    return memo;
+function calcSelectionMap(pipelinesByGroup, invert, pipelines) {
+  return _.reduce(pipelinesByGroup, (m, pip, _n) => {
+    _.each(pip, (p) => { m[p] = Stream(!!(invert ^ _.includes(pipelines, p))); });
+    return m;
   }, {});
-
-  this.displayedList = function displayedList() { return displayed; };
-
-  this.selectAll = function selectAll() { _.each(currentSelection, (s, _n) => { s(true); }); };
-  this.selectNone = function selectNone() { _.each(currentSelection, (s, _n) => { s(false); }); };
 }
+
+_.assign(PipelineListVM, {
+  calcSelectionMap,
+  create(pipelinesByGroup, invert, pipelines) {
+    const selections = calcSelectionMap(pipelinesByGroup, invert, pipelines);
+    return new PipelineListVM(pipelinesByGroup, selections);
+  }
+});
 
 module.exports = PipelineListVM;

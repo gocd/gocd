@@ -1,0 +1,109 @@
+.dashboard-tabs {
+  position:         relative;
+  background-color: #fff;
+  border-radius:    3px;
+  line-height:      40px;
+  height:           45px;
+  margin-bottom:    20px;
+  box-shadow:       0 0 10px rgba(0, 0, 0, 0.21);
+
+  .dashboard-tab {
+    display:      inline-block;
+    border-right: 1px solid #ccc;
+    margin-left:  5px;
+    padding:      3px 10px;
+    font-weight:  700;
+    cursor:       pointer;
+    position:     relative;
+
+    > * { vertical-align: middle; }
+
+    // Mock ups show using fa-grip-vertical, but grip-vertical is not available in our fontawesome version (4.7). it was released in 5.1
+    .drag-icon {
+      color: #ccc;
+    }
+
+    .tab-name {
+      text-transform: uppercase;
+      margin:         0 10px;
+      display:        inline-block;
+
+      max-width:      210px;
+      white-space:    nowrap;
+      text-overflow:  ellipsis;
+      overflow:       hidden;
+    }
+
+    &.current {
+      color:  #b66fc2;
+      cursor: default;
+
+      .tab-name {
+        margin-right: 0;
+      }
+    }
+  }
+
+  .tab-dropdown {
+    display:     inline-block;
+    margin-left: 7px;
+    cursor:      default;
+
+    .fa { cursor: pointer; }
+  }
+
+  .edit-dropdown {
+    position:      absolute;
+    left:          0;
+    z-index:       99;
+
+    background:    #fff;
+    color:         #000;
+
+    margin-top:    1px;
+    padding:       0 10px 10px 10px;
+
+    border-radius: 0 0 5px 5px;
+    width:         350px;
+    font-weight:   normal;
+    box-shadow:    0 0 10px rgba(0, 0, 0, 0.21);
+
+    .edit-dropdown-text {
+      font-size: 12px;
+      color:     #666;
+    }
+
+    .edit-dropdown-actions {
+      .button {
+        margin:        0;
+        border-radius: unset;
+        background:    #ccc;
+        border:        1px solid #ccc;
+        color:         #000;
+        box-shadow:    unset;
+
+        &.selected {
+          background: #fff;
+          color:      #b66fc2;
+        }
+      }
+    }
+
+    .fa {
+      margin-left: 15px;
+      padding:     5px;
+      color:       #666;
+      border:      solid 1px #ddd;
+    }
+  }
+
+  .add-tab {
+    display:      inline-block;
+    border-right: 1px solid #ccc;
+    padding:      3px 10px;
+    color:        #b66fc2;
+    font-size:    17px;
+    cursor:       pointer;
+  }
+}
+

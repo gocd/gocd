@@ -20,35 +20,31 @@ const f = require("helpers/form_helper");
 
 const FilterNameInput = {
   view(vnode) {
-    const model = vnode.attrs.model;
+    const vm = vnode.attrs.vm;
     return <section class="filter-name">
-      <f.input label="View name" class="view-name" model={model} attrName="name" />
+      <f.input label="View name" class="view-name" model={vm} attrName="name" />
     </section>;
   }
 };
 
 const BlanketSelector = {
-  view() {
+  view(vnode) {
+    const vm = vnode.attrs.vm;
     return <div class="blanket-selection">
       <strong>Select pipelines</strong>
-
-      <label for="blanket-select-all">All</label>
-      <fieldset class="blanket-selection-controls">
-        <input id="blanket-select-all" type="radio" name="blanket-selection" value="all" />
-        <input id="blanket-select-none" type="radio" name="blanket-selection" value="none" />
-      </fieldset>
-      <label for="blanket-select-none">None</label>
+      <f.button class="btn btn-small btn-secondary" onclick={vm.selectAll}>All</f.button>
+      <f.button class="btn btn-small btn-secondary" onclick={vm.selectNone}>None</f.button>
     </div>;
   }
 };
 
 const StageStateCriteria = {
   view(vnode) {
-    const model = vnode.attrs.model;
-    return m("[", [
-      <f.checkbox name="state" model={model} attrName="failing" label="Failed" />,
-      <f.checkbox name="state" model={model} attrName="building" label="Building" />
-    ]);
+    const vm = vnode.attrs.vm;
+    return <div class="stage-state-selector">
+      <f.checkbox name="state" model={vm} attrName="failing" label="Failed" />,
+      <f.checkbox name="state" model={vm} attrName="building" label="Building" />
+    </div>;
   }
 };
 
@@ -63,20 +59,21 @@ const PipelineSelectors = {
 
 const PipelineGroupSelection = {
   view(vnode) {
-    const model = vnode.attrs.model, name = vnode.attrs.name;
-    return <li class={`selected-pipelines-group-${(model.expanded ? "expanded" : "collapsed")}`}>
-      <f.checkbox model={model} attrName="selected" label={name}/>
-      <PipelineSelectors pipelines={model.pipelines} />
+    const vm = vnode.attrs.vm, name = vnode.attrs.name;
+    return <li class={`selected-pipelines-group-${(vm.expanded() ? "expanded" : "collapsed")}`}>
+      <i class="pipeline-list-toggle" onclick={() => vm.expanded(!vm.expanded())} />
+      <f.checkbox model={vm} attrName="selected" label={name}/>
+      <PipelineSelectors pipelines={vm.pipelines} />
     </li>;
   }
 };
 
 const SelectedPipelineList = {
   view(vnode) {
-    const groups = vnode.attrs.model.displayedList();
+    const groups = vnode.attrs.vm.displayedList();
     return m("ul", {class: "selected-pipelines"},
-      _.map(groups, (groupModel, name) => {
-        return <PipelineGroupSelection model={groupModel} name={name} />;
+      _.map(groups, (groupVM, name) => {
+        return <PipelineGroupSelection vm={groupVM} name={name} />;
       })
     );
   }
@@ -84,18 +81,18 @@ const SelectedPipelineList = {
 
 const PersonalizationModalWidget = {
   view(vnode) {
-    const model = vnode.attrs.model;
+    const vm = vnode.attrs.vm;
 
-    return <div class="personalize-editor_controls">
-      <FilterNameInput model={model} />
+    return <div class="personalize-editor-controls">
+      <FilterNameInput vm={vm} />
       <input type="text" class="search-pipelines" placeholder="Search for a Pipeline" />
       <section class="filter-options">
-        <BlanketSelector/>
-        <StageStateCriteria model={model} />
-        <f.checkbox name="include-new-pipelines" model={model} attrName="includeNewPipelines" label="Show newly created pipelines" />
+        <BlanketSelector vm={vm.selectionVM} />
+        <StageStateCriteria vm={vm} />
+        <f.checkbox name="include-new-pipelines" model={vm} attrName="includeNewPipelines" label="Show newly created pipelines" />
       </section>
       <section class="pipeline-selections">
-        <SelectedPipelineList model={model.selectionModel} />
+        <SelectedPipelineList vm={vm.selectionVM} />
       </section>
     </div>;
   }

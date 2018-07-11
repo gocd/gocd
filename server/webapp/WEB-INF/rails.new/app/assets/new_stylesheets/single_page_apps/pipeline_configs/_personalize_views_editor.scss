@@ -1,62 +1,108 @@
+/*
+ * Copyright 2018 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 .overlay.personalize-editor {
   width: 530px;
-  top: 10vh;
+  top:   10vh;
 
-  .overlay_content {
-    height: 70vh;
+  button, .button, .btn {
+    &:active, &:focus, &:hover {
+      outline: none;
+    }
+  }
+
+  .overlay-content {
+    height:     70vh;
+    max-height: 730px;
+  }
+
+  .overlay-footer {
+    justify-content: flex-start;
   }
 }
 
-.personalize-editor_controls {
+.personalize-editor-controls {
   section {
-    border: solid 1px #ccc;
+    border:        solid 1px #ccc;
     border-radius: 3px;
-    padding: 15px;
+    padding:       15px;
     margin-bottom: 0.5rem;
   }
 
   .filter-name {
-    border: none;
+    border:  0;
     padding: 0;
 
     label {
-      display: flex;
+      display:         flex;
       justify-content: space-between;
-      align-content: center;
+      align-content:   center;
 
       span {
-        flex-shrink: 1;
-        white-space: nowrap;
+        flex-shrink:  1;
+        white-space:  nowrap;
         margin-right: 1rem;
       }
 
       .view-name {
-        width: 85%;
+        width:         85%;
         margin-bottom: 0;
       }
     }
   }
 }
 
-.filter-options div {
-  display: inline-block;
-  * {
+.filter-options {
+  .stage-state-selector, .blanket-selection {
     display: inline-block;
-    padding: 0 5px;
+  }
+
+  > label, .stage-state-selector label {
+    display: inline-block;
+  }
+
+  .stage-state-selector {
+    margin-left: 0.5rem;
+
+    > label:first-of-type {
+      margin-right: 0.5rem;
+    }
+  }
+
+  .blanket-selection .btn {
+    margin:      0;
+    margin-left: 0.5rem;
   }
 }
 
 .pipeline-selections {
-  input[type="checkbox"] {
+  [type="checkbox"] {
     margin-bottom: 0.75rem;
+  }
+
+  label {
+    display: inline-block;
   }
 
   ul {
     list-style: none;
-    margin: 0;
+    margin:     0;
 
     li {
-      padding: 0;
+      padding:      0;
       padding-left: 25px;
     }
 
@@ -64,8 +110,40 @@
       border-bottom: dashed 1px #ccc;
 
       &:last-of-type {
-        border: none;
+        border: 0;
       }
     }
   }
+
+  .pipeline-list-toggle {
+    position: absolute;
+    left:     0;
+    top:      4px;
+    cursor:   pointer;
+  }
 }
+
+.selected-pipelines-group-expanded {
+  position: relative;
+
+  .pipeline-list-toggle {
+    &:before {
+      @include icon($type: chevron-down, $size: 1rem);
+    }
+  }
+}
+
+.selected-pipelines-group-collapsed {
+  position: relative;
+
+  .pipeline-list-toggle {
+    &:before {
+      @include icon($type: chevron-right, $size: 1rem);
+    }
+  }
+
+  .selected-pipelines-pipeline-list {
+    display: none;
+  }
+}
+

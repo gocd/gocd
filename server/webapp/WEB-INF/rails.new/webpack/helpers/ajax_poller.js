@@ -100,6 +100,11 @@ const AjaxPoller = function (args = {}) {
       currentXHR().abort();
     }
   };
+
+  this.restart = () => {
+    this.stop();
+    this.start();
+  };
 };
 
 module.exports = AjaxPoller;

@@ -17,44 +17,17 @@
 const m      = require('mithril');
 const Stream = require('mithril/stream');
 
-const VM = () => {
+function DashboardViewModel() {
   const MESSAGE_CLEAR_TIMEOUT_IN_MILLISECONDS = 5000;
 
   const pipelineFlashMessages = {};
-  const personalizeViewState  = Stream(false);
   let dropdownPipelineName, dropdownPipelineCounter;
 
   const viewModel = {
-    personalizeView: {
-      hide: () => {
-        personalizeViewState(false);
-      },
-
-      toggle: () => {
-        viewModel.dropdown.hide();
-        personalizeViewState(!personalizeViewState());
-      },
-
-      isOpen: () => personalizeViewState(),
-
-      tabDropdown: {
-        isOpen: Stream(false),
-
-        show: () => {
-          viewModel.personalizeView.tabDropdown.isOpen(true);
-        },
-
-        hide: () => {
-          viewModel.personalizeView.tabDropdown.isOpen(false);
-        }
-      },
-    },
-
     dropdown: {
       isOpen: (name, instanceCounter) => ((name === dropdownPipelineName) && (instanceCounter === dropdownPipelineCounter)),
 
       show: (name, instanceCounter) => {
-        viewModel.personalizeView.hide();
         dropdownPipelineName    = name;
         dropdownPipelineCounter = instanceCounter;
       },
@@ -95,6 +68,6 @@ const VM = () => {
   }
 
   return viewModel;
-};
+}
 
-module.exports = VM;
+module.exports = DashboardViewModel;

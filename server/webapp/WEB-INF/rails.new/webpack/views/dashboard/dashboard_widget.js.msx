@@ -35,24 +35,11 @@ const DashboardWidget = {
 
     ComponentMixins.HasViewModel.call(self);
 
-    self.togglePersonalizeDropdown = (e) => {
-      if (vnode.attrs.vm.personalizeView.isOpen()) {
-        self.personalizeWidgetOpen(false);
-      } else {
-        self.personalizeWidgetOpen(true);
-      }
-
-      vnode.attrs.vm.personalizeView.toggle();
-      e.stopPropagation();
-      m.redraw();
-    };
-
     const attachClickEventToBody = () => {
       const body = $("body");
       body.click(() => {
         vnode.attrs.vm.dropdown.hide();
-        vnode.attrs.vm.personalizeView.tabDropdown.hide();
-        vnode.attrs.vm.personalizeView.hide();
+        vnode.attrs.personalizeVM.hideDropdown();
         m.redraw();
       });
     };
@@ -61,8 +48,10 @@ const DashboardWidget = {
   },
 
   view(vnode) {
-    const args             = vnode.attrs;
-    const vm               = args.vm;
+    const args   = vnode.attrs;
+    const personalizeVM = args.personalizeVM;
+    const personalization = args.personalization;
+
     const noPermissionText = "You do not have permission to edit the pipeline group.";
 
     if (args.showSpinner()) {
@@ -78,13 +67,6 @@ const DashboardWidget = {
         : (<f.alert>{content} </f.alert>);
     }
 
-    const tabView = (<PersonalizedViewsWidget
-      isOpen={vm.personalizeView.isOpen}
-      currentTab={vnode.attrs.dashboard.tabName}
-      tabDropdown={vm.personalizeView.tabDropdown}
-      doRefreshImmediately={vnode.attrs.doRefreshImmediately}
-      hideSelectionDropdown={vm.personalizeView.hide} />);
-
     return (
       <div class="pipeline_wrapper">
         <div class="page_header" key="page-header">
@@ -95,14 +77,10 @@ const DashboardWidget = {
                    value={vnode.attrs.dashboard.searchText()}
                    oninput={vnode.state.searchTextUpdated.bind(vnode.state)}
                    placeholder="Search for pipeline"/>
-            <button class="filter_btn"
-                    onclick={vnode.state.togglePersonalizeDropdown.bind(vnode.state)}>
-              Filter View
-            </button>
           </div>
         </div>
         <div class="dashboard" key="dashboard-content">
-          {tabView}
+          <PersonalizedViewsWidget model={personalization} vm={personalizeVM} onchange={vnode.attrs.doRefreshImmediately} />
           {messageView}
           {_.map(vnode.attrs.dashboard.getPipelineGroups(), (pipelineGroup) => {
             let name, settingsIcon;
@@ -133,7 +111,7 @@ const DashboardWidget = {
                                       pluginsSupportingAnalytics={vnode.attrs.pluginsSupportingAnalytics}
                                       shouldShowAnalyticsIcon={vnode.attrs.shouldShowAnalyticsIcon}
                                       key={pipelineName}
-                                      vm={vnode.attrs.vm}/>
+                                      vm={args.vm}/>
                     );
                   })}
                 </ul>

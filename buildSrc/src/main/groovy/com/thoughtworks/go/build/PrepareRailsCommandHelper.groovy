@@ -67,7 +67,6 @@ class PrepareRailsCommandHelper {
 
   LinkedHashMap<String, Object> systemProperties() {
     [
-      'log4j.configuration'           : project.file('properties/test/config/log4j.properties'),
       'always.reload.config.file'     : true,
       'cruise.i18n.cache.life'        : 0,
       'cruise.config.dir'             : testConfigDir,

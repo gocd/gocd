@@ -18,15 +18,14 @@
 
 <beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:context="http://www.springframework.org/schema/context"
-       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
        xmlns="http://www.springframework.org/schema/beans"
-       xsi:schemaLocation="
-        http://www.springframework.org/schema/beans
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
         http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
         http://www.springframework.org/schema/context
         http://www.springframework.org/schema/context/spring-context-2.5.xsd
-        http://www.springframework.org/schema/aop
-        http://www.springframework.org/schema/aop/spring-aop-2.5.xsd">
+
+         http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd">
 
   <context:annotation-config/>
   <import resource="velocity-config.xml"/>
@@ -38,35 +37,19 @@
   <context:component-scan base-package="com.thoughtworks.go.server.web"/>
   <context:component-scan base-package="com.thoughtworks.go.server.newsecurity.controllers"/>
 
+  <mvc:annotation-driven/>
 
-  <bean class="org.springframework.web.servlet.mvc.annotation.DefaultAnnotationHandlerMapping">
+  <bean class="org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping">
     <property name="interceptors">
       <list>
+        <ref bean="flashMessageInterceptor"/>
         <ref bean="authorizationInterceptor"/>
       </list>
     </property>
     <property name="alwaysUseFullPath" value="true"/>
   </bean>
 
-  <bean id="flashMessageInterceptor" class="com.thoughtworks.go.server.web.FlashMessageInterceptor"/>
-  <bean id="interceptorInjector"
-        class="com.thoughtworks.go.server.web.InterceptorInjector">
-    <property name="interceptors">
-      <list>
-        <ref bean="flashMessageInterceptor"/>
-      </list>
-    </property>
-  </bean>
-
   <bean id="systemEnvironment" class="com.thoughtworks.go.util.SystemEnvironment"/>
-
-  <aop:config>
-    <aop:aspect ref="interceptorInjector">
-      <aop:around
-          pointcut="execution(* org.springframework.web.servlet.HandlerMapping.getHandler(..))"
-          method="mergeInterceptorsToTabs"/>
-    </aop:aspect>
-  </aop:config>
 
   <bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
     <property name="maxUploadSize" value="-1"/> <!-- i.e. unlimited -->

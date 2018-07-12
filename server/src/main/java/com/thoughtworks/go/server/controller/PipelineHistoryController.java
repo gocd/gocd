@@ -30,12 +30,12 @@ import com.thoughtworks.go.server.util.Pagination;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
+import javax.naming.NamingException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.HashMap;
@@ -72,8 +72,8 @@ public class PipelineHistoryController {
         this.pipelinePauseService = pipelinePauseService;
     }
 
-    @RequestMapping(value = "/tab/pipeline/history/{pipelineName}", method = RequestMethod.GET)
-    public ModelAndView list(@PathVariable("pipelineName") String pipelineName) throws Exception {
+    @RequestMapping(value = "/tab/pipeline/history", method = RequestMethod.GET)
+    public ModelAndView list(@RequestParam("pipelineName") String pipelineName) {
         Map model = new HashMap();
         try {
             PipelineConfig pipelineConfig = goConfigService.pipelineConfigNamed(new CaseInsensitiveString(pipelineName));

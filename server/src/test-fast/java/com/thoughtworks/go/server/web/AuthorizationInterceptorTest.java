@@ -18,43 +18,29 @@ package com.thoughtworks.go.server.web;
 
 import com.thoughtworks.go.ClearSingleton;
 import com.thoughtworks.go.config.CaseInsensitiveString;
-import com.thoughtworks.go.server.domain.Username;
-import com.thoughtworks.go.server.newsecurity.utils.SessionUtils;
 import com.thoughtworks.go.server.service.SecurityService;
-import org.apache.http.HttpStatus;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Nested;
-import org.junit.jupiter.api.Test;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
-import org.springframework.web.servlet.HandlerMapping;
-
-import java.util.HashMap;
-import java.util.Map;
 
 import static com.thoughtworks.go.server.domain.Username.ANONYMOUS;
 import static com.thoughtworks.go.server.newsecurity.SessionUtilsHelper.loginAsAnonymous;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.*;
-import static org.springframework.web.bind.annotation.RequestMethod.GET;
-import static org.springframework.web.bind.annotation.RequestMethod.POST;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
-class AuthorizationInterceptorTest {
-
-    private static final String PIPELINE_NAME_KEY = "pipelineName";
-    private static final String PIPELINE_NAME = "cruise";
-    private static final String STAGE_NAME_KEY = "stageName";
-    private static final String STAGE_NAME = "dev";
+public class AuthorizationInterceptorTest {
 
     private AuthorizationInterceptor permissionInterceptor;
     private SecurityService securityService;
     private MockHttpServletRequest request;
     private MockHttpServletResponse response;
 
-    @BeforeEach
-    void setup() {
+    @Before
+    public void setup() throws Exception {
         securityService = mock(SecurityService.class);
         permissionInterceptor = new AuthorizationInterceptor(securityService);
         request = new MockHttpServletRequest();
@@ -62,217 +48,70 @@ class AuthorizationInterceptorTest {
         loginAsAnonymous(request);
     }
 
-    @AfterEach
-    void tearDown() {
+    @After
+    public void tearDown() throws Exception {
         ClearSingleton.clearSingletons();
     }
 
     @Test
-    void shouldReturnTrueWhenNoDataIsPresentInRequestParamsOrPathParams() throws Exception {
+    public void shouldCheckViewPermissionForGetRequestIfPipelineNamePresent() throws Exception {
+        request.setParameter("pipelineName", "cruise");
+        request.setMethod("get");
+        assumeUserHasViewPermission();
+        assertThat("shouldCheckViewPermissionIfPipelineNamePresent",
+                permissionInterceptor.preHandle(request, response, null),
+                is(true));
+    }
+
+    @Test
+    public void shouldNotCheckViewPermissionIfPipelineNameNotPresent() throws Exception {
+        assertThat("shouldCheckViewPermissionIfPipelineNamePresent",
+                permissionInterceptor.preHandle(request, response, null),
+                is(true));
+    }
+
+    @Test
+    public void shouldCheckOperatePermissionForPostRequest() throws Exception {
+        request.setParameter("pipelineName", "cruise");
+        request.setMethod("post");
+        assumeUserHasOperatePermissionForPipeline();
         assertThat(permissionInterceptor.preHandle(request, response, null), is(true));
     }
 
-    @Nested
-    class WhenPipelineNameIsPresentInRequestParams {
-
-        @BeforeEach
-        void setUp() {
-            request.setParameter(PIPELINE_NAME_KEY, PIPELINE_NAME);
-        }
-
-        @Test
-        void shouldReturnTrueWhenViewPermissionOnPipelineForGetCall() throws Exception {
-            request.setMethod(GET.name());
-            assumeUserHasViewPermission();
-            Username username = SessionUtils.currentUsername();
-            assertThat(permissionInterceptor.preHandle(request, response, null), is(true));
-            verify(securityService).hasViewPermissionForPipeline(username, PIPELINE_NAME);
-        }
-
-        @Test
-        void shouldReturnFalseWhenNoViewPermissionOnPipelineForGetCall() throws Exception {
-            request.setMethod(GET.name());
-            assumeUserHasNoViewPermission();
-            Username username = SessionUtils.currentUsername();
-            assertThat(permissionInterceptor.preHandle(request, response, null), is(false));
-            verify(securityService).hasViewPermissionForPipeline(username, PIPELINE_NAME);
-            assertThat(response.getStatus(), is(HttpStatus.SC_FORBIDDEN));
-        }
-
-        @Test
-        void shouldReturnTrueForEditingConfigurationRequest() throws Exception {
-            request.setRequestURI("/admin/restful/configuration");
-            request.setMethod(POST.name());
-            assertThat(permissionInterceptor.preHandle(request, response, null), is(true));
-        }
-
-        //Same for post and put calls
-        @Nested
-        class WhenStageNameIsNotPresentInRequestParams {
-
-            @Test
-            void shouldReturnTrueWhenOperatePermissionOnPipelineForPostCall() throws Exception {
-                request.setMethod(POST.name());
-                assumeUserHasOperatePermissionForPipeline();
-                Username username = SessionUtils.currentUsername();
-                assertThat(permissionInterceptor.preHandle(request, response, null), is(true));
-                verify(securityService).hasOperatePermissionForPipeline(username.getUsername(), PIPELINE_NAME);
-            }
-            @Test
-            void shouldReturnFalseWhenNoOperatePermissionOnPipelineForPostCall() throws Exception {
-                request.setMethod(POST.name());
-                assumeUserHasNoOperatePermissionForPipeline();
-                Username username = SessionUtils.currentUsername();
-                assertThat(permissionInterceptor.preHandle(request, response, null), is(false));
-                verify(securityService).hasOperatePermissionForPipeline(username.getUsername(), PIPELINE_NAME);
-                assertThat(response.getStatus(), is(HttpStatus.SC_FORBIDDEN));
-            }
-
-        }
-        //Same for post and put calls
-        @Nested
-        class WhenStageNameIsPresentInRequestParams {
-
-            @BeforeEach
-            void setUp() {
-                request.setMethod(POST.name());
-                request.setParameter(STAGE_NAME_KEY, STAGE_NAME);
-            }
-
-            @Test
-            void shouldReturnTrueWhenOperatePermissionOnStageForPostCall() throws Exception {
-                assumeUserHasOperatePermissionForStage();
-                Username username = SessionUtils.currentUsername();
-                String name = CaseInsensitiveString.str(username.getUsername());
-                assertThat(permissionInterceptor.preHandle(request, response, null), is(true));
-                verify(securityService).hasOperatePermissionForStage(PIPELINE_NAME, STAGE_NAME, name);
-            }
-
-            @Test
-            void shouldReturnFalseWhenNoOperatePermissionOnStageForPostCall() throws Exception {
-                assumeUserHasNoOperatePermissionForStage();
-                Username username = SessionUtils.currentUsername();
-                String name = CaseInsensitiveString.str(username.getUsername());
-                assertThat(permissionInterceptor.preHandle(request, response, null), is(false));
-                verify(securityService).hasOperatePermissionForStage(PIPELINE_NAME, STAGE_NAME, name);
-                assertThat(response.getStatus(), is(HttpStatus.SC_FORBIDDEN));
-            }
-
-        }
-
-
+    @Test
+    public void shouldCheckOperatePermissionForStageOperationRequest() throws Exception {
+        request.setParameter("pipelineName", "cruise");
+        request.setParameter("stageName", "dev");
+        request.setMethod("post");
+        assumeUserHasOperatePermissionForStage();
+        assertThat(permissionInterceptor.preHandle(request, response, null), is(true));
     }
 
-    @Nested
-    class WhenPipelineNameIsPresentInPathVariables {
+    @Test
+    public void shouldCheckOperatePermissionForPutRequest() throws Exception {
+        request.setParameter("pipelineName", "cruise");
+        request.setMethod("put");
+        assumeUserHasOperatePermissionForPipeline();
+        assertThat(permissionInterceptor.preHandle(request, response, null), is(true));
+    }
 
-        @Test
-        void shouldReturnTrueWhenViewPermissionOnPipelineForGetCall() throws Exception {
-            request.setMethod(GET.name());
-            addPipelineNameAsPathVariableToRequest();
-            assumeUserHasViewPermission();
-            Username username = SessionUtils.currentUsername();
-            assertThat(permissionInterceptor.preHandle(request, response, null), is(true));
-            verify(securityService).hasViewPermissionForPipeline(username, PIPELINE_NAME);
-        }
-
-        @Test
-        void shouldReturnFalseWhenNoViewPermissionOnPipelineForPostCall() throws Exception {
-            request.setMethod(GET.name());
-            addPipelineNameAsPathVariableToRequest();
-            assumeUserHasNoViewPermission();
-            Username username = SessionUtils.currentUsername();
-            assertThat(permissionInterceptor.preHandle(request, response, null), is(false));
-            verify(securityService).hasViewPermissionForPipeline(username, PIPELINE_NAME);
-            assertThat(response.getStatus(), is(HttpStatus.SC_FORBIDDEN));
-        }
-
-        @Nested
-        class WhenStageNameIsNotPresentInPathVariables {
-
-            @Test
-            void shouldReturnTrueWhenOperatePermissionOnPipelineForPostCall() throws Exception {
-                request.setMethod(POST.name());
-                addPipelineNameAsPathVariableToRequest();
-                assumeUserHasOperatePermissionForPipeline();
-                Username username = SessionUtils.currentUsername();
-                assertThat(permissionInterceptor.preHandle(request, response, null), is(true));
-                verify(securityService).hasOperatePermissionForPipeline(username.getUsername(), PIPELINE_NAME);
-            }
-            @Test
-            void shouldReturnFalseWhenNoOperatePermissionOnPipelineForGetCall() throws Exception {
-                request.setMethod(POST.name());
-                addPipelineNameAsPathVariableToRequest();
-                assumeUserHasNoOperatePermissionForPipeline();
-                Username username = SessionUtils.currentUsername();
-                assertThat(permissionInterceptor.preHandle(request, response, null), is(false));
-                verify(securityService).hasOperatePermissionForPipeline(username.getUsername(), PIPELINE_NAME);
-                assertThat(response.getStatus(), is(HttpStatus.SC_FORBIDDEN));
-            }
-
-        }
-        @Nested
-        class WhenStageNameIsPresentInPathVariables {
-
-            @Test
-            void shouldReturnTrueWhenOperatePermissionOnStageForPostCall() throws Exception {
-                request.setMethod(POST.name());
-                addPipelineNameAndStageNameAsPathVariablesToRequest();
-                assumeUserHasOperatePermissionForStage();
-                Username username = SessionUtils.currentUsername();
-                String name = CaseInsensitiveString.str(username.getUsername());
-                assertThat(permissionInterceptor.preHandle(request, response, null), is(true));
-                verify(securityService).hasOperatePermissionForStage(PIPELINE_NAME, STAGE_NAME, name);
-            }
-            @Test
-            void shouldReturnFalseWhenNoOperatePermissionOnStageForPostCall() throws Exception {
-                request.setMethod(POST.name());
-                addPipelineNameAndStageNameAsPathVariablesToRequest();
-                assumeUserHasNoOperatePermissionForStage();
-                Username username = SessionUtils.currentUsername();
-                String name = CaseInsensitiveString.str(username.getUsername());
-                assertThat(permissionInterceptor.preHandle(request, response, null), is(false));
-                verify(securityService).hasOperatePermissionForStage(PIPELINE_NAME, STAGE_NAME, name);
-                assertThat(response.getStatus(), is(HttpStatus.SC_FORBIDDEN));
-            }
-
-        }
-
-        private void addPipelineNameAsPathVariableToRequest() {
-            Map<String, String> pathVariables = new HashMap<>();
-            pathVariables.put(PIPELINE_NAME_KEY, PIPELINE_NAME);
-            request.setAttribute(HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE, pathVariables);
-        }
-
-        private void addPipelineNameAndStageNameAsPathVariablesToRequest() {
-            Map<String, String> pathVariables = new HashMap<>();
-            pathVariables.put(PIPELINE_NAME_KEY, PIPELINE_NAME);
-            pathVariables.put(STAGE_NAME_KEY, STAGE_NAME);
-            request.setAttribute(HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE, pathVariables);
-        }
+    @Test
+    public void shouldNotCheckOperatePermissionForEditingConfigurationRequest() throws Exception {
+        request.setParameter("pipelineName", "cruise");
+        request.setRequestURI("/admin/restful/configuration");
+        request.setMethod("post");
+        assertThat(permissionInterceptor.preHandle(request, response, null), is(true));
     }
 
     private void assumeUserHasViewPermission() {
-        when(securityService.hasViewPermissionForPipeline(ANONYMOUS, PIPELINE_NAME)).thenReturn(true);
-    }
-
-    private void assumeUserHasNoViewPermission() {
-        when(securityService.hasViewPermissionForPipeline(ANONYMOUS, PIPELINE_NAME)).thenReturn(false);
+        when(securityService.hasViewPermissionForPipeline(ANONYMOUS, "cruise")).thenReturn(true);
     }
 
     private void assumeUserHasOperatePermissionForPipeline() {
-        when(securityService.hasOperatePermissionForPipeline(ANONYMOUS.getUsername(), PIPELINE_NAME)).thenReturn(true);
-    }
-
-    private void assumeUserHasNoOperatePermissionForPipeline() {
-        when(securityService.hasOperatePermissionForPipeline(ANONYMOUS.getUsername(), PIPELINE_NAME)).thenReturn(false);
+        when(securityService.hasOperatePermissionForPipeline(ANONYMOUS.getUsername(), "cruise")).thenReturn(true);
     }
 
     private void assumeUserHasOperatePermissionForStage() {
-        when(securityService.hasOperatePermissionForStage(PIPELINE_NAME, STAGE_NAME, CaseInsensitiveString.str(ANONYMOUS.getUsername()))).thenReturn(true);
-    }
-
-    private void assumeUserHasNoOperatePermissionForStage() {
-        when(securityService.hasOperatePermissionForStage(PIPELINE_NAME, STAGE_NAME, CaseInsensitiveString.str(ANONYMOUS.getUsername()))).thenReturn(false);
+        when(securityService.hasOperatePermissionForStage("cruise", "dev", CaseInsensitiveString.str(ANONYMOUS.getUsername()))).thenReturn(true);
     }
 }

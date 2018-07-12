@@ -36,7 +36,6 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.web.servlet.HandlerMapping;
 import org.springframework.web.servlet.ModelAndView;
 
 import java.io.UnsupportedEncodingException;
@@ -114,9 +113,8 @@ public class RestfulPropertiesControllerTest {
 
     @Test public void shouldReturn404WhenUnknownBuildOnGettingProperty() throws Exception {
         String counter = String.valueOf(newStage.getCounter());
-        request.setAttribute(HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE, "foo");
-        propertiesController.getProperties("unknown", "latest", "stage", counter,
-                "build", "json", request, response);
+        propertiesController.jobSearch("unknown", "latest", "stage", counter,
+                "build", "json", "foo", response);
         assertValidJsonContentAndStatus(SC_NOT_FOUND, "Job unknown/latest/stage/" + counter + "/build not found.");
     }
 
@@ -171,8 +169,7 @@ public class RestfulPropertiesControllerTest {
     }
 
     @Test public void shouldReturn404WhenUnknownBuildOnSettingProperty() throws Exception {
-        request.setAttribute(HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE, "foo");
-        propertiesController.setProperty("unknown", "latest", "stage", "1", "build", "bar", response, request);
+        propertiesController.setProperty("unknown", "latest", "stage", "1", "build", "foo", "bar", response, request);
         assertValidJsonContentAndStatus(SC_NOT_FOUND, "Job unknown/latest/stage/1/build not found.");
     }
 
@@ -214,11 +211,7 @@ public class RestfulPropertiesControllerTest {
     @Test public void shouldReturnOkListingAllPropertiesInCsvFormatBySearch() throws Exception {
         setProperty(oldPipeline, "a/2", "200");
         setProperty(oldPipeline, "a/1", "100");
-        response = new MockHttpServletResponse();
-        request.setAttribute(HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE, null);
-        propertiesController.getProperties(oldPipeline.getName(), oldPipeline.getLabel(),
-                "stage", String.valueOf(oldStage.getCounter()), "build",
-                "csv", request, response);
+        getPropertyHistoryListBySearch(oldStage.getCounter(), oldPipeline.getLabel(), "csv", null);
         CSVResponse csvResponse = new CSVResponse(response);
         assertThat(csvResponse.isCSV(), is(true));
         assertThat(csvResponse.statusEquals(SC_OK), is(true));
@@ -230,10 +223,7 @@ public class RestfulPropertiesControllerTest {
     @Test public void shouldReturnOkListingAllPropertiesInCsvFormatAsDefaultBySearch() throws Exception {
         setProperty(oldPipeline, "a/2", "200");
         setProperty(oldPipeline, "a/1", "100");
-        response = new MockHttpServletResponse();
-        request.setAttribute(HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE, null);
-        propertiesController.getProperties(oldPipeline.getName(), oldPipeline.getLabel(), "stage",
-                String.valueOf(oldStage.getCounter()), "build", null, request, response);
+        getPropertyHistoryListBySearch(oldStage.getCounter(), oldPipeline.getLabel(), null, null);
         CSVResponse csvResponse = new CSVResponse(response);
         assertThat(csvResponse.isCSV(), is(true));
         assertThat(csvResponse.statusEquals(SC_OK), is(true));
@@ -258,9 +248,9 @@ public class RestfulPropertiesControllerTest {
         setProperty(oldPipeline, "a/2", "200");
         setProperty(oldPipeline, "a/1", "100");
         response = new MockHttpServletResponse();
-        request.setAttribute(HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE, "a/2");
-        ModelAndView modelAndView = propertiesController.getProperties("pipeline", oldPipeline.getLabel(), "stage",
-                String.valueOf(oldStage.getCounter()), "build", "json", request, response);
+        ModelAndView modelAndView = propertiesController.jobSearch("pipeline", oldPipeline.getLabel(), "stage",
+                String.valueOf(oldStage.getCounter()), "build",
+                "json", "a/2", response);
         Map map = modelAndView.getModel();
         String content = map.get("json").toString();
         assertThat(content, containsString("a/2"));
@@ -273,9 +263,9 @@ public class RestfulPropertiesControllerTest {
         setProperty(oldPipeline, "a/2", "200");
         setProperty(oldPipeline, "a/1", "100");
         response = new MockHttpServletResponse();
-        request.setAttribute(HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE, null);
-        ModelAndView modelAndView = propertiesController.getProperties("pipeline", oldPipeline.getLabel(), "stage",
-                String.valueOf(oldStage.getCounter()), "build", "json", request, response);
+        ModelAndView modelAndView = propertiesController.jobSearch("pipeline", oldPipeline.getLabel(), "stage",
+                String.valueOf(oldStage.getCounter()), "build",
+                "json", null, response);
         Map map = modelAndView.getModel();
         String content = map.get("json").toString();
         assertThat(content, containsString("a/2"));
@@ -288,8 +278,9 @@ public class RestfulPropertiesControllerTest {
         setProperty(oldPipeline, "a/2", "200");
         setProperty(oldPipeline, "a/1", "100");
         response = new MockHttpServletResponse();
-        propertiesController.getProperties("unknown", oldPipeline.getLabel(), "stage",
-                String.valueOf(oldStage.getCounter()), "build", "json", request, response);
+        propertiesController.jobSearch("unknown", oldPipeline.getLabel(), "stage",
+                String.valueOf(oldStage.getCounter()), "build",
+                "json", null, response);
         assertThat(response.getStatus(), Is.is(SC_NOT_FOUND));
     }
 
@@ -301,9 +292,8 @@ public class RestfulPropertiesControllerTest {
     private ModelAndView getPropertyHistoryListBySearch(Integer counter, String label, String type, String propertyKey)
             throws Exception {
         response = new MockHttpServletResponse();
-        request.setAttribute(HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE, propertyKey);
-        return propertiesController.getProperties("pipeline", label, "stage", String.valueOf(counter), "build",
-                type, request, response);
+        return propertiesController.jobSearch("pipeline", label, "stage", String.valueOf(counter), "build", type,
+                propertyKey, response);
     }
 
     private void getAllPropertyHistoryListAsCsvBySearch(Pipeline startFrom, Integer count) throws Exception {
@@ -314,22 +304,19 @@ public class RestfulPropertiesControllerTest {
 
     private ModelAndView getProperty(String property, String type) throws Exception {
         response = new MockHttpServletResponse();
-        request.setAttribute(HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE, property);
-        return propertiesController.getProperties("pipeline", "latest", "stage", String.valueOf(newStage.getCounter()),
-                "build", type, request, response);
+        return propertiesController.jobSearch("pipeline", "latest", "stage", String.valueOf(newStage.getCounter()),
+                "build", type, property, response);
     }
 
     private void setProperty(String property, String value) throws Exception {
         response = new MockHttpServletResponse();
-        request.setAttribute(HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE, property);
-        propertiesController.setProperty("pipeline", "latest", "stage", null, "build", value, response, request);
+        propertiesController.setProperty("pipeline", "latest", "stage", null, "build", property, value, response, request);
     }
 
     private void setProperty(Pipeline pipeline, String property, String value) throws Exception {
         response = new MockHttpServletResponse();
-        request.setAttribute(HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE, property);
         propertiesController.setProperty("pipeline", pipeline.getLabel(), "stage", null, "build",
-                value, response, request);
+                property, value, response, request);
         assertThat(response.getContentAsString(), response.getStatus(), is(SC_CREATED));
     }
 

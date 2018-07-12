@@ -34,16 +34,20 @@ import com.thoughtworks.go.server.web.FileModelAndView;
 import com.thoughtworks.go.server.web.ResponseCodeView;
 import com.thoughtworks.go.util.ArtifactLogUtil;
 import com.thoughtworks.go.util.SystemEnvironment;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
+import org.springframework.web.servlet.HandlerMapping;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
@@ -63,6 +67,8 @@ import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
 @Controller
 public class ArtifactsController {
     private static final Logger LOGGER = LoggerFactory.getLogger(ArtifactsController.class);
+    private static final String FILE_FORMAT_JSON = "json";
+    private static final String FILE_FORMAT_ZIP = "zip";
 
     private final JobInstanceDao jobInstanceDao;
     private final ConsoleActivityMonitor consoleActivityMonitor;
@@ -91,73 +97,79 @@ public class ArtifactsController {
         this.consoleLogCharset = systemEnvironment.consoleLogCharsetAsCharset();
     }
 
-
-    /* RESTful URLs */
-    @RequestMapping(value = "/repository/restful/artifact/GET/html", method = RequestMethod.GET)
-    public ModelAndView getArtifactAsHtml(@RequestParam("pipelineName") String pipelineName,
-                                          @RequestParam("pipelineLabel") String counterOrLabel,
-                                          @RequestParam("stageName") String stageName,
-                                          @RequestParam(value = "stageCounter", required = false) String stageCounter,
-                                          @RequestParam("buildName") String buildName,
-                                          @RequestParam("filePath") String filePath,
-                                          @RequestParam(value = "sha1", required = false) String sha,
-                                          @RequestParam(value = "serverAlias", required = false) String serverAlias) throws Exception {
-        return getArtifact(filePath, folderViewFactory, pipelineName, counterOrLabel, stageName, stageCounter, buildName, sha, serverAlias);
+    @RequestMapping(value = {
+            "/files/{pipelineName}/{pipelineLabel}/{stageName}/{stageCounter}/{buildName:.+}",
+            "/files/{pipelineName}/{pipelineLabel}/{stageName}/{stageCounter}/{buildName}/*",
+            "/files/{pipelineName}/{pipelineLabel}/{stageName}/{stageCounter}/{buildName}/**"
+    }, method = RequestMethod.GET)
+    public ModelAndView getArtifacts(@PathVariable("pipelineName") String pipelineName,
+                                     @PathVariable("pipelineLabel") String counterOrLabel,
+                                     @PathVariable("stageName") String stageName,
+                                     @PathVariable("stageCounter") String stageCounter,
+                                     @PathVariable("buildName") String buildName,
+                                     @RequestParam(value = "sha1", required = false) String sha,
+                                     @RequestParam(value = "serverAlias", required = false) String serverAlias,
+                                     HttpServletRequest request) throws Exception {
+        String filePath = (String) request.getAttribute(HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE);
+        ArtifactFolderViewFactory viewFactory;
+        if (!StringUtils.isEmpty(filePath)) {
+            viewFactory = getViewFactory(filePath);
+        } else {
+            viewFactory = getViewFactory(buildName);
+            buildName = FilenameUtils.getBaseName(buildName);
+        }
+        return getArtifact(filePath, viewFactory, pipelineName, counterOrLabel, stageName, stageCounter, buildName, sha, serverAlias);
     }
 
-    @RequestMapping(value = "/repository/restful/artifact/GET/json", method = RequestMethod.GET)
-    public ModelAndView getArtifactAsJson(@RequestParam("pipelineName") String pipelineName,
-                                          @RequestParam("pipelineLabel") String counterOrLabel,
-                                          @RequestParam("stageName") String stageName,
-                                          @RequestParam(value = "stageCounter", required = false) String stageCounter,
-                                          @RequestParam("buildName") String buildName,
-                                          @RequestParam("filePath") String filePath,
-                                          @RequestParam(value = "sha1", required = false) String sha
-    ) throws Exception {
-        return getArtifact(filePath, jsonViewFactory, pipelineName, counterOrLabel, stageName, stageCounter, buildName, sha, null);
+    @RequestMapping(value = {
+            "/files/{pipelineName}/{pipelineLabel}/{stageName}/{stageCounter}/{buildName:.+}",
+            "/files/{pipelineName}/{pipelineLabel}/{stageName}/{stageCounter}/{buildName}/*",
+            "/files/{pipelineName}/{pipelineLabel}/{stageName}/{stageCounter}/{buildName}/**"
+    }, params = "startLineNumber", method = RequestMethod.GET)
+    public ModelAndView getConsoleJson(@PathVariable("pipelineName") String pipelineName,
+                                       @PathVariable("pipelineLabel") String counterOrLabel,
+                                       @PathVariable("stageName") String stageName,
+                                       @PathVariable("stageCounter") String stageCounter,
+                                       @PathVariable("buildName") String buildName,
+                                       @RequestParam(value = "startLineNumber", required = false) Long start) {
+        start = (start == null) ? 0L : start;
+        try {
+            JobIdentifier identifier = restfulService.findJob(pipelineName, counterOrLabel, stageName, stageCounter, buildName);
+            if (jobInstanceDao.isJobCompleted(identifier) && !consoleService.doesLogExist(identifier)) {
+                return logsNotFound(identifier);
+            }
+            ConsoleConsumer streamer = consoleService.getStreamer(start, identifier);
+            return new ModelAndView(new ConsoleOutView(streamer, consoleLogCharset));
+        } catch (Exception e) {
+            return buildNotFound(pipelineName, counterOrLabel, stageName, stageCounter, buildName);
+        }
     }
 
-    @RequestMapping(value = "/repository/restful/artifact/GET/zip", method = RequestMethod.GET)
-    public ModelAndView getArtifactAsZip(@RequestParam("pipelineName") String pipelineName,
-                                         @RequestParam("pipelineLabel") String counterOrLabel,
-                                         @RequestParam("stageName") String stageName,
-                                         @RequestParam(value = "stageCounter", required = false) String stageCounter,
-                                         @RequestParam("buildName") String buildName,
-                                         @RequestParam("filePath") String filePath,
-                                         @RequestParam(value = "sha1", required = false) String sha
-    ) throws Exception {
-        return getArtifact(filePath, zipViewFactory, pipelineName, counterOrLabel, stageName, stageCounter, buildName, sha, null);
-    }
-
-    @RequestMapping(value = "/repository/restful/artifact/GET/*", method = RequestMethod.GET)
-    public void fetch(HttpServletRequest request, HttpServletResponse response) throws Exception {
-        request.getRequestDispatcher("/repository/restful/artifact/GET/html").forward(request, response);
-    }
-
-    @RequestMapping(value = "/repository/restful/artifact/POST/*", method = RequestMethod.POST)
-    public ModelAndView postArtifact(@RequestParam("pipelineName") String pipelineName,
-                                     @RequestParam("pipelineLabel") String counterOrLabel,
-                                     @RequestParam("stageName") String stageName,
-                                     @RequestParam(value = "stageCounter", required = false) String stageCounter,
-                                     @RequestParam("buildName") String buildName,
+    @RequestMapping(value = {
+            "/files/{pipelineName}/{pipelineLabel}/{stageName}/{stageCounter}/{buildName}/*",
+            "/files/{pipelineName}/{pipelineLabel}/{stageName}/{stageCounter}/{buildName}/**"
+    }, method = RequestMethod.POST)
+    public ModelAndView postArtifact(@PathVariable("pipelineName") String pipelineName,
+                                     @PathVariable("pipelineLabel") String counterOrLabel,
+                                     @PathVariable("stageName") String stageName,
+                                     @PathVariable("stageCounter") String stageCounter,
+                                     @PathVariable("buildName") String buildName,
                                      @RequestParam(value = "buildId", required = false) Long buildId,
-                                     @RequestParam("filePath") String filePath,
                                      @RequestParam(value = "attempt", required = false) Integer attempt,
                                      MultipartHttpServletRequest request) throws Exception {
-        JobIdentifier jobIdentifier;
         if (!headerConstraint.isSatisfied(request)) {
             return ResponseCodeView.create(HttpServletResponse.SC_BAD_REQUEST, "Missing required header 'Confirm'");
         }
+        JobIdentifier jobIdentifier;
         try {
-            jobIdentifier = restfulService.findJob(pipelineName, counterOrLabel, stageName, stageCounter,
-                    buildName, buildId);
+            jobIdentifier = restfulService.findJob(pipelineName, counterOrLabel, stageName, stageCounter, buildName, buildId);
         } catch (Exception e) {
-            return buildNotFound(pipelineName, counterOrLabel, stageName, stageCounter,
-                    buildName);
+            return buildNotFound(pipelineName, counterOrLabel, stageName, stageCounter, buildName);
         }
 
-        int convertedAttempt = attempt == null ? 1 : attempt;
+        int convertedAttempt = (attempt == null) ? 1 : attempt;
 
+        String filePath = (String) request.getAttribute(HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE);
         try {
             File artifact = artifactsService.findArtifact(jobIdentifier, filePath);
             if (artifact.exists() && artifact.isFile()) {
@@ -188,6 +200,48 @@ public class ArtifactsController {
         }
     }
 
+    @RequestMapping(value = {
+            "/files/{pipelineName}/{pipelineLabel}/{stageName}/{stageCounter}/{buildName}/*",
+            "/files/{pipelineName}/{pipelineLabel}/{stageName}/{stageCounter}/{buildName}/**"
+    }, method = RequestMethod.PUT)
+    public ModelAndView putArtifact(@PathVariable("pipelineName") String pipelineName,
+                                    @PathVariable("pipelineLabel") String counterOrLabel,
+                                    @PathVariable("stageName") String stageName,
+                                    @PathVariable("stageCounter") String stageCounter,
+                                    @PathVariable("buildName") String buildName,
+                                    @RequestParam(value = "buildId", required = false) Long buildId,
+                                    HttpServletRequest request
+    ) throws Exception {
+        String filePath = (String) request.getAttribute(HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE);
+        if (filePath == null || filePath.contains("..")) {
+            return FileModelAndView.forbiddenUrl(filePath);
+        }
+
+        JobIdentifier jobIdentifier;
+        try {
+            jobIdentifier = restfulService.findJob(pipelineName, counterOrLabel, stageName, stageCounter, buildName, buildId);
+        } catch (Exception e) {
+            return buildNotFound(pipelineName, counterOrLabel, stageName, stageCounter, buildName);
+        }
+
+        if (isConsoleOutput(filePath)) {
+            return putConsoleOutput(jobIdentifier, request.getInputStream());
+        } else {
+            return putArtifact(jobIdentifier, filePath, request.getInputStream());
+        }
+    }
+
+    private ArtifactFolderViewFactory getViewFactory(String pathWithExtension) {
+        switch (FilenameUtils.getExtension(pathWithExtension)) {
+            case FILE_FORMAT_JSON:
+                return jsonViewFactory;
+            case FILE_FORMAT_ZIP:
+                return zipViewFactory;
+            default:
+                return folderViewFactory;
+        }
+    }
+
     private boolean updateChecksumFile(MultipartHttpServletRequest request, JobIdentifier jobIdentifier, String filePath) throws IOException, IllegalArtifactLocationException {
         MultipartFile checksumMultipartFile = getChecksumFile(request);
         if (checksumMultipartFile != null) {
@@ -212,59 +266,6 @@ public class ArtifactsController {
             IOUtils.closeQuietly(inputStream);
         }
         return success;
-    }
-
-    @RequestMapping(value = "/repository/restful/artifact/PUT/*", method = RequestMethod.PUT)
-    public ModelAndView putArtifact(@RequestParam("pipelineName") String pipelineName,
-                                    @RequestParam("pipelineLabel") String counterOrLabel,
-                                    @RequestParam("stageName") String stageName,
-                                    @RequestParam(value = "stageCounter", required = false) String stageCounter,
-                                    @RequestParam("buildName") String buildName,
-                                    @RequestParam(value = "buildId", required = false) Long buildId,
-                                    @RequestParam("filePath") String filePath,
-                                    @RequestParam(value = "agentId", required = false) String agentId,
-                                    HttpServletRequest request
-    ) throws Exception {
-        if (filePath.contains("..")) {
-            return FileModelAndView.forbiddenUrl(filePath);
-        }
-
-        JobIdentifier jobIdentifier;
-        try {
-            jobIdentifier = restfulService.findJob(pipelineName, counterOrLabel, stageName, stageCounter, buildName, buildId);
-        } catch (Exception e) {
-            return buildNotFound(pipelineName, counterOrLabel, stageName, stageCounter, buildName);
-        }
-
-        if (isConsoleOutput(filePath)) {
-            return putConsoleOutput(jobIdentifier, request.getInputStream());
-        } else {
-            return putArtifact(jobIdentifier, filePath, request.getInputStream());
-        }
-    }
-
-    /* Other URLs */
-
-    @RequestMapping(value = "/**/consoleout.json", method = RequestMethod.GET)
-    public ModelAndView consoleout(@RequestParam("pipelineName") String pipelineName,
-                                   @RequestParam("pipelineLabel") String counterOrLabel,
-                                   @RequestParam("stageName") String stageName,
-                                   @RequestParam("buildName") String buildName,
-                                   @RequestParam(value = "stageCounter", required = false) String stageCounter,
-                                   @RequestParam(value = "startLineNumber", required = false) Long start
-    ) {
-        start = start == null ? 0L : start;
-
-        try {
-            JobIdentifier identifier = restfulService.findJob(pipelineName, counterOrLabel, stageName, stageCounter, buildName);
-            if (jobInstanceDao.isJobCompleted(identifier) && !consoleService.doesLogExist(identifier)) {
-                return logsNotFound(identifier);
-            }
-            ConsoleConsumer streamer = consoleService.getStreamer(start, identifier);
-            return new ModelAndView(new ConsoleOutView(streamer, consoleLogCharset));
-        } catch (Exception e) {
-            return buildNotFound(pipelineName, counterOrLabel, stageName, stageCounter, buildName);
-        }
     }
 
     @ErrorHandler

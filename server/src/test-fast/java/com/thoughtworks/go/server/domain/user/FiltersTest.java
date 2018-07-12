@@ -160,6 +160,15 @@ class FiltersTest {
     }
 
     @Test
+    void defaultFilterNameIsAlwaysTitleCase() {
+        String json = "{ \"filters\": [{\"name\": \"deFauLt\", \"type\": \"whitelist\"}] }";
+        assertEquals(DEFAULT_NAME, Filters.fromJson(json).named(DEFAULT_NAME).name());
+
+        String expected = "{\"filters\":[{\"name\":\"" + DEFAULT_NAME + "\",\"pipelines\":[],\"type\":\"whitelist\"}]}";
+        assertEquals(expected, Filters.toJson(Filters.single(namedWhitelist("defAUlT"))));
+    }
+
+    @Test
     void fromJson() {
         String json = "{ \"filters\": [{\"name\": \"Default\", \"type\": \"whitelist\", \"pipelines\": [\"p1\"]}] }";
         final Filters filters = Filters.fromJson(json);

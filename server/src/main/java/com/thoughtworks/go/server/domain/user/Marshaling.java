@@ -22,6 +22,8 @@ import com.thoughtworks.go.config.CaseInsensitiveString;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 
+import static com.thoughtworks.go.server.domain.user.DashboardFilter.DEFAULT_NAME;
+
 public class Marshaling {
 
     public static class FiltersSerializer implements JsonSerializer<Filters> {
@@ -73,6 +75,8 @@ public class Marshaling {
                 throw new IllegalArgumentException("Don't know how to handle DashboardFilter implementation: " + src.getClass().getCanonicalName());
             }
 
+            serialized.getAsJsonObject().addProperty("name", normalizeName(src.name()));
+
             return serialized;
         }
     }
@@ -81,6 +85,10 @@ public class Marshaling {
         @Override
         public DashboardFilter deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
             JsonObject jsonObject = json.getAsJsonObject();
+
+            final String name = normalizeName(jsonObject.getAsJsonPrimitive("name").getAsString());
+            jsonObject.addProperty("name", name);
+
             JsonElement type = jsonObject.get("type");
 
             if (type != null) {
@@ -112,5 +120,9 @@ public class Marshaling {
         public CaseInsensitiveString deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
             return new CaseInsensitiveString(json.getAsString());
         }
+    }
+
+    private static String normalizeName(String name) {
+        return name.equalsIgnoreCase(DEFAULT_NAME) ? DEFAULT_NAME : name;
     }
 }

@@ -23,12 +23,10 @@ import com.thoughtworks.go.server.service.SecurityService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.servlet.HandlerInterceptor;
-import org.springframework.web.servlet.HandlerMapping;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.Map;
 
 import static org.apache.http.HttpStatus.SC_FORBIDDEN;
 
@@ -47,7 +45,7 @@ public class AuthorizationInterceptor implements HandlerInterceptor {
             return true;
         }
 
-        String pipelineName = getValueFromRequest(request, "pipelineName");
+        String pipelineName = request.getParameter("pipelineName");
         if (pipelineName != null) {
             Username username = SessionUtils.currentUsername();
             String name = CaseInsensitiveString.str(username.getUsername());
@@ -61,7 +59,7 @@ public class AuthorizationInterceptor implements HandlerInterceptor {
                     return true;
                 }
 
-                String stageName = getValueFromRequest(request, "stageName");
+                String stageName = request.getParameter("stageName");
                 if (stageName != null) {
                     if (!securityService.hasOperatePermissionForStage(pipelineName, stageName, name)) {
                         response.sendError(SC_FORBIDDEN);
@@ -76,18 +74,6 @@ public class AuthorizationInterceptor implements HandlerInterceptor {
             }
         }
         return true;
-    }
-
-    private String getValueFromRequest(HttpServletRequest request, String parameter) {
-        String parameterValue = null;
-        Map allParams = (Map) request.getAttribute(HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE);
-        if (allParams != null) {
-            parameterValue = (String) allParams.get(parameter);
-        }
-        if (parameterValue == null) {
-            parameterValue = request.getParameter(parameter);
-        }
-        return parameterValue;
     }
 
     private boolean isEditingConfigurationRequest(HttpServletRequest request) {

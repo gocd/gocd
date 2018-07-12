@@ -29,7 +29,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -62,10 +61,10 @@ public class StageController {
         this.headerConstraint = new HeaderConstraint(systemEnvironment);
     }
 
-    @RequestMapping(value = "/run/{pipelineName}/{pipelineLabel}/{stageName}", method = RequestMethod.POST)
-    public ModelAndView rerunStage(@PathVariable(value = "pipelineName") String pipelineName,
-                                   @PathVariable(value = "pipelineLabel") String counterOrLabel,
-                                   @PathVariable(value = "stageName") String stageName,
+    @RequestMapping(value = "/admin/rerun", method = RequestMethod.POST)
+    public ModelAndView rerunStage(@RequestParam(value = "pipelineName") String pipelineName,
+                                   @RequestParam(value = "pipelineLabel") String counterOrLabel,
+                                   @RequestParam(value = "stageName") String stageName,
                                    HttpServletResponse response, HttpServletRequest request) {
 
         if (!headerConstraint.isSatisfied(request)) {

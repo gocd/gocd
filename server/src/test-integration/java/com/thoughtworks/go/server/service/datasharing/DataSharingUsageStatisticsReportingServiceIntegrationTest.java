@@ -18,8 +18,6 @@ package com.thoughtworks.go.server.service.datasharing;
 
 import com.thoughtworks.go.domain.UsageStatisticsReporting;
 import com.thoughtworks.go.server.dao.UsageStatisticsReportingSqlMapDao;
-import com.thoughtworks.go.server.service.datasharing.DataSharingSettingsService;
-import com.thoughtworks.go.server.service.datasharing.DataSharingUsageStatisticsReportingService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import org.junit.After;
 import org.junit.Before;
@@ -29,6 +27,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import com.thoughtworks.go.server.dao.*;
+
+import java.sql.Timestamp;
+
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.core.Is.is;
@@ -71,6 +72,7 @@ public class DataSharingUsageStatisticsReportingServiceIntegrationTest {
         UsageStatisticsReporting usageStatisticsReporting = usageStatisticsReportingSqlMapDao.load();
         assertNotNull(usageStatisticsReporting);
         assertNotNull(usageStatisticsReporting.getServerId());
+        assertThat(usageStatisticsReporting.lastReportedAt(), is(new Timestamp(0)));
     }
 
     @Test

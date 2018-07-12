@@ -66,7 +66,7 @@ public class DataSharingUsageStatisticsReportingService {
     }
 
     private void create() {
-        UsageStatisticsReporting reporting = new UsageStatisticsReporting(UUID.randomUUID().toString(), new Date());
+        UsageStatisticsReporting reporting = new UsageStatisticsReporting(UUID.randomUUID().toString(), new Date(0));
         usageStatisticsReportingSqlMapDao.saveOrUpdate(reporting);
     }
 

@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.server.newsecurity.filterchains;
 
+import com.thoughtworks.go.server.newsecurity.filters.AgentSessionReduceIdleTimeoutFilter;
 import com.thoughtworks.go.server.newsecurity.filters.AlwaysCreateSessionFilter;
 import com.thoughtworks.go.server.newsecurity.filters.ApiSessionReduceIdleTimeoutFilter;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,8 +28,14 @@ public class CreateSessionFilterChain extends FilterChainProxy {
 
     @Autowired
     public CreateSessionFilterChain(ApiSessionReduceIdleTimeoutFilter apiSessionReduceIdleTimeoutFilter,
+                                    AgentSessionReduceIdleTimeoutFilter agentSessionReduceIdleTimeoutFilter,
                                     AlwaysCreateSessionFilter alwaysCreateSessionFilter) {
         super(FilterChainBuilder.newInstance()
+                .addFilterChain("/admin/latest-agent.status", agentSessionReduceIdleTimeoutFilter, alwaysCreateSessionFilter)
+                .addFilterChain("/admin/tfs-impl.jar", agentSessionReduceIdleTimeoutFilter, alwaysCreateSessionFilter)
+                .addFilterChain("/admin/agent", agentSessionReduceIdleTimeoutFilter, alwaysCreateSessionFilter)
+                .addFilterChain("/admin/agent/token", agentSessionReduceIdleTimeoutFilter, alwaysCreateSessionFilter)
+                .addFilterChain("/admin/agent-plugins.zip", agentSessionReduceIdleTimeoutFilter, alwaysCreateSessionFilter)
                 .addFilterChain("/cctray.xml", apiSessionReduceIdleTimeoutFilter, alwaysCreateSessionFilter)
                 .addFilterChain("/api/**", apiSessionReduceIdleTimeoutFilter, alwaysCreateSessionFilter)
                 .addFilterChain("/**", alwaysCreateSessionFilter)

@@ -18,6 +18,7 @@ package com.thoughtworks.go.server.newsecurity.filterchains;
 
 import com.thoughtworks.go.http.mocks.MockHttpServletRequest;
 import com.thoughtworks.go.http.mocks.MockHttpServletResponse;
+import com.thoughtworks.go.server.newsecurity.filters.AgentSessionReduceIdleTimeoutFilter;
 import com.thoughtworks.go.server.newsecurity.filters.AlwaysCreateSessionFilter;
 import com.thoughtworks.go.server.newsecurity.filters.ApiSessionReduceIdleTimeoutFilter;
 import com.thoughtworks.go.util.SystemEnvironment;
@@ -39,6 +40,7 @@ import static org.mockito.Mockito.spy;
 
 class CreateSessionFilterChainTest {
     private ApiSessionReduceIdleTimeoutFilter apiSessionReduceIdleTimeoutFilter;
+    private AgentSessionReduceIdleTimeoutFilter agentSessionReduceIdleTimeoutFilter;
     private AlwaysCreateSessionFilter alwaysCreateSessionFilter;
     private HttpServletResponse response;
     private MockHttpServletRequest request;
@@ -47,6 +49,11 @@ class CreateSessionFilterChainTest {
         return Stream.of(
                 Arguments.of("/cctray.xml", new SystemEnvironment().get(SystemEnvironment.API_REQUEST_IDLE_TIMEOUT_IN_SECONDS)),
                 Arguments.of("/api/foo", new SystemEnvironment().get(SystemEnvironment.API_REQUEST_IDLE_TIMEOUT_IN_SECONDS)),
+                Arguments.of("/admin/agent", new SystemEnvironment().get(SystemEnvironment.AGENT_REQUEST_IDLE_TIMEOUT_IN_SECONDS)),
+                Arguments.of("/admin/agent-plugins.zip", new SystemEnvironment().get(SystemEnvironment.AGENT_REQUEST_IDLE_TIMEOUT_IN_SECONDS)),
+                Arguments.of("/admin/tfs-impl.jar", new SystemEnvironment().get(SystemEnvironment.AGENT_REQUEST_IDLE_TIMEOUT_IN_SECONDS)),
+                Arguments.of("/admin/agent/token", new SystemEnvironment().get(SystemEnvironment.AGENT_REQUEST_IDLE_TIMEOUT_IN_SECONDS)),
+                Arguments.of("/admin/latest-agent.status", new SystemEnvironment().get(SystemEnvironment.AGENT_REQUEST_IDLE_TIMEOUT_IN_SECONDS)),
                 Arguments.of("/foobar", 0)
         );
     }
@@ -56,6 +63,7 @@ class CreateSessionFilterChainTest {
         response = new MockHttpServletResponse();
         request = new MockHttpServletRequest();
         apiSessionReduceIdleTimeoutFilter = spy(new ApiSessionReduceIdleTimeoutFilter(new SystemEnvironment()));
+        agentSessionReduceIdleTimeoutFilter = spy(new AgentSessionReduceIdleTimeoutFilter(new SystemEnvironment()));
         alwaysCreateSessionFilter = spy(new AlwaysCreateSessionFilter());
     }
 
@@ -67,7 +75,7 @@ class CreateSessionFilterChainTest {
 
         assertThat(request.getSession(false)).isNull();
 
-        new CreateSessionFilterChain(apiSessionReduceIdleTimeoutFilter, alwaysCreateSessionFilter).doFilter(request, response, filterChain);
+        new CreateSessionFilterChain(apiSessionReduceIdleTimeoutFilter, agentSessionReduceIdleTimeoutFilter, alwaysCreateSessionFilter).doFilter(request, response, filterChain);
 
         assertThat(request.getSession(false)).isNotNull();
         assertThat(request.getSession(false).getMaxInactiveInterval()).isEqualTo(timeout);
@@ -84,7 +92,7 @@ class CreateSessionFilterChainTest {
 
         assertThat(session).isNotNull();
 
-        new CreateSessionFilterChain(apiSessionReduceIdleTimeoutFilter, alwaysCreateSessionFilter).doFilter(request, response, filterChain);
+        new CreateSessionFilterChain(apiSessionReduceIdleTimeoutFilter, agentSessionReduceIdleTimeoutFilter, alwaysCreateSessionFilter).doFilter(request, response, filterChain);
 
         assertThat(request.getSession(false)).isEqualTo(session);
         assertThat(request.getSession(false).getMaxInactiveInterval()).isZero();

@@ -31,11 +31,11 @@ import java.io.IOException;
 
 /* API requests should not start long-lived session. */
 @Component
-public class ApiSessionReduceIdleTimeoutFilter extends AbstractSessionReduceIdleTimeoutFilter {
+public class AgentSessionReduceIdleTimeoutFilter extends AbstractSessionReduceIdleTimeoutFilter {
 
     @Autowired
-    public ApiSessionReduceIdleTimeoutFilter(SystemEnvironment systemEnvironment) {
-        super(systemEnvironment.get(SystemEnvironment.API_REQUEST_IDLE_TIMEOUT_IN_SECONDS));
+    public AgentSessionReduceIdleTimeoutFilter(SystemEnvironment systemEnvironment) {
+        super(systemEnvironment.get(SystemEnvironment.AGENT_REQUEST_IDLE_TIMEOUT_IN_SECONDS));
     }
 
 }

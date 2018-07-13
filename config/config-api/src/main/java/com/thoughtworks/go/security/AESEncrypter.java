@@ -35,7 +35,18 @@ public class AESEncrypter implements Encrypter, Serializable {
 
     private final AESCipherProvider cipherProvider;
 
-    private static IVProvider ivProvider = ServiceLoader.load(IVProvider.class).iterator().next();
+    private static IVProvider ivProvider;
+
+    private IVProvider getIvProviderInstance() {
+        if (ivProvider == null) {
+            synchronized (AESEncrypter.class) {
+                if (ivProvider == null) {
+                    ivProvider = ServiceLoader.load(IVProvider.class).iterator().next();
+                }
+            }
+        }
+        return ivProvider;
+    }
 
     public AESEncrypter(AESCipherProvider cipherProvider) {
         this.cipherProvider = cipherProvider;
@@ -53,7 +64,7 @@ public class AESEncrypter implements Encrypter, Serializable {
     @Override
     public String encrypt(String plainText) throws CryptoException {
         try {
-            byte[] initializationVector = ivProvider.createIV();
+            byte[] initializationVector = getIvProviderInstance().createIV();
             Cipher encryptCipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
             encryptCipher.init(Cipher.ENCRYPT_MODE, createSecretKeySpec(), new IvParameterSpec(initializationVector));
 

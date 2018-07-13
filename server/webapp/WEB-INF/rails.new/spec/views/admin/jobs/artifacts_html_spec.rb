@@ -1,5 +1,5 @@
 ##########################GO-LICENSE-START################################
-# Copyright 2014 ThoughtWorks, Inc.
+# Copyright 2018 ThoughtWorks, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -73,41 +73,6 @@ describe "admin/jobs/artifacts.html.erb" do
     expect(response).to have_selector("select[id='select_artifact_type'] option[value='External Artifact']", :text => 'External')
   end
 
-  it "should render plugin template and data for a external artifact" do
-    render
-
-    expect(response).to have_selector("div.artifact .row .columns input[type='text'][value='artifact_id']")
-    expect(response).to have_selector("div.artifact .row .columns input[type='text'][value='store_id']")
-
-    Capybara.string(response.body).find('div.plugged_artifact').tap do |div|
-      template_text = text_without_whitespace(div.find('div.plugged_artifact_template'))
-      expect(template_text).to eq(ARTIFACT_PLUGIN_TEMPLATE)
-
-      data_for_template = JSON.parse(div.find('span.plugged_artifact_data', :visible => false).text)
-      expect(data_for_template.keys.sort).to eq(['KEY1', 'key2'])
-      expect(data_for_template['KEY1']).to eq({'value' => 'value1'})
-      expect(data_for_template['key2']).to eq({'value' => 'value2'})
-    end
-  end
-
-  it "should select default Plugin Id when there is only one plugin installed" do
-    render
-
-    plugin_id_dropdown = Capybara.string(response.body).find("div.plugin-select-form select.artifact_plugin_selection")
-    expect(plugin_id_dropdown.find('option[selected]')).to have_text("Foo Plugin")
-  end
-
-  it "should prompt user to configure artifact store and provide a link to the the artifact store when it is not configured" do
-    assign(:store_id_to_plugin_id, {})
-
-    render
-
-    prompt_message = Capybara.string(response.body).find("div.information.no_artifact_store")
-    expect(prompt_message.find('div.errors')).to have_text("No artifact store is configured")
-    expect(prompt_message.find('div.errors')).to have_text("Go to artifact store page to configure artifact store.")
-    expect(prompt_message.find('div.errors')).to have_link("artifact store page",:href=>"/go/admin/artifact_stores")
-  end
-
   it "should not prompt user to configure artifact store when it's already configured" do
     render
 
@@ -134,10 +99,9 @@ describe "admin/jobs/artifacts.html.erb" do
   it "should show the delete button for each artifact" do
     render
 
-    expect(Capybara.string(response.body).all('div.artifact .row .columns .delete_artifact').size).to eq(3)
+    expect(Capybara.string(response.body).all('div.artifact .row .columns .delete_artifact').size).to eq(2)
   end
-
-
+  
   def text_without_whitespace element
     element.native.inner_html.gsub(/^[\n ]*/, '').gsub(/[\n ]*$/, '')
   end

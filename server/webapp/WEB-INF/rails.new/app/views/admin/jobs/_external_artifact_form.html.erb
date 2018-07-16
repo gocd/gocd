@@ -31,11 +31,11 @@
           <%= artifact_form.hidden_field "artifactTypeValue", :class => "form_input artifact_source", :id => nil -%>
         </div>
         <div class="name_value_cell columns medium-3 large-3">
-          <%= artifact_form.text_field "id", :class => "form_input artifact_source", :id => nil -%>
+          <%= artifact_form.text_field "id", :class => "form_input artifact_source" -%>
           <%= error_message_on(scope[:external_artifact], "id", :css_class => "form_error") %>
         </div>
         <div class="name_value_cell columns medium-3 large-3">
-          <%= artifact_form.text_field "storeId", :class => "form_input artifact_destination stores_auto_complete", :id => nil -%>
+          <%= artifact_form.text_field "storeId", :class => "form_input artifact_destination stores_auto_complete" -%>
           <%= error_message_on(scope[:external_artifact], "storeId", :css_class => "form_error") %>
         </div>
         <div class="name_value_cell columns medium-4 large-4 end">
@@ -45,11 +45,10 @@
 
       <div class="row expanded plugin_dropdown_background hidden">
         <div class="columns medium-8 medium-offset-2 large-8 end">
-            <div class="plugin-select-form">
-              <span>Cannot determine plugin to show the configuration view. Please choose a plugin to configure the plugin properties. <span class="contextual_help has_go_tip_right" title="The plugin with which the store is associated cannot be determined because: the store id is a parameter or store is non-existent."/></span>
+          <div class="plugin-select-form">
+            <span>Cannot determine plugin to show the configuration view. Please choose a plugin to configure the plugin properties. <span class="contextual_help has_go_tip_right" title="The plugin with which the store is associated cannot be determined because: the store id is a parameter or store is non-existent."/></span>
             <label>Plugin</label>
-            <% plugin_count = scope[:plugin_name_to_id].size %>
-            <%= select("", "pluginId", scope[:plugin_name_to_id], {:prompt => plugin_count == 1 ? nil : 'Select plugin', :selected => scope[:store_id_to_plugin_id][external_artifact_config.getStoreId]}, {:class => 'artifact_plugin_selection', :name => "job[artifactConfigs][][pluginId]"}) %>
+            <%= select("", "pluginId", scope[:plugin_name_to_id], {:prompt => 'Select plugin', :selected => scope[:store_id_to_plugin_id][external_artifact_config.getStoreId]}, {:name => "job[artifactConfigs][][pluginId]", :class => 'artifact_plugin_selection'}) %>
           </div>
         </div>
       </div>
@@ -77,28 +76,10 @@
           <%= render :partial => 'shared/convert_tool_tips.html' %>
         </div>
       </div>
-      <% if scope[:store_id_to_plugin_id][external_artifact_config.getStoreId()].blank? && !scope[:external_artifact].getConfiguration().isEmpty() %>
-        <div class="row expanded plugin_key_value plugin_form_background">
-          <div class="columns medium-8 medium-offset-2 large-8 end">
-            <% scope[:external_artifact].getConfiguration().getPropertyMetadataAndValuesAsMap().to_hash.each do |config_property| %>
-              <div class="plugin-config-read-only show" id="plugin_key_value_<%= uuid %>">
-                <dl class="key-value-pair">
-                  <%= artifact_form.hidden_field "configurationProperty", :class => "form_input artifact_source", :id => nil, :name => "job[artifactConfigs][][configuration][#{config_property[0]}][value]", :value => config_property[1]['value'] -%>
-                  <%= artifact_form.hidden_field "configurationProperty", :class => "form_input artifact_source", :id => nil, :name => "job[artifactConfigs][][configuration][#{config_property[0]}][isSecure]", :value => config_property[1]['isSecure'] -%>
-                  <dt><%= config_property[0] %></dt>
-                  <dd><%= config_property[1]['displayValue'] %></dd>
-                </dl>
-              </div>
-            <% end %>
-          </div>
+      <div class="row expanded plugin_key_value plugin_form_background">
+        <div class="columns medium-8 medium-offset-2 large-8 end">
         </div>
-      <% end %>
-      <script type="text/javascript">
-        Util.on_load(function () {
-          initializeAngular("<%= plugged_artifact_angular_controller_element_id %>", "<%= plugged_artifact_data_element_id %>");
-        })
-      </script>
+      </div>
     <% end %>
   <% end %>
-
 </div>

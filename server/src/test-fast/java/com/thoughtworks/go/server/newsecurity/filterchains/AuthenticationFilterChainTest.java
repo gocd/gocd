@@ -192,6 +192,26 @@ public class AuthenticationFilterChainTest {
         }
 
         @ParameterizedTest
+        @ValueSource(strings = {"/api/webhooks/bitbucket/notify", "/api/webhooks/github/notify", "/api/webhooks/foo/notify"})
+        void shouldAllowAnonymousAccessForWebhookApis(String url) throws IOException, ServletException {
+            request = HttpRequestBuilder.GET(url)
+                    .build();
+
+            new AuthenticationFilterChain(null, null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    assumeAnonymousUserFilter)
+                    .doFilter(request, response, filterChain);
+
+            verify(filterChain).doFilter(wrap(request), wrap(response));
+            MockHttpServletResponseAssert.assertThat(response).isOk();
+            assertThat(SessionUtils.getAuthenticationToken(request).getCredentials()).isSameAs(AnonymousCredential.INSTANCE);
+        }
+
+        @ParameterizedTest
         @ValueSource(strings = {"/api/config-repository.git/git-upload-something", "/cctray.xml", "/api/foo", "/blah"})
         void shouldAuthenticateUsingBasicAuthForAllCalls(String url) throws IOException, ServletException {
             request = HttpRequestBuilder.GET(url)

@@ -17,6 +17,7 @@ describe("Agent Row Widget", () => {
   const $      = require("jquery");
   const m      = require('mithril');
   const Stream = require('mithril/stream');
+  const Modal  = require('views/shared/new_modal');
   require('jasmine-jquery');
 
   const PluginInfos = require('models/shared/plugin_infos');
@@ -37,10 +38,13 @@ describe("Agent Row Widget", () => {
 
   let shouldShowAnalyticsIcon = true;
   beforeEach(() => {
+    jasmine.Ajax.install();
     allAgents = Agents.fromJSON(json());
   });
 
   afterEach(() => {
+    jasmine.Ajax.uninstall();
+    Modal.destroyAll();
     unmount();
   });
 
@@ -196,6 +200,24 @@ describe("Agent Row Widget", () => {
     elasticAgentPluginInfo.extensions.push(analyticsExtension);
     mount(agents(), model, true);
     expect($root.find('.agent-analytics')).toBeInDOM();
+  });
+
+  it('should render analytics for given agent on clicking analytics icon', () => {
+    const analyticsPlugin = 'cd.go.contrib.elasticagent.kubernetes';
+    const analyticsName   = 'agent_utilization';
+    const agentUUID       = 'uuid-3';
+    const hostname        = 'host-3';
+    stubAgentAnalyticsFor(analyticsPlugin, analyticsName, agentUUID, hostname);
+
+    elasticAgentPluginInfo.extensions.push(analyticsExtension);
+    mount(agents(), model, true);
+    expect($root.find('.agent-analytics')).toBeInDOM();
+
+    $('.agent-analytics').click();
+    m.redraw();
+
+    expect($('.new-modal-container')).toBeInDOM();
+    expect($('.modal-title')).toContainText(`Analytics for agent: ${hostname}`);
   });
 
   it('should not render analytics plugin icon if analytics icon should not be shown', () => {
@@ -444,10 +466,19 @@ describe("Agent Row Widget", () => {
       "supported_analytics": [
         {
           "type":  "agent",
-          "id":    "agent utilization",
+          "id":    "agent_utilization",
           "title": "Agent Utilization"
         }
       ]
     }
   };
+
+  function stubAgentAnalyticsFor(pluginName, analyticsName, agentUUID, agentHostname) {
+    const response = '<html>Agent Analytics</html>';
+
+    jasmine.Ajax.stubRequest(`/go/analytics/${pluginName}/agent/${analyticsName}?agent_uuid=${agentUUID}&agent_hostname=${agentHostname}&key=analytics.agent-chart`, undefined, 'GET').andReturn({
+      responseText: response,
+      status:       200
+    });
+  }
 });

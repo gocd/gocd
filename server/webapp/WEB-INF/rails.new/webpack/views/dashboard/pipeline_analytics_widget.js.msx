@@ -35,7 +35,7 @@ function createModal(pluginId, metricId, pipeline) {
 
   const modal = new Modal({
     size:    "analytics-modal",
-    title:   "Analytics",
+    title:   `Analytics for pipeline: ${pipeline.name}`,
     body:    () => (m(AnalyticsiFrameWidget, {model, uid, title: "Pipeline Build Time", pluginId, init})),
     onclose: () => modal.destroy(),
     buttons: []

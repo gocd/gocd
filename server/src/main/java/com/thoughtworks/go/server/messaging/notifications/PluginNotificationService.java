@@ -29,6 +29,7 @@ import com.thoughtworks.go.plugin.access.notification.NotificationPluginRegistry
 import com.thoughtworks.go.server.dao.PipelineDao;
 import com.thoughtworks.go.server.dao.StageDao;
 import com.thoughtworks.go.server.service.GoConfigService;
+import com.thoughtworks.go.util.SystemEnvironment;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -37,6 +38,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Set;
 
+import static com.thoughtworks.go.util.SystemEnvironment.NOTIFICATION_PLUGIN_MESSAGES_TTL;
+
 @Component
 public class PluginNotificationService {
     private final NotificationPluginRegistry notificationPluginRegistry;
@@ -44,18 +47,20 @@ public class PluginNotificationService {
     private final GoConfigService goConfigService;
     private final PipelineDao pipelineSqlMapDao;
     private StageDao stageDao;
+    private SystemEnvironment systemEnvironment;
     private final HashMap<String, NotificationDataCreator> map = new HashMap<>();
 
     @Autowired
     public PluginNotificationService(NotificationPluginRegistry notificationPluginRegistry,
                                      PluginNotificationsQueueHandler pluginNotificationsQueueHandler,
                                      GoConfigService goConfigService,
-                                     PipelineDao pipelineSqlMapDao, StageDao stageDao) {
+                                     PipelineDao pipelineSqlMapDao, StageDao stageDao, SystemEnvironment systemEnvironment) {
         this.notificationPluginRegistry = notificationPluginRegistry;
         this.pluginNotificationsQueueHandler = pluginNotificationsQueueHandler;
         this.goConfigService = goConfigService;
         this.pipelineSqlMapDao = pipelineSqlMapDao;
         this.stageDao = stageDao;
+        this.systemEnvironment = systemEnvironment;
         map.put(NotificationExtension.STAGE_STATUS_CHANGE_NOTIFICATION, new StageNotificationDataCreator());
         map.put(NotificationExtension.AGENT_STATUS_CHANGE_NOTIFICATION, new AgentNotificationDataCreator());
     }
@@ -70,9 +75,10 @@ public class PluginNotificationService {
 
     private <T> void notify(String requestName, T instance) {
         Set<String> interestedPlugins = notificationPluginRegistry.getPluginsInterestedIn(requestName);
+        Long timeToLive = systemEnvironment.get(NOTIFICATION_PLUGIN_MESSAGES_TTL);
         for (String pluginId : interestedPlugins) {
             PluginNotificationMessage message = new PluginNotificationMessage<>(pluginId, requestName, map.get(requestName).notificationDataFor(instance));
-            pluginNotificationsQueueHandler.post(message, 0);
+            pluginNotificationsQueueHandler.post(message, timeToLive);
         }
     }
 

@@ -45,6 +45,7 @@ import org.mockito.Mock;
 import java.util.LinkedHashSet;
 import java.util.List;
 
+import static com.thoughtworks.go.util.SystemEnvironment.NOTIFICATION_PLUGIN_MESSAGES_TTL;
 import static java.util.Arrays.asList;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsInstanceOf.instanceOf;
@@ -67,21 +68,25 @@ public class PluginNotificationServiceTest {
     private PipelineDao pipelineDao;
     @Mock
     private StageDao stageDao;
+    @Mock
+    private SystemEnvironment systemEnvironment;
     private PluginNotificationService pluginNotificationService;
 
     @Before
     public void setUp() throws Exception {
         initMocks(this);
-        pluginNotificationService = new PluginNotificationService(notificationPluginRegistry, pluginNotificationsQueueHandler, goConfigService, pipelineDao, stageDao);
+        pluginNotificationService = new PluginNotificationService(notificationPluginRegistry, pluginNotificationsQueueHandler, goConfigService, pipelineDao, stageDao, systemEnvironment);
     }
 
     @Test
     public void shouldConstructDataForAgentNotification() {
         when(notificationPluginRegistry.getPluginsInterestedIn(NotificationExtension.AGENT_STATUS_CHANGE_NOTIFICATION)).thenReturn(new LinkedHashSet<>(asList(PLUGIN_ID_1)));
+        when(systemEnvironment.get(NOTIFICATION_PLUGIN_MESSAGES_TTL)).thenReturn(1000L);
+
         AgentInstance agentInstance = AgentInstanceMother.building();
         pluginNotificationService.notifyAgentStatus(agentInstance);
         ArgumentCaptor<PluginNotificationMessage> captor = ArgumentCaptor.forClass(PluginNotificationMessage.class);
-        verify(pluginNotificationsQueueHandler).post(captor.capture(), eq(0L));
+        verify(pluginNotificationsQueueHandler).post(captor.capture(), eq(1000L));
 
         PluginNotificationMessage message = captor.getValue();
         assertThat(message.pluginId(), is(PLUGIN_ID_1));
@@ -101,6 +106,7 @@ public class PluginNotificationServiceTest {
     @Test
     public void shouldConstructDataForElasticAgentNotification() {
         when(notificationPluginRegistry.getPluginsInterestedIn(NotificationExtension.AGENT_STATUS_CHANGE_NOTIFICATION)).thenReturn(new LinkedHashSet<>(asList(PLUGIN_ID_1)));
+        when(systemEnvironment.get(NOTIFICATION_PLUGIN_MESSAGES_TTL)).thenReturn(1000L);
         ElasticAgentRuntimeInfo agentRuntimeInfo = new ElasticAgentRuntimeInfo(new AgentIdentifier("localhost", "127.0.0.1", "uuid"), AgentRuntimeStatus.Idle, "/foo/one", null, "42", "go.cd.elastic-agent-plugin.docker");
         AgentConfig agentConfig = new AgentConfig();
         agentConfig.setElasticAgentId("42");
@@ -111,7 +117,7 @@ public class PluginNotificationServiceTest {
 
         pluginNotificationService.notifyAgentStatus(agentInstance);
         ArgumentCaptor<PluginNotificationMessage> captor = ArgumentCaptor.forClass(PluginNotificationMessage.class);
-        verify(pluginNotificationsQueueHandler).post(captor.capture(), eq(0L));
+        verify(pluginNotificationsQueueHandler).post(captor.capture(), eq(1000L));
 
         PluginNotificationMessage message = captor.getValue();
         assertThat(message.pluginId(), is(PLUGIN_ID_1));
@@ -126,12 +132,13 @@ public class PluginNotificationServiceTest {
         Stage stage = StageMother.custom("Stage");
         when(notificationPluginRegistry.getPluginsInterestedIn(NotificationExtension.STAGE_STATUS_CHANGE_NOTIFICATION)).thenReturn(new LinkedHashSet<>(asList(PLUGIN_ID_1)));
         when(goConfigService.findGroupNameByPipeline(new CaseInsensitiveString(stage.getIdentifier().getPipelineName()))).thenReturn("group1");
+        when(systemEnvironment.get(NOTIFICATION_PLUGIN_MESSAGES_TTL)).thenReturn(1000L);
         BuildCause buildCause = BuildCause.createManualForced();
         when(pipelineDao.findBuildCauseOfPipelineByNameAndCounter(stage.getIdentifier().getPipelineName(), stage.getIdentifier().getPipelineCounter())).thenReturn(buildCause);
         ArgumentCaptor<PluginNotificationMessage> captor = ArgumentCaptor.forClass(PluginNotificationMessage.class);
 
         pluginNotificationService.notifyStageStatus(stage);
-        verify(pluginNotificationsQueueHandler).post(captor.capture(), eq(0L));
+        verify(pluginNotificationsQueueHandler).post(captor.capture(), eq(1000L));
 
         PluginNotificationMessage message = captor.getValue();
         assertThat(message.pluginId(), is(PLUGIN_ID_1));
@@ -154,9 +161,10 @@ public class PluginNotificationServiceTest {
         when(goConfigService.hasPreviousStage(stage.getIdentifier().getPipelineName(), stage.getName())).thenReturn(true);
         when(goConfigService.previousStage(stage.getIdentifier().getPipelineName(), stage.getName())).thenReturn(previousStage);
         when(stageDao.findLatestStageCounter(stage.getIdentifier().pipelineIdentifier(), previousStage.name().toString())).thenReturn(1);
+        when(systemEnvironment.get(NOTIFICATION_PLUGIN_MESSAGES_TTL)).thenReturn(1000L);
 
         pluginNotificationService.notifyStageStatus(stage);
-        verify(pluginNotificationsQueueHandler).post(captor.capture(), eq(0L));
+        verify(pluginNotificationsQueueHandler).post(captor.capture(), eq(1000L));
 
         PluginNotificationMessage message = captor.getValue();
         StageNotificationData data = (StageNotificationData) message.getData();
@@ -179,9 +187,10 @@ public class PluginNotificationServiceTest {
         when(goConfigService.hasPreviousStage(stage.getIdentifier().getPipelineName(), stage.getName())).thenReturn(true);
         when(goConfigService.previousStage(stage.getIdentifier().getPipelineName(), stage.getName())).thenReturn(previousStage);
         when(stageDao.findLatestStageCounter(stage.getIdentifier().pipelineIdentifier(), previousStage.name().toString())).thenReturn(1);
+        when(systemEnvironment.get(NOTIFICATION_PLUGIN_MESSAGES_TTL)).thenReturn(1000L);
 
         pluginNotificationService.notifyStageStatus(stage);
-        verify(pluginNotificationsQueueHandler).post(captor.capture(), eq(0L));
+        verify(pluginNotificationsQueueHandler).post(captor.capture(), eq(1000L));
 
         PluginNotificationMessage message = captor.getValue();
         StageNotificationData data = (StageNotificationData) message.getData();
@@ -202,9 +211,10 @@ public class PluginNotificationServiceTest {
         stage.setCounter(2);
         when(notificationPluginRegistry.getPluginsInterestedIn(NotificationExtension.STAGE_STATUS_CHANGE_NOTIFICATION)).thenReturn(new LinkedHashSet<>(asList(PLUGIN_ID_1)));
         when(goConfigService.hasPreviousStage(stage.getIdentifier().getPipelineName(), stage.getName())).thenReturn(true);
+        when(systemEnvironment.get(NOTIFICATION_PLUGIN_MESSAGES_TTL)).thenReturn(1000L);
 
         pluginNotificationService.notifyStageStatus(stage);
-        verify(pluginNotificationsQueueHandler).post(captor.capture(), eq(0L));
+        verify(pluginNotificationsQueueHandler).post(captor.capture(), eq(1000L));
 
         PluginNotificationMessage message = captor.getValue();
         StageNotificationData data = (StageNotificationData) message.getData();
@@ -222,9 +232,10 @@ public class PluginNotificationServiceTest {
 
         when(notificationPluginRegistry.getPluginsInterestedIn(NotificationExtension.STAGE_STATUS_CHANGE_NOTIFICATION)).thenReturn(new LinkedHashSet<>(asList(PLUGIN_ID_1)));
         when(goConfigService.hasPreviousStage(stage.getIdentifier().getPipelineName(), stage.getName())).thenReturn(false);
+        when(systemEnvironment.get(NOTIFICATION_PLUGIN_MESSAGES_TTL)).thenReturn(1000L);
 
         pluginNotificationService.notifyStageStatus(stage);
-        verify(pluginNotificationsQueueHandler).post(captor.capture(), eq(0L));
+        verify(pluginNotificationsQueueHandler).post(captor.capture(), eq(1000L));
 
         PluginNotificationMessage message = captor.getValue();
         StageNotificationData data = (StageNotificationData) message.getData();
@@ -238,12 +249,13 @@ public class PluginNotificationServiceTest {
         result.withSuccessMessages("success message");
         when(notificationPluginRegistry.getPluginsInterestedIn(NotificationExtension.AGENT_STATUS_CHANGE_NOTIFICATION)).thenReturn(new LinkedHashSet<>(asList(PLUGIN_ID_1, PLUGIN_ID_2)));
         when(notificationPluginRegistry.getPluginsInterestedIn(NotificationExtension.STAGE_STATUS_CHANGE_NOTIFICATION)).thenReturn(new LinkedHashSet<>(asList(PLUGIN_ID_3)));
+        when(systemEnvironment.get(NOTIFICATION_PLUGIN_MESSAGES_TTL)).thenReturn(1000L);
 
         AgentInstance agentInstance = AgentInstanceMother.lostContact();
         pluginNotificationService.notifyAgentStatus(agentInstance);
 
         ArgumentCaptor<PluginNotificationMessage> captor = ArgumentCaptor.forClass(PluginNotificationMessage.class);
-        verify(pluginNotificationsQueueHandler, times(2)).post(captor.capture(), eq(0L));
+        verify(pluginNotificationsQueueHandler, times(2)).post(captor.capture(), eq(1000L));
         List<PluginNotificationMessage> messages = captor.getAllValues();
         assertThat(messages.size(), is(2));
         assertMessage(messages.get(0), PLUGIN_ID_1, NotificationExtension.AGENT_STATUS_CHANGE_NOTIFICATION, agentInstance);

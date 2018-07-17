@@ -229,6 +229,7 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
     private static final GoSystemProperty<Boolean> JOB_DETAILS_USE_IFRAME_SANDBOX = new GoBooleanSystemProperty("gocd.job.details.sandbox", true);
     private static final GoSystemProperty<Boolean> DES_CIPHER_ENABLED = new GoBooleanSystemProperty("gocd.des.cipher.enabled", true);
     public static final GoSystemProperty<String> LOADING_PAGE = new GoStringSystemProperty("loading.page.resource.path", "/loading_pages/default.loading.page.html");
+    public static GoSystemProperty<Long> NOTIFICATION_PLUGIN_MESSAGES_TTL = new GoLongSystemProperty("plugins.notification.message.ttl.millis", 2 * 60 * 1000L);
     private final static Map<String, String> GIT_ALLOW_PROTOCOL;
 
     static {

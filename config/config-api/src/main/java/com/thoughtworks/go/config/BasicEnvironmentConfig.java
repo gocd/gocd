@@ -73,29 +73,7 @@ public class BasicEnvironmentConfig implements EnvironmentConfig {
     @Override
     public boolean validateTree(ConfigSaveValidationContext validationContext, CruiseConfig preprocessedConfig) {
         validate(validationContext);
-
-        ArrayList<CaseInsensitiveString> names = new ArrayList<>();
-        HashMap<CaseInsensitiveString, CaseInsensitiveString> pipelineToEnv = new HashMap<>();
-        List<CaseInsensitiveString> allPipelineNames = preprocessedConfig.getAllPipelineNames();
-        for (EnvironmentConfig environmentConfig : preprocessedConfig.getEnvironments()) {
-            if (names.contains(environmentConfig.name())) {
-                environmentConfig.addError("name", String.format("Environment with name '%s' already exists.", environmentConfig.name()));
-            } else {
-                names.add(environmentConfig.name());
-            }
-
-            for (EnvironmentPipelineConfig pipeline : environmentConfig.getPipelines()) {
-                if (!allPipelineNames.contains(pipeline.getName())) {
-                    addError("pipeline", String.format("Environment '%s' refers to an unknown pipeline '%s'.", name, pipeline.getName()));
-                }
-                if (pipelineToEnv.containsKey(pipeline.getName())) {
-                    environmentConfig.addError("pipeline", "Associating pipeline(s) which is already part of " + pipelineToEnv.get(pipeline.getName()) + " environment");
-                } else {
-                    pipelineToEnv.put(pipeline.getName(), environmentConfig.name());
-                }
-            }
-        }
-
+        preprocessedConfig.getEnvironments().validate(validationContext);
         validateContainsOnlyUuids(preprocessedConfig.agents().acceptedUuids());
 
         boolean isValid = ErrorCollector.getAllErrors(this).isEmpty();

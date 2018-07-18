@@ -2911,7 +2911,6 @@ public class MagicalGoConfigXmlLoaderTest {
 
         assertThat(list, hasItem(ArtifactDirValidator.class.getCanonicalName()));
         assertThat(list, hasItem(EnvironmentAgentValidator.class.getCanonicalName()));
-        assertThat(list, hasItem(EnvironmentPipelineValidator.class.getCanonicalName()));
         assertThat(list, hasItem(ServerIdImmutabilityValidator.class.getCanonicalName()));
         assertThat(list, hasItem(CommandRepositoryLocationValidator.class.getCanonicalName()));
         assertThat(list, hasItem(TokenGenerationKeyImmutabilityValidator.class.getCanonicalName()));

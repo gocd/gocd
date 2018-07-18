@@ -36,20 +36,24 @@ public class EnvironmentsConfig extends BaseCollection<EnvironmentConfig> implem
     public EnvironmentsConfig() { }
 
     public void validate(ValidationContext validationContext) {
-        ArrayList<CaseInsensitiveString> names = new ArrayList<>();
-        HashMap<CaseInsensitiveString, CaseInsensitiveString> pipelineToEnv = new HashMap<>();
+        List<CaseInsensitiveString> allPipelineNames = validationContext.getCruiseConfig().getAllPipelineNames();
+        List<CaseInsensitiveString> allEnvironmentNames = new ArrayList<>();
+        Map<CaseInsensitiveString, CaseInsensitiveString> pipelineToEnvMap = new HashMap<>();
         for (EnvironmentConfig environmentConfig : this) {
-            if (names.contains(environmentConfig.name())) {
+            if (allEnvironmentNames.contains(environmentConfig.name())) {
                 environmentConfig.addError("name", String.format("Environment with name '%s' already exists.", environmentConfig.name()));
             } else {
-                names.add(environmentConfig.name());
+                allEnvironmentNames.add(environmentConfig.name());
             }
 
             for (EnvironmentPipelineConfig pipeline : environmentConfig.getPipelines()) {
-                if (pipelineToEnv.containsKey(pipeline.getName())) {
-                    environmentConfig.addError("pipeline", "Associating pipeline(s) which is already part of " + pipelineToEnv.get(pipeline.getName()) + " environment");
+                if (!allPipelineNames.contains(pipeline.getName())) {
+                    environmentConfig.addError("pipeline", String.format("Environment '%s' refers to an unknown pipeline '%s'.", environmentConfig.name(), pipeline.getName()));
+                }
+                if (pipelineToEnvMap.containsKey(pipeline.getName())) {
+                    environmentConfig.addError("pipeline", "Associating pipeline(s) which is already part of " + pipelineToEnvMap.get(pipeline.getName()) + " environment");
                 } else {
-                    pipelineToEnv.put(pipeline.getName(), environmentConfig.name());
+                    pipelineToEnvMap.put(pipeline.getName(), environmentConfig.name());
                 }
             }
         }
@@ -69,12 +73,6 @@ public class EnvironmentsConfig extends BaseCollection<EnvironmentConfig> implem
             isValid = environmentConfig.validateContainsOnlyUuids(uuids) && isValid;
         }
         return isValid;
-    }
-
-    public void validateContainOnlyPiplines(List<CaseInsensitiveString> pipelineNames) {
-        for (EnvironmentConfig environmentConfig : this) {
-            environmentConfig.validateContainsOnlyPipelines(pipelineNames);
-        }
     }
 
     public void addAgentsToEnvironment(String environmentName, String... uuids) {

@@ -23,10 +23,7 @@ import com.thoughtworks.go.domain.EnvironmentPipelineMatcher;
 import com.thoughtworks.go.domain.EnvironmentPipelineMatchers;
 import com.thoughtworks.go.util.comparator.AlphaAsciiComparator;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 
 /**
  * @understands the current persistent information related to multiple logical groupings of machines
@@ -39,6 +36,23 @@ public class EnvironmentsConfig extends BaseCollection<EnvironmentConfig> implem
     public EnvironmentsConfig() { }
 
     public void validate(ValidationContext validationContext) {
+        ArrayList<CaseInsensitiveString> names = new ArrayList<>();
+        HashMap<CaseInsensitiveString, CaseInsensitiveString> pipelineToEnv = new HashMap<>();
+        for (EnvironmentConfig environmentConfig : this) {
+            if (names.contains(environmentConfig.name())) {
+                environmentConfig.addError("name", String.format("Environment with name '%s' already exists.", environmentConfig.name()));
+            } else {
+                names.add(environmentConfig.name());
+            }
+
+            for (EnvironmentPipelineConfig pipeline : environmentConfig.getPipelines()) {
+                if (pipelineToEnv.containsKey(pipeline.getName())) {
+                    environmentConfig.addError("pipeline", "Associating pipeline(s) which is already part of " + pipelineToEnv.get(pipeline.getName()) + " environment");
+                } else {
+                    pipelineToEnv.put(pipeline.getName(), environmentConfig.name());
+                }
+            }
+        }
     }
 
     public ConfigErrors errors() {
@@ -92,19 +106,7 @@ public class EnvironmentsConfig extends BaseCollection<EnvironmentConfig> implem
 
     @Override
     public boolean add(EnvironmentConfig environment) {
-        validateNotADuplicate(environment);
         return super.add(environment);
-    }
-
-    public void validateNotADuplicate(EnvironmentConfig environmentConfig) {
-        if (hasEnvironmentNamed(environmentConfig.name())) {
-            throw new RuntimeException(String.format("Environment with name '%s' already exists.", environmentConfig.name()));
-        }
-        for (EnvironmentConfig config : this) {
-            if (config.hasSamePipelinesAs(environmentConfig)) {
-                throw new RuntimeException("Associating pipeline(s) which is already part of "+config.name()+" environment");
-            }
-        }
     }
 
     public void addPipelinesToEnvironment(String environmentName, String ... pipelineNames) {

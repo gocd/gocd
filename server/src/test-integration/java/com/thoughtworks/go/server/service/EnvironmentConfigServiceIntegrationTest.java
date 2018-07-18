@@ -115,6 +115,39 @@ public class EnvironmentConfigServiceIntegrationTest {
     }
 
     @Test
+    public void shouldPointOutDuplicatePipelinesInAnEnvironmentOnEnvironmentUpdate() throws NoSuchEnvironmentException {
+        String pipelineName = "pipeline-1";
+        goConfigService.addPipeline(PipelineConfigMother.createPipelineConfig(pipelineName, "dev", "job"), "pipeline-1-grp");
+        Username user = new Username(new CaseInsensitiveString("any"));
+        service.createEnvironment(env("environment-1", Arrays.asList(pipelineName), new ArrayList<>(), new ArrayList<>()), user, new HttpLocalizedOperationResult());
+        String environmentBeingUpdated = "environment-2";
+        service.createEnvironment(env(environmentBeingUpdated, new ArrayList<>(), new ArrayList<>(), new ArrayList<>()), user, new HttpLocalizedOperationResult());
+
+        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+        BasicEnvironmentConfig updatedEnvConfig = new BasicEnvironmentConfig(new CaseInsensitiveString(environmentBeingUpdated));
+        updatedEnvConfig.addPipeline(new CaseInsensitiveString(pipelineName));
+        service.updateEnvironment(environmentBeingUpdated, updatedEnvConfig,
+                user, entityHashingService.md5ForEntity(service.getEnvironmentConfig(environmentBeingUpdated)), result);
+        assertThat(result.message(), is("Failed to update environment 'environment-2'. Associating pipeline(s) which is already part of environment-1 environment"));
+    }
+
+    @Test
+    public void shouldPointOutDuplicatePipelinesInAnEnvironmentOnEnvironmentPatch() {
+        String pipelineName = "pipeline-1";
+        goConfigService.addPipeline(PipelineConfigMother.createPipelineConfig(pipelineName, "dev", "job"), "pipeline-1-grp");
+        Username user = new Username(new CaseInsensitiveString("any"));
+        service.createEnvironment(env("environment-1", Arrays.asList(pipelineName), new ArrayList<>(), new ArrayList<>()), user, new HttpLocalizedOperationResult());
+        String environmentBeingUpdated = "environment-2";
+        service.createEnvironment(env(environmentBeingUpdated, new ArrayList<>(), new ArrayList<>(), new ArrayList<>()), user, new HttpLocalizedOperationResult());
+
+        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+        BasicEnvironmentConfig environmentConfigBeingUpdated = new BasicEnvironmentConfig(new CaseInsensitiveString(environmentBeingUpdated));
+        service.patchEnvironment(environmentConfigBeingUpdated, Arrays.asList(pipelineName),new ArrayList<>(),new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>(),
+                user, result);
+        assertThat(result.message(), is("Failed to update environment 'environment-2'. Associating pipeline(s) which is already part of environment-1 environment"));
+    }
+
+    @Test
     public void shouldReturnBadRequestForInvalidEnvName() {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         service.createEnvironment(env("foo env", new ArrayList<String>(), new ArrayList<Map<String, String>>(), new ArrayList<String>()), new Username(new CaseInsensitiveString("any")), result);

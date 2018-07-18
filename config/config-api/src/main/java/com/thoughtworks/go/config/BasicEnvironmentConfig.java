@@ -16,17 +16,14 @@
 
 package com.thoughtworks.go.config;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import com.thoughtworks.go.config.remote.ConfigOrigin;
 import com.thoughtworks.go.config.remote.ConfigReposConfig;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.EnvironmentPipelineMatcher;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import org.apache.commons.lang3.builder.ToStringBuilder;
+
+import java.util.*;
 
 import static com.thoughtworks.go.util.command.EnvironmentVariableContext.GO_ENVIRONMENT_NAME;
 
@@ -76,11 +73,29 @@ public class BasicEnvironmentConfig implements EnvironmentConfig {
     @Override
     public boolean validateTree(ConfigSaveValidationContext validationContext, CruiseConfig preprocessedConfig) {
         validate(validationContext);
-        try {
-            validateContainsOnlyPipelines(preprocessedConfig.getAllPipelineNames());
-        } catch (RuntimeException e) {
-            errors().add("pipeline", e.getMessage());
+
+        ArrayList<CaseInsensitiveString> names = new ArrayList<>();
+        HashMap<CaseInsensitiveString, CaseInsensitiveString> pipelineToEnv = new HashMap<>();
+        List<CaseInsensitiveString> allPipelineNames = preprocessedConfig.getAllPipelineNames();
+        for (EnvironmentConfig environmentConfig : preprocessedConfig.getEnvironments()) {
+            if (names.contains(environmentConfig.name())) {
+                environmentConfig.addError("name", String.format("Environment with name '%s' already exists.", environmentConfig.name()));
+            } else {
+                names.add(environmentConfig.name());
+            }
+
+            for (EnvironmentPipelineConfig pipeline : environmentConfig.getPipelines()) {
+                if (!allPipelineNames.contains(pipeline.getName())) {
+                    addError("pipeline", String.format("Environment '%s' refers to an unknown pipeline '%s'.", name, pipeline.getName()));
+                }
+                if (pipelineToEnv.containsKey(pipeline.getName())) {
+                    environmentConfig.addError("pipeline", "Associating pipeline(s) which is already part of " + pipelineToEnv.get(pipeline.getName()) + " environment");
+                } else {
+                    pipelineToEnv.put(pipeline.getName(), environmentConfig.name());
+                }
+            }
         }
+
         validateContainsOnlyUuids(preprocessedConfig.agents().acceptedUuids());
 
         boolean isValid = ErrorCollector.getAllErrors(this).isEmpty();

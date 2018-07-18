@@ -24,7 +24,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.thoughtworks.go.domain.JobIdentifier;
-import com.thoughtworks.go.server.domain.ZippedArtifact;
 import com.thoughtworks.go.util.ArtifactLogUtil;
 import com.thoughtworks.go.util.FileUtil;
 import com.thoughtworks.go.util.GoConstants;
@@ -70,9 +69,6 @@ public class FileModelAndView {
             });
         } else {
             HashMap model = new HashMap();
-			if (file instanceof ZippedArtifact) {
-				model.put(FileView.NEED_TO_ZIP, true);
-			}
             model.put("targetFile", file);
             return new ModelAndView("fileView", model);
         }

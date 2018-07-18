@@ -28,12 +28,10 @@ import org.junit.runner.RunWith;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.zip.Deflater;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
-import java.util.zip.ZipInputStream;
+import java.util.zip.*;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.hamcrest.Matchers.*;
@@ -174,11 +172,10 @@ public class ZipUtilTest {
         FileUtils.writeStringToFile(new File(folderTwo, "folder2-file2.txt"), "folder2-file2", UTF_8);
 
         File targetZipFile = temporaryFolder.newFile("final1.zip");
-
-        ZipBuilder zipBuilder = zipUtil.zipContentsOfMultipleFolders(targetZipFile, true);
-        zipBuilder.add("folder-one", folderOne);
-        zipBuilder.add("folder-two", folderTwo);
-        zipBuilder.done();
+        try (ZipOutputStream zipOutputStream = new ZipOutputStream(new FileOutputStream(targetZipFile))) {
+            zipUtil.addToZip(folderOne, zipOutputStream, "folder-one");
+            zipUtil.addToZip(folderTwo, zipOutputStream, "folder-two");
+        }
 
         assertContent(targetZipFile, "folder-one/folder1-file1.txt", "folder1-file1");
         assertContent(targetZipFile, "folder-one/folder1-file2.txt", "folder1-file2");
@@ -199,10 +196,10 @@ public class ZipUtilTest {
 
         File targetZipFile = temporaryFolder.newFile("final2.zip");
 
-        ZipBuilder zipBuilder = zipUtil.zipContentsOfMultipleFolders(targetZipFile, false);
-        zipBuilder.add("folder-one", folderOne);
-        zipBuilder.add("folder-two", folderTwo);
-        zipBuilder.done();
+        try (ZipOutputStream zipOutputStream = new ZipOutputStream(new FileOutputStream(targetZipFile))) {
+            zipUtil.addToZip(folderOne, zipOutputStream, "folder-one/folder1");
+            zipUtil.addToZip(folderTwo, zipOutputStream, "folder-two/folder2");
+        }
 
         assertContent(targetZipFile, "folder-one/folder1/folder1-file1.txt", "folder1-file1");
         assertContent(targetZipFile, "folder-one/folder1/folder1-file2.txt", "folder1-file2");

@@ -54,7 +54,6 @@ public class FileView implements View, ServletContextAware {
     private void handleFile(File file, HttpServletResponse response) throws Exception {
         String filename = file.getName();
         setContentType(response, filename);
-        setHeaders(response, filename);
         setContentLength(file, response);
         setOutput(file, response);
     }
@@ -69,12 +68,6 @@ public class FileView implements View, ServletContextAware {
 
     void setContentLength(File file, HttpServletResponse response) {
         response.addHeader("Content-Length", Long.toString(file.length()));
-    }
-
-    private void setHeaders(HttpServletResponse response, String filename) {
-        if (filename.equals("console.log")) {
-            response.setHeader("Content-Disposition", "Inline; filename=fname.ext");
-        }
     }
 
     private void setContentType(HttpServletResponse response, String filename) {

@@ -58,7 +58,7 @@ public class DESCipherProvider implements Serializable {
                 if (cachedKey == null) {
                     try {
                         if (cipherFile.exists()) {
-                            cachedKey = decodeHex(FileUtils.readFileToString(cipherFile, UTF_8));
+                            cachedKey = decodeHex(FileUtils.readFileToString(cipherFile, UTF_8).trim());
                             return;
                         }
                         byte[] newKey = generateKey();

@@ -44,13 +44,64 @@ $(() => {
     personalization = selection;
   });
 
-  function currentView(viewName) { // a stream-like object/function
-    if (viewName) {
-      window.location.search = m.buildQueryString({ viewName });
-      repeater().restart();
-      return;
+  function queryObject() {
+    return m.parseQueryString(window.location.search);
+  }
+
+  /**
+   * A Stream-like function that manages the viewName state in the URL via the history API
+   * in order to facilitate tab switches without a full page load.
+   *
+   * Called with no arguments, this method returns the current view name; called with 1
+   * argument, it sets the new value as the current view (and forces the page to reflect
+   * that change).
+   *
+   * This API is built so that callers of this function need no knowledge of the current
+   * mithril route. The current route is preserved, and viewName can be independently set
+   * to make bookmarkable, stateful URLs.
+   *
+   * The differences from Stream are that 1) this really only works with String values
+   * and 2) one cannot use this in Stream.combine/merge/map because it cannot be registered
+   * as a dependency to another Stream.
+   *
+   * That said, it's worth noting that this *could* be equivalently implemented as a genuine
+   * Stream that is dependent on a vanilla Stream instance (by way of Sream.map or
+   * Stream.combine), but there's no practical benefit to this.
+   *
+   * Here's how it would look anyway:
+   *
+   * ```
+   * const viewName = Stream(queryObject().viewName);
+   * const currentView = viewName.map(function onUpdateValue(val) {
+   *   // logic to build new URL and handle history, routing, etc
+   *   // goes here.
+   * });
+   * ```
+   */
+  function currentView(viewName, replace=false) {
+    const current = queryObject();
+    if (!arguments.length) { return current.viewName || "Default"; }
+
+    const route = window.location.hash.replace(/^#!/, "");
+
+    if (current.viewName !== viewName) {
+      const path = [
+        window.location.pathname,
+        viewName ? `?${m.buildQueryString($.extend({}, current, { viewName }))}` : "",
+        route ? `#!${route}` : ""
+      ].join("");
+
+      history[replace ? "replaceState" : "pushState"](null, "", path);
+
+      if (route) {
+        m.route.set(route, null, {replace: true}); // force m.route() evaluation
+      }
     }
-    return $.trim(m.parseQueryString(window.location.search).viewName) || "Default";
+
+    // Explicit set always refreshes; even if the viewName didn't change,
+    // we should refresh because the filter definition may have changed as
+    // currentView() is called after every personalization save operation.
+    repeater().restart();
   }
 
   function onResponse(dashboardData, message = undefined) {

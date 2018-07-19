@@ -55,7 +55,7 @@ function createModal(supportedAnalytics, agent) {
 
   const modal = new Modal({
     size:    "analytics-modal",
-    title:   `Analytics for agent: ${agent.uuid()}`,
+    title:   `Analytics for agent: ${agent.hostname()}`,
     body:    () => models.map((model) => m(AnalyticsiFrameWidget, {
       model,
       pluginId: model.pluginId,

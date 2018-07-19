@@ -217,7 +217,7 @@ describe("Agent Row Widget", () => {
     m.redraw();
 
     expect($('.new-modal-container')).toBeInDOM();
-    expect($('.modal-title')).toContainText(`Analytics for agent: ${agentUUID}`);
+    expect($('.modal-title')).toContainText(`Analytics for agent: ${hostname}`);
   });
 
   it('should not render analytics plugin icon if analytics icon should not be shown', () => {

@@ -69,6 +69,6 @@ public class UsageStatisticsControllerV1Delegate extends ApiController {
     }
 
     public String getEncryptedUsageStatistics(Request request, Response response) throws Exception {
-        return RSAEncryptionHelper.encrypt(getUsageStatistics(request, response), systemEnvironment.getUpdateServerPublicKeyPath());
+        return RSAEncryptionHelper.encrypt(getUsageStatistics(request, response), getClass().getClassLoader().getResource("./datasharing-public.pem").getPath());
     }
 }

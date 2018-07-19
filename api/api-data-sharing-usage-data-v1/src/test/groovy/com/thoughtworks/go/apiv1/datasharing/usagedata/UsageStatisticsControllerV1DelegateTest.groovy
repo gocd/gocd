@@ -119,7 +119,7 @@ class UsageStatisticsControllerV1DelegateTest implements SecurityServiceTrait, C
       void 'get encrypted usage statistics'() {
         def metrics = new UsageStatistics(10l, 20l, 1527244129553, serverId, gocdVersion)
         File privateKeyFile = new File(getClass().getClassLoader().getResource("private_key.pem").getFile())
-        File publicKeyFile = new File(getClass().getClassLoader().getResource("public_key.pem").getFile())
+        File publicKeyFile = new File(getClass().getClassLoader().getResource("datasharing-public.pem").getFile())
 
         when(systemEnvironment.getUpdateServerPublicKeyPath()).thenReturn(publicKeyFile.getAbsolutePath())
         when(dataSharingService.get()).thenReturn(metrics)

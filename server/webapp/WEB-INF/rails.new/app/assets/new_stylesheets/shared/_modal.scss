@@ -31,9 +31,14 @@
   }
 
   .modal-title {
-    font-weight: 600;
-    font-size:   18px;
-    margin:      5px 0 5px 15px;
+    font-weight:   600;
+    font-size:     18px;
+    margin:        5px 0 5px 15px;
+
+    max-width:     calc(100% - 40px);
+    overflow:      hidden;
+    white-space:   nowrap;
+    text-overflow: ellipsis;
   }
 
   .modal-body {

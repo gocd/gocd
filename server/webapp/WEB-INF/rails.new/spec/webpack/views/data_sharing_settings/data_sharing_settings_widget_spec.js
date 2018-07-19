@@ -95,7 +95,7 @@ describe("Data Sharing Settings Widget", () => {
   });
 
   it('should show the consent toggle button', () => {
-    expect($root.find('.consent-toggle p')).toContainText('Allow GoCD to collect following data:');
+    expect($root.find('.consent-toggle p')).toContainText('Allow GoCD to collect the following data:');
     expect($root.find('.switch')).toBeInDOM();
   });
 

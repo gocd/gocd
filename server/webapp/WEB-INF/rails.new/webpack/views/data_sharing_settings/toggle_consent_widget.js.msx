@@ -32,7 +32,7 @@ const ToggleConsentWidget = {
     return <div class="consent-toggle-wrapper">
       {consentUpdatedBy}
       <span class="consent-toggle">
-        <p>Allow GoCD to collect following data:</p>
+        <p>Allow GoCD to collect the following data:</p>
         <div class="switch">
           <input class="switch-input"
                  id="consentSwitch"

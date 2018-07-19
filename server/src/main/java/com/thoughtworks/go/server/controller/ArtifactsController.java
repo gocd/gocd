@@ -126,6 +126,9 @@ public class ArtifactsController {
                                          @RequestParam("filePath") String filePath,
                                          @RequestParam(value = "sha1", required = false) String sha
     ) throws Exception {
+        if (filePath.equals(".zip")) {
+            filePath = "./.zip";
+        }
         return getArtifact(filePath, zipViewFactory, pipelineName, counterOrLabel, stageName, stageCounter, buildName, sha, null);
     }
 

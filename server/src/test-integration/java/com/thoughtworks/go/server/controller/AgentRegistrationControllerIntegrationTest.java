@@ -267,13 +267,29 @@ public class AgentRegistrationControllerIntegrationTest {
     }
 
     @Test
-    public void shouldReIssueCertificateIfRegisteredAgentAsksForRegistration() throws Exception {
+    public void shouldReIssueCertificateIfRegisteredAgentAsksForRegistrationWithoutAutoRegisterKeys() throws Exception {
         String uuid = UUID.randomUUID().toString();
         agentConfigService.addAgent(new AgentConfig(uuid, "hostname", "127.0.01"), Username.ANONYMOUS);
         assertTrue(agentService.findAgent(uuid).getAgentConfigStatus().equals(AgentConfigStatus.Enabled));
 
         MockHttpServletRequest request = new MockHttpServletRequest();
         final ResponseEntity responseEntity = controller.agentRequest("hostname", uuid, "sandbox", "100", null, null, null, null, null, null, null, false, token(uuid, goConfigService.serverConfig().getTokenGenerationKey()), request);
+
+        AgentInstance agentInstance = agentService.findAgent(uuid);
+
+        assertTrue(agentInstance.isIdle());
+        assertThat(responseEntity.getStatusCode(), is(HttpStatus.OK));
+        assertTrue(RegistrationJSONizer.fromJson(responseEntity.getBody().toString()).isValid());
+    }
+
+    @Test
+    public void shouldReIssueCertificateIfRegisteredAgentAsksForRegistrationWithAutoRegisterKeys() throws Exception {
+        String uuid = UUID.randomUUID().toString();
+        agentConfigService.addAgent(new AgentConfig(uuid, "hostname", "127.0.01"), Username.ANONYMOUS);
+        assertTrue(agentService.findAgent(uuid).getAgentConfigStatus().equals(AgentConfigStatus.Enabled));
+
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        final ResponseEntity responseEntity = controller.agentRequest("hostname", uuid, "sandbox", "100", null, goConfigService.serverConfig().getAgentAutoRegisterKey(), "", "", null, null, null, false, token(uuid, goConfigService.serverConfig().getTokenGenerationKey()), request);
 
         AgentInstance agentInstance = agentService.findAgent(uuid);
 

@@ -258,7 +258,7 @@ public class AgentRegistrationController {
                 agentConfig.setElasticPluginId(elasticPluginId);
             }
 
-            if (goConfigService.serverConfig().shouldAutoRegisterAgentWith(agentAutoRegisterKey)) {
+            if (goConfigService.serverConfig().shouldAutoRegisterAgentWith(agentAutoRegisterKey) && !goConfigService.hasAgent(uuid)) {
                 LOG.info("[Agent Auto Registration] Auto registering agent with uuid {} ", uuid);
                 GoConfigDao.CompositeConfigCommand compositeConfigCommand = new GoConfigDao.CompositeConfigCommand(
                         new AgentConfigService.AddAgentCommand(agentConfig),

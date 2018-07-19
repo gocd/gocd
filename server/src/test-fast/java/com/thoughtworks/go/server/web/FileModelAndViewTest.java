@@ -16,7 +16,6 @@
 
 package com.thoughtworks.go.server.web;
 
-import com.thoughtworks.go.server.domain.ZippedArtifact;
 import com.thoughtworks.go.util.FileUtil;
 import com.thoughtworks.go.util.TestFileUtil;
 import org.junit.Before;
@@ -52,19 +51,6 @@ public class FileModelAndViewTest {
         ModelAndView modelAndView = FileModelAndView.createFileView(existFile, FileUtil.sha1Digest(existFile));
         modelAndView.getView().render(modelAndView.getModel(), new MockHttpServletRequest(), response);
         assertThat(response.getStatus(), is(304));
-    }
-
-    @Test
-    public void shouldReturnModelWithZipFlagTurnedOnIfZipIsNeeded() throws Exception {
-        ZippedArtifact zippedArtifact = new ZippedArtifact(existFile.getParentFile(), existFile.getName());
-        ModelAndView modelAndView = FileModelAndView.createFileView(zippedArtifact, "");
-        assertThat(modelAndView.getModel().containsKey(FileView.NEED_TO_ZIP), is(true));
-    }
-
-    @Test
-    public void shouldReturnModelWithZipFlagTurnedOffIfZipIsNotNeeded() throws Exception {
-        ModelAndView modelAndView = FileModelAndView.createFileView(existFile, "");
-        assertThat(modelAndView.getModel().containsKey(FileView.NEED_TO_ZIP), is(false));
     }
 
     @Test

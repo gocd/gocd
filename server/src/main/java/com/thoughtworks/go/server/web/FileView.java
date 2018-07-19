@@ -16,7 +16,6 @@
 
 package com.thoughtworks.go.server.web;
 
-import com.thoughtworks.go.util.ZipUtil;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -31,15 +30,14 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Map;
-import java.util.zip.Deflater;
 
 public class FileView implements View, ServletContextAware {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FileView.class);
 
     private ServletContext servletContext;
-    public static final String NEED_TO_ZIP = "need_to_zip";
 
     private ServletContext getServletContext() {
         return this.servletContext;
@@ -53,45 +51,30 @@ public class FileView implements View, ServletContextAware {
         return "application/octet-stream";
     }
 
-    private void handleFile(File file, boolean needToZip, HttpServletResponse response) throws Exception {
+    private void handleFile(File file, HttpServletResponse response) throws Exception {
         String filename = file.getName();
-        seContentType(needToZip, response, filename);
-        setHeaders(response, filename);
-        setContentLength(needToZip, file, response);
-        setOutput(needToZip, file, response);
+        setContentType(response, filename);
+        setContentLength(file, response);
+        setOutput(file, response);
     }
 
-    private void setOutput(boolean needToZip, File file, HttpServletResponse response) throws IOException {
+    private void setOutput(File file, HttpServletResponse response) throws IOException {
         ServletOutputStream out = response.getOutputStream();
-        if (needToZip) {
-            new ZipUtil().zip(file, out, Deflater.NO_COMPRESSION);
-        } else {
+        try (InputStream in = new FileInputStream(file)) {
             IOUtils.copy(new FileInputStream(file), out);
         }
         out.flush();
     }
 
-    void setContentLength(boolean needToZip, File file, HttpServletResponse response) {
-        if (!needToZip) {
-            response.addHeader("Content-Length", Long.toString(file.length()));
-        }
+    void setContentLength(File file, HttpServletResponse response) {
+        response.addHeader("Content-Length", Long.toString(file.length()));
     }
 
-    private void setHeaders(HttpServletResponse response, String filename) {
-        if (filename.equals("console.log")) {
-            response.setHeader("Content-Disposition", "Inline; filename=fname.ext");
-        }
+    private void setContentType(HttpServletResponse response, String filename) {
+        response.setContentType(getMimeType(filename));
     }
 
-    private void seContentType(boolean needToZip, HttpServletResponse response, String filename) {
-        response.setContentType(getMimeType(filename, needToZip));
-    }
-
-    private String getMimeType(String filename, boolean needToZip) {
-        if (needToZip) {
-            return "application/zip";
-        }
-
+    private String getMimeType(String filename) {
         String mimeType = this.getServletContext().getMimeType(filename);
         if (StringUtils.isEmpty(mimeType)) {
             mimeType = "application/octet-stream";
@@ -101,18 +84,17 @@ public class FileView implements View, ServletContextAware {
 
     public void render(Map map, HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) throws Exception {
         File file = (File) map.get("targetFile");
-        boolean needToZip = map.containsKey(NEED_TO_ZIP);
-        handleFileWithLogging(httpServletResponse, file, needToZip);
+        handleFileWithLogging(httpServletResponse, file);
     }
 
-    private void handleFileWithLogging(HttpServletResponse httpServletResponse, File file, boolean needToZip) throws Exception {
-        LOGGER.info("[Artifact Download] About to download: {}. ShouldZip? = {}", file.getAbsolutePath(), needToZip);
+    private void handleFileWithLogging(HttpServletResponse httpServletResponse, File file) throws Exception {
+        LOGGER.info("[Artifact Download] About to download: {}", file.getAbsolutePath());
         long before = System.currentTimeMillis();
 
-        handleFile(file, needToZip, httpServletResponse);
+        handleFile(file, httpServletResponse);
 
         long timeTaken = System.currentTimeMillis() - before;
-        LOGGER.info("[Artifact Download] Finished downloading: {}. ShouldZip? = {}. The time taken is: {}ms", file.getAbsolutePath(), needToZip, timeTaken);
+        LOGGER.info("[Artifact Download] Finished downloading: {}. The time taken is: {}ms", file.getAbsolutePath(), timeTaken);
     }
 
 }

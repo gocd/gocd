@@ -78,7 +78,7 @@ public class FileViewTest {
         when(fourGBfile.length()).thenReturn(fourGB);
 
         HttpServletResponse responseMock = mock(HttpServletResponse.class);
-        view.setContentLength(false, fourGBfile, responseMock);
+        view.setContentLength(fourGBfile, responseMock);
 
         Mockito.verify(responseMock).addHeader("Content-Length", "4658798592");
         Mockito.verifyNoMoreInteractions(responseMock);
@@ -92,21 +92,6 @@ public class FileViewTest {
         view.render(model, mockRequest, mockResponse);
         assertEquals(RESPONSE_CHARSET, mockResponse.getContentType());
         assertEquals(5, getContentLength(mockResponse));
-    }
-
-    @Test
-    public void testShouldZipFileIfZipIsRequired() throws Exception {
-        Map<String, Object> model = new HashMap<>();
-        model.put("targetFile", file);
-        model.put(FileView.NEED_TO_ZIP, true);
-
-        view.render(model, mockRequest, mockResponse);
-
-        // Unzip from the response and verify that the we can read the file back
-        File unzipHere = temporaryFolder.newFolder();
-        new ZipUtil().unzip(
-                new ZipInputStream(new ByteArrayInputStream(mockResponse.getContentAsByteArray())), unzipHere);
-        assertEquals(FileUtils.readFileToString(new File(unzipHere, file.getName()), UTF_8), "hello");
     }
 
     @Test

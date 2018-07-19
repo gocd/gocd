@@ -16,17 +16,22 @@
 
 package com.thoughtworks.go.util;
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 
 import java.io.*;
-import java.util.zip.Deflater;
+import java.nio.file.Paths;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
+import static java.util.zip.Deflater.BEST_SPEED;
+import static org.apache.commons.lang3.StringUtils.isBlank;
+
 public class ZipUtil {
     private static final Logger LOGGER = org.slf4j.LoggerFactory.getLogger(ZipUtil.class);
+    private static final int BUFFER_SIZE = 16 * 1024;
     private ZipEntryHandler zipEntryHandler = null;
 
     public ZipUtil() {
@@ -37,70 +42,79 @@ public class ZipUtil {
     }
 
     public File zip(File source, File destZipFile, int level) throws IOException {
-        zipContents(source, new FileOutputStream(destZipFile), level, false);
+        try (OutputStream outputStream = new BufferedOutputStream(new FileOutputStream(destZipFile), BUFFER_SIZE)) {
+            zip(source, outputStream, level);
+        }
         return destZipFile;
+    }
+
+    public File zipFolderContents(File source, File destZipFile) throws IOException {
+        return zipFolderContents(source, destZipFile, BEST_SPEED);
     }
 
     public File zipFolderContents(File source, File destZipFile, int level) throws IOException {
-        zipContents(source, new FileOutputStream(destZipFile), level, true);
+        try (OutputStream outputStream = new BufferedOutputStream(new FileOutputStream(destZipFile), BUFFER_SIZE)) {
+            zip(source, outputStream, level, null);
+        }
         return destZipFile;
     }
 
-    public ZipBuilder zipContentsOfMultipleFolders(File destZipFile, boolean excludeRootDir) throws IOException {
-        return new ZipBuilder(this, 0, new FileOutputStream(destZipFile), excludeRootDir);
+    public void zip(File source, OutputStream outputStream, int level) throws IOException {
+        zip(source, outputStream, level, source.getName());
     }
 
-    public void zipFolderContents(File destDir, File destZipFile) throws IOException {
-        zipFolderContents(destDir, destZipFile, Deflater.BEST_SPEED);
-    }
-
-    public void zip(File file, OutputStream output, int level) throws IOException {
-        zipContents(file, output, level, false);
-    }
-
-    private void zipContents(File file, OutputStream output, int level, boolean excludeRootDir) throws IOException {
-        new ZipBuilder(this, level, output, excludeRootDir).add("", file).done();
-    }
-
-    private void addFolderToZip(ZipPath path, File source, ZipOutputStream zip, boolean excludeRootDir) throws IOException {
-        ZipPath newPath = path.with(source);
-        if (source.isFile()) {
-            addToZip(newPath, source, zip, false);
-        } else {
-            addDirectory(path, source, zip, excludeRootDir);
+    public void zip(File source, OutputStream outputStream, int level, String baseDirInZipFile) throws IOException {
+        try (ZipOutputStream zip = new ZipOutputStream(outputStream)) {
+            zip.setLevel(level);
+            addToZip(source, zip, baseDirInZipFile);
         }
     }
 
-    private void addDirectory(ZipPath path, File source, ZipOutputStream zip, boolean excludeRootDir) throws IOException {
-        if (excludeRootDir) {
-            addDirContents(path, source, zip);
-            return;
-        }
-        ZipPath newPath = path.with(source);
-        zip.putNextEntry(newPath.asZipEntryDirectory());
-        addDirContents(newPath, source, zip);
-    }
+    public void addToZip(File source, ZipOutputStream zip, String baseDirInZipFile) throws IOException {
+        walkDir(source, file -> {
+            String entryPath = toEntrypath(source, baseDirInZipFile, file);
 
-    private void addDirContents(ZipPath path, File source, ZipOutputStream zip) throws IOException {
-        for (File file : source.listFiles()) {
-            addToZip(path, file, zip, false);
-        }
-    }
+            ZipEntry entry = new ZipEntry(entryPath);
+            entry.setTime(file.lastModified());
+            zip.putNextEntry(entry);
 
-    void addToZip(ZipPath path, File srcFile, ZipOutputStream zip, boolean excludeRootDir) throws IOException {
-        if (srcFile.isDirectory()) {
-            addFolderToZip(path, srcFile, zip, excludeRootDir);
-        } else {
-            byte[] buff = new byte[4096];
-            try (BufferedInputStream inputStream = new BufferedInputStream(new FileInputStream(srcFile))) {
-                ZipEntry zipEntry = path.with(srcFile).asZipEntry();
-                zipEntry.setTime(srcFile.lastModified());
-                zip.putNextEntry(zipEntry);
-                int len;
-                while ((len = inputStream.read(buff)) > 0) {
-                    zip.write(buff, 0, len);
+            if (file.isFile()) {
+                try (FileInputStream fis = new FileInputStream(file)) {
+                    IOUtils.copy(fis, zip, BUFFER_SIZE);
                 }
             }
+        });
+    }
+
+    private String toEntrypath(File source, String baseDirInZipFile, File file) {
+        String s = maybeAddBaseDir(baseDirInZipFile, FilenameUtils.separatorsToUnix(source.toPath().relativize(file.toPath()).toString()));
+        if (file.isDirectory()) {
+            return s + "/";
+        } else {
+            return s;
+        }
+    }
+
+    private String maybeAddBaseDir(String baseDir, String path) {
+        if (isBlank(baseDir) ) {//|| isBlank(Paths.get(baseDir).normalize().toString())){
+            return path;
+        } else {
+            return baseDir + "/" + path;
+        }
+    }
+
+    private void walkDir(File parent, ThrowingConsumer<File, IOException> callback) throws IOException {
+        if (parent.isDirectory()) {
+            for (File child : parent.listFiles()) {
+                if (child.isDirectory()) {
+                    callback.accept(child);
+                    walkDir(child, callback);
+                } else {
+                    callback.accept(child);
+                }
+            }
+        } else {
+            callback.accept(parent);
         }
     }
 
@@ -129,7 +143,7 @@ public class ZipUtil {
         String entryName = nonRootedEntryName(entry);
 
         File outputFile = new File(toDir, entryName);
-        if (isDirectory(entryName)) {
+        if (entry.isDirectory()) {
             outputFile.mkdirs();
             return;
         }
@@ -167,10 +181,6 @@ public class ZipUtil {
             entryName = entryName.substring(1);
         }
         return entryName;
-    }
-
-    private boolean isDirectory(String zipName) {
-        return zipName.endsWith("/");
     }
 
     public String getFileContentInsideZip(ZipInputStream zipInputStream, String file) throws IOException {

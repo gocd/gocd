@@ -168,7 +168,7 @@ public class ArtifactsControllerIntegrationTest {
 
     @Test
     public void shouldReturn404WhenNoLatestBuildForGet() throws Exception {
-        ModelAndView mav = artifactsController.getArtifactAsHtml(pipelineName, "1", "stage", "1", "build2", "/foo.xml", null, null);
+        ModelAndView mav = artifactsController.getArtifactAsHtml(pipelineName, "1", "stage", "1", "build2", "/foo.xml", null);
         assertValidContentAndStatus(mav, SC_NOT_FOUND, "Job " + pipelineName + "/1/stage/1/build2 not found.");
     }
 
@@ -184,7 +184,7 @@ public class ArtifactsControllerIntegrationTest {
 
     @Test
     public void shouldReturn404WhenNoLastGoodBuildForGet() throws Exception {
-        ModelAndView mav = artifactsController.getArtifactAsHtml(pipelineName, "lastgood", "stage", "1", "build", "/foo.xml", null, null);
+        ModelAndView mav = artifactsController.getArtifactAsHtml(pipelineName, "lastgood", "stage", "1", "build", "/foo.xml", null);
         int status = SC_NOT_FOUND;
         String content = "Job " + pipelineName + "/lastgood/stage/1/build not found.";
         assertValidContentAndStatus(mav, status, content);
@@ -194,13 +194,13 @@ public class ArtifactsControllerIntegrationTest {
     public void shouldReturn404WhenNotAValidBuildForGet() throws Exception {
         ModelAndView mav = artifactsController.getArtifactAsHtml(pipelineName, "whatever", "stage", "1", "build",
                 "/foo.xml",
-                null, null);
+                null);
         assertValidContentAndStatus(mav, SC_NOT_FOUND, "Job " + pipelineName + "/whatever/stage/1/build not found.");
     }
 
     @Test
     public void shouldHaveJobIdentifierInModelForHtmlFolderView() throws Exception {
-        ModelAndView mav = artifactsController.getArtifactAsHtml(pipeline.getName(), pipeline.getLabel(), stage.getName(), String.valueOf(stage.getCounter()), job.getName(), "", null, null);
+        ModelAndView mav = artifactsController.getArtifactAsHtml(pipeline.getName(), pipeline.getLabel(), stage.getName(), String.valueOf(stage.getCounter()), job.getName(), "", null);
         assertThat(mav.getModel().get("jobIdentifier"), is(new JobIdentifier(pipeline, stage, job)));
         assertThat(mav.getViewName(), is("rest/html"));
     }
@@ -573,7 +573,7 @@ public class ArtifactsControllerIntegrationTest {
     }
 
     private ModelAndView getFileAsHtml(String file) throws Exception {
-        return artifactsController.getArtifactAsHtml(pipelineName, pipeline.getLabel(), "stage", "1", "build", file, null, null);
+        return artifactsController.getArtifactAsHtml(pipelineName, pipeline.getLabel(), "stage", "1", "build", file, null);
     }
 
     private ModelAndView getFolderAsJson(String file) throws Exception {

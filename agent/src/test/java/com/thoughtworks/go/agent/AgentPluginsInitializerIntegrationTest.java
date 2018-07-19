@@ -19,9 +19,9 @@ package com.thoughtworks.go.agent;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.plugin.infra.monitor.DefaultPluginJarLocationMonitor;
 import com.thoughtworks.go.util.SystemEnvironment;
-import com.thoughtworks.go.util.ZipBuilder;
 import com.thoughtworks.go.util.ZipUtil;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.output.CloseShieldOutputStream;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -32,10 +32,13 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.zip.ZipOutputStream;
 
 import static com.thoughtworks.go.agent.launcher.DownloadableFile.AGENT_PLUGINS;
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.util.zip.Deflater.BEST_SPEED;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.when;
@@ -173,8 +176,11 @@ public class AgentPluginsInitializerIntegrationTest {
         }
 
         public File done() throws IOException {
-            ZipBuilder zipBuilder = zipUtil.zipContentsOfMultipleFolders(pluginsZipFile, true);
-            zipBuilder.add("bundled", bundledPluginsDir).add("external", externalPluginsDir).add("dummy.txt", dummyFileSoZipFileIsNotEmpty).done();
+            try (ZipOutputStream zipOutputStream = new ZipOutputStream(new FileOutputStream(pluginsZipFile))) {
+                new ZipUtil().addToZip(bundledPluginsDir, zipOutputStream, "bundled");
+                new ZipUtil().addToZip(externalPluginsDir, zipOutputStream, "external");
+            }
+
             return pluginsZipFile;
         }
     }

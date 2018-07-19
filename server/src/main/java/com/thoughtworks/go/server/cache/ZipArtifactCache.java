@@ -46,7 +46,7 @@ public class ZipArtifactCache extends ArtifactCache<ArtifactFolder> {
         File cachedTempZip = zipToTempFile(cachedZip);
         cachedTempZip.getParentFile().mkdirs();
         try {
-            zipUtil.zip(originalFolder, cachedTempZip, Deflater.DEFAULT_COMPRESSION);
+            zipUtil.zipFolderContents(originalFolder, cachedTempZip, Deflater.DEFAULT_COMPRESSION);
         } catch (IOException e) {
             cachedTempZip.delete();
             throw e;

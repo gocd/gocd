@@ -108,24 +108,33 @@ const TabDropdown = {
   }
 };
 
-function personalizeEditor(template, personalization, model, afterUpdate) {
-  const vm = new PersonalizeEditorVM(template, personalization.pipelineGroups());
-  const existing = template.name;
+function personalizeEditor(opts, personalization, model, afterUpdate) {
+  opts.names = personalization.names;
+
+  const vm = new PersonalizeEditorVM(opts, personalization.pipelineGroups());
+  const existing = opts.name;
 
   new Modal({
-    title: existing ? `Edit ${template.name}`: "Create new view",
+    title: existing ? `Edit ${opts.name}`: "Create new view",
     size: "personalize-editor",
     body: () => {
       return <PersonalizationModalWidget vm={vm} />;
     },
-    buttons: [{text: "Apply", onclick: () => {
+    buttons: [{text: "Save", disabled: vm.invalid, onclick: () => {
+      vm.validate();
+      if (vm.invalid()) { return; }
+
       const newFilter = vm.asFilter();
+
+      vm.errorResponse(null);
       personalization.addOrReplaceFilter(existing, newFilter).done(() => {
         model.currentView(newFilter.name);
         model.names(personalization.names());
-        afterUpdate();
-      }).always(() => {
         Modal.close();
+        afterUpdate();
+      }).fail((xhr) => {
+        vm.errorResponse(xhr.responseText);
+      }).always(() => {
         m.redraw();
       });
     }}, {text: "Cancel", class: "btn-link"}]

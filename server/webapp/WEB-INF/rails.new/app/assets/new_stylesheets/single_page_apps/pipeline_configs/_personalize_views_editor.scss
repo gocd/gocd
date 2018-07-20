@@ -24,14 +24,35 @@
     }
   }
 
+  .is-invalid-label {
+    .form-error {
+      margin:      0;
+      text-align:  right;
+      white-space: normal;
+      flex-grow:   1;
+    }
+  }
+
   .overlay-content {
     height:     70vh;
     max-height: 730px;
+    position:   relative;
   }
 
   .overlay-footer {
     justify-content: flex-start;
   }
+}
+
+.personalize-editor-error-response {
+  position:    absolute;
+  top:         0;
+  left:        0;
+  right:       0;
+  padding:     20px;
+  background:  #ec5840;
+  color:       #fff;
+  font-weight: 600;
 }
 
 .personalize-editor-controls {
@@ -50,6 +71,7 @@
       display:         flex;
       justify-content: space-between;
       align-content:   center;
+      flex-wrap:       wrap;
 
       span {
         flex-shrink:  1;
@@ -58,7 +80,8 @@
       }
 
       .view-name {
-        width:         85%;
+        flex-grow:     1;
+        width:         75%;
         margin-bottom: 0;
       }
     }

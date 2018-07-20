@@ -22,7 +22,7 @@ const FilterNameInput = {
   view(vnode) {
     const vm = vnode.attrs.vm;
     return <section class="filter-name">
-      <f.input label="View name" class="view-name" model={vm} attrName="name" />
+      <f.input label="View name" class="view-name" model={vm} attrName="name" validate={true} />
     </section>;
   }
 };

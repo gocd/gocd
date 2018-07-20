@@ -17,19 +17,22 @@
 const _      = require("lodash");
 const Stream = require("mithril/stream");
 
-const PipelineListVM = require("views/dashboard/models/pipeline_list_vm");
+const FilterValidations = require("views/dashboard/models/filter_validations");
+const PipelineListVM    = require("views/dashboard/models/pipeline_list_vm");
 
-function PersonalizeEditorVM(config, pipelinesByGroup) { // config is usually the current filter
-  normalize(config);
+function PersonalizeEditorVM(opts, pipelinesByGroup) { // opts is usually the current filter
+  normalize(opts);
 
-  const name = Stream(config.name);
-  const type = Stream(config.type);
-  const state = Stream(config.state);
+  FilterValidations.call(this, opts);
+
+  const name = Stream(opts.name);
+  const type = Stream(opts.type);
+  const state = Stream(opts.state);
 
   const inverted = () => "blacklist" === type();
 
   this.name = name;
-  this.selectionVM = PipelineListVM.create(pipelinesByGroup, inverted(), config.pipelines);
+  this.selectionVM = PipelineListVM.create(pipelinesByGroup, inverted(), opts.pipelines);
 
   boolToList(this, state, "building");
   boolToList(this, state, "failing");
@@ -39,16 +42,19 @@ function PersonalizeEditorVM(config, pipelinesByGroup) { // config is usually th
     type(!boolPreviousValue ? "blacklist" : "whitelist");
   };
 
+  this.errorResponse = Stream();
+
   this.asFilter = () => {
     const pipelines = this.selectionVM.pipelines(inverted());
     return {name: name(), type: type(), pipelines, state: state()};
   };
 }
 
-function normalize(config) {
-  config.type = config.type || "blacklist";
-  config.pipelines = arr(config.pipelines);
-  config.state = arr(config.state);
+function normalize(opts) {
+  opts.name = opts.name || "";
+  opts.type = opts.type || "blacklist";
+  opts.pipelines = arr(opts.pipelines);
+  opts.state = arr(opts.state);
 }
 
 function arr(val) { // ensure value is an array

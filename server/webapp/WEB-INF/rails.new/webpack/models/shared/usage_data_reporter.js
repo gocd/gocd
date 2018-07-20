@@ -22,8 +22,8 @@ const DataReporting = require('models/shared/data_sharing/data_reporting');
 
 const USAGE_DATA_LAST_REPORTED_TIME_KEY = "last_usage_data_reporting_check_time";
 
-const reportToGoCDDataSharingServer = function (url, data) {
-  return AjaxHelper.POST({url, data, contentType: 'application/octet-stream'});
+const reportToGoCDDataSharingServer = function (url, payload) {
+  return AjaxHelper.POST({url, payload, contentType: 'application/octet-stream'});
 };
 
 const canTryToReportingUsageData = () => {

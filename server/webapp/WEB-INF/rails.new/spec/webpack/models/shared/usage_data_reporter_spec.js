@@ -62,7 +62,7 @@ describe('Usage Data Reporter', () => {
   it('should report usage data to remote server', async () => {
     const yesterday = lastReportedYesterday();
     mockDataSharingReportingGetAPIAndReturn(allowedReportingJSON);
-    mockUsageDataAPIAndReturn(usageDataJSON);
+    mockUsageDataAPIAndReturn(encryptedUsageData);
     mockDataSharingReportingStartAPI();
     mockDataSharingServerAPIAndPass();
     mockDataSharingReportingCompleteAPI();
@@ -80,6 +80,7 @@ describe('Usage Data Reporter', () => {
 
     expect(jasmine.Ajax.requests.at(3).url).toBe(allowedReportingJSON._embedded.data_sharing_server_url);
     expect(jasmine.Ajax.requests.at(3).method).toBe('POST');
+    expect(jasmine.Ajax.requests.at(3).data()).toEqual(encryptedUsageData);
 
     expect(jasmine.Ajax.requests.at(4).url).toBe(usageReportingCompleteURL);
     expect(jasmine.Ajax.requests.at(4).method).toBe('POST');
@@ -93,7 +94,7 @@ describe('Usage Data Reporter', () => {
     const yesterday = lastReportedYesterday();
     mockDataSharingReportingGetAPIAndReturn(allowedReportingJSON);
     mockDataSharingReportingStartAPI();
-    mockUsageDataAPIAndReturn(usageDataJSON);
+    mockUsageDataAPIAndReturn(encryptedUsageData);
     mockDataSharingServerAPIAndFail();
 
     expect(localStorage.getItem(USAGE_DATA_LAST_REPORTED_TIME_KEY)).toBe(`${yesterday}`);
@@ -175,10 +176,7 @@ describe('Usage Data Reporter', () => {
   function mockUsageDataAPIAndReturn(json) {
     jasmine.Ajax.stubRequest(encryptedUsageDataURL, undefined, 'GET').andReturn({
       responseText:    JSON.stringify(json),
-      status:          200,
-      responseHeaders: {
-        'Content-Type': 'application/vnd.go.cd.v1+json'
-      }
+      status:          200
     });
   }
 
@@ -213,11 +211,5 @@ describe('Usage Data Reporter', () => {
     }
   };
 
-  const usageDataJSON = {
-    "_embedded": {
-      "pipeline_count":                 1,
-      "agent_count":                    0,
-      "oldest_pipeline_execution_time": 1528887811275
-    }
-  };
+  const encryptedUsageData = "encrypted-data";
 });

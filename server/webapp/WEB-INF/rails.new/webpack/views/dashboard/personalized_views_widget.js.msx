@@ -142,12 +142,26 @@ function personalizeEditor(opts, personalization, model, afterUpdate) {
 }
 
 function deleteView(name, personalization, model, afterDelete) {
-  personalization.removeFilter(name).done(() => {
-    model.currentView("Default");
-    model.names(personalization.names());
-    afterDelete();
-  }).always(() => {
-    m.redraw();
+  new Modal({
+    title: "Delete View",
+    size: "delete-view",
+    body: () => {
+      return <span>
+        Do you want to delete <span class="view-name">{name}</span> view?
+      </span>;
+    },
+    buttons: [{
+      text: "Yes",
+      onclick: () => {
+        personalization.removeFilter(name).done(() => {
+          model.currentView("Default");
+          model.names(personalization.names());
+          Modal.close();
+          afterDelete();
+        }).always(() => {
+          m.redraw();
+        });
+      }}, {text: "Cancel", class: "btn-link"}]
   });
 }
 

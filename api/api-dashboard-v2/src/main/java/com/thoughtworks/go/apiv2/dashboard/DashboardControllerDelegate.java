@@ -45,6 +45,7 @@ import static spark.Spark.*;
 public class DashboardControllerDelegate extends ApiController {
 
     private static final String BEING_PROCESSED = MessageJson.create("Dashboard is being processed, this may take a few seconds. Please check back later.");
+    private static final String COOKIE_NAME = "selected_pipelines";
 
     private final PipelineSelectionsService pipelineSelectionsService;
     private final GoDashboardService goDashboardService;
@@ -79,7 +80,7 @@ public class DashboardControllerDelegate extends ApiController {
             return BEING_PROCESSED;
         }
 
-        String selectedPipelinesCookie = request.cookie("selected_pipelines");
+        String selectedPipelinesCookie = request.cookie(COOKIE_NAME);
         Long userId = currentUserId(request);
         Username userName = currentUsername();
 

@@ -29,16 +29,20 @@ import com.thoughtworks.go.server.service.PipelineConfigService;
 import com.thoughtworks.go.server.service.PipelineSelectionsService;
 import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.util.SystemEnvironment;
+import org.springframework.http.HttpStatus;
 import spark.Request;
 import spark.Response;
 
-import java.io.IOException;
 import java.util.List;
 
 import static spark.Spark.*;
 
 public class PipelineSelectionControllerDelegate extends ApiController {
     private static final int ONE_YEAR = 3600 * 24 * 365;
+    private static final String COOKIE_NAME = "selected_pipelines";
+
+    private static final int NO_CONTENT = HttpStatus.NO_CONTENT.value();
+
     private final ApiAuthenticationHelper apiAuthenticationHelper;
     private final PipelineSelectionsService pipelineSelectionsService;
     private final PipelineConfigService pipelineConfigService;
@@ -73,8 +77,8 @@ public class PipelineSelectionControllerDelegate extends ApiController {
         });
     }
 
-    public String show(Request request, Response response) throws IOException {
-        String fromCookie = request.cookie("selected_pipelines");
+    public String show(Request request, Response response) {
+        String fromCookie = request.cookie(COOKIE_NAME);
         List<PipelineConfigs> groups = pipelineConfigService.viewableGroupsFor(currentUsername());
         PipelineSelections pipelineSelections = pipelineSelectionsService.loadPipelineSelections(fromCookie, currentUserId(request));
 
@@ -84,15 +88,15 @@ public class PipelineSelectionControllerDelegate extends ApiController {
     }
 
     public String update(Request request, Response response) {
-        String fromCookie = request.cookie("selected_pipelines");
+        String fromCookie = request.cookie(COOKIE_NAME);
         Filters filters = Filters.fromJson(request.body());
         Long recordId = pipelineSelectionsService.persistPipelineSelections(fromCookie, currentUserId(request), filters);
 
         if (!apiAuthenticationHelper.securityEnabled()) {
-            response.cookie("/go", "selected_pipelines", String.valueOf(recordId), ONE_YEAR, systemEnvironment.isSessionCookieSecure(), true);
+            response.cookie("/go", COOKIE_NAME, String.valueOf(recordId), ONE_YEAR, systemEnvironment.isSessionCookieSecure(), true);
         }
 
-        response.status(204);
+        response.status(NO_CONTENT);
         return NOTHING;
     }
 }

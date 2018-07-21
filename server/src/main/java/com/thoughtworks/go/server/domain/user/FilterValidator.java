@@ -69,9 +69,4 @@ class FilterValidator {
         if (StringUtils.isBlank(name)) throw new FilterValidationException(MSG_MISSING_NAME);
     }
 
-    static class FilterValidationException extends RuntimeException {
-        FilterValidationException(String message) {
-            super(message);
-        }
-    }
 }

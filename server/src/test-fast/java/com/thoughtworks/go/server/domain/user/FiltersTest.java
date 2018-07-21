@@ -17,7 +17,6 @@
 package com.thoughtworks.go.server.domain.user;
 
 import com.thoughtworks.go.config.CaseInsensitiveString;
-import com.thoughtworks.go.server.domain.user.FilterValidator.*;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;

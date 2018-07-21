@@ -76,4 +76,13 @@ describe("Personalization View Model", () => {
     expect(vm.dropdownVisible()).toBe(false);
     expect(fn).toHaveBeenCalled();
   });
+
+  it("isDefault() tests if a given tab is the default, case-insensitively", () => {
+    const vm = new PersonalizationVM(Stream());
+
+    expect(vm.isDefault("deFaUlT")).toBe(true);
+    expect(vm.isDefault("default")).toBe(true);
+    expect(vm.isDefault("DEFAULT")).toBe(true);
+    expect(vm.isDefault("nope")).toBe(false);
+  });
 });

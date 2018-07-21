@@ -84,7 +84,7 @@ const DropdownToggle = {
       const onDelete = vnode.attrs.onDelete;
       return <div class="tab-dropdown">
         <i class="fa fa-caret-down dropdown-btn" onclick={toggleDropdown} />
-        <TabDropdown vm={vm} edit={onEdit} delete={onDelete} />
+        <TabDropdown vm={vm} edit={onEdit} delete={onDelete} name={vnode.attrs.name} />
       </div>;
     }
   }
@@ -93,6 +93,7 @@ const DropdownToggle = {
 const TabDropdown = {
   view(vnode) {
     const vm = vnode.attrs.vm;
+    const isDefault = vm.isDefault(vnode.attrs.name);
 
     if (vm.dropdownVisible()) {
       return <div class="edit-dropdown" onclick={(e) => e.stopPropagation()}>
@@ -101,7 +102,7 @@ const TabDropdown = {
           <f.button class="btn btn-small selected">Pipeline Group</f.button>
           <f.button class="btn btn-small">Environments</f.button>
           <i class="fa fa-edit" onclick={vnode.attrs.edit} />
-          <i class="fa fa-trash" onclick={vnode.attrs.delete} />
+          <i class={isDefault ? "fa fa-trash deny-action": "fa fa-trash"} onclick={!isDefault && vnode.attrs.delete} />
         </div>
       </div>;
     }

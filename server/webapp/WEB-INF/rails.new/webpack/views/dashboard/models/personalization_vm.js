@@ -26,6 +26,8 @@ function PersonalizationVM(currentView) {
 
   this.active = (viewName) => eq(currentView(), viewName);
 
+  this.isDefault = (viewName) => eq(viewName, "Default");
+
   this.activate = (viewName) => {
     currentView(contains(names(), viewName) ? viewName : "Default");
     dropdown(false);

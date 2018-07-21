@@ -61,16 +61,19 @@
     color:         #000;
 
     margin-top:    1px;
-    padding:       0 10px 10px 10px;
+    padding:       5px 20px 20px;
 
     border-radius: 0 0 5px 5px;
-    width:         350px;
+    width:         380px;
     font-weight:   normal;
+    line-height:   initial;
     box-shadow:    0 0 10px rgba(0, 0, 0, 0.21);
 
     .edit-dropdown-text {
-      font-size: 12px;
-      color:     #666;
+      display:       inline-block;
+      margin-bottom: 5px;
+      font-size:     12px;
+      color:         #666;
     }
 
     .edit-dropdown-actions {
@@ -90,10 +93,16 @@
     }
 
     .fa {
-      margin-left: 15px;
-      padding:     5px;
-      color:       #666;
-      border:      solid 1px #ddd;
+      margin-left:   15px;
+      padding:       5px 10px;
+      color:         #627884;
+      border:        solid 1px #e7e7e7;
+      border-radius: 3px;
+    }
+
+    .deny-action {
+      color:  #e1e6ea;
+      cursor: not-allowed;
     }
   }
 

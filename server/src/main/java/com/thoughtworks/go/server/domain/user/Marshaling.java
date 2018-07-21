@@ -18,13 +18,22 @@ package com.thoughtworks.go.server.domain.user;
 
 import com.google.gson.*;
 import com.thoughtworks.go.config.CaseInsensitiveString;
+import org.apache.commons.lang3.StringUtils;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 
 import static com.thoughtworks.go.server.domain.user.DashboardFilter.DEFAULT_NAME;
+import static java.lang.String.format;
 
 public class Marshaling {
+
+    private static final String KEY_NAME = "name";
+    private static final String KEY_TYPE = "type";
+    private static final String KEY_FILTERS = "filters";
+
+    private static final String TYPE_WHITELIST = "whitelist";
+    private static final String TYPE_BLACKLIST = "blacklist";
 
     public static class FiltersSerializer implements JsonSerializer<Filters> {
         @Override
@@ -35,7 +44,7 @@ public class Marshaling {
             for (DashboardFilter f : src.filters()) {
                 viewFilters.add(context.serialize(f, DashboardFilter.class));
             }
-            result.add("filters", viewFilters);
+            result.add(KEY_FILTERS, viewFilters);
             return result;
         }
     }
@@ -44,17 +53,15 @@ public class Marshaling {
         @Override
         public Filters deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
             final JsonObject j = json.getAsJsonObject();
-            final JsonElement f = j.get("filters");
+            final JsonElement filters = j.get(KEY_FILTERS);
 
-            if (null == f) {
+            if (null == filters) {
                 throw new JsonParseException("Missing filters array!");
             }
 
             final ArrayList<DashboardFilter> viewFilters = new ArrayList<>();
 
-            f.getAsJsonArray().forEach((filt) -> {
-                viewFilters.add(context.deserialize(filt, DashboardFilter.class));
-            });
+            filters.getAsJsonArray().forEach((f) -> viewFilters.add(context.deserialize(f, DashboardFilter.class)));
 
             return new Filters(viewFilters);
         }
@@ -67,15 +74,15 @@ public class Marshaling {
 
             if (src instanceof WhitelistFilter) {
                 serialized = context.serialize(src, WhitelistFilter.class);
-                serialized.getAsJsonObject().addProperty("type", "whitelist");
+                serialized.getAsJsonObject().addProperty(KEY_TYPE, TYPE_WHITELIST);
             } else if (src instanceof BlacklistFilter) {
                 serialized = context.serialize(src, BlacklistFilter.class);
-                serialized.getAsJsonObject().addProperty("type", "blacklist");
+                serialized.getAsJsonObject().addProperty(KEY_TYPE, TYPE_BLACKLIST);
             } else {
                 throw new IllegalArgumentException("Don't know how to handle DashboardFilter implementation: " + src.getClass().getCanonicalName());
             }
 
-            serialized.getAsJsonObject().addProperty("name", normalizeName(src.name()));
+            serialized.getAsJsonObject().addProperty(KEY_NAME, normalizeName(src.name()));
 
             return serialized;
         }
@@ -86,25 +93,22 @@ public class Marshaling {
         public DashboardFilter deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
             JsonObject jsonObject = json.getAsJsonObject();
 
-            final String name = normalizeName(jsonObject.getAsJsonPrimitive("name").getAsString());
-            jsonObject.addProperty("name", name);
+            final String name = normalizeName(defensivelyGetString(jsonObject, KEY_NAME));
+            jsonObject.addProperty(KEY_NAME, name);
 
-            JsonElement type = jsonObject.get("type");
+            final String type = defensivelyGetString(jsonObject, KEY_TYPE);
+            if (StringUtils.isBlank(type)) throw new JsonParseException("Missing filter type");
 
-            if (type != null) {
-                switch (type.getAsString()) {
-                    case "whitelist":
-                        return context.deserialize(jsonObject,
-                                WhitelistFilter.class);
-                    case "blacklist":
-                        return context.deserialize(jsonObject,
-                                BlacklistFilter.class);
-                    default:
-                        throw new JsonParseException("Don't know how to deserialize filter type:" + type.getAsString());
-                }
+            switch (type) {
+                case TYPE_WHITELIST:
+                    return context.deserialize(jsonObject,
+                            WhitelistFilter.class);
+                case TYPE_BLACKLIST:
+                    return context.deserialize(jsonObject,
+                            BlacklistFilter.class);
+                default:
+                    throw new JsonParseException(format("Don't know how to deserialize filter type: \"%s\"", type));
             }
-
-            throw new JsonParseException("Missing filter type!");
         }
     }
 
@@ -124,5 +128,9 @@ public class Marshaling {
 
     private static String normalizeName(String name) {
         return name.equalsIgnoreCase(DEFAULT_NAME) ? DEFAULT_NAME : name;
+    }
+
+    private static String defensivelyGetString(JsonObject obj, String key) {
+        return obj.has(key) ? obj.getAsJsonPrimitive(key).getAsString() : "";
     }
 }

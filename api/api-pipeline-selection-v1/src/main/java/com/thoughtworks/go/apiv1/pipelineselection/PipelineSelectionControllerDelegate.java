@@ -17,12 +17,14 @@
 package com.thoughtworks.go.apiv1.pipelineselection;
 
 
+import com.google.gson.JsonParseException;
 import com.thoughtworks.go.api.ApiController;
 import com.thoughtworks.go.api.ApiVersion;
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
 import com.thoughtworks.go.apiv1.pipelineselection.representers.PipelineSelectionResponse;
 import com.thoughtworks.go.apiv1.pipelineselection.representers.PipelineSelectionsRepresenter;
 import com.thoughtworks.go.config.PipelineConfigs;
+import com.thoughtworks.go.server.domain.user.FilterValidationException;
 import com.thoughtworks.go.server.domain.user.Filters;
 import com.thoughtworks.go.server.domain.user.PipelineSelections;
 import com.thoughtworks.go.server.service.PipelineConfigService;
@@ -42,6 +44,7 @@ public class PipelineSelectionControllerDelegate extends ApiController {
     private static final String COOKIE_NAME = "selected_pipelines";
 
     private static final int NO_CONTENT = HttpStatus.NO_CONTENT.value();
+    private static final int BAD_REQUEST = HttpStatus.BAD_REQUEST.value();
 
     private final ApiAuthenticationHelper apiAuthenticationHelper;
     private final PipelineSelectionsService pipelineSelectionsService;
@@ -89,7 +92,16 @@ public class PipelineSelectionControllerDelegate extends ApiController {
 
     public String update(Request request, Response response) {
         String fromCookie = request.cookie(COOKIE_NAME);
-        Filters filters = Filters.fromJson(request.body());
+
+        Filters filters;
+
+        try {
+            filters = Filters.fromJson(request.body());
+        } catch (FilterValidationException | JsonParseException e) {
+            response.status(BAD_REQUEST);
+            return e.getMessage();
+        }
+
         Long recordId = pipelineSelectionsService.persistPipelineSelections(fromCookie, currentUserId(request), filters);
 
         if (!apiAuthenticationHelper.securityEnabled()) {

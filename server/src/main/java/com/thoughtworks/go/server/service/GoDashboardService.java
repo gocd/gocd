@@ -23,8 +23,7 @@ import com.thoughtworks.go.config.PipelineConfigs;
 import com.thoughtworks.go.config.security.Permissions;
 import com.thoughtworks.go.server.dashboard.*;
 import com.thoughtworks.go.server.domain.Username;
-import com.thoughtworks.go.server.domain.user.PipelineSelections;
-import com.thoughtworks.go.server.service.support.toggle.Toggles;
+import com.thoughtworks.go.server.domain.user.DashboardFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -45,12 +44,12 @@ public class GoDashboardService {
         this.goConfigService = goConfigService;
     }
 
-    public List<GoDashboardPipelineGroup> allPipelineGroupsForDashboard(PipelineSelections pipelineSelections, Username user) {
+    public List<GoDashboardPipelineGroup> allPipelineGroupsForDashboard(DashboardFilter filter, Username user) {
         GoDashboardPipelines allPipelines = cache.allEntries();
         List<GoDashboardPipelineGroup> pipelineGroups = new ArrayList<>();
 
         goConfigService.groups().accept(group -> {
-            GoDashboardPipelineGroup dashboardPipelineGroup = dashboardPipelineGroupFor(group, pipelineSelections, user, allPipelines);
+            GoDashboardPipelineGroup dashboardPipelineGroup = dashboardPipelineGroupFor(group, filter, user, allPipelines);
             if (dashboardPipelineGroup.hasPipelines()) {
                 pipelineGroups.add(dashboardPipelineGroup);
             }
@@ -78,12 +77,12 @@ public class GoDashboardService {
         return dashboardCurrentStateLoader.hasEverLoadedCurrentState();
     }
 
-    private GoDashboardPipelineGroup dashboardPipelineGroupFor(PipelineConfigs pipelineGroup, PipelineSelections pipelineSelections, Username user, GoDashboardPipelines allPipelines) {
+    private GoDashboardPipelineGroup dashboardPipelineGroupFor(PipelineConfigs pipelineGroup, DashboardFilter filter, Username user, GoDashboardPipelines allPipelines) {
         GoDashboardPipelineGroup goDashboardPipelineGroup = new GoDashboardPipelineGroup(pipelineGroup.getGroup(), resolvePermissionsForPipelineGroup(pipelineGroup, allPipelines));
 
         if (goDashboardPipelineGroup.hasPermissions() && goDashboardPipelineGroup.canBeViewedBy(user.getUsername().toString())) {
             pipelineGroup.accept(pipelineConfig -> {
-                if (pipelineSelections.includesPipeline(pipelineConfig)) {
+                if (filter.isPipelineVisible(pipelineConfig.name())) {
                     goDashboardPipelineGroup.addPipeline(allPipelines.find(pipelineConfig.getName()));
                 }
             });

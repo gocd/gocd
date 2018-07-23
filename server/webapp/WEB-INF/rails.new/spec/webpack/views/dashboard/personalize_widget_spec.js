@@ -35,8 +35,11 @@ describe("Dashboard Personalize Widget", () => {
       "first":  ["up42"],
       "second": ["up43", "up44"]
     },
-    "selections": ["up42", "up44"],
-    "blacklist":  true
+    "filters": [{
+        "name": "Default",
+        "pipelines": ["up42", "up44"],
+        "type": "blacklist"
+      }]
   };
 
   let pipelineSelection, vm;

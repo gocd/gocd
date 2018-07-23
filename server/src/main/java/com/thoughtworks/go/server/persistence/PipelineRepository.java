@@ -238,15 +238,23 @@ public class PipelineRepository extends HibernateDaoSupport {
     public PipelineSelections findPipelineSelectionsById(long id) {
         PipelineSelections pipelineSelections;
         String key = pipelineSelectionForCookieKey(id);
+
         if (goCache.isKeyInCache(key)) {
             return (PipelineSelections) goCache.get(key);
         }
+
         synchronized (key) {
             if (goCache.isKeyInCache(key)) {
                 return (PipelineSelections) goCache.get(key);
             }
+
             pipelineSelections = getHibernateTemplate().get(PipelineSelections.class, id);
-            goCache.put(key, pipelineSelections);
+
+            if (null != pipelineSelections) {
+                getHibernateTemplate().saveOrUpdate(pipelineSelections);
+                goCache.put(key, pipelineSelections);
+            }
+
             return pipelineSelections;
         }
     }
@@ -276,7 +284,10 @@ public class PipelineRepository extends HibernateDaoSupport {
                 pipelineSelections = null;
             } else {
                 pipelineSelections = (PipelineSelections) list.get(0);
+
+                getHibernateTemplate().saveOrUpdate(pipelineSelections);
             }
+
             goCache.put(key, pipelineSelections);
             return pipelineSelections;
         }

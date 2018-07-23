@@ -29,6 +29,7 @@ import com.thoughtworks.go.server.service.PipelineSelectionsService
 import com.thoughtworks.go.spark.ControllerTrait
 import com.thoughtworks.go.spark.SecurityServiceTrait
 import com.thoughtworks.go.spark.util.SecureRandom
+import com.thoughtworks.go.testhelpers.FiltersHelper
 import com.thoughtworks.go.util.SystemEnvironment
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -53,7 +54,7 @@ class PipelineSelectionControllerDelegateTest implements SecurityServiceTrait, C
         enableSecurity()
         loginAsUser()
 
-        def selections = new PipelineSelections(["build-linux", "build-windows"], new Date(), currentUserLoginId(), true)
+        def selections = new PipelineSelections(FiltersHelper.blacklist(["build-linux", "build-windows"]), new Date(), currentUserLoginId())
 
         def group1 = new BasicPipelineConfigs(group: "grp1")
         def group2 = new BasicPipelineConfigs(group: "grp2")
@@ -62,7 +63,7 @@ class PipelineSelectionControllerDelegateTest implements SecurityServiceTrait, C
 
         List<PipelineConfigs> pipelineConfigs = [group1, group2]
 
-        when(pipelineSelectionsService.getPersistedSelectedPipelines(null, currentUserLoginId())).thenReturn(selections)
+        when(pipelineSelectionsService.loadPipelineSelections(null, currentUserLoginId())).thenReturn(selections)
         when(pipelineConfigService.viewableGroupsFor(currentUsername())).thenReturn(pipelineConfigs)
 
         getWithApiHeader(controller.controllerBasePath())
@@ -70,7 +71,7 @@ class PipelineSelectionControllerDelegateTest implements SecurityServiceTrait, C
         assertThatResponse()
           .isOk()
           .hasContentType(controller.mimeType)
-          .hasBodyWithJsonObject(new PipelineSelectionResponse(["build-linux", "build-windows"], true, pipelineConfigs), PipelineSelectionsRepresenter.class)
+          .hasBodyWithJson(PipelineSelectionsRepresenter.toJSON(new PipelineSelectionResponse(selections.viewFilters(), pipelineConfigs)))
       }
     }
 
@@ -81,7 +82,7 @@ class PipelineSelectionControllerDelegateTest implements SecurityServiceTrait, C
         disableSecurity()
         loginAsAnonymous()
 
-        def selections = new PipelineSelections(["build-linux", "build-windows"], new Date(), currentUserLoginId(), true)
+        def selections = new PipelineSelections(FiltersHelper.blacklist(["build-linux", "build-windows"]), new Date(), currentUserLoginId())
 
         def group1 = new BasicPipelineConfigs(group: "grp1")
         def group2 = new BasicPipelineConfigs(group: "grp2")
@@ -92,7 +93,7 @@ class PipelineSelectionControllerDelegateTest implements SecurityServiceTrait, C
 
         String cookieId = SecureRandom.hex()
 
-        when(pipelineSelectionsService.getPersistedSelectedPipelines(cookieId, currentUserLoginId())).thenReturn(selections)
+        when(pipelineSelectionsService.loadPipelineSelections(cookieId, currentUserLoginId())).thenReturn(selections)
         when(pipelineConfigService.viewableGroupsFor(currentUsername())).thenReturn(pipelineConfigs)
 
         httpRequestBuilder.withCookies(new Cookie("selected_pipelines", cookieId))
@@ -101,7 +102,7 @@ class PipelineSelectionControllerDelegateTest implements SecurityServiceTrait, C
         assertThatResponse()
           .isOk()
           .hasContentType(controller.mimeType)
-          .hasBodyWithJsonObject(new PipelineSelectionResponse(["build-linux", "build-windows"], true, pipelineConfigs), PipelineSelectionsRepresenter.class)
+          .hasBodyWithJson(PipelineSelectionsRepresenter.toJSON(new PipelineSelectionResponse(selections.viewFilters(), pipelineConfigs)))
       }
     }
   }
@@ -118,11 +119,12 @@ class PipelineSelectionControllerDelegateTest implements SecurityServiceTrait, C
         loginAsUser()
 
         def payload = [
-          selections: ['build-linux', 'build-windows'],
-          blacklist : true
+          filters: [
+            [name: 'Default', type: 'blacklist', pipelines: ['build-linux', 'build-windows']]
+          ]
         ]
 
-        when(pipelineSelectionsService.persistSelectedPipelines(null, currentUserLoginId(), payload.selections, payload.blacklist)).thenReturn(1l)
+        when(pipelineSelectionsService.persistPipelineSelections(null, currentUserLoginId(), FiltersHelper.blacklist(payload.filters.get(0).pipelines))).thenReturn(1l)
 
         putWithApiHeader(controller.controllerBasePath(), payload)
 
@@ -141,12 +143,14 @@ class PipelineSelectionControllerDelegateTest implements SecurityServiceTrait, C
         loginAsAnonymous()
 
         def payload = [
-          selections: ['build-linux', 'build-windows'],
-          blacklist : true
+          filters: [
+            [name: 'Default', type: 'blacklist', pipelines: ['build-linux', 'build-windows']]
+          ]
         ]
 
         long recordId = SecureRandom.longNumber()
-        when(pipelineSelectionsService.persistSelectedPipelines(String.valueOf(recordId), currentUserLoginId(), payload.selections, payload.blacklist)).thenReturn(recordId)
+
+        when(pipelineSelectionsService.persistPipelineSelections(String.valueOf(recordId), currentUserLoginId(), FiltersHelper.blacklist(payload.filters.get(0).pipelines))).thenReturn(recordId)
         when(systemEnvironment.isSessionCookieSecure()).thenReturn(false)
 
         httpRequestBuilder.withCookies(new Cookie("selected_pipelines", String.valueOf(recordId)))
@@ -165,12 +169,21 @@ class PipelineSelectionControllerDelegateTest implements SecurityServiceTrait, C
         loginAsAnonymous()
 
         def payload = [
-          selections: ['build-linux', 'build-windows'],
-          blacklist : true
+          filters: [
+            [name: 'Default', type: 'blacklist', pipelines: ['build-linux', 'build-windows']]
+          ]
         ]
 
         long recordId = SecureRandom.longNumber()
-        when(pipelineSelectionsService.persistSelectedPipelines(String.valueOf(recordId), currentUserLoginId(), payload.selections, payload.blacklist)).thenReturn(recordId)
+
+        def group1 = new BasicPipelineConfigs(group: "grp")
+        group1.add(new PipelineConfig(name: new CaseInsensitiveString("build-linux")))
+        group1.add(new PipelineConfig(name: new CaseInsensitiveString("build-windows")))
+        group1.add(new PipelineConfig(name: new CaseInsensitiveString("burp")))
+        List<PipelineConfigs> groups = [group1]
+
+        when(pipelineConfigService.viewableGroupsFor(currentUsername())).thenReturn(groups)
+        when(pipelineSelectionsService.persistPipelineSelections(String.valueOf(recordId), currentUserLoginId(), FiltersHelper.blacklist(payload.filters.get(0).pipelines))).thenReturn(recordId)
         when(systemEnvironment.isSessionCookieSecure()).thenReturn(true)
 
         httpRequestBuilder.withCookies(new Cookie("selected_pipelines", String.valueOf(recordId)))

@@ -30,7 +30,7 @@ import java.util.stream.Stream;
 public class CaseInsensitiveString implements Comparable<CaseInsensitiveString>, Serializable {
 
     private final String name;
-    private final String lowerCaseName;//used only for comparison
+    private final String lowerCaseName; //used only for comparison
 
     public CaseInsensitiveString(String name) {
         this.name = name;
@@ -42,16 +42,16 @@ public class CaseInsensitiveString implements Comparable<CaseInsensitiveString>,
         return name;
     }
 
+    public String toLower() {
+        return lowerCaseName;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         CaseInsensitiveString that = (CaseInsensitiveString) o;
         return Objects.equals(lowerCaseName, that.lowerCaseName);
-    }
-
-    public String toLower() {
-        return lowerCaseName;
     }
 
     @Override

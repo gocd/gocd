@@ -16,6 +16,15 @@
 
 require 'rails_helper'
 
+def blacklist(*args)
+  pipes = CaseInsensitiveString.list(*args)
+  name = com.thoughtworks.go.server.domain.user.DashboardFilter::DEFAULT_NAME
+  filters = com.thoughtworks.go.server.domain.user.Filters.single(
+    com.thoughtworks.go.server.domain.user.BlacklistFilter.new(name, pipes)
+  )
+  PipelineSelections.new(filters, nil, nil)
+end
+
 describe "/pipelines/_pipeline_selector_pipelines.html.erb" do
   include PipelineModelMother
 
@@ -59,7 +68,7 @@ describe "/pipelines/_pipeline_selector_pipelines.html.erb" do
     end
 
     it "should check checkboxes that are selected" do
-      assign(:pipeline_selections, PipelineSelections.new(["pipeline-x3", "pipeline-x4"]))
+      assign(:pipeline_selections, blacklist("pipeline-x3", "pipeline-x4"))
 
       render :partial => "pipelines/pipeline_selector_pipelines", :locals => {:scope => {}}
 

@@ -76,11 +76,16 @@ describe("Dashboard", () => {
     });
 
     const pipelineSelectionData = {
-      "selections": [
-        "up42",
-        "test"
+      "filters": [
+        {
+          "name": "Default",
+          "pipelines": [
+            "up42",
+            "test"
+          ],
+          "type": "blacklist"
+        }
       ],
-      "blacklist":  true,
       "pipelines":  {
         "first":  [
           "up42",
@@ -95,11 +100,16 @@ describe("Dashboard", () => {
     };
 
     const pipelineSelectionPostData = {
-      "selections": [
-        "up42",
-        "test"
+      "filters": [
+        {
+          "name": "Default",
+          "pipelines": [
+            "up42",
+            "test"
+          ],
+          "type": "blacklist"
+        }
       ],
-      "blacklist":  true
     };
 
   });

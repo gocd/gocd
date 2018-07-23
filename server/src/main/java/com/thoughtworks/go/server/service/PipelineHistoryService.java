@@ -16,7 +16,10 @@
 
 package com.thoughtworks.go.server.service;
 
-import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.CaseInsensitiveString;
+import com.thoughtworks.go.config.CruiseConfig;
+import com.thoughtworks.go.config.PipelineConfig;
+import com.thoughtworks.go.config.PipelineConfigs;
 import com.thoughtworks.go.domain.PipelineDependencyGraphOld;
 import com.thoughtworks.go.domain.PipelineGroups;
 import com.thoughtworks.go.domain.PipelinePauseInfo;
@@ -30,6 +33,7 @@ import com.thoughtworks.go.server.dao.StageDao;
 import com.thoughtworks.go.server.domain.JobDurationStrategy;
 import com.thoughtworks.go.server.domain.PipelineTimeline;
 import com.thoughtworks.go.server.domain.Username;
+import com.thoughtworks.go.server.domain.user.DashboardFilter;
 import com.thoughtworks.go.server.domain.user.PipelineSelections;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
 import com.thoughtworks.go.server.scheduling.TriggerMonitor;
@@ -46,6 +50,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.thoughtworks.go.server.domain.user.DashboardFilter.DEFAULT_NAME;
 
 @Service
 public class PipelineHistoryService implements PipelineInstanceLoader {
@@ -396,7 +402,7 @@ public class PipelineHistoryService implements PipelineInstanceLoader {
 
     public List<PipelineGroupModel> allActivePipelineInstances(Username username, PipelineSelections pipelineSelections) {
         PipelineGroupModels groupModels = allPipelineInstances(username);
-        filterSelections(groupModels,pipelineSelections);
+        filterSelections(groupModels, pipelineSelections.namedFilter(DEFAULT_NAME));
         removeEmptyGroups(groupModels);
         updateGroupAdministrability(username, groupModels);
         return groupModels.asList();
@@ -404,7 +410,7 @@ public class PipelineHistoryService implements PipelineInstanceLoader {
 
     public List<PipelineGroupModel> getActivePipelineInstance(Username username, String pipeline) {
         PipelineGroupModels models = allPipelineInstances(username);
-        filterSelections(models, PipelineSelections.singleSelection(pipeline));
+        filterSelections(models, singlePipelineFilter(pipeline));
         removeEmptyGroups(models);
         return models.asList();
     }
@@ -442,11 +448,11 @@ public class PipelineHistoryService implements PipelineInstanceLoader {
         return groupModels;
     }
 
-    private void filterSelections(PipelineGroupModels groupModels, PipelineSelections pipelineSelections) {
+    private void filterSelections(PipelineGroupModels groupModels, DashboardFilter filter) {
         for (PipelineGroupModel groupModel : groupModels.asList()) {
             for (PipelineModel pipelineModel : groupModel.getPipelineModels()) {
-                if(!pipelineSelections.includesPipeline(pipelineModel.getName())){
-                    groupModels.removePipeline(groupModel,pipelineModel);
+                if (!filter.isPipelineVisible(new CaseInsensitiveString(pipelineModel.getName()))) {
+                    groupModels.removePipeline(groupModel, pipelineModel);
                 }
             }
         }
@@ -580,6 +586,25 @@ public class PipelineHistoryService implements PipelineInstanceLoader {
         } else {
             result.forbidden("You do not have operate permissions for pipeline '" + pipelineName + "'.", HealthStateType.general(HealthStateScope.forPipeline(pipelineName)));
         }
+    }
+
+    private DashboardFilter singlePipelineFilter(String pipeline) {
+        return new DashboardFilter() {
+            @Override
+            public String name() {
+                return null;
+            }
+
+            @Override
+            public boolean isPipelineVisible(CaseInsensitiveString pipelineName) {
+                return pipeline.equalsIgnoreCase(CaseInsensitiveString.str(pipelineName));
+            }
+
+            @Override
+            public boolean allowPipeline(CaseInsensitiveString pipeline) {
+                return false;
+            }
+        };
     }
 
     private static class PipelineGroupModels {

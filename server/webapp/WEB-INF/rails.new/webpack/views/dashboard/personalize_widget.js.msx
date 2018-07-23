@@ -22,10 +22,11 @@ const PersonalizeWidget = {
     const self = vnode.state;
 
     const setSelectionForAllPipelines = (isSelected) => {
-      const selections = vnode.attrs.pipelineSelection().selections;
-      _.each(_.keys(selections), (pipelineName) => {
-        selections[pipelineName](isSelected);
-      });
+      if (isSelected) {
+        vnode.attrs.pipelineSelection().selectAll();
+      } else {
+        vnode.attrs.pipelineSelection().unselectAll();
+      }
     };
 
     self.selectAll = () => {
@@ -45,17 +46,19 @@ const PersonalizeWidget = {
 
 
     self.toggleBlacklist = () => {
-      const blacklist = vnode.attrs.pipelineSelection().blacklist;
-      blacklist(!blacklist());
+       vnode.attrs.pipelineSelection().toggleBlacklist();
     };
 
     self.togglePipelineSelection = (pipelineName) => {
-      const selection = vnode.attrs.pipelineSelection().selections[pipelineName];
-      selection(!selection());
+      vnode.attrs.pipelineSelection().toggleSelection(pipelineName);
     };
 
     const setPipelineSelection = (pipelineName, isSelected) => {
-      vnode.attrs.pipelineSelection().selections[pipelineName](isSelected);
+      if (isSelected) {
+        vnode.attrs.pipelineSelection().addSelection(pipelineName);
+      } else {
+        vnode.attrs.pipelineSelection().removeSelection(pipelineName);
+      }
     };
 
     self.togglePipelineGroupSelection = (groupName) => {

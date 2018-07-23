@@ -16,6 +16,15 @@
 
 require 'rails_helper'
 
+def blacklist(*args)
+  pipes = CaseInsensitiveString.list(*args)
+  name = com.thoughtworks.go.server.domain.user.DashboardFilter::DEFAULT_NAME
+  filters = com.thoughtworks.go.server.domain.user.Filters.single(
+    com.thoughtworks.go.server.domain.user.BlacklistFilter.new(name, pipes)
+  )
+  PipelineSelections.new(filters, nil, nil)
+end
+
 describe "pipelines/index.html.erb" do
   include PipelineModelMother
 
@@ -37,7 +46,7 @@ describe "pipelines/index.html.erb" do
     assign(:pipeline_groups, [@pipeline_group_model, @pipeline_group_model_other, @pipeline_group_model_empty])
     assign(:pipeline_configs, BasicPipelineConfigs.new)
     view.extend StagesHelper
-    
+
     @security_service = stub_service(:security_service, view)
     allow(@security_service).to receive(:isUserAdmin).and_return(true)
   end
@@ -222,7 +231,7 @@ describe "pipelines/index.html.erb" do
                                                                    [PipelineConfigMother.pipelineConfig("pipeline-11"),
                                                                     PipelineConfigMother.pipelineConfig("pipeline-12"),
                                                                    ].to_java(PipelineConfig))])
-    assign(:pipeline_selections, PipelineSelections.new(["pipeline-22"]))
+    assign(:pipeline_selections, blacklist("pipeline-22"))
 
     render :partial => 'pipelines/pipelines_selector'
 

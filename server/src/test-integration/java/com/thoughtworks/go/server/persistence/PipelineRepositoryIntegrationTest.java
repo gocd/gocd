@@ -17,6 +17,7 @@
 package com.thoughtworks.go.server.persistence;
 
 import com.rits.cloning.Cloner;
+import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.config.PipelineConfig;
@@ -33,7 +34,7 @@ import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.dao.PipelineSqlMapDao;
 import com.thoughtworks.go.server.dao.UserSqlMapDao;
 import com.thoughtworks.go.server.domain.PipelineTimeline;
-import com.thoughtworks.go.server.domain.user.PipelineSelections;
+import com.thoughtworks.go.server.domain.user.*;
 import com.thoughtworks.go.server.service.InstanceFactory;
 import com.thoughtworks.go.server.service.ScheduleTestUtil;
 import com.thoughtworks.go.server.transaction.TransactionSynchronizationManager;
@@ -55,12 +56,13 @@ import java.util.*;
 
 import static com.thoughtworks.go.helper.ModificationsMother.oneModifiedFile;
 import static com.thoughtworks.go.helper.PipelineConfigMother.createPipelineConfig;
-import static com.thoughtworks.go.helper.PipelineConfigMother.pipelineConfig;
+import static com.thoughtworks.go.server.domain.user.DashboardFilter.DEFAULT_NAME;
 import static com.thoughtworks.go.util.DataStructureUtils.a;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.nullValue;
 import static org.junit.Assert.*;
+
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {
         "classpath:WEB-INF/applicationContext-global.xml",
@@ -71,14 +73,22 @@ public class PipelineRepositoryIntegrationTest {
 
     @Autowired
     PipelineSqlMapDao pipelineSqlMapDao;
-    @Autowired DatabaseAccessHelper dbHelper;
-    @Autowired PipelineRepository pipelineRepository;
-    @Autowired MaterialRepository materialRepository;
-    @Autowired UserSqlMapDao userSqlMapDao;
-    @Autowired private TransactionTemplate transactionTemplate;
-    @Autowired private TransactionSynchronizationManager transactionSynchronizationManager;
-    @Autowired private GoConfigDao goConfigDao;
-    @Autowired private InstanceFactory instanceFactory;
+    @Autowired
+    DatabaseAccessHelper dbHelper;
+    @Autowired
+    PipelineRepository pipelineRepository;
+    @Autowired
+    MaterialRepository materialRepository;
+    @Autowired
+    UserSqlMapDao userSqlMapDao;
+    @Autowired
+    private TransactionTemplate transactionTemplate;
+    @Autowired
+    private TransactionSynchronizationManager transactionSynchronizationManager;
+    @Autowired
+    private GoConfigDao goConfigDao;
+    @Autowired
+    private InstanceFactory instanceFactory;
 
     private GoConfigFileHelper configHelper = new GoConfigFileHelper();
     private static final String PIPELINE_NAME = "pipeline";
@@ -317,16 +327,15 @@ public class PipelineRepositoryIntegrationTest {
 
     @Test
     public void shouldSaveSelectedPipelinesWithoutUserId() {
-        Date date = new Date();
         List<String> unSelected = Arrays.asList("pipeline1", "pipeline2");
 
-        long id = pipelineRepository.saveSelectedPipelines(new PipelineSelections(unSelected, date, null, true));
+        long id = pipelineRepository.saveSelectedPipelines(blacklist(unSelected, null));
         PipelineSelections found = pipelineRepository.findPipelineSelectionsById(id);
 
-        assertHasPipelines(found, new String[]{"pipeline3", "pipeline4"});
-        assertHasPipelines(found, new String[]{"pipeline1", "pipeline2"}, false);
-        assertThat(found.userId(), is(nullValue()));
-        assertEquals(date, found.lastUpdated());
+        final DashboardFilter filter = found.namedFilter(DEFAULT_NAME);
+        assertAllowsPipelines(filter, "pipeline3", "pipeline4");
+        assertDeniesPipelines(filter, "pipeline1", "pipeline2");
+        assertNull(found.userId());
     }
 
     @Test
@@ -334,7 +343,7 @@ public class PipelineRepositoryIntegrationTest {
         User user = createUser();
 
         List<String> unSelected = Arrays.asList("pipeline1", "pipeline2");
-        long id = pipelineRepository.saveSelectedPipelines(new PipelineSelections(unSelected, new Date(), user.getId(), true));
+        long id = pipelineRepository.saveSelectedPipelines(blacklist(unSelected, user.getId()));
         assertThat(pipelineRepository.findPipelineSelectionsById(id).userId(), is(user.getId()));
     }
 
@@ -342,9 +351,10 @@ public class PipelineRepositoryIntegrationTest {
     public void shouldSaveSelectedPipelinesWithBlacklistPreferenceFalse() {
         User user = createUser();
 
-        List<String> unSelected = Arrays.asList("pipeline1", "pipeline2");
-        long id = pipelineRepository.saveSelectedPipelines(new PipelineSelections(unSelected, new Date(), user.getId(), false));
-        assertThat(pipelineRepository.findPipelineSelectionsById(id).isBlacklist(), is(false));
+        List<String> selected = Arrays.asList("pipeline1", "pipeline2");
+        final PipelineSelections whitelist = whitelist(selected, user.getId());
+        long id = pipelineRepository.saveSelectedPipelines(whitelist);
+        assertEquals(whitelist, pipelineRepository.findPipelineSelectionsById(id));
     }
 
     @Test
@@ -352,8 +362,9 @@ public class PipelineRepositoryIntegrationTest {
         User user = createUser();
 
         List<String> unSelected = Arrays.asList("pipeline1", "pipeline2");
-        long id = pipelineRepository.saveSelectedPipelines(new PipelineSelections(unSelected, new Date(), user.getId(), true));
-        assertThat(pipelineRepository.findPipelineSelectionsById(id).isBlacklist(), is(true));
+        final PipelineSelections blacklist = blacklist(unSelected, user.getId());
+        long id = pipelineRepository.saveSelectedPipelines(blacklist);
+        assertEquals(blacklist, pipelineRepository.findPipelineSelectionsById(id));
     }
 
     @Test
@@ -361,7 +372,7 @@ public class PipelineRepositoryIntegrationTest {
         User user = createUser();
 
         List<String> unSelected = Arrays.asList("pipeline1", "pipeline2");
-        long id = pipelineRepository.saveSelectedPipelines(new PipelineSelections(unSelected, new Date(), user.getId(), true));
+        long id = pipelineRepository.saveSelectedPipelines(blacklist(unSelected, user.getId()));
         assertThat(pipelineRepository.findPipelineSelectionsByUserId(user.getId()).getId(), is(id));
     }
 
@@ -380,13 +391,27 @@ public class PipelineRepositoryIntegrationTest {
         return userSqlMapDao.findUser("loser");
     }
 
-    private void assertHasPipelines(PipelineSelections pipelineSelections, String[] pipelines) {
-        assertHasPipelines(pipelineSelections, pipelines, true);
+    private void assertAllowsPipelines(DashboardFilter filter, String... pipelines) {
+        for (String pipeline : pipelines) {
+            assertTrue(filter.isPipelineVisible(new CaseInsensitiveString(pipeline)));
+        }
     }
 
-    private void assertHasPipelines(PipelineSelections pipelineSelections, String[] pipelines, boolean has) {
+    private void assertDeniesPipelines(DashboardFilter filter, String... pipelines) {
         for (String pipeline : pipelines) {
-            assertThat(pipelineSelections.includesPipeline(pipelineConfig(pipeline)),is(has));
+            assertFalse(filter.isPipelineVisible(new CaseInsensitiveString(pipeline)));
         }
+    }
+
+    private PipelineSelections blacklist(List<String> pipelines, Long userId) {
+        final List<CaseInsensitiveString> pipelineNames = CaseInsensitiveString.list(pipelines);
+        Filters filters = new Filters(Collections.singletonList(new BlacklistFilter(DEFAULT_NAME, pipelineNames)));
+        return new PipelineSelections(filters, new Date(), userId);
+    }
+
+    private PipelineSelections whitelist(List<String> pipelines, Long userId) {
+        final List<CaseInsensitiveString> pipelineNames = CaseInsensitiveString.list(pipelines);
+        Filters filters = new Filters(Collections.singletonList(new WhitelistFilter(DEFAULT_NAME, pipelineNames)));
+        return new PipelineSelections(filters, new Date(), userId);
     }
 }

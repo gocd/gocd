@@ -14,58 +14,95 @@
  * limitations under the License.
  */
 
-const _           = require('lodash');
-const Stream      = require('mithril/stream');
-const AjaxHelper  = require('helpers/ajax_helper');
-const SparkRoutes = require('helpers/spark_routes');
+const _                = require('lodash');
+const Stream           = require('mithril/stream');
+const DashboardFilters = require('models/dashboard/dashboard_filters');
+const AjaxHelper       = require('helpers/ajax_helper');
+const SparkRoutes      = require('helpers/spark_routes');
 
-const PipelineSelection = function (pipelineGroups, selections, blacklist) {
+const NAME_DEFAULT_FILTER = "Default";
+
+const PipelineSelection = function (pipelineGroups, filters) {
   const self = this;
 
   this.pipelineGroups = pipelineGroups;
-  this.selections     = selections;
-  this.blacklist      = blacklist;
+  this.filters        = filters;
+  this.currentFilter  = this.filters.getFilterNamed(NAME_DEFAULT_FILTER);
+  this.selections     = this.currentFilter.findSelections(this.pipelineGroups());
 
   this.isPipelineSelected = (pipelineName) => self.selections[pipelineName]();
 
   this.toggleBlacklist = () => {
-    self.blacklist(!self.blacklist);
+    this.currentFilter.toggleType();
+    this.currentFilter.invertPipelines(this.selections);
+  };
+
+  this.blacklist = () => {
+    return this.currentFilter.isBlacklist();
+  };
+
+  this.addSelection = (pipelineName) => {
+    if (this.blacklist()) {
+      this.currentFilter.removePipeline(pipelineName);
+    } else {
+      this.currentFilter.pipelines.push(pipelineName);
+    }
+    this.selections[pipelineName](true);
+  };
+
+  this.removeSelection = (pipelineName) => {
+    if (!this.blacklist()) {
+      this.currentFilter.removePipeline(pipelineName);
+    } else {
+      this.currentFilter.pipelines.push(pipelineName);
+    }
+    this.selections[pipelineName](false);
+  };
+
+  this.toggleSelection = (pipelineName) => {
+    if (_.includes(this.currentFilter.pipelines, pipelineName)) {
+      this.currentFilter.removePipeline(pipelineName);
+    } else {
+      this.currentFilter.pipelines.push(pipelineName);
+    }
+    this.selections[pipelineName](!this.selections[pipelineName]());
+  };
+
+  this.selectAll = () => {
+    if (this.blacklist()) {
+      this.currentFilter.clearPipelines();
+    } else {
+      this.currentFilter.pipelines = _.keys(this.selections);
+    }
+    _.each(_.keys(this.selections), (pipelineName) => {
+      this.selections[pipelineName](true);
+    });
+  };
+
+  this.unselectAll = () => {
+    if (this.blacklist()) {
+      this.currentFilter.pipelines = _.keys(this.selections);
+    } else {
+      this.currentFilter.clearPipelines();
+    }
+    _.each(_.keys(this.selections), (pipelineName) => {
+      this.selections[pipelineName](false);
+    });
   };
 
   this.update = () => {
-    const allPipelines = self.selections;
-    const selections   = [];
-
-    _.each(allPipelines, (selection, pipelineName) => {
-      if (self.blacklist() ^ selection()) {
-        selections.push(pipelineName);
-      }
-    });
-
-    const payload = {
-      selections,
-      "blacklist": self.blacklist()
-    };
-
     return AjaxHelper.PUT({
       url:        SparkRoutes.pipelineSelectionPath(),
       apiVersion: 'v1',
-      payload
+      payload:     this.filters
     });
   };
 };
 
 PipelineSelection.fromJSON = (json) => {
   const pipelineGroups = json.pipelines;
-  const selections     = {};
-  const blacklist      = json.blacklist;
-  _.each(_.keys(pipelineGroups), (group) => {
-    _.each(pipelineGroups[group], (pipeline) => {
-      selections[pipeline] = Stream(!!(blacklist ^ _.includes(json.selections, pipeline)));
-    });
-  });
-
-  return new PipelineSelection(Stream(pipelineGroups), selections, Stream(blacklist));
+  const filters        = new DashboardFilters(json.filters);
+  return new PipelineSelection(Stream(pipelineGroups), filters);
 };
 
 PipelineSelection.get = () => {

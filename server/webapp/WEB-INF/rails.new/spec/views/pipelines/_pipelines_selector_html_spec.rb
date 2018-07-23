@@ -54,7 +54,7 @@ describe "/pipelines/_pipelines_selector.html.erb" do
     end
 
     it "should have the 'show new pipelines' box checked if blacklisting pipelines is enabled for the user" do
-      assign(:pipeline_selections, PipelineSelections.new([], nil, nil, true))
+      assign(:pipeline_selections, PipelineSelections.new())
 
       render
 

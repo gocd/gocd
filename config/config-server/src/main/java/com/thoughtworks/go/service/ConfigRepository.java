@@ -171,19 +171,16 @@ public class ConfigRepository {
     }
 
     public GoConfigRevision getCurrentRevision() {
-        return doLocked(() -> {
-            RevCommit revision;
-            try {
-                revision = getCurrentRevCommit();
-            } catch (NoHeadException e) {
-                return null;
-            } catch (GitAPIException e) {
-                LOGGER.info("[CONFIG REPOSITORY] Unable retrieve current cruise config revision", e);
-                return null;
-            }
-            return getGoConfigRevision(revision);
-        });
-
+        RevCommit revision;
+        try {
+            revision = getCurrentRevCommit();
+        } catch (NoHeadException e) {
+            return null;
+        } catch (GitAPIException e) {
+            LOGGER.info("[CONFIG REPOSITORY] Unable retrieve current cruise config revision", e);
+            return null;
+        }
+        return getGoConfigRevision(revision);
     }
 
     public RevCommit getCurrentRevCommit() throws GitAPIException {

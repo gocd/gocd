@@ -692,7 +692,10 @@ describe("Dashboard Pipeline Widget", () => {
       it('should disable trigger with options button when pipeline is locked', () => {
         unmount();
         mount(false, true, undefined, {"locked": true});
-
+        const pipelineButton = $root.find('.button .pipeline_btn');
+        expect(pipelineButton).toHaveAttr('title');
+        const tooltipId = $(pipelineButton).attr('title');
+        expect($(`#${tooltipId}`)).toHaveText("Pipeline Paused");
         expect($root.find('.play_with_options')).toHaveClass('disabled');
       });
 
@@ -703,7 +706,11 @@ describe("Dashboard Pipeline Widget", () => {
           "paused_by":    "admin",
           "pause_reason": "under construction"
         });
-
+const pipelineButton = $root.find('.button .pipeline_btn');
+expect(pipelineButton).toHaveAttr('title');
+const tooltipId = $(pipelineButton).attr('title');
+expect($(`#${tooltipId}`)).toHaveText("Pipeline Paused");
+        expect($root.find('.play_with_options')).toHaveClass('disabled');
         expect($root.find('.play_with_options')).toHaveClass('disabled');
       });
 

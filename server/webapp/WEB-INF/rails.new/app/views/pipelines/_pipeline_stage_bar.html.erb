@@ -20,7 +20,8 @@
         <div id="operate_<%= scope[:stage_name] %>" class="operate secondary <%= scope[:operate_class] %>">
             <%
                scope[:id] = "stage_bar_#{scope[:label]}_#{scope[:stage_name]}"
-               scope[:html_opts] = {:class => "stage_action", :id => scope[:id]}
+               scope[:title] = "#{scope[:label]} #{scope[:stage_name]}"
+               scope[:html_opts] = {:class => "stage_action", :id => scope[:id] ,:title => scope[:title] ,:'aria-label' => scope[:title]}
                scope[:before_opts] = "spinny('operate_#{scope[:stage_name]}')"
                if scope[:stage_in_status_bar].canRun() && scope[:stage_in_status_bar].isScheduled() %>
                 <%== blocking_link_to_remote_new :name => "&nbsp;", :method => :post, :url => run_stage_path(:stage_name => scope[:stage_name]), :html => scope[:html_opts], :update => scope[:update_opts], :headers => {Confirm: 'true'}, :before => scope[:before_opts] %>
@@ -37,7 +38,7 @@
     <% if placeholder_stage?(scope[:stage_in_status_bar]) %>
         <div <%= scope[:stage_bar_html_options] -%>></div>
     <% else %>
-        <a href="<%= stage_bar_url(scope[:stage_in_status_bar], scope[:stage_details_action]) -%>" <%= scope[:stage_bar_html_options] -%>>
+        <a title="testing" href="<%= stage_bar_url(scope[:stage_in_status_bar], scope[:stage_details_action]) -%>" <%= scope[:stage_bar_html_options] -%>>
         <span><span></span></span></a>
     <% end %>
 </div>

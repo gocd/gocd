@@ -164,13 +164,20 @@ const PipelineOperationsWidget = {
     const operationMessages = vnode.attrs.operationMessages;
 
     let pausedMessage, pauseUnpauseClass, onPauseUnpauseClick;
+    let pausedTitlenLabel, playTitlenLabel, playWithOptionsTitlenLabel;
     if (pipeline.isPaused) {
+      pausedTitlenLabel   = "Pipeline Paused";
+      playTitlenLabel      = "Pipeline Play Disabled";
+        playWithOptionsTitlenLabel = "Trigger with Options Disabled";
       pauseUnpauseClass   = `pipeline_btn unpause ${(pipeline.canPause) ? '' : 'disabled'}`;
       pausedMessage       = `Paused by ${pipeline.pausedBy} (${pipeline.pausedCause || ''})`;
       onPauseUnpauseClick = (pipeline.canPause) && vnode.state.unpause.bind(vnode.state, pipeline);
     } else {
       pauseUnpauseClass   = `pipeline_btn pause ${(pipeline.canPause) ? '' : 'disabled'}`;
       onPauseUnpauseClick = (pipeline.canPause) && vnode.state.showPausePopup.bind(vnode.state, pipeline);
+        pausedTitlenLabel   = "Pause Pipeline";
+        playTitlenLabel      = "Pipeline Play";
+        playWithOptionsTitlenLabel = "Trigger with Options";
     }
 
 
@@ -194,16 +201,16 @@ const PipelineOperationsWidget = {
           <li>
             <f.button onclick={!pipeline.triggerDisabled() && vnode.state.trigger.bind(vnode.state, pipeline)}
                       class={`pipeline_btn play ${(pipeline.triggerDisabled() ? 'disabled' : '')}`}
-                      tooltipText={triggerButtonsTooltipText}/>
+                      tooltipText={triggerButtonsTooltipText} arial-label={playTitlenLabel} title={playTitlenLabel}/>
           </li>
           <li>
             <f.button
               onclick={!pipeline.triggerDisabled() && vnode.state.showTriggerWithOptionsPopup.bind(vnode.state, pipeline)}
               class={`pipeline_btn play_with_options ${(pipeline.triggerDisabled() ? 'disabled' : '')}`}
-              tooltipText={triggerButtonsTooltipText}/>
+              tooltipText={triggerButtonsTooltipText} arial-label={playWithOptionsTitlenLabel} title={playWithOptionsTitlenLabel}/>
           </li>
           <li>
-            <f.button onclick={onPauseUnpauseClick} class={pauseUnpauseClass} tooltipText={pauseTooltipText}/>
+            <f.button onclick={onPauseUnpauseClick} class={pauseUnpauseClass} tooltipText={pauseTooltipText} arial-label={pausedTitlenLabel} title={pausedTitlenLabel}/>
           </li>
         </ul>
         <a href={pipeline.historyPath} class="pipeline_history">History</a>

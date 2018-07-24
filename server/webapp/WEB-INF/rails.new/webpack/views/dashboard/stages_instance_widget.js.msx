@@ -26,13 +26,13 @@ const StagesInstanceWidget = {
       if (stage.isBuildingOrCompleted()) {
         return (<a href={stage.stageDetailTabPath}
                    class={`pipeline_stage ${stage.status.toLowerCase()}`}
-                   title={stageStatus}>
+                   title={stageStatus} arial-label={stageStatus}>
           <span><span></span></span>
         </a>);
       }
 
       return (<span class={`pipeline_stage ${stage.status.toLowerCase()}`}
-                    title={stageStatus}/>);
+                    title={stageStatus} arial-label={stageStatus}/>);
     });
 
     return (

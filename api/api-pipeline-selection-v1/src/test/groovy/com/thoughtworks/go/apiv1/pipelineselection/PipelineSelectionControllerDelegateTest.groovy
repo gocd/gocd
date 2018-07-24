@@ -63,7 +63,7 @@ class PipelineSelectionControllerDelegateTest implements SecurityServiceTrait, C
 
         List<PipelineConfigs> pipelineConfigs = [group1, group2]
 
-        when(pipelineSelectionsService.loadPipelineSelections(null, currentUserLoginId())).thenReturn(selections)
+        when(pipelineSelectionsService.load(null, currentUserLoginId())).thenReturn(selections)
         when(pipelineConfigService.viewableGroupsFor(currentUsername())).thenReturn(pipelineConfigs)
 
         getWithApiHeader(controller.controllerBasePath())
@@ -93,7 +93,7 @@ class PipelineSelectionControllerDelegateTest implements SecurityServiceTrait, C
 
         String cookieId = SecureRandom.hex()
 
-        when(pipelineSelectionsService.loadPipelineSelections(cookieId, currentUserLoginId())).thenReturn(selections)
+        when(pipelineSelectionsService.load(cookieId, currentUserLoginId())).thenReturn(selections)
         when(pipelineConfigService.viewableGroupsFor(currentUsername())).thenReturn(pipelineConfigs)
 
         httpRequestBuilder.withCookies(new Cookie("selected_pipelines", cookieId))
@@ -124,7 +124,7 @@ class PipelineSelectionControllerDelegateTest implements SecurityServiceTrait, C
           ]
         ]
 
-        when(pipelineSelectionsService.persistPipelineSelections(null, currentUserLoginId(), FiltersHelper.blacklist(payload.filters.get(0).pipelines))).thenReturn(1l)
+        when(pipelineSelectionsService.save(null, currentUserLoginId(), FiltersHelper.blacklist(payload.filters.get(0).pipelines))).thenReturn(1l)
 
         putWithApiHeader(controller.controllerBasePath(), payload)
 
@@ -150,7 +150,7 @@ class PipelineSelectionControllerDelegateTest implements SecurityServiceTrait, C
 
         long recordId = SecureRandom.longNumber()
 
-        when(pipelineSelectionsService.persistPipelineSelections(String.valueOf(recordId), currentUserLoginId(), FiltersHelper.blacklist(payload.filters.get(0).pipelines))).thenReturn(recordId)
+        when(pipelineSelectionsService.save(String.valueOf(recordId), currentUserLoginId(), FiltersHelper.blacklist(payload.filters.get(0).pipelines))).thenReturn(recordId)
         when(systemEnvironment.isSessionCookieSecure()).thenReturn(false)
 
         httpRequestBuilder.withCookies(new Cookie("selected_pipelines", String.valueOf(recordId)))
@@ -183,7 +183,7 @@ class PipelineSelectionControllerDelegateTest implements SecurityServiceTrait, C
         List<PipelineConfigs> groups = [group1]
 
         when(pipelineConfigService.viewableGroupsFor(currentUsername())).thenReturn(groups)
-        when(pipelineSelectionsService.persistPipelineSelections(String.valueOf(recordId), currentUserLoginId(), FiltersHelper.blacklist(payload.filters.get(0).pipelines))).thenReturn(recordId)
+        when(pipelineSelectionsService.save(String.valueOf(recordId), currentUserLoginId(), FiltersHelper.blacklist(payload.filters.get(0).pipelines))).thenReturn(recordId)
         when(systemEnvironment.isSessionCookieSecure()).thenReturn(true)
 
         httpRequestBuilder.withCookies(new Cookie("selected_pipelines", String.valueOf(recordId)))

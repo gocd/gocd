@@ -72,7 +72,7 @@ public class PipelineSelectionsServiceTest {
         disableSecurity();
         final Filters filters = Filters.single(whitelist("pipeline1"));
         when(pipelineRepository.saveSelectedPipelines(pipelineSelectionsWithFilters(filters))).thenReturn(2L);
-        assertEquals(2L, pipelineSelectionsService.persistPipelineSelections(null, null, filters));
+        assertEquals(2L, pipelineSelectionsService.save(null, null, filters));
         verify(pipelineRepository).saveSelectedPipelines(pipelineSelectionsWithFilters(filters));
     }
 
@@ -86,7 +86,7 @@ public class PipelineSelectionsServiceTest {
         when(pipelineRepository.findPipelineSelectionsByUserId(user.getId())).thenReturn(null);
         when(pipelineRepository.saveSelectedPipelines(pipelineSelectionsWithFilters(filters))).thenReturn(2L);
 
-        long pipelineSelectionsId = pipelineSelectionsService.persistPipelineSelections("1", user.getId(), filters);
+        long pipelineSelectionsId = pipelineSelectionsService.save("1", user.getId(), filters);
 
         assertEquals(2L, pipelineSelectionsId);
         verify(pipelineRepository).findPipelineSelectionsByUserId(user.getId());
@@ -104,7 +104,7 @@ public class PipelineSelectionsServiceTest {
         when(pipelineRepository.saveSelectedPipelines(pipelineSelections)).thenReturn(2L);
 
         final Filters newFilters = Filters.single(blacklist("pipelineX", "pipeline3"));
-        long pipelineSelectionId = pipelineSelectionsService.persistPipelineSelections("1", user.getId(), newFilters);
+        long pipelineSelectionId = pipelineSelectionsService.save("1", user.getId(), newFilters);
 
         assertEquals(2L, pipelineSelectionId);
         assertEquals(newFilters, pipelineSelections.viewFilters());
@@ -123,7 +123,7 @@ public class PipelineSelectionsServiceTest {
         final Filters newFilters = Filters.single(blacklist("pipelineX", "pipeline3"));
         assertNotEquals(newFilters, pipelineSelections.viewFilters()); // sanity check
 
-        pipelineSelectionsService.persistPipelineSelections("123", null, newFilters);
+        pipelineSelectionsService.save("123", null, newFilters);
 
         assertEquals(FIXED_DATE, pipelineSelections.lastUpdated());
         verify(pipelineRepository).findPipelineSelectionsById("123");
@@ -135,7 +135,7 @@ public class PipelineSelectionsServiceTest {
         enableSecurity();
         when(pipelineRepository.findPipelineSelectionsByUserId(2L)).thenReturn(PipelineSelections.ALL);
 
-        pipelineSelectionsService.updateUserPipelineSelections(null, 2L, new CaseInsensitiveString("newly-created-pipeline"));
+        pipelineSelectionsService.update(null, 2L, new CaseInsensitiveString("newly-created-pipeline"));
 
         verify(pipelineRepository, never()).saveSelectedPipelines(any(PipelineSelections.class));
     }
@@ -147,10 +147,10 @@ public class PipelineSelectionsServiceTest {
         PipelineSelections pipelineSelections = PipelineSelectionsHelper.with(Collections.singletonList("pip1"));
         when(pipelineRepository.findPipelineSelectionsById("123")).thenReturn(pipelineSelections);
 
-        assertEquals(pipelineSelections, pipelineSelectionsService.loadPipelineSelections("123", null));
+        assertEquals(pipelineSelections, pipelineSelectionsService.load("123", null));
 
         // control case
-        assertEquals(PipelineSelections.ALL, pipelineSelectionsService.loadPipelineSelections("345", null));
+        assertEquals(PipelineSelections.ALL, pipelineSelectionsService.load("345", null));
     }
 
     @Test
@@ -162,7 +162,7 @@ public class PipelineSelectionsServiceTest {
 
         when(pipelineRepository.findPipelineSelectionsByUserId(loser.getId())).thenReturn(pipelineSelections);
 
-        assertEquals(pipelineSelections, pipelineSelectionsService.loadPipelineSelections(null, loser.getId()));
+        assertEquals(pipelineSelections, pipelineSelectionsService.load(null, loser.getId()));
     }
 
     @Test
@@ -172,7 +172,7 @@ public class PipelineSelectionsServiceTest {
         User user = getUser("loser");
         when(pipelineRepository.findPipelineSelectionsByUserId(user.getId())).thenReturn(null);
 
-        assertEquals(PipelineSelections.ALL, pipelineSelectionsService.loadPipelineSelections(null, user.getId()));
+        assertEquals(PipelineSelections.ALL, pipelineSelectionsService.load(null, user.getId()));
     }
 
     @Test
@@ -181,7 +181,7 @@ public class PipelineSelectionsServiceTest {
 
         when(pipelineRepository.findPipelineSelectionsById("5")).thenReturn(null);
 
-        PipelineSelections selectedPipelines = pipelineSelectionsService.loadPipelineSelections("5", null);
+        PipelineSelections selectedPipelines = pipelineSelectionsService.load("5", null);
         assertEquals(PipelineSelections.ALL, selectedPipelines);
     }
 

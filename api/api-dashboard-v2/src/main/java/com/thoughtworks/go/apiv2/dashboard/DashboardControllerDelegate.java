@@ -84,7 +84,7 @@ public class DashboardControllerDelegate extends ApiController {
         Long userId = currentUserId(request);
         Username userName = currentUsername();
 
-        PipelineSelections selectedPipelines = pipelineSelectionsService.loadPipelineSelections(selectedPipelinesCookie, userId);
+        PipelineSelections selectedPipelines = pipelineSelectionsService.load(selectedPipelinesCookie, userId);
 
         final String filterName = getViewName(request);
         final DashboardFilter filter = selectedPipelines.namedFilter(filterName);

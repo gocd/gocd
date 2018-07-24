@@ -83,7 +83,7 @@ public class PipelineSelectionControllerDelegate extends ApiController {
     public String show(Request request, Response response) {
         String fromCookie = request.cookie(COOKIE_NAME);
         List<PipelineConfigs> groups = pipelineConfigService.viewableGroupsFor(currentUsername());
-        PipelineSelections pipelineSelections = pipelineSelectionsService.loadPipelineSelections(fromCookie, currentUserId(request));
+        PipelineSelections pipelineSelections = pipelineSelectionsService.load(fromCookie, currentUserId(request));
 
         PipelineSelectionResponse pipelineSelectionResponse = new PipelineSelectionResponse(pipelineSelections.viewFilters(), groups);
 
@@ -102,7 +102,7 @@ public class PipelineSelectionControllerDelegate extends ApiController {
             return e.getMessage();
         }
 
-        Long recordId = pipelineSelectionsService.persistPipelineSelections(fromCookie, currentUserId(request), filters);
+        Long recordId = pipelineSelectionsService.save(fromCookie, currentUserId(request), filters);
 
         if (!apiAuthenticationHelper.securityEnabled()) {
             response.cookie("/go", COOKIE_NAME, String.valueOf(recordId), ONE_YEAR, systemEnvironment.isSessionCookieSecure(), true);

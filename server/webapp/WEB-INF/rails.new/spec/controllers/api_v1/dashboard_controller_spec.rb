@@ -33,7 +33,7 @@ describe ApiV1::DashboardController do
   describe "dashboard" do
     it 'should get dashboard json' do
       @pipeline_group_models.add(PipelineGroupModel.new("bla"))
-      expect(@pipeline_selections_service).to receive(:getPersistedSelectedPipelines).with(@selected_pipeline_id, @user_id).and_return(selections=PipelineSelections.new)
+      expect(@pipeline_selections_service).to receive(:load).with(@selected_pipeline_id, @user_id).and_return(selections=PipelineSelections.new)
       expect(@pipeline_history_service).to receive(:allActivePipelineInstances).with(@user, selections).and_return(@pipeline_group_models)
 
       get_with_api_header :dashboard
@@ -43,7 +43,7 @@ describe ApiV1::DashboardController do
     end
 
     it 'should get empty json when dashboard is empty' do
-      expect(@pipeline_selections_service).to receive(:getPersistedSelectedPipelines).with(@selected_pipeline_id, @user_id).and_return(selections=PipelineSelections.new)
+      expect(@pipeline_selections_service).to receive(:load).with(@selected_pipeline_id, @user_id).and_return(selections=PipelineSelections.new)
       expect(@pipeline_history_service).to receive(:allActivePipelineInstances).with(@user, selections).and_return(@pipeline_group_models)
 
       get_with_api_header :dashboard

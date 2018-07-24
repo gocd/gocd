@@ -37,7 +37,7 @@ public class PipelineSelectionsService {
         this.clock = clock;
     }
 
-    public PipelineSelections loadPipelineSelections(String id, Long userId) {
+    public PipelineSelections load(String id, Long userId) {
         PipelineSelections pipelineSelections = loadByIdOrUserId(id, userId);
 
         if (pipelineSelections == null) {
@@ -47,12 +47,20 @@ public class PipelineSelectionsService {
         return pipelineSelections;
     }
 
-    public long persistPipelineSelections(String id, Long userId, Filters filters) {
+    public long save(String id, Long userId, Filters filters) {
 
         PipelineSelections pipelineSelections = findOrCreateCurrentPipelineSelectionsFor(id, userId);
         pipelineSelections.update(filters, clock.currentTime(), userId);
 
         return pipelineRepository.saveSelectedPipelines(pipelineSelections);
+    }
+
+    public void update(String id, Long userId, CaseInsensitiveString pipelineToAdd) {
+        PipelineSelections currentSelections = findOrCreateCurrentPipelineSelectionsFor(id, userId);
+
+        if (currentSelections.ensurePipelineVisible(pipelineToAdd)) {
+            pipelineRepository.saveSelectedPipelines(currentSelections);
+        }
     }
 
     private PipelineSelections findOrCreateCurrentPipelineSelectionsFor(String id, Long userId) {
@@ -67,13 +75,5 @@ public class PipelineSelectionsService {
 
     private PipelineSelections loadByIdOrUserId(String id, Long userId) {
         return goConfigService.isSecurityEnabled() ? pipelineRepository.findPipelineSelectionsByUserId(userId) : pipelineRepository.findPipelineSelectionsById(id);
-    }
-
-    public void updateUserPipelineSelections(String id, Long userId, CaseInsensitiveString pipelineToAdd) {
-        PipelineSelections currentSelections = findOrCreateCurrentPipelineSelectionsFor(id, userId);
-
-        if (currentSelections.ensurePipelineVisible(pipelineToAdd)) {
-            pipelineRepository.saveSelectedPipelines(currentSelections);
-        }
     }
 }

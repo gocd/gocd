@@ -87,7 +87,7 @@ class DashboardControllerDelegateTest implements SecurityServiceTrait, Controlle
         def pipelineGroup = new GoDashboardPipelineGroup('group1', new Permissions(Everyone.INSTANCE, Everyone.INSTANCE, Everyone.INSTANCE, Everyone.INSTANCE))
         pipelineGroup.addPipeline(dashboardPipeline('pipeline1'))
         pipelineGroup.addPipeline(dashboardPipeline('pipeline2'))
-        when(pipelineSelectionsService.loadPipelineSelections((String) isNull(), any(Long.class))).thenReturn(pipelineSelections)
+        when(pipelineSelectionsService.load((String) isNull(), any(Long.class))).thenReturn(pipelineSelections)
         when(goDashboardService.hasEverLoadedCurrentState()).thenReturn(true)
         when(goDashboardService.allPipelineGroupsForDashboard(eq(Filters.WILDCARD_FILTER), eq(currentUsername()))).thenReturn([pipelineGroup])
 
@@ -106,7 +106,7 @@ class DashboardControllerDelegateTest implements SecurityServiceTrait, Controlle
         def pipelineGroup = new GoDashboardPipelineGroup('group1', new Permissions(Everyone.INSTANCE, Everyone.INSTANCE, Everyone.INSTANCE, Everyone.INSTANCE))
         pipelineGroup.addPipeline(dashboardPipeline('pipeline1'))
         pipelineGroup.addPipeline(dashboardPipeline('pipeline2'))
-        when(pipelineSelectionsService.loadPipelineSelections((String) isNull(), any(Long.class))).thenReturn(pipelineSelections)
+        when(pipelineSelectionsService.load((String) isNull(), any(Long.class))).thenReturn(pipelineSelections)
         when(goDashboardService.hasEverLoadedCurrentState()).thenReturn(true)
         def pipelineGroups = [pipelineGroup]
         when(goDashboardService.allPipelineGroupsForDashboard(eq(Filters.WILDCARD_FILTER), eq(currentUsername()))).thenReturn(pipelineGroups)
@@ -125,7 +125,7 @@ class DashboardControllerDelegateTest implements SecurityServiceTrait, Controlle
       void 'should get empty json when dashboard is empty'() {
         def noPipelineGroups = []
         def pipelineSelections = PipelineSelections.ALL
-        when(pipelineSelectionsService.loadPipelineSelections((String) isNull(), any(Long.class))).thenReturn(pipelineSelections)
+        when(pipelineSelectionsService.load((String) isNull(), any(Long.class))).thenReturn(pipelineSelections)
         when(goDashboardService.allPipelineGroupsForDashboard(eq(Filters.WILDCARD_FILTER), eq(currentUsername()))).thenReturn(noPipelineGroups)
         when(goDashboardService.hasEverLoadedCurrentState()).thenReturn(true)
 
@@ -165,7 +165,7 @@ class DashboardControllerDelegateTest implements SecurityServiceTrait, Controlle
         def pipelineGroup = new GoDashboardPipelineGroup('group1', new Permissions(Everyone.INSTANCE, Everyone.INSTANCE, Everyone.INSTANCE, Everyone.INSTANCE))
         pipelineGroup.addPipeline(dashboardPipeline('pipeline1'))
         pipelineGroup.addPipeline(dashboardPipeline('pipeline2'))
-        when(pipelineSelectionsService.loadPipelineSelections((String) isNull(), any(Long.class))).thenReturn(pipelineSelections)
+        when(pipelineSelectionsService.load((String) isNull(), any(Long.class))).thenReturn(pipelineSelections)
         when(goDashboardService.hasEverLoadedCurrentState()).thenReturn(true)
         def pipelineGroups = [pipelineGroup]
         when(goDashboardService.allPipelineGroupsForDashboard(eq(Filters.WILDCARD_FILTER), eq(currentUsername()))).thenReturn(pipelineGroups)

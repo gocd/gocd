@@ -419,7 +419,7 @@ describe Admin::PipelinesController do
       @pause_info = PipelinePauseInfo.paused("just for fun", "loser")
       allow(@pipeline_pause_service).to receive(:pipelinePauseInfo).with("new-pip").and_return(@pause_info)
 
-      allow(@pipeline_selections_service).to receive(:updateUserPipelineSelections)
+      allow(@pipeline_selections_service).to receive(:update)
       allow(controller).to receive(:cookies).and_return({})
       allow(@security_service).to receive(:modifiableGroupsForUser).with(@user).and_return(["group1", "group2"])
     end
@@ -468,7 +468,7 @@ describe Admin::PipelinesController do
 
       expect(@go_config_service).to receive(:getCurrentConfig).twice.and_return(GoConfigCloner.new().deepClone(@cruise_config))
       expect(@pipeline_pause_service).to receive(:pause).with("new-pip", "Under construction", @user)
-      expect(@pipeline_selections_service).to receive(:updateUserPipelineSelections).with(selected_pipeline_id, current_user_entity_id, CaseInsensitiveString.new(pipeline_name))
+      expect(@pipeline_selections_service).to receive(:update).with(selected_pipeline_id, current_user_entity_id, CaseInsensitiveString.new(pipeline_name))
 
       stub_save_for_success
       post :create, :config_md5 => "1234abcd", :pipeline_group => {:group => "new-group", :pipeline => {:name => pipeline_name}}
@@ -484,7 +484,7 @@ describe Admin::PipelinesController do
       pipeline_name = "new-pip"
 
       expect(@go_config_service).to receive(:getCurrentConfig).twice.and_return(GoConfigCloner.new().deepClone(@cruise_config))
-      expect(@pipeline_selections_service).not_to receive(:updateUserPipelineSelections)
+      expect(@pipeline_selections_service).not_to receive(:update)
 
       stub_save_for_validation_error do |result, _, _|
         result.forbidden("unauthorized", nil)
@@ -753,7 +753,7 @@ describe Admin::PipelinesController do
     describe "save_clone" do
       before :each do
         allow(@pipeline_pause_service).to receive(:pause)
-        allow(@pipeline_selections_service).to receive(:updateUserPipelineSelections)
+        allow(@pipeline_selections_service).to receive(:update)
       end
 
       it "should save cloned pipeline successfully" do
@@ -813,7 +813,7 @@ describe Admin::PipelinesController do
         selected_pipeline_id = "456"
         allow(controller).to receive(:cookies).and_return(cookiejar={:selected_pipelines => selected_pipeline_id})
 
-        expect(@pipeline_selections_service).to receive(:updateUserPipelineSelections).with(selected_pipeline_id, current_user_entity_id, CaseInsensitiveString.new("new-pip"))
+        expect(@pipeline_selections_service).to receive(:update).with(selected_pipeline_id, current_user_entity_id, CaseInsensitiveString.new("new-pip"))
 
         post :save_clone, :config_md5 => "1234abcd", :pipeline_group => {:group => "group1", :pipeline => {:name => "new-pip"}}, :pipeline_name => @pipeline.name().to_s
       end
@@ -825,7 +825,7 @@ describe Admin::PipelinesController do
 
         post :save_clone, :config_md5 => "1234abcd", :pipeline_group => {:group => "group1", :pipeline => {:name => "new-pip"}}, :pipeline_name => @pipeline.name().to_s
 
-        expect(@pipeline_selections_service).to_not receive(:updateUserPipelineSelections)
+        expect(@pipeline_selections_service).to_not receive(:update)
       end
     end
   end

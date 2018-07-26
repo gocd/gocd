@@ -26,7 +26,7 @@ import static java.util.stream.Collectors.toList;
  * Since a single plugin can have multiple extensions, this combines multiple
  * plugin info objects into one, representing a full plugin.
  */
-public class CombinedPluginInfo extends HashSet<PluginInfo> {
+public class CombinedPluginInfo extends LinkedHashSet<PluginInfo> {
     public CombinedPluginInfo() {
     }
 

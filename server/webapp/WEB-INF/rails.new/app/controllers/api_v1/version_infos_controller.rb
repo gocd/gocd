@@ -29,7 +29,7 @@ module ApiV1
       version_info = version_info_service.updateServerLatestVersion(go_latest_version.latest_version, result)
 
       if result.isSuccessful
-        render DEFAULT_FORMAT => to_json_hal(version_info)
+        render DEFAULT_FORMAT => to_json_hal(version_info, server_id)
       else
         render_http_operation_result(result)
       end
@@ -37,8 +37,7 @@ module ApiV1
 
     def stale
       version_info = version_info_service.getStaleVersionInfo()
-
-      render DEFAULT_FORMAT => to_json_hal(version_info)
+      render DEFAULT_FORMAT => to_json_hal(version_info, server_id)
     end
 
     def latest_version
@@ -48,10 +47,14 @@ module ApiV1
 
     private
 
-    def to_json_hal(version_info)
+    def server_id
+      data_sharing_usage_statistics_reporting_service.get.getServerId
+    end
+
+    def to_json_hal(version_info, server_id)
       return {} if version_info.nil?
 
-      VersionInfoRepresenter.new(version_info, system_environment).to_hash(url_builder: self)
+      VersionInfoRepresenter.new(version_info, system_environment, server_id).to_hash(url_builder: self)
     end
 
     def message_tampered_error_message

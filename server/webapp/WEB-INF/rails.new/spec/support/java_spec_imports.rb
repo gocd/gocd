@@ -132,4 +132,5 @@ module JavaSpecImports
   java_import com.thoughtworks.go.server.dashboard.TimeStampBasedCounter unless defined? TimeStampBasedCounter
   java_import com.thoughtworks.go.util.SystemTimeClock unless defined? SystemTimeClock
   java_import com.thoughtworks.go.config.FetchTaskAdapter unless defined? FetchTaskAdapter
+  java_import com.thoughtworks.go.domain.UsageStatisticsReporting unless defined? UsageStatisticsReporting
 end

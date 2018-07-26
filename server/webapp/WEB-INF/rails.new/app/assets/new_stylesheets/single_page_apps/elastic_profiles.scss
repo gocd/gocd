@@ -13,62 +13,49 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@import 'shared/mixins';
-@import 'shared/autocomplete';
 @import 'shared/common';
 @import 'shared/modal';
-@import 'shared/header';
 @import 'shared/alert';
 @import 'shared/plugin_config/plugin_group_header';
 @import 'shared/plugin_config/plugin_collapsible_list';
 @import 'shared/action_buttons';
+@import 'components/panel';
+@import 'components/collapse';
 
-$elastic-profile-plugin-icon-size: 30px;
-$elastic-profile-icon-text-padding: 20px;
-$elastic-profile-icon-color: #555;
-$elastic-profile-icon-hover-color: #000;
+
+$elastic-profile-plugin-icon-size : 30px;
+$elastic-profile-icon-text-padding : 20px;
+$elastic-profile-icon-color : #555;
+$elastic-profile-icon-hover-color : #000;
 
 .add-profile, .plugin-status {
-  float:         right;
-  margin-bottom: 0;
-  height:        $elastic-profile-plugin-icon-size;
+  float         : right;
+  margin-bottom : 0;
+  height        : $elastic-profile-plugin-icon-size;
 }
 
 .delete-profile {
-  margin-top: 20px;
+  margin-top : 20px;
 }
 
-.elastic-profiles {
-  margin-top:       60px;
-  background-color: $accordion-bg;
-  overflow:         auto;
-}
+
 
 .reveal .delete-profile {
-  @include icon-before($type: trash, $color: $white, $margin: 0 5px 0 0, $progress-spinner: true);
+  @include icon-before($type : trash, $color : $white, $margin : 0 5px 0 0, $progress-spinner : true);
 }
 
-.plugin-icon {
-  width:          $elastic-profile-plugin-icon-size;
-  height:         $elastic-profile-plugin-icon-size;
-  display:        inline-block;
-  vertical-align: middle;
-  float:          left;
-}
 
 .unknown-plugin-icon {
-  @include icon-before($type: question, $size: $elastic-profile-plugin-icon-size, $color: $light-gray);
+  @include icon-before($type : question, $size : $elastic-profile-plugin-icon-size, $color : $light-gray);
   &:before {
-    margin: 0;
+    margin : 0;
   }
 }
 
-.elastic-profile-plugin-group {
-  margin-bottom:           15px;
-}
 
 .plugin-not-installed {
-  color:       rgba(0, 0, 0, 0.36);
-  font-weight: 600;
-  line-height: $elastic-profile-plugin-icon-size;
+  color       : rgba(0, 0, 0, 0.36);
+  font-weight : 600;
+  line-height : $elastic-profile-plugin-icon-size;
 }
+

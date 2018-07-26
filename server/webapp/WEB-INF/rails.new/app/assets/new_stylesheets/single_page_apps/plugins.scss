@@ -13,57 +13,41 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@import 'shared/mixins';
-@import 'shared/autocomplete';
+
 @import 'shared/common';
 @import 'shared/modal';
-@import 'shared/header';
 @import 'shared/alert';
+@import 'shared/action_buttons';
+@import 'components/panel';
+@import 'components/collapse';
 
-$elastic-profile-plugin-icon-size: 30px;
-$elastic-profile-icon-text-padding: 20px;
-$elastic-profile-icon-color: #555;
-$elastic-profile-icon-hover-color: #000;
+$icon-size: 30px;
+$icon-text-padding: 20px;
+$icon-color: #555;
+$icon-hover-color: #000;
 
-.plugins-settings {
-  margin-top:       60px;
-  background-color: $accordion-bg;
-  overflow:         auto;
-}
 
 .status-report-btn {
-  position: relative;
-  top:      -2px;
-  right:    8px;
-
+  margin-right : 10px;
   &.disabled {
     background: $light-grey;
   }
 }
 
 .plugin {
-  background:    $go-white;
-  position:      relative;
-  margin-bottom: 10px;
-  border:        0;
-  border-radius: $global-border-radius;
-  cursor:        pointer;
 
   &.disabled {
     background: $light-grey;
   }
 }
 
-.plugin-header {
-  padding: 10px;
-}
 
 .edit-plugin {
-  @include icon-before($type: gear, $color: $elastic-profile-icon-color);
+  @include icon-before($type: gear, $color: $icon-color);
   &:not(.disabled) {
     &:hover {
       &:before {
-        color: $elastic-profile-icon-hover-color;
+        color: $icon-hover-color;
       }
     }
   }
@@ -75,80 +59,28 @@ $elastic-profile-icon-hover-color: #000;
   }
 }
 
-.plugin-icon {
-  width:          $elastic-profile-plugin-icon-size;
-  height:         $elastic-profile-plugin-icon-size;
-  display:        inline-block;
-  vertical-align: middle;
-}
-
-.plugin-description {
-  display:        inline-block;
-  vertical-align: middle;
-  padding-left:   $elastic-profile-icon-text-padding;
-  width:          calc(100% - #{$elastic-profile-plugin-icon-size});
-
-  .plugin-name, .plugin-version, .plugin-id {
-    min-width: 300px;
-    max-width: 300px;
-  }
-
-  .plugin-author {
-    min-width: 200px;
-    max-width: 200px;
-  }
-
+.plugins-settings{
   .plugin-name, .plugin-version, .plugin-id, .plugin-author {
-    min-width:     300px;
-    max-width:     300px;
     display:       inline-block;
     overflow-x:    hidden;
     text-overflow: ellipsis;
     white-space:   nowrap;
     padding-right: 30px;
-    font-weight:   400;
-    font-size:     rem-calc(13px);
 
-    .value {
-      font-weight: 400;
-      font-size:   rem-calc(13px);
-    }
   }
 
-  .key {
-    font-weight: 600;
-    font-size:   rem-calc(13px);
+  .plugin-name,   .plugin-author{
+    min-width : 300px;
+    max-width : 300px;
   }
-}
-
-.plugin-actions {
-  position: absolute;
-  right:    10px;
-  top:      13px;
-}
-
-.plugin-config-read-only {
-  box-sizing: border-box;
-  padding:    10px 10px 10px 60px;
-  border-top: 1px solid $light-grey;
-  .key-value-pair {
-    dt {
-      width: 20%;
-    }
-    dd {
-      width: 80%;
-    }
-    pre {
-      width:       100%;
-      display:     block;
-      white-space: inherit;
-    }
+  .plugin-id {
+    min-width : 300px;
+    max-width : 500px;
+  }
+  .plugin-version {
+    min-width:200px;
   }
 }
 
-.unknown-plugin-icon {
-  @include icon-before($type: question, $size: $elastic-profile-plugin-icon-size, $color: $light-gray, $shadow: 1px 1px 1px darken($light-gray, 20%));
-  &:before {
-    margin: 0;
-  }
-}
+
+

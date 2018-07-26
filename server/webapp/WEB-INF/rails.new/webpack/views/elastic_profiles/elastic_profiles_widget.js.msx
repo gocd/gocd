@@ -244,15 +244,15 @@ const ElasticProfilesWidget = {
               if (pluginInfo) {
                 if (pluginInfo.extensions()['elastic-agent'].capabilities() && pluginInfo.extensions()['elastic-agent'].capabilities().supportsStatusReport()) {
                   statusReportButton = (
-                    <f.link class="button plugin-status end" href={`status_reports/${pluginId}`}>Status Report</f.link>);
+                    <f.link class="button plugin-status" href={`status_reports/${pluginId}`}>Status Report</f.link>);
                 }
               }
 
-              return (<div class="elastic-profile-plugin-group">
+              return (<div class="panel">
 
                 <PluginGroupHeader pluginInfo={pluginInfo} pluginId={pluginId} statusReportButton={statusReportButton}/>
 
-                <div class="elastic-profile-plugin-group-content">
+                <div class="panel_body">
                   {_.map(profiles, (profile) => {
 
                     return (

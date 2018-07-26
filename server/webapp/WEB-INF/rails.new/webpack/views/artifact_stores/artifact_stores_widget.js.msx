@@ -81,18 +81,22 @@ class ArtifactStoresWidget {
               const pluginInfo = this.state.findPluginInfo(pluginId);
               return (
                 <div className="row expanded">
-                  <div class="plugin-group">
+                  <div class="panel plugin-group">
                     <PluginGroupHeader pluginInfo={pluginInfo} pluginId={pluginId}/>
+                    <div class="panel_body">
                     {_.map(stores, (store) => {
                       return (
+
                         <ArtifactStoreWidget
                           artifactStore={store}
                           pluginInfo={pluginInfo}
                           onEdit={editClicked.bind(this, store)}
                           onDelete={deleteClicked.bind(this, store)}
                           onClone={cloneClicked.bind(this, store)}/>
+
                       );
                     })}
+                    </div>
                   </div>
                 </div>);
             })

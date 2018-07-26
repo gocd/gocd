@@ -27,20 +27,25 @@ class PluginGroupHeader {
     let pluginNameLabel, pluginIcon;
 
     if (pluginInfo) {
-      pluginIcon      = (<span class="plugin-icon"><img src={pluginInfo.imageUrl()}/></span>);
-      pluginNameLabel = (<label className="medium-4 column plugin-name">{pluginInfo.about().name()}</label>);
+      pluginIcon      = (<span class="panel_icon plugin-icon"><img src={pluginInfo.imageUrl()}/></span>);
+      pluginNameLabel = (<h5 className="panel_title plugin-name">{pluginInfo.about().name()}</h5>);
 
     } else {
       pluginNameLabel = (
-        <label className="medium-4 column plugin-not-installed">Plugin is not installed</label>);
-      pluginIcon      = (<span class="plugin-icon warning"></span>);
+        <h5 className="panel_title plugin-not-installed">Plugin is not installed</h5>);
+      pluginIcon      = (<span class="panel_icon plugin-icon warning"></span>);
     }
 
     return (
-      <div className="plugin-group-header row">
-        {pluginIcon}
-        {pluginNameLabel}
-        <label className="medium-4 column plugin-id end">Plugin ID: {pluginId}</label>
+      <div className="panel_header plugin-group-header">
+        <div className="panel_header_details">
+          {pluginIcon}
+          {pluginNameLabel}
+          <dl className="key-value-pair key-value-pair-header plugin-id">
+              <dt>Plugin ID</dt>
+              <dd>{pluginId}</dd>
+          </dl>
+        </div>
         {statusReportButton}
       </div>
     );

@@ -3,8 +3,8 @@
 <script type="text/javascript">
     <%- button_container = scope[:button_container] -%>
     <%- button_id = scope[:button_id] -%>
-    <%- button_selector =  button_container==nil ? button_id : button_container+' #'+button_id -%>
-    <%- prompt_selector =  button_container==nil ? button_id +' #warning_prompt' : button_container +' #warning_prompt' -%>
+    <%- button_selector =  button_container == nil ? button_id : "#{button_container} ##{button_id}" -%>
+    <%- prompt_selector =  button_container == nil ? "#{button_id} #warning_prompt" : "#{button_container} #warning_prompt" -%>
     <%- message = scope[:message] -%>
     <%- on_confirmation_js = scope[:on_confirmation_js] -%>
     jQuery(Util.escapeDotsFromId('<%=button_selector-%>')).click(function() {

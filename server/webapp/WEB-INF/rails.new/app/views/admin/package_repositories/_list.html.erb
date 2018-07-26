@@ -37,7 +37,7 @@
                         <li class="empty-node"><span>No packages found</span></li>
                     <%- else %>
                         <% repo.getPackages().each do |pkg| %>
-                            <li title="<%= pkg.getName() -%>" class="<%= pkg.getId() == scope[:package_id] ? 'selected' :'' %>">
+                            <li title="<%= pkg.getName() -%>" class="<%= pkg.getId() == scope[:package_id] ? 'selected' : '' %>">
                                 <div class="entity">
                                     <%= link_to pkg.getName(), package_definitions_show_with_repository_list_path(:repo_id => repo.getId(), :package_id => pkg.getId()) -%>
                                     <%= form_for pkg, :as => :pkg, :url => package_definition_delete_path(:repo_id => repo.getId(), :package_id => pkg.getId()), :html => {:id => "delete_package_"+pkg.getId, :method => :delete} do |f| %>

@@ -55,7 +55,7 @@
                             <div>This pipeline will now start using the newly created template.</div>
                         </div>
                     <% else %>
-                        <div id="pipelines_to_extract_from" class='<%= @pipeline.useExistingPipeline ? "" :"hidden" %>'>
+                        <div id="pipelines_to_extract_from" class='<%= @pipeline.useExistingPipeline ? "" : "hidden" %>'>
                             <div class="form_item_block">
                                 <%= f.select(com.thoughtworks.go.presentation.PipelineTemplateConfigViewModel::SELECTED_PIPELINE_NAME, @pipeline.pipelineNames, {:selected => @pipeline.selectedPipelineName()}) %>
                             </div>

@@ -17,21 +17,28 @@
 package com.thoughtworks.go.server.dao;
 
 import com.thoughtworks.go.server.domain.DataSharingSettings;
+import com.thoughtworks.go.server.transaction.TransactionSynchronizationManager;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.TransactionCallbackWithoutResult;
+import org.springframework.transaction.support.TransactionSynchronizationAdapter;
 
 @Component
 public class DataSharingSettingsSqlMapDao extends HibernateDaoSupport {
     private SessionFactory sessionFactory;
     private TransactionTemplate transactionTemplate;
+    private TransactionSynchronizationManager transactionSynchronizationManager;
+    private DataSharingSettings cachedSettings;
 
     @Autowired
-    public DataSharingSettingsSqlMapDao(SessionFactory sessionFactory, TransactionTemplate transactionTemplate) {
+    public DataSharingSettingsSqlMapDao(SessionFactory sessionFactory, TransactionTemplate transactionTemplate, TransactionSynchronizationManager manager) {
         this.sessionFactory = sessionFactory;
         this.transactionTemplate = transactionTemplate;
+        this.transactionSynchronizationManager = manager;
         setSessionFactory(sessionFactory);
     }
 
@@ -48,11 +55,32 @@ public class DataSharingSettingsSqlMapDao extends HibernateDaoSupport {
             existing = dataSharingSettings;
         }
 
-        sessionFactory.getCurrentSession().saveOrUpdate(existing);
+        DataSharingSettings toSave = existing;
+        transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+            @Override
+            protected void doInTransactionWithoutResult(TransactionStatus status) {
+                transactionSynchronizationManager.registerSynchronization(new TransactionSynchronizationAdapter() {
+                    @Override
+                    public void afterCommit() {
+                        invalidateCache();
+                    }
+                });
+
+                sessionFactory.getCurrentSession().saveOrUpdate(toSave);
+            }
+        });
     }
 
     public DataSharingSettings load() {
-        return transactionTemplate.execute(status -> (DataSharingSettings) sessionFactory.getCurrentSession().getNamedQuery("load.datasharing.settings").uniqueResult());
+        if (cachedSettings == null) {
+            cachedSettings = transactionTemplate.execute(status -> (DataSharingSettings) sessionFactory.getCurrentSession().getNamedQuery("load.datasharing.settings").uniqueResult());
+        }
+
+        return cachedSettings;
+    }
+
+    public void invalidateCache() {
+        cachedSettings = null;
     }
 
     public class DuplicateDataSharingSettingsException extends Exception {

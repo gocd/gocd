@@ -65,11 +65,13 @@ public class DataSharingSettingsServiceIntegrationTest {
     @After
     public void teardown() throws Exception {
         dbHelper.onTearDown();
+        dataSharingSettingsSqlMapDao.invalidateCache();
     }
 
     @Test
     public void shouldInitializeDataSharingSettingsOnFirstStartup() throws Exception {
         dbHelper.onTearDown();//to start on a clean slate
+        dataSharingSettingsSqlMapDao.invalidateCache();
 
         assertNull(dataSharingSettingsSqlMapDao.load());
         dataSharingSettingsService.initialize();
@@ -80,6 +82,7 @@ public class DataSharingSettingsServiceIntegrationTest {
     @Test
     public void shouldNotReInitializeDataSharingSettingsOnSubsequentStartups() throws Exception {
         dbHelper.onTearDown();//to start on a clean slate
+        dataSharingSettingsSqlMapDao.invalidateCache();
 
         assertNull(dataSharingSettingsSqlMapDao.load());
         dataSharingSettingsService.initialize();

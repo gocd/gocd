@@ -26,6 +26,7 @@ import com.thoughtworks.go.util.XmlUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
+import java.io.Serializable;
 import java.util.Map;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -36,7 +37,7 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
  * @understands configuratin for a job
  */
 @ConfigTag("job")
-public class JobConfig implements Validatable, ParamsAttributeAware, EnvironmentVariableScope {
+public class JobConfig implements Validatable, ParamsAttributeAware, EnvironmentVariableScope, Serializable {
     @SkipParameterResolution
     @ConfigAttribute(value = "name", optional = false)
     private CaseInsensitiveString jobName;

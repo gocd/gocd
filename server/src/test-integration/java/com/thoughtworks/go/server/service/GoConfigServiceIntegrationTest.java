@@ -813,7 +813,7 @@ public class GoConfigServiceIntegrationTest {
                 Username.ANONYMOUS, new HttpLocalizedOperationResult());
 
         Configuration ancestorPluggablePublishAftifactConfigAfterEncryption = goConfigDao.loadConfigHolder()
-                .configForEdit.pipelineConfigByName(new CaseInsensitiveString("ancestor"))
+                .getConfigForEdit().pipelineConfigByName(new CaseInsensitiveString("ancestor"))
                 .getExternalArtifactConfigs().get(0).getConfiguration();
         assertThat(ancestorPluggablePublishAftifactConfigAfterEncryption.getProperty("Image").getValue(), is("NEW_SECRET"));
         assertThat(ancestorPluggablePublishAftifactConfigAfterEncryption.getProperty("Image").getEncryptedValue(), startsWith("AES:"));
@@ -831,7 +831,7 @@ public class GoConfigServiceIntegrationTest {
                 "defaultStage", "defaultJob", "NEW_SECRET"),
                 md5, Username.ANONYMOUS, new HttpLocalizedOperationResult());
 
-        PipelineConfig child = goConfigDao.loadConfigHolder().configForEdit.pipelineConfigByName(new CaseInsensitiveString("child"));
+        PipelineConfig child = goConfigDao.loadConfigHolder().getConfigForEdit().pipelineConfigByName(new CaseInsensitiveString("child"));
         Configuration childFetchConfigAfterEncryption = ((FetchPluggableArtifactTask) child
                 .get(0).getJobs().get(0).tasks().get(0)).getConfiguration();
 

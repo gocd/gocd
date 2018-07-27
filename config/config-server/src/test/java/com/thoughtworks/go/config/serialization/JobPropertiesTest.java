@@ -51,7 +51,7 @@ public class JobPropertiesTest {
                 + "    <property name=\"prop2\" src=\"test.xml\" xpath=\"//value\" />\n"
                 + "  </properties>\n"
                 + "</job>";
-        CruiseConfig config = loader.loadConfigHolder(ConfigFileFixture.withJob(jobXml)).configForEdit;
+        CruiseConfig config = loader.loadConfigHolder(ConfigFileFixture.withJob(jobXml)).getConfigForEdit();
         JobConfig jobConfig = config.pipelineConfigByName(new CaseInsensitiveString("pipeline1")).get(1).allBuildPlans().first();
         assertThat(jobConfig.getProperties().first(),
                 is(new ArtifactPropertyConfig("coverage", "reports/emma.html", "//coverage/class")));
@@ -67,7 +67,7 @@ public class JobPropertiesTest {
                 + "    <property name=\"prop2\" src=\"test.xml\" xpath=\"//value\" />\n"
                 + "  </properties>\n"
                 + "</job>";
-        CruiseConfig config = loader.loadConfigHolder(ConfigFileFixture.withJob(jobXml)).configForEdit;
+        CruiseConfig config = loader.loadConfigHolder(ConfigFileFixture.withJob(jobXml)).getConfigForEdit();
         JobConfig jobConfig = config.pipelineConfigByName(new CaseInsensitiveString("pipeline1")).get(1).allBuildPlans().first();
         assertThat(writer.toXmlPartial(jobConfig), is(jobXml));
     }
@@ -125,14 +125,14 @@ public class JobPropertiesTest {
 
     private CruiseConfig cruiseConfigWithProperties(ArtifactPropertyConfig... artifactPropertyConfigs)
             throws Exception {
-        CruiseConfig cruiseConfig = loader.loadConfigHolder(ONE_PIPELINE).configForEdit;
+        CruiseConfig cruiseConfig = loader.loadConfigHolder(ONE_PIPELINE).getConfigForEdit();
         JobConfig jobConfig = BuildPlanMother.withArtifactPropertiesGenerator(artifactPropertyConfigs);
         cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("pipeline1")).first().allBuildPlans().add(jobConfig);
         return cruiseConfig;
     }
 
     private JobConfig loadJobConfig(String jobXml) throws Exception {
-               CruiseConfig config = loader.loadConfigHolder(ConfigFileFixture.withJob(jobXml)).configForEdit;
+               CruiseConfig config = loader.loadConfigHolder(ConfigFileFixture.withJob(jobXml)).getConfigForEdit();
         return config.pipelineConfigByName(new CaseInsensitiveString("pipeline1")).first().allBuildPlans().first();
     }
 

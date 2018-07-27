@@ -280,6 +280,7 @@ public class CachedGoConfigIntegrationTest {
         cachedGoConfig.writeWithLock(new UpdateConfigCommand() {
             @Override
             public CruiseConfig update(CruiseConfig cruiseConfig) throws Exception {
+                cruiseConfig.addEnvironment(UUID.randomUUID().toString());
                 return cruiseConfig;
             }
         });
@@ -708,7 +709,7 @@ public class CachedGoConfigIntegrationTest {
         hgMaterialConfig = (HgMaterialConfig) byFolder(reloadedPipelineConfig.materialConfigs(), "folder");
         Assert.assertThat(hgMaterialConfig.getUrl(), Matchers.is("http://hg-server/repo-name"));
 
-        reloadedPipelineConfig = configHolder.configForEdit.pipelineConfigByName(new CaseInsensitiveString(pipelineName));
+        reloadedPipelineConfig = configHolder.getConfigForEdit().pipelineConfigByName(new CaseInsensitiveString(pipelineName));
         hgMaterialConfig = (HgMaterialConfig) byFolder(reloadedPipelineConfig.materialConfigs(), "folder");
         Assert.assertThat(hgMaterialConfig.getUrl(), Matchers.is("http://#{foo}/#{bar}"));
     }
@@ -1174,7 +1175,7 @@ public class CachedGoConfigIntegrationTest {
         cachedGoConfig.forceReload();
 
         Configuration ancestorPluggablePublishAftifactConfigAfterEncryption = goConfigDao.loadConfigHolder()
-                .configForEdit.pipelineConfigByName(new CaseInsensitiveString("ancestor"))
+                .getConfigForEdit().pipelineConfigByName(new CaseInsensitiveString("ancestor"))
                 .getExternalArtifactConfigs().get(0).getConfiguration();
         assertThat(ancestorPluggablePublishAftifactConfigAfterEncryption.getProperty("Image").getValue(), is("SECRET"));
         assertThat(ancestorPluggablePublishAftifactConfigAfterEncryption.getProperty("Image").getEncryptedValue(), is(new GoCipher().encrypt("SECRET")));
@@ -1194,7 +1195,7 @@ public class CachedGoConfigIntegrationTest {
 
         cachedGoConfig.forceReload();
 
-        PipelineConfig child = goConfigDao.loadConfigHolder().configForEdit.pipelineConfigByName(new CaseInsensitiveString("child"));
+        PipelineConfig child = goConfigDao.loadConfigHolder().getConfigForEdit().pipelineConfigByName(new CaseInsensitiveString("child"));
         Configuration childFetchConfigAfterEncryption = ((FetchPluggableArtifactTask) child
                 .get(0).getJobs().get(0).tasks().get(0)).getConfiguration();
 

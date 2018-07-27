@@ -22,6 +22,7 @@ import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.service.TaskFactory;
 import com.thoughtworks.go.util.GoConstants;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
@@ -29,7 +30,7 @@ import java.util.Map;
  * @understands the configuration for a stage
  */
 @ConfigTag("stage")
-public class StageConfig implements Validatable, ParamsAttributeAware, EnvironmentVariableScope {
+public class StageConfig implements Validatable, ParamsAttributeAware, EnvironmentVariableScope, Serializable {
     @SkipParameterResolution
     @ConfigAttribute(value = "name", optional = false)
     private CaseInsensitiveString name;

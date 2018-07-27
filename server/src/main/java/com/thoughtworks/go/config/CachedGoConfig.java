@@ -185,13 +185,18 @@ public class CachedGoConfig {
             this.lastException = null;
             this.configHolder = configHolder;
             this.currentConfig = this.configHolder.config;
-            this.currentConfigForEdit = this.configHolder.configForEdit;
-            this.mergedCurrentConfigForEdit = configHolder.mergedConfigForEdit;
+            this.currentConfigForEdit = this.configHolder.getConfigForEdit();
+            this.mergedCurrentConfigForEdit = configHolder.getMergedConfigForEdit();
             serverHealthService.update(ServerHealthState.success(HealthStateType.invalidConfig()));
         }
     }
 
     private synchronized void saveValidConfigToCacheAndNotifyConfigChangeListeners(GoConfigHolder configHolder) {
+        if (this.configHolder != null && configHolder != null &&
+                this.configHolder.getChecksum().equals(configHolder.getChecksum())) {
+            return;
+        }
+
         saveValidConfigToCache(configHolder);
         if (configHolder != null) {
             notifyListeners(currentConfig);

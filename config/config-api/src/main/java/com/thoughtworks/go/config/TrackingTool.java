@@ -21,10 +21,11 @@ import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.DefaultCommentRenderer;
 import org.apache.commons.lang3.StringUtils;
 
+import java.io.Serializable;
 import java.util.Map;
 
 @ConfigTag("trackingtool")
-public class TrackingTool implements ParamsAttributeAware, Validatable, CommentRenderer {
+public class TrackingTool implements ParamsAttributeAware, Validatable, CommentRenderer, Serializable {
     @ConfigAttribute(value = "link", optional = false)
     private String link = "";
     @ConfigAttribute(value = "regex", optional = false)

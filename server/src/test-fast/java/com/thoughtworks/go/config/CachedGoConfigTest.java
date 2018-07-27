@@ -18,11 +18,14 @@ package com.thoughtworks.go.config;
 
 import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
 import com.thoughtworks.go.config.update.FullConfigUpdateCommand;
+import com.thoughtworks.go.helper.GoConfigMother;
+import com.thoughtworks.go.helper.PartialConfigMother;
 import com.thoughtworks.go.listener.ConfigChangedListener;
 import com.thoughtworks.go.listener.EntityConfigChangedListener;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.serverhealth.ServerHealthState;
+import com.thoughtworks.go.util.ReflectionUtil;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.hamcrest.core.Is;
 import org.junit.Assert;
@@ -30,7 +33,12 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
+import java.util.Arrays;
+import java.util.UUID;
+
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.core.Is.is;
 import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
@@ -51,7 +59,11 @@ public class CachedGoConfigTest {
     @Before
     public void setUp() throws Exception {
         initMocks(this);
-        configHolder = new GoConfigHolder(new BasicCruiseConfig(), new BasicCruiseConfig());
+        BasicCruiseConfig config = new BasicCruiseConfig();
+        BasicCruiseConfig configForEdit = new BasicCruiseConfig();
+        ReflectionUtil.setField(config, "md5", "md5");
+        ReflectionUtil.setField(configForEdit, "md5", "md5");
+        configHolder = new GoConfigHolder(config, configForEdit);
         cachedGoConfig = new CachedGoConfig(serverHealthService, dataSource, mock(CachedGoPartials.class), goConfigMigrator, systemEnvironment);
         when(systemEnvironment.optimizeFullConfigSave()).thenReturn(true);
         when(dataSource.load()).thenReturn(configHolder);
@@ -71,7 +83,7 @@ public class CachedGoConfigTest {
         cachedGoConfig.writeEntityWithLock(saveCommand, user);
         assertThat(cachedGoConfig.loadConfigHolder(), is(savedConfig));
         assertThat(cachedGoConfig.currentConfig(), is(savedConfig.config));
-        assertThat(cachedGoConfig.loadForEditing(), is(savedConfig.configForEdit));
+        assertThat(cachedGoConfig.loadForEditing(), is(savedConfig.getConfigForEdit()));
         verify(dataSource).writeEntityWithLock(saveCommand, holderBeforeUpdate, user);
     }
 
@@ -79,23 +91,6 @@ public class CachedGoConfigTest {
     public void shouldLoadConfigHolderIfNotAvailable() throws Exception {
         cachedGoConfig.forceReload();
         Assert.assertThat(cachedGoConfig.loadConfigHolder(), is(configHolder));
-    }
-
-    @Test
-    public void shouldNotifyConfigListenersWhenConfigChanges() throws Exception {
-        when(dataSource.writeWithLock(any(UpdateConfigCommand.class), any(GoConfigHolder.class))).thenReturn(new GoFileConfigDataSource.GoConfigSaveResult(configHolder, ConfigSaveState.UPDATED));
-        final ConfigChangedListener listener = mock(ConfigChangedListener.class);
-        cachedGoConfig.registerListener(listener);
-        cachedGoConfig.forceReload();
-
-        cachedGoConfig.writeWithLock(new UpdateConfigCommand() {
-            @Override
-            public CruiseConfig update(CruiseConfig cruiseConfig) throws Exception {
-                return cruiseConfig;
-            }
-        });
-
-        verify(listener, times(2)).onConfigChange(any(BasicCruiseConfig.class));
     }
 
     @Test
@@ -165,8 +160,9 @@ public class CachedGoConfigTest {
         BasicCruiseConfig config = mock(BasicCruiseConfig.class);
         BasicCruiseConfig configForEdit = mock(BasicCruiseConfig.class);
         BasicCruiseConfig mergedConfigForEdit = mock(BasicCruiseConfig.class);
+        when(configForEdit.getMd5()).thenReturn("md5-for-config-for-edit");
         GoConfigHolder goConfigHolder = new GoConfigHolder(config, configForEdit);
-        goConfigHolder.mergedConfigForEdit = mergedConfigForEdit;
+        goConfigHolder.setMergedConfigForEdit(mergedConfigForEdit, Arrays.asList(PartialConfigMother.withPipeline("pipeline")));
         ConfigSaveState configSaveState = ConfigSaveState.UPDATED;
 
         when(dataSource.writeFullConfigWithLock(any(FullConfigUpdateCommand.class), any(GoConfigHolder.class)))
@@ -180,6 +176,8 @@ public class CachedGoConfigTest {
         assertThat(cachedGoConfig.loadForEditing(), Is.<CruiseConfig>is(configForEdit));
         assertThat(cachedGoConfig.loadConfigHolder(), is(goConfigHolder));
         assertThat(cachedGoConfig.loadMergedForEditing(), Is.<CruiseConfig>is(mergedConfigForEdit));
+        assertThat(cachedGoConfig.loadConfigHolder().getChecksum().md5SumOfConfigForEdit, is("md5-for-config-for-edit"));
+        assertThat(cachedGoConfig.loadConfigHolder().getChecksum().md5SumOfPartials, is(not(nullValue())));
         verify(serverHealthService, times(2)).update(any(ServerHealthState.class));
     }
 
@@ -196,7 +194,7 @@ public class CachedGoConfigTest {
         BasicCruiseConfig configForEdit = mock(BasicCruiseConfig.class);
         BasicCruiseConfig mergedConfigForEdit = mock(BasicCruiseConfig.class);
         GoConfigHolder goConfigHolder = new GoConfigHolder(config, configForEdit);
-        goConfigHolder.mergedConfigForEdit = mergedConfigForEdit;
+        goConfigHolder.setMergedConfigForEdit(mergedConfigForEdit, null);
 
         when(goConfigMigrator.migrate()).thenReturn(goConfigHolder);
 
@@ -216,5 +214,73 @@ public class CachedGoConfigTest {
         cachedGoConfig.upgradeConfig();
 
         verify(dataSource).upgradeIfNecessary();
+    }
+
+    @Test
+    public void shouldNotNotifyListenersWhenConfigChecksumHasNotChanged() throws Exception {
+        ConfigChangedListenerThatTracksInvocationCount listener = new ConfigChangedListenerThatTracksInvocationCount();
+        cachedGoConfig.registerListener(listener);
+        cachedGoConfig.forceReload();
+        assertThat(listener.invocationCount, is(1));
+
+        BasicCruiseConfig config = GoConfigMother.defaultCruiseConfig();
+        ReflectionUtil.setField(config, "md5", "original-md5");
+        when(dataSource.writeFullConfigWithLock(any(FullConfigUpdateCommand.class), any(GoConfigHolder.class)))
+                .thenReturn(new GoFileConfigDataSource.GoConfigSaveResult(
+                        new GoConfigHolder(config, config), ConfigSaveState.UPDATED));
+
+        cachedGoConfig.writeFullConfigWithLock(new FullConfigUpdateCommand(config, config.getMd5()));
+        assertThat(listener.invocationCount, is(2));
+
+        when(dataSource.load()).thenReturn(new GoConfigHolder(config, config));
+        cachedGoConfig.forceReload();
+        assertThat(listener.invocationCount, is(2));
+
+        cachedGoConfig.writeFullConfigWithLock(new FullConfigUpdateCommand(config, config.getMd5()));
+        assertThat(listener.invocationCount, is(2));
+    }
+
+    @Test
+    public void shouldNotifyListenersWhenConfigChecksumHasChanged() throws Exception {
+        ConfigChangedListenerThatTracksInvocationCount listener = new ConfigChangedListenerThatTracksInvocationCount();
+        cachedGoConfig.registerListener(listener);
+        BasicCruiseConfig config = GoConfigMother.defaultCruiseConfig();
+        ReflectionUtil.setField(config, "md5", "original-md5");
+
+        when(dataSource.load()).thenReturn(new GoConfigHolder(config, config));
+        cachedGoConfig.forceReload();
+        assertThat(listener.invocationCount, is(1));
+
+        CruiseConfig updatedConfig = GoConfigMother.simpleDiamond();
+        ReflectionUtil.setField(updatedConfig, "md5", "updated-md5");
+        when(dataSource.writeFullConfigWithLock(any(FullConfigUpdateCommand.class), any(GoConfigHolder.class)))
+                .thenReturn(new GoFileConfigDataSource.GoConfigSaveResult(
+                        new GoConfigHolder(updatedConfig, updatedConfig), ConfigSaveState.UPDATED));
+
+        cachedGoConfig.writeFullConfigWithLock(new FullConfigUpdateCommand(updatedConfig, updatedConfig.getMd5()));
+        assertThat(listener.invocationCount, is(2));
+
+        updatedConfig = GoConfigMother.simpleDiamond();
+        ReflectionUtil.setField(updatedConfig, "md5", "updated-md5-1");
+        when(dataSource.writeWithLock(any(UpdateConfigCommand.class), any(GoConfigHolder.class)))
+                .thenReturn(new GoFileConfigDataSource.GoConfigSaveResult(
+                        new GoConfigHolder(updatedConfig, updatedConfig), ConfigSaveState.UPDATED));
+        cachedGoConfig.writeWithLock(new UpdateConfigCommand() {
+            @Override
+            public CruiseConfig update(CruiseConfig cruiseConfig) throws Exception {
+                cruiseConfig.addEnvironment(UUID.randomUUID().toString());
+                return cruiseConfig;
+            }
+        });
+        assertThat(listener.invocationCount, is(3));
+    }
+
+    private class ConfigChangedListenerThatTracksInvocationCount implements ConfigChangedListener {
+        public int invocationCount = 0;
+
+        @Override
+        public void onConfigChange(CruiseConfig newCruiseConfig) {
+            invocationCount++;
+        }
     }
 }

@@ -17,6 +17,8 @@
 package com.thoughtworks.go.config;
 
 import static java.lang.String.format;
+
+import java.io.Serializable;
 import java.util.Set;
 
 import com.thoughtworks.go.domain.ConfigErrors;
@@ -25,7 +27,7 @@ import com.thoughtworks.go.domain.ConfigErrors;
  * @understands a reference to an existing agent that is associated to an Environment
  */
 @ConfigTag("physical")
-public class EnvironmentAgentConfig implements Validatable{
+public class EnvironmentAgentConfig implements Validatable, Serializable{
     @ConfigAttribute(value = "uuid", optional = false) private String uuid;
     private ConfigErrors configErrors = new ConfigErrors();
     public static final String UUID = "uuid";

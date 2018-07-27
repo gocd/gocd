@@ -20,11 +20,12 @@ import com.thoughtworks.go.config.remote.ConfigOriginTraceable;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.PiplineConfigVisitor;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
 public interface PipelineConfigs extends Iterable<PipelineConfig>, Cloneable, Validatable,
-        ParamsAttributeAware, ConfigOriginTraceable {
+        ParamsAttributeAware, ConfigOriginTraceable, Serializable {
 
     public static final String DEFAULT_GROUP = "defaultGroup";
     public static final String GROUP = "group";

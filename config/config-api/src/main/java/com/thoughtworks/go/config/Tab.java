@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.config;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -24,7 +25,7 @@ import com.thoughtworks.go.domain.ConfigErrors;
 
 
 @ConfigTag("tab")
-public class Tab implements Validatable {
+public class Tab implements Validatable, Serializable {
     @ConfigAttribute(value = "name", optional = false)
     private String name;
     @ConfigAttribute(value = "path", optional = false)

@@ -19,6 +19,7 @@ package com.thoughtworks.go.config;
 import com.thoughtworks.go.domain.ConfigErrors;
 import org.quartz.CronExpression;
 
+import java.io.Serializable;
 import java.text.ParseException;
 import java.util.Map;
 
@@ -27,7 +28,7 @@ import java.util.Map;
  * @understands Configuration of a Pipeline cron timer
  */
 @ConfigTag("timer")
-public class TimerConfig implements Validatable {
+public class TimerConfig implements Validatable, Serializable {
     @ConfigAttribute(value = "onlyOnChanges", optional = true, allowNull = true) private Boolean onlyOnChanges = false;
     @ConfigValue private String timerSpec;
 

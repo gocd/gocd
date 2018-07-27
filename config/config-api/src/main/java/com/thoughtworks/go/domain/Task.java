@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.domain;
 
+import java.io.Serializable;
 import java.util.List;
 
 import com.thoughtworks.go.config.ConfigInterface;
@@ -25,7 +26,7 @@ import com.thoughtworks.go.config.ValidationContext;
 import com.thoughtworks.go.service.TaskFactory;
 
 @ConfigInterface
-public interface Task extends ParamsAttributeAware, Validatable {
+public interface Task extends ParamsAttributeAware, Validatable, Serializable {
     public static final String TASK_TYPE = "task_type";
 
     RunIfConfigs getConditions();

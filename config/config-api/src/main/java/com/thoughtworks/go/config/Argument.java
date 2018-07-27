@@ -18,8 +18,10 @@ package com.thoughtworks.go.config;
 
 import com.thoughtworks.go.domain.ConfigErrors;
 
+import java.io.Serializable;
+
 @ConfigTag(value = "arg", label = "arg")
-public class Argument implements Validatable{
+public class Argument implements Validatable, Serializable{
     @ConfigValue @ValidationErrorKey(value = ExecTask.ARG_LIST_STRING) private String value;
     private final ConfigErrors configErrors = new ConfigErrors();
 

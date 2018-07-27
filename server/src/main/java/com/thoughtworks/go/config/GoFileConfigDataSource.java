@@ -162,7 +162,7 @@ public class GoFileConfigDataSource {
         String currentContent = FileUtils.readFileToString(configFile, UTF_8);
         GoConfigHolder configHolder = magicalGoConfigXmlLoader.loadConfigHolder(currentContent);
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
-        magicalGoConfigXmlWriter.write(configHolder.configForEdit, stream, true);
+        magicalGoConfigXmlWriter.write(configHolder.getConfigForEdit(), stream, true);
         String postEncryptContent = new String(stream.toByteArray());
         if (!currentContent.equals(postEncryptContent)) {
             LOGGER.debug("[Encrypt] Writing config to file");
@@ -236,7 +236,7 @@ public class GoFileConfigDataSource {
                 configFileContent = upgrader.upgradeIfNecessary(configFileContent);
             }
             GoConfigHolder configHolder = internalLoad(configFileContent, new ConfigModifyingUser(), new ArrayList<>());
-            String toWrite = configAsXml(configHolder.configForEdit, false);
+            String toWrite = configAsXml(configHolder.getConfigForEdit(), false);
             LOGGER.trace("Writing config file: {}", configFile.getAbsolutePath());
             writeToConfigXmlFile(toWrite);
             return configHolder;
@@ -251,7 +251,7 @@ public class GoFileConfigDataSource {
     }
 
     public synchronized EntityConfigSaveResult writeEntityWithLock(EntityConfigUpdateCommand updatingCommand, GoConfigHolder configHolder, Username currentUser) {
-        CruiseConfig modifiedConfig = cloner.deepClone(configHolder.configForEdit);
+        CruiseConfig modifiedConfig = cloner.deepClone(configHolder.getConfigForEdit());
         try {
             updatingCommand.update(modifiedConfig);
         } catch (Exception e) {
@@ -314,7 +314,7 @@ public class GoFileConfigDataSource {
                     mergedCruiseConfigForEdit.merge(partials, true);
                     LOGGER.debug("[Config Save] Updating GoConfigHolder with mergedCruiseConfigForEdit: Done.");
                 }
-                return new EntityConfigSaveResult(updatingCommand.getPreprocessedEntityConfig(), new GoConfigHolder(preprocessedConfig, modifiedConfig, mergedCruiseConfigForEdit));
+                return new EntityConfigSaveResult(updatingCommand.getPreprocessedEntityConfig(), new GoConfigHolder(preprocessedConfig, modifiedConfig, mergedCruiseConfigForEdit, partials));
             } catch (Exception e) {
                 throw new RuntimeException("failed to save : " + e.getMessage());
             }
@@ -433,9 +433,9 @@ public class GoFileConfigDataSource {
 
     private void updateMergedConfigForEdit(GoConfigHolder validatedConfigHolder, List<PartialConfig> partialConfigs) {
         if (partialConfigs.isEmpty()) return;
-        CruiseConfig mergedCruiseConfigForEdit = cloner.deepClone(validatedConfigHolder.configForEdit);
+        CruiseConfig mergedCruiseConfigForEdit = cloner.deepClone(validatedConfigHolder.getConfigForEdit());
         mergedCruiseConfigForEdit.merge(partialConfigs, true);
-        validatedConfigHolder.mergedConfigForEdit = mergedCruiseConfigForEdit;
+        validatedConfigHolder.setMergedConfigForEdit(mergedCruiseConfigForEdit, partialConfigs);
     }
 
     private GoConfigHolder trySavingFullConfig(FullConfigUpdateCommand updatingCommand, GoConfigHolder configHolder, List<PartialConfig> partials) throws Exception {
@@ -466,11 +466,11 @@ public class GoFileConfigDataSource {
             if (!systemEnvironment.get(SystemEnvironment.ENABLE_CONFIG_MERGE_FEATURE)) {
                 throw new ConfigMergeException(ConfigFileHasChangedException.CONFIG_CHANGED_PLEASE_REFRESH);
             }
-            configAsXml = getMergedConfig((NoOverwriteUpdateConfigCommand) updatingCommand, configHolder.configForEdit.getMd5(), partials);
+            configAsXml = getMergedConfig((NoOverwriteUpdateConfigCommand) updatingCommand, configHolder.getConfigForEdit().getMd5(), partials);
             try {
                 validatedConfigHolder = internalLoad(configAsXml, getConfigUpdatingUser(updatingCommand), partials);
             } catch (Exception e) {
-                LOGGER.info("[CONFIG_MERGE] Post merge validation failed, latest-md5: {}", configHolder.configForEdit.getMd5());
+                LOGGER.info("[CONFIG_MERGE] Post merge validation failed, latest-md5: {}", configHolder.getConfigForEdit().getMd5());
                 throw new ConfigMergePostValidationException(e.getMessage(), e);
             }
         } else {
@@ -487,7 +487,7 @@ public class GoFileConfigDataSource {
     }
 
     private String getUnmergedConfig(UpdateConfigCommand updatingCommand, GoConfigHolder configHolder, List<PartialConfig> partials) throws Exception {
-        CruiseConfig deepCloneForEdit = cloner.deepClone(configHolder.configForEdit);
+        CruiseConfig deepCloneForEdit = cloner.deepClone(configHolder.getConfigForEdit());
         deepCloneForEdit.setPartials(partials);
         CruiseConfig config = updatingCommand.update(deepCloneForEdit);
         String configAsXml = configAsXml(config, false);
@@ -500,7 +500,7 @@ public class GoFileConfigDataSource {
         LOGGER.debug("[Config Save] Checking whether config should be merged");
         if (updatingCommand instanceof NoOverwriteUpdateConfigCommand) {
             NoOverwriteUpdateConfigCommand noOverwriteCommand = (NoOverwriteUpdateConfigCommand) updatingCommand;
-            if (!configHolder.configForEdit.getMd5().equals(noOverwriteCommand.unmodifiedMd5())) {
+            if (!configHolder.getConfigForEdit().getMd5().equals(noOverwriteCommand.unmodifiedMd5())) {
                 return true;
             }
         }
@@ -543,7 +543,7 @@ public class GoFileConfigDataSource {
     private GoConfigHolder internalLoad(final String content, final ConfigModifyingUser configModifyingUser, final List<PartialConfig> partials) throws Exception {
         GoConfigHolder configHolder = magicalGoConfigXmlLoader.loadConfigHolder(content, cruiseConfig -> cruiseConfig.setPartials(partials));
         CruiseConfig config = configHolder.config;
-        checkinConfigToGitRepo(partials, config, content, configHolder.configForEdit.getMd5(), configModifyingUser.getUserName());
+        checkinConfigToGitRepo(partials, config, content, configHolder.getConfigForEdit().getMd5(), configModifyingUser.getUserName());
         return configHolder;
     }
 

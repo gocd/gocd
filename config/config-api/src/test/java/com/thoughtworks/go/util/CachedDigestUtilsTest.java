@@ -16,12 +16,16 @@
 
 package com.thoughtworks.go.util;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.util.Random;
-
+import com.thoughtworks.go.config.remote.PartialConfig;
+import com.thoughtworks.go.helper.PartialConfigMother;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.junit.Test;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
+import java.util.Random;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
@@ -64,5 +68,19 @@ public class CachedDigestUtilsTest {
         assertThat(DigestUtils.md5Hex(testData),
                 is(CachedDigestUtils.md5Hex(new ByteArrayInputStream(testData))));
 
+    }
+
+    @Test
+    public void shouldComputeMd5SumOfObjects() throws Exception {
+        PartialConfig serializableObject = PartialConfigMother.withFullBlownPipeline("pipeline");
+        byte[] byteArray;
+
+        try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream()) {
+            try (ObjectOutputStream objectOutputStream = new ObjectOutputStream(byteArrayOutputStream)) {
+                objectOutputStream.writeObject(serializableObject);
+                byteArray = byteArrayOutputStream.toByteArray();
+            }
+        }
+        assertThat(DigestUtils.md5Hex(byteArray), is(CachedDigestUtils.md5Hex(serializableObject)));
     }
 }

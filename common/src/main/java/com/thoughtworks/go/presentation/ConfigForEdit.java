@@ -31,7 +31,7 @@ public class ConfigForEdit<T> {
     }
 
     public ConfigForEdit(T config, GoConfigHolder configHolder) {
-        this(config, configHolder.configForEdit, configHolder.config);
+        this(config, configHolder.getConfigForEdit(), configHolder.config);
     }
 
     public T getConfig() {

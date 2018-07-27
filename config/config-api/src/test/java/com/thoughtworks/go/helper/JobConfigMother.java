@@ -17,6 +17,9 @@
 package com.thoughtworks.go.helper;
 
 import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.pluggabletask.PluggableTask;
+import com.thoughtworks.go.domain.Task;
+import com.thoughtworks.go.domain.config.*;
 
 import java.util.Arrays;
 import java.util.UUID;
@@ -30,11 +33,7 @@ public class JobConfigMother {
 
     private static void addTask(JobConfig jobConfig) {
         jobConfig.setVariables(EnvironmentVariablesConfigMother.environmentVariables());
-        AntTask task = new AntTask();
-        task.setBuildFile("build-file");
-        task.setTarget("target");
-        task.setWorkingDirectory("working-directory");
-        jobConfig.addTask(task);
+        jobConfig.addTask(antTask());
     }
 
     public static JobConfig createJobConfigWithJobNameAndEmptyResources() {
@@ -60,16 +59,78 @@ public class JobConfigMother {
     }
 
     public static JobConfig elasticJob(String elasticProfileId) {
+        return elasticJob(UUID.randomUUID().toString(), elasticProfileId);
+    }
+
+    public static JobConfig elasticJob(String name, String elasticProfileId) {
         JobConfig jobConfig = jobWithNoResourceRequirement();
         jobConfig.setElasticProfileId(elasticProfileId);
+        jobConfig.setName(name);
         return jobConfig;
     }
 
     public static JobConfig jobWithNoResourceRequirement() {
         JobConfig jobConfig = jobConfig();
         jobConfig.setName(UUID.randomUUID().toString());
-        jobConfig.setRunInstanceCount((String)null);
+        jobConfig.setRunInstanceCount((String) null);
         jobConfig.resourceConfigs().clear();
         return jobConfig;
+    }
+
+    public static JobConfig withAllKindsOfTasks(String name) {
+        JobConfig jobConfig = jobWithNoResourceRequirement();
+        jobConfig.setName(name);
+        jobConfig.addTask(nantTask());
+        jobConfig.addTask(antTask());
+        jobConfig.addTask(execTask());
+        jobConfig.addTask(rakeTask());
+        jobConfig.addTask(pluggableTask());
+        jobConfig.addTask(fetchTask());
+        return jobConfig;
+    }
+
+    private static Task fetchTask() {
+        return new FetchTask(new CaseInsensitiveString("up"), new CaseInsensitiveString("stage"),
+                new CaseInsensitiveString("job"), "src", "dest");
+    }
+
+    private static Task pluggableTask() {
+        return new PluggableTask(new PluginConfiguration("id", "version"),
+                new Configuration(
+                        new ConfigurationProperty(new ConfigurationKey("name"), new ConfigurationValue("value")),
+                        new ConfigurationProperty(new ConfigurationKey("name"), new EncryptedConfigurationValue("value"))));
+    }
+
+    private static Task rakeTask() {
+        RakeTask task = new RakeTask();
+        task.setBuildFile("rakefile");
+        task.setTarget("target");
+        return task;
+    }
+
+    private static Task execTask() {
+        ExecTask execTask = new ExecTask();
+        execTask.setCommand("command");
+        execTask.setArgs("args");
+        execTask.setArgsList(new String[]{"arg1", "arg2"});
+        execTask.setWorkingDirectory("dir");
+        return execTask;
+    }
+
+    private static AntTask antTask() {
+        AntTask task = new AntTask();
+        task.setBuildFile("build-file");
+        task.setTarget("target");
+        task.setWorkingDirectory("working-directory");
+        return task;
+    }
+
+    private static NantTask nantTask() {
+        NantTask nantTask = new NantTask();
+        nantTask.setBuildFile("default.build");
+        nantTask.setTarget("test");
+        nantTask.setWorkingDirectory("lib");
+        nantTask.setNantPath("tmp");
+        return nantTask;
     }
 }

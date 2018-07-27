@@ -130,7 +130,7 @@ public class GoConfigMigration {
 
     private GoConfigHolder reloadedConfig(ByteArrayOutputStream stream, String upgradedXmlString) throws Exception {
         GoConfigHolder configHolder = validateAfterMigrationFinished(upgradedXmlString);
-        new MagicalGoConfigXmlWriter(configCache, registry).write(configHolder.configForEdit, stream, false);
+        new MagicalGoConfigXmlWriter(configCache, registry).write(configHolder.getConfigForEdit(), stream, false);
         return configHolder;
     }
 

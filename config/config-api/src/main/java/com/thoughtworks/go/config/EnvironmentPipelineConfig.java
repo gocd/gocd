@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.config;
 
+import java.io.Serializable;
 import java.util.List;
 
 import com.thoughtworks.go.domain.ConfigErrors;
@@ -24,7 +25,7 @@ import com.thoughtworks.go.domain.ConfigErrors;
  * @understands a reference to an existing pipeline that is associated to an Environment
  */
 @ConfigTag("pipeline")
-public class EnvironmentPipelineConfig implements Validatable {
+public class EnvironmentPipelineConfig implements Validatable, Serializable {
     public static final String ORIGIN = "origin";
 
     @ConfigAttribute(value = "name", optional = false)

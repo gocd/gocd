@@ -222,9 +222,9 @@ public class TemplateConfigService {
     }
 
     private PipelineTemplateConfig findTemplate(String templateName, HttpLocalizedOperationResult result, GoConfigHolder configHolder) {
-        if (!doesTemplateExist(templateName, configHolder.configForEdit, result)) {
+        if (!doesTemplateExist(templateName, configHolder.getConfigForEdit(), result)) {
             return null;
         }
-        return configHolder.configForEdit.findTemplate(new CaseInsensitiveString(templateName));
+        return configHolder.getConfigForEdit().findTemplate(new CaseInsensitiveString(templateName));
     }
 }

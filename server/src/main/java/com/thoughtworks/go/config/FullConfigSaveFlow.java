@@ -138,9 +138,9 @@ public abstract class FullConfigSaveFlow {
         if (partials.isEmpty()) return;
 
         LOGGER.debug("[Config Save] Updating GoConfigHolder with mergedCruiseConfigForEdit: Starting.");
-        CruiseConfig mergedCruiseConfigForEdit = cloner.deepClone(validatedConfigHolder.configForEdit);
+        CruiseConfig mergedCruiseConfigForEdit = cloner.deepClone(validatedConfigHolder.getConfigForEdit());
         mergedCruiseConfigForEdit.merge(partials, true);
-        validatedConfigHolder.mergedConfigForEdit = mergedCruiseConfigForEdit;
+        validatedConfigHolder.setMergedConfigForEdit(mergedCruiseConfigForEdit, partials);
         LOGGER.debug("[Config Save] Updating GoConfigHolder with mergedCruiseConfigForEdit: Done.");
     }
 }

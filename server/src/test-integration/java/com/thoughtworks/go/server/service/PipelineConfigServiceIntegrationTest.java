@@ -177,7 +177,7 @@ public class PipelineConfigServiceIntegrationTest {
         assertThat(configRepository.getCurrentRevision().getUsername(), is(user.getDisplayName()));
         assertThat(configRepository.getCurrentRevision().getMd5(), is(not(goConfigHolderBeforeUpdate.config.getMd5())));
         assertThat(configRepository.getCurrentRevision().getMd5(), is(goConfigDao.loadConfigHolder().config.getMd5()));
-        assertThat(configRepository.getCurrentRevision().getMd5(), is(goConfigDao.loadConfigHolder().configForEdit.getMd5()));
+        assertThat(configRepository.getCurrentRevision().getMd5(), is(goConfigDao.loadConfigHolder().getConfigForEdit().getMd5()));
     }
 
     @Test
@@ -203,7 +203,7 @@ public class PipelineConfigServiceIntegrationTest {
         pipelineConfig.setTemplateName(templateName);
         pipelineConfig.addParam(new ParamConfig("SOME_PARAM", "SOME_VALUE"));
 
-        CruiseConfig cruiseConfig = goConfigDao.loadConfigHolder().configForEdit;
+        CruiseConfig cruiseConfig = goConfigDao.loadConfigHolder().getConfigForEdit();
         cruiseConfig.update(groupName, pipelineConfig.name().toString(), pipelineConfig);
         saveConfig(cruiseConfig);
 
@@ -245,7 +245,7 @@ public class PipelineConfigServiceIntegrationTest {
 
         CaseInsensitiveString stage = new CaseInsensitiveString("stage");
         CaseInsensitiveString job = new CaseInsensitiveString("job");
-        CruiseConfig cruiseConfig = goConfigDao.loadConfigHolder().configForEdit;
+        CruiseConfig cruiseConfig = goConfigDao.loadConfigHolder().getConfigForEdit();
         cruiseConfig.update(groupName, pipelineConfig.name().toString(), pipelineConfig);
         saveConfig(cruiseConfig);
 
@@ -530,7 +530,7 @@ public class PipelineConfigServiceIntegrationTest {
         assertThat(result.httpCode(), is(422));
         assertThat(pipelineConfig.errors().on(PipelineConfig.LABEL_TEMPLATE), contains("Invalid label"));
         assertThat(configRepository.getCurrentRevCommit().name(), is(headCommitBeforeUpdate));
-        assertThat(goConfigDao.loadConfigHolder().configForEdit, is(goConfigHolder.configForEdit));
+        assertThat(goConfigDao.loadConfigHolder().getConfigForEdit(), is(goConfigHolder.getConfigForEdit()));
         assertThat(goConfigDao.loadConfigHolder().config, is(goConfigHolder.config));
     }
 
@@ -549,7 +549,7 @@ public class PipelineConfigServiceIntegrationTest {
         assertThat(result.toString(), result.isSuccessful(), is(false));
         assertThat(result.toString(), result.toString().contains("Parameter 'SOME_PARAM' is not defined"), is(true));
         assertThat(configRepository.getCurrentRevCommit().name(), is(headCommitBeforeUpdate));
-        assertThat(goConfigDao.loadConfigHolder().configForEdit, is(goConfigHolder.configForEdit));
+        assertThat(goConfigDao.loadConfigHolder().getConfigForEdit(), is(goConfigHolder.getConfigForEdit()));
         assertThat(goConfigDao.loadConfigHolder().config, is(goConfigHolder.config));
     }
 
@@ -570,7 +570,7 @@ public class PipelineConfigServiceIntegrationTest {
         assertThat(pipelineConfig.errors().on("stages"), is(String.format("Cannot add stages to pipeline '%s' which already references template '%s'", pipelineConfig.name(), templateName)));
         assertThat(pipelineConfig.errors().on("template"), is(String.format("Cannot set template '%s' on pipeline '%s' because it already has stages defined", templateName, pipelineConfig.name())));
         assertThat(configRepository.getCurrentRevCommit().name(), is(headCommitBeforeUpdate));
-        assertThat(goConfigDao.loadConfigHolder().configForEdit, is(goConfigHolder.configForEdit));
+        assertThat(goConfigDao.loadConfigHolder().getConfigForEdit(), is(goConfigHolder.getConfigForEdit()));
         assertThat(goConfigDao.loadConfigHolder().config, is(goConfigHolder.config));
     }
 
@@ -586,7 +586,7 @@ public class PipelineConfigServiceIntegrationTest {
         assertThat(result.toString(), result.httpCode(), is(403));
         assertThat(result.toString(), result.message().equals("Unauthorized to edit '" + pipelineConfig.name() + "' pipeline."), is(true));
         assertThat(configRepository.getCurrentRevCommit().name(), is(headCommitBeforeUpdate));
-        assertThat(goConfigDao.loadConfigHolder().configForEdit, is(goConfigHolderBeforeUpdate.configForEdit));
+        assertThat(goConfigDao.loadConfigHolder().getConfigForEdit(), is(goConfigHolderBeforeUpdate.getConfigForEdit()));
         assertThat(goConfigDao.loadConfigHolder().config, is(goConfigHolderBeforeUpdate.config));
     }
 
@@ -606,7 +606,7 @@ public class PipelineConfigServiceIntegrationTest {
         assertThat(scmMaterialConfig.errors().on(PluggableSCMMaterialConfig.FOLDER), is("Destination directory is required when specifying multiple scm materials"));
         assertThat(scmMaterialConfig.errors().on(PluggableSCMMaterialConfig.SCM_ID), is("Could not find plugin for scm-id: [scmid]."));
         assertThat(configRepository.getCurrentRevCommit().name(), is(headCommitBeforeUpdate));
-        assertThat(goConfigDao.loadConfigHolder().configForEdit, is(goConfigHolder.configForEdit));
+        assertThat(goConfigDao.loadConfigHolder().getConfigForEdit(), is(goConfigHolder.getConfigForEdit()));
         assertThat(goConfigDao.loadConfigHolder().config, is(goConfigHolder.config));
     }
 
@@ -626,7 +626,7 @@ public class PipelineConfigServiceIntegrationTest {
 
         assertThat(packageMaterialConfig.errors().on(PackageMaterialConfig.PACKAGE_ID), is("Could not find repository for given package id:[packageid]"));
         assertThat(configRepository.getCurrentRevCommit().name(), is(headCommitBeforeUpdate));
-        assertThat(goConfigDao.loadConfigHolder().configForEdit, is(goConfigHolder.configForEdit));
+        assertThat(goConfigDao.loadConfigHolder().getConfigForEdit(), is(goConfigHolder.getConfigForEdit()));
         assertThat(goConfigDao.loadConfigHolder().config, is(goConfigHolder.config));
     }
 
@@ -1080,7 +1080,7 @@ public class PipelineConfigServiceIntegrationTest {
         jobConfig.addTask(task);
         jobConfig.addVariable("ENV_VAR", "#{SOME_PARAM}");
         final PipelineTemplateConfig template = new PipelineTemplateConfig(templateName, new StageConfig(new CaseInsensitiveString("stage"), new JobConfigs(jobConfig)));
-        CruiseConfig cruiseConfig = goConfigDao.loadConfigHolder().configForEdit;
+        CruiseConfig cruiseConfig = goConfigDao.loadConfigHolder().getConfigForEdit();
         cruiseConfig.addTemplate(template);
         saveConfig(cruiseConfig);
     }
@@ -1088,7 +1088,7 @@ public class PipelineConfigServiceIntegrationTest {
     private void saveScmMaterialToConfig(String id) throws Exception {
         SCM scm = new SCM(id, new PluginConfiguration(id, "1.0"), new Configuration(new ConfigurationProperty(new ConfigurationKey("key"), new ConfigurationValue("value"))));
         scm.setName(id);
-        CruiseConfig cruiseConfig = goConfigDao.loadConfigHolder().configForEdit;
+        CruiseConfig cruiseConfig = goConfigDao.loadConfigHolder().getConfigForEdit();
         cruiseConfig.getSCMs().add(scm);
         saveConfig(cruiseConfig);
     }

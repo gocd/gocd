@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.config;
 
+import java.io.Serializable;
 import java.util.Map;
 
 import com.thoughtworks.go.config.validation.NameTypeValidator;
@@ -23,7 +24,7 @@ import com.thoughtworks.go.domain.ConfigErrors;
 import org.apache.commons.lang3.StringUtils;
 
 @ConfigTag("param")
-public class ParamConfig implements Validatable {
+public class ParamConfig implements Validatable, Serializable {
     @ConfigAttribute(value = "name", optional = false) private String name;
     @ConfigValue private String value;
     private final ConfigErrors configErrors = new ConfigErrors();

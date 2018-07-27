@@ -24,6 +24,7 @@ import com.thoughtworks.go.util.XmlUtils;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.http.client.utils.URIBuilder;
 
+import java.io.Serializable;
 import java.net.URISyntaxException;
 import java.util.Map;
 import java.util.regex.Pattern;
@@ -32,7 +33,7 @@ import java.util.regex.Pattern;
  * @understands mingle project for pipeline
  */
 @ConfigTag("mingle")
-public class MingleConfig implements ParamsAttributeAware, Validatable, CommentRenderer {
+public class MingleConfig implements ParamsAttributeAware, Validatable, CommentRenderer, Serializable {
     @ConfigAttribute(value = "baseUrl", optional = false)
     private String baseUrl;
 

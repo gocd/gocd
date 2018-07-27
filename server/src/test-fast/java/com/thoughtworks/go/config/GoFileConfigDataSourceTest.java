@@ -185,7 +185,7 @@ public class GoFileConfigDataSourceTest {
         assertThat(firstRev.getMd5(), is(expectedMd5));
         assertThat(firstRev.getTime(), is(loserChangedAt));
         assertThat(firstRev.getSchemaVersion(), is(GoConstants.CONFIG_SCHEMA_VERSION));
-        assertThat(ConfigMigrator.load(firstRev.getContent()), is(afterFirstSave.configForEdit));
+        assertThat(ConfigMigrator.load(firstRev.getContent()), is(afterFirstSave.getConfigForEdit()));
 
         CruiseConfig config = afterSecondSave.config;
         assertThat(config.hasPipelineNamed(new CaseInsensitiveString("bar-pipeline")), is(true));
@@ -196,7 +196,7 @@ public class GoFileConfigDataSourceTest {
         assertThat(secondRev.getMd5(), is(expectedMd5));
         assertThat(secondRev.getTime(), is(biggerLoserChangedAt));
         assertThat(secondRev.getSchemaVersion(), is(GoConstants.CONFIG_SCHEMA_VERSION));
-        assertThat(ConfigMigrator.load(secondRev.getContent()), is(afterSecondSave.configForEdit));
+        assertThat(ConfigMigrator.load(secondRev.getContent()), is(afterSecondSave.getConfigForEdit()));
     }
 
     @Test
@@ -227,10 +227,10 @@ public class GoFileConfigDataSourceTest {
     public void shouldLoadAsUser_Filesystem_WithMd5Sum() throws Exception {
         GoConfigHolder configHolder = goConfigDao.loadConfigHolder();
         String md5 = DigestUtils.md5Hex(FileUtils.readFileToString(dataSource.fileLocation(), UTF_8));
-        assertThat(configHolder.configForEdit.getMd5(), is(md5));
+        assertThat(configHolder.getConfigForEdit().getMd5(), is(md5));
         assertThat(configHolder.config.getMd5(), is(md5));
 
-        CruiseConfig forEdit = configHolder.configForEdit;
+        CruiseConfig forEdit = configHolder.getConfigForEdit();
         forEdit.addPipeline("my-awesome-group", PipelineConfigMother.createPipelineConfig("pipeline-foo", "stage-bar", "job-baz"));
         FileOutputStream fos = new FileOutputStream(dataSource.fileLocation());
         new MagicalGoConfigXmlWriter(configCache, ConfigElementImplementationRegistryMother.withNoPlugins()).write(forEdit, fos, false);
@@ -238,9 +238,9 @@ public class GoFileConfigDataSourceTest {
         configHolder = dataSource.load();
         String xmlText = FileUtils.readFileToString(dataSource.fileLocation(), UTF_8);
         String secondMd5 = DigestUtils.md5Hex(xmlText);
-        assertThat(configHolder.configForEdit.getMd5(), is(secondMd5));
+        assertThat(configHolder.getConfigForEdit().getMd5(), is(secondMd5));
         assertThat(configHolder.config.getMd5(), is(secondMd5));
-        assertThat(configHolder.configForEdit.getMd5(), is(not(md5)));
+        assertThat(configHolder.getConfigForEdit().getMd5(), is(not(md5)));
         GoConfigRevision commitedVersion = configRepository.getRevision(secondMd5);
         assertThat(commitedVersion.getContent(), is(xmlText));
         assertThat(commitedVersion.getUsername(), is(GoFileConfigDataSource.FILESYSTEM));
@@ -367,7 +367,7 @@ public class GoFileConfigDataSourceTest {
     public void shouldGetMergedConfig() throws Exception {
         configHelper.addMailHost(getMailHost("mailhost.local.old"));
         GoConfigHolder goConfigHolder = dataSource.forceLoad(dataSource.fileLocation());
-        CruiseConfig oldConfigForEdit = goConfigHolder.configForEdit;
+        CruiseConfig oldConfigForEdit = goConfigHolder.getConfigForEdit();
         final String oldMD5 = oldConfigForEdit.getMd5();
         MailHost oldMailHost = oldConfigForEdit.server().mailHost();
 
@@ -397,7 +397,7 @@ public class GoFileConfigDataSourceTest {
 
     @Test
     public void shouldPropagateConfigHasChangedException() throws Exception {
-        String originalMd5 = dataSource.forceLoad(dataSource.fileLocation()).configForEdit.getMd5();
+        String originalMd5 = dataSource.forceLoad(dataSource.fileLocation()).getConfigForEdit().getMd5();
         goConfigDao.updateConfig(configHelper.addPipelineCommand(originalMd5, "p1", "s1", "b1"));
         GoConfigHolder goConfigHolder = dataSource.forceLoad(dataSource.fileLocation());
 
@@ -411,9 +411,9 @@ public class GoFileConfigDataSourceTest {
 
     @Test
     public void shouldThrowConfigMergeExceptionWhenConfigMergeFeatureIsTurnedOff() throws Exception {
-        String firstMd5 = dataSource.forceLoad(dataSource.fileLocation()).configForEdit.getMd5();
+        String firstMd5 = dataSource.forceLoad(dataSource.fileLocation()).getConfigForEdit().getMd5();
         goConfigDao.updateConfig(configHelper.addPipelineCommand(firstMd5, "p0", "s0", "b0"));
-        String originalMd5 = dataSource.forceLoad(dataSource.fileLocation()).configForEdit.getMd5();
+        String originalMd5 = dataSource.forceLoad(dataSource.fileLocation()).getConfigForEdit().getMd5();
         goConfigDao.updateConfig(configHelper.addPipelineCommand(originalMd5, "p1", "s1", "j1"));
         GoConfigHolder goConfigHolder = dataSource.forceLoad(dataSource.fileLocation());
 
@@ -431,7 +431,7 @@ public class GoFileConfigDataSourceTest {
     @Test
     public void shouldGetConfigMergedStateWhenAMergerOccurs() throws Exception {
         configHelper.addMailHost(getMailHost("mailhost.local.old"));
-        String originalMd5 = dataSource.forceLoad(dataSource.fileLocation()).configForEdit.getMd5();
+        String originalMd5 = dataSource.forceLoad(dataSource.fileLocation()).getConfigForEdit().getMd5();
         configHelper.addMailHost(getMailHost("mailhost.local"));
         GoConfigHolder goConfigHolder = dataSource.forceLoad(dataSource.fileLocation());
 
@@ -445,7 +445,7 @@ public class GoFileConfigDataSourceTest {
 
     @Test
     public void shouldGetConfigUpdateStateWhenAnUpdateOccurs() throws Exception {
-        String originalMd5 = dataSource.forceLoad(dataSource.fileLocation()).configForEdit.getMd5();
+        String originalMd5 = dataSource.forceLoad(dataSource.fileLocation()).getConfigForEdit().getMd5();
         GoConfigHolder goConfigHolder = dataSource.forceLoad(dataSource.fileLocation());
 
         GoFileConfigDataSource.GoConfigSaveResult goConfigSaveResult = dataSource.writeWithLock(configHelper.addPipelineCommand(originalMd5, "p1", "s", "b"), goConfigHolder);

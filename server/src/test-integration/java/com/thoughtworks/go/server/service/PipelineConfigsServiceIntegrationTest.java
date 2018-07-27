@@ -98,7 +98,7 @@ public class PipelineConfigsServiceIntegrationTest {
                 new Username("user"), new HttpLocalizedOperationResult());
 
 
-        PipelineConfig ancestor = goConfigDao.loadConfigHolder().configForEdit.pipelineConfigByName(new CaseInsensitiveString("ancestor"));
+        PipelineConfig ancestor = goConfigDao.loadConfigHolder().getConfigForEdit().pipelineConfigByName(new CaseInsensitiveString("ancestor"));
         Configuration ancestorPluggablePublishAftifactConfigAfterEncryption = ancestor
                 .getExternalArtifactConfigs().get(0).getConfiguration();
         assertThat(ancestorPluggablePublishAftifactConfigAfterEncryption.getProperty("Image").getValue(), is("SECRET"));
@@ -113,7 +113,7 @@ public class PipelineConfigsServiceIntegrationTest {
                 new Username("user"), new HttpLocalizedOperationResult());
 
 
-        PipelineConfig child = goConfigDao.loadConfigHolder().configForEdit.pipelineConfigByName(new CaseInsensitiveString("child"));
+        PipelineConfig child = goConfigDao.loadConfigHolder().getConfigForEdit().pipelineConfigByName(new CaseInsensitiveString("child"));
         Configuration childFetchConfigAfterEncryption = ((FetchPluggableArtifactTask) child
                 .get(0).getJobs().get(0).tasks().get(0)).getConfiguration();
 

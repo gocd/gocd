@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.config;
 
+import java.io.Serializable;
 import java.util.Map;
 
 import com.thoughtworks.go.domain.ConfigErrors;
@@ -25,7 +26,7 @@ import com.thoughtworks.go.domain.Task;
 import com.thoughtworks.go.service.TaskFactory;
 
 @ConfigTag(value = "oncancel", label = "OnCancel")
-public class OnCancelConfig implements Validatable {
+public class OnCancelConfig implements Validatable, Serializable {
 
     public static final String EXEC_ON_CANCEL = "execOnCancel";
     public static final String ANT_ON_CANCEL = "antOnCancel";

@@ -296,7 +296,7 @@ public class MagicalGoConfigXmlLoaderTest {
             }
         });
         assertThat(goConfigHolder.config.getOrigin(), Is.<ConfigOrigin>is(new MergeConfigOrigin()));
-        assertThat(goConfigHolder.configForEdit.getOrigin(), Is.<ConfigOrigin>is(new FileConfigOrigin()));
+        assertThat(goConfigHolder.getConfigForEdit().getOrigin(), Is.<ConfigOrigin>is(new FileConfigOrigin()));
     }
 
     @Test
@@ -2433,7 +2433,7 @@ public class MagicalGoConfigXmlLoaderTest {
         assertThat(svnMaterialConfig.getEncryptedPassword(), is(encryptedPassword));
         assertThat(svnMaterialConfig.getPassword(), is(password));
 
-        CruiseConfig configForEdit = configHolder.configForEdit;
+        CruiseConfig configForEdit = configHolder.getConfigForEdit();
         svnMaterialConfig = (SvnMaterialConfig) configForEdit.pipelineConfigByName(new CaseInsensitiveString("pipeline1")).materialConfigs().get(0);
         assertThat(svnMaterialConfig.getEncryptedPassword(), is(encryptedPassword));
         assertThat(svnMaterialConfig.getPassword(), is("abc"));
@@ -3354,7 +3354,7 @@ public class MagicalGoConfigXmlLoaderTest {
                         "       </pipeline>" +
                         "   </templates>" +
                         "</cruise>";
-        CruiseConfig configForEdit = ConfigMigrator.loadWithMigration(configString).configForEdit;
+        CruiseConfig configForEdit = ConfigMigrator.loadWithMigration(configString).getConfigForEdit();
         PipelineTemplateConfig template = configForEdit.getTemplateByName(new CaseInsensitiveString("template-name"));
         Authorization authorization = template.getAuthorization();
         assertThat(authorization, is(not(nullValue())));
@@ -3387,7 +3387,7 @@ public class MagicalGoConfigXmlLoaderTest {
                         + "  </stage>"
                         + "</pipeline></pipelines>"
                         + "</cruise>";
-        CruiseConfig cruiseConfig = ConfigMigrator.loadWithMigration(configString).configForEdit;
+        CruiseConfig cruiseConfig = ConfigMigrator.loadWithMigration(configString).getConfigForEdit();
 
         PipelineConfig pipelineConfig = cruiseConfig.getAllPipelineConfigs().get(0);
         JobConfig jobConfig = pipelineConfig.getFirstStageConfig().getJobs().get(0);
@@ -3618,7 +3618,7 @@ public class MagicalGoConfigXmlLoaderTest {
                         + "</pipelines>\n"
                         + "</cruise>\n";
 
-        CruiseConfig cruiseConfig = ConfigMigrator.loadWithMigration(configWithJobElasticProfileId).configForEdit;
+        CruiseConfig cruiseConfig = ConfigMigrator.loadWithMigration(configWithJobElasticProfileId).getConfigForEdit();
 
         String elasticProfileId = cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("pipeline")).getStage("mingle").jobConfigByConfigName("functional").getElasticProfileId();
 
@@ -3641,7 +3641,7 @@ public class MagicalGoConfigXmlLoaderTest {
                         + "  </elastic>\n"
                         + "</cruise>\n";
 
-        CruiseConfig cruiseConfig = ConfigMigrator.loadWithMigration(configWithElasticProfile).configForEdit;
+        CruiseConfig cruiseConfig = ConfigMigrator.loadWithMigration(configWithElasticProfile).getConfigForEdit();
 
         assertThat(cruiseConfig.getElasticConfig().getJobStarvationTimeout(), is(120000L));
         assertThat(cruiseConfig.getElasticConfig().getProfiles().size(), is(1));
@@ -3675,7 +3675,7 @@ public class MagicalGoConfigXmlLoaderTest {
                         + "</pipelines>\n"
                         + "</cruise>\n";
         try {
-            CruiseConfig cruiseConfig = ConfigMigrator.loadWithMigration(configWithJobElasticProfile).configForEdit;
+            CruiseConfig cruiseConfig = ConfigMigrator.loadWithMigration(configWithJobElasticProfile).getConfigForEdit();
             fail("expected exception!");
         } catch (Exception e) {
             assertThat(e.getCause().getCause(), instanceOf(GoConfigInvalidException.class));
@@ -3892,7 +3892,7 @@ public class MagicalGoConfigXmlLoaderTest {
                 "</artifactStores>" +
                 "</cruise>";
 
-        final CruiseConfig cruiseConfig = ConfigMigrator.loadWithMigration(configXml).configForEdit;
+        final CruiseConfig cruiseConfig = ConfigMigrator.loadWithMigration(configXml).getConfigForEdit();
         assertThat(cruiseConfig.getArtifactStores(), hasSize(2));
         assertThat(cruiseConfig.getArtifactStores(), contains(
                 new ArtifactStore("bar", "foo", create("ACCESS_KEY", false, "dasdas")),
@@ -3989,7 +3989,7 @@ public class MagicalGoConfigXmlLoaderTest {
                 "  </pipelines>" +
                 "</cruise>";
 
-        final CruiseConfig cruiseConfig = ConfigMigrator.loadWithMigration(configXml).configForEdit;
+        final CruiseConfig cruiseConfig = ConfigMigrator.loadWithMigration(configXml).getConfigForEdit();
         final ArtifactConfigs artifactConfigs = cruiseConfig.pipelineConfigByName(
                 new CaseInsensitiveString("up42")).getStage("up42_stage")
                 .getJobs().getJob(new CaseInsensitiveString("up42_job")).artifactConfigs();

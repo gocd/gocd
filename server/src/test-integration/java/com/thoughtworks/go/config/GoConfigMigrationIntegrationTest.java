@@ -913,7 +913,7 @@ public class GoConfigMigrationIntegrationTest {
 
         String migratedContent = migrateXmlString(configString, 69);
         assertThat(migratedContent, containsString("<authorization>"));
-        CruiseConfig configForEdit = loader.loadConfigHolder(migratedContent).configForEdit;
+        CruiseConfig configForEdit = loader.loadConfigHolder(migratedContent).getConfigForEdit();
         PipelineTemplateConfig template = configForEdit.getTemplateByName(new CaseInsensitiveString("template-name"));
         Authorization authorization = template.getAuthorization();
         assertThat(authorization, is(not(nullValue())));

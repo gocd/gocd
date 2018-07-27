@@ -16,18 +16,73 @@
 
 package com.thoughtworks.go.config;
 
+import com.thoughtworks.go.config.remote.PartialConfig;
+import com.thoughtworks.go.util.CachedDigestUtils;
+
+import java.util.List;
+import java.util.Objects;
+
 public class GoConfigHolder {
     public final CruiseConfig config;
-    public final CruiseConfig configForEdit;
-    public CruiseConfig mergedConfigForEdit;
+    private final CruiseConfig configForEdit;
+    private CruiseConfig mergedConfigForEdit;
+    private Checksum checksum;
 
     public GoConfigHolder(CruiseConfig config, CruiseConfig configForEdit) {
-        this.config = config;
-        this.configForEdit = configForEdit;
+        this(config, configForEdit, null, null);
     }
 
-    public GoConfigHolder(CruiseConfig config, CruiseConfig configForEdit, CruiseConfig mergedConfigForEdit) {
-        this(config, configForEdit);
+    public GoConfigHolder(CruiseConfig config, CruiseConfig configForEdit, CruiseConfig mergedConfigForEdit, List<PartialConfig> partials) {
+        this.config = config;
+        this.configForEdit = configForEdit;
+        setMergedConfigForEdit(mergedConfigForEdit, partials);
+    }
+
+    private String md5(List<PartialConfig> partials) {
+        if (partials == null || partials.isEmpty()) {
+            return null;
+        }
+        return CachedDigestUtils.md5Hex(partials);
+    }
+
+    public Checksum getChecksum() {
+        return checksum;
+    }
+
+    public CruiseConfig getMergedConfigForEdit() {
+        return mergedConfigForEdit;
+    }
+
+    public void setMergedConfigForEdit(CruiseConfig mergedConfigForEdit, List<PartialConfig> partials) {
         this.mergedConfigForEdit = mergedConfigForEdit;
+        this.checksum = new Checksum(configForEdit.getMd5(), md5(partials));
+    }
+
+    public CruiseConfig getConfigForEdit() {
+        return configForEdit;
+    }
+
+    public static class Checksum {
+        public String md5SumOfConfigForEdit;
+        public String md5SumOfPartials;
+
+        public Checksum(String md5SumOfConfigForEdit, String md5SumOfPartials) {
+            this.md5SumOfConfigForEdit = md5SumOfConfigForEdit;
+            this.md5SumOfPartials = md5SumOfPartials;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            Checksum checksum = (Checksum) o;
+            return Objects.equals(md5SumOfConfigForEdit, checksum.md5SumOfConfigForEdit) &&
+                    Objects.equals(md5SumOfPartials, checksum.md5SumOfPartials);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(md5SumOfConfigForEdit, md5SumOfPartials);
+        }
     }
 }

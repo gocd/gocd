@@ -16,12 +16,13 @@
 
 package com.thoughtworks.go.config;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 @ConfigAttributeValue(fieldName = "path", createForNull = false)
-public class PathFromAncestor {
+public class PathFromAncestor implements Serializable {
     public static final String DELIMITER = "/";
     private final CaseInsensitiveString path;
 

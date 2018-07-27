@@ -21,13 +21,14 @@ import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.EnvironmentPipelineMatcher;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.Set;
 
 /**
  * @understands the current persistent information related to a logical grouping of machines
  */
-public interface EnvironmentConfig extends ParamsAttributeAware, Validatable, EnvironmentVariableScope, ConfigOriginTraceable {
+public interface EnvironmentConfig extends ParamsAttributeAware, Validatable, EnvironmentVariableScope, ConfigOriginTraceable, Serializable {
 
     static final String NAME_FIELD = "name";
     static final String PIPELINES_FIELD = "pipelines";

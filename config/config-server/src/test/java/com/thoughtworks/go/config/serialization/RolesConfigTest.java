@@ -35,7 +35,7 @@ public class RolesConfigTest {
     @Before
     public void setUp() throws Exception {
         config = new MagicalGoConfigXmlLoader(new ConfigCache(), ConfigElementImplementationRegistryMother.withNoPlugins()).loadConfigHolder(
-                ConfigFileFixture.CONFIG).configForEdit;
+                ConfigFileFixture.CONFIG).getConfigForEdit();
     }
 
     @Test

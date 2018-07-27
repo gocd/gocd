@@ -259,7 +259,7 @@ public class MagicalGoConfigXmlWriterTest {
                 + "  </pipeline>\n"
                 + "</templates>\n"
                 + "</cruise>";
-        CruiseConfig config = ConfigMigrator.loadWithMigration(content).configForEdit;
+        CruiseConfig config = ConfigMigrator.loadWithMigration(content).getConfigForEdit();
         xmlWriter.write(config, output, false);
         assertThat(output.toString().replaceAll("\\s+", " "), containsString(
                 "<pipeline name=\"pipeline1\" template=\"abc\">"
@@ -418,7 +418,7 @@ public class MagicalGoConfigXmlWriterTest {
                 + "  </pipeline>\n"
                 + "</templates>\n"
                 + "</cruise>";
-        CruiseConfig config = ConfigMigrator.loadWithMigration(content).configForEdit;
+        CruiseConfig config = ConfigMigrator.loadWithMigration(content).getConfigForEdit();
         xmlWriter.write(config, output, false);
         assertThat(output.toString().replaceAll("\\s+", " "), containsString(
                 "<svn url=\"svnurl\" username=\"foo\" encryptedPassword=\"" + new GoCipher().encrypt("password") + "\" />"));

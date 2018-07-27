@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.config;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -34,7 +35,7 @@ import static com.thoughtworks.go.util.command.EnvironmentVariableContext.GO_ENV
  * @understands the current persistent information related to a logical grouping of machines
  */
 @ConfigTag("environment")
-public class BasicEnvironmentConfig implements EnvironmentConfig {
+public class BasicEnvironmentConfig implements EnvironmentConfig, Serializable {
     @ConfigAttribute(value = NAME_FIELD, optional = false)
     private CaseInsensitiveString name;
     @ConfigSubtag

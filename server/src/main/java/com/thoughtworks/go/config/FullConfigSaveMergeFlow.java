@@ -65,7 +65,7 @@ public class FullConfigSaveMergeFlow extends FullConfigSaveFlow{
 
         GoConfigHolder goConfigHolder = reloadConfig(mergedConfig, partials);
 
-        checkinToConfigRepo(currentUser, goConfigHolder.configForEdit, mergedConfig);
+        checkinToConfigRepo(currentUser, goConfigHolder.getConfigForEdit(), mergedConfig);
 
         writeToConfigXml(mergedConfig);
 

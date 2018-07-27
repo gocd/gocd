@@ -24,6 +24,7 @@ import com.thoughtworks.go.domain.config.ConfigurationProperty;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
 import org.apache.commons.lang3.StringUtils;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -34,7 +35,7 @@ import java.util.UUID;
  * This goes to standard static xml configuration.
  */
 @ConfigTag("config-repo")
-public class ConfigRepoConfig implements Validatable {
+public class ConfigRepoConfig implements Validatable, Serializable {
     // defines source of configuration. Any will fit
     @ConfigSubtag(optional = false)
     private MaterialConfig repo;

@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.config;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -27,7 +28,7 @@ import org.apache.commons.lang3.StringUtils;
 
 @ConfigTag(value = "approval")
 //TODO: ChrisS: Make this a proper enumeration
-public class Approval implements Validatable, ParamsAttributeAware {
+public class Approval implements Validatable, ParamsAttributeAware, Serializable {
     @ConfigSubtag(optional = true)
     private AuthConfig authConfig = new AuthConfig();
 

@@ -164,7 +164,7 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
         }
         GoConfigHolder configHolder = getConfigHolder();
         configHolder = cloner.deepClone(configHolder);
-        PipelineConfig config = configHolder.configForEdit.pipelineConfigByName(new CaseInsensitiveString(pipelineName));
+        PipelineConfig config = configHolder.getConfigForEdit().pipelineConfigByName(new CaseInsensitiveString(pipelineName));
         return new ConfigForEdit<>(config, configHolder);
     }
 
@@ -234,6 +234,10 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
 
     CruiseConfig cruiseConfig() {
         return goConfigDao.load();
+    }
+
+    public GoConfigHolder.Checksum combinedMD5() {
+        return goConfigDao.loadConfigHolder() != null ? goConfigDao.loadConfigHolder().getChecksum() : null;
     }
 
     public AgentConfig agentByUuid(String uuid) {
@@ -961,14 +965,14 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
                                                               Username username,
                                                               HttpLocalizedOperationResult result) {
         GoConfigHolder configForEdit = cloner.deepClone(getConfigHolder());
-        if (!isValidGroup(groupName, configForEdit.configForEdit, result)) {
+        if (!isValidGroup(groupName, configForEdit.getConfigForEdit(), result)) {
             return null;
         }
 
         if (!isAdminOfGroup(groupName, username, result)) {
             return null;
         }
-        PipelineConfigs config = cloner.deepClone(configForEdit.configForEdit.findGroup(groupName));
+        PipelineConfigs config = cloner.deepClone(configForEdit.getConfigForEdit().findGroup(groupName));
         return new ConfigForEdit<>(config, configForEdit);
     }
 

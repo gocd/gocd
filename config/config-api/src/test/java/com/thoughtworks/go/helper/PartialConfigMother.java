@@ -36,6 +36,21 @@ public class PartialConfigMother {
         return withPipeline(name, createRepoOrigin());
     }
 
+    public static PartialConfig withFullBlownPipeline(String name) {
+        PartialConfig partialConfig = withPipeline(name, createRepoOrigin());
+        PipelineConfig pipeline = partialConfig.getGroups().first().get(0);
+        pipeline.setTimer(new TimerConfig("spec", true));
+        pipeline.setTrackingTool(new TrackingTool("link", "regex"));
+        pipeline.setParams(new ParamsConfig(new ParamConfig("name", "value")));
+        StageConfig s1 = StageConfigMother.stageConfig("s1");
+        s1.getJobs().add(JobConfigMother.jobConfig());
+        s1.getJobs().add(JobConfigMother.elasticJob("j3", "profileId"));
+        s1.getJobs().add(JobConfigMother.withAllKindsOfTasks("j4"));
+        pipeline.add(s1);
+        pipeline.add(StageConfigMother.stageConfig("s2"));
+        return partialConfig;
+    }
+
     public static PartialConfig pipelineWithDependencyMaterial(String name, PipelineConfig upstream, RepoConfigOrigin repoConfig) {
         PartialConfig partialConfig = withPipeline(name, repoConfig);
         PipelineConfig pipeline = partialConfig.getGroups().first().get(0);

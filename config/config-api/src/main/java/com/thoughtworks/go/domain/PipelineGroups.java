@@ -32,8 +32,8 @@ import com.thoughtworks.go.util.Pair;
 @ConfigCollection(value = BasicPipelineConfigs.class)
 public class PipelineGroups extends BaseCollection<PipelineConfigs> implements Validatable {
     private final ConfigErrors configErrors = new ConfigErrors();
-    private Map<String, List<Pair<PipelineConfig, PipelineConfigs>>> packageToPipelineMap;
-    private Map<String, List<Pair<PipelineConfig, PipelineConfigs>>> pluggableSCMMaterialToPipelineMap;
+    private transient Map<String, List<Pair<PipelineConfig, PipelineConfigs>>> packageToPipelineMap;
+    private transient Map<String, List<Pair<PipelineConfig, PipelineConfigs>>> pluggableSCMMaterialToPipelineMap;
 
     public PipelineGroups() {
     }

@@ -17,10 +17,12 @@ package com.thoughtworks.go.config.remote;
 
 import com.thoughtworks.go.domain.materials.MaterialConfig;
 
+import java.io.Serializable;
+
 /**
  * @understands that configuration is defined in versioned source code repository at particular revision.
  */
-public class RepoConfigOrigin implements ConfigOrigin {
+public class RepoConfigOrigin implements ConfigOrigin, Serializable {
 
     private ConfigRepoConfig configRepo;
     private String revision;

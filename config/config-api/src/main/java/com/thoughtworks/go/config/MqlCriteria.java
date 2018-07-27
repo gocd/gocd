@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.config;
 
+import java.io.Serializable;
 import java.util.Map;
 
 import com.thoughtworks.go.domain.ConfigErrors;
@@ -26,7 +27,7 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
  * @understands MQL criteria for a mingle config
  */
 @ConfigTag("mqlGroupingConditions")
-public class MqlCriteria implements ParamsAttributeAware, Validatable {
+public class MqlCriteria implements ParamsAttributeAware, Validatable, Serializable {
     @ConfigValue
     private String mql;
 

@@ -46,7 +46,7 @@ const BlanketSelector = {
   }
 };
 
-const StageStateCriteria = {
+const StageStateCriteria = { //eslint-disable-line no-unused-vars
   view(vnode) {
     const vm = vnode.attrs.vm;
     return <div class="stage-state-selector">
@@ -87,16 +87,20 @@ const SelectedPipelineList = {
   }
 };
 
+const PipelineNameSearch = { //eslint-disable-line no-unused-vars
+  view() {
+      return <input type="text" class="search-pipelines" placeholder="Search for a Pipeline" />;
+  }
+};
+
 const PersonalizationModalWidget = {
   view(vnode) {
     const vm = vnode.attrs.vm;
 
     return <div class="personalize-editor-controls">
       <FilterNameInput {...vnode.attrs} />
-      <input type="text" class="search-pipelines" placeholder="Search for a Pipeline" />
       <section class="filter-options">
         <BlanketSelector vm={vm.selectionVM} />
-        <StageStateCriteria vm={vm} />
         <f.checkbox name="include-new-pipelines" model={vm} attrName="includeNewPipelines" label="Show newly created pipelines" />
       </section>
       <section class="pipeline-selections">

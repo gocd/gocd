@@ -42,19 +42,26 @@ $dashboard-tabs-box-shadow: 0 0 10px rgba(0, 0, 0, 0.21);
     color:         #000;
 
     margin-top:    1px;
-    padding:       5px 20px 20px;
+    // TODO: replace the padding rule with the line below when adding the
+    //       group-by functionality:
+    // padding:       5px 20px 20px;
+    padding:       20px;
 
     border-radius: 0 0 $dashboard-tabs-border-radius $dashboard-tabs-border-radius;
-    width:         380px;
+    // TODO: uncomment the line below when adding the group-by functionality
+    // width:         380px;
     font-weight:   normal;
     line-height:   initial;
     box-shadow:    $dashboard-tabs-box-shadow;
 
     .edit-dropdown-text {
-      display:       inline-block;
       margin-bottom: 5px;
       font-size:     12px;
       color:         #666;
+      // TODO: replace the display rule with the line below when adding the
+      //       group-by functionality:
+      // display:       inline-block;
+      display:       none;
     }
 
     .edit-dropdown-actions {
@@ -65,6 +72,8 @@ $dashboard-tabs-box-shadow: 0 0 10px rgba(0, 0, 0, 0.21);
         border:        1px solid $dashboard-tabs-border-color;
         color:         #000;
         box-shadow:    unset;
+        // TODO: remove the line below when adding the group-by functionality
+        display:       none;
 
         &.selected {
           background: #fff;
@@ -79,6 +88,10 @@ $dashboard-tabs-box-shadow: 0 0 10px rgba(0, 0, 0, 0.21);
       color:         #627884;
       border:        1px solid $dashboard-tabs-border-color;
       border-radius: $dashboard-tabs-border-radius;
+
+      &.fa-edit {
+        margin: 0;
+      }
     }
 
     .deny-action {

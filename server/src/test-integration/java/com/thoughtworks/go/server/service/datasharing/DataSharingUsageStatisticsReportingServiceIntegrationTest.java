@@ -61,11 +61,13 @@ public class DataSharingUsageStatisticsReportingServiceIntegrationTest {
     @After
     public void teardown() throws Exception {
         dbHelper.onTearDown();
+        usageStatisticsReportingSqlMapDao.invalidateCache();
     }
 
     @Test
     public void shouldInitializeGoStatsReportingOnFirstStartup() throws Exception {
         dbHelper.onTearDown();//to start on a clean slate
+        usageStatisticsReportingSqlMapDao.invalidateCache();
 
         assertNull(usageStatisticsReportingSqlMapDao.load());
         dataSharingUsageStatisticsReportingService.initialize();
@@ -78,6 +80,7 @@ public class DataSharingUsageStatisticsReportingServiceIntegrationTest {
     @Test
     public void shouldNotUpdateServerIdOfGoStatsReportingOnSubsequentStartups() throws Exception {
         dbHelper.onTearDown();//to start on a clean slate
+        usageStatisticsReportingSqlMapDao.invalidateCache();
 
         assertNull(usageStatisticsReportingSqlMapDao.load());
         dataSharingUsageStatisticsReportingService.initialize();

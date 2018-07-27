@@ -17,6 +17,7 @@
 package com.thoughtworks.go.server.dao;
 
 import com.thoughtworks.go.domain.UsageStatisticsReporting;
+import com.thoughtworks.go.server.transaction.TransactionSynchronizationManager;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,16 +25,20 @@ import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
+import org.springframework.transaction.support.TransactionSynchronizationAdapter;
 
 @Component
 public class UsageStatisticsReportingSqlMapDao extends HibernateDaoSupport {
     private SessionFactory sessionFactory;
     private TransactionTemplate transactionTemplate;
+    private TransactionSynchronizationManager synchronizationManager;
+    private UsageStatisticsReporting cachedUsageStatisticsReporting;
 
     @Autowired
-    public UsageStatisticsReportingSqlMapDao(SessionFactory sessionFactory, TransactionTemplate transactionTemplate) {
+    public UsageStatisticsReportingSqlMapDao(SessionFactory sessionFactory, TransactionTemplate transactionTemplate, TransactionSynchronizationManager synchronizationManager) {
         this.sessionFactory = sessionFactory;
         this.transactionTemplate = transactionTemplate;
+        this.synchronizationManager = synchronizationManager;
         setSessionFactory(sessionFactory);
     }
 
@@ -41,13 +46,28 @@ public class UsageStatisticsReportingSqlMapDao extends HibernateDaoSupport {
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
             @Override
             protected void doInTransactionWithoutResult(TransactionStatus status) {
+                synchronizationManager.registerSynchronization(new TransactionSynchronizationAdapter() {
+                    @Override
+                    public void afterCommit() {
+                        invalidateCache();
+                    }
+                });
+
                 sessionFactory.getCurrentSession().saveOrUpdate(usageStatisticsReporting);
             }
         });
     }
 
     public UsageStatisticsReporting load() {
-        return transactionTemplate.execute(status -> (UsageStatisticsReporting) sessionFactory.getCurrentSession().getNamedQuery("load.usagestatistics.reporting.information").uniqueResult());
+        if (cachedUsageStatisticsReporting == null) {
+            cachedUsageStatisticsReporting = transactionTemplate.execute(status -> (UsageStatisticsReporting) sessionFactory.getCurrentSession().getNamedQuery("load.usagestatistics.reporting.information").uniqueResult());
+        }
+
+        return cachedUsageStatisticsReporting;
+    }
+
+    public void invalidateCache() {
+        cachedUsageStatisticsReporting = null;
     }
 
     public class DuplicateMetricReporting extends Exception {

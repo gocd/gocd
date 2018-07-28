@@ -27,6 +27,7 @@ import com.thoughtworks.go.spark.ControllerTrait
 import com.thoughtworks.go.spark.NormalUserSecurity
 import com.thoughtworks.go.spark.SecurityServiceTrait
 import com.thoughtworks.go.util.SystemEnvironment
+import org.apache.commons.io.FileUtils
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -47,6 +48,9 @@ class UsageStatisticsControllerV1DelegateTest implements SecurityServiceTrait, C
 
   @Mock
   SystemEnvironment systemEnvironment
+
+  def serverId = 'unique-server-id'
+  def gocdVersion = '18.8.0'
 
   @Override
   UsageStatisticsControllerV1Delegate createControllerInstance() {
@@ -103,7 +107,7 @@ class UsageStatisticsControllerV1DelegateTest implements SecurityServiceTrait, C
       @Override
       void makeHttpCall() {
         controller.mimeType = "application/octet-stream"
-        getWithApiHeader(controller.controllerPath('/encrypted'))
+        postWithApiHeader(controller.controllerPath('/encrypted'), [])
       }
     }
 
@@ -116,20 +120,86 @@ class UsageStatisticsControllerV1DelegateTest implements SecurityServiceTrait, C
       }
 
       @Test
+      void 'should bomb when signature is not provided'() {
+        postWithApiHeader(controller.controllerPath('/encrypted'), [])
+
+        assertThatResponse()
+          .isUnprocessableEntity()
+          .hasJsonMessage("Please provide 'signature' field.")
+      }
+
+      @Test
+      void 'should bomb when subordinate public key is not provided'() {
+        postWithApiHeader(controller.controllerPath('/encrypted'), [signature: 'somesignature'])
+
+        assertThatResponse()
+          .isUnprocessableEntity()
+          .hasJsonMessage("Please provide 'subordinate_public_key' field.")
+      }
+
+      @Test
+      void 'should bomb when invalid length subordinate public key or signature provided for master public key'() {
+        def metrics = new UsageStatistics(10l, 20l, 1527244129553, serverId, gocdVersion)
+
+        File masterPublicKey = new File(getClass().getClassLoader().getResource("master-public.pem").getFile())
+
+        String subordinatePublicKeyContent = "some junk"
+        String signatureContent = "signature junk"
+
+        when(dataSharingService.get()).thenReturn(metrics)
+        when(systemEnvironment.getUpdateServerPublicKeyPath()).thenReturn(masterPublicKey.getAbsolutePath());
+
+        postWithApiHeader(controller.controllerPath('/encrypted'), [signature: signatureContent, 'subordinate_public_key': subordinatePublicKeyContent])
+
+        assertThatResponse()
+          .isUnprocessableEntity()
+          .hasJsonMessage("Invalid 'signature' or 'subordinate_public_key' provided.")
+      }
+
+      @Test
+      void 'should bomb when invalid subordinate public key or signature provided for master public key'() {
+        def metrics = new UsageStatistics(10l, 20l, 1527244129553, serverId, gocdVersion)
+
+        File masterPublicKey = new File(getClass().getClassLoader().getResource("master-public.pem").getFile())
+        File subordinatePublicKey = new File(getClass().getClassLoader().getResource("subordinate-public.pem").getFile())
+        File signature = new File(getClass().getClassLoader().getResource("subordinate-public.pem.sha512").getFile())
+
+        String subordinatePublicKeyContent = FileUtils.readFileToString(subordinatePublicKey) + '\n'
+        String signatureContent = FileUtils.readFileToString(signature)
+
+        when(dataSharingService.get()).thenReturn(metrics)
+        when(systemEnvironment.getUpdateServerPublicKeyPath()).thenReturn(masterPublicKey.getAbsolutePath());
+
+        postWithApiHeader(controller.controllerPath('/encrypted'), [signature: signatureContent, 'subordinate_public_key': subordinatePublicKeyContent])
+
+        assertThatResponse()
+          .isUnprocessableEntity()
+          .hasJsonMessage("Invalid 'signature' or 'subordinate_public_key' provided.")
+      }
+
+      @Test
       void 'get encrypted usage statistics'() {
         def metrics = new UsageStatistics(10l, 20l, 1527244129553, serverId, gocdVersion)
-        File privateKeyFile = new File(getClass().getClassLoader().getResource("private_key.pem").getFile())
-        File publicKeyFile = new File(getClass().getClassLoader().getResource("datasharing-public.pem").getFile())
 
-        when(systemEnvironment.getUpdateServerPublicKeyPath()).thenReturn(publicKeyFile.getAbsolutePath())
-        when(dataSharingService.get()).thenReturn(metrics)
+        File masterPublicKey = new File(getClass().getClassLoader().getResource("master-public.pem").getFile())
+        File subordinatePrivateKey = new File(getClass().getClassLoader().getResource("subordinate-private.pem").getFile())
+        File subordinatePublicKey = new File(getClass().getClassLoader().getResource("subordinate-public.pem").getFile())
+        File signature = new File(getClass().getClassLoader().getResource("subordinate-public.pem.sha512").getFile())
+
+        String subordinatePublicKeyContent = FileUtils.readFileToString(subordinatePublicKey)
+        String signatureContent = FileUtils.readFileToString(signature)
+        String subordinatePrivateKeyContent = FileUtils.readFileToString(subordinatePrivateKey)
 
         def expectedJson = toObjectString({ UsageStatisticsRepresenter.toJSON(it, metrics) })
 
-        getWithApiHeader(controller.controllerPath('/encrypted'))
+        when(dataSharingService.get()).thenReturn(metrics)
+        when(systemEnvironment.getUpdateServerPublicKeyPath()).thenReturn(masterPublicKey.getAbsolutePath());
+
+        postWithApiHeader(controller.controllerPath('/encrypted'), [signature: signatureContent, 'subordinate_public_key': subordinatePublicKeyContent])
 
         def actualEncrypted = response.getContentAsString()
-        JSONAssert.assertEquals(RSAEncryptionHelper.decrypt(actualEncrypted, privateKeyFile.getAbsolutePath()), expectedJson, true)
+        JSONAssert.assertEquals(RSAEncryptionHelper.decrypt(actualEncrypted, subordinatePrivateKeyContent), expectedJson, true)
+
         assertThatResponse()
           .isOk()
           .hasContentType("application/octet-stream")

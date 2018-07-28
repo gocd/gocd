@@ -23,8 +23,8 @@ import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
-import java.io.FileReader;
 import java.io.IOException;
+import java.io.StringReader;
 import java.security.*;
 import java.security.spec.EncodedKeySpec;
 import java.security.spec.InvalidKeySpecException;
@@ -35,28 +35,37 @@ import java.util.Base64;
 import static org.apache.commons.codec.CharEncoding.UTF_8;
 
 public class RSAEncryptionHelper {
-    private static PublicKey getPublicKeyFrom(String path) throws IOException, NoSuchAlgorithmException, InvalidKeySpecException {
-        PemReader reader = new PemReader(new FileReader(path));
+    private static PublicKey getPublicKeyFrom(String content) throws IOException, NoSuchAlgorithmException, InvalidKeySpecException {
+        PemReader reader = new PemReader(new StringReader(content));
         EncodedKeySpec spec = new X509EncodedKeySpec(reader.readPemObject().getContent());
         return KeyFactory.getInstance("RSA").generatePublic(spec);
     }
 
-    private static PrivateKey getPrivateKeyFrom(String path) throws IOException, NoSuchAlgorithmException, InvalidKeySpecException {
-        PemReader reader = new PemReader(new FileReader(path));
+    private static PrivateKey getPrivateKeyFrom(String content) throws IOException, NoSuchAlgorithmException, InvalidKeySpecException {
+        PemReader reader = new PemReader(new StringReader(content));
         PKCS8EncodedKeySpec spec = new PKCS8EncodedKeySpec(reader.readPemObject().getContent());
         return KeyFactory.getInstance("RSA").generatePrivate(spec);
     }
 
-    public static String encrypt(String plainText, String publicKeyPath) throws InvalidKeyException, NoSuchPaddingException, NoSuchAlgorithmException, IOException, BadPaddingException, IllegalBlockSizeException, InvalidKeySpecException {
+    public static String encrypt(String plainText, String publicKeyContent) throws InvalidKeyException, NoSuchPaddingException, NoSuchAlgorithmException, IOException, BadPaddingException, IllegalBlockSizeException, InvalidKeySpecException {
         Cipher encryptCipher = Cipher.getInstance("RSA");
-        encryptCipher.init(Cipher.ENCRYPT_MODE, getPublicKeyFrom(publicKeyPath));
+        encryptCipher.init(Cipher.ENCRYPT_MODE, getPublicKeyFrom(publicKeyContent));
         return Base64.getEncoder().encodeToString(encryptCipher.doFinal(plainText.getBytes(UTF_8)));
     }
 
 
-    public static String decrypt(String cipherText, String privateKeyPath) throws NoSuchPaddingException, NoSuchAlgorithmException, IOException, InvalidKeySpecException, BadPaddingException, IllegalBlockSizeException, InvalidKeyException {
+    public static String decrypt(String cipherText, String privateKeyContent) throws NoSuchPaddingException, NoSuchAlgorithmException, IOException, InvalidKeySpecException, BadPaddingException, IllegalBlockSizeException, InvalidKeyException {
         Cipher decryptCipher = Cipher.getInstance("RSA");
-        decryptCipher.init(Cipher.DECRYPT_MODE, getPrivateKeyFrom(privateKeyPath));
+        decryptCipher.init(Cipher.DECRYPT_MODE, getPrivateKeyFrom(privateKeyContent));
         return new String(decryptCipher.doFinal(Base64.getDecoder().decode(cipherText)), UTF_8);
+    }
+
+    public static boolean verifySignature(String subordinatePublicKeyContent, String signatureContent, String masterPublicKeyContent) throws NoSuchProviderException, NoSuchAlgorithmException, IOException, InvalidKeySpecException, InvalidKeyException, SignatureException {
+        PublicKey masterPublicKey = getPublicKeyFrom(masterPublicKeyContent);
+        signatureContent = signatureContent.replace("\n", "");
+        Signature signature = Signature.getInstance("SHA512withRSA", "SunRsaSign");
+        signature.initVerify(masterPublicKey);
+        signature.update(subordinatePublicKeyContent.getBytes());
+        return signature.verify(Base64.getDecoder().decode(signatureContent.getBytes()));
     }
 }

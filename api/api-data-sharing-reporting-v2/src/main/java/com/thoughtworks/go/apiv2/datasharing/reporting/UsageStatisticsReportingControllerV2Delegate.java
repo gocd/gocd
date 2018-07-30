@@ -59,7 +59,7 @@ public class UsageStatisticsReportingControllerV2Delegate extends ApiController 
             before("/start", mimeType, apiAuthenticationHelper::checkUserAnd403);
             before("/complete", mimeType, apiAuthenticationHelper::checkUserAnd403);
 
-            get("/info", this::getUsageStatisticsReporting);
+            get("/info", mimeType, this::getUsageStatisticsReporting);
             post("/start", mimeType, this::startReporting);
             post("/complete", mimeType, this::completeReporting);
         });

@@ -73,6 +73,7 @@ public class DataSharingUsageStatisticsReportingService {
     public UsageStatisticsReporting get() {
         UsageStatisticsReporting loaded = usageStatisticsReportingSqlMapDao.load();
         loaded.setDataSharingServerUrl(systemEnvironment.getGoDataSharingServerUrl());
+        loaded.setDataSharingGetEncryptionKeysUrl(systemEnvironment.getGoDataSharingGetEncryptionKeysUrl());
         boolean canReport = !isDevelopmentServer() && dataSharingSettingsService.get().allowSharing()
                 && !isToday(loaded.lastReportedAt()) && !isReportingInProgress();
         loaded.canReport(canReport);

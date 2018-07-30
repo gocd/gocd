@@ -44,6 +44,7 @@ public class DataSharingUsageStatisticsReportingServiceTest {
     @Mock
     private SystemEnvironment systemEnvironment;
     private String goUsageDataRemoteServerURL;
+    private String goUsageDataGetEncryptionKeysURL;
     private DataSharingSettings dataSharingSetting;
     private TestingClock clock = new TestingClock();
 
@@ -52,7 +53,9 @@ public class DataSharingUsageStatisticsReportingServiceTest {
         initMocks(this);
         service = new DataSharingUsageStatisticsReportingService(usageStatisticsReportingSqlMapDao, dataSharingSettingsService, systemEnvironment, clock);
         goUsageDataRemoteServerURL = "https://datasharing.gocd.org";
+        goUsageDataGetEncryptionKeysURL = "https://datasharing.gocd.org/encryption_keys";
         when(systemEnvironment.getGoDataSharingServerUrl()).thenReturn(goUsageDataRemoteServerURL);
+        when(systemEnvironment.getGoDataSharingGetEncryptionKeysUrl()).thenReturn(goUsageDataGetEncryptionKeysURL);
 
         dataSharingSetting = new DataSharingSettings();
         when(dataSharingSettingsService.get()).thenReturn(dataSharingSetting);
@@ -66,6 +69,15 @@ public class DataSharingUsageStatisticsReportingServiceTest {
         when(usageStatisticsReportingSqlMapDao.load()).thenReturn(existingMetric);
         UsageStatisticsReporting statisticsReporting = service.get();
         assertThat(statisticsReporting.getDataSharingServerUrl(), is(goUsageDataRemoteServerURL));
+    }
+
+    @Test
+    public void shouldSetDataSharingGetEncryptionKeysUrlOnTheLoadedDataSharingUsageReporting() {
+        UsageStatisticsReporting existingMetric = new UsageStatisticsReporting("server-id", new Date());
+        assertNull(existingMetric.getDataSharingServerUrl());
+        when(usageStatisticsReportingSqlMapDao.load()).thenReturn(existingMetric);
+        UsageStatisticsReporting statisticsReporting = service.get();
+        assertThat(statisticsReporting.getDataSharingGetEncryptionKeysUrl(), is(goUsageDataGetEncryptionKeysURL));
     }
 
     @Test

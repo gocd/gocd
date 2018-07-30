@@ -22,6 +22,7 @@ import java.util.Date;
 public class UsageStatisticsReporting extends PersistentObject {
     private String serverId;
     private String dataSharingServerUrl = null;
+    private String dataSharingGetEncryptionKeysUrl = null;
     private Timestamp lastReportedAt = new Timestamp(0);
     private boolean canReport = true;
 
@@ -39,6 +40,14 @@ public class UsageStatisticsReporting extends PersistentObject {
 
     public void setDataSharingServerUrl(String dataSharingServerUrl) {
         this.dataSharingServerUrl = dataSharingServerUrl;
+    }
+
+    public String getDataSharingGetEncryptionKeysUrl() {
+        return dataSharingGetEncryptionKeysUrl;
+    }
+
+    public void setDataSharingGetEncryptionKeysUrl(String dataSharingGetEncryptionKeysUrl) {
+        this.dataSharingGetEncryptionKeysUrl = dataSharingGetEncryptionKeysUrl;
     }
 
     public String getServerId() {

@@ -18,7 +18,7 @@ const AjaxHelper  = require('helpers/ajax_helper');
 const SparkRoutes = require("helpers/spark_routes");
 
 const UsageData = function (data) {
-  this.message                  = () => data;
+  this.message   = () => data;
   this.represent = () => JSON.stringify(this.message(), null, 4);
 };
 
@@ -36,11 +36,12 @@ UsageData.get = () => {
   });
 };
 
-UsageData.getEncrypted = () => {
-	return AjaxHelper.GET({
-		url:        SparkRoutes.DataSharingUsageDataEncryptedPath(),
-		apiVersion: UsageData.API_VERSION
-	});
+UsageData.getEncrypted = (data) => {
+  return AjaxHelper.POST({
+    url:        SparkRoutes.DataSharingUsageDataEncryptedPath(),
+    payload:    data,
+    apiVersion: UsageData.API_VERSION
+  });
 };
 
 module.exports = UsageData;

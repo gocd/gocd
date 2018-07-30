@@ -60,30 +60,40 @@ describe('Usage Data Reporter', () => {
   });
 
   it('should report usage data to remote server', async () => {
-    const yesterday = lastReportedYesterday();
+    const signature            = 'some-signature';
+    const subordinatePublicKey = 'valid-public-key';
+    const yesterday            = lastReportedYesterday();
     mockDataSharingReportingGetAPIAndReturn(allowedReportingJSON);
     mockUsageDataAPIAndReturn(encryptedUsageData);
     mockDataSharingReportingStartAPI();
+    mockDataSharingServerGetEncryptionKeysAndReturn(signature, subordinatePublicKey);
     mockDataSharingServerAPIAndPass();
     mockDataSharingReportingCompleteAPI();
 
     expect(localStorage.getItem(USAGE_DATA_LAST_REPORTED_TIME_KEY)).toBe(`${yesterday}`);
     await reporter.report();
 
-    expect(jasmine.Ajax.requests.count()).toBe(5);
+    expect(jasmine.Ajax.requests.count()).toBe(6);
     expect(jasmine.Ajax.requests.at(0).url).toBe(usageReportingGetURL);
 
     expect(jasmine.Ajax.requests.at(1).url).toBe(usageReportingStartURL);
     expect(jasmine.Ajax.requests.at(1).method).toBe('POST');
 
-    expect(jasmine.Ajax.requests.at(2).url).toBe(encryptedUsageDataURL);
+    expect(jasmine.Ajax.requests.at(2).url).toBe(allowedReportingJSON._embedded.data_sharing_get_encryption_keys_url);
 
-    expect(jasmine.Ajax.requests.at(3).url).toBe(allowedReportingJSON._embedded.data_sharing_server_url);
+    expect(jasmine.Ajax.requests.at(3).url).toBe(encryptedUsageDataURL);
     expect(jasmine.Ajax.requests.at(3).method).toBe('POST');
-    expect(jasmine.Ajax.requests.at(3).data()).toEqual(encryptedUsageData);
+    expect(jasmine.Ajax.requests.at(3).data()).toEqual({
+      signature,
+      'subordinate_public_key': subordinatePublicKey
+    });
 
-    expect(jasmine.Ajax.requests.at(4).url).toBe(usageReportingCompleteURL);
+    expect(jasmine.Ajax.requests.at(4).url).toBe(allowedReportingJSON._embedded.data_sharing_server_url);
     expect(jasmine.Ajax.requests.at(4).method).toBe('POST');
+    expect(jasmine.Ajax.requests.at(4).data()).toEqual(encryptedUsageData);
+
+    expect(jasmine.Ajax.requests.at(5).url).toBe(usageReportingCompleteURL);
+    expect(jasmine.Ajax.requests.at(5).method).toBe('POST');
 
     // verify that the last reported time is updated in the local storage
     expect(new Date(+localStorage.getItem(USAGE_DATA_LAST_REPORTED_TIME_KEY)).getDate()).toBe(new Date().getDate());
@@ -94,6 +104,7 @@ describe('Usage Data Reporter', () => {
     const yesterday = lastReportedYesterday();
     mockDataSharingReportingGetAPIAndReturn(allowedReportingJSON);
     mockDataSharingReportingStartAPI();
+    mockDataSharingServerGetEncryptionKeysAndReturn('some-signature', 'valid-public-key');
     mockUsageDataAPIAndReturn(encryptedUsageData);
     mockDataSharingServerAPIAndFail();
 
@@ -102,16 +113,19 @@ describe('Usage Data Reporter', () => {
     try {
       await reporter.report();
     } catch (e) {
-      expect(jasmine.Ajax.requests.count()).toBe(4);
+      expect(jasmine.Ajax.requests.count()).toBe(5);
       expect(jasmine.Ajax.requests.at(0).url).toBe(usageReportingGetURL);
 
       expect(jasmine.Ajax.requests.at(1).url).toBe(usageReportingStartURL);
       expect(jasmine.Ajax.requests.at(1).method).toBe('POST');
 
-      expect(jasmine.Ajax.requests.at(2).url).toBe(encryptedUsageDataURL);
+      expect(jasmine.Ajax.requests.at(2).url).toBe(allowedReportingJSON._embedded.data_sharing_get_encryption_keys_url);
 
-      expect(jasmine.Ajax.requests.at(3).url).toBe(allowedReportingJSON._embedded.data_sharing_server_url);
+      expect(jasmine.Ajax.requests.at(3).url).toBe(encryptedUsageDataURL);
       expect(jasmine.Ajax.requests.at(3).method).toBe('POST');
+
+      expect(jasmine.Ajax.requests.at(4).url).toBe(allowedReportingJSON._embedded.data_sharing_server_url);
+      expect(jasmine.Ajax.requests.at(4).method).toBe('POST');
 
       expect(jasmine.Ajax.requests.filter(usageReportingCompleteURL)).toHaveLength(0);
 
@@ -174,15 +188,25 @@ describe('Usage Data Reporter', () => {
   }
 
   function mockUsageDataAPIAndReturn(json) {
-    jasmine.Ajax.stubRequest(encryptedUsageDataURL, undefined, 'GET').andReturn({
-      responseText:    JSON.stringify(json),
-      status:          200
+    jasmine.Ajax.stubRequest(encryptedUsageDataURL, undefined, 'POST').andReturn({
+      responseText: JSON.stringify(json),
+      status:       200
     });
   }
 
   function mockDataSharingServerAPIAndPass() {
     jasmine.Ajax.stubRequest(allowedReportingJSON._embedded.data_sharing_server_url, undefined, 'POST').andReturn({
       responseText: JSON.stringify({}),
+      status:       200
+    });
+  }
+
+  function mockDataSharingServerGetEncryptionKeysAndReturn(signature, subordinatePublicKey) {
+    jasmine.Ajax.stubRequest(allowedReportingJSON._embedded.data_sharing_get_encryption_keys_url, undefined, 'GET').andReturn({
+      responseText: JSON.stringify({
+        signature,
+        'subordinate_public_key': subordinatePublicKey
+      }),
       status:       200
     });
   }
@@ -195,19 +219,21 @@ describe('Usage Data Reporter', () => {
 
   const notAllowedReportingJSON = {
     "_embedded": {
-      "server_id":               "621bf5cb-25fa-4c75-9dd2-097ef6b3bdd1",
-      "last_reported_at":        1529308350019,
-      "data_sharing_server_url": "https://datasharing.gocd.org/v1",
-      "can_report":              false
+      "server_id":                            "621bf5cb-25fa-4c75-9dd2-097ef6b3bdd1",
+      "last_reported_at":                     1529308350019,
+      "data_sharing_server_url":              "https://datasharing.gocd.org/v1",
+      "data_sharing_get_encryption_keys_url": "https://datasharing.gocd.org/encryption_keys",
+      "can_report":                           false
     }
   };
 
   const allowedReportingJSON = {
     "_embedded": {
-      "server_id":               "621bf5cb-25fa-4c75-9dd2-097ef6b3bdd1",
-      "last_reported_at":        1529308350019,
-      "data_sharing_server_url": "https://datasharing.gocd.org/v1",
-      "can_report":              true
+      "server_id":                            "621bf5cb-25fa-4c75-9dd2-097ef6b3bdd1",
+      "last_reported_at":                     1529308350019,
+      "data_sharing_server_url":              "https://datasharing.gocd.org/v1",
+      "data_sharing_get_encryption_keys_url": "https://datasharing.gocd.org/encryption_keys",
+      "can_report":                           true
     }
   };
 

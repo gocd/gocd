@@ -22,6 +22,10 @@ const DataReporting = require('models/shared/data_sharing/data_reporting');
 
 const USAGE_DATA_LAST_REPORTED_TIME_KEY = "last_usage_data_reporting_check_time";
 
+const fetchEncryptionKeysFromDataSharingServer = function (url) {
+  return AjaxHelper.GET({url});
+};
+
 const reportToGoCDDataSharingServer = function (url, payload) {
   return AjaxHelper.POST({url, payload, contentType: 'application/octet-stream'});
 };
@@ -53,7 +57,8 @@ const UsageDataReporter = function () {
     try {
       if (reportingInfo.canReport()) {
         await DataReporting.startReporting();
-        const encryptedUsageData = await UsageData.getEncrypted();
+        const encryptionKeys     = await fetchEncryptionKeysFromDataSharingServer(reportingInfo.dataSharingGetEncryptionKeysUrl());
+        const encryptedUsageData = await UsageData.getEncrypted(encryptionKeys);
         await reportToGoCDDataSharingServer(reportingInfo.dataSharingServerUrl(), encryptedUsageData);
         await DataReporting.completeReporting();
       }

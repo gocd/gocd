@@ -23,17 +23,18 @@ const DataReporting = function (initialData) {
   const reporting = this;
   const data      = initialData._embedded;
 
-  reporting.serverId             = () => data.server_id;
-  reporting.lastReportedAt       = Stream(new Date(data.last_reported_at));
-  reporting.dataSharingServerUrl = () => data.data_sharing_server_url;
-  reporting.canReport            = () => data.can_report;
+  reporting.serverId                        = () => data.server_id;
+  reporting.lastReportedAt                  = Stream(new Date(data.last_reported_at));
+  reporting.dataSharingServerUrl            = () => data.data_sharing_server_url;
+  reporting.dataSharingGetEncryptionKeysUrl = () => data.data_sharing_get_encryption_keys_url;
+  reporting.canReport                       = () => data.can_report;
 };
 
 DataReporting.fromJSON = function (json, jqXHR) {
   return new DataReporting(json, jqXHR.getResponseHeader('etag'));
 };
 
-DataReporting.API_VERSION = 'v1';
+DataReporting.API_VERSION = 'v2';
 
 DataReporting.get = () => {
   return AjaxHelper.GET({

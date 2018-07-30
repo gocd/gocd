@@ -15,17 +15,18 @@
  */
 
 describe('Data Reporting', () => {
-  const DataReporting        = require('models/shared/data_sharing/data_reporting');
-  const DataReportingInfoURL  = '/go/api/internal/data_sharing/reporting/info';
-  const DataReportingStartReportingURL = '/go/api/internal/data_sharing/reporting/start';
+  const DataReporting                     = require('models/shared/data_sharing/data_reporting');
+  const DataReportingInfoURL              = '/go/api/internal/data_sharing/reporting/info';
+  const DataReportingStartReportingURL    = '/go/api/internal/data_sharing/reporting/start';
   const DataReportingCompleteReportingURL = '/go/api/internal/data_sharing/reporting/complete';
 
   const dataReportingJSON = {
     "_embedded": {
-      "server_id":               "621bf5cb-25fa-4c75-9dd2-097ef6b3bdd1",
-      "last_reported_at":        1529308350019,
-      "data_sharing_server_url": "https://datasharing.gocd.org/v1",
-      "can_report":              true
+      "server_id":                            "621bf5cb-25fa-4c75-9dd2-097ef6b3bdd1",
+      "last_reported_at":                     1529308350019,
+      "data_sharing_server_url":              "https://datasharing.gocd.org/v1",
+      "data_sharing_get_encryption_keys_url": "https://datasharing.gocd.org/encryption_keys",
+      "can_report":                           true
     }
   };
 
@@ -35,6 +36,7 @@ describe('Data Reporting', () => {
     expect(reportingInfo.serverId()).toBe(dataReportingJSON._embedded.server_id);
     expect(reportingInfo.lastReportedAt()).toEqual(new Date(dataReportingJSON._embedded.last_reported_at));
     expect(reportingInfo.dataSharingServerUrl()).toBe(dataReportingJSON._embedded.data_sharing_server_url);
+    expect(reportingInfo.dataSharingGetEncryptionKeysUrl()).toBe(dataReportingJSON._embedded.data_sharing_get_encryption_keys_url);
     expect(reportingInfo.canReport()).toBe(dataReportingJSON._embedded.can_report);
   });
 
@@ -44,7 +46,7 @@ describe('Data Reporting', () => {
         responseText:    JSON.stringify(dataReportingJSON),
         status:          200,
         responseHeaders: {
-          'Content-Type': 'application/vnd.go.cd.v1+json'
+          'Content-Type': 'application/vnd.go.cd.v2+json'
         }
       });
 
@@ -57,6 +59,10 @@ describe('Data Reporting', () => {
 
       DataReporting.get().then(successCallback);
       expect(successCallback).toHaveBeenCalled();
+
+      expect(jasmine.Ajax.requests.at(0).url).toBe(DataReportingInfoURL);
+      expect(jasmine.Ajax.requests.at(0).method).toBe('GET');
+      expect(jasmine.Ajax.requests.at(0).requestHeaders.Accept).toBe('application/vnd.go.cd.v2+json');
     });
   });
 
@@ -66,7 +72,7 @@ describe('Data Reporting', () => {
         responseText:    null,
         status:          204,
         responseHeaders: {
-          'Content-Type': 'application/vnd.go.cd.v1+json'
+          'Content-Type': 'application/vnd.go.cd.v2+json'
         }
       });
 
@@ -83,7 +89,7 @@ describe('Data Reporting', () => {
         responseText:    null,
         status:          204,
         responseHeaders: {
-          'Content-Type': 'application/vnd.go.cd.v1+json'
+          'Content-Type': 'application/vnd.go.cd.v2+json'
         }
       });
 

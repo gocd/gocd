@@ -20,13 +20,13 @@ describe('Data Sharing Usage Data', () => {
   const dataSharingEncryptedUsageDataURL = '/go/api/internal/data_sharing/usagedata/encrypted';
 
   const dataSharingUsageJSON = {
-    "server_id": "some-random-string",
+    "server_id":       "some-random-string",
     "message_version": 2,
-    "data": {
+    "data":            {
       "pipeline_count":                 1,
       "agent_count":                    0,
       "oldest_pipeline_execution_time": 1528887811275,
-      "gocd_version": "18.9.0"
+      "gocd_version":                   "18.9.0"
     }
   };
 
@@ -63,7 +63,7 @@ describe('Data Sharing Usage Data', () => {
     const encryptedData = "Something really secret";
 
     jasmine.Ajax.withMock(() => {
-      jasmine.Ajax.stubRequest(dataSharingEncryptedUsageDataURL).andReturn({
+      jasmine.Ajax.stubRequest(dataSharingEncryptedUsageDataURL, undefined, 'POST').andReturn({
         responseText:    encryptedData,
         status:          200,
         responseHeaders: {
@@ -75,8 +75,18 @@ describe('Data Sharing Usage Data', () => {
         expect(data).toBe(encryptedData);
       });
 
-      UsageData.getEncrypted().then(successCallback);
+      const encryptionKeys = {
+        'signature':              'some-signed-key',
+        'subordinate_public_key': 'some-public-key'
+      };
+
+      UsageData.getEncrypted(encryptionKeys).then(successCallback);
       expect(successCallback).toHaveBeenCalled();
+
+      expect(jasmine.Ajax.requests.count()).toBe(1);
+      expect(jasmine.Ajax.requests.at(0).url).toBe('/go/api/internal/data_sharing/usagedata/encrypted');
+      expect(jasmine.Ajax.requests.at(0).method).toBe('POST');
+      expect(jasmine.Ajax.requests.at(0).data()).toEqual(encryptionKeys);
     });
   });
 });

@@ -14,11 +14,14 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.apiv1.datasharing.usagedata
+package com.thoughtworks.go.apiv2.datasharing.usagedata
 
+
+import com.google.gson.reflect.TypeToken
 import com.thoughtworks.go.api.SecurityTestTrait
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
-import com.thoughtworks.go.apiv1.datasharing.usagedata.representers.UsageStatisticsRepresenter
+import com.thoughtworks.go.api.util.GsonTransformer
+import com.thoughtworks.go.apiv2.datasharing.usagedata.representers.UsageStatisticsRepresenter
 import com.thoughtworks.go.server.domain.UsageStatistics
 import com.thoughtworks.go.server.service.datasharing.DataSharingUsageDataService
 import com.thoughtworks.go.server.util.EncryptionHelper
@@ -34,11 +37,13 @@ import org.junit.jupiter.api.Test
 import org.mockito.Mock
 import org.skyscreamer.jsonassert.JSONAssert
 
+import javax.crypto.spec.SecretKeySpec
+
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
 import static org.mockito.Mockito.when
 import static org.mockito.MockitoAnnotations.initMocks
 
-class UsageStatisticsControllerV1DelegateTest implements SecurityServiceTrait, ControllerTrait<UsageStatisticsControllerV1Delegate> {
+class UsageStatisticsControllerV2DelegateTest implements SecurityServiceTrait, ControllerTrait<UsageStatisticsControllerV2Delegate> {
   @BeforeEach
   void setUp() {
     initMocks(this)
@@ -53,8 +58,8 @@ class UsageStatisticsControllerV1DelegateTest implements SecurityServiceTrait, C
   def gocdVersion = '18.8.0'
 
   @Override
-  UsageStatisticsControllerV1Delegate createControllerInstance() {
-    new UsageStatisticsControllerV1Delegate(new ApiAuthenticationHelper(securityService, goConfigService), dataSharingService, systemEnvironment)
+  UsageStatisticsControllerV2Delegate createControllerInstance() {
+    new UsageStatisticsControllerV2Delegate(new ApiAuthenticationHelper(securityService, goConfigService), dataSharingService, systemEnvironment)
   }
 
   @Nested
@@ -106,7 +111,6 @@ class UsageStatisticsControllerV1DelegateTest implements SecurityServiceTrait, C
 
       @Override
       void makeHttpCall() {
-        controller.mimeType = "application/octet-stream"
         postWithApiHeader(controller.controllerPath('/encrypted'), [])
       }
     }
@@ -197,12 +201,17 @@ class UsageStatisticsControllerV1DelegateTest implements SecurityServiceTrait, C
 
         postWithApiHeader(controller.controllerPath('/encrypted'), [signature: signatureContent, 'subordinate_public_key': subordinatePublicKeyContent])
 
-        def actualEncrypted = response.getContentAsString()
-        JSONAssert.assertEquals(EncryptionHelper.decryptUsingRSA(actualEncrypted, subordinatePrivateKeyContent), expectedJson, true)
+        Map<String, String> responseBody = GsonTransformer.getInstance().fromJson(response.getContentAsString(), new TypeToken<Map<String, Object>>() {}.getType())
+        def aesEncryptedData = responseBody.get('aes_encrypted_data')
+        def rsaEncryptedAESKey = responseBody.get('rsa_encrypted_aes_key')
 
-        assertThatResponse()
-          .isOk()
-          .hasContentType("application/octet-stream")
+        String secretKeyContent = EncryptionHelper.decryptUsingRSA(rsaEncryptedAESKey, subordinatePrivateKeyContent)
+        byte[] decryptedKey = Base64.getDecoder().decode(secretKeyContent)
+        def secretKey = new SecretKeySpec(decryptedKey, 0, decryptedKey.length, "AES")
+        def decryptedData = EncryptionHelper.decryptUsingAES(secretKey, aesEncryptedData)
+
+        JSONAssert.assertEquals(decryptedData, expectedJson, true)
+        assertThatResponse().isOk()
       }
     }
   }

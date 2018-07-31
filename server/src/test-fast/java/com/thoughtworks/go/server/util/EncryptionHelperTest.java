@@ -17,26 +17,30 @@
 package com.thoughtworks.go.server.util;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.Test;
 
+import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
 import java.io.File;
+import java.util.Base64;
 
 import static junit.framework.TestCase.assertTrue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertFalse;
 
-class RSAEncryptionHelperTest {
+class EncryptionHelperTest {
 
     @Test
-    void shouldEncryptAndDecryptChunk() throws Exception {
+    void shouldEncryptAndDecryptChunkUsingRSA() throws Exception {
         File privateKeyFile = new File(getClass().getClassLoader().getResource("rsa/subordinate-private.pem").getFile());
         File publicKeyFile = new File(getClass().getClassLoader().getResource("rsa/subordinate-public.pem").getFile());
 
         String chunk = "Encryption is Awesome!";
 
-        String encryptedChunk = RSAEncryptionHelper.encrypt(chunk, FileUtils.readFileToString(publicKeyFile, "utf8"));
-        String decryptedChunk = RSAEncryptionHelper.decrypt(encryptedChunk, FileUtils.readFileToString(privateKeyFile, "utf8"));
+        String encryptedChunk = EncryptionHelper.encryptUsingRSA(chunk, FileUtils.readFileToString(publicKeyFile, "utf8"));
+        String decryptedChunk = EncryptionHelper.decryptUsingRSA(encryptedChunk, FileUtils.readFileToString(privateKeyFile, "utf8"));
 
         assertThat(decryptedChunk, is(chunk));
     }
@@ -47,7 +51,7 @@ class RSAEncryptionHelperTest {
         String signature = FileUtils.readFileToString(new File(getClass().getClassLoader().getResource("rsa/subordinate-public.pem.sha512").getFile()), "utf8");
         String masterPublicKey = FileUtils.readFileToString(new File(getClass().getClassLoader().getResource("rsa/master-public.pem").getFile()), "utf8");
 
-        assertTrue(RSAEncryptionHelper.verifySignature(subordinatePublicKey, signature, masterPublicKey));
+        assertTrue(EncryptionHelper.verifyRSASignature(subordinatePublicKey, signature, masterPublicKey));
     }
 
     @Test
@@ -57,6 +61,39 @@ class RSAEncryptionHelperTest {
         String signature = FileUtils.readFileToString(new File(getClass().getClassLoader().getResource("rsa/subordinate-public.pem.sha512").getFile()), "utf8");
         String masterPublicKey = FileUtils.readFileToString(new File(getClass().getClassLoader().getResource("rsa/master-public.pem").getFile()), "utf8");
 
-        assertFalse(RSAEncryptionHelper.verifySignature(subordinatePublicKey, signature, masterPublicKey));
+        assertFalse(EncryptionHelper.verifyRSASignature(subordinatePublicKey, signature, masterPublicKey));
+    }
+
+    @Test
+    void shouldEncryptAndDecryptChunkUsingAES() throws Exception {
+        String chunk = StringUtils.repeat("Encryption is awesome!", 150);
+
+        SecretKey secretKey = EncryptionHelper.generateAESKey();
+
+        String encryptedData = EncryptionHelper.encryptUsingAES(secretKey, chunk);
+        String decryptedData = EncryptionHelper.decryptUsingAES(secretKey, encryptedData);
+
+        assertThat(chunk, is(decryptedData));
+    }
+
+    @Test
+    void shouldEncryptAndDecryptChunkUsingAESandRSA() throws Exception {
+        String chunk = StringUtils.repeat("Encryption is awesome!", 150);
+
+        File privateKeyFile = new File(getClass().getClassLoader().getResource("rsa/subordinate-private.pem").getFile());
+        File publicKeyFile = new File(getClass().getClassLoader().getResource("rsa/subordinate-public.pem").getFile());
+
+        SecretKey secretKey = EncryptionHelper.generateAESKey();
+
+        String aesEncryptedData = EncryptionHelper.encryptUsingAES(secretKey, chunk);
+        String rsaEncryptedAESKey = EncryptionHelper.encryptUsingRSA(Base64.getEncoder().encodeToString(secretKey.getEncoded()), FileUtils.readFileToString(publicKeyFile, "utf8"));
+
+        String secretKeyContent = EncryptionHelper.decryptUsingRSA(rsaEncryptedAESKey, FileUtils.readFileToString(privateKeyFile, "utf8"));
+        byte[] decryptedKey = Base64.getDecoder().decode(secretKeyContent);
+        secretKey = new SecretKeySpec(decryptedKey, 0, decryptedKey.length, "AES");
+
+        String decryptedData = EncryptionHelper.decryptUsingAES(secretKey, aesEncryptedData);
+
+        assertThat(chunk, is(decryptedData));
     }
 }

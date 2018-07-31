@@ -71,8 +71,10 @@ public class UsageStatisticsReportingSqlMapDao extends HibernateDaoSupport {
         UsageStatisticsReporting reporting = (UsageStatisticsReporting) goCache.get(cacheKey);
         if (reporting == null) {
             synchronized (cacheKey) {
-                reporting = transactionTemplate.execute(status -> (UsageStatisticsReporting) sessionFactory.getCurrentSession().getNamedQuery("load.usagestatistics.reporting.information").uniqueResult());
-                goCache.put(cacheKey, reporting);
+                if (reporting == null) {
+                    reporting = transactionTemplate.execute(status -> (UsageStatisticsReporting) sessionFactory.getCurrentSession().getNamedQuery("load.usagestatistics.reporting.information").uniqueResult());
+                    goCache.put(cacheKey, reporting);
+                }
             }
         }
 

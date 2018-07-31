@@ -84,8 +84,10 @@ public class DataSharingSettingsSqlMapDao extends HibernateDaoSupport {
         DataSharingSettings settings = (DataSharingSettings) goCache.get(cacheKey);
         if (settings == null) {
             synchronized (cacheKey) {
-                settings = transactionTemplate.execute(status -> (DataSharingSettings) sessionFactory.getCurrentSession().getNamedQuery("load.datasharing.settings").uniqueResult());
-                goCache.put(cacheKey, settings);
+                if (settings == null) {
+                    settings = transactionTemplate.execute(status -> (DataSharingSettings) sessionFactory.getCurrentSession().getNamedQuery("load.datasharing.settings").uniqueResult());
+                    goCache.put(cacheKey, settings);
+                }
             }
         }
 

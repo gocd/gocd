@@ -17,6 +17,7 @@
 package com.thoughtworks.go.server.dao;
 
 import com.thoughtworks.go.domain.UsageStatisticsReporting;
+import com.thoughtworks.go.server.cache.CacheKeyGenerator;
 import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.transaction.TransactionSynchronizationManager;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
@@ -31,6 +32,7 @@ import java.util.HashMap;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
@@ -46,19 +48,21 @@ class UsageStatisticsReportingSqlMapDaoTest {
     private GoCache goCache;
 
     private UsageStatisticsReportingSqlMapDao reportingSqlMapDao;
+    private HashMap<String, Object> internalTestCache;
+    private CacheKeyGenerator cacheKeyGenerator = new CacheKeyGenerator(UsageStatisticsReportingSqlMapDao.class);
 
     @BeforeEach
     void setUp() {
         initMocks(this);
         reportingSqlMapDao = new UsageStatisticsReportingSqlMapDao(sessionFactory, transactionTemplate, synchronizationManager, goCache);
 
-        HashMap<String, Object> internalTestCache = new HashMap<>();
-        when(goCache.get(anyString())).then((Answer<UsageStatisticsReporting>) invocation -> (UsageStatisticsReporting) internalTestCache.get(invocation.<String>getArgument(0)));
+        internalTestCache = new HashMap<>();
+        when(goCache.get(getCacheKey())).then((Answer<UsageStatisticsReporting>) invocation -> (UsageStatisticsReporting) internalTestCache.get(invocation.<String>getArgument(0)));
         doAnswer(invocation -> {
             internalTestCache.put(invocation.getArgument(0), invocation.getArgument(1));
             return null;
         }).when(goCache).put(anyString(), any(UsageStatisticsReporting.class));
-        when(goCache.remove(anyString())).then((Answer<UsageStatisticsReporting>) invocation -> (UsageStatisticsReporting) internalTestCache.remove(invocation.<String>getArgument(0)));
+        when(goCache.remove(getCacheKey())).then((Answer<UsageStatisticsReporting>) invocation -> (UsageStatisticsReporting) internalTestCache.remove(invocation.<String>getArgument(0)));
     }
 
     @Test
@@ -66,7 +70,9 @@ class UsageStatisticsReportingSqlMapDaoTest {
         UsageStatisticsReporting usageStatisticsReporting = new UsageStatisticsReporting("server-id", new Date());
         when(transactionTemplate.execute(any())).thenReturn(usageStatisticsReporting);
 
+        assertNull(internalTestCache.get(getCacheKey()));
         UsageStatisticsReporting loaded = reportingSqlMapDao.load();
+        assertThat(internalTestCache.get(getCacheKey()), is(usageStatisticsReporting));
 
         assertThat(loaded, is(usageStatisticsReporting));
         verify(transactionTemplate, times(1)).execute(any());
@@ -77,10 +83,13 @@ class UsageStatisticsReportingSqlMapDaoTest {
         UsageStatisticsReporting usageStatisticsReporting = new UsageStatisticsReporting("server-id", new Date());
         when(transactionTemplate.execute(any())).thenReturn(usageStatisticsReporting);
 
+        assertNull(internalTestCache.get(getCacheKey()));
         UsageStatisticsReporting loaded = reportingSqlMapDao.load();
+        assertThat(internalTestCache.get(getCacheKey()), is(usageStatisticsReporting));
         assertThat(loaded, is(usageStatisticsReporting));
 
         UsageStatisticsReporting loadedAgain = reportingSqlMapDao.load();
+        assertThat(internalTestCache.get(getCacheKey()), is(usageStatisticsReporting));
         assertThat(loadedAgain, is(usageStatisticsReporting));
 
         verify(transactionTemplate, times(1)).execute(any());
@@ -91,15 +100,23 @@ class UsageStatisticsReportingSqlMapDaoTest {
         UsageStatisticsReporting usageStatisticsReporting = new UsageStatisticsReporting("server-id", new Date());
         when(transactionTemplate.execute(any())).thenReturn(usageStatisticsReporting);
 
+        assertNull(internalTestCache.get(getCacheKey()));
         //load once
         reportingSqlMapDao.load();
+        assertThat(internalTestCache.get(getCacheKey()), is(usageStatisticsReporting));
 
         //update
-        reportingSqlMapDao.saveOrUpdate(new UsageStatisticsReporting("server-id", new Date()));
+        UsageStatisticsReporting updated = new UsageStatisticsReporting("server-id", new Date());
+        reportingSqlMapDao.saveOrUpdate(updated);
 
         //load again
         reportingSqlMapDao.load();
+        assertThat(internalTestCache.get(getCacheKey()), is(updated));
 
         verify(transactionTemplate, times(2)).execute(any());
+    }
+
+    private String getCacheKey() {
+        return cacheKeyGenerator.generate("dataSharing_reporting");
     }
 }

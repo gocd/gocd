@@ -16,9 +16,10 @@
 
 module ApiV1
   class VersionInfoRepresenter < ApiV1::BaseRepresenter
-    def initialize(version_info, system_environment)
+    def initialize(version_info, system_environment, server_id)
       @version_info = version_info
       @system_environment = system_environment
+      @server_id = server_id
       super(@version_info)
     end
 
@@ -46,6 +47,7 @@ module ApiV1
     def update_server_url
       uri = URI(@system_environment.getUpdateServerUrl)
       ar = URI.decode_www_form(uri.query || "") << ['current_version', @version_info.getInstalledVersion.toString || 'unknown']
+      ar.push ['server_id', @server_id]
       uri.query = URI.encode_www_form(ar)
       uri.to_s
     end

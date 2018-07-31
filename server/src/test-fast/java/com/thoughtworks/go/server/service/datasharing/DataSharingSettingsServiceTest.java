@@ -74,5 +74,4 @@ public class DataSharingSettingsServiceTest {
         assertThat(updatedDataSharingSettings.allowSharing(), is(newConsent));
         assertThat(updatedDataSharingSettings.updatedBy(), is(consentedBy));
     }
-
 }

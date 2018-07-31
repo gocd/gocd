@@ -16,6 +16,8 @@
 
 package com.thoughtworks.go.server.service.datasharing;
 
+import com.thoughtworks.go.server.cache.CacheKeyGenerator;
+import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.domain.DataSharingSettings;
 import com.thoughtworks.go.server.dao.DataSharingSettingsSqlMapDao;
 import com.thoughtworks.go.server.service.EntityHashingService;
@@ -52,6 +54,10 @@ public class DataSharingSettingsServiceIntegrationTest {
     private EntityHashingService entityHashingService;
     @Autowired
     private DatabaseAccessHelper dbHelper;
+    @Autowired
+    private GoCache goCache;
+
+    private CacheKeyGenerator cacheKeyGenerator = new CacheKeyGenerator(DataSharingSettingsSqlMapDao.class);
 
     @Rule
     public ExpectedException expectedEx = ExpectedException.none();
@@ -65,11 +71,13 @@ public class DataSharingSettingsServiceIntegrationTest {
     @After
     public void teardown() throws Exception {
         dbHelper.onTearDown();
+        goCache.remove(cacheKey());
     }
 
     @Test
     public void shouldInitializeDataSharingSettingsOnFirstStartup() throws Exception {
         dbHelper.onTearDown();//to start on a clean slate
+        goCache.remove(cacheKey());
 
         assertNull(dataSharingSettingsSqlMapDao.load());
         dataSharingSettingsService.initialize();
@@ -80,6 +88,7 @@ public class DataSharingSettingsServiceIntegrationTest {
     @Test
     public void shouldNotReInitializeDataSharingSettingsOnSubsequentStartups() throws Exception {
         dbHelper.onTearDown();//to start on a clean slate
+        goCache.remove(cacheKey());
 
         assertNull(dataSharingSettingsSqlMapDao.load());
         dataSharingSettingsService.initialize();
@@ -160,4 +169,9 @@ public class DataSharingSettingsServiceIntegrationTest {
 
         dataSharingSettingsService.createOrUpdate(dataSharingSettings2);
     }
+
+    private String cacheKey() {
+        return cacheKeyGenerator.generate("dataSharing_settings");
+    }
+
 }

@@ -17,6 +17,8 @@
 package com.thoughtworks.go.server.dao;
 
 import com.thoughtworks.go.domain.UsageStatisticsReporting;
+import com.thoughtworks.go.server.cache.CacheKeyGenerator;
+import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.transaction.TransactionSynchronizationManager;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import org.hibernate.SessionFactory;
@@ -29,16 +31,19 @@ import org.springframework.transaction.support.TransactionSynchronizationAdapter
 
 @Component
 public class UsageStatisticsReportingSqlMapDao extends HibernateDaoSupport {
+    private final CacheKeyGenerator cacheKeyGenerator;
     private SessionFactory sessionFactory;
     private TransactionTemplate transactionTemplate;
     private TransactionSynchronizationManager synchronizationManager;
-    private UsageStatisticsReporting cachedUsageStatisticsReporting;
+    private GoCache goCache;
 
     @Autowired
-    public UsageStatisticsReportingSqlMapDao(SessionFactory sessionFactory, TransactionTemplate transactionTemplate, TransactionSynchronizationManager synchronizationManager) {
+    public UsageStatisticsReportingSqlMapDao(SessionFactory sessionFactory, TransactionTemplate transactionTemplate, TransactionSynchronizationManager synchronizationManager, GoCache goCache) {
         this.sessionFactory = sessionFactory;
         this.transactionTemplate = transactionTemplate;
         this.synchronizationManager = synchronizationManager;
+        this.goCache = goCache;
+        this.cacheKeyGenerator = new CacheKeyGenerator(getClass());
         setSessionFactory(sessionFactory);
     }
 
@@ -49,7 +54,10 @@ public class UsageStatisticsReportingSqlMapDao extends HibernateDaoSupport {
                 synchronizationManager.registerSynchronization(new TransactionSynchronizationAdapter() {
                     @Override
                     public void afterCommit() {
-                        invalidateCache();
+                        String cacheKey = cacheKeyForUsageStatisticsReporting();
+                        synchronized (cacheKey) {
+                            goCache.remove(cacheKey);
+                        }
                     }
                 });
 
@@ -59,15 +67,20 @@ public class UsageStatisticsReportingSqlMapDao extends HibernateDaoSupport {
     }
 
     public UsageStatisticsReporting load() {
-        if (cachedUsageStatisticsReporting == null) {
-            cachedUsageStatisticsReporting = transactionTemplate.execute(status -> (UsageStatisticsReporting) sessionFactory.getCurrentSession().getNamedQuery("load.usagestatistics.reporting.information").uniqueResult());
+        String cacheKey = cacheKeyForUsageStatisticsReporting();
+        UsageStatisticsReporting reporting = (UsageStatisticsReporting) goCache.get(cacheKey);
+        if (reporting == null) {
+            synchronized (cacheKey) {
+                reporting = transactionTemplate.execute(status -> (UsageStatisticsReporting) sessionFactory.getCurrentSession().getNamedQuery("load.usagestatistics.reporting.information").uniqueResult());
+                goCache.put(cacheKey, reporting);
+            }
         }
 
-        return cachedUsageStatisticsReporting;
+        return reporting;
     }
 
-    public void invalidateCache() {
-        cachedUsageStatisticsReporting = null;
+    private String cacheKeyForUsageStatisticsReporting() {
+        return cacheKeyGenerator.generate("dataSharing_reporting");
     }
 
     public class DuplicateMetricReporting extends Exception {

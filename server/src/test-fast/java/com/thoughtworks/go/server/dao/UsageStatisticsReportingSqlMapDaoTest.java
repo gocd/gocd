@@ -17,14 +17,17 @@
 package com.thoughtworks.go.server.dao;
 
 import com.thoughtworks.go.domain.UsageStatisticsReporting;
+import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.transaction.TransactionSynchronizationManager;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import org.hibernate.SessionFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
+import org.mockito.stubbing.Answer;
 
 import java.util.Date;
+import java.util.HashMap;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
@@ -39,13 +42,23 @@ class UsageStatisticsReportingSqlMapDaoTest {
     private TransactionTemplate transactionTemplate;
     @Mock
     private TransactionSynchronizationManager synchronizationManager;
+    @Mock
+    private GoCache goCache;
 
     private UsageStatisticsReportingSqlMapDao reportingSqlMapDao;
 
     @BeforeEach
     void setUp() {
         initMocks(this);
-        reportingSqlMapDao = new UsageStatisticsReportingSqlMapDao(sessionFactory, transactionTemplate, synchronizationManager);
+        reportingSqlMapDao = new UsageStatisticsReportingSqlMapDao(sessionFactory, transactionTemplate, synchronizationManager, goCache);
+
+        HashMap<String, Object> internalTestCache = new HashMap<>();
+        when(goCache.get(anyString())).then((Answer<UsageStatisticsReporting>) invocation -> (UsageStatisticsReporting) internalTestCache.get(invocation.<String>getArgument(0)));
+        doAnswer(invocation -> {
+            internalTestCache.put(invocation.getArgument(0), invocation.getArgument(1));
+            return null;
+        }).when(goCache).put(anyString(), any(UsageStatisticsReporting.class));
+        when(goCache.remove(anyString())).then((Answer<UsageStatisticsReporting>) invocation -> (UsageStatisticsReporting) internalTestCache.remove(invocation.<String>getArgument(0)));
     }
 
     @Test

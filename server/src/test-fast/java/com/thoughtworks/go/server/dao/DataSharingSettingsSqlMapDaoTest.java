@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.server.dao;
 
+import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.domain.DataSharingSettings;
 import com.thoughtworks.go.server.transaction.TransactionSynchronizationManager;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
@@ -23,8 +24,10 @@ import org.hibernate.SessionFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
+import org.mockito.stubbing.Answer;
 
 import java.util.Date;
+import java.util.HashMap;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
@@ -39,13 +42,23 @@ class DataSharingSettingsSqlMapDaoTest {
     private SessionFactory sessionFactory;
     @Mock
     private TransactionTemplate transactionTemplate;
+    @Mock
+    private GoCache goCache;
 
     private DataSharingSettingsSqlMapDao settingsSqlMapDao;
 
     @BeforeEach
     void setUp() {
         initMocks(this);
-        settingsSqlMapDao = new DataSharingSettingsSqlMapDao(sessionFactory, transactionTemplate, transactionSynchronizationManager);
+        settingsSqlMapDao = new DataSharingSettingsSqlMapDao(sessionFactory, transactionTemplate, transactionSynchronizationManager, goCache);
+
+        HashMap<String, Object> internalTestCache = new HashMap<>();
+        when(goCache.get(anyString())).then((Answer<DataSharingSettings>) invocation -> (DataSharingSettings) internalTestCache.get(invocation.<String>getArgument(0)));
+        doAnswer(invocation -> {
+            internalTestCache.put(invocation.getArgument(0), invocation.getArgument(1));
+            return null;
+        }).when(goCache).put(anyString(), any(DataSharingSettings.class));
+        when(goCache.remove(anyString())).then((Answer<DataSharingSettings>) invocation -> (DataSharingSettings) internalTestCache.remove(invocation.<String>getArgument(0)));
     }
 
     @Test

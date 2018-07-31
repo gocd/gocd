@@ -17,6 +17,8 @@
 package com.thoughtworks.go.server.service.datasharing;
 
 import com.thoughtworks.go.domain.UsageStatisticsReporting;
+import com.thoughtworks.go.server.cache.CacheKeyGenerator;
+import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.dao.UsageStatisticsReportingSqlMapDao;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import org.junit.After;
@@ -50,6 +52,10 @@ public class DataSharingUsageStatisticsReportingServiceIntegrationTest {
     private UsageStatisticsReportingSqlMapDao usageStatisticsReportingSqlMapDao;
     @Autowired
     private DatabaseAccessHelper dbHelper;
+    @Autowired
+    private GoCache goCache;
+
+    private CacheKeyGenerator cacheKeyGenerator = new CacheKeyGenerator(UsageStatisticsReportingSqlMapDao.class);
 
     @Before
     public void setup() throws Exception {
@@ -61,13 +67,13 @@ public class DataSharingUsageStatisticsReportingServiceIntegrationTest {
     @After
     public void teardown() throws Exception {
         dbHelper.onTearDown();
-        usageStatisticsReportingSqlMapDao.invalidateCache();
+        goCache.remove(cacheKey());
     }
 
     @Test
     public void shouldInitializeGoStatsReportingOnFirstStartup() throws Exception {
         dbHelper.onTearDown();//to start on a clean slate
-        usageStatisticsReportingSqlMapDao.invalidateCache();
+        goCache.remove(cacheKey());
 
         assertNull(usageStatisticsReportingSqlMapDao.load());
         dataSharingUsageStatisticsReportingService.initialize();
@@ -80,7 +86,7 @@ public class DataSharingUsageStatisticsReportingServiceIntegrationTest {
     @Test
     public void shouldNotUpdateServerIdOfGoStatsReportingOnSubsequentStartups() throws Exception {
         dbHelper.onTearDown();//to start on a clean slate
-        usageStatisticsReportingSqlMapDao.invalidateCache();
+        goCache.remove(cacheKey());
 
         assertNull(usageStatisticsReportingSqlMapDao.load());
         dataSharingUsageStatisticsReportingService.initialize();
@@ -105,5 +111,9 @@ public class DataSharingUsageStatisticsReportingServiceIntegrationTest {
         UsageStatisticsReporting loaded = dataSharingUsageStatisticsReportingService.get();
 
         assertThat(loaded.lastReportedAt().getTime(), greaterThan(existing.lastReportedAt().getTime()));
+    }
+
+    private String cacheKey() {
+        return cacheKeyGenerator.generate("dataSharing_reporting");
     }
 }

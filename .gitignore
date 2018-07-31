@@ -267,3 +267,5 @@ tw-go-plugins/target/
 util/logs/
 util/out/
 util/target/
+plugin-infra/go-plugin-infra/felix-cache/
+**/*.log

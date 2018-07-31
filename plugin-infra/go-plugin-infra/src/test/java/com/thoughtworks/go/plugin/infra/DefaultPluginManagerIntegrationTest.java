@@ -18,10 +18,12 @@ package com.thoughtworks.go.plugin.infra;
 
 import com.thoughtworks.go.plugin.activation.DefaultGoPluginActivator;
 import com.thoughtworks.go.plugin.api.request.DefaultGoPluginApiRequest;
+import com.thoughtworks.go.plugin.api.response.GoPluginApiResponse;
 import com.thoughtworks.go.plugin.infra.listeners.DefaultPluginJarChangeListener;
 import com.thoughtworks.go.plugin.infra.monitor.PluginFileDetails;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import com.thoughtworks.go.util.SystemEnvironment;
+import org.apache.felix.framework.BundleWiringImpl.BundleClassLoader;
 import org.junit.*;
 import org.junit.contrib.java.lang.system.RestoreSystemProperties;
 import org.junit.rules.TemporaryFolder;
@@ -50,6 +52,7 @@ public class DefaultPluginManagerIntegrationTest {
 
     public static final String PLUGIN_DESC_PROPERTY_SET_BY_TEST_PLUGIN_1 = "testplugin.descriptorValidator.setPluginDescriptor.invoked";
     private static final String PLUGIN_ID_1 = "testplugin.descriptorValidator";
+    private static final String PLUGIN_TO_TEST_CLASSLOADER = "plugin.to.test.classloader";
     private static File bundleDir;
     @Autowired DefaultPluginManager pluginManager;
     @Autowired DefaultPluginJarChangeListener jarChangeListener;
@@ -81,6 +84,21 @@ public class DefaultPluginManagerIntegrationTest {
         assertThat(System.getProperty(PLUGIN_DESC_PROPERTY_SET_BY_TEST_PLUGIN_1), is("PluginLoad: 1, InitAccessor"));
     }
 
+    @Test
+    public void shouldSetCurrentThreadContextClassLoaderToBundleClassLoaderToAvoidDependenciesFromWebappClassloaderMessingAroundWithThePluginBehavior() {
+        GoPluginDescriptor plugin = pluginManager.getPluginDescriptorFor(PLUGIN_TO_TEST_CLASSLOADER);
+        assertThat(plugin.id(), is(PLUGIN_TO_TEST_CLASSLOADER));
+        String extensionType = "notification";
+        GoPluginApiResponse goPluginApiResponse = pluginManager.submitTo(PLUGIN_TO_TEST_CLASSLOADER, extensionType,
+                new DefaultGoPluginApiRequest(extensionType, "2.0",
+                        "Thread.currentThread.getContextClassLoader"));
+        assertThat(goPluginApiResponse.responseBody(), is(BundleClassLoader.class.getCanonicalName()));
+        goPluginApiResponse = pluginManager.submitTo(PLUGIN_TO_TEST_CLASSLOADER, extensionType,
+                new DefaultGoPluginApiRequest(extensionType, "2.0",
+                        "this.getClass.getClassLoader"));
+        assertThat(goPluginApiResponse.responseBody(), is(BundleClassLoader.class.getCanonicalName()));
+    }
+
     @Before
     public void setUpPluginInfrastructure() throws IOException {
         try {
@@ -89,6 +107,7 @@ public class DefaultPluginManagerIntegrationTest {
             e.printStackTrace();
         }
         jarChangeListener.pluginJarAdded(new PluginFileDetails(pathOfFileInDefaultFiles("descriptor-aware-test-plugin.jar"), false));
+        jarChangeListener.pluginJarAdded(new PluginFileDetails(pathOfFileInDefaultFiles("dumb.plugin.that.responds.with.classloader.name.jar"), false));
     }
 
     @After

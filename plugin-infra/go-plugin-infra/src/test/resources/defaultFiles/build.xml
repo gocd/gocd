@@ -29,6 +29,7 @@
     build.invalid.descriptor.plugin.jar,
     build.exception.throwing.at.load.plugin.jar,
     build.valid.plugin.with.multiple.extensions.jar,
+    build.dumb.plugin.that.responds.with.classloader.name.jar,
     create.activator.jar,
     create.osgi.bundles"/>
 
@@ -43,6 +44,7 @@
     <delete file="invalid-descriptor-plugin.jar"/>
     <delete file="exception-throwing-at-load-plugin.osgi.jar"/>
     <delete file="valid-plugin-with-multiple-extensions.jar"/>
+    <delete file="build.dumb.plugin.that.responds.with.classloader.name.jar"/>
     <delete dir="target"/>
   </target>
 
@@ -75,6 +77,7 @@
     <create.osgi.bundle.using file="error-generating-descriptor-aware-test-plugin"/>
     <create.osgi.bundle.using file="exception-throwing-at-load-plugin" pluginId="com.tw.go.exception.throwing.at.loadplugin"/>
     <create.osgi.bundle.using file="valid-plugin-with-multiple-extensions" pluginId="valid-plugin-with-multiple-extensions" />
+    <create.osgi.bundle.using file="dumb.plugin.that.responds.with.classloader.name" pluginId="plugin.to.test.classloader" />
   </target>
 
   <target name="build.error.generating.plugin.jar">
@@ -107,6 +110,13 @@
                dir="${plugins.dir}/plugins/valid-plugin-with-multiple-extensions/"
                classpathref="test.plugin.classpath"/>
   </target>
+
+  <target name="build.dumb.plugin.that.responds.with.classloader.name.jar">
+    <build.jar file="dumb.plugin.that.responds.with.classloader.name.jar"
+               dir="${plugins.dir}/plugins/plugin-to-test-classloader"
+               classpathref="test.plugin.classpath"/>
+  </target>
+
 
   <macrodef name="build.jar">
     <attribute name="file"/>

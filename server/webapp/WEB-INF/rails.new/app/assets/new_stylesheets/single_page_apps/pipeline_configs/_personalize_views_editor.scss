@@ -46,14 +46,24 @@
 }
 
 .personalize-editor-error-response {
-  position:    absolute;
-  top:         0;
-  left:        0;
-  right:       0;
-  padding:     20px;
-  background:  #ec5840;
-  color:       #fff;
-  font-weight: 600;
+  position:      fixed;
+  top:           53px;
+  left:          0;
+  right:         0;
+  padding:       20px;
+  padding-right: 40px;
+  background:    #ec5840;
+  color:         #fff;
+  font-weight:   600;
+  z-index:       100;
+
+  .fa-close {
+    position: absolute;
+    top:      20px;
+    right:    20px;
+    padding:  5px;
+    cursor:   pointer;
+  }
 }
 
 .personalize-editor-controls {

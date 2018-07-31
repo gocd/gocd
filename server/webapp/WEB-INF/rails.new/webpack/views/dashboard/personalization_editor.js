@@ -42,7 +42,7 @@ function personalizeEditor(opts, personalization, model) {
       setTimeout(Modal.close, 0);
       model.onchange();
     }).fail((xhr) => {
-      vm.errorResponse(xhr.responseText);
+      vm.errorResponse(JSON.parse(xhr.responseText).message);
       m.redraw();
     });
   }

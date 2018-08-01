@@ -18,6 +18,10 @@ $dashboard-tabs-box-shadow: 0 0 10px rgba(0, 0, 0, 0.21);
   margin-bottom:    20px;
   box-shadow:       $dashboard-tabs-box-shadow;
 
+  .fa-edit, .fa-close, .fa-trash, .fa-plus {
+    cursor: pointer;
+  }
+
   .add-tab {
     position:      absolute;
     top:           0;
@@ -85,18 +89,17 @@ $dashboard-tabs-box-shadow: 0 0 10px rgba(0, 0, 0, 0.21);
       padding:       5px 10px;
       border:        1px solid #fff;
       border-radius: $dashboard-tabs-border-radius;
-      cursor:        pointer;
 
       &.fa-edit {
         margin: 0;
       }
     }
+  }
 
-    .deny-action {
-      color:        #aaa;
-      border-color: #aaa;
-      cursor:       not-allowed;
-    }
+  .deny-action, .edit-dropdown .deny-action {
+    color:        #aaa;
+    border-color: #aaa;
+    cursor:       not-allowed;
   }
 }
 
@@ -134,7 +137,7 @@ $dashboard-tabs-box-shadow: 0 0 10px rgba(0, 0, 0, 0.21);
     font-weight: 600;
     line-height: $dashboard-tab-height;
 
-    color:       $dashboard-tab-secondary-text-color;
+    color:       lighten($dashboard-tab-bg, 20%);
     cursor:      default;
   }
 
@@ -243,7 +246,13 @@ $dashboard-tabs-box-shadow: 0 0 10px rgba(0, 0, 0, 0.21);
     margin-left: 7px;
     cursor:      default;
 
-    .fa { cursor: pointer; }
+    .fa {
+      cursor: pointer;
+
+      &.deny-action {
+        cursor: not-allowed;
+      }
+    }
   }
 }
 

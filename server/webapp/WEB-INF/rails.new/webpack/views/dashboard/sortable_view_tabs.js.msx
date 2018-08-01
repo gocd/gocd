@@ -55,8 +55,12 @@ const DropdownToggle = {
     function toggleDropdown(e) { e.stopPropagation(); vm.toggleDropdown(); }
 
     if (vnode.attrs.current) {
+      const classes = ["fa", "fa-caret-down", "dropdown-btn"];
+
+      if (vm.locked()) { classes.push("deny-action"); }
+
       return <div class="tab-dropdown-toggle">
-        <i class="fa fa-caret-down dropdown-btn" onclick={toggleDropdown} />
+        <i class={classes.join(" ")} onclick={vm.locked() || toggleDropdown} />
       </div>;
     }
   }

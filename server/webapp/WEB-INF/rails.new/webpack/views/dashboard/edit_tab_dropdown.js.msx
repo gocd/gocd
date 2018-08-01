@@ -44,18 +44,19 @@ const EditTabDropdown = {
     if (vm.dropdownVisible()) {
       const model = vm.model;
       const current = vm.canonicalCurrentName();
-      const isDefault = vm.isDefault(current);
+      const allowDelete = !vm.locked() && !vm.isDefault(current);
 
       const edit = vm.actionHandler(() => Editor.open(model().namedFilter(current), model, vm));
       const remove = vm.actionHandler(() => deleteView(current, model, vm));
+      const denyAction = (e) => e.stopPropagation();
 
-      return <div class="edit-dropdown">
+      return <div class="edit-dropdown" onclick={denyAction}>
         <span class="edit-dropdown-text">Group pipelines by</span>
         <div class="edit-dropdown-actions">
           <f.button class="btn btn-small selected">Pipeline Group</f.button>
           <f.button class="btn btn-small">Environments</f.button>
           <i class="fa fa-edit" onclick={edit} />
-          <i class={isDefault ? "fa fa-trash deny-action": "fa fa-trash"} onclick={!isDefault && remove} />
+          <i class={allowDelete ? "fa fa-trash" : "fa fa-trash deny-action"} onclick={allowDelete && remove} />
         </div>
       </div>;
     }

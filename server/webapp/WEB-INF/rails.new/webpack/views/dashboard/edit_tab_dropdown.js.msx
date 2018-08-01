@@ -63,7 +63,7 @@ const EditTabDropdown = {
 };
 
 function deleteView(name, personalization, model) {
-  new Modal({
+  const dialog = new Modal({
     title: "Delete View",
     size: "delete-view",
     body: () => {
@@ -81,6 +81,21 @@ function deleteView(name, personalization, model) {
 
           Modal.close();
           model.onchange();
+        }).fail((xhr) => {
+          const reason = JSON.parse(xhr.responseText).message;
+          dialog.replace({
+            title: "Delete View",
+            size: "delete-view",
+            body: () => {
+              return <span class="server-error-response">
+                <i class="fa fa-exclamation-circle"></i>
+                <span class="reason">
+                  Failed to delete view <span class="view-name">{name}</span>: {reason}
+                </span>
+              </span>;
+            },
+            buttons: [{text: "Close"}]
+          });
         }).always(() => {
           m.redraw();
         });

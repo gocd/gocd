@@ -214,56 +214,6 @@ describe("Personalization", () => {
     pers.addOrReplaceFilter("wha?", newFilter);
     expect(updated).toBe(true);
   });
-
-  it("reorderFilter() fails early when src or dest filters cannot be resolved", () => {
-    const filters = [
-      {name: "Default", type: "blacklist", pipelines: []},
-      {name: "one", type: "blacklist", pipelines: []},
-      {name: "two", type: "blacklist", pipelines: []}
-    ];
-
-    const pers = new Personalization(filters, {});
-    expect(pers.names()).toEqual(["Default", "one", "two"]); // baseline
-
-    [{src: "one", dest: "foobar"}, {src: "foobar", dest: "one"}].forEach((opts) => {
-      const done = jasmine.createSpy(),
-            fail = jasmine.createSpy("handle-failure", (xhr) => expect(xhr.responseText).toBe("Could not resolve filter: foobar")).and.callThrough(),
-          always = jasmine.createSpy();
-
-      pers.updateFilters = jasmine.createSpy();
-
-      pers.reorderFilter(opts.src, opts.dest).done(done).fail(fail).always(always);
-
-      // Ensure reorderFilter() returns the same interface, even though no AJAX request is made
-      expect(done).toHaveBeenCalledTimes(0);
-      expect(fail).toHaveBeenCalled();
-      expect(always).toHaveBeenCalled();
-
-      expect(pers.updateFilters).toHaveBeenCalledTimes(0);
-      expect(pers.names()).toEqual(["Default", "one", "two"]); // unchanged
-    });
-  });
-
-  it("reorderFilter() sends a reordered filter through updateFilters()", () => {
-    const filters = [
-      {name: "Default", type: "blacklist", pipelines: []},
-      {name: "one", type: "blacklist", pipelines: []},
-      {name: "two", type: "blacklist", pipelines: []}
-    ];
-
-    const pers = new Personalization(filters, {});
-    expect(pers.names()).toEqual(["Default", "one", "two"]); // baseline
-
-    let updated = false;
-
-    pers.updateFilters = (f) => {
-      updated = true;
-      expect(f.names()).toEqual(["Default", "two", "one"]);
-    };
-
-    pers.reorderFilter("two", "one");
-    expect(updated).toBe(true);
-  });
 });
 
 const pipelineSelectionData = {

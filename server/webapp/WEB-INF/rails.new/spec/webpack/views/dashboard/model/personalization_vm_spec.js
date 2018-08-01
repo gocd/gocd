@@ -16,6 +16,7 @@
 
 const Stream            = require("mithril/stream");
 const SparkRoutes       = require("helpers/spark_routes");
+const DashboardFilters  = require("models/dashboard/dashboard_filters");
 const PersonalizationVM = require("views/dashboard/models/personalization_vm");
 
 describe("Personalization View Model", () => {
@@ -149,5 +150,19 @@ describe("Personalization View Model", () => {
 
     expect(a).toHaveBeenCalled();
     expect(b).toHaveBeenCalled();
+  });
+
+  it("tabs() output depends on whether or not a sort is in progress", () => {
+    const currentView = Stream("Foo");
+    const vm = new PersonalizationVM(currentView);
+    vm.names(["Foo", "Bar"]);
+
+    expect(vm.tabs()).toEqual([{id: "Foo", name: "Foo"}, {id: "Bar", name: "Bar"}]);
+
+    vm.stagedSort(new DashboardFilters([{ name:"New", type: "whitelist", pipelines: ["a"] }]));
+    expect(vm.tabs()).toEqual([{id: "New", name: "New"}]);
+
+    vm.stagedSort(null);
+    expect(vm.tabs()).toEqual([{id: "Foo", name: "Foo"}, {id: "Bar", name: "Bar"}]);
   });
 });

@@ -16,7 +16,6 @@
 
 const Stream           = require('mithril/stream');
 const DashboardFilters = require('models/dashboard/dashboard_filters');
-const defer            = require("jquery").Deferred;
 const AjaxHelper       = require('helpers/ajax_helper');
 const SparkRoutes      = require('helpers/spark_routes');
 
@@ -29,6 +28,8 @@ function Personalization(filters, pipelineGroups) {
   this.namedFilter = (name) => {
     return filterSet.findFilter(name);
   };
+
+  this.filters = () => filterSet.clone();
 
   this.addOrReplaceFilter = (existingName, newFilter, etag) => {
     const filters = filterSet.clone();
@@ -45,18 +46,6 @@ function Personalization(filters, pipelineGroups) {
   this.removeFilter = (name, etag) => {
     const filters = filterSet.clone();
     filters.removeFilter(name);
-
-    return this.updateFilters(filters, etag);
-  };
-
-  this.reorderFilter = (from, to, etag) => {
-    const filters = filterSet.clone();
-
-    try {
-      filters.moveFilterByName(from, to);
-    } catch(e) {
-      return defer(function fail() { this.reject({ responseText: e.message }); }).promise();
-    }
 
     return this.updateFilters(filters, etag);
   };

@@ -101,40 +101,39 @@ describe("DashboardFilters", () => {
     expect(filters.findFilter("c")).toBe(c);
   });
 
-  it("moveFilterByName() moves source filter to a position before destination filter", () => {
+  it("moveFilterByIndex() moves source filter to destination position", () => {
     const filters = new DashboardFilters([a, b, c, d, e]);
+    const idx = (f) => filters.names().indexOf(f);
+
     expect(filters.names()).toEqual(["a", "b", "c", "d", "e"]);
 
-    filters.moveFilterByName("e", "c"); // test move backward
+    filters.moveFilterByIndex(idx("e"), idx("c")); // test move backward
     expect(filters.names()).toEqual(["a", "b", "e", "c", "d"]);
 
-    filters.moveFilterByName("b", "e"); // no-op, should not change order
+    filters.moveFilterByIndex(idx("b"), idx("b")); // no-op, should not change order
     expect(filters.names()).toEqual(["a", "b", "e", "c", "d"]);
 
-    filters.moveFilterByName("b", "b"); // no-op, should not change order
-    expect(filters.names()).toEqual(["a", "b", "e", "c", "d"]);
+    filters.moveFilterByIndex(idx("b"), idx("c")); // test move forward
+    expect(filters.names()).toEqual(["a", "e", "c", "b", "d"]);
 
-    filters.moveFilterByName("b", "c"); // test move forward
-    expect(filters.names()).toEqual(["a", "e", "b", "c", "d"]);
-
-    filters.moveFilterByName("d", "a"); // test move to front
-    expect(filters.names()).toEqual(["d", "a", "e", "b", "c"]);
-
-    filters.moveFilterByName("a", null); // test move to end
-    expect(filters.names()).toEqual(["d", "e", "b", "c", "a"]);
+    filters.moveFilterByIndex(idx("d"), idx("a")); // test move to front
+    expect(filters.names()).toEqual(["d", "a", "e", "c", "b"]);
   });
 
-  it("moveFilterByName() throws errors when source or destination not found", () => {
+  it("moveFilterByIndex() throws errors when source or destination is out of bounds", () => {
     const filters = new DashboardFilters([a, b, c, d, e]);
     expect(filters.names()).toEqual(["a", "b", "c", "d", "e"]);
 
-    expect(() => filters.moveFilterByName("b", "z")).toThrow(new RangeError("Could not resolve filter: z"));
+    expect(() => filters.moveFilterByIndex(0, 6)).toThrow(new RangeError("Cannot resolve filter at index 6; out of bounds"));
     expect(filters.names()).toEqual(["a", "b", "c", "d", "e"]);
 
-    expect(() => filters.moveFilterByName("x", "c")).toThrow(new RangeError("Could not resolve filter: x"));
+    expect(() => filters.moveFilterByIndex(0, -3)).toThrow(new RangeError("Cannot resolve filter at index -3; out of bounds"));
     expect(filters.names()).toEqual(["a", "b", "c", "d", "e"]);
 
-    expect(() => filters.moveFilterByName(null, "c")).toThrow(new RangeError("Could not resolve filter: null"));
+    expect(() => filters.moveFilterByIndex(-3, 1)).toThrow(new RangeError("Cannot resolve filter at index -3; out of bounds"));
+    expect(filters.names()).toEqual(["a", "b", "c", "d", "e"]);
+
+    expect(() => filters.moveFilterByIndex(6, 1)).toThrow(new RangeError("Cannot resolve filter at index 6; out of bounds"));
     expect(filters.names()).toEqual(["a", "b", "c", "d", "e"]);
   });
 

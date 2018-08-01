@@ -27,6 +27,7 @@ function PersonalizationVM(currentView) {
 
   const paged        = Stream(false); // flag indicating whether the view tabs need scrollable behavior
   const currentVnode = Stream(); // handle on current tab's vnode; allows sharing state between components
+  const stagedSort  = Stream(null);
 
   let requestPending, tick;
 
@@ -55,7 +56,11 @@ function PersonalizationVM(currentView) {
 
   const changeListeners = [];
 
-  _.assign(this, {model, names, currentView, etag: checkForUpdates, checksum, errorMessage, paged, currentVnode});
+  _.assign(this, {model, names, currentView, etag: checkForUpdates, checksum, errorMessage, paged, currentVnode, stagedSort});
+
+  this.tabs = () => _.map(stagedSort() ? stagedSort().names() : names(), (name) => { return {id: name, name}; });
+
+  this.locked = () => !!stagedSort();
 
   this.canonicalCurrentName = () => _.find(names(), (n) => eq(n, currentView()));
 

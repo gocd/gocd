@@ -1,5 +1,3 @@
-@import "./dragula-3.0.1";
-
 $dashboard-tab-bg: #283151;
 $dashboard-tab-primary-text-color: #4ad9d9;
 $dashboard-tab-secondary-text-color: #c7c8cc;
@@ -116,6 +114,7 @@ $dashboard-tabs-box-shadow: 0 0 10px rgba(0, 0, 0, 0.21);
   width:          100%;
   overflow-x:     auto;
   overflow-y:     hidden;
+  outline:        none;
 }
 
 .dashboard-tabs-scrollable {
@@ -217,13 +216,26 @@ $dashboard-tabs-box-shadow: 0 0 10px rgba(0, 0, 0, 0.21);
     }
   }
 
-  &.gu-mirror {
-    @include     sort-cursor-active;
+  &.draggable-source--is-dragging {
+    @include sort-cursor-active;
 
+    background: lighten($dashboard-tab-bg, 20%);
+
+    &:after {
+      display: none;
+    }
+
+    > * {
+      visibility: hidden;
+    }
+  }
+
+  &.draggable-mirror {
     background:  $dashboard-tab-bg;
     line-height: $dashboard-tab-height;
     border:      0;
     box-shadow:  0 0 10px rgba(255, 255, 255, 0.21);
+    z-index:     5;
   }
 
   .tab-dropdown-toggle {
@@ -235,6 +247,59 @@ $dashboard-tabs-box-shadow: 0 0 10px rgba(0, 0, 0, 0.21);
   }
 }
 
+.save-tab-order-confirmation {
+  position:      absolute;
+  top:           calc(100% + #{$dashboard-tab-current-marker-height});
+  left:          0;
+  padding:       10px;
+  padding-right: 30px;
+  border:        0;
+  border-radius: $dashboard-tabs-border-radius;
+  background:    #fff;
+  color:         #333;
+  z-index:       25;
+  box-shadow:    $dashboard-tabs-box-shadow;
+  line-height:   initial;
+
+  > * {
+    vertical-align: middle;
+  }
+
+  .button {
+    margin:      0;
+    margin-left: 10px;
+    font-size:   inherit;
+    padding:     5px 10px;
+  }
+
+  .btn-link {
+    padding: 5px 0;
+  }
+
+  .button, .button:active, .button:focus {
+    outline: 0;
+  }
+
+  .fa-close {
+    position:  absolute;
+    right:     10px;
+    top:       50%;
+    transform: translateY(-50%);
+    cursor:    pointer;
+  }
+
+  &:before {
+    content:       "";
+    position:      absolute;
+    top:           -$dashboard-tab-current-marker-height;
+    left:          20px;
+    width:         0;
+    height:        0;
+    border-bottom: $dashboard-tab-current-marker-height solid #fff;
+    border-left:   $dashboard-tab-current-marker-height solid transparent;
+    border-right:  $dashboard-tab-current-marker-height solid transparent;
+  }
+}
 .overlay.delete-view {
   width: 500px;
 

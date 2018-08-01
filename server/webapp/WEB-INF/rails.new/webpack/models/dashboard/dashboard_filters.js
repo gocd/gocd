@@ -53,7 +53,10 @@ function DashboardFilters(filters) {
     this.filters.push(filter);
   };
 
-  this.moveFilterByName = (from, to /* these are names of filters */) => {
+  this.moveFilterByIndex = (from, to) => {
+    validateIndex(this.filters, from);
+    validateIndex(this.filters, to);
+
     move(this.filters, from, to);
   };
 
@@ -78,27 +81,14 @@ function DashboardFilters(filters) {
   };
 }
 
-/**
- * Moves an element with name `src` to the position preceding element
- * with name `dest` within array `arr`. Modifies array in-place.
- */
-function move(arr, src, dest) {
-  // do validations before modifying array
-  const a = indexOrDie(arr, src);
-  const b = dest ? indexOrDie(arr, dest) : arr.length;
+function move(arr, from, to) {
+  if (from === to) { return; }
 
-  if (a === b - 1 || a === b) { return; } // both of these scenarios result in the same order
-
-  const el = arr.splice(a, 1)[0];
-  const idx = b < a ? b : b - 1; // decrement b if b precedes a as we've already modified the array
-  arr.splice(idx, 0, el);
+  arr.splice(to, 0, arr.splice(from, 1)[0]);
 }
 
-/** Like index(), but throws an error when element is not found */
-function indexOrDie(arr, name) {
-  const idx = index(arr, name);
-  if (!~idx) { throw new RangeError(`Could not resolve filter: ${name}`); }
-  return idx;
+function validateIndex(arr, i) {
+  if (i < 0 || i > arr.length - 1) { throw new RangeError(`Cannot resolve filter at index ${i}; out of bounds`); }
 }
 
 /** Resolves the index of element with name `name` in the array `arr` */

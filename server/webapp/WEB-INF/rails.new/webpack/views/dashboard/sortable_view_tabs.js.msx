@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-const _   = require("lodash");
-const m   = require("mithril");
-const d   = require("dragula");
-const raf = require("helpers/throttle-raf");
+const _        = require("lodash");
+const m        = require("mithril");
+const Sortable = require("@shopify/draggable/lib/es5/sortable").default; // es5 bundle => IE11 support
+const raf      = require("helpers/throttle-raf");
 
 const SortableViewTabs = {
   oncreate: initSortable,
@@ -26,7 +26,7 @@ const SortableViewTabs = {
     const vm = vnode.attrs.vm;
     const attrs = { class: "dashboard-tabs-sortable", onscroll: raf(() => vm.hideDropdown()) };
 
-    return m("nav", attrs, _.map(vm.names(), (name) => <ViewTab {...vnode.attrs} name={name} />));
+    return m("nav", attrs, _.map(vm.tabs(), (tab) => <ViewTab {...vnode.attrs} key={tab.id} name={tab.name} />));
   }
 };
 
@@ -65,26 +65,31 @@ const DropdownToggle = {
 function initSortable(vnode) {
   const vm = vnode.attrs.vm;
 
-  d([vnode.dom], {
-    moves(_el, _src, handle) { return handle.classList.contains("drag-icon"); },
-    direction: "horizontal"
-  }).on("cloned", () => {
+  let y0 = 0;
+
+  new Sortable([vnode.dom], {
+    draggable: ".dashboard-tab",
+    handle: ".drag-icon",
+    // increase delay to 200 (from 100) to reduce accidental drags, but not by enough so as to be annoying
+    delay: 200,
+     mirror: {
+      constrainDimensions: true,
+    }
+  }).on("drag:start", (e) => {
+    y0 = e.data.sensorEvent.data.clientY; // save initial y-coord
+
+    if (!vm.stagedSort()) {
+      vm.stagedSort(vm.model().filters());
+    }
+
     vm.hideDropdown();
     m.redraw();
-  }).on("drop", function sync(src, _t, _c, dest) {
-    const drake = this;
-
-    vm.model().reorderFilter(nameOf(src), nameOf(dest), vm.etag()).
-      done((data) => vm.checksum(data.contentHash)).
-      fail((xhr) => {
-        drake.cancel(true);
-        vm.etag(true); // force refresh
-        // Need to figure out where to display error responses from server; currently not displayed
-        vm.errorMessage(xhr.status === 412 ? "You'd better slow down, turbo." : xhr.responseText);
-      }).always(m.redraw);
+  }).on("drag:move", (e) => {
+    e.data.sensorEvent.data.clientY = y0; // prevent vertical scrolling; that would reveal the magic trick!
+  }).on("sortable:stop", (e) => {
+    vm.stagedSort().moveFilterByIndex(e.data.oldIndex, e.data.newIndex);
+    m.redraw();
   });
 }
-
-function nameOf(tabEl) { return tabEl ? tabEl.getAttribute("data-name") : null; }
 
 module.exports = SortableViewTabs;

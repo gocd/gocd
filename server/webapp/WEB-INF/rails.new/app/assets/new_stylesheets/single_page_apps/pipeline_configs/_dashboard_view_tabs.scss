@@ -247,7 +247,7 @@ $dashboard-tabs-box-shadow: 0 0 10px rgba(0, 0, 0, 0.21);
   }
 }
 
-.save-tab-order-confirmation {
+.actionable-message {
   position:      absolute;
   top:           calc(100% + #{$dashboard-tab-current-marker-height});
   left:          0;
@@ -274,6 +274,7 @@ $dashboard-tabs-box-shadow: 0 0 10px rgba(0, 0, 0, 0.21);
 
   .btn-link {
     padding: 5px 0;
+    color:   #333;
   }
 
   .button, .button:active, .button:focus {
@@ -300,6 +301,28 @@ $dashboard-tabs-box-shadow: 0 0 10px rgba(0, 0, 0, 0.21);
     border-right:  $dashboard-tab-current-marker-height solid transparent;
   }
 }
+
+.server-error-response {
+  display:     flex;
+  align-items: center;
+
+  .fa-exclamation-circle {
+    margin-right: 10px;
+    font-size:    150%;
+    color:        map-get($foundation-palette, alert);
+  }
+
+  .reason {
+    display: inline-block;
+  }
+}
+
+.personalization-update-failed {
+  .server-error-response {
+    float: left;
+  }
+}
+
 .overlay.delete-view {
   width: 500px;
 

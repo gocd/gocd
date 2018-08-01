@@ -80,6 +80,7 @@ function initSortable(vnode) {
 
     if (!vm.stagedSort()) {
       vm.stagedSort(vm.model().filters());
+      initSavePopup(vm);
     }
 
     vm.hideDropdown();
@@ -89,6 +90,39 @@ function initSortable(vnode) {
   }).on("sortable:stop", (e) => {
     vm.stagedSort().moveFilterByIndex(e.data.oldIndex, e.data.newIndex);
     m.redraw();
+  });
+}
+
+function initSavePopup(vm) {
+  const onreset = () => { vm.stagedSort(null); vm.actionPopup(null); m.redraw(); vm.onchange(); };
+
+  const onsave = () => {
+    vm.model().updateFilters(vm.stagedSort(), vm.etag()).done(() => {
+      vm.names(vm.model().names());
+      onreset();
+    }).fail((xhr) => {
+      vm.actionPopup({
+        class: "personalization-update-failed",
+        body: <span class="server-error-response">
+          <i class="fa fa-exclamation-circle"></i>
+          <span class="reason">{JSON.parse(xhr.responseText).message}</span>
+        </span>,
+        onabort: onreset,
+        buttons: [{class: "btn-secondary", text: "Revert", onclick: onreset}]
+      });
+
+      m.redraw();
+    });
+  };
+
+  vm.actionPopup({
+    class: "save-tab-order-confirmation",
+    body: <span class="save-tab-order-message">Save tab order?</span>,
+    onabort: onreset,
+    buttons: [
+      {class: "btn-primary", text: "Save", onclick: onsave},
+      {class: "btn-link", text: "Revert", onclick: onreset}
+    ]
   });
 }
 

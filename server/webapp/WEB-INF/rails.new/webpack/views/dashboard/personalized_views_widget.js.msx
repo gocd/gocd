@@ -15,11 +15,11 @@
  */
 
 const m = require("mithril");
-const f = require("helpers/form_helper");
 
 const ScrollableViewTabs = require("views/dashboard/scrollable_view_tabs");
 const EditTabDropdown    = require("views/dashboard/edit_tab_dropdown");
 const Editor             = require("views/dashboard/personalization_editor");
+const ActionableMessage  = require("views/dashboard/actionable_message");
 
 const PersonalizedViewsWidget = {
   oninit(vnode) {
@@ -45,30 +45,6 @@ const AddTab = {
     return <div class="add-tab" {...vnode.attrs}>
       <i class="fa fa-plus" />
     </div>;
-  }
-};
-
-const ActionableMessage = {
-  view(vnode) {
-    const vm = vnode.attrs.vm;
-
-    if (vm.locked()) {
-      const onreset = () => { vm.stagedSort(null); m.redraw(); vm.onchange(); };
-
-      const onsave = () => {
-        vm.model().updateFilters(vm.stagedSort(), vm.etag()).done(() => {
-          vm.names(vm.model().names());
-          onreset();
-        });
-      };
-
-      return <div class="save-tab-order-confirmation">
-        <i class="revert fa fa-close" onclick={onreset}></i>
-        <span class="save-tab-order-message">Save tab order?</span>
-        <f.button class="btn-primary" onclick={onsave}>Save</f.button>
-        <f.button class="btn-link" onclick={onreset}>Revert</f.button>
-      </div>;
-    }
   }
 };
 

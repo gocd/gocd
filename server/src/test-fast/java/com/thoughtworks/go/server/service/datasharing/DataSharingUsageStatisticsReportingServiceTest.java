@@ -26,6 +26,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
+import java.time.LocalDate;
 import java.util.Date;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -96,7 +97,7 @@ public class DataSharingUsageStatisticsReportingServiceTest {
         Date lastReportedAt = new Date();
         lastReportedAt.setDate(lastReportedAt.getDate() - 1);
         UsageStatisticsReporting existingMetric = new UsageStatisticsReporting("server-id", lastReportedAt);
-        assertThat(existingMetric.lastReportedAt().getDate(), is(new Date().getDate() - 1));
+        assertThat(existingMetric.lastReportedAt().getDate(), is(LocalDate.now().minusDays(1).getDayOfMonth()));
         when(usageStatisticsReportingSqlMapDao.load()).thenReturn(existingMetric);
 
         UsageStatisticsReporting statisticsReporting = service.get();

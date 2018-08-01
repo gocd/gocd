@@ -1,11 +1,13 @@
 @import "./dragula-3.0.1";
 
-$dashboard-tab-bg: #fff;
-$dashboard-tab-height: 45px;
+$dashboard-tab-bg: #283151;
+$dashboard-tab-primary-text-color: #4ad9d9;
+$dashboard-tab-secondary-text-color: #c7c8cc;
+$dashboard-tab-height: 50px;
 $dashboard-add-tab-width: 34px;
-$dashboard-tabs-border-color: #ccc;
+$dashboard-tabs-border-color: #425188;
 $dashboard-tabs-border-radius: 3px;
-$dashboard-tabs-pager-width: 18px;
+$dashboard-tabs-pager-width: 30px;
 $dashboard-tab-current-marker-height: 10px;
 $dashboard-tabs-box-shadow: 0 0 10px rgba(0, 0, 0, 0.21);
 
@@ -26,7 +28,7 @@ $dashboard-tabs-box-shadow: 0 0 10px rgba(0, 0, 0, 0.21);
     border-radius: 0 0 $dashboard-tabs-border-radius $dashboard-tabs-border-radius;
     padding:       0 10px;
     width:         $dashboard-add-tab-width;
-    color:         #b66fc2;
+    color:         $dashboard-tab-primary-text-color;
     font-size:     17px;
     cursor:        pointer;
     height:        $dashboard-tab-height;
@@ -38,10 +40,10 @@ $dashboard-tabs-box-shadow: 0 0 10px rgba(0, 0, 0, 0.21);
     left:          0;
     z-index:       9;
 
-    background:    #fff;
-    color:         #000;
+    background:    $dashboard-tab-bg;
+    color:         #fff;
+    border-top:    1px solid $dashboard-tabs-border-color;
 
-    margin-top:    1px;
     // TODO: replace the padding rule with the line below when adding the
     //       group-by functionality:
     // padding:       5px 20px 20px;
@@ -57,7 +59,6 @@ $dashboard-tabs-box-shadow: 0 0 10px rgba(0, 0, 0, 0.21);
     .edit-dropdown-text {
       margin-bottom: 5px;
       font-size:     12px;
-      color:         #666;
       // TODO: replace the display rule with the line below when adding the
       //       group-by functionality:
       // display:       inline-block;
@@ -70,14 +71,13 @@ $dashboard-tabs-box-shadow: 0 0 10px rgba(0, 0, 0, 0.21);
         border-radius: unset;
         background:    #ccc;
         border:        1px solid $dashboard-tabs-border-color;
-        color:         #000;
         box-shadow:    unset;
         // TODO: remove the line below when adding the group-by functionality
         display:       none;
 
         &.selected {
           background: #fff;
-          color:      #b66fc2;
+          color:      $dashboard-tab-primary-text-color;
         }
       }
     }
@@ -85,9 +85,9 @@ $dashboard-tabs-box-shadow: 0 0 10px rgba(0, 0, 0, 0.21);
     .fa {
       margin-left:   15px;
       padding:       5px 10px;
-      color:         #627884;
-      border:        1px solid $dashboard-tabs-border-color;
+      border:        1px solid #fff;
       border-radius: $dashboard-tabs-border-radius;
+      cursor:        pointer;
 
       &.fa-edit {
         margin: 0;
@@ -95,8 +95,8 @@ $dashboard-tabs-box-shadow: 0 0 10px rgba(0, 0, 0, 0.21);
     }
 
     .deny-action {
-      color:        #e1e6ea;
-      border-color: #e7e7e7;
+      color:        #aaa;
+      border-color: #aaa;
       cursor:       not-allowed;
     }
   }
@@ -126,30 +126,33 @@ $dashboard-tabs-box-shadow: 0 0 10px rgba(0, 0, 0, 0.21);
   .page-prev, .page-next {
     position:    absolute;
     top:         0;
-    padding:     0 3px;
+
+    padding:     0 10px;
     width:       $dashboard-tabs-pager-width;
-    font-size:   21px;
-    line-height: $dashboard-tab-height;
     height:      $dashboard-tab-height;
-    color:       #ccc;
+
+    font-size:   21px;
+    font-weight: 600;
+    line-height: $dashboard-tab-height;
+
+    color:       $dashboard-tab-secondary-text-color;
+    cursor:      default;
   }
 
   &.paged {
     .page-prev, .page-next {
-      color:  #000;
+      color:  #fff;
       cursor: pointer;
     }
   }
 
   .page-prev {
     left:          0;
-    padding-right: 7px;
     border-right:  1px solid $dashboard-tabs-border-color;
   }
 
   .page-next {
     right:        0;
-    padding-left: 7px;
     border-left:  1px solid $dashboard-tabs-border-color;
   }
 }
@@ -164,10 +167,10 @@ $dashboard-tabs-box-shadow: 0 0 10px rgba(0, 0, 0, 0.21);
   position:     relative;
   white-space:  nowrap;
   height:       $dashboard-tab-height;
+  color:        $dashboard-tab-secondary-text-color;
 
   &:first-of-type {
     margin-left: 0;
-    border-left: 1px solid $dashboard-tabs-border-color;
   }
 
   > * { vertical-align: top; }
@@ -193,7 +196,7 @@ $dashboard-tabs-box-shadow: 0 0 10px rgba(0, 0, 0, 0.21);
   }
 
   &.current {
-    color:  #b66fc2;
+    color:  $dashboard-tab-primary-text-color;
     cursor: default;
 
     .tab-name {

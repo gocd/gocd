@@ -104,12 +104,14 @@ public class DataSharingSettingsServiceIntegrationTest {
 
         DataSharingSettings loaded = dataSharingSettingsService.get();
 
+        assertThat(goCache.get(cacheKey()), is(loaded));
         assertThat(loaded, is(saved));
     }
 
     @Test
     public void shouldUpdateDataSharingSettings() throws Exception {
         DataSharingSettings existing = dataSharingSettingsService.get();
+        assertThat(goCache.get(cacheKey()), is(existing));
         assertNotNull(existing);
         assertThat(existing.allowSharing(), is(true));
         assertThat(existing.updatedBy(), is("Default"));
@@ -118,11 +120,12 @@ public class DataSharingSettingsServiceIntegrationTest {
         String consentedBy = "Bob";
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         dataSharingSettingsService.createOrUpdate(new DataSharingSettings(newConsent, consentedBy, new Date()));
+        assertNull(goCache.get(cacheKey()));
 
         DataSharingSettings loaded = dataSharingSettingsService.get();
         assertThat(loaded.allowSharing(), is(newConsent));
         assertThat(loaded.updatedBy(), is(consentedBy));
-
+        assertThat(goCache.get(cacheKey()), is(loaded));
         assertThat(result.isSuccessful(), is(true));
     }
 

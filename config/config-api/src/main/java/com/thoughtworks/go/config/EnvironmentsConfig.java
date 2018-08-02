@@ -23,10 +23,7 @@ import com.thoughtworks.go.domain.EnvironmentPipelineMatcher;
 import com.thoughtworks.go.domain.EnvironmentPipelineMatchers;
 import com.thoughtworks.go.util.comparator.AlphaAsciiComparator;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 
 /**
  * @understands the current persistent information related to multiple logical groupings of machines
@@ -39,6 +36,27 @@ public class EnvironmentsConfig extends BaseCollection<EnvironmentConfig> implem
     public EnvironmentsConfig() { }
 
     public void validate(ValidationContext validationContext) {
+        List<CaseInsensitiveString> allPipelineNames = validationContext.getCruiseConfig().getAllPipelineNames();
+        List<CaseInsensitiveString> allEnvironmentNames = new ArrayList<>();
+        Map<CaseInsensitiveString, CaseInsensitiveString> pipelineToEnvMap = new HashMap<>();
+        for (EnvironmentConfig environmentConfig : this) {
+            if (allEnvironmentNames.contains(environmentConfig.name())) {
+                environmentConfig.addError("name", String.format("Environment with name '%s' already exists.", environmentConfig.name()));
+            } else {
+                allEnvironmentNames.add(environmentConfig.name());
+            }
+
+            for (EnvironmentPipelineConfig pipeline : environmentConfig.getPipelines()) {
+                if (!allPipelineNames.contains(pipeline.getName())) {
+                    environmentConfig.addError("pipeline", String.format("Environment '%s' refers to an unknown pipeline '%s'.", environmentConfig.name(), pipeline.getName()));
+                }
+                if (pipelineToEnvMap.containsKey(pipeline.getName())) {
+                    environmentConfig.addError("pipeline", "Associating pipeline(s) which is already part of " + pipelineToEnvMap.get(pipeline.getName()) + " environment");
+                } else {
+                    pipelineToEnvMap.put(pipeline.getName(), environmentConfig.name());
+                }
+            }
+        }
     }
 
     public ConfigErrors errors() {
@@ -55,12 +73,6 @@ public class EnvironmentsConfig extends BaseCollection<EnvironmentConfig> implem
             isValid = environmentConfig.validateContainsOnlyUuids(uuids) && isValid;
         }
         return isValid;
-    }
-
-    public void validateContainOnlyPiplines(List<CaseInsensitiveString> pipelineNames) {
-        for (EnvironmentConfig environmentConfig : this) {
-            environmentConfig.validateContainsOnlyPipelines(pipelineNames);
-        }
     }
 
     public void addAgentsToEnvironment(String environmentName, String... uuids) {
@@ -92,19 +104,7 @@ public class EnvironmentsConfig extends BaseCollection<EnvironmentConfig> implem
 
     @Override
     public boolean add(EnvironmentConfig environment) {
-        validateNotADuplicate(environment);
         return super.add(environment);
-    }
-
-    public void validateNotADuplicate(EnvironmentConfig environmentConfig) {
-        if (hasEnvironmentNamed(environmentConfig.name())) {
-            throw new RuntimeException(String.format("Environment with name '%s' already exists.", environmentConfig.name()));
-        }
-        for (EnvironmentConfig config : this) {
-            if (config.hasSamePipelinesAs(environmentConfig)) {
-                throw new RuntimeException("Associating pipeline(s) which is already part of "+config.name()+" environment");
-            }
-        }
     }
 
     public void addPipelinesToEnvironment(String environmentName, String ... pipelineNames) {

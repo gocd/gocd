@@ -58,7 +58,6 @@ public class MagicalGoConfigXmlLoader {
     public static final List<GoConfigValidator> VALIDATORS = Arrays.asList(
             new ArtifactDirValidator(),
             new EnvironmentAgentValidator(),
-            new EnvironmentPipelineValidator(),
             new ServerIdImmutabilityValidator(),
             new CommandRepositoryLocationValidator(systemEnvironment),
             new TokenGenerationKeyImmutabilityValidator(systemEnvironment)

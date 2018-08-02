@@ -16,17 +16,14 @@
 
 package com.thoughtworks.go.config;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import com.thoughtworks.go.config.remote.ConfigOrigin;
 import com.thoughtworks.go.config.remote.ConfigReposConfig;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.EnvironmentPipelineMatcher;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import org.apache.commons.lang3.builder.ToStringBuilder;
+
+import java.util.*;
 
 import static com.thoughtworks.go.util.command.EnvironmentVariableContext.GO_ENVIRONMENT_NAME;
 
@@ -76,11 +73,7 @@ public class BasicEnvironmentConfig implements EnvironmentConfig {
     @Override
     public boolean validateTree(ConfigSaveValidationContext validationContext, CruiseConfig preprocessedConfig) {
         validate(validationContext);
-        try {
-            validateContainsOnlyPipelines(preprocessedConfig.getAllPipelineNames());
-        } catch (RuntimeException e) {
-            errors().add("pipeline", e.getMessage());
-        }
+        preprocessedConfig.getEnvironments().validate(validationContext);
         validateContainsOnlyUuids(preprocessedConfig.agents().acceptedUuids());
 
         boolean isValid = ErrorCollector.getAllErrors(this).isEmpty();

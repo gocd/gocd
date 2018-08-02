@@ -358,7 +358,10 @@ public class CommandLineTest {
 
     @Test
     public void shouldPrefixStderrOutput() {
-        CommandLine line = CommandLine.createCommandLine("rmdir").withArg("/a/directory/that/does/not/exist").withEncoding("utf-8");
+        CommandLine line = CommandLine.createCommandLine("git")
+                .withArg("clone")
+                .withArg("https://foo/bar")
+                .withEncoding("utf-8");
         InMemoryStreamConsumer output = new InMemoryStreamConsumer();
         ProcessWrapper processWrapper = line.execute(output, new EnvironmentVariableContext(), null);
         processWrapper.waitForExit();

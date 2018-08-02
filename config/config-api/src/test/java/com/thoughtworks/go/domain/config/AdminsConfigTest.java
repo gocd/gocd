@@ -22,8 +22,12 @@ import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.helper.UserRoleMatcherMother;
 import org.junit.Test;
 
+import static junit.framework.TestCase.assertTrue;
 import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class AdminsConfigTest {
     @Test
@@ -72,5 +76,44 @@ public class AdminsConfigTest {
         assertThat(adminsConfig.isAdminRole(Arrays.asList(new RoleConfig(new CaseInsensitiveString("first")), new RoleConfig(new CaseInsensitiveString("role1")))), is(true));
         assertThat(adminsConfig.isAdminRole(Arrays.asList(new RoleConfig(new CaseInsensitiveString("role2")))), is(false));
         assertThat(adminsConfig.isAdminRole(Arrays.asList(new RoleConfig(new CaseInsensitiveString("loser")))), is(false));
+    }
+
+    @Test
+    public void shouldValidatePresenceOfUserName() {
+        AdminsConfig adminsConfig = new AdminsConfig(new AdminUser(null));
+        ValidationContext validationContext = mock(ValidationContext.class);
+
+        assertFalse(adminsConfig.validateTree(validationContext));
+
+        assertTrue(adminsConfig.hasErrors());
+        assertThat(adminsConfig.errors().on("users"), is("User cannot be blank."));
+    }
+
+    @Test
+    public void shouldValidateIfUserNameIsBlank() {
+        AdminsConfig adminsConfig = new AdminsConfig(new AdminUser(new CaseInsensitiveString("")));
+        ValidationContext validationContext = mock(ValidationContext.class);
+
+        assertFalse(adminsConfig.validateTree(validationContext));
+
+        assertTrue(adminsConfig.hasErrors());
+        assertThat(adminsConfig.errors().on("users"), is("User cannot be blank."));
+    }
+
+    @Test
+    public void shouldValidateIfRoleExists() {
+        CaseInsensitiveString roleName = new CaseInsensitiveString("admin_role");
+        AdminsConfig adminsConfig = new AdminsConfig(new AdminRole(roleName));
+        ValidationContext validationContext = mock(ValidationContext.class);
+        SecurityConfig securityConfig = mock(SecurityConfig.class);
+
+        when(validationContext.shouldNotCheckRole()).thenReturn(false);
+        when(validationContext.getServerSecurityConfig()).thenReturn(securityConfig);
+        when(securityConfig.isRoleExist(roleName)).thenReturn(false);
+
+        assertFalse(adminsConfig.validateTree(validationContext));
+
+        assertTrue(adminsConfig.hasErrors());
+        assertThat(adminsConfig.errors().on("roles"), is("Role \"admin_role\" does not exist."));
     }
 }

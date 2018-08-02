@@ -21,7 +21,6 @@ import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.elastic.ElasticProfile;
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
-import com.thoughtworks.go.server.domain.DataSharingSettings;
 import com.thoughtworks.go.domain.UsageStatisticsReporting;
 import com.thoughtworks.go.domain.packagerepository.PackageDefinition;
 import com.thoughtworks.go.domain.packagerepository.PackageRepository;
@@ -29,6 +28,7 @@ import com.thoughtworks.go.domain.scm.SCM;
 import com.thoughtworks.go.listener.ConfigChangedListener;
 import com.thoughtworks.go.listener.EntityConfigChangedListener;
 import com.thoughtworks.go.server.cache.GoCache;
+import com.thoughtworks.go.server.domain.DataSharingSettings;
 import com.thoughtworks.go.server.domain.PluginSettings;
 import com.thoughtworks.go.server.initializers.Initializer;
 import com.thoughtworks.go.util.CachedDigestUtils;
@@ -68,13 +68,13 @@ public class EntityHashingService implements ConfigChangedListener, Initializer 
         goConfigService.register(new ConfigRepoListener());
         goConfigService.register(new RoleConfigListener());
         goConfigService.register(new ArtifactStoreListener());
+        goConfigService.register(new AdminsConfigListener());
     }
 
     @Override
     public void startDaemon() {
-
     }
-
+    
     @Override
     public void onConfigChange(CruiseConfig newCruiseConfig) {
         goCache.remove(ETAG_CACHE_KEY);
@@ -122,6 +122,11 @@ public class EntityHashingService implements ConfigChangedListener, Initializer 
 
     public String md5ForEntity(Role config) {
         String cacheKey = cacheKey(config, config.getName());
+        return getFromCache(config, cacheKey);
+    }
+
+    public String md5ForEntity(AdminsConfig config) {
+        String cacheKey = cacheKey(config, "cacheKey");
         return getFromCache(config, cacheKey);
     }
 
@@ -286,6 +291,13 @@ public class EntityHashingService implements ConfigChangedListener, Initializer 
         @Override
         public void onEntityConfigChange(ArtifactStore entity) {
             removeFromCache(entity, entity.getId());
+        }
+    }
+
+    private class AdminsConfigListener extends EntityConfigChangedListener<AdminsConfig> {
+        @Override
+        public void onEntityConfigChange(AdminsConfig entity) {
+            removeFromCache(entity, "cacheKey");
         }
     }
 }

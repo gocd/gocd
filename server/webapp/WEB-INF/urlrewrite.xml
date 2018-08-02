@@ -155,6 +155,12 @@
     </rule>
 
     <rule>
+        <name>Admin Config API</name>
+        <from>^/api/admin/security/system_admins$</from>
+        <to last="true">/spark/api/admin/security/system_admins</to>
+    </rule>
+
+    <rule>
         <name>Spark Security Role Configs API Index API</name>
         <from>^/api/admin/security/roles(/?)$</from>
         <to last="true">/spark/api/admin/security/roles</to>

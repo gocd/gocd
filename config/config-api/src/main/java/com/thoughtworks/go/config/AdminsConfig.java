@@ -70,6 +70,11 @@ public class AdminsConfig extends BaseCollection<Admin> implements Validatable {
         return false;
     }
 
+    public boolean hasErrors() {
+        return !configErrors.isEmpty();
+    }
+
+    @Override
     public void validate(ValidationContext validationContext) {
         return;
     }
@@ -112,5 +117,16 @@ public class AdminsConfig extends BaseCollection<Admin> implements Validatable {
 
     public void addRole(AdminRole adminRole) {
         add(adminRole);
+    }
+
+    public boolean validateTree(ValidationContext validationContextWithSecurityConfig) {
+        this.stream().forEach(admin -> {
+            admin.validate(validationContextWithSecurityConfig);
+            configErrors.addAll(admin.errors());
+        });
+
+        configErrors.remove("name");
+
+        return !hasErrors();
     }
 }

@@ -19,7 +19,7 @@ const DashboardFilters = require('models/dashboard/dashboard_filters');
 const AjaxHelper       = require('helpers/ajax_helper');
 const SparkRoutes      = require('helpers/spark_routes');
 
-const Personalization = function (filters, pipelineGroups) {
+function Personalization(filters, pipelineGroups) {
   let filterSet       = new DashboardFilters(filters);
   this.pipelineGroups = Stream(pipelineGroups);
 
@@ -55,7 +55,7 @@ const Personalization = function (filters, pipelineGroups) {
       filterSet = filters; // only changes local copy when successful
     });
   };
-};
+}
 
 Personalization.fromJSON = (json) => {
   return new Personalization(json.filters, json.pipelines);

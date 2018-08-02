@@ -14,37 +14,27 @@
  * limitations under the License.
  */
 
-const _ = require('lodash');
-const m = require('mithril');
-const f = require("helpers/form_helper");
+const m = require("mithril");
 
-const PersonalizeEditorVM        = require('views/dashboard/models/personalize_editor_vm');
-const PersonalizationModalWidget = require('views/dashboard/personalization_modal_widget');
-const Modal                      = require('views/shared/schmodal');
+const AllViewTabs     = require("views/dashboard/all_view_tabs");
+const EditTabDropdown = require("views/dashboard/edit_tab_dropdown");
+const Editor          = require("views/dashboard/personalization_editor");
 
 const PersonalizedViewsWidget = {
+  oninit(vnode) {
+    const vm = vnode.attrs.vm;
+    if (!vm.canonicalCurrentName()) { vm.currentView("Default"); }
+  },
+
   view(vnode) {
     const vm = vnode.attrs.vm;
-    const model = vnode.attrs.model;
-    const onchange = vnode.attrs.onchange;
-
-    const doAddView = vm.actionHandler(() => personalizeEditor({}, model, vm, onchange));
-    const doEditView = vm.actionHandler(() => personalizeEditor(model().namedFilter(vm.currentView()), model, vm, onchange));
-    const doDeleteView = vm.actionHandler(() => deleteView(vm.currentView(), model, vm, onchange));
+    const doAddView = vm.actionHandler(() => Editor.open({}, vm.model, vm, vnode.attrs.onchange));
 
     return <div class="dashboard-tabs">
-      <AllViewTabs vm={vm} onEdit={doEditView} onDelete={doDeleteView} />
+      <AllViewTabs vm={vm} />
+      <EditTabDropdown {...vnode.attrs} />
       <AddTab onclick={doAddView} />
     </div>;
-  }
-};
-
-/** private components */
-
-const AllViewTabs = {
-  view(vnode) {
-    const vm = vnode.attrs.vm;
-    return _.map(vm.names(), (name) => <ViewTab {...vnode.attrs} name={name} />);
   }
 };
 
@@ -55,120 +45,5 @@ const AddTab = {
     </div>;
   }
 };
-
-const ViewTab = {
-  view(vnode) {
-    const vm = vnode.attrs.vm;
-    const name = vnode.attrs.name;
-    const current = vm.active(name);
-
-    const topLevelClasses = current ? "dashboard-tab current" : "dashboard-tab";
-    const switchTab = current || function (e) { e.stopPropagation(); vm.activate(name); };
-
-    return <div class={topLevelClasses} onclick={switchTab}>
-      <i class="drag-icon" />
-      <div class="tab-name">{name}</div>
-      <DropdownToggle {...vnode.attrs} current={current} />
-    </div>;
-  }
-};
-
-const DropdownToggle = {
-  view(vnode) {
-    const vm = vnode.attrs.vm;
-    const current = vnode.attrs.current;
-
-    if (current) {
-      const toggleDropdown = (e) => { e.stopPropagation(); vm.toggleDropdown(); };
-      const onEdit = vnode.attrs.onEdit;
-      const onDelete = vnode.attrs.onDelete;
-      return <div class="tab-dropdown">
-        <i class="fa fa-caret-down dropdown-btn" onclick={toggleDropdown} />
-        <TabDropdown vm={vm} edit={onEdit} delete={onDelete} name={vnode.attrs.name} />
-      </div>;
-    }
-  }
-};
-
-const TabDropdown = {
-  view(vnode) {
-    const vm = vnode.attrs.vm;
-    const isDefault = vm.isDefault(vnode.attrs.name);
-
-    if (vm.dropdownVisible()) {
-      return <div class="edit-dropdown" onclick={(e) => e.stopPropagation()}>
-        <span class="edit-dropdown-text">Group pipelines by</span>
-        <div class="edit-dropdown-actions">
-          <f.button class="btn btn-small selected">Pipeline Group</f.button>
-          <f.button class="btn btn-small">Environments</f.button>
-          <i class="fa fa-edit" onclick={vnode.attrs.edit} />
-          <i class={isDefault ? "fa fa-trash deny-action": "fa fa-trash"} onclick={!isDefault && vnode.attrs.delete} />
-        </div>
-      </div>;
-    }
-  }
-};
-
-function personalizeEditor(opts, personalization, model, afterUpdate) {
-  // evaluate every time in case personalization is updated while the modal is open
-  opts.names = () => personalization().names();
-
-  const vm = new PersonalizeEditorVM(opts, personalization().pipelineGroups());
-  const existing = opts.name;
-
-  new Modal({
-    title: existing ? `Edit ${opts.name}`: "Create new view",
-    size: "personalize-editor",
-    body: () => {
-      return <PersonalizationModalWidget vm={vm} />;
-    },
-    buttons: [{text: "Save", disabled: vm.invalid, onclick: () => {
-      vm.validate();
-      if (vm.invalid()) { return; }
-
-      const newFilter = vm.asFilter();
-
-      vm.errorResponse(null);
-      personalization().addOrReplaceFilter(existing, newFilter, model.etag()).done((data) => {
-        model.currentView(newFilter.name);
-        model.names(personalization().names());
-        model.checksum(data.contentHash);
-
-        Modal.close();
-        afterUpdate();
-      }).fail((xhr) => {
-        vm.errorResponse(xhr.responseText);
-      }).always(() => {
-        m.redraw();
-      });
-    }}, {text: "Cancel", class: "btn-link"}]
-  });
-}
-
-function deleteView(name, personalization, model, afterDelete) {
-  new Modal({
-    title: "Delete View",
-    size: "delete-view",
-    body: () => {
-      return <span>
-        Do you want to delete <span class="view-name">{name}</span> view?
-      </span>;
-    },
-    buttons: [{
-      text: "Yes",
-      onclick: () => {
-        personalization().removeFilter(name, model.etag()).done((data) => {
-          model.currentView("Default");
-          model.names(personalization().names());
-          model.checksum(data.contentHash);
-
-          Modal.close();
-          afterDelete();
-        }).always(() => {
-          m.redraw();
-        });
-      }}, {text: "Cancel", class: "btn-link"}]
-  });
-}
 
 module.exports = PersonalizedViewsWidget;

@@ -1,62 +1,35 @@
+$dashboard-tab-bg: #fff;
+$dashboard-tab-height: 45px;
+$dashboard-add-tab-width: 34px;
+$dashboard-tabs-border-color: #ccc;
+$dashboard-tabs-border-radius: 3px;
+$dashboard-tabs-box-shadow: 0 0 10px rgba(0, 0, 0, 0.21);
+
 .dashboard-tabs {
   position:         relative;
-  background-color: #fff;
-  border-radius:    3px;
-  line-height:      40px;
-  height:           45px;
+  background-color: $dashboard-tab-bg;
+  border-radius:    $dashboard-tabs-border-radius;
+  line-height:      $dashboard-tab-height;
+  height:           $dashboard-tab-height;
   margin-bottom:    20px;
-  box-shadow:       0 0 10px rgba(0, 0, 0, 0.21);
+  box-shadow:       $dashboard-tabs-box-shadow;
 
-  .dashboard-tab {
-    display:      inline-block;
-    border-right: 1px solid #ccc;
-    margin-left:  5px;
-    padding:      3px 10px;
-    font-weight:  700;
-    cursor:       pointer;
-    position:     relative;
-
-    > * { vertical-align: middle; }
-
-    .drag-icon {
-      @include grip-icon;
-
-      font-size: 12px;
-    }
-
-    .tab-name {
-      text-transform: uppercase;
-      margin:         0 10px;
-      display:        inline-block;
-
-      max-width:      210px;
-      white-space:    nowrap;
-      text-overflow:  ellipsis;
-      overflow:       hidden;
-    }
-
-    &.current {
-      color:  #b66fc2;
-      cursor: default;
-
-      .tab-name {
-        margin-right: 0;
-      }
-    }
-  }
-
-  .tab-dropdown {
-    display:     inline-block;
-    margin-left: 7px;
-    cursor:      default;
-
-    .fa { cursor: pointer; }
+  .add-tab {
+    display:       inline-block;
+    border-right:  1px solid #ccc;
+    border-radius: 0 0 $dashboard-tabs-border-radius $dashboard-tabs-border-radius;
+    padding:       0 10px;
+    width:         $dashboard-add-tab-width;
+    color:         #b66fc2;
+    font-size:     17px;
+    cursor:        pointer;
   }
 
   .edit-dropdown {
     position:      absolute;
+    top:           100%;
     left:          0;
-    z-index:       99;
+    z-index:       9;
 
     background:    #fff;
     color:         #000;
@@ -64,11 +37,11 @@
     margin-top:    1px;
     padding:       5px 20px 20px;
 
-    border-radius: 0 0 5px 5px;
+    border-radius: 0 0 $dashboard-tabs-border-radius $dashboard-tabs-border-radius;
     width:         380px;
     font-weight:   normal;
     line-height:   initial;
-    box-shadow:    0 0 10px rgba(0, 0, 0, 0.21);
+    box-shadow:    $dashboard-tabs-box-shadow;
 
     .edit-dropdown-text {
       display:       inline-block;
@@ -82,7 +55,7 @@
         margin:        0;
         border-radius: unset;
         background:    #ccc;
-        border:        1px solid #ccc;
+        border:        1px solid $dashboard-tabs-border-color;
         color:         #000;
         box-shadow:    unset;
 
@@ -97,23 +70,64 @@
       margin-left:   15px;
       padding:       5px 10px;
       color:         #627884;
-      border:        solid 1px #e7e7e7;
-      border-radius: 3px;
+      border:        1px solid $dashboard-tabs-border-color;
+      border-radius: $dashboard-tabs-border-radius;
     }
 
     .deny-action {
-      color:  #e1e6ea;
-      cursor: not-allowed;
+      color:        #e1e6ea;
+      border-color: #e7e7e7;
+      cursor:       not-allowed;
+    }
+  }
+}
+
+.dashboard-tab {
+  display:      inline-block;
+  border-right: 1px solid $dashboard-tabs-border-color;
+  margin-left:  5px;
+  padding:      0 10px;
+  font-weight:  700;
+  white-space:  nowrap;
+  height:       $dashboard-tab-height;
+
+  &:first-of-type {
+    margin-left: 0;
+    border-left: 1px solid $dashboard-tabs-border-color;
+  }
+
+  > * { vertical-align: top; }
+
+  .drag-icon {
+    @include grip-icon;
+
+    font-size: 12px;
+  }
+
+  .tab-name {
+    @include truncate-to-width($max: 210px);
+
+    text-transform: uppercase;
+    margin:         0 10px;
+    margin-right:   15px;
+    display:        inline-block;
+  }
+
+  &.current {
+    color:  #b66fc2;
+    cursor: default;
+
+    .tab-name {
+      margin-right: 0;
     }
   }
 
-  .add-tab {
-    display:      inline-block;
-    border-right: 1px solid #ccc;
-    padding:      3px 10px;
-    color:        #b66fc2;
-    font-size:    17px;
-    cursor:       pointer;
+  .tab-dropdown-toggle {
+    display:     inline-block;
+    margin-left: 7px;
+    cursor:      default;
+
+    .fa { cursor: pointer; }
   }
 }
 

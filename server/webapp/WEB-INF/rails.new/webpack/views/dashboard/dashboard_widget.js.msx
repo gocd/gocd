@@ -50,7 +50,6 @@ const DashboardWidget = {
   view(vnode) {
     const args   = vnode.attrs;
     const personalizeVM = args.personalizeVM;
-    const personalization = personalizeVM.model;
 
     const noPermissionText = "You do not have permission to edit the pipeline group.";
 
@@ -80,7 +79,7 @@ const DashboardWidget = {
           </div>
         </div>
         <div class="dashboard" key="dashboard-content">
-          <PersonalizedViewsWidget model={personalization} vm={personalizeVM} onchange={vnode.attrs.doRefreshImmediately} />
+          <PersonalizedViewsWidget vm={personalizeVM} onchange={vnode.attrs.doRefreshImmediately} />
           {messageView}
           {_.map(vnode.attrs.dashboard.getPipelineGroups(), (pipelineGroup) => {
             let name, settingsIcon;

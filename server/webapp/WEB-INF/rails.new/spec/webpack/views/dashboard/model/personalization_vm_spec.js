@@ -87,6 +87,14 @@ describe("Personalization View Model", () => {
     expect(vm.isDefault("nope")).toBe(false);
   });
 
+  it("canonicalCurrentName() gets the canonical name of the filter regardless of what currentView() returns", () => {
+    const currentView = Stream("BAZ");
+    const vm = new PersonalizationVM(currentView);
+    vm.names(["Foo", "Bar", "Baz"]);
+
+    expect(vm.canonicalCurrentName()).toBe("Baz");
+  });
+
   it("etag() returns the local copy of the content hash", () => {
     const currentView = Stream("Foo");
     const vm = new PersonalizationVM(currentView);

@@ -35,6 +35,13 @@
   max-height:  $line-height * $line-count;
 }
 
+@mixin truncate-to-width($max) {
+  max-width:     $max;
+  white-space:   nowrap;
+  text-overflow: ellipsis;
+  overflow-x:      hidden;
+}
+
 @mixin commit-message($line-count) {
   @include truncate-to-lines($line-count: $line-count);
 }

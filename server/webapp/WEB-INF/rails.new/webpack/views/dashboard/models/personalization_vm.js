@@ -19,11 +19,12 @@ const Stream          = require("mithril/stream");
 const Personalization = require("models/dashboard/personalization");
 
 function PersonalizationVM(currentView) {
-  const names    = Stream([]);
-  const dropdown = Stream(false);
+  const names        = Stream([]);
+  const dropdown     = Stream(false);
+  const checksum     = Stream();
+  const model        = Stream();
 
-  const checksum = Stream();
-  const model    = Stream();
+  const currentVnode = Stream(); // handle on current tab's vnode; allows sharing state between components
 
   let requestPending, tick;
 
@@ -50,7 +51,9 @@ function PersonalizationVM(currentView) {
     }
   }
 
-  _.assign(this, {model, names, currentView, etag: checkForUpdates, checksum});
+  _.assign(this, {model, names, currentView, etag: checkForUpdates, checksum, currentVnode});
+
+  this.canonicalCurrentName = () => _.find(names(), (n) => eq(n, currentView()));
 
   this.active = (viewName) => eq(currentView(), viewName);
 

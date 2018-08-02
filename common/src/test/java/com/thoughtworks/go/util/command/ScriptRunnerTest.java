@@ -1,5 +1,5 @@
 /*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -65,8 +65,7 @@ public class ScriptRunnerTest {
 
             command.runScript(new ExecScript("FOO"), output, new EnvironmentVariableContext(), null);
             fail("Exception expected");
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             assertThat(e.getMessage(), not(containsString("secret")));
         }
     }
@@ -84,7 +83,8 @@ public class ScriptRunnerTest {
     }
 
     @Test
-    public void shouldMaskOutOccuranceOfSecureEnvironmentVariablesValuesInTheScriptOutput() throws CheckedCommandLineException {
+    @RunIf(value = OSChecker.class, arguments = OSChecker.LINUX)
+    public void shouldMaskOutOccuranceOfSecureEnvironmentVariablesValuesInTheScriptOutputOnLinux() throws CheckedCommandLineException {
         EnvironmentVariableContext environmentVariableContext = new EnvironmentVariableContext();
         environmentVariableContext.setProperty("secret", "the_secret_password", true);
         CommandLine command = CommandLine.createCommandLine("echo").withArg("the_secret_password").withEncoding("utf-8");
@@ -92,10 +92,28 @@ public class ScriptRunnerTest {
         ExecScript script = new ExecScript("ERROR_STRING");
 
         command.runScript(script, output, environmentVariableContext, null);
+        System.out.println("\n\n\nOutput: " + output.asList().toString());
         assertThat(script.getExitCode(), is(0));
         assertThat(output.toString(), output.contains("the_secret_password"), is(false));
     }
 
+    @Test
+    @RunIf(value = OSChecker.class, arguments = OSChecker.WINDOWS)
+    public void shouldMaskOutOccuranceOfSecureEnvironmentVariablesValuesInTheScriptOutput() throws CheckedCommandLineException {
+        EnvironmentVariableContext environmentVariableContext = new EnvironmentVariableContext();
+        environmentVariableContext.setProperty("secret", "the_secret_password", true);
+        CommandLine command = CommandLine.createCommandLine("cmd")
+                .withArg("/c")
+                .withArg("echo")
+                .withArg("the_secret_password")
+                .withEncoding("utf-8");
 
+        InMemoryConsumer output = new InMemoryConsumer();
+        ExecScript script = new ExecScript("ERROR_STRING");
 
+        command.runScript(script, output, environmentVariableContext, null);
+        System.out.println("\n\n\nOutput: " + output.asList().toString());
+        assertThat(script.getExitCode(), is(0));
+        assertThat(output.toString(), output.contains("the_secret_password"), is(false));
+    }
 }

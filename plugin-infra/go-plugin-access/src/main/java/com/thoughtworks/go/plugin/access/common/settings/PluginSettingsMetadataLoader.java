@@ -61,8 +61,9 @@ public class PluginSettingsMetadataLoader implements PluginChangeListener {
         List<ExtensionSettingsInfo> validMetadata = allSettingsAndViewPairsWhichAreValid(allMetadata);
 
         if (validMetadata.size() == 0) {
-            LOGGER.error("Failed to fetch plugin settings metadata for plugin {}. Maybe the plugin does not implement plugin settings and view?", pluginId);
-            LOGGER.error("Plugin: {} - Metadata load info: {}", pluginId, allMetadata);
+            LOGGER.warn("Failed to fetch plugin settings metadata for plugin {}. Maybe the plugin does not implement plugin settings and view?", pluginId);
+            LOGGER.warn("Plugin: {} - Metadata load info: {}", pluginId, allMetadata);
+            LOGGER.warn("Not all plugins are required to implement the request above. This error may be safe to ignore.");
             return;
         }
 

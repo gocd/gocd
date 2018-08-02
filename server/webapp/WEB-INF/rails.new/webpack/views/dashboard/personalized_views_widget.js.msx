@@ -66,7 +66,7 @@ const ViewTab = {
     const switchTab = current || function (e) { e.stopPropagation(); vm.activate(name); };
 
     return <div class={topLevelClasses} onclick={switchTab}>
-      <i class="fa fa-bars drag-icon" />
+      <i class="drag-icon" />
       <div class="tab-name">{name}</div>
       <DropdownToggle {...vnode.attrs} current={current} />
     </div>;

@@ -18,9 +18,10 @@
 
     > * { vertical-align: middle; }
 
-    // Mock ups show using fa-grip-vertical, but grip-vertical is not available in our fontawesome version (4.7). it was released in 5.1
     .drag-icon {
-      color: #ccc;
+      @include grip-icon;
+
+      font-size: 12px;
     }
 
     .tab-name {

@@ -38,3 +38,24 @@
 @mixin commit-message($line-count) {
   @include truncate-to-lines($line-count: $line-count);
 }
+
+@mixin grip-icon($color: #ccc, $shadow-color: #333) {
+  display:        inline-block;
+
+  width:          1em;
+  height:         2.2em;
+  line-height:    0.45em;
+  letter-spacing: 0.15em;
+  text-shadow:    0 0 0 $shadow-color;
+  color:          $color;
+
+  vertical-align: middle;
+  text-align:     center;
+  font-family:    sans-serif;
+  overflow:       hidden;
+  white-space:    normal;
+
+  &:after {
+    content: ".. .. .. ..";
+  }
+}

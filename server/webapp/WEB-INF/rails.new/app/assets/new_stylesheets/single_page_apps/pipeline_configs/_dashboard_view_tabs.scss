@@ -10,6 +10,8 @@ $dashboard-tab-current-marker-height: 10px;
 $dashboard-tabs-box-shadow: 0 0 10px rgba(0, 0, 0, 0.21);
 
 .dashboard-tabs {
+  @include unselectable;
+
   position:         relative;
   background-color: $dashboard-tab-bg;
   border-radius:    $dashboard-tabs-border-radius;
@@ -162,7 +164,6 @@ $dashboard-tabs-box-shadow: 0 0 10px rgba(0, 0, 0, 0.21);
 .dashboard-tab {
   display:      inline-block;
   border-right: 1px solid $dashboard-tabs-border-color;
-  margin-left:  5px;
   padding:      0 10px;
   font-weight:  700;
   cursor:       pointer;
@@ -170,6 +171,11 @@ $dashboard-tabs-box-shadow: 0 0 10px rgba(0, 0, 0, 0.21);
   white-space:  nowrap;
   height:       $dashboard-tab-height;
   color:        $dashboard-tab-secondary-text-color;
+  outline:      none;
+
+  &:active, &:focus {
+    outline: none;
+  }
 
   &:first-of-type {
     margin-left: 0;

@@ -23,10 +23,28 @@ import java.util.Arrays;
 
 import static com.thoughtworks.go.helper.PipelineConfigMother.createGroup;
 import static com.thoughtworks.go.helper.PipelineConfigMother.pipelineConfig;
+import static com.thoughtworks.go.server.domain.user.DashboardFilter.DEFAULT_NAME;
+import static java.lang.String.format;
 import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
 public class PipelineSelectionsTest {
+    @Test
+    public void etagBasedOnFilterContent() {
+        PipelineSelections ps = PipelineSelectionsHelper.with(Arrays.asList("p1", "p2"));
+        assertEquals("E8435DD87D7E62616157CF2F71A5FCB7DAE9224A6EBE4F47CF20D0583D5897C5", ps.etag());
+
+        ps.update(Filters.defaults(), null, null);
+        assertEquals("1269CFEF75B2DA5D73263B78BE4EA8EA9663104992327642B44F28A5C66E36F2", ps.etag());
+
+        ps.update(Filters.single(new WhitelistFilter(DEFAULT_NAME, CaseInsensitiveString.list("p1"))), null, null);
+        assertEquals("852D88B3C5D6A9CFC481DE35FB4A90A79E5A96A10A80947F7EFC8D345C10024E", ps.etag());
+
+        ps.setFilters(format("{\"filters\": [{\"name\": \"%s\", \"type\": \"blacklist\", \"pipelines\": [\"foobar\"]}]}", DEFAULT_NAME));
+        assertEquals("87CDD48CD9C281C6D5B8C28D4FD0F61E1F18D280D8B247B9CAC96161978D2580", ps.etag());
+    }
+
     @Test
     public void DEPRECATED_shouldIncludePipelineWhenGroupIsIncluded_whenBlacklistIsEnabled() {
         PipelineSelections pipelineSelections = PipelineSelectionsHelper.with(Arrays.asList("pipeline1"));

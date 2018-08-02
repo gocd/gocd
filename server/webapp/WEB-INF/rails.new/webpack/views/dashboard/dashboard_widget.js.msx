@@ -50,7 +50,7 @@ const DashboardWidget = {
   view(vnode) {
     const args   = vnode.attrs;
     const personalizeVM = args.personalizeVM;
-    const personalization = args.personalization;
+    const personalization = personalizeVM.model;
 
     const noPermissionText = "You do not have permission to edit the pipeline group.";
 

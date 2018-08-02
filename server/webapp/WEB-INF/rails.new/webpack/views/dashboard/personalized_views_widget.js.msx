@@ -29,7 +29,7 @@ const PersonalizedViewsWidget = {
     const onchange = vnode.attrs.onchange;
 
     const doAddView = vm.actionHandler(() => personalizeEditor({}, model, vm, onchange));
-    const doEditView = vm.actionHandler(() => personalizeEditor(model.namedFilter(vm.currentView()), model, vm, onchange));
+    const doEditView = vm.actionHandler(() => personalizeEditor(model().namedFilter(vm.currentView()), model, vm, onchange));
     const doDeleteView = vm.actionHandler(() => deleteView(vm.currentView(), model, vm, onchange));
 
     return <div class="dashboard-tabs">
@@ -110,9 +110,10 @@ const TabDropdown = {
 };
 
 function personalizeEditor(opts, personalization, model, afterUpdate) {
-  opts.names = personalization.names;
+  // evaluate every time in case personalization is updated while the modal is open
+  opts.names = () => personalization().names();
 
-  const vm = new PersonalizeEditorVM(opts, personalization.pipelineGroups());
+  const vm = new PersonalizeEditorVM(opts, personalization().pipelineGroups());
   const existing = opts.name;
 
   new Modal({
@@ -128,9 +129,11 @@ function personalizeEditor(opts, personalization, model, afterUpdate) {
       const newFilter = vm.asFilter();
 
       vm.errorResponse(null);
-      personalization.addOrReplaceFilter(existing, newFilter).done(() => {
+      personalization().addOrReplaceFilter(existing, newFilter, model.etag()).done((data) => {
         model.currentView(newFilter.name);
-        model.names(personalization.names());
+        model.names(personalization().names());
+        model.checksum(data.contentHash);
+
         Modal.close();
         afterUpdate();
       }).fail((xhr) => {
@@ -154,9 +157,11 @@ function deleteView(name, personalization, model, afterDelete) {
     buttons: [{
       text: "Yes",
       onclick: () => {
-        personalization.removeFilter(name).done(() => {
+        personalization().removeFilter(name, model.etag()).done((data) => {
           model.currentView("Default");
-          model.names(personalization.names());
+          model.names(personalization().names());
+          model.checksum(data.contentHash);
+
           Modal.close();
           afterDelete();
         }).always(() => {

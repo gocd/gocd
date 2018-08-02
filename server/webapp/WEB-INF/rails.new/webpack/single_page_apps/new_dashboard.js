@@ -25,7 +25,6 @@ const AjaxPoller      = require('helpers/ajax_poller');
 const PageLoadError   = require('views/shared/page_load_error');
 
 const PersonalizeVM   = require('views/dashboard/models/personalization_vm');
-const Personalization = require('models/dashboard/personalization');
 
 $(() => {
   const dashboardElem              = $('#dashboard');
@@ -37,12 +36,7 @@ $(() => {
   const dashboard = new Dashboard();
   const personalizeVM = new PersonalizeVM(currentView);
 
-  let personalization;
-
-  Personalization.get().then((selection) => {
-    personalizeVM.names(selection.names());
-    personalization = selection;
-  });
+  personalizeVM.etag(null);
 
   function queryObject() {
     return m.parseQueryString(window.location.search);
@@ -105,6 +99,7 @@ $(() => {
   }
 
   function onResponse(dashboardData, message = undefined) {
+    personalizeVM.etag(dashboardData.personalization);
     dashboard.initialize(dashboardData);
     dashboard.message(message);
   }
@@ -164,7 +159,6 @@ $(() => {
         return m(DashboardWidget, {
           dashboard,
           personalizeVM,
-          personalization,
           showSpinner,
           isQuickEditPageEnabled,
           pluginsSupportingAnalytics,

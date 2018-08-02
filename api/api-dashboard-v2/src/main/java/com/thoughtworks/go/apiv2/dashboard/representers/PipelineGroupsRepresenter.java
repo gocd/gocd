@@ -25,6 +25,7 @@ public class PipelineGroupsRepresenter {
         jsonOutputWriter
             .addLinks(linksWriter -> linksWriter.addLink("self", Routes.Dashboard.SELF)
                 .addAbsoluteLink("doc", Routes.Dashboard.DOC))
+            .add("personalization", dashboardFor.getPersonalizationEtag())
             .addChild("_embedded", childWriter -> {
                 childWriter
                     .addChildList("pipeline_groups", listWriter -> {

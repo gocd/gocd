@@ -45,7 +45,11 @@ import static spark.Spark.*;
 public class DashboardControllerDelegate extends ApiController {
 
     private static final String BEING_PROCESSED = MessageJson.create("Dashboard is being processed, this may take a few seconds. Please check back later.");
+    private static final int ACCEPTED = 202;
+
     private static final String COOKIE_NAME = "selected_pipelines";
+    private static final String SEP_CHAR = "/";
+    private static final String VIEW_NAME = "viewName";
 
     private final PipelineSelectionsService pipelineSelectionsService;
     private final GoDashboardService goDashboardService;
@@ -76,22 +80,18 @@ public class DashboardControllerDelegate extends ApiController {
 
     public Object index(Request request, Response response) throws IOException {
         if (!goDashboardService.hasEverLoadedCurrentState()) {
-            response.status(202);
+            response.status(ACCEPTED);
             return BEING_PROCESSED;
         }
 
-        String selectedPipelinesCookie = request.cookie(COOKIE_NAME);
-        Long userId = currentUserId(request);
-        Username userName = currentUsername();
-
-        PipelineSelections selectedPipelines = pipelineSelectionsService.load(selectedPipelinesCookie, userId);
-
-        final String filterName = getViewName(request);
-        final DashboardFilter filter = selectedPipelines.namedFilter(filterName);
+        final String personalizationCookie = request.cookie(COOKIE_NAME);
+        final Long userId = currentUserId(request);
+        final Username userName = currentUsername();
+        final PipelineSelections personalization = pipelineSelectionsService.load(personalizationCookie, userId);
+        final DashboardFilter filter = personalization.namedFilter(getViewName(request));
 
         List<GoDashboardPipelineGroup> pipelineGroups = goDashboardService.allPipelineGroupsForDashboard(filter, userName);
-        String pipelineGroupsEtag = pipelineGroups.stream().map(GoDashboardPipelineGroup::etag).collect(Collectors.joining("/"));
-        String etag = DigestUtils.md5Hex(currentUserLoginName().toString() + "/" + pipelineGroupsEtag);
+        String etag = calcEtag(userName, pipelineGroups);
 
         if (fresh(request, etag)) {
             return notModified(response);
@@ -99,11 +99,17 @@ public class DashboardControllerDelegate extends ApiController {
 
         setEtagHeader(response, etag);
 
-        return writerForTopLevelObject(request, response, outputWriter -> PipelineGroupsRepresenter.toJSON(outputWriter, new DashboardFor(pipelineGroups, userName)));
+        return writerForTopLevelObject(request, response, outputWriter -> PipelineGroupsRepresenter.toJSON(outputWriter, new DashboardFor(pipelineGroups, userName, personalization.etag())));
+    }
+
+    private String calcEtag(Username username, List<GoDashboardPipelineGroup> pipelineGroups) {
+        final String pipelineSegment = pipelineGroups.stream().
+                map(GoDashboardPipelineGroup::etag).collect(Collectors.joining(SEP_CHAR));
+        return DigestUtils.md5Hex(StringUtils.joinWith(SEP_CHAR, username.getUsername(), pipelineSegment));
     }
 
     private String getViewName(Request request) {
-        final String viewName = request.queryParams("viewName");
+        final String viewName = request.queryParams(VIEW_NAME);
         return StringUtils.isBlank(viewName) ? DEFAULT_NAME : viewName;
     }
 }

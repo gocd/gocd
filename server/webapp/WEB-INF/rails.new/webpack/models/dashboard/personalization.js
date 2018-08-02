@@ -29,7 +29,7 @@ const Personalization = function (filters, pipelineGroups) {
     return filterSet.findFilter(name);
   };
 
-  this.addOrReplaceFilter = (existingName, newFilter) => {
+  this.addOrReplaceFilter = (existingName, newFilter, etag) => {
     const filters = filterSet.clone();
 
     if (existingName) {
@@ -38,24 +38,20 @@ const Personalization = function (filters, pipelineGroups) {
       filters.addFilter(newFilter);
     }
 
-    return this.updateFilters(filters);
+    return this.updateFilters(filters, etag);
   };
 
-  this.removeFilter = (name) => {
+  this.removeFilter = (name, etag) => {
     const filters = filterSet.clone();
     filters.removeFilter(name);
 
-    return this.updateFilters(filters);
+    return this.updateFilters(filters, etag);
   };
 
-  this.updateFilters = (filters) => {
+  this.updateFilters = (filters, etag) => {
     if (!(filters instanceof DashboardFilters)) { filters = new DashboardFilters(filters); }
 
-    return AjaxHelper.PUT({
-      url:        SparkRoutes.pipelineSelectionPath(),
-      apiVersion: 'v1',
-      payload:     filters
-    }).done(() => {
+    return Personalization.update(filters, etag).done(() => {
       filterSet = filters; // only changes local copy when successful
     });
   };
@@ -65,11 +61,21 @@ Personalization.fromJSON = (json) => {
   return new Personalization(json.filters, json.pipelines);
 };
 
-Personalization.get = () => {
+Personalization.get = (etag) => {
   return AjaxHelper.GET({
     url:        SparkRoutes.pipelineSelectionPath(),
     type:       Personalization,
-    apiVersion: 'v1'
+    apiVersion: 'v1',
+    etag
+  });
+};
+
+Personalization.update = (payload, etag) => {
+  return AjaxHelper.PUT({
+    url:        SparkRoutes.pipelineSelectionPath(),
+    apiVersion: 'v1',
+    payload,
+    etag
   });
 };
 

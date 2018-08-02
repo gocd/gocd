@@ -14,15 +14,43 @@
  * limitations under the License.
  */
 
-const _      = require("lodash");
-const Stream = require("mithril/stream");
+const _               = require("lodash");
+const Stream          = require("mithril/stream");
+const Personalization = require("models/dashboard/personalization");
 
 function PersonalizationVM(currentView) {
-  const names = Stream([]);
+  const names    = Stream([]);
   const dropdown = Stream(false);
 
-  this.names = names;
-  this.currentView = currentView;
+  const checksum = Stream();
+  const model    = Stream();
+
+  let requestPending, tick;
+
+  function checkForUpdates(etag) {
+    if (!arguments.length) { return checksum(); }
+
+    if (requestPending) {
+      if ("number" === typeof tick) { tick = clearTimeout(tick); } // only allow 1 queued request
+      tick = setTimeout(() => checkForUpdates(etag), 100);
+      return;
+    }
+
+    if (!checksum() || etag !== checksum()) {
+      requestPending = true;
+      Personalization.get(checksum()).then((personalization, xhr) => {
+        if (304 !== xhr.status) {
+          checksum(parseEtag(xhr));
+
+          names(personalization.names());
+          model(personalization);
+        }
+        requestPending = false;
+      });
+    }
+  }
+
+  _.assign(this, {model, names, currentView, etag: checkForUpdates, checksum});
 
   this.active = (viewName) => eq(currentView(), viewName);
 
@@ -47,6 +75,8 @@ function PersonalizationVM(currentView) {
     return (e) => { e.stopPropagation(); dropdown(false); fn(); };
   };
 }
+
+function parseEtag(req) { return (req.getResponseHeader("ETag") || "").replace(/"/g, "").replace(/--(gzip|deflate)$/, ""); }
 
 /** Case-insensitive functions */
 function eq(a, b) { return a.toLowerCase() === b.toLowerCase(); }

@@ -36,8 +36,10 @@ function makeRequest({method, url, apiVersion, type, timeout = mrequest.timeout,
     });
 
     const didFulfill = (data, _textStatus, jqXHR) => {
+      const NOT_MODIFIED = 304 === jqXHR.status;
+
       if (type) {
-        deferred.resolve(type.fromJSON(data, jqXHR));
+        deferred.resolve(NOT_MODIFIED ? undefined : type.fromJSON(data, jqXHR), jqXHR);
       } else {
         deferred.resolve(data, _textStatus, jqXHR);
       }

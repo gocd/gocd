@@ -14,7 +14,8 @@
  * limitations under the License.
  */
 
-const Stream = require("mithril/stream");
+const Stream            = require("mithril/stream");
+const SparkRoutes       = require("helpers/spark_routes");
 const PersonalizationVM = require("views/dashboard/models/personalization_vm");
 
 describe("Personalization View Model", () => {
@@ -84,5 +85,44 @@ describe("Personalization View Model", () => {
     expect(vm.isDefault("default")).toBe(true);
     expect(vm.isDefault("DEFAULT")).toBe(true);
     expect(vm.isDefault("nope")).toBe(false);
+  });
+
+  it("etag() returns the local copy of the content hash", () => {
+    const currentView = Stream("Foo");
+    const vm = new PersonalizationVM(currentView);
+    vm.names(["Foo", "Bar", "Baz"]);
+
+    vm.checksum("abcdefg");
+    expect(vm.etag()).toBe("abcdefg");
+  });
+
+  it("etag(updatedHash) fetches new personalization data when the new hash differs from the local copy", () => {
+    const currentView = Stream("Foo");
+    const vm = new PersonalizationVM(currentView);
+    vm.names(["Foo", "Bar", "Baz"]);
+
+    vm.checksum("abcdefg");
+    expect(vm.etag()).toBe("abcdefg");
+
+    jasmine.Ajax.withMock(() => {
+      jasmine.Ajax.stubRequest(SparkRoutes.pipelineSelectionPath(), undefined, 'GET').andReturn({
+        responseText:    JSON.stringify({filters: [{ name:"New", type: "whitelist", pipelines: ["a"] }]}),
+        responseHeaders: {
+          ETag:           `"1234567"`,
+          'Content-Type': 'application/vnd.go.cd.v1+json'
+        },
+        status:          200
+      });
+
+      vm.etag("abcdefg"); // should cause no change
+      expect(vm.names()).toEqual(["Foo", "Bar", "Baz"]);
+      expect(vm.checksum()).toBe("abcdefg");
+      expect(vm.etag()).toBe("abcdefg");
+
+      vm.etag("foo");
+      expect(vm.names()).toEqual(["New"]);
+      expect(vm.checksum()).toBe("1234567");
+      expect(vm.etag()).toBe("1234567");
+    });
   });
 });

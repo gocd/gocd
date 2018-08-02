@@ -16,11 +16,9 @@
 
 package com.thoughtworks.go.server.service.datasharing;
 
-import com.thoughtworks.go.server.domain.DataSharingSettings;
 import com.thoughtworks.go.server.dao.DataSharingSettingsSqlMapDao;
-import com.thoughtworks.go.server.domain.Username;
+import com.thoughtworks.go.server.domain.DataSharingSettings;
 import com.thoughtworks.go.server.service.EntityHashingService;
-import com.thoughtworks.go.server.service.SecurityService;
 import com.thoughtworks.go.server.transaction.TransactionSynchronizationManager;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.util.SystemEnvironment;
@@ -77,6 +75,7 @@ public class DataSharingSettingsService {
                         @Override
                         public void afterCommit() {
                             entityHashingService.removeFromCache(dataSharingSettings, Long.toString(dataSharingSettings.getId()));
+                            dataSharingSettingsSqlMapDao.invalidateCache();
                         }
                     });
                     try {

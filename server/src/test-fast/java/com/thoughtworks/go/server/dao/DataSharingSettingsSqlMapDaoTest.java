@@ -19,7 +19,6 @@ package com.thoughtworks.go.server.dao;
 import com.thoughtworks.go.server.cache.CacheKeyGenerator;
 import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.domain.DataSharingSettings;
-import com.thoughtworks.go.server.transaction.TransactionSynchronizationManager;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import org.hibernate.SessionFactory;
 import org.junit.jupiter.api.BeforeEach;
@@ -39,8 +38,6 @@ import static org.mockito.MockitoAnnotations.initMocks;
 
 class DataSharingSettingsSqlMapDaoTest {
     @Mock
-    private TransactionSynchronizationManager transactionSynchronizationManager;
-    @Mock
     private SessionFactory sessionFactory;
     @Mock
     private TransactionTemplate transactionTemplate;
@@ -54,7 +51,7 @@ class DataSharingSettingsSqlMapDaoTest {
     @BeforeEach
     void setUp() {
         initMocks(this);
-        settingsSqlMapDao = new DataSharingSettingsSqlMapDao(sessionFactory, transactionTemplate, transactionSynchronizationManager, goCache);
+        settingsSqlMapDao = new DataSharingSettingsSqlMapDao(sessionFactory, transactionTemplate, goCache);
 
         internalTestCache = new HashMap<>();
         when(goCache.get(getCacheKey())).then((Answer<DataSharingSettings>) invocation -> (DataSharingSettings) internalTestCache.get(invocation.<String>getArgument(0)));
@@ -96,24 +93,12 @@ class DataSharingSettingsSqlMapDaoTest {
     }
 
     @Test
-    void shouldInvalidateCacheOnUpdate() throws Exception {
-        DataSharingSettings settings = new DataSharingSettings(true, "Bob", new Date());
-        when(transactionTemplate.execute(any())).thenReturn(settings);
-
+    void invalidateCacheShouldRemoveCachedObjectFromGoCache() {
         assertNull(internalTestCache.get(getCacheKey()));
-        //load once
-        settingsSqlMapDao.load();
-        assertThat(internalTestCache.get(getCacheKey()), is(settings));
-
-        //update
-        DataSharingSettings updated = new DataSharingSettings(false, "Bob", new Date());
-        settingsSqlMapDao.saveOrUpdate(updated);
-
-        //load again
-        settingsSqlMapDao.load();
-        assertThat(internalTestCache.get(getCacheKey()), is(updated));
-
-        verify(transactionTemplate, times(2)).execute(any());
+        DataSharingSettings loaded = settingsSqlMapDao.load();
+        assertThat(internalTestCache.get(getCacheKey()), is(loaded));
+        settingsSqlMapDao.invalidateCache();
+        assertNull(internalTestCache.get(getCacheKey()));
     }
 
     private String getCacheKey() {

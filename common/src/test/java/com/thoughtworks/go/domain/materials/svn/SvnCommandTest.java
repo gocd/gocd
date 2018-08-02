@@ -49,12 +49,12 @@ import static com.thoughtworks.go.junitext.EnhancedOSChecker.DO_NOT_RUN_ON;
 import static com.thoughtworks.go.junitext.EnhancedOSChecker.WINDOWS;
 import static com.thoughtworks.go.util.command.ProcessOutputStreamConsumer.inMemoryConsumer;
 import static org.hamcrest.CoreMatchers.containsString;
-import static org.hamcrest.Matchers.hasItem;
-import static org.hamcrest.Matchers.hasItems;
+import static org.hamcrest.Matchers.*;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNot.not;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
+import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.*;
 
 @RunWith(JunitExtRunner.class)
@@ -260,7 +260,7 @@ public class SvnCommandTest {
     public void shouldGetWorkingUrl() throws IOException {
         subversion.checkoutTo(outputStreamConsumer, checkoutFolder, SubversionRevision.HEAD);
         String url = subversion.workingRepositoryUrl(checkoutFolder);
-        assertThat(URLDecoder.decode(url, "UTF-8"), is(svnRepositoryUrl));
+        assertThat(URLDecoder.decode(url, "UTF-8"), equalToIgnoringCase(svnRepositoryUrl));
     }
 
     protected void assertAtRevision(int rev, String file) {

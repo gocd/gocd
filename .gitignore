@@ -109,9 +109,6 @@ api/api-data-sharing-reporting-v2/target/
 api/api-data-sharing-settings-v1/logs/
 api/api-data-sharing-settings-v1/out/
 api/api-data-sharing-settings-v1/target/
-api/api-data-sharing-usage-data-v1/logs/
-api/api-data-sharing-usage-data-v1/out/
-api/api-data-sharing-usage-data-v1/target/
 api/api-data-sharing-usage-data-v2/logs/
 api/api-data-sharing-usage-data-v2/out/
 api/api-data-sharing-usage-data-v2/target/

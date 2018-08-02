@@ -37,6 +37,9 @@ public class AdminsConfig extends BaseCollection<Admin> implements Validatable {
         addAll(asList(admins));
     }
 
+    public AdminsConfig(List<Admin> admins) {
+        addAll(admins);
+    }
     public boolean isAdmin(Admin username, List<Role> memberRoles) {
         for (Admin admin : this) {
             if (admin.isSameAs(username, memberRoles)) {

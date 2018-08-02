@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@ import com.thoughtworks.go.domain.materials.mercurial.StringRevision;
 import com.thoughtworks.go.helper.HgTestRepo;
 import com.thoughtworks.go.helper.MaterialsMother;
 import com.thoughtworks.go.helper.TestRepo;
+import com.thoughtworks.go.util.FileUtil;
 import com.thoughtworks.go.util.JsonValue;
 import com.thoughtworks.go.util.ReflectionUtil;
 import com.thoughtworks.go.util.command.ConsoleResult;
@@ -119,7 +120,7 @@ public class HgMaterialTest {
         new HgCommand(null, workingFolder, "default", hgTestRepo.url().forCommandline(), null).clone(inMemoryConsumer(), hgTestRepo.url());
         File testFile = createNewFileInWorkingFolder();
 
-        hgMaterial = MaterialsMother.hgMaterial("file://" + hgTestRepo.projectRepositoryUrl());
+        hgMaterial = MaterialsMother.hgMaterial(FileUtil.toFileURI(new File(hgTestRepo.projectRepositoryUrl())));
         updateMaterial(hgMaterial, new StringRevision("0"));
 
         String workingUrl = new HgCommand(null, workingFolder, "default", hgTestRepo.url().forCommandline(), null).workingRepositoryUrl().outputAsString();
@@ -152,7 +153,7 @@ public class HgMaterialTest {
     }
 
     @Test
-    public void shouldGetModifications() throws Exception {
+    public void shouldGetModifications() {
         List<Modification> mods = hgMaterial.modificationsSince(workingFolder, new StringRevision(REVISION_0), new TestSubprocessExecutionContext());
         assertThat(mods.size(), is(2));
         Modification modification = mods.get(0);
@@ -161,14 +162,14 @@ public class HgMaterialTest {
     }
 
     @Test
-    public void shouldNotAppendDestinationDirectoryWhileFetchingModifications() throws Exception {
+    public void shouldNotAppendDestinationDirectoryWhileFetchingModifications() {
         hgMaterial.setFolder("dest");
         hgMaterial.modificationsSince(workingFolder, new StringRevision(REVISION_0), new TestSubprocessExecutionContext());
         assertThat(new File(workingFolder, "dest").exists(), is(false));
     }
 
     @Test
-    public void shouldGetModificationsBasedOnRevision() throws Exception {
+    public void shouldGetModificationsBasedOnRevision() {
         List<Modification> modificationsSince = hgMaterial.modificationsSince(workingFolder,
                 new StringRevision(REVISION_0), new TestSubprocessExecutionContext());
 
@@ -178,14 +179,14 @@ public class HgMaterialTest {
     }
 
     @Test
-    public void shouldReturnLatestRevisionIfNoModificationsDetected() throws Exception {
+    public void shouldReturnLatestRevisionIfNoModificationsDetected() {
         List<Modification> modification = hgMaterial.modificationsSince(workingFolder,
                 new StringRevision(REVISION_2), new TestSubprocessExecutionContext());
         assertThat(modification.isEmpty(), is(true));
     }
 
     @Test
-    public void shouldUpdateToSpecificRevision() throws Exception {
+    public void shouldUpdateToSpecificRevision() {
         updateMaterial(hgMaterial, new StringRevision("0"));
         File end2endFolder = new File(workingFolder, "end2end");
         assertThat(end2endFolder.listFiles().length, is(3));
@@ -195,7 +196,7 @@ public class HgMaterialTest {
     }
 
     @Test
-    public void shouldUpdateToDestinationFolder() throws Exception {
+    public void shouldUpdateToDestinationFolder() {
         hgMaterial.setFolder("dest");
         updateMaterial(hgMaterial, new StringRevision("0"));
         File end2endFolder = new File(workingFolder, "dest/end2end");
@@ -203,7 +204,7 @@ public class HgMaterialTest {
     }
 
     @Test
-    public void shouldLogRepoInfoToConsoleOutWithoutFolder() throws Exception {
+    public void shouldLogRepoInfoToConsoleOutWithoutFolder() {
         updateMaterial(hgMaterial, new StringRevision("0"));
         assertThat(outputStreamConsumer.getStdOut(), containsString(
                 format("Start updating %s at revision %s from %s", "files", "0",
@@ -219,7 +220,7 @@ public class HgMaterialTest {
     }
 
     @Test
-    public void shouldThrowExceptionWithUsefulInfoIfFailedToFindModifications() throws Exception {
+    public void shouldThrowExceptionWithUsefulInfoIfFailedToFindModifications() {
         final String url = "/tmp/notExistDir";
         hgMaterial = MaterialsMother.hgMaterial(url);
         try {
@@ -241,7 +242,7 @@ public class HgMaterialTest {
 
 
     @Test
-    public void shouldBeEqualWhenUrlSameForHgMaterial() throws Exception {
+    public void shouldBeEqualWhenUrlSameForHgMaterial() {
         final Material material = MaterialsMother.hgMaterials("url1", "hgdir").get(0);
         final Material anotherMaterial = MaterialsMother.hgMaterials("url1", "hgdir").get(0);
         assertThat(material.equals(anotherMaterial), is(true));
@@ -249,7 +250,7 @@ public class HgMaterialTest {
     }
 
     @Test
-    public void shouldNotBeEqualWhenUrlDifferent() throws Exception {
+    public void shouldNotBeEqualWhenUrlDifferent() {
         final Material material1 = MaterialsMother.hgMaterials("url1", "hgdir").get(0);
         final Material material2 = MaterialsMother.hgMaterials("url2", "hgdir").get(0);
         assertThat(material1.equals(material2), is(false));
@@ -257,7 +258,7 @@ public class HgMaterialTest {
     }
 
     @Test
-    public void shouldNotBeEqualWhenTypeDifferent() throws Exception {
+    public void shouldNotBeEqualWhenTypeDifferent() {
         final Material material = MaterialsMother.hgMaterials("url1", "hgdir").get(0);
         final Material svnMaterial = MaterialsMother.defaultSvnMaterialsWithUrl("url1").get(0);
         assertThat(material.equals(svnMaterial), is(false));
@@ -265,7 +266,7 @@ public class HgMaterialTest {
     }
 
     @Test
-    public void shouldBeEqual() throws Exception {
+    public void shouldBeEqual() {
          final Material hgMaterial1 = MaterialsMother.hgMaterials("url1", "hgdir").get(0);
          final Material hgMaterial2 = MaterialsMother.hgMaterials("url1", "hgdir").get(0);
         assertThat(hgMaterial1.equals(hgMaterial2), is(true));
@@ -273,27 +274,27 @@ public class HgMaterialTest {
     }
 
     @Test
-    public void shouldReturnTrueForLinuxDistributeLowerThanOneZero() throws Exception {
+    public void shouldReturnTrueForLinuxDistributeLowerThanOneZero() {
         assertThat(hgMaterial.isVersionOnedotZeorOrHigher(LINUX_HG_094), is(false));
     }
 
     @Test
-    public void shouldReturnTrueForLinuxDistributeHigerThanOneZero() throws Exception {
+    public void shouldReturnTrueForLinuxDistributeHigerThanOneZero() {
         assertThat(hgMaterial.isVersionOnedotZeorOrHigher(LINUX_HG_101), is(true));
     }
 
     @Test
-    public void shouldReturnTrueForLinuxDistributeEqualsOneZero() throws Exception {
+    public void shouldReturnTrueForLinuxDistributeEqualsOneZero() {
         assertThat(hgMaterial.isVersionOnedotZeorOrHigher(LINUX_HG_10), is(true));
     }
 
     @Test
-    public void shouldReturnTrueForWindowsDistributionHigerThanOneZero() throws Exception {
+    public void shouldReturnTrueForWindowsDistributionHigerThanOneZero() {
         assertThat(hgMaterial.isVersionOnedotZeorOrHigher(WINDOWS_HG_OFFICAL_102), is(true));
     }
 
     @Test(expected = Exception.class)
-    public void shouldReturnFalseWhenVersionIsNotRecgonized() throws Exception {
+    public void shouldReturnFalseWhenVersionIsNotRecgonized() {
         hgMaterial.isVersionOnedotZeorOrHigher(WINDOWS_HG_TORTOISE);
     }
 
@@ -308,14 +309,14 @@ public class HgMaterialTest {
     }
 
     @Test
-    public void shouldReturnInvalidBeanWithRootCauseAsLowerVersionInstalled() throws Exception {
+    public void shouldReturnInvalidBeanWithRootCauseAsLowerVersionInstalled() {
         ValidationBean validationBean = hgMaterial.handleException(new Exception(), LINUX_HG_094);
         assertThat(validationBean.isValid(), is(false));
         assertThat(validationBean.getError(), containsString("Please install Mercurial Version 1.0 or above"));
     }
 
     @Test
-    public void shouldReturnInvalidBeanWithRootCauseAsRepositoryURLIsNotFound() throws Exception {
+    public void shouldReturnInvalidBeanWithRootCauseAsRepositoryURLIsNotFound() {
         ValidationBean validationBean = hgMaterial.handleException(new Exception(), WINDOWS_HG_OFFICAL_102);
         assertThat(validationBean.isValid(), is(false));
         assertThat(validationBean.getError(), containsString("not found!"));
@@ -323,7 +324,7 @@ public class HgMaterialTest {
 
 
     @Test
-    public void shouldReturnInvalidBeanWithRootCauseAsRepositoryURLIsNotFoundIfVersionIsNotKnown() throws Exception {
+    public void shouldReturnInvalidBeanWithRootCauseAsRepositoryURLIsNotFoundIfVersionIsNotKnown() {
         ValidationBean validationBean = hgMaterial.handleException(new Exception(), WINDOWS_HG_TORTOISE);
         assertThat(validationBean.isValid(), is(false));
         assertThat(validationBean.getError(), containsString("not found!"));
@@ -331,7 +332,7 @@ public class HgMaterialTest {
 
 
     @Test
-    public void shouldBeAbleToConvertToJson() throws Exception {
+    public void shouldBeAbleToConvertToJson() {
         Map<String, Object> json = new LinkedHashMap<>();
         hgMaterial.toJson(json, new StringRevision("123"));
 
@@ -342,7 +343,7 @@ public class HgMaterialTest {
     }
 
     @Test
-    public void shouldRemoveTheForwardSlashAndApplyThePattern() throws Exception {
+    public void shouldRemoveTheForwardSlashAndApplyThePattern() {
         Material material = MaterialsMother.hgMaterial();
 
         assertThat(material.matches("a.doc", "/a.doc"), is(true));
@@ -350,7 +351,7 @@ public class HgMaterialTest {
     }
 
     @Test
-    public void shouldApplyThePatternDirectly() throws Exception {
+    public void shouldApplyThePatternDirectly() {
         Material material = MaterialsMother.hgMaterial();
 
         assertThat(material.matches("a.doc", "a.doc"), is(true));
@@ -372,7 +373,7 @@ public class HgMaterialTest {
         assertThat(modification.get(0).getComment(), is(comment));
     }
 
-    @Test public void shouldGenerateSqlCriteriaMapInSpecificOrder() throws Exception {
+    @Test public void shouldGenerateSqlCriteriaMapInSpecificOrder() {
         Map<String, Object> map = hgMaterial.getSqlCriteria();
         assertThat(map.size(), is(2));
         Iterator<Map.Entry<String,Object>> iter = map.entrySet().iterator();
@@ -384,7 +385,7 @@ public class HgMaterialTest {
      * An hg abbreviated hash is 12 chars. See the hg documentation.
      * %h:	short-form changeset hash (12 bytes of hexadecimal)
      */
-    @Test public void shouldtruncateHashTo12charsforAShortRevision() throws Exception {
+    @Test public void shouldtruncateHashTo12charsforAShortRevision() {
         Material hgMaterial = new HgMaterial("file:///foo", null);
         assertThat(hgMaterial.getShortRevision("dc3d7e656831d1b203d8b7a63c4de82e26604e52"), is("dc3d7e656831"));
         assertThat(hgMaterial.getShortRevision("dc3d7e65683"), is("dc3d7e65683"));

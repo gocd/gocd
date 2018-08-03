@@ -14,13 +14,19 @@
  * limitations under the License.
  */
 
-const _ = require("lodash");
-const m = require("mithril");
+const _   = require("lodash");
+const m   = require("mithril");
+const d   = require("dragula");
+const raf = require("helpers/throttle-raf");
 
-const AllViewTabs = {
+const SortableViewTabs = {
+  oncreate: initSortable,
+
   view(vnode) {
     const vm = vnode.attrs.vm;
-    return _.map(vm.names(), (name) => <ViewTab {...vnode.attrs} name={name} />);
+    const attrs = { class: "dashboard-tabs-sortable", onscroll: raf(() => vm.hideDropdown()) };
+
+    return m("nav", attrs, _.map(vm.names(), (name) => <ViewTab {...vnode.attrs} name={name} />));
   }
 };
 
@@ -56,4 +62,29 @@ const DropdownToggle = {
   }
 };
 
-module.exports = AllViewTabs;
+function initSortable(vnode) {
+  const vm = vnode.attrs.vm;
+
+  d([vnode.dom], {
+    moves(_el, _src, handle) { return handle.classList.contains("drag-icon"); },
+    direction: "horizontal"
+  }).on("cloned", () => {
+    vm.hideDropdown();
+    m.redraw();
+  }).on("drop", function sync(src, _t, _c, dest) {
+    const drake = this;
+
+    vm.model().reorderFilter(nameOf(src), nameOf(dest), vm.etag()).
+      done((data) => vm.checksum(data.contentHash)).
+      fail((xhr) => {
+        drake.cancel(true);
+        vm.etag(true); // force refresh
+        // Need to figure out where to display error responses from server; currently not displayed
+        vm.errorMessage(xhr.status === 412 ? "You'd better slow down, turbo." : xhr.responseText);
+      }).always(m.redraw);
+  });
+}
+
+function nameOf(tabEl) { return tabEl ? tabEl.getAttribute("data-name") : null; }
+
+module.exports = SortableViewTabs;

@@ -101,6 +101,43 @@ describe("DashboardFilters", () => {
     expect(filters.findFilter("c")).toBe(c);
   });
 
+  it("moveFilterByName() moves source filter to a position before destination filter", () => {
+    const filters = new DashboardFilters([a, b, c, d, e]);
+    expect(filters.names()).toEqual(["a", "b", "c", "d", "e"]);
+
+    filters.moveFilterByName("e", "c"); // test move backward
+    expect(filters.names()).toEqual(["a", "b", "e", "c", "d"]);
+
+    filters.moveFilterByName("b", "e"); // no-op, should not change order
+    expect(filters.names()).toEqual(["a", "b", "e", "c", "d"]);
+
+    filters.moveFilterByName("b", "b"); // no-op, should not change order
+    expect(filters.names()).toEqual(["a", "b", "e", "c", "d"]);
+
+    filters.moveFilterByName("b", "c"); // test move forward
+    expect(filters.names()).toEqual(["a", "e", "b", "c", "d"]);
+
+    filters.moveFilterByName("d", "a"); // test move to front
+    expect(filters.names()).toEqual(["d", "a", "e", "b", "c"]);
+
+    filters.moveFilterByName("a", null); // test move to end
+    expect(filters.names()).toEqual(["d", "e", "b", "c", "a"]);
+  });
+
+  it("moveFilterByName() throws errors when source or destination not found", () => {
+    const filters = new DashboardFilters([a, b, c, d, e]);
+    expect(filters.names()).toEqual(["a", "b", "c", "d", "e"]);
+
+    expect(() => filters.moveFilterByName("b", "z")).toThrow(new RangeError("Could not resolve filter: z"));
+    expect(filters.names()).toEqual(["a", "b", "c", "d", "e"]);
+
+    expect(() => filters.moveFilterByName("x", "c")).toThrow(new RangeError("Could not resolve filter: x"));
+    expect(filters.names()).toEqual(["a", "b", "c", "d", "e"]);
+
+    expect(() => filters.moveFilterByName(null, "c")).toThrow(new RangeError("Could not resolve filter: null"));
+    expect(filters.names()).toEqual(["a", "b", "c", "d", "e"]);
+  });
+
   it("clone() produces a structurally equivalent copy (deep copy)", () => {
     const original = new DashboardFilters([def, a, b]);
     const dupe = original.clone();
@@ -123,3 +160,5 @@ const def = {name: "Default", type: "whitelist", pipelines: ["a", "c"]};
 const a = {name: "a", type: "blacklist", pipelines: ["a"]};
 const b = {name: "b", type: "blacklist", pipelines: ["b"]};
 const c = {name: "c", type: "whitelist", pipelines: ["c"]};
+const d = {name: "d", type: "whitelist", pipelines: ["d"]};
+const e = {name: "e", type: "blacklist", pipelines: ["e"]};

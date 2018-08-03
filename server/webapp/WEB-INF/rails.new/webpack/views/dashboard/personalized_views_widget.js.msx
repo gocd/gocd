@@ -16,9 +16,9 @@
 
 const m = require("mithril");
 
-const AllViewTabs     = require("views/dashboard/all_view_tabs");
-const EditTabDropdown = require("views/dashboard/edit_tab_dropdown");
-const Editor          = require("views/dashboard/personalization_editor");
+const SortableViewTabs = require("views/dashboard/sortable_view_tabs");
+const EditTabDropdown  = require("views/dashboard/edit_tab_dropdown");
+const Editor           = require("views/dashboard/personalization_editor");
 
 const PersonalizedViewsWidget = {
   oninit(vnode) {
@@ -31,7 +31,7 @@ const PersonalizedViewsWidget = {
     const doAddView = vm.actionHandler(() => Editor.open({}, vm.model, vm, vnode.attrs.onchange));
 
     return <div class="dashboard-tabs">
-      <AllViewTabs vm={vm} />
+      <SortableViewTabs vm={vm} />
       <EditTabDropdown {...vnode.attrs} />
       <AddTab onclick={doAddView} />
     </div>;

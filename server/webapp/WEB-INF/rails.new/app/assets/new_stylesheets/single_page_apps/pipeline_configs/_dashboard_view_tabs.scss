@@ -1,8 +1,11 @@
+@import "./dragula-3.0.1";
+
 $dashboard-tab-bg: #fff;
 $dashboard-tab-height: 45px;
 $dashboard-add-tab-width: 34px;
 $dashboard-tabs-border-color: #ccc;
 $dashboard-tabs-border-radius: 3px;
+$dashboard-tab-current-marker-height: 10px;
 $dashboard-tabs-box-shadow: 0 0 10px rgba(0, 0, 0, 0.21);
 
 .dashboard-tabs {
@@ -15,14 +18,17 @@ $dashboard-tabs-box-shadow: 0 0 10px rgba(0, 0, 0, 0.21);
   box-shadow:       $dashboard-tabs-box-shadow;
 
   .add-tab {
-    display:       inline-block;
-    border-right:  1px solid #ccc;
+    position:      absolute;
+    top:           0;
+    right:         0;
+    border-left:   1px solid $dashboard-tabs-border-color;
     border-radius: 0 0 $dashboard-tabs-border-radius $dashboard-tabs-border-radius;
     padding:       0 10px;
     width:         $dashboard-add-tab-width;
     color:         #b66fc2;
     font-size:     17px;
     cursor:        pointer;
+    height:        $dashboard-tab-height;
   }
 
   .edit-dropdown {
@@ -82,12 +88,23 @@ $dashboard-tabs-box-shadow: 0 0 10px rgba(0, 0, 0, 0.21);
   }
 }
 
+.dashboard-tabs-sortable {
+  position:       relative;
+  margin:         0;
+  padding:        0;
+  height:         calc(100% + #{$dashboard-tab-current-marker-height});
+  vertical-align: top;
+  white-space:    nowrap;
+}
+
 .dashboard-tab {
   display:      inline-block;
   border-right: 1px solid $dashboard-tabs-border-color;
   margin-left:  5px;
   padding:      0 10px;
   font-weight:  700;
+  cursor:       pointer;
+  position:     relative;
   white-space:  nowrap;
   height:       $dashboard-tab-height;
 
@@ -99,9 +116,14 @@ $dashboard-tabs-box-shadow: 0 0 10px rgba(0, 0, 0, 0.21);
   > * { vertical-align: top; }
 
   .drag-icon {
+    @include sort-cursor;
     @include grip-icon;
 
     font-size: 12px;
+
+    &:active {
+      @include sort-cursor-active;
+    }
   }
 
   .tab-name {
@@ -120,6 +142,28 @@ $dashboard-tabs-box-shadow: 0 0 10px rgba(0, 0, 0, 0.21);
     .tab-name {
       margin-right: 0;
     }
+
+    &:after {
+      content:      "";
+      position:     absolute;
+      top:          100%;
+      left:         50%;
+      transform:    translateX(-50%);
+      width:        0;
+      height:       0;
+      border-top:   $dashboard-tab-current-marker-height solid $dashboard-tab-bg;
+      border-left:  $dashboard-tab-current-marker-height solid transparent;
+      border-right: $dashboard-tab-current-marker-height solid transparent;
+    }
+  }
+
+  &.gu-mirror {
+    @include     sort-cursor-active;
+
+    background:  $dashboard-tab-bg;
+    line-height: $dashboard-tab-height;
+    border:      0;
+    box-shadow:  0 0 10px rgba(255, 255, 255, 0.21);
   }
 
   .tab-dropdown-toggle {

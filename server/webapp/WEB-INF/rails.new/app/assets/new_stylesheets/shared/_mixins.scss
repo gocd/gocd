@@ -46,6 +46,22 @@
   @include truncate-to-lines($line-count: $line-count);
 }
 
+@mixin sort-cursor {
+  // scss-lint:disable DuplicateProperty, VendorPrefix
+  cursor: move;
+  cursor: grab;
+  cursor: -moz-grab;
+  cursor: -webkit-grab;
+}
+
+@mixin sort-cursor-active {
+  // scss-lint:disable DuplicateProperty, VendorPrefix
+  cursor: move;
+  cursor: grabbing;
+  cursor: -moz-grabbing;
+  cursor: -webkit-grabbing;
+}
+
 @mixin grip-icon($color: #ccc, $shadow-color: #333) {
   display:        inline-block;
 

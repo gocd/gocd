@@ -23,6 +23,7 @@ function PersonalizationVM(currentView) {
   const dropdown     = Stream(false);
   const checksum     = Stream();
   const model        = Stream();
+  const errorMessage = Stream();
 
   const currentVnode = Stream(); // handle on current tab's vnode; allows sharing state between components
 
@@ -51,7 +52,7 @@ function PersonalizationVM(currentView) {
     }
   }
 
-  _.assign(this, {model, names, currentView, etag: checkForUpdates, checksum, currentVnode});
+  _.assign(this, {model, names, currentView, etag: checkForUpdates, checksum, errorMessage, currentVnode});
 
   this.canonicalCurrentName = () => _.find(names(), (n) => eq(n, currentView()));
 

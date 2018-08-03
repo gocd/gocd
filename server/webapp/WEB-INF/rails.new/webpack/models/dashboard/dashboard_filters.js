@@ -16,13 +16,6 @@
 
 const _ = require('lodash');
 
-function matchName(name) {
-  if ("string" !== typeof name || !name) { return false; }
-
-  const n = name.toLowerCase();
-  return (f) => n === f.name.toLowerCase();
-}
-
 function DashboardFilters(filters) {
   const NAME_DEFAULT_FILTER = "Default";
 
@@ -37,7 +30,7 @@ function DashboardFilters(filters) {
   this.filters = filters;
 
   this.replaceFilter = function replaceFilter(oldName, updatedFilter) {
-    const idx = _.findIndex(this.filters, matchName(oldName));
+    const idx = index(this.filters, oldName);
 
     if (idx !== -1) {
       this.filters.splice(idx, 1, updatedFilter);
@@ -60,6 +53,10 @@ function DashboardFilters(filters) {
     this.filters.push(filter);
   };
 
+  this.moveFilterByName = (from, to /* these are names of filters */) => {
+    move(this.filters, from, to);
+  };
+
   this.defaultFilter = () => {
     const f = _.find(this.filters, matchName(NAME_DEFAULT_FILTER));
 
@@ -79,6 +76,41 @@ function DashboardFilters(filters) {
   this.findFilter = (name) => {
     return _.find(this.filters, matchName(name)) || this.defaultFilter();
   };
+}
+
+/**
+ * Moves an element with name `src` to the position preceding element
+ * with name `dest` within array `arr`. Modifies array in-place.
+ */
+function move(arr, src, dest) {
+  // do validations before modifying array
+  const a = indexOrDie(arr, src);
+  const b = dest ? indexOrDie(arr, dest) : arr.length;
+
+  if (a === b - 1 || a === b) { return; } // both of these scenarios result in the same order
+
+  const el = arr.splice(a, 1)[0];
+  const idx = b < a ? b : b - 1; // decrement b if b precedes a as we've already modified the array
+  arr.splice(idx, 0, el);
+}
+
+/** Like index(), but throws an error when element is not found */
+function indexOrDie(arr, name) {
+  const idx = index(arr, name);
+  if (!~idx) { throw new RangeError(`Could not resolve filter: ${name}`); }
+  return idx;
+}
+
+/** Resolves the index of element with name `name` in the array `arr` */
+function index(arr, name) {
+  return _.findIndex(arr, matchName(name));
+}
+
+function matchName(name) {
+  if ("string" !== typeof name || !name) { return false; }
+
+  const n = name.toLowerCase();
+  return (f) => n === f.name.toLowerCase();
 }
 
 module.exports = DashboardFilters;

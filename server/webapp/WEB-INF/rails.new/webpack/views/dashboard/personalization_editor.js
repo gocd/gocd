@@ -27,31 +27,36 @@ function personalizeEditor(opts, personalization, model) {
   const vm = new PersonalizeEditorVM(opts, personalization().pipelineGroups());
   const existing = opts.name;
 
+  function save() {
+    vm.validate();
+    if (vm.invalid()) { return; }
+
+    const newFilter = vm.asFilter();
+
+    vm.errorResponse(null);
+    personalization().addOrReplaceFilter(existing, newFilter, model.etag()).done((data) => {
+      model.currentView(newFilter.name);
+      model.names(personalization().names());
+      model.checksum(data.contentHash);
+
+      setTimeout(Modal.close, 0);
+      model.onchange();
+    }).fail((xhr) => {
+      vm.errorResponse(xhr.responseText);
+      m.redraw();
+    });
+  }
+
   new Modal({
     title: existing ? `Edit ${opts.name}`: "Create new view",
     size: "personalize-editor",
     body: () => {
-      return m(PersonalizationModalWidget, { vm });
+      return m(PersonalizationModalWidget, { vm, save });
     },
-    buttons: [{text: "Save", disabled: vm.invalid, onclick: () => {
-      vm.validate();
-      if (vm.invalid()) { return; }
-
-      const newFilter = vm.asFilter();
-
-      vm.errorResponse(null);
-      personalization().addOrReplaceFilter(existing, newFilter, model.etag()).done((data) => {
-        model.currentView(newFilter.name);
-        model.names(personalization().names());
-        model.checksum(data.contentHash);
-
-        Modal.close();
-        model.onchange();
-      }).fail((xhr) => {
-        vm.errorResponse(xhr.responseText);
-        m.redraw();
-      });
-    }}, {text: "Cancel", class: "btn-link"}]
+    buttons: [
+      {text: "Save", disabled: vm.invalid, onclick: save},
+      {text: "Cancel", class: "btn-link"}
+    ]
   });
 }
 

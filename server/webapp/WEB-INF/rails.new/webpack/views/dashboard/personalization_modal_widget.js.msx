@@ -21,8 +21,16 @@ const f = require("helpers/form_helper");
 const FilterNameInput = {
   view(vnode) {
     const vm = vnode.attrs.vm;
+    const submitOnEnter = (e) => {
+      if (isEnterKey(e)) {
+        e.stopPropagation();
+        e.preventDefault();
+        vnode.attrs.save();
+      }
+    };
+
     return <section class="filter-name">
-      <f.input label="View name" class="view-name" model={vm} attrName="name" validate={true} />
+      <f.input label="View name" class="view-name" model={vm} attrName="name" validate={true} onkeypress={submitOnEnter} />
     </section>;
   }
 };
@@ -84,7 +92,7 @@ const PersonalizationModalWidget = {
     const vm = vnode.attrs.vm;
 
     return <div class="personalize-editor-controls">
-      <FilterNameInput vm={vm} />
+      <FilterNameInput {...vnode.attrs} />
       <input type="text" class="search-pipelines" placeholder="Search for a Pipeline" />
       <section class="filter-options">
         <BlanketSelector vm={vm.selectionVM} />
@@ -97,5 +105,10 @@ const PersonalizationModalWidget = {
     </div>;
   }
 };
+
+function isEnterKey(e) {
+  if (e.key && "Enter" === e.key) { return true; }
+  return 13 === (e.keyCode || e.which);
+}
 
 module.exports = PersonalizationModalWidget;

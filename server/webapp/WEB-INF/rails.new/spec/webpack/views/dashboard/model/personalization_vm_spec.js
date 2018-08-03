@@ -49,19 +49,54 @@ describe("Personalization View Model", () => {
     expect(vm.active("Bar")).toBe(false);
   });
 
-  it("toggleDropdown() toggles the dropdown visibility flag", () => {
+  it("hideAllDropdowns() hides all dropdowns", () => {
+    const currentView = Stream();
+    const vm = new PersonalizationVM(currentView);
+
+    // baseline
+    expect(vm.tabSettingsDropdownVisible()).toBe(false);
+    expect(vm.tabsListDropdownVisible()).toBe(false);
+
+    vm.toggleTabSettingsDropdown();
+    expect(vm.tabSettingsDropdownVisible()).toBe(true);
+
+    vm.hideAllDropdowns();
+    expect(vm.tabSettingsDropdownVisible()).toBe(false);
+    expect(vm.tabsListDropdownVisible()).toBe(false);
+
+    vm.toggleTabsListDropdown();
+    expect(vm.tabsListDropdownVisible()).toBe(true);
+
+    vm.hideAllDropdowns();
+    expect(vm.tabSettingsDropdownVisible()).toBe(false);
+    expect(vm.tabsListDropdownVisible()).toBe(false);
+  });
+
+  it("toggleTabsListDropdown() toggles the tabs list dropdown visibility", () => {
+    const currentView = Stream();
+    const vm = new PersonalizationVM(currentView);
+
+    expect(vm.tabsListDropdownVisible()).toBe(false);
+
+    vm.toggleTabsListDropdown();
+    expect(vm.tabsListDropdownVisible()).toBe(true);
+
+    vm.toggleTabsListDropdown();
+    expect(vm.tabsListDropdownVisible()).toBe(false);
+  });
+
+  it("toggleTabSettingsDropdown() toggles the tab settings dropdown visibility", () => {
     const currentView = Stream("Foo");
     const vm = new PersonalizationVM(currentView);
     vm.names(["Foo", "Bar", "Baz"]);
 
-    vm.hideDropdown();
-    expect(vm.dropdownVisible()).toBe(false);
+    expect(vm.tabSettingsDropdownVisible()).toBe(false);
 
-    vm.toggleDropdown();
-    expect(vm.dropdownVisible()).toBe(true);
+    vm.toggleTabSettingsDropdown();
+    expect(vm.tabSettingsDropdownVisible()).toBe(true);
 
-    vm.toggleDropdown();
-    expect(vm.dropdownVisible()).toBe(false);
+    vm.toggleTabSettingsDropdown();
+    expect(vm.tabSettingsDropdownVisible()).toBe(false);
   });
 
   it("actionHandler() ensures dropdown is hidden when firing the wrapped handler", () => {
@@ -71,11 +106,11 @@ describe("Personalization View Model", () => {
 
     const fn = jasmine.createSpy();
 
-    vm.toggleDropdown();
-    expect(vm.dropdownVisible()).toBe(true);
+    vm.toggleTabSettingsDropdown();
+    expect(vm.tabSettingsDropdownVisible()).toBe(true);
 
     vm.actionHandler(fn)({stopPropagation: () => {}});
-    expect(vm.dropdownVisible()).toBe(false);
+    expect(vm.tabSettingsDropdownVisible()).toBe(false);
     expect(fn).toHaveBeenCalled();
   });
 

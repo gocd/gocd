@@ -1,0 +1,37 @@
+const m = require("mithril");
+const _ = require("lodash");
+
+const TabsListDropdown = {
+  view(vnode) {
+    const vm = vnode.attrs.vm;
+    return <div class="tabs-list-dropdown-widget">
+      <ViewTabsDropdownToggle vm={vm}/>
+      <AvailableTabs vm={vm} />
+    </div>;
+  }
+};
+
+const AvailableTabs = {
+  view(vnode) {
+    const vm = vnode.attrs.vm;
+    if (vm.tabsListDropdownVisible()) {
+      return m("ul", {class: "tabs-list"}, _.map(vm.tabs(), (tab) => <li
+        key={tab.id}
+        class={vm.active(tab.name) ? "current" : undefined}
+        onclick={(e) => { e.stopPropagation(); vm.activate(tab.name); }}>{tab.name}</li>));
+    }
+  }
+};
+
+const ViewTabsDropdownToggle = {
+  view(vnode) {
+    const vm = vnode.attrs.vm;
+    function toggleTabsListDropdown(e) { e.stopPropagation(); vm.toggleTabsListDropdown(); }
+
+    return <button class="tabs-list-dropdown-toggle" onclick={toggleTabsListDropdown}>
+      <i class="fa fa-caret-down" />
+    </button>;
+  }
+};
+
+module.exports = TabsListDropdown;

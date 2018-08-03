@@ -3,6 +3,7 @@ $dashboard-tab-primary-text-color: #4ad9d9;
 $dashboard-tab-secondary-text-color: #c7c8cc;
 $dashboard-tab-height: 50px;
 $dashboard-add-tab-width: 34px;
+$dashboard-tab-list-toggle-width: $dashboard-add-tab-width;
 $dashboard-tabs-border-color: #425188;
 $dashboard-tabs-border-radius: 3px;
 $dashboard-tabs-pager-width: 30px;
@@ -24,18 +25,74 @@ $dashboard-tabs-box-shadow: 0 0 10px rgba(0, 0, 0, 0.21);
     cursor: pointer;
   }
 
-  .add-tab {
+  .add-tab, .tabs-list-dropdown-widget {
     position:      absolute;
     top:           0;
-    right:         0;
     border-left:   1px solid $dashboard-tabs-border-color;
-    border-radius: 0 0 $dashboard-tabs-border-radius $dashboard-tabs-border-radius;
     padding:       0 10px;
-    width:         $dashboard-add-tab-width;
-    color:         $dashboard-tab-primary-text-color;
     font-size:     17px;
     cursor:        pointer;
     height:        $dashboard-tab-height;
+  }
+
+  .add-tab {
+    right: $dashboard-tab-list-toggle-width;
+    width: $dashboard-add-tab-width;
+    color: $dashboard-tab-primary-text-color;
+  }
+
+  .tabs-list-dropdown-widget {
+    top:           0;
+    right:         0;
+    width:         $dashboard-tab-list-toggle-width;
+    color:         #fff;
+    border-radius: 0 $dashboard-tabs-border-radius $dashboard-tabs-border-radius 0;
+
+    .tabs-list-dropdown-toggle {
+      position: absolute;
+      top:      0;
+      left:     0;
+      width:    100%;
+      height:   100%;
+      outline:  none;
+    }
+
+    .tabs-list {
+      position:      absolute;
+      top:           100%;
+      right:         0;
+      background:    $dashboard-tab-bg;
+      margin:        0;
+      padding:       0 20px;
+      border-top:    1px solid $dashboard-tabs-border-color;
+      border-radius: 0 0 $dashboard-tabs-border-radius $dashboard-tabs-border-radius;
+      list-style:    none;
+      font-size:     14px;
+      z-index:       9;
+      overflow-y:    auto;
+      max-height:    65vh;
+      box-shadow:    $dashboard-tabs-box-shadow;
+
+
+      li {
+        @include truncate-to-width($max: 210px);
+
+        margin:         0;
+        padding:        10px 0;
+        border:         0;
+        border-bottom:  1px dashed $dashboard-tabs-border-color;
+        text-transform: uppercase;
+        font-weight:    700;
+
+        &.current, &:hover {
+          color: $dashboard-tab-primary-text-color;
+        }
+
+        &:last-of-type {
+          border-bottom: 0;
+        }
+      }
+    }
   }
 
   .edit-dropdown {
@@ -124,7 +181,7 @@ $dashboard-tabs-box-shadow: 0 0 10px rgba(0, 0, 0, 0.21);
 
 .dashboard-tabs-scrollable {
   padding:  0 $dashboard-tabs-pager-width;
-  width:    calc(100% - #{$dashboard-add-tab-width});
+  width:    calc(100% - #{$dashboard-add-tab-width} - #{$dashboard-tab-list-toggle-width});
   overflow: hidden;
 
   .page-prev, .page-next {

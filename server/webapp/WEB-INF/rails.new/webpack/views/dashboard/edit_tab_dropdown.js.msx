@@ -24,7 +24,7 @@ const EditTabDropdown = {
   onupdate(vnode) {
     const vm = vnode.attrs.vm;
 
-    if (vm.dropdownVisible()) {
+    if (vm.tabSettingsDropdownVisible()) {
       const currentTab = $(vm.currentVnode().dom);
       const viewportLeft = currentTab.offset().left;
       // We need to take into account the tab scrolling buttons
@@ -41,7 +41,7 @@ const EditTabDropdown = {
   view(vnode) {
     const vm = vnode.attrs.vm;
 
-    if (vm.dropdownVisible()) {
+    if (vm.tabSettingsDropdownVisible()) {
       const model = vm.model;
       const current = vm.canonicalCurrentName();
       const allowDelete = !vm.locked() && !vm.isDefault(current);

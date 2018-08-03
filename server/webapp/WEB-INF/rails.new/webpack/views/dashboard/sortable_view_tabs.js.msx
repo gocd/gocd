@@ -24,7 +24,7 @@ const SortableViewTabs = {
 
   view(vnode) {
     const vm = vnode.attrs.vm;
-    const attrs = { class: "dashboard-tabs-sortable", onscroll: raf(() => vm.hideDropdown()) };
+    const attrs = { class: "dashboard-tabs-sortable", onscroll: raf(() => vm.hideAllDropdowns()) };
 
     return m("nav", attrs, _.map(vm.tabs(), (tab) => <ViewTab {...vnode.attrs} key={tab.id} name={tab.name} />));
   }
@@ -52,7 +52,7 @@ const DropdownToggle = {
   view(vnode) {
     const vm = vnode.attrs.vm;
 
-    function toggleDropdown(e) { e.stopPropagation(); vm.toggleDropdown(); }
+    function toggleTabSettingsDropdown(e) { e.stopPropagation(); vm.toggleTabSettingsDropdown(); }
 
     if (vnode.attrs.current) {
       const classes = ["fa", "fa-caret-down", "dropdown-btn"];
@@ -60,7 +60,7 @@ const DropdownToggle = {
       if (vm.locked()) { classes.push("deny-action"); }
 
       return <div class="tab-dropdown-toggle">
-        <i class={classes.join(" ")} onclick={vm.locked() || toggleDropdown} />
+        <i class={classes.join(" ")} onclick={vm.locked() || toggleTabSettingsDropdown} />
       </div>;
     }
   }
@@ -87,7 +87,7 @@ function initSortable(vnode) {
       initSavePopup(vm);
     }
 
-    vm.hideDropdown();
+    vm.hideAllDropdowns();
     m.redraw();
   }).on("drag:move", (e) => {
     e.data.sensorEvent.data.clientY = y0; // prevent vertical scrolling; that would reveal the magic trick!

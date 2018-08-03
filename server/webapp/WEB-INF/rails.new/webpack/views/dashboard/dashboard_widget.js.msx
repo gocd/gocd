@@ -39,7 +39,7 @@ const DashboardWidget = {
       const body = $("body");
       body.click(() => {
         vnode.attrs.vm.dropdown.hide();
-        vnode.attrs.personalizeVM.hideDropdown();
+        vnode.attrs.personalizeVM.hideAllDropdowns();
         m.redraw();
       });
     };

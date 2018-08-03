@@ -46,6 +46,7 @@ function personalizeEditor(opts, personalization, model) {
         model.checksum(data.contentHash);
 
         Modal.close();
+        model.onchange();
       }).fail((xhr) => {
         vm.errorResponse(xhr.responseText);
         m.redraw();

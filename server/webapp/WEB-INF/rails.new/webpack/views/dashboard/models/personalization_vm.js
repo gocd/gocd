@@ -25,6 +25,7 @@ function PersonalizationVM(currentView) {
   const model        = Stream();
   const errorMessage = Stream();
 
+  const paged        = Stream(false); // flag indicating whether the view tabs need scrollable behavior
   const currentVnode = Stream(); // handle on current tab's vnode; allows sharing state between components
 
   let requestPending, tick;
@@ -52,7 +53,9 @@ function PersonalizationVM(currentView) {
     }
   }
 
-  _.assign(this, {model, names, currentView, etag: checkForUpdates, checksum, errorMessage, currentVnode});
+  const changeListeners = [];
+
+  _.assign(this, {model, names, currentView, etag: checkForUpdates, checksum, errorMessage, paged, currentVnode});
 
   this.canonicalCurrentName = () => _.find(names(), (n) => eq(n, currentView()));
 
@@ -77,6 +80,17 @@ function PersonalizationVM(currentView) {
 
   this.actionHandler = (fn) => {
     return (e) => { e.stopPropagation(); dropdown(false); fn(); };
+  };
+
+  this.onchange = function registerOrExec(fn) {
+    if (!arguments.length) {
+      _.each(changeListeners, (fn) => fn());
+      return;
+    }
+
+    if ("function" !== typeof fn || _.includes(changeListeners, fn)) { return; }
+
+    changeListeners.push(fn);
   };
 }
 

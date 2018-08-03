@@ -79,7 +79,7 @@ const DashboardWidget = {
           </div>
         </div>
         <div class="dashboard" key="dashboard-content">
-          <PersonalizedViewsWidget vm={personalizeVM} onchange={vnode.attrs.doRefreshImmediately} />
+          <PersonalizedViewsWidget vm={personalizeVM} />
           {messageView}
           {_.map(vnode.attrs.dashboard.getPipelineGroups(), (pipelineGroup) => {
             let name, settingsIcon;

@@ -133,4 +133,21 @@ describe("Personalization View Model", () => {
       expect(vm.etag()).toBe("1234567");
     });
   });
+
+  it("onchange() allows registration of multiple handlers", () => {
+    const vm = new PersonalizationVM(Stream());
+    const a = jasmine.createSpy();
+    const b = jasmine.createSpy();
+
+    vm.onchange(a);
+    vm.onchange(b);
+
+    expect(a).toHaveBeenCalledTimes(0);
+    expect(b).toHaveBeenCalledTimes(0);
+
+    vm.onchange();
+
+    expect(a).toHaveBeenCalled();
+    expect(b).toHaveBeenCalled();
+  });
 });

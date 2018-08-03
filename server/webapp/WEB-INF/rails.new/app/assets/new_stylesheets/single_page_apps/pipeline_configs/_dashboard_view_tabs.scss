@@ -5,6 +5,7 @@ $dashboard-tab-height: 45px;
 $dashboard-add-tab-width: 34px;
 $dashboard-tabs-border-color: #ccc;
 $dashboard-tabs-border-radius: 3px;
+$dashboard-tabs-pager-width: 18px;
 $dashboard-tab-current-marker-height: 10px;
 $dashboard-tabs-box-shadow: 0 0 10px rgba(0, 0, 0, 0.21);
 
@@ -88,13 +89,56 @@ $dashboard-tabs-box-shadow: 0 0 10px rgba(0, 0, 0, 0.21);
   }
 }
 
-.dashboard-tabs-sortable {
+.dashboard-tabs-sortable, .dashboard-tabs-scrollable {
   position:       relative;
   margin:         0;
   padding:        0;
   height:         calc(100% + #{$dashboard-tab-current-marker-height});
   vertical-align: top;
   white-space:    nowrap;
+}
+
+.dashboard-tabs-sortable {
+  padding-bottom: 100px;
+  width:          100%;
+  overflow-x:     auto;
+  overflow-y:     hidden;
+}
+
+.dashboard-tabs-scrollable {
+  padding:  0 $dashboard-tabs-pager-width;
+  width:    calc(100% - #{$dashboard-add-tab-width});
+  overflow: hidden;
+
+  .page-prev, .page-next {
+    position:    absolute;
+    top:         0;
+    padding:     0 3px;
+    width:       $dashboard-tabs-pager-width;
+    font-size:   21px;
+    line-height: $dashboard-tab-height;
+    height:      $dashboard-tab-height;
+    color:       #ccc;
+  }
+
+  &.paged {
+    .page-prev, .page-next {
+      color:  #000;
+      cursor: pointer;
+    }
+  }
+
+  .page-prev {
+    left:          0;
+    padding-right: 7px;
+    border-right:  1px solid $dashboard-tabs-border-color;
+  }
+
+  .page-next {
+    right:        0;
+    padding-left: 7px;
+    border-left:  1px solid $dashboard-tabs-border-color;
+  }
 }
 
 .dashboard-tab {

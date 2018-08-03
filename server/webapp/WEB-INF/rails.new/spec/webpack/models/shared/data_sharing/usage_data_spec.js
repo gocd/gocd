@@ -30,6 +30,10 @@ describe('Data Sharing Usage Data', () => {
     }
   };
 
+  it('should use API version v2', () => {
+    expect(UsageData.API_VERSION).toBe('v2');
+  });
+
   it('should deserialize data sharing usage data from JSON', () => {
     const usageData = UsageData.fromJSON(dataSharingUsageJSON);
     expect(usageData.message()).toBe(dataSharingUsageJSON);
@@ -46,7 +50,7 @@ describe('Data Sharing Usage Data', () => {
         responseText:    JSON.stringify(dataSharingUsageJSON),
         status:          200,
         responseHeaders: {
-          'Content-Type': 'application/vnd.go.cd.v1+json'
+          'Content-Type': 'application/vnd.go.cd.v2+json'
         }
       });
 

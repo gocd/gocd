@@ -60,7 +60,7 @@ public class EncryptionHelper {
     public static boolean verifyRSASignature(String subordinatePublicKeyContent, String signatureContent, String masterPublicKeyContent) throws NoSuchProviderException, NoSuchAlgorithmException, IOException, InvalidKeySpecException, InvalidKeyException, SignatureException {
         PublicKey masterPublicKey = getRSAPublicKeyFrom(masterPublicKeyContent);
         signatureContent = signatureContent.replace("\n", "");
-        Signature signature = Signature.getInstance("SHA512withRSA", "SunRsaSign");
+        Signature signature = Signature.getInstance("SHA512withRSA");
         signature.initVerify(masterPublicKey);
         signature.update(subordinatePublicKeyContent.getBytes());
         return signature.verify(Base64.getDecoder().decode(signatureContent.getBytes()));

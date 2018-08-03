@@ -16,17 +16,21 @@
 
 package com.thoughtworks.go.config.materials.mercurial;
 
+import com.googlecode.junit.ext.JunitExtRunner;
+import com.googlecode.junit.ext.RunIf;
+import com.googlecode.junit.ext.checkers.OSChecker;
 import com.thoughtworks.go.domain.materials.*;
 import com.thoughtworks.go.domain.materials.mercurial.HgCommand;
 import com.thoughtworks.go.domain.materials.mercurial.StringRevision;
 import com.thoughtworks.go.helper.HgTestRepo;
 import com.thoughtworks.go.helper.MaterialsMother;
 import com.thoughtworks.go.helper.TestRepo;
-import com.thoughtworks.go.util.FileUtil;
+import com.thoughtworks.go.junitext.EnhancedOSChecker;
 import com.thoughtworks.go.util.JsonValue;
 import com.thoughtworks.go.util.ReflectionUtil;
 import com.thoughtworks.go.util.command.ConsoleResult;
 import com.thoughtworks.go.util.command.InMemoryStreamConsumer;
+import com.thoughtworks.go.util.command.UrlArgument;
 import org.apache.commons.io.FileUtils;
 import org.hamcrest.Matchers;
 import org.hamcrest.core.StringContains;
@@ -35,6 +39,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.junit.runner.RunWith;
 
 import java.io.File;
 import java.io.IOException;
@@ -54,6 +59,7 @@ import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+@RunWith(JunitExtRunner.class)
 public class HgMaterialTest {
     @Rule
     public final TemporaryFolder temporaryFolder = new TemporaryFolder();
@@ -116,14 +122,32 @@ public class HgMaterialTest {
     }
 
     @Test
-    public void shouldNotRefreshWorkingFolderWhenFileProtocolIsUsed() throws Exception {
-        new HgCommand(null, workingFolder, "default", hgTestRepo.url().forCommandline(), null).clone(inMemoryConsumer(), hgTestRepo.url());
+    @RunIf(value = EnhancedOSChecker.class, arguments = OSChecker.LINUX)
+    public void shouldNotRefreshWorkingFolderWhenFileProtocolIsUsedOnLinux() throws Exception {
+        final UrlArgument repoUrl = hgTestRepo.url();
+        new HgCommand(null, workingFolder, "default", repoUrl.forCommandline(), null).clone(inMemoryConsumer(), repoUrl);
         File testFile = createNewFileInWorkingFolder();
 
-        hgMaterial = MaterialsMother.hgMaterial(FileUtil.toFileURI(new File(hgTestRepo.projectRepositoryUrl())));
+        hgMaterial = MaterialsMother.hgMaterial("file://" + new File(hgTestRepo.projectRepositoryUrl()));
         updateMaterial(hgMaterial, new StringRevision("0"));
 
-        String workingUrl = new HgCommand(null, workingFolder, "default", hgTestRepo.url().forCommandline(), null).workingRepositoryUrl().outputAsString();
+        String workingUrl = new HgCommand(null, workingFolder, "default", repoUrl.forCommandline(), null).workingRepositoryUrl().outputAsString();
+        assertThat(workingUrl, is(hgTestRepo.projectRepositoryUrl()));
+        assertThat(testFile.exists(), is(true));
+    }
+
+    @Test
+    @RunIf(value = EnhancedOSChecker.class, arguments = OSChecker.WINDOWS)
+    public void shouldNotRefreshWorkingFolderWhenFileProtocolIsUsedOnWindows() throws Exception {
+        final UrlArgument repoUrl = hgTestRepo.url();
+        new HgCommand(null, workingFolder, "default", repoUrl.forCommandline(), null).clone(inMemoryConsumer(), repoUrl);
+        File testFile = createNewFileInWorkingFolder();
+
+        hgMaterial = MaterialsMother.hgMaterial("file:///" + new File(hgTestRepo.projectRepositoryUrl()));
+
+        updateMaterial(hgMaterial, new StringRevision("0"));
+
+        String workingUrl = new HgCommand(null, workingFolder, "default", repoUrl.forCommandline(), null).workingRepositoryUrl().outputAsString();
         assertThat(workingUrl, is(hgTestRepo.projectRepositoryUrl()));
         assertThat(testFile.exists(), is(true));
     }
@@ -267,8 +291,8 @@ public class HgMaterialTest {
 
     @Test
     public void shouldBeEqual() {
-         final Material hgMaterial1 = MaterialsMother.hgMaterials("url1", "hgdir").get(0);
-         final Material hgMaterial2 = MaterialsMother.hgMaterials("url1", "hgdir").get(0);
+        final Material hgMaterial1 = MaterialsMother.hgMaterials("url1", "hgdir").get(0);
+        final Material hgMaterial2 = MaterialsMother.hgMaterials("url1", "hgdir").get(0);
         assertThat(hgMaterial1.equals(hgMaterial2), is(true));
         assertThat(hgMaterial1.hashCode(), is(hgMaterial2.hashCode()));
     }
@@ -373,10 +397,11 @@ public class HgMaterialTest {
         assertThat(modification.get(0).getComment(), is(comment));
     }
 
-    @Test public void shouldGenerateSqlCriteriaMapInSpecificOrder() {
+    @Test
+    public void shouldGenerateSqlCriteriaMapInSpecificOrder() {
         Map<String, Object> map = hgMaterial.getSqlCriteria();
         assertThat(map.size(), is(2));
-        Iterator<Map.Entry<String,Object>> iter = map.entrySet().iterator();
+        Iterator<Map.Entry<String, Object>> iter = map.entrySet().iterator();
         assertThat(iter.next().getKey(), is("type"));
         assertThat(iter.next().getKey(), is("url"));
     }
@@ -385,7 +410,8 @@ public class HgMaterialTest {
      * An hg abbreviated hash is 12 chars. See the hg documentation.
      * %h:	short-form changeset hash (12 bytes of hexadecimal)
      */
-    @Test public void shouldtruncateHashTo12charsforAShortRevision() {
+    @Test
+    public void shouldtruncateHashTo12charsforAShortRevision() {
         Material hgMaterial = new HgMaterial("file:///foo", null);
         assertThat(hgMaterial.getShortRevision("dc3d7e656831d1b203d8b7a63c4de82e26604e52"), is("dc3d7e656831"));
         assertThat(hgMaterial.getShortRevision("dc3d7e65683"), is("dc3d7e65683"));
@@ -401,25 +427,25 @@ public class HgMaterialTest {
     }
 
     @Test
-    public void shouldGetLongDescriptionForMaterial(){
+    public void shouldGetLongDescriptionForMaterial() {
         HgMaterial material = new HgMaterial("http://url/", "folder");
         assertThat(material.getLongDescription(), is("URL: http://url/"));
     }
 
     @Test
-    public void shouldFindTheBranchName(){
+    public void shouldFindTheBranchName() {
         HgMaterial material = new HgMaterial("http://url/##foo", "folder");
         assertThat(material.getBranch(), is("foo"));
     }
 
     @Test
-    public void shouldSetDefaultAsBranchNameIfBranchNameIsNotSpecifiedInUrl(){
+    public void shouldSetDefaultAsBranchNameIfBranchNameIsNotSpecifiedInUrl() {
         HgMaterial material = new HgMaterial("http://url/", "folder");
         assertThat(material.getBranch(), is("default"));
     }
 
     @Test
-    public void shouldMaskThePasswordInDisplayName(){
+    public void shouldMaskThePasswordInDisplayName() {
         HgMaterial material = new HgMaterial("http://user:pwd@url##branch", "folder");
         assertThat(material.getDisplayName(), is("http://user:******@url##branch"));
     }

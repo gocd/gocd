@@ -143,6 +143,16 @@ class FiltersTest {
     }
 
     @Test
+    void validatesStateOnDeserialize() {
+        String json = "{ \"filters\": [" +
+                "  {\"name\": \"one\", \"type\": \"whitelist\", \"pipelines\": [], \"state\": [\"pi\", \"failing\"]}," +
+                "  {\"name\": \"default\", \"type\": \"whitelist\", \"pipelines\": []}" +
+                "] }";
+        Throwable e = assertThrows(FilterValidationException.class, () -> Filters.fromJson(json));
+        assertEquals(MSG_INVALID_STATES, e.getMessage());
+    }
+
+    @Test
     void validatesPresenceOfDefaultFilterOnConstruction() {
         Throwable e = assertThrows(FilterValidationException.class, () -> Filters.single(namedBlacklist("foo", "bar")));
         assertEquals(MSG_NO_DEFAULT_FILTER, e.getMessage());
@@ -215,7 +225,7 @@ class FiltersTest {
 
 
     private DashboardFilter namedWhitelist(String name, String... pipelines) {
-        return new WhitelistFilter(name, CaseInsensitiveString.list(pipelines));
+        return new WhitelistFilter(name, CaseInsensitiveString.list(pipelines), null);
     }
 
     private DashboardFilter whitelist(String... pipelines) {
@@ -223,7 +233,7 @@ class FiltersTest {
     }
 
     private DashboardFilter namedBlacklist(String name, String... pipelines) {
-        return new BlacklistFilter(name, CaseInsensitiveString.list(pipelines));
+        return new BlacklistFilter(name, CaseInsensitiveString.list(pipelines), null);
     }
 
     private DashboardFilter blacklist(String... pipelines) {

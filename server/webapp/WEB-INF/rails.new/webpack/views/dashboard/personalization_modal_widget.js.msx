@@ -115,6 +115,7 @@ const PersonalizationModalWidget = {
       <section class="filter-options">
         <BlanketSelector vm={vm.selectionVM} />
         <f.checkbox name="include-new-pipelines" model={vm} attrName="includeNewPipelines" label="Show newly created pipelines" />
+        <StageStateCriteria vm={vm} />
       </section>
       <section class="pipeline-selections">
         <SelectedPipelineList vm={vm.selectionVM} />

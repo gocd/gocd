@@ -20,7 +20,9 @@ import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.TrackingTool;
 import com.thoughtworks.go.config.remote.ConfigOrigin;
 import com.thoughtworks.go.config.security.Permissions;
+import com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModel;
 import com.thoughtworks.go.presentation.pipelinehistory.PipelineModel;
+import com.thoughtworks.go.presentation.pipelinehistory.StageInstanceModel;
 
 import java.util.Optional;
 
@@ -60,6 +62,14 @@ public class GoDashboardPipeline {
 
     public Optional<TrackingTool> getTrackingTool() {
         return Optional.ofNullable(trackingTool);
+    }
+
+    public StageInstanceModel getLatestStage() {
+        PipelineInstanceModel latestPipelineInstance = pipelineModel.getLatestPipelineInstance();
+        if (latestPipelineInstance == null) {
+            return null;
+        }
+        return latestPipelineInstance.latestStage();
     }
 
     public CaseInsensitiveString name() {

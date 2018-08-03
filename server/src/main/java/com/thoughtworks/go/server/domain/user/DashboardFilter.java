@@ -17,10 +17,9 @@
 package com.thoughtworks.go.server.domain.user;
 
 import com.thoughtworks.go.config.CaseInsensitiveString;
+import com.thoughtworks.go.presentation.pipelinehistory.StageInstanceModel;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 public interface DashboardFilter {
     static <T> List<T> enforceList(List<T> list) {
@@ -28,10 +27,14 @@ public interface DashboardFilter {
     }
 
     String DEFAULT_NAME = "Default";
-
+    String BUILDING_STATE = "building";
+    String FAILED_STATE = "failing";
+    Set<String> VALID_STATES = new HashSet<String>(Arrays.asList(BUILDING_STATE, FAILED_STATE));
     String name();
 
-    boolean isPipelineVisible(CaseInsensitiveString pipeline);
+    Set<String> state();
+
+    boolean isPipelineVisible(CaseInsensitiveString pipeline, StageInstanceModel goDashboardPipeline);
 
     /**
      * Idempotent operation on filter to allow a specified pipeline to be visible

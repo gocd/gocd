@@ -27,7 +27,7 @@ import static com.thoughtworks.go.server.domain.user.DashboardFilter.DEFAULT_NAM
 public class PipelineSelectionsHelper {
     public static PipelineSelections with(List<String> pipelines, Date date, Long userId, boolean blacklist) {
         List<CaseInsensitiveString> params = CaseInsensitiveString.list(pipelines);
-        DashboardFilter filter = blacklist ? new BlacklistFilter(DEFAULT_NAME, params) : new WhitelistFilter(DEFAULT_NAME, params);
+        DashboardFilter filter = blacklist ? new BlacklistFilter(DEFAULT_NAME, params, null) : new WhitelistFilter(DEFAULT_NAME, params, null);
         return new PipelineSelections(new Filters(Collections.singletonList(filter)), date, userId);
     }
 

@@ -229,6 +229,13 @@ public class StageInstanceModel implements StageConfigurationModel {
         return true;
     }
 
+    public boolean hasFailed() {
+        for (JobHistoryItem jobHistoryItem : jobHistory) {
+            if(jobHistoryItem.hasFailed()) return true;
+        }
+        return false;
+    }
+
     public boolean isRunning() {
         for (JobHistoryItem jobHistoryItem : jobHistory) {
             if(jobHistoryItem.isRunning()) return true;

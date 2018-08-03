@@ -88,6 +88,10 @@ public class JobHistoryItem implements BuildStateAware {
         return result == JobResult.Passed;
     }
 
+    public boolean hasFailed() {
+        return result.isFailed();
+    }
+
     public boolean isRunning() {
         return state == JobState.Assigned || state == JobState.Preparing || state == JobState.Building || state == JobState.Completing || state == JobState.Scheduled;
     }

@@ -38,7 +38,7 @@ public class PipelineSelectionsTest {
         ps.update(Filters.defaults(), null, null);
         assertEquals("1269CFEF75B2DA5D73263B78BE4EA8EA9663104992327642B44F28A5C66E36F2", ps.etag());
 
-        ps.update(Filters.single(new WhitelistFilter(DEFAULT_NAME, CaseInsensitiveString.list("p1"))), null, null);
+        ps.update(Filters.single(new WhitelistFilter(DEFAULT_NAME, CaseInsensitiveString.list("p1"), null)), null, null);
         assertEquals("852D88B3C5D6A9CFC481DE35FB4A90A79E5A96A10A80947F7EFC8D345C10024E", ps.etag());
 
         ps.setFilters(format("{\"filters\": [{\"name\": \"%s\", \"type\": \"blacklist\", \"pipelines\": [\"foobar\"]}]}", DEFAULT_NAME));

@@ -110,7 +110,7 @@ public class PipelineSelections extends PersistentObject implements Serializable
 
     @Deprecated // TODO: remove when removing old dashboard
     public boolean includesPipeline(CaseInsensitiveString pipelineName) {
-        return namedFilter(DEFAULT_NAME).isPipelineVisible(pipelineName);
+        return namedFilter(DEFAULT_NAME).isPipelineVisible(pipelineName, null);
     }
 
     @Deprecated // TODO: remove when removing old dashboard

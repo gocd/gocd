@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -131,19 +131,20 @@ public class HgTestRepo extends TestRepo {
     }
 
     public List<Modification> commitAndPushFile(String fileName, String comment) throws Exception {
-        return commitAndPushFileWithContent(fileName,comment,"");
+        return commitAndPushFileWithContent(fileName, comment, "");
     }
-    public List<Modification> commitAndPushFileWithContent(String fileName, String comment,String content) throws Exception {
+
+    public List<Modification> commitAndPushFileWithContent(String fileName, String comment, String content) throws Exception {
         File baseDir = temporaryFolder.newFolder();
         HgMaterial material = updateTo(baseDir);
 
         File file = new File(baseDir, fileName);
         FileUtils.writeStringToFile(file, content, UTF_8);
 
-        return addCommitPush(material,comment, baseDir, file);
+        return addCommitPush(material, comment, baseDir, file);
     }
 
-    public List<Modification> addCommitPush(HgMaterial material,String comment, File baseDir, File file) throws Exception {
+    public List<Modification> addCommitPush(HgMaterial material, String comment, File baseDir, File file) throws Exception {
         material.add(baseDir, ProcessOutputStreamConsumer.inMemoryConsumer(), file);
         material.commit(baseDir, ProcessOutputStreamConsumer.inMemoryConsumer(), comment, "user");
         material.push(baseDir, ProcessOutputStreamConsumer.inMemoryConsumer());

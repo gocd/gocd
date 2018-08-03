@@ -19,9 +19,11 @@ package com.thoughtworks.go.util.command;
 import com.googlecode.junit.ext.JunitExtRunner;
 import com.googlecode.junit.ext.RunIf;
 import com.googlecode.junit.ext.checkers.OSChecker;
+import com.thoughtworks.go.junitext.EnhancedOSChecker;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import static com.thoughtworks.go.junitext.EnhancedOSChecker.DO_NOT_RUN_ON;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.core.IsNot.not;
@@ -71,7 +73,7 @@ public class ScriptRunnerTest {
     }
 
     @Test
-    @RunIf(value = OSChecker.class, arguments = OSChecker.LINUX)
+    @RunIf(value = EnhancedOSChecker.class, arguments = {DO_NOT_RUN_ON, OSChecker.WINDOWS})
     public void shouldBeAbleToSpecifyEncoding() throws CheckedCommandLineException {
         String chrisWasHere = "司徒空在此";
         CommandLine command = CommandLine.createCommandLine("echo").withArg(chrisWasHere).withEncoding("UTF-8");
@@ -83,7 +85,7 @@ public class ScriptRunnerTest {
     }
 
     @Test
-    @RunIf(value = OSChecker.class, arguments = OSChecker.LINUX)
+    @RunIf(value = EnhancedOSChecker.class, arguments = {DO_NOT_RUN_ON, OSChecker.WINDOWS})
     public void shouldMaskOutOccuranceOfSecureEnvironmentVariablesValuesInTheScriptOutputOnLinux() throws CheckedCommandLineException {
         EnvironmentVariableContext environmentVariableContext = new EnvironmentVariableContext();
         environmentVariableContext.setProperty("secret", "the_secret_password", true);
@@ -98,7 +100,7 @@ public class ScriptRunnerTest {
     }
 
     @Test
-    @RunIf(value = OSChecker.class, arguments = OSChecker.WINDOWS)
+    @RunIf(value = EnhancedOSChecker.class, arguments = OSChecker.WINDOWS)
     public void shouldMaskOutOccuranceOfSecureEnvironmentVariablesValuesInTheScriptOutput() throws CheckedCommandLineException {
         EnvironmentVariableContext environmentVariableContext = new EnvironmentVariableContext();
         environmentVariableContext.setProperty("secret", "the_secret_password", true);

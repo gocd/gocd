@@ -48,6 +48,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.thoughtworks.go.junitext.EnhancedOSChecker.DO_NOT_RUN_ON;
 import static com.thoughtworks.go.util.JsonUtils.from;
 import static com.thoughtworks.go.util.command.ProcessOutputStreamConsumer.inMemoryConsumer;
 import static java.lang.String.format;
@@ -95,6 +96,7 @@ public class HgMaterialTest {
 
     @Before
     public void setUp() throws Exception {
+        temporaryFolder.create();
         hgTestRepo = new HgTestRepo("hgTestRepo1", temporaryFolder);
         hgMaterial = MaterialsMother.hgMaterial(hgTestRepo.projectRepositoryUrl());
         workingFolder = temporaryFolder.newFolder("workingFolder");
@@ -103,6 +105,7 @@ public class HgMaterialTest {
 
     @After
     public void teardown() {
+        temporaryFolder.delete();
         FileUtils.deleteQuietly(workingFolder);
         TestRepo.internalTearDown();
     }
@@ -122,29 +125,13 @@ public class HgMaterialTest {
     }
 
     @Test
-    @RunIf(value = EnhancedOSChecker.class, arguments = OSChecker.LINUX)
+    @RunIf(value = EnhancedOSChecker.class, arguments = {DO_NOT_RUN_ON, OSChecker.WINDOWS})
     public void shouldNotRefreshWorkingFolderWhenFileProtocolIsUsedOnLinux() throws Exception {
         final UrlArgument repoUrl = hgTestRepo.url();
         new HgCommand(null, workingFolder, "default", repoUrl.forCommandline(), null).clone(inMemoryConsumer(), repoUrl);
         File testFile = createNewFileInWorkingFolder();
 
-        hgMaterial = MaterialsMother.hgMaterial("file://" + new File(hgTestRepo.projectRepositoryUrl()));
-        updateMaterial(hgMaterial, new StringRevision("0"));
-
-        String workingUrl = new HgCommand(null, workingFolder, "default", repoUrl.forCommandline(), null).workingRepositoryUrl().outputAsString();
-        assertThat(workingUrl, is(hgTestRepo.projectRepositoryUrl()));
-        assertThat(testFile.exists(), is(true));
-    }
-
-    @Test
-    @RunIf(value = EnhancedOSChecker.class, arguments = OSChecker.WINDOWS)
-    public void shouldNotRefreshWorkingFolderWhenFileProtocolIsUsedOnWindows() throws Exception {
-        final UrlArgument repoUrl = hgTestRepo.url();
-        new HgCommand(null, workingFolder, "default", repoUrl.forCommandline(), null).clone(inMemoryConsumer(), repoUrl);
-        File testFile = createNewFileInWorkingFolder();
-
-        hgMaterial = MaterialsMother.hgMaterial("file:///" + new File(hgTestRepo.projectRepositoryUrl()));
-
+        hgMaterial = MaterialsMother.hgMaterial("file://" + hgTestRepo.projectRepositoryUrl());
         updateMaterial(hgMaterial, new StringRevision("0"));
 
         String workingUrl = new HgCommand(null, workingFolder, "default", repoUrl.forCommandline(), null).workingRepositoryUrl().outputAsString();

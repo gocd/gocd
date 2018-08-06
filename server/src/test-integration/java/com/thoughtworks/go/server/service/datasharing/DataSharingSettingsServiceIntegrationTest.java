@@ -23,6 +23,8 @@ import com.thoughtworks.go.server.dao.DataSharingSettingsSqlMapDao;
 import com.thoughtworks.go.server.service.EntityHashingService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import org.junit.*;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -62,13 +64,13 @@ public class DataSharingSettingsServiceIntegrationTest {
     @Rule
     public ExpectedException expectedEx = ExpectedException.none();
 
-    @Before
+    @BeforeEach
     public void setup() throws Exception {
         dbHelper.onSetUp();
         dataSharingSettingsService.initialize();
     }
 
-    @After
+    @AfterEach
     public void teardown() throws Exception {
         dbHelper.onTearDown();
         goCache.remove(cacheKey());

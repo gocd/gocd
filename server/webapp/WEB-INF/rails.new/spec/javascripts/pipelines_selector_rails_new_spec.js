@@ -137,7 +137,7 @@ describe("pipelines_selector_rails_new", function () {
     }
 
     function isBrowserIE() {
-        return window.navigator.userAgent.toLowerCase().indexOf("msie") != -1;
+        return window.navigator.userAgent.toLowerCase().indexOf("msie") != -1 || navigator.userAgent.match(/Trident.*rv\:11\./);
     }
 
     function setCheckBox(elem, value) {
@@ -158,6 +158,7 @@ describe("pipelines_selector_rails_new", function () {
         fire_event($('select_group_group-1'), 'click', function (_, elem) {
             setCheckBox(elem, true);
         });
+
         assertAllSelected('selector_group_group-1');
         fire_event($('select_group_group-1'), 'click', function (_, elem) {
             setCheckBox(elem, false);

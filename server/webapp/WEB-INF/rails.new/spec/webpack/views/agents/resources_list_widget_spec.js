@@ -166,21 +166,18 @@ describe("ResourcesListWidget", () => {
 
   describe('Fetch Error', () => {
     it('should show error when resources fetch fails', () => {
-      const err           = 'BOOM!';
-      resourcesFetchError = function () {
-        return err;
-      };
-      mount(resources);
+      let err = 'BOOM!';
+      mount(resources, () => err);
       expect($('.alert')).toContainText(err);
     });
   });
 
-  const mount = (resources) => {
+  const mount = (resources, resourcesFetchError = () => {}) => {
     m.mount(root, {
       view() {
         return m(ResourcesListWidget, {
-          hideDropDown,
-          dropDownReset,
+          hideDropDown: () => {},
+          dropDownReset: () => {},
           resourcesFetchError,
           'onResourcesUpdate': Stream(),
           'resources':         Stream(resources)
@@ -189,15 +186,6 @@ describe("ResourcesListWidget", () => {
     });
 
     m.redraw();
-  };
-
-  const hideDropDown = () => {
-  };
-
-  const dropDownReset = () => {
-  };
-
-  let resourcesFetchError = () => {
   };
 
   const unmount = () => {

@@ -25,18 +25,22 @@ describe("Agent Row Widget", () => {
   const Agents          = require('models/agents/agents');
   const AgentsRowWidget = require("views/agents/agent_row_widget");
   const AgentsVM        = require("views/agents/models/agents_widget_view_model");
-
-  let $root, root;
-  beforeEach(() => {
-    [$root, root] = window.createDomElementForTest();
-  });
-  afterEach(window.destroyDomElementForTest);
-
-  const agents   = Stream();
-  let allAgents;
-  const agentsVM = new AgentsVM();
+  const agents          = Stream();
+  const agentsVM        = new AgentsVM();
 
   let shouldShowAnalyticsIcon = true;
+  let elasticAgentPluginInfo;
+  let allAgents;
+
+  let $root, root;
+
+  beforeEach(() => {
+    [$root, root] = window.createDomElementForTest();
+    shouldShowAnalyticsIcon = true;
+    elasticAgentPluginInfo = getElasticAgentPluginInfo();
+  });
+
+  afterEach(window.destroyDomElementForTest);
   beforeEach(() => {
     jasmine.Ajax.install();
     allAgents = Agents.fromJSON(json());
@@ -192,38 +196,41 @@ describe("Agent Row Widget", () => {
   });
 
   it('should not render analytics plugin icon if no analytics plugin supports agent metric', () => {
-    mount(agents(), model, true);
+    agents(allAgents);
+    mount(agents().firstAgent(), model, true, false);
     expect($root.find('.agent-analytics')).not.toBeInDOM();
   });
 
   it('should render analytics plugin icon if any analytics plugin supports agent metric', () => {
-    elasticAgentPluginInfo.extensions.push(analyticsExtension);
-    mount(agents(), model, true);
+    agents(allAgents);
+    elasticAgentPluginInfo.extensions.push(getAnalyticsExtension());
+    mount(agents().firstAgent(), model, true, true);
     expect($root.find('.agent-analytics')).toBeInDOM();
   });
 
   it('should render analytics for given agent on clicking analytics icon', () => {
-    const analyticsPlugin = 'cd.go.contrib.elasticagent.kubernetes';
-    const analyticsName   = 'agent_utilization';
-    const agentUUID       = 'uuid-3';
-    const hostname        = 'host-3';
-    stubAgentAnalyticsFor(analyticsPlugin, analyticsName, agentUUID, hostname);
+    agents(allAgents.toJSON()[2]);
 
-    elasticAgentPluginInfo.extensions.push(analyticsExtension);
-    mount(agents(), model, true);
+    elasticAgentPluginInfo.extensions.push(getAnalyticsExtension());
+
+    mount(agents(), model, true, false);
     expect($root.find('.agent-analytics')).toBeInDOM();
 
     $('.agent-analytics').click();
     m.redraw();
 
     expect($('.new-modal-container')).toBeInDOM();
-    expect($('.modal-title')).toContainText(`Analytics for agent: ${hostname}`);
+    expect($('.modal-title')).toContainText(`Analytics for agent: host-3`);
   });
 
+
   it('should not render analytics plugin icon if analytics icon should not be shown', () => {
-    elasticAgentPluginInfo.extensions.push(analyticsExtension);
+    agents(allAgents);
+    elasticAgentPluginInfo.extensions.push(getAnalyticsExtension());
+
     shouldShowAnalyticsIcon = false;
-    mount(agents(), model, true);
+
+    mount(agents().firstAgent(), model, true);
     expect($root.find('.agent-analytics')).not.toBeInDOM();
   });
 
@@ -393,92 +400,84 @@ describe("Agent Row Widget", () => {
     }
   ];
 
-  const elasticAgentPluginInfo = {
-    "id":         "cd.go.contrib.elasticagent.kubernetes",
-    "status":     {
-      "state": "active"
-    },
-    "about":      {
-      "name":                     "Docker Elastic Agent Plugin",
-      "version":                  "0.6.1",
-      "target_go_version":        "16.12.0",
-      "description":              "Docker Based Elastic Agent Plugins for GoCD",
-      "target_operating_systems": [],
-      "vendor":                   {
-        "name": "GoCD Contributors",
-        "url":  "https://github.com/gocd-contrib/docker-elastic-agents"
-      }
-    },
-    "extensions": [
-      {
-        "type":             "elastic-agent",
-        "plugin_settings":  {
-          "configurations": [
-            {
-              "key":      "instance_type",
-              "metadata": {
-                "secure":   false,
-                "required": true
+  const getElasticAgentPluginInfo = () => ({
+          "id": "cd.go.contrib.elasticagent.kubernetes",
+          "status": {
+              "state": "active"
+          },
+          "about": {
+              "name": "Docker Elastic Agent Plugin",
+              "version": "0.6.1",
+              "target_go_version": "16.12.0",
+              "description": "Docker Based Elastic Agent Plugins for GoCD",
+              "target_operating_systems": [],
+              "vendor": {
+                  "name": "GoCD Contributors",
+                  "url": "https://github.com/gocd-contrib/docker-elastic-agents"
               }
-            }
+          },
+          "extensions": [
+              {
+                  "type": "elastic-agent",
+                  "plugin_settings": {
+                      "configurations": [
+                          {
+                              "key": "instance_type",
+                              "metadata": {
+                                  "secure": false,
+                                  "required": true
+                              }
+                          }
+                      ],
+                      "view": {
+                          "template": "elastic agent plugin settings view"
+                      }
+                  },
+                  "profile_settings": {
+                      "configurations": [],
+                      "view": {
+                          "template": 'some cool template!'
+                      }
+                  },
+                  "capabilities": {
+                      "supports_status_report": true,
+                      "supports_agent_status_report": true
+                  }
+              }
+          ]
+  });
+
+  const getAnalyticsExtension = () => ({
+      "type":             "analytics",
+      "plugin_settings":  {
+          "configurations": [
+              {
+                  "key":      "instance_type",
+                  "metadata": {
+                      "secure":   false,
+                      "required": true
+                  }
+              }
           ],
           "view":           {
-            "template": "elastic agent plugin settings view"
+              "template": "analytics plugin settings view"
           }
-        },
-        "profile_settings": {
+      },
+      "profile_settings": {
           "configurations": [],
           "view":           {
-            "template": 'some cool template!'
+              "template": 'some cool template!'
           }
-        },
-        "capabilities":     {
-          "supports_status_report":       true,
-          "supports_agent_status_report": true
-        }
+      },
+      "capabilities":     {
+          "supported_analytics": [
+              {
+                  "type":  "agent",
+                  "id":    "agent_utilization",
+                  "title": "Agent Utilization"
+              }
+          ]
       }
-    ]
-  };
 
-  const analyticsExtension = {
-    "type":             "analytics",
-    "plugin_settings":  {
-      "configurations": [
-        {
-          "key":      "instance_type",
-          "metadata": {
-            "secure":   false,
-            "required": true
-          }
-        }
-      ],
-      "view":           {
-        "template": "analytics plugin settings view"
-      }
-    },
-    "profile_settings": {
-      "configurations": [],
-      "view":           {
-        "template": 'some cool template!'
-      }
-    },
-    "capabilities":     {
-      "supported_analytics": [
-        {
-          "type":  "agent",
-          "id":    "agent_utilization",
-          "title": "Agent Utilization"
-        }
-      ]
-    }
-  };
-
-  function stubAgentAnalyticsFor(pluginName, analyticsName, agentUUID, agentHostname) {
-    const response = '<html>Agent Analytics</html>';
-
-    jasmine.Ajax.stubRequest(`/go/analytics/${pluginName}/agent/${analyticsName}?agent_uuid=${agentUUID}&agent_hostname=${agentHostname}&key=analytics.agent-chart`, undefined, 'GET').andReturn({
-      responseText: response,
-      status:       200
-    });
-  }
+  });
 });

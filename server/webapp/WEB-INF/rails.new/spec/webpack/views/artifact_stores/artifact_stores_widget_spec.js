@@ -29,9 +29,11 @@ describe('Artifact Stores Widget', () => {
   let $root, root;
   beforeEach(() => {
     [$root, root] = window.createDomElementForTest();
+    jasmine.Ajax.install();
   });
 
   afterEach(() => {
+    jasmine.Ajax.uninstall()
     window.destroyDomElementForTest();
     m.mount(root, null);
     m.redraw();
@@ -43,7 +45,6 @@ describe('Artifact Stores Widget', () => {
   describe('Loading Data', () => {
 
     it('should show error on failure', () => {
-      jasmine.Ajax.install();
       jasmine.Ajax.stubRequest(url, undefined, 'GET').andReturn({
         responseText: '',
         status:       500
@@ -55,7 +56,6 @@ describe('Artifact Stores Widget', () => {
     });
 
     it('should show spinner while data is loading', () => {
-      jasmine.Ajax.install();
       jasmine.Ajax.stubRequest(url, undefined, 'GET');
 
       m.mount(root, ArtifactStoresWidget);
@@ -64,7 +64,6 @@ describe('Artifact Stores Widget', () => {
     });
 
     it('should show data after response is received', () => {
-      jasmine.Ajax.install();
       stubGetArtifactStoresResponse();
       jasmine.Ajax.stubRequest(pluginInfosUrl, undefined, 'GET').andReturn({
         responseText:    JSON.stringify({}),
@@ -82,7 +81,6 @@ describe('Artifact Stores Widget', () => {
 
   describe('List', () => {
     it('should disable Add button when no plugins are present', () => {
-      jasmine.Ajax.install();
       stubGetArtifactStoresResponse();
       jasmine.Ajax.stubRequest(pluginInfosUrl, undefined, 'GET').andReturn({
         responseText:    JSON.stringify({
@@ -102,7 +100,6 @@ describe('Artifact Stores Widget', () => {
     });
 
     it('should enable Add button when plugins are present', () => {
-      jasmine.Ajax.install();
       stubGetArtifactStoresResponse();
       stubGetPluginInfosResponse();
 
@@ -112,7 +109,6 @@ describe('Artifact Stores Widget', () => {
     });
 
     it('should list the artifact stores', () => {
-      jasmine.Ajax.install();
       stubGetArtifactStoresResponse();
       stubGetPluginInfosResponse();
 
@@ -125,7 +121,6 @@ describe('Artifact Stores Widget', () => {
   describe('Operations', () => {
 
     beforeEach(() => {
-      jasmine.Ajax.install();
       stubGetArtifactStoresResponse();
       stubGetPluginInfosResponse();
       m.mount(root, ArtifactStoresWidget);

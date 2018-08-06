@@ -115,23 +115,21 @@ describe("Environments List Widget", () => {
   describe('Fetch Error', () => {
     it('should show error when environments fetch fails', () => {
       const err              = 'BOOM!';
-      environmentsFetchError = function () {
-        return err;
-      };
-      mount(_.noop, environments);
+      let environmentsFetchError = () => err;
+      mount(_.noop, environments, environmentsFetchError);
       expect($('.alert')).toContainText(err);
     });
   });
 
-  const mount = (done, environments) => {
+  const mount = (done, environments, environmentsFetchError = () => {}) => {
     m.mount(root,
       {
         oncreate: done,
         view() {
           return m(EnvironmentsListWidget, {
-            hideDropDown,
-            dropDownReset,
-            onEnvironmentsUpdate,
+            hideDropDown: () => {},
+            dropDownReset: () => {},
+            onEnvironmentsUpdate: () => {},
             environments: Stream(environments),
             environmentsFetchError
           });
@@ -141,18 +139,8 @@ describe("Environments List Widget", () => {
     m.redraw();
   };
 
-  const hideDropDown         = () => {
-  };
-  const dropDownReset        = () => {
-  };
-  const onEnvironmentsUpdate = () => {
-  };
-  let environmentsFetchError = () => {
-  };
-
   const unmount = () => {
     m.mount(root, null);
     m.redraw();
   };
-
 });

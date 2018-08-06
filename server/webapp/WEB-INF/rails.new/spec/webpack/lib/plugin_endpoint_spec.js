@@ -31,6 +31,7 @@
   }
 
   beforeEach(() => {
+    PluginEndpoint.reset();
     window.addEventListener = function(name, fn, bool) {
       if ("message" === name) {
         dispatch = fn;

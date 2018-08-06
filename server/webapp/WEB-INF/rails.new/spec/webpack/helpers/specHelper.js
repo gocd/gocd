@@ -58,6 +58,15 @@ afterEach(() => {
   window.XMLHttpRequest = realAjaxFunction;
 });
 
+
+beforeEach(() => {
+  expect(jasmine.Ajax.requests.count()).toBe(0);
+});
+
+afterEach(() => {
+  expect(jasmine.Ajax.requests.count()).toBe(0);
+});
+
 beforeEach(() => {
   //set it to 0 as the test should not rely on actual timezone.
   const meta = $("meta[name='gocd-params']");

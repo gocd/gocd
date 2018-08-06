@@ -43,12 +43,14 @@ describe("Dashboard Environment Variables Trigger Widget", () => {
         "name":   "foobar",
         "secure": false,
         "value":  "asdf"
+
       }
     ];
 
-    const variables = EnvironmentVariables.fromJSON(json);
+    let variables = EnvironmentVariables.fromJSON(json);
 
     beforeEach(() => {
+      variables = EnvironmentVariables.fromJSON(json);
       mount('Plain', variables);
     });
 

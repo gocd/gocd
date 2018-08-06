@@ -21,16 +21,17 @@ describe("Pipeline Dashboard Metrics", () => {
   const PipelineMetrics = require('views/analytics/pipeline_metrics');
 
   let $root, root;
-  const supportedMetrics = {
+  const supportedMetrics = () => ({
     "plugin-id-x": [{type: "pipeline", id: "metric-1"}],
     "plugin-id-y": [{type: "pipeline", id: "metric-1"}]
-  };
+  });
 
-  const pipelineList = ["p1", "p2", "p3"];
+  const pipelineList = () => ["p1", "p2", "p3"];
 
   beforeEach(() => {
     jasmine.Ajax.install();
     [$root, root] = window.createDomElementForTest();
+    mount(pipelineList(), supportedMetrics());
   });
 
   afterEach(() => {
@@ -40,7 +41,6 @@ describe("Pipeline Dashboard Metrics", () => {
   });
 
   it('should have a dropdown with each pipeline', () => {
-    mount(pipelineList, supportedMetrics);
     const list = $root.find("select option");
     expect(list.length).toBe(3);
     expect($(list[0]).val()).toBe("p1");
@@ -49,19 +49,10 @@ describe("Pipeline Dashboard Metrics", () => {
   });
 
   it('Add a frame for each plugin', () => {
-   mount(pipelineList, supportedMetrics);
-
     expect($root.find("iframe").length).toBe(2);
-
-    const requests = jasmine.Ajax.requests;
-    expect(requests.count()).toBe(2);
-    expect(requests.at(0).url).toBe('/go/analytics/plugin-id-x/pipeline/metric-1?pipeline_name=p1&context=dashboard');
-    expect(requests.at(1).url).toBe('/go/analytics/plugin-id-y/pipeline/metric-1?pipeline_name=p1&context=dashboard');
   });
 
   it('should change displayed graphs when new pipeline is selected', () => {
-     mount(pipelineList, supportedMetrics);
-
     $root.find("select").val("p2").trigger("change");
     const requests = jasmine.Ajax.requests;
     expect(requests.count()).toBe(4);

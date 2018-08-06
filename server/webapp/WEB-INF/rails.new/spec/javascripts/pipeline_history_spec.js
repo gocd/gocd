@@ -23,6 +23,7 @@ describe("pipeline_history", function () {
         paginator = new Paginator();
         contextPath = '';
         dashboard_periodical_executor = new DashboardPeriodicalExecutor('pipelineHistory.json?pipelineName=up42');
+        dashboard_periodical_executor.onRequest = function() {};
     });
 
     afterEach(function () {
@@ -35,7 +36,6 @@ describe("pipeline_history", function () {
     it("testCompleteAutomatically", function () {
         assertEquals("gate-completed-auto", page._gateClass('cruise'));
     });
-
 
     it("testShouldShowGate", function () {
         var allConfigs = [getConfig("foo"), getConfig("bar")];

@@ -32,7 +32,10 @@ describe("ViewAndEditAssociatedTemplate", function () {
   var actual_options = null;
   var actual_error_wrapper = null;
 
+  var originalAjaxModal;
+
   beforeEach(function () {
+    originalAjaxModal = Util.ajax_modal;
     Util.ajax_modal = function (url, options, error_wrapper) {
       actual_url = url;
       actual_options = options;
@@ -44,6 +47,8 @@ describe("ViewAndEditAssociatedTemplate", function () {
     actual_url = null;
     actual_options = null;
     actual_error_wrapper = null;
+
+    Util.ajax_modal = originalAjaxModal;
   });
 
   it("should open the modal with the selected template", function () {

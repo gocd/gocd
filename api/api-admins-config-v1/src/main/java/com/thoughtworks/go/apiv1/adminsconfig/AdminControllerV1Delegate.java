@@ -18,10 +18,9 @@ package com.thoughtworks.go.apiv1.adminsconfig;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.thoughtworks.go.api.CrudController;
-
 import com.thoughtworks.go.api.ApiController;
 import com.thoughtworks.go.api.ApiVersion;
+import com.thoughtworks.go.api.CrudController;
 import com.thoughtworks.go.api.representers.JsonReader;
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
 import com.thoughtworks.go.api.util.GsonTransformer;
@@ -41,7 +40,6 @@ import spark.Response;
 import java.io.IOException;
 
 import static spark.Spark.*;
-import static spark.Spark.exception;
 
 public class AdminControllerV1Delegate extends ApiController implements CrudController<AdminsConfig>{
   private final ApiAuthenticationHelper apiAuthenticationHelper;

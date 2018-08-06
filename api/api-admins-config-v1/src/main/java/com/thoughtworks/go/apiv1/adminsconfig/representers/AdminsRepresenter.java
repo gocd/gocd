@@ -1,15 +1,15 @@
 package com.thoughtworks.go.apiv1.adminsconfig.representers;
 
-import com.google.gson.JsonParseException;
 import com.thoughtworks.go.api.base.OutputWriter;
-import com.thoughtworks.go.api.representers.ErrorGetter;
 import com.thoughtworks.go.api.representers.JsonReader;
-import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.AdminRole;
+import com.thoughtworks.go.config.AdminUser;
+import com.thoughtworks.go.config.AdminsConfig;
+import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.domain.config.Admin;
 import com.thoughtworks.go.spark.Routes;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -55,7 +55,7 @@ public class AdminsRepresenter {
 
         Optional<JsonReader> rolesArray = jsonReader.optJsonObject("roles");
         rolesArray.get().readArrayIfPresent("add", roles -> {
-            roles.forEach(user -> rolesAdd.add(new AdminRole(new CaseInsensitiveString(roles.getAsString()))));
+            roles.forEach(role -> rolesAdd.add(new AdminRole(new CaseInsensitiveString(role.getAsString()))));
         });
         rolesArray.get().readArrayIfPresent("remove", roles -> {
             roles.forEach(role -> rolesRemove.add(new AdminRole(new CaseInsensitiveString(role.getAsString()))));

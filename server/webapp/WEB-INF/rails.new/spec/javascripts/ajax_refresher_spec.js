@@ -15,16 +15,24 @@
  *************************GO-LICENSE-END**********************************/
 
 describe("ajax_refresher", function () {
-    var actual_ajax_updater = Ajax.Updater;
-    var actual_ajax_request = jQuery.ajax;
-    var after_called = false;
-    var actual_periodical_executor = PeriodicalExecuter;
-
-    var newPageUrl = null;
-    var util_load_page_fn = null;
+  var actual_ajax_updater;
+  var actual_ajax_request;
+  var after_called;
+  var actual_periodical_executor;
+  var newPageUrl;
+  var util_load_page_fn;
+  var periodical_opts;
 
     beforeEach(function () {
-        setFixtures("<div class='under_test'>\n" +
+      actual_ajax_updater        = Ajax.Updater;
+      actual_ajax_request        = jQuery.ajax;
+      after_called               = false;
+      actual_periodical_executor = PeriodicalExecuter;
+      newPageUrl        = null;
+      util_load_page_fn = null;
+      periodical_opts = null;
+
+      setFixtures("<div class='under_test'>\n" +
                 "    <div id=\"elem_id\"></div>\n" +
                 "</div>"
         );
@@ -40,6 +48,7 @@ describe("ajax_refresher", function () {
         jQuery.ajax = function (options) {
             periodical_opts = options;
         };
+
         $('elem_id').update("im_old_content");
         util_load_page_fn = Util.loadPage;
         Util.loadPage = function (url) {
@@ -88,7 +97,7 @@ describe("ajax_refresher", function () {
     });
 
     it("test_errors_out_when_no_html_element_given", function () {
-        new AjaxRefresher("http://blah/refresh_stage_detail", "foo", {time: 0});
+        new AjaxRefresher("http://blah/refresh_stage_detail", "foo", {time: 0, updateOnce: true});
         try {
             periodical_opts.success({elem_id: {parent_id: "bar", index: 10}});
             fail("should throw up when no html given");
@@ -99,11 +108,11 @@ describe("ajax_refresher", function () {
     });
 
     it("test_errors_out_when_no_parent_id_or_index_element_given", function () {
-        new AjaxRefresher("http://blah/refresh_stage_detail", "foo", {time: 0});
+        new AjaxRefresher("http://blah/refresh_stage_detail", "foo", {time: 0, updateOnce: true});
         try {
             periodical_opts.success({elem_id: {html: "bar"}});
         } catch (e) {
-            fail("should not throw up when no parent_id or index given");
+            fail("should not throw up when no parent_id or index given" + e);
         }
         assertEquals("bar", $('elem_id').innerHTML);
     });

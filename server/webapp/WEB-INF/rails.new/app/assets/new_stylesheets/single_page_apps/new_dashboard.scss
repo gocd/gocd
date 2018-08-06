@@ -20,10 +20,13 @@
 @import 'shared/autocomplete';
 @import 'shared/common';
 @import 'shared/modal';
+@import 'shared/schmodal';
 @import 'shared/header';
 @import 'shared/alert';
 @import 'shared/analytics-common';
 @import 'pipeline_configs/accordion';
+@import 'pipeline_configs/personalize_views_editor';
+@import 'pipeline_configs/dashboard_view_tabs';
 @import "font-awesome-sprockets";
 @import "font-awesome";
 
@@ -226,9 +229,19 @@ $btn-default: #d6d5d5;
 .btn-link {
   border:     0;
   background: transparent;
+
   color:      $dark-gray;
   font-size:  16px;
 
+  &:hover {
+    color: $go-links;
+  }
+
+  &:active, &:focus, &:hover {
+    border:     0;
+    background: transparent;
+    outline:    none;
+  }
 }
 
 .small-txt {
@@ -294,7 +307,7 @@ $btn-default: #d6d5d5;
 }
 
 .dashboard {
-  padding: 80px 30px 50px;
+  padding: 70px 30px 50px;
 }
 
 .page_header {

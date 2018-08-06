@@ -1,0 +1,351 @@
+$dashboard-tab-bg: #283151;
+$dashboard-tab-primary-text-color: #4ad9d9;
+$dashboard-tab-secondary-text-color: #c7c8cc;
+$dashboard-tab-height: 50px;
+$dashboard-add-tab-width: 34px;
+$dashboard-tabs-border-color: #425188;
+$dashboard-tabs-border-radius: 3px;
+$dashboard-tabs-pager-width: 30px;
+$dashboard-tab-current-marker-height: 10px;
+$dashboard-tabs-box-shadow: 0 0 10px rgba(0, 0, 0, 0.21);
+
+.dashboard-tabs {
+  @include unselectable;
+
+  position:         relative;
+  background-color: $dashboard-tab-bg;
+  border-radius:    $dashboard-tabs-border-radius;
+  line-height:      $dashboard-tab-height;
+  height:           $dashboard-tab-height;
+  margin-bottom:    20px;
+  box-shadow:       $dashboard-tabs-box-shadow;
+
+  .fa-edit, .fa-close, .fa-trash, .fa-plus {
+    cursor: pointer;
+  }
+
+  .add-tab {
+    position:      absolute;
+    top:           0;
+    right:         0;
+    border-left:   1px solid $dashboard-tabs-border-color;
+    border-radius: 0 0 $dashboard-tabs-border-radius $dashboard-tabs-border-radius;
+    padding:       0 10px;
+    width:         $dashboard-add-tab-width;
+    color:         $dashboard-tab-primary-text-color;
+    font-size:     17px;
+    cursor:        pointer;
+    height:        $dashboard-tab-height;
+  }
+
+  .edit-dropdown {
+    position:      absolute;
+    top:           100%;
+    left:          0;
+    z-index:       9;
+
+    background:    $dashboard-tab-bg;
+    color:         #fff;
+    border-top:    1px solid $dashboard-tabs-border-color;
+
+    // TODO: replace the padding rule with the line below when adding the
+    //       group-by functionality:
+    // padding:       5px 20px 20px;
+    padding:       20px;
+
+    border-radius: 0 0 $dashboard-tabs-border-radius $dashboard-tabs-border-radius;
+    // TODO: uncomment the line below when adding the group-by functionality
+    // width:         380px;
+    font-weight:   normal;
+    line-height:   initial;
+    box-shadow:    $dashboard-tabs-box-shadow;
+
+    .edit-dropdown-text {
+      margin-bottom: 5px;
+      font-size:     12px;
+      // TODO: replace the display rule with the line below when adding the
+      //       group-by functionality:
+      // display:       inline-block;
+      display:       none;
+    }
+
+    .edit-dropdown-actions {
+      .button {
+        margin:        0;
+        border-radius: unset;
+        background:    #ccc;
+        border:        1px solid $dashboard-tabs-border-color;
+        box-shadow:    unset;
+        // TODO: remove the line below when adding the group-by functionality
+        display:       none;
+
+        &.selected {
+          background: #fff;
+          color:      $dashboard-tab-primary-text-color;
+        }
+      }
+    }
+
+    .fa {
+      margin-left:   15px;
+      padding:       5px 10px;
+      border:        1px solid #fff;
+      border-radius: $dashboard-tabs-border-radius;
+
+      &.fa-edit {
+        margin: 0;
+      }
+    }
+  }
+
+  .deny-action, .edit-dropdown .deny-action {
+    color:        #aaa;
+    border-color: #aaa;
+    cursor:       not-allowed;
+  }
+}
+
+.dashboard-tabs-sortable, .dashboard-tabs-scrollable {
+  position:       relative;
+  margin:         0;
+  padding:        0;
+  height:         calc(100% + #{$dashboard-tab-current-marker-height});
+  vertical-align: top;
+  white-space:    nowrap;
+}
+
+.dashboard-tabs-sortable {
+  padding-bottom: 100px;
+  width:          100%;
+  overflow-x:     auto;
+  overflow-y:     hidden;
+  outline:        none;
+}
+
+.dashboard-tabs-scrollable {
+  padding:  0 $dashboard-tabs-pager-width;
+  width:    calc(100% - #{$dashboard-add-tab-width});
+  overflow: hidden;
+
+  .page-prev, .page-next {
+    position:    absolute;
+    top:         0;
+
+    padding:     0 10px;
+    width:       $dashboard-tabs-pager-width;
+    height:      $dashboard-tab-height;
+
+    font-size:   21px;
+    font-weight: 600;
+    line-height: $dashboard-tab-height;
+
+    color:       lighten($dashboard-tab-bg, 20%);
+    cursor:      default;
+  }
+
+  &.paged {
+    .page-prev, .page-next {
+      color:  #fff;
+      cursor: pointer;
+    }
+  }
+
+  .page-prev {
+    left:          0;
+    border-right:  1px solid $dashboard-tabs-border-color;
+  }
+
+  .page-next {
+    right:        0;
+    border-left:  1px solid $dashboard-tabs-border-color;
+  }
+}
+
+.dashboard-tab {
+  display:      inline-block;
+  border-right: 1px solid $dashboard-tabs-border-color;
+  padding:      0 10px;
+  font-weight:  700;
+  cursor:       pointer;
+  position:     relative;
+  white-space:  nowrap;
+  height:       $dashboard-tab-height;
+  color:        $dashboard-tab-secondary-text-color;
+  outline:      none;
+
+  &:active, &:focus {
+    outline: none;
+  }
+
+  &:first-of-type {
+    margin-left: 0;
+  }
+
+  > * { vertical-align: top; }
+
+  .drag-icon {
+    @include sort-cursor;
+    @include grip-icon;
+
+    font-size: 12px;
+
+    &:active {
+      @include sort-cursor-active;
+    }
+  }
+
+  .tab-name {
+    @include truncate-to-width($max: 210px);
+
+    text-transform: uppercase;
+    margin:         0 10px;
+    margin-right:   15px;
+    display:        inline-block;
+  }
+
+  &.current {
+    color:  $dashboard-tab-primary-text-color;
+    cursor: default;
+
+    .tab-name {
+      margin-right: 0;
+    }
+
+    &:after {
+      content:      "";
+      position:     absolute;
+      top:          100%;
+      left:         50%;
+      transform:    translateX(-50%);
+      width:        0;
+      height:       0;
+      border-top:   $dashboard-tab-current-marker-height solid $dashboard-tab-bg;
+      border-left:  $dashboard-tab-current-marker-height solid transparent;
+      border-right: $dashboard-tab-current-marker-height solid transparent;
+    }
+  }
+
+  &.draggable-source--is-dragging {
+    @include sort-cursor-active;
+
+    background: lighten($dashboard-tab-bg, 20%);
+
+    &:after {
+      display: none;
+    }
+
+    > * {
+      visibility: hidden;
+    }
+  }
+
+  &.draggable-mirror {
+    background:  $dashboard-tab-bg;
+    line-height: $dashboard-tab-height;
+    border:      0;
+    box-shadow:  0 0 10px rgba(255, 255, 255, 0.21);
+    z-index:     5;
+  }
+
+  .tab-dropdown-toggle {
+    display:     inline-block;
+    margin-left: 7px;
+    cursor:      default;
+
+    .fa {
+      cursor: pointer;
+
+      &.deny-action {
+        cursor: not-allowed;
+      }
+    }
+  }
+}
+
+.actionable-message {
+  position:      absolute;
+  top:           calc(100% + #{$dashboard-tab-current-marker-height});
+  left:          0;
+  padding:       10px;
+  padding-right: 30px;
+  border:        0;
+  border-radius: $dashboard-tabs-border-radius;
+  background:    #fff;
+  color:         #333;
+  z-index:       25;
+  box-shadow:    $dashboard-tabs-box-shadow;
+  line-height:   initial;
+
+  > * {
+    vertical-align: middle;
+  }
+
+  .button {
+    margin:      0;
+    margin-left: 10px;
+    font-size:   inherit;
+    padding:     5px 10px;
+  }
+
+  .btn-link {
+    padding: 5px 0;
+    color:   #333;
+  }
+
+  .button, .button:active, .button:focus {
+    outline: 0;
+  }
+
+  .fa-close {
+    position:  absolute;
+    right:     10px;
+    top:       50%;
+    transform: translateY(-50%);
+    cursor:    pointer;
+  }
+
+  &:before {
+    content:       "";
+    position:      absolute;
+    top:           -$dashboard-tab-current-marker-height;
+    left:          20px;
+    width:         0;
+    height:        0;
+    border-bottom: $dashboard-tab-current-marker-height solid #fff;
+    border-left:   $dashboard-tab-current-marker-height solid transparent;
+    border-right:  $dashboard-tab-current-marker-height solid transparent;
+  }
+}
+
+.server-error-response {
+  display:     flex;
+  align-items: center;
+
+  .fa-exclamation-circle {
+    margin-right: 10px;
+    font-size:    150%;
+    color:        map-get($foundation-palette, alert);
+  }
+
+  .reason {
+    display: inline-block;
+  }
+}
+
+.personalization-update-failed {
+  .server-error-response {
+    float: left;
+  }
+}
+
+.overlay.delete-view {
+  width: 500px;
+
+  .overlay-content {
+    height: unset;
+
+    .view-name {
+      font-weight: 700;
+    }
+  }
+}

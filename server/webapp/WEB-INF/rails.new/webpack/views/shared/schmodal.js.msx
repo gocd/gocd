@@ -1,0 +1,125 @@
+const m = require("mithril");
+const $ = require("jquery");
+const f = require("helpers/form_helper");
+const _ = require('lodash');
+
+let _root;
+const MODALS = [];
+
+const BUTTON_DEFAULTS = { class: "button", text: "OK", onclick: close };
+
+const DEFAULT = {
+  title:   "This is the title",
+  body:    () => <small>This is the body</small>,
+  size:    "tiny",
+  buttons: [BUTTON_DEFAULTS],
+};
+
+const Header = {
+  view(vnode) {
+    return <header class="overlay-header">
+      <h3>{vnode.attrs.title}</h3>
+      <button class="overlay-close"><i class="fa fa-close"></i></button>
+    </header>;
+  }
+};
+
+const Footer = {
+  view(vnode) {
+    const buttons = $.map(vnode.attrs.buttons, (opts) => {
+      const c = $.extend({}, BUTTON_DEFAULTS, opts);
+      return m(f.button, {disabled: val(c.disabled), class: c.class, onclick: c.onclick}, c.text);
+    });
+
+    return <footer class="overlay-footer">{buttons}</footer>;
+  }
+};
+
+const Dialog = {
+  view(vnode) {
+    const buttons = val(vnode.attrs.buttons) || [];
+    const children = [
+      <Header title={vnode.attrs.title} />,
+      <div class="overlay-content">{val(vnode.attrs.body)}</div>
+    ];
+
+    if (buttons.length > 0) {
+      children.push(<Footer buttons={buttons}/>);
+    }
+
+    const classes = _.uniq(_.compact(["overlay", vnode.attrs.size]));
+
+    return <div class={classes.join(" ")}>{children}</div>;
+  }
+};
+
+const ModalSet = {
+  view() {
+    return m("[", $.map(MODALS, (d) => m(Dialog, d)));
+  }
+};
+
+function Modal(options) {
+  $(_root).show();
+  let config = $.extend({}, DEFAULT, options);
+  MODALS.push(config);
+
+  this.replace = (updated) => {
+    MODALS.splice(MODALS.indexOf(config), 1, updated);
+    config = updated;
+  };
+
+  this.close = close;
+}
+
+function close(e) {
+  if (e) {
+    if ("click" !== e.type && !("keydown" === e.type && "Escape" === e.key)) { return; }
+    e.stopPropagation();
+  }
+
+  const opts = MODALS.pop();
+
+  if (opts) {
+    if ("function" === typeof opts.afterClose) { opts.afterClose(); }
+    // Make the m.redraw() async to allow mithril to clear any prior redraw
+    // queue. If done synchronously, this could result DOM errors when the
+    // modal closes before another event finished modifying the vnode tree,
+    // such as validations triggered by onblur events on form inputs.
+    setTimeout(m.redraw, 0);
+  }
+
+  if (MODALS.length === 0) { $(_root).hide(); }
+}
+
+function val(thing) {
+  return "function" === typeof thing ? thing() : thing;
+}
+
+function init() {
+  _root = document.getElementById("overlay-modal-mount");
+
+  if (!_root) {
+    _root = $(`<div id="overlay-modal-mount" class="overlay-bg"/>`)[0];
+    document.body.appendChild(_root);
+  }
+
+  $(_root).on("click", ".overlay-close", close);
+  $(document.body).on("keydown", close);
+  m.mount(_root, ModalSet);
+}
+
+function teardown() {
+  MODALS.splice(0, MODALS.length);
+  m.mount(_root, null);
+  _root.remove();
+  _root = null;
+  $(document.body).off("keydown", close);
+}
+
+// Attach API
+$.extend(Modal, { init, teardown, close });
+
+$(Modal.init);
+
+module.exports = Modal;

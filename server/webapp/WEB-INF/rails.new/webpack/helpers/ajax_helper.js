@@ -29,15 +29,17 @@ function makeRequest({method, url, apiVersion, type, timeout = mrequest.timeout,
       data:       JSON.stringify(payload),
       timeout,
       beforeSend: (xhr) => {
-        xhr.setRequestHeader('If-Match', etag);
+        xhr.setRequestHeader("GET" === method.toUpperCase() ? 'If-None-Match' : 'If-Match', etag);
         mrequest.xhrConfig.forVersion(apiVersion)(xhr);
       },
       contentType
     });
 
     const didFulfill = (data, _textStatus, jqXHR) => {
+      const NOT_MODIFIED = 304 === jqXHR.status;
+
       if (type) {
-        deferred.resolve(type.fromJSON(data, jqXHR));
+        deferred.resolve(NOT_MODIFIED ? undefined : type.fromJSON(data, jqXHR), jqXHR);
       } else {
         deferred.resolve(data, _textStatus, jqXHR);
       }
@@ -51,17 +53,16 @@ function makeRequest({method, url, apiVersion, type, timeout = mrequest.timeout,
 }
 
 module.exports = class AjaxHelper {
-
-  static GET({url, apiVersion, type, timeout = mrequest.timeout} = {}) {
-    return makeRequest({method: 'GET', url, apiVersion, type, timeout});
+  static GET({url, apiVersion, type, timeout = mrequest.timeout, etag} = {}) {
+    return makeRequest({method: 'GET', url, apiVersion, type, timeout, etag});
   }
 
-  static PUT({url, apiVersion, timeout = mrequest.timeout, payload, contentType = 'application/json'}) {
-    return makeRequest({method: 'PUT', url, apiVersion, timeout, payload, contentType});
+  static PUT({url, apiVersion, timeout = mrequest.timeout, payload, etag, contentType = 'application/json'}) {
+    return makeRequest({method: 'PUT', url, apiVersion, timeout, payload, etag, contentType});
   }
 
-  static POST({url, apiVersion, timeout = mrequest.timeout, payload, type, contentType = 'application/json'}) {
-    return makeRequest({method: 'POST', url, apiVersion, timeout, type, payload, contentType});
+  static POST({url, apiVersion, timeout = mrequest.timeout, payload, etag, type, contentType = 'application/json'}) {
+    return makeRequest({method: 'POST', url, apiVersion, timeout, type, payload, etag, contentType});
   }
 
   static PATCH({url, apiVersion, timeout = mrequest.timeout, payload, type, etag, contentType = 'application/json'}) {

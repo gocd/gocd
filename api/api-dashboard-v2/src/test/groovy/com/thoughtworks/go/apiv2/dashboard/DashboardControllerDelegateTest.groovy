@@ -95,7 +95,7 @@ class DashboardControllerDelegateTest implements SecurityServiceTrait, Controlle
 
         assertThatResponse()
           .isOk()
-          .hasBodyWithJsonObject(new DashboardFor([pipelineGroup], currentUsername()), PipelineGroupsRepresenter)
+          .hasBodyWithJsonObject(new DashboardFor([pipelineGroup], currentUsername(), pipelineSelections.etag()), PipelineGroupsRepresenter)
       }
 
       @Test
@@ -135,7 +135,7 @@ class DashboardControllerDelegateTest implements SecurityServiceTrait, Controlle
         assertThatResponse()
           .isOk()
           .hasContentType(controller.mimeType)
-          .hasBodyWithJsonObject(new DashboardFor(noPipelineGroups, currentUsername()), PipelineGroupsRepresenter)
+          .hasBodyWithJsonObject(new DashboardFor(noPipelineGroups, currentUsername(), pipelineSelections.etag()), PipelineGroupsRepresenter)
       }
 
       @Test

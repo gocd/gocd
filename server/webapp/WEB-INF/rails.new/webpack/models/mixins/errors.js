@@ -28,9 +28,9 @@ const Errors = function(errors = {}) {
 
   this.errors = (optionalAttribute) => optionalAttribute ? errors[optionalAttribute] : errors;
 
-  this.hasErrors = (attr) => !_.isEmpty(errors[attr]);
+  this.hasErrors = (attr) => attr ? !_.isEmpty(errors[attr]) : !this._isEmpty();
 
-  this._isEmpty = () => _.isEmpty(errors);
+  this._isEmpty = () => _.isEmpty(errors) || _.every(errors, (arr) => _.isEmpty(arr));
 
   this.errorsForDisplay = (attrName) => _.map(errors[attrName] || [], s.terminateWithPeriod).join(" ");
 };

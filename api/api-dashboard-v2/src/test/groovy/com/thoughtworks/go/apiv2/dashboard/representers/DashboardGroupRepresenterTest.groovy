@@ -35,7 +35,7 @@ import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
 import static org.mockito.Mockito.mock
 import static org.mockito.Mockito.when
 
-class PipelineGroupRepresenterTest {
+class DashboardGroupRepresenterTest {
 
   private LinkedHashMap<String, LinkedHashMap<String, String>> expectedLinks = [
     doc : [
@@ -58,7 +58,7 @@ class PipelineGroupRepresenterTest {
 
     def username = new Username("someone")
 
-    def actualJson = toObjectString({ PipelineGroupRepresenter.toJSON(it, pipelineGroup, username) })
+    def actualJson = toObjectString({ DashboardGroupRepresenter.toJSON(it, pipelineGroup, username) })
 
     assertThatJson(actualJson).isEqualTo([
       _links        : expectedLinks,
@@ -81,7 +81,7 @@ class PipelineGroupRepresenterTest {
 
     def username = new Username(new CaseInsensitiveString(SecureRandom.hex()))
 
-    def actualJson = toObjectString({ PipelineGroupRepresenter.toJSON(it, pipelineGroup, username) })
+    def actualJson = toObjectString({ DashboardGroupRepresenter.toJSON(it, pipelineGroup, username) })
 
     assertThatJson(actualJson).isEqualTo([
       _links        : expectedLinks,

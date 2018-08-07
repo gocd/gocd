@@ -41,10 +41,6 @@ module MaterialsHelper
     material.getType() == "DependencyMaterial"
   end
 
-  def stage_url_from_identifier locator
-    stage_url(:id => stage_service.findStageIdByLocator(locator))
-  end
-
   def render_simple_comment(comment)
     if /\"TYPE\":\"PACKAGE_MATERIAL\"/.match(comment)
       package_comment_map = package_material_display_comment(comment)

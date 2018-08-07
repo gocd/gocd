@@ -280,11 +280,11 @@ public class PipelineScheduleQueueIntegrationTest {
         queue.finishSchedule(pipelineName, cause, newCause);
         queue.schedule(pipelineName, cause);
 
-        assertThat(pipelineDao.mostRecentLabel(fixture.pipelineName), is(nullValue()));
+        assertThat(pipelineDao.mostRecentPipelineIdentifier(fixture.pipelineName), is(nullValue()));
 
         assertThat(new CaseInsensitiveString(fixture.pipelineName), is(scheduledOn(queue)));
         assertThat(queue.createPipeline(cause, pipelineConfig, new DefaultSchedulingContext(cause.getApprover(), new Agents()), "md5-test", new TimeProvider()), is(not(nullValue())));
-        assertThat(pipelineDao.mostRecentLabel(fixture.pipelineName), is("label-1"));
+        assertThat(pipelineDao.mostRecentPipelineIdentifier(fixture.pipelineName).getLabel(), is("label-1"));
     }
 
     private TypeSafeMatcher<CaseInsensitiveString> scheduledOn(final PipelineScheduleQueue queue) {

@@ -405,7 +405,7 @@ public class ScheduleServiceIntegrationTest {
         assertThat(jobPlan.getVariables().size(), is(0));
 
         configHelper.addEnvironmentVariableToPipeline(pipelineName, new EnvironmentVariablesConfig(Arrays.asList(new EnvironmentVariableConfig("K1_updated", "V1_updated"))));
-        Stage rerunStage = scheduleService.rerunStage(pipelineConfig.name().toString(), "1", stageName);
+        Stage rerunStage = scheduleService.rerunStage(pipelineConfig.name().toString(), 1, stageName);
         assertThat(rerunStage.getFirstJob().getPlan().getVariables().size(), is(3));
         assertThat(rerunStage.getFirstJob().getPlan().getVariables(), hasItems(new EnvironmentVariable("K1_updated", "V1_updated"), new EnvironmentVariable("K2", "V2"), new EnvironmentVariable("K3", "V3")));
     }

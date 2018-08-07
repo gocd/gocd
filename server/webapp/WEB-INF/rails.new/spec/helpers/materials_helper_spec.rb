@@ -72,15 +72,6 @@ describe MaterialsHelper do
     expect(has_modification?(unupdated_material)).to eq(false)
   end
 
-  it "should ask StageService for stage_url_from_identifier" do
-    mock_stage_service = double("stage_service")
-    should_receive(:stage_service).at_least(1).times.and_return(mock_stage_service)
-
-    expect(mock_stage_service).to receive(:findStageIdByLocator).with("p/1/s/1").and_return(10)
-
-    expect(stage_url_from_identifier("p/1/s/1")).to eq("http://test.host/api/stages/10.xml")
-  end
-
   it "should replace tracking tool text with a link" do
     should_receive(:go_config_service).at_least(1).times.and_return(service = double("go config service"))
     expect(service).to receive(:getCommentRendererFor).with("pipeline").and_return(TrackingTool.new("http://pavan/${ID}", "\\d+"))

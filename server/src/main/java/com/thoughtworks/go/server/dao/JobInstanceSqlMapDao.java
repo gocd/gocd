@@ -281,7 +281,6 @@ public class JobInstanceSqlMapDao extends SqlMapClientDaoSupport implements JobI
                 if (jobIdentifier == null) {
                     Map params = arguments("pipelineName", stageIdentifier.getPipelineName()).
                             and("pipelineCounter", stageIdentifier.getPipelineCounter()).
-                            and("pipelineLabel", stageIdentifier.getPipelineLabel()).
                             and("stageName", stageIdentifier.getStageName()).
                             and("stageCounter", Integer.parseInt(stageIdentifier.getStageCounter())).
                             and("jobName", jobName).asMap();

@@ -97,7 +97,7 @@ public class ValueStreamMapService {
             result.notFound("Pipeline '" + pipelineName + "' with counter '" + counter + "' not found.", HealthStateType.general(HealthStateScope.forPipeline(pipelineName.toString())));
             return null;
         }
-        String label = pipelineService.findPipelineByCounterOrLabel(pipelineName.toString(), String.valueOf(counter)).getLabel();
+        String label = pipelineService.findPipelineByNameAndCounter(pipelineName.toString(), counter).getLabel();
         ValueStreamMap valueStreamMap = new ValueStreamMap(pipelineName, new PipelineRevision(pipelineName.toString(), counter, label));
         Map<CaseInsensitiveString, List<PipelineConfig>> pipelineToDownstreamMap = cruiseConfig.generatePipelineVsDownstreamMap();
 

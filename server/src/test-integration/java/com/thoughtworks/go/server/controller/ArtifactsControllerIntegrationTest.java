@@ -33,6 +33,7 @@ import com.thoughtworks.go.server.web.ResponseCodeView;
 import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.util.TestFileUtil;
 import com.thoughtworks.go.util.ZipUtil;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
 import org.hamcrest.Description;
 import org.hamcrest.TypeSafeMatcher;
@@ -53,6 +54,7 @@ import org.springframework.web.servlet.ModelAndView;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
+import java.nio.charset.Charset;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -61,6 +63,7 @@ import java.util.zip.Deflater;
 
 import static com.thoughtworks.go.util.GoConstants.RESPONSE_CHARSET;
 import static com.thoughtworks.go.util.GoConstants.RESPONSE_CHARSET_JSON;
+import static java.lang.String.format;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static javax.servlet.http.HttpServletResponse.*;
 import static org.apache.commons.io.FileUtils.deleteDirectory;
@@ -72,6 +75,7 @@ import static org.hamcrest.core.IsNot.not;
 import static org.hamcrest.number.OrderingComparison.lessThan;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -83,13 +87,20 @@ import static org.mockito.Mockito.when;
         "classpath:testPropertyConfigurer.xml"
 })
 public class ArtifactsControllerIntegrationTest {
-    @Autowired private ArtifactsController artifactsController;
-    @Autowired private ArtifactsService artifactService;
-    @Autowired private ConsoleService consoleService;
-    @Autowired private AgentService agentService;
-    @Autowired private ZipUtil zipUtil;
-    @Autowired private GoConfigDao goConfigDao;
-    @Autowired private DatabaseAccessHelper dbHelper;
+    @Autowired
+    private ArtifactsController artifactsController;
+    @Autowired
+    private ArtifactsService artifactService;
+    @Autowired
+    private ConsoleService consoleService;
+    @Autowired
+    private AgentService agentService;
+    @Autowired
+    private ZipUtil zipUtil;
+    @Autowired
+    private GoConfigDao goConfigDao;
+    @Autowired
+    private DatabaseAccessHelper dbHelper;
     private MockHttpServletRequest request;
     private MockHttpServletResponse response;
     private Pipeline pipeline;
@@ -102,7 +113,8 @@ public class ArtifactsControllerIntegrationTest {
     private File consoleLogFile;
 
 
-    @Before public void setup() throws Exception {
+    @Before
+    public void setup() throws Exception {
         configHelper = new GoConfigFileHelper();
         configHelper.onSetUp();
         configHelper.usingCruiseConfigDao(goConfigDao);
@@ -132,7 +144,8 @@ public class ArtifactsControllerIntegrationTest {
         artifactsRoot.mkdirs();
     }
 
-    @After public void teardown() throws Exception {
+    @After
+    public void teardown() throws Exception {
         for (File f : FileUtils.listFiles(artifactsRoot, null, true)) {
             String message = String.format("deleting {}, path: {}", f.getName(), f.getPath());
             System.out.println(message);
@@ -158,7 +171,8 @@ public class ArtifactsControllerIntegrationTest {
         configHelper.onTearDown();
     }
 
-    @Test public void shouldReturn404WhenFileNotFound() throws Exception {
+    @Test
+    public void shouldReturn404WhenFileNotFound() throws Exception {
         ModelAndView mav = getFileAsHtml("/foo.xml");
 
         assertThat(mav.getView().getContentType(), is(RESPONSE_CHARSET));
@@ -230,28 +244,32 @@ public class ArtifactsControllerIntegrationTest {
     }
 
 
-    @Test public void shouldGetArtifactFileRestfully() throws Exception {
+    @Test
+    public void shouldGetArtifactFileRestfully() throws Exception {
         createFile(artifactsRoot, "foo.xml");
 
         ModelAndView mav = getFileAsHtml("/foo.xml");
         assertThat(mav.getViewName(), is("fileView"));
     }
 
-    @Test public void shouldGetDirectoryWithHtmlView() throws Exception {
+    @Test
+    public void shouldGetDirectoryWithHtmlView() throws Exception {
         createFile(artifactsRoot, "directory/foo");
 
         ModelAndView mav = getFileAsHtml("/directory.html");
         assertThat(mav.getViewName(), is("rest/html"));
     }
 
-    @Test public void shouldReturn404WhenFooDotHtmlDoesNotExistButFooFileExists() throws Exception {
+    @Test
+    public void shouldReturn404WhenFooDotHtmlDoesNotExistButFooFileExists() throws Exception {
         createFile(artifactsRoot, "foo");
 
         ModelAndView view = getFileAsHtml("/foo.html");
         assertStatus(view, SC_NOT_FOUND);
     }
 
-    @Test public void shouldChooseFileOverDirectory() throws Exception {
+    @Test
+    public void shouldChooseFileOverDirectory() throws Exception {
         createFile(artifactsRoot, "foo.html");
         createFile(artifactsRoot, "foo/bar.xml");
 
@@ -259,28 +277,32 @@ public class ArtifactsControllerIntegrationTest {
         assertThat(mav.getViewName(), is("fileView"));
     }
 
-    @Test public void shouldReturnFolderInHtmlView() throws Exception {
+    @Test
+    public void shouldReturnFolderInHtmlView() throws Exception {
         createFile(artifactsRoot, "foo/bar.xml");
 
         ModelAndView mav = getFileAsHtml("/foo");
         assertThat(mav.getViewName(), is("rest/html"));
     }
 
-    @Test public void shouldReturnFolderInJsonView() throws Exception {
+    @Test
+    public void shouldReturnFolderInJsonView() throws Exception {
         createFile(artifactsRoot, "foo/bar.xml");
 
         ModelAndView mav = getFolderAsJson("/foo");
         assertEquals(RESPONSE_CHARSET_JSON, mav.getView().getContentType());
     }
 
-    @Test public void shouldReturnFolderInHtmlViewWithPathBasedRepository() throws Exception {
+    @Test
+    public void shouldReturnFolderInHtmlViewWithPathBasedRepository() throws Exception {
         createFile(artifactsRoot, "foo/bar.xml");
 
         ModelAndView mav = getFileAsHtml("/foo");
         assertThat(mav.getViewName(), is("rest/html"));
     }
 
-    @Test public void shouldReturnForbiddenWhenTryingToAccessArtifactsWithDotDot() throws Exception {
+    @Test
+    public void shouldReturnForbiddenWhenTryingToAccessArtifactsWithDotDot() throws Exception {
         createFile(artifactsRoot, "foo/1.xml");
         createFile(artifactsRoot, "bar/2.xml");
 
@@ -289,14 +311,16 @@ public class ArtifactsControllerIntegrationTest {
         // The controller already URL escapes the filePath, so this also works with %2e
     }
 
-    @Test public void shouldTreatSlashSlashAsOne() throws Exception {
+    @Test
+    public void shouldTreatSlashSlashAsOne() throws Exception {
         createFile(artifactsRoot, "tmp/1.xml");
 
         ModelAndView mav = getFileAsHtml("//tmp/1.xml");
         assertThat(mav.getViewName(), is("fileView"));
     }
 
-    @Test public void shouldCreateNewFile() throws Exception {
+    @Test
+    public void shouldCreateNewFile() throws Exception {
         createFile(artifactsRoot, "dir/foo");
 
         ModelAndView mav = postFile("/dir/bar.xml");
@@ -310,13 +334,15 @@ public class ArtifactsControllerIntegrationTest {
         assertStatus(mav, SC_CREATED);
     }
 
-    @Test public void shouldReturn403WhenPostingAlreadyExistingFile() throws Exception {
+    @Test
+    public void shouldReturn403WhenPostingAlreadyExistingFile() throws Exception {
         createFile(artifactsRoot, "dir/foo.txt");
         ModelAndView view = postFile("/dir/foo.txt");
         assertValidContentAndStatus(view, SC_FORBIDDEN, "File /dir/foo.txt already directoryExists.");
     }
 
-    @Test public void shouldCreateAndUnzipNewFileWhenFolderAlreadyExists() throws Exception {
+    @Test
+    public void shouldCreateAndUnzipNewFileWhenFolderAlreadyExists() throws Exception {
         artifactsRoot.mkdir();
         createFile(artifactsRoot, "dir/foo");
 
@@ -332,7 +358,8 @@ public class ArtifactsControllerIntegrationTest {
         assertThat(file(artifactsRoot, "dir/quux.txt"), is(not(directory())));
     }
 
-    @Test public void shouldCreateAndUnzipNewFileWhenFolderDoesNotExists() throws Exception {
+    @Test
+    public void shouldCreateAndUnzipNewFileWhenFolderDoesNotExists() throws Exception {
         createTmpFile(artifactsRoot, "notexists/bar.csv");
         createTmpFile(artifactsRoot, "notexists/quux.tmp");
 
@@ -345,21 +372,24 @@ public class ArtifactsControllerIntegrationTest {
         assertStatus(view, SC_CREATED);
     }
 
-    @Test public void shouldNotAllowPathsOutsideTheArtifactDirectory() throws Exception {
+    @Test
+    public void shouldNotAllowPathsOutsideTheArtifactDirectory() throws Exception {
         ModelAndView mav = postFile("/dir/../../foo/bar.txt");
         assertThat(file(artifactsRoot, "foo/bar.txt"), not(exists()));
         assertThat(file(artifactsRoot, "dir"), not(exists()));
         assertStatus(mav, SC_FORBIDDEN);
     }
 
-    @Test public void shouldEnforceUsingRequiredNameInMultipartRequest() throws Exception {
+    @Test
+    public void shouldEnforceUsingRequiredNameInMultipartRequest() throws Exception {
         ModelAndView mav = postFile("/foo/bar.txt", "badname");
         assertThat(file(artifactsRoot, "foo/bar.txt"), not(exists()));
         assertThat(file(artifactsRoot, "notfoo/bar.txt"), not(exists()));
         assertStatus(mav, SC_BAD_REQUEST);
     }
 
-    @Test public void shouldPutNewFile() throws Exception {
+    @Test
+    public void shouldPutNewFile() throws Exception {
         assertThat(file(artifactsRoot, "foo/bar.txt"), not(exists()));
 
         putFile("/foo/bar.txt");
@@ -547,6 +577,45 @@ public class ArtifactsControllerIntegrationTest {
         assertThat(list.get(1).toString(), is("baz/foobar.html:FooMD5"));
     }
 
+    @Test
+    public void shouldPutArtifact() throws Exception {
+        request.addHeader("Confirm", "true");
+        String artifactFileContent = "FooBarBaz...";
+        request.setContent(artifactFileContent.getBytes());
+
+        String filePath = "baz/foobar.html";
+        ModelAndView modelAndView = artifactsController.putArtifact(pipelineName.toUpperCase(), Integer.toString(pipeline.getCounter()),
+                stage.getName().toUpperCase(), Integer.toString(stage.getCounter()), job.getName().toUpperCase(), buildId, filePath,
+                null, request);
+        assertValidContentAndStatus(modelAndView, SC_OK, String.format("File %s was appended successfully", filePath));
+
+        JobIdentifier jobIdentifier = new JobIdentifier(pipelineName, pipeline.getCounter(), null, stage.getName(), Integer.toString(stage.getCounter()), job.getName(), job.getId());
+        File artifact = artifactService.findArtifact(jobIdentifier, filePath);
+        assertThat(FileUtils.readFileToString(artifact, "utf-8"), is(artifactFileContent));
+    }
+
+    @Test
+    public void shouldPutConsoleLogAsArtifact() throws Exception {
+        request.addHeader("Confirm", "true");
+        String consoleLogContent = "Job output";
+        request.setContent(consoleLogContent.getBytes());
+
+        ModelAndView modelAndView = artifactsController.putArtifact(pipelineName.toUpperCase(), Integer.toString(pipeline.getCounter()),
+                stage.getName().toUpperCase(), Integer.toString(stage.getCounter()), job.getName().toUpperCase(), buildId, "cruise-output/console.log",
+                null, request);
+
+        String md5Hex = DigestUtils.md5Hex(String.format("%s/1/stage/1/build", pipelineName));
+        String path = new File("data/console/", String.format("%s.log", md5Hex)).getPath();
+        assertValidContentAndStatus(modelAndView, SC_OK, String.format("File %s was appended successfully", path));
+
+        JobIdentifier jobIdentifier = new JobIdentifier(pipelineName, pipeline.getCounter(),
+                null, stage.getName(), Integer.toString(stage.getCounter()),
+                job.getName(), job.getId());
+        assertTrue(consoleService.doesLogExist(jobIdentifier));
+        File consoleLogFile = consoleService.consoleLogFile(jobIdentifier);
+        assertThat(FileUtils.readFileToString(consoleLogFile, "utf-8"), is(consoleLogContent));
+    }
+
     private File createFile(File buildIdArtifactRoot, String fileName) throws IOException {
         File newFile = new File(buildIdArtifactRoot, fileName);
         newFile.getParentFile().mkdirs();
@@ -606,7 +675,7 @@ public class ArtifactsControllerIntegrationTest {
         MockMultipartFile multipartFile = new MockMultipartFile(multipartFilename, stream);
         request.addHeader("Confirm", "true");
         StubMultipartHttpServletRequest multipartRequest = new StubMultipartHttpServletRequest(request, multipartFile);
-        return artifactsController.postArtifact(pipelineName, pipeline.getLabel(), "stage", "LATEST", "build", buildId,
+        return artifactsController.postArtifact(pipelineName, Integer.toString(pipeline.getCounter()), "stage", "LATEST", "build", buildId,
                 requestFilename,
                 null, multipartRequest);
     }

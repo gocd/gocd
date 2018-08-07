@@ -1106,18 +1106,11 @@ public class StageSqlMapDaoIntegrationTest {
         assertThat(stageDao.getMaxStageCounter(pipeline.getId(), CaseInsensitiveString.str(mingleConfig.first().name())), is(1));
     }
 
-
-    @Test
-    public void shouldReturnMaxStageCounterByPipelineLabel() throws Exception {
-        Pipeline pipeline = dbHelper.schedulePipeline(mingleConfig, new TimeProvider());
-        assertThat(stageDao.findLatestStageCounter(new PipelineIdentifier(pipeline.getName(), pipeline.getCounter(), pipeline.getLabel()), CaseInsensitiveString.str(mingleConfig.first().name())),
-                is(1));
-    }
-
     @Test
     public void shouldReturnMaxStageCounterByPipelineCounter() throws Exception {
         Pipeline pipeline = dbHelper.schedulePipeline(mingleConfig, new TimeProvider());
-        assertThat(stageDao.findLatestStageCounter(pipeline.getIdentifier(), CaseInsensitiveString.str(mingleConfig.first().name())), is(1));
+        PipelineIdentifier pipelineIdentifier = new PipelineIdentifier(pipeline.getName(), pipeline.getCounter());
+        assertThat(stageDao.findLatestStageCounter(pipelineIdentifier, CaseInsensitiveString.str(mingleConfig.first().name())), is(1));
     }
 
     @Test

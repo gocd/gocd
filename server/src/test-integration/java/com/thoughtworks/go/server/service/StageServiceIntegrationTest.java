@@ -468,19 +468,6 @@ public class StageServiceIntegrationTest {
         verify(listener).stageStatusChanged(stage);
     }
 
-    @Test
-    public void findStageIdByIdentifierShouldConvertStageIdentifierIntoId() throws Exception {
-        dbHelper.execute("UPDATE pipelines SET label = '1.3.4' WHERE id = " + stage.getPipelineId());
-        dbHelper.execute("UPDATE pipelines SET counter = null WHERE id = " + stage.getPipelineId());
-        assertThat(stageService.findStageIdByLocator("mingle/1.3.4/dev/1"), is(stage.getId()));
-    }
-
-    @Test
-    public void findStageIdByIdentifierShouldConvertStageIdentifierWithLabelAndCounterContainingIntoId() throws Exception {
-        dbHelper.execute("UPDATE pipelines SET label = '1.3.4.3345' WHERE id = " + stage.getPipelineId());
-        dbHelper.execute("UPDATE pipelines SET counter = '3345' WHERE id = " + stage.getPipelineId());
-        assertThat(stageService.findStageIdByLocator("mingle/3345[1.3.4.3345]/dev/1"), is(stage.getId()));
-    }
 
     @Test
     public void ensurePipelineSqlMapDaoIsAStageStatusListener() {

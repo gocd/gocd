@@ -16,12 +16,17 @@
 
 package com.thoughtworks.go.server.controller;
 
-import com.thoughtworks.go.domain.*;
+import com.thoughtworks.go.domain.JobInstance;
+import com.thoughtworks.go.domain.JobResult;
+import com.thoughtworks.go.domain.JobState;
 import com.thoughtworks.go.dto.DurationBean;
 import com.thoughtworks.go.helper.JobInstanceMother;
 import com.thoughtworks.go.server.dao.JobInstanceDao;
 import com.thoughtworks.go.server.domain.Agent;
-import com.thoughtworks.go.server.service.*;
+import com.thoughtworks.go.server.service.AgentService;
+import com.thoughtworks.go.server.service.GoConfigService;
+import com.thoughtworks.go.server.service.JobInstanceService;
+import com.thoughtworks.go.server.service.StageService;
 import com.thoughtworks.go.util.JsonValue;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.junit.Before;
@@ -35,6 +40,7 @@ import java.util.List;
 import static com.thoughtworks.go.util.JsonUtils.from;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.fail;
 import static org.mockito.Mockito.*;
 
 public class JobControllerTest {
@@ -92,5 +98,25 @@ public class JobControllerTest {
 
         assertThat(buildingInfo.getString("id"), is("2"));
         assertThat(buildingInfo.getString("last_build_duration"), is("5"));
+    }
+
+    @Test
+    public void shouldThrowErrorIfUserPassesANonNumericValueForPipelineCounter() throws Exception {
+        try {
+            jobController.jobDetail("p1", "some-string", "s1", "1", "job");
+            fail("Expected an exception to be thrown");
+        } catch (Exception e) {
+            assertThat(e.getMessage(), is("Expected numeric pipelineCounter, but received 'some-string' for [p1/some-string/s1/1/job]"));
+        }
+    }
+
+    @Test
+    public void shouldThrowErrorIfUserPassesANonNumericValueForStageCounter() throws Exception {
+        try {
+            jobController.jobDetail("p1", "1", "s1", "some-string", "job");
+            fail("Expected an exception to be thrown");
+        } catch (Exception e) {
+            assertThat(e.getMessage(), is("Expected numeric stageCounter, but received 'some-string' for [p1/1/s1/some-string/job]"));
+        }
     }
 }

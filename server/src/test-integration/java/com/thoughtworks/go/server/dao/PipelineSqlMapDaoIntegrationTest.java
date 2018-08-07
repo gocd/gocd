@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -69,7 +69,10 @@ import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 
 import javax.sql.DataSource;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
@@ -520,16 +523,6 @@ public class PipelineSqlMapDaoIntegrationTest {
         Pipeline mostRecentPipeline = pipelineDao.mostRecentPipeline(mingle.getName());
         assertThat(mostRecentPipeline, hasSameId(mingle));
         assertThat(mostRecentPipeline.getBuildCause().getMaterialRevisions().totalNumberOfModifications(), is(1));
-    }
-
-    @Test
-    public void shouldLoadMostRecentLabel() throws Exception {
-        String stageName = "dev";
-        PipelineConfig mingleConfig = PipelineMother.twoBuildPlansWithResourcesAndMaterials("mingle", stageName);
-        Pipeline mingle = schedulePipelineWithStages(mingleConfig);
-
-        String label = pipelineDao.mostRecentLabel(mingle.getName());
-        assertThat(label, is(mingle.getLabel()));
     }
 
     @Test
@@ -1628,7 +1621,7 @@ public class PipelineSqlMapDaoIntegrationTest {
         Pipeline p1_1 = dbHelper.schedulePipeline(p1.config, new TestingClock(new Date()));
         dbHelper.pass(p1_1);
         PipelineInstanceModel pim1 = pipelineDao.findPipelineHistoryByNameAndCounter(p1.config.name().toUpper().toString(), 1); //prime cache
-        scheduleService.rerunStage(p1_1.getName(), p1_1.getCounter().toString(), p1_1.getStages().get(0).getName());
+        scheduleService.rerunStage(p1_1.getName(), p1_1.getCounter(), p1_1.getStages().get(0).getName());
 
         PipelineInstanceModel pim2 = pipelineDao.findPipelineHistoryByNameAndCounter(p1.config.name().toUpper().toString(), 1);
 
@@ -1638,11 +1631,11 @@ public class PipelineSqlMapDaoIntegrationTest {
 
     @Test
     public void shouldLoadHistoryForDashboard() throws Exception {
-/*
-*   P1 [S1 (J1), S2(J1), S3(J1, J2)]
-*   P2 [S1 (J1)]
-*
-* */
+        /*
+         *   P1 [S1 (J1), S2(J1), S3(J1, J2)]
+         *   P2 [S1 (J1)]
+         *
+         * */
         String pipeline1 = "p1";
         String pipeline2 = "p2";
         PipelineConfig pipelineConfig1 = PipelineConfigMother.pipelineConfig(pipeline1);
@@ -1699,7 +1692,7 @@ public class PipelineSqlMapDaoIntegrationTest {
     }
 
     @Test
-    public void ensureActivePipelineCacheUsedByOldDashboardIsCaseInsensitiveWRTPipelineNames(){
+    public void ensureActivePipelineCacheUsedByOldDashboardIsCaseInsensitiveWRTPipelineNames() {
         GitMaterial g1 = u.wf(new GitMaterial("g1"), "folder3");
         u.checkinInOrder(g1, "g_1");
 
@@ -1746,6 +1739,24 @@ public class PipelineSqlMapDaoIntegrationTest {
                 return pipelineInstanceModel.getName().equalsIgnoreCase(pipeline1.config.name().toString());
             }
         });
+    }
+
+    @Test
+    public void shouldLoadMostRecentPipelineIdentifier() throws Exception {
+        GitMaterial g1 = u.wf(new GitMaterial("g1"), "folder3");
+        u.checkinInOrder(g1, "g_1");
+
+        String pipelineName = "p1";
+        ScheduleTestUtil.AddedPipeline p1 = u.saveConfigWith(pipelineName, "s1", u.m(g1));
+        Pipeline p1_1 = dbHelper.schedulePipeline(p1.config, new TestingClock(new Date()));
+        dbHelper.pass(p1_1);
+        Pipeline p2_1 = dbHelper.schedulePipeline(p1.config, new TestingClock(new Date()));
+        dbHelper.pass(p2_1);
+
+        PipelineIdentifier pipelineIdentifier = pipelineDao.mostRecentPipelineIdentifier(pipelineName);
+        assertThat(pipelineIdentifier.getLabel(), is(p2_1.getLabel()));
+        assertThat(pipelineIdentifier.getName(), is(p2_1.getName()));
+        assertThat(pipelineIdentifier.getCounter(), is(p2_1.getCounter()));
     }
 
     public static MaterialRevisions revisions(boolean changed) {

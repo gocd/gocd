@@ -191,7 +191,7 @@ public class GoDashboardCurrentStateLoaderIntegrationTest {
         Pipeline p1 = dbHelper.newPipelineWithAllStagesPassed(pipelineConfig);
         Pipeline p2 = dbHelper.newPipelineWithAllStagesPassed(pipelineConfig);
 
-        scheduleService.rerunStage(pipelineConfig.getName().toString(), p1.getCounter().toString(), pipelineConfig.getFirstStageConfig().name().toString());
+        scheduleService.rerunStage(pipelineConfig.getName().toString(), p1.getCounter(), pipelineConfig.getFirstStageConfig().name().toString());
 
         List<GoDashboardPipeline> goDashboardPipelines = goDashboardCurrentStateLoader.allPipelines(goConfigService.currentCruiseConfig());
         assertThat(goDashboardPipelines, hasSize(1));

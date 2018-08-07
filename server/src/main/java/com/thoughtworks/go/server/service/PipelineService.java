@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -120,12 +120,12 @@ public class PipelineService implements UpstreamPipelineResolver {
         return pipeline;
     }
 
-    public Pipeline findPipelineByCounterOrLabel(String pipelineName, String counterOrLabel) {
-        return pipelineDao.findPipelineByCounterOrLabel(pipelineName, counterOrLabel);
+    public Pipeline findPipelineByNameAndCounter(String pipelineName, int pipelineCounter) {
+        return pipelineDao.findPipelineByNameAndCounter(pipelineName, pipelineCounter);
     }
 
-    public Pipeline fullPipelineByCounterOrLabel(String pipelineName, String counterOrLabel) {
-        Pipeline pipeline = findPipelineByCounterOrLabel(pipelineName, counterOrLabel);
+    public Pipeline fullPipelineByCounter(String pipelineName, Integer pipelineCounter) {
+        Pipeline pipeline = findPipelineByNameAndCounter(pipelineName, pipelineCounter);
         pipelineDao.loadAssociations(pipeline, pipelineName);
         return pipeline;
     }
@@ -298,5 +298,9 @@ public class PipelineService implements UpstreamPipelineResolver {
 
     public PipelineTimeline getPipelineTimeline() {
         return pipelineTimeline;
+    }
+
+    public PipelineIdentifier mostRecentPipelineIdentifier(String pipelineName) {
+        return pipelineDao.mostRecentPipelineIdentifier(pipelineName);
     }
 }

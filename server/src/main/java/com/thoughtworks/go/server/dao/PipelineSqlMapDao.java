@@ -300,10 +300,6 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
         insertOrUpdatePipelineCounter(pipeline, lastCount, pipeline.getCounter());
     }
 
-    public String mostRecentLabel(String pipelineName) {
-        return (String) getSqlMapClientTemplate().queryForObject("mostRecentLabel", pipelineName);
-    }
-
     public Pipeline pipelineWithMaterialsAndModsByBuildId(long buildId) {
         String cacheKey = this.cacheKeyGenerator.generate("getPipelineByBuildId", buildId);
         return pipelineByBuildIdCache.get(cacheKey, new Supplier<Pipeline>() {
@@ -316,6 +312,10 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
                 return loadMaterialRevisions(pipeline);
             }
         });
+    }
+
+    public PipelineIdentifier mostRecentPipelineIdentifier(String pipelineName) {
+        return (PipelineIdentifier) getSqlMapClientTemplate().queryForObject("mostRecentPipelineIdentifier", pipelineName);
     }
 
     public Pipeline pipelineByIdWithMods(long pipelineId) {
@@ -787,30 +787,6 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
             }
         }
         return latestModification != null ? latestModification.getRevision() : null;
-    }
-
-    public Pipeline findPipelineByCounterOrLabel(String pipelineName, String counterOrLabel) {
-        Pipeline pipeline = null;
-        try {
-            int pipelineCounter = Integer.parseInt(counterOrLabel);
-            pipeline = findPipelineByNameAndCounter(pipelineName, pipelineCounter);
-        } catch (NumberFormatException e) {
-            //it maybe a label
-        }
-
-        if (pipeline == null) {
-            String pipelineLabel = translatePipelineLabel(pipelineName, counterOrLabel);
-            pipeline = findPipelineByNameAndLabel(pipelineName, pipelineLabel);
-        }
-        return pipeline;
-    }
-
-    private String translatePipelineLabel(String pipelineName, String pipelineLabel) {
-        String label = pipelineLabel;
-        if (pipelineLabel.equalsIgnoreCase(JobIdentifier.LATEST)) {
-            label = mostRecentLabel(pipelineName);
-        }
-        return label;
     }
 
     public void pause(String pipelineName, String pauseCause, String pauseBy) {

@@ -268,6 +268,10 @@ public class PipelineWithTwoStages implements PreCondition {
         return dbHelper.getPipelineDao().mostRecentPipeline(pipelineName).getLabel();
     }
 
+    public Integer pipelineCounter() {
+        return dbHelper.getPipelineDao().mostRecentPipeline(pipelineName).getCounter();
+    }
+
     public void createPipelineHistory() {
         createdPipelineWithAllStagesPassed();
     }

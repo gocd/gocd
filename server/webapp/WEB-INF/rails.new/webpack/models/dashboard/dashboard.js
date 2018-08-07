@@ -71,10 +71,11 @@ const Dashboard = function () {
 
 Dashboard.API_VERSION = 'v2';
 
-Dashboard.get = (viewName) => {
+Dashboard.get = (viewName, etag) => {
   return AjaxHelper.GET({
     url:        Routes.apiv2ShowDashboardPath({viewName}),
-    apiVersion: Dashboard.API_VERSION
+    apiVersion: Dashboard.API_VERSION,
+    etag
   });
 };
 

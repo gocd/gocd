@@ -24,6 +24,8 @@ function DashboardViewModel() {
   let dropdownPipelineName, dropdownPipelineCounter;
 
   const viewModel = {
+    etag: Stream(null),
+
     dropdown: {
       isOpen: (name, instanceCounter) => ((name === dropdownPipelineName) && (instanceCounter === dropdownPipelineCounter)),
 

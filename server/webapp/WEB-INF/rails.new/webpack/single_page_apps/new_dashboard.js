@@ -104,8 +104,14 @@ $(() => {
     dashboard.message(message);
   }
 
+  function parseEtag(req) { return (req.getResponseHeader("ETag") || "").replace(/"/g, "").replace(/--(gzip|deflate)$/, ""); }
+
   function createRepeater() {
     const onsuccess = (data, _textStatus, jqXHR) => {
+      const etag = parseEtag(jqXHR);
+
+      if (jqXHR.status === 304) { return; }
+
       if (jqXHR.status === 202) {
         const message = {
           type:    "info",
@@ -114,8 +120,14 @@ $(() => {
         onResponse({}, message);
         return;
       }
+
+      if (etag) {
+        dashboardVM.etag(etag);
+      }
+
       onResponse(data);
     };
+
     const onerror   = (jqXHR, textStatus, errorThrown) => {
       if (textStatus === 'parsererror') {
         const message = {
@@ -143,7 +155,7 @@ $(() => {
       onResponse({}, message);
     };
 
-    return new AjaxPoller(() => Dashboard.get(currentView())
+    return new AjaxPoller(() => Dashboard.get(currentView(), dashboardVM.etag())
       .then(onsuccess, onerror)
       .always(() => {
         showSpinner(false);

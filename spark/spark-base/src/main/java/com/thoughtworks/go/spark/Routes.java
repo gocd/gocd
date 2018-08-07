@@ -93,6 +93,15 @@ public class Routes {
         public static final String SELF = "/api/config/pipeline_groups";
     }
 
+    public static class EnvironmentConfig {
+        public static final String DOC = "https://api.gocd.org/#environment-config";
+        static final String NAME = "/api/admin/environments/:name";
+
+        public static String name(String name) {
+            return NAME.replaceAll(":name", name);
+        }
+    }
+
     public static class DataSharing {
         public static final String USAGE_DATA_PATH = "/api/internal/data_sharing/usagedata";
         public static final String SETTINGS_PATH = "/api/data_sharing/settings";

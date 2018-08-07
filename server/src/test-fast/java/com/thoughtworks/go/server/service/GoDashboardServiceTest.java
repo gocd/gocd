@@ -130,7 +130,7 @@ public class GoDashboardServiceTest {
         List<GoDashboardPipelineGroup> pipelineGroups = allPipelineGroupsForDashboard(filter, new Username("user1"));
 
         assertThat(pipelineGroups.size(), is(1));
-        assertThat(pipelineGroups.get(0).allPipelineNames(), contains("pipeline1", "pipeline2"));
+        assertThat(pipelineGroups.get(0).pipelines(), contains("pipeline1", "pipeline2"));
         assertThat(pipelineGroups.get(0).allPipelines(), contains(pipeline1, pipeline2));
     }
 
@@ -159,10 +159,10 @@ public class GoDashboardServiceTest {
         List<GoDashboardPipelineGroup> pipelineGroups = allPipelineGroupsForDashboard(filter, new Username("user1"));
 
         assertThat(pipelineGroups.size(), is(2));
-        assertThat(pipelineGroups.get(0).allPipelineNames(), contains("pipeline1"));
+        assertThat(pipelineGroups.get(0).pipelines(), contains("pipeline1"));
         assertThat(pipelineGroups.get(0).allPipelines(), contains(pipeline1));
 
-        assertThat(pipelineGroups.get(1).allPipelineNames(), contains("pipeline3"));
+        assertThat(pipelineGroups.get(1).pipelines(), contains("pipeline3"));
         assertThat(pipelineGroups.get(1).allPipelines(), contains(pipeline3));
     }
 
@@ -183,7 +183,7 @@ public class GoDashboardServiceTest {
         List<GoDashboardPipelineGroup> pipelineGroups = allPipelineGroupsForDashboard(filter, new Username("user1"));
 
         assertThat(pipelineGroups.size(), is(1));
-        assertThat(pipelineGroups.get(0).allPipelineNames(), contains("pipeline1"));
+        assertThat(pipelineGroups.get(0).pipelines(), contains("pipeline1"));
         assertThat(pipelineGroups.get(0).allPipelines(), contains(pipeline1));
     }
 
@@ -215,7 +215,7 @@ public class GoDashboardServiceTest {
         List<GoDashboardPipelineGroup> pipelineGroups = allPipelineGroupsForDashboard(filter, new Username("user1"));
 
         assertThat(pipelineGroups.size(), is(1));
-        assertThat(pipelineGroups.get(0).allPipelineNames(), contains("pipeline1"));
+        assertThat(pipelineGroups.get(0).pipelines(), contains("pipeline1"));
         assertThat(pipelineGroups.get(0).allPipelines(), contains(pipeline1));
     }
 

@@ -25,8 +25,8 @@
   function paramPresent(win, key, val) {
     const s = win.location.search,
          re = new RegExp("undefined" !== typeof val ?
-            `[&?]${esr(enc(key))}=${esr(enc(val))}\\b` :
-            `[&?]${esr(enc(key))}\\b`);
+            `[&?]${esr(enc(key))}=${esr(enc(val))}(?:&.+)?$` :
+            `[&?]${esr(enc(key))}(?:&.+)?$`);
     return "" !== s && s.match(re);
   }
 

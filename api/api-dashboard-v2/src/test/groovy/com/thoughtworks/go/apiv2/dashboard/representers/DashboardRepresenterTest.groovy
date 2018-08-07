@@ -28,7 +28,7 @@ import org.junit.jupiter.api.Test
 import static com.thoughtworks.go.api.base.JsonUtils.toObject
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
 
-class PipelineGroupsRepresenterTest {
+class DashboardRepresenterTest {
 
   @Test
   void 'renders pipeline dashboard with hal representation'() {
@@ -47,7 +47,7 @@ class PipelineGroupsRepresenterTest {
     pipeline_group2.addPipeline(pipeline3_in_group2)
 
     def actualJson = toObject({
-      PipelineGroupsRepresenter.toJSON(it, new DashboardFor([pipeline_group1, pipeline_group2], user, "sha256hash"))
+      DashboardRepresenter.toJSON(it, new DashboardFor([pipeline_group1, pipeline_group2], null, null, user, "sha256hash"))
     })
 
     assertThatJson(actualJson._links).isEqualTo([
@@ -56,8 +56,8 @@ class PipelineGroupsRepresenterTest {
     ])
 
     assertThatJson(actualJson._embedded.pipeline_groups).isEqualTo([
-      toObject({ PipelineGroupRepresenter.toJSON(it, pipeline_group1, user) }),
-      toObject({ PipelineGroupRepresenter.toJSON(it, pipeline_group2, user) }),
+      toObject({ DashboardGroupRepresenter.toJSON(it, pipeline_group1, user) }),
+      toObject({ DashboardGroupRepresenter.toJSON(it, pipeline_group2, user) }),
     ])
 
     assertThatJson(actualJson._embedded.pipelines).isEqualTo([

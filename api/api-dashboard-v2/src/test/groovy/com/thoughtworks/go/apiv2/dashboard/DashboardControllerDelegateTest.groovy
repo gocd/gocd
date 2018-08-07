@@ -19,7 +19,7 @@ package com.thoughtworks.go.apiv2.dashboard
 import com.thoughtworks.go.api.SecurityTestTrait
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
 import com.thoughtworks.go.apiv2.dashboard.representers.DashboardFor
-import com.thoughtworks.go.apiv2.dashboard.representers.PipelineGroupsRepresenter
+import com.thoughtworks.go.apiv2.dashboard.representers.DashboardRepresenter
 import com.thoughtworks.go.config.security.Permissions
 import com.thoughtworks.go.config.security.users.Everyone
 import com.thoughtworks.go.server.dashboard.GoDashboardPipelineGroup
@@ -95,7 +95,7 @@ class DashboardControllerDelegateTest implements SecurityServiceTrait, Controlle
 
         assertThatResponse()
           .isOk()
-          .hasBodyWithJsonObject(new DashboardFor([pipelineGroup], currentUsername(), pipelineSelections.etag()), PipelineGroupsRepresenter)
+          .hasBodyWithJsonObject(new DashboardFor([pipelineGroup], null, null, currentUsername(), pipelineSelections.etag()), DashboardRepresenter)
       }
 
       @Test
@@ -135,7 +135,7 @@ class DashboardControllerDelegateTest implements SecurityServiceTrait, Controlle
         assertThatResponse()
           .isOk()
           .hasContentType(controller.mimeType)
-          .hasBodyWithJsonObject(new DashboardFor(noPipelineGroups, currentUsername(), pipelineSelections.etag()), PipelineGroupsRepresenter)
+          .hasBodyWithJsonObject(new DashboardFor(noPipelineGroups, noPipelineGroups, null, currentUsername(), pipelineSelections.etag()), DashboardRepresenter)
       }
 
       @Test

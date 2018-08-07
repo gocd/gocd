@@ -1,8 +1,11 @@
 package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.AdminsConfig;
+import com.thoughtworks.go.config.Role;
 import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
+import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
 import com.thoughtworks.go.config.update.AdminConfigReplaceCommand;
+import com.thoughtworks.go.domain.config.Admin;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 import org.slf4j.LoggerFactory;
@@ -35,11 +38,11 @@ public class AdminsConfigService {
             goConfigService.updateConfig(command, currentUser);
         } catch (Exception e) {
             if (!result.hasMessage()) {
-                LOGGER.error(e.getMessage(), e);
-                result.internalServerError(saveFailedWithReason("An error occurred while saving the admin config. Please check the logs for more information."));
+                    LOGGER.error(e.getMessage(), e);
+                    result.internalServerError(saveFailedWithReason("An error occurred while saving the admin config. Please check the logs for more information."));
+                }
             }
         }
     }
-}
 
 

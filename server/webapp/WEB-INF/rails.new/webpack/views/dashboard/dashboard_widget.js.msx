@@ -89,26 +89,27 @@ const DashboardWidget = {
         <div class="dashboard" key="dashboard-content">
           <PersonalizedViewsWidget vm={personalizeVM} />
           {messageView}
+
           {_.map(vnode.attrs.dashboard.getPipelineGroups(), (pipelineGroup) => {
             let name, settingsIcon;
 
             if (pipelineGroup.canAdminister) {
               name         = (<a href={pipelineGroup.path}>{pipelineGroup.name}</a>);
-              settingsIcon = (<a href={pipelineGroup.editPath} class="edit_config pipeline-group_edit-config"/>);
+              settingsIcon = (<a href={pipelineGroup.editPath} class="edit_config dashboard-group_edit-config"/>);
             } else {
               name         = pipelineGroup.name;
-              settingsIcon = (<f.link class="edit_config pipeline-group_edit-config disabled"
+              settingsIcon = (<f.link class="edit_config dashboard-group_edit-config disabled"
                                                  tooltipText={noPermissionText}/>);
             }
 
             return (
-              <div class="pipeline-group" key={pipelineGroup.name}>
-                <h2 class="pipeline-group_title">
+              <div class="dashboard-group" key={pipelineGroup.name}>
+                <h2 class="dashboard-group_title">
                   <span>pipeline group</span>
                   <strong>{name}</strong>
                   {settingsIcon}
                 </h2>
-                <ul class="pipeline-group_items">
+                <ul class="dashboard-group_items">
                   {_.map(pipelineGroup.pipelines, (pipelineName) => {
                     return (
                       <PipelineWidget pipeline={vnode.attrs.dashboard.findPipeline(pipelineName)}

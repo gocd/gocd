@@ -41,92 +41,92 @@ import java.io.IOException;
 
 import static spark.Spark.*;
 
-public class AdminControllerV1Delegate extends ApiController implements CrudController<AdminsConfig>{
-  private final ApiAuthenticationHelper apiAuthenticationHelper;
-  private final EntityHashingService entityHashingService;
-  private final AdminsConfigService adminsConfigService;
+public class AdminControllerV1Delegate extends ApiController implements CrudController<AdminsConfig> {
+    private final ApiAuthenticationHelper apiAuthenticationHelper;
+    private final EntityHashingService entityHashingService;
+    private final AdminsConfigService adminsConfigService;
 
 
-  public AdminControllerV1Delegate(ApiAuthenticationHelper apiAuthenticationHelper,
-                                   EntityHashingService entityHashingService,AdminsConfigService service) {
-    super(ApiVersion.v1);
-    this.apiAuthenticationHelper = apiAuthenticationHelper;
-    this.entityHashingService = entityHashingService;
-    this.adminsConfigService = service;
-  }
-
-  @Override
-  public void setupRoutes() {
-    path(controllerPath(), () -> {
-      before("", mimeType, this::setContentType);
-      before("/*", mimeType, this::setContentType);
-      before("", this::verifyContentType);
-      before("/*", this::verifyContentType);
-      before("", mimeType, apiAuthenticationHelper::checkAdminUserAnd403);
-      before("/*", mimeType, apiAuthenticationHelper::checkAdminUserAnd403);
-
-      get("", mimeType, this::show);
-      patch("", mimeType, this::replaceAndUpdateAdmins);
-      put("", mimeType, this::replaceAndUpdateAdmins);
-
-      exception(InvalidPluginTypeException.class, (ex, req, res) -> {
-        res.body(this.messageJson(ex));
-        res.status(HttpStatus.BAD_REQUEST.value());
-      });
-
-      exception(RecordNotFoundException.class, this::notFound);
-    });
-  }
-
-  public String show(Request req, Response res) throws IOException {
-      AdminsConfig adminConf = getEntityFromConfig(req.params("admins"));
-    if (isGetOrHeadRequestFresh(req, adminConf)) {
-      return notModified(res);
-    } else {
-      setEtagHeader(adminConf, res);
-      return writerForTopLevelObject(req, res, writer -> AdminsRepresenter.toJSON(writer, adminConf));
+    public AdminControllerV1Delegate(ApiAuthenticationHelper apiAuthenticationHelper,
+                                     EntityHashingService entityHashingService, AdminsConfigService service) {
+        super(ApiVersion.v1);
+        this.apiAuthenticationHelper = apiAuthenticationHelper;
+        this.entityHashingService = entityHashingService;
+        this.adminsConfigService = service;
     }
-  }
 
-  public String replaceAndUpdateAdmins(Request req, Response res) throws IOException {
-    AdminsConfig reqAdminsConfig = getEntityFromRequestBody(req);
-    HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-    adminsConfigService.replace(SessionUtils.currentUsername(), reqAdminsConfig, result);
-    AdminsConfig adminConf = getEntityFromConfig(req.params("admins"));
-    return handleCreateOrUpdateResponse(req, res, adminConf, result);
-  }
+    @Override
+    public void setupRoutes() {
+        path(controllerPath(), () -> {
+            before("", mimeType, this::setContentType);
+            before("/*", mimeType, this::setContentType);
+            before("", this::verifyContentType);
+            before("/*", this::verifyContentType);
+            before("", mimeType, apiAuthenticationHelper::checkAdminUserAnd403);
+            before("/*", mimeType, apiAuthenticationHelper::checkAdminUserAnd403);
 
-  @Override
-  public String etagFor(AdminsConfig entityFromServer) {
-    return entityHashingService.md5ForEntity(entityFromServer);
-  }
+            get("", mimeType, this::show);
+            patch("", mimeType, this::replaceAndUpdateAdmins);
+            put("", mimeType, this::replaceAndUpdateAdmins);
 
-  @Override
-  public AdminsConfig doGetEntityFromConfig(String name) {
-    return adminsConfigService.findAdmins();
-  }
+            exception(InvalidPluginTypeException.class, (ex, req, res) -> {
+                res.body(this.messageJson(ex));
+                res.status(HttpStatus.BAD_REQUEST.value());
+            });
 
-  @Override
-  public AdminsConfig getEntityFromRequestBody(Request req) {
-    JsonReader jsonReader = GsonTransformer.getInstance().jsonReaderFrom(req.body());
-    String protocol = req.requestMethod();
-    return AdminsRepresenter.fromJSON(jsonReader,protocol,getEntityFromConfig(req.params("admins")));
-  }
+            exception(RecordNotFoundException.class, this::notFound);
+        });
+    }
 
-  @Override
-  public String jsonize(Request req, AdminsConfig admins) {
-    return jsonizeAsTopLevelObject(req, writer -> AdminsRepresenter.toJSON(writer, admins));
-  }
+    public String show(Request req, Response res) throws IOException {
+        AdminsConfig adminConf = getEntityFromConfig(req.params("admins"));
+        if (isGetOrHeadRequestFresh(req, adminConf)) {
+            return notModified(res);
+        } else {
+            setEtagHeader(adminConf, res);
+            return writerForTopLevelObject(req, res, writer -> AdminsRepresenter.toJSON(writer, adminConf));
+        }
+    }
 
-  @Override
-  public JsonNode jsonNode(Request req, AdminsConfig admins) throws IOException {
-    String jsonize = jsonize(req, admins);
-    return new ObjectMapper().readTree(jsonize);
-  }
+    public String replaceAndUpdateAdmins(Request req, Response res) throws IOException {
+        AdminsConfig reqAdminsConfig = getEntityFromRequestBody(req);
+        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+        adminsConfigService.replace(SessionUtils.currentUsername(), reqAdminsConfig, result);
+        AdminsConfig adminConf = getEntityFromConfig(req.params("admins"));
+        return handleCreateOrUpdateResponse(req, res, adminConf, result);
+    }
 
-  @Override
-  public String controllerBasePath() {
-    return Routes.Admins.BASE;
-  }
+    @Override
+    public String etagFor(AdminsConfig entityFromServer) {
+        return entityHashingService.md5ForEntity(entityFromServer);
+    }
+
+    @Override
+    public AdminsConfig doGetEntityFromConfig(String name) {
+        return adminsConfigService.findAdmins();
+    }
+
+    @Override
+    public AdminsConfig getEntityFromRequestBody(Request req) {
+        JsonReader jsonReader = GsonTransformer.getInstance().jsonReaderFrom(req.body());
+        String protocol = req.requestMethod();
+        return AdminsRepresenter.fromJSON(jsonReader, protocol, getEntityFromConfig(req.params("admins")));
+    }
+
+    @Override
+    public String jsonize(Request req, AdminsConfig admins) {
+        return jsonizeAsTopLevelObject(req, writer -> AdminsRepresenter.toJSON(writer, admins));
+    }
+
+    @Override
+    public JsonNode jsonNode(Request req, AdminsConfig admins) throws IOException {
+        String jsonize = jsonize(req, admins);
+        return new ObjectMapper().readTree(jsonize);
+    }
+
+    @Override
+    public String controllerBasePath() {
+        return Routes.Admins.BASE;
+    }
 
 }

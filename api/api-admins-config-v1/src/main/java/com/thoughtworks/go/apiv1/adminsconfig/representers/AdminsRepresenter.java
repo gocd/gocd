@@ -32,7 +32,7 @@ public class AdminsRepresenter {
         if (method.equalsIgnoreCase("PUT")) {
             adminsConfig = getAdminsForPutRequest(jsonReader);
         } else {
-            adminsConfig = getAdminsForPatchRequest(jsonReader,config);
+            adminsConfig = getAdminsForPatchRequest(jsonReader, config);
         }
 
         return adminsConfig;
@@ -60,23 +60,23 @@ public class AdminsRepresenter {
         rolesArray.get().readArrayIfPresent("remove", roles -> {
             roles.forEach(role -> rolesRemove.add(new AdminRole(new CaseInsensitiveString(role.getAsString()))));
         });
-        for(AdminUser user : config.getUsers()){
-            if(!adminsUsersRemove.contains(user)){
+        for (AdminUser user : config.getUsers()) {
+            if (!adminsUsersRemove.contains(user)) {
                 admins.add(user);
             }
         }
-        for(AdminUser user : adminsUsersAdd){
-            if(!admins.contains(user)){
+        for (AdminUser user : adminsUsersAdd) {
+            if (!admins.contains(user)) {
                 admins.add(user);
             }
         }
-        for(AdminRole role : config.getRoles()){
-            if(!rolesRemove.contains(role)){
+        for (AdminRole role : config.getRoles()) {
+            if (!rolesRemove.contains(role)) {
                 admins.add(role);
             }
         }
-        for(AdminRole role : rolesAdd){
-            if(!admins.contains(role)){
+        for (AdminRole role : rolesAdd) {
+            if (!admins.contains(role)) {
                 admins.add(role);
             }
         }

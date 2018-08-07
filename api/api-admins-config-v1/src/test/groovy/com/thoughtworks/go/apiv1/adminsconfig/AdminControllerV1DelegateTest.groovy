@@ -279,8 +279,8 @@ class AdminControllerV1DelegateTest implements ControllerTrait<AdminControllerV1
                         'content-type': 'application/json'
                 ]
                 def body = [
-                        'roles' : ['add': ['Dev', 'est'], 'remove': ['Production']],
-                        'users' : ['add': ['Linux', 'Firefox'], 'remove': ['Chrome']]
+                        'roles': ['add': ['Dev', 'est'], 'remove': ['Production']],
+                        'users': ['add': ['Linux', 'Firefox'], 'remove': ['Chrome']]
                 ]
                 doNothing().when(adminsConfigService).replace(any(), any(), any())
                 when(entityHashingService.md5ForEntity(config)).thenReturn("cached-md5")
@@ -307,8 +307,8 @@ class AdminControllerV1DelegateTest implements ControllerTrait<AdminControllerV1
                         'content-type': 'application/json'
                 ]
                 def body = [
-                        'roles' : ['add': ['Dev', 'est'], 'remove': ['Production']],
-                        'users' : ['add': ['Linux', 'Firefox'], 'remove': ['Chrome']]
+                        'roles': ['add': ['Dev', 'est'], 'remove': ['Production']],
+                        'users': ['add': ['Linux', 'Firefox'], 'remove': ['Chrome']]
                 ]
                 when(adminsConfigService.replace(any(), any(), any())).then({ InvocationOnMock invocation ->
                     HttpLocalizedOperationResult result = invocation.getArguments().last()

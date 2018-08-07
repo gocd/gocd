@@ -37,7 +37,7 @@ public class AdminsConfigServiceTest {
         Username admin = new Username("admin");
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
 
-        adminsConfigService.replace(admin,config,result);
+        adminsConfigService.replace(admin, config, result);
 
         verify(configService).updateConfig(any(AdminConfigReplaceCommand.class), eq(admin));
     }

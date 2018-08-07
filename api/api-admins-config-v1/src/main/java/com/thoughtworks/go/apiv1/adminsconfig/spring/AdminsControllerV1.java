@@ -26,15 +26,15 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class AdminsControllerV1 implements SparkSpringController {
-  private final AdminControllerV1Delegate delegate;
+    private final AdminControllerV1Delegate delegate;
 
-  @Autowired
-  public AdminsControllerV1(ApiAuthenticationHelper apiAuthenticationHelper, EntityHashingService entityHashingService, AdminsConfigService service) {
-    delegate = new AdminControllerV1Delegate(apiAuthenticationHelper,entityHashingService,service);
-  }
+    @Autowired
+    public AdminsControllerV1(ApiAuthenticationHelper apiAuthenticationHelper, EntityHashingService entityHashingService, AdminsConfigService service) {
+        delegate = new AdminControllerV1Delegate(apiAuthenticationHelper, entityHashingService, service);
+    }
 
-  @Override
-  public void setupRoutes() {
-      delegate.setupRoutes();
-  }
+    @Override
+    public void setupRoutes() {
+        delegate.setupRoutes();
+    }
 }

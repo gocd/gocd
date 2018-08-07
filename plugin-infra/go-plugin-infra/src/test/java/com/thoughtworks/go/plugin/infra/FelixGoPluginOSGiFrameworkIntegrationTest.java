@@ -44,8 +44,10 @@ import java.util.HashMap;
 import java.util.zip.ZipInputStream;
 
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.not;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
+import static org.mockito.ArgumentMatchers.isNotNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
@@ -63,11 +65,13 @@ public class FelixGoPluginOSGiFrameworkIntegrationTest {
     private File validMultipleExtensionPluginBundleDir;
     private File pluginToTestClassloadePluginBundleDir;
     private DefaultPluginRegistry registry;
+    private SystemEnvironment systemEnvironment;
 
     @Before
     public void setUp() throws Exception {
         registry = new DefaultPluginRegistry();
-        pluginOSGiFramework = new FelixGoPluginOSGiFramework(registry, new SystemEnvironment()) {
+        systemEnvironment = new SystemEnvironment();
+        pluginOSGiFramework = new FelixGoPluginOSGiFramework(registry, systemEnvironment) {
             @Override
             protected HashMap<String, String> generateOSGiFrameworkConfig() {
                 HashMap<String, String> config = super.generateOSGiFrameworkConfig();
@@ -250,6 +254,7 @@ public class FelixGoPluginOSGiFrameworkIntegrationTest {
 
     @Test
     public void shouldSetCurrentThreadContextClassLoaderToBundleClassLoaderToAvoidDependenciesFromApplicationClassloaderMessingAroundWithThePluginBehavior() {
+        systemEnvironment.setProperty("gocd.plugins.classloader.old", "false");
         final GoPluginDescriptor descriptor = new GoPluginDescriptor("plugin.to.test.classloader", null, null, null, pluginToTestClassloadePluginBundleDir, true);
         Bundle bundle = pluginOSGiFramework.loadPlugin(descriptor);
         registry.loadPlugin(descriptor);
@@ -259,6 +264,22 @@ public class FelixGoPluginOSGiFrameworkIntegrationTest {
             assertThat(pluginDescriptor, is(descriptor));
             assertThat(Thread.currentThread().getContextClassLoader().getClass().getCanonicalName(), is(BundleClassLoader.class.getCanonicalName()));
             plugin.pluginIdentifier();
+            return null;
+        };
+        pluginOSGiFramework.doOn(GoPlugin.class, "plugin.to.test.classloader", "notification", action);
+    }
+
+    @Test
+    public void shouldUseOldClassLoaderBehaviourWhenSystemPropertyIsSet() {
+        systemEnvironment.setProperty("gocd.plugins.classloader.old", "true");
+        final GoPluginDescriptor descriptor = new GoPluginDescriptor("plugin.to.test.classloader", null, null, null, pluginToTestClassloadePluginBundleDir, true);
+        Bundle bundle = pluginOSGiFramework.loadPlugin(descriptor);
+        registry.loadPlugin(descriptor);
+        assertThat(bundle.getState(), is(Bundle.ACTIVE));
+
+        ActionWithReturn<GoPlugin, Object> action = (plugin, pluginDescriptor) -> {
+            assertThat(pluginDescriptor, is(descriptor));
+            assertThat(Thread.currentThread().getContextClassLoader().getClass().getCanonicalName(), not(BundleClassLoader.class.getCanonicalName()));
             return null;
         };
         pluginOSGiFramework.doOn(GoPlugin.class, "plugin.to.test.classloader", "notification", action);

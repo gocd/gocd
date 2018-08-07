@@ -60,6 +60,7 @@ public class DefaultPluginManagerIntegrationTest {
 
     @BeforeClass
     public static void overrideProperties() throws IOException {
+        System.clearProperty("gocd.plugins.classloader.old");
         System.setProperty(PLUGIN_ACTIVATOR_JAR_PATH.propertyName(), "defaultFiles/go-plugin-activator.jar");
         bundleDir = temporaryFolder.newFolder("bundleDir");
         System.setProperty(PLUGIN_BUNDLE_PATH.propertyName(), bundleDir.getAbsolutePath());

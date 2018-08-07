@@ -216,12 +216,16 @@ public class FelixGoPluginOSGiFramework implements GoPluginOSGiFramework {
 
     private <T, R> R executeActionOnTheService(ActionWithReturn<T, R> action, T service, GoPluginDescriptor goPluginDescriptor) {
         try {
-            ClassLoader tccl = Thread.currentThread().getContextClassLoader();
-            Thread.currentThread().setContextClassLoader(service.getClass().getClassLoader());
-            try {
+            if (systemEnvironment.pluginClassLoaderHasOldBehaviour()) {
                 return action.execute(service, goPluginDescriptor);
-            } finally {
-                Thread.currentThread().setContextClassLoader(tccl);
+            } else {
+                ClassLoader tccl = Thread.currentThread().getContextClassLoader();
+                Thread.currentThread().setContextClassLoader(service.getClass().getClassLoader());
+                try {
+                    return action.execute(service, goPluginDescriptor);
+                } finally {
+                    Thread.currentThread().setContextClassLoader(tccl);
+                }
             }
         } catch (Throwable t) {
             throw new RuntimeException(t.getMessage(), t);

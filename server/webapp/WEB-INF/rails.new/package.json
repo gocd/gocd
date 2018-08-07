@@ -11,6 +11,7 @@
     "eslint": "eslint --color --ext .js --ext .msx --format stylish webpack/ spec/webpack/ --ignore-pattern gen/"
   },
   "dependencies": {
+    "@shopify/draggable": "^1.0.0-beta.7",
     "angular": "file:node-vendor/angular",
     "babel-polyfill": "^6.26.0",
     "dragula": "^3.7.2",

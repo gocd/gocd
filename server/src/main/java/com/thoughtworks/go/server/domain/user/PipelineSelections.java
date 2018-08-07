@@ -22,7 +22,10 @@ import com.thoughtworks.go.config.PipelineConfigs;
 import com.thoughtworks.go.domain.PersistentObject;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
+import javax.xml.bind.DatatypeConverter;
 import java.io.Serializable;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Date;
 
 import static com.thoughtworks.go.server.domain.user.DashboardFilter.DEFAULT_NAME;
@@ -42,10 +45,13 @@ public class PipelineSelections extends PersistentObject implements Serializable
         }
     };
 
+    private static final String HASH_ALGORITHM = "SHA-256";
+
     private Long userId;
     private Date lastUpdate;
     private Filters viewFilters = Filters.defaults();
     private int version;
+    private String etag;
 
     public PipelineSelections() {
         this(Filters.defaults(), null, null);
@@ -61,6 +67,7 @@ public class PipelineSelections extends PersistentObject implements Serializable
 
     public void setFilters(String filters) {
         this.viewFilters = Filters.fromJson(filters);
+        updateEtag();
     }
 
     public Filters viewFilters() {
@@ -80,6 +87,15 @@ public class PipelineSelections extends PersistentObject implements Serializable
         this.lastUpdate = date;
         this.viewFilters = null == filters ? Filters.defaults() : filters;
         this.version = CURRENT_SCHEMA_VERSION;
+        updateEtag();
+    }
+
+    private void updateEtag() {
+        this.etag = sha256(this.getFilters().getBytes());
+    }
+
+    public String etag() {
+        return etag;
     }
 
     @Deprecated // TODO: remove when removing old dashboard
@@ -130,5 +146,18 @@ public class PipelineSelections extends PersistentObject implements Serializable
         }
 
         return modified;
+    }
+
+    private String sha256(byte[] bytes) {
+        MessageDigest md;
+
+        try {
+            md = MessageDigest.getInstance(HASH_ALGORITHM);
+        } catch (NoSuchAlgorithmException ignored) {
+            return null; // Using standard algorithm that is required to exist
+        }
+
+        md.update(bytes);
+        return DatatypeConverter.printHexBinary(md.digest());
     }
 }

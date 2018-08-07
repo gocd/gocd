@@ -25,9 +25,12 @@ public class DashboardFor {
     private final List<GoDashboardPipelineGroup> pipelineGroups;
     private final Username username;
 
-    public DashboardFor(List<GoDashboardPipelineGroup> pipelineGroups, Username username) {
+    private String personalizationEtag;
+
+    public DashboardFor(List<GoDashboardPipelineGroup> pipelineGroups, Username username, String personalizationEtag) {
         this.pipelineGroups = pipelineGroups;
         this.username = username;
+        this.personalizationEtag = personalizationEtag;
     }
 
     public List<GoDashboardPipelineGroup> getPipelineGroups() {
@@ -36,5 +39,9 @@ public class DashboardFor {
 
     public Username getUsername() {
         return username;
+    }
+
+    public String getPersonalizationEtag() {
+        return personalizationEtag;
     }
 }

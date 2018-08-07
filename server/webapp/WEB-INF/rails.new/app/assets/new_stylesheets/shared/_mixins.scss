@@ -35,6 +35,60 @@
   max-height:  $line-height * $line-count;
 }
 
+@mixin truncate-to-width($max) {
+  max-width:     $max;
+  white-space:   nowrap;
+  text-overflow: ellipsis;
+  overflow-x:      hidden;
+}
+
 @mixin commit-message($line-count) {
   @include truncate-to-lines($line-count: $line-count);
+}
+
+@mixin sort-cursor {
+  // scss-lint:disable DuplicateProperty, VendorPrefix
+  cursor: move;
+  cursor: grab;
+  cursor: -moz-grab;
+  cursor: -webkit-grab;
+}
+
+@mixin sort-cursor-active {
+  // scss-lint:disable DuplicateProperty, VendorPrefix
+  cursor: move;
+  cursor: grabbing;
+  cursor: -moz-grabbing;
+  cursor: -webkit-grabbing;
+}
+
+@mixin grip-icon($color: #ccc, $shadow-color: #333) {
+  @include unselectable;
+
+  display:        inline-block;
+
+  width:          1em;
+  height:         2.2em;
+  line-height:    0.45em;
+  letter-spacing: 0.15em;
+  text-shadow:    0 0 0 $shadow-color;
+  color:          $color;
+
+  vertical-align: middle;
+  text-align:     center;
+  font-family:    sans-serif;
+  overflow:       hidden;
+  white-space:    normal;
+
+  &:after {
+    content: ".. .. .. ..";
+  }
+}
+
+@mixin unselectable {
+  // scss-lint:disable ImportantRule, VendorPrefix
+  -webkit-user-select: none !important;
+  -moz-user-select:    none !important;
+  -ms-user-select:     none !important;
+  user-select:         none !important;
 }

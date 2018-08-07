@@ -16,17 +16,21 @@
 describe("Dashboard Widget", () => {
   const m               = require("mithril");
   const Stream          = require("mithril/stream");
-  const $               = require('jquery');
-  const _               = require('lodash');
-  const simulateEvent   = require('simulate-event');
+  const $               = require("jquery");
+  const _               = require("lodash");
+  const simulateEvent   = require("simulate-event");
   const DashboardWidget = require("views/dashboard/dashboard_widget");
   const Dashboard       = require('models/dashboard/dashboard');
   const DashboardVM     = require("views/dashboard/models/dashboard_view_model");
-  const Modal           = require('views/shared/new_modal');
+  const Modal           = require("views/shared/new_modal");
   const SparkRoutes     = require("helpers/spark_routes");
 
-  let $root, root, dashboard, dashboardJson, buildCauseJson, doCancelPolling, doRefreshImmediately, personalizeData;
+  const PersonalizeVM   = require('views/dashboard/models/personalization_vm');
+  const Personalization = require('models/dashboard/personalization');
+
+  let $root, root, dashboard, dashboardJson, buildCauseJson, doCancelPolling, doRefreshImmediately;
   const originalDebounce = _.debounce;
+
   beforeEach(() => {
     doCancelPolling      = jasmine.createSpy();
     doRefreshImmediately = jasmine.createSpy();
@@ -37,8 +41,13 @@ describe("Dashboard Widget", () => {
       };
     });
 
+    jasmine.Ajax.withMock(() => {
+      jasmine.Ajax.stubRequest(SparkRoutes.pipelineSelectionPath(), undefined, 'GET');
+    });
+
     [$root, root] = window.createDomElementForTest();
   });
+
   afterEach(() => {
     _.debounce = originalDebounce;
     window.destroyDomElementForTest();
@@ -68,10 +77,6 @@ describe("Dashboard Widget", () => {
     expect($root.find(".page-spinner")).not.toBeInDOM();
   });
 
-  it("should render personalize view button", () => {
-    expect($root.find('.filter_btn')).toBeInDOM();
-  });
-
   it('should render an info message', () => {
     expect($root.find('.dashboard-message')).not.toBeInDOM();
     dashboard.message({content: 'some message', type: 'info'});
@@ -84,56 +89,6 @@ describe("Dashboard Widget", () => {
     dashboard.message({content: 'some error message', type: 'alert'});
     m.redraw();
     expect($root.find('.callout.alert .dashboard-message')).toContainText('some error message');
-  });
-
-  describe("personalize view", () => {
-    beforeEach(() => {
-      personalizeData = {
-        filters: [
-          {
-            name: "Default",
-            pipelines: [],
-            type: 'blacklist'
-          }
-        ],
-        pipelines: []
-      };
-    });
-
-    it("should show personalize view", () => {
-      jasmine.Ajax.withMock(() => {
-        jasmine.Ajax.stubRequest('/go/api/internal/pipeline_selection', undefined, 'GET').andReturn({
-          responseText:    JSON.stringify(personalizeData),
-          responseHeaders: {
-            ETag:           'etag',
-            'Content-Type': 'application/vnd.go.cd.v2+json'
-          },
-          status:          200
-        });
-
-        expect($root.find('.filter_options')).not.toBeInDOM();
-        $root.find('.filter_btn').click();
-        expect($root.find('.filter_options')).toBeInDOM();
-      });
-    });
-
-    it("should close an open personalize view dropdown on clicking anywhere on the screen", () => {
-      jasmine.Ajax.withMock(() => {
-        jasmine.Ajax.stubRequest('/go/api/internal/pipeline_selection', undefined, 'GET').andReturn({
-          responseText:    JSON.stringify(personalizeData),
-          responseHeaders: {
-            ETag:           'etag',
-            'Content-Type': 'application/vnd.go.cd.v2+json'
-          },
-          status:          200
-        });
-
-        $root.find('.filter_btn').click();
-        expect($root.find('.filter_options')).toBeInDOM();
-        $('body').click();
-        expect($root.find('.filter_options')).not.toBeInDOM();
-      });
-    });
   });
 
   it("should search for a pipeline", () => {
@@ -432,6 +387,7 @@ describe("Dashboard Widget", () => {
       ]
     };
     dashboardJson  = {
+      "filter_name": "Default",
       "_embedded": {
         "pipeline_groups": [
           {
@@ -621,6 +577,8 @@ describe("Dashboard Widget", () => {
     };
 
     dashboard = new Dashboard();
+    const personalizeVM = new PersonalizeVM(Stream("Default"));
+    const personalization = new Personalization([], {});
     dashboard.initialize(dashboardJson);
     dashboard._performRouting = _.noop;
 
@@ -630,6 +588,8 @@ describe("Dashboard Widget", () => {
       view() {
         return m(DashboardWidget, {
           dashboard,
+          personalizeVM,
+          personalization,
           showSpinner,
           doCancelPolling,
           doRefreshImmediately,

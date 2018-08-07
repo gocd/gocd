@@ -21,6 +21,7 @@ import com.google.gson.JsonParseException;
 import com.thoughtworks.go.api.ApiController;
 import com.thoughtworks.go.api.ApiVersion;
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
+import com.thoughtworks.go.api.util.HaltApiResponses;
 import com.thoughtworks.go.apiv1.pipelineselection.representers.PipelineSelectionResponse;
 import com.thoughtworks.go.apiv1.pipelineselection.representers.PipelineSelectionsRepresenter;
 import com.thoughtworks.go.config.PipelineConfigs;
@@ -36,15 +37,17 @@ import spark.Request;
 import spark.Response;
 
 import java.util.List;
+import java.util.Objects;
 
+import static java.lang.String.format;
 import static spark.Spark.*;
 
 public class PipelineSelectionControllerDelegate extends ApiController {
     private static final int ONE_YEAR = 3600 * 24 * 365;
     private static final String COOKIE_NAME = "selected_pipelines";
 
-    private static final int NO_CONTENT = HttpStatus.NO_CONTENT.value();
-    private static final int BAD_REQUEST = HttpStatus.BAD_REQUEST.value();
+    private static final int OK = HttpStatus.OK.value();
+    private static final String DATA_IS_OUT_OF_DATE = "Update failed because client filter data is out-of-date";
 
     private final ApiAuthenticationHelper apiAuthenticationHelper;
     private final PipelineSelectionsService pipelineSelectionsService;
@@ -85,6 +88,12 @@ public class PipelineSelectionControllerDelegate extends ApiController {
         List<PipelineConfigs> groups = pipelineConfigService.viewableGroupsFor(currentUsername());
         PipelineSelections pipelineSelections = pipelineSelectionsService.load(fromCookie, currentUserId(request));
 
+        if (fresh(request, pipelineSelections.etag())) {
+            return notModified(response);
+        }
+
+        setEtagHeader(response, pipelineSelections.etag());
+
         PipelineSelectionResponse pipelineSelectionResponse = new PipelineSelectionResponse(pipelineSelections.viewFilters(), groups);
 
         return PipelineSelectionsRepresenter.toJSON(pipelineSelectionResponse);
@@ -92,23 +101,27 @@ public class PipelineSelectionControllerDelegate extends ApiController {
 
     public String update(Request request, Response response) {
         String fromCookie = request.cookie(COOKIE_NAME);
+        final Long userId = currentUserId(request);
+
+        if (!Objects.equals(pipelineSelectionsService.load(fromCookie, userId).etag(), getIfMatch(request))) {
+            throw HaltApiResponses.haltBecauseEtagDoesNotMatch(DATA_IS_OUT_OF_DATE);
+        }
 
         Filters filters;
 
         try {
             filters = Filters.fromJson(request.body());
         } catch (FilterValidationException | JsonParseException e) {
-            response.status(BAD_REQUEST);
-            return e.getMessage();
+            throw HaltApiResponses.haltBecauseOfReason(e.getMessage());
         }
 
-        Long recordId = pipelineSelectionsService.save(fromCookie, currentUserId(request), filters);
+        Long recordId = pipelineSelectionsService.save(fromCookie, userId, filters);
 
         if (!apiAuthenticationHelper.securityEnabled()) {
             response.cookie("/go", COOKIE_NAME, String.valueOf(recordId), ONE_YEAR, systemEnvironment.isSessionCookieSecure(), true);
         }
 
-        response.status(NO_CONTENT);
-        return NOTHING;
+        response.status(OK);
+        return format("{ \"contentHash\": \"%s\" }", pipelineSelectionsService.load(fromCookie, userId).etag());
     }
 }

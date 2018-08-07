@@ -1,0 +1,133 @@
+/*
+ * Copyright 2018 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+const _        = require("lodash");
+const m        = require("mithril");
+const Sortable = require("@shopify/draggable/lib/es5/sortable").default; // es5 bundle => IE11 support
+const raf      = require("helpers/throttle-raf");
+
+const SortableViewTabs = {
+  oncreate: initSortable,
+
+  view(vnode) {
+    const vm = vnode.attrs.vm;
+    const attrs = { class: "dashboard-tabs-sortable", onscroll: raf(() => vm.hideDropdown()) };
+
+    return m("nav", attrs, _.map(vm.tabs(), (tab) => <ViewTab {...vnode.attrs} key={tab.id} name={tab.name} />));
+  }
+};
+
+const ViewTab = {
+  view(vnode) {
+    const vm = vnode.attrs.vm;
+    const name = vnode.attrs.name;
+    const current = vm.active(name);
+
+    function switchTab(e) { e.stopPropagation(); vm.activate(name); }
+
+    if (current) { vm.currentVnode(vnode); }
+
+    return <div class={current ? "dashboard-tab current" : "dashboard-tab"} onclick={current || switchTab} data-name={name}>
+      <i class="drag-icon" />
+      <div class="tab-name">{name}</div>
+      <DropdownToggle {...vnode.attrs} current={current} />
+    </div>;
+  }
+};
+
+const DropdownToggle = {
+  view(vnode) {
+    const vm = vnode.attrs.vm;
+
+    function toggleDropdown(e) { e.stopPropagation(); vm.toggleDropdown(); }
+
+    if (vnode.attrs.current) {
+      const classes = ["fa", "fa-caret-down", "dropdown-btn"];
+
+      if (vm.locked()) { classes.push("deny-action"); }
+
+      return <div class="tab-dropdown-toggle">
+        <i class={classes.join(" ")} onclick={vm.locked() || toggleDropdown} />
+      </div>;
+    }
+  }
+};
+
+function initSortable(vnode) {
+  const vm = vnode.attrs.vm;
+
+  let y0 = 0;
+
+  new Sortable([vnode.dom], {
+    draggable: ".dashboard-tab",
+    handle: ".drag-icon",
+    // increase delay to 200 (from 100) to reduce accidental drags, but not by enough so as to be annoying
+    delay: 200,
+     mirror: {
+      constrainDimensions: true,
+    }
+  }).on("drag:start", (e) => {
+    y0 = e.data.sensorEvent.data.clientY; // save initial y-coord
+
+    if (!vm.stagedSort()) {
+      vm.stagedSort(vm.model().filters());
+      initSavePopup(vm);
+    }
+
+    vm.hideDropdown();
+    m.redraw();
+  }).on("drag:move", (e) => {
+    e.data.sensorEvent.data.clientY = y0; // prevent vertical scrolling; that would reveal the magic trick!
+  }).on("sortable:stop", (e) => {
+    vm.stagedSort().moveFilterByIndex(e.data.oldIndex, e.data.newIndex);
+    m.redraw();
+  });
+}
+
+function initSavePopup(vm) {
+  const onreset = () => { vm.stagedSort(null); vm.actionPopup(null); m.redraw(); vm.onchange(); };
+
+  const onsave = () => {
+    vm.model().updateFilters(vm.stagedSort(), vm.etag()).done(() => {
+      vm.names(vm.model().names());
+      onreset();
+    }).fail((xhr) => {
+      vm.actionPopup({
+        class: "personalization-update-failed",
+        body: <span class="server-error-response">
+          <i class="fa fa-exclamation-circle"></i>
+          <span class="reason">{JSON.parse(xhr.responseText).message}</span>
+        </span>,
+        onabort: onreset,
+        buttons: [{class: "btn-secondary", text: "Revert", onclick: onreset}]
+      });
+
+      m.redraw();
+    });
+  };
+
+  vm.actionPopup({
+    class: "save-tab-order-confirmation",
+    body: <span class="save-tab-order-message">Save tab order?</span>,
+    onabort: onreset,
+    buttons: [
+      {class: "btn-primary", text: "Save", onclick: onsave},
+      {class: "btn-link", text: "Revert", onclick: onreset}
+    ]
+  });
+}
+
+module.exports = SortableViewTabs;

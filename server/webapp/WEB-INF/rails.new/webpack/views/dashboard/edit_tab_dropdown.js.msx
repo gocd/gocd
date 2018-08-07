@@ -1,0 +1,107 @@
+/*
+ * Copyright 2018 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+const m      = require("mithril");
+const $      = require("jquery");
+const f      = require("helpers/form_helper");
+const Editor = require("views/dashboard/personalization_editor");
+const Modal  = require("views/shared/schmodal");
+
+const EditTabDropdown = {
+  onupdate(vnode) {
+    const vm = vnode.attrs.vm;
+
+    if (vm.dropdownVisible()) {
+      const currentTab = $(vm.currentVnode().dom);
+      const viewportLeft = currentTab.offset().left;
+      // We need to take into account the tab scrolling buttons
+      // which are siblings of the currentTab's parent
+      const containerLeft = currentTab.parent().position().left;
+      const innerLeft = currentTab.position().left;
+      const rightEdge = vnode.dom.offsetWidth + viewportLeft;
+
+      const posX = (rightEdge > window.innerWidth) ? containerLeft - (rightEdge - window.innerWidth) : containerLeft + innerLeft;
+      vnode.dom.style.left = `${Math.max(innerLeft + containerLeft - viewportLeft, posX)}px`;
+    }
+  },
+
+  view(vnode) {
+    const vm = vnode.attrs.vm;
+
+    if (vm.dropdownVisible()) {
+      const model = vm.model;
+      const current = vm.canonicalCurrentName();
+      const allowDelete = !vm.locked() && !vm.isDefault(current);
+
+      const edit = vm.actionHandler(() => Editor.open(model().namedFilter(current), model, vm));
+      const remove = vm.actionHandler(() => deleteView(current, model, vm));
+      const denyAction = (e) => e.stopPropagation();
+
+      return <div class="edit-dropdown" onclick={denyAction}>
+        <span class="edit-dropdown-text">Group pipelines by</span>
+        <div class="edit-dropdown-actions">
+          <f.button class="btn btn-small selected">Pipeline Group</f.button>
+          <f.button class="btn btn-small">Environments</f.button>
+          <i class="fa fa-edit" onclick={edit} />
+          <i class={allowDelete ? "fa fa-trash" : "fa fa-trash deny-action"} onclick={allowDelete && remove} />
+        </div>
+      </div>;
+    }
+  }
+};
+
+function deleteView(name, personalization, model) {
+  const dialog = new Modal({
+    title: "Delete View",
+    size: "delete-view",
+    body: () => {
+      return <span>
+        Do you want to delete <span class="view-name">{name}</span> view?
+      </span>;
+    },
+    buttons: [{
+      text: "Yes",
+      onclick: () => {
+        personalization().removeFilter(name, model.etag()).done((data) => {
+          model.currentView("Default");
+          model.names(personalization().names());
+          model.checksum(data.contentHash);
+
+          Modal.close();
+          model.onchange();
+        }).fail((xhr) => {
+          const reason = JSON.parse(xhr.responseText).message;
+          dialog.replace({
+            title: "Delete View",
+            size: "delete-view",
+            body: () => {
+              return <span class="server-error-response">
+                <i class="fa fa-exclamation-circle"></i>
+                <span class="reason">
+                  Failed to delete view <span class="view-name">{name}</span>: {reason}
+                </span>
+              </span>;
+            },
+            buttons: [{text: "Close"}]
+          });
+        }).always(() => {
+          m.redraw();
+        });
+      }}, {text: "Cancel", class: "btn-link"}]
+  });
+}
+
+module.exports = EditTabDropdown;

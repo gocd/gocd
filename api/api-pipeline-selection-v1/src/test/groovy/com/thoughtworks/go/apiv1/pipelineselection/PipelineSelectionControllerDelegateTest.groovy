@@ -23,6 +23,7 @@ import com.thoughtworks.go.config.BasicPipelineConfigs
 import com.thoughtworks.go.config.CaseInsensitiveString
 import com.thoughtworks.go.config.PipelineConfig
 import com.thoughtworks.go.config.PipelineConfigs
+import com.thoughtworks.go.server.domain.user.Filters
 import com.thoughtworks.go.server.domain.user.PipelineSelections
 import com.thoughtworks.go.server.service.PipelineConfigService
 import com.thoughtworks.go.server.service.PipelineSelectionsService
@@ -124,14 +125,19 @@ class PipelineSelectionControllerDelegateTest implements SecurityServiceTrait, C
           ]
         ]
 
-        when(pipelineSelectionsService.save(null, currentUserLoginId(), FiltersHelper.blacklist(payload.filters.get(0).pipelines))).thenReturn(1l)
+        def initial = new PipelineSelections(FiltersHelper.blacklist(["foo", "bar"]), new Date(), currentUserLoginId())
+        def filters = FiltersHelper.blacklist(payload.filters.get(0).pipelines)
+        def updated = new PipelineSelections(filters, null, null)
 
-        putWithApiHeader(controller.controllerBasePath(), payload)
+        when(pipelineSelectionsService.load(null, currentUserLoginId())).thenReturn(initial, updated)
+        when(pipelineSelectionsService.save(null, currentUserLoginId(), filters)).thenReturn(1l)
+
+        putWithApiHeader(controller.controllerBasePath(), ['If-Match': initial.etag()], payload)
 
         assertThatResponse()
-          .hasNoContent()
+          .isOk()
           .hasContentType(controller.mimeType)
-          .hasNoBody()
+          .hasJsonBody([contentHash: updated.etag()])
       }
     }
 
@@ -149,18 +155,24 @@ class PipelineSelectionControllerDelegateTest implements SecurityServiceTrait, C
         ]
 
         long recordId = SecureRandom.longNumber()
+        String cookie = String.valueOf(recordId)
 
-        when(pipelineSelectionsService.save(String.valueOf(recordId), currentUserLoginId(), FiltersHelper.blacklist(payload.filters.get(0).pipelines))).thenReturn(recordId)
+        def initial = new PipelineSelections(FiltersHelper.blacklist(["foo", "bar"]), new Date(), currentUserLoginId())
+        def filters = FiltersHelper.blacklist(payload.filters.get(0).pipelines)
+        def updated = new PipelineSelections(filters, null, null)
+
+        when(pipelineSelectionsService.load(cookie, currentUserLoginId())).thenReturn(initial, updated)
+        when(pipelineSelectionsService.save(cookie, currentUserLoginId(), filters)).thenReturn(recordId)
         when(systemEnvironment.isSessionCookieSecure()).thenReturn(false)
 
-        httpRequestBuilder.withCookies(new Cookie("selected_pipelines", String.valueOf(recordId)))
-        putWithApiHeader(controller.controllerBasePath(), payload)
+        httpRequestBuilder.withCookies(new Cookie("selected_pipelines", cookie))
+        putWithApiHeader(controller.controllerBasePath(), ['If-Match': initial.etag()], payload)
 
         assertThatResponse()
-          .hasNoContent()
+          .isOk()
           .hasContentType(controller.mimeType)
-          .hasCookie("/go", "selected_pipelines", String.valueOf(recordId), 31536000, false, true)
-          .hasNoBody()
+          .hasCookie("/go", "selected_pipelines", cookie, 31536000, false, true)
+          .hasJsonBody([contentHash: updated.etag()])
       }
 
       @Test
@@ -175,25 +187,24 @@ class PipelineSelectionControllerDelegateTest implements SecurityServiceTrait, C
         ]
 
         long recordId = SecureRandom.longNumber()
+        String cookie = String.valueOf(recordId)
 
-        def group1 = new BasicPipelineConfigs(group: "grp")
-        group1.add(new PipelineConfig(name: new CaseInsensitiveString("build-linux")))
-        group1.add(new PipelineConfig(name: new CaseInsensitiveString("build-windows")))
-        group1.add(new PipelineConfig(name: new CaseInsensitiveString("burp")))
-        List<PipelineConfigs> groups = [group1]
+        def initial = new PipelineSelections(FiltersHelper.blacklist(["foo", "bar"]), new Date(), currentUserLoginId())
+        def filters = FiltersHelper.blacklist(payload.filters.get(0).pipelines)
+        def updated = new PipelineSelections(filters, null, null)
 
-        when(pipelineConfigService.viewableGroupsFor(currentUsername())).thenReturn(groups)
-        when(pipelineSelectionsService.save(String.valueOf(recordId), currentUserLoginId(), FiltersHelper.blacklist(payload.filters.get(0).pipelines))).thenReturn(recordId)
+        when(pipelineSelectionsService.load(cookie, currentUserLoginId())).thenReturn(initial, updated)
+        when(pipelineSelectionsService.save(cookie, currentUserLoginId(), filters)).thenReturn(recordId)
         when(systemEnvironment.isSessionCookieSecure()).thenReturn(true)
 
-        httpRequestBuilder.withCookies(new Cookie("selected_pipelines", String.valueOf(recordId)))
-        putWithApiHeader(controller.controllerBasePath(), payload)
+        httpRequestBuilder.withCookies(new Cookie("selected_pipelines", cookie))
+        putWithApiHeader(controller.controllerBasePath(), ['If-Match': initial.etag()], payload)
 
         assertThatResponse()
-          .hasNoContent()
+          .isOk()
           .hasContentType(controller.mimeType)
-          .hasCookie("/go", "selected_pipelines", String.valueOf(recordId), 31536000, true, true)
-          .hasNoBody()
+          .hasCookie("/go", "selected_pipelines", cookie, 31536000, true, true)
+          .hasJsonBody([contentHash: updated.etag()])
       }
     }
   }

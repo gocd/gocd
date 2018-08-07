@@ -71,9 +71,9 @@ const Dashboard = function () {
 
 Dashboard.API_VERSION = 'v2';
 
-Dashboard.get = () => {
+Dashboard.get = (viewName) => {
   return AjaxHelper.GET({
-    url:        Routes.apiv2ShowDashboardPath(), //eslint-disable-line camelcase
+    url:        Routes.apiv2ShowDashboardPath({viewName}),
     apiVersion: Dashboard.API_VERSION
   });
 };

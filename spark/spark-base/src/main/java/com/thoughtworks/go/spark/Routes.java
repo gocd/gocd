@@ -75,12 +75,6 @@ public class Routes {
         }
     }
 
-    public static class Admins {
-        public static final String BASE = "/api/admin/security/admins";
-        public static final String DOC = "https://api.gocd.org/#admins";
-
-    }
-
     public static class Dashboard {
         public static final String SELF = "/api/dashboard";
         public static final String DOC = "https://api.go.cd/current/#dashboard";

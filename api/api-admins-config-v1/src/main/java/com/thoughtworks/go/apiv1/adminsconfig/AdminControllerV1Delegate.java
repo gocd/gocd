@@ -68,8 +68,8 @@ public class AdminControllerV1Delegate extends ApiController implements CrudCont
       before("/*", mimeType, apiAuthenticationHelper::checkAdminUserAnd403);
 
       get("", mimeType, this::show);
-      patch("", mimeType, this::replaceAndUpdateAdmins);
-      put("", mimeType, this::replaceAndUpdateAdmins);
+      patch("", mimeType, this::update);
+      put("", mimeType, this::replace);
 
       exception(InvalidPluginTypeException.class, (ex, req, res) -> {
         res.body(this.messageJson(ex));
@@ -81,7 +81,7 @@ public class AdminControllerV1Delegate extends ApiController implements CrudCont
   }
 
   public String show(Request req, Response res) throws IOException {
-      AdminsConfig adminConf = getEntityFromConfig(req.params("admins"));
+    AdminsConfig adminConf = getEntityFromConfig(req.params("admins"));
     if (isGetOrHeadRequestFresh(req, adminConf)) {
       return notModified(res);
     } else {
@@ -90,7 +90,12 @@ public class AdminControllerV1Delegate extends ApiController implements CrudCont
     }
   }
 
-  public String replaceAndUpdateAdmins(Request req, Response res) throws IOException {
+  public String update(Request req, Response res) throws IOException {
+
+      return handleCreateOrUpdateResponse(req, res, null,  null);
+  }
+
+  public String replace(Request req, Response res) throws IOException {
     AdminsConfig reqAdminsConfig = getEntityFromRequestBody(req);
     HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
     adminsConfigService.replace(SessionUtils.currentUsername(), reqAdminsConfig, result);
@@ -111,13 +116,13 @@ public class AdminControllerV1Delegate extends ApiController implements CrudCont
   @Override
   public AdminsConfig getEntityFromRequestBody(Request req) {
     JsonReader jsonReader = GsonTransformer.getInstance().jsonReaderFrom(req.body());
-    String protocol = req.requestMethod();
-    return AdminsRepresenter.fromJSON(jsonReader,protocol,getEntityFromConfig(req.params("admins")));
+    return AdminsRepresenter.fromJSON(jsonReader);
   }
 
   @Override
   public String jsonize(Request req, AdminsConfig admins) {
     return jsonizeAsTopLevelObject(req, writer -> AdminsRepresenter.toJSON(writer, admins));
+
   }
 
   @Override

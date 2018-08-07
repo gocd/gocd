@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,7 +28,7 @@ import static com.thoughtworks.go.util.DataStructureUtils.s;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-public class GoDashboardPipelineGroupTest {
+public class GoDashboardEnvironmentTest {
     @Test
     public void shouldKnowWhetherAUserCanAdministerIt() {
         Permissions permissions = new Permissions(
@@ -37,9 +37,10 @@ public class GoDashboardPipelineGroupTest {
                 new AllowedUsers(s("admin1"), Collections.emptySet()),
                 NoOne.INSTANCE);
 
-        GoDashboardPipelineGroup pipelineGroup = new GoDashboardPipelineGroup("group1", permissions);
+        GoDashboardEnvironment env = new GoDashboardEnvironment("env1", permissions);
 
-        assertTrue(pipelineGroup.canAdminister(new Username("admin1")));
-        assertFalse(pipelineGroup.canAdminister(new Username("viewer1")));
+        assertTrue(env.canAdminister(new Username("admin1")));
+        assertFalse(env.canAdminister(new Username("viewer1")));
     }
+
 }

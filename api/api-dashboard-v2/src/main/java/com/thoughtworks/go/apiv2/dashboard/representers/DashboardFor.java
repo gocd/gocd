@@ -16,25 +16,38 @@
 
 package com.thoughtworks.go.apiv2.dashboard.representers;
 
-import com.thoughtworks.go.server.dashboard.GoDashboardPipelineGroup;
+import com.thoughtworks.go.server.dashboard.DashboardGroup;
+import com.thoughtworks.go.server.dashboard.GoDashboardPipeline;
 import com.thoughtworks.go.server.domain.Username;
 
 import java.util.List;
 
 public class DashboardFor {
-    private final List<GoDashboardPipelineGroup> pipelineGroups;
+    private final List<? extends DashboardGroup> pipelineGroups;
+    private List<? extends DashboardGroup> environments;
+    private List<GoDashboardPipeline> pipelines;
     private final Username username;
 
     private String personalizationEtag;
 
-    public DashboardFor(List<GoDashboardPipelineGroup> pipelineGroups, Username username, String personalizationEtag) {
+    public DashboardFor(List<? extends DashboardGroup> pipelineGroups, List<? extends DashboardGroup> environments, List<GoDashboardPipeline> pipelines, Username username, String personalizationEtag) {
         this.pipelineGroups = pipelineGroups;
+        this.environments = environments;
+        this.pipelines = pipelines;
         this.username = username;
         this.personalizationEtag = personalizationEtag;
     }
 
-    public List<GoDashboardPipelineGroup> getPipelineGroups() {
+    public List<? extends DashboardGroup> getPipelineGroups() {
         return pipelineGroups;
+    }
+
+    public List<? extends DashboardGroup> getEnvironments() {
+        return environments;
+    }
+
+    public List<GoDashboardPipeline> getPipelines() {
+        return pipelines;
     }
 
     public Username getUsername() {

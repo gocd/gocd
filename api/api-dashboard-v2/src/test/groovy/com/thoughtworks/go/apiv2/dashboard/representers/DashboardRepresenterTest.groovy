@@ -20,6 +20,7 @@ import com.thoughtworks.go.apiv2.dashboard.GoDashboardPipelineMother
 import com.thoughtworks.go.config.CaseInsensitiveString
 import com.thoughtworks.go.config.security.Permissions
 import com.thoughtworks.go.config.security.users.Everyone
+import com.thoughtworks.go.server.dashboard.GoDashboardEnvironment
 import com.thoughtworks.go.server.dashboard.GoDashboardPipelineGroup
 import com.thoughtworks.go.server.domain.Username
 import com.thoughtworks.go.spark.util.SecureRandom
@@ -28,26 +29,30 @@ import org.junit.jupiter.api.Test
 import static com.thoughtworks.go.api.base.JsonUtils.toObject
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
 
-class PipelineGroupsRepresenterTest {
+class DashboardRepresenterTest {
 
   @Test
   void 'renders pipeline dashboard with hal representation'() {
     def user = new Username(new CaseInsensitiveString(SecureRandom.hex()))
     def permissions = new Permissions(Everyone.INSTANCE, Everyone.INSTANCE, Everyone.INSTANCE, Everyone.INSTANCE)
 
-    def pipeline_group1 = new GoDashboardPipelineGroup('group1', permissions)
-    def pipeline_group2 = new GoDashboardPipelineGroup('group2', permissions)
+    def group1 = new GoDashboardPipelineGroup('group1', permissions)
+    def group2 = new GoDashboardPipelineGroup('group2', permissions)
 
-    def pipeline1_in_group1 = GoDashboardPipelineMother.dashboardPipeline('pipeline1')
-    def pipeline2_in_group1 = GoDashboardPipelineMother.dashboardPipeline('pipeline2')
-    def pipeline3_in_group2 = GoDashboardPipelineMother.dashboardPipeline('pipeline2')
+    def pipeline1 = GoDashboardPipelineMother.dashboardPipeline('pipeline1')
+    def pipeline2 = GoDashboardPipelineMother.dashboardPipeline('pipeline2')
+    def pipeline3 = GoDashboardPipelineMother.dashboardPipeline('pipeline2')
 
-    pipeline_group1.addPipeline(pipeline1_in_group1)
-    pipeline_group1.addPipeline(pipeline2_in_group1)
-    pipeline_group2.addPipeline(pipeline3_in_group2)
+    group1.addPipeline(pipeline1)
+    group1.addPipeline(pipeline2)
+    group2.addPipeline(pipeline3)
+
+    def env1 = new GoDashboardEnvironment('env1', permissions)
+    env1.addPipeline(pipeline1)
+    env1.addPipeline(pipeline3)
 
     def actualJson = toObject({
-      PipelineGroupsRepresenter.toJSON(it, new DashboardFor([pipeline_group1, pipeline_group2], user, "sha256hash"))
+      DashboardRepresenter.toJSON(it, new DashboardFor([group1, group2], [env1], [pipeline1, pipeline2, pipeline3], user, "sha256hash"))
     })
 
     assertThatJson(actualJson._links).isEqualTo([
@@ -56,14 +61,18 @@ class PipelineGroupsRepresenterTest {
     ])
 
     assertThatJson(actualJson._embedded.pipeline_groups).isEqualTo([
-      toObject({ PipelineGroupRepresenter.toJSON(it, pipeline_group1, user) }),
-      toObject({ PipelineGroupRepresenter.toJSON(it, pipeline_group2, user) }),
+      toObject({ DashboardGroupRepresenter.toJSON(it, group1, user) }),
+      toObject({ DashboardGroupRepresenter.toJSON(it, group2, user) }),
+    ])
+
+    assertThatJson(actualJson._embedded.environments).isEqualTo([
+      toObject({ DashboardGroupRepresenter.toJSON(it, env1, user) })
     ])
 
     assertThatJson(actualJson._embedded.pipelines).isEqualTo([
-      toObject({ PipelineRepresenter.toJSON(it, pipeline1_in_group1, user) }),
-      toObject({ PipelineRepresenter.toJSON(it, pipeline2_in_group1, user) }),
-      toObject({ PipelineRepresenter.toJSON(it, pipeline3_in_group2, user) }),
+      toObject({ PipelineRepresenter.toJSON(it, pipeline1, user) }),
+      toObject({ PipelineRepresenter.toJSON(it, pipeline2, user) }),
+      toObject({ PipelineRepresenter.toJSON(it, pipeline3, user) }),
     ])
   }
 }

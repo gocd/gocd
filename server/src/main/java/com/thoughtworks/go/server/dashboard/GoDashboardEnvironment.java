@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,20 +19,19 @@ package com.thoughtworks.go.server.dashboard;
 import com.thoughtworks.go.config.security.Permissions;
 import com.thoughtworks.go.server.domain.Username;
 
-import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
-public class GoDashboardPipelineGroup implements DashboardGroup {
-    private String name;
-    private Permissions permissions;
-    private Map<String, GoDashboardPipeline> pipelines = new LinkedHashMap<>();
-
-    public GoDashboardPipelineGroup(String name, Permissions permissions) {
+public class GoDashboardEnvironment implements DashboardGroup {
+    public GoDashboardEnvironment(String name, Permissions permissions) {
         this.name = name;
         this.permissions = permissions;
     }
+
+    private String name;
+    private Permissions permissions;
+    private Map<String, GoDashboardPipeline> pipelines = new LinkedHashMap<>();
 
     @Override
     public String name() {
@@ -46,37 +45,21 @@ public class GoDashboardPipelineGroup implements DashboardGroup {
 
     @Override
     public boolean canAdminister(Username username) {
-        return canBeAdministeredBy(username.getUsername().toString());
+        return permissions.admins().contains(username.getUsername().toString());
     }
 
+    @Override
     public String etag() {
-        return digest(Integer.toString(permissions.hashCode()), allPipelines());
-    }
-
-    public void addPipeline(GoDashboardPipeline goDashboardPipeline) {
-        if (goDashboardPipeline != null) {
-            pipelines.put(goDashboardPipeline.name().toString(), goDashboardPipeline);
-        }
-    }
-
-    public Collection<GoDashboardPipeline> allPipelines() {
-        return pipelines.values();
-    }
-
-    boolean canBeAdministeredBy(String userName) {
-        return permissions.admins().contains(userName);
-    }
-
-    public boolean canBeViewedBy(String userName) {
-        return permissions.viewers().contains(userName);
-    }
-
-    public boolean hasPermissions() {
-        return permissions != null;
+        return digest(Integer.toString(permissions.hashCode()), pipelines.values());
     }
 
     public boolean hasPipelines() {
         return !pipelines.isEmpty();
     }
 
+    public void addPipeline(GoDashboardPipeline pipeline) {
+        if (pipeline != null) {
+            pipelines.put(pipeline.name().toString(), pipeline);
+        }
+    }
 }

@@ -22,7 +22,9 @@ import com.thoughtworks.go.api.ApiVersion;
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
 import com.thoughtworks.go.api.util.MessageJson;
 import com.thoughtworks.go.apiv2.dashboard.representers.DashboardFor;
-import com.thoughtworks.go.apiv2.dashboard.representers.PipelineGroupsRepresenter;
+import com.thoughtworks.go.apiv2.dashboard.representers.DashboardRepresenter;
+import com.thoughtworks.go.server.dashboard.GoDashboardEnvironment;
+import com.thoughtworks.go.server.dashboard.GoDashboardPipeline;
 import com.thoughtworks.go.server.dashboard.GoDashboardPipelineGroup;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.domain.user.DashboardFilter;
@@ -91,7 +93,9 @@ public class DashboardControllerDelegate extends ApiController {
         final DashboardFilter filter = personalization.namedFilter(getViewName(request));
 
         List<GoDashboardPipelineGroup> pipelineGroups = goDashboardService.allPipelineGroupsForDashboard(filter, userName);
-        String etag = calcEtag(userName, pipelineGroups);
+        List<GoDashboardEnvironment> environments = goDashboardService.allEnvironmentsForDashboard(filter, userName);
+
+        String etag = calcEtag(userName, pipelineGroups, environments);
 
         if (fresh(request, etag)) {
             return notModified(response);
@@ -99,13 +103,21 @@ public class DashboardControllerDelegate extends ApiController {
 
         setEtagHeader(response, etag);
 
-        return writerForTopLevelObject(request, response, outputWriter -> PipelineGroupsRepresenter.toJSON(outputWriter, new DashboardFor(pipelineGroups, userName, personalization.etag())));
+        List<GoDashboardPipeline> pipelines = pipelineGroups.stream().flatMap(group -> group.allPipelines().stream()).collect(Collectors.toList());
+        return writerForTopLevelObject(request, response, outputWriter ->
+                DashboardRepresenter.toJSON(
+                        outputWriter,
+                        new DashboardFor(pipelineGroups, environments, pipelines, userName, personalization.etag())
+                )
+        );
     }
 
-    private String calcEtag(Username username, List<GoDashboardPipelineGroup> pipelineGroups) {
+    private String calcEtag(Username username, List<GoDashboardPipelineGroup> pipelineGroups, List<GoDashboardEnvironment> environments) {
         final String pipelineSegment = pipelineGroups.stream().
                 map(GoDashboardPipelineGroup::etag).collect(Collectors.joining(SEP_CHAR));
-        return DigestUtils.md5Hex(StringUtils.joinWith(SEP_CHAR, username.getUsername(), pipelineSegment));
+        final String environmentSegment = environments.stream().
+                map(GoDashboardEnvironment::etag).collect(Collectors.joining(SEP_CHAR));
+        return DigestUtils.md5Hex(StringUtils.joinWith(SEP_CHAR, username.getUsername(), pipelineSegment, environmentSegment));
     }
 
     private String getViewName(Request request) {

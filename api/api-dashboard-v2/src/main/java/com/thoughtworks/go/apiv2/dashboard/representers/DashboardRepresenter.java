@@ -19,7 +19,7 @@ package com.thoughtworks.go.apiv2.dashboard.representers;
 import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.spark.Routes;
 
-public class PipelineGroupsRepresenter {
+public class DashboardRepresenter {
 
     public static void toJSON(OutputWriter jsonOutputWriter, DashboardFor dashboardFor) {
         jsonOutputWriter
@@ -28,17 +28,25 @@ public class PipelineGroupsRepresenter {
             .add("personalization", dashboardFor.getPersonalizationEtag())
             .addChild("_embedded", childWriter -> {
                 childWriter
+
                     .addChildList("pipeline_groups", listWriter -> {
-                        dashboardFor.getPipelineGroups().forEach(pipelineGroup -> {
+                        dashboardFor.getPipelineGroups().forEach(group -> {
                             listWriter.addChild(childItemWriter -> {
-                                PipelineGroupRepresenter.toJSON(childItemWriter, pipelineGroup, dashboardFor.getUsername());
+                                DashboardGroupRepresenter.toJSON(childItemWriter, group, dashboardFor.getUsername());
+                            });
+                        });
+                    })
+
+                    .addChildList("environments", listWriter -> {
+                        dashboardFor.getEnvironments().forEach(group -> {
+                            listWriter.addChild(childItemWriter -> {
+                                DashboardGroupRepresenter.toJSON(childItemWriter, group, dashboardFor.getUsername());
                             });
                         });
                     })
 
                     .addChildList("pipelines", listWriter -> {
-                        dashboardFor.getPipelineGroups().stream()
-                            .flatMap(pipelineGroup -> pipelineGroup.allPipelines().stream())
+                        dashboardFor.getPipelines()
                             .forEach(pipeline -> {
                                 listWriter.addChild(childItemWriter -> PipelineRepresenter.toJSON(childItemWriter, pipeline, dashboardFor.getUsername()));
                             });

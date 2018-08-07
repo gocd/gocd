@@ -14,11 +14,11 @@ import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
 
 class AdminsRepresenterTest {
-    private final LinkedHashMap<String, Object> admins = ["_links":["doc":["href":"https://api.gocd.org/#admins"],"self":["href":"http://test.host/go/api/admin/security/admins"]],"roles":["xyz"],"users":["admin"]]
+    private final LinkedHashMap<String, Object> admins = ["_links": ["doc": ["href": "https://api.gocd.org/#admins"], "self": ["href": "http://test.host/go/api/admin/security/admins"]], "roles": ["xyz"], "users": ["admin"]]
 
-    private final LinkedHashMap<String, Object> finalAdminsAfterUpdate = ["_links":["doc":["href":"https://api.gocd.org/#admins"],"self":["href":"http://test.host/go/api/admin/security/admins"]],"roles":["xyz","Dev","est"],"users":["admin","Linux","Firefox"]]
+    private final LinkedHashMap<String, Object> finalAdminsAfterUpdate = ["_links": ["doc": ["href": "https://api.gocd.org/#admins"], "self": ["href": "http://test.host/go/api/admin/security/admins"]], "roles": ["xyz", "Dev", "est"], "users": ["admin", "Linux", "Firefox"]]
 
-    private final LinkedHashMap<String, Object> finalAdminsAfterReplace = ["_links":["doc":["href":"https://api.gocd.org/#admins"],"self":["href":"http://test.host/go/api/admin/security/admins"]],"roles":["Dev","est"],"users":["Linux","Firefox","Chrome"]]
+    private final LinkedHashMap<String, Object> finalAdminsAfterReplace = ["_links": ["doc": ["href": "https://api.gocd.org/#admins"], "self": ["href": "http://test.host/go/api/admin/security/admins"]], "roles": ["Dev", "est"], "users": ["Linux", "Firefox", "Chrome"]]
 
     @Test
     void shouldGenerateJSON() {
@@ -44,12 +44,12 @@ class AdminsRepresenterTest {
 
         AdminsConfig config = new AdminsConfig(admins)
         def body = [
-                'roles' : ['add': ['Dev', 'est'], 'remove': ['Production']],
-                'users' : ['add': ['Linux', 'Firefox'], 'remove': ['Chrome']]
+                'roles': ['add': ['Dev', 'est'], 'remove': ['Production']],
+                'users': ['add': ['Linux', 'Firefox'], 'remove': ['Chrome']]
         ]
         JsonReader jsonReader = GsonTransformer.getInstance().jsonReaderFrom(body);
         String protocol = "PATCH";
-        def adminsConfig = AdminsRepresenter.fromJSON(jsonReader,protocol,config);
+        def adminsConfig = AdminsRepresenter.fromJSON(jsonReader, protocol, config);
         def actualJson = toObjectString({ AdminsRepresenter.toJSON(it, adminsConfig) })
         assertThatJson(actualJson).isEqualTo(this.finalAdminsAfterUpdate)
     }
@@ -64,12 +64,12 @@ class AdminsRepresenterTest {
 
         AdminsConfig config = new AdminsConfig(admins)
         def body = [
-                'roles' : ['Dev', 'est'],
-                'users' : ['Linux', 'Firefox','Chrome']
+                'roles': ['Dev', 'est'],
+                'users': ['Linux', 'Firefox', 'Chrome']
         ]
         JsonReader jsonReader = GsonTransformer.getInstance().jsonReaderFrom(body);
         String protocol = "PUT";
-        def adminsConfig = AdminsRepresenter.fromJSON(jsonReader,protocol,config);
+        def adminsConfig = AdminsRepresenter.fromJSON(jsonReader, protocol, config);
         def actualJson = toObjectString({ AdminsRepresenter.toJSON(it, adminsConfig) })
         assertThatJson(actualJson).isEqualTo(this.finalAdminsAfterReplace)
     }

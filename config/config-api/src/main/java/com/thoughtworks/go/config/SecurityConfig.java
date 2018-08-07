@@ -37,14 +37,6 @@ public class SecurityConfig implements Validatable {
     public SecurityConfig() {
     }
 
-    public AdminsConfig getAdminsConfig() {
-        return adminsConfig;
-    }
-
-    public void setAdminsConfig(AdminsConfig adminsConfig) {
-        this.adminsConfig = adminsConfig;
-    }
-
     /*Dont chain constructors*/
     public SecurityConfig(boolean allowOnlyKnownUsersToLogin) {
         this.allowOnlyKnownUsersToLogin = allowOnlyKnownUsersToLogin;
@@ -66,7 +58,6 @@ public class SecurityConfig implements Validatable {
     public AdminsConfig adminsConfig() {
         return adminsConfig;
     }
-
 
     public RolesConfig getRoles() {
         return rolesConfig;

@@ -17,10 +17,10 @@
 describe("Dashboard", () => {
   describe('Pipeline Group Model', () => {
 
-    const PipelineGroups = require('models/dashboard/pipeline_groups');
+    const DashboardGroups = require('models/dashboard/dashboard_groups');
 
     it("should deserialize from json", () => {
-      const pipelineGroups = PipelineGroups.fromJSON(pipelineGroupsData);
+      const pipelineGroups = DashboardGroups.fromJSON(pipelineGroupsData);
 
       expect(pipelineGroups.groups.length).toBe(1);
       expect(pipelineGroups.groups[0].name).toBe(pipelineGroupsData[0].name);

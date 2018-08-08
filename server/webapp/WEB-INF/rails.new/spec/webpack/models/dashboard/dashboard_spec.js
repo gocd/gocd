@@ -20,7 +20,7 @@ describe("Dashboard", () => {
     const _ = require('lodash');
 
     const Dashboard        = require('models/dashboard/dashboard');
-    const PipelineGroups   = require('models/dashboard/pipeline_groups');
+    const DashboardGroups   = require('models/dashboard/dashboard_groups');
     const Pipelines        = require('models/dashboard/pipelines');
     const originalDebounce = _.debounce;
 
@@ -44,7 +44,7 @@ describe("Dashboard", () => {
     });
 
     it("should get pipeline groups", () => {
-      const expectedPipelineGroups = new PipelineGroups(dashboardData._embedded.pipeline_groups).groups;
+      const expectedPipelineGroups = new DashboardGroups(dashboardData._embedded.pipeline_groups).groups;
       const actualPipelineGroups   = dashboard.getPipelineGroups();
 
       expect(actualPipelineGroups.length).toEqual(expectedPipelineGroups.length);

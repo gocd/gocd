@@ -17,7 +17,7 @@
 const _      = require('lodash');
 const Routes = require('gen/js-routes');
 
-const PipelineGroup = function (name, path, editPath, canAdminister, pipelines) {
+const DashboardGroup = function (name, path, editPath, canAdminister, pipelines) {
   const self = this;
 
   this.name          = name;
@@ -29,31 +29,31 @@ const PipelineGroup = function (name, path, editPath, canAdminister, pipelines) 
   this.filterBy = (filterText) => {
     const filteredPipelines = _.filter(self.pipelines, (pipeline) => _.includes(pipeline.toLowerCase(), filterText));
     if (filteredPipelines.length) {
-      return new PipelineGroup(self.name, self.path, self.editPath, self.canAdminister, filteredPipelines);
+      return new DashboardGroup(self.name, self.path, self.editPath, self.canAdminister, filteredPipelines);
     }
   };
 };
 
-PipelineGroup.fromJSON = (json) => {
+DashboardGroup.fromJSON = (json) => {
   const path     = `${Routes.pipelineGroupsPath()}#group-${json.name}`;
   const editPath = `${Routes.pipelineGroupEditPath(json.name)}`;
-  return new PipelineGroup(json.name, path, editPath, json.can_administer, json.pipelines);
+  return new DashboardGroup(json.name, path, editPath, json.can_administer, json.pipelines);
 };
 
 
-const PipelineGroups = function (groups) {
+const DashboardGroups = function (groups) {
   const self  = this;
   this.groups = groups;
 
   this.filterBy = (filterText) => {
     const filteredGroups = _.compact(_.map(self.groups, (group) => group.filterBy(filterText)));
-    return new PipelineGroups(filteredGroups);
+    return new DashboardGroups(filteredGroups);
   };
 };
 
-PipelineGroups.fromJSON = (json) => {
-  const pipelineGroups = _.map(json, (group) => PipelineGroup.fromJSON(group));
-  return new PipelineGroups(pipelineGroups);
+DashboardGroups.fromJSON = (json) => {
+  const pipelineGroups = _.map(json, (group) => DashboardGroup.fromJSON(group));
+  return new DashboardGroups(pipelineGroups);
 };
 
-module.exports = PipelineGroups;
+module.exports = DashboardGroups;

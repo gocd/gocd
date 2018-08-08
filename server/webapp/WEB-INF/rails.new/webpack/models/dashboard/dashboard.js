@@ -20,12 +20,13 @@ const Stream     = require('mithril/stream');
 const AjaxHelper = require('helpers/ajax_helper');
 const Routes     = require('gen/js-routes');
 
-const PipelineGroups = require('models/dashboard/pipeline_groups');
+const DashboardGroups = require('models/dashboard/dashboard_groups');
 const Pipelines      = require('models/dashboard/pipelines');
 
 const Dashboard = function () {
   const self               = this;
-  let pipelineGroups       = PipelineGroups.fromJSON([]), pipelines = Pipelines.fromJSON([]);
+  let pipelineGroups       = DashboardGroups.fromJSON([]);
+  let pipelines            = Pipelines.fromJSON([]);
   let filteredGroups       = pipelineGroups.filterBy('');
   const internalSearchText = Stream('');
 
@@ -36,7 +37,7 @@ const Dashboard = function () {
   this.findPipeline      = (pipelineName) => pipelines.find(pipelineName);
 
   this.initialize = (json) => {
-    const newPipelineGroups = PipelineGroups.fromJSON(_.get(json, '_embedded.pipeline_groups', []));
+    const newPipelineGroups = DashboardGroups.fromJSON(_.get(json, '_embedded.pipeline_groups', []));
     const newPipelines      = Pipelines.fromJSON(_.get(json, '_embedded.pipelines', []));
 
     //set it on the current object only on a successful deserialization of both pipeline groups and pipelines

@@ -34,7 +34,7 @@ function deleteKeyAndReturnValue(object, key, defaultValue) {
 
 function compactClasses(args) {
   const initialClasses = [].slice.call(arguments, 1);
-  return _([initialClasses, deleteKeyAndReturnValue(args, 'class')]).flatten().compact().join(' ');
+  return _([initialClasses, deleteKeyAndReturnValue(args, 'class')]).flatten().compact().uniq().join(' ');
 }
 
 function unwrapStream(maybeStream) {
@@ -490,21 +490,31 @@ const f = {
 
   link: {
     view(vnode) {
-      const tooltipText = vnode.attrs.tooltipText;
+      const disabled = vnode.attrs.disabled;
+      const args = _.assign(vnode.attrs);
 
-      if (!_.isEmpty(tooltipText)) {
-        return (<f.linkWithTooltip class={compactClasses(vnode.attrs)} {...vnode.attrs}/>);
+      if (args.hasOwnProperty("disabled")) { delete args.disabled; }
+
+      const tooltipText = args.tooltipText;
+
+      if (disabled) {
+        args.class = _.compact([args.class, "disabled"]).join(" ");
+        delete args.href;
       }
 
-      if (vnode.attrs.target === '_blank') {
-        if (s.isBlank(vnode.attrs.rel)) {
-          vnode.attrs.rel = 'noopener noreferrer';
+      if (!_.isEmpty(tooltipText)) {
+        return (<f.linkWithTooltip class={compactClasses(args)} {...args}/>);
+      }
+
+      if (args.target === '_blank') {
+        if (s.isBlank(args.rel)) {
+          args.rel = 'noopener noreferrer';
         } else {
-          vnode.attrs.rel += " noopener noreferrer";
+          args.rel += " noopener noreferrer";
         }
       }
       return (<a href="javascript:void(0)"
-                 class={compactClasses(vnode.attrs)} {...vnode.attrs}>{vnode.children}
+                 class={compactClasses(args)} {...args}>{vnode.children}
       </a>);
     }
   },

@@ -951,7 +951,9 @@ describe("Dashboard Pipeline Widget", () => {
           shouldShowAnalyticsIcon,
           doCancelPolling,
           doRefreshImmediately,
-          vm: dashboardViewModel
+          operationMessages: dashboardViewModel.operationMessages,
+          dropdown: dashboardViewModel.dropdown,
+          buildCause: dashboardViewModel.buildCause
         });
       }
     });

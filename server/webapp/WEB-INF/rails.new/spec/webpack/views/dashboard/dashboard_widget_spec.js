@@ -289,7 +289,6 @@ describe("Dashboard Widget", () => {
   });
 
   it("should render pipeline group title", () => {
-    expect($root.find('.dashboard-group_title span').get(0)).toContainText("pipeline group");
     expect($root.find('.dashboard-group_title strong').get(0)).toContainText(dashboardJson._embedded.pipeline_groups[0].name);
   });
 
@@ -310,19 +309,18 @@ describe("Dashboard Widget", () => {
   it("should show disabled pipeline group settings icon showing tooltip for non admin users", () => {
     unmount();
     mount(false);
-
-    expect($root.find('.dashboard-group_title a')).toHaveClass('disabled');
-    expect($root.find('.dashboard-group_title a')).toHaveAttr('data-tooltip-id');
+    expect($root.find('.dashboard-group_title .edit_config')).toHaveClass('disabled');
+    expect($root.find('.dashboard-group_title .edit_config')).toHaveAttr('data-tooltip-id');
   });
 
-  it("should show plain text pipeline group name without link for non admin users", () => {
+  it("should pipeline group name as a disabled link for non admin users", () => {
     unmount();
     mount(false);
     const pipelineGroupJSON = dashboardJson._embedded.pipeline_groups[0];
 
     const title = $root.find('.dashboard-group_title>strong').get(0);
     expect(title).toContainText(pipelineGroupJSON.name);
-    expect(title).not.toContainElement('a');
+    expect(title).toContainElement('.disabled');
   });
 
 

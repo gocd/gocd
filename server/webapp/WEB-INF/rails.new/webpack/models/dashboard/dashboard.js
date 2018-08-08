@@ -23,7 +23,7 @@ const Routes     = require('gen/js-routes');
 const DashboardGroups = require('models/dashboard/dashboard_groups');
 const Pipelines      = require('models/dashboard/pipelines');
 
-const Dashboard = function () {
+function Dashboard() {
   const self               = this;
   let pipelineGroups       = DashboardGroups.fromJSON([]);
   let pipelines            = Pipelines.fromJSON([]);
@@ -68,7 +68,7 @@ const Dashboard = function () {
       return internalSearchText();
     }
   };
-};
+}
 
 Dashboard.API_VERSION = 'v2';
 

@@ -17,31 +17,29 @@
 const _      = require('lodash');
 const Routes = require('gen/js-routes');
 
-const DashboardGroup = function (name, path, editPath, canAdminister, pipelines) {
+function DashboardGroup({name, can_administer, pipelines}) { // eslint-disable-line camelcase
   const self = this;
 
   this.name          = name;
-  this.path          = path;
-  this.editPath      = editPath;
-  this.canAdminister = canAdminister;
+  this.path          = `${Routes.pipelineGroupsPath()}#group-${name}`;
+  this.editPath      = `${Routes.pipelineGroupEditPath(name)}`;
+  this.canAdminister = can_administer; // eslint-disable-line camelcase
   this.pipelines     = pipelines;
 
+  this.resolvePipelines = (resolver) => {
+    return _.map(self.pipelines, (pipelineName) => resolver.findPipeline(pipelineName));
+  };
+
   this.filterBy = (filterText) => {
-    const filteredPipelines = _.filter(self.pipelines, (pipeline) => _.includes(pipeline.toLowerCase(), filterText));
+    const filteredPipelines = _.filter(self.pipelines, (p) => _.includes(p.toLowerCase(), filterText.toLowerCase()));
+
     if (filteredPipelines.length) {
-      return new DashboardGroup(self.name, self.path, self.editPath, self.canAdminister, filteredPipelines);
+      return new DashboardGroup({name, can_administer, pipelines: filteredPipelines}); // eslint-disable-line camelcase
     }
   };
-};
+}
 
-DashboardGroup.fromJSON = (json) => {
-  const path     = `${Routes.pipelineGroupsPath()}#group-${json.name}`;
-  const editPath = `${Routes.pipelineGroupEditPath(json.name)}`;
-  return new DashboardGroup(json.name, path, editPath, json.can_administer, json.pipelines);
-};
-
-
-const DashboardGroups = function (groups) {
+function DashboardGroups(groups) {
   const self  = this;
   this.groups = groups;
 
@@ -49,11 +47,10 @@ const DashboardGroups = function (groups) {
     const filteredGroups = _.compact(_.map(self.groups, (group) => group.filterBy(filterText)));
     return new DashboardGroups(filteredGroups);
   };
-};
+}
 
 DashboardGroups.fromJSON = (json) => {
-  const pipelineGroups = _.map(json, (group) => DashboardGroup.fromJSON(group));
-  return new DashboardGroups(pipelineGroups);
+  return new DashboardGroups(_.map(json, (group) => new DashboardGroup(group)));
 };
 
 module.exports = DashboardGroups;

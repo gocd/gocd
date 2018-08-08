@@ -29,8 +29,8 @@ const PipelineWidget = {
       pipelineInstances = _.map(pipeline.instances, (instance) => {
         return (
           <PipelineInstanceWidget instance={instance}
-                                  dropdown={vnode.attrs.vm.dropdown}
-                                  buildCause={vnode.attrs.vm.buildCause}
+                                  dropdown={vnode.attrs.dropdown}
+                                  buildCause={vnode.attrs.buildCause}
                                   key={instance.counter}
                                   pipelineName={pipeline.name}
                                   trackingTool={pipeline.trackingTool}/>
@@ -50,7 +50,7 @@ const PipelineWidget = {
                                 doRefreshImmediately={vnode.attrs.doRefreshImmediately}
                                 pluginsSupportingAnalytics={vnode.attrs.pluginsSupportingAnalytics}
                                 shouldShowAnalyticsIcon={vnode.attrs.shouldShowAnalyticsIcon}
-                                vm={vnode.attrs.vm}
+                                operationMessages={vnode.attrs.operationMessages}
                                 isQuickEditPageEnabled={vnode.attrs.isQuickEditPageEnabled}/>
           <div className="pipeline_instances">
             {pipelineInstances}

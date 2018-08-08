@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.apiv1.datasharing.usagedata.representers;
+package com.thoughtworks.go.apiv2.datasharing.usagedata.representers;
 
 import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.server.domain.UsageStatistics;

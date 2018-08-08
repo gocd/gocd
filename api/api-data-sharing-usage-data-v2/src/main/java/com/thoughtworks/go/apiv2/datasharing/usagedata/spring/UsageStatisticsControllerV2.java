@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.apiv1.datasharing.usagedata.spring;
+package com.thoughtworks.go.apiv2.datasharing.usagedata.spring;
 
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
-import com.thoughtworks.go.apiv1.datasharing.usagedata.UsageStatisticsControllerV1Delegate;
+import com.thoughtworks.go.apiv2.datasharing.usagedata.UsageStatisticsControllerV2Delegate;
 import com.thoughtworks.go.server.service.datasharing.DataSharingUsageDataService;
 import com.thoughtworks.go.spark.spring.SparkSpringController;
 import com.thoughtworks.go.util.SystemEnvironment;
@@ -25,12 +25,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-public class UsageStatisticsControllerV1 implements SparkSpringController {
-    private UsageStatisticsControllerV1Delegate delegate;
+public class UsageStatisticsControllerV2 implements SparkSpringController {
+    private UsageStatisticsControllerV2Delegate delegate;
 
     @Autowired
-    public UsageStatisticsControllerV1(ApiAuthenticationHelper apiAuthenticationHelper, DataSharingUsageDataService dataSharingUsageDataService, SystemEnvironment systemEnvironment) {
-        this.delegate = new UsageStatisticsControllerV1Delegate(apiAuthenticationHelper, dataSharingUsageDataService, systemEnvironment);
+    public UsageStatisticsControllerV2(ApiAuthenticationHelper apiAuthenticationHelper, DataSharingUsageDataService dataSharingUsageDataService, SystemEnvironment systemEnvironment) {
+        this.delegate = new UsageStatisticsControllerV2Delegate(apiAuthenticationHelper, dataSharingUsageDataService, systemEnvironment);
     }
 
     @Override

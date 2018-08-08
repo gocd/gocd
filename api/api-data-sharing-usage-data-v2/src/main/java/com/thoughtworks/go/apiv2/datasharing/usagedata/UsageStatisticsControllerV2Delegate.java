@@ -14,16 +14,17 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.apiv1.datasharing.usagedata;
+package com.thoughtworks.go.apiv2.datasharing.usagedata;
 
 import com.thoughtworks.go.api.ApiController;
 import com.thoughtworks.go.api.ApiVersion;
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
-import com.thoughtworks.go.apiv1.datasharing.usagedata.representers.UsageStatisticsRepresenter;
+import com.thoughtworks.go.apiv2.datasharing.usagedata.representers.EncryptedDataRepresenter;
+import com.thoughtworks.go.apiv2.datasharing.usagedata.representers.UsageStatisticsRepresenter;
 import com.thoughtworks.go.server.domain.UsageStatistics;
 import com.thoughtworks.go.server.service.datasharing.DataSharingUsageDataService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
-import com.thoughtworks.go.server.util.RSAEncryptionHelper;
+import com.thoughtworks.go.server.util.EncryptionHelper;
 import com.thoughtworks.go.spark.Routes.DataSharing;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.io.FileUtils;
@@ -31,20 +32,22 @@ import spark.Request;
 import spark.Response;
 import spark.utils.StringUtils;
 
+import javax.crypto.SecretKey;
 import java.io.File;
+import java.util.Base64;
 import java.util.Map;
 
 import static spark.Spark.*;
 
-public class UsageStatisticsControllerV1Delegate extends ApiController {
+public class UsageStatisticsControllerV2Delegate extends ApiController {
     private final ApiAuthenticationHelper apiAuthenticationHelper;
     private DataSharingUsageDataService dataSharingUsageDataService;
     private SystemEnvironment systemEnvironment;
     private String SIGNATURE_KEY = "signature";
     private String SUBORDINATE_PUBLIC_KEY = "subordinate_public_key";
 
-    public UsageStatisticsControllerV1Delegate(ApiAuthenticationHelper apiAuthenticationHelper, DataSharingUsageDataService dataSharingUsageDataService, SystemEnvironment systemEnvironment) {
-        super(ApiVersion.v1);
+    public UsageStatisticsControllerV2Delegate(ApiAuthenticationHelper apiAuthenticationHelper, DataSharingUsageDataService dataSharingUsageDataService, SystemEnvironment systemEnvironment) {
+        super(ApiVersion.v2);
         this.apiAuthenticationHelper = apiAuthenticationHelper;
         this.dataSharingUsageDataService = dataSharingUsageDataService;
         this.systemEnvironment = systemEnvironment;
@@ -59,15 +62,15 @@ public class UsageStatisticsControllerV1Delegate extends ApiController {
     public void setupRoutes() {
         path(controllerPath(), () -> {
             before("", mimeType, this::setContentType);
-            before("/encrypted", this::setEncryptedContentType);
+            before("/encrypted", this::setContentType);
             before("", this::verifyContentType);
             before("/*", this::verifyContentType);
 
             before("", mimeType, apiAuthenticationHelper::checkAdminUserAnd403);
             before("/encrypted", mimeType, apiAuthenticationHelper::checkUserAnd403);
 
-            get("", this::getUsageStatistics);
-            post("/encrypted", this::getEncryptedUsageStatistics);
+            get("", mimeType, this::getUsageStatistics);
+            post("/encrypted", mimeType, this::getEncryptedUsageStatistics);
         });
     }
 
@@ -86,7 +89,11 @@ public class UsageStatisticsControllerV1Delegate extends ApiController {
         boolean isVerified = verifySignatureAndPublicKey(signature, publicKey, result);
 
         if (isVerified) {
-            return RSAEncryptionHelper.encrypt(getUsageStatistics(request, response), publicKey);
+            SecretKey secretKey = EncryptionHelper.generateAESKey();
+            String aesEncryptedData = EncryptionHelper.encryptUsingAES(secretKey, getUsageStatistics(request, response));
+            String rsaEncryptedKey = EncryptionHelper.encryptUsingRSA(Base64.getEncoder().encodeToString(secretKey.getEncoded()), publicKey);
+
+            return jsonizeAsTopLevelObject(request, writer -> EncryptedDataRepresenter.toJSON(writer, aesEncryptedData, rsaEncryptedKey));
         }
 
         return renderHTTPOperationResult(result, request, response);
@@ -107,7 +114,7 @@ public class UsageStatisticsControllerV1Delegate extends ApiController {
 
         boolean isVerified;
         try {
-            isVerified = RSAEncryptionHelper.verifySignature(subordinatePublicKey, signature, masterPublicKey);
+            isVerified = EncryptionHelper.verifyRSASignature(subordinatePublicKey, signature, masterPublicKey);
         } catch (Exception e) {
             isVerified = false;
         }

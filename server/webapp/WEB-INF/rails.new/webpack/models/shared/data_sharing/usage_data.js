@@ -26,7 +26,7 @@ UsageData.fromJSON = function (json) {
   return new UsageData(json);
 };
 
-UsageData.API_VERSION = 'v1';
+UsageData.API_VERSION = 'v2';
 
 UsageData.get = () => {
   return AjaxHelper.GET({

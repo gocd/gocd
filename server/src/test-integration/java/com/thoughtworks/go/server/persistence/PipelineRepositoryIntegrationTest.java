@@ -405,13 +405,13 @@ public class PipelineRepositoryIntegrationTest {
 
     private PipelineSelections blacklist(List<String> pipelines, Long userId) {
         final List<CaseInsensitiveString> pipelineNames = CaseInsensitiveString.list(pipelines);
-        Filters filters = new Filters(Collections.singletonList(new BlacklistFilter(DEFAULT_NAME, pipelineNames, null)));
+        Filters filters = new Filters(Collections.singletonList(new BlacklistFilter(DEFAULT_NAME, pipelineNames, new HashSet<>())));
         return new PipelineSelections(filters, new Date(), userId);
     }
 
     private PipelineSelections whitelist(List<String> pipelines, Long userId) {
         final List<CaseInsensitiveString> pipelineNames = CaseInsensitiveString.list(pipelines);
-        Filters filters = new Filters(Collections.singletonList(new WhitelistFilter(DEFAULT_NAME, pipelineNames, null)));
+        Filters filters = new Filters(Collections.singletonList(new WhitelistFilter(DEFAULT_NAME, pipelineNames, new HashSet<>())));
         return new PipelineSelections(filters, new Date(), userId);
     }
 }

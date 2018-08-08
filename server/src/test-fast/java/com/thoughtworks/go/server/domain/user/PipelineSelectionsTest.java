@@ -20,6 +20,7 @@ import com.thoughtworks.go.config.CaseInsensitiveString;
 import org.junit.Test;
 
 import java.util.Arrays;
+import java.util.HashSet;
 
 import static com.thoughtworks.go.helper.PipelineConfigMother.createGroup;
 import static com.thoughtworks.go.helper.PipelineConfigMother.pipelineConfig;
@@ -33,16 +34,16 @@ public class PipelineSelectionsTest {
     @Test
     public void etagBasedOnFilterContent() {
         PipelineSelections ps = PipelineSelectionsHelper.with(Arrays.asList("p1", "p2"));
-        assertEquals("E8435DD87D7E62616157CF2F71A5FCB7DAE9224A6EBE4F47CF20D0583D5897C5", ps.etag());
+        assertEquals("148C3FDE87AD2AC597262975FECE58E64036A79CED54351A700232AC6FDA90B0", ps.etag());
 
         ps.update(Filters.defaults(), null, null);
-        assertEquals("1269CFEF75B2DA5D73263B78BE4EA8EA9663104992327642B44F28A5C66E36F2", ps.etag());
+        assertEquals("2356E5D4241F22987D8F8CB8920913FDA237385B423BD7EEC7E97B2A9EB1BE1A", ps.etag());
 
-        ps.update(Filters.single(new WhitelistFilter(DEFAULT_NAME, CaseInsensitiveString.list("p1"), null)), null, null);
-        assertEquals("852D88B3C5D6A9CFC481DE35FB4A90A79E5A96A10A80947F7EFC8D345C10024E", ps.etag());
+        ps.update(Filters.single(new WhitelistFilter(DEFAULT_NAME, CaseInsensitiveString.list("p1"), new HashSet<>())), null, null);
+        assertEquals("9FFA0B91A0100DAC243E4A4F47303057B888E1E0B25CDB26AAF05C019F8E71EE", ps.etag());
 
-        ps.setFilters(format("{\"filters\": [{\"name\": \"%s\", \"type\": \"blacklist\", \"pipelines\": [\"foobar\"]}]}", DEFAULT_NAME));
-        assertEquals("87CDD48CD9C281C6D5B8C28D4FD0F61E1F18D280D8B247B9CAC96161978D2580", ps.etag());
+        ps.setFilters(format("{\"filters\": [{\"name\": \"%s\", \"type\": \"blacklist\", \"state\": [], \"pipelines\": [\"foobar\"]}]}", DEFAULT_NAME));
+        assertEquals("224C1949538A5A278C061A99C40797BF3849D13FCA7F3AEB249171851F2A384E", ps.etag());
     }
 
     @Test

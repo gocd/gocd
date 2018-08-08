@@ -39,10 +39,9 @@ public class PipelinesFilter {
     }
 
     boolean filterByState(StageInstanceModel stage) {
-        if (state == null || stage == null)
+        if (stage == null) {
             return true;
-
-        if (state.contains(BUILDING_STATE) && state.contains(FAILED_STATE)) {
+        } else if (state.contains(BUILDING_STATE) && state.contains(FAILED_STATE)) {
             return stage.isRunning() || stage.hasFailed();
         } else if (state.contains(BUILDING_STATE)) {
             return stage.isRunning();

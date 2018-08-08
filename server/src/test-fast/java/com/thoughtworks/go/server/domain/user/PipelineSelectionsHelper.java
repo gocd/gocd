@@ -20,6 +20,7 @@ import com.thoughtworks.go.config.CaseInsensitiveString;
 
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 
 import static com.thoughtworks.go.server.domain.user.DashboardFilter.DEFAULT_NAME;
@@ -27,7 +28,7 @@ import static com.thoughtworks.go.server.domain.user.DashboardFilter.DEFAULT_NAM
 public class PipelineSelectionsHelper {
     public static PipelineSelections with(List<String> pipelines, Date date, Long userId, boolean blacklist) {
         List<CaseInsensitiveString> params = CaseInsensitiveString.list(pipelines);
-        DashboardFilter filter = blacklist ? new BlacklistFilter(DEFAULT_NAME, params, null) : new WhitelistFilter(DEFAULT_NAME, params, null);
+        DashboardFilter filter = blacklist ? new BlacklistFilter(DEFAULT_NAME, params, new HashSet<>()) : new WhitelistFilter(DEFAULT_NAME, params, new HashSet<>());
         return new PipelineSelections(new Filters(Collections.singletonList(filter)), date, userId);
     }
 

@@ -88,19 +88,20 @@ public class PipelinesFilterTest {
     }
 
     @Test
-    public void shouldReturnTrueIfStateIsNull() {
-        StageInstanceModel stage = mock(StageInstanceModel.class);
-        when(stage.hasFailed()).thenReturn(false);
-        when(stage.isRunning()).thenReturn(true);
-        assertTrue(new PipelinesFilter(null, null).filterByState(stage));
-    }
-
-    @Test
     public void shouldReturnTrueIfStateIsEmpty() {
         StageInstanceModel stage = mock(StageInstanceModel.class);
         when(stage.hasFailed()).thenReturn(false);
         when(stage.isRunning()).thenReturn(true);
         Set<String> state = new HashSet<>();
         assertTrue(new PipelinesFilter(state, null).filterByState(stage));
+    }
+
+    @Test
+    public void shouldReturnTrueIfStageIsNull() {
+        StageInstanceModel stage = mock(StageInstanceModel.class);
+        when(stage.hasFailed()).thenReturn(false);
+        when(stage.isRunning()).thenReturn(true);
+        Set<String> state = new HashSet<>();
+        assertTrue(new PipelinesFilter(state, null).filterByState(null));
     }
 }

@@ -30,6 +30,7 @@ import org.junit.Test;
 
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashSet;
 
 import static com.thoughtworks.go.helper.ConfigFileFixture.configWith;
 import static com.thoughtworks.go.server.domain.user.DashboardFilter.DEFAULT_NAME;
@@ -214,11 +215,11 @@ public class PipelineSelectionsServiceTest {
     }
 
     private DashboardFilter blacklist(String... pipelines) {
-        return new BlacklistFilter(DEFAULT_NAME, CaseInsensitiveString.list(pipelines), null);
+        return new BlacklistFilter(DEFAULT_NAME, CaseInsensitiveString.list(pipelines), new HashSet<>());
     }
 
     private DashboardFilter whitelist(String... pipelines) {
-        return new WhitelistFilter(DEFAULT_NAME, CaseInsensitiveString.list(pipelines), null);
+        return new WhitelistFilter(DEFAULT_NAME, CaseInsensitiveString.list(pipelines), new HashSet<>());
     }
 
     private void expectLoad(final CruiseConfig result) throws Exception {

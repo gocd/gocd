@@ -24,6 +24,6 @@ import static com.thoughtworks.go.server.domain.user.DashboardFilter.DEFAULT_NAM
 
 class FiltersHelper {
   static Filters blacklist(List<String> pipelines) {
-    return Filters.single(new BlacklistFilter(DEFAULT_NAME, CaseInsensitiveString.list(pipelines), null))
+    return Filters.single(new BlacklistFilter(DEFAULT_NAME, CaseInsensitiveString.list(pipelines), new HashSet<>()))
   }
 }

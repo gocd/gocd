@@ -18,7 +18,8 @@ package com.thoughtworks.go.server.domain.user;
 
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.*;
+import java.util.Map;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 import static com.thoughtworks.go.server.domain.user.DashboardFilter.*;
@@ -54,10 +55,10 @@ class FilterValidator {
     }
 
     private static void validateState(Set<String> state) {
-        if (state != null) {
-            if (!VALID_STATES.containsAll(state))
-                throw new FilterValidationException(MSG_INVALID_STATES);
-        }
+        if (state == null)
+            throw new FilterValidationException("Filter state should never be NULL");
+        if (!state.isEmpty() && !VALID_STATES.containsAll(state))
+            throw new FilterValidationException(MSG_INVALID_STATES);
     }
 
     static void validateNameFormat(String name) {

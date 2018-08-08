@@ -29,6 +29,7 @@ public class DataMigrationRunner {
 
         try (Connection cxn = ds.getConnection()) {
             exec(cxn, M001.convertPipelineSelectionsToFilters());
+            exec(cxn, M002.ensureFilterStateIsNotNull());
         }
 
         System.out.println("Data migrations completed.");

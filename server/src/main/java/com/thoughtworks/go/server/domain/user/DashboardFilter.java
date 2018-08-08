@@ -29,7 +29,7 @@ public interface DashboardFilter {
     String DEFAULT_NAME = "Default";
     String BUILDING_STATE = "building";
     String FAILED_STATE = "failing";
-    Set<String> VALID_STATES = new HashSet<String>(Arrays.asList(BUILDING_STATE, FAILED_STATE));
+    Set<String> VALID_STATES = new HashSet<>(Arrays.asList(BUILDING_STATE, FAILED_STATE));
     String name();
 
     Set<String> state();

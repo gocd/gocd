@@ -40,8 +40,8 @@ class PluginCollapsibleList {
     const properties  = vnode.attrs.properties;
     const actionButtons = vnode.attrs.actionButtons;
     return (
-      <div class={`c-collapse plugin-collapsible-list ${(this.showState() === 'hide') ? 'collapsed' : 'expanded'}`}>
-        <div class="c-collapse_header collapsible-list-header" onclick={this.toggleHide.bind(this)}>
+      <div class={`c-collapse ${(this.showState() === 'hide') ? 'collapsed' : 'expanded'}`}>
+        <div class="c-collapse_header" onclick={this.toggleHide.bind(this)}>
           <div class="c-collapse_header_details">
             <dl class="key-value-pair key-value-pair-header plugin-id">
               <dt class="key">{headerKey} </dt>

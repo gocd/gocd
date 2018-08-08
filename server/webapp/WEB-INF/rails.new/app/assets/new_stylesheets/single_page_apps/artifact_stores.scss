@@ -17,8 +17,6 @@
 @import 'shared/modal';
 @import 'shared/header';
 @import 'shared/alert';
-@import 'shared/plugin_config/plugin_group_header';
-@import 'shared/plugin_config/plugin_collapsible_list';
 @import 'shared/action_buttons';
 @import 'components/panel';
 @import 'components/collapse';
@@ -26,10 +24,6 @@
 .add-artifact-store {
   float         : right;
   margin-bottom : 0;
-}
-
-.plugin-group {
-  margin-bottom : 15px;
 }
 
 .artifact-store-modal-body {

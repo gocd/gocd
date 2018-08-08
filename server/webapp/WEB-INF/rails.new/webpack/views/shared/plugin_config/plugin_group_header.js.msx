@@ -37,7 +37,7 @@ class PluginGroupHeader {
     }
 
     return (
-      <div className="panel_header plugin-group-header">
+      <div className="panel_header">
         <div className="panel_header_details">
           {pluginIcon}
           {pluginNameLabel}

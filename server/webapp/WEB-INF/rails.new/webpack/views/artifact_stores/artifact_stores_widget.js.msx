@@ -81,7 +81,7 @@ class ArtifactStoresWidget {
               const pluginInfo = this.state.findPluginInfo(pluginId);
               return (
                 <div className="row expanded">
-                  <div class="panel plugin-group">
+                  <div class="panel">
                     <PluginGroupHeader pluginInfo={pluginInfo} pluginId={pluginId}/>
                     <div class="panel_body">
                     {_.map(stores, (store) => {

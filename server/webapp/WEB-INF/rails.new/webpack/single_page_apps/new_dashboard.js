@@ -28,12 +28,12 @@ const PersonalizeVM   = require('views/dashboard/models/personalization_vm');
 
 $(() => {
   const dashboardElem              = $('#dashboard');
-  const dashboardVM                = new DashboardVM();
   const isQuickEditPageEnabled     = JSON.parse(dashboardElem.attr('data-is-quick-edit-page-enabled'));
   const shouldShowAnalyticsIcon    = JSON.parse(dashboardElem.attr('data-should-show-analytics-icon'));
   const pluginsSupportingAnalytics = {};
 
-  const dashboard = new Dashboard();
+  const dashboard     = new Dashboard();
+  const dashboardVM   = new DashboardVM(dashboard);
   const personalizeVM = new PersonalizeVM(currentView);
 
   personalizeVM.etag(null);
@@ -97,6 +97,20 @@ $(() => {
     // currentView() is called after every personalization save operation.
     repeater().restart();
   }
+
+  $(document.body).on("click", () => {
+    dashboardVM.dropdown.hide();
+    personalizeVM.hideAllDropdowns();
+
+    /**
+     * The reason we need to do the redraw asynchronously is for checkboxes. When you click
+     * a checkbox the click event propogates to the body. But the model backing the checkboxes
+     * has not had time to update to the new value (so the redraw overrides the value with the
+     * original state). Using setTimeout() to make m.redraw() asynchronous allows mithril to
+     * flush the new checkbox state to the DOM beforehand.
+     */
+    setTimeout(m.redraw, 0);
+  });
 
   function onResponse(dashboardData, message = undefined) {
     personalizeVM.etag(dashboardData.personalization);
@@ -169,7 +183,6 @@ $(() => {
     const component = {
       view() {
         return m(DashboardWidget, {
-          dashboard,
           personalizeVM,
           showSpinner,
           isQuickEditPageEnabled,
@@ -187,7 +200,7 @@ $(() => {
       '/:searchedBy': component
     });
 
-    dashboard.searchText(m.route.param('searchedBy') || '');
+    dashboardVM.searchText(m.route.param('searchedBy') || '');
   };
 
   repeater().start();

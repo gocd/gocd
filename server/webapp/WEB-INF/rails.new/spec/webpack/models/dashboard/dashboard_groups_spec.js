@@ -14,36 +14,33 @@
  * limitations under the License.
  */
 
-describe("Dashboard", () => {
-  describe('Pipeline Group Model', () => {
+describe("DashboardGroups", () => {
 
-    const DashboardGroups = require('models/dashboard/dashboard_groups');
+  const DashboardGroups = require('models/dashboard/dashboard_groups');
 
-    it("should deserialize from json", () => {
-      const pipelineGroups = DashboardGroups.fromJSON(pipelineGroupsData);
+  it("should deserialize from json", () => {
+    const pipelineGroups = DashboardGroups.fromJSON(pipelineGroupsData);
 
-      expect(pipelineGroups.groups.length).toBe(1);
-      expect(pipelineGroups.groups[0].name).toBe(pipelineGroupsData[0].name);
-      expect(pipelineGroups.groups[0].canAdminister).toBe(pipelineGroupsData[0].can_administer);
-      expect(pipelineGroups.groups[0].path).toBe('/go/admin/pipelines#group-first');
-      expect(pipelineGroups.groups[0].editPath).toBe('/go/admin/pipeline_group/first/edit');
-      expect(pipelineGroups.groups[0].pipelines).toEqual(pipelineGroupsData[0].pipelines);
-    });
-
-    const pipelineGroupsData = [
-      {
-        "_links":         {
-          "self": {
-            "href": "http://localhost:8153/go/api/config/pipeline_groups/first"
-          },
-          "doc":  {
-            "href": "https://api.go.cd/current/#pipeline-groups"
-          }
-        },
-        "name":           "first",
-        "pipelines":      ["up42"],
-        "can_administer": true
-      }
-    ];
+    expect(pipelineGroups.groups.length).toBe(1);
+    expect(pipelineGroups.groups[0].name).toBe(pipelineGroupsData[0].name);
+    expect(pipelineGroups.groups[0].canAdminister).toBe(pipelineGroupsData[0].can_administer);
+    expect(pipelineGroups.groups[0].pipelines).toEqual(pipelineGroupsData[0].pipelines);
   });
+
+  const pipelineGroupsData = [
+    {
+      "_links":         {
+        "self": {
+          "href": "http://localhost:8153/go/api/config/pipeline_groups/first"
+        },
+        "doc":  {
+          "href": "https://api.go.cd/current/#pipeline-groups"
+        }
+      },
+      "name":           "first",
+      "pipelines":      ["up42"],
+      "can_administer": true
+    }
+  ];
+
 });

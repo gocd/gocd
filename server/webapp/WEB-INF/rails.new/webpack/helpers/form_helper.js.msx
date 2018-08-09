@@ -156,12 +156,16 @@ const f = {
         autocapitalize: "off",
         autocorrect:    "off",
         spellcheck:     false,
-        type:           "text"
+        type:           "text",
+        listen:         "oninput",
+        prop:           "value"
       };
 
       const args = _.assign({}, defaultAttrs, vnode.attrs); // copy attrs instead of modifying in-place
+      const prop = deleteKeyAndReturnValue(args, "prop");
+      const listen = deleteKeyAndReturnValue(args, "listen");
 
-      const model            = wireUpModel(args, "value", "oninput"),
+      const model            = wireUpModel(args, prop, listen),
             validationErrors = validateModel(model, args),
             label            = coerceArray(deleteKeyAndReturnValue(args, "label", []), wrapTextInSpan), // label can be a string or an array
             contentAfter     = coerceArray(deleteKeyAndReturnValue(args, "contentAfter", []), wrapTextInSpan);

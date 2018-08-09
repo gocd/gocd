@@ -333,15 +333,18 @@ $btn-default: #d6d5d5;
   float:       left;
 }
 
+.dashboard-modifiers {
+  display:         flex;
+  justify-content: space-between;
+}
+
 .filter {
   @include icon-before($type: search);
-  position:        relative;
-  margin-top:      9px;
-  padding:         0 30px;
-  align-self:      center;
-  display:         flex;
-  justify-content: flex-end;
-  float:           right;
+
+  display:    inline-block;
+  position:   relative;
+  margin-top: 9px;
+  padding:    0 30px;
 
   &:before {
     position:  absolute;

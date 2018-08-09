@@ -16,7 +16,7 @@
 
 const _ = require('lodash');
 
-function DashboardGroup({name, can_administer, pipelines}) { // eslint-disable-line camelcase
+function Group({name, can_administer, pipelines}) { // eslint-disable-line camelcase
   const self = this;
 
   this.name          = name;
@@ -31,7 +31,7 @@ function DashboardGroup({name, can_administer, pipelines}) { // eslint-disable-l
     const filteredPipelines = _.filter(self.pipelines, (p) => _.includes(p.toLowerCase(), filterText.toLowerCase()));
 
     if (filteredPipelines.length) {
-      return new DashboardGroup({name, can_administer, pipelines: filteredPipelines}); // eslint-disable-line camelcase
+      return new Group({name, can_administer, pipelines: filteredPipelines}); // eslint-disable-line camelcase
     }
   };
 }
@@ -47,7 +47,9 @@ function DashboardGroups(groups) {
 }
 
 DashboardGroups.fromJSON = (json) => {
-  return new DashboardGroups(_.map(json, (group) => new DashboardGroup(group)));
+  return new DashboardGroups(_.map(json, (group) => new Group(group)));
 };
+
+DashboardGroups.Group = Group;
 
 module.exports = DashboardGroups;

@@ -26,7 +26,6 @@ describe("Dashboard Widget", () => {
   const SparkRoutes     = require("helpers/spark_routes");
 
   const PersonalizeVM   = require('views/dashboard/models/personalization_vm');
-  const Personalization = require('models/dashboard/personalization');
 
   let $root, root, dashboard, dashboardJson, buildCauseJson, doCancelPolling, doRefreshImmediately;
   const originalDebounce = _.debounce;
@@ -333,31 +332,6 @@ describe("Dashboard Widget", () => {
     expect(pipelinesWithinPipelineGroup).toContainText(pipelineName);
   });
 
-  it("should close all dropdowns when a user clicks on any portion of the dashboard widget", () => {
-    stubBuildCauseAjaxCall();
-    const dashboard   = $root.find('.pipeline_wrapper');
-    const changesLink = $root.find('.info a')[1];
-    expect(dashboard.find('.material_changes')).not.toBeInDOM();
-
-    jasmine.Ajax.withMock(() => {
-      jasmine.Ajax.stubRequest(SparkRoutes.buildCausePath('up42', '1'), undefined, 'GET').andReturn({
-        responseText:    JSON.stringify(buildCauseJson),
-        responseHeaders: {'Content-Type': 'application/vnd.go.cd.v1+json'},
-        status:          200
-      });
-      $(changesLink).click();
-    });
-
-    m.redraw();
-
-    expect(dashboard.find('.material_changes')).toBeInDOM();
-
-    $(dashboard).click();
-    m.redraw();
-
-    expect(dashboard.find('.material_changes')).not.toBeInDOM();
-  });
-
   function mount(canAdminister = true, showSpinner = Stream(false)) {
     buildCauseJson = {
       "approver":           "",
@@ -576,19 +550,19 @@ describe("Dashboard Widget", () => {
 
     dashboard = new Dashboard();
     const personalizeVM = new PersonalizeVM(Stream("Default"));
-    const personalization = new Personalization([], {});
     dashboard.initialize(dashboardJson);
-    dashboard._performRouting = _.noop;
 
-    const dashboardViewModel = new DashboardVM();
+    const dashboardViewModel = new DashboardVM(dashboard);
+    dashboardViewModel._performRouting = _.noop;
 
     m.mount(root, {
       view() {
         return m(DashboardWidget, {
-          dashboard,
           personalizeVM,
-          personalization,
           showSpinner,
+          isQuickEditPageEnabled: false,
+          pluginsSupportingAnalytics: {},
+          shouldShowAnalyticsIcon: false,
           doCancelPolling,
           doRefreshImmediately,
           vm: dashboardViewModel

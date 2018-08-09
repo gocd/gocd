@@ -16,7 +16,6 @@
 
 const m      = require("mithril");
 const $      = require("jquery");
-const f      = require("helpers/form_helper");
 const Editor = require("views/dashboard/personalization_editor");
 const Modal  = require("views/shared/schmodal");
 
@@ -51,10 +50,7 @@ const EditTabDropdown = {
       const denyAction = (e) => e.stopPropagation();
 
       return <div class="edit-dropdown" onclick={denyAction}>
-        <span class="edit-dropdown-text">Group pipelines by</span>
         <div class="edit-dropdown-actions">
-          <f.button class="btn btn-small selected">Pipeline Group</f.button>
-          <f.button class="btn btn-small">Environments</f.button>
           <i class="fa fa-edit" onclick={edit} />
           <i class={allowDelete ? "fa fa-trash" : "fa fa-trash deny-action"} onclick={allowDelete && remove} />
         </div>

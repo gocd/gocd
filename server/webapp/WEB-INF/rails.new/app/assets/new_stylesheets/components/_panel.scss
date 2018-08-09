@@ -16,8 +16,6 @@
 
 $panel-header :$go-secondary;
 $panel-body :$go-white;
-$panel-icon-size : $component-icon-size;
-
 
 
 .panel {
@@ -40,8 +38,8 @@ $panel-icon-size : $component-icon-size;
 }
 
 .panel_icon {
-  width          : $panel-icon-size;
-  height         : $panel-icon-size;
+  width          : $component-icon-size;
+  height         : $component-icon-size;
   display        : inline-block;
   vertical-align : middle;
   float          : left;

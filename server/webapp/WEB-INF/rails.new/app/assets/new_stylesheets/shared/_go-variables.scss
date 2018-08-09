@@ -14,6 +14,11 @@
  * limitations under the License.
  */
 
+
+
+
+$transition:all 0.3s ease-in-out;
+
 //colors
 
 $go-primary : #b66fc2;
@@ -35,7 +40,9 @@ $border-grey :#ececec;
 //icon size
 
 $component-icon-size: 30px;
-
+$icon-text-padding: 20px;
+$go-icon-color: #555;
+$go-icon-hover-color: #000;
 
 //table
 

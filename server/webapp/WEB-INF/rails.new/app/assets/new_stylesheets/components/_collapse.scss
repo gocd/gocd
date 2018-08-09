@@ -18,7 +18,7 @@
 
 $collapse-icon-size : $component-icon-size;
 $collapse-border:$border-grey;
-$collapse-icon-color: #dddddd;
+$collapse-icon-color:#dddddd;
 
 
 .c-collapse {
@@ -26,7 +26,6 @@ $collapse-icon-color: #dddddd;
   position      : relative;
   border        : 1px solid $collapse-border;
   border-radius : $global-border-radius;
-  cursor        : pointer;
   margin-bottom : 10px;
   &.collapsed {
     background : $go-white;
@@ -53,6 +52,7 @@ $collapse-icon-color: #dddddd;
 .c-collapse_header {
   @include clearfix();
   padding : 10px 50px 10px 30px;
+  cursor        : pointer;
 }
 
 .c-collapse_header_details{

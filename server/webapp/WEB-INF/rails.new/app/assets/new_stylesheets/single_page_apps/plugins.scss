@@ -21,11 +21,6 @@
 @import 'components/panel';
 @import 'components/collapse';
 
-$icon-size: 30px;
-$icon-text-padding: 20px;
-$icon-color: #555;
-$icon-hover-color: #000;
-
 
 .status-report-btn {
   margin-right : 10px;
@@ -35,7 +30,6 @@ $icon-hover-color: #000;
 }
 
 .plugin {
-
   &.disabled {
     background: $light-grey;
   }
@@ -43,11 +37,11 @@ $icon-hover-color: #000;
 
 
 .edit-plugin {
-  @include icon-before($type: gear, $color: $icon-color);
+  @include icon-before($type: gear, $color: $go-icon-color);
   &:not(.disabled) {
     &:hover {
       &:before {
-        color: $icon-hover-color;
+        color: $go-icon-hover-color;
       }
     }
   }

@@ -19,9 +19,8 @@
 @import "notifications";
 @import "header";
 
-$auth-config-plugin-icon-size: 30px;
-$auth-config-icon-text-padding: 20px;
-
+$auth-config-plugin-icon-size : 30px;
+$auth-config-icon-text-padding : 20px;
 
 %boxshadow {
   box-shadow : 0 2px 4px 0 rgba(0, 0, 0, 0.2);
@@ -346,7 +345,7 @@ select {
     dt, .key {
       min-width : 10px;
     }
-    line-height : 30px;
+    line-height  : 30px;
   }
 
 }
@@ -366,6 +365,22 @@ ul.key-value-pair {
 
 }
 
+.plugin-group-header {
+
+  .btn-group {
+    float : right;
+  }
+
+  .warning {
+    @include icon-before($type : exclamation-triangle, $size : $component-icon-size, $color : #fff702);
+    &:before {
+      font-size      : 20px;
+      text-align     : center;
+      vertical-align : middle;
+    }
+  }
+
+}
 
 .plugin-config-read-only {
 
@@ -382,8 +397,6 @@ ul.key-value-pair {
   }
 }
 
-
-
 .page-save-in-progress {
   pointer-events : none;
   opacity        : 0.3;
@@ -398,13 +411,13 @@ ul.key-value-pair {
   line-height : $component-icon-size;
 }
 
-
 .unknown-plugin-icon {
-  @include icon-before($type: question, $size: $auth-config-plugin-icon-size, $color: $light-gray);
+  @include icon-before($type : question, $size : $auth-config-plugin-icon-size, $color : $light-gray);
   &:before {
-    margin: 0;
+    margin : 0;
   }
 }
-.collapse_header_error_message{
-  font-size:13px;
+
+.collapse_header_error_message {
+  font-size : 13px;
 }

@@ -21,39 +21,16 @@
 @import 'components/collapse';
 
 
-$elastic-profile-plugin-icon-size : 30px;
-$elastic-profile-icon-text-padding : 20px;
-$elastic-profile-icon-color : #555;
-$elastic-profile-icon-hover-color : #000;
 
 .add-profile, .plugin-status {
   float         : right;
   margin-bottom : 0;
-  height        : $elastic-profile-plugin-icon-size;
+  height        : $component-icon-size;
 }
-
-.delete-profile {
-  margin-top : 20px;
-}
-
-
-
-.reveal .delete-profile {
-  @include icon-before($type : trash, $color : $white, $margin : 0 5px 0 0, $progress-spinner : true);
-}
-
-
-.unknown-plugin-icon {
-  @include icon-before($type : question, $size : $elastic-profile-plugin-icon-size, $color : $light-gray);
-  &:before {
-    margin : 0;
-  }
-}
-
 
 .plugin-not-installed {
   color       : rgba(0, 0, 0, 0.36);
   font-weight : 600;
-  line-height : $elastic-profile-plugin-icon-size;
+  line-height : $component-icon-size;
 }
 

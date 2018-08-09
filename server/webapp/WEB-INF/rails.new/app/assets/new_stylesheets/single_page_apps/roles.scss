@@ -20,10 +20,7 @@
 @import 'components/panel';
 @import 'components/collapse';
 
-$role-plugin-icon-size : 30px;
-$role-icon-text-padding : 20px;
-$role-icon-color : #555;
-$role-icon-hover-color : #000;
+
 
 .add-role {
   float         : right;
@@ -54,18 +51,13 @@ $role-icon-hover-color : #000;
   @include icon-before($type : trash, $color : $white, $margin : 0 5px 0 0, $progress-spinner : true);
 }
 
-.plugin-icon {
-  width          : $role-plugin-icon-size;
-  height         : $role-plugin-icon-size;
-  display        : inline-block;
-  vertical-align : middle;
-}
+
 
 .gocd-role-icon {
   background : image-url("gocd.svg") no-repeat center;
   display    : block;
-  width      : $role-plugin-icon-size;
-  height     : $role-plugin-icon-size;
+  width      : $component-icon-size;
+  height     : $component-icon-size;
 }
 
 .modal-body .id-and-plugin-id-wrapper .columns:first-child {

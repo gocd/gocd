@@ -199,30 +199,30 @@ describe("ElasticProfilesWidget", () => {
 
   describe("list all profiles", () => {
     it("should render all profiles and group it by plugin id", () => {
-      const allProfiles = $root.find('.elastic-profile-plugin-group');
+      const allProfiles = $root.find('.panel_header');
 
       expect(allProfiles.length).toEqual(2);
 
-      expect(allProfiles.eq(0).find('.plugin-icon img').attr("src")).toEqual(dockerPluginInfoJSON._links.image.href);
-      expect(allProfiles.eq(0).find('.plugin-group-header .plugin-name')).toContainText(dockerPluginInfoJSON.about.name);
-      expect(allProfiles.eq(0).find('.plugin-group-header .plugin-id')).toContainText(dockerElasticProfileJSON.plugin_id);
-      expect(allProfiles.eq(0).find('.plugin-group-header').find('.plugin-status')).not.toBeInDOM();
+      expect(allProfiles.eq(0).find('.panel_icon img').attr("src")).toEqual(dockerPluginInfoJSON._links.image.href);
+      expect(allProfiles.eq(0).find('.panel_header_details .plugin-name')).toContainText(dockerPluginInfoJSON.about.name);
+      expect(allProfiles.eq(0).find('.panel_header_details .plugin-id')).toContainText(dockerElasticProfileJSON.plugin_id);
+      expect(allProfiles.eq(0).find('.panel_header_details').find('.plugin-status')).not.toBeInDOM();
 
-      expect(allProfiles.eq(0).find('.elastic-profile-plugin-group-content .collapsible-list-header .plugin-id')).toContainText(dockerElasticProfileJSON.id);
-      expect(allProfiles.eq(0).find('.elastic-profile-plugin-group-content .plugin-collapsible-list .plugin-actions .edit-button')).toBeInDOM();
-      expect(allProfiles.eq(0).find('.elastic-profile-plugin-group-content .plugin-collapsible-list .plugin-actions .clone-button')).toBeInDOM();
-      expect(allProfiles.eq(0).find('.elastic-profile-plugin-group-content .plugin-collapsible-list .plugin-actions .delete-button')).toBeInDOM();
+      expect($root.find('.c-collapse_header_details .plugin-id .value').eq(0)).toContainText(dockerElasticProfileJSON.id);
+      expect($root.find('.plugin-actions .edit-button').eq(0)).toBeInDOM();
+      expect($root.find('.plugin-actions .clone-button').eq(0)).toBeInDOM();
+      expect($root.find('.plugin-actions .delete-button').eq(0)).toBeInDOM();
 
-      expect(allProfiles.eq(1).find('.plugin-icon img').attr("src")).toEqual(ecsPluginInfoJSON._links.image.href);
-      expect(allProfiles.eq(1).find('.plugin-group-header .plugin-name')).toContainText(ecsPluginInfoJSON.about.name);
-      expect(allProfiles.eq(1).find('.plugin-group-header .plugin-id')).toContainText(ecsElasticProfileJSON.plugin_id);
-      expect(allProfiles.eq(1).find('.plugin-group-header').find('.plugin-status').attr('href')).toEqual(`status_reports/${ecsElasticProfileJSON.plugin_id}`);
-      expect(allProfiles.eq(1).find('.plugin-group-header').find('.plugin-status')).toContainText('Status Report');
+      expect(allProfiles.eq(1).find('.panel_icon img').attr("src")).toEqual(ecsPluginInfoJSON._links.image.href);
+      expect(allProfiles.eq(1).find('.panel_header_details .plugin-name')).toContainText(ecsPluginInfoJSON.about.name);
+      expect(allProfiles.eq(1).find('.panel_header_details .plugin-id')).toContainText(ecsElasticProfileJSON.plugin_id);
+      expect(allProfiles.eq(1).find('.plugin-status').attr('href')).toEqual(`status_reports/${ecsElasticProfileJSON.plugin_id}`);
+      expect(allProfiles.eq(1).find('.plugin-status')).toContainText('Status Report');
 
-      expect(allProfiles.eq(1).find('.elastic-profile-plugin-group-content .collapsible-list-header .plugin-id')).toContainText(ecsElasticProfileJSON.id);
-      expect(allProfiles.eq(1).find('.elastic-profile-plugin-group-content .plugin-collapsible-list .plugin-actions .edit-button')).toBeInDOM();
-      expect(allProfiles.eq(1).find('.elastic-profile-plugin-group-content .plugin-collapsible-list .plugin-actions .clone-button')).toBeInDOM();
-      expect(allProfiles.eq(1).find('.elastic-profile-plugin-group-content .plugin-collapsible-list .plugin-actions .delete-button')).toBeInDOM();
+      expect($root.find('.c-collapse_header_details .plugin-id .value').eq(1)).toContainText(ecsElasticProfileJSON.id);
+      expect($root.find('.plugin-actions .edit-button').eq(1)).toBeInDOM();
+      expect($root.find('.plugin-actions .clone-button').eq(1)).toBeInDOM();
+      expect($root.find('.plugin-actions .delete-button').eq(1)).toBeInDOM();
     });
 
     it("should render error if index call fails", () => {
@@ -379,7 +379,7 @@ describe("ElasticProfilesWidget", () => {
       });
 
       expect($root.find('.plugin-config-read-only')).not.toHaveClass('show');
-      simulateEvent.simulate($root.find('.collapsible-list-header').get(0), 'click');
+      simulateEvent.simulate($root.find('.c-collapse_header').get(0), 'click');
       m.redraw();
       expect($root.find('.plugin-config-read-only')).toHaveClass('show');
 

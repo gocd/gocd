@@ -25,14 +25,33 @@ class ActionButtons {
     }
     return (
       <div className="btn-group plugin-actions">
-        <f.link class={`btn edit-button ${disabledClass}`} onclick={vnode.attrs.disabled ? null : vnode.attrs.onEdit}
+        <f.link class={`btn edit-button ${disabledClass}`} onclick={onEdit.bind(this, vnode)}
                 title={vnode.attrs.title} arial-label="Edit"/>
-        <f.link class={`btn clone-button ${disabledClass}`} onclick={vnode.attrs.disabled ? null : vnode.attrs.onClone}
-                title={vnode.attrs.title}  arial-label="Clone "/>
-        <f.link class="btn delete-button" onclick={vnode.attrs.onDelete}  arial-label="Delete"/>
+        <f.link class={`btn clone-button ${disabledClass}`} onclick={onClone.bind(this, vnode)}
+                title={vnode.attrs.title} arial-label="Clone "/>
+        <f.link class="btn delete-button" onclick={onDelete.bind(this, vnode)} arial-label="Delete"/>
       </div>
     );
   }
+}
+
+function onEdit(vnode, event) {
+  if (!vnode.attrs.disabled) {
+    vnode.attrs.onEdit();
+  }
+  event.stopPropagation();
+}
+
+function onClone(vnode, event) {
+  if (!vnode.attrs.disabled) {
+    vnode.attrs.onClone();
+  }
+  event.stopPropagation();
+}
+
+function onDelete(vnode, event) {
+  vnode.attrs.onDelete();
+  event.stopPropagation();
 }
 
 module.exports = ActionButtons;

@@ -42,7 +42,7 @@ const RoleWidget = {
 
     return (
 
-      <div class={`c-collapse roles ${(this.showState() === 'hide') ? 'collapsed' : 'expanded'}`}>
+      <div class={`c-collapse ${(this.showState() === 'hide') ? 'collapsed' : 'expanded'}`}>
 
         <div class="c-collapse_header" onclick={vnode.state.toggleHide.bind(vnode.state)}>
           <div className="c-collapse_header_details">

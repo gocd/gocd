@@ -55,7 +55,7 @@ const AuthConfigWidget = {
       );
     }
     return (
-      <div class={`c-collapse auth-config ${(this.showState() === 'hide') ? 'collapsed' : 'expanded'}`}>
+      <div class={`c-collapse ${(this.showState() === 'hide') ? 'collapsed' : 'expanded'}`}>
         <div class="c-collapse_header" onclick={vnode.state.toggleHide.bind(vnode.state)}>
 
           <div class="c-collapse_header_details">

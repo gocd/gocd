@@ -14,15 +14,12 @@
  * limitations under the License.
  */
 
-const _      = require('lodash');
-const Routes = require('gen/js-routes');
+const _ = require('lodash');
 
 function DashboardGroup({name, can_administer, pipelines}) { // eslint-disable-line camelcase
   const self = this;
 
   this.name          = name;
-  this.path          = `${Routes.pipelineGroupsPath()}#group-${name}`;
-  this.editPath      = `${Routes.pipelineGroupEditPath(name)}`;
   this.canAdminister = can_administer; // eslint-disable-line camelcase
   this.pipelines     = pipelines;
 

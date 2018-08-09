@@ -4,15 +4,34 @@ const f              = require("helpers/form_helper");
 const Routes         = require("gen/js-routes");
 const PipelineWidget = require("views/dashboard/pipeline_widget");
 
+function routeForScheme(scheme, name) {
+  const paths = {};
+
+  switch(scheme) {
+    case "pipeline_groups":
+      paths.show = `${Routes.pipelineGroupsPath()}#group-${name}`;
+      paths.edit = Routes.pipelineGroupEditPath(name);
+      break;
+    case "environments":
+      paths.edit = paths.show = Routes.environmentShowPath(name);
+      break;
+    default:
+      break;
+  }
+
+  return paths;
+}
+
 const GroupHeading = {
   view(vnode) {
     const vm = vnode.attrs.vm;
     const scheme = vnode.attrs.scheme;
     const tt = vm.canAdminister ? "" : "You do not have permission to edit.";
+    const paths = routeForScheme(scheme, vm.name);
 
     return <h2 class="dashboard-group_title">
-      <strong><f.link disabled={!vm.canAdminister} href={vm.path}>{vm.name}</f.link></strong>
-      <f.link class="edit_config dashboard-group_edit-config" disabled={!vm.canAdminister} href={vm.editPath} tooltipText={tt} />
+      <strong><f.link disabled={!vm.canAdminister} href={paths.show}>{vm.name}</f.link></strong>
+      <f.link class="edit_config dashboard-group_edit-config" disabled={!vm.canAdminister} href={paths.edit} tooltipText={tt} />
     </h2>;
   }
 };

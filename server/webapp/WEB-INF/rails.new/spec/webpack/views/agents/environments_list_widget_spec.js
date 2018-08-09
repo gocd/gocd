@@ -115,7 +115,7 @@ describe("Environments List Widget", () => {
   describe('Fetch Error', () => {
     it('should show error when environments fetch fails', () => {
       const err              = 'BOOM!';
-      let environmentsFetchError = () => err;
+      const environmentsFetchError = () => err;
       mount(_.noop, environments, environmentsFetchError);
       expect($('.alert')).toContainText(err);
     });

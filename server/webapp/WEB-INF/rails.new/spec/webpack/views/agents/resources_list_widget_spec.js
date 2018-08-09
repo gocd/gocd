@@ -166,7 +166,7 @@ describe("ResourcesListWidget", () => {
 
   describe('Fetch Error', () => {
     it('should show error when resources fetch fails', () => {
-      let err = 'BOOM!';
+      const err = 'BOOM!';
       mount(resources, () => err);
       expect($('.alert')).toContainText(err);
     });

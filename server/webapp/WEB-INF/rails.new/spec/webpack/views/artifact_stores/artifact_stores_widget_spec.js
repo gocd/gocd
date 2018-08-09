@@ -33,7 +33,7 @@ describe('Artifact Stores Widget', () => {
   });
 
   afterEach(() => {
-    jasmine.Ajax.uninstall()
+    jasmine.Ajax.uninstall();
     window.destroyDomElementForTest();
     m.mount(root, null);
     m.redraw();

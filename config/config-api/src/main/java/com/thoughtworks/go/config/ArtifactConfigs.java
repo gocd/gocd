@@ -21,9 +21,6 @@ import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.config.Configuration;
 import com.thoughtworks.go.domain.config.ConfigurationValue;
 import com.thoughtworks.go.domain.config.EncryptedConfigurationValue;
-import com.thoughtworks.go.plugin.access.artifact.ArtifactMetadataStore;
-import com.thoughtworks.go.plugin.domain.artifact.ArtifactPluginInfo;
-import com.thoughtworks.go.plugin.domain.common.PluginConfiguration;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
@@ -121,9 +118,7 @@ public class ArtifactConfigs extends BaseCollection<ArtifactConfig> implements V
                     return;
                 }
 
-                if (StringUtils.isNotBlank(pluginId)) {
-                    setPluginConfigurationAttributes(userSpecifiedConfiguration, pluginId, pluggableArtifactConfig);
-                } else {
+                if (StringUtils.isBlank(pluginId)) {
                     Configuration configuration = pluggableArtifactConfig.getConfiguration();
 
                     for (String key : userSpecifiedConfiguration.keySet()) {
@@ -140,35 +135,13 @@ public class ArtifactConfigs extends BaseCollection<ArtifactConfig> implements V
                             }
                         }
                     }
-                }
-            }
-        }
-    }
-
-    protected void setPluginConfigurationAttributes(Map attributes,
-                                                    String pluginId,
-                                                    PluggableArtifactConfig pluggableArtifactConfig) {
-        ArtifactPluginInfo pluginInfo = getArtifactPluginInfo(pluginId);
-        if (pluginInfo != null && pluginInfo.getArtifactConfigSettings() != null) {
-            for (PluginConfiguration pluginConfiguration : pluginInfo.getArtifactConfigSettings().getConfigurations()) {
-                String key = pluginConfiguration.getKey();
-                if (attributes.containsKey(key)) {
-                    Configuration configuration = pluggableArtifactConfig.getConfiguration();
-                    if (configuration.getProperty(key) == null) {
-                        configuration.addNewConfiguration(pluginConfiguration.getKey(), pluginConfiguration.isSecure());
+                } else {
+                    for (Map.Entry<String, Object> configuration : userSpecifiedConfiguration.entrySet()) {
+                        pluggableArtifactConfig.getConfiguration().addNewConfigurationWithValue(configuration.getKey(), String.valueOf(configuration.getValue()), false);
                     }
-                    configuration.getProperty(key).setConfigurationValue(new ConfigurationValue((String) attributes.get(key)));
-                    configuration.getProperty(key).handleSecureValueConfiguration(pluginConfiguration.isSecure());
                 }
             }
-        } else {
-            throw new RuntimeException("metadata unavailable for plugin: " + pluginId);
         }
-    }
-
-    private ArtifactPluginInfo getArtifactPluginInfo(String pluginId) {
-        ArtifactMetadataStore artifactMetadataStore = ArtifactMetadataStore.instance();
-        return artifactMetadataStore.getPluginInfo(pluginId);
     }
 
     public List<BuiltinArtifactConfig> getBuiltInArtifactConfigs() {

@@ -1,6 +1,13 @@
 <!DOCTYPE html>
 <html>
 <head>
+  <script>
+  var query = new URLSearchParams(window.location.search.slice(1));
+  if (!query.has('random')) {
+    query.set('random', 'true')
+    window.location.search = '?' + query.toString()
+  }
+</script>
     <meta charset="UTF-8">
     <title>Jasmine Spec Runner</title>
     <% for (var i = 0; i < htmlWebpackPlugin.options.jasmineCssFiles.length; i++) { %>

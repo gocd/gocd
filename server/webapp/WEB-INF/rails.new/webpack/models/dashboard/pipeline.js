@@ -58,6 +58,14 @@ const Pipeline = function (info) {
     return false;
   };
 
+  this.latestStage = () => {
+    const latestInstance = _.last(this.instances);
+    if (latestInstance) {
+      return _.last(latestInstance.stages);
+    }
+    return;
+  };
+
   this.triggerDisabled = Stream(false);
   if (!self.canOperate || self.isFirstStageInProgress() || self.isLocked || self.isPaused) {
     self.triggerDisabled(true);

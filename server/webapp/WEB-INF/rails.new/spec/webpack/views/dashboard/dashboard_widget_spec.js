@@ -26,6 +26,7 @@ describe("Dashboard Widget", () => {
   const SparkRoutes     = require("helpers/spark_routes");
 
   const PersonalizeVM   = require('views/dashboard/models/personalization_vm');
+  const Personalization = require('models/dashboard/personalization');
 
   let $root, root, dashboard, dashboardJson, buildCauseJson, doCancelPolling, doRefreshImmediately;
   const originalDebounce = _.debounce;
@@ -546,6 +547,7 @@ describe("Dashboard Widget", () => {
 
     dashboard = new Dashboard();
     const personalizeVM = new PersonalizeVM(Stream("Default"));
+    personalizeVM.model(new Personalization([], []));
     dashboard.initialize(dashboardJson);
 
     const dashboardViewModel = new DashboardVM(dashboard);

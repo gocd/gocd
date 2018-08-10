@@ -42,7 +42,7 @@ const EditTabDropdown = {
       const current = vm.canonicalCurrentName();
       const allowDelete = !vm.locked() && !vm.isDefault(current);
 
-      const edit = vm.actionHandler(() => Editor.open(model().namedFilter(current), model, vm));
+      const edit = vm.actionHandler(() => Editor.open(model().filterDef(current), model, vm));
       const remove = vm.actionHandler(() => deleteView(current, model, vm));
       const denyAction = (e) => e.stopPropagation();
 

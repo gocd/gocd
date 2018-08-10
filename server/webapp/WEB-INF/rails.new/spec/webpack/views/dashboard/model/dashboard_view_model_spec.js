@@ -31,16 +31,19 @@ describe("Dashboard View Model", () => {
 
     it("it should filter dashboard provided filter text", () => {
       dashboardVM._performRouting = _.noop;
+      const filter = {
+        isPipelineVisible: () => { return true;}
+      };
 
-      expect(dashboardVM.filteredGroups()[0].pipelines).toEqual(["up42", "up43", "down42"]);
+      expect(dashboardVM.filteredGroups(filter)[0].pipelines).toEqual(["up42", "up43", "down42"]);
       dashboardVM.searchText("up");
-      expect(dashboardVM.filteredGroups()[0].pipelines).toEqual(["up42", "up43"]);
+      expect(dashboardVM.filteredGroups(filter)[0].pipelines).toEqual(["up42", "up43"]);
       dashboardVM.searchText("42");
-      expect(dashboardVM.filteredGroups()[0].pipelines).toEqual(["up42", "down42"]);
+      expect(dashboardVM.filteredGroups(filter)[0].pipelines).toEqual(["up42", "down42"]);
       dashboardVM.searchText("up42");
-      expect(dashboardVM.filteredGroups()[0].pipelines).toEqual(["up42"]);
+      expect(dashboardVM.filteredGroups(filter)[0].pipelines).toEqual(["up42"]);
       dashboardVM.searchText("up42-some-more");
-      expect(dashboardVM.filteredGroups()).toEqual([]);
+      expect(dashboardVM.filteredGroups(filter)).toEqual([]);
     });
 
     it("should peform routing when filter text is updated", () => {

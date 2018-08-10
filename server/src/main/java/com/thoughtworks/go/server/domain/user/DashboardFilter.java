@@ -34,7 +34,8 @@ public interface DashboardFilter {
 
     Set<String> state();
 
-    boolean isPipelineVisible(CaseInsensitiveString pipeline, StageInstanceModel goDashboardPipeline);
+    @Deprecated // TODO: remove when removing old dashboard
+    boolean isPipelineVisible(CaseInsensitiveString pipeline);
 
     /**
      * Idempotent operation on filter to allow a specified pipeline to be visible

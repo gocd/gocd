@@ -452,7 +452,7 @@ public class PipelineHistoryService implements PipelineInstanceLoader {
     private void filterSelections(PipelineGroupModels groupModels, DashboardFilter filter) {
         for (PipelineGroupModel groupModel : groupModels.asList()) {
             for (PipelineModel pipelineModel : groupModel.getPipelineModels()) {
-                if (!filter.isPipelineVisible(new CaseInsensitiveString(pipelineModel.getName()), null)) {
+                if (!filter.isPipelineVisible(new CaseInsensitiveString(pipelineModel.getName()))) {
                     groupModels.removePipeline(groupModel, pipelineModel);
                 }
             }
@@ -602,7 +602,7 @@ public class PipelineHistoryService implements PipelineInstanceLoader {
             }
 
             @Override
-            public boolean isPipelineVisible(CaseInsensitiveString pipelineName, StageInstanceModel goDashboardPipeline) {
+            public boolean isPipelineVisible(CaseInsensitiveString pipelineName) {
                 return pipeline.equalsIgnoreCase(CaseInsensitiveString.str(pipelineName));
             }
 

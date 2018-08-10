@@ -48,8 +48,9 @@ public class BlacklistFilter extends PipelinesFilter implements DashboardFilter 
     }
 
     @Override
-    public boolean isPipelineVisible(CaseInsensitiveString pipeline, StageInstanceModel stage) {
-        return !filterByPipelineList(pipeline) && filterByState(stage);
+    @Deprecated // TODO: remove when removing old dashboard
+    public boolean isPipelineVisible(CaseInsensitiveString pipeline) {
+        return !filterByPipelineList(pipeline);
     }
 
     @Override

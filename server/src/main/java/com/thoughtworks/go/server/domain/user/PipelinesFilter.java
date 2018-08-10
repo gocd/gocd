@@ -34,20 +34,8 @@ public class PipelinesFilter {
         this.pipelines = DashboardFilter.enforceList(pipelines);
     }
 
+    @Deprecated // TODO: remove when removing old dashboard
     boolean filterByPipelineList(CaseInsensitiveString pipelineName) {
         return null != pipelines && !pipelines.isEmpty() && pipelines.contains(pipelineName);
-    }
-
-    boolean filterByState(StageInstanceModel stage) {
-        if (stage == null) {
-            return true;
-        } else if (state.contains(BUILDING_STATE) && state.contains(FAILED_STATE)) {
-            return stage.isRunning() || stage.hasFailed();
-        } else if (state.contains(BUILDING_STATE)) {
-            return stage.isRunning();
-        } else if (state.contains(FAILED_STATE)) {
-            return stage.hasFailed();
-        }
-        return true;
     }
 }

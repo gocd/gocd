@@ -29,7 +29,12 @@ function SearchMixin() {
 
   this._performRouting = performSearch;
 
-  this.filteredGroups = () => this.selectedGroups().filterBy(internalSearchText()).groups;
+  this.filteredGroups = (filter) => {
+    return this.selectedGroups().select((pipelineName) => {
+      return _.includes(pipelineName.toLowerCase(), internalSearchText()) && filter.isPipelineVisible(self.dashboard.findPipeline(pipelineName));
+    }).groups;
+  };
+
   this.searchText = function searchText(searchedBy) {
     if (arguments.length) {
       internalSearchText(searchedBy.toLowerCase());

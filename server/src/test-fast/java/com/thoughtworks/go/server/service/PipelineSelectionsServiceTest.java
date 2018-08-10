@@ -215,11 +215,11 @@ public class PipelineSelectionsServiceTest {
     }
 
     private DashboardFilter blacklist(String... pipelines) {
-        return new BlacklistFilter(DEFAULT_NAME, CaseInsensitiveString.list(pipelines), new HashSet<>());
+        return new BlacklistFilter(DEFAULT_NAME, CaseInsensitiveString.list(pipelines), Collections.emptySet());
     }
 
     private DashboardFilter whitelist(String... pipelines) {
-        return new WhitelistFilter(DEFAULT_NAME, CaseInsensitiveString.list(pipelines), new HashSet<>());
+        return new WhitelistFilter(DEFAULT_NAME, CaseInsensitiveString.list(pipelines), Collections.emptySet());
     }
 
     private void expectLoad(final CruiseConfig result) throws Exception {

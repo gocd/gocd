@@ -14,13 +14,14 @@
  * limitations under the License.
  */
 
-const _ = require('lodash');
+const _               = require('lodash');
+const DashboardFilter = require('models/dashboard/dashboard_filter');
 
 function DashboardFilters(filters) {
   const NAME_DEFAULT_FILTER = "Default";
 
   function defaultDef() {
-    return {name: NAME_DEFAULT_FILTER, type: "blacklist", pipelines: []};
+    return {name: NAME_DEFAULT_FILTER, state: [], type: "blacklist", pipelines: []};
   }
 
   this.clone = function clone() {
@@ -77,7 +78,7 @@ function DashboardFilters(filters) {
   };
 
   this.findFilter = (name) => {
-    return _.find(this.filters, matchName(name)) || this.defaultFilter();
+    return new DashboardFilter(_.find(this.filters, matchName(name)) || this.defaultFilter());
   };
 }
 

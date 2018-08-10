@@ -48,6 +48,6 @@ public class DataSharingUsageDataService {
         long nonElasticAgentCount = config.agents().parallelStream().filter(agentConfig -> !agentConfig.isElastic()).count();
         long pipelineCount = config.getAllPipelineConfigs().size();
         String serverId = dataSharingUsageStatisticsReportingService.get().getServerId();
-        return new UsageStatistics(pipelineCount, nonElasticAgentCount, oldestPipelineExecutionTime, serverId, CurrentGoCDVersion.getInstance().goVersion());
+        return new UsageStatistics(pipelineCount, nonElasticAgentCount, oldestPipelineExecutionTime, serverId, CurrentGoCDVersion.getInstance().fullVersion());
     }
 }

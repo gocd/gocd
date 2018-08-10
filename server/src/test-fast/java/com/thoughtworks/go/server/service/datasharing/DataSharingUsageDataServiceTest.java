@@ -69,7 +69,7 @@ public class DataSharingUsageDataServiceTest {
         assertThat(usageStatistics.agentCount(), is(1l));
         assertThat(usageStatistics.oldestPipelineExecutionTime(), is(oldestBuild.getStateChangeTime().getTime()));
         assertThat(usageStatistics.serverId(), is("server-id"));
-        assertThat(usageStatistics.gocdVersion(), is(CurrentGoCDVersion.getInstance().goVersion()));
+        assertThat(usageStatistics.gocdVersion(), is(CurrentGoCDVersion.getInstance().fullVersion()));
     }
 
     @Test

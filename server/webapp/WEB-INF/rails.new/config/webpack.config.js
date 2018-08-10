@@ -63,7 +63,12 @@ module.exports = function (env) {
 
   const plugins = [];
   plugins.push(new HappyPack({
-    loaders: ['babel-loader?cacheDirectory=true'],
+    loaders: [{
+      loader: 'babel-loader',
+      options: {
+        cacheDirectory: path.join(__dirname, '..', 'tmp', 'babel-loader')
+      }
+    }],
     threads: 4
   }));
   plugins.push(new StatsPlugin('manifest.json', {
@@ -96,7 +101,7 @@ module.exports = function (env) {
 
   if (production) {
     plugins.push(new UglifyJsPlugin({
-      cache:         true,
+      cache:         path.join(__dirname, '..', 'tmp', 'uglify-js-cache'),
       parallel:      true,
       sourceMap:     true,
       uglifyOptions: {

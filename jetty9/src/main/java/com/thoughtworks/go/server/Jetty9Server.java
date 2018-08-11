@@ -27,9 +27,11 @@ import org.eclipse.jetty.deploy.DeploymentManager;
 import org.eclipse.jetty.deploy.providers.WebAppProvider;
 import org.eclipse.jetty.jmx.MBeanContainer;
 import org.eclipse.jetty.server.Connector;
+import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.ContextHandler;
 import org.eclipse.jetty.server.handler.ContextHandlerCollection;
+import org.eclipse.jetty.server.handler.HandlerCollection;
 import org.eclipse.jetty.server.handler.gzip.GzipHandler;
 import org.eclipse.jetty.server.session.SessionHandler;
 import org.eclipse.jetty.webapp.JettyWebXmlConfiguration;
@@ -89,7 +91,10 @@ public class Jetty9Server extends AppServer {
         webAppContext.setGzipHandler(gzipHandler());
         server.addBean(errorHandler);
         server.addBean(deploymentManager);
-        server.setHandler(handlers);
+
+        HandlerCollection serverLevelHandlers = new HandlerCollection();
+        serverLevelHandlers.setHandlers(new Handler[]{handlers});
+        server.setHandler(serverLevelHandlers);
 
         performCustomConfiguration();
         server.setStopAtShutdown(true);

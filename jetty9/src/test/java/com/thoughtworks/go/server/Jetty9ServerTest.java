@@ -25,6 +25,9 @@ import org.eclipse.jetty.http.HttpFields;
 import org.eclipse.jetty.jmx.MBeanContainer;
 import org.eclipse.jetty.server.*;
 import org.eclipse.jetty.server.handler.ContextHandler;
+import org.eclipse.jetty.server.handler.ContextHandlerCollection;
+import org.eclipse.jetty.server.handler.HandlerCollection;
+import org.eclipse.jetty.server.handler.RequestLogHandler;
 import org.eclipse.jetty.util.thread.QueuedThreadPool;
 import org.eclipse.jetty.webapp.JettyWebXmlConfiguration;
 import org.eclipse.jetty.webapp.WebAppContext;
@@ -52,6 +55,7 @@ import java.util.*;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.hamcrest.Matchers.instanceOf;
+import static org.hamcrest.Matchers.typeCompatibleWith;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNot.not;
 import static org.hamcrest.core.IsNull.nullValue;
@@ -72,6 +76,7 @@ public class Jetty9ServerTest {
     private DeploymentManager deploymentManager;
 
     private Jetty9Server jetty9Server;
+    private Handler serverLevelHandler;
     private File configDir;
     private ArgumentCaptor<App> appCaptor;
 
@@ -80,8 +85,8 @@ public class Jetty9ServerTest {
         initMocks(this);
         when(server.getThreadPool()).thenReturn(new QueuedThreadPool(1));
         Answer<Void> setHandlerMock = invocation -> {
-            Handler handler = (Handler) invocation.getArguments()[0];
-            handler.setServer((Server) invocation.getMock());
+            serverLevelHandler = (Handler) invocation.getArguments()[0];
+            serverLevelHandler.setServer((Server) invocation.getMock());
             return null;
         };
         Mockito.doAnswer(setHandlerMock).when(server).setHandler(any(Handler.class));
@@ -322,6 +327,19 @@ public class Jetty9ServerTest {
 
         WebAppContext webAppContext = (WebAppContext) getLoadedHandlers().get(WebAppContext.class);
         assertThat(webAppContext.getGzipHandler(), is(not(nullValue())));
+    }
+
+    @Test
+    public void shouldHaveAHandlerCollectionAtServerLevel_ToAllowRequestLoggingHandlerToBeAdded() throws Exception {
+        jetty9Server.configure();
+        jetty9Server.startHandlers();
+
+        assertThat(serverLevelHandler, instanceOf(HandlerCollection.class));
+        assertThat(serverLevelHandler, not(instanceOf(ContextHandlerCollection.class)));
+
+        Handler[] contentsOfServerLevelHandler = ((HandlerCollection) serverLevelHandler).getHandlers();
+        assertThat(contentsOfServerLevelHandler.length, is(1));
+        assertThat(contentsOfServerLevelHandler[0], instanceOf(ContextHandlerCollection.class));
     }
 
     private Map<Class<? extends ContextHandler>, ContextHandler> getLoadedHandlers() throws Exception {

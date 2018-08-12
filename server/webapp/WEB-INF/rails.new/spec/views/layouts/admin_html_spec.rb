@@ -18,7 +18,6 @@ require 'rails_helper'
 require_relative 'layout_html_examples'
 
 describe "/layouts/admin" do
-  include EngineUrlHelper
   it_should_behave_like :layout
 
   before do
@@ -33,20 +32,6 @@ describe "/layouts/admin" do
     allow(view).to receive(:is_user_an_admin?).and_return(true)
     allow(view).to receive(:is_user_a_template_admin?).and_return(false)
     allow(view).to receive(:is_user_authorized_to_view_templates?).and_return(false)
-    class << view
-      def url_for_with_stub *args
-        args.empty? ? "/go/" : url_for_without_stub(*args)
-      end
-
-      alias_method_chain :url_for, :stub
-    end
-    oauth_engine = double('oauth_engine')
-    stub_oauth2_provider_engine oauth_engine
-    allow(view).to receive(:oauth_engine).and_return(oauth_engine)
-
-    main_app = double('main_app')
-    stub_routes_for_main_app main_app
-    allow(view).to receive(:main_app).and_return(main_app)
   end
 
   it "should display only pipeline configurations and pipeline groups tab when the user is a group admin" do
@@ -59,7 +44,6 @@ describe "/layouts/admin" do
       expect(tab).to_not have_selector("#source-xml-tab-button")
       expect(tab).to_not have_selector("#server-configuration-tab-button")
       expect(tab).to_not have_selector("#user-summary-tab-button")
-      expect(tab).to_not have_selector("#oauth-clients-tab-button")
     end
   end
 
@@ -81,13 +65,7 @@ describe "/layouts/admin" do
 
     it "should show tab button" do
       render :inline => "<div>content</div>", :layout => @layout_name
-      expect(response.body).to have_selector("#user-summary-tab-button.current_tab a#tab-link-of-user-listing[href='/path/for/user/listing']")
-    end
-
-    it "should not show oauth_clients tab button when on user-summary" do
-      render :inline => "<div>content</div>", :layout => @layout_name
-      expect(response.body).to_not have_selector("#oauth-clients-tab-button.current_tab")
-      expect(response.body).to have_selector("#oauth-clients-tab-button a#tab-link-of-oauth-clients[href='/path/for/oauth/clients']")
+      expect(response.body).to have_selector("#user-summary-tab-button.current_tab a#tab-link-of-user-listing[href='/admin/users']")
     end
   end
 
@@ -103,29 +81,7 @@ describe "/layouts/admin" do
 
     it "should show tab button" do
       render :inline => "<div>content</div>", :layout => @layout_name
-      expect(response.body).to have_selector("#pipeline-groups-tab-button.current_tab a#tab-link-of-pipeline-groups[href='/path/to/pipeline/groups']")
-    end
-  end
-
-  describe "oauth-clients" do
-    before(:each) do
-      assign(:tab_name, "oauth-clients")
-    end
-
-    it "should show content" do
-      render :inline => '<div>content</div>', :layout => @layout_name
-      expect(response.body).to have_selector('#tab-content-of-oauth-clients')
-    end
-
-    it "should show tab button" do
-      render :inline => "<div>content</div>", :layout => @layout_name
-      expect(response.body).to have_selector("#oauth-clients-tab-button.current_tab a#tab-link-of-oauth-clients[href='/path/for/oauth/clients']")
-    end
-
-    it "should not highlight user_listing tab button when on oauth clients tab" do
-      render :inline => "<div>content</div>", :layout => @layout_name
-      expect(response.body).to_not have_selector("#user-summary-tab-button.current_tab")
-      expect(response.body).to have_selector("#user-summary-tab-button a#tab-link-of-user-listing[href='/path/for/user/listing']")
+      expect(response.body).to have_selector("#pipeline-groups-tab-button.current_tab a#tab-link-of-pipeline-groups[href='/admin/pipelines']")
     end
   end
 
@@ -142,7 +98,7 @@ describe "/layouts/admin" do
 
     it "should show tab button for super admins" do
       render :inline => "<div>content</div>", :layout => @layout_name
-      expect(response.body).to have_selector("#templates-tab-button.current_tab a#tab-link-of-templates[href='/path/to/templates']")
+      expect(response.body).to have_selector("#templates-tab-button.current_tab a#tab-link-of-templates[href='/admin/templates']")
     end
 
     it "should not be visible for group admins" do
@@ -151,7 +107,7 @@ describe "/layouts/admin" do
       allow(view).to receive(:is_user_an_admin?).and_return(false)
 
       render :inline => "<div>content</div>", :layout => @layout_name
-      expect(response.body).to_not have_selector("#templates-tab-button.current_tab a#tab-link-of-templates[href='/path/to/templates']")
+      expect(response.body).to_not have_selector("#templates-tab-button.current_tab a#tab-link-of-templates[href='/admin/templates']")
     end
 
     it "should be visible for template admins" do
@@ -160,7 +116,7 @@ describe "/layouts/admin" do
 
       render :inline => "<div>content</div>", :layout => @layout_name
 
-      expect(response.body).to have_selector("#templates-tab-button.current_tab a#tab-link-of-templates[href='/path/to/templates']")
+      expect(response.body).to have_selector("#templates-tab-button.current_tab a#tab-link-of-templates[href='/admin/templates']")
     end
 
   end
@@ -171,7 +127,7 @@ describe "/layouts/admin" do
       render :inline => "<div>content</div>", :layout => @layout_name
       Capybara.string(response.body).find(".sub_tabs_container ul") do |ul|
         ul.find("#backup-tab-button") do |button|
-          expect(button).to have_selector("a#tab-link-of-backup[href='admin/backup']")
+          expect(button).to have_selector("a#tab-link-of-backup[href='/admin/backup']")
         end
       end
     end
@@ -207,7 +163,7 @@ describe "/layouts/admin" do
       render :inline => 'content', :layout => @layout_name
 
       Capybara.string(response.body).find("#tab-content-of-pipelines-snippet.current_tab") do |tab|
-        expect(tab).to have_selector("a[id='tab-link-of-pipelines-snippet'][href='admin/pipelines/snippet']")
+        expect(tab).to have_selector("a[id='tab-link-of-pipelines-snippet'][href='/admin/pipelines/snippet']")
       end
     end
 
@@ -238,10 +194,11 @@ describe "/layouts/admin" do
       allow(view).to receive(:is_user_an_admin?).and_return(true)
       allow(view).to receive(:is_user_a_group_admin?).and_return(false)
 
+
       render :inline => 'content', :layout => @layout_name
 
       Capybara.string(response.body).find("#package-repositories-tab-button.current_tab") do |tab|
-        expect(tab).to have_selector("a[id='tab-link-of-package-repositories'][href='/path/to/package/repo']")
+        expect(tab).to have_selector("a[id='tab-link-of-package-repositories'][href='/admin/package_repositories/new']")
       end
     end
 
@@ -250,9 +207,10 @@ describe "/layouts/admin" do
       allow(view).to receive(:is_user_an_admin?).and_return(false)
 
       render :inline => 'content', :layout => @layout_name
+      package_repositories_new_path
 
       Capybara.string(response.body).find("#package-repositories-tab-button.current_tab") do |tab|
-        expect(tab).to have_selector("a[id='tab-link-of-package-repositories'][href='/path/to/package/listing']")
+        expect(tab).to have_selector("a[id='tab-link-of-package-repositories'][href='/admin/package_repositories/list']")
       end
     end
   end

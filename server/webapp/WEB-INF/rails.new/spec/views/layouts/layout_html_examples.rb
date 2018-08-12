@@ -60,9 +60,9 @@ shared_examples :layout do
   it "should link all the tabs right" do
     allow(view).to receive(:mycruise_available?).and_return(true)
     render :inline => "<span>foo</span>", :layout => @layout_name
-    expect(response.body).to have_selector("a[href='/path/to/pipeline/dashboard']", text: 'Pipelines')
+    expect(response.body).to have_selector("a[href='/pipelines']", text: 'Pipelines')
     expect(response.body).to have_selector("a[href='/go/agents']", text: 'Agents')
-    expect(response.body).to have_selector("a[href='/path/to/environments']", text: 'Environments')
+    expect(response.body).to have_selector("a[href='/environments']", text: 'Environments')
     expect(response.body).to have_selector("a[href='https://gocd.org/help']", text: 'Help')
     expect(response.body).to have_selector("a[data-toggle='dropdown']", text: 'Admin')
   end

@@ -169,7 +169,7 @@ describe "/shared/_application_nav.html.erb" do
 
       @assert_values = {"Pipelines"     => pipeline_groups_path, "Templates" => templates_path, "Config XML" => config_view_path,
                         "Server Configuration" => edit_server_config_path, "Artifact Stores" => '/go/admin/artifact_stores', "User Summary" => user_listing_path,
-                        "OAuth Clients" => oauth_engine.clients_path, "Backup" => backup_server_path, "Plugins" => '/go/admin/plugins',
+                        "Backup" => backup_server_path, "Plugins" => '/go/admin/plugins',
                         "Package Repositories" => package_repositories_new_path}
     end
 

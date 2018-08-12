@@ -24,7 +24,7 @@ module ApplicationHelper
 
   def url_for_path(java_path, options = {})
     path = java_path.sub(/^\//, "")
-    url = ((options[:only_path] == false) ? main_app.root_url : main_app.root_path)
+    url = ((options[:only_path] == false) ? root_url : root_path)
     url, params = url.split("?")
     url = "#{url.gsub(/\/$/, "")}/#{path}"
     if params

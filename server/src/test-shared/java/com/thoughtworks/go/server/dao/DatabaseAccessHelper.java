@@ -183,10 +183,6 @@ public class DatabaseAccessHelper extends HibernateDaoSupport {
         dataSet.addTable(new DefaultTable("resources"));
         dataSet.addTable(new DefaultTable("builds"));
 
-        dataSet.addTable(new DefaultTable("oauthclients"));
-        dataSet.addTable(new DefaultTable("oauthauthorizations"));
-        dataSet.addTable(new DefaultTable("oauthtokens"));
-
         dataSet.addTable(new DefaultTable("stageArtifactCleanupProhibited"));
         dataSet.addTable(new DefaultTable("serverBackups"));
         dataSet.addTable(new DefaultTable("jobAgentMetadata"));

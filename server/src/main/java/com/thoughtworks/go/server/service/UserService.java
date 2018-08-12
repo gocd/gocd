@@ -28,7 +28,6 @@ import com.thoughtworks.go.server.dao.UserDao;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.exceptions.UserEnabledException;
 import com.thoughtworks.go.server.exceptions.UserNotFoundException;
-import com.thoughtworks.go.server.persistence.OauthRepository;
 import com.thoughtworks.go.server.security.OnlyKnownUsersAllowedException;
 import com.thoughtworks.go.server.service.result.BulkDeletionFailureResult;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
@@ -53,7 +52,6 @@ public class UserService {
     private final UserDao userDao;
     private final SecurityService securityService;
     private final GoConfigService goConfigService;
-    private final OauthRepository oauthRepository;
     private final TransactionTemplate transactionTemplate;
 
     private final Object disableUserMutex = new Object();
@@ -63,13 +61,11 @@ public class UserService {
     public UserService(UserDao userDao,
                        SecurityService securityService,
                        GoConfigService goConfigService,
-                       TransactionTemplate transactionTemplate,
-                       OauthRepository oauthRepository) {
+                       TransactionTemplate transactionTemplate) {
         this.userDao = userDao;
         this.securityService = securityService;
         this.goConfigService = goConfigService;
         this.transactionTemplate = transactionTemplate;
-        this.oauthRepository = oauthRepository;
     }
 
     public void deleteAll() {
@@ -86,7 +82,6 @@ public class UserService {
                 @Override
                 protected void doInTransactionWithoutResult(TransactionStatus status) {
                     userDao.disableUsers(usersToBeDisabled);
-                    oauthRepository.deleteUsersOauthGrants(usersToBeDisabled);
                 }
             });
         }

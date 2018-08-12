@@ -23,17 +23,17 @@
   <% unless @no_tabs %>
     <ul class="tabs">
         <li id='cruise-header-tab-pipelines' class="<%= "current" if @current_tab_name == "pipelines" %>">
-            <%= link_to 'Pipelines', main_app.pipeline_dashboard_path -%>
+            <%= link_to 'Pipelines', pipeline_dashboard_path -%>
         </li>
         <li id='cruise-header-tab-environments' class="<%= "current" if @current_tab_name == "environments" %>">
-            <%= link_to 'Environments', main_app.environments_path -%>
+            <%= link_to 'Environments', environments_path -%>
         </li>
         <li id='cruise-header-tab-agents' class="<%= "current" if @current_tab_name == "agents" %>">
             <%= link_to 'Agents', '/go/agents' -%>
         </li>
         <% with_analytics_dashboard_support do %>
             <li id='cruise-header-tab-analytics' class="<%= "current" if @current_tab_name == "analytics" %>">
-                <%= link_to 'Analytics', main_app.analytics_path -%>
+                <%= link_to 'Analytics', analytics_path -%>
             </li>
         <% end %>
         <li id="cruise-header-tab-admin" class="<%="current" if @current_tab_name == "admin"%>">

@@ -20,7 +20,6 @@ require_relative 'layout_html_examples'
 describe "/layouts/agent_detail" do
   include AgentMother
   include GoUtil
-  include EngineUrlHelper
 
   it_should_behave_like :layout
 
@@ -31,16 +30,8 @@ describe "/layouts/agent_detail" do
 
     allow(view).to receive(:can_view_admin_page?).and_return(true)
     allow(view).to receive(:is_user_an_admin?).and_return(true)
-    class << view
-      def url_for_with_stub *args
-        args.empty? ? "/go/" : url_for_without_stub(*args)
-      end
-
-      alias_method_chain :url_for, :stub
-    end
 
     stub_context_path(view)
-    stub_routes_for_main_app main_app
     assign(:agent, idle_agent(:hostname => 'Agent01', :location => '/var/lib/cruise-agent', :operating_system => "Linux", :uuid => "UUID_host1"))
   end
 

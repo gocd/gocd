@@ -34,8 +34,6 @@ Go::Application.routes.draw do
   # This is used to generate _url and _path in application_helper#url_for_path
   get '/', to: redirect('/go/pipelines'), as: :root
 
-  mount Oauth2Provider::Engine => '/oauth', :as => :oauth_engine
-
   get "about", controller: :about, action: :show, as: :about
 
   get "admin/pipelines/snippet" => "admin/pipelines_snippet#index", as: :pipelines_snippet
@@ -473,7 +471,4 @@ Go::Application.routes.draw do
   get "errors/inactive" => 'go_errors#inactive'
 
   get "cctray.xml" => "cctray#index", :format => "xml", as: :cctray
-
-  # dummy mappings. for specs to pass
-  get 'test' => 'test/test#index', as: :oauth_clients
 end

@@ -18,7 +18,6 @@ require 'rails_helper'
 require_relative 'layout_html_examples'
 
 describe "/layouts/application" do
-  include EngineUrlHelper
   it_should_behave_like :layout
 
   before do
@@ -30,17 +29,6 @@ describe "/layouts/application" do
     assign(:warning_count, 0)
     allow(view).to receive(:can_view_admin_page?).and_return(true)
     allow(view).to receive(:is_user_an_admin?).and_return(true)
-    class << view
-      def url_for_with_stub *args
-        args.empty? ? "/go/" : url_for_without_stub(*args)
-      end
-
-      alias_method_chain :url_for, :stub
-    end
-
-    main_app = double('main_app')
-    stub_routes_for_main_app main_app
-    allow(view).to receive(:main_app).and_return(main_app)
   end
 
   it "should show content" do

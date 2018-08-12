@@ -30,11 +30,8 @@ import com.thoughtworks.go.presentation.UserSourceType;
 import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.dao.UserDao;
+import com.thoughtworks.go.server.dao.UserSqlMapDao;
 import com.thoughtworks.go.server.domain.Username;
-import com.thoughtworks.go.server.domain.oauth.OauthAuthorization;
-import com.thoughtworks.go.server.domain.oauth.OauthClient;
-import com.thoughtworks.go.server.domain.oauth.OauthToken;
-import com.thoughtworks.go.server.persistence.OauthRepository;
 import com.thoughtworks.go.server.security.GoAuthority;
 import com.thoughtworks.go.server.security.userdetail.GoUserPrinciple;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
@@ -73,7 +70,7 @@ import static org.junit.Assert.fail;
 })
 public class UserServiceIntegrationTest {
     @Autowired
-    private UserDao userDao;
+    private UserSqlMapDao userDao;
     @Autowired
     private UserService userService;
     @Autowired
@@ -82,8 +79,6 @@ public class UserServiceIntegrationTest {
     private DatabaseAccessHelper dbHelper;
     @Autowired
     private GoCache goCache;
-    @Autowired
-    private OauthRepository repo;
 
     private HibernateTemplate template;
 
@@ -94,7 +89,7 @@ public class UserServiceIntegrationTest {
         dbHelper.onSetUp();
         configFileHelper.onSetUp();
         configFileHelper.usingCruiseConfigDao(goConfigDao);
-        template = repo.getHibernateTemplate();
+        template = userDao.getHibernateTemplate();
         goCache.clear();
     }
 
@@ -299,11 +294,9 @@ public class UserServiceIntegrationTest {
     }
 
     @Test
-    public void disableUsers_shouldAlsoExpireOauthTokens() {
+    public void disableUsers_shouldDisableUsers() {
         addUser(new User("user_one"));
         addUser(new User("user_two"));
-
-        generateOauthTokenFor("user_one");
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         userService.disable(Arrays.asList("user_one"), result);
@@ -312,18 +305,6 @@ public class UserServiceIntegrationTest {
         List<UserModel> models = userService.allUsersForDisplay(UserService.SortableColumn.USERNAME, UserService.SortDirection.ASC);
         assertThat("user should be disabled", models.get(0).isEnabled(), is(false));
         assertThat("user should be enabled", models.get(1).isEnabled(), is(true));
-
-        assertThat(template.find("from OauthAuthorization").size(), is(0));
-        assertThat(template.find("from OauthToken").size(), is(0));
-    }
-
-    private void generateOauthTokenFor(String userId) {
-        OauthClient mingle = new OauthClient("mingle09", "client_id", "client_secret", "http://some-tracking-tool");
-        template.save(mingle);
-        OauthAuthorization authorization = new OauthAuthorization(userId, mingle, "code", 332333);
-        template.save(authorization);
-        OauthToken oauthToken = new OauthToken(userId, mingle, "access-token", "refresh-token", 23324324);
-        template.save(oauthToken);
     }
 
     @Test

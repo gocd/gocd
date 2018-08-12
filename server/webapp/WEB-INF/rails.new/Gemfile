@@ -12,7 +12,6 @@ gem 'bourbon'
 gem 'font-awesome-sass'
 gem 'js-routes'
 
-gem 'oauth2_provider', '1.0.3', path: 'vendor/engines/oauth2_provider'
 gem 'versionist'
 gem 'roar'
 

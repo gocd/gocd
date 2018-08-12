@@ -73,8 +73,6 @@ public class UrlRewriterIntegrationTest {
     @DataPoint
     public static ResponseAssertion NO_REWRITE_SSL = new ResponseAssertion(HTTPS_URL + "/go/quux?hello=world", HTTPS_URL + "/go/quux?hello=world");
     @DataPoint
-    public static ResponseAssertion OAUTH = new ResponseAssertion(HTTP_URL + "/go/foo/oauth/bar?hello=world", HTTP_URL + "/go/foo/oauth/bar?hello=world");//error handled in ssh_helper
-    @DataPoint
     public static ResponseAssertion RAILS_BOUND = new ResponseAssertion(HTTP_URL + "/go/agents/foo?hello=world", HTTP_URL + "/go/rails/agents/foo?hello=world");
     @DataPoint
     public static ResponseAssertion RAILS_BOUND_SSL = new ResponseAssertion(HTTPS_URL + "/go/agents/foo?hello=world", HTTPS_URL + "/go/rails/agents/foo?hello=world");

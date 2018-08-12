@@ -47,13 +47,6 @@ describe "layouts/pipelines.html.eb" do
     view.extend PipelinesHelper
     view.extend ApplicationHelper
     view.extend StagesHelper
-    class << view
-      def url_for_with_stub(*args)
-        args.empty? ? "/go/" : url_for_without_stub(*args)
-      end
-
-      alias_method_chain :url_for, :stub
-    end
 
     in_params :action => 'overview', :controller => "stages"
     allow(view).to receive(:stage_detail_tab_path).with(:pipeline_name => 'pipeline', :pipeline_counter => 1, :stage_name => 'stage-0', :stage_counter => "1", :action => 'overview').and_return("url_to_0")

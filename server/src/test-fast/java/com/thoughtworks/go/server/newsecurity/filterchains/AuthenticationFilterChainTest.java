@@ -26,7 +26,6 @@ import com.thoughtworks.go.server.newsecurity.filters.*;
 import com.thoughtworks.go.server.newsecurity.handlers.BasicAuthenticationWithChallengeFailureResponseHandler;
 import com.thoughtworks.go.server.newsecurity.models.*;
 import com.thoughtworks.go.server.newsecurity.providers.AnonymousAuthenticationProvider;
-import com.thoughtworks.go.server.newsecurity.providers.OAuthAuthenticationProvider;
 import com.thoughtworks.go.server.newsecurity.providers.PasswordBasedPluginAuthenticationProvider;
 import com.thoughtworks.go.server.newsecurity.utils.SessionUtils;
 import com.thoughtworks.go.server.security.AuthorityGranter;
@@ -101,7 +100,7 @@ public class AuthenticationFilterChainTest {
         void shouldAuthenticateAgentUsingX509Certificate(String url) throws IOException, ServletException {
             final Registration registration = createRegistration("blah");
             final X509AuthenticationFilter x509AuthenticationFilter = new X509AuthenticationFilter(clock);
-            final AuthenticationFilterChain authenticationFilterChain = new AuthenticationFilterChain(x509AuthenticationFilter, null, null, null, null, null, null, null);
+            final AuthenticationFilterChain authenticationFilterChain = new AuthenticationFilterChain(x509AuthenticationFilter, null, null, null, null, null, null);
 
             request = HttpRequestBuilder.GET(url)
                     .withX509(registration.getChain())
@@ -122,7 +121,7 @@ public class AuthenticationFilterChainTest {
                     .build();
 
             final X509AuthenticationFilter x509AuthenticationFilter = new X509AuthenticationFilter(clock);
-            final AuthenticationFilterChain authenticationFilterChain = new AuthenticationFilterChain(x509AuthenticationFilter, null, null, null, null, null, null, null);
+            final AuthenticationFilterChain authenticationFilterChain = new AuthenticationFilterChain(x509AuthenticationFilter, null, null, null, null, null, null);
 
             authenticationFilterChain.doFilter(request, response, filterChain);
 
@@ -152,7 +151,7 @@ public class AuthenticationFilterChainTest {
 
             final Filter filter = mock(Filter.class);
 
-            final AuthenticationFilterChain authenticationFilterChain = new AuthenticationFilterChain(null, invalidateAuthenticationOnSecurityConfigChangeFilter, filter, filter, null, null, null, assumeAnonymousUserFilter);
+            final AuthenticationFilterChain authenticationFilterChain = new AuthenticationFilterChain(null, invalidateAuthenticationOnSecurityConfigChangeFilter, filter, filter, null, null, assumeAnonymousUserFilter);
 
             authenticationFilterChain.doFilter(request, response, filterChain);
 
@@ -182,7 +181,6 @@ public class AuthenticationFilterChainTest {
                     new ReAuthenticationWithChallengeFilter(securityService, systemEnvironment, clock, mock(BasicAuthenticationWithChallengeFailureResponseHandler.class), pluginAuthenticationProvider, null, null),
                     new NoOpFilter(),
                     new NoOpFilter(),
-                    new NoOpFilter(),
                     assumeAnonymousUserFilter)
                     .doFilter(request, response, filterChain);
 
@@ -198,7 +196,6 @@ public class AuthenticationFilterChainTest {
                     .build();
 
             new AuthenticationFilterChain(null, null,
-                    null,
                     null,
                     null,
                     null,
@@ -231,7 +228,6 @@ public class AuthenticationFilterChainTest {
                     new NoOpFilter(),
                     new BasicAuthenticationWithChallengeFilter(securityService, new BasicAuthenticationWithChallengeFailureResponseHandler(securityService), pluginAuthenticationProvider),
                     new BasicAuthenticationWithRedirectToLoginFilter(securityService, pluginAuthenticationProvider),
-                    new NoOpFilter(),
                     assumeAnonymousUserFilter).doFilter(request, response, filterChain);
 
             verify(filterChain).doFilter(wrap(request), wrap(response));
@@ -240,34 +236,6 @@ public class AuthenticationFilterChainTest {
             assertThat(request.getSession(false)).isNotSameAs(originalSession);
         }
 
-        @ParameterizedTest
-        @ValueSource(strings = {"/add-on/foo/api/bar", "/add-on/foo/api/baz"})
-        void shouldAuthenticateOAuthAuthenticationRequest(String url) throws IOException, ServletException {
-            request = HttpRequestBuilder.GET(url)
-                    .withOAuth("some-token")
-                    .build();
-
-            HttpSession originalSession = request.getSession();
-
-            final OAuthAuthenticationProvider oAuthAuthenticationProvider = mock(OAuthAuthenticationProvider.class);
-
-            final AuthenticationToken<OAuthCredentials> authenticationToken = mock(AuthenticationToken.class);
-            when(oAuthAuthenticationProvider.authenticate(new OAuthCredentials("some-token"), null)).thenReturn(authenticationToken);
-
-            new AuthenticationFilterChain(null,
-                    new NoOpFilter(),
-                    new NoOpFilter(),
-                    new NoOpFilter(),
-                    new NoOpFilter(),
-                    new NoOpFilter(),
-                    new OauthAuthenticationFilter(securityService, oAuthAuthenticationProvider),
-                    assumeAnonymousUserFilter).doFilter(request, response, filterChain);
-
-            verify(filterChain).doFilter(wrap(request), wrap(response));
-            MockHttpServletResponseAssert.assertThat(response).isOk();
-            assertThat(SessionUtils.getAuthenticationToken(request)).isSameAs(authenticationToken);
-            assertThat(request.getSession(false)).isNotSameAs(originalSession);
-        }
     }
 
     @Nested
@@ -286,7 +254,6 @@ public class AuthenticationFilterChainTest {
             request = HttpRequestBuilder.GET(url).build();
 
             new AuthenticationFilterChain(null,
-                    new NoOpFilter(),
                     new NoOpFilter(),
                     new NoOpFilter(),
                     new NoOpFilter(),
@@ -313,7 +280,6 @@ public class AuthenticationFilterChainTest {
             request = HttpRequestBuilder.GET(url).build();
 
             new AuthenticationFilterChain(
-                    new NoOpFilter(),
                     new NoOpFilter(),
                     new NoOpFilter(),
                     new NoOpFilter(),

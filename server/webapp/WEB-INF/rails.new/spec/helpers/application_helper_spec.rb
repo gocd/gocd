@@ -33,9 +33,7 @@ describe ApplicationHelper do
   describe "url_for_path" do
 
     before :each do
-      main_app = double('main app')
-      allow(controller).to receive(:main_app).and_return(main_app)
-      allow(main_app).to receive(:root_path).and_return("/go/quux?x")
+      allow(controller).to receive(:root_path).and_return("/go/quux?x")
     end
 
     it "should handle default_url_options" do
@@ -54,13 +52,13 @@ describe ApplicationHelper do
     end
 
     it "should handle url without params" do
-      allow(main_app).to receive(:root_path).and_return("/go/quux")
+      allow(controller).to receive(:root_path).and_return("/go/quux")
       url = url_for_path("/foo")
       expect(url).to eq("/go/quux/foo")
     end
 
     it "should handle root url with trailing slash and provided sub path with leading slash" do
-      allow(main_app).to receive(:root_path).and_return("/go/quux/")
+      allow(controller).to receive(:root_path).and_return("/go/quux/")
       url = url_for_path("/foo")
       expect(url).to eq("/go/quux/foo")
     end
@@ -68,9 +66,7 @@ describe ApplicationHelper do
 
   describe "url_for_login" do
     before :each do
-      main_app = double('main app')
-      allow(controller).to receive(:main_app).and_return(main_app)
-      allow(main_app).to receive(:root_path).and_return("/go/quux?x")
+      allow(controller).to receive(:root_path).and_return("/go/quux?x")
     end
 
     it "should give the url for login" do
@@ -129,9 +125,7 @@ describe ApplicationHelper do
     end
 
     it "should respect option :target" do
-      main_app = double('main app')
-      allow(controller).to receive(:main_app).and_return(main_app)
-      allow(main_app).to receive(:root_path).and_return("/go/quux")
+      allow(controller).to receive(:root_path).and_return("/go/quux")
       should_receive(:link_to).with("QUUX", "/go/quux/quux", { :target => 'foo', :class => "" }).and_return("link_to_quux")
       expect(tab_for("quux", :target => 'foo')).to eq("<li id='cruise-header-tab-quux' class=' '>\nlink_to_quux\n</li>")
     end

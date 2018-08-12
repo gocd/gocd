@@ -34,7 +34,6 @@ public class AuthenticationFilterChain extends FilterChainProxy {
             @Qualifier("reAuthenticationWithChallengeFilter") Filter reAuthenticationWithChallenge,
             @Qualifier("basicAuthenticationWithChallengeFilter") Filter basicAuthenticationWithChallengeFilter,
             @Qualifier("basicAuthenticationWithRedirectToLoginFilter") Filter basicAuthenticationWithRedirectToLoginFilter,
-            @Qualifier("oauthAuthenticationFilter") Filter oauthAuthenticationFilter,
             @Qualifier("assumeAnonymousUserFilter") Filter assumeAnonymousUserFilter) {
         super(FilterChainBuilder.newInstance()
                 // X509 for agent remoting and agent-websocket
@@ -42,7 +41,7 @@ public class AuthenticationFilterChain extends FilterChainProxy {
                 .addFilterChain("/agent-websocket/**", x509AuthenticationFilter)
 
                 // For addons
-                .addFilterChain("/add-on/*/api/**", invalidateAuthenticationOnSecurityConfigChangeFilter, assumeAnonymousUserFilter, reAuthenticationWithRedirectToLoginPage, oauthAuthenticationFilter)
+                .addFilterChain("/add-on/**", assumeAnonymousUserFilter)
 
                 // For API authentication
                 .addFilterChain("/api/config-repository.git/**", invalidateAuthenticationOnSecurityConfigChangeFilter, assumeAnonymousUserFilter, reAuthenticationWithChallenge, basicAuthenticationWithChallengeFilter)

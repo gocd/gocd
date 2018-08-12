@@ -27,7 +27,6 @@ import com.thoughtworks.go.server.dao.UserDao;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.exceptions.UserEnabledException;
 import com.thoughtworks.go.server.exceptions.UserNotFoundException;
-import com.thoughtworks.go.server.persistence.OauthRepository;
 import com.thoughtworks.go.server.service.result.BulkDeletionFailureResult;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.transaction.TestTransactionSynchronizationManager;
@@ -55,11 +54,9 @@ public class UserServiceTest {
     private UserService userService;
     private TestTransactionTemplate transactionTemplate;
     private TestTransactionSynchronizationManager transactionSynchronizationManager;
-    private OauthRepository oauthRepo;
 
     public UserServiceTest() {
         userDao = mock(UserDao.class);
-        oauthRepo = mock(OauthRepository.class);
         goConfigService = mock(GoConfigService.class);
         securityService = mock(SecurityService.class);
         transactionSynchronizationManager = new TestTransactionSynchronizationManager();
@@ -68,8 +65,7 @@ public class UserServiceTest {
 
     @Before
     public void setUp() {
-
-        userService = new UserService(userDao, securityService, goConfigService, transactionTemplate, oauthRepo);
+        userService = new UserService(userDao, securityService, goConfigService, transactionTemplate);
     }
 
     @Test

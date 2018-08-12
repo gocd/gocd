@@ -7,7 +7,7 @@
   <%- if auto_refresh? -%>
      <script type="text/javascript">
         Util.on_load(function() {
-          new AjaxRefresher('<%= main_app.global_message_path %>', null, {
+          new AjaxRefresher('<%= global_message_path %>', null, {
             executeImmediately: true,
             afterRefresh: function(){
               jQuery(document).trigger("server-health-messages-refresh-completed");

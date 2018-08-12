@@ -36,10 +36,4 @@ describe "preferences/notifications.html.erb" do
     expect(response).to have_selector(".callout a[href='/admin/config/server']", text: "Server Configuration")
   end
 
-  it 'should have a link to oauth access tokens' do
-    render
-
-    expect(response).to have_selector("a[href='/oauth/user_tokens']", text: 'OAuth Access Tokens')
-  end
-
 end

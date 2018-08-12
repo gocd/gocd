@@ -1,9 +1,3 @@
-PATH
-  remote: vendor/engines/oauth2_provider
-  specs:
-    oauth2_provider (1.0.3)
-      rails (~> 4.0.4)
-
 GEM
   remote: https://rubygems.org/
   specs:
@@ -197,7 +191,6 @@ DEPENDENCIES
   jasmine-rails
   js-routes
   minitest
-  oauth2_provider (= 1.0.3)!
   rails (= 4.0.4)
   rails-dev-tweaks (~> 1.1)
   roar

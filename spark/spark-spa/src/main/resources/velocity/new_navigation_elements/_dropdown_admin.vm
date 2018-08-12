@@ -21,7 +21,6 @@
 <li role="presentation"><a href="/go/admin/data_sharing/settings">Data Sharing</a></li>
 <li role="presentation"><a href="/go/admin/config/server">Server Configuration</a></li>
 <li role="presentation"><a href="/go/admin/users">User Summary</a></li>
-<li role="presentation"><a href="/go/oauth/admin/clients?column=status&order=ASC">OAuth Clients</a></li>
 <li role="presentation"><a href="/go/admin/backup">Backup</a></li>
 <li role="presentation"><a href="/go/admin/plugins">Plugins</a></li>
 <li role="presentation"><a href="/go/admin/package_repositories/new">Package Repositories</a></li>

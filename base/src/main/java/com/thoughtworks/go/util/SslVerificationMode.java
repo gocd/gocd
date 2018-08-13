@@ -18,15 +18,14 @@ package com.thoughtworks.go.util;
 
 import org.apache.http.conn.ssl.DefaultHostnameVerifier;
 import org.apache.http.conn.ssl.NoopHostnameVerifier;
+import org.apache.http.conn.ssl.TrustAllStrategy;
 import org.apache.http.conn.ssl.TrustStrategy;
 
 import javax.net.ssl.HostnameVerifier;
-import java.security.cert.CertificateException;
-import java.security.cert.X509Certificate;
 
 public enum SslVerificationMode {
     FULL(new DefaultHostnameVerifier(), null),
-    NONE(NoopHostnameVerifier.INSTANCE, new TrustEverythingStrategy()),
+    NONE(NoopHostnameVerifier.INSTANCE, TrustAllStrategy.INSTANCE),
     NO_VERIFY_HOST(NoopHostnameVerifier.INSTANCE, null);
 
     private HostnameVerifier verifier;
@@ -44,13 +43,6 @@ public enum SslVerificationMode {
 
     public TrustStrategy trustStrategy() {
         return trustStrategy;
-    }
-
-    private static class TrustEverythingStrategy implements TrustStrategy {
-        @Override
-        public boolean isTrusted(X509Certificate[] chain, String authType) {
-            return true;
-        }
     }
 
 }

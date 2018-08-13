@@ -34,6 +34,11 @@ module.exports = function (config) {
   config.set({
     basePath:      path.join(__dirname, 'public', 'assets', 'webpack'),
     frameworks:    ['jasmine'],
+    client: {
+      jasmine: {
+        random: true
+      }
+    },
     preprocessors: {
       '**/*.js': ['sourcemap']
     },

@@ -21,14 +21,11 @@
 @import 'shared/alert';
 @import 'shared/action_buttons';
 
-.main-container {
-  padding: 60px 15px 0 15px;
-}
-
 .data-sharing {
   background:    #fff;
   border-radius: 5px;
   padding:       20px;
+  margin:        0 15px 0 15px;
 }
 
 .share-box {

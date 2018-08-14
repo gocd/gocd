@@ -50,7 +50,7 @@ const StageStateCriteria = { //eslint-disable-line no-unused-vars
   view(vnode) {
     const vm = vnode.attrs.vm;
     return <div class="stage-state-selector">
-      <f.checkbox name="state" model={vm} attrName="failing" label="Failed" />,
+      <f.checkbox name="state" model={vm} attrName="failing" label="Failed" />
       <f.checkbox name="state" model={vm} attrName="building" label="Building" />
     </div>;
   }

@@ -16,6 +16,8 @@
 
 package com.thoughtworks.go.util;
 
+import java.util.function.Supplier;
+
 /**
  *
  */
@@ -54,6 +56,12 @@ public final class ExceptionUtils {
     public static void bombIf(boolean check, String msg) {
         if (check) {
             throw bomb(msg);
+        }
+    }
+
+    public static void bombIf(boolean check, Supplier<String> msg) {
+        if (check) {
+            throw bomb(msg.get());
         }
     }
 

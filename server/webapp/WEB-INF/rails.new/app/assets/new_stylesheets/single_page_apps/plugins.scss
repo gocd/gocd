@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 @import 'shared/common';
 @import 'shared/modal';
 @import 'shared/alert';
@@ -21,9 +20,8 @@
 @import 'components/panel';
 @import 'components/collapse';
 
-
 .status-report-btn {
-  margin-right : 10px;
+  margin-right: 10px;
   &.disabled {
     background: $light-grey;
   }
@@ -34,7 +32,6 @@
     background: $light-grey;
   }
 }
-
 
 .edit-plugin {
   @include icon-before($type: gear, $color: $go-icon-color);
@@ -53,7 +50,7 @@
   }
 }
 
-.plugins-settings{
+.plugins-settings {
   .plugin-name, .plugin-version, .plugin-id, .plugin-author {
     display:       inline-block;
     overflow-x:    hidden;
@@ -63,16 +60,16 @@
 
   }
 
-  .plugin-name,   .plugin-author{
-    min-width : 300px;
-    max-width : 300px;
+  .plugin-name, .plugin-author {
+    min-width: 300px;
+    max-width: 300px;
   }
   .plugin-id {
-    min-width : 300px;
-    max-width : 500px;
+    min-width: 300px;
+    max-width: 500px;
   }
   .plugin-version {
-    min-width:200px;
+    min-width: 200px;
   }
 }
 

@@ -14,39 +14,39 @@
  * limitations under the License.
  */
 
-$panel-header :$go-secondary;
-$panel-body :$go-white;
-
+$panel-header: $go-secondary;
+$panel-body: $go-white;
 
 .panel {
-  margin-bottom : 15px;
+  margin-bottom: 15px;
 }
 
-.panel_header{
+.panel_header {
   @include clearfix;
   padding:       10px 30px;
   background:    $panel-header;
   border-radius: $global-border-radius $global-border-radius 0 0;
 }
 
-.panel_header_details{
-  display:flex;
-  float : left;
+.panel_header_details {
+  display: flex;
+  float:   left;
 }
-.panel_title{
+
+.panel_title {
   @extend %title;
 }
 
 .panel_icon {
-  width          : $component-icon-size;
-  height         : $component-icon-size;
-  display        : inline-block;
-  vertical-align : middle;
-  float          : left;
-  margin         : 0 15px 0 -15px;
+  width:          $component-icon-size;
+  height:         $component-icon-size;
+  display:        inline-block;
+  vertical-align: middle;
+  float:          left;
+  margin:         0 15px 0 -15px;
 }
 
-.panel_body{
-  padding:20px 30px;
-  background:$panel-body;
+.panel_body {
+  padding:    20px 30px;
+  background: $panel-body;
 }

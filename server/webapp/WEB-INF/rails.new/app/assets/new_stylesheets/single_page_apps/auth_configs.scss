@@ -13,8 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-
 @import 'shared/common';
 @import 'shared/modal';
 @import 'shared/alert';
@@ -22,22 +20,19 @@
 @import 'components/panel';
 @import 'components/collapse';
 
-
-
-
-.auth-config-id , .auth-plugin-id{
-  min-width:300px;
-  max-width:300px;
+.auth-config-id, .auth-plugin-id {
+  min-width: 300px;
+  max-width: 300px;
 }
-.add-auth-config{
-  float:right;
-  margin:0;
+
+.add-auth-config {
+  float:  right;
+  margin: 0;
 }
 
 .reveal .delete-auth-config {
   @include icon-before($type: trash, $color: $white, $margin: 0 5px 0 0, $progress-spinner: true);
 }
-
 
 .modal-body .id-and-plugin-id-wrapper .columns:first-child {
   padding-left: 0;

@@ -16,77 +16,69 @@
 
 //c- is used before a component class to understand that its a component. since collapse is a gerneric name, it might have used in many places and need to avoid the conflicts.
 
-$collapse-icon-size : $component-icon-size;
-$collapse-border:$border-grey;
-$collapse-icon-color:#dddddd;
-
+$collapse-icon-size: $component-icon-size;
+$collapse-border: $border-grey;
+$collapse-icon-color: #ddd;
 
 .c-collapse {
-  background    : $go-white;
-  position      : relative;
-  border        : 1px solid $collapse-border;
-  border-radius : $global-border-radius;
-  margin-bottom : 10px;
+  background:    $go-white;
+  position:      relative;
+  border:        1px solid $collapse-border;
+  border-radius: $global-border-radius;
+  margin-bottom: 10px;
   &.collapsed {
-    background : $go-white;
-    @include icon-before($type: angle-right, $color:$collapse-icon-color);
-    &:before{
-      position: absolute;
-      right: 10px;
+    @include icon-before($type: angle-right, $color: $collapse-icon-color);
+    background: $go-white;
+    &:before {
+      position:  absolute;
+      right:     10px;
       font-size: 30px;
-      top: 3px;
+      top:       3px;
     }
   }
   &.expanded {
     @extend %box-shadow;
     @include icon-before($type: angle-down, $color: $collapse-icon-color);
-    &:before{
-      position: absolute;
-      right: 10px;
+    .c-collapse_header {
+      border-bottom: 1px solid $collapse-border;
+    }
+    &:before {
+      position:  absolute;
+      right:     10px;
       font-size: 30px;
-      top: 3px;
+      top:       3px;
     }
   }
 }
 
 .c-collapse_header {
   @include clearfix();
-  padding : 10px 50px 10px 30px;
-  cursor        : pointer;
+  padding: 10px 50px 10px 30px;
+  cursor:  pointer;
 }
 
-.c-collapse_header_details{
-  float:left;
-  display:flex;
-  align-items:center;
-}
-
-.c-collapse_title{
-  @extend %title;
-}
-
-
-.c-collapse_icon {
-  width:          $collapse-icon-size ;
-  height:         $collapse-icon-size ;
-  display:        inline-block;
-  vertical-align: middle;
-  float: left;
-  margin:0 15px 0 -15px;
-}
-
-.c-collapse.expanded{
-  .c-collapse_header {
-    border-bottom : 1px solid $collapse-border;
-  }
+.c-collapse_header_details {
+  float:       left;
+  display:     flex;
+  align-items: center;
 }
 
 .c-collapse_title {
-  float : left;
+  @extend %title;
+  float: left;
+}
+
+.c-collapse_icon {
+  width:          $collapse-icon-size;
+  height:         $collapse-icon-size;
+  display:        inline-block;
+  vertical-align: middle;
+  float:          left;
+  margin:         0 15px 0 -15px;
 }
 
 .c-collapse_body {
-  padding : 20px 30px;
+  padding: 20px 30px;
 }
 
 .collapse_header_details {

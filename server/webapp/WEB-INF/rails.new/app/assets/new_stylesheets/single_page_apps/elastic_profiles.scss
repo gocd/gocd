@@ -20,17 +20,15 @@
 @import 'components/panel';
 @import 'components/collapse';
 
-
-
 .add-profile, .plugin-status {
-  float         : right;
-  margin-bottom : 0;
-  height        : $component-icon-size;
+  float:         right;
+  margin-bottom: 0;
+  height:        $component-icon-size;
 }
 
 .plugin-not-installed {
-  color       : rgba(0, 0, 0, 0.36);
-  font-weight : 600;
-  line-height : $component-icon-size;
+  color:       rgba(0, 0, 0, 0.36);
+  font-weight: 600;
+  line-height: $component-icon-size;
 }
 

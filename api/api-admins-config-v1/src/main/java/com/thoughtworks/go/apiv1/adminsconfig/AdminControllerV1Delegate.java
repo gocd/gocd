@@ -24,7 +24,7 @@ import com.thoughtworks.go.api.CrudController;
 import com.thoughtworks.go.api.representers.JsonReader;
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
 import com.thoughtworks.go.api.util.GsonTransformer;
-import com.thoughtworks.go.apiv1.adminsconfig.representers.AdminsRepresenter;
+import com.thoughtworks.go.apiv1.adminsconfig.representers.AdminsConfigRepresenter;
 import com.thoughtworks.go.config.AdminsConfig;
 import com.thoughtworks.go.server.service.AdminsConfigService;
 import com.thoughtworks.go.server.service.EntityHashingService;
@@ -73,7 +73,7 @@ public class AdminControllerV1Delegate extends ApiController implements CrudCont
             return notModified(res);
         } else {
             setEtagHeader(adminsConf, res);
-            return writerForTopLevelObject(req, res, writer -> AdminsRepresenter.toJSON(writer, adminsConf));
+            return writerForTopLevelObject(req, res, writer -> AdminsConfigRepresenter.toJSON(writer, adminsConf));
         }
     }
 
@@ -105,12 +105,12 @@ public class AdminControllerV1Delegate extends ApiController implements CrudCont
     @Override
     public AdminsConfig getEntityFromRequestBody(Request req) {
         JsonReader jsonReader = GsonTransformer.getInstance().jsonReaderFrom(req.body());
-        return AdminsRepresenter.fromJSON(jsonReader);
+        return AdminsConfigRepresenter.fromJSON(jsonReader);
     }
 
     @Override
     public String jsonize(Request req, AdminsConfig admins) {
-        return jsonizeAsTopLevelObject(req, writer -> AdminsRepresenter.toJSON(writer, admins));
+        return jsonizeAsTopLevelObject(req, writer -> AdminsConfigRepresenter.toJSON(writer, admins));
     }
 
     @Override
@@ -121,7 +121,7 @@ public class AdminControllerV1Delegate extends ApiController implements CrudCont
 
     @Override
     public String controllerBasePath() {
-        return Routes.Admins.BASE;
+        return Routes.SystemAdmins.BASE;
     }
 
 }

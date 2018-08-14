@@ -13,12 +13,12 @@ import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
 import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.is
 
-class AdminsRepresenterTest {
+class AdminsConfigRepresenterTest {
     @Test
     void shouldSerializeToJSON() {
         AdminsConfig config = new AdminsConfig(new AdminUser(new CaseInsensitiveString("admin")),new AdminRole(new CaseInsensitiveString("xyz")))
 
-        def actualJson = toObjectString({ AdminsRepresenter.toJSON(it, config) })
+        def actualJson = toObjectString({ AdminsConfigRepresenter.toJSON(it, config) })
 
         final LinkedHashMap<String, Object> expected = ["_links": ["doc": ["href": "https://api.gocd.org/#system_admins"], "self": ["href": "http://test.host/go/api/admin/security/system_admins"]], "roles": ["xyz"], "users": ["admin"]]
         assertThatJson(actualJson).isEqualTo(expected)
@@ -32,7 +32,7 @@ class AdminsRepresenterTest {
         config.addError("users", "User name cannot be blank")
         config.addError("roles", "Role does not exist")
 
-        def actualJson = toObjectString({ AdminsRepresenter.toJSON(it, config) })
+        def actualJson = toObjectString({ AdminsConfigRepresenter.toJSON(it, config) })
 
         final LinkedHashMap<String, Object> expected = ["_links":["doc":["href":"https://api.gocd.org/#system_admins"],"self":["href":"http://test.host/go/api/admin/security/system_admins"]],"roles":["xyz"],"users":["admin"],"errors":["roles":["Role does not exist"],"users":["User name cannot be blank"]]]
         assertThatJson(actualJson).isEqualTo(expected);
@@ -46,7 +46,7 @@ class AdminsRepresenterTest {
         ]
 
         JsonReader jsonReader = GsonTransformer.getInstance().jsonReaderFrom(requestJSON);
-        AdminsConfig adminsConfig = AdminsRepresenter.fromJSON(jsonReader);
+        AdminsConfig adminsConfig = AdminsConfigRepresenter.fromJSON(jsonReader);
 
         def expected = new AdminsConfig(
           new AdminUser(new CaseInsensitiveString("user1")),

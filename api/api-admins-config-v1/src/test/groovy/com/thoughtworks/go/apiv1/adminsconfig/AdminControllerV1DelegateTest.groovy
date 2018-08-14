@@ -2,7 +2,7 @@ package com.thoughtworks.go.apiv1.adminsconfig
 
 import com.thoughtworks.go.api.SecurityTestTrait
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
-import com.thoughtworks.go.apiv1.adminsconfig.representers.AdminsRepresenter
+import com.thoughtworks.go.apiv1.adminsconfig.representers.AdminsConfigRepresenter
 import com.thoughtworks.go.config.AdminRole
 import com.thoughtworks.go.config.AdminUser
 import com.thoughtworks.go.config.AdminsConfig
@@ -21,7 +21,6 @@ import org.mockito.Mockito
 import org.mockito.invocation.InvocationOnMock
 
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
-import static com.thoughtworks.go.api.util.HaltApiMessages.etagDoesNotMatch
 import static org.mockito.ArgumentMatchers.any
 import static org.mockito.ArgumentMatchers.eq
 import static org.mockito.Mockito.verify
@@ -88,7 +87,7 @@ class AdminControllerV1DelegateTest implements ControllerTrait<AdminControllerV1
                         .isOk()
                         .hasEtag('"md5"')
                         .hasContentType(controller.mimeType)
-                        .hasBodyWithJsonObject(config, AdminsRepresenter)
+                        .hasBodyWithJsonObject(config, AdminsConfigRepresenter)
             }
 
             @Test
@@ -114,7 +113,7 @@ class AdminControllerV1DelegateTest implements ControllerTrait<AdminControllerV1
                         .isOk()
                         .hasEtag('"md5"')
                         .hasContentType(controller.mimeType)
-                        .hasBodyWithJsonObject(config, AdminsRepresenter)
+                        .hasBodyWithJsonObject(config, AdminsConfigRepresenter)
             }
         }
     }
@@ -144,7 +143,7 @@ class AdminControllerV1DelegateTest implements ControllerTrait<AdminControllerV1
                         'accept'      : controller.mimeType,
                         'If-Match'    : 'cached-md5',
                         'content-type': 'application/json'
-                ], toObjectString({ AdminsRepresenter.toJSON(it, this.config) }))
+                ], toObjectString({ AdminsConfigRepresenter.toJSON(it, this.config) }))
             }
         }
 
@@ -165,13 +164,13 @@ class AdminControllerV1DelegateTest implements ControllerTrait<AdminControllerV1
                 when(adminsConfigService.systemAdmins()).thenReturn(configInServer)
                 when(entityHashingService.md5ForEntity(configInServer)).thenReturn("cached-md5")
 
-                putWithApiHeader(controller.controllerPath(), ['if-match': 'cached-md5'], toObjectString({ AdminsRepresenter.toJSON(it, configFromRequest) }))
+                putWithApiHeader(controller.controllerPath(), ['if-match': 'cached-md5'], toObjectString({ AdminsConfigRepresenter.toJSON(it, configFromRequest) }))
 
                 verify(adminsConfigService).update(any(), eq(configFromRequest), eq("cached-md5"), any(HttpLocalizedOperationResult.class));
                 assertThatResponse()
                         .isOk()
                         .hasContentType(controller.mimeType)
-                        .hasBodyWithJsonObject(configFromRequest, AdminsRepresenter)
+                        .hasBodyWithJsonObject(configFromRequest, AdminsConfigRepresenter)
             }
 
             @Test
@@ -188,7 +187,7 @@ class AdminControllerV1DelegateTest implements ControllerTrait<AdminControllerV1
                     result.unprocessableEntity("validation failed")
                 })
 
-                putWithApiHeader(controller.controllerPath(), ['if-match': 'cached-md5'], toObjectString({ AdminsRepresenter.toJSON(it, configFromRequest) }))
+                putWithApiHeader(controller.controllerPath(), ['if-match': 'cached-md5'], toObjectString({ AdminsConfigRepresenter.toJSON(it, configFromRequest) }))
 
                 assertThatResponse()
                         .isUnprocessableEntity()
@@ -205,13 +204,13 @@ class AdminControllerV1DelegateTest implements ControllerTrait<AdminControllerV1
                 when(entityHashingService.md5ForEntity(systemAdminsInServer)).thenReturn('cached-md5')
 
                 putWithApiHeader(controller.controllerPath(), ['if-match': 'some-string'], toObjectString({
-                    AdminsRepresenter.toJSON(it, systemAdminsRequest)
+                    AdminsConfigRepresenter.toJSON(it, systemAdminsRequest)
                 }))
 
                 verify(adminsConfigService, Mockito.never()).update(any(), any(), any(), any())
                 assertThatResponse().isPreconditionFailed()
                         .hasContentType(controller.mimeType)
-                        .hasJsonMessage(etagDoesNotMatch("system_admins", ""))
+                        .hasJsonMessage("Someone has modified the entity. Please update your copy with the changes and try again.")
             }
         }
     }

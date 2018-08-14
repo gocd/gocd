@@ -13,11 +13,11 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class AdminsRepresenter {
+public class AdminsConfigRepresenter {
     public static void toJSON(OutputWriter jsonWriter, AdminsConfig admin) {
         jsonWriter.addLinks(
-                outputLinkWriter -> outputLinkWriter.addAbsoluteLink("doc", Routes.Admins.DOC)
-                        .addLink("self", Routes.Admins.BASE));
+                outputLinkWriter -> outputLinkWriter.addAbsoluteLink("doc", Routes.SystemAdmins.DOC)
+                        .addLink("self", Routes.SystemAdmins.BASE));
         jsonWriter.addChildList("roles", rolesAsString(admin.getRoles()));
         jsonWriter.addChildList("users", userAsString(admin.getUsers()));
         if (admin.hasErrors()) {

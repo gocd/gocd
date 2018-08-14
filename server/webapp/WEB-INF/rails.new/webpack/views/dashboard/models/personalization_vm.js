@@ -19,16 +19,17 @@ const Stream          = require("mithril/stream");
 const Personalization = require("models/dashboard/personalization");
 
 function PersonalizationVM(currentView) {
-  const names        = Stream([]);
-  const dropdown     = Stream(false);
-  const checksum     = Stream();
-  const model        = Stream();
-  const errorMessage = Stream();
+  const names         = Stream([]);
+  const tabSettingsDD = Stream(false);
+  const tabsListDD    = Stream(false);
+  const checksum      = Stream();
+  const model         = Stream();
+  const errorMessage  = Stream();
 
-  const paged        = Stream(false); // flag indicating whether the view tabs need scrollable behavior
-  const currentVnode = Stream(); // handle on current tab's vnode; allows sharing state between components
-  const stagedSort   = Stream(null);
-  const actionPopup  = Stream(null);
+  const paged         = Stream(false); // flag indicating whether the view tabs need scrollable behavior
+  const currentVnode  = Stream(); // handle on current tab's vnode; allows sharing state between components
+  const stagedSort    = Stream(null);
+  const actionPopup   = Stream(null);
 
   let requestPending, tick;
 
@@ -71,21 +72,30 @@ function PersonalizationVM(currentView) {
 
   this.activate = (viewName) => {
     currentView(contains(names(), viewName) ? viewName : "Default");
-    dropdown(false);
+    tabSettingsDD(false);
   };
 
-  this.dropdownVisible = () => dropdown();
+  this.tabSettingsDropdownVisible = () => tabSettingsDD();
 
-  this.toggleDropdown = () => {
-    dropdown(!dropdown());
+  this.toggleTabSettingsDropdown = () => {
+    tabsListDD(false);
+    tabSettingsDD(!tabSettingsDD());
   };
 
-  this.hideDropdown = () => {
-    dropdown(false);
+  this.hideAllDropdowns = () => {
+    tabSettingsDD(false);
+    tabsListDD(false);
+  };
+
+  this.tabsListDropdownVisible = () => tabsListDD();
+
+  this.toggleTabsListDropdown = () => {
+    tabSettingsDD(false);
+    tabsListDD(!tabsListDD());
   };
 
   this.actionHandler = (fn) => {
-    return (e) => { e.stopPropagation(); dropdown(false); fn(); };
+    return (e) => { e.stopPropagation(); this.hideAllDropdowns(); fn(); };
   };
 
   this.onchange = function registerOrExec(fn) {

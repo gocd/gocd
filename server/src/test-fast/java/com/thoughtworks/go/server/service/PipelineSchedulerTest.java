@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,10 +35,7 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.internal.verification.NoMoreInteractions;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static com.thoughtworks.go.helper.GoConfigMother.configWithPipelines;
 import static org.hamcrest.core.Is.is;
@@ -47,11 +44,9 @@ import static org.mockito.Mockito.*;
 
 public class PipelineSchedulerTest {
     private ScheduleCheckQueue queue;
-    private ScheduleCheckCompletedTopic topic;
     private PipelineScheduler scheduler;
     private GoConfigService configService;
     private BuildCauseProducerService buildCauseProducerService;
-    private SchedulingPerformanceLogger schedulingPerformanceLogger;
 
     @Before
     public void setUp() {
@@ -60,8 +55,8 @@ public class PipelineSchedulerTest {
         ServerHealthService serverHealthService = mock(ServerHealthService.class);
         SchedulingCheckerService schedulingCheckerService = mock(SchedulingCheckerService.class);
         buildCauseProducerService = mock(BuildCauseProducerService.class);
-        topic = mock(ScheduleCheckCompletedTopic.class);
-        schedulingPerformanceLogger = mock(SchedulingPerformanceLogger.class);
+        ScheduleCheckCompletedTopic topic = mock(ScheduleCheckCompletedTopic.class);
+        SchedulingPerformanceLogger schedulingPerformanceLogger = mock(SchedulingPerformanceLogger.class);
         scheduler = new PipelineScheduler(configService, serverHealthService, schedulingCheckerService,
                 buildCauseProducerService, queue, topic, schedulingPerformanceLogger);
     }
@@ -167,6 +162,29 @@ public class PipelineSchedulerTest {
     @Test
     public void shouldAddPipelineConfigToPipelinesOnPipelineConfigChanged() {
         ArgumentCaptor<ConfigChangedListener> captor = ArgumentCaptor.forClass(ConfigChangedListener.class);
+        PipelineConfig newPipeline = mock(PipelineConfig.class);
+        String pipelineName = "newly-added-pipeline";
+        ArrayList<PipelineConfig> pipelineConfigs = new ArrayList<>();
+        pipelineConfigs.add(newPipeline);
+        when(configService.getAllPipelineConfigs()).thenReturn(pipelineConfigs);
+        doNothing().when(configService).register(captor.capture());
+        scheduler.initialize();
+        List<ConfigChangedListener> listeners = captor.getAllValues();
+        assertThat(listeners.contains(scheduler), is(true));
+        assertThat(listeners.get(1) instanceof EntityConfigChangedListener, is(true));
+        EntityConfigChangedListener<PipelineConfig> entityConfigChangedListener = (EntityConfigChangedListener<PipelineConfig>) listeners.get(1);
+
+
+        when(newPipeline.name()).thenReturn(new CaseInsensitiveString(pipelineName));
+        entityConfigChangedListener.onEntityConfigChange(newPipeline);
+        scheduler.checkPipelines();
+        verify(queue, times(1)).post(ScheduleCheckMessageMatcher.matchScheduleCheckMessage(pipelineName));
+    }
+
+    @Test
+    public void shouldRemovePipelineConfigFromPipelinesOnPipelineConfigDeletion() {
+        ArgumentCaptor<ConfigChangedListener> captor = ArgumentCaptor.forClass(ConfigChangedListener.class);
+        when(configService.getAllPipelineConfigs()).thenReturn(new ArrayList<>());
         doNothing().when(configService).register(captor.capture());
         scheduler.initialize();
         List<ConfigChangedListener> listeners = captor.getAllValues();
@@ -175,10 +193,10 @@ public class PipelineSchedulerTest {
         EntityConfigChangedListener<PipelineConfig> entityConfigChangedListener = (EntityConfigChangedListener<PipelineConfig>) listeners.get(1);
 
         PipelineConfig newPipeline = mock(PipelineConfig.class);
-        String pipelineName = "newly-added-pipeline";
+        String pipelineName = "deleted-pipeline";
         when(newPipeline.name()).thenReturn(new CaseInsensitiveString(pipelineName));
         entityConfigChangedListener.onEntityConfigChange(newPipeline);
         scheduler.checkPipelines();
-        verify(queue, times(1)).post(ScheduleCheckMessageMatcher.matchScheduleCheckMessage(pipelineName));
+        verify(queue, times(0)).post(ScheduleCheckMessageMatcher.matchScheduleCheckMessage(pipelineName));
     }
 }

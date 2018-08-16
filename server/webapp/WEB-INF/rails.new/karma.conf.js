@@ -23,7 +23,7 @@ const jasmineSeedReporter = require('karma-jasmine-seed-reporter')
 let browsers;
 
 if (process.platform === 'darwin') {
-  browsers = ['Firefox', 'Chrome'];
+  browsers = ['Firefox', 'Chrome', 'Safari'];
 } else if (process.platform === 'win32') {
   browsers = ['Firefox', 'IE'];
 } else {

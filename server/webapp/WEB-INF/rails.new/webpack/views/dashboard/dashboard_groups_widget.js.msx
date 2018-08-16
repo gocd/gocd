@@ -32,7 +32,7 @@ const GroupHeading = {
     const paths = routeForScheme(scheme, vm.name);
 
     return <h2 class="dashboard-group_title">
-      <strong><f.link disabled={!vm.canAdminister} href={paths.show}>{vm.name || "Pipelines Not in Any Environment"}</f.link></strong>
+      <strong><f.link disabled={!vm.canAdminister} href={paths.show}>{vm.name || "Pipelines not in any Environment"}</f.link></strong>
       {vm.name && <f.link class="edit_config dashboard-group_edit-config" disabled={!vm.canAdminister} href={paths.edit} tooltipText={tt} />}
     </h2>;
   }

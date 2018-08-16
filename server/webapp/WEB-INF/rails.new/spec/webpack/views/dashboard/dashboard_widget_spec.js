@@ -56,10 +56,6 @@ describe("Dashboard Widget", () => {
 
   afterEach(unmount);
 
-  it("should render dashboard pipelines header", () => {
-    expect($root.find('.page_header')).toContainText('Pipelines');
-  });
-
   it("should render dashboard pipeline search field", () => {
     expect($root.find('.filter input')).toBeInDOM();
   });

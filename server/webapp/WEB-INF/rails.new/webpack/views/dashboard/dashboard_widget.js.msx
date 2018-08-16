@@ -26,7 +26,7 @@ const PipelineSearch = {
     const model = vnode.attrs.model;
 
     return <div class="filter">
-      <f.input class="pipeline-search" model={model} attrName="searchText" placeholder="Search for pipeline" />
+      <f.input class="pipeline-search" model={model} attrName="searchText" placeholder="Search pipelines" />
     </div>;
   }
 };
@@ -36,10 +36,10 @@ const GroupingSwitch = {
     const vm = vnode.attrs.vm;
 
     return <div>
-      <span class="edit-dropdown-text">Group pipelines by</span>
-      <radiogroup>
-        <f.input type="radio" listen="onclick" prop="checked" model={vm} attrName="groupByPipelineGroup" name="grouping-scheme" label="Pipeline Group" />
-        <f.input type="radio" listen="onclick" prop="checked" model={vm} attrName="groupByEnvironment" name="grouping-scheme" label="Environment" />
+      <span class="edit-dropdown-text">Group pipelines by:</span>
+      <radiogroup class="group-mode">
+        <f.input type="radio" listen="onclick" prop="checked" model={vm} attrName="groupByPipelineGroup" name="grouping-scheme" label={<i/>} contentAfter="Pipeline Group" />
+        <f.input type="radio" listen="onclick" prop="checked" model={vm} attrName="groupByEnvironment" name="grouping-scheme" label={<i/>} contentAfter="Environment" />
       </radiogroup>
     </div>;
   }
@@ -78,13 +78,9 @@ const DashboardWidget = {
 
     return (
       <div class="pipeline_wrapper">
-        <div class="page_header" key="page-header">
-          <h1 class="page_title">Pipelines</h1>
-        </div>
+        <PersonalizedViewsWidget vm={personalizeVM} />
 
         <div class="dashboard" key="dashboard-content">
-          <PersonalizedViewsWidget vm={personalizeVM} />
-
           <section class="dashboard-modifiers">
             <GroupingSwitch vm={vm} />
             <PipelineSearch model={vm} />

@@ -336,32 +336,62 @@ $btn-default: #d6d5d5;
 .dashboard-modifiers {
   display:         flex;
   justify-content: space-between;
+  margin-bottom:   20px;
+  position:        relative;
+  z-index:         5;
+
+  .group-mode {
+    // scss-lint:disable QualifyingElement
+
+    label, span {
+      display: inline-block;
+      cursor:  pointer;
+    }
+
+    label > *:empty, input[type="radio"] { display: none; }
+
+    input[type="radio"] + span {
+      margin-left: 10px;
+      padding:     5px 15px;
+      border:      1px solid transparent;
+    }
+
+    input[type="radio"]:checked + span {
+      font-weight:   600;
+      color:         #943a9e;
+      border-color:  #943a9e;
+      border-radius: 3px;
+    }
+  }
 }
 
 .filter {
   @include icon-before($type: search);
 
-  display:    inline-block;
-  position:   relative;
-  margin-top: 9px;
-  padding:    0 30px;
+  display:  inline-block;
+  position: relative;
 
   &:before {
     position:  absolute;
-    left:      34px;
+    left:      0;
     color:     $border-color;
     top:       4px;
     font-size: 14px;
   }
 
   .pipeline-search {
-    height:        32px;
-    width:         250px;
-    line-height:   30px;
-    padding:       0 10px 0 30px;
-    margin:        0;
-    border:        1px solid $border-color;
-    border-radius: 0;
+    height:             32px;
+    width:              350px;
+    line-height:        30px;
+    padding:            0 10px 0 30px;
+    margin:             0;
+    border:             1px solid transparent;
+    -webkit-appearance: none;
+    box-shadow:         none;
+    border-bottom:      1px solid $border-color;
+    border-radius:      0;
+    background:         transparent;
+
     &::placeholder {
       font-size: 13px;
       color:     $border-color;
@@ -374,21 +404,30 @@ body {
   padding:     0;
   font-size:   14px;
   font-family: "Open Sans", sans-serif;
-  background:  #efefef;
+  background:  #f4f8f9;
 }
 
 .dashboard-group {
   margin-bottom: 50px;
+  background:    #fff;
+}
+
+.main-container {
+  margin:     0;
+  background: transparent;
 }
 
 .dashboard-group_title {
-  padding:       0;
-  position:      relative;
-  border-bottom: 1px solid $border-color;
-  font-size:     22px;
-  font-weight:   600;
-  line-height:   25px;
-  margin-bottom: 20px;
+  background:              #e7eef0;
+  margin:                  0;
+  padding:                 10px 30px;
+  position:                relative;
+  font-size:               18px;
+  font-weight:             600;
+  line-height:             25px;
+  border-top-left-radius:  3px;
+  border-top-right-radius: 3px;
+
   span {
     position:    absolute;
     font-size:   12px;
@@ -403,15 +442,17 @@ body {
 }
 
 .dashboard-group_edit-config {
-  margin-left: 10px;
+  margin-left: 5px;
 }
 
 .dashboard-group_items {
-  display:         flex;
-  flex-wrap:       wrap;
-  list-style-type: none;
-  margin:          0 0 0 -5px;
-  padding:         0;
+  display:                    flex;
+  flex-wrap:                  wrap;
+  list-style-type:            none;
+  margin:                     0 0 0 -5px;
+  padding:                    20px 30px;
+  border-bottom-left-radius:  3px;
+  border-bottom-right-radius: 3px;
 }
 
 .dashboard-group_pipeline {

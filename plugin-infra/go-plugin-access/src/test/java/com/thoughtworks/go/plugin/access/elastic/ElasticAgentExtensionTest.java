@@ -35,14 +35,12 @@ import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import com.thoughtworks.go.util.ReflectionUtil;
 import org.hamcrest.MatcherAssert;
 import org.hamcrest.Matchers;
-import org.json.JSONException;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
-import org.skyscreamer.jsonassert.JSONAssert;
 
 import java.util.Collections;
 import java.util.List;
@@ -51,6 +49,7 @@ import java.util.Map;
 import static com.thoughtworks.go.plugin.access.elastic.ElasticAgentExtension.SUPPORTED_VERSIONS;
 import static com.thoughtworks.go.plugin.access.elastic.v3.ElasticAgentPluginConstantsV3.*;
 import static com.thoughtworks.go.plugin.domain.common.PluginConstants.ELASTIC_AGENT_EXTENSION;
+import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
@@ -100,7 +99,7 @@ public class ElasticAgentExtensionTest {
     }
 
     @Test
-    public void shouldCallTheVersionedExtensionBasedOnResolvedVersion() throws JSONException {
+    public void shouldCallTheVersionedExtensionBasedOnResolvedVersion() {
         when(pluginManager.submitTo(eq(PLUGIN_ID), eq(ELASTIC_AGENT_EXTENSION), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success("{\"content_type\":\"image/png\",\"data\":\"Zm9vYmEK\"}"));
 
         extension.getIcon(PLUGIN_ID);
@@ -120,7 +119,7 @@ public class ElasticAgentExtensionTest {
     }
 
     @Test
-    public void shouldGetProfileMetadata() throws JSONException {
+    public void shouldGetProfileMetadata() {
         String responseBody = "[{\"key\":\"Username\",\"metadata\":{\"required\":true,\"secure\":false}},{\"key\":\"Password\",\"metadata\":{\"required\":true,\"secure\":true}}]";
         when(pluginManager.submitTo(eq(PLUGIN_ID), eq(ELASTIC_AGENT_EXTENSION), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success(responseBody));
 
@@ -136,7 +135,7 @@ public class ElasticAgentExtensionTest {
     }
 
     @Test
-    public void shouldGetProfileView() throws JSONException {
+    public void shouldGetProfileView() {
         String responseBody = "{ \"template\": \"<div>This is profile view snippet</div>\" }";
         when(pluginManager.submitTo(eq(PLUGIN_ID), eq(ELASTIC_AGENT_EXTENSION), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success(responseBody));
 
@@ -148,7 +147,7 @@ public class ElasticAgentExtensionTest {
     }
 
     @Test
-    public void shouldValidateProfile() throws JSONException {
+    public void shouldValidateProfile() {
         String responseBody = "[{\"message\":\"Url must not be blank.\",\"key\":\"Url\"},{\"message\":\"SearchBase must not be blank.\",\"key\":\"SearchBase\"}]";
         when(pluginManager.submitTo(eq(PLUGIN_ID), eq(ELASTIC_AGENT_EXTENSION), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success(responseBody));
 
@@ -164,7 +163,7 @@ public class ElasticAgentExtensionTest {
     }
 
     @Test
-    public void shouldMakeCreateAgentCall() throws JSONException {
+    public void shouldMakeCreateAgentCall() {
         final Map<String, String> profile = Collections.singletonMap("ServerURL", "https://example.com/go");
         final JobIdentifier jobIdentifier = new JobIdentifier("up42", 2, "Test", "up42_stage", "10", "up42_job");
         when(pluginManager.submitTo(eq(PLUGIN_ID), eq(ELASTIC_AGENT_EXTENSION), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success(null));
@@ -191,7 +190,7 @@ public class ElasticAgentExtensionTest {
     }
 
     @Test
-    public void shouldSendServerPing() throws JSONException {
+    public void shouldSendServerPing() {
         when(pluginManager.submitTo(eq(PLUGIN_ID), eq(ELASTIC_AGENT_EXTENSION), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success(null));
 
         extension.serverPing(PLUGIN_ID);
@@ -200,7 +199,7 @@ public class ElasticAgentExtensionTest {
     }
 
     @Test
-    public void shouldMakeShouldAssignWorkCall() throws JSONException {
+    public void shouldMakeShouldAssignWorkCall() {
         final Map<String, String> profile = Collections.singletonMap("ServerURL", "https://example.com/go");
         final AgentMetadata agentMetadata = new AgentMetadata("foo-agent-id", "Idle", "Idle", "Enabled");
         when(pluginManager.submitTo(eq(PLUGIN_ID), eq(ELASTIC_AGENT_EXTENSION), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success("true"));
@@ -227,7 +226,7 @@ public class ElasticAgentExtensionTest {
     }
 
     @Test
-    public void shouldGetStatusReport() throws JSONException {
+    public void shouldGetStatusReport() {
         final String responseBody = "{\"view\":\"<div>This is a status report snippet.</div>\"}";
         when(pluginManager.submitTo(eq(PLUGIN_ID), eq(ELASTIC_AGENT_EXTENSION), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success(responseBody));
 
@@ -238,7 +237,7 @@ public class ElasticAgentExtensionTest {
     }
 
     @Test
-    public void shouldGetAgentStatusReport() throws JSONException {
+    public void shouldGetAgentStatusReport() {
         final String responseBody = "{\"view\":\"<div>This is a status report snippet.</div>\"}";
         final JobIdentifier jobIdentifier = new JobIdentifier("up42", 2, "Test", "up42_stage", "10", "up42_job");
 
@@ -305,11 +304,11 @@ public class ElasticAgentExtensionTest {
         }
     }
 
-    private void assertExtensionRequest(String extensionVersion, String requestName, String requestBody) throws JSONException {
+    private void assertExtensionRequest(String extensionVersion, String requestName, String requestBody) {
         final GoPluginApiRequest request = requestArgumentCaptor.getValue();
         Assert.assertThat(request.requestName(), Matchers.is(requestName));
         Assert.assertThat(request.extensionVersion(), Matchers.is(extensionVersion));
         Assert.assertThat(request.extension(), Matchers.is(ELASTIC_AGENT_EXTENSION));
-        JSONAssert.assertEquals(requestBody, request.requestBody(), true);
+        assertThatJson(requestBody).isEqualTo(request.requestBody());
     }
 }

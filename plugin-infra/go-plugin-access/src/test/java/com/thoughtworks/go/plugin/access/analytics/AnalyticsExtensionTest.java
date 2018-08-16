@@ -25,7 +25,6 @@ import com.thoughtworks.go.plugin.domain.common.PluginConstants;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import org.hamcrest.core.Is;
-import org.json.JSONException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -33,7 +32,6 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.skyscreamer.jsonassert.JSONAssert;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -42,6 +40,7 @@ import java.util.HashMap;
 import static com.thoughtworks.go.plugin.access.analytics.AnalyticsPluginConstants.*;
 import static com.thoughtworks.go.plugin.api.response.DefaultGoPluginApiResponse.SUCCESS_RESPONSE_CODE;
 import static com.thoughtworks.go.plugin.domain.common.PluginConstants.ANALYTICS_EXTENSION;
+import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.junit.Assert.assertThat;
@@ -164,10 +163,10 @@ public class AnalyticsExtensionTest {
         analyticsExtension.serverInfoJSON("plugin_id", "server_id", "site_url", "secure_site_url");
     }
 
-    private void assertRequest(GoPluginApiRequest goPluginApiRequest, String extensionName, String version, String requestName, String requestBody) throws JSONException {
+    private void assertRequest(GoPluginApiRequest goPluginApiRequest, String extensionName, String version, String requestName, String requestBody) {
         assertThat(goPluginApiRequest.extension(), Is.is(extensionName));
         assertThat(goPluginApiRequest.extensionVersion(), Is.is(version));
         assertThat(goPluginApiRequest.requestName(), Is.is(requestName));
-        JSONAssert.assertEquals(requestBody, goPluginApiRequest.requestBody(), true);
+        assertThatJson(requestBody).isEqualTo(goPluginApiRequest.requestBody());
     }
 }

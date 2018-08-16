@@ -21,15 +21,14 @@ import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.plugin.access.elastic.models.AgentMetadata;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 import com.thoughtworks.go.plugin.domain.elastic.Capabilities;
-import org.json.JSONException;
 import org.junit.Before;
 import org.junit.Test;
-import org.skyscreamer.jsonassert.JSONAssert;
-import org.skyscreamer.jsonassert.JSONCompareMode;
 
 import java.util.HashMap;
 import java.util.Map;
 
+import static java.lang.String.format;
+import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.*;
 
@@ -60,7 +59,7 @@ public class ElasticAgentExtensionConverterV3Test {
         configuration.put("key1", "value1");
         configuration.put("key2", "value2");
         String json = new ElasticAgentExtensionConverterV3().createAgentRequestBody("secret-key", "prod", configuration, jobIdentifier);
-        JSONAssert.assertEquals(json, "{" +
+        assertThatJson(json).isEqualTo("{" +
                 "  \"auto_register_key\":\"secret-key\"," +
                 "  \"properties\":{" +
                 "    \"key1\":\"value1\"," +
@@ -76,7 +75,7 @@ public class ElasticAgentExtensionConverterV3Test {
                 "    \"job_name\": \"test-job\",\n" +
                 "    \"job_id\": 100\n" +
                 "  }\n" +
-                "}", JSONCompareMode.NON_EXTENSIBLE);
+                "}");
     }
 
     @Test
@@ -106,18 +105,18 @@ public class ElasticAgentExtensionConverterV3Test {
                 "  }\n" +
                 "}";
 
-        JSONAssert.assertEquals(expected, actual, JSONCompareMode.NON_EXTENSIBLE);
+        assertThatJson(expected).isEqualTo(actual);
     }
 
     @Test
     public void shouldJSONizeElasticAgentStatusReportRequestBodyWhenElasticAgentIdIsProvided() throws Exception {
         String elasticAgentId = "my-fancy-elastic-agent-id";
         String actual = new ElasticAgentExtensionConverterV3().getAgentStatusReportRequestBody(null, elasticAgentId);
-        String expected = String.format("{" +
+        String expected = format("{" +
                 "  \"elastic_agent_id\": \"%s\"" +
                 "}", elasticAgentId);
 
-        JSONAssert.assertEquals(expected, actual, JSONCompareMode.STRICT);
+        assertThatJson(expected).isEqualTo(actual);
     }
 
     @Test
@@ -135,17 +134,17 @@ public class ElasticAgentExtensionConverterV3Test {
                 "  }\n" +
                 "}";
 
-        JSONAssert.assertEquals(expected, actual, JSONCompareMode.STRICT);
+        assertThatJson(expected).isEqualTo(actual);
     }
 
     @Test
-    public void shouldConstructValidationRequest() throws JSONException {
+    public void shouldConstructValidationRequest() {
         HashMap<String, String> configuration = new HashMap<>();
         configuration.put("key1", "value1");
         configuration.put("key2", "value2");
         configuration.put("key3", null);
         String requestBody = new ElasticAgentExtensionConverterV3().validateElasticProfileRequestBody(configuration);
-        JSONAssert.assertEquals(requestBody, "{\"key3\":null,\"key2\":\"value2\",\"key1\":\"value1\"}", JSONCompareMode.NON_EXTENSIBLE);
+        assertThatJson(requestBody).isEqualTo("{\"key3\":null,\"key2\":\"value2\",\"key1\":\"value1\"}");
     }
 
     @Test

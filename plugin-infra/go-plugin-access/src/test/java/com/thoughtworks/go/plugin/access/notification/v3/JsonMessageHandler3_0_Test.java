@@ -25,12 +25,11 @@ import com.thoughtworks.go.domain.packagerepository.PackageDefinition;
 import com.thoughtworks.go.domain.scm.SCM;
 import com.thoughtworks.go.helper.PipelineMother;
 import com.thoughtworks.go.plugin.api.response.Result;
+import net.javacrumbs.jsonunit.fluent.JsonFluentAssert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.skyscreamer.jsonassert.JSONAssert;
-import org.skyscreamer.jsonassert.JSONCompareMode;
 
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
@@ -259,7 +258,7 @@ public class JsonMessageHandler3_0_Test {
                 "}";
 
         String request = messageHandler.requestMessageForNotify(new StageNotificationData(pipeline.getFirstStage(), pipeline.getBuildCause(), "pipeline-group"));
-        JSONAssert.assertEquals(expected, request, JSONCompareMode.NON_EXTENSIBLE);
+        JsonFluentAssert.assertThatJson(expected).isEqualTo(request);
     }
 
     @Rule
@@ -297,7 +296,7 @@ public class JsonMessageHandler3_0_Test {
 
         String message = messageHandler.requestMessageForNotify(agentNotificationData);
 
-        JSONAssert.assertEquals(expected, message, JSONCompareMode.NON_EXTENSIBLE);
+        JsonFluentAssert.assertThatJson(expected).isEqualTo(message);
     }
 
     private void assertSuccessResult(Result result, List<String> messages) {

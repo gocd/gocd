@@ -18,9 +18,7 @@ package com.thoughtworks.go.server.web;
 
 import com.thoughtworks.go.server.web.i18n.ResolvableViewableStatus;
 import com.thoughtworks.go.util.json.JsonUrl;
-import org.json.JSONException;
 import org.junit.Test;
-import org.skyscreamer.jsonassert.JSONAssert;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 
@@ -32,6 +30,7 @@ import java.util.Map;
 import static com.thoughtworks.go.server.web.JsonRenderer.render;
 import static com.thoughtworks.go.server.web.JsonView.asMap;
 import static com.thoughtworks.go.server.web.i18n.CurrentStatus.WAITING;
+import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
@@ -49,14 +48,14 @@ public class JsonViewTest {
         map.put("key", "\r\t\n");
         view.renderMergedOutputModel(asMap(map), new MockHttpServletRequest(), response);
         String json = response.getContentAsString();
-        JSONAssert.assertEquals("{\n  \"key\": \"\\r\t\n\"\n}", json, true);
+        assertThatJson("{\n  \"key\": \"\\r\\t\\n\"\n}").isEqualTo(json);
     }
 
     @Test
     public void testShouldRenderEmptyMap() throws Exception {
         JsonView view = new JsonView();
         String json = view.renderJson(new LinkedHashMap());
-        JSONAssert.assertEquals("{}", json, true);
+        assertThatJson("{}").isEqualTo(json);
     }
 
     @Test
@@ -66,7 +65,7 @@ public class JsonViewTest {
         map.put("key2", "value2");
 
         String json = new JsonView().renderJson(map);
-        JSONAssert.assertEquals("{\"key1\":\"value1\",\"key2\":\"value2\"}", json, true);
+        assertThatJson("{\"key1\":\"value1\",\"key2\":\"value2\"}").isEqualTo(json);
     }
 
     @Test
@@ -78,7 +77,7 @@ public class JsonViewTest {
         JsonView view = new JsonView();
 
         String json = view.renderJson(map);
-        JSONAssert.assertEquals("{\"key1\":{\"keyA\":\"valueA\"}}", json, true);
+        assertThatJson("{\"key1\":{\"keyA\":\"valueA\"}}").isEqualTo(json);
     }
 
     @Test
@@ -91,7 +90,7 @@ public class JsonViewTest {
         JsonView view = new JsonView();
 
         String json = view.renderJson(list);
-        JSONAssert.assertEquals("[{\"key1\":\"value1\"},\"value2\"]", json, true);
+        assertThatJson("[{\"key1\":\"value1\"},\"value2\"]").isEqualTo(json);
     }
 
     @Test
@@ -104,11 +103,11 @@ public class JsonViewTest {
         JsonView view = new JsonView();
 
         String json = view.renderJson(asMap(list));
-        JSONAssert.assertEquals("[{\"key1\":\"value1\"},\"value2\"]", json, true);
+        assertThatJson("[{\"key1\":\"value1\"},\"value2\"]").isEqualTo(json);
     }
 
     @Test
-    public void testShouldRenderI18n() throws JSONException {
+    public void testShouldRenderI18n() {
         Map<String, Object> map = new LinkedHashMap<>();
         final String i18nMessage = "waiting(zh_CN)";
         final ResolvableViewableStatus resolvableViewableStatus = new ResolvableViewableStatus(WAITING);
@@ -118,7 +117,7 @@ public class JsonViewTest {
         when(requestContext.getMessage(resolvableViewableStatus)).thenReturn(i18nMessage);
 
         String json = view.renderJson(map);
-        JSONAssert.assertEquals("{\"key1\":\"waiting(zh_CN)\"}", json, true);
+        assertThatJson("{\"key1\":\"waiting(zh_CN)\"}").isEqualTo(json);
     }
 
     @Test

@@ -32,7 +32,6 @@ import com.thoughtworks.go.plugin.domain.common.Metadata;
 import com.thoughtworks.go.plugin.domain.common.PluginConfiguration;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import org.hamcrest.core.Is;
-import org.json.JSONException;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
@@ -40,7 +39,6 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.skyscreamer.jsonassert.JSONAssert;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -49,6 +47,7 @@ import java.util.List;
 import static com.thoughtworks.go.plugin.access.authorization.AuthorizationPluginConstants.*;
 import static com.thoughtworks.go.plugin.api.response.DefaultGoPluginApiResponse.SUCCESS_RESPONSE_CODE;
 import static com.thoughtworks.go.plugin.domain.common.PluginConstants.AUTHORIZATION_EXTENSION;
+import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson;
 import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -305,7 +304,7 @@ public class AuthorizationExtensionTest {
     }
 
     @Test
-    public void shouldTalkToPlugin_To_GetAuthorizationServerUrl() throws JSONException {
+    public void shouldTalkToPlugin_To_GetAuthorizationServerUrl() {
         String requestBody = "{\n" +
                 "  \"auth_configs\": [\n" +
                 "    {\n" +
@@ -347,10 +346,10 @@ public class AuthorizationExtensionTest {
         Assert.assertThat(serverInfoJSON, Is.is("{\"server_id\":\"x12adf\",\"site_url\":\"http://my.build.com\",\"secure_site_url\":\"https://my.build.com\"}"));
     }
 
-    private void assertRequest(GoPluginApiRequest goPluginApiRequest, String extensionName, String version, String requestName, String requestBody) throws JSONException {
+    private void assertRequest(GoPluginApiRequest goPluginApiRequest, String extensionName, String version, String requestName, String requestBody) {
         Assert.assertThat(goPluginApiRequest.extension(), Is.is(extensionName));
         Assert.assertThat(goPluginApiRequest.extensionVersion(), Is.is(version));
         Assert.assertThat(goPluginApiRequest.requestName(), Is.is(requestName));
-        JSONAssert.assertEquals(requestBody, goPluginApiRequest.requestBody(), true);
+        assertThatJson(requestBody).isEqualTo(goPluginApiRequest.requestBody());
     }
 }

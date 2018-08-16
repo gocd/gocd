@@ -30,16 +30,17 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.skyscreamer.jsonassert.JSONAssert;
-import org.skyscreamer.jsonassert.JSONCompareMode;
+
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+
 import static com.thoughtworks.go.plugin.access.notification.v1.StageConverter.DATE_PATTERN;
 import static java.util.Arrays.asList;
+import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.fail;
@@ -127,7 +128,7 @@ public class JsonMessageHandler1_0_Test {
                 "\t\t\t\"changed\": true,\n" +
                 "\t\t\t\"modifications\": [{\n" +
                 "\t\t\t\t\"revision\": \"1\",\n" +
-                "\t\t\t\t\"modified-time\": \""+ gitModifiedTime +"\",\n" +
+                "\t\t\t\t\"modified-time\": \"" + gitModifiedTime + "\",\n" +
                 "\t\t\t\t\"data\": {}\n" +
                 "\t\t\t}]\n" +
                 "\t\t}, {\n" +
@@ -140,7 +141,7 @@ public class JsonMessageHandler1_0_Test {
                 "\t\t\t\"changed\": true,\n" +
                 "\t\t\t\"modifications\": [{\n" +
                 "\t\t\t\t\"revision\": \"1\",\n" +
-                "\t\t\t\t\"modified-time\": \""+hgModifiedTime+"\",\n" +
+                "\t\t\t\t\"modified-time\": \"" + hgModifiedTime + "\",\n" +
                 "\t\t\t\t\"data\": {}\n" +
                 "\t\t\t}]\n" +
                 "\t\t}, {\n" +
@@ -155,7 +156,7 @@ public class JsonMessageHandler1_0_Test {
                 "\t\t\t\"changed\": true,\n" +
                 "\t\t\t\"modifications\": [{\n" +
                 "\t\t\t\t\"revision\": \"1\",\n" +
-                "\t\t\t\t\"modified-time\": \""+svnModifiedTime+"\",\n" +
+                "\t\t\t\t\"modified-time\": \"" + svnModifiedTime + "\",\n" +
                 "\t\t\t\t\"data\": {}\n" +
                 "\t\t\t}]\n" +
                 "\t\t}, {\n" +
@@ -171,7 +172,7 @@ public class JsonMessageHandler1_0_Test {
                 "\t\t\t\"changed\": true,\n" +
                 "\t\t\t\"modifications\": [{\n" +
                 "\t\t\t\t\"revision\": \"1\",\n" +
-                "\t\t\t\t\"modified-time\": \""+tfsModifiedTime+"\",\n" +
+                "\t\t\t\t\"modified-time\": \"" + tfsModifiedTime + "\",\n" +
                 "\t\t\t\t\"data\": {}\n" +
                 "\t\t\t}]\n" +
                 "\t\t}, {\n" +
@@ -187,7 +188,7 @@ public class JsonMessageHandler1_0_Test {
                 "\t\t\t\"changed\": true,\n" +
                 "\t\t\t\"modifications\": [{\n" +
                 "\t\t\t\t\"revision\": \"1\",\n" +
-                "\t\t\t\t\"modified-time\": \""+p4ModifiedTime+"\",\n" +
+                "\t\t\t\t\"modified-time\": \"" + p4ModifiedTime + "\",\n" +
                 "\t\t\t\t\"data\": {}\n" +
                 "\t\t\t}]\n" +
                 "\t\t}, {\n" +
@@ -201,7 +202,7 @@ public class JsonMessageHandler1_0_Test {
                 "\t\t\t\"changed\": true,\n" +
                 "\t\t\t\"modifications\": [{\n" +
                 "\t\t\t\t\"revision\": \"pipeline-name/1/stage-name/1\",\n" +
-                "\t\t\t\t\"modified-time\": \""+dependencyModifiedTime+"\",\n" +
+                "\t\t\t\t\"modified-time\": \"" + dependencyModifiedTime + "\",\n" +
                 "\t\t\t\t\"data\": {}\n" +
                 "\t\t\t}]\n" +
                 "\t\t}, {\n" +
@@ -218,7 +219,7 @@ public class JsonMessageHandler1_0_Test {
                 "\t\t\t\"changed\": true,\n" +
                 "\t\t\t\"modifications\": [{\n" +
                 "\t\t\t\t\"revision\": \"1\",\n" +
-                "\t\t\t\t\"modified-time\": \""+packageMaterialModifiedTime+"\",\n" +
+                "\t\t\t\t\"modified-time\": \"" + packageMaterialModifiedTime + "\",\n" +
                 "\t\t\t\t\"data\": {}\n" +
                 "\t\t\t}]\n" +
                 "\t\t}, {\n" +
@@ -232,7 +233,7 @@ public class JsonMessageHandler1_0_Test {
                 "\t\t\t\"changed\": true,\n" +
                 "\t\t\t\"modifications\": [{\n" +
                 "\t\t\t\t\"revision\": \"1\",\n" +
-                "\t\t\t\t\"modified-time\": \""+pluggableScmModifiedTime+"\",\n" +
+                "\t\t\t\t\"modified-time\": \"" + pluggableScmModifiedTime + "\",\n" +
                 "\t\t\t\t\"data\": {}\n" +
                 "\t\t\t}]\n" +
                 "\t\t}],\n" +
@@ -258,7 +259,7 @@ public class JsonMessageHandler1_0_Test {
                 "}";
 
         String request = messageHandler.requestMessageForNotify(new StageNotificationData(pipeline.getFirstStage(), pipeline.getBuildCause(), "pipeline-group"));
-        JSONAssert.assertEquals(expected, request, JSONCompareMode.NON_EXTENSIBLE);
+        assertThatJson(expected).isEqualTo(request);
     }
 
     @Rule

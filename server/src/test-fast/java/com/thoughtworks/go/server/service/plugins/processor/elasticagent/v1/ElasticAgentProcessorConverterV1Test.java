@@ -17,15 +17,14 @@
 package com.thoughtworks.go.server.service.plugins.processor.elasticagent.v1;
 
 import com.thoughtworks.go.plugin.access.elastic.models.AgentMetadata;
-import org.json.JSONException;
 import org.junit.Before;
 import org.junit.Test;
-import org.skyscreamer.jsonassert.JSONAssert;
 
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
+import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson;
 import static org.hamcrest.Matchers.contains;
 import static org.junit.Assert.assertThat;
 
@@ -38,7 +37,7 @@ public class ElasticAgentProcessorConverterV1Test {
     }
 
     @Test
-    public void shouldJsonizeAgentMetadataListConvertAgentMetadataList() throws JSONException {
+    public void shouldJsonizeAgentMetadataListConvertAgentMetadataList() {
         final List<AgentMetadata> agentMetadataList = Arrays.asList(
                 new AgentMetadata("foo-id", "Idle", "Idle", "Enabled"),
                 new AgentMetadata("bar-id", "Idle", "Building", "Enabled")
@@ -61,7 +60,7 @@ public class ElasticAgentProcessorConverterV1Test {
                 "  }\n" +
                 "]";
 
-        JSONAssert.assertEquals(expectedStr, responseBody, true);
+        assertThatJson(expectedStr).isEqualTo(responseBody);
     }
 
     @Test

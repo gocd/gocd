@@ -16,16 +16,16 @@
 
 package com.thoughtworks.go.config.update;
 
+import net.javacrumbs.jsonunit.fluent.JsonFluentAssert;
+import org.junit.Test;
+
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
-
-import org.junit.Test;
-
-import static net.javacrumbs.jsonunit.JsonMatchers.jsonEquals;
+import static javax.servlet.http.HttpServletResponse.SC_BAD_REQUEST;
+import static javax.servlet.http.HttpServletResponse.SC_OK;
 import static org.hamcrest.core.Is.is;
-import static javax.servlet.http.HttpServletResponse.*;
 import static org.junit.Assert.assertThat;
 
 public class ConfigUpdateAjaxResponseTest {
@@ -38,14 +38,13 @@ public class ConfigUpdateAjaxResponseTest {
         ConfigUpdateAjaxResponse response = ConfigUpdateAjaxResponse.failure("id", SC_BAD_REQUEST, "Save failed", fieldErrors, Arrays.asList("global1", "global2"));
         String jsonString = response.toJson();
         assertThat(response.getStatusCode(),is(SC_BAD_REQUEST));
-        assertThat(jsonString,
-                jsonEquals("{\"fieldErrors\":{\"field1\":[\"error 1\"], \"field2\":[\"error 2\"]},\"globalErrors\":[\"global1\",\"global2\"],\"message\":\"Save failed\",\"isSuccessful\":false,\"subjectIdentifier\":\"id\"}"));
+        JsonFluentAssert.assertThatJson(jsonString).isEqualTo("{\"fieldErrors\":{\"field1\":[\"error 1\"], \"field2\":[\"error 2\"]},\"globalErrors\":[\"global1\",\"global2\"],\"message\":\"Save failed\",\"isSuccessful\":false,\"subjectIdentifier\":\"id\"}");
     }
 
     @Test
     public void shouldGetJsonRepresentationForSuccess() throws Exception {
         ConfigUpdateAjaxResponse response = ConfigUpdateAjaxResponse.success("id", SC_OK, "saved successful");
         String jsonString = response.toJson();
-        assertThat(jsonString, jsonEquals("{\"fieldErrors\":{},\"globalErrors\":[],\"message\":\"saved successful\",\"isSuccessful\":true,\"subjectIdentifier\":\"id\"}"));
+        JsonFluentAssert.assertThatJson(jsonString).isEqualTo("{\"fieldErrors\":{},\"globalErrors\":[],\"message\":\"saved successful\",\"isSuccessful\":true,\"subjectIdentifier\":\"id\"}");
     }
 }

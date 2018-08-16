@@ -18,13 +18,13 @@ package com.thoughtworks.go.server.presentation.models;
 
 import com.google.gson.Gson;
 import com.thoughtworks.go.domain.PipelinePauseInfo;
-import org.json.JSONException;
 import org.junit.Before;
 import org.junit.Test;
-import org.skyscreamer.jsonassert.JSONAssert;
 
 import java.util.ArrayList;
 import java.util.Map;
+
+import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson;
 
 public class PipelineJsonPresentationModelTest {
     private PipelineJsonPresentationModel pipeline;
@@ -37,9 +37,9 @@ public class PipelineJsonPresentationModelTest {
     }
 
     @Test
-    public void shouldReturnJson() throws JSONException {
+    public void shouldReturnJson() {
         Map<String, Object> json = pipeline.toJson();
-        JSONAssert.assertEquals("{\n" +
+        assertThatJson("{\n" +
                 "  \"name\": \"connectfour\",\n" +
                 "  \"group\": \"group\",\n" +
                 "  \"paused\": \"true\",\n" +
@@ -49,14 +49,14 @@ public class PipelineJsonPresentationModelTest {
                 "  \"forcedBuild\": \"true\",\n" +
                 "  \"canForce\": \"false\",\n" +
                 "  \"canPause\": \"false\"\n" +
-                "}", new Gson().toJson(json), true);
+                "}").isEqualTo(new Gson().toJson(json));
     }
 
     @Test
     public void shouldHaveCanForceStatus() throws Exception {
         pipeline.setCanForce(true);
         Map<String, Object> json = pipeline.toJson();
-        JSONAssert.assertEquals("{\n" +
+        assertThatJson("{\n" +
                 "  \"name\": \"connectfour\",\n" +
                 "  \"group\": \"group\",\n" +
                 "  \"paused\": \"true\",\n" +
@@ -66,14 +66,14 @@ public class PipelineJsonPresentationModelTest {
                 "  \"forcedBuild\": \"true\",\n" +
                 "  \"canForce\": \"true\",\n" +
                 "  \"canPause\": \"false\"\n" +
-                "}", new Gson().toJson(json), true);
+                "}").isEqualTo(new Gson().toJson(json));
     }
 
     @Test
     public void shouldHaveCanPauseStatus() throws Exception {
         pipeline.setCanPause(true);
         Map<String, Object> json = pipeline.toJson();
-        JSONAssert.assertEquals("{\n" +
+        assertThatJson("{\n" +
                 "  \"name\": \"connectfour\",\n" +
                 "  \"group\": \"group\",\n" +
                 "  \"paused\": \"true\",\n" +
@@ -83,11 +83,11 @@ public class PipelineJsonPresentationModelTest {
                 "  \"forcedBuild\": \"true\",\n" +
                 "  \"canForce\": \"false\",\n" +
                 "  \"canPause\": \"true\"\n" +
-                "}", new Gson().toJson(json), true);
+                "}").isEqualTo(new Gson().toJson(json));
 
         pipeline.setCanPause(false);
         json = pipeline.toJson();
-        JSONAssert.assertEquals("{\n" +
+        assertThatJson("{\n" +
                 "  \"name\": \"connectfour\",\n" +
                 "  \"group\": \"group\",\n" +
                 "  \"paused\": \"true\",\n" +
@@ -97,7 +97,7 @@ public class PipelineJsonPresentationModelTest {
                 "  \"forcedBuild\": \"true\",\n" +
                 "  \"canForce\": \"false\",\n" +
                 "  \"canPause\": \"false\"\n" +
-                "}", new Gson().toJson(json), true);
+                "}").isEqualTo(new Gson().toJson(json));
     }
 }
 

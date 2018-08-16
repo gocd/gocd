@@ -25,7 +25,7 @@ dependencies {
 
   compileOnly(group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: project.versions.bouncyCastle)
 
-  testCompile group: 'org.skyscreamer', name: 'jsonassert', version: project.versions.jsonAssert
+  testCompile group: 'net.javacrumbs.json-unit', name: 'json-unit-fluent', version: project.versions.jsonUnit
   testCompile project(':test:test-utils')
   testCompile project(path: ':domain', configuration: 'testOutput')
   testCompileOnly group: 'junit', name: 'junit', version: project.versions.junit

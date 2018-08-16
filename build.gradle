@@ -180,7 +180,6 @@ rootProject.ext.versions = [
   jodaTime            : '2.3', // joda-time version has to be compatible with the jruby version
   jolt                : '0.1.1',
   jruby               : '1.7.26',
-  jsonAssert          : '1.5.0',
   jsonUnit            : '1.29.0',
   jsoup               : '1.11.3',
   junit               : '4.12',

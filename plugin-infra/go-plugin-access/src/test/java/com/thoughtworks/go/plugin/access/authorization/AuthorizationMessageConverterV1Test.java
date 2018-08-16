@@ -17,19 +17,18 @@
 package com.thoughtworks.go.plugin.access.authorization;
 
 import com.thoughtworks.go.config.PluginRoleConfig;
-import com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother;
 import org.junit.Test;
-import org.skyscreamer.jsonassert.JSONAssert;
-import org.skyscreamer.jsonassert.JSONCompareMode;
 
-import java.util.Collections;
+import static com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother.create;
+import static java.util.Collections.singletonList;
+import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson;
 
 public class AuthorizationMessageConverterV1Test {
 
     @Test
     public void getProcessRoleConfigsResponseBody() throws Exception {
         AuthorizationMessageConverterV1 converter = new AuthorizationMessageConverterV1();
-        String json = converter.getProcessRoleConfigsResponseBody(Collections.singletonList(new PluginRoleConfig("blackbird", "ldap", ConfigurationPropertyMother.create("foo", false, "bar"))));
-        JSONAssert.assertEquals("[{\"name\":\"blackbird\",\"configuration\":{\"foo\":\"bar\"}}]", json, JSONCompareMode.STRICT);
+        String json = converter.getProcessRoleConfigsResponseBody(singletonList(new PluginRoleConfig("blackbird", "ldap", create("foo", false, "bar"))));
+        assertThatJson("[{\"name\":\"blackbird\",\"configuration\":{\"foo\":\"bar\"}}]").isEqualTo(json);
     }
 }

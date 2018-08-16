@@ -217,9 +217,8 @@ dependencies {
   testCompile project(path: ':config:config-api', configuration: 'testOutput')
   testCompile project(path: ':test:test-utils')
   testCompile project(':jetty9')
-  testCompile group: 'org.skyscreamer', name: 'jsonassert', version: project.versions.jsonAssert
+  testCompile group: 'net.javacrumbs.json-unit', name: 'json-unit-fluent', version: project.versions.jsonUnit
   testCompile group: 'org.jsoup', name: 'jsoup', version: project.versions.jsoup
-  testCompile group: 'net.javacrumbs.json-unit', name: 'json-unit', version: project.versions.jsonUnit
   testCompile group: 'org.xmlunit', name: 'xmlunit-matchers', version: project.versions.xmlUnitMatchers
   testCompile group: 'org.assertj', name: 'assertj-core', version: project.versions.assertJ
   testCompile project(':test:http-mocks')

@@ -26,19 +26,26 @@ import com.thoughtworks.go.domain.label.PipelineLabel;
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.dto.DurationBean;
 import com.thoughtworks.go.dto.DurationBeans;
-import com.thoughtworks.go.helper.*;
+import com.thoughtworks.go.helper.JobInstanceMother;
+import com.thoughtworks.go.helper.MaterialsMother;
+import com.thoughtworks.go.helper.ModificationsMother;
+import com.thoughtworks.go.helper.StageMother;
 import com.thoughtworks.go.server.domain.Agent;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.AgentService;
 import com.thoughtworks.go.util.*;
 import org.junit.Before;
 import org.junit.Test;
-import org.skyscreamer.jsonassert.JSONAssert;
 
 import java.util.Date;
 import java.util.Map;
 
+import static com.thoughtworks.go.domain.NullStage.createNullStage;
+import static com.thoughtworks.go.domain.buildcause.BuildCause.createManualForced;
 import static com.thoughtworks.go.helper.ModificationsMother.multipleModifications;
+import static com.thoughtworks.go.helper.StageConfigMother.oneBuildPlanWithResourcesAndMaterials;
+import static net.javacrumbs.jsonunit.core.Option.IGNORING_EXTRA_FIELDS;
+import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
@@ -76,7 +83,7 @@ public class StageJsonPresentationModelTest {
         StageJsonPresentationModel presenter = new StageJsonPresentationModel(pipeline, stage, null, agentService);
         Map json = presenter.toJson();
 
-        JSONAssert.assertEquals("{\n" +
+        assertThatJson(new Gson().toJson(json)).when(IGNORING_EXTRA_FIELDS).isEqualTo("{\n" +
                 "  \"pipelineName\": \"pipeline\",\n" +
                 "  \"stageName\": \"stage\",\n" +
                 "  \"builds\": [\n" +
@@ -94,7 +101,7 @@ public class StageJsonPresentationModelTest {
                 "  \"pipelineCounter\": \"10\",\n" +
                 "  \"pipelineCounterOrLabel\": \"10\",\n" +
                 "  \"id\": \"1\"\n" +
-                "}", new Gson().toJson(json), false);
+                "}");
 
         assertFalse("JSON shouldn't contain last_successful_label",
                 json.toString().contains("last_successful_label"));
@@ -109,7 +116,7 @@ public class StageJsonPresentationModelTest {
                 new StageJsonPresentationModel(pipeline, stage, null, agentService, durations, new TrackingTool());
         Map json = presenter.toJson();
 
-        JSONAssert.assertEquals("{\n" +
+        assertThatJson(new Gson().toJson(json)).when(IGNORING_EXTRA_FIELDS).isEqualTo("{\n" +
                 "  \"stageName\": \"stage\",\n" +
                 "  \"builds\": [\n" +
                 "    {\n" +
@@ -125,7 +132,7 @@ public class StageJsonPresentationModelTest {
                 "  ],\n" +
                 "  \"current_label\": \"10\",\n" +
                 "  \"id\": \"1\"\n" +
-                "}", new Gson().toJson(json), false);
+                "}");
         assertFalse("JSON shouldn't contain last_successful_label",
                 json.toString().contains("last_successful_label"));
     }
@@ -135,9 +142,9 @@ public class StageJsonPresentationModelTest {
         StageJsonPresentationModel presenter = new StageJsonPresentationModel(pipeline, stage, null, agentService);
         Map json = presenter.toJson();
 
-        JSONAssert.assertEquals("{\n" +
+        assertThatJson(new Gson().toJson(json)).when(IGNORING_EXTRA_FIELDS).isEqualTo("{\n" +
                 "  \"current_status\": \"failing\"\n" +
-                "}", new Gson().toJson(json), false);
+                "}");
     }
 
     @Test
@@ -159,16 +166,16 @@ public class StageJsonPresentationModelTest {
 
     @Test
     public void shouldReturnJsonForNullStage() throws Exception {
-        final StageConfig config = StageConfigMother.oneBuildPlanWithResourcesAndMaterials("newStage");
+        final StageConfig config = oneBuildPlanWithResourcesAndMaterials("newStage");
         StageJsonPresentationModel presenter = new StageJsonPresentationModel(
-                pipeline, NullStage.createNullStage(config), null, agentService);
+                pipeline, createNullStage(config), null, agentService);
         Map json = presenter.toJson();
 
-        JSONAssert.assertEquals("[\n" +
+        assertThatJson(new Gson().toJson(json.get("builds"))).when(IGNORING_EXTRA_FIELDS).isEqualTo("[\n" +
                 "  {\n" +
                 "    \"current_status\": \"unknown\"\n" +
                 "  }\n" +
-                "]", new Gson().toJson(json.get("builds")), false);
+                "]");
     }
 
     @Test
@@ -178,10 +185,10 @@ public class StageJsonPresentationModelTest {
                 new StageJsonPresentationModel(pipeline, stage, successfulStage, agentService);
         Map json = presenter.toJson();
 
-        JSONAssert.assertEquals("{\n" +
+        assertThatJson(new Gson().toJson(json)).when(IGNORING_EXTRA_FIELDS).isEqualTo("{\n" +
                 "  \"last_successful_label\": \"LABEL:1\",\n" +
                 "  \"last_successful_stage_locator\": \"pipeline/1/stage/1\"\n" +
-                "}", new Gson().toJson(json), false);
+                "}");
     }
 
     @Test
@@ -190,9 +197,9 @@ public class StageJsonPresentationModelTest {
         presenter.setCanRun(true);
         Map json = presenter.toJson();
 
-        JSONAssert.assertEquals("{\n" +
+        assertThatJson(new Gson().toJson(json)).when(IGNORING_EXTRA_FIELDS).isEqualTo("{\n" +
                 "  \"getCanRun\": \"true\"\n" +
-                "}", new Gson().toJson(json), false);
+                "}");
     }
 
     @Test
@@ -201,9 +208,9 @@ public class StageJsonPresentationModelTest {
         presenter.setCanCancel(true);
         Map json = presenter.toJson();
 
-        JSONAssert.assertEquals("{\n" +
+        assertThatJson(new Gson().toJson(json)).when(IGNORING_EXTRA_FIELDS).isEqualTo("{\n" +
                 "  \"getCanCancel\": \"true\"\n" +
-                "}", new Gson().toJson(json), false);
+                "}");
     }
 
     @Test
@@ -213,21 +220,21 @@ public class StageJsonPresentationModelTest {
                 agentService);
 
         Map json = presenter.toJson();
-        JSONAssert.assertEquals("{\n" +
+        assertThatJson(new Gson().toJson(json)).when(IGNORING_EXTRA_FIELDS).isEqualTo("{\n" +
                 "  \"getCanRun\": \"false\"\n" +
-                "}", new Gson().toJson(json), false);
+                "}");
     }
 
     @Test
     public void shouldEscapeBuildCauseMessage() throws Exception {
         String userWithHtmlCharacters = "<user>";
-        pipeline.setBuildCause(BuildCause.createManualForced(materialRevisions(userWithHtmlCharacters), new Username(new CaseInsensitiveString(userWithHtmlCharacters))));
+        pipeline.setBuildCause(createManualForced(materialRevisions(userWithHtmlCharacters), new Username(new CaseInsensitiveString(userWithHtmlCharacters))));
         StageJsonPresentationModel presenter = new StageJsonPresentationModel(pipeline, stage, null, agentService);
 
-        JSONAssert.assertEquals("{\n" +
+        assertThatJson(new Gson().toJson(presenter.toJson())).when(IGNORING_EXTRA_FIELDS).isEqualTo("{\n" +
                 "  \"buildCause\": \"Forced by \\u0026lt;user\\u0026gt;\"\n" +
-                "}", new Gson().toJson(presenter.toJson()), false);
-        }
+                "}");
+    }
 
     @Test
     public void shouldEncodeStageLocator() throws Exception {

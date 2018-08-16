@@ -16,7 +16,6 @@
 
 package com.thoughtworks.go.apiv2.datasharing.usagedata
 
-
 import com.google.gson.reflect.TypeToken
 import com.thoughtworks.go.api.SecurityTestTrait
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
@@ -30,12 +29,12 @@ import com.thoughtworks.go.spark.ControllerTrait
 import com.thoughtworks.go.spark.NormalUserSecurity
 import com.thoughtworks.go.spark.SecurityServiceTrait
 import com.thoughtworks.go.util.SystemEnvironment
+import net.javacrumbs.jsonunit.fluent.JsonFluentAssert
 import org.apache.commons.io.FileUtils
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.Mock
-import org.skyscreamer.jsonassert.JSONAssert
 
 import javax.crypto.spec.SecretKeySpec
 
@@ -210,7 +209,7 @@ class UsageStatisticsControllerV2DelegateTest implements SecurityServiceTrait, C
         def secretKey = new SecretKeySpec(decryptedKey, 0, decryptedKey.length, "AES")
         def decryptedData = EncryptionHelper.decryptUsingAES(secretKey, aesEncryptedData)
 
-        JSONAssert.assertEquals(decryptedData, expectedJson, true)
+        JsonFluentAssert.assertThatJson(decryptedData).isEqualTo(expectedJson)
         assertThatResponse().isOk()
       }
     }

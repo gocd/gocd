@@ -26,10 +26,13 @@ import com.thoughtworks.go.server.domain.Agent;
 import com.thoughtworks.go.util.JsonUtils;
 import org.joda.time.DateTime;
 import org.junit.Test;
-import org.skyscreamer.jsonassert.JSONAssert;
 
 import java.util.Map;
 
+import static com.thoughtworks.go.domain.JobResult.Passed;
+import static com.thoughtworks.go.helper.JobInstanceMother.*;
+import static net.javacrumbs.jsonunit.core.Option.IGNORING_EXTRA_FIELDS;
+import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
@@ -37,7 +40,7 @@ import static org.mockito.Mockito.mock;
 public class JobStatusJsonPresentationModelTest {
 
     @Test public void shouldShowBuildStatus() throws Exception {
-        JobInstance instance = JobInstanceMother.assigned("test");
+        JobInstance instance = assigned("test");
         instance.setId(12);
         instance.setAgentUuid("1234");
 
@@ -47,64 +50,64 @@ public class JobStatusJsonPresentationModelTest {
                 agent, mock(DurationBean.class));
         Map json = presenter.toJsonHash();
 
-        JSONAssert.assertEquals("{\n" +
+        assertThatJson(new Gson().toJson(json)).when(IGNORING_EXTRA_FIELDS).isEqualTo("{\n" +
                 "  \"name\": \"test\",\n" +
                 "  \"id\": \"12\",\n" +
                 "  \"agent\": \"localhost\",\n" +
                 "  \"current_status\": \"assigned\"\n" +
-                "}", new Gson().toJson(json), false);
+                "}");
     }
 
     @Test public void shouldShowBuildStatusForCompleted() throws Exception {
-        JobInstance instance = JobInstanceMother.completed("test", JobResult.Passed);
+        JobInstance instance = completed("test", Passed);
 
         JobStatusJsonPresentationModel presenter = new JobStatusJsonPresentationModel(instance);
         Map json = presenter.toJsonHash();
 
-        JSONAssert.assertEquals("{\n" +
+        assertThatJson(new Gson().toJson(json)).when(IGNORING_EXTRA_FIELDS).isEqualTo("{\n" +
                 "  \"name\": \"test\",\n" +
                 "  \"current_status\": \"passed\"\n" +
-                "}", new Gson().toJson(json), false);
+                "}");
     }
 
     @Test public void shouldShowElapsedAndRemainingTimeForIncompleteBuild() throws Exception {
-        JobInstance instance = JobInstanceMother.building("test", new DateTime().minusSeconds(5).toDate());
+        JobInstance instance = building("test", new DateTime().minusSeconds(5).toDate());
 
         JobStatusJsonPresentationModel presenter = new JobStatusJsonPresentationModel(instance, mock(Agent.class),
                 new DurationBean(instance.getId(), 10L));
         Map json = presenter.toJsonHash();
 
-        JSONAssert.assertEquals("{\n" +
+        assertThatJson(new Gson().toJson(json)).when(IGNORING_EXTRA_FIELDS).isEqualTo("{\n" +
                 "  \"name\": \"test\",\n" +
                 "  \"current_status\": \"building\",\n" +
                 "  \"current_build_duration\": \"5\",\n" +
                 "  \"last_build_duration\": \"10\"\n" +
-                "}", new Gson().toJson(json), false);
+                "}");
     }
 
     @Test
     public void shouldReturnNotYetAssignedIfAgentUuidIsNull() throws Exception {
-        JobInstance instance = JobInstanceMother.building("Plan1");
+        JobInstance instance = building("Plan1");
         instance.setAgentUuid(null);
 
         // "Not assigned" should depend on whether or not the JobInstance has an agentUuid, regardless of
         // the Agent object passed to the presenter, as this is the canonical definition of job assignment
         JobStatusJsonPresentationModel presenter = new JobStatusJsonPresentationModel(instance, mock(Agent.class), mock(DurationBean.class));
 
-        JSONAssert.assertEquals("{\n  \"agent\": \"Not yet assigned\"\n}", new Gson().toJson(presenter.toJsonHash()), false);
+        assertThatJson(new Gson().toJson(presenter.toJsonHash())).when(IGNORING_EXTRA_FIELDS).isEqualTo("{\n  \"agent\": \"Not yet assigned\"\n}");
     }
 
     @Test
     public void shouldReturnAgentHostname() throws Exception {
-        JobInstance instance = JobInstanceMother.building("Plan1");
+        JobInstance instance = building("Plan1");
         instance.setAgentUuid("1234");
 
         JobStatusJsonPresentationModel presenter =
                 new JobStatusJsonPresentationModel(instance,
-                        new Agent("1234", "cookie","localhost", "address"), mock(DurationBean.class));
-        JSONAssert.assertEquals("{\n" +
+                        new Agent("1234", "cookie", "localhost", "address"), mock(DurationBean.class));
+        assertThatJson(new Gson().toJson(presenter.toJsonHash())).when(IGNORING_EXTRA_FIELDS).isEqualTo("{\n" +
                 "  \"agent\": \"localhost\"\n" +
-                "}", new Gson().toJson(presenter.toJsonHash()), false);
+                "}");
     }
 
     @Test public void shouldShowArtifactTabwhenBuildPassed() throws Exception {

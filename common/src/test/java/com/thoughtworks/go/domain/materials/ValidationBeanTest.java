@@ -17,12 +17,11 @@
 package com.thoughtworks.go.domain.materials;
 
 import org.hamcrest.core.Is;
-import org.json.JSONException;
 import org.junit.Test;
-import org.skyscreamer.jsonassert.JSONAssert;
 
 import static com.thoughtworks.go.domain.materials.ValidationBean.valid;
 import static com.thoughtworks.go.server.web.JsonRenderer.render;
+import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 
@@ -77,9 +76,9 @@ public class ValidationBeanTest {
     }
 
     @Test
-    public void shouldBeAbleToSerializeToJson() throws JSONException {
+    public void shouldBeAbleToSerializeToJson()  {
         ValidationBean bean = ValidationBean.notValid("ErrorMessage");
         String output = render(bean);
-        JSONAssert.assertEquals(output, "{ \"isValid\": \"false\",\"error\": \"ErrorMessage\" }", true);
+        assertThatJson(output).isEqualTo("{ \"isValid\": \"false\",\"error\": \"ErrorMessage\" }");
     }
 }

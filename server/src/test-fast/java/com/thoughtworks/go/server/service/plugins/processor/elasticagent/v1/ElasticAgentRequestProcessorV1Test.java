@@ -29,12 +29,12 @@ import com.thoughtworks.go.server.service.AgentService;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
-import org.skyscreamer.jsonassert.JSONAssert;
 import org.springframework.util.LinkedMultiValueMap;
 
 import java.util.Arrays;
 
 import static com.thoughtworks.go.server.service.plugins.processor.elasticagent.v1.ElasticAgentProcessorRequestsV1.*;
+import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
@@ -71,7 +71,7 @@ public class ElasticAgentRequestProcessorV1Test {
 
         GoApiResponse response = processor.process(pluginDescriptor, request);
 
-        JSONAssert.assertEquals("[{\"agent_id\":\"bar\",\"agent_state\":\"Building\",\"build_state\":\"Building\",\"config_state\":\"Disabled\"}]", response.responseBody(), true);
+        assertThatJson("[{\"agent_id\":\"bar\",\"agent_state\":\"Building\",\"build_state\":\"Building\",\"config_state\":\"Disabled\"}]").isEqualTo(response.responseBody());
     }
 
     @Test

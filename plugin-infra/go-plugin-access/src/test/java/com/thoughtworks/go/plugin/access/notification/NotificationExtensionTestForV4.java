@@ -22,14 +22,11 @@ import com.thoughtworks.go.plugin.access.notification.v4.JsonMessageHandler4_0;
 import com.thoughtworks.go.plugin.api.request.GoPluginApiRequest;
 import com.thoughtworks.go.plugin.api.response.DefaultGoPluginApiResponse;
 import org.hamcrest.core.Is;
-import org.json.JSONException;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.skyscreamer.jsonassert.JSONAssert;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -37,6 +34,7 @@ import java.util.Map;
 import static com.thoughtworks.go.plugin.access.common.settings.PluginSettingsConstants.REQUEST_NOTIFY_PLUGIN_SETTINGS_CHANGE;
 import static com.thoughtworks.go.plugin.api.response.DefaultGoPluginApiResponse.SUCCESS_RESPONSE_CODE;
 import static com.thoughtworks.go.plugin.domain.common.PluginConstants.NOTIFICATION_EXTENSION;
+import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.ArgumentMatchers.anyList;
@@ -110,10 +108,10 @@ public class NotificationExtensionTestForV4 extends NotificationExtensionTestBas
         assertThat(serverInfoJSON, Is.is("{\"server_id\":\"x12ad\",\"site_url\":\"http://build.com\",\"secure_site_url\":\"https://build.com\"}"));
     }
 
-    private void assertRequest(GoPluginApiRequest goPluginApiRequest, String extensionName, String version, String requestName, String requestBody) throws JSONException {
+    private void assertRequest(GoPluginApiRequest goPluginApiRequest, String extensionName, String version, String requestName, String requestBody) {
         Assert.assertThat(goPluginApiRequest.extension(), Is.is(extensionName));
         Assert.assertThat(goPluginApiRequest.extensionVersion(), Is.is(version));
         Assert.assertThat(goPluginApiRequest.requestName(), Is.is(requestName));
-        JSONAssert.assertEquals(requestBody, goPluginApiRequest.requestBody(), true);
+        assertThatJson(requestBody).isEqualTo(goPluginApiRequest.requestBody());
     }
 }

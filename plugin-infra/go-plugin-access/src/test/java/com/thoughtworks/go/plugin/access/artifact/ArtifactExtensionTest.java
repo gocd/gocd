@@ -29,13 +29,11 @@ import com.thoughtworks.go.plugin.domain.common.PluginConfiguration;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import org.hamcrest.Matchers;
-import org.json.JSONException;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
-import org.skyscreamer.jsonassert.JSONAssert;
 
 import java.util.Collections;
 import java.util.List;
@@ -44,6 +42,7 @@ import static com.thoughtworks.go.domain.packagerepository.ConfigurationProperty
 import static com.thoughtworks.go.plugin.access.artifact.ArtifactExtensionConstants.*;
 import static com.thoughtworks.go.plugin.api.response.DefaultGoPluginApiResponse.SUCCESS_RESPONSE_CODE;
 import static com.thoughtworks.go.plugin.domain.common.PluginConstants.ARTIFACT_EXTENSION;
+import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
@@ -201,7 +200,7 @@ public class ArtifactExtensionTest {
     }
 
     @Test
-    public void shouldSubmitPublishArtifactRequest() throws JSONException {
+    public void shouldSubmitPublishArtifactRequest() {
         final String responseBody = "{\n" +
                 "  \"metadata\": {\n" +
                 "    \"artifact-version\": \"10.12.0\"\n" +
@@ -221,21 +220,21 @@ public class ArtifactExtensionTest {
         assertThat(request.requestName(), is(REQUEST_PUBLISH_ARTIFACT));
 
         final String expectedJSON = "{" +
-                "  'artifact_plan': {" +
-                "    'id': 'installer'," +
-                "    'storeId': 'docker'" +
+                "  \"artifact_plan\": {" +
+                "    \"id\": \"installer\"," +
+                "    \"storeId\": \"docker\"" +
                 "  }," +
-                "  'artifact_store': {" +
-                "    'configuration': {}," +
-                "    'id': 'docker'" +
+                "  \"artifact_store\": {" +
+                "    \"configuration\": {}," +
+                "    \"id\": \"docker\"" +
                 "  }," +
-                "  'environment_variables': {" +
-                "    'foo': 'bar'" +
+                "  \"environment_variables\": {" +
+                "    \"foo\": \"bar\"" +
                 "  }," +
-                "  'agent_working_directory': '/temp'" +
+                "  \"agent_working_directory\": \"/temp\"" +
                 "}";
 
-        JSONAssert.assertEquals(expectedJSON, request.requestBody(), true);
+        assertThatJson(expectedJSON).isEqualTo(request.requestBody());
 
         assertThat(response.getMetadata().size(), is(1));
         assertThat(response.getMetadata(), hasEntry("artifact-version", "10.12.0"));
@@ -298,7 +297,7 @@ public class ArtifactExtensionTest {
     }
 
     @Test
-    public void shouldSubmitFetchArtifactRequest() throws JSONException {
+    public void shouldSubmitFetchArtifactRequest() {
         when(pluginManager.submitTo(eq(PLUGIN_ID), eq(ARTIFACT_EXTENSION), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success(""));
         final FetchPluggableArtifactTask pluggableArtifactTask = new FetchPluggableArtifactTask(null, null, "artifactId", create("Filename", false, "build/libs/foo.jar"));
         artifactExtension.fetchArtifact(PLUGIN_ID, new ArtifactStore("s3", "cd.go.s3"), pluggableArtifactTask.getConfiguration(), Collections.singletonMap("Version", "10.12.0"), "/temp");
@@ -318,7 +317,7 @@ public class ArtifactExtensionTest {
 
         assertThat(request.extension(), is(ARTIFACT_EXTENSION));
         assertThat(request.requestName(), is(REQUEST_FETCH_ARTIFACT));
-        JSONAssert.assertEquals(requestBody, request.requestBody(), true);
+        assertThatJson(requestBody).isEqualTo(request.requestBody());
     }
 
     @Test

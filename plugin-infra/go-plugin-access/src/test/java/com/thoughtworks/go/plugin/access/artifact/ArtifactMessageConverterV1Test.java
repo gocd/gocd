@@ -25,15 +25,14 @@ import com.thoughtworks.go.plugin.api.response.validation.ValidationError;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 import com.thoughtworks.go.plugin.domain.artifact.Capabilities;
 import org.hamcrest.MatcherAssert;
-import org.json.JSONException;
 import org.junit.Test;
-import org.skyscreamer.jsonassert.JSONAssert;
 
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
 import static com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother.create;
+import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
@@ -43,7 +42,7 @@ import static org.junit.Assert.assertNotNull;
 public class ArtifactMessageConverterV1Test {
 
     @Test
-    public void publishArtifactMessage_shouldSerializeToJson() throws JSONException {
+    public void publishArtifactMessage_shouldSerializeToJson() {
         final ArtifactMessageConverterV1 converter = new ArtifactMessageConverterV1();
         final ArtifactStore artifactStore = new ArtifactStore("s3-store", "pluginId", create("Foo", false, "Bar"));
         final ArtifactPlan artifactPlan = new ArtifactPlan(new PluggableArtifactConfig("installers", "s3-store", create("Baz", true, "Car")));
@@ -52,26 +51,26 @@ public class ArtifactMessageConverterV1Test {
         final String publishArtifactMessage = converter.publishArtifactMessage(artifactPlan, artifactStore, "/temp", environmentVariables);
 
         final String expectedStr = "{" +
-                "  'artifact_plan': {" +
-                "    'configuration': {" +
-                "      'Baz': 'Car'" +
+                "  \"artifact_plan\": {" +
+                "    \"configuration\": {" +
+                "      \"Baz\": \"Car\"" +
                 "    }," +
-                "    'id': 'installers'," +
-                "    'storeId': 's3-store'" +
+                "    \"id\": \"installers\"," +
+                "    \"storeId\": \"s3-store\"" +
                 "  }," +
-                "  'artifact_store': {" +
-                "    'configuration': {" +
-                "      'Foo': 'Bar'" +
+                "  \"artifact_store\": {" +
+                "    \"configuration\": {" +
+                "      \"Foo\": \"Bar\"" +
                 "    }," +
-                "    'id': 's3-store'" +
+                "    \"id\": \"s3-store\"" +
                 "  }," +
-                "  'agent_working_directory': '/temp'," +
-                "  'environment_variables': {" +
-                "       'foo': 'bar'" +
+                "  \"agent_working_directory\": \"/temp\"," +
+                "  \"environment_variables\": {" +
+                "       \"foo\": \"bar\"" +
                 "   }" +
                 "}";
 
-        JSONAssert.assertEquals(expectedStr, publishArtifactMessage, true);
+        assertThatJson(expectedStr).isEqualTo(publishArtifactMessage);
     }
 
     @Test
@@ -90,12 +89,12 @@ public class ArtifactMessageConverterV1Test {
     }
 
     @Test
-    public void validateConfigurationRequestBody_shouldSerializeConfigurationToJson() throws JSONException {
+    public void validateConfigurationRequestBody_shouldSerializeConfigurationToJson() {
         final ArtifactMessageConverterV1 converter = new ArtifactMessageConverterV1();
 
         final String requestBody = converter.validateConfigurationRequestBody(Collections.singletonMap("Foo", "Bar"));
 
-        JSONAssert.assertEquals("{\"Foo\":\"Bar\"}", requestBody, true);
+        assertThatJson("{\"Foo\":\"Bar\"}").isEqualTo(requestBody);
     }
 
     @Test
@@ -113,7 +112,7 @@ public class ArtifactMessageConverterV1Test {
     }
 
     @Test
-    public void fetchArtifactMessage_shouldSerializeToJson() throws JSONException {
+    public void fetchArtifactMessage_shouldSerializeToJson() {
         final ArtifactMessageConverterV1 converter = new ArtifactMessageConverterV1();
         final ArtifactStore artifactStore = new ArtifactStore("s3-store", "pluginId", create("Foo", false, "Bar"));
         final Map<String, Object> metadata = Collections.singletonMap("Version", "10.12.0");
@@ -134,7 +133,7 @@ public class ArtifactMessageConverterV1Test {
                 "  \"agent_working_directory\": \"/temp\"\n" +
                 "}";
 
-        JSONAssert.assertEquals(expectedStr, fetchArtifactMessage, true);
+        assertThatJson(expectedStr).isEqualTo(fetchArtifactMessage);
     }
 
     @Test

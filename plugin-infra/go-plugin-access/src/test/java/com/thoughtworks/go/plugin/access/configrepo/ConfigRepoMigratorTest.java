@@ -16,11 +16,11 @@
 
 package com.thoughtworks.go.plugin.access.configrepo;
 
-import org.json.JSONException;
+import net.javacrumbs.jsonunit.fluent.JsonFluentAssert;
 import org.junit.Before;
 import org.junit.Test;
-import org.skyscreamer.jsonassert.JSONAssert;
-import org.skyscreamer.jsonassert.JSONCompareMode;
+
+import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson;
 
 public class ConfigRepoMigratorTest {
     private ConfigRepoMigrator migrator;
@@ -36,16 +36,10 @@ public class ConfigRepoMigratorTest {
         String oldJSON = documentMother.versionOneWithLockingSetTo(true);
         String transformedJSON = migrator.migrate(oldJSON, 2);
 
-        JSONAssert.assertEquals("{\n" +
-                "  \"target_version\": \"2\",\n" +
-                "  \"pipelines\": [\n" +
-                "    {\n" +
-                "      \"name\": \"firstpipe\",\n" +
-                "      \"lock_behavior\": \"lockOnFailure\"\n" +
-                "    }\n" +
-                "  ],\n" +
-                "  \"errors\": []\n" +
-                "}", transformedJSON, false);
+        assertThatJson(transformedJSON).node("target_version").isEqualTo("\"2\"");
+        assertThatJson(transformedJSON).node("pipelines[0].name").isEqualTo("firstpipe");
+        assertThatJson(transformedJSON).node("pipelines[0].lock_behavior").isEqualTo("lockOnFailure");
+        assertThatJson(transformedJSON).node("errors").isArray().ofLength(0);
     }
 
     @Test
@@ -54,16 +48,10 @@ public class ConfigRepoMigratorTest {
         String oldJSON = documentMother.versionOneWithLockingSetTo(false);
         String transformedJSON = migrator.migrate(oldJSON, 2);
 
-        JSONAssert.assertEquals("{\n" +
-                "  \"target_version\": \"2\",\n" +
-                "  \"pipelines\": [\n" +
-                "    {\n" +
-                "      \"name\": \"firstpipe\",\n" +
-                "      \"lock_behavior\": \"none\"\n" +
-                "    }\n" +
-                "  ],\n" +
-                "  \"errors\": []\n" +
-                "}", transformedJSON, false);
+        assertThatJson(transformedJSON).node("target_version").isEqualTo("\"2\"");
+        assertThatJson(transformedJSON).node("pipelines[0].name").isEqualTo("firstpipe");
+        assertThatJson(transformedJSON).node("pipelines[0].lock_behavior").isEqualTo("none");
+        assertThatJson(transformedJSON).node("errors").isArray().ofLength(0);
     }
 
     @Test
@@ -74,7 +62,7 @@ public class ConfigRepoMigratorTest {
         String transformedJSON = migrator.migrate(oldJSON, 2);
 
         String oldJSONWithVersionUpdatedForComparison = oldJSON.replaceAll("\"target_version\":\"1\"", "\"target_version\":\"2\"");
-        JSONAssert.assertEquals(oldJSONWithVersionUpdatedForComparison, transformedJSON, JSONCompareMode.STRICT_ORDER);
+        assertThatJson(oldJSONWithVersionUpdatedForComparison).isEqualTo(transformedJSON);
     }
 
     @Test
@@ -84,39 +72,39 @@ public class ConfigRepoMigratorTest {
         String oldJSON = documentMother.versionTwoComprehensive();
         String transformedJSON = migrator.migrate(oldJSON, 2);
 
-        JSONAssert.assertEquals(oldJSON, transformedJSON, JSONCompareMode.STRICT_ORDER);
+        assertThatJson(oldJSON).isEqualTo(transformedJSON);
     }
 
     @Test
-    public void migrateV2ToV3_shouldDoNothingIfJsonDoesNotHaveExternalArtifactConfigs() throws JSONException {
+    public void migrateV2ToV3_shouldDoNothingIfJsonDoesNotHaveExternalArtifactConfigs() {
         ConfigRepoDocumentMother documentMother = new ConfigRepoDocumentMother();
 
         String oldJSON = documentMother.versionTwoComprehensive();
         String newJSON = documentMother.v3Comprehensive();
         String transformedJSON = migrator.migrate(oldJSON, 3);
 
-        JSONAssert.assertEquals(newJSON, transformedJSON, JSONCompareMode.STRICT_ORDER);
+        assertThatJson(newJSON).isEqualTo(transformedJSON);
     }
 
     @Test
-    public void migrateV2ToV3_shouldAddArtifactOriginOnAllFetchTasks() throws JSONException {
+    public void migrateV2ToV3_shouldAddArtifactOriginOnAllFetchTasks() {
         ConfigRepoDocumentMother documentMother = new ConfigRepoDocumentMother();
         String oldJSON = documentMother.v2WithFetchTask();
         String newJson = documentMother.v3WithFetchTask();
 
         String transformedJSON = migrator.migrate(oldJSON, 3);
 
-        JSONAssert.assertEquals(newJson, transformedJSON, JSONCompareMode.STRICT_ORDER);
+        assertThatJson(newJson).isEqualTo(transformedJSON);
     }
 
     @Test
-    public void migrateV2ToV3_shouldDoNothingIfFetchExternalArtifactTaskIsConfiguredInV2() throws JSONException {
+    public void migrateV2ToV3_shouldDoNothingIfFetchExternalArtifactTaskIsConfiguredInV2() {
         ConfigRepoDocumentMother documentMother = new ConfigRepoDocumentMother();
         String oldJSON = documentMother.v2WithFetchExternalArtifactTask();
         String newJson = documentMother.v3WithFetchExternalArtifactTask();
 
         String transformedJSON = migrator.migrate(oldJSON, 3);
 
-        JSONAssert.assertEquals(newJson, transformedJSON, JSONCompareMode.STRICT_ORDER);
+        assertThatJson(newJson).isEqualTo(transformedJSON);
     }
 }

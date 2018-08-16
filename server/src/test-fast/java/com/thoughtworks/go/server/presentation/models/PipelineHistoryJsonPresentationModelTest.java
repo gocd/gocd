@@ -34,12 +34,14 @@ import org.hamcrest.core.Is;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.skyscreamer.jsonassert.JSONAssert;
 
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.thoughtworks.go.helper.PipelineConfigMother.createPipelineConfigWithStages;
+import static net.javacrumbs.jsonunit.core.Option.IGNORING_EXTRA_FIELDS;
+import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson;
 import static org.hamcrest.Matchers.hasKey;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.core.Is.is;
@@ -86,7 +88,7 @@ public class PipelineHistoryJsonPresentationModelTest {
 
     @Test
     public void shouldContainPipelineConfig() throws Exception {
-        JSONAssert.assertEquals("{\n" +
+        assertThatJson(new Gson().toJson(presenter.toJson())).when(IGNORING_EXTRA_FIELDS).isEqualTo("{\n" +
                 "  \"groups\": [\n" +
                 "    {\n" +
                 "      \"config\": {\n" +
@@ -103,13 +105,13 @@ public class PipelineHistoryJsonPresentationModelTest {
                 "      }\n" +
                 "    }\n" +
                 "  ]\n" +
-                "}", new Gson().toJson(presenter.toJson()), false);
+                "}");
     }
 
     @Test
     public void shouldContainPipelineHistory() throws Exception {
         Map json = presenter.toJson();
-        JSONAssert.assertEquals("{\n" +
+        assertThatJson(new Gson().toJson(json)).when(IGNORING_EXTRA_FIELDS).isEqualTo("{\n" +
                 "  \"groups\": [\n" +
                 "    {\n" +
                 "      \"history\": [\n" +
@@ -138,13 +140,15 @@ public class PipelineHistoryJsonPresentationModelTest {
                 "      ]\n" +
                 "    }\n" +
                 "  ]\n" +
-                "}", new Gson().toJson(json), false);
+                "}");
     }
 
     @Test
     public void shouldContainPipelineHistoryComments() throws Exception {
         Map json = presenter.toJson();
-        JSONAssert.assertEquals("{\n" +
+        assertThatJson(new Gson().toJson(json))
+                .when(IGNORING_EXTRA_FIELDS)
+                .isEqualTo("{\n" +
                 "  \"groups\": [\n" +
                 "    {\n" +
                 "      \"history\": [\n" +
@@ -155,20 +159,20 @@ public class PipelineHistoryJsonPresentationModelTest {
                 "      ]\n" +
                 "    }\n" +
                 "  ]\n" +
-                "}", new Gson().toJson(json), false);
+                "}");
 
     }
 
     @Test
     public void shouldContainPipelinePageInfo() throws Exception {
-        JSONAssert.assertEquals("{\n" +
+        assertThatJson(new Gson().toJson(presenter.toJson())).when(IGNORING_EXTRA_FIELDS).isEqualTo("{\n" +
                 "  \"pipelineName\": \"mingle\",\n" +
                 "  \"count\": 1,\n" +
                 "  \"canForce\": \"false\",\n" +
                 "  \"start\": 1,\n" +
                 "  \"perPage\": 10\n" +
-                "}", new Gson().toJson(presenter.toJson()), false);
-        }
+                "}");
+    }
 
     @Test
     public void needsApprovalInJsonShouldBeFalseWhenPipelineIsPaused() throws Exception {
@@ -211,27 +215,26 @@ public class PipelineHistoryJsonPresentationModelTest {
         pipelinePauseInfo.setPauseCause("pauseCause");
         pipelinePauseInfo.setPauseBy("pauseBy");
 
-        JSONAssert.assertEquals("{\n" +
+        assertThatJson(new Gson().toJson(presenter.toJson())).when(IGNORING_EXTRA_FIELDS).isEqualTo("{\n" +
                 "  \"paused\": \"true\"\n" +
-                "}", new Gson().toJson(presenter.toJson()), false);
-        JSONAssert.assertEquals("{\n" +
+                "}");
+        assertThatJson(new Gson().toJson(presenter.toJson())).when(IGNORING_EXTRA_FIELDS).isEqualTo("{\n" +
                 "  \"pauseCause\": \"pauseCause\"\n" +
-                "}", new Gson().toJson(presenter.toJson()), false);
-
-        JSONAssert.assertEquals("{\n" +
+                "}");
+        assertThatJson(new Gson().toJson(presenter.toJson())).when(IGNORING_EXTRA_FIELDS).isEqualTo("{\n" +
                 "  \"pauseBy\": \"pauseBy\"\n" +
-                "}", new Gson().toJson(presenter.toJson()), false);
+                "}");
     }
 
     @Test
     public void shouldCreateGroupForCurrentConfigIfItHasChanged() throws Exception {
         PipelineHistoryGroups historyGroups = preparePipelineHistoryGroups(pipelineConfig);
-        PipelineConfig newConfig = PipelineConfigMother.createPipelineConfigWithStages("mingle", "stage1", "stage2");
+        PipelineConfig newConfig = createPipelineConfigWithStages("mingle", "stage1", "stage2");
         presenter = new PipelineHistoryJsonPresentationModel(pipelinePauseInfo,
                 historyGroups,
                 newConfig,
                 pagination(), CAN_FORCE, hasForceBuildCause, hasModification, true);
-        JSONAssert.assertEquals("{\n" +
+        assertThatJson(new Gson().toJson(presenter.toJson())).when(IGNORING_EXTRA_FIELDS).isEqualTo("{\n" +
                 "  \"groups\": [\n" +
                 "    {\n" +
                 "      \"config\": {\n" +
@@ -262,8 +265,8 @@ public class PipelineHistoryJsonPresentationModelTest {
                 "      }\n" +
                 "    }\n" +
                 "  ]\n" +
-                "}", new Gson().toJson(presenter.toJson()), false);
-        }
+                "}");
+    }
 
     @Test
     public void shouldEncodeStageLocator() {

@@ -44,6 +44,10 @@ public class Configuration extends BaseCollection<ConfigurationProperty> impleme
         Collections.addAll(this, configurationProperties);
     }
 
+    public Configuration(Collection<ConfigurationProperty> configurationProperties) {
+        addAll(configurationProperties);
+    }
+
     public String forDisplay(List<ConfigurationProperty> propertiesToDisplay) {
         ArrayList<String> list = new ArrayList<>();
         for (ConfigurationProperty property : propertiesToDisplay) {

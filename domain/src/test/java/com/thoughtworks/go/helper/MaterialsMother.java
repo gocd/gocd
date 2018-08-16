@@ -82,8 +82,8 @@ public class MaterialsMother {
 
     public static PackageMaterial packageMaterial(String repoId, String repoName, String pkgId, String pkgName, final String pluginid, final String version, List<ConfigurationProperty> repoProperties,
                                                   List<ConfigurationProperty> packageProperties) {
-        PackageRepository repository = PackageRepositoryMother.create(repoId, repoName, pluginid, version, new Configuration((ConfigurationProperty[]) repoProperties.toArray()));
-        PackageDefinition packageDefinition = PackageDefinitionMother.create(pkgId, pkgName, new Configuration((ConfigurationProperty[]) packageProperties.toArray()), repository);
+        PackageRepository repository = PackageRepositoryMother.create(repoId, repoName, pluginid, version, new Configuration(repoProperties));
+        PackageDefinition packageDefinition = PackageDefinitionMother.create(pkgId, pkgName, new Configuration(packageProperties), repository);
         repository.getPackages().add(packageDefinition);
 
         PackageMaterial material = new PackageMaterial(pkgId);
@@ -105,7 +105,7 @@ public class MaterialsMother {
     public static PluggableSCMMaterial pluggableSCMMaterial(String scmId, String scmName, final String pluginid, final String version, List<ConfigurationProperty> properties) {
         PluggableSCMMaterial material = new PluggableSCMMaterial(scmId);
         material.setId(1);
-        SCM scmConfig = SCMMother.create(scmId, scmName, pluginid, version, new Configuration((ConfigurationProperty[]) properties.toArray()));
+        SCM scmConfig = SCMMother.create(scmId, scmName, pluginid, version, new Configuration(properties));
         material.setSCMConfig(scmConfig);
         return material;
     }

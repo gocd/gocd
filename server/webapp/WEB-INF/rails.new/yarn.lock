@@ -3983,6 +3983,10 @@ karma-jasmine-html-reporter@^0.2.2:
   dependencies:
     karma-jasmine "^1.0.2"
 
+karma-jasmine-seed-reporter@^0.2.0:
+  version "0.2.0"
+  resolved "https://registry.yarnpkg.com/karma-jasmine-seed-reporter/-/karma-jasmine-seed-reporter-0.2.0.tgz#a8f7d4c66d23d756deb63cb8dac88e0e058958b9"
+
 karma-jasmine@^1.0.2:
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/karma-jasmine/-/karma-jasmine-1.1.0.tgz#22e4c06bf9a182e5294d1f705e3733811b810acf"

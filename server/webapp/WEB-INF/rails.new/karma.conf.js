@@ -16,8 +16,9 @@
 
 /* global __dirname */
 
-const path    = require('path');
-const process = require('process');
+const path                = require('path');
+const process             = require('process');
+const jasmineSeedReporter = require('karma-jasmine-seed-reporter')
 
 let browsers;
 
@@ -34,11 +35,13 @@ module.exports = function (config) {
   config.set({
     basePath:      path.join(__dirname, 'public', 'assets', 'webpack'),
     frameworks:    ['jasmine'],
-    client: {
+    client:        {
       jasmine: {
-        random: true
+        random: true,
+        seed: process.env['JASMINE_SEED']
       }
     },
+    plugins: [jasmineSeedReporter, "karma-*"],
     preprocessors: {
       '**/*.js': ['sourcemap']
     },
@@ -56,7 +59,7 @@ module.exports = function (config) {
         served:   true
       },
     ],
-    reporters:     ['progress', 'junit', 'kjhtml', 'html'],
+    reporters:     ['progress', 'junit', 'kjhtml', 'html', 'jasmine-seed'],
     htmlReporter:  {
       outputDir:               path.join(__dirname, '..', '..', '..', 'target', 'karma_reports'),
       templatePath:            null,

@@ -19,6 +19,7 @@ package com.thoughtworks.go.server.newsecurity.utils;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.newsecurity.models.AnonymousCredential;
 import com.thoughtworks.go.server.newsecurity.models.AuthenticationToken;
+import com.thoughtworks.go.server.newsecurity.models.Credentials;
 import com.thoughtworks.go.server.security.userdetail.GoUserPrinciple;
 import com.thoughtworks.go.util.Clock;
 import com.thoughtworks.go.util.SystemEnvironment;
@@ -31,7 +32,6 @@ import org.springframework.security.web.savedrequest.SavedRequest;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
 import java.io.IOException;
 
 import static com.thoughtworks.go.domain.PersistentObject.NOT_PERSISTED;
@@ -93,7 +93,7 @@ public class SessionUtils {
     public static void redirectToLoginPage(HttpServletRequest request, HttpServletResponse response, String errorMessage) throws IOException {
         SavedRequest savedRequest = SessionUtils.savedRequest(request);
         SessionUtils.recreateSessionWithoutCopyingOverSessionState(request);
-        
+
         SessionUtils.saveRequest(request, savedRequest);
         SessionUtils.setAuthenticationError(errorMessage, request);
         response.sendRedirect("/go/auth/login");
@@ -148,5 +148,13 @@ public class SessionUtils {
 
     public static Username currentUsername() {
         return getCurrentUser().asUsernameObject();
+    }
+
+    public static boolean hasSameCredentials(HttpServletRequest request, Credentials credentials) {
+        final AuthenticationToken<?> existingToken = SessionUtils.getAuthenticationToken(request);
+        if (existingToken == null) {
+            return false;
+        }
+        return existingToken.getCredentials().equals(credentials);
     }
 }

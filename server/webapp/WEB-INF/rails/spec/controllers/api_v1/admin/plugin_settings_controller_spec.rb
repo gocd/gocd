@@ -348,7 +348,7 @@ describe ApiV1::Admin::PluginSettingsController do
         expect(@plugin_service).to receive(:pluginInfoForExtensionThatHandlesPluginSettings).with('plugin.id.1').exactly(2).times.and_return(
           com.thoughtworks.go.plugin.domain.configrepo.ConfigRepoPluginInfo.new(nil, com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings.new(
             [com.thoughtworks.go.plugin.domain.common.PluginConfiguration.new('url', nil), com.thoughtworks.go.plugin.domain.common.PluginConfiguration.new('password', nil)])))
-        controller.request.env['HTTP_IF_MATCH'] = "\"#{Digest::MD5.hexdigest("md5")}\""
+        controller.request.env['HTTP_IF_MATCH'] = controller.send(:generate_strong_etag, 'md5')
         hash = {plugin_id: 'plugin.id.1', configuration: [{key: 'url', value: 'git@github.com:foo/bar.git'}, {key: 'password', value: "some-value"}]}
 
         expect(@plugin_service).to receive(:isPluginLoaded).with('plugin.id.1').and_return(true)

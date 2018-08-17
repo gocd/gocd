@@ -320,7 +320,7 @@ describe ApiV1::Admin::ConfigReposController do
         expect(@config_repo_service).to receive(:updateConfigRepo).with(@config_repo_id, an_instance_of(ConfigRepoConfig), @md5, an_instance_of(Username), an_instance_of(HttpLocalizedOperationResult)).and_return(result)
         hash = get_config_repo_json(@config_repo_id)
 
-        controller.request.env['HTTP_IF_MATCH'] = "\"#{Digest::MD5.hexdigest(@md5)}\""
+        controller.request.env['HTTP_IF_MATCH'] = controller.send(:generate_strong_etag, @md5)
 
         put_with_api_header :update, params:{id: @config_repo_id, :config_repo => hash}
         expect(response.status).to eq(200)

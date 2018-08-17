@@ -18,6 +18,7 @@ module ApiV3
   class BaseController < ::ApplicationController
 
     include AuthenticationHelper
+    self.etag_with_template_digest = false
 
     FORMATS                = [:json_hal_v3]
     DEFAULT_FORMAT         = FORMATS.last
@@ -56,17 +57,7 @@ module ApiV3
     end
 
     protected
-    def check_for_stale_request
-      if request.env['HTTP_IF_MATCH'] != %Q{"#{Digest::MD5.hexdigest(etag_for_entity_in_config)}"}
-        result = HttpLocalizedOperationResult.new
-        result.stale(stale_message)
-        render_http_operation_result(result)
-      end
-    end
-
-    def etag_for(entity)
-      entity_hashing_service.md5ForEntity(entity)
-    end
+    include ApiEtagHelper
 
     def to_tristate(var)
       TriState.from(var.to_s)

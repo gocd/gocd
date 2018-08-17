@@ -41,7 +41,7 @@ describe ApiV5::Admin::PipelinesController do
     allow(@go_config_service).to receive(:groups).and_return(@pipeline_groups)
     allow(@pipeline_groups).to receive(:hasGroup).and_return(true)
     allow(@entity_hashing_service).to receive(:md5ForEntity).and_return(@pipeline_md5)
-    @latest_etag = "\"#{Digest::MD5.hexdigest(@pipeline_md5)}\""
+    @latest_etag = controller.send(:generate_weak_etag, @pipeline_md5)
   end
 
   after(:each) do
@@ -181,7 +181,7 @@ describe ApiV5::Admin::PipelinesController do
         expect(response).to be_ok
         expected_response = expected_response(pipeline, ApiV5::Admin::Pipelines::PipelineConfigRepresenter)
         expect(actual_response).to eq(expected_response)
-        expect(response.headers['ETag']).to eq("\"#{ActiveSupport::Digest.hexdigest(pipeline_md5)}\"")
+        expect(response.headers['ETag']).to eq(controller.send(:generate_weak_etag, pipeline_md5))
       end
 
       it "should return 304 for show pipeline config if etag sent in request is fresh" do
@@ -191,8 +191,8 @@ describe ApiV5::Admin::PipelinesController do
 
         expect(@pipeline_config_service).to receive(:getPipelineConfig).with(@pipeline_name).and_return(pipeline)
         expect(@entity_hashing_service).to receive(:md5ForEntity).with(pipeline).and_return(pipeline_md5)
-        
-        controller.request.env['HTTP_IF_NONE_MATCH'] = %Q{"#{ActiveSupport::Digest.hexdigest(pipeline_md5)}"}
+
+        controller.request.env['HTTP_IF_NONE_MATCH'] = controller.send(:generate_weak_etag, pipeline_md5)
 
         get_with_api_header :show, params:{:pipeline_name => @pipeline_name}
 
@@ -284,7 +284,7 @@ describe ApiV5::Admin::PipelinesController do
         expect(@pipeline_config_service).to receive(:getPipelineConfig).twice.with(@pipeline_name).and_return(@pipeline)
         expect(@pipeline_config_service).to receive(:updatePipelineConfig).with(anything(), anything(), @pipeline_md5, anything())
 
-        controller.request.env['HTTP_IF_MATCH'] = "\"#{Digest::MD5.hexdigest(@pipeline_md5)}\""
+        controller.request.env['HTTP_IF_MATCH'] = controller.send(:generate_weak_etag, @pipeline_md5)
 
         put_with_api_header :update, params:{pipeline_name: @pipeline_name, :pipeline => pipeline}
 
@@ -496,7 +496,7 @@ describe ApiV5::Admin::PipelinesController do
         end
 
         expect(@pipeline_config_service).to receive(:createPipelineConfig).with(anything(), anything(), result, "group")
-        controller.request.env['HTTP_IF_MATCH'] = "\"#{Digest::MD5.hexdigest("latest-etag")}\""
+        controller.request.env['HTTP_IF_MATCH'] = controller.send(:generate_weak_etag, "latest-etag")
 
         post_with_api_header :create, params:{:pipeline => invalid_pipeline, :group => "group"}
 

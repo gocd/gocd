@@ -346,7 +346,7 @@ describe ApiV1::Admin::Security::AuthConfigsController do
       end
 
       it 'should proceed with update if etag matches' do
-        controller.request.env['HTTP_IF_MATCH'] = %Q{"#{Digest::MD5.hexdigest('md5')}"}
+        controller.request.env['HTTP_IF_MATCH'] = controller.send(:generate_strong_etag, 'md5')
         auth_config = SecurityAuthConfig.new('ldap', 'cd.go.ldap')
         allow(controller).to receive(:load_entity_from_config).twice.and_return(auth_config)
 

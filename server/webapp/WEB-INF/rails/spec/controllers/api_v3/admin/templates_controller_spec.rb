@@ -385,7 +385,7 @@ describe ApiV3::Admin::TemplatesController do
       end
 
       it 'should proceed with update if etag matches.' do
-        controller.request.env['HTTP_IF_MATCH'] = "\"#{Digest::MD5.hexdigest("md5")}\""
+        controller.request.env['HTTP_IF_MATCH'] = controller.send(:generate_strong_etag, 'md5')
 
         expect(@template_config_service).to receive(:loadForView).with('some-template', anything).and_return(@template)
         expect(@entity_hashing_service).to receive(:md5ForEntity).with(an_instance_of(PipelineTemplateConfig)).exactly(3).times.and_return('md5')

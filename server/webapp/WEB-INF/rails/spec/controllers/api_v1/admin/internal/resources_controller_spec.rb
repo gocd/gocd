@@ -78,7 +78,7 @@ describe ApiV1::Admin::Internal::ResourcesController do
         login_as_admin
         resources_list = %w(linux windows).sort
         expect(@go_config_service).to receive(:getResourceList).twice.and_return(resources_list)
-        controller.request.env['HTTP_IF_NONE_MATCH'] = Digest::MD5.hexdigest(resources_list.join('/'))
+        controller.request.env['HTTP_IF_NONE_MATCH'] = controller.send(:generate_weak_etag, resources_list)
 
         get_with_api_header :index
 

@@ -374,7 +374,7 @@ describe ApiV1::Admin::PluggableScmsController do
       end
 
       it 'should proceed with update if etag matches.' do
-        controller.request.env['HTTP_IF_MATCH'] = "\"#{Digest::MD5.hexdigest("md5")}\""
+        controller.request.env['HTTP_IF_MATCH'] = controller.send(:generate_strong_etag, 'md5')
         hash = {id: '1', name: 'material', auto_update: false, plugin_metadata: {id: 'some-plugin', version: '1'}, configuration: [{"key" => 'url', "value" => 'git@github.com:foo/bar.git'}]}.deep_symbolize_keys
 
         expect(@entity_hashing_service).to receive(:md5ForEntity).with(an_instance_of(SCM)).exactly(3).times.and_return('md5')

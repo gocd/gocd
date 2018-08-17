@@ -196,7 +196,7 @@ describe ApiV2::Admin::EnvironmentsController do
         expect(@environment_config_service).to receive(:updateEnvironment).with(@environment_name, anything, anything, @md5, anything).and_return(result)
         hash = {name: @environment_name, pipelines: [], agents: [], environment_variables: []}
 
-        controller.request.env['HTTP_IF_MATCH'] = "\"#{Digest::MD5.hexdigest(@md5)}\""
+        controller.request.env['HTTP_IF_MATCH'] = controller.send(:generate_strong_etag, @md5)
 
         put_with_api_header :put, params:{name: @environment_name, :environment => hash}
         expect(response).to be_ok

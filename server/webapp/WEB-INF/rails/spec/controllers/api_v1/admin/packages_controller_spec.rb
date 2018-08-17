@@ -371,7 +371,7 @@ describe ApiV1::Admin::PackagesController do
         expect(@package_definition_service).to receive(:updatePackage).with(@package_id, an_instance_of(PackageDefinition), @md5, an_instance_of(Username), an_instance_of(HttpLocalizedOperationResult)).and_return(result)
         hash = {id: @package_id, name: @package_name, auto_update: true, package_repo: {id: @package_repo_id}, configuration: [{key: "PACKAGE_ID", value: "prettyjson"}]}
 
-        controller.request.env['HTTP_IF_MATCH'] = "\"#{Digest::MD5.hexdigest(@md5)}\""
+        controller.request.env['HTTP_IF_MATCH'] = controller.send(:generate_weak_etag, @md5)
 
         put_with_api_header :update, params:{package_id: @package_id, :package => hash}
         expect(response.status).to eq(200)

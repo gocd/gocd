@@ -24,8 +24,16 @@ $dashboard-tabs-box-shadow: 0 0 10px rgba(0, 0, 0, 0.21);
   margin-bottom:    20px;
   box-shadow:       $dashboard-tabs-box-shadow;
 
-  .fa-edit, .fa-close, .fa-trash, .fa-plus {
+  .dashboard-tab-edit, .dashboard-tab-remove {
     cursor: pointer;
+  }
+
+  .dashboard-tab-edit {
+    @include icon-before($type: edit);
+  }
+
+  .dashboard-tab-remove {
+    @include icon-before($type: trash);
   }
 
   .add-tab, .tabs-list-dropdown-widget {
@@ -44,6 +52,10 @@ $dashboard-tabs-box-shadow: 0 0 10px rgba(0, 0, 0, 0.21);
     width:      $dashboard-add-tab-width;
     color:      $dashboard-tab-primary-text-color;
     text-align: center;
+
+    .add-icon {
+      @include icon-before($type: plus);
+    }
   }
 
   .tabs-list-dropdown-widget {
@@ -60,6 +72,10 @@ $dashboard-tabs-box-shadow: 0 0 10px rgba(0, 0, 0, 0.21);
       width:    100%;
       height:   100%;
       outline:  none;
+
+      .tabs-list-icon {
+        @include icon-before($type: chevron-down);
+      }
     }
 
     .tabs-list {
@@ -113,9 +129,10 @@ $dashboard-tabs-box-shadow: 0 0 10px rgba(0, 0, 0, 0.21);
     line-height:   initial;
     box-shadow:    $dashboard-tabs-box-shadow;
 
-    .fa {
+    .dashboard-tab-action {
+      display:       inline-block;
       margin:        0;
-      padding:       10px 15px;
+      padding:       5px 15px;
       border-radius: $dashboard-tabs-border-radius;
 
       &:first-of-type {
@@ -179,10 +196,12 @@ $dashboard-tabs-box-shadow: 0 0 10px rgba(0, 0, 0, 0.21);
   }
 
   .page-prev {
+    @include icon-before($type: angle-left);
     left: 0;
   }
 
   .page-next {
+    @include icon-before($type: angle-right);
     right: 0;
   }
 }
@@ -264,7 +283,9 @@ $dashboard-tabs-box-shadow: 0 0 10px rgba(0, 0, 0, 0.21);
     margin-left: 7px;
     cursor:      default;
 
-    .fa {
+    .dropdown-btn {
+      @include icon-before($type: caret-down);
+
       cursor: pointer;
 
       &.deny-action {
@@ -308,7 +329,9 @@ $dashboard-tabs-box-shadow: 0 0 10px rgba(0, 0, 0, 0.21);
     outline: 0;
   }
 
-  .fa-close {
+  .revert {
+    @include icon-before($type: close);
+
     position:  absolute;
     right:     10px;
     top:       50%;
@@ -333,7 +356,9 @@ $dashboard-tabs-box-shadow: 0 0 10px rgba(0, 0, 0, 0.21);
   display:     flex;
   align-items: center;
 
-  .fa-exclamation-circle {
+  .alert-icon {
+    @include icon-before($type: exclamation-circle);
+
     margin-right: 10px;
     font-size:    150%;
     color:        map-get($foundation-palette, alert);

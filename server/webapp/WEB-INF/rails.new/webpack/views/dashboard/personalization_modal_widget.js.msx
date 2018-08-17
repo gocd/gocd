@@ -98,7 +98,7 @@ const AlertContainer = {
     const vm = vnode.attrs.vm;
     if (vm.errorResponse()) {
       return <div class="personalize-editor-error-response">
-        <i class="fa fa-close" onclick={() => vm.errorResponse(null)}></i>
+        <i class="close-button" onclick={() => vm.errorResponse(null)}></i>
         {vm.errorResponse()}
       </div>;
     }

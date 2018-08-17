@@ -54,6 +54,11 @@ $overlay-border-radius: 3px;
   color:       #fff;
   font-size:   16px;
   font-weight: 500;
+  cursor:      pointer;
+
+  .close-icon {
+    @include icon-before($type: close);
+  }
 }
 
 .overlay-content {

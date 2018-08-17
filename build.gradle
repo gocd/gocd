@@ -401,7 +401,7 @@ subprojects {
     // run tests even when inputs have not changed
     outputs.upToDateWhen { false }
 
-    useJUnitPlatform()
+    testTask.useJUnitPlatform()
 
     maxParallelForks = project.hasProperty('maxParallelForks') ? project.maxParallelForks as int : 1
 

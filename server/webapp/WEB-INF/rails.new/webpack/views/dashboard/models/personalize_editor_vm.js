@@ -66,11 +66,11 @@ function arr(val) { // ensure value is an array
 // allows a boolean to control the presence of a value in
 // a list within a m.Stream
 function boolToList(model, stream, attr) {
-  model[attr] = function(boolPreviousValue) {
+  model[attr] = function(value) {
     const r = stream();
     if (!arguments.length) { return _.includes(r, attr); }
 
-    if (!boolPreviousValue) {
+    if (value) {
       r.push(attr); // toggle to `true` => add to list
     } else {
       r.splice(r.indexOf(attr), 1); // toggle to `false` => remove from list

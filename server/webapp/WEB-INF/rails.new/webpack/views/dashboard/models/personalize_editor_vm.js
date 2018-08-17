@@ -38,8 +38,9 @@ function PersonalizeEditorVM(opts, pipelinesByGroup) { // opts is usually the cu
   boolToList(this, state, "failing");
 
   this.includeNewPipelines = function (boolPreviousValue) {
+    console.log(boolPreviousValue);
     if (!arguments.length) { return inverted(); }
-    type(!boolPreviousValue ? "blacklist" : "whitelist");
+    type(boolPreviousValue ? "blacklist" : "whitelist");
   };
 
   this.errorResponse = Stream();

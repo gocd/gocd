@@ -214,8 +214,10 @@ const f = {
   checkbox: {
     view(vnode) {
       const args = _.assign({}, vnode.attrs); // copy attrs instead of modifying in-place
+      const prop = deleteKeyAndReturnValue(args, "prop", "checked");
+      const listen = deleteKeyAndReturnValue(args, "listen", "onchange");
 
-      wireUpModel(args, "checked");
+      wireUpModel(args, prop, listen);
 
       const label        = coerceArray(deleteKeyAndReturnValue(args, "label", []), wrapTextInSpan), // label can be a string or an array
             inputElement = <input type="checkbox" {...args} />;

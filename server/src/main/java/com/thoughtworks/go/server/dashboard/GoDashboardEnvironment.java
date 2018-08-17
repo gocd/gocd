@@ -16,50 +16,24 @@
 
 package com.thoughtworks.go.server.dashboard;
 
-import com.thoughtworks.go.config.security.Permissions;
+import com.thoughtworks.go.config.security.users.Users;
 import com.thoughtworks.go.server.domain.Username;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Set;
+public class GoDashboardEnvironment extends AbstractDashboardGroup {
+    private Users allowedUsers;
 
-public class GoDashboardEnvironment implements DashboardGroup {
-    public GoDashboardEnvironment(String name, Permissions permissions) {
-        this.name = name;
-        this.permissions = permissions;
-    }
-
-    private String name;
-    private Permissions permissions;
-    private Map<String, GoDashboardPipeline> pipelines = new LinkedHashMap<>();
-
-    @Override
-    public String name() {
-        return name;
-    }
-
-    @Override
-    public Set<String> pipelines() {
-        return pipelines.keySet();
+    public GoDashboardEnvironment(String name, Users allowedUsers) {
+        super(name);
+        this.allowedUsers = allowedUsers;
     }
 
     @Override
     public boolean canAdminister(Username username) {
-        return permissions.admins().contains(username.getUsername().toString());
+        return allowedUsers.contains(username.getUsername().toString());
     }
 
     @Override
     public String etag() {
-        return digest(Integer.toString(permissions.hashCode()), pipelines.values());
-    }
-
-    public boolean hasPipelines() {
-        return !pipelines.isEmpty();
-    }
-
-    public void addPipeline(GoDashboardPipeline pipeline) {
-        if (pipeline != null) {
-            pipelines.put(pipeline.name().toString(), pipeline);
-        }
+        return digest(Integer.toString(allowedUsers.hashCode()));
     }
 }

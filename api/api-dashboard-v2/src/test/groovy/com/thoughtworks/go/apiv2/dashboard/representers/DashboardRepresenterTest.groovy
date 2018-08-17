@@ -47,7 +47,7 @@ class DashboardRepresenterTest {
     group1.addPipeline(pipeline2)
     group2.addPipeline(pipeline3)
 
-    def env1 = new GoDashboardEnvironment('env1', permissions)
+    def env1 = new GoDashboardEnvironment('env1', Everyone.INSTANCE)
     env1.addPipeline(pipeline1)
     env1.addPipeline(pipeline3)
 

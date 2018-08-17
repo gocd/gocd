@@ -16,9 +16,7 @@
 
 package com.thoughtworks.go.server.dashboard;
 
-import com.thoughtworks.go.config.security.Permissions;
 import com.thoughtworks.go.config.security.users.AllowedUsers;
-import com.thoughtworks.go.config.security.users.NoOne;
 import com.thoughtworks.go.server.domain.Username;
 import org.junit.Test;
 
@@ -31,13 +29,7 @@ import static org.junit.Assert.assertTrue;
 public class GoDashboardEnvironmentTest {
     @Test
     public void shouldKnowWhetherAUserCanAdministerIt() {
-        Permissions permissions = new Permissions(
-                NoOne.INSTANCE,
-                NoOne.INSTANCE,
-                new AllowedUsers(s("admin1"), Collections.emptySet()),
-                NoOne.INSTANCE);
-
-        GoDashboardEnvironment env = new GoDashboardEnvironment("env1", permissions);
+        GoDashboardEnvironment env = new GoDashboardEnvironment("env1", new AllowedUsers(s("admin1"), Collections.emptySet()));
 
         assertTrue(env.canAdminister(new Username("admin1")));
         assertFalse(env.canAdminister(new Username("viewer1")));

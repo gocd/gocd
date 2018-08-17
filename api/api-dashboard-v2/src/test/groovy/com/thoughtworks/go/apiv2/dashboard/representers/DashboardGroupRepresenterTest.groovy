@@ -109,8 +109,7 @@ class DashboardGroupRepresenterTest {
 
     @Test
     void 'renders pipeline group with hal representation'() {
-      def permissions = new Permissions(Everyone.INSTANCE, Everyone.INSTANCE, Everyone.INSTANCE, Everyone.INSTANCE)
-      def env = new GoDashboardEnvironment('env1', permissions)
+      def env = new GoDashboardEnvironment('env1', Everyone.INSTANCE)
       env.addPipeline(dashboardPipeline('pipeline1'))
       env.addPipeline(dashboardPipeline('pipeline2'))
 
@@ -128,9 +127,7 @@ class DashboardGroupRepresenterTest {
 
     @Test
     void 'renders pipeline group authorization information'() {
-      def noAdminPermissions = new Permissions(Everyone.INSTANCE, Everyone.INSTANCE, NoOne.INSTANCE, Everyone.INSTANCE)
-
-      def env = new GoDashboardEnvironment('env1', noAdminPermissions)
+      def env = new GoDashboardEnvironment('env1', NoOne.INSTANCE)
       env.addPipeline(dashboardPipeline('pipeline1'))
       env.addPipeline(dashboardPipeline('pipeline2'))
 

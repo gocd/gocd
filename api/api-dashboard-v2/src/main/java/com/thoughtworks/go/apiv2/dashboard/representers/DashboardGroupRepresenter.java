@@ -37,23 +37,22 @@ public class DashboardGroupRepresenter {
             .add("can_administer", model.canAdminister(username));
     }
 
-    private static Consumer<OutputLinkWriter> linkWriterFor(DashboardGroup grouping) {
+    private static Consumer<OutputLinkWriter> linkWriterFor(DashboardGroup group) {
         final String doc;
         final String self;
 
-        if (grouping instanceof GoDashboardPipelineGroup) {
+        if (group instanceof GoDashboardPipelineGroup) {
             doc = Routes.PipelineGroup.DOC;
             self = Routes.PipelineGroup.SELF;
-        } else if (grouping instanceof GoDashboardEnvironment) {
+        } else if (group instanceof GoDashboardEnvironment) {
             doc = Routes.EnvironmentConfig.DOC;
-            self = Routes.EnvironmentConfig.name(grouping.name());
+            self = Routes.EnvironmentConfig.name(group.name());
         } else {
-            doc = self = null;
+            throw new IllegalArgumentException("Unknown DashboardGroup type: " + group.getClass().getCanonicalName());
         }
 
-        return linksWriter -> {
-            linksWriter.addAbsoluteLink("doc", doc)
-                .addLink("self", self);
-        };
+        return linksWriter -> linksWriter.
+                addAbsoluteLink("doc", doc).
+                addLink("self", self);
     }
 }

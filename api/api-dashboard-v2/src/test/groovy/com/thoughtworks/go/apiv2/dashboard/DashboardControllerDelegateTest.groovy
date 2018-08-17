@@ -199,7 +199,7 @@ class DashboardControllerDelegateTest implements SecurityServiceTrait, Controlle
   }
 
   private GoDashboardEnvironment environment(String name) {
-    GoDashboardEnvironment environment = new GoDashboardEnvironment(name, permissions())
+    GoDashboardEnvironment environment = new GoDashboardEnvironment(name, Everyone.INSTANCE)
     environment.addPipeline(dashboardPipeline('pipeline1'))
     return environment
   }

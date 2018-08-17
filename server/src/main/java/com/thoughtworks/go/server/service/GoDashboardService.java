@@ -20,7 +20,7 @@ import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.security.Permissions;
 import com.thoughtworks.go.config.security.users.AllowedUsers;
 import com.thoughtworks.go.config.security.users.Everyone;
-import com.thoughtworks.go.config.security.users.NoOne;
+import com.thoughtworks.go.config.security.users.Users;
 import com.thoughtworks.go.server.dashboard.*;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.domain.user.DashboardFilter;
@@ -49,10 +49,10 @@ public class GoDashboardService {
         GoDashboardPipelines allPipelines = cache.allEntries();
         List<GoDashboardEnvironment> environments = new ArrayList<>();
 
-        final Permissions permissions = environmentPermissions();
+        final Users admins = superAdmins();
 
         goConfigService.getEnvironments().forEach(environment -> {
-            GoDashboardEnvironment env = dashboardEnvironmentFor(environment, filter, user, permissions, allPipelines);
+            GoDashboardEnvironment env = dashboardEnvironmentFor(environment, filter, user, admins, allPipelines);
 
             if (env.hasPipelines()) {
                 environments.add(env);
@@ -95,8 +95,8 @@ public class GoDashboardService {
         return dashboardCurrentStateLoader.hasEverLoadedCurrentState();
     }
 
-    private GoDashboardEnvironment dashboardEnvironmentFor(EnvironmentConfig environment, DashboardFilter filter, Username user, Permissions permissions, GoDashboardPipelines allPipelines) {
-        GoDashboardEnvironment env = new GoDashboardEnvironment(environment.name().toString(), permissions);
+    private GoDashboardEnvironment dashboardEnvironmentFor(EnvironmentConfig environment, DashboardFilter filter, Username user, Users allowedUsers, GoDashboardPipelines allPipelines) {
+        GoDashboardEnvironment env = new GoDashboardEnvironment(environment.name().toString(), allowedUsers);
 
         environment.getPipelineNames().forEach(pipelineName -> {
             GoDashboardPipeline pipeline = allPipelines.find(pipelineName);
@@ -114,7 +114,7 @@ public class GoDashboardService {
     private GoDashboardPipelineGroup dashboardPipelineGroupFor(PipelineConfigs pipelineGroup, DashboardFilter filter, Username user, GoDashboardPipelines allPipelines) {
         GoDashboardPipelineGroup goDashboardPipelineGroup = new GoDashboardPipelineGroup(pipelineGroup.getGroup(), resolvePermissionsForPipelineGroup(pipelineGroup, allPipelines));
 
-        if (goDashboardPipelineGroup.hasPermissions() && goDashboardPipelineGroup.canBeViewedBy(user.getUsername().toString())) {
+        if (goDashboardPipelineGroup.hasPermissions() && goDashboardPipelineGroup.canBeViewedBy(user)) {
             pipelineGroup.accept(pipelineConfig -> {
                 GoDashboardPipeline pipeline = allPipelines.find(pipelineConfig.getName());
                 if (pipeline != null) {
@@ -127,19 +127,17 @@ public class GoDashboardService {
         return goDashboardPipelineGroup;
     }
 
-    private Permissions environmentPermissions() {
+    private Users superAdmins() {
         final SecurityConfig security = goConfigService.security();
         final Map<String, Collection<String>> rolesToUsersMap = rolesToUsers(security);
         final Set<String> superAdminUsers = namesOf(security.adminsConfig(), rolesToUsersMap);
         final Set<PluginRoleConfig> superAdminPluginRoles = pluginRolesFor(security, security.adminsConfig().getRoles());
 
         if (!goConfigService.isSecurityEnabled() || noSuperAdminsDefined(security)) {
-            return new Permissions(Everyone.INSTANCE, Everyone.INSTANCE, Everyone.INSTANCE, Everyone.INSTANCE);
+            return Everyone.INSTANCE;
         }
 
-        AllowedUsers superUsers = new AllowedUsers(superAdminUsers, superAdminPluginRoles);
-
-        return new Permissions(NoOne.INSTANCE, NoOne.INSTANCE, superUsers, NoOne.INSTANCE); // only care about the "admins" parameter
+        return new AllowedUsers(superAdminUsers, superAdminPluginRoles);
     }
 
     private Permissions resolvePermissionsForPipelineGroup(PipelineConfigs pipelineGroup, GoDashboardPipelines allPipelines) {

@@ -19,64 +19,29 @@ package com.thoughtworks.go.server.dashboard;
 import com.thoughtworks.go.config.security.Permissions;
 import com.thoughtworks.go.server.domain.Username;
 
-import java.util.Collection;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Set;
-
-public class GoDashboardPipelineGroup implements DashboardGroup {
-    private String name;
+public class GoDashboardPipelineGroup extends AbstractDashboardGroup {
     private Permissions permissions;
-    private Map<String, GoDashboardPipeline> pipelines = new LinkedHashMap<>();
 
     public GoDashboardPipelineGroup(String name, Permissions permissions) {
-        this.name = name;
+        super(name);
         this.permissions = permissions;
     }
 
     @Override
-    public String name() {
-        return name;
-    }
-
-    @Override
-    public Set<String> pipelines() {
-        return pipelines.keySet();
-    }
-
-    @Override
     public boolean canAdminister(Username username) {
-        return canBeAdministeredBy(username.getUsername().toString());
+        return permissions.admins().contains(username.getUsername().toString());
     }
 
+    @Override
     public String etag() {
-        return digest(Integer.toString(permissions.hashCode()), allPipelines());
+        return digest(Integer.toString(permissions.hashCode()));
     }
 
-    public void addPipeline(GoDashboardPipeline goDashboardPipeline) {
-        if (goDashboardPipeline != null) {
-            pipelines.put(goDashboardPipeline.name().toString(), goDashboardPipeline);
-        }
-    }
-
-    public Collection<GoDashboardPipeline> allPipelines() {
-        return pipelines.values();
-    }
-
-    boolean canBeAdministeredBy(String userName) {
-        return permissions.admins().contains(userName);
-    }
-
-    public boolean canBeViewedBy(String userName) {
-        return permissions.viewers().contains(userName);
+    public boolean canBeViewedBy(Username userName) {
+        return permissions.viewers().contains(userName.getUsername().toString());
     }
 
     public boolean hasPermissions() {
         return permissions != null;
     }
-
-    public boolean hasPipelines() {
-        return !pipelines.isEmpty();
-    }
-
 }

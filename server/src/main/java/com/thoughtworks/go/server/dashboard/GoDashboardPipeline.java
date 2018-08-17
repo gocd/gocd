@@ -124,7 +124,7 @@ public class GoDashboardPipeline {
         return result;
     }
 
-    public String cacheSegment() {
+    String cacheSegment() {
         return name().toString() + ":" + getLastUpdatedTimeStamp();
     }
 

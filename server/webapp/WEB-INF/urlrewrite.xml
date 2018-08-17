@@ -155,7 +155,7 @@
     </rule>
 
     <rule>
-        <name>Admin Config API</name>
+        <name>System Admins(AdminsConfig) API</name>
         <from>^/api/admin/security/system_admins$</from>
         <to last="true">/spark/api/admin/security/system_admins</to>
     </rule>

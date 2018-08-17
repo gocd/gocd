@@ -106,11 +106,11 @@ describe("Pipeline List View Model", () => {
 });
 
 function check(stream) {
-  stream(false); // seems backwards, but the stream expects the previous value of onchange
+  stream(true);
 }
 
 function uncheck(stream) {
-  stream(true); // seems backwards, but the stream expects the previous value of onchange
+  stream(false);
 }
 
 function _st(obj) {

@@ -60,7 +60,7 @@ const PipelineSelectors = {
   view(vnode) {
     const pipelines = vnode.attrs.pipelines;
     return m("ul", {class: "selected-pipelines-pipeline-list"},
-      _.map(pipelines, (p) => <li><f.checkbox model={p} attrName="selected" listen="onclick" label={p.name} /></li>)
+      _.map(pipelines, (p) => <li><f.checkbox model={p} attrName="selected" label={p.name} /></li>)
     );
   }
 };
@@ -70,7 +70,7 @@ const PipelineGroupSelection = {
     const vm = vnode.attrs.vm, name = vnode.attrs.name;
     return <li class={`selected-pipelines-group-${(vm.expanded() ? "expanded" : "collapsed")}`}>
       <i class="pipeline-list-toggle" onclick={() => vm.expanded(!vm.expanded())} />
-      <f.checkbox model={vm} attrName="selected" listen="onclick" label={name}/>
+      <f.checkbox model={vm} attrName="selected" label={name}/>
       <PipelineSelectors pipelines={vm.pipelines} />
     </li>;
   }
@@ -114,7 +114,7 @@ const PersonalizationModalWidget = {
       <FilterNameInput {...vnode.attrs} />
       <section class="filter-options">
         <BlanketSelector vm={vm.selectionVM} />
-        <f.checkbox name="include-new-pipelines" model={vm} attrName="includeNewPipelines" listen="onclick" label="Show newly created pipelines" />
+        <f.checkbox name="include-new-pipelines" model={vm} attrName="includeNewPipelines" label="Show newly created pipelines" />
       </section>
       <section class="pipeline-selections">
         <SelectedPipelineList vm={vm.selectionVM} />

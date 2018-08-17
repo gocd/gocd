@@ -28,5 +28,7 @@ linters:
   SelectorDepth:
     enabled: true
     max_depth: 4
+  SelectorFormat:
+    enabled: false
   PseudoElement:
     enabled: false # we don't support IE8, so ::after, or :after are both OK.

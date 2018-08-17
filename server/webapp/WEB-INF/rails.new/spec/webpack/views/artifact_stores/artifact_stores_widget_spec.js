@@ -114,7 +114,7 @@ describe('Artifact Stores Widget', () => {
 
       m.mount(root, ArtifactStoresWidget);
 
-      expect($(".collapsible-list-header").length).toEqual(2);
+      expect($(".c-collapse_header").length).toEqual(2);
     });
   });
 
@@ -249,7 +249,7 @@ describe('Artifact Stores Widget', () => {
         });
 
         expect($root.find('.plugin-config-read-only')).not.toHaveClass('show');
-        simulateEvent.simulate($root.find('.collapsible-list-header').get(0), 'click');
+        simulateEvent.simulate($root.find('.c-collapse_header').get(0), 'click');
         m.redraw();
         expect($root.find('.plugin-config-read-only')).toHaveClass('show');
 

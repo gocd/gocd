@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-const m                      = require('mithril');
-const Stream                 = require('mithril/stream');
-const ComponentMixins        = require('helpers/mithril_component_mixins');
+const m = require('mithril');
+const Stream = require('mithril/stream');
+const ComponentMixins = require('helpers/mithril_component_mixins');
 const RoleUserReadOnlyWidget = require('views/roles/gocd_role_user_readonly_widget');
-const ActionButtons          = require('views/shared/action_buttons');
+const ActionButtons = require('views/shared/action_buttons');
 
 const RoleWidget = {
-  oninit (vnode) {
+  oninit(vnode) {
     this.args = vnode.attrs;
     ComponentMixins.HasViewModel.call(this);
 
@@ -37,24 +37,30 @@ const RoleWidget = {
     };
   },
 
-  view (vnode) {
+  view(vnode) {
     const showState = vnode.state.showState();
 
     return (
-      <div class="role">
-        <div class="role-header" onclick={vnode.state.toggleHide.bind(vnode.state)}>
-          <span class="plugin-icon">
-            <span class="gocd-role-icon"></span>
-          </span>
-          <div class="role-description">
-            <div class="role-name">
-              <span class="key">Name: </span><span class="value">{vnode.attrs.role().name()}</span>
-            </div>
+
+      <div class={`c-collapse ${(this.showState() === 'hide') ? 'collapsed' : 'expanded'}`}>
+
+        <div class="c-collapse_header" onclick={vnode.state.toggleHide.bind(vnode.state)}>
+          <div className="c-collapse_header_details">
+              <span class="c-collapse_icon">
+                  <span class="gocd-role-icon"></span>
+              </span>
+            <dl class="key-value-pair key-value-pair-header">
+              <dt class="key">Name</dt>
+              <dd class="value">{vnode.attrs.role().name()}</dd>
+            </dl>
+
           </div>
+          <ActionButtons onEdit={vnode.attrs.onEdit} onClone={vnode.attrs.onClone} onDelete={vnode.attrs.onDelete}/>
+
         </div>
 
         <RoleUserReadOnlyWidget role={vnode.attrs.role} showState={showState}/>
-        <ActionButtons onEdit={vnode.attrs.onEdit} onClone={vnode.attrs.onClone} onDelete={vnode.attrs.onDelete}/>
+
       </div>
     );
   }

@@ -14,6 +14,10 @@
  * limitations under the License.
  */
 
+$transition: all 0.3s ease-in-out;
+
+//colors
+
 $go-primary: #b66fc2;
 $go-secondary: #d1c4e9;
 $go-tertiary: #ffd54f;
@@ -24,10 +28,18 @@ $dark-grey: #1e1e1e;
 $txt-color: #333;
 $border-color: #ccc;
 $go-links: #0277bd;
-
-$global-border-radius: 3px;
 $page-body-background: #efefef;
+$global-border-radius: 3px;
 $general-panel-header-bg: $go-secondary;
+$panel-header-bg: #e7eef0;
+$border-grey: #ececec;
+
+//icon size
+
+$component-icon-size: 30px;
+$icon-text-padding: 20px;
+$go-icon-color: #555;
+$go-icon-hover-color: #000;
 
 //table
 
@@ -124,15 +136,15 @@ $pipeline-page-header-bg: $go-white;
 
 //z-index
 
-$app-header-top-line: 11;
-$main-navigation: 10;
-$app-header-z-index: 12;
 $agents-filters: 2;
+$build-details-dropdown-arrow-z-index: 2;
 $header-panel-z-index: 3;
 $agent-header-panel-z-index: 3;
-$build-details-dropdown-arrow-z-index: 2;
-$label-filter-group: 11;
+$main-navigation: 10;
 $page-header: 10;
+$app-header-top-line: 11;
+$label-filter-group: 11;
+$app-header-z-index: 12;
 
 //stage history table
 

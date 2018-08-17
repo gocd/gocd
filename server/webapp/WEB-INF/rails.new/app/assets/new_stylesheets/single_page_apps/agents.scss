@@ -318,7 +318,7 @@ $arrow-color: #000;
 .agents-table-body {
   $foo: 44px;
 
-  margin-top: 148px - $foo;
+  margin-top: 148px - $foo - 70px;
 
   &.has-message, &.has-permanent-message {
     margin-top: 212px - $foo;

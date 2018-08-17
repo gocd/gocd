@@ -209,11 +209,11 @@ describe("AuthConfigsWidget", () => {
     });
 
     it("should list existing auth-configs in absence of authorization-plugin with disabled edit and clone button", () => {
-      const rows    = $root.find('.plugin-description');
+      const rows    = $root.find('.c-collapse_header_details');
       const actions = $root.find('.plugin-actions');
 
       expect(rows.eq(0).find('.auth-config-id .value').text()).toEqual(authConfigJSON.id);
-      expect(rows.eq(0).find('.plugin-id .value').text()).toEqual(authConfigJSON.plugin_id);
+      expect(rows.eq(0).find('.auth-plugin-id .value').text()).toEqual(authConfigJSON.plugin_id);
       expect(actions.eq(0).find('.edit-button').hasClass('disabled')).toEqual(true);
       expect(actions.eq(0).find('.clone-button').hasClass('disabled')).toEqual(true);
     });
@@ -222,8 +222,8 @@ describe("AuthConfigsWidget", () => {
   describe("list all auth configs", () => {
 
     it("should render a list of all auth configs", () => {
-      expect($root.find('.auth-config-id')).toContainText(authConfigJSON.id);
-      expect($root.find('.plugin-id')).toContainText(authConfigJSON.plugin_id);
+      expect($root.find('.auth-config-id .value')).toContainText(authConfigJSON.id);
+      expect($root.find('.auth-plugin-id .value')).toContainText(authConfigJSON.plugin_id);
     });
 
     it("should render error if index call fails", () => {
@@ -364,7 +364,7 @@ describe("AuthConfigsWidget", () => {
       });
 
       expect($root.find('.plugin-config-read-only')).not.toHaveClass('show');
-      simulateEvent.simulate($root.find('.auth-config-header').get(0), 'click');
+      simulateEvent.simulate($root.find('.c-collapse_header').get(0), 'click');
       m.redraw();
       expect($root.find('.plugin-config-read-only')).toHaveClass('show');
 

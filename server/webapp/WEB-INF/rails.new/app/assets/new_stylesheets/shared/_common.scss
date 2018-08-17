@@ -13,11 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@import 'variables';
 @import "go-variables";
+@import "mixins";
 @import "notifications";
+@import "header";
+
+$auth-config-plugin-icon-size: 30px;
+$auth-config-icon-text-padding: 20px;
 
 %boxshadow {
   box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.2);
+}
+
+%box-shadow {
+  box-shadow: 0 3px 11px 0 rgba(0, 0, 0, 0.15);
 }
 
 .button {
@@ -95,26 +105,27 @@ html, body {
   height: $app-footer-height;
 }
 
+//page header
+
 .header-panel {
-  position:  fixed;
-  top:       $main-nav-height;
-  transform: translateX(-50%);
-  left:      50%;
-  width:     100%;
-  z-index:   $header-panel-z-index;
+  position: fixed;
+  top:      $main-nav-height;
+  //transform: translateX(-50%);
+  //left:      50%;
+  width:    100%;
+  z-index:  $header-panel-z-index;
   .message {
     background-color: $body-background;
   }
 }
 
 .page-header {
-  background:      $page-header-bg;
-  background-size: cover;
-  padding:         10px 0;
-  margin-bottom:   15px;
-  position:        relative;
-  min-height:      44px;
-  box-sizing:      border-box;
+  background:    $page-header-bg;
+  padding:       10px 15px;
+  margin-bottom: 15px;
+  position:      relative;
+  min-height:    50px;
+  box-sizing:    border-box;
 
   h1 {
     display:     inline-block;
@@ -293,28 +304,94 @@ select {
   }
 }
 
+.main-container {
+  margin-top:       70px;
+  background-color: $accordion-bg;
+  overflow:         auto;
+}
+
 //new styles
 
 .key-value-pair {
   @include clearfix;
-  margin:    0;
-  padding:   0;
-  font-size: rem-calc(14px);
-  dt {
-    float:       left;
-    min-width:   150px;
-    clear:       left;
-    font-size:   rem-calc(13px);
-    font-weight: 600;
+  margin:  0;
+  padding: 0;
+  dt, .key {
+    float:         left;
+    min-width:     150px;
+    clear:         left;
+    font-weight:   400;
+    margin-bottom: 0;
+    font-size:     rem-calc(13px);
   }
-  dd {
+  dd, .value {
     float:        left;
     position:     relative;
-    padding-left: 10px;
+    padding-left: 15px;
+    font-weight:  600;
+    font-size:    rem-calc(13px);
     &:before {
-      content:  ":";
-      position: absolute;
-      left:     -3px;
+      content:     ":";
+      position:    absolute;
+      left:        5px;
+      font-weight: 600;
+    }
+  }
+
+  //extended for header
+
+  &.key-value-pair-header {
+    margin-right: 20px;
+    line-height:  30px;
+    dt, .key {
+      min-width: 10px;
+    }
+  }
+}
+
+ul.key-value-pair { // scss-lint:disable QualifyingElement
+  list-style-type: none;
+  margin:          0;
+  padding:         0;
+  li {
+    @include clearfix();
+    padding:       5px;
+    border-bottom: 1px dashed lighten($border-color, 10%);
+    &:last-child {
+      border: 0;
+    }
+  }
+
+}
+
+.plugin-group-header {
+
+  .btn-group {
+    float: right;
+  }
+
+  .warning {
+    @include icon-before($type: exclamation-triangle, $size: $component-icon-size, $color: #fff702);
+    &:before {
+      font-size:      20px;
+      text-align:     center;
+      vertical-align: middle;
+    }
+  }
+
+}
+
+.plugin-config-read-only {
+
+  .key-value-pair {
+    .key {
+      width:      25%;
+      max-width:  200px;
+      word-break: break-all;
+    }
+    .value {
+      width:      70%;
+      overflow-x: auto;
     }
   }
 }
@@ -322,4 +399,24 @@ select {
 .page-save-in-progress {
   pointer-events: none;
   opacity:        0.3;
+}
+
+//silent classes
+
+%title {
+  margin:      0 20px 0 0;
+  font-weight: 600;
+  font-size:   14px;
+  line-height: $component-icon-size;
+}
+
+.unknown-plugin-icon {
+  @include icon-before($type: question, $size: $auth-config-plugin-icon-size, $color: $light-gray);
+  &:before {
+    margin: 0;
+  }
+}
+
+.collapse_header_error_message {
+  font-size: 13px;
 }

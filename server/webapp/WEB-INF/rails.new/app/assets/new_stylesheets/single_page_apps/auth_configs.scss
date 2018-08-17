@@ -13,101 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@import 'shared/mixins';
-@import 'shared/autocomplete';
 @import 'shared/common';
 @import 'shared/modal';
-@import 'shared/header';
 @import 'shared/alert';
 @import 'shared/action_buttons';
+@import 'components/panel';
+@import 'components/collapse';
 
-$auth-config-plugin-icon-size: 30px;
-$auth-config-icon-text-padding: 20px;
+.auth-config-id, .auth-plugin-id {
+  min-width: 300px;
+  max-width: 300px;
+}
 
 .add-auth-config {
-  float:         right;
-  margin-bottom: 0;
-}
-
-.delete-auth-config {
-  margin-top: 20px;
-}
-
-.auth-configs {
-  margin-top:       60px;
-  background-color: $accordion-bg;
-  overflow:         auto;
-}
-
-.auth-config {
-  background:    $go-white;
-  position:      relative;
-  margin-bottom: 10px;
-  border:        0;
-  border-radius: $global-border-radius;
-  cursor:        pointer;
-}
-
-.auth-config-header {
-  padding: 10px;
+  float:  right;
+  margin: 0;
 }
 
 .reveal .delete-auth-config {
   @include icon-before($type: trash, $color: $white, $margin: 0 5px 0 0, $progress-spinner: true);
-}
-
-.plugin-icon {
-  width:          $auth-config-plugin-icon-size;
-  height:         $auth-config-plugin-icon-size;
-  display:        inline-block;
-  vertical-align: middle;
-}
-
-.plugin-description {
-  display:        inline-block;
-  vertical-align: middle;
-  padding-left:   $auth-config-icon-text-padding;
-  width:          calc(100% - #{$auth-config-plugin-icon-size});
-
-  .plugin-id, .auth-config-id {
-    display:   inline-block;
-    min-width: 300px;
-
-    .value {
-      font-weight: 400;
-      font-size:   rem-calc(13px);
-    }
-  }
-  .key {
-    font-weight: 600;
-    font-size:   rem-calc(13px);
-  }
-}
-
-.plugin-config-read-only {
-  box-sizing: border-box;
-  padding:    10px 10px 10px 60px;
-  border-top: 1px solid $light-grey;
-  .key-value-pair {
-    dt {
-      width: 20%;
-    }
-    dd {
-      width: 80%;
-    }
-    pre {
-      width:       100%;
-      display:     block;
-      white-space: inherit;
-    }
-  }
-}
-
-.unknown-plugin-icon {
-  @include icon-before($type: question, $size: $auth-config-plugin-icon-size, $color: $light-gray);
-  &:before {
-    margin: 0;
-  }
 }
 
 .modal-body .id-and-plugin-id-wrapper .columns:first-child {

@@ -13,18 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@import 'shared/mixins';
-@import 'shared/autocomplete';
 @import 'shared/common';
 @import 'shared/modal';
-@import 'shared/header';
 @import 'shared/alert';
 @import 'shared/action_buttons';
-
-$role-plugin-icon-size: 30px;
-$role-icon-text-padding: 20px;
-$role-icon-color: #555;
-$role-icon-hover-color: #000;
+@import 'components/panel';
+@import 'components/collapse';
 
 .add-role {
   float:         right;
@@ -42,12 +36,6 @@ $role-icon-hover-color: #000;
   margin-top: 20px;
 }
 
-.roles {
-  margin-top:       60px;
-  background-color: $accordion-bg;
-  overflow:         auto;
-}
-
 .role {
   background:    $go-white;
   position:      relative;
@@ -57,76 +45,15 @@ $role-icon-hover-color: #000;
   cursor:        pointer;
 }
 
-.role-header {
-  padding: 10px;
-}
-
 .reveal .delete-role {
   @include icon-before($type: trash, $color: $white, $margin: 0 5px 0 0, $progress-spinner: true);
 }
 
-.plugin-icon {
-  width:          $role-plugin-icon-size;
-  height:         $role-plugin-icon-size;
-  display:        inline-block;
-  vertical-align: middle;
-}
-
-.role-description {
-  display:        inline-block;
-  vertical-align: middle;
-  padding-left:   $role-icon-text-padding;
-  width:          calc(100% - #{$role-plugin-icon-size});
-
-  .auth-config-id, .role-name, .plugin-name {
-    display:   inline-block;
-    min-width: 300px;
-
-    .value {
-      font-weight: 400;
-      font-size:   rem-calc(13px);
-    }
-  }
-  .key {
-    font-weight: 600;
-    font-size:   rem-calc(13px);
-  }
-}
-
-.plugin-role-read-only {
-  box-sizing: border-box;
-  padding:    10px 10px 10px 60px;
-  border-top: 1px solid $light-grey;
-  .key-value-pair {
-    dt {
-      width: 20%;
-      @media only screen and (min-width: 90.063em) {
-        width: 15%;
-      }
-    }
-    dd {
-      width: 80%;
-    }
-    pre {
-      width:       100%;
-      display:     block;
-      white-space: inherit;
-    }
-  }
-}
-
-.unknown-plugin-icon {
-  @include icon-before($type: question, $size: $role-plugin-icon-size, $color: $light-gray);
-  &:before {
-    margin: 0;
-  }
-}
-
 .gocd-role-icon {
-  background:          image-url("gocd.svg") no-repeat center;
-  display:             block;
-  width:               $role-plugin-icon-size;
-  height:              $role-plugin-icon-size;
+  background: image-url("gocd.svg") no-repeat center;
+  display:    block;
+  width:      $component-icon-size;
+  height:     $component-icon-size;
 }
 
 .modal-body .id-and-plugin-id-wrapper .columns:first-child {
@@ -167,22 +94,9 @@ $role-icon-hover-color: #000;
   }
 }
 
-.role-read-only {
-  box-sizing: border-box;
-  border-top: 1px solid $light-grey;
-  padding:    10px;
-  cursor:     auto;
-}
-
 .no-users-message {
   font-size: 13px;
   margin:    10px 0 10px 50px;
-}
-
-.role-edit-only {
-  box-sizing:  border-box;
-  border-top:  1px solid $light-grey;
-  padding-top: 10px;
 }
 
 .role-users {

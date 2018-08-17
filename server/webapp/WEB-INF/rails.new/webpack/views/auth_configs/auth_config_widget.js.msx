@@ -55,33 +55,36 @@ const AuthConfigWidget = {
       );
     }
     return (
-      <div class="auth-config">
-        <div class="auth-config-header" onclick={vnode.state.toggleHide.bind(vnode.state)}>
-            <span class="plugin-icon">
+      <div class={`c-collapse ${(this.showState() === 'hide') ? 'collapsed' : 'expanded'}`}>
+        <div class="c-collapse_header" onclick={vnode.state.toggleHide.bind(vnode.state)}>
+
+          <div class="c-collapse_header_details">
+            <span class="c-collapse_icon">
               {image}
             </span>
-          <div class="plugin-description">
-            <div class="auth-config-id"><span class="key">Id: </span><span class="value">{authConfig.id()}</span></div>
-            <div class="plugin-id"><span class="key">Plugin ID:</span> <span
-              class="value">{authConfig.pluginId()}</span>
-            </div>
+                <dl className="key-value-pair key-value-pair-header auth-config-id">
+                    <dt class="key">Id </dt>
+                    <dd class="value">{authConfig.id()}</dd>
+                </dl>
+                    <dl className="key-value-pair key-value-pair-header auth-plugin-id">
+                    <dt class="key">Plugin ID</dt>
+                    <dd class="value">{authConfig.pluginId()}</dd>
+              </dl>
           </div>
-
+            {actionButtons}
         </div>
-        <div class={`plugin-config-read-only ${vnode.state.showState()}`}>
-          <dl class="key-value-pair">
+        <div class={`c-collapse_body plugin-config-read-only ${vnode.state.showState()}`}>
+          <ul class="key-value-pair">
 
             {authConfig.properties().mapConfigurations((configuration) => {
               return [
-                (<dt>{configuration.key()}</dt>),
-                (<dd>
-                  <pre>{configuration.displayValue()}</pre>
-                </dd>)
+                  (<li><label class="key">{configuration.key()}</label><span class="value"><pre>{configuration.displayValue()}</pre></span>
+                  </li>)
               ];
             })}
-          </dl>
+          </ul>
         </div>
-        {actionButtons}
+
       </div>
     );
   }

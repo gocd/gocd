@@ -204,21 +204,20 @@ describe("RolesWidget", () => {
     });
 
     it("should list existing roles in absence of authorization plugin", () => {
-      const rows = $root.find('.role-description');
+      const rows = $root.find('.c-collapse');
 
-      expect(rows.eq(0).find('.role-name .value').text()).toEqual(pluginRoleJSON.name);
+      expect(rows.eq(0).find('.c-collapse_header_details .value').eq(0).text()).toEqual(pluginRoleJSON.name);
       expect(rows.eq(0).find('.auth-config-id .value').text()).toEqual(pluginRoleJSON.attributes.auth_config_id);
 
-      expect(rows.eq(1).find('.role-name .value').text()).toEqual(roleJSON.name);
+      expect(rows.eq(1).find('.c-collapse_header_details .value').eq(0).text()).toEqual(roleJSON.name);
       expect(rows.eq(1).find('.auth-config-id .value').get(0)).toEqual(undefined);
     });
 
     it("should list existing plugin roles in absence of authorization plugin with disabled edit and clone button", () => {
-      const rows    = $root.find('.role-description');
       const actions = $root.find('.plugin-actions');
 
-      expect(rows.eq(0).find('.role-name .value').text()).toEqual(pluginRoleJSON.name);
-      expect(rows.eq(0).find('.auth-config-id .value').text()).toEqual(pluginRoleJSON.attributes.auth_config_id);
+      expect($root.find('.c-collapse_header_details .value').eq(0).text()).toEqual(pluginRoleJSON.name);
+      expect($root.find('.auth-config-id .value').eq(0).text()).toEqual(pluginRoleJSON.attributes.auth_config_id);
       expect(actions.eq(0).find('.edit-button').hasClass('disabled')).toEqual(true);
       expect(actions.eq(0).find('.clone-button').hasClass('disabled')).toEqual(true);
     });
@@ -248,19 +247,17 @@ describe("RolesWidget", () => {
   describe("list all roles", () => {
 
     it("should render a list of all roles", () => {
-      const rows = $root.find('.role');
+      expect($root.find('.c-collapse_header_details .value').eq(0).text()).toEqual(pluginRoleJSON.name);
+      expect($root.find('.auth-config-id .value').eq(0).text()).toEqual(pluginRoleJSON.attributes.auth_config_id);
+      expect($root.find('.plugin-role-read-only').eq(0).find('.key-value-pair dt').eq(0).text()).toEqual("AttributeName");
+      expect($root.find('.plugin-role-read-only').eq(0).find('.key-value-pair dt').eq(1).text()).toEqual("AttributeValue");
+      expect($root.find('.plugin-role-read-only').eq(0).find('.key-value-pair dd pre').eq(0).text()).toEqual("memberOf");
+      expect($root.find('.plugin-role-read-only').eq(0).find('.key-value-pair dd pre').eq(1).text()).toEqual("ou=group-name,ou=system,dc=example,dc=com");
 
-      expect(rows.eq(0).find('.role-description').find('.role-name .value').text()).toEqual(pluginRoleJSON.name);
-      expect(rows.eq(0).find('.role-description').find('.auth-config-id .value').text()).toEqual(pluginRoleJSON.attributes.auth_config_id);
-      expect(rows.eq(0).find('.plugin-role-read-only').find('.key-value-pair dt').eq(0).text()).toEqual("AttributeName");
-      expect(rows.eq(0).find('.plugin-role-read-only').find('.key-value-pair dt').eq(1).text()).toEqual("AttributeValue");
-      expect(rows.eq(0).find('.plugin-role-read-only').find('.key-value-pair dd pre').eq(0).text()).toEqual("memberOf");
-      expect(rows.eq(0).find('.plugin-role-read-only').find('.key-value-pair dd pre').eq(1).text()).toEqual("ou=group-name,ou=system,dc=example,dc=com");
-
-      expect(rows.eq(1).find('.role-name .value').text()).toEqual(roleJSON.name);
-      expect(rows.eq(1).find('.auth-config-id .value').get(0)).toEqual(undefined);
-      expect(rows.eq(1).find('.role-read-only .tag').eq(0).text()).toEqual("alice");
-      expect(rows.eq(1).find('.role-read-only .tag').eq(1).text()).toEqual("bob");
+      expect($root.find('.c-collapse').eq(1).find('.c-collapse_header_details .value').eq(0).text()).toEqual(roleJSON.name);
+      expect($root.find('.c-collapse').eq(1).find('.auth-config-id .value').get(1)).toEqual(undefined);
+      expect($root.find('.c-collapse').eq(1).find('.role-read-only .tag').eq(0).text()).toEqual("alice");
+      expect($root.find('.c-collapse').eq(1).find('.role-read-only .tag').eq(1).text()).toEqual("bob");
 
     });
 
@@ -489,7 +486,7 @@ describe("RolesWidget", () => {
       });
 
       expect($root.find('.plugin-role-read-only')).not.toHaveClass('show');
-      simulateEvent.simulate($root.find('.role-header').get(0), 'click');
+      simulateEvent.simulate($root.find('.c-collapse_header').get(0), 'click');
       m.redraw();
       expect($root.find('.plugin-role-read-only')).toHaveClass('show');
 

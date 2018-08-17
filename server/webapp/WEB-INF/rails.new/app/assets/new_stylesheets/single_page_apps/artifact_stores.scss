@@ -1,4 +1,4 @@
-/*!
+/*
  * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,27 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@import 'shared/mixins';
-@import 'shared/autocomplete';
 @import 'shared/common';
 @import 'shared/modal';
-@import 'shared/header';
 @import 'shared/alert';
-@import 'shared/plugin_config/plugin_group_header';
-@import 'shared/plugin_config/plugin_collapsible_list';
 @import 'shared/action_buttons';
+@import 'components/panel';
+@import 'components/collapse';
 
 .add-artifact-store {
   float:         right;
   margin-bottom: 0;
-}
-
-.artifact-stores {
-  margin-top: 60px;
-}
-
-.plugin-group {
-  margin-bottom:           15px;
 }
 
 .artifact-store-modal-body {

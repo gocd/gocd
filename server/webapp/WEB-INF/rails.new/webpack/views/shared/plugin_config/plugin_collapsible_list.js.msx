@@ -40,29 +40,32 @@ class PluginCollapsibleList {
     const properties  = vnode.attrs.properties;
     const actionButtons = vnode.attrs.actionButtons;
     return (
-      <div class={`plugin-collapsible-list ${(this.showState() === 'hide') ? 'collapsed' : 'expanded'}`}>
-        <div class="collapsible-list-header" onclick={this.toggleHide.bind(this)}>
-          <div class="plugin-description">
-            <div class="plugin-id">
-              <span class="key">{headerKey}: </span>
-              <span class="value">{headerValue}</span>
-            </div>
+      <div class={`c-collapse ${(this.showState() === 'hide') ? 'collapsed' : 'expanded'}`}>
+        <div class="c-collapse_header" onclick={this.toggleHide.bind(this)}>
+          <div class="c-collapse_header_details">
+            <dl class="key-value-pair key-value-pair-header plugin-id">
+              <dt class="key">{headerKey} </dt>
+              <dd class="value">{headerValue}</dd>
+            </dl>
           </div>
+            {actionButtons}
         </div>
 
-        <div class={`plugin-config-read-only ${this.showState()}`}>
-          <dl class="key-value-pair">
+        <div class={`c-collapse_body plugin-config-read-only ${this.showState()}`}>
+          <ul class="key-value-pair">
             {properties.mapConfigurations((configuration) => {
               return [
-                (<dt>{configuration.key()}</dt>),
-                (<dd>
+                  <li>
+                <label class="key">{configuration.key()}</label>
+                <span class="value">
                   <pre>{configuration.displayValue()}</pre>
-                </dd>)
+                </span>
+                  </li>
               ];
             })}
-          </dl>
+          </ul>
         </div>
-        {actionButtons}
+
       </div>
     );
   }

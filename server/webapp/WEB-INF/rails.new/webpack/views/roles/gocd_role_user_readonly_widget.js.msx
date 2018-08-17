@@ -25,7 +25,7 @@ const RoleUserReadOnlyWidget = {
     if (!role().hasUsers() && !editable.valueOf()) {
       return (
         <div>
-          <div class={`role-read-only row ${showState} disabled`}>
+          <div class={`c-collapse_body role-read-only ${showState} disabled`}>
             <span class='no-users-message'>No users in this role.</span>
           </div>
         </div>
@@ -34,7 +34,7 @@ const RoleUserReadOnlyWidget = {
 
     return (
       <div>
-        <div class={`role-read-only row ${showState}`}>
+        <div class={`c-collapse_body role-read-only ${showState}`}>
           {
             role().users().map((user) => {
               return (

@@ -22,12 +22,12 @@ const ConfigurationWidget = {
 
     if (role.properties().countConfiguration() > 0) {
       return (
-        <div class={`plugin-role-read-only ${vnode.attrs.showState}`}>
+        <div class={`c-collapse_body plugin-role-read-only ${vnode.attrs.showState}`}>
           <dl class="key-value-pair">
             {role.properties().mapConfigurations((configuration) => {
               return [
-                (<dt>{configuration.key()}</dt>),
-                (<dd>
+                (<dt class="key">{configuration.key()}</dt>),
+                (<dd class="value">
                   <pre>{configuration.displayValue()}</pre>
                 </dd>)
               ];

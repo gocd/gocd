@@ -1,4 +1,4 @@
-/*!
+/*
  * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,62 +14,126 @@
  * limitations under the License.
  */
 
-@import "shared/go-variables";
-@import "shared/mixins";
-@import "shared/common";
+$btn-group-bg: $go-white;
+$btn-border: $border-grey;
 
-$action-icon-text-padding: 20px;
-$action-icon-color: #555;
-$action-icon-hover-color: #000;
+.btn-group {
+  border:        1px solid $btn-border;
+  border-radius: $global-border-radius;
+  display:       inline-flex;
+  background:    $btn-group-bg;
+}
+
+.btn {
+  border:          0;
+  border-left:     1px solid $btn-border;
+  cursor:          pointer;
+  font-size:       14px;
+  padding:         2px 5px;
+  flex:            0 1 auto;
+  display:         flex;
+  justify-content: center;
+
+  &:first-child {
+    border-left:   0;
+    border-radius: $global-border-radius 0 0 $global-border-radius;
+  }
+  &:last-child {
+    border-radius: 0 $global-border-radius $global-border-radius 0;
+  }
+  &:focus, &:active {
+    outline: 0;
+  }
+  &:before {
+    margin: 0;
+  }
+
+}
 
 .plugin-actions {
-  position: absolute;
-  right:    10px;
-  top:      13px;
+  float:   right;
+  display: flex;
 
-  .edit-button {
-    @include icon-before($type: pencil-square-o, $color: $action-icon-color);
-    &:not(.disabled) {
-      &:hover {
-        &:before {
-          color: $action-icon-hover-color;
-        }
-      }
-    }
+}
 
-    &.disabled {
-      &:before {
-        color: $dark-gray;
-      }
-    }
-  }
-
-  .delete-button {
-    @include icon-before($type: trash, $color: $action-icon-color);
-    position: relative;
-    top:      -2px;
-    &:not(.disabled) {
-      &:hover {
-        &:before {
-          color: $action-icon-hover-color;
-        }
-      }
-    }
-  }
-
-  .clone-button {
-    @include icon-before($type: clone, $color: $action-icon-color);
+.edit-button {
+  @include icon-before($type: pencil-square-o, $color: $go-icon-color);
+  &:not(.disabled) {
     &:hover {
       &:before {
-        color: $action-icon-hover-color;
-      }
-    }
+        color: $go-icon-hover-color;
 
-    &.disabled {
-      &:before {
-        color: $dark-gray;
       }
     }
+  }
+
+  &.disabled {
+    &:before {
+      color: $dark-gray;
+    }
+  }
+}
+
+.delete-button {
+  @include icon-before($type: trash, $color: $go-icon-color);
+  &:not(.disabled) {
+    &:hover {
+      &:before {
+        color: $go-icon-hover-color;
+      }
+    }
+  }
+}
+
+.clone-button {
+  @include icon-before($type: clone, $color: $go-icon-color);
+  &:hover {
+    &:before {
+      color: $go-icon-hover-color;
+    }
+  }
+
+  &.disabled {
+    &:before {
+      color: $dark-gray;
+    }
+  }
+}
+
+.btn-plugin-status {
+  @include icon-before($type: file, $color: $go-icon-color);
+  &:hover {
+    &:before {
+      color: $go-icon-color;
+    }
+  }
+
+  &.disabled {
+    &:before {
+      color: $dark-gray;
+    }
+  }
+}
+
+.btn-collapse {
+  background: image-url('icon_collapse.svg') no-repeat 10px 5px;
+  width:      32px;
+  height:     28px;
+  padding:    14px 17px;
+  display:    inline-block;
+  &:hover {
+    background: image-url('icon_collapse-hover.svg') no-repeat 10px 5px;
+  }
+}
+
+.btn-expand {
+  background: image-url('icon_expand.svg') no-repeat 10px 5px;
+  width:      32px;
+  height:     28px;
+  padding:    14px 17px;
+  display:    inline-block;
+  &:hover {
+    background: image-url('icon_expand-hover.svg') no-repeat 10px 5px;
   }
 }
 

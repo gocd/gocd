@@ -56,22 +56,22 @@ describe('Plugin Collapsible List', () => {
   });
 
   it('should toggle collapsible list', () => {
-    expect($('.plugin-collapsible-list')).toHaveClass('collapsed');
-    simulateEvent.simulate($root.find('.collapsible-list-header').get(0), 'click');
-    expect($('.plugin-collapsible-list')).not.toHaveClass('collapsed');
+    expect($('.c-collapse')).toHaveClass('collapsed');
+    simulateEvent.simulate($root.find('.c-collapse_header').get(0), 'click');
+    expect($('.c-collapse')).not.toHaveClass('collapsed');
   });
 
   it('should display plain text values', () => {
-    simulateEvent.simulate($root.find('.collapsible-list-header').get(0), 'click');
-    expect($('.key-value-pair dt')[0]).toHaveText('Url');
-    expect($('.key-value-pair dd')[0]).toHaveText('ldap://your.ldap.server.url:port');
+    simulateEvent.simulate($root.find('.c-collapse_header').get(0), 'click');
+    expect($('.c-collapse_body .key-value-pair .key')[0]).toHaveText('Url');
+    expect($('.c-collapse_body .key-value-pair .value')[0]).toHaveText('ldap://your.ldap.server.url:port');
 
   });
 
   it('should display masked encrypted values', () => {
-    simulateEvent.simulate($root.find('.collapsible-list-header').get(0), 'click');
-    expect($('.key-value-pair dt')[1]).toHaveText('Password');
-    expect($('.key-value-pair dd')[1]).toHaveText('******');
+    simulateEvent.simulate($root.find('.c-collapse_header').get(0), 'click');
+    expect($('.c-collapse_body .key-value-pair .key')[1]).toHaveText('Password');
+    expect($('.c-collapse_body .key-value-pair .value')[1]).toHaveText('******');
   });
 
 });

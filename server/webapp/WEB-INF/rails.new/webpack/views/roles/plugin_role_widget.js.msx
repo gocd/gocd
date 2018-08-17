@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-const m                   = require('mithril');
-const Stream              = require('mithril/stream');
-const ComponentMixins     = require('helpers/mithril_component_mixins');
+const m = require('mithril');
+const Stream = require('mithril/stream');
+const ComponentMixins = require('helpers/mithril_component_mixins');
 const ConfigurationWidget = require('views/roles/plugin_role_configuration_widget');
-const ActionButtons       = require('views/shared/action_buttons');
+const ActionButtons = require('views/shared/action_buttons');
 
 const PluginRoleWidget = {
-  oninit (vnode) {
+  oninit(vnode) {
     this.args = vnode.attrs;
     ComponentMixins.HasViewModel.call(this);
 
@@ -37,29 +37,29 @@ const PluginRoleWidget = {
     };
   },
 
-  view (vnode) {
-    const role      = vnode.attrs.role;
+  view(vnode) {
+    const role = vnode.attrs.role;
     const showState = vnode.state.showState();
 
     let image, errorMessage = '', disabled = false, pluginName;
-    const authConfig        = vnode.attrs.authConfigs().findById(role().authConfigId());
+    const authConfig = vnode.attrs.authConfigs().findById(role().authConfigId());
 
     if (authConfig) {
       const pluginInfo = vnode.attrs.pluginInfos().findById(authConfig.pluginId());
 
       if (pluginInfo) {
-        image      = (<img src={pluginInfo.imageUrl()}/>);
+        image = (<img src={pluginInfo.imageUrl()}/>);
         pluginName = pluginInfo.about().name() ? pluginInfo.about().name() : pluginInfo.id();
       } else {
-        image        = (<span class="unknown-plugin-icon" title="Plugin not found"/>);
+        image = (<span class="unknown-plugin-icon" title="Plugin not found"/>);
         errorMessage = `Plugin '${authConfig.pluginId()}' not found`;
-        pluginName   = authConfig.pluginId();
-        disabled     = true;
+        pluginName = authConfig.pluginId();
+        disabled = true;
       }
 
     } else {
-      image        = (<span class="unknown-plugin-icon" title="Plugin not found"/>);
-      disabled     = true;
+      image = (<span class="unknown-plugin-icon" title="Plugin not found"/>);
+      disabled = true;
       errorMessage = `Authorization config '${role().authConfigId()}' is missing`;
     }
 
@@ -72,37 +72,44 @@ const PluginRoleWidget = {
     let pluginInfoView;
     if (pluginName && !errorMessage) {
       pluginInfoView = (
-        <div class="plugin-name">
-          <span class="key">Plugin: </span>
-          <span class="value">{pluginName}</span>
-        </div>);
+        <dl class="key-value-pair key-value-pair-header plugin-name">
+          <dt class="key">Plugin</dt>
+          <dd class="value">{pluginName}</dd>
+        </dl>);
     }
 
     let authConfigInfoView;
     if (role().isPluginRole()) {
       authConfigInfoView = (
-        <div class="auth-config-id">
-          <span class="key">Auth Config ID: </span>
-          <span class="value">{vnode.attrs.role().authConfigId()}</span>
-        </div>
+        <dl class="key-value-pair key-value-pair-header auth-config-id">
+          <dt class="key">Auth Config ID</dt>
+          <dd class="value">{vnode.attrs.role().authConfigId()}</dd>
+        </dl>
       );
     }
 
     return (
-      <div class="role">
-        <div class="role-header" onclick={vnode.state.toggleHide.bind(vnode.state)}>
-          <span class="plugin-icon">{image}</span>
-          <div class="role-description">
-            <div class="role-name">
-              <span class="key">Name: </span><span class="value">{vnode.attrs.role().name()}</span>
-            </div>
+
+        <div class={`c-collapse ${(this.showState() === 'hide') ? 'collapsed' : 'expanded'}`}>
+        <div class="c-collapse_header" onclick={vnode.state.toggleHide.bind(vnode.state)}>
+          <div className="c-collapse_header_details">
+            <span class="c-collapse_icon">{image}</span>
+
+            <dl class="key-value-pair key-value-pair-header">
+              <dt class="key">Name:</dt>
+              <dd class="value">{vnode.attrs.role().name()}</dd>
+            </dl>
             {authConfigInfoView}
             {pluginInfoView}
-            <small class={disabled ? 'disabled' : null}>{errorMessage}</small>
+            <div className="collapse_header_error_message">
+            <span class={disabled ? 'disabled' : null}>{errorMessage}</span>
+            </div>
+
           </div>
+          {actionButtons}
         </div>
         <ConfigurationWidget role={vnode.attrs.role()} showState={showState}/>
-        {actionButtons}
+
       </div>
     );
   }

@@ -502,7 +502,7 @@ task findGemsToNotPack {
   doFirst {
     project.jrubyexec {
       environment += [
-        'OUTPUT_FILE': outputFile,
+        'OUTPUT_FILE'   : outputFile,
         'BUNDLE_GEMFILE': file("${project.railsRoot}/Gemfile")
       ]
       args = ['-S', 'rake', '--trace', '--rakefile', 'find-gems-to-package.rake']

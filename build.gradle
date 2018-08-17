@@ -157,6 +157,12 @@ rootProject.ext.fullVersion = DIST_VERSION ? "${GO_VERSION}-${DIST_VERSION}" : G
 rootProject.ext.gitRevision = GIT_REVISION
 rootProject.ext.copyrightYear = COPYRIGHT_YEAR
 rootProject.ext.commandRepoUrl = System.getenv('COMMAND_REPO_URL') ? System.getenv('COMMAND_REPO_URL') : "git://github.com/gocd/go-command-repo"
+project.ext.defaultJvmArgs = JavaVersion.current().isJava9Compatible() ? [
+  '--add-modules=java.se,java.xml.bind,java.xml.ws.annotation',
+  // '--illegal-access=warn',
+  // '--show-module-resolution'
+  ] : []
+
 rootProject.ext.versions = [
   apacheHttpComponents: '4.5.5',
   apacheHttpMime      : '4.5.5',
@@ -420,6 +426,8 @@ subprojects {
     // fixup a tempdir that is predictable and we can clean it up later
     def tmpDir = project.file("${System.getProperty('java.io.tmpdir')}/gocd-tests/${new BigInteger(32, new SecureRandom()).toString(32)}")
     systemProperty 'java.io.tmpdir', tmpDir
+    jvmArgs += project.defaultJvmArgs
+
     doFirst {
       // workaround for https://github.com/unbroken-dome/gradle-testsets-plugin/issues/40
       classpath += rootProject.findProject(':test:test-utils').files("resource-include-in-all-projects")

@@ -1,3 +1,19 @@
+/*
+ * Copyright 2018 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.thoughtworks.go.apiv1.adminsconfig
 
 import com.thoughtworks.go.api.SecurityTestTrait
@@ -28,190 +44,194 @@ import static org.mockito.Mockito.when
 import static org.mockito.MockitoAnnotations.initMocks
 
 class AdminControllerV1DelegateTest implements ControllerTrait<AdminControllerV1Delegate>, SecurityServiceTrait {
-    @Mock
-    private AdminsConfigService adminsConfigService
-    @Mock
-    private EntityHashingService entityHashingService
+  @Mock
+  private AdminsConfigService adminsConfigService
+  @Mock
+  private EntityHashingService entityHashingService
 
-    @BeforeEach
-    void setUp() {
-        initMocks(this)
-    }
+  @BeforeEach
+  void setUp() {
+    initMocks(this)
+  }
 
-    @Override
-    AdminControllerV1Delegate createControllerInstance() {
-        return new AdminControllerV1Delegate(new ApiAuthenticationHelper(securityService, goConfigService), entityHashingService, adminsConfigService);
+  @Override
+  AdminControllerV1Delegate createControllerInstance() {
+    return new AdminControllerV1Delegate(new ApiAuthenticationHelper(securityService, goConfigService), entityHashingService, adminsConfigService);
+  }
+
+  @Nested
+  class Show {
+    @Nested
+    class Security implements SecurityTestTrait, AdminUserSecurity {
+      @BeforeEach
+      void setUp() {
+        AdminsConfig config = new AdminsConfig(new AdminUser(new CaseInsensitiveString("admin")))
+        when(adminsConfigService.systemAdmins()).thenReturn(config)
+      }
+
+      @Override
+      String getControllerMethodUnderTest() {
+        return "show"
+      }
+
+      @Override
+      void makeHttpCall() {
+        getWithApiHeader(controller.controllerPath())
+      }
     }
 
     @Nested
-    class Show {
-        @Nested
-        class Security implements SecurityTestTrait, AdminUserSecurity {
-            @BeforeEach
-            void setUp() {
-                AdminsConfig config = new AdminsConfig(new AdminUser(new CaseInsensitiveString("admin")))
-                when(adminsConfigService.systemAdmins()).thenReturn(config)
-            }
+    class AsAdmin {
+      HttpLocalizedOperationResult result
 
-            @Override
-            String getControllerMethodUnderTest() {
-                return "show"
-            }
+      @BeforeEach
+      void setUp() {
+        enableSecurity()
+        loginAsAdmin()
+        this.result = new HttpLocalizedOperationResult()
+      }
 
-            @Override
-            void makeHttpCall() {
-                getWithApiHeader(controller.controllerPath())
-            }
-        }
+      @Test
+      void 'should render the security admins config'() {
+        AdminsConfig config = new AdminsConfig(new AdminUser(new CaseInsensitiveString("admin")))
+        when(entityHashingService.md5ForEntity(config)).thenReturn('md5')
+        when(adminsConfigService.systemAdmins()).thenReturn(config)
 
-        @Nested
-        class AsAdmin {
-            HttpLocalizedOperationResult result
+        getWithApiHeader(controller.controllerPath())
 
-            @BeforeEach
-            void setUp() {
-                enableSecurity()
-                loginAsAdmin()
-                this.result = new HttpLocalizedOperationResult()
-            }
+        assertThatResponse()
+          .isOk()
+          .hasEtag('"md5"')
+          .hasContentType(controller.mimeType)
+          .hasBodyWithJsonObject(config, AdminsConfigRepresenter)
+      }
 
-            @Test
-            void 'should render the security admins config'() {
-                AdminsConfig config = new AdminsConfig(new AdminUser(new CaseInsensitiveString("admin")))
-                when(entityHashingService.md5ForEntity(config)).thenReturn('md5')
-                when(adminsConfigService.systemAdmins()).thenReturn(config)
+      @Test
+      void 'should render 304 if etag matches'() {
+        def config = new AdminsConfig(new AdminUser(new CaseInsensitiveString("admin")))
+        when(entityHashingService.md5ForEntity(config)).thenReturn('md5')
+        when(adminsConfigService.systemAdmins()).thenReturn(config)
+        getWithApiHeader(controller.controllerPath(), ['if-none-match': '"md5"'])
 
-                getWithApiHeader(controller.controllerPath())
+        assertThatResponse()
+          .isNotModified()
+          .hasContentType(controller.mimeType)
+      }
 
-                assertThatResponse()
-                        .isOk()
-                        .hasEtag('"md5"')
-                        .hasContentType(controller.mimeType)
-                        .hasBodyWithJsonObject(config, AdminsConfigRepresenter)
-            }
+      @Test
+      void 'should render 200 if etag does not match'() {
+        def config = new AdminsConfig(new AdminUser(new CaseInsensitiveString("admin-new")))
+        when(entityHashingService.md5ForEntity(config)).thenReturn('md5')
+        when(adminsConfigService.systemAdmins()).thenReturn(config)
+        getWithApiHeader(controller.controllerPath(), ['if-none-match': '"junk"'])
 
-            @Test
-            void 'should render 304 if etag matches'() {
-                def config = new AdminsConfig(new AdminUser(new CaseInsensitiveString("admin")))
-                when(entityHashingService.md5ForEntity(config)).thenReturn('md5')
-                when(adminsConfigService.systemAdmins()).thenReturn(config)
-                getWithApiHeader(controller.controllerPath(), ['if-none-match': '"md5"'])
-
-                assertThatResponse()
-                        .isNotModified()
-                        .hasContentType(controller.mimeType)
-            }
-
-            @Test
-            void 'should render 200 if etag does not match'() {
-                def config = new AdminsConfig(new AdminUser(new CaseInsensitiveString("admin-new")))
-                when(entityHashingService.md5ForEntity(config)).thenReturn('md5')
-                when(adminsConfigService.systemAdmins()).thenReturn(config)
-                getWithApiHeader(controller.controllerPath(), ['if-none-match': '"junk"'])
-
-                assertThatResponse()
-                        .isOk()
-                        .hasEtag('"md5"')
-                        .hasContentType(controller.mimeType)
-                        .hasBodyWithJsonObject(config, AdminsConfigRepresenter)
-            }
-        }
+        assertThatResponse()
+          .isOk()
+          .hasEtag('"md5"')
+          .hasContentType(controller.mimeType)
+          .hasBodyWithJsonObject(config, AdminsConfigRepresenter)
+      }
     }
+  }
 
+
+  @Nested
+  class Update {
+    @Nested
+    class Security implements SecurityTestTrait, AdminUserSecurity {
+      AdminsConfig config
+
+      @BeforeEach
+      void setUp() {
+        config = new AdminsConfig(new AdminUser(new CaseInsensitiveString("admin")))
+        when(adminsConfigService.systemAdmins()).thenReturn(config)
+        when(entityHashingService.md5ForEntity(config)).thenReturn('cached-md5')
+      }
+
+      @Override
+      String getControllerMethodUnderTest() {
+        return "update"
+      }
+
+      @Override
+      void makeHttpCall() {
+        sendRequest('put', controller.controllerPath(), [
+          'accept'      : controller.mimeType,
+          'If-Match'    : 'cached-md5',
+          'content-type': 'application/json'
+        ], toObjectString({ AdminsConfigRepresenter.toJSON(it, this.config) }))
+      }
+    }
 
     @Nested
-    class Update {
-        @Nested
-        class Security implements SecurityTestTrait, AdminUserSecurity {
-            AdminsConfig config
+    class AsAdmin {
+      @BeforeEach
+      void setUp() {
+        enableSecurity()
+        loginAsAdmin()
+      }
 
-            @BeforeEach
-            void setUp() {
-                config = new AdminsConfig(new AdminUser(new CaseInsensitiveString("admin")))
-                when(adminsConfigService.systemAdmins()).thenReturn(config)
-                when(entityHashingService.md5ForEntity(config)).thenReturn('cached-md5')
-            }
+      @Test
+      void 'should update the system admins'() {
+        AdminsConfig configInServer = new AdminsConfig(new AdminUser(new CaseInsensitiveString("admin")))
+        AdminsConfig configFromRequest = new AdminsConfig(new AdminUser(new CaseInsensitiveString("admin")),
+          new AdminUser(new CaseInsensitiveString("new_admin")))
 
-            @Override
-            String getControllerMethodUnderTest() {
-                return "update"
-            }
+        when(adminsConfigService.systemAdmins()).thenReturn(configInServer)
+        when(entityHashingService.md5ForEntity(configInServer)).thenReturn("cached-md5")
 
-            @Override
-            void makeHttpCall() {
-                sendRequest('put', controller.controllerPath(), [
-                        'accept'      : controller.mimeType,
-                        'If-Match'    : 'cached-md5',
-                        'content-type': 'application/json'
-                ], toObjectString({ AdminsConfigRepresenter.toJSON(it, this.config) }))
-            }
-        }
+        putWithApiHeader(controller.controllerPath(), ['if-match': 'cached-md5'], toObjectString({
+          AdminsConfigRepresenter.toJSON(it, configFromRequest)
+        }))
 
-        @Nested
-        class AsAdmin {
-            @BeforeEach
-            void setUp() {
-                enableSecurity()
-                loginAsAdmin()
-            }
+        verify(adminsConfigService).update(any(), eq(configFromRequest), eq("cached-md5"), any(HttpLocalizedOperationResult.class));
+        assertThatResponse()
+          .isOk()
+          .hasContentType(controller.mimeType)
+          .hasBodyWithJsonObject(configFromRequest, AdminsConfigRepresenter)
+      }
 
-            @Test
-            void 'should update the system admins'() {
-                AdminsConfig configInServer = new AdminsConfig(new AdminUser(new CaseInsensitiveString("admin")))
-                AdminsConfig configFromRequest = new AdminsConfig(new AdminUser(new CaseInsensitiveString("admin")),
-                  new AdminUser(new CaseInsensitiveString("new_admin")))
-
-                when(adminsConfigService.systemAdmins()).thenReturn(configInServer)
-                when(entityHashingService.md5ForEntity(configInServer)).thenReturn("cached-md5")
-
-                putWithApiHeader(controller.controllerPath(), ['if-match': 'cached-md5'], toObjectString({ AdminsConfigRepresenter.toJSON(it, configFromRequest) }))
-
-                verify(adminsConfigService).update(any(), eq(configFromRequest), eq("cached-md5"), any(HttpLocalizedOperationResult.class));
-                assertThatResponse()
-                        .isOk()
-                        .hasContentType(controller.mimeType)
-                        .hasBodyWithJsonObject(configFromRequest, AdminsConfigRepresenter)
-            }
-
-            @Test
-            void 'should return a response with errors if update fails'() {
-                AdminsConfig configInServer = new AdminsConfig(new AdminUser(new CaseInsensitiveString("admin")))
-                AdminsConfig configFromRequest = new AdminsConfig(new AdminUser(new CaseInsensitiveString("admin")),
-                  new AdminUser(new CaseInsensitiveString("new_admin")))
+      @Test
+      void 'should return a response with errors if update fails'() {
+        AdminsConfig configInServer = new AdminsConfig(new AdminUser(new CaseInsensitiveString("admin")))
+        AdminsConfig configFromRequest = new AdminsConfig(new AdminUser(new CaseInsensitiveString("admin")),
+          new AdminUser(new CaseInsensitiveString("new_admin")))
 
 
-                when(adminsConfigService.systemAdmins()).thenReturn(configInServer)
-                when(entityHashingService.md5ForEntity(configInServer)).thenReturn("cached-md5")
-                when(adminsConfigService.update(any(), eq(configFromRequest), eq("cached-md5"), any(HttpLocalizedOperationResult.class))).then({ InvocationOnMock invocation ->
-                    HttpLocalizedOperationResult result = invocation.getArguments().last()
-                    result.unprocessableEntity("validation failed")
-                })
+        when(adminsConfigService.systemAdmins()).thenReturn(configInServer)
+        when(entityHashingService.md5ForEntity(configInServer)).thenReturn("cached-md5")
+        when(adminsConfigService.update(any(), eq(configFromRequest), eq("cached-md5"), any(HttpLocalizedOperationResult.class))).then({ InvocationOnMock invocation ->
+          HttpLocalizedOperationResult result = invocation.getArguments().last()
+          result.unprocessableEntity("validation failed")
+        })
 
-                putWithApiHeader(controller.controllerPath(), ['if-match': 'cached-md5'], toObjectString({ AdminsConfigRepresenter.toJSON(it, configFromRequest) }))
+        putWithApiHeader(controller.controllerPath(), ['if-match': 'cached-md5'], toObjectString({
+          AdminsConfigRepresenter.toJSON(it, configFromRequest)
+        }))
 
-                assertThatResponse()
-                        .isUnprocessableEntity()
-                        .hasContentType(controller.mimeType)
-                        .hasJsonMessage("validation failed")
-            }
+        assertThatResponse()
+          .isUnprocessableEntity()
+          .hasContentType(controller.mimeType)
+          .hasJsonMessage("validation failed")
+      }
 
-            @Test
-            void 'should not update a stale system admins request'() {
-                AdminsConfig systemAdminsRequest = new AdminsConfig(new AdminRole(new CaseInsensitiveString("admin")))
-                AdminsConfig systemAdminsInServer = new AdminsConfig(new AdminRole(new CaseInsensitiveString("role1")))
+      @Test
+      void 'should not update a stale system admins request'() {
+        AdminsConfig systemAdminsRequest = new AdminsConfig(new AdminRole(new CaseInsensitiveString("admin")))
+        AdminsConfig systemAdminsInServer = new AdminsConfig(new AdminRole(new CaseInsensitiveString("role1")))
 
-                when(adminsConfigService.systemAdmins()).thenReturn(systemAdminsInServer)
-                when(entityHashingService.md5ForEntity(systemAdminsInServer)).thenReturn('cached-md5')
+        when(adminsConfigService.systemAdmins()).thenReturn(systemAdminsInServer)
+        when(entityHashingService.md5ForEntity(systemAdminsInServer)).thenReturn('cached-md5')
 
-                putWithApiHeader(controller.controllerPath(), ['if-match': 'some-string'], toObjectString({
-                    AdminsConfigRepresenter.toJSON(it, systemAdminsRequest)
-                }))
+        putWithApiHeader(controller.controllerPath(), ['if-match': 'some-string'], toObjectString({
+          AdminsConfigRepresenter.toJSON(it, systemAdminsRequest)
+        }))
 
-                verify(adminsConfigService, Mockito.never()).update(any(), any(), any(), any())
-                assertThatResponse().isPreconditionFailed()
-                        .hasContentType(controller.mimeType)
-                        .hasJsonMessage("Someone has modified the entity. Please update your copy with the changes and try again.")
-            }
-        }
+        verify(adminsConfigService, Mockito.never()).update(any(), any(), any(), any())
+        assertThatResponse().isPreconditionFailed()
+          .hasContentType(controller.mimeType)
+          .hasJsonMessage("Someone has modified the entity. Please update your copy with the changes and try again.")
+      }
     }
+  }
 }

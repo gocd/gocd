@@ -31,7 +31,7 @@ import java.util.Date;
 import static com.thoughtworks.go.server.domain.user.DashboardFilter.DEFAULT_NAME;
 
 public class PipelineSelections extends PersistentObject implements Serializable {
-    public static final int CURRENT_SCHEMA_VERSION = 1;
+    public static final int CURRENT_SCHEMA_VERSION = 2;
 
     public static final PipelineSelections ALL = new PipelineSelections(Filters.defaults(), null, null) {
         @Override
@@ -110,7 +110,7 @@ public class PipelineSelections extends PersistentObject implements Serializable
 
     @Deprecated // TODO: remove when removing old dashboard
     public boolean includesPipeline(CaseInsensitiveString pipelineName) {
-        return namedFilter(DEFAULT_NAME).isPipelineVisible(pipelineName);
+        return namedFilter(DEFAULT_NAME).isPipelineVisible(pipelineName, null);
     }
 
     @Deprecated // TODO: remove when removing old dashboard

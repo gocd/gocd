@@ -82,8 +82,11 @@ public class GoDashboardService {
 
         if (goDashboardPipelineGroup.hasPermissions() && goDashboardPipelineGroup.canBeViewedBy(user.getUsername().toString())) {
             pipelineGroup.accept(pipelineConfig -> {
-                if (filter.isPipelineVisible(pipelineConfig.name())) {
-                    goDashboardPipelineGroup.addPipeline(allPipelines.find(pipelineConfig.getName()));
+                GoDashboardPipeline pipeline = allPipelines.find(pipelineConfig.getName());
+                if (pipeline != null) {
+                    if (filter.isPipelineVisible(pipelineConfig.name(), pipeline.getLatestStage())) {
+                        goDashboardPipelineGroup.addPipeline(pipeline);
+                    }
                 }
             });
         }

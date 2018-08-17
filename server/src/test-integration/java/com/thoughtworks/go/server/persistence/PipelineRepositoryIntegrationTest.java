@@ -393,25 +393,25 @@ public class PipelineRepositoryIntegrationTest {
 
     private void assertAllowsPipelines(DashboardFilter filter, String... pipelines) {
         for (String pipeline : pipelines) {
-            assertTrue(filter.isPipelineVisible(new CaseInsensitiveString(pipeline)));
+            assertTrue(filter.isPipelineVisible(new CaseInsensitiveString(pipeline), null));
         }
     }
 
     private void assertDeniesPipelines(DashboardFilter filter, String... pipelines) {
         for (String pipeline : pipelines) {
-            assertFalse(filter.isPipelineVisible(new CaseInsensitiveString(pipeline)));
+            assertFalse(filter.isPipelineVisible(new CaseInsensitiveString(pipeline), null));
         }
     }
 
     private PipelineSelections blacklist(List<String> pipelines, Long userId) {
         final List<CaseInsensitiveString> pipelineNames = CaseInsensitiveString.list(pipelines);
-        Filters filters = new Filters(Collections.singletonList(new BlacklistFilter(DEFAULT_NAME, pipelineNames)));
+        Filters filters = new Filters(Collections.singletonList(new BlacklistFilter(DEFAULT_NAME, pipelineNames, new HashSet<>())));
         return new PipelineSelections(filters, new Date(), userId);
     }
 
     private PipelineSelections whitelist(List<String> pipelines, Long userId) {
         final List<CaseInsensitiveString> pipelineNames = CaseInsensitiveString.list(pipelines);
-        Filters filters = new Filters(Collections.singletonList(new WhitelistFilter(DEFAULT_NAME, pipelineNames)));
+        Filters filters = new Filters(Collections.singletonList(new WhitelistFilter(DEFAULT_NAME, pipelineNames, new HashSet<>())));
         return new PipelineSelections(filters, new Date(), userId);
     }
 }

@@ -35,7 +35,7 @@ public class Filters {
             registerTypeAdapter(CaseInsensitiveString.class, new CaseInsensitiveStringSerializer()).
             create();
 
-    public static final DashboardFilter WILDCARD_FILTER = new BlacklistFilter(DEFAULT_NAME, Collections.emptyList());
+    public static final DashboardFilter WILDCARD_FILTER = new BlacklistFilter(DEFAULT_NAME, Collections.emptyList(), new HashSet<>());
 
     public static Filters fromJson(String json) {
         final Filters filters = GSON.fromJson(json, Filters.class);

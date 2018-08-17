@@ -19,9 +19,10 @@ package com.thoughtworks.go.server.domain.user;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Pattern;
 
-import static com.thoughtworks.go.server.domain.user.DashboardFilter.DEFAULT_NAME;
+import static com.thoughtworks.go.server.domain.user.DashboardFilter.*;
 
 class FilterValidator {
 
@@ -39,6 +40,7 @@ class FilterValidator {
     static final String MSG_NAME_FORMAT = "Filter name is only allowed to contain letters, numbers, spaces, and punctuation marks";
     static final String MSG_MISSING_NAME = "Missing filter name";
     static final String MSG_NO_DEFAULT_FILTER = "Missing default filter";
+    static final String MSG_INVALID_STATES = "An invalid filter state has been provided. Only " + BUILDING_STATE + " and " + FAILED_STATE + " are supported";
 
     static void validateDefaultIsPresent(Map<String, DashboardFilter> current) {
         if (!current.containsKey(DEFAULT_NAME.toLowerCase())) throw new FilterValidationException(MSG_NO_DEFAULT_FILTER);
@@ -49,6 +51,14 @@ class FilterValidator {
         validateNamePresent(name);
         validateNameFormat(name);
         validateNameIsUnique(current, name);
+        validateState(filter.state());
+    }
+
+    private static void validateState(Set<String> state) {
+        if (state == null)
+            throw new FilterValidationException("Filter state should never be NULL");
+        if (!state.isEmpty() && !VALID_STATES.containsAll(state))
+            throw new FilterValidationException(MSG_INVALID_STATES);
     }
 
     static void validateNameFormat(String name) {

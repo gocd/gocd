@@ -24,26 +24,26 @@ import static org.junit.jupiter.api.Assertions.*;
 class WhitelistFilterTest {
     @Test
     void isPipelineVisible() {
-        final WhitelistFilter f = new WhitelistFilter(null, CaseInsensitiveString.list("p1"));
-        assertTrue(f.isPipelineVisible(new CaseInsensitiveString("p1")));
-        assertFalse(f.isPipelineVisible(new CaseInsensitiveString("p0")));
+        final WhitelistFilter f = new WhitelistFilter(null, CaseInsensitiveString.list("p1"), null);
+        assertTrue(f.isPipelineVisible(new CaseInsensitiveString("p1"), null));
+        assertFalse(f.isPipelineVisible(new CaseInsensitiveString("p0"), null));
     }
 
     @Test
     void allowPipeline() {
-        final WhitelistFilter f = new WhitelistFilter(null, CaseInsensitiveString.list("p1"));
-        assertTrue(f.isPipelineVisible(new CaseInsensitiveString("p1")));
-        assertFalse(f.isPipelineVisible(new CaseInsensitiveString("p0")));
+        final WhitelistFilter f = new WhitelistFilter(null, CaseInsensitiveString.list("p1"), null);
+        assertTrue(f.isPipelineVisible(new CaseInsensitiveString("p1"), null));
+        assertFalse(f.isPipelineVisible(new CaseInsensitiveString("p0"), null));
 
         f.allowPipeline(new CaseInsensitiveString("p0"));
-        assertTrue(f.isPipelineVisible(new CaseInsensitiveString("p0")));
+        assertTrue(f.isPipelineVisible(new CaseInsensitiveString("p0"), null));
     }
 
     @Test
     void equals() {
-        final WhitelistFilter a = new WhitelistFilter(null, CaseInsensitiveString.list("p1"));
-        final WhitelistFilter b = new WhitelistFilter(null, CaseInsensitiveString.list("p1"));
-        final WhitelistFilter c = new WhitelistFilter(null, CaseInsensitiveString.list("p0"));
+        final WhitelistFilter a = new WhitelistFilter(null, CaseInsensitiveString.list("p1"), null);
+        final WhitelistFilter b = new WhitelistFilter(null, CaseInsensitiveString.list("p1"), null);
+        final WhitelistFilter c = new WhitelistFilter(null, CaseInsensitiveString.list("p0"), null);
         assertEquals(a, b);
         assertNotEquals(a, c);
     }

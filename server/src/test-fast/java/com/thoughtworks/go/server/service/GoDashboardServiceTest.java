@@ -125,7 +125,7 @@ public class GoDashboardServiceTest {
         GoDashboardPipeline pipeline1 = pipeline("pipeline1", "group1");
 
         addPipelinesToCache(pipeline1, pipeline2);
-        when(filter.isPipelineVisible(any(CaseInsensitiveString.class))).thenReturn(true);
+        when(filter.isPipelineVisible(any(CaseInsensitiveString.class), any())).thenReturn(true);
 
         List<GoDashboardPipelineGroup> pipelineGroups = allPipelineGroupsForDashboard(filter, new Username("user1"));
 
@@ -151,10 +151,10 @@ public class GoDashboardServiceTest {
         GoDashboardPipeline pipeline1 = pipeline("pipeline1", "group1");
 
         addPipelinesToCache(pipeline1, pipeline2, pipeline3, pipeline4);
-        when(filter.isPipelineVisible(pipelineConfig1.name())).thenReturn(true);
-        when(filter.isPipelineVisible(pipelineConfig2.name())).thenReturn(false);
-        when(filter.isPipelineVisible(pipelineConfig3.name())).thenReturn(true);
-        when(filter.isPipelineVisible(pipelineConfig4.name())).thenReturn(false);
+        when(filter.isPipelineVisible(pipelineConfig1.name(), null)).thenReturn(true);
+        when(filter.isPipelineVisible(pipelineConfig2.name(), null)).thenReturn(false);
+        when(filter.isPipelineVisible(pipelineConfig3.name(), null)).thenReturn(true);
+        when(filter.isPipelineVisible(pipelineConfig4.name(), null)).thenReturn(false);
 
         List<GoDashboardPipelineGroup> pipelineGroups = allPipelineGroupsForDashboard(filter, new Username("user1"));
 
@@ -178,7 +178,7 @@ public class GoDashboardServiceTest {
         GoDashboardPipeline pipeline2 = pipeline("pipeline2", "group2", new Permissions(NoOne.INSTANCE, NoOne.INSTANCE, NoOne.INSTANCE, NoOne.INSTANCE));
 
         addPipelinesToCache(pipeline1, pipeline2);
-        when(filter.isPipelineVisible(any(CaseInsensitiveString.class))).thenReturn(true);
+        when(filter.isPipelineVisible(any(CaseInsensitiveString.class), any())).thenReturn(true);
 
         List<GoDashboardPipelineGroup> pipelineGroups = allPipelineGroupsForDashboard(filter, new Username("user1"));
 
@@ -192,7 +192,7 @@ public class GoDashboardServiceTest {
         DashboardFilter filter = mock(DashboardFilter.class);
         configMother.addPipelineWithGroup(config, "group1", "pipeline1", "stage1A", "job1A1");
 
-        when(filter.isPipelineVisible(any(CaseInsensitiveString.class))).thenReturn(true);
+        when(filter.isPipelineVisible(any(CaseInsensitiveString.class), any())).thenReturn(true);
 
         List<GoDashboardPipelineGroup> pipelineGroups = allPipelineGroupsForDashboard(filter, new Username("user1"));
 
@@ -210,7 +210,7 @@ public class GoDashboardServiceTest {
                 Everyone.INSTANCE, Everyone.INSTANCE, Everyone.INSTANCE));
 
         addPipelinesToCache(pipeline1);
-        when(filter.isPipelineVisible(any(CaseInsensitiveString.class))).thenReturn(true);
+        when(filter.isPipelineVisible(any(CaseInsensitiveString.class), any())).thenReturn(true);
 
         List<GoDashboardPipelineGroup> pipelineGroups = allPipelineGroupsForDashboard(filter, new Username("user1"));
 

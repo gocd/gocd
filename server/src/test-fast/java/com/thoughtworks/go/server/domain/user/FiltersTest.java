@@ -19,10 +19,7 @@ package com.thoughtworks.go.server.domain.user;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 import static com.thoughtworks.go.server.domain.user.DashboardFilter.DEFAULT_NAME;
 import static com.thoughtworks.go.server.domain.user.FilterValidator.*;
@@ -135,11 +132,21 @@ class FiltersTest {
     @Test
     void validatesDuplicateNamesOnDeserialize() {
         String json = "{ \"filters\": [" +
-                "  {\"name\": \"one\", \"type\": \"whitelist\", \"pipelines\": []}," +
-                "  {\"name\": \"one\", \"type\": \"whitelist\", \"pipelines\": []}" +
+                "  {\"name\": \"one\", \"type\": \"whitelist\", \"pipelines\": [], \"state\": []}," +
+                "  {\"name\": \"one\", \"type\": \"whitelist\", \"pipelines\": [], \"state\": []}" +
                 "] }";
         Throwable e = assertThrows(FilterValidationException.class, () -> Filters.fromJson(json));
         assertEquals("Duplicate filter name: one", e.getMessage());
+    }
+
+    @Test
+    void validatesStateOnDeserialize() {
+        String json = "{ \"filters\": [" +
+                "  {\"name\": \"one\", \"type\": \"whitelist\", \"pipelines\": [], \"state\": [\"pi\", \"failing\"]}," +
+                "  {\"name\": \"default\", \"type\": \"whitelist\", \"pipelines\": [], \"state\": []}" +
+                "] }";
+        Throwable e = assertThrows(FilterValidationException.class, () -> Filters.fromJson(json));
+        assertEquals(MSG_INVALID_STATES, e.getMessage());
     }
 
     @Test
@@ -151,7 +158,7 @@ class FiltersTest {
     @Test
     void validatesPresenceOfDefaultFilterOnDeserialize() {
         final String json = "{ \"filters\": [" +
-                "  {\"name\": \"foo\", \"type\": \"whitelist\", \"pipelines\": [\"bar\"]}" +
+                "  {\"name\": \"foo\", \"type\": \"whitelist\", \"pipelines\": [\"bar\"], \"state\": []}" +
                 "] }";
 
         Throwable e = assertThrows(FilterValidationException.class, () -> Filters.fromJson(json));
@@ -160,16 +167,16 @@ class FiltersTest {
 
     @Test
     void defaultFilterNameIsAlwaysTitleCase() {
-        String json = "{ \"filters\": [{\"name\": \"deFauLt\", \"type\": \"whitelist\"}] }";
+        String json = "{ \"filters\": [{\"name\": \"deFauLt\", \"state\":[], \"type\": \"whitelist\"}] }";
         assertEquals(DEFAULT_NAME, Filters.fromJson(json).named(DEFAULT_NAME).name());
 
-        String expected = "{\"filters\":[{\"name\":\"" + DEFAULT_NAME + "\",\"pipelines\":[],\"type\":\"whitelist\"}]}";
+        String expected = "{\"filters\":[{\"name\":\"" + DEFAULT_NAME + "\",\"state\":[],\"pipelines\":[],\"type\":\"whitelist\"}]}";
         assertEquals(expected, Filters.toJson(Filters.single(namedWhitelist("defAUlT"))));
     }
 
     @Test
     void fromJson() {
-        String json = "{ \"filters\": [{\"name\": \"Default\", \"type\": \"whitelist\", \"pipelines\": [\"p1\"]}] }";
+        String json = "{ \"filters\": [{\"name\": \"Default\", \"type\": \"whitelist\", \"pipelines\": [\"p1\"], \"state\": []}] }";
         final Filters filters = Filters.fromJson(json);
         assertEquals(1, filters.filters().size());
         final DashboardFilter first = filters.filters().get(0);
@@ -187,8 +194,8 @@ class FiltersTest {
         final Filters filters = new Filters(views);
 
         assertEquals("{\"filters\":[" +
-                "{\"name\":\"" + DEFAULT_NAME + "\",\"pipelines\":[],\"type\":\"blacklist\"}," +
-                "{\"name\":\"Cool Pipelines\",\"pipelines\":[\"Pipely McPipe\"],\"type\":\"blacklist\"}" +
+                "{\"name\":\"" + DEFAULT_NAME + "\",\"state\":[],\"pipelines\":[],\"type\":\"blacklist\"}," +
+                "{\"name\":\"Cool Pipelines\",\"state\":[],\"pipelines\":[\"Pipely McPipe\"],\"type\":\"blacklist\"}" +
                 "]}", Filters.toJson(filters));
     }
 
@@ -215,7 +222,7 @@ class FiltersTest {
 
 
     private DashboardFilter namedWhitelist(String name, String... pipelines) {
-        return new WhitelistFilter(name, CaseInsensitiveString.list(pipelines));
+        return new WhitelistFilter(name, CaseInsensitiveString.list(pipelines), new HashSet<>());
     }
 
     private DashboardFilter whitelist(String... pipelines) {
@@ -223,7 +230,7 @@ class FiltersTest {
     }
 
     private DashboardFilter namedBlacklist(String name, String... pipelines) {
-        return new BlacklistFilter(name, CaseInsensitiveString.list(pipelines));
+        return new BlacklistFilter(name, CaseInsensitiveString.list(pipelines), new HashSet<>());
     }
 
     private DashboardFilter blacklist(String... pipelines) {

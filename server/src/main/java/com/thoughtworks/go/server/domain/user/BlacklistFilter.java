@@ -17,18 +17,20 @@
 package com.thoughtworks.go.server.domain.user;
 
 import com.thoughtworks.go.config.CaseInsensitiveString;
+import com.thoughtworks.go.presentation.pipelinehistory.StageInstanceModel;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
-public class BlacklistFilter implements DashboardFilter {
+public class BlacklistFilter extends PipelinesFilter implements DashboardFilter {
     private final String name;
-    private final List<CaseInsensitiveString> pipelines;
 
-    public BlacklistFilter(String name, List<CaseInsensitiveString> pipelines) {
+
+    public BlacklistFilter(String name, List<CaseInsensitiveString> pipelines, Set<String> state) {
+        super(state, pipelines);
         this.name = name;
-        this.pipelines = DashboardFilter.enforceList(pipelines);
     }
 
     public List<CaseInsensitiveString> pipelines() {
@@ -41,8 +43,13 @@ public class BlacklistFilter implements DashboardFilter {
     }
 
     @Override
-    public boolean isPipelineVisible(CaseInsensitiveString pipeline) {
-        return null == pipelines || pipelines.isEmpty() || !pipelines.contains(pipeline);
+    public Set<String> state() {
+        return state;
+    }
+
+    @Override
+    public boolean isPipelineVisible(CaseInsensitiveString pipeline, StageInstanceModel stage) {
+        return !filterByPipelineList(pipeline) && filterByState(stage);
     }
 
     @Override

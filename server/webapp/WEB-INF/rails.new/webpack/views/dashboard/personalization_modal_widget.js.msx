@@ -50,7 +50,7 @@ const StageStateCriteria = { //eslint-disable-line no-unused-vars
   view(vnode) {
     const vm = vnode.attrs.vm;
     return <div class="stage-state-selector">
-      <f.checkbox name="state" model={vm} attrName="failing" label="Failed" />,
+      <f.checkbox name="state" model={vm} attrName="failing" label="Failed" />
       <f.checkbox name="state" model={vm} attrName="building" label="Building" />
     </div>;
   }
@@ -115,6 +115,7 @@ const PersonalizationModalWidget = {
       <section class="filter-options">
         <BlanketSelector vm={vm.selectionVM} />
         <f.checkbox name="include-new-pipelines" model={vm} attrName="includeNewPipelines" label="Show newly created pipelines" />
+        <StageStateCriteria vm={vm} />
       </section>
       <section class="pipeline-selections">
         <SelectedPipelineList vm={vm.selectionVM} />

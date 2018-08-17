@@ -50,6 +50,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import static com.thoughtworks.go.server.domain.user.DashboardFilter.DEFAULT_NAME;
 
@@ -451,7 +452,7 @@ public class PipelineHistoryService implements PipelineInstanceLoader {
     private void filterSelections(PipelineGroupModels groupModels, DashboardFilter filter) {
         for (PipelineGroupModel groupModel : groupModels.asList()) {
             for (PipelineModel pipelineModel : groupModel.getPipelineModels()) {
-                if (!filter.isPipelineVisible(new CaseInsensitiveString(pipelineModel.getName()))) {
+                if (!filter.isPipelineVisible(new CaseInsensitiveString(pipelineModel.getName()), null)) {
                     groupModels.removePipeline(groupModel, pipelineModel);
                 }
             }
@@ -596,7 +597,12 @@ public class PipelineHistoryService implements PipelineInstanceLoader {
             }
 
             @Override
-            public boolean isPipelineVisible(CaseInsensitiveString pipelineName) {
+            public Set<String> state() {
+                return null;
+            }
+
+            @Override
+            public boolean isPipelineVisible(CaseInsensitiveString pipelineName, StageInstanceModel goDashboardPipeline) {
                 return pipeline.equalsIgnoreCase(CaseInsensitiveString.str(pipelineName));
             }
 

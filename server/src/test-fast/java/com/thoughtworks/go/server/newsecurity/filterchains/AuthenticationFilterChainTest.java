@@ -131,7 +131,7 @@ public class AuthenticationFilterChainTest {
         }
 
         @ParameterizedTest
-        @ValueSource(strings = {"/add-on/foo/api/bar", "/api/config-repository.git/git-upload-something", "/cctray.xml", "/api/foo", "/blah"})
+        @ValueSource(strings = {"/api/config-repository.git/git-upload-something", "/cctray.xml", "/api/foo", "/blah"})
         void shouldInvalidateAuthenticationIfSecurityConfigIsChanged(String url) throws IOException, ServletException {
 
             request = HttpRequestBuilder.GET(url)
@@ -162,7 +162,7 @@ public class AuthenticationFilterChainTest {
         }
 
         @ParameterizedTest
-        @ValueSource(strings = {"/add-on/foo/api/bar", "/api/config-repository.git/git-upload-something", "/cctray.xml", "/api/foo", "/blah"})
+        @ValueSource(strings = {"/api/config-repository.git/git-upload-something", "/cctray.xml", "/api/foo", "/blah"})
         void shouldReauthenticateIfAuthenticationTokenIsInvalid(String url) throws IOException, ServletException {
             request = HttpRequestBuilder.GET(url)
                     .build();
@@ -190,8 +190,8 @@ public class AuthenticationFilterChainTest {
         }
 
         @ParameterizedTest
-        @ValueSource(strings = {"/api/webhooks/bitbucket/notify", "/api/webhooks/github/notify", "/api/webhooks/foo/notify"})
-        void shouldAllowAnonymousAccessForWebhookApis(String url) throws IOException, ServletException {
+        @ValueSource(strings = {"/add-on/blah", "/api/webhooks/bitbucket/notify", "/api/webhooks/github/notify", "/api/webhooks/foo/notify"})
+        void shouldAllowAnonymousAccessForWebhookAndAddonApis(String url) throws IOException, ServletException {
             request = HttpRequestBuilder.GET(url)
                     .build();
 

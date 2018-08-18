@@ -35,28 +35,40 @@ const Interactions      = require("models/shared/analytics_interaction_manager")
 const BASE64_RE         = /^[A-Za-z0-9/+]+(?:[=]{1,2})?$/;
 
 describe("AnalyticsInteractionManager", () => {
+  const origPostMessage = window.postMessage;
+  const origListener = window.addEventListener;
+
+  let dispatch;
+
   beforeEach(() => {
     AnalyticsEndpoint.reset();
     Interactions.purge();
+
+    window.addEventListener = function(name, fn, bool) {
+      if ("message" === name) {
+        dispatch = fn;
+      } else {
+        origListener(name, fn, bool);
+      }
+    };
+
+    Object.defineProperty(window, "postMessage", {
+      value: (message, _origin) =>  {
+        dispatch(mockEvent(message));
+      }
+    });
   });
 
   afterEach(() => {
+    window.postMessage = origPostMessage;
+    window.addEventListener = origListener;
+
     Interactions.purge();
     AnalyticsEndpoint.reset();
   });
 
   it("ensure() should set up request handlers", () => {
-    let fireEvent;
-
     spyOn(window, "open").and.returnValue({focus: noop});
-
-    spyOn(window, "addEventListener").and.callFake((name, fn, _bool) => {
-      if ("message" === name) { fireEvent = fn; }
-    });
-
-    spyOn(window, "postMessage").and.callFake((message, _origin) => {
-      fireEvent(mockEvent(message));
-    });
 
     Interactions.ensure();
     AnalyticsEndpoint.ensure("v1");

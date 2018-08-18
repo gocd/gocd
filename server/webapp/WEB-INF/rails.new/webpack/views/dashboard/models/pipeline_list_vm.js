@@ -42,9 +42,9 @@ function PipelineListVM(pipelinesByGroup, currentSelection) {
 }
 
 function boolByName(s, name) {
-  return function boundToName(boolPreviousValue) {
+  return function boundToName(value) {
     if (!arguments.length) { return s[name](); }
-    s[name](!boolPreviousValue);
+    s[name](value);
   };
 }
 
@@ -52,9 +52,9 @@ function groupSelection(s, pipelines) {
   const streams = _.map(pipelines, (p) => s[p]);
   const allSelected = Stream.combine(() => _.every(streams, (st) => st()), streams);
 
-  return function(boolPreviousValue) {
+  return function(value) {
     if (!arguments.length) { return allSelected(); }
-    _.each(streams, (st) => { st(!boolPreviousValue); });
+    _.each(streams, (st) => { st(value); });
   };
 }
 

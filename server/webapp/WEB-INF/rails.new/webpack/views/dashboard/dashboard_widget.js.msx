@@ -40,7 +40,15 @@ const DashboardWidget = {
       body.click(() => {
         vnode.attrs.vm.dropdown.hide();
         vnode.attrs.personalizeVM.hideAllDropdowns();
-        m.redraw();
+
+        /**
+         * The reason we need to do the redraw asynchronously is for checkboxes. When you click
+         * a checkbox the click event propogates to the body. But the model backing the checkboxes
+         * has not had time to update to the new value (so the redraw overrides the value with the
+         * original state). Using setTimeout() to make m.redraw() asynchronous allows mithril to
+         * flush the new checkbox state to the DOM beforehand.
+         */
+        setTimeout(m.redraw, 0);
       });
     };
 

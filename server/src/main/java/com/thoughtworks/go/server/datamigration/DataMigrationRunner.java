@@ -19,32 +19,46 @@ package com.thoughtworks.go.server.datamigration;
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.time.Duration;
+import java.time.Instant;
+
+import static java.lang.String.format;
 
 public class DataMigrationRunner {
     private DataMigrationRunner() {
     }
 
     public static void run(DataSource ds) throws SQLException {
-        System.out.println("Running data migrations...");
+        info("Running data migrations...");
 
         try (Connection cxn = ds.getConnection()) {
             exec(cxn, M001.convertPipelineSelectionsToFilters());
             exec(cxn, M002.ensureFilterStateIsNotNull());
         }
 
-        System.out.println("Data migrations completed.");
+        info("Data migrations completed.");
     }
 
     private static void exec(Connection cxn, Migration migration) throws SQLException {
         cxn.setAutoCommit(false);
 
         try {
+            Instant start = Instant.now();
             migration.run(cxn);
             cxn.commit();
+            info("Data migration took %d ms", Duration.between(start, Instant.now()).toMillis());
         } catch (SQLException e) {
-            System.err.println("Migration failed!");
+            err("Data migration failed: %s", e.getMessage());
             cxn.rollback();
             throw e;
         }
+    }
+
+    private static void info(String message, Object... tokens) {
+        System.out.println(format(message, tokens));
+    }
+
+    private static void err(String message, Object... tokens) {
+        System.err.println(format(message, tokens));
     }
 }

@@ -167,7 +167,8 @@ $dashboard-tabs-box-shadow: 0 0 10px rgba(0, 0, 0, 0.21);
 .dashboard-tabs-scrollable {
   padding:  0 $dashboard-tabs-pager-width;
   width:    calc(100% - #{$dashboard-add-tab-width} - #{$dashboard-tab-list-toggle-width});
-  overflow: hidden;
+  height:   $dashboard-tab-height;
+  overflow: hidden; // ensure scrollbars of inner container are hidden from view
 
   .page-prev, .page-next {
     position:     absolute;

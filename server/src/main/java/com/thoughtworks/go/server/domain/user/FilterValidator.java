@@ -43,7 +43,7 @@ class FilterValidator {
     static final String MSG_INVALID_STATES = "An invalid filter state has been provided. Only " + BUILDING_STATE + " and " + FAILED_STATE + " are supported";
 
     static void validateDefaultIsPresent(Map<String, DashboardFilter> current) {
-        if (!current.containsKey(DEFAULT_NAME.toLowerCase())) throw new FilterValidationException(MSG_NO_DEFAULT_FILTER);
+        if (current.isEmpty()) throw new FilterValidationException(MSG_NO_DEFAULT_FILTER);
     }
 
     static void validateFilter(Map<String, DashboardFilter> current, DashboardFilter filter) {

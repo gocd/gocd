@@ -150,28 +150,19 @@ class FiltersTest {
     }
 
     @Test
-    void validatesPresenceOfDefaultFilterOnConstruction() {
-        Throwable e = assertThrows(FilterValidationException.class, () -> Filters.single(namedBlacklist("foo", "bar")));
+    void validatesPresenceOfAtLeastOneFilterOnConstruction() {
+        assertDoesNotThrow(() -> new Filters(Collections.singletonList(namedWhitelist("foo", "p1"))));
+
+        Throwable e = assertThrows(FilterValidationException.class, () -> new Filters(Collections.emptyList()));
         assertEquals(MSG_NO_DEFAULT_FILTER, e.getMessage());
     }
 
     @Test
-    void validatesPresenceOfDefaultFilterOnDeserialize() {
-        final String json = "{ \"filters\": [" +
-                "  {\"name\": \"foo\", \"type\": \"whitelist\", \"pipelines\": [\"bar\"], \"state\": []}" +
-                "] }";
+    void validatesPresenceOfAtLeastOneFilterOnDeserialize() {
+        assertDoesNotThrow(() -> Filters.fromJson("{ \"filters\": [{\"name\": \"foo\", \"state\":[], \"pipelines\":[], \"type\": \"whitelist\"}] }"));
 
-        Throwable e = assertThrows(FilterValidationException.class, () -> Filters.fromJson(json));
+        Throwable e = assertThrows(FilterValidationException.class, () -> Filters.fromJson("{ \"filters\": [] }"));
         assertEquals(MSG_NO_DEFAULT_FILTER, e.getMessage());
-    }
-
-    @Test
-    void defaultFilterNameIsAlwaysTitleCase() {
-        String json = "{ \"filters\": [{\"name\": \"deFauLt\", \"state\":[], \"type\": \"whitelist\"}] }";
-        assertEquals(DEFAULT_NAME, Filters.fromJson(json).named(DEFAULT_NAME).name());
-
-        String expected = "{\"filters\":[{\"name\":\"" + DEFAULT_NAME + "\",\"state\":[],\"pipelines\":[],\"type\":\"whitelist\"}]}";
-        assertEquals(expected, Filters.toJson(Filters.single(namedWhitelist("defAUlT"))));
     }
 
     @Test

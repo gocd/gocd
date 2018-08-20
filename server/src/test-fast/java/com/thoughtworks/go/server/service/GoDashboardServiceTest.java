@@ -24,10 +24,8 @@ import com.thoughtworks.go.config.security.users.NoOne;
 import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.server.dashboard.*;
 import com.thoughtworks.go.server.domain.Username;
-import com.thoughtworks.go.server.domain.user.BlacklistFilter;
 import com.thoughtworks.go.server.domain.user.DashboardFilter;
 import com.thoughtworks.go.server.domain.user.Filters;
-import com.thoughtworks.go.server.domain.user.WhitelistFilter;
 import com.thoughtworks.go.server.service.support.toggle.FeatureToggleService;
 import com.thoughtworks.go.server.service.support.toggle.Toggles;
 import org.junit.Before;
@@ -183,6 +181,27 @@ public class GoDashboardServiceTest {
 
         assertThat(envs.size(), is(1));
         assertThat(envs.get(0).pipelines(), contains("pipeline1"));
+    }
+
+    @Test
+    public void allPipelineGroupsForDashboard_shouldNotListEmptyPipelineGroup() {
+        configMother.addPipelineWithGroup(config, "group1", "pipeline1", "stage1A", "job1A1");
+        addPipelinesToCache(pipeline("pipeline1", "group1", new Permissions(NoOne.INSTANCE, NoOne.INSTANCE, NoOne.INSTANCE, NoOne.INSTANCE)));
+
+        List<GoDashboardPipelineGroup> pipelineGroups = allPipelineGroupsForDashboard(Filters.WILDCARD_FILTER, new Username("user1"));
+
+        assertThat(pipelineGroups.size(), is(0));
+    }
+
+    @Test
+    public void allEnvironmentsForDashboard_shouldNotListEmptyPipelineGroup() {
+        configMother.addPipelineWithGroup(config, "group1", "pipeline1", "stage1A", "job1A1");
+        addPipelinesToCache(pipeline("pipeline1", "group1"));
+
+        configMother.addEnvironmentConfig(config, "env1");
+        List<GoDashboardEnvironment> pipelineGroups = allEnvironmentsForDashboard(Filters.WILDCARD_FILTER, new Username("user1"));
+
+        assertThat(pipelineGroups.size(), is(0));
     }
 
     @Test

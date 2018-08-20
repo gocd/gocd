@@ -26,21 +26,13 @@ function DashboardFilter(config) {
     return _.cloneDeep({name: this.name, state: this.state, type: this.type, pipelines: this.pipelines});
   };
 
-  this.isBlacklist = () => {
-    return this.type === "blacklist";
-  };
-
   this.isPipelineVisible = (pipeline) => {
-    return this.byPipelines(pipeline.name) &&
+    return this.byPipelineName(pipeline.name) &&
       this.byState(pipeline);
   };
 
-  this.byPipelines = (pipelineName) => {
-    const conditions = (this.pipelines !== [] && this.pipelines.includes(pipelineName));
-    if (this.isBlacklist()) {
-      return !conditions;
-    }
-    return conditions;
+  this.byPipelineName = (pipelineName) => {
+    return !!(this.type === "blacklist" ^ _.includes(this.pipelines || [], pipelineName));
   };
 
   this.byState = (pipeline) => {

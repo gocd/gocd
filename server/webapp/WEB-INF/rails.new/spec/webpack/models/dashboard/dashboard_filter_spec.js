@@ -27,12 +27,12 @@ describe("Dashboard filter", () => {
         });
       });
       it("should return false if the pipeline is on the list", () => {
-        expect(filter.byPipelines("p1")).toBe(false);
-        expect(filter.byPipelines("p2")).toBe(false);
+        expect(filter.byPipelineName("p1")).toBe(false);
+        expect(filter.byPipelineName("p2")).toBe(false);
       });
 
       it("should return true if the pipeline is not on the list", () => {
-        expect(filter.byPipelines("p3")).toBe(true);
+        expect(filter.byPipelineName("p3")).toBe(true);
       });
     });
 
@@ -45,12 +45,12 @@ describe("Dashboard filter", () => {
         });
       });
       it("should return true if the pipeline is on the list", () => {
-        expect(filter.byPipelines("p1")).toBe(true);
-        expect(filter.byPipelines("p2")).toBe(true);
+        expect(filter.byPipelineName("p1")).toBe(true);
+        expect(filter.byPipelineName("p2")).toBe(true);
       });
 
       it("should return false if the pipeline is not on the list", () => {
-        expect(filter.byPipelines("p3")).toBe(false);
+        expect(filter.byPipelineName("p3")).toBe(false);
       });
     });
   });

@@ -18,7 +18,7 @@ const m      = require('mithril');
 const _      = require('lodash');
 const Stream = require('mithril/stream');
 
-function SearchMixin() {
+function FilterMixin() {
   const self = this;
   const internalSearchText = Stream("");
 
@@ -99,7 +99,7 @@ function GroupingMixin() {
 function DashboardViewModel(dashboard) {
   OperationMessagingMixin.call(this);
   GroupingMixin.call(this);
-  SearchMixin.call(this);
+  FilterMixin.call(this);
 
   let dropdownPipelineName, dropdownPipelineCounter;
 

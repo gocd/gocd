@@ -19,7 +19,7 @@ describe("Dashboard View Model", () => {
   const DashboardVM = require("views/dashboard/models/dashboard_view_model");
   const Dashboard   = require("models/dashboard/dashboard");
 
-  describe("SearchMixin", () => {
+  describe("FilterMixin", () => {
     let pipelinesCountMap, dashboard, dashboardVM;
 
     beforeEach(() => {

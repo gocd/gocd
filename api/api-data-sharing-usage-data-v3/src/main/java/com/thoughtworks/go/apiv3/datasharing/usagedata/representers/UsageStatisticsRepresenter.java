@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.apiv2.datasharing.usagedata.representers;
+package com.thoughtworks.go.apiv3.datasharing.usagedata.representers;
 
 import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.server.domain.UsageStatistics;
-import com.thoughtworks.go.spark.Routes.DataSharing;
 
 public class UsageStatisticsRepresenter {
-    private static final int MESSAGE_SCHEMA_VERSION = 1;
+    private static final int MESSAGE_SCHEMA_VERSION = 2;
+
     public static void toJSON(OutputWriter outputWriter, UsageStatistics usageStatistics) {
         outputWriter
                 .add("server_id", usageStatistics.serverId())
@@ -29,8 +29,18 @@ public class UsageStatisticsRepresenter {
                 .addChild("data", childWriter -> {
                     childWriter
                             .add("pipeline_count", usageStatistics.pipelineCount())
+                            .add("config_repo_pipeline_count", usageStatistics.configRepoPipelineCount())
                             .add("agent_count", usageStatistics.agentCount())
                             .add("oldest_pipeline_execution_time", usageStatistics.oldestPipelineExecutionTime())
+                            .add("job_count", usageStatistics.jobCount())
+                            .addChildList("elastic_agent_job_count", child -> {
+                                usageStatistics.elasticAgentPluginToJobCount().forEach((pluginId, jobCount) -> {
+                                    child.addChild(c -> {
+                                        c.add("plugin_id", pluginId);
+                                        c.add("job_count", jobCount);
+                                    });
+                                });
+                            })
                             .add("gocd_version", usageStatistics.gocdVersion());
                 });
     }

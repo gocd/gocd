@@ -18,13 +18,20 @@ package com.thoughtworks.go.server.service.datasharing;
 
 import com.thoughtworks.go.CurrentGoCDVersion;
 import com.thoughtworks.go.config.CruiseConfig;
+import com.thoughtworks.go.config.JobConfig;
+import com.thoughtworks.go.config.PipelineConfig;
+import com.thoughtworks.go.config.StageConfig;
+import com.thoughtworks.go.config.elastic.ElasticProfile;
 import com.thoughtworks.go.domain.JobStateTransition;
 import com.thoughtworks.go.server.dao.JobInstanceSqlMapDao;
 import com.thoughtworks.go.server.domain.UsageStatistics;
 import com.thoughtworks.go.server.service.GoConfigService;
-import com.thoughtworks.go.server.service.datasharing.DataSharingUsageStatisticsReportingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 
 @Service
@@ -44,10 +51,40 @@ public class DataSharingUsageDataService {
     public UsageStatistics get() {
         CruiseConfig config = goConfigService.getCurrentConfig();
         JobStateTransition jobStateTransition = jobInstanceSqlMapDao.oldestBuild();
-        Long oldestPipelineExecutionTime = jobStateTransition == null ? null : jobStateTransition.getStateChangeTime().getTime();
+        long oldestPipelineExecutionTime = jobStateTransition == null ? 0l : jobStateTransition.getStateChangeTime().getTime();
         long nonElasticAgentCount = config.agents().parallelStream().filter(agentConfig -> !agentConfig.isElastic()).count();
-        long pipelineCount = config.getAllPipelineConfigs().size();
+        List<PipelineConfig> pipelineConfigs = config.getAllPipelineConfigs();
+        long pipelineCount = pipelineConfigs.size();
+        long configRepoPipelineCount = pipelineConfigs.stream().filter(PipelineConfig::isConfigDefinedRemotely).count();
+
+        long jobsCount = 0L;
+        Map<String, Long> elasticAgentPluginToJobCount = new HashMap<>(1024);
+
+        for (PipelineConfig pipelineConfig : pipelineConfigs) {
+            for (StageConfig stageConfig : pipelineConfig) {
+                jobsCount += stageConfig.getJobs().size();
+                for (JobConfig job : stageConfig.getJobs()) {
+                    String elasticProfileId = job.getElasticProfileId();
+                    if (elasticProfileId != null) {
+                        ElasticProfile elasticProfile = config.getElasticConfig().getProfiles().find(elasticProfileId);
+                        String key = elasticProfile.getPluginId();
+                        elasticAgentPluginToJobCount.put(key, elasticAgentPluginToJobCount.getOrDefault(key, 0L) + 1);
+                    }
+                }
+            }
+        }
+
         String serverId = dataSharingUsageStatisticsReportingService.get().getServerId();
-        return new UsageStatistics(pipelineCount, nonElasticAgentCount, oldestPipelineExecutionTime, serverId, CurrentGoCDVersion.getInstance().fullVersion());
+
+        return UsageStatistics.newUsageStatistics()
+                .pipelineCount(pipelineCount)
+                .configRepoPipelineCount(configRepoPipelineCount)
+                .agentCount(nonElasticAgentCount)
+                .jobCount(jobsCount)
+                .elasticAgentPluginToJobCount(elasticAgentPluginToJobCount)
+                .oldestPipelineExecutionTime(oldestPipelineExecutionTime)
+                .serverId(serverId)
+                .gocdVersion(CurrentGoCDVersion.getInstance().fullVersion())
+                .build();
     }
 }

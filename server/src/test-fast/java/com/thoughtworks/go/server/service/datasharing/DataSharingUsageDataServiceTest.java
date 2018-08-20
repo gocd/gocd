@@ -19,11 +19,17 @@ package com.thoughtworks.go.server.service.datasharing;
 import com.thoughtworks.go.CurrentGoCDVersion;
 import com.thoughtworks.go.config.AgentConfig;
 import com.thoughtworks.go.config.BasicCruiseConfig;
+import com.thoughtworks.go.config.JobConfig;
+import com.thoughtworks.go.config.PipelineConfig;
+import com.thoughtworks.go.config.elastic.ElasticProfile;
+import com.thoughtworks.go.config.remote.RepoConfigOrigin;
 import com.thoughtworks.go.domain.JobState;
 import com.thoughtworks.go.domain.JobStateTransition;
 import com.thoughtworks.go.domain.UsageStatisticsReporting;
 import com.thoughtworks.go.helper.AgentMother;
 import com.thoughtworks.go.helper.GoConfigMother;
+import com.thoughtworks.go.helper.JobConfigMother;
+import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.server.dao.JobInstanceSqlMapDao;
 import com.thoughtworks.go.server.domain.UsageStatistics;
 import com.thoughtworks.go.server.service.GoConfigService;
@@ -31,10 +37,11 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
+import java.util.Arrays;
 import java.util.Date;
+import java.util.Map;
 
-import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
@@ -55,6 +62,15 @@ public class DataSharingUsageDataServiceTest {
         initMocks(this);
         service = new DataSharingUsageDataService(goConfigService, jobInstanceSqlMapDao, dataSharingUsageStatisticsReportingService);
         goConfig = GoConfigMother.configWithPipelines("p1", "p2");
+        goConfig.getElasticConfig().getProfiles().add(new ElasticProfile("docker-profile", "docker-plugin"));
+        goConfig.getElasticConfig().getProfiles().add(new ElasticProfile("ecs-profile", "ecs-plugin"));
+
+        PipelineConfig configRepoPipeline = PipelineConfigMother.createPipelineConfig("p3", "s1");
+        JobConfig elasticJob1 = JobConfigMother.elasticJob("docker-profile");
+        JobConfig elasticJob2 = JobConfigMother.elasticJob("ecs-profile");
+        configRepoPipeline.getFirstStageConfig().getJobs().addAll(Arrays.asList(elasticJob1, elasticJob2));
+        configRepoPipeline.setOrigin(new RepoConfigOrigin());
+        goConfig.addPipeline("first", configRepoPipeline);
         goConfig.agents().add(new AgentConfig("agent1"));
         when(goConfigService.getCurrentConfig()).thenReturn(goConfig);
         oldestBuild = new JobStateTransition(JobState.Scheduled, new Date());
@@ -65,26 +81,32 @@ public class DataSharingUsageDataServiceTest {
     @Test
     public void shouldGetUsageStatistics() {
         UsageStatistics usageStatistics = service.get();
-        assertThat(usageStatistics.pipelineCount(), is(2l));
-        assertThat(usageStatistics.agentCount(), is(1l));
-        assertThat(usageStatistics.oldestPipelineExecutionTime(), is(oldestBuild.getStateChangeTime().getTime()));
-        assertThat(usageStatistics.serverId(), is("server-id"));
-        assertThat(usageStatistics.gocdVersion(), is(CurrentGoCDVersion.getInstance().fullVersion()));
+        assertThat(usageStatistics.pipelineCount()).isEqualTo(3L);
+        assertThat(usageStatistics.configRepoPipelineCount()).isEqualTo(1L);
+        assertThat(usageStatistics.agentCount()).isEqualTo(1L);
+        assertThat(usageStatistics.jobCount()).isEqualTo(4L);
+        Map<String, Long> elasticAgentPluginToJobCount = usageStatistics.elasticAgentPluginToJobCount();
+        assertThat(elasticAgentPluginToJobCount).hasSize(2)
+                .containsEntry("ecs-plugin", 1L)
+                .containsEntry("docker-plugin", 1L);
+        assertThat(usageStatistics.oldestPipelineExecutionTime()).isEqualTo(oldestBuild.getStateChangeTime().getTime());
+        assertThat(usageStatistics.serverId()).isEqualTo("server-id");
+        assertThat(usageStatistics.gocdVersion()).isEqualTo(CurrentGoCDVersion.getInstance().fullVersion());
     }
 
     @Test
     public void shouldReturnOldestPipelineExecutionTimeAsZeroIfNoneOfThePipelinesHaveEverRun() {
         when(jobInstanceSqlMapDao.oldestBuild()).thenReturn(null);
         UsageStatistics usageStatistics = service.get();
-        assertThat(usageStatistics.pipelineCount(), is(2l));
-        assertThat(usageStatistics.agentCount(), is(1l));
-        assertThat(usageStatistics.oldestPipelineExecutionTime(), is(0l));
+        assertThat(usageStatistics.pipelineCount()).isEqualTo(3L);
+        assertThat(usageStatistics.agentCount()).isEqualTo(1L);
+        assertThat(usageStatistics.oldestPipelineExecutionTime()).isEqualTo(0L);
     }
 
     @Test
     public void shouldNotIncludeElasticAgentsInTheCount() {
         goConfig.agents().add(AgentMother.elasticAgent());
         UsageStatistics usageStatistics = service.get();
-        assertThat(usageStatistics.agentCount(), is(1l));
+        assertThat(usageStatistics.agentCount()).isEqualTo(1L);
     }
 }

@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.apiv2.datasharing.usagedata;
+package com.thoughtworks.go.apiv3.datasharing.usagedata;
 
 import com.thoughtworks.go.api.ApiController;
 import com.thoughtworks.go.api.ApiVersion;
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
-import com.thoughtworks.go.apiv2.datasharing.usagedata.representers.EncryptedDataRepresenter;
-import com.thoughtworks.go.apiv2.datasharing.usagedata.representers.UsageStatisticsRepresenter;
+import com.thoughtworks.go.apiv3.datasharing.usagedata.representers.EncryptedDataRepresenter;
+import com.thoughtworks.go.apiv3.datasharing.usagedata.representers.UsageStatisticsRepresenter;
 import com.thoughtworks.go.server.domain.UsageStatistics;
 import com.thoughtworks.go.server.service.datasharing.DataSharingUsageDataService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
@@ -39,14 +39,14 @@ import java.util.Map;
 
 import static spark.Spark.*;
 
-public class UsageStatisticsControllerV2Delegate extends ApiController {
+public class UsageStatisticsControllerV3Delegate extends ApiController {
     private final ApiAuthenticationHelper apiAuthenticationHelper;
     private DataSharingUsageDataService dataSharingUsageDataService;
     private SystemEnvironment systemEnvironment;
     private String SIGNATURE_KEY = "signature";
     private String SUBORDINATE_PUBLIC_KEY = "subordinate_public_key";
 
-    public UsageStatisticsControllerV2Delegate(ApiAuthenticationHelper apiAuthenticationHelper, DataSharingUsageDataService dataSharingUsageDataService, SystemEnvironment systemEnvironment) {
+    public UsageStatisticsControllerV3Delegate(ApiAuthenticationHelper apiAuthenticationHelper, DataSharingUsageDataService dataSharingUsageDataService, SystemEnvironment systemEnvironment) {
         super(ApiVersion.v2);
         this.apiAuthenticationHelper = apiAuthenticationHelper;
         this.dataSharingUsageDataService = dataSharingUsageDataService;

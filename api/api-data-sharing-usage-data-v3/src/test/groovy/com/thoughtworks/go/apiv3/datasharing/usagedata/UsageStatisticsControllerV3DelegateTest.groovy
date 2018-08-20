@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.apiv2.datasharing.usagedata
+package com.thoughtworks.go.apiv3.datasharing.usagedata
 
 import com.google.gson.reflect.TypeToken
 import com.thoughtworks.go.api.SecurityTestTrait
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
 import com.thoughtworks.go.api.util.GsonTransformer
-import com.thoughtworks.go.apiv2.datasharing.usagedata.representers.UsageStatisticsRepresenter
+import com.thoughtworks.go.apiv3.datasharing.usagedata.representers.UsageStatisticsRepresenter
 import com.thoughtworks.go.server.domain.UsageStatistics
 import com.thoughtworks.go.server.service.datasharing.DataSharingUsageDataService
 import com.thoughtworks.go.server.util.EncryptionHelper
@@ -37,12 +37,13 @@ import org.junit.jupiter.api.Test
 import org.mockito.Mock
 
 import javax.crypto.spec.SecretKeySpec
+import java.nio.charset.StandardCharsets
 
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
 import static org.mockito.Mockito.when
 import static org.mockito.MockitoAnnotations.initMocks
 
-class UsageStatisticsControllerV2DelegateTest implements SecurityServiceTrait, ControllerTrait<UsageStatisticsControllerV2Delegate> {
+class UsageStatisticsControllerV3DelegateTest implements SecurityServiceTrait, ControllerTrait<UsageStatisticsControllerV3Delegate> {
   @BeforeEach
   void setUp() {
     initMocks(this)
@@ -57,8 +58,8 @@ class UsageStatisticsControllerV2DelegateTest implements SecurityServiceTrait, C
   def gocdVersion = '18.8.0'
 
   @Override
-  UsageStatisticsControllerV2Delegate createControllerInstance() {
-    new UsageStatisticsControllerV2Delegate(new ApiAuthenticationHelper(securityService, goConfigService), dataSharingService, systemEnvironment)
+  UsageStatisticsControllerV3Delegate createControllerInstance() {
+    new UsageStatisticsControllerV3Delegate(new ApiAuthenticationHelper(securityService, goConfigService), dataSharingService, systemEnvironment)
   }
 
   @Nested
@@ -87,7 +88,17 @@ class UsageStatisticsControllerV2DelegateTest implements SecurityServiceTrait, C
 
       @Test
       void 'get usage statistics'() {
-        def metrics = new UsageStatistics(10l, 20l, 1527244129553, serverId, gocdVersion)
+        def metrics = UsageStatistics.newUsageStatistics()
+          .pipelineCount(100l)
+          .configRepoPipelineCount(25l)
+          .agentCount(10l)
+          .oldestPipelineExecutionTime(1527244129553)
+          .serverId("server-id")
+          .jobCount(15l)
+          .elasticAgentPluginToJobCount([ecs: 10L, docker: 5L])
+          .gocdVersion("18.7.0")
+          .build()
+
         when(dataSharingService.get()).thenReturn(metrics)
 
         getWithApiHeader(controller.controllerPath())
@@ -142,7 +153,13 @@ class UsageStatisticsControllerV2DelegateTest implements SecurityServiceTrait, C
 
       @Test
       void 'should bomb when invalid length subordinate public key or signature provided for master public key'() {
-        def metrics = new UsageStatistics(10l, 20l, 1527244129553, serverId, gocdVersion)
+        def metrics = UsageStatistics.newUsageStatistics()
+          .pipelineCount(10l)
+          .configRepoPipelineCount(25l)
+          .agentCount(10l)
+          .serverId("server-id")
+          .gocdVersion("18.7.0")
+          .build()
 
         File masterPublicKey = new File(getClass().getClassLoader().getResource("master-public.pem").getFile())
 
@@ -161,14 +178,20 @@ class UsageStatisticsControllerV2DelegateTest implements SecurityServiceTrait, C
 
       @Test
       void 'should bomb when invalid subordinate public key or signature provided for master public key'() {
-        def metrics = new UsageStatistics(10l, 20l, 1527244129553, serverId, gocdVersion)
+        def metrics = UsageStatistics.newUsageStatistics()
+          .pipelineCount(10l)
+          .configRepoPipelineCount(25l)
+          .agentCount(10l)
+          .serverId("server-id")
+          .gocdVersion("18.7.0")
+          .build()
 
         File masterPublicKey = new File(getClass().getClassLoader().getResource("master-public.pem").getFile())
         File subordinatePublicKey = new File(getClass().getClassLoader().getResource("subordinate-public.pem").getFile())
         File signature = new File(getClass().getClassLoader().getResource("subordinate-public.pem.sha512").getFile())
 
-        String subordinatePublicKeyContent = FileUtils.readFileToString(subordinatePublicKey) + '\n'
-        String signatureContent = FileUtils.readFileToString(signature)
+        String subordinatePublicKeyContent = FileUtils.readFileToString(subordinatePublicKey, StandardCharsets.UTF_8) + '\n'
+        String signatureContent = FileUtils.readFileToString(signature, StandardCharsets.UTF_8)
 
         when(dataSharingService.get()).thenReturn(metrics)
         when(systemEnvironment.getUpdateServerPublicKeyPath()).thenReturn(masterPublicKey.getAbsolutePath());
@@ -182,16 +205,25 @@ class UsageStatisticsControllerV2DelegateTest implements SecurityServiceTrait, C
 
       @Test
       void 'get encrypted usage statistics'() {
-        def metrics = new UsageStatistics(10l, 20l, 1527244129553, serverId, gocdVersion)
+        def metrics = UsageStatistics.newUsageStatistics()
+          .pipelineCount(100l)
+          .configRepoPipelineCount(25l)
+          .agentCount(10l)
+          .oldestPipelineExecutionTime(1527244129553)
+          .serverId("server-id")
+          .jobCount(15l)
+          .elasticAgentPluginToJobCount([ecs: 10L, docker: 5L])
+          .gocdVersion("18.7.0")
+          .build()
 
         File masterPublicKey = new File(getClass().getClassLoader().getResource("master-public.pem").getFile())
         File subordinatePrivateKey = new File(getClass().getClassLoader().getResource("subordinate-private.pem").getFile())
         File subordinatePublicKey = new File(getClass().getClassLoader().getResource("subordinate-public.pem").getFile())
         File signature = new File(getClass().getClassLoader().getResource("subordinate-public.pem.sha512").getFile())
 
-        String subordinatePublicKeyContent = FileUtils.readFileToString(subordinatePublicKey)
-        String signatureContent = FileUtils.readFileToString(signature)
-        String subordinatePrivateKeyContent = FileUtils.readFileToString(subordinatePrivateKey)
+        String subordinatePublicKeyContent = FileUtils.readFileToString(subordinatePublicKey, StandardCharsets.UTF_8)
+        String signatureContent = FileUtils.readFileToString(signature, StandardCharsets.UTF_8)
+        String subordinatePrivateKeyContent = FileUtils.readFileToString(subordinatePrivateKey, StandardCharsets.UTF_8)
 
         def expectedJson = toObjectString({ UsageStatisticsRepresenter.toJSON(it, metrics) })
 

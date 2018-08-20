@@ -122,7 +122,6 @@ $dashboard-tabs-box-shadow: 0 0 10px rgba(0, 0, 0, 0.21);
       max-height:    65vh;
       box-shadow:    $dashboard-tabs-box-shadow;
 
-
       li {
         @include truncate-to-width($max: 210px);
 
@@ -213,14 +212,15 @@ $dashboard-tabs-box-shadow: 0 0 10px rgba(0, 0, 0, 0.21);
     font-weight:  600;
     line-height:  $dashboard-tab-height;
 
-    color:        lighten($dashboard-tab-secondary-text-color, 50%);
+    display:      none;
     cursor:       default;
   }
 
   &.paged {
     .page-prev, .page-next {
-      color:  $dashboard-tab-secondary-text-color;
-      cursor: pointer;
+      color:   $dashboard-tab-secondary-text-color;
+      cursor:  pointer;
+      display: block;
     }
   }
 
@@ -253,6 +253,7 @@ $dashboard-tabs-box-shadow: 0 0 10px rgba(0, 0, 0, 0.21);
 
   &:first-of-type {
     margin-left: 0;
+    border-left: 1px solid $dashboard-tabs-border-color;
   }
 
   > * { vertical-align: top; }

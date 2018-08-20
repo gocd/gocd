@@ -57,7 +57,9 @@
   font-weight:   600;
   z-index:       100;
 
-  .fa-close {
+  .close-button {
+    @include icon-before($type: close);
+
     position: absolute;
     top:      20px;
     right:    20px;

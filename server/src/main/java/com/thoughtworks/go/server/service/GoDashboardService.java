@@ -16,19 +16,20 @@
 
 package com.thoughtworks.go.server.service;
 
-import com.thoughtworks.go.config.CaseInsensitiveString;
-import com.thoughtworks.go.config.CruiseConfig;
-import com.thoughtworks.go.config.PipelineConfig;
-import com.thoughtworks.go.config.PipelineConfigs;
+import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.security.Permissions;
+import com.thoughtworks.go.config.security.users.AllowedUsers;
+import com.thoughtworks.go.config.security.users.Everyone;
+import com.thoughtworks.go.config.security.users.Users;
 import com.thoughtworks.go.server.dashboard.*;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.domain.user.DashboardFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+
+import static com.thoughtworks.go.config.security.util.SecurityConfigUtils.*;
 
 /* Understands how to interact with the GoDashboardCache cache. */
 @Service
@@ -42,6 +43,23 @@ public class GoDashboardService {
         this.cache = cache;
         this.dashboardCurrentStateLoader = dashboardCurrentStateLoader;
         this.goConfigService = goConfigService;
+    }
+
+    public List<GoDashboardEnvironment> allEnvironmentsForDashboard(DashboardFilter filter, Username user) {
+        GoDashboardPipelines allPipelines = cache.allEntries();
+        List<GoDashboardEnvironment> environments = new ArrayList<>();
+
+        final Users admins = superAdmins();
+
+        goConfigService.getEnvironments().forEach(environment -> {
+            GoDashboardEnvironment env = dashboardEnvironmentFor(environment, filter, user, admins, allPipelines);
+
+            if (env.hasPipelines()) {
+                environments.add(env);
+            }
+        });
+
+        return environments;
     }
 
     public List<GoDashboardPipelineGroup> allPipelineGroupsForDashboard(DashboardFilter filter, Username user) {
@@ -77,10 +95,26 @@ public class GoDashboardService {
         return dashboardCurrentStateLoader.hasEverLoadedCurrentState();
     }
 
+    private GoDashboardEnvironment dashboardEnvironmentFor(EnvironmentConfig environment, DashboardFilter filter, Username user, Users allowedUsers, GoDashboardPipelines allPipelines) {
+        GoDashboardEnvironment env = new GoDashboardEnvironment(environment.name().toString(), allowedUsers);
+
+        environment.getPipelineNames().forEach(pipelineName -> {
+            GoDashboardPipeline pipeline = allPipelines.find(pipelineName);
+
+            if (null != pipeline && pipeline.canBeViewedBy(user.getUsername().toString())) {
+                if (filter.isPipelineVisible(pipelineName, pipeline.getLatestStage())) {
+                    env.addPipeline(pipeline);
+                }
+            }
+        });
+
+        return env;
+    }
+
     private GoDashboardPipelineGroup dashboardPipelineGroupFor(PipelineConfigs pipelineGroup, DashboardFilter filter, Username user, GoDashboardPipelines allPipelines) {
         GoDashboardPipelineGroup goDashboardPipelineGroup = new GoDashboardPipelineGroup(pipelineGroup.getGroup(), resolvePermissionsForPipelineGroup(pipelineGroup, allPipelines));
 
-        if (goDashboardPipelineGroup.hasPermissions() && goDashboardPipelineGroup.canBeViewedBy(user.getUsername().toString())) {
+        if (goDashboardPipelineGroup.hasPermissions() && goDashboardPipelineGroup.canBeViewedBy(user)) {
             pipelineGroup.accept(pipelineConfig -> {
                 GoDashboardPipeline pipeline = allPipelines.find(pipelineConfig.getName());
                 if (pipeline != null) {
@@ -91,6 +125,19 @@ public class GoDashboardService {
             });
         }
         return goDashboardPipelineGroup;
+    }
+
+    private Users superAdmins() {
+        final SecurityConfig security = goConfigService.security();
+        final Map<String, Collection<String>> rolesToUsersMap = rolesToUsers(security);
+        final Set<String> superAdminUsers = namesOf(security.adminsConfig(), rolesToUsersMap);
+        final Set<PluginRoleConfig> superAdminPluginRoles = pluginRolesFor(security, security.adminsConfig().getRoles());
+
+        if (!goConfigService.isSecurityEnabled() || noSuperAdminsDefined(security)) {
+            return Everyone.INSTANCE;
+        }
+
+        return new AllowedUsers(superAdminUsers, superAdminPluginRoles);
     }
 
     private Permissions resolvePermissionsForPipelineGroup(PipelineConfigs pipelineGroup, GoDashboardPipelines allPipelines) {

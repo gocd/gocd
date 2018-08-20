@@ -69,8 +69,8 @@ const ScrollableViewTabs = {
     const vm = vnode.attrs.vm;
 
     return <div class={vm.paged() ? "dashboard-tabs-scrollable paged" : "dashboard-tabs-scrollable"}>
-      <i class="page-prev fa fa-angle-left"></i>
-      <i class="page-next fa fa-angle-right"></i>
+      <i class="page-prev"></i>
+      <i class="page-next"></i>
       <SortableViewTabs {...vnode.attrs} />
     </div>;
   }

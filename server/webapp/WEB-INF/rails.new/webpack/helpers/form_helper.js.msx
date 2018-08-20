@@ -34,7 +34,7 @@ function deleteKeyAndReturnValue(object, key, defaultValue) {
 
 function compactClasses(args) {
   const initialClasses = [].slice.call(arguments, 1);
-  return _([initialClasses, deleteKeyAndReturnValue(args, 'class')]).flatten().compact().join(' ');
+  return _([initialClasses, deleteKeyAndReturnValue(args, 'class')]).flatten().compact().uniq().join(' ');
 }
 
 function unwrapStream(maybeStream) {
@@ -45,6 +45,11 @@ function unwrapStream(maybeStream) {
   return maybeStream;
 }
 
+function teardownFoundation(el) {
+  if ($(el).data('zfPlugin')) {
+    $(el).foundation('destroy');
+  }
+}
 // ensures the input is either an array or is wrapped in an array.
 // also removes blank members (empty strings, null, etc) and optionally
 // applies a transform on each item.
@@ -151,12 +156,16 @@ const f = {
         autocapitalize: "off",
         autocorrect:    "off",
         spellcheck:     false,
-        type:           "text"
+        type:           "text",
+        listen:         "oninput",
+        prop:           "value"
       };
 
       const args = _.assign({}, defaultAttrs, vnode.attrs); // copy attrs instead of modifying in-place
+      const prop = deleteKeyAndReturnValue(args, "prop");
+      const listen = deleteKeyAndReturnValue(args, "listen");
 
-      const model            = wireUpModel(args, "value", "oninput"),
+      const model            = wireUpModel(args, prop, listen),
             validationErrors = validateModel(model, args),
             label            = coerceArray(deleteKeyAndReturnValue(args, "label", []), wrapTextInSpan), // label can be a string or an array
             contentAfter     = coerceArray(deleteKeyAndReturnValue(args, "contentAfter", []), wrapTextInSpan);
@@ -485,21 +494,31 @@ const f = {
 
   link: {
     view(vnode) {
-      const tooltipText = vnode.attrs.tooltipText;
+      const disabled = vnode.attrs.disabled;
+      const args = _.assign(vnode.attrs);
 
-      if (!_.isEmpty(tooltipText)) {
-        return (<f.linkWithTooltip class={compactClasses(vnode.attrs)} {...vnode.attrs}/>);
+      if (args.hasOwnProperty("disabled")) { delete args.disabled; }
+
+      const tooltipText = args.tooltipText;
+
+      if (disabled) {
+        args.class = _.compact([args.class, "disabled"]).join(" ");
+        delete args.href;
       }
 
-      if (vnode.attrs.target === '_blank') {
-        if (s.isBlank(vnode.attrs.rel)) {
-          vnode.attrs.rel = 'noopener noreferrer';
+      if (!_.isEmpty(tooltipText)) {
+        return (<f.linkWithTooltip class={compactClasses(args)} {...args}/>);
+      }
+
+      if (args.target === '_blank') {
+        if (s.isBlank(args.rel)) {
+          args.rel = 'noopener noreferrer';
         } else {
-          vnode.attrs.rel += " noopener noreferrer";
+          args.rel += " noopener noreferrer";
         }
       }
       return (<a href="javascript:void(0)"
-                 class={compactClasses(vnode.attrs)} {...vnode.attrs}>{vnode.children}
+                 class={compactClasses(args)} {...args}>{vnode.children}
       </a>);
     }
   },
@@ -560,7 +579,7 @@ const f = {
     },
 
     onbeforeremove: (vnode) => {
-      $(vnode.dom).foundation('destroy');
+      teardownFoundation(vnode.dom);
     },
 
     view(vnode) {

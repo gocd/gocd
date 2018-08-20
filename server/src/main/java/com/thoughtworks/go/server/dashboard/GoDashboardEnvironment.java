@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,32 +16,24 @@
 
 package com.thoughtworks.go.server.dashboard;
 
-import com.thoughtworks.go.config.security.Permissions;
+import com.thoughtworks.go.config.security.users.Users;
 import com.thoughtworks.go.server.domain.Username;
 
-public class GoDashboardPipelineGroup extends AbstractDashboardGroup {
-    private Permissions permissions;
+public class GoDashboardEnvironment extends AbstractDashboardGroup {
+    private Users allowedUsers;
 
-    public GoDashboardPipelineGroup(String name, Permissions permissions) {
+    public GoDashboardEnvironment(String name, Users allowedUsers) {
         super(name);
-        this.permissions = permissions;
+        this.allowedUsers = allowedUsers;
     }
 
     @Override
     public boolean canAdminister(Username username) {
-        return permissions.admins().contains(username.getUsername().toString());
+        return allowedUsers.contains(username.getUsername().toString());
     }
 
     @Override
     public String etag() {
-        return digest(Integer.toString(permissions.hashCode()));
-    }
-
-    public boolean canBeViewedBy(Username userName) {
-        return permissions.viewers().contains(userName.getUsername().toString());
-    }
-
-    public boolean hasPermissions() {
-        return permissions != null;
+        return digest(Integer.toString(allowedUsers.hashCode()));
     }
 }

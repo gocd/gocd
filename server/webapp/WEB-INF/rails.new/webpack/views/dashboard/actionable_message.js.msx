@@ -13,7 +13,7 @@ const ActionableMessage = {
       const BUTTON_DEFAULTS = { class: "button", text: "OK", onclick: hide };
 
       return <div class={classes.join(" ")}>
-        <i class="revert fa fa-close" onclick={config.onabort || hide}></i>
+        <i class="revert" onclick={config.onabort || hide}></i>
         {config.body}
         {
           _.map(config.buttons, (opts) => {

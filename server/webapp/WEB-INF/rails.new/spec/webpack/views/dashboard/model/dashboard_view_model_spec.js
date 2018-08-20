@@ -18,14 +18,50 @@ describe("Dashboard View Model", () => {
   const _           = require('lodash');
   const DashboardVM = require("views/dashboard/models/dashboard_view_model");
   const Dashboard   = require("models/dashboard/dashboard");
-  const dashboard   = new Dashboard();
+
+  describe("SearchMixin", () => {
+    let pipelinesCountMap, dashboard, dashboardVM;
+
+    beforeEach(() => {
+      pipelinesCountMap = {'up42': 2, 'up43': 2, 'down42': 1};
+      dashboard = new Dashboard();
+      dashboard.initialize(dashboardJsonForPipelines(pipelinesCountMap));
+      dashboardVM = new DashboardVM(dashboard);
+    });
+
+    it("it should filter dashboard provided filter text", () => {
+      dashboardVM._performRouting = _.noop;
+
+      expect(dashboardVM.filteredGroups()[0].pipelines).toEqual(["up42", "up43", "down42"]);
+      dashboardVM.searchText("up");
+      expect(dashboardVM.filteredGroups()[0].pipelines).toEqual(["up42", "up43"]);
+      dashboardVM.searchText("42");
+      expect(dashboardVM.filteredGroups()[0].pipelines).toEqual(["up42", "down42"]);
+      dashboardVM.searchText("up42");
+      expect(dashboardVM.filteredGroups()[0].pipelines).toEqual(["up42"]);
+      dashboardVM.searchText("up42-some-more");
+      expect(dashboardVM.filteredGroups()).toEqual([]);
+    });
+
+    it("should peform routing when filter text is updated", () => {
+      const performSpy = spyOn(dashboardVM, "_performRouting");
+
+      expect(performSpy).not.toHaveBeenCalled();
+
+      dashboardVM.searchText("up");
+
+      expect(performSpy).toHaveBeenCalled();
+    });
+
+  });
 
   describe("Dropdown", () => {
-    let pipelinesCountMap, dashboardVM;
+    let pipelinesCountMap, dashboard, dashboardVM;
     beforeEach(() => {
       pipelinesCountMap = {'up42': 2, 'up43': 2};
+      dashboard = new Dashboard();
       dashboard.initialize(dashboardJsonForPipelines(pipelinesCountMap));
-      dashboardVM = new DashboardVM();
+      dashboardVM = new DashboardVM(dashboard);
     });
 
     it('should initialize dropdown state for each pipeline instance', () => {
@@ -107,10 +143,11 @@ describe("Dashboard View Model", () => {
   });
 
   describe('Operation Messages', () => {
-    let pipelinesCountMap, dashboardVM;
+    let pipelinesCountMap, dashboard, dashboardVM;
     beforeEach(() => {
       pipelinesCountMap = {'up42': 2, 'up43': 2};
-      dashboardVM       = new DashboardVM();
+      dashboardVM       = new DashboardVM(dashboard);
+      dashboard = new Dashboard();
       dashboard.initialize(dashboardJsonForPipelines(pipelinesCountMap));
       jasmine.clock().install();
     });

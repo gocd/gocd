@@ -121,6 +121,12 @@ public class GoConfigMother {
         return addPipelineWithGroupAndTimer(cruiseConfig, groupName, pipelineName, materialConfigs, stageName, null, buildNames);
     }
 
+    public EnvironmentConfig addEnvironmentConfig(CruiseConfig config, String envName, String... pipelineNames) {
+        BasicEnvironmentConfig env = EnvironmentConfigMother.environment(envName, pipelineNames);
+        config.addEnvironment(env);
+        return env;
+    }
+
     /*
         Used in rspecs
      */

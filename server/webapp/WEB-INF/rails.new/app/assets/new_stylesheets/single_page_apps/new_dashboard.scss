@@ -333,32 +333,65 @@ $btn-default: #d6d5d5;
   float:       left;
 }
 
+.dashboard-modifiers {
+  display:         flex;
+  justify-content: space-between;
+  margin-bottom:   20px;
+  position:        relative;
+  z-index:         5;
+
+  .group-mode {
+    // scss-lint:disable QualifyingElement
+
+    label, span {
+      display: inline-block;
+      cursor:  pointer;
+    }
+
+    label > *:empty, input[type="radio"] { display: none; }
+
+    input[type="radio"] + span {
+      margin-left: 10px;
+      padding:     5px 15px;
+      border:      1px solid transparent;
+    }
+
+    input[type="radio"]:checked + span {
+      font-weight:   600;
+      color:         #943a9e;
+      border-color:  #943a9e;
+      border-radius: 3px;
+    }
+  }
+}
+
 .filter {
   @include icon-before($type: search);
-  position:        relative;
-  margin-top:      9px;
-  padding:         0 30px;
-  align-self:      center;
-  display:         flex;
-  justify-content: flex-end;
-  float:           right;
+
+  display:  inline-block;
+  position: relative;
 
   &:before {
     position:  absolute;
-    left:      34px;
+    left:      0;
     color:     $border-color;
     top:       4px;
     font-size: 14px;
   }
 
   .pipeline-search {
-    height:        32px;
-    width:         250px;
-    line-height:   30px;
-    padding:       0 10px 0 30px;
-    margin:        0;
-    border:        1px solid $border-color;
-    border-radius: 0;
+    height:             32px;
+    width:              350px;
+    line-height:        30px;
+    padding:            0 10px 0 30px;
+    margin:             0;
+    border:             1px solid transparent;
+    -webkit-appearance: none;
+    box-shadow:         none;
+    border-bottom:      1px solid $border-color;
+    border-radius:      0;
+    background:         transparent;
+
     &::placeholder {
       font-size: 13px;
       color:     $border-color;
@@ -366,253 +399,35 @@ $btn-default: #d6d5d5;
   }
 }
 
-.filter_btn {
-  @include icon-before($type: filter);
-  position:      relative;
-  margin:        0;
-  padding:       0 30px 0 15px;
-  height:        32px;
-  line-height:   32px;
-  border:        0;
-  background:    $border-color;
-  cursor:        pointer;
-  border-radius: 0;
-  &:before {
-    position:  absolute;
-    right:     5px;
-    top:       4px;
-    font-size: 14px;
-  }
-}
-
-.filter_options {
-  position:   absolute;
-  right:      30px;
-  top:        43px;
-  border:     1px solid $border-color;
-  background: #fff;
-  width:      $filter-width;
-  z-index:    1;
-}
-
-.personalize-spinner-container {
-  position:   absolute;
-  border:     1px solid $border-color;
-  right:      30px;
-  top:        43px;
-  width:      $filter-width;
-  height:     250px;
-  background: #fff;
-  z-index:    1;
-}
-
-.recent-pipeline {
-  float: right;
-  input {
-    margin: 0;
-  }
-  label {
-    font-size:    13px;
-    margin-right: 0;
-  }
-
-}
-
-.filter_pipelines {
-  max-height: $pipeline-list-height;
-  overflow-y: auto;
-  padding:    10px 28px;
-}
-
-.filter_header {
-  background: #f5f5f5;
-  margin:     0;
-  padding:    10px 20px;
-  font-size:  13px;
-  overflow:   hidden;
-  h5 {
-    margin:    0 0 5px 0;
-    font-size: 13px;
-  }
-}
-
-.selection {
-  float:   left;
-  display: flex;
-}
-
-.filter_group {
-  border-bottom: 1px dotted $border-color;
-  label {
-    margin:        0 0 0 10px;
-    width:         280px;
-    line-height:   normal;
-    text-overflow: ellipsis;
-    overflow:      hidden;
-    white-space:   nowrap;
-  }
-  .pgroup-cb, .pipeline-cb {
-    margin: 0;
-  }
-
-}
-
-.filter_pipeline-group {
-  font-size:   13px;
-  position:    relative;
-  margin:      10px 10px 0 10px;
-  cursor:      pointer;
-  padding:     5px 0;
-  display:     flex;
-  align-items: center;
-  label {
-    font-weight: 600;
-    font-size:   15px;
-  }
-  .arrow-right {
-    @include icon-before($type: angle-right);
-    position:    absolute;
-    font-size:   20px;
-    font-weight: bold;
-    left:        -18px;
-    top:         1px;
-  }
-
-  .arrow-down {
-    @include icon-before($type: angle-down);
-    position:    absolute;
-    font-size:   20px;
-    font-weight: bold;
-    left:        -23px;
-    top:         1px;
-  }
-
-}
-
-.filter_pipeline-list {
-  list-style-type: none;
-  margin:          0 0 5px 30px;
-  padding:         0;
-  font-size:       12px;
-  li {
-    padding:     2px 0;
-    display:     flex;
-    align-items: center;
-  }
-}
-
-.filter_footer {
-  border-top:      1px solid #f5f5f5;
-  display:         flex;
-  justify-content: flex-end;
-}
-
-//custom radio button
-.custom-radio {
-  list-style-type: none;
-  margin:          0;
-  padding:         0;
-  float:           left;
-  li {
-    display:      inline-block;
-    margin-right: 5px;
-  }
-
-  [type="radio"]:checked, [type="radio"]:not(:checked) {
-    position: absolute;
-    left:     -9999px;
-  }
-
-  [type="radio"]:checked + label, [type="radio"]:not(:checked) + label {
-    position:     relative;
-    padding-left: 20px;
-    cursor:       pointer;
-    line-height:  20px;
-    display:      inline-block;
-    color:        #666;
-  }
-
-  [type="radio"]:checked + label:before, [type="radio"]:not(:checked) + label:before {
-    content:       '';
-    position:      absolute;
-    left:          0;
-    top:           0;
-    width:         16px;
-    height:        16px;
-    border:        1px solid #ddd;
-    border-radius: 100%;
-    background:    #fff;
-  }
-
-  [type="radio"]:checked + label:after, [type="radio"]:not(:checked) + label:after {
-    content:       '';
-    width:         8px;
-    height:        8px;
-    background:    #47cf73;
-    position:      absolute;
-    top:           5px;
-    left:          5px;
-    border-radius: 50%;
-    transition:    all 0.2s ease;
-  }
-
-  [type="radio"]:not(:checked) + label:after {
-    opacity:   0;
-    transform: scale(0);
-  }
-
-  [type="radio"]:checked + label:after {
-    opacity:   1;
-    transform: scale(1);
-  }
-}
-
-.btn-select {
-  border:     0;
-  background: #dcdcdc;
-  color:      $dark-gray;
-  font-size:  14px;
-  padding:    5px 10px;
-  margin:     0;
-  box-shadow: inset 0 0 3px #000;
-  &:focus, &:active {
-    outline: 0;
-  }
-  &.selected {
-    background: $dark-gray;
-    color:      #fff;
-  }
-
-}
-
-.select-all {
-  border-radius: 3px 0 0 3px;
-}
-
-.select-none {
-  border-radius: 0 3px 3px 0;
-}
-
 body {
   margin:      0;
   padding:     0;
   font-size:   14px;
   font-family: "Open Sans", sans-serif;
-  background:  #efefef;
+  background:  #f4f8f9;
 }
 
-.pipeline-group {
+.dashboard-group {
   margin-bottom: 50px;
+  background:    #fff;
 }
 
-.pipeline-group_title {
-  padding:       0;
-  position:      relative;
-  border-bottom: 1px solid $border-color;
-  font-size:     22px;
-  font-weight:   600;
-  line-height:   25px;
-  margin-bottom: 20px;
+.main-container {
+  margin:     0;
+  background: transparent;
+}
+
+.dashboard-group_title {
+  background:              #e7eef0;
+  margin:                  0;
+  padding:                 10px 30px;
+  position:                relative;
+  font-size:               18px;
+  font-weight:             600;
+  line-height:             25px;
+  border-top-left-radius:  3px;
+  border-top-right-radius: 3px;
+
   span {
     position:    absolute;
     font-size:   12px;
@@ -626,19 +441,21 @@ body {
   }
 }
 
-.pipeline-group_edit-config {
-  margin-left: 10px;
+.dashboard-group_edit-config {
+  margin-left: 5px;
 }
 
-.pipeline-group_items {
-  display:         flex;
-  flex-wrap:       wrap;
-  list-style-type: none;
-  margin:          0 0 0 -5px;
-  padding:         0;
+.dashboard-group_items {
+  display:                    flex;
+  flex-wrap:                  wrap;
+  list-style-type:            none;
+  margin:                     0 0 0 -5px;
+  padding:                    20px 30px;
+  border-bottom-left-radius:  3px;
+  border-bottom-right-radius: 3px;
 }
 
-.pipeline-group_pipeline {
+.dashboard-group_pipeline {
   width:         267px;
   padding:       0 0 5px 0;
   border:        1px solid #ddd;
@@ -675,7 +492,7 @@ body {
       left: 35%;
     }
   }
-  .pipeline-group_title {
+  .dashboard-group_title {
     .tooltip {
       top: 120%;
     }

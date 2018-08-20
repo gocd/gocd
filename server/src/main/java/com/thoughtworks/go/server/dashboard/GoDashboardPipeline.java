@@ -124,6 +124,10 @@ public class GoDashboardPipeline {
         return result;
     }
 
+    String cacheSegment() {
+        return name().toString() + ":" + getLastUpdatedTimeStamp();
+    }
+
     public boolean isLocal() {
         return origin == null || origin.isLocal();
     }

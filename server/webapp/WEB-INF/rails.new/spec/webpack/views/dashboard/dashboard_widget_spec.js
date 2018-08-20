@@ -26,7 +26,6 @@ describe("Dashboard Widget", () => {
   const SparkRoutes     = require("helpers/spark_routes");
 
   const PersonalizeVM   = require('views/dashboard/models/personalization_vm');
-  const Personalization = require('models/dashboard/personalization');
 
   let $root, root, dashboard, dashboardJson, buildCauseJson, doCancelPolling, doRefreshImmediately;
   const originalDebounce = _.debounce;
@@ -56,10 +55,6 @@ describe("Dashboard Widget", () => {
   beforeEach(mount);
 
   afterEach(unmount);
-
-  it("should render dashboard pipelines header", () => {
-    expect($root.find('.page_header')).toContainText('Pipelines');
-  });
 
   it("should render dashboard pipeline search field", () => {
     expect($root.find('.filter input')).toBeInDOM();
@@ -282,82 +277,55 @@ describe("Dashboard Widget", () => {
 
   it("should render pipeline groups", () => {
     const pipelineGroupsCount = dashboardJson._embedded.pipeline_groups.length;
-    const pipelineGroups      = $root.find('.pipeline-group');
+    const pipelineGroups      = $root.find('.dashboard-group');
 
     expect(pipelineGroups.size()).toEqual(pipelineGroupsCount);
     expect(pipelineGroups.get(0)).toContainText(dashboardJson._embedded.pipeline_groups[0].name);
   });
 
   it("should render pipeline group title", () => {
-    expect($root.find('.pipeline-group_title span').get(0)).toContainText("pipeline group");
-    expect($root.find('.pipeline-group_title strong').get(0)).toContainText(dashboardJson._embedded.pipeline_groups[0].name);
+    expect($root.find('.dashboard-group_title strong').get(0)).toContainText(dashboardJson._embedded.pipeline_groups[0].name);
   });
 
   it("should show pipeline group name which links to pipeline group index page for admin users", () => {
     const pipelineGroupJSON = dashboardJson._embedded.pipeline_groups[0];
 
-    const title = $root.find('.pipeline-group_title>strong>a').get(0);
+    const title = $root.find('.dashboard-group_title>strong>a').get(0);
     expect(title.href.indexOf(`/go/admin/pipelines#group-${pipelineGroupJSON.name}`)).not.toEqual(-1);
   });
 
   it("should show pipeline group icon which links to pipeline group settings page for admin users", () => {
     const pipelineGroupJSON = dashboardJson._embedded.pipeline_groups[0];
 
-    const title = $root.find('.pipeline-group_title>a').get(0);
+    const title = $root.find('.dashboard-group_title>a').get(0);
     expect(title.href.indexOf(`/go/admin/pipeline_group/${pipelineGroupJSON.name}/edit`)).not.toEqual(-1);
   });
 
   it("should show disabled pipeline group settings icon showing tooltip for non admin users", () => {
     unmount();
     mount(false);
-
-    expect($root.find('.pipeline-group_title a')).toHaveClass('disabled');
-    expect($root.find('.pipeline-group_title a')).toHaveAttr('data-tooltip-id');
+    expect($root.find('.dashboard-group_title .edit_config')).toHaveClass('disabled');
+    expect($root.find('.dashboard-group_title .edit_config')).toHaveAttr('data-tooltip-id');
   });
 
-  it("should show plain text pipeline group name without link for non admin users", () => {
+  it("should pipeline group name as a disabled link for non admin users", () => {
     unmount();
     mount(false);
     const pipelineGroupJSON = dashboardJson._embedded.pipeline_groups[0];
 
-    const title = $root.find('.pipeline-group_title>strong').get(0);
+    const title = $root.find('.dashboard-group_title>strong').get(0);
     expect(title).toContainText(pipelineGroupJSON.name);
-    expect(title).not.toContainElement('a');
+    expect(title).toContainElement('.disabled');
   });
 
 
   it("should render pipelines within each pipeline group", () => {
     const pipelineName                      = dashboardJson._embedded.pipeline_groups[0].pipelines[0];
     const pipelinesWithinPipelineGroupCount = dashboardJson._embedded.pipeline_groups[0].pipelines.length;
-    const pipelinesWithinPipelineGroup      = $root.find('.pipeline-group .pipeline');
+    const pipelinesWithinPipelineGroup      = $root.find('.dashboard-group .pipeline');
 
     expect(pipelinesWithinPipelineGroup.size()).toEqual(pipelinesWithinPipelineGroupCount);
     expect(pipelinesWithinPipelineGroup).toContainText(pipelineName);
-  });
-
-  it("should close all dropdowns when a user clicks on any portion of the dashboard widget", () => {
-    stubBuildCauseAjaxCall();
-    const dashboard   = $root.find('.pipeline_wrapper');
-    const changesLink = $root.find('.info a')[1];
-    expect(dashboard.find('.material_changes')).not.toBeInDOM();
-
-    jasmine.Ajax.withMock(() => {
-      jasmine.Ajax.stubRequest(SparkRoutes.buildCausePath('up42', '1'), undefined, 'GET').andReturn({
-        responseText:    JSON.stringify(buildCauseJson),
-        responseHeaders: {'Content-Type': 'application/vnd.go.cd.v1+json'},
-        status:          200
-      });
-      $(changesLink).click();
-    });
-
-    m.redraw();
-
-    expect(dashboard.find('.material_changes')).toBeInDOM();
-
-    $(dashboard).click();
-    m.redraw();
-
-    expect(dashboard.find('.material_changes')).not.toBeInDOM();
   });
 
   function mount(canAdminister = true, showSpinner = Stream(false)) {
@@ -578,19 +546,19 @@ describe("Dashboard Widget", () => {
 
     dashboard = new Dashboard();
     const personalizeVM = new PersonalizeVM(Stream("Default"));
-    const personalization = new Personalization([], {});
     dashboard.initialize(dashboardJson);
-    dashboard._performRouting = _.noop;
 
-    const dashboardViewModel = new DashboardVM();
+    const dashboardViewModel = new DashboardVM(dashboard);
+    dashboardViewModel._performRouting = _.noop;
 
     m.mount(root, {
       view() {
         return m(DashboardWidget, {
-          dashboard,
           personalizeVM,
-          personalization,
           showSpinner,
+          isQuickEditPageEnabled: false,
+          pluginsSupportingAnalytics: {},
+          shouldShowAnalyticsIcon: false,
           doCancelPolling,
           doRefreshImmediately,
           vm: dashboardViewModel

@@ -24,7 +24,7 @@ const PipelineAnalyticsWidget  = require('views/dashboard/pipeline_analytics_wid
 const PipelineHeaderWidget = {
   oninit(vnode) {
     const self              = vnode.state;
-    const operationMessages = vnode.attrs.vm.operationMessages;
+    const operationMessages = vnode.attrs.operationMessages;
 
     self.unlock = (pipeline) => {
       vnode.attrs.doCancelPolling();
@@ -78,7 +78,7 @@ const PipelineHeaderWidget = {
         <PipelineOperationsWidget pipeline={vnode.attrs.pipeline}
                                   doCancelPolling={vnode.attrs.doCancelPolling}
                                   doRefreshImmediately={vnode.attrs.doRefreshImmediately}
-                                  operationMessages={vnode.attrs.vm.operationMessages}/>
+                                  operationMessages={vnode.attrs.operationMessages}/>
       </div>
     );
   }

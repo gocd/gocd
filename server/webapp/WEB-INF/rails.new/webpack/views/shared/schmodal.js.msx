@@ -19,7 +19,7 @@ const Header = {
   view(vnode) {
     return <header class="overlay-header">
       <h3>{vnode.attrs.title}</h3>
-      <button class="overlay-close"><i class="fa fa-close"></i></button>
+      <button class="overlay-close"><i class="close-icon"/></button>
     </header>;
   }
 };

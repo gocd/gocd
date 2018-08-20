@@ -26,6 +26,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.*;
 
+import static com.thoughtworks.go.config.security.util.SecurityConfigUtils.*;
+
 /* Understands which users can view, operate and administer which pipelines and pipeline groups. */
 @Service
 public class GoConfigPipelinePermissionsAuthority {
@@ -51,8 +53,8 @@ public class GoConfigPipelinePermissionsAuthority {
         final SecurityConfig security = goConfigService.security();
         final Map<String, Collection<String>> rolesToUsers = rolesToUsers(security);
         final Set<String> superAdminUsers = namesOf(security.adminsConfig(), rolesToUsers);
-        final Set<PluginRoleConfig> superAdminPluginRoles = pluginRolesFor(security.adminsConfig().getRoles());
-        final boolean hasNoAdminsDefinedAtRootLevel = noSuperAdminsDefined();
+        final Set<PluginRoleConfig> superAdminPluginRoles = pluginRolesFor(security, security.adminsConfig().getRoles());
+        final boolean hasNoAdminsDefinedAtRootLevel = noSuperAdminsDefined(security);
 
         groups.accept(group -> {
             Set<String> viewers = new HashSet<>();
@@ -63,9 +65,9 @@ public class GoConfigPipelinePermissionsAuthority {
             Set<String> pipelineGroupOperators = namesOf(group.getAuthorization().getOperationConfig(), rolesToUsers);
             Set<String> pipelineGroupAdmins = namesOf(group.getAuthorization().getAdminsConfig(), rolesToUsers);
 
-            Set<PluginRoleConfig> pipelineGroupViewerRoles = pluginRolesFor(group.getAuthorization().getViewConfig().getRoles());
-            Set<PluginRoleConfig> pipelineGroupOperatorRoles = pluginRolesFor(group.getAuthorization().getOperationConfig().getRoles());
-            Set<PluginRoleConfig> pipelineGroupAdminRoles = pluginRolesFor(group.getAuthorization().getAdminsConfig().getRoles());
+            Set<PluginRoleConfig> pipelineGroupViewerRoles = pluginRolesFor(security, group.getAuthorization().getViewConfig().getRoles());
+            Set<PluginRoleConfig> pipelineGroupOperatorRoles = pluginRolesFor(security, group.getAuthorization().getOperationConfig().getRoles());
+            Set<PluginRoleConfig> pipelineGroupAdminRoles = pluginRolesFor(security, group.getAuthorization().getAdminsConfig().getRoles());
 
             pipelineGroupAdminRoles.addAll(superAdminPluginRoles);
             pipelineGroupOperatorRoles.addAll(pipelineGroupAdminRoles);
@@ -88,7 +90,7 @@ public class GoConfigPipelinePermissionsAuthority {
                 } else if (hasNoAuthDefinedAtGroupLevel) {
                     AllowedUsers adminUsers = new AllowedUsers(admins, pipelineGroupAdminRoles);
                     pipelinesAndTheirPermissions.put(pipeline.name(), new Permissions(Everyone.INSTANCE, Everyone.INSTANCE, adminUsers, Everyone.INSTANCE));
-                }else {
+                } else {
                     AllowedUsers pipelineOperators = pipelineOperators(pipeline, admins, new AllowedUsers(operators, pipelineGroupOperatorRoles), rolesToUsers);
                     Permissions permissions = new Permissions(new AllowedUsers(viewers, pipelineGroupViewerRoles), new AllowedUsers(operators, pipelineGroupOperatorRoles), new AllowedUsers(admins, pipelineGroupAdminRoles), pipelineOperators);
                     pipelinesAndTheirPermissions.put(pipeline.name(), permissions);
@@ -99,65 +101,18 @@ public class GoConfigPipelinePermissionsAuthority {
         return pipelinesAndTheirPermissions;
     }
 
-    private Set<PluginRoleConfig> pluginRolesFor(List<AdminRole> roles) {
-        Set<PluginRoleConfig> pluginRoleConfigs = new HashSet<>();
-
-        for (AdminRole role : roles) {
-            PluginRoleConfig pluginRole = goConfigService.security().getPluginRole(role.getName());
-            if (pluginRole != null) {
-                pluginRoleConfigs.add(pluginRole);
-            }
-        }
-
-        return pluginRoleConfigs;
-    }
-
-    private boolean noSuperAdminsDefined() {
-        AdminsConfig adminsConfig = goConfigService.security().adminsConfig();
-        return adminsConfig.getRoles().isEmpty() && adminsConfig.getUsers().isEmpty();
-    }
-
     private AllowedUsers pipelineOperators(PipelineConfig pipeline, Set<String> admins, AllowedUsers groupLevelOperators, Map<String, Collection<String>> rolesToUsers) {
         if (!pipeline.first().hasOperatePermissionDefined()) {
             return groupLevelOperators;
         }
 
         Set<String> stageLevelApproversOfFirstStage = namesOf(pipeline.first().getApproval().getAuthConfig(), rolesToUsers);
-        Set<PluginRoleConfig> stageLevelPluginRoleApproversOfFirstStage = pluginRolesFor(pipeline.first().getApproval().getAuthConfig().getRoles());
+        Set<PluginRoleConfig> stageLevelPluginRoleApproversOfFirstStage = pluginRolesFor(goConfigService.security(), pipeline.first().getApproval().getAuthConfig().getRoles());
 
         Set<String> pipelineOperators = new HashSet<>();
         pipelineOperators.addAll(admins);
         pipelineOperators.addAll(stageLevelApproversOfFirstStage);
 
         return new AllowedUsers(pipelineOperators, stageLevelPluginRoleApproversOfFirstStage);
-    }
-
-    private Set<String> namesOf(AdminsConfig adminsConfig, Map<String, Collection<String>> rolesToUsers) {
-        List<AdminUser> superAdmins = adminsConfig.getUsers();
-        Set<String> superAdminNames = new HashSet<>();
-
-        for (AdminUser superAdminUser : superAdmins) {
-            superAdminNames.add(superAdminUser.getName().toLower());
-        }
-
-        for (AdminRole superAdminRole : adminsConfig.getRoles()) {
-            superAdminNames.addAll(emptyIfNull(rolesToUsers.get(superAdminRole.getName().toLower())));
-        }
-
-        return superAdminNames;
-    }
-
-    private Map<String, Collection<String>> rolesToUsers(SecurityConfig securityConfig) {
-        Map<String, Collection<String>> rolesToUsers = new HashMap<>();
-        for (Role role : securityConfig.getRoles()) {
-            if (role instanceof RoleConfig) {
-                rolesToUsers.put(role.getName().toLower(), role.usersOfRole());
-            }
-        }
-        return rolesToUsers;
-    }
-
-    private Collection<String> emptyIfNull(Collection<String> collection) {
-        return collection == null ? Collections.emptyList() : collection;
     }
 }

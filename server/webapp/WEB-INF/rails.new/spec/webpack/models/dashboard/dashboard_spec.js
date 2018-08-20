@@ -20,7 +20,7 @@ describe("Dashboard", () => {
     const _ = require('lodash');
 
     const Dashboard        = require('models/dashboard/dashboard');
-    const PipelineGroups   = require('models/dashboard/pipeline_groups');
+    const DashboardGroups   = require('models/dashboard/dashboard_groups');
     const Pipelines        = require('models/dashboard/pipelines');
     const originalDebounce = _.debounce;
 
@@ -44,8 +44,8 @@ describe("Dashboard", () => {
     });
 
     it("should get pipeline groups", () => {
-      const expectedPipelineGroups = new PipelineGroups(dashboardData._embedded.pipeline_groups).groups;
-      const actualPipelineGroups   = dashboard.getPipelineGroups();
+      const expectedPipelineGroups = new DashboardGroups(dashboardData._embedded.pipeline_groups).groups;
+      const actualPipelineGroups   = dashboard.getPipelineGroups().groups;
 
       expect(actualPipelineGroups.length).toEqual(expectedPipelineGroups.length);
     });
@@ -65,28 +65,6 @@ describe("Dashboard", () => {
       expect(actualPipeline.name).toEqual(expectedPipeline.name);
     });
 
-    it("it should filter dashboard provided filter text", () => {
-      expect(dashboard.getPipelineGroups()[0].pipelines).toEqual(['up42']);
-      dashboard.searchText("up");
-      expect(dashboard.getPipelineGroups()[0].pipelines).toEqual(['up42']);
-      dashboard.searchText("42");
-      expect(dashboard.getPipelineGroups()[0].pipelines).toEqual(['up42']);
-      dashboard.searchText("up42");
-      expect(dashboard.getPipelineGroups()[0].pipelines).toEqual(['up42']);
-      dashboard.searchText("up42-some-more");
-      expect(dashboard.getPipelineGroups()).toEqual([]);
-    });
-
-    it("should peform routing when filter text is updated", () => {
-      const performSpy = spyOn(dashboard, '_performRouting');
-
-      expect(performSpy).not.toHaveBeenCalled();
-
-      dashboard.searchText("up");
-
-      expect(performSpy).toHaveBeenCalled();
-    });
-
     it('should get new dashboard json', () => {
       jasmine.Ajax.withMock(() => {
         jasmine.Ajax.stubRequest('/go/api/dashboard', undefined, 'GET').andReturn({
@@ -101,7 +79,7 @@ describe("Dashboard", () => {
         const successCallback = jasmine.createSpy().and.callFake((dashboard) => {
           const expected = new Dashboard();
           expected.initialize(dashboard);
-          expect(expected.getPipelineGroups().length).toBe(1);
+          expect(expected.getPipelineGroups().groups.length).toBe(1);
         });
 
         Dashboard.get().then(successCallback);

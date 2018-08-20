@@ -16,7 +16,6 @@
 
 const m      = require("mithril");
 const $      = require("jquery");
-const f      = require("helpers/form_helper");
 const Editor = require("views/dashboard/personalization_editor");
 const Modal  = require("views/shared/schmodal");
 
@@ -25,16 +24,13 @@ const EditTabDropdown = {
     const vm = vnode.attrs.vm;
 
     if (vm.tabSettingsDropdownVisible()) {
-      const currentTab = $(vm.currentVnode().dom);
-      const viewportLeft = currentTab.offset().left;
-      // We need to take into account the tab scrolling buttons
-      // which are siblings of the currentTab's parent
-      const containerLeft = currentTab.parent().position().left;
-      const innerLeft = currentTab.position().left;
-      const rightEdge = vnode.dom.offsetWidth + viewportLeft;
+      const currentTab = vm.currentVnode().dom;
 
-      const posX = (rightEdge > window.innerWidth) ? containerLeft - (rightEdge - window.innerWidth) : containerLeft + innerLeft;
-      vnode.dom.style.left = `${Math.max(innerLeft + containerLeft - viewportLeft, posX)}px`;
+      const alignRightPosX = $(currentTab).offset().left + currentTab.offsetWidth - vnode.dom.offsetWidth;
+      const rightEdge = alignRightPosX + vnode.dom.offsetWidth;
+
+      const posX = (rightEdge > window.innerWidth) ? alignRightPosX - (rightEdge - window.innerWidth) : alignRightPosX;
+      vnode.dom.style.left = `${Math.max(alignRightPosX, posX)}px`;
     }
   },
 
@@ -51,12 +47,9 @@ const EditTabDropdown = {
       const denyAction = (e) => e.stopPropagation();
 
       return <div class="edit-dropdown" onclick={denyAction}>
-        <span class="edit-dropdown-text">Group pipelines by</span>
         <div class="edit-dropdown-actions">
-          <f.button class="btn btn-small selected">Pipeline Group</f.button>
-          <f.button class="btn btn-small">Environments</f.button>
-          <i class="fa fa-edit" onclick={edit} />
-          <i class={allowDelete ? "fa fa-trash" : "fa fa-trash deny-action"} onclick={allowDelete && remove} />
+          <i class="dashboard-tab-action dashboard-tab-edit" onclick={edit} />
+          <i class={allowDelete ? "dashboard-tab-action dashboard-tab-remove" : "dashboard-tab-action dashboard-tab-remove deny-action"} onclick={allowDelete && remove} />
         </div>
       </div>;
     }
@@ -89,7 +82,7 @@ function deleteView(name, personalization, model) {
             size: "delete-view",
             body: () => {
               return <span class="server-error-response">
-                <i class="fa fa-exclamation-circle"></i>
+                <i class="alert-icon"></i>
                 <span class="reason">
                   Failed to delete view <span class="view-name">{name}</span>: {reason}
                 </span>

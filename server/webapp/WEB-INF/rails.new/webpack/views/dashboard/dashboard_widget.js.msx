@@ -16,50 +16,52 @@
 
 const m                       = require('mithril');
 const f                       = require('helpers/form_helper');
-const Stream                  = require('mithril/stream');
 const _                       = require('lodash');
-const $                       = require('jquery');
 const ComponentMixins         = require('helpers/mithril_component_mixins');
-const PipelineWidget          = require('views/dashboard/pipeline_widget');
+const DashboardGroupsWidget   = require('views/dashboard/dashboard_groups_widget');
 const PersonalizedViewsWidget = require('views/dashboard/personalized_views_widget');
+
+const PipelineSearch = {
+  view(vnode) {
+    const model = vnode.attrs.model;
+
+    return <div class="filter">
+      <f.input class="pipeline-search" model={model} attrName="searchText" placeholder="Search pipelines" />
+    </div>;
+  }
+};
+
+const GroupingSwitch = {
+  view(vnode) {
+    const vm = vnode.attrs.vm;
+
+    return <div>
+      <span class="edit-dropdown-text">Group pipelines by:</span>
+      <radiogroup class="group-mode">
+        <f.input type="radio" listen="onclick" prop="checked" model={vm} attrName="groupByPipelineGroup" name="grouping-scheme" label={<i/>} contentAfter="Pipeline Group" />
+        <f.input type="radio" listen="onclick" prop="checked" model={vm} attrName="groupByEnvironment" name="grouping-scheme" label={<i/>} contentAfter="Environment" />
+      </radiogroup>
+    </div>;
+  }
+};
 
 const DashboardWidget = {
   oninit(vnode) {
-    const self               = vnode.state;
-    self.personalizeWidgetOpen = Stream(false);
-
-    self.searchTextUpdated = (e) => {
-      const filterText = e.target.value;
-      vnode.attrs.dashboard.searchText(filterText);
-    };
-
-    ComponentMixins.HasViewModel.call(self);
-
-    const attachClickEventToBody = () => {
-      const body = $("body");
-      body.click(() => {
-        vnode.attrs.vm.dropdown.hide();
-        vnode.attrs.personalizeVM.hideAllDropdowns();
-
-        /**
-         * The reason we need to do the redraw asynchronously is for checkboxes. When you click
-         * a checkbox the click event propogates to the body. But the model backing the checkboxes
-         * has not had time to update to the new value (so the redraw overrides the value with the
-         * original state). Using setTimeout() to make m.redraw() asynchronous allows mithril to
-         * flush the new checkbox state to the DOM beforehand.
-         */
-        setTimeout(m.redraw, 0);
-      });
-    };
-
-    attachClickEventToBody();
+    ComponentMixins.HasViewModel.call(vnode.state);
   },
 
   view(vnode) {
     const args   = vnode.attrs;
+    const vm = args.vm;
+    const dashboard = vm.dashboard;
     const personalizeVM = args.personalizeVM;
 
-    const noPermissionText = "You do not have permission to edit the pipeline group.";
+    const sharedGroupArgs = _.assign(_.pick(args, [
+      "doCancelPolling",
+      "doRefreshImmediately",
+      "isQuickEditPageEnabled",
+      "pluginsSupportingAnalytics","shouldShowAnalyticsIcon"
+    ]), _.pick(vm, ["operationMessages", "dropdown", "buildCause"]));
 
     if (args.showSpinner()) {
       return (<span class="page-spinner"/>);
@@ -67,64 +69,25 @@ const DashboardWidget = {
 
     let messageView;
 
-    if (!_.isEmpty(vnode.attrs.dashboard.message())) {
-      const content = (<h3 class="dashboard-message text-center">{vnode.attrs.dashboard.message().content}</h3>);
-      messageView   = (vnode.attrs.dashboard.message().type === 'info')
+    if (!_.isEmpty(dashboard.message())) {
+      const content = (<h3 class="dashboard-message text-center">{dashboard.message().content}</h3>);
+      messageView   = (dashboard.message().type === 'info')
         ? (<f.info>{content} </f.info>)
         : (<f.alert>{content} </f.alert>);
     }
 
     return (
       <div class="pipeline_wrapper">
-        <div class="page_header" key="page-header">
-          <h1 class="page_title">Pipelines</h1>
-          <div class="filter">
-            <input type="text"
-                   class="pipeline-search"
-                   value={vnode.attrs.dashboard.searchText()}
-                   oninput={vnode.state.searchTextUpdated.bind(vnode.state)}
-                   placeholder="Search for pipeline"/>
-          </div>
-        </div>
+        <PersonalizedViewsWidget vm={personalizeVM} />
+
         <div class="dashboard" key="dashboard-content">
-          <PersonalizedViewsWidget vm={personalizeVM} />
+          <section class="dashboard-modifiers">
+            <GroupingSwitch vm={vm} />
+            <PipelineSearch model={vm} />
+          </section>
+
           {messageView}
-          {_.map(vnode.attrs.dashboard.getPipelineGroups(), (pipelineGroup) => {
-            let name, settingsIcon;
-
-            if (pipelineGroup.canAdminister) {
-              name         = (<a href={pipelineGroup.path}>{pipelineGroup.name}</a>);
-              settingsIcon = (<a href={pipelineGroup.editPath} class="edit_config pipeline-group_edit-config"/>);
-            } else {
-              name         = pipelineGroup.name;
-              settingsIcon = (<f.link class="edit_config pipeline-group_edit-config disabled"
-                                                 tooltipText={noPermissionText}/>);
-            }
-
-            return (
-              <div class="pipeline-group" key={pipelineGroup.name}>
-                <h2 class="pipeline-group_title">
-                  <span>pipeline group</span>
-                  <strong>{name}</strong>
-                  {settingsIcon}
-                </h2>
-                <ul class="pipeline-group_items">
-                  {_.map(pipelineGroup.pipelines, (pipelineName) => {
-                    return (
-                      <PipelineWidget pipeline={vnode.attrs.dashboard.findPipeline(pipelineName)}
-                                      doCancelPolling={vnode.attrs.doCancelPolling}
-                                      doRefreshImmediately={vnode.attrs.doRefreshImmediately}
-                                      isQuickEditPageEnabled={vnode.attrs.isQuickEditPageEnabled}
-                                      pluginsSupportingAnalytics={vnode.attrs.pluginsSupportingAnalytics}
-                                      shouldShowAnalyticsIcon={vnode.attrs.shouldShowAnalyticsIcon}
-                                      key={pipelineName}
-                                      vm={args.vm}/>
-                    );
-                  })}
-                </ul>
-              </div>
-            );
-          })}
+          <DashboardGroupsWidget groups={vm.filteredGroups()} scheme={vm.scheme()} resolver={dashboard} {...sharedGroupArgs} />
         </div>
       </div>
     );

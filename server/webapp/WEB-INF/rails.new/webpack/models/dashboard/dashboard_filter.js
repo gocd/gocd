@@ -46,15 +46,12 @@ function DashboardFilter(config) {
   this.byState = (pipeline) => {
     const latestStage = pipeline.latestStage();
 
-    if (!latestStage) {
-      return true;
-    } else if (this.state.includes("failing") && this.state.includes("building")) {
-      return (latestStage.isBuilding() || latestStage.isFailed());
-    } else if (this.state.includes("failing")) {
-      return latestStage.isFailed();
-    } else if (this.state.includes("building")) {
-      return latestStage.isBuilding();
+    if (latestStage && this.state.length) {
+      if (latestStage.isBuilding()) { return _.includes(this.state, "building"); }
+      if (latestStage.isFailed()) { return _.includes(this.state, "failing"); }
+      return false;
     }
+
     return true;
   };
 }

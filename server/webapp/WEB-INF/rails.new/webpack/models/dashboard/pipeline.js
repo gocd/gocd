@@ -59,11 +59,11 @@ const Pipeline = function (info) {
   };
 
   this.latestStage = () => {
-    const latestInstance = _.last(this.instances);
-    if (latestInstance) {
-      return _.last(latestInstance.stages);
+    const lastInstance = _.last(this.instances);
+
+    if (lastInstance) {
+      return _.last(_.filter(lastInstance.stages, (s) => s.isBuildingOrCompleted()));
     }
-    return;
   };
 
   this.triggerDisabled = Stream(false);

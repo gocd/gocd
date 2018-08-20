@@ -15,7 +15,6 @@
  */
 
 const DashboardFilter = require("models/dashboard/dashboard_filter");
-const Stream          = require('mithril/stream');
 
 describe("Dashboard filter", () => {
   describe("list filtering", () => {
@@ -58,14 +57,16 @@ describe("Dashboard filter", () => {
 
   describe("state filtering", () => {
     let stage, pipeline, filter;
+
+    function Stage(status) {
+      this.isFailed = () => status === "Failed";
+      this.isBuilding = () => status === "Building";
+    }
+
     beforeEach(() => {
-      stage = {
-        isFailed: Stream(),
-        isBuilding: Stream()
-      };
       pipeline = {
         name: null,
-        latestStage: () => { return stage; }
+        latestStage: () => stage
       };
       filter = new DashboardFilter({name: "blue_diamond"});
     });
@@ -73,47 +74,44 @@ describe("Dashboard filter", () => {
     it("should properly filter when state=[failing]", () => {
       filter.state = ["failing"];
 
-      stage.isFailed(true);
+      stage = new Stage("Failed");
       expect(filter.byState(pipeline)).toBe(true);
 
-      stage.isFailed(false);
+      stage = new Stage("Passing");
       expect(filter.byState(pipeline)).toBe(false);
     });
 
     it("should properly filter when state=[building]", () => {
       filter.state = ["building"];
 
-      stage.isBuilding(true);
+      stage = new Stage("Building");
       expect(filter.byState(pipeline)).toBe(true);
 
-      stage.isBuilding(false);
+      stage = new Stage("Passing");
       expect(filter.byState(pipeline)).toBe(false);
     });
 
     it("should properly filter when state=[building, failing]", () => {
       filter.state = ["building", "failing"];
 
-      stage.isBuilding(true);
-      stage.isFailed(true);
+      stage = new Stage("Building");
       expect(filter.byState(pipeline)).toBe(true);
 
-      stage.isBuilding(false);
+      stage = new Stage("Failed");
       expect(filter.byState(pipeline)).toBe(true);
 
-      stage.isFailed(false);
+      stage = new Stage("Passing");
       expect(filter.byState(pipeline)).toBe(false);
-
-      stage.isBuilding(true);
-      expect(filter.byState(pipeline)).toBe(true);
     });
 
     it("should return true if state=[]", () => {
       filter.state = [];
+      stage = new Stage("Whatever");
       expect(filter.byState(pipeline)).toBe(true);
     });
 
     it("should return true if there's no latest stage or instance", () => {
-      expect(filter.byState({latestStage: () => { return;}})).toBe(true);
+      expect(filter.byState({latestStage: () => null})).toBe(true);
     });
   });
 });

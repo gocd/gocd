@@ -30,7 +30,6 @@ import org.junit.Test;
 
 import java.util.Collections;
 import java.util.Date;
-import java.util.HashSet;
 
 import static com.thoughtworks.go.helper.ConfigFileFixture.configWith;
 import static com.thoughtworks.go.server.domain.user.DashboardFilter.DEFAULT_NAME;

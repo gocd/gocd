@@ -75,6 +75,7 @@ public class AnalyticsDelegate implements SparkController {
             before("", this::checkPipelineExists, this::checkPermissions);
             before("/*", this::checkPipelineExists, this::checkPermissions);
             get("", this::showAnalytics);
+            post("", this::showAnalytics);
         });
     }
 

@@ -2901,7 +2901,6 @@ li.task_property {
     border-radius: 70px;
     height: 140px;
     width: 140px;
-    overflow: hidden;
     box-sizing: border-box;
     z-index: 1;
 }
@@ -2923,9 +2922,8 @@ li.task_property {
     line-height: 0.4em;
     overflow: hidden;
     text-align: center;
-    margin-left: -20px;
-    margin-right: -20px;
     margin-bottom: 5px;
+    border-radius: 20px;
 }
 
 .vsm-entity.material .more:hover {

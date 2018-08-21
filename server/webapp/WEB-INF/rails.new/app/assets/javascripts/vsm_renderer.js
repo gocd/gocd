@@ -28,6 +28,9 @@ Graph_Renderer = function (container) {
     var maxHeight = 100; //height of svg container
     var svg;
     var noInstanceMessage = "No instance of this pipeline has run for any of the direct upstream dependency revision.";
+    var analyticsModeEnabled = false;
+    var selectPipelineCallback;
+    var selectMaterialCallback;
 
     Graph_Renderer.prototype.invoke = function (vsm) {
         current = vsm.current_pipeline;
@@ -46,7 +49,60 @@ Graph_Renderer = function (container) {
 
         initMiniMap();
         addBehaviors();
-    }
+    };
+
+    var highlightCurrentNode = function highlightCurrentNode() {
+      $j(".current").addClass("vsm-current-node");
+    };
+
+    var removeNodeSelection = function removeNodeSelection() {
+      $j(".current").removeClass("vsm-current-node");
+      $j(".other-node").removeClass("vsm-other-node");
+    };
+
+    Graph_Renderer.prototype.enableAnalyticsMode = function () {
+      analyticsModeEnabled = true;
+      $j('.vsm-entity.pipeline a').css({ "pointer-events": "none" });
+      $j('.vsm-entity.material').click(selectMaterial);
+      $j('.vsm-entity.pipeline').click(selectPipeline);
+      highlightCurrentNode();
+    };
+
+    Graph_Renderer.prototype.disableAnalyticsMode = function () {
+      analyticsModeEnabled = false;
+      $j('.vsm-entity a').css({ "pointer-events": "auto" });
+      $j('.vsm-entity.material').css({ "pointer-events": "auto" });
+      $j('.vsm-entity.material').unbind('click', selectMaterial);
+      $j('.vsm-entity.pipeline').unbind('click', selectPipeline);
+      removeNodeSelection();
+    };
+
+    Graph_Renderer.prototype.resetAnalyticsMode = function () {
+      $j(".other-node").removeClass("vsm-other-node");
+    };
+
+    Graph_Renderer.prototype.registerSelectPipelineCallback = function (callback) {
+      selectPipelineCallback = callback;
+    };
+
+    Graph_Renderer.prototype.registerSelectMaterialCallback = function (callback) {
+      selectMaterialCallback = callback;
+    };
+
+    var selectMaterial = function selectMaterial(e) {
+      e.stopPropagation();
+      var vsmEntity = $j(this).closest('.vsm-entity');
+      $j(".other-node").removeClass("vsm-other-node");
+      $j(vsmEntity).addClass("vsm-other-node");
+      selectMaterialCallback(vsmEntity.data("material-name"), vsmEntity.data("fingerprint").substr(1), vsmEntity.data("level"));
+    };
+
+    var selectPipeline = function selectPipeline() {
+      var vsmEntity = $j(this).closest('.vsm-entity');
+      $j(".other-node").removeClass("vsm-other-node");
+      $j(vsmEntity).addClass("vsm-other-node");
+      selectPipelineCallback(vsmEntity.data("pipeline-name"), vsmEntity.data("level"));
+    };
 
     function resetContainerPosition() {
         container.scrollTop(0);
@@ -66,16 +122,18 @@ Graph_Renderer = function (container) {
                     if (node.node_type != 'PIPELINE' && node.node_type != 'DUMMY') {
                         pipeline_gui = renderMaterialCommits(node);
                         var material_conflicts = node.view_type == 'WARNING' ? 'conflicts' : '';
-                        pipeline_gui += '<div id="' + node.id.replace(/\./g, '_id-') + '" class="vsm-entity material ' + node.node_type.toLowerCase() + ' ' + material_conflicts + '" style="';
-                        pipeline_gui += 'top:' + (((height * depth) + (50 * depth)) + 50) + 'px; left:' + (((width * i) + (90 * i)) + 100) + 'px';
-                        pipeline_gui += '">';
+                        pipeline_gui += '<div id="' + node.id.replace(/\./g, '_id-') + '" class="vsm-entity material other-node ' + node.node_type.toLowerCase() + ' ' + material_conflicts + '" style="';
+                        pipeline_gui += 'top:' + (((height * depth) + (50 * depth)) + 50) + 'px; left:' + (((width * i) + (90 * i)) + 100) + 'px"';
+                        pipeline_gui += 'data-material-name="' + node.name + '" data-fingerprint="' + node.id + '" data-level=' + i;
+                        pipeline_gui += '>';
                         pipeline_gui += renderScmEntity(node);
 
                     }
                     else {
-                        pipeline_gui = '<div id="' + node.id.replace(/\./g, '_id-') + '" class="vsm-entity ' + node.node_type.toLowerCase() + '" style="';
-                        pipeline_gui += 'top:' + (((height * depth) + (50 * depth)) + 50) + 'px; left:' + (((width * i) + (90 * i)) + 20) + 'px';
-                        pipeline_gui += '">';
+                        pipeline_gui = '<div id="' + node.id.replace(/\./g, '_id-') + '" class="vsm-entity other-node ' + node.node_type.toLowerCase() + '" style="';
+                        pipeline_gui += 'top:' + (((height * depth) + (50 * depth)) + 50) + 'px; left:' + (((width * i) + (90 * i)) + 20) + 'px"';
+                        pipeline_gui += 'data-pipeline-name="' + node.id + '" data-level=' + i;
+                        pipeline_gui += '>';
                     }
                     isCurrent = false;
                 } else {
@@ -167,6 +225,8 @@ Graph_Renderer = function (container) {
         var $MaterialRevision = $j('.vsm-entity.material');
 
         $MaterialRevision.click(function (event) {
+            if(analyticsModeEnabled) return;
+
             var CommentsBox = $j('ul[data-materialname="' + $j(this).attr('id') + '"]');
             CommentsBox.slideToggle(100);
 
@@ -283,7 +343,8 @@ Graph_Renderer = function (container) {
                 gui += '">' + (node.instances.length - 1) + ' more...</a></div>';
             }
         }
-        gui += '<div class="actions"><button class="pin" title="Keep dependencies highlighted" /></div>';
+        gui += '<div class="actions">';
+        gui += '<button class="pin" title="Keep dependencies highlighted" /></div>';
         return gui;
     }
 
@@ -293,7 +354,8 @@ Graph_Renderer = function (container) {
         if (node.message) {
             gui += '<div class="message restricted"><span>' + node.message + '</span></div>';
         }
-        gui += '<div class="actions restricted"><button class="pin" title="Keep dependencies highlighted" /></div>';
+        gui += '<div class="actions restricted">';
+        gui += '<button class="pin" title="Keep dependencies highlighted" /></div>';
         return gui;
     }
 

@@ -10,9 +10,15 @@
       <span class="label">Revision</span>
       <h1><%= params[:revision] %> </h1></li>
   </ul>
+  <% if (supports_vsm_analytics?) %>
+    <button class="fa fa-bar-chart enable-analytics"/>
+  <% end %>
 </div>
 
 <div class="content">
+  <% if supports_vsm_analytics? %>
+    <%= render :partial => "analytics_panel.html", :locals => {:scope => {:is_vsm_for_pipeline => false, :current => @material_display_name}} -%>
+  <% end %>
   <div id="vsm-container">
   </div>
   <div id="vsm-overlay">
@@ -36,7 +42,15 @@
         jQuery.ajax({
             url: "<%= vsm_show_material_path(:material_fingerprint => params[:material_fingerprint], :revision => params[:revision], :format => 'json')%>"
         }).done(function (data) {
-            vsm = new VSM(data, "#vsm-container", new Graph_Renderer("#vsm-container"), "#pre-loader-overlay").render();
+          graphRenderer = new Graph_Renderer("#vsm-container");
+
+          if (data.error == null && <%= supports_vsm_analytics? %>) {
+            vsmAnalyticsPipelinePanel = new VSMAnalyticsPipelinePanel(".vsm-analytics-panel");
+            vsm_analytics             = new VSMAnalytics(data, graphRenderer, "<%= show_vsm_analytics_path %>", vsmAnalyticsPipelinePanel, ".enable-analytics");
+            vsm_analytics.init();
+          }
+
+          vsm = new VSM(data, "#vsm-container", graphRenderer, "#pre-loader-overlay").render();
         })
 
     })

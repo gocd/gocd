@@ -24,6 +24,7 @@ public class Capabilities {
     private final List<SupportedAnalytics> supportedAnalytics;
     private static final String DASHBOARD_TYPE = "dashboard";
     private static final String PIPELINE_TYPE = "pipeline";
+    private static final String VSM_TYPE = "vsm";
 
     public Capabilities(List<SupportedAnalytics> supportedAnalytics) {
         this.supportedAnalytics = supportedAnalytics;
@@ -41,6 +42,10 @@ public class Capabilities {
         return hasSupportFor(DASHBOARD_TYPE);
     }
 
+    public boolean supportsVSMAnalytics() {
+        return hasSupportFor(VSM_TYPE);
+    }
+
     public List<String> supportedAnalyticsDashboardMetrics() {
         return this.supportedAnalytics.stream().filter(s -> DASHBOARD_TYPE.equalsIgnoreCase(s.getType())).map(SupportedAnalytics::getTitle).collect(Collectors.toList());
     }
@@ -51,6 +56,10 @@ public class Capabilities {
 
     public List<SupportedAnalytics> supportedPipelineAnalytics() {
         return this.supportedAnalytics.stream().filter(s -> PIPELINE_TYPE.equalsIgnoreCase(s.getType())).collect(Collectors.toList());
+    }
+
+    public List<SupportedAnalytics> supportedVSMAnalytics() {
+        return this.supportedAnalytics.stream().filter(s -> VSM_TYPE.equalsIgnoreCase(s.getType())).collect(Collectors.toList());
     }
 
     private boolean hasSupportFor(String analyticsType) {

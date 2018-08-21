@@ -18,6 +18,8 @@ package com.thoughtworks.go.plugin.access.analytics;
 
 import com.thoughtworks.go.plugin.access.DefaultPluginInteractionCallback;
 import com.thoughtworks.go.plugin.access.PluginRequestHelper;
+import com.thoughtworks.go.plugin.access.analytics.V1.AnalyticsMessageConverterV1;
+import com.thoughtworks.go.plugin.access.analytics.V2.AnalyticsMessageConverterV2;
 import com.thoughtworks.go.plugin.access.common.AbstractExtension;
 import com.thoughtworks.go.plugin.access.common.settings.MessageHandlerForPluginSettingsRequestProcessor;
 import com.thoughtworks.go.plugin.access.common.settings.MessageHandlerForPluginSettingsRequestProcessor1_0;
@@ -46,9 +48,11 @@ public class AnalyticsExtension extends AbstractExtension {
         super(pluginManager, new PluginRequestHelper(pluginManager, SUPPORTED_VERSIONS, ANALYTICS_EXTENSION), ANALYTICS_EXTENSION);
         addHandler(AnalyticsMessageConverterV1.VERSION, new PluginSettingsJsonMessageHandler2_0(), new AnalyticsMessageConverterV1(),
                 new MessageHandlerForPluginSettingsRequestProcessor1_0());
+        addHandler(AnalyticsMessageConverterV2.VERSION, new PluginSettingsJsonMessageHandler2_0(), new AnalyticsMessageConverterV2(),
+                new MessageHandlerForPluginSettingsRequestProcessor1_0());
     }
 
-    private void addHandler(String version, PluginSettingsJsonMessageHandler messageHandler, AnalyticsMessageConverterV1 extensionHandler,
+    private void addHandler(String version, PluginSettingsJsonMessageHandler messageHandler, AnalyticsMessageConverter extensionHandler,
                             MessageHandlerForPluginSettingsRequestProcessor messageHandlerForPluginSettingsRequestProcessor) {
         pluginSettingsMessageHandlerMap.put(version, messageHandler);
         messageHandlerMap.put(version, extensionHandler);

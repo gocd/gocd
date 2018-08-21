@@ -20,7 +20,8 @@
       $.ajax({
         url: options.url,
         dataType: "json",
-        type: "GET"
+        data: options.data,
+        type: options.type || "GET"
       }).done(function(r) {
         var frame = document.createElement("iframe");
         frame.sandbox = "allow-scripts";

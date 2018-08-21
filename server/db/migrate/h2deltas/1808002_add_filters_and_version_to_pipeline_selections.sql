@@ -14,8 +14,8 @@
 -- limitations under the License.
 --
 
-ALTER TABLE PipelineSelections ADD COLUMN filters TEXT;
-ALTER TABLE PipelineSelections ADD COLUMN version INT DEFAULT 0 NOT NULL;
+ALTER TABLE PipelineSelections ADD COLUMN IF NOT EXISTS filters TEXT;
+ALTER TABLE PipelineSelections ADD COLUMN IF NOT EXISTS version INT DEFAULT 0 NOT NULL;
 
 --//@UNDO
 

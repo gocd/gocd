@@ -17,7 +17,6 @@
 package com.thoughtworks.go.server.domain.user;
 
 import com.thoughtworks.go.config.CaseInsensitiveString;
-import com.thoughtworks.go.presentation.pipelinehistory.StageInstanceModel;
 
 import java.util.*;
 
@@ -30,11 +29,13 @@ public interface DashboardFilter {
     String BUILDING_STATE = "building";
     String FAILED_STATE = "failing";
     Set<String> VALID_STATES = new HashSet<>(Arrays.asList(BUILDING_STATE, FAILED_STATE));
+
     String name();
 
     Set<String> state();
 
-    boolean isPipelineVisible(CaseInsensitiveString pipeline, StageInstanceModel goDashboardPipeline);
+    @Deprecated // TODO: remove when removing old dashboard
+    boolean isPipelineVisible(CaseInsensitiveString pipeline);
 
     /**
      * Idempotent operation on filter to allow a specified pipeline to be visible

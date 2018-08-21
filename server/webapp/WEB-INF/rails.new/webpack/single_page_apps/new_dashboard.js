@@ -91,11 +91,6 @@ $(() => {
         m.route.set(route, null, {replace: true}); // force m.route() evaluation
       }
     }
-
-    // Explicit set always refreshes; even if the viewName didn't change,
-    // we should refresh because the filter definition may have changed as
-    // currentView() is called after every personalization save operation.
-    repeater().restart();
   }
 
   $(document.body).on("click", () => {
@@ -116,6 +111,7 @@ $(() => {
     personalizeVM.etag(dashboardData.personalization);
     dashboard.initialize(dashboardData);
     dashboard.message(message);
+    m.redraw();
   }
 
   function parseEtag(req) { return (req.getResponseHeader("ETag") || "").replace(/"/g, "").replace(/--(gzip|deflate)$/, ""); }

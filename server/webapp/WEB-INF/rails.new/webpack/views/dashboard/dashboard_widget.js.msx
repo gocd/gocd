@@ -87,7 +87,7 @@ const DashboardWidget = {
           </section>
 
           {messageView}
-          <DashboardGroupsWidget groups={vm.filteredGroups()} scheme={vm.scheme()} resolver={dashboard} {...sharedGroupArgs} />
+          <DashboardGroupsWidget groups={vm.filteredGroups(personalizeVM.currentFilter())} scheme={vm.scheme()} resolver={dashboard} {...sharedGroupArgs} />
         </div>
       </div>
     );

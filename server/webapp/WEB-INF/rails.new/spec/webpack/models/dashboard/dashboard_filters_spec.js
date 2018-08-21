@@ -26,7 +26,7 @@ describe("DashboardFilters", () => {
     const filters = new DashboardFilters([def, a, b, c]);
     expect(filters.defaultFilter().name).toBe("Default");
     expect(filters.defaultFilter()).toEqual(def);
-    expect(filters.defaultFilter() === def).toBe(true); // should be referential equality!
+    expect(filters.defaultFilter() === def).toBe(true);
   });
 
   it("defaultFilter() creates a new default wildcard filter when a default does not exist", () => {
@@ -46,26 +46,26 @@ describe("DashboardFilters", () => {
 
   it("findFilter() finds a filter by name, case-insensitively", () => {
     const filters = new DashboardFilters([def, a, b, c]);
-    expect(filters.findFilter("a")).toBe(a); // referential equality
-    expect(filters.findFilter("A")).toBe(a); // referential equality
+    expect(filters.findFilter("a").definition()).toEqual(a);
+    expect(filters.findFilter("A").definition()).toEqual(a);
   });
 
   it("findFilter() falls back to defaultFilter when it cannot resolve a filter by name", () => {
-    expect(new DashboardFilters([def, a]).findFilter("c")).toBe(def); // referential equality
+    expect(new DashboardFilters([def, a]).findFilter("c").definition()).toEqual(def);
 
     const filters = new DashboardFilters([a]);
     const found = filters.findFilter("c");
 
     expect(found.name).toBe("Default");
     expect(filters.names()).toEqual(["Default", "a"]);
-    expect(found).toEqual({name: "Default", type: "blacklist", pipelines: []});
+    expect(found.definition()).toEqual({name: "Default", state: [], type: "blacklist", pipelines: []});
   });
 
   it("addFilter() appends a filter", () => {
     const filters = new DashboardFilters([def, a]);
     filters.addFilter(b);
     expect(filters.names()).toEqual(["Default", "a", "b"]);
-    expect(filters.findFilter("b")).toBe(b);
+    expect(filters.findFilter("b").definition()).toEqual(b);
   });
 
   it("removeFilter() removes a filter by name", () => {
@@ -80,7 +80,7 @@ describe("DashboardFilters", () => {
 
     filters.replaceFilter("a", c);
     expect(filters.names()).toEqual(["Default", "c", "b"]);
-    expect(filters.findFilter("c")).toBe(c);
+    expect(filters.findFilter("c").definition()).toEqual(c);
   });
 
   it("replaceFilter() falls back to addFilter() when the existing filter cannot be resolved", () => {
@@ -89,7 +89,7 @@ describe("DashboardFilters", () => {
 
     filters.replaceFilter("d", c);
     expect(filters.names()).toEqual(["Default", "a", "b", "c"]);
-    expect(filters.findFilter("c")).toBe(c);
+    expect(filters.findFilter("c").definition()).toEqual(c);
   });
 
   it("replaceFilter() falls back to addFilter() when the existing filter name is null", () => {
@@ -98,7 +98,7 @@ describe("DashboardFilters", () => {
 
     filters.replaceFilter(null, c);
     expect(filters.names()).toEqual(["Default", "a", "b", "c"]);
-    expect(filters.findFilter("c")).toBe(c);
+    expect(filters.findFilter("c").definition()).toEqual(c);
   });
 
   it("moveFilterByIndex() moves source filter to destination position", () => {
@@ -155,9 +155,9 @@ describe("DashboardFilters", () => {
   });
 });
 
-const def = {name: "Default", type: "whitelist", pipelines: ["a", "c"]};
-const a = {name: "a", type: "blacklist", pipelines: ["a"]};
-const b = {name: "b", type: "blacklist", pipelines: ["b"]};
-const c = {name: "c", type: "whitelist", pipelines: ["c"]};
-const d = {name: "d", type: "whitelist", pipelines: ["d"]};
-const e = {name: "e", type: "blacklist", pipelines: ["e"]};
+const def = {name: "Default", state:[], type: "whitelist", pipelines: ["a", "c"]};
+const a = {name: "a", state: [], type: "blacklist", pipelines: ["a"]};
+const b = {name: "b", state: [], type: "blacklist", pipelines: ["b"]};
+const c = {name: "c", state: [], type: "whitelist", pipelines: ["c"]};
+const d = {name: "d", state: [], type: "whitelist", pipelines: ["d"]};
+const e = {name: "e", state: [], type: "blacklist", pipelines: ["e"]};

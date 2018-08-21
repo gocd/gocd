@@ -393,13 +393,13 @@ public class PipelineRepositoryIntegrationTest {
 
     private void assertAllowsPipelines(DashboardFilter filter, String... pipelines) {
         for (String pipeline : pipelines) {
-            assertTrue(filter.isPipelineVisible(new CaseInsensitiveString(pipeline), null));
+            assertTrue(filter.isPipelineVisible(new CaseInsensitiveString(pipeline)));
         }
     }
 
     private void assertDeniesPipelines(DashboardFilter filter, String... pipelines) {
         for (String pipeline : pipelines) {
-            assertFalse(filter.isPipelineVisible(new CaseInsensitiveString(pipeline), null));
+            assertFalse(filter.isPipelineVisible(new CaseInsensitiveString(pipeline)));
         }
     }
 

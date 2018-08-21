@@ -108,6 +108,10 @@ function PersonalizationVM(currentView) {
 
     changeListeners.push(fn);
   };
+
+  this.currentFilter = () => {
+    return this.model().namedFilter(this.currentView());
+  };
 }
 
 function parseEtag(req) { return (req.getResponseHeader("ETag") || "").replace(/"/g, "").replace(/--(gzip|deflate)$/, ""); }

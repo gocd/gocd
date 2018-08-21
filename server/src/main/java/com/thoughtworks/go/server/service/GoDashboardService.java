@@ -102,9 +102,7 @@ public class GoDashboardService {
             GoDashboardPipeline pipeline = allPipelines.find(pipelineName);
 
             if (null != pipeline && pipeline.canBeViewedBy(user.getUsername().toString())) {
-                if (filter.isPipelineVisible(pipelineName, pipeline.getLatestStage())) {
-                    env.addPipeline(pipeline);
-                }
+                env.addPipeline(pipeline);
             }
         });
 
@@ -118,9 +116,7 @@ public class GoDashboardService {
             pipelineGroup.accept(pipelineConfig -> {
                 GoDashboardPipeline pipeline = allPipelines.find(pipelineConfig.getName());
                 if (pipeline != null) {
-                    if (filter.isPipelineVisible(pipelineConfig.name(), pipeline.getLatestStage())) {
-                        goDashboardPipelineGroup.addPipeline(pipeline);
-                    }
+                    goDashboardPipelineGroup.addPipeline(pipeline);
                 }
             });
         }

@@ -26,8 +26,6 @@ import com.thoughtworks.go.helper.*;
 import com.thoughtworks.go.presentation.PipelineStatusModel;
 import com.thoughtworks.go.presentation.pipelinehistory.*;
 import com.thoughtworks.go.server.dao.PipelineDao;
-import com.thoughtworks.go.server.dao.StageDao;
-import com.thoughtworks.go.server.domain.JobDurationStrategy;
 import com.thoughtworks.go.server.domain.PipelineTimeline;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.domain.user.PipelineSelections;
@@ -82,7 +80,6 @@ public class PipelineHistoryServiceTest {
             + "  </pipelines>"
             + "</cruise>").config;
 
-    @Mock private StageDao stageDao;
     @Mock private PipelineDao pipelineDao;
     @Mock private GoConfigService goConfigService;
     @Mock private SecurityService securityService;
@@ -103,9 +100,8 @@ public class PipelineHistoryServiceTest {
         when(featureToggleService.isToggleOn(Toggles.PIPELINE_COMMENT_FEATURE_TOGGLE_KEY)).thenReturn(true);
         when(goConfigService.isPipelineEditable(any(String.class))).thenReturn(true);
         Toggles.initializeWith(featureToggleService);
-        pipelineHistoryService = new PipelineHistoryService(pipelineDao, stageDao, goConfigService, securityService, scheduleService,
+        pipelineHistoryService = new PipelineHistoryService(pipelineDao, goConfigService, securityService, scheduleService,
                 mock(MaterialRepository.class),
-                JobDurationStrategy.ALWAYS_ZERO,
                 mock(TriggerMonitor.class),
                 pipelineTimeline,
                 pipelineUnlockService, schedulingCheckerService, pipelineLockService, pipelinePauseService);

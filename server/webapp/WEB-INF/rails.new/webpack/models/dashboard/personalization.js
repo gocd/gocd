@@ -29,6 +29,10 @@ function Personalization(filters, pipelineGroups) {
     return filterSet.findFilter(name);
   };
 
+  this.filterDef = (name) => {
+    return this.namedFilter(name).definition();
+  };
+
   this.filters = () => filterSet.clone();
 
   this.addOrReplaceFilter = (existingName, newFilter, etag) => {

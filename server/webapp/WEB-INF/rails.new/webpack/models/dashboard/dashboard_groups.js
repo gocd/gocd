@@ -27,22 +27,22 @@ function Group({name, can_administer, pipelines}) { // eslint-disable-line camel
     return _.map(self.pipelines, (pipelineName) => resolver.findPipeline(pipelineName));
   };
 
-  this.filterBy = (filterText) => {
-    const filteredPipelines = _.filter(self.pipelines, (p) => _.includes(p.toLowerCase(), filterText.toLowerCase()));
-
-    if (filteredPipelines.length) {
-      return new Group({name, can_administer, pipelines: filteredPipelines}); // eslint-disable-line camelcase
+  this.select = (filter) => {
+    const pipelines = _.filter(this.pipelines, filter);
+    if (pipelines.length === 0) {
+      return false;
     }
+    return new Group({name, can_administer, pipelines}); // eslint-disable-line camelcase
   };
 }
 
 function DashboardGroups(groups) {
-  const self  = this;
   this.groups = groups;
 
-  this.filterBy = (filterText) => {
-    const filteredGroups = _.compact(_.map(self.groups, (group) => group.filterBy(filterText)));
-    return new DashboardGroups(filteredGroups);
+  this.select = (filter) => {
+    return new DashboardGroups(_.compact(_.map(this.groups, (group) => {
+      return group.select(filter);
+    })));
   };
 }
 

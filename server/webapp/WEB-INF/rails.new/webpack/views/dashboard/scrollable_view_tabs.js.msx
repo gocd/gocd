@@ -55,6 +55,7 @@ const ScrollableViewTabs = {
 
     ensureCurrentTabInView(vnode.dom);
 
+    vm.onchange(m.redraw);
     vm.onchange(() => ensureCurrentTabInView(vnode.dom));
     vnode.state.attached = true;
   },

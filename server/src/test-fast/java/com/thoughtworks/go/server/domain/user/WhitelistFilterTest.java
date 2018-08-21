@@ -25,18 +25,18 @@ class WhitelistFilterTest {
     @Test
     void isPipelineVisible() {
         final WhitelistFilter f = new WhitelistFilter(null, CaseInsensitiveString.list("p1"), null);
-        assertTrue(f.isPipelineVisible(new CaseInsensitiveString("p1"), null));
-        assertFalse(f.isPipelineVisible(new CaseInsensitiveString("p0"), null));
+        assertTrue(f.isPipelineVisible(new CaseInsensitiveString("p1")));
+        assertFalse(f.isPipelineVisible(new CaseInsensitiveString("p0")));
     }
 
     @Test
     void allowPipeline() {
         final WhitelistFilter f = new WhitelistFilter(null, CaseInsensitiveString.list("p1"), null);
-        assertTrue(f.isPipelineVisible(new CaseInsensitiveString("p1"), null));
-        assertFalse(f.isPipelineVisible(new CaseInsensitiveString("p0"), null));
+        assertTrue(f.isPipelineVisible(new CaseInsensitiveString("p1")));
+        assertFalse(f.isPipelineVisible(new CaseInsensitiveString("p0")));
 
         f.allowPipeline(new CaseInsensitiveString("p0"));
-        assertTrue(f.isPipelineVisible(new CaseInsensitiveString("p0"), null));
+        assertTrue(f.isPipelineVisible(new CaseInsensitiveString("p0")));
     }
 
     @Test

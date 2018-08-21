@@ -101,8 +101,9 @@ function initSavePopup(vm) {
   const onreset = () => { vm.stagedSort(null); vm.actionPopup(null); m.redraw(); vm.onchange(); };
 
   const onsave = () => {
-    vm.model().updateFilters(vm.stagedSort(), vm.etag()).done(() => {
+    vm.model().updateFilters(vm.stagedSort(), vm.etag()).done((data) => {
       vm.names(vm.model().names());
+      vm.checksum(data.contentHash);
       onreset();
     }).fail((xhr) => {
       vm.actionPopup({

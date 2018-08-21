@@ -23,7 +23,6 @@ import com.thoughtworks.go.config.security.users.Everyone;
 import com.thoughtworks.go.config.security.users.Users;
 import com.thoughtworks.go.server.dashboard.*;
 import com.thoughtworks.go.server.domain.Username;
-import com.thoughtworks.go.server.domain.user.DashboardFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -45,14 +44,14 @@ public class GoDashboardService {
         this.goConfigService = goConfigService;
     }
 
-    public List<GoDashboardEnvironment> allEnvironmentsForDashboard(DashboardFilter filter, Username user) {
+    public List<GoDashboardEnvironment> allEnvironmentsForDashboard(Username user) {
         GoDashboardPipelines allPipelines = cache.allEntries();
         List<GoDashboardEnvironment> environments = new ArrayList<>();
 
         final Users admins = superAdmins();
 
         goConfigService.getEnvironments().forEach(environment -> {
-            GoDashboardEnvironment env = dashboardEnvironmentFor(environment, filter, user, admins, allPipelines);
+            GoDashboardEnvironment env = dashboardEnvironmentFor(environment, user, admins, allPipelines);
 
             if (env.hasPipelines()) {
                 environments.add(env);
@@ -62,12 +61,12 @@ public class GoDashboardService {
         return environments;
     }
 
-    public List<GoDashboardPipelineGroup> allPipelineGroupsForDashboard(DashboardFilter filter, Username user) {
+    public List<GoDashboardPipelineGroup> allPipelineGroupsForDashboard(Username user) {
         GoDashboardPipelines allPipelines = cache.allEntries();
         List<GoDashboardPipelineGroup> pipelineGroups = new ArrayList<>();
 
         goConfigService.groups().accept(group -> {
-            GoDashboardPipelineGroup dashboardPipelineGroup = dashboardPipelineGroupFor(group, filter, user, allPipelines);
+            GoDashboardPipelineGroup dashboardPipelineGroup = dashboardPipelineGroupFor(group, user, allPipelines);
             if (dashboardPipelineGroup.hasPipelines()) {
                 pipelineGroups.add(dashboardPipelineGroup);
             }
@@ -95,7 +94,7 @@ public class GoDashboardService {
         return dashboardCurrentStateLoader.hasEverLoadedCurrentState();
     }
 
-    private GoDashboardEnvironment dashboardEnvironmentFor(EnvironmentConfig environment, DashboardFilter filter, Username user, Users allowedUsers, GoDashboardPipelines allPipelines) {
+    private GoDashboardEnvironment dashboardEnvironmentFor(EnvironmentConfig environment, Username user, Users allowedUsers, GoDashboardPipelines allPipelines) {
         GoDashboardEnvironment env = new GoDashboardEnvironment(environment.name().toString(), allowedUsers);
 
         environment.getPipelineNames().forEach(pipelineName -> {
@@ -109,7 +108,7 @@ public class GoDashboardService {
         return env;
     }
 
-    private GoDashboardPipelineGroup dashboardPipelineGroupFor(PipelineConfigs pipelineGroup, DashboardFilter filter, Username user, GoDashboardPipelines allPipelines) {
+    private GoDashboardPipelineGroup dashboardPipelineGroupFor(PipelineConfigs pipelineGroup, Username user, GoDashboardPipelines allPipelines) {
         GoDashboardPipelineGroup goDashboardPipelineGroup = new GoDashboardPipelineGroup(pipelineGroup.getGroup(), resolvePermissionsForPipelineGroup(pipelineGroup, allPipelines));
 
         if (goDashboardPipelineGroup.hasPermissions() && goDashboardPipelineGroup.canBeViewedBy(user)) {

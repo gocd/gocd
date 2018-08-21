@@ -61,7 +61,15 @@ describe("AnalyticsInteractionManager", () => {
     Interactions.ensure();
     AnalyticsEndpoint.ensure("v1");
 
-    window.postMessage(fakeReq("go.cd.analytics.v1.link-external", {url: "https://google.com"}), "*");
+    const request = fakeReq("go.cd.analytics.v1.link-external", {url: "https://google.com"});
+
+    expect(window.addEventListener).toHaveBeenCalled();
+
+    window.postMessage(request, "*");
+
+    expect(window.postMessage).toHaveBeenCalled();
+    expect(window.open).toHaveBeenCalled();
+
     expect(window.open).toHaveBeenCalledWith("https://google.com", "_blank");
   });
 

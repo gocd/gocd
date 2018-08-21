@@ -36,6 +36,7 @@ module.exports = function (config) {
     basePath:      path.join(__dirname, 'public', 'assets', 'webpack'),
     frameworks:    ['jasmine'],
     client:        {
+      captureConsole: true,
       jasmine: {
         random: true,
         seed: process.env['JASMINE_SEED']

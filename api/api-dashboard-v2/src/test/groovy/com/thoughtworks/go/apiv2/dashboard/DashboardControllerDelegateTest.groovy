@@ -24,7 +24,6 @@ import com.thoughtworks.go.config.security.Permissions
 import com.thoughtworks.go.config.security.users.Everyone
 import com.thoughtworks.go.server.dashboard.GoDashboardEnvironment
 import com.thoughtworks.go.server.dashboard.GoDashboardPipelineGroup
-import com.thoughtworks.go.server.domain.user.Filters
 import com.thoughtworks.go.server.domain.user.PipelineSelections
 import com.thoughtworks.go.server.service.GoDashboardService
 import com.thoughtworks.go.server.service.PipelineSelectionsService

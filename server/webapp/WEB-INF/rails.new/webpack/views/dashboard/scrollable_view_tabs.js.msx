@@ -23,7 +23,7 @@ const SortableViewTabs = require("views/dashboard/sortable_view_tabs");
 const ScrollableViewTabs = {
   oncreate(vnode) {
     const vm = vnode.attrs.vm;
-    const padding = 2 * (parseInt($(vnode.dom).css("padding-left"), 10) || 0);
+    const padding = 0;
 
     if (!vnode.state.attached) {
       window.addEventListener("resize", raf(() => {
@@ -36,8 +36,8 @@ const ScrollableViewTabs = {
 
     $(vnode.dom).on("click", ".page-prev,.page-next", (e) => {
       if (vm.paged()) {
-        const pageSize = vnode.dom.clientWidth - padding;
         const scrollable = $(vnode.dom.querySelector(".dashboard-tabs-sortable"));
+        const pageSize = scrollable[0].clientWidth - padding;
         const current = scrollable.scrollLeft(), max = scrollable[0].scrollWidth - pageSize;
         const button = $(e.currentTarget);
 
@@ -70,9 +70,9 @@ const ScrollableViewTabs = {
     const vm = vnode.attrs.vm;
 
     return <div class={vm.paged() ? "dashboard-tabs-scrollable paged" : "dashboard-tabs-scrollable"}>
-      <i class="page-prev"></i>
-      <i class="page-next"></i>
+      <i class="page-prev"/>
       <SortableViewTabs {...vnode.attrs} />
+      <i class="page-next"/>
     </div>;
   }
 };

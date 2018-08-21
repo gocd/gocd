@@ -50,8 +50,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import static com.thoughtworks.go.server.domain.user.DashboardFilter.DEFAULT_NAME;
-
 @Service
 public class PipelineHistoryService implements PipelineInstanceLoader {
     private PipelineDao pipelineDao;
@@ -395,7 +393,7 @@ public class PipelineHistoryService implements PipelineInstanceLoader {
 
     public List<PipelineGroupModel> allActivePipelineInstances(Username username, PipelineSelections pipelineSelections) {
         PipelineGroupModels groupModels = allPipelineInstances(username);
-        filterSelections(groupModels, pipelineSelections.namedFilter(DEFAULT_NAME));
+        filterSelections(groupModels, pipelineSelections.defaultFilter());
         removeEmptyGroups(groupModels);
         updateGroupAdministrability(username, groupModels);
         return groupModels.asList();

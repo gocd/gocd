@@ -5,6 +5,7 @@ $dashboard-tab-action-button-color: #6b808c;
 $dashboard-tab-height: 50px;
 $dashboard-add-tab-width: 40px;
 $dashboard-tab-list-toggle-width: $dashboard-add-tab-width;
+$dashboard-tabs-padding: 30px;
 $dashboard-tabs-border-color: #e9eeef;
 $dashboard-tabs-border-radius: 0;
 $dashboard-tabs-pager-width: $dashboard-add-tab-width;
@@ -24,7 +25,7 @@ $dashboard-tabs-box-shadow: 0 0 10px rgba(0, 0, 0, 0.21);
   border-radius:    $dashboard-tabs-border-radius;
   line-height:      $dashboard-tab-height;
   height:           $dashboard-tab-height;
-  padding:          0;
+  padding:          0 $dashboard-tabs-padding;
   margin-bottom:    20px;
   box-shadow:       $dashboard-tabs-box-shadow;
 

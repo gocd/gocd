@@ -61,9 +61,7 @@ const ScrollableViewTabs = {
   },
 
   onupdate(vnode) {
-    const el = vnode.dom.querySelector(".dashboard-tabs-sortable");
-    const padding = 2 * (parseInt($(vnode.dom).css("padding-left"), 10) || 0);
-    vnode.attrs.vm.paged(el.scrollWidth > (vnode.dom.clientWidth - padding));
+    vnode.attrs.vm.paged(detectPaging(vnode, 0));
   },
 
   view(vnode) {
@@ -77,7 +75,10 @@ const ScrollableViewTabs = {
   }
 };
 
-function detectPaging(vnode, padding) { return vnode.dom.querySelector(".dashboard-tabs-sortable").scrollWidth > (vnode.dom.clientWidth - padding); }
+function detectPaging(vnode, padding) {
+  const toleranceForIE = 1;
+  return (vnode.dom.querySelector(".dashboard-tabs-sortable").scrollWidth - (vnode.dom.clientWidth - padding)) > toleranceForIE;
+}
 
 function ensureCurrentTabInView(viewable) {
   const scrollable = $(viewable.querySelector(".dashboard-tabs-sortable"));

@@ -196,9 +196,9 @@ public class GoDashboardServiceTest {
     @Test
     public void allEnvironmentsForDashboard_shouldNotListEmptyPipelineGroup() {
         configMother.addPipelineWithGroup(config, "group1", "pipeline1", "stage1A", "job1A1");
-        addPipelinesToCache(pipeline("pipeline1", "group1"));
+        addPipelinesToCache(pipeline("pipeline1", "group1", new Permissions(NoOne.INSTANCE, NoOne.INSTANCE, NoOne.INSTANCE, NoOne.INSTANCE)));
 
-        configMother.addEnvironmentConfig(config, "env1");
+        configMother.addEnvironmentConfig(config, "env1", "pipeline1");
         List<GoDashboardEnvironment> pipelineGroups = allEnvironmentsForDashboard(Filters.WILDCARD_FILTER, new Username("user1"));
 
         assertThat(pipelineGroups.size(), is(0));

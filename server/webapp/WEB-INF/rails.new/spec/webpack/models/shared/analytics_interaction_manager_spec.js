@@ -16,14 +16,6 @@
 
 function noop() {}
 
-function mockEvent(message) {
-  const event = {};
-  event.source = window;
-  event.origin = "null";
-  event.data = message;
-  return event;
-}
-
 function fakeReq(key, body) {
   return {head: {type: "request", reqId: 0, key}, body};
 }
@@ -46,31 +38,15 @@ describe("AnalyticsInteractionManager", () => {
   });
 
   it("ensure() should set up request handlers", () => {
-    let fireEvent;
+    jasmine.fakeMessagePosting(() => {
+      spyOn(window, "open").and.returnValue({focus: noop});
 
-    spyOn(window, "open").and.returnValue({focus: noop});
+      Interactions.ensure();
+      AnalyticsEndpoint.ensure("v1");
 
-    spyOn(window, "addEventListener").and.callFake((name, fn, _bool) => {
-      if ("message" === name) { fireEvent = fn; }
+      window.postMessage(fakeReq("go.cd.analytics.v1.link-external", {url: "https://google.com"}), "*");
+      expect(window.open).toHaveBeenCalledWith("https://google.com", "_blank");
     });
-
-    spyOn(window, "postMessage").and.callFake((message, _origin) => {
-      fireEvent(mockEvent(message));
-    });
-
-    Interactions.ensure();
-    AnalyticsEndpoint.ensure("v1");
-
-    const request = fakeReq("go.cd.analytics.v1.link-external", {url: "https://google.com"});
-
-    expect(window.addEventListener).toHaveBeenCalled();
-
-    window.postMessage(request, "*");
-
-    expect(window.postMessage).toHaveBeenCalled();
-    expect(window.open).toHaveBeenCalled();
-
-    expect(window.open).toHaveBeenCalledWith("https://google.com", "_blank");
   });
 
   describe("Namespaces", () => {

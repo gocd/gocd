@@ -14,73 +14,44 @@
  * limitations under the License.
  */
 
- describe("PluginEndpoint", () => {
+ describe("AnalyticsEndpoint", () => {
 
-  const PluginEndpoint = require('rails-shared/plugin-endpoint');
-  const origPostMessage = window.postMessage;
-  const origListener = window.addEventListener;
+  const AnalyticsEndpoint = require('rails-shared/plugin-endpoint');
 
-  let dispatch;
-
-  function mockEvent(message) {
-    const event = {};
-    event.source = window;
-    event.origin = "null";
-    event.data = message;
-    return event;
-  }
-
-  beforeEach(() => {
-    PluginEndpoint.reset();
-    window.addEventListener = function(name, fn, bool) {
-      if ("message" === name) {
-        dispatch = fn;
-      } else {
-        origListener(name, fn, bool);
-      }
-    };
-
-    Object.defineProperty(window, "postMessage", {
-      value: (message, _origin) =>  {
-        dispatch(mockEvent(message));
-      }
-    });
-
-    PluginEndpoint.ensure("v1");
-  });
-
-  afterEach(() => {
-    window.postMessage = origPostMessage;
-    window.addEventListener = origListener;
-    PluginEndpoint.reset();
-  });
+  beforeEach(() => AnalyticsEndpoint.reset());
+  afterEach(() => AnalyticsEndpoint.reset());
 
   it("should send response for matching request", (done) => {
-    let messageContent;
-    let response;
+    jasmine.fakeMessagePosting((restore) => {
+      AnalyticsEndpoint.ensure("v1");
 
-    PluginEndpoint.define({
-      "go.cd.analytics.v1.should.receive": (message, trans) => {
-        messageContent = message.body;
-        trans.respond({ data: "correct" });
-      },
-      "go.cd.analytics.v1.should.not.receive": (_message, trans) => {
-        trans.respond({ data: "incorrect" });
-      }
-    });
+      let messageContent;
+      let response;
 
-    PluginEndpoint.onInit((_data, trans) => {
-      trans.request("should.receive", "foo").done((data) => {
-        response = data;
-      }).fail((_error) => {
-        fail(); // eslint-disable-line no-undef
-      }).always(() => {
-        expect(response).toBe("correct");
-        expect(messageContent).toBe("foo");
-        done();
+      AnalyticsEndpoint.define({
+        "go.cd.analytics.v1.should.receive": (message, trans) => {
+          messageContent = message.body;
+          trans.respond({ data: "correct" });
+        },
+        "go.cd.analytics.v1.should.not.receive": (_message, trans) => {
+          trans.respond({ data: "incorrect" });
+        }
       });
-    });
 
-    PluginEndpoint.init(window, "initialized");
+      AnalyticsEndpoint.onInit((_data, trans) => {
+        trans.request("should.receive", "foo").done((data) => {
+          response = data;
+        }).fail((_error) => {
+          fail(); // eslint-disable-line no-undef
+        }).always(() => {
+          expect(response).toBe("correct");
+          expect(messageContent).toBe("foo");
+          restore();
+          done();
+        });
+      });
+
+      AnalyticsEndpoint.init(window, "initialized");
+    });
   });
 });

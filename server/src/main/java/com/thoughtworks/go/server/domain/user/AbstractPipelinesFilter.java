@@ -17,25 +17,39 @@
 package com.thoughtworks.go.server.domain.user;
 
 import com.thoughtworks.go.config.CaseInsensitiveString;
-import com.thoughtworks.go.presentation.pipelinehistory.StageInstanceModel;
 
 import java.util.List;
 import java.util.Set;
 
-import static com.thoughtworks.go.server.domain.user.DashboardFilter.BUILDING_STATE;
-import static com.thoughtworks.go.server.domain.user.DashboardFilter.FAILED_STATE;
+abstract class AbstractPipelinesFilter implements DashboardFilter {
+    private final String name;
+    private final Set<String> state;
+    protected final List<CaseInsensitiveString> pipelines;
 
-public class PipelinesFilter {
-    final Set<String> state;
-    final List<CaseInsensitiveString> pipelines;
-
-    PipelinesFilter(Set<String> state, List<CaseInsensitiveString> pipelines) {
+    AbstractPipelinesFilter(String name, List<CaseInsensitiveString> pipelines, Set<String> state) {
+        this.name = name;
         this.state = state;
         this.pipelines = DashboardFilter.enforceList(pipelines);
     }
 
+    @Override
+    public String name() {
+        return name;
+    }
+
+    @Override
+    public Set<String> state() {
+        return state;
+    }
+
+    @Override
+    public abstract boolean isPipelineVisible(CaseInsensitiveString pipeline);
+
+    @Override
+    public abstract boolean allowPipeline(CaseInsensitiveString pipeline);
+
     @Deprecated // TODO: remove when removing old dashboard
-    boolean filterByPipelineList(CaseInsensitiveString pipelineName) {
+    protected boolean filterByPipelineList(CaseInsensitiveString pipelineName) {
         return null != pipelines && !pipelines.isEmpty() && pipelines.contains(pipelineName);
     }
 }

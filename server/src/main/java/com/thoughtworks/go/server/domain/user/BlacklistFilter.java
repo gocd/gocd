@@ -17,34 +17,14 @@
 package com.thoughtworks.go.server.domain.user;
 
 import com.thoughtworks.go.config.CaseInsensitiveString;
-import com.thoughtworks.go.presentation.pipelinehistory.StageInstanceModel;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
-public class BlacklistFilter extends PipelinesFilter implements DashboardFilter {
-    private final String name;
-
-
+public class BlacklistFilter extends AbstractPipelinesFilter {
     public BlacklistFilter(String name, List<CaseInsensitiveString> pipelines, Set<String> state) {
-        super(state, pipelines);
-        this.name = name;
-    }
-
-    public List<CaseInsensitiveString> pipelines() {
-        return Collections.unmodifiableList(pipelines);
-    }
-
-    @Override
-    public String name() {
-        return name;
-    }
-
-    @Override
-    public Set<String> state() {
-        return state;
+        super(name, pipelines, state);
     }
 
     @Override
@@ -63,12 +43,12 @@ public class BlacklistFilter extends PipelinesFilter implements DashboardFilter 
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         BlacklistFilter that = (BlacklistFilter) o;
-        return Objects.equals(name, that.name) &&
+        return Objects.equals(name(), that.name()) &&
                 Objects.equals(pipelines, that.pipelines);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(name, pipelines);
+        return Objects.hash(name(), pipelines);
     }
 }

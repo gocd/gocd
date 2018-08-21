@@ -91,8 +91,8 @@ class DashboardControllerDelegateTest implements SecurityServiceTrait, Controlle
 
         when(pipelineSelectionsService.load((String) isNull(), any(Long.class))).thenReturn(PipelineSelections.ALL)
         when(goDashboardService.hasEverLoadedCurrentState()).thenReturn(true)
-        when(goDashboardService.allPipelineGroupsForDashboard(eq(Filters.WILDCARD_FILTER), eq(currentUsername()))).thenReturn([group])
-        when(goDashboardService.allEnvironmentsForDashboard(eq(Filters.WILDCARD_FILTER), eq(currentUsername()))).thenReturn([env])
+        when(goDashboardService.allPipelineGroupsForDashboard(eq(currentUsername()))).thenReturn([group])
+        when(goDashboardService.allEnvironmentsForDashboard(eq(currentUsername()))).thenReturn([env])
 
         getWithApiHeader(controller.controllerPath())
 
@@ -112,8 +112,8 @@ class DashboardControllerDelegateTest implements SecurityServiceTrait, Controlle
 
         when(pipelineSelectionsService.load((String) isNull(), any(Long.class))).thenReturn(PipelineSelections.ALL)
         when(goDashboardService.hasEverLoadedCurrentState()).thenReturn(true)
-        when(goDashboardService.allPipelineGroupsForDashboard(eq(Filters.WILDCARD_FILTER), eq(currentUsername()))).thenReturn([group])
-        when(goDashboardService.allEnvironmentsForDashboard(eq(Filters.WILDCARD_FILTER), eq(currentUsername()))).thenReturn([env])
+        when(goDashboardService.allPipelineGroupsForDashboard(eq(currentUsername()))).thenReturn([group])
+        when(goDashboardService.allEnvironmentsForDashboard(eq(currentUsername()))).thenReturn([env])
 
         def etag = computeEtag([group], [env])
         getWithApiHeader(controller.controllerBasePath(), ['if-none-match': etag])
@@ -128,8 +128,8 @@ class DashboardControllerDelegateTest implements SecurityServiceTrait, Controlle
       void 'should get empty json when dashboard is empty'() {
         def pipelineSelections = PipelineSelections.ALL
         when(pipelineSelectionsService.load((String) isNull(), any(Long.class))).thenReturn(pipelineSelections)
-        when(goDashboardService.allPipelineGroupsForDashboard(eq(Filters.WILDCARD_FILTER), eq(currentUsername()))).thenReturn([])
-        when(goDashboardService.allEnvironmentsForDashboard(eq(Filters.WILDCARD_FILTER), eq(currentUsername()))).thenReturn([])
+        when(goDashboardService.allPipelineGroupsForDashboard(eq(currentUsername()))).thenReturn([])
+        when(goDashboardService.allEnvironmentsForDashboard(eq(currentUsername()))).thenReturn([])
         when(goDashboardService.hasEverLoadedCurrentState()).thenReturn(true)
 
         loginAsUser()
@@ -171,7 +171,7 @@ class DashboardControllerDelegateTest implements SecurityServiceTrait, Controlle
         when(pipelineSelectionsService.load((String) isNull(), any(Long.class))).thenReturn(pipelineSelections)
         when(goDashboardService.hasEverLoadedCurrentState()).thenReturn(true)
         def pipelineGroups = [pipelineGroup]
-        when(goDashboardService.allPipelineGroupsForDashboard(eq(Filters.WILDCARD_FILTER), eq(currentUsername()))).thenReturn(pipelineGroups)
+        when(goDashboardService.allPipelineGroupsForDashboard(eq(currentUsername()))).thenReturn(pipelineGroups)
 
         String etag = computeEtag(pipelineGroups, [])
         getWithApiHeader(controller.controllerBasePath(), ['if-none-match': etag])
@@ -182,7 +182,7 @@ class DashboardControllerDelegateTest implements SecurityServiceTrait, Controlle
 
         loginAsPipelineViewUser()
 
-        when(goDashboardService.allPipelineGroupsForDashboard(eq(Filters.WILDCARD_FILTER), eq(currentUsername()))).thenReturn(pipelineGroups)
+        when(goDashboardService.allPipelineGroupsForDashboard(eq(currentUsername()))).thenReturn(pipelineGroups)
         getWithApiHeader(controller.controllerBasePath(), ['if-none-match': etag])
         assertThatResponse()
           .isOk()

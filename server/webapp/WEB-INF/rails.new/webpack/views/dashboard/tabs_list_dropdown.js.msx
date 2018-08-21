@@ -4,7 +4,7 @@ const _ = require("lodash");
 const TabsListDropdown = {
   view(vnode) {
     const vm = vnode.attrs.vm;
-    return <div class="tabs-list-dropdown-widget">
+    return <div class={vm.paged() ? "tabs-list-dropdown-widget paged" : "tabs-list-dropdown-widget"}>
       <ViewTabsDropdownToggle vm={vm}/>
       <AvailableTabs vm={vm} />
     </div>;

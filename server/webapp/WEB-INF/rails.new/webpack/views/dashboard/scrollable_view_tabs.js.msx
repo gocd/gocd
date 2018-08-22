@@ -77,7 +77,7 @@ const ScrollableViewTabs = {
 
 function detectPaging(vnode, padding) {
   const toleranceForIE = 1;
-  return (vnode.dom.querySelector(".dashboard-tabs-sortable").scrollWidth - (vnode.dom.clientWidth - padding)) > toleranceForIE;
+  return (vnode.dom.querySelector(".dashboard-tabs-sortable").scrollWidth - vnode.dom.clientWidth - padding) > toleranceForIE;
 }
 
 function ensureCurrentTabInView(viewable) {

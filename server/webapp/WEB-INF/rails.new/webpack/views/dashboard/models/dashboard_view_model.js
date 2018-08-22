@@ -31,7 +31,7 @@ function FilterMixin() {
 
   this.filteredGroups = (filter) => {
     return this.selectedGroups().select((pipelineName) => {
-      return _.includes(pipelineName.toLowerCase(), internalSearchText()) && filter.isPipelineVisible(self.dashboard.findPipeline(pipelineName));
+      return _.includes(pipelineName.toLowerCase(), internalSearchText()) && filter.acceptsStatusOf(self.dashboard.findPipeline(pipelineName));
     }).groups;
   };
 

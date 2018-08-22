@@ -34,7 +34,6 @@ public interface DashboardFilter {
 
     Set<String> state();
 
-    @Deprecated // TODO: remove when removing old dashboard
     boolean isPipelineVisible(CaseInsensitiveString pipeline);
 
     /**

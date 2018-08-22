@@ -24,6 +24,7 @@ import com.thoughtworks.go.config.security.Permissions
 import com.thoughtworks.go.config.security.users.Everyone
 import com.thoughtworks.go.server.dashboard.GoDashboardEnvironment
 import com.thoughtworks.go.server.dashboard.GoDashboardPipelineGroup
+import com.thoughtworks.go.server.domain.user.Filters
 import com.thoughtworks.go.server.domain.user.PipelineSelections
 import com.thoughtworks.go.server.service.GoDashboardService
 import com.thoughtworks.go.server.service.PipelineSelectionsService
@@ -35,8 +36,6 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.Mock
-
-import java.util.stream.Collectors
 
 import static com.thoughtworks.go.apiv2.dashboard.GoDashboardPipelineMother.dashboardPipeline
 import static org.mockito.ArgumentMatchers.*
@@ -90,16 +89,14 @@ class DashboardControllerDelegateTest implements SecurityServiceTrait, Controlle
 
         when(pipelineSelectionsService.load((String) isNull(), any(Long.class))).thenReturn(PipelineSelections.ALL)
         when(goDashboardService.hasEverLoadedCurrentState()).thenReturn(true)
-        when(goDashboardService.allPipelineGroupsForDashboard(eq(currentUsername()))).thenReturn([group])
-        when(goDashboardService.allEnvironmentsForDashboard(eq(currentUsername()))).thenReturn([env])
+        when(goDashboardService.allPipelineGroupsForDashboard(eq(Filters.WILDCARD_FILTER), eq(currentUsername()))).thenReturn([group])
+        when(goDashboardService.allEnvironmentsForDashboard(eq(Filters.WILDCARD_FILTER), eq(currentUsername()))).thenReturn([env])
 
         getWithApiHeader(controller.controllerPath())
 
-        def pipelines = group.allPipelines().stream().collect(Collectors.toList())
-
         assertThatResponse()
           .isOk()
-          .hasBodyWithJsonObject(new DashboardFor([group], [env], pipelines, currentUsername(), PipelineSelections.ALL.etag()), DashboardRepresenter)
+          .hasBodyWithJsonObject(new DashboardFor([group], [env], currentUsername(), PipelineSelections.ALL.etag()), DashboardRepresenter)
       }
 
       @Test
@@ -111,8 +108,8 @@ class DashboardControllerDelegateTest implements SecurityServiceTrait, Controlle
 
         when(pipelineSelectionsService.load((String) isNull(), any(Long.class))).thenReturn(PipelineSelections.ALL)
         when(goDashboardService.hasEverLoadedCurrentState()).thenReturn(true)
-        when(goDashboardService.allPipelineGroupsForDashboard(eq(currentUsername()))).thenReturn([group])
-        when(goDashboardService.allEnvironmentsForDashboard(eq(currentUsername()))).thenReturn([env])
+        when(goDashboardService.allPipelineGroupsForDashboard(eq(Filters.WILDCARD_FILTER), eq(currentUsername()))).thenReturn([group])
+        when(goDashboardService.allEnvironmentsForDashboard(eq(Filters.WILDCARD_FILTER), eq(currentUsername()))).thenReturn([env])
 
         def etag = computeEtag([group], [env])
         getWithApiHeader(controller.controllerBasePath(), ['if-none-match': etag])
@@ -127,8 +124,8 @@ class DashboardControllerDelegateTest implements SecurityServiceTrait, Controlle
       void 'should get empty json when dashboard is empty'() {
         def pipelineSelections = PipelineSelections.ALL
         when(pipelineSelectionsService.load((String) isNull(), any(Long.class))).thenReturn(pipelineSelections)
-        when(goDashboardService.allPipelineGroupsForDashboard(eq(currentUsername()))).thenReturn([])
-        when(goDashboardService.allEnvironmentsForDashboard(eq(currentUsername()))).thenReturn([])
+        when(goDashboardService.allPipelineGroupsForDashboard(eq(Filters.WILDCARD_FILTER), eq(currentUsername()))).thenReturn([])
+        when(goDashboardService.allEnvironmentsForDashboard(eq(Filters.WILDCARD_FILTER), eq(currentUsername()))).thenReturn([])
         when(goDashboardService.hasEverLoadedCurrentState()).thenReturn(true)
 
         loginAsUser()
@@ -137,7 +134,7 @@ class DashboardControllerDelegateTest implements SecurityServiceTrait, Controlle
         assertThatResponse()
           .isOk()
           .hasContentType(controller.mimeType)
-          .hasBodyWithJsonObject(new DashboardFor([], [], [], currentUsername(), pipelineSelections.etag()), DashboardRepresenter)
+          .hasBodyWithJsonObject(new DashboardFor([], [], currentUsername(), pipelineSelections.etag()), DashboardRepresenter)
       }
 
       @Test
@@ -170,7 +167,7 @@ class DashboardControllerDelegateTest implements SecurityServiceTrait, Controlle
         when(pipelineSelectionsService.load((String) isNull(), any(Long.class))).thenReturn(pipelineSelections)
         when(goDashboardService.hasEverLoadedCurrentState()).thenReturn(true)
         def pipelineGroups = [pipelineGroup]
-        when(goDashboardService.allPipelineGroupsForDashboard(eq(currentUsername()))).thenReturn(pipelineGroups)
+        when(goDashboardService.allPipelineGroupsForDashboard(eq(Filters.WILDCARD_FILTER), eq(currentUsername()))).thenReturn(pipelineGroups)
 
         String etag = computeEtag(pipelineGroups, [])
         getWithApiHeader(controller.controllerBasePath(), ['if-none-match': etag])
@@ -181,7 +178,7 @@ class DashboardControllerDelegateTest implements SecurityServiceTrait, Controlle
 
         loginAsPipelineViewUser()
 
-        when(goDashboardService.allPipelineGroupsForDashboard(eq(currentUsername()))).thenReturn(pipelineGroups)
+        when(goDashboardService.allPipelineGroupsForDashboard(eq(Filters.WILDCARD_FILTER), eq(currentUsername()))).thenReturn(pipelineGroups)
         getWithApiHeader(controller.controllerBasePath(), ['if-none-match': etag])
         assertThatResponse()
           .isOk()
@@ -190,20 +187,20 @@ class DashboardControllerDelegateTest implements SecurityServiceTrait, Controlle
     }
   }
 
-  private GoDashboardPipelineGroup pipelineGroup(String name) {
+  private static GoDashboardPipelineGroup pipelineGroup(String name) {
     GoDashboardPipelineGroup pipelineGroup = new GoDashboardPipelineGroup(name, permissions())
     pipelineGroup.addPipeline(dashboardPipeline('pipeline1'))
     pipelineGroup.addPipeline(dashboardPipeline('pipeline2'))
     return pipelineGroup
   }
 
-  private GoDashboardEnvironment environment(String name) {
+  private static GoDashboardEnvironment environment(String name) {
     GoDashboardEnvironment environment = new GoDashboardEnvironment(name, Everyone.INSTANCE)
     environment.addPipeline(dashboardPipeline('pipeline1'))
     return environment
   }
 
-  private Permissions permissions() {
+  private static Permissions permissions() {
     new Permissions(Everyone.INSTANCE, Everyone.INSTANCE, Everyone.INSTANCE, Everyone.INSTANCE)
   }
 

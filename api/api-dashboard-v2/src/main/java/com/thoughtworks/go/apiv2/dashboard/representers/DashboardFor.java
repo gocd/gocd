@@ -21,19 +21,18 @@ import com.thoughtworks.go.server.dashboard.GoDashboardPipeline;
 import com.thoughtworks.go.server.domain.Username;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class DashboardFor {
     private final List<? extends DashboardGroup> pipelineGroups;
     private List<? extends DashboardGroup> environments;
-    private List<GoDashboardPipeline> pipelines;
     private final Username username;
 
     private String personalizationEtag;
 
-    public DashboardFor(List<? extends DashboardGroup> pipelineGroups, List<? extends DashboardGroup> environments, List<GoDashboardPipeline> pipelines, Username username, String personalizationEtag) {
+    public DashboardFor(List<? extends DashboardGroup> pipelineGroups, List<? extends DashboardGroup> environments, Username username, String personalizationEtag) {
         this.pipelineGroups = pipelineGroups;
         this.environments = environments;
-        this.pipelines = pipelines;
         this.username = username;
         this.personalizationEtag = personalizationEtag;
     }
@@ -47,7 +46,7 @@ public class DashboardFor {
     }
 
     public List<GoDashboardPipeline> getPipelines() {
-        return pipelines;
+        return pipelineGroups.stream().flatMap(group -> group.allPipelines().stream()).collect(Collectors.toList());
     }
 
     public Username getUsername() {

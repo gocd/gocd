@@ -17,30 +17,12 @@
 const _ = require('lodash');
 
 function DashboardFilter(config) {
-  this.name      = config.name || "Default";
-  this.pipelines = config.pipelines || [];
-  this.type      = config.type || "blacklist";
-  this.state     = config.state || [];
-
-  this.definition = () => {
-    return _.cloneDeep({name: this.name, state: this.state, type: this.type, pipelines: this.pipelines});
-  };
-
-  this.isPipelineVisible = (pipeline) => {
-    return this.byPipelineName(pipeline.name) &&
-      this.byState(pipeline);
-  };
-
-  this.byPipelineName = (pipelineName) => {
-    return !!(this.type === "blacklist" ^ _.includes(this.pipelines || [], pipelineName));
-  };
-
-  this.byState = (pipeline) => {
+  this.acceptsStatusOf = (pipeline) => {
     const latestStage = pipeline.latestStage();
 
-    if (latestStage && this.state.length) {
-      if (latestStage.isBuilding()) { return _.includes(this.state, "building"); }
-      if (latestStage.isFailed()) { return _.includes(this.state, "failing"); }
+    if (latestStage && config.state.length) {
+      if (latestStage.isBuilding()) { return _.includes(config.state, "building"); }
+      if (latestStage.isFailed()) { return _.includes(config.state, "failing"); }
       return false;
     }
 

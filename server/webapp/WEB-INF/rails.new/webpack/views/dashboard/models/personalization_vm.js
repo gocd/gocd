@@ -17,6 +17,7 @@
 const _               = require("lodash");
 const Stream          = require("mithril/stream");
 const Personalization = require("models/dashboard/personalization");
+const DashboardFilter = require("models/dashboard/dashboard_filter");
 
 function PersonalizationVM(currentView) {
   const names         = Stream([]);
@@ -110,7 +111,7 @@ function PersonalizationVM(currentView) {
   };
 
   this.currentFilter = () => {
-    return this.model().namedFilter(this.currentView());
+    return new DashboardFilter(this.model().namedFilter(this.currentView()));
   };
 }
 

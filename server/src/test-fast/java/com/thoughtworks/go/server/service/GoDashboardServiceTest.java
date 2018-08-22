@@ -24,6 +24,9 @@ import com.thoughtworks.go.config.security.users.NoOne;
 import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.server.dashboard.*;
 import com.thoughtworks.go.server.domain.Username;
+import com.thoughtworks.go.server.domain.user.BlacklistFilter;
+import com.thoughtworks.go.server.domain.user.DashboardFilter;
+import com.thoughtworks.go.server.domain.user.Filters;
 import com.thoughtworks.go.server.service.support.toggle.FeatureToggleService;
 import com.thoughtworks.go.server.service.support.toggle.Toggles;
 import org.junit.Before;
@@ -122,7 +125,7 @@ public class GoDashboardServiceTest {
 
         addPipelinesToCache(pipeline1, pipeline2);
 
-        List<GoDashboardPipelineGroup> pipelineGroups = allPipelineGroupsForDashboard(new Username("user1"));
+        List<GoDashboardPipelineGroup> pipelineGroups = allPipelineGroupsForDashboard(Filters.WILDCARD_FILTER, new Username("user1"));
 
         assertThat(pipelineGroups.size(), is(1));
         assertThat(pipelineGroups.get(0).pipelines(), contains("pipeline1", "pipeline2"));
@@ -140,7 +143,7 @@ public class GoDashboardServiceTest {
         addPipelinesToCache(pipeline1, pipeline2);
 
         configMother.addEnvironmentConfig(config, "env1", "pipeline1", "pipeline2");
-        List<GoDashboardEnvironment> envs = allEnvironmentsForDashboard(new Username("user1"));
+        List<GoDashboardEnvironment> envs = allEnvironmentsForDashboard(Filters.WILDCARD_FILTER, new Username("user1"));
 
         assertThat(envs.size(), is(1));
         assertThat(envs.get(0).pipelines(), contains("pipeline1", "pipeline2"));
@@ -157,7 +160,7 @@ public class GoDashboardServiceTest {
 
         addPipelinesToCache(pipeline1, pipeline2);
 
-        List<GoDashboardPipelineGroup> pipelineGroups = allPipelineGroupsForDashboard(new Username("user1"));
+        List<GoDashboardPipelineGroup> pipelineGroups = allPipelineGroupsForDashboard(Filters.WILDCARD_FILTER, new Username("user1"));
 
         assertThat(pipelineGroups.size(), is(1));
         assertThat(pipelineGroups.get(0).pipelines(), contains("pipeline1"));
@@ -175,10 +178,63 @@ public class GoDashboardServiceTest {
         addPipelinesToCache(pipeline1, pipeline2);
 
         configMother.addEnvironmentConfig(config, "env1", "pipeline1", "pipeline2");
-        List<GoDashboardEnvironment> envs = allEnvironmentsForDashboard(new Username("user1"));
+        List<GoDashboardEnvironment> envs = allEnvironmentsForDashboard(Filters.WILDCARD_FILTER, new Username("user1"));
 
         assertThat(envs.size(), is(1));
         assertThat(envs.get(0).pipelines(), contains("pipeline1"));
+    }
+
+    @Test
+    public void allPipelineGroupsForDashboard_shouldRetrievePipelineGroupsBasedOnDashboardFilters() {
+        DashboardFilter filter = new BlacklistFilter("foo", CaseInsensitiveString.list("pipeline2", "pipeline4"), Collections.emptySet());
+
+        configMother.addPipelineWithGroup(config, "group2", "pipeline4", "stage1A", "job1A1");
+        GoDashboardPipeline pipeline4 = pipeline("pipeline4", "group2");
+
+        configMother.addPipelineWithGroup(config, "group2", "pipeline3", "stage1A", "job1A1");
+        GoDashboardPipeline pipeline3 = pipeline("pipeline3", "group2");
+
+        configMother.addPipelineWithGroup(config, "group1", "pipeline2", "stage1A", "job1A1");
+        GoDashboardPipeline pipeline2 = pipeline("pipeline2", "group1");
+
+        configMother.addPipelineWithGroup(config, "group1", "pipeline1", "stage1A", "job1A1");
+        GoDashboardPipeline pipeline1 = pipeline("pipeline1", "group1");
+
+        addPipelinesToCache(pipeline1, pipeline2, pipeline3, pipeline4);
+
+        List<GoDashboardPipelineGroup> pipelineGroups = allPipelineGroupsForDashboard(filter, new Username("user1"));
+
+        assertThat(pipelineGroups.size(), is(2));
+        assertThat(pipelineGroups.get(0).pipelines(), contains("pipeline1"));
+        assertThat(pipelineGroups.get(1).pipelines(), contains("pipeline3"));
+    }
+
+    @Test
+    public void allEnvironmentsForDashboard_shouldRetrievePipelineGroupsBasedOnDashboardFilters() {
+        DashboardFilter filter = new BlacklistFilter("foo", CaseInsensitiveString.list("pipeline2", "pipeline4"), Collections.emptySet());
+
+        configMother.addPipelineWithGroup(config, "group2", "pipeline4", "stage1A", "job1A1");
+        GoDashboardPipeline pipeline4 = pipeline("pipeline4", "group2");
+
+        configMother.addPipelineWithGroup(config, "group2", "pipeline3", "stage1A", "job1A1");
+        GoDashboardPipeline pipeline3 = pipeline("pipeline3", "group2");
+
+        configMother.addPipelineWithGroup(config, "group1", "pipeline2", "stage1A", "job1A1");
+        GoDashboardPipeline pipeline2 = pipeline("pipeline2", "group1");
+
+        configMother.addPipelineWithGroup(config, "group1", "pipeline1", "stage1A", "job1A1");
+        GoDashboardPipeline pipeline1 = pipeline("pipeline1", "group1");
+
+        addPipelinesToCache(pipeline1, pipeline2, pipeline3, pipeline4);
+
+        configMother.addEnvironmentConfig(config, "env1", "pipeline1", "pipeline2");
+        configMother.addEnvironmentConfig(config, "env2", "pipeline3", "pipeline4");
+        List<GoDashboardEnvironment> envs = allEnvironmentsForDashboard(filter, new Username("user1"));
+
+        assertThat(envs.size(), is(2));
+        assertThat(envs.get(0).pipelines(), contains("pipeline1"));
+
+        assertThat(envs.get(1).pipelines(), contains("pipeline3"));
     }
 
     @Test
@@ -186,7 +242,7 @@ public class GoDashboardServiceTest {
         configMother.addPipelineWithGroup(config, "group1", "pipeline1", "stage1A", "job1A1");
         addPipelinesToCache(pipeline("pipeline1", "group1", new Permissions(NoOne.INSTANCE, NoOne.INSTANCE, NoOne.INSTANCE, NoOne.INSTANCE)));
 
-        List<GoDashboardPipelineGroup> pipelineGroups = allPipelineGroupsForDashboard(new Username("user1"));
+        List<GoDashboardPipelineGroup> pipelineGroups = allPipelineGroupsForDashboard(Filters.WILDCARD_FILTER, new Username("user1"));
 
         assertThat(pipelineGroups.size(), is(0));
     }
@@ -197,7 +253,7 @@ public class GoDashboardServiceTest {
         addPipelinesToCache(pipeline("pipeline1", "group1", new Permissions(NoOne.INSTANCE, NoOne.INSTANCE, NoOne.INSTANCE, NoOne.INSTANCE)));
 
         configMother.addEnvironmentConfig(config, "env1", "pipeline1");
-        List<GoDashboardEnvironment> pipelineGroups = allEnvironmentsForDashboard(new Username("user1"));
+        List<GoDashboardEnvironment> pipelineGroups = allEnvironmentsForDashboard(Filters.WILDCARD_FILTER, new Username("user1"));
 
         assertThat(pipelineGroups.size(), is(0));
     }
@@ -212,7 +268,7 @@ public class GoDashboardServiceTest {
 
         addPipelinesToCache(pipeline1);
 
-        List<GoDashboardPipelineGroup> pipelineGroups = allPipelineGroupsForDashboard(new Username("user1"));
+        List<GoDashboardPipelineGroup> pipelineGroups = allPipelineGroupsForDashboard(Filters.WILDCARD_FILTER, new Username("user1"));
 
         assertThat(pipelineGroups.size(), is(1));
         assertThat(pipelineGroups.get(0).pipelines(), contains("pipeline1"));
@@ -230,7 +286,7 @@ public class GoDashboardServiceTest {
         addPipelinesToCache(pipeline1);
         configMother.addEnvironmentConfig(config, "env1", "pipeline1", "pipeline2");
 
-        List<GoDashboardEnvironment> envs = allEnvironmentsForDashboard(new Username("user1"));
+        List<GoDashboardEnvironment> envs = allEnvironmentsForDashboard(Filters.WILDCARD_FILTER, new Username("user1"));
 
         assertThat(envs.size(), is(1));
         assertThat(envs.get(0).pipelines(), contains("pipeline1"));
@@ -251,17 +307,17 @@ public class GoDashboardServiceTest {
         verifyZeroInteractions(dashboardCurrentStateLoader);
     }
 
-    private List<GoDashboardEnvironment> allEnvironmentsForDashboard(Username username) {
+    private List<GoDashboardEnvironment> allEnvironmentsForDashboard(DashboardFilter filter, Username username) {
         when(goConfigService.getEnvironments()).thenReturn(config.getEnvironments());
         when(goConfigService.security()).thenReturn(config.server().security());
 
-        return service.allEnvironmentsForDashboard(username);
+        return service.allEnvironmentsForDashboard(filter, username);
     }
 
-    private List<GoDashboardPipelineGroup> allPipelineGroupsForDashboard(Username username) {
+    private List<GoDashboardPipelineGroup> allPipelineGroupsForDashboard(DashboardFilter filter, Username username) {
         when(goConfigService.groups()).thenReturn(config.getGroups());
 
-        return service.allPipelineGroupsForDashboard(username);
+        return service.allPipelineGroupsForDashboard(filter, username);
     }
 
     private void addPipelinesToCache(GoDashboardPipeline... pipelines) {

@@ -29,10 +29,10 @@ class FilterValidator {
     private static final Pattern LEAD_TRAIL_WHITESPACE = Pattern.compile("^\\s+.*|.*\\s+$");
 
     // translation: letters, numbers, spaces, and punctuation (i.e. the ASCII printable
-    private static final Pattern NAME_FORMAT = Pattern.compile("^(?! )[\\x20-\\x7E]+(?<! )$");
-    // down that road as this is liberal enough.
-
     // chars); must not start or end with spaces. sorry, no unicode chars -- not going
+    // down that road as this is liberal enough.
+    private static final Pattern NAME_FORMAT = Pattern.compile("^(?! )[\\x20-\\x7E]+(?<! )$");
+
     private static final int MAX_NAME_LENGTH = 64;
 
     static final String MSG_NO_LEADING_TRAILING_SPACES = "Filter name must not have leading or trailing whitespaces";

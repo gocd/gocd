@@ -16,19 +16,31 @@
 
 package com.thoughtworks.go.server.domain;
 
+import java.util.Map;
+
 public class UsageStatistics {
     private final long pipelineCount;
+    private final long configRepoPipelineCount;
     private final long agentCount;
-    private final Long oldestPipelineExecutionTime;
+    private final long jobCount;
+    private final Map<String, Long> elasticAgentPluginToJobCount;
+    private final long oldestPipelineExecutionTime;
     private final String serverId;
     private final String gocdVersion;
 
-    public UsageStatistics(Long pipelineCount, Long agentCount, Long oldestPipelineExecutionTime, String serverId, String gocdVersion) {
-        this.pipelineCount = pipelineCount;
-        this.agentCount = agentCount;
-        this.oldestPipelineExecutionTime = oldestPipelineExecutionTime != null ? oldestPipelineExecutionTime : 0l;
-        this.serverId = serverId;
-        this.gocdVersion = gocdVersion;
+    private UsageStatistics(Builder builder) {
+        this.pipelineCount = builder.pipelineCount;
+        this.agentCount = builder.agentCount;
+        this.oldestPipelineExecutionTime = builder.oldestPipelineExecutionTime;
+        this.serverId = builder.serverId;
+        this.gocdVersion = builder.gocdVersion;
+        this.configRepoPipelineCount = builder.configRepoPipelineCount;
+        this.jobCount = builder.jobCount;
+        this.elasticAgentPluginToJobCount = builder.elasticAgentPluginToJobCount;
+    }
+
+    public static Builder newUsageStatistics() {
+        return new Builder();
     }
 
     public String serverId() {
@@ -43,11 +55,81 @@ public class UsageStatistics {
         return pipelineCount;
     }
 
+    public long configRepoPipelineCount() {
+        return configRepoPipelineCount;
+    }
+
     public long agentCount() {
         return agentCount;
     }
 
-    public Long oldestPipelineExecutionTime() {
+    public long oldestPipelineExecutionTime() {
         return oldestPipelineExecutionTime;
+    }
+
+    public long jobCount() {
+        return jobCount;
+    }
+
+    public Map<String, Long> elasticAgentPluginToJobCount() {
+        return elasticAgentPluginToJobCount;
+    }
+
+    public static final class Builder {
+        private long pipelineCount;
+        private long agentCount;
+        private long oldestPipelineExecutionTime;
+        private String serverId;
+        private String gocdVersion;
+        private long configRepoPipelineCount;
+        private long jobCount;
+        private Map<String, Long> elasticAgentPluginToJobCount;
+
+        private Builder() {
+        }
+
+        public UsageStatistics build() {
+            return new UsageStatistics(this);
+        }
+
+        public Builder pipelineCount(long pipelineCount) {
+            this.pipelineCount = pipelineCount;
+            return this;
+        }
+
+        public Builder agentCount(long agentCount) {
+            this.agentCount = agentCount;
+            return this;
+        }
+
+        public Builder oldestPipelineExecutionTime(long oldestPipelineExecutionTime) {
+            this.oldestPipelineExecutionTime = oldestPipelineExecutionTime;
+            return this;
+        }
+
+        public Builder serverId(String serverId) {
+            this.serverId = serverId;
+            return this;
+        }
+
+        public Builder gocdVersion(String gocdVersion) {
+            this.gocdVersion = gocdVersion;
+            return this;
+        }
+
+        public Builder configRepoPipelineCount(long configRepoPipelineCount) {
+            this.configRepoPipelineCount = configRepoPipelineCount;
+            return this;
+        }
+
+        public Builder jobCount(long jobCount) {
+            this.jobCount = jobCount;
+            return this;
+        }
+
+        public Builder elasticAgentPluginToJobCount(Map<String, Long> elasticAgentPluginToJobCount) {
+            this.elasticAgentPluginToJobCount = elasticAgentPluginToJobCount;
+            return this;
+        }
     }
 }

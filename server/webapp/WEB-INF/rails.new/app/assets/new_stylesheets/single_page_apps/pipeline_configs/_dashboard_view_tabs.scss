@@ -183,8 +183,10 @@ $dashboard-tabs-box-shadow: 0 0 10px rgba(0, 0, 0, 0.21);
 }
 
 .dashboard-tabs-sortable {
-  overflow: hidden;
-  outline:  none;
+  overflow-y:     hidden;
+  overflow-x:     auto;
+  padding-bottom: 100px;
+  outline:        none;
 }
 
 .dashboard-tabs-scrollable {

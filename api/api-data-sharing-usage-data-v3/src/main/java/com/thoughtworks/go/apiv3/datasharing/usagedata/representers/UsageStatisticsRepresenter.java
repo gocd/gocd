@@ -41,6 +41,14 @@ public class UsageStatisticsRepresenter {
                                     });
                                 });
                             })
+                            .addChildList("installed_plugins", child -> {
+                                usageStatistics.installedPlugins().forEach((pluginId, pluginVersion) -> {
+                                    child.addChild(c -> {
+                                        c.add("id", pluginId);
+                                        c.add("version", pluginVersion);
+                                    });
+                                });
+                            })
                             .add("gocd_version", usageStatistics.gocdVersion());
                 });
     }

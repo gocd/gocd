@@ -34,6 +34,7 @@ class UsageStatisticsRepresenterTest {
       .serverId("server-id")
       .jobCount(15l)
       .elasticAgentPluginToJobCount([ecs: 10L, docker: 5L])
+      .installedPlugins([ecs: 'v1.0.0', docker: 'v2.0.0'])
       .gocdVersion("18.7.0")
       .build()
 
@@ -54,6 +55,16 @@ class UsageStatisticsRepresenterTest {
           [
             plugin_id: "docker",
             job_count: 5
+          ]
+        ],
+        installed_plugins             : [
+          [
+            id     : 'ecs',
+            version: 'v1.0.0'
+          ],
+          [
+            id     : 'docker',
+            version: 'v2.0.0'
           ]
         ],
         oldest_pipeline_execution_time: 1527244129553,

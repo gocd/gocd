@@ -24,6 +24,7 @@ public class UsageStatistics {
     private final long agentCount;
     private final long jobCount;
     private final Map<String, Long> elasticAgentPluginToJobCount;
+    private final Map<String, String> installedPlugins;
     private final long oldestPipelineExecutionTime;
     private final String serverId;
     private final String gocdVersion;
@@ -37,6 +38,7 @@ public class UsageStatistics {
         this.configRepoPipelineCount = builder.configRepoPipelineCount;
         this.jobCount = builder.jobCount;
         this.elasticAgentPluginToJobCount = builder.elasticAgentPluginToJobCount;
+        this.installedPlugins = builder.installedPlugins;
     }
 
     public static Builder newUsageStatistics() {
@@ -75,6 +77,10 @@ public class UsageStatistics {
         return elasticAgentPluginToJobCount;
     }
 
+    public Map<String, String> installedPlugins() {
+        return installedPlugins;
+    }
+
     public static final class Builder {
         private long pipelineCount;
         private long agentCount;
@@ -84,6 +90,7 @@ public class UsageStatistics {
         private long configRepoPipelineCount;
         private long jobCount;
         private Map<String, Long> elasticAgentPluginToJobCount;
+        private Map<String, String> installedPlugins;
 
         private Builder() {
         }
@@ -129,6 +136,11 @@ public class UsageStatistics {
 
         public Builder elasticAgentPluginToJobCount(Map<String, Long> elasticAgentPluginToJobCount) {
             this.elasticAgentPluginToJobCount = elasticAgentPluginToJobCount;
+            return this;
+        }
+
+        public Builder installedPlugins(Map<String, String> installedPlugins) {
+            this.installedPlugins = installedPlugins;
             return this;
         }
     }

@@ -30,6 +30,8 @@ import com.thoughtworks.go.helper.AgentMother;
 import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.helper.JobConfigMother;
 import com.thoughtworks.go.helper.PipelineConfigMother;
+import com.thoughtworks.go.plugin.infra.DefaultPluginManager;
+import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import com.thoughtworks.go.server.dao.JobInstanceSqlMapDao;
 import com.thoughtworks.go.server.domain.UsageStatistics;
 import com.thoughtworks.go.server.service.GoConfigService;
@@ -37,9 +39,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
-import java.util.Arrays;
-import java.util.Date;
-import java.util.Map;
+import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
@@ -51,16 +51,18 @@ public class DataSharingUsageDataServiceTest {
     private GoConfigService goConfigService;
     @Mock
     private JobInstanceSqlMapDao jobInstanceSqlMapDao;
+    @Mock
+    private DataSharingUsageStatisticsReportingService dataSharingUsageStatisticsReportingService;
+    @Mock
+    private DefaultPluginManager pluginManager;
 
     private BasicCruiseConfig goConfig;
     private JobStateTransition oldestBuild;
-    @Mock
-    private DataSharingUsageStatisticsReportingService dataSharingUsageStatisticsReportingService;
 
     @Before
     public void setUp() throws Exception {
         initMocks(this);
-        service = new DataSharingUsageDataService(goConfigService, jobInstanceSqlMapDao, dataSharingUsageStatisticsReportingService);
+        service = new DataSharingUsageDataService(goConfigService, jobInstanceSqlMapDao, pluginManager, dataSharingUsageStatisticsReportingService);
         goConfig = GoConfigMother.configWithPipelines("p1", "p2");
         goConfig.getElasticConfig().getProfiles().add(new ElasticProfile("docker-profile", "docker-plugin"));
         goConfig.getElasticConfig().getProfiles().add(new ElasticProfile("ecs-profile", "ecs-plugin"));
@@ -76,6 +78,13 @@ public class DataSharingUsageDataServiceTest {
         oldestBuild = new JobStateTransition(JobState.Scheduled, new Date());
         when(jobInstanceSqlMapDao.oldestBuild()).thenReturn(oldestBuild);
         when(dataSharingUsageStatisticsReportingService.get()).thenReturn(new UsageStatisticsReporting("server-id", new Date()));
+
+        List<GoPluginDescriptor> plugins = new ArrayList<>();
+        GoPluginDescriptor.About dockerPluginAbout = new GoPluginDescriptor.About("docker", "v2.0.0", null, null, null, null);
+        plugins.add(new GoPluginDescriptor("docker-plugin", null, dockerPluginAbout, null, null, false));
+        GoPluginDescriptor.About ecsPluginAbout = new GoPluginDescriptor.About("ecs", "v1.0.0", null, null, null, null);
+        plugins.add(new GoPluginDescriptor("ecs-plugin", null, ecsPluginAbout, null, null, false));
+        when(pluginManager.plugins()).thenReturn(plugins);
     }
 
     @Test
@@ -89,6 +98,10 @@ public class DataSharingUsageDataServiceTest {
         assertThat(elasticAgentPluginToJobCount).hasSize(2)
                 .containsEntry("ecs-plugin", 1L)
                 .containsEntry("docker-plugin", 1L);
+        Map<String, String> installedPlugins = usageStatistics.installedPlugins();
+        assertThat(installedPlugins).hasSize(2)
+                .containsEntry("ecs-plugin", "v1.0.0")
+                .containsEntry("docker-plugin", "v2.0.0");
         assertThat(usageStatistics.oldestPipelineExecutionTime()).isEqualTo(oldestBuild.getStateChangeTime().getTime());
         assertThat(usageStatistics.serverId()).isEqualTo("server-id");
         assertThat(usageStatistics.gocdVersion()).isEqualTo(CurrentGoCDVersion.getInstance().fullVersion());

@@ -95,6 +95,7 @@ class UsageStatisticsControllerV3DelegateTest implements SecurityServiceTrait, C
           .oldestPipelineExecutionTime(1527244129553)
           .serverId("server-id")
           .jobCount(15l)
+          .installedPlugins([ecs: 'v1.0.0'])
           .elasticAgentPluginToJobCount([ecs: 10L, docker: 5L])
           .gocdVersion("18.7.0")
           .build()
@@ -213,6 +214,7 @@ class UsageStatisticsControllerV3DelegateTest implements SecurityServiceTrait, C
           .serverId("server-id")
           .jobCount(15l)
           .elasticAgentPluginToJobCount([ecs: 10L, docker: 5L])
+          .installedPlugins([ecs: 'v1.0.0'])
           .gocdVersion("18.7.0")
           .build()
 

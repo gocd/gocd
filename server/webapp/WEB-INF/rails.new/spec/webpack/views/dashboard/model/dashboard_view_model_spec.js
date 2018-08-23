@@ -32,7 +32,7 @@ describe("Dashboard View Model", () => {
     it("it should filter dashboard provided filter text", () => {
       dashboardVM._performRouting = _.noop;
       const filter = {
-        isPipelineVisible: () => { return true;}
+        acceptsStatusOf: () => { return true;}
       };
 
       expect(dashboardVM.filteredGroups(filter)[0].pipelines).toEqual(["up42", "up43", "down42"]);

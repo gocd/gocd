@@ -14,8 +14,7 @@
  * limitations under the License.
  */
 
-const _               = require('lodash');
-const DashboardFilter = require('models/dashboard/dashboard_filter');
+const _ = require("lodash");
 
 function DashboardFilters(filters) {
   const NAME_DEFAULT_FILTER = "Default";
@@ -78,7 +77,7 @@ function DashboardFilters(filters) {
   };
 
   this.findFilter = (name) => {
-    return new DashboardFilter(_.find(this.filters, matchName(name)) || this.defaultFilter());
+    return _.cloneDeep(_.find(this.filters, matchName(name)) || this.defaultFilter());
   };
 }
 

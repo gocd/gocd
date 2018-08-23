@@ -32,7 +32,7 @@ const PersonalizedViewsWidget = {
     const vm = vnode.attrs.vm;
     const doAddView = vm.actionHandler(() => !vm.locked() && Editor.open({}, vm.model, vm, vnode.attrs.onchange));
 
-    return <div class="dashboard-tabs">
+    return <div class={vm.loadingView() ? "dashboard-tabs loading" : "dashboard-tabs"}>
       <ActionableMessage vm={vm} />
       <ScrollableViewTabs vm={vm} />
       <EditTabDropdown {...vnode.attrs} />

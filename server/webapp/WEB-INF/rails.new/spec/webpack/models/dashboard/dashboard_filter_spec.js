@@ -16,46 +16,8 @@
 
 const DashboardFilter = require("models/dashboard/dashboard_filter");
 
-describe("Dashboard filter", () => {
-  describe("list filtering", () => {
-    let filter;
-    describe("blacklist", () => {
-      beforeEach(() => {
-        filter = new DashboardFilter({
-          name: "pink_diamond",
-          pipelines: ["p1", "p2"]
-        });
-      });
-      it("should return false if the pipeline is on the list", () => {
-        expect(filter.byPipelineName("p1")).toBe(false);
-        expect(filter.byPipelineName("p2")).toBe(false);
-      });
-
-      it("should return true if the pipeline is not on the list", () => {
-        expect(filter.byPipelineName("p3")).toBe(true);
-      });
-    });
-
-    describe("whitelist", () => {
-      beforeEach(() => {
-        filter = new DashboardFilter({
-          name: "white_diamond",
-          type: "whitelist",
-          pipelines: ["p1", "p2"]
-        });
-      });
-      it("should return true if the pipeline is on the list", () => {
-        expect(filter.byPipelineName("p1")).toBe(true);
-        expect(filter.byPipelineName("p2")).toBe(true);
-      });
-
-      it("should return false if the pipeline is not on the list", () => {
-        expect(filter.byPipelineName("p3")).toBe(false);
-      });
-    });
-  });
-
-  describe("state filtering", () => {
+describe("DashboardFilter", () => {
+  describe("pipeline status filtering", () => {
     let stage, pipeline, filter;
 
     function Stage(status) {
@@ -68,50 +30,50 @@ describe("Dashboard filter", () => {
         name: null,
         latestStage: () => stage
       };
-      filter = new DashboardFilter({name: "blue_diamond"});
     });
 
     it("should properly filter when state=[failing]", () => {
-      filter.state = ["failing"];
+      filter = new DashboardFilter({state: ["failing"]});
 
       stage = new Stage("Failed");
-      expect(filter.byState(pipeline)).toBe(true);
+      expect(filter.acceptsStatusOf(pipeline)).toBe(true);
 
       stage = new Stage("Passing");
-      expect(filter.byState(pipeline)).toBe(false);
+      expect(filter.acceptsStatusOf(pipeline)).toBe(false);
     });
 
     it("should properly filter when state=[building]", () => {
-      filter.state = ["building"];
+      filter = new DashboardFilter({state: ["building"]});
 
       stage = new Stage("Building");
-      expect(filter.byState(pipeline)).toBe(true);
+      expect(filter.acceptsStatusOf(pipeline)).toBe(true);
 
       stage = new Stage("Passing");
-      expect(filter.byState(pipeline)).toBe(false);
+      expect(filter.acceptsStatusOf(pipeline)).toBe(false);
     });
 
     it("should properly filter when state=[building, failing]", () => {
-      filter.state = ["building", "failing"];
+      filter = new DashboardFilter({state: ["building", "failing"]});
 
       stage = new Stage("Building");
-      expect(filter.byState(pipeline)).toBe(true);
+      expect(filter.acceptsStatusOf(pipeline)).toBe(true);
 
       stage = new Stage("Failed");
-      expect(filter.byState(pipeline)).toBe(true);
+      expect(filter.acceptsStatusOf(pipeline)).toBe(true);
 
       stage = new Stage("Passing");
-      expect(filter.byState(pipeline)).toBe(false);
+      expect(filter.acceptsStatusOf(pipeline)).toBe(false);
     });
 
     it("should return true if state=[]", () => {
-      filter.state = [];
+      filter = new DashboardFilter({state: []});
+
       stage = new Stage("Whatever");
-      expect(filter.byState(pipeline)).toBe(true);
+      expect(filter.acceptsStatusOf(pipeline)).toBe(true);
     });
 
     it("should return true if there's no latest stage or instance", () => {
-      expect(filter.byState({latestStage: () => null})).toBe(true);
+      expect(filter.acceptsStatusOf({latestStage: () => null})).toBe(true);
     });
   });
 });

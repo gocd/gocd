@@ -84,15 +84,15 @@ describe("Personalization", () => {
     const filters = [{name: "Default", state: [], type: "blacklist", pipelines: ["a", "b"]}, {name: "foo", state: [], type: "whitelist", pipelines: []}];
     const pers = new Personalization(filters, {});
 
-    expect(pers.namedFilter("foo").definition()).toEqual(filters[1]);
-    expect(pers.namedFilter("FoO").definition()).toEqual(filters[1]); // namedFilter() should be case-insensitive
+    expect(pers.namedFilter("foo")).toEqual(filters[1]);
+    expect(pers.namedFilter("FoO")).toEqual(filters[1]); // namedFilter() should be case-insensitive
   });
 
   it("namedFilter() returns the default filter when name isn't resolved", () => {
     const filters = [{name: "Default", state: [], type: "blacklist", pipelines: ["a", "b"]}, {name: "foo", type: "whitelist", pipelines: []}];
     const pers = new Personalization(filters, {});
 
-    expect(pers.namedFilter("bar").definition()).toEqual(filters[0]);
+    expect(pers.namedFilter("bar")).toEqual(filters[0]);
   });
 
   it("removeFilter() removes filter by name only if persistence to backend is successful", () => {

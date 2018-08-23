@@ -24,9 +24,9 @@ import com.thoughtworks.go.api.util.MessageJson;
 import com.thoughtworks.go.apiv2.dashboard.representers.DashboardFor;
 import com.thoughtworks.go.apiv2.dashboard.representers.DashboardRepresenter;
 import com.thoughtworks.go.server.dashboard.GoDashboardEnvironment;
-import com.thoughtworks.go.server.dashboard.GoDashboardPipeline;
 import com.thoughtworks.go.server.dashboard.GoDashboardPipelineGroup;
 import com.thoughtworks.go.server.domain.Username;
+import com.thoughtworks.go.server.domain.user.DashboardFilter;
 import com.thoughtworks.go.server.domain.user.PipelineSelections;
 import com.thoughtworks.go.server.service.GoDashboardService;
 import com.thoughtworks.go.server.service.PipelineSelectionsService;
@@ -40,6 +40,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.thoughtworks.go.server.domain.user.DashboardFilter.DEFAULT_NAME;
 import static spark.Spark.*;
 
 public class DashboardControllerDelegate extends ApiController {
@@ -49,6 +50,7 @@ public class DashboardControllerDelegate extends ApiController {
 
     private static final String COOKIE_NAME = "selected_pipelines";
     private static final String SEP_CHAR = "/";
+    private static final String VIEW_NAME = "viewName";
 
     private final PipelineSelectionsService pipelineSelectionsService;
     private final GoDashboardService goDashboardService;
@@ -87,9 +89,10 @@ public class DashboardControllerDelegate extends ApiController {
         final Long userId = currentUserId(request);
         final Username userName = currentUsername();
         final PipelineSelections personalization = pipelineSelectionsService.load(personalizationCookie, userId);
+        final DashboardFilter filter = personalization.namedFilter(getViewName(request));
 
-        List<GoDashboardPipelineGroup> pipelineGroups = goDashboardService.allPipelineGroupsForDashboard(userName);
-        List<GoDashboardEnvironment> environments = goDashboardService.allEnvironmentsForDashboard(userName);
+        List<GoDashboardPipelineGroup> pipelineGroups = goDashboardService.allPipelineGroupsForDashboard(filter, userName);
+        List<GoDashboardEnvironment> environments = goDashboardService.allEnvironmentsForDashboard(filter, userName);
 
         String etag = calcEtag(userName, pipelineGroups, environments);
 
@@ -99,11 +102,10 @@ public class DashboardControllerDelegate extends ApiController {
 
         setEtagHeader(response, etag);
 
-        List<GoDashboardPipeline> pipelines = pipelineGroups.stream().flatMap(group -> group.allPipelines().stream()).collect(Collectors.toList());
         return writerForTopLevelObject(request, response, outputWriter ->
                 DashboardRepresenter.toJSON(
                         outputWriter,
-                        new DashboardFor(pipelineGroups, environments, pipelines, userName, personalization.etag())
+                        new DashboardFor(pipelineGroups, environments, userName, personalization.etag())
                 )
         );
     }
@@ -114,5 +116,10 @@ public class DashboardControllerDelegate extends ApiController {
         final String environmentSegment = environments.stream().
                 map(GoDashboardEnvironment::etag).collect(Collectors.joining(SEP_CHAR));
         return DigestUtils.md5Hex(StringUtils.joinWith(SEP_CHAR, username.getUsername(), pipelineSegment, environmentSegment));
+    }
+
+    private String getViewName(Request request) {
+        final String viewName = request.queryParams(VIEW_NAME);
+        return StringUtils.isBlank(viewName) ? DEFAULT_NAME : viewName;
     }
 }

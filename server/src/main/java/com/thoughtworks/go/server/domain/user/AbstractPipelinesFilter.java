@@ -48,8 +48,7 @@ abstract class AbstractPipelinesFilter implements DashboardFilter {
     @Override
     public abstract boolean allowPipeline(CaseInsensitiveString pipeline);
 
-    @Deprecated // TODO: remove when removing old dashboard
-    protected boolean filterByPipelineList(CaseInsensitiveString pipelineName) {
+    boolean filterByPipelineList(CaseInsensitiveString pipelineName) {
         return null != pipelines && !pipelines.isEmpty() && pipelines.contains(pipelineName);
     }
 }

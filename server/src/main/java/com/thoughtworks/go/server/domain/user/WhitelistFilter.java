@@ -33,7 +33,6 @@ public class WhitelistFilter extends AbstractPipelinesFilter {
     }
 
     @Override
-    @Deprecated // TODO: remove when removing old dashboard
     public boolean isPipelineVisible(CaseInsensitiveString pipeline) {
         return filterByPipelineList(pipeline);
     }

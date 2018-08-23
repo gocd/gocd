@@ -52,7 +52,7 @@ class DashboardRepresenterTest {
     env1.addPipeline(pipeline3)
 
     def actualJson = toObject({
-      DashboardRepresenter.toJSON(it, new DashboardFor([group1, group2], [env1], [pipeline1, pipeline2, pipeline3], user, "sha256hash"))
+      DashboardRepresenter.toJSON(it, new DashboardFor([group1, group2], [env1], user, "sha256hash"))
     })
 
     assertThatJson(actualJson._links).isEqualTo([

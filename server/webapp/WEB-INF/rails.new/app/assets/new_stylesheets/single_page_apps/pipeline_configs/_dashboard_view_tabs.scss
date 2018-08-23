@@ -31,7 +31,6 @@ $dashboard-tabs-box-shadow: 0 0 10px rgba(0, 0, 0, 0.21);
   &.loading {
     &:after {
       @include animation(candystripe 1s linear infinite);
-      @include animation(fadeIn 0.1s ease-in);
 
       display:    inline-block;
       content:    "";

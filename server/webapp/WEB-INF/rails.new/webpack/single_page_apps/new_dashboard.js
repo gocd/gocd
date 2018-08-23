@@ -116,7 +116,6 @@ $(() => {
 
   function onResponse(dashboardData, message = undefined) {
     personalizeVM.etag(dashboardData.personalization);
-    personalizeVM.loadingView(false);
     dashboard.initialize(dashboardData);
     dashboard.message(message);
   }
@@ -175,6 +174,7 @@ $(() => {
     return new AjaxPoller(() => Dashboard.get(currentView(), dashboardVM.etag())
       .then(onsuccess, onerror)
       .always(() => {
+        personalizeVM.loadingView(false);
         showSpinner(false);
       }));
   }

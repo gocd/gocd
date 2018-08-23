@@ -80,6 +80,11 @@ function initSortable(vnode) {
       constrainDimensions: true,
     }
   }).on("drag:start", (e) => {
+    if (vm.names().length < 2) {
+      e.cancel();
+      return false;
+    }
+
     y0 = e.data.sensorEvent.data.clientY; // save initial y-coord
 
     if (!vm.stagedSort()) {

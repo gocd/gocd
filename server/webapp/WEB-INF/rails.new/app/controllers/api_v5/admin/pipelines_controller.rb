@@ -35,9 +35,6 @@ module ApiV5
         get_pipeline_from_request
         pipeline_config_service.createPipelineConfig(current_user, @pipeline_config_from_request, result, params[:group])
         handle_config_save_or_update_result(result, @pipeline_config_from_request.name.to_s)
-        if result.isSuccessful
-          pipeline_pause_service.pause(@pipeline_config_from_request.name.to_s, "Under construction", current_user)
-        end
       end
 
       def update

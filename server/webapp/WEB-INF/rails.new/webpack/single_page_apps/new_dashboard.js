@@ -92,6 +92,8 @@ $(() => {
       }
     }
 
+    personalizeVM.loadingView(true);
+
     // Explicit set always refreshes; even if the viewName didn't change,
     // we should refresh because the filter definition may have changed as
     // currentView() is called after every personalization save operation.
@@ -114,6 +116,7 @@ $(() => {
 
   function onResponse(dashboardData, message = undefined) {
     personalizeVM.etag(dashboardData.personalization);
+    personalizeVM.loadingView(false);
     dashboard.initialize(dashboardData);
     dashboard.message(message);
   }

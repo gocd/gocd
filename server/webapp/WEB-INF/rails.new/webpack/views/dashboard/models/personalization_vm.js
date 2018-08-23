@@ -26,6 +26,7 @@ function PersonalizationVM(currentView) {
   const checksum      = Stream();
   const model         = Stream();
   const errorMessage  = Stream();
+  const loadingView   = Stream(false);
 
   const paged         = Stream(false); // flag indicating whether the view tabs need scrollable behavior
   const currentVnode  = Stream(); // handle on current tab's vnode; allows sharing state between components
@@ -59,7 +60,7 @@ function PersonalizationVM(currentView) {
 
   const changeListeners = [];
 
-  _.assign(this, {model, names, currentView, etag: checkForUpdates, checksum, errorMessage, paged, currentVnode, stagedSort, actionPopup});
+  _.assign(this, {model, names, currentView, etag: checkForUpdates, checksum, errorMessage, loadingView, paged, currentVnode, stagedSort, actionPopup});
 
   this.tabs = () => _.map(stagedSort() ? stagedSort().names() : names(), (name) => { return {id: name, name}; });
 

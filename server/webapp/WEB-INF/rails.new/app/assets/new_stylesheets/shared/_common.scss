@@ -135,7 +135,6 @@ html, body {
     font-size:   17px;
     line-height: 24px;
     font-weight: 600;
-    margin-top: 4px;
   }
 }
 
@@ -147,14 +146,17 @@ html, body {
 #roles-page,
 #auth_configs-page,
 #data_sharing_settings-page,
+#preferences-page
 {
-.page-header{
-  display:flex;
-  padding:0 30px;
-  justify-content: space-between;
-  align-content:center;
+  .page-header{
+    display:flex;
+    padding:0 30px;
+    justify-content: space-between;
+    align-content:center;
+    align-items: center;
+  }
 }
-}
+
 
 .sub-tab-navigation {
   background:    $tab-header-bg;

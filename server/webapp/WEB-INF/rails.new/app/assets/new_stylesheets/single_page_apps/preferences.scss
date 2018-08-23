@@ -21,6 +21,12 @@
 @import "font-awesome-sprockets";
 @import "font-awesome";
 
+#preferences-page{
+  .main-container{
+    margin-top: 0;
+  }
+}
+
 .no-buttons {
   padding-left:  30px;
   padding-right: 30px;

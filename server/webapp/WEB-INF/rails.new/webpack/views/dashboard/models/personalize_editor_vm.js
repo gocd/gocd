@@ -52,7 +52,7 @@ function PersonalizeEditorVM(opts, pipelinesByGroup) { // opts is usually the cu
 
 function normalize(opts) {
   opts.name = opts.name || "";
-  opts.type = opts.type || "blacklist";
+  opts.type = opts.type || "whitelist";
   opts.pipelines = arr(opts.pipelines);
   opts.state = arr(opts.state);
 }

@@ -20,7 +20,7 @@ describe("Personalization Editor View Model", () => {
   it("blank config yields a wildcard filter", () => {
     const model = new PersonalizeEditorVM({}, {});
 
-    expect(model.asFilter().type).toBe("blacklist");
+    expect(model.asFilter().type).toBe("whitelist");
     expect(model.asFilter().pipelines).toEqual([]);
   });
 

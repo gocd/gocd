@@ -19,6 +19,10 @@ const _ = require("lodash");
 const f = require("helpers/form_helper");
 
 const FilterNameInput = {
+  oncreate(vnode) {
+    vnode.dom.querySelector(".view-name").focus();
+  },
+
   view(vnode) {
     const vm = vnode.attrs.vm;
     const submitOnEnter = (e) => {

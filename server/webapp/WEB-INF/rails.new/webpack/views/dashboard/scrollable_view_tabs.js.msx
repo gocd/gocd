@@ -83,13 +83,13 @@ function detectPaging(vnode, padding) {
 function ensureCurrentTabInView(viewable) {
   const scrollable = $(viewable.querySelector(".dashboard-tabs-sortable"));
   const tab = scrollable.find(".current");
-  const padding = 30;
+  const padding = (parseInt($(".dashboard-tabs").css("padding-left"), 10) || 0);
 
   if (tab.length) {
     const L = tab.position().left;
     const R = L + tab.outerWidth(true);
     const I = scrollable.outerWidth(true);
-    const offset = $(viewable.querySelector(".page-prev")).outerWidth() + padding;
+    const offset = $(viewable.querySelector(".page-prev")).outerWidth(true) + padding;
 
     // theoretically we should first test if tab.width() > viewable.width() before anything else,
     // and then center the tab in the viewable area, but our CSS does not allow this situation to happen.

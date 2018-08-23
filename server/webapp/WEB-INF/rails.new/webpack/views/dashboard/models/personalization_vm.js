@@ -64,6 +64,12 @@ function PersonalizationVM(currentView) {
 
   this.tabs = () => _.map(stagedSort() ? stagedSort().names() : names(), (name) => { return {id: name, name}; });
 
+  this.updatePipelineGroups = () => {
+    return Personalization.getPipelines().done((data) => {
+      model().pipelineGroups(data.pipelines);
+    });
+  };
+
   this.locked = () => !!stagedSort();
 
   this.canonicalCurrentName = () => _.find(names(), (n) => eq(n, currentView()));

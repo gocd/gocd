@@ -16,16 +16,18 @@
 
 package com.thoughtworks.go.apiv1.pipelineselection.representers;
 
-import com.thoughtworks.go.server.domain.user.Filters;
+import com.thoughtworks.go.config.PipelineConfigs;
 
-public class PipelineSelectionResponse {
-    private final Filters filters;
+import java.util.List;
 
-    public PipelineSelectionResponse(Filters filters) {
-        this.filters = filters;
+public class PipelinesDataResponse {
+    private final List<PipelineConfigs> pipelineConfigs;
+
+    public PipelinesDataResponse(List<PipelineConfigs> pipelineConfigs) {
+        this.pipelineConfigs = pipelineConfigs;
     }
 
-    public Filters filters() {
-        return filters;
+    public List<PipelineConfigs> getPipelineConfigs() {
+        return pipelineConfigs;
     }
 }

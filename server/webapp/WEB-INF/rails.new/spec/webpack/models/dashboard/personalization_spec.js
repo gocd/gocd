@@ -36,7 +36,6 @@ describe("Personalization", () => {
         expect(filter.name).toEqual(expected["name"]);
         expect(filter.type).toEqual(expected["type"]);
         expect(filter.pipelines).toEqual(expected["pipelines"]);
-        expect(pipelineSelection.pipelineGroups()).toEqual(pipelineSelectionData["pipelines"]);
       });
 
       Personalization.get().then(successCallback);
@@ -226,18 +225,7 @@ const pipelineSelectionData = {
       ],
       "type": "blacklist"
     }
-  ],
-  "pipelines":  {
-    "first":  [
-      "up42",
-      "one",
-      "two",
-      "three"
-    ],
-    "second": [
-      "test"
-    ]
-  }
+  ]
 };
 
 const pipelineSelectionPostData = [

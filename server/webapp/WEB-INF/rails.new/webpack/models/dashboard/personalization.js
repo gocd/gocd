@@ -19,9 +19,9 @@ const DashboardFilters = require('models/dashboard/dashboard_filters');
 const AjaxHelper       = require('helpers/ajax_helper');
 const SparkRoutes      = require('helpers/spark_routes');
 
-function Personalization(filters, pipelineGroups) {
+function Personalization(filters) {
   let filterSet       = new DashboardFilters(filters);
-  this.pipelineGroups = Stream(pipelineGroups);
+  this.pipelineGroups = Stream();
 
   this.names = () => filterSet.names();
 
@@ -60,7 +60,14 @@ function Personalization(filters, pipelineGroups) {
 }
 
 Personalization.fromJSON = (json) => {
-  return new Personalization(json.filters, json.pipelines);
+  return new Personalization(json.filters);
+};
+
+Personalization.getPipelines = () => {
+  return AjaxHelper.GET({
+    url:        SparkRoutes.pipelineSelectionPipelinesDataPath(),
+    apiVersion: 'v1'
+  });
 };
 
 Personalization.get = (etag) => {

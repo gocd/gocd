@@ -50,6 +50,10 @@ module.exports = {
     return '/go/api/internal/pipeline_selection';
   },
 
+  pipelineSelectionPipelinesDataPath: () => {
+    return '/go/api/internal/pipeline_selection/pipelines_data';
+  },
+
   buildCausePath: (pipelineName, pipelineCounter) => {
     return `/go/api/internal/build_cause/${pipelineName}/${pipelineCounter}`;
   },

@@ -24,6 +24,8 @@ import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
 import com.thoughtworks.go.api.util.HaltApiResponses;
 import com.thoughtworks.go.apiv1.pipelineselection.representers.PipelineSelectionResponse;
 import com.thoughtworks.go.apiv1.pipelineselection.representers.PipelineSelectionsRepresenter;
+import com.thoughtworks.go.apiv1.pipelineselection.representers.PipelinesDataRepresenter;
+import com.thoughtworks.go.apiv1.pipelineselection.representers.PipelinesDataResponse;
 import com.thoughtworks.go.config.PipelineConfigs;
 import com.thoughtworks.go.server.domain.user.FilterValidationException;
 import com.thoughtworks.go.server.domain.user.Filters;
@@ -78,14 +80,20 @@ public class PipelineSelectionControllerDelegate extends ApiController {
             before("", this::verifyContentType);
             before("/*", this::verifyContentType);
 
+            get(Routes.PipelineSelection.PIPELINES_DATA, mimeType, this::pipelinesData);
             get("", mimeType, this::show);
             put("", mimeType, this::update);
         });
     }
 
+    public String pipelinesData(Request request, Response response) {
+        List<PipelineConfigs> groups = pipelineConfigService.viewableGroupsFor(currentUsername());
+        PipelinesDataResponse pipelineSelectionResponse = new PipelinesDataResponse(groups);
+        return PipelinesDataRepresenter.toJSON(pipelineSelectionResponse);
+    }
+
     public String show(Request request, Response response) {
         String fromCookie = request.cookie(COOKIE_NAME);
-        List<PipelineConfigs> groups = pipelineConfigService.viewableGroupsFor(currentUsername());
         PipelineSelections pipelineSelections = pipelineSelectionsService.load(fromCookie, currentUserId(request));
 
         if (fresh(request, pipelineSelections.etag())) {
@@ -94,7 +102,7 @@ public class PipelineSelectionControllerDelegate extends ApiController {
 
         setEtagHeader(response, pipelineSelections.etag());
 
-        PipelineSelectionResponse pipelineSelectionResponse = new PipelineSelectionResponse(pipelineSelections.viewFilters(), groups);
+        PipelineSelectionResponse pipelineSelectionResponse = new PipelineSelectionResponse(pipelineSelections.viewFilters());
 
         return PipelineSelectionsRepresenter.toJSON(pipelineSelectionResponse);
     }

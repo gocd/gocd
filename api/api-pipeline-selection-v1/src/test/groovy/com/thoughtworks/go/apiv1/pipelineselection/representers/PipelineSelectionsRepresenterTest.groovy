@@ -31,47 +31,10 @@ class PipelineSelectionsRepresenterTest {
   class Serialize {
     @Test
     void 'should serialize'() {
-      def group1 = new BasicPipelineConfigs(group: "grp1")
-      def group2 = new BasicPipelineConfigs(group: "grp2")
-
-      group1.add(new PipelineConfig(name: new CaseInsensitiveString("pipeline3")))
-      group1.add(new PipelineConfig(name: new CaseInsensitiveString("build-linux")))
-      group1.add(new PipelineConfig(name: new CaseInsensitiveString("build-windows")))
-      group2.add(new PipelineConfig(name: new CaseInsensitiveString("pipeline1")))
-      group2.add(new PipelineConfig(name: new CaseInsensitiveString("pipeline2")))
-
-      List<PipelineConfigs> pipelineConfigs = [group1, group2]
-
-      String actualJson = PipelineSelectionsRepresenter.toJSON(new PipelineSelectionResponse(FiltersHelper.blacklist(['build-linux', 'build-windows']), pipelineConfigs))
+      String actualJson = PipelineSelectionsRepresenter.toJSON(new PipelineSelectionResponse(FiltersHelper.blacklist(['build-linux', 'build-windows'])))
 
       JsonFluentAssert.assertThatJson(actualJson).isEqualTo([
-        pipelines: [
-          grp1: ["pipeline3", "build-linux", "build-windows"],
-          grp2: ["pipeline1", "pipeline2"]
-        ],
-        filters  : [[name: 'Default', state:[], type: 'blacklist', pipelines: ['build-linux', 'build-windows']]]
-      ])
-    }
-
-    @Test
-    void 'should not serialize empty pipeline groups'() {
-      def group1 = new BasicPipelineConfigs(group: "grp1")
-      def group2 = new BasicPipelineConfigs(group: "grp2")
-
-      group2.add(new PipelineConfig(name: new CaseInsensitiveString("pipeline1")))
-      group2.add(new PipelineConfig(name: new CaseInsensitiveString("pipeline2")))
-      group2.add(new PipelineConfig(name: new CaseInsensitiveString("build-linux")))
-      group2.add(new PipelineConfig(name: new CaseInsensitiveString("build-windows")))
-
-      List<PipelineConfigs> pipelineConfigs = [group1, group2]
-
-      String actualJson = PipelineSelectionsRepresenter.toJSON(new PipelineSelectionResponse(FiltersHelper.blacklist(['build-linux', 'build-windows']), pipelineConfigs))
-
-      JsonFluentAssert.assertThatJson(actualJson).isEqualTo([
-        pipelines: [
-          grp2: ["pipeline1", "pipeline2", "build-linux", "build-windows"]
-        ],
-        filters  : [[name: 'Default', state: [], type: 'blacklist', pipelines: ['build-linux', 'build-windows']]]
+        filters: [[name: 'Default', state: [], type: 'blacklist', pipelines: ['build-linux', 'build-windows']]]
       ])
     }
   }

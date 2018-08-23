@@ -73,6 +73,7 @@ describe("DashboardFilter", () => {
     });
 
     it("should return true if there's no latest stage or instance", () => {
+      filter = new DashboardFilter({state: ["Failed"]});
       expect(filter.acceptsStatusOf({latestStage: () => null})).toBe(true);
     });
   });

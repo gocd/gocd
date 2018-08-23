@@ -25,8 +25,6 @@ describe ApiV5::Admin::PipelinesController do
     @group = "group"
     @pipeline_config_service = double("pipeline_config_service")
     allow(controller).to receive("pipeline_config_service").and_return(@pipeline_config_service)
-    @pipeline_pause_service = double("pipeline_pause_service")
-    allow(controller).to receive("pipeline_pause_service").and_return(@pipeline_pause_service)
     @go_config_service = double("go_config_service")
     allow(controller).to receive("go_config_service").and_return(@go_config_service)
     @entity_hashing_service = double('entity_hashing_service')
@@ -464,7 +462,6 @@ describe ApiV5::Admin::PipelinesController do
         expect(@pipeline_config_service).to receive(:getPipelineConfig).with(@pipeline_name).and_return(nil)
         expect(@pipeline_config_service).to receive(:getPipelineConfig).with(@pipeline_name).and_return(@pipeline)
         expect(@pipeline_config_service).to receive(:createPipelineConfig).with(anything(), anything(), anything(), "new_grp")
-        expect(@pipeline_pause_service).to receive(:pause).with("pipeline1", "Under construction", @user)
 
         post_with_api_header :create, :pipeline => pipeline, :group => "new_grp"
 
@@ -477,7 +474,6 @@ describe ApiV5::Admin::PipelinesController do
         expect(@pipeline_config_service).to receive(:getPipelineConfig).with(@pipeline_name).and_return(nil)
         expect(@pipeline_config_service).to receive(:getPipelineConfig).with(@pipeline_name).and_return(@pipeline)
         expect(@pipeline_config_service).to receive(:createPipelineConfig).with(anything(), anything(), anything(), "new_grp")
-        expect(@pipeline_pause_service).to receive(:pause).with("pipeline1", "Under construction", @user)
 
         post_with_api_header :create, :pipeline => pipeline, :group => "new_grp"
 
@@ -545,7 +541,6 @@ describe ApiV5::Admin::PipelinesController do
         pipeline_being_saved = nil
         expect(@pipeline_config_service).to receive(:getPipelineConfig).with(@pipeline_name).and_return(nil)
         expect(@pipeline_config_service).to receive(:getPipelineConfig).with(@pipeline_name).and_return(@pipeline)
-        expect(@pipeline_pause_service).to receive(:pause).with("pipeline1", "Under construction", @user)
 
         allow(@pipeline_config_service).to receive(:createPipelineConfig) do |user, pipeline, result, group|
           pipeline_being_saved = pipeline
@@ -561,7 +556,6 @@ describe ApiV5::Admin::PipelinesController do
         pipeline_being_saved = nil
         expect(@pipeline_config_service).to receive(:getPipelineConfig).with(@pipeline_name).and_return(nil)
         expect(@pipeline_config_service).to receive(:getPipelineConfig).with(@pipeline_name).and_return(@pipeline)
-        expect(@pipeline_pause_service).to receive(:pause).with("pipeline1", "Under construction", @user)
 
         allow(@pipeline_config_service).to receive(:createPipelineConfig) do |user, pipeline, result, group|
           pipeline_being_saved = pipeline

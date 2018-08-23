@@ -75,11 +75,13 @@ $dashboard-tabs-box-shadow: 0 0 10px rgba(0, 0, 0, 0.21);
   }
 
   .add-tab {
-    margin:     0;
-    padding:    0;
-    width:      $dashboard-add-tab-width;
-    color:      $dashboard-tab-primary-text-color;
-    text-align: center;
+    margin:      0;
+    padding:     0;
+    width:       $dashboard-add-tab-width;
+    color:       $dashboard-tab-primary-text-color;
+    text-align:  center;
+    flex-grow:   0;
+    flex-shrink: 0;
 
     .add-icon {
       @include icon-before($type: plus);
@@ -93,6 +95,8 @@ $dashboard-tabs-box-shadow: 0 0 10px rgba(0, 0, 0, 0.21);
     width:         $dashboard-tab-list-toggle-width;
     color:         $dashboard-tab-secondary-text-color;
     border-radius: 0 $dashboard-tabs-border-radius $dashboard-tabs-border-radius 0;
+    flex-grow:     0;
+    flex-shrink:   0;
 
     &.paged {
       display: block;
@@ -201,6 +205,8 @@ $dashboard-tabs-box-shadow: 0 0 10px rgba(0, 0, 0, 0.21);
 
     width:        $dashboard-tabs-pager-width;
     height:       $dashboard-tab-height;
+    flex-grow:    0;
+    flex-shrink:  0;
 
     text-align:   center;
     font-size:    21px;

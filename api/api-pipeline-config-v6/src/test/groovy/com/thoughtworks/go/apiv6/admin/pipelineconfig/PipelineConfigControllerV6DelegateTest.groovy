@@ -35,7 +35,6 @@ import com.thoughtworks.go.helper.PipelineConfigMother
 import com.thoughtworks.go.server.domain.Username
 import com.thoughtworks.go.server.service.EntityHashingService
 import com.thoughtworks.go.server.service.PipelineConfigService
-import com.thoughtworks.go.server.service.PipelinePauseService
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult
 import com.thoughtworks.go.spark.ControllerTrait
 import com.thoughtworks.go.spark.GroupAdminUserSecurity
@@ -70,12 +69,9 @@ class PipelineConfigControllerV6DelegateTest implements SecurityServiceTrait, Co
   @Mock
   private PasswordDeserializer passwordDeserializer
 
-  @Mock
-  private PipelinePauseService pipelinePauseService
-
   @Override
   PipelineConfigControllerV6Delegate createControllerInstance() {
-    return new PipelineConfigControllerV6Delegate(pipelineConfigService, new ApiAuthenticationHelper(securityService, goConfigService), entityHashingService, passwordDeserializer, goConfigService, pipelinePauseService)
+    return new PipelineConfigControllerV6Delegate(pipelineConfigService, new ApiAuthenticationHelper(securityService, goConfigService), entityHashingService, passwordDeserializer, goConfigService)
   }
 
   @Nested
@@ -213,7 +209,6 @@ class PipelineConfigControllerV6DelegateTest implements SecurityServiceTrait, Co
         })])
 
         verify(pipelineConfigService).createPipelineConfig(any(Username.class) as Username, any(PipelineConfig.class) as PipelineConfig, any(HttpLocalizedOperationResult.class) as HttpLocalizedOperationResult, eq("new_grp"))
-        verify(pipelinePauseService).pause(any(), eq("Under construction"), any())
         assertThatResponse()
           .isOk()
           .hasBodyWithJsonObject(pipelineConfig, PipelineConfigRepresenter)
@@ -277,7 +272,6 @@ class PipelineConfigControllerV6DelegateTest implements SecurityServiceTrait, Co
 
         assertThatResponse().isOk()
 
-        verify(pipelinePauseService).pause(eq("pipeline1"), eq("Under construction"), any(Username.class))
         assertEquals(packageRepository.findPackage("package-name"), ((PackageMaterialConfig) pipelineBeingSaved.materialConfigs().first()).getPackageDefinition())
       }
 
@@ -295,10 +289,7 @@ class PipelineConfigControllerV6DelegateTest implements SecurityServiceTrait, Co
 
         postWithApiHeader(controller.controllerPath(), [group: "group", pipeline: pipelineWithPluggableMaterial("pipeline1", "plugin", "scm-id")])
 
-
-        verify(pipelinePauseService).pause(eq("pipeline1"), eq("Under construction"), any(Username.class))
         assertThatResponse().isOk()
-
         assertEquals(scm, (((PluggableSCMMaterialConfig) pipelineBeingSaved.materialConfigs().first()).getSCMConfig()))
       }
     }

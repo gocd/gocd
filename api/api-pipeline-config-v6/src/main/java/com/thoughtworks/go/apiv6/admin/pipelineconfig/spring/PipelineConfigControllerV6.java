@@ -33,8 +33,8 @@ public class PipelineConfigControllerV6 implements SparkSpringController {
     private final PipelineConfigControllerV6Delegate delegate;
 
     @Autowired
-    public PipelineConfigControllerV6(PipelineConfigService pipelineConfigService, ApiAuthenticationHelper apiAuthenticationHelper, EntityHashingService entityHashingService, PasswordDeserializer passwordDeserializer, GoConfigService goConfigService, PipelinePauseService pipelinePauseService) {
-        delegate = new PipelineConfigControllerV6Delegate(pipelineConfigService, apiAuthenticationHelper, entityHashingService, passwordDeserializer, goConfigService, pipelinePauseService);
+    public PipelineConfigControllerV6(PipelineConfigService pipelineConfigService, ApiAuthenticationHelper apiAuthenticationHelper, EntityHashingService entityHashingService, PasswordDeserializer passwordDeserializer, GoConfigService goConfigService) {
+        delegate = new PipelineConfigControllerV6Delegate(pipelineConfigService, apiAuthenticationHelper, entityHashingService, passwordDeserializer, goConfigService);
     }
 
     @Override

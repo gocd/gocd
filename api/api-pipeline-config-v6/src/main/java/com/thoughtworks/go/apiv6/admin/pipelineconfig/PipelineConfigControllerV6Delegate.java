@@ -54,16 +54,14 @@ public class PipelineConfigControllerV6Delegate extends ApiController implements
     private final EntityHashingService entityHashingService;
     private final PasswordDeserializer passwordDeserializer;
     private GoConfigService goConfigService;
-    private PipelinePauseService pipelinePauseService;
 
-    public PipelineConfigControllerV6Delegate(PipelineConfigService pipelineConfigService, ApiAuthenticationHelper apiAuthenticationHelper, EntityHashingService entityHashingService, PasswordDeserializer passwordDeserializer, GoConfigService goConfigService, PipelinePauseService pipelinePauseService) {
+    public PipelineConfigControllerV6Delegate(PipelineConfigService pipelineConfigService, ApiAuthenticationHelper apiAuthenticationHelper, EntityHashingService entityHashingService, PasswordDeserializer passwordDeserializer, GoConfigService goConfigService) {
         super(ApiVersion.v6);
         this.pipelineConfigService = pipelineConfigService;
         this.apiAuthenticationHelper = apiAuthenticationHelper;
         this.entityHashingService = entityHashingService;
         this.passwordDeserializer = passwordDeserializer;
         this.goConfigService = goConfigService;
-        this.pipelinePauseService = pipelinePauseService;
     }
 
     @Override
@@ -161,9 +159,6 @@ public class PipelineConfigControllerV6Delegate extends ApiController implements
         Username userName = SessionUtils.currentUsername();
         pipelineConfigService.createPipelineConfig(userName, pipelineConfigFromRequest, result, group);
 
-        if (result.isSuccessful()) {
-            pipelinePauseService.pause(pipelineConfigFromRequest.name().toString(), "Under construction", userName);
-        }
         return handleCreateOrUpdateResponse(req, res, pipelineConfigFromRequest, result);
     }
 

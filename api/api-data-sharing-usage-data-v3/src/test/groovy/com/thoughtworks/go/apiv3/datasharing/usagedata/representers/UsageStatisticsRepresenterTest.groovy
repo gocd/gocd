@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.apiv3.datasharing.usagedata.representers
 
+import com.thoughtworks.go.apiv3.datasharing.usagedata.UsagedataType
 import com.thoughtworks.go.server.domain.UsageStatistics
 import org.junit.jupiter.api.Test
 
@@ -25,7 +26,7 @@ import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
 class UsageStatisticsRepresenterTest {
 
   @Test
-  void "should represent usage statistics"() {
+  void "should represent all usage statistics"() {
     def usageStatistics = UsageStatistics.newUsageStatistics()
       .pipelineCount(100l)
       .configRepoPipelineCount(25l)
@@ -38,7 +39,8 @@ class UsageStatisticsRepresenterTest {
       .gocdVersion("18.7.0")
       .build()
 
-    def actualJson = toObjectString({ UsageStatisticsRepresenter.toJSON(it, usageStatistics) })
+    def requestedUsageDataTypes = [UsagedataType.BASIC, UsagedataType.ADDITIONAL]
+    def actualJson = toObjectString({ UsageStatisticsRepresenter.toJSON(it, usageStatistics, requestedUsageDataTypes) })
     def expectedJson = [
       "server_id"      : "server-id",
       "message_version": 2,
@@ -69,6 +71,82 @@ class UsageStatisticsRepresenterTest {
         ],
         oldest_pipeline_execution_time: 1527244129553,
         gocd_version                  : "18.7.0"
+      ]
+    ]
+    assertThatJson(actualJson).isEqualTo(expectedJson)
+  }
+
+  @Test
+  void "should represent only basic usage statistics"() {
+    def usageStatistics = UsageStatistics.newUsageStatistics()
+      .pipelineCount(100l)
+      .configRepoPipelineCount(25l)
+      .agentCount(10l)
+      .oldestPipelineExecutionTime(1527244129553)
+      .serverId("server-id")
+      .jobCount(15l)
+      .elasticAgentPluginToJobCount([ecs: 10L, docker: 5L])
+      .installedPlugins([ecs: 'v1.0.0', docker: 'v2.0.0'])
+      .gocdVersion("18.7.0")
+      .build()
+
+    def requestedUsageDataTypes = [UsagedataType.BASIC]
+    def actualJson = toObjectString({ UsageStatisticsRepresenter.toJSON(it, usageStatistics, requestedUsageDataTypes) })
+    def expectedJson = [
+      "server_id"      : "server-id",
+      "message_version": 2,
+      "data"           : [
+        pipeline_count                : 100,
+        config_repo_pipeline_count    : 25,
+        agent_count                   : 10,
+        job_count                     : 15,
+        elastic_agent_job_count       : [
+          [
+            plugin_id: "ecs",
+            job_count: 10
+          ],
+          [
+            plugin_id: "docker",
+            job_count: 5
+          ]
+        ],
+        oldest_pipeline_execution_time: 1527244129553,
+        gocd_version                  : "18.7.0"
+      ]
+    ]
+    assertThatJson(actualJson).isEqualTo(expectedJson)
+  }
+
+  @Test
+  void "should represent only additional usage statistics"() {
+    def usageStatistics = UsageStatistics.newUsageStatistics()
+      .pipelineCount(100l)
+      .configRepoPipelineCount(25l)
+      .agentCount(10l)
+      .oldestPipelineExecutionTime(1527244129553)
+      .serverId("server-id")
+      .jobCount(15l)
+      .elasticAgentPluginToJobCount([ecs: 10L, docker: 5L])
+      .installedPlugins([ecs: 'v1.0.0', docker: 'v2.0.0'])
+      .gocdVersion("18.7.0")
+      .build()
+
+    def requestedUsageDataTypes = [UsagedataType.ADDITIONAL]
+    def actualJson = toObjectString({ UsageStatisticsRepresenter.toJSON(it, usageStatistics, requestedUsageDataTypes) })
+    def expectedJson = [
+      "server_id"      : "server-id",
+      "message_version": 2,
+      "data"           : [
+        installed_plugins: [
+          [
+            id     : 'ecs',
+            version: 'v1.0.0'
+          ],
+          [
+            id     : 'docker',
+            version: 'v2.0.0'
+          ]
+        ]
       ]
     ]
     assertThatJson(actualJson).isEqualTo(expectedJson)

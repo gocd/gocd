@@ -54,9 +54,6 @@ class UsageStatisticsControllerV3DelegateTest implements SecurityServiceTrait, C
   @Mock
   SystemEnvironment systemEnvironment
 
-  def serverId = 'unique-server-id'
-  def gocdVersion = '18.8.0'
-
   @Override
   UsageStatisticsControllerV3Delegate createControllerInstance() {
     new UsageStatisticsControllerV3Delegate(new ApiAuthenticationHelper(securityService, goConfigService), dataSharingService, systemEnvironment)
@@ -80,33 +77,90 @@ class UsageStatisticsControllerV3DelegateTest implements SecurityServiceTrait, C
 
     @Nested
     class AsAdminUser {
+      def metrics = UsageStatistics.newUsageStatistics()
+        .pipelineCount(100l)
+        .configRepoPipelineCount(25l)
+        .agentCount(10l)
+        .oldestPipelineExecutionTime(1527244129553)
+        .serverId("server-id")
+        .jobCount(15l)
+        .installedPlugins([ecs: 'v1.0.0'])
+        .elasticAgentPluginToJobCount([ecs: 10L, docker: 5L])
+        .gocdVersion("18.7.0")
+        .build()
+
       @BeforeEach
       void setUp() {
         enableSecurity()
         loginAsAdmin()
+
+        when(dataSharingService.get()).thenReturn(metrics)
       }
 
       @Test
-      void 'get usage statistics'() {
-        def metrics = UsageStatistics.newUsageStatistics()
-          .pipelineCount(100l)
-          .configRepoPipelineCount(25l)
-          .agentCount(10l)
-          .oldestPipelineExecutionTime(1527244129553)
-          .serverId("server-id")
-          .jobCount(15l)
-          .installedPlugins([ecs: 'v1.0.0'])
-          .elasticAgentPluginToJobCount([ecs: 10L, docker: 5L])
-          .gocdVersion("18.7.0")
-          .build()
-
-        when(dataSharingService.get()).thenReturn(metrics)
-
+      void 'get all usage statistics when no type query param is specified'() {
         getWithApiHeader(controller.controllerPath())
+
         assertThatResponse()
           .isOk()
           .hasContentType(controller.mimeType)
-          .hasBody(toObjectString({ UsageStatisticsRepresenter.toJSON(it, metrics) }))
+          .hasBody(toObjectString({
+          UsageStatisticsRepresenter.toJSON(it, metrics, [UsagedataType.BASIC, UsagedataType.ADDITIONAL])
+        }))
+      }
+
+      @Test
+      void 'get basic usage statistics'() {
+        getWithApiHeader(controller.controllerPath([type: 'basic']))
+
+        assertThatResponse()
+          .isOk()
+          .hasContentType(controller.mimeType)
+          .hasBody(toObjectString({ UsageStatisticsRepresenter.toJSON(it, metrics, [UsagedataType.BASIC]) }))
+      }
+
+      @Test
+      void 'get additional usage statistics'() {
+        getWithApiHeader(controller.controllerPath([type: 'additional']))
+
+        assertThatResponse()
+          .isOk()
+          .hasContentType(controller.mimeType)
+          .hasBody(toObjectString({ UsageStatisticsRepresenter.toJSON(it, metrics, [UsagedataType.ADDITIONAL]) }))
+      }
+
+      @Test
+      void 'get all comma separated specified usage statistics '() {
+        getWithApiHeader(controller.controllerPath([type: 'basic, additional']))
+
+        assertThatResponse()
+          .isOk()
+          .hasContentType(controller.mimeType)
+          .hasBody(toObjectString({
+          UsageStatisticsRepresenter.toJSON(it, metrics, [UsagedataType.BASIC, UsagedataType.ADDITIONAL])
+        }))
+      }
+
+      @Test
+      void 'get usage statistics regardless of case of specified type'() {
+        getWithApiHeader(controller.controllerPath([type: 'BaSiC, AdditionAl']))
+
+        assertThatResponse()
+          .isOk()
+          .hasContentType(controller.mimeType)
+          .hasBody(toObjectString({
+          UsageStatisticsRepresenter.toJSON(it, metrics, [UsagedataType.BASIC, UsagedataType.ADDITIONAL])
+        }))
+      }
+
+      @Test
+      void 'should throw error when invalid usage statistic type is specified'() {
+        getWithApiHeader(controller.controllerPath([type: 'everything']))
+
+        assertThatResponse()
+          .isBadRequest()
+          .hasContentType(controller.mimeType)
+          .hasJsonMessage("Invalid type 'everything' specified for usage data.")
       }
     }
   }
@@ -227,14 +281,17 @@ class UsageStatisticsControllerV3DelegateTest implements SecurityServiceTrait, C
         String signatureContent = FileUtils.readFileToString(signature, StandardCharsets.UTF_8)
         String subordinatePrivateKeyContent = FileUtils.readFileToString(subordinatePrivateKey, StandardCharsets.UTF_8)
 
-        def expectedJson = toObjectString({ UsageStatisticsRepresenter.toJSON(it, metrics) })
+        def expectedJson = toObjectString({
+          UsageStatisticsRepresenter.toJSON(it, metrics, [UsagedataType.BASIC, UsagedataType.ADDITIONAL])
+        })
 
         when(dataSharingService.get()).thenReturn(metrics)
         when(systemEnvironment.getUpdateServerPublicKeyPath()).thenReturn(masterPublicKey.getAbsolutePath());
 
         postWithApiHeader(controller.controllerPath('/encrypted'), [signature: signatureContent, 'subordinate_public_key': subordinatePublicKeyContent])
 
-        Map<String, String> responseBody = GsonTransformer.getInstance().fromJson(response.getContentAsString(), new TypeToken<Map<String, Object>>() {}.getType())
+        Map<String, String> responseBody = GsonTransformer.getInstance().fromJson(response.getContentAsString(), new TypeToken<Map<String, Object>>() {
+        }.getType())
         def aesEncryptedData = responseBody.get('aes_encrypted_data')
         def rsaEncryptedAESKey = responseBody.get('rsa_encrypted_aes_key')
 

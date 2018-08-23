@@ -17,40 +17,31 @@
 package com.thoughtworks.go.apiv3.datasharing.usagedata.representers;
 
 import com.thoughtworks.go.api.base.OutputWriter;
+import com.thoughtworks.go.apiv3.datasharing.usagedata.UsagedataType;
+import com.thoughtworks.go.apiv3.datasharing.usagedata.representers.typebased.AdditionalUsageStatisticsRepresenter;
+import com.thoughtworks.go.apiv3.datasharing.usagedata.representers.typebased.BasicUsageStatisticsRepresenter;
 import com.thoughtworks.go.server.domain.UsageStatistics;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class UsageStatisticsRepresenter {
     private static final int MESSAGE_SCHEMA_VERSION = 2;
+    private static final Map<UsagedataType, UsageDataTypeRepresenter> representerMapper;
 
-    public static void toJSON(OutputWriter outputWriter, UsageStatistics usageStatistics) {
+    static {
+        representerMapper = new HashMap<>();
+        representerMapper.put(UsagedataType.BASIC, new BasicUsageStatisticsRepresenter());
+        representerMapper.put(UsagedataType.ADDITIONAL, new AdditionalUsageStatisticsRepresenter());
+    }
+
+    public static void toJSON(OutputWriter outputWriter, UsageStatistics usageStatistics, List<UsagedataType> usageDataTypes) {
         outputWriter
                 .add("server_id", usageStatistics.serverId())
                 .add("message_version", MESSAGE_SCHEMA_VERSION)
                 .addChild("data", childWriter -> {
-                    childWriter
-                            .add("pipeline_count", usageStatistics.pipelineCount())
-                            .add("config_repo_pipeline_count", usageStatistics.configRepoPipelineCount())
-                            .add("agent_count", usageStatistics.agentCount())
-                            .add("oldest_pipeline_execution_time", usageStatistics.oldestPipelineExecutionTime())
-                            .add("job_count", usageStatistics.jobCount())
-                            .addChildList("elastic_agent_job_count", child -> {
-                                usageStatistics.elasticAgentPluginToJobCount().forEach((pluginId, jobCount) -> {
-                                    child.addChild(c -> {
-                                        c.add("plugin_id", pluginId);
-                                        c.add("job_count", jobCount);
-                                    });
-                                });
-                            })
-                            .addChildList("installed_plugins", child -> {
-                                usageStatistics.installedPlugins().forEach((pluginId, pluginVersion) -> {
-                                    child.addChild(c -> {
-                                        c.add("id", pluginId);
-                                        c.add("version", pluginVersion);
-                                    });
-                                });
-                            })
-                            .add("gocd_version", usageStatistics.gocdVersion());
+                    usageDataTypes.forEach(t -> representerMapper.get(t).toJSON(childWriter, usageStatistics));
                 });
     }
-
 }

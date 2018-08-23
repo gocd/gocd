@@ -23,6 +23,7 @@ import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.StageConfig;
 import com.thoughtworks.go.config.elastic.ElasticProfile;
 import com.thoughtworks.go.domain.JobStateTransition;
+import com.thoughtworks.go.plugin.infra.DefaultPluginManager;
 import com.thoughtworks.go.server.dao.JobInstanceSqlMapDao;
 import com.thoughtworks.go.server.domain.UsageStatistics;
 import com.thoughtworks.go.server.service.GoConfigService;
@@ -32,19 +33,24 @@ import org.springframework.stereotype.Service;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 
 @Service
 public class DataSharingUsageDataService {
     private final GoConfigService goConfigService;
     private final JobInstanceSqlMapDao jobInstanceSqlMapDao;
+    private DefaultPluginManager defaultPluginManager;
     private final DataSharingUsageStatisticsReportingService dataSharingUsageStatisticsReportingService;
 
     @Autowired
-    public DataSharingUsageDataService(GoConfigService goConfigService, JobInstanceSqlMapDao jobInstanceSqlMapDao,
+    public DataSharingUsageDataService(GoConfigService goConfigService,
+                                       JobInstanceSqlMapDao jobInstanceSqlMapDao,
+                                       DefaultPluginManager defaultPluginManager,
                                        DataSharingUsageStatisticsReportingService dataSharingUsageStatisticsReportingService) {
         this.goConfigService = goConfigService;
         this.jobInstanceSqlMapDao = jobInstanceSqlMapDao;
+        this.defaultPluginManager = defaultPluginManager;
         this.dataSharingUsageStatisticsReportingService = dataSharingUsageStatisticsReportingService;
     }
 
@@ -76,6 +82,12 @@ public class DataSharingUsageDataService {
 
         String serverId = dataSharingUsageStatisticsReportingService.get().getServerId();
 
+        HashMap<String, String> pluginsIdToVersionMap = defaultPluginManager.plugins().stream()
+                .collect(Collectors.toMap(
+                        goPluginDescriptor -> goPluginDescriptor.id(),
+                        goPluginDescriptor -> goPluginDescriptor.about().version(),
+                        (pluginId, pluginVersion) -> pluginVersion, HashMap::new));
+
         return UsageStatistics.newUsageStatistics()
                 .pipelineCount(pipelineCount)
                 .configRepoPipelineCount(configRepoPipelineCount)
@@ -85,6 +97,7 @@ public class DataSharingUsageDataService {
                 .oldestPipelineExecutionTime(oldestPipelineExecutionTime)
                 .serverId(serverId)
                 .gocdVersion(CurrentGoCDVersion.getInstance().fullVersion())
+                .installedPlugins(pluginsIdToVersionMap)
                 .build();
     }
 }

@@ -28,14 +28,15 @@ import com.thoughtworks.go.server.util.EncryptionHelper;
 import com.thoughtworks.go.spark.Routes.DataSharing;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.io.FileUtils;
+import org.springframework.http.HttpStatus;
 import spark.Request;
 import spark.Response;
 import spark.utils.StringUtils;
 
 import javax.crypto.SecretKey;
 import java.io.File;
-import java.util.Base64;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import static spark.Spark.*;
 
@@ -71,12 +72,20 @@ public class UsageStatisticsControllerV3Delegate extends ApiController {
 
             get("", mimeType, this::getUsageStatistics);
             post("/encrypted", mimeType, this::getEncryptedUsageStatistics);
+
+            exception(InvalidUsageDataTypeException.class, (ex, req, res) -> {
+                res.body(this.messageJson(ex));
+                res.status(HttpStatus.BAD_REQUEST.value());
+            });
         });
     }
 
-    public String getUsageStatistics(Request request, Response response) {
+    public String getUsageStatistics(Request request, Response response) throws InvalidUsageDataTypeException {
+        String usageDataTypes = request.queryParams("type");
+        List<UsagedataType> requestedUsageDataTypes = getUsageDataTypes(usageDataTypes);
+
         UsageStatistics usageStatistics = dataSharingUsageDataService.get();
-        return jsonizeAsTopLevelObject(request, writer -> UsageStatisticsRepresenter.toJSON(writer, usageStatistics));
+        return jsonizeAsTopLevelObject(request, writer -> UsageStatisticsRepresenter.toJSON(writer, usageStatistics, requestedUsageDataTypes));
     }
 
     public String getEncryptedUsageStatistics(Request request, Response response) throws Exception {
@@ -125,5 +134,25 @@ public class UsageStatisticsControllerV3Delegate extends ApiController {
         }
 
         return true;
+    }
+
+    private List<UsagedataType> getUsageDataTypes(String usageDataTypesParam) throws InvalidUsageDataTypeException {
+        if (StringUtils.isBlank(usageDataTypesParam)) {
+            return Arrays.asList(UsagedataType.values());
+        }
+
+        List<String> requestedUsageDataTypes = Arrays.stream(usageDataTypesParam.split(","))
+                .map(String::trim).collect(Collectors.toList());
+
+        ArrayList<UsagedataType> usageDataTypes = new ArrayList<>();
+        for (String type : requestedUsageDataTypes) {
+            try {
+                usageDataTypes.add(UsagedataType.valueOf(type.toUpperCase()));
+            } catch (IllegalArgumentException e) {
+                throw new InvalidUsageDataTypeException(String.format("Invalid type '%s' specified for usage data.", type));
+            }
+        }
+
+        return usageDataTypes;
     }
 }

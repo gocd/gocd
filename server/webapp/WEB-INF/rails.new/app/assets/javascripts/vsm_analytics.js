@@ -51,16 +51,37 @@
     }
   };
 
-  var showAnalytics = function showAnalytics(options) {
-    var div = document.createElement("div");
-
+  function defineHandlers(chartId) {
     PluginEndpointRequestHandler.defineLinkHandler();
+    const models    = {};
+    models[chartId] = {
+      fetch: function (url, handler) {
+        const splitURL = url.split('?');
+        const search   = splitURL[1];
+        const jsonData = JSON.parse('{"' + decodeURIComponent(search).replace(/"/g, '\\"').replace(/&/g, '","').replace(/=/g, '":"') + '"}');
+        $j.ajax({
+          url:      splitURL[0],
+          type:     "POST",
+          dataType: "json",
+          data:     jsonData
+        }).done((r) => {
+          handler(r.data, null);
+        });
+      }
+    };
+
+    PluginEndpointRequestHandler.defineFetchAnalyticsHandler(models);
     PluginEndpoint.ensure("v1");
+  }
+
+  function showAnalytics(options) {
+    var div = document.createElement("div");
+    defineHandlers(options.vsmAnalyticsChart.id);
     $j(div).addClass("vsm_modal");
     $j("#analytics-overlay").append(div);
 
     $j.ajax({
-      url:      options.url,
+      url:      options.vsmAnalyticsChart.url,
       dataType: "json",
       data:     options.data,
       type:     options.type || "GET"
@@ -68,8 +89,12 @@
       var frame     = document.createElement("iframe");
       frame.sandbox = "allow-scripts";
 
-      frame.onload = function (e) {
-        PluginEndpoint.init(frame.contentWindow, {initialData: r.data});
+      frame.onload = function (_e) {
+        PluginEndpoint.init(frame.contentWindow, {
+          uid:         options.vsmAnalyticsChart.id,
+          pluginId:    options.vsmAnalyticsChart.plugin_id,
+          initialData: r.data
+        });
       };
 
       div.appendChild(frame);
@@ -88,14 +113,14 @@
     });
   };
 
-  var VSMAnalytics = function VSMAnalytics(data, graphRenderer, showAnalyticsPath, analyticsPanel, analyticsButton) {
+  function VSMAnalytics(data, graphRenderer, vsmAnalyticsChart, analyticsPanel, analyticsButton) {
     var self              = this;
     var panel             = analyticsPanel;
     var analyticsButton   = analyticsButton;
     var vsmGraph          = VSMGraph.fromJSON(data);
     var current           = currentNode(vsmGraph);
     var graphRenderer     = graphRenderer;
-    var showAnalyticsPath = showAnalyticsPath;
+    var vsmAnalyticsChart = vsmAnalyticsChart;
 
     var otherNode;
 
@@ -111,9 +136,9 @@
       $j("#analytics-overlay").removeClass("hide");
       $j("body").addClass("noscroll");
       showAnalytics({
-        url:  showAnalyticsPath,
-        type: 'POST',
-        data: self.jsonData()
+        vsmAnalyticsChart: vsmAnalyticsChart,
+        type:              'POST',
+        data:              self.jsonData()
       });
     };
 

@@ -46,7 +46,7 @@
 
           if (data.error == null && <%= supports_vsm_analytics? %>) {
             vsmAnalyticsPipelinePanel = new VSMAnalyticsPipelinePanel(".vsm-analytics-panel");
-            vsm_analytics             = new VSMAnalytics(data, graphRenderer, "<%= show_vsm_analytics_path %>", vsmAnalyticsPipelinePanel, ".enable-analytics");
+            vsm_analytics             = new VSMAnalytics(data, graphRenderer, <%= vsm_analytics_chart_info.to_json.html_safe %>, vsmAnalyticsPipelinePanel, ".enable-analytics");
             vsm_analytics.init();
           }
 

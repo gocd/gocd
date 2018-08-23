@@ -22,26 +22,11 @@ describe("DashboardFilters", () => {
     expect(filters.names()).toEqual(["Default", "a", "b", "c"]);
   });
 
-  it("defaultFilter() returns a filter matching the default name", () => {
-    const filters = new DashboardFilters([def, a, b, c]);
-    expect(filters.defaultFilter().name).toBe("Default");
-    expect(filters.defaultFilter()).toEqual(def);
-    expect(filters.defaultFilter() === def).toBe(true);
-  });
-
-  it("defaultFilter() creates a new default wildcard filter when a default does not exist", () => {
-    const filters = new DashboardFilters([a]);
-    expect(filters.names()).toEqual(["a"]);
-
-    const newDefault = filters.defaultFilter();
-    expect(filters.names()).toEqual(["Default", "a"]);
-
-    expect(newDefault === def).toBe(false);
-    expect(JSON.stringify(newDefault) !== JSON.stringify(def)).toBe(true); // not structurally equal
-
-    expect(newDefault.name).toBe("Default");
-    expect(newDefault.type).toBe("blacklist");
-    expect(newDefault.pipelines).toEqual([]);
+  it("defaultFilter() returns the first filter", () => {
+    const filters = new DashboardFilters([a, b, c]);
+    expect(filters.defaultFilter().name).toBe("a");
+    expect(filters.defaultFilter()).toEqual(a);
+    expect(filters.defaultFilter() === a).toBe(true);
   });
 
   it("findFilter() finds a filter by name, case-insensitively", () => {
@@ -51,14 +36,14 @@ describe("DashboardFilters", () => {
   });
 
   it("findFilter() falls back to defaultFilter when it cannot resolve a filter by name", () => {
-    expect(new DashboardFilters([def, a]).findFilter("c")).toEqual(def);
+    expect(new DashboardFilters([a, b]).findFilter("c")).toEqual(a);
 
     const filters = new DashboardFilters([a]);
     const found = filters.findFilter("c");
 
-    expect(found.name).toBe("Default");
-    expect(filters.names()).toEqual(["Default", "a"]);
-    expect(found).toEqual({name: "Default", state: [], type: "blacklist", pipelines: []});
+    expect(found.name).toBe("a");
+    expect(filters.names()).toEqual(["a"]);
+    expect(found).toEqual(a);
   });
 
   it("addFilter() appends a filter", () => {

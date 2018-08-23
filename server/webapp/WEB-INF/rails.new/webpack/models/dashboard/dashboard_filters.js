@@ -17,12 +17,6 @@
 const _ = require("lodash");
 
 function DashboardFilters(filters) {
-  const NAME_DEFAULT_FILTER = "Default";
-
-  function defaultDef() {
-    return {name: NAME_DEFAULT_FILTER, state: [], type: "blacklist", pipelines: []};
-  }
-
   this.clone = function clone() {
     return new DashboardFilters(_.map(this.filters, (f) => _.cloneDeep(f)));
   };
@@ -34,11 +28,6 @@ function DashboardFilters(filters) {
 
     if (idx !== -1) {
       this.filters.splice(idx, 1, updatedFilter);
-
-      // make sure there is always a default filter, even if we try to rename it.
-      if (oldName.toLowerCase() === NAME_DEFAULT_FILTER.toLowerCase() && !matchName(NAME_DEFAULT_FILTER)(updatedFilter)) {
-        this.filters.unshift(defaultDef());
-      }
     } else {
       console.error(`Couldn't locate filter named [${oldName}]; this shouldn't happen. Falling back to append().`); // eslint-disable-line no-console
       this.addFilter(updatedFilter);
@@ -60,17 +49,7 @@ function DashboardFilters(filters) {
     move(this.filters, from, to);
   };
 
-  this.defaultFilter = () => {
-    const f = _.find(this.filters, matchName(NAME_DEFAULT_FILTER));
-
-    if (!f) {
-      const blank = defaultDef();
-      this.filters.unshift(blank);
-      return blank;
-    }
-
-    return f;
-  };
+  this.defaultFilter = () => this.filters[0] ;
 
   this.names = () => {
     return _.map(this.filters, "name");

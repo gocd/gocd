@@ -74,7 +74,7 @@ $(() => {
    */
   function currentView(viewName, replace=false) {
     const current = queryObject();
-    if (!arguments.length) { return current.viewName || "Default"; }
+    if (!arguments.length) { return current.viewName || personalizeVM.names()[0]; }
 
     const route = window.location.hash.replace(/^#!/, "");
 

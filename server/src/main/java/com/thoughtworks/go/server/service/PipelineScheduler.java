@@ -86,6 +86,9 @@ public class PipelineScheduler implements ConfigChangedListener, GoMessageListen
             public void onEntityConfigChange(PipelineConfig pipelineConfig) {
                 synchronized (pipelines) {
                     addPipelineIfNotPresent(pipelineConfig, pipelines);
+                    if (!goConfigService.getAllPipelineConfigs().contains(pipelineConfig)) {
+                        pipelines.remove(pipelineConfig.name().toString());
+                    }
                 }
             }
         };

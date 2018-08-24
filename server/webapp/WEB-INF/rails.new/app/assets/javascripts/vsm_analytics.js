@@ -74,7 +74,7 @@
     PluginEndpoint.ensure("v1");
   }
 
-  var showAnalytics = function(options) {
+  var showAnalytics = function showAnalytics(options) {
     var div = document.createElement("div");
     defineHandlers(options.vsmAnalyticsChart.id);
     $j(div).addClass("vsm_modal");

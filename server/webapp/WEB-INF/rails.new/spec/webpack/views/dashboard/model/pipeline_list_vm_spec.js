@@ -19,6 +19,25 @@ const Stream            = require("mithril/stream");
 const PipelineListVM = require("views/dashboard/models/pipeline_list_vm");
 
 describe("Pipeline List View Model", () => {
+  it("only displays pipelines that include the search term", () => {
+    const all = { group1: "abc".split(""), group2: "ab,cd".split(",") };
+    const sel = _st({ a: true, b: true, c: true, ab: true, cd: false });
+    const model = new PipelineListVM(all, sel);
+    model.searchTerm("b");
+
+    const names = getPipelineNames(model.displayedList());
+    expect(names).toEqual(["ab", "b"]);
+  });
+
+  it("displays all pipelines if no search term", () => {
+    const all = { group1: "abc".split(""), group2: "def".split("") };
+    const sel = _st({ a: true, b: true, c: true, d: false, e: true, f: false });
+    const model = new PipelineListVM(all, sel);
+
+    const names = getPipelineNames(model.displayedList());
+    expect(names).toEqual(("abcdef").split(""));
+  });
+
   it("automatically calculates group selection state", () => {
     const all = { group1: "abc".split(""), group2: "def".split("") };
     const sel = _st({ a: true, b: true, c: true, d: false, e: true, f: false });
@@ -115,4 +134,8 @@ function uncheck(stream) {
 
 function _st(obj) {
   return _.reduce(obj, (m, v, k) => { m[k] = v instanceof Stream ? v : Stream(v); return m; }, {});
+}
+
+function getPipelineNames(list) {
+  return _.reduce(list, (r, g) => r.concat(_.map(g.pipelines, "name")), []).sort();
 }

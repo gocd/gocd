@@ -35,6 +35,13 @@ const FilterNameInput = {
   }
 };
 
+const PipelineNameSearch = {
+  view(vnode) {
+    const vm = vnode.attrs.vm;
+    return <f.input class="pipeline-search" model={vm} attrName="searchTerm" placeholder="Search for a Pipeline" onModelUpdate={vm.displayedList()} />;
+  }
+};
+
 const BlanketSelector = {
   view(vnode) {
     const vm = vnode.attrs.vm;
@@ -87,12 +94,6 @@ const SelectedPipelineList = {
   }
 };
 
-const PipelineNameSearch = { //eslint-disable-line no-unused-vars
-  view() {
-      return <input type="text" class="search-pipelines" placeholder="Search for a Pipeline" />;
-  }
-};
-
 const AlertContainer = {
   view(vnode) {
     const vm = vnode.attrs.vm;
@@ -112,6 +113,9 @@ const PersonalizationModalWidget = {
     return <div class="personalize-editor-controls">
       <AlertContainer vm={vm} />
       <FilterNameInput {...vnode.attrs} />
+      <section class="pipeline-search-container">
+        <PipelineNameSearch vm={vm.selectionVM} />
+      </section>
       <section class="filter-options">
         <BlanketSelector vm={vm.selectionVM} />
         <f.checkbox name="include-new-pipelines" model={vm} attrName="includeNewPipelines" label="Show newly created pipelines" />

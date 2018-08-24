@@ -18,17 +18,26 @@ const _      = require("lodash");
 const Stream = require("mithril/stream");
 
 function PipelineListVM(pipelinesByGroup, currentSelection) {
-  let i = 0;
-  const displayed = _.reduce(pipelinesByGroup, (memo, pip, grp) => {
-    memo[grp] = {
-      expanded: Stream(0 === i++),
-      selected: groupSelection(currentSelection, pip),
-      pipelines: _.map(pip, (p) => { return {name: p, selected: boolByName(currentSelection, p)}; })
-    };
-    return memo;
-  }, {});
 
-  this.displayedList = function displayedList() { return displayed; };
+  const searchTerm = Stream();
+
+  this.searchTerm = searchTerm;
+  this.displayedList = function displayedList() {
+    const search = searchTerm();
+
+    return _.reduce(pipelinesByGroup, (memo, pips, grp) => {
+      const pipelines = search ? _.filter(pips, (p) => _.includes(p, search)) : pips;
+
+      if (pipelines.length) {
+        memo[grp] = {
+          expanded: Stream(!!search),
+          selected: groupSelection(currentSelection, pips),
+          pipelines: _.map(pipelines, (p) => { return {name: p, selected: boolByName(currentSelection, p)}; })
+        };
+      }
+      return memo;
+    }, {});
+  };
 
   this.pipelines = function pipelines(invert) {
     return _.reduce(currentSelection, (m, v, k) => {

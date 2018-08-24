@@ -64,7 +64,7 @@
           type:     "POST",
           dataType: "json",
           data:     jsonData
-        }).done((r) => {
+        }).done(function (r) {
           handler(r.data, null);
         });
       }

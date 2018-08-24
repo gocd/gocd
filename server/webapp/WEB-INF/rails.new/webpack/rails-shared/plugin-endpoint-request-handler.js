@@ -50,7 +50,7 @@
           delete params.type;
           delete params.metric;
 
-          model.fetch(`/go/analytics/${meta.pluginId}/${type}/${metric}?${serialize(params)}`, function (data, errors) {
+          model.fetch("/go/analytics/" + meta.pluginId + "/" + type + "/" + metric + "?" + serialize(params), function (data, errors) {
             trans.respond({data: data, errors: errors});
           });
         }

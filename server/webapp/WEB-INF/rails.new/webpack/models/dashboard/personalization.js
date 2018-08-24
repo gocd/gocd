@@ -63,10 +63,11 @@ Personalization.fromJSON = (json) => {
   return new Personalization(json.filters);
 };
 
-Personalization.getPipelines = () => {
+Personalization.getPipelines = (etag) => {
   return AjaxHelper.GET({
     url:        SparkRoutes.pipelineSelectionPipelinesDataPath(),
-    apiVersion: 'v1'
+    apiVersion: 'v1',
+    etag
   });
 };
 

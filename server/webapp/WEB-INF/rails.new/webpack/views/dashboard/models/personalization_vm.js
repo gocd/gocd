@@ -20,18 +20,19 @@ const Personalization = require("models/dashboard/personalization");
 const DashboardFilter = require("models/dashboard/dashboard_filter");
 
 function PersonalizationVM(currentView) {
-  const names         = Stream([]);
-  const tabSettingsDD = Stream(false);
-  const tabsListDD    = Stream(false);
-  const checksum      = Stream();
-  const model         = Stream();
-  const errorMessage  = Stream();
-  const loadingView   = Stream(false);
+  const names             = Stream([]);
+  const tabSettingsDD     = Stream(false);
+  const tabsListDD        = Stream(false);
+  const checksum          = Stream();
+  const pipelinesChecksum = Stream();
+  const model             = Stream();
+  const errorMessage      = Stream();
+  const loadingView       = Stream(false);
 
-  const paged         = Stream(false); // flag indicating whether the view tabs need scrollable behavior
-  const currentVnode  = Stream(); // handle on current tab's vnode; allows sharing state between components
-  const stagedSort    = Stream(null);
-  const actionPopup   = Stream(null);
+  const paged             = Stream(false); // flag indicating whether the view tabs need scrollable behavior
+  const currentVnode      = Stream(); // handle on current tab's vnode; allows sharing state between components
+  const stagedSort        = Stream(null);
+  const actionPopup       = Stream(null);
 
   let requestPending, tick;
 
@@ -60,13 +61,16 @@ function PersonalizationVM(currentView) {
 
   const changeListeners = [];
 
-  _.assign(this, {model, names, currentView, etag: checkForUpdates, checksum, errorMessage, loadingView, paged, currentVnode, stagedSort, actionPopup});
+  _.assign(this, {model, names, currentView, etag: checkForUpdates, checksum, errorMessage, loadingView, paged, currentVnode, stagedSort, actionPopup, pipelinesChecksum});
 
   this.tabs = () => _.map(stagedSort() ? stagedSort().names() : names(), (name) => { return {id: name, name}; });
 
   this.updatePipelineGroups = () => {
-    return Personalization.getPipelines().done((data) => {
-      model().pipelineGroups(data.pipelines);
+    return Personalization.getPipelines(pipelinesChecksum()).then((data, _textStatus, xhr) => {
+      if (304 !== xhr.status) {
+        model().pipelineGroups(data.pipelines);
+        pipelinesChecksum(parseEtag(xhr));
+      }
     });
   };
 

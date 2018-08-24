@@ -19,21 +19,47 @@ const Stream = require("mithril/stream");
 
 function PipelineListVM(pipelinesByGroup, currentSelection) {
 
-  const searchTerm = Stream();
+  const searchTerm = Stream("");
 
   this.searchTerm = searchTerm;
-  this.displayedList = function displayedList() {
-    const search = searchTerm();
 
-    return _.reduce(pipelinesByGroup, (memo, pips, grp) => {
-      const pipelines = search ? _.filter(pips, (p) => _.includes(p, search)) : pips;
+  const fullPipelineList = _.reduce(pipelinesByGroup, (memo, pipelines, group) => {
+    const exp = Stream(false);
+    const expWithSearch = Stream(true);
+
+    /**
+     * This function lets us wrap 2 separate states per group; one while searching, the other while not.
+     * By keeping two distinct states, we can restore the user's prior expanded/collapsed states once
+     * the user clears the search term.
+     */
+    function expanded(bool) {
+      const search = !_.isEmpty(searchTerm().trim()); // is there a search in progress?
+
+      if (!arguments.length) { return search ? expWithSearch() : (expWithSearch(true) /* reset default state when search is cleared */ && exp()); }
+
+      // depending on whether we are searching, decide which state to persist
+      if (!search) { return exp(bool); }
+      return expWithSearch(bool);
+    }
+
+    memo[group] = {
+      expanded,
+      selected: groupSelection(currentSelection, pipelines),
+      pipelines: _.map(pipelines, (p) => { return {name: p, selected: boolByName(currentSelection, p)}; })
+    };
+    return memo;
+  }, {});
+
+  this.displayedList = function displayedList() {
+    const search = searchTerm().trim();
+
+    if (!search) { return fullPipelineList; }
+
+    return _.reduce(fullPipelineList, (memo, groupModel, groupName) => {
+      const pipelines = _.filter(groupModel.pipelines, (p) => _.includes(p.name, search));
 
       if (pipelines.length) {
-        memo[grp] = {
-          expanded: Stream(!!search),
-          selected: groupSelection(currentSelection, pips),
-          pipelines: _.map(pipelines, (p) => { return {name: p, selected: boolByName(currentSelection, p)}; })
-        };
+        memo[groupName] = _.assign({}, groupModel, { pipelines });
       }
       return memo;
     }, {});

@@ -16,10 +16,6 @@
 
 package com.thoughtworks.go.apiv1.pipelineselection.representers
 
-import com.thoughtworks.go.config.BasicPipelineConfigs
-import com.thoughtworks.go.config.CaseInsensitiveString
-import com.thoughtworks.go.config.PipelineConfig
-import com.thoughtworks.go.config.PipelineConfigs
 import com.thoughtworks.go.testhelpers.FiltersHelper
 import net.javacrumbs.jsonunit.fluent.JsonFluentAssert
 import org.junit.jupiter.api.Nested

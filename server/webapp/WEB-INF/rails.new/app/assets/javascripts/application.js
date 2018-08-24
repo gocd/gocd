@@ -63,5 +63,6 @@
 //= require "ajax_popup_handler.js"
 //= require "compare_pipelines.js"
 //= require "console_log_tailing.js"
+//= require "vsm_analytics.js"
 //= require "js-routes"
 //= require_directory .

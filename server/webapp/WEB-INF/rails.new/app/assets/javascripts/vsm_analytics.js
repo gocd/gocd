@@ -74,7 +74,7 @@
     PluginEndpoint.ensure("v1");
   }
 
-  function showAnalytics(options) {
+  var showAnalytics = function showAnalytics(options) {
     var div = document.createElement("div");
     defineHandlers(options.vsmAnalyticsChart.id);
     $j(div).addClass("vsm_modal");
@@ -113,7 +113,7 @@
     });
   };
 
-  function VSMAnalytics(data, graphRenderer, vsmAnalyticsChart, analyticsPanel, analyticsButton) {
+  var VSMAnalytics = function VSMAnalytics(data, graphRenderer, vsmAnalyticsChart, analyticsPanel, analyticsButton) {
     var self              = this;
     var panel             = analyticsPanel;
     var analyticsButton   = analyticsButton;

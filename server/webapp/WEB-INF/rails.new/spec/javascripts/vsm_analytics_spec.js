@@ -15,7 +15,6 @@
  */
 
 describe("vsm_analytics", function () {
-
   function VSMRenderer() {}
 
   AnalyticsPanel = {

@@ -549,9 +549,9 @@ module ApplicationHelper
   end
 
   def first_plugin_which_supports_vsm_analytics
-    default_plugin_info_finder.allPluginInfos(PluginConstants.ANALYTICS_EXTENSION).each do |combined_plugin_info|
+    default_plugin_info_finder.allPluginInfos(PluginConstants.ANALYTICS_EXTENSION).find do |combined_plugin_info|
       extension_info = combined_plugin_info.extensionFor(PluginConstants.ANALYTICS_EXTENSION)
-      return extension_info if extension_info.getCapabilities().supportsVSMAnalytics()
+      extension_info if extension_info.getCapabilities().supportsVSMAnalytics()
     end
   end
 

@@ -620,14 +620,20 @@ describe ApplicationHelper do
 
     end
 
-    describe "show_vsm_analytics_path" do
-      it "should be the path to first plugin which supports vsm analytics" do
+    describe "vsm_analytics_chart_info" do
+      it "should return info of first plugin which supports vsm analytics" do
         def default_plugin_info_finder; @default_plugin_info_finder; end
         def is_user_an_admin?; true; end
 
         allow(@default_plugin_info_finder).to receive('allPluginInfos').with(PluginConstants.ANALYTICS_EXTENSION).and_return([@plugin_info1, @plugin_info2, @plugin_info3, @plugin_info4])
 
-        expect(show_vsm_analytics_path).to eq('/analytics/plugin1/vsm/id1')
+        expected = {
+          "id"        => "id1",
+          "plugin_id" => "plugin1",
+          "type"      => "vsm",
+          "url"       => "/analytics/plugin1/vsm/id1"
+        }
+        expect(vsm_analytics_chart_info).to eq(expected)
       end
     end
 

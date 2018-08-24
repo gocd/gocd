@@ -28,20 +28,29 @@
     var GoCDLinkSupport = window.GoCDLinkSupport;
   }
 
+  var serialize = function (obj) {
+    var str = [];
+    for (var p in obj)
+      if (obj.hasOwnProperty(p)) {
+        str.push(encodeURIComponent(p) + "=" + encodeURIComponent(obj[p]));
+      }
+    return str.join("&");
+  };
+
   var PluginEndpointRequestHandler = {
     defineFetchAnalyticsHandler: function defineFetchAnalyticsHandler(models) {
       PluginEndpoint.define({
         "go.cd.analytics.v1.fetch-analytics": function goCdAnalyticsV1FetchAnalytics(message, trans) {
           var meta   = message.head,
               model  = models[meta.uid],
-              params = $.extend({}, message.body),
+              params = message.body,
               type   = params.type,
               metric = params.metric;
 
           delete params.type;
           delete params.metric;
 
-          model.fetch(Routes.showAnalyticsPath(meta.pluginId, type, metric, params), function (data, errors) {
+          model.fetch(`/go/analytics/${meta.pluginId}/${type}/${metric}?${serialize(params)}`, function (data, errors) {
             trans.respond({data: data, errors: errors});
           });
         }
@@ -52,7 +61,7 @@
       PluginEndpoint.define({
         "go.cd.analytics.v1.link-external": function goCdAnalyticsV1LinkExternal(message, trans) {
           var params = _.clone(message.body),
-                 url = params.url;
+              url    = params.url;
           window.open(url, "_blank").focus();
         },
 

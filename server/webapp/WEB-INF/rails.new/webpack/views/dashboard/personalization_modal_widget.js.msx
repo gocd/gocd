@@ -38,7 +38,7 @@ const FilterNameInput = {
 const PipelineNameSearch = {
   view(vnode) {
     const vm = vnode.attrs.vm;
-    return <f.input class="pipeline-search" model={vm} attrName="searchTerm" placeholder="Search for a Pipeline" onModelUpdate={vm.displayedList()} />;
+    return <f.input class="pipeline-search" model={vm} attrName="searchTerm" placeholder="Search for a Pipeline" />;
   }
 };
 

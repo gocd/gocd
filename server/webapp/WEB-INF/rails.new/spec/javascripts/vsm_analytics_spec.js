@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-describe("vsm_analytics", function () {
+xdescribe("vsm_analytics", function () {
 
   function VSMRenderer() {}
 

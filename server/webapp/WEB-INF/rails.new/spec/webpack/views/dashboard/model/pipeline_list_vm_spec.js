@@ -14,11 +14,54 @@
  * limitations under the License.
  */
 
-const _                 = require("lodash");
-const Stream            = require("mithril/stream");
+const _              = require("lodash");
+const Stream         = require("mithril/stream");
 const PipelineListVM = require("views/dashboard/models/pipeline_list_vm");
 
 describe("Pipeline List View Model", () => {
+  it("restores prior expand/collapse state after clearing search", () => {
+    const all = { group1: "abc".split(""), group2: "ab,cd".split(","), group3: "de".split("") };
+    const sel = _st({ a: true, b: true, c: true, ab: true, cd: false, d: false, e: false });
+    const model = new PipelineListVM(all, sel);
+
+    expect(collectExpandedGroups(model.displayedList())).toEqual([]); // all collapsed by default
+
+    // expand group2
+    model.displayedList().group2.expanded(true);
+    expect(collectExpandedGroups(model.displayedList())).toEqual(["group2"]);
+
+    // search term should match both groups
+    model.searchTerm("a");
+    expect(collectExpandedGroups(model.displayedList())).toEqual(["group1", "group2"]); // all matches expanded by default in search
+
+    // collapse group2 while in search results
+    model.displayedList().group2.expanded(false);
+    expect(collectExpandedGroups(model.displayedList())).toEqual(["group1"]); // should honor expand/collapse during search
+
+    // clear search term
+    model.searchTerm("");
+    expect(collectExpandedGroups(model.displayedList())).toEqual(["group2"]); // should restore expand/collapse state to that of prior to search
+  });
+
+  it("only displays pipelines that include the search term", () => {
+    const all = { group1: "abc".split(""), group2: "ab,cd".split(",") };
+    const sel = _st({ a: true, b: true, c: true, ab: true, cd: false });
+    const model = new PipelineListVM(all, sel);
+    model.searchTerm("b");
+
+    const names = getPipelineNames(model.displayedList());
+    expect(names).toEqual(["ab", "b"]);
+  });
+
+  it("displays all pipelines if no search term", () => {
+    const all = { group1: "abc".split(""), group2: "def".split("") };
+    const sel = _st({ a: true, b: true, c: true, d: false, e: true, f: false });
+    const model = new PipelineListVM(all, sel);
+
+    const names = getPipelineNames(model.displayedList());
+    expect(names).toEqual(("abcdef").split(""));
+  });
+
   it("automatically calculates group selection state", () => {
     const all = { group1: "abc".split(""), group2: "def".split("") };
     const sel = _st({ a: true, b: true, c: true, d: false, e: true, f: false });
@@ -115,4 +158,15 @@ function uncheck(stream) {
 
 function _st(obj) {
   return _.reduce(obj, (m, v, k) => { m[k] = v instanceof Stream ? v : Stream(v); return m; }, {});
+}
+
+function collectExpandedGroups(groups) {
+  return _.reduce(groups, (m, v, k) => {
+    if (v.expanded()) { m.push(k); }
+    return m;
+  }, []).sort();
+}
+
+function getPipelineNames(list) {
+  return _.reduce(list, (r, g) => r.concat(_.map(g.pipelines, "name")), []).sort();
 }

@@ -45,9 +45,9 @@ const PipelineHeaderWidget = {
     const analyticsIcons = [];
     if (pipeline.canAdminister && !pipeline.isDefinedInConfigRepo()) {
       const settingsPath = vnode.attrs.isQuickEditPageEnabled ? pipeline.quickEditPath : pipeline.settingsPath;
-      settingsButton     = (<a class={`edit_config`} arial-label="Edit Pipeline Configuration" title={'Edit Pipeline Configuration'} href={settingsPath}/>);
+      settingsButton     = (<a class={`edit_config`} aria-label="Edit Pipeline Configuration" title={'Edit Pipeline Configuration'} href={settingsPath}/>);
     } else {
-      settingsButton = (<f.link class="edit_config disabled" arial-label="Edit Configuration Disabled" title={'Edit Configuration Disabled'}
+      settingsButton = (<f.link class="edit_config disabled" aria-label="Edit Configuration Disabled" title={'Edit Configuration Disabled'}
                                 tooltipText={pipeline.getSettingsDisabledTooltipText()}/>);
     }
 
@@ -60,7 +60,7 @@ const PipelineHeaderWidget = {
     let pipelineLockButton;
     if (pipeline.isLocked) {
       pipelineLockButton = pipeline.canUnlock
-        ? (<button onclick={vnode.state.unlock.bind(vnode.state, pipeline)} arial-label="Pipeline Locked" title={'Pipeline Locked'} className="pipeline_locked"/>)
+        ? (<button onclick={vnode.state.unlock.bind(vnode.state, pipeline)} aria-label="Pipeline Locked" title={'Pipeline Locked'} className="pipeline_locked"/>)
         : (<f.button className="pipeline_locked disabled"
                      tooltipText={pipeline.getLockDisabledTooltipText()}/>);
     }

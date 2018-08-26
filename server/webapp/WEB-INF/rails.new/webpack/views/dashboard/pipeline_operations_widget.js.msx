@@ -201,13 +201,13 @@ const PipelineOperationsWidget = {
           <li>
             <f.button onclick={!pipeline.triggerDisabled() && vnode.state.trigger.bind(vnode.state, pipeline)}
                       class={`pipeline_btn play ${(pipeline.triggerDisabled() ? 'disabled' : '')}`}
-                      tooltipText={triggerButtonsTooltipText} arial-label={playTitlenLabel} title={playTitlenLabel}/>
+                      tooltipText={triggerButtonsTooltipText} aria-label={playTitlenLabel} title={playTitlenLabel}/>
           </li>
           <li>
             <f.button
               onclick={!pipeline.triggerDisabled() && vnode.state.showTriggerWithOptionsPopup.bind(vnode.state, pipeline)}
               class={`pipeline_btn play_with_options ${(pipeline.triggerDisabled() ? 'disabled' : '')}`}
-              tooltipText={triggerButtonsTooltipText} arial-label={playWithOptionsTitlenLabel}
+              tooltipText={triggerButtonsTooltipText} aria-label={playWithOptionsTitlenLabel}
               title={playWithOptionsTitlenLabel}/>
           </li>
           <li>

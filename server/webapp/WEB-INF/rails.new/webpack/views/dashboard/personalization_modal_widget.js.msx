@@ -42,7 +42,7 @@ const FilterNameInput = {
 const PipelineNameSearch = {
   view(vnode) {
     const vm = vnode.attrs.vm;
-    return <f.input class="pipeline-search" model={vm} attrName="searchTerm" placeholder="Search for a Pipeline" />;
+    return <f.input class="search-pipelines" disabled={!vm} model={vm} attrName="searchTerm" placeholder="Search for a Pipeline" />;
   }
 };
 
@@ -51,8 +51,8 @@ const BlanketSelector = {
     const vm = vnode.attrs.vm;
     return <div class="blanket-selection">
       <strong>Select pipelines</strong>
-      <f.button class="btn btn-small btn-secondary" onclick={vm.selectAll}>All</f.button>
-      <f.button class="btn btn-small btn-secondary" onclick={vm.selectNone}>None</f.button>
+      <f.button class="btn btn-small btn-secondary" disabled={!vm} onclick={vm && vm.selectAll}>All</f.button>
+      <f.button class="btn btn-small btn-secondary" disabled={!vm} onclick={vm && vm.selectNone}>None</f.button>
     </div>;
   }
 };
@@ -89,6 +89,13 @@ const PipelineGroupSelection = {
 
 const SelectedPipelineList = {
   view(vnode) {
+    const vm = vnode.attrs.vm;
+
+    if (!vm) { return <div class="loading-pipelines">
+        <i class="spinner"/> Loading pipelines&hellip;
+      </div>;
+    }
+
     const groups = vnode.attrs.vm.displayedList();
     return m("ul", {class: "selected-pipelines"},
       _.map(groups, (groupVM, name) => {
@@ -118,15 +125,15 @@ const PersonalizationModalWidget = {
       <AlertContainer vm={vm} />
       <FilterNameInput {...vnode.attrs} />
       <section class="pipeline-search-container">
-        <PipelineNameSearch vm={vm.selectionVM} />
+        <PipelineNameSearch vm={vm.selectionVM()} />
       </section>
       <section class="filter-options">
-        <BlanketSelector vm={vm.selectionVM} />
+        <BlanketSelector vm={vm.selectionVM()} />
         <f.checkbox name="include-new-pipelines" model={vm} attrName="includeNewPipelines" label="Show newly created pipelines" />
         <StageStateCriteria vm={vm} />
       </section>
       <section class="pipeline-selections">
-        <SelectedPipelineList vm={vm.selectionVM} />
+        <SelectedPipelineList vm={vm.selectionVM()} />
       </section>
     </div>;
   }

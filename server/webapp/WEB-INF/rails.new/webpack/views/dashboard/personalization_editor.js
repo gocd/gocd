@@ -27,6 +27,11 @@ function personalizeEditor(opts, personalization, model) {
   const vm = new PersonalizeEditorVM(opts, personalization().pipelineGroups());
   const existing = opts.name;
 
+  model.updatePipelineGroups().then(() => {
+    vm.onLoadPipelines(model.model().pipelineGroups());
+    m.redraw();
+  });
+
   function save() {
     vm.validate();
     if (vm.invalid()) { return; }

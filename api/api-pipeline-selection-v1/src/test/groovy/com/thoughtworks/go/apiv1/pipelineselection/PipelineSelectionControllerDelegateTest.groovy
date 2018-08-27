@@ -19,6 +19,8 @@ package com.thoughtworks.go.apiv1.pipelineselection
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
 import com.thoughtworks.go.apiv1.pipelineselection.representers.PipelineSelectionResponse
 import com.thoughtworks.go.apiv1.pipelineselection.representers.PipelineSelectionsRepresenter
+import com.thoughtworks.go.apiv1.pipelineselection.representers.PipelinesDataRepresenter
+import com.thoughtworks.go.apiv1.pipelineselection.representers.PipelinesDataResponse
 import com.thoughtworks.go.config.BasicPipelineConfigs
 import com.thoughtworks.go.config.CaseInsensitiveString
 import com.thoughtworks.go.config.PipelineConfig
@@ -28,6 +30,7 @@ import com.thoughtworks.go.server.domain.user.PipelineSelections
 import com.thoughtworks.go.server.service.PipelineConfigService
 import com.thoughtworks.go.server.service.PipelineSelectionsService
 import com.thoughtworks.go.spark.ControllerTrait
+import com.thoughtworks.go.spark.Routes
 import com.thoughtworks.go.spark.SecurityServiceTrait
 import com.thoughtworks.go.spark.util.SecureRandom
 import com.thoughtworks.go.testhelpers.FiltersHelper
@@ -72,7 +75,7 @@ class PipelineSelectionControllerDelegateTest implements SecurityServiceTrait, C
         assertThatResponse()
           .isOk()
           .hasContentType(controller.mimeType)
-          .hasBodyWithJson(PipelineSelectionsRepresenter.toJSON(new PipelineSelectionResponse(selections.viewFilters(), pipelineConfigs)))
+          .hasBodyWithJson(PipelineSelectionsRepresenter.toJSON(new PipelineSelectionResponse(selections.viewFilters())))
       }
     }
 
@@ -103,7 +106,67 @@ class PipelineSelectionControllerDelegateTest implements SecurityServiceTrait, C
         assertThatResponse()
           .isOk()
           .hasContentType(controller.mimeType)
-          .hasBodyWithJson(PipelineSelectionsRepresenter.toJSON(new PipelineSelectionResponse(selections.viewFilters(), pipelineConfigs)))
+          .hasBodyWithJson(PipelineSelectionsRepresenter.toJSON(new PipelineSelectionResponse(selections.viewFilters())))
+      }
+    }
+  }
+
+  @Nested
+  class PipelinesData {
+
+    @Nested
+    class AsAuthorizedUser {
+      @Test
+      void 'returns the viewable pipelines'() {
+        enableSecurity()
+        loginAsUser()
+
+        def group1 = new BasicPipelineConfigs(group: "grp1")
+        def group2 = new BasicPipelineConfigs(group: "grp2")
+        group2.add(new PipelineConfig(name: new CaseInsensitiveString("pipeline1")))
+        group2.add(new PipelineConfig(name: new CaseInsensitiveString("pipeline2")))
+
+        List<PipelineConfigs> pipelineConfigs = [group1, group2]
+
+        when(pipelineConfigService.viewableGroupsFor(currentUsername())).thenReturn(pipelineConfigs)
+
+        getWithApiHeader(controller.controllerPath(Routes.PipelineSelection.PIPELINES_DATA))
+
+        assertThatResponse()
+          .isOk()
+          .hasContentType(controller.mimeType)
+          .hasBodyWithJson(PipelinesDataRepresenter.toJSON(new PipelinesDataResponse(pipelineConfigs)))
+      }
+    }
+
+    @Nested
+    class AsAnonymousUser {
+      @Test
+      void 'returns the pipeline selection from cookie'() {
+        disableSecurity()
+        loginAsAnonymous()
+
+        def selections = new PipelineSelections(FiltersHelper.blacklist(["build-linux", "build-windows"]), new Date(), currentUserLoginId())
+
+        def group1 = new BasicPipelineConfigs(group: "grp1")
+        def group2 = new BasicPipelineConfigs(group: "grp2")
+        group2.add(new PipelineConfig(name: new CaseInsensitiveString("pipeline1")))
+        group2.add(new PipelineConfig(name: new CaseInsensitiveString("pipeline2")))
+
+        List<PipelineConfigs> pipelineConfigs = [group1, group2]
+
+        String cookieId = SecureRandom.hex()
+
+        when(pipelineSelectionsService.load(cookieId, currentUserLoginId())).thenReturn(selections)
+        when(pipelineConfigService.viewableGroupsFor(currentUsername())).thenReturn(pipelineConfigs)
+
+        httpRequestBuilder.withCookies(new Cookie("selected_pipelines", cookieId))
+        getWithApiHeader(controller.controllerBasePath())
+
+        assertThatResponse()
+          .isOk()
+          .hasContentType(controller.mimeType)
+          .hasBodyWithJson(PipelineSelectionsRepresenter.toJSON(new PipelineSelectionResponse(selections.viewFilters())))
       }
     }
   }

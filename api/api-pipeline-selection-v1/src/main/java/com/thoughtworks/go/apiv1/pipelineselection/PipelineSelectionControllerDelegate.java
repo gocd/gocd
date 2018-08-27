@@ -24,7 +24,12 @@ import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
 import com.thoughtworks.go.api.util.HaltApiResponses;
 import com.thoughtworks.go.apiv1.pipelineselection.representers.PipelineSelectionResponse;
 import com.thoughtworks.go.apiv1.pipelineselection.representers.PipelineSelectionsRepresenter;
+import com.thoughtworks.go.apiv1.pipelineselection.representers.PipelinesDataRepresenter;
+import com.thoughtworks.go.apiv1.pipelineselection.representers.PipelinesDataResponse;
+import com.thoughtworks.go.config.CaseInsensitiveString;
+import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.PipelineConfigs;
+import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.domain.user.FilterValidationException;
 import com.thoughtworks.go.server.domain.user.Filters;
 import com.thoughtworks.go.server.domain.user.PipelineSelections;
@@ -32,12 +37,16 @@ import com.thoughtworks.go.server.service.PipelineConfigService;
 import com.thoughtworks.go.server.service.PipelineSelectionsService;
 import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.util.SystemEnvironment;
+import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpStatus;
 import spark.Request;
 import spark.Response;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 import static java.lang.String.format;
 import static spark.Spark.*;
@@ -78,14 +87,28 @@ public class PipelineSelectionControllerDelegate extends ApiController {
             before("", this::verifyContentType);
             before("/*", this::verifyContentType);
 
+            get(Routes.PipelineSelection.PIPELINES_DATA, mimeType, this::pipelinesData);
             get("", mimeType, this::show);
             put("", mimeType, this::update);
         });
     }
 
+    public String pipelinesData(Request request, Response response) {
+        List<PipelineConfigs> groups = pipelineConfigService.viewableGroupsFor(currentUsername());
+        String etag = calcPipelinesDataEtag(currentUsername(), groups);
+
+        if (fresh(request, etag)) {
+            return notModified(response);
+        }
+
+        setEtagHeader(response, etag);
+
+        PipelinesDataResponse pipelineSelectionResponse = new PipelinesDataResponse(groups);
+        return PipelinesDataRepresenter.toJSON(pipelineSelectionResponse);
+    }
+
     public String show(Request request, Response response) {
         String fromCookie = request.cookie(COOKIE_NAME);
-        List<PipelineConfigs> groups = pipelineConfigService.viewableGroupsFor(currentUsername());
         PipelineSelections pipelineSelections = pipelineSelectionsService.load(fromCookie, currentUserId(request));
 
         if (fresh(request, pipelineSelections.etag())) {
@@ -94,7 +117,7 @@ public class PipelineSelectionControllerDelegate extends ApiController {
 
         setEtagHeader(response, pipelineSelections.etag());
 
-        PipelineSelectionResponse pipelineSelectionResponse = new PipelineSelectionResponse(pipelineSelections.viewFilters(), groups);
+        PipelineSelectionResponse pipelineSelectionResponse = new PipelineSelectionResponse(pipelineSelections.viewFilters());
 
         return PipelineSelectionsRepresenter.toJSON(pipelineSelectionResponse);
     }
@@ -123,5 +146,17 @@ public class PipelineSelectionControllerDelegate extends ApiController {
 
         response.status(OK);
         return format("{ \"contentHash\": \"%s\" }", pipelineSelectionsService.load(fromCookie, userId).etag());
+    }
+
+    private String calcPipelinesDataEtag(Username username, List<PipelineConfigs> pipelineConfigs) {
+        final HashMap<String, List<CaseInsensitiveString>> pipelinesDataSegment = new HashMap<>();
+        for (PipelineConfigs group : pipelineConfigs) {
+            final List<PipelineConfig> pipelines = group.getPipelines();
+            if (!pipelines.isEmpty()) {
+                List<CaseInsensitiveString> pipelineNames = pipelines.stream().map(PipelineConfig::name).collect(Collectors.toList());
+                pipelinesDataSegment.put(group.getGroup(), pipelineNames);
+            }
+        }
+        return DigestUtils.md5Hex(StringUtils.joinWith("/", username.getUsername(), pipelinesDataSegment));
     }
 }

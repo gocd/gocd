@@ -20,7 +20,7 @@ const Stream = require("mithril/stream");
 const FilterValidations = require("views/dashboard/models/filter_validations");
 const PipelineListVM    = require("views/dashboard/models/pipeline_list_vm");
 
-function PersonalizeEditorVM(opts, pipelinesByGroup) { // opts is usually the current filter
+function PersonalizeEditorVM(opts) { // opts is usually the current filter
   normalize(opts);
 
   FilterValidations.call(this, opts);
@@ -28,11 +28,16 @@ function PersonalizeEditorVM(opts, pipelinesByGroup) { // opts is usually the cu
   const name = Stream(opts.name);
   const type = Stream(opts.type);
   const state = Stream(opts.state);
+  const selectionVM = Stream();
 
   const inverted = () => "blacklist" === type();
 
   this.name = name;
-  this.selectionVM = PipelineListVM.create(pipelinesByGroup, inverted(), opts.pipelines);
+  this.selectionVM = selectionVM;
+
+  this.onLoadPipelines = (pipelinesByGroup) => {
+    selectionVM(PipelineListVM.create(pipelinesByGroup, inverted(), opts.pipelines));
+  };
 
   boolToList(this, state, "building");
   boolToList(this, state, "failing");
@@ -45,7 +50,7 @@ function PersonalizeEditorVM(opts, pipelinesByGroup) { // opts is usually the cu
   this.errorResponse = Stream();
 
   this.asFilter = () => {
-    const pipelines = this.selectionVM.pipelines(inverted());
+    const pipelines = selectionVM() ? [] : selectionVM().pipelines(inverted());
     return {name: name(), type: type(), pipelines, state: state()};
   };
 }

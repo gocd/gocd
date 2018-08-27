@@ -138,6 +138,21 @@
     margin-bottom: 0.75rem;
   }
 
+  .loading-pipelines {
+    @include animation(fadeIn 0.2s ease-in);
+
+    text-align: center;
+    font-size:  200%;
+
+    .spinner {
+      @include icon-before($type: spinner, $margin: 0);
+
+      &:before {
+        @include animation(spin 2s linear infinite);
+      }
+    }
+  }
+
   label {
     display: inline-block;
   }

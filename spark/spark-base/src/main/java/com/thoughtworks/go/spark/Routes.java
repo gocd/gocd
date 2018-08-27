@@ -265,6 +265,7 @@ public class Routes {
 
     public class PipelineSelection {
         public static final String BASE = "/api/internal/pipeline_selection";
+        public static final String PIPELINES_DATA = "/pipelines_data";
     }
 
     public class BuildCause {

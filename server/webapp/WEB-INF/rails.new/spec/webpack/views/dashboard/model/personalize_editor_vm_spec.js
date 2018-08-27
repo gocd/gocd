@@ -18,14 +18,14 @@ const PersonalizeEditorVM = require("views/dashboard/models/personalize_editor_v
 
 describe("Personalization Editor View Model", () => {
   it("blank config yields a wildcard filter", () => {
-    const model = new PersonalizeEditorVM({}, {});
+    const model = vm({});
 
     expect(model.asFilter().type).toBe("whitelist");
     expect(model.asFilter().pipelines).toEqual([]);
   });
 
   it("checking the includeNewPipelines() sets the filter type", () => {
-    const model = new PersonalizeEditorVM({}, {});
+    const model = vm({});
 
     check(model.includeNewPipelines);
     expect(model.asFilter().type).toBe("blacklist");
@@ -35,12 +35,12 @@ describe("Personalization Editor View Model", () => {
   });
 
   it("includeNewPipelines() represents filter type as a checkbox state", () => {
-    expect(new PersonalizeEditorVM({type: "whitelist"}, {}).includeNewPipelines()).toBe(false);
-    expect(new PersonalizeEditorVM({type: "blacklist"}, {}).includeNewPipelines()).toBe(true);
+    expect(vm({type: "whitelist"}).includeNewPipelines()).toBe(false);
+    expect(vm({type: "blacklist"}).includeNewPipelines()).toBe(true);
   });
 
   it("maps pipeline state checkboxes to states", () => {
-    const model = new PersonalizeEditorVM({}, {});
+    const model = vm({});
 
     expect(model.asFilter().state).toEqual([]);
 
@@ -55,23 +55,30 @@ describe("Personalization Editor View Model", () => {
   });
 
   it("pipeline state checkboxes represent configured pipeline state filters", () => {
-    const a = new PersonalizeEditorVM({state: []}, {});
+    const a = vm({state: []});
+
     expect(a.building()).toBe(false);
     expect(a.failing()).toBe(false);
 
-    const b = new PersonalizeEditorVM({state: ["building"]}, {});
+    const b = vm({state: ["building"]});
     expect(b.building()).toBe(true);
     expect(b.failing()).toBe(false);
 
-    const c = new PersonalizeEditorVM({state: ["failing"]}, {});
+    const c = vm({state: ["failing"]});
     expect(c.building()).toBe(false);
     expect(c.failing()).toBe(true);
 
-    const d = new PersonalizeEditorVM({state: ["building", "failing"]}, {});
+    const d = vm({state: ["building", "failing"]});
     expect(d.building()).toBe(true);
     expect(d.failing()).toBe(true);
   });
 });
+
+function vm(opts) {
+  const model = new PersonalizeEditorVM(opts);
+  model.selectionVM({pipelines: () => []});
+  return model;
+}
 
 function check(stream) {
   stream(true);

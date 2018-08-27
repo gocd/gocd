@@ -23,7 +23,6 @@ import org.apache.commons.lang3.StringUtils;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 
-import static com.thoughtworks.go.server.domain.user.DashboardFilter.DEFAULT_NAME;
 import static java.lang.String.format;
 
 public class Marshaling {
@@ -82,7 +81,7 @@ public class Marshaling {
                 throw new IllegalArgumentException("Don't know how to handle DashboardFilter implementation: " + src.getClass().getCanonicalName());
             }
 
-            serialized.getAsJsonObject().addProperty(KEY_NAME, normalizeName(src.name()));
+            serialized.getAsJsonObject().addProperty(KEY_NAME, src.name());
 
             return serialized;
         }
@@ -93,7 +92,7 @@ public class Marshaling {
         public DashboardFilter deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
             JsonObject jsonObject = json.getAsJsonObject();
 
-            final String name = normalizeName(defensivelyGetString(jsonObject, KEY_NAME));
+            final String name = defensivelyGetString(jsonObject, KEY_NAME);
             jsonObject.addProperty(KEY_NAME, name);
 
             final String type = defensivelyGetString(jsonObject, KEY_TYPE);
@@ -124,10 +123,6 @@ public class Marshaling {
         public CaseInsensitiveString deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
             return new CaseInsensitiveString(json.getAsString());
         }
-    }
-
-    private static String normalizeName(String name) {
-        return name.equalsIgnoreCase(DEFAULT_NAME) ? DEFAULT_NAME : name;
     }
 
     private static String defensivelyGetString(JsonObject obj, String key) {

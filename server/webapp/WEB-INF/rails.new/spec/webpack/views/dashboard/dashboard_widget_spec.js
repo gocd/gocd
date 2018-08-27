@@ -547,7 +547,7 @@ describe("Dashboard Widget", () => {
 
     dashboard = new Dashboard();
     const personalizeVM = new PersonalizeVM(Stream("Default"));
-    personalizeVM.model(new Personalization([], []));
+    personalizeVM.model(new Personalization([{name: "Default", state: []}], []));
     dashboard.initialize(dashboardJson);
 
     const dashboardViewModel = new DashboardVM(dashboard);

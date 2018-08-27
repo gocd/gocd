@@ -40,7 +40,7 @@ const EditTabDropdown = {
     if (vm.tabSettingsDropdownVisible()) {
       const model = vm.model;
       const current = vm.canonicalCurrentName();
-      const allowDelete = !vm.locked() && !vm.isDefault(current);
+      const allowDelete = !vm.locked() && vm.names().length !== 1;
 
       const edit = vm.actionHandler(() => Editor.open(model().namedFilter(current), model, vm));
       const remove = vm.actionHandler(() => deleteView(current, model, vm));
@@ -69,8 +69,9 @@ function deleteView(name, personalization, model) {
       text: "Yes",
       onclick: () => {
         personalization().removeFilter(name, model.etag()).done((data) => {
-          model.currentView("Default");
-          model.names(personalization().names());
+          const names = personalization().names();
+          model.currentView(names[0]);
+          model.names(names);
           model.checksum(data.contentHash);
 
           Modal.close();

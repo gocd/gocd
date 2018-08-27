@@ -164,7 +164,7 @@ public class PipelineRepositoryIntegrationTest {
     }
 
     @Test
-    public void shouldReturnEarliestPMRFor1Material() throws Exception {
+    public void shouldReturnEarliestPMRFor1Material() {
         HgMaterial hgmaterial = MaterialsMother.hgMaterial("first");
 
         PipelineConfig pipelineConfig = createPipelineConfig(PIPELINE_NAME, "stage", "job");
@@ -245,7 +245,7 @@ public class PipelineRepositoryIntegrationTest {
     }
 
     @Test
-    public void shouldReturnEarliestPMRForMultipleMaterial() throws Exception {
+    public void shouldReturnEarliestPMRForMultipleMaterial() {
         final HgMaterial hgmaterial = MaterialsMother.hgMaterial("first");
         final SvnMaterial svnMaterial = MaterialsMother.svnMaterial();
 
@@ -332,7 +332,7 @@ public class PipelineRepositoryIntegrationTest {
         long id = pipelineRepository.saveSelectedPipelines(blacklist(unSelected, null));
         PipelineSelections found = pipelineRepository.findPipelineSelectionsById(id);
 
-        final DashboardFilter filter = found.namedFilter(DEFAULT_NAME);
+        final DashboardFilter filter = found.defaultFilter();
         assertAllowsPipelines(filter, "pipeline3", "pipeline4");
         assertDeniesPipelines(filter, "pipeline1", "pipeline2");
         assertNull(found.userId());

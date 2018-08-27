@@ -66,7 +66,7 @@ public class Filters {
 
     public DashboardFilter named(String name) {
         FilterValidator.validateNamePresent(name);
-        return this.filterMap.getOrDefault(name.toLowerCase(), WILDCARD_FILTER);
+        return this.filterMap.getOrDefault(name.toLowerCase(), filters.get(0));
     }
 
     public List<DashboardFilter> filters() {

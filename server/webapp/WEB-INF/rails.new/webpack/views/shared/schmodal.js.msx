@@ -63,6 +63,7 @@ function Modal(options) {
   $(_root).show();
   let config = $.extend({}, DEFAULT, options);
   MODALS.push(config);
+  $(document.body).addClass("fixed");
 
   this.replace = (updated) => {
     MODALS.splice(MODALS.indexOf(config), 1, updated);
@@ -79,6 +80,7 @@ function close(e) {
   }
 
   const opts = MODALS.pop();
+  $(document.body).removeClass("fixed");
 
   if (opts) {
     if ("function" === typeof opts.afterClose) { opts.afterClose(); }

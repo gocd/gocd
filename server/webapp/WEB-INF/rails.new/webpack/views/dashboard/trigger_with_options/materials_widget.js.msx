@@ -72,10 +72,8 @@ const MaterialsForTriggerWidget = {
 
         <div class="v-tab_container">
           {errorSection}
-          <div class="h-tab_container">
             <MaterialInfoWidget key={materialThatShouldBeVisible.name}
                                 material={materialThatShouldBeVisible}/>
-          </div>
         </div>
       </div>);
   }

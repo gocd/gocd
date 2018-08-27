@@ -42,7 +42,7 @@ const ViewTab = {
 
     return <div class={current ? "dashboard-tab current" : "dashboard-tab"} onclick={current || switchTab} data-name={name}>
       <i class="drag-icon" />
-      <div class="tab-name">{name}</div>
+      <span class="tab-name">{name}</span>
       <DropdownToggle {...vnode.attrs} current={current} />
     </div>;
   }
@@ -59,9 +59,9 @@ const DropdownToggle = {
 
       if (vm.locked()) { classes.push("deny-action"); }
 
-      return <div class="tab-dropdown-toggle">
+      return <span class="tab-dropdown-toggle">
         <i class={classes.join(" ")} onclick={vm.locked() || toggleTabSettingsDropdown} />
-      </div>;
+      </span>;
     }
   }
 };

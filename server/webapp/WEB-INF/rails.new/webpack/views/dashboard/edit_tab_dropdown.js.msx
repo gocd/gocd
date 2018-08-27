@@ -48,8 +48,8 @@ const EditTabDropdown = {
 
       return <div class="edit-dropdown" onclick={denyAction}>
         <div class="edit-dropdown-actions">
-          <i class="dashboard-tab-action dashboard-tab-edit" onclick={edit} />
-          <i class={allowDelete ? "dashboard-tab-action dashboard-tab-remove" : "dashboard-tab-action dashboard-tab-remove deny-action"} onclick={allowDelete && remove} />
+          <button className="dashboard-tab-action" onclick={edit}><i class=" dashboard-tab-edit"  /></button>
+          <button className="dashboard-tab-action" onclick={allowDelete && remove}><i class={allowDelete ? " dashboard-tab-remove" : " dashboard-tab-remove deny-action"}  /></button>
         </div>
       </div>;
     }

@@ -1,48 +1,69 @@
 $dashboard-tab-bg: #fff;
-$dashboard-tab-primary-text-color: #943a9e;
+$dashboard-tab-primary-text-color: #943A9E;
 $dashboard-tab-secondary-text-color: #3c5d73;
 $dashboard-tab-action-button-color: #6b808c;
-$dashboard-tab-height: 50px;
+$dashboard-tab-height: 40px;
 $dashboard-add-tab-width: 40px;
 $dashboard-tab-list-toggle-width: $dashboard-add-tab-width;
 $dashboard-tabs-padding: 30px;
-$dashboard-tabs-border-color: #e9eeef;
+$dashboard-tabs-border-color: #D6E0E2;
 $dashboard-tabs-border-radius: 0;
 $dashboard-tabs-pager-width: $dashboard-add-tab-width;
 $dashboard-tab-current-marker-height: 10px;
 $dashboard-tabs-box-shadow: 0 0 10px rgba(0, 0, 0, 0.21);
 
 @include keyframes(candystripe) {
-  100% { background-position: -100px 0; }
+  100% {
+    background-position: -100px 0;
+  }
 }
+
+%tab-buttons{
+
+  padding: 0;
+  width: $dashboard-add-tab-width;
+  text-align: center;
+  flex-grow: 0;
+  flex-shrink: 0;
+  font-size: 14px;
+  border-left: 1px solid $dashboard-tabs-border-color;
+  border-right: 1px solid $dashboard-tabs-border-color;
+  cursor: pointer;
+  height: $dashboard-tab-height;
+  &:active, &:focus {
+    outline: 0;
+  }
+}
+
 
 .dashboard-tabs {
   @include unselectable;
-
-  display:          flex;
-  position:         relative;
+  position: fixed;
+  z-index: 6;
+  top: 40px;
+  left: 0;
+  right: 0;
+  display: flex;
   background-color: $dashboard-tab-bg;
-  border-radius:    $dashboard-tabs-border-radius;
-  line-height:      $dashboard-tab-height;
-  height:           $dashboard-tab-height;
-  padding:          0 $dashboard-tabs-padding;
-  margin-bottom:    20px;
-  box-shadow:       $dashboard-tabs-box-shadow;
-
+  border-radius: $dashboard-tabs-border-radius;
+  line-height: $dashboard-tab-height;
+  height: $dashboard-tab-height;
+  padding: 0 $dashboard-tabs-padding;
+  margin-bottom: 20px;
+  box-shadow: $dashboard-tabs-box-shadow;
   &.loading {
     &:after {
       @include animation(candystripe 1s linear infinite);
 
-      display:    inline-block;
-      content:    "";
-      position:   absolute;
-      left:       0;
-      right:      0;
-      top:        100%;
-      height:     5px;
-      z-index:    9;
-
-      background-size:  35px 20px, 100% 100%, 100% 100%;
+      display: inline-block;
+      content: "";
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 100%;
+      height: 5px;
+      z-index: 9;
+      background-size: 35px 20px, 100% 100%, 100% 100%;
       background-color: #4ad9d9;
       background-image: linear-gradient(-45deg,
         transparent 33%,
@@ -52,199 +73,120 @@ $dashboard-tabs-box-shadow: 0 0 10px rgba(0, 0, 0, 0.21);
       );
     }
   }
+}
 
-  .dashboard-tab-edit, .dashboard-tab-remove {
-    cursor: pointer;
-  }
+button {
+  border-radius: 0;
+}
 
-  .dashboard-tab-edit {
-    @include icon-before($type: edit);
-  }
+.add-tab {
+  @extend %tab-buttons;
+  margin: 0 0 0 -1px;
+  font-size:16px;
+  color:$dashboard-tab-primary-text-color;
+}
 
-  .dashboard-tab-remove {
-    @include icon-before($type: trash);
-  }
+.add-icon {
+  @include icon-before($type: plus);
+}
 
-  .add-tab, .tabs-list-dropdown-widget {
-    border-left:  1px solid $dashboard-tabs-border-color;
+.edit-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  z-index: 9;
+  background: $dashboard-tab-bg;
+  color: $dashboard-tab-action-button-color;
+  border-radius: 3px;
+  font-weight: normal;
+  line-height: initial;
+  box-shadow: $dashboard-tabs-box-shadow;
+}
+
+.dashboard-tab-action {
+  display: inline-block;
+  margin: 0;
+  padding: 5px 15px;
+  border-radius: $dashboard-tabs-border-radius;
+
+  &:first-of-type {
     border-right: 1px solid $dashboard-tabs-border-color;
-    padding:      0 10px;
-    font-size:    17px;
-    cursor:       pointer;
-    height:       $dashboard-tab-height;
   }
+}
 
-  .add-tab {
-    margin:      0;
-    padding:     0;
-    width:       $dashboard-add-tab-width;
-    color:       $dashboard-tab-primary-text-color;
-    text-align:  center;
-    flex-grow:   0;
-    flex-shrink: 0;
+.deny-action, .edit-dropdown .deny-action {
+  color: #aaa;
+  border-color: #aaa;
+  cursor: not-allowed;
+}
 
-    .add-icon {
-      @include icon-before($type: plus);
-    }
-  }
+.dashboard-tab-edit, .dashboard-tab-remove {
+  cursor: pointer;
+}
 
-  .tabs-list-dropdown-widget {
-    margin:        0;
-    padding:       0;
-    display:       none;
-    width:         $dashboard-tab-list-toggle-width;
-    color:         $dashboard-tab-secondary-text-color;
-    border-radius: 0 $dashboard-tabs-border-radius $dashboard-tabs-border-radius 0;
-    flex-grow:     0;
-    flex-shrink:   0;
+.dashboard-tab-edit {
+  @include icon-before($type: edit);
+}
 
-    &.paged {
-      display: block;
-    }
-
-    .tabs-list-dropdown-toggle {
-      width:   100%;
-      height:  100%;
-      outline: none;
-
-      .tabs-list-icon {
-        @include icon-before($type: chevron-down);
-      }
-    }
-
-    .tabs-list {
-      position:      absolute;
-      top:           100%;
-      right:         0;
-      background:    $dashboard-tab-bg;
-      margin:        0;
-      padding:       0 20px;
-      border-top:    1px solid $dashboard-tabs-border-color;
-      border-radius: 0 0 $dashboard-tabs-border-radius $dashboard-tabs-border-radius;
-      list-style:    none;
-      font-size:     14px;
-      z-index:       9;
-      overflow-y:    auto;
-      max-height:    65vh;
-      box-shadow:    $dashboard-tabs-box-shadow;
-
-      li {
-        @include truncate-to-width($max: 210px);
-
-        margin:         0;
-        padding:        10px 0;
-        border:         0;
-        border-bottom:  1px dashed $dashboard-tabs-border-color;
-        text-transform: uppercase;
-        font-weight:    700;
-
-        &.current, &:hover {
-          color: $dashboard-tab-primary-text-color;
-        }
-
-        &:last-of-type {
-          border-bottom: 0;
-        }
-      }
-    }
-  }
-
-  .edit-dropdown {
-    position:      absolute;
-    top:           100%;
-    left:          0;
-    z-index:       9;
-
-    background:    $dashboard-tab-bg;
-    color:         $dashboard-tab-action-button-color;
-    border-radius: 3px;
-    font-weight:   normal;
-    line-height:   initial;
-    box-shadow:    $dashboard-tabs-box-shadow;
-
-    .dashboard-tab-action {
-      display:       inline-block;
-      margin:        0;
-      padding:       5px 15px;
-      border-radius: $dashboard-tabs-border-radius;
-
-      &:first-of-type {
-        border-right: 1px solid $dashboard-tabs-border-color;
-      }
-    }
-  }
-
-  .deny-action, .edit-dropdown .deny-action {
-    color:        #aaa;
-    border-color: #aaa;
-    cursor:       not-allowed;
-  }
+.dashboard-tab-remove {
+  @include icon-before($type: trash);
 }
 
 .dashboard-tabs-sortable, .dashboard-tabs-scrollable {
   vertical-align: top;
-  white-space:    nowrap;
+  white-space: nowrap;
 }
 
 .dashboard-tabs-sortable {
-  overflow-y:     hidden;
-  overflow-x:     auto;
+  overflow-y: hidden;
+  overflow-x: auto;
   padding-bottom: 100px;
-  outline:        none;
+  outline: none;
 }
 
 .dashboard-tabs-scrollable {
-  height:   $dashboard-tab-height;
+  height: $dashboard-tab-height;
   overflow: hidden; // ensure scrollbars of inner container are hidden from view
-  display:  flex;
+  display: flex;
 
   .page-prev, .page-next {
-
-    border-right: 1px solid $dashboard-tabs-border-color;
-    border-left:  1px solid $dashboard-tabs-border-color;
-
-    width:        $dashboard-tabs-pager-width;
-    height:       $dashboard-tab-height;
-    flex-grow:    0;
-    flex-shrink:  0;
-
-    text-align:   center;
-    font-size:    21px;
-    font-weight:  600;
-    line-height:  $dashboard-tab-height;
-
-    display:      none;
-    cursor:       default;
+    @extend %tab-buttons;
+    color: $dashboard-tab-secondary-text-color;
   }
 
   &.paged {
     .page-prev, .page-next {
-      color:   $dashboard-tab-secondary-text-color;
-      cursor:  pointer;
       display: block;
+
+    }
+    .page-prev {
+      margin-right: -1px;
+    }
+    .page-next {
+      margin-left: -1px;
     }
   }
 
-  .page-prev {
-    @include icon-before($type: angle-left);
+  .icon_page-prev {
+    @include icon-before($type: chevron-left);
   }
 
-  .page-next {
-    @include icon-before($type: angle-right);
+  .icon_page-next {
+    @include icon-before($type: chevron-right);
   }
 }
 
 .dashboard-tab {
-  display:      inline-block;
+  display: inline-block;
   border-right: 1px solid $dashboard-tabs-border-color;
-  padding:      0 10px;
-  font-weight:  600;
-  cursor:       pointer;
-  position:     relative;
-  white-space:  nowrap;
-  height:       $dashboard-tab-height;
-  color:        $dashboard-tab-secondary-text-color;
-  outline:      none;
+  padding: 0 10px;
+  font-weight: 600;
+  cursor: pointer;
+  position: relative;
+  white-space: nowrap;
+  height: $dashboard-tab-height;
+  color: $dashboard-tab-secondary-text-color;
+  outline: none;
 
   &:active, &:focus {
     outline: none;
@@ -272,16 +214,16 @@ $dashboard-tabs-box-shadow: 0 0 10px rgba(0, 0, 0, 0.21);
 
   .tab-name {
     @include truncate-to-width($max: 210px);
-
+    font-size: 12px;
+    font-weight: 600;
     text-transform: uppercase;
-    margin:         0 10px;
-    margin-right:   15px;
-    display:        inline-block;
+    margin: 0 0 0 10px;
+    display: inline-block;
   }
 
   &.current {
-    color:         $dashboard-tab-primary-text-color;
-    cursor:        default;
+    color: $dashboard-tab-primary-text-color;
+    cursor: default;
     border-bottom: 3px solid $dashboard-tab-primary-text-color;
 
     .tab-name {
@@ -302,17 +244,17 @@ $dashboard-tabs-box-shadow: 0 0 10px rgba(0, 0, 0, 0.21);
   }
 
   &.draggable-mirror {
-    background:  $dashboard-tab-bg;
+    background: $dashboard-tab-bg;
     line-height: $dashboard-tab-height;
-    border:      0;
-    box-shadow:  0 0 10px rgba(255, 255, 255, 0.21);
-    z-index:     5;
+    border: 0;
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.21);
+    z-index: 5;
   }
 
   .tab-dropdown-toggle {
-    display:     inline-block;
+    display: inline-block;
     margin-left: 7px;
-    cursor:      default;
+    cursor: default;
 
     .dropdown-btn {
       @include icon-before($type: caret-down);
@@ -327,33 +269,33 @@ $dashboard-tabs-box-shadow: 0 0 10px rgba(0, 0, 0, 0.21);
 }
 
 .actionable-message {
-  position:      absolute;
-  top:           calc(100% + #{$dashboard-tab-current-marker-height});
-  left:          0;
-  padding:       10px;
+  position: absolute;
+  top: calc(100% + #{$dashboard-tab-current-marker-height});
+  left: 0;
+  padding: 10px;
   padding-right: 30px;
-  border:        0;
+  border: 0;
   border-radius: $dashboard-tabs-border-radius;
-  background:    #fff;
-  color:         #333;
-  z-index:       25;
-  box-shadow:    $dashboard-tabs-box-shadow;
-  line-height:   initial;
+  background: #fff;
+  color: #333;
+  z-index: 25;
+  box-shadow: $dashboard-tabs-box-shadow;
+  line-height: initial;
 
   > * {
     vertical-align: middle;
   }
 
   .button {
-    margin:      0;
+    margin: 0;
     margin-left: 10px;
-    font-size:   inherit;
-    padding:     5px 10px;
+    font-size: inherit;
+    padding: 5px 10px;
   }
 
   .btn-link {
     padding: 5px 0;
-    color:   #333;
+    color: #333;
   }
 
   .button, .button:active, .button:focus {
@@ -363,36 +305,36 @@ $dashboard-tabs-box-shadow: 0 0 10px rgba(0, 0, 0, 0.21);
   .revert {
     @include icon-before($type: close);
 
-    position:  absolute;
-    right:     10px;
-    top:       50%;
+    position: absolute;
+    right: 10px;
+    top: 50%;
     transform: translateY(-50%);
-    cursor:    pointer;
+    cursor: pointer;
   }
 
   &:before {
-    content:       "";
-    position:      absolute;
-    top:           -$dashboard-tab-current-marker-height;
-    left:          20px;
-    width:         0;
-    height:        0;
+    content: "";
+    position: absolute;
+    top: -$dashboard-tab-current-marker-height;
+    left: 20px;
+    width: 0;
+    height: 0;
     border-bottom: $dashboard-tab-current-marker-height solid #fff;
-    border-left:   $dashboard-tab-current-marker-height solid transparent;
-    border-right:  $dashboard-tab-current-marker-height solid transparent;
+    border-left: $dashboard-tab-current-marker-height solid transparent;
+    border-right: $dashboard-tab-current-marker-height solid transparent;
   }
 }
 
 .server-error-response {
-  display:     flex;
+  display: flex;
   align-items: center;
 
   .alert-icon {
     @include icon-before($type: exclamation-circle);
 
     margin-right: 10px;
-    font-size:    150%;
-    color:        map-get($foundation-palette, alert);
+    font-size: 150%;
+    color: map-get($foundation-palette, alert);
   }
 
   .reason {
@@ -416,4 +358,65 @@ $dashboard-tabs-box-shadow: 0 0 10px rgba(0, 0, 0, 0.21);
       font-weight: 700;
     }
   }
+}
+
+.tabs-list-dropdown-widget {
+  margin: 0;
+  padding: 0;
+  display: none;
+  flex-grow: 0;
+  flex-shrink: 0;
+  cursor: pointer;
+  height: $dashboard-tab-height;
+  width: $dashboard-tab-list-toggle-width;
+  &.paged {
+    display: block;
+  }
+}
+
+.tabs-list {
+  position: absolute;
+  top: 100%;
+  right: 30px;
+  background: $dashboard-tab-bg;
+  margin: 0;
+  padding: 10px 20px;
+  border-top: 1px solid $dashboard-tabs-border-color;
+  border-radius: 0 0 $dashboard-tabs-border-radius $dashboard-tabs-border-radius;
+  list-style: none;
+  z-index: 9;
+  overflow-y: auto;
+  max-height: 65vh;
+  box-shadow: 1px 5px 11px rgba(0, 0, 0, 0.21);
+
+  li {
+    @include truncate-to-width($max: 210px);
+    margin: 0;
+    border: 0;
+    border-bottom: 1px dashed $dashboard-tabs-border-color;
+    text-transform: uppercase;
+    font-size: 12px;
+    padding: 10px 0;
+    font-weight: 600;
+    color: $dashboard-tab-secondary-text-color;
+
+    &.current, &:hover {
+      color: $dashboard-tab-primary-text-color;
+    }
+
+    &:last-of-type {
+      border-bottom: 0;
+    }
+  }
+}
+
+.tabs-list-dropdown-toggle {
+@extend %tab-buttons;
+  color: $dashboard-tab-secondary-text-color;
+  margin-left: -1px;
+}
+
+.tabs-list-icon {
+  @include icon-before($type: chevron-down);
+  font-size: 14px;
 }

@@ -24,6 +24,24 @@ describe("Personalization Editor View Model", () => {
     expect(model.asFilter().pipelines).toEqual([]);
   });
 
+  it("builds the filter pipeline list from the internal model", () => {
+    const model = vm({});
+    model.selectionVM(null);
+
+    expect(model.asFilter().type).toBe("whitelist");
+    expect(model.asFilter().pipelines).toEqual([]);
+
+    model.selectionVM({ pipelines: (inv) => inv ? ["c", "d"] : ["a", "b"] });
+
+    uncheck(model.includeNewPipelines);
+    expect(model.asFilter().type).toBe("whitelist");
+    expect(model.asFilter().pipelines).toEqual(["a", "b"]);
+
+    check(model.includeNewPipelines);
+    expect(model.asFilter().type).toBe("blacklist");
+    expect(model.asFilter().pipelines).toEqual(["c", "d"]);
+  });
+
   it("checking the includeNewPipelines() sets the filter type", () => {
     const model = vm({});
 

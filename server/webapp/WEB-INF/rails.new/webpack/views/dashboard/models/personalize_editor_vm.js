@@ -50,7 +50,7 @@ function PersonalizeEditorVM(opts) { // opts is usually the current filter
   this.errorResponse = Stream();
 
   this.asFilter = () => {
-    const pipelines = selectionVM() ? [] : selectionVM().pipelines(inverted());
+    const pipelines = selectionVM() ? selectionVM().pipelines(inverted()) : [];
     return {name: name(), type: type(), pipelines, state: state()};
   };
 }

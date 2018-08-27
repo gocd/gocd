@@ -177,7 +177,7 @@ public abstract class AbstractAuthenticationHelper {
     }
 
     private String findPipelineGroupName(Request request) {
-        String groupName = request.params("group");
+        String groupName = request.params("group_name");
         if (StringUtils.isBlank(groupName)) {
             groupName = goConfigService.findGroupNameByPipeline(getPipelineNameFromRequest(request));
         }

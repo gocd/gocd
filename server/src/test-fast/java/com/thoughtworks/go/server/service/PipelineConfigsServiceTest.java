@@ -17,8 +17,11 @@
 package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
+import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
 import com.thoughtworks.go.config.exceptions.PipelineGroupNotFoundException;
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
+import com.thoughtworks.go.config.update.UpdatePipelineConfigsAuthCommand;
 import com.thoughtworks.go.config.validation.GoConfigValidity;
 import com.thoughtworks.go.domain.PipelineGroups;
 import com.thoughtworks.go.helper.GoConfigMother;
@@ -28,8 +31,10 @@ import com.thoughtworks.go.server.service.responses.GoConfigOperationalResponse;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.util.ConfigElementImplementationRegistryMother;
 import com.thoughtworks.go.util.ReflectionUtil;
+import org.apache.http.HttpStatus;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 
 import java.util.Arrays;
 import java.util.List;
@@ -47,6 +52,7 @@ public class PipelineConfigsServiceTest {
     private ConfigCache configCache;
     private ConfigElementImplementationRegistry registry;
     private SecurityService securityService;
+    private EntityHashingService entityHashingService;
     private Username validUser;
     private HttpLocalizedOperationResult result;
     private CruiseConfig cruiseConfig;
@@ -55,6 +61,7 @@ public class PipelineConfigsServiceTest {
     public void setUp() {
         goConfigService = mock(GoConfigService.class);
         securityService = mock(SecurityService.class);
+        entityHashingService = mock(EntityHashingService.class);
         configCache = new ConfigCache();
         registry = ConfigElementImplementationRegistryMother.withNoPlugins();
         validUser = new Username(new CaseInsensitiveString("validUser"));
@@ -286,6 +293,66 @@ public class PipelineConfigsServiceTest {
 		verify(goConfigService, never()).getAllPipelinesForEditInGroup("group1");
 		assertThat(gotPipelineGroups, is(Arrays.asList(group1)));
 	}
+
+	@Test
+    public void shouldInvokeUpdateConfigCommand_updateGroupAuthorization() {
+        Authorization authorization = new Authorization(new OperationConfig(new AdminUser(validUser.getUsername())));
+        PipelineConfigs pipelineConfigs = new BasicPipelineConfigs("group", authorization);
+
+        service.updateGroupAuthorization(validUser, pipelineConfigs, "md5", entityHashingService, securityService, result);
+
+        ArgumentCaptor<EntityConfigUpdateCommand> commandCaptor = ArgumentCaptor.forClass(EntityConfigUpdateCommand.class);
+        verify(goConfigService).updateConfig(commandCaptor.capture(), eq(validUser));
+        UpdatePipelineConfigsAuthCommand command = (UpdatePipelineConfigsAuthCommand) commandCaptor.getValue();
+
+        assertThat(ReflectionUtil.getField(command, "authorization"), is(authorization));
+        assertThat(ReflectionUtil.getField(command, "group"), is("group"));
+        assertThat(ReflectionUtil.getField(command, "md5"), is("md5"));
+        assertThat(ReflectionUtil.getField(command, "result"), is(result));
+        assertThat(ReflectionUtil.getField(command, "currentUser"), is(validUser));
+        assertThat(ReflectionUtil.getField(command, "entityHashingService"), is(entityHashingService));
+        assertThat(ReflectionUtil.getField(command, "securityService"), is(securityService));
+    }
+
+    @Test
+    public void shouldReturnUpdatedPipelineConfigs_whenSuccessfull_updateGroupAuthorization() {
+        Authorization authorization = new Authorization(new OperationConfig(new AdminUser(validUser.getUsername())));
+        PipelineConfigs pipelineConfigs = new BasicPipelineConfigs("group", authorization);
+        doAnswer(invocation -> {
+            UpdatePipelineConfigsAuthCommand command = invocation.getArgument(0);
+            ReflectionUtil.setField(command, "preprocessedPipelineConfigs", pipelineConfigs);
+            return null;
+        }).when(goConfigService).updateConfig(any(), eq(validUser));
+
+        PipelineConfigs updatedPipelineConfigs = service.updateGroupAuthorization(validUser, pipelineConfigs, "md5", entityHashingService, securityService, result);
+
+        assertThat(updatedPipelineConfigs.getAuthorization(), is(authorization));
+        assertThat(updatedPipelineConfigs.getGroup(), is("group"));
+    }
+
+    @Test
+    public void shouldReturnUnprocessableEntity_whenConfigInvalid_updateGroupAuthorization() {
+        Authorization authorization = new Authorization(new OperationConfig(new AdminUser(validUser.getUsername())));
+        PipelineConfigs pipelineConfigs = new BasicPipelineConfigs("group", authorization);
+        doThrow(new GoConfigInvalidException(null, "error message")).when(goConfigService).updateConfig(any(), eq(validUser));
+
+        service.updateGroupAuthorization(validUser, pipelineConfigs, "md5", entityHashingService, securityService, result);
+
+        assertThat(result.httpCode(), is(HttpStatus.SC_UNPROCESSABLE_ENTITY));
+        assertThat(result.message(), is("Validations failed for pipelines 'group'. Error(s): [error message]. Please correct and resubmit."));
+    }
+
+    @Test
+    public void shouldReturnInternalServerError_whenExceptionThrown_updateGroupAuthorization() {
+        Authorization authorization = new Authorization(new OperationConfig(new AdminUser(validUser.getUsername())));
+        PipelineConfigs pipelineConfigs = new BasicPipelineConfigs("group", authorization);
+        doThrow(new RuntimeException("server error")).when(goConfigService).updateConfig(any(), eq(validUser));
+
+        service.updateGroupAuthorization(validUser, pipelineConfigs, "md5", entityHashingService, securityService, result);
+
+        assertThat(result.httpCode(), is(HttpStatus.SC_INTERNAL_SERVER_ERROR));
+        assertThat(result.message(), is("Save failed. server error"));
+    }
 
     private String groupXml() {
         return "<pipelines group=\"renamed_group_name\">\n"

@@ -99,6 +99,21 @@ public class Routes {
         public static final String SELF = "/api/config/pipeline_groups";
     }
 
+    public static class PipelineGroupsAdmin {
+        public static final String DOC = "https://api.go.cd/current/#pipeline-group-config";
+        public static final String BASE = "/api/admin/pipeline_groups";
+
+        public static final String NAME_PATH = "/:group_name";
+
+        public static String find() {
+            return BASE + NAME_PATH;
+        }
+
+        public static String name(String name) {
+            return BASE + NAME_PATH.replaceAll(":group_name", name);
+        }
+    }
+
     public static class EnvironmentConfig {
         public static final String DOC = "https://api.gocd.org/current/#environment-config";
         static final String NAME = "/api/admin/environments/:name";

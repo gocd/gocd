@@ -126,6 +126,10 @@ api/api-pipeline-config-v6/config/
 api/api-pipeline-config-v6/logs/
 api/api-pipeline-config-v6/out/
 api/api-pipeline-config-v6/target/
+api/api-pipeline-groups-v1/config/
+api/api-pipeline-groups-v1/logs/
+api/api-pipeline-groups-v1/out/
+api/api-pipeline-groups-v1/target/
 api/api-pipeline-operations-v1/config/
 api/api-pipeline-operations-v1/logs/
 api/api-pipeline-operations-v1/out/

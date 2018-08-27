@@ -17,21 +17,28 @@
 package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
+import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
+import com.thoughtworks.go.config.update.ConfigUpdateCheckFailedException;
+import com.thoughtworks.go.config.update.UpdatePipelineConfigsAuthCommand;
 import com.thoughtworks.go.config.validation.GoConfigValidity;
 import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.responses.GoConfigOperationalResponse;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
+import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 import com.thoughtworks.go.serverhealth.HealthStateScope;
 import com.thoughtworks.go.serverhealth.HealthStateType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.thoughtworks.go.i18n.LocalizedMessage.forbiddenToEditGroup;
+import static com.thoughtworks.go.i18n.LocalizedMessage.*;
 import static com.thoughtworks.go.serverhealth.HealthStateType.forbiddenForGroup;
 
 @Service
@@ -42,6 +49,7 @@ public class PipelineConfigsService {
     private final ConfigElementImplementationRegistry registry;
     private final SecurityService securityService;
     private MagicalGoConfigXmlLoader magicalGoConfigXmlLoader;
+    private static final Logger LOGGER = LoggerFactory.getLogger(PipelineConfigsService.class);
 
     @Autowired
     public PipelineConfigsService(ConfigCache configCache, ConfigElementImplementationRegistry registry, GoConfigService goConfigService, SecurityService securityService) {
@@ -97,6 +105,27 @@ public class PipelineConfigsService {
 		}
 		return pipelineGroups;
 	}
+
+    private void update(Username currentUser, PipelineConfigs pipelineConfigs, LocalizedOperationResult result, EntityConfigUpdateCommand command) {
+        try {
+            goConfigService.updateConfig(command, currentUser);
+        } catch (Exception e) {
+            if (e instanceof GoConfigInvalidException) {
+                if (!result.hasMessage()) {
+                    result.unprocessableEntity(entityConfigValidationFailed(pipelineConfigs.getClass().getAnnotation(ConfigTag.class).value(), pipelineConfigs.getGroup(), e.getMessage()));
+                }
+            } else if (!(e instanceof ConfigUpdateCheckFailedException)) {
+                LOGGER.error(e.getMessage(), e);
+                result.internalServerError(saveFailedWithReason(e.getMessage()));
+            }
+        }
+    }
+
+    public PipelineConfigs updateGroupAuthorization(Username currentUser, PipelineConfigs newPipelineConfigs, String existingMd5, EntityHashingService entityHashingService, SecurityService securityService, LocalizedOperationResult result) {
+        UpdatePipelineConfigsAuthCommand updatePipelineConfigCommand = new UpdatePipelineConfigsAuthCommand(newPipelineConfigs.getGroup(), newPipelineConfigs.getAuthorization(), result, currentUser, existingMd5, entityHashingService, securityService);
+        update(currentUser, newPipelineConfigs, result, updatePipelineConfigCommand);
+        return updatePipelineConfigCommand.getPreprocessedEntityConfig();
+    }
 
     private boolean userHasPermissions(Username username, String groupName, HttpLocalizedOperationResult result) {
         try {

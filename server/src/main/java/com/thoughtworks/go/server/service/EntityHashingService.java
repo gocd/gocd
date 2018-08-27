@@ -19,8 +19,10 @@ package com.thoughtworks.go.server.service;
 import com.google.gson.GsonBuilder;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.elastic.ElasticProfile;
+import com.thoughtworks.go.config.merge.MergePipelineConfigs;
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
+import com.thoughtworks.go.domain.PipelineGroups;
 import com.thoughtworks.go.domain.UsageStatisticsReporting;
 import com.thoughtworks.go.domain.packagerepository.PackageDefinition;
 import com.thoughtworks.go.domain.packagerepository.PackageRepository;
@@ -58,6 +60,8 @@ public class EntityHashingService implements ConfigChangedListener, Initializer 
     public void initialize() {
         goConfigService.register(this);
         goConfigService.register(new PipelineConfigChangedListener());
+        goConfigService.register(new BasicPipelineConfigsChangedListener());
+        goConfigService.register(new MergePipelineConfigsChangedListener());
         goConfigService.register(new SCMConfigChangedListner());
         goConfigService.register(new TemplateConfigChangedListner());
         goConfigService.register(new EnvironmentConfigListener());
@@ -217,6 +221,19 @@ public class EntityHashingService implements ConfigChangedListener, Initializer 
         return getFromCache(cacheKey, dataSharingSettings);
     }
 
+    public String md5ForEntity(PipelineGroups pipelineGroups) {
+        List<String> md5s = new ArrayList<>();
+        for (PipelineConfigs pipelineConfigs : pipelineGroups) {
+            md5s.add(md5ForEntity(pipelineConfigs));
+        }
+        return CachedDigestUtils.md5Hex(StringUtils.join(md5s, "/"));
+    }
+
+    public String md5ForEntity(PipelineConfigs pipelineConfigs) {
+        String cacheKey = cacheKey(pipelineConfigs, pipelineConfigs.getGroup());
+        return getFromCache(pipelineConfigs, cacheKey);
+    }
+
     class PipelineConfigChangedListener extends EntityConfigChangedListener<PipelineConfig> {
         @Override
         public void onEntityConfigChange(PipelineConfig pipelineConfig) {
@@ -298,6 +315,19 @@ public class EntityHashingService implements ConfigChangedListener, Initializer 
         @Override
         public void onEntityConfigChange(AdminsConfig entity) {
             removeFromCache(entity, "cacheKey");
+        }
+    }
+
+    private class BasicPipelineConfigsChangedListener extends EntityConfigChangedListener<BasicPipelineConfigs> {
+        @Override
+        public void onEntityConfigChange(BasicPipelineConfigs pipelineConfigs) {
+            removeFromCache(pipelineConfigs, pipelineConfigs.getGroup());
+        }
+    }
+    private class MergePipelineConfigsChangedListener extends EntityConfigChangedListener<MergePipelineConfigs> {
+        @Override
+        public void onEntityConfigChange(MergePipelineConfigs pipelineConfigs) {
+            removeFromCache(pipelineConfigs, pipelineConfigs.getGroup());
         }
     }
 }

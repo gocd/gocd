@@ -17,7 +17,6 @@
 const m = require("mithril");
 
 const ScrollableViewTabs = require("views/dashboard/scrollable_view_tabs");
-const EditTabDropdown    = require("views/dashboard/edit_tab_dropdown");
 const Editor             = require("views/dashboard/personalization_editor");
 const ActionableMessage  = require("views/dashboard/actionable_message");
 const TabsListDropdown    = require("views/dashboard/tabs_list_dropdown");
@@ -35,7 +34,6 @@ const PersonalizedViewsWidget = {
     return <div class={vm.loadingView() ? "dashboard-tabs loading" : "dashboard-tabs"}>
       <ActionableMessage vm={vm} />
       <ScrollableViewTabs vm={vm} />
-      <EditTabDropdown {...vnode.attrs} />
       <AddTab onclick={doAddView} />
       <TabsListDropdown vm={vm} />
     </div>;

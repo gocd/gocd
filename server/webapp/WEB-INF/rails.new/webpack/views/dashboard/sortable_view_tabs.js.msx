@@ -17,6 +17,7 @@
 const _        = require("lodash");
 const m        = require("mithril");
 const Sortable = require("@shopify/draggable/lib/es5/sortable").default; // es5 bundle => IE11 support
+const Editor   = require("views/dashboard/personalization_editor");
 const raf      = require("helpers/throttle-raf");
 
 const SortableViewTabs = {
@@ -35,6 +36,8 @@ const ViewTab = {
     const vm = vnode.attrs.vm;
     const name = vnode.attrs.name;
     const current = vm.active(name);
+    const model = vm.model;
+    const edit = vm.actionHandler(() => Editor.open(model().namedFilter(name), model, vm));
 
     function switchTab(e) { e.stopPropagation(); vm.activate(name); }
 
@@ -42,27 +45,9 @@ const ViewTab = {
 
     return <div class={current ? "dashboard-tab current" : "dashboard-tab"} onclick={current || switchTab} data-name={name}>
       <i class="drag-icon" />
-      <span class="tab-name">{name}</span>
-      <DropdownToggle {...vnode.attrs} current={current} />
+      <div class="tab-name">{name}</div>
+      <i class="edit-icon" onclick={edit} />
     </div>;
-  }
-};
-
-const DropdownToggle = {
-  view(vnode) {
-    const vm = vnode.attrs.vm;
-
-    function toggleTabSettingsDropdown(e) { e.stopPropagation(); vm.toggleTabSettingsDropdown(); }
-
-    if (vnode.attrs.current) {
-      const classes = ["dropdown-btn"];
-
-      if (vm.locked()) { classes.push("deny-action"); }
-
-      return <span class="tab-dropdown-toggle">
-        <i class={classes.join(" ")} onclick={vm.locked() || toggleTabSettingsDropdown} />
-      </span>;
-    }
   }
 };
 

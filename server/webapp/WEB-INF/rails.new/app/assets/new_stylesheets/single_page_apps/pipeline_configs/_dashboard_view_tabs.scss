@@ -114,22 +114,10 @@ button {
   }
 }
 
-.deny-action, .edit-dropdown .deny-action {
+.deny-action {
   color: #aaa;
   border-color: #aaa;
   cursor: not-allowed;
-}
-
-.dashboard-tab-edit, .dashboard-tab-remove {
-  cursor: pointer;
-}
-
-.dashboard-tab-edit {
-  @include icon-before($type: edit);
-}
-
-.dashboard-tab-remove {
-  @include icon-before($type: trash);
 }
 
 .dashboard-tabs-sortable, .dashboard-tabs-scrollable {
@@ -210,6 +198,11 @@ button {
     &:active {
       @include sort-cursor-active;
     }
+  }
+
+  .edit-icon {
+    @include icon-before($type: pencil);
+    cursor: pointer;
   }
 
   .tab-name {

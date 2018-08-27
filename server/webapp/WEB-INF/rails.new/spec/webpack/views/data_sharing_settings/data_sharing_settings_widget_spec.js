@@ -124,11 +124,14 @@ describe("Data Sharing Settings Widget", () => {
   });
 
   it('should show the consent for collected metrics list', () => {
-    expect($root.find('.consent-for-wrapper .consent-for')).toHaveLength(6);
+    expect($root.find('.consent-for-wrapper .consent-for')).toHaveLength(8);
     const consentFor = $root.find('.consent-for-wrapper .consent-for');
 
     const pipelineConsentKey         = 'Number of pipelines (pipeline_count)';
     const pipelineConsentDescription = 'This allows the calculation of the average number of pipelines a GoCD instance has. Knowing the average number of pipelines helps us optimize the GoCD experience.';
+
+    const configRepoPipelineConsentKey         = 'Number of config repo pipelines (config_repo_pipeline_count) [Added in GoCD v18.8.0]';
+    const configRepoPipelineConsentDescription = 'This count provides a measure of usefulness of the pipeline as code feature. We plan to make this feature better soon and this metric will be used as an indicator of success of this effort.';
 
     const agentConsentKey          = 'Number of agents (agent_count)';
     const agentsConsentDescription = 'This allows the calculation of the average number of agents a GoCD instance has. This will help us ensure GoCD can handle a reasonable number of requests from the average number of agents.';
@@ -136,23 +139,41 @@ describe("Data Sharing Settings Widget", () => {
     const oldestPipelineRuntimeKey         = 'Oldest pipeline run time (oldest_pipeline_execution_time)';
     const oldestPipelineRuntimeDescription = 'This provides data around the age of the GoCD instance. Along with the number of pipelines data point, it helps establish an expected growth in the number of pipelines.';
 
+    const elasticAgentJobConsentKey         = 'Number of elastic agent jobs (job_count and elastic_agent_job_count) [Added in GoCD v18.8.0]';
+    const elasticAgentJobConsentDescription = 'These counts provides a measure of usefulness of elastic agent plugins. We’ve recently spent effort on elastic agents plugins (for Kubernetes, Docker, etc). This helps decide which plugins to put more effort into and improve.';
+
+    const gocdVersionConsentKey         = "GoCD version (gocd_version)";
+    const gocdVersionConsentDescription = "This is the version of GoCD the server is on.";
+
+    const serverIdConsentKey         = "Server ID (server_id)";
+    const serverIdConsentDescription = "A randomly-generated identifier for this instance of GoCD to help correlate the data. This does not tie into any other ID in this instance.";
+
+    const messageVersionConsentKey         = "Message version (message_version)";
+    const messageVersionConsentDescription = "Schema version number for this message.";
+
     expect($(consentFor.get(0))).toContainText(pipelineConsentKey);
     expect($(consentFor.get(0))).toContainText(pipelineConsentDescription);
 
-    expect($(consentFor.get(1))).toContainText(agentConsentKey);
-    expect($(consentFor.get(1))).toContainText(agentsConsentDescription);
+    expect($(consentFor.get(1))).toContainText(configRepoPipelineConsentKey);
+    expect($(consentFor.get(1))).toContainText(configRepoPipelineConsentDescription);
 
-    expect($(consentFor.get(2))).toContainText(oldestPipelineRuntimeKey);
-    expect($(consentFor.get(2))).toContainText(oldestPipelineRuntimeDescription);
+    expect($(consentFor.get(2))).toContainText(agentConsentKey);
+    expect($(consentFor.get(2))).toContainText(agentsConsentDescription);
 
-    expect($(consentFor.get(3))).toContainText("GoCD version (gocd_version)");
-    expect($(consentFor.get(3))).toContainText("This is the version of GoCD the server is on.");
+    expect($(consentFor.get(3))).toContainText(oldestPipelineRuntimeKey);
+    expect($(consentFor.get(3))).toContainText(oldestPipelineRuntimeDescription);
 
-    expect($(consentFor.get(4))).toContainText("Server ID (server_id)");
-    expect($(consentFor.get(4))).toContainText("A randomly-generated identifier for this instance of GoCD to help correlate the data. This does not tie into any other ID in this instance.");
+    expect($(consentFor.get(4))).toContainText(elasticAgentJobConsentKey);
+    expect($(consentFor.get(4))).toContainText(elasticAgentJobConsentDescription);
 
-    expect($(consentFor.get(5))).toContainText("Message version (message_version)");
-    expect($(consentFor.get(5))).toContainText("Schema version number for this message.");
+    expect($(consentFor.get(5))).toContainText(gocdVersionConsentKey);
+    expect($(consentFor.get(5))).toContainText(gocdVersionConsentDescription);
+
+    expect($(consentFor.get(6))).toContainText(serverIdConsentKey);
+    expect($(consentFor.get(6))).toContainText(serverIdConsentDescription);
+
+    expect($(consentFor.get(7))).toContainText(messageVersionConsentKey);
+    expect($(consentFor.get(7))).toContainText(messageVersionConsentDescription);
   });
 
   it('should show what data will be sent when GoCD data sharing is allowed', () => {

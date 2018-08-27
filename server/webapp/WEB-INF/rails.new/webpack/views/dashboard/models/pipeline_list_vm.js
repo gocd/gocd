@@ -45,6 +45,7 @@ function PipelineListVM(pipelinesByGroup, currentSelection) {
     memo[group] = {
       expanded,
       selected: groupSelection(currentSelection, pipelines),
+      indeterminate: indeterminate(currentSelection, pipelines),
       pipelines: _.map(pipelines, (p) => { return {name: p, selected: boolByName(currentSelection, p)}; })
     };
     return memo;
@@ -80,6 +81,21 @@ function boolByName(s, name) {
   return function boundToName(value) {
     if (!arguments.length) { return s[name](); }
     s[name](value);
+  };
+}
+
+function indeterminate(s, pipelines) {
+  const streams = _.map(pipelines, (p) => s[p]);
+  const allSelected = Stream.combine(() => _.every(streams, (st) => st()), streams);
+  const anySelected = Stream.combine(() => _.some(streams, (st) => st()), streams);
+
+  return () => {
+    if (allSelected()) {
+      return false;
+    } else if (anySelected()) {
+      return true;
+    }
+    return false;
   };
 }
 

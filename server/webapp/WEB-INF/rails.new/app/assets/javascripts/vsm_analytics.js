@@ -53,17 +53,17 @@
 
   function defineHandlers(chartId) {
     PluginEndpointRequestHandler.defineLinkHandler();
-    const models    = {};
+    var models = {};
     models[chartId] = {
-      fetch: function (url, handler) {
-        const splitURL = url.split('?');
-        const search   = splitURL[1];
-        const jsonData = JSON.parse('{"' + decodeURIComponent(search).replace(/"/g, '\\"').replace(/&/g, '","').replace(/=/g, '":"') + '"}');
+      fetch: function fetch(url, handler) {
+        var splitURL = url.split('?');
+        var search = splitURL[1];
+        var jsonData = JSON.parse('{"' + decodeURIComponent(search).replace(/"/g, '\\"').replace(/&/g, '","').replace(/=/g, '":"') + '"}');
         $j.ajax({
-          url:      splitURL[0],
-          type:     "POST",
+          url: splitURL[0],
+          type: "POST",
           dataType: "json",
-          data:     jsonData
+          data: jsonData
         }).done(function (r) {
           handler(r.data, null);
         });
@@ -113,7 +113,7 @@
     });
   };
 
-  function VSMAnalytics(data, graphRenderer, vsmAnalyticsChart, analyticsPanel, analyticsButton) {
+  var VSMAnalytics = function VSMAnalytics(data, graphRenderer, vsmAnalyticsChart, analyticsPanel, analyticsButton) {
     var self              = this;
     var panel             = analyticsPanel;
     var analyticsButton   = analyticsButton;

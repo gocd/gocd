@@ -26,6 +26,7 @@ const StageInstance = function (json, pipelineName, pipelineCounter) {
   this.status                = json.status;
   this.stageDetailTabPath    = Routes.stageDetailTabPath(pipelineName, pipelineCounter, json.name, json.counter);
   this.isBuilding            = () => json.status === 'Building';
+  this.isFailing             = () => json.status === 'Failing';
   this.isFailed              = () => json.status === 'Failed';
   this.isBuildingOrCompleted = () => json.status !== 'Unknown';
 };

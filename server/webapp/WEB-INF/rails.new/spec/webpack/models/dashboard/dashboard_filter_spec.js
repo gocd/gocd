@@ -23,6 +23,7 @@ describe("DashboardFilter", () => {
     function Stage(status) {
       this.isFailed = () => status === "Failed";
       this.isBuilding = () => status === "Building";
+      this.isFailing = () => status === "Failing";
     }
 
     beforeEach(() => {
@@ -32,7 +33,20 @@ describe("DashboardFilter", () => {
       };
     });
 
-    it("should properly filter when state=[failing]", () => {
+    it("should not show pipelines that have never run when state is set", () => {
+      stage = null;
+
+      filter = new DashboardFilter({state: ["failing"]});
+      expect(filter.acceptsStatusOf(pipeline)).toBe(false);
+
+      filter = new DashboardFilter({state: ["builing"]});
+      expect(filter.acceptsStatusOf(pipeline)).toBe(false);
+
+      filter = new DashboardFilter({state: []});
+      expect(filter.acceptsStatusOf(pipeline)).toBe(true);
+    });
+
+    it("should filter when state=[failing]", () => {
       filter = new DashboardFilter({state: ["failing"]});
 
       stage = new Stage("Failed");
@@ -42,17 +56,23 @@ describe("DashboardFilter", () => {
       expect(filter.acceptsStatusOf(pipeline)).toBe(false);
     });
 
-    it("should properly filter when state=[building]", () => {
+    it("should filter when state=[building]", () => {
       filter = new DashboardFilter({state: ["building"]});
 
       stage = new Stage("Building");
       expect(filter.acceptsStatusOf(pipeline)).toBe(true);
 
+      stage = new Stage("Failing");
+      expect(filter.acceptsStatusOf(pipeline)).toBe(true);
+
+      stage = new Stage("Failed");
+      expect(filter.acceptsStatusOf(pipeline)).toBe(false);
+
       stage = new Stage("Passing");
       expect(filter.acceptsStatusOf(pipeline)).toBe(false);
     });
 
-    it("should properly filter when state=[building, failing]", () => {
+    it("should filter when state=[building, failing]", () => {
       filter = new DashboardFilter({state: ["building", "failing"]});
 
       stage = new Stage("Building");
@@ -70,11 +90,6 @@ describe("DashboardFilter", () => {
 
       stage = new Stage("Whatever");
       expect(filter.acceptsStatusOf(pipeline)).toBe(true);
-    });
-
-    it("should return true if there's no latest stage or instance", () => {
-      filter = new DashboardFilter({state: ["Failed"]});
-      expect(filter.acceptsStatusOf({latestStage: () => null})).toBe(true);
     });
   });
 });

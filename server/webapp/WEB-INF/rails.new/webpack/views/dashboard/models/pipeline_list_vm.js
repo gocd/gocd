@@ -85,17 +85,9 @@ function boolByName(s, name) {
 }
 
 function indeterminate(s, pipelines) {
-  const streams = _.map(pipelines, (p) => s[p]);
-  const allSelected = Stream.combine(() => _.every(streams, (st) => st()), streams);
-  const anySelected = Stream.combine(() => _.some(streams, (st) => st()), streams);
-
   return () => {
-    if (allSelected()) {
-      return false;
-    } else if (anySelected()) {
-      return true;
-    }
-    return false;
+    const selected = _.filter(pipelines, (p) => s[p]());
+    return 0 !== selected.length && selected.length < pipelines.length;
   };
 }
 

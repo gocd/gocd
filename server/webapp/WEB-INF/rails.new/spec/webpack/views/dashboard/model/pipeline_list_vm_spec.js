@@ -99,6 +99,23 @@ describe("Pipeline List View Model", () => {
     expect(_.every(sel, (s) => !s())).toBe(true);
   });
 
+  it("selecting at least one pipeline should set group indeterminate state", () => {
+    const all = { group1: "abc".split(""), group2: "def".split(""), group3: "g" };
+    const sel = _st({ a: true, b: false, c: false, d: true, e: true, f: true, g: false });
+
+    const model = new PipelineListVM(all, sel);
+    const list = model.displayedList();
+
+    expect(list.group1.indeterminate()).toBe(true);
+    expect(list.group1.selected()).toBe(false);
+
+    expect(list.group2.indeterminate()).toBe(false);
+    expect(list.group2.selected()).toBe(true);
+
+    expect(list.group3.indeterminate()).toBe(false);
+    expect(list.group3.selected()).toBe(false);
+  });
+
   it("toggling the selected attribute on a pipeline entry alters the internal selection map", () => {
     const all = { group1: "abc".split(""), group2: "def".split("") };
     const sel = _st({ a: true, b: true, c: true, d: true, e: false, f: false });

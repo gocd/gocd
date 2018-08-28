@@ -44,9 +44,9 @@ const ViewTab = {
     if (current) { vm.currentVnode(vnode); }
 
     return <div class={current ? "dashboard-tab current" : "dashboard-tab"} onclick={current || switchTab} data-name={name}>
-      <i class="drag-icon" />
+      <i class="icon_drag" />
       <div class="tab-name">{name}</div>
-      <i class="edit-icon" onclick={edit} />
+      <button className="edit-tab"  onclick={edit} ><i class="icon_edit"/></button>
     </div>;
   }
 };
@@ -58,7 +58,7 @@ function initSortable(vnode) {
 
   new Sortable([vnode.dom], {
     draggable: ".dashboard-tab",
-    handle: ".drag-icon",
+    handle: ".icon_drag",
     // increase delay to 200 (from 100) to reduce accidental drags, but not by enough so as to be annoying
     delay: 200,
      mirror: {
@@ -99,7 +99,7 @@ function initSavePopup(vm) {
       vm.actionPopup({
         class: "personalization-update-failed",
         body: <span class="server-error-response">
-          <i class="alert-icon"></i>
+          <i class="icon_alert"></i>
           <span class="reason">{JSON.parse(xhr.responseText).message}</span>
         </span>,
         onabort: onreset,
@@ -115,8 +115,8 @@ function initSavePopup(vm) {
     body: <span class="save-tab-order-message">Save tab order?</span>,
     onabort: onreset,
     buttons: [
-      {class: "btn-primary", text: "Save", onclick: onsave},
-      {class: "btn-link", text: "Revert", onclick: onreset}
+      {class: "btn-link", text: "Revert", onclick: onreset},
+      {class: "btn-primary", text: "Save", onclick: onsave}
     ]
   });
 }

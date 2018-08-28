@@ -43,7 +43,7 @@ const PersonalizedViewsWidget = {
 const AddTab = {
   view(vnode) {
     return <button class="add-tab" {...vnode.attrs}>
-      <i class="add-icon" />
+      <i class="icon_add" />
     </button>;
   }
 };

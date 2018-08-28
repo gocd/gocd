@@ -29,7 +29,7 @@ const ViewTabsDropdownToggle = {
     function toggleTabsListDropdown(e) { e.stopPropagation(); vm.toggleTabsListDropdown(); }
 
     return <button class="tabs-list-dropdown-toggle" onclick={toggleTabsListDropdown}>
-      <i class="tabs-list-icon" />
+      <i class="icon_tabs-list" />
     </button>;
   }
 };

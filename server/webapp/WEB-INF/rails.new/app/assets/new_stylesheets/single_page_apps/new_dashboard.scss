@@ -415,18 +415,35 @@ body {
 .edit_config {
   @include icon-before($type: gear);
   overflow:  hidden;
-  width:     25px;
-  height:    25px;
   font-size: $pipeline_icons_size;
-  color:     #555;
+  color:     $icon-color;
   &:hover {
-    color: #000;
+    color: $icon-hover-color;
   }
   &.disabled {
     color:  #999;
     cursor: not-allowed;
   }
 }
+
+.edit_config {
+  &:hover {
+    animation-name:            rotate;
+    animation-duration:        2s;
+    animation-iteration-count: infinite;
+    animation-timing-function: linear;
+  }
+
+  @keyframes rotate {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
+    }
+  }
+}
+
 
 .pipeline-analytics {
   @include icon-before($type: bar-chart);

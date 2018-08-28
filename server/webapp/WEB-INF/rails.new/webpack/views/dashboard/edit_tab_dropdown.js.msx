@@ -83,7 +83,7 @@ function deleteView(name, personalization, model) {
             size: "delete-view",
             body: () => {
               return <span class="server-error-response">
-                <i class="alert-icon"></i>
+                <i class="icon_alert"></i>
                 <span class="reason">
                   Failed to delete view <span class="view-name">{name}</span>: {reason}
                 </span>

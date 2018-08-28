@@ -1,7 +1,11 @@
+$icon-color: #647984;
+$icon-hover-color :#1C435C;
 $dashboard-tab-bg: #fff;
-$dashboard-tab-primary-text-color: #943A9E;
-$dashboard-tab-secondary-text-color: #3c5d73;
-$dashboard-tab-action-button-color: #6b808c;
+$dashboard-tab-name: #1C435C;
+$dashboard-tab-name-current: $go-primary;
+$tab-name-current-border: $go-primary;
+$dashboard-arrow-color: $icon-color;
+
 $dashboard-tab-height: 40px;
 $dashboard-add-tab-width: 40px;
 $dashboard-tab-list-toggle-width: $dashboard-add-tab-width;
@@ -18,7 +22,7 @@ $dashboard-tabs-box-shadow: 0 0 10px rgba(0, 0, 0, 0.21);
   }
 }
 
-%tab-buttons{
+%tab-buttons {
 
   padding: 0;
   width: $dashboard-add-tab-width;
@@ -34,7 +38,6 @@ $dashboard-tabs-box-shadow: 0 0 10px rgba(0, 0, 0, 0.21);
     outline: 0;
   }
 }
-
 
 .dashboard-tabs {
   @include unselectable;
@@ -75,6 +78,29 @@ $dashboard-tabs-box-shadow: 0 0 10px rgba(0, 0, 0, 0.21);
   }
 }
 
+.dashboard-tabs-sortable, .dashboard-tabs-scrollable {
+  vertical-align: top;
+  white-space: nowrap;
+}
+
+.dashboard-tabs-sortable {
+  overflow-y: hidden;
+  overflow-x: auto;
+  outline: none;
+}
+
+.dashboard-tabs-scrollable {
+  height: $dashboard-tab-height;
+  overflow: hidden; // ensure scrollbars of inner container are hidden from view
+  display: flex;
+  &.paged {
+    .page-prev, .page-next {
+      display: block;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.21);
+    }
+  }
+}
+
 button {
   border-radius: 0;
 }
@@ -82,12 +108,8 @@ button {
 .add-tab {
   @extend %tab-buttons;
   margin: 0 0 0 -1px;
-  font-size:16px;
-  color:$dashboard-tab-primary-text-color;
-}
-
-.add-icon {
-  @include icon-before($type: plus);
+  font-size: 16px;
+  color: $dashboard-tab-name-current;
 }
 
 .edit-dropdown {
@@ -96,7 +118,7 @@ button {
   left: 0;
   z-index: 9;
   background: $dashboard-tab-bg;
-  color: $dashboard-tab-action-button-color;
+  color: $icon-color;
   border-radius: 3px;
   font-weight: normal;
   line-height: initial;
@@ -120,48 +142,17 @@ button {
   cursor: not-allowed;
 }
 
-.dashboard-tabs-sortable, .dashboard-tabs-scrollable {
-  vertical-align: top;
-  white-space: nowrap;
+.page-prev, .page-next {
+  @extend %tab-buttons;
+  color: $dashboard-arrow-color;
 }
 
-.dashboard-tabs-sortable {
-  overflow-y: hidden;
-  overflow-x: auto;
-  padding-bottom: 100px;
-  outline: none;
+.page-prev {
+  margin-right: -1px;
 }
 
-.dashboard-tabs-scrollable {
-  height: $dashboard-tab-height;
-  overflow: hidden; // ensure scrollbars of inner container are hidden from view
-  display: flex;
-
-  .page-prev, .page-next {
-    @extend %tab-buttons;
-    color: $dashboard-tab-secondary-text-color;
-  }
-
-  &.paged {
-    .page-prev, .page-next {
-      display: block;
-
-    }
-    .page-prev {
-      margin-right: -1px;
-    }
-    .page-next {
-      margin-left: -1px;
-    }
-  }
-
-  .icon_page-prev {
-    @include icon-before($type: chevron-left);
-  }
-
-  .icon_page-next {
-    @include icon-before($type: chevron-right);
-  }
+.page-next {
+  margin-left: -1px;
 }
 
 .dashboard-tab {
@@ -173,7 +164,6 @@ button {
   position: relative;
   white-space: nowrap;
   height: $dashboard-tab-height;
-  color: $dashboard-tab-secondary-text-color;
   outline: none;
 
   &:active, &:focus {
@@ -187,41 +177,6 @@ button {
 
   > * {
     vertical-align: top;
-  }
-
-  .drag-icon {
-    @include sort-cursor;
-    @include grip-icon;
-
-    font-size: 12px;
-
-    &:active {
-      @include sort-cursor-active;
-    }
-  }
-
-  .edit-icon {
-    @include icon-before($type: pencil);
-    cursor: pointer;
-  }
-
-  .tab-name {
-    @include truncate-to-width($max: 210px);
-    font-size: 12px;
-    font-weight: 600;
-    text-transform: uppercase;
-    margin: 0 0 0 10px;
-    display: inline-block;
-  }
-
-  &.current {
-    color: $dashboard-tab-primary-text-color;
-    cursor: default;
-    border-bottom: 3px solid $dashboard-tab-primary-text-color;
-
-    .tab-name {
-      margin-right: 0;
-    }
   }
 
   &.draggable-source--is-dragging {
@@ -244,31 +199,48 @@ button {
     z-index: 5;
   }
 
-  .tab-dropdown-toggle {
-    display: inline-block;
-    margin-left: 7px;
-    cursor: default;
+}
 
-    .dropdown-btn {
-      @include icon-before($type: caret-down);
+.edit-tab {
+  margin: 7px 0px 10px 10px;
+  font-size: 14px;
 
-      cursor: pointer;
+}
 
-      &.deny-action {
-        cursor: not-allowed;
-      }
-    }
+.tab-name {
+  @include truncate-to-width($max: 210px);
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  margin: 0 0 0 10px;
+  display: inline-block;
+  color: $dashboard-tab-name;
+}
+
+.current {
+  cursor: default;
+  border-bottom: 3px solid $tab-name-current-border;
+
+  .tab-name {
+    color: $dashboard-tab-name-current;
+    margin-right: 0;
   }
+}
+
+.tab-dropdown-toggle {
+  display: inline-block;
+  margin-left: 7px;
+  cursor: default;
+
 }
 
 .actionable-message {
   position: absolute;
   top: calc(100% + #{$dashboard-tab-current-marker-height});
-  left: 0;
-  padding: 10px;
-  padding-right: 30px;
+  left: 30px;
+  padding: 20px 50px 20px 20px;
   border: 0;
-  border-radius: $dashboard-tabs-border-radius;
+  border-radius: $global-border-radius;
   background: #fff;
   color: #333;
   z-index: 25;
@@ -295,21 +267,11 @@ button {
     outline: 0;
   }
 
-  .revert {
-    @include icon-before($type: close);
-
-    position: absolute;
-    right: 10px;
-    top: 50%;
-    transform: translateY(-50%);
-    cursor: pointer;
-  }
-
   &:before {
     content: "";
     position: absolute;
     top: -$dashboard-tab-current-marker-height;
-    left: 20px;
+    left: 10px;
     width: 0;
     height: 0;
     border-bottom: $dashboard-tab-current-marker-height solid #fff;
@@ -317,18 +279,14 @@ button {
     border-right: $dashboard-tab-current-marker-height solid transparent;
   }
 }
+.save-tab-order-message{
+  font-weight: 600;
+  margin-right: 30px;
+}
 
 .server-error-response {
   display: flex;
   align-items: center;
-
-  .alert-icon {
-    @include icon-before($type: exclamation-circle);
-
-    margin-right: 10px;
-    font-size: 150%;
-    color: map-get($foundation-palette, alert);
-  }
 
   .reason {
     display: inline-block;
@@ -391,10 +349,10 @@ button {
     font-size: 12px;
     padding: 10px 0;
     font-weight: 600;
-    color: $dashboard-tab-secondary-text-color;
+    color: $dashboard-tab-name;
 
     &.current, &:hover {
-      color: $dashboard-tab-primary-text-color;
+      color: $dashboard-tab-name-current;
     }
 
     &:last-of-type {
@@ -404,12 +362,70 @@ button {
 }
 
 .tabs-list-dropdown-toggle {
-@extend %tab-buttons;
-  color: $dashboard-tab-secondary-text-color;
+  @extend %tab-buttons;
+  color: $dashboard-tab-name;
   margin-left: -1px;
 }
 
-.tabs-list-icon {
+//icons
+
+.icon_add {
+  @include icon-before($type: plus);
+}
+
+.icon_page-prev {
+  @include icon-before($type: chevron-left);
+}
+
+.icon_page-next {
+  @include icon-before($type: chevron-right);
+}
+
+.icon_edit {
+  @include icon-before($type: pencil);
+  cursor: pointer;
+  color: $icon-color;
+  display:none;
+  .current & {
+    color: $go-primary;
+    display:block;
+  }
+}
+
+.icon_drag {
+  @include sort-cursor;
+  @include grip-icon;
+  font-size: 12px;
+  color: #9B9B9B;
+  &:active {
+    @include sort-cursor-active;
+  }
+}
+
+.revert {
+  @include icon-before($type: close);
+  position: absolute;
+  right: 5px;
+  top: 2px;
+  cursor: pointer;
+}
+
+.icon_alert {
+  @include icon-before($type: exclamation-circle);
+  margin-right: 10px;
+  font-size: 150%;
+  color: map-get($foundation-palette, alert);
+}
+
+.icon_tabs-list {
   @include icon-before($type: chevron-down);
   font-size: 14px;
+}
+
+.dropdown-btn {
+  @include icon-before($type: caret-down);
+  cursor: pointer;
+  &.deny-action {
+    cursor: not-allowed;
+  }
 }

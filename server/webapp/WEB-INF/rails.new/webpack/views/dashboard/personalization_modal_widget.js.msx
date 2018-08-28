@@ -81,7 +81,7 @@ const PipelineGroupSelection = {
     const vm = vnode.attrs.vm, name = vnode.attrs.name;
     return <li class={`selected-pipelines-group-${(vm.expanded() ? "expanded" : "collapsed")}`}>
       <i class="pipeline-list-toggle" onclick={() => vm.expanded(!vm.expanded())} />
-      <f.checkbox model={vm} attrName="selected" label={name}/>
+      <f.checkbox model={vm} attrName="selected" indeterminate={vm.indeterminate()} label={name}/>
       <PipelineSelectors pipelines={vm.pipelines} />
     </li>;
   }

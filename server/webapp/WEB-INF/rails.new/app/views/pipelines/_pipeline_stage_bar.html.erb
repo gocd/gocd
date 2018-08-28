@@ -38,7 +38,7 @@
     <% if placeholder_stage?(scope[:stage_in_status_bar]) %>
         <div <%= scope[:stage_bar_html_options] -%>></div>
     <% else %>
-        <a title="testing" href="<%= stage_bar_url(scope[:stage_in_status_bar], scope[:stage_details_action]) -%>" <%= scope[:stage_bar_html_options] -%>>
+        <a href="<%= stage_bar_url(scope[:stage_in_status_bar], scope[:stage_details_action]) -%>" <%= scope[:stage_bar_html_options] -%>>
         <span><span></span></span></a>
     <% end %>
 </div>

@@ -52,11 +52,56 @@ function personalizeEditor(opts, personalization, model) {
     });
   }
 
-  new Modal({
+  function deleteView() {
+    new Modal({
+      title: "Delete View",
+      size: "delete-view",
+      body: () => {
+        return <span>
+          Do you want to delete <span class="view-name">{existing}</span> view?
+        </span>;
+      },
+      buttons: [{
+        text: "Yes",
+        onclick: () => {
+          personalization().removeFilter(existing, model.etag()).done((data) => {
+            model.currentView("Default");
+            model.names(personalization().names());
+            model.checksum(data.contentHash);
+
+            Modal.close();
+            model.onchange();
+          }).fail((xhr) => {
+            const reason = JSON.parse(xhr.responseText).message;
+            that.replace({
+              title: "Delete View",
+              size: "delete-view",
+              body: () => {
+                return <span class="server-error-response">
+                  <i class="alert-icon"></i>
+                  <span class="reason">
+                    Failed to delete view <span class="view-name">{name}</span>: {reason}
+                  </span>
+                </span>;
+              },
+              buttons: [{text: "Close"}]
+            });
+          }).always(() => {
+            m.redraw();
+          });
+        }}, {text: "Cancel", class: "btn-link"}]
+    });
+  }
+
+  this.modal = new Modal({
     title: existing ? `Edit ${opts.name}`: "Create new view",
     size: "personalize-editor",
     body: () => m(PersonalizationModalWidget, { vm, save }),
-    buttons: [
+    buttons: existing ? [
+      {text: "Delete View", class:"delete-button", onclick: deleteView },
+      {text: "Save", disabled: vm.invalid, onclick: save, tooltipText: vm.firstError},
+      {text: "Cancel", class: "btn-link"}
+    ] : [
       {text: "Save", disabled: vm.invalid, onclick: save, tooltipText: vm.firstError},
       {text: "Cancel", class: "btn-link"}
     ]

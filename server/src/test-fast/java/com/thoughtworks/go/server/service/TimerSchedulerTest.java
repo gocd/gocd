@@ -37,6 +37,7 @@ import java.util.List;
 
 import static com.thoughtworks.go.helper.PipelineConfigMother.pipelineConfig;
 import static com.thoughtworks.go.helper.PipelineConfigMother.pipelineConfigWithTimer;
+import static com.thoughtworks.go.server.service.TimerScheduler.PIPELINE_TRIGGGER_TIMER_GROUP;
 import static java.util.Arrays.asList;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
@@ -71,10 +72,10 @@ public class TimerSchedulerTest {
 
         JobDetail expectedJob = JobBuilder.newJob()
                 .ofType(TimerScheduler.SchedulePipelineQuartzJob.class)
-                .withIdentity(jobKey("uat", "CruiseTimers"))
+                .withIdentity(jobKey("uat", PIPELINE_TRIGGGER_TIMER_GROUP))
                 .build();
         Trigger expectedTrigger = TriggerBuilder.newTrigger()
-                .withIdentity(triggerKey("uat", "CruiseTimers"))
+                .withIdentity(triggerKey("uat", PIPELINE_TRIGGGER_TIMER_GROUP))
                 .withSchedule(cronSchedule("0 15 10 ? * MON-FRI"))
                 .build();
         verify(scheduler).scheduleJob(expectedJob, expectedTrigger);
@@ -108,11 +109,11 @@ public class TimerSchedulerTest {
 
         JobDetail expectedJob =JobBuilder.newJob()
                 .ofType(TimerScheduler.SchedulePipelineQuartzJob.class)
-                .withIdentity(jobKey("dist", "CruiseTimers"))
+                .withIdentity(jobKey("dist", PIPELINE_TRIGGGER_TIMER_GROUP))
                 .build();
 
         Trigger expectedTrigger = TriggerBuilder.newTrigger()
-                .withIdentity(triggerKey("dist", "CruiseTimers"))
+                .withIdentity(triggerKey("dist", PIPELINE_TRIGGGER_TIMER_GROUP))
                 .withSchedule(cronSchedule("0 15 10 ? * MON-FRI"))
                 .build();
         verify(scheduler).scheduleJob(expectedJob, expectedTrigger);
@@ -156,7 +157,7 @@ public class TimerSchedulerTest {
         GoConfigService goConfigService = mock(GoConfigService.class);
 
         String pipelineName = "timer-based-pipeline";
-        when(scheduler.getJobDetail(jobKey(pipelineName, TimerScheduler.QUARTZ_GROUP))).thenReturn(mock(JobDetail.class));
+        when(scheduler.getJobDetail(jobKey(pipelineName, PIPELINE_TRIGGGER_TIMER_GROUP))).thenReturn(mock(JobDetail.class));
         TimerScheduler timerScheduler = new TimerScheduler(scheduler, goConfigService, null, null);
         ArgumentCaptor<ConfigChangedListener> captor = ArgumentCaptor.forClass(ConfigChangedListener.class);
         doNothing().when(goConfigService).register(captor.capture());
@@ -176,10 +177,10 @@ public class TimerSchedulerTest {
         assertThat(jobDetailArgumentCaptor.getValue().getKey().getName(), is(pipelineName));
         assertThat(triggerArgumentCaptor.getValue().getCronExpression(), is("* * * * * ?"));
 
-        verify(scheduler).getJobDetail(jobKey(pipelineName, TimerScheduler.QUARTZ_GROUP));
+        verify(scheduler).getJobDetail(jobKey(pipelineName, PIPELINE_TRIGGGER_TIMER_GROUP));
 
-        verify(scheduler).unscheduleJob(triggerKey(pipelineName, TimerScheduler.QUARTZ_GROUP));
-        verify(scheduler).deleteJob(jobKey(pipelineName, TimerScheduler.QUARTZ_GROUP));
+        verify(scheduler).unscheduleJob(triggerKey(pipelineName, PIPELINE_TRIGGGER_TIMER_GROUP));
+        verify(scheduler).deleteJob(jobKey(pipelineName, PIPELINE_TRIGGGER_TIMER_GROUP));
         verify(scheduler).scheduleJob(jobDetailArgumentCaptor.getValue(), triggerArgumentCaptor.getValue());
     }
 

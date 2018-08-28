@@ -54,7 +54,7 @@ public class TimerScheduler implements ConfigChangedListener {
     private BuildCauseProducerService buildCauseProducerService;
     private ServerHealthService serverHealthService;
     private Scheduler quartzScheduler;
-    protected static final String QUARTZ_GROUP = "CruiseTimers";
+    protected static final String PIPELINE_TRIGGGER_TIMER_GROUP = "PIPELINE_TRIGGGER_TIMER_GROUP";
     protected static final String BUILD_CAUSE_PRODUCER_SERVICE = "BuildCauseProducerService";
     protected static final String PIPELINE_CONFIG = "PipelineConfig";
 
@@ -94,13 +94,13 @@ public class TimerScheduler implements ConfigChangedListener {
         if (timer != null) {
             try {
                 CronTrigger trigger = newTrigger()
-                        .withIdentity(triggerKey(CaseInsensitiveString.str(pipelineConfig.name()), QUARTZ_GROUP))
+                        .withIdentity(triggerKey(CaseInsensitiveString.str(pipelineConfig.name()), PIPELINE_TRIGGGER_TIMER_GROUP))
                         .withSchedule(cronSchedule(new CronExpression(timer.getTimerSpec())))
                         .build();
 
 
                 JobDetail jobDetail = newJob()
-                        .withIdentity(jobKey(CaseInsensitiveString.str(pipelineConfig.name()), QUARTZ_GROUP))
+                        .withIdentity(jobKey(CaseInsensitiveString.str(pipelineConfig.name()), PIPELINE_TRIGGGER_TIMER_GROUP))
                         .ofType(SchedulePipelineQuartzJob.class)
                         .usingJobData(jobDataMapFor(pipelineConfig))
                         .build();
@@ -156,9 +156,9 @@ public class TimerScheduler implements ConfigChangedListener {
 
     private void unscheduleJob(String pipelineName) {
         try {
-            JobKey jobKey = jobKey(pipelineName, QUARTZ_GROUP);
+            JobKey jobKey = jobKey(pipelineName, PIPELINE_TRIGGGER_TIMER_GROUP);
             if (quartzScheduler.getJobDetail(jobKey) != null) {
-                quartzScheduler.unscheduleJob(triggerKey(pipelineName, QUARTZ_GROUP));
+                quartzScheduler.unscheduleJob(triggerKey(pipelineName, PIPELINE_TRIGGGER_TIMER_GROUP));
                 quartzScheduler.deleteJob(jobKey);
             }
         } catch (SchedulerException e) {

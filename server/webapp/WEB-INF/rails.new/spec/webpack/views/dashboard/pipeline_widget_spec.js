@@ -195,7 +195,9 @@ describe("Dashboard Pipeline Widget", () => {
       afterEach(unmount);
 
       it("should render unpause pipeline button", () => {
-        expect($root.find('.unpause')).toBeInDOM();
+        const pauseButton = $root.find('.unpause');
+        expect(pauseButton).toBeInDOM();
+        expect($(pauseButton).attr('title')).toBe("Pipeline Paused");
       });
 
       it('should disable pause button for non admin users', () => {
@@ -692,7 +694,6 @@ describe("Dashboard Pipeline Widget", () => {
       it('should disable trigger with options button when pipeline is locked', () => {
         unmount();
         mount(false, true, undefined, {"locked": true});
-
         expect($root.find('.play_with_options')).toHaveClass('disabled');
       });
 
@@ -703,8 +704,10 @@ describe("Dashboard Pipeline Widget", () => {
           "paused_by":    "admin",
           "pause_reason": "under construction"
         });
-
-        expect($root.find('.play_with_options')).toHaveClass('disabled');
+        const triggerWithOptsButton = $root.find('.play_with_options');
+        expect(triggerWithOptsButton).toHaveClass('disabled');
+        expect(triggerWithOptsButton).toHaveAttr('title');
+        expect($(triggerWithOptsButton).attr('title')).toBe("Trigger with Options Disabled");
       });
 
       it('should not add onclick handler pipeline is locked', () => {
@@ -952,8 +955,8 @@ describe("Dashboard Pipeline Widget", () => {
           doCancelPolling,
           doRefreshImmediately,
           operationMessages: dashboardViewModel.operationMessages,
-          dropdown: dashboardViewModel.dropdown,
-          buildCause: dashboardViewModel.buildCause
+          dropdown:          dashboardViewModel.dropdown,
+          buildCause:        dashboardViewModel.buildCause
         });
       }
     });

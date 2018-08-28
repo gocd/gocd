@@ -77,7 +77,7 @@ const PipelineInstanceWidget = {
         <div class="more_info">
           <ul class="info">
             <li><a href={instance.comparePath}>Compare</a></li>
-            <li><a onclick={vnode.state.toggleDropdown.bind(vnode)}><span class="changes">Changes</span></a></li>
+            <li><a onclick={vnode.state.toggleDropdown.bind(vnode)} aria-label="Changes" title="Changes"><span class="changes">Changes</span></a></li>
             <li><a href={instance.vsmPath} title="Value Stream Map">VSM</a></li>
           </ul>
           {dropdownWidget}

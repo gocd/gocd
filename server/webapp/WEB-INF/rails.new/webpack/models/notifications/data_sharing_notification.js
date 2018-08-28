@@ -14,33 +14,55 @@
  * limitations under the License.
  */
 
-const $              = require('jquery');
-const SystemNotifications = require('models/notifications/system_notifications');
+const $                                 = require('jquery');
+const SystemNotifications               = require('models/notifications/system_notifications');
 const DataSharingNotificationPermission = require('models/notifications/data_sharing_notification_permissions');
+
+/*
+   Add AdditionalMetrics Notification only if `DataSharing` notification exists.
+
+   Data Sharing was added as part of GoCD v18.7.0
+   Addition data to the data sharing was added as part of GoCD v18.8.0
+
+   Users upgrading from any version prior to v18.7.0 to v18.8.0 should get only DataSharing notification
+   And, Users upgrading from v18.7.0 to v18.8.0 should get AdditionalMetrics notification
+*/
 
 const DataSharingNotification = function () {
 };
 
 DataSharingNotification.createIfNotPresent = () => $.Deferred(function () {
-     SystemNotifications.all().then((allNotifications) => {
-        const dataSharingNotification = allNotifications.findSystemNotification((m) => {
-            return m.type() === 'DataSharing';
-        });
-
-        if (dataSharingNotification !== undefined) {
-            this.resolve({});
-            return;
-        }
-        DataSharingNotificationPermission.get().then((permissions) => {
-            if (permissions.showNotification()) {
-                const message = "GoCD shares data so that it can be improved.";
-                const link = "/go/admin/data_sharing/settings";
-                const type = "DataSharing";
-                SystemNotifications.notifyNewMessage(type, message, link, "Learn more ...");
-            }
-            this.resolve({});
-        });
+  SystemNotifications.all().then((allNotifications) => {
+    const existingDataSharingNotification = allNotifications.findSystemNotification((m) => {
+      return m.type() === 'DataSharing';
     });
+
+    const existingAdditionalMetricsNotification = allNotifications.findSystemNotification((m) => {
+      return m.type() === 'DataSharing_v18.8.0';
+    });
+
+    if (existingAdditionalMetricsNotification) {
+      this.resolve({});
+      return;
+    }
+
+    DataSharingNotificationPermission.get().then((permissions) => {
+      if (permissions.showNotification()) {
+        if (existingDataSharingNotification !== undefined) {
+          const message = "GoCD’s shared data has been updated to include new metrics.";
+          const link    = "/go/admin/data_sharing/settings";
+          const type    = "DataSharing_v18.8.0";
+          SystemNotifications.notifyNewMessage(type, message, link, "Learn more ...");
+        } else {
+          const message = "GoCD shares data so that it can be improved.";
+          const link    = "/go/admin/data_sharing/settings";
+          const type    = "DataSharing_v18.8.0";
+          SystemNotifications.notifyNewMessage(type, message, link, "Learn more ...");
+        }
+      }
+      this.resolve({});
+    });
+  });
 }).promise();
 
 module.exports = DataSharingNotification;

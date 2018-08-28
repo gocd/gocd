@@ -36,20 +36,25 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.any;
+
+import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
 import org.quartz.impl.StdSchedulerFactory;
 
 public class TimerSchedulerQuartzIntegrationTest {
     private StdSchedulerFactory quartzSchedulerFactory;
+    private Scheduler scheduler;
 
     @Before
     public void setUp() throws Exception {
         quartzSchedulerFactory = new StdSchedulerFactory();
+        scheduler = quartzSchedulerFactory.getScheduler();
+        scheduler.start();
     }
 
     @After
     public void tearDown() throws SchedulerException {
-        quartzSchedulerFactory.getScheduler().shutdown();        
+        quartzSchedulerFactory.getScheduler().shutdown();
     }
 
     @Test
@@ -63,7 +68,7 @@ public class TimerSchedulerQuartzIntegrationTest {
 
         BuildCauseProducerService buildCauseProducerService = mock(BuildCauseProducerService.class);
 
-        TimerScheduler timerScheduler = new TimerScheduler(quartzSchedulerFactory, goConfigService, buildCauseProducerService, null);
+        TimerScheduler timerScheduler = new TimerScheduler(scheduler, goConfigService, buildCauseProducerService, null);
         timerScheduler.initialize();
 
         pauseForScheduling();
@@ -83,7 +88,7 @@ public class TimerSchedulerQuartzIntegrationTest {
 
         BuildCauseProducerService buildCauseProducerService = mock(BuildCauseProducerService.class);
 
-        TimerScheduler timerScheduler = new TimerScheduler(quartzSchedulerFactory, goConfigService, buildCauseProducerService, null);
+        TimerScheduler timerScheduler = new TimerScheduler(scheduler, goConfigService, buildCauseProducerService, null);
         timerScheduler.initialize();
 
         CruiseConfig cruiseConfig = new BasicCruiseConfig();

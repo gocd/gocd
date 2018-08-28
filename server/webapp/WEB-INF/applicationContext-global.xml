@@ -114,6 +114,8 @@
 
     <bean id="configRepositoryValidatorService" class="com.thoughtworks.go.config.validation.ConfigRepositoryValidatorService" autowire="autodetect" lazy-init="false" />
 
-    <bean class="org.quartz.impl.StdSchedulerFactory" name="schedulerFactory"/>
+    <bean id="schedulerFactory" class="org.quartz.impl.StdSchedulerFactory"  />
+    <bean id="scheduler" factory-bean="schedulerFactory" factory-method="getScheduler" class="org.quartz.Scheduler" init-method="start" scope="singleton"/>
+
     <bean class="com.thoughtworks.go.server.domain.PipelineTimeline" name="pipelineTimeline" lazy-init="true" autowire="autodetect"/>
 </beans>

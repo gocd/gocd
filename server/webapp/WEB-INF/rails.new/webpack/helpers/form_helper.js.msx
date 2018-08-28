@@ -450,12 +450,12 @@ const f = {
     view(vnode) {
       const args        = vnode.attrs;
       const tooltipText = deleteKeyAndReturnValue(args, "tooltipText");
-      const buttonType  = deleteKeyAndReturnValue(args, "type") || "button";
+      const buttonType  = deleteKeyAndReturnValue(args, "type", "button");
 
       if (!_.isEmpty(tooltipText)) {
-        return (<f.buttonWithTooltip tooltipText={tooltipText}
-                                     buttonType={buttonType}
-                                     {...args}/>);
+        return <f.buttonWithTooltip tooltipText={tooltipText} buttonType={buttonType} {...args}>
+          {vnode.children}
+        </f.buttonWithTooltip>;
       }
       return (
         <button type="button"
@@ -507,7 +507,7 @@ const f = {
       }
 
       if (!_.isEmpty(tooltipText)) {
-        return (<f.linkWithTooltip class={compactClasses(args)} {...args}/>);
+        return <f.linkWithTooltip class={compactClasses(args)} {...args}>{vnode.children}</f.linkWithTooltip>;
       }
 
       if (args.target === '_blank') {

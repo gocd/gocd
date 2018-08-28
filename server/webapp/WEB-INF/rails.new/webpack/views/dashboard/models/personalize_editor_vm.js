@@ -53,6 +53,8 @@ function PersonalizeEditorVM(opts) { // opts is usually the current filter
     const pipelines = selectionVM() ? selectionVM().pipelines(inverted()) : [];
     return {name: name(), type: type(), pipelines, state: state()};
   };
+
+  this.hasPipelinesSelected = () => !!(this.selectionVM() && this.selectionVM().hasAnySelections());
 }
 
 function normalize(opts) {

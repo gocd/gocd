@@ -1,7 +1,7 @@
 const m = require("mithril");
 const $ = require("jquery");
 const f = require("helpers/form_helper");
-const _ = require('lodash');
+const _ = require("lodash");
 
 let _root;
 const MODALS = [];
@@ -28,7 +28,15 @@ const Footer = {
   view(vnode) {
     const buttons = $.map(vnode.attrs.buttons, (opts) => {
       const c = $.extend({}, BUTTON_DEFAULTS, opts);
-      return m(f.button, {disabled: val(c.disabled), class: c.class, onclick: c.onclick}, c.text);
+
+      const text = c.text;
+      delete c.text;
+
+      _.each(["text", "title", "disabled", "tooltipText"], (attr) => {
+        if (c.hasOwnProperty(attr)) { c[attr] = val(c[attr]); }
+      });
+
+      return m(f.button, {...c}, text);
     });
 
     return <footer class="overlay-footer">{buttons}</footer>;

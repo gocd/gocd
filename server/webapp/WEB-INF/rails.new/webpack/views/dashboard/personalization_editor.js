@@ -55,11 +55,9 @@ function personalizeEditor(opts, personalization, model) {
   new Modal({
     title: existing ? `Edit ${opts.name}`: "Create new view",
     size: "personalize-editor",
-    body: () => {
-      return m(PersonalizationModalWidget, { vm, save });
-    },
+    body: () => m(PersonalizationModalWidget, { vm, save }),
     buttons: [
-      {text: "Save", disabled: vm.invalid, onclick: save},
+      {text: "Save", disabled: vm.invalid, onclick: save, tooltipText: vm.firstError},
       {text: "Cancel", class: "btn-link"}
     ]
   });

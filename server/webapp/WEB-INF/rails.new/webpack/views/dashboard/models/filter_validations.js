@@ -24,6 +24,8 @@ const MSG_PAD_SPACE = "Filter name must not have leading or trailing whitespace"
 const MSG_BAD_CHARS = "Filter name is only allowed to contain letters, numbers, spaces, and punctuation marks";
 const MSG_DUPE_NAME = "Another filter with this name already exists";
 
+const MSG_NO_SELECT = "At least one pipeline must be selected";
+
 /** Mixin to provide validations on personalization modal */
 function FilterValidations(opts) {
   Validatable.call(this, {});
@@ -31,8 +33,24 @@ function FilterValidations(opts) {
   this.validateFormatOf("name", {format: PADDED_SPACES, message: MSG_PAD_SPACE});
   this.validateFormatOf("name", {format: ASCII_PR_CHAR, message: MSG_BAD_CHARS});
   this.validateWith("name", uniquenessValidator(opts, MSG_DUPE_NAME));
+  this.validateWith("hasPipelinesSelected", truthValidator(MSG_NO_SELECT));
 
-  this.invalid = () => this.errors().hasErrors();
+  this.firstError = () => {
+    return this.errors().errorsForDisplay("name") || this.errors().errorsForDisplay("hasPipelinesSelected");
+  };
+
+  this.invalid = () => {
+    this.validate("hasPipelinesSelected");
+    return this.errors().hasErrors();
+  };
+}
+
+function truthValidator(message) {
+  return function validator() {
+    this.validate = (model, attr) => {
+      if (!model[attr]()) { model.errors().add(attr, message); }
+    };
+  };
 }
 
 function uniquenessValidator({names, name}, message) {

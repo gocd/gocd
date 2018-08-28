@@ -75,6 +75,8 @@ function PipelineListVM(pipelinesByGroup, currentSelection) {
 
   this.selectAll = function selectAll() { _.each(currentSelection, (s, _n) => { s(true); }); };
   this.selectNone = function selectNone() { _.each(currentSelection, (s, _n) => { s(false); }); };
+
+  this.hasAnySelections = () => !!_.find(currentSelection, (s, _n) => s());
 }
 
 function boolByName(s, name) {

@@ -5,6 +5,30 @@ $overlay-height:        300px;
 $overlay-border-color:  #ccc;
 $overlay-border-radius: 3px;
 
+@include keyframes(modalIn) {
+  0% {
+    opacity:   0;
+    transform: translate(-50%, -150%);
+  }
+
+  100% {
+    opacity:   1;
+    transform: translate(-50%, 0);
+  }
+}
+
+@include keyframes(modalOut) {
+  0% {
+    opacity:   1;
+    transform: translate(-50%, 0);
+  }
+
+  100% {
+    opacity:   0;
+    transform: translate(-50%, -150%);
+  }
+}
+
 .overlay-bg {
   display:    none;
   background: $overlay-bg;
@@ -16,15 +40,46 @@ $overlay-border-radius: 3px;
   z-index:    100;
 }
 
+.overlay-bg-in {
+  @include animation(fadeIn 0.25s ease-in-out);
+}
+
+.overlay-bg-out {
+  @include animation(fadeOut 0.25s ease-in-out);
+}
+
 .overlay {
+  display:       none;
   border:        0;
   border-radius: $overlay-border-radius;
-  position:      fixed;
+  position:      absolute;
   z-index:       100;
   top:           25%;
   left:          50%;
-  min-width:         $overlay-width;
-  transform:     translatex(-50%);
+  min-width:     $overlay-width;
+  transform:     translate(-50%, 0);
+  transition:    opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
+
+  &.adding {
+    @include animation(modalIn 0.5s ease-out);
+  }
+
+  &.removing {
+    @include animation(modalOut 0.25s ease-out);
+  }
+
+  &:nth-of-type(1), &:nth-of-type(2) {
+    display: block;
+  }
+
+  &:nth-of-type(2) {
+    transform: translate(-50%, 80vh);
+    opacity:   0.7;
+
+    .close-icon {
+      display: none;
+    }
+  }
 }
 
 .overlay-header {

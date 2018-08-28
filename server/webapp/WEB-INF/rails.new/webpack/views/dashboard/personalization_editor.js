@@ -53,7 +53,7 @@ function personalizeEditor(opts, personalization, model) {
   }
 
   function deleteView() {
-    new Modal({
+    const dialog = new Modal({
       title: "Delete View",
       size: "delete-view",
       body: () => {
@@ -73,7 +73,7 @@ function personalizeEditor(opts, personalization, model) {
             model.onchange();
           }).fail((xhr) => {
             const reason = JSON.parse(xhr.responseText).message;
-            that.replace({
+            dialog.replace({
               title: "Delete View",
               size: "delete-view",
               body: () => {

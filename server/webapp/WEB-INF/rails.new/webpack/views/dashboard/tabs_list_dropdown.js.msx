@@ -18,6 +18,9 @@ const AvailableTabs = {
       return m("ul", {class: "tabs-list"}, _.map(vm.tabs(), (tab) => <li
         key={tab.id}
         class={vm.active(tab.name) ? "current" : undefined}
+        title={tab.name}
+        aria-label={vm.active(tab.name) ? `${tab.name} is selected` : tab.name}
+        tabIndex="0"
         onclick={(e) => { e.stopPropagation(); vm.activate(tab.name); }}>{tab.name}</li>));
     }
   }
@@ -28,7 +31,7 @@ const ViewTabsDropdownToggle = {
     const vm = vnode.attrs.vm;
     function toggleTabsListDropdown(e) { e.stopPropagation(); vm.toggleTabsListDropdown(); }
 
-    return <button class="tabs-list-dropdown-toggle" onclick={toggleTabsListDropdown}>
+    return <button class="tabs-list-dropdown-toggle" onclick={toggleTabsListDropdown} title="Views list">
       <i class="icon_tabs-list" />
     </button>;
   }

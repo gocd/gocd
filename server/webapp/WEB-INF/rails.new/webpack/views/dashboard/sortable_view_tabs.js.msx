@@ -25,7 +25,7 @@ const SortableViewTabs = {
 
   view(vnode) {
     const vm = vnode.attrs.vm;
-    const attrs = { class: "dashboard-tabs-sortable", onscroll: raf(() => vm.hideAllDropdowns()) };
+    const attrs = { class: "dashboard-tabs-sortable", "aria-label": "Dashboard Views", onscroll: raf(() => vm.hideAllDropdowns()) };
 
     return m("nav", attrs, _.map(vm.tabs(), (tab) => <ViewTab {...vnode.attrs} key={tab.id} name={tab.name} />));
   }
@@ -43,10 +43,11 @@ const ViewTab = {
 
     if (current) { vm.currentVnode(vnode); }
 
-    return <div class={current ? "dashboard-tab current" : "dashboard-tab"} onclick={current || switchTab} data-name={name}>
+    return <div class={current ? "dashboard-tab current" : "dashboard-tab"} onclick={current || switchTab}
+                data-name={name} aria-label={current ? `'${name}' is selected` : name} title={name} tabIndex="0">
       <i class="icon_drag" />
       <div class="tab-name">{name}</div>
-      <button className="edit-tab"  onclick={edit} ><i class="icon_edit"/></button>
+      <button class="edit-tab" onclick={edit} title="Edit View"><i class="icon_edit"/></button>
     </div>;
   }
 };
@@ -112,7 +113,7 @@ function initSavePopup(vm) {
 
   vm.actionPopup({
     class: "save-tab-order-confirmation",
-    body: <span class="save-tab-order-message">Save tab order?</span>,
+    body: <span class="save-tab-order-message">Save view order?</span>,
     onabort: onreset,
     buttons: [
       {class: "btn-link", text: "Revert", onclick: onreset},

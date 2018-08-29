@@ -28,10 +28,8 @@ import com.thoughtworks.go.serverhealth.HealthStateScope;
 import com.thoughtworks.go.serverhealth.HealthStateType;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.serverhealth.ServerHealthState;
-import org.quartz.impl.JobDetailImpl;
-import org.quartz.impl.matchers.GroupMatcher;
-import org.slf4j.Logger;
 import org.quartz.*;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -54,32 +52,25 @@ public class TimerScheduler implements ConfigChangedListener {
 
     private GoConfigService goConfigService;
     private BuildCauseProducerService buildCauseProducerService;
-    private SchedulerFactory quartzSchedulerFactory;
     private ServerHealthService serverHealthService;
     private Scheduler quartzScheduler;
-    protected static final String QUARTZ_GROUP = "CruiseTimers";
+    protected static final String PIPELINE_TRIGGGER_TIMER_GROUP = "PIPELINE_TRIGGGER_TIMER_GROUP";
     protected static final String BUILD_CAUSE_PRODUCER_SERVICE = "BuildCauseProducerService";
     protected static final String PIPELINE_CONFIG = "PipelineConfig";
 
     @Autowired
-    public TimerScheduler(SchedulerFactory quartzSchedulerFactory, GoConfigService goConfigService,
+    public TimerScheduler(Scheduler scheduler, GoConfigService goConfigService,
                           BuildCauseProducerService buildCauseProducerService, ServerHealthService serverHealthService) {
         this.goConfigService = goConfigService;
         this.buildCauseProducerService = buildCauseProducerService;
-        this.quartzSchedulerFactory = quartzSchedulerFactory;
+        this.quartzScheduler = scheduler;
         this.serverHealthService = serverHealthService;
     }
 
     public void initialize() {
-        try {
-            quartzScheduler = quartzSchedulerFactory.getScheduler();
-            quartzScheduler.start();
-            scheduleAllJobs(goConfigService.getAllPipelineConfigs());
-            goConfigService.register(this);
-            goConfigService.register(pipelineConfigChangedListener());
-        } catch (SchedulerException e) {
-            showGlobalError("Failed to initialize timer", e);
-        }
+        scheduleAllJobs(goConfigService.getAllPipelineConfigs());
+        goConfigService.register(this);
+        goConfigService.register(pipelineConfigChangedListener());
     }
 
     protected EntityConfigChangedListener<PipelineConfig> pipelineConfigChangedListener() {
@@ -103,13 +94,13 @@ public class TimerScheduler implements ConfigChangedListener {
         if (timer != null) {
             try {
                 CronTrigger trigger = newTrigger()
-                        .withIdentity(triggerKey(CaseInsensitiveString.str(pipelineConfig.name()), QUARTZ_GROUP))
+                        .withIdentity(triggerKey(CaseInsensitiveString.str(pipelineConfig.name()), PIPELINE_TRIGGGER_TIMER_GROUP))
                         .withSchedule(cronSchedule(new CronExpression(timer.getTimerSpec())))
                         .build();
 
 
                 JobDetail jobDetail = newJob()
-                        .withIdentity(jobKey(CaseInsensitiveString.str(pipelineConfig.name()), QUARTZ_GROUP))
+                        .withIdentity(jobKey(CaseInsensitiveString.str(pipelineConfig.name()), PIPELINE_TRIGGGER_TIMER_GROUP))
                         .ofType(SchedulePipelineQuartzJob.class)
                         .usingJobData(jobDataMapFor(pipelineConfig))
                         .build();
@@ -165,9 +156,9 @@ public class TimerScheduler implements ConfigChangedListener {
 
     private void unscheduleJob(String pipelineName) {
         try {
-            JobKey jobKey = jobKey(pipelineName, QUARTZ_GROUP);
+            JobKey jobKey = jobKey(pipelineName, PIPELINE_TRIGGGER_TIMER_GROUP);
             if (quartzScheduler.getJobDetail(jobKey) != null) {
-                quartzScheduler.unscheduleJob(triggerKey(pipelineName, QUARTZ_GROUP));
+                quartzScheduler.unscheduleJob(triggerKey(pipelineName, PIPELINE_TRIGGGER_TIMER_GROUP));
                 quartzScheduler.deleteJob(jobKey);
             }
         } catch (SchedulerException e) {

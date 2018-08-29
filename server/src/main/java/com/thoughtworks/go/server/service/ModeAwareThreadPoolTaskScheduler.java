@@ -41,32 +41,32 @@ public class ModeAwareThreadPoolTaskScheduler implements TaskScheduler, Initiali
     }
 
     @Override
-    public ScheduledFuture schedule(Runnable task, Trigger trigger) {
+    public ScheduledFuture<?> schedule(Runnable task, Trigger trigger) {
         return scheduler.schedule(wrap(task), trigger);
     }
 
     @Override
-    public ScheduledFuture schedule(Runnable task, Date startTime) {
+    public ScheduledFuture<?> schedule(Runnable task, Date startTime) {
         return scheduler.schedule(wrap(task), startTime);
     }
 
     @Override
-    public ScheduledFuture scheduleAtFixedRate(Runnable task, Date startTime, long period) {
+    public ScheduledFuture<?> scheduleAtFixedRate(Runnable task, Date startTime, long period) {
         return scheduler.scheduleAtFixedRate(wrap(task), startTime, period);
     }
 
     @Override
-    public ScheduledFuture scheduleAtFixedRate(Runnable task, long period) {
+    public ScheduledFuture<?> scheduleAtFixedRate(Runnable task, long period) {
         return scheduler.scheduleAtFixedRate(wrap(task), period);
     }
 
     @Override
-    public ScheduledFuture scheduleWithFixedDelay(Runnable task, Date startTime, long delay) {
+    public ScheduledFuture<?> scheduleWithFixedDelay(Runnable task, Date startTime, long delay) {
         return scheduler.scheduleWithFixedDelay(wrap(task), startTime, delay);
     }
 
     @Override
-    public ScheduledFuture scheduleWithFixedDelay(Runnable task, long delay) {
+    public ScheduledFuture<?> scheduleWithFixedDelay(Runnable task, long delay) {
         return scheduler.scheduleWithFixedDelay(wrap(task), delay);
     }
 

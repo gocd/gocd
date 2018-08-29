@@ -25,7 +25,6 @@ import com.thoughtworks.go.server.newsecurity.providers.PasswordBasedPluginAuthe
 import com.thoughtworks.go.server.newsecurity.utils.SessionUtils;
 import com.thoughtworks.go.server.security.userdetail.GoUserPrinciple;
 import com.thoughtworks.go.server.service.SecurityService;
-import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.TestingClock;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -190,23 +189,20 @@ class AbstractBasicAuthenticationFilterTest {
         }
 
         @Test
-        void shouldAlwaysAuthenticateWhenCredentialsAreProvidedInRequestEvenIfRequestWasPreviouslyAuthenticated() throws ServletException, IOException {
+        void shouldNotAuthenticateWhenRequestIsPreviouslyAuthenticated() throws ServletException, IOException {
             request = HttpRequestBuilder.GET("/")
                     .withBasicAuth(BOB, PASSWORD)
                     .build();
 
-            com.thoughtworks.go.server.newsecurity.SessionUtilsHelper.loginAsRandomUser(request);
+            com.thoughtworks.go.server.newsecurity.SessionUtilsHelper.loginAs(request, BOB, PASSWORD);
             final HttpSession originalSession = request.getSession(true);
-
-            final AuthenticationToken<UsernamePassword> authenticationToken = createAuthentication(BOB, PASSWORD);
-            when(authenticationProvider.authenticate(new UsernamePassword(BOB, PASSWORD), null)).thenReturn(authenticationToken);
 
             filter.doFilter(request, response, filterChain);
 
             verify(filterChain).doFilter(request, response);
-            assertThat(request.getSession(false)).isNotSameAs(originalSession);
-            assertThat(SessionUtils.getAuthenticationToken(request)).isEqualTo(authenticationToken);
+            assertThat(request.getSession(false)).isSameAs(originalSession);
 
+            verify(authenticationProvider, never()).authenticate(any(), anyString());
             verify(filter, never()).onAuthenticationFailure(any(), any(), anyString());
         }
     }

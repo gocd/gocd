@@ -85,6 +85,14 @@ public class SessionUtilsHelper {
         return goUserPrinciple;
     }
 
+    public static GoUserPrinciple loginAs(HttpServletRequest request, String username, String password, GrantedAuthority... grantedAuthorities) {
+        final GoUserPrinciple goUserPrinciple = loginAs(username, grantedAuthorities);
+        final AuthenticationToken<UsernamePassword> authenticationToken = new AuthenticationToken<>(goUserPrinciple,
+                new UsernamePassword(goUserPrinciple.getUsername(), password), null, 0L, null);
+        SessionUtils.setAuthenticationTokenAfterRecreatingSession(authenticationToken, request);
+        return goUserPrinciple;
+    }
+
 
     public static GoUserPrinciple loginAsRandomUser(HttpServletRequest request,
                                                     GrantedAuthority... grantedAuthorities) {

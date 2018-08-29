@@ -164,7 +164,7 @@ public class ServerConfig implements Validatable {
         if (this == o) {
             return true;
         }
-        if (!(o instanceof ServerConfig)) {
+        if (o == null || getClass() != o.getClass()) {
             return false;
         }
 
@@ -173,16 +173,10 @@ public class ServerConfig implements Validatable {
         if (artifactsDir != null ? !artifactsDir.equals(that.artifactsDir) : that.artifactsDir != null) {
             return false;
         }
-        if (jobTimeout != null ? !jobTimeout.equals(that.jobTimeout) : that.jobTimeout != null) {
+        if (siteUrl != null ? !siteUrl.equals(that.siteUrl) : that.siteUrl != null) {
             return false;
         }
-        if (serverId != null ? !serverId.equals(that.serverId) : that.serverId != null) {
-            return false;
-        }
-        if (agentAutoRegisterKey != null ? !agentAutoRegisterKey.equals(that.agentAutoRegisterKey) : that.agentAutoRegisterKey != null) {
-            return false;
-        }
-        if (mailHost != null ? !mailHost.equals(that.mailHost) : that.mailHost != null) {
+        if (secureSiteUrl != null ? !secureSiteUrl.equals(that.secureSiteUrl) : that.secureSiteUrl != null) {
             return false;
         }
         if (purgeStart != null ? !purgeStart.equals(that.purgeStart) : that.purgeStart != null) {
@@ -191,13 +185,28 @@ public class ServerConfig implements Validatable {
         if (purgeUpto != null ? !purgeUpto.equals(that.purgeUpto) : that.purgeUpto != null) {
             return false;
         }
-        if (secureSiteUrl != null ? !secureSiteUrl.equals(that.secureSiteUrl) : that.secureSiteUrl != null) {
+        if (jobTimeout != null ? !jobTimeout.equals(that.jobTimeout) : that.jobTimeout != null) {
+            return false;
+        }
+        if (agentAutoRegisterKey != null ? !agentAutoRegisterKey.equals(that.agentAutoRegisterKey) : that.agentAutoRegisterKey != null) {
+            return false;
+        }
+        if (webhookSecret != null ? !webhookSecret.equals(that.webhookSecret) : that.webhookSecret != null) {
+            return false;
+        }
+        if (commandRepositoryLocation != null ? !commandRepositoryLocation.equals(that.commandRepositoryLocation) : that.commandRepositoryLocation != null) {
+            return false;
+        }
+        if (serverId != null ? !serverId.equals(that.serverId) : that.serverId != null) {
             return false;
         }
         if (securityConfig != null ? !securityConfig.equals(that.securityConfig) : that.securityConfig != null) {
             return false;
         }
-        if (siteUrl != null ? !siteUrl.equals(that.siteUrl) : that.siteUrl != null) {
+        if (mailHost != null ? !mailHost.equals(that.mailHost) : that.mailHost != null) {
+            return false;
+        }
+        if (tokenGenerationKey != null ? !tokenGenerationKey.equals(that.tokenGenerationKey) : that.tokenGenerationKey != null) {
             return false;
         }
 
@@ -207,14 +216,18 @@ public class ServerConfig implements Validatable {
     @Override
     public int hashCode() {
         int result = artifactsDir != null ? artifactsDir.hashCode() : 0;
-        result = 31 * result + (agentAutoRegisterKey != null ? agentAutoRegisterKey.hashCode() : 0);
         result = 31 * result + (siteUrl != null ? siteUrl.hashCode() : 0);
         result = 31 * result + (secureSiteUrl != null ? secureSiteUrl.hashCode() : 0);
         result = 31 * result + (purgeStart != null ? purgeStart.hashCode() : 0);
         result = 31 * result + (purgeUpto != null ? purgeUpto.hashCode() : 0);
         result = 31 * result + (jobTimeout != null ? jobTimeout.hashCode() : 0);
+        result = 31 * result + (agentAutoRegisterKey != null ? agentAutoRegisterKey.hashCode() : 0);
+        result = 31 * result + (webhookSecret != null ? webhookSecret.hashCode() : 0);
+        result = 31 * result + (commandRepositoryLocation != null ? commandRepositoryLocation.hashCode() : 0);
+        result = 31 * result + (serverId != null ? serverId.hashCode() : 0);
         result = 31 * result + (securityConfig != null ? securityConfig.hashCode() : 0);
         result = 31 * result + (mailHost != null ? mailHost.hashCode() : 0);
+        result = 31 * result + (tokenGenerationKey != null ? tokenGenerationKey.hashCode() : 0);
         return result;
     }
 

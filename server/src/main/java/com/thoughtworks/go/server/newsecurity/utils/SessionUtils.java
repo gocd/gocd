@@ -19,7 +19,6 @@ package com.thoughtworks.go.server.newsecurity.utils;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.newsecurity.models.AnonymousCredential;
 import com.thoughtworks.go.server.newsecurity.models.AuthenticationToken;
-import com.thoughtworks.go.server.newsecurity.models.Credentials;
 import com.thoughtworks.go.server.security.userdetail.GoUserPrinciple;
 import com.thoughtworks.go.util.Clock;
 import com.thoughtworks.go.util.SystemEnvironment;
@@ -148,13 +147,5 @@ public class SessionUtils {
 
     public static Username currentUsername() {
         return getCurrentUser().asUsernameObject();
-    }
-
-    public static boolean hasSameCredentials(HttpServletRequest request, Credentials credentials) {
-        final AuthenticationToken<?> existingToken = SessionUtils.getAuthenticationToken(request);
-        if (existingToken == null) {
-            return false;
-        }
-        return existingToken.getCredentials().equals(credentials);
     }
 }

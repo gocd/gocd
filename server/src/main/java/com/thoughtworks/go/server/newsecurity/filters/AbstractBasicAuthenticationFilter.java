@@ -52,8 +52,7 @@ public abstract class AbstractBasicAuthenticationFilter extends OncePerRequestFi
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws IOException, ServletException {
         try {
-            final AuthenticationToken<?> existingToken = SessionUtils.getAuthenticationToken(request);
-            if (existingToken != null && existingToken.isUsernamePasswordToken()) {
+            if (isPreviouslyAuthenticated(request)) {
                 LOGGER.debug("Request is already authenticated.");
                 filterChain.doFilter(request, response);
                 return;
@@ -74,6 +73,11 @@ public abstract class AbstractBasicAuthenticationFilter extends OncePerRequestFi
         } catch (AuthenticationException e) {
             onAuthenticationFailure(request, response, e.getMessage());
         }
+    }
+
+    private boolean isPreviouslyAuthenticated(HttpServletRequest request) {
+        final AuthenticationToken<?> existingToken = SessionUtils.getAuthenticationToken(request);
+        return existingToken != null && existingToken.isUsernamePasswordToken();
     }
 
     private void filterWhenSecurityEnabled(HttpServletRequest request,

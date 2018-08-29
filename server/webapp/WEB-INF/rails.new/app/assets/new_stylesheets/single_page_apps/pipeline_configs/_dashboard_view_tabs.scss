@@ -145,6 +145,7 @@ button {
 .page-prev, .page-next {
   @extend %tab-buttons;
   color: $dashboard-arrow-color;
+  display: none;
 }
 
 .page-prev {

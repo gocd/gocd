@@ -82,6 +82,17 @@ function GroupingMixin() {
   _.assign(this, {
     scheme,
 
+    groupByItems: [
+      {
+        id:   "pipeline_groups",
+        text: "Pipeline Groups"
+      },
+      {
+        id:   "environments",
+        text: "Environments"
+      }
+    ],
+
     selectedGroups: () => this.groupByPipelineGroup() ? this.dashboard.getPipelineGroups() : this.dashboard.getEnvironments(),
 
     groupByPipelineGroup: function groupByPipelineGroup(bool) {

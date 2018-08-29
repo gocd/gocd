@@ -204,31 +204,18 @@ $btn-default: #d6d5d5;
   margin-bottom:   10px;
   position:        relative;
   z-index:         5;
+}
 
-  .group-mode {
-    // scss-lint:disable QualifyingElement
+.grouping_label {
+  white-space: nowrap;
+  margin-top: 5px;
+  display: inline-block;
+}
 
-    label, span {
-      display: inline-block;
-      cursor:  pointer;
-    }
-
-    label > *:empty, input[type="radio"] { display: none; }
-
-    input[type="radio"] + span {
-      margin-left: 10px;
-      padding:     5px 15px;
-      border:      1px solid transparent;
-      font-size: 13px;
-    }
-
-    input[type="radio"]:checked + span {
-      font-weight:   600;
-      color:         #943a9e;
-      border-color:  #943a9e;
-      border-radius: 3px;
-    }
-  }
+.grouping_select {
+  margin: 0 0 0 10px;
+  width: 145px;
+  display: inline-block;
 }
 
 .filter {

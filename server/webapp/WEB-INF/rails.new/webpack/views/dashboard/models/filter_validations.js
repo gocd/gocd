@@ -20,9 +20,9 @@ const Validatable = require("models/mixins/validatable_mixin");
 const PADDED_SPACES = /^(?! ).*[\S]$/; // deny leading/trailing spaces
 const ASCII_PR_CHAR = /^[\x20-\x7E]+$/; // ASCII printable characters only (codes 32 - 126)
 
-const MSG_PAD_SPACE = "Filter name must not have leading or trailing whitespace";
-const MSG_BAD_CHARS = "Filter name is only allowed to contain letters, numbers, spaces, and punctuation marks";
-const MSG_DUPE_NAME = "Another filter with this name already exists";
+const MSG_PAD_SPACE = "View name must not have leading or trailing whitespace";
+const MSG_BAD_CHARS = "View name is only allowed to contain letters, numbers, spaces, and punctuation marks";
+const MSG_DUPE_NAME = "Another view with this name already exists";
 
 const MSG_NO_SELECT = "At least one pipeline must be selected";
 

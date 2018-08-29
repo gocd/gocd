@@ -16,6 +16,8 @@
 
 package com.thoughtworks.go.config.materials.svn;
 
+import com.googlecode.junit.ext.JunitExtRunner;
+import com.googlecode.junit.ext.RunIf;
 import com.thoughtworks.go.buildsession.BuildSession;
 import com.thoughtworks.go.buildsession.BuildSessionBasedTestCase;
 import com.thoughtworks.go.domain.JobResult;
@@ -25,14 +27,21 @@ import com.thoughtworks.go.domain.materials.svn.SvnMaterialUpdater;
 import com.thoughtworks.go.helper.MaterialsMother;
 import com.thoughtworks.go.helper.SvnTestRepo;
 import com.thoughtworks.go.helper.TestRepo;
+import com.thoughtworks.go.junitext.EnhancedOSChecker;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.jupiter.api.condition.DisabledOnOs;
+import org.junit.jupiter.api.condition.OS;
+import org.junit.runner.RunWith;
 
 import java.io.File;
 import java.io.IOException;
 
+import static com.thoughtworks.go.junitext.EnhancedOSChecker.DO_NOT_RUN_ON;
+import static com.thoughtworks.go.junitext.EnhancedOSChecker.MAC;
+import static com.thoughtworks.go.junitext.EnhancedOSChecker.WINDOWS;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNot.not;
@@ -40,6 +49,7 @@ import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertThat;
 
 
+@RunWith(JunitExtRunner.class)
 public class SvnMaterialUpdaterTest extends BuildSessionBasedTestCase {
     private SvnTestRepo svnTestRepo;
     private SvnMaterial svnMaterial;
@@ -67,6 +77,7 @@ public class SvnMaterialUpdaterTest extends BuildSessionBasedTestCase {
     }
 
     @Test
+    @RunIf(value = EnhancedOSChecker.class, arguments = {DO_NOT_RUN_ON, WINDOWS})
     public void shouldUpdateIfNotCheckingOutFreshCopy() throws IOException {
         updateTo(svnMaterial, new RevisionContext(revision), JobResult.Passed);
         console.clear();

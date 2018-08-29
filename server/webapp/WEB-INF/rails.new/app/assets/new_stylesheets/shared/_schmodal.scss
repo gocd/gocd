@@ -1,6 +1,6 @@
 $overlay-bg:            rgba(0, 0, 0, 0.8);
 $overlay-header-bg:     #33374f;
-$overlay-width:         800px;
+$overlay-width:         500px;
 $overlay-height:        300px;
 $overlay-border-color:  #ccc;
 $overlay-border-radius: 3px;
@@ -23,7 +23,7 @@ $overlay-border-radius: 3px;
   z-index:       100;
   top:           25%;
   left:          50%;
-  width:         $overlay-width;
+  min-width:         $overlay-width;
   transform:     translatex(-50%);
 }
 
@@ -55,16 +55,17 @@ $overlay-border-radius: 3px;
   font-size:   16px;
   font-weight: 500;
   cursor:      pointer;
-
-  .close-icon {
-    @include icon-before($type: close);
-  }
+}
+.close-icon {
+  @include icon-before($type: close);
 }
 
 .overlay-content {
   background: #fff;
-  padding:    30px;
-  height:     $overlay-height;
+  position:   relative;
+  padding:    20px 30px;
+  min-height:     $overlay-height;
+  max-height:730px;
   overflow-y: auto;
 
   &:last-child {
@@ -76,8 +77,7 @@ $overlay-border-radius: 3px;
 .overlay-footer {
   background:                 #fff;
   display:                    flex;
-  justify-content:            flex-end;
-  padding:                    10px 20px;
+  padding:                    10px 30px;
   border-top:                 1px solid $overlay-border-color;
   border-bottom-left-radius:  $overlay-border-radius;
   border-bottom-right-radius: $overlay-border-radius;

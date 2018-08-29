@@ -95,15 +95,15 @@ function personalizeEditor(opts, personalization, model) {
 
   this.modal = new Modal({
     title: existing ? `Edit ${opts.name}`: "Create new view",
-    size: "personalize-editor",
+    size: "overlay-personalize-editor",
     body: () => m(PersonalizationModalWidget, { vm, save }),
     buttons: existing ? [
       {text: "Delete View", class:"delete-button", onclick: deleteView },
       {text: "Save", disabled: vm.invalid, onclick: save, tooltipText: vm.firstError},
-      {text: "Cancel", class: "btn-link"}
+      {text: "Cancel", class: "btn-cancel btn-link"}
     ] : [
       {text: "Save", disabled: vm.invalid, onclick: save, tooltipText: vm.firstError},
-      {text: "Cancel", class: "btn-link"}
+      {text: "Cancel", class: "btn-cancel btn-link"}
     ]
   });
 }

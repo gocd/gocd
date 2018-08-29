@@ -29,14 +29,14 @@ const Footer = {
     const buttons = $.map(vnode.attrs.buttons, (opts) => {
       const c = $.extend({}, BUTTON_DEFAULTS, opts);
 
-      const text = c.text;
-      delete c.text;
-
       _.each(["text", "title", "disabled", "tooltipText"], (attr) => {
         if (c.hasOwnProperty(attr)) { c[attr] = val(c[attr]); }
       });
 
-      return m(f.button, {...c}, text);
+      const text = c.text;
+      delete c.text;
+
+      return m(f.button, c, text);
     });
 
     return <footer class="overlay-footer">{buttons}</footer>;

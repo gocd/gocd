@@ -74,6 +74,14 @@ $btn-default: #d6d5d5;
   }
 }
 
+.vsm-entity.vsm-pipeline-node {
+  cursor: pointer;
+}
+
+.vsm-entity.vsm-pipeline-node .vsm-pipeline-unclickable-name {
+  color: black;
+}
+
 .vsm-other-node {
   @extend %node-selection;
   &:before {

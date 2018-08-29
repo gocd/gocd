@@ -1,5 +1,5 @@
 /*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,9 +19,11 @@ package com.thoughtworks.go.util.command;
 import com.googlecode.junit.ext.JunitExtRunner;
 import com.googlecode.junit.ext.RunIf;
 import com.googlecode.junit.ext.checkers.OSChecker;
+import com.thoughtworks.go.junitext.EnhancedOSChecker;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import static com.thoughtworks.go.junitext.EnhancedOSChecker.DO_NOT_RUN_ON;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.core.IsNot.not;
@@ -65,14 +67,13 @@ public class ScriptRunnerTest {
 
             command.runScript(new ExecScript("FOO"), output, new EnvironmentVariableContext(), null);
             fail("Exception expected");
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             assertThat(e.getMessage(), not(containsString("secret")));
         }
     }
 
     @Test
-    @RunIf(value = OSChecker.class, arguments = OSChecker.LINUX)
+    @RunIf(value = EnhancedOSChecker.class, arguments = {DO_NOT_RUN_ON, OSChecker.WINDOWS})
     public void shouldBeAbleToSpecifyEncoding() throws CheckedCommandLineException {
         String chrisWasHere = "司徒空在此";
         CommandLine command = CommandLine.createCommandLine("echo").withArg(chrisWasHere).withEncoding("UTF-8");
@@ -84,7 +85,8 @@ public class ScriptRunnerTest {
     }
 
     @Test
-    public void shouldMaskOutOccuranceOfSecureEnvironmentVariablesValuesInTheScriptOutput() throws CheckedCommandLineException {
+    @RunIf(value = EnhancedOSChecker.class, arguments = {DO_NOT_RUN_ON, OSChecker.WINDOWS})
+    public void shouldMaskOutOccuranceOfSecureEnvironmentVariablesValuesInTheScriptOutputOnLinux() throws CheckedCommandLineException {
         EnvironmentVariableContext environmentVariableContext = new EnvironmentVariableContext();
         environmentVariableContext.setProperty("secret", "the_secret_password", true);
         CommandLine command = CommandLine.createCommandLine("echo").withArg("the_secret_password").withEncoding("utf-8");
@@ -92,10 +94,28 @@ public class ScriptRunnerTest {
         ExecScript script = new ExecScript("ERROR_STRING");
 
         command.runScript(script, output, environmentVariableContext, null);
+        System.out.println("\n\n\nOutput: " + output.asList().toString());
         assertThat(script.getExitCode(), is(0));
         assertThat(output.toString(), output.contains("the_secret_password"), is(false));
     }
 
+    @Test
+    @RunIf(value = EnhancedOSChecker.class, arguments = OSChecker.WINDOWS)
+    public void shouldMaskOutOccuranceOfSecureEnvironmentVariablesValuesInTheScriptOutput() throws CheckedCommandLineException {
+        EnvironmentVariableContext environmentVariableContext = new EnvironmentVariableContext();
+        environmentVariableContext.setProperty("secret", "the_secret_password", true);
+        CommandLine command = CommandLine.createCommandLine("cmd")
+                .withArg("/c")
+                .withArg("echo")
+                .withArg("the_secret_password")
+                .withEncoding("utf-8");
 
+        InMemoryConsumer output = new InMemoryConsumer();
+        ExecScript script = new ExecScript("ERROR_STRING");
 
+        command.runScript(script, output, environmentVariableContext, null);
+        System.out.println("\n\n\nOutput: " + output.asList().toString());
+        assertThat(script.getExitCode(), is(0));
+        assertThat(output.toString(), output.contains("the_secret_password"), is(false));
+    }
 }

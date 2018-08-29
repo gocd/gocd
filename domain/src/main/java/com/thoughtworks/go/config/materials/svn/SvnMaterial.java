@@ -264,7 +264,8 @@ public class SvnMaterial extends ScmMaterial implements PasswordEncrypter, Passw
         return url == null ? null : url.forCommandline();
     }
 
-    @Override public UrlArgument getUrlArgument() {
+    @Override
+    public UrlArgument getUrlArgument() {
         return url;
     }
 
@@ -308,7 +309,8 @@ public class SvnMaterial extends ScmMaterial implements PasswordEncrypter, Passw
         return name.matches(regex);
     }
 
-    @Override public String toString() {
+    @Override
+    public String toString() {
         return "SvnMaterial{" +
                 "url=" + url +
                 ", userName='" + userName + '\'' +

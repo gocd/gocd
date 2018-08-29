@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -358,7 +358,10 @@ public class CommandLineTest {
 
     @Test
     public void shouldPrefixStderrOutput() {
-        CommandLine line = CommandLine.createCommandLine("rmdir").withArg("/a/directory/that/does/not/exist").withEncoding("utf-8");
+        CommandLine line = CommandLine.createCommandLine("git")
+                .withArg("clone")
+                .withArg("https://foo/bar")
+                .withEncoding("utf-8");
         InMemoryStreamConsumer output = new InMemoryStreamConsumer();
         ProcessWrapper processWrapper = line.execute(output, new EnvironmentVariableContext(), null);
         processWrapper.waitForExit();

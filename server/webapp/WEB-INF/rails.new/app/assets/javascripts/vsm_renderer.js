@@ -15,7 +15,7 @@
  *************************GO-LICENSE-END**********************************/
 
 Graph_Renderer = function (container) {
-    'use strict'
+    'use strict';
     var container = $j(container);
     var width = 200; // Default width of a node
     var height = 110; // Default height of a node
@@ -65,6 +65,13 @@ Graph_Renderer = function (container) {
       $j('.vsm-entity.pipeline a').css({ "pointer-events": "none" });
       $j('.vsm-entity.material').click(selectMaterial);
       $j('.vsm-entity.pipeline').click(selectPipeline);
+
+      $j('.vsm-entity.pipeline').addClass("vsm-pipeline-node");
+      $j('.vsm-entity.pipeline h3 a').addClass("vsm-pipeline-unclickable-name");
+      $j('.vsm-entity.pipeline .pipeline_actions').addClass("hidden");
+      $j('.vsm-entity.pipeline .instances .instance .vsm_link_wrapper').addClass("hidden");
+      $j('.vsm-entity.pipeline .instances .instance .duration').addClass("hidden");
+
       highlightCurrentNode();
     };
 
@@ -74,6 +81,13 @@ Graph_Renderer = function (container) {
       $j('.vsm-entity.material').css({ "pointer-events": "auto" });
       $j('.vsm-entity.material').unbind('click', selectMaterial);
       $j('.vsm-entity.pipeline').unbind('click', selectPipeline);
+
+      $j('.vsm-entity.pipeline').removeClass("vsm-pipeline-node");
+      $j('.vsm-entity.pipeline h3 a').removeClass("vsm-pipeline-unclickable-name");
+      $j('.vsm-entity.pipeline .pipeline_actions').removeClass("hidden");
+      $j('.vsm-entity.pipeline .instances .instance .vsm_link_wrapper').removeClass("hidden");
+      $j('.vsm-entity.pipeline .instances .instance .duration').removeClass("hidden");
+
       removeNodeSelection();
     };
 

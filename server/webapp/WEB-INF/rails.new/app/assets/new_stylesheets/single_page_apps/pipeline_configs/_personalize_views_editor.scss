@@ -277,6 +277,8 @@ $icon-color: #647984;
 }
 
 .overlay-footer {
+  @include clearfix;
+
   display: block;
 }
 

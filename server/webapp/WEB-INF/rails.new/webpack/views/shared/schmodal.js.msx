@@ -126,6 +126,15 @@ function close(e) {
   if (MODALS.length === 0) { hideBg(); }
 }
 
+function closeAll() {
+  MODALS.forEach((opts) => {
+    if ("function" === typeof opts.afterClose) { opts.afterClose(); }
+  });
+  MODALS.splice(0, MODALS.length);
+  setTimeout(m.redraw, 0);
+  hideBg();
+}
+
 function hideBg() {
   function onremove() {
     _root.removeEventListener("animationend", onremove);
@@ -198,7 +207,7 @@ function teardown() {
 }
 
 // Attach API
-$.extend(Modal, { init, teardown, close });
+$.extend(Modal, { init, teardown, close, closeAll });
 
 $(Modal.init);
 

@@ -70,7 +70,7 @@ function personalizeEditor(opts, personalization, model) {
             model.names(personalization().names());
             model.checksum(data.contentHash);
 
-            Modal.close();
+            Modal.closeAll();
             model.onchange();
           }).fail((xhr) => {
             const reason = mrequest.unwrapErrorExtractMessage(xhr.responseText);

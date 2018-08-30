@@ -53,7 +53,7 @@ $overlay-border-radius: 3px;
   border:        0;
   border-radius: $overlay-border-radius;
   position:      absolute;
-  z-index:       100;
+  z-index:       101;
   top:           25%;
   left:          50%;
   min-width:     $overlay-width;
@@ -70,6 +70,10 @@ $overlay-border-radius: 3px;
 
   &:nth-of-type(1), &:nth-of-type(2) {
     display: block;
+  }
+
+  &:nth-of-type(1) {
+    z-index: 102;
   }
 
   &:nth-of-type(2) {
@@ -111,6 +115,7 @@ $overlay-border-radius: 3px;
   font-weight: 500;
   cursor:      pointer;
 }
+
 .close-icon {
   @include icon-before($type: close);
 }

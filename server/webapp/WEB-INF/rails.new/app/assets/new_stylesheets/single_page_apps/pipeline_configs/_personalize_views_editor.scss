@@ -16,19 +16,21 @@
 
 $personalize-modal-err-tooltip-bg: rgba($tooltip-background-color, 0.75);
 $view-top-bg: $section-bg;
-$icon-color:#647984;
+$icon-color: #647984;
 
 .overlay-personalize-editor {
   width: 530px;
-  top: 10vh;
+  top:   10vh;
+
   .is-invalid-label {
     .form-error {
-      margin: 0;
-      text-align: right;
+      margin:      0;
+      text-align:  right;
       white-space: normal;
-      flex-grow: 1;
+      flex-grow:   1;
     }
   }
+
   .overlay-content {
     height: 70vh;
   }
@@ -39,89 +41,91 @@ $icon-color:#647984;
 }
 
 .personalize-editor-error-response {
-  position: fixed;
-  top: 53px;
-  left: 0;
-  right: 0;
-  padding: 20px;
+  position:      fixed;
+  top:           53px;
+  left:          0;
+  right:         0;
+  padding:       20px;
   padding-right: 40px;
-  background: map-get($foundation-palette, alert);
-  color: #fff;
-  font-weight: 600;
-  z-index: 100;
+  background:    map-get($foundation-palette, alert);
+  color:         #fff;
+  font-weight:   600;
+  z-index:       100;
 
   .close-button {
     @include icon-before($type: close);
 
     position: absolute;
-    top: 20px;
-    right: 20px;
-    padding: 5px;
-    cursor: pointer;
+    top:      20px;
+    right:    20px;
+    padding:  5px;
+    cursor:   pointer;
   }
 }
 
 .view-top {
   background: $view-top-bg;
-  margin: -20px -30px 20px;
-  padding: 20px 30px;
+  margin:     -20px -30px 20px;
+  padding:    20px 30px;
 }
 
 .show-pipelines {
-  border: 1px solid $light-border;
-  background: #fff;
-  display: flex;
-  padding: 10px 20px;
+  border:        1px solid $light-border;
+  background:    #fff;
+  display:       flex;
+  padding:       10px 20px;
   border-radius: 3px;
+
   > * {
     margin-right: 30px;
   }
+
   input {
     margin-bottom: 0;
   }
 }
 
 .section-label {
-
-  line-height: 25px;
+  line-height:  25px;
   margin-right: 30px;
-  white-space: nowrap;
+  white-space:  nowrap;
 }
 
 .search-pipelines {
   margin-bottom: 10px;
-  border: 1px solid #D6E0E2;
-  background: #fff;
-  height: 40px;
+  border:        1px solid #d6e0e2;
+  background:    #fff;
+  height:        40px;
 }
 
 .filter-name {
-  border: 0;
-  padding: 0;
+  border:        0;
+  padding:       0;
   margin-bottom: 10px;
 
   label {
-    display: flex;
+    display:         flex;
     justify-content: space-between;
-    align-content: center;
-    flex-wrap: wrap;
-    align-items: center;
+    align-content:   center;
+    flex-wrap:       wrap;
+    align-items:     center;
 
     span {
-      flex-shrink: 1;
-      white-space: nowrap;
+      flex-shrink:  1;
+      white-space:  nowrap;
       margin-right: 30px;
     }
   }
 }
 
 .view-name {
-  flex-grow: 1;
-  width: 75%;
+  flex-grow:     1;
+  width:         75%;
   margin-bottom: 0;
-  height: 40px;
-  border-color: $light-border;
-  padding: 10px 20px;
+  height:        40px;
+  border-color:  $light-border;
+  padding:       10px 20px;
+
   &:focus {
     background: #fff;
   }
@@ -129,13 +133,14 @@ $icon-color:#647984;
 
 .stage-state-selector {
   display: flex;
+
   label:first-of-type {
     margin-right: 30px;
   }
 }
 
 .pipeline-search-container {
-  display: flex;
+  display:       flex;
   margin-bottom: 20px;
 }
 
@@ -144,35 +149,36 @@ $icon-color:#647984;
 }
 
 .blanket-selection_label {
-  font-size: 13px;
+  font-size:  13px;
   margin-top: -2px;
-  display: block;
-
+  display:    block;
 }
 
 .select-pipelines_buttons {
-  display: flex;
+  display:    flex;
   margin-top: 2px;
-
 }
 
 .btn_all, .btn_none {
-  border: 1px solid $light-border;
+  border:     1px solid $light-border;
   background: #fff;
-  color: #333;
-  padding: 3px 12px;
-  font-size: 12px;
-  margin: 0;
+  color:      #333;
+  padding:    3px 12px;
+  font-size:  12px;
+  margin:     0;
+
   &:hover {
     background: #fff;
-    color: #333;
+    color:      #333;
   }
+
   &:focus {
     outline: 0;
   }
+
   &.active {
-    background: $go-primary;
-    color: #fff;
+    background:   $go-primary;
+    color:        #fff;
     border-color: $go-primary;
   }
 }
@@ -183,47 +189,14 @@ $icon-color:#647984;
 
 .btn_none {
   border-radius: 0 $global-border-radius $global-border-radius 0;
-  margin-left: -1px;
+  margin-left:   -1px;
 }
 
 .pipeline-selections {
-  border: 1px solid $light-border;
-  padding: 20px;
+  border:        1px solid $light-border;
+  padding:       20px;
   border-radius: $global-border-radius;
 
-}
-
-.selected-pipelines {
-  list-style-type: none;
-  margin: 0;
-  > li {
-    > label {
-      font-weight: 600;
-    }
-  }
-}
-
-.selected-pipelines_group {
-  border-bottom: dashed 1px #ccc;
-  padding-left: 30px;
-  &:last-of-type {
-    border: 0;
-  }
-}
-
-.selected-pipelines_pipeline-list {
-  list-style-type: none;
-  margin: 0;
-}
-
-.pipeline-list-toggle {
-  position: absolute;
-  left: 0;
-  top: 4px;
-  cursor: pointer;
-}
-
-.pipeline-selections {
   [type="checkbox"] {
     margin-bottom: 0.75rem;
   }
@@ -232,7 +205,7 @@ $icon-color:#647984;
     @include animation(fadeIn 0.2s ease-in);
 
     text-align: center;
-    font-size: 200%;
+    font-size:  200%;
 
     .spinner {
       @include icon-before($type: spinner, $margin: 0);
@@ -246,14 +219,30 @@ $icon-color:#647984;
   label {
     display: inline-block;
   }
+}
 
+.selected-pipelines {
+  list-style-type: none;
+  margin:          0;
+
+  > li > label {
+    font-weight: 600;
+  }
 }
 
 .selected-pipelines_group {
-  position: relative;
+  border-bottom: dashed 1px #ccc;
+  padding-left:  30px;
+  position:      relative;
+
+  &:last-of-type {
+    border: 0;
+  }
+
   &.expanded {
     .pipeline-list-toggle {
       @include icon-before($type: chevron-down, $size: 12px);
+
       &:before {
         color: $icon-color;
       }
@@ -263,6 +252,7 @@ $icon-color:#647984;
   &.collapsed {
     .pipeline-list-toggle {
       @include icon-before($type: chevron-right, $size: 12px, $color: $icon-color);
+
       &:before {
         color: $icon-color;
       }
@@ -273,29 +263,45 @@ $icon-color:#647984;
     }
   }
 }
-.overlay-footer{
-  display:block;
+
+.selected-pipelines_pipeline-list {
+  list-style-type: none;
+  margin:          0;
 }
 
-.delete-button{
-  @include icon-before($type: trash,  $margin: 0 10px 0 0, $progress-spinner: true);
+.pipeline-list-toggle {
+  position: absolute;
+  left:     0;
+  top:      4px;
+  cursor:   pointer;
+}
+
+.overlay-footer {
+  display: block;
+}
+
+.delete-button {
+  @include icon-before($type: trash, $margin: 0 10px 0 0, $progress-spinner: true);
+
   background: #fff;
-  color: #333;
-  border:1px solid #E9EDEF;
-  transition:$transition;
-  &:before{
-    color:$icon-color;
+  color:      #333;
+  border:     1px solid #e9edef;
+  transition: $transition;
+
+  &:before {
+    color: $icon-color;
   }
-  &:hover{
-    transition:$transition;
-    background: #fff;
-    color: #333;
-    border-color:darken( #E9EDEF , 10%)
+
+  &:hover {
+    transition:   $transition;
+    background:   #fff;
+    color:        #333;
+    border-color: darken(#e9edef, 10%);
   }
 }
 
-.btn-save , .btn-cancel{
-  float:right;
+.btn-save, .btn-cancel {
+  float: right;
 }
 
 .tooltip {

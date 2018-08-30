@@ -34,6 +34,7 @@ $tab-bg: #e5e5e5;
   padding:        0;
   list-style:     none;
   width:          100%;
+
   li {
     font-size:     16px;
     margin:        0 0 1px 0;
@@ -42,14 +43,14 @@ $tab-bg: #e5e5e5;
     height:        32px;
     line-height:   31px;
     color:         $v-tab-head-color;
-    border-bottom: 0;
     overflow:      hidden;
     position:      relative;
     border-bottom: 3px solid $v-tab-border;
-    &:hover {
 
+    &:hover {
       color:         #000;
     }
+
     &.active {
       border-bottom:    3px solid $v-border-color-active;
       background-color: #fff;
@@ -57,10 +58,9 @@ $tab-bg: #e5e5e5;
       display:          block;
     }
   }
-
 }
+
 .h-tab_container {
   min-height: 200px;
-  padding:20px;
+  padding:    20px;
 }
-

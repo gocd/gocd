@@ -49,8 +49,8 @@ $modal-border-adj: 2px;
 // ---------------------  common styles ------------------------
 
 body {
-  background:  #f4f8f9;
-  font-size:14px;
+  background: #f4f8f9;
+  font-size:  14px;
 }
 
 
@@ -73,6 +73,7 @@ body {
 %building {
   position:   relative;
   background: #fff;
+
   > span {
     display:          block;
     height:           100%;
@@ -89,15 +90,15 @@ body {
     bottom:           0;
     right:            0;
     background-image: linear-gradient(
-                          -45deg,
-                          rgba(255, 255, 255, 0.3) 25%,
-                          transparent 25%,
-                          transparent 50%,
-                          rgba(255, 255, 255, 0.3) 50%,
-                          rgba(255, 255, 255, 0.3) 75%,
-                          transparent 75%,
-                          transparent
-                      );
+      -45deg,
+      rgba(255, 255, 255, 0.3) 25%,
+      transparent 25%,
+      transparent 50%,
+      rgba(255, 255, 255, 0.3) 50%,
+      rgba(255, 255, 255, 0.3) 75%,
+      transparent 75%,
+      transparent
+    );
     z-index:          1;
     background-size:  50px 50px;
     overflow:         hidden;
@@ -112,6 +113,7 @@ body {
   0% {
     background-position: 0 0;
   }
+
   100% {
     background-position: 50px 50px;
   }
@@ -123,6 +125,7 @@ body {
 
 .page_header {
   @include clearfix;
+
   width:         100%;
   align-items:   center;
   background:    #fff;
@@ -154,13 +157,13 @@ body {
 
 .grouping_label {
   white-space: nowrap;
-  margin-top: 5px;
-  display: inline-block;
+  margin-top:  5px;
+  display:     inline-block;
 }
 
 .grouping_select {
-  margin: 0 0 0 10px;
-  width: 145px;
+  margin:  0 0 0 10px;
+  width:   145px;
   display: inline-block;
 }
 
@@ -171,33 +174,31 @@ body {
   position: relative;
 
   &:before {
-    position: absolute;
-    left: 10px;
-    color: $icon-color;
-    top: 8px;
+    position:  absolute;
+    left:      10px;
+    color:     $icon-color;
+    top:       8px;
     font-size: 14px;
   }
 }
 
 .pipeline-search {
-  height: 40px;
-  width: 350px;
-  line-height: 40px;
-  padding: 0 10px 0 40px;
-  margin: 0;
-  border: 1px solid #d6e0e2;
+  height:             40px;
+  width:              350px;
+  line-height:        40px;
+  padding:            0 10px 0 40px;
+  margin:             0;
+  border:             1px solid #d6e0e2;
   -webkit-appearance: none;
-  box-shadow: none;
-  border-radius: 3px;
-  background: #fff;
+  box-shadow:         none;
+  border-radius:      3px;
+  background:         #fff;
 
   &::placeholder {
     font-size: 13px;
     color:     $border-color;
   }
 }
-
-
 
 .dashboard-group {
   margin-bottom: 50px;
@@ -207,7 +208,7 @@ body {
 .main-container {
   margin-top: 50px;
   background: transparent;
-  overflow: visible;
+  overflow:   visible;
 }
 
 .dashboard-group_title {
@@ -263,6 +264,7 @@ body {
 
 .pipeline_header {
   @include clearfix;
+
   padding:       0 15px 10px 15px;
   margin:        10px 0 0 0;
   border-radius: 5px 5px 0 0;
@@ -281,10 +283,12 @@ body {
     left:  -100%;
     top:   90%;
     width: 10rem;
+
     &::before {
       left: 35%;
     }
   }
+
   .dashboard-group_title {
     .tooltip {
       top: 120%;
@@ -302,8 +306,10 @@ body {
       top:         -3px;
       flex-shrink: 0;
       right:       0;
+
       .tooltip {
         transform: translate(-53%, 15%);
+
         &::before {
           left: 75%;
         }
@@ -325,14 +331,17 @@ body {
 
 .pipeline_locked {
   @include icon-before($type: lock);
+
   overflow:  hidden;
   width:     25px;
   height:    25px;
   font-size: $pipeline_icons_size;
   color:     #555;
+
   &:hover {
     color: #000;
   }
+
   &.disabled {
     color:  #999;
     cursor: not-allowed;
@@ -341,12 +350,15 @@ body {
 
 .edit_config {
   @include icon-before($type: gear);
+
   overflow:  hidden;
   font-size: $pipeline_icons_size;
   color:     $icon-color;
+
   &:hover {
     color: $icon-hover-color;
   }
+
   &.disabled {
     color:  #999;
     cursor: not-allowed;
@@ -365,6 +377,7 @@ body {
     from {
       transform: rotate(0deg);
     }
+
     to {
       transform: rotate(360deg);
     }
@@ -374,10 +387,12 @@ body {
 
 .pipeline-analytics {
   @include icon-before($type: bar-chart);
+
   padding:   0;
   font-size: $pipeline_icons_size;
   color:     #555;
   cursor:    pointer;
+
   &:hover {
     color: #000;
   }
@@ -385,6 +400,7 @@ body {
 
 .pipeline_pause-message {
   @include truncate-to-lines($line-count: 3);
+
   margin: 5px 0 0 0;
   float:  left;
   clear:  both;
@@ -394,6 +410,7 @@ body {
   padding:    10px 0 0;
   border-top: 1px dotted $border-color;
   margin:     0 15px;
+
   &:first-child {
     border: 0;
   }
@@ -406,6 +423,7 @@ body {
 
 .pipeline_instance-label {
   @include ellipsis;
+
   font-size:   14px;
   font-weight: 500;
   line-height: normal;
@@ -413,9 +431,11 @@ body {
 
 .more_info {
   position: relative;
+
   .changes {
     position:      relative;
     padding-right: 20px;
+
     &:after {
       content:      "";
       width:        0;
@@ -431,14 +451,17 @@ body {
       display:      inline-block;
     }
   }
+
   .info {
     list-style-type: none;
     margin:          5px 0;
     padding:         0;
     line-height:     normal;
+
     li {
       display:     inline-block;
       border-left: 1px solid $border-color;
+
       &:first-child {
         border: 0;
         a {
@@ -446,6 +469,7 @@ body {
         }
       }
     }
+
     a {
       display:         block;
       padding:         0 7px;
@@ -468,23 +492,28 @@ body {
   max-height:    310px;
   min-height:    110px;
   overflow-y:    auto;
+
   .revisions {
     &.changed {
       color: #ff6;
     }
   }
+
   .rev-head {
     border-bottom: 1px solid $border-color;
     padding:       0 0 5px;
     word-break:    break-all;
   }
+
   .modifications {
     padding:       10px 0;
     display:       flex;
     border-bottom: 1px dotted #5b5b5b;
+
     .item {
       width:      28%;
       box-sizing: border-box;
+
       &:nth-child(2) {
         padding-left:  10px;
         padding-right: 10px;
@@ -492,15 +521,19 @@ body {
       }
     }
   }
+
   .modified_by {
     word-break: break-all;
     span {
       @include truncate-to-lines(2);
+
       display: block;
     }
   }
+
   .revision {
     display: flex;
+
     .revision_id {
       display:       inline-block;
       text-overflow: ellipsis;
@@ -526,6 +559,7 @@ body {
   list-style-type: none;
   margin:          1px 0 10px -4px;
   padding:         0;
+
   .pipeline_stage {
     width:       34px;
     height:      16px;
@@ -535,31 +569,41 @@ body {
 
     &.passed {
       @include icon-before($passed-icon, 12px, 0);
+
       background: $passed;
       color:      #fff;
     }
+
     &.failed {
       @include icon-before($failed-icon, 12px, 0);
+
       background: $failed;
       color:      #fff;
     }
+
     &.failing {
       @extend %building;
+
       background: $failed;
       > span {
         background-color: $failed;
       }
     }
+
     &.building {
       @extend %building;
+
       background: $building;
     }
+
     &.unknown {
       border:     1px solid $border-color;
       background: #e6e3e3;
     }
+
     &.cancelled {
       @include icon-before($cancelled-icon, 12px, 0);
+
       background: $building;
       color:      $dark-gray;
     }
@@ -573,13 +617,16 @@ body {
   padding:       1px 10px;
   margin-top:    5px;
   border-radius: 3px;
+
   p {
     margin: 0;
   }
+
   &.success {
     border:     1px solid #1fc75954;
     background: #1fc75929;
   }
+
   &.error {
     border:     1px solid #c71f1f52;
     background: #c71f1f54;
@@ -593,9 +640,11 @@ body {
   margin:          5px 0 0 0;
   padding:         0;
   float:           left;
+
   li {
     display:     inline-block;
     margin-left: 5px;
+
     &:first-child {
       margin-left: 0;
     }
@@ -611,6 +660,7 @@ body {
   &:focus, &:active {
     outline: 0;
   }
+
   &:hover {
     background-color: #4d4d4d;
   }
@@ -618,13 +668,16 @@ body {
 
 .pipeline_btn.play {
   background: image_url('g9/icons/bg_sprite_pipeline_actions.png') -37px -31px no-repeat #fff;
+
   &:hover {
     background: image_url('g9/icons/bg_sprite_pipeline_actions.png') -37px -1px no-repeat #4d4d4d;
   }
+
   &.disabled {
     background: image_url('g9/icons/bg_sprite_pipeline_actions.png') -37px -31px no-repeat #fff;
     opacity:    0.5;
     cursor:     not-allowed;
+
     &:hover {
       background: image_url('g9/icons/bg_sprite_pipeline_actions.png') -37px -31px no-repeat #fff;
       opacity:    0.5;
@@ -635,13 +688,16 @@ body {
 
 .pipeline_btn.play_with_options {
   background: image_url('g9/icons/bg_sprite_pipeline_actions.png') -77px -31px no-repeat #fff;
+
   &:hover {
     background: image_url('g9/icons/bg_sprite_pipeline_actions.png') -77px -1px no-repeat #4d4d4d;
   }
+
   &.disabled {
     background: image_url('g9/icons/bg_sprite_pipeline_actions.png') -77px -31px no-repeat #fff;
     opacity:    0.5;
     cursor:     not-allowed;
+
     &:hover {
       background: image_url('g9/icons/bg_sprite_pipeline_actions.png') -77px -31px no-repeat #fff;
       opacity:    0.5;
@@ -652,13 +708,16 @@ body {
 
 .pipeline_btn.pause {
   background: image_url('g9/icons/bg_sprite_pipeline_actions.png') -2px -31px no-repeat #fff;
+
   &:hover {
     background: image_url('g9/icons/bg_sprite_pipeline_actions.png') -2px -1px no-repeat #4d4d4d;
   }
+
   &.disabled {
     background: image_url('g9/icons/bg_sprite_pipeline_actions.png') -2px -31px no-repeat #fff;
     opacity:    0.5;
     cursor:     not-allowed;
+
     &:hover {
       background: image_url('g9/icons/bg_sprite_pipeline_actions.png') -2px -31px no-repeat #fff;
       opacity:    0.5;
@@ -669,13 +728,16 @@ body {
 
 .pipeline_btn.unpause {
   background: image_url('g9/icons/bg_sprite_pipeline_actions.png') -2px -1px no-repeat #4d4d4d;
+
   &:hover {
     background: image_url('g9/icons/bg_sprite_pipeline_actions.png') -2px -31px no-repeat #fff;
   }
+
   &.disabled {
     background: image_url('g9/icons/bg_sprite_pipeline_actions.png') -2px -1px no-repeat #4d4d4d;
     opacity:    0.5;
     cursor:     not-allowed;
+
     &:hover {
       background: image_url('g9/icons/bg_sprite_pipeline_actions.png') -2px -1px no-repeat #4d4d4d;
       opacity:    0.5;
@@ -692,11 +754,13 @@ body {
 
   .last-run-revision .value {
     @include ellipsis();
+
     display: block;
   }
 
   .material-name, .latest-revision {
     @include ellipsis($width: 100%);
+
     width: 46%;
   }
 
@@ -706,6 +770,7 @@ body {
 
   .error-icon {
     @include icon-before($failed-icon, $margin: 0, $color: #bd0404);
+
     position: relative;
     top:      -6px;
     right:    -6px;
@@ -765,6 +830,7 @@ body {
         font-size: 12px;
         display:   inline-block;
       }
+
       p {
         font-size:     12px;
         font-weight:   600;
@@ -773,7 +839,6 @@ body {
       }
     }
   }
-
 }
 
 .helper {
@@ -805,40 +870,50 @@ $commits-width: 635px;
   padding:         0;
   width:           $commits-width;
   border:          1px solid $border-color;
+
   li {
     border-bottom: 1px solid $border-color;
     display:       block;
     cursor:        pointer;
+
     &:hover {
       background: #e8fafa;
+
       .info {
         background: #e8fafa;
       }
     }
   }
+
   .info {
     display:    flex;
     padding:    5px 10px;
     font-size:  12px;
     background: #f5f5f5;
+
     span {
       padding:     0 3px;
       white-space: nowrap;
+
       &:before {
         content:      "";
         border-left:  1px dotted $dark-gray;
         margin-right: 10px;
       }
+
       &:first-child {
         padding-left: 0;
+
         &:before {
           border: 0;
           margin: 0;
         }
       }
     }
+
     .rev {
       @include ellipsis($width: 130px);
+
       min-width: 100px;
     }
 
@@ -848,18 +923,21 @@ $commits-width: 635px;
 
     .time {
       @include ellipsis($width: 220px);
+
       min-width: 220px;
     }
   }
 
   .commit_message {
     @include commit-message($line-count: 3);
+
     padding: 5px 10px;
   }
 }
 
 .search-icon {
   @include icon-before($type: search);
+
   position:   relative;
   margin-top: 3px;
 
@@ -880,6 +958,7 @@ $commits-width: 635px;
   border:        1px solid $border-color;
   border-radius: 3px;
   padding:       3px 10px 3px 30px;
+
   &::placeholder {
     font-size: 12px;
   }
@@ -888,12 +967,14 @@ $commits-width: 635px;
 .search-in-progress {
   @include icon-before($type: spinner, $margin: 0);
   @include animation(spin 1s linear infinite);
+
   position: absolute;
   right:    -16px;
   top:      10px;
 
   &:before {
     @include animation(spin 1s linear infinite);
+
     font-size: rem-calc(15px);
   }
 }

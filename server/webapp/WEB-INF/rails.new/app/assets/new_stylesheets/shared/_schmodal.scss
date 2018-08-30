@@ -119,8 +119,8 @@ $overlay-border-radius: 3px;
   background: #fff;
   position:   relative;
   padding:    20px 30px;
-  min-height:     $overlay-height;
-  max-height:730px;
+  min-height: $overlay-height;
+  max-height: 730px;
   overflow-y: auto;
 
   &:last-child {

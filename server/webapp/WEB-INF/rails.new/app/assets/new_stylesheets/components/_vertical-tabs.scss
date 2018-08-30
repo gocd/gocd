@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-$border-color: $border;
+$border-color:        $border;
 $border-color-active: #94399e;
-$tab-border: #f5f5f5;
-$tab-head-color: $dark-gray;
-$tab-bg: #e5e5e5;
-$active-tab: #94399e;
+$tab-border:          #f5f5f5;
+$tab-head-color:      $dark-gray;
+$tab-bg:              #e5e5e5;
+$active-tab:          #94399e;
 
 .v-tab {
   display: flex;
@@ -32,6 +32,7 @@ $active-tab: #94399e;
   list-style: none;
   height:     32px;
   width:      250px;
+
   li {
     margin:        0;
     padding:       5px 10px;
@@ -42,9 +43,9 @@ $active-tab: #94399e;
     position:      relative;
 
     &:hover {
-
-      color:            #000;
+      color: #000;
     }
+
     &.active {
       border-right:     3px solid $border-color-active;
       background-color: #fff;
@@ -52,7 +53,6 @@ $active-tab: #94399e;
       display:          block;
     }
   }
-
 }
 
 .hidden {
@@ -68,6 +68,7 @@ $active-tab: #94399e;
 
 .v-tab_content {
   padding: 10px 20px;
+
   > :first-child {
     margin-top: 0;
   }

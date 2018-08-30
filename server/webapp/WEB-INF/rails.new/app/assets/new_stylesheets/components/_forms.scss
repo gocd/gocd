@@ -1,4 +1,4 @@
-/*!
+/*
  * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,12 +14,23 @@
  * limitations under the License.
  */
 
-
-
-
-[type='text']:focus, [type='password']:focus, [type='date']:focus, [type='datetime']:focus, [type='datetime-local']:focus, [type='month']:focus, [type='week']:focus, [type='email']:focus, [type='number']:focus, [type='search']:focus, [type='tel']:focus, [type='time']:focus, [type='url']:focus, [type='color']:focus, textarea:focus {
-  background-color: #F4F8F9;
-  box-shadow: none;
-  border-color: darken($light-border, 10%);
-  transition: all 0.3s ease-in-out;
+[type='text']:focus,
+[type='password']:focus,
+[type='date']:focus,
+[type='datetime']:focus,
+[type='datetime-local']:focus,
+[type='month']:focus,
+[type='week']:focus,
+[type='email']:focus,
+[type='number']:focus,
+[type='search']:focus,
+[type='tel']:focus,
+[type='time']:focus,
+[type='url']:focus,
+[type='color']:focus,
+textarea:focus {
+  background-color: #f4f8f9;
+  box-shadow:       none;
+  border-color:     darken($light-border, 10%);
+  transition:       all 0.3s ease-in-out;
 }

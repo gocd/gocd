@@ -99,7 +99,14 @@ function personalizeEditor(opts, personalization, model) {
     {text: "Cancel", class: "btn-cancel btn-link"}
   ];
 
-  if (existing) { buttons.unshift({text: "Delete View", class:"delete-button", onclick: deleteView, disabled: () => { return model.names().length === 1; }}); }
+  const disabled = () => (model.names().length < 2);
+  const tooltipText = () => {
+    if (disabled()) {
+      return "Cannot delete the last view. You must have at least one.";
+    }
+  };
+
+  if (existing) { buttons.unshift({text: "Delete View", class: "btn-delete", onclick: deleteView, disabled, tooltipText }); }
 
   this.modal = new Modal({
     title: existing ? `Edit ${opts.name}`: "Create new view",

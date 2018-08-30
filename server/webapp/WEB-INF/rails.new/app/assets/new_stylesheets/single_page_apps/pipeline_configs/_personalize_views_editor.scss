@@ -282,9 +282,10 @@ $icon-color: #647984;
   display: block;
 }
 
-.delete-button {
+.btn-delete {
   @include icon-before($type: trash, $margin: 0 10px 0 0, $progress-spinner: true);
 
+  float:      left;
   background: #fff;
   color:      #333;
   border:     1px solid #e9edef;

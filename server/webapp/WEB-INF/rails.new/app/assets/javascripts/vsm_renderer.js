@@ -61,6 +61,10 @@ Graph_Renderer = function (container) {
     };
 
     var addPipelineOnHoverSelectStyles = function () {
+      if($j(".vsm-entity.pipeline").children('.onhover-pipeline-overlay').length > 0){
+        return;
+      }
+
       $j("<div class=\"onhover-pipeline-overlay hidden\">" +
         "   <div class=\"plus-symbol\">+</div><div class=\"click-text\">Click to select pipeline</div>" +
         "</div>").appendTo('.vsm-entity.pipeline');
@@ -78,6 +82,10 @@ Graph_Renderer = function (container) {
     };
 
   var addMaterialOnHoverSelectStyles = function () {
+    if($j(".vsm-entity.material").children('.onhover-material-overlay').length > 0){
+      return;
+    }
+
     $j("<div class=\"onhover-material-overlay hidden\">" +
       "    <div class=\"plus-symbol\">+</div><div class=\"click-text\">select material</div>" +
       "</div>").appendTo('.vsm-entity.material');

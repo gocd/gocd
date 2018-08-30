@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+$personalize-modal-err-tooltip-bg: rgba($tooltip-background-color, 0.75);
+
 .overlay.personalize-editor {
   width: 530px;
   top:   10vh;
@@ -207,3 +209,24 @@
   }
 }
 
+.tooltip {
+  // scss-lint:disable ImportantRule
+  background:  $personalize-modal-err-tooltip-bg;
+  max-width:   unset !important;
+  top:         -$tooltip-pip-width;
+  transform:   translateY(-100%);
+  white-space: nowrap;
+
+  &:before {
+    @include css-triangle($tooltip-pip-width, $personalize-modal-err-tooltip-bg, down);
+
+    top:       100%;
+    left:      20px;
+    transform: unset;
+  }
+}
+
+.has-tip:hover + .tooltip {
+  // disabled buttons don't fire events, thus will not trigger tooltip
+  display: block !important; // scss-lint:disable ImportantRule
+}

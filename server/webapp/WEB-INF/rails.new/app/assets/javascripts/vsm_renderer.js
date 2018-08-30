@@ -60,36 +60,6 @@ Graph_Renderer = function (container) {
       $j(".other-node").removeClass("vsm-other-node");
     };
 
-    var addPipelineOnHoverSelectStyles = function () {
-      if($j(".vsm-entity.pipeline").children('.onhover-pipeline-overlay').length > 0){
-        return;
-      }
-
-      $j("<div class=\"onhover-pipeline-overlay hidden\">" +
-        "   <div class=\"plus-symbol\">+</div><div class=\"click-text\">Click to select pipeline</div>" +
-        "</div>").appendTo('.vsm-entity.pipeline');
-
-      var hoverOnPipeline = function () {
-        var isSelected = $j(this).hasClass("vsm-other-node");
-        !isSelected && $j(this).find('.onhover-pipeline-overlay').removeClass("hidden");
-      };
-
-      var hoverOutPipeline = function () {
-        $j(this).find('.onhover-pipeline-overlay').addClass("hidden");
-      };
-
-      $j(".vsm-entity.pipeline.other-node").hover(hoverOnPipeline, hoverOutPipeline);
-    };
-
-  var addMaterialOnHoverSelectStyles = function () {
-    if($j(".vsm-entity.material").children('.onhover-material-overlay').length > 0){
-      return;
-    }
-
-    $j("<div class=\"onhover-material-overlay hidden\">" +
-      "    <div class=\"plus-symbol\">+</div><div class=\"click-text\">select material</div>" +
-      "</div>").appendTo('.vsm-entity.material');
-
     var hoverOnMaterial = function () {
       var isSelected = $j(this).hasClass("vsm-other-node");
       !isSelected && $j(this).find('.onhover-material-overlay').removeClass("hidden");
@@ -99,8 +69,40 @@ Graph_Renderer = function (container) {
       $j(this).find('.onhover-material-overlay').addClass("hidden");
     };
 
-    $j(".vsm-entity.material.other-node").hover(hoverOnMaterial, hoverOutMaterial);
-  };
+    var hoverOnPipeline = function () {
+      var isSelected = $j(this).hasClass("vsm-other-node");
+      !isSelected && $j(this).find('.onhover-pipeline-overlay').removeClass("hidden");
+    };
+
+    var hoverOutPipeline = function () {
+      $j(this).find('.onhover-pipeline-overlay').addClass("hidden");
+    };
+
+    var addPipelineOnHoverSelectStyles = function () {
+      $j("<div class=\"onhover-pipeline-overlay hidden\">" +
+        "   <div class=\"plus-symbol\">+</div><div class=\"click-text\">Click to select pipeline</div>" +
+        "</div>").appendTo('.vsm-entity.pipeline');
+
+      $j(".vsm-entity.pipeline.other-node").bind('mouseover', hoverOnPipeline).bind('mouseout', hoverOutPipeline);
+    };
+
+    var addMaterialOnHoverSelectStyles = function () {
+      $j("<div class=\"onhover-material-overlay hidden\">" +
+        "    <div class=\"plus-symbol\">+</div><div class=\"click-text\">select material</div>" +
+        "</div>").appendTo('.vsm-entity.material');
+
+      $j(".vsm-entity.material.other-node").bind('mouseover', hoverOnMaterial).bind('mouseout', hoverOutMaterial);
+    };
+
+    var removePipelineOnHoverStyles = function () {
+      $j(".onhover-pipeline-overlay").remove();
+      $j(".vsm-entity.pipeline.other-node").unbind('mouseover', hoverOnPipeline).unbind('mouseout', hoverOutPipeline);
+    };
+
+    var removeMaterialOnHoverStyles = function () {
+      $j(".onhover-material-overlay").remove();
+      $j(".vsm-entity.material.other-node").unbind('mouseover', hoverOnMaterial).unbind('mouseout', hoverOutMaterial);
+    };
 
     Graph_Renderer.prototype.enableAnalyticsMode = function () {
       analyticsModeEnabled = true;
@@ -132,6 +134,9 @@ Graph_Renderer = function (container) {
       $j('.vsm-entity.pipeline .pipeline_actions').removeClass("hidden");
       $j('.vsm-entity.pipeline .instances .instance .vsm_link_wrapper').removeClass("hidden");
       $j('.vsm-entity.pipeline .instances .instance .duration').removeClass("hidden");
+
+      removePipelineOnHoverStyles();
+      removeMaterialOnHoverStyles();
 
       removeNodeSelection();
     };

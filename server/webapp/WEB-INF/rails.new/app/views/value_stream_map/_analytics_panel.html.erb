@@ -1,39 +1,36 @@
 <div class="vsm-analytics-panel" id="vsm-analytics-panel">
-  <div id="select-pipelines" class="vsm-analytics-selection">
-    <ul class="select_streams">
-      <% if scope[:is_vsm_for_pipeline] %>
-        <li class="analytics-upstream empty"/>
-      <% end %>
-      <li>
-          <span class="analytics-current">
-            <%= scope[:current] %>
-          </span>
-      </li>
-      <li class="analytics-downstream empty"/>
-    </ul>
-    <span class="vsm-analytics-help">Select a pipeline/material to view analytics</span>
+  <h3 class="vsm-analytics-title">
+    <%= scope[:title] %>
+  </h3>
+
+  <div id="select-pipelines-template" class="vsm-analytics-selection">
+    <div class="source_container">
+        <span class="analytics-source analytics-current">
+          <%= scope[:current] %>
+        </span>
+    </div>
+    <div class="destination_container">
+        <span class="analytics-destination vsm-analytics-help">
+          <%= scope[:message] %>
+        </span>
+    </div>
   </div>
 
   <div id="selected-pipelines" class="vsm-analytics-selection hide">
-    <ul class="select_streams">
-      <% if scope[:is_vsm_for_pipeline] %>
-        <li class="analytics-upstream">
-          <span class="selected-name"></span>
-        </li>
-      <% end %>
-      <li>
-          <span class="analytics-current">
-            <%= scope[:current] %>
-          </span>
-      </li>
-      <li class="analytics-downstream">
-        <span class="selected-name"></span>
-      </li>
-    </ul>
+    <div class="source_container">
+      <span class="analytics-source"></span>
+    </div>
+    <div class="destination_container">
+      <span class="analytics-destination"></span>
+    </div>
   </div>
+
   <div class="vsm-analytics-actions">
     <button title="View Analytics" class="view-vsm-analytics btn-primary disabled">
       View Analytics
+    </button>
+    <button title="View Analytics" class="reset-vsm-analytics btn-primary hide">
+      Reset Selection
     </button>
     <button class="analytics-close"></button>
   </div>

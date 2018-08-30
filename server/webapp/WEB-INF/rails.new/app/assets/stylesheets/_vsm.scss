@@ -56,7 +56,6 @@ $btn-default: #d6d5d5;
     border-radius: 50%;
     height:        19px;
   }
-
 }
 
 .vsm-entity.current.vsm-current-node {
@@ -68,10 +67,10 @@ $btn-default: #d6d5d5;
   &:hover {
     border: 2px solid $primary-color !important;
   }
-  &.material{
+  &.material {
     &:before {
-      left: 50%;
-      top: -12px;
+      left:      50%;
+      top:       -12px;
       transform: translateX(-50%);
     }
   }
@@ -89,55 +88,55 @@ $btn-default: #d6d5d5;
 }
 
 .onhover-pipeline-overlay {
-  position: relative;
-  top: -103px;
-  left: -10px;
-  width: 210px;
-  height: 150px;
-  background: #f2f2f2;
-  opacity: 0.85;
+  position:      relative;
+  top:           -103px;
+  left:          -10px;
+  width:         210px;
+  height:        150px;
+  background:    #f2f2f2;
+  opacity:       0.85;
   border-radius: 4px;
-  border: 2px solid $secondary-color;
-  box-shadow: 0 0 2px 2px #CCCCCC;
-  color: #000;
+  border:        2px solid $secondary-color;
+  box-shadow:    0 0 2px 2px #ccc;
+  color:         #000;
 
   .plus-symbol {
     padding-top: 20px;
-    font-size: 55px;
+    font-size:   55px;
     font-weight: 300;
-    text-align: center;
+    text-align:  center;
   }
 
   .click-text {
     padding-top: 10px;
-    font-size: 18px;
-    text-align: center;
+    font-size:   18px;
+    text-align:  center;
   }
 }
 
 .onhover-material-overlay {
-  position: relative;
-  top: -103px;
-  left: -10px;
-  width: 135px;
-  height: 135px;
-  z-index: 2;
+  position:      relative;
+  top:           -103px;
+  left:          -10px;
+  width:         135px;
+  height:        135px;
+  z-index:       2;
   border-radius: 70px !important;
-  background: #f2f2f2;
-  opacity: 0.85;
-  border: 2px solid $secondary-color;
-  box-shadow: 0 0 2px 2px #CCCCCC;
-  color: #000;
+  background:    #f2f2f2;
+  opacity:       0.85;
+  border:        2px solid $secondary-color;
+  box-shadow:    0 0 2px 2px #ccc;
+  color:         #000;
 
   .plus-symbol {
     padding-top: 15px;
-    font-size: 55px;
+    font-size:   55px;
     font-weight: 300;
-    text-align: center;
+    text-align:  center;
   }
 
   .click-text {
-    font-size: 18px;
+    font-size:  18px;
     text-align: center;
   }
 }
@@ -151,15 +150,15 @@ $btn-default: #d6d5d5;
   &:before {
     color: $secondary-color;
   }
-  border: 2px solid $secondary-color;
+  border:     2px solid $secondary-color;
   &:hover {
     border: 2px solid $secondary-color !important;
   }
-  box-shadow: 0 0 2px 2px #CCCCCC;
-  &.material{
+  box-shadow: 0 0 2px 2px #ccc;
+  &.material {
     &:before {
-      left: 50%;
-      top: -12px;
+      left:      50%;
+      top:       -12px;
       transform: translateX(-50%);
     }
   }
@@ -167,7 +166,7 @@ $btn-default: #d6d5d5;
 
 .analytics-overlay {
   position:   fixed;
-  top:        148px;
+  top:        182px;
   left:       0;
   right:      0;
   height:     100vh;
@@ -219,11 +218,43 @@ $btn-default: #d6d5d5;
 
 //vsm analytics
 
-.enable-analytics {
-  font-size: 16px;
-  margin:    4px 0 0 50px;
-  border:    1px solid $border-color;
-  padding:   5px;
+.source_container {
+  position:      relative;
+  margin-bottom: 10px;
+  display:       inline-block;
+  &:before {
+    content:     "";
+    border-left: 2px dotted #94399e;
+    display:     block;
+    height:      16px;
+    position:    absolute;
+    top:         27px;
+    left:        13px;
+  }
+}
+
+.vsm-analytics-help {
+  border:          1px dotted $secondary-color;
+  border-radius:   3px;
+  font-size:       14px;
+  color:           #666;
+  padding:         5px 10px 5px 30px;
+  box-shadow:      0 0 2px 0 rgba(0, 0, 0, 0.5);
+  background:      image_url('select-pipeline-icon.svg') no-repeat 7px 3px;
+  background-size: 14px;
+}
+
+.analytics-current, .analytics-other {
+  font-weight: 600;
+  font-size:   14px;
+  display:     flex;
+  align-items: center;
+}
+
+.enable-analytics.btn-primary {
+  font-size: 15px;
+  margin:    3px 0 0 50px;
+  padding:   2px 10px;
 }
 
 .vsm-analytics-panel {
@@ -239,50 +270,19 @@ $btn-default: #d6d5d5;
   @extend %btn;
 }
 
-%sel-item {
+.vsm-analytics-title {
   font-size:   16px;
   font-weight: 600;
-  display:     flex;
-  align-items: center;
-}
-
-%stream_sel {
-  @extend %sel-item;
-  &.empty {
-    border:        1px dotted $primary-color;
-    width:         140px;
-    height:        35px;
-    border-radius: $global-border-radius;
-  }
-}
-
-.selected-name {
-  @include icon-before('check-circle', $margin: 0, $size: 16px);
-  &:before {
-    color:        $secondary-color;
-    font-size:    20px;
-    margin-right: 5px;
-  }
+  color:       #000;
+  margin:      23px 0 0 38px;
+  float:       left;
 }
 
 .vsm-analytics-selection {
-  float:     left;
-  position:  relative;
-  transform: translateX(-50%);
-  left:      calc(50% - 150px);
-}
+  float:       left;
+  position:    relative;
 
-.hide {
-  display: none;
-}
-
-.select_streams {
-  display:       flex;
-  justify-items: center;
-  li {
-    display:  flex;
-    position: relative;
-  }
+  margin-left: 50px;
 }
 
 .no-close .ui-dialog-titlebar-close {
@@ -295,49 +295,40 @@ $btn-default: #d6d5d5;
   margin-top: 5px;
 }
 
+.analytics-other {
+  @include icon-before('check-circle');
+  &:before {
+    color:        $secondary-color;
+    font-size:    20px;
+    margin-right: 5px;
+  }
+}
+
 .analytics-current {
-  @include icon-before('check-circle', $margin: 0, $size: 16px);
-  font-size:   14px;
-  color:       #000;
-  font-weight: 700;
-  display:     flex;
-  align-items: center;
+  @include icon-before('check-circle');
   &:before {
     color:        $primary-color;
     font-size:    20px;
     margin-right: 5px;
-    margin-left:  5px;
-  }
-}
 
-.analytics-upstream {
-  @extend %stream_sel;
-  margin-right: 110px;
-  &:after {
-    content:    "";
-    border-top: 1px dotted $primary-color;
-    display:    block;
-    width:      95px;
-    position:   absolute;
-    left:       105%;
-  }
-}
-
-.analytics-downstream {
-  @extend %stream_sel;
-  margin-left: 110px;
-  &:before {
-    content:    "";
-    border-top: 1px dotted $primary-color;
-    display:    block;
-    width:      95px;
-    position:   absolute;
-    right:      105%;
   }
 }
 
 .vsm-analytics-actions {
-  float:   right;
-  display: flex;
+  float:      right;
+  display:    flex;
+  margin-top: 14px;
+}
+
+.icon_vsm_analytics {
+  @include icon-before($type: bar-chart);
+
+  padding:      0;
+  font-size:    15px;
+  color:        #fff;
+  cursor:       pointer;
+  &:before{
+    margin-right: 10px;
+  }
 }
 

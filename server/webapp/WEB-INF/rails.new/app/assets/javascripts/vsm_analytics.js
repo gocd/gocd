@@ -156,9 +156,15 @@
       graphRenderer.registerSelectMaterialCallback(this.selectMaterial);
 
       panel.registerCloseCallback(this.disableAnalytics);
+      panel.registerResetCallback(this.resetAnalytics);
       panel.registerViewAnalyticsCallback(renderAnalytics);
 
       $j(analyticsButton).click(this.enableAnalytics);
+    };
+
+    var clearAnalytics = function () {
+      $j("#analytics-overlay").addClass("hide");
+      $j("#analytics-overlay").empty();
     };
 
     this.enableAnalytics = function () {
@@ -166,9 +172,13 @@
       graphRenderer.enableAnalyticsMode();
     };
 
+    this.resetAnalytics = function () {
+      clearAnalytics();
+      graphRenderer.resetAnalyticsMode();
+    };
+
     this.disableAnalytics = function () {
-      $j("#analytics-overlay").addClass("hide");
-      $j("#analytics-overlay").empty();
+      clearAnalytics();
       graphRenderer.disableAnalyticsMode();
     };
 
@@ -177,7 +187,11 @@
 
       otherNode = new PipelineNode(pipelineName, level);
 
-      level < current.index ? panel.upstream(pipelineName) : panel.downstream(pipelineName);
+      if (level < current.index) {
+        panel.update(pipelineName, current.name, false);
+      } else {
+        panel.update(current.name, pipelineName, true);
+      }
     };
 
     this.selectMaterial = function (materialName, fingerprint, level) {
@@ -185,7 +199,7 @@
 
       otherNode = new MaterialNode(fingerprint, materialName, level);
 
-      panel.material(materialName);
+      panel.update(materialName, current.name, false);
     };
   };
 

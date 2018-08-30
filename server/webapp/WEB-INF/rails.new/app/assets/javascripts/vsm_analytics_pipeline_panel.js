@@ -22,13 +22,31 @@
     var self = this;
     var container = cont;
     var selectedPipelines = "#selected-pipelines";
-    var selectPipelines = "#select-pipelines";
+    var selectPipelines = "#select-pipelines-template";
     var viewAnalyticsButton = ".view-vsm-analytics";
+    var resetAnalyticsButton = ".reset-vsm-analytics";
 
     var closeCallback = void 0;
+    var resetCallback = void 0;
+    var viewAnalyticsCallback = void 0;
+
+    var viewAnalytics = function viewAnalytics() {
+      $j(container).find(resetAnalyticsButton).removeClass("hide");
+      $j(container).find(viewAnalyticsButton).addClass("hide");
+      viewAnalyticsCallback();
+    };
+
+    var resetAnalytics = function resetAnalytics() {
+      $j(container).find(resetAnalyticsButton).addClass("hide");
+      $j(container).find(viewAnalyticsButton).removeClass("hide");
+      disableViewAnalytics();
+      self.reset();
+    };
 
     var init = function init() {
       $j(container).find(".analytics-close").click(self.hide);
+      $j(container).find(resetAnalyticsButton).click(resetAnalytics);
+      $j(container).find(viewAnalyticsButton).click(viewAnalytics);
     };
 
     this.show = function () {
@@ -41,7 +59,7 @@
       enableViewAnalytics();
     };
 
-    var showSelectionInfo = function showSelectionInfo() {
+    var showSelectionTemplate = function showSelectionTemplate() {
       $j(selectPipelines).removeClass("hide");
       $j(selectedPipelines).addClass("hide");
     };
@@ -54,45 +72,58 @@
       $j(viewAnalyticsButton).addClass("disabled");
     };
 
+    var updateSource = function (src, isCurrent) {
+      var source = $j(selectedPipelines).find(".analytics-source");
+
+      source.removeClass("analytics-current");
+      source.removeClass("analytics-other");
+      source.text(src);
+
+      isCurrent ? source.addClass("analytics-current") : source.addClass("analytics-other");
+    };
+
+    var updateDestination = function (dest, isCurrent) {
+      var destination = $j(selectedPipelines).find(".analytics-destination");
+
+      destination.removeClass("analytics-current");
+      destination.removeClass("analytics-other");
+      destination.text(dest);
+
+      isCurrent ? destination.addClass("analytics-current") : destination.addClass("analytics-other");
+    };
+
     this.reset = function () {
-      showSelectionInfo();
+      showSelectionTemplate();
       disableViewAnalytics();
-      $j(selectedPipelines).find(".analytics_downstream").show();
-      $j(selectedPipelines).find(".analytics-upstream .selected-name").text("");
-      $j(selectedPipelines).find(".analytics-upstream").show();
-      $j(selectedPipelines).find(".analytics-downstream .selected-name").text("");
+      resetCallback();
+
+      $j(selectedPipelines).find(".analytics-source").text("");
+      $j(selectedPipelines).find(".analytics-destination").text("");
     };
 
     this.hide = function () {
       $j(container).hide();
+      resetAnalytics();
       closeCallback();
-      self.reset();
     };
 
-    this.upstream = function (pipelineName) {
-      $j(selectedPipelines).find(".analytics-downstream").hide();
-      $j(selectedPipelines).find(".analytics-upstream .selected-name").text(pipelineName);
-      $j(selectedPipelines).find(".analytics-upstream").show();
+    this.update = function (source, destination, isSourceCurrent) {
+      updateSource(source, isSourceCurrent);
+      updateDestination(destination, !isSourceCurrent);
+
       showSelected();
-    };
-
-    this.downstream = function (pipelineName) {
-      $j(selectedPipelines).find(".analytics-upstream").hide();
-      $j(selectedPipelines).find(".analytics-downstream .selected-name").text(pipelineName);
-      $j(selectedPipelines).find(".analytics-downstream").show();
-      showSelected();
-    };
-
-    this.material = function (materialName) {
-      self.upstream(materialName);
     };
 
     this.registerCloseCallback = function (callback) {
       closeCallback = callback;
     };
 
+    this.registerResetCallback = function (callback) {
+      resetCallback = callback;
+    };
+
     this.registerViewAnalyticsCallback = function (callback) {
-      $j(container).find(".view-vsm-analytics").click(callback);
+      viewAnalyticsCallback = callback;
     };
 
     init();

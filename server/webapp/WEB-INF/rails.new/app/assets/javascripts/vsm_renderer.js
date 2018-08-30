@@ -113,6 +113,9 @@ Graph_Renderer = function (container) {
 
     var selectPipeline = function selectPipeline() {
       var vsmEntity = $j(this).closest('.vsm-entity');
+      if ($j(vsmEntity).hasClass('vsm-current-node')) {
+          return;
+      }
       $j(".other-node").removeClass("vsm-other-node");
       $j(vsmEntity).addClass("vsm-other-node");
       selectPipelineCallback(vsmEntity.data("pipeline-name"), vsmEntity.data("level"));

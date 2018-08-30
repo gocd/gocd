@@ -65,6 +65,9 @@ $btn-default: #d6d5d5;
     color: $primary-color;
   }
   border: 2px solid $primary-color;
+  &:hover {
+    border: 2px solid $primary-color !important;
+  }
   &.material{
     &:before {
       left: 50%;
@@ -88,6 +91,9 @@ $btn-default: #d6d5d5;
     color: $secondary-color;
   }
   border: 2px solid $secondary-color;
+  &:hover {
+    border: 2px solid $secondary-color !important;
+  }
   box-shadow: 0 0 2px 2px #CCCCCC;
   &.material{
     &:before {

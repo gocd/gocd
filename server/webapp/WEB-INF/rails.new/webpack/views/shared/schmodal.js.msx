@@ -55,7 +55,7 @@ const Dialog = {
       children.push(<Footer buttons={buttons}/>);
     }
 
-    const classes = _.uniq(_.compact(["overlay", vnode.attrs.size]));
+    const classes = _.uniq(_.compact(["overlay", "movable", vnode.attrs.size]));
 
     return <div class={classes.join(" ")}>{children}</div>;
   }
@@ -70,7 +70,7 @@ const ModalSet = {
 function Modal(options) {
   $(_root).show();
   let config = $.extend({}, DEFAULT, options);
-  MODALS.push(config);
+  MODALS.unshift(config);
   $(document.body).addClass("fixed");
 
   this.replace = (updated) => {
@@ -87,7 +87,7 @@ function close(e) {
     e.stopPropagation();
   }
 
-  const opts = MODALS.pop();
+  const opts = MODALS.shift();
   $(document.body).removeClass("fixed");
 
   if (opts) {

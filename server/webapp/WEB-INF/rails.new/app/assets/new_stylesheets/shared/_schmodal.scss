@@ -17,14 +17,31 @@ $overlay-border-radius: 3px;
 }
 
 .overlay {
-  border:        0;
-  border-radius: $overlay-border-radius;
-  position:      fixed;
-  z-index:       100;
-  top:           25%;
-  left:          50%;
-  width:         $overlay-width;
-  transform:     translatex(-50%);
+  border:              0;
+  border-radius:       $overlay-border-radius;
+  position:            fixed;
+  z-index:             100;
+  top:                 25%;
+  left:                50%;
+  width:               $overlay-width;
+  transform:           translatex(-50%);
+
+  &.movable {
+    transition-property: top;
+
+    &:nth-of-type(2) {
+      transition-duration: 2s;
+      top: 95%;
+
+      .close-icon {
+        display: none;
+      }
+    }
+  }
+
+  &:nth-of-type(2) ~ .overlay {
+    display: none;
+  }
 }
 
 .overlay-header {

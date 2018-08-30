@@ -306,7 +306,7 @@ $icon-color: #647984;
 .btn-save, .btn-cancel {
   float: right;
 
-  & ~ .tooltip {
+  ~ .tooltip {
     left:  auto;
     right: 0;
 

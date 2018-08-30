@@ -19,6 +19,7 @@ const m = require("mithril");
 const PersonalizeEditorVM        = require("views/dashboard/models/personalize_editor_vm");
 const PersonalizationModalWidget = require("views/dashboard/personalization_modal_widget");
 const Modal                      = require("views/shared/schmodal");
+const mrequest                   = require("helpers/mrequest");
 
 function personalizeEditor(opts, personalization, model) {
   // evaluate every time in case personalization is updated while the modal is open
@@ -72,7 +73,7 @@ function personalizeEditor(opts, personalization, model) {
             Modal.close();
             model.onchange();
           }).fail((xhr) => {
-            const reason = JSON.parse(xhr.responseText).message;
+            const reason = mrequest.unwrapErrorExtractMessage(xhr.responseText);
             dialog.replace({
               title: "Delete View",
               size: "delete-view",

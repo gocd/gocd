@@ -66,7 +66,7 @@ describe("value_stream_map_renderer", function () {
         assertEquals("Should have highlighting behind current pipeline", jQuery('#vsm-container .highlight').length, 1);
     });
 
-    it("testVSMForCommitShouldNotHaveHighlightingBackground", function () {
+    it("testVSMForCommitShouldHaveHighlightingBackground", function () {
         var hg_material = scmMaterialNode('hg_fingerprint', '../manual-testing/ant_hg/dummy', "hg", '["p1"]', 1,
           '[{"modifications": [{"revision": "revision1","comment":"comment1","user":"user1","modified_time":"modified_time1"}, ' +
           '{"revision": "revision2","comment":"comment2","user":"user2","modified_time":"modified_time2"}]}]');
@@ -74,7 +74,7 @@ describe("value_stream_map_renderer", function () {
         var vsm = eval('({"current_material":"hg_fingerprint","levels":[{"nodes":[' + hg_material + ']},{"nodes":[' + node_p1 + ']}]})');
         new Graph_Renderer("#vsm-container").invoke(vsm);
 
-        assertEquals("Should not have highlighting anywhere", jQuery('#vsm-container .highlight').length, 0);
+        assertEquals("Should have highlighting background for material", jQuery('#vsm-container .highlight').length, 1);
     });
 
 

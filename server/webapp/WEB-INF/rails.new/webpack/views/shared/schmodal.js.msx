@@ -81,7 +81,7 @@ const Dialog = {
 
     const classes = _.uniq(_.compact(["overlay", "movable", vnode.attrs.size]));
 
-    return <div class={classes.join(" ")} title={`${vnode.attrs.id}`}>{children}</div>;
+    return <div class={classes.join(" ")}>{children}</div>;
   }
 };
 

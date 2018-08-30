@@ -94,18 +94,18 @@ function personalizeEditor(opts, personalization, model) {
     });
   }
 
+  const buttons = [
+    {text: "Save", class:"btn-save", disabled: vm.invalid, onclick: save, tooltipText: vm.firstError},
+    {text: "Cancel", class: "btn-cancel btn-link"}
+  ];
+
+  if (existing) { buttons.unshift({text: "Delete View", class:"delete-button", onclick: deleteView, disabled: () => { return model.names().length === 1; }}); }
+
   this.modal = new Modal({
     title: existing ? `Edit ${opts.name}`: "Create new view",
     size: "overlay-personalize-editor",
     body: () => m(PersonalizationModalWidget, { vm, save }),
-    buttons: existing ? [
-      {text: "Delete View", class:"delete-button", onclick: deleteView },
-      {text: "Save", disabled: vm.invalid, onclick: save, tooltipText: vm.firstError},
-      {text: "Cancel", class: "btn-cancel btn-link"}
-    ] : [
-      {text: "Save", disabled: vm.invalid, onclick: save, tooltipText: vm.firstError},
-      {text: "Cancel", class: "btn-cancel btn-link"}
-    ]
+    buttons
   });
 }
 

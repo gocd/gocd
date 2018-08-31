@@ -48,23 +48,20 @@ const Dialog = {
   oncreate(vnode) {
     function removeAnimation() {
         vnode.dom.classList.remove("adding");
-        vnode.dom.removeEventListener("animationend", removeAnimation);
     }
     vnode.dom.classList.add("adding");
-    vnode.dom.addEventListener("animationend", removeAnimation);
+    setTimeout(removeAnimation, 500);
   },
 
   onbeforeremove(vnode) {
     return new Promise((resolve) => {
-      if (null === vnode.dom.offsetParent) { //short-circuit for hidden modals
+      if (null === vnode.dom.offsetParent) { // short-circuit for hidden modals
         resolve();
         return;
       }
 
       vnode.dom.classList.add("removing");
-      vnode.dom.addEventListener("animationend", () => {
-        resolve();
-      });
+      setTimeout(resolve, 250); // backup in case animation end doesn't fire, which seems to happen sometimes
     });
   },
 

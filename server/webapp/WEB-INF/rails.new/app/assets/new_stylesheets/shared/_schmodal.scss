@@ -7,8 +7,8 @@ $overlay-border-radius: 3px;
 
 @include keyframes(modalIn) {
   0% {
-    opacity:   0;
-    transform: translate(-50%, -150%);
+    opacity:   1; // disable animation for now
+    transform: translate(-50%, 0);
   }
 
   100% {
@@ -61,7 +61,7 @@ $overlay-border-radius: 3px;
   transition:    opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
 
   &.adding {
-    @include animation(modalIn 0.5s ease-out);
+    @include animation(modalIn 0.25s ease-out);
   }
 
   &.removing {

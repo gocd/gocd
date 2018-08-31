@@ -45,29 +45,6 @@ const Footer = {
 };
 
 const Dialog = {
-  oncreate(vnode) {
-    function removeAnimation() {
-        vnode.dom.classList.remove("adding");
-        vnode.dom.removeEventListener("animationend", removeAnimation);
-    }
-    vnode.dom.classList.add("adding");
-    vnode.dom.addEventListener("animationend", removeAnimation);
-  },
-
-  onbeforeremove(vnode) {
-    return new Promise((resolve) => {
-      if (null === vnode.dom.offsetParent) { //short-circuit for hidden modals
-        resolve();
-        return;
-      }
-
-      vnode.dom.classList.add("removing");
-      vnode.dom.addEventListener("animationend", () => {
-        resolve();
-      });
-    });
-  },
-
   view(vnode) {
     const buttons = val(vnode.attrs.buttons) || [];
     const children = [

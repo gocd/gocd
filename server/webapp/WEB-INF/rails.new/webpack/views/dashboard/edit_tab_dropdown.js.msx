@@ -62,7 +62,7 @@ function deleteView(name, personalization, model) {
     size: "delete-view",
     body: () => {
       return <span>
-        Do you want to delete <span class="view-name">{name}</span> view?
+        Do you want to delete <span class="personalization-view-name">{name}</span> view?
       </span>;
     },
     buttons: [{

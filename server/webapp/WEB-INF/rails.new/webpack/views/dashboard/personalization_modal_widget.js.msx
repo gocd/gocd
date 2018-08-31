@@ -126,15 +126,15 @@ const PersonalizationModalWidget = {
     const vm = vnode.attrs.vm;
 
     return <div class="personalize-editor-controls">
-<div className="view-top">
-    <AlertContainer vm={vm} />
-    <FilterNameInput {...vnode.attrs} />
-      <div className="show-pipelines">
-        <span class="section-label">Show pipelines :</span>
-        <f.checkbox name="include-new-pipelines" model={vm} attrName="includeNewPipelines" label="New" />
-          <StageStateCriteria vm={vm} />
+      <div className="view-top">
+        <AlertContainer vm={vm} />
+        <FilterNameInput {...vnode.attrs} />
+        <div className="show-pipelines">
+          <span class="section-label">Show pipelines :</span>
+          <f.checkbox name="include-new-pipelines" model={vm} attrName="includeNewPipelines" label="New" />
+            <StageStateCriteria vm={vm} />
+        </div>
       </div>
-</div>
 
       <div class="pipeline-search-container">
           <BlanketSelector vm={vm.selectionVM()} />

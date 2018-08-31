@@ -40,6 +40,20 @@ $icon-color: #647984;
   }
 }
 
+.overlay-delete-view {
+  width: 500px;
+
+  .overlay-content {
+    min-height: unset;
+
+    .personalization-view-name {
+      font-weight: 700;
+    }
+  }
+}
+
+
+
 .personalize-editor-error-response {
   position:      fixed;
   top:           53px;

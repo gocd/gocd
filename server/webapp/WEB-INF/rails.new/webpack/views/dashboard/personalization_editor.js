@@ -56,12 +56,10 @@ function personalizeEditor(opts, personalization, model) {
   function deleteView() {
     const dialog = new Modal({
       title: "Delete View",
-      size: "delete-view",
-      body: () => {
-        return <span>
-          Do you want to delete <span class="view-name">{existing}</span> view?
-        </span>;
-      },
+      size: "overlay-delete-view",
+      body: () => <span>
+        Do you want to delete view <span class="personalization-view-name">{existing}</span>?
+      </span>,
       buttons: [{
         text: "Yes",
         onclick: () => {
@@ -76,12 +74,12 @@ function personalizeEditor(opts, personalization, model) {
             const reason = mrequest.unwrapErrorExtractMessage(xhr.responseText);
             dialog.replace({
               title: "Delete View",
-              size: "delete-view",
+              size: "overlay-delete-view",
               body: () => {
                 return <span class="server-error-response">
                   <i class="icon_alert"></i>
                   <span class="reason">
-                    Failed to delete view <span class="view-name">{name}</span>: {reason}
+                    Failed to delete view <span class="personalization-view-name">{name}</span>: {reason}
                   </span>
                 </span>;
               },

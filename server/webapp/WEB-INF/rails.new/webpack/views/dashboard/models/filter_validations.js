@@ -41,6 +41,7 @@ function FilterValidations(opts) {
 
   this.invalid = () => {
     this.validate("hasPipelinesSelected");
+    this.validate("name");
     return this.errors().hasErrors();
   };
 }

@@ -30,7 +30,6 @@ function personalizeEditor(opts, personalization, model) {
 
   model.updatePipelineGroups().then(() => {
     vm.onLoadPipelines(model.model().pipelineGroups());
-    m.redraw();
   });
 
   function save() {

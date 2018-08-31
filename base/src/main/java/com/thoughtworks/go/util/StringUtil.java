@@ -19,9 +19,11 @@ package com.thoughtworks.go.util;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 public final class StringUtil {
     private static final String DELIMITER = "_";
@@ -33,6 +35,10 @@ public final class StringUtil {
 
     public static String quoteJavascriptString(String s) {
         return "\"" + StringEscapeUtils.escapeJava(s) + "\"";
+    }
+
+    public static String joinSentences(String... strings) {
+        return Arrays.stream(strings).map(String::trim).map(s -> s.endsWith(".") ? s : s + ".").collect(Collectors.joining(" "));
     }
 
     public static String matchPattern(String regEx, String s) {
@@ -98,6 +104,6 @@ public final class StringUtil {
     }
 
     public static String unQuote(String string) {
-        return string == null ? null: string.replaceAll("^\"|\"$", "");
+        return string == null ? null : string.replaceAll("^\"|\"$", "");
     }
 }

@@ -104,6 +104,20 @@ Graph_Renderer = function (container) {
       $j(".vsm-entity.material.other-node").unbind('mouseover', hoverOnMaterial).unbind('mouseout', hoverOutMaterial);
     };
 
+    function hideMultiplePipelineInstances() {
+      $j('.vsm-entity.pipeline .show-more').addClass("hidden");
+
+      $j('.vsm-entity.pipeline .instances').get().forEach(function (instances) {
+        if ($j(instances).children().size() > 1) {
+          $j(instances).children().get().forEach(function (instance, index) {
+            if (index !== 0) {
+              $j(instance).addClass("hidden");
+            }
+          });
+        }
+      });
+    }
+
     Graph_Renderer.prototype.enableAnalyticsMode = function () {
       analyticsModeEnabled = true;
       $j('.vsm-entity.pipeline a').css({ "pointer-events": "none" });
@@ -115,6 +129,7 @@ Graph_Renderer = function (container) {
       $j('.vsm-entity.pipeline .pipeline_actions').addClass("hidden");
       $j('.vsm-entity.pipeline .instances .instance .vsm_link_wrapper').addClass("hidden");
       $j('.vsm-entity.pipeline .instances .instance .duration').addClass("hidden");
+      hideMultiplePipelineInstances();
 
       addPipelineOnHoverSelectStyles();
       addMaterialOnHoverSelectStyles();
@@ -134,6 +149,8 @@ Graph_Renderer = function (container) {
       $j('.vsm-entity.pipeline .pipeline_actions').removeClass("hidden");
       $j('.vsm-entity.pipeline .instances .instance .vsm_link_wrapper').removeClass("hidden");
       $j('.vsm-entity.pipeline .instances .instance .duration').removeClass("hidden");
+      $j('.vsm-entity.pipeline .instances .instance').removeClass("hidden");
+      $j('.vsm-entity.pipeline .show-more').removeClass("hidden");
 
       removePipelineOnHoverStyles();
       removeMaterialOnHoverStyles();

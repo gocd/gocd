@@ -69,6 +69,11 @@
   </filter-mapping>
 
   <filter-mapping>
+    <filter-name>ConfigGitRepositoryFilter</filter-name>
+    <url-pattern>/api/config-repository.git/*</url-pattern>
+  </filter-mapping>
+
+  <filter-mapping>
     <filter-name>urlRewriteFilter</filter-name>
     <url-pattern>/*</url-pattern>
     <!--<dispatcher>FORWARD</dispatcher>-->
@@ -214,11 +219,6 @@
     <servlet-name>console-websocket</servlet-name>
     <url-pattern>/console-websocket/*</url-pattern>
   </servlet-mapping>
-
-  <filter-mapping>
-    <filter-name>ConfigGitRepositoryFilter</filter-name>
-    <url-pattern>/api/config-repository.git/*</url-pattern>
-  </filter-mapping>
 
   <servlet-mapping>
     <servlet-name>spring-all</servlet-name>

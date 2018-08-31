@@ -36,7 +36,7 @@ public class ConfigGitRepoFilter extends GitFilter {
     public void init(FilterConfig config) throws ServletException {
         ConfigRepository configRepository = ContextLoader.getCurrentWebApplicationContext().getBean(ConfigRepository.class);
         FileResolver<HttpServletRequest> resolver = new FileResolver<>();
-        resolver.exportRepository("config-repository", configRepository.getGitRepo());
+        resolver.exportRepository("api/config-repository.git", configRepository.getGitRepo());
         setRepositoryResolver(resolver);
         setReceivePackFactory(null);
 

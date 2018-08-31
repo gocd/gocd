@@ -112,6 +112,11 @@ $icon-color: #647984;
   height:        40px;
 }
 
+.filter.personalize-editor {
+  display:   flex;
+  flex-grow: 1;
+}
+
 .filter-name {
   border:        0;
   padding:       0;

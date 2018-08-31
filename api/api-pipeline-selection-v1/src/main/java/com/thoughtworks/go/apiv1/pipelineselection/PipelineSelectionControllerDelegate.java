@@ -56,7 +56,7 @@ public class PipelineSelectionControllerDelegate extends ApiController {
     private static final String COOKIE_NAME = "selected_pipelines";
 
     private static final int OK = HttpStatus.OK.value();
-    private static final String DATA_IS_OUT_OF_DATE = "Update failed because client filter data is out-of-date";
+    private static final String DATA_IS_OUT_OF_DATE = "Update failed because the view is out-of-date. Try refreshing the page.";
 
     private final ApiAuthenticationHelper apiAuthenticationHelper;
     private final PipelineSelectionsService pipelineSelectionsService;

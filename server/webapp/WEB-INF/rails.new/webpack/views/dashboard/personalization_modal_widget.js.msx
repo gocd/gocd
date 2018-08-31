@@ -42,7 +42,7 @@ const FilterNameInput = {
 const PipelineNameSearch = {
   view(vnode) {
     const vm = vnode.attrs.vm;
-    return <div class="filter">
+    return <div class="filter personalize-editor">
       <f.input class="pipeline-search" disabled={!vm} model={vm} attrName="searchTerm" placeholder="Search for a Pipeline" />
     </div>;
   }

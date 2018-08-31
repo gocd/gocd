@@ -184,7 +184,6 @@ body {
 
 .pipeline-search {
   height:             40px;
-  width:              350px;
   line-height:        40px;
   padding:            0 10px 0 40px;
   margin:             0;
@@ -198,6 +197,10 @@ body {
     font-size: 13px;
     color:     $border-color;
   }
+}
+
+.pipeline-search.dashboard {
+  width: 350px;
 }
 
 .dashboard-group {

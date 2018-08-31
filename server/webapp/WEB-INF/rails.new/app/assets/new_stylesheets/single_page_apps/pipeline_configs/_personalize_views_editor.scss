@@ -352,3 +352,9 @@ $icon-color: #647984;
   // disabled buttons don't fire events, thus will not trigger tooltip
   display: block !important; // scss-lint:disable ImportantRule
 }
+
+.required:after {
+  content:      "*";
+  color:        #c00;
+  padding-left: 3px;
+}

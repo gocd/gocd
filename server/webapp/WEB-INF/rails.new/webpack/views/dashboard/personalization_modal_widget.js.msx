@@ -34,7 +34,7 @@ const FilterNameInput = {
     };
 
     return <section class="filter-name">
-      <f.input label="View name" class="view-name" model={vm} attrName="name" validate={true} onkeypress={submitOnEnter} />
+      <f.input label={<span class="required">View name</span>} required={true} class="view-name" model={vm} attrName="name" onkeypress={submitOnEnter} />
     </section>;
   }
 };

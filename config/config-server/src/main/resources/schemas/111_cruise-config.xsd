@@ -30,7 +30,6 @@
             <xsd:all>
               <xsd:element minOccurs="0" maxOccurs="1" name="security" type="securityType"/>
               <xsd:element minOccurs="0" maxOccurs="1" name="mailhost" type="mailHostType"/>
-              <xsd:element minOccurs="0" maxOccurs="1" name="backup" type="backupType"/>
             </xsd:all>
             <xsd:attributeGroup ref="serverAttributeGroup"/>
           </xsd:complexType>
@@ -83,7 +82,7 @@
           </xsd:unique>
         </xsd:element>
       </xsd:sequence>
-      <xsd:attribute name="schemaVersion" type="xsd:int" use="required" fixed="112"/>
+      <xsd:attribute name="schemaVersion" type="xsd:int" use="required" fixed="111"/>
     </xsd:complexType>
     <xsd:unique name="uniquePipelines">
       <xsd:selector xpath="pipelines"/>
@@ -269,12 +268,6 @@
     <xsd:attribute name="tls" type="xsd:boolean" use="required"/>
     <xsd:attribute name="from" type="emailType" use="required"/>
     <xsd:attribute name="admin" type="emailType" use="required"/>
-  </xsd:complexType>
-  <xsd:complexType name="backupType">
-    <xsd:attribute name="schedule" type="xsd:string" use="required"/>
-    <xsd:attribute name="postBackupScript" type="xsd:string" use="optional"/>
-    <xsd:attribute name="emailOnSuccess" type="xsd:boolean"/>
-    <xsd:attribute name="emailOnFailure" type="xsd:boolean"/>
   </xsd:complexType>
   <xsd:complexType name="elasticConfigType">
     <xsd:sequence>

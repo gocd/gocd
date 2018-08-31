@@ -17,10 +17,12 @@
 package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.CurrentGoCDVersion;
+import com.thoughtworks.go.config.BackupConfig;
 import com.thoughtworks.go.config.GoMailSender;
 import com.thoughtworks.go.database.Database;
 import com.thoughtworks.go.security.AESCipherProvider;
 import com.thoughtworks.go.security.DESCipherProvider;
+import com.thoughtworks.go.server.domain.PostBackupScript;
 import com.thoughtworks.go.server.domain.ServerBackup;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.messaging.EmailMessageDrafter;
@@ -35,13 +37,13 @@ import com.thoughtworks.go.util.VoidThrowingFn;
 import org.apache.commons.io.DirectoryWalker;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.sql.DataSource;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -49,8 +51,10 @@ import java.util.Date;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
+import static com.thoughtworks.go.util.StringUtil.joinSentences;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.apache.commons.codec.binary.Hex.encodeHexString;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 /**
  * @understands backing up db and config
@@ -58,10 +62,15 @@ import static org.apache.commons.codec.binary.Hex.encodeHexString;
 @Service
 public class BackupService implements BackupStatusProvider {
 
+    // Don't change these enums. These are an API contract, and are used by post backup script.
+    public enum BackupInitiator {
+        TIMER,
+        USER
+    }
+
     private static final Logger LOGGER = LoggerFactory.getLogger(BackupService.class);
 
-    public static final String BACKUP = "backup_";
-    private final DataSource dataSource;
+    static final String BACKUP = "backup_";
     private final ArtifactsDirHolder artifactsDirHolder;
     private final GoConfigService goConfigService;
     private ServerBackupRepository serverBackupRepository;
@@ -73,15 +82,19 @@ public class BackupService implements BackupStatusProvider {
     private volatile DateTime backupRunningSince;
     private volatile String backupStartedBy;
 
-    final String CONFIG_BACKUP_ZIP = "config-dir.zip";
+    private static final String CONFIG_BACKUP_ZIP = "config-dir.zip";
     private static final String CONFIG_REPOSITORY_BACKUP_ZIP = "config-repo.zip";
     private static final String VERSION_BACKUP_FILE = "version.txt";
-    private static final String BACKUP_MUTEX = "GO-SERVER-BACKUP-IN-PROGRESS".intern();
+    private static final Object BACKUP_MUTEX = new Object();
 
     @Autowired
-    public BackupService(DataSource dataSource, ArtifactsDirHolder artifactsDirHolder, GoConfigService goConfigService, TimeProvider timeProvider,
-                         ServerBackupRepository serverBackupRepository, SystemEnvironment systemEnvironment, ConfigRepository configRepository, Database databaseStrategy) {
-        this.dataSource = dataSource;
+    public BackupService(ArtifactsDirHolder artifactsDirHolder,
+                         GoConfigService goConfigService,
+                         TimeProvider timeProvider,
+                         ServerBackupRepository serverBackupRepository,
+                         SystemEnvironment systemEnvironment,
+                         ConfigRepository configRepository,
+                         Database databaseStrategy) {
         this.artifactsDirHolder = artifactsDirHolder;
         this.goConfigService = goConfigService;
         this.serverBackupRepository = serverBackupRepository;
@@ -91,22 +104,29 @@ public class BackupService implements BackupStatusProvider {
         this.timeProvider = timeProvider;
     }
 
+    void backupViaTimer(HttpLocalizedOperationResult result) {
+        performBackupWithoutAuthentication(Username.CRUISE_TIMER, result, BackupInitiator.TIMER);
+    }
+
     public ServerBackup startBackup(Username username, HttpLocalizedOperationResult result) {
         if (!goConfigService.isUserAdmin(username)) {
             result.forbidden("Unauthorized to initiate Go backup as you are not a Go administrator", HealthStateType.forbidden());
             return null;
         }
+        return performBackupWithoutAuthentication(username, result, BackupInitiator.USER);
+    }
+
+    private ServerBackup doPerformBackup(Username username, HttpLocalizedOperationResult result) {
         GoMailSender mailSender = goConfigService.getMailSender();
         synchronized (BACKUP_MUTEX) {
-            DateTime now = timeProvider.currentDateTime();
-            final File destDir = new File(backupLocation(), BACKUP + now.toString("YYYYMMdd-HHmmss"));
+            DateTime backupTime = timeProvider.currentDateTime();
+            final File destDir = new File(backupLocation(), BACKUP + backupTime.toString("YYYYMMdd-HHmmss"));
             if (!destDir.mkdirs()) {
-                result.badRequest("Failed to perform backup. Reason: Could not create the backup directory.");
+                result.internalServerError("Failed to perform backup. Reason: Could not create the backup directory.");
                 return null;
             }
-
             try {
-                backupRunningSince = now;
+                backupRunningSince = backupTime;
                 backupStartedBy = username.getUsername().toString();
                 backupVersion(destDir);
                 backupConfig(destDir);
@@ -117,22 +137,69 @@ public class BackupService implements BackupStatusProvider {
                     }
                 });
                 backupDb(destDir);
-                ServerBackup serverBackup = new ServerBackup(destDir.getAbsolutePath(), now.toDate(), username.getUsername().toString());
+                ServerBackup serverBackup = new ServerBackup(destDir.getAbsolutePath(), backupTime.toDate(), username.getUsername().toString());
                 serverBackupRepository.save(serverBackup);
-                mailSender.send(EmailMessageDrafter.backupSuccessfullyCompletedMessage(destDir.getAbsolutePath(), goConfigService.adminEmail(), username));
-                result.setMessage("Backup completed successfully.");
+                if (emailOnSuccess()) {
+                    mailSender.send(EmailMessageDrafter.backupSuccessfullyCompletedMessage(destDir.getAbsolutePath(), goConfigService.adminEmail(), username));
+                }
+                result.setMessage("Backup was generated successfully.");
                 return serverBackup;
             } catch (Exception e) {
                 FileUtils.deleteQuietly(destDir);
-                result.badRequest("Failed to perform backup. Reason: " + e.getMessage());
+                result.internalServerError("Failed to perform backup. Reason: " + e.getMessage());
                 LOGGER.error("[Backup] Failed to backup Go.", e);
-                mailSender.send(EmailMessageDrafter.backupFailedMessage(e.getMessage(), goConfigService.adminEmail()));
+                if (emailOnFailure()) {
+                    mailSender.send(EmailMessageDrafter.backupFailedMessage(e.getMessage(), goConfigService.adminEmail()));
+                }
             } finally {
                 backupRunningSince = null;
                 backupStartedBy = null;
             }
             return null;
         }
+    }
+
+    private ServerBackup performBackupWithoutAuthentication(Username username,
+                                                            HttpLocalizedOperationResult result,
+                                                            BackupInitiator initiatedBy) {
+        ServerBackup serverBackup = doPerformBackup(username, result);
+
+        String postBackupScriptFile = postBackupScriptFile();
+
+        if (isNotBlank(postBackupScriptFile)) {
+            PostBackupScript postBackupScript = new PostBackupScript(postBackupScriptFile, initiatedBy, username, serverBackup, backupLocation());
+            if (postBackupScript.execute()) {
+                // only set message, retain the original status
+                result.setMessage(joinSentences(result.message(), "Post backup script executed successfully."));
+            } else {
+                result.internalServerError(joinSentences(result.message(), "Post backup script exited with an error, check the server log for details."));
+            }
+        }
+        return serverBackup;
+    }
+
+    private BackupConfig backupConfig() {
+        return goConfigService.serverConfig().getBackupConfig();
+    }
+
+    private String postBackupScriptFile() {
+        BackupConfig backupConfig = backupConfig();
+        if (backupConfig != null) {
+            String postBackupScript = backupConfig.getPostBackupScript();
+            return StringUtils.stripToNull(postBackupScript);
+        }
+        return null;
+    }
+
+    private boolean emailOnFailure() {
+        BackupConfig backupConfig = backupConfig();
+
+        return backupConfig != null && backupConfig.isEmailOnFailure();
+    }
+
+    private boolean emailOnSuccess() {
+        BackupConfig backupConfig = backupConfig();
+        return backupConfig != null && backupConfig.isEmailOnSuccess();
     }
 
     private void backupVersion(File backupDir) throws IOException {
@@ -206,7 +273,6 @@ public class BackupService implements BackupStatusProvider {
         File artifactsDir = artifactsDirHolder.getArtifactsDir();
         return FileUtils.byteCountToDisplaySize(artifactsDir.getUsableSpace());
     }
-
 }
 
 

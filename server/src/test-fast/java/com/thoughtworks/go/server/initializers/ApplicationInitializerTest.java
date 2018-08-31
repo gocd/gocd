@@ -94,6 +94,8 @@ public class ApplicationInitializerTest {
     @Mock
     private TimerScheduler timerScheduler;
     @Mock
+    private BackupScheduler backupScheduler;
+    @Mock
     private ArtifactsDirHolder artifactsDirHolder;
     @Mock
     private MaterialUpdateService materialUpdateService;

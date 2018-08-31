@@ -29,7 +29,7 @@ function DashboardFilters(filters) {
     if (idx !== -1) {
       this.filters.splice(idx, 1, updatedFilter);
     } else {
-      console.error(`Couldn't locate filter named [${oldName}]; this shouldn't happen. Falling back to append().`); // eslint-disable-line no-console
+      console.warn(`Couldn't locate filter named [${oldName}]; this shouldn't happen. Falling back to append().`); // eslint-disable-line no-console
       this.addFilter(updatedFilter);
     }
   };

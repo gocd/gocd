@@ -43,11 +43,11 @@ describe("Pipeline List View Model", () => {
     expect(collectExpandedGroups(model.displayedList())).toEqual(["group2"]); // should restore expand/collapse state to that of prior to search
   });
 
-  it("only displays pipelines that include the search term", () => {
+  it("only displays pipelines that include the search term matching case insensitively", () => {
     const all = { group1: "abc".split(""), group2: "ab,cd".split(",") };
     const sel = _st({ a: true, b: true, c: true, ab: true, cd: false });
     const model = new PipelineListVM(all, sel);
-    model.searchTerm("b");
+    model.searchTerm("B");
 
     const names = getPipelineNames(model.displayedList());
     expect(names).toEqual(["ab", "b"]);

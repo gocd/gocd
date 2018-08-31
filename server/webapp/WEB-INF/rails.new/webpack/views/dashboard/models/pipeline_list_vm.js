@@ -15,6 +15,7 @@
  */
 
 const _      = require("lodash");
+const s      = require("underscore.string");
 const Stream = require("mithril/stream");
 
 function PipelineListVM(pipelinesByGroup, currentSelection) {
@@ -52,12 +53,12 @@ function PipelineListVM(pipelinesByGroup, currentSelection) {
   }, {});
 
   this.displayedList = function displayedList() {
-    const search = searchTerm().trim();
+    const search = searchTerm().trim().toLowerCase();
 
     if (!search) { return fullPipelineList; }
 
     return _.reduce(fullPipelineList, (memo, groupModel, groupName) => {
-      const pipelines = _.filter(groupModel.pipelines, (p) => _.includes(p.name, search));
+      const pipelines = _.filter(groupModel.pipelines, (p) => s.include(p.name.toLowerCase(), search));
 
       if (pipelines.length) {
         memo[groupName] = _.assign({}, groupModel, { pipelines });

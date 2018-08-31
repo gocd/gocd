@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,12 +36,14 @@ import org.springframework.stereotype.Component;
 
 import java.text.ParseException;
 import java.util.List;
+import java.util.Set;
 
 import static org.quartz.CronScheduleBuilder.cronSchedule;
 import static org.quartz.JobBuilder.newJob;
 import static org.quartz.JobKey.jobKey;
 import static org.quartz.TriggerBuilder.newTrigger;
 import static org.quartz.TriggerKey.triggerKey;
+import static org.quartz.impl.matchers.GroupMatcher.groupEquals;
 
 /**
  * @understands scheduling pipelines based on a timer
@@ -119,13 +121,6 @@ public class TimerScheduler implements ConfigChangedListener {
         }
     }
 
-    private void showGlobalError(String msg, SchedulerException e) {
-        LOG.error(msg, e);
-        serverHealthService.update(
-                ServerHealthState.error(msg, "Cannot schedule pipelines using the timer",
-                        HealthStateType.general(HealthStateScope.GLOBAL)));
-    }
-
     private void showPipelineError(PipelineConfig pipelineConfig, Exception e, String msg, String description) {
         LOG.error(msg, e);
         serverHealthService.update(
@@ -148,7 +143,10 @@ public class TimerScheduler implements ConfigChangedListener {
 
     private void unscheduleAllJobs() {
         try {
-            quartzScheduler.clear();
+            Set<JobKey> jobKeys = quartzScheduler.getJobKeys(groupEquals(PIPELINE_TRIGGGER_TIMER_GROUP));
+            for (JobKey jobKey : jobKeys) {
+                unscheduleJob(jobKey.getName());
+            }
         } catch (SchedulerException e) {
             LOG.error("Could not unschedule quartz jobs", e);
         }

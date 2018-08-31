@@ -26,7 +26,6 @@ import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.MessageConsumer;
 import javax.jms.ObjectMessage;
-import java.text.MessageFormat;
 
 public class JMSMessageListenerAdapter implements Runnable {
     private static final Logger LOG = LoggerFactory.getLogger(JMSMessageListenerAdapter.class);
@@ -75,7 +74,7 @@ public class JMSMessageListenerAdapter implements Runnable {
         } catch (JMSException e) {
             LOG.warn("Error receiving message. Message receiving will continue despite this error.", e);
         } catch (Exception e) {
-            LOG.error(MessageFormat.format("Exception thrown in message handling by listener {0}", listener), e);
+            LOG.error("Exception thrown in message handling by listener {}", listener, e);
         } finally {
             daemonThreadStatsCollector.clearStats(thread.getId());
         }

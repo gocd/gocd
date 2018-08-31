@@ -54,8 +54,8 @@ const BlanketSelector = {
     return <div class="blanket-selection">
       <span class="blanket-selection_label">Select pipelines</span>
       <div className="select-pipelines_buttons">
-        <f.button class="btn_all" disabled={!vm} onclick={vm && vm.selectAll}>All</f.button>
-        <f.button class="btn_none" disabled={!vm} onclick={vm && vm.selectNone}>None</f.button>
+        <f.button class={vm && vm.hasAllSelected() ? "btn_all active" : "btn_all"} disabled={!vm} onclick={vm && vm.selectAll}>All</f.button>
+        <f.button class={vm && vm.hasNoneSelected() ? "btn_none active" : "btn_none"}  disabled={!vm} onclick={vm && vm.selectNone}>None</f.button>
       </div>
     </div>;
   }

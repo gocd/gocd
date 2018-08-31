@@ -85,6 +85,28 @@ describe("Pipeline List View Model", () => {
     expect(model.hasAnySelections()).toBe(true);
   });
 
+  it('hasAllSelected() should report true if all pipelines are selected', () => {
+    const all = { group1: "abc".split(""), group2: "def".split("") };
+    const sel = _st({ a: true, b: true, c: true, d: true, e: true, f: true });
+
+    const model = new PipelineListVM(all, sel);
+    expect(model.hasAllSelected()).toBe(true);
+
+    sel.b(false);
+    expect(model.hasAllSelected()).toBe(false);
+  });
+
+  it('hasNoneSelected() should report true if no pipelines are selected', () => {
+    const all = { group1: "abc".split(""), group2: "def".split("") };
+    const sel = _st({ a: false, b: false, c: false, d: false, e: false, f: false });
+
+    const model = new PipelineListVM(all, sel);
+    expect(model.hasNoneSelected()).toBe(true);
+
+    sel.b(true);
+    expect(model.hasNoneSelected()).toBe(false);
+  });
+
   it("selectAll() should alter all pipelines", () => {
     const all = { group1: "abc".split(""), group2: "def".split("") };
     const sel = _st({ a: true, b: true, c: true, d: true, e: false, f: false });

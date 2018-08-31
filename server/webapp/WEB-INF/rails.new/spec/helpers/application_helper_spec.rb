@@ -631,7 +631,8 @@ describe ApplicationHelper do
           "id"        => "id1",
           "plugin_id" => "plugin1",
           "type"      => "vsm",
-          "url"       => "/analytics/plugin1/vsm/id1"
+          "url"       => "/analytics/plugin1/vsm/id1",
+          "title"     => "title1"
         }
         expect(vsm_analytics_chart_info).to eq(expected)
       end

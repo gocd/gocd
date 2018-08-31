@@ -11,13 +11,16 @@
       <h1><%= params[:revision] %> </h1></li>
   </ul>
   <% if (supports_vsm_analytics?) %>
-    <button class="fa fa-bar-chart enable-analytics"/>
+    <button class="btn-primary enable-analytics"><i class="icon_vsm_analytics"></i>Analytics</button>
   <% end %>
 </div>
 
 <div class="content">
   <% if supports_vsm_analytics? %>
-    <%= render :partial => "analytics_panel.html", :locals => {:scope => {:is_vsm_for_pipeline => false, :current => @material_display_name}} -%>
+    <%= render :partial => "analytics_panel.html", :locals => {:scope =>
+                                                                 {:current => @material_display_name,
+                                                                  :title => vsm_analytics_chart_info["title"],
+                                                                  :message => "Select a downstream pipeline"}} -%>
   <% end %>
   <div id="vsm-container">
   </div>

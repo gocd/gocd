@@ -153,21 +153,28 @@ Graph_Renderer = function (container) {
       selectMaterialCallback = callback;
     };
 
+    var clearCurrentSelection = function clearCurrentSelection() {
+      $j(".other-node").removeClass("vsm-other-node");
+    };
+
     var selectMaterial = function selectMaterial(e) {
       e.stopPropagation();
+      clearCurrentSelection();
+
       var vsmEntity = $j(this).closest('.vsm-entity');
-      $j(".other-node").removeClass("vsm-other-node");
       $j(vsmEntity).addClass("vsm-other-node");
       $j(vsmEntity).find('.onhover-material-overlay').addClass("hidden");
-      selectMaterialCallback(vsmEntity.data("material-name"), vsmEntity.data("fingerprint").substr(1), vsmEntity.data("level"));
+      selectMaterialCallback(vsmEntity.data("material-name"), vsmEntity.data("fingerprint"), vsmEntity.data("level"));
     };
 
     var selectPipeline = function selectPipeline() {
+      clearCurrentSelection();
+
       var vsmEntity = $j(this).closest('.vsm-entity');
       if ($j(vsmEntity).hasClass('vsm-current-node')) {
           return;
       }
-      $j(".other-node").removeClass("vsm-other-node");
+
       $j(vsmEntity).addClass("vsm-other-node");
       $j(vsmEntity).find('.onhover-pipeline-overlay').addClass("hidden");
       selectPipelineCallback(vsmEntity.data("pipeline-name"), vsmEntity.data("level"));
@@ -184,6 +191,7 @@ Graph_Renderer = function (container) {
                 var depth = node.depth - 1;
 
                 if (node.node_type != 'PIPELINE' && node.node_type != 'DUMMY') {
+                    node.originalId = node.id;
                     node.id = (/\d/.test(node.id.charAt(0))) ? 'a' + node.id : node.id;
                 }
 
@@ -194,7 +202,7 @@ Graph_Renderer = function (container) {
                         var material_conflicts = node.view_type == 'WARNING' ? 'conflicts' : '';
                         pipeline_gui += '<div id="' + node.id.replace(/\./g, '_id-') + '" class="vsm-entity material other-node ' + node.node_type.toLowerCase() + ' ' + current_material + ' ' + material_conflicts + '" style="';
                         pipeline_gui += 'top:' + (((height * depth) + (50 * depth)) + 50) + 'px; left:' + (((width * i) + (90 * i)) + 100) + 'px"';
-                        pipeline_gui += 'data-material-name="' + node.name + '" data-fingerprint="' + node.id + '" data-level=' + i;
+                        pipeline_gui += 'data-material-name="' + node.name + '" data-fingerprint="' + node.originalId + '" data-level=' + i;
                         pipeline_gui += '>';
                         pipeline_gui += renderScmEntity(node);
 

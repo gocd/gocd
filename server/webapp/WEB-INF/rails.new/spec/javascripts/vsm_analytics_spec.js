@@ -19,58 +19,54 @@ describe("vsm_analytics", function () {
   function VSMRenderer() {}
 
   AnalyticsPanel = {
-    downstream: function downstream(name) {},
-    upstream: function upstream(name) {},
-    material: function material(name) {}
+    update: function downstream(source, destination, isSourceCurrent) {}
   };
 
   describe("selectPipeline", function () {
-    it("should have current pipeline as source if the a downstream pipeline is selected", function () {
+    it("should have current pipeline as source if a downstream pipeline is selected", function () {
       var graph = jQuery.extend({ "current_pipeline": "P3" }, vsmGraphJSON());
       var vsmAnalytics = new VSMAnalytics(graph, new VSMRenderer(), "analytics_path", AnalyticsPanel, "button");
-      spyOn(AnalyticsPanel, "downstream");
+      spyOn(AnalyticsPanel, "update");
 
       vsmAnalytics.selectPipeline("P4", 3);
 
       expect(vsmAnalytics.jsonData()["source"]).toBe("P3");
       expect(vsmAnalytics.jsonData()["destination"]).toBe("P4");
-      expect(AnalyticsPanel.downstream).toHaveBeenCalledWith("P4");
+      expect(AnalyticsPanel.update).toHaveBeenCalledWith("P3", "P4", true);
     });
 
     it("should have current_pipeline as destination if an upstream node is selected", function () {
       var graph = jQuery.extend({ "current_pipeline": "P3" }, vsmGraphJSON());
       var vsmAnalytics = new VSMAnalytics(graph, new VSMRenderer(), "analytics_path", AnalyticsPanel, "button");
-      spyOn(AnalyticsPanel, "upstream");
+      spyOn(AnalyticsPanel, "update");
 
       vsmAnalytics.selectPipeline("P1", 1);
 
       expect(vsmAnalytics.jsonData()["source"]).toBe("P1");
       expect(vsmAnalytics.jsonData()["destination"]).toBe("P3");
-      expect(AnalyticsPanel.upstream).toHaveBeenCalledWith("P1");
+      expect(AnalyticsPanel.update).toHaveBeenCalledWith("P1", "P3", false);
     });
 
     it("should have current_material as source and downstream pipeline as destination", function () {
       var graph = jQuery.extend({ "current_material": "3795dca7e793e62cfde2e8e2898efee05bde08c99700cff0ec96d68ad4522629" }, vsmGraphJSON());
       var vsmAnalytics = new VSMAnalytics(graph, new VSMRenderer(), "analytics_path", AnalyticsPanel, "button");
-      spyOn(AnalyticsPanel, "downstream");
+      spyOn(AnalyticsPanel, "update");
 
       vsmAnalytics.selectPipeline("P1", 1);
 
       expect(vsmAnalytics.jsonData()["source"]).toBe("3795dca7e793e62cfde2e8e2898efee05bde08c99700cff0ec96d68ad4522629");
       expect(vsmAnalytics.jsonData()["destination"]).toBe("P1");
-      expect(AnalyticsPanel.downstream).toHaveBeenCalledWith("P1");
+      expect(AnalyticsPanel.update).toHaveBeenCalledWith("3795dca7e793e62cfde2e8e2898efee05bde08c99700cff0ec96d68ad4522629", "P1", true);
     });
 
     it("should do nothing in absence of pipeline name", function () {
       var graph = jQuery.extend({ "current_pipeline": "P3" }, vsmGraphJSON());
       var vsmAnalytics = new VSMAnalytics(graph, new VSMRenderer(), "analytics_path", AnalyticsPanel, "button");
-      spyOn(AnalyticsPanel, "upstream");
-      spyOn(AnalyticsPanel, "downstream");
+      spyOn(AnalyticsPanel, "update");
 
       vsmAnalytics.selectPipeline(undefined, 1);
 
-      expect(AnalyticsPanel.upstream).not.toHaveBeenCalled();
-      expect(AnalyticsPanel.downstream).not.toHaveBeenCalled();
+      expect(AnalyticsPanel.update).not.toHaveBeenCalled();
     });
   });
 
@@ -78,23 +74,23 @@ describe("vsm_analytics", function () {
     it("should have current_pipeline as destination node if a scm node is selected", function () {
       var graph = jQuery.extend({ "current_pipeline": "P3" }, vsmGraphJSON());
       var vsmAnalytics = new VSMAnalytics(graph, new VSMRenderer(), "analytics_path", AnalyticsPanel, "button");
-      spyOn(AnalyticsPanel, "material");
+      spyOn(AnalyticsPanel, "update");
 
       vsmAnalytics.selectMaterial("name", "3795dca7e793e62cfde2e8e2898efee05bde08c99700cff0ec96d68ad4522629", 0);
 
       expect(vsmAnalytics.jsonData()["source"]).toBe("3795dca7e793e62cfde2e8e2898efee05bde08c99700cff0ec96d68ad4522629");
       expect(vsmAnalytics.jsonData()["destination"]).toBe("P3");
-      expect(AnalyticsPanel.material).toHaveBeenCalledWith("name");
+      expect(AnalyticsPanel.update).toHaveBeenCalledWith("name", "P3", false);
     });
 
     it("should do nothing if showing vsm for material", function () {
       var graph = jQuery.extend({ "current_material": "3795dca7e793e62cfde2e8e2898efee05bde08c99700cff0ec96d68ad4522629" }, vsmGraphJSON());
       var vsmAnalytics = new VSMAnalytics(graph, new VSMRenderer(), "analytics_path", AnalyticsPanel, "button");
-      spyOn(AnalyticsPanel, "material");
+      spyOn(AnalyticsPanel, "update");
 
       vsmAnalytics.selectMaterial("name", "3795dca7e793e62cfde2e8e2898efee05bde08c99700cff0ec96d68ad4522629", 0);
 
-      expect(AnalyticsPanel.material).not.toHaveBeenCalled();
+      expect(AnalyticsPanel.update).not.toHaveBeenCalled();
     });
   });
 

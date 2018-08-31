@@ -537,6 +537,7 @@ module ApplicationHelper
       {
         "type" => 'vsm',
         "id" => supported_analytics.getId(),
+        "title" => supported_analytics.getTitle(),
         "plugin_id" => plugin_info.getDescriptor().id(),
         "url" => show_analytics_path({plugin_id: plugin_info.getDescriptor().id(), type: 'vsm', id: supported_analytics.getId()})
       }

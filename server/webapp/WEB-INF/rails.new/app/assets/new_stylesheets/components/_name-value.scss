@@ -1,5 +1,5 @@
-/*
- * Copyright 2016 ThoughtWorks, Inc.
+/*!
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,32 +14,27 @@
  * limitations under the License.
  */
 
-@include keyframes(spin) {
-  from {
-    @include transform(rotate(0deg));
-  }
-
-  to {
-    @include transform(rotate(359deg));
-  }
+.name-value {
+  list-style-type: none;
+  width:           80%;
 }
 
-@include keyframes(fadeIn) {
-  from {
-    opacity: 0;
-  }
-
-  to {
-    opacity: 1;
-  }
+@mixin label() {
+  padding:     0 10px 0 0;
+  min-width:   150px;
+  font-weight: 600;
 }
 
-@include keyframes(fadeOut) {
-  from {
-    opacity: 1;
-  }
+.name-value_pair {
+  border-bottom: 1px dotted $border-color;
+  display:       flex;
+  padding:       4px 0;
 
-  to {
-    opacity: 0;
+  label {
+    @include label;
+    font-size: 13px;
+  }
+  .value {
+    font-size: 13px;
   }
 }

@@ -4,6 +4,7 @@ const f = require("helpers/form_helper");
 const _ = require("lodash");
 
 let _root;
+let _uid = 0;
 const MODALS = [];
 
 const BUTTON_DEFAULTS = { class: "button", text: "OK", onclick: close };
@@ -44,6 +45,29 @@ const Footer = {
 };
 
 const Dialog = {
+  oncreate(vnode) {
+    function removeAnimation() {
+        vnode.dom.classList.remove("adding");
+        vnode.dom.removeEventListener("animationend", removeAnimation);
+    }
+    vnode.dom.classList.add("adding");
+    vnode.dom.addEventListener("animationend", removeAnimation);
+  },
+
+  onbeforeremove(vnode) {
+    return new Promise((resolve) => {
+      if (null === vnode.dom.offsetParent) { //short-circuit for hidden modals
+        resolve();
+        return;
+      }
+
+      vnode.dom.classList.add("removing");
+      vnode.dom.addEventListener("animationend", () => {
+        resolve();
+      });
+    });
+  },
+
   view(vnode) {
     const buttons = val(vnode.attrs.buttons) || [];
     const children = [
@@ -55,7 +79,7 @@ const Dialog = {
       children.push(<Footer buttons={buttons}/>);
     }
 
-    const classes = _.uniq(_.compact(["overlay", vnode.attrs.size]));
+    const classes = _.uniq(_.compact(["overlay", "movable", vnode.attrs.size]));
 
     return <div class={classes.join(" ")}>{children}</div>;
   }
@@ -63,15 +87,16 @@ const Dialog = {
 
 const ModalSet = {
   view() {
-    return m("[", $.map(MODALS, (d) => m(Dialog, d)));
+    return m("[", _.map(MODALS, (d) => m(Dialog, _.assign(d, { key: d.id }))));
   }
 };
 
 function Modal(options) {
-  $(_root).show();
-  let config = $.extend({}, DEFAULT, options);
-  MODALS.push(config);
-  $(document.body).addClass("fixed");
+  showBg();
+
+  let config = _.assign({ id: uid() }, DEFAULT, options);
+
+  push(config);
 
   this.replace = (updated) => {
     MODALS.splice(MODALS.indexOf(config), 1, updated);
@@ -87,8 +112,7 @@ function close(e) {
     e.stopPropagation();
   }
 
-  const opts = MODALS.pop();
-  $(document.body).removeClass("fixed");
+  const opts = pop();
 
   if (opts) {
     if ("function" === typeof opts.afterClose) { opts.afterClose(); }
@@ -99,11 +123,66 @@ function close(e) {
     setTimeout(m.redraw, 0);
   }
 
-  if (MODALS.length === 0) { $(_root).hide(); }
+  if (MODALS.length === 0) { hideBg(); }
 }
+
+function closeAll() {
+  MODALS.forEach((opts) => {
+    if ("function" === typeof opts.afterClose) { opts.afterClose(); }
+  });
+  MODALS.splice(0, MODALS.length);
+  setTimeout(m.redraw, 0);
+  hideBg();
+}
+
+function hideBg() {
+  function onremove() {
+    _root.removeEventListener("animationend", onremove);
+
+    if (!_root.classList.contains("overlay-bg-in")) {
+      _root.classList.remove("overlay-bg-out");
+      $(_root).hide();
+    }
+  }
+
+  _root.addEventListener("animationend", onremove);
+  _root.classList.add("overlay-bg-out");
+  document.body.classList.remove("fixed");
+}
+
+function showBg() {
+  function onremove() {
+    _root.removeEventListener("animationend", onremove);
+    _root.classList.remove("overlay-bg-in");
+  }
+
+  /**
+   * Only animation perform if the background is hidden.
+   *
+   * Alternatively, we can keep track of a flag, but
+   * getComputedStyle() is safer, albeit slower.
+   */
+  if (window.getComputedStyle(_root).display === "none") {
+    _root.addEventListener("animationend", onremove);
+    _root.classList.add("overlay-bg-in");
+  }
+
+  $(_root).show();
+  document.body.classList.add("fixed");
+}
+
+function uid() { return _uid++; }
 
 function val(thing) {
   return "function" === typeof thing ? thing() : thing;
+}
+
+function pop() {
+  return MODALS.shift();
+}
+
+function push(config) {
+  MODALS.unshift(config);
 }
 
 function init() {
@@ -128,7 +207,7 @@ function teardown() {
 }
 
 // Attach API
-$.extend(Modal, { init, teardown, close });
+$.extend(Modal, { init, teardown, close, closeAll });
 
 $(Modal.init);
 

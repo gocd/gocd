@@ -36,11 +36,12 @@ const GroupingSwitch = {
     const vm = vnode.attrs.vm;
 
     return <div>
-      <span class="edit-dropdown-text">Group pipelines by:</span>
-      <radiogroup class="group-mode">
-        <f.input type="radio" listen="onclick" prop="checked" model={vm} attrName="groupByPipelineGroup" name="grouping-scheme" label={<i/>} contentAfter="Pipeline Group" />
-        <f.input type="radio" listen="onclick" prop="checked" model={vm} attrName="groupByEnvironment" name="grouping-scheme" label={<i/>} contentAfter="Environment" />
-      </radiogroup>
+      <span class="grouping_label">Group pipelines by:</span>
+      <f.select model={vm}
+                aria-label="Group pipelines by:"
+                attrName="scheme"
+                class="grouping_select"
+                items={vm.groupByItems}/>
     </div>;
   }
 };
@@ -51,16 +52,16 @@ const DashboardWidget = {
   },
 
   view(vnode) {
-    const args   = vnode.attrs;
-    const vm = args.vm;
-    const dashboard = vm.dashboard;
+    const args          = vnode.attrs;
+    const vm            = args.vm;
+    const dashboard     = vm.dashboard;
     const personalizeVM = args.personalizeVM;
 
     const sharedGroupArgs = _.assign(_.pick(args, [
       "doCancelPolling",
       "doRefreshImmediately",
       "isQuickEditPageEnabled",
-      "pluginsSupportingAnalytics","shouldShowAnalyticsIcon"
+      "pluginsSupportingAnalytics", "shouldShowAnalyticsIcon"
     ]), _.pick(vm, ["operationMessages", "dropdown", "buildCause"]));
 
     if (args.showSpinner()) {

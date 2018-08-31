@@ -48,8 +48,8 @@ const EditTabDropdown = {
 
       return <div class="edit-dropdown" onclick={denyAction}>
         <div class="edit-dropdown-actions">
-          <i class="dashboard-tab-action dashboard-tab-edit" onclick={edit} />
-          <i class={allowDelete ? "dashboard-tab-action dashboard-tab-remove" : "dashboard-tab-action dashboard-tab-remove deny-action"} onclick={allowDelete && remove} />
+          <button className="dashboard-tab-action" onclick={edit}><i class=" dashboard-tab-edit"  /></button>
+          <button className="dashboard-tab-action" onclick={allowDelete && remove}><i class={allowDelete ? " dashboard-tab-remove" : " dashboard-tab-remove deny-action"}  /></button>
         </div>
       </div>;
     }
@@ -62,7 +62,7 @@ function deleteView(name, personalization, model) {
     size: "delete-view",
     body: () => {
       return <span>
-        Do you want to delete <span class="view-name">{name}</span> view?
+        Do you want to delete <span class="personalization-view-name">{name}</span> view?
       </span>;
     },
     buttons: [{
@@ -83,7 +83,7 @@ function deleteView(name, personalization, model) {
             size: "delete-view",
             body: () => {
               return <span class="server-error-response">
-                <i class="alert-icon"></i>
+                <i class="icon_alert"></i>
                 <span class="reason">
                   Failed to delete view <span class="view-name">{name}</span>: {reason}
                 </span>

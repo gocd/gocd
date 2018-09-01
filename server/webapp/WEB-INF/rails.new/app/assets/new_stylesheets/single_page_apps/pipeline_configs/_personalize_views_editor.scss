@@ -216,6 +216,10 @@ $icon-color: #647984;
   padding:       20px;
   border-radius: $global-border-radius;
 
+  &.pipeline-search-in-progress .selected-pipelines_group_checkbox {
+    display: none;
+  }
+
   [type="checkbox"] {
     margin-bottom: 0.75rem;
   }

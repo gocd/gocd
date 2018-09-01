@@ -85,7 +85,7 @@ const PipelineGroupSelection = {
     const vm = vnode.attrs.vm, name = vnode.attrs.name;
     return <li class={`selected-pipelines_group ${(vm.expanded() ? "expanded" : "collapsed")}`}>
       <i class="pipeline-list-toggle" onclick={() => vm.expanded(!vm.expanded())} />
-      <f.checkbox model={vm} attrName="selected" indeterminate={vm.indeterminate()} label={name}/>
+      <f.checkbox model={vm} attrName="selected" indeterminate={vm.indeterminate()} class="selected-pipelines_group_checkbox" label={name}/>
       <PipelineSelectors pipelines={vm.pipelines} />
     </li>;
   }
@@ -137,11 +137,11 @@ const PersonalizationModalWidget = {
       </div>
 
       <div class="pipeline-search-container">
-          <BlanketSelector vm={vm.selectionVM()} />
+        <BlanketSelector vm={vm.selectionVM()} />
         <PipelineNameSearch vm={vm.selectionVM()} />
       </div>
 
-      <div class="pipeline-selections">
+      <div class={vm.hasSearch() ? "pipeline-selections pipeline-search-in-progress" : "pipeline-selections"}>
         <SelectedPipelineList vm={vm.selectionVM()} />
       </div>
     </div>;

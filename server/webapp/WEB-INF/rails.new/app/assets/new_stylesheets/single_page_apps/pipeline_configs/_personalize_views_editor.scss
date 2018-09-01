@@ -90,12 +90,32 @@ $icon-color: #647984;
   padding:       10px 20px;
   border-radius: 3px;
 
-  > * {
-    margin-right: 30px;
-  }
-
   input {
     margin-bottom: 0;
+  }
+
+  .tooltip-outer-container {
+    margin: 0 5px;
+
+    .tooltip-inner-container {
+      position: absolute;
+    }
+
+    .tooltip {
+      display: none;
+    }
+
+    .tooltip-hint {
+      @include icon-before($type: question-circle);
+
+      vertical-align: middle;
+      margin-right:   10px;
+    }
+
+    .tooltip.show {
+      display: block;
+      left:    -22px;
+    }
   }
 }
 
@@ -153,8 +173,8 @@ $icon-color: #647984;
 .stage-state-selector {
   display: flex;
 
-  label:first-of-type {
-    margin-right: 30px;
+  label {
+    margin-left: 25px;
   }
 }
 

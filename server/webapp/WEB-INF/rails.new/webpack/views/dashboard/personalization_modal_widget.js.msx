@@ -66,7 +66,9 @@ const StageStateCriteria = { //eslint-disable-line no-unused-vars
     const vm = vnode.attrs.vm;
     return <div class="stage-state-selector">
       <f.checkbox name="state" model={vm} attrName="failing" label="Failed" />
+      <ToolTip tooltipText="Show only pipelines whose last run stage has failed, among pipelines selected for this view"/>
       <f.checkbox name="state" model={vm} attrName="building" label="Building" />
+      <ToolTip tooltipText="Show only pipelines with jobs which are scheduled or building, among pipelines chosen for this view"/>
     </div>;
   }
 };
@@ -121,6 +123,17 @@ const AlertContainer = {
   }
 };
 
+const ToolTip = {
+  view(vnode) {
+    return <span class="tooltip-outer-container">
+      <span class="tooltip-inner-container">
+        <i class="tooltip-hint" onclick={ (e) => { e.stopPropogation; e.target.nextSibling.classList.toggle("show"); }}/>
+        <span class="tooltip" role="tooltip">{vnode.attrs.tooltipText} <a href={vnode.attrs.linkUrl} target="_blank">{vnode.attrs.linkText}</a></span>
+      </span>
+    </span>;
+  }
+};
+
 const PersonalizationModalWidget = {
   view(vnode) {
     const vm = vnode.attrs.vm;
@@ -132,7 +145,8 @@ const PersonalizationModalWidget = {
         <div className="show-pipelines">
           <span class="section-label">Show pipelines :</span>
           <f.checkbox name="include-new-pipelines" model={vm} attrName="includeNewPipelines" label="New" />
-            <StageStateCriteria vm={vm} />
+          <ToolTip tooltipText="Include pipelines created since this view was last updated" linkUrl="https://docs.gocd.org/current/navigation/pipelines_dashboard_page.html#personalize-pipelines-view" linkText="More..."/>
+          <StageStateCriteria vm={vm} />
         </div>
       </div>
 

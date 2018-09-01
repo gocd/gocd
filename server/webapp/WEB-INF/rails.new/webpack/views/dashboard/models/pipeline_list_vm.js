@@ -15,7 +15,7 @@
  */
 
 const _      = require("lodash");
-const s      = require("underscore.string");
+const _s      = require("underscore.string");
 const Stream = require("mithril/stream");
 
 function PipelineListVM(pipelinesByGroup, currentSelection) {
@@ -58,7 +58,7 @@ function PipelineListVM(pipelinesByGroup, currentSelection) {
     if (!search) { return fullPipelineList; }
 
     return _.reduce(fullPipelineList, (memo, groupModel, groupName) => {
-      const pipelines = _.filter(groupModel.pipelines, (p) => s.include(p.name.toLowerCase(), search));
+      const pipelines = _.filter(groupModel.pipelines, (p) => _s.include(p.name.toLowerCase(), search));
 
       if (pipelines.length) {
         memo[groupName] = _.assign({}, groupModel, { pipelines });
@@ -74,8 +74,13 @@ function PipelineListVM(pipelinesByGroup, currentSelection) {
     }, []);
   };
 
-  this.selectAll = function selectAll() { _.each(currentSelection, (s, _n) => { s(true); }); };
-  this.selectNone = function selectNone() { _.each(currentSelection, (s, _n) => { s(false); }); };
+  function setAllSelectionsTo(bool) {
+    const search = searchTerm().trim().toLowerCase();
+    _.each(currentSelection, (s, n) => { _s.include(n.toLowerCase(), search) && s(bool); });
+  }
+
+  this.selectAll = () => setAllSelectionsTo(true);
+  this.selectNone = () => setAllSelectionsTo(false);
 
   this.hasAnySelections = () => !!_.find(currentSelection, (s, _n) => s());
   this.hasAllSelected = () => _.every(currentSelection, (s) => s());

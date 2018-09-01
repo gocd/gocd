@@ -132,6 +132,28 @@ describe("Pipeline List View Model", () => {
     expect(_.every(sel, (s) => !s())).toBe(true);
   });
 
+  it("selectAll() should honor search term", () => {
+    const all = { group1: "aa,ab,c".split(","), group2: "d,ae,af".split(",") };
+    const sel = _st({ aa: false, ab: false, c: false, d: false, ae: false, af: false });
+
+    const model = new PipelineListVM(all, sel);
+    model.searchTerm("a");
+    model.selectAll();
+
+    expect(selectedPipelineNames(sel)).toEqual(["aa", "ab", "ae", "af"]);
+  });
+
+  it("selectNone() should honor search term", () => {
+    const all = { group1: "aa,ab,c".split(","), group2: "d,ae,af".split(",") };
+    const sel = _st({ aa: true, ab: true, c: true, d: true, ae: true, af: true });
+
+    const model = new PipelineListVM(all, sel);
+    model.searchTerm("a");
+    model.selectNone();
+
+    expect(selectedPipelineNames(sel)).toEqual(["c", "d"]);
+  });
+
   it("selecting at least one pipeline should set group indeterminate state", () => {
     const all = { group1: "abc".split(""), group2: "def".split(""), group3: "g" };
     const sel = _st({ a: true, b: false, c: false, d: true, e: true, f: true, g: false });
@@ -208,6 +230,10 @@ function uncheck(stream) {
 
 function _st(obj) {
   return _.reduce(obj, (m, v, k) => { m[k] = v instanceof Stream ? v : Stream(v); return m; }, {});
+}
+
+function selectedPipelineNames(sel) {
+  return _.reduce(sel, (m, v, k) => { if (v()) { m.push(k); } return m; }, []).sort();
 }
 
 function collectExpandedGroups(groups) {

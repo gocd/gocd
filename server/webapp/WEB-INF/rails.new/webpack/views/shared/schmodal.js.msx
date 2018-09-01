@@ -76,7 +76,7 @@ const Dialog = {
       children.push(<Footer buttons={buttons}/>);
     }
 
-    const classes = _.uniq(_.compact(["overlay", "movable", vnode.attrs.size]));
+    const classes = _.uniq(_.compact(["overlay", vnode.attrs.size]));
 
     return <div class={classes.join(" ")}>{children}</div>;
   }

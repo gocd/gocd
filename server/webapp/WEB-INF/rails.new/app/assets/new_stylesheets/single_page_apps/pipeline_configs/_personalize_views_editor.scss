@@ -103,6 +103,11 @@ $icon-color: #647984;
 
     .tooltip {
       display: none;
+
+      &.show {
+        display: block;
+        left:    -22px;
+      }
     }
 
     .tooltip-hint {
@@ -110,11 +115,6 @@ $icon-color: #647984;
 
       vertical-align: middle;
       margin-right:   10px;
-    }
-
-    .tooltip.show {
-      display: block;
-      left:    -22px;
     }
   }
 }

@@ -29,11 +29,15 @@ function PersonalizeEditorVM(opts) { // opts is usually the current filter
   const type = Stream(opts.type);
   const state = Stream(opts.state);
   const selectionVM = Stream();
+  const tooltip = Stream(null);
 
   const inverted = () => "blacklist" === type();
 
   this.name = name;
   this.selectionVM = selectionVM;
+  this.tooltip = tooltip;
+
+  this.tooltipVisible = (name) => tooltip() === name;
 
   this.onLoadPipelines = (pipelinesByGroup) => {
     selectionVM(PipelineListVM.create(pipelinesByGroup, inverted(), opts.pipelines));

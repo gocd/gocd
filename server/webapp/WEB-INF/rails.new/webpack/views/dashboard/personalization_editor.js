@@ -56,9 +56,11 @@ function personalizeEditor(opts, personalization, model) {
     const dialog = new Modal({
       title: "Delete View",
       size: "overlay-delete-view",
-      body: () => <span>
-        Do you want to delete view <span class="personalization-view-name">{existing}</span>?
-      </span>,
+      body: () => m("span", null, [
+        "Do you want to delete view ",
+        m("span", { "class": "personalization-view-name" }, existing),
+        "?"
+      ]),
       buttons: [{
         text: "Yes",
         onclick: () => {
@@ -74,20 +76,19 @@ function personalizeEditor(opts, personalization, model) {
             dialog.replace({
               title: "Delete View",
               size: "overlay-delete-view",
-              body: () => {
-                return <span class="server-error-response">
-                  <i class="icon_alert"></i>
-                  <span class="reason">
-                    Failed to delete view <span class="personalization-view-name">{name}</span>: {reason}
-                  </span>
-                </span>;
-              },
+              body: () => m("span", { "class": "server-error-response" }, [
+                m("i", { "class": "icon_alert" }),
+                m("span", { "class": "reason" }, [
+                  "Failed to delete view ",
+                  m("span", { "class": "personalization-view-name" }, name),
+                  ": ", reason
+                ])
+              ]),
               buttons: [{text: "Close"}]
             });
-          }).always(() => {
-            m.redraw();
-          });
-        }}, {text: "Cancel", class: "btn-link"}]
+          }).always(m.redraw);
+        }
+      }, {text: "Cancel", class: "btn-link"}]
     });
   }
 
@@ -109,6 +110,12 @@ function personalizeEditor(opts, personalization, model) {
     title: existing ? `Edit ${opts.name}`: "Create new view",
     size: "overlay-personalize-editor",
     body: () => m(PersonalizationModalWidget, { vm, save }),
+    globalClick: () => {
+      if (vm.tooltip()) {
+        vm.tooltip(null);
+        setTimeout(m.redraw, 5);
+      }
+    },
     buttons
   });
 }

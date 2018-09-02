@@ -54,7 +54,7 @@ function PersonalizeEditorVM(opts) { // opts is usually the current filter
     return {name: name(), type: type(), pipelines, state: state()};
   };
 
-  this.hasSearch = () => !!(this.selectionVM() && this.selectionVM().searchTerm().trim());
+  this.hasSearch = () => !!(this.selectionVM() && this.selectionVM().hasSearch());
   this.hasPipelinesSelected = () => !!(this.selectionVM() && this.selectionVM().hasAnySelections());
 }
 

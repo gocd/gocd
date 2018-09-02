@@ -85,6 +85,19 @@ describe("Pipeline List View Model", () => {
     expect(model.hasAnySelections()).toBe(true);
   });
 
+  it("hasSearch() detects presence of search term", () => {
+    const model = new PipelineListVM({}, {});
+
+    model.searchTerm("");
+    expect(model.hasSearch()).toBe(false);
+
+    model.searchTerm("   ");
+    expect(model.hasSearch()).toBe(false);
+
+    model.searchTerm("foo");
+    expect(model.hasSearch()).toBe(true);
+  });
+
   it('hasAllSelected() should report true if all pipelines are selected', () => {
     const all = { group1: "abc".split(""), group2: "def".split("") };
     const sel = _st({ a: true, b: true, c: true, d: true, e: true, f: true });

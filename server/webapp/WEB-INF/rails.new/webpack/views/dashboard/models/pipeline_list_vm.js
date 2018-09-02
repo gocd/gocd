@@ -22,6 +22,8 @@ function PipelineListVM(pipelinesByGroup, currentSelection) {
 
   const searchTerm = Stream("");
 
+  const hasSearch = () => !!searchTerm().trim();
+
   this.searchTerm = searchTerm;
 
   const fullPipelineList = _.reduce(pipelinesByGroup, (memo, pipelines, group) => {
@@ -46,6 +48,7 @@ function PipelineListVM(pipelinesByGroup, currentSelection) {
     memo[group] = {
       expanded,
       selected: groupSelection(currentSelection, pipelines),
+      disabled: hasSearch,
       indeterminate: indeterminate(currentSelection, pipelines),
       pipelines: _.map(pipelines, (p) => { return {name: p, selected: boolByName(currentSelection, p)}; })
     };
@@ -82,6 +85,7 @@ function PipelineListVM(pipelinesByGroup, currentSelection) {
   this.selectAll = () => setAllSelectionsTo(true);
   this.selectNone = () => setAllSelectionsTo(false);
 
+  this.hasSearch = hasSearch;
   this.hasAnySelections = () => !!_.find(currentSelection, (s, _n) => s());
   this.hasAllSelected = () => _.every(currentSelection, (s) => s());
   this.hasNoneSelected = () => _.every(currentSelection, (s) => !s());

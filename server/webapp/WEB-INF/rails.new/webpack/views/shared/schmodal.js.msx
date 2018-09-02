@@ -191,6 +191,14 @@ function init() {
   }
 
   $(_root).on("click", ".overlay-close", close);
+  $(_root).on("click", (e) => {
+    e.stopPropagation();
+
+    if (!$(e.target).closest(".overlay").length) { close(); }
+
+    MODALS.forEach((c) => { if ("function" === typeof c.globalClick) { c.globalClick(); } });
+  });
+
   $(document.body).on("keydown", close);
   m.mount(_root, ModalSet);
 }

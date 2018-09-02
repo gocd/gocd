@@ -39,7 +39,7 @@
   max-width:     $max;
   white-space:   nowrap;
   text-overflow: ellipsis;
-  overflow-x:      hidden;
+  overflow-x:    hidden;
 }
 
 @mixin commit-message($line-count) {

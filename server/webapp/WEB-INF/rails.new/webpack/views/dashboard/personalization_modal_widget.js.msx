@@ -61,14 +61,15 @@ const BlanketSelector = {
   }
 };
 
-const StageStateCriteria = { //eslint-disable-line no-unused-vars
+const StageStateCriteria = {
   view(vnode) {
     const vm = vnode.attrs.vm;
+
     return <div class="stage-state-selector">
       <f.checkbox name="state" model={vm} attrName="failing" label="Failed" />
-      <ToolTip tooltipText="Show only pipelines whose last run stage has failed, among pipelines selected for this view"/>
+      <Tooltip vm={vm} name="failed-pipelines">Show only pipelines whose last run stage has failed, among pipelines selected for this view</Tooltip>
       <f.checkbox name="state" model={vm} attrName="building" label="Building" />
-      <ToolTip tooltipText="Show only pipelines with jobs which are scheduled or building, among pipelines chosen for this view"/>
+      <Tooltip vm={vm} name="building-pipelines">Show only pipelines with jobs which are scheduled or building, among pipelines chosen for this view</Tooltip>
     </div>;
   }
 };
@@ -123,12 +124,38 @@ const AlertContainer = {
   }
 };
 
-const ToolTip = {
+const Tooltip = {
+  oninit(vnode) {
+    vnode.state.show = false;
+    vnode.state.offset = -22;
+  },
+
+  onupdate(vnode) {
+    const vm = vnode.attrs.vm;
+    const name = vnode.attrs.name;
+
+    if (vm.tooltipVisible(name)) {
+      const tx = rightEdge(vnode.dom.querySelector(".tooltip"));
+      const mx = rightEdge(parentModal(vnode.dom));
+
+      if (tx > mx) {
+        vnode.state.offset = mx - tx - 22;
+        setTimeout(m.redraw, 0);
+      }
+    }
+  },
+
   view(vnode) {
-    return <span class="tooltip-outer-container">
-      <span class="tooltip-inner-container">
-        <i class="tooltip-hint" onclick={ (e) => { e.stopPropogation; e.target.nextSibling.classList.toggle("show"); }}/>
-        <span class="tooltip" role="tooltip">{vnode.attrs.tooltipText} <a href={vnode.attrs.linkUrl} target="_blank">{vnode.attrs.linkText}</a></span>
+    const vm = vnode.attrs.vm;
+    const name = vnode.attrs.name;
+
+    const toggle = (e) => { e.stopPropagation(); vm.tooltip(vm.tooltipVisible(name) ? null : name); };
+
+    return <span class="text-with-tooltip">
+      {vnode.attrs.text}
+      <span class={vm.tooltipVisible(name) ? "tooltip-container show" : "tooltip-container"}>
+        <i class="tooltip-hint" onclick={toggle} />
+        <div class="tooltip" style={`left: ${vnode.state.offset}px`} role="tooltip">{vnode.children}</div>
       </span>
     </span>;
   }
@@ -143,9 +170,14 @@ const PersonalizationModalWidget = {
         <AlertContainer vm={vm} />
         <FilterNameInput {...vnode.attrs} />
         <div className="show-pipelines">
-          <span class="section-label">Show pipelines :</span>
+          <span class="section-label">Show pipelines:</span>
           <f.checkbox name="include-new-pipelines" model={vm} attrName="includeNewPipelines" label="New" />
-          <ToolTip tooltipText="Include pipelines created since this view was last updated" linkUrl="https://docs.gocd.org/current/navigation/pipelines_dashboard_page.html#personalize-pipelines-view" linkText="More..."/>
+          <Tooltip vm={vm} name="include-new-pipelines">
+            {"Include pipelines created since this view was last updated "}
+            <f.link href="https://docs.gocd.org/current/navigation/pipelines_dashboard_page.html#personalize-pipelines-view" target="_blank">
+              More&hellip;
+            </f.link>
+          </Tooltip>
           <StageStateCriteria vm={vm} />
         </div>
       </div>
@@ -165,6 +197,16 @@ const PersonalizationModalWidget = {
 function isEnterKey(e) {
   if (e.key && "Enter" === e.key) { return true; }
   return 13 === (e.keyCode || e.which);
+}
+
+function parentModal(el) {
+  while(el && !el.classList.contains("overlay")) { el = el.parentNode; }
+  return el;
+}
+
+function rightEdge(el) {
+  const rect = el.getBoundingClientRect();
+  return rect.x + rect.width;
 }
 
 module.exports = PersonalizationModalWidget;

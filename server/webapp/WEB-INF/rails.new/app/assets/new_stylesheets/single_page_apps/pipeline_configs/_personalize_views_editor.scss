@@ -38,6 +38,28 @@ $icon-color: #647984;
   .overlay-footer {
     justify-content: flex-start;
   }
+
+  .tooltip {
+    // scss-lint:disable ImportantRule
+    background:  $personalize-modal-err-tooltip-bg;
+    max-width:   unset !important;
+    top:         -$tooltip-pip-width;
+    transform:   translateY(-100%);
+    white-space: nowrap;
+
+    &:before {
+      @include css-triangle($tooltip-pip-width, $personalize-modal-err-tooltip-bg, down);
+
+      top:       100%;
+      left:      20px;
+      transform: unset;
+    }
+  }
+
+  .has-tip:hover + .tooltip {
+    // disabled buttons don't fire events, thus will not trigger tooltip
+    display: block !important; // scss-lint:disable ImportantRule
+  }
 }
 
 .overlay-delete-view {
@@ -93,35 +115,57 @@ $icon-color: #647984;
   input {
     margin-bottom: 0;
   }
+}
 
-  .tooltip-outer-container {
-    margin: 0 5px;
+.text-with-tooltip {
+  display: inline-block;
 
-    .tooltip-inner-container {
-      position: absolute;
+  .tooltip {
+    @include unselectable;
+
+    display:     none;
+    width:       310px;
+    white-space: normal;
+  }
+
+  .tooltip-hint {
+    @include icon-before($type: question-circle);
+
+    vertical-align: middle;
+    margin:         0;
+
+    &:hover {
+      cursor: pointer;
     }
+  }
 
-    .tooltip {
-      display: none;
+  .tooltip-container {
+    position: relative;
 
-      &.show {
+    &.show {
+      .tooltip {
         display: block;
-        left:    -22px;
+
+        &:before {
+          display: none;
+        }
       }
-    }
 
-    .tooltip-hint {
-      @include icon-before($type: question-circle);
+      .tooltip-hint {
+        &:after {
+          @include css-triangle($tooltip-pip-width, $personalize-modal-err-tooltip-bg, down);
 
-      vertical-align: middle;
-      margin-right:   10px;
+          position: absolute;
+          top:      -12px;
+        }
+      }
     }
   }
 }
 
 .section-label {
   line-height:  25px;
-  margin-right: 30px;
+  margin-right: 20px;
   white-space:  nowrap;
 }
 
@@ -354,28 +398,6 @@ $icon-color: #647984;
       right: 20px;
     }
   }
-}
-
-.tooltip {
-  // scss-lint:disable ImportantRule
-  background:  $personalize-modal-err-tooltip-bg;
-  max-width:   unset !important;
-  top:         -$tooltip-pip-width;
-  transform:   translateY(-100%);
-  white-space: nowrap;
-
-  &:before {
-    @include css-triangle($tooltip-pip-width, $personalize-modal-err-tooltip-bg, down);
-
-    top:       100%;
-    left:      20px;
-    transform: unset;
-  }
-}
-
-.has-tip:hover + .tooltip {
-  // disabled buttons don't fire events, thus will not trigger tooltip
-  display: block !important; // scss-lint:disable ImportantRule
 }
 
 .required:after {

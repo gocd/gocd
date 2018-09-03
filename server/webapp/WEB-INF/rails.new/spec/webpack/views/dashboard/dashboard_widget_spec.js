@@ -285,20 +285,20 @@ describe("Dashboard Widget", () => {
   });
 
   it("should render pipeline group title", () => {
-    expect($root.find('.dashboard-group_title strong').get(0)).toContainText(dashboardJson._embedded.pipeline_groups[0].name);
+    expect($root.find('.dashboard-group_title a').get(0)).toContainText(dashboardJson._embedded.pipeline_groups[0].name);
   });
 
   it("should show pipeline group name which links to pipeline group index page for admin users", () => {
     const pipelineGroupJSON = dashboardJson._embedded.pipeline_groups[0];
 
-    const title = $root.find('.dashboard-group_title>strong>a').get(0);
+    const title = $root.find('.dashboard-group_title>a').get(0);
     expect(title.href.indexOf(`/go/admin/pipelines#group-${pipelineGroupJSON.name}`)).not.toEqual(-1);
   });
 
   it("should show pipeline group icon which links to pipeline group settings page for admin users", () => {
     const pipelineGroupJSON = dashboardJson._embedded.pipeline_groups[0];
 
-    const title = $root.find('.dashboard-group_title>a').get(0);
+    const title = $root.find('.dashboard-group_title>a').get(1);
     expect(title.href.indexOf(`/go/admin/pipeline_group/${pipelineGroupJSON.name}/edit`)).not.toEqual(-1);
   });
 
@@ -309,14 +309,14 @@ describe("Dashboard Widget", () => {
     expect($root.find('.dashboard-group_title .edit_config')).toHaveAttr('data-tooltip-id');
   });
 
-  it("should pipeline group name as a disabled link for non admin users", () => {
+  it("should show pipeline group name as a disabled link for non admin users", () => {
     unmount();
     mount(false);
     const pipelineGroupJSON = dashboardJson._embedded.pipeline_groups[0];
 
-    const title = $root.find('.dashboard-group_title>strong').get(0);
+    const title = $root.find('.dashboard-group_title>a').get(0);
     expect(title).toContainText(pipelineGroupJSON.name);
-    expect(title).toContainElement('.disabled');
+    expect(title).toHaveClass('disabled');
   });
 
 

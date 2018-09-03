@@ -120,6 +120,9 @@ Graph_Renderer = function (container) {
     }
 
     Graph_Renderer.prototype.enableAnalyticsMode = function () {
+      if (analyticsModeEnabled) {
+        return;
+      }
       analyticsModeEnabled = true;
       $j('.vsm-entity.pipeline a').css({ "pointer-events": "none" });
       $j('.vsm-entity.material').click(selectMaterial);

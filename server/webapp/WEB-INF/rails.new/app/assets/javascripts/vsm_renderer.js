@@ -19,7 +19,7 @@ Graph_Renderer = function (container) {
     var container = $j(container);
     var width = 200; // Default width of a node
     var height = 110; // Default height of a node
-    var current;
+    var current, current_material;
     var isCurrent;
     var levels;
     var pipeline_gui;
@@ -33,7 +33,8 @@ Graph_Renderer = function (container) {
     var selectMaterialCallback;
 
     Graph_Renderer.prototype.invoke = function (vsm) {
-        current = vsm.current_pipeline || vsm.current_material;
+        current          = vsm.current_pipeline;
+        current_material = vsm.current_material;
         levels = vsm.levels;
 
         if (current != null && current != undefined) {
@@ -215,9 +216,9 @@ Graph_Renderer = function (container) {
                 if (node.id != current) {
                     if (node.node_type != 'PIPELINE' && node.node_type != 'DUMMY') {
                         pipeline_gui = renderMaterialCommits(node);
-                        var current_material = node.id === 'a'+current ? 'current' : '';
+                        var current_material_class = node.id === current_material ? 'current' : '';
                         var material_conflicts = node.view_type == 'WARNING' ? 'conflicts' : '';
-                        pipeline_gui += '<div id="' + node.id.replace(/\./g, '_id-') + '" class="vsm-entity material other-node ' + node.node_type.toLowerCase() + ' ' + current_material + ' ' + material_conflicts + '" style="';
+                        pipeline_gui += '<div id="' + node.id.replace(/\./g, '_id-') + '" class="vsm-entity material other-node ' + node.node_type.toLowerCase() + ' ' + current_material_class + ' ' + material_conflicts + '" style="';
                         pipeline_gui += 'top:' + (((height * depth) + (50 * depth)) + 50) + 'px; left:' + (((width * i) + (90 * i)) + 100) + 'px"';
                         pipeline_gui += 'data-material-name="' + node.name + '" data-fingerprint="' + node.originalId + '" data-level=' + i;
                         pipeline_gui += '>';

@@ -82,6 +82,10 @@ function PersonalizationVM(currentView) {
 
   this.isDefault = (viewName) => eq(viewName, "Default");
 
+  this.selectFirstView = () => {
+    currentView(names()[0]);
+  };
+
   this.activate = (viewName) => {
     currentView(contains(names(), viewName) ? viewName : "Default");
     tabSettingsDD(false);

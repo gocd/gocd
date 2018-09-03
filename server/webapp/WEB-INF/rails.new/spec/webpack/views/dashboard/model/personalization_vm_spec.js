@@ -200,4 +200,14 @@ describe("Personalization View Model", () => {
     vm.stagedSort(null);
     expect(vm.tabs()).toEqual([{id: "Foo", name: "Foo"}, {id: "Bar", name: "Bar"}]);
   });
+
+  it('selectFirstView() should select first view', () => {
+    const currentView = Stream("Bar");
+    const vm = new PersonalizationVM(currentView);
+    vm.names(["Foo", "Bar", "Baz"]);
+    expect(vm.currentView()).toBe("Bar");
+
+    vm.selectFirstView();
+    expect(vm.currentView()).toBe("Foo");
+  });
 });

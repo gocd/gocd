@@ -35,7 +35,7 @@ const GroupingSwitch = {
   view(vnode) {
     const vm = vnode.attrs.vm;
 
-    return <div>
+    return <div class="groupby">
       <span class="grouping_label">Group pipelines by:</span>
       <f.select model={vm}
                 aria-label="Group pipelines by:"

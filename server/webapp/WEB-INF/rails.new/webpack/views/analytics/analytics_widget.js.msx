@@ -38,7 +38,7 @@ const AnalyticsWidget = {
         <GlobalMetrics metrics={vnode.attrs.globalMetrics}/> :
         <PipelineMetrics pipelines={vnode.attrs.pipelines} metrics={vnode.attrs.pipelineMetrics}/>;
 
-      content = <div class="dashboard-content">
+      content = <div class="analytics-dashboard-content">
         <div class="dashboard-tabs-container">
           <ul class="dashboard-tabs">
             <li class={vm.isGlobalTabSelected() ? "current" : ""}

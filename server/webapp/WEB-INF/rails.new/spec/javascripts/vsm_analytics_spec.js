@@ -56,7 +56,7 @@ describe("vsm_analytics", function () {
 
       expect(vsmAnalytics.jsonData()["source"]).toBe("3795dca7e793e62cfde2e8e2898efee05bde08c99700cff0ec96d68ad4522629");
       expect(vsmAnalytics.jsonData()["destination"]).toBe("P1");
-      expect(AnalyticsPanel.update).toHaveBeenCalledWith("3795dca7e793e62cfde2e8e2898efee05bde08c99700cff0ec96d68ad4522629", "P1", true);
+      expect(AnalyticsPanel.update).toHaveBeenCalledWith("material_name", "P1", true);
     });
 
     it("should do nothing in absence of pipeline name", function () {

@@ -47,7 +47,7 @@
     if ($j.trim(vsmGraph.current_pipeline)) {
       return new PipelineNode(vsmGraph.current_pipeline, currentNodeIndex(vsmGraph));
     } else {
-      return new MaterialNode(vsmGraph.current_material, vsmGraph.current_material, currentNodeIndex(vsmGraph));
+      return new MaterialNode(vsmGraph.current_material, vsmGraph.levels[0].nodes[0].name, currentNodeIndex(vsmGraph));
     }
   };
 

@@ -74,8 +74,6 @@ $icon-color: #647984;
   }
 }
 
-
-
 .personalize-editor-error-response {
   position:      fixed;
   top:           53px;
@@ -220,6 +218,11 @@ $icon-color: #647984;
   label {
     margin-left: 25px;
   }
+}
+
+.checkbox-help, .checkbox-help label {
+  display:     flex;
+  align-items: center;
 }
 
 .pipeline-search-container {

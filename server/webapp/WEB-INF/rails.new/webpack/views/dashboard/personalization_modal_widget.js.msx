@@ -66,10 +66,16 @@ const StageStateCriteria = {
     const vm = vnode.attrs.vm;
 
     return <div class="stage-state-selector">
-      <f.checkbox name="state" model={vm} attrName="failing" label="Failed" />
-      <Tooltip vm={vm} name="failed-pipelines">Show only pipelines whose last run stage has failed, among pipelines selected for this view</Tooltip>
-      <f.checkbox name="state" model={vm} attrName="building" label="Building" />
-      <Tooltip vm={vm} name="building-pipelines">Show only pipelines with jobs which are scheduled or building, among pipelines chosen for this view</Tooltip>
+      <div class="checkbox-help">
+        <f.checkbox name="state" model={vm} attrName="failing" label="Failed"/>
+        <Tooltip vm={vm} name="failed-pipelines">Show only pipelines whose last run stage has failed, among pipelines
+          selected for this view</Tooltip>
+      </div>
+      <div class="checkbox-help">
+        <f.checkbox name="state" model={vm} attrName="building" label="Building"/>
+        <Tooltip vm={vm} name="building-pipelines">Show only pipelines with jobs which are scheduled or building, among
+          pipelines chosen for this view</Tooltip>
+      </div>
     </div>;
   }
 };
@@ -167,18 +173,22 @@ const PersonalizationModalWidget = {
 
     return <div class="personalize-editor-controls">
       <div className="view-top">
-        <AlertContainer vm={vm} />
+        <AlertContainer vm={vm}/>
         <FilterNameInput {...vnode.attrs} />
         <div className="show-pipelines">
           <span class="section-label">Show pipelines:</span>
-          <f.checkbox name="include-new-pipelines" model={vm} attrName="includeNewPipelines" label="New" />
-          <Tooltip vm={vm} name="include-new-pipelines">
-            {"Include pipelines created since this view was last updated "}
-            <f.link href="https://docs.gocd.org/current/navigation/pipelines_dashboard_page.html#personalize-pipelines-view" target="_blank">
-              More&hellip;
-            </f.link>
-          </Tooltip>
-          <StageStateCriteria vm={vm} />
+          <div class="checkbox-help">
+            <f.checkbox name="include-new-pipelines" model={vm} attrName="includeNewPipelines" label="New"/>
+            <Tooltip vm={vm} name="include-new-pipelines">
+              {"Include pipelines created since this view was last updated "}
+              <f.link
+                href="https://docs.gocd.org/current/navigation/pipelines_dashboard_page.html#personalize-pipelines-view"
+                target="_blank">
+                More&hellip;
+              </f.link>
+            </Tooltip>
+          </div>
+          <StageStateCriteria vm={vm}/>
         </div>
       </div>
 

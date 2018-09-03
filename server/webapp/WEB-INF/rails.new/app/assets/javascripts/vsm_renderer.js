@@ -62,7 +62,7 @@ Graph_Renderer = function (container) {
     };
 
     var hoverOnMaterial = function () {
-      var isSelected = $j(this).hasClass("vsm-other-node");
+      var isSelected = $j(this).hasClass("vsm-current-node");
       !isSelected && $j(this).find('.onhover-material-overlay').removeClass("hidden");
     };
 
@@ -81,7 +81,7 @@ Graph_Renderer = function (container) {
 
     var addPipelineOnHoverSelectStyles = function () {
       $j("<div class=\"onhover-pipeline-overlay hidden\">" +
-        "   <div class=\"plus-symbol\">+</div><div class=\"click-text\">Click to select pipeline</div>" +
+        "   <div class=\"plus-symbol\">+</div><div class=\"click-text\">select pipeline</div>" +
         "</div>").appendTo('.vsm-entity.pipeline');
 
       $j(".vsm-entity.pipeline.other-node").bind('mouseover', hoverOnPipeline).bind('mouseout', hoverOutPipeline);
@@ -219,7 +219,7 @@ Graph_Renderer = function (container) {
                 if (node.id != current) {
                     if (node.node_type != 'PIPELINE' && node.node_type != 'DUMMY') {
                         pipeline_gui = renderMaterialCommits(node);
-                        var current_material_class = node.id === current_material ? 'current' : '';
+                        var current_material_class = node.originalId === current_material ? 'current' : '';
                         var material_conflicts = node.view_type == 'WARNING' ? 'conflicts' : '';
                         pipeline_gui += '<div id="' + node.id.replace(/\./g, '_id-') + '" class="vsm-entity material other-node ' + node.node_type.toLowerCase() + ' ' + current_material_class + ' ' + material_conflicts + '" style="';
                         pipeline_gui += 'top:' + (((height * depth) + (50 * depth)) + 50) + 'px; left:' + (((width * i) + (90 * i)) + 100) + 'px"';

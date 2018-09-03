@@ -14,7 +14,6 @@
   <link rel="shortcut icon" href="<%= asset_path('cruise.ico') %>"/>
   <%= stylesheet_link_tag 'frameworks' %>
   <%= stylesheet_link_tag "single_page_apps/#{controller_name}" %>
-  <%= javascript_include_tag *webpack_assets_service.getAssetPaths("single_page_apps/spa_commons") %>
   <%= javascript_include_tag *webpack_assets_service.getAssetPaths("single_page_apps/#{controller_name}") %>
   <%= csrf_meta_tags %>
 </head>

@@ -86,6 +86,10 @@ html, body {
   height: 100%;
 }
 
+body {
+  background: $page-body-background;
+}
+
 .page-wrap {
   min-height:    100%;
   margin-bottom: -$app-footer-height;
@@ -126,6 +130,7 @@ html, body {
   position:      relative;
   min-height:    50px;
   box-sizing:    border-box;
+  box-shadow:    0 0 10px rgba(0, 0, 0, 0.21);
 
   h1 {
     display:     inline-block;
@@ -305,9 +310,8 @@ select {
 }
 
 .main-container {
-  margin-top:       70px;
-  background-color: $accordion-bg;
-  overflow:         auto;
+  margin-top: 70px;
+  overflow:   auto;
 }
 
 //new styles

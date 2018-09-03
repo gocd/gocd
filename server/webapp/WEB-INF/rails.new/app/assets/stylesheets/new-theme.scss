@@ -550,7 +550,7 @@ h4 {
   height:          50px !important;
   box-sizing:      border-box;
   padding:         7px 30px;
-  border-bottom:   1px solid #ccc;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.21);
   h1 {
     display: inline-block;
   }

@@ -46,10 +46,10 @@ const GroupHeading = {
     const paths = routeForScheme(scheme, vm.name);
     const accessibleLabel = labelForScheme(scheme, vm.name);
 
-    return <h2 class="dashboard-group_title">
-      <strong><f.link disabled={!vm.canAdminister} href={paths.show} aria-label={accessibleLabel}>{vm.name || "Pipelines not in any Environment"}</f.link></strong>
+    return <div class="dashboard-group_title">
+      <f.link disabled={!vm.canAdminister} href={paths.show}  class="pipeline_group_name" aria-label={accessibleLabel}>{vm.name || "Pipelines not in any Environment"}</f.link>
       {vm.name && <f.link class="edit_config dashboard-group_edit-config" disabled={!vm.canAdminister} href={paths.edit} tooltipText={tt} aria-label={`Edit ${accessibleLabel}`} />}
-    </h2>;
+    </div>;
   }
 };
 

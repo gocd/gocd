@@ -16,7 +16,6 @@
 // scss-lint:disable NameFormat
 // scss-lint:disable SelectorFormat
 // scss-lint:disable MergeableSelector
-
 @import 'shared/common';
 @import 'shared/autocomplete';
 @import 'shared/modal';
@@ -34,8 +33,6 @@
 @import "components/forms";
 @import "components/buttons";
 
-
-
 //variables
 
 $dark-gray: #333;
@@ -52,8 +49,6 @@ body {
   background: #f4f8f9;
   font-size:  14px;
 }
-
-
 
 .small-txt {
   font-size: 12px;
@@ -90,15 +85,15 @@ body {
     bottom:           0;
     right:            0;
     background-image: linear-gradient(
-      -45deg,
-      rgba(255, 255, 255, 0.3) 25%,
-      transparent 25%,
-      transparent 50%,
-      rgba(255, 255, 255, 0.3) 50%,
-      rgba(255, 255, 255, 0.3) 75%,
-      transparent 75%,
-      transparent
-    );
+                          -45deg,
+                          rgba(255, 255, 255, 0.3) 25%,
+                          transparent 25%,
+                          transparent 50%,
+                          rgba(255, 255, 255, 0.3) 50%,
+                          rgba(255, 255, 255, 0.3) 75%,
+                          transparent 75%,
+                          transparent
+                      );
     z-index:          1;
     background-size:  50px 50px;
     overflow:         hidden;
@@ -150,6 +145,7 @@ body {
 .dashboard-modifiers {
   display:         flex;
   justify-content: space-between;
+  align-items:     center;
   margin-bottom:   10px;
   position:        relative;
   z-index:         5;
@@ -192,15 +188,12 @@ body {
   box-shadow:         none;
   border-radius:      3px;
   background:         #fff;
+  width:              350px;
 
   &::placeholder {
     font-size: 13px;
     color:     $border-color;
   }
-}
-
-.pipeline-search.dashboard {
-  width: 350px;
 }
 
 .dashboard-group {
@@ -215,15 +208,12 @@ body {
 }
 
 .dashboard-group_title {
-  background:              #e7eef0;
-  margin:                  0;
-  padding:                 10px 30px;
-  position:                relative;
-  font-size:               18px;
-  font-weight:             600;
-  line-height:             25px;
-  border-top-left-radius:  3px;
-  border-top-right-radius: 3px;
+  background:    #e7eef0;
+  margin:        0;
+  padding:       10px 30px;
+  position:      relative;
+
+  border-radius: $global-border-radius $global-border-radius 0 0;
 
   span {
     position:    absolute;
@@ -233,9 +223,12 @@ body {
     top:         -19px;
   }
 
-  strong {
-    font-weight: 400;
-  }
+}
+
+.pipeline_group_name {
+  font-size:   18px;
+  font-weight: 600;
+  line-height: 25px;
 }
 
 .dashboard-group_edit-config {
@@ -281,7 +274,7 @@ body {
   word-break:  break-all;
 }
 
-#dashboard {
+.dashboard {
   .tooltip {
     left:  -100%;
     top:   90%;
@@ -291,32 +284,33 @@ body {
       left: 35%;
     }
   }
+}
 
-  .dashboard-group_title {
-    .tooltip {
-      top: 120%;
-    }
+.dashboard-group_title {
+  .tooltip {
+    top: 120%;
   }
+}
 
-  .pipeline_sub_header {
-    width:           240px;
-    display:         flex;
-    justify-content: space-between;
+.pipeline_sub_header {
+  width:           240px;
+  display:         flex;
+  justify-content: space-between;
+}
 
-    .pipeline_actions {
-      display:     flex;
-      position:    relative;
-      top:         -3px;
-      flex-shrink: 0;
-      right:       0;
+.pipeline_actions {
+  display:     flex;
+  position:    relative;
+  top:         -3px;
+  flex-shrink: 0;
+  right:       0;
+  align-items: flex-start;
 
-      .tooltip {
-        transform: translate(-53%, 15%);
+  .tooltip {
+    transform: translate(-53%, 15%);
 
-        &::before {
-          left: 75%;
-        }
-      }
+    &::before {
+      left: 75%;
     }
   }
 }
@@ -339,10 +333,10 @@ body {
   width:     25px;
   height:    25px;
   font-size: $pipeline_icons_size;
-  color:     #555;
+  color:     $icon-color;
 
   &:hover {
-    color: #000;
+    color: $icon-hover-color;
   }
 
   &.disabled {
@@ -387,17 +381,16 @@ body {
   }
 }
 
-
 .pipeline-analytics {
   @include icon-before($type: bar-chart);
 
   padding:   0;
   font-size: $pipeline_icons_size;
-  color:     #555;
+  color:     $icon-color;
   cursor:    pointer;
 
   &:hover {
-    color: #000;
+    color: $icon-hover-color;
   }
 }
 

@@ -65,8 +65,8 @@ function personalizeEditor(opts, personalization, model) {
         text: "Yes",
         onclick: () => {
           personalization().removeFilter(existing, model.etag()).done((data) => {
-            model.currentView("Default");
             model.names(personalization().names());
+            model.selectFirstView();
             model.checksum(data.contentHash);
 
             Modal.closeAll();

@@ -99,6 +99,7 @@ $btn-default: #d6d5d5;
   border:        2px solid $secondary-color;
   box-shadow:    0 0 2px 2px #ccc;
   color:         #000;
+  z-index:       1;
 
   .plus-symbol {
     padding-top: 20px;

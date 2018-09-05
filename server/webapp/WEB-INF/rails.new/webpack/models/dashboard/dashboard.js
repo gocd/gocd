@@ -41,7 +41,7 @@ function Dashboard() {
     const newPipelines      = Pipelines.fromJSON(_.get(json, '_embedded.pipelines', []));
 
     const pipelinesNoEnv = _.difference(Object.keys(newPipelines.pipelines), _.reduce(newEnvironments.groups, (memo, group) => memo.concat(group.pipelines), []));
-    newEnvironments.groups.push(new DashboardGroups.Group({name: null, can_administer: false, pipelines: pipelinesNoEnv})); // eslint-disable-line camelcase
+    newEnvironments.groups.push(new DashboardGroups.Environment({name: null, can_administer: false, pipelines: pipelinesNoEnv})); // eslint-disable-line camelcase
 
     //set it on the current object only on a successful deserialization of both pipeline groups and pipelines
     pipelineGroups = newPipelineGroups;

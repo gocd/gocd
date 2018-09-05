@@ -14,7 +14,8 @@
  * limitations under the License.
  */
 
-const _ = require('lodash');
+const _      = require('lodash');
+const Routes = require("gen/js-routes");
 
 class Group {
 
@@ -26,33 +27,6 @@ class Group {
 
   resolvePipelines(resolver) {
     return _.map(this.pipelines, (pipelineName) => resolver.findPipeline(pipelineName));
-  }
-
-  select(filter) {
-    const pipelines = _.filter(this.pipelines, filter);
-    if (pipelines.length === 0) {
-      return false;
-    }
-    return new Group({name: this.name, can_administer: this.canAdminister, pipelines}); // eslint-disable-line camelcase
-  }
-
-  label() {
-    return "";
-  }
-
-  tooltipForEdit() {
-    return "";
-  }
-
-  ariaLabelForEdit() {
-    return "";
-  }
-
-  titleForEdit() {
-    if (this.canAdminister) {
-      return `Edit ${this.label()}`;
-    }
-    return "";
   }
 }
 
@@ -86,6 +60,16 @@ class PipelineGroup extends Group {
     }
     return new PipelineGroup({name: this.name, can_administer: this.canAdminister, pipelines}); // eslint-disable-line camelcase
   }
+
+  routes() {
+    if (!this.name) {
+      return {};
+    }
+    return {
+      show: `${Routes.pipelineGroupsPath()}#group-${this.name}`,
+      edit: Routes.pipelineGroupEditPath(this.name)
+    };
+  }
 }
 
 class Environment extends Group {
@@ -118,6 +102,16 @@ class Environment extends Group {
     }
     return new Environment({name: this.name, can_administer: this.canAdminister, pipelines}); // eslint-disable-line camelcase
   }
+
+  routes() {
+    if (!this.name) {
+      return {};
+    }
+    return {
+      edit: Routes.environmentShowPath(this.name),
+      show: Routes.environmentShowPath(this.name)
+    };
+  }
 }
 
 function DashboardGroups(groups) {
@@ -138,6 +132,6 @@ DashboardGroups.fromEnvironmentsJSON = (json) => {
   return new DashboardGroups(_.map(json, (group) => new Environment(group)));
 };
 
-DashboardGroups.Group = Group;
+DashboardGroups.Environment = Environment;
 
 module.exports = DashboardGroups;

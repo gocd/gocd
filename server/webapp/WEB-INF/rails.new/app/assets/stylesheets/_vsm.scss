@@ -324,12 +324,48 @@ $btn-default: #d6d5d5;
 .icon_vsm_analytics {
   @include icon-before($type: bar-chart);
 
-  padding:      0;
-  font-size:    15px;
-  color:        #fff;
-  cursor:       pointer;
-  &:before{
+  padding:   0;
+  font-size: 15px;
+  color:     #fff;
+  cursor:    pointer;
+  &:before {
     margin-right: 10px;
   }
 }
 
+.page-spinner {
+  top:       45% !important;
+  width:     75px !important;
+  height:    75px !important;
+  animation: spin 2s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.loading-overlay {
+  width:      auto;
+  height:     auto;
+  text-align: center;
+  background: #fff;
+  position:   absolute;
+  top:        0;
+  right:      0;
+  bottom:     0;
+  left:       0;
+  z-index:    20;
+
+  .loading-message {
+    position:    relative;
+    font-size:   19px;
+    font-weight: 300;
+    top:         calc(50% + 55px);
+    left:        15px
+  }
+}

@@ -75,10 +75,18 @@
   }
 
   function showAnalytics(options) {
-    var div = document.createElement("div");
+    var loadingOverlay = `<div class="loading-overlay">
+      <span class="page-spinner"></span>
+      <span class="loading-message">
+            <span class="loading-sub">Loading Analytics</span>
+      </span>
+    </div>`;
+
+    var vsmModal = document.createElement("div");
     defineHandlers(options.vsmAnalyticsChart.id);
-    $j(div).addClass("vsm_modal");
-    $j("#analytics-overlay").append(div);
+    $j(vsmModal).addClass("vsm_modal");
+    $j(vsmModal).append($j(loadingOverlay));
+    $j("#analytics-overlay").append(vsmModal);
 
     $j.ajax({
       url:      options.vsmAnalyticsChart.url,
@@ -96,22 +104,23 @@
           initialData: r.data
         });
       };
-
-      div.appendChild(frame);
+      vsmModal.appendChild(frame);
       frame.setAttribute("src", "/go/" + r.view_path);
     }).fail(function (xhr) {
       if (xhr.getResponseHeader("content-type").indexOf("text/html") !== -1) {
         var frame = document.createElement("iframe");
         frame.src = "data:text/html;charset=utf-8," + xhr.responseText;
-        div.appendChild(frame);
+        vsmModal.appendChild(frame);
         return;
       }
       var errorEl = document.createElement("div");
       $(errorEl).addClass("error");
       errorEl.textContent = xhr.responseText;
-      div.appendChild(errorEl);
+      vsmModal.appendChild(errorEl);
+    }).always(function () {
+      $j('.loading-overlay').remove();
     });
-  };
+  }
 
   var VSMAnalytics = function VSMAnalytics(data, graphRenderer, vsmAnalyticsChart, analyticsPanel, analyticsButton) {
     var self              = this;

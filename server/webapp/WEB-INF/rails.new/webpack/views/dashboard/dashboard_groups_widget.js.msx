@@ -9,7 +9,7 @@ const GroupHeading = {
     const paths = vm.routes();
 
     return <div class="dashboard-group_title">
-      <f.link disabled={!vm.canAdminister} href={paths.show} class="pipeline_group_name"
+      <f.link disabled={!vm.canAdminister} href={paths.show} class="dashboard-group_name"
               aria-label={vm.label()}>{vm.name || "Pipelines not in any Environment"}</f.link>
       {vm.name && <f.link class="edit_config dashboard-group_edit-config" disabled={!vm.canAdminister} href={paths.edit}
                           tooltipText={vm.tooltipForEdit()} title={vm.titleForEdit()} aria-label={vm.ariaLabelForEdit()}/>}

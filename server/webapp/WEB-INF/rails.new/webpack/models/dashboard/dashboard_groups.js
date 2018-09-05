@@ -132,6 +132,7 @@ DashboardGroups.fromEnvironmentsJSON = (json) => {
   return new DashboardGroups(_.map(json, (group) => new Environment(group)));
 };
 
+DashboardGroups.PipelineGroup = PipelineGroup;
 DashboardGroups.Environment = Environment;
 
 module.exports = DashboardGroups;

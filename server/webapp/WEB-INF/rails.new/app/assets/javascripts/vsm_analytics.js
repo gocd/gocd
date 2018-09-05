@@ -75,12 +75,13 @@
   }
 
   function showAnalytics(options) {
-    var loadingOverlay = `<div class="loading-overlay">
-      <span class="page-spinner"></span>
-      <span class="loading-message">
-            <span class="loading-sub">Loading Analytics</span>
-      </span>
-    </div>`;
+    var loadingOverlay = "" +
+      "<div class=\"loading-overlay\">" +
+      "    <span class=\"page-spinner\"></span>" +
+      "    <span class=\"loading-message\">" +
+      "        <span class=\"loading-sub\">Loading Analytics</span>" +
+      "    </span>" +
+      "</div>";
 
     var vsmModal = document.createElement("div");
     defineHandlers(options.vsmAnalyticsChart.id);

@@ -62,7 +62,7 @@ Graph_Renderer = function (container) {
     };
 
     var hoverOnMaterial = function () {
-      var isSelected = $j(this).hasClass("vsm-current-node");
+      var isSelected = $j(this).hasClass("vsm-other-node") || $j(this).hasClass("vsm-current-node");
       !isSelected && $j(this).find('.onhover-material-overlay').removeClass("hidden");
     };
 

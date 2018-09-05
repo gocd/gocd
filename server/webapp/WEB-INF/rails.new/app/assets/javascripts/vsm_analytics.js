@@ -96,6 +96,8 @@
     }).done(function (r) {
       var frame     = document.createElement("iframe");
       frame.sandbox = "allow-scripts";
+      frame.setAttribute("src", "/go/" + r.view_path);
+      vsmModal.appendChild(frame);
 
       frame.onload = function (_e) {
         PluginEndpoint.init(frame.contentWindow, {
@@ -104,8 +106,7 @@
           initialData: r.data
         });
       };
-      vsmModal.appendChild(frame);
-      frame.setAttribute("src", "/go/" + r.view_path);
+
     }).fail(function (xhr) {
       if (xhr.getResponseHeader("content-type").indexOf("text/html") !== -1) {
         var frame = document.createElement("iframe");

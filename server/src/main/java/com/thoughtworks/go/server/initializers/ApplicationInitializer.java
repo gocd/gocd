@@ -18,7 +18,6 @@ package com.thoughtworks.go.server.initializers;
 
 import com.thoughtworks.go.config.CachedGoConfig;
 import com.thoughtworks.go.config.ConfigCipherUpdater;
-import com.thoughtworks.go.config.GoFileConfigDataSource;
 import com.thoughtworks.go.config.InvalidConfigMessageRemover;
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistrar;
 import com.thoughtworks.go.domain.cctray.CcTrayActivityListener;
@@ -61,7 +60,6 @@ public class ApplicationInitializer implements ApplicationListener<ContextRefres
     @Autowired private InvalidConfigMessageRemover invalidConfigMessageRemover;
     @Autowired private AgentService agentService;
     @Autowired private GoConfigService goConfigService;
-    @Autowired private GoFileConfigDataSource goFileConfigDataSource;
     @Autowired private EnvironmentConfigService environmentConfigService;
     @Autowired private DefaultPluginJarLocationMonitor defaultPluginJarLocationMonitor;
     @Autowired private CachedGoConfig cachedGoConfig;
@@ -69,13 +67,13 @@ public class ApplicationInitializer implements ApplicationListener<ContextRefres
     @Autowired private BuildAssignmentService buildAssignmentService;
     @Autowired private PipelineScheduler pipelineScheduler;
     @Autowired private TimerScheduler timerScheduler;
+    @Autowired private BackupScheduler backupScheduler;
     @Autowired private ArtifactsDirHolder artifactsDirHolder;
     @Autowired private MaterialUpdateService materialUpdateService;
     @Autowired private InvalidateAuthenticationOnSecurityConfigChangeFilter invalidateAuthenticationOnSecurityConfigChangeFilter;
     @Autowired private PipelineLockService pipelineLockService;
     @Autowired private StageResourceImporter stageResourceImporter;
     @Autowired private GoDiskSpaceMonitor goDiskSpaceMonitor;
-    @Autowired private BackupService backupService;
     @Autowired private ArtifactsService artifactsService;
     @Autowired private ConsoleService consoleService;
     @Autowired private ConfigElementImplementationRegistrar configElementImplementationRegistrar;
@@ -139,6 +137,7 @@ public class ApplicationInitializer implements ApplicationListener<ContextRefres
             commandRepositoryInitializer.initialize();
             consoleActivityMonitor.populateActivityMap();
             timerScheduler.initialize();
+            backupScheduler.initialize();
             stageResourceImporter.initialize();
             goDiskSpaceMonitor.initialize();
             railsAssetsService.initialize();

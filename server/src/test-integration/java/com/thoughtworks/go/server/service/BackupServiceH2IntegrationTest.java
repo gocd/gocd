@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -130,7 +130,7 @@ public class BackupServiceH2IntegrationTest {
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
 
-        BackupService service = new BackupService(dataSource, artifactsDirHolder, goConfigService, timeProvider, backupInfoRepository, systemEnvironment, configRepository,
+        BackupService service = new BackupService(artifactsDirHolder, goConfigService, timeProvider, backupInfoRepository, systemEnvironment, configRepository,
                 databaseStrategy);
         service.startBackup(admin, result);
 
@@ -151,7 +151,7 @@ public class BackupServiceH2IntegrationTest {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         backupService.startBackup(admin, result);
         assertThat(result.isSuccessful(), is(true));
-        assertThat(result.message(), is("Backup completed successfully."));
+        assertThat(result.message(), is("Backup was generated successfully."));
 
         String location = temporaryFolder.newFolder().getAbsolutePath();
 

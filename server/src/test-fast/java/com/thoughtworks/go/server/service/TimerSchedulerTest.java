@@ -1,11 +1,11 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -47,16 +47,14 @@ import static org.quartz.JobKey.jobKey;
 import static org.quartz.TriggerKey.triggerKey;
 
 public class TimerSchedulerTest {
-    private SchedulerFactory schedulerFactory;
     private Scheduler scheduler;
 
-    @Before public void setup() throws Exception {
-        schedulerFactory = mock(SchedulerFactory.class);
+    @Before public void setup() {
         scheduler = mock(Scheduler.class);
     }
 
-    @After public void teardown() throws Exception {
-        Mockito.verifyNoMoreInteractions(schedulerFactory, scheduler);
+    @After public void teardown() {
+        Mockito.verifyNoMoreInteractions(scheduler);
     }
 
     @Test
@@ -125,8 +123,6 @@ public class TimerSchedulerTest {
         Scheduler scheduler = mock(Scheduler.class);
         when(scheduler.scheduleJob(any(JobDetail.class), any(Trigger.class))).thenThrow(
                 new SchedulerException("scheduling failed!"));
-
-        SchedulerFactory schedulerFactory = mock(SchedulerFactory.class);
 
         GoConfigService goConfigService = mock(GoConfigService.class);
         when(goConfigService.getAllPipelineConfigs()).thenReturn(asList(pipelineConfigWithTimer("uat", "* * * * * ?")));

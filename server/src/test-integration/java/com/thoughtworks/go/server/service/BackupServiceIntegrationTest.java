@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,10 +17,7 @@
 package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.CurrentGoCDVersion;
-import com.thoughtworks.go.config.CaseInsensitiveString;
-import com.thoughtworks.go.config.GoConfigDao;
-import com.thoughtworks.go.config.GoMailSender;
-import com.thoughtworks.go.config.ServerConfig;
+import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.materials.SubprocessExecutionContext;
 import com.thoughtworks.go.config.materials.git.GitMaterial;
 import com.thoughtworks.go.database.Database;
@@ -155,7 +152,7 @@ public class BackupServiceIntegrationTest {
 
             backupService.startBackup(admin, result);
             assertThat(result.isSuccessful(), is(true));
-            assertThat(result.message(), is("Backup completed successfully."));
+            assertThat(result.message(), is("Backup was generated successfully."));
 
             File configZip = backedUpFile("config-dir.zip");
             assertThat(fileContents(configZip, "foo"), is("foo_foo"));
@@ -185,7 +182,7 @@ public class BackupServiceIntegrationTest {
 
         backupService.startBackup(admin, result);
         assertThat(result.isSuccessful(), is(true));
-        assertThat(result.message(), is("Backup completed successfully."));
+        assertThat(result.message(), is("Backup was generated successfully."));
 
         File repoZip = backedUpFile("config-repo.zip");
         File repoDir = temporaryFolder.newFolder("expanded-config-repo-backup");
@@ -205,10 +202,10 @@ public class BackupServiceIntegrationTest {
     @Test
     public void shouldCaptureVersionForEveryBackup() throws IOException {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        BackupService backupService = new BackupService(dataSource, artifactsDirHolder, goConfigService, timeProvider, backupInfoRepository, systemEnvironment, configRepository, databaseStrategy);
+        BackupService backupService = new BackupService(artifactsDirHolder, goConfigService, timeProvider, backupInfoRepository, systemEnvironment, configRepository, databaseStrategy);
         backupService.startBackup(admin, result);
         assertThat(result.isSuccessful(), is(true));
-        assertThat(result.message(), is("Backup completed successfully."));
+        assertThat(result.message(), is("Backup was generated successfully."));
         File version = backedUpFile("version.txt");
         assertThat(FileUtils.readFileToString(version, UTF_8), is(CurrentGoCDVersion.getInstance().formatted()));
     }
@@ -216,6 +213,9 @@ public class BackupServiceIntegrationTest {
     @Test
     public void shouldSendEmailToAdminAfterTakingBackup() {
         GoConfigService configService = mock(GoConfigService.class);
+        ServerConfig serverConfig = new ServerConfig();
+        serverConfig.setBackupConfig(new BackupConfig(null, null, true, true));
+        when(configService.serverConfig()).thenReturn(serverConfig);
         GoMailSender goMailSender = mock(GoMailSender.class);
         when(configService.getMailSender()).thenReturn(goMailSender);
         when(configService.adminEmail()).thenReturn("mail@admin.com");
@@ -225,7 +225,7 @@ public class BackupServiceIntegrationTest {
         DateTime now = new DateTime();
         when(timeProvider.currentDateTime()).thenReturn(now);
 
-        BackupService service = new BackupService(dataSource, artifactsDirHolder, configService, timeProvider, backupInfoRepository, systemEnvironment, configRepository,
+        BackupService service = new BackupService(artifactsDirHolder, configService, timeProvider, backupInfoRepository, systemEnvironment, configRepository,
                 databaseStrategy);
         service.startBackup(admin, new HttpLocalizedOperationResult());
 
@@ -237,8 +237,33 @@ public class BackupServiceIntegrationTest {
     }
 
     @Test
+    public void shouldNotSendEmailToAdminAfterTakingBackupIfEmailConfigIsNotSet() {
+        GoConfigService configService = mock(GoConfigService.class);
+        ServerConfig serverConfig = new ServerConfig();
+        serverConfig.setBackupConfig(new BackupConfig(null, null, false, false));
+        when(configService.serverConfig()).thenReturn(serverConfig);
+        GoMailSender goMailSender = mock(GoMailSender.class);
+        when(configService.getMailSender()).thenReturn(goMailSender);
+        when(configService.adminEmail()).thenReturn("mail@admin.com");
+        when(configService.isUserAdmin(admin)).thenReturn(true);
+
+        TimeProvider timeProvider = mock(TimeProvider.class);
+        DateTime now = new DateTime();
+        when(timeProvider.currentDateTime()).thenReturn(now);
+
+        BackupService service = new BackupService(artifactsDirHolder, configService, timeProvider, backupInfoRepository, systemEnvironment, configRepository,
+                databaseStrategy);
+        service.startBackup(admin, new HttpLocalizedOperationResult());
+
+        verifyNoMoreInteractions(goMailSender);
+    }
+
+    @Test
     public void shouldSendEmailToAdminWhenTheBackupFails() throws Exception {
         GoConfigService configService = mock(GoConfigService.class);
+        ServerConfig serverConfig = new ServerConfig();
+        serverConfig.setBackupConfig(new BackupConfig(null, null, false, true));
+        when(configService.serverConfig()).thenReturn(serverConfig);
         when(configService.adminEmail()).thenReturn("mail@admin.com");
 
         GoMailSender goMailSender = mock(GoMailSender.class);
@@ -253,7 +278,7 @@ public class BackupServiceIntegrationTest {
 
         Database databaseStrategyMock = mock(Database.class);
         doThrow(new RuntimeException("Oh no!")).when(databaseStrategyMock).backup(any(File.class));
-        BackupService service = new BackupService(dataSource, artifactsDirHolder, configService, timeProvider, backupInfoRepository, systemEnvironment, configRepository,
+        BackupService service = new BackupService(artifactsDirHolder, configService, timeProvider, backupInfoRepository, systemEnvironment, configRepository,
                 databaseStrategyMock);
         service.startBackup(admin, result);
 
@@ -263,6 +288,37 @@ public class BackupServiceIntegrationTest {
         assertThat(result.isSuccessful(), is(false));
         assertThat(result.message(), is("Failed to perform backup. Reason: Oh no!"));
         verify(goMailSender).send(new SendEmailMessage("Server Backup Failed", body, "mail@admin.com"));
+        verifyNoMoreInteractions(goMailSender);
+
+        assertThat(FileUtils.listFiles(backupsDirectory, TrueFileFilter.TRUE, TrueFileFilter.TRUE).isEmpty(), is(true));
+    }
+
+    @Test
+    public void shouldNotSendEmailToAdminWhenTheBackupFailsAndEmailConfigIsNotSet() throws Exception {
+        GoConfigService configService = mock(GoConfigService.class);
+        ServerConfig serverConfig = new ServerConfig();
+        serverConfig.setBackupConfig(new BackupConfig(null, null, false, false));
+        when(configService.serverConfig()).thenReturn(serverConfig);
+        when(configService.adminEmail()).thenReturn("mail@admin.com");
+
+        GoMailSender goMailSender = mock(GoMailSender.class);
+        when(configService.getMailSender()).thenReturn(goMailSender);
+        when(configService.isUserAdmin(admin)).thenReturn(true);
+
+        DateTime now = new DateTime();
+        TimeProvider timeProvider = mock(TimeProvider.class);
+        when(timeProvider.currentDateTime()).thenReturn(now);
+
+        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+
+        Database databaseStrategyMock = mock(Database.class);
+        doThrow(new RuntimeException("Oh no!")).when(databaseStrategyMock).backup(any(File.class));
+        BackupService service = new BackupService(artifactsDirHolder, configService, timeProvider, backupInfoRepository, systemEnvironment, configRepository,
+                databaseStrategyMock);
+        service.startBackup(admin, result);
+
+        assertThat(result.isSuccessful(), is(false));
+        assertThat(result.message(), is("Failed to perform backup. Reason: Oh no!"));
         verifyNoMoreInteractions(goMailSender);
 
         assertThat(FileUtils.listFiles(backupsDirectory, TrueFileFilter.TRUE, TrueFileFilter.TRUE).isEmpty(), is(true));
@@ -338,6 +394,54 @@ public class BackupServiceIntegrationTest {
         backupThd.join();
     }
 
+    @Test
+    public void shouldExecutePostBackupScriptAndReturnResultOnSuccess() {
+        GoConfigService configService = mock(GoConfigService.class);
+        ServerConfig serverConfig = new ServerConfig();
+        serverConfig.setBackupConfig(new BackupConfig(null, "jcmd", false, false));
+        when(configService.serverConfig()).thenReturn(serverConfig);
+        GoMailSender goMailSender = mock(GoMailSender.class);
+        when(configService.getMailSender()).thenReturn(goMailSender);
+        when(configService.adminEmail()).thenReturn("mail@admin.com");
+        when(configService.isUserAdmin(admin)).thenReturn(true);
+
+        TimeProvider timeProvider = mock(TimeProvider.class);
+        DateTime now = new DateTime();
+        when(timeProvider.currentDateTime()).thenReturn(now);
+
+        BackupService service = new BackupService(artifactsDirHolder, configService, timeProvider, backupInfoRepository, systemEnvironment, configRepository,
+                databaseStrategy);
+        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+        service.startBackup(admin, result);
+
+        assertThat(result.httpCode(), is(200));
+        assertThat(result.message(), is("Backup was generated successfully. Post backup script executed successfully."));
+    }
+
+    @Test
+    public void shouldExecutePostBackupScriptAndReturnResultOnFailure() {
+        GoConfigService configService = mock(GoConfigService.class);
+        ServerConfig serverConfig = new ServerConfig();
+        serverConfig.setBackupConfig(new BackupConfig(null, "non-existant", false, false));
+        when(configService.serverConfig()).thenReturn(serverConfig);
+        GoMailSender goMailSender = mock(GoMailSender.class);
+        when(configService.getMailSender()).thenReturn(goMailSender);
+        when(configService.adminEmail()).thenReturn("mail@admin.com");
+        when(configService.isUserAdmin(admin)).thenReturn(true);
+
+        TimeProvider timeProvider = mock(TimeProvider.class);
+        DateTime now = new DateTime();
+        when(timeProvider.currentDateTime()).thenReturn(now);
+
+        BackupService service = new BackupService(artifactsDirHolder, configService, timeProvider, backupInfoRepository, systemEnvironment, configRepository,
+                databaseStrategy);
+        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+        service.startBackup(admin, result);
+
+        assertThat(result.httpCode(), is(500));
+        assertThat(result.message(), is("Backup was generated successfully. Post backup script exited with an error, check the server log for details."));
+    }
+
     private void deleteConfigFileIfExists(String ...fileNames) {
         for (String fileName : fileNames) {
             FileUtils.deleteQuietly(new File(configDir(), fileName));
@@ -393,7 +497,7 @@ public class BackupServiceIntegrationTest {
         }).when(databaseStrategyMock).backup(any(File.class));
 
 
-        final BackupService backupService = new BackupService(dataSource, artifactsDirHolder, goConfigService, new TimeProvider(), backupInfoRepository, systemEnvironment,
+        final BackupService backupService = new BackupService(artifactsDirHolder, goConfigService, new TimeProvider(), backupInfoRepository, systemEnvironment,
                 configRepository, databaseStrategyMock);
 
         waitForBackupToBegin.acquire();

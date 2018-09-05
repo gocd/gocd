@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -61,7 +61,7 @@ public class BackupServiceTest {
         String location = "/var/go-server-backups";
         when(artifactsDirHolder.getBackupsDir()).thenReturn(new File(location));
 
-        BackupService backupService = new BackupService(null, artifactsDirHolder, mock(GoConfigService.class), null, null, systemEnvironment, configRepo, databaseStrategy);
+        BackupService backupService = new BackupService(artifactsDirHolder, mock(GoConfigService.class), null, null, systemEnvironment, configRepo, databaseStrategy);
         assertThat(backupService.backupLocation(), is(new File(location).getAbsolutePath()));
     }
 
@@ -70,7 +70,7 @@ public class BackupServiceTest {
         ServerBackupRepository repo = mock(ServerBackupRepository.class);
         Date serverBackupTime = new Date();
         when(repo.lastBackup()).thenReturn(new ServerBackup("file_path", serverBackupTime, "user"));
-        BackupService backupService = new BackupService(null, null, mock(GoConfigService.class), null, repo, systemEnvironment, configRepo, databaseStrategy);
+        BackupService backupService = new BackupService(null, mock(GoConfigService.class), null, repo, systemEnvironment, configRepo, databaseStrategy);
 
         Date date = backupService.lastBackupTime();
         assertThat(date, is(serverBackupTime));
@@ -80,7 +80,7 @@ public class BackupServiceTest {
     public void shouldReturnNullWhenTheLatestBackupTimeIsNotAvailable() {
         ServerBackupRepository repo = mock(ServerBackupRepository.class);
         when(repo.lastBackup()).thenReturn(null);
-        BackupService backupService = new BackupService(null, null, mock(GoConfigService.class), null, repo, systemEnvironment, configRepo, databaseStrategy);
+        BackupService backupService = new BackupService(null, mock(GoConfigService.class), null, repo, systemEnvironment, configRepo, databaseStrategy);
 
         assertThat(backupService.lastBackupTime(), is(nullValue()));
     }
@@ -88,7 +88,7 @@ public class BackupServiceTest {
     public void shouldReturnTheUserThatTriggeredTheLastBackup() {
         ServerBackupRepository repo = mock(ServerBackupRepository.class);
         when(repo.lastBackup()).thenReturn(new ServerBackup("file_path", new Date(), "loser"));
-        BackupService backupService = new BackupService(null, null, mock(GoConfigService.class), null, repo, systemEnvironment, configRepo, databaseStrategy);
+        BackupService backupService = new BackupService(null, mock(GoConfigService.class), null, repo, systemEnvironment, configRepo, databaseStrategy);
 
         String username = backupService.lastBackupUser();
         assertThat(username, is("loser"));
@@ -98,7 +98,7 @@ public class BackupServiceTest {
     public void shouldReturnNullWhenTheLatestBackupUserIsNotAvailable() {
         ServerBackupRepository repo = mock(ServerBackupRepository.class);
         when(repo.lastBackup()).thenReturn(null);
-        BackupService backupService = new BackupService(null, null, mock(GoConfigService.class), null, repo, systemEnvironment, configRepo, databaseStrategy);
+        BackupService backupService = new BackupService(null, mock(GoConfigService.class), null, repo, systemEnvironment, configRepo, databaseStrategy);
 
         assertThat(backupService.lastBackupUser(), is(nullValue()));
     }
@@ -109,7 +109,7 @@ public class BackupServiceTest {
         File artifactDirectory = mock(File.class);
         when(artifactsDirHolder.getArtifactsDir()).thenReturn(artifactDirectory);
         when(artifactDirectory.getUsableSpace()).thenReturn(42424242L);
-        BackupService backupService = new BackupService(null, artifactsDirHolder, mock(GoConfigService.class), null, null, systemEnvironment, configRepo, databaseStrategy);
+        BackupService backupService = new BackupService(artifactsDirHolder, mock(GoConfigService.class), null, null, systemEnvironment, configRepo, databaseStrategy);
 
         assertThat(backupService.availableDiskSpace(), is("40 MB"));
 

@@ -109,6 +109,10 @@ public class HealthStateScope implements Comparable<HealthStateScope> {
         return new HealthStateScope(ScopeType.FROM_PLUGIN, symbolicName);
     }
 
+    public static HealthStateScope forBackupCron() {
+        return new HealthStateScope(ScopeType.SCHEDULED_BACKUP, "Scheduled backup");
+    }
+
     public boolean isSame(String scope) {
         return StringUtils.endsWithIgnoreCase(this.scope, scope);
     }
@@ -279,7 +283,8 @@ public class HealthStateScope implements Comparable<HealthStateScope> {
             }
         },
         PLUGIN,
-        FROM_PLUGIN;
+        FROM_PLUGIN,
+        SCHEDULED_BACKUP;
 
         protected boolean isRemovedFromConfig(CruiseConfig cruiseConfig, String scope) {
             return false;

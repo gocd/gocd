@@ -55,6 +55,8 @@ public class ServerConfig implements Validatable {
     private SecurityConfig securityConfig = new SecurityConfig();
     @ConfigSubtag
     private MailHost mailHost = new MailHost(new GoCipher());
+    @ConfigSubtag
+    private BackupConfig backupConfig;
 
     @ConfigAttribute(value = "tokenGenerationKey", allowNull = true)
     private String tokenGenerationKey;
@@ -380,5 +382,13 @@ public class ServerConfig implements Validatable {
 
     public String getTokenGenerationKey() {
         return tokenGenerationKey;
+    }
+
+    public BackupConfig getBackupConfig() {
+        return backupConfig;
+    }
+
+    public void setBackupConfig(BackupConfig backupConfig) {
+        this.backupConfig = backupConfig;
     }
 }

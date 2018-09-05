@@ -8,65 +8,33 @@ function routeForScheme(scheme, name) {
   const paths = {};
 
   if (name) {
-    switch(scheme) {
+    switch (scheme) {
       case "pipeline_groups":
-      paths.show = `${Routes.pipelineGroupsPath()}#group-${name}`;
-      paths.edit = Routes.pipelineGroupEditPath(name);
-      break;
+        paths.show = `${Routes.pipelineGroupsPath()}#group-${name}`;
+        paths.edit = Routes.pipelineGroupEditPath(name);
+        break;
       case "environments":
-      paths.edit = paths.show = Routes.environmentShowPath(name);
-      break;
+        paths.edit = paths.show = Routes.environmentShowPath(name);
+        break;
       default:
-      break;
+        break;
     }
   }
 
   return paths;
 }
 
-function labelForScheme(scheme, name) {
-  if (!name || !scheme) {
-    return "";
-  }
-
-  switch (scheme) {
-    case "pipeline_groups":
-      return `Pipeline Group '${name}'`;
-    case "environments":
-      return `Environment '${name}'`;
-  }
-  return name;
-}
-
-function tooltipForEditScheme(scheme) {
-  const defaultTooltip = "You don't have permission to edit this";
-  if (!scheme) {
-    return defaultTooltip;
-  }
-  switch (scheme) {
-    case "pipeline_groups":
-      return "You don't have permission to edit this pipeline group";
-    case "environments":
-      return "You don't have permission to edit this environment";
-  }
-  return defaultTooltip;
-}
-
 const GroupHeading = {
   view(vnode) {
     const vm                = vnode.attrs.vm;
     const scheme            = vnode.attrs.scheme;
-    const tt                = vm.canAdminister ? "" : tooltipForEditScheme(scheme);
     const paths             = routeForScheme(scheme, vm.name);
-    const accessibleHeading = labelForScheme(scheme, vm.name);
-    const editAriaLabel     = tt || `Edit ${labelForScheme(scheme, vm.name)}`;
-    const editTitle         = tt ? "" : editAriaLabel;
 
     return <div class="dashboard-group_title">
       <f.link disabled={!vm.canAdminister} href={paths.show} class="pipeline_group_name"
-              aria-label={accessibleHeading}>{vm.name || "Pipelines not in any Environment"}</f.link>
+              aria-label={vm.label()}>{vm.name || "Pipelines not in any Environment"}</f.link>
       {vm.name && <f.link class="edit_config dashboard-group_edit-config" disabled={!vm.canAdminister} href={paths.edit}
-                          tooltipText={tt} title={editTitle} aria-label={editAriaLabel}/>}
+                          tooltipText={vm.tooltipForEdit()} title={vm.titleForEdit()} aria-label={vm.ariaLabelForEdit()}/>}
     </div>;
   }
 };

@@ -16,24 +16,108 @@
 
 const _ = require('lodash');
 
-function Group({name, can_administer, pipelines}) { // eslint-disable-line camelcase
-  const self = this;
+class Group {
 
-  this.name          = name;
-  this.canAdminister = can_administer; // eslint-disable-line camelcase
-  this.pipelines     = pipelines;
+  constructor({name, can_administer, pipelines}) { // eslint-disable-line camelcase
+    this.name          = name;
+    this.canAdminister = can_administer; // eslint-disable-line camelcase
+    this.pipelines     = pipelines;
+  }
 
-  this.resolvePipelines = (resolver) => {
-    return _.map(self.pipelines, (pipelineName) => resolver.findPipeline(pipelineName));
-  };
+  resolvePipelines(resolver) {
+    return _.map(this.pipelines, (pipelineName) => resolver.findPipeline(pipelineName));
+  }
 
-  this.select = (filter) => {
+  select(filter) {
     const pipelines = _.filter(this.pipelines, filter);
     if (pipelines.length === 0) {
       return false;
     }
-    return new Group({name, can_administer, pipelines}); // eslint-disable-line camelcase
-  };
+    return new Group({name: this.name, can_administer: this.canAdminister, pipelines}); // eslint-disable-line camelcase
+  }
+
+  label() {
+    return "";
+  }
+
+  tooltipForEdit() {
+    return "";
+  }
+
+  ariaLabelForEdit() {
+    return "";
+  }
+
+  titleForEdit() {
+    if (this.canAdminister) {
+      return `Edit ${this.label()}`;
+    }
+    return "";
+  }
+}
+
+class PipelineGroup extends Group {
+  label() {
+    return `Pipeline Group '${this.name}'`;
+  }
+
+  tooltipForEdit() {
+    if (!this.canAdminister) {
+      return "You don't have permission to edit this pipeline group";
+    }
+    return "";
+  }
+
+  ariaLabelForEdit() {
+    return this.tooltipForEdit() || `Edit ${this.label()}`;
+  }
+
+  titleForEdit() {
+    if (this.canAdminister) {
+      return `Edit ${this.label()}`;
+    }
+    return "";
+  }
+
+  select(filter) {
+    const pipelines = _.filter(this.pipelines, filter);
+    if (pipelines.length === 0) {
+      return false;
+    }
+    return new PipelineGroup({name: this.name, can_administer: this.canAdminister, pipelines}); // eslint-disable-line camelcase
+  }
+}
+
+class Environment extends Group {
+  label() {
+    return `Environment '${this.name}'`;
+  }
+
+  tooltipForEdit() {
+    if (!this.canAdminister) {
+      return "You don't have permission to edit this environment";
+    }
+    return "";
+  }
+
+  ariaLabelForEdit() {
+    return this.tooltipForEdit() || `Edit ${this.label()}`;
+  }
+
+  titleForEdit() {
+    if (this.canAdminister) {
+      return `Edit ${this.label()}`;
+    }
+    return "";
+  }
+
+  select(filter) {
+    const pipelines = _.filter(this.pipelines, filter);
+    if (pipelines.length === 0) {
+      return false;
+    }
+    return new Environment({name: this.name, can_administer: this.canAdminister, pipelines}); // eslint-disable-line camelcase
+  }
 }
 
 function DashboardGroups(groups) {
@@ -46,8 +130,12 @@ function DashboardGroups(groups) {
   };
 }
 
-DashboardGroups.fromJSON = (json) => {
-  return new DashboardGroups(_.map(json, (group) => new Group(group)));
+DashboardGroups.fromPipelineGroupsJSON = (json) => {
+  return new DashboardGroups(_.map(json, (group) => new PipelineGroup(group)));
+};
+
+DashboardGroups.fromEnvironmentsJSON = (json) => {
+  return new DashboardGroups(_.map(json, (group) => new Environment(group)));
 };
 
 DashboardGroups.Group = Group;

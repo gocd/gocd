@@ -49,6 +49,17 @@ describe("Personalization View Model", () => {
     expect(vm.active("Bar")).toBe(false);
   });
 
+  it("activate() should trigger onchange()", () => {
+    const currentView = Stream("Foo");
+    const vm = new PersonalizationVM(currentView);
+    vm.onchange = jasmine.createSpy();
+    vm.names(["Foo", "Bar", "Baz"]);
+
+    vm.activate("Bar");
+    expect(vm.active("Bar")).toBe(true);
+    expect(vm.onchange).toHaveBeenCalled();
+  });
+
   it("hideAllDropdowns() hides all dropdowns", () => {
     const currentView = Stream();
     const vm = new PersonalizationVM(currentView);

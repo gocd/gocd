@@ -1,54 +1,18 @@
 const m              = require("mithril");
 const _              = require("lodash");
 const f              = require("helpers/form_helper");
-const Routes         = require("gen/js-routes");
 const PipelineWidget = require("views/dashboard/pipeline_widget");
-
-function routeForScheme(scheme, name) {
-  const paths = {};
-
-  if (name) {
-    switch(scheme) {
-      case "pipeline_groups":
-      paths.show = `${Routes.pipelineGroupsPath()}#group-${name}`;
-      paths.edit = Routes.pipelineGroupEditPath(name);
-      break;
-      case "environments":
-      paths.edit = paths.show = Routes.environmentShowPath(name);
-      break;
-      default:
-      break;
-    }
-  }
-
-  return paths;
-}
-
-function labelForScheme(scheme, name) {
-  if (!name || !scheme) {
-    return "";
-  }
-
-  switch (scheme) {
-    case "pipeline_groups":
-      return `Pipeline Group ${name}`;
-    case "environments":
-      return `Environment ${name}`;
-  }
-  return name;
-}
 
 const GroupHeading = {
   view(vnode) {
-    const vm = vnode.attrs.vm;
-    const scheme = vnode.attrs.scheme;
-    const tt = vm.canAdminister ? "" : "You do not have permission to edit.";
-    const paths = routeForScheme(scheme, vm.name);
-    const accessibleLabel = labelForScheme(scheme, vm.name);
+    const vm    = vnode.attrs.vm;
+    const paths = vm.routes();
 
     return <div class="dashboard-group_title">
-      <f.link disabled={!vm.canAdminister} href={paths.show}  class="pipeline_group_name" aria-label={accessibleLabel}>{vm.name || "Pipelines not in any Environment"}</f.link>
-      {vm.name && <f.link class="edit_config dashboard-group_edit-config" disabled={!vm.canAdminister} href={paths.edit} tooltipText={tt} aria-label={`Edit ${accessibleLabel}`} />}
+      <f.link disabled={!vm.canAdminister} href={paths.show} class="dashboard-group_name"
+              aria-label={vm.label()}>{vm.name || "Pipelines not in any Environment"}</f.link>
+      {vm.name && <f.link class="edit_config dashboard-group_edit-config" disabled={!vm.canAdminister} href={paths.edit}
+                          tooltipText={vm.tooltipForEdit()} title={vm.titleForEdit()} aria-label={vm.ariaLabelForEdit()}/>}
     </div>;
   }
 };

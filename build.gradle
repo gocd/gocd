@@ -650,15 +650,15 @@ task newApi {
            * See the License for the specific language governing permissions and
            * limitations under the License.
            */
-          
+
           apply plugin: 'jacoco'
           apply plugin: 'groovy'
-          
+
           dependencies {
             compile project(':api:api-base')
-          
+
             testCompile project(path: ':api:api-base', configuration: 'testOutput')
-            
+
             testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: project.versions.junit5
             testRuntimeOnly group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: project.versions.junit5
           }
@@ -684,10 +684,10 @@ task newApi {
            * See the License for the specific language governing permissions and
            * limitations under the License.
            */
-          
+
           package com.thoughtworks.go.api${project.apiVersion}.${project.apiName.replaceAll(~/[^a-zA-Z]/, '')};
 
-          
+
           public class FooControllerDelegate extends ApiController implements CrudController<Thing> {
             public FooControllerDelegate() {
               super(ApiVersion.${project.apiVersion});
@@ -715,18 +715,18 @@ task newApi {
            * See the License for the specific language governing permissions and
            * limitations under the License.
            */
-          
+
           package com.thoughtworks.go.api${project.apiVersion}.${project.apiName.replaceAll(~/[^a-zA-Z]/, '')}.spring;
 
           @Component
           public class FooController implements SparkSpringController {
             private final FooControllerDelegate delegate;
-            
+
             @Autowired
             public FooController() {
               delegate = new FooControllerDelegate();
             }
-            
+
             @Override
             public void setupRoutes() {
                 delegate.setupRoutes();
@@ -734,6 +734,15 @@ task newApi {
           }
         """
       out.println(contents.stripIndent().trim())
+    }
+
+    List<String> lines = file('server/webapp/WEB-INF/applicationContext-global.xml').readLines()
+    int insertionIdx = lines.findIndexOf {l -> (l =~ /^\s*<context:component-scan /).find()}
+    String packageName = "com.thoughtworks.go.api${project.apiVersion}.${project.apiName.replaceAll(~/[^a-zA-Z]/, '')}"
+    lines.add(insertionIdx, "    <context:component-scan base-package=\"${packageName}\"/>")
+
+    file('server/webapp/WEB-INF/applicationContext-global.xml').withWriter { out ->
+      out.println(lines.join("\n").trim())
     }
 
     file('settings.gradle').withWriter { out ->

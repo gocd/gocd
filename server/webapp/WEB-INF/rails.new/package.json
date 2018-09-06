@@ -9,7 +9,7 @@
     "jasmine-ci": "karma start --single-run",
     "karma": "karma start",
     "eslint": "eslint --color --ext .js --ext .msx --format stylish webpack/ spec/webpack/ --ignore-pattern gen/",
-    "eslintold": "eslint --no-eslintrc --config .eslintrc-old.json --color --ext .js  --format stylish app/assets/javascripts/"
+    "eslintold": "eslint --no-eslintrc --config .eslintrc-old.json --color --ext .js  --format stylish app/assets/javascripts/ spec/javascripts/"
   },
   "dependencies": {
     "@shopify/draggable": "^1.0.0-beta.7",

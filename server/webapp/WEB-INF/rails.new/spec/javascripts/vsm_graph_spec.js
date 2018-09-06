@@ -18,7 +18,7 @@ describe("vsm_graph", function () {
 
   describe("fromJSON", function () {
     it("should de-serialize graph from JSON", function () {
-      const vsmGraph = VSMGraph.fromJSON(vsmGraphJSON());
+      var vsmGraph = VSMGraph.fromJSON(vsmGraphJSON());
 
       expect(vsmGraph.current_pipeline).toBe("P4");
       expect(vsmGraph.levels.size()).toBe(4);
@@ -65,7 +65,7 @@ describe("vsm_graph", function () {
     });
 
     it("should leave the original JSON intact", function () {
-      const graph = vsmGraphJSON();
+      var graph = vsmGraphJSON();
 
       VSMGraph.fromJSON(graph);
 
@@ -75,17 +75,17 @@ describe("vsm_graph", function () {
 
   describe("toJSON", function () {
     it("should serialize a vsm graph to JSON", function () {
-      const vsmGraph = VSMGraph.fromJSON(vsmGraphJSON());
+      var vsmGraph = VSMGraph.fromJSON(vsmGraphJSON());
 
-      const jsonString = JSON.stringify(vsmGraph);
-      const json       = JSON.parse(jsonString);
+      var jsonString = JSON.stringify(vsmGraph);
+      var json       = JSON.parse(jsonString);
 
       expect(json['current_pipeline']).toBe("P4");
       expect(json).toEqual(vsmGraphForAnalytics);
     });
   });
 
-  const vsmGraphForAnalytics = {
+  var vsmGraphForAnalytics = {
     "current_pipeline": "P4",
     "levels":           [
       {
@@ -246,7 +246,7 @@ describe("vsm_graph", function () {
     ]
   };
 
-  const vsmGraphJSON = function () {
+  var vsmGraphJSON = function () {
     new PrototypeOverrides().overrideJSONStringify();
     return JSON.parse(JSON.stringify({
       "current_pipeline"

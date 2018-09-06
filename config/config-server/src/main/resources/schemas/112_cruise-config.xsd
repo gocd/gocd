@@ -83,7 +83,7 @@
           </xsd:unique>
         </xsd:element>
       </xsd:sequence>
-      <xsd:attribute name="schemaVersion" type="xsd:int" use="required" fixed="113"/>
+      <xsd:attribute name="schemaVersion" type="xsd:int" use="required" fixed="112"/>
     </xsd:complexType>
     <xsd:unique name="uniquePipelines">
       <xsd:selector xpath="pipelines"/>
@@ -271,10 +271,10 @@
     <xsd:attribute name="admin" type="emailType" use="required"/>
   </xsd:complexType>
   <xsd:complexType name="backupType">
-    <xsd:attribute name="schedule" type="xsd:string" />
-    <xsd:attribute name="postBackupScript" type="xsd:string"/>
-    <xsd:attribute name="emailOnSuccess" type="xsd:boolean" />
-    <xsd:attribute name="emailOnFailure" type="xsd:boolean" />
+    <xsd:attribute name="schedule" type="xsd:string" use="required"/>
+    <xsd:attribute name="postBackupScript" type="xsd:string" use="optional"/>
+    <xsd:attribute name="emailOnSuccess" type="xsd:boolean"/>
+    <xsd:attribute name="emailOnFailure" type="xsd:boolean"/>
   </xsd:complexType>
   <xsd:complexType name="elasticConfigType">
     <xsd:sequence>

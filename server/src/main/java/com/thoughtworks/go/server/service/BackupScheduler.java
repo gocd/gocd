@@ -34,6 +34,7 @@ import org.springframework.stereotype.Component;
 import java.text.ParseException;
 import java.util.Collections;
 
+import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.quartz.CronScheduleBuilder.cronSchedule;
 import static org.quartz.JobBuilder.newJob;
 import static org.quartz.TriggerBuilder.newTrigger;
@@ -81,7 +82,7 @@ public class BackupScheduler extends EntityConfigChangedListener<BackupConfig> i
     }
 
     private void scheduleNewBackupJob(BackupConfig newBackupConfig) {
-        if (newBackupConfig == null) {
+        if (newBackupConfig == null || isBlank(newBackupConfig.getSchedule())) {
             return;
         }
         try {

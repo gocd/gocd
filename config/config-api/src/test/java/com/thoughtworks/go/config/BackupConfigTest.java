@@ -21,15 +21,6 @@ import org.junit.jupiter.api.Test;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class BackupConfigTest {
-    @Test
-    void shouldValidateBlankAttributes() {
-        BackupConfig backupConfig = new BackupConfig(null, null, false, false);
-        backupConfig.validate(null);
-        assertThat(backupConfig.errors())
-                .hasSize(1);
-        assertThat(backupConfig.errors().getAll())
-                .containsExactlyInAnyOrder("Backup timer can not be blank.");
-    }
 
     @Test
     void shouldValidateIfEverythingIsGood() {

@@ -29,7 +29,7 @@ public class BackupConfig implements Validatable {
     public static final String SCHEDULE = "schedule";
     private final ConfigErrors errors = new ConfigErrors();
 
-    @ConfigAttribute(value = "schedule", optional = false)
+    @ConfigAttribute(value = "schedule", allowNull = true)
     private String schedule;
 
     @ConfigAttribute(value = "postBackupScript", allowNull = true)
@@ -54,7 +54,6 @@ public class BackupConfig implements Validatable {
     @Override
     public void validate(ValidationContext validationContext) {
         validateTimer();
-
     }
 
     @Override
@@ -133,7 +132,6 @@ public class BackupConfig implements Validatable {
 
     private void validateTimer() {
         if (isBlank(schedule)) {
-            errors.add(SCHEDULE, "Backup timer can not be blank.");
             return;
         }
         try {

@@ -48,6 +48,8 @@ task eslintold(type: YarnRunTask) {
 
   yarnCommand = ['eslintold']
   source(project.file("${project.railsRoot}/app/assets/javascripts"))
+  source(project.file("${project.railsRoot}/.eslintrc-old.json"))
+  source(project.file("${project.railsRoot}/spec/javascripts"))
 }
 
 task eslint(type: YarnRunTask) {

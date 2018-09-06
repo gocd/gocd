@@ -15,6 +15,7 @@
  */
 
 
+
 import com.github.jk1.license.ReportTask
 import com.github.jk1.license.filter.LicenseBundleNormalizer
 import com.github.jk1.license.render.JsonReportRenderer
@@ -22,6 +23,8 @@ import groovy.io.FileType
 import nl.javadude.gradle.plugins.license.License
 
 import java.security.SecureRandom
+import java.util.regex.Matcher
+import java.util.regex.Pattern
 
 buildscript {
   repositories {
@@ -619,18 +622,25 @@ task allTestsJunitHtmlReport(type: TestReport) { TestReport thisTask ->
   destinationDir = file("${project.buildDir}/reports/tests/allTests")
 }
 
+static def toCamelCase(String input) {
+  return input.split("[^a-zA-Z0-9]").collect{it.capitalize()}.join("")
+}
+
 task newApi {
   description = "Helper to create a new api module. Pass `-PapiName=roles-config -PapiVersion=v1`"
 
   doFirst {
-    def newProjectName = "api-${project.apiName}-${project.apiVersion}"
+    String apiName = project.apiName
+    def newProjectName = "api-${apiName}-${project.apiVersion}"
     def moduleDir = file("api/${newProjectName}")
-    def basePackage = "${moduleDir}/src/main/java/com/thoughtworks/go/api${project.apiVersion}/${project.apiName.replaceAll(~/[^a-zA-Z]/, '')}"
+    def basePackage = "${moduleDir}/src/main/java/com/thoughtworks/go/api${project.apiVersion}/${apiName.replaceAll(~/[^a-zA-Z]/, '')}"
+    def classNamePrefix = toCamelCase(apiName)
 
     project.delete(moduleDir)
     project.mkdir(moduleDir)
     project.mkdir(basePackage)
     project.mkdir("${basePackage}/spring")
+
 
     file("${moduleDir}/build.gradle").withWriter { out ->
       def contents =
@@ -666,7 +676,7 @@ task newApi {
       out.println(contents.stripIndent().trim())
     }
 
-    file("${basePackage}/FooControllerDelegate.java").withWriter { out ->
+    file("${basePackage}/${classNamePrefix}ControllerDelegate.java").withWriter { out ->
       def contents =
         """
           /*
@@ -685,11 +695,12 @@ task newApi {
            * limitations under the License.
            */
 
-          package com.thoughtworks.go.api${project.apiVersion}.${project.apiName.replaceAll(~/[^a-zA-Z]/, '')};
+          package com.thoughtworks.go.api${project.apiVersion}.${apiName.replaceAll(~/[^a-zA-Z]/, '')};
 
-
-          public class FooControllerDelegate extends ApiController implements CrudController<Thing> {
-            public FooControllerDelegate() {
+          import com.thoughtworks.go.api.*;
+        
+          public class ${classNamePrefix}ControllerDelegate extends ApiController implements CrudController<${classNamePrefix}> {
+            public ${classNamePrefix}ControllerDelegate() {
               super(ApiVersion.${project.apiVersion});
             }
           }
@@ -697,7 +708,7 @@ task newApi {
       out.println(contents.stripIndent().trim())
     }
 
-    file("${basePackage}/spring/FooController.java").withWriter { out ->
+    file("${basePackage}/spring/${classNamePrefix}Controller.java").withWriter { out ->
       def contents =
         """
           /*
@@ -716,15 +727,15 @@ task newApi {
            * limitations under the License.
            */
 
-          package com.thoughtworks.go.api${project.apiVersion}.${project.apiName.replaceAll(~/[^a-zA-Z]/, '')}.spring;
+          package com.thoughtworks.go.api${project.apiVersion}.${apiName.replaceAll(~/[^a-zA-Z]/, '')}.spring;
 
           @Component
-          public class FooController implements SparkSpringController {
-            private final FooControllerDelegate delegate;
+          public class ${classNamePrefix}Controller implements SparkSpringController {
+            private final ${classNamePrefix}ControllerDelegate delegate;
 
             @Autowired
-            public FooController() {
-              delegate = new FooControllerDelegate();
+            public ${classNamePrefix}Controller() {
+              delegate = new ${classNamePrefix}ControllerDelegate();
             }
 
             @Override
@@ -738,7 +749,7 @@ task newApi {
 
     List<String> lines = file('server/webapp/WEB-INF/applicationContext-global.xml').readLines()
     int insertionIdx = lines.findIndexOf {l -> (l =~ /^\s*<context:component-scan /).find()}
-    String packageName = "com.thoughtworks.go.api${project.apiVersion}.${project.apiName.replaceAll(~/[^a-zA-Z]/, '')}"
+    String packageName = "com.thoughtworks.go.api${project.apiVersion}.${apiName.replaceAll(~/[^a-zA-Z]/, '')}"
     lines.add(insertionIdx, "    <context:component-scan base-package=\"${packageName}\"/>")
 
     file('server/webapp/WEB-INF/applicationContext-global.xml').withWriter { out ->

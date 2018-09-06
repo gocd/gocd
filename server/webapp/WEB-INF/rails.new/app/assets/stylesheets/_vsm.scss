@@ -29,6 +29,10 @@ $btn-primary: #943a9e;
 $btn-secondary: #666;
 $btn-default: #d6d5d5;
 
+#value_stream_map {
+  overflow-y: hidden;
+}
+
 %btn {
   border:        1px solid transparent;
   padding:       7px 20px;

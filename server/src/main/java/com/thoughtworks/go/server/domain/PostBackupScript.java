@@ -24,6 +24,8 @@ import com.thoughtworks.go.util.command.CommandLineException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Date;
+
 public class PostBackupScript {
     private static final Logger LOG = LoggerFactory.getLogger(PostBackupScript.class);
 
@@ -32,17 +34,20 @@ public class PostBackupScript {
     private final Username username;
     private final ServerBackup backup;
     private final String backupBaseDir;
+    private final Date backupTime;
 
     public PostBackupScript(String postBackupScript,
                             BackupService.BackupInitiator initiatedBy,
                             Username username,
                             ServerBackup backup,
-                            String backupBaseDir) {
+                            String backupBaseDir,
+                            Date backupTime) {
         this.postBackupScript = postBackupScript;
         this.initiatedBy = initiatedBy;
         this.username = username;
         this.backup = backup;
         this.backupBaseDir = backupBaseDir;
+        this.backupTime = backupTime;
     }
 
     public boolean execute() {
@@ -58,13 +63,14 @@ public class PostBackupScript {
     CommandLine commandLine() {
         ImmutableMap.Builder<String, String> envBuilder = new ImmutableMap.Builder<>();
 
+        envBuilder.put("GOCD_BACKUP_TIMESTAMP", ISO8601Utils.format(backupTime));
+
         if (backup == null) {
             envBuilder.put("GOCD_BACKUP_STATUS", "failure");
         } else {
             envBuilder.put("GOCD_BACKUP_STATUS", "success")
                     .put("GOCD_BACKUP_BASE_DIR", backupBaseDir)
-                    .put("GOCD_BACKUP_PATH", backup.getPath())
-                    .put("GOCD_BACKUP_TIMESTAMP", ISO8601Utils.format(backup.getTime()));
+                    .put("GOCD_BACKUP_PATH", backup.getPath());
         }
 
         switch (initiatedBy) {

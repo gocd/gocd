@@ -31,7 +31,7 @@ class PostBackupScriptTest {
     void shouldCreateCommandLineForSuccessfulBackupInitiatedViaTimer() {
         Date time = new Date(1535551235962L);
         ServerBackup backup = new ServerBackup("/foo/bar/backupDir/backup_someTimeStamp", time, null);
-        PostBackupScript postBackupScript = new PostBackupScript("upload-to-s3", BackupService.BackupInitiator.TIMER, null, backup, "/foo/bar/backupDir");
+        PostBackupScript postBackupScript = new PostBackupScript("upload-to-s3", BackupService.BackupInitiator.TIMER, null, backup, "/foo/bar/backupDir", time);
         CommandLine commandLine = postBackupScript.commandLine();
         assertThat(commandLine.getExecutable()).isEqualTo("upload-to-s3");
         assertThat(commandLine.getArguments()).isEmpty();
@@ -47,22 +47,24 @@ class PostBackupScriptTest {
 
     @Test
     void shouldCreateCommandLineForBackupThatErroredWhenInitiatedViaTimer() {
-        PostBackupScript postBackupScript = new PostBackupScript("upload-to-s3", BackupService.BackupInitiator.TIMER, null, null, null);
+        Date time = new Date(1535551235962L);
+        PostBackupScript postBackupScript = new PostBackupScript("upload-to-s3", BackupService.BackupInitiator.TIMER, null, null, null, time);
         CommandLine commandLine = postBackupScript.commandLine();
         assertThat(commandLine.getExecutable()).isEqualTo("upload-to-s3");
         assertThat(commandLine.getArguments()).isEmpty();
         assertThat(commandLine.getWorkingDirectory()).isNull();
         assertThat(commandLine.env())
-                .hasSize(2)
+                .hasSize(3)
                 .containsEntry("GOCD_BACKUP_STATUS", "failure")
-                .containsEntry("GOCD_BACKUP_INITIATED_VIA", "TIMER");
+                .containsEntry("GOCD_BACKUP_INITIATED_VIA", "TIMER")
+                .containsEntry("GOCD_BACKUP_TIMESTAMP", "2018-08-29T14:00:35Z");
     }
 
     @Test
     void shouldCreateCommandLineForSuccessfulBackupInitiatedByUser() {
         Date time = new Date(1535551235962L);
         ServerBackup backup = new ServerBackup("/foo/bar/backupDir/backup_someTimeStamp", time, "bob");
-        PostBackupScript postBackupScript = new PostBackupScript("upload-to-s3", BackupService.BackupInitiator.USER, new Username("bob"), backup, "/foo/bar/backupDir");
+        PostBackupScript postBackupScript = new PostBackupScript("upload-to-s3", BackupService.BackupInitiator.USER, new Username("bob"), backup, "/foo/bar/backupDir", time);
         CommandLine commandLine = postBackupScript.commandLine();
         assertThat(commandLine.getExecutable()).isEqualTo("upload-to-s3");
         assertThat(commandLine.getArguments()).isEmpty();
@@ -78,15 +80,17 @@ class PostBackupScriptTest {
 
     @Test
     void shouldCreateCommandLineForBackupThatErroredWhenInitiatedByUser() {
-        PostBackupScript postBackupScript = new PostBackupScript("upload-to-s3", BackupService.BackupInitiator.USER, new Username("bob"), null, null);
+        Date time = new Date(1535551235962L);
+        PostBackupScript postBackupScript = new PostBackupScript("upload-to-s3", BackupService.BackupInitiator.USER, new Username("bob"), null, null, time);
         CommandLine commandLine = postBackupScript.commandLine();
         assertThat(commandLine.getExecutable()).isEqualTo("upload-to-s3");
         assertThat(commandLine.getArguments()).isEmpty();
         assertThat(commandLine.getWorkingDirectory()).isNull();
         assertThat(commandLine.env())
-                .hasSize(2)
+                .hasSize(3)
                 .containsEntry("GOCD_BACKUP_STATUS", "failure")
-                .containsEntry("GOCD_BACKUP_INITIATED_BY_USER", "bob");
+                .containsEntry("GOCD_BACKUP_INITIATED_BY_USER", "bob")
+                .containsEntry("GOCD_BACKUP_TIMESTAMP", "2018-08-29T14:00:35Z");
     }
 
     @Test
@@ -94,7 +98,7 @@ class PostBackupScriptTest {
         Date time = new Date(1535551235962L);
         String command = RandomStringUtils.randomAlphabetic(32);
         ServerBackup backup = new ServerBackup("/foo/bar/backupDir/backup_someTimeStamp", time, "bob");
-        PostBackupScript postBackupScript = new PostBackupScript(command, BackupService.BackupInitiator.USER, new Username("bob"), backup, "/foo/bar/backupDir");
+        PostBackupScript postBackupScript = new PostBackupScript(command, BackupService.BackupInitiator.USER, new Username("bob"), backup, "/foo/bar/backupDir", time);
         assertThat(postBackupScript.execute()).isFalse();
     }
 
@@ -103,7 +107,7 @@ class PostBackupScriptTest {
         Date time = new Date(1535551235962L);
         String command = "jcmd"; // provided by the JDK
         ServerBackup backup = new ServerBackup("/foo/bar/backupDir/backup_someTimeStamp", time, "bob");
-        PostBackupScript postBackupScript = new PostBackupScript(command, BackupService.BackupInitiator.USER, new Username("bob"), backup, "/foo/bar/backupDir");
+        PostBackupScript postBackupScript = new PostBackupScript(command, BackupService.BackupInitiator.USER, new Username("bob"), backup, "/foo/bar/backupDir", time);
         assertThat(postBackupScript.execute()).isTrue();
     }
 }

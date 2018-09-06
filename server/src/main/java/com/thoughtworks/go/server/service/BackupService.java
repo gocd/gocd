@@ -116,10 +116,9 @@ public class BackupService implements BackupStatusProvider {
         return performBackupWithoutAuthentication(username, result, BackupInitiator.USER);
     }
 
-    private ServerBackup doPerformBackup(Username username, HttpLocalizedOperationResult result) {
+    private ServerBackup doPerformBackup(Username username, HttpLocalizedOperationResult result, DateTime backupTime) {
         GoMailSender mailSender = goConfigService.getMailSender();
         synchronized (BACKUP_MUTEX) {
-            DateTime backupTime = timeProvider.currentDateTime();
             final File destDir = new File(backupLocation(), BACKUP + backupTime.toString("YYYYMMdd-HHmmss"));
             if (!destDir.mkdirs()) {
                 result.internalServerError("Failed to perform backup. Reason: Could not create the backup directory.");
@@ -162,12 +161,13 @@ public class BackupService implements BackupStatusProvider {
     private ServerBackup performBackupWithoutAuthentication(Username username,
                                                             HttpLocalizedOperationResult result,
                                                             BackupInitiator initiatedBy) {
-        ServerBackup serverBackup = doPerformBackup(username, result);
+        DateTime backupTime = timeProvider.currentDateTime();
+        ServerBackup serverBackup = doPerformBackup(username, result, backupTime);
 
         String postBackupScriptFile = postBackupScriptFile();
 
         if (isNotBlank(postBackupScriptFile)) {
-            PostBackupScript postBackupScript = new PostBackupScript(postBackupScriptFile, initiatedBy, username, serverBackup, backupLocation());
+            PostBackupScript postBackupScript = new PostBackupScript(postBackupScriptFile, initiatedBy, username, serverBackup, backupLocation(), backupTime.toDate());
             if (postBackupScript.execute()) {
                 // only set message, retain the original status
                 result.setMessage(joinSentences(result.message(), "Post backup script executed successfully."));

@@ -1,0 +1,76 @@
+/*
+ * Copyright 2018 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.thoughtworks.go.apiv1.stageoperations;
+
+import com.thoughtworks.go.api.ApiController;
+import com.thoughtworks.go.api.ApiVersion;
+import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
+import com.thoughtworks.go.server.service.ScheduleService;
+import com.thoughtworks.go.server.service.result.HttpOperationResult;
+import com.thoughtworks.go.spark.Routes;
+import com.thoughtworks.go.spark.spring.SparkSpringController;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import spark.Request;
+import spark.Response;
+
+import java.io.IOException;
+
+import static spark.Spark.*;
+
+@Component
+public class StageOperationsControllerV1 extends ApiController implements SparkSpringController {
+
+    private final ScheduleService scheduleService;
+    private final ApiAuthenticationHelper apiAuthenticationHelper;
+
+    @Autowired
+    public StageOperationsControllerV1(ScheduleService scheduleService, ApiAuthenticationHelper apiAuthenticationHelper) {
+        super(ApiVersion.v1);
+        this.scheduleService = scheduleService;
+        this.apiAuthenticationHelper = apiAuthenticationHelper;
+    }
+
+    @Override
+    public String controllerBasePath() {
+        return Routes.Stage.BASE;
+    }
+
+    @Override
+    public void setupRoutes() {
+        path(controllerPath(), () -> {
+            before("", mimeType, this::setContentType);
+            before("/*", mimeType, this::setContentType);
+            before("", this::verifyContentType);
+            before("/*", this::verifyContentType);
+
+            before(Routes.Stage.TRIGGER_PATH, mimeType, apiAuthenticationHelper::checkPipelineGroupOperateUserAnd403);
+
+            post(Routes.Stage.TRIGGER_PATH, mimeType, this::run);
+        });
+    }
+
+    public String run(Request req, Response res) throws IOException {
+        String pipelineName = req.params("pipeline_name");
+        String pipelineCounter = req.params("pipeline_counter");
+        String stageName = req.params("stage_name");
+        HttpOperationResult result = new HttpOperationResult();
+
+        scheduleService.rerunStage(pipelineName, pipelineCounter, stageName, result);
+        return renderHTTPOperationResult(result, req, res);
+    }
+}

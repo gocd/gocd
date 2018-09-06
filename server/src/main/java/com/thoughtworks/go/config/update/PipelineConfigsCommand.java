@@ -24,7 +24,7 @@ import com.thoughtworks.go.config.exceptions.PipelineGroupNotFoundException;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.SecurityService;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import static com.thoughtworks.go.i18n.LocalizedMessage.forbiddenToEdit;
 import static com.thoughtworks.go.i18n.LocalizedMessage.forbiddenToEditGroup;

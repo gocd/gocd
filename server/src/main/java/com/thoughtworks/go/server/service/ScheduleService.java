@@ -30,10 +30,7 @@ import com.thoughtworks.go.server.domain.AgentInstances;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.newsecurity.utils.SessionUtils;
 import com.thoughtworks.go.server.perf.SchedulingPerformanceLogger;
-import com.thoughtworks.go.server.service.result.DefaultLocalizedOperationResult;
-import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
-import com.thoughtworks.go.server.service.result.OperationResult;
-import com.thoughtworks.go.server.service.result.ServerHealthStateOperationResult;
+import com.thoughtworks.go.server.service.result.*;
 import com.thoughtworks.go.server.transaction.TransactionSynchronizationManager;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.serverhealth.HealthStateScope;
@@ -52,6 +49,7 @@ import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionSynchronizationAdapter;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
@@ -199,14 +197,6 @@ public class ScheduleService {
         return ServerHealthState.success(HealthStateType.general(HealthStateScope.forStage(pipelineName, stageName)));
     }
 
-    /**
-     * @deprecated ChrisS - Only used in tests
-     */
-    public boolean rerunStage(Pipeline pipeline, StageConfig stageConfig, String approvedBy) {
-        internalRerun(pipeline, CaseInsensitiveString.str(stageConfig.name()), approvedBy, new NewStageInstanceCreator(goConfigService), new ExceptioningErrorHandler());
-        return true;
-    }
-
     private Stage internalRerun(Pipeline pipeline, String stageName, String approvedBy, final StageInstanceCreator creator, ErrorConditionHandler errorHandler) {
         ServerHealthStateOperationResult result = new ServerHealthStateOperationResult();
         if (!schedulingChecker.canRerunStage(pipeline.getIdentifier(), stageName, approvedBy, result)) {
@@ -251,8 +241,47 @@ public class ScheduleService {
         return schedulingChecker.canAutoTriggerConsumer(pipelineConfig);
     }
 
-    public Stage rerunStage(String pipelineName, String counterOrLabel, String stageName) {
-        return lockAndRerunStage(pipelineName, counterOrLabel, stageName, new NewStageInstanceCreator(goConfigService), new ExceptioningErrorHandler());
+    public boolean rerunStage(Pipeline pipeline, StageConfig stageConfig, String approvedBy) {
+        internalRerun(pipeline, CaseInsensitiveString.str(stageConfig.name()), approvedBy, new NewStageInstanceCreator(goConfigService), new ExceptioningErrorHandler());
+        return true;
+    }
+
+    public Stage rerunStage(String pipelineName, String pipelineCounter, String stageName) {
+        return rerunStage(pipelineName, pipelineCounter, stageName, new ExceptioningErrorHandler());
+    }
+
+    public Stage rerunStage(String pipelineName, String pipelineCounter, String stageName, ErrorConditionHandler errorHandler) {
+        return lockAndRerunStage(pipelineName, pipelineCounter, stageName, new NewStageInstanceCreator(goConfigService), errorHandler);
+    }
+
+    /**
+     * Top-level operation only; consumes exceptions
+     */
+    public Stage rerunStage(String pipelineName, String pipelineCounter, String stageName, HttpOperationResult result) {
+        String identifier = StringUtils.join(Arrays.asList(pipelineName, pipelineCounter, stageName), "/");
+        HealthStateType healthStateType = HealthStateType.general(HealthStateScope.forStage(pipelineName, stageName));
+        Stage stage = null;
+
+        try {
+            stage = rerunStage(pipelineName, pipelineCounter, stageName, new ResultUpdatingErrorHandler(result));
+
+            if (result.isSuccess()) { // this check is for clarity, but is not needed as failures result in RunTimeExceptions
+                result.accepted(String.format("Request to schedule stage %s accepted", identifier), "", healthStateType);
+            }
+        } catch (RuntimeException e) {
+            // if the result is successful, but there's still an exception, treat it as a 500
+            // else the result is assumed to contain the right status code and error message
+            if (result.isSuccess()) {
+                String message = String.format(
+                        "Stage rerun request for stage [%s] could not be completed " +
+                                "because of an unexpected failure. Cause: %s", identifier,
+                        e.getMessage()
+                );
+                LOGGER.error(message, e);
+                result.internalServerError(message, healthStateType);
+            }
+        }
+        return stage;
     }
 
     private Stage lockAndRerunStage(String pipelineName, String counterOrLabel, String stageName, StageInstanceCreator creator, final ErrorConditionHandler errorHandler) {
@@ -283,6 +312,7 @@ public class ScheduleService {
             if (stage == null) {
                 errorHandler.nullStage();
             }
+
             return stage;
         }
     }

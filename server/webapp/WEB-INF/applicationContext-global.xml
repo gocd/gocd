@@ -39,6 +39,7 @@
 
     <context:component-scan base-package="com.thoughtworks.go.apiv1.admin.encryption.spring"/>
     <context:component-scan base-package="com.thoughtworks.go.apiv1.pipelineoperations"/>
+    <context:component-scan base-package="com.thoughtworks.go.apiv1.stageoperations"/>
     <context:component-scan base-package="com.thoughtworks.go.apiv2.dashboard"/>
     <context:component-scan base-package="com.thoughtworks.go.apiv1.currentuser"/>
     <context:component-scan base-package="com.thoughtworks.go.apiv1.admin.backups"/>

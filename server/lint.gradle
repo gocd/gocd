@@ -40,6 +40,16 @@ task scssLint(type: Exec) {
   }
 }
 
+task eslintold(type: YarnRunTask) {
+  description "Run ESLint for old javascript code"
+  dependsOn 'yarnInstall'
+
+  workingDir = project.railsRoot
+
+  yarnCommand = ['eslintold']
+  source(project.file("${project.railsRoot}/app/assets/javascripts"))
+}
+
 task eslint(type: YarnRunTask) {
   description "Run ESLint"
   dependsOn 'yarnInstall'
@@ -53,5 +63,5 @@ task eslint(type: YarnRunTask) {
 
 task lint {
   description 'Run all lint tools'
-  dependsOn scssLint, eslint
+  dependsOn eslintold, scssLint, eslint
 }

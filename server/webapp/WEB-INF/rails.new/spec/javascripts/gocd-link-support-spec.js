@@ -37,4 +37,34 @@ describe("GoCD Link Support", function () {
     var jobDetailsPagePath = window.open.calls.mostRecent().args[0];
     expect(jobDetailsPagePath).toBe('/go/tab/build/detail/' + params.pipeline_name + '/' + params.pipeline_counter + '/' + params.stage_name + '/' + params.stage_counter + '/' + params.job_name);
   });
+
+  it('should link to vsm page', function () {
+    var linkTo = 'vsm_page';
+    var params = {
+      'pipeline_name':    'up42',
+      'pipeline_counter': 1
+    };
+
+    GoCDLinkSupport[linkTo](params);
+
+    expect(window.open).toHaveBeenCalled();
+    var vsmPagePath = window.open.calls.mostRecent().args[0];
+    expect(vsmPagePath).toBe('/go/pipelines/value_stream_map/' + params.pipeline_name + '/' + params.pipeline_counter);
+  });
+
+  it('should link to stage details page', function () {
+    var linkTo = 'stage_details_page';
+    var params = {
+      'pipeline_name':    'up42',
+      'pipeline_counter': 1,
+      'stage_name':       'up42_stage',
+      'stage_counter':    1
+    };
+
+    GoCDLinkSupport[linkTo](params);
+
+    expect(window.open).toHaveBeenCalled();
+    var stageDetailsPagePath = window.open.calls.mostRecent().args[0];
+    expect(stageDetailsPagePath).toBe('/go/pipelines/' + params.pipeline_name + '/' + params.pipeline_counter + '/' + params.stage_name + '/' + params.stage_counter);
+  });
 });

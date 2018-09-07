@@ -63,6 +63,10 @@ $btn-default: #d6d5d5;
   }
 }
 
+.destination_container {
+  background: white;
+}
+
 .vsm-entity.current.vsm-current-node {
   @extend %node-selection;
   &:before {

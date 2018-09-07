@@ -129,6 +129,7 @@ Graph_Renderer = function (container) {
       $j('.vsm-entity.pipeline').click(selectPipeline);
 
       $j('.vsm-entity.pipeline').addClass("vsm-pipeline-node");
+      $j('.vsm-entity.pipeline').removeClass("expanded");
       $j('.vsm-entity.pipeline h3 a').addClass("vsm-pipeline-unclickable-name");
       $j('.vsm-entity.pipeline .pipeline_actions').addClass("hidden");
       $j('.vsm-entity.pipeline .instances .instance .vsm_link_wrapper').addClass("hidden");
@@ -149,6 +150,7 @@ Graph_Renderer = function (container) {
       $j('.vsm-entity.pipeline').unbind('click', selectPipeline);
 
       $j('.vsm-entity.pipeline').removeClass("vsm-pipeline-node");
+      $j('div.show-more:contains("less...")').parent().addClass('expanded');
       $j('.vsm-entity.pipeline h3 a').removeClass("vsm-pipeline-unclickable-name");
       $j('.vsm-entity.pipeline .pipeline_actions').removeClass("hidden");
       $j('.vsm-entity.pipeline .instances .instance .vsm_link_wrapper').removeClass("hidden");

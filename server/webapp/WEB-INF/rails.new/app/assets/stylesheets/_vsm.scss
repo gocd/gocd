@@ -19,16 +19,46 @@
 
 $vsm-page-bg: #f4f8f9;
 $border-color: #ccc;
-$anaytics-header-bg: #fff;
 $analytics-selection-panel-bg: #e7eef0;
 $primary-color: #943a9e;
 $secondary-color: #2fa8b6;
 $global-border-radius: 3px;
-
+$vsm-bg: $page-body-background;
+$vsm-highlight: #ffffffb5;
+$icon-color: #647984;
+$icon-hover-color: #1c435c;
 //buttons
 $btn-primary: $primary-color;
 $btn-secondary: #666;
 $btn-default: #d6d5d5;
+
+//overrides from old styles
+
+#vsm-container {
+  background: $vsm-bg;
+}
+
+#vsm-container .highlight {
+  background: $vsm-highlight;
+}
+
+.vsm-entity {
+  border: 1px solid #d6e0e2;
+}
+
+.dependency {
+  stroke: #ccd5da;
+  &.hovered {
+    stroke: darken(#ccd5da, 30%);
+  }
+}
+
+.vsm-entity.pipeline ul.instances .message {
+  padding:    7px 7px;
+  background: #f4f8f9;
+}
+
+// end overrides from old styles
 
 #value_stream_map {
   overflow-y: hidden;
@@ -63,10 +93,6 @@ $btn-default: #d6d5d5;
   }
 }
 
-.destination_container {
-  background: white;
-}
-
 .vsm-entity.current.vsm-current-node {
   @extend %node-selection;
   &:before {
@@ -93,7 +119,7 @@ $btn-default: #d6d5d5;
 }
 
 .vsm-entity.vsm-pipeline-node .vsm-pipeline-unclickable-name {
-  color: black;
+  color: #333;
 }
 
 .onhover-pipeline-overlay {
@@ -109,6 +135,7 @@ $btn-default: #d6d5d5;
   box-shadow:    0 0 2px 2px #ccc;
   color:         #000;
   z-index:       1;
+  transition:    all 0.3s ease-in-out;
 
   .plus-symbol {
     padding-top: 20px;
@@ -176,7 +203,7 @@ $btn-default: #d6d5d5;
 
 .analytics-overlay {
   position:   fixed;
-  top:        182px;
+  top:        180px;
   left:       0;
   right:      0;
   height:     100vh;
@@ -247,7 +274,7 @@ $btn-default: #d6d5d5;
   color:           #666;
   padding:         5px 10px 5px 30px;
   box-shadow:      0 0 2px 0 rgba(0, 0, 0, 0.5);
-  background:      image_url('select-pipeline-icon.svg') no-repeat 7px 3px;
+  background:      #fff image_url('select-pipeline-icon.svg') no-repeat 7px 3px;
   background-size: 14px;
 }
 
@@ -256,7 +283,6 @@ $btn-default: #d6d5d5;
   font-size:   14px;
   display:     flex;
   align-items: center;
-  background:  $analytics-selection-panel-bg;
 }
 
 .enable-analytics.btn-primary {
@@ -276,16 +302,26 @@ $btn-default: #d6d5d5;
 
 .vsm-analytics-panel {
   @include clearfix;
-  padding:       10px;
-  position:      relative;
-  display:       none;
-  background:    $analytics-selection-panel-bg;
-  border-bottom: 1px solid #d2d2d2;
+  padding:  10px;
+  position: relative;
+  display:  none;
 }
 
 .analytics-close {
   @include icon-before('close', $margin: 10, $size: 20px);
-  @extend %btn;
+  width:       20px;
+  background:  transparent;
+  margin-left: 20px;
+  &:before {
+    color: $icon-color;
+  }
+  &:hover {
+    &:before {
+      color: $icon-hover-color;
+    }
+
+  }
+
 }
 
 .vsm-analytics-title {
@@ -333,9 +369,10 @@ $btn-default: #d6d5d5;
 }
 
 .vsm-analytics-actions {
-  float:      right;
-  display:    flex;
-  margin-top: 14px;
+  float:        right;
+  display:      flex;
+  margin-top:   18px;
+  margin-right: 20px;
 }
 
 .icon_vsm_analytics {

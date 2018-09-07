@@ -631,15 +631,18 @@ task newApi {
 
   doFirst {
     String apiName = project.apiName
-    def newProjectName = "api-${apiName}-${project.apiVersion}"
-    def moduleDir = file("api/${newProjectName}")
-    def basePackage = "${moduleDir}/src/main/java/com/thoughtworks/go/api${project.apiVersion}/${apiName.replaceAll(~/[^a-zA-Z]/, '')}"
-    def classNamePrefix = toCamelCase(apiName)
+    String newProjectName = "api-${apiName}-${project.apiVersion}"
+    String moduleDir = file("api/${newProjectName}")
+    String basePackage = "${moduleDir}/src/main/java/com/thoughtworks/go/api${project.apiVersion}/${apiName.replaceAll(~/[^a-zA-Z]/, '')}/spring"
+    String testPackage = "${moduleDir}/src/test/groovy/com/thoughtworks/go/api${project.apiVersion}/${apiName.replaceAll(~/[^a-zA-Z]/, '')}/spring"
+    String packageName = "com.thoughtworks.go.api${project.apiVersion}.${apiName.replaceAll(~/[^a-zA-Z]/, '')}.spring"
+    String entityClassName = toCamelCase(apiName)
+    String controllerClassName = "${entityClassName}Controller${project.apiVersion.capitalize()}"
 
     project.delete(moduleDir)
     project.mkdir(moduleDir)
     project.mkdir(basePackage)
-    project.mkdir("${basePackage}/spring")
+    project.mkdir(testPackage)
 
 
     file("${moduleDir}/build.gradle").withWriter { out ->
@@ -676,7 +679,7 @@ task newApi {
       out.println(contents.stripIndent().trim())
     }
 
-    file("${basePackage}/${classNamePrefix}ControllerDelegate.java").withWriter { out ->
+    file("${basePackage}/${controllerClassName}.java").withWriter { out ->
       def contents =
         """
           /*
@@ -695,20 +698,67 @@ task newApi {
            * limitations under the License.
            */
 
-          package com.thoughtworks.go.api${project.apiVersion}.${apiName.replaceAll(~/[^a-zA-Z]/, '')};
+          package ${packageName};
 
-          import com.thoughtworks.go.api.*;
-        
-          public class ${classNamePrefix}ControllerDelegate extends ApiController implements CrudController<${classNamePrefix}> {
-            public ${classNamePrefix}ControllerDelegate() {
-              super(ApiVersion.${project.apiVersion});
-            }
+          import com.fasterxml.jackson.databind.JsonNode;
+          import com.thoughtworks.go.api.ApiController;
+          import com.thoughtworks.go.api.ApiVersion;
+          import com.thoughtworks.go.api.CrudController;
+          import com.thoughtworks.go.spark.spring.SparkSpringController;
+          import org.springframework.beans.factory.annotation.Autowired;
+          import org.springframework.stereotype.Component;
+          import spark.Request;
+
+          import java.io.IOException;
+
+          @Component
+          public class ${controllerClassName} extends ApiController implements SparkSpringController, CrudController<${entityClassName}> {
+
+              @Autowired
+              public ${controllerClassName}() {
+                  super(ApiVersion.${project.apiVersion});
+              }
+
+              @Override
+              public String controllerBasePath() {
+                  return null; // to be implemented
+              }
+
+              @Override
+              public void setupRoutes() {
+                  // to be implemented
+              }
+
+              @Override
+              public String etagFor(${entityClassName} entityFromServer) {
+                  return null; // to be implemented
+              }
+
+              @Override
+              public ${entityClassName} doGetEntityFromConfig(String name) {
+                  return null; // to be implemented
+              }
+
+              @Override
+              public ${entityClassName} getEntityFromRequestBody(Request req) {
+                  return null; // to be implemented
+              }
+
+              @Override
+              public String jsonize(Request req, ${entityClassName} o) {
+                  return null; // to be implemented
+              }
+
+              @Override
+              public JsonNode jsonNode(Request req, ${entityClassName} o) throws IOException {
+                  return null; // to be implemented
+              }
           }
         """
       out.println(contents.stripIndent().trim())
     }
 
-    file("${basePackage}/spring/${classNamePrefix}Controller.java").withWriter { out ->
+    file("${testPackage}/${controllerClassName}Test.groovy").withWriter { out ->
       def contents =
         """
           /*
@@ -727,20 +777,27 @@ task newApi {
            * limitations under the License.
            */
 
-          package com.thoughtworks.go.api${project.apiVersion}.${apiName.replaceAll(~/[^a-zA-Z]/, '')}.spring;
+          package ${packageName}
 
-          @Component
-          public class ${classNamePrefix}Controller implements SparkSpringController {
-            private final ${classNamePrefix}ControllerDelegate delegate;
+          import com.thoughtworks.go.spark.ControllerTrait
+          import com.thoughtworks.go.spark.SecurityServiceTrait
+          import org.junit.jupiter.api.Nested
+          import org.junit.jupiter.api.Test
 
-            @Autowired
-            public ${classNamePrefix}Controller() {
-              delegate = new ${classNamePrefix}ControllerDelegate();
-            }
+          class ${controllerClassName}Test implements SecurityServiceTrait, ControllerTrait<${controllerClassName}> {
 
             @Override
-            public void setupRoutes() {
-                delegate.setupRoutes();
+            ${controllerClassName} createControllerInstance() {
+              new ${controllerClassName}()
+            }
+
+            @Nested
+            class Index {
+
+              @Test
+              void 'test a request'() {
+              }
+
             }
           }
         """
@@ -749,7 +806,6 @@ task newApi {
 
     List<String> lines = file('server/webapp/WEB-INF/applicationContext-global.xml').readLines()
     int insertionIdx = lines.findIndexOf {l -> (l =~ /^\s*<context:component-scan /).find()}
-    String packageName = "com.thoughtworks.go.api${project.apiVersion}.${apiName.replaceAll(~/[^a-zA-Z]/, '')}"
     lines.add(insertionIdx, "    <context:component-scan base-package=\"${packageName}\"/>")
 
     file('server/webapp/WEB-INF/applicationContext-global.xml').withWriter { out ->

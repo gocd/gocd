@@ -188,12 +188,15 @@ body {
   box-shadow:         none;
   border-radius:      3px;
   background:         #fff;
-  width:              350px;
 
   &::placeholder {
     font-size: 13px;
     color:     $border-color;
   }
+}
+
+.pipeline-search_dashboard {
+  width: 350px;
 }
 
 .dashboard-group {

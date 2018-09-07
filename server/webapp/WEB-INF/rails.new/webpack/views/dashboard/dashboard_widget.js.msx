@@ -26,7 +26,7 @@ const PipelineSearch = {
     const model = vnode.attrs.model;
 
     return <div class="filter">
-      <f.input class="pipeline-search dashboard" model={model} attrName="searchText" placeholder="Search pipelines" />
+      <f.input class="pipeline-search pipeline-search_dashboard" model={model} attrName="searchText" placeholder="Search pipelines" />
     </div>;
   }
 };

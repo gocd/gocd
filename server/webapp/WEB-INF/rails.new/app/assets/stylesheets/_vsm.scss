@@ -17,21 +17,22 @@
 
 //Variables
 
+$vsm-page-bg: #F4F8F9;
 $border-color: #ccc;
 $anaytics-header-bg: #fff;
-$primary-color: #b66fc2;
-$secondary-color: #01bfc0;
+$analytics-selection-panel-bg: #E7EEF0;
+$primary-color: #943a9e;
+$secondary-color: #2FA8B6;
 $global-border-radius: 3px;
 
 //buttons
-
-$btn-primary: #943a9e;
+$btn-primary: $primary-color;
 $btn-secondary: #666;
 $btn-default: #d6d5d5;
 
-#value_stream_map {
-  overflow-y: hidden;
-}
+//#value_stream_map {
+//  overflow-y: hidden;
+//}
 
 %btn {
   border:        1px solid transparent;
@@ -178,11 +179,9 @@ $btn-default: #d6d5d5;
   z-index:    1000;
   bottom:     0;
   width:      100%;
-  background: #fff;
-  transition: all 0.3s ease-in-out;
+  background: $vsm-page-bg;
   &.hide {
     height:     0;
-    transition: all 0.3s ease-in-out;
     display:    block;
   }
 }
@@ -192,7 +191,6 @@ $btn-default: #d6d5d5;
   height:   70%;
   top:      25px;
   margin:   0 auto;
-  border:   1px solid #ccc;
   position: relative;
   iframe {
     width:  100%;
@@ -260,6 +258,15 @@ $btn-default: #d6d5d5;
   font-size: 15px;
   margin:    3px 0 0 50px;
   padding:   2px 10px;
+  background: $btn-primary !important;
+}
+
+.view-vsm-analytics.btn-primary {
+  background: $btn-primary !important;
+}
+
+.reset-vsm-analytics.btn-primary {
+  background: $btn-primary !important;
 }
 
 .vsm-analytics-panel {
@@ -268,6 +275,8 @@ $btn-default: #d6d5d5;
   padding:    10px;
   position:   relative;
   display:    none;
+  background: $analytics-selection-panel-bg;
+  border-bottom: 1px solid #d2d2d2;
 }
 
 .analytics-close {

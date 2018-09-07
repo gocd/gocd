@@ -17,12 +17,12 @@
 
 //Variables
 
-$vsm-page-bg: #F4F8F9;
+$vsm-page-bg: #f4f8f9;
 $border-color: #ccc;
 $anaytics-header-bg: #fff;
-$analytics-selection-panel-bg: #E7EEF0;
+$analytics-selection-panel-bg: #e7eef0;
 $primary-color: #943a9e;
-$secondary-color: #2FA8B6;
+$secondary-color: #2fa8b6;
 $global-border-radius: 3px;
 
 //buttons
@@ -30,9 +30,9 @@ $btn-primary: $primary-color;
 $btn-secondary: #666;
 $btn-default: #d6d5d5;
 
-//#value_stream_map {
-//  overflow-y: hidden;
-//}
+#value_stream_map {
+  overflow-y: hidden;
+}
 
 %btn {
   border:        1px solid transparent;
@@ -185,8 +185,8 @@ $btn-default: #d6d5d5;
   width:      100%;
   background: $vsm-page-bg;
   &.hide {
-    height:     0;
-    display:    block;
+    height:  0;
+    display: block;
   }
 }
 
@@ -256,12 +256,13 @@ $btn-default: #d6d5d5;
   font-size:   14px;
   display:     flex;
   align-items: center;
+  background:  $analytics-selection-panel-bg;
 }
 
 .enable-analytics.btn-primary {
-  font-size: 15px;
-  margin:    3px 0 0 50px;
-  padding:   2px 10px;
+  font-size:  15px;
+  margin:     3px 0 0 50px;
+  padding:    2px 10px;
   background: $btn-primary !important;
 }
 
@@ -275,11 +276,10 @@ $btn-default: #d6d5d5;
 
 .vsm-analytics-panel {
   @include clearfix;
-  background: $anaytics-header-bg;
-  padding:    10px;
-  position:   relative;
-  display:    none;
-  background: $analytics-selection-panel-bg;
+  padding:       10px;
+  position:      relative;
+  display:       none;
+  background:    $analytics-selection-panel-bg;
   border-bottom: 1px solid #d2d2d2;
 }
 

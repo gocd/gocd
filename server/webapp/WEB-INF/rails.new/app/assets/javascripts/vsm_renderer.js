@@ -125,6 +125,7 @@ Graph_Renderer = function (container) {
       }
       analyticsModeEnabled = true;
       $j('.vsm-entity.pipeline a').css({ "pointer-events": "none" });
+      $j('#vsm-container').height($j('#vsm-container').height() - 92);
       $j('.vsm-entity.material').click(selectMaterial);
       $j('.vsm-entity.pipeline').click(selectPipeline);
 
@@ -145,6 +146,7 @@ Graph_Renderer = function (container) {
     Graph_Renderer.prototype.disableAnalyticsMode = function () {
       analyticsModeEnabled = false;
       $j('.vsm-entity a').css({ "pointer-events": "auto" });
+      $j('#vsm-container').height($j('#vsm-container').height() + 92);
       $j('.vsm-entity.material').css({ "pointer-events": "auto" });
       $j('.vsm-entity.material').unbind('click', selectMaterial);
       $j('.vsm-entity.pipeline').unbind('click', selectPipeline);

@@ -36,6 +36,7 @@
 @import "components/name-value";
 @import "components/forms";
 @import "components/buttons";
+@import "shared/search_box";
 
 //variables
 
@@ -159,38 +160,6 @@ body {
   margin:  0 0 0 10px;
   width:   145px;
   display: inline-block;
-}
-
-.filter {
-  @include icon-before($type: search);
-
-  display:  inline-block;
-  position: relative;
-
-  &:before {
-    position:  absolute;
-    left:      10px;
-    color:     $icon-color;
-    top:       8px;
-    font-size: 14px;
-  }
-}
-
-.pipeline-search {
-  height:             40px;
-  line-height:        40px;
-  padding:            0 10px 0 40px;
-  margin:             0;
-  border:             1px solid #d6e0e2;
-  -webkit-appearance: none;
-  box-shadow:         none;
-  border-radius:      3px;
-  background:         #fff;
-
-  &::placeholder {
-    font-size: 13px;
-    color:     $border-color;
-  }
 }
 
 .pipeline-search_dashboard {

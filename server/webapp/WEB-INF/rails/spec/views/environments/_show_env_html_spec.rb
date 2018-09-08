@@ -37,7 +37,7 @@ describe 'environments/show_env.html.erb' do
 
       expect(all_pipeline_names).to eq(["another-pipeline", "foo-pipeline"])
       expect(pipelines_section).to have_selector("h3", text: "PIPELINES")
-      expect(pipelines_section).to have_selector("h3 button#edit_pipelines_for_foo", text: "Edit")
+      expect(pipelines_section).to have_selector("h3 button#edit_pipelines_for_foo span", text: "EDIT")
     end
   end
 
@@ -47,7 +47,7 @@ describe 'environments/show_env.html.erb' do
 
       expect(all_agent_names).to eq(["CCeDev01 (10.18.5.1)", "CCeDev01 (10.18.5.1)"])
       expect(agents_section).to have_selector("h3", text: "AGENTS")
-      expect(agents_section).to have_selector("h3 button#edit_agents_for_foo", text: "Edit")
+      expect(agents_section).to have_selector("h3 button#edit_agents_for_foo span", text: "EDIT")
     end
   end
 
@@ -56,8 +56,8 @@ describe 'environments/show_env.html.erb' do
       all_variables = variables_section.all("ul li").collect {|node| node.text}.sort
 
       expect(all_variables).to eq(["ENV1 = VAL1", "ENV2 = VAL2", "SECURE_VAR = ****"])
-      expect(variables_section).to have_selector("h3", text: "Environment Variables")
-      expect(variables_section).to have_selector("h3 button#edit_environment_variables_for_foo", text: "Edit")
+      expect(variables_section).to have_selector("h3", text: "ENVIRONMENT VARIABLES")
+      expect(variables_section).to have_selector("h3 button#edit_environment_variables_for_foo span", text: "EDIT")
     end
   end
 

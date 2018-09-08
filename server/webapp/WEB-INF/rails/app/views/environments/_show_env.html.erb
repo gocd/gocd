@@ -71,13 +71,13 @@
 <script type="text/javascript">
   Util.on_load(function() {
     jQuery("#<%='edit_pipelines_for_'+environment.name().to_s%>").click(function() {
-      Util.ajax_modal("<%= environment_edit_pipelines_path({:name => environment.name()}) -%>", {width: 805, title: 'Pipelines' });
+      Util.ajax_modal("<%= environment_edit_pipelines_path({:name => environment.name()}) -%>", {width: 805, title: <%== 'Pipelines'.to_json -%>});
     });
     jQuery("#<%='edit_agents_for_'+environment.name().to_s%>").click(function() {
-      Util.ajax_modal("<%= environment_edit_agents_path({:name => environment.name()}) -%>", {width: 800, title: 'Agents'});
+      Util.ajax_modal("<%= environment_edit_agents_path({:name => environment.name()}) -%>", {width: 800, title: <%== 'Agents'.to_json -%>});
     });
     jQuery("#<%='edit_environment_variables_for_'+environment.name().to_s%>").click(function() {
-      Util.ajax_modal("<%= environment_edit_variables_path({:name => environment.name()}) -%>", {width: 800, title: 'Environment Variables'});
+      Util.ajax_modal("<%= environment_edit_variables_path({:name => environment.name()}) -%>", {width: 800, title: <%== 'Environment Variables'.to_json -%>});
     });
     AjaxForm.error_box_selector = '#env_form_error_box';
   });

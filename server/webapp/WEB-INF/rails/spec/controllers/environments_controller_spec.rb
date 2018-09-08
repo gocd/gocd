@@ -435,7 +435,7 @@ describe EnvironmentsController do
 
     it "should fail agent_edit for a non existing environment" do
       allow(@environment_config_service).to receive(:getMergedEnvironmentforDisplay).with('some-non-existent-environment', an_instance_of(HttpLocalizedOperationResult)) do |env, result|
-        result.badRequest(LocalizedMessage::string("RESOURCE_NOT_FOUND", 'Environment', 'some-non-existent-environment'))
+        result.badRequest("Environment 'some-non-existent-environment' not found.\n")
       end
 
       get :edit_agents, params:{:name => "some-non-existent-environment", :no_layout => true}
@@ -447,7 +447,7 @@ describe EnvironmentsController do
 
     it "should fail pipeline_edit for a non existing environment" do
       allow(@environment_config_service).to receive(:getMergedEnvironmentforDisplay).with('some-non-existent-environment', an_instance_of(HttpLocalizedOperationResult)) do |env, result|
-        result.badRequest(LocalizedMessage::string("RESOURCE_NOT_FOUND", 'Environment', 'some-non-existent-environment'))
+        result.badRequest("Environment 'some-non-existent-environment' not found.\n")
       end
 
       get :edit_pipelines, params:{:name => "some-non-existent-environment", :no_layout => true}
@@ -459,7 +459,7 @@ describe EnvironmentsController do
 
     it "should fail variable_edit for a non existing environment" do
       allow(@environment_config_service).to receive(:getMergedEnvironmentforDisplay).with('some-non-existent-environment', an_instance_of(HttpLocalizedOperationResult)) do |env, result|
-        result.badRequest(LocalizedMessage::string("RESOURCE_NOT_FOUND", 'Environment', 'some-non-existent-environment'))
+        result.badRequest("Environment 'some-non-existent-environment' not found.\n")
       end
 
       get :edit_variables, params:{:name => "some-non-existent-environment", :no_layout => true}

@@ -73,7 +73,7 @@ describe EnvironmentsController do
     end
 
     it "should match /environments defaulting to html format" do
-      expect(:get => "/environments").to route_to({:controller => "environments", :action => 'index', :format => :html})
+      expect(:get => "/admin/environments").to route_to({:controller => "environments", :action => 'index', :format => :html})
     end
 
     it "should match /new" do
@@ -299,7 +299,7 @@ describe EnvironmentsController do
           :name => @environment_name, :cruise_config_md5 => md5}
 
       expect(response).to be_success
-      expect(response.location).to match(/^\/environments\?.*?fm=/)
+      expect(response.location).to match(/^\/admin\/environments\?.*?fm=/)
       flash_guid = $1 if response.location =~ /environments\?.*?fm=(.+)/
       flash = controller.flash_message_service.get(flash_guid)
       assert_flash_message_and_class(flash, "Updated environment 'foo_env'.", "success")
@@ -334,7 +334,7 @@ describe EnvironmentsController do
           :name => "foo_env", :cruise_config_md5 => 'md5'}
 
       expect(response).to be_success
-      expect(response.location).to match(/^\/environments\?.*?fm=/)
+      expect(response.location).to match(/^\/admin\/environments\?.*?fm=/)
       flash_guid = $1 if response.location =~ /environments\?.*?fm=(.+)/
       flash = controller.flash_message_service.get(flash_guid)
       assert_flash_message_and_class(flash, "some message", "success")

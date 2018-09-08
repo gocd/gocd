@@ -198,7 +198,7 @@ Rails.application.routes.draw do
       end
     end
   end
-  get "environments(.:format)" => 'environments#index', defaults: {:format => :html}, as: :environments
+  get "admin/environments(.:format)" => 'environments#index', defaults: {:format => :html}, as: :environments
 
   scope :api, as: :apiv1, format: false do
     api_version(:module => 'ApiV1', header: {name: 'Accept', value: 'application/vnd.go.cd.v1+json'}) do

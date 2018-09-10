@@ -302,9 +302,10 @@ $btn-default: #d6d5d5;
 
 .vsm-analytics-panel {
   @include clearfix;
-  padding:  10px;
-  position: relative;
-  display:  none;
+  padding:    10px;
+  position:   relative;
+  display:    none;
+  background: $analytics-selection-panel-bg;
 }
 
 .analytics-close {

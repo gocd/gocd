@@ -49,4 +49,24 @@ class AnalyticsDataTest {
 
         assertThat(analyticsData.getFullViewPath(), is("/assets/root/agents/agents.html"));
     }
+
+    @Test
+    void shouldAllowViewPathWithQueryParametersForNonWindowsOperatingSystem() {
+        String assetRoot = "/assets/root";
+        viewPath = "agents/agents.html?msg=Hello%20World&msg2=AnotherOne";
+        analyticsData = new AnalyticsData("{}", viewPath);
+        analyticsData.setAssetRoot(assetRoot);
+
+        assertThat(analyticsData.getFullViewPath(), is(assetRoot + '/' + viewPath));
+    }
+
+    @Test
+    void shouldAllowViewPathWithQueryParametersForWindowsOperatingSystem() {
+        String assetRoot = "\\assets\\root";
+        viewPath = "agents\\agents.html?msg=Hello%20World&msg2=AnotherOne";
+        analyticsData = new AnalyticsData("{}", viewPath);
+        analyticsData.setAssetRoot(assetRoot);
+
+        assertThat(analyticsData.getFullViewPath(), is("/assets/root/agents/agents.html?msg=Hello%20World&msg2=AnotherOne"));
+    }
 }

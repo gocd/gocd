@@ -47,7 +47,10 @@ public class AnalyticsData {
             return viewPath;
         }
 
-        return URI.create(FilenameUtils.separatorsToUnix(Paths.get( assetRoot, viewPath).toString())).normalize().toString();
+        int positionOfQueryParamStart = viewPath.indexOf('?');
+        String viewPathWithoutQueryParams = positionOfQueryParamStart == -1 ? viewPath : viewPath.substring(0, positionOfQueryParamStart);
+        String queryParams = positionOfQueryParamStart == -1 ? "" : viewPath.substring(positionOfQueryParamStart);
+        return URI.create(FilenameUtils.separatorsToUnix(Paths.get(assetRoot, viewPathWithoutQueryParams).toString()) + queryParams).normalize().toString();
     }
 
     public Map<String, String> toMap() {

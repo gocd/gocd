@@ -89,6 +89,7 @@ function PersonalizationVM(currentView) {
   this.activate = (viewName) => {
     currentView(contains(names(), viewName) ? viewName : "Default");
     tabSettingsDD(false);
+    this.onchange();
   };
 
   this.tabSettingsDropdownVisible = () => tabSettingsDD();

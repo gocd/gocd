@@ -26,20 +26,18 @@ const HeaderPanel = function () {
     let button;
     if (vnode.attrs.button) {
       button = (
-        <f.column size={6}>
+        <div class="page_actions">
           {vnode.attrs.button}
-        </f.column>
+        </div>
       );
     }
     return (
       <div class="header-panel">
         <header class="page-header">
-          <f.row>
-            <f.column size={6}>
-              <h1>{vnode.attrs.title}</h1>
-            </f.column>
+          <div class="page_title">
+             <h1>{vnode.attrs.title}</h1>
+          </div>
             {button}
-          </f.row>
         </header>
       </div>
     );

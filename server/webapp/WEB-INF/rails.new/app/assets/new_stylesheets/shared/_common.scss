@@ -137,11 +137,31 @@ body {
     color:       #333;
     margin:      0;
     padding:     0;
-    font-size:   18px;
+    font-size:   17px;
     line-height: 24px;
-    font-weight: 400;
+    font-weight: 600;
   }
 }
+
+//should remove this after page-header refactoring  and add flex property to the class above.
+
+#plugins-page,
+#artifact_stores-page,
+#elastic_profiles-page,
+#roles-page,
+#auth_configs-page,
+#data_sharing_settings-page,
+#preferences-page
+{
+  .page-header{
+    display:flex;
+    padding:0 30px;
+    justify-content: space-between;
+    align-content:center;
+    align-items: center;
+  }
+}
+
 
 .sub-tab-navigation {
   background:    $tab-header-bg;

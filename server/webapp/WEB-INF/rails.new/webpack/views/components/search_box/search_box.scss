@@ -14,7 +14,10 @@
  * limitations under the License.
  */
 
+@import "../../global/default";
+
 $icon-color: #647984;
+$border-color: #ccc;
 
 .search-box {
   @include icon-before($type: search);

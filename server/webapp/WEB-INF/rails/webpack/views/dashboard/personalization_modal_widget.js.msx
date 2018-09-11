@@ -17,7 +17,7 @@
 const m = require("mithril");
 const _ = require("lodash");
 const f = require("helpers/form_helper");
-const SearchBox = require("views/shared/search_box");
+const SearchBox = require("views/components/search_box/search_box"); //fixme
 
 const FilterNameInput = {
   oncreate(vnode) {

@@ -21,7 +21,7 @@ const ComponentMixins         = require('helpers/mithril_component_mixins');
 const DashboardGroupsWidget   = require('views/dashboard/dashboard_groups_widget');
 const PersonalizedViewsWidget = require('views/dashboard/personalized_views_widget');
 const Dropdown                = require('views/shared/dropdown');
-const SearchBox               = require('views/shared/search_box');
+const SearchBox               = require('views/components/search_box/search_box'); //fixme
 
 const GroupingSwitch = {
   view(vnode) {
@@ -73,7 +73,7 @@ const DashboardWidget = {
         <div class="dashboard" key="dashboard-content">
           <section class="dashboard-modifiers">
             <GroupingSwitch vm={vm}/>
-            <SearchBox class="pipeline-search_dashboard" model={vm} attrName="searchText" placeholder="Search pipelines"/>
+            <SearchBox width="350" class="pipeline-search_dashboard" model={vm} attrName="searchText" placeholder="Search pipelines"/>
           </section>
 
           {messageView}

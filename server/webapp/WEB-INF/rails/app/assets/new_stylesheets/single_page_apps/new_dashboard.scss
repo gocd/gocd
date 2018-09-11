@@ -161,9 +161,10 @@ body {
 }
 
 .grouping_select {
-  margin:  0 0 0 10px;
-  width:   145px;
-  display: inline-block;
+  margin:              0 0 0 10px;
+  width:               170px;
+  display:             inline-block;
+  background-position: calc(100% - 2px) 17px;
 }
 
 .filter {

@@ -22,7 +22,7 @@ describe("pipelines_selector_rails_new", function () {
     beforeEach(function () {
         AjaxRefreshers.clear();
         setFixtures("<div class='under_test'>\n" +
-            "    <input title='Search for Pipeline' placeholder='Search for Pipeline' id='pipeline-search' type='text'/>\n" +
+            "    <input title='Search for Pipeline' placeholder='Search for Pipeline' id='pipeline-search' type='text' autocomplete='off'  autocapitalize='off' spellcheck='false'/>\n" +
             "    <button class='header_submit submit button' id='show_pipelines_selector' type='button' value='Personalize'>\n" +
             "        <span>PERSONALIZE</span>\n" +
             "    </button>\n" +

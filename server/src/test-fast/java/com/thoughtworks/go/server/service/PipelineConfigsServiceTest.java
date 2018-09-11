@@ -21,6 +21,7 @@ import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
 import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
 import com.thoughtworks.go.config.exceptions.PipelineGroupNotFoundException;
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
+import com.thoughtworks.go.config.update.DeletePipelineConfigsCommand;
 import com.thoughtworks.go.config.update.UpdatePipelineConfigsAuthCommand;
 import com.thoughtworks.go.config.validation.GoConfigValidity;
 import com.thoughtworks.go.domain.PipelineGroups;
@@ -349,6 +350,47 @@ public class PipelineConfigsServiceTest {
         doThrow(new RuntimeException("server error")).when(goConfigService).updateConfig(any(), eq(validUser));
 
         service.updateGroupAuthorization(validUser, pipelineConfigs, "md5", entityHashingService, securityService, result);
+
+        assertThat(result.httpCode(), is(HttpStatus.SC_INTERNAL_SERVER_ERROR));
+        assertThat(result.message(), is("Save failed. server error"));
+    }
+
+    @Test
+    public void shouldInvokeDeleteConfigCommand_deleteGroup() {
+        Authorization authorization = new Authorization(new OperationConfig(new AdminUser(validUser.getUsername())));
+        PipelineConfigs pipelineConfigs = new BasicPipelineConfigs("group", authorization);
+
+        service.deleteGroup(validUser, pipelineConfigs, result);
+
+        ArgumentCaptor<EntityConfigUpdateCommand> commandCaptor = ArgumentCaptor.forClass(EntityConfigUpdateCommand.class);
+        verify(goConfigService).updateConfig(commandCaptor.capture(), eq(validUser));
+        DeletePipelineConfigsCommand command = (DeletePipelineConfigsCommand) commandCaptor.getValue();
+
+        assertThat(ReflectionUtil.getField(command, "group"), is(pipelineConfigs));
+        assertThat(ReflectionUtil.getField(command, "result"), is(result));
+        assertThat(ReflectionUtil.getField(command, "currentUser"), is(validUser));
+        assertThat(ReflectionUtil.getField(command, "securityService"), is(securityService));
+    }
+
+    @Test
+    public void shouldReturnUnprocessableEntity_whenConfigInvalid_deleteGroup() {
+        Authorization authorization = new Authorization(new OperationConfig(new AdminUser(validUser.getUsername())));
+        PipelineConfigs pipelineConfigs = new BasicPipelineConfigs("group", authorization);
+        doThrow(new GoConfigInvalidException(null, "error message")).when(goConfigService).updateConfig(any(), eq(validUser));
+
+        service.deleteGroup(validUser, pipelineConfigs, result);
+
+        assertThat(result.httpCode(), is(HttpStatus.SC_UNPROCESSABLE_ENTITY));
+        assertThat(result.message(), is("Validations failed for pipelines 'group'. Error(s): [error message]. Please correct and resubmit."));
+    }
+
+    @Test
+    public void shouldReturnInternalServerError_whenExceptionThrown_deleteGroup() {
+        Authorization authorization = new Authorization(new OperationConfig(new AdminUser(validUser.getUsername())));
+        PipelineConfigs pipelineConfigs = new BasicPipelineConfigs("group", authorization);
+        doThrow(new RuntimeException("server error")).when(goConfigService).updateConfig(any(), eq(validUser));
+
+        service.deleteGroup(validUser, pipelineConfigs, result);
 
         assertThat(result.httpCode(), is(HttpStatus.SC_INTERNAL_SERVER_ERROR));
         assertThat(result.message(), is("Save failed. server error"));

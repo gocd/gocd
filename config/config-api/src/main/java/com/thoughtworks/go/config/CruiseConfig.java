@@ -292,4 +292,6 @@ public interface CruiseConfig extends Validatable, ConfigOriginTraceable {
     void setArtifactStores(ArtifactStores artifactStores);
 
     void encryptSecureProperties(CruiseConfig preprocessed);
+
+    void deletePipelineGroup(String groupName);
 }

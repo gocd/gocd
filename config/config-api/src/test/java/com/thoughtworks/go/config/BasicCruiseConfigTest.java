@@ -17,6 +17,7 @@
 package com.thoughtworks.go.config;
 
 import com.rits.cloning.Cloner;
+import com.thoughtworks.go.config.exceptions.PipelineGroupNotEmptyException;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
 import com.thoughtworks.go.config.preprocessor.ConfigParamPreprocessor;
@@ -399,5 +400,26 @@ public class BasicCruiseConfigTest extends CruiseConfigTestBase {
         when(pluginDescriptor.id()).thenReturn("cd.go.s3");
         ArtifactMetadataStore.instance().setPluginInfo(artifactPluginInfo);
         return config;
+    }
+
+    @Test
+    public void shouldDeletePipelineGroupWithGroupName() {
+        PipelineConfigs group = createGroup("group", new PipelineConfig[] {});
+        CruiseConfig config = createCruiseConfig();
+        config.setGroup(new PipelineGroups(group));
+
+        assertThat(config.getGroups().isEmpty(), is(false));
+        config.deletePipelineGroup("group");
+        assertThat(config.getGroups().isEmpty(), is(true));
+    }
+
+    @Test(expected = PipelineGroupNotEmptyException.class)
+    public void shouldNotDeletePipelineGroupIfNotEmpty() {
+        PipelineConfigs group = createGroup("group", createPipelineConfig("pipeline", "stage"));
+        CruiseConfig config = createCruiseConfig();
+        config.setGroup(new PipelineGroups(group));
+
+        assertThat(config.getGroups().isEmpty(), is(false));
+        config.deletePipelineGroup("group");
     }
 }

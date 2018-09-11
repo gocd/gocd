@@ -75,6 +75,7 @@ public class PipelineGroupsControllerV1Delegate extends ApiController implements
 
       get(Routes.PipelineGroupsAdmin.NAME_PATH, mimeType, this::show);
       put(Routes.PipelineGroupsAdmin.NAME_PATH, mimeType, this::update);
+      delete(Routes.PipelineGroupsAdmin.NAME_PATH, mimeType, this::destroy);
 
       exception(RecordNotFoundException.class, this::notFound);
     });
@@ -97,7 +98,6 @@ public class PipelineGroupsControllerV1Delegate extends ApiController implements
       return writerForTopLevelObject(req, res, writer -> PipelineGroupsRepresenter.toJSON(writer, pipelineGroups));
     }
   }
-
 
   public String show(Request req, Response res) throws IOException {
     PipelineConfigs pipelineConfigs = getEntityFromConfig(req.params("group_name"));
@@ -124,6 +124,15 @@ public class PipelineGroupsControllerV1Delegate extends ApiController implements
     HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
     PipelineConfigs updatedPipelineConfigs = pipelineConfigsService.updateGroupAuthorization(SessionUtils.currentUsername(), pipelineConfigsFromReq, etagFor(pipelineConfigsFromServer), entityHashingService, securityService, result);
     return handleCreateOrUpdateResponse(req, res, updatedPipelineConfigs, result);
+  }
+
+  public String destroy(Request req, Response res) throws IOException {
+    PipelineConfigs pipelineConfigs = getEntityFromConfig(req.params("group_name"));
+
+    HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+    pipelineConfigsService.deleteGroup(SessionUtils.currentUsername(), pipelineConfigs, result);
+
+    return renderHTTPOperationResult(result, req, res);
   }
 
   @Override

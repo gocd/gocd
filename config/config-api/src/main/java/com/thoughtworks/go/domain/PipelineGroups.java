@@ -19,6 +19,7 @@ package com.thoughtworks.go.domain;
 import java.util.*;
 
 import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.exceptions.PipelineGroupNotEmptyException;
 import com.thoughtworks.go.config.exceptions.PipelineGroupNotFoundException;
 import com.thoughtworks.go.config.materials.PackageMaterialConfig;
 import com.thoughtworks.go.config.materials.PluggableSCMMaterialConfig;
@@ -259,5 +260,18 @@ public class PipelineGroups extends BaseCollection<PipelineConfigs> implements V
                 locals.add(local);
         }
         return locals;
+    }
+
+    public void deleteGroup(String groupName) {
+        Iterator<PipelineConfigs> iterator = this.iterator();
+        while (iterator.hasNext()) {
+            PipelineConfigs currentGroup = iterator.next();
+            if (currentGroup.isNamed(groupName)) {
+                if (!currentGroup.isEmpty())
+                    throw new PipelineGroupNotEmptyException("Failed to delete group [" + groupName + "] not empty");
+                iterator.remove();
+                break;
+            }
+        }
     }
 }

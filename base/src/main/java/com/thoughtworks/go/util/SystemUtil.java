@@ -179,7 +179,11 @@ public class SystemUtil {
     public static String getClientIp(String serviceUrl) {
         try {
             URL url = new URL(serviceUrl);
-            try (Socket socket = new Socket(url.getHost(), url.getPort())) {
+            int port = url.getPort();
+            if (port == -1) {
+                port = url.getDefaultPort();
+            }
+            try (Socket socket = new Socket(url.getHost(), port)) {
                 return socket.getLocalAddress().getHostAddress();
             }
         } catch (Exception e) {

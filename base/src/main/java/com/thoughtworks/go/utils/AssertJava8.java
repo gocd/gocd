@@ -17,20 +17,18 @@
 package com.thoughtworks.go.utils;
 
 
-import org.apache.commons.lang3.JavaVersion;
-
 import java.util.Arrays;
 import java.util.TreeSet;
 
 public class AssertJava8 {
     private static TreeSet<JavaVersion> SUPPORTED_VERSIONS = new TreeSet<>(Arrays.asList(
-            JavaVersion.JAVA_1_8,
-            JavaVersion.JAVA_9,
-            JavaVersion.JAVA_10
+            JavaVersion.VERSION_1_8,
+            JavaVersion.VERSION_1_9,
+            JavaVersion.VERSION_1_10
     ));
 
     public static void assertVMVersion() {
-        checkSupported(JavaVersion.JAVA_RECENT);
+        checkSupported(JavaVersion.current());
     }
 
     private static void checkSupported(JavaVersion currentJavaVersion) {

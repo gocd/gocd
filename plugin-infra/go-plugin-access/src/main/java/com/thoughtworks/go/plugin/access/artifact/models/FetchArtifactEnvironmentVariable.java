@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.plugin.access.artifact.models;
 
+import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
@@ -30,6 +31,25 @@ public class FetchArtifactEnvironmentVariable {
         this.name = name;
         this.value = value;
         this.secure = secure;
+    }
+
+    public String name() {
+        return name;
+    }
+
+    public String value() {
+        return value;
+    }
+
+    public boolean isSecure() {
+        return secure;
+    }
+
+    public String displayValue() {
+        if (isSecure()) {
+            return EnvironmentVariableContext.EnvironmentVariable.MASK_VALUE;
+        }
+        return value();
     }
 
     @Override

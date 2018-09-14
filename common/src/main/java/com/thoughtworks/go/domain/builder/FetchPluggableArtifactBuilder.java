@@ -22,6 +22,7 @@ import com.thoughtworks.go.config.ArtifactStore;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.config.Configuration;
 import com.thoughtworks.go.plugin.access.artifact.ArtifactExtension;
+import com.thoughtworks.go.plugin.access.artifact.models.FetchArtifactEnvironmentVariable;
 import com.thoughtworks.go.plugin.access.pluggabletask.TaskExtension;
 import com.thoughtworks.go.plugin.infra.PluginRequestProcessorRegistry;
 import com.thoughtworks.go.remote.work.artifact.ArtifactRequestProcessor;
@@ -36,6 +37,7 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.Map;
 
 import static com.thoughtworks.go.remote.work.artifact.ArtifactRequestProcessor.Request.CONSOLE_LOG;
@@ -74,13 +76,31 @@ public class FetchPluggableArtifactBuilder extends Builder {
             LOGGER.info(message);
             publisher.taggedConsumeLine(TaggedStreamConsumer.OUT, message);
 
-            artifactExtension.fetchArtifact(artifactStore.getPluginId(), artifactStore, configuration, getMetadataFromFile(artifactId), agentWorkingDirectory());
+            List<FetchArtifactEnvironmentVariable> newEnvironmentVariables = artifactExtension.fetchArtifact(
+                    artifactStore.getPluginId(), artifactStore, configuration, getMetadataFromFile(artifactId), agentWorkingDirectory());
+
+            updateEnvironmentVariableContextWith(publisher, environmentVariableContext, newEnvironmentVariables);
+
         } catch (Exception e) {
             publisher.taggedConsumeLine(TaggedStreamConsumer.ERR, e.getMessage());
             LOGGER.error(e.getMessage(), e);
             throw new RuntimeException(e);
         } finally {
             pluginRequestProcessorRegistry.removeProcessorFor(CONSOLE_LOG.requestName());
+        }
+    }
+
+    private void updateEnvironmentVariableContextWith(DefaultGoPublisher publisher, EnvironmentVariableContext environmentVariableContext, List<FetchArtifactEnvironmentVariable> newEnvironmentVariables) {
+        for (FetchArtifactEnvironmentVariable variable : newEnvironmentVariables) {
+            String name = variable.name();
+
+            String message = format(" NOTE: Setting new environment variable: %s = %s", name, variable.displayValue());
+            if (environmentVariableContext.hasProperty(name)) {
+                message = format("WARNING: Replacing environment variable: %s = %s (previously: %s)", name, variable.displayValue(), environmentVariableContext.getPropertyForDisplay(name));
+            }
+
+            publisher.taggedConsumeLine(TaggedStreamConsumer.OUT, message);
+            environmentVariableContext.setProperty(name, variable.value(), variable.isSecure());
         }
     }
 

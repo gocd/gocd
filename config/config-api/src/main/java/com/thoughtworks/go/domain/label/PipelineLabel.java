@@ -26,11 +26,17 @@ import java.util.regex.Pattern;
 
 public class PipelineLabel implements Serializable {
     protected String label;
+    private Map<CaseInsensitiveString, String> envVars;
     public static final String COUNT = "COUNT";
     public static final String COUNT_TEMPLATE = String.format("${%s}", COUNT);
 
     public PipelineLabel(String labelTemplate) {
         this.label = labelTemplate;
+    }
+
+    public PipelineLabel(String labelTemplate, Map<CaseInsensitiveString, String> envVars) {
+        this.label = labelTemplate;
+        this.envVars = envVars;
     }
 
     public void setLabel(String label) {
@@ -41,7 +47,7 @@ public class PipelineLabel implements Serializable {
         return label;
     }
 
-    public static final Pattern PATTERN = Pattern.compile("(?i)\\$\\{([a-zA-Z0-9_\\-\\.!~'#:]+)(\\[:(\\d+)\\])?\\}");
+    public static final Pattern PATTERN = Pattern.compile("(?i)\\$\\{([$]*[a-zA-Z0-9_\\-\\.!~'#:]+)(\\[:(\\d+)\\])?\\}");
 
     private String replaceRevisionsInLabel(Map<CaseInsensitiveString, String> materialRevisions) {
         final Matcher matcher = PATTERN.matcher(this.label);
@@ -56,13 +62,21 @@ public class PipelineLabel implements Serializable {
 
     private String lookupMaterialRevision(Matcher matcher,  Map<CaseInsensitiveString, String> materialRevisions) {
         final CaseInsensitiveString material = new CaseInsensitiveString(matcher.group(1));
+        String revision;
+        if (material.toString().startsWith("$")) {
+            if (envVars == null) {
+                return "\\" + matcher.group(0);
+            }
+            revision = envVars.getOrDefault(new CaseInsensitiveString(material.toString().substring(1)), "");
+        } else {
+            if (!materialRevisions.containsKey(material)) {
+                //throw new IllegalStateException("cannot find material '" + material + "'");
+                return "\\" + matcher.group(0);
+            }
 
-        if (!materialRevisions.containsKey(material)) {
-            //throw new IllegalStateException("cannot find material '" + material + "'");
-            return "\\" + matcher.group(0);
+            revision = materialRevisions.get(material);
         }
 
-        String revision = materialRevisions.get(material);
         final String truncationLengthLiteral = matcher.group(3);
         if (truncationLengthLiteral != null) {
             int truncationLength = Integer.parseInt(truncationLengthLiteral);
@@ -101,10 +115,14 @@ public class PipelineLabel implements Serializable {
     }
 
     public static PipelineLabel create(String labelTemplate) {
+        return create(labelTemplate, null);
+    }
+
+    public static PipelineLabel create(String labelTemplate, Map<CaseInsensitiveString, String> envVars) {
         if (StringUtils.isBlank(labelTemplate)) {
             return defaultLabel();
         } else {
-            return new PipelineLabel(labelTemplate);
+            return new PipelineLabel(labelTemplate, envVars);
         }
     }
 

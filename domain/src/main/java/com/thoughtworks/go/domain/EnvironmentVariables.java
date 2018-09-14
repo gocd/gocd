@@ -16,11 +16,14 @@
 
 package com.thoughtworks.go.domain;
 
+import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.EnvironmentVariableConfig;
 import com.thoughtworks.go.config.EnvironmentVariablesConfig;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class EnvironmentVariables extends BaseCollection<EnvironmentVariable> {
 
@@ -47,6 +50,16 @@ public class EnvironmentVariables extends BaseCollection<EnvironmentVariable> {
         for (EnvironmentVariable variable : this) {
             variable.addToIfExists(variableContext);
         }
+    }
+
+    public Map<CaseInsensitiveString, String> insecureVariablesHash() {
+        Map<CaseInsensitiveString, String> insecureEnvVars = new HashMap<>();
+        for (EnvironmentVariable variable : this) {
+            if (!variable.isSecure()) {
+               insecureEnvVars.put(new CaseInsensitiveString(variable.getName()), variable.getValue());
+            }
+        }
+       return insecureEnvVars;
     }
 
     public void add(String name, String value) {

@@ -49,8 +49,15 @@ public class Pipeline extends PersistentObject implements PipelineInfo {
     public Pipeline(String pipelineName, String labelTemplate, BuildCause buildCause, Stage... stages) {
         this(new Stages(stages));
         this.pipelineName = pipelineName;
-        this.pipelineLabel = PipelineLabel.create(labelTemplate);
         this.buildCause = buildCause;
+        this.pipelineLabel = PipelineLabel.create(labelTemplate, buildCause.getVariables().insecureVariablesHash());
+    }
+
+    public Pipeline(String pipelineName, String labelTemplate, BuildCause buildCause, EnvironmentVariables envVars, Stage... stages) {
+        this(new Stages(stages));
+        this.pipelineName = pipelineName;
+        this.buildCause = buildCause;
+        this.pipelineLabel = PipelineLabel.create(labelTemplate, envVars.insecureVariablesHash());
     }
 
     public Pipeline(String pipelineName, BuildCause buildCause, Stage... stages) {

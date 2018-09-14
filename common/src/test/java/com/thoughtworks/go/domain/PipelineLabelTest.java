@@ -68,10 +68,12 @@ public class PipelineLabelTest {
 
     @Test
     public void shouldReplaceTheTemplateCaseInsensitively() throws Exception {
-        PipelineLabel label = PipelineLabel.create("release-${SVNMaterial}");
+        Map<CaseInsensitiveString, String> envVars = new HashMap<>();
+        envVars.put(new CaseInsensitiveString("VAR"), "var_value");
+        PipelineLabel label = PipelineLabel.create("release-${SVNMaterial}-${$Var}", envVars);
         MaterialRevisions materialRevisions = ModificationsMother.oneUserOneFile();
         label.updateLabel(materialRevisions.getNamedRevisions());
-        assertThat(label.toString(), is("release-" + ModificationsMother.currentRevision()));
+        assertThat(label.toString(), is("release-" + ModificationsMother.currentRevision() + "-var_value"));
     }
 
     @Test
@@ -260,6 +262,25 @@ public class PipelineLabelTest {
         ensureLabelIsNOTReplaced("SVN_Material{With}Braces");
         ensureLabelIsNOTReplaced("SVN**Material");
         ensureLabelIsNOTReplaced("SVN\\Material_With_Backslash");
+    }
+
+    @Test
+    public void shouldReplaceTheTemplateWithEnvironmentVariable() throws Exception {
+        Map<CaseInsensitiveString, String> envVars = new HashMap<>();
+        envVars.put(new CaseInsensitiveString("VAR"), "var_value");
+        PipelineLabel label = PipelineLabel.create("release-${$VAR}", envVars);
+        label.updateLabel(null);
+        assertThat(label.toString(), is("release-var_value"));
+    }
+
+    @Test
+    public void shouldReplaceTheTemplateWithMultipleEnvironmentVariable() throws Exception {
+        Map<CaseInsensitiveString, String> envVars = new HashMap<>();
+        envVars.put(new CaseInsensitiveString("VAR1"), "1");
+        envVars.put(new CaseInsensitiveString("VAR2"), "2");
+        PipelineLabel label = PipelineLabel.create("release-${$VAR1}, ${$VAR2}", envVars);
+        label.updateLabel(null);
+        assertThat(label.toString(), is("release-1, 2"));
     }
 
     @BeforeClass

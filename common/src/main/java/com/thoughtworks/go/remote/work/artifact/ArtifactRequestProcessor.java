@@ -16,6 +16,8 @@
 
 package com.thoughtworks.go.remote.work.artifact;
 
+import com.thoughtworks.go.plugin.access.artifact.ArtifactExtension;
+import com.thoughtworks.go.plugin.access.artifact.ArtifactExtensionConstants;
 import com.thoughtworks.go.plugin.api.request.GoApiRequest;
 import com.thoughtworks.go.plugin.api.response.DefaultGoApiResponse;
 import com.thoughtworks.go.plugin.api.response.GoApiResponse;
@@ -34,7 +36,7 @@ import static java.lang.String.format;
 import static java.util.Arrays.asList;
 
 public class ArtifactRequestProcessor implements GoPluginApiRequestProcessor {
-    private static final List<String> goSupportedVersions = asList("1.0");
+    private static final List<String> goSupportedVersions = ArtifactExtensionConstants.SUPPORTED_VERSIONS;
     private final SafeOutputStreamConsumer safeOutputStreamConsumer;
     private final ProcessType processType;
 

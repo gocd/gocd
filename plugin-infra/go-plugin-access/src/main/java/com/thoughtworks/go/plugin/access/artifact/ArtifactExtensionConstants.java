@@ -20,7 +20,9 @@ import java.util.Arrays;
 import java.util.List;
 
 public interface ArtifactExtensionConstants {
-    List<String> SUPPORTED_VERSIONS = Arrays.asList(ArtifactMessageConverterV1.VERSION);
+    String V1 = "1.0";
+    String V2 = "2.0";
+    List<String> SUPPORTED_VERSIONS = Arrays.asList(V1, V2);
 
     String REQUEST_PREFIX = "cd.go.artifact";
     String REQUEST_GET_CAPABILITIES = REQUEST_PREFIX + ".get-capabilities";

@@ -16,6 +16,8 @@
 
 description = 'APIs to allow GoCD to communicate with GoCD Plugins'
 
+apply plugin: 'groovy'
+
 dependencies {
   compile project(':plugin-infra:go-plugin-infra')
   compile project(':domain')
@@ -25,6 +27,7 @@ dependencies {
 
   compileOnly(group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: project.versions.bouncyCastle)
 
+  testCompile localGroovy()
   testCompile group: 'net.javacrumbs.json-unit', name: 'json-unit-fluent', version: project.versions.jsonUnit
   testCompile project(':test:test-utils')
   testCompile project(path: ':domain', configuration: 'testOutput')

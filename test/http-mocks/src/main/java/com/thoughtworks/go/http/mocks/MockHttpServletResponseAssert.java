@@ -23,9 +23,9 @@ import org.apache.commons.lang3.builder.ToStringStyle;
 import org.assertj.core.api.AbstractObjectAssert;
 import org.assertj.core.internal.Failures;
 import org.assertj.core.util.Objects;
+import org.springframework.util.InvalidMimeTypeException;
+import org.springframework.util.MimeType;
 
-import javax.activation.MimeType;
-import javax.activation.MimeTypeParseException;
 import javax.servlet.http.Cookie;
 import java.io.UnsupportedEncodingException;
 
@@ -51,10 +51,10 @@ public class MockHttpServletResponseAssert<SELF extends MockHttpServletResponseA
     public SELF hasContentType(String mimeType) {
         String contentType = actual.getHeader("content-type");
         try {
-            if (!(isNotBlank(contentType) && new MimeType(contentType).match(mimeType))) {
+            if (!(isNotBlank(contentType) && MimeType.valueOf(contentType).isCompatibleWith(MimeType.valueOf(mimeType)))) {
                 failWithMessage("Expected content type <%s> but was <%s>", mimeType, contentType);
             }
-        } catch (MimeTypeParseException e) {
+        } catch (InvalidMimeTypeException e) {
             failWithMessage("Actual content type <%s> could not be parsed", contentType);
         }
         return myself;

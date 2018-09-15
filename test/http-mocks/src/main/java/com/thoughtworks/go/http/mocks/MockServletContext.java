@@ -31,7 +31,6 @@ import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.util.WebUtils;
 
-import javax.activation.FileTypeMap;
 import javax.servlet.*;
 import javax.servlet.descriptor.JspConfigDescriptor;
 import java.io.File;
@@ -39,6 +38,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.*;
 
 /**
@@ -254,7 +255,11 @@ public class MockServletContext implements ServletContext {
 			return this.mimeTypes.get(extension).toString();
 		}
 		else {
-			return FileTypeMap.getDefaultFileTypeMap().getContentType(filePath);
+			try {
+				return Optional.of(Files.probeContentType(Paths.get(filePath))).orElse("application/octet-stream");
+			} catch (IOException e) {
+				return "application/octet-stream";
+			}
 		}
 	}
 

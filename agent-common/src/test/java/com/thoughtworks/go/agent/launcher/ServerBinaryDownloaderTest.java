@@ -21,6 +21,7 @@ import com.thoughtworks.go.agent.common.util.Downloader;
 import com.thoughtworks.go.agent.testhelper.FakeGoServer;
 import com.thoughtworks.go.mothers.ServerUrlGeneratorMother;
 import com.thoughtworks.go.util.SslVerificationMode;
+import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.output.NullOutputStream;
@@ -32,7 +33,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-import javax.xml.bind.DatatypeConverter;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -70,7 +70,7 @@ public class ServerBinaryDownloaderTest {
             try (DigestInputStream digest = new DigestInputStream(stream, digester)) {
                 IOUtils.copy(digest, new NullOutputStream());
             }
-            assertThat(downloader.getMd5(), is(DatatypeConverter.printHexBinary(digester.digest()).toLowerCase()));
+            assertThat(downloader.getMd5(), is(Hex.encodeHexString(digester.digest()).toLowerCase()));
         }
         assertThat(downloader.getSslPort(), is(String.valueOf(server.getSecurePort())));
     }

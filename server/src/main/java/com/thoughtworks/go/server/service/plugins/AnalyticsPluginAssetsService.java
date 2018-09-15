@@ -22,6 +22,7 @@ import com.thoughtworks.go.plugin.access.analytics.AnalyticsMetadataStore;
 import com.thoughtworks.go.plugin.access.common.PluginMetadataChangeListener;
 import com.thoughtworks.go.util.ExceptionUtils;
 import com.thoughtworks.go.util.ZipUtil;
+import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -32,7 +33,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.context.ServletContextAware;
 
 import javax.servlet.ServletContext;
-import javax.xml.bind.DatatypeConverter;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.nio.file.Files;
@@ -145,7 +145,7 @@ public class AnalyticsPluginAssetsService implements ServletContextAware, Plugin
                 md.update(data);
             }
 
-            return DatatypeConverter.printHexBinary(md.digest());
+            return Hex.encodeHexString(md.digest());
         } catch (Exception e) {
             LOGGER.error("Error generating {} hash", HASH_ALGORITHM, e);
             ExceptionUtils.bomb(e);

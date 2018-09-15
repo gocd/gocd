@@ -20,9 +20,9 @@ import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.PipelineConfigs;
 import com.thoughtworks.go.domain.PersistentObject;
+import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
-import javax.xml.bind.DatatypeConverter;
 import java.io.Serializable;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -161,6 +161,6 @@ public class PipelineSelections extends PersistentObject implements Serializable
         }
 
         md.update(bytes);
-        return DatatypeConverter.printHexBinary(md.digest());
+        return Hex.encodeHexString(md.digest());
     }
 }

@@ -157,11 +157,8 @@ rootProject.ext.fullVersion = DIST_VERSION ? "${GO_VERSION}-${DIST_VERSION}" : G
 rootProject.ext.gitRevision = GIT_REVISION
 rootProject.ext.copyrightYear = COPYRIGHT_YEAR
 rootProject.ext.commandRepoUrl = System.getenv('COMMAND_REPO_URL') ? System.getenv('COMMAND_REPO_URL') : "git://github.com/gocd/go-command-repo"
-project.ext.defaultJvmArgs = JavaVersion.current().isJava9Compatible() ? [
-  '--add-modules=java.se,java.xml.bind,java.xml.ws.annotation',
-  // '--illegal-access=warn',
-  // '--show-module-resolution'
-  ] : []
+
+project.ext.defaultJvmArgs = []
 
 rootProject.ext.versions = [
   apacheHttpComponents: '4.5.5',
@@ -185,6 +182,7 @@ rootProject.ext.versions = [
   h2db                : '1.3.168',
   hamcrest            : '1.3',
   hibernate           : '3.6.10.Final',
+  javaxAnnotation     : '1.3.2',
   javaAssist          : '3.12.1.GA',
   jcommander          : '1.72',
   jdom                : '2.0.6',

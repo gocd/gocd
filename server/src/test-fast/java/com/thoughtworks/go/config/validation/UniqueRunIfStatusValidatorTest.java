@@ -28,6 +28,7 @@ import org.junit.Test;
 import java.io.ByteArrayInputStream;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.hamcrest.Matchers.anyOf;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.nullValue;
@@ -43,8 +44,11 @@ public class UniqueRunIfStatusValidatorTest {
             new MagicalGoConfigXmlLoader(new ConfigCache(), ConfigElementImplementationRegistryMother.withNoPlugins()).loadConfigHolder(IOUtils.toString(inputStream, UTF_8));
             fail();
         } catch (Exception e) {
-            assertThat(e.getMessage(),
-                    is("Duplicate unique value [passed] declared for identity constraint of element \"exec\"."));
+            assertThat(e.getMessage(), anyOf(
+                    is("Duplicate unique value [passed] declared for identity constraint of element \"exec\"."),
+                    is("Duplicate unique value [passed] declared for identity constraint \"uniqueRunIfTypeForExec\" of element \"exec\".")
+                    )
+            );
         }
     }
 

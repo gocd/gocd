@@ -100,6 +100,12 @@
     </rule>
 
     <rule>
+        <name>Config Repos SPA</name>
+        <from>^/admin/config_repos(/?)$</from>
+        <to last="true">/spark/admin/config_repos</to>
+    </rule>
+
+    <rule>
         <name>Agents SPA</name>
         <from>^/agents(/?)$</from>
         <to last="true">/spark/agents</to>

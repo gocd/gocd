@@ -56,6 +56,7 @@ public class SpaControllers implements SparkSpringController {
         sparkControllers.add(new ArtifactStoresDelegate(authenticationHelper, templateEngineFactory.create(ArtifactStoresDelegate.class, "layouts/single_page_app.vm")));
         sparkControllers.add(new AnalyticsDelegate(authenticationHelper, templateEngineFactory.create(AnalyticsDelegate.class, "layouts/single_page_app.vm"), systemEnvironment, analyticsExtension, pipelineConfigService));
         sparkControllers.add(new DataSharingSettingsDelegate(authenticationHelper, templateEngineFactory.create(DataSharingSettingsDelegate.class, "layouts/single_page_app.vm")));
+        sparkControllers.add(new ConfigReposDelegate(authenticationHelper, templateEngineFactory.create(ConfigReposDelegate.class, "layouts/single_page_app.vm")));
     }
 
     @Override

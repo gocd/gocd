@@ -29,6 +29,11 @@
   top:             0;
   left:            0;
   z-index:         map_get($zindex, 'page-header');
+
+  a {
+    text-decoration: none;
+    color:           $header-fg;
+  }
 }
 
 .leftside {

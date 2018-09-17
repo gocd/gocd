@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-const $ = require('jquery');
-const m = require('mithril');
+const $      = require('jquery');
+const m      = require('mithril');
+const styles = require('./app_footer.scss');
 
 class AppFooter {
   view() {
@@ -25,32 +26,28 @@ class AppFooter {
     const fullVersion      = body.attr('data-version-full');
     const formattedVersion = body.attr('data-version-formatted');
 
-    return <footer className="app-footer">
-      <div className="row expanded">
-        <div className="small-12 medium-6 large-8 columns">
-          <p className="copyright">Copyright &copy; {copyrightYear}&nbsp;
-            <a href="https://www.thoughtworks.com/products" target="_blank">ThoughtWorks, Inc.</a>
-            &nbsp;Licensed under&nbsp;
-            <a href="https://www.apache.org/licenses/LICENSE-2.0" target="_blank">Apache License, Version 2.0</a>.<br/>
-            Go includes <a href={`/go/assets/dependency-license-report-${fullVersion}`} target="_blank">third-party
-              software</a>.
-            Go Version: {formattedVersion}.
-          </p>
-
-        </div>
-        <div className="small-12 medium-6 large-4 columns">
-      <span className="inline-list social">
-        <a href="https://twitter.com/goforcd" title="twitter" className="twitter" target="_blank"/>
-        <a href="https://github.com/gocd/gocd" title="github" className="github" target="_blank"/>
-        <a href="https://groups.google.com/d/forum/go-cd" title="forums" className="forums" target="_blank"/>
-        <a href={`https://docs.gocd.org/${goVersion}`} title="documentation" className="documentation"
-           target="_blank"/>
-        <a href="https://www.gocd.org/plugins/" title="plugins" className="plugins" target="_blank"/>
-        <a href={`https://api.gocd.org/${goVersion}`} title="api" className="api" target="_blank"/>
-        <a href="/go/about" title="about" className="server-details" target="_blank"/>
-        <a href="/go/cctray.xml" title="cctray" className="cctray" target="_blank"/>
-      </span>
-        </div>
+    return <footer className={styles['app-footer']}>
+      <div class={styles.leftside}>
+        <p>Copyright &copy; {copyrightYear}&nbsp;
+          <a class={styles.link} href="https://www.thoughtworks.com/products" target="_blank">ThoughtWorks, Inc.</a>
+          &nbsp;Licensed under&nbsp;
+          <a class={styles.link} href="https://www.apache.org/licenses/LICENSE-2.0" target="_blank">Apache License, Version 2.0</a>.<br/>
+          Go includes <a class={styles.link} href={`/go/assets/dependency-license-report-${fullVersion}`} target="_blank">third-party
+            software</a>.
+          Go Version: {formattedVersion}.
+        </p>
+      </div>
+      <div class={styles.rightside}>
+        <span class={`${styles['inline-list']} ${styles['social']}`}>
+          <a href="https://twitter.com/goforcd" title="twitter" class={styles.twitter} target="_blank"/>
+          <a href="https://github.com/gocd/gocd" title="github" class={styles.github} target="_blank"/>
+          <a href="https://groups.google.com/d/forum/go-cd" title="forums" class={styles.forums} target="_blank"/>
+          <a href={`https://docs.gocd.org/${goVersion}`} title="documentation" class={styles.documentation} target="_blank"/>
+          <a href="https://www.gocd.org/plugins/" title="plugins" class={styles.plugins} target="_blank"/>
+          <a href={`https://api.gocd.org/${goVersion}`} title="api" class={styles.api} target="_blank"/>
+          <a href="/go/about" title="about" class={styles['server-details']} target="_blank"/>
+          <a href="/go/cctray.xml" title="cctray" class={styles.cctray} target="_blank"/>
+        </span>
       </div>
     </footer>;
   }

@@ -118,18 +118,15 @@ public class AnalyticsDelegate implements SparkController {
     }
 
     private void checkPermissions(Request request, Response response) {
+        if (isAnalyticsEnabledOnlyForAdmins()) {
+            authenticationHelper.checkAdminUserAnd403(request, response);
+            return;
+        }
+
         if (isPipelineRequest(request)) {
-            if (adminsOnly()) {
-                authenticationHelper.checkAdminUserAnd403(request, response);
-            } else {
-                authenticationHelper.checkPipelineViewPermissionsAnd403(request, response);
-            }
-        } else if (isAgentRequest(request)) {
-            if (adminsOnly()) {
-                authenticationHelper.checkAdminUserAnd403(request, response);
-            } else {
-                authenticationHelper.checkUserAnd403(request, response);
-            }
+            authenticationHelper.checkPipelineViewPermissionsAnd403(request, response);
+        } else if (isAgentRequest(request) || isVSMRequest(request)) {
+            authenticationHelper.checkUserAnd403(request, response);
         } else {
             authenticationHelper.checkAdminUserAnd403(request, response);
         }
@@ -143,7 +140,11 @@ public class AnalyticsDelegate implements SparkController {
         return "agent".equals(request.params(":type"));
     }
 
-    private boolean adminsOnly() {
+    private boolean isVSMRequest(Request request) {
+        return "vsm".equalsIgnoreCase(request.params(":type"));
+    }
+
+    private boolean isAnalyticsEnabledOnlyForAdmins() {
         return systemEnvironment.enableAnalyticsOnlyForAdmins();
     }
 

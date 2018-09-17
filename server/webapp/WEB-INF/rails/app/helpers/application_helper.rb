@@ -518,7 +518,8 @@ module ApplicationHelper
   end
 
   def supports_vsm_analytics?
-    return false unless is_user_an_admin?
+    return false if show_analytics_only_for_admins? && !is_user_an_admin?
+
     !default_plugin_info_finder.allPluginInfos(PluginConstants.ANALYTICS_EXTENSION).detect do |combined_plugin_info|
       combined_plugin_info.extensionFor(PluginConstants.ANALYTICS_EXTENSION).getCapabilities().supportsVSMAnalytics()
     end.nil?

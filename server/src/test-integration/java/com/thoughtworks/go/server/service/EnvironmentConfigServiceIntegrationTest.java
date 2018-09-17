@@ -38,6 +38,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import static org.hamcrest.Matchers.anyOf;
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.Matchers.sameInstance;
 import static org.hamcrest.core.Is.is;
@@ -210,7 +211,10 @@ public class EnvironmentConfigServiceIntegrationTest {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         String md5 = entityHashingService.md5ForEntity(service.getEnvironmentConfig("bar-env"));
         service.updateEnvironment("bar-env", env("foo-env", new ArrayList<String>(), new ArrayList<Map<String, String>>(), new ArrayList<String>()), new Username(new CaseInsensitiveString("any")), md5, result);
-        assertThat(result.message(), is("Failed to update environment 'bar-env'. failed to save : Duplicate unique value [foo-env] declared for identity constraint of element \"environments\"."));
+        assertThat(result.message(), anyOf(
+                is("Failed to update environment 'bar-env'. failed to save : Duplicate unique value [foo-env] declared for identity constraint of element \"environments\"."),
+                is("Failed to update environment 'bar-env'. failed to save : Duplicate unique value [foo-env] declared for identity constraint \"uniqueEnvironmentName\" of element \"environments\".")
+        ));
     }
 
     @Test

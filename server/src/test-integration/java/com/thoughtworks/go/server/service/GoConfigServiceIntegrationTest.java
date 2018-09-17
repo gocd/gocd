@@ -62,6 +62,7 @@ import static com.thoughtworks.go.i18n.LocalizedMessage.forbiddenToEditGroup;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Arrays.asList;
 import static javax.servlet.http.HttpServletResponse.SC_CONFLICT;
+import static org.hamcrest.CoreMatchers.anyOf;
 import static org.hamcrest.CoreMatchers.startsWith;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.sameInstance;
@@ -748,7 +749,10 @@ public class GoConfigServiceIntegrationTest {
         assertThat(config.getMd5(), is(md5BeforeAddingGroupAtBeginning));
         assertThat(result.isSuccessful(), is(false));
         assertThat(result.httpCode(), is(SC_CONFLICT));
-        assertThat(result.message(), is("Save failed. Duplicate unique value [first_group] declared for identity constraint of element \"cruise\"."));
+        assertThat(result.message(), anyOf(
+                is("Save failed. Duplicate unique value [first_group] declared for identity constraint of element \"cruise\"."),
+                is("Save failed. Duplicate unique value [first_group] declared for identity constraint \"uniquePipelines\" of element \"cruise\".")
+        ));
     }
 
     @Test

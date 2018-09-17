@@ -33,9 +33,10 @@ class Java9CompatibleCurrentProcess implements CurrentProcess {
             Stream<Object> processHandles = (Stream<Object>) MethodUtils.invokeMethod(currentProcess(), "descendants");
             processHandles.forEach(processHandle -> {
                 ProcessHandleReflectionDelegate ph = new ProcessHandleReflectionDelegate(processHandle);
-                LOG.debug("Attempting to destroy {}", ph);
-                if (!ph.isAlive()) {
+                LOG.debug("Attempting to destroy process {}", ph);
+                if (ph.isAlive()) {
                     ph.destroy();
+                    LOG.debug("Destroyed process {}", ph);
                 }
             });
         } catch (Exception e) {
@@ -78,7 +79,7 @@ class Java9CompatibleCurrentProcess implements CurrentProcess {
     }
 
     // needed because ProcessHandle class is unavailable on java 8, so we hack around!
-    private class ProcessHandleReflectionDelegate {
+    class ProcessHandleReflectionDelegate {
         final Object delegate;
 
         ProcessHandleReflectionDelegate(Object delegate) {
@@ -105,7 +106,7 @@ class Java9CompatibleCurrentProcess implements CurrentProcess {
         @Override
         public String toString() {
             try {
-                return this.delegate + "[" + invokeMethod(this.delegate, "info") + "]";
+                return "pid(" + this.delegate + ") " + invokeMethod(this.delegate, "info");
             } catch (Exception e) {
                 LOG.warn("Ignoring error", e);
             }

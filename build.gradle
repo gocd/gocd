@@ -16,6 +16,7 @@
 
 
 
+
 import com.github.jk1.license.ReportTask
 import com.github.jk1.license.filter.LicenseBundleNormalizer
 import com.github.jk1.license.render.JsonReportRenderer
@@ -23,8 +24,6 @@ import groovy.io.FileType
 import nl.javadude.gradle.plugins.license.License
 
 import java.security.SecureRandom
-import java.util.regex.Matcher
-import java.util.regex.Pattern
 
 buildscript {
   repositories {
@@ -41,7 +40,6 @@ buildscript {
   }
 }
 
-apply plugin: 'jacoco'
 apply plugin: 'base'
 apply plugin: "com.github.hierynomus.license"
 apply plugin: 'com.github.jk1.dependency-license-report'
@@ -225,7 +223,7 @@ rootProject.ext.versions = [
 
 allprojects {
   apply plugin: 'idea'
-
+  apply plugin: 'jacoco'
   group = 'com.thoughtworks.go'
   version = project.fullVersion
   buildDir = "${projectDir}/target"
@@ -234,6 +232,10 @@ allprojects {
     jcenter()
 
     maven { url "https://dl.bintray.com/gocd-maven-repo/generic/gocd" }
+  }
+
+  jacoco {
+    toolVersion = "0.8.2"
   }
 }
 
@@ -282,10 +284,6 @@ subprojects {
   apply plugin: 'maven'
   apply plugin: 'org.owasp.dependencycheck'
   apply plugin: 'com.github.ben-manes.versions'
-
-  jacoco {
-      toolVersion = "0.8.2"
-  }
 
   sourceCompatibility = 1.8
   targetCompatibility = 1.8

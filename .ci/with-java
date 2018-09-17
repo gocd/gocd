@@ -4,9 +4,7 @@
 mod="$((${GO_PIPELINE_COUNTER} % 4))"
 
 function use_jdk() {
-  echo "Installing jabba..."
-  curl -sL https://github.com/shyiko/jabba/raw/master/install.sh | bash && source "${HOME}/.jabba/jabba.sh"
-  echo "Installing jabba..."
+  source "${HOME}/.jabba/jabba.sh"
   jabba install "$1=$2"
   jabba use "$1"
 }

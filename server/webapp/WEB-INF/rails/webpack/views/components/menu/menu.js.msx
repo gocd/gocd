@@ -1,4 +1,4 @@
-/*!
+/*
  * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,33 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@import "../../global/palette";
-@import "../../global/zindex";
 
-.top-bar {
-  background:      $header-bg;
-  color:           $header-fg;
-  display:         flex;
-  justify-content: space-between;
-  height:          40px;
-  font-size:       0.75rem;
-  font-weight:     600;
-  position:        fixed;
-  width:           100%;
-  top:             0;
-  left:            0;
-  z-index:         map_get($zindex, 'page-header');
+const m      = require('mithril');
+const styles = require('./menu.scss');
+
+class Menu {
+  view(vnode) {
+    return <nav class={styles.menu}>
+      <ul>
+        {vnode.children}
+      </ul>
+    </nav>;
+  }
 }
 
-.leftside {
-  display:        flex;
-  text-transform: uppercase;
-  flex-shrink:    0;
-  flex-grow:      0;
-}
-
-.rightside {
-  display:     flex;
-  flex-shrink: 0;
-  flex-grow:   0;
-}
+module.exports = Menu;

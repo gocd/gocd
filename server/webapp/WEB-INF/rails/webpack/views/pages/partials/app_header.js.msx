@@ -19,6 +19,8 @@ const m                   = require('mithril');
 const styles              = require('./app_header.scss');
 const NotificationCenter  = require('views/components/notification_center/notification_center');
 const ServerHealthSummary = require('views/components/server_health_summary/server_health_summary');
+const Menu                = require('views/components/menu/menu');
+const MenuItem            = require('views/components/menu/menu_item');
 
 class AppHeader {
   view() { //fixme: remove zurb add create new styles
@@ -34,86 +36,67 @@ class AppHeader {
 
     let analyticsMenu = "";
     if (showAnalyticsDashboard) {
-      analyticsMenu = <li><a href="/go/analytics">Analytics</a></li>;
+      analyticsMenu = <MenuItem href="/go/analytics" name="Analytics"/>;
     }
 
-    let adminMenu = <span>Admin</span>;
+    let adminMenu = <MenuItem name="Admin"/>;
     if (canViewAdminPage) {
       if (isUserAdmin) {
         adminMenu =
-          <li class="" aria-haspopup="true">
-            <a href="#" onclick="return false;">Admin</a>
-            <ul class="">
-              <li class=""><a href="/go/admin/pipelines">Pipelines</a></li>
-              <li class=""><a href="/go/admin/templates">Templates</a></li>
-              <li class=""><a href="/go/admin/elastic_profiles">Elastic Agent Profiles</a></li>
-              <li class=""><a href="/go/admin/artifact_stores">Artifact Stores</a></li>
-              <li class=""><a href="/go/admin/config_xml">Config XML</a></li>
-              <li class=""><a href="/go/admin/data_sharing/settings">Data Sharing</a></li>
-              <li class=""><a href="/go/admin/config/server">Server Configuration</a></li>
-              <li class=""><a href="/go/admin/users">User Summary</a></li>
-              <li class=""><a href="/go/admin/backup">Backup</a></li>
-              <li class=""><a href="/go/admin/plugins">Plugins</a></li>
-              <li class=""><a href="/go/admin/package_repositories/new">Package Repositories</a></li>
-              <li class="">
-                <a href="#">Security</a>
-                <ul class="">
-                  <li class=""><a href="/go/admin/security/auth_configs">Authorization Configuration</a></li>
-                  <li class="">
-                    <a href="/go/admin/security/roles">Role Configuration</a>
-                  </li>
-                </ul>
-              </li>
-            </ul>
-          </li>;
+          <MenuItem name="Admin">
+            <MenuItem href="/go/admin/pipelines" name="Pipelines"/>
+            <MenuItem href="/go/admin/templates" name="Templates"/>
+            <MenuItem href="/go/admin/elastic_profiles" name="Elastic Agent Profiles"/>
+            <MenuItem href="/go/admin/artifact_stores" name="Artifact Stores"/>
+            <MenuItem href="/go/admin/config_xml" name="Config XML"/>
+            <MenuItem href="/go/admin/data_sharing/settings" name="Data Sharing"/>
+            <MenuItem href="/go/admin/config/server" name="Server Configuration"/>
+            <MenuItem href="/go/admin/users" name="User Summary"/>
+            <MenuItem href="/go/admin/backup" name="Backup"/>
+            <MenuItem href="/go/admin/plugins" name="Plugins"/>
+            <MenuItem href="/go/admin/package_repositories/new" name="Package Repositories"/>
+            <MenuItem name="Security">
+              <MenuItem href="/go/admin/security/auth_configs" name="Authorization Configuration"/>
+              <MenuItem href="/go/admin/security/roles" name="Role Configuration"/>
+            </MenuItem>
+          </MenuItem>;
       } else if (isGroupAdmin) {
-        adminMenu = <li>
-          <a href="#" onClick="return false;">Admin</a>
-          <ul className="menu vertical admin-dropdown">
-            <li role="presentation"><a href="/go/admin/pipelines">Pipelines</a></li>
-            <li role="presentation"><a href="/go/admin/templates">Templates</a></li>
-            <li role="presentation"><a href="/go/admin/elastic_profiles">Elastic Agent Profiles</a></li>
-            <li role="presentation"><a href="/go/admin/pipelines/snippet">Config XML</a></li>
-            <li role="presentation"><a href="/go/admin/plugins">Plugins</a></li>
-            <li role="presentation"><a href="/go/admin/package_repositories/new">Package Repositories</a></li>
-          </ul>
-        </li>;
+        adminMenu = <MenuItem name="Admin">
+          <MenuItem href="/go/admin/pipelines" name="Pipelines"/>
+          <MenuItem href="/go/admin/templates" name="Templates"/>
+          <MenuItem href="/go/admin/elastic_profiles" name="Elastic Agent Profiles"/>
+          <MenuItem href="/go/admin/pipelines/snippet" name="Config XML"/>
+          <MenuItem href="/go/admin/plugins" name="Plugins"/>
+          <MenuItem href="/go/admin/package_repositories/new" name="Package Repositories"/>
+        </MenuItem>;
       } else if (canViewTemplates) {
-        adminMenu = <li>
-          <a href="#" onClick="return false;">Admin</a>
-          <ul className="menu vertical admin-dropdown">
-            <li role="presentation"><a href="/go/admin/templates">Templates</a></li>
-          </ul>
-        </li>;
+        adminMenu = <MenuItem name="Admin">
+          <MenuItem href="/go/admin/templates" name="Templates"/>
+        </MenuItem>;
       }
     }
 
     let userMenu = "";
     if (!userAnonymous) {
-      userMenu = <div class={styles.menu}>
-        <ul style="list-style:none">
-          <li class="current-user">
-            <a href="#" onclick="return false;">{userDisplayName}</a>
-            <ul>
-              <li class={styles['menu-item']}><a class={styles['menu-text']}
-                                                 href="/go/preferences/notifications">Preferences</a></li>
-              <li class={styles['menu-item']}><a class={styles['menu-text']} href="/go/auth/logout">Sign out</a></li>
-            </ul>
-          </li>
-        </ul>
-      </div>;
+      userMenu =
+        <Menu>
+          <MenuItem name={userDisplayName}>
+            <MenuItem href="/go/preferences/notifications" name="Preferences"/>
+            <MenuItem href="/go/auth/logout" name="Sign out"/>
+          </MenuItem>
+        </Menu>;
     }
 
     return <div class={styles['top-bar']}>
-      <div class={`${styles.leftside} ${styles.menu}`}>
-        <ul style="list-style:none">
-          <li class={styles['menu-item']}><a href="/go/pipelines" className="logo"></a></li>
-          <li class={styles['menu-item']}><a class={styles['menu-text']} href="/go/pipelines">Pipelines</a></li>
-          <li class={styles['menu-item']}><a class={styles['menu-text']} href="/go/environments">Environments</a></li>
-          <li class={styles['menu-item']}><a class={styles['menu-text']} href="/go/agents">Agents</a></li>
+      <div class={styles.leftside}>
+        <a href="/go/pipelines" class="logo"></a>
+        <Menu>
+          <MenuItem href="/go/pipelines" name="Pipelines"/>
+          <MenuItem href="/go/environments" name="Environments"/>
+          <MenuItem href="/go/agents" name="Agents"/>
           {analyticsMenu}
           {adminMenu}
-        </ul>
+        </Menu>
       </div>
       <div class={styles.rightside}>
         <NotificationCenter/>

@@ -15,8 +15,8 @@
  */
 package com.thoughtworks.go.buildsession;
 
-import com.jezhumble.javasysmon.JavaSysMon;
 import com.thoughtworks.go.domain.*;
+import com.thoughtworks.go.javasysmon.wrapper.DefaultCurrentProcess;
 import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.util.Clock;
 import com.thoughtworks.go.util.GoConstants;
@@ -125,7 +125,7 @@ public class BuildSession {
         try {
             return doneLatch.await(timeout, timeoutUnit);
         } finally {
-            new JavaSysMon().infanticide();
+            new DefaultCurrentProcess().infanticide();
         }
     }
 

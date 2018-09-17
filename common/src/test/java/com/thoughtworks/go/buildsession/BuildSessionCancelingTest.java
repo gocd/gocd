@@ -21,8 +21,8 @@ import com.jezhumble.javasysmon.JavaSysMon;
 import com.jezhumble.javasysmon.OsProcess;
 import com.jezhumble.javasysmon.ProcessVisitor;
 import com.thoughtworks.go.domain.BuildCommand;
+import com.thoughtworks.go.javasysmon.wrapper.DefaultCurrentProcess;
 import com.thoughtworks.go.junitext.EnhancedOSChecker;
-import com.thoughtworks.go.utils.Assertions;
 import com.thoughtworks.go.utils.Timeout;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -41,6 +41,7 @@ import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static com.thoughtworks.go.utils.Assertions.waitUntil;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNot.not;
 import static org.hamcrest.number.OrderingComparison.greaterThan;
@@ -144,19 +145,8 @@ public class BuildSessionCancelingTest extends BuildSessionBasedTestCase {
         waitUntilSubProcessExists(execSleepScriptProcessCommand(), true);
         assertTrue(buildInfo(), buildSession.cancel(30, TimeUnit.SECONDS));
         waitUntilSubProcessExists(execSleepScriptProcessCommand(), false);
-        JavaSysMon javaSysMon = new JavaSysMon();
-        final boolean[] exists = {false};
-        javaSysMon.visitProcessTree(javaSysMon.currentPid(), new ProcessVisitor() {
-            @Override
-            public boolean visit(OsProcess osProcess, int i) {
-                String command = osProcess.processInfo().getName();
-                if (execSleepScriptProcessCommand().equals(command)) {
-                    exists[0] = true;
-                }
-                return false;
-            }
-        });
-        assertThat(exists[0], is(false));
+        DefaultCurrentProcess currentProcess = new DefaultCurrentProcess();
+        assertThat(currentProcess.immediateChildren(), is(empty()));
 
         assertThat(buildInfo(), getLast(statusReporter.results()), is(Cancelled));
         assertThat(buildInfo(), console.output(), not(containsString("after sleep")));
@@ -171,7 +161,7 @@ public class BuildSessionCancelingTest extends BuildSessionBasedTestCase {
     @RunIf(value = EnhancedOSChecker.class, arguments = {DO_NOT_RUN_ON, WINDOWS})
     public void cancelTaskShouldBeProcessedBeforeKillChildProcess() throws InterruptedException {
         final BuildSession buildSession = newBuildSession();
-        final BuildCommand printSubProcessCount = exec("/bin/bash", "-c", "pgrep -P " + new JavaSysMon().currentPid() + " | wc -l");
+        final BuildCommand printSubProcessCount = exec("/bin/bash", "-c", "pgrep -P " + new DefaultCurrentProcess().currentPid() + " | wc -l");
         Thread buildingThread = new Thread(new Runnable() {
             @Override
             public void run() {
@@ -211,7 +201,7 @@ public class BuildSessionCancelingTest extends BuildSessionBasedTestCase {
         javaSysMon.visitProcessTree(currentPid, new ProcessVisitor() {
             @Override
             public boolean visit(OsProcess osProcess, int i) {
-                if(osProcess.processInfo().getPid() != currentPid) {
+                if (osProcess.processInfo().getPid() != currentPid) {
                     names.add(osProcess.processInfo().getName());
                 }
                 return false;

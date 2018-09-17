@@ -17,12 +17,12 @@
 package com.thoughtworks.go.util;
 
 import ch.qos.logback.classic.Level;
-import com.jezhumble.javasysmon.JavaSysMon;
-import com.jezhumble.javasysmon.OsProcess;
 import com.jezhumble.javasysmon.ProcessInfo;
-import com.jezhumble.javasysmon.ProcessVisitor;
+import com.thoughtworks.go.javasysmon.wrapper.DefaultCurrentProcess;
 import org.junit.After;
 import org.junit.Test;
+
+import java.util.Arrays;
 
 import static com.thoughtworks.go.util.LogFixture.logFixtureFor;
 import static org.hamcrest.Matchers.containsString;
@@ -42,8 +42,8 @@ public class SubprocessLoggerTest {
 
     @Test
     public void shouldNotLogAnythingWhenNoChildProcessesFound() {
-        JavaSysMon sysMon = mock(JavaSysMon.class);
-        logger = new SubprocessLogger(sysMon);
+        DefaultCurrentProcess currentProcess = mock(DefaultCurrentProcess.class);
+        logger = new SubprocessLogger(currentProcess);
         try (LogFixture log = logFixtureFor(SubprocessLogger.class, Level.ALL)) {
             logger.run();
             String result;
@@ -82,41 +82,34 @@ public class SubprocessLoggerTest {
             }
             allLogs = result;
         }
-        assertThat(allLogs, containsString("foo bar baz\n\tPID: 101\tname: name-1\towner: owner-1\tcommand: command-1\n\tPID: 103\tname: name-1a\towner: owner-1\tcommand: command-1a"));
+        assertThat(allLogs, containsString("WARN foo bar baz\n" +
+                "  101 name-1       100 owner-1       0Mb    0Mb 00:00:00 command-1              \n" +
+                "  103 name-1a      100 owner-1       0Mb    0Mb 00:00:00 command-1a             \n" +
+                "  102 name-2       101 owner-1       0Mb    0Mb 00:00:00 command-2              \n" +
+                "\n"));
         assertThat(allLogs, not(containsString("PID: 102")));
     }
 
-    private JavaSysMon stubSysMon() {
-        final OsProcess process1 = mock(OsProcess.class);
-        when(process1.processInfo()).thenReturn(new ProcessInfo(101, 100, "command-1", "name-1", "owner-1", 100, 200, 400, 800));
-        final OsProcess process1a = mock(OsProcess.class);
-        when(process1a.processInfo()).thenReturn(new ProcessInfo(103, 100, "command-1a", "name-1a", "owner-1", 160, 260, 460, 860));
-        final OsProcess process2 = mock(OsProcess.class);
-        when(process2.processInfo()).thenReturn(new ProcessInfo(102, 101, "command-2", "name-2", "owner-1", 150, 250, 450, 850));
-        JavaSysMon sysMon = new JavaSysMon() {
-            @Override
-            public void visitProcessTree(int pid, ProcessVisitor processVisitor) {
-                processVisitor.visit(process2, 2);
-                processVisitor.visit(process1, 1);
-                processVisitor.visit(process1a, 1);
-            }
-
-            @Override
-            public int currentPid() {
-                return 100;
-            }
-        };
-        return sysMon;
+    private DefaultCurrentProcess stubSysMon() {
+        DefaultCurrentProcess currentProcess = mock(DefaultCurrentProcess.class);
+        when(currentProcess.immediateChildren()).thenReturn(Arrays.asList(
+                new ProcessInfo(101, 100, "command-1", "name-1", "owner-1", 100, 200, 400, 800),
+                new ProcessInfo(103, 100, "command-1a", "name-1a", "owner-1", 160, 260, 460, 860),
+                new ProcessInfo(102, 101, "command-2", "name-2", "owner-1", 150, 250, 450, 850)
+        ));
+        return currentProcess;
     }
 
     @Test
     public void shouldRegisterItselfAsExitHook() {
-        logger = new SubprocessLogger(new JavaSysMon());
+        logger = new SubprocessLogger(new DefaultCurrentProcess());
         logger.registerAsExitHook("foo");
         try {
             Runtime.getRuntime().addShutdownHook(logger.exitHook());
         } catch (IllegalArgumentException e) {
             assertThat(e.getMessage(), is("Hook previously registered"));
+        } finally {
+            Runtime.getRuntime().removeShutdownHook(logger.exitHook());
         }
     }
 }

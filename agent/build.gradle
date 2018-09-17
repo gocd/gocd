@@ -156,6 +156,7 @@ task verifyJar(type: VerifyJarTask) {
       "jackson-core-2.9.4.jar",
       "jackson-databind-2.9.4.jar",
       "javasysmon-0.3.6.jar",
+      "javasysmon-wrapper-${project.version}.jar",
       "javax.annotation-api-${project.versions.javaxAnnotation}.jar",
       "javax.inject-1.jar",
       "javax.servlet-api-3.1.0.jar",

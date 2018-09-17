@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,7 @@ dependencies {
   compile project(':commandline')
   compile project(':domain')
   compile project(':plugin-infra:go-plugin-access')
-  compile group: 'com.jezhumble', name: 'javasysmon', version: '0.3.6'
+  compile project(':javasysmon-wrapper')
   compile group: 'dom4j', name: 'dom4j', version: '1.6.1'
   compile(group: 'org.apache.httpcomponents', name: 'httpmime', version: project.versions.apacheHttpComponents)
   testCompile localGroovy()

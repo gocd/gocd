@@ -31,9 +31,11 @@
     var viewAnalyticsCallback = void 0;
 
     var viewAnalytics = function viewAnalytics() {
-      $j(container).find(resetAnalyticsButton).removeClass("hide");
-      $j(container).find(viewAnalyticsButton).addClass("hide");
-      viewAnalyticsCallback();
+      if (!$j(viewAnalyticsButton).hasClass("disabled")) {
+        $j(container).find(resetAnalyticsButton).removeClass("hide");
+        $j(container).find(viewAnalyticsButton).addClass("hide");
+        viewAnalyticsCallback();
+      }
     };
 
     var resetAnalytics = function resetAnalytics() {
@@ -46,6 +48,7 @@
     var init = function init() {
       $j(container).find(".analytics-close").click(self.hide);
       $j(container).find(resetAnalyticsButton).click(resetAnalytics);
+      $j(container).find(viewAnalyticsButton).click(viewAnalytics);
     };
 
     this.show = function () {
@@ -65,12 +68,10 @@
 
     var enableViewAnalytics = function enableViewAnalytics() {
       $j(viewAnalyticsButton).removeClass("disabled");
-      $j(container).find(viewAnalyticsButton).click(viewAnalytics);
     };
 
     var disableViewAnalytics = function disableViewAnalytics() {
       $j(viewAnalyticsButton).addClass("disabled");
-      $j(container).find(viewAnalyticsButton).unbind('click');
     };
 
     var updateSource = function (src, isCurrent) {

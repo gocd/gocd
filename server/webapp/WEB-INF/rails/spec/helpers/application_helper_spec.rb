@@ -644,9 +644,19 @@ describe ApplicationHelper do
         expect(supports_vsm_analytics?).to eq(true)
       end
 
-      it "should not support vsm analytics for non-admins" do
+      it "should support vsm analytics for all users" do
         def default_plugin_info_finder; @default_plugin_info_finder; end
         def is_user_an_admin?; false; end
+
+        allow(@default_plugin_info_finder).to receive('allPluginInfos').with(PluginConstants.ANALYTICS_EXTENSION).and_return([@plugin_info1, @plugin_info2, @plugin_info3, @plugin_info4])
+
+        expect(supports_vsm_analytics?).to eq(true)
+      end
+
+      it "should support vsm analytics only to admins" do
+        def default_plugin_info_finder; @default_plugin_info_finder; end
+        def is_user_an_admin?; false; end
+        def show_analytics_only_for_admins?; true; end
 
         expect(supports_vsm_analytics?).to eq(false)
       end

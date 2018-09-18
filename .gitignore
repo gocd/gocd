@@ -54,7 +54,7 @@ hs_err_pid*
 resources-generated/
 .DS_Store
 
-
+/build/
 addon-api/database/out/
 addon-api/database/target/
 agent-bootstrapper/.tmp.file.list
@@ -150,6 +150,7 @@ api/api-server-health-messages-v1/target/
 api/api-server-health-v1/logs/
 api/api-server-health-v1/out/
 api/api-server-health-v1/target/
+api/api-shared-v4/config/
 api/api-shared-v4/out/
 api/api-shared-v4/target/
 api/api-shared-v6/config/

@@ -25,6 +25,7 @@ import com.thoughtworks.go.util.Clock;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Map;
 
 @Component
 public class InstanceFactory {
@@ -33,7 +34,8 @@ public class InstanceFactory {
         buildCause.assertMaterialsMatch(pipelineConfig.materialConfigs());
         buildCause.assertPipelineConfigAndMaterialRevisionMatch(pipelineConfig);
 
-        final EnvironmentVariables variables = EnvironmentVariables.toEnvironmentVariables(context.getEnvironmentVariablesConfig());
+        Map<CaseInsensitiveString, String> variables = EnvironmentVariables.toEnvironmentVariables(context.getEnvironmentVariablesConfig()).insecureVariablesHash();
+        variables.putAll(buildCause.getVariables().insecureVariablesHash());
 
         return new Pipeline(CaseInsensitiveString.str(pipelineConfig.name()), pipelineConfig.getLabelTemplate(), buildCause, variables, createStageInstance(pipelineConfig.first(), context, md5, clock));
     }

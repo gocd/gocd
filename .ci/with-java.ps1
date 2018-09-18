@@ -15,6 +15,19 @@ if ($mod -eq "0") {
     use_jdk "oracle@1.11.0-28" "exe+https://nexus.gocd.io/repository/s3-mirrors/local/jdk/jdk-11-28_windows-x64_bin.exe"
 }
 
-$process = Start-Process -Wait -PassThru -NoNewWindow -FilePath "cmd" -ArgumentList "/c ${args}"
+$command = "$($args[0])"
+
+# Write-Host "Executing command: ${command}"
+# Write-Host "With args: ${commandArgs}"
+
+if ($args.Length -eq 0) {
+    Write-Host "Exiting because no command line args specified"
+    exit 1
+} elseif ($args.Length -eq 1) {
+    $process = Start-Process -Wait -PassThru -NoNewWindow -FilePath "${command}"
+} else {
+    $commandArgs = $args[1..($args.Length-1)]
+    $process = Start-Process -Wait -PassThru -NoNewWindow -FilePath "${command}" -ArgumentList $commandArgs
+}
 
 exit $process.ExitCode

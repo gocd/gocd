@@ -16,8 +16,7 @@
 
 package com.thoughtworks.go.util;
 
-import com.jezhumble.javasysmon.JavaSysMon;
-import com.jezhumble.javasysmon.ProcessInfo;
+import com.thoughtworks.go.javasysmon.wrapper.DefaultCurrentProcess;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,17 +24,17 @@ import org.slf4j.LoggerFactory;
  * @understands handling subprocesses
  */
 public class SubprocessLogger implements Runnable {
-    private JavaSysMon sysMon;
+    private DefaultCurrentProcess currentProcess;
     private static final Logger LOGGER = LoggerFactory.getLogger(SubprocessLogger.class);
     private Thread exitHook;
     private String warnMessage = "Logged all subprocesses.";
 
     public SubprocessLogger() {
-        this(new JavaSysMon());
+        this(new DefaultCurrentProcess());
     }
 
-    SubprocessLogger(JavaSysMon sysMon) {
-        this.sysMon = sysMon;
+    SubprocessLogger(DefaultCurrentProcess currentProcess) {
+        this.currentProcess = currentProcess;
     }
 
     public void registerAsExitHook(String warnMessage) {
@@ -44,22 +43,21 @@ public class SubprocessLogger implements Runnable {
     }
 
     Thread exitHook() {
-        if (exitHook == null)
+        if (exitHook == null) {
             exitHook = new Thread(this);
+        }
         return exitHook;
     }
 
     private void logSubprocess() {
         final StringBuffer processDetails = new StringBuffer();
-        sysMon.visitProcessTree(sysMon.currentPid(), (process, level) -> {
-            if (level == 1) {
-                ProcessInfo processInfo = process.processInfo();
-                processDetails.append(String.format("\n\tPID: %s\tname: %s\towner: %s\tcommand: %s", processInfo.getPid(), processInfo.getName(), processInfo.getOwner(), processInfo.getCommand()));
-            }
-            return false;
-        });
+
+        currentProcess.immediateChildren().forEach(processInfo ->
+                processDetails.append(processInfo.toString()).append("\n")
+        );
+
         if (!processDetails.toString().isEmpty()) {
-            LOGGER.warn("{}{}", warnMessage, processDetails);
+            LOGGER.warn("{}\n{}", warnMessage, processDetails);
         }
     }
 

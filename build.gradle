@@ -16,6 +16,7 @@
 
 
 
+
 import com.github.jk1.license.ReportTask
 import com.github.jk1.license.filter.LicenseBundleNormalizer
 import com.github.jk1.license.render.JsonReportRenderer
@@ -23,8 +24,6 @@ import groovy.io.FileType
 import nl.javadude.gradle.plugins.license.License
 
 import java.security.SecureRandom
-import java.util.regex.Matcher
-import java.util.regex.Pattern
 
 buildscript {
   repositories {
@@ -41,7 +40,6 @@ buildscript {
   }
 }
 
-apply plugin: 'jacoco'
 apply plugin: 'base'
 apply plugin: "com.github.hierynomus.license"
 apply plugin: 'com.github.jk1.dependency-license-report'
@@ -113,25 +111,28 @@ def partitionFiles(Collection originalFiles) {
 def COPYRIGHT_YEAR = '2018'
 def GO_VERSION_SEGMENTS = [
   year         : 18,
-  releaseInYear: 9,
+  releaseInYear: 10,
   patch        : 0
 ]
 def GO_VERSION = [GO_VERSION_SEGMENTS.year, GO_VERSION_SEGMENTS.releaseInYear, GO_VERSION_SEGMENTS.patch].join('.')
-def GO_VERSION_PREVIOUS = '18.8.0'
+def GO_VERSION_PREVIOUS = '18.9.0'
 def DIST_VERSION = releaseRevision()
 def GIT_REVISION = gitRevision()
 
 if (System.getenv().containsKey("GO_SERVER_URL")) {
-  println "========================================================="
+  def separator = "=".multiply(72)
+
+  println separator
   println "Gradle version:  ${gradle.gradleVersion}"
   println "JVM:             ${System.getProperty('java.version')} (${System.getProperty('java.vm.vendor')} ${System.getProperty('java.vm.version')})"
   println "OS:              ${System.getProperty('os.name')} ${System.getProperty('os.version')} ${System.getProperty('os.arch')}"
-  println "========================================================="
+  println separator
+  println("")
 
   def isWindows = org.gradle.internal.os.OperatingSystem.current().isWindows()
 
   println("Tool Versions")
-  println("============================")
+  println(separator)
   println("node: ${getVersion("node", "--version")}")
   println(" npm: ${getVersion((isWindows ? "npm.cmd" : 'npm'), "--version")}")
   println("yarn: ${getVersion((isWindows ? "yarn.cmd" : 'yarn'), "--version")}")
@@ -142,7 +143,8 @@ if (System.getenv().containsKey("GO_SERVER_URL")) {
   println(" p4d: ${getVersion("p4d", "-V").readLines().grep(~/Rev.*/).join("")}")
   println(" gcc: ${getVersion("gcc", "-dumpversion")}")
   println(" g++: ${getVersion("g++", "-dumpversion")}")
-  println("============================")
+  println(separator)
+  println("")
 }
 
 rootProject.ext.previousVersion = GO_VERSION_PREVIOUS
@@ -153,11 +155,14 @@ rootProject.ext.fullVersion = DIST_VERSION ? "${GO_VERSION}-${DIST_VERSION}" : G
 rootProject.ext.gitRevision = GIT_REVISION
 rootProject.ext.copyrightYear = COPYRIGHT_YEAR
 rootProject.ext.commandRepoUrl = System.getenv('COMMAND_REPO_URL') ? System.getenv('COMMAND_REPO_URL') : "git://github.com/gocd/go-command-repo"
+
+project.ext.defaultJvmArgs = []
+
 rootProject.ext.versions = [
   apacheHttpComponents: '4.5.5',
   apacheHttpMime      : '4.5.5',
   assertJ             : '3.10.0',
-  bouncyCastle        : '1.47', // bouncycastle version has to be compatible with the jruby version
+  bouncyCastle        : '1.59', // bouncycastle version has to be compatible with the jruby version
   cloning             : '1.9.10',
   commonsCodec        : '1.11',
   commonsCollections  : '3.2.2',
@@ -166,7 +171,7 @@ rootProject.ext.versions = [
   commonsFileUpload   : '1.3.3',
   commonsIO           : '2.6',
   commonsLang         : '2.6',
-  commonsLang3        : '3.7',
+  commonsLang3        : '3.8',
   dbunit              : '2.5.4',
   ehcache             : '2.10.5',
   felix               : '5.6.10',
@@ -175,21 +180,22 @@ rootProject.ext.versions = [
   h2db                : '1.3.168',
   hamcrest            : '1.3',
   hibernate           : '3.6.10.Final',
+  javaxAnnotation     : '1.3.2',
   javaAssist          : '3.12.1.GA',
   jcommander          : '1.72',
   jdom                : '2.0.6',
   jetty               : '9.4.8.v20171121',
   jgit                : '4.9.0.201710071750-r',
-  jodaTime            : '2.3', // joda-time version has to be compatible with the jruby version
+  jodaTime            : '2.9.9', // joda-time version has to be compatible with the jruby version
   jolt                : '0.1.1',
-  jruby               : '1.7.26',
+  jruby               : '9.2.0.0',
   jsonUnit            : '1.29.0',
   jsoup               : '1.11.3',
   junit               : '4.12',
   junit5              : '5.2.0',
   logback             : '1.2.3',
   mail                : '1.6.1',
-  mockito             : '2.17.0',
+  mockito             : '2.22.0',
   mybatis             : '3.4.6',
   mybatisSpring       : '1.3.2',
   nanohttpd           : '2.3.1',
@@ -208,11 +214,16 @@ rootProject.ext.versions = [
   tokenBucket         : '1.7',
   velocityToolsView   : '1.4',
   xmlUnitMatchers     : '2.6.0',
+  seleniumDrivers: [
+    chromedriver: '2.41',
+    geckodriver: '0.21.0',
+    iedriverserver: '3.14.0'
+  ]
 ]
 
 allprojects {
   apply plugin: 'idea'
-
+  apply plugin: 'jacoco'
   group = 'com.thoughtworks.go'
   version = project.fullVersion
   buildDir = "${projectDir}/target"
@@ -221,6 +232,10 @@ allprojects {
     jcenter()
 
     maven { url "https://dl.bintray.com/gocd-maven-repo/generic/gocd" }
+  }
+
+  jacoco {
+    toolVersion = "0.8.2"
   }
 }
 
@@ -411,6 +426,8 @@ subprojects {
     // fixup a tempdir that is predictable and we can clean it up later
     def tmpDir = project.file("${System.getProperty('java.io.tmpdir')}/gocd-tests/${new BigInteger(32, new SecureRandom()).toString(32)}")
     systemProperty 'java.io.tmpdir', tmpDir
+    jvmArgs += project.defaultJvmArgs
+
     doFirst {
       // workaround for https://github.com/unbroken-dome/gradle-testsets-plugin/issues/40
       classpath += rootProject.findProject(':test:test-utils').files("resource-include-in-all-projects")

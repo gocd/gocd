@@ -90,9 +90,11 @@ import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import static com.thoughtworks.go.config.PipelineConfig.*;
 import static com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother.create;
@@ -1038,12 +1040,12 @@ public class MagicalGoConfigXmlLoaderTest {
 
     @Test
     public void shouldNotAllowDuplicateRoles() throws Exception {
-        assertFailureDuringLoad(CONFIG_WITH_DUPLICATE_ROLE, "Role names should be unique. Duplicate names found.", GoConfigInvalidException.class);
+        assertFailureDuringLoad(CONFIG_WITH_DUPLICATE_ROLE, GoConfigInvalidException.class, "Role names should be unique. Duplicate names found.");
     }
 
     @Test
     public void shouldNotAllowDuplicateUsersInARole() throws Exception {
-        assertFailureDuringLoad(CONFIG_WITH_DUPLICATE_USER, "User 'ps' already exists in 'admin'.", GoConfigInvalidException.class);
+        assertFailureDuringLoad(CONFIG_WITH_DUPLICATE_USER, GoConfigInvalidException.class, "User 'ps' already exists in 'admin'.");
     }
 
     /**
@@ -1878,7 +1880,10 @@ public class MagicalGoConfigXmlLoaderTest {
             ConfigMigrator.loadWithMigration(content);
             fail("Should not support 2 environments with the same same");
         } catch (Exception e) {
-            assertThat(e.getMessage(), containsString("Duplicate unique value [uat] declared for identity constraint of element \"environments\""));
+            assertThat(e.getMessage(), anyOf(
+                    containsString("Duplicate unique value [uat] declared for identity constraint of element \"environments\""),
+                    containsString("Duplicate unique value [uat] declared for identity constraint \"uniqueEnvironmentName\" of element \"environments\"")
+            ));
         }
     }
 
@@ -1968,8 +1973,10 @@ public class MagicalGoConfigXmlLoaderTest {
             ConfigMigrator.loadWithMigration(content);
             fail("XSD should not allow duplicate agent uuid in environment");
         } catch (Exception e) {
-            assertThat(e.getMessage(), containsString(
-                    "Duplicate unique value [1] declared for identity constraint of element \"agents\"."));
+            assertThat(e.getMessage(), anyOf(
+                    containsString("Duplicate unique value [1] declared for identity constraint of element \"agents\"."),
+                    containsString("Duplicate unique value [1] declared for identity constraint \"uniqueEnvironmentAgentsUuid\" of element \"agents\".")
+            ));
         }
     }
 
@@ -3139,8 +3146,8 @@ public class MagicalGoConfigXmlLoaderTest {
                 + "</cruise>";
 
         assertFailureDuringLoad(xml,
-                "Cannot save package or repo, found duplicate packages. [Repo Name: 'name-1', Package Name: 'name-1'], [Repo Name: 'name-2', Package Name: 'name-2']",
-                GoConfigInvalidException.class);
+                GoConfigInvalidException.class, "Cannot save package or repo, found duplicate packages. [Repo Name: 'name-1', Package Name: 'name-1'], [Repo Name: 'name-2', Package Name: 'name-2']"
+        );
     }
 
     final static String REPO = " <repository id='repo-id' name='name1'><pluginConfiguration id='id' version='1.0'/><configuration><property><key>url</key><value>http://go</value></property></configuration>%s</repository>";
@@ -3167,13 +3174,19 @@ public class MagicalGoConfigXmlLoaderTest {
     @Test
     public void shouldThrowXsdValidationWhenPackageRepositoryIdsAreDuplicate() throws Exception {
         String xml = "<cruise schemaVersion='" + CONFIG_SCHEMA_VERSION + "'><repositories>\n" + withPackages(REPO, "") + withPackages(REPO, "") + " </repositories></cruise>";
-        assertXsdFailureDuringLoad(xml, "Duplicate unique value [repo-id] declared for identity constraint of element \"repositories\".");
+        assertXsdFailureDuringLoad(xml,
+                "Duplicate unique value [repo-id] declared for identity constraint of element \"repositories\".",
+                "Duplicate unique value [repo-id] declared for identity constraint \"uniqueRepositoryId\" of element \"repositories\"."
+        );
     }
 
     @Test
     public void shouldThrowXsdValidationWhenPackageRepositoryNamesAreDuplicate() throws Exception {
         String xml = "<cruise schemaVersion='" + CONFIG_SCHEMA_VERSION + "'><repositories>\n" + format(REPO_WITH_NAME, "1", "repo", "") + format(REPO_WITH_NAME, "2", "repo", "") + " </repositories></cruise>";
-        assertXsdFailureDuringLoad(xml, "Duplicate unique value [repo] declared for identity constraint of element \"repositories\".");
+        assertXsdFailureDuringLoad(xml,
+                "Duplicate unique value [repo] declared for identity constraint of element \"repositories\".",
+                "Duplicate unique value [repo] declared for identity constraint \"uniqueRepositoryName\" of element \"repositories\"."
+                );
     }
 
     @Test
@@ -3181,7 +3194,10 @@ public class MagicalGoConfigXmlLoaderTest {
         String xml = "<cruise schemaVersion='" + CONFIG_SCHEMA_VERSION + "'><repositories>\n" + withPackages(REPO, format("<packages>%s%s</packages>",
                 PACKAGE, PACKAGE)) + " </repositories></cruise>";
 
-        assertXsdFailureDuringLoad(xml, "Duplicate unique value [package-id] declared for identity constraint of element \"cruise\".");
+        assertXsdFailureDuringLoad(xml,
+                "Duplicate unique value [package-id] declared for identity constraint of element \"cruise\".",
+                "Duplicate unique value [package-id] declared for identity constraint \"uniquePackageId\" of element \"cruise\"."
+                );
     }
 
     @Test
@@ -3823,14 +3839,16 @@ public class MagicalGoConfigXmlLoaderTest {
     @Test
     public void shouldFailValidationForPipelineWithDuplicateStageNames() throws Exception {
         assertFailureDuringLoad(PIPELINES_WITH_DUPLICATE_STAGE_NAME,
-                "You have defined multiple stages called 'mingle'. Stage names are case-insensitive and must be unique.", RuntimeException.class
+                RuntimeException.class, "You have defined multiple stages called 'mingle'. Stage names are case-insensitive and must be unique."
         );
     }
 
     @Test
     public void shouldThrowExceptionIfBuildPlansExistWithTheSameNameWithinAPipeline() throws Exception {
         assertXsdFailureDuringLoad(JOBS_WITH_SAME_NAME,
-                "Duplicate unique value [unit] declared for identity constraint of element \"jobs\".");
+                "Duplicate unique value [unit] declared for identity constraint of element \"jobs\".",
+                "Duplicate unique value [unit] declared for identity constraint \"uniqueJob\" of element \"jobs\"."
+                );
     }
 
     @Test
@@ -3855,7 +3873,7 @@ public class MagicalGoConfigXmlLoaderTest {
         xmlLoader.loadConfigHolder(configWithTokenGenerationKey("something"));
 
         systemEnvironment.setProperty("go.enforce.server.immutability", "Y");
-        assertFailureDuringLoad(configWithTokenGenerationKey("something-else"), "The value of 'tokenGenerationKey' cannot be modified while the server is online. If you really want to make this change, you may do so while the server is offline. Please note: updating 'tokenGenerationKey' will invalidate all registration tokens issued to the agents so far.", RuntimeException.class);
+        assertFailureDuringLoad(configWithTokenGenerationKey("something-else"), RuntimeException.class, "The value of 'tokenGenerationKey' cannot be modified while the server is online. If you really want to make this change, you may do so while the server is offline. Please note: updating 'tokenGenerationKey' will invalidate all registration tokens issued to the agents so far.");
     }
 
     private String configWithTokenGenerationKey(final String key) {
@@ -4370,18 +4388,20 @@ public class MagicalGoConfigXmlLoaderTest {
             assertThat(configuration.getProperty(name).getEncryptedValue(), is(nullValue()));
         }
     }
-    private void assertXsdFailureDuringLoad(String configXML, String expectedMessage) {
-        assertFailureDuringLoad(configXML, expectedMessage, XsdValidationException.class);
+    private void assertXsdFailureDuringLoad(String configXML, String... expectedMessages) {
+        assertFailureDuringLoad(configXML, XsdValidationException.class, expectedMessages);
     }
 
-    private void assertFailureDuringLoad(String configXML, String expectedMessage, Class<?> expectedExceptionClass) {
+    private void assertFailureDuringLoad(String configXML,
+                                         Class<?> expectedExceptionClass,
+                                         String... expectedMessage) {
         try {
             xmlLoader.loadConfigHolder(configXML);
             fail("Should have failed with an exception of type: " + expectedExceptionClass.getSimpleName());
         } catch (Exception e) {
             String message = "\nExpected: " + expectedExceptionClass.getSimpleName() + "\nActual  : " + e.getClass().getSimpleName() + " with message: " + e.getMessage();
             assertTrue(message, e.getClass().equals(expectedExceptionClass));
-            assertThat(e.getMessage(), is(expectedMessage));
+            assertThat(e.getMessage(), anyOf(Arrays.stream(expectedMessage).map(Matchers::is).collect(Collectors.toList())));
         }
     }
 

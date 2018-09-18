@@ -17,11 +17,12 @@
 apply plugin: "groovy"
 
 repositories {
-  mavenCentral()
+  jcenter()
 }
 
 dependencies {
   compile localGroovy()
   compile gradleApi()
   compile 'de.undercouch:gradle-download-task:3.2.0'
+  compile 'org.ysb33r.gradle:grolifant:0.8'
 }

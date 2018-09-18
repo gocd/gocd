@@ -73,7 +73,7 @@ class ApiControllerTest {
     }
 
     @Test
-    void 'should not blow up if empty put/post/patch requests do not have a content type and contain an confirm header'() {
+    void 'should not blow up if empty put,post,patch requests do not have a content type and contain an confirm header'() {
       ['put', 'post', 'patch'].each { method ->
         def response = new MockHttpServletResponse()
         assertThatCode({
@@ -89,7 +89,7 @@ class ApiControllerTest {
     }
 
     @Test
-    void 'should blow up if empty put/post/patch requests do not have a content type or a confirm header'() {
+    void 'should blow up if empty put,post,patch requests do not have a content type or a confirm header'() {
       ['put', 'post', 'patch'].each { method ->
         def response = new MockHttpServletResponse()
         assertThatCode({
@@ -106,7 +106,7 @@ class ApiControllerTest {
     }
 
     @Test
-    void 'should not blow up if non-chunked put/post/patch requests has a body with json content type'() {
+    void 'should not blow up if non-chunked put,post,patch requests has a body with json content type'() {
       ['put', 'post', 'patch'].each { method ->
         def response = new MockHttpServletResponse()
         assertThatCode({
@@ -126,7 +126,7 @@ class ApiControllerTest {
     }
 
     @Test
-    void 'should blow up put/post/patch requests with a request body do not have a content type'() {
+    void 'should blow up put,post,patch requests with a request body do not have a content type'() {
       ['put', 'post', 'patch'].each { method ->
         assertThatCode({
           MockHttpServletRequest request = HttpRequestBuilder.
@@ -147,7 +147,7 @@ class ApiControllerTest {
     }
 
     @Test
-    void 'should blow up if chunked put/post/patch requests has a body with no content type'() {
+    void 'should blow up if chunked put,post,patch requests has a body with no content type'() {
       ['put', 'post', 'patch'].each { method ->
         def response = new MockHttpServletResponse()
         assertThatCode({
@@ -169,7 +169,7 @@ class ApiControllerTest {
     }
 
     @Test
-    void 'should not blow up if chunked put/post/patch requests has a body with json content type'() {
+    void 'should not blow up if chunked put,post,patch requests has a body with json content type'() {
       ['put', 'post', 'patch'].each { method ->
         def response = new MockHttpServletResponse()
         assertThatCode({

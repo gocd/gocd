@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,7 @@ dependencies {
   compile project(':commandline')
   compile project(':domain')
   compile project(':plugin-infra:go-plugin-access')
-  compile group: 'com.jezhumble', name: 'javasysmon', version: '0.3.6'
+  compile project(':javasysmon-wrapper')
   compile group: 'dom4j', name: 'dom4j', version: '1.6.1'
   compile(group: 'org.apache.httpcomponents', name: 'httpmime', version: project.versions.apacheHttpComponents)
   testCompile localGroovy()
@@ -32,8 +32,8 @@ dependencies {
   testCompile group: 'net.javacrumbs.json-unit', name: 'json-unit-fluent', version: project.versions.jsonUnit
   testCompile project(':test:test-utils')
   testCompile group: 'com.google.guava', name: 'guava', version: project.versions.guava
-  compileOnly(group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: project.versions.bouncyCastle)
-
+  compileOnly group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: project.versions.bouncyCastle
+  compileOnly group: 'org.bouncycastle', name: 'bcpkix-jdk15on', version: project.versions.bouncyCastle
   testCompileOnly group: 'junit', name: 'junit', version: project.versions.junit
   testRuntimeOnly group: 'org.junit.vintage', name: 'junit-vintage-engine', version: project.versions.junit5
   testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: project.versions.junit5

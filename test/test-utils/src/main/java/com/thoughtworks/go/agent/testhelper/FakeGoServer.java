@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.agent.testhelper;
 
+import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.output.NullOutputStream;
@@ -31,7 +32,6 @@ import javax.servlet.*;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.xml.bind.DatatypeConverter;
 import java.io.*;
 import java.security.DigestInputStream;
 import java.security.MessageDigest;
@@ -59,7 +59,7 @@ public class FakeGoServer extends ExternalResource {
                 try (DigestInputStream digest = new DigestInputStream(input, digester)) {
                     IOUtils.copy(digest, new NullOutputStream());
                 }
-                return DatatypeConverter.printHexBinary(digester.digest()).toLowerCase();
+                return Hex.encodeHexString(digester.digest()).toLowerCase();
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }

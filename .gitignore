@@ -54,7 +54,7 @@ hs_err_pid*
 resources-generated/
 .DS_Store
 
-
+/build/
 addon-api/database/out/
 addon-api/database/target/
 agent-bootstrapper/.tmp.file.list
@@ -150,6 +150,7 @@ api/api-server-health-messages-v1/target/
 api/api-server-health-v1/logs/
 api/api-server-health-v1/out/
 api/api-server-health-v1/target/
+api/api-shared-v4/config/
 api/api-shared-v4/out/
 api/api-shared-v4/target/
 api/api-shared-v6/config/
@@ -242,16 +243,19 @@ server/out/
 server/pipelines/
 server/plugins/
 server/plugins_work/
+server/scripts/
 server/target/
 server/test-repo/
 server/testdata/test-agent.jar
 server/tfs-impl-14.jar
-server/webapp/WEB-INF/rails.new/db/config.git/
-server/webapp/WEB-INF/rails.new/logs/
-server/webapp/WEB-INF/rails.new/node_modules/
-server/webapp/WEB-INF/rails.new/public/assets/
-server/webapp/WEB-INF/rails.new/webpack/gen/
-server/webapp/WEB-INF/rails.new/yarn-license-report/
+server/webapp/WEB-INF/rails/.bundle/
+server/webapp/WEB-INF/rails/db/config.git/
+server/webapp/WEB-INF/rails/logs/
+server/webapp/WEB-INF/rails/node_modules/
+server/webapp/WEB-INF/rails/public/assets/
+server/webapp/WEB-INF/rails/gems/jruby
+server/webapp/WEB-INF/rails/webpack/gen/
+server/webapp/WEB-INF/rails/yarn-license-report/
 spark/spark-base/out/
 spark/spark-base/target/
 spark/spark-spa/logs/
@@ -269,6 +273,9 @@ test/test-utils/target/
 tfs-impl/tfs-impl-14/logs/
 tfs-impl/tfs-impl-14/out/
 tfs-impl/tfs-impl-14/target/
+javasysmon-wrapper/logs/
+javasysmon-wrapper/out/
+javasysmon-wrapper/target/
 tools/jruby/
 tools/target/
 tw-go-plugins/target/

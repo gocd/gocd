@@ -20,11 +20,11 @@ import com.google.gson.reflect.TypeToken;
 import com.thoughtworks.go.api.util.GsonTransformer;
 import com.thoughtworks.go.api.util.MessageJson;
 import com.thoughtworks.go.spark.SparkController;
+import org.springframework.util.InvalidMimeTypeException;
+import org.springframework.util.MimeType;
 import spark.Request;
 import spark.Response;
 
-import javax.activation.MimeType;
-import javax.activation.MimeTypeParseException;
 import java.io.IOException;
 import java.util.*;
 
@@ -82,8 +82,9 @@ public abstract class ApiController implements ControllerMethods, SparkControlle
             return false;
         }
         try {
-            return new MimeType(mime).getBaseType().equals("application/json");
-        } catch (MimeTypeParseException e) {
+            MimeType mimeType = MimeType.valueOf(mime);
+            return "application".equals(mimeType.getType()) && "json".equals(mimeType.getSubtype());
+        } catch (InvalidMimeTypeException e) {
             return false;
         }
     }

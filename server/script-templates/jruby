@@ -1,0 +1,37 @@
+#!/usr/bin/env bash
+
+<% print environment.collect { entry -> """export ${entry.key}='${entry.value}'""" }.join("\n") %>
+# add jruby and rubygem binstubs to PATH
+export PATH="${additionalJRubyPaths.join(File.pathSeparator)}:\$PATH"
+
+argv=()
+jvm_args=()
+combined_classpath="${jrubyJar}"
+watch_for_classpath=0
+
+for arg in "\$@"; do
+  if [ "\$arg" == '-J-cp' ]; then
+    watch_for_classpath='1'
+  elif [ "\$arg" == '-J-classpath' ]; then
+    watch_for_classpath='1'
+  elif [ "\$watch_for_classpath" == '1' ]; then
+    combined_classpath="\${combined_classpath}:\${arg}"
+    watch_for_classpath='0'
+  elif [ "\${arg:0:2}" == '-J' ]; then
+    jvm_args+=("\${1:2}")
+  elif [ "\${arg:0:2}" == '-X' ]; then
+    argv+=("\$arg")
+  else
+    argv+=("\$arg")
+  fi
+  shift
+done
+
+exec "${javaExecutable}" \\
+<% print jvmArgs.collect { entry -> "  '${entry}'" }.join(" \\\n") %> \\
+<% print systemProperties.collect { entry -> "  '-D${entry}'" }.join(" \\\n") %> \\
+  "\${jvm_args[@]}" \\
+  -cp \\
+  \${combined_classpath}:${classpath.join(':')} \\
+  ${mainClassName} \\
+  "\${argv[@]}"

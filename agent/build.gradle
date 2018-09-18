@@ -63,6 +63,7 @@ dependencies {
   compile project(':common')
   compile group: 'org.objenesis', name: 'objenesis', version: project.versions.objenesis
   compile group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: project.versions.bouncyCastle
+  compile group: 'org.bouncycastle', name: 'bcpkix-jdk15on', version: project.versions.bouncyCastle
   compile group: 'org.apache.commons', name: 'commons-configuration2', version: project.versions.commonsConfiguration
   compile(group: 'org.eclipse.jetty.websocket', name: 'websocket-client', version: versions.jetty){
     exclude module: 'jetty-xml'
@@ -125,6 +126,7 @@ task verifyJar(type: VerifyJarTask) {
       "agent-${project.version}-classes.jar",
       "agent-common-${project.version}.jar",
       "base-${project.version}.jar",
+      "bcpkix-jdk15on-${project.versions.bouncyCastle}.jar",
       "bcprov-jdk15on-${project.versions.bouncyCastle}.jar",
       "cloning-${project.versions.cloning}.jar",
       "commandline-${project.version}.jar",
@@ -154,15 +156,17 @@ task verifyJar(type: VerifyJarTask) {
       "jackson-core-2.9.4.jar",
       "jackson-databind-2.9.4.jar",
       "javasysmon-0.3.6.jar",
+      "javasysmon-wrapper-${project.version}.jar",
+      "javax.annotation-api-${project.versions.javaxAnnotation}.jar",
       "javax.inject-1.jar",
       "javax.servlet-api-3.1.0.jar",
       "jcl-over-slf4j-${project.versions.slf4j}.jar",
       "jcommander-${project.versions.jcommander}.jar",
       "jdom2-${project.versions.jdom}.jar",
-      "jetty-io-${versions.jetty}.jar",
-      "jetty-util-${versions.jetty}.jar",
       "jetty-client-${versions.jetty}.jar",
       "jetty-http-${versions.jetty}.jar",
+      "jetty-io-${versions.jetty}.jar",
+      "jetty-util-${versions.jetty}.jar",
       "joda-time-${project.versions.jodaTime}.jar",
       "jolt-core-${project.versions.jolt}.jar",
       "json-utils-${project.versions.jolt}.jar",

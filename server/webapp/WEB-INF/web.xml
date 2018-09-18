@@ -92,32 +92,27 @@
 
   <context-param>
     <param-name>rails.root</param-name>
-    <param-value>/WEB-INF/rails.new</param-value>
+    <param-value>/WEB-INF/rails</param-value>
   </context-param>
 
   <context-param>
     <param-name>public.root</param-name>
-    <param-value>/WEB-INF/rails.new/public</param-value>
+    <param-value>/WEB-INF/rails/public</param-value>
   </context-param>
 
   <context-param>
     <param-name>gem.home</param-name>
-    <param-value>/WEB-INF/rails.new/vendor/bundle/jruby/1.9</param-value>
+    <param-value>/WEB-INF/rails/gems/jruby/2.5.0</param-value>
   </context-param>
 
   <context-param>
     <param-name>gem.path</param-name>
-    <param-value>/WEB-INF/rails.new/vendor/bundle/jruby/1.9</param-value>
+    <param-value>/WEB-INF/rails/gems/jruby/2.5.0</param-value>
   </context-param>
 
   <context-param>
     <param-name>jruby.min.runtimes</param-name>
     <param-value>1</param-value>
-  </context-param>
-
-  <context-param>
-    <param-name>jruby.compat.version</param-name>
-    <param-value>2.0</param-value>
   </context-param>
 
   <context-param>

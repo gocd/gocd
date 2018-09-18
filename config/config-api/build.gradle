@@ -20,6 +20,8 @@ dependencies {
   compile project(':plugin-infra:plugin-metadata-store')
   compile project(':plugin-infra:go-plugin-domain')
   compile project(':db')
+  compile group: 'javax.annotation', name: 'javax.annotation-api', version: project.versions.javaxAnnotation
+
   compile group: 'commons-codec', name: 'commons-codec', version: project.versions.commonsCodec
   compile group: 'org.apache.commons', name: 'commons-collections4', version: project.versions.commonsCollections4
   compile(group: 'org.quartz-scheduler', name: 'quartz', version: project.versions.quartz) {

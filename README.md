@@ -2,9 +2,9 @@
 
 [![Join the chat at https://gitter.im/gocd/gocd](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/gocd/gocd?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
-This is the main repository for GoCD - a continuous delivery server. GoCD helps you automate and streamline the build-test-release cycle for worry-free, continuous delivery of your product.
+This is the main repository for [GoCD](https://gocd.org) - a continuous delivery server. GoCD helps you automate and streamline the build-test-release cycle for worry-free, continuous delivery of your product.
 
-All information to help you get started with GoCD can be found on the [GoCD website](https://gocd.org).
+To quickly build your first pipeline while learning key GoCD concepts, visit our [Intro to GoCD guide](https://www.gocd.org/getting-started/part-1/).
 
 ## Development Setup
 

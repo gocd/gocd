@@ -17,6 +17,7 @@
 package com.thoughtworks.go.server.service.lookups;
 
 import com.thoughtworks.go.helper.CommandSnippetMother;
+import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -77,7 +78,7 @@ public class CommandSnippetXmlParserTest {
     @Test
     public void shouldConsiderXmlInvalidIfRootTagIsNotExec() throws Exception {
         CommandSnippet commandSnippet = xmlParser.parse("<hello command='nuget' ><arg>pack</arg><arg>component.nuspec</arg></hello>", "nuget", "/some/path/filename.xml");
-        assertThat(commandSnippet.getErrorMessage(), is("Reason: Invalid XML tag \"hello\" found."));
+        assertThat(commandSnippet.getErrorMessage(), Matchers.anyOf(is("Reason: Invalid XML tag \"hello\" found."), is("Reason: Cannot find the declaration of element 'hello'.")));
         assertThat(commandSnippet.isValid(), is(false));
     }
 
@@ -106,7 +107,7 @@ public class CommandSnippetXmlParserTest {
     @Test
     public void shouldConsiderXmlInvalidIfContainsUpperCaseTags () throws Exception {
         CommandSnippet commandSnippet = xmlParser.parse("<EXEC COMMAND='NUGET'><ARG>PACK</ARG></EXEC>", "nuget", "/some/path/filename.xml");
-        assertThat(commandSnippet.getErrorMessage(), is("Reason: Invalid XML tag \"EXEC\" found."));
+        assertThat(commandSnippet.getErrorMessage(), Matchers.anyOf(is("Reason: Invalid XML tag \"EXEC\" found."), is("Reason: Cannot find the declaration of element 'EXEC'.")));
         assertThat(commandSnippet.isValid(), is(false));
     }
 

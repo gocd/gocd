@@ -16,12 +16,26 @@
 
 package com.thoughtworks.go.utils;
 
-public class AssertJava8 {
-    public static void assertVMVersion() {
-        String jvmVersion = System.getProperty("java.vm.specification.version");
 
-        if (!"1.8".equals(jvmVersion)) {
-            System.err.println("Running GoCD requires Java version 1.8. You are currently running with Java version " + jvmVersion + ". GoCD will now exit!");
+import java.util.Arrays;
+import java.util.TreeSet;
+
+public class AssertJava8 {
+    private static TreeSet<JavaVersion> SUPPORTED_VERSIONS = new TreeSet<>(Arrays.asList(
+            JavaVersion.VERSION_1_8,
+            JavaVersion.VERSION_1_9,
+            JavaVersion.VERSION_1_10
+    ));
+
+    public static void assertVMVersion() {
+        checkSupported(JavaVersion.current());
+    }
+
+    private static void checkSupported(JavaVersion currentJavaVersion) {
+        if (!SUPPORTED_VERSIONS.contains(currentJavaVersion)) {
+            System.err.println("Running GoCD requires Java version >= " + SUPPORTED_VERSIONS.first().name() +
+                    " and <= " + SUPPORTED_VERSIONS.last() +
+                    ". You are currently running with Java version " + currentJavaVersion + ". GoCD will now exit!");
             System.exit(1);
         }
     }

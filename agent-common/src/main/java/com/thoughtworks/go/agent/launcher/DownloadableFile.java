@@ -21,13 +21,14 @@ import com.thoughtworks.go.agent.common.util.Downloader;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.output.NullOutputStream;
 
-import javax.xml.bind.DatatypeConverter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.DigestInputStream;
 import java.security.MessageDigest;
+
+import static org.apache.commons.codec.binary.Hex.encodeHexString;
 
 public enum DownloadableFile {
     AGENT("admin/agent", Downloader.AGENT_BINARY),
@@ -69,7 +70,7 @@ public enum DownloadableFile {
             try (DigestInputStream digest = new DigestInputStream(input, digester)) {
                 IOUtils.copy(digest, new NullOutputStream());
             }
-            return expectedSignature.equalsIgnoreCase(DatatypeConverter.printHexBinary(digester.digest()));
+            return expectedSignature.equalsIgnoreCase(encodeHexString(digester.digest()));
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

@@ -1,0 +1,91 @@
+<% @view_title = 'Stage Detail' -%>
+
+<% @show_stage_status_bar = true -%>
+<div class="sub_tabs_container">
+    <ul>
+        <%= link_with_current_tab 'Overview', "overview" %>
+        <%= link_with_current_tab 'Pipeline Dependencies', "pipeline" %>
+        <%= link_with_current_tab 'Materials', "materials" %>
+        <%= link_with_current_tab 'Jobs', "jobs" %>
+        <%= link_with_current_tab 'Tests', "tests" %>
+        <%= link_with_current_tab 'Config', "stage_config" %>
+        <%= link_with_current_tab 'Graphs', "stats" %>
+    </ul>
+</div>
+
+<div id="tab_container">
+    <% case params[:action]
+        when 'overview' %>
+        <%= render :partial=> 'overview' %>
+    <% when 'jobs' %>
+        <div id="jobs_grid">
+            <%= render :partial=> 'jobs', :locals => {:scope => {:jobs => @jobs, :stage => @stage, :has_operate_permissions => @has_operate_permissions }} %>
+        </div>
+    <% when 'materials' %>
+        <div class="material_tab">
+            <%= render :partial => 'shared/build_cause.html', :locals => {:scope => {:overview => false, :material_revisions => @pipeline.getCurrentRevisions(), :show_files => true, :pipeline_name => @pipeline.getName()}} -%>
+        </div>
+    <% when 'pipeline' %>
+        <div id="pipeline_visualization">
+            <%= render :partial => "pipelines/pipeline_dependencies", :locals => {:scope => {}} %>
+        </div>
+    <% when 'tests' %>
+        <div class="fbh_microcontent_popup dashboard_build_cause_like_microcontent_popups">
+            <div class="hidden changes enhanced_dropdown" id="fbh_build_cause_content">&nbsp;</div>
+            <div class="hidden changes enhanced_dropdown failure_detail_popup" id="fbh_failure_details_content">&nbsp;</div>
+        </div>
+        <div id="non_passing_tests" class="non_passing_tests overview_widget">
+            <% cache(view_cache_key.forFbhOfStagesUnderPipeline(@stage.getStage().getIdentifier().pipelineIdentifier()), :subkey => view_cache_key.forFailedBuildHistoryStage(@stage.getStage(), @response_format), :skip_digest => true) do %>
+                <%= render :partial => "non_passing_tests", :locals => {:scope => {}} %>
+            <% end %>
+        </div>
+    <% when 'stats' %>
+        <div id="stage_stats">
+            <%= render :partial => "stats", :locals => {:scope => {:pagination => @pagination, :chart_scale => @chart_scale, :start_end_dates => @start_end_dates,
+                                                                   :chart_stage_duration_passed => @chart_stage_duration_passed, :chart_tooltip_data_passed => @chart_tooltip_data_passed,
+                                                                   :chart_stage_duration_failed => @chart_stage_duration_failed, :chart_tooltip_data_failed => @chart_tooltip_data_failed}} %>
+        </div>
+    <% when 'stage_config' %>
+        <div id="ran_with_config">
+            <%= render :partial => "config.html", :locals => {:scope => {:config_revision => @ran_with_config_revision}} -%>
+        </div>
+    <% end %>
+</div>
+
+<script type="text/javascript">
+
+    Util.on_load(function() {
+      var stage_run_timestamp_format_handler = function() {
+        jQuery(".schedule_info .time").each(function (idx, timeSpan) {
+          var timestamp = parseInt(jQuery(timeSpan).attr("data"));
+          if (isNaN(timestamp)) return;
+          var time = new Date(timestamp);
+          jQuery(timeSpan).text(moment(time).format('DD MMM YYYY [at] HH:mm:ss [Local Time]'));
+        });
+      };
+
+      stage_run_timestamp_format_handler()
+
+      <% if auto_refresh? %>
+        <% unless ['stats'].include?(params[:action]) -%>
+            AjaxRefreshers.addRefresher(new StageDetailAjaxRefresher('<%= stage_detail_tab_path_for(:format => "json", :action => params[:action]) %>', '<%= url_for_login %>', {current_stage_run: wire_up_stage_runs_popup, pipeline_visualization: initPipelineVisualization, stage_history: compare_link_handlers, stage_run_details: stage_run_timestamp_format_handler}), true);
+       <% end %>
+    <% end %>
+
+        var content_box = jQuery('#fbh_build_cause_content');
+        var popup = new MicroContentPopup('fbh_build_cause_content', new ContextualAjaxPopupHandler(content_box.get(0),
+                function(event) {
+                    return event.target.getAttribute("href");
+                }));
+        var popupShower = new MicroContentPopup.LiveShower(popup);
+
+        jQuery('.fbh_build_cause_button').live('click', function(event) {
+            popupShower.toggle_popup(event, this);
+        });
+
+        jQuery('.fbh_failure_detail_button').live('click', function(event) {
+            popupShower.toggle_popup(event, this);
+        });
+
+    });
+</script>

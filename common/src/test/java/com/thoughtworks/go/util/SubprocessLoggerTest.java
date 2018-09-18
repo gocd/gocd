@@ -19,6 +19,7 @@ package com.thoughtworks.go.util;
 import ch.qos.logback.classic.Level;
 import com.jezhumble.javasysmon.ProcessInfo;
 import com.thoughtworks.go.javasysmon.wrapper.DefaultCurrentProcess;
+import org.assertj.core.api.Assertions;
 import org.junit.After;
 import org.junit.Test;
 
@@ -82,20 +83,18 @@ public class SubprocessLoggerTest {
             }
             allLogs = result;
         }
-        assertThat(allLogs, containsString("WARN foo bar baz\n" +
+        Assertions.assertThat(allLogs).isEqualToNormalizingNewlines("WARN foo bar baz\n" +
                 "  101 name-1       100 owner-1       0Mb    0Mb 00:00:00 command-1              \n" +
                 "  103 name-1a      100 owner-1       0Mb    0Mb 00:00:00 command-1a             \n" +
-                "  102 name-2       101 owner-1       0Mb    0Mb 00:00:00 command-2              \n" +
-                "\n"));
-        assertThat(allLogs, not(containsString("PID: 102")));
+                "\n");
+        assertThat(allLogs, not(containsString("102")));
     }
 
     private DefaultCurrentProcess stubSysMon() {
         DefaultCurrentProcess currentProcess = mock(DefaultCurrentProcess.class);
         when(currentProcess.immediateChildren()).thenReturn(Arrays.asList(
                 new ProcessInfo(101, 100, "command-1", "name-1", "owner-1", 100, 200, 400, 800),
-                new ProcessInfo(103, 100, "command-1a", "name-1a", "owner-1", 160, 260, 460, 860),
-                new ProcessInfo(102, 101, "command-2", "name-2", "owner-1", 150, 250, 450, 850)
+                new ProcessInfo(103, 100, "command-1a", "name-1a", "owner-1", 160, 260, 460, 860)
         ));
         return currentProcess;
     }

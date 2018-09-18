@@ -20,6 +20,7 @@ const _                       = require('lodash');
 const ComponentMixins         = require('helpers/mithril_component_mixins');
 const DashboardGroupsWidget   = require('views/dashboard/dashboard_groups_widget');
 const PersonalizedViewsWidget = require('views/dashboard/personalized_views_widget');
+const Dropdown                = require('views/shared/dropdown');
 
 const PipelineSearch = {
   view(vnode) {
@@ -35,14 +36,11 @@ const GroupingSwitch = {
   view(vnode) {
     const vm = vnode.attrs.vm;
 
-    return <div class="groupby">
-      <span class="grouping_label">Group pipelines by:</span>
-      <f.select model={vm}
-                aria-label="Group pipelines by:"
-                attrName="scheme"
-                class="grouping_select"
-                items={vm.groupByItems}/>
-    </div>;
+    return <Dropdown model={vm}
+                     label="Group pipelines by:"
+                     attrName="scheme"
+                     class="grouping_select"
+                     items={vm.groupByItems}/>;
   }
 };
 

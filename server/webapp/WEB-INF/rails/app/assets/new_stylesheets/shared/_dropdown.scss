@@ -1,0 +1,73 @@
+/*
+ * Copyright 2018 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+.groupby {
+  position: relative;
+}
+
+.dashboard-modifiers {
+  display:         flex;
+  justify-content: space-between;
+  margin-bottom:   10px;
+  position:        relative;
+  z-index:         5;
+
+  .group-mode {
+    position: absolute;
+    float:    left;
+    label {
+      display: block;
+    }
+
+    label, span {
+      cursor: pointer;
+    }
+
+    label > *:empty, .dropdown_radio {
+      display: none;
+    }
+
+    .dropdown_radio + span {
+      margin-left: 10px;
+      padding:     0 15px;
+      font-size:   13px;
+      background:  #fff;
+      border:      1px solid #d6e0e2;
+      width:       220px;
+      height:      40px;
+      line-height: 40px;
+      display:     inline-block;
+    }
+
+    .dropdown_radio:checked + span {
+      font-weight: 600;
+      display:     block;
+    }
+  }
+}
+
+.edit-dropdown-text {
+  float:      left;
+  margin-top: 11px;
+}
+
+.down-arrow {
+  @include icon-before($type: angle-down);
+  position: absolute;
+  right:    10px;
+  top:      9px;
+  cursor:   pointer;
+}

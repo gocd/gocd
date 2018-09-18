@@ -82,6 +82,8 @@ function GroupingMixin() {
   _.assign(this, {
     scheme,
 
+    schemeDropDownOpen: Stream(false),
+
     groupByItems: [
       {
         id:   "pipeline_groups",

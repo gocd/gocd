@@ -42,8 +42,7 @@ import org.mockito.invocation.InvocationOnMock
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
 import static org.mockito.ArgumentMatchers.any
 import static org.mockito.ArgumentMatchers.eq
-import static org.mockito.Mockito.doAnswer
-import static org.mockito.Mockito.when
+import static org.mockito.Mockito.*
 import static org.mockito.MockitoAnnotations.initMocks
 
 class PipelineGroupsControllerV1DelegateTest implements SecurityServiceTrait, ControllerTrait<PipelineGroupsControllerV1Delegate> {
@@ -126,6 +125,80 @@ class PipelineGroupsControllerV1DelegateTest implements SecurityServiceTrait, Co
     }
   }
 
+  @Nested
+  class Create {
+
+    @Nested
+    class Security implements SecurityTestTrait, AdminUserSecurity {
+
+      @Override
+      String getControllerMethodUnderTest() {
+        return "create"
+      }
+
+      @Override
+      void makeHttpCall() {
+        postWithApiHeader(controller.controllerPath(), [name: 'group'])
+      }
+
+    }
+
+    @Nested
+    class AsAdmin {
+
+      @BeforeEach
+      void setUp() {
+        enableSecurity()
+        loginAsAdmin()
+      }
+
+      @Test
+      void "should allow admin users create a new pipeline group"() {
+        def pipelineGroup = new BasicPipelineConfigs()
+        pipelineGroup.setGroup("new_grp")
+
+        postWithApiHeader(controller.controllerPath(), [name: "new_grp"])
+
+        verify(pipelineConfigsService).createGroup(any(), any(), any())
+        assertThatResponse()
+          .isOk()
+          .hasBodyWithJsonObject(pipelineGroup, PipelineGroupRepresenter)
+      }
+
+      @Test
+      void "should handle server validation errors"() {
+        HttpLocalizedOperationResult result
+        def pipelineGroup = new BasicPipelineConfigs()
+        pipelineGroup.setGroup("group")
+
+        when(pipelineConfigsService.createGroup(any(), any(), any())).then({ InvocationOnMock invocation ->
+          pipelineGroup.addError("group", "Invalid name")
+          result = invocation.getArguments()[2]
+          result.unprocessableEntity("message from server")
+        })
+
+        postWithApiHeader(controller.controllerPath(), [name: 'group'])
+
+        assertThatResponse()
+          .isUnprocessableEntity()
+          .hasJsonMessage("message from server")
+      }
+
+      @Test
+      void "should fail if a group by same name already exists"() {
+        def pipelineGroup = new BasicPipelineConfigs()
+        pipelineGroup.setGroup("group")
+
+        when(pipelineConfigsService.getGroupsForUser(any())).thenReturn([pipelineGroup])
+
+        postWithApiHeader(controller.controllerPath(), [name: 'group'])
+
+        assertThatResponse()
+          .isUnprocessableEntity()
+          .hasJsonMessage("Failed to add pipeline group 'group'. Another pipeline group with the same name already exists.")
+      }
+    }
+  }
 
   @Nested
   class Show {

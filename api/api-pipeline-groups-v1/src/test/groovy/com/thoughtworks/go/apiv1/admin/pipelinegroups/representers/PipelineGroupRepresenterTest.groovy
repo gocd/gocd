@@ -50,6 +50,17 @@ class PipelineGroupRepresenterTest {
       assertEquals("group", pipelineConfigs.getGroup())
       assertEquals(getAuthorization(), pipelineConfigs.getAuthorization())
     }
+
+    @Test
+    void 'should convert from json without authorization'() {
+      def simpleGroup = [
+        name: 'groupName'
+      ]
+      def jsonReader = GsonTransformer.instance.jsonReaderFrom(simpleGroup)
+      def pipelineConfigs = PipelineGroupRepresenter.fromJSON(jsonReader)
+
+      assertEquals("groupName", pipelineConfigs.getGroup())
+    }
   }
 
   static def getPipelineConfigs() {

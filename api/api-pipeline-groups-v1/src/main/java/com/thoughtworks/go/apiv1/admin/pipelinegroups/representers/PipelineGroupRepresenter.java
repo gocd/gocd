@@ -39,8 +39,10 @@ public class PipelineGroupRepresenter {
         PipelineConfigs pipelineConfigs = new BasicPipelineConfigs();
 
         jsonReader.readStringIfPresent("name", pipelineConfigs::setGroup);
-        Authorization authorization = AuthorizationRepresenter.fromJSON(jsonReader.readJsonObject("authorization"));
-        pipelineConfigs.setAuthorization(authorization);
+        if (jsonReader.hasJsonObject("authorization")) {
+            Authorization authorization = AuthorizationRepresenter.fromJSON(jsonReader.readJsonObject("authorization"));
+            pipelineConfigs.setAuthorization(authorization);
+        }
 
         return pipelineConfigs;
     }

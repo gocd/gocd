@@ -21,6 +21,7 @@ import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
 import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
 import com.thoughtworks.go.config.update.ConfigUpdateCheckFailedException;
+import com.thoughtworks.go.config.update.CreatePipelineConfigsCommand;
 import com.thoughtworks.go.config.update.DeletePipelineConfigsCommand;
 import com.thoughtworks.go.config.update.UpdatePipelineConfigsAuthCommand;
 import com.thoughtworks.go.config.validation.GoConfigValidity;
@@ -128,12 +129,17 @@ public class PipelineConfigsService {
         return updatePipelineConfigsCommand.getPreprocessedEntityConfig();
     }
 
-    public void deleteGroup(Username currentUser, PipelineConfigs group, HttpLocalizedOperationResult result) {
-        DeletePipelineConfigsCommand deletePipelineConfigsCommand = new DeletePipelineConfigsCommand(group, result, currentUser, securityService);
-        update(currentUser, group, result, deletePipelineConfigsCommand);
+    public void deleteGroup(Username currentUser, PipelineConfigs pipelineConfigs, HttpLocalizedOperationResult result) {
+        DeletePipelineConfigsCommand deletePipelineConfigsCommand = new DeletePipelineConfigsCommand(pipelineConfigs, result, currentUser, securityService);
+        update(currentUser, pipelineConfigs, result, deletePipelineConfigsCommand);
         if (result.isSuccessful()) {
-            result.setMessage(LocalizedMessage.resourceDeleteSuccessful("Pipeline group", group.getGroup()));
+            result.setMessage(LocalizedMessage.resourceDeleteSuccessful("Pipeline group", pipelineConfigs.getGroup()));
         }
+    }
+
+    public void createGroup(Username currentUser, PipelineConfigs pipelineConfigs, HttpLocalizedOperationResult result) {
+        CreatePipelineConfigsCommand createPipelineConfigsCommand = new CreatePipelineConfigsCommand(pipelineConfigs, currentUser, result, securityService);
+        update(currentUser, pipelineConfigs, result, createPipelineConfigsCommand);
     }
 
     private boolean userHasPermissions(Username username, String groupName, HttpLocalizedOperationResult result) {

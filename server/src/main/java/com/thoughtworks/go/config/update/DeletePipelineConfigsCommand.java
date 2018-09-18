@@ -16,31 +16,20 @@
 
 package com.thoughtworks.go.config.update;
 
-import com.thoughtworks.go.config.BasicCruiseConfig;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.PipelineConfigs;
-import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
 import com.thoughtworks.go.config.exceptions.PipelineGroupNotEmptyException;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.SecurityService;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 
-import static com.thoughtworks.go.i18n.LocalizedMessage.forbiddenToEdit;
-import static com.thoughtworks.go.serverhealth.HealthStateType.forbidden;
-
-public class DeletePipelineConfigsCommand implements EntityConfigUpdateCommand<PipelineConfigs> {
-    private PipelineConfigs preprocessedPipelineConfigs;
-    private final LocalizedOperationResult result;
+public class DeletePipelineConfigsCommand extends PipelineConfigsCommand {
     private final PipelineConfigs group;
-    private final Username currentUser;
-    private final SecurityService securityService;
 
     public DeletePipelineConfigsCommand(PipelineConfigs group, LocalizedOperationResult result, Username currentUser,
                                         SecurityService securityService) {
+        super(result, currentUser, securityService);
         this.group = group;
-        this.result = result;
-        this.currentUser = currentUser;
-        this.securityService = securityService;
     }
 
     @Override
@@ -57,21 +46,7 @@ public class DeletePipelineConfigsCommand implements EntityConfigUpdateCommand<P
     public boolean isValid(CruiseConfig preprocessedConfig) { return true; }
 
     @Override
-    public void clearErrors() {
-        BasicCruiseConfig.clearErrors(preprocessedPipelineConfigs);
-    }
-
-    @Override
-    public PipelineConfigs getPreprocessedEntityConfig() {
-        return preprocessedPipelineConfigs;
-    }
-
-    @Override
     public boolean canContinue(CruiseConfig cruiseConfig) {
-        if (!securityService.isUserAdminOfGroup(currentUser, group.getGroup())) {
-            result.forbidden(forbiddenToEdit(), forbidden());
-            return false;
-        }
-        return true;
+        return isUserAdminOfGroup(group.getGroup());
     }
 }

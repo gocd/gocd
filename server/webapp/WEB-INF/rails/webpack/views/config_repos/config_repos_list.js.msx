@@ -15,18 +15,29 @@
  */
 
 const m = require("mithril");
-const ReposList = require("views/config_repos/config_repos_list");
-const ReposModel = require("models/config_repos/config_repos");
 
-const model = new ReposModel().start();
+const ReposList = {
+  view(vnode) {
+    const model = vnode.attrs.model;
 
-const ConfigReposPage = {
-  view() {
-    return m(ReposList, {model});
+    return <section class="repo-list">
+      <h1>Config Header</h1>
+      <ul>
+      {
+        model.repos().map((repo) => {
+          return <ConfigRepo model={repo}/>;
+        })
+      }
+      </ul>
+    </section>;
   }
 };
 
-window.addEventListener("DOMContentLoaded", () => {
-  const root = document.getElementById("config-repos");
-  m.mount(root, ConfigReposPage);
-});
+const ConfigRepo = {
+  view(vnode) {
+    const repo = vnode.attrs.model;
+    return <li>{repo.material.attributes.url}</li>;
+  }
+};
+
+module.exports = ReposList;

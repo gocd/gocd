@@ -15,4 +15,6 @@ if ($mod -eq "0") {
     use_jdk "oracle@1.11.0-28" "exe+https://nexus.gocd.io/repository/s3-mirrors/local/jdk/jdk-11-28_windows-x64_bin.exe"
 }
 
-cmd /c "$args"
+$process = Start-Process -Wait -PassThru -NoNewWindow -FilePath "cmd" -ArgumentList "/c ${args}"
+
+exit $process.ExitCode

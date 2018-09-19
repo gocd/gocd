@@ -33,9 +33,7 @@ import static org.hibernate.cfg.Environment.GENERATE_STATISTICS;
  * Working directory: <project-path>/server
  * VM arguments:
  *      -Xms512m -Xmx1024m -Djava.awt.headless=true
- * If running on java >=9, add the following VM args
- *      --add-modules=java.se,java.xml.bind,java.xml.ws.annotation
- * classpath: Use classpath of 'development-server'
+ * classpath: Use classpath of 'development-server_main'
  */
 
 public class DevelopmentServer {

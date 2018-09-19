@@ -34,7 +34,7 @@ public class InstanceFactory {
         buildCause.assertMaterialsMatch(pipelineConfig.materialConfigs());
         buildCause.assertPipelineConfigAndMaterialRevisionMatch(pipelineConfig);
 
-        Map<CaseInsensitiveString, String> variables = EnvironmentVariables.toEnvironmentVariables(context.getEnvironmentVariablesConfig()).insecureVariablesHash();
+        Map<CaseInsensitiveString, String> variables = EnvironmentVariables.toEnvironmentVariables(pipelineConfig.getVariables()).insecureVariablesHash();
         variables.putAll(buildCause.getVariables().insecureVariablesHash());
 
         return new Pipeline(CaseInsensitiveString.str(pipelineConfig.name()), pipelineConfig.getLabelTemplate(), buildCause, variables, createStageInstance(pipelineConfig.first(), context, md5, clock));

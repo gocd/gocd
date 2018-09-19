@@ -283,6 +283,21 @@ public class PipelineLabelTest {
         assertThat(label.toString(), is("release-1, 2"));
     }
 
+    @Test
+    public void shouldReturnMatchedTextIfThereAreNoEnvironmentVariables() throws Exception {
+        PipelineLabel label = PipelineLabel.create("release-${$VAR}");
+        label.updateLabel(null);
+        assertThat(label.toString(), is("release-${$VAR}"));
+    }
+
+    @Test
+    public void shouldReturnEmptyStringIfEnvironmentVariableIsUndefined() throws Exception {
+        Map<CaseInsensitiveString, String> envVars = new HashMap<>();
+        PipelineLabel label = PipelineLabel.create("release-${$VAR1}", envVars);
+        label.updateLabel(null);
+        assertThat(label.toString(), is("release-"));
+    }
+
     @BeforeClass
     public static void setup() {
         MATERIAL_REVISIONS.put(new CaseInsensitiveString("svnRepo.verynice"), SVN_REVISION);

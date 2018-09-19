@@ -65,7 +65,7 @@ public class PipelineLabel implements Serializable {
         String revision;
         if (material.toString().startsWith("$")) {
             if (envVars == null) {
-                return "\\" + matcher.group(0);
+                return "\\${\\$" + material.toString().substring(1) + "}";
             }
             revision = envVars.getOrDefault(new CaseInsensitiveString(material.toString().substring(1)), "");
         } else {

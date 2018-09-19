@@ -132,6 +132,17 @@ public class DataSharingSettingsServiceIntegrationTest {
     }
 
     @Test
+    public void shouldFlushEtagCacheForDataSharingSettingsOnUpdate() {
+        DataSharingSettings existing = dataSharingSettingsService.get();
+        String settingsEtagCacheKey = existing.getClass().getName() + "." + "data_sharing_settings";
+        goCache.put("GO_ETAG_CACHE", settingsEtagCacheKey, "existing-etag-in-cache");
+
+        assertNotNull(goCache.get("GO_ETAG_CACHE", settingsEtagCacheKey));
+        dataSharingSettingsService.createOrUpdate(new DataSharingSettings(false, "Bob", new Date()));
+        assertNull(goCache.get("GO_ETAG_CACHE", settingsEtagCacheKey));
+    }
+
+    @Test
     public void shouldUpdateMd5SumOfDataSharingSettingsUponSave() {
         DataSharingSettings loaded = dataSharingSettingsService.get();
 

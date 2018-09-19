@@ -28,6 +28,7 @@ import com.thoughtworks.go.domain.packagerepository.PackageDefinition;
 import com.thoughtworks.go.domain.packagerepository.PackageRepository;
 import com.thoughtworks.go.domain.scm.SCM;
 import com.thoughtworks.go.listener.ConfigChangedListener;
+import com.thoughtworks.go.listener.DataSharingSettingsChangeListener;
 import com.thoughtworks.go.listener.EntityConfigChangedListener;
 import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.domain.DataSharingSettings;
@@ -78,7 +79,7 @@ public class EntityHashingService implements ConfigChangedListener, Initializer 
     @Override
     public void startDaemon() {
     }
-    
+
     @Override
     public void onConfigChange(CruiseConfig newCruiseConfig) {
         goCache.remove(ETAG_CACHE_KEY);
@@ -217,7 +218,7 @@ public class EntityHashingService implements ConfigChangedListener, Initializer 
     }
 
     public String md5ForEntity(DataSharingSettings dataSharingSettings) {
-        String cacheKey = cacheKey(dataSharingSettings, Long.toString(dataSharingSettings.getId()));
+        String cacheKey = cacheKey(dataSharingSettings, "data_sharing_settings");
         return getFromCache(cacheKey, dataSharingSettings);
     }
 
@@ -324,6 +325,7 @@ public class EntityHashingService implements ConfigChangedListener, Initializer 
             removeFromCache(pipelineConfigs, pipelineConfigs.getGroup());
         }
     }
+
     private class MergePipelineConfigsChangedListener extends EntityConfigChangedListener<MergePipelineConfigs> {
         @Override
         public void onEntityConfigChange(MergePipelineConfigs pipelineConfigs) {

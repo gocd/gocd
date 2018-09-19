@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.server.service.datasharing;
 
+import com.thoughtworks.go.listener.DataSharingSettingsChangeListener;
 import com.thoughtworks.go.server.dao.DataSharingSettingsSqlMapDao;
 import com.thoughtworks.go.server.domain.DataSharingSettings;
 import com.thoughtworks.go.server.service.EntityHashingService;
@@ -31,7 +32,7 @@ import org.springframework.transaction.support.TransactionCallback;
 import java.util.Date;
 
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
+import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -53,15 +54,15 @@ public class DataSharingSettingsServiceTest {
         initMocks(this);
         sharingSettingsService = new DataSharingSettingsService(dataSharingSettingsSqlMapDao, transactionTemplate,
                 transactionSynchronizationManager, entityHashingService);
-    }
 
-    @Test
-    public void shouldUpdateDataSharingSettings() throws Exception {
         when(transactionTemplate.execute(any(TransactionCallback.class))).then(invocation -> {
             ((TransactionCallback) invocation.getArguments()[0]).doInTransaction(new SimpleTransactionStatus());
             return null;
         });
+    }
 
+    @Test
+    public void shouldUpdateDataSharingSettings() throws Exception {
         boolean newConsent = false;
         String consentedBy = "Bob";
         ArgumentCaptor<DataSharingSettings> argumentCaptor = ArgumentCaptor.forClass(DataSharingSettings.class);
@@ -73,5 +74,17 @@ public class DataSharingSettingsServiceTest {
 
         assertThat(updatedDataSharingSettings.allowSharing(), is(newConsent));
         assertThat(updatedDataSharingSettings.updatedBy(), is(consentedBy));
+    }
+
+    @Test
+    public void shouldInvokeListenersAfterSettingsAreUpdated() {
+        final boolean[] isListenerInvoked = {false};
+        sharingSettingsService.register(updatedSettings -> isListenerInvoked[0] = true);
+
+        assertFalse(isListenerInvoked[0]);
+
+        sharingSettingsService.createOrUpdate(new DataSharingSettings(true, "Bob", new Date()));
+
+        assertTrue(isListenerInvoked[0]);
     }
 }

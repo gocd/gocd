@@ -15,7 +15,11 @@
  */
 
 dependencies {
-  compile project(':base')
+  compile group: 'org.slf4j', name: 'slf4j-api', version: project.versions.slf4j
+  compile group: 'org.apache.commons', name: 'commons-lang3', version: project.versions.commonsLang3
+  compile(project(':base')) {
+    // we only use 1 class from base
+    transitive = false
+  }
   compile group: 'com.jezhumble', name: 'javasysmon', version: '0.3.6'
-  compile group: 'org.springframework', name: 'spring-core', version: project.versions.spring
 }

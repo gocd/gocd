@@ -122,7 +122,7 @@ public class InstanceFactoryTest {
 
         PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString("pipeline"), materialConfigs, stageConfig);
         pipelineConfig.addEnvironmentVariable("VAR", "value");
-        pipelineConfig.setLabelTemplate("${$VAR}");
+        pipelineConfig.setLabelTemplate("${ENV:VAR}");
 
         BuildCause buildCause = ModificationsMother.forceBuild(pipelineConfig);
         EnvironmentVariables overriddenVars = buildCause.getVariables();

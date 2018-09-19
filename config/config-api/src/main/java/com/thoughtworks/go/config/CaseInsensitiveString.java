@@ -46,6 +46,10 @@ public class CaseInsensitiveString implements Comparable<CaseInsensitiveString>,
         return lowerCaseName;
     }
 
+    public boolean startsWith(String string) {
+       return lowerCaseName.startsWith(string.toLowerCase());
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

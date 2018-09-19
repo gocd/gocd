@@ -70,7 +70,7 @@ public class PipelineLabelTest {
     public void shouldReplaceTheTemplateCaseInsensitively() throws Exception {
         Map<CaseInsensitiveString, String> envVars = new HashMap<>();
         envVars.put(new CaseInsensitiveString("VAR"), "var_value");
-        PipelineLabel label = PipelineLabel.create("release-${SVNMaterial}-${$Var}", envVars);
+        PipelineLabel label = PipelineLabel.create("release-${SVNMaterial}-${EnV:Var}", envVars);
         MaterialRevisions materialRevisions = ModificationsMother.oneUserOneFile();
         label.updateLabel(materialRevisions.getNamedRevisions());
         assertThat(label.toString(), is("release-" + ModificationsMother.currentRevision() + "-var_value"));
@@ -268,7 +268,7 @@ public class PipelineLabelTest {
     public void shouldReplaceTheTemplateWithEnvironmentVariable() throws Exception {
         Map<CaseInsensitiveString, String> envVars = new HashMap<>();
         envVars.put(new CaseInsensitiveString("VAR"), "var_value");
-        PipelineLabel label = PipelineLabel.create("release-${$VAR}", envVars);
+        PipelineLabel label = PipelineLabel.create("release-${ENV:VAR}", envVars);
         label.updateLabel(null);
         assertThat(label.toString(), is("release-var_value"));
     }
@@ -278,22 +278,22 @@ public class PipelineLabelTest {
         Map<CaseInsensitiveString, String> envVars = new HashMap<>();
         envVars.put(new CaseInsensitiveString("VAR1"), "1");
         envVars.put(new CaseInsensitiveString("VAR2"), "2");
-        PipelineLabel label = PipelineLabel.create("release-${$VAR1}, ${$VAR2}", envVars);
+        PipelineLabel label = PipelineLabel.create("release-${ENV:VAR1}, ${ENV:VAR2}", envVars);
         label.updateLabel(null);
         assertThat(label.toString(), is("release-1, 2"));
     }
 
     @Test
     public void shouldReturnMatchedTextIfThereAreNoEnvironmentVariables() throws Exception {
-        PipelineLabel label = PipelineLabel.create("release-${$VAR}");
+        PipelineLabel label = PipelineLabel.create("release-${ENV:VAR}");
         label.updateLabel(null);
-        assertThat(label.toString(), is("release-${$VAR}"));
+        assertThat(label.toString(), is("release-${ENV:VAR}"));
     }
 
     @Test
     public void shouldReturnEmptyStringIfEnvironmentVariableIsUndefined() throws Exception {
         Map<CaseInsensitiveString, String> envVars = new HashMap<>();
-        PipelineLabel label = PipelineLabel.create("release-${$VAR1}", envVars);
+        PipelineLabel label = PipelineLabel.create("release-${ENV:VAR1}", envVars);
         label.updateLabel(null);
         assertThat(label.toString(), is("release-"));
     }

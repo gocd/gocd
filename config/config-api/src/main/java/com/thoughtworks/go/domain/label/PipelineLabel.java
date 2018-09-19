@@ -28,6 +28,7 @@ public class PipelineLabel implements Serializable {
     protected String label;
     private Map<CaseInsensitiveString, String> envVars;
     public static final String COUNT = "COUNT";
+    public static final String ENV_VAR_PREFIX = "env:";
     public static final String COUNT_TEMPLATE = String.format("${%s}", COUNT);
 
     public PipelineLabel(String labelTemplate) {
@@ -47,7 +48,7 @@ public class PipelineLabel implements Serializable {
         return label;
     }
 
-    public static final Pattern PATTERN = Pattern.compile("(?i)\\$\\{([$]*[a-zA-Z0-9_\\-\\.!~'#:]+)(\\[:(\\d+)\\])?\\}");
+    public static final Pattern PATTERN = Pattern.compile("(?i)\\$\\{([a-zA-Z:]*[a-zA-Z0-9_\\-\\.!~'#:]+)(\\[:(\\d+)\\])?\\}");
 
     private String replaceRevisionsInLabel(Map<CaseInsensitiveString, String> materialRevisions) {
         final Matcher matcher = PATTERN.matcher(this.label);
@@ -63,11 +64,11 @@ public class PipelineLabel implements Serializable {
     private String lookupMaterialRevision(Matcher matcher,  Map<CaseInsensitiveString, String> materialRevisions) {
         final CaseInsensitiveString material = new CaseInsensitiveString(matcher.group(1));
         String revision;
-        if (material.toString().startsWith("$")) {
+        if (material.startsWith(ENV_VAR_PREFIX)) {
             if (envVars == null) {
-                return "\\${\\$" + material.toString().substring(1) + "}";
+                return "\\" + matcher.group(0);
             }
-            revision = envVars.getOrDefault(new CaseInsensitiveString(material.toString().substring(1)), "");
+            revision = envVars.getOrDefault(new CaseInsensitiveString(material.toString().split(":", 2)[1]), "");
         } else {
             if (!materialRevisions.containsKey(material)) {
                 //throw new IllegalStateException("cannot find material '" + material + "'");

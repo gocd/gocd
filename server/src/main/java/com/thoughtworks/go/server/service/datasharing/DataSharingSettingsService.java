@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.server.service.datasharing;
 
+import com.thoughtworks.go.listener.DataSharingSettingsChangeListener;
 import com.thoughtworks.go.server.dao.DataSharingSettingsSqlMapDao;
 import com.thoughtworks.go.server.domain.DataSharingSettings;
 import com.thoughtworks.go.server.service.EntityHashingService;
@@ -28,16 +29,19 @@ import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionSynchronizationAdapter;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 @Service
-public class DataSharingSettingsService {
+public class DataSharingSettingsService implements DataSharingSettingsChangeListener {
     private final Object mutexForDataSharingSettings = new Object();
 
     private final DataSharingSettingsSqlMapDao dataSharingSettingsSqlMapDao;
     private TransactionTemplate transactionTemplate;
     private TransactionSynchronizationManager transactionSynchronizationManager;
     private final EntityHashingService entityHashingService;
+    private final List<DataSharingSettingsChangeListener> dataSharingSettingsChangeListeners;
 
     @Autowired
     public DataSharingSettingsService(DataSharingSettingsSqlMapDao dataSharingSettingsSqlMapDao,
@@ -48,6 +52,7 @@ public class DataSharingSettingsService {
         this.transactionTemplate = transactionTemplate;
         this.transactionSynchronizationManager = transactionSynchronizationManager;
         this.entityHashingService = entityHashingService;
+        dataSharingSettingsChangeListeners = new ArrayList<>();
     }
 
     public void initialize() {
@@ -60,6 +65,8 @@ public class DataSharingSettingsService {
         if (new SystemEnvironment().shouldFailStartupOnDataError()) {
             assert get() != null;
         }
+
+        register(this);
     }
 
     public DataSharingSettings get() {
@@ -85,6 +92,19 @@ public class DataSharingSettingsService {
                     }
                 }
             });
+
+            dataSharingSettingsChangeListeners
+                    .stream()
+                    .forEach(listener -> listener.onDataSharingSettingsChange(dataSharingSettings));
         }
+    }
+
+    @Override
+    public void onDataSharingSettingsChange(DataSharingSettings updatedSettings) {
+        entityHashingService.removeFromCache(updatedSettings, "data_sharing_settings");
+    }
+
+    public void register(DataSharingSettingsChangeListener listener) {
+        dataSharingSettingsChangeListeners.add(listener);
     }
 }

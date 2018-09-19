@@ -24,7 +24,8 @@ public class AssertJava8 {
     private static TreeSet<JavaVersion> SUPPORTED_VERSIONS = new TreeSet<>(Arrays.asList(
             JavaVersion.VERSION_1_8,
             JavaVersion.VERSION_1_9,
-            JavaVersion.VERSION_1_10
+            JavaVersion.VERSION_1_10,
+            JavaVersion.VERSION_11
     ));
 
     public static void assertVMVersion() {

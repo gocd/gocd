@@ -177,11 +177,9 @@ class DataSharingSettingsControllerV1Test implements SecurityServiceTrait, Contr
                 def captor = ArgumentCaptor.forClass(DataSharingSettings.class)
                 doNothing().when(dataSharingSettingsService).createOrUpdate(any())
                 doReturn(settings).when(dataSharingSettingsService).get()
-                when(entityHashingService.md5ForEntity(settings)).thenReturn("cached-md5")
 
                 def headers = [
                   'accept'      : controller.mimeType,
-                  'If-Match'    : 'cached-md5',
                   'content-type': 'application/json'
                 ]
 
@@ -208,11 +206,9 @@ class DataSharingSettingsControllerV1Test implements SecurityServiceTrait, Contr
                 def captor = ArgumentCaptor.forClass(DataSharingSettings.class)
                 doNothing().when(dataSharingSettingsService).createOrUpdate(any())
                 doReturn(settings).when(dataSharingSettingsService).get()
-                when(entityHashingService.md5ForEntity(settings)).thenReturn("cached-md5")
 
                 def headers = [
                   'accept'      : controller.mimeType,
-                  'If-Match'    : 'cached-md5',
                   'content-type': 'application/json'
                 ]
 
@@ -228,26 +224,6 @@ class DataSharingSettingsControllerV1Test implements SecurityServiceTrait, Contr
                 assertEquals(settingsBeingSaved.allowSharing(), settings.allowSharing())
                 assertEquals(settingsBeingSaved.updatedBy(), currentUsername().getUsername().toString())
             }
-
-            @Test
-            void 'should reject update if old etag is provided'() {
-                def data = [allow: true]
-                def settings = new DataSharingSettings()
-                doReturn(settings).when(dataSharingSettingsService).get()
-                when(entityHashingService.md5ForEntity(settings)).thenReturn("new-md5")
-                def headers = [
-                  'accept'      : controller.mimeType,
-                  'If-Match'    : 'old-md5',
-                  'content-type': 'application/json'
-                ]
-
-                patchWithApiHeader(controller.controllerBasePath(), headers, data)
-                assertThatResponse()
-                  .isPreconditionFailed()
-                  .hasJsonMessage("Someone has modified the entity. Please update your copy with the changes and try again.")
-                verify(dataSharingSettingsService, never()).createOrUpdate(any())
-            }
         }
     }
 }
-

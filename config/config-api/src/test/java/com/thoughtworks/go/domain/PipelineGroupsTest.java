@@ -17,6 +17,7 @@
 package com.thoughtworks.go.domain;
 
 import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.exceptions.PipelineGroupNotEmptyException;
 import com.thoughtworks.go.config.exceptions.PipelineGroupNotFoundException;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.PackageMaterialConfig;
@@ -297,5 +298,36 @@ public class PipelineGroupsTest {
         assertThat(groups.findGroupByPipeline(new CaseInsensitiveString("pipeline1")), is(group1));
         assertThat(groups.findGroupByPipeline(new CaseInsensitiveString("pipeline2")), is(group1));
         assertThat(groups.findGroupByPipeline(new CaseInsensitiveString("pipeline3")), is(group2));
+    }
+
+    @Test
+    public void shouldDeleteGroupWhenEmpty() {
+        PipelineConfigs group = createGroup("group", new PipelineConfig[] {});
+
+        PipelineGroups groups = new PipelineGroups(group);
+        groups.deleteGroup("group");
+
+        assertThat(groups.size(), is(0));
+    }
+
+    @Test
+    public void shouldDeleteGroupWithSameNameWhenEmpty() {
+        PipelineConfigs group = createGroup("group", new PipelineConfig[] {});
+        group.setAuthorization(new Authorization(new ViewConfig(new AdminUser(new CaseInsensitiveString("user")))));
+
+        PipelineGroups groups = new PipelineGroups(group);
+        groups.deleteGroup("group");
+
+        assertThat(groups.size(), is(0));
+    }
+
+    @Test(expected = PipelineGroupNotEmptyException.class)
+    public void shouldThrowExceptionWhenDeletingGroupWhenNotEmpty() {
+        PipelineConfig p1Config = createPipelineConfig("pipeline1", "stage1");
+
+        PipelineConfigs group = createGroup("group", p1Config);
+
+        PipelineGroups groups = new PipelineGroups(group);
+        groups.deleteGroup("group");
     }
 }

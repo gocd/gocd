@@ -21,6 +21,7 @@ import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
 import com.thoughtworks.go.api.util.HaltApiMessages
 import com.thoughtworks.go.apiv1.admin.pipelinegroups.representers.PipelineGroupRepresenter
 import com.thoughtworks.go.apiv1.admin.pipelinegroups.representers.PipelineGroupsRepresenter
+import com.thoughtworks.go.config.Authorization
 import com.thoughtworks.go.config.BasicPipelineConfigs
 import com.thoughtworks.go.domain.PipelineGroups
 import com.thoughtworks.go.helper.PipelineConfigMother
@@ -40,7 +41,8 @@ import org.mockito.invocation.InvocationOnMock
 
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
 import static org.mockito.ArgumentMatchers.any
-import static org.mockito.Mockito.when
+import static org.mockito.ArgumentMatchers.eq
+import static org.mockito.Mockito.*
 import static org.mockito.MockitoAnnotations.initMocks
 
 class PipelineGroupsControllerV1Test implements SecurityServiceTrait, ControllerTrait<PipelineGroupsControllerV1> {
@@ -123,6 +125,80 @@ class PipelineGroupsControllerV1Test implements SecurityServiceTrait, Controller
     }
   }
 
+  @Nested
+  class Create {
+
+    @Nested
+    class Security implements SecurityTestTrait, AdminUserSecurity {
+
+      @Override
+      String getControllerMethodUnderTest() {
+        return "create"
+      }
+
+      @Override
+      void makeHttpCall() {
+        postWithApiHeader(controller.controllerPath(), [name: 'group'])
+      }
+
+    }
+
+    @Nested
+    class AsAdmin {
+
+      @BeforeEach
+      void setUp() {
+        enableSecurity()
+        loginAsAdmin()
+      }
+
+      @Test
+      void "should allow admin users create a new pipeline group"() {
+        def pipelineGroup = new BasicPipelineConfigs()
+        pipelineGroup.setGroup("new_grp")
+
+        postWithApiHeader(controller.controllerPath(), [name: "new_grp"])
+
+        verify(pipelineConfigsService).createGroup(any(), any(), any())
+        assertThatResponse()
+          .isOk()
+          .hasBodyWithJsonObject(pipelineGroup, PipelineGroupRepresenter)
+      }
+
+      @Test
+      void "should handle server validation errors"() {
+        HttpLocalizedOperationResult result
+        def pipelineGroup = new BasicPipelineConfigs()
+        pipelineGroup.setGroup("group")
+
+        when(pipelineConfigsService.createGroup(any(), any(), any())).then({ InvocationOnMock invocation ->
+          pipelineGroup.addError("group", "Invalid name")
+          result = invocation.getArguments()[2]
+          result.unprocessableEntity("message from server")
+        })
+
+        postWithApiHeader(controller.controllerPath(), [name: 'group'])
+
+        assertThatResponse()
+          .isUnprocessableEntity()
+          .hasJsonMessage("message from server")
+      }
+
+      @Test
+      void "should fail if a group by same name already exists"() {
+        def pipelineGroup = new BasicPipelineConfigs()
+        pipelineGroup.setGroup("group")
+
+        when(pipelineConfigsService.getGroupsForUser(any())).thenReturn([pipelineGroup])
+
+        postWithApiHeader(controller.controllerPath(), [name: 'group'])
+
+        assertThatResponse()
+          .isUnprocessableEntity()
+          .hasJsonMessage("Failed to add pipeline group 'group'. Another pipeline group with the same name already exists.")
+      }
+    }
+  }
 
   @Nested
   class Show {
@@ -236,7 +312,9 @@ class PipelineGroupsControllerV1Test implements SecurityServiceTrait, Controller
         def headers = [
           'If-Match': 'cached-md5',
         ]
-        putWithApiHeader(controller.controllerPath('/group'), headers, toObjectString({ PipelineGroupRepresenter.toJSON(it, group) }))
+        putWithApiHeader(controller.controllerPath('/group'), headers, toObjectString({
+          PipelineGroupRepresenter.toJSON(it, group)
+        }))
       }
     }
 
@@ -258,7 +336,7 @@ class PipelineGroupsControllerV1Test implements SecurityServiceTrait, Controller
         when(pipelineConfigsService.updateGroupAuthorization(any(), any(), any(), any(), any(), any())).thenReturn(group)
 
         def headers = [
-          'If-Match'    : 'md5',
+          'If-Match': 'md5',
         ]
 
         putWithApiHeader(controller.controllerPath("/group1"), headers, toObjectString({
@@ -277,7 +355,7 @@ class PipelineGroupsControllerV1Test implements SecurityServiceTrait, Controller
         when(pipelineConfigsService.getGroupsForUser(currentUserLoginName().toString())).thenReturn(new PipelineGroups(group))
 
         def headers = [
-          'If-Match'    : 'old-etag',
+          'If-Match': 'old-etag',
         ]
 
         putWithApiHeader(controller.controllerPath("/group1"), headers, toObjectString({
@@ -320,7 +398,7 @@ class PipelineGroupsControllerV1Test implements SecurityServiceTrait, Controller
         })
 
         def headers = [
-          'If-Match'    : 'md5',
+          'If-Match': 'md5',
         ]
 
         putWithApiHeader(controller.controllerPath("/group1"), headers, toObjectString({
@@ -355,7 +433,7 @@ class PipelineGroupsControllerV1Test implements SecurityServiceTrait, Controller
         when(pipelineConfigsService.getGroupsForUser(currentUserLoginName().toString())).thenReturn(new PipelineGroups(group))
 
         def headers = [
-          'If-Match'    : 'md5',
+          'If-Match': 'md5',
         ]
 
         def new_group = new BasicPipelineConfigs(PipelineConfigMother.pipelineConfig("pipeline1"))
@@ -367,6 +445,80 @@ class PipelineGroupsControllerV1Test implements SecurityServiceTrait, Controller
         assertThatResponse()
           .hasStatus(422)
           .hasJsonMessage("Renaming of pipeline group is not supported by this API.")
+      }
+    }
+  }
+
+  @Nested
+  class Destroy {
+
+    @Nested
+    class Security implements SecurityTestTrait, GroupAdminUserSecurity {
+      @Override
+      String getControllerMethodUnderTest() {
+        return "destroy"
+      }
+
+      @Override
+      void makeHttpCall() {
+        deleteWithApiHeader(controller.controllerPath('/foo'))
+      }
+    }
+
+    @Nested
+    class AsAdmin {
+
+      @BeforeEach
+      void setup() {
+        enableSecurity()
+        loginAsAdmin()
+      }
+
+      @Test
+      void "should delete empty pipeline group for an admin"() {
+        def group = new BasicPipelineConfigs("group1", new Authorization())
+        when(pipelineConfigsService.getGroupsForUser(currentUserLoginName().toString())).thenReturn(new PipelineGroups(group))
+
+        doAnswer({ InvocationOnMock invocation ->
+          HttpLocalizedOperationResult result = invocation.arguments.last()
+          result.setMessage("The group 'group1' was deleted successfully.")
+        }).when(pipelineConfigsService).deleteGroup(any(), eq(group), any())
+
+
+        deleteWithApiHeader(controller.controllerPath("/group1"))
+
+        assertThatResponse()
+          .isOk()
+          .hasJsonMessage("The group 'group1' was deleted successfully.")
+      }
+
+      @Test
+      void "should render not found if the specified pipeline group is absent"() {
+        when(pipelineConfigsService.getGroupsForUser(currentUserLoginName().toString())).thenReturn(Collections.emptyList())
+
+        deleteWithApiHeader(controller.controllerPath("/non-existent-group"))
+
+        assertThatResponse()
+          .isNotFound()
+          .hasJsonMessage("Either the resource you requested was not found, or you are not authorized to perform this action.")
+      }
+
+      @Test
+      void "should not delete pipeline group when the group is not empty"() {
+        def group = new BasicPipelineConfigs("group1", new Authorization(), PipelineConfigMother.pipelineConfig("pipeline1"))
+        when(pipelineConfigsService.getGroupsForUser(currentUserLoginName().toString())).thenReturn(new PipelineGroups(group))
+
+        doAnswer({ InvocationOnMock invocation ->
+          HttpLocalizedOperationResult result = invocation.arguments.last()
+          result.unprocessableEntity("Cannot delete group when not empty")
+        }).when(pipelineConfigsService).deleteGroup(any(), eq(group), any())
+
+
+        deleteWithApiHeader(controller.controllerPath("/group1"))
+
+        assertThatResponse()
+          .isUnprocessableEntity()
+          .hasJsonMessage("Cannot delete group when not empty")
       }
     }
   }

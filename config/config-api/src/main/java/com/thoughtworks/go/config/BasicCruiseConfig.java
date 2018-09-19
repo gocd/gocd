@@ -854,6 +854,11 @@ public class BasicCruiseConfig implements CruiseConfig {
     }
 
     @Override
+    public void deletePipelineGroup(String groupName) {
+        groups.deleteGroup(groupName);
+    }
+
+    @Override
     public void addPipelineWithoutValidation(String groupName, PipelineConfig pipelineConfig) {
         groups.addPipelineWithoutValidation(sanitizedGroupName(groupName), pipelineConfig);
     }

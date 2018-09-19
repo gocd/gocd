@@ -17,50 +17,37 @@
 package com.thoughtworks.go.config.update;
 
 import com.thoughtworks.go.config.*;
-import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
-import com.thoughtworks.go.config.exceptions.PipelineGroupNotFoundException;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.EntityHashingService;
 import com.thoughtworks.go.server.service.SecurityService;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
-import org.apache.commons.lang.StringUtils;
 
-import static com.thoughtworks.go.i18n.LocalizedMessage.forbiddenToEdit;
-import static com.thoughtworks.go.i18n.LocalizedMessage.resourceNotFound;
 import static com.thoughtworks.go.i18n.LocalizedMessage.staleResourceConfig;
-import static com.thoughtworks.go.serverhealth.HealthStateType.forbidden;
-import static com.thoughtworks.go.serverhealth.HealthStateType.notFound;
 
-public class UpdatePipelineConfigsAuthCommand implements EntityConfigUpdateCommand<PipelineConfigs> {
-    private PipelineConfigs preprocessedPipelineConfigs;
-    private final LocalizedOperationResult result;
+public class UpdatePipelineConfigsAuthCommand extends PipelineConfigsCommand {
     private final Authorization authorization;
     private final String group;
-    private final Username currentUser;
     private final String md5;
     private final EntityHashingService entityHashingService;
-    private final SecurityService securityService;
 
     public UpdatePipelineConfigsAuthCommand(String group, Authorization authorization, LocalizedOperationResult result, Username currentUser, String md5,
                                             EntityHashingService entityHashingService, SecurityService securityService) {
+        super(result, currentUser, securityService);
         this.group = group;
-        this.result = result;
         this.authorization = authorization;
-        this.currentUser = currentUser;
         this.md5 = md5;
         this.entityHashingService = entityHashingService;
-        this.securityService = securityService;
     }
 
     @Override
     public void update(CruiseConfig preprocessedConfig) throws Exception {
-        preprocessedPipelineConfigs = findPipelineConfigs(preprocessedConfig);
+        preprocessedPipelineConfigs = findPipelineConfigs(preprocessedConfig, group);
         preprocessedPipelineConfigs.setAuthorization(authorization);
     }
 
     @Override
     public boolean isValid(CruiseConfig preprocessedConfig) {
-        preprocessedPipelineConfigs = findPipelineConfigs(preprocessedConfig);
+        preprocessedPipelineConfigs = findPipelineConfigs(preprocessedConfig, group);
         authorization.validateTree(new DelegatingValidationContext(ConfigSaveValidationContext.forChain(preprocessedConfig, preprocessedPipelineConfigs)) {
             @Override
             public boolean shouldNotCheckRole() {
@@ -76,49 +63,16 @@ public class UpdatePipelineConfigsAuthCommand implements EntityConfigUpdateComma
     }
 
     @Override
-    public void clearErrors() {
-        BasicCruiseConfig.clearErrors(preprocessedPipelineConfigs);
-    }
-
-    @Override
-    public PipelineConfigs getPreprocessedEntityConfig() {
-        return preprocessedPipelineConfigs;
-    }
-
-    @Override
     public boolean canContinue(CruiseConfig cruiseConfig) {
-        return isRequestFresh(cruiseConfig) && isUserAuthorized();
-    }
-
-    private boolean isUserAuthorized() {
-        if (!securityService.isUserAdminOfGroup(currentUser, group)) {
-            result.forbidden(forbiddenToEdit(), forbidden());
-            return false;
-        }
-        return true;
+        return isRequestFresh(cruiseConfig) && isUserAdminOfGroup(group);
     }
 
     private boolean isRequestFresh(CruiseConfig cruiseConfig) {
-        PipelineConfigs existingPipelineConfigs = findPipelineConfigs(cruiseConfig);
+        PipelineConfigs existingPipelineConfigs = findPipelineConfigs(cruiseConfig, group);
         boolean freshRequest = entityHashingService.md5ForEntity(existingPipelineConfigs).equals(md5);
         if (!freshRequest) {
             result.stale(staleResourceConfig("Group", group));
         }
         return freshRequest;
     }
-
-    private PipelineConfigs findPipelineConfigs(CruiseConfig cruiseConfig) {
-        if (group == null || StringUtils.isBlank(group)) {
-            result.unprocessableEntity("The group is invalid. Attribute 'name' cannot be null.");
-            throw new IllegalArgumentException("Group name cannot be null.");
-        } else {
-            PipelineConfigs existingPipelineConfigs = cruiseConfig.findGroup(group);
-            if (existingPipelineConfigs == null) {
-                result.notFound(resourceNotFound("Group", group), notFound());
-                throw new PipelineGroupNotFoundException();
-            }
-            return existingPipelineConfigs;
-        }
-    }
-
 }

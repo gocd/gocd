@@ -31,6 +31,7 @@ import com.thoughtworks.go.config.InvalidPluginTypeException;
 import com.thoughtworks.go.config.PipelineConfigs;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.domain.PipelineGroups;
+import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.server.newsecurity.utils.SessionUtils;
 import com.thoughtworks.go.server.service.EntityHashingService;
 import com.thoughtworks.go.server.service.PipelineConfigsService;
@@ -44,10 +45,10 @@ import spark.Request;
 import spark.Response;
 
 import java.io.IOException;
+import java.util.Optional;
 import java.util.stream.Stream;
 
-import static com.thoughtworks.go.api.util.HaltApiResponses.haltBecauseEtagDoesNotMatch;
-import static com.thoughtworks.go.api.util.HaltApiResponses.haltBecauseRenameOfEntityIsNotSupported;
+import static com.thoughtworks.go.api.util.HaltApiResponses.*;
 import static spark.Spark.*;
 
 @Component
@@ -77,9 +78,11 @@ public class PipelineGroupsControllerV1 extends ApiController implements SparkSp
             before(Routes.PipelineGroupsAdmin.NAME_PATH, mimeType, apiAuthenticationHelper::checkPipelineGroupAdminUserAnd403);
 
             get("", mimeType, this::index);
+            post("", mimeType, this::create);
 
             get(Routes.PipelineGroupsAdmin.NAME_PATH, mimeType, this::show);
             put(Routes.PipelineGroupsAdmin.NAME_PATH, mimeType, this::update);
+            delete(Routes.PipelineGroupsAdmin.NAME_PATH, mimeType, this::destroy);
 
             exception(RecordNotFoundException.class, this::notFound);
         });
@@ -103,6 +106,21 @@ public class PipelineGroupsControllerV1 extends ApiController implements SparkSp
         }
     }
 
+    public String create(Request req, Response res) throws IOException {
+        PipelineConfigs pipelineConfigsFromReq = getEntityFromRequestBody(req);
+        String groupName = pipelineConfigsFromReq.getGroup();
+        Optional<PipelineConfigs> pipelineConfigsFromServer = findPipelineGroup(groupName);
+
+        if (pipelineConfigsFromServer.isPresent()) {
+            pipelineConfigsFromReq.addError("name", LocalizedMessage.resourceAlreadyExists("pipeline group", groupName));
+            throw haltBecauseEntityAlreadyExists(jsonNode(req, pipelineConfigsFromReq), "pipeline group", groupName);
+        }
+
+        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+        pipelineConfigsService.createGroup(SessionUtils.currentUsername(), pipelineConfigsFromReq, result);
+
+        return handleCreateOrUpdateResponse(req, res, pipelineConfigsFromReq, result);
+    }
 
     public String show(Request req, Response res) throws IOException {
         PipelineConfigs pipelineConfigs = getEntityFromConfig(req.params("group_name"));
@@ -131,6 +149,15 @@ public class PipelineGroupsControllerV1 extends ApiController implements SparkSp
         return handleCreateOrUpdateResponse(req, res, updatedPipelineConfigs, result);
     }
 
+    public String destroy(Request req, Response res) throws IOException {
+        PipelineConfigs pipelineConfigs = getEntityFromConfig(req.params("group_name"));
+
+        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+        pipelineConfigsService.deleteGroup(SessionUtils.currentUsername(), pipelineConfigs, result);
+
+        return renderHTTPOperationResult(result, req, res);
+    }
+
     @Override
     public String etagFor(PipelineConfigs pipelineConfigs) {
         return entityHashingService.md5ForEntity(pipelineConfigs);
@@ -138,8 +165,12 @@ public class PipelineGroupsControllerV1 extends ApiController implements SparkSp
 
     @Override
     public PipelineConfigs doGetEntityFromConfig(String name) {
+        return findPipelineGroup(name).orElseThrow(RecordNotFoundException::new);
+    }
+
+    private Optional<PipelineConfigs> findPipelineGroup(String name) {
         Stream<PipelineConfigs> pipelineGroupStream = streamAllPipelineGroups().filter(p -> p.getGroup().equals(name));
-        return pipelineGroupStream.findFirst().orElseThrow(RecordNotFoundException::new);
+        return pipelineGroupStream.findFirst();
     }
 
     @Override

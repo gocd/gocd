@@ -21,6 +21,8 @@ import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
 import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
 import com.thoughtworks.go.config.update.ConfigUpdateCheckFailedException;
+import com.thoughtworks.go.config.update.CreatePipelineConfigsCommand;
+import com.thoughtworks.go.config.update.DeletePipelineConfigsCommand;
 import com.thoughtworks.go.config.update.UpdatePipelineConfigsAuthCommand;
 import com.thoughtworks.go.config.validation.GoConfigValidity;
 import com.thoughtworks.go.i18n.LocalizedMessage;
@@ -122,9 +124,22 @@ public class PipelineConfigsService {
     }
 
     public PipelineConfigs updateGroupAuthorization(Username currentUser, PipelineConfigs newPipelineConfigs, String existingMd5, EntityHashingService entityHashingService, SecurityService securityService, LocalizedOperationResult result) {
-        UpdatePipelineConfigsAuthCommand updatePipelineConfigCommand = new UpdatePipelineConfigsAuthCommand(newPipelineConfigs.getGroup(), newPipelineConfigs.getAuthorization(), result, currentUser, existingMd5, entityHashingService, securityService);
-        update(currentUser, newPipelineConfigs, result, updatePipelineConfigCommand);
-        return updatePipelineConfigCommand.getPreprocessedEntityConfig();
+        UpdatePipelineConfigsAuthCommand updatePipelineConfigsCommand = new UpdatePipelineConfigsAuthCommand(newPipelineConfigs.getGroup(), newPipelineConfigs.getAuthorization(), result, currentUser, existingMd5, entityHashingService, securityService);
+        update(currentUser, newPipelineConfigs, result, updatePipelineConfigsCommand);
+        return updatePipelineConfigsCommand.getPreprocessedEntityConfig();
+    }
+
+    public void deleteGroup(Username currentUser, PipelineConfigs pipelineConfigs, HttpLocalizedOperationResult result) {
+        DeletePipelineConfigsCommand deletePipelineConfigsCommand = new DeletePipelineConfigsCommand(pipelineConfigs, result, currentUser, securityService);
+        update(currentUser, pipelineConfigs, result, deletePipelineConfigsCommand);
+        if (result.isSuccessful()) {
+            result.setMessage(LocalizedMessage.resourceDeleteSuccessful("Pipeline group", pipelineConfigs.getGroup()));
+        }
+    }
+
+    public void createGroup(Username currentUser, PipelineConfigs pipelineConfigs, HttpLocalizedOperationResult result) {
+        CreatePipelineConfigsCommand createPipelineConfigsCommand = new CreatePipelineConfigsCommand(pipelineConfigs, currentUser, result, securityService);
+        update(currentUser, pipelineConfigs, result, createPipelineConfigsCommand);
     }
 
     private boolean userHasPermissions(Username username, String groupName, HttpLocalizedOperationResult result) {
@@ -143,5 +158,4 @@ public class PipelineConfigsService {
     private String updateFailedMessage(String groupName, String message) {
         return "Failed to update group '" + groupName + "'. " + message;
     }
-
 }

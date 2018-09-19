@@ -100,9 +100,6 @@ public class DataSharingSettingsControllerV1 extends ApiController implements Sp
     }
 
     public String patchDataSharingSettings(Request request, Response response) throws Exception {
-        if (!isPutRequestFresh(request, dataSharingSettingsService.get())) {
-            throw haltBecauseEtagDoesNotMatch();
-        }
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         dataSharingSettingsService.createOrUpdate(getEntityFromRequestBody(request));
         return handleCreateOrUpdateResponse(request, response, dataSharingSettingsService.get(), result);

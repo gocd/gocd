@@ -8,11 +8,11 @@ function use_jdk() {
 if ($mod -eq "0") {
     Write-Host "Using system JVM"
 } elseif ($mod -eq "1") {
-    use_jdk "oracle@1.9.0-4" "exe+https://nexus.gocd.io/repository/s3-mirrors/local/jdk/jdk-9.0.4_windows-x64_bin.exe"
+    use_jdk "oracle@1.9.0-4" "tgz+https://nexus.gocd.io/repository/s3-mirrors/local/jdk/openjdk-9.0.4_windows-x64_bin.tar.gz"
 } elseif ($mod -eq "2") {
-    use_jdk "oracle@1.10.0-2" "exe+https://nexus.gocd.io/repository/s3-mirrors/local/jdk/jdk-10.0.2_windows-x64_bin.exe"
+    use_jdk "oracle@1.10.0-2" "tgz+https://nexus.gocd.io/repository/s3-mirrors/local/jdk/openjdk-10.0.2_windows-x64_bin.tar.gz"
 } elseif ($mod -eq "3") {
-    use_jdk "oracle@1.11.0-28" "exe+https://nexus.gocd.io/repository/s3-mirrors/local/jdk/jdk-11-28_windows-x64_bin.exe"
+    use_jdk "oracle@1.11.0-28" "zip+https://nexus.gocd.io/repository/s3-mirrors/local/jdk/openjdk-11_28_windows-x64_bin.zip"
 }
 
 $command = "$($args[0])"

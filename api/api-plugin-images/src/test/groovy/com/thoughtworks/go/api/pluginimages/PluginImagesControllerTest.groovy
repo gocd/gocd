@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.api
+package com.thoughtworks.go.api.pluginimages
 
 import com.thoughtworks.go.plugin.domain.authorization.AuthorizationPluginInfo
 import com.thoughtworks.go.plugin.domain.common.CombinedPluginInfo

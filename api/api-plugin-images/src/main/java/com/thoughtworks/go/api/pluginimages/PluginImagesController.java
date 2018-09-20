@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.api;
+package com.thoughtworks.go.api.pluginimages;
 
+import com.thoughtworks.go.api.ControllerMethods;
 import com.thoughtworks.go.plugin.domain.common.CombinedPluginInfo;
 import com.thoughtworks.go.plugin.domain.common.Image;
 import com.thoughtworks.go.server.service.plugins.builder.DefaultPluginInfoFinder;
@@ -26,8 +27,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import spark.Request;
 import spark.Response;
-
-import java.io.IOException;
 
 import static spark.Spark.*;
 

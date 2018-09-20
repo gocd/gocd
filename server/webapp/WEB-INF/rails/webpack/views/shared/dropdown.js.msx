@@ -14,38 +14,47 @@
  * limitations under the License.
  */
 
-const m = require('mithril');
-const _ = require('lodash');
-const $ = require('jquery');
+const m      = require('mithril');
+const _      = require('lodash');
+const $      = require('jquery');
+const Stream = require('mithril/stream');
 
-function selectionChange(model, attrName, event) {
+function selectionChange(model, attrName, state, event) {
   model[attrName]($(event.target).attr('data-id'));
-  toggleDropdown(model);
+  toggleDropdown(state);
   event.preventDefault();
 }
 
-function toggleDropdown(model) {
-  model.schemeDropDownOpen(!model.schemeDropDownOpen());
+function toggleDropdown(state) {
+  state.dropdownOpen(!state.dropdownOpen());
 }
 
-function hideOnBlur(elem, model) {
+function hideOnBlur(elem, state) {
   if (!elem.contains(event.target)) {
-    model.schemeDropDownOpen(false);
+    state.dropdownOpen(false);
   }
 }
 
-function isOpen(model) {
-  return model.schemeDropDownOpen() ? "open" : "";
+function isOpen(state) {
+  return state.dropdownOpen() ? "open" : "";
+}
+
+function getSelectedText(options, model, attrName) {
+  return _.find(options, (item) => item.id === model[attrName]()).text;
 }
 
 class Dropdown {
 
   oncreate(vnode) {
-    window.addEventListener('click', hideOnBlur.bind(this, vnode.dom, vnode.attrs.model));
+    window.addEventListener('click', hideOnBlur.bind(this, vnode.dom, vnode.state));
   }
 
   onremove(vnode) {
-    window.removeEventListener('click', hideOnBlur.bind(this, vnode.dom, vnode.attrs.model));
+    window.removeEventListener('click', hideOnBlur.bind(this, vnode.dom, vnode.state));
+  }
+
+  oninit(vnode) {
+    vnode.state.dropdownOpen = Stream(false);
   }
 
   view(vnode) {
@@ -55,16 +64,18 @@ class Dropdown {
     const attrName = vnode.attrs.attrName;
 
     const dropdownHtml = _.map(options, (option) => {
-      return <a tabindex="0" class="c-dropdown_item" onclick={selectionChange.bind(this, model, attrName)}
+      return <a tabindex="0" class="c-dropdown_item" onclick={selectionChange.bind(this, model, attrName, vnode.state)}
                 aria-label={`Group by ${option.text}`} data-id={option.id}>{option.text}</a>;
 
     });
 
+    const selectedText = getSelectedText(options, model, attrName);
+
     return <div class="groupby">
       <label class="grouping_label">{label}</label>
-      <div class={`c-dropdown ${isOpen(model)}`}>
-        <a aria-label={`Group by ${model.selectedSchemeText()}`} tabindex="0" class="c-dropdown_head"
-           onclick={toggleDropdown.bind(this, model)}>{model.selectedSchemeText()}</a>
+      <div class={`c-dropdown ${isOpen(vnode.state)}`}>
+        <a aria-label={`Group by ${selectedText}`} tabindex="0" class="c-dropdown_head"
+           onclick={toggleDropdown.bind(this, vnode.state)}>{selectedText}</a>
         <i role="presentation" class="c-down-arrow" onclick={toggleDropdown.bind(this, model)}/>
         <div className="c-dropdown_body">
           {dropdownHtml}

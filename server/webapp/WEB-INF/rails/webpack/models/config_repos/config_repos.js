@@ -43,6 +43,11 @@ function ConfigRepos() {
     etag,
     payload
   });
+
+  this.delete = (id) => AjaxHelper.DELETE({
+    url: Routes.apiv1AdminConfigRepoPath(id),
+    apiVersion: "v1"
+  });
 }
 
 function parseEtag(req) { return (req.getResponseHeader("ETag") || "").replace(/--(gzip|deflate)/, ""); }

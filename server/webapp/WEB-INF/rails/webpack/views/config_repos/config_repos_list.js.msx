@@ -41,12 +41,12 @@ const ConfigRepo = {
 
     return <li>
       <h3>{vm.type()} repo: {vm.id()}</h3>
+      <h5>Plugin: {vm.pluginId()}</h5>
       <ActionBar vm={vm}/>
       <GitRepo vm={vm}/>
     </li>;
   }
 };
-
 
 const ActionBar = {
   view(vnode) {
@@ -54,12 +54,10 @@ const ActionBar = {
     if (vm.editMode()) {
       return [<button onclick={() => vm.exitEditMode()}>Cancel</button>,<button onclick={() => vm.save()}>Save</button>];
     } else {
-      return <button onclick={() => vm.enterEditMode()}>Edit</button>;
+      return [<button onclick={() => vm.enterEditMode()}>Edit</button>, <button onclick={() => vm.remove()}>Delete</button>];
     }
   }
 };
-
-
 
 const GitRepo = {
   view(vnode) {

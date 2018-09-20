@@ -20,23 +20,27 @@ const _ = require("lodash");
 
 function ReposListVM(model) {
   const repos = Stream([]);
+  const self = this;
 
   this.fetchReposData = () => {
     this.loading(true);
     model.all().then((data) => {
-      repos(data._embedded.config_repos.map((r) => new ConfigRepoVM(r, model)));
-    }).always(() => this.loading(false));
+      repos(data._embedded.config_repos.map((r) => new ConfigRepoVM(r, model, self)));
+    }).always(() => self.loading(false));
 
     return this;
   };
 
   this.loading = Stream(false);
   this.repos = repos;
+
+  this.removeRepo = (repo) => repos().splice(repos().indexOf(repo), 1);
 }
 
-function ConfigRepoVM(data, model) {
+function ConfigRepoVM(data, model, parent) {
   this.editModel = Stream(null);
   this.id = Stream();
+  this.pluginId = Stream();
   this.type = Stream();
   this.attributes = Stream();
   this.configuration = Stream();
@@ -44,6 +48,7 @@ function ConfigRepoVM(data, model) {
 
   this.initialize = (data) => {
     this.id(data.id);
+    this.pluginId(data.plugin_id);
     this.type(data.material.type);
     this.attributes(data.material.attributes);
     this.configuration(data.configuration);
@@ -57,7 +62,7 @@ function ConfigRepoVM(data, model) {
     model.get(this.etag(), this.id()).then((data, _status, xhr) => {
       this.etag(parseEtag(xhr));
 
-      if (304 === xhr.status) { this.initialize(data); }
+      if (304 !== xhr.status) { this.initialize(data); }
 
       this.editModel(
         _.reduce(this.attributes(), (memo, v, k) => {
@@ -67,7 +72,6 @@ function ConfigRepoVM(data, model) {
       );
     });
   };
-
 
   this.exitEditMode = () => this.editModel(null);
 
@@ -83,6 +87,11 @@ function ConfigRepoVM(data, model) {
       this.initialize(data);
       this.exitEditMode();
     });
+  };
+
+  this.remove = () => {
+    model.delete(this.id());
+    parent.removeRepo(this);
   };
 }
 

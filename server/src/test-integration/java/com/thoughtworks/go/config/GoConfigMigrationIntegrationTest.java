@@ -2288,6 +2288,36 @@ public class GoConfigMigrationIntegrationTest {
     }
 
     @Test
+    public void shouldOnlyUpdateSchemaVersionForMigration114() throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
+        String configContent =  "<pipelines>"
+                + "      <pipeline name=\"p1\">"
+                + "         <materials> "
+                + "           <hg url=\"blah\"/>"
+                + "         </materials>  "
+                + "         <stage name=\"s1\">"
+                + "             <jobs>"
+                + "             <job name=\"j1\">"
+                + "                 <tasks>"
+                + "                    <exec command=\"ls\"/>"
+                + "                 </tasks>"
+                + "             </job>"
+                + "             </jobs>"
+                + "         </stage>"
+                + "      </pipeline>"
+                + "    </pipelines>";
+
+        String configXml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
+                + "<cruise schemaVersion=\"113\">\n"
+                + configContent
+                + "</cruise>";
+
+        String migratedContent = migrateXmlString(configXml, 113);
+
+        assertThat(migratedContent, containsString("<cruise schemaVersion=\"114\""));
+        assertThat(migratedContent, containsString(configContent));
+    }
+
+    @Test
     public void shouldRenameOriginAttributeOnFetchArtifactToArtifactOrigin_AsPartOf110To111Migration() throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
         String configXml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
                 + "<cruise schemaVersion=\"110\">\n"

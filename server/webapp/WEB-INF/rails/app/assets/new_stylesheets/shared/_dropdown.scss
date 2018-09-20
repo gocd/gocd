@@ -14,60 +14,94 @@
  * limitations under the License.
  */
 
+$height: 34px;
+$dropdown-border: #d6e0e2;
+$text-color: #000;
+
 .groupby {
-  position: relative;
+  display:     flex;
+  align-items: Center;
 }
 
-.dashboard-modifiers {
-  display:         flex;
-  justify-content: space-between;
-  margin-bottom:   10px;
-  position:        relative;
-  z-index:         5;
+.grouping_label {
+  white-space: nowrap;
+  margin:      0 10px 0 0;
+  display:     inline-block;
+}
 
-  .group-mode {
-    position: absolute;
-    float:    left;
-    label {
+%dropdownwidth {
+  min-width: 150px;
+}
+
+.c-dropdown {
+  @extend %dropdownwidth;
+  position:  relative;
+  font-size: 13px;
+  &.open {
+    position: relative;
+    z-index:  5;
+    .c-dropdown_body {
       display: block;
-    }
-
-    label, span {
-      cursor: pointer;
-    }
-
-    label > *:empty, .dropdown_radio {
-      display: none;
-    }
-
-    .dropdown_radio + span {
-      margin-left: 10px;
-      padding:     0 15px;
-      font-size:   13px;
-      background:  #fff;
-      border:      1px solid #d6e0e2;
-      width:       220px;
-      height:      40px;
-      line-height: 40px;
-      display:     inline-block;
-    }
-
-    .dropdown_radio:checked + span {
-      font-weight: 600;
-      display:     block;
     }
   }
 }
 
-.edit-dropdown-text {
-  float:      left;
-  margin-top: 11px;
+.c-dropdown_head {
+  display:       inline-block;
+  position:      relative;
+  z-index:       2;
+  height:        $height;
+  line-height:   32px;
+  padding:       0 20px 0 15px;
+  border:        1px solid $dropdown-border;
+  border-radius: 3px;
+  background:    #fff;
+  width:         100%;
+  cursor:        default;
+  font-weight:   600;
+  color:         $text-color;
+  .open & {
+    border-radius: 3px 3px 0 0;
+  }
+  &:hover, &:active, &:focus, &:visited {
+    color:   $text-color;
+    outline: 0;
+  }
 }
 
-.down-arrow {
+.c-dropdown_body {
+  @extend %dropdownwidth;
+  position:      absolute;
+  border-radius: 0 0 3px 3px;
+  background:    #fff;
+  top:           $height;
+  display:       none;
+  border:        1px solid $dropdown-border;
+  border-top:    0;
+  color:         $text-color;
+}
+
+.c-dropdown_item {
+  text-decoration: none;
+  display:         block;
+  padding:         10px 20px;
+  border-top:      1px solid $dropdown-border;
+  cursor:          default;
+  color:           $text-color;
+  &:first-child {
+    border: 0;
+  }
+  &:hover {
+    color: $text-color;
+  }
+}
+
+.c-down-arrow {
   @include icon-before($type: angle-down);
-  position: absolute;
-  right:    10px;
-  top:      9px;
-  cursor:   pointer;
+  position:  absolute;
+  right:     9px;
+  top:       5px;
+  cursor:    pointer;
+  z-index:   6;
+  font-size: 15px;
 }

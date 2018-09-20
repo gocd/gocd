@@ -23,9 +23,7 @@ function ReposListVM(model) {
 
   this.fetchReposData = () => {
     this.loading(true);
-    model.load().then((data, status, xhr) => {
-      console.log(data.etag)
-      console.log(xhr)
+    model.all().then((data) => {
       repos(data._embedded.config_repos.map((r) => new ConfigRepoVM(r, model)));
     }).always(() => this.loading(false));
 
@@ -38,23 +36,55 @@ function ReposListVM(model) {
 
 function ConfigRepoVM(data, model) {
   this.editModel = Stream(null);
-  this.id = Stream(data.id);
-  this.type = Stream(data.material.type);
-  this.attributes = Stream(data.material.attributes);
-  this.configuration = Stream(data.configuration);
+  this.id = Stream();
+  this.type = Stream();
+  this.attributes = Stream();
+  this.configuration = Stream();
+  this.etag = Stream(null);
+
+  this.initialize = (data) => {
+    this.id(data.id);
+    this.type(data.material.type);
+    this.attributes(data.material.attributes);
+    this.configuration(data.configuration);
+  };
+
+  this.initialize(data);
 
   this.editMode = () => !!this.editModel();
 
-  this.enterEditMode = () => this.editModel(
-    _.reduce(this.attributes(), function(memo, v, k) {
-      memo[k] = Stream(v);
-      return memo;
-    }, {})
-  );
+  this.enterEditMode = () => {
+    model.get(this.etag(), this.id()).then((data, _status, xhr) => {
+      this.etag(parseEtag(xhr));
+
+      if (304 === xhr.status) { this.initialize(data); }
+
+      this.editModel(
+        _.reduce(this.attributes(), (memo, v, k) => {
+          memo[k] = Stream(v);
+          return memo;
+        }, {})
+      );
+    });
+  };
+
 
   this.exitEditMode = () => this.editModel(null);
 
-  this.save = () => model.update(_.assign({}, data, {material: {type: this.type(), attributes: this.editModel()}}));
+  this.save = () => {
+    const payload = _.assign({}, data, {
+      material: {
+        type: this.type(),
+        attributes: this.editModel()
+      }
+    });
+
+    model.update(this.etag(), payload).then((data) => {
+      this.initialize(data);
+      this.exitEditMode();
+    });
+  };
 }
 
+function parseEtag(req) { return (req.getResponseHeader("ETag") || "").replace(/--(gzip|deflate)/, ""); }
 module.exports = ReposListVM;

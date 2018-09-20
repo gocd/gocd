@@ -16,12 +16,12 @@
 
 const AjaxHelper = require('helpers/ajax_helper');
 const Routes     = require('gen/js-routes');
-const Stream     = require('mithril/stream')
+const Stream     = require('mithril/stream');
 
 function ConfigRepos() {
   const etag = Stream("");
 
-  this.load = () => {
+  this.all = () => {
     const promise = AjaxHelper.GET({
       url: Routes.apiv1AdminConfigReposPath(),
       apiVersion: "v1",
@@ -31,12 +31,16 @@ function ConfigRepos() {
     return promise;
   };
 
-  this.getSingle
+  this.get = (etag, id) => AjaxHelper.GET({
+    url: Routes.apiv1AdminConfigRepoPath(id),
+    apiVersion: "v1",
+    etag,
+  });
 
-  this.update = (payload) => AjaxHelper.PUT({
+  this.update = (etag, payload) => AjaxHelper.PUT({
     url: Routes.apiv1AdminConfigRepoPath(payload.id),
     apiVersion: "v1",
-    etag: etag(),
+    etag,
     payload
   });
 }

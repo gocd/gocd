@@ -52,9 +52,9 @@ const ActionBar = {
   view(vnode) {
     const vm = vnode.attrs.vm;
     if (vm.editMode()) {
-      return [<button onclick={() => vm.exitEditMode()}>Cancel</button>,<button onclick={() => vm.save()}>Save</button>]
+      return [<button onclick={() => vm.exitEditMode()}>Cancel</button>,<button onclick={() => vm.save()}>Save</button>];
     } else {
-      return <button onclick={() => vm.enterEditMode()}>Edit</button>
+      return <button onclick={() => vm.enterEditMode()}>Edit</button>;
     }
   }
 };
@@ -72,13 +72,13 @@ const GitRepo = {
           attrName: k,
           label: k
         })
-      )}</div>
+      )}</div>;
 
     }
     return <table>
       {_.map(vm.attributes(), (v, k) => <tr><td>{k}</td><td>{v}</td></tr>)}
-    </table>
+    </table>;
   }
-}
+};
 
 module.exports = ReposList;

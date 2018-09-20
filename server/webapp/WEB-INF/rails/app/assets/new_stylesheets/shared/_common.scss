@@ -294,10 +294,6 @@ body {
   }
 }
 
-select {
-  background-position: calc(100% - 2px) 13px;
-}
-
 [type='text'], [type='password'], [type='date'], [type='datetime'], [type='datetime-local'], [type='month'], [type='week'], [type='email'], [type='number'], [type='search'], [type='tel'], [type='time'], [type='url'], [type='color'], textarea {
   transition: all 0.3s ease-in-out;
   padding:    0 0.5rem;

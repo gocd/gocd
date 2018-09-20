@@ -82,8 +82,6 @@ function GroupingMixin() {
   _.assign(this, {
     scheme,
 
-    schemeDropDownOpen: Stream(false),
-
     groupByItems: [
       {
         id:   "pipeline_groups",
@@ -94,10 +92,6 @@ function GroupingMixin() {
         text: "Environments"
       }
     ],
-
-    selectedSchemeText: () => {
-      return _.find(this.groupByItems, (item) => item.id === scheme()).text;
-    },
 
     selectedGroups: () => this.groupByPipelineGroup() ? this.dashboard.getPipelineGroups() : this.dashboard.getEnvironments(),
 

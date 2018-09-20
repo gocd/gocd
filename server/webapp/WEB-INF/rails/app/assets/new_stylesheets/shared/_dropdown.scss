@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-$height: 34px;
-$dropdown-border: #d6e0e2;
-$text-color: #000;
+$c-dropdown_height: 34px;
+$c-dropdown_border-color: $light-border;
+$c-dropdown_text-color: #000;
 
 .groupby {
   display:     flex;
@@ -50,21 +50,21 @@ $text-color: #000;
   display:       inline-block;
   position:      relative;
   z-index:       2;
-  height:        $height;
+  height:        $c-dropdown_height;
   line-height:   32px;
   padding:       0 20px 0 15px;
-  border:        1px solid $dropdown-border;
+  border:        1px solid $c-dropdown_border-color;
   border-radius: 3px;
   background:    #fff;
   width:         100%;
   cursor:        default;
   font-weight:   600;
-  color:         $text-color;
+  color:         $c-dropdown_text-color;
   .open & {
     border-radius: 3px 3px 0 0;
   }
   &:hover, &:active, &:focus, &:visited {
-    color:   $text-color;
+    color:   $c-dropdown_text-color;
     outline: 0;
   }
 }
@@ -74,25 +74,25 @@ $text-color: #000;
   position:      absolute;
   border-radius: 0 0 3px 3px;
   background:    #fff;
-  top:           $height;
+  top:           $c-dropdown_height;
   display:       none;
-  border:        1px solid $dropdown-border;
+  border:        1px solid $c-dropdown_border-color;
   border-top:    0;
-  color:         $text-color;
+  color:         $c-dropdown_text-color;
 }
 
 .c-dropdown_item {
   text-decoration: none;
   display:         block;
   padding:         10px 20px;
-  border-top:      1px solid $dropdown-border;
+  border-top:      1px solid $c-dropdown_border-color;
   cursor:          default;
-  color:           $text-color;
+  color:           $c-dropdown_text-color;
   &:first-child {
     border: 0;
   }
   &:hover {
-    color: $text-color;
+    color: $c-dropdown_text-color;
   }
 }
 

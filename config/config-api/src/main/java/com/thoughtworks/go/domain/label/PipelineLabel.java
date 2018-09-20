@@ -17,6 +17,7 @@
 package com.thoughtworks.go.domain.label;
 
 import com.thoughtworks.go.config.CaseInsensitiveString;
+import com.thoughtworks.go.domain.InsecureEnvironmentVariables;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.Serializable;
@@ -26,7 +27,7 @@ import java.util.regex.Pattern;
 
 public class PipelineLabel implements Serializable {
     protected String label;
-    private Map<CaseInsensitiveString, String> envVars;
+    private InsecureEnvironmentVariables envVars;
     public static final String COUNT = "COUNT";
     public static final String ENV_VAR_PREFIX = "env:";
     public static final String COUNT_TEMPLATE = String.format("${%s}", COUNT);
@@ -35,7 +36,7 @@ public class PipelineLabel implements Serializable {
         this.label = labelTemplate;
     }
 
-    public PipelineLabel(String labelTemplate, Map<CaseInsensitiveString, String> envVars) {
+    public PipelineLabel(String labelTemplate, InsecureEnvironmentVariables envVars) {
         this.label = labelTemplate;
         this.envVars = envVars;
     }
@@ -68,7 +69,7 @@ public class PipelineLabel implements Serializable {
             if (envVars == null) {
                 return "\\" + matcher.group(0);
             }
-            revision = envVars.getOrDefault(new CaseInsensitiveString(material.toString().split(":", 2)[1]), "");
+            revision = envVars.getInsecureEnvironmentVariableOrDefault(material.toString().split(":", 2)[1], "");
         } else {
             if (!materialRevisions.containsKey(material)) {
                 //throw new IllegalStateException("cannot find material '" + material + "'");
@@ -119,7 +120,7 @@ public class PipelineLabel implements Serializable {
         return create(labelTemplate, null);
     }
 
-    public static PipelineLabel create(String labelTemplate, Map<CaseInsensitiveString, String> envVars) {
+    public static PipelineLabel create(String labelTemplate, InsecureEnvironmentVariables envVars) {
         if (StringUtils.isBlank(labelTemplate)) {
             return defaultLabel();
         } else {

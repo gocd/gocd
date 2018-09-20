@@ -16,16 +16,13 @@
 
 package com.thoughtworks.go.domain;
 
-import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.EnvironmentVariableConfig;
 import com.thoughtworks.go.config.EnvironmentVariablesConfig;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
-public class EnvironmentVariables extends BaseCollection<EnvironmentVariable> {
+public class EnvironmentVariables extends BaseCollection<EnvironmentVariable> implements InsecureEnvironmentVariables {
 
     private static final String JOB = EnvironmentVariableType.Job.toString();
 
@@ -52,14 +49,11 @@ public class EnvironmentVariables extends BaseCollection<EnvironmentVariable> {
         }
     }
 
-    public Map<CaseInsensitiveString, String> insecureVariablesHash() {
-        Map<CaseInsensitiveString, String> insecureEnvVars = new HashMap<>();
-        for (EnvironmentVariable variable : this) {
-            if (!variable.isSecure()) {
-               insecureEnvVars.put(new CaseInsensitiveString(variable.getName()), variable.getValue());
-            }
+    public void overrideWith(EnvironmentVariables other) {
+        for (EnvironmentVariable variable : other) {
+            this.removeIf(v -> v.getName().equalsIgnoreCase(variable.getName()));
+            this.add(variable);
         }
-       return insecureEnvVars;
     }
 
     public void add(String name, String value) {
@@ -72,5 +66,15 @@ public class EnvironmentVariables extends BaseCollection<EnvironmentVariable> {
             environmentVariables.add(new EnvironmentVariable(environmentVariableConfig));
         }
         return environmentVariables;
+    }
+
+    @Override
+    public String getInsecureEnvironmentVariableOrDefault(String key, String defaultValue) {
+        for (EnvironmentVariable variable : this) {
+            if (!variable.isSecure() && variable.getName().equalsIgnoreCase(key)) {
+                return variable.getValue();
+            }
+        }
+        return defaultValue;
     }
 }

@@ -19,13 +19,11 @@ package com.thoughtworks.go.server.service;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.elastic.ElasticProfile;
 import com.thoughtworks.go.domain.*;
-import com.thoughtworks.go.domain.ArtifactPropertiesGenerator;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.util.Clock;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
-import java.util.Map;
 
 @Component
 public class InstanceFactory {
@@ -34,8 +32,8 @@ public class InstanceFactory {
         buildCause.assertMaterialsMatch(pipelineConfig.materialConfigs());
         buildCause.assertPipelineConfigAndMaterialRevisionMatch(pipelineConfig);
 
-        Map<CaseInsensitiveString, String> variables = EnvironmentVariables.toEnvironmentVariables(pipelineConfig.getVariables()).insecureVariablesHash();
-        variables.putAll(buildCause.getVariables().insecureVariablesHash());
+        EnvironmentVariables variables = EnvironmentVariables.toEnvironmentVariables(pipelineConfig.getVariables());
+        variables.overrideWith(buildCause.getVariables());
 
         return new Pipeline(CaseInsensitiveString.str(pipelineConfig.name()), pipelineConfig.getLabelTemplate(), buildCause, variables, createStageInstance(pipelineConfig.first(), context, md5, clock));
     }

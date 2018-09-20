@@ -68,8 +68,8 @@ public class PipelineLabelTest {
 
     @Test
     public void shouldReplaceTheTemplateCaseInsensitively() throws Exception {
-        Map<CaseInsensitiveString, String> envVars = new HashMap<>();
-        envVars.put(new CaseInsensitiveString("VAR"), "var_value");
+        EnvironmentVariables envVars = new EnvironmentVariables();
+        envVars.add("VAR", "var_value");
         PipelineLabel label = PipelineLabel.create("release-${SVNMaterial}-${EnV:Var}", envVars);
         MaterialRevisions materialRevisions = ModificationsMother.oneUserOneFile();
         label.updateLabel(materialRevisions.getNamedRevisions());
@@ -266,8 +266,8 @@ public class PipelineLabelTest {
 
     @Test
     public void shouldReplaceTheTemplateWithEnvironmentVariable() throws Exception {
-        Map<CaseInsensitiveString, String> envVars = new HashMap<>();
-        envVars.put(new CaseInsensitiveString("VAR"), "var_value");
+        EnvironmentVariables envVars = new EnvironmentVariables();
+        envVars.add("VAR", "var_value");
         PipelineLabel label = PipelineLabel.create("release-${ENV:VAR}", envVars);
         label.updateLabel(null);
         assertThat(label.toString(), is("release-var_value"));
@@ -275,9 +275,9 @@ public class PipelineLabelTest {
 
     @Test
     public void shouldReplaceTheTemplateWithMultipleEnvironmentVariable() throws Exception {
-        Map<CaseInsensitiveString, String> envVars = new HashMap<>();
-        envVars.put(new CaseInsensitiveString("VAR1"), "1");
-        envVars.put(new CaseInsensitiveString("VAR2"), "2");
+        EnvironmentVariables envVars = new EnvironmentVariables();
+        envVars.add("VAR1", "1");
+        envVars.add("VAR2", "2");
         PipelineLabel label = PipelineLabel.create("release-${ENV:VAR1}, ${ENV:VAR2}", envVars);
         label.updateLabel(null);
         assertThat(label.toString(), is("release-1, 2"));
@@ -292,7 +292,7 @@ public class PipelineLabelTest {
 
     @Test
     public void shouldReturnEmptyStringIfEnvironmentVariableIsUndefined() throws Exception {
-        Map<CaseInsensitiveString, String> envVars = new HashMap<>();
+        EnvironmentVariables envVars = new EnvironmentVariables();
         PipelineLabel label = PipelineLabel.create("release-${ENV:VAR1}", envVars);
         label.updateLabel(null);
         assertThat(label.toString(), is("release-"));

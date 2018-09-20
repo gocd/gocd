@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.plugin.access.elastic.v3;
+package com.thoughtworks.go.plugin.access.elastic.v4;
 
 import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.plugin.access.DefaultPluginInteractionCallback;
@@ -28,16 +28,16 @@ import com.thoughtworks.go.plugin.domain.elastic.Capabilities;
 import java.util.List;
 import java.util.Map;
 
-import static com.thoughtworks.go.plugin.access.elastic.v3.ElasticAgentPluginConstantsV3.*;
+import static com.thoughtworks.go.plugin.access.elastic.v4.ElasticAgentPluginConstantsV4.*;
 
-public class ElasticAgentExtensionV3 implements VersionedElasticAgentExtension {
-    public static final String VERSION = "3.0";
+public class ElasticAgentExtensionV4 implements VersionedElasticAgentExtension {
+    public static final String VERSION = "4.0";
     private final PluginRequestHelper pluginRequestHelper;
-    private final ElasticAgentExtensionConverterV3 elasticAgentExtensionConverterV3;
+    private final ElasticAgentExtensionConverterV4 elasticAgentExtensionConverterV4;
 
-    public ElasticAgentExtensionV3(PluginRequestHelper pluginRequestHelper) {
+    public ElasticAgentExtensionV4(PluginRequestHelper pluginRequestHelper) {
         this.pluginRequestHelper = pluginRequestHelper;
-        this.elasticAgentExtensionConverterV3 = new ElasticAgentExtensionConverterV3();
+        this.elasticAgentExtensionConverterV4 = new ElasticAgentExtensionConverterV4();
     }
 
     @Override
@@ -50,7 +50,7 @@ public class ElasticAgentExtensionV3 implements VersionedElasticAgentExtension {
         return pluginRequestHelper.submitRequest(pluginId, REQUEST_GET_PLUGIN_SETTINGS_ICON, new DefaultPluginInteractionCallback<com.thoughtworks.go.plugin.domain.common.Image>() {
             @Override
             public com.thoughtworks.go.plugin.domain.common.Image onSuccess(String responseBody, String resolvedExtensionVersion) {
-                return elasticAgentExtensionConverterV3.getImageResponseFromBody(responseBody);
+                return elasticAgentExtensionConverterV4.getImageResponseFromBody(responseBody);
             }
         });
     }
@@ -60,7 +60,7 @@ public class ElasticAgentExtensionV3 implements VersionedElasticAgentExtension {
         return pluginRequestHelper.submitRequest(pluginId, REQUEST_CAPABILITIES, new DefaultPluginInteractionCallback<Capabilities>() {
             @Override
             public Capabilities onSuccess(String responseBody, String resolvedExtensionVersion) {
-                return elasticAgentExtensionConverterV3.getCapabilitiesFromResponseBody(responseBody);
+                return elasticAgentExtensionConverterV4.getCapabilitiesFromResponseBody(responseBody);
             }
         });
     }
@@ -70,7 +70,7 @@ public class ElasticAgentExtensionV3 implements VersionedElasticAgentExtension {
         return pluginRequestHelper.submitRequest(pluginId, REQUEST_GET_PROFILE_METADATA, new DefaultPluginInteractionCallback<List<PluginConfiguration>>() {
             @Override
             public List<PluginConfiguration> onSuccess(String responseBody, String resolvedExtensionVersion) {
-                return elasticAgentExtensionConverterV3.getElasticProfileMetadataResponseFromBody(responseBody);
+                return elasticAgentExtensionConverterV4.getElasticProfileMetadataResponseFromBody(responseBody);
             }
         });
     }
@@ -80,7 +80,7 @@ public class ElasticAgentExtensionV3 implements VersionedElasticAgentExtension {
         return pluginRequestHelper.submitRequest(pluginId, REQUEST_GET_PROFILE_VIEW, new DefaultPluginInteractionCallback<String>() {
             @Override
             public String onSuccess(String responseBody, String resolvedExtensionVersion) {
-                return elasticAgentExtensionConverterV3.getProfileViewResponseFromBody(responseBody);
+                return elasticAgentExtensionConverterV4.getProfileViewResponseFromBody(responseBody);
             }
         });
     }
@@ -90,12 +90,12 @@ public class ElasticAgentExtensionV3 implements VersionedElasticAgentExtension {
         return pluginRequestHelper.submitRequest(pluginId, REQUEST_VALIDATE_PROFILE, new DefaultPluginInteractionCallback<ValidationResult>() {
             @Override
             public String requestBody(String resolvedExtensionVersion) {
-                return elasticAgentExtensionConverterV3.validateElasticProfileRequestBody(configuration);
+                return elasticAgentExtensionConverterV4.validateElasticProfileRequestBody(configuration);
             }
 
             @Override
             public ValidationResult onSuccess(String responseBody, String resolvedExtensionVersion) {
-                return elasticAgentExtensionConverterV3.getElasticProfileValidationResultResponseFromBody(responseBody);
+                return elasticAgentExtensionConverterV4.getElasticProfileValidationResultResponseFromBody(responseBody);
             }
         });
     }
@@ -106,7 +106,7 @@ public class ElasticAgentExtensionV3 implements VersionedElasticAgentExtension {
         pluginRequestHelper.submitRequest(pluginId, REQUEST_CREATE_AGENT, new DefaultPluginInteractionCallback<Void>() {
             @Override
             public String requestBody(String resolvedExtensionVersion) {
-                return elasticAgentExtensionConverterV3.createAgentRequestBody(autoRegisterKey, environment, configuration, jobIdentifier);
+                return elasticAgentExtensionConverterV4.createAgentRequestBody(autoRegisterKey, environment, configuration, jobIdentifier);
             }
         });
     }
@@ -121,12 +121,12 @@ public class ElasticAgentExtensionV3 implements VersionedElasticAgentExtension {
         return pluginRequestHelper.submitRequest(pluginId, REQUEST_SHOULD_ASSIGN_WORK, new DefaultPluginInteractionCallback<Boolean>() {
             @Override
             public String requestBody(String resolvedExtensionVersion) {
-                return elasticAgentExtensionConverterV3.shouldAssignWorkRequestBody(agent, environment, configuration, identifier);
+                return elasticAgentExtensionConverterV4.shouldAssignWorkRequestBody(agent, environment, configuration, identifier);
             }
 
             @Override
             public Boolean onSuccess(String responseBody, String resolvedExtensionVersion) {
-                return elasticAgentExtensionConverterV3.shouldAssignWorkResponseFromBody(responseBody);
+                return elasticAgentExtensionConverterV4.shouldAssignWorkResponseFromBody(responseBody);
             }
         });
     }
@@ -136,7 +136,7 @@ public class ElasticAgentExtensionV3 implements VersionedElasticAgentExtension {
         return pluginRequestHelper.submitRequest(pluginId, REQUEST_STATUS_REPORT, new DefaultPluginInteractionCallback<String>() {
             @Override
             public String onSuccess(String responseBody, String resolvedExtensionVersion) {
-                return elasticAgentExtensionConverterV3.getStatusReportView(responseBody);
+                return elasticAgentExtensionConverterV4.getStatusReportView(responseBody);
             }
         });
     }
@@ -146,19 +146,23 @@ public class ElasticAgentExtensionV3 implements VersionedElasticAgentExtension {
         return pluginRequestHelper.submitRequest(pluginId, REQUEST_AGENT_STATUS_REPORT, new DefaultPluginInteractionCallback<String>() {
             @Override
             public String requestBody(String resolvedExtensionVersion) {
-                return elasticAgentExtensionConverterV3.getAgentStatusReportRequestBody(identifier, elasticAgentId);
+                return elasticAgentExtensionConverterV4.getAgentStatusReportRequestBody(identifier, elasticAgentId);
             }
 
             @Override
             public String onSuccess(String responseBody, String resolvedExtensionVersion) {
-                return elasticAgentExtensionConverterV3.getStatusReportView(responseBody);
+                return elasticAgentExtensionConverterV4.getStatusReportView(responseBody);
             }
         });
     }
 
     @Override
     public void jobCompletion(String pluginId, String elasticAgentId, JobIdentifier jobIdentifier) {
-        throw new UnsupportedOperationException("Plugin does not support job completion request.");
+        pluginRequestHelper.submitRequest(pluginId, REQUEST_JOB_COMPLETION, new DefaultPluginInteractionCallback<String>() {
+            @Override
+            public String requestBody(String resolvedExtensionVersion) {
+                return elasticAgentExtensionConverterV4.getJobCompletionRequestBody(elasticAgentId, jobIdentifier);
+            }
+        });
     }
-
 }

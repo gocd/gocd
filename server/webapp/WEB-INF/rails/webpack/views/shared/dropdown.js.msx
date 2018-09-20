@@ -19,7 +19,7 @@ const _ = require('lodash');
 const $ = require('jquery');
 
 function selectionChange(model, attrName, event) {
-  model[attrName]($(event.target).attr('data-prop-name'));
+  model[attrName]($(event.target).attr('data-id'));
   toggleDropdown(model);
   event.preventDefault();
 }
@@ -34,18 +34,8 @@ function hideOnBlur(elem, model) {
   }
 }
 
-function isChecked(model, attrName, option) {
-  return model[attrName]() === option.id;
-}
-
-function displayStyle(model, attrName, option) {
-  if (model.schemeDropDownOpen()) {
-    return "";
-  }
-  if (isChecked(model, attrName, option)) {
-    return "";
-  }
-  return "display: none;";
+function isOpen(model) {
+  return model.schemeDropDownOpen() ? "open" : "";
 }
 
 class Dropdown {
@@ -64,24 +54,23 @@ class Dropdown {
     const model    = vnode.attrs.model;
     const attrName = vnode.attrs.attrName;
 
-    const optionsHtml = _.map(options, (option) => {
-      return <label style={displayStyle(model, attrName, option)}>
-        <input autoComplete="off" autoCapitalize="off" autoCorrect="off" spellCheck="false" type="radio"
-               name="grouping-scheme" data-prop-name={option.id} class="dropdown_radio"
-               onclick={selectionChange.bind(this, model, attrName)}
-               checked={isChecked(model, attrName, option)}/><span>{option.text}</span>
-      </label>;
+    const dropdownHtml = _.map(options, (option) => {
+      return <a tabindex="0" class="c-dropdown_item" onclick={selectionChange.bind(this, model, attrName)}
+                aria-label={`Group by ${option.text}`} data-id={option.id}>{option.text}</a>;
+
     });
 
-    return <section className="dashboard-modifiers">
-      <div className="groupby">
-        <span className="edit-dropdown-text">{label}</span>
-        <radiogroup className="group-mode">
-          <i className="down-arrow" onClick={toggleDropdown.bind(this, model)}/>
-          {optionsHtml}
-        </radiogroup>
+    return <div class="groupby">
+      <label class="grouping_label">{label}</label>
+      <div class={`c-dropdown ${isOpen(model)}`}>
+        <a aria-label={`Group by ${model.selectedSchemeText()}`} tabindex="0" class="c-dropdown_head"
+           onclick={toggleDropdown.bind(this, model)}>{model.selectedSchemeText()}</a>
+        <i role="presentation" class="c-down-arrow" onclick={toggleDropdown.bind(this, model)}/>
+        <div className="c-dropdown_body">
+          {dropdownHtml}
+        </div>
       </div>
-    </section>;
+    </div>;
   }
 }
 

@@ -95,6 +95,10 @@ function GroupingMixin() {
       }
     ],
 
+    selectedSchemeText: () => {
+      return _.find(this.groupByItems, (item) => item.id === scheme()).text;
+    },
+
     selectedGroups: () => this.groupByPipelineGroup() ? this.dashboard.getPipelineGroups() : this.dashboard.getEnvironments(),
 
     groupByPipelineGroup: function groupByPipelineGroup(bool) {

@@ -68,6 +68,10 @@ module.exports = class AjaxHelper {
   static PATCH({url, apiVersion, timeout = mrequest.timeout, payload, type, etag, contentType = 'application/json'}) {
     return makeRequest({method: 'PATCH', url, apiVersion, timeout, payload, type, etag, contentType});
   }
+
+  static DELETE({url, apiVersion, type, timeout = mrequest.timeout, etag} = {}) {
+    return makeRequest({method: 'DELETE', url, apiVersion, type, timeout, etag});
+  }
 };
 
 

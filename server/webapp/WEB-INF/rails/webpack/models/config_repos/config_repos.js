@@ -14,29 +14,33 @@
  * limitations under the License.
  */
 
-const Stream     = require('mithril/stream');
 const AjaxHelper = require('helpers/ajax_helper');
-const AjaxPoller = require('helpers/ajax_poller');
 const Routes     = require('gen/js-routes');
+const Stream     = require('mithril/stream')
 
 function ConfigRepos() {
-  const repos = Stream([]);
+  const etag = Stream("");
 
-  this.refresh = () => AjaxHelper.GET({
-    url: Routes.apiv1AdminConfigReposPath(),
-    apiVersion: "v1",
-    etag: "blah"
-  }).then((data) => {
-    repos(data._embedded.config_repos);
-  });
-
-  this.repos = repos;
-  const poller = new AjaxPoller(() => this.refresh());
-
-  this.start = () => {
-    poller.start();
-    return this;
+  this.load = () => {
+    const promise = AjaxHelper.GET({
+      url: Routes.apiv1AdminConfigReposPath(),
+      apiVersion: "v1",
+      etag: etag()
+    });
+    promise.then((_d, _s, req) => etag(parseEtag(req)));
+    return promise;
   };
+
+  this.getSingle
+
+  this.update = (payload) => AjaxHelper.PUT({
+    url: Routes.apiv1AdminConfigRepoPath(payload.id),
+    apiVersion: "v1",
+    etag: etag(),
+    payload
+  });
 }
+
+function parseEtag(req) { return (req.getResponseHeader("ETag") || "").replace(/--(gzip|deflate)/, ""); }
 
 module.exports = ConfigRepos;

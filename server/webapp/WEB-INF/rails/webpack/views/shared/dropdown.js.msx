@@ -29,7 +29,7 @@ function toggleDropdown(state) {
   state.dropdownOpen(!state.dropdownOpen());
 }
 
-function hideOnBlur(elem, state) {
+function hideOnBlur(elem, state, event) {
   if (!elem.contains(event.target)) {
     state.dropdownOpen(false);
   }

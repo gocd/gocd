@@ -32,3 +32,5 @@ linters:
     enabled: false
   PseudoElement:
     enabled: false # we don't support IE8, so ::after, or :after are both OK.
+  NameFormat:
+    enabled: false #variable names may contain both hyphens and underscores (e.g. `$c-dropdown_border-color`)

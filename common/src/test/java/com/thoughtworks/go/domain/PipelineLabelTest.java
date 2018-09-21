@@ -164,56 +164,56 @@ public class PipelineLabelTest {
     }
 
     @Test
-    public void canMatchMaterialName() throws Exception {
+    public void canMatchMaterialName() {
         final String[][] expectedGroups = { { "git" } };
         String res = assertLabelGroupsMatchingAndReplace("release-${git}", expectedGroups);
         assertThat(res, is("release-" + GIT_REVISION));
     }
 
     @Test
-    public void canMatchMaterialNameWithTrial() throws Exception {
+    public void canMatchMaterialNameWithTrial() {
         final String[][] expectedGroups = { { "git" } };
         String res = assertLabelGroupsMatchingAndReplace("release-${git}.alpha.0", expectedGroups);
         assertThat(res, is("release-" + GIT_REVISION + ".alpha.0"));
     }
 
     @Test
-    public void canHandleWrongMaterialName() throws Exception {
+    public void canHandleWrongMaterialName() {
         final String[][] expectedGroups = { { "gitUnused" } };
         String res = assertLabelGroupsMatchingAndReplace("release-${gitUnused}", expectedGroups);
         assertThat(res, is("release-${gitUnused}"));
     }
 
     @Test
-    public void canMatchWithoutTruncation() throws Exception {
+    public void canMatchWithoutTruncation() {
         final String[][] expectedGroups = { { "svnRepo.verynice" }, { "git" } };
         String res = assertLabelGroupsMatchingAndReplace("release-${svnRepo.verynice}-${git}", expectedGroups);
         assertThat(res, is("release-" + SVN_REVISION + "-" + GIT_REVISION));
     }
 
     @Test
-    public void canMatchWithOneGitTruncation() throws Exception {
+    public void canMatchWithOneGitTruncation() {
         final String[][] expectedGroups = { { "git", "7" } };
         String res = assertLabelGroupsMatchingAndReplace("release-${git[:7]}", expectedGroups);
         assertThat(res, is("release-" + GIT_REVISION.substring(0, 7)));
     }
 
     @Test
-    public void canMatchWithOneGitTruncationTooLongToTruncate() throws Exception {
+    public void canMatchWithOneGitTruncationTooLongToTruncate() {
         final String[][] expectedGroups = { { "git", "9999" } };
         String res = assertLabelGroupsMatchingAndReplace("release-${git[:9999]}", expectedGroups);
         assertThat(res, is("release-" + GIT_REVISION));
     }
 
     @Test
-    public void canMatchWithOneGitTruncationAlmostTruncated() throws Exception {
+    public void canMatchWithOneGitTruncationAlmostTruncated() {
         final String[][] expectedGroups = { { "git", GIT_REV_LENGTH + "" } };
         String res = assertLabelGroupsMatchingAndReplace("release-${git[:" + GIT_REV_LENGTH + "]}", expectedGroups);
         assertThat(res, is("release-" + GIT_REVISION));
     }
 
     @Test
-    public void canMatchWithOneGitTruncationByOneChar() throws Exception {
+    public void canMatchWithOneGitTruncationByOneChar() {
         final int size = GIT_REV_LENGTH - 1;
         final String[][] expectedGroups = { { "git", size + "" } };
         String res = assertLabelGroupsMatchingAndReplace("release-${git[:" + size + "]}", expectedGroups);
@@ -221,21 +221,21 @@ public class PipelineLabelTest {
     }
 
     @Test
-    public void canMatchWithOneTruncationAsFirstRevision() throws Exception {
+    public void canMatchWithOneTruncationAsFirstRevision() {
         final String[][] expectedGroups = { {"git", "4"}, { "svn" } };
         String res = assertLabelGroupsMatchingAndReplace("release-${git[:4]}-${svn}", expectedGroups);
         assertThat(res, is("release-" + GIT_REVISION.substring(0, 4) + "-" + SVN_REVISION));
     }
 
     @Test
-    public void canMatchWithTwoTruncation() throws Exception {
+    public void canMatchWithTwoTruncation() {
         final String[][] expectedGroups = { { "git", "5" }, {"svn", "3"}};
         String res = assertLabelGroupsMatchingAndReplace("release-${git[:5]}-${svn[:3]}", expectedGroups);
         assertThat(res, is("release-" + GIT_REVISION.substring(0, 5) + "-" + SVN_REVISION.substring(0, 3)));
     }
 
     @Test
-    public void canNotMatchWithTruncationWhenMaterialNameHasAColon() throws Exception {
+    public void canNotMatchWithTruncationWhenMaterialNameHasAColon() {
         final String[][] expectedGroups = { { "git:one", "7" } };
         String res = assertLabelGroupsMatchingAndReplace("release-${git:one[:7]}", expectedGroups);
         assertThat(res, is("release-${git:one[:7]}"));
@@ -269,7 +269,7 @@ public class PipelineLabelTest {
         EnvironmentVariables envVars = new EnvironmentVariables();
         envVars.add("VAR", "var_value");
         PipelineLabel label = PipelineLabel.create("release-${ENV:VAR}", envVars);
-        label.updateLabel(null);
+        label.updateLabel(new HashMap<>());
         assertThat(label.toString(), is("release-var_value"));
     }
 
@@ -279,23 +279,15 @@ public class PipelineLabelTest {
         envVars.add("VAR1", "1");
         envVars.add("VAR2", "2");
         PipelineLabel label = PipelineLabel.create("release-${ENV:VAR1}, ${ENV:VAR2}", envVars);
-        label.updateLabel(null);
+        label.updateLabel(new HashMap<>());
         assertThat(label.toString(), is("release-1, 2"));
     }
 
     @Test
-    public void shouldReturnMatchedTextIfThereAreNoEnvironmentVariables() {
-        PipelineLabel label = PipelineLabel.create("release-${ENV:VAR}");
-        label.updateLabel(null);
-        assertThat(label.toString(), is("release-${ENV:VAR}"));
-    }
-
-    @Test
-    public void shouldReturnEmptyStringIfEnvironmentVariableIsUndefined() {
-        EnvironmentVariables envVars = new EnvironmentVariables();
-        PipelineLabel label = PipelineLabel.create("release-${ENV:VAR1}", envVars);
-        label.updateLabel(null);
-        assertThat(label.toString(), is("release-"));
+    public void shouldReturnMatchedTextIfThereAreNoMatchingEnvironmentVariables() {
+        PipelineLabel label = PipelineLabel.create("release-${env:VAR}");
+        label.updateLabel(new HashMap<>());
+        assertThat(label.toString(), is("release-${env:VAR}"));
     }
 
     @BeforeClass

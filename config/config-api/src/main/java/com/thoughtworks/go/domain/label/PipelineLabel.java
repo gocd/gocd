@@ -51,39 +51,35 @@ public class PipelineLabel implements Serializable {
         final Matcher matcher = PATTERN.matcher(this.label);
         final StringBuffer buffer = new StringBuffer();
         while (matcher.find()) {
-            final String revision = lookupMaterialRevision(matcher, materialRevisions);
+            final String revision = lookupVariable(matcher, materialRevisions);
             matcher.appendReplacement(buffer, revision);
         }
         matcher.appendTail(buffer);
         return buffer.toString();
     }
 
-    private String lookupMaterialRevision(Matcher matcher,  Map<CaseInsensitiveString, String> materialRevisions) {
-        final CaseInsensitiveString material = new CaseInsensitiveString(matcher.group(1));
-        String revision;
-        if (material.startsWith(ENV_VAR_PREFIX)) {
-            if (envVars == null) {
-                return "\\" + matcher.group(0);
-            }
-            revision = envVars.getInsecureEnvironmentVariableOrDefault(material.toString().split(":", 2)[1], "");
-        } else {
-            if (!materialRevisions.containsKey(material)) {
-                //throw new IllegalStateException("cannot find material '" + material + "'");
-                return "\\" + matcher.group(0);
-            }
+    private String lookupVariable(Matcher matcher, Map<CaseInsensitiveString, String> materialRevisions) {
+        final CaseInsensitiveString variable = new CaseInsensitiveString(matcher.group(1));
 
-            revision = materialRevisions.get(material);
+        String result = materialRevisions.get(variable);
+
+        if (variable.startsWith(ENV_VAR_PREFIX)) {
+            result = envVars.getInsecureEnvironmentVariableOrDefault(variable.toString().split(":", 2)[1], null);
+        }
+
+        if (result == null) {
+            return "\\" + matcher.group(0);
         }
 
         final String truncationLengthLiteral = matcher.group(3);
         if (truncationLengthLiteral != null) {
             int truncationLength = Integer.parseInt(truncationLengthLiteral);
 
-            if (revision.length() > truncationLength) {
-                revision = revision.substring(0, truncationLength);
+            if (result.length() > truncationLength) {
+                result = result.substring(0, truncationLength);
             }
         }
-        return revision;
+        return result;
     }
 
     public void updateLabel(Map<CaseInsensitiveString, String> namedRevisions) {

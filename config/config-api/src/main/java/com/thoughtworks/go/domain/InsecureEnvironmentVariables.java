@@ -20,6 +20,6 @@ public interface InsecureEnvironmentVariables {
     InsecureEnvironmentVariables EMPTY_ENV_VARS = new InsecureEnvironmentVariables() {};
 
     default String getInsecureEnvironmentVariableOrDefault(String key, String defaultValue) {
-        return "";
+        return null;
     }
 }

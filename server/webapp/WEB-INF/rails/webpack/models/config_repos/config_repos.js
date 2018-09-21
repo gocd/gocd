@@ -48,6 +48,13 @@ function ConfigRepos() {
     url: Routes.apiv1AdminConfigRepoPath(id),
     apiVersion: "v1"
   });
+
+  this.create = (payload) => AjaxHelper.POST({
+    url: Routes.apiv1AdminConfigReposPath(),
+    apiVersion: "v1",
+    payload
+  });
+
 }
 
 function parseEtag(req) { return (req.getResponseHeader("ETag") || "").replace(/--(gzip|deflate)/, ""); }

@@ -23,7 +23,8 @@ const ReposList = {
     const vm = vnode.attrs.vm;
 
     return <section class="repo-list">
-      <h1>Config Header</h1>
+      <h1>Config Repos</h1>
+      <AddRepo vm={vm}/>
       <ul>
       {
         vm.repos().map((repo) => {
@@ -35,6 +36,43 @@ const ReposList = {
   }
 };
 
+const AddRepo = {
+  view(vnode) {
+    const vm = vnode.attrs.vm;
+
+    if (vm.addMode()) {
+      return <AddForm vm={vm.addModel()}/>;
+    } else {
+      return <div>
+        <f.select model={vm} attrName="typeToAdd" items={vm.availMaterials} />
+        <button onclick={() => vm.enterAddMode()}>Add Repo</button>
+      </div>;
+    }
+  }
+};
+
+const AddForm = {
+  view(vnode) {
+    const vm = vnode.attrs.vm;
+    const pluginChoices = [
+    { id: "json.config.plugin", text: "GoCD JSON Config Plugin" },
+    { id: "yaml.config.plugin", text: "GoCD YAML Config Plugin" }
+    ];
+    return <div>
+    <f.select label="Choose a plugin" model={vm} attrName="pluginId" items={pluginChoices} />
+    <f.input label="Config Repo ID" model={vm} attrName="id"/>
+    {_.map(vm.attributes(), (v, k) =>
+        m("boolean" === typeof v() ? f.checkbox : f.input, {
+          model: vm.attributes(),
+          attrName: k,
+          label: k
+        })
+      )
+    }
+  </div>;
+  }
+};
+
 const ConfigRepo = {
   view(vnode) {
     const vm = vnode.attrs.vm;
@@ -43,7 +81,7 @@ const ConfigRepo = {
       <h3>{vm.type()} repo: {vm.id()}</h3>
       <h5>Plugin: {vm.pluginId()}</h5>
       <ActionBar vm={vm}/>
-      <GitRepo vm={vm}/>
+      <MaterialAttributes vm={vm}/>
     </li>;
   }
 };
@@ -52,14 +90,14 @@ const ActionBar = {
   view(vnode) {
     const vm = vnode.attrs.vm;
     if (vm.editMode()) {
-      return [<button onclick={() => vm.exitEditMode()}>Cancel</button>,<button onclick={() => vm.save()}>Save</button>];
+      return [<button onclick={() => vm.exitEditMode()}>Cancel</button>,<button onclick={() => vm.saveUpdate()}>Save</button>];
     } else {
       return [<button onclick={() => vm.enterEditMode()}>Edit</button>, <button onclick={() => vm.remove()}>Delete</button>];
     }
   }
 };
 
-const GitRepo = {
+const MaterialAttributes = {
   view(vnode) {
     const vm = vnode.attrs.vm;
     if (vm.editModel()) {

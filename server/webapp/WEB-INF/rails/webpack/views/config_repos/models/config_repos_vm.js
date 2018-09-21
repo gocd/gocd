@@ -17,10 +17,28 @@
 
 const Stream = require('mithril/stream');
 const _ = require("lodash");
+const Materials = require('models/config_repos/materials');
 
 function ReposListVM(model) {
   const repos = Stream([]);
   const self = this;
+
+  this.availMaterials = [{ id: "git", text: "Git" }, { id: "hg", text: "Mercurial" }];
+  this.typeToAdd = Stream("git");
+  this.addModel = Stream(null);
+  this.addMode = () => !!this.addModel();
+
+  this.enterAddMode = () => {
+    const payload = {
+      material: {
+        type: this.typeToAdd()
+      }
+    };
+
+    this.addModel(new ConfigRepoVM(payload, model, self));
+  };
+
+  this.exitAddMode = () => this.addModel(null);
 
   this.fetchReposData = () => {
     this.loading(true);
@@ -35,6 +53,7 @@ function ReposListVM(model) {
   this.repos = repos;
 
   this.removeRepo = (repo) => repos().splice(repos().indexOf(repo), 1);
+  this.addRepo = (repo) => repos().push(repo);
 }
 
 function ConfigRepoVM(data, model, parent) {
@@ -50,8 +69,8 @@ function ConfigRepoVM(data, model, parent) {
     this.id(data.id);
     this.pluginId(data.plugin_id);
     this.type(data.material.type);
-    this.attributes(data.material.attributes);
-    this.configuration(data.configuration);
+    this.attributes(Materials.get(this.type(), data));
+    this.configuration(data.configuration || []);
   };
 
   this.initialize(data);
@@ -75,7 +94,21 @@ function ConfigRepoVM(data, model, parent) {
 
   this.exitEditMode = () => this.editModel(null);
 
-  this.save = () => {
+  this.create = () => {
+    const payload = {
+      id: this.id(),
+      plugin_id: this.pluginId(), // eslint-disable-line camelcase
+      material: {
+        type: this.type(),
+        attributes: this.attributes()
+      },
+      configuration: this.configuration()
+    };
+
+    model.create(payload).then(() => parent.addRepo(this));
+  };
+
+  this.saveUpdate = () => {
     const payload = _.assign({}, data, {
       material: {
         type: this.type(),
@@ -94,6 +127,7 @@ function ConfigRepoVM(data, model, parent) {
     parent.removeRepo(this);
   };
 }
+
 
 function parseEtag(req) { return (req.getResponseHeader("ETag") || "").replace(/--(gzip|deflate)/, ""); }
 module.exports = ReposListVM;

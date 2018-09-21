@@ -55,8 +55,8 @@ import static org.mockito.Mockito.*;
 public class PipelineConfigTest {
     private static final String BUILDING_PLAN_NAME = "building";
 
-    EnvironmentVariablesConfig mockEnvironmentVariablesConfig = mock(EnvironmentVariablesConfig.class);
-    ParamsConfig mockParamsConfig = mock(ParamsConfig.class);
+    private EnvironmentVariablesConfig mockEnvironmentVariablesConfig = mock(EnvironmentVariablesConfig.class);
+    private ParamsConfig mockParamsConfig = mock(ParamsConfig.class);
 
     public enum Foo {
         Bar, Baz;
@@ -248,6 +248,13 @@ public class PipelineConfigTest {
         String labelFormat = "pipeline-${COUNT}-${NoSuchMaterial}";
         PipelineConfig pipelineConfig = createAndValidatePipelineLabel(labelFormat);
         assertThat(pipelineConfig.errors().on(PipelineConfig.LABEL_TEMPLATE), startsWith("You have defined a label template in pipeline"));
+    }
+
+    @Test
+    public void shouldValidatePipelineLabelWithEnvironmentVariable() {
+        String labelFormat = "pipeline-${COUNT}-${env:SOME_VAR}";
+        PipelineConfig pipelineConfig = createAndValidatePipelineLabel(labelFormat);
+        assertThat(pipelineConfig.errors().on(PipelineConfig.LABEL_TEMPLATE), is(nullValue()));
     }
 
     @Test

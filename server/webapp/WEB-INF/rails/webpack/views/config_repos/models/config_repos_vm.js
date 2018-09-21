@@ -14,48 +14,31 @@
  * limitations under the License.
  */
 
-const Stream = require('mithril/stream');
+const Stream    = require('mithril/stream');
+const _         = require('lodash');
 const Materials = require('models/config_repos/materials');
 
 function ReposListVM(model) {
   const repos = Stream([]);
-  const self = this;
 
-  this.availMaterials = [{ id: "git", text: "Git" }, { id: "hg", text: "Mercurial" }, { id: "svn", text: "Svn" }, { id: "p4", text: "Perforce" }, { id: "tfs", text: "Tfs" }, { id: "package", text: "Package" }];
-  this.typeToAdd = Stream("git");
-  this.addModel = Stream(null);
-  this.addMode = () => !!this.addModel();
+  CreateSupport.call(this, model, repos);
+  UpdateSupport.call(this, model, repos);
+  DeleteSupport.call(this, model, repos);
 
-  this.enterAddMode = () => {
-    const payload = {
-      material: {
-        type: this.typeToAdd()
-      }
-    };
-
-    this.addModel(new ConfigRepoVM(payload, model, self));
-  };
-
-  this.exitAddMode = () => this.addModel(null);
-
-  this.fetchReposData = () => {
+  this.load = () => {
     this.loading(true);
     model.all().then((data) => {
-      repos(data._embedded.config_repos.map((r) => new ConfigRepoVM(r, model, self)));
-    }).always(() => self.loading(false));
+      repos(data._embedded.config_repos.map((r) => new ConfigRepoVM(r)));
+    }).always(() => this.loading(false));
 
     return this;
   };
 
   this.loading = Stream(false);
   this.repos = repos;
-
-  this.removeRepo = (repo) => repos().splice(repos().indexOf(repo), 1);
-  this.addRepo = (repo) => repos().push(repo);
 }
 
-function ConfigRepoVM(data, model, parent) {
-  this.editModel = Stream(null);
+function ConfigRepoVM(data) {
   this.id = Stream();
   this.pluginId = Stream();
   this.type = Stream();
@@ -73,56 +56,88 @@ function ConfigRepoVM(data, model, parent) {
 
   this.initialize(data);
 
-  this.editMode = () => !!this.editModel();
+  this.toJSON = () => {
+    return {
+      id: this.id(),
+      plugin_id: this.pluginId(), // eslint-disable-line camelcase
+      material: {
+        type: this.type(),
+        attributes: this.attributes().toJSON()
+      },
+      configuration: _.cloneDeep(this.configuration())
+    };
+  };
 
-  this.enterEditMode = () => {
-    model.get(this.etag(), this.id()).then((data, _status, xhr) => {
-      this.etag(parseEtag(xhr));
+  this.clone = () => {
+    const cloned = new ConfigRepoVM(this.toJSON());
+    cloned.etag(this.etag());
+    return cloned;
+  };
+}
 
-      if (304 !== xhr.status) { this.initialize(data); }
+// Mixins
 
-      this.editModel(this.attributes().clone());
+function CreateSupport(model, repos) {
+  // API to get these??
+  this.availMaterials = [{ id: "git", text: "Git" }, { id: "hg", text: "Mercurial" }, { id: "svn", text: "Svn" }, { id: "p4", text: "Perforce" }, { id: "tfs", text: "Tfs" }, { id: "package", text: "Package" }];
+  this.typeToAdd = Stream(this.availMaterials[0].id);
+
+  this.addModel = Stream(null);
+
+  this.addMode = () => !!this.addModel();
+  this.enterAddMode = () => {
+    this.editModel(null);
+
+    const payload = {
+      material: {
+        type: this.typeToAdd()
+      }
+    };
+
+    this.addModel(new ConfigRepoVM(payload));
+  };
+
+  this.exitAddMode = () => this.addModel(null);
+  this.createRepo = () => model.create(this.addModel()).then(() => repos().push(this.addModel()));
+}
+
+function UpdateSupport(model, repos) {
+  this.editModel = Stream(null);
+  this.editMode = (repo) => !!this.editModel() && this.editModel().id() === repo.id();
+
+  this.enterEditMode = (repo) => {
+    this.addModel(null);
+
+    repo = repo.clone();
+    model.get(repo.etag(), repo.id()).then((data, _status, xhr) => {
+      repo.etag(parseEtag(xhr));
+
+      if (304 !== xhr.status) { repo.initialize(data); }
+
+      this.editModel(repo);
     });
   };
 
   this.exitEditMode = () => this.editModel(null);
 
-  this.create = () => {
-    const payload = {
-      id: this.id(),
-      plugin_id: this.pluginId(), // eslint-disable-line camelcase
-      material: {
-        type: this.type(),
-        attributes: this.attributes()
-      },
-      configuration: this.configuration()
-    };
+  this.updateRepo = (repo) => {
+    return model.update(repo.etag(), repo).then((data) => {
+      repo.initialize(data);
 
-    return model.create(payload).then(() => parent.addRepo(this));
-  };
+      const idxToReplace = _.findIndex(repos(), (r) => r.id() === repo.id()); // should always be found
+      repos().splice(idxToReplace, 1, repo);
 
-  this.saveUpdate = () => {
-    const payload = {
-      id: this.id(),
-      plugin_id: this.pluginId(), // eslint-disable-line camelcase
-      material: {
-        type: this.type(),
-        attributes: this.editModel()
-      },
-      configuration: this.configuration()
-    };
-
-    return model.update(this.etag(), payload).then((data) => {
-      this.initialize(data);
       this.exitEditMode();
     });
   };
-
-  this.remove = () => {
-    return model.delete(this.id()).then(() => parent.removeRepo(this));
-  };
 }
 
+function DeleteSupport(model, repos) {
+  this.removeRepo = (repo) => model.delete(repo.id()).then(() => repos().splice(repos().indexOf(repo), 1));
+}
+
+// Utility functions
 
 function parseEtag(req) { return (req.getResponseHeader("ETag") || "").replace(/--(gzip|deflate)/, ""); }
+
 module.exports = ReposListVM;

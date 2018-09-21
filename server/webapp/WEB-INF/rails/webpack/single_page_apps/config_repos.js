@@ -19,7 +19,7 @@ const ReposList = require("views/config_repos/config_repos_list");
 const ReposModel = require("models/config_repos/config_repos");
 const ReposVM = require("views/config_repos/models/config_repos_vm");
 
-const vm = new ReposVM(new ReposModel()).fetchReposData();
+const vm = new ReposVM(new ReposModel()).load();
 
 const ConfigReposPage = {
   view() {

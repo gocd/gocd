@@ -28,7 +28,7 @@ const ReposList = {
       <ul>
       {
         vm.repos().map((repo) => {
-          return <ConfigRepo vm={repo}/>;
+          return <ConfigRepo vm={vm} repo={vm.editMode(repo) ? vm.editModel() : repo} />;
         })
       }
       </ul>
@@ -44,7 +44,7 @@ const AddRepo = {
       return <div>
         <AddForm vm={vm.addModel()}/>
         <button onclick={() => vm.exitAddMode()}>Cancel</button>
-        <button onclick={() => vm.addModel().create().then(() => vm.exitAddMode())}>Save</button>
+        <button onclick={() => vm.createRepo().then(() => vm.exitAddMode())}>Save</button>
       </div>;
     } else {
       return <div>
@@ -71,7 +71,7 @@ const AddForm = {
     return <div>
       <f.select label="Choose a plugin" model={vm} attrName="pluginId" items={this.pluginChoices} />
       <f.input label="Config Repo ID" model={vm} attrName="id"/>
-      <MaterialAttributes vm={vm.attributes()} isEdit={true} />
+      <MaterialAttributes material={vm.attributes()} isEdit={true} />
     </div>;
   }
 };
@@ -79,12 +79,14 @@ const AddForm = {
 const ConfigRepo = {
   view(vnode) {
     const vm = vnode.attrs.vm;
+    const repo = vnode.attrs.repo;
+    const isEdit = vm.editMode(repo);
 
     return <li>
-      <h3>{vm.type()} repo: {vm.id()}</h3>
-      <h5>Plugin: {vm.pluginId()}</h5>
-      <ActionBar vm={vm}/>
-      <MaterialAttributes vm={vm.editModel() || vm.attributes()} isEdit={vm.editMode()} />
+      <h3>{repo.type()} repo: {repo.id()}</h3>
+      <h5>Plugin: {repo.pluginId()}</h5>
+      <ActionBar vm={vm} repo={repo} isEdit={isEdit} />
+      <MaterialAttributes material={repo.attributes()} isEdit={isEdit} />
     </li>;
   }
 };
@@ -92,27 +94,30 @@ const ConfigRepo = {
 const ActionBar = {
   view(vnode) {
     const vm = vnode.attrs.vm;
-    if (vm.editMode()) {
-      return [<button onclick={() => vm.exitEditMode()}>Cancel</button>,<button onclick={() => vm.saveUpdate()}>Save</button>];
+    const repo = vnode.attrs.repo;
+    const isEdit = vnode.attrs.isEdit;
+
+    if (isEdit) {
+      return [<button onclick={() => vm.exitEditMode()}>Cancel</button>,<button onclick={() => vm.updateRepo(repo)}>Save</button>];
     } else {
-      return [<button onclick={() => vm.enterEditMode()}>Edit</button>, <button onclick={() => vm.remove()}>Delete</button>];
+      return [<button onclick={() => vm.enterEditMode(repo)}>Edit</button>, <button onclick={() => vm.removeRepo(repo)}>Delete</button>];
     }
   }
 };
 
 const MaterialAttributes = {
   view(vnode) {
-    const vm = vnode.attrs.vm;
+    const material = vnode.attrs.material;
     const isEdit = vnode.attrs.isEdit;
 
     if (isEdit) {
       return <div>{
-        _.map(vm.keys, (k) => <Field model={vm} attrName={k} />)
+        _.map(material.keys, (k) => <Field model={material} attrName={k} />)
       }</div>;
     }
 
     return <table>
-      {_.map(vm.keys, (k) => <tr><td>{k}</td><td>{vm[k]()}</td></tr>)}
+      {_.map(material.keys, (k) => <tr><td>{k}</td><td>{material[k]()}</td></tr>)}
     </table>;
   }
 };

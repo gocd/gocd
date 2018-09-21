@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-const $                               = require('jquery');
 const m                               = require('mithril');
 const ServerHealthMessages            = require('models/shared/server_health_messages/server_health_messages');
 const ServerHealthMessagesCountWidget = require('./server_health_messages_count_widget');

@@ -29,7 +29,7 @@ class PluginsDelegateTest implements ControllerTrait<PluginsDelegate>, SecurityS
 
   @Override
   PluginsDelegate createControllerInstance() {
-    return new PluginsDelegate(new SPAAuthenticationHelper(securityService, goConfigService), templateEngine)
+    return new PluginsDelegate(new SPAAuthenticationHelper(securityService, goConfigService), templateEngine, securityService)
   }
 
   @Nested

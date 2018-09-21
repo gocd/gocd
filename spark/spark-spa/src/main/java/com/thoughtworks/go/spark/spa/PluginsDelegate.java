@@ -33,10 +33,12 @@ public class PluginsDelegate implements SparkController {
 
     private final SPAAuthenticationHelper authenticationHelper;
     private final TemplateEngine engine;
+    private final SecurityService securityService;
 
-    public PluginsDelegate(SPAAuthenticationHelper authenticationHelper, TemplateEngine engine) {
+    public PluginsDelegate(SPAAuthenticationHelper authenticationHelper, TemplateEngine engine, SecurityService securityService) {
         this.authenticationHelper = authenticationHelper;
         this.engine = engine;
+        this.securityService = securityService; //fixme remove after page is fully componentized
     }
 
     @Override
@@ -55,7 +57,8 @@ public class PluginsDelegate implements SparkController {
     public ModelAndView index(Request request, Response response) {
         HashMap<Object, Object> object = new HashMap<Object, Object>() {{
             put("viewTitle", "Plugins");
+            put("isUserAnAdmin", securityService.isUserAdmin(currentUsername()));
         }};
-        return new ModelAndView(object, "plugins/index.vm"); //fixme this is not really needed
+        return new ModelAndView(object, "plugins/index.vm"); //fixme: not really needed with components
     }
 }

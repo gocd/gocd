@@ -46,21 +46,21 @@ public class PipelineLabelTest {
 
     @Test
     public void shouldFormatLabelAccordingToCountingTemplate() {
-        PipelineLabel label = PipelineLabel.create(testingTemplate);
+        PipelineLabel label = PipelineLabel.create(testingTemplate, InsecureEnvironmentVariables.EMPTY_ENV_VARS);
         label.updateLabel(getNamedRevision(99));
         assertThat(label.toString(), is("testing.99.label"));
     }
 
     @Test
     public void shouldIgnoreCaseInCountingTemplate() {
-        PipelineLabel label = PipelineLabel.create(testingTemplate);
+        PipelineLabel label = PipelineLabel.create(testingTemplate, InsecureEnvironmentVariables.EMPTY_ENV_VARS);
         label.updateLabel(getNamedRevision(2));
         assertThat(label.toString(), is("testing.2.label"));
     }
 
     @Test
     public void shouldReplaceTheTemplateWithMaterialRevision() {
-        PipelineLabel label = PipelineLabel.create("release-${svnMaterial}");
+        PipelineLabel label = PipelineLabel.create("release-${svnMaterial}", InsecureEnvironmentVariables.EMPTY_ENV_VARS);
         MaterialRevisions materialRevisions = ModificationsMother.oneUserOneFile();
         label.updateLabel(materialRevisions.getNamedRevisions());
         assertThat(label.toString(), is("release-" + ModificationsMother.currentRevision()));
@@ -78,7 +78,7 @@ public class PipelineLabelTest {
 
     @Test
     public void shouldReplaceTheTemplateWithMultipleMaterialRevision() {
-        PipelineLabel label = PipelineLabel.create("release-${svnMaterial}-${hg}");
+        PipelineLabel label = PipelineLabel.create("release-${svnMaterial}-${hg}", InsecureEnvironmentVariables.EMPTY_ENV_VARS);
         MaterialRevisions materialRevisions = ModificationsMother.oneUserOneFile();
         HgMaterial material = MaterialsMother.hgMaterial();
         material.setName(new CaseInsensitiveString("hg"));
@@ -92,7 +92,7 @@ public class PipelineLabelTest {
 
     @Test
     public void shouldReplaceTheTemplateWithGitMaterialRevision() {
-        PipelineLabel label = PipelineLabel.create("release-${svnMaterial}-${git}");
+        PipelineLabel label = PipelineLabel.create("release-${svnMaterial}-${git}", InsecureEnvironmentVariables.EMPTY_ENV_VARS);
         MaterialRevisions materialRevisions = ModificationsMother.oneUserOneFile();
         ScmMaterial material = MaterialsMother.gitMaterial("");
         material.setName(new CaseInsensitiveString("git"));
@@ -106,7 +106,7 @@ public class PipelineLabelTest {
 
     @Test
     public void shouldTruncateMaterialRevision() {
-        PipelineLabel label = PipelineLabel.create("release-${svnMaterial}-${git[:6]}");
+        PipelineLabel label = PipelineLabel.create("release-${svnMaterial}-${git[:6]}", InsecureEnvironmentVariables.EMPTY_ENV_VARS);
         MaterialRevisions materialRevisions = ModificationsMother.oneUserOneFile();
         ScmMaterial material = MaterialsMother.gitMaterial("");
         material.setName(new CaseInsensitiveString("git"));
@@ -120,7 +120,7 @@ public class PipelineLabelTest {
 
     @Test
     public void shouldTrimLongLabelTo255() {
-        PipelineLabel label = PipelineLabel.create("Pipeline-${upstream}");
+        PipelineLabel label = PipelineLabel.create("Pipeline-${upstream}", InsecureEnvironmentVariables.EMPTY_ENV_VARS);
         HashMap<CaseInsensitiveString, String> namedRevisions = new HashMap<>();
         namedRevisions.put(new CaseInsensitiveString("upstream"), longLabel(300));
 
@@ -130,7 +130,7 @@ public class PipelineLabelTest {
 
     @Test
     public void shouldKeepLabelIfLessThan255() {
-        PipelineLabel label = PipelineLabel.create("${upstream}");
+        PipelineLabel label = PipelineLabel.create("${upstream}", InsecureEnvironmentVariables.EMPTY_ENV_VARS);
         HashMap<CaseInsensitiveString, String> namedRevisions = new HashMap<>();
         namedRevisions.put(new CaseInsensitiveString("upstream"), longLabel(154));
 
@@ -140,19 +140,19 @@ public class PipelineLabelTest {
 
     @Test
     public void shouldCreateDefaultLabelIfTemplateIsNull() {
-        PipelineLabel label = PipelineLabel.create(null);
+        PipelineLabel label = PipelineLabel.create(null, InsecureEnvironmentVariables.EMPTY_ENV_VARS);
         assertThat(label, Is.is(PipelineLabel.defaultLabel()));
     }
 
     @Test
     public void shouldCreateDefaultLabelIfTemplateIsEmtpty() {
-        PipelineLabel label = PipelineLabel.create("");
+        PipelineLabel label = PipelineLabel.create("", InsecureEnvironmentVariables.EMPTY_ENV_VARS);
         assertThat(label, Is.is(PipelineLabel.defaultLabel()));
     }
 
     @Test
     public void shouldCreateLabelIfTemplateIsProvided() {
-        PipelineLabel label = PipelineLabel.create("Pipeline-${ABC}");
+        PipelineLabel label = PipelineLabel.create("Pipeline-${ABC}", InsecureEnvironmentVariables.EMPTY_ENV_VARS);
         assertThat(label, Is.is(new PipelineLabel("Pipeline-${ABC}", InsecureEnvironmentVariables.EMPTY_ENV_VARS)));
     }
 
@@ -284,10 +284,10 @@ public class PipelineLabelTest {
     }
 
     @Test
-    public void shouldReturnMatchedTextIfThereAreNoMatchingEnvironmentVariables() {
-        PipelineLabel label = PipelineLabel.create("release-${env:VAR}");
+    public void shouldReturnEmptyIfThereIsNoMatchingEnvironmentVariable() {
+        PipelineLabel label = PipelineLabel.create("release-${env:VAR}", InsecureEnvironmentVariables.EMPTY_ENV_VARS);
         label.updateLabel(new HashMap<>());
-        assertThat(label.toString(), is("release-${env:VAR}"));
+        assertThat(label.toString(), is("release-"));
     }
 
     @BeforeClass
@@ -358,7 +358,7 @@ public class PipelineLabelTest {
 
     private PipelineLabel getReplacedLabelFor(String name, String labelFormat) {
         MaterialRevisions materialRevisions = ModificationsMother.oneUserOneFile();
-        PipelineLabel label = PipelineLabel.create(labelFormat);
+        PipelineLabel label = PipelineLabel.create(labelFormat, InsecureEnvironmentVariables.EMPTY_ENV_VARS);
         ((SvnMaterial) materialRevisions.getRevisions().get(0).getMaterial()).setName(new CaseInsensitiveString(name));
         label.updateLabel(materialRevisions.getNamedRevisions());
         return label;

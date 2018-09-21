@@ -64,7 +64,7 @@ public class PipelineLabel implements Serializable {
         String valueForMaterialVariable = materialRevisions.get(variable);
         String valueForPrefixedVariable = getValueIfVariableHasValidPrefix(variable);
 
-        String result = null;
+        String result;
 
         if (valueForMaterialVariable != null) {
             result = valueForMaterialVariable;
@@ -111,10 +111,6 @@ public class PipelineLabel implements Serializable {
         return (label != null ? label.hashCode() : 0);
     }
 
-    public static PipelineLabel create(String labelTemplate) {
-        return create(labelTemplate, InsecureEnvironmentVariables.EMPTY_ENV_VARS);
-    }
-
     public static PipelineLabel create(String labelTemplate, InsecureEnvironmentVariables envVars) {
         if (StringUtils.isBlank(labelTemplate)) {
             return defaultLabel();
@@ -133,7 +129,7 @@ public class PipelineLabel implements Serializable {
 
     private String getValueIfVariableHasValidPrefix(CaseInsensitiveString variable) {
         if (variable.startsWith(ENV_VAR_PREFIX)) {
-            return envVars.getInsecureEnvironmentVariableOrDefault(variable.toString().split(":", 2)[1], null);
+            return envVars.getInsecureEnvironmentVariableOrDefault(variable.toString().split(":", 2)[1], "");
         }
 
         return null;

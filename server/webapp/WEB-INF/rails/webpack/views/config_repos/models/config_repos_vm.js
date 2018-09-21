@@ -15,8 +15,8 @@
  */
 
 
-const Stream = require('mithril/stream');
 const _ = require("lodash");
+const Stream = require('mithril/stream');
 const Materials = require('models/config_repos/materials');
 
 function ReposListVM(model) {
@@ -105,7 +105,7 @@ function ConfigRepoVM(data, model, parent) {
       configuration: this.configuration()
     };
 
-    model.create(payload).then(() => parent.addRepo(this));
+    return model.create(payload).then(() => parent.addRepo(this));
   };
 
   this.saveUpdate = () => {
@@ -116,15 +116,14 @@ function ConfigRepoVM(data, model, parent) {
       }
     });
 
-    model.update(this.etag(), payload).then((data) => {
+    return model.update(this.etag(), payload).then((data) => {
       this.initialize(data);
       this.exitEditMode();
     });
   };
 
   this.remove = () => {
-    model.delete(this.id());
-    parent.removeRepo(this);
+    return model.delete(this.id()).then(() => parent.removeRepo(this));
   };
 }
 

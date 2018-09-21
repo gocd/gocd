@@ -41,7 +41,11 @@ const AddRepo = {
     const vm = vnode.attrs.vm;
 
     if (vm.addMode()) {
-      return <AddForm vm={vm.addModel()}/>;
+      return <div>
+        <AddForm vm={vm.addModel()}/>
+        <button onclick={() => vm.exitAddMode()}>Cancel</button>
+        <button onclick={() => vm.addModel().create().then(() => vm.exitAddMode())}>Save</button>
+      </div>;
     } else {
       return <div>
         <f.select model={vm} attrName="typeToAdd" items={vm.availMaterials} />
@@ -52,14 +56,20 @@ const AddRepo = {
 };
 
 const AddForm = {
+  oninit(vnode) {
+    const vm = vnode.attrs.vm;
+    const pluginChoices = this.pluginChoices = [
+      { id: "json.config.plugin", text: "GoCD JSON Config Plugin" },
+      { id: "yaml.config.plugin", text: "GoCD YAML Config Plugin" }
+    ];
+
+    vm.pluginId(pluginChoices[0].id);
+  },
+
   view(vnode) {
     const vm = vnode.attrs.vm;
-    const pluginChoices = [
-    { id: "json.config.plugin", text: "GoCD JSON Config Plugin" },
-    { id: "yaml.config.plugin", text: "GoCD YAML Config Plugin" }
-    ];
     return <div>
-    <f.select label="Choose a plugin" model={vm} attrName="pluginId" items={pluginChoices} />
+    <f.select label="Choose a plugin" model={vm} attrName="pluginId" items={this.pluginChoices} />
     <f.input label="Config Repo ID" model={vm} attrName="id"/>
     {_.map(vm.attributes(), (v, k) =>
         m("boolean" === typeof v() ? f.checkbox : f.input, {

@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-
-const _ = require("lodash");
 const Stream = require('mithril/stream');
 const Materials = require('models/config_repos/materials');
 
@@ -23,7 +21,7 @@ function ReposListVM(model) {
   const repos = Stream([]);
   const self = this;
 
-  this.availMaterials = [{ id: "git", text: "Git" }, { id: "hg", text: "Mercurial" }];
+  this.availMaterials = [{ id: "git", text: "Git" }, { id: "hg", text: "Mercurial" }, { id: "svn", text: "Svn" }, { id: "p4", text: "Perforce" }, { id: "tfs", text: "Tfs" }, { id: "package", text: "Package" }];
   this.typeToAdd = Stream("git");
   this.addModel = Stream(null);
   this.addMode = () => !!this.addModel();
@@ -83,12 +81,7 @@ function ConfigRepoVM(data, model, parent) {
 
       if (304 !== xhr.status) { this.initialize(data); }
 
-      this.editModel(
-        _.reduce(this.attributes(), (memo, v, k) => {
-          memo[k] = Stream(v);
-          return memo;
-        }, {})
-      );
+      this.editModel(this.attributes().clone());
     });
   };
 
@@ -109,12 +102,15 @@ function ConfigRepoVM(data, model, parent) {
   };
 
   this.saveUpdate = () => {
-    const payload = _.assign({}, data, {
+    const payload = {
+      id: this.id(),
+      plugin_id: this.pluginId(), // eslint-disable-line camelcase
       material: {
         type: this.type(),
         attributes: this.editModel()
-      }
-    });
+      },
+      configuration: this.configuration()
+    };
 
     return model.update(this.etag(), payload).then((data) => {
       this.initialize(data);

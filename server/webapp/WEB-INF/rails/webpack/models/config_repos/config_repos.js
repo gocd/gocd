@@ -34,7 +34,7 @@ function ConfigRepos() {
   this.get = (etag, id) => AjaxHelper.GET({
     url: Routes.apiv1AdminConfigRepoPath(id),
     apiVersion: "v1",
-    etag,
+    etag
   });
 
   this.update = (etag, payload) => AjaxHelper.PUT({

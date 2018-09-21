@@ -69,17 +69,10 @@ const AddForm = {
   view(vnode) {
     const vm = vnode.attrs.vm;
     return <div>
-    <f.select label="Choose a plugin" model={vm} attrName="pluginId" items={this.pluginChoices} />
-    <f.input label="Config Repo ID" model={vm} attrName="id"/>
-    {_.map(vm.attributes(), (v, k) =>
-        m("boolean" === typeof v() ? f.checkbox : f.input, {
-          model: vm.attributes(),
-          attrName: k,
-          label: k
-        })
-      )
-    }
-  </div>;
+      <f.select label="Choose a plugin" model={vm} attrName="pluginId" items={this.pluginChoices} />
+      <f.input label="Config Repo ID" model={vm} attrName="id"/>
+      <MaterialAttributes vm={vm.attributes()} isEdit={true} />
+    </div>;
   }
 };
 
@@ -91,7 +84,7 @@ const ConfigRepo = {
       <h3>{vm.type()} repo: {vm.id()}</h3>
       <h5>Plugin: {vm.pluginId()}</h5>
       <ActionBar vm={vm}/>
-      <MaterialAttributes vm={vm}/>
+      <MaterialAttributes vm={vm.editModel() || vm.attributes()} isEdit={vm.editMode()} />
     </li>;
   }
 };
@@ -110,20 +103,38 @@ const ActionBar = {
 const MaterialAttributes = {
   view(vnode) {
     const vm = vnode.attrs.vm;
-    if (vm.editModel()) {
-      const editModel = vm.editModel();
-      return <div>{_.map(editModel, (v, k) =>
-        m("boolean" === typeof v() ? f.checkbox : f.input, {
-          model: editModel,
-          attrName: k,
-          label: k
-        })
-      )}</div>;
+    const isEdit = vnode.attrs.isEdit;
 
+    if (isEdit) {
+      return <div>{
+        _.map(vm.keys, (k) => <Field model={vm} attrName={k} />)
+      }</div>;
     }
+
     return <table>
-      {_.map(vm.attributes(), (v, k) => <tr><td>{k}</td><td>{v}</td></tr>)}
+      {_.map(vm.keys, (k) => <tr><td>{k}</td><td>{vm[k]()}</td></tr>)}
     </table>;
+  }
+};
+
+const Field = {
+  view(vnode) {
+    const vm = vnode.attrs.model;
+    const k = vnode.attrs.attrName;
+    const field = vm[k];
+    const options = {model: vm, attrName: k, label: field.display};
+
+    switch (field.type) {
+      /* eslint-disable no-fallthrough */
+      case "boolean":
+        return <f.checkbox {...options} />;
+      case "secret":
+        options.type = "password";
+      case "text":
+      default:
+        return <f.input {...options} />;
+      /* eslint-enable no-fallthrough */
+    }
   }
 };
 

@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-const stream = require("mithril/stream");
 const _ = require("lodash");
 
 const Materials = {
@@ -24,28 +23,136 @@ const Materials = {
         return new GitMaterial(data);
       case "hg":
         return new HgMaterial(data);
+      case "svn":
+        return new SvnMaterial(data);
+      case "p4":
+        return new P4Material(data);
+      case "tfs":
+        return new TfsMaterial(data);
+      case "package":
+        return new PackageMaterial(data);
+      default:
+        throw new Error(`Unknown material type: ${type}`);
     }
   }
 };
 
-function GitMaterial (data) {
-  const DEFAULTS = {name: "", url: "", auto_update: true, branch: "master"}; // eslint-disable-line camelcase
-  const attrs = _.assign(DEFAULTS, _.get(data, "material.attributes", {}));
+function Field(name, options={}) {
+  const DEFAULTS = {required: true, type: "text", default: ""};
+  options = _.assign({}, DEFAULTS, options);
+  options.display = options.display || _.startCase(name);
 
-  this.name = stream(attrs.name);
-  this.url = stream(attrs.url);
-  this.branch = stream(attrs.branch);
-  this.auto_update = stream(attrs.auto_update); // eslint-disable-line camelcase
+  this.keys = (this.keys || []);
+
+  if (this.keys.indexOf(name) === -1) {
+    this.keys.push(name);
+  } else {
+    console.warn(`The key ${name} has already been defined on this object`); // eslint-disable-line no-console
+  }
+
+  let value;
+
+  function attr(val) {
+    if (arguments.length) {
+      if ("undefined" !== typeof val) {
+        if (options.type === "boolean") {
+          val = !!val;
+        }
+
+        value = val;
+      } else {
+        if (options.required) {
+          new Error(`${name} is a required field`);
+        }
+        value = options.default;
+      }
+    }
+
+    return value;
+  }
+
+  this[name] = attr;
+
+  _.assign(this[name], options);
+}
+
+function Common(data) {
+  this.consume = (data) => {
+    data = _.get(data, "material.attributes", {});
+
+    this.keys.forEach((key) => {
+      this[key](data[key]);
+    });
+  };
+
+  this.toJSON = () => _.reduce(this.keys, (memo, k) => {
+    memo[k] = this[k]();
+    return memo;
+  }, {});
+
+  this.consume(data);
+  this.clone = () => new this.constructor(data);
+}
+
+function GitMaterial(data) {
+  Field.call(this, "name", {display: "Material Name"});
+  Field.call(this, "url");
+  Field.call(this, "branch", {default: "master"});
+  Field.call(this, "auto_update", {display: "Auto-update changes", type: "boolean", default: true});
+
+  Common.call(this, data);
 }
 
 function HgMaterial (data) {
-  const DEFAULTS = {name: "", url: "", auto_update: true}; // eslint-disable-line camelcase
-  const attrs = _.assign(DEFAULTS, _.get(data, "material.attributes", {}));
+  Field.call(this, "name", {display: "Material Name"});
+  Field.call(this, "url");
+  Field.call(this, "auto_update", {display: "Auto-update changes", type: "boolean", default: true});
 
-  this.name = stream(attrs.name);
-  this.url = stream(attrs.url);
-  this.auto_update = stream(attrs.auto_update); // eslint-disable-line camelcase
+  Common.call(this, data);
 }
 
+function SvnMaterial (data) {
+  Field.call(this, "name", {display: "Material Name"});
+  Field.call(this, "url");
+  Field.call(this, "username");
+  Field.call(this, "password", {type: "secret"});
+  Field.call(this, "encrypted_password", {display: "Encrypted Password", type: "secret"});
+  Field.call(this, "auto_update", {display: "Auto-update changes", type: "boolean", default: true});
+  Field.call(this, "check_externals", {display: "Check Externals", type: "boolean", default: true});
+
+  Common.call(this, data);
+}
+
+function P4Material (data) {
+  Field.call(this, "name", {display: "Material Name"});
+  Field.call(this, "port");
+  Field.call(this, "use_tickets", {display: "Use Tickets", type: "boolean", default: false});
+  Field.call(this, "view");
+  Field.call(this, "auto_update", {display: "Auto-update changes", type: "boolean", default: true});
+  Field.call(this, "username");
+  Field.call(this, "password", {type: "secret"});
+  Field.call(this, "encrypted_password", {display: "Encrypted Password", type: "secret"});
+
+  Common.call(this, data);
+}
+
+function TfsMaterial (data) {
+  Field.call(this, "name", {display: "Material Name"});
+  Field.call(this, "url");
+  Field.call(this, "project_path", {display: "Project Path"});
+  Field.call(this, "domain");
+  Field.call(this, "auto_update", {display: "Auto-update changes", type: "boolean", default: true});
+  Field.call(this, "username");
+  Field.call(this, "password", {type: "secret"});
+  Field.call(this, "encrypted_password", {display: "Encrypted Password", type: "secret"});
+
+  Common.call(this, data);
+}
+
+function PackageMaterial (data) {
+  Field.call(this, "ref");
+
+  Common.call(this, data);
+}
 
 module.exports = Materials;

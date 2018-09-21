@@ -29,7 +29,7 @@ public class PipelineLabel implements Serializable {
     protected String label;
     private InsecureEnvironmentVariables envVars;
     public static final String COUNT = "COUNT";
-    public static final String ENV_VAR_PREFIX = "env:";
+    private static final String ENV_VAR_PREFIX = "env:";
     public static final String COUNT_TEMPLATE = String.format("${%s}", COUNT);
 
     public PipelineLabel(String labelTemplate, InsecureEnvironmentVariables insecureEnvironmentVariables) {
@@ -61,13 +61,16 @@ public class PipelineLabel implements Serializable {
     private String lookupVariable(Matcher matcher, Map<CaseInsensitiveString, String> materialRevisions) {
         final CaseInsensitiveString variable = new CaseInsensitiveString(matcher.group(1));
 
-        String result = materialRevisions.get(variable);
+        String valueForMaterialVariable = materialRevisions.get(variable);
+        String valueForPrefixedVariable = getValueIfVariableHasValidPrefix(variable);
 
-        if (variable.startsWith(ENV_VAR_PREFIX)) {
-            result = envVars.getInsecureEnvironmentVariableOrDefault(variable.toString().split(":", 2)[1], null);
-        }
+        String result = null;
 
-        if (result == null) {
+        if (valueForMaterialVariable != null) {
+            result = valueForMaterialVariable;
+        } else if (valueForPrefixedVariable != null) {
+            result = valueForPrefixedVariable;
+        } else {
             return "\\" + matcher.group(0);
         }
 
@@ -122,5 +125,17 @@ public class PipelineLabel implements Serializable {
 
     public static PipelineLabel defaultLabel() {
         return new PipelineLabel(PipelineLabel.COUNT_TEMPLATE, InsecureEnvironmentVariables.EMPTY_ENV_VARS);
+    }
+
+    public static boolean hasValidPrefix(String value) {
+        return value.toLowerCase().startsWith(ENV_VAR_PREFIX);
+    }
+
+    private String getValueIfVariableHasValidPrefix(CaseInsensitiveString variable) {
+        if (variable.startsWith(ENV_VAR_PREFIX)) {
+            return envVars.getInsecureEnvironmentVariableOrDefault(variable.toString().split(":", 2)[1], null);
+        }
+
+        return null;
     }
 }

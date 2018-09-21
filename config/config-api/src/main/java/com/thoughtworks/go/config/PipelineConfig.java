@@ -48,7 +48,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import static com.thoughtworks.go.domain.label.PipelineLabel.ENV_VAR_PREFIX;
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static com.thoughtworks.go.util.ExceptionUtils.bombIf;
 import static java.util.Arrays.asList;
@@ -275,7 +274,7 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
         Set<String> templateVariables = getTemplateVariables();
         List<String> materialNames = allowedTemplateVariables();
         for (final String templateVariable : templateVariables) {
-            if (!templateVariable.toLowerCase().startsWith(ENV_VAR_PREFIX) && !IterableUtils.matchesAny(materialNames, withNameSameAs(templateVariable))) {
+            if (!PipelineLabel.hasValidPrefix(templateVariable) && !IterableUtils.matchesAny(materialNames, withNameSameAs(templateVariable))) {
                 addError("labelTemplate", String.format(ERR_TEMPLATE, name(), templateVariable));
             }
         }

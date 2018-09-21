@@ -17,5 +17,9 @@
 package com.thoughtworks.go.domain;
 
 public interface InsecureEnvironmentVariables {
-    String getInsecureEnvironmentVariableOrDefault(String key, String defaultValue);
+    InsecureEnvironmentVariables EMPTY_ENV_VARS = new InsecureEnvironmentVariables() {};
+
+    default String getInsecureEnvironmentVariableOrDefault(String key, String defaultValue) {
+        return "";
+    }
 }

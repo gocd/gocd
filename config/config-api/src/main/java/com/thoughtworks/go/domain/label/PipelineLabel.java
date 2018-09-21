@@ -32,13 +32,9 @@ public class PipelineLabel implements Serializable {
     public static final String ENV_VAR_PREFIX = "env:";
     public static final String COUNT_TEMPLATE = String.format("${%s}", COUNT);
 
-    public PipelineLabel(String labelTemplate) {
+    public PipelineLabel(String labelTemplate, InsecureEnvironmentVariables insecureEnvironmentVariables) {
         this.label = labelTemplate;
-    }
-
-    public PipelineLabel(String labelTemplate, InsecureEnvironmentVariables envVars) {
-        this.label = labelTemplate;
-        this.envVars = envVars;
+        this.envVars = insecureEnvironmentVariables;
     }
 
     public void setLabel(String label) {
@@ -117,7 +113,7 @@ public class PipelineLabel implements Serializable {
     }
 
     public static PipelineLabel create(String labelTemplate) {
-        return create(labelTemplate, null);
+        return create(labelTemplate, InsecureEnvironmentVariables.EMPTY_ENV_VARS);
     }
 
     public static PipelineLabel create(String labelTemplate, InsecureEnvironmentVariables envVars) {
@@ -129,6 +125,6 @@ public class PipelineLabel implements Serializable {
     }
 
     public static PipelineLabel defaultLabel() {
-        return new PipelineLabel(PipelineLabel.COUNT_TEMPLATE);
+        return new PipelineLabel(PipelineLabel.COUNT_TEMPLATE, InsecureEnvironmentVariables.EMPTY_ENV_VARS);
     }
 }

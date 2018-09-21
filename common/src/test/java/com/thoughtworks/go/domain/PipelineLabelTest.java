@@ -39,27 +39,27 @@ public class PipelineLabelTest {
     private final String testingTemplate = "testing." + PipelineLabel.COUNT_TEMPLATE + ".label";
 
     @Test
-    public void shouldUseCounterAsDefaultTemplate() throws Exception {
+    public void shouldUseCounterAsDefaultTemplate() {
         PipelineLabel defaultLabel = PipelineLabel.defaultLabel();
         assertThat(defaultLabel.toString(), is("${COUNT}"));
     }
 
     @Test
-    public void shouldFormatLabelAccordingToCountingTemplate() throws Exception {
+    public void shouldFormatLabelAccordingToCountingTemplate() {
         PipelineLabel label = PipelineLabel.create(testingTemplate);
         label.updateLabel(getNamedRevision(99));
         assertThat(label.toString(), is("testing.99.label"));
     }
 
     @Test
-    public void shouldIgnoreCaseInCountingTemplate() throws Exception {
+    public void shouldIgnoreCaseInCountingTemplate() {
         PipelineLabel label = PipelineLabel.create(testingTemplate);
         label.updateLabel(getNamedRevision(2));
         assertThat(label.toString(), is("testing.2.label"));
     }
 
     @Test
-    public void shouldReplaceTheTemplateWithMaterialRevision() throws Exception {
+    public void shouldReplaceTheTemplateWithMaterialRevision() {
         PipelineLabel label = PipelineLabel.create("release-${svnMaterial}");
         MaterialRevisions materialRevisions = ModificationsMother.oneUserOneFile();
         label.updateLabel(materialRevisions.getNamedRevisions());
@@ -67,7 +67,7 @@ public class PipelineLabelTest {
     }
 
     @Test
-    public void shouldReplaceTheTemplateCaseInsensitively() throws Exception {
+    public void shouldReplaceTheTemplateCaseInsensitively() {
         EnvironmentVariables envVars = new EnvironmentVariables();
         envVars.add("VAR", "var_value");
         PipelineLabel label = PipelineLabel.create("release-${SVNMaterial}-${EnV:Var}", envVars);
@@ -77,7 +77,7 @@ public class PipelineLabelTest {
     }
 
     @Test
-    public void shouldReplaceTheTemplateWithMultipleMaterialRevision() throws Exception {
+    public void shouldReplaceTheTemplateWithMultipleMaterialRevision() {
         PipelineLabel label = PipelineLabel.create("release-${svnMaterial}-${hg}");
         MaterialRevisions materialRevisions = ModificationsMother.oneUserOneFile();
         HgMaterial material = MaterialsMother.hgMaterial();
@@ -91,7 +91,7 @@ public class PipelineLabelTest {
     }
 
     @Test
-    public void shouldReplaceTheTemplateWithGitMaterialRevision() throws Exception {
+    public void shouldReplaceTheTemplateWithGitMaterialRevision() {
         PipelineLabel label = PipelineLabel.create("release-${svnMaterial}-${git}");
         MaterialRevisions materialRevisions = ModificationsMother.oneUserOneFile();
         ScmMaterial material = MaterialsMother.gitMaterial("");
@@ -105,7 +105,7 @@ public class PipelineLabelTest {
     }
 
     @Test
-    public void shouldTruncateMaterialRevision() throws Exception {
+    public void shouldTruncateMaterialRevision() {
         PipelineLabel label = PipelineLabel.create("release-${svnMaterial}-${git[:6]}");
         MaterialRevisions materialRevisions = ModificationsMother.oneUserOneFile();
         ScmMaterial material = MaterialsMother.gitMaterial("");
@@ -153,14 +153,14 @@ public class PipelineLabelTest {
     @Test
     public void shouldCreateLabelIfTemplateIsProvided() {
         PipelineLabel label = PipelineLabel.create("Pipeline-${ABC}");
-        assertThat(label, Is.is(new PipelineLabel("Pipeline-${ABC}")));
+        assertThat(label, Is.is(new PipelineLabel("Pipeline-${ABC}", InsecureEnvironmentVariables.EMPTY_ENV_VARS)));
     }
 
     @Test
-    public void shouldNotReplaceTemplateWithoutMaterial() throws Exception {
-        PipelineLabel label = new PipelineLabel("1.5.0");
+    public void shouldNotReplaceTemplateWithoutMaterial() {
+        PipelineLabel label = new PipelineLabel("1.5.0", InsecureEnvironmentVariables.EMPTY_ENV_VARS);
         label.updateLabel(new HashMap<>());
-        assertThat(label, is(new PipelineLabel("1.5.0")));
+        assertThat(label, is(new PipelineLabel("1.5.0", InsecureEnvironmentVariables.EMPTY_ENV_VARS)));
     }
 
     @Test
@@ -242,7 +242,7 @@ public class PipelineLabelTest {
     }
 
     @Test
-    public void shouldReplaceTheTemplateWithSpecialCharacters() throws Exception {
+    public void shouldReplaceTheTemplateWithSpecialCharacters() {
         ensureLabelIsReplaced("SVNMaterial");
         ensureLabelIsReplaced("SVN-Material");
         ensureLabelIsReplaced("SVN_Material");
@@ -265,7 +265,7 @@ public class PipelineLabelTest {
     }
 
     @Test
-    public void shouldReplaceTheTemplateWithEnvironmentVariable() throws Exception {
+    public void shouldReplaceTheTemplateWithEnvironmentVariable() {
         EnvironmentVariables envVars = new EnvironmentVariables();
         envVars.add("VAR", "var_value");
         PipelineLabel label = PipelineLabel.create("release-${ENV:VAR}", envVars);
@@ -274,7 +274,7 @@ public class PipelineLabelTest {
     }
 
     @Test
-    public void shouldReplaceTheTemplateWithMultipleEnvironmentVariable() throws Exception {
+    public void shouldReplaceTheTemplateWithMultipleEnvironmentVariable() {
         EnvironmentVariables envVars = new EnvironmentVariables();
         envVars.add("VAR1", "1");
         envVars.add("VAR2", "2");
@@ -284,14 +284,14 @@ public class PipelineLabelTest {
     }
 
     @Test
-    public void shouldReturnMatchedTextIfThereAreNoEnvironmentVariables() throws Exception {
+    public void shouldReturnMatchedTextIfThereAreNoEnvironmentVariables() {
         PipelineLabel label = PipelineLabel.create("release-${ENV:VAR}");
         label.updateLabel(null);
         assertThat(label.toString(), is("release-${ENV:VAR}"));
     }
 
     @Test
-    public void shouldReturnEmptyStringIfEnvironmentVariableIsUndefined() throws Exception {
+    public void shouldReturnEmptyStringIfEnvironmentVariableIsUndefined() {
         EnvironmentVariables envVars = new EnvironmentVariables();
         PipelineLabel label = PipelineLabel.create("release-${ENV:VAR1}", envVars);
         label.updateLabel(null);
@@ -305,16 +305,16 @@ public class PipelineLabelTest {
         MATERIAL_REVISIONS.put(new CaseInsensitiveString("git"), GIT_REVISION);
     }
 
-    public static final Map<CaseInsensitiveString, String> MATERIAL_REVISIONS = new HashMap<>();
+    private static final Map<CaseInsensitiveString, String> MATERIAL_REVISIONS = new HashMap<>();
 
-    public static final String SVN_REVISION = "3456";
-    public static final String GIT_REVISION = "c42c0bfa57d00a25496ba899b1f476e6ec8872bd";
-    public static final int GIT_REV_LENGTH = GIT_REVISION.length();
+    private static final String SVN_REVISION = "3456";
+    private static final String GIT_REVISION = "c42c0bfa57d00a25496ba899b1f476e6ec8872bd";
+    private static final int GIT_REV_LENGTH = GIT_REVISION.length();
 
-    private String assertLabelGroupsMatchingAndReplace(String labelTemplate, String[][] expectedGroups) throws Exception {
+    private String assertLabelGroupsMatchingAndReplace(String labelTemplate, String[][] expectedGroups) {
         assertLabelGroupsMatching(labelTemplate, expectedGroups);
 
-        PipelineLabel label = new PipelineLabel(labelTemplate);
+        PipelineLabel label = new PipelineLabel(labelTemplate, InsecureEnvironmentVariables.EMPTY_ENV_VARS);
         label.updateLabel(MATERIAL_REVISIONS);
         return label.toString();
     }

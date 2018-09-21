@@ -128,7 +128,7 @@ public class ValueStreamMapServiceTest {
 
         when(pipelineService.buildCauseFor(pipelineName, counter)).thenReturn(buildCause);
         when(goConfigService.currentCruiseConfig()).thenReturn(new BasicCruiseConfig(new BasicPipelineConfigs(p1Config)));
-        when(pipelineService.findPipelineByCounterOrLabel(pipelineName, "1")).thenReturn(new Pipeline("MYPIPELINE", "p1-label", buildCause));
+        when(pipelineService.findPipelineByCounterOrLabel(pipelineName, "1")).thenReturn(new Pipeline("MYPIPELINE", "p1-label", buildCause, new EnvironmentVariables()));
 
         ValueStreamMapPresentationModel graph = valueStreamMapService.getValueStreamMap(new CaseInsensitiveString("MYPIPELINE"), counter, user, result);
 
@@ -170,7 +170,7 @@ public class ValueStreamMapServiceTest {
 
         when(pipelineService.buildCauseFor(pipelineName, counter)).thenReturn(buildCause);
         when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
-        when(pipelineService.findPipelineByCounterOrLabel(pipelineName, "1")).thenReturn(new Pipeline(uppercasePipelineName, "p1-label", buildCause));
+        when(pipelineService.findPipelineByCounterOrLabel(pipelineName, "1")).thenReturn(new Pipeline(uppercasePipelineName, "p1-label", buildCause, new EnvironmentVariables()));
         MaterialConfig materialConfig = cruiseConfig.getAllUniqueMaterials().iterator().next();
         ValueStreamMapPresentationModel graph = valueStreamMapService.getValueStreamMap(new CaseInsensitiveString(pipelineName.toLowerCase()), 1, user, result);
 
@@ -210,7 +210,7 @@ public class ValueStreamMapServiceTest {
 
         when(pipelineService.buildCauseFor(pipelineName, counter)).thenReturn(buildCause);
         when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
-        when(pipelineService.findPipelineByCounterOrLabel(pipelineName, "1")).thenReturn(new Pipeline(uppercasePipelineName, "p1-label", buildCause));
+        when(pipelineService.findPipelineByCounterOrLabel(pipelineName, "1")).thenReturn(new Pipeline(uppercasePipelineName, "p1-label", buildCause, new EnvironmentVariables()));
         MaterialConfig materialConfig = cruiseConfig.getAllUniqueMaterials().iterator().next();
         MaterialRevision materialRevision = buildCause.getMaterialRevisions().findRevisionFor(materialConfig);
         Material material = materialRevision.getMaterial();
@@ -258,7 +258,7 @@ public class ValueStreamMapServiceTest {
         when(pipelineService.buildCauseFor(pipeline, counter)).thenReturn(buildCause);
         PipelineConfig p1Config = PipelineConfigMother.pipelineConfig(pipeline, new MaterialConfigs(material));
         when(goConfigService.currentCruiseConfig()).thenReturn(new BasicCruiseConfig(new BasicPipelineConfigs(p1Config)));
-        when(pipelineService.findPipelineByCounterOrLabel(pipeline, "1")).thenReturn(new Pipeline(pipeline, "p1-label", buildCause));
+        when(pipelineService.findPipelineByCounterOrLabel(pipeline, "1")).thenReturn(new Pipeline(pipeline, "p1-label", buildCause, new EnvironmentVariables()));
 
         ValueStreamMapPresentationModel graph = valueStreamMapService.getValueStreamMap(new CaseInsensitiveString(pipeline), counter, user, result);
         List<List<Node>> nodesAtEachLevel = graph.getNodesAtEachLevel();
@@ -302,7 +302,7 @@ public class ValueStreamMapServiceTest {
         CruiseConfig cruiseConfig = new BasicCruiseConfig(new BasicPipelineConfigs(p1Config, p2Config, p3Config));
 
         when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
-        when(pipelineService.findPipelineByCounterOrLabel("p3", "1")).thenReturn(new Pipeline("p3", "p3-label", p3buildCause));
+        when(pipelineService.findPipelineByCounterOrLabel("p3", "1")).thenReturn(new Pipeline("p3", "p3-label", p3buildCause, new EnvironmentVariables()));
 
         ValueStreamMapPresentationModel graph = valueStreamMapService.getValueStreamMap(new CaseInsensitiveString("p3"), 1, user, result);
         List<List<Node>> nodesAtEachLevel = graph.getNodesAtEachLevel();
@@ -414,7 +414,7 @@ public class ValueStreamMapServiceTest {
                 new MaterialConfigs(new DependencyMaterialConfig(p1Config.name(), p1Config.getFirstStageConfig().name()), new DependencyMaterialConfig(p2Config.name(), p2Config.getFirstStageConfig().name())));
         CruiseConfig cruiseConfig = new BasicCruiseConfig(new BasicPipelineConfigs(p1Config, p2Config, p3Config));
         when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
-        when(pipelineService.findPipelineByCounterOrLabel("p3", "1")).thenReturn(new Pipeline("p3", "p3-label", p3buildCause));
+        when(pipelineService.findPipelineByCounterOrLabel("p3", "1")).thenReturn(new Pipeline("p3", "p3-label", p3buildCause, new EnvironmentVariables()));
 
         ValueStreamMapPresentationModel graph = valueStreamMapService.getValueStreamMap(new CaseInsensitiveString(p3), 1, user, result);
         List<List<Node>> nodesAtEachLevel = graph.getNodesAtEachLevel();
@@ -462,7 +462,7 @@ public class ValueStreamMapServiceTest {
         BuildCause p1buildCause = createBuildCause(new ArrayList<>(), asList(git));
 
         when(pipelineService.buildCauseFor(currentPipeline, 1)).thenReturn(p1buildCause);
-        when(pipelineService.findPipelineByCounterOrLabel(currentPipeline, "1")).thenReturn(new Pipeline(currentPipeline, "p1-label", p1buildCause));
+        when(pipelineService.findPipelineByCounterOrLabel(currentPipeline, "1")).thenReturn(new Pipeline(currentPipeline, "p1-label", p1buildCause, new EnvironmentVariables()));
 
         ValueStreamMapPresentationModel graph = valueStreamMapService.getValueStreamMap(new CaseInsensitiveString(currentPipeline), 1, user, result);
         List<List<Node>> nodesAtEachLevel = graph.getNodesAtEachLevel();
@@ -508,7 +508,7 @@ public class ValueStreamMapServiceTest {
         when(pipelineService.buildCauseFor(p1, 1)).thenReturn(p1buildCause);
         when(pipelineService.buildCauseFor(p2, 1)).thenReturn(p2buildCause);
         when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
-        when(pipelineService.findPipelineByCounterOrLabel(p2, "1")).thenReturn(new Pipeline(p2, "label-p2", p2buildCause));
+        when(pipelineService.findPipelineByCounterOrLabel(p2, "1")).thenReturn(new Pipeline(p2, "label-p2", p2buildCause, new EnvironmentVariables()));
 
         ValueStreamMapPresentationModel graph = valueStreamMapService.getValueStreamMap(new CaseInsensitiveString(p2), 1, user, result);
         List<List<Node>> nodesAtEachLevel = graph.getNodesAtEachLevel();
@@ -569,7 +569,7 @@ public class ValueStreamMapServiceTest {
         CruiseConfig cruiseConfig = new BasicCruiseConfig(new BasicPipelineConfigs(p1Config, p2Config, p3Config));
 
         when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
-        when(pipelineService.findPipelineByCounterOrLabel(p2.toString(), "1")).thenReturn(new Pipeline(p2.toString(), "p2-label", p2buildCause));
+        when(pipelineService.findPipelineByCounterOrLabel(p2.toString(), "1")).thenReturn(new Pipeline(p2.toString(), "p2-label", p2buildCause, new EnvironmentVariables()));
 
         ValueStreamMapPresentationModel graph = valueStreamMapService.getValueStreamMap(p2, 1, user, result);
         List<List<Node>> nodesAtEachLevel = graph.getNodesAtEachLevel();
@@ -607,7 +607,7 @@ public class ValueStreamMapServiceTest {
         PipelineConfig p3Config = PipelineConfigMother.pipelineConfig("p3",
                 new MaterialConfigs(new DependencyMaterialConfig(p1Config.name(), p1Config.getFirstStageConfig().name()), new DependencyMaterialConfig(p2Config.name(), p2Config.getFirstStageConfig().name())));
         CruiseConfig cruiseConfig = new BasicCruiseConfig(new BasicPipelineConfigs(p1Config, p2Config, p3Config));
-        when(pipelineService.findPipelineByCounterOrLabel("p3", "1")).thenReturn(new Pipeline("p3", "LABEL-P3", p3buildCause));
+        when(pipelineService.findPipelineByCounterOrLabel("p3", "1")).thenReturn(new Pipeline("p3", "LABEL-P3", p3buildCause, new EnvironmentVariables()));
 
         when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
 
@@ -643,7 +643,7 @@ public class ValueStreamMapServiceTest {
 
         CruiseConfig cruiseConfig = new BasicCruiseConfig(new BasicPipelineConfigs(p1Config, p2Config));
 
-        when(pipelineService.findPipelineByCounterOrLabel("p2", "1")).thenReturn(new Pipeline("p2", "LABEL-P2", p2buildCause));
+        when(pipelineService.findPipelineByCounterOrLabel("p2", "1")).thenReturn(new Pipeline("p2", "LABEL-P2", p2buildCause, new EnvironmentVariables()));
 
         when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
 
@@ -682,7 +682,7 @@ public class ValueStreamMapServiceTest {
 
         CruiseConfig cruiseConfig = new BasicCruiseConfig(new BasicPipelineConfigs(p1Config, p2Config));
 
-        when(pipelineService.findPipelineByCounterOrLabel("p2", "1")).thenReturn(new Pipeline("p2", "LABEL-P2", p2buildCause));
+        when(pipelineService.findPipelineByCounterOrLabel("p2", "1")).thenReturn(new Pipeline("p2", "LABEL-P2", p2buildCause, new EnvironmentVariables()));
 
         when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
 
@@ -723,7 +723,7 @@ public class ValueStreamMapServiceTest {
         PipelineConfig p3Config = PipelineConfigMother.pipelineConfig("p3",
                 new MaterialConfigs(new DependencyMaterialConfig(p1Config.name(), p1Config.getFirstStageConfig().name()), new DependencyMaterialConfig(p2Config.name(), p2Config.getFirstStageConfig().name())));
         CruiseConfig cruiseConfig = new BasicCruiseConfig(new BasicPipelineConfigs(p1Config, p2Config, p3Config));
-        when(pipelineService.findPipelineByCounterOrLabel("p3", "1")).thenReturn(new Pipeline("p3", "LABEL-P3", p3buildCause));
+        when(pipelineService.findPipelineByCounterOrLabel("p3", "1")).thenReturn(new Pipeline("p3", "LABEL-P3", p3buildCause, new EnvironmentVariables()));
 
         when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
 
@@ -763,7 +763,7 @@ public class ValueStreamMapServiceTest {
         PipelineConfig p3Config = PipelineConfigMother.pipelineConfig("p3",
                 new MaterialConfigs(new DependencyMaterialConfig(p1Config.name(), p1Config.getFirstStageConfig().name()), new DependencyMaterialConfig(p2Config.name(), p2Config.getFirstStageConfig().name())));
         CruiseConfig cruiseConfig = new BasicCruiseConfig(new BasicPipelineConfigs(p1Config, p2Config, p3Config));
-        when(pipelineService.findPipelineByCounterOrLabel("p3", "1")).thenReturn(new Pipeline("p3", "LABEL-P3", p3buildCause));
+        when(pipelineService.findPipelineByCounterOrLabel("p3", "1")).thenReturn(new Pipeline("p3", "LABEL-P3", p3buildCause, new EnvironmentVariables()));
 
         when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
 
@@ -786,7 +786,7 @@ public class ValueStreamMapServiceTest {
 
         BuildCause p1buildCause = createBuildCause(new ArrayList<>(), asList(git));
         when(pipelineService.buildCauseFor("p1", 1)).thenReturn(p1buildCause);
-        when(pipelineService.findPipelineByCounterOrLabel(pipelineName, "1")).thenReturn(new Pipeline("p1", "label-1", p1buildCause));
+        when(pipelineService.findPipelineByCounterOrLabel(pipelineName, "1")).thenReturn(new Pipeline("p1", "label-1", p1buildCause, new EnvironmentVariables()));
 
         ValueStreamMapPresentationModel graph = valueStreamMapService.getValueStreamMap(new CaseInsensitiveString(pipelineName), 1, user, result);
 
@@ -807,7 +807,7 @@ public class ValueStreamMapServiceTest {
 
         BuildCause p1buildCause = createBuildCause(new ArrayList<>(), asList(git));
         when(pipelineService.buildCauseFor("p1", 1)).thenReturn(p1buildCause);
-        when(pipelineService.findPipelineByCounterOrLabel(pipelineName, "1")).thenReturn(new Pipeline("p1", "label-1", p1buildCause));
+        when(pipelineService.findPipelineByCounterOrLabel(pipelineName, "1")).thenReturn(new Pipeline("p1", "label-1", p1buildCause, new EnvironmentVariables()));
 
         Username newUser = new Username(new CaseInsensitiveString("looser"));
         when(securityService.hasViewPermissionForPipeline(newUser, pipelineName)).thenReturn(false);
@@ -837,7 +837,7 @@ public class ValueStreamMapServiceTest {
 
         when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
         when(goConfigService.hasPipelineNamed(new CaseInsensitiveString("p1"))).thenReturn(false);
-        when(pipelineService.findPipelineByCounterOrLabel("p3", "1")).thenReturn(new Pipeline("p3", "p3-label", p3buildCause));
+        when(pipelineService.findPipelineByCounterOrLabel("p3", "1")).thenReturn(new Pipeline("p3", "p3-label", p3buildCause, new EnvironmentVariables()));
 
         ValueStreamMapPresentationModel graph = valueStreamMapService.getValueStreamMap(new CaseInsensitiveString("p3"), 1, user, result);
 
@@ -886,7 +886,7 @@ public class ValueStreamMapServiceTest {
         when(goConfigService.hasPipelineNamed(any())).thenReturn(true);
         when(goConfigService.canEditPipeline("p1", user)).thenReturn(true);
         when(goConfigService.canEditPipeline("p2", user)).thenReturn(false);
-        when(pipelineService.findPipelineByCounterOrLabel("p2", "1")).thenReturn(new Pipeline("p2", "p2-label", p2buildCause));
+        when(pipelineService.findPipelineByCounterOrLabel("p2", "1")).thenReturn(new Pipeline("p2", "p2-label", p2buildCause, new EnvironmentVariables()));
 
         ValueStreamMapPresentationModel graph = valueStreamMapService.getValueStreamMap(new CaseInsensitiveString("p2"), 1, user, result);
 

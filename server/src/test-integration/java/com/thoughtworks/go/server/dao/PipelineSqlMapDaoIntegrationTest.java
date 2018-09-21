@@ -1168,7 +1168,7 @@ public class PipelineSqlMapDaoIntegrationTest {
 
     @Test
     public void shouldSaveMixedLabel() {
-        Pipeline pipeline = new Pipeline("Test", "mingle-${COUNT}-${mingle}", BuildCause.createWithModifications(revisions(false), ""));
+        Pipeline pipeline = new Pipeline("Test", "mingle-${COUNT}-${mingle}", BuildCause.createWithModifications(revisions(false), ""), new EnvironmentVariables());
         pipeline.updateCounter(0);
         save(pipeline);
         Pipeline loaded = pipelineDao.loadPipeline(pipeline.getId());

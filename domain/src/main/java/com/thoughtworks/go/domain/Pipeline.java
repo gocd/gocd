@@ -46,13 +46,6 @@ public class Pipeline extends PersistentObject implements PipelineInfo {
         this.counter = 0;//counter can never be null, as pipeline identifier creation with null counter is not allowed
     }
 
-    public Pipeline(String pipelineName, String labelTemplate, BuildCause buildCause, Stage... stages) {
-        this(new Stages(stages));
-        this.pipelineName = pipelineName;
-        this.buildCause = buildCause;
-        this.pipelineLabel = PipelineLabel.create(labelTemplate);
-    }
-
     public Pipeline(String pipelineName, String labelTemplate, BuildCause buildCause, EnvironmentVariables envVars, Stage... stages) {
         this(new Stages(stages));
         this.pipelineName = pipelineName;
@@ -61,7 +54,7 @@ public class Pipeline extends PersistentObject implements PipelineInfo {
     }
 
     public Pipeline(String pipelineName, BuildCause buildCause, Stage... stages) {
-        this(pipelineName, PipelineLabel.COUNT_TEMPLATE, buildCause, stages);
+        this(pipelineName, PipelineLabel.COUNT_TEMPLATE, buildCause, new EnvironmentVariables(), stages);
     }
 
     public File defaultWorkingFolder() {

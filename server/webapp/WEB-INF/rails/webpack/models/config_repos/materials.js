@@ -38,9 +38,8 @@ const Materials = {
 };
 
 function Field(name, options={}) {
-  const DEFAULTS = {required: true, type: "text", default: ""};
+  const DEFAULTS = {display: _.startCase(name), required: true, type: "text", default: ""};
   options = _.assign({}, DEFAULTS, options);
-  options.display = options.display || _.startCase(name);
 
   this.keys = (this.keys || []);
 
@@ -52,7 +51,7 @@ function Field(name, options={}) {
 
   let value;
 
-  function attr(val) {
+  this[name] = function attr(val) {
     if (arguments.length) {
       if ("undefined" !== typeof val) {
         if (options.type === "boolean") {
@@ -69,18 +68,18 @@ function Field(name, options={}) {
     }
 
     return value;
-  }
-
-  this[name] = attr;
+  };
 
   _.assign(this[name], options);
 }
 
 function Common(data) {
-  this.consume = (data) => {
+  this.keys = (this.keys || []);
+
+  this.initialize = (data) => {
     data = _.get(data, "material.attributes", {});
 
-    this.keys.forEach((key) => {
+    _.each(this.keys, (key) => {
       this[key](data[key]);
     });
   };
@@ -90,8 +89,9 @@ function Common(data) {
     return memo;
   }, {});
 
-  this.consume(data);
   this.clone = () => new this.constructor(data);
+
+  this.initialize(data);
 }
 
 function GitMaterial(data) {

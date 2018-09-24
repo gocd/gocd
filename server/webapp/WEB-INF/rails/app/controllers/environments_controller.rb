@@ -20,9 +20,9 @@ class EnvironmentsController < ApplicationController
   helper AgentsHelper
 
   before_action :load_new_environment, :only => [:new, :create]
-  before_filter :load_existing_environment, :only => [:update, :edit_pipelines, :edit_agents, :edit_variables]
+  before_action :load_existing_environment, :only => [:update, :edit_pipelines, :edit_agents, :edit_variables]
 
-  before_filter :load_pipelines_and_agents, :only => [:new, :create, :update, :edit_pipelines, :edit_agents]
+  before_action :load_pipelines_and_agents, :only => [:new, :create, :update, :edit_pipelines, :edit_agents]
 
   before_action :load_pipelines_and_agents, :only => [:new, :edit, :create, :update, :edit_pipelines, :edit_agents]
 

@@ -20,6 +20,7 @@ const Stream     = require('mithril/stream');
 
 function ConfigRepos() {
   const etag = Stream("");
+  this.etag = etag;
 
   this.all = () => {
     const promise = AjaxHelper.GET({

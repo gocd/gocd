@@ -30,6 +30,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 
 public abstract class AbstractDefaultPluginJarLocationMonitorTest {
+    private static final int NO_OF_TRIES_TO_CHECK_MONITOR_RUN = 30;
     @Rule
     public final TemporaryFolder temporaryFolder = new TemporaryFolder();
 
@@ -38,6 +39,16 @@ public abstract class AbstractDefaultPluginJarLocationMonitorTest {
     protected void waitAMoment() throws InterruptedException {
         Thread.yield();
         Thread.sleep(2000);
+    }
+
+    protected void waitUntilNextRun(DefaultPluginJarLocationMonitor monitor) throws InterruptedException {
+        long previousRun = monitor.getLastRun();
+        int numberOfTries = 0;
+        while(previousRun >= monitor.getLastRun() && numberOfTries < NO_OF_TRIES_TO_CHECK_MONITOR_RUN) {
+            Thread.yield();
+            Thread.sleep(500);
+            numberOfTries++;
+        }
     }
 
     protected void copyPluginToThePluginDirectory(File pluginDir, String destinationFilenameOfPlugin) throws IOException, URISyntaxException {

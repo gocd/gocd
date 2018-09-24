@@ -80,6 +80,12 @@ public class DefaultPluginJarLocationMonitor implements PluginJarLocationMonitor
         monitorThread.start();
     }
 
+    long getLastRun() {
+        if (monitorThread == null) {
+            return 0;
+        }
+        return monitorThread.getLastRun();
+    }
 
     private void initializeMonitorThread() {
         if (monitorThread != null) {
@@ -155,6 +161,7 @@ public class DefaultPluginJarLocationMonitor implements PluginJarLocationMonitor
         private File externalPluginDirectory;
         private List<WeakReference<PluginJarChangeListener>> pluginJarChangeListener;
         private SystemEnvironment systemEnvironment;
+        private long lastRun; //used for tests
 
         public PluginLocationMonitorThread(File bundledPluginDirectory, File externalPluginDirectory, List<WeakReference<PluginJarChangeListener>> pluginJarChangeListener, SystemEnvironment systemEnvironment) {
             this.bundledPluginDirectory = bundledPluginDirectory;
@@ -176,9 +183,19 @@ public class DefaultPluginJarLocationMonitor implements PluginJarLocationMonitor
             } while (!Thread.currentThread().isInterrupted());
         }
 
-        public void oneShot() {
+
+        //Added synchronized because the compiler can change the order of instructions, meaning that the lastRun can be
+        //updated before the listeners are notified.
+        //lastRun is needed only for tests. It may be a bit excessive to synchronize methods just for tests. So this can
+        //definitely be improved in the future
+        public synchronized void oneShot() {
             knownBundledPluginFileDetails = loadAndNotifyPluginsFrom(bundledPluginDirectory, knownBundledPluginFileDetails, true);
             knownExternalPluginFileDetails = loadAndNotifyPluginsFrom(externalPluginDirectory, knownExternalPluginFileDetails, false);
+            lastRun = System.currentTimeMillis();
+        }
+
+        synchronized long getLastRun() {
+            return lastRun;
         }
 
         private Set<PluginFileDetails> loadAndNotifyPluginsFrom(File pluginDirectory, Set<PluginFileDetails> knownPluginFiles, boolean isBundledPluginsLocation) {

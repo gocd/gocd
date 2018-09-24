@@ -13,10 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-//todo: change default to common
-@import "../../../global/default";
-//todo: change palette to theme
-@import "../../../global/palette";
+@import "../../../global/common";
+@import "../../../global/theme";
 @import "../../../global/zindex";
 @import "../../../global/measures";
 

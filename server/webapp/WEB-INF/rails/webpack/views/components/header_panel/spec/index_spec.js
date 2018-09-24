@@ -30,7 +30,8 @@ describe("Header Panel Component", () => {
   it("should render header panel component", () => {
     const pageTitle = "Test Header";
     mount(pageTitle, []);
-    expect($root.find(`.${styles['header-text']}`)).toContainText(pageTitle);
+
+    expect($root.find(`.page-title h1`)).toContainText(pageTitle);
   });
 
   it("should render header panel along with buttons", () => {
@@ -38,7 +39,7 @@ describe("Header Panel Component", () => {
     const buttons   = [m("button", "Do something"), m("button", "Do something more")];
     mount(pageTitle, buttons);
 
-    expect($root.find(`.${styles['header-text']}`)).toContainText(pageTitle);
+    expect($root.find(`.page-title h1`)).toContainText(pageTitle);
 
     const pageActionButtons = $root.find(`.page-actions`).children();
 
@@ -51,7 +52,7 @@ describe("Header Panel Component", () => {
     const pageTitle = "Test Header";
     mount(pageTitle);
 
-    expect($root.find(`.${styles['header-text']}`)).toContainText(pageTitle);
+    expect($root.find(`.page-title h1`)).toContainText(pageTitle);
     expect($root.find(`.page-actions`)).not.toBeInDOM();
   });
 

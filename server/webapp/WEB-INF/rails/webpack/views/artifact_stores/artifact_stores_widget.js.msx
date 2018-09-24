@@ -221,7 +221,7 @@ function deleteClicked(artifactStore) {
     buttons: () => [
       {
         text:    'Delete',
-        class:   deleteInProgress() ? 'delete-button in-progress' : 'delete-button',
+        class:   deleteInProgress() ? 'delete-artifact-store in-progress' : 'delete-artifact-store',
         onclick: () => {
           deleteInProgress(true);
           artifactStore.delete().then(

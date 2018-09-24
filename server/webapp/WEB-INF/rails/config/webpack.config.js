@@ -63,12 +63,14 @@ module.exports = function (env) {
 
   const plugins = [];
   plugins.push(new HappyPack({
-    loaders: [{
-      loader: 'babel-loader',
-      options: {
-        cacheDirectory: path.join(__dirname, '..', 'tmp', 'babel-loader')
+    loaders: [
+      {
+        loader:  'babel-loader',
+        options: {
+          cacheDirectory: path.join(__dirname, '..', 'tmp', 'babel-loader')
+        }
       }
-    }],
+    ],
     threads: 4
   }));
   plugins.push(new StatsPlugin('manifest.json', {
@@ -146,6 +148,15 @@ module.exports = function (env) {
           test:    /\.(msx|js)$/,
           exclude: /node_modules/,
           use:     'happypack/loader',
+        },
+        { //TODO can this me moved to Happy?
+          test:    /\.scss$/,
+          exclude: /node_modules/,
+          use:     [
+            "style-loader",
+            "css-loader?modules&importLoaders=1&localIdentName=[name]__[local]___[hash:base64:5]", // translates CSS into CommonJS
+            "sass-loader" // compiles Sass to CSS, using Node Sass by default
+          ]
         }
       ]
     }

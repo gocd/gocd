@@ -17,6 +17,7 @@
 const m = require("mithril");
 const _ = require("lodash");
 const f = require("helpers/form_helper");
+const SearchBox = require("views/components/search_box/search_box"); //fixme
 
 const FilterNameInput = {
   oncreate(vnode) {
@@ -36,15 +37,6 @@ const FilterNameInput = {
     return <section class="filter-name">
       <f.input label={<span class="required">View name</span>} required={true} class="view-name" model={vm} attrName="name" onkeypress={submitOnEnter} />
     </section>;
-  }
-};
-
-const PipelineNameSearch = {
-  view(vnode) {
-    const vm = vnode.attrs.vm;
-    return <div class="filter personalize-editor">
-      <f.input class="pipeline-search" disabled={!vm} model={vm} attrName="searchTerm" placeholder="Search for a Pipeline" />
-    </div>;
   }
 };
 
@@ -194,7 +186,7 @@ const PersonalizationModalWidget = {
 
       <div class="pipeline-search-container">
         <BlanketSelector vm={vm.selectionVM()} />
-        <PipelineNameSearch vm={vm.selectionVM()} />
+        <SearchBox containerClass="search-box-personalize-editor" disabled={!vm} model={vm.selectionVM()} attrName="searchTerm" placeholder="Search for a Pipeline" />
       </div>
 
       <div class={vm.hasSearch() ? "pipeline-selections pipeline-search-in-progress" : "pipeline-selections"}>

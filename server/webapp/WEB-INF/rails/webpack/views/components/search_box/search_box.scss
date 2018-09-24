@@ -1,0 +1,52 @@
+/*!
+ * Copyright 2018 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+@import "../../global/default";
+
+$icon-color: #647984;
+$border-color: #ccc;
+
+.search-box {
+  @include icon-before($type: "\f002");
+
+  display:  inline-block;
+  position: relative;
+
+  &:before {
+    position:  absolute;
+    left:      10px;
+    color:     $icon-color;
+    top:       8px;
+    font-size: 14px;
+  }
+}
+
+.search-box_input {
+  height:             40px;
+  line-height:        40px;
+  padding:            0 10px 0 40px;
+  margin:             0;
+  border:             1px solid #d6e0e2;
+  -webkit-appearance: none;
+  box-shadow:         none;
+  border-radius:      3px;
+  background:         #fff;
+
+  &::placeholder {
+    font-size: 13px;
+    color:     $border-color;
+  }
+}

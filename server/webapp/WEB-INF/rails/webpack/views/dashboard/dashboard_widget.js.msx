@@ -21,16 +21,7 @@ const ComponentMixins         = require('helpers/mithril_component_mixins');
 const DashboardGroupsWidget   = require('views/dashboard/dashboard_groups_widget');
 const PersonalizedViewsWidget = require('views/dashboard/personalized_views_widget');
 const Dropdown                = require('views/shared/dropdown');
-
-const PipelineSearch = {
-  view(vnode) {
-    const model = vnode.attrs.model;
-
-    return <div class="filter">
-      <f.input class="pipeline-search pipeline-search_dashboard" model={model} attrName="searchText" placeholder="Search pipelines" />
-    </div>;
-  }
-};
+const SearchBox               = require('views/components/search_box/search_box'); //fixme
 
 const GroupingSwitch = {
   view(vnode) {
@@ -77,16 +68,17 @@ const DashboardWidget = {
 
     return (
       <div class="pipeline_wrapper">
-        <PersonalizedViewsWidget vm={personalizeVM} />
+        <PersonalizedViewsWidget vm={personalizeVM}/>
 
         <div class="dashboard" key="dashboard-content">
           <section class="dashboard-modifiers">
-            <GroupingSwitch vm={vm} />
-            <PipelineSearch model={vm} />
+            <GroupingSwitch vm={vm}/>
+            <SearchBox width="350" class="pipeline-search_dashboard" model={vm} attrName="searchText" placeholder="Search pipelines"/>
           </section>
 
           {messageView}
-          <DashboardGroupsWidget groups={vm.filteredGroups(personalizeVM.currentFilter())} scheme={vm.scheme()} resolver={dashboard} {...sharedGroupArgs} />
+          <DashboardGroupsWidget groups={vm.filteredGroups(personalizeVM.currentFilter())} scheme={vm.scheme()}
+                                 resolver={dashboard} {...sharedGroupArgs} />
         </div>
       </div>
     );

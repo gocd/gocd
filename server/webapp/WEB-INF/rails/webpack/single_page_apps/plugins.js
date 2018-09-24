@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+//fixme: can be deleted after components are created
+
 const $              = require('jquery');
 const m              = require('mithril');
 const Stream         = require('mithril/stream');

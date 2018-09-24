@@ -14,14 +14,11 @@
  * limitations under the License.
  */
 
-//fixme: Delete this file and use plugins_widget_new after componentization is complete
-
 const m                      = require('mithril');
 const f                      = require('helpers/form_helper');
 const Stream                 = require('mithril/stream');
 const _                      = require('lodash');
 const Modal                  = require('views/shared/new_modal');
-const HeaderPanel            = require('views/shared/header_panel');
 const ComponentMixins        = require('helpers/mithril_component_mixins');
 const PluginWidget           = require('views/plugins/plugin_widget');
 const PluginSettingModalBody = require('views/plugins/plugin_setting_modal_body');
@@ -53,7 +50,7 @@ function showSuccess(modal, ctrl, message) {
 }
 
 const PluginsWidget = {
-  oninit (vnode) {
+  oninit(vnode) {
     const ctrl = vnode.state;
     ComponentMixins.ManagesCollection.call(this, {as: 'PluginInfo'});
     ComponentMixins.HasViewModel.call(this);
@@ -65,11 +62,11 @@ const PluginsWidget = {
     };
 
     this.createModal = function (options) {
-      const newPluginSetting   = options.newPluginSetting;
-      const pluginInfo   = options.pluginInfo;
-      const modalTitle   = options.modalTitle;
-      const errorMessage = options.errorMessage;
-      const callback     = options.callback || _.noop;
+      const newPluginSetting = options.newPluginSetting;
+      const pluginInfo       = options.pluginInfo;
+      const modalTitle       = options.modalTitle;
+      const errorMessage     = options.errorMessage;
+      const callback         = options.callback || _.noop;
 
       const modal = new Modal({
         size:    'large',
@@ -90,8 +87,8 @@ const PluginsWidget = {
     };
 
     this.edit = function (pluginInfo) {
-      const newPluginSetting   = Stream();
-      const errorMessage = Stream();
+      const newPluginSetting = Stream();
+      const errorMessage     = Stream();
       ctrl.clearMessage();
 
       const modal = this.createModal({
@@ -123,7 +120,7 @@ const PluginsWidget = {
     };
   },
 
-  view (vnode) {
+  view(vnode) {
 
     const noPluginsInstalled = (!vnode.attrs.pluginInfos || vnode.attrs.pluginInfos().countPluginInfo() === 0);
 
@@ -135,28 +132,24 @@ const PluginsWidget = {
     }
 
     return (
-      <div>
-        <HeaderPanel title="Plugins"/>
+      <div class="plugins-settings">
+        {noPluginsMessage}
+        <f.dismissableCallout message={vnode.state.message}/>
 
-        <div class="plugins-settings">
-          {noPluginsMessage}
-          <f.dismissableCallout message={vnode.state.message} />
+        <f.row>
 
-          <f.row>
-
-            {vnode.attrs.pluginInfos().sortByPluginInfos((pi) => pi.id()).map((pluginInfo) => {
-              return (
-                <PluginWidget
-                  pluginInfo={pluginInfo}
-                  key={pluginInfo.id()}
-                  vm={vnode.state.vmState(pluginInfo.id())}
-                  onEdit={vnode.state.edit.bind(vnode.state, pluginInfo)}
-                  isUserAnAdmin={vnode.attrs.isUserAnAdmin}
-                />
-              );
-            })}
-          </f.row>
-        </div>
+          {vnode.attrs.pluginInfos().sortByPluginInfos((pi) => pi.id()).map((pluginInfo) => {
+            return (
+              <PluginWidget
+                pluginInfo={pluginInfo}
+                key={pluginInfo.id()}
+                vm={vnode.state.vmState(pluginInfo.id())}
+                onEdit={vnode.state.edit.bind(vnode.state, pluginInfo)}
+                isUserAnAdmin={vnode.attrs.isUserAnAdmin}
+              />
+            );
+          })}
+        </f.row>
       </div>
     );
   }

@@ -58,7 +58,7 @@ describe("Dashboard Widget", () => {
   afterEach(unmount);
 
   it("should render dashboard pipeline search field", () => {
-    expect($root.find('.filter input')).toBeInDOM();
+    expect($root.find('.search-box_input')).toBeInDOM();
   });
 
   it("should show spinner before dashboard is loaded", () => {
@@ -88,7 +88,7 @@ describe("Dashboard Widget", () => {
   });
 
   it("should search for a pipeline", () => {
-    const searchField        = $root.find('.pipeline-search').get(0);
+    const searchField        = $root.find('.search-box_input').get(0);
     let pipelinesCountOnPage = $root.find('.pipeline');
     expect(pipelinesCountOnPage).toHaveLength(2);
 
@@ -142,7 +142,7 @@ describe("Dashboard Widget", () => {
   });
 
   it("should show appropriate modal for pausing a searched pipeline", () => {
-    const searchField = $root.find('.pipeline-search').get(0);
+    const searchField = $root.find('.search-box_input').get(0);
     expect($root.find('.pipeline')).toHaveLength(2);
 
     $(searchField).val('up42');
@@ -203,7 +203,7 @@ describe("Dashboard Widget", () => {
   it("should show changes popup for a searched pipeline", () => {
     stubBuildCauseAjaxCall();
 
-    const searchField = $root.find('.pipeline-search').get(0);
+    const searchField = $root.find('.search-box_input').get(0);
     expect($root.find('.pipeline')).toHaveLength(2);
 
     $(searchField).val('up42');
@@ -254,7 +254,7 @@ describe("Dashboard Widget", () => {
         status:          200
       });
 
-      const searchField = $root.find('.pipeline-search').get(0);
+      const searchField = $root.find('.search-box_input').get(0);
       expect($root.find('.pipeline')).toHaveLength(2);
 
       $(searchField).val('up43');

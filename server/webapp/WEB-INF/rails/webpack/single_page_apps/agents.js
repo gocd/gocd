@@ -102,6 +102,5 @@ $(() => {
   };
 
   PluginInfos.all().then(onPluginsInfoApiSuccess, onPluginInfoApiFailure);
-})
-;
+});
 

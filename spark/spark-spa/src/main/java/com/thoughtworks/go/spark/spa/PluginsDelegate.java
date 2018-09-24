@@ -38,7 +38,7 @@ public class PluginsDelegate implements SparkController {
     public PluginsDelegate(SPAAuthenticationHelper authenticationHelper, TemplateEngine engine, SecurityService securityService) {
         this.authenticationHelper = authenticationHelper;
         this.engine = engine;
-        this.securityService = securityService;
+        this.securityService = securityService; //fixme remove after page is fully componentized
     }
 
     @Override
@@ -59,6 +59,6 @@ public class PluginsDelegate implements SparkController {
             put("viewTitle", "Plugins");
             put("isUserAnAdmin", securityService.isUserAdmin(currentUsername()));
         }};
-        return new ModelAndView(object, "plugins/index.vm");
+        return new ModelAndView(object, "plugins/index.vm"); //fixme: not really needed with components
     }
 }

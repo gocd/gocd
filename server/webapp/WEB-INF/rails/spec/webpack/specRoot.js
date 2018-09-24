@@ -26,3 +26,5 @@ importAll(require.context('./helpers', true, /\.js$/));
 importAll(require.context('./lib', true, /\.js$/));
 importAll(require.context('./models', true, /\.js$/));
 importAll(require.context('./views', true, /\.js$/));
+
+importAll(require.context('../../webpack/views/components', true, /\.js$/));

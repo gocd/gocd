@@ -382,7 +382,7 @@ describe('Artifact Stores Widget', () => {
           }
         });
 
-        simulateEvent.simulate($root.find('.delete-button').get(0), 'click');
+        simulateEvent.simulate($root.find('.delete-artifact-store').get(0), 'click');
         m.redraw();
         simulateEvent.simulate($('.new-modal-container').find('.reveal:visible .delete-button').get(0), 'click');
         m.redraw();
@@ -399,7 +399,7 @@ describe('Artifact Stores Widget', () => {
           }
         });
 
-        simulateEvent.simulate($root.find('.delete-button').get(0), 'click');
+        simulateEvent.simulate($root.find('.delete-artifact-store').get(0), 'click');
         m.redraw();
         simulateEvent.simulate($('.new-modal-container').find('.reveal:visible .delete-button').get(0), 'click');
         m.redraw();

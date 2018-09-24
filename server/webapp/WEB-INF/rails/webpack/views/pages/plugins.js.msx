@@ -21,7 +21,7 @@ const PluginsWidget = require('views/plugins/plugins_widget_new');
 const PluginInfos   = require('models/shared/plugin_infos');
 const PageLoadError = require('views/shared/page_load_error');
 const Spinner       = require('views/shared/spinner');
-const HeaderPanel   = require('views/shared/header_panel');
+const HeaderPanel   = require('views/components/header_panel');
 
 let thingToDisplay = <Spinner/>;
 

@@ -18,21 +18,6 @@
 import com.thoughtworks.go.build.WindowsPackagingTask
 import org.apache.tools.ant.filters.FixCrLfFilter
 
-task agentWindows32bitExe(type: WindowsPackagingTask) {
-  dependsOn configurations.agentBootstrapperJar
-  group project.name
-  description 'Build the go-agent windows installer'
-
-  packageName 'go-agent'
-  version rootProject.goVersion
-  distVersion rootProject.distVersion
-  is32Bit true
-
-  beforePackage {
-    copyAgentSpecificFiles(versionedDir(), buildRoot(), flavour())
-  }
-}
-
 task agentWindows64bitExe(type: WindowsPackagingTask) {
   dependsOn configurations.agentBootstrapperJar
   group project.name
@@ -41,25 +26,9 @@ task agentWindows64bitExe(type: WindowsPackagingTask) {
   packageName 'go-agent'
   version rootProject.goVersion
   distVersion rootProject.distVersion
-  is32Bit false
 
   beforePackage {
     copyAgentSpecificFiles(versionedDir(), buildRoot(), flavour())
-  }
-}
-
-task serverWindows32bitExe(type: WindowsPackagingTask) {
-  dependsOn configurations.serverJar
-  group project.name
-  description 'Build the go-server windows installer'
-
-  packageName 'go-server'
-  version rootProject.goVersion
-  distVersion rootProject.distVersion
-  is32Bit true
-
-  beforePackage {
-    copyServerSpecificFiles(versionedDir(), buildRoot(), flavour())
   }
 }
 
@@ -71,7 +40,6 @@ task serverWindows64bitExe(type: WindowsPackagingTask) {
   packageName 'go-server'
   version rootProject.goVersion
   distVersion rootProject.distVersion
-  is32Bit false
 
   beforePackage {
     copyServerSpecificFiles(versionedDir(), buildRoot(), flavour())
@@ -132,4 +100,4 @@ private void copyCommonFiles(versionedDir, buildRoot, flavour) {
 }
 
 
-assemble.dependsOn(":installers:agentWindows32bitExe", ":installers:agentWindows64bitExe", ":installers:serverWindows32bitExe", ":installers:serverWindows64bitExe")
+assemble.dependsOn(":installers:agentWindows64bitExe", ":installers:serverWindows64bitExe")

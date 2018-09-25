@@ -107,7 +107,11 @@ function CreateSupport(model, repos) {
   };
 
   this.exitAddMode = () => this.addModel(null);
-  this.createRepo = () => model.create(this.addModel()).then(() => repos().push(this.addModel()));
+  this.createRepo = () => model.create(this.addModel()).then((data, _s, xhr) => {
+    const repo = new ConfigRepoVM(data);
+    repo.etag(parseEtag(xhr));
+    repos().push(repo);
+  });
 }
 
 function UpdateSupport(model, repos) {
@@ -135,8 +139,6 @@ function UpdateSupport(model, repos) {
 
       const idxToReplace = _.findIndex(repos(), (r) => r.id() === repo.id()); // should always be found
       repos().splice(idxToReplace, 1, repo);
-
-      this.exitEditMode();
     });
   };
 }

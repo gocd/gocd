@@ -16,7 +16,7 @@
 
 const Materials = require("models/config_repos/materials");
 
-describe("Materials", () => {
+describe("Config Repo Materials", () => {
   it("throws error on unknown material type", () => {
     expect(() => Materials.get("made up type", {})).toThrow(new Error("Unknown material type: made up type"));
   });

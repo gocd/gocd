@@ -98,7 +98,7 @@ const ActionBar = {
     const isEdit = vnode.attrs.isEdit;
 
     if (isEdit) {
-      return [<button onclick={() => vm.exitEditMode()}>Cancel</button>,<button onclick={() => vm.updateRepo(repo)}>Save</button>];
+      return [<button onclick={() => vm.exitEditMode()}>Cancel</button>, <button onclick={() => vm.updateRepo(repo).then(() => vm.exitEditMode())}>Save</button>];
     } else {
       return [<button onclick={() => vm.enterEditMode(repo)}>Edit</button>, <button onclick={() => vm.removeRepo(repo)}>Delete</button>];
     }

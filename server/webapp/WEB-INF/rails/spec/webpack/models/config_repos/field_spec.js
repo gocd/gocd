@@ -16,7 +16,7 @@
 
 const Field = require("models/config_repos/field");
 
-describe("Field", () => {
+describe("Config Repo Field", () => {
   it("getter and setter for a key", () => {
     function TestObj() {
       Field.call(this, "name");
@@ -50,7 +50,7 @@ describe("Field", () => {
   it("init() honors default values", () => {
     function TestObj() {
       Field.call(this, "name", {default: "chewbacca"});
-      Field.call(this, "ok", {default: true});
+      Field.call(this, "ok", {default: true, type: "boolean"});
     }
 
     const o = new TestObj();

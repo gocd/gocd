@@ -42,14 +42,13 @@ function Field(name, options={}) {
 
   attr.init = function (val) {
     if (options.type === "boolean") {
-      if ("boolean" !== typeof val) {
-        return attr(options.default);
-      }
+      return attr("boolean" === typeof val ? val : options.default);
     }
 
     if ("undefined" === typeof val || null === val) {
       val = options.default;
     }
+
     return attr(`${val}`);
   };
 
@@ -60,7 +59,7 @@ function contains(arr, el) { return !~arr.indexOf(el); }
 
 function normalize(val, options) {
   if ("boolean" === options.type) { return !!val; }
-  return String(val || "").trim();
+  return ("string" === typeof val ? val : String(val || "")).trim();
 }
 
 module.exports = Field;

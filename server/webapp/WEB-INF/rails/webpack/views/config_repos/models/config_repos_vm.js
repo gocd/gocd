@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-const Stream    = require('mithril/stream');
-const _         = require('lodash');
-const Materials = require('models/config_repos/materials');
+const Stream    = require("mithril/stream");
+const _         = require("lodash");
+const Materials = require("models/config_repos/materials");
+
 
 function ReposListVM(model) {
   const repos = Stream([]);
@@ -77,9 +78,17 @@ function ConfigRepoVM(data) {
 
 // Mixins
 
+const MATERIAL_SELECTIONS = [
+  { id: "git", text: "Git" },
+  { id: "hg", text: "Mercurial" },
+  { id: "svn", text: "Subversion" },
+  { id: "p4", text: "Perforce" },
+  { id: "tfs", text: "Team Foundation Server" },
+  { id: "package", text: "Package" }
+];
+
 function CreateSupport(model, repos) {
-  // API to get these??
-  this.availMaterials = [{ id: "git", text: "Git" }, { id: "hg", text: "Mercurial" }, { id: "svn", text: "Svn" }, { id: "p4", text: "Perforce" }, { id: "tfs", text: "Tfs" }, { id: "package", text: "Package" }];
+  this.availMaterials = MATERIAL_SELECTIONS;
   this.typeToAdd = Stream(this.availMaterials[0].id);
 
   this.addModel = Stream(null);

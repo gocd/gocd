@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-const AjaxHelper = require('helpers/ajax_helper');
-const Routes     = require('gen/js-routes');
-const Stream     = require('mithril/stream');
+const AjaxHelper = require("helpers/ajax_helper");
+const Routes     = require("gen/js-routes");
+const Stream     = require("mithril/stream");
 
 function ConfigRepos() {
   const etag = Stream("");

@@ -14,28 +14,28 @@
  * limitations under the License.
  */
 
-const ConfigRepos = require('models/config_repos/config_repos');
-const Routes      = require('gen/js-routes');
+const ConfigRepos = require("models/config_repos/config_repos");
+const Routes      = require("gen/js-routes");
 
 describe("ConfigRepos", () => {
-  it('should parse ETag from response', (done) => {
+  it("should parse ETag from response", (done) => {
     jasmine.Ajax.withMock(() => {
-      jasmine.Ajax.stubRequest(Routes.apiv1AdminConfigReposPath(), undefined, 'GET').andReturn({
+      jasmine.Ajax.stubRequest(Routes.apiv1AdminConfigReposPath(), undefined, "GET").andReturn({
         responseText:    JSON.stringify({
           "_embedded": {
             "config_repos": []
           },
         }),
         responseHeaders: {
-          ETag:           'W/"05548388f7ef5042cd39f7fe42e85735--gzip"',
-          'Content-Type': 'application/vnd.go.cd.v1+json'
+          ETag:           `W/"05548388f7ef5042cd39f7fe42e85735--gzip"`,
+          "Content-Type": "application/vnd.go.cd.v1+json"
         },
         status:          200
       });
 
       const configRepos = new ConfigRepos();
-      configRepos.all().then((data, s, xhr) => {
-        expect(configRepos.etag()).toEqual('W/"05548388f7ef5042cd39f7fe42e85735"');
+      configRepos.all().then(() => {
+        expect(configRepos.etag()).toEqual(`W/"05548388f7ef5042cd39f7fe42e85735"`);
         done();
       });
     });

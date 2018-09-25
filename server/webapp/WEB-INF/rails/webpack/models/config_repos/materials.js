@@ -14,7 +14,8 @@
  * limitations under the License.
  */
 
-const _ = require("lodash");
+const _     = require("lodash");
+const Field = require("models/config_repos/field");
 
 const Materials = {
   get(type, data) {
@@ -37,42 +38,6 @@ const Materials = {
   }
 };
 
-function Field(name, options={}) {
-  const DEFAULTS = {display: _.startCase(name), required: true, type: "text", default: ""};
-  options = _.assign({}, DEFAULTS, options);
-
-  this.keys = (this.keys || []);
-
-  if (this.keys.indexOf(name) === -1) {
-    this.keys.push(name);
-  } else {
-    console.warn(`The key ${name} has already been defined on this object`); // eslint-disable-line no-console
-  }
-
-  let value;
-
-  this[name] = function attr(val) {
-    if (arguments.length) {
-      if ("undefined" !== typeof val) {
-        if (options.type === "boolean") {
-          val = !!val;
-        }
-
-        value = val;
-      } else {
-        if (options.required) {
-          new Error(`${name} is a required field`);
-        }
-        value = options.default;
-      }
-    }
-
-    return value;
-  };
-
-  _.assign(this[name], options);
-}
-
 function Common(data) {
   this.keys = (this.keys || []);
 
@@ -80,7 +45,7 @@ function Common(data) {
     data = _.get(data, "material.attributes", {});
 
     _.each(this.keys, (key) => {
-      this[key](data[key]);
+      this[key].init(data[key]);
     });
   };
 

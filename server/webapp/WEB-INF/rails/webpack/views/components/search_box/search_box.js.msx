@@ -16,9 +16,7 @@
 
 const m     = require("mithril");
 const f     = require("helpers/form_helper");
-const bss   = require("bss");
 const style = require('./search_box.scss');
-const b     = bss.default; //fixme some ESM weirdness?
 
 const SearchBox = {
   view(vnode) {
@@ -26,12 +24,12 @@ const SearchBox = {
     const attrName       = vnode.attrs.attrName;
     const placeholder    = vnode.attrs.placeholder;
     const width          = vnode.attrs.width;
-    const widthStyle     = width ? b(`width: ${width}px`) : b("flex-grow: 1");
+    const widthStyle     = width ? `width: ${width}px` : `flex-grow: 1`;
     const inputClass     = style["search-box_input"];
     const containerClass = style["search-box"];
     const disabled       = vnode.attrs.disabled;
 
-    return <div class={`${containerClass} ${widthStyle.class}`}>
+    return <div class={containerClass} style={widthStyle}>
       <f.input disabled={disabled} class={`search-box_input ${inputClass}`} model={model} attrName={attrName}
                placeholder={placeholder}/>
     </div>;

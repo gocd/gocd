@@ -187,7 +187,7 @@ Rails.application.routes.draw do
     get "templates/:name" => "config_view/templates#show", as: :config_view_templates_show, constraints: {name: TEMPLATE_NAME_FORMAT}
   end
 
-  scope 'environments' do
+  scope 'admin/environments' do
     defaults :no_layout => true do
       post "create" => 'environments#create', as: :environment_create
       get "new" => 'environments#new', as: :environment_new

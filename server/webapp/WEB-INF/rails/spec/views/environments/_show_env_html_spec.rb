@@ -62,8 +62,8 @@ describe 'environments/show_env.html.erb' do
   end
 
   it "should hookup every edit button to a modal box for editing" do
-    expect(response).to match /jQuery\("#edit_pipelines_for_foo"\).*\n.*ajax_modal\("\/environments\/foo\/edit\/pipelines".*title: "Pipelines"/
-    expect(response).to match /jQuery\("#edit_agents_for_foo"\).*\n.*ajax_modal\("\/environments\/foo\/edit\/agents".*title: "Agents"/
-    expect(response).to match /jQuery\("#edit_environment_variables_for_foo"\).*\n.*ajax_modal\("\/environments\/foo\/edit\/variables".*title: "Environment Variables"/
+    expect(response).to match /jQuery\("#edit_pipelines_for_foo"\).*\n.*ajax_modal\("\/admin\/environments\/foo\/edit\/pipelines".*title: "Pipelines"/
+    expect(response).to match /jQuery\("#edit_agents_for_foo"\).*\n.*ajax_modal\("\/admin\/environments\/foo\/edit\/agents".*title: "Agents"/
+    expect(response).to match /jQuery\("#edit_environment_variables_for_foo"\).*\n.*ajax_modal\("\/admin\/environments\/foo\/edit\/variables".*title: "Environment Variables"/
   end
 end

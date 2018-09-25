@@ -77,31 +77,31 @@ describe EnvironmentsController do
     end
 
     it "should match /new" do
-      expect(:get => "/environments/new").to route_to({:controller => "environments", :action => 'new', :no_layout => true})
+      expect(:get => "/admin/environments/new").to route_to({:controller => "environments", :action => 'new', :no_layout => true})
     end
 
     it "should match /create" do
-      expect(:post => "/environments/create").to route_to({:controller => "environments", :action => 'create', :no_layout => true})
+      expect(:post => "/admin/environments/create").to route_to({:controller => "environments", :action => 'create', :no_layout => true})
     end
 
     it "should match /update" do
-      expect(:put => "/environments/foo").to route_to({:no_layout=>true, :controller => "environments", :action => 'update', :name => 'foo'})
-      expect(:put => "/environments/foo.bar.baz").to route_to({:no_layout=>true, :controller => "environments", :action => 'update', :name => 'foo.bar.baz'})
+      expect(:put => "/admin/environments/foo").to route_to({:no_layout=>true, :controller => "environments", :action => 'update', :name => 'foo'})
+      expect(:put => "/admin/environments/foo.bar.baz").to route_to({:no_layout=>true, :controller => "environments", :action => 'update', :name => 'foo.bar.baz'})
     end
 
     it "should match /edit/pipelines" do
-      expect(:get => "/environments/foo/edit/pipelines").to route_to({:controller => "environments", :action => 'edit_pipelines', :name => 'foo', :no_layout => true})
-      expect(:get => "/environments/foo.bar.baz/edit/pipelines").to route_to({:controller => "environments", :action => 'edit_pipelines', :name => 'foo.bar.baz', :no_layout => true})
+      expect(:get => "/admin/environments/foo/edit/pipelines").to route_to({:controller => "environments", :action => 'edit_pipelines', :name => 'foo', :no_layout => true})
+      expect(:get => "/admin/environments/foo.bar.baz/edit/pipelines").to route_to({:controller => "environments", :action => 'edit_pipelines', :name => 'foo.bar.baz', :no_layout => true})
     end
 
     it "should match /edit/agents" do
-      expect(:get => "/environments/foo/edit/agents").to route_to({:controller => "environments", :action => 'edit_agents', :name => 'foo', :no_layout => true})
-      expect(:get => "/environments/foo.bar.baz/edit/agents").to route_to({:controller => "environments", :action => 'edit_agents', :name => 'foo.bar.baz', :no_layout => true})
+      expect(:get => "/admin/environments/foo/edit/agents").to route_to({:controller => "environments", :action => 'edit_agents', :name => 'foo', :no_layout => true})
+      expect(:get => "/admin/environments/foo.bar.baz/edit/agents").to route_to({:controller => "environments", :action => 'edit_agents', :name => 'foo.bar.baz', :no_layout => true})
     end
 
     it "should match /edit/variables" do
-      expect(:get => "/environments/foo/edit/variables").to route_to({:controller => "environments", :action => 'edit_variables', :name => 'foo', :no_layout => true})
-      expect(:get => "/environments/foo.bar.baz/edit/variables").to route_to({:controller => "environments", :action => 'edit_variables', :name => 'foo.bar.baz', :no_layout => true})
+      expect(:get => "/admin/environments/foo/edit/variables").to route_to({:controller => "environments", :action => 'edit_variables', :name => 'foo', :no_layout => true})
+      expect(:get => "/admin/environments/foo.bar.baz/edit/variables").to route_to({:controller => "environments", :action => 'edit_variables', :name => 'foo.bar.baz', :no_layout => true})
     end
 
     it "should create a new environment" do

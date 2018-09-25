@@ -56,7 +56,9 @@ describe("Config Repo Materials", () => {
   });
 
   it("should use default values when value is not set", () => {
-
+    const mat = Materials.get("git", {});
+    expect(mat.branch()).toBe("master");
+    expect(mat.auto_update()).toBe(true);
   });
 
 });

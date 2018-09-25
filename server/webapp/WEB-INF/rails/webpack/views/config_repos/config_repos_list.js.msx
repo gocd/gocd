@@ -127,9 +127,9 @@ const Field = {
     const vm = vnode.attrs.model;
     const k = vnode.attrs.attrName;
     const field = vm[k];
-    const options = {model: vm, attrName: k, label: field.display};
+    const options = {model: vm, attrName: k, label: field.opts("display")};
 
-    switch (field.type) {
+    switch (field.opts("type")) {
       /* eslint-disable no-fallthrough */
       case "boolean":
         return <f.checkbox {...options} />;

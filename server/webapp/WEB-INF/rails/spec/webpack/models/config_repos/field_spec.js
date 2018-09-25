@@ -39,12 +39,13 @@ describe("Config Repo Field", () => {
       Field.call(this, "name", {display: "Great name"});
       Field.call(this, "password", {type: "secret"});
     }
-    const o = new TestObj();
-    expect(o.name.display).toBe("Great name");
-    expect(o.name.type).toBe("text"); // default option
 
-    expect(o.password.display).toBe("Password"); // default option
-    expect(o.password.type).toBe("secret");
+    const o = new TestObj();
+    expect(o.name.opts("display")).toBe("Great name");
+    expect(o.name.opts("type")).toBe("text"); // defaults to "text" type
+
+    expect(o.password.opts("display")).toBe("Password"); // defaults to title cased name
+    expect(o.password.opts("type")).toBe("secret");
   });
 
   it("init() honors default values", () => {

@@ -17,7 +17,7 @@
 const _ = require("lodash");
 
 function Field(name, options={}) {
-  const DEFAULTS = {display: _.startCase(name), type: "text", default: ""};
+  const DEFAULTS = {display: _.startCase(name), type: "text", default: "", readOnly: false};
   options = _.assign({}, DEFAULTS, options);
 
   this.keys = (this.keys || []);
@@ -52,7 +52,7 @@ function Field(name, options={}) {
     return attr(`${val}`);
   };
 
-  _.assign(this[name], options);
+  attr.opts = (key) => options[key];
 }
 
 function contains(arr, el) { return !~arr.indexOf(el); }

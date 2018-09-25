@@ -117,18 +117,7 @@ public class ElasticAgentExtensionTest {
     }
 
     @Test
-    public void shouldNOTMakeJobCompletionCallForV3Extension() {
-        final String elasticAgentId = "ea1";
-        final JobIdentifier jobIdentifier = new JobIdentifier("up42", 2, "Test", "up42_stage", "10", "up42_job");
-        when(pluginManager.submitTo(eq(PLUGIN_ID), eq(ELASTIC_AGENT_EXTENSION), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success(null));
-
-        extension.reportJobCompletion(PLUGIN_ID, elasticAgentId, jobIdentifier);
-
-        verify(pluginManager, never()).submitTo(eq(PLUGIN_ID), eq(ELASTIC_AGENT_EXTENSION), any(GoPluginApiRequest.class));
-    }
-
-    @Test
-    public void shouldMakeJobCompletionCallForNonV3Extension() {
+    public void shouldMakeJobCompletionCall() {
         when(pluginManager.resolveExtensionVersion(PLUGIN_ID, ELASTIC_AGENT_EXTENSION, SUPPORTED_VERSIONS)).thenReturn("4.0");
 
         final String elasticAgentId = "ea1";

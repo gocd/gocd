@@ -27,8 +27,6 @@ import java.util.List;
 import java.util.Map;
 
 public interface VersionedElasticAgentExtension {
-    String getExtensionVersion();
-
     com.thoughtworks.go.plugin.domain.common.Image getIcon(String pluginId);
 
     Capabilities getCapabilities(String pluginId);

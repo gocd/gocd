@@ -45,7 +45,6 @@ import static com.thoughtworks.go.plugin.domain.common.PluginConstants.ELASTIC_A
 public class ElasticAgentExtension extends AbstractExtension {
     public static final List<String> SUPPORTED_VERSIONS = Arrays.asList(ElasticAgentExtensionV3.VERSION, ElasticAgentExtensionV4.VERSION);
     private final Map<String, VersionedElasticAgentExtension> elasticAgentExtensionMap = new HashMap<>();
-    private String VERSION_NOT_SUPPORTING_JOB_COMPLETION_REQUEST = "3.0";
 
     @Autowired
     public ElasticAgentExtension(PluginManager pluginManager) {
@@ -111,9 +110,7 @@ public class ElasticAgentExtension extends AbstractExtension {
 
     public void reportJobCompletion(String pluginId, String elasticAgentId, JobIdentifier jobIdentifier) {
         VersionedElasticAgentExtension elasticAgentExtension = getVersionedElasticAgentExtension(pluginId);
-        if (elasticAgentExtension.getExtensionVersion() != VERSION_NOT_SUPPORTING_JOB_COMPLETION_REQUEST) {
-            elasticAgentExtension.jobCompletion(pluginId, elasticAgentId, jobIdentifier);
-        }
+        elasticAgentExtension.jobCompletion(pluginId, elasticAgentId, jobIdentifier);
     }
 
     @Override

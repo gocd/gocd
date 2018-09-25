@@ -29,6 +29,7 @@ import com.thoughtworks.go.plugin.domain.common.Metadata;
 import com.thoughtworks.go.plugin.domain.common.PluginConfiguration;
 import com.thoughtworks.go.plugin.domain.common.PluginConstants;
 import com.thoughtworks.go.plugin.domain.elastic.Capabilities;
+import com.thoughtworks.go.plugin.domain.elastic.ElasticAgentPluginInfo;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import org.hamcrest.Matchers;
@@ -247,6 +248,16 @@ public class ElasticAgentExtensionV3Test {
                 "}";
 
         assertExtensionRequest("3.0", REQUEST_AGENT_STATUS_REPORT, requestBody);
+    }
+
+    @Test
+    public void shouldErrorOutWhenPluginDoesNotJobCompletionRequest() {
+        thrown.expect(UnsupportedOperationException.class);
+        thrown.expectMessage("Plugin does not support job completion request.");
+
+        String elasticAgentId = "agent1";
+        final JobIdentifier jobIdentifier = new JobIdentifier("up42", 2, "Test", "up42_stage", "10", "up42_job");
+        extensionV3.jobCompletion(PLUGIN_ID, elasticAgentId, jobIdentifier);
     }
 
     @Test

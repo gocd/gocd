@@ -41,11 +41,6 @@ public class ElasticAgentExtensionV3 implements VersionedElasticAgentExtension {
     }
 
     @Override
-    public String getExtensionVersion() {
-        return VERSION;
-    }
-
-    @Override
     public com.thoughtworks.go.plugin.domain.common.Image getIcon(String pluginId) {
         return pluginRequestHelper.submitRequest(pluginId, REQUEST_GET_PLUGIN_SETTINGS_ICON, new DefaultPluginInteractionCallback<com.thoughtworks.go.plugin.domain.common.Image>() {
             @Override
@@ -160,5 +155,4 @@ public class ElasticAgentExtensionV3 implements VersionedElasticAgentExtension {
     public void jobCompletion(String pluginId, String elasticAgentId, JobIdentifier jobIdentifier) {
         throw new UnsupportedOperationException("Plugin does not support job completion request.");
     }
-
 }

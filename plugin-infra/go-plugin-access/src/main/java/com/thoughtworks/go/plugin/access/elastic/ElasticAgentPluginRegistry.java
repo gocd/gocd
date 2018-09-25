@@ -75,4 +75,10 @@ public class ElasticAgentPluginRegistry extends AbstractPluginRegistry<ElasticAg
     public boolean has(String pluginId) {
         return findPlugin(pluginId) != null;
     }
+
+    public void reportJobCompletion(String pluginId, String elasticAgentId, JobIdentifier jobIdentifier) {
+        LOGGER.debug("Processing report job completion for plugin: {} for elasticAgentId: {} for job: {}", pluginId, elasticAgentId, jobIdentifier);
+        extension.reportJobCompletion(pluginId, elasticAgentId, jobIdentifier);
+        LOGGER.debug("Done processing report job completion for plugin: {} for elasticAgentId: {} for job: {}", pluginId, elasticAgentId, jobIdentifier);
+    }
 }

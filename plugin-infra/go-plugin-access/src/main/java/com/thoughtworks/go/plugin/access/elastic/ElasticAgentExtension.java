@@ -26,6 +26,7 @@ import com.thoughtworks.go.plugin.access.common.settings.MessageHandlerForPlugin
 import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsJsonMessageHandler1_0;
 import com.thoughtworks.go.plugin.access.elastic.models.AgentMetadata;
 import com.thoughtworks.go.plugin.access.elastic.v3.ElasticAgentExtensionV3;
+import com.thoughtworks.go.plugin.access.elastic.v4.ElasticAgentExtensionV4;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 import com.thoughtworks.go.plugin.domain.common.PluginConfiguration;
 import com.thoughtworks.go.plugin.domain.elastic.Capabilities;
@@ -42,20 +43,23 @@ import static com.thoughtworks.go.plugin.domain.common.PluginConstants.ELASTIC_A
 
 @Component
 public class ElasticAgentExtension extends AbstractExtension {
-    public static final List<String> SUPPORTED_VERSIONS = Arrays.asList(ElasticAgentExtensionV3.VERSION);
+    public static final List<String> SUPPORTED_VERSIONS = Arrays.asList(ElasticAgentExtensionV3.VERSION, ElasticAgentExtensionV4.VERSION);
     private final Map<String, VersionedElasticAgentExtension> elasticAgentExtensionMap = new HashMap<>();
 
     @Autowired
     public ElasticAgentExtension(PluginManager pluginManager) {
         super(pluginManager, new PluginRequestHelper(pluginManager, SUPPORTED_VERSIONS, ELASTIC_AGENT_EXTENSION), ELASTIC_AGENT_EXTENSION);
         elasticAgentExtensionMap.put(ElasticAgentExtensionV3.VERSION, new ElasticAgentExtensionV3(pluginRequestHelper));
+        elasticAgentExtensionMap.put(ElasticAgentExtensionV4.VERSION, new ElasticAgentExtensionV4(pluginRequestHelper));
 
         registerHandler(ElasticAgentExtensionV3.VERSION, new PluginSettingsJsonMessageHandler1_0());
+        registerHandler(ElasticAgentExtensionV4.VERSION, new PluginSettingsJsonMessageHandler1_0());
 
         final MessageHandlerForPluginSettingsRequestProcessor1_0 pluginSettingsRequestProcessor = new MessageHandlerForPluginSettingsRequestProcessor1_0();
         final MessageHandlerForServerInfoRequestProcessor1_0 serverInfoRequestProcessor = new MessageHandlerForServerInfoRequestProcessor1_0();
 
         registerProcessor(ElasticAgentExtensionV3.VERSION, pluginSettingsRequestProcessor, serverInfoRequestProcessor);
+        registerProcessor(ElasticAgentExtensionV4.VERSION, pluginSettingsRequestProcessor, serverInfoRequestProcessor);
     }
 
     private void registerProcessor(String version, MessageHandlerForPluginSettingsRequestProcessor pluginSettingsRequestProcessor,
@@ -102,6 +106,11 @@ public class ElasticAgentExtension extends AbstractExtension {
 
     public Capabilities getCapabilities(String pluginId) {
         return getVersionedElasticAgentExtension(pluginId).getCapabilities(pluginId);
+    }
+
+    public void reportJobCompletion(String pluginId, String elasticAgentId, JobIdentifier jobIdentifier) {
+        VersionedElasticAgentExtension elasticAgentExtension = getVersionedElasticAgentExtension(pluginId);
+        elasticAgentExtension.jobCompletion(pluginId, elasticAgentId, jobIdentifier);
     }
 
     @Override

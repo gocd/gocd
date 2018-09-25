@@ -18,6 +18,7 @@ package com.thoughtworks.go.server.service;
 
 import com.google.common.collect.Sets;
 import com.thoughtworks.go.config.elastic.ElasticProfile;
+import com.thoughtworks.go.domain.AgentInstance;
 import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.domain.JobInstance;
 import com.thoughtworks.go.domain.JobPlan;
@@ -188,6 +189,10 @@ public class ElasticAgentPluginService implements JobStatusListener {
         return elasticAgentPluginRegistry.shouldAssignWork(pluginDescriptor, toAgentMetadata(metadata), environment, configuration, identifier);
     }
 
+    public void reportJobCompletion(String pluginId, String elasticAgentId, JobIdentifier jobIdentifier) {
+        elasticAgentPluginRegistry.reportJobCompletion(pluginId, elasticAgentId, jobIdentifier);
+    }
+
     public String getPluginStatusReport(String pluginId) {
         final ElasticAgentPluginInfo pluginInfo = elasticAgentMetadataStore.getPluginInfo(pluginId);
         if (pluginInfo.getCapabilities().supportsStatusReport()) {
@@ -210,6 +215,16 @@ public class ElasticAgentPluginService implements JobStatusListener {
     public void jobStatusChanged(JobInstance job) {
         if (job.isAssignedToAgent()) {
             map.remove(job.getId());
+        }
+
+        if (job.isCompleted()) {
+            AgentInstance agentInstance = agentService.findAgent(job.getAgentUuid());
+            if (agentInstance.isElastic()) {
+                String pluginId = agentInstance.elasticAgentMetadata().elasticPluginId();
+                String elasticAgentId = agentInstance.elasticAgentMetadata().elasticAgentId();
+
+                reportJobCompletion(pluginId, elasticAgentId, job.getIdentifier());
+            }
         }
     }
 }

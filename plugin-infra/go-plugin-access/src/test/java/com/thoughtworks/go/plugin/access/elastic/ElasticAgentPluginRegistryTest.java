@@ -104,4 +104,15 @@ public class ElasticAgentPluginRegistryTest {
         verify(elasticAgentExtension, times(1)).getAgentStatusReport(PLUGIN_ID, jobIdentifier, "some-id");
         verifyNoMoreInteractions(elasticAgentExtension);
     }
+
+    @Test
+    public void shouldTalkToExtensionToReportJobCompletion() {
+        final JobIdentifier jobIdentifier = new JobIdentifier();
+        final String elasticAgentId = "ea_1";
+
+        elasticAgentPluginRegistry.reportJobCompletion(PLUGIN_ID, elasticAgentId, jobIdentifier);
+
+        verify(elasticAgentExtension, times(1)).reportJobCompletion(PLUGIN_ID, elasticAgentId, jobIdentifier);
+        verifyNoMoreInteractions(elasticAgentExtension);
+    }
 }

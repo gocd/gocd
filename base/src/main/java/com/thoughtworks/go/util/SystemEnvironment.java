@@ -292,7 +292,11 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
 
     public File configDir() {
         if (configDir == null) {
-            configDir = new File(getPropertyImpl(CONFIG_FILE_PROPERTY, "config/cruise-config.xml")).getParentFile();
+            configDir = new File(
+                    getPropertyImpl(CONFIG_DIR_PROPERTY,
+                            new File(getPropertyImpl(CONFIG_FILE_PROPERTY, "config/cruise-config.xml")).getParent()
+                    )
+            );
         }
         return configDir;
     }

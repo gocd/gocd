@@ -91,8 +91,7 @@ public class PluggableTaskConsoleTest {
 
         doNothing().when(safeOutputStreamConsumer).stdOutput(anyString());
         console.readOutputOf(in);
-        Thread.sleep(100);// may become flaky!! Fingers crossed
-        verify(safeOutputStreamConsumer, times(7)).stdOutput(anyString());
+        verify(safeOutputStreamConsumer, timeout(10000).times(7)).stdOutput(anyString());
     }
 
     @Test
@@ -107,8 +106,7 @@ public class PluggableTaskConsoleTest {
 
         doNothing().when(safeOutputStreamConsumer).errOutput(anyString());
         console.readErrorOf(in);
-        Thread.sleep(100);// may become flaky!! Fingers crossed
-        verify(safeOutputStreamConsumer, times(7)).errOutput(anyString());
+        verify(safeOutputStreamConsumer, timeout(10000).times(7)).errOutput(anyString());
     }
 
 }

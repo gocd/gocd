@@ -50,7 +50,7 @@ function Field(name, options={}) {
     if ("undefined" === typeof val || null === val) {
       val = options.default;
     }
-    return attr("" + val);
+    return attr(`${val}`);
   };
 
   _.assign(this[name], options);

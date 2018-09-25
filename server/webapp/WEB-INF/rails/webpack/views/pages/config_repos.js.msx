@@ -15,9 +15,16 @@
  */
 
 const m = require("mithril");
-const ConfigReposPage = require("views/pages/config_repos");
+const ReposList = require("views/config_repos/config_repos_list");
+const ReposModel = require("models/config_repos/config_repos");
+const ReposVM = require("views/config_repos/models/config_repos_vm");
 
-window.addEventListener("DOMContentLoaded", () => {
-  const root = document.getElementById("config-repos");
-  m.mount(root, ConfigReposPage);
-});
+module.exports = {
+  oninit() {
+    this.vm = new ReposVM(new ReposModel()).load();
+  },
+
+  view() {
+    return <ReposList vm={this.vm} />;
+  }
+};

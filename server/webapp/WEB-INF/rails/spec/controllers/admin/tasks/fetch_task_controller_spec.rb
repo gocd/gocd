@@ -1,5 +1,5 @@
 ##########################GO-LICENSE-START################################
-# Copyright 2014 ThoughtWorks, Inc.
+# Copyright 2018 ThoughtWorks, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -25,7 +25,7 @@ describe Admin::TasksController, "fetch task" do
 
   before do
     @example_task = fetch_task_with_exec_on_cancel_task
-    @task_type = fetch_task_with_exec_on_cancel_task.getTaskType()
+    @task_type = @example_task.getTaskType()
     @updated_payload = {:pipelineName => 'other-pipeline', :stage => 'other-stage', :job => 'other-job', :src => 'new-src', :dest => 'new-dest', :isSourceAFile => '1', :hasCancelTask => "1", :onCancelConfig=> { :onCancelOption => 'exec', :execOnCancel => {:command => "echo", :args => "'failing'", :workingDirectory => "oncancel_working_dir"}}}
     @updated_task = fetch_task_with_exec_on_cancel_task('other-pipeline', 'other-stage', 'other-job', 'new-src', 'new-dest')
     fetch_gocd_task = FetchTask.new(CaseInsensitiveString.new('other-pipeline'), CaseInsensitiveString.new('other-stage'), CaseInsensitiveString.new('other-job'), 'new-src', 'new-dest')
@@ -75,6 +75,9 @@ describe Admin::TasksController, "fetch task" do
       @pipeline_config_for_edit = ConfigForEdit.new(@pipeline, @cruise_config, @cruise_config)
 
       @pause_info = PipelinePauseInfo.paused("just for fun", "loser")
+
+      allow(@go_config_service).to receive(:pipelineConfigNamed).with(an_instance_of(CaseInsensitiveString)).and_return(@pipeline_config_for_edit)
+      allow(@go_config_service).to receive(:templateConfigNamed).with(an_instance_of(CaseInsensitiveString)).and_return(@template)
     end
 
     describe "when looking at pipeline" do
@@ -124,14 +127,6 @@ describe Admin::TasksController, "fetch task" do
 
       it_should_behave_like :fetch_task_controller
 
-#      def pipelines_json
-#        [{:pipeline => "gramp-pipeline", :stages => [{:stage => "gramp-stage", :jobs => [{:job => "job.gramp.1"}, {:job => "job.gramp.2"}]}]},
-#         {:pipeline => "parent-pipeline", :stages => [{:stage => "parent-stage", :jobs => [{:job => "job.parent.1"}]}]},
-#         {:pipeline => "pipeline.name", :stages => [{:stage => "stage.one", :jobs => [{:job => "dev"}]},
-#                                                    {:stage => "stage.two", :jobs => [{:job => "dev"}]},
-#                                                    {:stage => "stage.three", :jobs => [{:job => "dev"}]}]}].to_json
-#      end
-
       def pipelines_json
         [
          {:pipeline => "gramp-pipeline", :stages => [{:stage => "gramp-stage", :jobs => [{:job => "job.gramp.1"}, {:job => "job.gramp.2"}]}]},
@@ -148,6 +143,7 @@ describe Admin::TasksController, "fetch task" do
   end
 
   def controller_specific_setup task_view_service
-    allow(task_view_service).to receive(:taskInstanceFor).with("exec").and_return(exec_task_without_on_cancel)
+    allow(task_view_service).to receive(:taskInstanceFor).with("fetch").and_return(@example_task)
+    allow(task_view_service).to receive(:taskInstanceFor).with("exec").and_return(@example_task.cancelTask)
   end
 end

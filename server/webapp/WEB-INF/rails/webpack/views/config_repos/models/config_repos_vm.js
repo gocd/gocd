@@ -17,6 +17,7 @@
 const Stream      = require("mithril/stream");
 const _           = require("lodash");
 const Materials   = require("models/config_repos/materials");
+const Validatable = require("models/mixins/validatable_mixin");
 const PluginInfos = require("models/shared/plugin_infos");
 
 function ReposListVM(model) {
@@ -63,6 +64,19 @@ function ConfigRepoVM(data) {
   this.attributes = Stream();
   this.configuration = Stream();
   this.etag = Stream(null);
+
+  Validatable.call(this, { errors: {} });
+
+  this.validatePresenceOf("id");
+  this.validatePresenceOf("pluginId");
+  this.validatePresenceOf("type");
+
+  this.allowSave = () => {
+    // intentionally not inlined with `&&` so that we run all validations every time
+    const parentValid = this.isValid();
+    const childValid = this.attributes().isValid();
+    return parentValid && childValid;
+  };
 
   this.initialize = (data) => {
     this.id(data.id);
@@ -152,8 +166,9 @@ function UpdateSupport(model, repos) {
   this.exitEditMode = () => this.editModel(null);
 
   this.updateRepo = (repo) => {
-    return model.update(repo.etag(), repo).then((data) => {
+    return model.update(repo.etag(), repo).then((data, _s, xhr) => {
       repo.initialize(data);
+      repo.etag(parseEtag(xhr));
 
       const idxToReplace = _.findIndex(repos(), (r) => r.id() === repo.id()); // should always be found
       repos().splice(idxToReplace, 1, repo);

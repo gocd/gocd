@@ -17,7 +17,7 @@
 const _ = require("lodash");
 
 function Field(name, options={}) {
-  const DEFAULTS = {display: _.startCase(name), type: "text", default: "", readOnly: false};
+  const DEFAULTS = {display: _.startCase(name), type: "text", default: "", required: true, readOnly: false};
   options = _.assign({}, DEFAULTS, options);
 
   this.keys = (this.keys || []);

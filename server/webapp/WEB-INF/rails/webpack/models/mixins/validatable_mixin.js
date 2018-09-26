@@ -63,7 +63,7 @@ const FormatValidator = function({format, message}) {
     }
 
     if (!entity[attr]().match(format)) {
-      entity.errors().add(attr, message || (`${s.humanize(attr)} format is in valid`));
+      entity.errors().add(attr, message || `${s.humanize(attr)} format is invalid`);
     }
   };
 };

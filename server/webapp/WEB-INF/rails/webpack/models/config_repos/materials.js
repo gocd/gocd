@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-const _     = require("lodash");
-const Field = require("models/config_repos/field");
+const _           = require("lodash");
+const Field       = require("models/config_repos/field");
+const Validatable = require("models/mixins/validatable_mixin");
 
 const Materials = {
   get(type, data) {
@@ -39,6 +40,8 @@ const Materials = {
 };
 
 function Common(data) {
+  Validatable.call(this, { errors: {} });
+
   this.keys = (this.keys || []);
 
   this.initialize = (data) => {
@@ -46,6 +49,14 @@ function Common(data) {
 
     _.each(this.keys, (key) => {
       this[key].init(data[key]);
+
+      if (this[key].opts("required")) {
+        this.validatePresenceOf(key);
+      }
+
+      if (this[key].opts("format")) {
+        this.validateFormatOf(key, {format: this[key].opts("format")});
+      }
     });
   };
 
@@ -60,7 +71,7 @@ function Common(data) {
 }
 
 function GitMaterial(data) {
-  Field.call(this, "name", {display: "Material Name"});
+  Field.call(this, "name", {display: "Material name", required: false});
   Field.call(this, "url");
   Field.call(this, "branch", {default: "master"});
   Field.call(this, "auto_update", {display: "Auto-update changes", type: "boolean", default: true});
@@ -69,7 +80,7 @@ function GitMaterial(data) {
 }
 
 function HgMaterial (data) {
-  Field.call(this, "name", {display: "Material Name"});
+  Field.call(this, "name", {display: "Material name", required: false});
   Field.call(this, "url");
   Field.call(this, "auto_update", {display: "Auto-update changes", type: "boolean", default: true});
 
@@ -77,39 +88,39 @@ function HgMaterial (data) {
 }
 
 function SvnMaterial (data) {
-  Field.call(this, "name", {display: "Material Name"});
+  Field.call(this, "name", {display: "Material name", required: false});
   Field.call(this, "url");
-  Field.call(this, "username");
-  Field.call(this, "password", {type: "secret"});
-  Field.call(this, "encrypted_password", {display: "Encrypted Password", type: "secret"});
+  Field.call(this, "username", {required: false});
+  Field.call(this, "password", {type: "secret", required: false});
+  Field.call(this, "encrypted_password", {display: "Encrypted password", type: "secret", required: false});
   Field.call(this, "auto_update", {display: "Auto-update changes", type: "boolean", default: true});
-  Field.call(this, "check_externals", {display: "Check Externals", type: "boolean", default: true});
+  Field.call(this, "check_externals", {display: "Check externals", type: "boolean", default: true});
 
   Common.call(this, data);
 }
 
 function P4Material (data) {
-  Field.call(this, "name", {display: "Material Name"});
+  Field.call(this, "name", {display: "Material name", required: false});
   Field.call(this, "port");
-  Field.call(this, "use_tickets", {display: "Use Tickets", type: "boolean", default: false});
+  Field.call(this, "use_tickets", {display: "Use tickets", type: "boolean", default: false});
   Field.call(this, "view");
   Field.call(this, "auto_update", {display: "Auto-update changes", type: "boolean", default: true});
-  Field.call(this, "username");
-  Field.call(this, "password", {type: "secret"});
-  Field.call(this, "encrypted_password", {display: "Encrypted Password", type: "secret"});
+  Field.call(this, "username", {required: false});
+  Field.call(this, "password", {type: "secret", required: false});
+  Field.call(this, "encrypted_password", {display: "Encrypted Password", type: "secret", required: false});
 
   Common.call(this, data);
 }
 
 function TfsMaterial (data) {
-  Field.call(this, "name", {display: "Material Name"});
+  Field.call(this, "name", {display: "Material name", required: false});
   Field.call(this, "url");
-  Field.call(this, "project_path", {display: "Project Path"});
+  Field.call(this, "project_path", {display: "Project path"});
   Field.call(this, "domain");
   Field.call(this, "auto_update", {display: "Auto-update changes", type: "boolean", default: true});
-  Field.call(this, "username");
-  Field.call(this, "password", {type: "secret"});
-  Field.call(this, "encrypted_password", {display: "Encrypted Password", type: "secret"});
+  Field.call(this, "username", {required: false});
+  Field.call(this, "password", {type: "secret", required: false});
+  Field.call(this, "encrypted_password", {display: "Encrypted password", type: "secret", required: false});
 
   Common.call(this, data);
 }
@@ -119,5 +130,8 @@ function PackageMaterial (data) {
 
   Common.call(this, data);
 }
+
+Materials.Field = Field;
+Materials.Common = Common;
 
 module.exports = Materials;

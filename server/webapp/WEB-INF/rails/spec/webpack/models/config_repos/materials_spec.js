@@ -61,4 +61,36 @@ describe("Config Repo Materials", () => {
     expect(mat.auto_update()).toBe(true);
   });
 
+  it("sets up validation rules based on field configuration", () => {
+    const Field = Materials.Field, Common = Materials.Common;
+
+    function CustomMaterial(data) {
+      Field.call(this, "id", {required: true});
+      Field.call(this, "hostname", {required: true, format: /^[a-z0-9]+(\.[a-z0-9]+)*$/i});
+      Field.call(this, "optional", {required: false});
+
+      Common.call(this, data);
+    }
+
+    const o = new CustomMaterial({});
+    expect(o.isValid()).toBe(false);
+
+    expect(o.errors().errorsForDisplay("id")).toBe("Id must be present.");
+    expect(o.errors().errorsForDisplay("hostname")).toBe("Hostname must be present.");
+    expect(o.errors().hasErrors("optional")).toBe(false);
+
+    o.id("123");
+    o.validate("id");
+
+    expect(o.errors().hasErrors("id")).toBe(false);
+
+    o.hostname("boom!");
+    o.validate("hostname");
+    expect(o.errors().errorsForDisplay("hostname")).toBe("Hostname format is invalid.");
+
+    o.hostname("foo.bar.com");
+
+    expect(o.isValid()).toBe(true);
+    expect(o.errors().hasErrors()).toBe(false);
+  });
 });

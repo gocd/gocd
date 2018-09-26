@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-const Stream    = require("mithril/stream");
-const _         = require("lodash");
-const Materials = require("models/config_repos/materials");
-
+const Stream      = require("mithril/stream");
+const _           = require("lodash");
+const Materials   = require("models/config_repos/materials");
+const PluginInfos = require("models/shared/plugin_infos");
 
 function ReposListVM(model) {
   const repos = Stream([]);
@@ -26,16 +26,33 @@ function ReposListVM(model) {
   UpdateSupport.call(this, model, repos);
   DeleteSupport.call(this, model, repos);
 
+  const addError = (msg) => { // fixme: add better error handling. this is cheap & not production quality.
+    if (!contains(this.errors(), msg)) {
+      this.errors().push(msg);
+    }
+  };
+
   this.load = () => {
     this.loading(true);
     model.all().then((data) => {
       repos(data._embedded.config_repos.map((r) => new ConfigRepoVM(r)));
-    }).always(() => this.loading(false));
+    }, addError).always(() => this.loading(false));
 
     return this;
   };
 
+  this.loadPlugins = () => {
+    return PluginInfos.all(null, {type: "configrepo"}).then((infos) => {
+      const all = [];
+      infos.eachPluginInfo((p) => { all.push({ id: p.id(), text: p.about().name() }); });
+      this.pluginChoices(all);
+    }, addError);
+  };
+
+  this.pluginChoices = Stream([]);
   this.loading = Stream(false);
+
+  this.errors = Stream([]);
   this.repos = repos;
 }
 
@@ -98,6 +115,7 @@ function CreateSupport(model, repos) {
     this.editModel(null);
 
     const payload = {
+      plugin_id: this.pluginChoices()[0].id, // eslint-disable-line camelcase
       material: {
         type: this.typeToAdd()
       }
@@ -148,6 +166,8 @@ function DeleteSupport(model, repos) {
 }
 
 // Utility functions
+
+function contains(arr, el) { return !~arr.indexOf(el); }
 
 function parseEtag(req) { return (req.getResponseHeader("ETag") || "").replace(/--(gzip|deflate)/, ""); }
 

@@ -22,6 +22,7 @@ const ReposVM = require("views/config_repos/models/config_repos_vm");
 module.exports = {
   oninit() {
     this.vm = new ReposVM(new ReposModel()).load();
+    this.vm.loadPlugins().then(() => m.redraw());
   },
 
   view() {

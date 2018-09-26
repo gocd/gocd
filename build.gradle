@@ -15,8 +15,6 @@
  */
 
 
-
-
 import com.github.jk1.license.ReportTask
 import com.github.jk1.license.filter.LicenseBundleNormalizer
 import com.github.jk1.license.render.JsonReportRenderer
@@ -89,8 +87,8 @@ def getVersion = { ... args ->
   return stdout.toString().trim()
 }
 
-def partitionFiles(Collection originalFiles) {
-  def files = new LinkedHashSet(originalFiles).sort()
+List<String> partitionFiles(Collection originalFiles) {
+  def files = originalFiles.unique().sort()
   def seed = System.getenv('GO_PIPELINE_COUNTER')?.toInteger() ?: System.getenv('PARTITION_SEED')?.toInteger() ?: new SecureRandom().nextInt().abs()
   def totalWorkers = System.getenv('GO_JOB_RUN_COUNT')?.toInteger() ?: 1
   def currentWorkerIndex = System.getenv('GO_JOB_RUN_INDEX')?.toInteger() ?: 1
@@ -105,7 +103,8 @@ def partitionFiles(Collection originalFiles) {
   Collections.shuffle(files, new Random(seed))
 
   def allPartitions = files.collate(testsPerBucket)
-  allPartitions[currentWorkerIndex - 1]
+  def currentPartition = allPartitions[currentWorkerIndex - 1]
+  return currentPartition ?: []
 }
 
 def COPYRIGHT_YEAR = '2018'
@@ -214,9 +213,9 @@ rootProject.ext.versions = [
   tokenBucket         : '1.7',
   velocityToolsView   : '1.4',
   xmlUnitMatchers     : '2.6.0',
-  seleniumDrivers: [
-    chromedriver: '2.41',
-    geckodriver: '0.21.0',
+  seleniumDrivers     : [
+    chromedriver  : '2.41',
+    geckodriver   : '0.21.0',
     iedriverserver: '3.14.0'
   ]
 ]
@@ -444,7 +443,7 @@ subprojects {
       project.delete(tmpDir)
       tmpDir.mkdirs()
 
-      def files = []
+      List<String> files = []
       testTask.testClassesDirs.files.each { File classDir ->
         if (classDir.exists()) {
           classDir.eachFileRecurse(FileType.FILES) { f ->
@@ -454,9 +453,15 @@ subprojects {
         }
       }
 
-      List myPartition = partitionFiles(files)
+      files = files.unique()
 
-      myPartition.each { f ->
+      List testsToRun = partitionFiles(files)
+      List testsToIgnore = files - testsToRun
+
+      testsToIgnore.each { f ->
+        testTask.exclude f
+      }
+      testsToRun.each { f ->
         testTask.include f
       }
     }

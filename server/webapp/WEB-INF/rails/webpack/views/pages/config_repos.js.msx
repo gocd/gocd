@@ -14,18 +14,18 @@
  * limitations under the License.
  */
 
-const m = require("mithril");
-const ReposList = require("views/config_repos/config_repos_list");
-const ReposModel = require("models/config_repos/config_repos");
-const ReposVM = require("views/config_repos/models/config_repos_vm");
+const m               = require("mithril");
+const ConfigReposList = require("views/config_repos/config_repos_list");
+const ConfigRepos     = require("models/config_repos/config_repos");
+const ReposListVM     = require("views/config_repos/models/repos_list_vm");
 
 module.exports = {
   oninit() {
-    this.vm = new ReposVM(new ReposModel()).load();
+    this.vm = new ReposListVM(new ConfigRepos()).load();
     this.vm.loadPlugins().then(() => m.redraw());
   },
 
   view() {
-    return <ReposList vm={this.vm} />;
+    return <ConfigReposList vm={this.vm} />;
   }
 };

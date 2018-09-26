@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-const m = require("mithril");
+const m               = require("mithril");
 const ConfigReposPage = require("views/pages/config_repos");
 
 window.addEventListener("DOMContentLoaded", () => {

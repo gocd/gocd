@@ -44,10 +44,13 @@ public abstract class AbstractDefaultPluginJarLocationMonitorTest {
     protected void waitUntilNextRun(DefaultPluginJarLocationMonitor monitor) throws InterruptedException {
         long previousRun = monitor.getLastRun();
         int numberOfTries = 0;
-        while(previousRun >= monitor.getLastRun() && numberOfTries < NO_OF_TRIES_TO_CHECK_MONITOR_RUN) {
+        while (previousRun >= monitor.getLastRun() && numberOfTries < NO_OF_TRIES_TO_CHECK_MONITOR_RUN) {
             Thread.yield();
             Thread.sleep(500);
             numberOfTries++;
+        }
+        if (numberOfTries >= NO_OF_TRIES_TO_CHECK_MONITOR_RUN) {
+            throw new RuntimeException("Number of tries exceeded, but monitor thread hasn't run yet");
         }
     }
 

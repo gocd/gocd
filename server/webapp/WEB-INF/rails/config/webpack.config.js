@@ -18,15 +18,16 @@
 
 'use strict';
 
-const fs             = require('fs');
-const fsExtra        = require('fs-extra');
-const _              = require('lodash');
-const path           = require('path');
-const upath          = require('upath');
-const webpack        = require('webpack');
-const StatsPlugin    = require('stats-webpack-plugin');
-const HappyPack      = require('happypack');
-const licenseChecker = require('license-checker');
+const fs                   = require('fs');
+const fsExtra              = require('fs-extra');
+const _                    = require('lodash');
+const path                 = require('path');
+const upath                = require('upath');
+const webpack              = require('webpack');
+const StatsPlugin          = require('stats-webpack-plugin');
+const HappyPack            = require('happypack');
+const licenseChecker       = require('license-checker');
+const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 
 const singlePageAppModuleDir = path.join(__dirname, '..', 'webpack', 'single_page_apps');
 
@@ -84,6 +85,7 @@ module.exports = function (env) {
     jQuery:          "jquery",
     "window.jQuery": "jquery"
   }));
+  plugins.push(new MiniCssExtractPlugin());
 
   if (production) {
     plugins.push(new webpack.LoaderOptionsPlugin({minimize: true}));
@@ -216,7 +218,7 @@ module.exports = function (env) {
       default: false,
       vendors: false,
       vendor:  {
-        name:   'vendors-and-helpers.chunk',
+        name:   'vendor-and-helpers.chunk',
         chunks: 'all',
         test(module, chunks) {
           function isFromNPM() {

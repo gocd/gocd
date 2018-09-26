@@ -10,7 +10,8 @@
         "vendor-and-helpers.chunk.js",
         "vendor-and-helpers.chunk.js.map",
         "single_page_apps/agents.js",
-        "single_page_apps/agents.js.map"
+        "single_page_apps/agents.js.map",
+        "single_page_apps/agents.css"
       ]
     },
     "single_page_apps/new_dashboard": {
@@ -22,7 +23,8 @@
         "vendor-and-helpers.chunk.js",
         "vendor-and-helpers.chunk.js.map",
         "single_page_apps/new_dashboard.js",
-        "single_page_apps/new_dashboard.js.map"
+        "single_page_apps/new_dashboard.js.map",
+        "single_page_apps/new_dashboard.css"
       ]
     }
   }

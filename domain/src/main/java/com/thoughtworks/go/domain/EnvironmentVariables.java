@@ -22,7 +22,7 @@ import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 
 import java.util.List;
 
-public class EnvironmentVariables extends BaseCollection<EnvironmentVariable> {
+public class EnvironmentVariables extends BaseCollection<EnvironmentVariable> implements InsecureEnvironmentVariables {
 
     private static final String JOB = EnvironmentVariableType.Job.toString();
 
@@ -49,6 +49,13 @@ public class EnvironmentVariables extends BaseCollection<EnvironmentVariable> {
         }
     }
 
+    public void overrideWith(EnvironmentVariables other) {
+        for (EnvironmentVariable variable : other) {
+            this.removeIf(v -> v.getName().equalsIgnoreCase(variable.getName()));
+            this.add(variable);
+        }
+    }
+
     public void add(String name, String value) {
         add(new EnvironmentVariable(name, value, false));
     }
@@ -59,5 +66,15 @@ public class EnvironmentVariables extends BaseCollection<EnvironmentVariable> {
             environmentVariables.add(new EnvironmentVariable(environmentVariableConfig));
         }
         return environmentVariables;
+    }
+
+    @Override
+    public String getInsecureEnvironmentVariableOrDefault(String key, String defaultValue) {
+        for (EnvironmentVariable variable : this) {
+            if (!variable.isSecure() && variable.getName().equalsIgnoreCase(key)) {
+                return variable.getValue();
+            }
+        }
+        return defaultValue;
     }
 }

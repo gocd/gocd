@@ -88,4 +88,33 @@ public class EnvironmentVariablesTest {
         verify(environmentVariableContext, times(1)).setProperty("baz", "car", true);
     }
 
+    @Test
+    public void shouldGetOnlyInsecureValues() {
+        EnvironmentVariables variables = new EnvironmentVariables(
+                new EnvironmentVariable("key1", "value1", true),
+                new EnvironmentVariable("key2", "value2")
+        );
+
+        assertThat(variables.getInsecureEnvironmentVariableOrDefault("key1", "def1"), is("def1"));
+        assertThat(variables.getInsecureEnvironmentVariableOrDefault("key2", null), is("value2"));
+        assertThat(variables.getInsecureEnvironmentVariableOrDefault("key3", null), is(nullValue()));
+    }
+
+    @Test
+    public void shouldOverrideWithProvidedOverrideValues() {
+        EnvironmentVariables variables = new EnvironmentVariables(
+                new EnvironmentVariable("key1", "value1"),
+                new EnvironmentVariable("key2", "value2")
+        );
+
+        EnvironmentVariables variablesForOverride = new EnvironmentVariables(
+                new EnvironmentVariable("key2", "value2-new")
+        );
+
+        variables.overrideWith(variablesForOverride);
+
+        assertThat(variables.getInsecureEnvironmentVariableOrDefault("key1", null), is("value1"));
+        assertThat(variables.getInsecureEnvironmentVariableOrDefault("key2", null), is("value2-new"));
+        assertThat(variables.getInsecureEnvironmentVariableOrDefault("key3", null), is(nullValue()));
+    }
 }

@@ -262,7 +262,7 @@ public class PipelineSchedulerIntegrationTest {
         if (!goConfigService.hasPipelineNamed(new CaseInsensitiveString("Test"))) {
             configHelper.addPipeline("Test", "dev");
         }
-        Pipeline pipeline = new Pipeline("Test", "testing-${COUNT}", BuildCause.createWithEmptyModifications());
+        Pipeline pipeline = new Pipeline("Test", "testing-${COUNT}", BuildCause.createWithEmptyModifications(), new EnvironmentVariables());
         return pipelineService.save(pipeline);
     }
 
@@ -301,7 +301,7 @@ public class PipelineSchedulerIntegrationTest {
     }
 
     private Pipeline createPipelineWhoseLabelIsNumberAndNotSameWithCounter() {
-        Pipeline pipeline = new Pipeline("Test", "${COUNT}0", BuildCause.createWithEmptyModifications());
+        Pipeline pipeline = new Pipeline("Test", "${COUNT}0", BuildCause.createWithEmptyModifications(), new EnvironmentVariables());
         pipeline.updateCounter(9);
         pipelineDao.save(pipeline);
         return pipeline;

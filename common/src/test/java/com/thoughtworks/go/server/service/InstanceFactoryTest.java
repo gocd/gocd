@@ -115,6 +115,26 @@ public class InstanceFactoryTest {
     }
 
     @Test
+    public void shouldOverridePipelineEnvironmentVariablesFromBuildCauseForLabel() {
+        StageConfig stageConfig = StageConfigMother.custom("stage", "foo", "bar");
+        MaterialConfigs materialConfigs = MaterialConfigsMother.defaultMaterialConfigs();
+        DefaultSchedulingContext context = new DefaultSchedulingContext("anonymous");
+
+        PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString("pipeline"), materialConfigs, stageConfig);
+        pipelineConfig.addEnvironmentVariable("VAR", "value");
+        pipelineConfig.setLabelTemplate("${ENV:VAR}");
+
+        BuildCause buildCause = ModificationsMother.forceBuild(pipelineConfig);
+        EnvironmentVariables overriddenVars = buildCause.getVariables();
+        overriddenVars.add("VAR", "overriddenValue");
+        buildCause.setVariables(overriddenVars);
+
+        Pipeline instance = instanceFactory.createPipelineInstance(pipelineConfig, buildCause, context, "some-md5", new TimeProvider());
+        instance.updateCounter(1);
+        assertThat(instance.getLabel(), is("overriddenValue"));
+    }
+
+    @Test
     public void shouldSchedulePipelineWithFirstStage() {
         StageConfig stageOneConfig = StageConfigMother.stageConfig("dev", BuildPlanMother.withBuildPlans("functional", "unit"));
         StageConfig stageTwoConfig = StageConfigMother.stageConfig("qa", BuildPlanMother.withBuildPlans("suiteOne", "suiteTwo"));

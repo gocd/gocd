@@ -70,7 +70,7 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
     public static final String PARAMS = "params";
     private static final String LABEL_TEMPLATE_ZERO_TRUNC_BLOCK = "(\\[:0+\\])";
     private static final String LABEL_TEMPLATE_TRUNC_BLOCK = "(\\[:\\d+\\])?";
-    private static final String LABEL_TEMPLATE_CHARACTERS = "[a-zA-Z0-9_\\-.!~*'()#:]"; // why a '#'?
+    private static final String LABEL_TEMPLATE_CHARACTERS = "[a-zA-Z:]*[a-zA-Z0-9_\\-.!~*'()#:]"; // why a '#'?
     private static final String LABEL_TEMPLATE_VARIABLE_REGEX = "[$]\\{(" + LABEL_TEMPLATE_CHARACTERS + "+)" + LABEL_TEMPLATE_TRUNC_BLOCK + "\\}";
     public static final String LABEL_TEMPLATE_FORMAT = "((" + LABEL_TEMPLATE_CHARACTERS + ")*[$]"
             + "\\{" + LABEL_TEMPLATE_CHARACTERS + "+" + LABEL_TEMPLATE_TRUNC_BLOCK + "\\}(" + LABEL_TEMPLATE_CHARACTERS + ")*)+";
@@ -274,7 +274,7 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
         Set<String> templateVariables = getTemplateVariables();
         List<String> materialNames = allowedTemplateVariables();
         for (final String templateVariable : templateVariables) {
-            if (!IterableUtils.matchesAny(materialNames, withNameSameAs(templateVariable))) {
+            if (!PipelineLabel.hasValidPrefix(templateVariable) && !IterableUtils.matchesAny(materialNames, withNameSameAs(templateVariable))) {
                 addError("labelTemplate", String.format(ERR_TEMPLATE, name(), templateVariable));
             }
         }

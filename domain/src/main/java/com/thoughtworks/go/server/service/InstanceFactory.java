@@ -19,7 +19,6 @@ package com.thoughtworks.go.server.service;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.elastic.ElasticProfile;
 import com.thoughtworks.go.domain.*;
-import com.thoughtworks.go.domain.ArtifactPropertiesGenerator;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.util.Clock;
 import org.springframework.stereotype.Component;
@@ -32,7 +31,11 @@ public class InstanceFactory {
     public Pipeline createPipelineInstance(PipelineConfig pipelineConfig, BuildCause buildCause, SchedulingContext context, String md5, Clock clock) {
         buildCause.assertMaterialsMatch(pipelineConfig.materialConfigs());
         buildCause.assertPipelineConfigAndMaterialRevisionMatch(pipelineConfig);
-        return new Pipeline(CaseInsensitiveString.str(pipelineConfig.name()), pipelineConfig.getLabelTemplate(), buildCause, createStageInstance(pipelineConfig.first(), context, md5, clock));
+
+        EnvironmentVariables variables = EnvironmentVariables.toEnvironmentVariables(pipelineConfig.getVariables());
+        variables.overrideWith(buildCause.getVariables());
+
+        return new Pipeline(CaseInsensitiveString.str(pipelineConfig.name()), pipelineConfig.getLabelTemplate(), buildCause, variables, createStageInstance(pipelineConfig.first(), context, md5, clock));
     }
 
     public Stage createStageInstance(PipelineConfig pipelineConfig, CaseInsensitiveString stageName, SchedulingContext context, String md5, Clock clock) {

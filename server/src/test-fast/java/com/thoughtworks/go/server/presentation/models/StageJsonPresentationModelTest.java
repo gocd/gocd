@@ -67,7 +67,7 @@ public class StageJsonPresentationModelTest {
         stage = StageMother.withOneScheduledBuild("stage", "job-that-will-fail", "job-that-will-pass", 1);
         modifications = BuildCause.createWithModifications(materialRevisions, "");
         pipeline = new Pipeline("pipeline", PipelineLabel.COUNT_TEMPLATE, modifications,
-                stage);
+                new EnvironmentVariables(), stage);
         stage.setIdentifier(new StageIdentifier(pipeline, stage));
         for (JobInstance job : stage.getJobInstances()) {
             job.setIdentifier(new JobIdentifier(pipeline, stage, job));

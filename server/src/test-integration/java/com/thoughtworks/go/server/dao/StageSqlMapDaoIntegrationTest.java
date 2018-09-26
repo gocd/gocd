@@ -300,7 +300,7 @@ public class StageSqlMapDaoIntegrationTest {
 
         assertThat(stageDao.getTotalStageCountForChart("maar", "khoon"), is(3));//Should prime the cache
         Stage stage = new Stage("khoon", new JobInstances(), "foo", "manual", new TimeProvider());
-        Pipeline pipeline = new Pipeline("maar", "${COUNT}", BuildCause.createWithEmptyModifications(), stage);
+        Pipeline pipeline = new Pipeline("maar", "${COUNT}", BuildCause.createWithEmptyModifications(), new EnvironmentVariables(), stage);
         pipeline.setId(1);
         stageDao.save(pipeline, stage);//Should Invalidate the cache
 
@@ -573,7 +573,7 @@ public class StageSqlMapDaoIntegrationTest {
         Stage actual = stageDao.findStageWithIdentifier(new StageIdentifier("pipeline", 1, "stage", "1"));
         assertEquals(first, actual);
 
-        Pipeline pipeline = new Pipeline("pipeline", "label", BuildCause.createManualForced(), first);
+        Pipeline pipeline = new Pipeline("pipeline", "label", BuildCause.createManualForced(), new EnvironmentVariables(), first);
         pipeline.setCounter(1);
         stageDao.save(pipeline, second); //save stage 2.. This should invalidate the stage 1 because of the latest run state.
 

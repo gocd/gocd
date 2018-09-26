@@ -19,7 +19,9 @@ package com.thoughtworks.go.server.service;
 import com.thoughtworks.go.server.dao.DbMetadataDao;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.contrib.java.lang.system.RestoreSystemProperties;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -32,6 +34,8 @@ import static org.mockito.Mockito.when;
 public class SystemServiceTest {
     private SystemService systemService;
     private SystemEnvironment systemEnvironment;
+    @Rule
+    public final RestoreSystemProperties restoreSystemProperties = new RestoreSystemProperties();
 
     @Before
     public void setUp() {

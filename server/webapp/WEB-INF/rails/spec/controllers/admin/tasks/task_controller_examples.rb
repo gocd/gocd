@@ -141,6 +141,7 @@ shared_examples_for :task_controller do
       allow(@go_config_service).to receive(:registry).and_return(MockRegistryModule::MockRegistry.new)
       allow(@go_config_service).to receive(:artifactIdToPluginIdForFetchPluggableArtifact).and_return({})
       allow(@go_config_service).to receive(:pipelineConfigNamed).with(an_instance_of(CaseInsensitiveString)).and_return(@pipeline)
+      allow(@go_config_service).to receive(:getCurrentConfig).and_return(@cruise_config)
       @pluggable_task_service = stub_service(:pluggable_task_service)
       @config_store = double('config store')
       allow(@controller).to receive(:config_store).and_return(@config_store)

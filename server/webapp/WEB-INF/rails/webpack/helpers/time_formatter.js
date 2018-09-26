@@ -18,9 +18,6 @@ const _         = require('lodash');
 const CONSTANTS = require('helpers/constants');
 const moment    = require("moment");
 
-// LRU map requires `Symbol` which is unavailable in IE11
-require('babel-polyfill');
-
 const LRUMap = require('lru_map').LRUMap;
 require("moment-duration-format");
 

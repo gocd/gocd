@@ -16,6 +16,8 @@
 
 // This is the starting point for booting up jasmine
 
+require('babel-polyfill');
+
 function importAll(r) {
   r.keys().forEach(r);
 }

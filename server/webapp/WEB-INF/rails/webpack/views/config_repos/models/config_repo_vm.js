@@ -29,10 +29,10 @@ function ConfigRepoVM(data) {
 
   Validatable.call(this, { errors: {} });
 
-  this.validatePresenceOf("id");
+  this.validatePresenceOf("id", {message: "ID cannot be blank"});
   this.validateFormatOf("id", Validatable.DefaultOptions.forId("ID"));
-  this.validatePresenceOf("pluginId");
-  this.validatePresenceOf("type");
+  this.validatePresenceOf("pluginId", {message: "Plugin must be selected"});
+  this.validatePresenceOf("type", {message: "Type must be selected"});
 
   this.allowSave = () => {
     // intentionally not inlined with `&&` so that we run all validations every time

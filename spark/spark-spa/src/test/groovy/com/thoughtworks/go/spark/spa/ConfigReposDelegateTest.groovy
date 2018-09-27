@@ -16,17 +16,24 @@
 
 package com.thoughtworks.go.spark.spa
 
+import com.thoughtworks.go.server.service.support.toggle.FeatureToggleService
+import com.thoughtworks.go.server.service.support.toggle.Toggles
 import com.thoughtworks.go.spark.AdminUserSecurity
 import com.thoughtworks.go.spark.ControllerTrait
 import com.thoughtworks.go.spark.SecurityServiceTrait
 import com.thoughtworks.go.spark.spring.SPAAuthenticationHelper
 import org.junit.jupiter.api.Nested
 
+import static org.mockito.Mockito.mock
+import static org.mockito.Mockito.when
+
 class ConfigReposDelegateTest implements ControllerTrait<ConfigReposDelegate>, SecurityServiceTrait {
 
   @Override
   ConfigReposDelegate createControllerInstance() {
-    return new ConfigReposDelegate(new SPAAuthenticationHelper(securityService, goConfigService), templateEngine)
+    FeatureToggleService features = mock(FeatureToggleService.class)
+    when(features.isToggleOn(Toggles.CONFIG_REPOS_UI)).thenReturn(true)
+    return new ConfigReposDelegate(new SPAAuthenticationHelper(securityService, goConfigService), templateEngine, features)
   }
 
   @Nested

@@ -26,6 +26,7 @@ import com.thoughtworks.go.plugin.access.pluggabletask.TaskExtension;
 import com.thoughtworks.go.plugin.access.scm.SCMExtension;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.plugin.infra.PluginRequestProcessorRegistry;
+import com.thoughtworks.go.plugin.infra.monitor.PluginJarLocationMonitor;
 import com.thoughtworks.go.publishers.GoArtifactsManipulator;
 import com.thoughtworks.go.remote.BuildRepositoryRemote;
 import com.thoughtworks.go.util.HttpService;
@@ -56,6 +57,7 @@ public class AgentControllerFactory {
     private final WebSocketSessionHandler sessionHandler;
     private static final Logger LOG = LoggerFactory.getLogger(AgentControllerFactory.class);
     private final AgentHealthHolder agentHealthHolder;
+    private final PluginJarLocationMonitor pluginJarLocationMonitor;
 
     @Autowired
     public AgentControllerFactory(
@@ -75,7 +77,8 @@ public class AgentControllerFactory {
             HttpService httpService,
             WebSocketClientHandler webSocketClientHandler,
             WebSocketSessionHandler sessionHandler,
-            AgentHealthHolder agentHealthHolder) {
+            AgentHealthHolder agentHealthHolder,
+            PluginJarLocationMonitor pluginJarLocationMonitor) {
         this.server = server;
         this.manipulator = manipulator;
         this.pluginManager = pluginManager;
@@ -93,6 +96,7 @@ public class AgentControllerFactory {
         this.webSocketClientHandler = webSocketClientHandler;
         this.sessionHandler = sessionHandler;
         this.agentHealthHolder = agentHealthHolder;
+        this.pluginJarLocationMonitor = pluginJarLocationMonitor;
     }
 
     public AgentController createInstance() {
@@ -132,7 +136,8 @@ public class AgentControllerFactory {
                     taskExtension,
                     artifactExtension,
                     pluginRequestProcessorRegistry,
-                    agentHealthHolder);
+                    agentHealthHolder,
+                    pluginJarLocationMonitor);
         }
     }
 }

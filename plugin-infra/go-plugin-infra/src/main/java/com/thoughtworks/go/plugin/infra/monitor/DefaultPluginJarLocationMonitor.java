@@ -80,7 +80,8 @@ public class DefaultPluginJarLocationMonitor implements PluginJarLocationMonitor
         monitorThread.start();
     }
 
-    long getLastRun() {
+    @Override
+    public long getLastRun() {
         if (monitorThread == null) {
             return 0;
         }
@@ -186,8 +187,6 @@ public class DefaultPluginJarLocationMonitor implements PluginJarLocationMonitor
 
         //Added synchronized because the compiler can change the order of instructions, meaning that the lastRun can be
         //updated before the listeners are notified.
-        //lastRun is needed only for tests. It may be a bit excessive to synchronize methods just for tests. So this can
-        //definitely be improved in the future
         public synchronized void oneShot() {
             knownBundledPluginFileDetails = loadAndNotifyPluginsFrom(bundledPluginDirectory, knownBundledPluginFileDetails, true);
             knownExternalPluginFileDetails = loadAndNotifyPluginsFrom(externalPluginDirectory, knownExternalPluginFileDetails, false);

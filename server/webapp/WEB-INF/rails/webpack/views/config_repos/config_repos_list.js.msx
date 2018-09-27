@@ -48,7 +48,7 @@ const AddRepo = {
       return <div class="add-repo-actions">
         <AddForm vm={vm.addModel()} availablePlugins={vm.pluginChoices()} />
         <button onclick={() => vm.exitAddMode()}>Cancel</button>
-        <button onclick={() => vm.createRepo().then(() => vm.exitAddMode())}>Save</button>
+        <button onclick={() => vm.createRepo(vm.addModel()).then(() => vm.exitAddMode())}>Save</button>
       </div>;
     } else {
       return <div class="add-repo-actions">
@@ -65,8 +65,8 @@ const AddForm = {
     const availablePlugins = vnode.attrs.availablePlugins;
 
     return <div class="add-config-repo-form">
-      <f.select label="Choose a plugin" model={vm} attrName="pluginId" items={availablePlugins} />
-      <f.input label="Config Repo ID" model={vm} attrName="id"/>
+      <f.select validate={true} label="Choose a plugin" model={vm} attrName="pluginId" items={availablePlugins} />
+      <f.input validate={true} label="Config Repo ID" model={vm} attrName="id"/>
       <MaterialAttributes material={vm.attributes()} isEdit={true} />
     </div>;
   }
@@ -123,7 +123,7 @@ const Field = {
     const vm = vnode.attrs.model;
     const k = vnode.attrs.attrName;
     const field = vm[k];
-    const options = {model: vm, attrName: k, label: field.opts("display")};
+    const options = {model: vm, attrName: k, label: field.opts("display"), validate: true};
 
     if (field.opts("readOnly")) { options.disabled = true; }
 

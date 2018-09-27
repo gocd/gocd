@@ -88,11 +88,12 @@ function CreateSupport(model, repos) {
   };
 
   this.exitAddMode = () => this.addModel(null);
-  this.createRepo = () => model.create(this.addModel()).then((data, _s, xhr) => {
+
+  this.createRepo = withValidation((repo) => model.create(repo).then((data, _s, xhr) => {
     const repo = new ConfigRepoVM(data);
     repo.etag(parseEtag(xhr));
     repos().push(repo);
-  });
+  }));
 }
 
 function UpdateSupport(model, repos) {
@@ -114,15 +115,13 @@ function UpdateSupport(model, repos) {
 
   this.exitEditMode = () => this.editModel(null);
 
-  this.updateRepo = (repo) => {
-    return model.update(repo.etag(), repo).then((data, _s, xhr) => {
-      repo.initialize(data);
-      repo.etag(parseEtag(xhr));
+  this.updateRepo = withValidation((repo) => model.update(repo.etag(), repo).then((data, _s, xhr) => {
+    repo.initialize(data);
+    repo.etag(parseEtag(xhr));
 
-      const idxToReplace = _.findIndex(repos(), (r) => r.id() === repo.id()); // should always be found
-      repos().splice(idxToReplace, 1, repo);
-    });
-  };
+    const idx = _.findIndex(repos(), (r) => r.id() === repo.id()); // should not fail
+    repos().splice(idx, 1, repo);
+  }));
 }
 
 function DeleteSupport(model, repos) {
@@ -130,6 +129,10 @@ function DeleteSupport(model, repos) {
 }
 
 // Utility functions
+
+function withValidation(proceed) {
+  return (repo) => repo.allowSave() ? proceed(repo) : Dfr(function fail() { this.reject(); }).promise();
+}
 
 function contains(arr, el) { return !~arr.indexOf(el); }
 

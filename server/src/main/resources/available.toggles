@@ -22,6 +22,11 @@
          "value": false
       },
       {
+         "key": "config_repos_ui",
+         "description": "Enables experimental config repos management UI. Default: disabled.",
+         "value": false
+      },
+      {
         "key": "components",
         "description": "Enables pages being refactored to use components and CSS modules. Needs a server restart.",
         "value": false

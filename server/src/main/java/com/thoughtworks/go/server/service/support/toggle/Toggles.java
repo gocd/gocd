@@ -21,6 +21,7 @@ public class Toggles {
     public static String QUICK_EDIT_PAGE_DEFAULT = "quick_edit_page_toggle_key";
     public static String BROWSER_CONSOLE_LOG_WS = "browser_console_log_ws_key";
     public static String COMPONENTS = "components";
+    public static String CONFIG_REPOS_UI = "config_repos_ui";
 
     private static FeatureToggleService service;
 

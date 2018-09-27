@@ -16,6 +16,8 @@
 
 package com.thoughtworks.go.spark.spa;
 
+import com.thoughtworks.go.server.service.support.toggle.FeatureToggleService;
+import com.thoughtworks.go.server.service.support.toggle.Toggles;
 import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.SparkController;
 import com.thoughtworks.go.spark.spring.SPAAuthenticationHelper;
@@ -31,10 +33,12 @@ import static spark.Spark.*;
 public class ConfigReposDelegate implements SparkController {
     private SPAAuthenticationHelper authenticationHelper;
     private TemplateEngine engine;
+    private FeatureToggleService features;
 
-    public ConfigReposDelegate(SPAAuthenticationHelper authenticationHelper, TemplateEngine engine) {
+    public ConfigReposDelegate(SPAAuthenticationHelper authenticationHelper, TemplateEngine engine, FeatureToggleService features) {
         this.authenticationHelper = authenticationHelper;
         this.engine = engine;
+        this.features = features;
     }
 
     @Override
@@ -46,6 +50,7 @@ public class ConfigReposDelegate implements SparkController {
     public void setupRoutes() {
         path(controllerBasePath(), () -> {
             before("", authenticationHelper::checkAdminUserAnd403);
+            before("", this::featureToggleGuard);
             get("", this::index, engine);
         });
     }
@@ -55,5 +60,11 @@ public class ConfigReposDelegate implements SparkController {
             put("viewTitle", "Config Repos");
         }};
         return new ModelAndView(object, "config_repos/index.vm");
+    }
+
+    private void featureToggleGuard(Request req, Response res) {
+        if (!features.isToggleOn(Toggles.CONFIG_REPOS_UI)) {
+            res.redirect("/");
+        }
     }
 }

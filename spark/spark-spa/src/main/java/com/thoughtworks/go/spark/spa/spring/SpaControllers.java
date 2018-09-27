@@ -19,7 +19,6 @@ package com.thoughtworks.go.spark.spa.spring;
 import com.thoughtworks.go.plugin.access.analytics.AnalyticsExtension;
 import com.thoughtworks.go.server.service.PipelineConfigService;
 import com.thoughtworks.go.server.service.SecurityService;
-import com.thoughtworks.go.server.service.support.toggle.FeatureToggleListener;
 import com.thoughtworks.go.server.service.support.toggle.FeatureToggleService;
 import com.thoughtworks.go.server.service.support.toggle.Toggles;
 import com.thoughtworks.go.spark.SparkController;
@@ -52,7 +51,7 @@ public class SpaControllers implements SparkSpringController {
         sparkControllers.add(new ArtifactStoresDelegate(authenticationHelper, templateEngineFactory.create(ArtifactStoresDelegate.class, "layouts/single_page_app.vm")));
         sparkControllers.add(new AnalyticsDelegate(authenticationHelper, templateEngineFactory.create(AnalyticsDelegate.class, "layouts/single_page_app.vm"), systemEnvironment, analyticsExtension, pipelineConfigService));
         sparkControllers.add(new DataSharingSettingsDelegate(authenticationHelper, templateEngineFactory.create(DataSharingSettingsDelegate.class, "layouts/single_page_app.vm")));
-        sparkControllers.add(new ConfigReposDelegate(authenticationHelper, templateEngineFactory.create(ConfigReposDelegate.class, layoutTemplate(featureToggleService))));
+        sparkControllers.add(new ConfigReposDelegate(authenticationHelper, templateEngineFactory.create(ConfigReposDelegate.class, layoutTemplate(featureToggleService)), featureToggleService));
     }
 
     @Override

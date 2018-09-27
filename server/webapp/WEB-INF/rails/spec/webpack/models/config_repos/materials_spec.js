@@ -36,6 +36,14 @@ describe("Config Repo Materials", () => {
     expect(actual.toJSON()).toEqual(expected);
   });
 
+  it("serializes to plain object with only declared attributes", () => {
+    const o = Materials.get("hg", {});
+    o.name("merc");
+    o.url("repo.hg");
+
+    expect(o.toJSON()).toEqual({name: "merc", url: "repo.hg", auto_update: true});
+  });
+
   it("instance clone() creates a deep copy", () => {
     const original = Materials.get("hg", {
       material: {

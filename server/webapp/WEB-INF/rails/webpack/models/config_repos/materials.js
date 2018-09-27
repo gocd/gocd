@@ -38,37 +38,7 @@ const Materials = {
   }
 };
 
-function Common(data) {
-  Validatable.call(this, { errors: {} });
-
-  this.keys = (this.keys || []);
-
-  this.initialize = (data) => {
-    data = _.get(data, "material.attributes", {});
-
-    _.each(this.keys, (key) => {
-      this[key].init(data[key]);
-
-      if (this[key].opts("required")) {
-        this.validatePresenceOf(key);
-      }
-
-      if (this[key].opts("format")) {
-        const format = this[key].opts("format");
-        this.validateFormatOf(key, format instanceof RegExp ? { format } : format);
-      }
-    });
-  };
-
-  this.toJSON = () => _.reduce(this.keys, (memo, k) => {
-    memo[k] = this[k]();
-    return memo;
-  }, {});
-
-  this.clone = () => new this.constructor(data);
-
-  this.initialize(data);
-}
+// Instances
 
 function GitMaterial(data) {
   BaseFields.call(this);
@@ -120,6 +90,40 @@ function TfsMaterial (data) {
   AuthFields.call(this);
 
   Common.call(this, data);
+}
+
+// Mixins
+
+function Common(data) {
+  Validatable.call(this, { errors: {} });
+
+  this.keys = (this.keys || []);
+
+  this.initialize = (data) => {
+    data = _.get(data, "material.attributes", {});
+
+    _.each(this.keys, (key) => {
+      this[key].init(data[key]);
+
+      if (this[key].opts("required")) {
+        this.validatePresenceOf(key);
+      }
+
+      if (this[key].opts("format")) {
+        const format = this[key].opts("format");
+        this.validateFormatOf(key, format instanceof RegExp ? { format } : format);
+      }
+    });
+  };
+
+  this.toJSON = () => _.reduce(this.keys, (memo, k) => {
+    memo[k] = this[k]();
+    return memo;
+  }, {});
+
+  this.clone = () => new this.constructor(data);
+
+  this.initialize(data);
 }
 
 function BaseFields() {

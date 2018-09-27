@@ -41,7 +41,7 @@ describe("Config Repo Materials", () => {
     o.name("merc");
     o.url("repo.hg");
 
-    expect(o.toJSON()).toEqual({name: "merc", url: "repo.hg", auto_update: true});
+    expect(o.toJSON()).toEqual({name: "merc", url: "repo.hg", auto_update: true}); // eslint-disable-line camelcase
   });
 
   it("instance clone() creates a deep copy", () => {

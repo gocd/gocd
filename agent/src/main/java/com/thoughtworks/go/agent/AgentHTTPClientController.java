@@ -27,6 +27,7 @@ import com.thoughtworks.go.plugin.access.pluggabletask.TaskExtension;
 import com.thoughtworks.go.plugin.access.scm.SCMExtension;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.plugin.infra.PluginRequestProcessorRegistry;
+import com.thoughtworks.go.plugin.infra.monitor.PluginJarLocationMonitor;
 import com.thoughtworks.go.publishers.GoArtifactsManipulator;
 import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.remote.AgentInstruction;
@@ -47,6 +48,7 @@ public class AgentHTTPClientController extends AgentController {
     private SslInfrastructureService sslInfrastructureService;
     private final ArtifactExtension artifactExtension;
     private final PluginRequestProcessorRegistry pluginRequestProcessorRegistry;
+    private final PluginJarLocationMonitor pluginJarLocationMonitor;
 
     private JobRunner runner;
     private PackageRepositoryExtension packageRepositoryExtension;
@@ -65,7 +67,10 @@ public class AgentHTTPClientController extends AgentController {
                                      PackageRepositoryExtension packageRepositoryExtension,
                                      SCMExtension scmExtension,
                                      TaskExtension taskExtension,
-                                     ArtifactExtension artifactExtension, PluginRequestProcessorRegistry pluginRequestProcessorRegistry, AgentHealthHolder agentHealthHolder) {
+                                     ArtifactExtension artifactExtension,
+                                     PluginRequestProcessorRegistry pluginRequestProcessorRegistry,
+                                     AgentHealthHolder agentHealthHolder,
+                                     PluginJarLocationMonitor pluginJarLocationMonitor) {
         super(sslInfrastructureService, systemEnvironment, agentRegistry, pluginManager, subprocessLogger, agentUpgradeService, agentHealthHolder);
         this.packageRepositoryExtension = packageRepositoryExtension;
         this.scmExtension = scmExtension;
@@ -75,6 +80,7 @@ public class AgentHTTPClientController extends AgentController {
         this.sslInfrastructureService = sslInfrastructureService;
         this.artifactExtension = artifactExtension;
         this.pluginRequestProcessorRegistry = pluginRequestProcessorRegistry;
+        this.pluginJarLocationMonitor = pluginJarLocationMonitor;
     }
 
     @Override
@@ -105,9 +111,13 @@ public class AgentHTTPClientController extends AgentController {
     @Override
     public void work() {
         LOG.debug("[Agent Loop] Trying to retrieve work.");
-        retrieveCookieIfNecessary();
-        retrieveWork();
-        LOG.debug("[Agent Loop] Successfully retrieved work.");
+        if (pluginJarLocationMonitor.getLastRun() > 0) {
+            retrieveCookieIfNecessary();
+            retrieveWork();
+            LOG.debug("[Agent Loop] Successfully retrieved work.");
+        } else {
+            LOG.debug("[Agent Loop] PluginLocationMonitor has not yet run. Not retrieving work since plugins may not be initialized.");
+        }
     }
 
     private void retrieveCookieIfNecessary() {

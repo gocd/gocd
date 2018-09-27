@@ -26,6 +26,7 @@ import com.thoughtworks.go.plugin.access.pluggabletask.TaskExtension;
 import com.thoughtworks.go.plugin.access.scm.SCMExtension;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.plugin.infra.PluginManagerReference;
+import com.thoughtworks.go.plugin.infra.monitor.PluginJarLocationMonitor;
 import com.thoughtworks.go.publishers.GoArtifactsManipulator;
 import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.remote.BuildRepositoryRemote;
@@ -43,6 +44,8 @@ import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+
+import java.io.IOException;
 
 import static com.thoughtworks.go.util.SystemUtil.getFirstLocalNonLoopbackIpAddress;
 import static com.thoughtworks.go.util.SystemUtil.getLocalhostName;
@@ -80,6 +83,8 @@ public class AgentHTTPClientControllerTest {
     private TaskExtension taskExtension;
     @Mock
     private ArtifactExtension artifactExtension;
+    @Mock
+    private PluginJarLocationMonitor pluginJarLocationMonitor;
     private String agentUuid = "uuid";
     private AgentIdentifier agentIdentifier;
     private AgentHTTPClientController agentController;
@@ -104,12 +109,24 @@ public class AgentHTTPClientControllerTest {
     public void shouldRetrieveWorkFromServerAndDoIt() throws Exception {
         when(loopServer.getWork(any(AgentRuntimeInfo.class))).thenReturn(work);
         when(agentRegistry.uuid()).thenReturn(agentUuid);
+        when(pluginJarLocationMonitor.getLastRun()).thenReturn(System.currentTimeMillis());
         agentController = createAgentController();
         agentController.init();
         agentController.ping();
-        agentController.retrieveWork();
+        agentController.work();
         verify(work).doWork(any(EnvironmentVariableContext.class), any(AgentWorkContext.class));
         verify(sslInfrastructureService).createSslInfrastructure();
+    }
+
+    @Test
+    public void shouldNotRetrieveWorkIfPluginMonitorHasNotRun() throws IOException {
+        when(agentRegistry.uuid()).thenReturn(agentUuid);
+        when(pluginJarLocationMonitor.getLastRun()).thenReturn(0L);
+        agentController = createAgentController();
+        agentController.init();
+        agentController.ping();
+        agentController.work();
+        verifyZeroInteractions(work);
     }
 
     @Test
@@ -121,6 +138,7 @@ public class AgentHTTPClientControllerTest {
         when(sslInfrastructureService.isRegistered()).thenReturn(true);
         when(loopServer.getWork(agentController.getAgentRuntimeInfo())).thenReturn(work);
         when(agentRegistry.uuid()).thenReturn(agentUuid);
+        when(pluginJarLocationMonitor.getLastRun()).thenReturn(System.currentTimeMillis());
         agentController.loop();
         verify(work).doWork(any(EnvironmentVariableContext.class), any(AgentWorkContext.class));
     }
@@ -140,7 +158,9 @@ public class AgentHTTPClientControllerTest {
     public void shouldRegisterSubprocessLoggerAtExit() throws Exception {
         SslInfrastructureService sslInfrastructureService = mock(SslInfrastructureService.class);
         AgentRegistry agentRegistry = mock(AgentRegistry.class);
-        agentController = new AgentHTTPClientController(loopServer, artifactsManipulator, sslInfrastructureService, agentRegistry, agentUpgradeService, subprocessLogger, systemEnvironment, pluginManager, packageRepositoryExtension, scmExtension, taskExtension, artifactExtension, null, null);
+        agentController = new AgentHTTPClientController(loopServer, artifactsManipulator, sslInfrastructureService,
+                agentRegistry, agentUpgradeService, subprocessLogger, systemEnvironment, pluginManager,
+                packageRepositoryExtension, scmExtension, taskExtension, artifactExtension, null, null, pluginJarLocationMonitor);
         agentController.init();
         verify(subprocessLogger).registerAsExitHook("Following processes were alive at shutdown: ");
     }
@@ -181,6 +201,6 @@ public class AgentHTTPClientControllerTest {
                 packageRepositoryExtension,
                 scmExtension,
                 taskExtension,
-                artifactExtension, null, null);
+                artifactExtension, null, null, pluginJarLocationMonitor);
     }
 }

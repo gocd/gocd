@@ -125,6 +125,8 @@ const Field = {
     const field = vm[k];
     const options = {model: vm, attrName: k, label: field.opts("display")};
 
+    if (field.opts("readOnly")) { options.disabled = true; }
+
     switch (field.opts("type")) {
       /* eslint-disable no-fallthrough */
       case "boolean":

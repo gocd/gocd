@@ -30,6 +30,7 @@ function ConfigRepoVM(data) {
   Validatable.call(this, { errors: {} });
 
   this.validatePresenceOf("id");
+  this.validateFormatOf("id", Validatable.DefaultOptions.forId("ID"));
   this.validatePresenceOf("pluginId");
   this.validatePresenceOf("type");
 

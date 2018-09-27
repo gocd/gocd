@@ -64,8 +64,7 @@ const MATERIAL_SELECTIONS = [
   { id: "hg", text: "Mercurial" },
   { id: "svn", text: "Subversion" },
   { id: "p4", text: "Perforce" },
-  { id: "tfs", text: "Team Foundation Server" },
-  { id: "package", text: "Package" }
+  { id: "tfs", text: "Team Foundation Server" }
 ];
 
 function CreateSupport(model, repos) {

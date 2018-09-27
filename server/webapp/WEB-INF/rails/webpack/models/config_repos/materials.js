@@ -17,6 +17,7 @@
 const _           = require("lodash");
 const Field       = require("models/config_repos/field");
 const Validatable = require("models/mixins/validatable_mixin");
+const fmt         = Validatable.DefaultOptions.forId;
 
 const Materials = {
   get(type, data) {
@@ -31,8 +32,6 @@ const Materials = {
         return new P4Material(data);
       case "tfs":
         return new TfsMaterial(data);
-      case "package":
-        return new PackageMaterial(data);
       default:
         throw new Error(`Unknown material type: ${type}`);
     }
@@ -55,7 +54,8 @@ function Common(data) {
       }
 
       if (this[key].opts("format")) {
-        this.validateFormatOf(key, {format: this[key].opts("format")});
+        const format = this[key].opts("format");
+        this.validateFormatOf(key, format instanceof RegExp ? { format } : format);
       }
     });
   };
@@ -71,64 +71,66 @@ function Common(data) {
 }
 
 function GitMaterial(data) {
-  Field.call(this, "name", {display: "Material name", required: false});
+  BaseFields.call(this);
+
   Field.call(this, "url");
   Field.call(this, "branch", {default: "master"});
-  Field.call(this, "auto_update", {display: "Auto-update changes", type: "boolean", default: true});
 
   Common.call(this, data);
 }
 
 function HgMaterial (data) {
-  Field.call(this, "name", {display: "Material name", required: false});
+  BaseFields.call(this);
+
   Field.call(this, "url");
-  Field.call(this, "auto_update", {display: "Auto-update changes", type: "boolean", default: true});
 
   Common.call(this, data);
 }
 
 function SvnMaterial (data) {
-  Field.call(this, "name", {display: "Material name", required: false});
+  BaseFields.call(this);
+
   Field.call(this, "url");
-  Field.call(this, "username", {required: false});
-  Field.call(this, "password", {type: "secret", required: false});
-  Field.call(this, "encrypted_password", {display: "Encrypted password", type: "secret", required: false});
-  Field.call(this, "auto_update", {display: "Auto-update changes", type: "boolean", default: true});
   Field.call(this, "check_externals", {display: "Check externals", type: "boolean", default: true});
+
+  AuthFields.call(this);
 
   Common.call(this, data);
 }
 
 function P4Material (data) {
-  Field.call(this, "name", {display: "Material name", required: false});
+  BaseFields.call(this);
+
   Field.call(this, "port");
   Field.call(this, "use_tickets", {display: "Use tickets", type: "boolean", default: false});
   Field.call(this, "view");
-  Field.call(this, "auto_update", {display: "Auto-update changes", type: "boolean", default: true});
-  Field.call(this, "username", {required: false});
-  Field.call(this, "password", {type: "secret", required: false});
-  Field.call(this, "encrypted_password", {display: "Encrypted Password", type: "secret", required: false});
+
+  AuthFields.call(this);
 
   Common.call(this, data);
 }
 
 function TfsMaterial (data) {
-  Field.call(this, "name", {display: "Material name", required: false});
+  BaseFields.call(this);
+
   Field.call(this, "url");
   Field.call(this, "project_path", {display: "Project path"});
   Field.call(this, "domain");
-  Field.call(this, "auto_update", {display: "Auto-update changes", type: "boolean", default: true});
-  Field.call(this, "username", {required: false});
-  Field.call(this, "password", {type: "secret", required: false});
-  Field.call(this, "encrypted_password", {display: "Encrypted password", type: "secret", required: false});
+
+  AuthFields.call(this);
 
   Common.call(this, data);
 }
 
-function PackageMaterial (data) {
-  Field.call(this, "ref");
+function BaseFields() {
+  Field.call(this, "name", {display: "Material name", required: false, format: fmt("Name")});
+  Field.call(this, "auto_update", {display: "Auto-update changes", type: "boolean", default: true, readOnly: true});
+}
 
-  Common.call(this, data);
+function AuthFields() {
+  Field.call(this, "username", {required: false});
+  Field.call(this, "password", {type: "secret", required: false});
+  Field.call(this, "encrypted_password", {display: "Encrypted password", type: "secret", required: false});
 }
 
 Materials.Field = Field;

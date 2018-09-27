@@ -81,8 +81,8 @@ const ConfigRepo = {
     return <li>
       <h3>{repo.type()} repo: {repo.id()}</h3>
       <h5>Plugin: {repo.pluginId()}</h5>
-      <ActionBar vm={vm} repo={repo} isEdit={isEdit} />
       <MaterialAttributes material={repo.attributes()} isEdit={isEdit} />
+      <ActionBar vm={vm} repo={repo} isEdit={isEdit} />
     </li>;
   }
 };
@@ -94,9 +94,9 @@ const ActionBar = {
     const isEdit = vnode.attrs.isEdit;
 
     if (isEdit) {
-      return [<button onclick={() => vm.exitEditMode()}>Cancel</button>, <button onclick={() => vm.updateRepo(repo).then(() => vm.exitEditMode())}>Save</button>];
+      return m("div", {class: "config-repo-actions"}, [<button onclick={() => vm.exitEditMode()}>Cancel</button>, <button onclick={() => vm.updateRepo(repo).then(() => vm.exitEditMode())}>Save</button>]);
     } else {
-      return [<button onclick={() => vm.enterEditMode(repo)}>Edit</button>, <button onclick={() => vm.removeRepo(repo)}>Delete</button>];
+      return m("div", {class: "config-repo-actions"}, [<button onclick={() => vm.enterEditMode(repo)}>Edit</button>, <button onclick={() => vm.removeRepo(repo)}>Delete</button>]);
     }
   }
 };

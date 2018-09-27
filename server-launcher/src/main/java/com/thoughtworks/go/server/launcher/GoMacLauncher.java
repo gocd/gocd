@@ -71,7 +71,7 @@ public class GoMacLauncher extends JFrame {
 
         String startMem = System.getProperty("cruise.server.mem", "512");
         String maxMem = System.getProperty("cruise.server.maxmem", "1024");
-        String maxPerm = System.getProperty("cruise.server.maxpermgen", "256");
+        String maxPerm = System.getProperty("cruise.server.maxpermgen", "400");
         String lang = System.getProperty("cruise.server.lang", "en");
         String country = System.getProperty("cruise.server.country", "US");
         boolean dbDebugMode = System.getProperty("cruise.server.db_debug_mode") != null;

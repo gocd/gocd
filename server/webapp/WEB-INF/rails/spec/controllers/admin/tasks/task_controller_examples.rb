@@ -1,5 +1,5 @@
 ##########################GO-LICENSE-START################################
-# Copyright 2014 ThoughtWorks, Inc.
+# Copyright 2018 ThoughtWorks, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
 # limitations under the License.
 ##########################GO-LICENSE-END##################################
 
-shared_examples_for :task_controller  do
+shared_examples_for :task_controller do
   include ConfigSaveStubbing
   include TaskMother
   include MiscSpecExtensions
@@ -22,21 +22,21 @@ shared_examples_for :task_controller  do
   describe "routes" do
     describe "index" do
       it "should resolve templates as :stage_parent" do
-        expect({:get => "/admin/templates/dev.foo/stages/test.bar/job/job-1.baz/tasks"}).to route_to(:controller => "admin/tasks", :action => "index", :stage_parent=>"templates", :pipeline_name=>"dev.foo", :stage_name=>"test.bar", :job_name=>"job-1.baz", :current_tab=>"tasks")
+        expect({:get => "/admin/templates/dev.foo/stages/test.bar/job/job-1.baz/tasks"}).to route_to(:controller => "admin/tasks", :action => "index", :stage_parent => "templates", :pipeline_name => "dev.foo", :stage_name => "test.bar", :job_name => "job-1.baz", :current_tab => "tasks")
       end
 
       it "should resolve" do
-        expect({:get => "/admin/pipelines/dev.foo/stages/test.bar/job/job-1.baz/tasks"}).to route_to(:controller => "admin/tasks", :action => "index", :pipeline_name => "dev.foo", :stage_name => "test.bar", :job_name => "job-1.baz", :stage_parent => "pipelines", :current_tab=>"tasks")
+        expect({:get => "/admin/pipelines/dev.foo/stages/test.bar/job/job-1.baz/tasks"}).to route_to(:controller => "admin/tasks", :action => "index", :pipeline_name => "dev.foo", :stage_name => "test.bar", :job_name => "job-1.baz", :stage_parent => "pipelines", :current_tab => "tasks")
       end
 
       it "should generate" do
-        expect(admin_tasks_listing_path(:pipeline_name => "foo.bar", :stage_name => "baz", :job_name => "quux", :stage_parent => "pipelines", :current_tab=>"tasks")).to eq("/admin/pipelines/foo.bar/stages/baz/job/quux/tasks")
+        expect(admin_tasks_listing_path(:pipeline_name => "foo.bar", :stage_name => "baz", :job_name => "quux", :stage_parent => "pipelines", :current_tab => "tasks")).to eq("/admin/pipelines/foo.bar/stages/baz/job/quux/tasks")
       end
     end
 
     describe "increment_index" do
       it "should resolve" do
-        expect({:post => "/admin/pipelines/dev.foo/stages/test.bar/job/job-1.baz/task/1/index/increment"}).to route_to(:controller => "admin/tasks", :action => "increment_index", :pipeline_name => "dev.foo", :stage_name => "test.bar", :job_name => "job-1.baz", :task_index => "1", :stage_parent => "pipelines", :current_tab=>"tasks")
+        expect({:post => "/admin/pipelines/dev.foo/stages/test.bar/job/job-1.baz/task/1/index/increment"}).to route_to(:controller => "admin/tasks", :action => "increment_index", :pipeline_name => "dev.foo", :stage_name => "test.bar", :job_name => "job-1.baz", :task_index => "1", :stage_parent => "pipelines", :current_tab => "tasks")
       end
 
       it "should generate" do
@@ -46,7 +46,7 @@ shared_examples_for :task_controller  do
 
     describe "decrement_index" do
       it "should resolve" do
-        expect({:post => "/admin/pipelines/dev.foo/stages/test.bar/job/job-1.baz/task/1/index/decrement"}).to route_to(:controller => "admin/tasks", :action => "decrement_index", :pipeline_name => "dev.foo", :stage_name => "test.bar", :job_name => "job-1.baz", :task_index => "1", :stage_parent => "pipelines", :current_tab=>"tasks")
+        expect({:post => "/admin/pipelines/dev.foo/stages/test.bar/job/job-1.baz/task/1/index/decrement"}).to route_to(:controller => "admin/tasks", :action => "decrement_index", :pipeline_name => "dev.foo", :stage_name => "test.bar", :job_name => "job-1.baz", :task_index => "1", :stage_parent => "pipelines", :current_tab => "tasks")
       end
 
       it "should generate" do
@@ -56,11 +56,11 @@ shared_examples_for :task_controller  do
 
     describe "edit" do
       it "should resolve" do
-        expect({:get => "/admin/pipelines/dev.foo/stages/test.bar/job/job-1.baz/tasks/#{@task_type}/1/edit"}).to route_to(:controller => "admin/tasks", :action => "edit", :pipeline_name => "dev.foo", :stage_name => "test.bar", :job_name => "job-1.baz", :task_index => "1", :type => "#{@task_type}", :stage_parent => "pipelines", :current_tab=>"tasks")
+        expect({:get => "/admin/pipelines/dev.foo/stages/test.bar/job/job-1.baz/tasks/#{@task_type}/1/edit"}).to route_to(:controller => "admin/tasks", :action => "edit", :pipeline_name => "dev.foo", :stage_name => "test.bar", :job_name => "job-1.baz", :task_index => "1", :type => "#{@task_type}", :stage_parent => "pipelines", :current_tab => "tasks")
       end
 
       it "should generate" do
-        expect(admin_task_edit_path(:pipeline_name => "foo.bar", :stage_name => "baz", :job_name => "quux", :task_index => 2, :type=> "#{@task_type}", :stage_parent => "pipelines")).to eq("/admin/pipelines/foo.bar/stages/baz/job/quux/tasks/#{@task_type}/2/edit")
+        expect(admin_task_edit_path(:pipeline_name => "foo.bar", :stage_name => "baz", :job_name => "quux", :task_index => 2, :type => "#{@task_type}", :stage_parent => "pipelines")).to eq("/admin/pipelines/foo.bar/stages/baz/job/quux/tasks/#{@task_type}/2/edit")
       end
 
       it "should only accept numerical task_index(s)" do
@@ -71,7 +71,7 @@ shared_examples_for :task_controller  do
 
     describe "delete" do
       it "should resolve" do
-        expect({:delete => "/admin/pipelines/dev.foo/stages/test.bar/job/job-1.baz/tasks/1"}).to route_to(:controller => "admin/tasks", :action => "destroy", :pipeline_name => "dev.foo", :stage_name => "test.bar", :job_name => "job-1.baz", :task_index => "1", :stage_parent => "pipelines", :current_tab=>"tasks")
+        expect({:delete => "/admin/pipelines/dev.foo/stages/test.bar/job/job-1.baz/tasks/1"}).to route_to(:controller => "admin/tasks", :action => "destroy", :pipeline_name => "dev.foo", :stage_name => "test.bar", :job_name => "job-1.baz", :task_index => "1", :stage_parent => "pipelines", :current_tab => "tasks")
       end
 
       it "should generate" do
@@ -85,7 +85,7 @@ shared_examples_for :task_controller  do
 
     describe "update" do
       it "should resolve" do
-        expect({:put => "/admin/pipelines/dev.foo/stages/test.bar/job/job-1.baz/tasks/#{@task_type}/1"}).to route_to(:controller => "admin/tasks", :action => "update", :pipeline_name => "dev.foo", :stage_name => "test.bar", :job_name => "job-1.baz", :task_index => "1", :type=> "#{@task_type}", :stage_parent => "pipelines", :current_tab=>"tasks")
+        expect({:put => "/admin/pipelines/dev.foo/stages/test.bar/job/job-1.baz/tasks/#{@task_type}/1"}).to route_to(:controller => "admin/tasks", :action => "update", :pipeline_name => "dev.foo", :stage_name => "test.bar", :job_name => "job-1.baz", :task_index => "1", :type => "#{@task_type}", :stage_parent => "pipelines", :current_tab => "tasks")
       end
 
       it "should generate" do
@@ -96,7 +96,7 @@ shared_examples_for :task_controller  do
 
     describe "new" do
       it "should resolve" do
-        expect({:get => "/admin/pipelines/dev.foo/stages/test.bar/job/job-1.baz/tasks/#{@task_type}/new"}).to route_to(:controller => "admin/tasks", :action => "new", :pipeline_name => "dev.foo", :stage_name => "test.bar", :job_name => "job-1.baz", :type  => "#{@task_type}", :stage_parent => "pipelines", :current_tab=>"tasks")
+        expect({:get => "/admin/pipelines/dev.foo/stages/test.bar/job/job-1.baz/tasks/#{@task_type}/new"}).to route_to(:controller => "admin/tasks", :action => "new", :pipeline_name => "dev.foo", :stage_name => "test.bar", :job_name => "job-1.baz", :type => "#{@task_type}", :stage_parent => "pipelines", :current_tab => "tasks")
       end
 
       it "should generate" do
@@ -107,7 +107,7 @@ shared_examples_for :task_controller  do
 
     describe "create" do
       it "should resolve" do
-        expect({:post => "/admin/pipelines/dev.foo/stages/test.bar/job/job-1.baz/tasks/#{@task_type}"}).to route_to(:controller => "admin/tasks", :action => "create", :pipeline_name => "dev.foo", :stage_name => "test.bar", :job_name => "job-1.baz", :type  => "#{@task_type}", :stage_parent => "pipelines", :current_tab=>"tasks")
+        expect({:post => "/admin/pipelines/dev.foo/stages/test.bar/job/job-1.baz/tasks/#{@task_type}"}).to route_to(:controller => "admin/tasks", :action => "create", :pipeline_name => "dev.foo", :stage_name => "test.bar", :job_name => "job-1.baz", :type => "#{@task_type}", :stage_parent => "pipelines", :current_tab => "tasks")
       end
 
       it "should generate" do
@@ -140,6 +140,8 @@ shared_examples_for :task_controller  do
       @pause_info = PipelinePauseInfo.paused("just for fun", "loser")
       allow(@go_config_service).to receive(:registry).and_return(MockRegistryModule::MockRegistry.new)
       allow(@go_config_service).to receive(:artifactIdToPluginIdForFetchPluggableArtifact).and_return({})
+      allow(@go_config_service).to receive(:pipelineConfigNamed).with(an_instance_of(CaseInsensitiveString)).and_return(@pipeline)
+      allow(@go_config_service).to receive(:getCurrentConfig).and_return(@cruise_config)
       @pluggable_task_service = stub_service(:pluggable_task_service)
       @config_store = double('config store')
       allow(@controller).to receive(:config_store).and_return(@config_store)
@@ -149,7 +151,7 @@ shared_examples_for :task_controller  do
       it "should delete a given task from a job" do
         expect(@pipeline_pause_service).to receive(:pipelinePauseInfo).with("pipeline.name").and_return(@pause_info)
         stub_save_for_success
-        delete :destroy, params:{:pipeline_name => "pipeline.name", :stage_name => "stage.name", :job_name => "job.1", :task_index => "0", :config_md5 => "abcd1234", :stage_parent => 'pipelines', :current_tab=>"tasks"}
+        delete :destroy, params: {:pipeline_name => "pipeline.name", :stage_name => "stage.name", :job_name => "job.1", :task_index => "0", :config_md5 => "abcd1234", :stage_parent => 'pipelines', :current_tab => "tasks"}
         tasks = @pipeline.get(0).getJobs().get(0).getTasks()
         expect(tasks.size()).to eq(0)
         assert_update_command ::ConfigUpdate::SaveAsPipelineOrTemplateAdmin, ::ConfigUpdate::JobNode, ::ConfigUpdate::JobTaskSubject
@@ -157,7 +159,7 @@ shared_examples_for :task_controller  do
 
       it "should delete a given task from a job in template" do
         stub_save_for_success
-        delete :destroy, params:{:pipeline_name => "template.name", :stage_name => "stage_one", :job_name => "job", :task_index => "1", :config_md5 => "abcd1234", :stage_parent => 'templates', :current_tab=>"tasks"}
+        delete :destroy, params: {:pipeline_name => "template.name", :stage_name => "stage_one", :job_name => "job", :task_index => "1", :config_md5 => "abcd1234", :stage_parent => 'templates', :current_tab => "tasks"}
         tasks = @template.get(0).getJobs().get(0).getTasks()
         expect(tasks.size()).to eq(1)
         assert_update_command ::ConfigUpdate::SaveAsPipelineOrTemplateAdmin, ::ConfigUpdate::JobNode, ::ConfigUpdate::JobTaskSubject
@@ -177,7 +179,7 @@ shared_examples_for :task_controller  do
         expect(@task_view_service).to receive(:getOnCancelTaskViewModels).with(@example_task).and_return(@on_cancel_task_vms)
         expect(@task_view_service).to receive(:getViewModel).with(@example_task, "edit").and_return(vm_template_for(@example_task))
 
-        get :edit, params:{:pipeline_name => "pipeline.name", :stage_name => "stage.name", :job_name => "job.1", :task_index => "0", :config_md5 => "abcd1234", :type => @task_type, :stage_parent => "pipelines", :current_tab=>"tasks"}
+        get :edit, params: {:pipeline_name => "pipeline.name", :stage_name => "stage.name", :job_name => "job.1", :task_index => "0", :config_md5 => "abcd1234", :type => @task_type, :stage_parent => "pipelines", :current_tab => "tasks"}
 
         expect(assigns[:task]).to eq(@example_task)
         expect(assigns[:on_cancel_task_vms]).to eq(@on_cancel_task_vms)
@@ -192,32 +194,32 @@ shared_examples_for :task_controller  do
       before :each do
         expect(@go_config_service).to receive(:loadForEdit).with("pipeline.name", @user, @result).and_return(@pipeline_config_for_edit)
         expect(@pipeline_pause_service).to receive(:pipelinePauseInfo).with("pipeline.name").and_return(@pause_info)
-        expect(@pluggable_task_service).to receive(:validate) if(@new_task.instance_of? com.thoughtworks.go.config.pluggabletask.PluggableTask)
+        expect(@pluggable_task_service).to receive(:validate) if (@new_task.instance_of? com.thoughtworks.go.config.pluggabletask.PluggableTask)
       end
 
       it "should update a given task" do
         stub_config_save_with_subject(@subject)
 
-        put :update, params:{:pipeline_name => "pipeline.name", :stage_name => "stage.name", :job_name => "job.1", :task_index => "0", :config_md5 => "abcd1234", :type => @task_type, :task => @updated_payload, :stage_parent => "pipelines", :current_tab=>"tasks"}
+        put :update, params: {:pipeline_name => "pipeline.name", :stage_name => "stage.name", :job_name => "job.1", :task_index => "0", :config_md5 => "abcd1234", :type => @task_type, :task => @updated_payload, :stage_parent => "pipelines", :current_tab => "tasks"}
 
-        expect(assigns[:task]).to eq(@updated_task)
+        expect(assigns[:task]).to eq(expected_task(@updated_task))
         expect(response.status).to eq(200)
 
         assert_update_command ::ConfigUpdate::SaveAsPipelineOrTemplateAdmin, ::ConfigUpdate::JobNode, ::ConfigUpdate::JobTaskSubject
       end
 
       it "should update a given task with on cancel" do
-        @subject.setCancelTask(ant_task("cancelFile","cancelTarget","anotherWD"))
+        @subject.setCancelTask(ant_task("cancelFile", "cancelTarget", "anotherWD"))
         stub_config_save_with_subject(@subject)
 
         updated_payload_with_on_cancel = {:hasCancelTask => '1',
-                                              :onCancelConfig => {:onCancelOption => 'ant', :antOnCancel => {:buildFile => "cancelFile", :target => "cancelTarget", :workingDirectory => "anotherWD"}}}
+                                          :onCancelConfig => {:onCancelOption => 'ant', :antOnCancel => {:buildFile => "cancelFile", :target => "cancelTarget", :workingDirectory => "anotherWD"}}}
         @updated_payload.merge!(updated_payload_with_on_cancel)
-        @updated_task.setCancelTask(ant_task("cancelFile","cancelTarget","anotherWD"))
+        @updated_task.setCancelTask(ant_task("cancelFile", "cancelTarget", "anotherWD"))
 
-        put :update, params:{:pipeline_name => "pipeline.name", :stage_name => "stage.name", :job_name => "job.1", :task_index => "0", :config_md5 => "abcd1234", :type => @task_type, :task => @updated_payload, :stage_parent => "pipelines", :current_tab=>"tasks"}
+        put :update, params: {:pipeline_name => "pipeline.name", :stage_name => "stage.name", :job_name => "job.1", :task_index => "0", :config_md5 => "abcd1234", :type => @task_type, :task => @updated_payload, :stage_parent => "pipelines", :current_tab => "tasks"}
 
-        expect(assigns[:task]).to eq(@updated_task)
+        expect(assigns[:task]).to eq(expected_task(@updated_task))
         expect(response.status).to eq(200)
 
         assert_update_command ::ConfigUpdate::SaveAsPipelineOrTemplateAdmin, ::ConfigUpdate::JobNode, ::ConfigUpdate::JobTaskSubject
@@ -234,8 +236,9 @@ shared_examples_for :task_controller  do
         controller_specific_setup task_view_service
         on_cancel_task_vms = java.util.Arrays.asList([vm_template_for(exec_task('rm')), vm_template_for(ant_task), vm_template_for(nant_task), vm_template_for(rake_task), vm_template_for(fetch_task_with_exec_on_cancel_task)].to_java(TaskViewModel))
         expect(task_view_service).to receive(:getOnCancelTaskViewModels).with(@updated_task).and_return(on_cancel_task_vms)
+        allow(task_view_service).to receive(:taskInstanceFor).with(@updated_task.getTaskType).and_return(@updated_task)
 
-        put :update, params:{:pipeline_name => "pipeline.name", :stage_name => "stage.name", :job_name => "job.1", :task_index => "0", :config_md5 => "1234abcd", :type => @task_type, :task => @updated_payload, :stage_parent => "pipelines", :current_tab=>"tasks"}
+        put :update, params: {:pipeline_name => "pipeline.name", :stage_name => "stage.name", :job_name => "job.1", :task_index => "0", :config_md5 => "1234abcd", :type => @task_type, :task => @updated_payload, :stage_parent => "pipelines", :current_tab => "tasks"}
 
         expect(assigns[:errors].size).to eq(1)
         expect(assigns[:on_cancel_task_vms]).to eq(on_cancel_task_vms)
@@ -261,7 +264,7 @@ shared_examples_for :task_controller  do
         expect(@task_view_service).to receive(:taskInstanceFor).with(an_instance_of(String)).and_return(@new_task)
         expect(@task_view_service).to receive(:getViewModel).with(@new_task, "new").and_return(vm_template_for(@new_task))
 
-        get :new, params:{:pipeline_name => "pipeline.name", :stage_name => "stage.name", :job_name => "job.1", :config_md5 => "abcd1234", :type => @task_type, :stage_parent => "pipelines", :current_tab=>"tasks"}
+        get :new, params: {:pipeline_name => "pipeline.name", :stage_name => "stage.name", :job_name => "job.1", :config_md5 => "abcd1234", :type => @task_type, :stage_parent => "pipelines", :current_tab => "tasks"}
         expect(assigns[:task]).to eq(@new_task)
         expect(assigns[:on_cancel_task_vms]).to eq(@on_cancel_task_vms)
         expect(response.status).to eq(200)
@@ -277,13 +280,13 @@ shared_examples_for :task_controller  do
         @task_view_service = stub_service(:task_view_service)
         expect(@task_view_service).to receive(:taskInstanceFor).with(@task_type).and_return(@new_task)
         controller_specific_setup(@task_view_service)
-        expect(@pluggable_task_service).to receive(:validate) if(@new_task.instance_of? com.thoughtworks.go.config.pluggabletask.PluggableTask)
+        expect(@pluggable_task_service).to receive(:validate) if (@new_task.instance_of? com.thoughtworks.go.config.pluggabletask.PluggableTask)
       end
 
       it "should create a task" do
         stub_config_save_with_subject(@created_task)
 
-        post :create, params:{:pipeline_name => "pipeline.name", :stage_name => "stage.name", :job_name => "job.1", :type => @task_type, :config_md5 => "abcd1234", :task => @create_payload, :stage_parent => "pipelines", :current_tab=>"tasks"}
+        post :create, params: {:pipeline_name => "pipeline.name", :stage_name => "stage.name", :job_name => "job.1", :type => @task_type, :config_md5 => "abcd1234", :task => @create_payload, :stage_parent => "pipelines", :current_tab => "tasks"}
 
         expect(@tasks.length).to eq(2)
         expect(assigns[:task]).to eq(@created_task)
@@ -303,7 +306,7 @@ shared_examples_for :task_controller  do
         @on_cancel_task_vms = java.util.Arrays.asList([vm_template_for(exec_task('rm')), vm_template_for(ant_task), vm_template_for(nant_task), vm_template_for(rake_task), vm_template_for(fetch_task_with_exec_on_cancel_task)].to_java(TaskViewModel))
         expect(@task_view_service).to receive(:getOnCancelTaskViewModels).with(@created_task).and_return(@on_cancel_task_vms)
 
-        post :create, params:{:pipeline_name => "pipeline.name", :stage_name => "stage.name", :job_name => "job.1", :type => @task_type, :config_md5 => "1234abcd", :task => @create_payload, :stage_parent => "pipelines", :current_tab=>"tasks"}
+        post :create, params: {:pipeline_name => "pipeline.name", :stage_name => "stage.name", :job_name => "job.1", :type => @task_type, :config_md5 => "1234abcd", :task => @create_payload, :stage_parent => "pipelines", :current_tab => "tasks"}
 
         expect(assigns[:errors].size).to eq(1)
         expect(assigns[:on_cancel_task_vms]).to eq(@on_cancel_task_vms)
@@ -320,5 +323,10 @@ shared_examples_for :task_controller  do
   def vm_template_for task
     return vm_for task unless (task.instance_of? PluggableTask)
     PluggableTaskViewModelFactory.new().viewModelFor(task, "edit")
+  end
+
+  def expected_task(task)
+    return task unless task.instance_of?(FetchTaskAdapter)
+    task.getAppropriateTask
   end
 end

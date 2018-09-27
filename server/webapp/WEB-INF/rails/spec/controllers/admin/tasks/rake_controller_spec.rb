@@ -1,5 +1,5 @@
 ##########################GO-LICENSE-START################################
-# Copyright 2014 ThoughtWorks, Inc.
+# Copyright 2018 ThoughtWorks, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -36,5 +36,6 @@ describe Admin::TasksController do
   it_should_behave_like :task_controller
 
   def controller_specific_setup task_view_service
+    allow(task_view_service).to receive(:taskInstanceFor).with("rake").and_return(@example_task)
   end
 end

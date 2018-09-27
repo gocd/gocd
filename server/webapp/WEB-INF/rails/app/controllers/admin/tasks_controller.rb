@@ -54,70 +54,80 @@ module Admin
       assert_load :task, task_view_service.taskInstanceFor(type)
       @task.setSelectedTaskType(params[:task][:selectedTaskType]) if 'fetch'.eql?(type)
       @task.setConfigAttributes(params[:task], task_view_service)
-      create_failure_handler = proc do |result, all_errors|
-        @errors = flatten_all_errors(all_errors)
-        @task_view_model = task_view_service.getViewModel(@task, 'new')
-        @on_cancel_task_vms = task_view_service.getOnCancelTaskViewModels(@task)
-        @config_store = config_store
-        render :template => "/admin/tasks/plugin/new", :status => result.httpCode(), :layout => false
-      end
+      stage_parent_config = stage_parent_config(params[:stage_parent], params[:pipeline_name])
+      action = TaskSaveOrUpdateAction.new('new', params, current_user.getUsername(), security_service, @task, pluggable_task_service, external_artifacts_service, stage_parent_config, go_config_service)
 
-      stage_parent = params[:stage_parent]
-
-      save_popup(params[:config_md5], Class.new(::ConfigUpdate::SaveAsPipelineOrTemplateAdmin) do
-        include ::ConfigUpdate::JobNode
-
-        def initialize params, user, security_service, task, pluggable_task_service, external_artifacts_service, go_config_service, stage_parent, pipeline_name
-          super(params, user, security_service)
-          @task = task
-          @pluggable_task_service = pluggable_task_service
-          @external_artifacts_service = external_artifacts_service
-          @go_config_service = go_config_service
-          @stage_parent = stage_parent
-          @pipeline_or_template_name = pipeline_name
-        end
-
-        def subject(job)
-          if @task.is_a?(com.thoughtworks.go.config.AbstractFetchTask)
-            return com.thoughtworks.go.config.FetchTaskAdapter.new(@task)
-          end
-          @task
-        end
-
-        def update(job)
-          if @task.is_a?(com.thoughtworks.go.config.FetchTaskAdapter)
-            job.addTask(@task.getAppropriateTask)
-          else
-            job.addTask(@task)
-          end
-          @pluggable_task_service.validate(@task) if @task.instance_of? com.thoughtworks.go.config.pluggabletask.PluggableTask
-          @pluggable_task_service.validate(@task.cancelTask()) if (!@task.cancelTask().nil?) && (@task.cancelTask().instance_of? com.thoughtworks.go.config.pluggabletask.PluggableTask)
-          if @task.instance_of? com.thoughtworks.go.config.FetchPluggableArtifactTask
-            stage_parent_config = stageParentConfig
-            if stage_parent_config
-              # need not call validate on oncancel task as it can't be fetch task from the UI.
-              # The task or the config is not preprocessed. So, it may be that for some cases, the plugin validations are deferred to runtime
-              @external_artifacts_service.validateFetchExternalArtifactTask(@task, stage_parent_config, @go_config_service.getCurrentConfig())
-
-            end
-          end
-        end
-
-        def stageParentConfig
-          if 'pipelines'.eql?(@stage_parent)
-            parent_config = go_config_service.pipelineConfigNamed(CaseInsensitiveString.new(@pipeline_or_template_name))
-          else
-            parent_config = go_config_service.templateConfigNamed(CaseInsensitiveString.new(@pipeline_or_template_name))
-          end
-          parent_config
-        end
-
-      end.new(params, current_user.getUsername(), security_service, @task, pluggable_task_service, external_artifacts_service, go_config_service, params[:stage_parent], params[:pipeline_name]), create_failure_handler, {:controller => '/admin/tasks', :current_tab => params[:current_tab]}) do
+      failure_handler = action_failure_handler(@task, 'new')
+      save_popup(params[:config_md5], action, failure_handler, {:controller => '/admin/tasks', :current_tab => params[:current_tab]}) do
         assert_load :job, @node
         assert_load :task, @subject
         assert_load :artifact_plugin_to_fetch_view, default_plugin_info_finder.pluginIdToFetchViewTemplate()
         assert_load :artifact_id_to_plugin_id, go_config_service.artifactIdToPluginIdForFetchPluggableArtifact(params[:stage_parent], params[:pipeline_name], params[:stage_name]).to_hash
         load_modify_task_variables
+      end
+    end
+
+    def action_failure_handler(task, action)
+      failure_handler = proc do |result, all_errors|
+        @errors = flatten_all_errors(all_errors)
+        @task_view_model = task_view_service.getViewModel(task, action)
+        @on_cancel_task_vms = task_view_service.getOnCancelTaskViewModels(task)
+        @config_store = config_store
+        render :template => "/admin/tasks/plugin/#{action}", :status => result.httpCode(), :layout => false
+      end
+      failure_handler
+    end
+
+    class TaskSaveOrUpdateAction < ::ConfigUpdate::SaveAsPipelineOrTemplateAdmin
+      include ::ConfigUpdate::JobNode
+      include ::ConfigUpdate::JobTaskSubject
+
+      def initialize action, params, user, security_service, task, pluggable_task_service, external_artifacts_service, stage_parent_config, go_config_service
+        super(params, user, security_service)
+        @action = action
+        @task = get_task(task)
+        @pluggable_task_service = pluggable_task_service
+        @external_artifacts_service = external_artifacts_service
+        @go_config_service = go_config_service
+        @stage_parent_config = stage_parent_config
+      end
+
+      def subject(job)
+        if @task.is_a?(com.thoughtworks.go.config.AbstractFetchTask)
+          return com.thoughtworks.go.config.FetchTaskAdapter.new(@task)
+        end
+        @task
+      end
+
+      def update(job)
+        job.addTask(@task) if @action == 'new'
+        job.getTasks().replace(task_index, @task) if @action == 'edit'
+
+        @pluggable_task_service.validate(@task) if @task.instance_of? com.thoughtworks.go.config.pluggabletask.PluggableTask
+        @pluggable_task_service.validate(@task.cancelTask()) if (!@task.cancelTask().nil?) && (@task.cancelTask().instance_of? com.thoughtworks.go.config.pluggabletask.PluggableTask)
+        if @task.instance_of?(com.thoughtworks.go.config.FetchPluggableArtifactTask)
+          if @stage_parent_config
+            # need not call validate on oncancel task as it can't be fetch task from the UI.
+            # The task or the config is not preprocessed. So, it may be that for some cases, the plugin validations are deferred to runtime
+            @external_artifacts_service.validateFetchExternalArtifactTask(@task, @stage_parent_config, @go_config_service.getCurrentConfig())
+          end
+        end
+      end
+
+
+      private
+
+      def get_task(task)
+        return task.getAppropriateTask if task.is_a?(com.thoughtworks.go.config.FetchTaskAdapter)
+        task
+      end
+    end
+
+    def stage_parent_config(stage_parent, pipeline_or_template_name)
+      if 'pipelines'.eql?(stage_parent)
+        go_config_service.pipelineConfigNamed(CaseInsensitiveString.new(pipeline_or_template_name))
+      else
+        go_config_service.templateConfigNamed(CaseInsensitiveString.new(pipeline_or_template_name))
       end
     end
 
@@ -138,63 +148,18 @@ module Admin
     end
 
     def update
-      update_failure_handler = proc do |result, all_errors|
-        @errors = flatten_all_errors(all_errors)
-        @task_view_model = task_view_service.getViewModel(@task, 'edit')
-        @on_cancel_task_vms = task_view_service.getOnCancelTaskViewModels(@task)
-        @config_store = config_store
-        render :template => "/admin/tasks/plugin/edit", :status => result.httpCode(), :layout => false
-      end
-      save_popup(params[:config_md5], Class.new(::ConfigUpdate::SaveAsPipelineOrTemplateAdmin) do
-        include ::ConfigUpdate::JobNode
-        include ::ConfigUpdate::JobTaskSubject
+      type = params[:type]
+      assert_load :task, task_view_service.taskInstanceFor(type)
+      @task.setSelectedTaskType(params[:task][:selectedTaskType]) if 'fetch'.eql?(type)
+      @task.setConfigAttributes(params[:task], task_view_service)
 
-        def initialize(params, user, security_service, task_view_service, pluggable_task_service, external_artifacts_service, go_config_service, stage_parent, pipeline_name)
-          super(params, user, security_service)
-          @task_view_service = task_view_service
-          @pluggable_task_service = pluggable_task_service
-          @external_artifacts_service = external_artifacts_service
-          @go_config_service = go_config_service
-          @stage_parent = stage_parent
-          @pipeline_or_template_name = pipeline_name
-        end
+      stage_parent_config = stage_parent_config(params[:stage_parent], params[:pipeline_name])
+      update_action = TaskSaveOrUpdateAction.new('edit', params, current_user.getUsername(), security_service, @task, pluggable_task_service, external_artifacts_service, stage_parent_config, go_config_service)
 
-        def update(job)
-          task = job.getTasksForView()[task_index]
-          if task.is_a?(com.thoughtworks.go.config.FetchTaskAdapter)
-            if params[:task]['selectedTaskType'] == 'gocd'
-              task = com.thoughtworks.go.config.FetchTask.new
-            elsif params[:task]['selectedTaskType'] == 'external'
-              task = com.thoughtworks.go.config.FetchPluggableArtifactTask.new
-            end
-          end
-          task.setConfigAttributes(params[:task], @task_view_service)
-          @pluggable_task_service.validate(task) if task.instance_of? com.thoughtworks.go.config.pluggabletask.PluggableTask
-          @pluggable_task_service.validate(task.cancelTask()) if (!task.cancelTask().nil?) && (task.cancelTask().instance_of? com.thoughtworks.go.config.pluggabletask.PluggableTask)
-          if @task.instance_of? com.thoughtworks.go.config.FetchPluggableArtifactTask
-            stage_parent_config = stageParentConfig
-            if stage_parent_config
-              # need not call validate on oncancel task as it can't be fetch task from the UI.
-              # The task or the config is not preprocessed. So, it may be that for some cases, the plugin validations are deferred to runtime
-              @external_artifacts_service.validateFetchExternalArtifactTask(@task, stage_parent_config, @go_config_service.getCurrentConfig())
-            end
-          end
-          job.getTasks().replace(task_index, task)
-        end
-
-        def stageParentConfig
-          if 'pipelines'.eql?(@stage_parent)
-            parent_config = go_config_service.pipelineConfigNamed(CaseInsensitiveString.new(@pipeline_or_template_name))
-          else
-            parent_config = go_config_service.templateConfigNamed(CaseInsensitiveString.new(@pipeline_or_template_name))
-          end
-          parent_config
-        end
-
-      end.new(params, current_user.getUsername(), security_service, task_view_service, pluggable_task_service, external_artifacts_service, go_config_service, params[:stage_parent], params[:pipeline_name]), update_failure_handler, {:controller => '/admin/tasks', :current_tab => params[:current_tab]}) do
-        assert_load :task, adapt_fetch_task_if_needed(@subject)
+      save_popup(params[:config_md5], update_action, action_failure_handler(@task, 'edit'), {:controller => '/admin/tasks', :current_tab => params[:current_tab]}) do
+        assert_load :task, @subject
         load_modify_task_variables
-        assert_load :artifact_plugin_to_fetch_view, default_plugin_info_finder.pluginIdToFetchViewTemplate()
+        assert_load :artifact_plugin_to_fetch_view, default_plugin_info_finder.pluginIdToFetchViewTemplate
         assert_load :artifact_id_to_plugin_id, go_config_service.artifactIdToPluginIdForFetchPluggableArtifact(params[:stage_parent], params[:pipeline_name], params[:stage_name]).to_hash
       end
     end
@@ -257,13 +222,6 @@ module Admin
       assert_load :tasks, @job.getTasksForView()
       task_idx = params[:task_index].to_i
       (@tasks.size() > task_idx) ? assert_load(:task, @tasks.get(task_idx)) : render_assertion_failure({:message => 'Task not found.'})
-    end
-
-    def adapt_fetch_task_if_needed(task)
-      if is_fetch_task? task.getTaskType()
-        return com.thoughtworks.go.config.FetchTaskAdapter.new(task)
-      end
-      task
     end
 
     def change_index &action

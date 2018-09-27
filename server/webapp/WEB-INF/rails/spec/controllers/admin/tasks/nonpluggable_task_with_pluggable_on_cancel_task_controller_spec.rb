@@ -1,5 +1,5 @@
 ##########################GO-LICENSE-START################################
-# Copyright 2014 ThoughtWorks, Inc.
+# Copyright 2018 ThoughtWorks, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -84,6 +84,7 @@ describe Admin::TasksController do
       expect(@go_config_service).to receive(:loadForEdit).with("pipeline.name", @user, @result).and_return(@pipeline_config_for_edit)
       expect(@pipeline_pause_service).to receive(:pipelinePauseInfo).with("pipeline.name").and_return(@pause_info)
       allow(@go_config_service).to receive(:registry).and_return(MockRegistryModule::MockRegistry.new)
+      allow(@go_config_service).to receive(:pipelineConfigNamed).with(an_instance_of(CaseInsensitiveString)).and_return(@pipeline)
       @task_view_service = stub_service(:task_view_service)
       @pluggable_task_service = stub_service(:pluggable_task_service)
     end
@@ -117,6 +118,7 @@ describe Admin::TasksController do
 
     describe "update" do
       it "should perform plugin validation before updating a pluggable task" do
+        expect(@task_view_service).to receive(:taskInstanceFor).with(@task_type).and_return(@new_task)
         expect(@task_view_service).to receive(:taskInstanceFor).with(@on_cancel_task_type).and_return(@on_cancel_task)
 
         expect(@pluggable_task_service).to receive(:validate) do |task|

@@ -24,21 +24,33 @@ describe Admin::TasksController, "fetch task" do
   include ConfigSaveStubbing
 
   before do
-    @example_task = fetch_task_with_exec_on_cancel_task
+    @example_task = fetch_external_task
     @task_type = @example_task.getTaskType()
-    @updated_payload = {:pipelineName => 'other-pipeline', :stage => 'other-stage', :job => 'other-job', :src => 'new-src', :dest => 'new-dest', :isSourceAFile => '1', :hasCancelTask => "1", :onCancelConfig=> { :onCancelOption => 'exec', :execOnCancel => {:command => "echo", :args => "'failing'", :workingDirectory => "oncancel_working_dir"}}}
-    @updated_task = fetch_task_with_exec_on_cancel_task('other-pipeline', 'other-stage', 'other-job', 'new-src', 'new-dest')
-    fetch_gocd_task = FetchTask.new(CaseInsensitiveString.new('other-pipeline'), CaseInsensitiveString.new('other-stage'), CaseInsensitiveString.new('other-job'), 'new-src', 'new-dest')
-    fetch_gocd_task.setCancelTask(ExecTask.new("echo", "'failing'", "oncancel_working_dir"))
-    @subject = fetch_gocd_task
-    @updated_task_adapter = fetch_task_with_exec_on_cancel_task('other-pipeline', 'other-stage', 'other-job', 'new-src', 'new-dest')
 
-    @new_task = FetchTaskAdapter.new(FetchTask.new)
+    @updated_task = fetch_external_task('other-pipeline', 'other-stage', 'other-job', 'installers')
+    @updated_payload = {:pipelineName => 'other-pipeline', :stage => 'other-stage', :job => 'other-job', :artifactId => 'docker', :pluginId => 'cd.go.artifact.docker',
+                        :configuration => {:DummyField => 'Some values'},
+                        :hasCancelTask => "1",
+                        :onCancelConfig => {
+                          :onCancelOption => 'exec',
+                          :execOnCancel => {:command => "echo", :args => "'failing'", :workingDirectory => "oncancel_working_dir"}
+                        }
+    }
 
-    @create_payload= {:selectedTaskType => 'gocd', :pipelineName => 'pipeline', :stage => 'stage', :job => 'job', :src => 'src', :dest => 'dest', :isSourceAFile => '1', :hasCancelTask => "1", :onCancelConfig=> { :onCancelOption => 'exec', :execOnCancel => {:command => "echo", :args => "'failing'", :workingDirectory => "oncancel_working_dir"}}}
-    @created_task= fetch_task_with_exec_on_cancel_task
+    @updated_task_adapter = fetch_external_task('other-pipeline', 'other-stage', 'other-job', 'installers')
+    @subject = @updated_task.getAppropriateTask
+    @new_task = FetchTaskAdapter.new(FetchPluggableArtifactTask.new)
+
+    @create_payload = {:selectedTaskType => 'external', :pipelineName => 'pipeline', :stage => 'stage', :job => 'job', :artifactId => 'docker', :pluginId => 'cd.go.artifact.docker',
+                       :configuration => {:DummyField => 'FooBar'},
+                       :hasCancelTask => "1",
+                       :onCancelConfig => {
+                         :onCancelOption => 'exec',
+                         :execOnCancel => {:command => "echo", :args => "'failing'", :workingDirectory => "oncancel_working_dir"}
+                       }
+    }
+    @created_task = @new_task
   end
-
 
   it_should_behave_like :task_controller
 
@@ -87,7 +99,7 @@ describe Admin::TasksController, "fetch task" do
         @pipeline_name_object = @pipeline_name
         @stage_name = "stage.three"
         @job_name = "dev"
-        @modify_payload = {:pipelineName => 'parent-pipeline', :stage => 'parent-stage', :job => 'job.parent.1', :src => 'src-file', :dest => 'dest-dir', :isSourceAFile => '1', :hasCancelTask => "1", :onCancelConfig=> { :onCancelOption => 'exec', :execOnCancel => {:command => "echo", :args => "'failing'", :workingDirectory => "oncancel_working_dir"}}}
+        @modify_payload = {:pipelineName => 'parent-pipeline', :stage => 'parent-stage', :job => 'job.parent.1', :src => 'src-file', :dest => 'dest-dir', :isSourceAFile => '1', :hasCancelTask => "1", :onCancelConfig => {:onCancelOption => 'exec', :execOnCancel => {:command => "echo", :args => "'failing'", :workingDirectory => "oncancel_working_dir"}}}
       end
 
       def form_load_expectation
@@ -102,7 +114,7 @@ describe Admin::TasksController, "fetch task" do
                                         {:stage => "stage.two", :jobs => [{:job => "dev"}]}]},
           {:pipeline => "parent-pipeline", :stages => [{:stage => "parent-stage", :jobs => [{:job => "job.parent.1"}]}]},
           {:pipeline => "pipeline.name", :stages => [{:stage => "stage.one", :jobs => [{:job => "dev"}]},
-                                        {:stage => "stage.two", :jobs => [{:job => "dev"}]}]},
+                                                     {:stage => "stage.two", :jobs => [{:job => "dev"}]}]},
           {:pipeline => "gramp-pipeline/parent-pipeline", :stages => [{:stage => "gramp-stage", :jobs => [{:job => "job.gramp.1"}, {:job => "job.gramp.2"}]}]}
         ].to_json
       end
@@ -117,7 +129,7 @@ describe Admin::TasksController, "fetch task" do
         @job_name = "job"
 
         @template_config_service = stub_service(:template_config_service)
-        @modify_payload = {:pipelineName => 'parent-pipeline', :stage => 'parent-stage', :job => 'job.parent.1', :src => 'src-file', :dest => 'dest-dir', :isSourceAFile => '1', :hasCancelTask => "1", :onCancelConfig=> { :onCancelOption => 'exec', :execOnCancel => {:command => "echo", :args => "'failing'", :workingDirectory => "oncancel_working_dir"}}}
+        @modify_payload = {:pipelineName => 'parent-pipeline', :stage => 'parent-stage', :job => 'job.parent.1', :src => 'src-file', :dest => 'dest-dir', :isSourceAFile => '1', :hasCancelTask => "1", :onCancelConfig => {:onCancelOption => 'exec', :execOnCancel => {:command => "echo", :args => "'failing'", :workingDirectory => "oncancel_working_dir"}}}
       end
 
       def form_load_expectation
@@ -129,14 +141,14 @@ describe Admin::TasksController, "fetch task" do
 
       def pipelines_json
         [
-         {:pipeline => "gramp-pipeline", :stages => [{:stage => "gramp-stage", :jobs => [{:job => "job.gramp.1"}, {:job => "job.gramp.2"}]}]},
-         {:pipeline => "parent-pipeline", :stages => [{:stage => "parent-stage", :jobs => [{:job => "job.parent.1"}]}]},
-         {:pipeline => "pipeline.name", :stages => [{:stage => "stage.one", :jobs => [{:job => "dev"}]},
-                                                    {:stage => "stage.three", :jobs => [{:job => "dev"}]},
-                                                    {:stage => "stage.two", :jobs => [{:job => "dev"}]}]},
-         {:pipeline => "gramp-pipeline/parent-pipeline", :stages => [{:stage => "gramp-stage", :jobs => [{:job => "job.gramp.1"}, {:job => "job.gramp.2"}]}]},
-         {:pipeline => "parent-pipeline/pipeline.name", :stages => [{:stage => "parent-stage", :jobs => [{:job => "job.parent.1"}]}]},
-         {:pipeline => "gramp-pipeline/parent-pipeline/pipeline.name", :stages => [{:stage => "gramp-stage", :jobs => [{:job => "job.gramp.1"}, {:job => "job.gramp.2"}]}]}
+          {:pipeline => "gramp-pipeline", :stages => [{:stage => "gramp-stage", :jobs => [{:job => "job.gramp.1"}, {:job => "job.gramp.2"}]}]},
+          {:pipeline => "parent-pipeline", :stages => [{:stage => "parent-stage", :jobs => [{:job => "job.parent.1"}]}]},
+          {:pipeline => "pipeline.name", :stages => [{:stage => "stage.one", :jobs => [{:job => "dev"}]},
+                                                     {:stage => "stage.three", :jobs => [{:job => "dev"}]},
+                                                     {:stage => "stage.two", :jobs => [{:job => "dev"}]}]},
+          {:pipeline => "gramp-pipeline/parent-pipeline", :stages => [{:stage => "gramp-stage", :jobs => [{:job => "job.gramp.1"}, {:job => "job.gramp.2"}]}]},
+          {:pipeline => "parent-pipeline/pipeline.name", :stages => [{:stage => "parent-stage", :jobs => [{:job => "job.parent.1"}]}]},
+          {:pipeline => "gramp-pipeline/parent-pipeline/pipeline.name", :stages => [{:stage => "gramp-stage", :jobs => [{:job => "job.gramp.1"}, {:job => "job.gramp.2"}]}]}
         ].to_json
       end
     end

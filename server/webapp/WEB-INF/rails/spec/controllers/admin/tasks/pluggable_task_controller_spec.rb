@@ -1,5 +1,5 @@
 ##########################GO-LICENSE-START################################
-# Copyright 2014 ThoughtWorks, Inc.
+# Copyright 2018 ThoughtWorks, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -41,10 +41,10 @@ describe Admin::TasksController do
     @updated_payload = {:Url => "http://foo/bar"}
     @updated_task = plugin_task("curl.plugin", [ConfigurationPropertyMother.create("Url", false, "http://foo/bar")])
     @subject = @updated_task
-    @new_task = PluggableTask.new( PluginConfiguration.new("curl.plugin", "1.0"), Configuration.new([ConfigurationPropertyMother.create("Url", false, nil)].to_java(ConfigurationProperty)))
+    @new_task = PluggableTask.new(PluginConfiguration.new("curl.plugin", "1.0"), Configuration.new([ConfigurationPropertyMother.create("Url", false, nil)].to_java(ConfigurationProperty)))
 
-    @create_payload= {:Url => "http://foo"}
-    @created_task= plugin_task("curl.plugin", [ConfigurationPropertyMother.create("Url", false, "http://foo")])
+    @create_payload = {:Url => "http://foo"}
+    @created_task = plugin_task("curl.plugin", [ConfigurationPropertyMother.create("Url", false, "http://foo")])
 
   end
 
@@ -75,6 +75,7 @@ describe Admin::TasksController do
       expect(@go_config_service).to receive(:loadForEdit).with("pipeline.name", @user, @result).and_return(@pipeline_config_for_edit)
       expect(@pipeline_pause_service).to receive(:pipelinePauseInfo).with("pipeline.name").and_return(@pause_info)
       allow(@go_config_service).to receive(:registry).and_return(MockRegistryModule::MockRegistry.new)
+      allow(@go_config_service).to receive(:pipelineConfigNamed).with(an_instance_of(CaseInsensitiveString)).and_return(@pipeline_config_for_edit)
       @task_view_service = stub_service(:task_view_service)
       @pluggable_task_service = stub_service(:pluggable_task_service)
     end
@@ -95,7 +96,7 @@ describe Admin::TasksController do
         @on_cancel_task_vms = java.util.Arrays.asList([vm_template_for(exec_task('rm')), vm_template_for(ant_task), vm_template_for(nant_task), vm_template_for(rake_task), vm_template_for(fetch_task_with_exec_on_cancel_task)].to_java(TaskViewModel))
         expect(@task_view_service).to receive(:getOnCancelTaskViewModels).with(@created_task).and_return(@on_cancel_task_vms)
 
-        post :create, params:{:pipeline_name => "pipeline.name", :stage_name => "stage.name", :job_name => "job.1", :type => @task_type, :config_md5 => "1234abcd", :task => @create_payload, :stage_parent => "pipelines", :current_tab => "tasks"}
+        post :create, params: {:pipeline_name => "pipeline.name", :stage_name => "stage.name", :job_name => "job.1", :type => @task_type, :config_md5 => "1234abcd", :task => @create_payload, :stage_parent => "pipelines", :current_tab => "tasks"}
 
         expect(assigns[:task].getConfiguration().getProperty("Url").errors().getAll().size()).to eq(1)
         expect(assigns[:task].getConfiguration().getProperty("Url").errors().getAll()).to include("error message")
@@ -119,8 +120,9 @@ describe Admin::TasksController do
         expect(task_view_service).to receive(:getViewModel).with(@updated_task, 'edit').and_return(vm_template_for(@updated_task))
         on_cancel_task_vms = java.util.Arrays.asList([vm_template_for(exec_task('rm')), vm_template_for(ant_task), vm_template_for(nant_task), vm_template_for(rake_task), vm_template_for(fetch_task_with_exec_on_cancel_task)].to_java(TaskViewModel))
         expect(task_view_service).to receive(:getOnCancelTaskViewModels).with(@updated_task).and_return(on_cancel_task_vms)
+        allow(task_view_service).to receive(:taskInstanceFor).with("pluggable_task_curl_plugin").and_return(@updated_task)
 
-        put :update, params:{:pipeline_name => "pipeline.name", :stage_name => "stage.name", :job_name => "job.1", :task_index => "0", :config_md5 => "1234abcd", :type => @task_type, :task => @updated_payload, :stage_parent => "pipelines", :current_tab => "tasks"}
+        put :update, params: {:pipeline_name => "pipeline.name", :stage_name => "stage.name", :job_name => "job.1", :task_index => "0", :config_md5 => "1234abcd", :type => @task_type, :task => @updated_payload, :stage_parent => "pipelines", :current_tab => "tasks"}
 
         expect(assigns[:task].getConfiguration().getProperty("Url").errors().getAll().size()).to eq(1)
         expect(assigns[:task].getConfiguration().getProperty("Url").errors().getAll()).to include("error message")

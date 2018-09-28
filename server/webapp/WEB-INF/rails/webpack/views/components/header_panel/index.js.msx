@@ -1,4 +1,4 @@
-/*!
+/*
  * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,18 +14,28 @@
  * limitations under the License.
  */
 
-$header-bg: #33364e;
-$header-fg: #fff;
-$header-hover: #000;
+const m     = require('mithril');
+const _     = require('lodash');
+const style = require('./css/index.scss');
 
-$border-color: #ccc;
+const HeaderPanel = {
+  view(vnode) {
+    let buttons;
+    if (!_.isEmpty(vnode.attrs.buttons)) {
+      buttons = (
+        <div className={style["page-actions"] || "page-actions"}>
+          {vnode.attrs.buttons}
+        </div>
+      );
+    }
 
-$building: #ffc11b;
-$failed: #fa2d2d;
+    return (<header className={style["page-header"]}>
+      <div className={style["page-title"] || "page-title"}>
+        <h1>{vnode.attrs.title}</h1>
+      </div>
+      {buttons}
+    </header>);
+  }
+};
 
-$text-color: #333;
-$submenu-bg: #fff;
-$submenu-hover: #e6e6e6;
-
-$footer-bg: #535353;
-$footer-fg: #fff;
+module.exports = HeaderPanel;

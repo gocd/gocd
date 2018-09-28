@@ -1,5 +1,5 @@
-/*
- * Copyright 2017 ThoughtWorks, Inc.
+/*!
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,17 +14,20 @@
  * limitations under the License.
  */
 
-// This is the starting point for booting up jasmine
+$header-bg: #33364e;
+$header-fg: #fff;
+$header-hover: #000;
 
-function importAll(r) {
-  r.keys().forEach(r);
-}
+$border-color: #ccc;
 
-// ensure that helpers are loaded before anything else
-importAll(require.context('./helpers', true, /\.js$/));
+$building: #ffc11b;
+$failed: #fa2d2d;
 
-importAll(require.context('./lib', true, /\.js$/));
-importAll(require.context('./models', true, /\.js$/));
-importAll(require.context('./views', true, /\.js$/));
+$text-color: #333;
+$submenu-bg: #fff;
+$submenu-hover: #e6e6e6;
 
-importAll(require.context('../../webpack/views/components', true, /\.js$/));
+$footer-bg: #535353;
+$footer-fg: #fff;
+
+$page-header-bg: #fff;

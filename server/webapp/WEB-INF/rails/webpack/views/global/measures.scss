@@ -1,5 +1,5 @@
-/*
- * Copyright 2017 ThoughtWorks, Inc.
+/*!
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,17 +14,7 @@
  * limitations under the License.
  */
 
-// This is the starting point for booting up jasmine
+$main-nav-height: 40px;
+$page-header-height: 50px;
 
-function importAll(r) {
-  r.keys().forEach(r);
-}
-
-// ensure that helpers are loaded before anything else
-importAll(require.context('./helpers', true, /\.js$/));
-
-importAll(require.context('./lib', true, /\.js$/));
-importAll(require.context('./models', true, /\.js$/));
-importAll(require.context('./views', true, /\.js$/));
-
-importAll(require.context('../../webpack/views/components', true, /\.js$/));
+$page-item-padding: 30px;

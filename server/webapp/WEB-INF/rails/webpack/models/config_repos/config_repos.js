@@ -14,61 +14,48 @@
  * limitations under the License.
  */
 
-const AjaxHelper = require("helpers/ajax_helper");
-const Routes     = require("gen/js-routes");
-const Stream     = require("mithril/stream");
-const parseError = require("helpers/mrequest").unwrapErrorExtractMessage;
-const Dfr        = require("jquery").Deferred;
+const ApiHelper = require("helpers/api_helper");
+const Routes    = require("gen/js-routes");
+const Stream    = require("mithril/stream");
 
 function ConfigRepos() {
   this.etag = Stream("");
 
   this.all = () => {
-    const promise = req(() => AjaxHelper.GET({
+    const promise = ApiHelper.GET({
       url: Routes.apiv1AdminConfigReposPath(),
       apiVersion: "v1",
       etag: this.etag()
-    }));
+    });
 
     promise.then((_d, etag) => this.etag(etag));
 
     return promise;
   };
 
-  this.get = (etag, id) => req(() => AjaxHelper.GET({
+  this.get = (etag, id) => ApiHelper.GET({
     url: Routes.apiv1AdminConfigRepoPath(id),
     apiVersion: "v1",
     etag
-  }));
+  });
 
-  this.update = (etag, payload) => req(() => AjaxHelper.PUT({
+  this.update = (etag, payload) => ApiHelper.PUT({
     url: Routes.apiv1AdminConfigRepoPath(payload.id),
     apiVersion: "v1",
     etag,
     payload
-  }));
+  });
 
-  this.delete = (id) => req(() => AjaxHelper.DELETE({
+  this.delete = (id) => ApiHelper.DELETE({
     url: Routes.apiv1AdminConfigRepoPath(id),
     apiVersion: "v1"
-  }));
+  });
 
-  this.create = (payload) => req(() => AjaxHelper.POST({
+  this.create = (payload) => ApiHelper.POST({
     url: Routes.apiv1AdminConfigReposPath(),
     apiVersion: "v1",
     payload
-  }));
+  });
 }
-
-function req(exec) {
-  return Dfr(function run() {
-    const success = (data, _s, xhr) => this.resolve(data, parseEtag(xhr), xhr.status);
-    const failure = (xhr) => this.reject(parseError(JSON.parse(xhr.responseText), xhr));
-
-    exec().then(success, failure);
-  }).promise();
-}
-
-function parseEtag(req) { return (req.getResponseHeader("ETag") || "").replace(/--(gzip|deflate)/, ""); }
 
 module.exports = ConfigRepos;

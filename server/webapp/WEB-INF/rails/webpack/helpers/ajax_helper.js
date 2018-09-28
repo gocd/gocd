@@ -52,26 +52,24 @@ function makeRequest({method, url, apiVersion, type, timeout = mrequest.timeout,
 
 }
 
-module.exports = class AjaxHelper {
-  static GET({url, apiVersion, type, timeout = mrequest.timeout, etag} = {}) {
+module.exports = {
+  GET({url, apiVersion, type, timeout = mrequest.timeout, etag} = {}) {
     return makeRequest({method: 'GET', url, apiVersion, type, timeout, etag});
-  }
+  },
 
-  static PUT({url, apiVersion, timeout = mrequest.timeout, payload, etag, contentType = 'application/json'}) {
+  PUT({url, apiVersion, timeout = mrequest.timeout, payload, etag, contentType = 'application/json'}) {
     return makeRequest({method: 'PUT', url, apiVersion, timeout, payload, etag, contentType});
-  }
+  },
 
-  static POST({url, apiVersion, timeout = mrequest.timeout, payload, etag, type, contentType = 'application/json'}) {
+  POST({url, apiVersion, timeout = mrequest.timeout, payload, etag, type, contentType = 'application/json'}) {
     return makeRequest({method: 'POST', url, apiVersion, timeout, type, payload, etag, contentType});
-  }
+  },
 
-  static PATCH({url, apiVersion, timeout = mrequest.timeout, payload, type, etag, contentType = 'application/json'}) {
+  PATCH({url, apiVersion, timeout = mrequest.timeout, payload, type, etag, contentType = 'application/json'}) {
     return makeRequest({method: 'PATCH', url, apiVersion, timeout, payload, type, etag, contentType});
-  }
+  },
 
-  static DELETE({url, apiVersion, type, timeout = mrequest.timeout, etag} = {}) {
+  DELETE({url, apiVersion, type, timeout = mrequest.timeout, etag} = {}) {
     return makeRequest({method: 'DELETE', url, apiVersion, type, timeout, etag});
   }
 };
-
-

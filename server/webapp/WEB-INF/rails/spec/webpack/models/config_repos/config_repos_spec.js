@@ -18,7 +18,7 @@ const ConfigRepos = require("models/config_repos/config_repos");
 const Routes      = require("gen/js-routes");
 
 describe("Config Repo CRUD model", () => {
-  it("should parse ETag from response", (done) => {
+  it("all() should cache etag", (done) => {
     jasmine.Ajax.withMock(() => {
       jasmine.Ajax.stubRequest(Routes.apiv1AdminConfigReposPath(), undefined, "GET").andReturn({
         responseText:    JSON.stringify({
@@ -37,23 +37,7 @@ describe("Config Repo CRUD model", () => {
       configRepos.all().then(() => {
         expect(configRepos.etag()).toEqual(`W/"05548388f7ef5042cd39f7fe42e85735"`);
         done();
-      });
-    });
-  });
-
-  it("should parse error on failure", (done) => {
-    jasmine.Ajax.withMock(() => {
-      jasmine.Ajax.stubRequest(Routes.apiv1AdminConfigReposPath(), undefined, "GET").andReturn({
-        responseHeaders: { "Content-Type": "application/vnd.go.cd.v1+json" },
-        status:          500,
-        responseText:    JSON.stringify({message: "Rejected"})
-      });
-
-      const configRepos = new ConfigRepos();
-      configRepos.all().then(() => done.fail("request should not succeed"), (msg) => {
-        expect(msg).toBe("Rejected");
-        done();
-      });
+      }, () => done.fail("request should be successful"));
     });
   });
 });

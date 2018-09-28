@@ -17,7 +17,6 @@
 describe("Header Panel Component", () => {
   const m           = require("mithril");
   const HeaderPanel = require("views/components/header_panel");
-  const styles      = require('views/components/header_panel/css/index.scss');
 
   let $root, root;
 

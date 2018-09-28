@@ -17,45 +17,56 @@
 const AjaxHelper = require("helpers/ajax_helper");
 const Routes     = require("gen/js-routes");
 const Stream     = require("mithril/stream");
+const parseError = require("helpers/mrequest").unwrapErrorExtractMessage;
+const Dfr        = require("jquery").Deferred;
 
 function ConfigRepos() {
-  const etag = Stream("");
-  this.etag = etag;
+  this.etag = Stream("");
 
   this.all = () => {
-    const promise = AjaxHelper.GET({
+    const promise = req(() => AjaxHelper.GET({
       url: Routes.apiv1AdminConfigReposPath(),
       apiVersion: "v1",
-      etag: etag()
-    });
-    promise.then((_d, _s, req) => etag(parseEtag(req)));
+      etag: this.etag()
+    }));
+
+    promise.then((_d, etag) => this.etag(etag));
+
     return promise;
   };
 
-  this.get = (etag, id) => AjaxHelper.GET({
+  this.get = (etag, id) => req(() => AjaxHelper.GET({
     url: Routes.apiv1AdminConfigRepoPath(id),
     apiVersion: "v1",
     etag
-  });
+  }));
 
-  this.update = (etag, payload) => AjaxHelper.PUT({
+  this.update = (etag, payload) => req(() => AjaxHelper.PUT({
     url: Routes.apiv1AdminConfigRepoPath(payload.id),
     apiVersion: "v1",
     etag,
     payload
-  });
+  }));
 
-  this.delete = (id) => AjaxHelper.DELETE({
+  this.delete = (id) => req(() => AjaxHelper.DELETE({
     url: Routes.apiv1AdminConfigRepoPath(id),
     apiVersion: "v1"
-  });
+  }));
 
-  this.create = (payload) => AjaxHelper.POST({
+  this.create = (payload) => req(() => AjaxHelper.POST({
     url: Routes.apiv1AdminConfigReposPath(),
     apiVersion: "v1",
     payload
-  });
+  }));
+}
 
+function req(exec) {
+  return Dfr(function run() {
+    const success = (data, _s, xhr) => this.resolve(data, parseEtag(xhr), xhr.status);
+    const failure = (xhr) => this.reject(parseError(JSON.parse(xhr.responseText), xhr));
+
+    exec().then(success, failure);
+  }).promise();
 }
 
 function parseEtag(req) { return (req.getResponseHeader("ETag") || "").replace(/--(gzip|deflate)/, ""); }

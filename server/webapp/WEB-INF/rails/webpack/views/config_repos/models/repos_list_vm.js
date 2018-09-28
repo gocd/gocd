@@ -27,13 +27,15 @@ function ReposListVM(model) {
   UpdateSupport.call(this, model, repos);
   DeleteSupport.call(this, model, repos);
 
+  const self = this;
   const addError = (msg) => { // fixme: add better error handling. this is cheap & not production quality.
-    if (!contains(this.errors(), msg)) {
-      this.errors().push(msg);
+    if (!contains(self.errors(), msg)) {
+      self.errors().push(msg);
     }
   };
 
   this.load = () => {
+    this.errors([]);
     this.loading(true);
     model.all().then((data) => {
       repos(data._embedded.config_repos.map((r) => new ConfigRepoVM(r)));
@@ -43,6 +45,7 @@ function ReposListVM(model) {
   };
 
   this.loadPlugins = () => {
+    this.errors([]);
     return PluginInfos.all(null, {type: "configrepo"}).then((infos) => {
       const all = [];
       infos.eachPluginInfo((p) => { all.push({ id: p.id(), text: p.about().name() }); });
@@ -89,9 +92,9 @@ function CreateSupport(model, repos) {
 
   this.exitAddMode = () => this.addModel(null);
 
-  this.createRepo = withValidation((repo) => model.create(repo).then((data, _s, xhr) => {
+  this.createRepo = withValidation((repo) => model.create(repo).then((data, etag) => {
     const repo = new ConfigRepoVM(data);
-    repo.etag(parseEtag(xhr));
+    if (etag) { repo.etag(etag); }
     repos().push(repo);
   }));
 }
@@ -103,21 +106,19 @@ function UpdateSupport(model, repos) {
   this.enterEditMode = (repo) => {
     this.addModel(null);
 
-    repo = repo.clone();
-    model.get(repo.etag(), repo.id()).then((data, _status, xhr) => {
-      repo.etag(parseEtag(xhr));
+    model.get(repo.etag(), repo.id()).then((data, etag, status) => {
+      if (etag) { repo.etag(etag); }
+      if (304 !== status) { repo.initialize(data); }
 
-      if (304 !== xhr.status) { repo.initialize(data); }
-
-      this.editModel(repo);
+      this.editModel(repo.clone());
     });
   };
 
   this.exitEditMode = () => this.editModel(null);
 
-  this.updateRepo = withValidation((repo) => model.update(repo.etag(), repo).then((data, _s, xhr) => {
+  this.updateRepo = withValidation((repo) => model.update(repo.etag(), repo).then((data, etag) => {
+    if (etag) { repo.etag(etag); }
     repo.initialize(data);
-    repo.etag(parseEtag(xhr));
 
     const idx = _.findIndex(repos(), (r) => r.id() === repo.id()); // should not fail
     repos().splice(idx, 1, repo);
@@ -134,8 +135,9 @@ function withValidation(proceed) {
   return (repo) => repo.allowSave() ? proceed(repo) : Dfr(function fail() { this.reject(); }).promise();
 }
 
-function contains(arr, el) { return !~arr.indexOf(el); }
+function contains(arr, el) { return !!~arr.indexOf(el); }
 
-function parseEtag(req) { return (req.getResponseHeader("ETag") || "").replace(/--(gzip|deflate)/, ""); }
+// expose for tests
+_.assign(ReposListVM, {CreateSupport, UpdateSupport, DeleteSupport});
 
 module.exports = ReposListVM;

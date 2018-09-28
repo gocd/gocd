@@ -112,7 +112,7 @@ public class ArtifactConfigsTest {
     }
 
     @Test
-    public void setConfigAttributes_shouldSetExternalArtifact() throws CryptoException {
+    public void setConfigAttributes_shouldSetExternalArtifactWithPlainTextValuesIfPluginIdIsProvided() {
         ArtifactPluginInfo artifactPluginInfo = mock(ArtifactPluginInfo.class);
         PluginDescriptor pluginDescriptor = mock(PluginDescriptor.class);
         when(artifactPluginInfo.getDescriptor()).thenReturn(pluginDescriptor);
@@ -149,7 +149,7 @@ public class ArtifactConfigsTest {
         assertThat(artifactConfig.getArtifactType(), is(ArtifactType.external));
         assertThat(artifactConfig.getId(), is("artifactId"));
         assertThat(artifactConfig.getStoreId(), is("storeId"));
-        assertThat(artifactConfig.getConfiguration().getProperty("Image").isSecure(), is(true));
+        assertThat(artifactConfig.getConfiguration().getProperty("Image").isSecure(), is(false));
     }
 
     @Test

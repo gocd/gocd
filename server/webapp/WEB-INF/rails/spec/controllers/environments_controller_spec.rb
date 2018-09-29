@@ -31,7 +31,6 @@ describe EnvironmentsController do
     it "should set current tab" do
          user = com.thoughtworks.go.server.domain.Username.new(CaseInsensitiveString.new('user_foo'))
          allow(controller).to receive(:current_user).and_return(user)
-         allow(@environment_config_service).to receive(:environmentNames).and_return(["environment-1", "environment-2"])
          get :index
          expect(assigns[:current_tab_name]).to eq("environments")
     end
@@ -39,7 +38,6 @@ describe EnvironmentsController do
     it "should show add environment only if the user is a Go admin" do
       user = com.thoughtworks.go.server.domain.Username.new(CaseInsensitiveString.new('user_foo'))
       allow(controller).to receive(:current_user).and_return(user)
-      allow(@environment_config_service).to receive(:environmentNames).and_return(["environment-1", "environment-2"])
       allow(controller).to receive(:security_service).and_return(@security_service = double(SecurityService))
 
       expect(@security_service).to receive(:isUserAdmin).with(user).and_return(true)
@@ -52,7 +50,6 @@ describe EnvironmentsController do
     it "should not show add environment link when the user is not a Go admin" do
       user = com.thoughtworks.go.server.domain.Username.new(CaseInsensitiveString.new('user_foo'))
       allow(controller).to receive(:current_user).and_return(user)
-      allow(@environment_config_service).to receive(:environmentNames).and_return(["environment-1", "environment-2"])
       allow(controller).to receive(:security_service).and_return(@security_service = double(SecurityService))
 
       expect(@security_service).to receive(:isUserAdmin).with(user).and_return(false)
@@ -60,16 +57,6 @@ describe EnvironmentsController do
       get :index
 
       expect(assigns[:show_add_environments]).to eq(false)
-    end
-
-    it "should load pipeline model instance for pipelines in a environment" do
-      expect(@environment_config_service).to receive(:environmentNames).and_return(["environment-1", "environment-2"])
-
-      expect(@security_service).to receive(:isUserAdmin).with(controller.current_user).and_return(false)
-
-      get :index
-
-      expect(assigns[:environments]).to eq(["environment-1", "environment-2"])
     end
 
     it "should match /environments defaulting to html format" do

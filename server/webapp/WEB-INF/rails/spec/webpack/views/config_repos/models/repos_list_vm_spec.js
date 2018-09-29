@@ -17,6 +17,7 @@
 const _           = require("lodash");
 const Dfr         = require("jquery").Deferred;
 const ReposListVM = require("views/config_repos/models/repos_list_vm");
+const Routes      = require("gen/js-routes");
 
 describe("Config Repo List VM", () => {
   it("load() fetches data and creates config repo view models", () => {
@@ -41,6 +42,28 @@ describe("Config Repo List VM", () => {
 
     expect(vm.errors()).toEqual(["boom!"]);
     expect(vm.repos().length).toBe(0);
+  });
+
+  it("loadPlugins() populates pluginChoices from the server", () => {
+    jasmine.Ajax.withMock(() => {
+      const url = `${Routes.apiv4AdminPluginInfoIndexPath()}?type=configrepo`;
+
+      jasmine.Ajax.stubRequest(url, undefined, "GET").andReturn({
+        responseText: pluginInfosRespBody(),
+        status: 200,
+        responseHeaders: { "Content-Type": "application/vnd.go.cd.v4+json" }
+      });
+
+      const vm = new ReposListVM(mockModel());
+      vm.loadPlugins();
+
+      expect(jasmine.Ajax.requests.mostRecent().url).toBe(url);
+      expect(vm.errors().length).toBe(0);
+      expect(vm.pluginChoices()).toEqual([
+        {id: "test1.config.plugin", text: "Test 1 Configuration Plugin"},
+        {id: "test2.config.plugin", text: "Test 2 Configuration Plugin"}
+      ]);
+    });
   });
 });
 
@@ -88,4 +111,25 @@ function promise(fulfill, reject) {
       this.reject("function" === typeof reject ? reject() : reject);
     }
   }).promise();
+}
+
+function pluginInfosRespBody() {
+  return JSON.stringify({
+    _embedded: {
+      plugin_info: [ // eslint-disable-line camelcase
+        {
+          id: "test1.config.plugin",
+          status: {state: "active"},
+          about: {name: "Test 1 Configuration Plugin"},
+          extensions: [{type: "configrepo"}]
+        },
+        {
+          id: "test2.config.plugin",
+          status: {state: "active"},
+          about: {name: "Test 2 Configuration Plugin"},
+          extensions: [{type: "configrepo"}]
+        }
+      ]
+    }
+  });
 }

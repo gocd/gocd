@@ -44,6 +44,19 @@ describe("Config Repo List VM", () => {
     expect(vm.repos().length).toBe(0);
   });
 
+  it("removeRepo() removes the corresponding entry", () => {
+    const model = mockModel();
+    model.delete.and.returnValue(promise({}, null));
+
+    const vm = new ReposListVM(model);
+    vm.repos([cheapRepo(1), cheapRepo(2), cheapRepo(3)]);
+
+    vm.removeRepo(vm.repos()[1]);
+
+    expect(model.delete).toHaveBeenCalledWith(2);
+    expect(vm.repos().map((r) => r.id())).toEqual([1, 3]);
+  });
+
   it("loadPlugins() populates pluginChoices from the server", () => {
     jasmine.Ajax.withMock(() => {
       const url = `${Routes.apiv4AdminPluginInfoIndexPath()}?type=configrepo`;
@@ -91,6 +104,10 @@ function singleRepo(id="repo-01") {
     configuration: []
     /* eslint-enable camelcase */
   };
+}
+
+function cheapRepo(id) {
+  return {id: () => id};
 }
 
 function mockModel() {

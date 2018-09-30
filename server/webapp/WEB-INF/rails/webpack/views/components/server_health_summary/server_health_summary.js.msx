@@ -31,9 +31,15 @@ function createRepeater() {
   });
 }
 
-createRepeater().start();
+const repeater = createRepeater();
 
 const ServerHealthSummary = {
+  oninit() {
+    repeater.start();
+  },
+  onbeforeremove() {
+    repeater.stop();
+  },
   view() {
     return m(ServerHealthMessagesCountWidget, {serverHealthMessages});
   }

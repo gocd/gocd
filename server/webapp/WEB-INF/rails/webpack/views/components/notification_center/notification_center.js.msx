@@ -22,10 +22,24 @@ const DataSharingNotification   = require('models/notifications/data_sharing_not
 const AjaxPoller                = require('helpers/ajax_poller');
 
 
-DataSharingNotification.createIfNotPresent();
 const systemNotifications = Stream(new SystemNotifications());
 
+function createRepeater() {
+  return new AjaxPoller(() => SystemNotifications.all()
+    .then(redraw)
+    .always());
+}
+
+const repeater = Stream(createRepeater());
+
 const NotificationCenter = {
+  oninit() {
+    DataSharingNotification.createIfNotPresent();
+    repeater().start();
+  },
+  onbeforeremove() {
+    repeater().stop();
+  },
   view() {
     return <SystemNotificationsWidget systemNotifications={systemNotifications}/>;
   }
@@ -35,15 +49,5 @@ const redraw = (data) => {
   systemNotifications(new SystemNotifications(data.filterSystemNotification((n) => n.read() === false)));
   m.redraw();
 };
-
-function createRepeater() {
-  return new AjaxPoller(() => SystemNotifications.all()
-    .then(redraw)
-    .always());
-}
-
-const repeater = Stream(createRepeater());
-repeater().start();
-
 
 module.exports = NotificationCenter;

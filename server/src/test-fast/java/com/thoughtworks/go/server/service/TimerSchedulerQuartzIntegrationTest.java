@@ -27,6 +27,7 @@ import com.thoughtworks.go.config.PipelineConfig;
 import static com.thoughtworks.go.helper.PipelineConfigMother.pipelineConfigWithTimer;
 import com.thoughtworks.go.server.scheduling.BuildCauseProducerService;
 import com.thoughtworks.go.server.service.result.ServerHealthStateOperationResult;
+import com.thoughtworks.go.util.SystemEnvironment;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -44,11 +45,13 @@ import org.quartz.impl.StdSchedulerFactory;
 public class TimerSchedulerQuartzIntegrationTest {
     private StdSchedulerFactory quartzSchedulerFactory;
     private Scheduler scheduler;
+    private SystemEnvironment systemEnvironment;
 
     @Before
     public void setUp() throws Exception {
         quartzSchedulerFactory = new StdSchedulerFactory();
         scheduler = quartzSchedulerFactory.getScheduler();
+        systemEnvironment = new SystemEnvironment();
         scheduler.start();
     }
 
@@ -68,7 +71,7 @@ public class TimerSchedulerQuartzIntegrationTest {
 
         BuildCauseProducerService buildCauseProducerService = mock(BuildCauseProducerService.class);
 
-        TimerScheduler timerScheduler = new TimerScheduler(scheduler, goConfigService, buildCauseProducerService, null);
+        TimerScheduler timerScheduler = new TimerScheduler(scheduler, goConfigService, buildCauseProducerService, null, systemEnvironment);
         timerScheduler.initialize();
 
         pauseForScheduling();
@@ -88,7 +91,7 @@ public class TimerSchedulerQuartzIntegrationTest {
 
         BuildCauseProducerService buildCauseProducerService = mock(BuildCauseProducerService.class);
 
-        TimerScheduler timerScheduler = new TimerScheduler(scheduler, goConfigService, buildCauseProducerService, null);
+        TimerScheduler timerScheduler = new TimerScheduler(scheduler, goConfigService, buildCauseProducerService, null, systemEnvironment);
         timerScheduler.initialize();
 
         CruiseConfig cruiseConfig = new BasicCruiseConfig();

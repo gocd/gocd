@@ -25,10 +25,12 @@ import com.thoughtworks.go.serverhealth.HealthStateScope;
 import com.thoughtworks.go.serverhealth.HealthStateType;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.serverhealth.ServerHealthState;
+import com.thoughtworks.go.util.SystemEnvironment;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.quartz.*;
 
@@ -42,15 +44,21 @@ import static java.util.Arrays.asList;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.*;
+import static org.mockito.MockitoAnnotations.initMocks;
 import static org.quartz.CronScheduleBuilder.cronSchedule;
 import static org.quartz.JobKey.jobKey;
 import static org.quartz.TriggerKey.triggerKey;
 
 public class TimerSchedulerTest {
+    @Mock
     private Scheduler scheduler;
+    @Mock
+    private GoConfigService goConfigService;
+    @Mock
+    private SystemEnvironment systemEnvironment;
 
     @Before public void setup() {
-        scheduler = mock(Scheduler.class);
+        initMocks(this);
     }
 
     @After public void teardown() {
@@ -59,13 +67,13 @@ public class TimerSchedulerTest {
 
     @Test
     public void shouldRegisterJobsWithSchedulerForEachPipelineWithTimerOnInit() throws Exception {
-        GoConfigService goConfigService = mock(GoConfigService.class);
         List<PipelineConfig> pipelineConfigs = asList(
                 pipelineConfigWithTimer("uat", "0 15 10 ? * MON-FRI"),
                 pipelineConfig("dist"));
         when(goConfigService.getAllPipelineConfigs()).thenReturn(pipelineConfigs);
+        when(systemEnvironment.isServerActive()).thenReturn(true);
 
-        TimerScheduler timerScheduler = new TimerScheduler(scheduler, goConfigService, null, null);
+        TimerScheduler timerScheduler = new TimerScheduler(scheduler, goConfigService, null, null, systemEnvironment);
         timerScheduler.initialize();
 
         JobDetail expectedJob = JobBuilder.newJob()
@@ -81,12 +89,12 @@ public class TimerSchedulerTest {
 
     @Test
     public void shouldUpdateServerHealthStatusWhenCronSpecCantBeParsed() throws Exception {
-        GoConfigService goConfigService = mock(GoConfigService.class);
         when(goConfigService.getAllPipelineConfigs()).thenReturn(asList(pipelineConfigWithTimer("uat", "bad cron spec!!!")));
+        when(systemEnvironment.isServerActive()).thenReturn(true);
 
         ServerHealthService serverHealthService = mock(ServerHealthService.class);
 
-        TimerScheduler timerScheduler = new TimerScheduler(scheduler, goConfigService, null, serverHealthService);
+        TimerScheduler timerScheduler = new TimerScheduler(scheduler, goConfigService, null, serverHealthService, systemEnvironment);
         timerScheduler.initialize();
 
         verify(serverHealthService).update(
@@ -96,13 +104,13 @@ public class TimerSchedulerTest {
 
     @Test
     public void shouldScheduleOtherPipelinesEvenIfOneHasAnInvalidCronSpec() throws Exception {
-        GoConfigService goConfigService = mock(GoConfigService.class);
         List<PipelineConfig> pipelineConfigs = asList(
                 pipelineConfigWithTimer("uat", "---- bad cron spec!"),
                 pipelineConfigWithTimer("dist", "0 15 10 ? * MON-FRI"));
         when(goConfigService.getAllPipelineConfigs()).thenReturn(pipelineConfigs);
+        when(systemEnvironment.isServerActive()).thenReturn(true);
 
-        TimerScheduler timerScheduler = new TimerScheduler(scheduler, goConfigService, null, mock(ServerHealthService.class));
+        TimerScheduler timerScheduler = new TimerScheduler(scheduler, goConfigService, null, mock(ServerHealthService.class), systemEnvironment);
         timerScheduler.initialize();
 
         JobDetail expectedJob =JobBuilder.newJob()
@@ -124,12 +132,12 @@ public class TimerSchedulerTest {
         when(scheduler.scheduleJob(any(JobDetail.class), any(Trigger.class))).thenThrow(
                 new SchedulerException("scheduling failed!"));
 
-        GoConfigService goConfigService = mock(GoConfigService.class);
         when(goConfigService.getAllPipelineConfigs()).thenReturn(asList(pipelineConfigWithTimer("uat", "* * * * * ?")));
 
+        when(systemEnvironment.isServerActive()).thenReturn(true);
         ServerHealthService serverHealthService = mock(ServerHealthService.class);
 
-        TimerScheduler timerScheduler = new TimerScheduler(scheduler, goConfigService, null, serverHealthService);
+        TimerScheduler timerScheduler = new TimerScheduler(scheduler, goConfigService, null, serverHealthService, systemEnvironment);
         timerScheduler.initialize();
 
         verify(serverHealthService).update(
@@ -140,9 +148,9 @@ public class TimerSchedulerTest {
 
     @Test
     public void shouldRegisterAsACruiseConfigChangeListener() throws Exception {
-        GoConfigService goConfigService = mock(GoConfigService.class);
+        TimerScheduler timerScheduler = new TimerScheduler(scheduler, goConfigService, null, null, systemEnvironment);
+        when(systemEnvironment.isServerActive()).thenReturn(true);
 
-        TimerScheduler timerScheduler = new TimerScheduler(scheduler, goConfigService, null, null);
         timerScheduler.initialize();
 
         verify(goConfigService).register(timerScheduler);
@@ -150,11 +158,10 @@ public class TimerSchedulerTest {
 
     @Test
     public void shouldRescheduleTimerTriggerPipelineWhenItsConfigChanges() throws SchedulerException {
-        GoConfigService goConfigService = mock(GoConfigService.class);
-
+        when(systemEnvironment.isServerActive()).thenReturn(true);
         String pipelineName = "timer-based-pipeline";
         when(scheduler.getJobDetail(jobKey(pipelineName, PIPELINE_TRIGGGER_TIMER_GROUP))).thenReturn(mock(JobDetail.class));
-        TimerScheduler timerScheduler = new TimerScheduler(scheduler, goConfigService, null, null);
+        TimerScheduler timerScheduler = new TimerScheduler(scheduler, goConfigService, null, null, systemEnvironment);
         ArgumentCaptor<ConfigChangedListener> captor = ArgumentCaptor.forClass(ConfigChangedListener.class);
         doNothing().when(goConfigService).register(captor.capture());
         timerScheduler.initialize();
@@ -180,4 +187,15 @@ public class TimerSchedulerTest {
         verify(scheduler).scheduleJob(jobDetailArgumentCaptor.getValue(), triggerArgumentCaptor.getValue());
     }
 
+    @Test
+    public void shouldNotScheduleJobsOnAnInactiveServer() {
+        TimerScheduler timerScheduler = new TimerScheduler(scheduler, goConfigService, null, null, systemEnvironment);
+
+        when(systemEnvironment.isServerActive()).thenReturn(false);
+
+        timerScheduler.initialize();
+
+        verifyZeroInteractions(scheduler);
+        verifyZeroInteractions(goConfigService);
+    }
 }

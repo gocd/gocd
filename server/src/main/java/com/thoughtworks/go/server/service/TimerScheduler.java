@@ -28,6 +28,7 @@ import com.thoughtworks.go.serverhealth.HealthStateScope;
 import com.thoughtworks.go.serverhealth.HealthStateType;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.serverhealth.ServerHealthState;
+import com.thoughtworks.go.util.SystemEnvironment;
 import org.quartz.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,6 +56,7 @@ public class TimerScheduler implements ConfigChangedListener {
     private GoConfigService goConfigService;
     private BuildCauseProducerService buildCauseProducerService;
     private ServerHealthService serverHealthService;
+    private SystemEnvironment systemEnvironment;
     private Scheduler quartzScheduler;
     protected static final String PIPELINE_TRIGGGER_TIMER_GROUP = "PIPELINE_TRIGGGER_TIMER_GROUP";
     protected static final String BUILD_CAUSE_PRODUCER_SERVICE = "BuildCauseProducerService";
@@ -62,14 +64,18 @@ public class TimerScheduler implements ConfigChangedListener {
 
     @Autowired
     public TimerScheduler(Scheduler scheduler, GoConfigService goConfigService,
-                          BuildCauseProducerService buildCauseProducerService, ServerHealthService serverHealthService) {
+                          BuildCauseProducerService buildCauseProducerService, ServerHealthService serverHealthService,
+                          SystemEnvironment systemEnvironment) {
         this.goConfigService = goConfigService;
         this.buildCauseProducerService = buildCauseProducerService;
         this.quartzScheduler = scheduler;
         this.serverHealthService = serverHealthService;
+        this.systemEnvironment = systemEnvironment;
     }
 
     public void initialize() {
+        if (!systemEnvironment.isServerActive()) return;
+
         scheduleAllJobs(goConfigService.getAllPipelineConfigs());
         goConfigService.register(this);
         goConfigService.register(pipelineConfigChangedListener());

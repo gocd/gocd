@@ -31,8 +31,12 @@ class ConfigReposDelegateTest implements ControllerTrait<ConfigReposDelegate>, S
 
   @Override
   ConfigReposDelegate createControllerInstance() {
-    FeatureToggleService features = mock(FeatureToggleService.class)
-    when(features.isToggleOn(Toggles.CONFIG_REPOS_UI)).thenReturn(true)
+    FeatureToggleService features = new FeatureToggleService(null, null) {
+      @Override
+      boolean isToggleOn(String key) {
+        return key == Toggles.CONFIG_REPOS_UI;
+      }
+    }
     return new ConfigReposDelegate(new SPAAuthenticationHelper(securityService, goConfigService), templateEngine, features)
   }
 

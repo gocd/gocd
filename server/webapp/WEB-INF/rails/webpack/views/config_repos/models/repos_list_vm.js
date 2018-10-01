@@ -108,7 +108,7 @@ function UpdateSupport(model, repos) {
 
     model.get(repo.etag(), repo.id()).then((data, etag, status) => {
       if (etag) { repo.etag(etag); }
-      if (304 !== status) { repo.initialize(data); }
+      if (304 !== status && data) { repo.initialize(data); }
 
       this.editModel(repo.clone());
     });

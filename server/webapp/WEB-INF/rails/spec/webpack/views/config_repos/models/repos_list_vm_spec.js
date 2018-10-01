@@ -15,6 +15,7 @@
  */
 
 const _           = require("lodash");
+const Stream      = require("mithril/stream");
 const Dfr         = require("jquery").Deferred;
 const ReposListVM = require("views/config_repos/models/repos_list_vm");
 const Routes      = require("gen/js-routes");
@@ -23,7 +24,7 @@ describe("Config Repo List VM", () => {
   it("load() fetches data and creates config repo view models", () => {
     const model = mockModel();
     const response = fetchAllResponse(singleRepo("repo-01"), singleRepo("repo-02"));
-    model.all.and.returnValue(promise(response));
+    model.all.and.returnValue(promise([response]));
 
     const vm = new ReposListVM(model);
     vm.load();
@@ -34,7 +35,7 @@ describe("Config Repo List VM", () => {
 
   it("handles error when load() fails", () => {
     const model = mockModel();
-    model.all.and.returnValue(promise(null, "boom!"));
+    model.all.and.returnValue(promise(null, ["boom!"]));
 
     const vm = new ReposListVM(model);
     expect(vm.errors().length).toBe(0);
@@ -44,9 +45,132 @@ describe("Config Repo List VM", () => {
     expect(vm.repos().length).toBe(0);
   });
 
+  it("enterAddMode() creates a temporary repo", () => {
+    const vm = new ReposListVM(null);
+    expect(vm.addMode()).toBe(false);
+    expect(vm.addModel()).toBe(null);
+
+    vm.typeToAdd("hg");
+    vm.pluginChoices([{id: "a"}]);
+    vm.editModel({});
+
+    vm.enterAddMode();
+
+    expect(vm.addMode()).toBe(true);
+    const repo = vm.addModel();
+
+    expect(repo.type()).toBe("hg");
+    expect(repo.pluginId()).toBe("a");
+    expect(vm.editModel()).toBe(null); // addMode() is exclusive; should clear editModel()
+  });
+
+  it("exitAddMode() clears temporary repo", () => {
+    const vm = new ReposListVM(null);
+    vm.addModel({});
+
+    expect(vm.addMode()).toBe(true);
+
+    vm.exitAddMode();
+
+    expect(vm.addMode()).toBe(false);
+    expect(vm.addModel()).toBe(null);
+  });
+
+  it("createRepo() adds a repo", () => {
+    const model = mockModel();
+    model.create.and.returnValue(promise([{id: 1, material: {type: "git", attributes: {}}}, "1234"], null));
+
+    const vm = new ReposListVM(model);
+
+    expect(vm.repos().length).toBe(0);
+
+    const addModel = cheapRepo(1);
+    addModel.allowSave.and.returnValue(true);
+    vm.createRepo(addModel);
+    expect(vm.repos().length).toBe(1);
+    const repo = vm.repos()[0];
+
+    expect(repo.id()).toBe(1);
+    expect(repo.type()).toBe("git");
+    expect(repo.etag()).toBe("1234");
+  });
+
+  it("createRepo() doesn't add entry on validation failure", () => {
+    const model = mockModel();
+    const vm = new ReposListVM(model);
+    expect(vm.repos().length).toBe(0);
+
+    const addModel = cheapRepo(1);
+    addModel.allowSave.and.returnValue(false);
+
+    vm.createRepo(addModel);
+    expect(model.create).not.toHaveBeenCalled();
+    expect(vm.repos().length).toBe(0);
+  });
+
+  it("exitEditMode() clears the temporary repo in edit mode", () => {
+    const vm = new ReposListVM(null);
+    const repo = cheapRepo(1);
+    vm.editModel(repo);
+
+    expect(vm.editMode(repo)).toBe(true);
+
+    vm.exitEditMode();
+    expect(vm.editMode(repo)).toBe(false);
+    expect(vm.editModel()).toBe(null);
+  });
+
+  it("enterEditMode() should create temporary repo from existing repo", () => {
+    const model = mockModel();
+    const vm = new ReposListVM(model);
+    const repo = cheapRepo(1);
+
+    model.get.and.returnValue(promise([{id: 1}, "123", 200], null));
+
+    vm.addModel({}); // should be cleared after entering edit mode
+
+    expect(vm.editMode(repo)).toBe(false);
+    vm.enterEditMode(repo);
+
+    expect(vm.addModel()).toBe(null);
+    expect(model.get).toHaveBeenCalledWith(null, 1);
+    expect(repo.etag()).toBe("123");
+    expect(repo.initialize).toHaveBeenCalledWith({id: 1});
+    expect(vm.editModel()).not.toBe(repo);
+    expect(vm.editModel().id()).toBe(repo.id());
+  });
+
+  it("updateRepo() updates entry with response from server", () => {
+    const model = mockModel();
+    model.update.and.returnValue(promise([{id: 1}, "1234"], null));
+
+    const vm = new ReposListVM(model);
+    vm.repos([cheapRepo(0), cheapRepo(1), cheapRepo(2)]);
+
+    const clone = vm.repos()[1].clone();
+    clone.allowSave.and.returnValue(true);
+
+    vm.updateRepo(clone);
+    expect(clone.etag()).toBe("1234");
+    expect(clone.initialize).toHaveBeenCalledWith({id: 1});
+    expect(vm.repos()[1]).toBe(clone);
+  });
+
+  it("updateRepo() doesn't update entry on validation failure", () => {
+    const model = mockModel();
+    const vm = new ReposListVM(model);
+    vm.repos([cheapRepo(0), cheapRepo(1), cheapRepo(2)]);
+
+    const clone = vm.repos()[1].clone();
+    clone.allowSave.and.returnValue(false);
+
+    vm.updateRepo(clone);
+    expect(model.update).not.toHaveBeenCalled();
+  });
+
   it("removeRepo() removes the corresponding entry", () => {
     const model = mockModel();
-    model.delete.and.returnValue(promise({}, null));
+    model.delete.and.returnValue(promise([], null));
 
     const vm = new ReposListVM(model);
     vm.repos([cheapRepo(1), cheapRepo(2), cheapRepo(3)]);
@@ -54,7 +178,19 @@ describe("Config Repo List VM", () => {
     vm.removeRepo(vm.repos()[1]);
 
     expect(model.delete).toHaveBeenCalledWith(2);
-    expect(vm.repos().map((r) => r.id())).toEqual([1, 3]);
+    expect(_.map(vm.repos(), (r) => r.id())).toEqual([1, 3]);
+  });
+
+  it("removeRepo() does not remove a repo when response fails", () => {
+    const model = mockModel();
+    model.delete.and.returnValue(promise(null, ["no"]));
+
+    const vm = new ReposListVM(model);
+    vm.repos([cheapRepo(1), cheapRepo(2), cheapRepo(3)]);
+
+    vm.removeRepo(vm.repos()[1]);
+
+    expect(_.map(vm.repos(), (r) => r.id())).toEqual([1, 2, 3]);
   });
 
   it("loadPlugins() populates pluginChoices from the server", () => {
@@ -107,7 +243,13 @@ function singleRepo(id="repo-01") {
 }
 
 function cheapRepo(id) {
-  return {id: () => id};
+  return {
+    id() { return id; },
+    initialize: jasmine.createSpy("init"),
+    clone() { return cheapRepo(id); },
+    etag: Stream(null),
+    allowSave: jasmine.createSpy("allowSave()")
+  };
 }
 
 function mockModel() {
@@ -123,9 +265,9 @@ function mockModel() {
 function promise(fulfill, reject) {
   return Dfr(function execute() {
     if (fulfill) {
-      this.resolve("function" === typeof fulfill ? fulfill() : fulfill);
+      this.resolve.apply(this, "function" === typeof fulfill ? fulfill() : fulfill);
     } else {
-      this.reject("function" === typeof reject ? reject() : reject);
+      this.reject.apply(this, "function" === typeof reject ? reject() : reject);
     }
   }).promise();
 }

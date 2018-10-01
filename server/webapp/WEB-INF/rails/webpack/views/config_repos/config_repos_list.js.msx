@@ -67,7 +67,7 @@ const AddForm = {
     return <div class="add-config-repo-form">
       <f.select validate={true} label="Choose a plugin" model={vm} attrName="pluginId" items={availablePlugins} />
       <f.input validate={true} label="Config Repo ID" model={vm} attrName="id"/>
-      <MaterialAttributes material={vm.attributes()} isEdit={true} />
+      <MaterialAttributes model={vm} isEdit={true} />
     </div>;
   }
 };
@@ -81,7 +81,7 @@ const ConfigRepo = {
     return <li>
       <h3>{repo.type()} repo: {repo.id()}</h3>
       <h5>Plugin: {repo.pluginId()}</h5>
-      <MaterialAttributes material={repo.attributes()} isEdit={isEdit} />
+      <MaterialAttributes model={repo} isEdit={isEdit} />
       <ActionBar vm={vm} repo={repo} isEdit={isEdit} />
     </li>;
   }
@@ -103,12 +103,13 @@ const ActionBar = {
 
 const MaterialAttributes = {
   view(vnode) {
-    const material = vnode.attrs.material;
+    const vm = vnode.attrs.model;
+    const material = vm.attributes();
     const isEdit = vnode.attrs.isEdit;
 
     if (isEdit) {
       return <div>{
-        _.map(material.keys, (k) => <Field model={material} attrName={k} />)
+        _.map(material.keys, (k) => <Field vm={vm} model={material} attrName={k} />)
       }</div>;
     }
 
@@ -120,12 +121,16 @@ const MaterialAttributes = {
 
 const Field = {
   view(vnode) {
-    const vm = vnode.attrs.model;
+    const vm = vnode.attrs.vm;
+    const model = vnode.attrs.model;
     const k = vnode.attrs.attrName;
-    const field = vm[k];
-    const options = {model: vm, attrName: k, label: field.opts("display"), validate: true};
+    const field = model[k];
+    const options = {model, attrName: k, label: field.opts("display"), validate: true};
 
     if (field.opts("readOnly")) { options.disabled = true; }
+    if ("url" === k) {
+      options.contentAfter = [<CheckConnection vm={vm}/>];
+    }
 
     switch (field.opts("type")) {
       /* eslint-disable no-fallthrough */
@@ -138,6 +143,26 @@ const Field = {
         return <f.input {...options} />;
       /* eslint-enable no-fallthrough */
     }
+  }
+};
+
+const CheckConnection = {
+  oninit(vnode) {
+    vnode.state.result = null;
+  },
+
+  view(vnode) {
+    const vm = vnode.attrs.vm;
+    const success = (data) => { vnode.state.result = data.message; };
+    const failure = (errorMessage) => { vnode.state.result = errorMessage; };
+    const handler = () => {
+      vnode.state.result = null;
+      vm.testConnection().then(success, failure);
+    };
+    return <div class="connection-test">
+      <button onclick={handler}>Check Connection</button>
+      <span class="connection-result">{vnode.state.result}</span>
+    </div>;
   }
 };
 

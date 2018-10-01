@@ -18,6 +18,8 @@ const Stream      = require("mithril/stream");
 const _           = require("lodash");
 const Materials   = require("models/config_repos/materials");
 const Validatable = require("models/mixins/validatable_mixin");
+const ApiHelper   = require("helpers/api_helper");
+const Routes      = require("gen/js-routes");
 
 function ConfigRepoVM(data) {
   this.id = Stream();
@@ -68,6 +70,12 @@ function ConfigRepoVM(data) {
     cloned.etag(this.etag());
     return cloned;
   };
+
+  this.testConnection = () => ApiHelper.POST({
+    url: Routes.apiv1AdminInternalMaterialTestPath(),
+    apiVersion: "v1",
+    payload: this.toJSON().material
+  });
 }
 
 module.exports = ConfigRepoVM;

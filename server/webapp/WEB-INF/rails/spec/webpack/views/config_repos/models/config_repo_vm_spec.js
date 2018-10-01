@@ -15,6 +15,7 @@
  */
 
 const ConfigRepoVM = require("views/config_repos/models/config_repo_vm");
+const Routes       = require("gen/js-routes");
 
 describe("Config Repo View Model", () => {
   it("allowSave() runs ALL validations on local and child fields, even if there are failures (does not short-circuit)", () => {
@@ -68,6 +69,28 @@ describe("Config Repo View Model", () => {
     // prove these are independent
     copy.id("carbon-copy");
     expect(original.toJSON()).not.toEqual(copy.toJSON());
+  });
+
+  it("should be able to test connectivity for url", (done) => {
+    const repo = simple();
+
+    jasmine.Ajax.withMock(() => {
+      jasmine.Ajax.stubRequest(Routes.apiv1AdminInternalMaterialTestPath(), undefined, "POST").andReturn({
+        responseText: JSON.stringify({ message: "Connection OK." }),
+        status: 200,
+        responseHeaders: {
+          "Content-Type": "application/vnd.go.cd.v1+json"
+        }
+      });
+
+      repo.testConnection().then((data) => {
+        const reqParams = JSON.parse(jasmine.Ajax.requests.mostRecent().params);
+        expect(reqParams.attributes.url).toBe("https://bitnugget.org/unicorns");
+        expect(data.message).toBe("Connection OK.");
+        done();
+      }, () => done.fail("request should be successful"));
+    });
+
   });
 });
 

@@ -75,11 +75,17 @@ function find_best_available_java() {
   # first check GO_JAVA_HOME
   if [ -n "$GO_JAVA_HOME" ]; then
     JAVACMD="$GO_JAVA_HOME/bin/java"
+  else
+    # try using java versions in following preference order: 10, 1.8
+    supported_versions=("10" "1.8")
 
-  # otherwise check "/usr/libexec/java_home" symlinks
-  elif [ -x /usr/libexec/java_home ] && [ "$(/usr/libexec/java_home -v "1.8" >/dev/null 2>&1; echo $?)" = "0" ] \
-    && [ -d "$(/usr/libexec/java_home -v "1.8" 2>/dev/null)" ]; then
-    JAVACMD="$(/usr/libexec/java_home -v "1.8")/bin/java"
+    for version in ${supported_versions[@]}; do
+      if [ -x /usr/libexec/java_home ] && [ "$(/usr/libexec/java_home -v "$version" >/dev/null 2>&1; echo $?)" = "0" ] \
+      && [ -d "$(/usr/libexec/java_home -v "$version" 2>/dev/null)" ]; then
+        JAVACMD="$(/usr/libexec/java_home -v "$version")/bin/java"
+        break
+      fi
+    done
   fi
 
   echo "$JAVACMD"

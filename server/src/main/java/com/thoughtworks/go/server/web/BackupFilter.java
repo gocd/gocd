@@ -82,6 +82,8 @@ public class BackupFilter implements Filter {
             } else {
                 generateHTMLResponse(response);
             }
+
+            ((HttpServletResponse) response).setStatus(HttpServletResponse.SC_SERVICE_UNAVAILABLE);
         } else {
             chain.doFilter(request, response);
         }
@@ -130,7 +132,6 @@ public class BackupFilter implements Filter {
         } catch (IOException e) {
             LOGGER.error("General IOException: {}", e.getMessage());
         }
-        ((HttpServletResponse) response).setStatus(503);
     }
 
     private boolean requestIsOfType(String type, HttpServletRequest request) {

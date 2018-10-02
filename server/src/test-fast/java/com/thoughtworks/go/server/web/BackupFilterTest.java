@@ -73,6 +73,7 @@ public class BackupFilterTest {
         backupFilter.doFilter(request, res, chain);
         verify(res, times(0)).setContentType("text/html");
         verify(writer, times(0)).print("some test data for my input stream");
+        verify(res, never()).setStatus(anyInt());
     }
 
     @Test
@@ -91,6 +92,7 @@ public class BackupFilterTest {
         verify(writer).print(content);
         verify(res).setHeader("Cache-Control", "private, max-age=0, no-cache");
         verify(res).setDateHeader("Expires", 0);
+        verify(res).setStatus(503);
     }
 
     @Test
@@ -109,6 +111,7 @@ public class BackupFilterTest {
         verify(writer).print(content);
         verify(res).setHeader("Cache-Control", "private, max-age=0, no-cache");
         verify(res).setDateHeader("Expires", 0);
+        verify(res).setStatus(503);
     }
 
 
@@ -127,6 +130,7 @@ public class BackupFilterTest {
         verify(writer).print(json);
         verify(res).setHeader("Cache-Control", "private, max-age=0, no-cache");
         verify(res).setDateHeader("Expires", 0);
+        verify(res, never()).setStatus(anyInt());
     }
 
     @Test
@@ -162,6 +166,7 @@ public class BackupFilterTest {
         verify(writer).print(json);
         verify(res).setHeader("Cache-Control", "private, max-age=0, no-cache");
         verify(res).setDateHeader("Expires", 0);
+        verify(res).setStatus(503);
     }
 
     private Request request(HttpMethod method, String contentType, String uri) {

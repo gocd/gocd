@@ -86,4 +86,10 @@ describe('Dropdown widget', () => {
     expect($root.find('.c-dropdown')).not.toHaveClass('open');
   });
 
+  it('should open drowndown when down-arrow is clicked', () => {
+    expect($root.find('.c-dropdown')).not.toHaveClass('open');
+    simulateEvent.simulate($root.find('.c-down-arrow').get(0), 'click');
+    expect($root.find('.c-dropdown')).toHaveClass('open');
+  });
+
 });

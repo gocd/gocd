@@ -19,8 +19,8 @@ const $    = require('jquery');
 const meta = $("meta[name='gocd-params']");
 
 module.exports = {
-  SERVER_TIMEZONE_UTC_OFFSET: parseInt(meta.attr('data-timezone')),
-  SPA_REQUEST_TIMEOUT:        parseInt(meta.attr('data-page-timeout')),
-  SPA_REFRESH_INTERVAL:       parseInt(meta.attr('data-page-refresh-interval')),
+  SERVER_TIMEZONE_UTC_OFFSET: parseInt(meta.attr('data-timezone') || '0'),
+  SPA_REQUEST_TIMEOUT:        parseInt(meta.attr('data-page-timeout') || '5000'),
+  SPA_REFRESH_INTERVAL:       parseInt(meta.attr('data-page-refresh-interval') || '10000'),
   AUTH_LOGIN_PATH:  '/go/auth/login'
 };

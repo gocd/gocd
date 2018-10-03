@@ -37,6 +37,11 @@ const PluginWidget = {
             return this.vmState(vmStateKey)() ? 'show' : 'hide';
         };
     },
+
+    stopPropagation(event) {
+        event.stopPropagation();
+    },
+
     view(vnode) {
         const pluginInfo = vnode.attrs.pluginInfo;
 
@@ -59,8 +64,8 @@ const PluginWidget = {
             if (statusReport && vnode.attrs.isUserAnAdmin()) {
                 const statusReportHref = Routes.adminStatusReportPath(pluginInfo.id());
                 statusReportLink = (
-                    <f.anchor href={statusReportHref} class='btn-primary btn-small status-report-btn'>Status
-                        Report</f.anchor>
+                    <f.anchor href={statusReportHref} class='btn-primary btn-small status-report-btn'
+                              onclick={this.stopPropagation.bind(this)}>Status Report</f.anchor>
                 );
             } else if (statusReport) {
                 statusReportLink = (
@@ -71,7 +76,7 @@ const PluginWidget = {
             }
 
             if (settingsIcon && vnode.attrs.isUserAnAdmin()) {
-                editPluginSettingsLink = (<f.link class='edit-plugin' onclick={vnode.attrs.onEdit}/>);
+                editPluginSettingsLink = (<f.link class='edit-plugin' onclick={vnode.attrs.onEdit.bind(this)}/>);
             } else if (settingsIcon) {
                 editPluginSettingsLink = (
                     <f.link class='edit-plugin disabled' title="Not allowed to edit plugin settings"/>);
@@ -95,7 +100,8 @@ const PluginWidget = {
         return (
             <div
                 class={`c-collapse plugin ${pluginInfo.isActive() ? 'active' : 'disabled'} ${(this.showState() === 'hide') ? 'collapsed' : 'expanded'}`}>
-                <div class="c-collapse_header plugin-header" onclick={vnode.state.toggleHide.bind(vnode.state)}>
+                <div class={`c-collapse_header plugin-header ${(this.showState() === 'hide') ? 'collapsed' : 'expanded'}`}
+                     onclick={vnode.state.toggleHide.bind(vnode.state)}>
                     <div className="c-collapse_header_details">
                         <span class="c-collapse_icon plugin-icon">
                           {image}

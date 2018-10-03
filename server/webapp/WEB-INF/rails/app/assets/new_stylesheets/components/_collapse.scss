@@ -27,26 +27,12 @@ $collapse-icon-color: #ddd;
   border-radius: $global-border-radius;
   margin-bottom: 10px;
   &.collapsed {
-    @include icon-before($type: angle-right, $color: $collapse-icon-color);
     background: $go-white;
-    &:before {
-      position:  absolute;
-      right:     10px;
-      font-size: 30px;
-      top:       3px;
-    }
   }
   &.expanded {
     @extend %box-shadow;
-    @include icon-before($type: angle-down, $color: $collapse-icon-color);
     .c-collapse_header {
       border-bottom: 1px solid $collapse-border;
-    }
-    &:before {
-      position:  absolute;
-      right:     10px;
-      font-size: 30px;
-      top:       3px;
     }
   }
 }
@@ -55,6 +41,24 @@ $collapse-icon-color: #ddd;
   @include clearfix();
   padding: 10px 50px 10px 30px;
   cursor:  pointer;
+  &.collapsed {
+    @include icon-before($type: angle-right, $color: $collapse-icon-color);
+    &:before {
+      position:  absolute;
+      right:     10px;
+      font-size: 30px;
+      top:       3px;
+    }
+  }
+  &.expanded {
+    @include icon-before($type: angle-down, $color: $collapse-icon-color);
+    &:before {
+      position:  absolute;
+      right:     10px;
+      font-size: 30px;
+      top:       3px;
+    }
+  }
 }
 
 .c-collapse_header_details {

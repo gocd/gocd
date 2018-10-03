@@ -398,6 +398,7 @@ var PipelineActions = Class.create({
                 if (response.responseText) {
                     FlashMessageLauncher.error('Error while scheduling build', JSON.parse(response.responseText).message);
                 }
+                dashboard_periodical_executor.fireNow();
             }
         });
     },

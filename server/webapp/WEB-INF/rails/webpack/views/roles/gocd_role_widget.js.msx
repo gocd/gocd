@@ -44,7 +44,8 @@ const RoleWidget = {
 
       <div class={`c-collapse ${(this.showState() === 'hide') ? 'collapsed' : 'expanded'}`}>
 
-        <div class="c-collapse_header" onclick={vnode.state.toggleHide.bind(vnode.state)}>
+        <div class={`c-collapse_header ${(this.showState() === 'hide') ? 'collapsed' : 'expanded'}`}
+             onclick={vnode.state.toggleHide.bind(vnode.state)}>
           <div className="c-collapse_header_details">
               <span class="c-collapse_icon">
                   <span class="gocd-role-icon"></span>

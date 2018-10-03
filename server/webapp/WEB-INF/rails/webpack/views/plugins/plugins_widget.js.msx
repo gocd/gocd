@@ -89,7 +89,9 @@ const PluginsWidget = {
       return modal;
     };
 
-    this.edit = function (pluginInfo) {
+    this.edit = function (pluginInfo, event) {
+      event.stopPropagation();
+
       const newPluginSetting   = Stream();
       const errorMessage = Stream();
       ctrl.clearMessage();

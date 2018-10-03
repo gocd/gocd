@@ -383,19 +383,22 @@ var PipelineActions = Class.create({
 
         this.rememberButtonIsSpinning('Schedule', pipelineName);
 
-        new Ajax.Request(url, {
-            method: 'post',
-            requestHeaders: {
-                Confirm: 'true'
+        jQuery.ajax({
+            url:      url,
+            type:     'POST',
+            headers:  {
+                'Accept':       'application/vnd.go.cd.v1+json',
+                'Content-Type': "application/json"
             },
-            onComplete: function() {
+            data:     JSON.stringify({}),
+            success: function () {
                 dashboard_periodical_executor.fireNow();
             },
-            on406: function(transport) {
-                var json = transport.responseText.evalJSON();
-                if (json.error) {
-                    FlashMessageLauncher.error('Error while scheduling build', json.error);
+            error: function (response) {
+                if (response.responseText) {
+                    FlashMessageLauncher.error('Error while scheduling build', JSON.parse(response.responseText).message);
                 }
+                dashboard_periodical_executor.fireNow();
             }
         });
     },
@@ -428,13 +431,18 @@ var PipelineActions = Class.create({
                 linkElement.addClassName('submiting-link');
             }
 
-            new Ajax.Request(url, {
-                method: 'post',
-                parameters : 'pauseCause=' + cause,
-                requestHeaders: {
-                    Confirm: 'true'
+            jQuery.ajax({
+                url:      url,
+                type:     'POST',
+                headers:  {
+                    'Accept':       'application/vnd.go.cd.v1+json',
+                    'Content-Type': "application/json"
                 },
-                onComplete: function() {
+                data:     JSON.stringify({'pause_cause': cause}),
+                success: function () {
+                    dashboard_periodical_executor.fireNow();
+                },
+                error: function () {
                     dashboard_periodical_executor.fireNow();
                 }
             });
@@ -458,12 +466,18 @@ var PipelineActions = Class.create({
             linkElement.addClassName('submiting-link');
         }
 
-        new Ajax.Request(url, {
-            method: 'post',
-            requestHeaders: {
-                Confirm: 'true'
+        jQuery.ajax({
+            url:      url,
+            type:     'POST',
+            headers:  {
+                'Accept':       'application/vnd.go.cd.v1+json',
+                'Content-Type': "application/json"
             },
-            onComplete: function() {
+            data:     JSON.stringify({}),
+            success: function () {
+                dashboard_periodical_executor.fireNow();
+            },
+            error: function () {
                 dashboard_periodical_executor.fireNow();
             }
         });

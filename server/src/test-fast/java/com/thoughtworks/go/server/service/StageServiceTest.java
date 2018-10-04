@@ -34,6 +34,8 @@ import com.thoughtworks.go.server.dao.sparql.StageRunFinder;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.messaging.StageStatusMessage;
 import com.thoughtworks.go.server.messaging.StageStatusTopic;
+import com.thoughtworks.go.server.newsecurity.utils.SessionUtils;
+import com.thoughtworks.go.server.security.userdetail.GoUserPrinciple;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.service.result.HttpOperationResult;
 import com.thoughtworks.go.server.transaction.TestTransactionSynchronizationManager;
@@ -55,6 +57,7 @@ import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import java.sql.SQLException;
 import java.util.*;
 
+import static com.thoughtworks.go.server.security.GoAuthority.ROLE_ANONYMOUS;
 import static java.util.Arrays.asList;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.Matchers.hasItem;
@@ -81,7 +84,6 @@ public class StageServiceTest {
     private TestTransactionSynchronizationManager transactionSynchronizationManager;
     private PipelineDao pipelineDao;
 
-
     private static final Username ALWAYS_ALLOW_USER = new Username(new CaseInsensitiveString("always allowed"));
     private GoCache goCache;
 
@@ -98,11 +100,13 @@ public class StageServiceTest {
 
         transactionSynchronizationManager = new TestTransactionSynchronizationManager();
         transactionTemplate = new TestTransactionTemplate(transactionSynchronizationManager);
+        SessionUtils.setCurrentUser(new GoUserPrinciple("anonymous", "anonymous", ROLE_ANONYMOUS.asAuthority()));
     }
 
     @After
     public void teardown() throws Exception {
         configFileHelper.initializeConfigFile();
+        SessionUtils.unsetCurrentUser();
     }
 
     @Test

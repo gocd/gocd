@@ -100,6 +100,9 @@
                             class="#if($current_tab == 'pipeline' || $current_tab == 'Current Activity') current #end">
                           <a href="$req.getContextPath()/pipelines">Pipelines</a>
                         </li>
+                        <li id="cruise-header-tab-environments">
+                          <a href="$req.getContextPath()/environments">Environments</a>
+                        </li>
                         <li id="cruise-header-tab-agents" class="#if($current_tab == 'Agents') current #end">
                           <a href="$req.getContextPath()/agents">AGENTS</a>
                         </li>

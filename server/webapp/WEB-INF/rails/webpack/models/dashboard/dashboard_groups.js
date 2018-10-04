@@ -108,8 +108,8 @@ class Environment extends Group {
       return {};
     }
     return {
-      edit: `${Routes.environmentsPath()}#environment_entity_${this.name}`,
-      show: `${Routes.environmentsPath()}#environment_entity_${this.name}`
+      edit: Routes.environmentShowPath(this.name),
+      show: Routes.environmentShowPath(this.name)
     };
   }
 }

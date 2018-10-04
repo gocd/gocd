@@ -19,7 +19,6 @@
 <li role="presentation"><a href="/go/admin/artifact_stores">Artifact Stores</a></li>
 <li role="presentation"><a href="/go/admin/config_xml">Config XML</a></li>
 <li role="presentation"><a href="/go/admin/data_sharing/settings">Data Sharing</a></li>
-<li role="presentation"><a href="/go/admin/environments">Environments</a></li>
 <li role="presentation"><a href="/go/admin/config/server">Server Configuration</a></li>
 <li role="presentation"><a href="/go/admin/users">User Summary</a></li>
 <li role="presentation"><a href="/go/admin/backup">Backup</a></li>

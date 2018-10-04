@@ -25,6 +25,9 @@
         <li id='cruise-header-tab-pipelines' class="<%= "current" if @current_tab_name == "pipelines" %>">
             <%= link_to 'Pipelines', pipeline_dashboard_path -%>
         </li>
+        <li id='cruise-header-tab-environments' class="<%= "current" if @current_tab_name == "environments" %>">
+            <%= link_to 'Environments', environments_path -%>
+        </li>
         <li id='cruise-header-tab-agents' class="<%= "current" if @current_tab_name == "agents" %>">
             <%= link_to 'Agents', '/go/agents' -%>
         </li>

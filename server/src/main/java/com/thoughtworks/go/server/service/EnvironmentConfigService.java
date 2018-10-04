@@ -33,7 +33,6 @@ import com.thoughtworks.go.presentation.TriStateSelection;
 import com.thoughtworks.go.presentation.environment.EnvironmentPipelineModel;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
-import com.thoughtworks.go.server.ui.EnvironmentViewModel;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -177,15 +176,6 @@ public class EnvironmentConfigService implements ConfigChangedListener {
 
     public List<EnvironmentConfig> getAllMergedEnvironments() {
         return environmentNames().stream().map(environmentName -> EnvironmentConfigService.this.getMergedEnvironmentforDisplay(environmentName.toString(), new HttpLocalizedOperationResult()).getConfigElement()).collect(Collectors.toList());
-    }
-
-    public List<EnvironmentViewModel> listAllMergedEnvironments() {
-        ArrayList<EnvironmentViewModel> environmentViewModels = new ArrayList<>();
-        List<EnvironmentConfig> allMergedEnvironments = getAllMergedEnvironments();
-        for (EnvironmentConfig environmentConfig : allMergedEnvironments) {
-            environmentViewModels.add(new EnvironmentViewModel(environmentConfig));
-        }
-        return environmentViewModels;
     }
 
     public ConfigElementForEdit<EnvironmentConfig> getMergedEnvironmentforDisplay(String environmentName, HttpLocalizedOperationResult result) {

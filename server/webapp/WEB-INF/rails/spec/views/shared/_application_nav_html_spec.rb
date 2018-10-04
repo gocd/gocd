@@ -35,7 +35,7 @@ describe "/shared/_application_nav.html.erb" do
     it 'should have the header links' do
       render :partial => partial_page
 
-      assert_header_values = {'pipelines' => 'Pipelines', 'environments' => 'Environments', 'agents' => 'Agents', 'admin' => 'Admin'}
+      assert_header_values = {'pipelines' => 'Pipelines', 'agents' => 'Agents', 'admin' => 'Admin'}
 
       assert_header_values.each do |key, value|
         Capybara.string(response.body).find("li#cruise-header-tab-#{key}").tap do |ul_tabs_li|
@@ -48,7 +48,7 @@ describe "/shared/_application_nav.html.erb" do
       expect(view).to receive(:supports_analytics_dashboard?).and_return(true)
       render :partial => partial_page
 
-      assert_header_values = {'pipelines' => 'Pipelines', 'environments' => 'Environments', 'agents' => 'Agents', 'analytics' => 'Analytics', 'admin' => 'Admin'}
+      assert_header_values = {'pipelines' => 'Pipelines', 'agents' => 'Agents', 'analytics' => 'Analytics', 'admin' => 'Admin'}
 
       assert_header_values.each do |key, value|
         Capybara.string(response.body).find("li#cruise-header-tab-#{key}").tap do |ul_tabs_li|

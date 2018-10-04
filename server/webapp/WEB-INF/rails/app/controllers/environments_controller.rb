@@ -20,7 +20,9 @@ class EnvironmentsController < ApplicationController
   helper AgentsHelper
 
   before_action :load_new_environment, :only => [:new, :create]
-  before_action :load_existing_environment, :only => [:edit, :update, :show, :edit_pipelines, :edit_agents, :edit_variables]
+  before_action :load_existing_environment, :only => [:update, :edit_pipelines, :edit_agents, :edit_variables]
+
+  before_action :load_pipelines_and_agents, :only => [:new, :create, :update, :edit_pipelines, :edit_agents]
 
   before_action :load_pipelines_and_agents, :only => [:new, :edit, :create, :update, :edit_pipelines, :edit_agents]
 
@@ -31,7 +33,8 @@ class EnvironmentsController < ApplicationController
   prepend_before_action :set_tab_name
 
   def index
-    @environments = environment_config_service.environmentNames()
+    @environments = environment_config_service.listAllMergedEnvironments()
+    set_agent_details
     @show_add_environments = security_service.isUserAdmin(current_user)
   end
 
@@ -47,7 +50,7 @@ class EnvironmentsController < ApplicationController
 
     environment_config_service.createEnvironment(@environment, current_user, @result = HttpLocalizedOperationResult.new)
     render_environment_create_error_result(@environment)
-    redirect_with_flash("Added environment '#{@environment.name()}'", :action => :show, :name => @environment.name().to_s, :class => 'success') if @result.isSuccessful()
+    redirect_with_flash("Added environment '#{@environment.name()}'", :action => :index, :class => 'success') if @result.isSuccessful()
   end
 
   def update
@@ -63,14 +66,10 @@ class EnvironmentsController < ApplicationController
 
     message = result.message()
     if result.isSuccessful()
-      render :plain => message, :location => url_options_with_flash(message, {:action => :show, :name => @environment.name(), :class => 'success', :only_path => true})
+      render :plain => message, :location => url_options_with_flash(message, {:action => :index, :class => 'success', :only_path => true})
     else
       render_error_response message, 400, true
     end
-  end
-
-  def show
-    @agent_details = agent_service.filter(@environment.getLocalAgents().map(&:uuid))
   end
 
   def edit_pipelines
@@ -86,6 +85,12 @@ class EnvironmentsController < ApplicationController
   end
 
   private
+
+  def set_agent_details
+    @environments.each do |env_view_model|
+      env_view_model.setAgentViewModels(agent_service)
+    end
+  end
 
   def load_new_environment
     @environment = BasicEnvironmentConfig.new

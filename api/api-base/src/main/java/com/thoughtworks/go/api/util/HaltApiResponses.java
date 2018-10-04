@@ -26,6 +26,9 @@ import static com.thoughtworks.go.api.util.HaltApiMessages.*;
 import static spark.Spark.halt;
 
 public abstract class HaltApiResponses {
+    public static HaltException haltBecauseNotFound() {
+        return halt(HttpStatus.NOT_FOUND.value(), MessageJson.create(notFoundMessage()));
+    }
 
     public static HaltException haltBecauseForbidden() {
         return halt(HttpStatus.FORBIDDEN.value(), MessageJson.create(forbiddenMessage()));

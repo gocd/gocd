@@ -42,11 +42,9 @@ import java.util.concurrent.ConcurrentHashMap;
 @Component
 public class GoRepoConfigDataSource implements ChangedRepoConfigWatchListListener {
     private static final Logger LOGGER = LoggerFactory.getLogger(GoRepoConfigDataSource.class);
-
+    private final ServerHealthService serverHealthService;
     private GoConfigPluginService configPluginService;
     private GoConfigWatchList configWatchList;
-    private final ServerHealthService serverHealthService;
-
     // value is partial config instance or last exception
     private Map<String, PartialConfigParseResult> fingerprintOfPartialToLatestParseResultMap = new ConcurrentHashMap<>();
 
@@ -70,19 +68,22 @@ public class GoRepoConfigDataSource implements ChangedRepoConfigWatchListListene
     }
 
     public boolean latestParseHasFailedForMaterial(MaterialConfig material) {
-        String fingerprint = material.getFingerprint();
-        PartialConfigParseResult result = fingerprintOfPartialToLatestParseResultMap.get(fingerprint);
+        PartialConfigParseResult result = getLastParseResult(material);
         if (result == null)
             return false;
-        return result.getLastFailure() != null;
+        return !result.isSuccessful();
+    }
+
+    public PartialConfigParseResult getLastParseResult(MaterialConfig material) {
+        String fingerprint = material.getFingerprint();
+        return fingerprintOfPartialToLatestParseResultMap.get(fingerprint);
     }
 
     public PartialConfig latestPartialConfigForMaterial(MaterialConfig material) throws Exception {
-        String fingerprint = material.getFingerprint();
-        PartialConfigParseResult result = fingerprintOfPartialToLatestParseResultMap.get(fingerprint);
+        PartialConfigParseResult result = getLastParseResult(material);
         if (result == null)
             return null;
-        if (result.getLastFailure() != null)
+        if (!result.isSuccessful())
             throw result.getLastFailure();
 
         return result.getLastSuccess();
@@ -177,50 +178,11 @@ public class GoRepoConfigDataSource implements ChangedRepoConfigWatchListListene
     }
 
     public String getRevisionAtLastAttempt(MaterialConfig material) {
-        String fingerprint = material.getFingerprint();
-        PartialConfigParseResult result = fingerprintOfPartialToLatestParseResultMap.get(fingerprint);
+        PartialConfigParseResult result = getLastParseResult(material);
         if (result == null)
             return null;
 
         return result.getRevision();
-    }
-
-
-    private class PartialConfigParseResult {
-        private final String revision;
-        private PartialConfig lastSuccess;
-        private Exception lastFailure;
-
-        public PartialConfigParseResult(String revision, PartialConfig newPart) {
-            this.revision = revision;
-            this.lastSuccess = newPart;
-        }
-
-        public PartialConfigParseResult(String revision, Exception ex) {
-            this.revision = revision;
-            this.lastFailure = ex;
-        }
-
-
-        public PartialConfig getLastSuccess() {
-            return lastSuccess;
-        }
-
-        public void setLastSuccess(PartialConfig lastSuccess) {
-            this.lastSuccess = lastSuccess;
-        }
-
-        public Exception getLastFailure() {
-            return lastFailure;
-        }
-
-        public void setLastFailure(Exception lastFailure) {
-            this.lastFailure = lastFailure;
-        }
-
-        public String getRevision() {
-            return revision;
-        }
     }
 
     private class LoadContext implements PartialConfigLoadContext {

@@ -18,16 +18,16 @@
 
 'use strict';
 
-const fs             = require('fs');
-const fsExtra        = require('fs-extra');
-const _              = require('lodash');
-const path           = require('path');
-const upath          = require('upath');
-const webpack        = require('webpack');
-const StatsPlugin    = require('stats-webpack-plugin');
-const HappyPack      = require('happypack');
-const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
-const licenseChecker = require('license-checker');
+const fs                   = require('fs');
+const fsExtra              = require('fs-extra');
+const _                    = require('lodash');
+const path                 = require('path');
+const upath                = require('upath');
+const webpack              = require('webpack');
+const StatsPlugin          = require('stats-webpack-plugin');
+const HappyPack            = require('happypack');
+const licenseChecker       = require('license-checker');
+const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 
 const singlePageAppModuleDir = path.join(__dirname, '..', 'webpack', 'single_page_apps');
 
@@ -85,35 +85,10 @@ module.exports = function (env) {
     jQuery:          "jquery",
     "window.jQuery": "jquery"
   }));
-  plugins.push(new webpack.optimize.CommonsChunkPlugin({
-    name:     "vendor-and-helpers.chunk",
-    filename: production ? '[name]-[chunkhash].js' : '[name].js',
-    minChunks(module, _count) {
-      function isFromNPM() {
-        return new RegExp(`node_modules`).test(module.resource) || new RegExp(`node-vendor`).test(module.resource);
-      }
-
-      function isInside() {
-        return module.resource.indexOf(path.join(assetsDir, ..._(Array.prototype.concat.apply([], arguments)).flattenDeep().compact().value())) === 0;
-      }
-
-      return module.resource && (isFromNPM() || isInside('helpers') || isInside('gen') || isInside('models', 'shared') || isInside('models', 'mixins') || isInside('views', 'shared'));
-    },
-  }));
+  plugins.push(new MiniCssExtractPlugin());
 
   if (production) {
-    plugins.push(new UglifyJsPlugin({
-      cache:         path.join(__dirname, '..', 'tmp', 'uglify-js-cache'),
-      parallel:      true,
-      sourceMap:     true,
-      uglifyOptions: {
-        ecma:     5,
-        warnings: false
-      }
-    }));
     plugins.push(new webpack.LoaderOptionsPlugin({minimize: true}));
-    plugins.push(new webpack.DefinePlugin({'process.env': {NODE_ENV: JSON.stringify('production')}}));
-    plugins.push(new webpack.NoEmitOnErrorsPlugin());
   }
 
   const config = {
@@ -238,13 +213,45 @@ module.exports = function (env) {
 
   config.plugins.push(new LicensePlugin());
 
+  const splitChunks = {
+    cacheGroups: {
+      default: false,
+      vendors: false,
+      vendor:  {
+        name:   'vendor-and-helpers.chunk',
+        chunks: 'all',
+        test(module, chunks) {
+          function isFromNPM() {
+            const name = module.nameForCondition && module.nameForCondition();
+            return new RegExp(`node_modules`).test(name) || new RegExp(`node-vendor`).test(name);
+          }
+
+          function isInside() {
+            return module.resource.indexOf(path.join(assetsDir, ..._(Array.prototype.concat.apply([], arguments)).flattenDeep().compact().value())) === 0;
+          }
+
+          return module.resource && (isFromNPM() || isInside('helpers') || isInside('gen') || isInside('models', 'shared') || isInside('models', 'mixins') || isInside('views', 'shared'));
+        }
+      }
+    }
+  };
+
   if (production) {
+    config.mode = 'production';
     fsExtra.removeSync(config.output.path);
-    config.devtool = "source-map";
+    config.devtool      = "source-map";
+    config.optimization = {
+      splitChunks: splitChunks
+    };
   } else {
+    config.mode    = 'development';
     config.devtool = "inline-source-map";
 
     config.resolve.modules.push(path.join(__dirname, 'spec', 'webpack'));
+
+    config.optimization = {
+      splitChunks: splitChunks
+    };
 
     const jasmineCore  = require('jasmine-core');
     const jasmineFiles = jasmineCore.files;

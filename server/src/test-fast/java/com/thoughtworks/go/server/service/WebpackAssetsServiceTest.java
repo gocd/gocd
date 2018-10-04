@@ -86,8 +86,37 @@ public class WebpackAssetsServiceTest {
         }
 
         Set<String> assetPaths = webpackAssetsService.getAssetPathsFor("single_page_apps/agents", "single_page_apps/new_dashboard");
+        assertThat(assetPaths.size(), is(5));
+        assertThat(assetPaths, hasItems("/go/assets/webpack/vendor-and-helpers.chunk.js",
+                "/go/assets/webpack/single_page_apps/agents.js",
+                "/go/assets/webpack/single_page_apps/agents.css",
+                "/go/assets/webpack/single_page_apps/new_dashboard.js",
+                "/go/assets/webpack/single_page_apps/new_dashboard.css"));
+    }
+
+    @Test
+    public void shouldGetJSAssetPathsFromManifestJson() throws IOException {
+        try (InputStream is = getClass().getResourceAsStream("/com/thoughtworks/go/server/service/webpackassetstest/good-manifest.json")) {
+            FileUtils.copyInputStreamToFile(is, manifestFile);
+        }
+
+        Set<String> assetPaths = webpackAssetsService.getJSAssetPathsFor("single_page_apps/agents", "single_page_apps/new_dashboard");
         assertThat(assetPaths.size(), is(3));
-        assertThat(assetPaths, hasItems("/go/assets/webpack/vendor-and-helpers.chunk.js", "/go/assets/webpack/single_page_apps/agents.js", "/go/assets/webpack/single_page_apps/new_dashboard.js"));
+        assertThat(assetPaths, hasItems("/go/assets/webpack/vendor-and-helpers.chunk.js",
+                "/go/assets/webpack/single_page_apps/agents.js",
+                "/go/assets/webpack/single_page_apps/new_dashboard.js"));
+    }
+
+    @Test
+    public void shouldGetCSSAssetPathsFromManifestJson() throws IOException {
+        try (InputStream is = getClass().getResourceAsStream("/com/thoughtworks/go/server/service/webpackassetstest/good-manifest.json")) {
+            FileUtils.copyInputStreamToFile(is, manifestFile);
+        }
+
+        Set<String> assetPaths = webpackAssetsService.getCSSAssetPathsFor("single_page_apps/agents", "single_page_apps/new_dashboard");
+        assertThat(assetPaths.size(), is(2));
+        assertThat(assetPaths, hasItems("/go/assets/webpack/single_page_apps/agents.css",
+                "/go/assets/webpack/single_page_apps/new_dashboard.css"));
     }
 
     @Test

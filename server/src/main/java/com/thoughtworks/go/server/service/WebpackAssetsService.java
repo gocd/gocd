@@ -27,6 +27,7 @@ import javax.servlet.ServletContext;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
@@ -71,6 +72,18 @@ public class WebpackAssetsService implements ServletContextAware {
         }
 
         return result;
+    }
+
+    public Set<String> getJSAssetPathsFor(String... assetNames) throws IOException {
+        return getAssetPathsFor(assetNames).stream()
+                .filter(assetName -> assetName.endsWith(".js"))
+                .collect(Collectors.toSet());
+    }
+
+    public Set<String> getCSSAssetPathsFor(String... assetNames) throws IOException {
+        return getAssetPathsFor(assetNames).stream()
+                .filter(assetName -> assetName.endsWith(".css"))
+                .collect(Collectors.toSet());
     }
 
     private Map getManifest() throws IOException {

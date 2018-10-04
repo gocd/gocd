@@ -3,9 +3,9 @@
   "version": "0.0.1",
   "license": "Apache-2.0",
   "scripts": {
-    "webpack-watch": "webpack --config config/webpack.config.js --watch",
-    "webpack-dev": "webpack --config config/webpack.config.js",
-    "webpack-prod": "webpack --config config/webpack.config.js --env.production=true",
+    "webpack-watch": "webpack --config config/webpack.config.js --mode=development --watch",
+    "webpack-dev": "webpack --config config/webpack.config.js --mode=development",
+    "webpack-prod": "webpack --config config/webpack.config.js --env.production=true --mode=production",
     "jasmine-ci": "karma start --single-run",
     "karma": "karma start",
     "eslint": "eslint --color --ext .js --ext .msx --format stylish webpack/ spec/webpack/ --ignore-pattern gen/",
@@ -46,8 +46,8 @@
     "eslint-plugin-es5": "^1.3.1",
     "eslint-plugin-react": "^7.10.0",
     "fs-extra": "^6.0.1",
-    "happypack": "^4.0.1",
-    "html-webpack-plugin": "^2.28.0",
+    "happypack": "^5.0.0",
+    "html-webpack-plugin": "^3.2.0",
     "jasmine": "^2.6.0",
     "jasmine-ajax": "^3.3.1",
     "jasmine-core": "^2.6.2",
@@ -64,6 +64,7 @@
     "karma-safari-launcher": "^1.0.0",
     "karma-sourcemap-loader": "^0.3.7",
     "license-checker": "^20.1.0",
+    "mini-css-extract-plugin": "^0.4.3",
     "node-sass": "^4.9.3",
     "sass-loader": "^7.1.0",
     "simulate-event": "^1.4.0",
@@ -73,7 +74,8 @@
     "synchronize": "^2.0.0",
     "uglifyjs-webpack-plugin": "^1.2.2",
     "upath": "^1.1.0",
-    "webpack": "^3.6.0",
-    "webpack-dev-server": "^2.4.5"
+    "webpack": "^4.19.1",
+    "webpack-cli": "^3.1.0",
+    "webpack-dev-server": "^3.1.8"
   }
 }

@@ -733,6 +733,8 @@ task newApi {
 
           import java.io.IOException;
 
+          import static spark.Spark.*;
+
           @Component
           public class ${controllerClassName} extends ApiController implements SparkSpringController, CrudController<${entityClassName}> {
 
@@ -748,7 +750,9 @@ task newApi {
 
               @Override
               public void setupRoutes() {
-                  // to be implemented
+                  path(controllerBasePath(), () -> {
+                      // to be implemented
+                  });
               }
 
               @Override

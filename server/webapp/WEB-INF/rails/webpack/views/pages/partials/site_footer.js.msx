@@ -16,7 +16,7 @@
 
 const $      = require('jquery');
 const m      = require('mithril');
-const styles = require('./app_footer.scss');
+const styles = require('./site_footer.scss');
 
 class AppFooter {
   view() {

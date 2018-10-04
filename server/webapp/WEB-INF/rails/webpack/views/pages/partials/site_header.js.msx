@@ -1,0 +1,74 @@
+/*
+ * Copyright 2018 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+const $                   = require('jquery');
+const m                   = require('mithril');
+const styles              = require('./site_header.scss');
+const NotificationCenter  = require('views/components/notification_center/notification_center');
+const ServerHealthSummary = require('views/components/server_health_summary/server_health_summary');
+const SiteMenu            = require('views/components/site_menu/index');
+const SiteHeaderLink      = require('views/components/site_header_link/index');
+
+class SiteHeader {
+  view() {
+
+    const bodyElem               = $('body');
+    const showAnalyticsDashboard = JSON.parse(bodyElem.attr('data-show-analytics-dashboard'));
+    const canViewAdminPage       = JSON.parse(bodyElem.attr('data-can-user-view-admin'));
+    const isUserAdmin            = JSON.parse(bodyElem.attr('data-is-user-admin'));
+    const isGroupAdmin           = JSON.parse(bodyElem.attr('data-is-user-group-admin'));
+    const canViewTemplates       = JSON.parse(bodyElem.attr('data-can-user-view-templates'));
+    const userDisplayName        = bodyElem.attr('data-user-display-name') || "";
+    const userAnonymous          = JSON.parse(bodyElem.attr('data-user-anonymous'));
+
+    let userMenu = "";
+    if (!userAnonymous) {
+      userMenu = <div className={`${styles.user} ${styles['is-drop-down']}`}>
+        <SiteHeaderLink href="#" className={styles.user_link}> <i className={`${styles.user_icon}`}/> {userDisplayName} <i
+          className={`${styles.caret_down_icon}`}/></SiteHeaderLink>
+        <ul className={styles.user_subnav}>
+          <li className={styles.user_subnav_item}><a href="/go/preferences/notifications"
+                                                     className={styles.user_subnav_link}>Preference</a></li>
+          <li className={styles.user_subnav_item}><a href="/go/auth/logout" className={styles.user_subnav_link}>Sign
+            out</a></li>
+        </ul>
+      </div>;
+    }
+
+    return <header class={styles['site-header']}>
+      <a href="/go/pipelines" class={styles.gocd_logo}/>
+      <div className={styles.navbtn}>
+        <div className={styles.bar}/>
+      </div>
+      <div className={styles['main-navigation']}>
+        <div className={styles['site-header_left']}>
+          <SiteMenu showAnalytics={showAnalyticsDashboard} canViewAdminPage={canViewAdminPage} isUserAdmin={isUserAdmin}
+                    isGroupAdmin={isGroupAdmin} canViewTemplates={canViewTemplates}/>
+        </div>
+
+        <div class={styles['site-header_right']}>
+          <NotificationCenter/>
+          <ServerHealthSummary/>
+          <SiteHeaderLink class={styles.need_help} href="https://gocd.org/help" target="_blank">Need
+            Help?</SiteHeaderLink>
+          {userMenu}
+        </div>
+      </div>
+    </header>;
+  }
+}
+
+module.exports = SiteHeader;

@@ -13,11 +13,131 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@import '../global/common';
+@import '../global/zindex';
+@import '../global/measures';
+
+$notification-bg: #fff;
 
 .notifications {
+  @include clearfix();
+  @media(max-width: $screen-md-min) {
+    margin-bottom: 20px;
+  }
+  @media(min-width: $screen-md) {
+    position: relative;
+    margin:   4px 15px 0;
+    float:    right;
+  }
 
+  &:hover {
+    .hover-container {
+      display: block;
+    }
+  }
 }
 
 .bell {
+  @include icon-before($fa-var-bell-o, $color: #fff);
+  font-size: 18px;
+  @media(max-width: $screen-md-min) {
+    float: left;
+  }
+}
 
+.notification-hover {
+  position:      relative;
+  background:    $notification-bg;
+  color:         #000;
+  padding:       20px 20px 10px;
+  border-radius: 5px;
+  box-sizing:    border-box;
+  font-size:     13px;
+  box-shadow:    3px 3px 5px 0 rgba(0, 0, 0, 0.2);
+  z-index:       map_get($zindex, 'menu');
+  @media(max-width: $screen-md-min) {
+    width: 100%;
+  }
+  @media(min-width: $screen-md) {
+    width: 300px;
+  }
+  &:after {
+    @media(min-width: $screen-md) {
+      bottom:              100%;
+      right:               14px;
+      border:              solid transparent;
+      content:             " ";
+      height:              0;
+      width:               0;
+      position:            absolute;
+      pointer-events:      none;
+      border-color:        rgba(255, 255, 255, 0);
+      border-bottom-color: #fff;
+      border-width:        6px;
+    }
+  }
+  a, a:hover {
+    color:     $link-color;
+    font-size: 13px;
+  }
+
+}
+
+.notification_item {
+  border-top:    1px dotted $global-border-color;
+  padding:       5px 25px 5px 0;
+  margin-bottom: 0;
+  position:      relative;
+  line-height:   20.8px;
+  &:first-child {
+    border: 0;
+  }
+}
+
+.notification_close {
+  width:         17px;
+  height:        17px;
+  line-height:   17px;
+  border-radius: 50%;
+  background:    #e0dede;
+  display:       inline-block;
+  text-align:    center;
+  font-weight:   700;
+  font-size:     10px;
+  position:      absolute;
+  right:         0;
+  top:           50%;
+  transform:     translateY(-50%);
+  cursor:        pointer;
+}
+
+.hover-container {
+  @media(max-width: $screen-md-min) {
+    float:   left;
+    display: block;
+  }
+  @media(min-width: $screen-md) {
+    display:     none;
+    position:    absolute;
+    right:       -7px;
+    top:         99%;
+    padding-top: 5px;
+  }
+
+}
+
+.system-notifications {
+  position: relative;
+  @media(min-width: $screen-md) {
+    height: 40px;
+    width:  100px;
+    float:  right;
+
+  }
+}
+
+.top-bar .menu .notifications {
+  a {
+    padding: 0;
+  }
 }

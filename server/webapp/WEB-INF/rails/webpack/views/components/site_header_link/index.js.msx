@@ -14,25 +14,23 @@
  * limitations under the License.
  */
 
-$site-header: #000728;
-$header-text-color: #ddd;
-$sub-navigation-bg: #313e68;
-$active-menu: #943a9e;
+const m = require('mithril');
+const styles = require('./index.scss');
 
-$header-bg: #33364e;
-$header-fg: #fff;
-$header-hover: #000;
+class SiteHeaderLink {
 
-$border-color: #ccc;
+  view(vnode) {
+    let classes = "";
+    if (vnode.attrs.className) {
+      classes = vnode.attrs.className;
+    }
+    if (vnode.attrs.class) {
+      classes += ` ${vnode.attrs.class}`;
+    }
+    classes += ` ${styles.link}`;
+    return <a href={vnode.attrs.href || '#'} class={classes.trim()} target={vnode.attrs.target || ''}>{vnode.children}</a>;
+  }
 
-$building: #ffc11b;
-$failed: #fa2d2d;
+}
 
-$text-color: #333;
-$submenu-bg: #fff;
-$submenu-hover: #e6e6e6;
-
-$footer-bg: #535353;
-$footer-fg: #fff;
-
-$page-header-bg: #fff;
+module.exports = SiteHeaderLink;

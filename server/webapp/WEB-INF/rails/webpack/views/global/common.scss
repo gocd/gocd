@@ -14,46 +14,7 @@
  * limitations under the License.
  */
 
-@mixin icon-only($type, $font: 'font-awesome') {
-  @if $font == 'font-awesome' {
-    font-family: 'FontAwesome';
-    content: $type; //fixme
-  } @else {
-    @error "Could not find font family #{$font}";
-  }
-}
+@import "_fontawesome";
+@import "variables";
+@import "mixins";
 
-@mixin icon($type, $size: auto, $margin: auto, $line-height: 1em, $color: auto, $top: auto, $shadow: none, $font: 'font-awesome') {
-  @include icon-only($type: $type, $font: $font);
-
-  font-weight:            normal;
-  font-style:             normal;
-  display:                inline-block;
-  text-decoration:        inherit;
-  line-height:            $line-height;
-
-  @if $margin != auto {
-    margin: $margin;
-  }
-  @if $size != auto {
-    font-size: $size;
-  }
-  @if $top != auto {
-    position: relative;
-    top:      $top;
-  }
-  @if $color != auto {
-    color: $color;
-  }
-  @if $shadow != none {
-    text-shadow: $shadow;
-  }
-  -webkit-font-smoothing: antialiased;
-}
-
-@mixin icon-before($type, $size: auto, $margin: 5px, $line-height: 1em, $color: auto, $top: auto, $shadow: none, $font: 'font-awesome', $progress-spinner: false) {
-  &:before {
-    @include icon($type, $size, $margin, $line-height, $color, $top, $shadow, $font: $font);
-    @content;
-  }
-}

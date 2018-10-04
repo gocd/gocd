@@ -82,19 +82,15 @@ describe("SystemNotificationsWidget", () => {
 
     systemNotifications(SystemNotifications.fromJSON(notifications));
     m.redraw(true);
-    expect($root.find('.notifications').get(0)).toBeInDOM();
-    expect($root.find('.notifications .bell').get(0)).toBeInDOM();
-    expect($root.find('.notifications .hover-container').get(0)).toBeInDOM();
-    expect($root.find('.notifications .hover-container .notification-hover').get(0)).toBeInDOM();
-    expect($root.find('.notifications .hover-container .notification-hover p').get(0)).toBeInDOM();
-    const allNotifications = $root.find('.notifications .hover-container .notification-hover p');
+    const allNotifications = find('notification-item');
+    expect(allNotifications.get(0)).toBeInDOM();
     expect(allNotifications.length).toBe(2);
     expect(allNotifications.eq(0)).toContainText("message 1. read more");
     expect(allNotifications.eq(0).find('a')).toContainText("read more");
-    expect(allNotifications.eq(0).find('span.close')).toContainText("X");
+    expect(allNotifications.eq(0).find(`[data-test-id='notification-item_close']`)).toContainText("X");
     expect(allNotifications.eq(1)).toContainText("message 2. read more");
     expect(allNotifications.eq(1).find('a')).toContainText("read more");
-    expect(allNotifications.eq(1).find('span.close')).toContainText("X");
+    expect(allNotifications.eq(1).find(`[data-test-id='notification-item_close']`)).toContainText("X");
   });
 
 
@@ -120,12 +116,12 @@ describe("SystemNotificationsWidget", () => {
 
     systemNotifications(SystemNotifications.fromJSON(notifications));
     m.redraw(true);
-    let allNotifications = $root.find('.notifications .hover-container .notification-hover p');
+    let allNotifications = find('notification-item');
     expect(allNotifications.length).toBe(2);
-    simulateEvent.simulate(allNotifications.eq(0).find('span.close').get(0), 'click');
+    simulateEvent.simulate(allNotifications.eq(0).find(`[data-test-id='notification-item_close']`).get(0), 'click');
     m.redraw(true);
 
-    allNotifications = $root.find('.notifications .hover-container .notification-hover p');
+    allNotifications = find('notification-item');
     expect(allNotifications.length).toBe(1);
     expect(allNotifications.eq(0)).toContainText("message 2. read more");
 
@@ -139,4 +135,8 @@ describe("SystemNotificationsWidget", () => {
     expect(remainingNofication.message()).toBe("message 2.");
     expect(remainingNofication.read()).toBe(false);
   });
+
+  function find(id) {
+    return $root.find(`[data-test-id='${id}']`);
+  }
 });

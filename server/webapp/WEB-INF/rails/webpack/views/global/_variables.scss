@@ -1,4 +1,4 @@
-/*
+/*!
  * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,25 +14,29 @@
  * limitations under the License.
  */
 
-$site-header: #000728;
-$header-text-color: #ddd;
-$sub-navigation-bg: #313e68;
-$active-menu: #943a9e;
+$body-color: #333333;
+$body-bg: #F4F8F9;
 
-$header-bg: #33364e;
-$header-fg: #fff;
-$header-hover: #000;
+//colors
+$link-color: #0a8fcb;
+$link-hover-color: #0B5B7E;
+$link-decoration: none;
+$link-hover-decoration: none;
 
-$border-color: #ccc;
+//fonts
 
-$building: #ffc11b;
-$failed: #fa2d2d;
+$font-family-base: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+$font-weight-base: 400;
+$line-height-base: 1.5;
+$global-font-weight: 600;
+$font-family-monospace: monospace;
+$font-size-base: 14px;
 
-$text-color: #333;
-$submenu-bg: #fff;
-$submenu-hover: #e6e6e6;
+//margins
+$global-margin-top: 20px;
+$global-margin-bottom: 20px;
+$label-margin-bottom: 0;
 
-$footer-bg: #535353;
-$footer-fg: #fff;
+//border
 
-$page-header-bg: #fff;
+$global-border-color :#e9edEf;

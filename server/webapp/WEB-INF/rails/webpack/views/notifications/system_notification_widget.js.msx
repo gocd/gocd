@@ -16,6 +16,7 @@
 
 const m = require('mithril');
 const ComponentMixins = require('helpers/mithril_component_mixins');
+const style = require('./system_notifications.scss');
 
 const SystemNotificationWidget = {
     oninit(vnode) {
@@ -26,9 +27,10 @@ const SystemNotificationWidget = {
     view(vnode) {
         const notification = vnode.attrs.notification;
         return (
-            <p>
+            <p class={style.notification_item} data-test-id="notification-item">
                 {notification.message} <a href={notification.link} target="_blank">{notification.linkText}</a>
-                <span onclick={vnode.attrs.markAsRead.bind(vnode.attrs, notification)} class="close">X</span>
+                <span onclick={vnode.attrs.markAsRead.bind(vnode.attrs, notification)}
+                      data-test-id="notification-item_close" class={style.notification_close}>X</span>
             </p>
         );
     }

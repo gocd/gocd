@@ -27,8 +27,6 @@ const webpack              = require('webpack');
 const StatsPlugin          = require('stats-webpack-plugin');
 const HappyPack            = require('happypack');
 const licenseChecker       = require('license-checker');
-const MiniCssExtractPlugin = require("mini-css-extract-plugin");
-
 const singlePageAppModuleDir = path.join(__dirname, '..', 'webpack', 'single_page_apps');
 
 const mithrilVersionFromNpm          = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'node_modules/mithril/package.json'), 'utf8')).version;
@@ -92,16 +90,6 @@ module.exports = function (env) {
               'happypack/loader?id=scss'
             ]
           },
-          {
-            test: /\.woff(2)?(\?v=[0-9]\.[0-9]\.[0-9])?$/,
-            use:  'happypack/loader?id=woff'
-          },
-          {
-            test: /\.(ttf|eot|svg)(\?v=[0-9]\.[0-9]\.[0-9])?$/,
-            use:  [ //happypack doesn't work with file-loader as of now
-              {loader: 'file-loader'}
-            ]
-          }
         ]
       }
     };
@@ -215,26 +203,9 @@ module.exports = function (env) {
           }
         },
         {
-          loader:  "sass-loader", // compiles Sass to CSS, using Node Sass by default
-          options: {
-            includePaths: [
-              path.join(__dirname, '..', 'node_modules', 'font-awesome', 'scss')
-            ]
-          }
+          loader:  "sass-loader" // compiles Sass to CSS, using Node Sass by default
         }
       ],
-      threadPool: happyThreadPool
-    }),
-    new HappyPack({
-      id:         'woff',
-      loaders:    [
-        {
-          loader:  'url-loader',
-          options: {
-            limit:    10000,
-            mimetype: 'application/font-woff'
-          }
-        }],
       threadPool: happyThreadPool
     }),
     new StatsPlugin('manifest.json', {

@@ -1,0 +1,180 @@
+/*
+ * Copyright 2018 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+@import "../../global/measures";
+@import "../../global/theme";
+@import "../../global/zindex";
+@import "../../global/common";
+
+.main-menu {
+  display: block;
+}
+
+.site-nav {
+  list-style-type: none;
+
+  padding:         0;
+  display:         flex;
+  flex-direction:  column;
+  margin:          20px 0;
+  @media(min-width: $screen-md) {
+    flex-direction: row;
+    margin:         0 0 0 20px;
+  }
+  @media(min-width: $screen-lg) {
+    margin: 0 0 0 30px;
+  }
+}
+
+.site-nav_item {
+
+  line-height: 39px;
+  position:    relative;
+  @media(min-width: $screen-md) {
+    padding: 0 7px;
+  }
+  @media(min-width: $screen-lg) {
+    padding: 0 10px;
+  }
+  &.active {
+    &:after {
+      content:    "";
+      position:   absolute;
+      bottom:     0;
+      left:       0;
+      right:      0;
+      height:     4px;
+      width:      100%;
+      background: $active-menu;
+    }
+  }
+  &.is-drop-down {
+
+    &:before {
+      content:      "";
+      position:     absolute;
+      left:         50%;
+      top:          30px;
+      transform:    translateX(-50%);
+      width:        0;
+      height:       0;
+      border-left:  10px solid transparent;
+      border-right: 10px solid transparent;
+      border-top:   10px solid $site-header;
+    }
+  }
+
+  &:hover {
+    // background: $sub-navigation-bg;
+    @media(min-width: $screen-md) {
+      .sub-navigation {
+        display: flex;
+      }
+
+      &:before {
+        top:        40px;
+        z-index:    map_get($zindex, 'menu');
+        transition: all 0.1s ease-in-out;
+      }
+    }
+  }
+  .caret_down_icon {
+    @include icon-before($fa-var-caret-down);
+    color:     #a5a5a5;
+    font-size: 13px;
+    display:   none;
+    @media(min-width: $screen-md) {
+      display: inline-block;
+    }
+  }
+}
+
+.site-nav_link {
+  text-decoration: none;
+  text-transform:  uppercase;
+  font-size:       12px;
+  font-weight:     600;
+  @media(min-width: $screen-md) {
+    font-size: 11px;
+  }
+  @media(min-width: $screen-lg) {
+    font-size: 13px;
+  }
+}
+
+//subnavigation
+
+.sub-navigation {
+
+  @media(min-width: $screen-md) {
+    background:  $sub-navigation-bg;
+    position:    absolute;
+    left:        0;
+    top:         40px;
+    padding:     30px 20px;
+    display:     none;
+    line-height: normal;
+    box-shadow:  0 3px 10px rgba(0, 0, 0, 0.21);
+    z-index:     map_get($zindex, submenu);
+  }
+}
+
+.site-sub-nav {
+  list-style-type: none;
+  margin:          0 20px;
+  padding:         0;
+}
+
+.site-sub-nav_link-head {
+  color:          $header-text-color;
+  margin:         20px 0 10px 0;
+  font-weight:    600;
+  font-size:      12px;
+  text-transform: uppercase;
+  @media(min-width: $screen-md) {
+    margin: 5px 0 10px 0;
+  }
+}
+
+.site-sub-nav_item {
+  @media (max-width: $screen-md-min) {
+    line-height: normal;
+  }
+}
+
+.site-sub-nav_link {
+  color:           #bbb;
+  text-decoration: none;
+  padding:         5px 0;
+  display:         inline-block;
+  font-size:       13px;
+  position:        relative;
+  white-space:     nowrap;
+  @media (max-width: $screen-md-min) {
+    margin-bottom: 10px;
+  }
+  &.active {
+    &:after {
+      content:    "";
+      position:   absolute;
+      bottom:     0;
+      left:       0;
+      right:      0;
+      height:     1px;
+      width:      100%;
+      background: $active-menu;
+    }
+  }
+}

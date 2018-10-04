@@ -1,0 +1,127 @@
+/*
+ * Copyright 2018 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+const m              = require('mithril');
+const SiteHeaderLink = require('../site_header_link/index');
+const styles         = require('./index.scss');
+
+class SiteNavItem {
+  view(vnode) {
+    const dropDownClass = vnode.attrs.isDropDown ? styles['is-drop-down'] : '';
+
+    if (!vnode.attrs.isDropDown) {
+      return <li class={`${styles['site-nav_item']} ${dropDownClass}`}>
+        <SiteHeaderLink href={vnode.attrs.href || '#'}
+                        class={styles['site-nav_link']}>{vnode.attrs.text}</SiteHeaderLink>
+      </li>;
+    }
+    return <li className={`${styles['site-nav_item']} ${dropDownClass}`}>
+      <SiteHeaderLink href="#" class={styles['site-nav_link']}>{vnode.attrs.text}</SiteHeaderLink>
+      <i className={`${styles.caret_down_icon}`}/>
+      {vnode.children}
+    </li>;
+  }
+}
+
+class SiteSubNav {
+  view(vnode) {
+    return <ul className={styles['site-sub-nav']}>
+      {vnode.children}
+    </ul>;
+  }
+}
+
+class SiteSubNavItem {
+  view(vnode) {
+    return <li className={styles['site-sub-nav_item']}>
+      <SiteHeaderLink href={vnode.attrs.href || "#"}
+                      className={styles['site-sub-nav_link']}>{vnode.attrs.text}</SiteHeaderLink>
+    </li>;
+  }
+}
+
+class SiteSubNavHeading {
+  view(vnode) {
+    return <li className={styles['site-sub-nav_item']}>
+      <h5 className={styles['site-sub-nav_link-head']}>{vnode.attrs.text}</h5>
+    </li>;
+  }
+}
+
+class SiteMenu {
+  view(vnode) {
+    const analyticsMenu = vnode.attrs.showAnalytics ? <SiteNavItem href="/go/analytics" text="Analytics"/> : '';
+    let adminMenu       = <SiteNavItem text="Admin"/>;
+    if (vnode.attrs.canViewAdminPage) {
+      if (vnode.attrs.isUserAdmin) {
+        adminMenu = <SiteNavItem isDropDown={true} text="Admin">
+          <div className={styles['sub-navigation']}>
+            <SiteSubNav>
+              <SiteSubNavItem href="/go/admin/pipelines" text="Pipelines"/>
+              <SiteSubNavItem href="/go/admin/templates" text="Templates"/>
+              <SiteSubNavItem href="/go/admin/elastic_profiles" text="Elastic Agent Profiles"/>
+              <SiteSubNavItem href="/go/admin/config_xml" text="Config XML"/>
+              <SiteSubNavItem href="/go/admin/config/server" text="Server Configuration"/>
+            </SiteSubNav>
+            <SiteSubNav>
+              <SiteSubNavItem href="/go/admin/users" text="User Summary"/>
+              <SiteSubNavItem href="/go/admin/backup" text="Backup"/>
+              <SiteSubNavItem href="/go/admin/plugins" text="Plugins"/>
+              <SiteSubNavItem href="/go/admin/package_repositories/new" text="Package Repositories"/>
+            </SiteSubNav>
+            <SiteSubNav>
+              <SiteSubNavHeading text="Security"/>
+              <SiteSubNavItem href="/go/admin/security/auth_configs" text="Authorization Configuration"/>
+              <SiteSubNavItem href="/go/admin/security/roles" text="Role configuration"/>
+            </SiteSubNav>
+          </div>
+        </SiteNavItem>;
+      } else if (vnode.attrs.isGroupAdmin) {
+        adminMenu = <SiteNavItem isDropDown={true} text="Admin">
+          <div className={styles['sub-navigation']}>
+            <SiteSubNav>
+              <SiteSubNavItem href="/go/admin/pipelines" text="Pipelines"/>
+              <SiteSubNavItem text="/go/admin/templates"/>
+              <SiteSubNavItem href="/go/admin/elastic_profiles" text="Elastic Agent Profiles"/>
+              <SiteSubNavItem href="/go/admin/config_xml" text="Config XML"/>
+              <SiteSubNavItem href="/go/admin/plugins" text="Plugins"/>
+              <SiteSubNavItem href="/go/admin/package_repositories/new" text="Package Repositories"/>
+            </SiteSubNav>
+          </div>
+        </SiteNavItem>;
+      } else if (vnode.attrs.canViewTemplates) {
+        adminMenu = <SiteNavItem isDropDown={true} text="Admin">
+          <div className={styles['sub-navigation']}>
+            <SiteSubNav>
+              <SiteSubNavItem text="Templates"/>
+            </SiteSubNav>
+          </div>
+        </SiteNavItem>;
+      }
+    }
+
+    return <nav className={styles['main-menu']}>
+      <ul className={styles['site-nav']}>
+        <SiteNavItem href="/go/pipelines" text="Dashboard"/>
+        <SiteNavItem href="/go/agents" text="Agents"/>
+        {analyticsMenu}
+        {adminMenu}
+      </ul>
+    </nav>;
+  }
+}
+
+module.exports = SiteMenu;

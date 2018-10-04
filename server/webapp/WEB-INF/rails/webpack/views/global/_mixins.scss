@@ -1,4 +1,4 @@
-/*
+/*!
  * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,17 +14,10 @@
  * limitations under the License.
  */
 
-const m      = require('mithril');
-const styles = require('./menu.scss');
-
-class Menu {
-  view(vnode) {
-    return <nav class={styles.menu}>
-      <ul>
-        {vnode.children}
-      </ul>
-    </nav>;
+@mixin clearfix() {
+  &::after {
+    display: block;
+    content: "";
+    clear: both;
   }
 }
-
-module.exports = Menu;

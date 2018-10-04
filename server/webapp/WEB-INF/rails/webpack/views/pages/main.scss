@@ -14,6 +14,29 @@
  * limitations under the License.
  */
 
+@import "~normalize-scss/sass/normalize/import-now";
+@import '~bourbon/core/bourbon';
+@import "../global/common";
+@import "../global/typography";
+@import "../global/measures.scss";
+
+body {
+  margin:           0;
+  font-family:      $font-family-base;
+  font-size:        $font-size-base;
+  font-weight:      $font-weight-base;
+  line-height:      $line-height-base;
+  color:            $body-color;
+  text-align:       left;
+  background-color: $body-bg;
+
+}
+
+@include font-face('FontAwesome', 'font-awesome/fonts/fontawesome-webfont', ("woff2", "woff", "ttf", "svg", "eot")) {
+  font-weight: normal;
+  font-style: normal;
+}
+
 .page {
   margin:                  0;
   padding:                 0;
@@ -28,10 +51,9 @@
   flex-flow:               column;
 }
 
-.app-header {
-
+.page {
 }
 
-.app-footer {
+.site-footer {
 
 }

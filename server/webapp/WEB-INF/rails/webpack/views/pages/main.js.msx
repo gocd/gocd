@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-const m         = require('mithril');
-const AppHeader = require('./partials/app_header.js.msx');
-const AppFooter = require('./partials/app_footer.js.msx');
-const styles    = require('./main.scss');
+const m          = require('mithril');
+const SiteHeader = require('./partials/site_header.js.msx');
+const SiteFooter = require('./partials/site_footer.js.msx');
+const styles     = require('./main.scss');
 
 class MainPage {
 
@@ -25,12 +25,10 @@ class MainPage {
     const pageName    = vnode.attrs.pageName;
     const pageToMount = require(`views/pages/${pageName}`); //fixme error handling
     return m('div', {class: styles.page}, [
-      m('header', {class: styles['app-header']}, [
-        m(AppHeader)
-      ]),
+      m(SiteHeader),
       m(pageToMount),
-      m('footer', {class: styles['app-footer']}, [
-        m(AppFooter)
+      m('footer', {class: styles['site-footer']}, [
+        m(SiteFooter)
       ])
     ]);
   }

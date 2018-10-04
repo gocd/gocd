@@ -14,49 +14,50 @@
  * limitations under the License.
  */
 
-const m = require('mithril');
+const m                        = require('mithril');
 const SystemNotificationWidget = require('views/notifications/system_notification_widget');
-const ComponentMixins = require('helpers/mithril_component_mixins');
+const ComponentMixins          = require('helpers/mithril_component_mixins');
+const styles                   = require('./system_notifications.scss');
 
 const SystemNotificationsWidget = {
-    oninit(vnode) {
-        const ctrl = vnode.state;
-        ComponentMixins.ManagesCollection.call(this, {as: 'SystemNotification'});
-        ComponentMixins.HasViewModel.call(this);
-        this.systemNotifications = vnode.attrs.systemNotifications;
-        this.markAsRead = function (notification) {
-            notification.markAsRead();
-            ctrl.systemNotifications().removeSystemNotification( (e) => {
-                return notification.id() === e.id();
-            });
-            m.redraw();
-        };
-    },
-    view(vnode) {
-        if (vnode.state.systemNotifications().countSystemNotification() === 0) {
-            return (<div/>);
-        }
-        else {
-            return (
-                <div class="notifications">
-                    <span class="bell"></span>
-                    <div class="hover-container">
-                        <div class="notification-hover">
-                                {
-                                    vnode.state.systemNotifications().mapSystemNotifications( (notification) => {
-                                        return (
-                                            <SystemNotificationWidget
-                                                notification={notification}
-                                                markAsRead={vnode.state.markAsRead.bind(vnode.state, notification)}/>
-                                        );
-                                    })
-                                }
-                        </div>
-                    </div>
-                </div>
-            );
-        }
+  oninit(vnode) {
+    const ctrl = vnode.state;
+    ComponentMixins.ManagesCollection.call(this, {as: 'SystemNotification'});
+    ComponentMixins.HasViewModel.call(this);
+    this.systemNotifications = vnode.attrs.systemNotifications;
+    this.markAsRead          = function (notification) {
+      notification.markAsRead();
+      ctrl.systemNotifications().removeSystemNotification((e) => {
+        return notification.id() === e.id();
+      });
+      m.redraw();
+    };
+  },
+  view(vnode) {
+    if (vnode.state.systemNotifications().countSystemNotification() === 0) {
+      return (<div/>);
     }
+    else {
+      return (
+        <div class={styles.notifications}>
+          <span class={styles.bell}></span>
+          <div class={styles.hoverContainer}>
+            <div class={styles.notificationHover}>
+              {
+                vnode.state.systemNotifications().mapSystemNotifications((notification) => {
+                  return (
+                    <SystemNotificationWidget
+                      notification={notification}
+                      markAsRead={vnode.state.markAsRead.bind(vnode.state, notification)}/>
+                  );
+                })
+              }
+            </div>
+          </div>
+        </div>
+      );
+    }
+  }
 };
 
 module.exports = SystemNotificationsWidget;

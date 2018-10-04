@@ -20,7 +20,7 @@ $icon-color: #647984;
 $border-color: #ccc;
 
 .search-box {
-  @include icon-before($type: "\f002");
+  @include icon-before($type: $fa-var-search);
 
   display:  inline-block;
   position: relative;

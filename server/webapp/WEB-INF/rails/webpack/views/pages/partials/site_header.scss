@@ -1,0 +1,269 @@
+/*
+ * Copyright 2018 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+@import "../../global/theme";
+@import "../../global/zindex";
+@import "../../global/measures";
+@import "../../global/common";
+
+.site-header {
+  background: $site-header;
+  position: fixed;
+  left:0;
+  right:0;
+  z-index:    map-get($zindex, site-header);
+  @media(min-width: $screen-md) {
+    display:     flex;
+    height:      40px;
+    align-items: center;
+    padding:     0 10px;
+  }
+  @media(min-width: $screen-lg) {
+    padding: 0 30px;
+  }
+}
+
+.main-navigation {
+  @media (max-width: $screen-md-min) {
+    display:    none;
+    margin:     0;
+    position:   fixed;
+    right:      0;
+    bottom:     0;
+    top:        40px;
+    width:      100%;
+    background: #000629;
+    height:     100vh;
+    padding:    0 20px 40px;
+    overflow-y: auto;
+  }
+
+  @media(min-width: $screen-md) {
+    display:         flex !important;
+    justify-content: space-between;
+    flex-grow:       2;
+  }
+}
+
+.gocd_logo {
+  height:     20px;
+  width:      40px;
+  display:    inline-block;
+  margin:     10px 0 10px 20px;
+  @media(min-width: $screen-md) {
+    margin: 10px 0 10px 0;
+  }
+  @media(min-width: $screen-lg) {
+    margin-right: 10px;
+  }
+  background: url('/go/assets/go_logo.svg') no-repeat 0 0; //fixme
+}
+
+.site-navigation_left {
+  display:        flex;
+  text-transform: uppercase;
+  flex-shrink:    0;
+  flex-grow:      0;
+}
+
+.site-header_left, .site-header_right {
+  @media(min-width: $screen-md) {
+    display:        flex;
+    flex-direction: row;
+    align-items:    center;
+  }
+}
+
+// nav button for mobile
+
+.navbtn {
+  border:     0;
+  background: #fff;
+  float:      right;
+  @media(min-width: $screen-md) {
+    display: none;
+  }
+}
+
+// responsive menu
+$bar-width: 20px;
+$bar-height: 3px;
+$bar-spacing: 7px;
+.navbtn {
+  position:   absolute;
+  top:        11px;
+  right:      10px;
+  margin:     auto;
+  width:      $bar-width;
+  height:     $bar-height + $bar-spacing*2;
+  cursor:     pointer;
+  background: transparent;
+}
+
+.bar,
+.bar:after,
+.bar:before {
+  width:  $bar-width;
+  height: $bar-height;
+}
+
+.bar {
+  position:   relative;
+  transform:  translateY($bar-spacing);
+  background: rgba(255, 255, 255, 1);
+  transition: all 0ms 300ms;
+  &.animate {
+    background: rgba(255, 255, 255, 0);
+  }
+}
+
+.bar:before {
+  content:    "";
+  position:   absolute;
+  left:       0;
+  bottom:     $bar-spacing;
+  background: rgba(255, 255, 255, 1);
+  transition: bottom 300ms 300ms cubic-bezier(0.23, 1, 0.32, 1), transform 300ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.bar:after {
+  content:    "";
+  position:   absolute;
+  left:       0;
+  top:        $bar-spacing;
+  background: rgba(255, 255, 255, 1);
+  transition: top 300ms 300ms cubic-bezier(0.23, 1, 0.32, 1), transform 300ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.bar.animate:after {
+  top:        0;
+  transform:  rotate(45deg);
+  transition: top 300ms cubic-bezier(0.23, 1, 0.32, 1), transform 300ms 300ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.bar.animate:before {
+  bottom:     0;
+  transform:  rotate(-45deg);
+  transition: bottom 300ms cubic-bezier(0.23, 1, 0.32, 1), transform 300ms 300ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.need_help {
+  line-height: 40px;
+  display:     block;
+  @media(min-width: $screen-md) {
+    margin: 0 7px 0 0;
+  }
+  @media(min-width: $screen-lg) {
+    margin: 0 10px 0 0;
+  }
+}
+
+//header right side navigation
+
+.user {
+  color:    $header-text-color;
+  position: relative;
+  @media(min-width: $screen-md) {
+
+  }
+  &.is-drop-down {
+    &:before {
+      content:      "";
+      position:     absolute;
+      left:         50%;
+      top:          30px;
+      transform:    translateX(-50%);
+      width:        0;
+      height:       0;
+      border-left:  10px solid transparent;
+      border-right: 10px solid transparent;
+      border-top:   10px solid $site-header;
+    }
+  }
+  &:hover {
+    .user_subnav {
+      display: block;
+      z-index: map_get($zindex, submenu);
+    }
+    &:before {
+      top:        40px;
+      z-index:    map-get($zindex, menu);
+      transition: all 0.1s ease-in-out;
+    }
+  }
+}
+
+.user_link {
+  color:           $header-text-color;
+  text-decoration: none;
+  padding:         0;
+  line-height:     40px;
+  display:         inline-block;
+  font-size:       13px;
+  @media(min-width: $screen-md) {
+    padding: 0 7px;
+  }
+  @media(min-width: $screen-lg) {
+    padding: 0 10px;
+  }
+  .fa {
+    margin: 0 3px;
+    color:  #a5a5a5;
+    @media(min-width: $screen-md) {
+      margin: 0 5px;
+    }
+  }
+}
+
+.user_subnav {
+  list-style-type: none;
+  margin:          0 20px;
+  padding:         0;
+
+  @media(min-width: $screen-md) {
+    margin:     0 0 0 20px;
+    padding:    10px 20px;
+    display:    none;
+    position:   absolute;
+    top:        40px;
+    right:      0;
+    background: $sub-navigation-bg;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.21);
+  }
+}
+
+.user_subnav_link {
+  color:           $header-text-color;
+  text-decoration: none;
+  padding:         10px 0px;
+  font-size:       13px;
+  text-align:      right;
+  display:         inline-block;
+  transition:      all 0.3s ease-in-out;
+  &:hover {
+    color:      #fff;
+    transition: all 0.3s ease-in-out;
+  }
+}
+
+.caret_down_icon {
+  @include icon-before($fa-var-caret-down);
+  color: #a5a5a5;
+}
+
+.user_icon {
+  @include icon-before($fa-var-user);
+
+}

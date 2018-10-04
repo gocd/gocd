@@ -22,7 +22,6 @@ const merge                = require('webpack-merge');
 const path                 = require('path');
 const fsExtra              = require('fs-extra');
 const webpack              = require('webpack');
-const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const baseConfigFn         = require('./webpack-base.config.js');
 
 module.exports = function (env) {
@@ -39,12 +38,24 @@ module.exports = function (env) {
       filename: '[name]-[chunkhash].js'
     },
     plugins: [
-      new MiniCssExtractPlugin({
-        filename:      '[name]-[hash].css',
-        chunkFilename: '[id]-[hash].css'
-      }),
       new webpack.LoaderOptionsPlugin({minimize: true})
-    ]
+    ],
+    module: {
+      rules: [
+        {
+          test:    /\.(woff(2)?|ttf|eot|svg)(\?v=\d+\.\d+\.\d+)?$/,
+          use:     [
+            {
+              loader: 'file-loader',
+              options: {
+                name:       '[name]-[hash].[ext]',
+                outputPath: 'fonts/'
+              }
+            }
+          ]
+        },
+      ]
+    }
   };
 
   const mergedConfig = merge(baseConfig, config);

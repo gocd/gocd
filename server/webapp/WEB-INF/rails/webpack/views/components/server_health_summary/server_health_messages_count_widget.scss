@@ -15,6 +15,7 @@
  */
 @import "../../global/theme";
 @import "../../global/common";
+@import "../../global/measures";
 
 .server-health-statuses {
   list-style-type: none;
@@ -64,20 +65,20 @@
 }
 
 .server-health-messages-container {
-  @include icon-before("\f06a", $margin: 0);
+  @include icon-before($fa-var-exclamation-circle, $margin: 0);
   background-color: darken($failed, 20%);
-  border-radius:    3px;
-  line-height:      25px;
-  margin:           6px 0;
-  padding-left:     30px;
-  padding-right:    11px;
-  position:         relative;
-  color:            $header-fg;
-
-  &:before {
-    position:  absolute;
-    left:      11px;
-    top:       4px;
-    font-size: 16px;
+  display:          flex;
+  padding:          5px 10px;
+  border-radius:    $global-border-radius;
+  margin:           0 0 20px 0;
+  align-items: center;
+  &:before{
+    margin: 0 10px 0 0;
+  }
+  @media(min-width: $screen-md) {
+    margin: 0 17px 0 0;
+  }
+  @media(min-width: $screen-lg) {
+    margin: 0 20px 0 0;
   }
 }

@@ -38,6 +38,7 @@ class LicenseReport {
     'Similar to Apache License but with the acknowledgment clause removed',
     'The H2 License, Version 1.0',
     'The OpenSymphony Software License 1.1',
+    '(OFL-1.1 AND MIT)',
   ]
 
   private static Set<String> ALLOWED_LICENSES = LICENSE_EXCEPTIONS + [

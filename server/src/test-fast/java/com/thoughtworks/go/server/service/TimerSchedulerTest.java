@@ -188,10 +188,10 @@ public class TimerSchedulerTest {
     }
 
     @Test
-    public void shouldNotScheduleJobsOnAnInactiveServer() {
+    public void shouldNotScheduleJobsForAServerInStandbyMode() {
         TimerScheduler timerScheduler = new TimerScheduler(scheduler, goConfigService, null, null, systemEnvironment);
 
-        when(systemEnvironment.isServerActive()).thenReturn(false);
+        when(systemEnvironment.isServerInStandbyMode()).thenReturn(true);
 
         timerScheduler.initialize();
 

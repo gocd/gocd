@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-const m                       = require('mithril');
-const f                       = require('helpers/form_helper');
-const _                       = require('lodash');
-const ComponentMixins         = require('helpers/mithril_component_mixins');
-const DashboardGroupsWidget   = require('views/dashboard/dashboard_groups_widget');
+const m = require('mithril');
+const f = require('helpers/form_helper');
+const _ = require('lodash');
+const ComponentMixins = require('helpers/mithril_component_mixins');
+const DashboardGroupsWidget = require('views/dashboard/dashboard_groups_widget');
 const PersonalizedViewsWidget = require('views/dashboard/personalized_views_widget');
-const Dropdown                = require('views/shared/dropdown');
-const SearchBox               = require('views/components/search_box/search_box'); //fixme
+const Dropdown = require('views/shared/dropdown');
+const SearchBox = require('views/components/search_box/search_box'); //fixme
 
 const GroupingSwitch = {
   view(vnode) {
@@ -41,9 +41,9 @@ const DashboardWidget = {
   },
 
   view(vnode) {
-    const args          = vnode.attrs;
-    const vm            = args.vm;
-    const dashboard     = vm.dashboard;
+    const args = vnode.attrs;
+    const vm = args.vm;
+    const dashboard = vm.dashboard;
     const personalizeVM = args.personalizeVM;
 
     const sharedGroupArgs = _.assign(_.pick(args, [
@@ -58,10 +58,9 @@ const DashboardWidget = {
     }
 
     let messageView;
-
     if (!_.isEmpty(dashboard.message())) {
       const content = (<h3 class="dashboard-message text-center">{dashboard.message().content}</h3>);
-      messageView   = (dashboard.message().type === 'info')
+      const messageView = (dashboard.message().type === 'info')
         ? (<f.info>{content} </f.info>)
         : (<f.alert>{content} </f.alert>);
     }
@@ -73,7 +72,10 @@ const DashboardWidget = {
         <div class="dashboard" key="dashboard-content">
           <section class="dashboard-modifiers">
             <GroupingSwitch vm={vm}/>
-            <SearchBox width="350" class="pipeline-search_dashboard" model={vm} attrName="searchText" placeholder="Search pipelines"/>
+            <SearchBox width="350"
+                       class="pipeline-search_dashboard"
+                       model={vm} attrName="searchText"
+                       placeholder="Search pipelines"/>
           </section>
 
           {messageView}

@@ -14,18 +14,18 @@
  * limitations under the License.
  */
 
-const m                     = require('mithril');
-const f                     = require('helpers/form_helper');
+const m = require('mithril');
+const f = require('helpers/form_helper');
 const AgentStateCountWidget = require('views/agents/agent_state_count_widget');
-const AgentRowWidget        = require('views/agents/agent_row_widget');
-const AgentTableHeader      = require('views/agents/agent_table_header');
-const ButtonRowWidget       = require('views/agents/button_row_widget');
+const AgentRowWidget = require('views/agents/agent_row_widget');
+const AgentTableHeader = require('views/agents/agent_table_header');
+const ButtonRowWidget = require('views/agents/button_row_widget');
 
 const Stream = require('mithril/stream');
-const _      = require('lodash');
+const _ = require('lodash');
 
 const AgentsWidget = {
-  oninit (vnode) {
+  oninit(vnode) {
     const args = vnode.attrs;
 
     const clearAllCheckboxes = function () {
@@ -81,7 +81,7 @@ const AgentsWidget = {
     this.displayModifiedMessage = function (action, addedItems, removedItems) {
       const count = this.selectedAgentsCount();
       this.message({
-        type:    'success',
+        type: 'success',
         message: `${_(action).pluralize(_.compact(_.concat(addedItems, removedItems)).length)} modified on ${count} ${_('agent').pluralize(count)}`
       });
     };
@@ -143,7 +143,7 @@ const AgentsWidget = {
     };
   },
 
-  view (vnode) {
+  view(vnode) {
     const ctrl = vnode.state;
     const args = vnode.attrs;
 
@@ -151,10 +151,10 @@ const AgentsWidget = {
       return (<span class="page-spinner"/>);
     }
 
-    const filterText                     = args.vm.filterText();
-    const filteredAgents                 = ctrl.filteredAndSortedAgents();
+    const filterText = args.vm.filterText();
+    const filteredAgents = ctrl.filteredAndSortedAgents();
     const maxCharsToBeDisplayedInMessage = 150;
-    const classForTableBody              = ["agents-table-body"];
+    const classForTableBody = ["agents-table-body"];
 
     let updateMessage;
     let permanentMessage;
@@ -189,40 +189,34 @@ const AgentsWidget = {
     return (
       <div onclick={ctrl.hideDropDownsAndMessage.bind(ctrl)}>
         <div class="header-panel">
-          <ButtonRowWidget areOperationsAllowed={ ctrl.areOperationsAllowed.bind(ctrl) }
+          <ButtonRowWidget areOperationsAllowed={ctrl.areOperationsAllowed.bind(ctrl)}
                            dropdown={args.vm.dropdown}
-                           selectedAgents={ ctrl.selectedAgents.bind(ctrl) }
-                           onDisable={ ctrl.disableAgents.bind(ctrl) }
-                           onEnable={ ctrl.enableAgents.bind(ctrl) }
-                           onDelete={ ctrl.deleteAgents.bind(ctrl) }
-                           onResourcesUpdate={ ctrl.updateResources.bind(ctrl) }
-                           onEnvironmentsUpdate={ ctrl.updateEnvironments.bind(ctrl) }/>
+                           selectedAgents={ctrl.selectedAgents.bind(ctrl)}
+                           onDisable={ctrl.disableAgents.bind(ctrl)}
+                           onEnable={ctrl.enableAgents.bind(ctrl)}
+                           onDelete={ctrl.deleteAgents.bind(ctrl)}
+                           onResourcesUpdate={ctrl.updateResources.bind(ctrl)}
+                           onEnvironmentsUpdate={ctrl.updateEnvironments.bind(ctrl)}/>
 
-          <div class="search-panel">
-            <f.row>
-              <f.column size={6} largeSize={3}>
-                <div class="search-bar">
-                  <input type="text"
-                         oninput={m.withAttr("value", args.vm.filterText)}
-                         value={filterText}
-                         placeholder="Filter Agents"
-                         id="filter-agent"
-                         class="filter-agent"
-                  />
-                </div>
-              </f.column>
-
-              <f.column size={6} largeSize={8} class="show-for-large">
-                <AgentStateCountWidget agents={ctrl.filteredAndSortedAgents.bind(ctrl)}/>
-              </f.column>
-
-            </f.row>
+          <div class="agents-search-panel">
+            <div className="show-for-large">
+              <AgentStateCountWidget agents={ctrl.filteredAndSortedAgents.bind(ctrl)}/>
+            </div>
+            <div class="search-bar">
+              <input type="text"
+                     oninput={m.withAttr("value", args.vm.filterText)}
+                     value={filterText}
+                     placeholder="Filter Agents"
+                     id="filter-agent"
+                     class="filter-agent"
+              />
+            </div>
           </div>
           {permanentMessage}
           {updateMessage}
         </div>
-        <f.row class={classForTableBody}>
-          <div class="container">
+        <div class={classForTableBody}>
+          <div class="agents-table-container">
             <table class="agents-table stack">
               <AgentTableHeader
                 shouldShowAnalyticsIcon={args.shouldShowAnalyticsIcon}
@@ -233,7 +227,7 @@ const AgentsWidget = {
               <tbody>
               {
                 filteredAgents.mapAgents((agent) => {
-                  const uuid          = agent.uuid();
+                  const uuid = agent.uuid();
                   const checkboxModel = args.vm.agents.checkboxFor(uuid);
 
                   return (
@@ -253,7 +247,7 @@ const AgentsWidget = {
               </tbody>
             </table>
           </div>
-        </f.row>
+        </div>
       </div>
     );
   }

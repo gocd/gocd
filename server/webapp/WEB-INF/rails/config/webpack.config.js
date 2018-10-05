@@ -128,9 +128,34 @@ module.exports = function (env) {
           test:    /\.scss$/,
           exclude: /node_modules/,
           use:     [
-            "style-loader",
-            "css-loader?modules&importLoaders=1&localIdentName=[name]__[local]___[hash:base64:5]", // translates CSS into CommonJS
-            "sass-loader" // compiles Sass to CSS, using Node Sass by default
+            {loader: MiniCssExtractPlugin.loader},
+            {loader: "css-loader?modules&importLoaders=1&localIdentName=[name]__[local]___[hash:base64:5]"}, // translates CSS into CommonJS
+            {
+              loader:  "sass-loader", // compiles Sass to CSS, using Node Sass by default
+              options: {
+                includePaths: [
+                  path.join(__dirname, '..', 'node_modules', 'font-awesome', 'scss')
+                ]
+              }
+            }
+          ]
+        },
+        {
+          test: /\.woff(2)?(\?v=[0-9]\.[0-9]\.[0-9])?$/,
+          use:  [
+            {
+              loader:  'url-loader',
+              options: {
+                limit:    10000,
+                mimetype: 'application/font-woff'
+              }
+            }
+          ]
+        },
+        {
+          test: /\.(ttf|eot|svg)(\?v=[0-9]\.[0-9]\.[0-9])?$/,
+          use:  [
+            {loader: 'file-loader'}
           ]
         }
       ]

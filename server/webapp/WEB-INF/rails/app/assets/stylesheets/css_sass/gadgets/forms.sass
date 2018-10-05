@@ -86,7 +86,7 @@ $fontsize: 12px
 					.hint
 						display: block
 						clear: both
-						color: $basecolor + #686868
+						color: adjust-color($basecolor, $red: 104, $green: 104, $blue: 104)
 						font-size: 11px
 						line-height: 13px
 						padding-top: 3px
@@ -98,9 +98,9 @@ $fontsize: 12px
 				&.focus
 					background-color: #F9f9f9
 					label
-						color: $basecolor - #333
+						color: adjust-color($basecolor, $red: -51, $green: -51, $blue: -51)
 						.hint
-							color: $basecolor + #333
+							color: adjust-color($basecolor, $red: 51, $green: 51, $blue: 51)
 				input[type="text"], input[type="password"], input[type="datetime"], input[type="datetime-local"], input[type="date"], input[type="month"], input[type="time"], input[type="week"], input[type="number"], input[type="email"], input[type="url"], input[type="search"], input[type="tel"], input[type="color"]
 					width: 220px
 				textarea, input[type="text"], input[type="password"], input[type="datetime"], input[type="datetime-local"], input[type="date"], input[type="month"], input[type="time"], input[type="week"], input[type="number"], input[type="email"], input[type="url"], input[type="search"], input[type="tel"], input[type="color"], select

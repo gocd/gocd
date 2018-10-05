@@ -7,7 +7,6 @@
         <li class="menu-text"><%= link_to '', pipeline_dashboard_path, class: 'logo' -%></li>
 
         <li><%= link_to 'Pipelines', pipeline_dashboard_path -%></li>
-        <li><%= link_to 'Environments', environments_path -%></li>
         <li><%= link_to 'Agents', '/go/agents' -%></li>
         <% with_analytics_dashboard_support do %>
             <li><%= link_to 'Analytics', analytics_path -%></li>

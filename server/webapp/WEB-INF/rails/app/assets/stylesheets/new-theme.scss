@@ -83,6 +83,58 @@ h4 {
   font-size: 18px;
 }
 
+.environment .column-container {
+  display:       flex;
+
+  height:        25px;
+  cursor:        pointer;
+  padding:       10px 50px 10px 30px;
+  margin:        0 15px;
+  background:    #fff;
+  border:        1px solid #ddd !important;
+  border-radius: 5px;
+
+  &:after {
+    content:     "\f105";
+    font-family: 'FontAwesome';
+    position:    absolute;
+    right:       35px;
+    font-size:   30px;
+    font-weight: 400;
+    color:       #ccc;
+    align-self:  right !important;
+  }
+}
+
+.environment .column-container.expanded:after {
+  content: "\f107";
+}
+
+.environment .column-container .key-value-pair {
+  padding-left: 15px;
+  line-height:  25px;
+  min-width:    250px;
+  max-width:    250px;
+  .key {
+    min-width: auto;
+  }
+}
+
+.environment h2.entity_title {
+  font-size:   16px;
+  font-weight: 600;
+  color:       black;
+  line-height: 25px;
+  min-width:   325px;
+  max-width:   325px;
+}
+
+.environment_show {
+  .row {
+    margin-top: 15px;
+  }
+}
+
 .yui-t7 #yui-main .yui-b, .my-cruise-rounded-container {
   background: transparent;
 }
@@ -550,7 +602,7 @@ h4 {
   height:          50px !important;
   box-sizing:      border-box;
   padding:         7px 30px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.21);
+  box-shadow:      0 0 10px rgba(0, 0, 0, 0.21);
   h1 {
     display: inline-block;
   }
@@ -2232,7 +2284,7 @@ a:link.help, a:visited.help {
 }
 
 #environments #body_content .content_wrapper_inner {
-  padding: 10px 0;
+  padding: 5px 0;
 }
 
 .environments {
@@ -2240,6 +2292,7 @@ a:link.help, a:visited.help {
     float:       none;
     margin-left: 10px;
   }
+  margin-top: 5px;
 }
 
 .flash {
@@ -3050,9 +3103,11 @@ pre, code, #admin-holder-for-admin-config-source-xml textarea {
 .environment.show_environment {
   @include clearfix;
   background: #fff;
-  margin-top: 15px;
   padding:    20px;
   box-sizing: border-box;
+  margin:     0px 15px 0px 15px;
+  border:     1px solid #ddd;
+  border-top: none;
 
   h3 {
     margin:         10px 0 20px;
@@ -4041,10 +4096,10 @@ ul.entity_title {
 }
 
 .plugin-select-form span.contextual_help {
-  display: inline-block;
-  margin: 0;
+  display:  inline-block;
+  margin:   0;
   position: relative;
-  top: 2px;
+  top:      2px;
 }
 
 .add_new_artifact label {
@@ -4104,6 +4159,7 @@ ul.entity_title {
 #templates.layout.admin-entity.view .content {
   width: auto;
 }
+
 //end: template view
 
 .hide {

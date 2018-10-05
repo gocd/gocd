@@ -32,6 +32,6 @@ describe "/shared/_subheader.html.erb" do
 
     render :partial => "shared/subheader"
 
-    expect(response).to have_selector("div.page_header div.add_new_environment a.link_as_header_button[href='/environments/new']", :text => 'Add a new environment')
+    expect(response).to have_selector("div.page_header div.add_new_environment a.link_as_header_button[href='/admin/environments/new']", :text => 'Add a new environment')
   end
 end

@@ -18,6 +18,9 @@
     <a href="$req.getContextPath()/admin/pipelines">Pipelines</a>
 </li>
 <li role="presentation">
+  <a href="$req.getContextPath()/admin/environments">Environments</a>
+</li>
+<li role="presentation">
   <a href="$req.getContextPath()/admin/templates">Templates</a>
 </li>
 <li role="presentation">

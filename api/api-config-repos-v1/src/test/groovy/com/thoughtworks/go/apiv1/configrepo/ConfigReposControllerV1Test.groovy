@@ -23,8 +23,11 @@ import com.thoughtworks.go.config.GoRepoConfigDataSource
 import com.thoughtworks.go.config.PartialConfigParseResult
 import com.thoughtworks.go.config.remote.ConfigRepoConfig
 import com.thoughtworks.go.config.remote.PartialConfig
+import com.thoughtworks.go.domain.materials.Material
 import com.thoughtworks.go.domain.materials.MaterialConfig
+import com.thoughtworks.go.server.materials.MaterialUpdateService
 import com.thoughtworks.go.server.service.ConfigRepoService
+import com.thoughtworks.go.server.service.MaterialConfigConverter
 import com.thoughtworks.go.spark.AdminUserSecurity
 import com.thoughtworks.go.spark.ControllerTrait
 import com.thoughtworks.go.spark.SecurityServiceTrait
@@ -33,8 +36,7 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.Mock
 
-import static org.mockito.Mockito.mock
-import static org.mockito.Mockito.when
+import static org.mockito.Mockito.*
 import static org.mockito.MockitoAnnotations.initMocks
 
 class ConfigReposControllerV1Test implements SecurityServiceTrait, ControllerTrait<ConfigReposControllerV1> {
@@ -42,6 +44,10 @@ class ConfigReposControllerV1Test implements SecurityServiceTrait, ControllerTra
   GoRepoConfigDataSource dataSource
   @Mock
   ConfigRepoService service
+  @Mock
+  MaterialUpdateService materialUpdateService
+  @Mock
+  MaterialConfigConverter converter
 
   private static final ID = "repo1"
 
@@ -52,7 +58,7 @@ class ConfigReposControllerV1Test implements SecurityServiceTrait, ControllerTra
 
   @Override
   ConfigReposControllerV1 createControllerInstance() {
-    return new ConfigReposControllerV1(new ApiAuthenticationHelper(securityService, goConfigService), dataSource, service)
+    return new ConfigReposControllerV1(new ApiAuthenticationHelper(securityService, goConfigService), dataSource, service, materialUpdateService, converter)
   }
 
   @Nested
@@ -130,6 +136,50 @@ class ConfigReposControllerV1Test implements SecurityServiceTrait, ControllerTra
         .isNotFound()
         .hasContentType(controller.mimeType)
         .hasJsonMessage(HaltApiMessages.notFoundMessage())
+    }
+  }
+
+  @Nested
+  class triggerUpdate {
+    @BeforeEach
+    void setUp() {
+      loginAsAdmin()
+    }
+
+    @Test
+    void 'should trigger material update for repo'() {
+      MaterialConfig config = mock(MaterialConfig.class)
+      Material material = mock(Material.class)
+
+      when(service.getConfigRepo(ID)).thenReturn(new ConfigRepoConfig(config, null, ID))
+      when(converter.toMaterial(config)).thenReturn(material)
+      when(materialUpdateService.updateMaterial(material)).thenReturn(true)
+
+      postWithApiHeader(controller.controllerPath(ID, 'trigger_update'), [:])
+      verify(materialUpdateService).updateMaterial(material)
+
+      assertThatResponse()
+        .isOk()
+        .hasContentType(controller.mimeType)
+        .hasJsonMessage("OK")
+    }
+
+    @Test
+    void 'should not trigger update if update is already in progress'() {
+      MaterialConfig config = mock(MaterialConfig.class)
+      Material material = mock(Material.class)
+
+      when(service.getConfigRepo(ID)).thenReturn(new ConfigRepoConfig(config, null, ID))
+      when(converter.toMaterial(config)).thenReturn(material)
+      when(materialUpdateService.updateMaterial(material)).thenReturn(false)
+
+      postWithApiHeader(controller.controllerPath(ID, 'trigger_update'), [:])
+      verify(materialUpdateService).updateMaterial(material)
+
+      assertThatResponse()
+        .isOk()
+        .hasContentType(controller.mimeType)
+        .hasJsonMessage("Update already in progress")
     }
   }
 }

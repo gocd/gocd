@@ -52,6 +52,7 @@ public class Routes {
         public static final String SPA_BASE = "/admin/config_repos";
         public static final String INTERNAL_BASE = "/api/internal/config_repos";
         public static final String LAST_PARSED_RESULT_PATH = "/:id/last_parsed_result";
+        public static final String TRIGGER_UPDATE_PATH = "/:id/trigger_update";
 
         public static final String BASE = "/api/admin/config_repos";
         public static final String DOC = "https://api.gocd.org/#config-repos";

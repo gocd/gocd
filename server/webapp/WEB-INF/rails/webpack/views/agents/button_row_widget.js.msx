@@ -70,28 +70,28 @@ const ButtonRowWidget = {
           <f.column size={7}>
             <ul class="button-group header-panel-button-group">
               <li>
-                <f.button onclick={args.onDelete}
+                <f.button class="agents_action" onclick={args.onDelete}
                           disabled={!args.areOperationsAllowed()}>
                   Delete
                 </f.button>
               </li>
 
               <li>
-                <f.button onclick={args.onDisable}
+                <f.button class="agents_action" onclick={args.onDisable}
                           disabled={!args.areOperationsAllowed()}>
                   Disable
                 </f.button>
               </li>
 
               <li>
-                <f.button onclick={args.onEnable}
+                <f.button class="agents_action" onclick={args.onEnable}
                           disabled={!args.areOperationsAllowed()}>
                   Enable
                 </f.button>
               </li>
 
               <li class={ ctrl.dropdownClass('resource') }>
-                <f.button onclick={ctrl.resourcesButtonClicked}
+                <f.button class="agents_action" onclick={ctrl.resourcesButtonClicked}
                           disabled={!args.areOperationsAllowed()}>
                   Resources
                 </f.button>
@@ -104,7 +104,7 @@ const ButtonRowWidget = {
               </li>
 
               <li class={ctrl.dropdownClass('environment')}>
-                <f.button onclick={ctrl.environmentsButtonClicked}
+                <f.button class="agents_action" onclick={ctrl.environmentsButtonClicked}
                           disabled={!args.areOperationsAllowed()}>
                   Environments
                 </f.button>

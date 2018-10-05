@@ -175,7 +175,7 @@ describe("Agents Widget", () => {
 
       expect($(resourceButton).parent().attr('class')).toContain('is-open');
 
-      const body = $root.find('.search-panel');
+      const body = $root.find('.agents-search-panel');
       $(body).click();
       m.redraw(true);
 

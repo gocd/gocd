@@ -18,6 +18,9 @@
 @import '../shared/alert';
 @import 'shared/analytics-common';
 
+$table-header: $panel-header-bg;
+$table-border: #E9EDEF;
+
 .agents {
   transition: all 0.3s ease-in-out;
   .container {
@@ -138,38 +141,141 @@
 
 }
 
-// search panel
+.header-panel-button-group {
+  margin-bottom: 0;
+  float:         right;
+  > li {
+    margin-left: 1px;
+    display:     inline-block;
+    position:    relative;
+    z-index:     $agents-filters;
+    &:first-child {
+      margin-left: 0;
+      > .agents_action {
+        border-radius: $global-border-radius 0 0 $global-border-radius;
+      }
+    }
+    &:last-child {
+      > .agents_action {
+        border-radius: 0 $global-border-radius $global-border-radius 0;
+      }
+    }
 
-.search-panel {
-  padding:          0 0 10px;
-  background-color: $body-background;
+    > .agents_action:not(:last-child) {
+      border-right: 0;
+    }
+
+    &.is-open {
+      > .agents_action {
+        background-color:           $agents-btn-hover;
+        border-bottom-right-radius: 0;
+        &:before {
+          content:      "";
+          position:     absolute;
+          z-index:      1;
+          bottom:       -6px;
+          left:         50%;
+          transform:    translateX(-50%);
+          width:        0;
+          height:       0;
+          border-style: solid;
+          border-width: 6px 6px 0 6px;
+          border-color: $agents-btn-hover transparent transparent transparent;
+        }
+      }
+    }
+  }
 }
+
+.agents_action {
+  background-color: $agent-header-button-bg;
+  color:            #fff;
+  border:           0;
+  font-size:        12px;
+  font-weight:      600;
+  margin:           0;
+  border-radius:    0;
+  padding:          0 10px;
+  line-height:      30px;
+  text-transform:   uppercase;
+  &:hover,
+  &:focus {
+    background-color: $agents-btn-hover;
+    outline:          0;
+  }
+  &.btn-apply {
+    font-size:        14px;
+    padding:          7px 20px;
+    border-radius:    $global-border-radius;
+    margin-right:     1px;
+    color:            $go-white;
+    height:           auto;
+    line-height:      normal;
+    background-color: $agent-header-button-bg;
+    border:           0;
+    &:hover,
+    &:focus {
+      color:            $go-white;
+      border:           0;
+      background-color: $agents-btn-hover;
+    }
+  }
+}
+
+.agents_action.disabled,
+.agents_action[disabled] {
+  opacity:          1;
+  cursor:           not-allowed;
+  background-color: #c7c7c7;
+  color:            #a9a9a9;
+  transition:       all 0.3s ease-in-out;
+  &:hover {
+    background-color: #c7c7c7;
+    color:            #a9a9a9;
+  }
+}
+
+// search panel (should reuse the search_box component here.)
+
+$icon-color: #647984;
 
 .search-bar {
   @include icon-before($type: search);
   position:   relative;
-  margin-top: 3px;
+  margin-top: -6px;
+  width:      350px;
   &:before {
     position:  absolute;
-    left:      7px;
-    color:     $border-color;
-    top:       3px;
-    font-size: 18px;
+    left:      10px;
+    color:     $icon-color;
+    top:       8px;
+    font-size: 14px;
   }
 
   .filter-agent {
-    border-radius: $global-border-radius;
-    padding-left:  40px;
-    margin-bottom: 0;
-    height:        35px;
+    height:             40px;
+    line-height:        40px;
+    padding:            0 10px 0 40px;
+    margin:             0;
+    border:             1px solid #d6e0e2;
+    -webkit-appearance: none;
+    box-shadow:         none;
+    border-radius:      3px;
+    background:         #fff;
+
+    &::placeholder {
+      font-size: 13px;
+      color:     #ccc;
+
+    }
+
   }
-  .fa {
-    position:  absolute;
-    left:      14px;
-    top:       11px;
-    color:     #ccc;
-    font-size: 16px;
-  }
+}
+
+.agents-search-panel {
+  display:         flex;
+  justify-content: space-between;
+  margin:          0 30px;
 }
 
 .search-summary {
@@ -177,13 +283,11 @@
   list-style-type: none;
   margin:          0;
   padding:         0;
-  float:           right;
   li {
     padding:     0 10px;
     border-left: 1px solid rgba(255, 255, 255, 0.12);
     text-align:  center;
     font-weight: 600;
-    margin-left: 10px;
     &:first-child {
       border: 0;
     }
@@ -193,9 +297,13 @@
       margin-right: 5px;
       position:     relative;
       top:          -2px;
+      &:after {
+        content: ":";
+        margin:  0 5px;
+      }
     }
     .value {
-      font-size: 20px;
+      font-size: 16px;
     }
     &.enabled {
       .value {
@@ -222,16 +330,16 @@ $arrow-color: #000;
 
   @include breakpoint(large up) {
     $column-widths: (
-                      "1": 1%,
-                      "2": 38px,
-                      "3": 16%,
-                      "4": 9%,
-                      "5": 10%,
-                      "6": 10%,
-                      "7": 7%,
-                      "8": 9%,
-                      "9": calc(20% - 38px),
-                      "10": 18%,
+                            "1": 1%,
+                            "2": 38px,
+                            "3": 16%,
+                            "4": 9%,
+                            "5": 10%,
+                            "6": 10%,
+                            "7": 7%,
+                            "8": 9%,
+                            "9": calc(20% - 38px),
+                            "10": 18%,
                     );
 
     @each $key, $val in $column-widths {
@@ -248,29 +356,31 @@ $arrow-color: #000;
   thead {
     border: 0;
     tr {
-      background:    $table-header-bg;
-      color:         $txt-color;
-      font-size:     rem-calc(14px);
-
-      border-bottom: 3px solid #a5d6a7;
-      display:       block;
-      position:      relative;
+      background: $table-header;
+      color:      $txt-color;
+      display:    block;
+      position:   relative;
 
       th {
-        color:   $dark-grey;
-        padding: 5px 10px;
+        color:          $dark-grey;
+        font-size:      13px;
+        padding:        0px 10px;
+        height:         40px;
+        line-height:    40px;
+        text-transform: uppercase;
       }
     }
   }
   tbody {
-    border:   0;
+    border:     0;
     $page-top-nav: 40px;
     $page-header: 108px;
     $page-footer: 76px;
     $table-header: 38px;
-    display:  block;
-    overflow: auto;
-    height:   calc(100vh - #{$page-top-nav} - #{$page-header} - #{$page-footer} - #{$table-header} - 10px);
+    background: #fff;
+    display:    block;
+    overflow:   auto;
+    height:     calc(100vh - #{$page-top-nav} - #{$page-header} - #{$page-footer} - #{$table-header} - 30px);
 
     label {
       min-width:   120px;
@@ -283,8 +393,8 @@ $arrow-color: #000;
 
     tr {
       font-size:    rem-calc(13px);
-      border-right: 1px dotted #ddd;
-      border-left:  1px dotted #ddd;
+      border-right: 1px dotted $table-border;
+      border-left:  1px dotted $table-border;
       &.building {
         background:    #ffeda0;
         border-bottom: 1px solid #fff;
@@ -292,6 +402,9 @@ $arrow-color: #000;
       &.disabled {
         color:      #999;
         font-style: italic;
+      }
+      &:nth-child(even) { //foundation override
+        background: #fff;
       }
     }
   }
@@ -316,7 +429,10 @@ $arrow-color: #000;
 .agents-table-body {
   $foo: 44px;
 
-  margin-top: 148px - $foo - 70px;
+  margin-top:    148px - $foo - 70px;
+  margin-right:  30px;
+  margin-left:   30px;
+  margin-bottom: 30px;
 
   &.has-message, &.has-permanent-message {
     margin-top: 212px - $foo;
@@ -373,7 +489,7 @@ $arrow-color: #000;
     height:       0;
     border-style: solid;
     border-width: 0 4px 6px 4px;
-    border-color: transparent transparent $arrow-color transparent;
+    border-color: transparent transparent $icon-color transparent;
     transition:   all 0.3s ease-in-out;
   }
   .down {
@@ -383,7 +499,7 @@ $arrow-color: #000;
     height:       0;
     border-style: solid;
     border-width: 6px 4px 0 4px;
-    border-color: $arrow-color transparent transparent transparent;
+    border-color: $icon-color transparent transparent transparent;
     transition:   all 0.3s ease-in-out;
   }
   &.desc {

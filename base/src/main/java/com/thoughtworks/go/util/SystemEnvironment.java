@@ -857,6 +857,10 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
         return GO_SERVER_MODE.getValue().equalsIgnoreCase("production");
     }
 
+    public boolean isServerInStandbyMode() {
+        return GO_SERVER_MODE.getValue().equalsIgnoreCase("standby");
+    }
+
     public boolean isReAuthenticationEnabled() {
         return REAUTHENTICATION_ENABLED.getValue();
     }

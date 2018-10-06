@@ -74,7 +74,10 @@ public class TimerScheduler implements ConfigChangedListener {
     }
 
     public void initialize() {
-        if (!systemEnvironment.isServerActive()) return;
+        if (systemEnvironment.isServerInStandbyMode()) {
+            LOG.info("GoCD server in 'standby' mode, skipping scheduling timer triggered pipelines.");
+            return;
+        }
 
         scheduleAllJobs(goConfigService.getAllPipelineConfigs());
         goConfigService.register(this);

@@ -1,4 +1,4 @@
-/*
+/*!
  * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -39,7 +39,7 @@ $header-font-weight: 600;
   box-shadow:      0 0 10px rgba(0, 0, 0, 0.21);
 }
 
-.title-header {
+.title {
   display:     inline-block;
   color:       $text-color;
   font-size:   $header-font-size;

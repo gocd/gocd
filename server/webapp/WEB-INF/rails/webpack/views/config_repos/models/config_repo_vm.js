@@ -28,6 +28,7 @@ function ConfigRepoVM(data) {
   this.attributes = Stream();
   this.configuration = Stream();
   this.etag = Stream(null);
+  this.serverErrors = Stream();
 
   Validatable.call(this, { errors: {} });
 

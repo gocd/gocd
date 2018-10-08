@@ -25,6 +25,7 @@ const ConfigReposList = {
     return <section class="repo-list">
       <h1>Config Repos</h1>
       <AddRepo vm={vm}/>
+      <ServerErrors msg={vm.errors().join("; ")} />
       <ul>
       {
         vm.repos().map((repo) => {
@@ -68,6 +69,7 @@ const AddForm = {
       <f.select validate={true} label="Choose a plugin" model={vm} attrName="pluginId" items={availablePlugins} />
       <f.input validate={true} label="Config Repo ID" model={vm} attrName="id"/>
       <MaterialAttributes model={vm} isEdit={true} />
+      <ServerErrors msg={vm.serverErrors()} />
     </div>;
   }
 };
@@ -82,6 +84,7 @@ const ConfigRepo = {
       <h3>{repo.type()} repo: {repo.id()}</h3>
       <h5>Plugin: {repo.pluginId()}</h5>
       <MaterialAttributes model={repo} isEdit={isEdit} />
+      <ServerErrors msg={repo.serverErrors()} />
       <ActionBar vm={vm} repo={repo} isEdit={isEdit} />
     </li>;
   }
@@ -98,6 +101,12 @@ const ActionBar = {
     } else {
       return m("div", {class: "config-repo-actions"}, [<button onclick={() => vm.enterEditMode(repo)}>Edit</button>, <button onclick={() => vm.removeRepo(repo)}>Delete</button>]);
     }
+  }
+};
+
+const ServerErrors = {
+  view(vnode) {
+    return <div class="server-error-messages">{vnode.attrs.msg}</div>;
   }
 };
 

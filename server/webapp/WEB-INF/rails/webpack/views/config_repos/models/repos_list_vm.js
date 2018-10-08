@@ -96,7 +96,7 @@ function CreateSupport(model, repos) {
     const repo = new ConfigRepoVM(data);
     if (etag) { repo.etag(etag); }
     repos().push(repo);
-  }));
+  }, repo.serverErrors));
 }
 
 function UpdateSupport(model, repos) {
@@ -111,7 +111,7 @@ function UpdateSupport(model, repos) {
       if (304 !== status && data) { repo.initialize(data); }
 
       this.editModel(repo.clone());
-    });
+    }, repo.serverErrors);
   };
 
   this.exitEditMode = () => this.editModel(null);
@@ -122,17 +122,20 @@ function UpdateSupport(model, repos) {
 
     const idx = _.findIndex(repos(), (r) => r.id() === repo.id()); // should not fail
     repos().splice(idx, 1, repo);
-  }));
+  }, repo.serverErrors));
 }
 
 function DeleteSupport(model, repos) {
-  this.removeRepo = (repo) => model.delete(repo.id()).then(() => repos().splice(repos().indexOf(repo), 1));
+  this.removeRepo = (repo) => model.delete(repo.id()).then(() => repos().splice(repos().indexOf(repo), 1), repo.serverErrors);
 }
 
 // Utility functions
 
 function withValidation(proceed) {
-  return (repo) => repo.allowSave() ? proceed(repo) : Dfr(function fail() { this.reject(); }).promise();
+  return (repo) => {
+    repo.serverErrors(null);
+    return repo.allowSave() ? proceed(repo) : Dfr(function fail() { this.reject(); }).promise();
+  };
 }
 
 function contains(arr, el) { return !!~arr.indexOf(el); }

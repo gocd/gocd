@@ -29,14 +29,13 @@ import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.server.materials.MaterialUpdateService;
 import com.thoughtworks.go.server.service.ConfigRepoService;
 import com.thoughtworks.go.server.service.MaterialConfigConverter;
-import com.thoughtworks.go.spark.Routes;
+import com.thoughtworks.go.spark.Routes.ConfigRepos;
 import com.thoughtworks.go.spark.spring.SparkSpringController;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import spark.Request;
 import spark.Response;
-
-import java.util.Objects;
 
 import static spark.Spark.*;
 
@@ -61,7 +60,7 @@ public class ConfigReposControllerV1 extends ApiController implements SparkSprin
 
     @Override
     public String controllerBasePath() {
-        return Routes.ConfigRepos.INTERNAL_BASE;
+        return ConfigRepos.INTERNAL_BASE;
     }
 
     @Override
@@ -75,35 +74,37 @@ public class ConfigReposControllerV1 extends ApiController implements SparkSprin
             before("/*", mimeType, authenticationHelper::checkAdminUserAnd403);
             before("/*", this::verifyContentType);
 
-            get(Routes.ConfigRepos.LAST_PARSED_RESULT_PATH, mimeType, this::getLastParseResult);
-            post(Routes.ConfigRepos.TRIGGER_UPDATE_PATH, mimeType, this::triggerUpdate);
+            get(ConfigRepos.LAST_PARSED_RESULT_PATH, mimeType, this::getLastParseResult);
+            post(ConfigRepos.TRIGGER_UPDATE_PATH, mimeType, this::triggerUpdate);
         });
     }
 
     String getLastParseResult(Request req, Response res) {
-        ConfigRepoConfig repo = Objects.requireNonNull(getRepoFromRequest(req));
+        ConfigRepoConfig repo = repoFromRequest(req);
 
         final PartialConfigParseResult result = goRepoConfigDataSource.getLastParseResult(repo.getMaterialConfig());
 
         return PartialConfigParseResultRepresenter.toJSON(result);
     }
 
-    private ConfigRepoConfig getRepoFromRequest(Request req) {
+    String triggerUpdate(Request req, Response res) {
+        MaterialConfig materialConfig = repoFromRequest(req).getMaterialConfig();
+        if (mus.updateMaterial(converter.toMaterial(materialConfig))) {
+            res.status(HttpStatus.CREATED.value());
+            return MessageJson.create("OK");
+        } else {
+            res.status(HttpStatus.CONFLICT.value());
+            return MessageJson.create("Update already in progress");
+        }
+    }
+
+    private ConfigRepoConfig repoFromRequest(Request req) {
         ConfigRepoConfig repo = configRepoService.getConfigRepo(req.params(":id"));
 
         if (null == repo) {
-            HaltApiResponses.haltBecauseNotFound();
+            throw HaltApiResponses.haltBecauseNotFound();
         }
 
         return repo;
-    }
-
-    String triggerUpdate(Request req, Response res) {
-        MaterialConfig materialConfig = getRepoFromRequest(req).getMaterialConfig();
-        if (mus.updateMaterial(converter.toMaterial(materialConfig))) {
-            return MessageJson.create("OK");
-        } else {
-            return MessageJson.create("Update already in progress");
-        }
     }
 }

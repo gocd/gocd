@@ -125,10 +125,10 @@ public class AnalyticsDelegate implements SparkController {
 
         if (isPipelineRequest(request)) {
             authenticationHelper.checkPipelineViewPermissionsAnd403(request, response);
-        } else if (isAgentRequest(request) || isVSMRequest(request)) {
-            authenticationHelper.checkUserAnd403(request, response);
-        } else {
+        } else if (isDashboardRequest(request)) {
             authenticationHelper.checkAdminUserAnd403(request, response);
+        } else {
+            authenticationHelper.checkUserAnd403(request, response);
         }
     }
 
@@ -136,12 +136,8 @@ public class AnalyticsDelegate implements SparkController {
         return "pipeline".equals(request.params(":type"));
     }
 
-    private boolean isAgentRequest(Request request) {
-        return "agent".equals(request.params(":type"));
-    }
-
-    private boolean isVSMRequest(Request request) {
-        return "vsm".equalsIgnoreCase(request.params(":type"));
+    private boolean isDashboardRequest(Request request) {
+        return "dashboard".equalsIgnoreCase(request.params(":type"));
     }
 
     private boolean isAnalyticsEnabledOnlyForAdmins() {

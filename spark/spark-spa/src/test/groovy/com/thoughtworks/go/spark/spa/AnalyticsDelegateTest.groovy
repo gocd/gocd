@@ -201,6 +201,17 @@ class AnalyticsDelegateTest implements ControllerTrait<AnalyticsDelegate>, Secur
       }
 
       @Test
+      void "should allow all users to view drilldown analytics"() {
+        when(systemEnvironment.enableAnalyticsOnlyForAdmins()).thenReturn(false)
+
+        enableSecurity()
+        loginAsUser()
+
+        get(controller.controllerPath("plugin/drilldown/metric"))
+        assertRequestAllowed()
+      }
+
+      @Test
       void "should return 404 when pipeline does not exist"() {
         when(pipelineConfigService.pipelineConfigNamed(getPipelineName())).thenReturn(null)
         enableSecurity()

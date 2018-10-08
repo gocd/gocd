@@ -140,6 +140,19 @@ class ConfigRepoOperationsControllerV1Test implements SecurityServiceTrait, Cont
   }
 
   @Nested
+  class StatusSecurity implements SecurityTestTrait, AdminUserSecurity {
+    @Override
+    String getControllerMethodUnderTest() {
+      return "inProgress"
+    }
+
+    @Override
+    void makeHttpCall() {
+      getWithApiHeader(controller.controllerPath(ID, 'status'), [:])
+    }
+  }
+
+  @Nested
   class status {
     @BeforeEach
     void setUp() {
@@ -180,6 +193,19 @@ class ConfigRepoOperationsControllerV1Test implements SecurityServiceTrait, Cont
         .isOk()
         .hasContentType(controller.mimeType)
         .hasBodyWithJson("{\"inProgress\": false}")
+    }
+  }
+
+  @Nested
+  class TriggerSecurity implements SecurityTestTrait, AdminUserSecurity {
+    @Override
+    String getControllerMethodUnderTest() {
+      return "triggerUpdate"
+    }
+
+    @Override
+    void makeHttpCall() {
+      postWithApiHeader(controller.controllerPath(ID, 'trigger_update'), [:])
     }
   }
 

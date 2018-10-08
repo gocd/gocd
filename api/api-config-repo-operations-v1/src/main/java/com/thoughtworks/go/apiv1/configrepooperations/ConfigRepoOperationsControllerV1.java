@@ -16,7 +16,6 @@
 
 package com.thoughtworks.go.apiv1.configrepooperations;
 
-import com.google.gson.Gson;
 import com.thoughtworks.go.api.ApiController;
 import com.thoughtworks.go.api.ApiVersion;
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
@@ -38,14 +37,11 @@ import org.springframework.stereotype.Component;
 import spark.Request;
 import spark.Response;
 
-import java.util.Collections;
-
 import static spark.Spark.*;
 
 @Component
 public class ConfigRepoOperationsControllerV1 extends ApiController implements SparkSpringController {
 
-    private static final Gson GSON = new Gson();
     private final ApiAuthenticationHelper authenticationHelper;
     private final GoRepoConfigDataSource goRepoConfigDataSource;
     private final ConfigRepoService configRepoService;
@@ -106,7 +102,7 @@ public class ConfigRepoOperationsControllerV1 extends ApiController implements S
     String inProgress(Request req, Response res) {
         MaterialConfig materialConfig = repoFromRequest(req).getMaterialConfig();
         final boolean state = mus.isInProgress(converter.toMaterial(materialConfig));
-        return GSON.toJson(Collections.singletonMap("inProgress", state));
+        return String.format("{ \"inProgress\":%b }", state);
     }
 
     private ConfigRepoConfig repoFromRequest(Request req) {

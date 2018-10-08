@@ -35,7 +35,6 @@ import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.dao.FeedModifier;
 import com.thoughtworks.go.server.dao.PipelineDao;
 import com.thoughtworks.go.server.dao.StageDao;
-import com.thoughtworks.go.server.dao.sparql.StageRunFinder;
 import com.thoughtworks.go.server.domain.StageIdentity;
 import com.thoughtworks.go.server.domain.StageStatusListener;
 import com.thoughtworks.go.server.domain.Username;
@@ -65,7 +64,7 @@ import org.springframework.transaction.support.TransactionSynchronizationAdapter
 import java.util.*;
 
 @Service
-public class StageService implements StageRunFinder, StageFinder {
+public class StageService implements StageFinder {
     private static final Logger LOGGER = LoggerFactory.getLogger(StageService.class);
     private static final int FEED_PAGE_SIZE = 25;
     private final CacheKeyGenerator cacheKeyGenerator;
@@ -473,24 +472,6 @@ public class StageService implements StageRunFinder, StageFinder {
                 notifyStageStatusChangeListeners(stage);
             }
         });
-    }
-
-    public List<StageIdentifier> findRunForStage(StageIdentifier stageIdentifier) {
-        String pipelineName = stageIdentifier.getPipelineName();
-        String stageName = stageIdentifier.getStageName();
-        double toNaturalOrder = pipelineDao.findPipelineByNameAndCounter(pipelineName, stageIdentifier.getPipelineCounter()).getNaturalOrder();
-        Pipeline pipelineThatLastPassed = pipelineDao.findEarlierPipelineThatPassedForStage(pipelineName, stageName, toNaturalOrder);
-        double fromNaturalOrder = pipelineThatLastPassed != null ? pipelineThatLastPassed.getNaturalOrder() : 0.0;
-
-        List<StageIdentifier> finalIds = new ArrayList<>();
-        List<StageIdentifier> failedStages = stageDao.findFailedStagesBetween(pipelineName, stageName, fromNaturalOrder, toNaturalOrder);
-        if (failedStages.isEmpty() || !failedStages.get(0).equals(stageIdentifier)) {
-            return finalIds;
-        }
-        for (StageIdentifier identifier : failedStages) {
-            finalIds.add(identifier);
-        }
-        return finalIds;
     }
 
     public boolean isStageActive(String pipelineName, String stageName) {

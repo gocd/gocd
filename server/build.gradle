@@ -267,15 +267,6 @@ dependencies {
 
   compile group: 'org.jruby', name: 'jruby-complete', version: project.versions.jruby
   compile group: 'org.jruby.rack', name: 'jruby-rack', version: versions.rack
-  compile group: 'org.eclipse.rdf4j', name: 'rdf4j-queryalgebra-model', version: project.versions.rdf4j
-  compile group: 'org.eclipse.rdf4j', name: 'rdf4j-queryparser-sparql', version: project.versions.rdf4j
-  compile group: 'org.eclipse.rdf4j', name: 'rdf4j-queryresultio-api', version: project.versions.rdf4j
-  compile group: 'org.eclipse.rdf4j', name: 'rdf4j-queryresultio-sparqlxml', version: project.versions.rdf4j
-  compile group: 'org.eclipse.rdf4j', name: 'rdf4j-repository-api', version: project.versions.rdf4j
-  compile group: 'org.eclipse.rdf4j', name: 'rdf4j-rio-n3', version: project.versions.rdf4j
-  compile group: 'org.eclipse.rdf4j', name: 'rdf4j-rio-rdfxml', version: project.versions.rdf4j
-  compile group: 'org.eclipse.rdf4j', name: 'rdf4j-sail-memory', version: project.versions.rdf4j
-  compile group: 'org.eclipse.rdf4j', name: 'rdf4j-repository-sail', version: project.versions.rdf4j
 
   compile group: 'org.springframework', name: 'spring-orm', version: project.versions.spring
   compile group: 'org.springframework', name: 'spring-web', version: project.versions.spring
@@ -540,7 +531,6 @@ task generateRubygemsLicenseReport {
 task cleanDb(type: Delete) {
   delete "db/h2db"
   delete "db/h2deltas"
-  delete "db/shine"
   delete "db/config.git"
 }
 
@@ -909,7 +899,6 @@ task verifyWar(type: VerifyJarTask) {
         "jta-1.1.jar",
         "kahadb-5.5.0.jar",
         "mailapi-${project.versions.mail}.jar",
-        "mapdb-1.0.8.jar",
         "mybatis-${project.versions.mybatis}.jar",
         "mybatis-spring-${project.versions.mybatisSpring}.jar",
         "objenesis-${project.versions.objenesis}.jar",
@@ -921,34 +910,6 @@ task verifyWar(type: VerifyJarTask) {
         "plugin-metadata-store-${project.version}.jar",
         "quartz-${project.versions.quartz}.jar",
         "rack_hack-${project.version}.jar",
-        "rdf4j-http-client-${project.versions.rdf4j}.jar",
-        "rdf4j-http-protocol-${project.versions.rdf4j}.jar",
-        "rdf4j-model-${project.versions.rdf4j}.jar",
-        "rdf4j-query-${project.versions.rdf4j}.jar",
-        "rdf4j-queryalgebra-evaluation-${project.versions.rdf4j}.jar",
-        "rdf4j-queryalgebra-model-${project.versions.rdf4j}.jar",
-        "rdf4j-queryparser-api-${project.versions.rdf4j}.jar",
-        "rdf4j-queryparser-serql-${project.versions.rdf4j}.jar",
-        "rdf4j-queryparser-sparql-${project.versions.rdf4j}.jar",
-        "rdf4j-queryresultio-api-${project.versions.rdf4j}.jar",
-        "rdf4j-queryresultio-sparqlxml-${project.versions.rdf4j}.jar",
-        "rdf4j-repository-api-${project.versions.rdf4j}.jar",
-        "rdf4j-repository-sail-${project.versions.rdf4j}.jar",
-        "rdf4j-repository-sparql-${project.versions.rdf4j}.jar",
-        "rdf4j-rio-api-${project.versions.rdf4j}.jar",
-        "rdf4j-rio-datatypes-${project.versions.rdf4j}.jar",
-        "rdf4j-rio-languages-${project.versions.rdf4j}.jar",
-        "rdf4j-rio-n3-${project.versions.rdf4j}.jar",
-        "rdf4j-rio-ntriples-${project.versions.rdf4j}.jar",
-        "rdf4j-rio-rdfxml-${project.versions.rdf4j}.jar",
-        "rdf4j-rio-trig-${project.versions.rdf4j}.jar",
-        "rdf4j-rio-turtle-${project.versions.rdf4j}.jar",
-        "rdf4j-sail-api-${project.versions.rdf4j}.jar",
-        "rdf4j-sail-base-${project.versions.rdf4j}.jar",
-        "rdf4j-sail-inferencer-${project.versions.rdf4j}.jar",
-        "rdf4j-sail-memory-${project.versions.rdf4j}.jar",
-        "rdf4j-sail-model-${project.versions.rdf4j}.jar",
-        "rdf4j-util-${project.versions.rdf4j}.jar",
         "slf4j-api-${project.versions.slf4j}.jar",
         "smtp-${project.versions.mail}.jar",
         "spark-core-${project.versions.spark}.jar",

@@ -206,7 +206,6 @@ rootProject.ext.versions = [
   oro                 : '2.0.8',
   quartz              : '2.3.0',
   rack                : '1.1.21',
-  rdf4j               : '2.3.2',
   servletApi          : '3.1.0',
   slf4j               : '1.7.25',
   spark               : '2.7.2',

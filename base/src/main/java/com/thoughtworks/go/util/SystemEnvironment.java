@@ -106,7 +106,6 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
     public static final String CONFIG_DIR_PROPERTY = "cruise.config.dir";
     public static final String DES_CONFIG_CIPHER = "cipher";
     public static final String AES_CONFIG_CIPHER = "cipher.aes";
-    public static final String HOSTNAME_SHINE_USES = "localhost";
     public static final int TFS_SOCKET_TIMEOUT_IN_MILLISECONDS = 20 * 60 * 1000;
     public static final String TFS_SOCKET_TIMEOUT_PROPERTY = "tfs.socket.block.timeout";
 
@@ -612,28 +611,6 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
 
     public Map<String, String> getGitAllowedProtocols() {
         return GIT_ALLOW_PROTOCOL;
-    }
-
-    public String getBaseUrlForShine() {
-        return String.format("http://%s:%s%s", HOSTNAME_SHINE_USES, getServerPort(), getWebappContextPath());
-    }
-
-    public Boolean isShineEnabled() {
-        String shineEnabled = getEnvironmentVariable("SHINE_ENABLED", "false");
-        return shineEnabled == null ? false : !"false".equalsIgnoreCase(shineEnabled); //should return true for shine_enabled set to anything but false.
-    }
-
-
-    public String getBaseSslUrlForShineWithoutContextPath() {
-        return String.format("https://%s:%s", HOSTNAME_SHINE_USES, getSslServerPort());
-    }
-
-    public String getBaseSslUrlForShine() {
-        return getBaseSslUrlForShineWithoutContextPath() + getWebappContextPath();
-    }
-
-    public File shineDb() {
-        return new File(properties().getProperty("cruise.shine.store.folder"));
     }
 
     public void setProperty(String name, String value) {

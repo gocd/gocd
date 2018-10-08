@@ -41,22 +41,6 @@
     </rollingPolicy>
   </appender>
 
-  <appender name="ShineFileAppender" class="ch.qos.logback.core.rolling.RollingFileAppender">
-    <file>${gocd.server.log.dir:-${GO_SERVER_LOG_DIR:-logs}}/go-shine.log</file>
-    <encoder>
-      <pattern>
-        ${gocd.server.logback.defaultPattern:-%date{ISO8601} %-5level [%thread] %logger{0}:%line - %msg%n}
-      </pattern>
-    </encoder>
-
-    <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
-      <fileNamePattern>${gocd.server.log.dir:-${GO_SERVER_LOG_DIR:-logs}}/go-shine.log.%d{yyyy-MM-dd}.%i.gz</fileNamePattern>
-      <maxFileSize>${gocd.server.logback.shineRollingFileAppender.rotation.maxFileSize:-10 MB}</maxFileSize>
-      <maxHistory>${gocd.server.logback.shineRollingFileAppender.rotation.maxHistory:-50}</maxHistory>
-      <totalSizeCap>${gocd.server.logback.shineRollingFileAppender.rotation.totalSizeCap:-512 MB}</totalSizeCap>
-    </rollingPolicy>
-  </appender>
-
   <appender name="WebRequestsFileAppender" class="ch.qos.logback.core.rolling.RollingFileAppender">
     <file>${gocd.server.log.dir:-${GO_SERVER_LOG_DIR:-logs}}/web-requests.log</file>
     <encoder>
@@ -94,11 +78,6 @@
   </root>
 
   <logger name="com.thoughtworks.go" level="INFO"/>
-
-  <logger name="com.thoughtworks.studios.shine" level="WARN">
-    <appender-ref ref="ShineFileAppender"/>
-  </logger>
-
   <logger name="com.thoughtworks.go.server.Rails" level="WARN"/>
 
   <!-- make sure this is the last line in the config -->

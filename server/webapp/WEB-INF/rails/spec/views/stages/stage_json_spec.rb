@@ -98,57 +98,6 @@ describe 'stages/stage.json.erb' do
       expect(json["jobs_grid"]["html"]).to eq 'jobs.html'
       expect(json["stage_history"]["html"]).to eq "stage_history.html"
     end
-
-    it "should auto refresh fbh" do
-      params[:action] = 'tests'
-      json = render_json
-      expect(json["non_passing_tests"]["html"]).to eq "non_passing_tests.html"
-      expect(json["stage_history"]["html"]).to eq "stage_history.html"
-    end
-  end
-
-  describe "fbh partial caching" do
-    before do
-      assign :response_format, "json"
-      assign :failing_tests, failing_tests = double(:failing_tests)
-      allow(failing_tests).to receive(:numberOfTests).and_return(0)
-      params[:action] = "tests"
-      allow(view).to receive(:stage_history_url).and_return("history_url")
-      allow(view).to receive(:stage_history_path).and_return("history_path")
-      allow(view).to receive(:stage_bar_url).and_return("detail_tab_url")
-    end
-
-    it "should cache fbh partial" do
-      @failing_stage = StageMother.custom("dev")
-      @failing_stage.getJobInstances().get(0).fail()
-      @failing_stage.calculateResult()
-
-      @passed_stage = StageMother.custom("dev")
-      @passed_stage.passed()
-      @passed_stage.setIdentifier(@failing_stage.getIdentifier())
-      check_fragment_caching(@failing_stage, @passed_stage, proc {|stage|
-        [
-          ["views",ViewCacheKey.new.forFbhOfStagesUnderPipeline(stage.getIdentifier().pipelineIdentifier())].join('/'),
-          {:subkey => ViewCacheKey.new.forFailedBuildHistoryStage( stage, "json" ), :skip_digest=>true}
-        ]
-      }) do |stage|
-        assign :stage, stage_model_for(stage)
-        render
-      end
-    end
-
-    it "should use json to scope the key to format" do
-      failing_stage = StageMother.custom("dev")
-      failing_stage.getJobInstances().get(0).fail()
-      failing_stage.calculateResult()
-
-      assign :stage, stage_model_for(failing_stage)
-      allow(view).to receive(:view_cache_key).and_return(key = double('view_cache_key'))
-      expect(key).to receive(:forFbhOfStagesUnderPipeline).with(failing_stage.getIdentifier().pipelineIdentifier()).and_return("pipeline_id_based_key")
-      expect(key).to receive(:forFailedBuildHistoryStage).with(failing_stage, "json").and_return("stage_fbh_json_key")
-      expect(view).to receive(:cache).with("pipeline_id_based_key", {:subkey => "stage_fbh_json_key", :skip_digest=>true})
-      render
-    end
   end
 
 end

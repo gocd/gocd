@@ -79,19 +79,9 @@ describe ApplicationController do
       expect(controller.agent_service).to eq(agent_service)
     end
 
-    it "should load shine_dao" do
-      expect(Spring).to receive(:bean).with('shineDao').and_return(shine_dao = Object.new)
-      expect(controller.shine_dao).to eq(shine_dao)
-    end
-
     it "should load xml_api_service" do
       expect(Spring).to receive(:bean).with('xmlApiService').and_return(xml_api_service = Object.new)
       expect(controller.xml_api_service).to eq(xml_api_service)
-    end
-
-    it "should load failure_service" do
-      expect(Spring).to receive(:bean).with('failureService').and_return(service = Object.new)
-      expect(controller.failure_service).to eq(service)
     end
 
     it "should load pipeline_lock_service" do

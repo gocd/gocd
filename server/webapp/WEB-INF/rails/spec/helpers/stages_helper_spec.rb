@@ -60,9 +60,9 @@ describe StagesHelper do
 
   it "should not generate link with current tab css if this is not the current tab" do
     in_params(:pipeline_name => "foo_bar", :stage_name => "stage-name", :pipeline_counter => "1", :stage_counter => "1", :action => "jobs", :controller => "stages")
-    link = link_with_current_tab "Tests", "tests"
+    link = link_with_current_tab "Materials", "materials"
     expect(link).to_not have_selector("li.current")
-    expect(link).to have_selector("li a[href='/pipelines/foo_bar/1/stage-name/1/tests']", :text => "Tests")
+    expect(link).to have_selector("li a[href='/pipelines/foo_bar/1/stage-name/1/materials']", :text => "Materials")
   end
 
   it "should return true when config version mismatches" do

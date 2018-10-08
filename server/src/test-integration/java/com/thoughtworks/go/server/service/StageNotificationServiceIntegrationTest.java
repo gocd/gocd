@@ -22,7 +22,6 @@ import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.fixture.PipelineWithTwoStages;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.dao.UserDao;
-import com.thoughtworks.go.server.dao.sparql.ShineDao;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.messaging.InMemoryEmailNotificationTopic;
 import com.thoughtworks.go.server.messaging.StageNotificationListener;
@@ -72,7 +71,6 @@ public class StageNotificationServiceIntegrationTest {
     @Rule
     public final TemporaryFolder temporaryFolder = new TemporaryFolder();
 
-    private ShineDao shineDao;
     private PipelineWithTwoStages pipelineFixture;
 
     private StageNotificationService stageNotificationService;
@@ -86,8 +84,7 @@ public class StageNotificationServiceIntegrationTest {
     public void setUp() throws Exception {
 
         stageService = mock(StageService.class);
-        shineDao = mock(ShineDao.class);
-        stageNotificationService = new StageNotificationService(pipelineService, userService,inMemoryEmailNotificationTopic, systemEnvironment, stageService, serverConfigService, shineDao);
+        stageNotificationService = new StageNotificationService(pipelineService, userService,inMemoryEmailNotificationTopic, systemEnvironment, stageService, serverConfigService);
         stageNotificationListener = new StageNotificationListener(stageNotificationService, goConfigService, stageResultTopic);
 
         dbHelper.onSetUp();
@@ -113,7 +110,6 @@ public class StageNotificationServiceIntegrationTest {
     private Stage mockStageServiceWithStage(Pipeline pipeline) {
         Stage ftStage = pipeline.getStages().byName(pipelineFixture.ftStage);
         when(stageService.findStageWithIdentifier(ftStage.getIdentifier())).thenReturn(ftStage);
-        when(shineDao.failedTestsFor(ftStage.getIdentifier())).thenReturn(new ArrayList<>());
         return ftStage;
     }
 

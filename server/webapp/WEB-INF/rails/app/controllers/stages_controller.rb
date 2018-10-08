@@ -19,14 +19,13 @@ class StagesController < ApplicationController
   include ApplicationHelper
   include StagesHelper
 
-  STAGE_DETAIL_ACTIONS = [:overview, :pipeline, :materials, :jobs, :tests, :rerun_jobs, :stats, :stage_config]
+  STAGE_DETAIL_ACTIONS = [:overview, :pipeline, :materials, :jobs, :rerun_jobs, :stats, :stage_config]
   BASE_TIME = Time.parse("00:00:00")
   STAGE_DURATION_RANGE = 300
   layout "pipelines", :only => STAGE_DETAIL_ACTIONS
   before_action :load_stage_details, :only => STAGE_DETAIL_ACTIONS
   before_action :load_stage_history, :only => STAGE_DETAIL_ACTIONS - [:pipeline, :stats]
   before_action :load_current_config_version, :only => STAGE_DETAIL_ACTIONS << :history
-  before_action :set_format, :only => :tests
   before_action :load_pipeline_instance, :only => :redirect_to_first_stage
 
   STAGE_HISTORY_PAGE_SIZE = 10
@@ -68,38 +67,6 @@ class StagesController < ApplicationController
   def config_change
     @changes = go_config_service.configChangesFor(params[:later_md5], params[:earlier_md5], result = HttpLocalizedOperationResult.new)
     @config_change_error_message = result.isSuccessful ? ('This is the first entry in the config versioning. Please refer config tab to view complete configuration during this run.' if @changes == nil) : result.message()
-  end
-
-  def tests
-    unless system_environment.isShineEnabled
-      return head :not_implemented
-    end
-    stage = @stage.getStage()
-    unless fragment_exist?(view_cache_key.forFbhOfStagesUnderPipeline(stage.getIdentifier().pipelineIdentifier()), :subkey => view_cache_key.forFailedBuildHistoryStage(stage, @response_format))
-      pipeline_name = params[:pipeline_name]
-      stage_name = params[:stage_name]
-      stage_identifier = StageIdentifier.new(pipeline_name, params[:pipeline_counter].to_i, stage_name, params[:stage_counter])
-      result = HttpLocalizedOperationResult.new()
-      if @stage.isActive()
-        @failing_tests_error_message = 'Test Results will be generated when the stage completes.'
-        render_stage
-        return
-      end
-      unless go_config_service.stageExists(pipeline_name, stage_name)
-        @failing_tests = shine_dao.failedBuildHistoryForStage(stage_identifier, result)
-        @failing_tests_error_message = result.message() unless result.isSuccessful()
-        render_stage
-        return
-      end
-      if go_config_service.stageHasTests(pipeline_name, stage_name)
-        @failing_tests = shine_dao.failedBuildHistoryForStage(stage_identifier, result)
-        result.isSuccessful() || (@failing_tests_error_message = result.message())
-        render_stage
-        return
-      end
-      @failing_tests_error_message = 'There are no tests configured in this stage.'
-    end
-    render_stage
   end
 
   def materials
@@ -197,10 +164,6 @@ class StagesController < ApplicationController
 
   def result_for_graph
     HttpOperationResult.new
-  end
-
-  def set_format
-    @response_format = params[:format] || 'html'
   end
 
   def load_chart_parameters stage_summary_models

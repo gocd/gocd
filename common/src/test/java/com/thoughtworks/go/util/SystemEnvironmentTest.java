@@ -92,16 +92,6 @@ public class SystemEnvironmentTest {
     }
 
     @Test
-    public void shouldHaveBaseUrl() {
-        assertThat(systemEnvironment.getBaseUrlForShine(), is("http://localhost:8153/go"));
-    }
-
-    @Test
-    public void shouldHaveBaseUrlSsl() {
-        assertThat(systemEnvironment.getBaseSslUrlForShine(), is("https://localhost:8154/go"));
-    }
-
-    @Test
     public void shouldCacheAgentConnectionSystemPropertyOnFirstAccess() {
         System.setProperty(SystemEnvironment.AGENT_CONNECTION_TIMEOUT_IN_SECONDS, "1");
         assertThat(systemEnvironment.getAgentConnectionTimeout(), is(1));
@@ -495,11 +485,6 @@ public class SystemEnvironmentTest {
         assertThat(systemEnvironment.getConfigGitGCExpireTime(), is(24*60*60*1000L));
         System.setProperty("go.config.repo.gc.expire", "1");
         assertThat(systemEnvironment.getConfigGitGCExpireTime(), is(60*60*1000L));
-    }
-
-    @Test
-    public void shouldReturnFalseWhenShineEnabledIsNotSet() {
-        assertFalse(systemEnvironment.isShineEnabled());
     }
 
     @Test

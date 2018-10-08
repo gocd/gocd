@@ -21,33 +21,23 @@ import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.domain.materials.ModifiedAction;
-import com.thoughtworks.go.domain.testinfo.TestStatus;
-import com.thoughtworks.go.domain.testinfo.TestSuite;
 import com.thoughtworks.go.helper.PipelineConfigMother;
-import com.thoughtworks.go.server.dao.sparql.ShineDao;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.messaging.InMemoryEmailNotificationTopic;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.TimeProvider;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 
 import static com.thoughtworks.go.server.service.StageNotificationService.MATERIAL_SECTION_HEADER;
-import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.containsString;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 public class StageNotificationServiceTest {
@@ -59,7 +49,6 @@ public class StageNotificationServiceTest {
     private InMemoryEmailNotificationTopic inMemoryEmailNotificationTopic;
     private StageIdentifier stageIdentifier;
     private ServerConfigService serverConfigService;
-    private ShineDao shineDao;
     private InstanceFactory instanceFactory;
 
     @Before
@@ -70,104 +59,10 @@ public class StageNotificationServiceTest {
         stageService = mock(StageService.class);
         inMemoryEmailNotificationTopic = new InMemoryEmailNotificationTopic();
         serverConfigService = mock(ServerConfigService.class);
-        shineDao = mock(ShineDao.class);
-        stageNotificationService = new StageNotificationService(pipelineService, userService, inMemoryEmailNotificationTopic, systemEnvironment, stageService, serverConfigService, shineDao);
+        stageNotificationService = new StageNotificationService(pipelineService, userService, inMemoryEmailNotificationTopic, systemEnvironment, stageService, serverConfigService);
         stageIdentifier = new StageIdentifier("go", 1, "go-1", "dev", "2");
         instanceFactory = new InstanceFactory();
     }
-
-    @Test
-    public void shouldSendEmailWithFailureDetails() throws Exception {
-        final String expectedBaseUrl = "http://test.host:8153";
-        String jezMail = prepareOneMatchedUser();
-        final Date date = new Date();
-        stubPipelineAndStage(date);
-        final TestSuite suite1 = new TestSuite("com.thoughtworks.go.FailOne");
-        suite1.addTest("shouldCompile", TestStatus.Error, new JobIdentifier(stageIdentifier, "compile"));
-        suite1.addTest("shouldPass", TestStatus.Failure, new JobIdentifier(stageIdentifier, "test"));
-        suite1.addTest("shouldPass", TestStatus.Failure, new JobIdentifier(stageIdentifier, "twist"));
-        suite1.addTest("shouldCompile2", TestStatus.Failure, new JobIdentifier(stageIdentifier, "compile"));
-        final TestSuite suite2 = new TestSuite("com.thoughtworks.go.FailTwo");
-        suite2.addTest("shouldCompile", TestStatus.Error, new JobIdentifier(stageIdentifier, "test"));
-        suite2.addTest("shouldTest", TestStatus.Failure, new JobIdentifier(stageIdentifier, "test"));
-
-        when(serverConfigService.siteUrlFor(anyString(), eq(false))).thenAnswer(new Answer<String>() {
-            public String answer(InvocationOnMock invocation) throws Throwable {
-                Object[] args = invocation.getArguments();
-                return morphURl((String)args[0], expectedBaseUrl);
-            }
-        });
-        when(systemEnvironment.isShineEnabled()).thenReturn(true);
-        when(shineDao.failedTestsFor(stageIdentifier)).thenReturn(Arrays.asList(suite1, suite2));
-        stageNotificationService.sendNotifications(stageIdentifier, StageEvent.Fails, new Username(new CaseInsensitiveString("loser")));
-
-        String body = inMemoryEmailNotificationTopic.getBody(jezMail);
-        assertThat(body, containsString(StageNotificationService.FAILED_TEST_SECTION));
-
-        String restOfThebody = textAfter(body, StageNotificationService.FAILED_TEST_SECTION);
-        String failuresText = restOfThebody.substring(0, restOfThebody.indexOf(StageNotificationService.MATERIAL_SECTION_HEADER));
-        assertEquals("\n\nThe following tests failed in pipeline 'go' (instance 'go-1'):\n\n"
-                + "* com.thoughtworks.go.FailOne\n"
-                + "   shouldCompile\n"
-                + "     Errored on 'compile' (" + expectedBaseUrl + "/go/tab/build/detail/go/1/dev/2/compile)\n"
-                + "   shouldCompile2\n"
-                + "     Failed on 'compile' (" + expectedBaseUrl + "/go/tab/build/detail/go/1/dev/2/compile)\n"
-                + "   shouldPass\n"
-                + "     Failed on 'test' (" + expectedBaseUrl + "/go/tab/build/detail/go/1/dev/2/test)\n"
-                + "     Failed on 'twist' (" + expectedBaseUrl + "/go/tab/build/detail/go/1/dev/2/twist)\n"
-                + "\n\n* com.thoughtworks.go.FailTwo\n"
-                + "   shouldCompile\n"
-                + "     Errored on 'test' (" + expectedBaseUrl + "/go/tab/build/detail/go/1/dev/2/test)\n"
-                + "   shouldTest\n"
-                + "     Failed on 'test' (" + expectedBaseUrl + "/go/tab/build/detail/go/1/dev/2/test)\n\n\n", failuresText);
-    }
-
-    private String morphURl(String url, String expectedBaseUrl) throws URISyntaxException {
-        URI uri = new URI(url);
-        String blah = String.format("%s%s", expectedBaseUrl, uri.getPath());
-        return blah;
-    }
-
-    @Test
-    public void shouldNotHaveFailedTestsSectionWhenThereAreNoFailedTests() {
-        String jezMail = prepareOneMatchedUser();
-        stubPipelineAndStage(new Date());
-        when(systemEnvironment.isShineEnabled()).thenReturn(true);
-        when(shineDao.failedTestsFor(stageIdentifier)).thenReturn(new ArrayList<>());
-
-        stageNotificationService.sendNotifications(stageIdentifier, StageEvent.Fails, new Username(new CaseInsensitiveString("loser")));
-
-        String body = inMemoryEmailNotificationTopic.getBody(jezMail);
-        assertThat(body, not(containsString(StageNotificationService.FAILED_TEST_SECTION)));
-    }
-
-    @Test
-    public void shouldHaveFailedTestsSectionWhenShineIsEnabledAndThereAreFailedTests() {
-        String mail = prepareOneMatchedUser();
-        stubPipelineAndStage(new Date());
-        when(systemEnvironment.isShineEnabled()).thenReturn(true);
-        ArrayList<TestSuite> testSuites = new ArrayList<>();
-        testSuites.add(new TestSuite("blah"));
-        when(shineDao.failedTestsFor(stageIdentifier)).thenReturn(testSuites);
-
-        stageNotificationService.sendNotifications(stageIdentifier, StageEvent.Fails, new Username(new CaseInsensitiveString("loser")));
-
-        String body = inMemoryEmailNotificationTopic.getBody(mail);
-        assertThat(body, containsString(StageNotificationService.FAILED_TEST_SECTION));
-    }
-
-    @Test
-    public void shouldNotHaveFailedTestsSectionWhenShineIsDisabled() {
-        String mail = prepareOneMatchedUser();
-        stubPipelineAndStage(new Date());
-        when(systemEnvironment.isShineEnabled()).thenReturn(false);
-
-        stageNotificationService.sendNotifications(stageIdentifier, StageEvent.Fails, new Username(new CaseInsensitiveString("loser")));
-
-        String body = inMemoryEmailNotificationTopic.getBody(mail);
-        assertThat(body, not(containsString(StageNotificationService.FAILED_TEST_SECTION)));
-    }
-
 
     @Test
     public void shouldSendEmailWithModificationInfo() throws SQLException {
@@ -192,7 +87,6 @@ public class StageNotificationServiceTest {
         when(userService.findValidSubscribers(stageIdentifier.stageConfigIdentifier())).thenReturn(new Users(new ArrayList<>()));
 
         stageNotificationService.sendNotifications(stageIdentifier, StageEvent.Fails, new Username(new CaseInsensitiveString("loser")));
-        verifyZeroInteractions(shineDao);
         verifyZeroInteractions(stageService);
         verifyZeroInteractions(pipelineService);
     }

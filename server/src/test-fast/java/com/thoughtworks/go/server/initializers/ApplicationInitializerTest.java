@@ -40,7 +40,6 @@ import com.thoughtworks.go.server.service.support.toggle.FeatureToggleService;
 import com.thoughtworks.go.server.service.support.toggle.Toggles;
 import com.thoughtworks.go.service.ConfigRepository;
 import com.thoughtworks.go.util.ReflectionUtil;
-import com.thoughtworks.studios.shine.cruise.stage.details.StageResourceImporter;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -103,8 +102,6 @@ public class ApplicationInitializerTest {
     private InvalidateAuthenticationOnSecurityConfigChangeFilter invalidateAuthenticationOnSecurityConfigChangeFilter;
     @Mock
     private PipelineLockService pipelineLockService;
-    @Mock
-    private StageResourceImporter stageResourceImporter;
     @Mock
     private GoDiskSpaceMonitor goDiskSpaceMonitor;
     @Mock

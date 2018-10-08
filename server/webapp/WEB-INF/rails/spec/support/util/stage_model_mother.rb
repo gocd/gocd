@@ -90,15 +90,6 @@ module StageModelMother
     NullStageHistoryItem.new(name, false)
   end
 
-  def failing_tests(failures)
-    test_runs = StageTestRuns.new(5)
-    #int pipelineCounter, String pipelineLabel, String suiteName, String testName, TestStatus testStatus, JobIdentifier jobIdentifier
-    failures.each do |failure|
-      test_runs.add(failure[:counter], "label-#{failure[:counter]}", failure[:suite], failure[:test], failure[:status], failure[:job_id])
-    end
-    test_runs
-  end
-
   def stage_history_for *stage_names
     from_sims = StageInstanceModels.new
     stage_names.each do |name|

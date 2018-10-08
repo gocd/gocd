@@ -16,27 +16,12 @@
 
 package com.thoughtworks.go.server.service;
 
-import java.net.URISyntaxException;
-import java.util.List;
-
 import com.thoughtworks.go.config.CaseInsensitiveString;
-import com.thoughtworks.go.domain.MaterialRevision;
-import com.thoughtworks.go.domain.MaterialRevisions;
-import com.thoughtworks.go.domain.ModificationVisitor;
-import com.thoughtworks.go.domain.Pipeline;
-import com.thoughtworks.go.domain.Stage;
-import com.thoughtworks.go.domain.StageEvent;
-import com.thoughtworks.go.domain.StageIdentifier;
-import com.thoughtworks.go.domain.User;
-import com.thoughtworks.go.domain.Users;
+import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.materials.Material;
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.domain.materials.ModifiedFile;
 import com.thoughtworks.go.domain.materials.Revision;
-import com.thoughtworks.go.domain.testinfo.TestInformation;
-import com.thoughtworks.go.domain.testinfo.TestStatus;
-import com.thoughtworks.go.domain.testinfo.TestSuite;
-import com.thoughtworks.go.server.dao.sparql.ShineDao;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.messaging.EmailNotificationTopic;
 import com.thoughtworks.go.server.messaging.SendEmailMessage;
@@ -46,6 +31,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.net.URISyntaxException;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 
@@ -58,21 +45,18 @@ public class StageNotificationService {
     private final SystemEnvironment systemEnvironment;
     private StageService stageService;
     private ServerConfigService serverConfigService;
-    private final ShineDao shineDao;
     protected static final String MATERIAL_SECTION_HEADER = "-- CHECK-INS --";
     public static final String FAILED_TEST_SECTION = "-- FAILED TESTS --";
 
     @Autowired
     public StageNotificationService(PipelineService pipelineService, UserService userService, EmailNotificationTopic emailNotificationTopic,
-                                    SystemEnvironment systemEnvironment, StageService stageService, ServerConfigService serverConfigService,
-                                    ShineDao shineDao) {
+                                    SystemEnvironment systemEnvironment, StageService stageService, ServerConfigService serverConfigService) {
         this.pipelineService = pipelineService;
         this.userService = userService;
         this.emailNotificationTopic = emailNotificationTopic;
         this.systemEnvironment = systemEnvironment;
         this.stageService = stageService;
         this.serverConfigService = serverConfigService;
-        this.shineDao = shineDao;
     }
 
     public void sendNotifications(StageIdentifier stageIdentifier, StageEvent event, Username cancelledBy) {
@@ -83,12 +67,8 @@ public class StageNotificationService {
         Stage stage = stageService.findStageWithIdentifier(stageIdentifier);
         Pipeline pipeline = pipelineService.fullPipelineById(stage.getPipelineId());
         MaterialRevisions materialRevisions = pipeline.getMaterialRevisions();
-        List<TestSuite> failedTestSuites = null;
 
-        if (systemEnvironment.isShineEnabled()) {
-            failedTestSuites = shineDao.failedTestsFor(stageIdentifier);
-        }
-        String emailBody = new EmailBodyGenerator(materialRevisions, cancelledBy, systemEnvironment, stageIdentifier, failedTestSuites).getContent();
+        String emailBody = new EmailBodyGenerator(materialRevisions, cancelledBy, systemEnvironment, stageIdentifier).getContent();
 
         String subject = "Stage [" + stageIdentifier.stageLocator() + "]" + event.describe();
         LOGGER.debug("Processing notification titled [{}]", subject);
@@ -116,14 +96,11 @@ public class StageNotificationService {
         private Material material;
         private final SystemEnvironment systemEnvironment;
         private final StageIdentifier stageIdentifier;
-        private List<TestSuite> failedTestSuites;
         protected static final String SECTION_SEPERATOR = "\n\n";
-        private static final String SUITE_NAME_PREFIX = "* ";
 
-        public EmailBodyGenerator(MaterialRevisions materialRevisions, Username cancelledBy, SystemEnvironment systemEnvironment, StageIdentifier stageIdentifier, List<TestSuite> failedTestSuites) {
+        public EmailBodyGenerator(MaterialRevisions materialRevisions, Username cancelledBy, SystemEnvironment systemEnvironment, StageIdentifier stageIdentifier) {
             this.systemEnvironment = systemEnvironment;
             this.stageIdentifier = stageIdentifier;
-            this.failedTestSuites = failedTestSuites;
             emailBody = new StringBuilder();
 
             if (!Username.BLANK.equals(cancelledBy)) {
@@ -131,32 +108,7 @@ public class StageNotificationService {
             }
 
             addStageLink();
-            addFailedTests();
             addMaterialRevisions(materialRevisions);
-        }
-
-        private void addFailedTests() {
-            if (failedTestSuites == null || failedTestSuites.size() == 0) {
-                return;
-            }
-            sectionSeperator();
-            emailBody.append(FAILED_TEST_SECTION);
-            sectionSeperator();
-            emailBody.append(String.format("The following tests failed in pipeline '%s' (instance '%s'):", stageIdentifier.getPipelineName(), stageIdentifier.getPipelineLabel()));
-            for (TestSuite failedTestSuite : failedTestSuites) {
-                sectionSeperator();
-                emailBody.append(SUITE_NAME_PREFIX + failedTestSuite.fullName() + "\n");
-                for (TestInformation testInformation : failedTestSuite.tests()) {
-                    emailBody.append("   " + testInformation.getName() + "\n");
-                    for (String jobName : testInformation.getJobNames()) {
-                        emailBody.append("     " + testStatusString(testInformation) + " on '" + jobName + "' (" + jobDetailLink(jobName) + ")\n");
-                    }
-                }
-            }
-        }
-
-        private String testStatusString(TestInformation testInformation) {
-            return testInformation.getStatus().equals(TestStatus.Error) ? "Errored" : "Failed";
         }
 
         private void addMaterialRevisions(MaterialRevisions materialRevisions) {
@@ -182,13 +134,6 @@ public class StageNotificationService {
             } catch (URISyntaxException e) {
                 throw bomb("Could not construct URL.", e);
             }
-        }
-
-        private String jobDetailLink(String jobName) {
-            String ipAddress = SystemUtil.getFirstLocalNonLoopbackIpAddress();
-            int port = systemEnvironment.getServerPort();
-            String urlString = String.format("http://%s:%s/go/tab/build/detail/%s/%s", ipAddress, port, stageIdentifier.stageLocator(), jobName);
-            return useConfiguredSiteUrl(urlString);
         }
 
 

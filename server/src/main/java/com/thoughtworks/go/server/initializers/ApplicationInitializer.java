@@ -39,7 +39,6 @@ import com.thoughtworks.go.server.service.support.toggle.FeatureToggleService;
 import com.thoughtworks.go.server.service.support.toggle.Toggles;
 import com.thoughtworks.go.server.util.ServletHelper;
 import com.thoughtworks.go.service.ConfigRepository;
-import com.thoughtworks.studios.shine.cruise.stage.details.StageResourceImporter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
@@ -72,7 +71,6 @@ public class ApplicationInitializer implements ApplicationListener<ContextRefres
     @Autowired private MaterialUpdateService materialUpdateService;
     @Autowired private InvalidateAuthenticationOnSecurityConfigChangeFilter invalidateAuthenticationOnSecurityConfigChangeFilter;
     @Autowired private PipelineLockService pipelineLockService;
-    @Autowired private StageResourceImporter stageResourceImporter;
     @Autowired private GoDiskSpaceMonitor goDiskSpaceMonitor;
     @Autowired private ArtifactsService artifactsService;
     @Autowired private ConsoleService consoleService;
@@ -138,7 +136,6 @@ public class ApplicationInitializer implements ApplicationListener<ContextRefres
             consoleActivityMonitor.populateActivityMap();
             timerScheduler.initialize();
             backupScheduler.initialize();
-            stageResourceImporter.initialize();
             goDiskSpaceMonitor.initialize();
             railsAssetsService.initialize();
             ccTrayActivityListener.initialize();

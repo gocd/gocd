@@ -30,7 +30,6 @@ import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.dao.FeedModifier;
 import com.thoughtworks.go.server.dao.PipelineDao;
 import com.thoughtworks.go.server.dao.StageDao;
-import com.thoughtworks.go.server.dao.sparql.StageRunFinder;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.messaging.StageStatusMessage;
 import com.thoughtworks.go.server.messaging.StageStatusTopic;
@@ -107,82 +106,6 @@ public class StageServiceTest {
     public void teardown() throws Exception {
         configFileHelper.initializeConfigFile();
         SessionUtils.unsetCurrentUser();
-    }
-
-    @Test
-    public void canGetFailureRunForThreeStages() {
-        TransactionSynchronizationManager transactionSynchronizationManager = mock(TransactionSynchronizationManager.class);
-        StageRunFinder runFinder = new StageService(stageDao, jobInstanceService, mock(StageStatusTopic.class), mock(StageStatusCache.class), securityService, pipelineDao,
-                changesetService, goConfigService, transactionTemplate, transactionSynchronizationManager, goCache);
-
-        List<StageIdentifier> expectedStages = new ArrayList<>();
-        expectedStages.add(new StageIdentifier(PIPELINE_NAME, 3, STAGE_NAME, "1"));
-        expectedStages.add(new StageIdentifier(PIPELINE_NAME, 2, STAGE_NAME, "2"));
-        expectedStages.add(new StageIdentifier(PIPELINE_NAME, 1, STAGE_NAME, "1"));
-
-        Pipeline pipeline = pipeline(10.0);
-        Pipeline pipelineThatLastPassed = pipeline(5.0);
-
-        when(pipelineDao.findPipelineByNameAndCounter(PIPELINE_NAME, 3)).thenReturn(pipeline);
-        when(pipelineDao.findEarlierPipelineThatPassedForStage(PIPELINE_NAME, STAGE_NAME, 10.0)).thenReturn(pipelineThatLastPassed);
-        when(stageDao.findFailedStagesBetween(PIPELINE_NAME, STAGE_NAME, 5.0, 10.0)).thenReturn(asList(identifier(3, "1"), identifier(2, "2"), identifier(1, "1")));
-
-        assertEquals(expectedStages, runFinder.findRunForStage(new StageIdentifier(PIPELINE_NAME, 3, STAGE_NAME, "1")));
-    }
-
-    @Test
-    public void canGetFailureRunForThreeStagesAtStartOfPipeline() {
-        TransactionSynchronizationManager transactionSynchronizationManager = mock(TransactionSynchronizationManager.class);
-
-        StageRunFinder runFinder = new StageService(stageDao, jobInstanceService, mock(StageStatusTopic.class), mock(StageStatusCache.class), securityService,
-                pipelineDao, changesetService, goConfigService, transactionTemplate, transactionSynchronizationManager, goCache);
-
-        List<StageIdentifier> expectedStages = new ArrayList<>();
-        expectedStages.add(new StageIdentifier(PIPELINE_NAME, 3, STAGE_NAME, "1"));
-        expectedStages.add(new StageIdentifier(PIPELINE_NAME, 2, STAGE_NAME, "2"));
-        expectedStages.add(new StageIdentifier(PIPELINE_NAME, 1, STAGE_NAME, "1"));
-
-        Pipeline pipeline = pipeline(10.0);
-
-        when(pipelineDao.findPipelineByNameAndCounter(PIPELINE_NAME, 3)).thenReturn(pipeline);
-        when(pipelineDao.findEarlierPipelineThatPassedForStage(PIPELINE_NAME, STAGE_NAME, 10.0)).thenReturn(null);
-        when(stageDao.findFailedStagesBetween(PIPELINE_NAME, STAGE_NAME, 0.0, 10.0)).thenReturn(asList(identifier(3, "1"), identifier(2, "2"), identifier(1, "1")));
-
-        assertEquals(expectedStages, runFinder.findRunForStage(new StageIdentifier(PIPELINE_NAME, 3, STAGE_NAME, "1")));
-    }
-
-    @Test
-    public void shouldNotReturnAnythingWhenNothingIsFailing() {
-        TransactionSynchronizationManager transactionSynchronizationManager = mock(TransactionSynchronizationManager.class);
-
-        StageRunFinder runFinder = new StageService(stageDao, jobInstanceService, mock(StageStatusTopic.class), mock(StageStatusCache.class), securityService,
-                pipelineDao, changesetService, goConfigService, transactionTemplate, transactionSynchronizationManager, goCache);
-
-
-        Pipeline pipeline = pipeline(10.0);
-        Pipeline pipelineThatLastPassed = pipeline(5.0);
-
-        when(pipelineDao.findPipelineByNameAndCounter(PIPELINE_NAME, 3)).thenReturn(pipeline);
-        when(pipelineDao.findEarlierPipelineThatPassedForStage(PIPELINE_NAME, STAGE_NAME, 10.0)).thenReturn(pipelineThatLastPassed);
-        when(stageDao.findFailedStagesBetween(PIPELINE_NAME, STAGE_NAME, 5.0, 10.0)).thenReturn(new ArrayList<>());
-
-        assertThat(runFinder.findRunForStage(new StageIdentifier(PIPELINE_NAME, 3, STAGE_NAME, "1")).isEmpty(), is(true));
-    }
-
-    @Test
-    public void shouldNotReturnAnythingWhenCurrentStageHasNotFailed() {
-        TransactionSynchronizationManager transactionSynchronizationManager = mock(TransactionSynchronizationManager.class);
-        StageRunFinder runFinder = new StageService(stageDao, jobInstanceService, mock(StageStatusTopic.class), mock(StageStatusCache.class), securityService,
-                pipelineDao, changesetService, goConfigService, transactionTemplate, transactionSynchronizationManager, goCache);
-
-        Pipeline pipeline = pipeline(10.0);
-        Pipeline pipelineThatLastPassed = pipeline(5.0);
-
-        when(pipelineDao.findPipelineByNameAndCounter(PIPELINE_NAME, 3)).thenReturn(pipeline);
-        when(pipelineDao.findEarlierPipelineThatPassedForStage(PIPELINE_NAME, STAGE_NAME, 10.0)).thenReturn(pipelineThatLastPassed);
-        when(stageDao.findFailedStagesBetween(PIPELINE_NAME, STAGE_NAME, 5.0, 10.0)).thenReturn(asList(identifier(2, "2"), identifier(1, "1")));
-
-        assertThat(runFinder.findRunForStage(new StageIdentifier(PIPELINE_NAME, 3, STAGE_NAME, "1")).isEmpty(), is(true));
     }
 
     private Pipeline pipeline(double naturalOrder) {

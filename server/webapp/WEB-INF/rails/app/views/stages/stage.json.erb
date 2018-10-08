@@ -7,10 +7,6 @@
 
         <%when 'jobs'%>
             "jobs_grid": {"html": <%== render_json :partial=> 'jobs.html', :locals => {:scope => {:jobs => @jobs, :stage => @stage, :has_operate_permissions => @has_operate_permissions }}  %>},
-        <%when 'tests'%>
-            <% cache(view_cache_key.forFbhOfStagesUnderPipeline(@stage.getStage().getIdentifier().pipelineIdentifier()), :subkey => view_cache_key.forFailedBuildHistoryStage(@stage.getStage(),@response_format), :skip_digest => true) do %>
-                "non_passing_tests": {"html": <%== render_json :partial => "non_passing_tests.html", :locals => {:scope => {}} %>},
-            <%end%>
     <%end%>
     "pipeline_status_bar": {"html": <%== render_json :partial => "pipelines/status_bar.html.erb", :locals => {:scope => {:pipeline => @pipeline, :current_config_version => @current_config_version, :stage_config_version => @stage.getStage().getConfigVersion()}} %>},
     "stage_result": {"html": <%== render_json :partial => "stage_result.html", :locals => {:scope => {:state => @stage.getState(), :cancelledBy => @stage.getCancelledBy()}} %>},

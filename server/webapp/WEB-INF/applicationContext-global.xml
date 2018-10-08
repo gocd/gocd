@@ -86,7 +86,6 @@
   <context:component-scan base-package="com.thoughtworks.go.server.cronjob"/>
   <context:component-scan base-package="com.thoughtworks.go.server.materials"/>
   <context:component-scan base-package="com.thoughtworks.go.server.persistence"/>
-  <context:component-scan base-package="com.thoughtworks.studios.shine"/>
   <context:component-scan base-package="com.thoughtworks.go.server.web"/>
   <context:component-scan base-package="com.thoughtworks.go.server.websocket"/>
   <context:component-scan base-package="com.thoughtworks.go.remote"/>
@@ -100,7 +99,6 @@
   <context:component-scan base-package="com.thoughtworks.go.server.security"/>
 
   <import resource="velocity-config.xml"/>
-  <import resource="applicationContext-shine-server.xml"/>
   <import resource="classpath:applicationContext-plugin-infra.xml"/>
 
   <!--enable Spring support for configuring Spring AOP based on @AspectJ aspects-->

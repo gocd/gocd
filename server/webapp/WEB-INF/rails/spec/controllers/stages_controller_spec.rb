@@ -31,7 +31,6 @@ describe StagesController do
   before(:each) do
     controller.go_cache.clear
     @stage_service = double('stage service')
-    @shine_dao = double('shine dao')
     @material_service = double('material service')
     @job_presentation_service = double("job presentation service")
     @cruise_config = BasicCruiseConfig.new
@@ -44,7 +43,6 @@ describe StagesController do
     allow(HttpLocalizedOperationResult).to receive(:new).and_return(@localized_result)
     allow(controller).to receive(:current_user).and_return(@user)
     allow(controller).to receive(:stage_service).and_return(@stage_service)
-    allow(controller).to receive(:shine_dao).and_return(@shine_dao)
     allow(controller).to receive(:material_service).and_return(@material_service)
     allow(controller).to receive(:job_presentation_service).and_return(@job_presentation_service)
     allow(controller).to receive(:go_config_service).and_return(@go_config_service)
@@ -67,7 +65,6 @@ describe StagesController do
     before do
       @stage_summary_model = StageSummaryModel.new(stage = StageMother.passedStageInstance("stage", "dev", "pipeline-name"), nil, JobDurationStrategy::ALWAYS_ZERO, nil)
       stage.setPipelineId(100)
-      allow(@stage_service).to receive(:failingTests).and_return(StageTestRuns.new(12, 0, 0))
       allow(@stage_service).to receive(:findStageSummaryByIdentifier).and_return(@stage_summary_model)
       allow(@stage_service).to receive(:findLatestStage).and_return(:latest_stage)
       allow(@stage_service).to receive(:findStageHistoryPage).and_return(@stage_history = stage_history_page(3))
@@ -87,12 +84,9 @@ describe StagesController do
       end
 
       it "should assign appropriate tab" do
-        expect(@go_config_service).to receive(:stageExists).with("pipeline", "stage").and_return(true)
-        expect(@go_config_service).to receive(:stageHasTests).with("pipeline", "stage").and_return(false)
-        get :tests, params:{:pipeline_name => "pipeline", :pipeline_counter => "2", :stage_name => "stage", :stage_counter => "3"}
-        expect(controller.params[:action]).to eq "tests"
+        get :materials, params:{:pipeline_name => "pipeline", :pipeline_counter => "2", :stage_name => "stage", :stage_counter => "3"}
+        expect(controller.params[:action]).to eq "materials"
       end
-
     end
 
     it "should load stage" do
@@ -318,57 +312,6 @@ describe StagesController do
       end
     end
 
-    describe "fbh tab" do
-
-      before :each do
-        stub_current_config
-      end
-
-      it "should assign information about unable to retrieve results if stage is still building" do
-        stage = StageMother.scheduledStage("pipeline", 2, "stage", 1, "job1")
-        stage.setPipelineId(1)
-        stage_summary = StageSummaryModel.new(stage, Stages.new([stage]), JobDurationStrategy::ALWAYS_ZERO, nil)
-        expect(@stage_service).to receive(:findStageSummaryByIdentifier).with(StageIdentifier.new("pipeline", 2, "stage", "3"), @user, @localized_result).and_return(stage_summary)
-        get :tests, params:{:pipeline_name => "pipeline", :pipeline_counter => "2", :stage_name => "stage", :stage_counter => "3"}
-        expect(assigns(:failing_tests_error_message)).to eq "Test Results will be generated when the stage completes."
-      end
-
-      it "should assign fbh when stage is completed" do
-        stage_identifier = StageIdentifier.new("pipeline", 2, "stage", "3")
-        expect(@shine_dao).to receive(:failedBuildHistoryForStage).with(stage_identifier, @localized_result).and_return(failing_tests = double('StageTestResuls'))
-        allow(failing_tests).to receive(:failingCounters).and_return([])
-        expect(@go_config_service).to receive(:stageExists).with("pipeline", "stage").and_return(true)
-        expect(@go_config_service).to receive(:stageHasTests).with("pipeline", "stage").and_return(true)
-        get :tests, params:{:pipeline_name => "pipeline", :pipeline_counter => "2", :stage_name => "stage", :stage_counter => "3"}
-        expect(assigns(:failing_tests)).to eq failing_tests
-      end
-
-      it "should assign fbh when stage does not exist in config" do
-        stage_identifier = StageIdentifier.new("pipeline", 2, "stage", "3")
-        expect(@shine_dao).to receive(:failedBuildHistoryForStage).with(stage_identifier, @localized_result).and_return(:failing_tests)
-        expect(@go_config_service).to receive(:stageExists).with("pipeline", "stage").and_return(false)
-        get :tests, params:{:pipeline_name => "pipeline", :pipeline_counter => "2", :stage_name => "stage", :stage_counter => "3"}
-        expect(assigns(:failing_tests)).to eq :failing_tests
-      end
-
-      it "should skip fetching failing tests if fragment already cached" do
-        with_caching(true) do
-          stage = StageMother.scheduledStage("pipeline", 2, "stage", 1, "job1")
-          stage.setPipelineId(1)
-          stage.calculateResult
-          stage_summary = StageSummaryModel.new(stage, Stages.new([stage]), JobDurationStrategy::ALWAYS_ZERO, nil)
-          expect(@stage_service).to receive(:findStageSummaryByIdentifier).with(StageIdentifier.new("pipeline", 2, "stage", "3"), @user, @localized_result).and_return(stage_summary)
-          options = {:subkey => controller.view_cache_key.forFailedBuildHistoryStage(stage, "html")}
-          view_cache_key = ['views', controller.view_cache_key.forFbhOfStagesUnderPipeline(stage.getIdentifier().pipelineIdentifier())].join('/')
-          ActionController::Base.cache_store.write(view_cache_key, "fbh", options)
-          expect(@go_config_service).to receive(:stageHasTests).never
-          get :tests, params:{:pipeline_name => "pipeline", :pipeline_counter => "2", :stage_name => "stage", :stage_counter => "3", :format => "html"}
-          expect(assigns(:failing_tests_error_message)).to be_nil
-          expect(assigns(:failing_tests)).to be_nil
-        end
-      end
-
-    end
   end
 
   describe "history" do

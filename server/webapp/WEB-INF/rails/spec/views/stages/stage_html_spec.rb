@@ -78,7 +78,6 @@ describe 'stages/stage.html.erb' do
         params[:pipeline_name] = "cruise"
         params[:pipeline_counter] = "1"
         params[:stage_name] = "dev"
-        assign :failing_tests, StageTestRuns.new(12, 0, 0)
       end
 
       it "should render stage history" do
@@ -194,7 +193,6 @@ describe 'stages/stage.html.erb' do
         params[:pipeline_name] = "cruise"
         params[:pipeline_counter] = "1"
         params[:stage_name] = "dev"
-        assign :failing_tests, StageTestRuns.new(12, 0, 0)
         assign(:stage, stage_with_all_jobs_passed())
       end
 
@@ -217,8 +215,6 @@ describe 'stages/stage.html.erb' do
         params[:pipeline_name] = "cruise"
         params[:pipeline_counter] = "1"
         params[:stage_name] = "dev"
-
-        assign :failing_tests, StageTestRuns.new(12, 0, 0)
       end
 
       it "should hide in progress section if no jobs are in progress" do
@@ -240,7 +236,6 @@ describe 'stages/stage.html.erb' do
         Capybara.string(response.body).find(".sub_tabs_container").tap do |f|
           expect(f).to have_selector "a[href='/pipelines/pipeline_name/10/stage_name/3/materials']", :text => "Materials"
           expect(f).to have_selector ".current a[href='/pipelines/pipeline_name/10/stage_name/3/jobs']", :text => "Jobs"
-          expect(f).to have_selector "a[href='/pipelines/pipeline_name/10/stage_name/3/tests']", :text => "Tests"
           expect(f).to have_selector "a[href='/pipelines/pipeline_name/10/stage_name/3/overview']", :text => "Overview"
           expect(f).to have_selector "a[href='/pipelines/pipeline_name/10/stage_name/3/stage_config']", :text => "Config"
         end
@@ -258,7 +253,6 @@ describe 'stages/stage.html.erb' do
 
         params[:pipeline_counter] = "1"
         params[:stage_name] = "dev"
-        assign :failing_tests, StageTestRuns.new(12, 0, 0)
       end
 
       it "should expand in progress section if any jobs are in progress" do
@@ -348,243 +342,6 @@ describe 'stages/stage.html.erb' do
         end
         Capybara.string(response.body).all(".modified_files").tap do |modified_files|
           expect(modified_files.count()).to eq cnt_modifications
-        end
-      end
-    end
-
-    describe "fbh tab" do
-      before(:each) do
-        params[:action] = 'tests'
-        allow(view).to receive(:failure_details_path).and_return("/path/to/failures")
-      end
-      describe "failingTestsWithMultiplePipelines" do
-        before(:each) do
-          job_identifier = JobIdentifier.new(nil, 1, nil, nil, nil, "job-1")
-          @failing_tests = StageTestRuns.new(2,1,1)
-          @failing_tests.add(10, "1.0", "suite1", "test1-2", TestStatus::Failure, job_identifier)
-          @failing_tests.add(10, "1.0", "suite1", "test1-1", TestStatus::Error, job_identifier)
-          @failing_tests.add(11, "1.1", "suite1", "test1-1", TestStatus::Error, job_identifier)
-          @failing_tests.add(9, "0.9", "suite1", "test1-2", TestStatus::Failure, job_identifier)
-          @failing_tests.addUser(10, "1.0", "user1")
-
-          @failing_tests.addUser(10, "1.0", "user2")
-          @failing_tests.addUser(11, "1.1", "user3")
-          @failing_tests.removeDuplicateTestEntries()
-
-          assign :failing_tests, @failing_tests
-          assign :stage, failing_stage("dev")
-        end
-
-        describe "fbh partial caching" do
-          before(:each) do
-            assign :response_format, "html"
-          end
-
-          it "should cache fbh partial" do
-            @failing_stage = StageMother.custom("dev")
-            @failing_stage.getJobInstances().get(0).fail()
-            @failing_stage.calculateResult()
-
-            @passed_stage = StageMother.custom("dev")
-            @passed_stage.passed()
-            @passed_stage.setIdentifier(@failing_stage.getIdentifier())
-            check_fragment_caching(@failing_stage, @passed_stage, proc {|stage|
-              [
-                  ["views",ViewCacheKey.new.forFbhOfStagesUnderPipeline(stage.getIdentifier().pipelineIdentifier())].join('/'),
-                  {:subkey => ViewCacheKey.new.forFailedBuildHistoryStage(stage, "html")}
-              ]
-            }) do |stage|
-              assign :stage, stage_model_for(stage)
-              render
-            end
-          end
-
-          it "should use html to scope the key to format" do
-            failing_stage = StageMother.custom("dev")
-            failing_stage.getJobInstances().get(0).fail()
-            failing_stage.calculateResult()
-
-            assign :stage, stage_model_for(failing_stage)
-            allow(view).to receive(:view_cache_key).and_return(key = double('view_cache_key'))
-            expect(key).to receive(:forFbhOfStagesUnderPipeline).with(failing_stage.getIdentifier().pipelineIdentifier()).and_return("pipeline_id_based_key")
-            expect(key).to receive(:forFailedBuildHistoryStage).with(failing_stage, "html").and_return("stage_fbh_html_key")
-            expect(view).to receive(:cache).with("pipeline_id_based_key", :subkey => "stage_fbh_html_key", :skip_digest=>true)
-            render
-          end
-        end
-
-        it "should contain header text" do
-          render
-          Capybara.string(response.body).find(".non_passing_tests").tap do |f|
-            expect(f).to have_selector ".message", :text => "New Tests Broken Since: (ordered by check-in/material time)"
-            expect(f).to have_selector ".counts .total", :text => "Tests Run: 2"
-            expect(f).to have_selector ".counts .failures", :text => "Total Failures: 1"
-            expect(f).to have_selector ".counts .errors", :text => "Total Errors: 1"
-          end
-        end
-
-        it "should display message for empty stages" do
-          render
-          expect(response).to have_selector(".non_passing_tests #failing_pipeline2 .block_to_hide_or_reveal_by_above_pipeline_bar", :text => "These changes did not break any of the currently failing tests.")
-        end
-
-        it "should display user that trigger the pipeline" do
-          render
-          expect(response).to have_selector(".non_passing_tests #failing_pipeline0 .users", :text => "By user1, user2")
-          expect(response).to have_selector(".non_passing_tests #failing_pipeline1 .users", :text => "By user3")
-          expect(response).to_not have_selector(".non_passing_tests #failing_pipeline2 .users")
-        end
-
-        it "should be grouped by pipeline" do
-          render
-
-          Capybara.string(response.body).find(".non_passing_tests").tap do |f|
-            expect(f).to have_selector ".counts .failures", :text => "Total Failures: 1"
-            expect(f).to have_selector ".counts .errors", :text => "Total Errors: 1"
-          end
-          Capybara.string(response.body).find(".non_passing_tests #failing_pipeline0").tap do |f|
-            expect(f).to have_selector ".pipeline_bar .pipeline_label", :text => "Pipeline Label: 1.0"
-            expect(f).to have_selector ".pipeline_bar .counts .failures", :text => "Unique Failures: 1"
-            expect(f).to have_selector ".pipeline_bar .counts .errors", :text => "Unique Errors: 0"
-            expect(f).to have_selector ".suite .suite_name", :text => "suite1"
-            f.find(".test_suite").tap do |test_suite|
-              expect(test_suite).to have_selector ".test_case .test_name .name", :text => "test1-2"
-              expect(test_suite).to_not have_selector ".test_case .test_name .name", :text => "test1-1"
-
-            end
-          end
-          Capybara.string(response.body).find(".non_passing_tests #failing_pipeline1").tap do |f|
-            expect(f).to have_selector ".pipeline_bar .pipeline_label", :text => "Pipeline Label: 1.1"
-            expect(f).to have_selector ".pipeline_bar .counts .failures", :text => "Unique Failures: 0"
-            expect(f).to have_selector ".pipeline_bar .counts .errors", :text => "Unique Errors: 1"
-            expect(f).to have_selector ".suite .suite_name", :text => "suite1"
-            f.find(".test_suite").tap do |test_suite|
-              expect(test_suite).to_not have_selector ".test_case .test_name .name", :text => "test1-2"
-              expect(test_suite).to have_selector ".test_case .test_name .name", :text => "test1-1"
-            end
-          end
-
-          Capybara.string(response.body).find(".non_passing_tests #failing_pipeline2").tap do |f|
-            expect(f).to have_selector ".pipeline_bar .pipeline_label", :text => "Pipeline Label: 0.9"
-            expect(f).to have_selector ".pipeline_bar .counts .failures", :text => "Unique Failures: 0"
-            expect(f).to have_selector ".pipeline_bar .counts .errors", :text => "Unique Errors: 0"
-            expect(f).to_not have_selector ".test_suite"
-          end
-        end
-      end
-
-      describe "testsCounts" do
-        before(:each) do
-          @failing_tests = StageTestRuns.new(2, 0, 0)
-          assign :failing_tests, @failing_tests
-        end
-
-
-
-        it "should show the number of test runs if the stage passed" do
-          assign :failing_tests, @failing_tests
-          assign :stage, stage_with_all_jobs_passed()
-
-          render
-          Capybara.string(response.body).find(".non_passing_tests").tap do |f|
-            expect(f).to have_selector "h3 .counts .total", :text => "Tests Run: 2"
-            expect(f).to have_selector "h3 .counts .failures", :text => "Total Failures: 0"
-            expect(f).to have_selector "h3 .counts .errors", :text => "Total Errors: 0"
-            expect(f).to have_selector "h3 .message", :text => "The stage passed"
-          end
-          expect(response).to_not have_selector(".non_passing_tests .failing_pipeline")
-        end
-
-        it "should show a message and the failure/error count if the stage passed" do
-          assign :failing_tests, StageTestRuns.new(4, 1, 1)
-          assign :stage, stage_with_all_jobs_passed()
-
-          render
-
-          Capybara.string(response.body).find(".non_passing_tests").tap do |f|
-            expect(f).to have_selector "h3 .counts .total", :text => "Tests Run: 4"
-            expect(f).to have_selector "h3 .counts .failures", :text => "Total Failures: 1"
-            expect(f).to have_selector "h3 .counts .errors", :text => "Total Errors: 1"
-          end
-          Capybara.string(response.body).find(".non_passing_tests").tap do |f|
-            expect(f).to have_selector "h3 .message", :text => "Although all the jobs in this stage have passed, there are some tests that have failed."
-            expect(f).to have_selector "h3 .message", :text => "This is may be due to the test task configuration in the build script. You might want to fail the build on test failures."
-          end
-        end
-      end
-
-      it "should return no tests configured message" do
-        assign :failing_tests, StageTestRuns.new(0, 0, 0)
-        render
-
-        Capybara.string(response.body).find(".non_passing_tests").tap do |f|
-          expect(f).to have_selector "h3 .message", :text => "There are tests configured in this stage but could not compute results."
-        end
-
-        expect(response).to_not have_selector(".non_passing_tests .failing_pipeline")
-        expect(response).to_not have_selector(".non_passing_tests .counts")
-      end
-
-      describe "failingTests" do
-        before(:each) do
-          @failing_tests = StageTestRuns.new(4, 0, 0)
-          job1 = JobIdentifier.new('pipeline', 1, "label", "stage", "1", "job1")
-          job2 = JobIdentifier.new('pipeline', 1, "label", "stage", "1", "job2")
-          @failing_tests.add(12, "1.2", "suite1", "test1-1", TestStatus::Error, job1)
-          @failing_tests.add(12, "1.2", "suite1", "test1-2", TestStatus::Failure, job1)
-          @failing_tests.add(12, "1.2", "suite1", "test1-2", TestStatus::Failure, job2)
-          @failing_tests.add(12, "1.2", "suite2", "test2-1", TestStatus::Error, job2)
-          @failing_tests.add(12, "1.2", "suite2", "test2-2", TestStatus::Failure, job2)
-          @failing_tests.add(12, "1.2", "suite2", "test2-2", TestStatus::Error, job1)
-          assign :failing_tests, @failing_tests
-          stage = failing_stage("dev")
-          assign :stage, stage
-        end
-
-        it "should render failure message if set" do
-          assign :failing_tests_error_message, "Unable to connect to shine"
-          render
-          expect(response).to have_selector(".non_passing_tests .error", :text => "Unable to connect to shine")
-        end
-
-        it "should be grouped by test suite" do
-          render
-          Capybara.string(response.body).all(".non_passing_tests .suite .suite_name").tap do |f|
-            expect(f[0].text).to eq "suite1"
-            expect(f[1].text).to eq "suite2"
-          end
-        end
-
-        it "should show test cases under suite" do
-          render
-          Capybara.string(response.body).all(".non_passing_tests .test_suite").tap do |test_suites|
-
-
-            first = test_suites[0]
-            second = test_suites[1]
-
-            first.all(".test_case").tap do |test_cases|
-              expect(test_cases[0]).to have_selector ".test_name .name", :text => "test1-1"
-              expect(test_cases[0]).to have_selector(".jobs a[href='/tab/build/detail/pipeline/1/stage/1/job1']", :text => "job1")
-              expect(test_cases[0]).to have_selector(".test_status .Error", :text => /^[\s\S]*$/)
-
-              expect(test_cases[1]).to have_selector ".test_name .name", :text => "test1-2"
-              expect(test_cases[1]).to have_selector(".jobs a[href='/tab/build/detail/pipeline/1/stage/1/job1']", :text => "job1")
-              expect(test_cases[1]).to have_selector(".jobs a[href='/tab/build/detail/pipeline/1/stage/1/job2']", :text => "job2")
-              expect(test_cases[1]).to have_selector(".test_status .Failure", :text => /^[\s\S]*$/)
-
-            end
-            second.all(".test_case").tap do |test_cases|
-              expect(test_cases[0]).to have_selector ".test_name .name", :text => "test2-1"
-              expect(test_cases[0]).to have_selector(".jobs a[href='/tab/build/detail/pipeline/1/stage/1/job2']", :text => "job2")
-              expect(test_cases[0]).to have_selector(".test_status .Error", :text => /^[\s\S]*$/)
-
-              expect(test_cases[1]).to have_selector ".test_name .name", :text => "test2-2"
-              expect(test_cases[1]).to have_selector(".jobs a[href='/tab/build/detail/pipeline/1/stage/1/job2']", :text => "job2")
-              expect(test_cases[1]).to have_selector(".test_status .Failure", :text => /^[\s\S]*$/)
-
-            end
-          end
         end
       end
     end

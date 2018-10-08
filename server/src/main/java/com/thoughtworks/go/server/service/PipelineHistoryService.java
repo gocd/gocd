@@ -51,7 +51,7 @@ import java.util.List;
 import java.util.Set;
 
 @Service
-public class PipelineHistoryService implements PipelineInstanceLoader {
+public class PipelineHistoryService {
     private PipelineDao pipelineDao;
     private GoConfigService goConfigService;
     private SecurityService securityService;
@@ -105,13 +105,6 @@ public class PipelineHistoryService implements PipelineInstanceLoader {
             return null;
         }
         populatePipelineInstanceModel(username, false, pipelineConfig, pipeline);
-        return pipeline;
-    }
-
-    public PipelineInstanceModel loadPipelineForShine(long id) {// TODO: Fix method name - Sachin & JJ
-        PipelineInstanceModel pipeline = pipelineDao.loadHistory(id);
-        PipelineConfig pipelineConfig = goConfigService.currentCruiseConfig().pipelineConfigByName(new CaseInsensitiveString(pipeline.getName()));
-        populatePipelineInstanceModel(pipelineConfig, pipeline);
         return pipeline;
     }
 

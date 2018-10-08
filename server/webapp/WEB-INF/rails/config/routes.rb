@@ -179,8 +179,6 @@ Rails.application.routes.draw do
     get ':pipeline_name/timeline/:page' => 'comparison#timeline', constraints: {pipeline_name: PIPELINE_NAME_FORMAT}, as: :compare_pipelines_timeline
   end
 
-  get 'failures/:pipeline_name/:pipeline_counter/:stage_name/:stage_counter/:job_name' => 'failures#show', constraints: STAGE_LOCATOR_CONSTRAINTS, :no_layout => true, as: :failure_details_internal
-
   get 'server/messages.json' => 'server#messages', :format => "json", as: :global_message
 
   scope 'config_view' do
@@ -397,7 +395,7 @@ Rails.application.routes.draw do
   end
   get "pipelines/:pipeline_name/:pipeline_counter/:stage_name/:stage_counter" => "stages#overview", as: "stage_detail_tab_default", constraints: STAGE_LOCATOR_CONSTRAINTS
 
-  %w(overview pipeline materials jobs tests stats stage_config).each do |controller_action_method|
+  %w(overview pipeline materials jobs stats stage_config).each do |controller_action_method|
     get "pipelines/:pipeline_name/:pipeline_counter/:stage_name/:stage_counter/#{controller_action_method}" => "stages##{controller_action_method}", as: "stage_detail_tab_#{controller_action_method}", constraints: STAGE_LOCATOR_CONSTRAINTS
   end
 

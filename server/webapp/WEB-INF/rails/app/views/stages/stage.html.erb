@@ -6,7 +6,6 @@
         <%= link_with_current_tab 'Overview', "overview" %>
         <%= link_with_current_tab 'Materials', "materials" %>
         <%= link_with_current_tab 'Jobs', "jobs" %>
-        <%= link_with_current_tab 'Tests', "tests" if system_environment.isShineEnabled %>
         <%= link_with_current_tab 'Config', "stage_config" %>
         <%= link_with_current_tab 'Graphs', "stats" %>
     </ul>
@@ -23,16 +22,6 @@
     <% when 'materials' %>
         <div class="material_tab">
             <%= render :partial => 'shared/build_cause.html', :locals => {:scope => {:overview => false, :material_revisions => @pipeline.getCurrentRevisions(), :show_files => true, :pipeline_name => @pipeline.getName()}} -%>
-        </div>
-    <% when 'tests' %>
-        <div class="fbh_microcontent_popup dashboard_build_cause_like_microcontent_popups">
-            <div class="hidden changes enhanced_dropdown" id="fbh_build_cause_content">&nbsp;</div>
-            <div class="hidden changes enhanced_dropdown failure_detail_popup" id="fbh_failure_details_content">&nbsp;</div>
-        </div>
-        <div id="non_passing_tests" class="non_passing_tests overview_widget">
-            <% cache(view_cache_key.forFbhOfStagesUnderPipeline(@stage.getStage().getIdentifier().pipelineIdentifier()), :subkey => view_cache_key.forFailedBuildHistoryStage(@stage.getStage(), @response_format), :skip_digest => true) do %>
-                <%= render :partial => "non_passing_tests", :locals => {:scope => {}} %>
-            <% end %>
         </div>
     <% when 'stats' %>
         <div id="stage_stats">

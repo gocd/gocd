@@ -62,17 +62,51 @@ module.exports = function (env) {
   const assetsDir = path.join(__dirname, '..', 'webpack');
 
   const plugins = [];
-  plugins.push(new HappyPack({
-    loaders: [
-      {
-        loader:  'babel-loader',
-        options: {
-          cacheDirectory: path.join(__dirname, '..', 'tmp', 'babel-loader')
-        }
-      }
-    ],
-    threads: 4
+  plugins.push(new MiniCssExtractPlugin({
+    filename:      production ? '[name]-[hash].css' : '[name].css',
+    chunkFilename: production ? '[id]-[hash].css' : '[id].css'
   }));
+  const happyThreadPool = HappyPack.ThreadPool({size: 4});
+  plugins.push(new HappyPack({
+      id:         'jsx',
+      loaders:    [
+        {
+          loader:  'babel-loader',
+          options: {
+            cacheDirectory: path.join(__dirname, '..', 'tmp', 'babel-loader')
+          }
+        }
+      ],
+      threadPool: happyThreadPool
+    }),
+    new HappyPack({
+      id:         'scss',
+      loaders:    [
+        {loader: "css-loader?modules&camelCase&importLoaders=1&localIdentName=[name]__[local]___[hash:base64:5]"}, // translates CSS into CommonJS
+        {
+          loader:  "sass-loader", // compiles Sass to CSS, using Node Sass by default
+          options: {
+            includePaths: [
+              path.join(__dirname, '..', 'node_modules', 'font-awesome', 'scss')
+            ]
+          }
+        }
+      ],
+      threadPool: happyThreadPool
+    }),
+    new HappyPack({
+      id:         'woff',
+      loaders:    [
+        {
+          loader:  'url-loader',
+          options: {
+            limit:    10000,
+            mimetype: 'application/font-woff'
+          }
+        }],
+      threadPool: happyThreadPool
+    })
+  );
   plugins.push(new StatsPlugin('manifest.json', {
     chunkModules: false,
     source:       false,
@@ -85,7 +119,6 @@ module.exports = function (env) {
     jQuery:          "jquery",
     "window.jQuery": "jquery"
   }));
-  plugins.push(new MiniCssExtractPlugin());
 
   if (production) {
     plugins.push(new webpack.LoaderOptionsPlugin({minimize: true}));
@@ -122,39 +155,23 @@ module.exports = function (env) {
         {
           test:    /\.(msx|js)$/,
           exclude: /node_modules/,
-          use:     'happypack/loader',
+          use:     'happypack/loader?id=jsx',
         },
-        { //TODO can this me moved to Happy?
+        {
           test:    /\.scss$/,
           exclude: /node_modules/,
           use:     [
-            {loader: 'style-loader'},
-            {loader: "css-loader?modules&camelCase&importLoaders=1&localIdentName=[name]__[local]___[hash:base64:5]"}, // translates CSS into CommonJS
-            {
-              loader:  "sass-loader", // compiles Sass to CSS, using Node Sass by default
-              options: {
-                includePaths: [
-                  path.join(__dirname, '..', 'node_modules', 'font-awesome', 'scss')
-                ]
-              }
-            }
+            MiniCssExtractPlugin.loader, //happypack doesn't work with MiniCssExtractPlugin as of now
+            'happypack/loader?id=scss'
           ]
         },
         {
           test: /\.woff(2)?(\?v=[0-9]\.[0-9]\.[0-9])?$/,
-          use:  [
-            {
-              loader:  'url-loader',
-              options: {
-                limit:    10000,
-                mimetype: 'application/font-woff'
-              }
-            }
-          ]
+          use:  'happypack/loader?id=woff'
         },
         {
           test: /\.(ttf|eot|svg)(\?v=[0-9]\.[0-9]\.[0-9])?$/,
-          use:  [
+          use:  [ //happypack doesn't work with file-loader as of now
             {loader: 'file-loader'}
           ]
         }

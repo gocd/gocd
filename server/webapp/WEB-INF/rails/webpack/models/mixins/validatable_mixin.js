@@ -18,31 +18,31 @@ const _                 = require('lodash');
 const s                 = require('string-plus');
 const Errors            = require('models/mixins/errors');
 const Mixins            = require('models/mixins/model_mixins');
-const PresenceValidator = function (options) {
+const PresenceValidator = function ({condition, message}) {
   this.validate = (entity, attr) => {
-    if (options.condition && (!options.condition(entity))) {
+    if (condition && (!condition(entity))) {
       return;
     }
 
     if (s.isBlank(entity[attr]())) {
-      entity.errors().add(attr, Validatable.ErrorMessages.mustBePresent(attr));
+      entity.errors().add(attr, message || Validatable.ErrorMessages.mustBePresent(attr));
     }
   };
 };
 
-const UniquenessValidator = function () {
+const UniquenessValidator = function ({message}) {
   this.validate = (entity, attr) => {
     if (_.isNil(entity.parent()) || s.isBlank(entity[attr]())) {
       return;
     }
 
     if (!entity.parent().isUnique(entity, attr)) {
-      entity.errors().add(attr, Validatable.ErrorMessages.duplicate(attr));
+      entity.errors().add(attr, message || Validatable.ErrorMessages.duplicate(attr));
     }
   };
 };
 
-const UrlPatternValidator = function () {
+const UrlPatternValidator = function ({message}) {
   const URL_REGEX = /^http(s)?:\/\/.+/;
 
   this.validate = (entity, attr) => {
@@ -51,7 +51,7 @@ const UrlPatternValidator = function () {
     }
 
     if (!entity[attr]().match(URL_REGEX)) {
-      entity.errors().add(attr, Validatable.ErrorMessages.mustBeAUrl(attr));
+      entity.errors().add(attr, message || Validatable.ErrorMessages.mustBeAUrl(attr));
     }
   };
 };
@@ -63,7 +63,7 @@ const FormatValidator = function({format, message}) {
     }
 
     if (!entity[attr]().match(format)) {
-      entity.errors().add(attr, message || (`${s.humanize(attr)} format is in valid`));
+      entity.errors().add(attr, message || `${s.humanize(attr)} format is invalid`);
     }
   };
 };
@@ -82,20 +82,20 @@ const Validatable = function({errors}) {
     attr ? self.errors().clear(attr) : self.errors().clear();
   };
 
-  self.validatePresenceOf = (attr, options) => {
-    validateWith(new PresenceValidator(options || {}), attr);
+  self.validatePresenceOf = (attr, options={}) => {
+    validateWith(new PresenceValidator(options), attr);
   };
 
-  self.validateUniquenessOf = (attr, options) => {
-    validateWith(new UniquenessValidator(options || {}), attr);
+  self.validateUniquenessOf = (attr, options={}) => {
+    validateWith(new UniquenessValidator(options), attr);
   };
 
-  self.validateFormatOf = (attr, options) => {
-    validateWith(new FormatValidator(options || {}), attr);
+  self.validateFormatOf = (attr, options={}) => {
+    validateWith(new FormatValidator(options), attr);
   };
 
-  self.validateUrlPattern = (attr, options) => {
-    validateWith(new UrlPatternValidator(options || {}), attr);
+  self.validateUrlPattern = (attr, options={}) => {
+    validateWith(new UrlPatternValidator(options), attr);
   };
 
   self.validateWith = (attr, validator) => {

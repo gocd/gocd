@@ -1,4 +1,6 @@
 module ApiEtagHelper
+  HttpLocalizedOperationResult = com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult
+
   # this is how rails computes etags
   # copied from ActionDispatch::Http::Cache::Request
   def generate_strong_etag(validators)

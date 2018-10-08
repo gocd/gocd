@@ -19,7 +19,6 @@ package com.thoughtworks.go.spark.spa.spring;
 import com.thoughtworks.go.plugin.access.analytics.AnalyticsExtension;
 import com.thoughtworks.go.server.service.PipelineConfigService;
 import com.thoughtworks.go.server.service.SecurityService;
-import com.thoughtworks.go.server.service.support.toggle.FeatureToggleListener;
 import com.thoughtworks.go.server.service.support.toggle.FeatureToggleService;
 import com.thoughtworks.go.server.service.support.toggle.Toggles;
 import com.thoughtworks.go.spark.SparkController;
@@ -46,16 +45,13 @@ public class SpaControllers implements SparkSpringController {
         sparkControllers.add(new RolesControllerDelegate(authenticationHelper, templateEngineFactory.create(RolesControllerDelegate.class, "layouts/single_page_app.vm")));
         sparkControllers.add(new AuthConfigsDelegate(authenticationHelper, templateEngineFactory.create(AuthConfigsDelegate.class, "layouts/single_page_app.vm")));
         sparkControllers.add(new AgentsControllerDelegate(authenticationHelper, templateEngineFactory.create(AgentsControllerDelegate.class, "layouts/single_page_app.vm"), securityService, systemEnvironment));
-        if (featureToggleService.isToggleOn(Toggles.COMPONENTS)) {
-            sparkControllers.add(new PluginsDelegate(authenticationHelper, templateEngineFactory.create(PluginsDelegate.class, "layouts/component_layout.vm"), securityService));
-        } else {
-            sparkControllers.add(new PluginsDelegate(authenticationHelper, templateEngineFactory.create(PluginsDelegate.class, "layouts/single_page_app.vm"), securityService));
-        }
+        sparkControllers.add(new PluginsDelegate(authenticationHelper, templateEngineFactory.create(PluginsDelegate.class, layoutTemplate(featureToggleService)), securityService));
         sparkControllers.add(new ElasticProfilesDelegate(authenticationHelper, templateEngineFactory.create(ElasticProfilesDelegate.class, "layouts/single_page_app.vm")));
         sparkControllers.add(new NewDashboardDelegate(authenticationHelper, templateEngineFactory.create(NewDashboardDelegate.class, "layouts/single_page_app.vm"), securityService, systemEnvironment, pipelineConfigService));
         sparkControllers.add(new ArtifactStoresDelegate(authenticationHelper, templateEngineFactory.create(ArtifactStoresDelegate.class, "layouts/single_page_app.vm")));
         sparkControllers.add(new AnalyticsDelegate(authenticationHelper, templateEngineFactory.create(AnalyticsDelegate.class, "layouts/single_page_app.vm"), systemEnvironment, analyticsExtension, pipelineConfigService));
         sparkControllers.add(new DataSharingSettingsDelegate(authenticationHelper, templateEngineFactory.create(DataSharingSettingsDelegate.class, "layouts/single_page_app.vm")));
+        sparkControllers.add(new ConfigReposDelegate(authenticationHelper, templateEngineFactory.create(ConfigReposDelegate.class, layoutTemplate(featureToggleService)), featureToggleService));
     }
 
     @Override
@@ -63,5 +59,9 @@ public class SpaControllers implements SparkSpringController {
         for (SparkController sparkController : sparkControllers) {
             sparkController.setupRoutes();
         }
+    }
+
+    private String layoutTemplate(FeatureToggleService toggles) {
+        return toggles.isToggleOn(Toggles.COMPONENTS) ? "layouts/component_layout.vm" : "layouts/single_page_app.vm";
     }
 }

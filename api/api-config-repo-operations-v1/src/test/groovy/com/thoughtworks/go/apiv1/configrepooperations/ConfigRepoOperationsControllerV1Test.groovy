@@ -203,7 +203,7 @@ class ConfigRepoOperationsControllerV1Test implements SecurityServiceTrait, Cont
       verify(materialUpdateService).updateMaterial(material)
 
       assertThatResponse()
-        .isOk()
+        .isCreated()
         .hasContentType(controller.mimeType)
         .hasJsonMessage("OK")
     }
@@ -221,7 +221,7 @@ class ConfigRepoOperationsControllerV1Test implements SecurityServiceTrait, Cont
       verify(materialUpdateService).updateMaterial(material)
 
       assertThatResponse()
-        .isOk()
+        .isConflict()
         .hasContentType(controller.mimeType)
         .hasJsonMessage("Update already in progress")
     }

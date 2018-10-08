@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.apiv1.configrepo
+package com.thoughtworks.go.apiv1.configrepooperations
 
 import com.thoughtworks.go.api.SecurityTestTrait
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
@@ -39,7 +39,7 @@ import org.mockito.Mock
 import static org.mockito.Mockito.*
 import static org.mockito.MockitoAnnotations.initMocks
 
-class ConfigReposControllerV1Test implements SecurityServiceTrait, ControllerTrait<ConfigReposControllerV1> {
+class ConfigRepoOperationsControllerV1Test implements SecurityServiceTrait, ControllerTrait<ConfigRepoOperationsControllerV1> {
   @Mock
   GoRepoConfigDataSource dataSource
   @Mock
@@ -57,8 +57,8 @@ class ConfigReposControllerV1Test implements SecurityServiceTrait, ControllerTra
   }
 
   @Override
-  ConfigReposControllerV1 createControllerInstance() {
-    return new ConfigReposControllerV1(new ApiAuthenticationHelper(securityService, goConfigService), dataSource, service, materialUpdateService, converter)
+  ConfigRepoOperationsControllerV1 createControllerInstance() {
+    return new ConfigRepoOperationsControllerV1(new ApiAuthenticationHelper(securityService, goConfigService), dataSource, service, materialUpdateService, converter)
   }
 
   @Nested

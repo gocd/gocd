@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.apiv1.configrepo.representers;
+package com.thoughtworks.go.apiv1.configrepooperations.representers;
 
 import com.thoughtworks.go.config.PartialConfigParseResult;
 import com.thoughtworks.go.config.remote.PartialConfig;

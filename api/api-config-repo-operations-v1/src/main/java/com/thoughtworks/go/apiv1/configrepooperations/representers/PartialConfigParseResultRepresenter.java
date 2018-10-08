@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.apiv1.configrepo.representers;
+package com.thoughtworks.go.apiv1.configrepooperations.representers;
 
 import com.google.gson.*;
 import com.thoughtworks.go.config.PartialConfigParseResult;

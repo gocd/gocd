@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.apiv1.configrepo;
+package com.thoughtworks.go.apiv1.configrepooperations;
 
 import com.thoughtworks.go.api.ApiController;
 import com.thoughtworks.go.api.ApiVersion;
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
 import com.thoughtworks.go.api.util.HaltApiResponses;
 import com.thoughtworks.go.api.util.MessageJson;
-import com.thoughtworks.go.apiv1.configrepo.representers.PartialConfigParseResultRepresenter;
+import com.thoughtworks.go.apiv1.configrepooperations.representers.PartialConfigParseResultRepresenter;
 import com.thoughtworks.go.config.GoRepoConfigDataSource;
 import com.thoughtworks.go.config.PartialConfigParseResult;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
@@ -40,7 +40,7 @@ import spark.Response;
 import static spark.Spark.*;
 
 @Component
-public class ConfigReposControllerV1 extends ApiController implements SparkSpringController {
+public class ConfigRepoOperationsControllerV1 extends ApiController implements SparkSpringController {
 
     private final ApiAuthenticationHelper authenticationHelper;
     private final GoRepoConfigDataSource goRepoConfigDataSource;
@@ -49,7 +49,7 @@ public class ConfigReposControllerV1 extends ApiController implements SparkSprin
     private final MaterialConfigConverter converter;
 
     @Autowired
-    public ConfigReposControllerV1(ApiAuthenticationHelper authenticationHelper, GoRepoConfigDataSource goRepoConfigDataSource, ConfigRepoService configRepoService, MaterialUpdateService mus, MaterialConfigConverter converter) {
+    public ConfigRepoOperationsControllerV1(ApiAuthenticationHelper authenticationHelper, GoRepoConfigDataSource goRepoConfigDataSource, ConfigRepoService configRepoService, MaterialUpdateService mus, MaterialConfigConverter converter) {
         super(ApiVersion.v1);
         this.authenticationHelper = authenticationHelper;
         this.goRepoConfigDataSource = goRepoConfigDataSource;

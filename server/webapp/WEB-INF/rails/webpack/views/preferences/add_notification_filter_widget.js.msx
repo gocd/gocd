@@ -40,7 +40,7 @@
         <f.select label="Pipeline" name="pipeline" items={pipelinesModel.pipelines} model={pipelinesModel} attrName="currentPipeline" />
         <f.select label="Stage" name="stage" items={pipelinesModel.stages} />
         <f.select label="Event" name="event" items={pipelinesModel.events} />
-        <f.checkbox label="Only if it contains my check-ins" name="myCheckin" model={filtersModel} attrName="myCommits" />
+        <f.checkbox label="Only if it contains my check-ins" name="match_commits" model={filtersModel} attrName="myCommits" />
         <fieldset>
           <input type="submit" value="Add" class="primary" />
           <input type="reset" value="Reset" />

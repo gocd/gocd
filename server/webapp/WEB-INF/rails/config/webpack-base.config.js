@@ -49,8 +49,63 @@ module.exports = function (env) {
   const production        = (env && env.production === 'true');
   const outputDir         = (env && env.outputDir) || path.join(__dirname, '..', 'public', 'assets', 'webpack');
   const licenseReportFile = (env && env.licenseReportFile) || path.join(__dirname, '..', 'yarn-license-report', `used-packages-${production ? 'prod' : 'dev'}.json`);
-
+  const assetsDir         = path.join(__dirname, '..', 'webpack');
+  const happyThreadPool   = HappyPack.ThreadPool({size: 4});
   console.log(`Generating assets in ${outputDir}`); //eslint-disable-line no-console
+
+  const generateConfig = function (entries, splitChunks, plugins) {
+    return {
+      cache:        true,
+      bail:         true,
+      entry:        entries,
+      output:       {
+        path:       outputDir,
+        publicPath: '/go/assets/webpack/',
+      },
+      resolve:      {
+        extensions: ['.js', '.js.msx', '.msx', '.es6'],
+        alias:      {
+          'string-plus': 'helpers/string-plus',
+          'string':      'underscore.string',
+          'jQuery':      'jquery',
+        }
+      },
+      optimization: {
+        splitChunks: splitChunks
+      },
+      devServer:    {
+        hot:    false,
+        inline: false
+      },
+      plugins,
+      module:       {
+        rules: [
+          {
+            test:    /\.(msx|js)$/,
+            exclude: /node_modules/,
+            use:     'happypack/loader?id=jsx',
+          },
+          {
+            test:    /\.scss$/,
+            exclude: /node_modules/,
+            use:     [
+              'happypack/loader?id=scss'
+            ]
+          },
+          {
+            test: /\.woff(2)?(\?v=[0-9]\.[0-9]\.[0-9])?$/,
+            use:  'happypack/loader?id=woff'
+          },
+          {
+            test: /\.(ttf|eot|svg)(\?v=[0-9]\.[0-9]\.[0-9])?$/,
+            use:  [ //happypack doesn't work with file-loader as of now
+              {loader: 'file-loader'}
+            ]
+          }
+        ]
+      }
+    };
+  };
 
   const entries = _.reduce(fs.readdirSync(singlePageAppModuleDir), (memo, file) => {
     const fileName   = path.basename(file);
@@ -58,126 +113,6 @@ module.exports = function (env) {
     memo[moduleName] = path.join(singlePageAppModuleDir, file);
     return memo;
   }, {});
-
-  const assetsDir = path.join(__dirname, '..', 'webpack');
-
-  const plugins = [];
-  plugins.push(new MiniCssExtractPlugin({
-    filename:      production ? '[name]-[hash].css' : '[name].css',
-    chunkFilename: production ? '[id]-[hash].css' : '[id].css'
-  }));
-  const happyThreadPool = HappyPack.ThreadPool({size: 4});
-  plugins.push(new HappyPack({
-      id:         'jsx',
-      loaders:    [
-        {
-          loader:  'babel-loader',
-          options: {
-            cacheDirectory: path.join(__dirname, '..', 'tmp', 'babel-loader')
-          }
-        }
-      ],
-      threadPool: happyThreadPool
-    }),
-    new HappyPack({
-      id:         'scss',
-      loaders:    [
-        {loader: "css-loader?modules&camelCase&importLoaders=1&localIdentName=[name]__[local]___[hash:base64:5]"}, // translates CSS into CommonJS
-        {
-          loader:  "sass-loader", // compiles Sass to CSS, using Node Sass by default
-          options: {
-            includePaths: [
-              path.join(__dirname, '..', 'node_modules', 'font-awesome', 'scss')
-            ]
-          }
-        }
-      ],
-      threadPool: happyThreadPool
-    }),
-    new HappyPack({
-      id:         'woff',
-      loaders:    [
-        {
-          loader:  'url-loader',
-          options: {
-            limit:    10000,
-            mimetype: 'application/font-woff'
-          }
-        }],
-      threadPool: happyThreadPool
-    })
-  );
-  plugins.push(new StatsPlugin('manifest.json', {
-    chunkModules: false,
-    source:       false,
-    chunks:       false,
-    modules:      false,
-    assets:       true
-  }));
-  plugins.push(new webpack.ProvidePlugin({
-    $:               "jquery",
-    jQuery:          "jquery",
-    "window.jQuery": "jquery"
-  }));
-
-  if (production) {
-    plugins.push(new webpack.LoaderOptionsPlugin({minimize: true}));
-  }
-
-  const config = {
-    cache:     true,
-    bail:      true,
-    entry:     entries,
-    output:    {
-      path:       outputDir,
-      publicPath: '/go/assets/webpack/',
-      filename:   production ? '[name]-[chunkhash].js' : '[name].js'
-    },
-    resolve:   {
-      modules:    _.compact([
-        assetsDir,
-        production ? null : path.join(__dirname, '..', 'spec', 'webpack', 'patches'), // provide monkey patches libs for tests
-        'node_modules']),
-      extensions: ['.js', '.js.msx', '.msx', '.es6'],
-      alias:      {
-        'string-plus': 'helpers/string-plus',
-        'string':      'underscore.string',
-        'jQuery':      'jquery',
-      }
-    },
-    devServer: {
-      hot:    false,
-      inline: false
-    },
-    plugins,
-    module:    {
-      rules: [
-        {
-          test:    /\.(msx|js)$/,
-          exclude: /node_modules/,
-          use:     'happypack/loader?id=jsx',
-        },
-        {
-          test:    /\.scss$/,
-          exclude: /node_modules/,
-          use:     [
-            MiniCssExtractPlugin.loader, //happypack doesn't work with MiniCssExtractPlugin as of now
-            'happypack/loader?id=scss'
-          ]
-        },
-        {
-          test: /\.woff(2)?(\?v=[0-9]\.[0-9]\.[0-9])?$/,
-          use:  'happypack/loader?id=woff'
-        },
-        {
-          test: /\.(ttf|eot|svg)(\?v=[0-9]\.[0-9]\.[0-9])?$/,
-          use:  [ //happypack doesn't work with file-loader as of now
-            {loader: 'file-loader'}
-          ]
-        }
-      ]
-    }
-  };
 
   const LicensePlugin = function (_options) {
     this.apply = function (compiler) {
@@ -253,7 +188,61 @@ module.exports = function (env) {
     };
   };
 
-  config.plugins.push(new LicensePlugin());
+  const plugins = [
+    new HappyPack({
+      id:         'jsx',
+      loaders:    [
+        {
+          loader:  'babel-loader',
+          options: {
+            cacheDirectory: path.join(__dirname, '..', 'tmp', 'babel-loader')
+          }
+        }
+      ],
+      threadPool: happyThreadPool
+    }),
+    new HappyPack({
+      id:         'scss',
+      loaders:    [
+        {loader: 'style-loader'},
+        {loader: "css-loader?modules&camelCase&importLoaders=1&localIdentName=[name]__[local]___[hash:base64:5]"}, // translates CSS into CommonJS
+        {
+          loader:  "sass-loader", // compiles Sass to CSS, using Node Sass by default
+          options: {
+            includePaths: [
+              path.join(__dirname, '..', 'node_modules', 'font-awesome', 'scss')
+            ]
+          }
+        }
+      ],
+      threadPool: happyThreadPool
+    }),
+    new HappyPack({
+      id:         'woff',
+      loaders:    [
+        {
+          loader:  'url-loader',
+          options: {
+            limit:    10000,
+            mimetype: 'application/font-woff'
+          }
+        }],
+      threadPool: happyThreadPool
+    }),
+    new StatsPlugin('manifest.json', {
+      chunkModules: false,
+      source:       false,
+      chunks:       false,
+      modules:      false,
+      assets:       true
+    }),
+    new webpack.ProvidePlugin({
+      $:               "jquery",
+      jQuery:          "jquery",
+      "window.jQuery": "jquery"
+    }),
+    new LicensePlugin()
+  ];
 
   const splitChunks = {
     cacheGroups: {
@@ -278,74 +267,5 @@ module.exports = function (env) {
     }
   };
 
-  if (production) {
-    config.mode = 'production';
-    fsExtra.removeSync(config.output.path);
-    config.devtool      = "source-map";
-    config.optimization = {
-      splitChunks: splitChunks
-    };
-  } else {
-    config.mode    = 'development';
-    config.devtool = "inline-source-map";
-
-    config.resolve.modules.push(path.join(__dirname, 'spec', 'webpack'));
-
-    config.optimization = {
-      splitChunks: splitChunks
-    };
-
-    const jasmineCore  = require('jasmine-core');
-    const jasmineFiles = jasmineCore.files;
-
-    const HtmlWebpackPlugin = require('html-webpack-plugin');
-
-    const jasmineIndexPage = {
-      inject:          true,
-      xhtml:           true,
-      filename:        '_specRunner.html',
-      template:        path.join(__dirname, '..', 'spec', 'webpack', '_specRunner.html.ejs'),
-      jasmineJsFiles:  _.map(jasmineFiles.jsFiles.concat(jasmineFiles.bootFiles), (file) => {
-        return `__jasmine/${file}`;
-      }),
-      jasmineCssFiles: _.map(jasmineFiles.cssFiles, (file) => {
-        return `__jasmine/${file}`;
-      }),
-      excludeChunks:   _.keys(entries)
-    };
-
-    config.plugins.push(new HtmlWebpackPlugin(jasmineIndexPage));
-
-    config.entry['specRoot'] = path.join(__dirname, '..', 'spec', 'webpack', 'specRoot.js');
-
-    const JasmineAssetsPlugin = function (_options) {
-      this.apply = function (compiler) {
-        compiler.plugin('emit', (compilation, callback) => {
-          const allJasmineAssets = jasmineFiles.jsFiles.concat(jasmineFiles.bootFiles).concat(jasmineFiles.cssFiles);
-
-          _.each(allJasmineAssets, (asset) => {
-            const file = path.join(jasmineFiles.path, asset);
-
-            const contents = fs.readFileSync(file).toString();
-
-            compilation.assets[`__jasmine/${asset}`] = {
-              source() {
-                return contents;
-              },
-              size() {
-                return contents.length;
-              }
-            };
-          });
-
-          callback();
-        });
-      };
-    };
-
-    config.plugins.push(new JasmineAssetsPlugin());
-
-  }
-
-  return config;
+  return generateConfig(entries, splitChunks, plugins);
 };

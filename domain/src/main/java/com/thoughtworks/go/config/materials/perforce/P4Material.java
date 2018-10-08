@@ -267,16 +267,11 @@ public class P4Material extends ScmMaterial implements PasswordEncrypter, Passwo
 
         P4Material that = (P4Material) o;
 
-        if (serverAndPort != null ? !serverAndPort.equals(that.serverAndPort) : that.serverAndPort != null) {
+        if (getFingerprint() != null ? !getFingerprint().equals(that.getFingerprint()) : that.getFingerprint() != null) {
             return false;
         }
+
         if (useTickets != null ? !useTickets.equals(that.useTickets) : that.useTickets != null) {
-            return false;
-        }
-        if (userName != null ? !userName.equals(that.userName) : that.userName != null) {
-            return false;
-        }
-        if (view != null ? !view.equals(that.view) : that.view != null) {
             return false;
         }
 

@@ -235,18 +235,10 @@ public class TfsMaterial extends ScmMaterial implements PasswordAwareMaterial, P
 
         TfsMaterial material = (TfsMaterial) o;
 
-        if (projectPath != null ? !projectPath.equals(material.projectPath) : material.projectPath != null) {
+        if (getFingerprint() != null ? !getFingerprint().equals(material.getFingerprint()) : material.getFingerprint() != null) {
             return false;
         }
-        if (url != null ? !url.equals(material.url) : material.url != null) {
-            return false;
-        }
-        if (userName != null ? !userName.equals(material.userName) : material.userName != null) {
-            return false;
-        }
-        if (domain != null ? !domain.equals(material.domain) : material.domain != null) {
-            return false;
-        }
+
         return true;
     }
 

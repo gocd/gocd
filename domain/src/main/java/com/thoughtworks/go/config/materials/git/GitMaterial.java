@@ -324,13 +324,10 @@ public class GitMaterial extends ScmMaterial {
 
         GitMaterial that = (GitMaterial) o;
 
-        if (branch != null ? !branch.equals(that.branch) : that.branch != null) {
+        if (getFingerprint() != null ? !getFingerprint().equals(that.getFingerprint()) : that.getFingerprint() != null) {
             return false;
         }
         if (submoduleFolder != null ? !submoduleFolder.equals(that.submoduleFolder) : that.submoduleFolder != null) {
-            return false;
-        }
-        if (url != null ? !url.equals(that.url) : that.url != null) {
             return false;
         }
 

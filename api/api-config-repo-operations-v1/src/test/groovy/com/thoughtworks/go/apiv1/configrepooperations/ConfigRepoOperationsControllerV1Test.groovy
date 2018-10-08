@@ -140,6 +140,50 @@ class ConfigRepoOperationsControllerV1Test implements SecurityServiceTrait, Cont
   }
 
   @Nested
+  class status {
+    @BeforeEach
+    void setUp() {
+      loginAsAdmin()
+    }
+
+    @Test
+    void 'should confirm if update is in progress'() {
+      MaterialConfig config = mock(MaterialConfig.class)
+      Material material = mock(Material.class)
+
+      when(service.getConfigRepo(ID)).thenReturn(new ConfigRepoConfig(config, null, ID))
+      when(converter.toMaterial(config)).thenReturn(material)
+      when(materialUpdateService.isInProgress(material)).thenReturn(true)
+
+      getWithApiHeader(controller.controllerPath(ID, 'status'), [:])
+      verify(materialUpdateService).isInProgress(material)
+
+      assertThatResponse()
+        .isOk()
+        .hasContentType(controller.mimeType)
+        .hasBodyWithJson("{\"inProgress\": true}")
+    }
+
+    @Test
+    void 'should return false if update is not in progress'() {
+      MaterialConfig config = mock(MaterialConfig.class)
+      Material material = mock(Material.class)
+
+      when(service.getConfigRepo(ID)).thenReturn(new ConfigRepoConfig(config, null, ID))
+      when(converter.toMaterial(config)).thenReturn(material)
+      when(materialUpdateService.isInProgress(material)).thenReturn(false)
+
+      getWithApiHeader(controller.controllerPath(ID, 'status'), [:])
+      verify(materialUpdateService).isInProgress(material)
+
+      assertThatResponse()
+        .isOk()
+        .hasContentType(controller.mimeType)
+        .hasBodyWithJson("{\"inProgress\": false}")
+    }
+  }
+
+  @Nested
   class triggerUpdate {
     @BeforeEach
     void setUp() {

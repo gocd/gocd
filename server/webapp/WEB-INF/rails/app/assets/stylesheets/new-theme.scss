@@ -83,16 +83,19 @@ h4 {
   font-size: 18px;
 }
 
-.environment .column-container {
-  display:       flex;
-
-  height:        25px;
-  cursor:        pointer;
-  padding:       10px 50px 10px 30px;
-  margin:        0 15px;
+.environment-listing {
+  border:        1px solid #ececec;
+  margin:        0px 15px;
+  border-radius: 3px;
   background:    #fff;
-  border:        1px solid #ddd !important;
-  border-radius: 5px;
+}
+
+.environment-listing .environment-header {
+  display:    flex;
+  height:     30px;
+  cursor:     pointer;
+  padding:    10px 50px 10px 20px;
+  overflow:   hidden;
 
   &:after {
     content:     "\f105";
@@ -102,31 +105,62 @@ h4 {
     font-size:   30px;
     font-weight: 400;
     color:       #ccc;
-    align-self:  right !important;
+  }
+
+  h2.entity_title {
+    font-size:     14px;
+    font-weight:   600;
+    color:         black;
+    line-height:   30px;
+    min-width:     325px;
+    max-width:     325px;
+    padding:       0;
+    overflow:      hidden;
+    white-space:   nowrap;
+    text-overflow: ellipsis;
+  }
+
+  .key-value-pair {
+    padding-left: 15px;
+    line-height:  30px;
+    min-width:    250px;
+    max-width:    250px;
+    .key {
+      min-width: auto;
+    }
   }
 }
 
-.environment .column-container.expanded:after {
-  content: "\f107";
-}
+.environment-listing .environment-body {
+  border-top: 1px solid #ececec;
+  padding:    15px;
+  display:    none;
 
-.environment .column-container .key-value-pair {
-  padding-left: 15px;
-  line-height:  25px;
-  min-width:    250px;
-  max-width:    250px;
-  .key {
-    min-width: auto;
+  h3 {
+    margin:         10px 0 20px;
+    border-bottom:  1px dotted #ccc;
+    padding-bottom: 10px;
+  }
+
+  .added_item ul {
+    margin-left: 23px;
+    li {
+      margin-top: 10px;
+      font-size:  rem-calc(13px);
+    }
   }
 }
 
-.environment h2.entity_title {
-  font-size:   16px;
-  font-weight: 600;
-  color:       black;
-  line-height: 25px;
-  min-width:   325px;
-  max-width:   325px;
+.environment-listing.expanded {
+  box-shadow: 0 3px 11px 0 rgba(0, 0, 0, 0.15);
+
+  .environment-body {
+    display: block;
+  }
+
+  .environment-header:after {
+    content: "\f107";
+  }
 }
 
 .environment_show {
@@ -3096,10 +3130,6 @@ pre, code, #admin-holder-for-admin-config-source-xml textarea {
   }
 }
 
-#filters-settings {
-
-}
-
 .environment.show_environment {
   @include clearfix;
   background: #fff;
@@ -3107,7 +3137,6 @@ pre, code, #admin-holder-for-admin-config-source-xml textarea {
   box-sizing: border-box;
   margin:     0px 15px 0px 15px;
   border:     1px solid #ddd;
-  border-top: none;
 
   h3 {
     margin:         10px 0 20px;

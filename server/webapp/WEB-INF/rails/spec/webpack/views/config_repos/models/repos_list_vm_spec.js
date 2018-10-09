@@ -248,6 +248,7 @@ function cheapRepo(id) {
     initialize: jasmine.createSpy("init"),
     clone() { return cheapRepo(id); },
     etag: Stream(null),
+    serverErrors: Stream(null),
     allowSave: jasmine.createSpy("allowSave()")
   };
 }

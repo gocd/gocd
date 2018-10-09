@@ -93,7 +93,7 @@ class ConfigRepoOperationsControllerV1Test implements SecurityServiceTrait, Cont
       assertThatResponse()
         .isOk()
         .hasContentType(controller.mimeType)
-        .hasBodyWithJson("{\"revision\":\"1234\",\"success\":true}")
+        .hasJsonBody([revision: "1234", success: true])
     }
 
     @Test
@@ -108,7 +108,7 @@ class ConfigRepoOperationsControllerV1Test implements SecurityServiceTrait, Cont
       assertThatResponse()
         .isOk()
         .hasContentType(controller.mimeType)
-        .hasBodyWithJson("{\"revision\":\"1234\",\"success\":false,\"error\":\"Boom!\"}")
+        .hasJsonBody([revision: "1234", success: false, error: "Boom!"])
     }
 
     @Test
@@ -123,7 +123,7 @@ class ConfigRepoOperationsControllerV1Test implements SecurityServiceTrait, Cont
       assertThatResponse()
         .isOk()
         .hasContentType(controller.mimeType)
-        .hasBodyWithJson("{\"revision\":null}")
+        .hasJsonBody([revision: null])
     }
 
     @Test
@@ -174,7 +174,7 @@ class ConfigRepoOperationsControllerV1Test implements SecurityServiceTrait, Cont
       assertThatResponse()
         .isOk()
         .hasContentType(controller.mimeType)
-        .hasBodyWithJson("{\"inProgress\": true}")
+        .hasJsonBody([inProgress: true])
     }
 
     @Test
@@ -192,7 +192,7 @@ class ConfigRepoOperationsControllerV1Test implements SecurityServiceTrait, Cont
       assertThatResponse()
         .isOk()
         .hasContentType(controller.mimeType)
-        .hasBodyWithJson("{\"inProgress\": false}")
+        .hasJsonBody([inProgress: false])
     }
   }
 

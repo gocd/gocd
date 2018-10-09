@@ -102,7 +102,7 @@ public class ConfigRepoOperationsControllerV1 extends ApiController implements S
     String inProgress(Request req, Response res) {
         MaterialConfig materialConfig = repoFromRequest(req).getMaterialConfig();
         final boolean state = mus.isInProgress(converter.toMaterial(materialConfig));
-        return String.format("{ \"inProgress\":%b }", state);
+        return String.format("{\"inProgress\":%b}", state);
     }
 
     private ConfigRepoConfig repoFromRequest(Request req) {

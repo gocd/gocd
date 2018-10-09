@@ -17,7 +17,7 @@
 $c-dropdown_height: 34px;
 $c-dropdown_border-color: $light-border;
 $c-dropdown_text-color: #000;
-$c-dropdown_bg-hover :$main-nav-link-bg-hover;
+$c-dropdown_bg-hover: $main-nav-link-bg-hover;
 
 .groupby {
   display:     flex;
@@ -92,8 +92,8 @@ $c-dropdown_bg-hover :$main-nav-link-bg-hover;
     border: 0;
   }
   &:hover {
-    color: $c-dropdown_text-color;
-    background:$c-dropdown_bg-hover;
+    color:      $c-dropdown_text-color;
+    background: $c-dropdown_bg-hover;
   }
 }
 

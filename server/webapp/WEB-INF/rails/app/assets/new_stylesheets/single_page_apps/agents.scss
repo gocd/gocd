@@ -18,8 +18,8 @@
 @import '../shared/alert';
 @import 'shared/analytics-common';
 
-$table-header: $panel-header-bg;
-$table-border: #E9EDEF;
+$table-header-bg: $general-bg;
+$table-border: #e9edef;
 
 .agents {
   transition: all 0.3s ease-in-out;
@@ -99,48 +99,6 @@ $table-border: #E9EDEF;
   }
 }
 
-.header-panel-button-group > li {
-  .add-resource {
-    .add-resource-input {
-      border-radius: 5px 0 0 5px;
-    }
-    .add-resource-btn {
-      border-radius:    0 3px 3px 0;
-      background-color: $btn-light-bg;
-      color:            $txt-color;
-      height:           32px;
-      &:hover {
-        background-color: $btn-light-bg-hover;
-        color:            $go-white;
-      }
-    }
-
-  }
-  &.has-dropdown {
-    > .button {
-      padding-right: 30px;
-      &:after {
-        content:      "";
-        position:     absolute;
-        top:          12px;
-        width:        0;
-        height:       0;
-        border-style: solid;
-        border-width: 6px 4px 0 4px;
-        border-color: #fff transparent transparent transparent;
-        transition:   all 0.3s ease-in-out;
-        right:        10px;
-      }
-      &.disabled, &[disabled] {
-        &:after {
-          border-color: #b3b3b3 transparent transparent transparent;
-        }
-      }
-    }
-  }
-
-}
-
 .header-panel-button-group {
   margin-bottom: 0;
   float:         right;
@@ -149,12 +107,30 @@ $table-border: #E9EDEF;
     display:     inline-block;
     position:    relative;
     z-index:     $agents-filters;
+    .add-resource {
+      .add-resource-input {
+        border-radius: 5px 0 0 5px;
+      }
+      .add-resource-btn {
+        border-radius:    0 3px 3px 0;
+        background-color: $btn-light-bg;
+        color:            $txt-color;
+        height:           32px;
+        &:hover {
+          background-color: $btn-light-bg-hover;
+          color:            $go-white;
+        }
+      }
+
+    }
+
     &:first-child {
       margin-left: 0;
       > .agents_action {
         border-radius: $global-border-radius 0 0 $global-border-radius;
       }
     }
+
     &:last-child {
       > .agents_action {
         border-radius: 0 $global-border-radius $global-border-radius 0;
@@ -181,6 +157,29 @@ $table-border: #E9EDEF;
           border-style: solid;
           border-width: 6px 6px 0 6px;
           border-color: $agents-btn-hover transparent transparent transparent;
+        }
+      }
+    }
+
+    &.has-dropdown {
+      > .button {
+        padding-right: 30px;
+        &:after {
+          content:      "";
+          position:     absolute;
+          top:          12px;
+          width:        0;
+          height:       0;
+          border-style: solid;
+          border-width: 6px 4px 0 4px;
+          border-color: #fff transparent transparent transparent;
+          transition:   all 0.3s ease-in-out;
+          right:        10px;
+        }
+        &.disabled, &[disabled] {
+          &:after {
+            border-color: #b3b3b3 transparent transparent transparent;
+          }
         }
       }
     }
@@ -275,7 +274,7 @@ $icon-color: #647984;
 .agents-search-panel {
   display:         flex;
   justify-content: space-between;
-  margin:          0 30px;
+  margin:          10px 30px;
 }
 
 .search-summary {
@@ -319,6 +318,10 @@ $icon-color: #647984;
 }
 
 //table styles
+$page-top-nav: 40px;
+$page-header: 108px;
+$page-footer: 76px;
+$table-header: 38px;
 
 $arrow-color: #000;
 
@@ -330,16 +333,16 @@ $arrow-color: #000;
 
   @include breakpoint(large up) {
     $column-widths: (
-                            "1": 1%,
-                            "2": 38px,
-                            "3": 16%,
-                            "4": 9%,
-                            "5": 10%,
-                            "6": 10%,
-                            "7": 7%,
-                            "8": 9%,
-                            "9": calc(20% - 38px),
-                            "10": 18%,
+                      "1": 1%,
+                      "2": 38px,
+                      "3": 16%,
+                      "4": 9%,
+                      "5": 10%,
+                      "6": 10%,
+                      "7": 7%,
+                      "8": 9%,
+                      "9": calc(20% - 38px),
+                      "10": 18%,
                     );
 
     @each $key, $val in $column-widths {
@@ -356,7 +359,7 @@ $arrow-color: #000;
   thead {
     border: 0;
     tr {
-      background: $table-header;
+      background: $table-header-bg;
       color:      $txt-color;
       display:    block;
       position:   relative;
@@ -364,7 +367,7 @@ $arrow-color: #000;
       th {
         color:          $dark-grey;
         font-size:      13px;
-        padding:        0px 10px;
+        padding:        0 10px;
         height:         40px;
         line-height:    40px;
         text-transform: uppercase;
@@ -373,10 +376,6 @@ $arrow-color: #000;
   }
   tbody {
     border:     0;
-    $page-top-nav: 40px;
-    $page-header: 108px;
-    $page-footer: 76px;
-    $table-header: 38px;
     background: #fff;
     display:    block;
     overflow:   auto;
@@ -395,6 +394,9 @@ $arrow-color: #000;
       font-size:    rem-calc(13px);
       border-right: 1px dotted $table-border;
       border-left:  1px dotted $table-border;
+      &:nth-child(even) { //foundation override
+        background: #fff;
+      }
       &.building {
         background:    #ffeda0;
         border-bottom: 1px solid #fff;
@@ -402,9 +404,6 @@ $arrow-color: #000;
       &.disabled {
         color:      #999;
         font-style: italic;
-      }
-      &:nth-child(even) { //foundation override
-        background: #fff;
       }
     }
   }
@@ -427,26 +426,27 @@ $arrow-color: #000;
 }
 
 .agents-table-body {
-  $foo: 44px;
-
-  margin-top:    148px - $foo - 70px;
-  margin-right:  30px;
-  margin-left:   30px;
-  margin-bottom: 30px;
+  margin: 35px 30px 0 30px;
 
   &.has-message, &.has-permanent-message {
-    margin-top: 212px - $foo;
+    margin-top: 96px;
+    tbody {
+      height: calc(100vh - #{$page-top-nav} - #{$page-header} - #{$page-footer} - #{$table-header} - 90px);
+    }
   }
 
   &.has-message.has-permanent-message {
-    margin-top: 274px - $foo;
+    margin-top: 150px;
+    tbody {
+      height: calc(100vh - #{$page-top-nav} - #{$page-header} - #{$page-footer} - #{$table-header} - 150px);
+    }
   }
 }
 
 .agents-table-header {
-  cursor:  pointer;
-  display: inline-block;
-  font-size:12px;
+  cursor:    pointer;
+  display:   inline-block;
+  font-size: 12px;
 }
 
 .build-details {
@@ -546,4 +546,8 @@ $arrow-color: #000;
   &:hover {
     color: #000;
   }
+}
+
+.callout {
+  margin: 10px 30px;
 }

@@ -14,15 +14,14 @@
  * limitations under the License.
  */
 
-const m = require('mithril');
-const f = require('helpers/form_helper');
+const m                     = require('mithril');
 const AgentStateCountWidget = require('views/agents/agent_state_count_widget');
-const AgentRowWidget = require('views/agents/agent_row_widget');
-const AgentTableHeader = require('views/agents/agent_table_header');
-const ButtonRowWidget = require('views/agents/button_row_widget');
+const AgentRowWidget        = require('views/agents/agent_row_widget');
+const AgentTableHeader      = require('views/agents/agent_table_header');
+const ButtonRowWidget       = require('views/agents/button_row_widget');
 
 const Stream = require('mithril/stream');
-const _ = require('lodash');
+const _      = require('lodash');
 
 const AgentsWidget = {
   oninit(vnode) {
@@ -81,7 +80,7 @@ const AgentsWidget = {
     this.displayModifiedMessage = function (action, addedItems, removedItems) {
       const count = this.selectedAgentsCount();
       this.message({
-        type: 'success',
+        type:    'success',
         message: `${_(action).pluralize(_.compact(_.concat(addedItems, removedItems)).length)} modified on ${count} ${_('agent').pluralize(count)}`
       });
     };
@@ -151,37 +150,33 @@ const AgentsWidget = {
       return (<span class="page-spinner"/>);
     }
 
-    const filterText = args.vm.filterText();
-    const filteredAgents = ctrl.filteredAndSortedAgents();
+    const filterText                     = args.vm.filterText();
+    const filteredAgents                 = ctrl.filteredAndSortedAgents();
     const maxCharsToBeDisplayedInMessage = 150;
-    const classForTableBody = ["agents-table-body"];
+    const classForTableBody              = ["agents-table-body"];
 
     let updateMessage;
     let permanentMessage;
 
     if (args.permanentMessage().message) {
       permanentMessage = (
-        <f.row class="message">
-          <div data-alert class={`callout radius ${args.permanentMessage().type}`}
-               title={args.permanentMessage().message}>
+        <div data-alert class={`callout radius ${args.permanentMessage().type}`}
+             title={args.permanentMessage().message}>
 
-            {_.truncate(args.permanentMessage().message, {'length': maxCharsToBeDisplayedInMessage})}
-            <a href="#" class="close"></a>
-          </div>
-        </f.row>
+          {_.truncate(args.permanentMessage().message, {'length': maxCharsToBeDisplayedInMessage})}
+          <a href="#" class="close"></a>
+        </div>
       );
       classForTableBody.push("has-permanent-message");
     }
 
     if (ctrl.message().message) {
       updateMessage = (
-        <f.row class="message">
-          <div data-alert class={`callout radius ${ctrl.message().type}`} title={ctrl.message().message}>
+        <div data-alert class={`callout radius ${ctrl.message().type}`} title={ctrl.message().message}>
 
-            {_.truncate(ctrl.message().message, {'length': maxCharsToBeDisplayedInMessage})}
-            <a href="#" class="close"/>
-          </div>
-        </f.row>
+          {_.truncate(ctrl.message().message, {'length': maxCharsToBeDisplayedInMessage})}
+          <a href="#" class="close"/>
+        </div>
       );
       classForTableBody.push("has-message");
     }
@@ -208,14 +203,13 @@ const AgentsWidget = {
                      value={filterText}
                      placeholder="Filter Agents"
                      id="filter-agent"
-                     class="filter-agent"
-              />
+                     class="filter-agent"/>
             </div>
           </div>
           {permanentMessage}
           {updateMessage}
         </div>
-        <div class={classForTableBody}>
+        <div class={_.join(classForTableBody, ' ').trim()}>
           <div class="agents-table-container">
             <table class="agents-table stack">
               <AgentTableHeader
@@ -227,7 +221,7 @@ const AgentsWidget = {
               <tbody>
               {
                 filteredAgents.mapAgents((agent) => {
-                  const uuid = agent.uuid();
+                  const uuid          = agent.uuid();
                   const checkboxModel = args.vm.agents.checkboxFor(uuid);
 
                   return (

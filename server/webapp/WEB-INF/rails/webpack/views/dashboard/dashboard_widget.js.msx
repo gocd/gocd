@@ -69,7 +69,7 @@ const DashboardWidget = {
       <div class="pipeline_wrapper">
         <PersonalizedViewsWidget vm={personalizeVM}/>
 
-        <div class="dashboard" key="dashboard-content">
+        <div class="dashboard-container" key="dashboard-content">
           <section class="dashboard-modifiers">
             <GroupingSwitch vm={vm}/>
             <SearchBox width="350"

@@ -17,6 +17,7 @@
 $c-dropdown_height: 34px;
 $c-dropdown_border-color: $light-border;
 $c-dropdown_text-color: #000;
+$c-dropdown_bg-hover :$main-nav-link-bg-hover;
 
 .groupby {
   display:     flex;
@@ -57,7 +58,7 @@ $c-dropdown_text-color: #000;
   border-radius: 3px;
   background:    #fff;
   width:         100%;
-  cursor:        default;
+  cursor:        pointer;
   font-weight:   600;
   color:         $c-dropdown_text-color;
   .open & {
@@ -84,8 +85,7 @@ $c-dropdown_text-color: #000;
 .c-dropdown_item {
   text-decoration: none;
   display:         block;
-  padding:         10px 20px;
-  border-top:      1px solid $c-dropdown_border-color;
+  padding:         7px 20px;
   cursor:          default;
   color:           $c-dropdown_text-color;
   &:first-child {
@@ -93,6 +93,7 @@ $c-dropdown_text-color: #000;
   }
   &:hover {
     color: $c-dropdown_text-color;
+    background:$c-dropdown_bg-hover;
   }
 }
 

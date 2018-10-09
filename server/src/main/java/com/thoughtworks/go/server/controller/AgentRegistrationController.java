@@ -105,7 +105,7 @@ public class AgentRegistrationController {
 
     @RequestMapping(value = "/admin/latest-agent.status", method = {RequestMethod.HEAD, RequestMethod.GET})
     public void checkAgentStatus(HttpServletResponse response) {
-        LOG.info("Processing '/admin/latest-agent.status' request with values [{}:{}], [{}:{}], [{}:{}], [{}:{}]",
+        LOG.debug("Processing '/admin/latest-agent.status' request with values [{}:{}], [{}:{}], [{}:{}], [{}:{}]",
                 SystemEnvironment.AGENT_CONTENT_MD5_HEADER, agentChecksum,
                 SystemEnvironment.AGENT_LAUNCHER_CONTENT_MD5_HEADER, agentLauncherChecksum,
                 SystemEnvironment.AGENT_PLUGINS_ZIP_MD5_HEADER, pluginsZip.md5(),

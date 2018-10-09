@@ -26,13 +26,13 @@ $light-grey: #e2e2e2;
 $grey: #535353;
 $dark-grey: #1e1e1e;
 $txt-color: #333;
-$general-bg :#e7eef0;
+$general-bg: #e7eef0;
 $border-color: #ccc;
 $go-links: #0277bd;
 $page-body-background: #f4f8f9;
 $global-border-radius: 3px;
 $general-panel-header-bg: $go-secondary;
-$panel-header-bg: #e7eef0;
+$panel-header-bg: $general-bg;
 $border-grey: #ececec;
 $section-bg: #e7eef0;
 $light-border: #d6e0e2;
@@ -49,8 +49,6 @@ $go-icon-hover-color: #000;
 
 $table-header-bg: #b9f6ca;
 $table-header-border: #a5d6a7;
-
-
 
 //header
 

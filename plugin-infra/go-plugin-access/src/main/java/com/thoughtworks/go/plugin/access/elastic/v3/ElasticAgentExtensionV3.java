@@ -24,6 +24,8 @@ import com.thoughtworks.go.plugin.access.elastic.models.AgentMetadata;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 import com.thoughtworks.go.plugin.domain.common.PluginConfiguration;
 import com.thoughtworks.go.plugin.domain.elastic.Capabilities;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Map;
@@ -31,6 +33,7 @@ import java.util.Map;
 import static com.thoughtworks.go.plugin.access.elastic.v3.ElasticAgentPluginConstantsV3.*;
 
 public class ElasticAgentExtensionV3 implements VersionedElasticAgentExtension {
+    private static final Logger LOG = LoggerFactory.getLogger(ElasticAgentExtensionV3.class);
     public static final String VERSION = "3.0";
     private final PluginRequestHelper pluginRequestHelper;
     private final ElasticAgentExtensionConverterV3 elasticAgentExtensionConverterV3;
@@ -153,6 +156,6 @@ public class ElasticAgentExtensionV3 implements VersionedElasticAgentExtension {
 
     @Override
     public void jobCompletion(String pluginId, String elasticAgentId, JobIdentifier jobIdentifier) {
-        throw new UnsupportedOperationException("Plugin does not support job completion request.");
+        LOG.debug("Plugin: '{}' uses elastic agent extension v3 and job completion is not supported by elastic agent V3", pluginId);
     }
 }

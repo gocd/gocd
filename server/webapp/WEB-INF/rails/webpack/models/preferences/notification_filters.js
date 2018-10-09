@@ -38,7 +38,15 @@
         }
         jsonData[this.name].push(this.value || '');
       } else {
-        jsonData[this.name] = this.value || '';
+        if(this.name === 'match_commits' && this.value === 'on') {
+          if(this.value === 'on') {
+            jsonData[this.name] = true;
+          }else {
+            jsonData[this.name] = false;
+          }
+        } else {
+          jsonData[this.name] = this.value || '';
+        } 
       }
     });
     return JSON.stringify(jsonData);

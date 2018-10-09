@@ -28,6 +28,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.charset.Charset;
 
 public abstract class AbstractDefaultPluginJarLocationMonitorTest {
     private static final int NO_OF_TRIES_TO_CHECK_MONITOR_RUN = 30;
@@ -61,14 +62,10 @@ public abstract class AbstractDefaultPluginJarLocationMonitorTest {
     }
 
     protected void updateFileContents(File someFile) {
-        FileOutputStream output = null;
-        try {
-            output = new FileOutputStream(someFile);
-            IOUtils.write("some rubbish", output);
+        try (FileOutputStream output = new FileOutputStream(someFile)) {
+            IOUtils.write("some rubbish", output, Charset.defaultCharset());
         } catch (IOException e) {
             throw new RuntimeException(e);
-        } finally {
-            IOUtils.closeQuietly(output);
         }
     }
 

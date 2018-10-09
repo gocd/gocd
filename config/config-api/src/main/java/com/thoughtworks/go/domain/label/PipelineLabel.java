@@ -29,7 +29,7 @@ public class PipelineLabel implements Serializable {
     protected String label;
     private InsecureEnvironmentVariables envVars;
     public static final String COUNT = "COUNT";
-    private static final String ENV_VAR_PREFIX = "env:";
+    public static final String ENV_VAR_PREFIX = "env:";
     public static final String COUNT_TEMPLATE = String.format("${%s}", COUNT);
 
     public PipelineLabel(String labelTemplate, InsecureEnvironmentVariables insecureEnvironmentVariables) {
@@ -123,9 +123,6 @@ public class PipelineLabel implements Serializable {
         return new PipelineLabel(PipelineLabel.COUNT_TEMPLATE, InsecureEnvironmentVariables.EMPTY_ENV_VARS);
     }
 
-    public static boolean hasValidPrefix(String value) {
-        return value.toLowerCase().startsWith(ENV_VAR_PREFIX);
-    }
 
     private String getValueIfVariableHasValidPrefix(CaseInsensitiveString variable) {
         if (variable.startsWith(ENV_VAR_PREFIX)) {

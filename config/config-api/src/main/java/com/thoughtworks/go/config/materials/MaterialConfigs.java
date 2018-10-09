@@ -16,8 +16,6 @@
 
 package com.thoughtworks.go.config.materials;
 
-import java.util.*;
-
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
 import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
@@ -33,6 +31,8 @@ import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.ArtifactLogUtil;
 import com.thoughtworks.go.util.command.UrlArgument;
 import org.apache.commons.lang3.StringUtils;
+
+import java.util.*;
 
 @ConfigTag("materials")
 @ConfigCollection(MaterialConfig.class)
@@ -132,7 +132,7 @@ public class MaterialConfigs extends BaseCollection<MaterialConfig> implements V
     }
 
     public boolean validateTree(PipelineConfigSaveValidationContext validationContext) {
-        if (isEmpty()){
+        if (isEmpty()) {
             errors().add("materials", "A pipeline must have at least one material");
         }
         validate(validationContext);
@@ -374,6 +374,17 @@ public class MaterialConfigs extends BaseCollection<MaterialConfig> implements V
         }
         return true;
     }
+
+    public List<CaseInsensitiveString> materialNames() {
+        List<CaseInsensitiveString> names = new ArrayList<>();
+        for (MaterialConfig material : this) {
+            if (!CaseInsensitiveString.isBlank(material.getName())) {
+                names.add(material.getName());
+            }
+        }
+        return names;
+    }
+
 
     private void addMaterialConfig(MaterialConfig materialConfig, Map attributes) {
         materialConfig.setConfigAttributes(attributes);

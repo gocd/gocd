@@ -14,23 +14,22 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.domain;
+package com.thoughtworks.go.config;
 
 import com.rits.cloning.Cloner;
-import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.PackageMaterialConfig;
 import com.thoughtworks.go.config.materials.ScmMaterialConfig;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
 import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
 import com.thoughtworks.go.config.materials.perforce.P4MaterialConfig;
+import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.packagerepository.PackageDefinitionMother;
 import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.helper.MaterialConfigsMother;
 import org.hamcrest.CoreMatchers;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.Arrays;
@@ -91,7 +90,6 @@ public class PipelineConfigValidationTest {
     }
 
     @Test
-    @Ignore("Will fix this in a few days. See https://github.com/gocd/gocd/issues/5240")
     public void isValid_shouldEnsureLabelTemplateRefersToAMaterialOrCOUNT() {
         pipeline.setLabelTemplate("label-template-without-material-or-count");
 
@@ -299,7 +297,6 @@ public class PipelineConfigValidationTest {
     public void shouldReturnTrueIfAllDescendentsAreValid() {
         StageConfig stageConfig = mock(StageConfig.class);
         MaterialConfigs materialConfigs = mock(MaterialConfigs.class);
-        when(materialConfigs.iterator()).thenReturn(new MaterialConfigs().iterator());
         ParamsConfig paramsConfig = mock(ParamsConfig.class);
         EnvironmentVariablesConfig variables = mock(EnvironmentVariablesConfig.class);
         TrackingTool trackingTool = mock(TrackingTool.class);
@@ -322,7 +319,6 @@ public class PipelineConfigValidationTest {
         boolean isValid = pipelineConfig.validateTree(PipelineConfigSaveValidationContext.forChain(true, "group", new BasicCruiseConfig(new BasicPipelineConfigs("group", new Authorization())), pipelineConfig));
         assertTrue(isValid);
         verify(stageConfig).validateTree(any(PipelineConfigSaveValidationContext.class));
-        verify(materialConfigs, atLeastOnce()).iterator();
         verify(materialConfigs).validateTree(any(PipelineConfigSaveValidationContext.class));
         verify(paramsConfig).validateTree(any(PipelineConfigSaveValidationContext.class));
         verify(variables).validateTree(any(PipelineConfigSaveValidationContext.class));

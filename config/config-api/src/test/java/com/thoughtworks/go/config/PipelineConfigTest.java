@@ -42,7 +42,6 @@ import java.util.*;
 import static com.thoughtworks.go.util.DataStructureUtils.a;
 import static com.thoughtworks.go.util.DataStructureUtils.m;
 import static org.hamcrest.CoreMatchers.containsString;
-import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.*;
 import static org.hamcrest.Matchers.startsWith;
 import static org.hamcrest.core.Is.is;
@@ -208,19 +207,8 @@ public class PipelineConfigTest {
     }
 
     @Test
-    public void shouldGetAllTemplateVariableNames() {
-        PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString("cruise"), new MaterialConfigs());
-        pipelineConfig.setLabelTemplate("pipeline-${COUNT}-${mymaterial}${hi}");
-
-        Set<String> variables = pipelineConfig.getTemplateVariables();
-        assertThat(variables.contains("COUNT"), is(true));
-        assertThat(variables.contains("mymaterial"), is(true));
-        assertThat(variables.contains("hi"), is(true));
-    }
-
-    @Test
     public void shouldValidateCorrectPipelineLabelWithoutAnyMaterial() {
-        PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString("cruise"), new MaterialConfigs(),new StageConfig(new CaseInsensitiveString("first"), new JobConfigs()));
+        PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString("cruise"), new MaterialConfigs(), new StageConfig(new CaseInsensitiveString("first"), new JobConfigs()));
         pipelineConfig.setLabelTemplate("pipeline-${COUNT}-alpha");
         pipelineConfig.validate(null);
         assertThat(pipelineConfig.errors().isEmpty(), is(true));
@@ -299,35 +287,9 @@ public class PipelineConfigTest {
     public void shouldNotAllowLabelTemplateWithLengthOfZeroInTruncationSyntax2() throws Exception {
         String labelFormat = "pipeline-${COUNT}-${git[:0]}${one[:00]}-alpha";
         PipelineConfig pipelineConfig = createAndValidatePipelineLabel(labelFormat);
-        assertThat(pipelineConfig.errors().on(PipelineConfig.LABEL_TEMPLATE), is(String.format("Length of zero not allowed on label %s defined on pipeline %s.",labelFormat,pipelineConfig.name())));
+        assertThat(pipelineConfig.errors().on(PipelineConfig.LABEL_TEMPLATE), is(String.format("Length of zero not allowed on label %s defined on pipeline %s.", labelFormat, pipelineConfig.name())));
     }
 
-    @Test
-    public void shouldSupportTruncationSyntax() {
-        PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString("cruise"), new MaterialConfigs());
-        pipelineConfig.setLabelTemplate("pipeline-${COUNT}-${git[:7]}-alpha");
-
-        Set<String> variables = pipelineConfig.getTemplateVariables();
-        assertThat(variables, contains("COUNT", "git"));
-        assertThat(variables.size(), is(2));
-    }
-
-    @Test
-    public void shouldSupportSpecialCharacters() {
-        PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString("cruise"), new MaterialConfigs());
-        pipelineConfig.setLabelTemplate("pipeline-${COUN_T}-${my-material}${h.i}${**}");
-
-        Set<String> variables = pipelineConfig.getTemplateVariables();
-        assertThat(variables, contains("COUN_T", "my-material", "h.i", "**"));
-    }
-
-    @Test
-    public void shouldAllowColonInLabelTemplateVariable() throws Exception {
-        PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString("cruise"), new MaterialConfigs());
-        pipelineConfig.setLabelTemplate("pipeline-${COUN_T}:${repo:package}");
-        Set<String> variables = pipelineConfig.getTemplateVariables();
-        assertThat(variables.contains("repo:package"), is(true));
-    }
 
     @Test
     public void shouldSetPipelineConfigFromConfigAttributes() {
@@ -920,17 +882,16 @@ public class PipelineConfigTest {
     }
 
     @Test
-    public void shouldReturnTrueWhenOneOfPipelineMaterialsIsTheSameAsConfigOrigin()
-    {
+    public void shouldReturnTrueWhenOneOfPipelineMaterialsIsTheSameAsConfigOrigin() {
         PipelineConfig pipelineConfig = PipelineConfigMother.createPipelineConfig("pipeline", "stage", "build");
         MaterialConfig material = pipelineConfig.materialConfigs().first();
         pipelineConfig.setOrigin(new RepoConfigOrigin(new ConfigRepoConfig(material, "plugin"), "1233"));
 
-        assertThat(pipelineConfig.isConfigOriginSameAsOneOfMaterials(),is(true));
+        assertThat(pipelineConfig.isConfigOriginSameAsOneOfMaterials(), is(true));
     }
+
     @Test
-    public void shouldReturnTrueWhenOneOfPipelineMaterialsIsTheSameAsConfigOriginButDestinationIsDifferent()
-    {
+    public void shouldReturnTrueWhenOneOfPipelineMaterialsIsTheSameAsConfigOriginButDestinationIsDifferent() {
         PipelineConfig pipelineConfig = PipelineConfigMother.createPipelineConfig("pipeline", "stage", "build");
         pipelineConfig.materialConfigs().clear();
         GitMaterialConfig pipeMaterialConfig = new GitMaterialConfig("http://git");
@@ -939,47 +900,44 @@ public class PipelineConfigTest {
 
         GitMaterialConfig repoMaterialConfig = new GitMaterialConfig("http://git");
 
-        pipelineConfig.setOrigin(new RepoConfigOrigin(new ConfigRepoConfig(repoMaterialConfig,"plugin"),"1233"));
+        pipelineConfig.setOrigin(new RepoConfigOrigin(new ConfigRepoConfig(repoMaterialConfig, "plugin"), "1233"));
 
-        assertThat(pipelineConfig.isConfigOriginSameAsOneOfMaterials(),is(true));
+        assertThat(pipelineConfig.isConfigOriginSameAsOneOfMaterials(), is(true));
     }
 
     @Test
-    public void shouldReturnFalseWhenOneOfPipelineMaterialsIsNotTheSameAsConfigOrigin()
-    {
+    public void shouldReturnFalseWhenOneOfPipelineMaterialsIsNotTheSameAsConfigOrigin() {
         PipelineConfig pipelineConfig = PipelineConfigMother.createPipelineConfig("pipeline", "stage", "build");
         MaterialConfig material = new GitMaterialConfig("http://git");
         pipelineConfig.setOrigin(new RepoConfigOrigin(new ConfigRepoConfig(material, "plugin"), "1233"));
 
-        assertThat(pipelineConfig.isConfigOriginSameAsOneOfMaterials(),is(false));
+        assertThat(pipelineConfig.isConfigOriginSameAsOneOfMaterials(), is(false));
     }
 
     @Test
-    public void shouldReturnFalseIfOneOfPipelineMaterialsIsTheSameAsConfigOrigin_WhenOriginIsFile()
-    {
+    public void shouldReturnFalseIfOneOfPipelineMaterialsIsTheSameAsConfigOrigin_WhenOriginIsFile() {
         PipelineConfig pipelineConfig = PipelineConfigMother.createPipelineConfig("pipeline", "stage", "build");
         pipelineConfig.setOrigin(new FileConfigOrigin());
 
-        assertThat(pipelineConfig.isConfigOriginSameAsOneOfMaterials(),is(false));
+        assertThat(pipelineConfig.isConfigOriginSameAsOneOfMaterials(), is(false));
     }
 
     @Test
-    public void shouldReturnTrueWhenConfigRevisionIsEqualToQuery()
-    {
+    public void shouldReturnTrueWhenConfigRevisionIsEqualToQuery() {
         PipelineConfig pipelineConfig = PipelineConfigMother.createPipelineConfig("pipeline", "stage", "build");
         MaterialConfig material = pipelineConfig.materialConfigs().first();
         pipelineConfig.setOrigin(new RepoConfigOrigin(new ConfigRepoConfig(material, "plugin"), "1233"));
 
-        assertThat(pipelineConfig.isConfigOriginFromRevision("1233"),is(true));
+        assertThat(pipelineConfig.isConfigOriginFromRevision("1233"), is(true));
     }
+
     @Test
-    public void shouldReturnFalseWhenConfigRevisionIsNotEqualToQuery()
-    {
+    public void shouldReturnFalseWhenConfigRevisionIsNotEqualToQuery() {
         PipelineConfig pipelineConfig = PipelineConfigMother.createPipelineConfig("pipeline", "stage", "build");
         MaterialConfig material = pipelineConfig.materialConfigs().first();
         pipelineConfig.setOrigin(new RepoConfigOrigin(new ConfigRepoConfig(material, "plugin"), "1233"));
 
-        assertThat(pipelineConfig.isConfigOriginFromRevision("32"),is(false));
+        assertThat(pipelineConfig.isConfigOriginFromRevision("32"), is(false));
     }
 
     @Test

@@ -83,14 +83,14 @@ h4 {
   font-size: 18px;
 }
 
-.environment-listing {
+.environment-listview {
   border:        1px solid #ececec;
   margin:        0px 15px;
   border-radius: 3px;
   background:    #fff;
 }
 
-.environment-listing .environment-header {
+.environment-listview .environment-header {
   display:    flex;
   height:     30px;
   cursor:     pointer;
@@ -131,7 +131,7 @@ h4 {
   }
 }
 
-.environment-listing .environment-body {
+.environment-listview .environment-body {
   border-top: 1px solid #ececec;
   padding:    15px;
   display:    none;
@@ -151,7 +151,7 @@ h4 {
   }
 }
 
-.environment-listing.expanded {
+.environment-listview.expanded {
   box-shadow: 0 3px 11px 0 rgba(0, 0, 0, 0.15);
 
   .environment-body {

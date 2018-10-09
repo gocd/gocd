@@ -32,7 +32,7 @@ describe 'environments/show_env.html.erb' do
   end
 
   it "should have a pipelines section listing all pipelines and an edit button" do
-    Capybara.string(response.body).find(".environment .added_pipelines").tap do |pipelines_section|
+    Capybara.string(response.body).find(".environment-listview .added_pipelines").tap do |pipelines_section|
       all_pipeline_names = pipelines_section.all("ul li").collect {|node| node.text}.sort
 
       expect(all_pipeline_names).to eq(["another-pipeline", "foo-pipeline"])
@@ -42,7 +42,7 @@ describe 'environments/show_env.html.erb' do
   end
 
   it "should have an agents section listing all agents and an edit button" do
-    Capybara.string(response.body).find(".environment.show_environment .added_item.added_agents").tap do |agents_section|
+    Capybara.string(response.body).find(".environment-listview .show_environment .added_item.added_agents").tap do |agents_section|
       all_agent_names = agents_section.all("ul li").collect {|node| node.text}.sort
 
       expect(all_agent_names).to eq(["CCeDev01 (10.18.5.1)", "CCeDev01 (10.18.5.1)"])
@@ -52,7 +52,7 @@ describe 'environments/show_env.html.erb' do
   end
 
   it "should have a variables section listing all agents and an edit button" do
-    Capybara.string(response.body).find(".environment.show_environment .added_item.added_environment_variables").tap do |variables_section|
+    Capybara.string(response.body).find(".environment-listview .show_environment .added_item.added_environment_variables").tap do |variables_section|
       all_variables = variables_section.all("ul li").collect {|node| node.text}.sort
 
       expect(all_variables).to eq(["ENV1 = VAL1", "ENV2 = VAL2", "SECURE_VAR = ****"])

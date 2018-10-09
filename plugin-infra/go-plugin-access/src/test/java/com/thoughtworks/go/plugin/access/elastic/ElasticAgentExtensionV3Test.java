@@ -29,7 +29,6 @@ import com.thoughtworks.go.plugin.domain.common.Metadata;
 import com.thoughtworks.go.plugin.domain.common.PluginConfiguration;
 import com.thoughtworks.go.plugin.domain.common.PluginConstants;
 import com.thoughtworks.go.plugin.domain.elastic.Capabilities;
-import com.thoughtworks.go.plugin.domain.elastic.ElasticAgentPluginInfo;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import org.hamcrest.Matchers;
@@ -55,6 +54,7 @@ import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.hasSize;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
@@ -251,13 +251,13 @@ public class ElasticAgentExtensionV3Test {
     }
 
     @Test
-    public void shouldErrorOutWhenPluginDoesNotJobCompletionRequest() {
-        thrown.expect(UnsupportedOperationException.class);
-        thrown.expectMessage("Plugin does not support job completion request.");
-
+    public void shouldDoNothingWhenPluginDoesNotJobCompletionRequest() {
         String elasticAgentId = "agent1";
         final JobIdentifier jobIdentifier = new JobIdentifier("up42", 2, "Test", "up42_stage", "10", "up42_job");
+
         extensionV3.jobCompletion(PLUGIN_ID, elasticAgentId, jobIdentifier);
+
+        verifyZeroInteractions(pluginManager);
     }
 
     @Test

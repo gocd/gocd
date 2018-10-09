@@ -36,7 +36,7 @@ import com.thoughtworks.go.util.TimeProvider;
 import ch.qos.logback.classic.Level;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Matchers;
+import org.mockito.ArgumentMatchers;
 import org.springframework.transaction.support.TransactionCallback;
 
 import java.util.Date;

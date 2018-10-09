@@ -20,7 +20,7 @@ import com.thoughtworks.go.server.scheduling.ScheduleCheckMessage;
 import org.hamcrest.Description;
 import org.mockito.ArgumentMatcher;
 
-import static org.mockito.Matchers.argThat;
+import static org.mockito.ArgumentMatchers.argThat;
 
 public class ScheduleCheckMessageMatcher {
     public static ScheduleCheckMessage matchScheduleCheckMessage(final String expectedPipelineName) {

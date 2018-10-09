@@ -35,8 +35,8 @@ import static javax.servlet.http.HttpServletResponse.*;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 public class PipelinePauseServiceTest {
@@ -255,7 +255,7 @@ public class PipelinePauseServiceTest {
 
         PipelinePauseChangeListener listener1 = mock(PipelinePauseChangeListener.class);
         PipelinePauseChangeListener listener2 = mock(PipelinePauseChangeListener.class, "ListenerWhichFails");
-        doThrow(new RuntimeException("Ouch.")).when(listener2).pauseStatusChanged(org.mockito.Matchers.<Event>anyObject());
+        doThrow(new RuntimeException("Ouch.")).when(listener2).pauseStatusChanged(org.mockito.ArgumentMatchers.<Event>anyObject());
         PipelinePauseChangeListener listener3 = mock(PipelinePauseChangeListener.class);
 
         try (LogFixture logFixture = logFixtureFor(PipelinePauseService.class, Level.WARN)) {

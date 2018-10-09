@@ -75,7 +75,7 @@ import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.nullValue;
 import static org.hamcrest.core.StringContains.containsString;
 import static org.junit.Assert.*;
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 public class GoConfigServiceTest {
@@ -874,7 +874,7 @@ public class GoConfigServiceTest {
 
     @Test
     public void shouldReturnWasMergedInConfigUpdateResponse_WhenConfigIsMerged() {
-        when(goConfigDao.updateConfig(org.mockito.Matchers.<UpdateConfigCommand>any())).thenReturn(ConfigSaveState.MERGED);
+        when(goConfigDao.updateConfig(org.mockito.ArgumentMatchers.<UpdateConfigCommand>any())).thenReturn(ConfigSaveState.MERGED);
         ConfigUpdateResponse configUpdateResponse = goConfigService.updateConfigFromUI(mock(UpdateConfigFromUI.class), "md5", new Username(new CaseInsensitiveString("user")),
                 new HttpLocalizedOperationResult());
         assertThat(configUpdateResponse.wasMerged(), is(true));
@@ -882,7 +882,7 @@ public class GoConfigServiceTest {
 
     @Test
     public void shouldReturnNotMergedInConfigUpdateResponse_WhenConfigIsUpdated() {
-        when(goConfigDao.updateConfig(org.mockito.Matchers.<UpdateConfigCommand>any())).thenReturn(ConfigSaveState.UPDATED);
+        when(goConfigDao.updateConfig(org.mockito.ArgumentMatchers.<UpdateConfigCommand>any())).thenReturn(ConfigSaveState.UPDATED);
         ConfigUpdateResponse configUpdateResponse = goConfigService.updateConfigFromUI(mock(UpdateConfigFromUI.class), "md5", new Username(new CaseInsensitiveString("user")),
                 new HttpLocalizedOperationResult());
         assertThat(configUpdateResponse.wasMerged(), is(false));
@@ -890,7 +890,7 @@ public class GoConfigServiceTest {
 
     @Test
     public void shouldReturnNotMergedInConfigUpdateResponse_WhenConfigUpdateFailed() throws Exception {
-        when(goConfigDao.updateConfig(org.mockito.Matchers.<UpdateConfigCommand>any())).thenThrow(new ConfigFileHasChangedException());
+        when(goConfigDao.updateConfig(org.mockito.ArgumentMatchers.<UpdateConfigCommand>any())).thenThrow(new ConfigFileHasChangedException());
         expectLoadForEditing(cruiseConfig);
         ConfigUpdateResponse configUpdateResponse = goConfigService.updateConfigFromUI(mock(UpdateConfigFromUI.class), "md5", new Username(new CaseInsensitiveString("user")),
                 new HttpLocalizedOperationResult());
@@ -899,7 +899,7 @@ public class GoConfigServiceTest {
 
     @Test
     public void badConfigShouldContainOldMD5_WhenConfigUpdateFailed() {
-        when(goConfigDao.updateConfig(org.mockito.Matchers.<UpdateConfigCommand>any())).thenThrow(new RuntimeException(getGoConfigInvalidException()));
+        when(goConfigDao.updateConfig(org.mockito.ArgumentMatchers.<UpdateConfigCommand>any())).thenThrow(new RuntimeException(getGoConfigInvalidException()));
         ConfigUpdateResponse configUpdateResponse = goConfigService.updateConfigFromUI(mock(UpdateConfigFromUI.class), "old-md5", new Username(new CaseInsensitiveString("user")),
                 new HttpLocalizedOperationResult());
         assertThat(configUpdateResponse.wasMerged(), is(false));
@@ -909,7 +909,7 @@ public class GoConfigServiceTest {
     @Test
     public void configShouldContainOldMD5_WhenConfigMergeFailed() {
         when(goConfigDao.loadForEditing()).thenReturn(new BasicCruiseConfig());
-        when(goConfigDao.updateConfig(org.mockito.Matchers.<UpdateConfigCommand>any())).thenThrow(new ConfigFileHasChangedException());
+        when(goConfigDao.updateConfig(org.mockito.ArgumentMatchers.<UpdateConfigCommand>any())).thenThrow(new ConfigFileHasChangedException());
         ConfigUpdateResponse configUpdateResponse = goConfigService.updateConfigFromUI(mock(UpdateConfigFromUI.class), "old-md5", new Username(new CaseInsensitiveString("user")),
                 new HttpLocalizedOperationResult());
         assertThat(configUpdateResponse.wasMerged(), is(false));
@@ -920,7 +920,7 @@ public class GoConfigServiceTest {
     @Test
     public void shouldReturnConfigStateFromDaoLayer_WhenUpdatingServerConfig() {
         ConfigSaveState expectedSaveState = ConfigSaveState.MERGED;
-        when(goConfigDao.updateConfig(org.mockito.Matchers.<UpdateConfigCommand>any())).thenReturn(expectedSaveState);
+        when(goConfigDao.updateConfig(org.mockito.ArgumentMatchers.<UpdateConfigCommand>any())).thenReturn(expectedSaveState);
         ConfigSaveState configSaveState = goConfigService.updateServerConfig(new MailHost(new GoCipher()), true, "md5", null, null, null, null, "http://site",
                 "https://site", "location");
         assertThat(configSaveState, is(expectedSaveState));

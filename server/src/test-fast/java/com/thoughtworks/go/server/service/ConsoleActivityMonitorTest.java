@@ -40,7 +40,7 @@ import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -191,7 +191,7 @@ public class ConsoleActivityMonitorTest {
         job.completing(JobResult.Passed);
         job.completed(new Date());
         listener.jobStatusChanged(job);
-        
+
         when(timeProvider.currentTimeMillis()).thenReturn(new DateTime().plusDays(10).getMillis());
 
         consoleActivityMonitor.cancelUnresponsiveJobs(scheduleService);

@@ -53,7 +53,7 @@ import java.io.File;
 import java.util.Date;
 
 import static org.junit.Assert.*;
-import static org.mockito.Matchers.anyLong;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 @RunWith(SpringJUnit4ClassRunner.class)

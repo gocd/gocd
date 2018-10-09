@@ -42,7 +42,7 @@ import com.thoughtworks.go.serverhealth.*;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Matchers;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.transaction.TransactionStatus;

@@ -324,7 +324,7 @@ public class PipelineLockServiceTest {
     public void shouldLogAndIgnoreAnyExceptionsWhileNotifyingListeners() throws Exception {
         PipelineLockStatusChangeListener listener1 = mock(PipelineLockStatusChangeListener.class);
         PipelineLockStatusChangeListener listener2 = mock(PipelineLockStatusChangeListener.class, "ListenerWhichFails");
-        doThrow(new RuntimeException("Ouch.")).when(listener2).lockStatusChanged(org.mockito.Matchers.<Event>anyObject());
+        doThrow(new RuntimeException("Ouch.")).when(listener2).lockStatusChanged(org.mockito.ArgumentMatchers.<Event>anyObject());
         PipelineLockStatusChangeListener listener3 = mock(PipelineLockStatusChangeListener.class);
         doAnswer(new Answer() {
             @Override

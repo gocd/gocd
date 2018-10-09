@@ -20,7 +20,7 @@ import com.thoughtworks.go.domain.materials.Material;
 import com.thoughtworks.go.server.materials.MaterialUpdateMessage;
 import org.mockito.ArgumentMatcher;
 
-import static org.mockito.Matchers.argThat;
+import static org.mockito.ArgumentMatchers.argThat;
 
 public class MaterialUpdateMessageMatcher {
     public static MaterialUpdateMessage matchMaterialUpdateMessage(final Material expectedMaterial) {

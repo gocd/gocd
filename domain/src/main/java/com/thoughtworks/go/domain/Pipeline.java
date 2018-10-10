@@ -152,7 +152,7 @@ public class Pipeline extends PersistentObject implements PipelineInfo {
     private void updateLabel() {
         Map<CaseInsensitiveString, String> namedRevisions = this.getMaterialRevisions().getNamedRevisions();
         namedRevisions.put(new CaseInsensitiveString(COUNT), counter.toString());
-        this.pipelineLabel.updateLabel(namedRevisions);
+        this.pipelineLabel.updateLabel(namedRevisions, counter);
     }
 
     public boolean isAnyStageActive() {
@@ -200,7 +200,7 @@ public class Pipeline extends PersistentObject implements PipelineInfo {
     }
 
     public boolean isBisect() {
-         return naturalOrderIsNotAnInteger();
+        return naturalOrderIsNotAnInteger();
     }
 
     private boolean naturalOrderIsNotAnInteger() {

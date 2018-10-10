@@ -28,12 +28,12 @@ import org.hamcrest.core.Is;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
+import static org.junit.Assert.*;
 
 public class PipelineLabelTest {
     private final String testingTemplate = "testing." + PipelineLabel.COUNT_TEMPLATE + ".label";
@@ -47,14 +47,14 @@ public class PipelineLabelTest {
     @Test
     public void shouldFormatLabelAccordingToCountingTemplate() {
         PipelineLabel label = PipelineLabel.create(testingTemplate, InsecureEnvironmentVariables.EMPTY_ENV_VARS);
-        label.updateLabel(getNamedRevision(99));
+        label.updateLabel(Collections.emptyMap(), 99);
         assertThat(label.toString(), is("testing.99.label"));
     }
 
     @Test
     public void shouldIgnoreCaseInCountingTemplate() {
         PipelineLabel label = PipelineLabel.create(testingTemplate, InsecureEnvironmentVariables.EMPTY_ENV_VARS);
-        label.updateLabel(getNamedRevision(2));
+        label.updateLabel(Collections.emptyMap(), 2);
         assertThat(label.toString(), is("testing.2.label"));
     }
 
@@ -62,7 +62,7 @@ public class PipelineLabelTest {
     public void shouldReplaceTheTemplateWithMaterialRevision() {
         PipelineLabel label = PipelineLabel.create("release-${svnMaterial}", InsecureEnvironmentVariables.EMPTY_ENV_VARS);
         MaterialRevisions materialRevisions = ModificationsMother.oneUserOneFile();
-        label.updateLabel(materialRevisions.getNamedRevisions());
+        label.updateLabel(materialRevisions.getNamedRevisions(), 1);
         assertThat(label.toString(), is("release-" + ModificationsMother.currentRevision()));
     }
 
@@ -72,7 +72,7 @@ public class PipelineLabelTest {
         envVars.add("VAR", "var_value");
         PipelineLabel label = PipelineLabel.create("release-${SVNMaterial}-${EnV:Var}", envVars);
         MaterialRevisions materialRevisions = ModificationsMother.oneUserOneFile();
-        label.updateLabel(materialRevisions.getNamedRevisions());
+        label.updateLabel(materialRevisions.getNamedRevisions(), 1);
         assertThat(label.toString(), is("release-" + ModificationsMother.currentRevision() + "-var_value"));
     }
 
@@ -86,7 +86,7 @@ public class PipelineLabelTest {
         modification.setRevision("ae09876hj");
 
         materialRevisions.addRevision(material, modification);
-        label.updateLabel(materialRevisions.getNamedRevisions());
+        label.updateLabel(materialRevisions.getNamedRevisions(), 1);
         assertThat(label.toString(), is("release-" + ModificationsMother.currentRevision() + "-ae09876hj"));
     }
 
@@ -100,7 +100,7 @@ public class PipelineLabelTest {
         modification.setRevision("8c8a273e12a45e57fed5ce978d830eb482f6f666");
 
         materialRevisions.addRevision(material, modification);
-        label.updateLabel(materialRevisions.getNamedRevisions());
+        label.updateLabel(materialRevisions.getNamedRevisions(), 1);
         assertThat(label.toString(), is("release-" + ModificationsMother.currentRevision() + "-8c8a273e12a45e57fed5ce978d830eb482f6f666"));
     }
 
@@ -114,7 +114,7 @@ public class PipelineLabelTest {
         modification.setRevision("8c8a273e12a45e57fed5ce978d830eb482f6f666");
 
         materialRevisions.addRevision(material, modification);
-        label.updateLabel(materialRevisions.getNamedRevisions());
+        label.updateLabel(materialRevisions.getNamedRevisions(), 1);
         assertThat(label.toString(), is("release-" + ModificationsMother.currentRevision() + "-8c8a27"));
     }
 
@@ -124,7 +124,7 @@ public class PipelineLabelTest {
         HashMap<CaseInsensitiveString, String> namedRevisions = new HashMap<>();
         namedRevisions.put(new CaseInsensitiveString("upstream"), longLabel(300));
 
-        label.updateLabel(namedRevisions);
+        label.updateLabel(namedRevisions, 1);
         assertThat(label.toString().length(), Is.is(255));
     }
 
@@ -134,7 +134,7 @@ public class PipelineLabelTest {
         HashMap<CaseInsensitiveString, String> namedRevisions = new HashMap<>();
         namedRevisions.put(new CaseInsensitiveString("upstream"), longLabel(154));
 
-        label.updateLabel(namedRevisions);
+        label.updateLabel(namedRevisions, 1);
         assertThat(label.toString().length(), Is.is(154));
     }
 
@@ -159,55 +159,55 @@ public class PipelineLabelTest {
     @Test
     public void shouldNotReplaceTemplateWithoutMaterial() {
         PipelineLabel label = new PipelineLabel("1.5.0", InsecureEnvironmentVariables.EMPTY_ENV_VARS);
-        label.updateLabel(new HashMap<>());
+        label.updateLabel(Collections.emptyMap(), 1);
         assertThat(label, is(new PipelineLabel("1.5.0", InsecureEnvironmentVariables.EMPTY_ENV_VARS)));
     }
 
     @Test
     public void canMatchMaterialName() {
-        final String[][] expectedGroups = { { "git" } };
+        final String[][] expectedGroups = {{"git"}};
         String res = assertLabelGroupsMatchingAndReplace("release-${git}", expectedGroups);
         assertThat(res, is("release-" + GIT_REVISION));
     }
 
     @Test
     public void canMatchMaterialNameWithTrial() {
-        final String[][] expectedGroups = { { "git" } };
+        final String[][] expectedGroups = {{"git"}};
         String res = assertLabelGroupsMatchingAndReplace("release-${git}.alpha.0", expectedGroups);
         assertThat(res, is("release-" + GIT_REVISION + ".alpha.0"));
     }
 
     @Test
     public void canHandleWrongMaterialName() {
-        final String[][] expectedGroups = { { "gitUnused" } };
+        final String[][] expectedGroups = {{"gitUnused"}};
         String res = assertLabelGroupsMatchingAndReplace("release-${gitUnused}", expectedGroups);
         assertThat(res, is("release-${gitUnused}"));
     }
 
     @Test
     public void canMatchWithoutTruncation() {
-        final String[][] expectedGroups = { { "svnRepo.verynice" }, { "git" } };
+        final String[][] expectedGroups = {{"svnRepo.verynice"}, {"git"}};
         String res = assertLabelGroupsMatchingAndReplace("release-${svnRepo.verynice}-${git}", expectedGroups);
-        assertThat(res, is("release-" + SVN_REVISION + "-" + GIT_REVISION));
+        assertEquals(res, "release-" + SVN_REVISION + "-" + GIT_REVISION);
     }
 
     @Test
     public void canMatchWithOneGitTruncation() {
-        final String[][] expectedGroups = { { "git", "7" } };
+        final String[][] expectedGroups = {{"git", "7"}};
         String res = assertLabelGroupsMatchingAndReplace("release-${git[:7]}", expectedGroups);
         assertThat(res, is("release-" + GIT_REVISION.substring(0, 7)));
     }
 
     @Test
     public void canMatchWithOneGitTruncationTooLongToTruncate() {
-        final String[][] expectedGroups = { { "git", "9999" } };
+        final String[][] expectedGroups = {{"git", "9999"}};
         String res = assertLabelGroupsMatchingAndReplace("release-${git[:9999]}", expectedGroups);
         assertThat(res, is("release-" + GIT_REVISION));
     }
 
     @Test
     public void canMatchWithOneGitTruncationAlmostTruncated() {
-        final String[][] expectedGroups = { { "git", GIT_REV_LENGTH + "" } };
+        final String[][] expectedGroups = {{"git", GIT_REV_LENGTH + ""}};
         String res = assertLabelGroupsMatchingAndReplace("release-${git[:" + GIT_REV_LENGTH + "]}", expectedGroups);
         assertThat(res, is("release-" + GIT_REVISION));
     }
@@ -215,28 +215,28 @@ public class PipelineLabelTest {
     @Test
     public void canMatchWithOneGitTruncationByOneChar() {
         final int size = GIT_REV_LENGTH - 1;
-        final String[][] expectedGroups = { { "git", size + "" } };
+        final String[][] expectedGroups = {{"git", size + ""}};
         String res = assertLabelGroupsMatchingAndReplace("release-${git[:" + size + "]}", expectedGroups);
         assertThat(res, is("release-" + GIT_REVISION.substring(0, GIT_REV_LENGTH - 1)));
     }
 
     @Test
     public void canMatchWithOneTruncationAsFirstRevision() {
-        final String[][] expectedGroups = { {"git", "4"}, { "svn" } };
+        final String[][] expectedGroups = {{"git", "4"}, {"svn"}};
         String res = assertLabelGroupsMatchingAndReplace("release-${git[:4]}-${svn}", expectedGroups);
         assertThat(res, is("release-" + GIT_REVISION.substring(0, 4) + "-" + SVN_REVISION));
     }
 
     @Test
     public void canMatchWithTwoTruncation() {
-        final String[][] expectedGroups = { { "git", "5" }, {"svn", "3"}};
+        final String[][] expectedGroups = {{"git", "5"}, {"svn", "3"}};
         String res = assertLabelGroupsMatchingAndReplace("release-${git[:5]}-${svn[:3]}", expectedGroups);
         assertThat(res, is("release-" + GIT_REVISION.substring(0, 5) + "-" + SVN_REVISION.substring(0, 3)));
     }
 
     @Test
     public void canNotMatchWithTruncationWhenMaterialNameHasAColon() {
-        final String[][] expectedGroups = { { "git:one", "7" } };
+        final String[][] expectedGroups = {{"git:one", "7"}};
         String res = assertLabelGroupsMatchingAndReplace("release-${git:one[:7]}", expectedGroups);
         assertThat(res, is("release-${git:one[:7]}"));
     }
@@ -254,14 +254,6 @@ public class PipelineLabelTest {
         ensureLabelIsReplaced("SVN_Material#With#Hash");
         ensureLabelIsReplaced("SVN_Material:With:Colon");
         ensureLabelIsReplaced("SVN_Material~With~Tilde");
-
-        ensureLabelIsNOTReplaced("SVN*MATERIAL");
-        ensureLabelIsNOTReplaced("SVN+Material");
-        ensureLabelIsNOTReplaced("SVN^Material");
-        ensureLabelIsNOTReplaced("SVN_Material(With)Parentheses");
-        ensureLabelIsNOTReplaced("SVN_Material{With}Braces");
-        ensureLabelIsNOTReplaced("SVN**Material");
-        ensureLabelIsNOTReplaced("SVN\\Material_With_Backslash");
     }
 
     @Test
@@ -269,7 +261,7 @@ public class PipelineLabelTest {
         EnvironmentVariables envVars = new EnvironmentVariables();
         envVars.add("VAR", "var_value");
         PipelineLabel label = PipelineLabel.create("release-${ENV:VAR}", envVars);
-        label.updateLabel(new HashMap<>());
+        label.updateLabel(Collections.emptyMap(), 1);
         assertThat(label.toString(), is("release-var_value"));
     }
 
@@ -279,14 +271,14 @@ public class PipelineLabelTest {
         envVars.add("VAR1", "1");
         envVars.add("VAR2", "2");
         PipelineLabel label = PipelineLabel.create("release-${ENV:VAR1}, ${ENV:VAR2}", envVars);
-        label.updateLabel(new HashMap<>());
+        label.updateLabel(Collections.emptyMap(), 1);
         assertThat(label.toString(), is("release-1, 2"));
     }
 
     @Test
     public void shouldReturnEmptyIfThereIsNoMatchingEnvironmentVariable() {
         PipelineLabel label = PipelineLabel.create("release-${env:VAR}", InsecureEnvironmentVariables.EMPTY_ENV_VARS);
-        label.updateLabel(new HashMap<>());
+        label.updateLabel(Collections.emptyMap(), 1);
         assertThat(label.toString(), is("release-"));
     }
 
@@ -307,7 +299,7 @@ public class PipelineLabelTest {
         assertLabelGroupsMatching(labelTemplate, expectedGroups);
 
         PipelineLabel label = new PipelineLabel(labelTemplate, InsecureEnvironmentVariables.EMPTY_ENV_VARS);
-        label.updateLabel(MATERIAL_REVISIONS);
+        label.updateLabel(MATERIAL_REVISIONS, 1);
         return label.toString();
     }
 
@@ -315,26 +307,17 @@ public class PipelineLabelTest {
         java.util.regex.Matcher matcher = PipelineLabel.PATTERN.matcher(labelTemplate);
 
         for (String[] groups : expectedGroups) {
-            assertThat(matcher.find(), is(true));
+            assertTrue(matcher.find());
 
-            final String truncationLengthLiteral = matcher.group(3);
-            if (groups.length != 2) {
-                assertNull(truncationLengthLiteral);
-            } else {
-                assertThat(truncationLengthLiteral, is(groups[1]));
+            assertEquals(groups[0], matcher.group("name"));
+            if (groups.length > 1) {
+                final String truncationLengthLiteral = matcher.group("truncation");
+                assertEquals(groups[1], truncationLengthLiteral);
             }
         }
 
         final boolean actual = matcher.find();
         assertThat(actual, is(false));
-    }
-
-    private HashMap<CaseInsensitiveString, String> getNamedRevision(final Integer counter) {
-        return new HashMap<CaseInsensitiveString, String>() {
-            {
-                put(new CaseInsensitiveString("COUNT"), counter.toString());
-            }
-        };
     }
 
     private String longLabel(int length) {
@@ -360,7 +343,7 @@ public class PipelineLabelTest {
         MaterialRevisions materialRevisions = ModificationsMother.oneUserOneFile();
         PipelineLabel label = PipelineLabel.create(labelFormat, InsecureEnvironmentVariables.EMPTY_ENV_VARS);
         ((SvnMaterial) materialRevisions.getRevisions().get(0).getMaterial()).setName(new CaseInsensitiveString(name));
-        label.updateLabel(materialRevisions.getNamedRevisions());
+        label.updateLabel(materialRevisions.getNamedRevisions(), 1);
         return label;
     }
 }

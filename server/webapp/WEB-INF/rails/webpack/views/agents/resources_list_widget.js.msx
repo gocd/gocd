@@ -123,7 +123,7 @@ const ResourcesListWidget = {
           </div>
           <f.button
             onclick={ vnode.state.updateResource.bind(vnode.state, vnode.attrs.onResourcesUpdate) }
-            class="btn-apply tiny"
+            class="btn-apply"
             data-toggle="resources-list">
             Apply
           </f.button>

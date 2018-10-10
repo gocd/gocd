@@ -578,7 +578,7 @@ class PipelineConfigRepresenterTest {
       ]
     ],
     errors: [
-      label_template: ['You have defined a label template in pipeline wunderbar that refers to a material called svn, but no material with this name is defined.']
+      label_template: ["You have defined a label template in pipeline 'wunderbar' that refers to a material called 'svn', but no material with this name is defined."]
     ]
   ]
 

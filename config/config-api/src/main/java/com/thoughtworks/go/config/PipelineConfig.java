@@ -271,6 +271,11 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
     }
 
     private boolean isValidToken(String token) {
+        if (StringUtils.isBlank(token)) {
+            addError("labelTemplate", "Label template variable cannot be blank.");
+            return false;
+        }
+
         if (token.equalsIgnoreCase(COUNT)) {
             return true;
         }
@@ -296,7 +301,7 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
             }
 
             if (!materialConfigs.materialNames().contains(new CaseInsensitiveString(materialName))) {
-                addError("labelTemplate", format("You have defined a label template in pipeline %s that refers to a material called %s, but no material with this name is defined.", name(), materialName));
+                addError("labelTemplate", format("You have defined a label template in pipeline '%s' that refers to a material called '%s', but no material with this name is defined.", name(), materialName));
                 return false;
             }
 

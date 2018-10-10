@@ -27,7 +27,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InOrder;
-import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
 
 import java.io.File;
@@ -168,7 +167,7 @@ public class DefaultPluginJarLocationMonitorTest extends AbstractDefaultPluginJa
     @Test
     public void shouldNotifyListenerOfMultiplePluginFilesAddedEvenIfOneListenerThrowsAnException() throws Exception {
         PluginJarChangeListener exceptionRasingListener = mock(PluginJarChangeListener.class);
-        doThrow(new RuntimeException("Dummy Listener Exception")).when(exceptionRasingListener).pluginJarAdded(Matchers.<PluginFileDetails>anyObject());
+        doThrow(new RuntimeException("Dummy Listener Exception")).when(exceptionRasingListener).pluginJarAdded(any(PluginFileDetails.class));
         monitor.addPluginJarChangeListener(exceptionRasingListener);
         monitor.addPluginJarChangeListener(changeListener);
         monitor.start();

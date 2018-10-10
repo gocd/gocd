@@ -27,7 +27,6 @@ import org.apache.felix.framework.util.FelixConstants;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
 import org.osgi.framework.*;
 import org.osgi.framework.launch.Framework;
@@ -68,7 +67,7 @@ public class FelixGoPluginOSGiFrameworkTest {
         spy = spy(goPluginOSGiFramwork);
         when(framework.getBundleContext()).thenReturn(bundleContext);
         when(registry.getPlugin(TEST_SYMBOLIC_NAME)).thenReturn(buildExpectedDescriptor(TEST_SYMBOLIC_NAME));
-        doReturn(framework).when(spy).getFelixFramework(Matchers.anyObject());
+        doReturn(framework).when(spy).getFelixFramework(any());
     }
 
     @After

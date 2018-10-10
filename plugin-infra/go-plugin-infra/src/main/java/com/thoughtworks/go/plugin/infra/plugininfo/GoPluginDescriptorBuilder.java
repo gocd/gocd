@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,14 +18,12 @@ package com.thoughtworks.go.plugin.infra.plugininfo;
 
 import com.thoughtworks.go.util.FileUtil;
 import com.thoughtworks.go.util.SystemEnvironment;
-import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.jar.JarFile;
@@ -57,36 +55,21 @@ public class GoPluginDescriptorBuilder {
         if (!pluginJarFile.exists()) {
             throw new RuntimeException(String.format("Plugin jar does not exist: %s", pluginJarFile.getAbsoluteFile()));
         }
-        InputStream pluginXMLStream = null;
-        JarFile jarFile = null;
-        try {
-            jarFile = new JarFile(pluginJarFile);
+        try (JarFile jarFile = new JarFile(pluginJarFile)) {
             ZipEntry entry = jarFile.getEntry(PLUGIN_XML);
 
             if (entry == null) {
                 return GoPluginDescriptor.usingId(pluginJarFile.getName(), pluginJarFile.getAbsolutePath(), getBundleLocation(bundlePathLocation, pluginJarFile.getName()), isBundledPlugin);
             }
 
-            pluginXMLStream = jarFile.getInputStream(entry);
-            return GoPluginDescriptorParser.parseXML(pluginXMLStream, pluginJarFile.getAbsolutePath(), getBundleLocation(bundlePathLocation, pluginJarFile.getName()), isBundledPlugin);
+            try (InputStream pluginXMLStream = jarFile.getInputStream(entry)) {
+                return GoPluginDescriptorParser.parseXML(pluginXMLStream, pluginJarFile.getAbsolutePath(), getBundleLocation(bundlePathLocation, pluginJarFile.getName()), isBundledPlugin);
+            }
         } catch (Exception e) {
             LOGGER.warn("Could not load plugin with jar filename:{}", pluginJarFile.getName(), e);
             String cause = e.getCause() != null ? String.format("%s. Cause: %s", e.getMessage(), e.getCause().getMessage()) : e.getMessage();
             return GoPluginDescriptor.usingId(pluginJarFile.getName(), pluginJarFile.getAbsolutePath(), getBundleLocation(bundlePathLocation, pluginJarFile.getName()), isBundledPlugin)
                     .markAsInvalid(Arrays.asList(String.format("Plugin with ID (%s) is not valid: %s", pluginJarFile.getName(), cause)), e);
-        } finally {
-            IOUtils.closeQuietly(pluginXMLStream);
-            closeQuietly(jarFile);
-        }
-    }
-
-    private void closeQuietly(JarFile jarFile) {
-        if (jarFile != null) {
-            try {
-                jarFile.close();
-            } catch (IOException e) {
-                //ignore
-            }
         }
     }
 

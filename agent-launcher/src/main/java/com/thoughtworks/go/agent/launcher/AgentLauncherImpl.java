@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -148,7 +148,7 @@ public class AgentLauncherImpl implements AgentLauncher {
             try {
                 try (URLClassLoader urlClassLoader = JarUtil.getClassLoaderFromJar(Downloader.AGENT_BINARY_JAR, jarEntryFilter(), tempDir, this.getClass().getClassLoader())) {
                     Class<?> aClass = urlClassLoader.loadClass(agentProcessParentClassName);
-                    AgentProcessParent agentProcessParent = (AgentProcessParent) aClass.newInstance();
+                    AgentProcessParent agentProcessParent = (AgentProcessParent) aClass.getDeclaredConstructor().newInstance();
                     return agentProcessParent.run(launcherVersion, launcherMd5, urlGenerator, environmentVariables, context);
                 } catch (ReflectiveOperationException | IOException e) {
                     throw new RuntimeException(e);

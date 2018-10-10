@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -57,7 +57,7 @@ public class FakeBuildRepositoryRemote implements BuildRepositoryRemote {
         Class<? extends WorkCreator> aClass = null;
         try {
             aClass = (Class<? extends WorkCreator>) Class.forName(className);
-            return aClass.newInstance().work(runtimeInfo.getIdentifier());
+            return aClass.getDeclaredConstructor().newInstance().work(runtimeInfo.getIdentifier());
         } catch (Exception e) {
             e.printStackTrace();
             throw new RuntimeException(e);

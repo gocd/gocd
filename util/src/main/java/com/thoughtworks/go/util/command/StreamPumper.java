@@ -18,9 +18,13 @@ package com.thoughtworks.go.util.command;
 import com.thoughtworks.go.util.Clock;
 import com.thoughtworks.go.util.SystemTimeClock;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.io.LineIterator;
 import org.apache.commons.lang3.StringUtils;
 
-import java.io.*;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.io.UnsupportedEncodingException;
 import java.util.concurrent.TimeUnit;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
@@ -28,7 +32,7 @@ import static java.lang.String.format;
 
 public class StreamPumper implements Runnable {
 
-    private BufferedReader in;
+    private Reader in;
 
     private boolean completed;
     private final StreamConsumer streamConsumer;
@@ -46,24 +50,19 @@ public class StreamPumper implements Runnable {
         this.clock = clock;
         this.lastHeard = System.currentTimeMillis();
         try {
-            this.in = new LineNumberReader(new InputStreamReader(in, encoding));
+            this.in = new InputStreamReader(in, encoding);
         } catch (UnsupportedEncodingException e) {
             bomb(format("Unable to use [%s] to decode stream.", encoding));
         }
     }
 
     public void run() {
-        try {
-            String s = in.readLine();
-            while (s != null) {
-                consumeLine(s);
-                s = in.readLine();
+        try (LineIterator lineIterator = IOUtils.lineIterator(in)) {
+            while (lineIterator.hasNext()) {
+                consumeLine(lineIterator.nextLine());
             }
-        } catch (Exception e) {
-//            e.printStackTrace();
-            // do nothing
+        } catch (Exception ignore) {
         } finally {
-            IOUtils.closeQuietly(in);
             completed = true;
         }
     }

@@ -16,9 +16,6 @@
 
 package com.thoughtworks.go.config.materials;
 
-import java.io.Serializable;
-import java.util.regex.Pattern;
-
 import com.thoughtworks.go.config.ConfigAttribute;
 import com.thoughtworks.go.config.ConfigTag;
 import com.thoughtworks.go.config.Validatable;
@@ -27,6 +24,9 @@ import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
+
+import java.io.Serializable;
+import java.util.regex.Pattern;
 
 @ConfigTag(value = "ignore")
 public class IgnoredFiles implements Serializable, Validatable {
@@ -80,7 +80,7 @@ public class IgnoredFiles implements Serializable, Validatable {
                     sb.append("/");
                 }
             }
-            this.processedPattern = StringUtils.chomp(sb.toString(), "/");
+            this.processedPattern = StringUtils.removeEnd(sb.toString(), "/");
         }
         return this.processedPattern;
     }

@@ -16,7 +16,6 @@
 
 package com.thoughtworks.go.config;
 
-import com.rits.cloning.Cloner;
 import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
 import com.thoughtworks.go.config.exceptions.GoConfigInvalidMergeException;
 import com.thoughtworks.go.config.parser.ConfigReferenceElements;
@@ -44,6 +43,7 @@ import java.util.List;
 
 import static com.thoughtworks.go.config.parser.GoConfigClassLoader.classParser;
 import static com.thoughtworks.go.util.XmlUtils.buildXmlDocument;
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.apache.commons.io.IOUtils.toInputStream;
 
 public class MagicalGoConfigXmlLoader {
@@ -165,7 +165,7 @@ public class MagicalGoConfigXmlLoader {
     }
 
     public <T> T fromXmlPartial(String partial, Class<T> o) throws Exception {
-        return fromXmlPartial(toInputStream(partial), o);
+        return fromXmlPartial(toInputStream(partial, UTF_8), o);
     }
 
     public <T> T fromXmlPartial(InputStream inputStream, Class<T> o) throws Exception {

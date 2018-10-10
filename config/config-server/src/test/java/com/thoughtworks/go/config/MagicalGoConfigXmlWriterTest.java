@@ -138,7 +138,7 @@ public class MagicalGoConfigXmlWriterTest {
     public void shouldThrowInvalidConfigWhenAttemptedToSaveMergedConfig() throws Exception {
         String xml = ConfigFileFixture.TWO_PIPELINES;
 
-        CruiseConfig cruiseConfig = ConfigMigrator.loadWithMigration(IOUtils.toInputStream(xml)).config;
+        CruiseConfig cruiseConfig = ConfigMigrator.loadWithMigration(xml).config;
         PartialConfig remotePart = PartialConfigMother.withPipeline("some-pipe");
         remotePart.setOrigin(new RepoConfigOrigin());
         BasicCruiseConfig merged = new BasicCruiseConfig((BasicCruiseConfig) cruiseConfig, remotePart);
@@ -156,7 +156,7 @@ public class MagicalGoConfigXmlWriterTest {
     public void shouldWritePipelines() throws Exception {
         String xml = ConfigFileFixture.TWO_PIPELINES;
 
-        CruiseConfig cruiseConfig = ConfigMigrator.loadWithMigration(IOUtils.toInputStream(xml)).config;
+        CruiseConfig cruiseConfig = ConfigMigrator.loadWithMigration(xml).config;
         xmlWriter.write(cruiseConfig, output, false);
         assertXmlEquals(xml, output.toString());
     }
@@ -165,7 +165,7 @@ public class MagicalGoConfigXmlWriterTest {
     public void shouldNotWriteDuplicatedPipelines() throws Exception {
         String xml = ConfigFileFixture.TWO_PIPELINES;
 
-        CruiseConfig cruiseConfig = ConfigMigrator.loadWithMigration(IOUtils.toInputStream(xml)).config;
+        CruiseConfig cruiseConfig = ConfigMigrator.loadWithMigration(xml).config;
         cruiseConfig.addPipeline("someGroup", PipelineConfigMother.pipelineConfig("pipeline1"));
         try {
             xmlWriter.write(cruiseConfig, output, false);
@@ -195,7 +195,7 @@ public class MagicalGoConfigXmlWriterTest {
     public void shouldNotWriteDependenciesIfEmptyDependencies() throws Exception {
         String xml = ConfigFileFixture.EMPTY_DEPENDENCIES;
 
-        CruiseConfig cruiseConfig = ConfigMigrator.loadWithMigration(IOUtils.toInputStream(xml)).config;
+        CruiseConfig cruiseConfig = ConfigMigrator.loadWithMigration(xml).config;
         xmlWriter.write(cruiseConfig, output, false);
         assertThat(output.toString().replaceAll(">\\s+<", ""), not(containsString("dependencies")));
     }
@@ -204,7 +204,7 @@ public class MagicalGoConfigXmlWriterTest {
     public void shouldNotWriteWhenEnvironmentNameIsNotSet() throws Exception {
         String xml = ConfigFileFixture.CONFIG_WITH_NANT_AND_EXEC_BUILDER;
 
-        CruiseConfig cruiseConfig = ConfigMigrator.loadWithMigration(IOUtils.toInputStream(xml)).config;
+        CruiseConfig cruiseConfig = ConfigMigrator.loadWithMigration(xml).config;
         cruiseConfig.addEnvironment(new BasicEnvironmentConfig());
         try {
             xmlWriter.write(cruiseConfig, output, false);
@@ -219,7 +219,7 @@ public class MagicalGoConfigXmlWriterTest {
         String xml = ConfigFileFixture.WITH_DUPLICATE_ENVIRONMENTS;
         try {
 
-            ConfigMigrator.loadWithMigration(IOUtils.toInputStream(xml));
+            ConfigMigrator.loadWithMigration(xml);
 
             fail("Should not be able to save config when 2 environments have the same name with different case");
         } catch (Exception e) {
@@ -363,7 +363,7 @@ public class MagicalGoConfigXmlWriterTest {
                 + "</cruise>";
 
         thrown.expectMessage("Invalid content was found starting with element 'ant'. No child element is expected at this point.");
-        CruiseConfig cruiseConfig = ConfigMigrator.loadWithMigration(IOUtils.toInputStream(xml)).config;
+        CruiseConfig cruiseConfig = ConfigMigrator.loadWithMigration(xml).config;
         xmlWriter.write(cruiseConfig, output, false);
     }
 

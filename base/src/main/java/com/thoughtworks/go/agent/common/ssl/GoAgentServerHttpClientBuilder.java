@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -57,7 +57,7 @@ public class GoAgentServerHttpClientBuilder extends GoAgentServerClientBuilder<C
         KeyStore trustStore = agentTruststore();
 
         SSLContextBuilder sslContextBuilder = SSLContextBuilder.create()
-                .useProtocol(systemEnvironment.get(SystemEnvironment.GO_SSL_TRANSPORT_PROTOCOL_TO_BE_USED_BY_AGENT));
+                .setProtocol(systemEnvironment.get(SystemEnvironment.GO_SSL_TRANSPORT_PROTOCOL_TO_BE_USED_BY_AGENT));
 
         if (trustStore != null || trustStrategy != null) {
             sslContextBuilder.loadTrustMaterial(trustStore, trustStrategy);

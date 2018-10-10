@@ -106,7 +106,6 @@ import static com.thoughtworks.go.util.GoConstants.CONFIG_SCHEMA_VERSION;
 import static java.lang.String.format;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Arrays.asList;
-import static org.apache.commons.io.IOUtils.toInputStream;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.Matchers.*;
@@ -350,8 +349,8 @@ public class MagicalGoConfigXmlLoaderTest {
 
     @Test
     public void shouldLoadNAntBuilder() throws Exception {
-        CruiseConfig cruiseConfig = ConfigMigrator.loadWithMigration(toInputStream(
-                CONFIG_WITH_NANT_AND_EXEC_BUILDER)).config;
+        CruiseConfig cruiseConfig = ConfigMigrator.loadWithMigration(
+                CONFIG_WITH_NANT_AND_EXEC_BUILDER).config;
         JobConfig plan = cruiseConfig.jobConfigByName("pipeline1", "mingle", "cardlist", true);
         BuildTask builder = (BuildTask) plan.tasks().findFirstByType(NantTask.class);
         assertThat(builder.getTarget(), is("all"));
@@ -360,7 +359,7 @@ public class MagicalGoConfigXmlLoaderTest {
     @Test
     public void shouldLoadExecBuilder() throws Exception {
 
-        CruiseConfig cruiseConfig = ConfigMigrator.loadWithMigration(toInputStream(CONFIG_WITH_NANT_AND_EXEC_BUILDER)).config;
+        CruiseConfig cruiseConfig = ConfigMigrator.loadWithMigration(CONFIG_WITH_NANT_AND_EXEC_BUILDER).config;
         JobConfig plan = cruiseConfig.jobConfigByName("pipeline1", "mingle", "cardlist", true);
         ExecTask builder = (ExecTask) plan.tasks().findFirstByType(ExecTask.class);
         assertThat(builder, is(new ExecTask("ls", "-la", "workdir")));
@@ -372,7 +371,7 @@ public class MagicalGoConfigXmlLoaderTest {
     @Test
     public void shouldLoadRakeBuilderWithEmptyOnCancel() throws Exception {
 
-        CruiseConfig cruiseConfig = ConfigMigrator.loadWithMigration(toInputStream(CONFIG_WITH_NANT_AND_EXEC_BUILDER)).config;
+        CruiseConfig cruiseConfig = ConfigMigrator.loadWithMigration(CONFIG_WITH_NANT_AND_EXEC_BUILDER).config;
         JobConfig plan = cruiseConfig.jobConfigByName("pipeline1", "mingle", "cardlist", true);
         RakeTask builder = (RakeTask) plan.tasks().findFirstByType(RakeTask.class);
         assertThat(builder, notNullValue());
@@ -380,7 +379,7 @@ public class MagicalGoConfigXmlLoaderTest {
 
     @Test
     public void shouldMigrateAnEmptyArtifactSourceToStar() throws Exception {
-        GoConfigHolder holder = ConfigMigrator.loadWithMigration(toInputStream(configWithArtifactSourceAs("")));
+        GoConfigHolder holder = ConfigMigrator.loadWithMigration(configWithArtifactSourceAs(""));
         CruiseConfig cruiseConfig = holder.config;
         JobConfig plan = cruiseConfig.jobConfigByName("pipeline", "stage", "job", true);
         assertThat(plan.artifactConfigs().getBuiltInArtifactConfigs().get(0).getSource(), is("*"));
@@ -388,7 +387,7 @@ public class MagicalGoConfigXmlLoaderTest {
 
     @Test
     public void shouldMigrateAnArtifactSourceWithJustWhitespaceToStar() throws Exception {
-        GoConfigHolder holder = ConfigMigrator.loadWithMigration(toInputStream(configWithArtifactSourceAs(" \t ")));
+        GoConfigHolder holder = ConfigMigrator.loadWithMigration(configWithArtifactSourceAs(" \t "));
         CruiseConfig cruiseConfig = holder.config;
         JobConfig plan = cruiseConfig.jobConfigByName("pipeline", "stage", "job", true);
         assertThat(plan.artifactConfigs().getBuiltInArtifactConfigs().get(0).getSource(), is("*"));
@@ -396,7 +395,7 @@ public class MagicalGoConfigXmlLoaderTest {
 
     @Test
     public void shouldRetainArtifactSourceThatIsNotWhitespace() throws Exception {
-        GoConfigHolder holder = ConfigMigrator.loadWithMigration(toInputStream(configWithArtifactSourceAs("t ")));
+        GoConfigHolder holder = ConfigMigrator.loadWithMigration(configWithArtifactSourceAs("t "));
         CruiseConfig cruiseConfig = holder.config;
         JobConfig plan = cruiseConfig.jobConfigByName("pipeline", "stage", "job", true);
         assertThat(plan.artifactConfigs().getBuiltInArtifactConfigs().get(0).getSource(), is("t "));
@@ -410,7 +409,7 @@ public class MagicalGoConfigXmlLoaderTest {
                         + "    <artifact type=\"build\" src=\"artifact1.xml\" dest=\"cruise-output\" />\n"
                         + "  </artifacts>\n"
                         + "</job>";
-        JobConfig build = xmlLoader.fromXmlPartial(toInputStream(buildXmlPartial), JobConfig.class);
+        JobConfig build = xmlLoader.fromXmlPartial(buildXmlPartial, JobConfig.class);
         assertThat(build.name(), is(new CaseInsensitiveString("functional")));
         assertThat(build.artifactConfigs().size(), is(1));
     }
@@ -424,7 +423,7 @@ public class MagicalGoConfigXmlLoaderTest {
                         + "                <ignore pattern=\"x\"/>\n"
                         + "            </filter>\n"
                         + "        </svn>";
-        MaterialConfig svnMaterial = xmlLoader.fromXmlPartial(toInputStream(buildXmlPartial), SvnMaterialConfig.class);
+        MaterialConfig svnMaterial = xmlLoader.fromXmlPartial(buildXmlPartial, SvnMaterialConfig.class);
         Filter parsedFilter = svnMaterial.filter();
         Filter expectedFilter = new Filter();
         expectedFilter.add(new IgnoredFiles("x"));
@@ -439,7 +438,7 @@ public class MagicalGoConfigXmlLoaderTest {
                         + "                <ignore pattern=\"x\"/>\n"
                         + "            </filter>\n"
                         + "        </hg>";
-        MaterialConfig hgMaterial = xmlLoader.fromXmlPartial(toInputStream(buildXmlPartial), HgMaterialConfig.class);
+        MaterialConfig hgMaterial = xmlLoader.fromXmlPartial(buildXmlPartial, HgMaterialConfig.class);
         Filter parsedFilter = hgMaterial.filter();
         Filter expectedFilter = new Filter();
         expectedFilter.add(new IgnoredFiles("x"));
@@ -515,7 +514,7 @@ public class MagicalGoConfigXmlLoaderTest {
         String buildXmlPartial =
                 "<svn url=\"http://foo.bar\" username=\"cruise\" password=\"password\" materialName=\"http___foo.bar\"/>";
 
-        MaterialConfig materialConfig = xmlLoader.fromXmlPartial(toInputStream(buildXmlPartial), SvnMaterialConfig.class);
+        MaterialConfig materialConfig = xmlLoader.fromXmlPartial(buildXmlPartial, SvnMaterialConfig.class);
         MaterialConfig svnMaterial = MaterialConfigsMother.svnMaterialConfig("http://foo.bar", null, "cruise", "password", false, null);
         assertThat(materialConfig, is(svnMaterial));
     }
@@ -531,7 +530,7 @@ public class MagicalGoConfigXmlLoaderTest {
                         + "    </job>\n"
                         + "</jobs>";
 
-        JobConfigs jobs = xmlLoader.fromXmlPartial(toInputStream(buildXmlPartial), JobConfigs.class);
+        JobConfigs jobs = xmlLoader.fromXmlPartial(buildXmlPartial, JobConfigs.class);
         JobConfig job = jobs.first();
         Tasks fetch = job.tasks();
         assertThat(fetch.size(), is(1));
@@ -555,7 +554,7 @@ public class MagicalGoConfigXmlLoaderTest {
                         + "    </job>\n"
                         + "</jobs>";
 
-        JobConfigs jobs = xmlLoader.fromXmlPartial(toInputStream(buildXmlPartial), JobConfigs.class);
+        JobConfigs jobs = xmlLoader.fromXmlPartial(buildXmlPartial, JobConfigs.class);
         JobConfig job = jobs.first();
         Tasks tasks = job.tasks();
         assertThat(tasks.size(), is(1));
@@ -571,7 +570,7 @@ public class MagicalGoConfigXmlLoaderTest {
                         + "                <ignore pattern='x'/>\n"
                         + "            </filter>\n"
                         + "        </git>";
-        GitMaterialConfig gitMaterial = xmlLoader.fromXmlPartial(toInputStream(gitPartial), GitMaterialConfig.class);
+        GitMaterialConfig gitMaterial = xmlLoader.fromXmlPartial(gitPartial, GitMaterialConfig.class);
         assertThat(gitMaterial.getBranch(), is(GitMaterialConfig.DEFAULT_BRANCH));
         Filter parsedFilter = gitMaterial.filter();
         Filter expectedFilter = new Filter();
@@ -582,14 +581,14 @@ public class MagicalGoConfigXmlLoaderTest {
     @Test
     public void shouldLoadShallowFlagFromGitPartial() throws Exception {
         String gitPartial = "<git url='file:///tmp/testGitRepo/project1' shallowClone=\"true\" />";
-        GitMaterialConfig gitMaterial = xmlLoader.fromXmlPartial(toInputStream(gitPartial), GitMaterialConfig.class);
+        GitMaterialConfig gitMaterial = xmlLoader.fromXmlPartial(gitPartial, GitMaterialConfig.class);
         assertTrue(gitMaterial.isShallowClone());
     }
 
     @Test
     public void shouldLoadBranchFromGitPartial() throws Exception {
         String gitPartial = "<git url='file:///tmp/testGitRepo/project1' branch='foo'/>";
-        GitMaterialConfig gitMaterial = xmlLoader.fromXmlPartial(toInputStream(gitPartial), GitMaterialConfig.class);
+        GitMaterialConfig gitMaterial = xmlLoader.fromXmlPartial(gitPartial, GitMaterialConfig.class);
         assertThat(gitMaterial.getBranch(), is("foo"));
     }
 
@@ -602,7 +601,7 @@ public class MagicalGoConfigXmlLoaderTest {
                         + "            </filter>\n"
                         + " <view></view>\n"
                         + "</p4>";
-        MaterialConfig p4Material = xmlLoader.fromXmlPartial(toInputStream(gitPartial), P4MaterialConfig.class);
+        MaterialConfig p4Material = xmlLoader.fromXmlPartial(gitPartial, P4MaterialConfig.class);
         Filter parsedFilter = p4Material.filter();
         Filter expectedFilter = new Filter();
         expectedFilter.add(new IgnoredFiles("x"));
@@ -621,7 +620,7 @@ public class MagicalGoConfigXmlLoaderTest {
                         + "    </job>\n"
                         + "  </jobs>\n"
                         + "</stage>\n";
-        StageConfig stage = xmlLoader.fromXmlPartial(toInputStream(stageXmlPartial), StageConfig.class);
+        StageConfig stage = xmlLoader.fromXmlPartial(stageXmlPartial, StageConfig.class);
         assertThat(stage.name(), is(new CaseInsensitiveString("mingle")));
         assertThat(stage.allBuildPlans().size(), is(1));
         assertThat(stage.jobConfigByInstanceName("functional", true), is(notNullValue()));
@@ -639,7 +638,7 @@ public class MagicalGoConfigXmlLoaderTest {
                         + "    </job>\n"
                         + "  </jobs>\n"
                         + "</stage>\n";
-        StageConfig stage = xmlLoader.fromXmlPartial(toInputStream(stageXmlPartial), StageConfig.class);
+        StageConfig stage = xmlLoader.fromXmlPartial(stageXmlPartial, StageConfig.class);
         assertThat(stage.isArtifactCleanupProhibited(), is(true));
 
         stageXmlPartial =
@@ -652,7 +651,7 @@ public class MagicalGoConfigXmlLoaderTest {
                         + "    </job>\n"
                         + "  </jobs>\n"
                         + "</stage>\n";
-        stage = xmlLoader.fromXmlPartial(toInputStream(stageXmlPartial), StageConfig.class);
+        stage = xmlLoader.fromXmlPartial(stageXmlPartial, StageConfig.class);
         assertThat(stage.isArtifactCleanupProhibited(), is(false));
 
         stageXmlPartial =
@@ -665,7 +664,7 @@ public class MagicalGoConfigXmlLoaderTest {
                         + "    </job>\n"
                         + "  </jobs>\n"
                         + "</stage>\n";
-        stage = xmlLoader.fromXmlPartial(toInputStream(stageXmlPartial), StageConfig.class);
+        stage = xmlLoader.fromXmlPartial(stageXmlPartial, StageConfig.class);
         assertThat(stage.isArtifactCleanupProhibited(), is(false));
     }
 
@@ -690,7 +689,7 @@ public class MagicalGoConfigXmlLoaderTest {
                         + "</pipeline>\n"
                         + "</pipelines>\n"
                         + "</cruise>\n";
-        PartialConfig partialConfig = xmlLoader.fromXmlPartial(toInputStream(partialConfigWithPipeline), PartialConfig.class);
+        PartialConfig partialConfig = xmlLoader.fromXmlPartial(partialConfigWithPipeline, PartialConfig.class);
         assertThat(partialConfig.getGroups().size(), is(1));
         PipelineConfig pipeline = partialConfig.getGroups().get(0).getPipelines().get(0);
         assertThat(pipeline.name(), is(new CaseInsensitiveString("pipeline")));
@@ -716,7 +715,7 @@ public class MagicalGoConfigXmlLoaderTest {
                         + "  </environment>"
                         + "</environments>"
                         + "</cruise>\n";
-        PartialConfig partialConfig = xmlLoader.fromXmlPartial(toInputStream(partialConfigWithPipeline), PartialConfig.class);
+        PartialConfig partialConfig = xmlLoader.fromXmlPartial(partialConfigWithPipeline, PartialConfig.class);
         EnvironmentsConfig environmentsConfig = partialConfig.getEnvironments();
         assertThat(environmentsConfig.size(), is(2));
         EnvironmentPipelineMatchers matchers = environmentsConfig.matchers();
@@ -751,7 +750,7 @@ public class MagicalGoConfigXmlLoaderTest {
                         + "    </jobs>\n"
                         + "  </stage>\n"
                         + "</pipeline>\n";
-        PipelineConfig pipeline = xmlLoader.fromXmlPartial(toInputStream(pipelineXmlPartial), PipelineConfig.class);
+        PipelineConfig pipeline = xmlLoader.fromXmlPartial(pipelineXmlPartial, PipelineConfig.class);
         assertThat(pipeline.name(), is(new CaseInsensitiveString("pipeline")));
         assertThat(pipeline.size(), is(1));
         assertThat(pipeline.findBy(new CaseInsensitiveString("mingle")).jobConfigByInstanceName("functional", true), is(notNullValue()));
@@ -774,7 +773,7 @@ public class MagicalGoConfigXmlLoaderTest {
                         + "    </jobs>\n"
                         + "  </stage>\n"
                         + "</pipeline>\n";
-        PipelineConfig pipeline = xmlLoader.fromXmlPartial(toInputStream(pipelineXmlPartial), PipelineConfig.class);
+        PipelineConfig pipeline = xmlLoader.fromXmlPartial(pipelineXmlPartial, PipelineConfig.class);
 
         assertThat(pipeline.hasExplicitLock(), is(true));
         assertThat(pipeline.explicitLock(), is(true));
@@ -797,7 +796,7 @@ public class MagicalGoConfigXmlLoaderTest {
                         + "    </jobs>\n"
                         + "  </stage>\n"
                         + "</pipeline>\n";
-        PipelineConfig pipeline = xmlLoader.fromXmlPartial(toInputStream(pipelineXmlPartial), PipelineConfig.class);
+        PipelineConfig pipeline = xmlLoader.fromXmlPartial(pipelineXmlPartial, PipelineConfig.class);
 
         assertThat(pipeline.hasExplicitLock(), is(true));
         assertThat(pipeline.explicitLock(), is(false));
@@ -820,7 +819,7 @@ public class MagicalGoConfigXmlLoaderTest {
                         + "    </jobs>\n"
                         + "  </stage>\n"
                         + "</pipeline>\n";
-        PipelineConfig pipeline = xmlLoader.fromXmlPartial(toInputStream(pipelineXmlPartial), PipelineConfig.class);
+        PipelineConfig pipeline = xmlLoader.fromXmlPartial(pipelineXmlPartial, PipelineConfig.class);
 
         assertThat(pipeline.hasExplicitLock(), is(false));
         try {
@@ -851,7 +850,7 @@ public class MagicalGoConfigXmlLoaderTest {
                         + "    </jobs>\n"
                         + "  </stage>\n"
                         + "</pipeline>\n";
-        PipelineConfig pipeline = xmlLoader.fromXmlPartial(toInputStream(pipelineWithP4MaterialXmlPartial), PipelineConfig.class);
+        PipelineConfig pipeline = xmlLoader.fromXmlPartial(pipelineWithP4MaterialXmlPartial, PipelineConfig.class);
         assertThat(pipeline.name(), is(new CaseInsensitiveString("pipeline")));
         MaterialConfig material = pipeline.materialConfigs().first();
         assertThat(material, is(instanceOf(P4MaterialConfig.class)));
@@ -871,7 +870,7 @@ public class MagicalGoConfigXmlLoaderTest {
                         + "  </jobs>\n"
                         + "</stage>\n";
         try {
-            xmlLoader.fromXmlPartial(toInputStream(stageXmlPartial), JobConfig.class);
+            xmlLoader.fromXmlPartial(stageXmlPartial, JobConfig.class);
             fail("Should not be able to load stage into jobConfig");
         } catch (Exception e) {
             assertThat(e.getMessage(), is("Unable to parse element <stage> for class JobConfig"));
@@ -891,7 +890,7 @@ public class MagicalGoConfigXmlLoaderTest {
 
         try {
 
-            ConfigMigrator.loadWithMigration(toInputStream(configWithInvalidCommand));
+            ConfigMigrator.loadWithMigration(configWithInvalidCommand);
 
             fail("Should not allow empty command");
         } catch (Exception e) {
@@ -969,7 +968,7 @@ public class MagicalGoConfigXmlLoaderTest {
                         + "    </job>\n";
         String configWithCommand = withCommand(jobWithCommand);
 
-        CruiseConfig cruiseConfig = ConfigMigrator.loadWithMigration(toInputStream(configWithCommand)).config;
+        CruiseConfig cruiseConfig = ConfigMigrator.loadWithMigration(configWithCommand).config;
         Task task = cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("pipeline1")).first().allBuildPlans().first().tasks().first();
 
         assertThat(task, is(instanceOf(ExecTask.class)));
@@ -979,16 +978,16 @@ public class MagicalGoConfigXmlLoaderTest {
     @Test
     public void shouldLoadMingleConfigForPipeline() throws Exception {
         String configWithCommand = withMingleConfig("<mingle baseUrl=\"https://foo.bar/baz\" projectIdentifier=\"cruise-performance\"/>");
-        MingleConfig mingleConfig = ConfigMigrator.loadWithMigration(toInputStream(configWithCommand)).config.pipelineConfigByName(new CaseInsensitiveString("pipeline1")).getMingleConfig();
+        MingleConfig mingleConfig = ConfigMigrator.loadWithMigration(configWithCommand).config.pipelineConfigByName(new CaseInsensitiveString("pipeline1")).getMingleConfig();
         assertThat(mingleConfig, is(new MingleConfig("https://foo.bar/baz", "cruise-performance")));
 
         configWithCommand = withMingleConfig(
                 "<mingle baseUrl=\"https://foo.bar/baz\" projectIdentifier=\"cruise-performance\"><mqlGroupingConditions>foo = bar!=baz</mqlGroupingConditions></mingle>");
-        mingleConfig = ConfigMigrator.loadWithMigration(toInputStream(configWithCommand)).config.pipelineConfigByName(new CaseInsensitiveString("pipeline1")).getMingleConfig();
+        mingleConfig = ConfigMigrator.loadWithMigration(configWithCommand).config.pipelineConfigByName(new CaseInsensitiveString("pipeline1")).getMingleConfig();
         assertThat(mingleConfig, is(new MingleConfig("https://foo.bar/baz", "cruise-performance", "foo = bar!=baz")));
 
         configWithCommand = withMingleConfig("<mingle baseUrl=\"https://foo.bar/baz\" projectIdentifier=\"cruise-performance\"><mqlGroupingConditions/></mingle>");
-        mingleConfig = ConfigMigrator.loadWithMigration(toInputStream(configWithCommand)).config.pipelineConfigByName(new CaseInsensitiveString("pipeline1")).getMingleConfig();
+        mingleConfig = ConfigMigrator.loadWithMigration(configWithCommand).config.pipelineConfigByName(new CaseInsensitiveString("pipeline1")).getMingleConfig();
         assertThat(mingleConfig, is(new MingleConfig("https://foo.bar/baz", "cruise-performance", "")));
     }
 
@@ -1094,7 +1093,7 @@ public class MagicalGoConfigXmlLoaderTest {
                         + "    </jobs>\n"
                         + "  </stage>\n"
                         + "</pipeline>\n";
-        PipelineConfig pipeline = xmlLoader.fromXmlPartial(toInputStream(pipelineXmlPartial), PipelineConfig.class);
+        PipelineConfig pipeline = xmlLoader.fromXmlPartial(pipelineXmlPartial, PipelineConfig.class);
         assertThat(pipeline.materialConfigs().size(), is(3));
         ScmMaterialConfig material = (ScmMaterialConfig) pipeline.materialConfigs().get(0);
         assertThat(material.getFolder(), is("folder1"));
@@ -2517,7 +2516,7 @@ public class MagicalGoConfigXmlLoaderTest {
                         + "</pipelines>"
                         + "</cruise>\n";
 
-        return ConfigMigrator.loadWithMigration(toInputStream(pipelineXmlPartial)).config;
+        return ConfigMigrator.loadWithMigration(pipelineXmlPartial).config;
 
     }
 

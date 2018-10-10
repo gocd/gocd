@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,6 +32,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 /**
  * @understands creating a view model for a pluggable task.
@@ -70,17 +72,11 @@ public class PluggableTaskViewModelFactory implements PluggableViewModelFactory<
     }
 
     private String loadTemplateFromClasspath(final String filepath, final TaskView view) {
-        InputStream in = null;
-        try {
-            in = view.getClass().getResourceAsStream(filepath);
-            return in != null ? IOUtils.toString(in) : String.format("Template \"%s\" is missing.", filepath);
+        try(InputStream in = view.getClass().getResourceAsStream(filepath)) {
+            return in != null ? IOUtils.toString(in, UTF_8) : String.format("Template \"%s\" is missing.", filepath);
         } catch (IOException e) {
             LOG.error("Failed to load template from view from path \"{}\". Make sure your the template is on the classpath of your plugin", filepath, e);
             return String.format("Template \"%s\" failed to load.", filepath);
-        } finally {
-            if (in != null) {
-                IOUtils.closeQuietly(in);
-            }
         }
     }
 }

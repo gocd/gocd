@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,6 @@
 
 package com.thoughtworks.go.server.util;
 
-import org.apache.commons.io.IOUtils;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.x509.X509V1CertificateGenerator;
 import org.eclipse.jetty.server.*;
@@ -190,19 +189,13 @@ public class HttpTestUtil {
     private void prepareCertStore(File serverKeyStore) {
         KeyPair keyPair = generateKeyPair();
         X509Certificate cert = generateCert(keyPair);
-        FileOutputStream os = null;
-        try {
+        try(FileOutputStream os = new FileOutputStream(serverKeyStore)) {
             KeyStore store = KeyStore.getInstance("JKS");
             store.load(null, null);
             store.setKeyEntry("test", keyPair.getPrivate(), STORE_PASSWORD.toCharArray(), new Certificate[]{cert});
-            os = new FileOutputStream(serverKeyStore);
             store.store(os, STORE_PASSWORD.toCharArray());
         } catch (Exception e) {
             throw new RuntimeException(e);
-        } finally {
-            if (os != null) {
-                IOUtils.closeQuietly(os);
-            }
         }
     }
 

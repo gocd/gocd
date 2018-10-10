@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -55,7 +55,7 @@ public class DefaultAgentLauncherCreatorImpl implements AgentLauncherCreator {
         try {
             String libDir = JarUtil.getManifestKey(inUseLauncher, GO_AGENT_LAUNCHER_LIB_DIR);
             String classNameToLoad = JarUtil.getManifestKey(inUseLauncher, GO_AGENT_LAUNCHER_CLASS);
-            return (AgentLauncher) loadClass(inUseLauncher, GO_AGENT_LAUNCHER_CLASS, libDir, classNameToLoad).newInstance();
+            return (AgentLauncher) loadClass(inUseLauncher, GO_AGENT_LAUNCHER_CLASS, libDir, classNameToLoad).getDeclaredConstructor().newInstance();
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

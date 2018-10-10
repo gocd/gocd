@@ -16,11 +16,11 @@
 
 package com.thoughtworks.go.config;
 
+import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
+
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
-
-import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static org.apache.commons.lang3.StringUtils.capitalize;
@@ -57,7 +57,7 @@ public class GoConfigClassWriter {
 
     public Object defaultField(Field f) {
         try {
-            Object o = aClass.newInstance();
+            Object o = aClass.getDeclaredConstructor().newInstance();
             return f.get(o);
         } catch (Exception e) {
             return null;

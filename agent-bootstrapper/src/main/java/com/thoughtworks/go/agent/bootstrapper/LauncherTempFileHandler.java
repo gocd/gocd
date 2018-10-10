@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.List;
@@ -49,10 +48,8 @@ class LauncherTempFileHandler implements Runnable {
     }
 
     private void reapFiles() {
-        FileReader tmpFileReader = null;
-        try {
-            tmpFileReader = new FileReader(LAUNCHER_TMP_FILE_LIST);
-            List fileList = IOUtils.readLines(tmpFileReader);
+        try (FileReader tmpFileReader = new FileReader(LAUNCHER_TMP_FILE_LIST)) {
+            List<String> fileList = IOUtils.readLines(tmpFileReader);
             Set<String> fileSet = new HashSet<>(fileList);
             for (String fileName : fileSet) {
                 File file = new File(fileName);
@@ -64,9 +61,7 @@ class LauncherTempFileHandler implements Runnable {
                 }
             }
             writeToFile(fileList, false);
-        } catch (Exception e) {
-        } finally {
-            IOUtils.closeQuietly(tmpFileReader);
+        } catch (Exception ignore) {
         }
     }
 
@@ -80,14 +75,10 @@ class LauncherTempFileHandler implements Runnable {
     }
 
     synchronized static void writeToFile(final List<String> rows, final boolean append) {
-        FileWriter tmpFileListWriter = null;
         try {
-            tmpFileListWriter = new FileWriter(LAUNCHER_TMP_FILE_LIST, append);
-            IOUtils.writeLines(rows, IOUtils.LINE_SEPARATOR, tmpFileListWriter);
+            FileUtils.writeLines(new File(LAUNCHER_TMP_FILE_LIST), rows, append);
         } catch (IOException e) {
             LOG.error("Could not update temp files list", e);
-        } finally {
-            IOUtils.closeQuietly(tmpFileListWriter);
         }
     }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,6 @@ import com.thoughtworks.go.service.ConfigRepository;
 import com.thoughtworks.go.util.CachedDigestUtils;
 import com.thoughtworks.go.util.TimeProvider;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
 import org.jdom2.Document;
 import org.jdom2.Element;
 import org.jdom2.input.SAXBuilder;
@@ -228,9 +227,7 @@ public class GoConfigMigration {
     }
 
     private String upgrade(String originalContent, URL upgradeScript) {
-        InputStream xslt = null;
-        try {
-            xslt = upgradeScript.openStream();
+        try (InputStream xslt = upgradeScript.openStream()) {
             ByteArrayOutputStream convertedConfig = new ByteArrayOutputStream();
             transformer(upgradeScript.getPath(), xslt)
                     .transform(new StreamSource(new ByteArrayInputStream(originalContent.getBytes())), new StreamResult(convertedConfig));
@@ -239,8 +236,6 @@ public class GoConfigMigration {
             throw bomb("Couldn't transform configuration file using upgrade script " + upgradeScript.getPath(), e);
         } catch (IOException e) {
             throw bomb("Couldn't write converted config file", e);
-        } finally {
-            IOUtils.closeQuietly(xslt);
         }
     }
 

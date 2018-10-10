@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,8 @@ import java.util.zip.Deflater;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
+
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class ZipUtil {
     private static final Logger LOGGER = org.slf4j.LoggerFactory.getLogger(ZipUtil.class);
@@ -111,13 +113,14 @@ public class ZipUtil {
     }
 
     public void unzip(ZipInputStream zipInputStream, File destDir) throws IOException {
-        destDir.mkdirs();
-        ZipEntry zipEntry = zipInputStream.getNextEntry();
-        while (zipEntry != null) {
-            extractTo(zipEntry, zipInputStream, destDir);
-            zipEntry = zipInputStream.getNextEntry();
+        try(ZipInputStream zis = zipInputStream) {
+            destDir.mkdirs();
+            ZipEntry zipEntry = zis.getNextEntry();
+            while (zipEntry != null) {
+                extractTo(zipEntry, zis, destDir);
+                zipEntry = zis.getNextEntry();
+            }
         }
-        IOUtils.closeQuietly(zipInputStream);
     }
 
     public void unzip(File zip, File destDir) throws IOException {
@@ -133,22 +136,22 @@ public class ZipUtil {
             outputFile.mkdirs();
             return;
         }
-        FileOutputStream os = null;
         try {
             outputFile.getParentFile().mkdirs();
-            os = new FileOutputStream(outputFile);
-            IOUtils.copyLarge(entryInputStream, os);
-            if (zipEntryHandler != null) {
-                FileInputStream stream = null;
-                try {
-                    stream = new FileInputStream(outputFile);
-                    zipEntryHandler.handleEntry(entry, stream);
-                } finally {
-                    if (stream != null) {
-                        try {
-                            stream.close();
-                        } catch (IOException e) {
-                            LOGGER.warn("Failed to close the file-handle to file '{}' which was created as artifact download.", outputFile.getAbsolutePath(), e);
+            try (FileOutputStream os = new FileOutputStream(outputFile)) {
+                IOUtils.copyLarge(entryInputStream, os);
+                if (zipEntryHandler != null) {
+                    FileInputStream stream = null;
+                    try {
+                        stream = new FileInputStream(outputFile);
+                        zipEntryHandler.handleEntry(entry, stream);
+                    } finally {
+                        if (stream != null) {
+                            try {
+                                stream.close();
+                            } catch (IOException e) {
+                                LOGGER.warn("Failed to close the file-handle to file '{}' which was created as artifact download.", outputFile.getAbsolutePath(), e);
+                            }
                         }
                     }
                 }
@@ -156,8 +159,6 @@ public class ZipUtil {
         } catch (IOException e) {
             LOGGER.error("Failed to unzip file [{}] to directory [{}]", entryName, toDir.getAbsolutePath(), e);
             throw e;
-        } finally {
-            IOUtils.closeQuietly(os);
         }
     }
 
@@ -177,15 +178,15 @@ public class ZipUtil {
         ZipEntry zipEntry = zipInputStream.getNextEntry();
         while (zipEntry != null) {
             if (new File(zipEntry.getName()).getName().equals(file)) {
-                return IOUtils.toString(zipInputStream);
+                return IOUtils.toString(zipInputStream, UTF_8);
             }
             zipEntry = zipInputStream.getNextEntry();
         }
         return null;
     }
 
-    public static interface ZipEntryHandler {
-        public void handleEntry(ZipEntry entry, InputStream stream) throws IOException;
+    public interface ZipEntryHandler {
+        void handleEntry(ZipEntry entry, InputStream stream) throws IOException;
     }
 
 }

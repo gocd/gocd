@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,11 +16,6 @@
 
 package com.thoughtworks.go.config;
 
-import java.lang.reflect.Field;
-import java.util.Collection;
-import java.util.List;
-import java.util.Objects;
-
 import com.thoughtworks.go.config.parser.GoConfigFieldTypeConverter;
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
 import com.thoughtworks.go.util.ConfigUtil;
@@ -28,10 +23,12 @@ import org.jdom2.Element;
 import org.springframework.beans.SimpleTypeConverter;
 import org.springframework.beans.TypeMismatchException;
 
-import static com.thoughtworks.go.util.ExceptionUtils.bomb;
-import static com.thoughtworks.go.util.ExceptionUtils.bombIf;
-import static com.thoughtworks.go.util.ExceptionUtils.bombIfNull;
-import static com.thoughtworks.go.util.ExceptionUtils.bombUnless;
+import java.lang.reflect.Field;
+import java.util.Collection;
+import java.util.List;
+import java.util.Objects;
+
+import static com.thoughtworks.go.util.ExceptionUtils.*;
 import static java.text.MessageFormat.format;
 
 public class GoConfigFieldWriter {
@@ -214,7 +211,7 @@ public class GoConfigFieldWriter {
 
     private Object newInstance(Class<?> type) {
         try {
-            return type.newInstance();
+            return type.getDeclaredConstructor().newInstance();
         } catch (Exception e) {
             throw bomb("Error creating new instance of class " + type.getName(), e);
         }

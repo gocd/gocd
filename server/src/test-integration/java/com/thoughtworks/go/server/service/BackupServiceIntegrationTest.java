@@ -186,7 +186,7 @@ public class BackupServiceIntegrationTest {
 
         File repoZip = backedUpFile("config-repo.zip");
         File repoDir = temporaryFolder.newFolder("expanded-config-repo-backup");
-        TestUtils.extractZipToDir(repoZip, repoDir);
+        new ZipUtil().unzip(repoZip, repoDir);
         File cloneDir = temporaryFolder.newFolder("cloned-config-repo-backup");
         GitMaterial git = new GitMaterial(repoDir.getAbsolutePath());
 

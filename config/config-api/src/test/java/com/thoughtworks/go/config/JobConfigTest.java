@@ -27,7 +27,6 @@ import com.thoughtworks.go.util.ReflectionUtil;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
-import org.mockito.ArgumentMatchers;
 
 import java.util.HashMap;
 
@@ -48,7 +47,7 @@ public class JobConfigTest {
         config = new JobConfig();
         Tasks tasks = mock(Tasks.class);
         config.injectTasksForTest(tasks);
-        doNothing().when(tasks).setConfigAttributes(Matchers.<Object>anyObject(), Matchers.<TaskFactory>any());
+        doNothing().when(tasks).setConfigAttributes(any(), any(TaskFactory.class));
     }
 
     @Test
@@ -471,12 +470,12 @@ public class JobConfigTest {
         Tasks tasks = mock(Tasks.class);
         Tabs tabs = mock(Tabs.class);
         EnvironmentVariablesConfig variables = mock(EnvironmentVariablesConfig.class);
-        when(tasks.validateTree(Matchers.<PipelineConfigSaveValidationContext>any())).thenReturn(true);
-        when(resourceConfigs.validateTree(Matchers.<PipelineConfigSaveValidationContext>any())).thenReturn(true);
-        when(properties.validateTree(Matchers.<PipelineConfigSaveValidationContext>any())).thenReturn(true);
-        when(artifactConfigs.validateTree(Matchers.<PipelineConfigSaveValidationContext>any())).thenReturn(true);
-        when(tabs.validateTree(Matchers.<PipelineConfigSaveValidationContext>any())).thenReturn(true);
-        when(variables.validateTree(Matchers.<PipelineConfigSaveValidationContext>any())).thenReturn(true);
+        when(tasks.validateTree(any(PipelineConfigSaveValidationContext.class))).thenReturn(true);
+        when(resourceConfigs.validateTree(any(PipelineConfigSaveValidationContext.class))).thenReturn(true);
+        when(properties.validateTree(any(PipelineConfigSaveValidationContext.class))).thenReturn(true);
+        when(artifactConfigs.validateTree(any(PipelineConfigSaveValidationContext.class))).thenReturn(true);
+        when(tabs.validateTree(any(PipelineConfigSaveValidationContext.class))).thenReturn(true);
+        when(variables.validateTree(any(PipelineConfigSaveValidationContext.class))).thenReturn(true);
 
         JobConfig jobConfig = new JobConfig(new CaseInsensitiveString("job"), resourceConfigs, artifactConfigs, tasks);
         jobConfig.setTabs(tabs);
@@ -506,12 +505,12 @@ public class JobConfigTest {
         Tasks tasks = mock(Tasks.class);
         Tabs tabs = mock(Tabs.class);
         EnvironmentVariablesConfig variables = mock(EnvironmentVariablesConfig.class);
-        when(tasks.validateTree(Matchers.<PipelineConfigSaveValidationContext>any())).thenReturn(false);
-        when(resourceConfigs.validateTree(Matchers.<PipelineConfigSaveValidationContext>any())).thenReturn(false);
-        when(properties.validateTree(Matchers.<PipelineConfigSaveValidationContext>any())).thenReturn(false);
-        when(artifactConfigs.validateTree(Matchers.<PipelineConfigSaveValidationContext>any())).thenReturn(false);
-        when(tabs.validateTree(Matchers.<PipelineConfigSaveValidationContext>any())).thenReturn(false);
-        when(variables.validateTree(Matchers.<PipelineConfigSaveValidationContext>any())).thenReturn(false);
+        when(tasks.validateTree(any(PipelineConfigSaveValidationContext.class))).thenReturn(false);
+        when(resourceConfigs.validateTree(any(PipelineConfigSaveValidationContext.class))).thenReturn(false);
+        when(properties.validateTree(any(PipelineConfigSaveValidationContext.class))).thenReturn(false);
+        when(artifactConfigs.validateTree(any(PipelineConfigSaveValidationContext.class))).thenReturn(false);
+        when(tabs.validateTree(any(PipelineConfigSaveValidationContext.class))).thenReturn(false);
+        when(variables.validateTree(any(PipelineConfigSaveValidationContext.class))).thenReturn(false);
 
         JobConfig jobConfig = new JobConfig(new CaseInsensitiveString("job"), resourceConfigs, artifactConfigs, tasks);
         jobConfig.setTabs(tabs);

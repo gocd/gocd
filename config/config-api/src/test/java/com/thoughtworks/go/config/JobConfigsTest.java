@@ -19,7 +19,6 @@ package com.thoughtworks.go.config;
 import com.thoughtworks.go.helper.PipelineConfigMother;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.ArgumentMatchers;
 
 import static com.thoughtworks.go.util.DataStructureUtils.a;
 import static com.thoughtworks.go.util.DataStructureUtils.m;
@@ -93,28 +92,26 @@ public class JobConfigsTest {
     @Test
     public void shouldReturnTrueIfAllDescendentsAreValid(){
         JobConfig jobConfig = mock(JobConfig.class);
-        when(jobConfig.validateTree(Matchers.<PipelineConfigSaveValidationContext>any())).thenReturn(true);
+        when(jobConfig.validateTree(any(PipelineConfigSaveValidationContext.class))).thenReturn(true);
         JobConfigs jobConfigs = new JobConfigs(jobConfig);
 
         boolean isValid = jobConfigs.validateTree(PipelineConfigSaveValidationContext.forChain(true, "group", new PipelineConfig()));
         assertTrue(isValid);
 
-        verify(jobConfig).validateTree(Matchers.<PipelineConfigSaveValidationContext>any());
+        verify(jobConfig).validateTree(any(PipelineConfigSaveValidationContext.class));
     }
 
     @Test
     public void shouldReturnFalseIfAnyDescendentIsInvalid(){
         JobConfig jobConfig = mock(JobConfig.class);
-        when(jobConfig.validateTree(Matchers.<PipelineConfigSaveValidationContext>any())).thenReturn(false);
+        when(jobConfig.validateTree(any(PipelineConfigSaveValidationContext.class))).thenReturn(false);
         JobConfigs jobConfigs = new JobConfigs(jobConfig);
 
         boolean isValid = jobConfigs.validateTree(PipelineConfigSaveValidationContext.forChain(true, "group", new PipelineConfig()));
         assertFalse(isValid);
 
-        verify(jobConfig).validateTree(Matchers.<PipelineConfigSaveValidationContext>any());
+        verify(jobConfig).validateTree(any(PipelineConfigSaveValidationContext.class));
     }
-
-
 
     @Test
     public void shouldClearExistingJobsWhenNullGivenAsAttributeMap() throws Exception{

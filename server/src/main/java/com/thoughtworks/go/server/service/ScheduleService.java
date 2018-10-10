@@ -27,6 +27,7 @@ import com.thoughtworks.go.server.dao.JobInstanceDao;
 import com.thoughtworks.go.server.dao.PipelineDao;
 import com.thoughtworks.go.server.dao.StageDao;
 import com.thoughtworks.go.server.domain.AgentInstances;
+import com.thoughtworks.go.server.domain.StageIdentity;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.newsecurity.utils.SessionUtils;
 import com.thoughtworks.go.server.perf.SchedulingPerformanceLogger;
@@ -52,8 +53,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.thoughtworks.go.domain.StageState.*;
 import static com.thoughtworks.go.util.GoConstants.DEFAULT_APPROVED_BY;
 
 @Service
@@ -310,7 +313,7 @@ public class ScheduleService {
 
             Stage stage = internalRerun(pipeline, stageName, username, creator, errorHandler);
             if (stage == null) {
-                errorHandler.nullStage();
+                errorHandler.nullStage(stageName);
             }
 
             return stage;
@@ -322,9 +325,11 @@ public class ScheduleService {
      */
     public Stage rerunJobs(final Stage stage, final List<String> jobNames, final OperationResult result) {
         final StageIdentifier identifier = stage.getIdentifier();
+        HealthStateType healthStateForStage = HealthStateType.general(HealthStateScope.forStage(identifier.getPipelineName(), identifier.getStageName()));
+
         if (jobNames == null || jobNames.isEmpty()) {
             String message = "No job was selected to re-run.";
-            result.badRequest(message, message, HealthStateType.general(HealthStateScope.forStage(identifier.getPipelineName(), identifier.getStageName())));
+            result.badRequest(message, message, healthStateForStage);
             return null;
         }
         try {
@@ -334,7 +339,7 @@ public class ScheduleService {
                 try {
                     return instanceFactory.createStageForRerunOfJobs(stage, jobNames, context, stageConfig, timeProvider, latestMd5);
                 } catch (CannotRerunJobException e) {
-                    result.notFound(e.getMessage(), e.getMessage(), HealthStateType.general(HealthStateScope.forStage(identifier.getPipelineName(), identifier.getStageName())));
+                    result.notFound(e.getMessage(), e.getMessage(), healthStateForStage);
                     throw e;
                 }
             }, new ResultUpdatingErrorHandler(result));
@@ -342,9 +347,8 @@ public class ScheduleService {
             if (result.canContinue()) {
                 String message = String.format("Job rerun request for job(s) [%s] could not be completed because of unexpected failure. Cause: %s", StringUtils.join(jobNames.toArray(), ", "),
                         e.getMessage());
+                result.internalServerError(message, healthStateForStage);//make this 500 while moving this to LocalizedOR.
                 LOGGER.error(message, e);
-                result.badRequest(message, message,
-                        HealthStateType.general(HealthStateScope.forStage(identifier.getPipelineName(), identifier.getStageName())));//make this 500 while moving this to LocalizedOR.
             }
             return null;
         }
@@ -361,6 +365,7 @@ public class ScheduleService {
         if (jobNames.isEmpty()) {
             String message = "There are no failed jobs in the stage that could be re-run";
             result.badRequest(message, message, HealthStateType.general(HealthStateScope.forStage(identifier.getPipelineName(), identifier.getStageName())));
+            return null;
         }
         return rerunJobs(stage, jobNames, result);
     }
@@ -728,6 +733,41 @@ public class ScheduleService {
         }
     }
 
+    /**
+     * IMPORTANT: this method is only meant for TOP level usage(never use this within a transaction). It gobbles exception.
+     */
+    public void rerunFailedJobs(String pipelineName, String counterOrLabel, String stageName, HttpOperationResult result) {
+        Pipeline pipeline = pipelineService.fullPipelineByCounterOrLabel(pipelineName, counterOrLabel);
+        if (pipelineDoesNotExist(pipelineName, counterOrLabel, result, pipeline)) return;
+
+        Stage stage = pipeline.findStage(stageName);
+        if (stageDoesNotExist(pipelineName, counterOrLabel, stageName, result, stage)) return;
+
+        rerunFailedJobs(stage, result);
+    }
+
+    public void rerunSelectedJobs(String pipelineName, String counterOrLabel, String stageName, List<String> requestedJobs, HttpOperationResult result) {
+        Pipeline pipeline = pipelineService.fullPipelineByCounterOrLabel(pipelineName, counterOrLabel);
+        if (pipelineDoesNotExist(pipelineName, counterOrLabel, result, pipeline)) return;
+
+        Stage stage = pipeline.findStage(stageName);
+        if (stageDoesNotExist(pipelineName, counterOrLabel, stageName, result, stage)) return;
+
+        List<String> jobsToTrigger = stage.getJobInstances()
+                .stream()
+                .map(JobInstance::getName)
+                .filter(jobName -> requestedJobs.contains(jobName))
+                .collect(Collectors.toList());
+
+        if (jobsToTrigger.size() != requestedJobs.size()) {
+            String msg = String.format("One or more requested jobs dont exist in stage '%s/%s/%s'", pipelineName, counterOrLabel, stageName);
+            LOGGER.error(msg);
+            result.notFound(msg, "", HealthStateType.general(HealthStateScope.forStage(pipelineName, stageName)));
+            return;
+        }
+
+        rerunJobs(stage, jobsToTrigger, result);
+    }
 
     public interface StageInstanceCreator {
         Stage create(final String pipelineName, final String stageName, final SchedulingContext context);
@@ -747,7 +787,7 @@ public class ScheduleService {
     }
 
     public interface ErrorConditionHandler {
-        void nullStage();
+        void nullStage(String stageName);
 
         void cantSchedule(String description, String pipelineName, String stageName);
 
@@ -761,8 +801,8 @@ public class ScheduleService {
     }
 
     public static class ExceptioningErrorHandler implements ErrorConditionHandler {
-        public void nullStage() {
-            throw new RuntimeException();
+        public void nullStage(String stageName) {
+            throw new RuntimeException(String.format("Stage [%s] not found", stageName));
         }
 
         public void cantSchedule(String description, String pipelineName, String stageName) {
@@ -831,5 +871,25 @@ public class ScheduleService {
             result.conflict(e.getMessage(), e.getMessage(), stageScopedHealthState(pipelineName, e.getStageName()));
             super.cantSchedule(e, pipelineName);
         }
+    }
+
+    private boolean stageDoesNotExist(String pipelineName, String counterOrLabel, String stageName, HttpOperationResult result, Stage stage) {
+        if (stage.getState() == Unknown) {
+            String msg = String.format("Stage '%s/%s/%s' not found.", pipelineName, counterOrLabel, stageName);
+            LOGGER.error(msg);
+            result.notFound(msg, "", HealthStateType.general(HealthStateScope.forStage(pipelineName, stageName)));
+            return true;
+        }
+        return false;
+    }
+
+    private boolean pipelineDoesNotExist(String pipelineName, String counterOrLabel, HttpOperationResult result, Pipeline pipeline) {
+        if (pipeline == null) {
+            String msg = String.format("Pipeline '%s/%s' not found", pipelineName, counterOrLabel);
+            LOGGER.error(msg);
+            result.notFound(msg, "", HealthStateType.general(HealthStateScope.forPipeline(pipelineName)));
+            return true;
+        }
+        return false;
     }
 }

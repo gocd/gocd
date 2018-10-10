@@ -18,8 +18,11 @@ package com.thoughtworks.go.apiv1.stageoperations;
 
 import com.thoughtworks.go.api.ApiController;
 import com.thoughtworks.go.api.ApiVersion;
+import com.thoughtworks.go.api.representers.JsonReader;
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
 import com.thoughtworks.go.server.service.PipelineService;
+import com.thoughtworks.go.api.util.GsonTransformer;
+import com.thoughtworks.go.api.util.HaltApiResponses;
 import com.thoughtworks.go.server.service.ScheduleService;
 import com.thoughtworks.go.server.service.result.HttpOperationResult;
 import com.thoughtworks.go.spark.Routes;
@@ -33,14 +36,15 @@ import spark.Response;
 
 import java.io.IOException;
 import java.util.Optional;
+import java.util.List;
 
 import static com.thoughtworks.go.api.util.HaltApiResponses.haltBecauseOfReason;
 import static spark.Spark.*;
 
 @Component
 public class StageOperationsControllerV1 extends ApiController implements SparkSpringController {
-
     private static final Logger LOGGER = LoggerFactory.getLogger(StageOperationsControllerV1.class);
+    private final static String JOB_NAMES_PROPERTY = "jobs";
 
     private final ScheduleService scheduleService;
     private final ApiAuthenticationHelper apiAuthenticationHelper;
@@ -68,13 +72,47 @@ public class StageOperationsControllerV1 extends ApiController implements SparkS
             before("", this::verifyContentType);
             before("/*", this::verifyContentType);
 
-            before(Routes.Stage.TRIGGER_PATH, mimeType, apiAuthenticationHelper::checkPipelineGroupOperateUserAnd403);
+            before(Routes.Stage.TRIGGER_STAGE_PATH, mimeType, apiAuthenticationHelper::checkPipelineGroupOperateUserAnd403);
+            before(Routes.Stage.TRIGGER_FAILED_JOBS_PATH, mimeType, apiAuthenticationHelper::checkPipelineGroupOperateUserAnd403);
+            before(Routes.Stage.TRIGGER_SELECTED_JOBS_PATH, mimeType, apiAuthenticationHelper::checkPipelineGroupOperateUserAnd403);
+            before(Routes.Stage.TRIGGER_SELECTED_JOBS_PATH, mimeType, (req, res) -> {
+                JsonReader requestBody = GsonTransformer.getInstance().jsonReaderFrom(req.body());
+                if (!requestBody.hasJsonObject(JOB_NAMES_PROPERTY)) {
+                    throw HaltApiResponses.haltBecauseOfReason(String.format("Could not read property '%s' in request body", JOB_NAMES_PROPERTY));
+                }
+                requestBody.readStringArrayIfPresent(JOB_NAMES_PROPERTY);
+            });
 
-            post(Routes.Stage.TRIGGER_PATH, mimeType, this::run);
+            post(Routes.Stage.TRIGGER_STAGE_PATH, mimeType, this::triggerStage);
+            post(Routes.Stage.TRIGGER_FAILED_JOBS_PATH, mimeType, this::rerunFailedJobs);
+            post(Routes.Stage.TRIGGER_SELECTED_JOBS_PATH, mimeType, this::rerunSelectedJobs);
         });
     }
 
-    public String run(Request req, Response res) throws IOException {
+    public String rerunSelectedJobs(Request req, Response res) throws IOException {
+        String pipelineName = req.params("pipeline_name");
+        String pipelineCounter = req.params("pipeline_counter");
+        String stageName = req.params("stage_name");
+        HttpOperationResult result = new HttpOperationResult();
+
+        JsonReader requestBody = GsonTransformer.getInstance().jsonReaderFrom(req.body());
+        List<String> requestedJobs = requestBody.readStringArrayIfPresent(JOB_NAMES_PROPERTY).get();
+
+        scheduleService.rerunSelectedJobs(pipelineName, pipelineCounter, stageName, requestedJobs, result);
+        return renderHTTPOperationResult(result, req, res);
+    }
+
+    public String rerunFailedJobs(Request req, Response res) throws IOException {
+        String pipelineName = req.params("pipeline_name");
+        String pipelineCounter = req.params("pipeline_counter");
+        String stageName = req.params("stage_name");
+        HttpOperationResult result = new HttpOperationResult();
+
+        scheduleService.rerunFailedJobs(pipelineName, pipelineCounter, stageName, result);
+        return renderHTTPOperationResult(result, req, res);
+    }
+
+    public String triggerStage(Request req, Response res) throws IOException {
         String pipelineName = req.params("pipeline_name");
         String pipelineCounter = req.params("pipeline_counter");
         String stageName = req.params("stage_name");

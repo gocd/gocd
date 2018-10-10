@@ -146,7 +146,7 @@ public class JobRerunScheduleServiceTest {
             Stage stage = service.rerunJobs(firstStage, a("unit"), result);
             assertThat(logFixture.contains(Level.ERROR, "Job rerun request for job(s) [unit] could not be completed because of unexpected failure. Cause: The whole world is a big null."), is(true));
             assertThat(stage, is(nullValue()));
-            assertThat(result.httpCode(), is(400));
+            assertThat(result.httpCode(), is(500));
             assertThat(result.message(), is("Job rerun request for job(s) [unit] could not be completed because of unexpected failure. Cause: The whole world is a big null."));
         }
 

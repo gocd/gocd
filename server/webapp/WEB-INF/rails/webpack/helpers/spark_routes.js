@@ -88,5 +88,9 @@ module.exports = {
 
   DataReportingCompleteReportingPath: () => {
     return '/go/api/internal/data_sharing/reporting/complete';
+  },
+
+  configRepoLastParsedResultPath: (id) => {
+    return `/go/api/internal/config_repos/${id}/last_parsed_result`;
   }
 };

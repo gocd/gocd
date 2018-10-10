@@ -20,6 +20,7 @@ const Materials   = require("models/config_repos/materials");
 const Validatable = require("models/mixins/validatable_mixin");
 const ApiHelper   = require("helpers/api_helper");
 const Routes      = require("gen/js-routes");
+const SparkRoutes = require('helpers/spark_routes');
 
 function ConfigRepoVM(data) {
   this.id = Stream();
@@ -76,6 +77,12 @@ function ConfigRepoVM(data) {
     url: Routes.apiv1AdminInternalMaterialTestPath(),
     apiVersion: "v1",
     payload: this.toJSON().material
+  });
+
+
+  this.getRevision = () => ApiHelper.GET({
+    url: SparkRoutes.configRepoLastParsedResultPath(this.id),
+    apiVersion: "v1"
   });
 }
 

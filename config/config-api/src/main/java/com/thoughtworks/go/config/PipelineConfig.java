@@ -70,8 +70,6 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
     public static final String ENVIRONMENT_VARIABLES = "variables";
     public static final String PARAMS = "params";
 
-    private static final Pattern TRUNCATION_PATTERN = Pattern.compile("");
-
     public static final String TEMPLATE_NAME = "templateName";
 
     public static final String LOCK_BEHAVIOR = "lockBehavior";
@@ -135,6 +133,7 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
     public static final String INTEGRATION_TYPE_TRACKING_TOOL = "trackingTool";
     public static final String MATERIALS = "materials";
     public static final String STAGE = "stage";
+    public static final Pattern LABEL_TEMPLATE_TOKEN_PATTERN = Pattern.compile("(?<groupName>[^\\[]*)(\\[:(?<truncationLength>\\d+)\\])?$");
 
     public PipelineConfig() {
     }
@@ -269,7 +268,6 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
                 break;
             }
         }
-
     }
 
     private boolean isValidToken(String token) {
@@ -286,9 +284,8 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
             return true;
         }
 
-        Pattern truncationSpecPattern = Pattern.compile("(?<groupName>[^\\[]*)(\\[:(?<truncationLength>\\d+)\\])?$");
+        Matcher matcher = LABEL_TEMPLATE_TOKEN_PATTERN.matcher(token);
 
-        Matcher matcher = truncationSpecPattern.matcher(token);
         if (matcher.matches()) {
             String materialName = matcher.group("groupName");
             String truncationLength = matcher.group("truncationLength");
@@ -600,7 +597,6 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
         return result;
     }
 
-
     public TimerConfig getTimer() {
         return timer;
     }
@@ -788,7 +784,6 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
         return params;
     }
 
-
     public void setConfigAttributes(Object attributes) {
         setConfigAttributes(attributes, null);
     }
@@ -900,7 +895,6 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
         }
         return CONFIGURATION_TYPE_STAGES;
     }
-
 
     public void incrementIndex(StageConfig stageToBeMoved) {
         moveStage(stageToBeMoved, 1);

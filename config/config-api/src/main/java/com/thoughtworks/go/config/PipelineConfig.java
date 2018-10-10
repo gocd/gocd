@@ -257,38 +257,38 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
             return;
         }
 
-        String[] allVariableThingies = substringsBetween(labelTemplate, "${", "}");
+        String[] allTokens = substringsBetween(labelTemplate, "${", "}");
 
-        if (allVariableThingies == null) {
+        if (allTokens == null) {
             addError("labelTemplate", String.format(LABEL_TEMPLATE_ERROR_MESSAGE, labelTemplate));
             return;
         }
 
-        for (String variableThingy : allVariableThingies) {
-            if (!isGood(variableThingy)) {
+        for (String token : allTokens) {
+            if (!isValidToken(token)) {
                 break;
             }
         }
 
     }
 
-    private boolean isGood(String thingInParens) {
-        if (thingInParens.equalsIgnoreCase(COUNT)) {
+    private boolean isValidToken(String token) {
+        if (token.equalsIgnoreCase(COUNT)) {
             return true;
         }
 
-        if (thingInParens.equals(ENV_VAR_PREFIX)) {
+        if (token.equals(ENV_VAR_PREFIX)) {
             addError("labelTemplate", "Missing environment variable name.");
             return false;
         }
 
-        if (thingInParens.startsWith(ENV_VAR_PREFIX)) {
+        if (token.startsWith(ENV_VAR_PREFIX)) {
             return true;
         }
 
         Pattern truncationSpecPattern = Pattern.compile("(?<groupName>[^\\[]*)(\\[:(?<truncationLength>\\d+)\\])?$");
 
-        Matcher matcher = truncationSpecPattern.matcher(thingInParens);
+        Matcher matcher = truncationSpecPattern.matcher(token);
         if (matcher.matches()) {
             String materialName = matcher.group("groupName");
             String truncationLength = matcher.group("truncationLength");

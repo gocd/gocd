@@ -73,40 +73,44 @@ class PipelineConfigRepresenterTest {
     }
 
     def pipelineWithTemplateHash =
-    [
-      _links: [
-        self: [
-          href: 'http://test.host/go/api/admin/pipelines/wunderbar'
-        ],
-        doc: [
-          href: 'https://api.gocd.org/#pipeline-config'
-        ],
-        find: [
-          href: 'http://test.host/go/api/admin/pipelines/:pipeline_name'
-        ]
-      ],
-      label_template: '${COUNT}',
-      lock_behavior: 'none',
-      name: 'wunderbar',
-      template: 'template1',
-      origin: [
-        _links: [
+      [
+        _links               : [
           self: [
-            href: 'http://test.host/go/admin/config_xml'
+            href: 'http://test.host/go/api/admin/pipelines/wunderbar'
           ],
-          doc: [
-            href: 'https://api.gocd.org/current/#get-configuration'
+          doc : [
+            href: 'https://api.gocd.org/#pipeline-config'
+          ],
+          find: [
+            href: 'http://test.host/go/api/admin/pipelines/:pipeline_name'
           ]
         ],
-        type: 'gocd'
-      ],
-      parameters: [],
-      environment_variables: [],
-      materials: pipelineWithTemplate().materialConfigs().collect { eachItem -> toObject({MaterialRepresenter.toJSON(it, eachItem)}) },
-      stages: null,
-      tracking_tool: null,
-      timer: null
-    ]
+        label_template       : '${COUNT}',
+        lock_behavior        : 'none',
+        name                 : 'wunderbar',
+        template             : 'template1',
+        origin               : [
+          _links: [
+            self: [
+              href: 'http://test.host/go/admin/config_xml'
+            ],
+            doc : [
+              href: 'https://api.gocd.org/current/#get-configuration'
+            ]
+          ],
+          type  : 'gocd'
+        ],
+        parameters           : [],
+        environment_variables: [],
+        materials            : pipelineWithTemplate().materialConfigs().collect { eachItem ->
+          toObject({
+            MaterialRepresenter.toJSON(it, eachItem)
+          })
+        },
+        stages               : null,
+        tracking_tool        : null,
+        timer                : null
+      ]
 
     static def pipelineWithTemplate() {
       def pipelineConfig = new PipelineConfig(new CaseInsensitiveString('wunderbar'), '${COUNT}', null, true, MaterialConfigsMother.defaultMaterialConfigs(), new ArrayList())
@@ -120,7 +124,7 @@ class PipelineConfigRepresenterTest {
   class Deserialize {
 
     @Test
-    void 'should convert from minimal json to PipelineConfig' () {
+    void 'should convert from minimal json to PipelineConfig'() {
       def jsonReader = GsonTransformer.instance.jsonReaderFrom(pipelineHashBasic)
       def map = new ConfigHelperOptions(mock(BasicCruiseConfig.class), passwordDeserializer)
       def pipelineConfig = PipelineConfigRepresenter.fromJSON(jsonReader, map)
@@ -131,38 +135,39 @@ class PipelineConfigRepresenterTest {
     }
 
     def pipelineHashBasic =
-    [
-      label_template: 'foo-1.0.${COUNT}-${svn}',
-      lock_behavior: 'none',
-      name: 'wunderbar',
-      materials: [
-        [
-          type: 'svn',
-          attributes: [
-            url: 'http://some/svn/url',
-            destination: 'svnDir',
-            check_externals: false
-          ],
-          name: 'http___some_svn_url',
-          auto_update: true
-        ]
-      ],
-      stages: [
-        [
-          name: 'stage1',
-          fetch_materials: true,
-          clean_working_directory: false,
-          never_cleanup_artifacts: false,
-          jobs: [
-            [
-              name: 'defaultJob',
-              tasks: [
-                [
-                  type: 'ant',
-                  attributes: [
-                    working_dir: 'working-directory',
-                    build_file: 'build-file',
-                    target: 'target'
+      [
+        label_template: 'foo-1.0.${COUNT}-${svn}',
+        lock_behavior : 'none',
+        name          : 'wunderbar',
+        materials     : [
+          [
+            type       : 'svn',
+            attributes : [
+              url            : 'http://some/svn/url',
+              destination    : 'svnDir',
+              check_externals: false
+            ],
+            name       : 'http___some_svn_url',
+            auto_update: true
+          ]
+        ],
+        stages        : [
+          [
+            name                   : 'stage1',
+            fetch_materials        : true,
+            clean_working_directory: false,
+            never_cleanup_artifacts: false,
+            jobs                   : [
+              [
+                name : 'defaultJob',
+                tasks: [
+                  [
+                    type      : 'ant',
+                    attributes: [
+                      working_dir: 'working-directory',
+                      build_file : 'build-file',
+                      target     : 'target'
+                    ]
                   ]
                 ]
               ]
@@ -170,20 +175,19 @@ class PipelineConfigRepresenterTest {
           ]
         ]
       ]
-    ]
 
     @Test
-    void 'should convert pipeline hash with environment variables to PipelineConfig' () {
+    void 'should convert pipeline hash with environment variables to PipelineConfig'() {
 
       def environmentVariables = [
         [
-          name: 'plain',
-          value: 'plain',
+          name  : 'plain',
+          value : 'plain',
           secure: false
         ],
         [
-          secure: true,
-          name: 'secure',
+          secure         : true,
+          name           : 'secure',
           encrypted_value: new GoCipher().encrypt('confidential')
         ]
       ]
@@ -198,7 +202,7 @@ class PipelineConfigRepresenterTest {
     }
 
     @Test
-    void 'should convert pipeline hash with empty environment variables to PipelineConfig' () {
+    void 'should convert pipeline hash with empty environment variables to PipelineConfig'() {
       def jsonReader = GsonTransformer.instance.jsonReaderFrom([
         environment_variables: []
       ])
@@ -208,7 +212,7 @@ class PipelineConfigRepresenterTest {
     }
 
     @Test
-    void 'should convert pipeline hash with parameters to PipelineConfig' () {
+    void 'should convert pipeline hash with parameters to PipelineConfig'() {
       def jsonReader = GsonTransformer.instance.jsonReaderFrom([
         parameters:
           [[
@@ -226,7 +230,7 @@ class PipelineConfigRepresenterTest {
     }
 
     @Test
-    void 'should convert pipeline hash with empty parmas to PipelineConfig' () {
+    void 'should convert pipeline hash with empty parmas to PipelineConfig'() {
       def jsonReader = GsonTransformer.instance.jsonReaderFrom([
         parameters: null
       ])
@@ -236,7 +240,7 @@ class PipelineConfigRepresenterTest {
     }
 
     @Test
-    void  'should convert pipeline hash with materials  to PipelineConfig' () {
+    void 'should convert pipeline hash with materials  to PipelineConfig'() {
       def jsonReader = GsonTransformer.instance.jsonReaderFrom([
         materials:
           [
@@ -286,7 +290,7 @@ class PipelineConfigRepresenterTest {
     }
 
     @Test
-    void  'should convert pipeline hash with empty materials  to PipelineConfig' () {
+    void 'should convert pipeline hash with empty materials  to PipelineConfig'() {
       def jsonReader = GsonTransformer.instance.jsonReaderFrom([
         materials: null
       ])
@@ -296,15 +300,15 @@ class PipelineConfigRepresenterTest {
     }
 
     @Test
-    void  'should raise exception when passing invalid material type' () {
+    void 'should raise exception when passing invalid material type'() {
       def hash = pipelineHashBasic
-      hash ['materials'] = [[
-                               type: 'bad-material-type',
-                               attributes:
+      hash['materials'] = [[
+                             type      : 'bad-material-type',
+                             attributes:
                                [
                                  foo: 'bar'
                                ]
-                             ]]
+                           ]]
       def jsonReader = GsonTransformer.instance.jsonReaderFrom(hash)
 
 
@@ -315,44 +319,44 @@ class PipelineConfigRepresenterTest {
     }
 
     @Test
-    void  'should convert pipeline hash with stages  to PipelineConfig' () {
+    void 'should convert pipeline hash with stages  to PipelineConfig'() {
       def stages = [[
-                  name: 'stage1',
-                  fetch_materials: true,
-                  clean_working_directory: false,
-                  never_cleanup_artifacts: false,
-                  approval:
-                  [
-                    type: 'success',
-                    authorization:
-                    [
-                      roles:
-                      [],
-                      users:
-                      []
-                    ]
-                  ],
-                  environment_variables:
-                  [
-                    [
-                      name: 'plain',
-                      value: 'plain',
-                      secure: false
-                    ],
-                    [
-                      secure: true,
-                      name: 'secure',
-                      encrypted_value: new GoCipher().encrypt('confidential')
-                    ]
-                  ],
-                  jobs:
-                  [[
-                     name: 'some-job',
-                     run_on_all_agents: true,
-                     run_instance_count: '3',
-                     timeout: '100',
-                   ]]
-                ]]
+                      name                   : 'stage1',
+                      fetch_materials        : true,
+                      clean_working_directory: false,
+                      never_cleanup_artifacts: false,
+                      approval               :
+                        [
+                          type         : 'success',
+                          authorization:
+                            [
+                              roles:
+                                [],
+                              users:
+                                []
+                            ]
+                        ],
+                      environment_variables  :
+                        [
+                          [
+                            name  : 'plain',
+                            value : 'plain',
+                            secure: false
+                          ],
+                          [
+                            secure         : true,
+                            name           : 'secure',
+                            encrypted_value: new GoCipher().encrypt('confidential')
+                          ]
+                        ],
+                      jobs                   :
+                        [[
+                           name              : 'some-job',
+                           run_on_all_agents : true,
+                           run_instance_count: '3',
+                           timeout           : '100',
+                         ]]
+                    ]]
 
       def jsonReader = GsonTransformer.instance.jsonReaderFrom([
         stages: stages
@@ -366,7 +370,7 @@ class PipelineConfigRepresenterTest {
     }
 
     @Test
-    void  'should convert pipeline hash with empty stages  to PipelineConfig' () {
+    void 'should convert pipeline hash with empty stages  to PipelineConfig'() {
       def jsonReader = GsonTransformer.instance.jsonReaderFrom([
         stages: null
       ])
@@ -376,7 +380,7 @@ class PipelineConfigRepresenterTest {
     }
 
     @Test
-    void  'should convert pipeline hash with tracking tool  to PipelineConfig' () {
+    void 'should convert pipeline hash with tracking tool  to PipelineConfig'() {
       def jsonReader = GsonTransformer.instance.jsonReaderFrom([
         tracking_tool:
           [
@@ -394,24 +398,26 @@ class PipelineConfigRepresenterTest {
     }
 
     @Test
-    void  'should raise exception when passing invalid tracking tool type' () {
+    void 'should raise exception when passing invalid tracking tool type'() {
       def jsonReader = GsonTransformer.instance.jsonReaderFrom([
         tracking_tool:
-        [
-          type: 'bad-tracking-tool',
-          attributes:
           [
-            link: 'link',
-            regex: 'regex'
+            type      : 'bad-tracking-tool',
+            attributes:
+              [
+                link : 'link',
+                regex: 'regex'
+              ]
           ]
-        ]
       ])
-      def exception = assertThrows(UnprocessableEntityException.class,{ PipelineConfigRepresenter.fromJSON(jsonReader, new ConfigHelperOptions(mock(BasicCruiseConfig.class), passwordDeserializer)) })
-      assertEquals("Invalid Tracking tool type 'bad-tracking-tool'. It has to be one of 'generic, mingle'." , exception.getMessage())
+      def exception = assertThrows(UnprocessableEntityException.class, {
+        PipelineConfigRepresenter.fromJSON(jsonReader, new ConfigHelperOptions(mock(BasicCruiseConfig.class), passwordDeserializer))
+      })
+      assertEquals("Invalid Tracking tool type 'bad-tracking-tool'. It has to be one of 'generic, mingle'.", exception.getMessage())
     }
 
     @Test
-    void  'should convert from full blown document to PipelineConfig' () {
+    void 'should convert from full blown document to PipelineConfig'() {
       def jsonReader = GsonTransformer.instance.jsonReaderFrom(pipelineHash)
       def map = new ConfigHelperOptions(mock(BasicCruiseConfig.class), passwordDeserializer)
       def pipelineConfig = PipelineConfigRepresenter.fromJSON(jsonReader, map)
@@ -420,7 +426,7 @@ class PipelineConfigRepresenterTest {
     }
 
     @Test
-    void  'should convert pipeline hash with timer  to PipelineConfig' () {
+    void 'should convert pipeline hash with timer  to PipelineConfig'() {
       def jsonReader = GsonTransformer.instance.jsonReaderFrom([
         timer:
           [
@@ -434,7 +440,7 @@ class PipelineConfigRepresenterTest {
     }
 
     @Test
-    void  'should convert pipeline hash with lock to PipelineConfig' () {
+    void 'should convert pipeline hash with lock to PipelineConfig'() {
       def jsonReader = GsonTransformer.instance.jsonReaderFrom([
         lock_behavior: PipelineConfig.LOCK_VALUE_LOCK_ON_FAILURE
       ])
@@ -443,7 +449,7 @@ class PipelineConfigRepresenterTest {
     }
 
     @Test
-    void  'should convert a pipeline config with a lock to a hash' () {
+    void 'should convert a pipeline config with a lock to a hash'() {
       def pipelineConfig = new PipelineConfig(new CaseInsensitiveString('wunderbar'), '${COUNT}', null, true, MaterialConfigsMother.defaultMaterialConfigs(), new ArrayList())
       pipelineConfig.setLockBehaviorIfNecessary(PipelineConfig.LOCK_VALUE_UNLOCK_WHEN_FINISHED)
       pipelineConfig.setOrigin(new FileConfigOrigin())
@@ -454,7 +460,7 @@ class PipelineConfigRepresenterTest {
 
 
     @Test
-    void  'should render errors' () {
+    void 'should render errors'() {
       def pipelineConfig = new PipelineConfig(new CaseInsensitiveString('wunderbar'), '', '', true, null, new ArrayList())
       pipelineConfig.setOrigin(new FileConfigOrigin())
       def config = new BasicCruiseConfig(new BasicPipelineConfigs('grp', new Authorization(), pipelineConfig))
@@ -466,7 +472,7 @@ class PipelineConfigRepresenterTest {
     }
 
     @Test
-    void  'should render errors on nested objects' () {
+    void 'should render errors on nested objects'() {
       def pipelineConfig = getInvalidPipelineConfig()
       def config = new BasicCruiseConfig(new BasicPipelineConfigs('grp', new Authorization(), getPipelineConfig()))
       pipelineConfig.validateTree(PipelineConfigSaveValidationContext.forChain(true, 'grp', config, pipelineConfig))
@@ -478,109 +484,109 @@ class PipelineConfigRepresenterTest {
   }
 
   def expectedHashWithErrors =
-  [
-    _links: [
-      self: [
-        href: 'http://test.host/go/api/admin/pipelines/wunderbar'
-      ],
-      doc: [
-        href: 'https://api.gocd.org/#pipeline-config'
-      ],
-      find: [
-        href: 'http://test.host/go/api/admin/pipelines/:pipeline_name'
-      ]
-    ],
-    label_template: '',
-    lock_behavior: 'none',
-    name: 'wunderbar',
-    template: null,
-    origin: [
-      _links: [
+    [
+      _links               : [
         self: [
-          href: 'http://test.host/go/admin/config_xml'
+          href: 'http://test.host/go/api/admin/pipelines/wunderbar'
         ],
-        doc: [
-          href: 'https://api.gocd.org/current/#get-configuration'
+        doc : [
+          href: 'https://api.gocd.org/#pipeline-config'
+        ],
+        find: [
+          href: 'http://test.host/go/api/admin/pipelines/:pipeline_name'
         ]
       ],
-      type: 'gocd'
-    ],
-    parameters: [],
-    environment_variables: [],
-    materials: [],
-    stages: null,
-    tracking_tool: null,
-    timer: [spec: '', only_on_changes: true, errors: [spec: ['Invalid cron syntax: Unexpected end of expression.']]],
-    errors: [
-      materials: ['A pipeline must have at least one material'],
-      pipeline: ["Pipeline 'wunderbar' does not have any stages configured. A pipeline must have at least one stage."],
-      label_template: ["Label cannot be blank. Label should be composed of alphanumeric text, it can contain the build number as \${COUNT}, can contain a material revision as \${<material-name>} of \${<material-name>[:<number>]}, or use params as #{<param-name>}."]
+      label_template       : '',
+      lock_behavior        : 'none',
+      name                 : 'wunderbar',
+      template             : null,
+      origin               : [
+        _links: [
+          self: [
+            href: 'http://test.host/go/admin/config_xml'
+          ],
+          doc : [
+            href: 'https://api.gocd.org/current/#get-configuration'
+          ]
+        ],
+        type  : 'gocd'
+      ],
+      parameters           : [],
+      environment_variables: [],
+      materials            : [],
+      stages               : null,
+      tracking_tool        : null,
+      timer                : [spec: '', only_on_changes: true, errors: [spec: ['Invalid cron syntax: Unexpected end of expression.']]],
+      errors               : [
+        materials     : ['A pipeline must have at least one material'],
+        pipeline      : ["Pipeline 'wunderbar' does not have any stages configured. A pipeline must have at least one stage."],
+        label_template: ["Label cannot be blank. Label should be composed of alphanumeric text, it can contain the build number as \${COUNT}, can contain a material revision as \${<material-name>} of \${<material-name>[:<number>]}, or use params as #{<param-name>}."]
+      ]
     ]
-  ]
 
   def expectedHashWithNestedErrors =
-  [
-    _links: [
-      self: [
-        href: 'http://test.host/go/api/admin/pipelines/wunderbar'
-      ],
-      doc: [
-        href: 'https://api.gocd.org/#pipeline-config'
-      ],
-      find: [
-        href: 'http://test.host/go/api/admin/pipelines/:pipeline_name'
-      ]
-    ],
-    label_template: 'foo-1.0.${COUNT}-${svn}',
-    lock_behavior: 'none',
-    name: 'wunderbar',
-    origin: [
-      _links: [
+    [
+      _links               : [
         self: [
-          href: 'http://test.host/go/admin/config_xml'
+          href: 'http://test.host/go/api/admin/pipelines/wunderbar'
         ],
-        doc: [
-          href: 'https://api.gocd.org/current/#get-configuration'
+        doc : [
+          href: 'https://api.gocd.org/#pipeline-config'
+        ],
+        find: [
+          href: 'http://test.host/go/api/admin/pipelines/:pipeline_name'
         ]
       ],
-      type: 'gocd'
-    ],
-    template: null,
-    parameters: [
-      [
-        name: null, value: 'echo',
-        errors: [
-          name: [
-            "Parameter cannot have an empty name for pipeline 'wunderbar'.",
-            "Invalid parameter name 'null'. This must be alphanumeric and can contain underscores and periods (however, it cannot start with a period). The maximum allowed length is 255 characters."
+      label_template       : 'foo-1.0.${COUNT}-${svn}',
+      lock_behavior        : 'none',
+      name                 : 'wunderbar',
+      origin               : [
+        _links: [
+          self: [
+            href: 'http://test.host/go/admin/config_xml'
+          ],
+          doc : [
+            href: 'https://api.gocd.org/current/#get-configuration'
+          ]
+        ],
+        type  : 'gocd'
+      ],
+      template             : null,
+      parameters           : [
+        [
+          name  : null, value: 'echo',
+          errors: [
+            name: [
+              "Parameter cannot have an empty name for pipeline 'wunderbar'.",
+              "Invalid parameter name 'null'. This must be alphanumeric and can contain underscores and periods (however, it cannot start with a period). The maximum allowed length is 255 characters."
+            ]
           ]
         ]
-      ]
-    ],
-    environment_variables: [[secure: false, name:  '', value: '', errors: [name: ["Environment Variable cannot have an empty name for pipeline 'wunderbar'."]]]],
-    materials: [
-      [
-        type: 'svn', attributes: [url: 'http://some/svn/url', destination: 'svnDir', filter: null, invert_filter: false, name: 'http___some_svn_url', auto_update: true, check_externals: false, username: null]
       ],
-      [
-        type: 'git', attributes: [url: null, destination: null, filter: null, invert_filter: false, name: null, auto_update: true, branch: 'master', submodule_folder: null, shallow_clone: false],
-        errors: [destination: ['Destination directory is required when specifying multiple scm materials'], url: ['URL cannot be blank']]
-      ]
-    ],
-    stages: [[name: 'stage1', fetch_materials: true, clean_working_directory: false, never_cleanup_artifacts: false, approval: [type: 'success', authorization: [roles: [], users: []]], environment_variables: [], jobs: []]],
-    timer: [spec: '0 0 22 ? * MON-FRI', only_on_changes: true],
-    tracking_tool: [
-      type: 'generic', attributes: [url_pattern: '', regex: ''],
-      errors: [
-        regex: ['Regex should be populated'],
-        url_pattern: ['Link should be populated', "Link must be a URL containing '\${ID}'. Go will replace the string '\${ID}' with the first matched group from the regex at run-time.", "Link must be a URL starting with https:// or http://"]
+      environment_variables: [[secure: false, name: '', value: '', errors: [name: ["Environment Variable cannot have an empty name for pipeline 'wunderbar'."]]]],
+      materials            : [
+        [
+          type: 'svn', attributes: [url: 'http://some/svn/url', destination: 'svnDir', filter: null, invert_filter: false, name: 'http___some_svn_url', auto_update: true, check_externals: false, username: null]
+        ],
+        [
+          type  : 'git', attributes: [url: null, destination: null, filter: null, invert_filter: false, name: null, auto_update: true, branch: 'master', submodule_folder: null, shallow_clone: false],
+          errors: [destination: ['Destination directory is required when specifying multiple scm materials'], url: ['URL cannot be blank']]
+        ]
+      ],
+      stages               : [[name: 'stage1', fetch_materials: true, clean_working_directory: false, never_cleanup_artifacts: false, approval: [type: 'success', authorization: [roles: [], users: []]], environment_variables: [], jobs: []]],
+      timer                : [spec: '0 0 22 ? * MON-FRI', only_on_changes: true],
+      tracking_tool        : [
+        type  : 'generic', attributes: [url_pattern: '', regex: ''],
+        errors: [
+          regex      : ['Regex should be populated'],
+          url_pattern: ['Link should be populated', "Link must be a URL containing '\${ID}'. Go will replace the string '\${ID}' with the first matched group from the regex at run-time.", "Link must be a URL starting with https:// or http://"]
 
+        ]
+      ],
+      errors               : [
+        label_template: ["You have defined a label template in pipeline 'wunderbar' that refers to a material called 'svn', but no material with this name is defined."]
       ]
-    ],
-    errors: [
-      label_template: ['You have defined a label template in pipeline wunderbar that refers to a material called svn, but no material with this name is defined.']
     ]
-  ]
 
 
   static def getInvalidPipelineConfig() {
@@ -613,39 +619,55 @@ class PipelineConfigRepresenterTest {
   }
 
   def pipelineHash =
-  [
-    _links: [
-      self: [
-        href: 'http://test.host/go/api/admin/pipelines/wunderbar'
-      ],
-      doc: [
-        href: 'https://api.gocd.org/#pipeline-config'
-      ],
-      find: [
-        href: 'http://test.host/go/api/admin/pipelines/:pipeline_name'
-      ]
-    ],
-    label_template: 'foo-1.0.${COUNT}-${svn}',
-    lock_behavior: 'none',
-    name: 'wunderbar',
-    template: null,
-    origin: [
-      _links: [
+    [
+      _links               : [
         self: [
-          href: 'http://test.host/go/admin/config_xml'
+          href: 'http://test.host/go/api/admin/pipelines/wunderbar'
         ],
-        doc: [
-          href: 'https://api.gocd.org/current/#get-configuration'
+        doc : [
+          href: 'https://api.gocd.org/#pipeline-config'
+        ],
+        find: [
+          href: 'http://test.host/go/api/admin/pipelines/:pipeline_name'
         ]
       ],
-      type: 'gocd'
-    ],
-    parameters: getPipelineConfig().getParams().collect { eachItem -> toObject({ParamRepresenter.toJSON(it, eachItem)}) },
-    environment_variables: getPipelineConfig().getVariables().collect { eachItem -> toObject({EnvironmentVariableRepresenter.toJSON(it, eachItem)}) },
-    materials: getPipelineConfig().materialConfigs().collect { eachItem -> toObject({MaterialRepresenter.toJSON(it, eachItem)}) },
-    stages: getPipelineConfig().getStages().collect { eachItem -> toObject({StageRepresenter.toJSON(it, eachItem)}) },
-    tracking_tool: toObject({TrackingToolRepresenter.toJSON(it, getPipelineConfig())}),
-    timer: toObject({TimerRepresenter.toJSON(it, getPipelineConfig().getTimer())})
-  ]
+      label_template       : 'foo-1.0.${COUNT}-${svn}',
+      lock_behavior        : 'none',
+      name                 : 'wunderbar',
+      template             : null,
+      origin               : [
+        _links: [
+          self: [
+            href: 'http://test.host/go/admin/config_xml'
+          ],
+          doc : [
+            href: 'https://api.gocd.org/current/#get-configuration'
+          ]
+        ],
+        type  : 'gocd'
+      ],
+      parameters           : getPipelineConfig().getParams().collect { eachItem ->
+        toObject({
+          ParamRepresenter.toJSON(it, eachItem)
+        })
+      },
+      environment_variables: getPipelineConfig().getVariables().collect { eachItem ->
+        toObject({
+          EnvironmentVariableRepresenter.toJSON(it, eachItem)
+        })
+      },
+      materials            : getPipelineConfig().materialConfigs().collect { eachItem ->
+        toObject({
+          MaterialRepresenter.toJSON(it, eachItem)
+        })
+      },
+      stages               : getPipelineConfig().getStages().collect { eachItem ->
+        toObject({
+          StageRepresenter.toJSON(it, eachItem)
+        })
+      },
+      tracking_tool        : toObject({ TrackingToolRepresenter.toJSON(it, getPipelineConfig()) }),
+      timer                : toObject({ TimerRepresenter.toJSON(it, getPipelineConfig().getTimer()) })
+    ]
 
 }

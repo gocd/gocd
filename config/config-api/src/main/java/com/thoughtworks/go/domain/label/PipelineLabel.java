@@ -29,7 +29,7 @@ public class PipelineLabel implements Serializable {
     protected String label;
     private InsecureEnvironmentVariables envVars;
     public static final String COUNT = "COUNT";
-    private static final String ENV_VAR_PREFIX = "env:";
+    public static final String ENV_VAR_PREFIX = "env:";
     public static final String COUNT_TEMPLATE = String.format("${%s}", COUNT);
 
     public PipelineLabel(String labelTemplate, InsecureEnvironmentVariables insecureEnvironmentVariables) {
@@ -45,49 +45,58 @@ public class PipelineLabel implements Serializable {
         return label;
     }
 
-    public static final Pattern PATTERN = Pattern.compile("(?i)\\$\\{([a-zA-Z:]*[a-zA-Z0-9_\\-\\.!~'#:]+)(\\[:(\\d+)\\])?\\}");
+    public static final Pattern PATTERN = Pattern.compile("\\$\\{(?<name>[^}\\[]+)(?:\\[:(?<truncation>\\d+)])?}");
 
-    private String replaceRevisionsInLabel(Map<CaseInsensitiveString, String> materialRevisions) {
+    public void updateLabel(Map<CaseInsensitiveString, String> namedRevisions, int pipelineCounter) {
+        this.label = interpolateLabel(namedRevisions, pipelineCounter);
+        this.label = StringUtils.substring(label, 0, 255);
+    }
+
+    private String interpolateLabel(Map<CaseInsensitiveString, String> materialRevisions, int pipelineCounter) {
         final Matcher matcher = PATTERN.matcher(this.label);
         final StringBuffer buffer = new StringBuffer();
+
         while (matcher.find()) {
-            final String revision = lookupVariable(matcher, materialRevisions);
-            matcher.appendReplacement(buffer, revision);
+            String token = matcher.group("name");
+            String value;
+
+            if (COUNT.equalsIgnoreCase(token)) {
+                value = Integer.toString(pipelineCounter);
+            } else if (token.toLowerCase().startsWith(ENV_VAR_PREFIX)) {
+                value = resolveEnvironmentVariable(token);
+            } else {
+                final String truncate = matcher.group("truncation");
+                value = resolveMaterialRevision(materialRevisions, token, truncate);
+            }
+
+            if (null == value) {
+                value = "\\" + matcher.group(0);
+            }
+
+            matcher.appendReplacement(buffer, value);
         }
+
         matcher.appendTail(buffer);
         return buffer.toString();
     }
 
-    private String lookupVariable(Matcher matcher, Map<CaseInsensitiveString, String> materialRevisions) {
-        final CaseInsensitiveString variable = new CaseInsensitiveString(matcher.group(1));
-
-        String valueForMaterialVariable = materialRevisions.get(variable);
-        String valueForPrefixedVariable = getValueIfVariableHasValidPrefix(variable);
-
-        String result;
-
-        if (valueForMaterialVariable != null) {
-            result = valueForMaterialVariable;
-        } else if (valueForPrefixedVariable != null) {
-            result = valueForPrefixedVariable;
-        } else {
-            return "\\" + matcher.group(0);
-        }
-
-        final String truncationLengthLiteral = matcher.group(3);
-        if (truncationLengthLiteral != null) {
-            int truncationLength = Integer.parseInt(truncationLengthLiteral);
-
-            if (result.length() > truncationLength) {
-                result = result.substring(0, truncationLength);
-            }
-        }
-        return result;
+    private String resolveEnvironmentVariable(String variable) {
+        variable = variable.substring(ENV_VAR_PREFIX.length());
+        return envVars.getInsecureEnvironmentVariableOrDefault(variable, "");
     }
 
-    public void updateLabel(Map<CaseInsensitiveString, String> namedRevisions) {
-        this.label = replaceRevisionsInLabel(namedRevisions);
-        this.label = StringUtils.substring(label, 0, 255);
+    private String resolveMaterialRevision(Map<CaseInsensitiveString, String> knownRevisions, String name, String truncation) {
+        final String revision = knownRevisions.get(new CaseInsensitiveString(name));
+
+        if (StringUtils.isNotBlank(truncation)) {
+            int truncationLength = Integer.parseInt(truncation);
+
+            if (null != revision && revision.length() > truncationLength) {
+                return revision.substring(0, truncationLength);
+            }
+        }
+
+        return revision;
     }
 
     public boolean equals(Object o) {
@@ -100,11 +109,7 @@ public class PipelineLabel implements Serializable {
 
         PipelineLabel label1 = (PipelineLabel) o;
 
-        if (label != null ? !label.equals(label1.label) : label1.label != null) {
-            return false;
-        }
-
-        return true;
+        return label != null ? label.equals(label1.label) : label1.label == null;
     }
 
     public int hashCode() {
@@ -121,17 +126,5 @@ public class PipelineLabel implements Serializable {
 
     public static PipelineLabel defaultLabel() {
         return new PipelineLabel(PipelineLabel.COUNT_TEMPLATE, InsecureEnvironmentVariables.EMPTY_ENV_VARS);
-    }
-
-    public static boolean hasValidPrefix(String value) {
-        return value.toLowerCase().startsWith(ENV_VAR_PREFIX);
-    }
-
-    private String getValueIfVariableHasValidPrefix(CaseInsensitiveString variable) {
-        if (variable.startsWith(ENV_VAR_PREFIX)) {
-            return envVars.getInsecureEnvironmentVariableOrDefault(variable.toString().split(":", 2)[1], "");
-        }
-
-        return null;
     }
 }

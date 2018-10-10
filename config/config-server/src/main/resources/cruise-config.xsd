@@ -394,7 +394,7 @@
             <xsd:element minOccurs="0" maxOccurs="unbounded" name="stage" type="stageType"/>
           </xsd:sequence>
           <xsd:attribute name="name" type="nameType" use="required"/>
-          <xsd:attribute name="labeltemplate" type="labelType"/>
+          <xsd:attribute name="labeltemplate" type="nonEmptyString" use="optional"/>
           <xsd:attribute name="lockBehavior">
             <xsd:simpleType>
               <xsd:restriction base="xsd:string">
@@ -843,12 +843,6 @@
   <xsd:simpleType name="nonEmptyString">
     <xsd:restriction base="xsd:string">
       <xsd:pattern value="[\s]*[\S][\s\S]*"/>
-    </xsd:restriction>
-  </xsd:simpleType>
-  <xsd:simpleType name="labelType">
-    <xsd:restriction base="xsd:string">
-      <xsd:pattern
-          value="(([a-zA-Z0-9_\-.!~*'()#:])*[$#]\{[a-zA-Z:]*[a-zA-Z0-9_\-.!~*'()#:]+(\[:(\d+)\])?\}([a-zA-Z0-9_\-.!~*'()#:])*)+"/>
     </xsd:restriction>
   </xsd:simpleType>
   <xsd:simpleType name="jobnameType">

@@ -14,43 +14,37 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.domain;
+package com.thoughtworks.go.config;
 
 import com.rits.cloning.Cloner;
-import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.PackageMaterialConfig;
 import com.thoughtworks.go.config.materials.ScmMaterialConfig;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
 import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
 import com.thoughtworks.go.config.materials.perforce.P4MaterialConfig;
+import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.packagerepository.PackageDefinitionMother;
 import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.helper.MaterialConfigsMother;
 import org.hamcrest.CoreMatchers;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
-import java.util.Arrays;
 import java.util.List;
 
 import static com.thoughtworks.go.util.TestUtils.contains;
-import static junit.framework.Assert.assertFalse;
-import static junit.framework.Assert.assertTrue;
-import static org.hamcrest.Matchers.hasItem;
+import static java.util.Collections.singletonList;
 import static org.hamcrest.Matchers.startsWith;
 import static org.hamcrest.core.Is.is;
-import static org.hamcrest.core.IsNull.nullValue;
-import static org.junit.Assert.assertThat;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
 public class PipelineConfigValidationTest {
     private CruiseConfig config;
     private PipelineConfig pipeline;
     private GoConfigMother goConfigMother;
-    private ValidationContext validationContext;
 
     @Before
     public void setup() {
@@ -67,95 +61,100 @@ public class PipelineConfigValidationTest {
         jobConfig.addTask(new ExecTask("ls", "-la", "tmp"));
         StageConfig stageConfig = new StageConfig(new CaseInsensitiveString("stage"), new JobConfigs(jobConfig));
         pipelineConfig.addStageWithoutValidityAssertion(stageConfig);
-        pipelineConfig.validate(validationContext);
+        pipelineConfig.validate(null);
 
         assertThat(stageConfig.errors().getAllOn("name"),
-                is(Arrays.asList("You have defined multiple stages called 'stage'. Stage names are case-insensitive and must be unique.")));
+                is(singletonList("You have defined multiple stages called 'stage'. Stage names are case-insensitive and must be unique.")));
 
         assertThat(pipelineConfig.get(0).errors().getAllOn("name"),
-                is(Arrays.asList("You have defined multiple stages called 'stage'. Stage names are case-insensitive and must be unique.")));
+                is(singletonList("You have defined multiple stages called 'stage'. Stage names are case-insensitive and must be unique.")));
 
         assertThat(cruiseConfig.validateAfterPreprocess().get(0).getAllOn("name"),
-                is(Arrays.asList("You have defined multiple stages called 'stage'. Stage names are case-insensitive and must be unique.")));
+                is(singletonList("You have defined multiple stages called 'stage'. Stage names are case-insensitive and must be unique.")));
+    }
+
+    @Test
+    public void rejectsMissingMaterial() {
+        assertLabelTemplate("foo-${[:5]}-bar", errors -> {
+            assertEquals(singletonList("You have defined a label template in pipeline 'go' that refers to a material called '', but no material with this name is defined."), errors);
+        });
+    }
+
+    @Test
+    public void rejectsBadTruncation() {
+        assertLabelTemplate("foo-${material[:5}-bar", errors -> {
+            assertEquals(1, errors.size());
+            assertThat(errors.get(0), startsWith("Invalid label"));
+        });
+    }
+
+    @Test
+    public void rejectsBlankToken() {
+        assertLabelTemplate("foo-${}-bar", errors ->
+                assertEquals(singletonList("Label template variable cannot be blank."), errors));
+    }
+
+    @Test
+    public void rejectsMissingEnvironmentVariable() {
+        assertLabelTemplate("foo-${env:}-bar", errors ->
+                assertEquals(singletonList("Missing environment variable name."), errors));
     }
 
     @Test
     public void isValid_shouldEnsureLabelTemplateRefersToValidMaterials() {
-        pipeline.setLabelTemplate("pipeline-${COUNT}-${myGit}");
-
-        pipeline.validate(validationContext);
-        ConfigErrors configErrors = pipeline.errors();
-        List<String> errors = configErrors.getAllOn("labelTemplate");
-        assertThat(errors.size(), is(1));
-        assertThat(errors, hasItem("You have defined a label template in pipeline go that refers to a material called myGit, but no material with this name is defined."));
+        assertLabelTemplate("pipeline-${COUNT}-${myGit}", errors ->
+                assertEquals(singletonList("You have defined a label template in pipeline 'go' that refers to a material called 'myGit', but no material with this name is defined."), errors));
     }
 
     @Test
-    @Ignore("Will fix this in a few days. See https://github.com/gocd/gocd/issues/5240")
     public void isValid_shouldEnsureLabelTemplateRefersToAMaterialOrCOUNT() {
-        pipeline.setLabelTemplate("label-template-without-material-or-count");
-
-        pipeline.validate(validationContext);
-        ConfigErrors configErrors = pipeline.errors();
-        List<String> errors = configErrors.getAllOn("labelTemplate");
-        assertThat(errors.size(), is(1));
-        assertThat(errors.get(0), startsWith("Invalid label"));
+        assertLabelTemplate("label-template-without-material-or-count", errors -> {
+            assertEquals(1, errors.size());
+            assertThat(errors.get(0), startsWith("Invalid label"));
+        });
     }
 
     @Test
     public void isValid_shouldEnsureLabelTemplateHasValidVariablePattern() {
-        pipeline.setLabelTemplate("pipeline-${COUNT");
-
-        pipeline.validate(validationContext);
-        ConfigErrors configErrors = pipeline.errors();
-        assertThat(configErrors.isEmpty(), is(false));
-        List<String> errors = configErrors.getAllOn("labelTemplate");
-        assertThat(errors.size(), is(1));
-        assertThat(errors.get(0), startsWith("Invalid label"));
+        assertLabelTemplate("pipeline-${COUNT", errors -> {
+            assertEquals(1, errors.size());
+            assertThat(errors.get(0), startsWith("Invalid label"));
+        });
     }
 
     @Test
     public void isValid_labelTemplateShouldAcceptLabelTemplateWithHashCharacter() {
-        pipeline.setLabelTemplate("foo${COUNT}-tanker#");
-
-        pipeline.validate(validationContext);
-        ConfigErrors configErrors = pipeline.errors();
-        assertThat(configErrors.isEmpty(), is(true));
-        List<String> errors = configErrors.getAllOn("labelTemplate");
-        assertThat(errors, is(nullValue()));
+        assertLabelTemplate("foo${COUNT}-tanker#", Assert::assertNull);
     }
 
     @Test
     public void isValid_shouldMatchMaterialNamesInACaseInsensitiveManner() {
-        pipeline.setLabelTemplate("pipeline-${count}-${myGit}");
-
         ScmMaterialConfig gitMaterialConfig = MaterialConfigsMother.gitMaterialConfig("git://url");
         gitMaterialConfig.setName(new CaseInsensitiveString("mygit"));
         pipeline.addMaterialConfig(gitMaterialConfig);
-        pipeline.validate(validationContext);
-        assertThat(pipeline.errors().isEmpty(), is(true));
-        List<String> errors = pipeline.errors().getAllOn("labelTemplate");
-        assertThat(errors, is(nullValue()));
+
+        assertLabelTemplate("pipeline-${count}-${myGit}", errors -> {
+            assertTrue(pipeline.errors().isEmpty());
+            assertNull(errors);
+        });
     }
 
     @Test
     public void isValid_shouldEnsureReturnsTrueWhenLabelTemplateRefersToValidMaterials() {
-        pipeline.setLabelTemplate("pipeline-${COUNT}-${myGit}");
         GitMaterialConfig gitConfig = MaterialConfigsMother.gitMaterialConfig("git://url");
         gitConfig.setName(new CaseInsensitiveString("myGit"));
         pipeline.addMaterialConfig(gitConfig);
-        pipeline.validate(validationContext);
-        assertThat(pipeline.errors().isEmpty(), is(true));
-        List<String> errors = pipeline.errors().getAllOn("labelTemplate");
-        assertThat(errors, is(nullValue()));
+
+        assertLabelTemplate("pipeline-${COUNT}-${myGit}", errors -> {
+            assertTrue(pipeline.errors().isEmpty());
+            assertNull(errors);
+        });
     }
 
     @Test
-    public void isValid_shouldAllowColonForLabelTemplate() throws Exception {
-        pipeline.setLabelTemplate("pipeline-${COUNT}-${repo:name}");
+    public void isValid_shouldAllowColonForLabelTemplate() {
         pipeline.addMaterialConfig(new PackageMaterialConfig(new CaseInsensitiveString("repo:name"), "package-id", PackageDefinitionMother.create("package-id")));
-        pipeline.validate(validationContext);
-        assertThat(pipeline.errors().getAllOn("labelTemplate"), is(nullValue()));
+        assertLabelTemplate("pipeline-${COUNT}-${repo:name}", Assert::assertNull);
     }
 
     @Test
@@ -171,48 +170,48 @@ public class PipelineConfigValidationTest {
     @Test
     public void validate_shouldEnsureThatPipelineFollowsTheNameType() {
         PipelineConfig config = new PipelineConfig(new CaseInsensitiveString(".name"), new MaterialConfigs());
-        config.validate(validationContext);
+        config.validate(null);
         assertThat(config.errors().isEmpty(), is(false));
         assertThat(config.errors().on(PipelineConfig.NAME), is("Invalid pipeline name '.name'. This must be alphanumeric and can contain underscores and periods (however, it cannot start with a period). The maximum allowed length is 255 characters."));
     }
 
     @Test
-    public void shouldBeValidIfTheReferencedPipelineExists() throws Exception {
+    public void shouldBeValidIfTheReferencedPipelineExists() {
         pipeline.addMaterialConfig(new DependencyMaterialConfig(new CaseInsensitiveString("pipeline2"), new CaseInsensitiveString("stage")));
-        pipeline.validate(validationContext);
+        pipeline.validate(null);
         assertThat(pipeline.errors().isEmpty(), is(true));
     }
 
     @Test
-    public void shouldAllowMultipleDependenciesForDifferentPipelines() throws Exception {
+    public void shouldAllowMultipleDependenciesForDifferentPipelines() {
         pipeline.addMaterialConfig(new DependencyMaterialConfig(new CaseInsensitiveString("pipeline2"), new CaseInsensitiveString("stage")));
         pipeline.addMaterialConfig(new DependencyMaterialConfig(new CaseInsensitiveString("pipeline3"), new CaseInsensitiveString("stage")));
-        pipeline.validate(validationContext);
+        pipeline.validate(null);
         assertThat(pipeline.errors().isEmpty(), is(true));
     }
 
     @Test
-    public void shouldAllowDependenciesFromMultiplePipelinesToTheSamePipeline() throws Exception {
+    public void shouldAllowDependenciesFromMultiplePipelinesToTheSamePipeline() {
         pipeline.addMaterialConfig(new DependencyMaterialConfig(new CaseInsensitiveString("pipeline2"), new CaseInsensitiveString("stage")));
 
         PipelineConfig pipeline3 = config.pipelineConfigByName(new CaseInsensitiveString("pipeline3"));
         pipeline3.addMaterialConfig(new DependencyMaterialConfig(new CaseInsensitiveString("pipeline2"), new CaseInsensitiveString("stage")));
 
-        pipeline.validate(validationContext);
+        pipeline.validate(null);
         assertThat(pipeline.errors().isEmpty(), is(true));
-        pipeline3.validate(validationContext);
+        pipeline3.validate(null);
         assertThat(pipeline3.errors().isEmpty(), is(true));
 
     }
 
     @Test
-    public void shouldNotAllowAnEmptyView() throws Exception {
+    public void shouldNotAllowAnEmptyView() {
         CruiseConfig config = GoConfigMother.configWithPipelines("pipeline1");
         P4MaterialConfig materialConfig = new P4MaterialConfig("localhost:1666", "");
 
         PipelineConfig pipelineConfig = config.pipelineConfigByName(new CaseInsensitiveString("pipeline1"));
         pipelineConfig.addMaterialConfig(materialConfig);
-        materialConfig.validate(validationContext);
+        materialConfig.validate(null);
         assertThat(materialConfig.errors().on("view"), is("P4 view cannot be empty."));
     }
 
@@ -266,7 +265,7 @@ public class PipelineConfigValidationTest {
     }
 
     @Test
-    public void shouldFailValidateWhenUpstreamPipelineForDependencyMaterailDoesNotExist() {
+    public void shouldFailValidateWhenUpstreamPipelineForDependencyMaterialDoesNotExist() {
         String upstreamPipeline = "non-existant";
         PipelineConfig pipelineConfig = GoConfigMother.createPipelineConfigWithMaterialConfig(
                 new DependencyMaterialConfig(new CaseInsensitiveString(upstreamPipeline), new CaseInsensitiveString("non-existant")));
@@ -281,7 +280,7 @@ public class PipelineConfigValidationTest {
     }
 
     @Test
-    public void shouldFailValidateWhenUpstreamStageForDependencyMaterailDoesNotExist() {
+    public void shouldFailValidateWhenUpstreamStageForDependencyMaterialDoesNotExist() {
         String upstreamPipeline = "upstream";
         String upstreamStage = "non-existant";
         PipelineConfig upstream = GoConfigMother.createPipelineConfigWithMaterialConfig(upstreamPipeline, new GitMaterialConfig("url"));
@@ -299,7 +298,6 @@ public class PipelineConfigValidationTest {
     public void shouldReturnTrueIfAllDescendentsAreValid() {
         StageConfig stageConfig = mock(StageConfig.class);
         MaterialConfigs materialConfigs = mock(MaterialConfigs.class);
-        when(materialConfigs.iterator()).thenReturn(new MaterialConfigs().iterator());
         ParamsConfig paramsConfig = mock(ParamsConfig.class);
         EnvironmentVariablesConfig variables = mock(EnvironmentVariablesConfig.class);
         TrackingTool trackingTool = mock(TrackingTool.class);
@@ -322,7 +320,6 @@ public class PipelineConfigValidationTest {
         boolean isValid = pipelineConfig.validateTree(PipelineConfigSaveValidationContext.forChain(true, "group", new BasicCruiseConfig(new BasicPipelineConfigs("group", new Authorization())), pipelineConfig));
         assertTrue(isValid);
         verify(stageConfig).validateTree(any(PipelineConfigSaveValidationContext.class));
-        verify(materialConfigs, atLeastOnce()).iterator();
         verify(materialConfigs).validateTree(any(PipelineConfigSaveValidationContext.class));
         verify(paramsConfig).validateTree(any(PipelineConfigSaveValidationContext.class));
         verify(variables).validateTree(any(PipelineConfigSaveValidationContext.class));
@@ -508,7 +505,7 @@ public class PipelineConfigValidationTest {
         cruiseConfig.addPipeline(groupName, p1);
         p1.validateTree(PipelineConfigSaveValidationContext.forChain(true, groupName, cruiseConfig, p1));
 
-        Assert.assertFalse(p1.errors().isEmpty());
+        assertFalse(p1.errors().isEmpty());
         assertThat(p1.errors().on(PipelineConfigs.GROUP), contains("Invalid group name '%$-with-invalid-characters'"));
     }
 
@@ -524,4 +521,16 @@ public class PipelineConfigValidationTest {
         return new StageConfig(new CaseInsensitiveString(stageName), jobConfigs);
     }
 
+    private void assertLabelTemplate(String labelTemplate, LabelErrorsFn assertions) {
+        pipeline.setLabelTemplate(labelTemplate);
+        pipeline.validate(null);
+        List<String> errors = pipeline.errors().getAllOn("labelTemplate");
+        assertions.asserting(errors);
+    }
+
+    @FunctionalInterface
+    private interface LabelErrorsFn {
+
+        void asserting(List<String> errors);
+    }
 }

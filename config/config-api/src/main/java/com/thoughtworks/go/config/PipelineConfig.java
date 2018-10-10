@@ -37,9 +37,6 @@ import com.thoughtworks.go.domain.label.PipelineLabel;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.service.TaskFactory;
 import com.thoughtworks.go.util.Node;
-import com.thoughtworks.go.util.XmlUtils;
-import org.apache.commons.collections4.IterableUtils;
-import org.apache.commons.collections4.Predicate;
 import org.apache.commons.lang3.StringUtils;
 
 import java.text.MessageFormat;
@@ -48,9 +45,14 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import static com.thoughtworks.go.domain.label.PipelineLabel.COUNT;
+import static com.thoughtworks.go.domain.label.PipelineLabel.ENV_VAR_PREFIX;
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static com.thoughtworks.go.util.ExceptionUtils.bombIf;
+import static java.lang.String.format;
 import static java.util.Arrays.asList;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
+import static org.apache.commons.lang3.StringUtils.substringsBetween;
 
 /**
  * @understands how a cruise pipeline is configured by the user
@@ -61,21 +63,13 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
         Validatable, EnvironmentVariableScope, ConfigOriginTraceable {
     private static final Cloner CLONER = new Cloner();
 
-    private static final String ERR_TEMPLATE = "You have defined a label template in pipeline %s that refers to a material called %s, but no material with this name is defined.";
     public static final String LABEL_TEMPLATE = "labelTemplate";
     public static final String MINGLE_CONFIG = "mingleConfig";
     public static final String TRACKING_TOOL = "trackingTool";
     public static final String TIMER_CONFIG = "timer";
     public static final String ENVIRONMENT_VARIABLES = "variables";
     public static final String PARAMS = "params";
-    private static final String LABEL_TEMPLATE_ZERO_TRUNC_BLOCK = "(\\[:0+\\])";
-    private static final String LABEL_TEMPLATE_TRUNC_BLOCK = "(\\[:\\d+\\])?";
-    private static final String LABEL_TEMPLATE_CHARACTERS = "[a-zA-Z:]*[a-zA-Z0-9_\\-.!~*'()#:]"; // why a '#'?
-    private static final String LABEL_TEMPLATE_VARIABLE_REGEX = "[$]\\{(" + LABEL_TEMPLATE_CHARACTERS + "+)" + LABEL_TEMPLATE_TRUNC_BLOCK + "\\}";
-    public static final String LABEL_TEMPLATE_FORMAT = "((" + LABEL_TEMPLATE_CHARACTERS + ")*[$]"
-            + "\\{" + LABEL_TEMPLATE_CHARACTERS + "+" + LABEL_TEMPLATE_TRUNC_BLOCK + "\\}(" + LABEL_TEMPLATE_CHARACTERS + ")*)+";
-    private static final Pattern LABEL_TEMPLATE_FORMAT_REGEX = Pattern.compile(String.format("^(%s)$", LABEL_TEMPLATE_FORMAT));
-    public static final Pattern LABEL_TEMPATE_ZERO_TRUNC_BLOCK_PATTERN = Pattern.compile(LABEL_TEMPLATE_ZERO_TRUNC_BLOCK);
+
     public static final String TEMPLATE_NAME = "templateName";
 
     public static final String LOCK_BEHAVIOR = "lockBehavior";
@@ -139,6 +133,7 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
     public static final String INTEGRATION_TYPE_TRACKING_TOOL = "trackingTool";
     public static final String MATERIALS = "materials";
     public static final String STAGE = "stage";
+    public static final Pattern LABEL_TEMPLATE_TOKEN_PATTERN = Pattern.compile("(?<groupName>[^\\[]*)(\\[:(?<truncationLength>\\d+)\\])?$");
 
     public PipelineConfig() {
     }
@@ -163,7 +158,7 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
 
     @Override
     public String toString() {
-        return String.format("PipelineConfig: %s",name);
+        return format("PipelineConfig: %s", name);
     }
 
     public boolean validateTree(PipelineConfigSaveValidationContext validationContext) {
@@ -223,7 +218,7 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
         validateStageNameUniqueness();
         validateLockBehaviorValues();
         if (!hasTemplate() && isEmpty()) {
-            addError("pipeline", String.format("Pipeline '%s' does not have any stages configured. A pipeline must have at least one stage.", name()));
+            addError("pipeline", format("Pipeline '%s' does not have any stages configured. A pipeline must have at least one stage.", name()));
         }
     }
 
@@ -233,11 +228,11 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
                 errors().add(TEMPLATE_NAME, NameTypeValidator.errorMessage("template", templateName));
             }
             if (hasStages() && !hasTemplateApplied()) {
-                addError("stages", String.format("Cannot add stages to pipeline '%s' which already references template '%s'", this.name(), this.getTemplateName()));
-                addError("template", String.format("Cannot set template '%s' on pipeline '%s' because it already has stages defined", this.getTemplateName(), this.name()));
+                addError("stages", format("Cannot add stages to pipeline '%s' which already references template '%s'", this.name(), this.getTemplateName()));
+                addError("template", format("Cannot set template '%s' on pipeline '%s' because it already has stages defined", this.getTemplateName(), this.name()));
             }
             if (templateConfig == null) {
-                addError("pipeline", String.format("Pipeline '%s' refers to non-existent template '%s'.", name(), templateName));
+                addError("pipeline", format("Pipeline '%s' refers to non-existent template '%s'.", name(), templateName));
             }
         }
     }
@@ -261,42 +256,71 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
             return;
         }
 
-        if (XmlUtils.doesNotMatchUsingXsdRegex(LABEL_TEMPLATE_FORMAT_REGEX, labelTemplate)) {
+        String[] allTokens = substringsBetween(labelTemplate, "${", "}");
+
+        if (allTokens == null) {
             addError("labelTemplate", String.format(LABEL_TEMPLATE_ERROR_MESSAGE, labelTemplate));
             return;
         }
 
-        if (validateLabelTemplateTruncation(labelTemplate)) {
-            addError("labelTemplate", String.format("Length of zero not allowed on label %s defined on pipeline %s.", labelTemplate, name));
-            return;
-        }
-
-        Set<String> templateVariables = getTemplateVariables();
-        List<String> materialNames = allowedTemplateVariables();
-        for (final String templateVariable : templateVariables) {
-            if (!PipelineLabel.hasValidPrefix(templateVariable) && !IterableUtils.matchesAny(materialNames, withNameSameAs(templateVariable))) {
-                addError("labelTemplate", String.format(ERR_TEMPLATE, name(), templateVariable));
+        for (String token : allTokens) {
+            if (!isValidToken(token)) {
+                break;
             }
         }
     }
 
-    private boolean validateLabelTemplateTruncation(String labelTemplate) {
-        return LABEL_TEMPATE_ZERO_TRUNC_BLOCK_PATTERN.matcher(labelTemplate).find();
+    private boolean isValidToken(String token) {
+        if (StringUtils.isBlank(token)) {
+            addError("labelTemplate", "Label template variable cannot be blank.");
+            return false;
+        }
+
+        if (token.equalsIgnoreCase(COUNT)) {
+            return true;
+        }
+
+        if (token.equals(ENV_VAR_PREFIX)) {
+            addError("labelTemplate", "Missing environment variable name.");
+            return false;
+        }
+
+        if (token.startsWith(ENV_VAR_PREFIX)) {
+            return true;
+        }
+
+        Matcher matcher = LABEL_TEMPLATE_TOKEN_PATTERN.matcher(token);
+
+        if (matcher.matches()) {
+            String materialName = matcher.group("groupName");
+            String truncationLength = matcher.group("truncationLength");
+
+            if (isNotBlank(truncationLength) && truncationLength.startsWith("0")) {
+                addError("labelTemplate", format("Length of zero not allowed on label %s defined on pipeline %s.", labelTemplate, name));
+                return false;
+            }
+
+            if (!materialConfigs.materialNames().contains(new CaseInsensitiveString(materialName))) {
+                addError("labelTemplate", format("You have defined a label template in pipeline '%s' that refers to a material called '%s', but no material with this name is defined.", name(), materialName));
+                return false;
+            }
+
+            return true;
+        }
+
+        addError("labelTemplate", String.format(LABEL_TEMPLATE_ERROR_MESSAGE, labelTemplate));
+        return false;
     }
 
     private void validateLockBehaviorValues() {
         if (lockBehavior != null && !VALID_LOCK_VALUES.contains(lockBehavior)) {
             addError(LOCK_BEHAVIOR, MessageFormat.format("Lock behavior has an invalid value ({0}). Valid values are: {1}",
-                            lockBehavior, VALID_LOCK_VALUES));
+                    lockBehavior, VALID_LOCK_VALUES));
         }
     }
 
-    private boolean hasStages(){
+    private boolean hasStages() {
         return !isEmpty();
-    }
-
-    private Predicate withNameSameAs(final String templateVariable) {
-        return materialName -> StringUtils.equalsIgnoreCase(materialName.toString(), templateVariable);
     }
 
     public void addError(String fieldName, String msg) {
@@ -405,9 +429,8 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
         RepoConfigOrigin repoConfigOrigin = (RepoConfigOrigin) this.origin;
         MaterialConfig configMaterial = repoConfigOrigin.getMaterial();
 
-        for(MaterialConfig material : this.materialConfigs())
-        {
-            if(material.getFingerprint().equals(configMaterial.getFingerprint()))
+        for (MaterialConfig material : this.materialConfigs()) {
+            if (material.getFingerprint().equals(configMaterial.getFingerprint()))
                 return true;
         }
         return false;
@@ -530,7 +553,7 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
 
     public boolean isFirstStageManualApproval() {
         if (isEmpty()) {
-            throw new IllegalStateException(String.format("Pipeline [%s] doesn't have any stage", name));
+            throw new IllegalStateException(format("Pipeline [%s] doesn't have any stage", name));
         }
         return getFirstStageConfig().getApproval().isManual();
     }
@@ -579,27 +602,6 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
         return result;
     }
 
-    public Set<String> getTemplateVariables() {
-        Pattern pattern = Pattern.compile(LABEL_TEMPLATE_VARIABLE_REGEX);
-        Matcher matcher = pattern.matcher(this.labelTemplate);
-        LinkedHashSet<String> result = new LinkedHashSet<>();
-        while (matcher.find()) {
-            result.add(matcher.group(1));
-        }
-        return result;
-    }
-
-    public List<String> allowedTemplateVariables() {
-        List<String> names = new ArrayList<>();
-        for (MaterialConfig material : materialConfigs) {
-            if (!CaseInsensitiveString.isBlank(material.getName())) {
-                names.add(CaseInsensitiveString.str(material.getName()));
-            }
-        }
-        names.add("COUNT");
-        return names;
-    }
-
     public TimerConfig getTimer() {
         return timer;
     }
@@ -629,7 +631,7 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
 
     public Boolean explicitLock() {
         if (!hasExplicitLock()) {
-            throw new RuntimeException(String.format("There is no explicit lock on the pipeline '%s'.", name));
+            throw new RuntimeException(format("There is no explicit lock on the pipeline '%s'.", name));
         }
 
         return isLockable();
@@ -695,7 +697,7 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
 
     private void ensureNoTemplateDefined(CaseInsensitiveString stageName) {
         if (hasTemplate()) {
-            throw new IllegalStateException(String.format("Cannot add stage '%s' to pipeline '%s', which already references template '%s'.", stageName, name, templateName));
+            throw new IllegalStateException(format("Cannot add stage '%s' to pipeline '%s', which already references template '%s'.", stageName, name, templateName));
         }
     }
 
@@ -717,7 +719,7 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
     }
 
     private void ensureNoStagesDefined(CaseInsensitiveString newTemplateName) {
-        bombIf(!isEmpty(), String.format("Cannot set template '%s' on pipeline '%s' because it already has stages defined", newTemplateName, name));
+        bombIf(!isEmpty(), format("Cannot set template '%s' on pipeline '%s' because it already has stages defined", newTemplateName, name));
     }
 
     public PipelineConfig getCopyForEditing() {
@@ -786,7 +788,6 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
     public ParamsConfig getParams() {
         return params;
     }
-
 
     public void setConfigAttributes(Object attributes) {
         setConfigAttributes(attributes, null);
@@ -900,7 +901,6 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
         return CONFIGURATION_TYPE_STAGES;
     }
 
-
     public void incrementIndex(StageConfig stageToBeMoved) {
         moveStage(stageToBeMoved, 1);
     }
@@ -912,7 +912,7 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
     private void moveStage(StageConfig moveMeStage, int moveBy) {
         int current = this.indexOf(moveMeStage);
         if (current == -1) {
-            throw new RuntimeException(String.format("Cannot find the stage '%s' in pipeline '%s'", moveMeStage.name(), name()));
+            throw new RuntimeException(format("Cannot find the stage '%s' in pipeline '%s'", moveMeStage.name(), name()));
         }
         this.remove(moveMeStage);
         this.add(current + moveBy, moveMeStage);
@@ -970,7 +970,7 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
     }
 
     private void nameConflictError() {
-        errors.add(NAME, String.format("You have defined multiple pipelines called '%s'. Pipeline names are case-insensitive and must be unique.", name));
+        errors.add(NAME, format("You have defined multiple pipelines called '%s'. Pipeline names are case-insensitive and must be unique.", name));
     }
 
     public List<FetchTask> getFetchTasks() {
@@ -1011,14 +1011,14 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
     public List<PackageMaterialConfig> packageMaterialConfigs() {
         return materialConfigs().stream()
                 .filter(materialConfig -> materialConfig instanceof PackageMaterialConfig)
-                .map(x -> (PackageMaterialConfig)x)
+                .map(x -> (PackageMaterialConfig) x)
                 .collect(Collectors.toList());
     }
 
     public List<PluggableSCMMaterialConfig> pluggableSCMMaterialConfigs() {
         return materialConfigs().stream()
                 .filter(materialConfig -> materialConfig instanceof PluggableSCMMaterialConfig)
-                .map(x -> (PluggableSCMMaterialConfig)x)
+                .map(x -> (PluggableSCMMaterialConfig) x)
                 .collect(Collectors.toList());
     }
 
@@ -1040,7 +1040,7 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
     }
 
     public void setLock(boolean lock) {
-        if(lock)
+        if (lock)
             this.lockExplicitly();
         else
             this.unlockExplicitly();

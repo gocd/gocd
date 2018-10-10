@@ -16,9 +16,6 @@
 
 package com.thoughtworks.go.server.service.materials.commands;
 
-import java.io.Serializable;
-import java.util.HashMap;
-
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.materials.PackageMaterialConfig;
@@ -26,11 +23,14 @@ import com.thoughtworks.go.domain.packagerepository.PackageDefinition;
 import com.thoughtworks.go.domain.packagerepository.PackageDefinitionMother;
 import com.thoughtworks.go.server.domain.Username;
 import org.junit.Test;
-import org.mockito.ArgumentMatchers;
+
+import java.io.Serializable;
+import java.util.HashMap;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
@@ -74,7 +74,7 @@ public class PackageMaterialAddWithExistingPackageDefinitionCommandTest extends 
         assertThat(packageMaterial, is(materialToBeCreated));
         assertThat(packageMaterial.getPackageDefinition(), is(nullValue()));
         assertThat(packageMaterial.getPackageId(), is(nullValue()));
-        verify(packageDefinitionService, never()).performPluginValidationsFor(Matchers.<PackageDefinition>any());
+        verify(packageDefinitionService, never()).performPluginValidationsFor(any(PackageDefinition.class));
     }
 
     @Test
@@ -96,7 +96,7 @@ public class PackageMaterialAddWithExistingPackageDefinitionCommandTest extends 
         assertThat(packageMaterial, is(materialToBeCreated));
         assertThat(packageMaterial.getPackageDefinition(), is(nullValue()));
         assertThat(packageMaterial.getPackageId(), is(nullValue()));
-        verify(packageDefinitionService, never()).performPluginValidationsFor(Matchers.<PackageDefinition>any());
+        verify(packageDefinitionService, never()).performPluginValidationsFor(any(PackageDefinition.class));
     }
 
     protected PackageMaterialSaveCommand getCommand(Username username) {

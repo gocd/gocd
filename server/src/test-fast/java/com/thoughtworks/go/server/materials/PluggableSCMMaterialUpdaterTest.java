@@ -25,7 +25,6 @@ import com.thoughtworks.go.server.persistence.MaterialRepository;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
 import org.springframework.transaction.support.TransactionCallback;
 
@@ -95,7 +94,7 @@ public class PluggableSCMMaterialUpdaterTest {
 
         materialUpdater.insertLatestOrNewModifications(material, materialInstance, file, modifications);
 
-        verify(materialRepository, never()).saveOrUpdate(Matchers.<MaterialInstance>any());
+        verify(materialRepository, never()).saveOrUpdate(any(MaterialInstance.class));
         verify(scmMaterialUpdater).insertLatestOrNewModifications(material, materialInstance, file, modifications);
     }
 

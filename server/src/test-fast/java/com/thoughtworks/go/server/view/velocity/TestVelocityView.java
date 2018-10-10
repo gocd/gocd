@@ -21,7 +21,6 @@ import org.apache.velocity.Template;
 import org.apache.velocity.runtime.RuntimeInstance;
 import org.apache.velocity.runtime.resource.ContentResource;
 import org.apache.velocity.runtime.resource.loader.ResourceLoader;
-import org.mockito.ArgumentMatchers;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.web.servlet.view.velocity.VelocityView;
@@ -107,7 +106,7 @@ public class TestVelocityView extends VelocityView {
 
             when(loader.getResourceStream(templateName)).thenReturn(new ByteArrayInputStream(bytes));
             doReturn(template).when(runtimeServices).getTemplate(templateName);
-            doReturn(template).when(runtimeServices).getTemplate(eq(templateName), Matchers.<String>any());
+            doReturn(template).when(runtimeServices).getTemplate(eq(templateName), any(String.class));
 
             return template;
         } catch (Exception e) {
@@ -124,7 +123,7 @@ public class TestVelocityView extends VelocityView {
             resource.setData(fakeContent);
 
             doReturn(resource).when(runtimeServices).getContent(templateName);
-            doReturn(resource).when(runtimeServices).getContent(eq(templateName), Matchers.<String>any());
+            doReturn(resource).when(runtimeServices).getContent(eq(templateName), any(String.class));
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

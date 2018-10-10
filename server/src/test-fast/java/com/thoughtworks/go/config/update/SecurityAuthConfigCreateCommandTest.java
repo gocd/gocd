@@ -32,13 +32,11 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.mockito.ArgumentMatchers;
-
-import java.util.Map;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
+import static org.mockito.ArgumentMatchers.anyMap;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -68,7 +66,7 @@ public class SecurityAuthConfigCreateCommandTest {
     public void shouldInvokePluginValidationsBeforeSave() throws Exception {
         ValidationResult validationResult = new ValidationResult();
         validationResult.addError(new ValidationError("key", "error"));
-        when(extension.validateAuthConfig(eq("aws"), Matchers.<Map<String, String>>any())).thenReturn(validationResult);
+        when(extension.validateAuthConfig(eq("aws"), anyMap())).thenReturn(validationResult);
         SecurityAuthConfig newProfile = new SecurityAuthConfig("foo", "aws", new ConfigurationProperty(new ConfigurationKey("key"), new ConfigurationValue("val")));
         PluginProfileCommand command = new SecurityAuthConfigCreateCommand(mock(GoConfigService.class), newProfile, extension, null, new HttpLocalizedOperationResult());
         BasicCruiseConfig cruiseConfig = new BasicCruiseConfig();

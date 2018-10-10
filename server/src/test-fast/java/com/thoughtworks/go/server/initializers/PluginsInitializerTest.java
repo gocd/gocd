@@ -84,7 +84,7 @@ public class PluginsInitializerTest {
 
         InOrder inOrder = inOrder(zipUtil, pluginManager);
 
-        inOrder.verify(zipUtil).unzip(Matchers.<ZipInputStream>any(), Matchers.<File>any());
+        inOrder.verify(zipUtil).unzip(any(ZipInputStream.class), any(File.class));
         inOrder.verify(pluginManager, times(1)).startInfrastructure(true);
     }
 

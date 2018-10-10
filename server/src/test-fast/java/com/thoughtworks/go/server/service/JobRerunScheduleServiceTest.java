@@ -105,7 +105,7 @@ public class JobRerunScheduleServiceTest {
         stub(mingleConfig, pipeline, firstStage);
         stubConfigMd5Cal("latest-md5");
 
-        when(instanceFactory.createStageForRerunOfJobs(eq(firstStage), eq(a("unit")), Matchers.<SchedulingContext>any(), eq(mingleConfig.first()), eq(timeProvider), eq("latest-md5")))
+        when(instanceFactory.createStageForRerunOfJobs(eq(firstStage), eq(a("unit")), any(SchedulingContext.class), eq(mingleConfig.first()), eq(timeProvider), eq("latest-md5")))
                 .thenReturn(expectedStageToBeCreated);
 
         Stage stage = service.rerunJobs(firstStage, a("unit"), new HttpOperationResult());
@@ -198,7 +198,7 @@ public class JobRerunScheduleServiceTest {
         stub(mingleConfig, pipeline, firstStage);
         stubConfigMd5Cal(latestMd5);
 
-        when(instanceFactory.createStageForRerunOfJobs(eq(firstStage), eq(a("unit")), Matchers.<SchedulingContext>any(), eq(stageConfig), eq(timeProvider), eq(latestMd5)))
+        when(instanceFactory.createStageForRerunOfJobs(eq(firstStage), eq(a("unit")), any(SchedulingContext.class), eq(stageConfig), eq(timeProvider), eq(latestMd5)))
                 .thenThrow(new CannotScheduleException("Could not find matching agents to run job [unit] of stage [build].", "build"));
 
         assertScheduleFailure("unit", firstStage, "Could not find matching agents to run job [unit] of stage [build].", 409);

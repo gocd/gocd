@@ -81,7 +81,7 @@ public class CommandRepositoryDirectoryWalkerTest {
     @Test
     public void shouldIgnoreAllUnixStyleHiddenDirectoriesAndShouldNotUpdateServerHealth() throws IOException {
         assertThat(walker.handleDirectory(hiddenFolder, 0, new ArrayList()), is(false));
-        verify(serverHealthService, never()).update(Matchers.<ServerHealthState>anyObject());
+        verify(serverHealthService, never()).update(any(ServerHealthState.class));
     }
 
     @Test

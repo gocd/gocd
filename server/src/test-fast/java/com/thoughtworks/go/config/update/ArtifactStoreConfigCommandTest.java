@@ -39,6 +39,7 @@ import java.util.Map;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.anyMap;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
@@ -115,7 +116,7 @@ public class ArtifactStoreConfigCommandTest {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         ArtifactStore artifactStore = new ArtifactStore("docker", "cd.go.artifact.docker");
         cruiseConfig.getArtifactStores().add(artifactStore);
-        when(extension.validateArtifactStoreConfig(eq("cd.go.artifact.docker"), Matchers.<Map<String, String>>any())).thenReturn(new ValidationResult());
+        when(extension.validateArtifactStoreConfig(eq("cd.go.artifact.docker"), anyMap())).thenReturn(new ValidationResult());
 
         StubCommand command = new StubCommand(goConfigService, artifactStore, extension, currentUser, result);
         boolean isValid = command.isValid(cruiseConfig);

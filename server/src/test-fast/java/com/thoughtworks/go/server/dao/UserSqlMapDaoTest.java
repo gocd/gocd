@@ -69,7 +69,7 @@ public class UserSqlMapDaoTest {
         bar.setId(2);
         final User baz = new User("baz");
         bar.setId(3);
-        when(transactionTemplate.execute(Matchers.<TransactionCallback>any())).thenReturn(Arrays.asList(foo, bar, baz));
+        when(transactionTemplate.execute(any(TransactionCallback.class))).thenReturn(Arrays.asList(foo, bar, baz));
 
         Set<String> userNames = dao.findUsernamesForIds(s(foo.getId(), bar.getId()));
         assertThat(userNames.size(), is(2));
@@ -80,7 +80,7 @@ public class UserSqlMapDaoTest {
     public void shouldCacheTheEnabledUserCountIfItIsNotInTheCache() throws Exception {
         UserSqlMapDao daoSpy = spy(dao);
         doReturn(mockHibernateTemplate).when(daoSpy).hibernateTemplate();
-        doReturn(10L).when(mockHibernateTemplate).execute(Matchers.<HibernateCallback<Object>>any());
+        doReturn(10L).when(mockHibernateTemplate).execute(any(HibernateCallback.class));
 
         long firstEnabledUserCount = daoSpy.enabledUserCount();
         long secondEnabledUserCount = daoSpy.enabledUserCount();
@@ -112,7 +112,7 @@ public class UserSqlMapDaoTest {
         UserSqlMapDao userSqlMapDaoSpy = spy(new UserSqlMapDao(sessionFactory, transactionTemplate, cache, transactionSynchronizationManager));
 
         doReturn(mockHibernateTemplate).when(userSqlMapDaoSpy).hibernateTemplate();
-        doReturn(10L).when(mockHibernateTemplate).execute(Matchers.<HibernateCallback<Object>>any());
+        doReturn(10L).when(mockHibernateTemplate).execute(any(HibernateCallback.class));
 
         long firstEnabledUserCount = userSqlMapDaoSpy.enabledUserCount();
 

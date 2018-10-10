@@ -37,6 +37,7 @@ import java.util.Map;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.anyMapOf;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -115,7 +116,7 @@ public class SecurityAuthConfigCommandTest {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         SecurityAuthConfig securityAuthConfig = new SecurityAuthConfig("foo", "ldap");
         cruiseConfig.server().security().securityAuthConfigs().add(securityAuthConfig);
-        when(extension.validateAuthConfig(eq("ldap"), Matchers.<Map<String, String>>any())).thenReturn(new ValidationResult());
+        when(extension.validateAuthConfig(eq("ldap"), ArgumentMatchers.anyMap())).thenReturn(new ValidationResult());
 
         SecurityAuthConfigCommand command = new SecurityAuthConfigCommandTest.StubCommand(goConfigService, securityAuthConfig, extension, currentUser, result);
         boolean isValid = command.isValid(cruiseConfig);

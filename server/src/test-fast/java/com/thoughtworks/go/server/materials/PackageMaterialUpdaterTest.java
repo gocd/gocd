@@ -31,6 +31,7 @@ import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
 import org.springframework.transaction.support.TransactionCallback;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -95,7 +96,7 @@ public class PackageMaterialUpdaterTest {
 
         materialUpdater.insertLatestOrNewModifications(material, materialInstance, file, modifications);
 
-        verify(materialRepository, never()).saveOrUpdate(Matchers.<MaterialInstance>any());
+        verify(materialRepository, never()).saveOrUpdate(any(MaterialInstance.class));
         verify(scmMaterialUpdater).insertLatestOrNewModifications(material, materialInstance, file, modifications);
     }
 

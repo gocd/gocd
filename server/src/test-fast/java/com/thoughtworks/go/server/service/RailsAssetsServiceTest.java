@@ -24,7 +24,6 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.mockito.ArgumentMatchers;
 
 import javax.servlet.ServletContext;
 import java.io.File;
@@ -39,6 +38,7 @@ import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.nullValue;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -80,7 +80,7 @@ public class RailsAssetsServiceTest {
     public void shouldGetAssetPathFromManifestJson() throws IOException {
         FileUtils.writeStringToFile(new File(assetsDir, ".sprockets-manifest-digest.json"), json, UTF_8);
         when(context.getInitParameter("rails.root")).thenReturn("");
-        when(context.getRealPath(Matchers.<String>any())).thenReturn(assetsDir.getAbsolutePath());
+        when(context.getRealPath(any(String.class))).thenReturn(assetsDir.getAbsolutePath());
         railsAssetsService.initialize();
 
         assertThat(railsAssetsService.getAssetPath("application.js"), is("assets/application-bfdbd4fff63b0cd45c50ce7a79fe0f53.js"));
@@ -90,7 +90,7 @@ public class RailsAssetsServiceTest {
     @Test
     public void shouldThrowExceptionIfManifestFileIsNotFoundInAssetsDir() throws IOException {
         when(context.getInitParameter("rails.root")).thenReturn("");
-        when(context.getRealPath(Matchers.<String>any())).thenReturn(assetsDir.getAbsolutePath());
+        when(context.getRealPath(any(String.class))).thenReturn(assetsDir.getAbsolutePath());
         try {
             railsAssetsService.initialize();
             fail("Expected exception to be thrown");
@@ -102,7 +102,7 @@ public class RailsAssetsServiceTest {
     @Test
     public void shouldThrowExceptionIfAssetsDirDoesNotExist() throws IOException {
         when(context.getInitParameter("rails.root")).thenReturn("");
-        when(context.getRealPath(Matchers.<String>any())).thenReturn("DoesNotExist");
+        when(context.getRealPath(any(String.class))).thenReturn("DoesNotExist");
         try {
             railsAssetsService.initialize();
             fail("Expected exception to be thrown");

@@ -98,7 +98,7 @@ public class BuildAssignmentServiceTest {
         profiles.put(elasticProfile2.getId(), elasticProfile2);
         schedulingContext = new DefaultSchedulingContext("me", new Agents(elasticAgent), profiles);
         when(jobInstanceService.orderedScheduledBuilds()).thenReturn(jobPlans);
-        when(environmentConfigService.filterJobsByAgent(Matchers.eq(jobPlans), any(String.class))).thenReturn(jobPlans);
+        when(environmentConfigService.filterJobsByAgent(ArgumentMatchers.eq(jobPlans), any(String.class))).thenReturn(jobPlans);
         when(environmentConfigService.envForPipeline(any(String.class))).thenReturn("");
     }
 

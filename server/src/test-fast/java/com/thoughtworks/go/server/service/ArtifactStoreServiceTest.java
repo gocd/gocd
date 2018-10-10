@@ -20,7 +20,6 @@ import com.thoughtworks.go.config.ArtifactStore;
 import com.thoughtworks.go.config.ArtifactStores;
 import com.thoughtworks.go.config.update.CreateArtifactStoreConfigCommand;
 import com.thoughtworks.go.config.update.DeleteArtifactStoreConfigCommand;
-import com.thoughtworks.go.config.update.PluginProfileCommand;
 import com.thoughtworks.go.config.update.UpdateArtifactStoreConfigCommand;
 import com.thoughtworks.go.plugin.access.artifact.ArtifactExtension;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationError;
@@ -30,16 +29,12 @@ import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import org.hamcrest.MatcherAssert;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
-
-import java.util.Map;
 
 import static com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother.create;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
@@ -107,7 +102,7 @@ public class ArtifactStoreServiceTest {
         validationResult.addError(new ValidationError("key", "some-error"));
 
 
-        when(extension.validateArtifactStoreConfig(eq("cd.go.artifact.docker"), Matchers.<Map<String, String>>any())).thenReturn(validationResult);
+        when(extension.validateArtifactStoreConfig(eq("cd.go.artifact.docker"), anyMap())).thenReturn(validationResult);
 
         artifactStoreService.create(new Username("admin"), artifactStore, new HttpLocalizedOperationResult());
 
@@ -122,7 +117,7 @@ public class ArtifactStoreServiceTest {
         validationResult.addError(new ValidationError("key", "some-error"));
 
 
-        when(extension.validateArtifactStoreConfig(eq("cd.go.artifact.docker"), Matchers.<Map<String, String>>any())).thenReturn(validationResult);
+        when(extension.validateArtifactStoreConfig(eq("cd.go.artifact.docker"), anyMap())).thenReturn(validationResult);
 
         artifactStoreService.update(new Username("admin"), "md5", artifactStore, new HttpLocalizedOperationResult());
 

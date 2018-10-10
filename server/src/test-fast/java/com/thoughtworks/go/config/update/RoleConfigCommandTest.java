@@ -36,6 +36,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.anyMap;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -132,7 +133,7 @@ public class RoleConfigCommandTest {
         PluginRoleConfig pluginRoleConfig = new PluginRoleConfig("foo", "ldap");
         cruiseConfig.server().security().addRole(pluginRoleConfig);
         cruiseConfig.server().security().securityAuthConfigs().add(new SecurityAuthConfig("ldap", "cd.go.ldap"));
-        when(extension.validateRoleConfiguration(eq("cd.go.ldap"), Matchers.<Map<String, String>>any())).thenReturn(new ValidationResult());
+        when(extension.validateRoleConfiguration(eq("cd.go.ldap"), anyMap())).thenReturn(new ValidationResult());
 
         RoleConfigCommand command = new StubCommand(goConfigService, pluginRoleConfig, extension, currentUser, result);
         boolean isValid = command.isValid(cruiseConfig);

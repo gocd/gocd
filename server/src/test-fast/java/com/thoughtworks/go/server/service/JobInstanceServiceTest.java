@@ -38,11 +38,13 @@ import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.server.ui.JobInstancesModel;
 import com.thoughtworks.go.server.ui.SortOrder;
 import com.thoughtworks.go.server.util.Pagination;
-import com.thoughtworks.go.serverhealth.*;
+import com.thoughtworks.go.serverhealth.HealthStateScope;
+import com.thoughtworks.go.serverhealth.HealthStateType;
+import com.thoughtworks.go.serverhealth.ServerHealthService;
+import com.thoughtworks.go.serverhealth.ServerHealthState;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.transaction.TransactionStatus;
@@ -221,7 +223,7 @@ public class JobInstanceServiceTest {
         jobService.cancelJob(scheduledJob);
         verify(jobInstanceDao).updateStateAndResult(scheduledJob);
         verify(buildPropertiesService).saveCruiseProperties(scheduledJob);
-        verify(topic, never()).post(Matchers.<JobResultMessage>any());
+        verify(topic, never()).post(any(JobResultMessage.class));
     }
 
     @Test
@@ -241,7 +243,7 @@ public class JobInstanceServiceTest {
         jobService.cancelJob(completedJob);
         verify(jobInstanceDao, never()).updateStateAndResult(completedJob);
         verify(buildPropertiesService, never()).saveCruiseProperties(completedJob);
-        verify(topic, never()).post(Matchers.<JobResultMessage>any());
+        verify(topic, never()).post(any(JobResultMessage.class));
     }
 
     @Test

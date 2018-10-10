@@ -28,7 +28,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
-import org.mockito.ArgumentMatchers;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -57,7 +56,7 @@ public class SchedulingCheckerServiceUnitTest {
         compositeChecker = mock(CompositeChecker.class);
         operationResult = mock(OperationResult.class);
 
-        doReturn(compositeChecker).when(schedulingChecker).buildScheduleCheckers(Matchers.any());
+        doReturn(compositeChecker).when(schedulingChecker).buildScheduleCheckers(any());
         when(operationResult.getServerHealthState()).thenReturn(ServerHealthState.success(HealthStateType.general(HealthStateScope.GLOBAL)));
     }
 
@@ -162,7 +161,7 @@ public class SchedulingCheckerServiceUnitTest {
         schedulingChecker.pipelineCanBeTriggeredManually(PipelineConfigMother.pipelineConfig("sample"));
 
         verify(schedulingChecker).buildScheduleCheckers(argumentCaptor.capture());
-        verify(compositeChecker).check(Matchers.any());
+        verify(compositeChecker).check(any());
 
         assertFor(argumentCaptor.getValue(), AboutToBeTriggeredChecker.class);
         assertFor(argumentCaptor.getValue(), PipelinePauseChecker.class);

@@ -101,7 +101,7 @@ public class PackageMaterialAddWithNewPackageDefinitionCommandTest extends Packa
         assertThat(packageMaterial.getPackageDefinition().getRepository(), is(nullValue()));
         assertThat(packageMaterial.getPackageDefinition().getName(), is(pkgName));
         assertThat(packageMaterial.getPackageDefinition().getConfiguration().size(), is(0));
-        verify(packageDefinitionService, never()).performPluginValidationsFor(Matchers.<PackageDefinition>any());
+        verify(packageDefinitionService, never()).performPluginValidationsFor(any(PackageDefinition.class));
     }
 
 

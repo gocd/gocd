@@ -26,7 +26,6 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.mockito.ArgumentMatchers;
 
 import java.io.File;
 import java.util.Date;
@@ -34,6 +33,7 @@ import java.util.Date;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.nullValue;
 import static org.junit.Assert.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -52,7 +52,7 @@ public class BackupServiceTest {
         when(systemEnvironment.getConfigDir()).thenReturn(temporaryFolder.newFolder("config_dir").getAbsolutePath());
         configRepo = mock(ConfigRepository.class);
         databaseStrategy = mock(Database.class);
-        when(configRepo.doLocked(Matchers.<ThrowingFn<Object, Exception>>any())).thenCallRealMethod();
+        when(configRepo.doLocked(any(ThrowingFn.class))).thenCallRealMethod();
     }
 
     @Test

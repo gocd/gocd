@@ -493,14 +493,14 @@ public class BuildCauseProducerServiceTest {
         config.addMaterialConfig(svnMaterial.config());
         config.addMaterialConfig(dependencyMaterial.config());
 
-        when(pipelineService.getRevisionsBasedOnDependencies(Matchers.<MaterialRevisions>any(), Matchers.<BasicCruiseConfig>any(), Matchers.<CaseInsensitiveString>any())).thenThrow(
+        when(pipelineService.getRevisionsBasedOnDependencies(any(MaterialRevisions.class), any(BasicCruiseConfig.class), any(CaseInsensitiveString.class))).thenThrow(
                 new NoModificationsPresentForDependentMaterialException("P/1/S/1"));
         when(pipelineScheduleQueue.mostRecentScheduled(new CaseInsensitiveString(pipelineName))).thenReturn(BuildCause.createNeverRun());
         Modification modification = ModificationsMother.checkinWithComment("r", "c", new Date(), "f1");
         when(materialRepository.findLatestModification(svnMaterial)).thenReturn(ModificationsMother.createSvnMaterialWithMultipleRevisions(1, modification));
         when(materialRepository.findLatestModification(dependencyMaterial)).thenReturn(new MaterialRevisions(ModificationsMother.changedDependencyMaterialRevision("up", 1, "1", "s", 1, new Date())));
-        when(specificMaterialRevisionFactory.create(Matchers.<String>any(), Matchers.<Map<String, String>>any())).thenReturn(MaterialRevisions.EMPTY);
-        when(goConfigService.upstreamDependencyGraphOf(Matchers.<String>any(), Matchers.<BasicCruiseConfig>any())).thenReturn(new PipelineConfigDependencyGraph(config));
+        when(specificMaterialRevisionFactory.create(any(String.class), anyMap())).thenReturn(MaterialRevisions.EMPTY);
+        when(goConfigService.upstreamDependencyGraphOf(any(String.class), any(BasicCruiseConfig.class))).thenReturn(new PipelineConfigDependencyGraph(config));
 
         MaterialConfigs knownMaterialConfigs = new MaterialConfigs(svnMaterial.config(), dependencyMaterial.config());
         Materials materials = new Materials(svnMaterial, dependencyMaterial);

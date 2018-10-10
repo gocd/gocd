@@ -42,6 +42,7 @@ import com.thoughtworks.go.util.*;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
 import org.eclipse.jgit.api.errors.GitAPIException;
+import org.hamcrest.Matchers;
 import org.hamcrest.core.Is;
 import org.joda.time.DateTime;
 import org.junit.After;
@@ -63,7 +64,6 @@ import static com.thoughtworks.go.util.GoConfigFileHelper.loadAndMigrate;
 import static com.thoughtworks.go.util.LogFixture.logFixtureFor;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Arrays.asList;
-import static org.hamcrest.Matchers.any;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.nullValue;
@@ -71,6 +71,8 @@ import static org.hamcrest.core.StringContains.containsString;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.*;
+
+import static org.mockito.ArgumentMatchers.any;
 
 public class GoFileConfigDataSourceTest {
     @Rule
@@ -518,7 +520,7 @@ public class GoFileConfigDataSourceTest {
         cachedGoPartials.addOrUpdate(this.repoConfig.getMaterialConfig().getFingerprint(), partialConfig);
         cachedGoPartials.markAllKnownAsValid();
         thrown.expect(RuntimeException.class);
-        thrown.expectCause(any(GoConfigInvalidException.class));
+        thrown.expectCause(Matchers.any(GoConfigInvalidException.class));
         thrown.expectMessage(String.format("Stage with name 's1' does not exist on pipeline '%s', it is being referred to from pipeline '%s' (%s)", upstream.name(), remotePipeline, repoConfigOrigin.displayName()));
         dataSource.writeWithLock(new UpdateConfigCommand() {
             @Override
@@ -545,7 +547,7 @@ public class GoFileConfigDataSourceTest {
         BasicCruiseConfig cruiseConfig = GoConfigMother.configWithPipelines(pipelineName);
         ConfigErrors configErrors = new ConfigErrors();
         configErrors.add("key", "some error");
-        when(loader.loadConfigHolder(Matchers.any(String.class))).thenThrow(new GoConfigInvalidException(cruiseConfig, configErrors.firstError()));
+        when(loader.loadConfigHolder(any(String.class))).thenThrow(new GoConfigInvalidException(cruiseConfig, configErrors.firstError()));
 
         try {
             dataSource.writeWithLock(new UpdateConfigCommand() {
@@ -559,7 +561,7 @@ public class GoFileConfigDataSourceTest {
         } catch (Exception e) {
             verifyZeroInteractions(configRepository);
             verifyZeroInteractions(serverHealthService);
-            verify(loader, times(1)).loadConfigHolder(Matchers.any(String.class), Matchers.any(MagicalGoConfigXmlLoader.Callback.class));
+            verify(loader, times(1)).loadConfigHolder(any(String.class), any(MagicalGoConfigXmlLoader.Callback.class));
         }
     }
 
@@ -614,7 +616,7 @@ public class GoFileConfigDataSourceTest {
                 fullConfigSaveMergeFlow, fullConfigSaveNormalFlow);
 
         when(cachedGoPartials.lastKnownPartials()).thenReturn(lastKnownPartials);
-        when(fullConfigSaveNormalFlow.execute(Matchers.any(FullConfigUpdateCommand.class), Matchers.any(List.class), Matchers.any(String.class))).
+        when(fullConfigSaveNormalFlow.execute(any(FullConfigUpdateCommand.class), anyList(), any(String.class))).
                 thenReturn(new GoConfigHolder(new BasicCruiseConfig(), new BasicCruiseConfig()));
 
         source.writeFullConfigWithLock(updatingCommand, configHolder);
@@ -635,7 +637,7 @@ public class GoFileConfigDataSourceTest {
                 fullConfigSaveMergeFlow, fullConfigSaveNormalFlow);
 
         when(cachedGoPartials.lastKnownPartials()).thenReturn(lastKnownPartials);
-        when(fullConfigSaveMergeFlow.execute(Matchers.any(FullConfigUpdateCommand.class), Matchers.any(List.class), Matchers.any(String.class))).
+        when(fullConfigSaveMergeFlow.execute(any(FullConfigUpdateCommand.class), anyList(), any(String.class))).
                 thenReturn(new GoConfigHolder(new BasicCruiseConfig(), new BasicCruiseConfig()));
 
         source.writeFullConfigWithLock(updatingCommand, configHolder);
@@ -729,8 +731,8 @@ public class GoFileConfigDataSourceTest {
 
         source.writeFullConfigWithLock(updatingCommand, configHolder);
 
-        verify(fullConfigSaveMergeFlow, never()).execute(Matchers.any(FullConfigUpdateCommand.class), Matchers.any(List.class), Matchers.any(String.class));
-        verify(fullConfigSaveNormalFlow, never()).execute(Matchers.any(FullConfigUpdateCommand.class), Matchers.any(List.class), Matchers.any(String.class));
+        verify(fullConfigSaveMergeFlow, never()).execute(any(FullConfigUpdateCommand.class), anyList(), ArgumentMatchers.any(String.class));
+        verify(fullConfigSaveNormalFlow, never()).execute(any(FullConfigUpdateCommand.class), anyList(), ArgumentMatchers.any(String.class));
     }
 
     @Test

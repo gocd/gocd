@@ -43,7 +43,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
-import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 
 import java.util.*;
@@ -369,7 +368,7 @@ public class MaterialUpdateServiceTest {
 
         //then
         verify(serverHealthService, never()).removeByScope(HealthStateScope.forMaterialUpdate(material));
-        verify(serverHealthService, never()).update(Matchers.<ServerHealthState>any());
+        verify(serverHealthService, never()).update(any(ServerHealthState.class));
     }
 
     @Test

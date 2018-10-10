@@ -84,6 +84,11 @@ function ConfigRepoVM(data) {
     url: SparkRoutes.configRepoLastParsedResultPath(this.id),
     apiVersion: "v1"
   });
+
+  this.triggerUpdate = () => ApiHelper.POST({
+    url: SparkRoutes.configRepoTriggerUpdatePath(this.id),
+    apiVersion: "v1"
+  })
 }
 
 module.exports = ConfigRepoVM;

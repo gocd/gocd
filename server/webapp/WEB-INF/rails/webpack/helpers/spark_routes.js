@@ -92,5 +92,9 @@ module.exports = {
 
   configRepoLastParsedResultPath: (id) => {
     return `/go/api/internal/config_repos/${id}/last_parsed_result`;
+  },
+
+  configRepoTriggerUpdatePath: (id) => {
+    return `/go/api/internal/config_repos/${id}/trigger_update`;
   }
 };

@@ -18,10 +18,17 @@ package com.thoughtworks.go.apiv1.stageoperations
 
 import com.thoughtworks.go.api.SecurityTestTrait
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
+import com.thoughtworks.go.domain.JobInstance
+import com.thoughtworks.go.domain.JobInstances
+import com.thoughtworks.go.domain.Pipeline
 import com.thoughtworks.go.domain.Stage
 import com.thoughtworks.go.server.service.PipelineService
+import com.thoughtworks.go.domain.StageIdentifier
+import com.thoughtworks.go.server.service.PipelineService
 import com.thoughtworks.go.server.service.ScheduleService
+import com.thoughtworks.go.server.service.SchedulingCheckerService
 import com.thoughtworks.go.server.service.result.HttpOperationResult
+import com.thoughtworks.go.server.service.result.OperationResult
 import com.thoughtworks.go.serverhealth.HealthStateScope
 import com.thoughtworks.go.serverhealth.HealthStateType
 import com.thoughtworks.go.spark.ControllerTrait
@@ -31,6 +38,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.Mock
+import org.mockito.internal.util.reflection.FieldSetter
 import org.mockito.invocation.InvocationOnMock
 
 import static org.mockito.ArgumentMatchers.any
@@ -41,6 +49,12 @@ import static org.mockito.MockitoAnnotations.initMocks
 class StageOperationsControllerV1Test implements SecurityServiceTrait, ControllerTrait<StageOperationsControllerV1> {
   @Mock
   ScheduleService scheduleService
+
+  @Mock
+  SchedulingCheckerService schedulingChecker
+
+  @Mock
+  PipelineService pipelineService
 
   @Mock
   PipelineService pipelineService
@@ -56,6 +70,197 @@ class StageOperationsControllerV1Test implements SecurityServiceTrait, Controlle
   }
 
   @Nested
+  class RerunJobs {
+    String pipelineName = "up42"
+    String pipelineCounter = "3"
+    String stageName = "stage1"
+
+    @Nested
+    class RerunFailedJobsSecurity implements SecurityTestTrait, PipelineGroupOperateUserSecurity {
+
+      @Override
+      String getControllerMethodUnderTest() {
+        return "rerunFailedJobs"
+      }
+
+      @Override
+      void makeHttpCall() {
+        postWithApiHeader(controller.controllerPath(pipelineName, pipelineCounter, stageName, 'run-failed-jobs'), [:])
+      }
+
+      @Override
+      String getPipelineName() {
+        return RerunJobs.this.pipelineName
+      }
+    }
+
+    @Nested
+    class RerunSelectedJobsSecurity implements SecurityTestTrait, PipelineGroupOperateUserSecurity {
+
+      @Override
+      String getControllerMethodUnderTest() {
+        return "rerunSelectedJobs"
+      }
+
+      @Override
+      void makeHttpCall() {
+        String requestBody = "{\"jobs\": [\"job1\"]}"
+        postWithApiHeader(controller.controllerPath(pipelineName, pipelineCounter, stageName, 'run-selected-jobs'), requestBody)
+      }
+
+      @Override
+      String getPipelineName() {
+        return RerunJobs.this.pipelineName
+      }
+    }
+
+    @Nested
+    class AsAuthorizedUser {
+      @BeforeEach
+      void setUp() {
+        enableSecurity()
+        loginAsGroupOperateUser(pipelineName)
+      }
+
+      @Test
+      void 'reruns failed-jobs for a stage'() {
+        String acceptanceMessage = "Request to rerun job(s) is accepted"
+        HttpOperationResult result
+
+        doAnswer({ InvocationOnMock invocation ->
+          result = invocation.getArgument(3)
+          result.accepted(acceptanceMessage, "", HealthStateType.general(HealthStateScope.forStage(pipelineName, stageName)))
+          return mock(Stage)
+        }).when(scheduleService).rerunFailedJobs(eq(pipelineName), eq(pipelineCounter), eq(stageName), any() as HttpOperationResult)
+
+        postWithApiHeader(controller.controllerPath(pipelineName, pipelineCounter, stageName, 'run-failed-jobs'), [:])
+
+        assertThatResponse()
+          .isAccepted()
+          .hasContentType(controller.mimeType)
+          .hasJsonMessage(acceptanceMessage)
+
+        verify(scheduleService).rerunFailedJobs(pipelineName, pipelineCounter, stageName, result)
+      }
+
+      @Test
+      void 'rerunFailedJobs reports errors'() {
+        def pipeline = mock(Pipeline)
+        def stage = mock(Stage)
+
+        FieldSetter.setField(scheduleService, ScheduleService.getDeclaredField("pipelineService"), pipelineService)
+        FieldSetter.setField(scheduleService, ScheduleService.getDeclaredField("schedulingChecker"), schedulingChecker)
+
+        when(stage.jobsWithResult(any())).thenReturn(new JobInstances(Arrays.asList(new JobInstance("job1"))))
+        when(stage.getIdentifier()).thenReturn(new StageIdentifier("up42/3/run-failedJob/23"))
+        when(pipeline.findStage(any())).thenReturn(stage)
+        when(pipelineService.fullPipelineByCounterOrLabel(any(), any())).thenReturn(pipeline)
+        when(schedulingChecker.canSchedule(any())).thenThrow(new RuntimeException("boom"))
+
+        doAnswer({ InvocationOnMock invocation -> invocation.callRealMethod() }).
+          when(scheduleService).rerunFailedJobs(eq(pipelineName), eq(pipelineCounter), eq(stageName), any() as HttpOperationResult)
+
+        doAnswer({ InvocationOnMock invocation -> invocation.callRealMethod() }).
+          when(scheduleService).rerunFailedJobs(eq(stage), any() as HttpOperationResult)
+
+        doAnswer({ InvocationOnMock invocation -> invocation.callRealMethod() }).
+          when(scheduleService).rerunJobs(eq(stage), any(), any() as HttpOperationResult)
+
+
+        postWithApiHeader(controller.controllerPath(pipelineName, pipelineCounter, stageName, 'run-failed-jobs'), [:])
+
+        assertThatResponse()
+          .isInternalServerError()
+          .hasContentType(controller.mimeType)
+          .hasJsonMessage("Job rerun request for job(s) [job1] could not be completed because of unexpected failure. Cause: boom\"")
+      }
+
+      @Test
+      void 'rerunSelectedJobs reports errors'() {
+        List<String> jobs = ["download", "build", "upload"]
+        String requestBody = "{\n" +
+          "  \"jobs\": [\"download\"]\n" +
+          "}"
+
+        def pipeline = mock(Pipeline)
+        def stage = mock(Stage)
+
+        FieldSetter.setField(scheduleService, ScheduleService.getDeclaredField("pipelineService"), pipelineService)
+        FieldSetter.setField(scheduleService, ScheduleService.getDeclaredField("schedulingChecker"), schedulingChecker)
+
+        when(stage.jobsWithResult(any())).thenReturn(new JobInstances(Arrays.asList(new JobInstance("download"))))
+        when(stage.getJobInstances()).thenReturn(new JobInstances(Arrays.asList(new JobInstance("download"))))
+        when(stage.getIdentifier()).thenReturn(new StageIdentifier("${[pipelineName, pipelineCounter, stageName].join("/")}/23"))
+        when(pipeline.findStage(any())).thenReturn(stage)
+        when(pipelineService.fullPipelineByCounterOrLabel(any(), any())).thenReturn(pipeline)
+        when(schedulingChecker.canSchedule(any())).thenThrow(new RuntimeException("boom"))
+
+        doAnswer({ InvocationOnMock invocation -> invocation.callRealMethod() }).
+          when(scheduleService).rerunJobs(eq(stage), anyList(), any() as HttpOperationResult)
+
+        doAnswer({ InvocationOnMock invocation -> invocation.callRealMethod() }).
+          when(scheduleService).rerunSelectedJobs(eq(pipelineName), eq(pipelineCounter), eq(stageName), anyList(), any() as HttpOperationResult)
+
+        postWithApiHeader(controller.controllerPath(pipelineName, pipelineCounter, stageName, 'run-selected-jobs'), requestBody)
+
+        assertThatResponse()
+          .isInternalServerError()
+          .hasContentType(controller.mimeType)
+          .hasJsonMessage("Job rerun request for job(s) [download] could not be completed because of unexpected failure. Cause: boom\"")
+      }
+
+
+      @Test
+      void 'reruns selected-jobs for a stage'() {
+        String acceptanceMessage = "Request to rerun job(s) is accepted"
+        HttpOperationResult result
+
+        List<String> jobs = ["download", "build", "upload"]
+        String requestBody = "{\n" +
+          "  \"jobs\": [\"download\", \"build\", \"upload\"]\n" +
+          "}"
+
+        doAnswer({ InvocationOnMock invocation ->
+          result = invocation.getArgument(4)
+          result.accepted(acceptanceMessage, "", HealthStateType.general(HealthStateScope.forStage(pipelineName, stageName)))
+          return mock(Stage)
+        }).when(scheduleService).rerunSelectedJobs(eq(pipelineName), eq(pipelineCounter), eq(stageName), eq(jobs), any() as HttpOperationResult)
+
+        postWithApiHeader(controller.controllerPath(pipelineName, pipelineCounter, stageName, 'run-selected-jobs'), requestBody)
+
+        assertThatResponse()
+          .isAccepted()
+          .hasContentType(controller.mimeType)
+          .hasJsonMessage(acceptanceMessage)
+
+        verify(scheduleService).rerunSelectedJobs(pipelineName, pipelineCounter, stageName, jobs, result)
+      }
+
+      @Test
+      void 'rerunSelectedJobs reports error on invalid request body'() {
+        String acceptanceMessage = "Request to rerun job(s) is accepted"
+        HttpOperationResult result
+
+        List<String> jobs = ["download", "build", "upload"]
+        String requestBody = "{\n" +
+          "  \"jobss\": [\"download\", \"build\", \"upload\"]\n" +
+          "}"
+
+        postWithApiHeader(controller.controllerPath(pipelineName, pipelineCounter, stageName, 'run-selected-jobs'), requestBody)
+
+        assertThatResponse()
+          .isUnprocessableEntity()
+          .hasContentType(controller.mimeType)
+          .hasJsonMessage("Could not read property 'jobs' in request body")
+
+        verify(scheduleService, times(0)).rerunSelectedJobs(pipelineName, pipelineCounter, stageName, jobs, result)
+      }
+
+    }
+
+  }
+
+  @Nested
   class Run {
     String pipelineName = "up42"
     String pipelineCounter = "3"
@@ -66,7 +271,7 @@ class StageOperationsControllerV1Test implements SecurityServiceTrait, Controlle
 
       @Override
       String getControllerMethodUnderTest() {
-        return "run"
+        return "triggerStage"
       }
 
       @Override
@@ -86,6 +291,7 @@ class StageOperationsControllerV1Test implements SecurityServiceTrait, Controlle
       void setUp() {
         enableSecurity()
         loginAsGroupOperateUser(pipelineName)
+
       }
 
       @Test

@@ -235,6 +235,27 @@
   </rule>
 
   <rule>
+    <name>Spark Stage Rerun Failed Jobs Operations API</name>
+    <condition type="header" name="Accept">application\/vnd\.go\.cd\.v1\+json</condition>
+    <from>^/api/stages/([^/]+)/([^/]+)/([^/]+)/run-failed-jobs(/?)</from>
+    <to last="true">/spark/api/stages/${escape:$1}/${escape:$2}/${escape:$3}/run-failed-jobs</to>
+  </rule>
+
+  <rule>
+    <name>Spark Stage Rerun Selected Jobs Operations API</name>
+    <condition type="header" name="Accept">application\/vnd\.go\.cd\.v1\+json</condition>
+    <from>^/api/stages/([^/]+)/([^/]+)/([^/]+)/run-selected-jobs(/?)</from>
+    <to last="true">/spark/api/stages/${escape:$1}/${escape:$2}/${escape:$3}/run-selected-jobs</to>
+  </rule>
+
+  <rule>
+    <name>Spark pipeline pause/unpause/unlock/trigger_view API/schedule API</name>
+    <condition type="header" name="Accept">application\/vnd\.go\.cd\.v1\+json</condition>
+    <from>^/api/pipelines/([^/]+)/(pause|unpause|unlock|trigger_options|schedule)</from>
+    <to last="true">/spark/api/pipelines/${escape:$1}/${escape:$2}</to>
+  </rule>
+
+  <rule>
     <name>Plugin Images</name>
     <from>^/api/plugin_images/(.*)$</from>
     <to last="true">/spark/api/plugin_images/$1</to>

@@ -18,22 +18,23 @@ package com.thoughtworks.go.apiv1.stageoperations
 
 import com.thoughtworks.go.api.SecurityTestTrait
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
-import com.thoughtworks.go.domain.JobInstance
 import com.thoughtworks.go.domain.JobInstances
-import com.thoughtworks.go.domain.Pipeline
+import com.thoughtworks.go.domain.JobResult
 import com.thoughtworks.go.domain.Stage
 import com.thoughtworks.go.server.service.PipelineService
 import com.thoughtworks.go.domain.StageIdentifier
+import com.thoughtworks.go.helper.JobInstanceMother
+import com.thoughtworks.go.helper.PipelineMother
 import com.thoughtworks.go.server.service.PipelineService
 import com.thoughtworks.go.server.service.ScheduleService
 import com.thoughtworks.go.server.service.SchedulingCheckerService
 import com.thoughtworks.go.server.service.result.HttpOperationResult
-import com.thoughtworks.go.server.service.result.OperationResult
 import com.thoughtworks.go.serverhealth.HealthStateScope
 import com.thoughtworks.go.serverhealth.HealthStateType
 import com.thoughtworks.go.spark.ControllerTrait
 import com.thoughtworks.go.spark.PipelineGroupOperateUserSecurity
 import com.thoughtworks.go.spark.SecurityServiceTrait
+import com.thoughtworks.go.util.TimeProvider
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -41,8 +42,7 @@ import org.mockito.Mock
 import org.mockito.internal.util.reflection.FieldSetter
 import org.mockito.invocation.InvocationOnMock
 
-import static org.mockito.ArgumentMatchers.any
-import static org.mockito.ArgumentMatchers.eq
+import static org.mockito.ArgumentMatchers.*
 import static org.mockito.Mockito.*
 import static org.mockito.MockitoAnnotations.initMocks
 
@@ -74,6 +74,7 @@ class StageOperationsControllerV1Test implements SecurityServiceTrait, Controlle
     String pipelineName = "up42"
     String pipelineCounter = "3"
     String stageName = "stage1"
+    String stageCounter = "1"
 
     @Nested
     class RerunFailedJobsSecurity implements SecurityTestTrait, PipelineGroupOperateUserSecurity {
@@ -145,15 +146,17 @@ class StageOperationsControllerV1Test implements SecurityServiceTrait, Controlle
 
       @Test
       void 'rerunFailedJobs reports errors'() {
-        def pipeline = mock(Pipeline)
-        def stage = mock(Stage)
+        def jobInstance = JobInstanceMother.completed("download", JobResult.Failed)
+        def jobInstances = new JobInstances(Arrays.asList(jobInstance))
+
+        def stage = new Stage(stageName, jobInstances, "user", "auto", new TimeProvider())
+        stage.setIdentifier(new StageIdentifier("${[pipelineName, pipelineCounter, stageName, stageCounter].join("/")}"))
+
+        def pipeline = PipelineMother.pipeline(pipelineName, stage)
 
         FieldSetter.setField(scheduleService, ScheduleService.getDeclaredField("pipelineService"), pipelineService)
         FieldSetter.setField(scheduleService, ScheduleService.getDeclaredField("schedulingChecker"), schedulingChecker)
 
-        when(stage.jobsWithResult(any())).thenReturn(new JobInstances(Arrays.asList(new JobInstance("job1"))))
-        when(stage.getIdentifier()).thenReturn(new StageIdentifier("up42/3/run-failedJob/23"))
-        when(pipeline.findStage(any())).thenReturn(stage)
         when(pipelineService.fullPipelineByCounterOrLabel(any(), any())).thenReturn(pipeline)
         when(schedulingChecker.canSchedule(any())).thenThrow(new RuntimeException("boom"))
 
@@ -172,21 +175,22 @@ class StageOperationsControllerV1Test implements SecurityServiceTrait, Controlle
         assertThatResponse()
           .isInternalServerError()
           .hasContentType(controller.mimeType)
-          .hasJsonMessage("Job rerun request for job(s) [job1] could not be completed because of unexpected failure. Cause: boom\"")
+          .hasJsonMessage("Job rerun request for job(s) [download] could not be completed because of unexpected failure. Cause: boom\"")
       }
 
       @Test
       void 'rerunSelectedJobs reports errors'() {
-        def pipeline = mock(Pipeline)
-        def stage = mock(Stage)
+        def jobInstance = JobInstanceMother.completed("download", JobResult.Failed)
+        def jobInstances = new JobInstances(Arrays.asList(jobInstance))
+
+        def stage = new Stage(stageName, jobInstances, "user", "auto", new TimeProvider())
+        stage.setIdentifier(new StageIdentifier("${[pipelineName, pipelineCounter, stageName, stageCounter].join("/")}"))
+
+        def pipeline = PipelineMother.pipeline(pipelineName, stage)
 
         FieldSetter.setField(scheduleService, ScheduleService.getDeclaredField("pipelineService"), pipelineService)
         FieldSetter.setField(scheduleService, ScheduleService.getDeclaredField("schedulingChecker"), schedulingChecker)
 
-        when(stage.jobsWithResult(any())).thenReturn(new JobInstances(Arrays.asList(new JobInstance("download"))))
-        when(stage.getJobInstances()).thenReturn(new JobInstances(Arrays.asList(new JobInstance("download"))))
-        when(stage.getIdentifier()).thenReturn(new StageIdentifier("${[pipelineName, pipelineCounter, stageName].join("/")}/23"))
-        when(pipeline.findStage(any())).thenReturn(stage)
         when(pipelineService.fullPipelineByCounterOrLabel(any(), any())).thenReturn(pipeline)
         when(schedulingChecker.canSchedule(any())).thenThrow(new RuntimeException("boom"))
 

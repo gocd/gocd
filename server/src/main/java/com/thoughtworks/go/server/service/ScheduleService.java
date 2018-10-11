@@ -347,7 +347,7 @@ public class ScheduleService {
             if (result.canContinue()) {
                 String message = String.format("Job rerun request for job(s) [%s] could not be completed because of unexpected failure. Cause: %s", StringUtils.join(jobNames.toArray(), ", "),
                         e.getMessage());
-                result.internalServerError(message, healthStateForStage);//make this 500 while moving this to LocalizedOR.
+                result.internalServerError(message, healthStateForStage); 
                 LOGGER.error(message, e);
             }
             return null;
@@ -738,21 +738,23 @@ public class ScheduleService {
      */
     public void rerunFailedJobs(String pipelineName, String counterOrLabel, String stageName, HttpOperationResult result) {
         Pipeline pipeline = pipelineService.fullPipelineByCounterOrLabel(pipelineName, counterOrLabel);
-        if (pipelineDoesNotExist(pipelineName, counterOrLabel, result, pipeline)) return;
 
-        Stage stage = pipeline.findStage(stageName);
-        if (stageDoesNotExist(pipelineName, counterOrLabel, stageName, result, stage)) return;
+        if (pipelineDoesNotExist(pipelineName, counterOrLabel, result, pipeline)
+                || stageDoesNotExist(pipelineName, counterOrLabel, stageName, result, pipeline.findStage(stageName))) {
+            return;
+        }
 
-        rerunFailedJobs(stage, result);
+        rerunFailedJobs(pipeline.findStage(stageName), result);
     }
 
     public void rerunSelectedJobs(String pipelineName, String counterOrLabel, String stageName, List<String> requestedJobs, HttpOperationResult result) {
         Pipeline pipeline = pipelineService.fullPipelineByCounterOrLabel(pipelineName, counterOrLabel);
-        if (pipelineDoesNotExist(pipelineName, counterOrLabel, result, pipeline)) return;
+        if (pipelineDoesNotExist(pipelineName, counterOrLabel, result, pipeline)
+                || stageDoesNotExist(pipelineName, counterOrLabel, stageName, result, pipeline.findStage(stageName))) {
+            return;
+        }
 
         Stage stage = pipeline.findStage(stageName);
-        if (stageDoesNotExist(pipelineName, counterOrLabel, stageName, result, stage)) return;
-
         List<String> jobsToTrigger = stage.getJobInstances()
                 .stream()
                 .map(JobInstance::getName)

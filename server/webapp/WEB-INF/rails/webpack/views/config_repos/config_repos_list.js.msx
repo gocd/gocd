@@ -181,7 +181,7 @@ const Revision = {
       <div>{revision}</div>
       <div>{result}</div>
       <button onclick={handler}>Show Latest Revision</button>
-      <button onclick={() => { repo.triggerUpdate(); }}>Force Update</button>
+      <button onclick={() => { repo.triggerUpdate().then(() => repo.revisionStatusPoller.start()); }}>Force Update</button>
     </section>
   }
 }

@@ -21,6 +21,7 @@ const Validatable = require("models/mixins/validatable_mixin");
 const ApiHelper   = require("helpers/api_helper");
 const Routes      = require("gen/js-routes");
 const SparkRoutes = require('helpers/spark_routes');
+const AjaxPoller  = require('helpers/ajax_poller');
 
 function ConfigRepoVM(data) {
   this.id = Stream();
@@ -30,6 +31,7 @@ function ConfigRepoVM(data) {
   this.configuration = Stream();
   this.etag = Stream(null);
   this.serverErrors = Stream();
+  this.revisionStatusPoller = createPoller(this);
 
   Validatable.call(this, { errors: {} });
 
@@ -88,7 +90,25 @@ function ConfigRepoVM(data) {
   this.triggerUpdate = () => ApiHelper.POST({
     url: SparkRoutes.configRepoTriggerUpdatePath(this.id),
     apiVersion: "v1"
-  })
+  });
+}
+
+function createPoller(repo) {
+  return new AjaxPoller({
+    intervalSeconds: 2,
+    fn: () => {
+      return ApiHelper.GET({
+        url: SparkRoutes.configRepoRevisionStatusPath(repo.id),
+        apiVersion: "v1"
+      }).then((data) => {
+        console.log(data.inProgress)
+        if (!data.inProgress) {
+          console.log("should stop poller")
+          repo.revisionStatusPoller.stop();
+        }
+      })
+    }
+  });
 }
 
 module.exports = ConfigRepoVM;

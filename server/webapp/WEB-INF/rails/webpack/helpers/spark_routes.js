@@ -96,5 +96,9 @@ module.exports = {
 
   configRepoTriggerUpdatePath: (id) => {
     return `/go/api/internal/config_repos/${id}/trigger_update`;
+  },
+
+  configRepoRevisionStatusPath: (id) => {
+    return `/go/api/internal/config_repos/${id}/status`;
   }
 };

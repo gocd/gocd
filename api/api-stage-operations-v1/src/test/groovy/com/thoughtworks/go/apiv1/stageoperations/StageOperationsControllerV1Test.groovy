@@ -105,8 +105,7 @@ class StageOperationsControllerV1Test implements SecurityServiceTrait, Controlle
 
       @Override
       void makeHttpCall() {
-        String requestBody = "{\"jobs\": [\"job1\"]}"
-        postWithApiHeader(controller.controllerPath(pipelineName, pipelineCounter, stageName, 'run-selected-jobs'), requestBody)
+        postWithApiHeader(controller.controllerPath(pipelineName, pipelineCounter, stageName, 'run-selected-jobs'), ["jobs": ["job1"]])
       }
 
       @Override
@@ -241,7 +240,7 @@ class StageOperationsControllerV1Test implements SecurityServiceTrait, Controlle
           .hasContentType(controller.mimeType)
           .hasJsonMessage("Could not read property 'jobs' in request body")
 
-        verify(scheduleService, times(0)).rerunSelectedJobs(any(), any(), any(), any(), any() as HttpOperationResult)
+        verify(scheduleService, never()).rerunSelectedJobs(anyString(), anyString(), anyString(), anyList(), any() as HttpOperationResult)
       }
 
     }

@@ -16,7 +16,7 @@
 
 Rails.application.routes.draw do
   unless defined?(CONSTANTS)
-    CONFIG_REPO_ID_FORMAT = ROLE_NAME_FORMAT = ELASTIC_AGENT_PROFILE_ID_FORMAT = USER_NAME_FORMAT = GROUP_NAME_FORMAT = TEMPLATE_NAME_FORMAT = PIPELINE_NAME_FORMAT = STAGE_NAME_FORMAT = ENVIRONMENT_NAME_FORMAT = /[\w\-][\w\-.]*/
+    CONFIG_REPO_ID_FORMAT = ROLE_NAME_FORMAT = USER_NAME_FORMAT = GROUP_NAME_FORMAT = TEMPLATE_NAME_FORMAT = PIPELINE_NAME_FORMAT = STAGE_NAME_FORMAT = ENVIRONMENT_NAME_FORMAT = /[\w\-][\w\-.]*/
     JOB_NAME_FORMAT = /[\w\-.]+/
     PIPELINE_COUNTER_FORMAT = STAGE_COUNTER_FORMAT = /-?\d+/
     NON_NEGATIVE_INTEGER = /\d+/
@@ -214,10 +214,6 @@ Rails.application.routes.draw do
 
       resources :users, param: :login_name, only: [:create, :index, :show, :destroy], constraints: {login_name: /(.*?)/} do
         patch :update, on: :member
-      end
-
-      namespace :elastic do
-        resources :profiles, param: :profile_id, only: [:create, :index, :show, :destroy, :update], constraints: {profile_id: ELASTIC_AGENT_PROFILE_ID_FORMAT}
       end
 
       namespace :admin do

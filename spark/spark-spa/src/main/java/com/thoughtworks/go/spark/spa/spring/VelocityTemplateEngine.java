@@ -29,20 +29,20 @@ import java.util.Map;
 
 class VelocityTemplateEngine extends TemplateEngine {
     private final InitialContextProvider initialContextProvider;
-    private final String layout;
     private final Class<? extends SparkController> controller;
     private final VelocityEngine velocityEngine;
+    private LayoutTemplateProvider provider;
 
-    VelocityTemplateEngine(VelocityEngine velocityEngine, String layout, Class<? extends SparkController> controller, InitialContextProvider initialContextProvider) {
-        this.layout = layout;
+    VelocityTemplateEngine(VelocityEngine velocityEngine, LayoutTemplateProvider provider, Class<? extends SparkController> controller, InitialContextProvider initialContextProvider) {
         this.controller = controller;
         this.initialContextProvider = initialContextProvider;
         this.velocityEngine = velocityEngine;
+        this.provider = provider;
     }
 
     @Override
     public String render(ModelAndView modelAndView) {
-        Template template = velocityEngine.getTemplate(layout, "utf-8");
+        Template template = velocityEngine.getTemplate(provider.layout(), "utf-8");
         Object model = modelAndView.getModel();
         if (model == null) {
             model = Collections.emptyMap();
@@ -56,5 +56,4 @@ class VelocityTemplateEngine extends TemplateEngine {
             throw new IllegalArgumentException("modelAndView must be of type java.util.Map");
         }
     }
-
 }

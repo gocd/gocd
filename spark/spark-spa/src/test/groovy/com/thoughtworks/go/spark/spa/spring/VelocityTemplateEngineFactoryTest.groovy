@@ -27,7 +27,7 @@ import com.thoughtworks.go.server.service.plugins.builder.DefaultPluginInfoFinde
 import com.thoughtworks.go.server.service.support.toggle.FeatureToggleService
 import com.thoughtworks.go.server.service.support.toggle.Toggles
 import com.thoughtworks.go.spark.spa.RolesControllerDelegate
-import org.apache.commons.lang3.StringEscapeUtils
+import org.apache.commons.lang.StringEscapeUtils
 import org.jsoup.Jsoup
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -55,7 +55,7 @@ class VelocityTemplateEngineFactoryTest {
 
   @Test
   void 'it should render a basic template'() {
-    def output = engine.create(RolesControllerDelegate.class, "layouts/test-layout.vm")
+    def output = engine.create(RolesControllerDelegate.class, { return "layouts/test-layout.vm" })
       .render(new ModelAndView(Collections.emptyMap(), "templates/test-template.vm"))
     assertThat(output)
       .contains("begin parent layout")
@@ -66,17 +66,17 @@ class VelocityTemplateEngineFactoryTest {
   @Test
   void 'it should escape html entities by default'() {
     def userInput = "<script>alert('i can has hax')</script>"
-    def output = engine.create(RolesControllerDelegate.class, "layouts/test-layout.vm")
+    def output = engine.create(RolesControllerDelegate.class, { return "layouts/test-layout.vm" })
       .render(new ModelAndView(Collections.singletonMap("user-input", userInput), "templates/escape-html-entities.vm"))
     assertThat(output)
       .contains("begin parent layout")
-      .contains(StringEscapeUtils.escapeHtml4(userInput))
+      .contains(StringEscapeUtils.escapeHtml(userInput))
       .contains("end parent layout")
   }
 
   @Test
   void 'it should render footer links'() {
-    def output = engine.create(RolesControllerDelegate.class, "layouts/single_page_app.vm")
+    def output = engine.create(RolesControllerDelegate.class, { return "layouts/single_page_app.vm" })
       .render(new ModelAndView(Collections.emptyMap(), "templates/test-template.vm"))
 
     def document = Jsoup.parse(output)

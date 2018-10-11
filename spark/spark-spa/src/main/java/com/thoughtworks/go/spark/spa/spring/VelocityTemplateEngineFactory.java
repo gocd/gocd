@@ -53,9 +53,8 @@ public class VelocityTemplateEngineFactory implements ServletContextAware, Initi
         this.resourceBasePaths = resourceBasePaths;
     }
 
-
-    public TemplateEngine create(Class<? extends SparkController> controller, String layout) {
-        return new VelocityTemplateEngine(velocityEngine, layout, controller, initialContextProvider);
+    public TemplateEngine create(Class<? extends SparkController> controller, LayoutTemplateProvider provider) {
+        return new VelocityTemplateEngine(velocityEngine, provider, controller, initialContextProvider);
     }
 
     @Override

@@ -323,7 +323,7 @@ public class ScheduleService {
     /**
      * IMPORTANT: this method is only meant for TOP level usage(never use this within a transaction). It gobbles exception.
      */
-    public Stage rerunJobs(final Stage stage, final List<String> jobNames, final OperationResult result) {
+    public Stage rerunJobs(final Stage stage, final List<String> jobNames, final HttpOperationResult result) {
         final StageIdentifier identifier = stage.getIdentifier();
         HealthStateType healthStateForStage = HealthStateType.general(HealthStateScope.forStage(identifier.getPipelineName(), identifier.getStageName()));
 
@@ -333,7 +333,7 @@ public class ScheduleService {
             return null;
         }
         try {
-            return lockAndRerunStage(identifier.getPipelineName(), identifier.getPipelineCounter(), identifier.getStageName(), (pipelineName, stageName, context) -> {
+            Stage resultStage = lockAndRerunStage(identifier.getPipelineName(), identifier.getPipelineCounter(), identifier.getStageName(), (pipelineName, stageName, context) -> {
                 StageConfig stageConfig = goConfigService.stageConfigNamed(identifier.getPipelineName(), identifier.getStageName());
                 String latestMd5 = goConfigService.getCurrentConfig().getMd5();
                 try {
@@ -343,6 +343,9 @@ public class ScheduleService {
                     throw e;
                 }
             }, new ResultUpdatingErrorHandler(result));
+
+            result.accepted(String.format("Request to rerun jobs accepted", identifier), "", healthStateForStage);
+            return resultStage;
         } catch (RuntimeException e) {
             if (result.canContinue()) {
                 String message = String.format("Job rerun request for job(s) [%s] could not be completed because of unexpected failure. Cause: %s", StringUtils.join(jobNames.toArray(), ", "),
@@ -357,7 +360,7 @@ public class ScheduleService {
     /**
      * IMPORTANT: this method is only meant for TOP level usage(never use this within a transaction). It gobbles exception.
      */
-    public Stage rerunFailedJobs(final Stage stage, final OperationResult result) {
+    public Stage rerunFailedJobs(final Stage stage, final HttpOperationResult result) {
         final StageIdentifier identifier = stage.getIdentifier();
         JobInstances jobInstances = stage.jobsWithResult(JobResult.Cancelled, JobResult.Failed);
         List<String> jobNames = jobInstances.stream().map(JobInstance::getName).collect(Collectors.toList());

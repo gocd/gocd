@@ -75,14 +75,6 @@ public class StageOperationsControllerV1 extends ApiController implements SparkS
             before(Routes.Stage.TRIGGER_STAGE_PATH, mimeType, apiAuthenticationHelper::checkPipelineGroupOperateUserAnd403);
             before(Routes.Stage.TRIGGER_FAILED_JOBS_PATH, mimeType, apiAuthenticationHelper::checkPipelineGroupOperateUserAnd403);
             before(Routes.Stage.TRIGGER_SELECTED_JOBS_PATH, mimeType, apiAuthenticationHelper::checkPipelineGroupOperateUserAnd403);
-            before(Routes.Stage.TRIGGER_SELECTED_JOBS_PATH, mimeType, (req, res) -> {
-                JsonReader requestBody = GsonTransformer.getInstance().jsonReaderFrom(req.body());
-                if (!requestBody.hasJsonObject(JOB_NAMES_PROPERTY)) {
-                    throw HaltApiResponses.haltBecauseOfReason(String.format("Could not read property '%s' in request body", JOB_NAMES_PROPERTY));
-                }
-                requestBody.readStringArrayIfPresent(JOB_NAMES_PROPERTY);
-            });
-
             post(Routes.Stage.TRIGGER_STAGE_PATH, mimeType, this::triggerStage);
             post(Routes.Stage.TRIGGER_FAILED_JOBS_PATH, mimeType, this::rerunFailedJobs);
             post(Routes.Stage.TRIGGER_SELECTED_JOBS_PATH, mimeType, this::rerunSelectedJobs);
@@ -94,6 +86,8 @@ public class StageOperationsControllerV1 extends ApiController implements SparkS
         String pipelineCounter = req.params("pipeline_counter");
         String stageName = req.params("stage_name");
         HttpOperationResult result = new HttpOperationResult();
+
+        validateRequestBody(req, res);
 
         JsonReader requestBody = GsonTransformer.getInstance().jsonReaderFrom(req.body());
         List<String> requestedJobs = requestBody.readStringArrayIfPresent(JOB_NAMES_PROPERTY).get();
@@ -127,5 +121,13 @@ public class StageOperationsControllerV1 extends ApiController implements SparkS
 
         scheduleService.rerunStage(pipelineName, pipelineCounterValue.get(), stageName, result);
         return renderHTTPOperationResult(result, req, res);
+    }
+
+    private void validateRequestBody(Request req, Response res) {
+        JsonReader requestBody = GsonTransformer.getInstance().jsonReaderFrom(req.body());
+        if (!requestBody.hasJsonObject(JOB_NAMES_PROPERTY)) {
+            throw HaltApiResponses.haltBecauseOfReason(String.format("Could not read property '%s' in request body", JOB_NAMES_PROPERTY));
+        }
+        requestBody.readStringArrayIfPresent(JOB_NAMES_PROPERTY);
     }
 }

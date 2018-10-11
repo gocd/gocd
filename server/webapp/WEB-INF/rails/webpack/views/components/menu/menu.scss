@@ -17,21 +17,6 @@
 @import "../../global/theme";
 @import "../../global/zindex";
 
-//fixme: cleanup needed
-
-li {
-  list-style: none;
-}
-
-ul {
-  list-style: none;
-}
-
-
-ul > li {
-  display: inline-block;
-}
-
 .menu-text {
   color:           $header-fg;
   text-decoration: none;
@@ -46,7 +31,7 @@ ul > li {
   position:   relative;
   float:      left;
   margin:     0;
-  padding:    0
+  padding:    0;
 }
 
 .menu ul a {
@@ -63,7 +48,8 @@ ul > li {
   position: relative;
   float:    left;
   margin:   0;
-  padding:  0
+  padding:  0;
+  list-style: none;
 }
 
 .menu ul li.current-menu-item {

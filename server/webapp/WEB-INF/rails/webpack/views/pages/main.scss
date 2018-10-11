@@ -15,8 +15,17 @@
  */
 
 .page {
-  display:flex;
-  flex-flow: column;
+  margin:                  0;
+  padding:                 0;
+  background:              #f4f8f9;
+  font-family:             "Open Sans", "Helvetica Neue", Helvetica, Roboto, Arial, sans-serif;
+  font-weight:             normal;
+  line-height:             1.5;
+  color:                   #0a0a0a;
+  -webkit-font-smoothing:  antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  display:                 flex;
+  flex-flow:               column;
 }
 
 .app-header {

@@ -31,7 +31,7 @@ const HeaderPanel = {
 
     return (<header className={style["page-header"]}>
       <div className={style["page-title"] || "page-title"}>
-        <h1>{vnode.attrs.title}</h1>
+        <h1 class={style["title-header"]}>{vnode.attrs.title}</h1>
       </div>
       {buttons}
     </header>);

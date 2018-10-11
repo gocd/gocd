@@ -14,18 +14,6 @@
  * limitations under the License.
  */
 
-body {
-  margin: 0;
-  padding: 0;
-  background: #f4f8f9;
-  font-family: "Open Sans", "Helvetica Neue", Helvetica, Roboto, Arial, sans-serif;
-  font-weight: normal;
-  line-height: 1.5;
-  color: #0a0a0a;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
 @mixin icon-only($type, $font: 'font-awesome') {
   @if $font == 'font-awesome' {
     font-family: 'FontAwesome';

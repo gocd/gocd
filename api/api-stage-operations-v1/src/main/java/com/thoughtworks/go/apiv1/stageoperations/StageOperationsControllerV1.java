@@ -36,6 +36,7 @@ import spark.Request;
 import spark.Response;
 
 import java.io.IOException;
+import java.util.Optional;
 
 import static com.thoughtworks.go.api.util.HaltApiResponses.haltBecauseOfReason;
 import static spark.Spark.*;
@@ -83,26 +84,14 @@ public class StageOperationsControllerV1 extends ApiController implements SparkS
         String stageName = req.params("stage_name");
         HttpOperationResult result = new HttpOperationResult();
 
-        int pipelineCounterValue = findPipelineCounter(pipelineName, pipelineCounter);
-        if (pipelineCounterValue == -1) {
+        Optional<Integer> pipelineCounterValue = pipelineService.findPipelineCounter(pipelineName, pipelineCounter);
+        if (!pipelineCounterValue.isPresent()) {
             String errorMessage = String.format("Error while running [%s/%s/%s]. Received non-numeric pipeline counter '%s'.", pipelineName, pipelineCounter, stageName, pipelineCounter);
             LOGGER.error(errorMessage);
             throw haltBecauseOfReason(errorMessage);
         }
 
-        scheduleService.rerunStage(pipelineName, pipelineCounterValue, stageName, result);
+        scheduleService.rerunStage(pipelineName, pipelineCounterValue.get(), stageName, result);
         return renderHTTPOperationResult(result, req, res);
-    }
-
-    //TODO fix duplicate, test
-    private int findPipelineCounter(String pipelineName, String pipelineCounter) {
-        if (JobIdentifier.LATEST.equalsIgnoreCase(pipelineCounter)) {
-            PipelineIdentifier pipelineIdentifier = pipelineService.mostRecentPipelineIdentifier(pipelineName);
-            return pipelineIdentifier.getCounter();
-        } else if (!StringUtils.isNumeric(pipelineCounter)) {
-            return -1;
-        } else {
-            return Integer.parseInt(pipelineCounter);
-        }
     }
 }

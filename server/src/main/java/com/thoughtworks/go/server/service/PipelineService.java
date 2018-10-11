@@ -35,6 +35,7 @@ import com.thoughtworks.go.server.persistence.MaterialRepository;
 import com.thoughtworks.go.server.service.dd.FanInGraph;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.util.SystemEnvironment;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,6 +44,7 @@ import org.springframework.transaction.support.TransactionCallback;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.Queue;
 
 @Service
@@ -302,5 +304,16 @@ public class PipelineService implements UpstreamPipelineResolver {
 
     public PipelineIdentifier mostRecentPipelineIdentifier(String pipelineName) {
         return pipelineDao.mostRecentPipelineIdentifier(pipelineName);
+    }
+
+    public Optional<Integer> findPipelineCounter(String pipelineName, String pipelineCounter) {
+        if (JobIdentifier.LATEST.equalsIgnoreCase(pipelineCounter)) {
+            PipelineIdentifier pipelineIdentifier = mostRecentPipelineIdentifier(pipelineName);
+            return Optional.of(pipelineIdentifier.getCounter());
+        } else if (!StringUtils.isNumeric(pipelineCounter)) {
+            return Optional.empty();
+        } else {
+            return Optional.of(Integer.parseInt(pipelineCounter));
+        }
     }
 }

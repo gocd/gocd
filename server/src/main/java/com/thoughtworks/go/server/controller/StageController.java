@@ -43,6 +43,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Optional;
 
 import static com.thoughtworks.go.server.controller.actions.JsonAction.jsonNotAcceptable;
 import static com.thoughtworks.go.server.controller.actions.JsonAction.jsonOK;
@@ -77,15 +78,15 @@ public class StageController {
         if (!headerConstraint.isSatisfied(request)) {
             return ResponseCodeView.create(HttpServletResponse.SC_BAD_REQUEST, "Missing required header 'Confirm'");
         }
-        int pipelineCounterValue = findPipelineCounter(pipelineName, pipelineCounter);
+        Optional<Integer> pipelineCounterValue = pipelineService.findPipelineCounter(pipelineName, pipelineCounter);
 
-        if (pipelineCounterValue == -1) {
+        if (!pipelineCounterValue.isPresent()) {
             String errorMessage = String.format("Error while rerunning [%s/%s/%s]. Received non-numeric pipeline counter '%s'.", pipelineName, pipelineCounter, stageName, pipelineCounter);
             LOGGER.error(errorMessage);
             return ResponseCodeView.create(HttpServletResponse.SC_BAD_REQUEST, errorMessage);
         }
         try {
-            scheduleService.rerunStage(pipelineName, pipelineCounterValue, stageName);
+            scheduleService.rerunStage(pipelineName, pipelineCounterValue.get(), stageName);
             return ResponseCodeView.create(HttpServletResponse.SC_OK, "");
 
         } catch (GoUnauthorizedException e) {
@@ -96,17 +97,6 @@ public class StageController {
         } catch (Exception e) {
             LOGGER.error("Error while rerunning {}/{}/{}", pipelineName, pipelineCounter, stageName, e);
             return ResponseCodeView.create(HttpServletResponse.SC_BAD_REQUEST, e.getMessage());
-        }
-    }
-
-    private int findPipelineCounter(String pipelineName, String pipelineCounter) {
-        if (JobIdentifier.LATEST.equalsIgnoreCase(pipelineCounter)) {
-            PipelineIdentifier pipelineIdentifier = pipelineService.mostRecentPipelineIdentifier(pipelineName);
-            return pipelineIdentifier.getCounter();
-        } else if (!StringUtils.isNumeric(pipelineCounter)) {
-            return -1;
-        } else {
-            return Integer.parseInt(pipelineCounter);
         }
     }
 

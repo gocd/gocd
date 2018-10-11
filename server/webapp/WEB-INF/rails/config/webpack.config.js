@@ -128,7 +128,7 @@ module.exports = function (env) {
           test:    /\.scss$/,
           exclude: /node_modules/,
           use:     [
-            {loader: MiniCssExtractPlugin.loader},
+            {loader: 'style-loader'},
             {loader: "css-loader?modules&importLoaders=1&localIdentName=[name]__[local]___[hash:base64:5]"}, // translates CSS into CommonJS
             {
               loader:  "sass-loader", // compiles Sass to CSS, using Node Sass by default

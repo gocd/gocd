@@ -209,6 +209,10 @@ public class MockHttpServletResponseAssert<SELF extends MockHttpServletResponseA
         return hasStatus(415);
     }
 
+    public SELF isCreated() {
+        return hasStatus(201);
+    }
+
     public SELF isConflict() {
         return hasStatus(409);
     }

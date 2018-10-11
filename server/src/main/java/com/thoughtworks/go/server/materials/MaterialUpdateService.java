@@ -257,7 +257,6 @@ public class MaterialUpdateService implements GoMessageListener<MaterialUpdateCo
         return ProcessManager.getInstance();
     }
 
-    //used in tests
     public boolean isInProgress(Material material) {
         for (Material m : this.inProgress.keySet()) {
             if (m.isSameFlyweight(material))

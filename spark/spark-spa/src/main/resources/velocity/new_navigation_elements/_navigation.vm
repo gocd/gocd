@@ -22,7 +22,6 @@
         <li class="menu-text"><a href="/go/pipelines" class="logo"></a></li>
 
         <li>#link_to('Pipelines', "/go/pipelines")</li>
-        <li>#link_to('Environments', "/go/environments")</li>
         <li>#link_to('Agents', "/go/agents")</li>
         #if($showAnalyticsDashboard)
           <li>#link_to('Analytics', "/go/analytics")</li>

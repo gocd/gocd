@@ -18,16 +18,19 @@ require 'rails_helper'
 
 describe 'environments/index.html.erb' do
 
-  it "should render partial 'environment' for each environment" do
-    assign(:environments, %w(foo bar))
+  before do
+    @foo = EnvironmentViewModel.new(BasicEnvironmentConfig.new(CaseInsensitiveString.new('foo')))
+  end
+
+  it "should render partial 'show_env' for each environment" do
+    assign(:environments, [@foo])
     assign(:show_add_environments, true)
 
-    stub_template "_environment.html.erb" => "Content for: <%= scope[:environment] %>"
+    stub_template "_show_env.html.erb" => "Content for: <%= scope[:environment_view_model].getEnvironmentConfig().name().to_s %>"
 
     render
 
     expect(response).to have_selector("div.environments div#environment_foo_panel", :text => "Content for: foo")
-    expect(response).to have_selector("div.environments div#environment_bar_panel", :text => "Content for: bar")
   end
 
   it "should display 'no environments configured' message with link to configuration when there are no environments and using enterprise license" do
@@ -37,5 +40,4 @@ describe 'environments/index.html.erb' do
 
     expect(response).to have_selector("div.unused_feature a[href='https://docs.gocd.org/current/configuration/managing_environments.html']", :text => "More Information")
   end
-
 end

@@ -83,6 +83,92 @@ h4 {
   font-size: 18px;
 }
 
+.environment-listview {
+  border:        1px solid #ececec;
+  margin:        0px 15px;
+  border-radius: 3px;
+  background:    #fff;
+}
+
+.environment-listview .environment-header {
+  display:    flex;
+  height:     30px;
+  cursor:     pointer;
+  padding:    10px 50px 10px 20px;
+  overflow:   hidden;
+
+  &:after {
+    content:     "\f105";
+    font-family: 'FontAwesome';
+    position:    absolute;
+    right:       35px;
+    font-size:   30px;
+    font-weight: 400;
+    color:       #ccc;
+  }
+
+  h2.entity_title {
+    font-size:     14px;
+    font-weight:   600;
+    color:         black;
+    line-height:   30px;
+    min-width:     325px;
+    max-width:     325px;
+    padding:       0;
+    overflow:      hidden;
+    white-space:   nowrap;
+    text-overflow: ellipsis;
+  }
+
+  .key-value-pair {
+    padding-left: 15px;
+    line-height:  30px;
+    min-width:    250px;
+    max-width:    250px;
+    .key {
+      min-width: auto;
+    }
+  }
+}
+
+.environment-listview .environment-body {
+  border-top: 1px solid #ececec;
+  padding:    15px;
+  display:    none;
+
+  h3 {
+    margin:         10px 0 20px;
+    border-bottom:  1px dotted #ccc;
+    padding-bottom: 10px;
+  }
+
+  .added_item ul {
+    margin-left: 23px;
+    li {
+      margin-top: 10px;
+      font-size:  rem-calc(13px);
+    }
+  }
+}
+
+.environment-listview.expanded {
+  box-shadow: 0 3px 11px 0 rgba(0, 0, 0, 0.15);
+
+  .environment-body {
+    display: block;
+  }
+
+  .environment-header:after {
+    content: "\f107";
+  }
+}
+
+.environment_show {
+  .row {
+    margin-top: 15px;
+  }
+}
+
 .yui-t7 #yui-main .yui-b, .my-cruise-rounded-container {
   background: transparent;
 }
@@ -550,7 +636,7 @@ h4 {
   height:          50px !important;
   box-sizing:      border-box;
   padding:         7px 30px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.21);
+  box-shadow:      0 0 10px rgba(0, 0, 0, 0.21);
   h1 {
     display: inline-block;
   }
@@ -2232,7 +2318,7 @@ a:link.help, a:visited.help {
 }
 
 #environments #body_content .content_wrapper_inner {
-  padding: 10px 0;
+  padding: 5px 0;
 }
 
 .environments {
@@ -2240,6 +2326,7 @@ a:link.help, a:visited.help {
     float:       none;
     margin-left: 10px;
   }
+  margin-top: 5px;
 }
 
 .flash {
@@ -3043,16 +3130,13 @@ pre, code, #admin-holder-for-admin-config-source-xml textarea {
   }
 }
 
-#filters-settings {
-
-}
-
 .environment.show_environment {
   @include clearfix;
   background: #fff;
-  margin-top: 15px;
   padding:    20px;
   box-sizing: border-box;
+  margin:     0px 15px 0px 15px;
+  border:     1px solid #ddd;
 
   h3 {
     margin:         10px 0 20px;
@@ -4041,10 +4125,10 @@ ul.entity_title {
 }
 
 .plugin-select-form span.contextual_help {
-  display: inline-block;
-  margin: 0;
+  display:  inline-block;
+  margin:   0;
   position: relative;
-  top: 2px;
+  top:      2px;
 }
 
 .add_new_artifact label {
@@ -4104,6 +4188,7 @@ ul.entity_title {
 #templates.layout.admin-entity.view .content {
   width: auto;
 }
+
 //end: template view
 
 .hide {

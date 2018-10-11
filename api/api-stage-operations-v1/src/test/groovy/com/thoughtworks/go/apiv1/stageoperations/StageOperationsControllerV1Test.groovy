@@ -177,11 +177,6 @@ class StageOperationsControllerV1Test implements SecurityServiceTrait, Controlle
 
       @Test
       void 'rerunSelectedJobs reports errors'() {
-        List<String> jobs = ["download", "build", "upload"]
-        String requestBody = "{\n" +
-          "  \"jobs\": [\"download\"]\n" +
-          "}"
-
         def pipeline = mock(Pipeline)
         def stage = mock(Stage)
 
@@ -201,7 +196,7 @@ class StageOperationsControllerV1Test implements SecurityServiceTrait, Controlle
         doAnswer({ InvocationOnMock invocation -> invocation.callRealMethod() }).
           when(scheduleService).rerunSelectedJobs(eq(pipelineName), eq(pipelineCounter), eq(stageName), anyList(), any() as HttpOperationResult)
 
-        postWithApiHeader(controller.controllerPath(pipelineName, pipelineCounter, stageName, 'run-selected-jobs'), requestBody)
+        postWithApiHeader(controller.controllerPath(pipelineName, pipelineCounter, stageName, 'run-selected-jobs'), ["jobs": ["download"]])
 
         assertThatResponse()
           .isInternalServerError()
@@ -216,9 +211,6 @@ class StageOperationsControllerV1Test implements SecurityServiceTrait, Controlle
         HttpOperationResult result
 
         List<String> jobs = ["download", "build", "upload"]
-        String requestBody = "{\n" +
-          "  \"jobs\": [\"download\", \"build\", \"upload\"]\n" +
-          "}"
 
         doAnswer({ InvocationOnMock invocation ->
           result = invocation.getArgument(4)
@@ -226,7 +218,7 @@ class StageOperationsControllerV1Test implements SecurityServiceTrait, Controlle
           return mock(Stage)
         }).when(scheduleService).rerunSelectedJobs(eq(pipelineName), eq(pipelineCounter), eq(stageName), eq(jobs), any() as HttpOperationResult)
 
-        postWithApiHeader(controller.controllerPath(pipelineName, pipelineCounter, stageName, 'run-selected-jobs'), requestBody)
+        postWithApiHeader(controller.controllerPath(pipelineName, pipelineCounter, stageName, 'run-selected-jobs'), ["jobs": ["download", "build", "upload"]])
 
         assertThatResponse()
           .isAccepted()
@@ -238,22 +230,14 @@ class StageOperationsControllerV1Test implements SecurityServiceTrait, Controlle
 
       @Test
       void 'rerunSelectedJobs reports error on invalid request body'() {
-        String acceptanceMessage = "Request to rerun job(s) is accepted"
-        HttpOperationResult result
-
-        List<String> jobs = ["download", "build", "upload"]
-        String requestBody = "{\n" +
-          "  \"jobss\": [\"download\", \"build\", \"upload\"]\n" +
-          "}"
-
-        postWithApiHeader(controller.controllerPath(pipelineName, pipelineCounter, stageName, 'run-selected-jobs'), requestBody)
+        postWithApiHeader(controller.controllerPath(pipelineName, pipelineCounter, stageName, 'run-selected-jobs'), ["jobss": ["download", "build", "uploads"]])
 
         assertThatResponse()
           .isUnprocessableEntity()
           .hasContentType(controller.mimeType)
           .hasJsonMessage("Could not read property 'jobs' in request body")
 
-        verify(scheduleService, times(0)).rerunSelectedJobs(pipelineName, pipelineCounter, stageName, jobs, result)
+        verify(scheduleService, times(0)).rerunSelectedJobs(any(), any(), any(), any(), any() as HttpOperationResult)
       }
 
     }

@@ -53,7 +53,7 @@ describe "layouts/pipelines.html.eb" do
     allow(view).to receive(:stage_detail_tab_path_for).with(:pipeline_name => 'pipeline', :pipeline_counter => 1, :stage_name => 'stage-1', :stage_counter => "1", :action => 'overview').and_return("url_to_1")
     allow(view).to receive(:stage_detail_tab_path_for).with(:pipeline_name => "cruise", :pipeline_counter => 1,
                                                 :stage_name => 'dev', :stage_counter => "1", :action => 'overview').and_return("url_to_historical_stage")
-    allow(view).to receive(:stage_detail_tab_path_for).with(:pipeline_name=>"pipeline-name", :pipeline_counter=>1, :stage_name=>"stage-1", :stage_counter=>"1", :action=>"pipeline").and_return("url_to_pipeline")
+    allow(view).to receive(:stage_detail_tab_path_for).with(:pipeline_name=>"pipeline-name", :pipeline_counter=>1, :stage_name=>"stage-1", :stage_counter=>"1").and_return("url_to_pipeline")
     allow(view).to receive(:stage_history_path).and_return("historical_stage_page_number")
     allow(view).to receive(:is_user_an_admin?).and_return(true)
     allow(view).to receive(:config_change_path)
@@ -236,7 +236,7 @@ describe "layouts/pipelines.html.eb" do
         assign(:lockedPipeline,StageIdentifier.new("blah", 1, "cool-bug", "stage", "2"))
         @pim.setCanUnlock(true)
 
-        allow(view).to receive(:stage_detail_tab_path_for).with(:pipeline_name=>"blah", :pipeline_counter=>1, :stage_name=>"stage", :stage_counter=>"2", :action=>"pipeline").and_return("pipeline2")
+        allow(view).to receive(:stage_detail_tab_path_for).with(:pipeline_name=>"blah", :pipeline_counter=>1, :stage_name=>"stage", :stage_counter=>"2").and_return("pipeline2")
 
         render :inline => '<div>content</div>', :layout=>@layout_name
         expect(response.body).to have_selector(".locked .locked_instance a[href='pipeline2']", :text=>"Locked by cool-bug")

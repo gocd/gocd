@@ -74,14 +74,14 @@ public class PipelineConfigValidationTest {
     }
 
     @Test
-    public void rejectsMissingMaterial() {
+    public void rejectsLabelTemplateWithMissingMaterial() {
         assertLabelTemplate("foo-${[:5]}-bar", errors -> {
             assertEquals(singletonList("You have defined a label template in pipeline 'go' that refers to a material called '', but no material with this name is defined."), errors);
         });
     }
 
     @Test
-    public void rejectsBadTruncation() {
+    public void rejectsLabelTemplateWithBadTruncation() {
         assertLabelTemplate("foo-${material[:5}-bar", errors -> {
             assertEquals(1, errors.size());
             assertThat(errors.get(0), startsWith("Invalid label"));
@@ -89,15 +89,24 @@ public class PipelineConfigValidationTest {
     }
 
     @Test
-    public void rejectsBlankToken() {
+    public void rejectsLabelTemplateWithBlankToken() {
         assertLabelTemplate("foo-${}-bar", errors ->
                 assertEquals(singletonList("Label template variable cannot be blank."), errors));
     }
 
     @Test
-    public void rejectsMissingEnvironmentVariable() {
+    public void rejectsLabelTemplateWithMissingEnvironmentVariable() {
         assertLabelTemplate("foo-${env:}-bar", errors ->
                 assertEquals(singletonList("Missing environment variable name."), errors));
+
+        assertLabelTemplate("foo-${ENV:}-bar", errors ->
+                assertEquals(singletonList("Missing environment variable name."), errors));
+    }
+
+    @Test
+    public void acceptsLabelTemplateWithEnvironmentVariables() {
+        assertLabelTemplate("release-${ENV:TEST}-${COUNT}", Assert::assertNull);
+        assertLabelTemplate("release-${env:TeSt}-${COUNT}", Assert::assertNull);
     }
 
     @Test

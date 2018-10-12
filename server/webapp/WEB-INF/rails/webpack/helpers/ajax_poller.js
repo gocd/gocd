@@ -66,7 +66,7 @@ function AjaxPoller (args={}) {
       console.warn("Browser doesn't support the Page Visibility API!"); // eslint-disable-line no-console
     }
 
-    const period = "number" === options.inSeconds && !options.inSeconds < 0 ? options.inSeconds : 0;
+    const period = Math.max("number" === typeof options.inSeconds ? options.inSeconds : 0, 0);
     timeout = setTimeout(fire, period * 1000);
   }
 

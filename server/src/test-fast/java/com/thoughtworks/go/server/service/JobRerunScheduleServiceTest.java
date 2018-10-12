@@ -390,7 +390,7 @@ public class JobRerunScheduleServiceTest {
         scheduleServiceSpy.rerunSelectedJobs(stage, jobs, result);
 
         assertThat(result.httpCode(), is(404));
-        assertThat(result.message(), is("Jobs [job0] does not exist in stage StageIdentifier[up42, 1, null, stage1, 1]."));
+        assertThat(result.message(), is("Jobs [job0] does not exist in stage 'up42/1/stage1/1'."));
 
         verify(scheduleServiceSpy, never()).rerunJobs(any(Stage.class), anyList(), any(HttpOperationResult.class));
     }

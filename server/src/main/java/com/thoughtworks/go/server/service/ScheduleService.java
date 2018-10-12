@@ -736,42 +736,33 @@ public class ScheduleService {
         }
     }
 
-    /**
-     * IMPORTANT: this method is only meant for TOP level usage(never use this within a transaction). It gobbles exception.
-     */
-    public void rerunFailedJobs(String pipelineName, String counterOrLabel, String stageName, HttpOperationResult result) {
-        Pipeline pipeline = pipelineService.fullPipelineByCounterOrLabel(pipelineName, counterOrLabel);
+    public void rerunSelectedJobs(Stage stage, List<String> requestedJobs, HttpOperationResult result) {
+        HealthStateType healthStateType = HealthStateType.general(HealthStateScope.forStage(stage.getIdentifier()
+                .getPipelineName(), stage.getName()));
 
-        if (pipelineDoesNotExist(pipelineName, counterOrLabel, result, pipeline)
-                || stageDoesNotExist(pipelineName, counterOrLabel, stageName, result, pipeline.findStage(stageName))) {
+        if(requestedJobs == null || requestedJobs.isEmpty()) {
+            String message = "No job was selected to re-run.";
+            result.badRequest(message, message, healthStateType);
             return;
         }
 
-        rerunFailedJobs(pipeline.findStage(stageName), result);
-    }
-
-    public void rerunSelectedJobs(String pipelineName, String counterOrLabel, String stageName, List<String> requestedJobs, HttpOperationResult result) {
-        Pipeline pipeline = pipelineService.fullPipelineByCounterOrLabel(pipelineName, counterOrLabel);
-        if (pipelineDoesNotExist(pipelineName, counterOrLabel, result, pipeline)
-                || stageDoesNotExist(pipelineName, counterOrLabel, stageName, result, pipeline.findStage(stageName))) {
-            return;
-        }
-
-        Stage stage = pipeline.findStage(stageName);
-        List<String> jobsToTrigger = stage.getJobInstances()
+        Set<String> jobsInStage = stage.getJobInstances()
                 .stream()
                 .map(JobInstance::getName)
-                .filter(jobName -> requestedJobs.contains(jobName))
+                .collect(Collectors.toSet());
+
+        List<String> unknownJobs = requestedJobs.stream()
+                .filter(jobToRun -> !jobsInStage.contains(jobToRun))
                 .collect(Collectors.toList());
 
-        if (jobsToTrigger.size() != requestedJobs.size()) {
-            String msg = String.format("One or more requested jobs dont exist in stage '%s/%s/%s'", pipelineName, counterOrLabel, stageName);
+        if (unknownJobs.size() > 0) {
+            String msg = String.format("Jobs %s does not exist in stage %s.", unknownJobs, stage.getIdentifier());
             LOGGER.error(msg);
-            result.notFound(msg, "", HealthStateType.general(HealthStateScope.forStage(pipelineName, stageName)));
+            result.notFound(msg, "", healthStateType);
             return;
         }
 
-        rerunJobs(stage, jobsToTrigger, result);
+        rerunJobs(stage, requestedJobs, result);
     }
 
     public interface StageInstanceCreator {

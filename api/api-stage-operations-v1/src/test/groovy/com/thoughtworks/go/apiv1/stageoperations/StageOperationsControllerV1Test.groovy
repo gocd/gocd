@@ -18,28 +18,21 @@ package com.thoughtworks.go.apiv1.stageoperations
 
 import com.thoughtworks.go.api.SecurityTestTrait
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
-import com.thoughtworks.go.domain.JobInstances
-import com.thoughtworks.go.domain.JobResult
 import com.thoughtworks.go.domain.Stage
-import com.thoughtworks.go.server.service.PipelineService
-import com.thoughtworks.go.domain.StageIdentifier
-import com.thoughtworks.go.helper.JobInstanceMother
-import com.thoughtworks.go.helper.PipelineMother
 import com.thoughtworks.go.server.service.PipelineService
 import com.thoughtworks.go.server.service.ScheduleService
 import com.thoughtworks.go.server.service.SchedulingCheckerService
+import com.thoughtworks.go.server.service.StageService
 import com.thoughtworks.go.server.service.result.HttpOperationResult
 import com.thoughtworks.go.serverhealth.HealthStateScope
 import com.thoughtworks.go.serverhealth.HealthStateType
 import com.thoughtworks.go.spark.ControllerTrait
 import com.thoughtworks.go.spark.PipelineGroupOperateUserSecurity
 import com.thoughtworks.go.spark.SecurityServiceTrait
-import com.thoughtworks.go.util.TimeProvider
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.Mock
-import org.mockito.internal.util.reflection.FieldSetter
 import org.mockito.invocation.InvocationOnMock
 
 import static org.mockito.ArgumentMatchers.*
@@ -51,10 +44,10 @@ class StageOperationsControllerV1Test implements SecurityServiceTrait, Controlle
   ScheduleService scheduleService
 
   @Mock
-  SchedulingCheckerService schedulingChecker
+  StageService stageService
 
   @Mock
-  PipelineService pipelineService
+  SchedulingCheckerService schedulingChecker
 
   @Mock
   PipelineService pipelineService
@@ -66,18 +59,13 @@ class StageOperationsControllerV1Test implements SecurityServiceTrait, Controlle
 
   @Override
   StageOperationsControllerV1 createControllerInstance() {
-    new StageOperationsControllerV1(scheduleService, new ApiAuthenticationHelper(securityService, goConfigService), pipelineService)
+    return new StageOperationsControllerV1(scheduleService, stageService, new ApiAuthenticationHelper(securityService, goConfigService), pipelineService)
   }
 
   @Nested
-  class RerunJobs {
-    String pipelineName = "up42"
-    String pipelineCounter = "3"
-    String stageName = "stage1"
-    String stageCounter = "1"
-
+  class RerunFailedJobs {
     @Nested
-    class RerunFailedJobsSecurity implements SecurityTestTrait, PipelineGroupOperateUserSecurity {
+    class Security implements SecurityTestTrait, PipelineGroupOperateUserSecurity {
 
       @Override
       String getControllerMethodUnderTest() {
@@ -86,17 +74,69 @@ class StageOperationsControllerV1Test implements SecurityServiceTrait, Controlle
 
       @Override
       void makeHttpCall() {
-        postWithApiHeader(controller.controllerPath(pipelineName, pipelineCounter, stageName, 'run-failed-jobs'), [:])
+        postWithApiHeader(controller.controllerPath("up42", "3", "stage1", "1", 'run-failed-jobs'), [:])
       }
 
       @Override
       String getPipelineName() {
-        return RerunJobs.this.pipelineName
+        return "up42"
       }
     }
 
     @Nested
-    class RerunSelectedJobsSecurity implements SecurityTestTrait, PipelineGroupOperateUserSecurity {
+    class AsGroupOperateUser {
+      @BeforeEach
+      void setUp() {
+        enableSecurity()
+        loginAsGroupOperateUser("up42")
+      }
+
+      @Test
+      void 'reruns failed-jobs for a stage'() {
+        Stage stage = mock(Stage)
+        String expectedResponseBody = "Request to rerun job(s) is accepted"
+
+        when(stageService.findStageWithIdentifier(eq("up42"), eq(3), eq("stage1"), eq("1"), anyString(), any() as HttpOperationResult)).thenReturn(stage)
+        when(scheduleService.rerunFailedJobs(any() as Stage, any() as HttpOperationResult)).then({ InvocationOnMock invocation ->
+          HttpOperationResult operationResult = invocation.getArguments().last()
+          operationResult.accepted(expectedResponseBody, "", HealthStateType.general(HealthStateScope.forStage("up42", "stage1")))
+          return stage
+        })
+
+        postWithApiHeader(controller.controllerPath("up42", "3", "stage1", "1", 'run-failed-jobs'), [:])
+
+        assertThatResponse()
+          .isAccepted()
+          .hasContentType(controller.mimeType)
+          .hasJsonMessage(expectedResponseBody)
+
+        verify(scheduleService).rerunFailedJobs(eq(stage), any() as HttpOperationResult)
+      }
+
+      @Test
+      void 'should not call schedule service if stage does not exist'() {
+        when(stageService.findStageWithIdentifier(anyString(), anyInt(), anyString(), anyString(), anyString(), any() as HttpOperationResult)).then({ InvocationOnMock invocation ->
+          HttpOperationResult result = invocation.getArguments().last()
+          result.notFound("Not Found", "Stage not found", HealthStateType.general(HealthStateScope.GLOBAL))
+          return null
+        })
+
+        postWithApiHeader(controller.controllerPath("up42", "3", "stage1", "1", 'run-failed-jobs'), [:])
+
+        assertThatResponse()
+          .isNotFound()
+          .hasContentType(controller.mimeType)
+          .hasJsonMessage("Not Found { Stage not found }")
+
+        verifyZeroInteractions(scheduleService)
+      }
+    }
+  }
+
+  @Nested
+  class RerunSelectedJobs {
+    @Nested
+    class Security implements SecurityTestTrait, PipelineGroupOperateUserSecurity {
 
       @Override
       String getControllerMethodUnderTest() {
@@ -105,144 +145,89 @@ class StageOperationsControllerV1Test implements SecurityServiceTrait, Controlle
 
       @Override
       void makeHttpCall() {
-        postWithApiHeader(controller.controllerPath(pipelineName, pipelineCounter, stageName, 'run-selected-jobs'), ["jobs": ["job1"]])
+        postWithApiHeader(controller.controllerPath("up42", "3", "stage1", "1", 'run-selected-jobs'), ["jobs":["job1"]])
       }
 
       @Override
       String getPipelineName() {
-        return RerunJobs.this.pipelineName
+        return "up42"
       }
     }
 
     @Nested
-    class AsAuthorizedUser {
+    class AsAGroupOperateUser {
       @BeforeEach
       void setUp() {
         enableSecurity()
-        loginAsGroupOperateUser(pipelineName)
+        loginAsGroupOperateUser("up42")
       }
 
       @Test
-      void 'reruns failed-jobs for a stage'() {
-        String acceptanceMessage = "Request to rerun job(s) is accepted"
-        HttpOperationResult result
-
-        doAnswer({ InvocationOnMock invocation ->
-          result = invocation.getArgument(3)
-          result.accepted(acceptanceMessage, "", HealthStateType.general(HealthStateScope.forStage(pipelineName, stageName)))
-          return mock(Stage)
-        }).when(scheduleService).rerunFailedJobs(eq(pipelineName), eq(pipelineCounter), eq(stageName), any() as HttpOperationResult)
-
-        postWithApiHeader(controller.controllerPath(pipelineName, pipelineCounter, stageName, 'run-failed-jobs'), [:])
-
-        assertThatResponse()
-          .isAccepted()
-          .hasContentType(controller.mimeType)
-          .hasJsonMessage(acceptanceMessage)
-
-        verify(scheduleService).rerunFailedJobs(pipelineName, pipelineCounter, stageName, result)
-      }
-
-      @Test
-      void 'rerunFailedJobs reports errors'() {
-        def jobInstance = JobInstanceMother.completed("download", JobResult.Failed)
-        def jobInstances = new JobInstances(Arrays.asList(jobInstance))
-
-        def stage = new Stage(stageName, jobInstances, "user", "auto", new TimeProvider())
-        stage.setIdentifier(new StageIdentifier("${[pipelineName, pipelineCounter, stageName, stageCounter].join("/")}"))
-
-        def pipeline = PipelineMother.pipeline(pipelineName, stage)
-
-        FieldSetter.setField(scheduleService, ScheduleService.getDeclaredField("pipelineService"), pipelineService)
-        FieldSetter.setField(scheduleService, ScheduleService.getDeclaredField("schedulingChecker"), schedulingChecker)
-
-        when(pipelineService.fullPipelineByCounterOrLabel(any(), any())).thenReturn(pipeline)
-        when(schedulingChecker.canSchedule(any())).thenThrow(new RuntimeException("boom"))
-
-        doAnswer({ InvocationOnMock invocation -> invocation.callRealMethod() }).
-          when(scheduleService).rerunFailedJobs(eq(pipelineName), eq(pipelineCounter), eq(stageName), any() as HttpOperationResult)
-
-        doAnswer({ InvocationOnMock invocation -> invocation.callRealMethod() }).
-          when(scheduleService).rerunFailedJobs(eq(stage), any() as HttpOperationResult)
-
-        doAnswer({ InvocationOnMock invocation -> invocation.callRealMethod() }).
-          when(scheduleService).rerunJobs(eq(stage), any(), any() as HttpOperationResult)
-
-
-        postWithApiHeader(controller.controllerPath(pipelineName, pipelineCounter, stageName, 'run-failed-jobs'), [:])
-
-        assertThatResponse()
-          .isInternalServerError()
-          .hasContentType(controller.mimeType)
-          .hasJsonMessage("Job rerun request for job(s) [download] could not be completed because of unexpected failure. Cause: boom\"")
-      }
-
-      @Test
-      void 'rerunSelectedJobs reports errors'() {
-        def jobInstance = JobInstanceMother.completed("download", JobResult.Failed)
-        def jobInstances = new JobInstances(Arrays.asList(jobInstance))
-
-        def stage = new Stage(stageName, jobInstances, "user", "auto", new TimeProvider())
-        stage.setIdentifier(new StageIdentifier("${[pipelineName, pipelineCounter, stageName, stageCounter].join("/")}"))
-
-        def pipeline = PipelineMother.pipeline(pipelineName, stage)
-
-        FieldSetter.setField(scheduleService, ScheduleService.getDeclaredField("pipelineService"), pipelineService)
-        FieldSetter.setField(scheduleService, ScheduleService.getDeclaredField("schedulingChecker"), schedulingChecker)
-
-        when(pipelineService.fullPipelineByCounterOrLabel(any(), any())).thenReturn(pipeline)
-        when(schedulingChecker.canSchedule(any())).thenThrow(new RuntimeException("boom"))
-
-        doAnswer({ InvocationOnMock invocation -> invocation.callRealMethod() }).
-          when(scheduleService).rerunJobs(eq(stage), anyList(), any() as HttpOperationResult)
-
-        doAnswer({ InvocationOnMock invocation -> invocation.callRealMethod() }).
-          when(scheduleService).rerunSelectedJobs(eq(pipelineName), eq(pipelineCounter), eq(stageName), anyList(), any() as HttpOperationResult)
-
-        postWithApiHeader(controller.controllerPath(pipelineName, pipelineCounter, stageName, 'run-selected-jobs'), ["jobs": ["download"]])
-
-        assertThatResponse()
-          .isInternalServerError()
-          .hasContentType(controller.mimeType)
-          .hasJsonMessage("Job rerun request for job(s) [download] could not be completed because of unexpected failure. Cause: boom\"")
-      }
-
-
-      @Test
-      void 'reruns selected-jobs for a stage'() {
-        String acceptanceMessage = "Request to rerun job(s) is accepted"
-        HttpOperationResult result
-
+      void 'should rerun selected jobs in stage'() {
+        Stage stage = mock(Stage)
+        String expectedMessage = "Request to rerun job(s) is accepted"
         List<String> jobs = ["download", "build", "upload"]
 
-        doAnswer({ InvocationOnMock invocation ->
-          result = invocation.getArgument(4)
-          result.accepted(acceptanceMessage, "", HealthStateType.general(HealthStateScope.forStage(pipelineName, stageName)))
-          return mock(Stage)
-        }).when(scheduleService).rerunSelectedJobs(eq(pipelineName), eq(pipelineCounter), eq(stageName), eq(jobs), any() as HttpOperationResult)
 
-        postWithApiHeader(controller.controllerPath(pipelineName, pipelineCounter, stageName, 'run-selected-jobs'), ["jobs": ["download", "build", "upload"]])
+        when(stageService.findStageWithIdentifier(eq("up42"), eq(3), eq("stage1"), eq("1"), anyString(), any() as HttpOperationResult)).thenReturn(stage)
+        when(scheduleService.rerunSelectedJobs(eq(stage), eq(jobs), any() as HttpOperationResult))
+          .then({ InvocationOnMock invocation ->
+          HttpOperationResult result = invocation.getArguments().last()
+          result.accepted(expectedMessage, "", HealthStateType.general(HealthStateScope.forStage("up42", "stage1")))
+          return stage
+        })
+
+        postWithApiHeader(controller.controllerPath("up42", "3", "stage1", "1", 'run-selected-jobs'), ["jobs": ["download", "build", "upload"]])
 
         assertThatResponse()
           .isAccepted()
           .hasContentType(controller.mimeType)
-          .hasJsonMessage(acceptanceMessage)
+          .hasJsonMessage(expectedMessage)
 
-        verify(scheduleService).rerunSelectedJobs(pipelineName, pipelineCounter, stageName, jobs, result)
+        verify(scheduleService).rerunSelectedJobs(eq(stage), eq(jobs), any() as HttpOperationResult)
       }
 
       @Test
-      void 'rerunSelectedJobs reports error on invalid request body'() {
-        postWithApiHeader(controller.controllerPath(pipelineName, pipelineCounter, stageName, 'run-selected-jobs'), ["jobss": ["download", "build", "uploads"]])
+      void 'should error out if the request body does not contain property jobs'() {
+        postWithApiHeader(controller.controllerPath("up42", "3", "stage1", "1", 'run-selected-jobs'), ["not-jobs": ["download", "build", "uploads"]])
 
         assertThatResponse()
           .isUnprocessableEntity()
           .hasContentType(controller.mimeType)
           .hasJsonMessage("Could not read property 'jobs' in request body")
 
-        verify(scheduleService, never()).rerunSelectedJobs(anyString(), anyString(), anyString(), anyList(), any() as HttpOperationResult)
+        verifyZeroInteractions(scheduleService, stageService)
       }
 
+      @Test
+      void 'should error out if the request body has property jobs with non string array value'() {
+        postWithApiHeader(controller.controllerPath("up42", "3", "stage1", "1", 'run-selected-jobs'), ["jobs": "not-an-array"])
+
+        assertThatResponse()
+          .isUnprocessableEntity()
+          .hasContentType(controller.mimeType)
+          .hasJsonMessage("Could not read property 'jobs' as a JsonArray containing string in `{\\\"jobs\\\":\\\"not-an-array\\\"}`")
+
+        verifyZeroInteractions(scheduleService, stageService)
+      }
+
+      @Test
+      void 'should not call schedule service if stage does not exist'() {
+        when(stageService.findStageWithIdentifier(anyString(), anyInt(), anyString(), anyString(), anyString(), any() as HttpOperationResult)).then({ InvocationOnMock invocation ->
+          HttpOperationResult result = invocation.getArguments().last()
+          result.notFound("Not Found", "Stage not found", HealthStateType.general(HealthStateScope.GLOBAL))
+          return null
+        })
+
+        postWithApiHeader(controller.controllerPath("up42", "3", "stage1", "1", 'run-selected-jobs'), ["jobs":["job1"]])
+
+        assertThatResponse()
+          .isNotFound()
+          .hasContentType(controller.mimeType)
+          .hasJsonMessage("Not Found { Stage not found }")
+
+        verifyZeroInteractions(scheduleService)
+      }
     }
 
   }

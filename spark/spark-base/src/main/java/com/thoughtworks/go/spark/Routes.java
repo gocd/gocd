@@ -197,8 +197,8 @@ public class Routes {
     public static class Stage {
         public static final String BASE = "/api/stages";
         public static final String TRIGGER_STAGE_PATH = "/:pipeline_name/:pipeline_counter/:stage_name/run";
-        public static final String TRIGGER_FAILED_JOBS_PATH = "/:pipeline_name/:pipeline_counter/:stage_name/run-failed-jobs";
-        public static final String TRIGGER_SELECTED_JOBS_PATH = "/:pipeline_name/:pipeline_counter/:stage_name/run-selected-jobs";
+        public static final String TRIGGER_FAILED_JOBS_PATH = "/:pipeline_name/:pipeline_counter/:stage_name/:stage_counter/run-failed-jobs";
+        public static final String TRIGGER_SELECTED_JOBS_PATH = "/:pipeline_name/:pipeline_counter/:stage_name/:stage_counter/run-selected-jobs";
 
         public static String self(String pipelineName, String pipelineCounter, String stageName, String stageCounter) {
             return StrSubstitutor.replace("/api/stages/${pipeline_name}/${pipeline_counter}/${stage_name}/${stage_counter}", of(

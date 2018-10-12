@@ -20,10 +20,12 @@ import com.thoughtworks.go.api.ApiController;
 import com.thoughtworks.go.api.ApiVersion;
 import com.thoughtworks.go.api.representers.JsonReader;
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
-import com.thoughtworks.go.server.service.PipelineService;
 import com.thoughtworks.go.api.util.GsonTransformer;
 import com.thoughtworks.go.api.util.HaltApiResponses;
+import com.thoughtworks.go.domain.Stage;
+import com.thoughtworks.go.server.service.PipelineService;
 import com.thoughtworks.go.server.service.ScheduleService;
+import com.thoughtworks.go.server.service.StageService;
 import com.thoughtworks.go.server.service.result.HttpOperationResult;
 import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.spring.SparkSpringController;
@@ -35,8 +37,8 @@ import spark.Request;
 import spark.Response;
 
 import java.io.IOException;
-import java.util.Optional;
 import java.util.List;
+import java.util.Optional;
 
 import static com.thoughtworks.go.api.util.HaltApiResponses.haltBecauseOfReason;
 import static spark.Spark.*;
@@ -45,15 +47,16 @@ import static spark.Spark.*;
 public class StageOperationsControllerV1 extends ApiController implements SparkSpringController {
     private static final Logger LOGGER = LoggerFactory.getLogger(StageOperationsControllerV1.class);
     private final static String JOB_NAMES_PROPERTY = "jobs";
-
+    private final StageService stageService;
     private final ScheduleService scheduleService;
     private final ApiAuthenticationHelper apiAuthenticationHelper;
     private final PipelineService pipelineService;
 
     @Autowired
-    public StageOperationsControllerV1(ScheduleService scheduleService, ApiAuthenticationHelper apiAuthenticationHelper,
+    public StageOperationsControllerV1(ScheduleService scheduleService, StageService stageService, ApiAuthenticationHelper apiAuthenticationHelper,
                                        PipelineService pipelineService) {
         super(ApiVersion.v1);
+        this.stageService = stageService;
         this.scheduleService = scheduleService;
         this.apiAuthenticationHelper = apiAuthenticationHelper;
         this.pipelineService = pipelineService;
@@ -82,27 +85,24 @@ public class StageOperationsControllerV1 extends ApiController implements SparkS
     }
 
     public String rerunSelectedJobs(Request req, Response res) throws IOException {
-        String pipelineName = req.params("pipeline_name");
-        String pipelineCounter = req.params("pipeline_counter");
-        String stageName = req.params("stage_name");
         HttpOperationResult result = new HttpOperationResult();
 
-        validateRequestBody(req, res);
+        haltIfRequestBodyDoesNotContainPropertyJobs(req);
 
         JsonReader requestBody = GsonTransformer.getInstance().jsonReaderFrom(req.body());
         List<String> requestedJobs = requestBody.readStringArrayIfPresent(JOB_NAMES_PROPERTY).get();
 
-        scheduleService.rerunSelectedJobs(pipelineName, pipelineCounter, stageName, requestedJobs, result);
+        Optional<Stage> optionalStage = getStageFromRequestParam(req, result);
+        optionalStage.ifPresent(stage -> scheduleService.rerunSelectedJobs(stage, requestedJobs, result));
+
         return renderHTTPOperationResult(result, req, res);
     }
 
     public String rerunFailedJobs(Request req, Response res) throws IOException {
-        String pipelineName = req.params("pipeline_name");
-        String pipelineCounter = req.params("pipeline_counter");
-        String stageName = req.params("stage_name");
         HttpOperationResult result = new HttpOperationResult();
 
-        scheduleService.rerunFailedJobs(pipelineName, pipelineCounter, stageName, result);
+        Optional<Stage> optionalStage = getStageFromRequestParam(req, result);
+        optionalStage.ifPresent(stage -> scheduleService.rerunFailedJobs(stage,result));
         return renderHTTPOperationResult(result, req, res);
     }
 
@@ -123,7 +123,21 @@ public class StageOperationsControllerV1 extends ApiController implements SparkS
         return renderHTTPOperationResult(result, req, res);
     }
 
-    private void validateRequestBody(Request req, Response res) {
+    private Optional<Stage> getStageFromRequestParam(Request request, HttpOperationResult operationResult) {
+        String pipelineName = request.params("pipeline_name");
+        String pipelineCounter = request.params("pipeline_counter");
+        String stageName = request.params("stage_name");
+        String stageCounter = request.params("stage_counter");
+
+        return Optional.ofNullable(stageService.findStageWithIdentifier(pipelineName,
+                Integer.parseInt(pipelineCounter),
+                stageName,
+                stageCounter,
+                currentUsername().getUsername().toString(),
+                operationResult));
+    }
+
+    private void haltIfRequestBodyDoesNotContainPropertyJobs(Request req) {
         JsonReader requestBody = GsonTransformer.getInstance().jsonReaderFrom(req.body());
         if (!requestBody.hasJsonObject(JOB_NAMES_PROPERTY)) {
             throw HaltApiResponses.haltBecauseOfReason(String.format("Could not read property '%s' in request body", JOB_NAMES_PROPERTY));

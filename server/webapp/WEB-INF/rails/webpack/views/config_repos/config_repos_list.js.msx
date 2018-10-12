@@ -86,7 +86,7 @@ const ConfigRepo = {
       <MaterialAttributes model={repo} isEdit={isEdit} />
       <ServerErrors msg={repo.serverErrors()} />
       <ActionBar vm={vm} repo={repo} isEdit={isEdit} />
-      <Revision repo={repo} />
+      <Revision repo={repo} isEdit={isEdit} />
     </li>;
   }
 };
@@ -107,7 +107,11 @@ const ActionBar = {
 
 const ServerErrors = {
   view(vnode) {
-    return <div class="server-error-messages">{vnode.attrs.msg}</div>;
+    const error = vnode.attrs.msg;
+
+    if (error) {
+      return <div class="server-error-messages">{error}</div>;
+    }
   }
 };
 
@@ -156,35 +160,54 @@ const Field = {
   }
 };
 
-const Revision = {
-  oninit(vnode) {
-    vnode.state.revision = null;
-    vnode.state.result = null;
-  },
+const RevisionResult = {
+  view(vnode) {
+    const vm = vnode.attrs.vm;
+    const result = vm.revisionResult;
 
+    if (vnode.attrs.isEdit) { return; }
+
+    if (result.busy()) {
+      return <div class="loading-revision">Refreshing&hellip; (spinner goes here)</div>;
+    }
+
+    if (result.revision()) {
+      return <dl class="parsed">
+        <dt class="parse-revision">Last seen revision: <span class="rev">{result.revision()}</span></dt>
+        {
+          result.success() ?
+            <dd class="parse-result success">Valid Configuration</dd> :
+            <dd class="parse-result failure">{result.error()}</dd>
+        }
+      </dl>;
+    }
+  }
+};
+
+const RevisionActions = {
+  view(vnode) {
+    const vm = vnode.attrs.vm;
+    const result = vm.revisionResult;
+
+    return <div class="revision-actions">
+      <button disabled={result.busy()} onclick={result.reload}>Show Last Parsed Revision</button>
+      <button disabled={result.busy()} onclick={result.forceUpdate}>Force Update</button>
+    </div>;
+  }
+};
+
+const Revision = {
   view(vnode) {
     const repo = vnode.attrs.repo;
-    const revision = vnode.state.revision;
-    const result = vnode.state.result;
-    const success = (data) => {
-      vnode.state.revision = "Last seen revision " + data.revision;
-      if (data.success) { vnode.state.result = "Revision successfully parsed"; }
-      if (data.error) { vnode.state.result = data.error; }
-    };
-    const failure = (errorMessage) => { vnode.state.revision = errorMessage; };
-    const handler = () => {
-      vnode.state.revision = null;
-      repo.getRevision().then(success, failure);
-    };
+    const result = repo.revisionResult;
 
-    return <section>
-      <div>{revision}</div>
-      <div>{result}</div>
-      <button onclick={handler}>Show Latest Revision</button>
-      <button onclick={() => { repo.triggerUpdate().then(() => repo.revisionStatusPoller.start()); }}>Force Update</button>
-    </section>
+    return <section class="last-rev-result">
+      <RevisionResult vm={repo} />
+      <ServerErrors msg={result.serverErrors()} />
+      <RevisionActions vm={repo} />
+    </section>;
   }
-}
+};
 
 const CheckConnection = {
   oninit(vnode) {

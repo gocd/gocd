@@ -20,18 +20,17 @@ const Materials   = require("models/config_repos/materials");
 const Validatable = require("models/mixins/validatable_mixin");
 const ApiHelper   = require("helpers/api_helper");
 const Routes      = require("gen/js-routes");
-const SparkRoutes = require('helpers/spark_routes');
-const AjaxPoller  = require('helpers/ajax_poller');
+const RevisionVM  = require("views/config_repos/models/revision_vm");
 
 function ConfigRepoVM(data) {
-  this.id = Stream();
-  this.pluginId = Stream();
-  this.type = Stream();
-  this.attributes = Stream();
-  this.configuration = Stream();
-  this.etag = Stream(null);
-  this.serverErrors = Stream();
-  this.revisionStatusPoller = createPoller(this);
+  this.id             = Stream();
+  this.pluginId       = Stream();
+  this.type           = Stream();
+  this.attributes     = Stream();
+  this.configuration  = Stream();
+  this.etag           = Stream(null);
+  this.serverErrors   = Stream();
+  this.revisionResult = new RevisionVM(data.id);
 
   Validatable.call(this, { errors: {} });
 
@@ -79,35 +78,6 @@ function ConfigRepoVM(data) {
     url: Routes.apiv1AdminInternalMaterialTestPath(),
     apiVersion: "v1",
     payload: this.toJSON().material
-  });
-
-
-  this.getRevision = () => ApiHelper.GET({
-    url: SparkRoutes.configRepoLastParsedResultPath(this.id),
-    apiVersion: "v1"
-  });
-
-  this.triggerUpdate = () => ApiHelper.POST({
-    url: SparkRoutes.configRepoTriggerUpdatePath(this.id),
-    apiVersion: "v1"
-  });
-}
-
-function createPoller(repo) {
-  return new AjaxPoller({
-    intervalSeconds: 2,
-    fn: () => {
-      return ApiHelper.GET({
-        url: SparkRoutes.configRepoRevisionStatusPath(repo.id),
-        apiVersion: "v1"
-      }).then((data) => {
-        console.log(data.inProgress)
-        if (!data.inProgress) {
-          console.log("should stop poller")
-          repo.revisionStatusPoller.stop();
-        }
-      })
-    }
   });
 }
 

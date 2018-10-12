@@ -2282,10 +2282,6 @@ dezalgo@^1.0.0:
     asap "^2.0.0"
     wrappy "1"
 
-dfrrd@latest:
-  version "0.2.0"
-  resolved "https://registry.yarnpkg.com/dfrrd/-/dfrrd-0.2.0.tgz#a69238ecb08c0ebf7bec4a0fc504b913ea8a28ae"
-
 di@^0.0.1:
   version "0.0.1"
   resolved "https://registry.yarnpkg.com/di/-/di-0.0.1.tgz#806649326ceaa7caa3306d75d985ea2748ba913c"
@@ -6009,12 +6005,6 @@ repeat-string@^0.2.2:
 repeat-string@^1.5.2, repeat-string@^1.6.1:
   version "1.6.1"
   resolved "https://registry.yarnpkg.com/repeat-string/-/repeat-string-1.6.1.tgz#8dcae470e1c88abc2d600fff4a776286da75e637"
-
-repeat@^0.0.6:
-  version "0.0.6"
-  resolved "https://registry.yarnpkg.com/repeat/-/repeat-0.0.6.tgz#6c9d8133eb8ceaf8e380f06c69b51417b7cb0e8d"
-  dependencies:
-    dfrrd latest
 
 repeating@^2.0.0:
   version "2.0.1"

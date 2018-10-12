@@ -17,7 +17,6 @@
 const _         = require('lodash');
 const m         = require('mithril');
 const Stream    = require('mithril/stream');
-const Repeat    = require('repeat');
 const CONSTANTS = require('helpers/constants.js');
 
 // Set the name of the hidden property and the change event for visibility
@@ -39,72 +38,77 @@ const defaultOptions = {
   visibilityBackoffFactor: 4
 };
 
-const AjaxPoller = function (args = {}) {
-  let options;
-  if (_.isFunction(args)) {
-    options = _.assign({}, defaultOptions, {fn: args});
-  } else {
-    options = _.assign({}, defaultOptions, args);
-  }
-
-
-  const self       = this;
+function AjaxPoller (args={}) {
+  const options = _.assign({}, defaultOptions, "function" === typeof args ? {fn: args} : args);
   const currentXHR = Stream();
-  let repeater;
+  const self = this;
 
-  function createRepeater() {
-    return Repeat((repeatAgain) => {
-      options.fn(currentXHR).always(() => {
-        repeatAgain();
-        currentXHR(null);
-        m.redraw();
-      });
+  let timeout = null;
+  let abort = false;
+
+  function fire() {
+    options.fn(currentXHR).always(() => {
+      currentXHR(null);
+      m.redraw();
+
+      if (!abort && !autoRefreshDisabled()) {
+        timeout = setTimeout(fire, currentPollInterval() * 1000);
+      }
     });
   }
 
-  function currentPollInterval() {
-    if (document[hidden]) {
-      return options.intervalSeconds * options.visibilityBackoffFactor;
-    } else {
-      return options.intervalSeconds;
-    }
-  }
-
-  const handleVisibilityChange = () => {
-    self.stop();
-    repeater = createRepeater();
-    repeater.every(currentPollInterval(), 'sec').start.in(options.inSeconds, 'sec');
-  };
-
-  const doesBrowserSupportPageVisibilityAPI = () => {
-    return (typeof document.hidden !== "undefined");
-  };
-
-  this.start = function () {
-    repeater = createRepeater();
-    repeater.every(currentPollInterval(), 'sec')
-      .times(_.includes(window.location.search, 'auto_refresh=false') ? 1 : Infinity)
-      .start.in(options.inSeconds, 'sec');
+  function start() {
+    abort = false;
 
     if (doesBrowserSupportPageVisibilityAPI()) {
       document.addEventListener(visibilityChange, handleVisibilityChange, false);
     } else {
-      console.warn("Browser doesn't support the Page Visibility API!"); //eslint-disable-line
+      console.warn("Browser doesn't support the Page Visibility API!"); // eslint-disable-line no-console
     }
-    return this;
-  };
 
-  this.stop = () => {
-    repeater.stop();
+    const period = Math.max("number" === typeof options.inSeconds ? options.inSeconds : 0, 0);
+    timeout = setTimeout(fire, period * 1000);
+  }
+
+  function stop() {
+    if ("number" === typeof timeout) {
+      clearTimeout(timeout);
+      abort = true;
+      timeout = null;
+    }
+
+    document.removeEventListener(visibilityChange, handleVisibilityChange);
+
     if (currentXHR()) {
       currentXHR().abort();
     }
-  };
+  }
+
+  function currentPollInterval() {
+    return document[hidden] ?
+      options.intervalSeconds * options.visibilityBackoffFactor :
+      options.intervalSeconds;
+  }
+
+  function handleVisibilityChange() {
+    self.restart();
+  }
+
+  function doesBrowserSupportPageVisibilityAPI() {
+    return "undefined" !== typeof document[hidden];
+  }
+
+  this.stop = stop;
+  this.start = start;
 
   this.restart = () => {
     this.stop();
     this.start();
   };
-};
+}
+
+function autoRefreshDisabled() {
+  return !!~window.location.search.indexOf("auto_refresh=false");
+}
 
 module.exports = AjaxPoller;

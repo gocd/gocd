@@ -26,7 +26,7 @@ const ConfigReposList = {
       <h1>Config Repos</h1>
       <AddRepo vm={vm}/>
       <ServerErrors msg={vm.errors().join("; ")} />
-      <ul>
+      <ul class="all-config-repos">
       {
         vm.repos().map((repo) => {
           return <ConfigRepo vm={vm} repo={vm.editMode(repo) ? vm.editModel() : repo} />;
@@ -80,9 +80,9 @@ const ConfigRepo = {
     const repo = vnode.attrs.repo;
     const isEdit = vm.editMode(repo);
 
-    return <li>
-      <h3>{repo.type()} repo: {repo.id()}</h3>
-      <h5>Plugin: {repo.pluginId()}</h5>
+    return <li class="config-repo-item">
+      <h3 class="config-repo-header">{repo.type()} repo: {repo.id()}</h3>
+      <h5 class="config-repo-plugin-type">Plugin: {vm.resolvePluginName(repo.pluginId())}</h5>
       <MaterialAttributes model={repo} isEdit={isEdit} />
       <ServerErrors msg={repo.serverErrors()} />
       <ActionBar vm={vm} repo={repo} isEdit={isEdit} />
@@ -98,9 +98,15 @@ const ActionBar = {
     const isEdit = vnode.attrs.isEdit;
 
     if (isEdit) {
-      return m("div", {class: "config-repo-actions"}, [<button onclick={() => vm.exitEditMode()}>Cancel</button>, <button onclick={() => vm.updateRepo(repo).then(() => vm.exitEditMode())}>Save</button>]);
+      return <div class="config-repo-actions">
+        <button onclick={() => vm.exitEditMode()}>Cancel</button>
+        <button onclick={() => vm.updateRepo(repo).then(() => vm.exitEditMode())}>Save</button>
+      </div>;
     } else {
-      return m("div", {class: "config-repo-actions"}, [<button onclick={() => vm.enterEditMode(repo)}>Edit</button>, <button onclick={() => vm.removeRepo(repo)}>Delete</button>]);
+      return <div class="config-repo-actions">
+        <button onclick={() => vm.enterEditMode(repo)}>Edit</button>
+        <button onclick={() => vm.removeRepo(repo)}>Delete</button>
+      </div>;
     }
   }
 };
@@ -223,8 +229,8 @@ const CheckConnection = {
       vm.testConnection().then(success, failure);
     };
     return <div class="connection-test">
-      <button onclick={handler}>Check Connection</button>
-      <span class="connection-result">{vnode.state.result}</span>
+      <button class="connection-test-perform" onclick={handler}>Check Connection</button>
+      <span class="connection-test-result">{vnode.state.result}</span>
     </div>;
   }
 };

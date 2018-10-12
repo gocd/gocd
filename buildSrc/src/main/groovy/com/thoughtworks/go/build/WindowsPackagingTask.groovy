@@ -30,6 +30,8 @@ class WindowsPackagingTask extends DefaultTask {
   String version
   @Input
   String distVersion
+  @Input
+  Boolean is32Bit = false
 
   Closure<Task> beforePackage
 
@@ -103,7 +105,7 @@ class WindowsPackagingTask extends DefaultTask {
   }
 
   def defaultJreLocation() {
-    "http://download.oracle.com/otn-pub/java/jdk/10.0.2+13/19aef61b38124481863b1413dce1855f/jre-10.0.2_windows-x64_bin.tar.gz"
+    is32Bit ? "http://download.oracle.com/otn-pub/java/jdk/8u152-b16/aa0333dd3019491ca4f6ddbe78cdb6d0/jre-8u152-windows-i586.tar.gz" : "http://download.oracle.com/otn-pub/java/jdk/8u152-b16/aa0333dd3019491ca4f6ddbe78cdb6d0/jre-8u152-windows-x64.tar.gz"
   }
 
   def specifiedJreLocation() {
@@ -111,7 +113,7 @@ class WindowsPackagingTask extends DefaultTask {
   }
 
   def flavour() {
-    "64bit"
+    is32Bit ? "32bit" : "64bit"
   }
 
   def buildPackage() {

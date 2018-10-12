@@ -280,12 +280,12 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
             return true;
         }
 
-        if (token.equals(ENV_VAR_PREFIX)) {
+        if (token.equalsIgnoreCase(ENV_VAR_PREFIX)) {
             addError("labelTemplate", "Missing environment variable name.");
             return false;
         }
 
-        if (token.startsWith(ENV_VAR_PREFIX)) {
+        if (token.toLowerCase().startsWith(ENV_VAR_PREFIX)) {
             return true;
         }
 

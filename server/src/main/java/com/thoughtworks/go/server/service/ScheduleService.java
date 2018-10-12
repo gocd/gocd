@@ -756,7 +756,7 @@ public class ScheduleService {
                 .collect(Collectors.toList());
 
         if (unknownJobs.size() > 0) {
-            String msg = String.format("Jobs %s does not exist in stage %s.", unknownJobs, stage.getIdentifier());
+            String msg = String.format("Jobs %s does not exist in stage '%s'.", unknownJobs, stage.getIdentifier().getStageLocator());
             LOGGER.error(msg);
             result.notFound(msg, "", healthStateType);
             return;

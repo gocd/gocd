@@ -306,7 +306,7 @@ public class PipelineService implements UpstreamPipelineResolver {
         return pipelineDao.mostRecentPipelineIdentifier(pipelineName);
     }
 
-    public Optional<Integer> findPipelineCounter(String pipelineName, String pipelineCounter) {
+    public Optional<Integer> resolvePipelineCounter(String pipelineName, String pipelineCounter) {
         if (JobIdentifier.LATEST.equalsIgnoreCase(pipelineCounter)) {
             PipelineIdentifier pipelineIdentifier = mostRecentPipelineIdentifier(pipelineName);
             return Optional.of(pipelineIdentifier.getCounter());

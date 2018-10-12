@@ -19,15 +19,11 @@ package com.thoughtworks.go.apiv1.stageoperations;
 import com.thoughtworks.go.api.ApiController;
 import com.thoughtworks.go.api.ApiVersion;
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
-import com.thoughtworks.go.domain.JobIdentifier;
-import com.thoughtworks.go.domain.PipelineIdentifier;
 import com.thoughtworks.go.server.service.PipelineService;
 import com.thoughtworks.go.server.service.ScheduleService;
 import com.thoughtworks.go.server.service.result.HttpOperationResult;
-import com.thoughtworks.go.server.web.ResponseCodeView;
 import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.spring.SparkSpringController;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -84,7 +80,7 @@ public class StageOperationsControllerV1 extends ApiController implements SparkS
         String stageName = req.params("stage_name");
         HttpOperationResult result = new HttpOperationResult();
 
-        Optional<Integer> pipelineCounterValue = pipelineService.findPipelineCounter(pipelineName, pipelineCounter);
+        Optional<Integer> pipelineCounterValue = pipelineService.resolvePipelineCounter(pipelineName, pipelineCounter);
         if (!pipelineCounterValue.isPresent()) {
             String errorMessage = String.format("Error while running [%s/%s/%s]. Received non-numeric pipeline counter '%s'.", pipelineName, pipelineCounter, stageName, pipelineCounter);
             LOGGER.error(errorMessage);

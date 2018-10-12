@@ -19,6 +19,7 @@ package com.thoughtworks.go.apiv1.stageoperations
 import com.thoughtworks.go.api.SecurityTestTrait
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
 import com.thoughtworks.go.domain.Stage
+import com.thoughtworks.go.server.service.PipelineService
 import com.thoughtworks.go.server.service.ScheduleService
 import com.thoughtworks.go.server.service.result.HttpOperationResult
 import com.thoughtworks.go.serverhealth.HealthStateScope
@@ -41,6 +42,9 @@ class StageOperationsControllerV1Test implements SecurityServiceTrait, Controlle
   @Mock
   ScheduleService scheduleService
 
+  @Mock
+  PipelineService pipelineService
+
   @BeforeEach
   void setUp() {
     initMocks(this)
@@ -48,7 +52,7 @@ class StageOperationsControllerV1Test implements SecurityServiceTrait, Controlle
 
   @Override
   StageOperationsControllerV1 createControllerInstance() {
-    new StageOperationsControllerV1(scheduleService, new ApiAuthenticationHelper(securityService, goConfigService))
+    new StageOperationsControllerV1(scheduleService, new ApiAuthenticationHelper(securityService, goConfigService), pipelineService)
   }
 
   @Nested
@@ -92,7 +96,8 @@ class StageOperationsControllerV1Test implements SecurityServiceTrait, Controlle
           result = invocation.getArgument(3)
           result.accepted(acceptanceMessage, "", HealthStateType.general(HealthStateScope.forStage(pipelineName, stageName)))
           return mock(Stage)
-        }).when(scheduleService).rerunStage(eq(pipelineName), eq(pipelineCounter), eq(stageName), any() as HttpOperationResult)
+        }).when(scheduleService).rerunStage(eq(pipelineName), eq(pipelineCounter.toInteger()), eq(stageName), any() as HttpOperationResult)
+        when(pipelineService.resolvePipelineCounter(pipelineName, pipelineCounter)).thenReturn(Optional.of(pipelineCounter.toInteger()))
         postWithApiHeader(controller.controllerPath(pipelineName, pipelineCounter, stageName, 'run'), [:])
 
         assertThatResponse()
@@ -100,14 +105,15 @@ class StageOperationsControllerV1Test implements SecurityServiceTrait, Controlle
           .hasContentType(controller.mimeType)
           .hasJsonMessage(acceptanceMessage)
 
-        verify(scheduleService).rerunStage(pipelineName, pipelineCounter, stageName, result)
+        verify(scheduleService).rerunStage(pipelineName, pipelineCounter.toInteger(), stageName, result)
       }
 
       @Test
       void 'reports errors'() {
-        when(scheduleService.rerunStage(eq(pipelineName), eq(pipelineCounter), eq(stageName), any() as ScheduleService.ErrorConditionHandler)).thenThrow(new RuntimeException("bewm."))
+        when(pipelineService.resolvePipelineCounter(eq(pipelineName), eq(pipelineCounter))).thenReturn(Optional.of(pipelineCounter.toInteger()))
+        when(scheduleService.rerunStage(eq(pipelineName), eq(pipelineCounter.toInteger()), eq(stageName), any() as ScheduleService.ErrorConditionHandler)).thenThrow(new RuntimeException("bewm."))
         doAnswer({ InvocationOnMock invocation -> invocation.callRealMethod() }).
-          when(scheduleService).rerunStage(eq(pipelineName), eq(pipelineCounter), eq(stageName), any() as HttpOperationResult)
+          when(scheduleService).rerunStage(eq(pipelineName), eq(pipelineCounter.toInteger()), eq(stageName), any() as HttpOperationResult)
 
         postWithApiHeader(controller.controllerPath(pipelineName, pipelineCounter, stageName, 'run'), [:])
 
@@ -120,4 +126,3 @@ class StageOperationsControllerV1Test implements SecurityServiceTrait, Controlle
     }
   }
 }
-

@@ -18,8 +18,6 @@ package com.thoughtworks.go.server.controller;
 
 import com.thoughtworks.go.config.StageNotFoundException;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
-import com.thoughtworks.go.domain.JobIdentifier;
-import com.thoughtworks.go.domain.PipelineIdentifier;
 import com.thoughtworks.go.server.GoUnauthorizedException;
 import com.thoughtworks.go.server.newsecurity.utils.SessionUtils;
 import com.thoughtworks.go.server.security.HeaderConstraint;
@@ -29,7 +27,6 @@ import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.util.ErrorHandler;
 import com.thoughtworks.go.server.web.ResponseCodeView;
 import com.thoughtworks.go.util.SystemEnvironment;
-import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -78,7 +75,7 @@ public class StageController {
         if (!headerConstraint.isSatisfied(request)) {
             return ResponseCodeView.create(HttpServletResponse.SC_BAD_REQUEST, "Missing required header 'Confirm'");
         }
-        Optional<Integer> pipelineCounterValue = pipelineService.findPipelineCounter(pipelineName, pipelineCounter);
+        Optional<Integer> pipelineCounterValue = pipelineService.resolvePipelineCounter(pipelineName, pipelineCounter);
 
         if (!pipelineCounterValue.isPresent()) {
             String errorMessage = String.format("Error while rerunning [%s/%s/%s]. Received non-numeric pipeline counter '%s'.", pipelineName, pipelineCounter, stageName, pipelineCounter);

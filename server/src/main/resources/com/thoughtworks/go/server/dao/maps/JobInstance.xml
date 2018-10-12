@@ -105,9 +105,9 @@
 
     <sql id="select-job-id">
         FROM _builds
-        WHERE name = #jobName# AND ignored != true
-            AND stageName = #stageName# AND stageCounter = #stageCounter#
-            AND pipelineName = #pipelineName# AND pipelineCounter = #pipelineCounter#
+        WHERE name = #{jobName} AND ignored != true
+            AND stageName = #{stageName} AND stageCounter = #{stageCounter}
+            AND pipelineName = #{pipelineName} AND pipelineCounter = #{pipelineCounter}
     </sql>
 
     <select id="findJobId" resultMap="jobIdentifier">

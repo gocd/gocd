@@ -176,7 +176,7 @@
     <select id="mostRecentPipelineIdentifier" resultMap="select-pipeline-identifier">
         SELECT pipelines.name as pipelineName, pipelines.label as label, pipelines.counter as pipelineCounter
         FROM pipelines
-        WHERE pipelines.name = #pipelineName# ORDER BY id DESC LIMIT 1
+        WHERE pipelines.name = #{pipelineName} ORDER BY id DESC LIMIT 1
     </select>
 
     <select id="getCounterForPipeline" parameterType="java.lang.String" resultType="java.lang.Integer">

@@ -556,8 +556,8 @@
     <select id="findMaxStageCounter" resultType="java.lang.Integer">
         SELECT Max(stages.counter) FROM stages
         JOIN pipelines ON pipelines.id = stages.pipelineId
-        AND pipelines.name= #pipelineName# AND pipelines.counter = #pipelineCounter#
-        WHERE stages.name= #stageName#
+        AND pipelines.name= #{pipelineName} AND pipelines.counter = #{pipelineCounter}
+        WHERE stages.name= #{stageName}
     </select>
 
     <select id="getStageOrderInPipeline" resultType="java.lang.Integer">

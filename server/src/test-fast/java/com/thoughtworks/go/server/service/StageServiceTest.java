@@ -629,4 +629,22 @@ public class StageServiceTest {
         assertThat(stage, is(Matchers.nullValue()));
         assertThat(result.httpCode(), is(403));
     }
+
+    @Test
+    public void shouldPopulateErrorWhenPipelineWithCounterNotFound_findStageWithIdentifier() {
+        when(cruiseConfig.hasPipelineNamed(new CaseInsensitiveString("pipeline"))).thenReturn(true);
+        when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
+        when(securityService.hasViewPermissionForPipeline(Username.valueOf("looser"), "pipeline")).thenReturn(true);
+        when(pipelineDao.findPipelineByNameAndCounter("pipeline",1)).thenReturn(null);
+
+        final StageService stageService = new StageService(stageDao, jobInstanceService, mock(StageStatusTopic.class), mock(StageStatusCache.class), securityService, pipelineDao,
+                changesetService, goConfigService, transactionTemplate, transactionSynchronizationManager, goCache);
+
+        HttpOperationResult result = new HttpOperationResult();
+        Stage stage = stageService.findStageWithIdentifier("pipeline", 1, "stage", "1", "looser", result);
+
+        assertThat(stage, is(Matchers.nullValue()));
+        assertThat(result.httpCode(), is(404));
+        assertThat(result.detailedMessage(), Matchers.startsWith("Not Found { Pipeline 'pipeline' with counter '1' not found }"));
+    }
 }

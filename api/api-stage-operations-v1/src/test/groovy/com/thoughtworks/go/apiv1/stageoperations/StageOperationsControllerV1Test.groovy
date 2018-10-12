@@ -18,6 +18,7 @@ package com.thoughtworks.go.apiv1.stageoperations
 
 import com.thoughtworks.go.api.SecurityTestTrait
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
+import com.thoughtworks.go.domain.NullStage
 import com.thoughtworks.go.domain.Stage
 import com.thoughtworks.go.server.service.PipelineService
 import com.thoughtworks.go.server.service.ScheduleService
@@ -32,8 +33,13 @@ import com.thoughtworks.go.spark.SecurityServiceTrait
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.MethodSource
+import org.junit.jupiter.params.provider.ValueSource
 import org.mockito.Mock
 import org.mockito.invocation.InvocationOnMock
+
+import java.lang.reflect.Parameter
 
 import static org.mockito.ArgumentMatchers.*
 import static org.mockito.Mockito.*
@@ -114,19 +120,29 @@ class StageOperationsControllerV1Test implements SecurityServiceTrait, Controlle
       }
 
       @Test
-      void 'should not call schedule service if stage does not exist'() {
-        when(stageService.findStageWithIdentifier(anyString(), anyInt(), anyString(), anyString(), anyString(), any() as HttpOperationResult)).then({ InvocationOnMock invocation ->
-          HttpOperationResult result = invocation.getArguments().last()
-          result.notFound("Not Found", "Stage not found", HealthStateType.general(HealthStateScope.GLOBAL))
-          return null
-        })
+      void 'should not call schedule service if stage is instance of NullStage'() {
+        when(stageService.findStageWithIdentifier(anyString(), anyInt(), anyString(), anyString(), anyString(), any() as HttpOperationResult)).thenReturn(new NullStage("foo"))
 
         postWithApiHeader(controller.controllerPath("up42", "3", "stage1", "1", 'run-failed-jobs'), [:])
 
         assertThatResponse()
           .isNotFound()
           .hasContentType(controller.mimeType)
-          .hasJsonMessage("Not Found { Stage not found }")
+          .hasJsonMessage("Not Found { Stage 'stage1' not found }")
+
+        verifyZeroInteractions(scheduleService)
+      }
+
+      @Test
+      void 'should not call schedule service if stage does not exist'() {
+        when(stageService.findStageWithIdentifier(anyString(), anyInt(), anyString(), anyString(), anyString(), any() as HttpOperationResult)).thenReturn(null)
+
+        postWithApiHeader(controller.controllerPath("up42", "3", "stage1", "1", 'run-failed-jobs'), [:])
+
+        assertThatResponse()
+          .isNotFound()
+          .hasContentType(controller.mimeType)
+          .hasJsonMessage("Not Found { Stage 'stage1' not found }")
 
         verifyZeroInteractions(scheduleService)
       }
@@ -212,24 +228,33 @@ class StageOperationsControllerV1Test implements SecurityServiceTrait, Controlle
       }
 
       @Test
-      void 'should not call schedule service if stage does not exist'() {
-        when(stageService.findStageWithIdentifier(anyString(), anyInt(), anyString(), anyString(), anyString(), any() as HttpOperationResult)).then({ InvocationOnMock invocation ->
-          HttpOperationResult result = invocation.getArguments().last()
-          result.notFound("Not Found", "Stage not found", HealthStateType.general(HealthStateScope.GLOBAL))
-          return null
-        })
+      void 'should not call schedule service if stage is instance of NullStage'() {
+        when(stageService.findStageWithIdentifier(anyString(), anyInt(), anyString(), anyString(), anyString(), any() as HttpOperationResult)).thenReturn(new NullStage("foo"))
 
         postWithApiHeader(controller.controllerPath("up42", "3", "stage1", "1", 'run-selected-jobs'), ["jobs":["job1"]])
 
         assertThatResponse()
           .isNotFound()
           .hasContentType(controller.mimeType)
-          .hasJsonMessage("Not Found { Stage not found }")
+          .hasJsonMessage("Not Found { Stage 'stage1' not found }")
+
+        verifyZeroInteractions(scheduleService)
+      }
+
+      @Test
+      void 'should not call schedule service if stage does not exist'() {
+        when(stageService.findStageWithIdentifier(anyString(), anyInt(), anyString(), anyString(), anyString(), any() as HttpOperationResult)).thenReturn(null)
+
+        postWithApiHeader(controller.controllerPath("up42", "3", "stage1", "1", 'run-selected-jobs'), ["jobs":["job1"]])
+
+        assertThatResponse()
+          .isNotFound()
+          .hasContentType(controller.mimeType)
+          .hasJsonMessage("Not Found { Stage 'stage1' not found }")
 
         verifyZeroInteractions(scheduleService)
       }
     }
-
   }
 
   @Nested

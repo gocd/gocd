@@ -136,11 +136,20 @@ public class StageService implements StageRunFinder, StageFinder {
                                          String username,
                                          OperationResult result) {
         if (!goConfigService.currentCruiseConfig().hasPipelineNamed(new CaseInsensitiveString(pipelineName))) {
-            result.notFound("Not Found", "Pipeline not found", HealthStateType.general(HealthStateScope.GLOBAL));
+            String message = String.format("Pipeline '%s' not found", pipelineName);
+            result.notFound("Not Found", message, HealthStateType.general(HealthStateScope.GLOBAL));
             return null;
         }
+
         if (!securityService.hasViewPermissionForPipeline(Username.valueOf(username), pipelineName)) {
             result.forbidden("Unauthorized", NOT_AUTHORIZED_TO_VIEW_PIPELINE, HealthStateType.general(HealthStateScope.forPipeline(pipelineName)));
+            return null;
+        }
+
+        Pipeline pipeline = pipelineDao.findPipelineByNameAndCounter(pipelineName, pipelineCounter);
+        if (pipeline == null) {
+            String message = String.format("Pipeline '%s' with counter '%s' not found", pipelineName, pipelineCounter);
+            result.notFound("Not Found", message, HealthStateType.general(HealthStateScope.GLOBAL));
             return null;
         }
 
@@ -324,7 +333,7 @@ public class StageService implements StageRunFinder, StageFinder {
     }
 
     private String cacheKeyForLatestStageFeedForPipeline(String pipelineName) {
-        return cacheKeyGenerator.generate( "latestStageFeedForPipeline", pipelineName);
+        return cacheKeyGenerator.generate("latestStageFeedForPipeline", pipelineName);
     }
 
     private void clearCachedCompletedStageFeeds(String pipelineName) {

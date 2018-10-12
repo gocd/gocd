@@ -22,11 +22,15 @@ import com.thoughtworks.go.api.representers.JsonReader;
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
 import com.thoughtworks.go.api.util.GsonTransformer;
 import com.thoughtworks.go.api.util.HaltApiResponses;
+import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
+import com.thoughtworks.go.domain.NullStage;
 import com.thoughtworks.go.domain.Stage;
 import com.thoughtworks.go.server.service.PipelineService;
 import com.thoughtworks.go.server.service.ScheduleService;
 import com.thoughtworks.go.server.service.StageService;
 import com.thoughtworks.go.server.service.result.HttpOperationResult;
+import com.thoughtworks.go.serverhealth.HealthStateScope;
+import com.thoughtworks.go.serverhealth.HealthStateType;
 import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.spring.SparkSpringController;
 import org.slf4j.Logger;
@@ -81,6 +85,8 @@ public class StageOperationsControllerV1 extends ApiController implements SparkS
             post(Routes.Stage.TRIGGER_STAGE_PATH, mimeType, this::triggerStage);
             post(Routes.Stage.TRIGGER_FAILED_JOBS_PATH, mimeType, this::rerunFailedJobs);
             post(Routes.Stage.TRIGGER_SELECTED_JOBS_PATH, mimeType, this::rerunSelectedJobs);
+
+            exception(RecordNotFoundException.class, this::notFound);
         });
     }
 
@@ -102,7 +108,7 @@ public class StageOperationsControllerV1 extends ApiController implements SparkS
         HttpOperationResult result = new HttpOperationResult();
 
         Optional<Stage> optionalStage = getStageFromRequestParam(req, result);
-        optionalStage.ifPresent(stage -> scheduleService.rerunFailedJobs(stage,result));
+        optionalStage.ifPresent(stage -> scheduleService.rerunFailedJobs(stage, result));
         return renderHTTPOperationResult(result, req, res);
     }
 
@@ -129,12 +135,24 @@ public class StageOperationsControllerV1 extends ApiController implements SparkS
         String stageName = request.params("stage_name");
         String stageCounter = request.params("stage_counter");
 
-        return Optional.ofNullable(stageService.findStageWithIdentifier(pipelineName,
+        Stage stage = stageService.findStageWithIdentifier(pipelineName,
                 Integer.parseInt(pipelineCounter),
                 stageName,
                 stageCounter,
                 currentUsername().getUsername().toString(),
-                operationResult));
+                operationResult);
+
+        if (!operationResult.isSuccess()) {
+            return Optional.empty();
+        }
+
+        if (stage == null || stage instanceof NullStage) {
+            String message = String.format("Stage '%s' not found", stageName);
+            operationResult.notFound("Not Found", message, HealthStateType.general(HealthStateScope.GLOBAL));
+            return Optional.empty();
+        }
+
+        return Optional.ofNullable(stage);
     }
 
     private void haltIfRequestBodyDoesNotContainPropertyJobs(Request req) {

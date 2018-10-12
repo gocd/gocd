@@ -35,10 +35,6 @@ describe StagesHelper do
     expect(tab_aware_path_for_stage(StageIdentifier.new("pipeline", 10, "stage", "5"), "jobs")).to eq("/pipelines/pipeline/10/stage/5/jobs")
   end
 
-  it "should generate pipeline url when stage identifier is given" do
-    expect(stage_detail_pipeline_tab_for_identifier(StageIdentifier.new("pipeline", 10, "stage", "5"))).to eq("/pipelines/pipeline/10/stage/5/pipeline")
-  end
-
   it "should understand if stage is dummy" do
     expect(placeholder_stage?(@stage_summary)).to be_falsey
     expect(placeholder_stage?(@new_stage_summary)).to be_truthy

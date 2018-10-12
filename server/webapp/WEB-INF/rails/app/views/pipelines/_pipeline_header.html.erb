@@ -30,7 +30,7 @@
             <% end %>
         <% else %>
             <div class="locked_instance">
-              (<%= link_to("Locked by #{@lockedPipeline.getPipelineLabel()}" , stage_detail_pipeline_tab_for_identifier(@lockedPipeline)) %>
+              (<%= link_to("Locked by #{@lockedPipeline.getPipelineLabel()}" , stage_detail_path_for_identifier(@lockedPipeline)) %>
               )
             </div>
         <% end %>

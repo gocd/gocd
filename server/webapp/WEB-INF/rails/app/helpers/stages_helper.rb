@@ -34,10 +34,6 @@ module StagesHelper
                                     :stage_counter => identifier.getStageCounter()))
   end
 
-  def stage_detail_pipeline_tab_for_identifier identifier
-    tab_aware_path_for_stage identifier, 'pipeline'
-  end
-
   def tab_aware_path_for_stage stage_identifier, tab
     stage_detail_tab_path_for :pipeline_name => stage_identifier.getPipelineName(),
                           :pipeline_counter => stage_identifier.getPipelineCounter(),

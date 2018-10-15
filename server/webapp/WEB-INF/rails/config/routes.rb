@@ -314,18 +314,6 @@ Rails.application.routes.draw do
     end
   end
 
-  scope :api, as: :apiv5, format: false do
-    api_version(:module => 'ApiV5', header: {name: 'Accept', value: 'application/vnd.go.cd.v5+json'}) do
-
-      namespace :admin do
-        resources :pipelines, param: :pipeline_name, only: [:show, :update, :create, :destroy], constraints: {pipeline_name: PIPELINE_NAME_FORMAT}
-      end
-
-      match '*url', via: :all, to: 'errors#not_found'
-    end
-  end
-
-
   namespace :admin do
     resources :pipelines, only: [:edit], controller: :pipeline_configs, param: :pipeline_name, as: :pipeline_config, constraints: {pipeline_name: PIPELINE_NAME_FORMAT}
 

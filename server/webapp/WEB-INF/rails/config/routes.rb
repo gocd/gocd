@@ -285,16 +285,6 @@ Rails.application.routes.draw do
     end
   end
 
-  scope :api, as: :apiv3, format: false do
-    api_version(:module => 'ApiV3', header: {name: 'Accept', value: 'application/vnd.go.cd.v3+json'}) do
-      namespace :admin do
-        resources :templates, param: :template_name, except: [:new, :edit], constraints: {template_name: TEMPLATE_NAME_FORMAT}
-      end
-
-      match '*url', via: :all, to: 'errors#not_found'
-    end
-  end
-
   scope :api, as: :apiv4, format: false do
     api_version(:module => 'ApiV4', header: {name: 'Accept', value: 'application/vnd.go.cd.v4+json'}) do
 

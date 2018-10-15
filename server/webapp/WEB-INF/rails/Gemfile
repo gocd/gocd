@@ -25,9 +25,6 @@ group :development, :test do
   gem 'jasmine-jquery-rails'
   gem 'jasmine_selenium_runner'
 
-  gem 'ruby-debug-base'
-  gem 'ruby-debug-ide', '0.7.0.beta6'
-
   # make sure to `System.setProperty("jruby.runtime.arguments", "--debug")` before opening up pry
   gem 'pry-debugger-jruby'
 end

@@ -14,30 +14,23 @@
  * limitations under the License.
  */
 
-const m     = require('mithril');
-const _     = require('lodash');
-const style = require('./index.scss');
+const m = require('mithril');
+const _ = require('lodash');
 
-const HeaderPanel = {
+module.exports = class KeyValuePair {
   view(vnode) {
-    let buttons;
-    if (!_.isEmpty(vnode.attrs.buttons)) {
-      buttons = (
-        <div class={style["page-header"]} data-test="buttons">
-          {vnode.attrs.buttons}
-        </div>
-      );
-    }
-
     return (
-      <header class={style["page-header"]} data-test="header-panel">
-        <div class={style["page-title"]}>
-          <h1 class={style["title-header"]}>{vnode.attrs.title}</h1>
-        </div>
-        {buttons}
-      </header>
+      <dl>
+        {
+          _.map(vnode.attrs.data, (v, k) => {
+            return [
+              <dt>{k}</dt>,
+              <dd>{v}</dd>
+            ];
+          })
+        }
+      </dl>
     );
   }
 };
 
-module.exports = HeaderPanel;

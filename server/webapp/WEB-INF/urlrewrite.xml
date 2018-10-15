@@ -96,6 +96,12 @@
     </rule>
 
     <rule>
+        <name>Kitchen Sink SPA</name>
+        <from>^/kitchen-sink(/?)$</from>
+        <to last="true">/spark/kitchen-sink</to>
+    </rule>
+
+    <rule>
         <name>Artifact Stores SPA</name>
         <from>^/admin/artifact_stores(/?)$</from>
         <to last="true">/spark/admin/artifact_stores</to>

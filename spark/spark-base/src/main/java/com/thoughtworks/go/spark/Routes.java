@@ -344,4 +344,7 @@ public class Routes {
         }
     }
 
+    public class KitchenSink {
+        public static final String SPA_BASE = "/kitchen-sink";
+    }
 }

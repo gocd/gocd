@@ -26,18 +26,13 @@
   <title>${viewTitle} - Go</title>
 
   <link rel="shortcut icon" href="/go/${railsAssetsService.getAssetPath('cruise.ico')}"/>
-    #if(${railsAssetsService.getAssetPath("single_page_apps/${controllerName}.css")} != "")
-      <link href="/go/${railsAssetsService.getAssetPath("single_page_apps/${controllerName}.css")}" media="screen"
-            rel="stylesheet"/>
-    #end
+#foreach( $css in ${webpackAssetsService.getCSSAssetPathsFor("single_page_apps/base")})
+  <link href="${css}" media="screen" rel="stylesheet"/>
+#end
 
-    #foreach( $css in ${webpackAssetsService.getCSSAssetPathsFor("single_page_apps/base")})
-      <link href="${css}" media="screen" rel="stylesheet"/>
-    #end
-
-    #foreach( $js in ${webpackAssetsService.getJSAssetPathsFor("single_page_apps/base")})
-      <script src="${js}"></script>
-    #end
+#foreach( $js in ${webpackAssetsService.getJSAssetPathsFor("single_page_apps/base")})
+  <script src="${js}"></script>
+#end
 
 </head>
 

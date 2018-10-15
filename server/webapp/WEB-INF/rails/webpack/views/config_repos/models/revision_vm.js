@@ -44,12 +44,14 @@ function RevisionVM(repoId) {
       apiVersion
     });
 
-    req.then(poller.start, (errMsg) => {
+    req.then(this.monitorProgress, (errMsg) => {
       this.serverErrors(errMsg);
       this.busy(false);
     });
     return req;
   };
+
+  this.monitorProgress = poller.start;
 }
 
 function createPoller(model) {

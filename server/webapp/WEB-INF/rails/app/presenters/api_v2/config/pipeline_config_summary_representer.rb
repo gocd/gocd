@@ -20,7 +20,9 @@ module ApiV2
       alias_method :pipeline, :represented
 
       link :self do |opts|
-        "#{opts[:url_builder].default_url_options[:protocol]}://#{opts[:url_builder].default_url_options[:host]}/api/admin/pipelines/#{pipeline.getName()}"
+        req = opts[:url_builder].request
+        ctx = com.thoughtworks.go.spark.RequestContext.new(req.ssl? ? 'https' : 'http', req.host, req.port, '/go')
+        ctx.urlFor(com.thoughtworks.go.spark.Routes::PipelineConfig.name(pipeline.name.toString))
       end
 
       link :doc do |opts|
@@ -28,7 +30,9 @@ module ApiV2
       end
 
       link :find do |opts|
-        "#{opts[:url_builder].default_url_options[:protocol]}://#{opts[:url_builder].default_url_options[:host]}/api/admin/pipelines/:pipeline_name"
+        req = opts[:url_builder].request
+        ctx = com.thoughtworks.go.spark.RequestContext.new(req.ssl? ? 'https' : 'http', req.host, req.port, '/go')
+        ctx.urlFor(com.thoughtworks.go.spark.Routes::PipelineConfig.find)
       end
 
       property :name, case_insensitive_string: true

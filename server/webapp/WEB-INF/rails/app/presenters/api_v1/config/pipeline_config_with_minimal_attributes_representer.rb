@@ -20,7 +20,7 @@ module ApiV1
       alias_method :pipeline, :represented
 
       link :self do |opts|
-        opts[:url_builder].apiv5_admin_pipeline_url(pipeline_name: pipeline.name)
+        "#{opts[:url_builder].default_url_options[:protocol]}://#{opts[:url_builder].default_url_options[:host]}/api/admin/pipelines/#{pipeline.name}"
       end
 
       property   :name, exec_context: :decorator

@@ -109,7 +109,7 @@ public class AgentHTTPClientControllerTest {
     public void shouldRetrieveWorkFromServerAndDoIt() throws Exception {
         when(loopServer.getWork(any(AgentRuntimeInfo.class))).thenReturn(work);
         when(agentRegistry.uuid()).thenReturn(agentUuid);
-        when(pluginJarLocationMonitor.getLastRun()).thenReturn(System.currentTimeMillis());
+        when(pluginJarLocationMonitor.hasRunAtLeastOnce()).thenReturn(true);
         agentController = createAgentController();
         agentController.init();
         agentController.ping();
@@ -121,7 +121,7 @@ public class AgentHTTPClientControllerTest {
     @Test
     public void shouldNotRetrieveWorkIfPluginMonitorHasNotRun() throws IOException {
         when(agentRegistry.uuid()).thenReturn(agentUuid);
-        when(pluginJarLocationMonitor.getLastRun()).thenReturn(0L);
+        when(pluginJarLocationMonitor.hasRunAtLeastOnce()).thenReturn(false);
         agentController = createAgentController();
         agentController.init();
         agentController.ping();
@@ -138,7 +138,7 @@ public class AgentHTTPClientControllerTest {
         when(sslInfrastructureService.isRegistered()).thenReturn(true);
         when(loopServer.getWork(agentController.getAgentRuntimeInfo())).thenReturn(work);
         when(agentRegistry.uuid()).thenReturn(agentUuid);
-        when(pluginJarLocationMonitor.getLastRun()).thenReturn(System.currentTimeMillis());
+        when(pluginJarLocationMonitor.hasRunAtLeastOnce()).thenReturn(true);
         agentController.loop();
         verify(work).doWork(any(EnvironmentVariableContext.class), any(AgentWorkContext.class));
     }

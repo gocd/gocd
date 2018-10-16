@@ -111,7 +111,7 @@ public class AgentHTTPClientController extends AgentController {
     @Override
     public void work() {
         LOG.debug("[Agent Loop] Trying to retrieve work.");
-        if (pluginJarLocationMonitor.getLastRun() > 0) {
+        if (pluginJarLocationMonitor.hasRunAtLeastOnce()) {
             retrieveCookieIfNecessary();
             retrieveWork();
             LOG.debug("[Agent Loop] Successfully retrieved work.");

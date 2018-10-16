@@ -88,5 +88,13 @@ module.exports = {
 
   DataReportingCompleteReportingPath: () => {
     return '/go/api/internal/data_sharing/reporting/complete';
+  },
+
+  elasticProfilesPath: (profileId) => {
+    if (profileId) {
+      return `/go/api/elastic/profiles/${profileId}`;
+    } else {
+      return "/go/api/elastic/profiles";
+    }
   }
 };

@@ -39,7 +39,7 @@ public class ElasticProfileService extends PluginProfilesService<ElasticProfile>
     }
 
     @Override
-    protected PluginProfiles<ElasticProfile> getPluginProfiles() {
+    public PluginProfiles<ElasticProfile> getPluginProfiles() {
         return goConfigService.getElasticConfig().getProfiles();
     }
 

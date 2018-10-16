@@ -81,7 +81,11 @@ public class DefaultPluginJarLocationMonitor implements PluginJarLocationMonitor
     }
 
     @Override
-    public long getLastRun() {
+    public boolean hasRunAtLeastOnce() {
+        return getLastRun() > 0;
+    }
+
+    long getLastRun() {
         if (monitorThread == null) {
             return 0;
         }

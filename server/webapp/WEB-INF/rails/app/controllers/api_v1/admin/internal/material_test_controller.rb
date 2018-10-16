@@ -25,10 +25,10 @@ module ApiV1
         before_action :check_admin_user_or_group_admin_user_and_403
 
         def test
-          material_config = ApiV5::Admin::Pipelines::Materials::MaterialRepresenter.new(ApiV5::Admin::Pipelines::Materials::MaterialRepresenter.get_material_type(params[:type]).new).from_hash(params)
+          material_config = ApiV1::Admin::Pipelines::Materials::MaterialRepresenter.new(ApiV1::Admin::Pipelines::Materials::MaterialRepresenter.get_material_type(params[:type]).new).from_hash(params)
           material_config.validateConcreteScmMaterial()
           if material_config.errors.any?
-            json = ApiV5::Admin::Pipelines::Materials::MaterialRepresenter.new(material_config).to_hash(url_builder: self)
+            json = ApiV1::Admin::Pipelines::Materials::MaterialRepresenter.new(material_config).to_hash(url_builder: self)
             return render_message('There was an error with the material configuration!', 422, {data: json})
           end
 

@@ -205,7 +205,15 @@ module.exports = function (env) {
       id:         'scss',
       loaders:    [
         {loader: 'style-loader'},
-        {loader: "css-loader?modules&camelCase&importLoaders=1&localIdentName=[name]__[local]___[hash:base64:5]"}, // translates CSS into CommonJS
+        {
+          loader:  "css-loader", // translates CSS into CommonJS
+          options: {
+            modules:        true,
+            camelCase:      true,
+            importLoaders:  1,
+            localIdentName: "[name]__[local]___[hash:base64:5]"
+          }
+        },
         {
           loader:  "sass-loader", // compiles Sass to CSS, using Node Sass by default
           options: {

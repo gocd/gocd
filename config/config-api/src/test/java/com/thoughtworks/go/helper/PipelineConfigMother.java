@@ -151,6 +151,17 @@ public class PipelineConfigMother {
         return pipelineConfig;
     }
 
+    public static PipelineConfig pipelineWithElasticJobs(String elasticProfileId, String pipelineName, String stageName, String... jobNames) {
+        final PipelineConfig pipelineConfig = createPipelineConfig(pipelineName, stageName, jobNames);
+        final StageConfig stage = pipelineConfig.getStage(stageName);
+
+        for (JobConfig job : stage.getJobs()) {
+            job.setElasticProfileId(elasticProfileId);
+        }
+
+        return pipelineConfig;
+    }
+
     public static PipelineConfig createManualTriggerPipelineConfig(MaterialConfig materialConfig, String pipelineName, String stageName, String... buildNames) {
         PipelineConfig pipelineConfig = createPipelineConfig(pipelineName, stageName, buildNames);
         pipelineConfig.materialConfigs().clear();

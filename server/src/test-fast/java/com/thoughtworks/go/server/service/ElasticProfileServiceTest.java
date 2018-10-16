@@ -16,37 +16,40 @@
 
 package com.thoughtworks.go.server.service;
 
+import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.elastic.ElasticConfig;
 import com.thoughtworks.go.config.elastic.ElasticProfile;
+import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.config.update.ElasticAgentProfileCreateCommand;
 import com.thoughtworks.go.config.update.ElasticAgentProfileDeleteCommand;
 import com.thoughtworks.go.config.update.ElasticAgentProfileUpdateCommand;
+import com.thoughtworks.go.domain.JobConfigIdentifier;
 import com.thoughtworks.go.plugin.access.PluginNotFoundException;
 import com.thoughtworks.go.plugin.access.elastic.ElasticAgentExtension;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
-import org.hamcrest.Matchers;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 import static com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother.create;
-import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
+import static com.thoughtworks.go.helper.PipelineConfigMother.createPipelineConfig;
+import static com.thoughtworks.go.helper.PipelineConfigMother.pipelineWithElasticJobs;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
-public class ElasticProfileServiceTest {
+class ElasticProfileServiceTest {
     private GoConfigService goConfigService;
     private ElasticProfileService elasticProfileService;
     private ElasticAgentExtension elasticAgentExtension;
 
-    @Before
-    public void setUp() throws Exception {
+    @BeforeEach
+    void setUp() throws Exception {
         elasticAgentExtension = mock(ElasticAgentExtension.class);
         EntityHashingService hashingService = mock(EntityHashingService.class);
         goConfigService = mock(GoConfigService.class);
@@ -54,16 +57,16 @@ public class ElasticProfileServiceTest {
     }
 
     @Test
-    public void shouldReturnAnEmptyMapIfNoElasticProfiles() throws Exception {
+    void shouldReturnAnEmptyMapIfNoElasticProfiles() {
         ElasticConfig elasticConfig = new ElasticConfig();
 
         when(goConfigService.getElasticConfig()).thenReturn(elasticConfig);
 
-        assertThat(elasticProfileService.listAll().isEmpty(), is(true));
+        assertThat(elasticProfileService.listAll()).isEmpty();
     }
 
     @Test
-    public void shouldReturnAMapOfElasticProfiles() {
+    void shouldReturnAMapOfElasticProfiles() {
         ElasticConfig elasticConfig = new ElasticConfig();
         ElasticProfile elasticProfile = new ElasticProfile("ecs", "cd.go.elatic.ecs");
         elasticConfig.getProfiles().add(elasticProfile);
@@ -73,30 +76,30 @@ public class ElasticProfileServiceTest {
         HashMap<String, ElasticProfile> expectedMap = new HashMap<>();
         expectedMap.put("ecs", elasticProfile);
         Map<String, ElasticProfile> elasticProfiles = elasticProfileService.listAll();
-        assertThat(elasticProfiles.size(), is(1));
-        assertThat(elasticProfiles, is(expectedMap));
+        assertThat(elasticProfiles).hasSize(1);
+        assertThat(elasticProfiles).isEqualTo(expectedMap);
     }
 
     @Test
-    public void shouldReturnNullWhenProfileWithGivenIdDoesNotExist() throws Exception {
+    void shouldReturnNullWhenProfileWithGivenIdDoesNotExist() {
         when(goConfigService.getElasticConfig()).thenReturn(new ElasticConfig());
 
-        assertNull(elasticProfileService.findProfile("non-existent-id"));
+        assertThat(elasticProfileService.findProfile("non-existent-id")).isNull();
     }
 
     @Test
-    public void shouldReturnElasticProfileWithGivenIdWhenPresent() throws Exception {
+    void shouldReturnElasticProfileWithGivenIdWhenPresent() {
         ElasticConfig elasticConfig = new ElasticConfig();
         ElasticProfile elasticProfile = new ElasticProfile("ecs", "cd.go.elatic.ecs");
         elasticConfig.getProfiles().add(elasticProfile);
 
         when(goConfigService.getElasticConfig()).thenReturn(elasticConfig);
 
-        assertThat(elasticProfileService.findProfile("ecs"), is(elasticProfile));
+        assertThat(elasticProfileService.findProfile("ecs")).isEqualTo(elasticProfile);
     }
 
     @Test
-    public void shouldAddElasticProfileToConfig() {
+    void shouldAddElasticProfileToConfig() {
         ElasticProfile elasticProfile = new ElasticProfile("ldap", "cd.go.ldap");
 
         Username username = new Username("username");
@@ -106,7 +109,7 @@ public class ElasticProfileServiceTest {
     }
 
     @Test
-    public void shouldPerformPluginValidationsBeforeAddingElasticProfile() {
+    void shouldPerformPluginValidationsBeforeAddingElasticProfile() {
         ElasticProfile elasticProfile = new ElasticProfile("ldap", "cd.go.ldap", create("key", false, "value"));
 
         Username username = new Username("username");
@@ -116,7 +119,7 @@ public class ElasticProfileServiceTest {
     }
 
     @Test
-    public void shouldAddPluginNotFoundErrorOnConfigForANonExistentPluginIdWhileCreating() throws Exception {
+    void shouldAddPluginNotFoundErrorOnConfigForANonExistentPluginIdWhileCreating() {
         ElasticProfile elasticProfile = new ElasticProfile("some-id", "non-existent-plugin", create("key", false, "value"));
 
         Username username = new Username("username");
@@ -124,12 +127,12 @@ public class ElasticProfileServiceTest {
 
         elasticProfileService.create(username, elasticProfile, new HttpLocalizedOperationResult());
 
-        assertThat(elasticProfile.errors().isEmpty(), Matchers.is(false));
-        assertThat(elasticProfile.errors().on("pluginId"), Matchers.is("Plugin with id `non-existent-plugin` is not found."));
+        assertThat(elasticProfile.errors()).isNotEmpty();
+        assertThat(elasticProfile.errors().on("pluginId")).isEqualTo("Plugin with id `non-existent-plugin` is not found.");
     }
 
     @Test
-    public void shouldUpdateExistingElasticProfileInConfig() {
+    void shouldUpdateExistingElasticProfileInConfig() {
         ElasticProfile elasticProfile = new ElasticProfile("ldap", "cd.go.ldap");
 
         Username username = new Username("username");
@@ -139,7 +142,7 @@ public class ElasticProfileServiceTest {
     }
 
     @Test
-    public void shouldPerformPluginValidationsBeforeUpdatingElasticProfile() {
+    void shouldPerformPluginValidationsBeforeUpdatingElasticProfile() {
         ElasticProfile elasticProfile = new ElasticProfile("ldap", "cd.go.ldap", create("key", false, "value"));
 
         Username username = new Username("username");
@@ -149,7 +152,7 @@ public class ElasticProfileServiceTest {
     }
 
     @Test
-    public void shouldAddPluginNotFoundErrorOnConfigForANonExistentPluginIdWhileUpdating() throws Exception {
+    void shouldAddPluginNotFoundErrorOnConfigForANonExistentPluginIdWhileUpdating() {
         ElasticProfile elasticProfile = new ElasticProfile("some-id", "non-existent-plugin", create("key", false, "value"));
 
         Username username = new Username("username");
@@ -157,18 +160,72 @@ public class ElasticProfileServiceTest {
 
         elasticProfileService.update(username, "md5", elasticProfile, new HttpLocalizedOperationResult());
 
-        assertThat(elasticProfile.errors().isEmpty(), Matchers.is(false));
-        assertThat(elasticProfile.errors().on("pluginId"), Matchers.is("Plugin with id `non-existent-plugin` is not found."));
+        assertThat(elasticProfile.errors()).isNotEmpty();
+        assertThat(elasticProfile.errors().on("pluginId")).isEqualTo("Plugin with id `non-existent-plugin` is not found.");
     }
 
     @Test
-    public void shouldDeleteExistingElasticProfileInConfig() {
+    void shouldDeleteExistingElasticProfileInConfig() {
         ElasticProfile elasticProfile = new ElasticProfile("ldap", "cd.go.ldap");
 
         Username username = new Username("username");
         elasticProfileService.delete(username, elasticProfile, new HttpLocalizedOperationResult());
 
         verify(goConfigService).updateConfig(any(ElasticAgentProfileDeleteCommand.class), eq(username));
+    }
+
+    @Nested
+    class GetJobsUsingElasticProfile {
+        @BeforeEach
+        void setUp() {
+            final ElasticConfig elasticConfig = new ElasticConfig();
+            elasticConfig.getProfiles().add(new ElasticProfile("docker", "cd.go.docker"));
+            elasticConfig.getProfiles().add(new ElasticProfile("ecs", "cd.go.ecs"));
+            elasticConfig.getProfiles().add(new ElasticProfile("kubernetes", "cd.go.k8s"));
+            when(goConfigService.getElasticConfig()).thenReturn(elasticConfig);
+        }
+
+        @Test
+        void shouldReturnJobsUsingElasticProfile() {
+            final List<PipelineConfig> allPipelineConfigs = Arrays.asList(
+                    pipelineWithElasticJobs("docker", "P1", "S1", "Job1", "Job2"),
+                    pipelineWithElasticJobs("ecs", "P3", "S1", "Job1"),
+                    createPipelineConfig("P4", "S1", "Job1", "Job2")
+            );
+
+            when(goConfigService.getAllPipelineConfigs()).thenReturn(allPipelineConfigs);
+
+            final Collection<JobConfigIdentifier> jobsUsingElasticProfile = elasticProfileService.getJobsUsingElasticProfile("docker");
+
+            assertThat(jobsUsingElasticProfile)
+                    .hasSize(2)
+                    .contains(
+                            new JobConfigIdentifier("P1", "S1", "Job1"),
+                            new JobConfigIdentifier("P1", "S1", "Job2")
+                    );
+        }
+
+        @Test
+        void shouldReturnEmptyWhenNoneOfTheJobMatchesProfileId() {
+            final List<PipelineConfig> allPipelineConfigs = Arrays.asList(
+                    pipelineWithElasticJobs("docker", "P1", "S1", "Job1", "Job2"),
+                    pipelineWithElasticJobs("ecs", "P3", "S1", "Job1"),
+                    createPipelineConfig("P4", "S1", "Job1", "Job2")
+            );
+
+            when(goConfigService.getAllPipelineConfigs()).thenReturn(allPipelineConfigs);
+
+            final Collection<JobConfigIdentifier> jobsUsingElasticProfile = elasticProfileService.getJobsUsingElasticProfile("kubernetes");
+
+            assertThat(jobsUsingElasticProfile).isEmpty();
+        }
+
+        @Test
+        void shouldErrorOutWhenElasticProfileWithIdDoesNotExist() {
+            final RecordNotFoundException recordNotFoundException = assertThrows(RecordNotFoundException.class, () -> elasticProfileService.getJobsUsingElasticProfile("unknown-profile-id"));
+
+            assertThat(recordNotFoundException.getMessage()).isEqualTo("Elastic profile with id 'unknown-profile-id' does not exist.");
+        }
     }
 }
 

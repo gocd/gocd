@@ -16,7 +16,7 @@
 
 Rails.application.routes.draw do
   unless defined?(CONSTANTS)
-    CONFIG_REPO_ID_FORMAT = ROLE_NAME_FORMAT = ELASTIC_AGENT_PROFILE_ID_FORMAT = USER_NAME_FORMAT = GROUP_NAME_FORMAT = TEMPLATE_NAME_FORMAT = PIPELINE_NAME_FORMAT = STAGE_NAME_FORMAT = ENVIRONMENT_NAME_FORMAT = /[\w\-][\w\-.]*/
+    CONFIG_REPO_ID_FORMAT = ROLE_NAME_FORMAT = USER_NAME_FORMAT = GROUP_NAME_FORMAT = TEMPLATE_NAME_FORMAT = PIPELINE_NAME_FORMAT = STAGE_NAME_FORMAT = ENVIRONMENT_NAME_FORMAT = /[\w\-][\w\-.]*/
     JOB_NAME_FORMAT = /[\w\-.]+/
     PIPELINE_COUNTER_FORMAT = STAGE_COUNTER_FORMAT = /-?\d+/
     NON_NEGATIVE_INTEGER = /\d+/
@@ -216,10 +216,6 @@ Rails.application.routes.draw do
         patch :update, on: :member
       end
 
-      namespace :elastic do
-        resources :profiles, param: :profile_id, only: [:create, :index, :show, :destroy, :update], constraints: {profile_id: ELASTIC_AGENT_PROFILE_ID_FORMAT}
-      end
-
       namespace :admin do
         namespace :security do
           resources :auth_configs, param: :auth_config_id, except: [:new, :edit,], constraints: {auth_config_id: ALLOW_DOTS}
@@ -289,16 +285,6 @@ Rails.application.routes.draw do
     end
   end
 
-  scope :api, as: :apiv3, format: false do
-    api_version(:module => 'ApiV3', header: {name: 'Accept', value: 'application/vnd.go.cd.v3+json'}) do
-      namespace :admin do
-        resources :templates, param: :template_name, except: [:new, :edit], constraints: {template_name: TEMPLATE_NAME_FORMAT}
-      end
-
-      match '*url', via: :all, to: 'errors#not_found'
-    end
-  end
-
   scope :api, as: :apiv4, format: false do
     api_version(:module => 'ApiV4', header: {name: 'Accept', value: 'application/vnd.go.cd.v4+json'}) do
 
@@ -317,18 +303,6 @@ Rails.application.routes.draw do
       match '*url', via: :all, to: 'errors#not_found'
     end
   end
-
-  scope :api, as: :apiv5, format: false do
-    api_version(:module => 'ApiV5', header: {name: 'Accept', value: 'application/vnd.go.cd.v5+json'}) do
-
-      namespace :admin do
-        resources :pipelines, param: :pipeline_name, only: [:show, :update, :create, :destroy], constraints: {pipeline_name: PIPELINE_NAME_FORMAT}
-      end
-
-      match '*url', via: :all, to: 'errors#not_found'
-    end
-  end
-
 
   namespace :admin do
     resources :pipelines, only: [:edit], controller: :pipeline_configs, param: :pipeline_name, as: :pipeline_config, constraints: {pipeline_name: PIPELINE_NAME_FORMAT}

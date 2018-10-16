@@ -329,4 +329,22 @@ public class Routes {
     public class ServerHealth {
         public static final String BASE = "/api/v1/health";
     }
+
+    public static class ElasticProfileAPI {
+        public static final String BASE = "/api/elastic/profiles";
+        public static final String ID = "/:profile_id";
+        public static final String DOC = "https://api.gocd.org/current/#elastic-agent-profiles";
+
+        public static String find() {
+            return BASE + ID;
+        }
+
+        public static String id(String id) {
+            return find().replaceAll(":profile_id", id);
+        }
+    }
+
+    public class KitchenSink {
+        public static final String SPA_BASE = "/kitchen-sink";
+    }
 }

@@ -16,22 +16,22 @@
 
 const m     = require('mithril');
 const _     = require('lodash');
-const style = require('./css/index.scss');
+const style = require('./index.scss');
 
 const HeaderPanel = {
   view(vnode) {
     let buttons;
     if (!_.isEmpty(vnode.attrs.buttons)) {
       buttons = (
-        <div className={style["page-actions"] || "page-actions"}>
+        <div className={style.pageActions} data-test-id="pageActions">
           {vnode.attrs.buttons}
         </div>
       );
     }
 
-    return (<header className={style["page-header"]}>
-      <div className={style["page-title"] || "page-title"}>
-        <h1 class={style["title-header"]}>{vnode.attrs.title}</h1>
+    return (<header className={style.pageHeader}>
+      <div>
+        <h1 class={style.title} data-test-id="title">{vnode.attrs.title}</h1>
       </div>
       {buttons}
     </header>);

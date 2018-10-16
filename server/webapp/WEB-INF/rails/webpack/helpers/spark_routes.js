@@ -17,6 +17,10 @@
 const m = require('mithril');
 
 module.exports = {
+  adminPipelineConfigPath: (pipelineName) => {
+    return `/go/api/admin/pipelines/${pipelineName}`;
+  },
+
   pipelinePausePath: (pipelineName) => {
     return `/go/api/pipelines/${pipelineName}/pause`;
   },
@@ -100,5 +104,13 @@ module.exports = {
 
   configRepoRevisionStatusPath: (id) => {
     return `/go/api/internal/config_repos/${id}/status`;
+  },
+
+  elasticProfilesPath: (profileId) => {
+    if (profileId) {
+      return `/go/api/elastic/profiles/${profileId}`;
+    } else {
+      return "/go/api/elastic/profiles";
+    }
   }
 };

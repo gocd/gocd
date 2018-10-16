@@ -26,7 +26,7 @@ const TrackingTool         = require('models/pipeline_configs/tracking_tool');
 const Stages               = require('models/pipeline_configs/stages');
 const mrequest             = require('helpers/mrequest');
 const Validatable          = require('models/mixins/validatable_mixin');
-const Routes               = require('gen/js-routes');
+const SparkRoutes          = require("helpers/spark_routes");
 const $                    = require('jquery');
 
 const Pipeline = function (data) {
@@ -88,7 +88,7 @@ const Pipeline = function (data) {
 
       const jqXHR = $.ajax({
         method:      'PUT',
-        url:         Routes.apiv5AdminPipelinePath({pipeline_name: entity.name()}), //eslint-disable-line camelcase
+        url:         SparkRoutes.adminPipelineConfigPath(entity.name()),
         timeout:     mrequest.timeout,
         beforeSend:  config,
         data:        JSON.stringify(entity, s.snakeCaser),

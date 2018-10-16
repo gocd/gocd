@@ -23,7 +23,7 @@ describe ApiV1::Config::PipelineConfigWithMinimalAttributesRepresenter do
 
       actual_json = ApiV1::Config::PipelineConfigWithMinimalAttributesRepresenter.new(pipeline_config).to_hash(url_builder: UrlBuilder.new)
 
-      expect(actual_json).to have_link(:self).with_url('http://test.host/api/admin/pipelines/regression')
+      expect(actual_json).to have_link(:self).with_url('http://test.host/go/api/admin/pipelines/regression')
       actual_json.delete(:_links)
       expect(actual_json).to eq({name: 'regression', stages: [{:name=>'fetch', :jobs=>['dev']}, {:name=>'run', :jobs=>['dev']}]})
     end

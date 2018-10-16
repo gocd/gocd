@@ -25,12 +25,12 @@ describe("Header Panel Component", () => {
   });
 
   afterEach(unmount);
+  afterEach(window.destroyDomElementForTest);
 
   it("should render header panel component", () => {
     const pageTitle = "Test Header";
     mount(pageTitle, []);
-
-    expect($root.find(`.page-title h1`)).toContainText(pageTitle);
+    expect(find('title')).toContainText(pageTitle);
   });
 
   it("should render header panel along with buttons", () => {
@@ -38,9 +38,9 @@ describe("Header Panel Component", () => {
     const buttons   = [m("button", "Do something"), m("button", "Do something more")];
     mount(pageTitle, buttons);
 
-    expect($root.find(`.page-title h1`)).toContainText(pageTitle);
+    expect(find('title')).toContainText(pageTitle);
 
-    const pageActionButtons = $root.find(`.page-actions`).children();
+    const pageActionButtons = find('pageActions').children();
 
     expect(pageActionButtons).toHaveLength(buttons.length);
     expect(pageActionButtons.get(0)).toContainText("Do something");
@@ -51,8 +51,8 @@ describe("Header Panel Component", () => {
     const pageTitle = "Test Header";
     mount(pageTitle);
 
-    expect($root.find(`.page-title h1`)).toContainText(pageTitle);
-    expect($root.find(`.page-actions`)).not.toBeInDOM();
+    expect(find('title')).toContainText(pageTitle);
+    expect(find('pageActions')).not.toBeInDOM();
   });
 
   function mount(pageTitle, buttons) {
@@ -71,5 +71,9 @@ describe("Header Panel Component", () => {
   function unmount() {
     m.mount(root, null);
     m.redraw();
+  }
+
+  function find(id) {
+    return $root.find(`[data-test-id='${id}']`);
   }
 });

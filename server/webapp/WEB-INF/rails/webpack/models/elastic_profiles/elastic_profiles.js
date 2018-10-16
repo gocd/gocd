@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@ const Stream               = require('mithril/stream');
 const s                    = require('string-plus');
 const Mixins               = require('models/mixins/model_mixins');
 const PluginConfigurations = require('models/shared/plugin_configurations');
-const Routes               = require('gen/js-routes');
+const SparkRoutes          = require("helpers/spark_routes");
 const Validatable          = require('models/mixins/validatable_mixin');
 const CrudMixins           = require('models/mixins/crud_mixins');
 
@@ -35,7 +35,7 @@ ElasticProfiles.API_VERSION = 'v1';
 
 CrudMixins.Index({
   type:     ElasticProfiles,
-  indexUrl: Routes.apiv1ElasticProfilesPath(),
+  indexUrl: SparkRoutes.elasticProfilesPath(),
   version:  ElasticProfiles.API_VERSION,
   dataPath: '_embedded.profiles'
 });
@@ -58,10 +58,10 @@ ElasticProfiles.Profile = function (data) {
   CrudMixins.AllOperations.call(this, ['refresh', 'update', 'delete', 'create'],
     {
       type:     ElasticProfiles.Profile,
-      indexUrl: Routes.apiv1ElasticProfilesPath(),
+      indexUrl: SparkRoutes.elasticProfilesPath(),
       version:  ElasticProfiles.API_VERSION,
       resourceUrl(profile) {
-        return Routes.apiv1ElasticProfilePath(profile.id());
+        return SparkRoutes.elasticProfilesPath(profile.id());
       }
     }
   );

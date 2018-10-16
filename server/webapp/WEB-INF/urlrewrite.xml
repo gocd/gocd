@@ -30,6 +30,20 @@
     </rule>
 
     <rule>
+        <name>Spark Elastic Profile Index API</name>
+        <from>^/api/elastic/profiles$</from>
+        <to last="true">/spark/api/elastic/profiles</to>
+        <set name="rails_bound">true</set>
+    </rule>
+
+    <rule>
+        <name>Spark Elastic Profiles API</name>
+        <from>^/api/elastic/profiles/(.*)$</from>
+        <to last="true">/spark/api/elastic/profiles/${escape:$1}</to>
+        <set name="rails_bound">true</set>
+    </rule>
+
+    <rule>
         <name>Spark Artifact Store Index API</name>
         <from>^/api/admin/artifact_stores(/?)$</from>
         <to last="true">/spark/api/admin/artifact_stores</to>
@@ -43,14 +57,12 @@
 
     <rule>
         <name>Spark Pipeline Config Index API</name>
-        <condition type="header" name="Accept">application\/vnd\.go\.cd\.v6\+json</condition>
         <from>^/api/admin/pipelines(/?)$</from>
         <to last="true">/spark/api/admin/pipelines</to>
     </rule>
 
     <rule>
         <name>Spark Pipeline Config API</name>
-        <condition type="header" name="Accept">application\/vnd\.go\.cd\.v6\+json</condition>
         <from>^/api/admin/pipelines/(.*)$</from>
         <to last="true">/spark/api/admin/pipelines/${escape:$1}</to>
     </rule>
@@ -69,16 +81,20 @@
 
     <rule>
         <name>Spark Template Config Index API</name>
-        <condition type="header" name="Accept">application\/vnd\.go\.cd\.v4\+json</condition>
         <from>^/api/admin/templates(/?)$</from>
         <to last="true">/spark/api/admin/templates</to>
     </rule>
 
     <rule>
         <name>Spark Template Config API</name>
-        <condition type="header" name="Accept">application\/vnd\.go\.cd\.v4\+json</condition>
         <from>^/api/admin/templates/(.*)$</from>
         <to last="true">/spark/api/admin/templates/${escape:$1}</to>
+    </rule>
+
+    <rule>
+        <name>Kitchen Sink SPA</name>
+        <from>^/kitchen-sink(/?)$</from>
+        <to last="true">/spark/kitchen-sink</to>
     </rule>
 
     <rule>
@@ -272,14 +288,6 @@
         <to last="true">$1</to>
     </rule>
 
-
-    <rule>
-        <name>Rails Profiles UI</name>
-        <from>^/admin/elastic_profiles$</from>
-        <to last="true">/rails/admin/elastic_profiles</to>
-        <set name="rails_bound">true</set>
-    </rule>
-
     <rule>
         <name>Rails Plugin Status Report call</name>
         <from>^/admin/status_reports/(.*)$</from>
@@ -335,20 +343,6 @@
         <name>Rails Users Show and Delete API</name>
         <from>^/api/users/(.*)$</from>
         <to last="true">/rails/api/users/${escape:$1}</to>
-        <set name="rails_bound">true</set>
-    </rule>
-
-    <rule>
-        <name>Rails Profiles API Index API</name>
-        <from>^/api/elastic/profiles$</from>
-        <to last="true">/rails/api/elastic/profiles</to>
-        <set name="rails_bound">true</set>
-    </rule>
-
-    <rule>
-        <name>Rails Profiles API</name>
-        <from>^/api/elastic/profiles/(.*)$</from>
-        <to last="true">/rails/api/elastic/profiles/${escape:$1}</to>
         <set name="rails_bound">true</set>
     </rule>
 

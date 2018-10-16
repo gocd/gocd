@@ -214,7 +214,6 @@ project.ext.jrubyexec = { Closure<JavaExecSpec> cl ->
 
 def props = [
   'go.enforce.server.immutability'  : 'N',
-  'gocd.environments.show.pipelines': 'Y',
   'rails.use.compressed.js'         : 'false',
   'go.database.provider'            : 'com.thoughtworks.go.server.database.H2Database',
   'db.host'                         : 'localhost',

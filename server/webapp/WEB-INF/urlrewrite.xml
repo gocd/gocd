@@ -57,14 +57,12 @@
 
     <rule>
         <name>Spark Pipeline Config Index API</name>
-        <condition type="header" name="Accept">application\/vnd\.go\.cd\.v6\+json</condition>
         <from>^/api/admin/pipelines(/?)$</from>
         <to last="true">/spark/api/admin/pipelines</to>
     </rule>
 
     <rule>
         <name>Spark Pipeline Config API</name>
-        <condition type="header" name="Accept">application\/vnd\.go\.cd\.v6\+json</condition>
         <from>^/api/admin/pipelines/(.*)$</from>
         <to last="true">/spark/api/admin/pipelines/${escape:$1}</to>
     </rule>

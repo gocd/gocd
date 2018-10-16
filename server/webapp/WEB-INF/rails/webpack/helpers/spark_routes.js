@@ -17,6 +17,10 @@
 const m = require('mithril');
 
 module.exports = {
+  adminPipelineConfigPath: (pipelineName) => {
+    return `/go/api/admin/pipelines/${pipelineName}`;
+  },
+
   pipelinePausePath: (pipelineName) => {
     return `/go/api/pipelines/${pipelineName}/pause`;
   },

@@ -14,20 +14,19 @@
  * limitations under the License.
  */
 
-/* global __dirname */
+/* global __dirname, console */
 
 'use strict';
 
 const fs             = require('fs');
-const fsExtra        = require('fs-extra');
 const _              = require('lodash');
 const path           = require('path');
-const upath          = require('upath');
 const webpack        = require('webpack');
 const StatsPlugin    = require('stats-webpack-plugin');
 const HappyPack      = require('happypack');
-const licenseChecker = require('license-checker');
+const LicenseChecker = require('./webpack-license-plugin');
 const SassLintPlugin = require('sass-lint-webpack');
+const CheckerPlugin  = require('awesome-typescript-loader').CheckerPlugin;
 
 const singlePageAppModuleDir = path.join(__dirname, '..', 'webpack', 'single_page_apps');
 
@@ -63,7 +62,7 @@ module.exports = function (env) {
         publicPath: '/go/assets/webpack/',
       },
       resolve:      {
-        extensions: ['.js', '.js.msx', '.msx', '.es6'],
+        extensions: ['.js', '.js.msx', '.msx', '.es6', '.tsx', '.ts'],
         alias:      {
           'string-plus': 'helpers/string-plus',
           'string':      'underscore.string',
@@ -71,7 +70,7 @@ module.exports = function (env) {
         }
       },
       optimization: {
-        splitChunks: splitChunks
+        splitChunks
       },
       devServer:    {
         hot:    false,
@@ -80,6 +79,23 @@ module.exports = function (env) {
       plugins,
       module:       {
         rules: [
+          {
+            test:    /\.ts(x)?$/,
+            exclude: /node_modules/,
+            use:     [
+              {
+                loader: 'happypack/loader?id=jsx',
+              },
+              {
+                loader:  'awesome-typescript-loader',
+                options: {
+                  configFile:  path.join(__dirname, '..', 'tsconfig.json'),
+                  reportFiles: path.join(assetsDir, '**/*.{ts,tsx}')
+                }
+              },
+
+            ]
+          },
           {
             test:    /\.(msx|js)$/,
             exclude: /node_modules/,
@@ -104,81 +120,8 @@ module.exports = function (env) {
     return memo;
   }, {});
 
-  const LicensePlugin = function (_options) {
-    this.apply = function (compiler) {
-      licenseChecker.init({json: true, production: false, start: process.cwd()}, (err, licenseData) => {
-        if (err) {
-          console.error('Found error');
-          console.error(err);
-          process.exit(1);
-        }
-
-        const filenames = [];
-        compiler.plugin("emit", (compilation, callback) => {
-          compilation.chunks.forEach((chunk) => {
-            chunk.modulesIterable.forEach((chunkModule) => {
-              filenames.push(chunkModule.resource || (chunkModule.rootModule && chunkModule.rootModule.resource));
-              if (Array.isArray(chunkModule.fileDependencies)) {
-                chunkModule.fileDependencies.forEach((e) => {
-                  filenames.push(e);
-                });
-              }
-            });
-          });
-          callback();
-
-          const licenseReport = _.chain(filenames)
-            .uniq()
-            .filter((fileName) => fileName && fileName.indexOf('node_modules') >= 0)
-            .map((fileName) => {
-              const file = upath.normalize(fileName).replace(upath.join(process.cwd(), '/node_modules/'), '');
-              return file.startsWith("@") ? file.split("/").slice(0, 2).join("/") : file.split("/")[0];
-            })
-            .uniq()
-            .sort()
-            .reduce((accumulator, moduleName) => {
-              const moduleNameWithVersion = _(licenseData).findKey((moduleLicenseInfo, moduleNameWithVersion) => {
-                return moduleNameWithVersion.startsWith(`${moduleName}@`);
-              });
-
-              const licenseDataForModule = licenseData[moduleNameWithVersion];
-
-              if (licenseDataForModule) {
-                const moduleVersion = moduleNameWithVersion.split('@')[1];
-
-                if (licenseDataForModule.licenseFile) {
-                  const licenseReportDirForModule = path.join(path.dirname(licenseReportFile), `${moduleName}-${moduleVersion}`);
-                  fsExtra.removeSync(licenseReportDirForModule);
-                  fsExtra.mkdirsSync(licenseReportDirForModule);
-                  fsExtra.copySync(licenseDataForModule.licenseFile, path.join(licenseReportDirForModule, path.basename(licenseDataForModule.licenseFile)));
-                }
-
-                accumulator[moduleName] = {
-                  moduleName:     moduleName,
-                  moduleVersion:  moduleVersion,
-                  moduleUrls:     [licenseDataForModule.repository],
-                  moduleLicenses: [
-                    {
-                      moduleLicense:    licenseDataForModule.licenses,
-                      moduleLicenseUrl: `https://spdx.org/licenses/${licenseDataForModule.licenses}.html`
-                    }
-                  ]
-                };
-              } else {
-                console.error(`Unable to find license data for ${moduleName}`);
-                process.exit(1);
-              }
-              return accumulator;
-            }, {}).value();
-
-          fs.writeFileSync(licenseReportFile, `${JSON.stringify(licenseReport, null, 2)}\n`);
-        });
-
-      });
-    };
-  };
-
   const plugins = [
+    new CheckerPlugin(),
     new SassLintPlugin(),
     new HappyPack({
       id:         'jsx',
@@ -197,16 +140,21 @@ module.exports = function (env) {
       loaders:    [
         {loader: 'style-loader'},
         {
-          loader:  "css-loader", // translates CSS into CommonJS
+          loader:  "typings-for-css-modules-loader", // translates CSS into CommonJS
           options: {
             modules:        true,
+            sourceMap:      true,
             camelCase:      true,
             importLoaders:  1,
-            localIdentName: "[name]__[local]___[hash:base64:5]"
+            localIdentName: "[name]__[local]___[hash:base64:5]",
+            namedExport:    true,
           }
         },
         {
-          loader: "sass-loader" // compiles Sass to CSS, using Node Sass by default
+          loader:  "sass-loader", // compiles Sass to CSS, using Node Sass by default
+          options: {
+            sourceMap: true
+          }
         }
       ],
       threadPool: happyThreadPool
@@ -223,7 +171,7 @@ module.exports = function (env) {
       jQuery:          "jquery",
       "window.jQuery": "jquery"
     }),
-    new LicensePlugin()
+    new LicenseChecker({licenseReportFile})
   ];
 
   const splitChunks = {
@@ -233,7 +181,7 @@ module.exports = function (env) {
       vendor:  {
         name:   'vendor-and-helpers.chunk',
         chunks: 'all',
-        test(module, chunks) {
+        test(module, _chunks) {
           function isFromNPM() {
             const name = module.nameForCondition && module.nameForCondition();
             return new RegExp(`node_modules`).test(name) || new RegExp(`node-vendor`).test(name);

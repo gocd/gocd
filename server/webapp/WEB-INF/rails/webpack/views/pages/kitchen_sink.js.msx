@@ -21,6 +21,7 @@ const Accordion        = require('views/components/accordion');
 const CollapsiblePanel = require('views/components/collapsible_panel');
 const KeyValuePair     = require('views/components/key_value_pair');
 const Icons            = require('views/components/icons');
+const HelloWorld       = require('views/components/hello_world/index.tsx').default;
 
 class AccordionExamples {
   view() {
@@ -58,7 +59,7 @@ module.exports = {
         <Icons.lock/>
         <hr/>
 
-        <br/>
+        <HelloWorld id='jen'/>
         <br/>
 
         <div>

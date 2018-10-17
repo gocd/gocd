@@ -264,6 +264,7 @@ server/webapp/WEB-INF/rails/node_modules/
 server/webapp/WEB-INF/rails/public/assets/
 server/webapp/WEB-INF/rails/gems/jruby
 server/webapp/WEB-INF/rails/webpack/gen/
+server/webapp/WEB-INF/rails/webpack/**/*.scss.d.ts
 server/webapp/WEB-INF/rails/yarn-license-report/
 spark/spark-base/out/
 spark/spark-base/target/

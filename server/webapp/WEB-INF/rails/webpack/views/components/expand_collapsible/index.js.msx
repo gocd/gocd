@@ -38,11 +38,12 @@ module.exports = {
     return (
       <div class={`${styles.collapse} ${self.expanded() ? styles.expanded : styles.collapsed}`}>
         <div class={`${styles.collapse_header} ${self.expanded() ? styles.expanded : styles.collapsed}`}
+             data-test-id="collapse_header"
              onclick={self.toggle}>
           {vnode.attrs.header}
         </div>
 
-        <div class={`${styles.collapse_body} ${styles[self.showState()]}`}>
+        <div class={`${styles.collapse_body} ${styles[self.showState()]}`} data-test-id="collapse_body">
           {vnode.children}
         </div>
       </div>

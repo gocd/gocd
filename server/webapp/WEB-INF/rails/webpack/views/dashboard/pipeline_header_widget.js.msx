@@ -76,6 +76,7 @@ const PipelineHeaderWidget = {
           </div>
         </div>
         <PipelineOperationsWidget pipeline={vnode.attrs.pipeline}
+                                  invalidateEtag={vnode.attrs.invalidateEtag}
                                   doCancelPolling={vnode.attrs.doCancelPolling}
                                   doRefreshImmediately={vnode.attrs.doRefreshImmediately}
                                   operationMessages={vnode.attrs.operationMessages}/>

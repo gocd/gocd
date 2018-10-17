@@ -29,7 +29,7 @@ const Group = {
     return <div class="dashboard-group" key={vm.name}>
       <GroupHeading {...vnode.attrs} />
       <ul class="dashboard-group_items">
-        {_.map(pipelines, (pipeline) => <PipelineWidget pipeline={pipeline} key={pipeline.name} {...sharedArgs} />)}
+        {_.map(pipelines, (pipeline) => <PipelineWidget invalidateEtag={vnode.attrs.invalidateEtag} pipeline={pipeline} key={pipeline.name} {...sharedArgs} />)}
       </ul>
     </div>;
   }
@@ -40,7 +40,9 @@ const DashboardGroupsWidget = {
     const sharedArgs = _.assign({}, vnode.attrs);
     delete sharedArgs.groups;
 
-    return _.map(vnode.attrs.groups, (group) => <Group vm={group} {...sharedArgs} />);
+    return _.map(vnode.attrs.groups, (group) => <Group vm={group}
+                                                       invalidateEtag={vnode.attrs.invalidateEtag}
+                                                       {...sharedArgs} />);
   }
 };
 

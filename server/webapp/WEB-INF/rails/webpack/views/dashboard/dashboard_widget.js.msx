@@ -79,8 +79,10 @@ const DashboardWidget = {
           </section>
 
           {messageView}
-          <DashboardGroupsWidget groups={vm.filteredGroups(personalizeVM.currentFilter())} scheme={vm.scheme()}
-                                 resolver={dashboard} {...sharedGroupArgs} />
+          <DashboardGroupsWidget scheme={vm.scheme()}
+                                 invalidateEtag={vm.invalidateEtag}
+                                 resolver={dashboard} {...sharedGroupArgs}
+                                 groups={vm.filteredGroups(personalizeVM.currentFilter())}/>
         </div>
       </div>
     );

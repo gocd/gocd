@@ -46,6 +46,7 @@ const PipelineWidget = {
       <li class="dashboard-group_pipeline">
         <div class="pipeline">
           <PipelineHeaderWidget pipeline={vnode.attrs.pipeline}
+                                invalidateEtag={vnode.attrs.invalidateEtag}
                                 doCancelPolling={vnode.attrs.doCancelPolling}
                                 doRefreshImmediately={vnode.attrs.doRefreshImmediately}
                                 pluginsSupportingAnalytics={vnode.attrs.pluginsSupportingAnalytics}

@@ -1,0 +1,94 @@
+{
+  "files": {
+    "include": "webpack/**/*.s+(a|c)ss"
+  },
+  "options": {
+    "formatter": "stylish",
+    "merge-default-rules": false
+  },
+  "rules": {
+    "attribute-quotes": 2,
+    "border-zero": [
+      2,
+      {
+        "convention": "none"
+      }
+    ],
+    "brace-style": [
+      2,
+      {
+        "allow-single-line": true,
+        "style": "stroustrup"
+      }
+    ],
+    "declarations-before-nesting": 2,
+    "extends-before-declarations": 2,
+    "extends-before-mixins": 2,
+    "final-newline": [
+      2,
+      {
+        "include": true
+      }
+    ],
+    "empty-line-between-blocks": 0,
+    "hex-length": [
+      2,
+      {
+        "style": "short"
+      }
+    ],
+    "hex-notation": [
+      2,
+      {
+        "style": "lowercase"
+      }
+    ],
+    "id-name-format": 0,
+    "indentation": [
+      2
+    ],
+    "leading-zero": [
+      2,
+      {
+        "include": true
+      }
+    ],
+    "mixins-before-declarations": 2,
+    "nesting-depth": [
+      2,
+      {
+        "max-depth": 3
+      }
+    ],
+    "no-color-keywords": 2,
+    "no-color-literals": 0,
+    "no-css-comments": 0,
+    "no-duplicate-properties": 2,
+    "no-empty-rulesets": 2,
+    "no-ids": 2,
+    "no-important": 2,
+    "no-invalid-hex": 2,
+    "no-mergeable-selectors": 2,
+    "no-misspelled-properties": 2,
+    "no-qualifying-elements": 2,
+    "no-trailing-whitespace": 2,
+    "no-trailing-zero": 2,
+    "no-universal-selectors": 2,
+    "no-url-domains": 2,
+    "no-url-protocols": 2,
+    "placeholder-name-format": 0,
+    "property-sort-order": 0,
+    "quotes": 0,
+    "shorthand-values": 0,
+    "single-line-per-selector": 0,
+    "space-after-colon": 2,
+    "space-after-comma": 2,
+    "url-quotes": 2,
+    "zero-unit": [
+      2,
+      {
+        "include": false
+      }
+    ]
+  }
+}

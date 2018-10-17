@@ -20,9 +20,9 @@
 
 .site-header {
   background: $site-header;
-  position: fixed;
-  left:0;
-  right:0;
+  position:   fixed;
+  left:       0;
+  right:      0;
   z-index:    map-get($zindex, site-header);
   @media(min-width: $screen-md) {
     display:     flex;
@@ -51,7 +51,7 @@
   }
 
   @media(min-width: $screen-md) {
-    display:         flex !important;
+    display:         flex !important; // sass-lint:disable-line no-important
     justify-content: space-between;
     flex-grow:       2;
   }
@@ -88,20 +88,15 @@
 
 // nav button for mobile
 
-.navbtn {
-  border:     0;
-  background: #fff;
-  float:      right;
-  @media(min-width: $screen-md) {
-    display: none;
-  }
-}
-
-// responsive menu
 $bar-width: 20px;
 $bar-height: 3px;
 $bar-spacing: 7px;
 .navbtn {
+  @media(min-width: $screen-md) {
+    display: none;
+  }
+  border:     none;
+  float:      right;
   position:   absolute;
   top:        11px;
   right:      10px;
@@ -111,6 +106,8 @@ $bar-spacing: 7px;
   cursor:     pointer;
   background: transparent;
 }
+
+// responsive menu
 
 .bar,
 .bar:after,
@@ -175,9 +172,7 @@ $bar-spacing: 7px;
 .user {
   color:    $header-text-color;
   position: relative;
-  @media(min-width: $screen-md) {
 
-  }
   &.is-drop-down {
     &:before {
       content:      "";
@@ -247,7 +242,7 @@ $bar-spacing: 7px;
 .user_subnav_link {
   color:           $header-text-color;
   text-decoration: none;
-  padding:         10px 0px;
+  padding:         10px 0;
   font-size:       13px;
   text-align:      right;
   display:         inline-block;

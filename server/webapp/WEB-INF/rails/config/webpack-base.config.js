@@ -18,15 +18,17 @@
 
 'use strict';
 
-const fs                   = require('fs');
-const fsExtra              = require('fs-extra');
-const _                    = require('lodash');
-const path                 = require('path');
-const upath                = require('upath');
-const webpack              = require('webpack');
-const StatsPlugin          = require('stats-webpack-plugin');
-const HappyPack            = require('happypack');
-const licenseChecker       = require('license-checker');
+const fs             = require('fs');
+const fsExtra        = require('fs-extra');
+const _              = require('lodash');
+const path           = require('path');
+const upath          = require('upath');
+const webpack        = require('webpack');
+const StatsPlugin    = require('stats-webpack-plugin');
+const HappyPack      = require('happypack');
+const licenseChecker = require('license-checker');
+const SassLintPlugin = require('sass-lint-webpack');
+
 const singlePageAppModuleDir = path.join(__dirname, '..', 'webpack', 'single_page_apps');
 
 const mithrilVersionFromNpm          = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'node_modules/mithril/package.json'), 'utf8')).version;
@@ -177,6 +179,7 @@ module.exports = function (env) {
   };
 
   const plugins = [
+    new SassLintPlugin(),
     new HappyPack({
       id:         'jsx',
       loaders:    [
@@ -203,7 +206,7 @@ module.exports = function (env) {
           }
         },
         {
-          loader:  "sass-loader" // compiles Sass to CSS, using Node Sass by default
+          loader: "sass-loader" // compiles Sass to CSS, using Node Sass by default
         }
       ],
       threadPool: happyThreadPool

@@ -1,3 +1,4 @@
+# this file is purely used by rails. see `.webpack-sass-lintrc.json` for the css processed by webpack
 severity: warning
 linters:
   Comment:

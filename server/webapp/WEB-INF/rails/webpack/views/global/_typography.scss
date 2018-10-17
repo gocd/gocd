@@ -18,7 +18,7 @@ $headings-margin-bottom: $global-margin-bottom;
 $headings-font-family: $font-family-base;
 $headings-font-weight: $global-font-weight;
 $headings-line-height: normal;
-$headings-color: #333333;
+$headings-color: #333;
 
 $h1-font-size: 17px;
 $h2-font-size: 16px;
@@ -27,9 +27,8 @@ $h4-font-size: 14px;
 $h5-font-size: 13px;
 $h6-font-size: 12px;
 
-
-$hr-border-width : 1px;
-$hr-border-color : #d5dddf;
+$hr-border-width: 1px;
+$hr-border-color: #d5dddf;
 
 // Headings
 
@@ -69,11 +68,11 @@ h6, .h6 {
 hr {
   margin-top:    $global-margin-top;
   margin-bottom: $global-margin-bottom;
-  border:        0;
+  border:        none;
   border-top:    $hr-border-width solid $hr-border-color;
 }
 
 .list-unstyled {
   padding-left: 0;
-  list-style: none;
+  list-style:   none;
 }

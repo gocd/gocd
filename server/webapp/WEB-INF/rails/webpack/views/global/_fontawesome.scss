@@ -13,14 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 @import "~font-awesome/scss/variables";
 
 @mixin icon-only($type, $font: 'font-awesome') {
   @if $font == 'font-awesome' {
     font-family: 'FontAwesome';
     content:     $type;
-  } @else {
+  }
+  @else {
     @error "Could not find font family #{$font}";
   }
 }
@@ -59,8 +59,3 @@
     @content;
   }
 }
-
-
-
-
-

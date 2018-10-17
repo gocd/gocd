@@ -65,15 +65,13 @@ $notification-bg: #fff;
     @media(min-width: $screen-md) {
       bottom:              100%;
       right:               14px;
-      border:              solid transparent;
       content:             " ";
       height:              0;
       width:               0;
       position:            absolute;
       pointer-events:      none;
-      border-color:        rgba(255, 255, 255, 0);
+      border:              6px rgba(255, 255, 255, 0);
       border-bottom-color: #fff;
-      border-width:        6px;
     }
   }
   a, a:hover {
@@ -90,7 +88,7 @@ $notification-bg: #fff;
   position:      relative;
   line-height:   20.8px;
   &:first-child {
-    border: 0;
+    border: none;
   }
 }
 

@@ -11,6 +11,7 @@
     "eslint": "eslint --color --ext .js --ext .msx --format stylish webpack/ spec/webpack/ --ignore-pattern gen/",
     "eslintold": "eslint --no-eslintrc --config .eslintrc-old.json --color --ext .js  --format stylish app/assets/javascripts/ spec/javascripts/"
   },
+  "sasslintConfig": ".webpack-sass-lintrc.json",
   "dependencies": {
     "@shopify/draggable": "^1.0.0-beta.7",
     "angular": "file:node-vendor/angular",
@@ -68,6 +69,8 @@
     "license-checker": "^20.1.0",
     "mini-css-extract-plugin": "^0.4.3",
     "node-sass": "^4.9.3",
+    "sass-lint": "^1.12.1",
+    "sass-lint-webpack": "^1.0.0",
     "sass-loader": "^7.1.0",
     "simulate-event": "^1.4.0",
     "sourcemapped-stacktrace": "^1.1.6",

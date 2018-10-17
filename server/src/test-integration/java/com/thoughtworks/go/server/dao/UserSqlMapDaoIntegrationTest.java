@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,12 +32,10 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-import static org.hamcrest.Matchers.empty;
-import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.*;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
@@ -314,7 +312,7 @@ public class UserSqlMapDaoIntegrationTest {
     }
 
     @Test
-    public void shouldLoadSubscribersOfNotification() {
+    public void shouldLoadOnlyActiveSubscribersOfNotification() {
         User user1 = new User("user1");
         user1.addNotificationFilter(new NotificationFilter("pipeline", "stage", StageEvent.Fails, true));
         userDao.saveOrUpdate(user1);
@@ -329,26 +327,26 @@ public class UserSqlMapDaoIntegrationTest {
         user3.addNotificationFilter(new NotificationFilter("p1", "s1", StageEvent.Fails, true));
         userDao.saveOrUpdate(user3);
 
-        User user4 = new User("user4");
-        userDao.saveOrUpdate(user4);
+
+        User disabledUser = new User("user4");
+        disabledUser.disable();
+        disabledUser.addNotificationFilter(new NotificationFilter("p1", "s1", StageEvent.Fails, true));
+        userDao.saveOrUpdate(disabledUser);
+
+        User user5 = new User("user5");
+        userDao.saveOrUpdate(user5);
 
         Users subscribedUsers = userDao.findNotificationSubscribingUsers();
         userDao.findNotificationSubscribingUsers();
+        subscribedUsers.sort(Comparator.comparing(User::getName));
+
         assertThat(subscribedUsers.size(), is(3));
         assertThat(subscribedUsers.containsAll(Arrays.asList(user1, user2, user3)), is(true));
-
-        Collections.sort(subscribedUsers, new Comparator<User>() {
-            @Override
-            public int compare(User user1, User user2) {
-                return user1.getName().compareTo(user2.getName());
-            }
-        });
 
         assertThat(subscribedUsers.get(0).getNotificationFilters().size(), is(1));
         assertThat(subscribedUsers.get(1).getNotificationFilters().size(), is(3));
         assertThat(subscribedUsers.get(2).getNotificationFilters().size(), is(1));
     }
-
 
     @Test
     public void shouldDeleteNotificationOnAUser() {
@@ -380,18 +378,21 @@ public class UserSqlMapDaoIntegrationTest {
 
     @Test
     public void shouldDeleteNotificationsAlongWithUser() {
-        User user = new User("user1");
-        user.addNotificationFilter(new NotificationFilter("pipelineName", "stageName", StageEvent.All, true));
+        final User user = new User("user1");
         user.disable();
+        user.addNotificationFilter(new NotificationFilter("pipelineName", "stageName", StageEvent.All, true));
         userDao.saveOrUpdate(user);
-        Users users = userDao.findNotificationSubscribingUsers();
-        assertThat(users, hasItem(user));
+        assertThat(getAllNotificationFilter(), hasSize(1));
 
         boolean result = userDao.deleteUser(user.getName());
 
         assertThat(result, is(true));
-        users = userDao.findNotificationSubscribingUsers();
-        assertThat(users, is(empty()));
+        assertThat(getAllNotificationFilter(), is(empty()));
+    }
+
+    private List<NotificationFilter> getAllNotificationFilter() {
+        return sessionFactory.openSession().createCriteria(NotificationFilter.class)
+                .list();
     }
 
     @Test(expected = UserNotFoundException.class)

@@ -949,6 +949,7 @@ describe("Dashboard Pipeline Widget", () => {
       view() {
         return m(PipelineWidget, {
           pipeline,
+          invalidateEtag: () => {},
           isQuickEditPageEnabled,
           pluginsSupportingAnalytics,
           shouldShowAnalyticsIcon,

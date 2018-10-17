@@ -35,6 +35,7 @@ const PipelineOperationsWidget = {
       pipeline.trigger(options).then((res) => {
         pipeline.triggerDisabled(true);
         operationMessages.success(pipeline.name, res.message);
+        vnode.attrs.invalidateEtag();
       }, (res) => {
         operationMessages.failure(pipeline.name, res.responseJSON.message);
       });

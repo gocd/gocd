@@ -114,10 +114,14 @@ function DashboardViewModel(dashboard) {
 
   let dropdownPipelineName, dropdownPipelineCounter;
 
+  const self = this;
+
   _.assign(this, {
     dashboard,
 
     etag: Stream(null),
+
+    invalidateEtag: () => self.etag(null),
 
     dropdown: {
       isOpen: (name, instanceCounter) => ((name === dropdownPipelineName) && (instanceCounter === dropdownPipelineCounter)),

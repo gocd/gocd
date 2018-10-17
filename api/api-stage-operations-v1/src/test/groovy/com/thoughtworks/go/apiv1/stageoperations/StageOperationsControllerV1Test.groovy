@@ -18,8 +18,7 @@ package com.thoughtworks.go.apiv1.stageoperations
 
 import com.thoughtworks.go.api.SecurityTestTrait
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
-import com.thoughtworks.go.domain.NullStage
-import com.thoughtworks.go.domain.Stage
+import com.thoughtworks.go.domain.*
 import com.thoughtworks.go.server.service.PipelineService
 import com.thoughtworks.go.server.service.ScheduleService
 import com.thoughtworks.go.server.service.SchedulingCheckerService
@@ -33,13 +32,8 @@ import com.thoughtworks.go.spark.SecurityServiceTrait
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.params.ParameterizedTest
-import org.junit.jupiter.params.provider.MethodSource
-import org.junit.jupiter.params.provider.ValueSource
 import org.mockito.Mock
 import org.mockito.invocation.InvocationOnMock
-
-import java.lang.reflect.Parameter
 
 import static org.mockito.ArgumentMatchers.*
 import static org.mockito.Mockito.*
@@ -161,7 +155,7 @@ class StageOperationsControllerV1Test implements SecurityServiceTrait, Controlle
 
       @Override
       void makeHttpCall() {
-        postWithApiHeader(controller.controllerPath("up42", "3", "stage1", "1", 'run-selected-jobs'), ["jobs":["job1"]])
+        postWithApiHeader(controller.controllerPath("up42", "3", "stage1", "1", 'run-selected-jobs'), ["jobs": ["job1"]])
       }
 
       @Override
@@ -172,35 +166,59 @@ class StageOperationsControllerV1Test implements SecurityServiceTrait, Controlle
 
     @Nested
     class AsAGroupOperateUser {
+      private Stage stage
+
       @BeforeEach
       void setUp() {
         enableSecurity()
         loginAsGroupOperateUser("up42")
+
+        stage = mock(Stage)
+        when(stage.getIdentifier()).thenReturn(new StageIdentifier("up42/1/stage1/1"))
+        when(stage.getJobInstances()).thenReturn(new JobInstances(
+          new JobInstance("test"),
+          new JobInstance("build"),
+          new JobInstance("upload")
+        ))
       }
 
       @Test
       void 'should rerun selected jobs in stage'() {
-        Stage stage = mock(Stage)
         String expectedMessage = "Request to rerun job(s) is accepted"
-        List<String> jobs = ["download", "build", "upload"]
+        List<String> jobs = ["test", "build", "upload"]
 
-
-        when(stageService.findStageWithIdentifier(eq("up42"), eq(3), eq("stage1"), eq("1"), anyString(), any() as HttpOperationResult)).thenReturn(stage)
-        when(scheduleService.rerunSelectedJobs(eq(stage), eq(jobs), any() as HttpOperationResult))
+        when(stageService.findStageWithIdentifier(eq("up42"), eq(3), eq("stage1"), eq("1"), anyString(), any() as HttpOperationResult)).thenReturn(this.stage)
+        when(scheduleService.rerunJobs(eq(this.stage), eq(jobs), any() as HttpOperationResult))
           .then({ InvocationOnMock invocation ->
           HttpOperationResult result = invocation.getArguments().last()
           result.accepted(expectedMessage, "", HealthStateType.general(HealthStateScope.forStage("up42", "stage1")))
-          return stage
+          return this.stage
         })
 
-        postWithApiHeader(controller.controllerPath("up42", "3", "stage1", "1", 'run-selected-jobs'), ["jobs": ["download", "build", "upload"]])
+        postWithApiHeader(controller.controllerPath("up42", "3", "stage1", "1", 'run-selected-jobs'), ["jobs": jobs])
 
         assertThatResponse()
           .isAccepted()
           .hasContentType(controller.mimeType)
           .hasJsonMessage(expectedMessage)
 
-        verify(scheduleService).rerunSelectedJobs(eq(stage), eq(jobs), any() as HttpOperationResult)
+        verify(scheduleService).rerunJobs(eq(this.stage), eq(jobs), any() as HttpOperationResult)
+      }
+
+      @Test
+      void 'should error out when any of the requested job is not in stage'() {
+        List<String> jobs = ["test", "build", "integration", "functional"]
+
+        when(stageService.findStageWithIdentifier(eq("up42"), eq(3), eq("stage1"), eq("1"), anyString(), any() as HttpOperationResult)).thenReturn(this.stage)
+
+        postWithApiHeader(controller.controllerPath("up42", "3", "stage1", "1", 'run-selected-jobs'), ["jobs": jobs])
+
+        assertThatResponse()
+          .isNotFound()
+          .hasContentType(controller.mimeType)
+          .hasJsonMessage("Job(s) [integration, functional] does not exist in stage 'up42/1/stage1/1'.")
+
+        verifyZeroInteractions(scheduleService)
       }
 
       @Test
@@ -231,7 +249,7 @@ class StageOperationsControllerV1Test implements SecurityServiceTrait, Controlle
       void 'should not call schedule service if stage is instance of NullStage'() {
         when(stageService.findStageWithIdentifier(anyString(), anyInt(), anyString(), anyString(), anyString(), any() as HttpOperationResult)).thenReturn(new NullStage("foo"))
 
-        postWithApiHeader(controller.controllerPath("up42", "3", "stage1", "1", 'run-selected-jobs'), ["jobs":["job1"]])
+        postWithApiHeader(controller.controllerPath("up42", "3", "stage1", "1", 'run-selected-jobs'), ["jobs": ["job1"]])
 
         assertThatResponse()
           .isNotFound()
@@ -245,7 +263,7 @@ class StageOperationsControllerV1Test implements SecurityServiceTrait, Controlle
       void 'should not call schedule service if stage does not exist'() {
         when(stageService.findStageWithIdentifier(anyString(), anyInt(), anyString(), anyString(), anyString(), any() as HttpOperationResult)).thenReturn(null)
 
-        postWithApiHeader(controller.controllerPath("up42", "3", "stage1", "1", 'run-selected-jobs'), ["jobs":["job1"]])
+        postWithApiHeader(controller.controllerPath("up42", "3", "stage1", "1", 'run-selected-jobs'), ["jobs": ["job1"]])
 
         assertThatResponse()
           .isNotFound()

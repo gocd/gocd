@@ -326,11 +326,11 @@ $table-header: 38px;
 $arrow-color: #000;
 
 .agents-table {
-  background:   transparent;
-  border:       0;
+  background:      transparent;
+  border:          0;
   border-collapse: collapse;
-  margin:       0;
-  table-layout: fixed;
+  margin:          0;
+  table-layout:    fixed;
 
   @include breakpoint(large up) {
     $column-widths: (

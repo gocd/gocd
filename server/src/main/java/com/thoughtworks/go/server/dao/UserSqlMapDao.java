@@ -95,6 +95,7 @@ public class UserSqlMapDao extends HibernateDaoSupport implements UserDao {
             Criteria criteria = sessionFactory.getCurrentSession().createCriteria(User.class);
             criteria.setCacheable(true);
             criteria.add(Restrictions.isNotEmpty("notificationFilters"));
+            criteria.add(Restrictions.eq("enabled", true));
             return new Users(criteria.list());
         });
     }

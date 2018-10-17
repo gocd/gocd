@@ -64,7 +64,7 @@ $PROGRESS_BAR_BG_SIZE: 70px;
   font-family: Monaco, Consolas, Inconsolata, "Liberation Mono", "Courier New", monospace;
   font-size: 13px;
   line-height: 19px;
-  color: white;
+  color: #fff;
   padding: 10px 20px;
   text-align: center;
 
@@ -99,7 +99,7 @@ $PROGRESS_BAR_BG_SIZE: 70px;
 
   .white-theme & {
     background-color: white;
-    color: black;
+    color: #000;
   }
 }
 
@@ -329,20 +329,20 @@ dt.log-fs-line, dt.log-fs-line:before {
 }
 
 @each $color in black, red, green, yellow, blue, magenta, cyan, white {
-  .ansi-#{$color}-fg {
+  .ansi-#{"" + $color}-fg {
     color: $color;
   }
 
-  .ansi-#{$color}-bg {
+  .ansi-#{"" + $color}-bg {
     background-color: $color;
   }
 
-  .ansi-bright-#{$color}-fg {
+  .ansi-bright-#{"" + $color}-fg {
     font-weight: bold;
     color: lighten($color, 33%);
   }
 
-  .ansi-bright-#{$color}-bg {
+  .ansi-bright-#{"" + $color}-bg {
     background-color: lighten($color, 33%);
   }
 }

@@ -106,6 +106,9 @@ api/api-build_cause-v1/target/
 api/api-current-user-v1/logs/
 api/api-current-user-v1/out/
 api/api-current-user-v1/target/
+api/api-config-repo-operations-v1/target/
+api/api-config-repo-operations-v1/logs/
+api/api-config-repo-operations-v1/out/
 api/api-dashboard-v2/logs/
 api/api-dashboard-v2/out/
 api/api-dashboard-v2/target/
@@ -118,6 +121,9 @@ api/api-data-sharing-settings-v1/target/
 api/api-data-sharing-usage-data-v3/logs/
 api/api-data-sharing-usage-data-v3/out/
 api/api-data-sharing-usage-data-v3/target/
+api/api-elastic-profile-v1/out/
+api/api-elastic-profile-v1/logs/
+api/api-elastic-profile-v1/target/
 api/api-encryption-v1/config/
 api/api-encryption-v1/logs/
 api/api-encryption-v1/out/

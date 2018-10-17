@@ -94,6 +94,18 @@ module.exports = {
     return '/go/api/internal/data_sharing/reporting/complete';
   },
 
+  configRepoLastParsedResultPath: (id) => {
+    return `/go/api/internal/config_repos/${id}/last_parsed_result`;
+  },
+
+  configRepoTriggerUpdatePath: (id) => {
+    return `/go/api/internal/config_repos/${id}/trigger_update`;
+  },
+
+  configRepoRevisionStatusPath: (id) => {
+    return `/go/api/internal/config_repos/${id}/status`;
+  },
+
   elasticProfilesPath: (profileId) => {
     if (profileId) {
       return `/go/api/elastic/profiles/${profileId}`;

@@ -22,7 +22,7 @@ const Dfr        = require("jquery").Deferred;
 function req(exec) {
   return Dfr(function ajax() {
     const success = (data, _s, xhr) => this.resolve(data, parseEtag(xhr), xhr.status);
-    const failure = (xhr) => this.reject(parseError(xhr.responseJSON, xhr));
+    const failure = (xhr) => this.reject(parseError(xhr.responseJSON, xhr), xhr.status);
 
     exec().then(success, failure);
   }).promise();

@@ -53,6 +53,11 @@ function ReposListVM(model) {
     }, addError);
   };
 
+  this.resolvePluginName = (id) => {
+    const plugin = _.find(this.pluginChoices(), (pl) => pl.id === id);
+    return plugin ? plugin.text : id;
+  };
+
   this.pluginChoices = Stream([]);
   this.loading = Stream(false);
 

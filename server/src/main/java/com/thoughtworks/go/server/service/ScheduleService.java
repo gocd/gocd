@@ -27,7 +27,6 @@ import com.thoughtworks.go.server.dao.JobInstanceDao;
 import com.thoughtworks.go.server.dao.PipelineDao;
 import com.thoughtworks.go.server.dao.StageDao;
 import com.thoughtworks.go.server.domain.AgentInstances;
-import com.thoughtworks.go.server.domain.StageIdentity;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.newsecurity.utils.SessionUtils;
 import com.thoughtworks.go.server.perf.SchedulingPerformanceLogger;
@@ -53,10 +52,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map.Entry;
-import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.thoughtworks.go.domain.StageState.*;
+import static com.thoughtworks.go.domain.StageState.Unknown;
 import static com.thoughtworks.go.util.GoConstants.DEFAULT_APPROVED_BY;
 
 @Service
@@ -734,35 +732,6 @@ public class ScheduleService {
         synchronized (mutexForStageInstance(instance.getIdentifier())) {
             stageService.failJob(instance);
         }
-    }
-
-    public void rerunSelectedJobs(Stage stage, List<String> requestedJobs, HttpOperationResult result) {
-        HealthStateType healthStateType = HealthStateType.general(HealthStateScope.forStage(stage.getIdentifier()
-                .getPipelineName(), stage.getName()));
-
-        if(requestedJobs == null || requestedJobs.isEmpty()) {
-            String message = "No job was selected to re-run.";
-            result.badRequest(message, message, healthStateType);
-            return;
-        }
-
-        Set<String> jobsInStage = stage.getJobInstances()
-                .stream()
-                .map(JobInstance::getName)
-                .collect(Collectors.toSet());
-
-        List<String> unknownJobs = requestedJobs.stream()
-                .filter(jobToRun -> !jobsInStage.contains(jobToRun))
-                .collect(Collectors.toList());
-
-        if (unknownJobs.size() > 0) {
-            String msg = String.format("Jobs %s does not exist in stage '%s'.", unknownJobs, stage.getIdentifier().getStageLocator());
-            LOGGER.error(msg);
-            result.notFound(msg, "", healthStateType);
-            return;
-        }
-
-        rerunJobs(stage, requestedJobs, result);
     }
 
     public interface StageInstanceCreator {

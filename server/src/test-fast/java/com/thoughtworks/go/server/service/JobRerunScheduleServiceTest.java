@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.server.service;
 
+import ch.qos.logback.classic.Level;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.activity.AgentAssignment;
@@ -33,16 +34,12 @@ import com.thoughtworks.go.server.transaction.TestTransactionTemplate;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.util.LogFixture;
 import com.thoughtworks.go.util.TimeProvider;
-import ch.qos.logback.classic.Level;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.ArgumentMatchers;
 import org.springframework.transaction.support.TransactionCallback;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Date;
-import java.util.List;
 import java.util.concurrent.Semaphore;
 
 import static com.thoughtworks.go.util.DataStructureUtils.a;
@@ -341,57 +338,6 @@ public class JobRerunScheduleServiceTest {
 
         assertThat(result.httpCode(), is(400));
         assertThat(result.message(), is("There are no failed jobs in the stage that could be re-run"));
-        verify(scheduleServiceSpy, never()).rerunJobs(any(Stage.class), anyList(), any(HttpOperationResult.class));
-    }
-
-
-    @Test
-    public void shouldRerunSelectedJobs() {
-        Stage stage = mock(Stage.class);
-        HttpOperationResult result = new HttpOperationResult();
-        List<String> jobs = Arrays.asList("job1");
-
-        when(stage.getIdentifier()).thenReturn(new StageIdentifier("up42/1/stage1/1"));
-        when(stage.getJobInstances()).thenReturn(new JobInstances(new JobInstance("job1"), new JobInstance("job2")));
-
-        ScheduleService scheduleServiceSpy = spy(service);
-        scheduleServiceSpy.rerunSelectedJobs(stage, jobs, result);
-
-        verify(scheduleServiceSpy).rerunJobs(stage, Arrays.asList("job1"), result);
-    }
-
-    @Test
-    public void shouldNotRerunWhenThereAreNoRequestedJobs() {
-        Stage stage = mock(Stage.class);
-        HttpOperationResult result = new HttpOperationResult();
-
-        when(stage.getIdentifier()).thenReturn(new StageIdentifier("up42/1/stage1/1"));
-
-        ScheduleService scheduleServiceSpy = spy(service);
-        scheduleServiceSpy.rerunSelectedJobs(stage, Collections.emptyList(), result);
-
-        assertThat(result.httpCode(), is(400));
-        assertThat(result.message(), is("No job was selected to re-run."));
-
-        verify(scheduleServiceSpy, never()).rerunJobs(any(Stage.class), anyList(), any(HttpOperationResult.class));
-    }
-
-
-    @Test
-    public void shouldNotRerunWhenAnyOfTheRequestedJobsDoesNotExistInStage() {
-        Stage stage = mock(Stage.class);
-        HttpOperationResult result = new HttpOperationResult();
-        List<String> jobs = Arrays.asList("job0", "job1");
-
-        when(stage.getIdentifier()).thenReturn(new StageIdentifier("up42/1/stage1/1"));
-        when(stage.getJobInstances()).thenReturn(new JobInstances(new JobInstance("job1"), new JobInstance("job2")));
-
-        ScheduleService scheduleServiceSpy = spy(service);
-        scheduleServiceSpy.rerunSelectedJobs(stage, jobs, result);
-
-        assertThat(result.httpCode(), is(404));
-        assertThat(result.message(), is("Jobs [job0] does not exist in stage 'up42/1/stage1/1'."));
-
         verify(scheduleServiceSpy, never()).rerunJobs(any(Stage.class), anyList(), any(HttpOperationResult.class));
     }
 

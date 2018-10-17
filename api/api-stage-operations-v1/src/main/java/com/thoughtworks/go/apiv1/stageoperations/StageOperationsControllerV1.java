@@ -23,6 +23,7 @@ import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
 import com.thoughtworks.go.api.util.GsonTransformer;
 import com.thoughtworks.go.api.util.HaltApiResponses;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
+import com.thoughtworks.go.domain.JobInstance;
 import com.thoughtworks.go.domain.NullStage;
 import com.thoughtworks.go.domain.Stage;
 import com.thoughtworks.go.server.service.PipelineService;
@@ -43,6 +44,8 @@ import spark.Response;
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import static com.thoughtworks.go.api.util.HaltApiResponses.haltBecauseOfReason;
 import static spark.Spark.*;
@@ -92,14 +95,33 @@ public class StageOperationsControllerV1 extends ApiController implements SparkS
 
     public String rerunSelectedJobs(Request req, Response res) throws IOException {
         HttpOperationResult result = new HttpOperationResult();
-
         haltIfRequestBodyDoesNotContainPropertyJobs(req);
 
         JsonReader requestBody = GsonTransformer.getInstance().jsonReaderFrom(req.body());
         List<String> requestedJobs = requestBody.readStringArrayIfPresent(JOB_NAMES_PROPERTY).get();
 
         Optional<Stage> optionalStage = getStageFromRequestParam(req, result);
-        optionalStage.ifPresent(stage -> scheduleService.rerunSelectedJobs(stage, requestedJobs, result));
+        optionalStage.ifPresent(stage -> {
+            HealthStateType healthStateType = HealthStateType.general(HealthStateScope.forStage(stage.getIdentifier()
+                    .getPipelineName(), stage.getName()));
+
+            Set<String> jobsInStage = stage.getJobInstances()
+                    .stream()
+                    .map(JobInstance::getName)
+                    .collect(Collectors.toSet());
+
+            List<String> unknownJobs = requestedJobs.stream()
+                    .filter(jobToRun -> !jobsInStage.contains(jobToRun))
+                    .collect(Collectors.toList());
+
+            if (unknownJobs.isEmpty()) {
+                scheduleService.rerunJobs(stage, requestedJobs, result);
+            } else {
+                String msg = String.format("Job(s) %s does not exist in stage '%s'.", unknownJobs, stage.getIdentifier().getStageLocator());
+                result.notFound(msg, "", healthStateType);
+            }
+
+        });
 
         return renderHTTPOperationResult(result, req, res);
     }

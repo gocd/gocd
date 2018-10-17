@@ -271,7 +271,7 @@ public class HgMaterial extends ScmMaterial {
 
         HgMaterial that = (HgMaterial) o;
 
-        if (url != null ? !url.equals(that.url) : that.url != null) {
+        if (getFingerprint() != null ? !getFingerprint().equals(that.getFingerprint()) : that.getFingerprint() != null) {
             return false;
         }
 

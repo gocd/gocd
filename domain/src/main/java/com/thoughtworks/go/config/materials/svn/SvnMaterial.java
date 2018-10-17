@@ -203,13 +203,7 @@ public class SvnMaterial extends ScmMaterial implements PasswordEncrypter, Passw
 
         SvnMaterial that = (SvnMaterial) o;
 
-        if (checkExternals != that.checkExternals) {
-            return false;
-        }
-        if (url != null ? !url.equals(that.url) : that.url != null) {
-            return false;
-        }
-        if (userName != null ? !userName.equals(that.userName) : that.userName != null) {
+        if (getFingerprint() != null ? !getFingerprint().equals(that.getFingerprint()) : that.getFingerprint() != null) {
             return false;
         }
 

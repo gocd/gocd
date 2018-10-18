@@ -14,23 +14,26 @@
  * limitations under the License.
  */
 
-const m = require('mithril');
-const _ = require('lodash');
+const _      = require('lodash');
+const m      = require('mithril');
+const styles = require('./index.scss');
 
 module.exports = class KeyValuePair {
   view(vnode) {
-    return (
-      <dl>
-        {
-          _.map(vnode.attrs.data, (v, k) => {
-            return [
-              <dt>{k}</dt>,
-              <dd>{v}</dd>
-            ];
-          })
-        }
-      </dl>
-    );
+    return (<ul className={styles["key-value-pair"]}>
+      {
+        _.map(vnode.attrs.data, (value, key) => {
+          return [
+            <li>
+              <label className={styles.key}>{key}</label>
+              <span className={styles.value}>
+                  <pre>{value}</pre>
+                </span>
+            </li>
+          ];
+        })
+      }
+    </ul>);
   }
 };
 

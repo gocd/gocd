@@ -43,4 +43,20 @@
       </stage>
     </pipeline>
   </pipelines>
+  <agents>
+    <agent hostname="f4c427bb9d08" ipaddress="172.30.243.41" uuid="3e04c08b-52b7-4fbf-994d-cf3b9f91964c" elasticAgentId="GoCDe0cba0b0accd4cd494ebde53c2667af9" elasticPluginId="com.thoughtworks.gocd.elastic-agent.ecs" />
+    <agent hostname="4b1b9885ad25" ipaddress="172.30.251.175" uuid="4a94c55b-5ce0-401e-9d49-b9ffee06a759" elasticAgentId="GoCD1f32a3898c9243b3b134a83ecaf75ee3" elasticPluginId="com.thoughtworks.gocd.elastic-agent.ecs" />
+    <agent hostname="5789d003143f" ipaddress="172.30.240.73" uuid="0d02d405-83d0-4d37-bb75-3b1abdcdb491" elasticAgentId="GoCD9ea06a9941634ac3a112e8cf1224f5f4" elasticPluginId="com.thoughtworks.gocd.elastic-agent.ecs" />
+    <agent hostname="bcdf2d5e474e" ipaddress="172.30.245.167" uuid="e88182aa-3088-458d-8ae0-c78ccaa99158" elasticAgentId="GoCDa849b0b4ee234aaeae3280eed03c35be" elasticPluginId="com.thoughtworks.gocd.elastic-agent.ecs" />
+    <agent hostname="b247e99dad07" ipaddress="172.17.0.2" uuid="dfe18842-68d3-4afb-98e4-df475bf9a793" elasticAgentId="GoCD84b45c7f9bb34dc0af44dd77c623f7fc" elasticPluginId="com.thoughtworks.gocd.elastic-agent.ecs" />
+    <agent hostname="383f35ed904f" ipaddress="172.17.0.4" uuid="16647e11-47fc-4653-8c0d-7dcb7c9930b4" elasticAgentId="GoCDb8e580f496204a35aea29e74fad8d3a6" elasticPluginId="com.thoughtworks.gocd.elastic-agent.ecs" />
+    <agent hostname="4c8782ace806" ipaddress="172.17.0.3" uuid="c8f3ad46-c3d3-4825-b796-a197495aa1e3" elasticAgentId="GoCD4c3211e0462943cebcc1612d136c02d8" elasticPluginId="com.thoughtworks.gocd.elastic-agent.ecs" />
+    <agent hostname="3f6ebde0a5ea" ipaddress="172.30.251.142" uuid="79dfb5bb-b069-43a2-a5cb-8ad8f1edc50f" elasticAgentId="GoCDe61857251f2d478f822fe8b7d2a95cd6" elasticPluginId="com.thoughtworks.gocd.elastic-agent.ecs" />
+    <agent hostname="e1fe1ce5dd3c" ipaddress="172.17.0.2" uuid="d9a29d51-4dbe-45f9-ab68-a09f2dc720b9" elasticAgentId="GoCDe8a8a18682fb45979844967f2be1cd34" elasticPluginId="com.thoughtworks.gocd.elastic-agent.ecs" />
+    <agent hostname="e9bc4f18ddda" ipaddress="172.17.0.3" uuid="3e15c383-0688-4843-9f87-df6bcf540bb0" elasticAgentId="GoCD80a35053d3d149e48fd12389a8a550ac" elasticPluginId="com.thoughtworks.gocd.elastic-agent.ecs" />
+    <agent hostname="8ea9512f9917" ipaddress="172.17.0.2" uuid="ca3f9f31-6e6f-404d-8827-dd8a58cf494e" elasticAgentId="GoCD052fb416938f493c8cdeaf103f2014a1" elasticPluginId="com.thoughtworks.gocd.elastic-agent.ecs" />
+    <agent hostname="0a4dc5b9c262" ipaddress="172.17.0.3" uuid="62f5c84e-3d4f-4f03-9d3b-1fcd2b940bfa" elasticAgentId="GoCDc690c21125df4f55bfdbd60b4e7143ce" elasticPluginId="com.thoughtworks.gocd.elastic-agent.ecs" />
+    <agent hostname="011451eb2873" ipaddress="172.17.0.4" uuid="a87cb23d-7bf5-48ed-8287-087a33ef72ad" elasticAgentId="GoCDe3e3bca6cdd2430e987f5a65ab00ab66" elasticPluginId="com.thoughtworks.gocd.elastic-agent.ecs" />
+    <agent hostname="7461d6775b4d" ipaddress="172.17.0.5" uuid="14c72689-74e4-4e97-abfb-125b17795aa0" elasticAgentId="GoCDf922e9d7d43c40299b02fac3869e5d3f" elasticPluginId="com.thoughtworks.gocd.elastic-agent.ecs" />
+  </agents>
 </cruise>

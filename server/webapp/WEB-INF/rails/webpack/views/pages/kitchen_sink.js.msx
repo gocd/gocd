@@ -41,8 +41,25 @@ class AccordionExamples {
 module.exports = {
   view() {
     return (
-      <div>
-        <HeaderPanel title="This is the page title. Styling TBD!"/>
+      <main class="main-container">
+        <HeaderPanel title="Kitchen Sink"/>
+        <h3>CollapsiblePanel</h3>
+        <CollapsiblePanel header={<div>Collapsible Panel header</div>}>
+          <div>Anything can go in the body</div>
+        </CollapsiblePanel>
+        <hr/>
+
+        <h3>Icons</h3>
+        <Icons.settings/>
+        <Icons.analytics/>
+        <Icons.edit/>
+        <Icons.clone/>
+        <Icons.delete/>
+        <Icons.lock/>
+        <hr/>
+
+        <br/>
+        <br/>
 
         <div>
           <h1>Work in progress components!</h1>
@@ -63,17 +80,7 @@ module.exports = {
           }
         }/>
 
-        <CollapsiblePanel header={<div>this is header</div>}>
-          <div> this is body</div>
-        </CollapsiblePanel>
-
-        <Icons.settings/>
-        <Icons.analytics/>
-        <Icons.edit/>
-        <Icons.clone/>
-        <Icons.delete/>
-        <Icons.lock/>
-      </div>
+      </main>
     );
   }
 };

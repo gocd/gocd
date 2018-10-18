@@ -14,14 +14,13 @@
  * limitations under the License.
  */
 
-
 //colors
 $primary-bg: #f4f8f9;
 $secondary-bg: #e7eef0;
 $text-color: #333;
 $line-color: #e9edef;
 $icon-color: #647984;
-
+$element-bg: #fff;
 $body-color: $text-color;
 $body-bg: $primary-bg;
 $footer-bg: $secondary-bg;
@@ -47,5 +46,8 @@ $label-margin-bottom: 0;
 //border
 
 $global-border-color: $line-color;
-$global-border-radius: 5px;
+$global-border-radius: 3px;
 
+//transition
+
+$transition : all 0.2s ease-in-out;

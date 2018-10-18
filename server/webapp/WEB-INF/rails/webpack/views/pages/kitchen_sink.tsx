@@ -47,8 +47,9 @@ export = class KitchenSink extends MithrilComponent<null> {
       <main class="main-container">
         <HeaderPanel title="Kitchen Sink"/>
         <h3>CollapsiblePanel</h3>
-        <CollapsiblePanel header={<div>Collapsible Panel header</div>}>
-          <div>Anything can go in the body</div>
+        <CollapsiblePanel header={<div>Collapsible Panel header</div>}
+                          actions={<button>foo</button>}>
+          <div> Anything can go in the body</div>
         </CollapsiblePanel>
         <hr/>
 

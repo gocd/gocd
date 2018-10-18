@@ -38,31 +38,25 @@ describe("Collapsible Panel Component", () => {
   });
 
   it("should render component, collapsed by default", () => {
-    expect(find('collapse_header')).toHaveClass(styles.collapsed);
+    expect(find('collapse_header')).not.toHaveClass(styles.expanded);
     expect(find('collapse_body')).toHaveClass(styles.hide);
   });
 
   it("should toggle component state on click", () => {
-    expect(find('collapse_header')).toHaveClass(styles.collapsed);
     expect(find('collapse_header')).not.toHaveClass(styles.expanded);
     expect(find('collapse_body')).toHaveClass(styles.hide);
-    expect(find('collapse_body')).not.toHaveClass(styles.show);
 
     simulateEvent.simulate(find('collapse_header').get(0), 'click');
     m.redraw();
 
-    expect(find('collapse_header')).not.toHaveClass(styles.collapsed);
     expect(find('collapse_header')).toHaveClass(styles.expanded);
     expect(find('collapse_body')).not.toHaveClass(styles.hide);
-    expect(find('collapse_body')).toHaveClass(styles.show);
 
     simulateEvent.simulate(find('collapse_header').get(0), 'click');
     m.redraw();
 
-    expect(find('collapse_header')).toHaveClass(styles.collapsed);
     expect(find('collapse_header')).not.toHaveClass(styles.expanded);
     expect(find('collapse_body')).toHaveClass(styles.hide);
-    expect(find('collapse_body')).not.toHaveClass(styles.show);
   });
 
 

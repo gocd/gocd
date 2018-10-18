@@ -35,14 +35,19 @@ module.exports = {
 
   view(vnode) {
     const self = this;
+    const collapsibleClasses = classnames(self.expanded() && styles.expanded);
 
-    const collapsibleClasses = classnames(self.expanded() && styles.expanded, self.expanded() || styles.collapsed);
     return (
       <div class={classnames(styles.collapse, collapsibleClasses)}>
         <div class={classnames(styles.collapse_header, collapsibleClasses)}
              data-test-id="collapse_header"
              onclick={self.toggle}>
-          {vnode.attrs.header}
+          <div className="header_details">
+            {vnode.attrs.header}
+          </div>
+          <div class="actions">
+            {vnode.attrs.actions}
+          </div>
         </div>
 
         <div data-test-id="collapse_body"

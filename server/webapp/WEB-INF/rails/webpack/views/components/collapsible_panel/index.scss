@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@import "../../global/theme";
-@import "../../global/measures";
 @import "../../global/common";
+
+$page-item-padding: 30px;
 
 .collapse {
   background:    $page-header-bg;

@@ -53,8 +53,8 @@ class SiteHeader {
       <div className={styles.navbtn}>
         <div className={styles.bar}/>
       </div>
-      <div className={styles['main-navigation']}>
-        <div className={styles['site-header_left']}>
+      <div className={styles.mainNavigation}>
+        <div className={styles.siteHeaderLeft}>
           <SiteMenu showAnalytics={showAnalyticsDashboard} canViewAdminPage={canViewAdminPage} isUserAdmin={isUserAdmin}
                     isGroupAdmin={isGroupAdmin} canViewTemplates={canViewTemplates}/>
         </div>

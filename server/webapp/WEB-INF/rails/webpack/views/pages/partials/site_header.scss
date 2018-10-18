@@ -44,7 +44,7 @@
     bottom:     0;
     top:        40px;
     width:      100%;
-    background: #000629;
+    background: $site-header;
     height:     100vh;
     padding:    0 20px 40px;
     overflow-y: auto;
@@ -215,7 +215,7 @@ $bar-spacing: 7px;
   }
   .fa {
     margin: 0 3px;
-    color:  #a5a5a5;
+    color:  $icon-color;
     @media(min-width: $screen-md) {
       margin: 0 5px;
     }
@@ -248,14 +248,14 @@ $bar-spacing: 7px;
   display:         inline-block;
   transition:      all 0.3s ease-in-out;
   &:hover {
-    color:      #fff;
+    color:      $page-header-bg;
     transition: all 0.3s ease-in-out;
   }
 }
 
 .caret_down_icon {
   @include icon-before($fa-var-caret-down);
-  color: #a5a5a5;
+  color: $icon-color;
 }
 
 .user_icon {

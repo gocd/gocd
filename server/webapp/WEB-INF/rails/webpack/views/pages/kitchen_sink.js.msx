@@ -20,6 +20,7 @@ const Button           = require('views/components/button');
 const Accordion        = require('views/components/accordion');
 const CollapsiblePanel = require('views/components/collapsible_panel');
 const KeyValuePair     = require('views/components/key_value_pair');
+const Icons            = require('views/components/icons');
 
 class AccordionExamples {
   view() {
@@ -65,6 +66,13 @@ module.exports = {
         <CollapsiblePanel header={<div>this is header</div>}>
           <div> this is body</div>
         </CollapsiblePanel>
+
+        <Icons.settings/>
+        <Icons.analytics/>
+        <Icons.edit/>
+        <Icons.clone/>
+        <Icons.delete/>
+        <Icons.lock/>
       </div>
     );
   }

@@ -69,34 +69,34 @@
   }
 
   &.twitter {
-    @include footer-icon($icon: "\f099");
+    @include footer-icon($icon: $fa-var-twitter);
   }
 
   &.github {
-    @include footer-icon($icon: "\f09b");
+    @include footer-icon($icon: $fa-var-github);
   }
 
   &.forums {
-    @include footer-icon($icon: "\f075");
+    @include footer-icon($icon: $fa-var-comment);
   }
 
   &.plugins {
-    @include footer-icon($icon: "\f1e6");
+    @include footer-icon($icon: $fa-var-plug);
   }
 
   &.documentation {
-    @include footer-icon($icon: "\f02d");
+    @include footer-icon($icon: $fa-var-book);
   }
 
   &.cctray {
-    @include footer-icon($icon: "\f09e");
+    @include footer-icon($icon: $fa-var-feed);
   }
 
   &.api {
-    @include footer-icon($icon: "\f121");
+    @include footer-icon($icon: $fa-var-code);
   }
 
   &.server-details {
-    @include footer-icon($icon: "\f233");
+    @include footer-icon($icon: $fa-var-server);
   }
 }

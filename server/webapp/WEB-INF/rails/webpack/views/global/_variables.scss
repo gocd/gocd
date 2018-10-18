@@ -14,10 +14,17 @@
  * limitations under the License.
  */
 
-$body-color: #333;
-$body-bg: #f4f8f9;
 
 //colors
+$primary-bg: #f4f8f9;
+$secondary-bg: #e7eef0;
+$text-color: #333;
+$line-color: #e9edef;
+$icon-color: #647984;
+
+$body-color: $text-color;
+$body-bg: $primary-bg;
+$footer-bg: $secondary-bg;
 $link-color: #0a8fcb;
 $link-hover-color: #0b5b7e;
 $link-decoration: none;
@@ -39,4 +46,6 @@ $label-margin-bottom: 0;
 
 //border
 
-$global-border-color: #e9edef;
+$global-border-color: $line-color;
+$global-border-radius: 5px;
+

@@ -13,90 +13,90 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@import "../../global/theme";
 @import "../../global/common";
 
-.app-footer {
-  background:      $footer-bg;
-  text-align:      center;
-  font-size:       1.2rem;
-  padding:         1rem;
+.app_footer {
+
+  padding:         10px;
   display:         flex;
+  flex-direction:  column;
   justify-content: space-between;
-
-  .inline-list a {
-    display:       inline-block;
-    border-radius: 2px;
-
-    @mixin footer-icon($icon) {
-      @include icon-before($type: $icon, $color: #fff, $size: 1.5rem, $line-height: 1.5rem);
-    }
-
-    &.twitter {
-      @include footer-icon($icon: "\f099");
-    }
-
-    &.github {
-      @include footer-icon($icon: "\f09b");
-    }
-
-    &.forums {
-      @include footer-icon($icon: "\f075");
-    }
-
-    &.plugins {
-      @include footer-icon($icon: "\f1e6");
-    }
-
-    &.documentation {
-      @include footer-icon($icon: "\f02d");
-    }
-
-    &.cctray {
-      @include footer-icon($icon: "\f09e");
-    }
-
-    &.api {
-      @include footer-icon($icon: "\f121");
-    }
-
-    &.server-details {
-      @include footer-icon($icon: "\f233");
-    }
+  @media(min-width: $screen-md) {
+    flex-direction: row;
   }
 
-  .leftside {
-    color:     #fff;
-    font-size: 13px;
-    margin:    0;
-    a {
-      color:           $footer-fg;
-      text-decoration: underline;
-    }
+}
+
+.footer_left {
+  padding:    10px 20px;
+  text-align: center;
+  @media(min-width: $screen-md) {
+    width:      60%;
+    text-align: left;
   }
-
-  .rightside {
-    flex-grow:   0;
-    flex-shrink: 0;
-    a {
-      color:           $footer-fg;
-      text-decoration: none;
-    }
-  }
-
-  @media only screen and (min-width: 40.063em) {
-
-    p {
-      text-align: left;
-    }
-
-    .social {
-      text-align: right;
-      margin:     0;
-      display:    block;
-    }
-
+  @media(min-width: $screen-lg) {
+    width: 70%;
   }
 }
 
+.footer_content {
+  word-break: break-all;
+  font-size:  12px;
+  margin:     0;
 
+}
+
+.footer_right {
+  padding:         10px 20px;
+  display:         flex;
+  justify-content: center;
+  @media(min-width: $screen-md) {
+    width:           40%;
+    justify-content: flex-end;
+  }
+  @media(min-width: $screen-lg) {
+    width: 30%;
+  }
+}
+
+.social a {
+  display:         inline-block;
+  text-decoration: none;
+  margin:          0 3px;
+
+  @mixin footer-icon($icon) {
+    @include icon-before($type: $icon, $color: $icon-color, $size: 16px, $line-height: 1.5rem);
+  }
+
+  &.twitter {
+    @include footer-icon($icon: $fa-var-twitter);
+  }
+
+  &.github {
+    @include footer-icon($icon: $fa-var-github);
+  }
+
+  &.forums {
+    @include footer-icon($icon: $fa-var-comment);
+  }
+
+  &.plugins {
+    @include footer-icon($icon: $fa-var-plug);
+  }
+
+  &.documentation {
+    @include footer-icon($icon: $fa-var-book);
+  }
+
+  &.cctray {
+    @include footer-icon($icon: $fa-var-feed);
+  }
+
+  &.api {
+    @include footer-icon($icon: $fa-var-code);
+  }
+
+  &.server-details {
+    @include footer-icon($icon: $fa-var-server);
+  }
+}

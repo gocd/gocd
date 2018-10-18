@@ -44,10 +44,10 @@ class PluginsPage {
   }
 
   view() {
-    return <div class="">
+    return <main class="main-container">
       <HeaderPanel title="Plugins"/>
       {thingToDisplay}
-    </div>;
+    </main>;
   }
 }
 

@@ -14,26 +14,22 @@
  * limitations under the License.
  */
 
+//site header
 $site-header: #000728;
 $header-text-color: #ddd;
 $sub-navigation-bg: #313e68;
 $active-menu: #943a9e;
 
 $header-bg: #33364e;
-$header-fg: #fff;
-$header-hover: #000;
 
-$border-color: #ccc;
-
+$border-color: $line-color;
 $building: #ffc11b;
 $failed: #fa2d2d;
 
-$text-color: #333;
-$submenu-bg: #fff;
-$submenu-hover: #e6e6e6;
+//footer
 
-$footer-bg: #535353;
-$footer-fg: #fff;
+$footer-bg: $secondary-bg;
+$footer-fg: #647984;
 
 $page-header-bg: #fff;
 

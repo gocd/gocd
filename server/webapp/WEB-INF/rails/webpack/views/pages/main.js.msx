@@ -25,9 +25,11 @@ class MainPage {
     const pageName    = vnode.attrs.pageName;
     const pageToMount = require(`views/pages/${pageName}`); //fixme error handling
     return m('div', {class: styles.page}, [
-      m(SiteHeader),
-      m(pageToMount),
-      m('footer', {class: styles['site-footer']}, [
+      m('div', {class: styles.pagewrap}, [
+        m(SiteHeader),
+        m(pageToMount)
+      ]),
+      m('footer', {class: styles.sitefooter}, [
         m(SiteFooter)
       ])
     ]);

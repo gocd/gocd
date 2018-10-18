@@ -14,13 +14,14 @@
  * limitations under the License.
  */
 
-const m      = require('mithril');
-const Stream = require('mithril/stream');
-const styles = require('./index.scss');
+const m          = require('mithril');
+const Stream     = require('mithril/stream');
+const styles     = require('./index.scss');
+const classnames = require('classnames/bind').bind(styles);
 
 module.exports = {
   oninit(vnode) {
-    const self    = this;
+    const self    = vnode.state;
     self.expanded = Stream(false);
 
     self.toggle = () => {
@@ -35,15 +36,17 @@ module.exports = {
   view(vnode) {
     const self = this;
 
+    const collapsibleClasses = classnames(self.expanded() && styles.expanded, self.expanded() || styles.collapsed);
     return (
-      <div class={`${styles.collapse} ${self.expanded() ? styles.expanded : styles.collapsed}`}>
-        <div class={`${styles.collapse_header} ${self.expanded() ? styles.expanded : styles.collapsed}`}
+      <div class={classnames(styles.collapse, collapsibleClasses)}>
+        <div class={classnames(styles.collapse_header, collapsibleClasses)}
              data-test-id="collapse_header"
              onclick={self.toggle}>
           {vnode.attrs.header}
         </div>
 
-        <div class={`${styles.collapse_body} ${styles[self.showState()]}`} data-test-id="collapse_body">
+        <div data-test-id="collapse_body"
+             class={classnames(styles.collapse_body, styles[self.showState()])}>
           {vnode.children}
         </div>
       </div>

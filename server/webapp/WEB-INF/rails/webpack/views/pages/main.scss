@@ -13,12 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 @import "~normalize-scss/sass/normalize/import-now";
 @import '~bourbon/core/bourbon';
 @import "../global/common";
 @import "../global/typography";
-@import "../global/measures.scss";
 
 body {
   margin:           0;
@@ -34,19 +32,49 @@ body {
 
 @include font-face('FontAwesome', 'font-awesome/fonts/fontawesome-webfont', ("woff2", "woff", "ttf", "svg", "eot")) {
   font-weight: normal;
-  font-style: normal;
+  font-style:  normal;
+}
+
+:global(.main-container) {
+  margin: 100px 30px 50px;
+}
+
+.sitefooter {
+  background: $footer-bg;
+}
+
+//sticky footer
+
+html, body {
+  height: 100%;
 }
 
 .page {
-  margin:                  0;
-  padding:                 0;
-  background:              #f4f8f9;
-  font-family:             "Open Sans", "Helvetica Neue", Helvetica, Roboto, Arial, sans-serif;
-  font-weight:             normal;
-  line-height:             1.5;
-  color:                   #0a0a0a;
-  -webkit-font-smoothing:  antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  display:                 flex;
-  flex-flow:               column;
+  height: 100%;
 }
+
+.pagewrap {
+  min-height: 100%;
+  @media(min-width: $screen-md) {
+    margin-bottom: -94px;
+  }
+  @media(min-width: $screen-lg) {
+    margin-bottom: -76px;
+  }
+}
+
+.pagewrap:after {
+  content: "";
+  display: block;
+
+}
+
+.sitefooter, .pagewrap:after {
+  @media(min-width: $screen-md) {
+    height: 94px;
+  }
+  @media(min-width: $screen-lg) {
+    height: 76px;
+  }
+}
+

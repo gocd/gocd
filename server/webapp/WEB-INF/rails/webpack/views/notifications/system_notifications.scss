@@ -52,7 +52,7 @@ $icon-background: #e0dede;
   border-radius: 5px;
   box-sizing:    border-box;
   font-size:     13px;
-  box-shadow:    3px 3px 5px 0 rgba(0, 0, 0, 0.2);
+  box-shadow:    3px 3px 5px 0 $box-shadow-color;
   z-index:       map_get($zindex, 'menu');
   @media(max-width: $screen-md-min) {
     width: 100%;
@@ -69,7 +69,7 @@ $icon-background: #e0dede;
       width:               0;
       position:            absolute;
       pointer-events:      none;
-      border:              6px rgba(255, 255, 255, 0);
+      border:              6px $white-transparent;
       border-bottom-color: $line-color;
     }
   }

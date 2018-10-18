@@ -20,7 +20,7 @@
   transition:      all 0.3s ease-in-out;
   text-decoration: none;
   &:hover {
-    color:      #fff;
+    color:      $white-opaque;
     transition: all 0.3s ease-in-out;
   }
   @media(min-width: $screen-md) {

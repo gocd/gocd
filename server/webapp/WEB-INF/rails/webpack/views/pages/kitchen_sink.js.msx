@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-const m              = require('mithril');
-const HeaderPanel    = require('views/components/header_panel');
-const Button         = require('views/components/button');
-const Accordion      = require('views/components/accordion');
-const ExpandCollapse = require('views/components/expand_collapsible');
-const KeyValuePair   = require('views/components/key_value_pair');
+const m                = require('mithril');
+const HeaderPanel      = require('views/components/header_panel');
+const Button           = require('views/components/button');
+const Accordion        = require('views/components/accordion');
+const CollapsiblePanel = require('views/components/collapsible_panel');
+const KeyValuePair     = require('views/components/key_value_pair');
 
 class AccordionExamples {
   view() {
@@ -62,9 +62,9 @@ module.exports = {
           }
         }/>
 
-        <ExpandCollapse header={<div>this is header</div>}>
-          <div> this is body </div>
-        </ExpandCollapse>
+        <CollapsiblePanel header={<div>this is header</div>}>
+          <div> this is body</div>
+        </CollapsiblePanel>
       </div>
     );
   }

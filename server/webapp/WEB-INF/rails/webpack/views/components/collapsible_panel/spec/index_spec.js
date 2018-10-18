@@ -15,11 +15,10 @@
  */
 
 describe("Expand Collapsible Component", () => {
-  const _              = require('lodash');
-  const m              = require("mithril");
-  const simulateEvent  = require("simulate-event");
-  const ExpandCollapse = require("views/components/expand_collapsible");
-
+  const _                = require('lodash');
+  const m                = require("mithril");
+  const simulateEvent    = require("simulate-event");
+  const CollapsiblePanel = require("views/components/collapsible_panel");
 
   const pageTitle = "Test Header";
   const body      = [<div class="collapse-content">This is body</div>];
@@ -73,7 +72,7 @@ describe("Expand Collapsible Component", () => {
   function mount() {
     m.mount(root, {
       view() {
-        return m(ExpandCollapse, {
+        return m(CollapsiblePanel, {
           header: pageTitle
         }, body);
       }

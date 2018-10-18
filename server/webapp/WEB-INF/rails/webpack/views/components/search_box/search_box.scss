@@ -39,11 +39,11 @@ $border-color: #ccc;
   line-height:        40px;
   padding:            0 10px 0 40px;
   margin:             0;
-  border:             1px solid #d6e0e2;
+  border:             1px solid $border-color;
   -webkit-appearance: none;
   box-shadow:         none;
   border-radius:      3px;
-  background:         #fff;
+  background:         $white-opaque;
 
   &::placeholder {
     font-size: 13px;

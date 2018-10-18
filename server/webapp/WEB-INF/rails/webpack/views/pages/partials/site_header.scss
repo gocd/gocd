@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 @import "../../global/common";
-@import "../../global/zindex";
-@import "../../global/measures";
 
 .site-header {
   background: $site-header;
@@ -119,10 +117,10 @@ $bar-spacing: 7px;
 .bar {
   position:   relative;
   transform:  translateY($bar-spacing);
-  background: rgba(255, 255, 255, 1);
+  background: $white-opaque;
   transition: all 0ms 300ms;
   &.animate {
-    background: rgba(255, 255, 255, 0);
+    background: $white-transparent;
   }
 }
 
@@ -131,7 +129,7 @@ $bar-spacing: 7px;
   position:   absolute;
   left:       0;
   bottom:     $bar-spacing;
-  background: rgba(255, 255, 255, 1);
+  background: $white-opaque;
   transition: bottom 300ms 300ms cubic-bezier(0.23, 1, 0.32, 1), transform 300ms cubic-bezier(0.23, 1, 0.32, 1);
 }
 
@@ -140,7 +138,7 @@ $bar-spacing: 7px;
   position:   absolute;
   left:       0;
   top:        $bar-spacing;
-  background: rgba(255, 255, 255, 1);
+  background: $white-opaque;
   transition: top 300ms 300ms cubic-bezier(0.23, 1, 0.32, 1), transform 300ms cubic-bezier(0.23, 1, 0.32, 1);
 }
 
@@ -235,7 +233,7 @@ $bar-spacing: 7px;
     top:        40px;
     right:      0;
     background: $sub-navigation-bg;
-    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.21);
+    box-shadow: 0 3px 10px $box-shadow-color;
   }
 }
 

@@ -27,7 +27,7 @@ $page-item-padding: 30px;
     background: $page-header-bg;
   }
   &.expanded {
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.21);
+    box-shadow: 0 0 10px $box-shadow-color;
     .c-collapse_header {
       border-bottom: 1px solid $border-color;
     }

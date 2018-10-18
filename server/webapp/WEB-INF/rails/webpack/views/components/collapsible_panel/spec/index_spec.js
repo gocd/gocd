@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
-describe("Expand Collapsible Component", () => {
+describe("Collapsible Panel Component", () => {
   const _                = require('lodash');
   const m                = require("mithril");
   const simulateEvent    = require("simulate-event");
+  const styles           = require('../index.scss');
   const CollapsiblePanel = require("views/components/collapsible_panel");
 
   const pageTitle = "Test Header";
@@ -38,34 +39,31 @@ describe("Expand Collapsible Component", () => {
   });
 
   it("should render component, collapsed by default", () => {
-    const headerClasses = find('collapse_header').get(0).classList;
-    const bodyClasses   = find('collapse_body').get(0).classList;
-
-    expect(containsClass(headerClasses, "collapsed")).toBe(true);
-    expect(containsClass(bodyClasses, "hide")).toBe(true);
+    expect(find('collapse_header')).toHaveClass(styles.collapsed);
+    expect(find('collapse_body')).toHaveClass(styles.hide);
   });
 
   it("should toggle component state on click", () => {
-    expect(containsClass(find('collapse_header').get(0).classList, "collapsed")).toBe(true);
-    expect(containsClass(find('collapse_header').get(0).classList, "expanded")).toBe(false);
-    expect(containsClass(find('collapse_body').get(0).classList, "hide")).toBe(true);
-    expect(containsClass(find('collapse_body').get(0).classList, "show")).toBe(false);
+    expect(find('collapse_header')).toHaveClass(styles.collapsed);
+    expect(find('collapse_header')).not.toHaveClass(styles.expanded);
+    expect(find('collapse_body')).toHaveClass(styles.hide);
+    expect(find('collapse_body')).not.toHaveClass(styles.show);
 
     simulateEvent.simulate(find('collapse_header').get(0), 'click');
     m.redraw();
 
-    expect(containsClass(find('collapse_header').get(0).classList, "collapsed")).toBe(false);
-    expect(containsClass(find('collapse_header').get(0).classList, "expanded")).toBe(true);
-    expect(containsClass(find('collapse_body').get(0).classList, "hide")).toBe(false);
-    expect(containsClass(find('collapse_body').get(0).classList, "show")).toBe(true);
+    expect(find('collapse_header')).not.toHaveClass(styles.collapsed);
+    expect(find('collapse_header')).toHaveClass(styles.expanded);
+    expect(find('collapse_body')).not.toHaveClass(styles.hide);
+    expect(find('collapse_body')).toHaveClass(styles.show);
 
     simulateEvent.simulate(find('collapse_header').get(0), 'click');
     m.redraw();
 
-    expect(containsClass(find('collapse_header').get(0).classList, "collapsed")).toBe(true);
-    expect(containsClass(find('collapse_header').get(0).classList, "expanded")).toBe(false);
-    expect(containsClass(find('collapse_body').get(0).classList, "hide")).toBe(true);
-    expect(containsClass(find('collapse_body').get(0).classList, "show")).toBe(false);
+    expect(find('collapse_header')).toHaveClass(styles.collapsed);
+    expect(find('collapse_header')).not.toHaveClass(styles.expanded);
+    expect(find('collapse_body')).toHaveClass(styles.hide);
+    expect(find('collapse_body')).not.toHaveClass(styles.show);
   });
 
 
@@ -88,9 +86,5 @@ describe("Expand Collapsible Component", () => {
 
   function find(id) {
     return $root.find(`[data-test-id='${id}']`);
-  }
-
-  function containsClass(classList, expectedClass) {
-    return _.some(classList, (c) => _.includes(c, expectedClass))
   }
 });

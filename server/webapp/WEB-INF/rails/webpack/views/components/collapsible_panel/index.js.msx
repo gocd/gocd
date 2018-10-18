@@ -30,7 +30,7 @@ module.exports = {
 
     self.showState = () => {
       return self.expanded() ? 'show' : 'hide';
-    }
+    };
   },
 
   view(vnode) {

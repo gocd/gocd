@@ -15,7 +15,6 @@
  */
 
 describe("Collapsible Panel Component", () => {
-  const _                = require('lodash');
   const m                = require("mithril");
   const simulateEvent    = require("simulate-event");
   const styles           = require('../index.scss');

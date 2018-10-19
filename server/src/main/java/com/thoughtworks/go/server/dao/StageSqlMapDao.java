@@ -357,7 +357,7 @@ public class StageSqlMapDao extends SqlMapClientDaoSupport implements StageDao, 
     }
 
     String cacheKeyForAllStageOfPipeline(String pipelineName, Integer pipelineCounter, String stageName) {
-        return cacheKeyGenerator.generate("allStageOfPipeline", pipelineName, pipelineCounter, stageName);
+        return cacheKeyGenerator.generate("allStageOfPipeline", pipelineName.toLowerCase(), pipelineCounter, stageName.toLowerCase());
     }
 
     public List<Stage> findStageHistoryForChart(String pipelineName, String stageName, int pageSize, int offset) {
@@ -475,7 +475,7 @@ public class StageSqlMapDao extends SqlMapClientDaoSupport implements StageDao, 
     }
 
     String cacheKeyForStageHistories(String pipelineName, String stageName) {
-        return cacheKeyGenerator.generate("stageHistories", pipelineName, stageName);
+        return cacheKeyGenerator.generate("stageHistories", pipelineName.toLowerCase(), stageName.toLowerCase());
     }
 
     String cacheKeyForDetailedStageHistories(String pipelineName, String stageName) {

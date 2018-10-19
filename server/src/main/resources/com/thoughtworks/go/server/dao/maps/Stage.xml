@@ -594,7 +594,7 @@
         pipelines.label as pipelineLabel,
         buildstatetransitions.currentState, buildstatetransitions.statechangetime, buildstatetransitions.id as stateId
         FROM stages
-        JOIN pipelines ON pipelines.id = stages.pipelineId AND CAST(pipelines.name as VARCHAR) = #{pipelineName}
+        JOIN pipelines ON pipelines.id = stages.pipelineId AND pipelines.name = #{pipelineName}
         <if test="pipelineLabel != null">AND
             pipelines.label = #{pipelineLabel}
         </if>

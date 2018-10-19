@@ -16,7 +16,7 @@
 
 import * as m from 'mithril';
 import * as styles from './index.scss';
-import {MithrilComponent} from "jsx/mithril-component";
+import {MithrilComponent} from "../../../jsx/mithril-component";
 
 export interface Attrs {
   id: string

@@ -14,26 +14,31 @@
  * limitations under the License.
  */
 
-const m          = require('mithril');
+import * as m from 'mithril';
+import {MithrilComponent} from "../../jsx/mithril-component";
+import {Attrs as SiteFooterAttrs, SiteFooter} from "./partials/site_footer";
+
 const SiteHeader = require('./partials/site_header.js.msx');
-const SiteFooter = require('./partials/site_footer.js.msx');
 const styles     = require('./main.scss');
 
-class MainPage {
+interface Attrs {
+  footerData: SiteFooterAttrs;
+}
 
-  view(vnode) {
-    const pageName    = vnode.attrs.pageName;
-    const pageToMount = require(`views/pages/${pageName}.tsx`); //fixme error handling
-    return m('div', {class: styles.page}, [
-      m('div', {class: styles.pagewrap}, [
-        m(SiteHeader),
-        m(pageToMount)
-      ]),
-      m('footer', {class: styles.sitefooter}, [
-        m(SiteFooter)
-      ])
-    ]);
+export class MainPage extends MithrilComponent<Attrs> {
+  view(vnode: m.Vnode<Attrs>) {
+    return (
+      <div class={styles.page}>
+        <div class={styles.pagewrap}>
+          <SiteHeader/>
+          {vnode.children}
+        </div>
+        <footer class={styles.sitefooter}>
+          <SiteFooter {...vnode.attrs.footerData} />
+        </footer>
+      </div>
+    );
+
   }
 }
 
-module.exports = MainPage;

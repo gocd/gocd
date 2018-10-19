@@ -23,6 +23,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 
 public class CRPluggableTask extends CRTask {
     public static final java.lang.String TYPE_NAME = "plugin";
@@ -40,6 +41,13 @@ public class CRPluggableTask extends CRTask {
         super(TYPE_NAME);
         this.plugin_configuration = pluginConfiguration;
         this.configuration = Arrays.asList(properties);
+    }
+    public CRPluggableTask(CRPluginConfiguration pluginConfiguration,
+                           List<CRConfigurationProperty> properties)
+    {
+        super(TYPE_NAME);
+        this.plugin_configuration = pluginConfiguration;
+        this.configuration = properties;
     }
     public CRPluggableTask(String id,String version,
                            CRConfigurationProperty... properties)

@@ -20,6 +20,7 @@ import com.thoughtworks.go.plugin.access.configrepo.ErrorCollection;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 
 public class CRPluggableArtifact extends CRArtifact {
     private String id;
@@ -31,6 +32,13 @@ public class CRPluggableArtifact extends CRArtifact {
         this.id = id;
         this.store_id = store_id;
         this.configuration = Arrays.asList(configurationProperties);
+    }
+
+    public CRPluggableArtifact(String id, String store_id, List<CRConfigurationProperty> configurationProperties) {
+        super(CRArtifactType.external);
+        this.id = id;
+        this.store_id = store_id;
+        this.configuration = configurationProperties;
     }
 
     public String getId() {

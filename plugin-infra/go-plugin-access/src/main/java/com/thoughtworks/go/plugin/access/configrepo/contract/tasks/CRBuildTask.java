@@ -111,6 +111,18 @@ public class CRBuildTask extends CRTask {
         super.type = type.toString();
     }
 
+    public void setBuild_file(String build_file) {
+        this.build_file = build_file;
+    }
+
+    public void setTarget(String target) {
+        this.target = target;
+    }
+
+    public void setWorking_directory(String working_directory) {
+        this.working_directory = working_directory;
+    }
+
     public String getBuildFile() {
         return build_file;
     }

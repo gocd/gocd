@@ -62,6 +62,11 @@ public class CRStage extends CRBase {
         variable.setValue(value);
         this.environment_variables.add(variable);
     }
+
+    public void addEnvironmentVariable(CREnvironmentVariable variable){
+        this.environment_variables.add(variable);
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {

@@ -22,6 +22,7 @@ import com.thoughtworks.go.plugin.access.configrepo.contract.CRConfigurationProp
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 
 public class CRFetchPluggableArtifactTask extends CRAbstractFetchTask {
     public static final String ARTIFACT_ORIGIN = "external";
@@ -40,6 +41,15 @@ public class CRFetchPluggableArtifactTask extends CRAbstractFetchTask {
         super(stage, job, TYPE_NAME, ArtifactOrigin.external);
         this.artifact_id = artifactId;
         configuration = Arrays.asList(crConfigurationProperties);
+    }
+
+    public CRFetchPluggableArtifactTask(String stage,
+                                        String job,
+                                        String artifactId,
+                                        List<CRConfigurationProperty> crConfigurationProperties) {
+        super(stage, job, TYPE_NAME, ArtifactOrigin.external);
+        this.artifact_id = artifactId;
+        configuration = crConfigurationProperties;
     }
 
     public CRFetchPluggableArtifactTask(CRRunIf runIf, CRTask onCancel,

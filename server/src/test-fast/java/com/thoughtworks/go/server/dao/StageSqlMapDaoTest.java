@@ -361,6 +361,15 @@ class StageSqlMapDaoTest {
         }
 
         @Test
+        void shouldGenerateSameCacheKeyEvenIfPipelineAndStageIsInDifferentLetterCase() {
+            Assertions.assertThat(stageSqlMapDao.cacheKeyForStageHistories("foo", "bar_baz"))
+                    .isEqualTo("com.thoughtworks.go.server.dao.StageSqlMapDao.$stageHistories.$foo.$bar_baz");
+
+            Assertions.assertThat(stageSqlMapDao.cacheKeyForStageHistories("FOO", "BAR_baz"))
+                    .isEqualTo("com.thoughtworks.go.server.dao.StageSqlMapDao.$stageHistories.$foo.$bar_baz");
+        }
+
+        @Test
         void shouldGenerateADifferentCacheKeyWhenPartOfPipelineIsInterchangedWithStageName() {
             Assertions.assertThat(stageSqlMapDao.cacheKeyForStageHistories("foo", "bar_baz"))
                     .isNotEqualTo(stageSqlMapDao.cacheKeyForStageHistories("foo_bar", "baz"));
@@ -375,6 +384,15 @@ class StageSqlMapDaoTest {
         @Test
         void shouldGenerateCacheKey() {
             Assertions.assertThat(stageSqlMapDao.cacheKeyForAllStageOfPipeline("foo", 1, "bar"))
+                    .isEqualTo("com.thoughtworks.go.server.dao.StageSqlMapDao.$allStageOfPipeline.$foo.$1.$bar");
+        }
+
+        @Test
+        void shouldGenerateSameCacheKeyEvenIfPipelineAndStageIsInDifferentLetterCase() {
+            Assertions.assertThat(stageSqlMapDao.cacheKeyForAllStageOfPipeline("foo", 1, "bar"))
+                    .isEqualTo("com.thoughtworks.go.server.dao.StageSqlMapDao.$allStageOfPipeline.$foo.$1.$bar");
+
+            Assertions.assertThat(stageSqlMapDao.cacheKeyForAllStageOfPipeline("FOO", 1, "BAR"))
                     .isEqualTo("com.thoughtworks.go.server.dao.StageSqlMapDao.$allStageOfPipeline.$foo.$1.$bar");
         }
 

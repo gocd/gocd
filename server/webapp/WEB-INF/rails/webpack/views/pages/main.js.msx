@@ -23,7 +23,7 @@ class MainPage {
 
   view(vnode) {
     const pageName    = vnode.attrs.pageName;
-    const pageToMount = require(`views/pages/${pageName}.js.msx`); //fixme error handling
+    const pageToMount = require(`views/pages/${pageName}.tsx`); //fixme error handling
     return m('div', {class: styles.page}, [
       m('div', {class: styles.pagewrap}, [
         m(SiteHeader),

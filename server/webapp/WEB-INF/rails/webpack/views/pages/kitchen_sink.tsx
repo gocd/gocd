@@ -14,16 +14,18 @@
  * limitations under the License.
  */
 
-const m                = require('mithril');
-const HeaderPanel      = require('views/components/header_panel');
-const Button           = require('views/components/button');
-const Accordion        = require('views/components/accordion');
-const CollapsiblePanel = require('views/components/collapsible_panel');
-const KeyValuePair     = require('views/components/key_value_pair');
-const Icons            = require('views/components/icons');
-const HelloWorld       = require('views/components/hello_world/index.tsx').default;
+import * as Icons from "../components/icons/index";
+import * as m from 'mithril';
+import {HelloWorld} from "../components/hello_world/index";
+import {KeyValuePair} from "../components/key_value_pair/index";
+import {MithrilComponent} from "../../jsx/mithril-component";
 
-class AccordionExamples {
+const HeaderPanel = require('views/components/header_panel');
+const Button = require('views/components/button');
+const Accordion = require('views/components/accordion');
+const CollapsiblePanel = require('views/components/collapsible_panel');
+
+class AccordionExamples<A = {}> extends MithrilComponent<A> {
   view() {
     return (
       <div>
@@ -39,7 +41,7 @@ class AccordionExamples {
   }
 }
 
-module.exports = {
+export = class KitchenSink extends MithrilComponent<null> {
   view() {
     return (
       <main class="main-container">
@@ -51,15 +53,15 @@ module.exports = {
         <hr/>
 
         <h3>Icons</h3>
-        <Icons.settings/>
-        <Icons.analytics/>
-        <Icons.edit/>
-        <Icons.clone/>
-        <Icons.delete/>
-        <Icons.lock/>
+        <Icons.Settings/>
+        <Icons.Analytics/>
+        <Icons.Edit/>
+        <Icons.Clone/>
+        <Icons.Delete/>
+        <Icons.Lock/>
         <hr/>
 
-        <HelloWorld id='jen'/>
+        <HelloWorld id="foo"/>
         <br/>
 
         <div>
@@ -76,11 +78,10 @@ module.exports = {
         <KeyValuePair data={
           {
             'First Name': 'Jon',
-            'Last Name':  'Doe',
-            'email':      'jdoe@example.com',
+            'Last Name': 'Doe',
+            'email': 'jdoe@example.com',
           }
         }/>
-
       </main>
     );
   }

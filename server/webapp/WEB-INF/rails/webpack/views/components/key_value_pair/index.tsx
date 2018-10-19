@@ -14,13 +14,18 @@
  * limitations under the License.
  */
 
-const _      = require('lodash');
-const m      = require('mithril');
-const styles = require('./index.scss');
+import * as m from 'mithril';
+import * as _ from 'lodash';
+import * as styles from './index.scss';
+import {MithrilComponent} from "../../../jsx/mithril-component";
 
-module.exports = class KeyValuePair {
-  view(vnode) {
-    return (<ul className={styles["key-value-pair"]}>
+export interface Attrs {
+  data: any
+}
+
+export class KeyValuePair extends MithrilComponent<Attrs> {
+  view(vnode: m.Vnode<Attrs>) {
+    return (<ul className={styles.keyValuePair}>
       {
         _.map(vnode.attrs.data, (value, key) => {
           return [
@@ -35,5 +40,6 @@ module.exports = class KeyValuePair {
       }
     </ul>);
   }
-};
+}
+
 

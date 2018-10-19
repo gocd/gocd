@@ -16,25 +16,13 @@
 
 import * as m from 'mithril';
 import * as styles from './index.scss';
-
-declare global  {
-  module JSX {
-      interface Element extends m.Vnode<any, any> {
-      }
-      interface IntrinsicElements {
-          [elementName: string]: any;
-      }
-      interface ElementAttributesProperty {
-          __tsx_attrs: any;
-      }
-  }
-}
+import {MithrilComponent} from "jsx/mithril-component";
 
 export interface Attrs {
-	id: string
+  id: string
 }
 
-export default class HelloWorld implements m.ClassComponent<Attrs> {
+export class HelloWorld extends MithrilComponent<Attrs> {
   view(vnode: m.Vnode<Attrs>) {
     return (
       <div class={styles.helloWorldFoo}>

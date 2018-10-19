@@ -17,7 +17,7 @@
 describe("Key Value Pair Component", () => {
   const m            = require("mithril");
   const styles       = require('../index.scss');
-  const KeyValuePair = require("views/components/key_value_pair");
+  const KeyValuePair = require("views/components/key_value_pair").KeyValuePair;
 
   let $root, root;
 
@@ -44,6 +44,7 @@ describe("Key Value Pair Component", () => {
   });
 
   function mount() {
+    debugger
     m.mount(root, {
       view() {
         return m(KeyValuePair, {

@@ -58,7 +58,7 @@ describe("Dashboard Widget", () => {
   afterEach(unmount);
 
   it("should render dashboard pipeline search field", () => {
-    expect($root.find('.search-box_input')).toBeInDOM();
+    expect(find('search-box')).toBeInDOM();
   });
 
   it("should show spinner before dashboard is loaded", () => {
@@ -88,7 +88,7 @@ describe("Dashboard Widget", () => {
   });
 
   it("should search for a pipeline", () => {
-    const searchField        = $root.find('.search-box_input').get(0);
+    const searchField        = find('search-box').get(0);
     let pipelinesCountOnPage = $root.find('.pipeline');
     expect(pipelinesCountOnPage).toHaveLength(2);
 
@@ -142,7 +142,7 @@ describe("Dashboard Widget", () => {
   });
 
   it("should show appropriate modal for pausing a searched pipeline", () => {
-    const searchField = $root.find('.search-box_input').get(0);
+    const searchField = find('search-box').get(0);
     expect($root.find('.pipeline')).toHaveLength(2);
 
     $(searchField).val('up42');
@@ -203,7 +203,7 @@ describe("Dashboard Widget", () => {
   it("should show changes popup for a searched pipeline", () => {
     stubBuildCauseAjaxCall();
 
-    const searchField = $root.find('.search-box_input').get(0);
+    const searchField = find('search-box').get(0);
     expect($root.find('.pipeline')).toHaveLength(2);
 
     $(searchField).val('up42');
@@ -254,7 +254,7 @@ describe("Dashboard Widget", () => {
         status:          200
       });
 
-      const searchField = $root.find('.search-box_input').get(0);
+      const searchField = find('search-box').get(0);
       expect($root.find('.pipeline')).toHaveLength(2);
 
       $(searchField).val('up43');
@@ -357,7 +357,7 @@ describe("Dashboard Widget", () => {
     };
     dashboardJson  = {
       "filter_name": "Default",
-      "_embedded": {
+      "_embedded":   {
         "pipeline_groups": [
           {
             "_links":         {
@@ -545,12 +545,12 @@ describe("Dashboard Widget", () => {
       }
     };
 
-    dashboard = new Dashboard();
+    dashboard           = new Dashboard();
     const personalizeVM = new PersonalizeVM(Stream("Default"));
     personalizeVM.model(new Personalization([{name: "Default", state: []}], []));
     dashboard.initialize(dashboardJson);
 
-    const dashboardViewModel = new DashboardVM(dashboard);
+    const dashboardViewModel           = new DashboardVM(dashboard);
     dashboardViewModel._performRouting = _.noop;
 
     m.mount(root, {
@@ -558,12 +558,12 @@ describe("Dashboard Widget", () => {
         return m(DashboardWidget, {
           personalizeVM,
           showSpinner,
-          isQuickEditPageEnabled: false,
+          isQuickEditPageEnabled:     false,
           pluginsSupportingAnalytics: {},
-          shouldShowAnalyticsIcon: false,
+          shouldShowAnalyticsIcon:    false,
           doCancelPolling,
           doRefreshImmediately,
-          vm: dashboardViewModel
+          vm:                         dashboardViewModel
         });
       }
     });
@@ -589,5 +589,9 @@ describe("Dashboard Widget", () => {
         status:          200
       });
     });
+  }
+
+  function find(id) {
+    return $root.find(`[data-test-id='${id}']`);
   }
 });

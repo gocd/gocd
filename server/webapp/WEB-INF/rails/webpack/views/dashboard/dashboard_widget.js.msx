@@ -21,7 +21,8 @@ const ComponentMixins         = require('helpers/mithril_component_mixins');
 const DashboardGroupsWidget   = require('views/dashboard/dashboard_groups_widget');
 const PersonalizedViewsWidget = require('views/dashboard/personalized_views_widget');
 const Dropdown                = require('views/shared/dropdown');
-const SearchBox               = require('views/components/search_box/search_box'); //fixme
+
+import {SearchBox} from "../components/search_box";
 
 const GroupingSwitch = {
   view(vnode) {

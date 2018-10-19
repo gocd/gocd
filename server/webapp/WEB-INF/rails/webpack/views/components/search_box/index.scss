@@ -19,7 +19,7 @@
 $icon-color: #647984;
 $border-color: #ccc;
 
-.search-box {
+.search-box-wrapper {
   @include icon-before($type: $fa-var-search);
 
   display:  inline-block;
@@ -34,7 +34,7 @@ $border-color: #ccc;
   }
 }
 
-.search-box_input {
+.search-box-input {
   height:             40px;
   line-height:        40px;
   padding:            0 10px 0 40px;

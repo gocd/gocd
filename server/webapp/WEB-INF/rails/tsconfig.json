@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "outDir": "./dist/",
+    "outDir": "./tmp/typescript-out/",
     "lib": [
       "es2015",
       "dom"
@@ -9,7 +9,7 @@
     "sourceMap": true,
     "noImplicitAny": true,
     "noUnusedLocals": true,
-    "module": "amd",
+    "module": "commonjs",
     "target": "es5",
     "jsx": "react",
     "jsxFactory": "m",

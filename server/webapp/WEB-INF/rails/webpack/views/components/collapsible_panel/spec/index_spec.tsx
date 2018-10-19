@@ -14,22 +14,25 @@
  * limitations under the License.
  */
 
+import {CollapsiblePanel} from "../index";
+
 describe("Collapsible Panel Component", () => {
-  const m                = require("mithril");
-  const simulateEvent    = require("simulate-event");
-  const styles           = require('../index.scss');
-  const CollapsiblePanel = require("views/components/collapsible_panel");
+  const m = require("mithril");
+  const simulateEvent = require("simulate-event");
+  const styles = require('../index.scss');
 
   const pageTitle = "Test Header";
-  const body      = [<div class="collapse-content">This is body</div>];
+  const body = [<div class="collapse-content">This is body</div>];
 
-  let $root, root;
+  let $root: any, root: any;
   beforeEach(() => {
+    // @ts-ignore
     [$root, root] = window.createDomElementForTest();
   });
   beforeEach(mount);
 
   afterEach(unmount);
+  // @ts-ignore
   afterEach(window.destroyDomElementForTest);
 
   it("should render expand collapsible component", () => {
@@ -59,13 +62,10 @@ describe("Collapsible Panel Component", () => {
     expect(find('collapse_body')).toHaveClass(styles.hide);
   });
 
-
   function mount() {
     m.mount(root, {
       view() {
-        return m(CollapsiblePanel, {
-          header: pageTitle
-        }, body);
+        return (<CollapsiblePanel header={pageTitle}>{body}</CollapsiblePanel>)
       }
     });
 
@@ -77,7 +77,7 @@ describe("Collapsible Panel Component", () => {
     m.redraw();
   }
 
-  function find(id) {
+  function find(id: string) {
     return $root.find(`[data-test-id='${id}']`);
   }
 });

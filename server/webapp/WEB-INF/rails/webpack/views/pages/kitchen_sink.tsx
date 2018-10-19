@@ -19,27 +19,10 @@ import * as m from 'mithril';
 import {HelloWorld} from "../components/hello_world/index";
 import {KeyValuePair} from "../components/key_value_pair/index";
 import {MithrilComponent} from "../../jsx/mithril-component";
+import {CollapsiblePanel} from "../components/collapsible_panel/index";
 
 const HeaderPanel = require('views/components/header_panel');
 const Button = require('views/components/button');
-const Accordion = require('views/components/accordion');
-const CollapsiblePanel = require('views/components/collapsible_panel');
-
-class AccordionExamples<A = {}> extends MithrilComponent<A> {
-  view() {
-    return (
-      <div>
-        <Accordion title={'Expanded accordion'}>
-          <div>some text inside the accordion</div>
-        </Accordion>
-
-        <Accordion title={'Collapsed accordion'} collapse={true}>
-          <div>some text inside the accordion</div>
-        </Accordion>
-      </div>
-    );
-  }
-}
 
 export = class KitchenSink extends MithrilComponent<null> {
   view() {
@@ -73,7 +56,6 @@ export = class KitchenSink extends MithrilComponent<null> {
         <Button/>
 
         <h3>Some examples of accordions</h3>
-        <AccordionExamples/>
 
         <h3>Some examples of key value pairs</h3>
         <KeyValuePair data={

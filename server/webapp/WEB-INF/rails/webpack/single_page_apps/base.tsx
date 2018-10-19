@@ -18,6 +18,10 @@ import * as m from 'mithril';
 
 import {MainPage} from "../views/pages/main";
 
+const extractBoolean = function (body: Element, attribute: string): boolean {
+  return JSON.parse(body.getAttribute(attribute) as string);
+};
+
 window.addEventListener("DOMContentLoaded", () => {
   const body: Element = document.querySelector('body') as Element;
 
@@ -25,6 +29,14 @@ window.addEventListener("DOMContentLoaded", () => {
   const goVersion        = body.getAttribute('data-version-go-version') as string;
   const fullVersion      = body.getAttribute('data-version-full') as string;
   const formattedVersion = body.getAttribute('data-version-formatted') as string;
+
+  const showAnalyticsDashboard = extractBoolean(body, 'data-show-analytics-dashboard');
+  const canViewAdminPage       = extractBoolean(body, 'data-can-user-view-admin');
+  const isUserAdmin            = extractBoolean(body, 'data-is-user-admin');
+  const isGroupAdmin           = extractBoolean(body, 'data-is-user-group-admin');
+  const canViewTemplates       = extractBoolean(body, 'data-can-user-view-templates');
+  const isAnonymous            = extractBoolean(body, 'data-user-anonymous');
+  const userDisplayName        = body.getAttribute('data-user-display-name') || "";
 
   const pageName = body.getAttribute('data-controller-name');
 
@@ -39,10 +51,20 @@ window.addEventListener("DOMContentLoaded", () => {
     copyrightYear, goVersion, fullVersion, formattedVersion
   };
 
+  const headerData = {
+    showAnalyticsDashboard,
+    canViewAdminPage,
+    isUserAdmin,
+    isGroupAdmin,
+    canViewTemplates,
+    userDisplayName,
+    isAnonymous
+  };
+
   m.mount(body, {
     view() {
       return (
-        <MainPage footerData={footerData}>
+        <MainPage headerData={headerData} footerData={footerData}>
           <PageToMount/>
         </MainPage>
       );

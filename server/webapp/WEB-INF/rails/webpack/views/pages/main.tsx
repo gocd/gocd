@@ -17,11 +17,12 @@
 import * as m from 'mithril';
 import {MithrilComponent} from "../../jsx/mithril-component";
 import {Attrs as SiteFooterAttrs, SiteFooter} from "./partials/site_footer";
+import {Attrs as SiteHeaderAttrs, SiteHeader} from "./partials/site_header";
 
-const SiteHeader = require('./partials/site_header.js.msx');
 const styles     = require('./main.scss');
 
 interface Attrs {
+  headerData: SiteHeaderAttrs;
   footerData: SiteFooterAttrs;
 }
 
@@ -30,7 +31,7 @@ export class MainPage extends MithrilComponent<Attrs> {
     return (
       <div class={styles.page}>
         <div class={styles.pagewrap}>
-          <SiteHeader/>
+          <SiteHeader {...vnode.attrs.headerData}/>
           {vnode.children}
         </div>
         <footer class={styles.sitefooter}>

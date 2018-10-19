@@ -14,18 +14,20 @@
  * limitations under the License.
  */
 
-const m                               = require('mithril');
-const ServerHealthMessages            = require('models/shared/server_health_messages/server_health_messages');
-const ServerHealthMessagesCountWidget = require('./server_health_messages_count_widget');
-const AjaxPoller                      = require('helpers/ajax_poller');
-const Stream                          = require('mithril/stream');
+import * as m from "mithril";
+import * as stream from 'mithril/stream';
 
-const serverHealthMessages = Stream(new ServerHealthMessages([]));
+import {ServerHealthMessages} from "../../../models/shared/server_health_messages/server_health_messages";
+import {ServerHealthMessagesCountWidget} from "./server_health_messages_count_widget";
+
+const AjaxPoller = require('helpers/ajax_poller');
+
+const serverHealthMessages = stream(new ServerHealthMessages([]));
 
 function createRepeater() {
-  return new AjaxPoller((xhrCB) => {
+  return new AjaxPoller((xhrCB:Function) => {
     return ServerHealthMessages.all(xhrCB)
-      .then((messages) => {
+      .then((messages:ServerHealthMessages) => {
         serverHealthMessages(messages);
       });
   });
@@ -41,7 +43,7 @@ const ServerHealthSummary = {
     repeater.stop();
   },
   view() {
-    return m(ServerHealthMessagesCountWidget, {serverHealthMessages});
+    return (<ServerHealthMessagesCountWidget serverHealthMessages={serverHealthMessages}/>);
   }
 };
 

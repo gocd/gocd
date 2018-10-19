@@ -14,10 +14,30 @@
  * limitations under the License.
  */
 
+import {
+  ServerHealthMessage,
+  ServerHealthMessages
+} from "../../../../../webpack/models/shared/server_health_messages/server_health_messages";
 
 describe("ServerHealthMessages", () => {
 
-  const ServerHealthMessages = require('models/shared/server_health_messages/server_health_messages');
+  function createError(): ServerHealthMessage {
+    return {
+      level: 'ERROR',
+      detail: 'foo',
+      time: '2018-10-19T04:07:02Z',
+      message: 'something went wrong!'
+    }
+  }
+
+  function createWarning(): ServerHealthMessage {
+    return {
+      level: 'WARNING',
+      detail: 'foo',
+      time: '2018-10-19T04:07:02Z',
+      message: 'something went wrong!'
+    }
+  }
 
   it('should return empty when there are no errors or warnings', () => {
     const messages = new ServerHealthMessages([]);
@@ -25,31 +45,31 @@ describe("ServerHealthMessages", () => {
   });
 
   it("should return a summary message when there are both warnings and errors", () => {
-    const messages = new ServerHealthMessages([{"level": "ERROR"}, {"level": "WARNING"}]);
+    const messages = new ServerHealthMessages([createError(), createWarning()]);
 
     expect(messages.summaryMessage()).toEqual("1 error and 1 warning");
   });
 
   it("should pluralize errors and warnings", () => {
-    const messages = new ServerHealthMessages([{"level": "ERROR"}, {"level": "WARNING"}, {"level": "ERROR"}, {"level": "WARNING"}]);
+    const messages = new ServerHealthMessages([createError(), createWarning(), createError(), createWarning()]);
 
     expect(messages.summaryMessage()).toEqual("2 errors and 2 warnings");
   });
 
   it("should return a summary message when there only errors", () => {
-    const messages = new ServerHealthMessages([{"level": "ERROR"}, {"level": "ERROR"}]);
+    const messages = new ServerHealthMessages([createError(), createError()]);
 
     expect(messages.summaryMessage()).toEqual("2 errors");
   });
 
   it("should return a summary message when there only warnings", () => {
-    const messages = new ServerHealthMessages([{"level": "WARNING"}, {"level": "WARNING"}]);
+    const messages = new ServerHealthMessages([createWarning(), createWarning()]);
 
     expect(messages.summaryMessage()).toEqual("2 warnings");
   });
 
   it("should return true when there are messages", () => {
-    const messages = new ServerHealthMessages([{"level": "WARNING"}, {"level": "WARNING"}]);
+    const messages = new ServerHealthMessages([createWarning(), createWarning()]);
 
     expect(messages.hasMessages()).toBe(true);
   });

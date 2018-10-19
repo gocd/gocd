@@ -23,10 +23,10 @@ function importAll(r) {
 }
 
 // ensure that helpers are loaded before anything else
-importAll(require.context('./helpers', true, /\.js$/));
+importAll(require.context('./helpers', true, /\.js|ts$/));
 
-importAll(require.context('./lib', true, /\.js$/));
-importAll(require.context('./models', true, /\.js$/));
-importAll(require.context('./views', true, /\.js$/));
+importAll(require.context('./lib', true, /\.js|ts$/));
+importAll(require.context('./models', true, /\.js|ts$/));
+importAll(require.context('./views', true, /\.js|ts$/));
 
 importAll(require.context('../../webpack/views/components', true, /spec\.(js|msx|ts|tsx)$/));

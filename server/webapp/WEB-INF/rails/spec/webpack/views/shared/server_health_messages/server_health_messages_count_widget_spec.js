@@ -15,8 +15,7 @@
  */
 
 describe("ServerHealthMessagesCountWidget", () => {
-
-  const ServerHealthMessages            = require('models/shared/server_health_messages/server_health_messages');
+  const ServerHealthMessages            = require('models/shared/server_health_messages/server_health_messages').ServerHealthMessages;
   const ServerHealthMessagesCountWidget = require('views/shared/server_health_messages/server_health_messages_count_widget');
   const TimeFormatter = require('helpers/time_formatter');
 
@@ -95,7 +94,7 @@ describe("ServerHealthMessagesCountWidget", () => {
         return m(ServerHealthMessagesCountWidget, {
           serverHealthMessages: Stream(new ServerHealthMessages([{
             "message": "Test Message",
-            "detail":  "This is a <a href='http://example.com'>link</a>",
+            "detail":  `This is a <a href='http://example.com'>link</a>`,
             "level":   "ERROR",
             "time":    "2018-01-30T07:34:43Z"
           }]))
@@ -107,7 +106,7 @@ describe("ServerHealthMessagesCountWidget", () => {
     m.redraw(true);
 
     expect($('.new-modal-container .server-health-status .message:first')).toContainText("Test Message");
-    expect($('.new-modal-container .server-health-status .detail:first')).toContainHtml("This is a <a href='http://example.com'>link</a>");
+    expect($('.new-modal-container .server-health-status .detail:first')).toContainHtml(`This is a <a href='http://example.com'>link</a>`);
     expect($('.new-modal-container .server-health-status .timestamp:first')).toContainText(TimeFormatter.format("2018-01-30T07:34:43Z"));
 
     simulateEvent.simulate($('.new-modal-container').find('.reveal:visible .modal-buttons .close').get(0), 'click');

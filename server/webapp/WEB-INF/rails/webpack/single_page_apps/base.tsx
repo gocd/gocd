@@ -18,12 +18,15 @@ import * as m from 'mithril';
 
 import {MainPage} from "../views/pages/main";
 
+
 const extractBoolean = function (body: Element, attribute: string): boolean {
   return JSON.parse(body.getAttribute(attribute) as string);
 };
 
 window.addEventListener("DOMContentLoaded", () => {
   const body: Element = document.querySelector('body') as Element;
+  let mountPoint  = document.createElement('div');
+  body.appendChild(mountPoint);
 
   const copyrightYear    = body.getAttribute('data-version-copyright-year') as string;
   const goVersion        = body.getAttribute('data-version-go-version') as string;
@@ -61,7 +64,7 @@ window.addEventListener("DOMContentLoaded", () => {
     isAnonymous
   };
 
-  m.mount(body, {
+  m.mount(mountPoint, {
     view() {
       return (
         <MainPage headerData={headerData} footerData={footerData}>

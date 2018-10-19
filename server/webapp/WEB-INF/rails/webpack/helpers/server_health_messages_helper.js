@@ -16,7 +16,7 @@
 
 const $                               = require('jquery');
 const m                               = require('mithril');
-const ServerHealthMessages            = require('models/shared/server_health_messages/server_health_messages');
+const ServerHealthMessages            = require('models/shared/server_health_messages/server_health_messages').ServerHealthMessages;
 const ServerHealthMessagesCountWidget = require('views/shared/server_health_messages/server_health_messages_count_widget');
 const AjaxPoller                      = require('helpers/ajax_poller');
 const Stream                          = require('mithril/stream');

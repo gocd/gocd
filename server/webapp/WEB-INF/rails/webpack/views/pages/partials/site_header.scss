@@ -155,6 +155,8 @@ $bar-spacing: 7px;
 }
 
 .need_help {
+  @include hover-effect-for-top-menu;
+
   line-height: 40px;
   display:     block;
   @media(min-width: $screen-md) {
@@ -199,6 +201,7 @@ $bar-spacing: 7px;
 }
 
 .user_link {
+  @include hover-effect-for-top-menu;
   color:           $header-text-color;
   text-decoration: none;
   padding:         0;

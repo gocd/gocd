@@ -18,7 +18,6 @@ const m              = require('mithril');
 const Modal          = require('views/shared/new_modal');
 const TimeFormatter  = require('helpers/time_formatter');
 const styles         = require('./server_health_messages_count_widget.scss');
-const SiteHeaderLink = require('../site_header_link/index');
 
 const HealthMessageWidget = {
   view(vnode) {
@@ -65,8 +64,8 @@ const ServerHealthMessagesCountWidget = {
   view(vnode) {
     if (vnode.attrs.serverHealthMessages().hasMessages()) {
       return (
-        <SiteHeaderLink class={styles['server-health-messages-container']}
-                        onclick={vnode.state.openServerHealthMessagesModal.bind(vnode.state)}> {vnode.attrs.serverHealthMessages().summaryMessage()}</SiteHeaderLink>
+        <a class={styles['server-health-messages-container']}
+           onclick={vnode.state.openServerHealthMessagesModal.bind(vnode.state)}> {vnode.attrs.serverHealthMessages().summaryMessage()}</a>
       );
     }
   }

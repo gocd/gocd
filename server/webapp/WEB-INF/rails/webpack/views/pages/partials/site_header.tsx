@@ -23,8 +23,7 @@ const classnames = require('classnames/bind').bind(styles);
 
 const NotificationCenter  = require('views/components/notification_center/notification_center');
 const ServerHealthSummary = require('views/components/server_health_summary/server_health_summary');
-const SiteMenu            = require('views/components/site_menu/index');
-const SiteHeaderLink      = require('views/components/site_header_link/index');
+import SiteMenu from "../../components/site_menu";
 
 export interface Attrs {
   isAnonymous: boolean;
@@ -51,11 +50,11 @@ export class SiteHeader extends MithrilComponent<Attrs> {
     if (!isAnonymous) {
       userMenu = (
         <div class={classnames(styles.user, styles.isDropDown)}>
-          <SiteHeaderLink href="#" class={styles.userLink}>
+          <a href="#" class={styles.userLink}>
             <i class={styles.userIcon}/>
             {userDisplayName}
             <i class={`${styles.caretDownIcon}`}/>
-          </SiteHeaderLink>
+          </a>
 
           <ul class={styles.userSubnav}>
             <li>
@@ -87,9 +86,9 @@ export class SiteHeader extends MithrilComponent<Attrs> {
           <div class={styles.siteHeaderRight}>
             <NotificationCenter/>
             <ServerHealthSummary/>
-            <SiteHeaderLink class={styles.needHelp} href="https://gocd.org/help" target="_blank">
+            <a class={styles.needHelp} href="https://gocd.org/help" target="_blank">
               Need Help?
-            </SiteHeaderLink>
+            </a>
             {userMenu}
           </div>
         </div>

@@ -101,6 +101,7 @@ $subnav-link-color: #bbb;
 }
 
 .site-nav_link {
+  @include hover-effect-for-top-menu;
   text-decoration: none;
   text-transform:  uppercase;
   font-size:       12px;
@@ -154,6 +155,8 @@ $subnav-link-color: #bbb;
 }
 
 .site-sub-nav_link {
+  @include hover-effect-for-top-menu;
+
   color:           $subnav-link-color;
   text-decoration: none;
   padding:         5px 0;

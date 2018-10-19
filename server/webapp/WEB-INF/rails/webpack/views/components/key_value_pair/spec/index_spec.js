@@ -44,7 +44,6 @@ describe("Key Value Pair Component", () => {
   });
 
   function mount() {
-    debugger
     m.mount(root, {
       view() {
         return m(KeyValuePair, {

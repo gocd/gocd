@@ -15,8 +15,12 @@
  */
 package com.thoughtworks.go.plugin.access.configrepo;
 
+import com.thoughtworks.go.config.PipelineConfig;
+import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.plugin.access.common.AbstractExtension;
 import com.thoughtworks.go.plugin.access.configrepo.contract.CRParseResult;
+import com.thoughtworks.go.plugin.access.configrepo.contract.CRPipeline;
+import com.thoughtworks.go.plugin.access.configrepo.contract.CRStage;
 import com.thoughtworks.go.plugin.api.request.GoPluginApiRequest;
 import com.thoughtworks.go.plugin.api.response.DefaultGoPluginApiResponse;
 import com.thoughtworks.go.plugin.infra.PluginManager;

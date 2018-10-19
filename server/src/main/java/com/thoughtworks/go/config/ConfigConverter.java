@@ -18,6 +18,7 @@ package com.thoughtworks.go.config;
 
 import com.rits.cloning.Cloner;
 import com.thoughtworks.go.config.materials.*;
+import com.thoughtworks.go.config.materials.dependency.DependencyMaterial;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
 import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig;
@@ -26,11 +27,13 @@ import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
 import com.thoughtworks.go.config.materials.tfs.TfsMaterialConfig;
 import com.thoughtworks.go.config.pluggabletask.PluggableTask;
 import com.thoughtworks.go.config.remote.PartialConfig;
+import com.thoughtworks.go.domain.EnvironmentVariable;
 import com.thoughtworks.go.domain.RunIfConfigs;
 import com.thoughtworks.go.domain.config.Arguments;
 import com.thoughtworks.go.domain.config.Configuration;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
 import com.thoughtworks.go.domain.config.PluginConfiguration;
+import com.thoughtworks.go.domain.materials.Material;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.domain.packagerepository.PackageDefinition;
 import com.thoughtworks.go.domain.packagerepository.PackageRepository;
@@ -639,4 +642,180 @@ public class ConfigConverter {
         return new TrackingTool(crTrackingTool.getLink(), crTrackingTool.getRegex());
     }
 
+    public CRPipeline pipelineConfigToCRPipeline(PipelineConfig pipelineConfig) {
+        CRPipeline crPipeline = new CRPipeline();
+
+        crPipeline.setName(pipelineConfig.name().toString());
+        for(StageConfig stage: pipelineConfig.getStages()) {
+            crPipeline.addStage(stageToCRStage(stage));
+        }
+
+        for (ParamConfig param: pipelineConfig.getParams()) {
+            crPipeline.addParameter(paramToCRParam(param));
+        }
+
+        for (MaterialConfig material: pipelineConfig.materialConfigs()) {
+            crPipeline.addMaterial(materialToCRMaterial(material));
+        }
+
+        for (EnvironmentVariableConfig envVar: pipelineConfig.getVariables()) {
+           crPipeline.addEnvironmentVariable(environmentVariableConfigToCREnvironmentVariable(envVar));
+        }
+
+        crPipeline.setTrackingTool(trackingToolToCRTrackingTool(pipelineConfig.getTrackingTool()));
+        crPipeline.setTimer(timerConfigToCRTimer(pipelineConfig.getTimer()));
+        crPipeline.setLock_behavior(pipelineConfig.getLockBehavior());
+        crPipeline.setTemplate(pipelineConfig.getTemplateName().toString());
+
+        crPipeline.setMingle(mingleToCRMingle(pipelineConfig.getMingleConfig()));
+        crPipeline.setLabelTemplate(pipelineConfig.getLabelTemplate());
+        return crPipeline;
+    }
+
+    private CRMingle mingleToCRMingle(MingleConfig mingleConfig) {
+        CRMingle crMingle = new CRMingle();
+        crMingle.setBaseUrl(mingleConfig.getBaseUrl());
+        crMingle.setProjectIdentifier(mingleConfig.getProjectIdentifier());
+        crMingle.setMqlGroupingConditions(mingleConfig.getQuotedMql());
+        return crMingle;
+    }
+
+    private CRTrackingTool trackingToolToCRTrackingTool(TrackingTool trackingTool) {
+        return new CRTrackingTool(trackingTool.getLink(), trackingTool.getRegex());
+    }
+
+    private CRParameter paramToCRParam(ParamConfig paramConfig) {
+        return new CRParameter(paramConfig.getName(), paramConfig.getValue());
+    }
+
+    public CRStage stageToCRStage(StageConfig stageConfig) {
+        CRStage crStage = new CRStage(stageConfig.name().toString());
+        List<CRJob> jobs = new ArrayList();
+        for(JobConfig job: stageConfig.getJobs()) {
+            jobs.add(jobToCRJob(job));
+        }
+        return crStage;
+    }
+
+    public CRJob jobToCRJob(JobConfig jobConfig) {
+        CRJob job = new CRJob();
+        job.setName(jobConfig.name().toString());
+        return job;
+    }
+
+    public CRTimer timerConfigToCRTimer(TimerConfig timerConfig) {
+        String spec =  timerConfig.getTimerSpec();
+        if (StringUtils.isBlank(spec))
+            throw new RuntimeException("timer schedule is not specified");
+        return new CRTimer(spec, timerConfig.shouldTriggerOnlyOnChanges());
+    }
+
+    public CREnvironmentVariable environmentVariableConfigToCREnvironmentVariable(EnvironmentVariableConfig environmentVariableConfig) {
+        if (environmentVariableConfig.isSecure()) {
+            return new CREnvironmentVariable(environmentVariableConfig.getName(), environmentVariableConfig.getEncryptedValue());
+        } else {
+            String value = environmentVariableConfig.getValue();
+            if(StringUtils.isBlank(value))
+                value = "";
+            return new CREnvironmentVariable(environmentVariableConfig.getName(), value);
+        }
+    }
+
+    private CRPluggableScmMaterial pluggableScmMaterialConfigToCRPluggableScmMaterial(PluggableSCMMaterialConfig pluggableScmMaterialConfig) {
+        SCMs scms = getSCMs();
+        String id = pluggableScmMaterialConfig.getScmId();
+        SCM scmConfig = scms.find(id);
+        if (scmConfig == null)
+            throw new ConfigConvertionException(
+                    String.format("Failed to find referenced scm '%s'", id));
+
+        return new CRPluggableScmMaterial(pluggableScmMaterialConfig.getName().toString(),
+                id, pluggableScmMaterialConfig.getFolder(),
+                pluggableScmMaterialConfig.getFilterAsString());
+    }
+
+    public CRPackageMaterial packageMaterialToCRPackageMaterial(PackageMaterialConfig packageMaterialConfig) {
+        return new CRPackageMaterial(packageMaterialConfig.getName().toString(), packageMaterialConfig.getPackageId());
+    }
+
+    public CRDependencyMaterial dependencyMaterialConfigToCRDependencyMaterial(DependencyMaterialConfig dependencyMaterialConfig) {
+        CRDependencyMaterial crDependencyMaterial = new CRDependencyMaterial(
+                dependencyMaterialConfig.getPipelineName().toString(),
+                dependencyMaterialConfig.getStageName().toString());
+        return crDependencyMaterial;
+    }
+
+    private CRScmMaterial scmMaterialToCRScmMaterial(ScmMaterialConfig scmMaterialConfig) {
+        String materialName = scmMaterialConfig.getName().toString();
+        if (scmMaterialConfig instanceof GitMaterialConfig) {
+            GitMaterialConfig git = (GitMaterialConfig) scmMaterialConfig;
+            return new CRGitMaterial(materialName, git.getFolder(), git.isAutoUpdate(), git.isShallowClone(), git.getUrl(), git.getBranch(), git.isInvertFilter(), git.getFilterAsString());
+        } else if (scmMaterialConfig instanceof HgMaterialConfig) {
+            HgMaterialConfig hg = (HgMaterialConfig) scmMaterialConfig;
+            return new CRHgMaterial(materialName, hg.getFolder(), hg.isAutoUpdate(), hg.getUrl(), hg.isInvertFilter(), hg.getFilterAsString());
+        } else if (scmMaterialConfig instanceof P4MaterialConfig) {
+            P4MaterialConfig p4MaterialConfig = (P4MaterialConfig) scmMaterialConfig;
+
+            CRP4Material crP4Material = new CRP4Material(materialName, p4MaterialConfig.getFolder(), p4MaterialConfig.isAutoUpdate(), p4MaterialConfig.getServerAndPort(), p4MaterialConfig.getView(), p4MaterialConfig.getUserName(), null, p4MaterialConfig.getUseTickets(), p4MaterialConfig.isInvertFilter(), p4MaterialConfig.getFilterAsString());
+
+            if (p4MaterialConfig.getEncryptedPassword() != null) {
+                crP4Material.setEncryptedPassword(p4MaterialConfig.getEncryptedPassword());
+            } else {
+                crP4Material.setPassword(p4MaterialConfig.getPassword());
+            }
+            return crP4Material;
+        } else if (scmMaterialConfig instanceof SvnMaterialConfig) {
+            SvnMaterialConfig svnMaterial = (SvnMaterialConfig) scmMaterialConfig;
+            CRSvnMaterial crSvnMaterial = new CRSvnMaterial(materialName, svnMaterial.getFolder(), svnMaterial.isAutoUpdate(),
+                    svnMaterial.getUrl(), svnMaterial.getUserName(), null, svnMaterial.isCheckExternals(), svnMaterial.isInvertFilter(), svnMaterial.getFilterAsString());
+            if (svnMaterial.getEncryptedPassword() != null) {
+                crSvnMaterial.setEncryptedPassword(svnMaterial.getEncryptedPassword());
+            } else {
+                crSvnMaterial.setPassword(svnMaterial.getPassword());
+            }
+            return crSvnMaterial;
+        } else if (scmMaterialConfig instanceof TfsMaterialConfig) {
+            TfsMaterialConfig tfsMaterialConfig = (TfsMaterialConfig) scmMaterialConfig;
+            CRTfsMaterial crTfsMaterial = new CRTfsMaterial(materialName,
+                    tfsMaterialConfig.getFolder(),
+                    tfsMaterialConfig.isAutoUpdate(),
+                    tfsMaterialConfig.getUrl(),
+                    tfsMaterialConfig.getUserName(),
+                    null,
+                    null,
+                    tfsMaterialConfig.getProjectPath(),
+                    tfsMaterialConfig.getDomain(),
+                    tfsMaterialConfig.isInvertFilter(),
+                    tfsMaterialConfig.getFilterAsString());
+            if (crTfsMaterial.getEncryptedPassword() != null) {
+                crTfsMaterial.setEncryptedPassword(crTfsMaterial.getEncryptedPassword());
+            } else {
+                crTfsMaterial.setPassword(crTfsMaterial.getPassword());
+            }
+            return crTfsMaterial;
+        } else
+            throw new ConfigConvertionException(
+                    String.format("unknown scm material type '%s'", scmMaterialConfig));
+    }
+
+    public CRMaterial materialToCRMaterial(MaterialConfig materialConfig) {
+        if (materialConfig == null)
+            throw new ConfigConvertionException("material cannot be null");
+
+        if (materialConfig instanceof DependencyMaterialConfig) {
+            return dependencyMaterialConfigToCRDependencyMaterial((DependencyMaterialConfig) materialConfig);
+        } else if (materialConfig instanceof ScmMaterialConfig) {
+            ScmMaterialConfig scmMaterialConfig = (ScmMaterialConfig) materialConfig;
+            return scmMaterialToCRScmMaterial(scmMaterialConfig);
+        } else if (materialConfig instanceof PluggableSCMMaterialConfig) {
+            PluggableSCMMaterialConfig pluggableSCMMaterialConfig = (PluggableSCMMaterialConfig) materialConfig;
+            return pluggableScmMaterialConfigToCRPluggableScmMaterial(pluggableSCMMaterialConfig);
+        } else if (materialConfig instanceof PackageMaterialConfig) {
+            PackageMaterialConfig packageMaterial = (PackageMaterialConfig) materialConfig;
+            return packageMaterialToCRPackageMaterial(packageMaterial);
+        }  else {
+            throw new ConfigConvertionException(
+                    String.format("unknown material type '%s'", materialConfig));
+        }
+    }
 }

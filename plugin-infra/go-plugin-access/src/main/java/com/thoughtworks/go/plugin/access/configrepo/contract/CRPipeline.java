@@ -170,9 +170,17 @@ public class CRPipeline extends CRBase {
         this.stages.add(stage);
     }
 
-    public void addEnvironmentVariable(String key,String value){
+    public void addParameter (CRParameter param) {
+        this.parameters.add(param);
+    }
+
+    public void addEnvironmentVariable(String key,String value) {
         CREnvironmentVariable variable = new CREnvironmentVariable(key);
         variable.setValue(value);
+        this.environment_variables.add(variable);
+    }
+
+    public void addEnvironmentVariable(CREnvironmentVariable variable) {
         this.environment_variables.add(variable);
     }
 
@@ -377,4 +385,11 @@ public class CRPipeline extends CRBase {
         return template != null && !StringUtils.isBlank(template);
     }
 
+    public String getLock_behavior() {
+        return lock_behavior;
+    }
+
+    public void setLock_behavior(String lock_behavior) {
+        this.lock_behavior = lock_behavior;
+    }
 }

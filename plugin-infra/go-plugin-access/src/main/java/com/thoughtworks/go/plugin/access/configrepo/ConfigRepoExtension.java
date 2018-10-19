@@ -24,14 +24,12 @@ import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsJsonMessa
 import com.thoughtworks.go.plugin.access.configrepo.codec.GsonCodec;
 import com.thoughtworks.go.plugin.access.configrepo.contract.CRConfigurationProperty;
 import com.thoughtworks.go.plugin.access.configrepo.contract.CRParseResult;
+import com.thoughtworks.go.plugin.access.configrepo.contract.CRPipeline;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static com.thoughtworks.go.plugin.domain.common.PluginConstants.CONFIG_REPO_EXTENSION;
 import static java.util.Arrays.asList;
@@ -50,6 +48,12 @@ public class ConfigRepoExtension extends AbstractExtension implements ConfigRepo
         registerHandler("1.0", new PluginSettingsJsonMessageHandler1_0());
         messageHandlerMap.put("1.0", new JsonMessageHandler1_0(new GsonCodec(), new ConfigRepoMigrator()));
         registerMessageHandlerForPluginSettingsRequestProcessor("1.0", new MessageHandlerForPluginSettingsRequestProcessor1_0());
+    }
+
+    @Override
+    public String pipelineConfigToRemoteConfig(final String pluginId, final CRPipeline pipelineConfig) {
+        GsonCodec gsonCodec = new GsonCodec();
+        return gsonCodec.getGson().toJson(pipelineConfig);
     }
 
     @Override

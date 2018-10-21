@@ -23,6 +23,7 @@ const path                 = require('path');
 const fsExtra              = require('fs-extra');
 const webpack              = require('webpack');
 const baseConfigFn         = require('./webpack-base.config.js');
+const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 
 module.exports = function (env) {
   const baseConfig = baseConfigFn(env);
@@ -32,21 +33,26 @@ module.exports = function (env) {
     devtool: "source-map",
     resolve: {
       modules: [assetsDir, 'node_modules']
-
     },
     output:  {
       filename: '[name]-[chunkhash].js'
     },
     plugins: [
+      new MiniCssExtractPlugin({
+        // Options similar to the same options in webpackOptions.output
+        // both options are optional
+        filename:      "[name]-[hash].css",
+        chunkFilename: "[id]-[hash].css",
+      }),
       new webpack.LoaderOptionsPlugin({minimize: true})
     ],
-    module: {
+    module:  {
       rules: [
         {
-          test:    /\.(woff(2)?|ttf|eot|svg)(\?v=\d+\.\d+\.\d+)?$/,
-          use:     [
+          test: /\.(woff(2)?|ttf|eot|svg)(\?v=\d+\.\d+\.\d+)?$/,
+          use:  [
             {
-              loader: 'file-loader',
+              loader:  'file-loader',
               options: {
                 name:       '[name]-[hash].[ext]',
                 outputPath: 'fonts/'

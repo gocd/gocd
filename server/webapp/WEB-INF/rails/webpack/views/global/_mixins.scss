@@ -1,4 +1,4 @@
-/*!
+/*
  * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,14 +14,7 @@
  * limitations under the License.
  */
 
-@mixin clearfix() {
-  &::after {
-    display: block;
-    content: "";
-    clear:   both;
-  }
-}
-
+@import '~bourbon/core/bourbon';
 
 @mixin hover-effect-for-top-menu {
   color:           $header-text-color;

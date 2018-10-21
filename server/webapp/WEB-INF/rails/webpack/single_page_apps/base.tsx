@@ -25,7 +25,7 @@ const extractBoolean = function (body: Element, attribute: string): boolean {
 
 window.addEventListener("DOMContentLoaded", () => {
   const body: Element = document.querySelector('body') as Element;
-  let mountPoint  = document.createElement('div');
+  let mountPoint      = document.createElement('div');
   body.appendChild(mountPoint);
 
   const copyrightYear    = body.getAttribute('data-version-copyright-year') as string;

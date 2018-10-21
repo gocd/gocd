@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 @import "~normalize-scss/sass/normalize/import-now";
-@import '~bourbon/core/bourbon';
 @import "../global/common";
 @import "../global/typography";
 
@@ -30,9 +29,65 @@ body {
 
 }
 
-@include font-face('FontAwesome', 'font-awesome/fonts/fontawesome-webfont', ("woff2", "woff", "ttf", "svg", "eot")) {
+@include font-face($font-family: 'FontAwesome',
+                   $file-path: 'font-awesome/fonts/fontawesome-webfont',
+                   $file-formats: ("woff2", "woff", "ttf", "svg", "eot")) {
   font-weight: normal;
   font-style:  normal;
+}
+
+$opensans-variants: (
+                      Light: (
+                        font-weight: 300,
+                        font-style: normal,
+                      ),
+                      LightItalic: (
+                        font-weight: 300,
+                        font-style: italic,
+                      ),
+                      Regular: (
+                        font-weight: normal,
+                        font-style: normal,
+                      ),
+                      Italic: (
+                        font-weight: normal,
+                        font-style: italic,
+                      ),
+                      Semibold: (
+                        font-weight: 600,
+                        font-style: normal,
+                      ),
+                      SemiboldItalic: (
+                        font-weight: 600,
+                        font-style: italic,
+                      ),
+                      Bold: (
+                        font-weight: bold,
+                        font-style: normal,
+                      ),
+                      BoldItalic: (
+                        font-weight: bold,
+                        font-style: italic,
+                      ),
+                      ExtraBold: (
+                        font-weight: 800,
+                        font-style: normal,
+                      ),
+                      ExtraBoldItalic: (
+                        font-weight: 800,
+                        font-style: italic,
+                      ),
+                    );
+
+@each $variant-name in map-keys($opensans-variants) {
+  $variant: map-get($opensans-variants, $variant-name);
+  @include font-face($font-family: 'Open Sans',
+                     $file-path: 'opensans/OpenSans-#{$variant-name}-webfont',
+                     $file-formats: ("eot", "woff", "ttf")
+  ) {
+    font-style:  map-get($variant, 'font-style');
+    font-weight: map-get($variant, 'font-weight');
+  }
 }
 
 :global(.main-container) {

@@ -18,15 +18,15 @@
 
 'use strict';
 
-const fs             = require('fs');
-const _              = require('lodash');
-const path           = require('path');
-const webpack        = require('webpack');
-const StatsPlugin    = require('stats-webpack-plugin');
-const HappyPack      = require('happypack');
-const LicenseChecker = require('./webpack-license-plugin');
-const SassLintPlugin = require('sass-lint-webpack');
-const CheckerPlugin  = require('awesome-typescript-loader').CheckerPlugin;
+const fs                   = require('fs');
+const _                    = require('lodash');
+const path                 = require('path');
+const webpack              = require('webpack');
+const StatsPlugin          = require('stats-webpack-plugin');
+const LicenseChecker       = require('./webpack-license-plugin');
+const SassLintPlugin       = require('sass-lint-webpack');
+const CheckerPlugin        = require('awesome-typescript-loader').CheckerPlugin;
+const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 
 const singlePageAppModuleDir = path.join(__dirname, '..', 'webpack', 'single_page_apps');
 
@@ -49,7 +49,6 @@ module.exports = function (env) {
   const outputDir         = (env && env.outputDir) || path.join(__dirname, '..', 'public', 'assets', 'webpack');
   const licenseReportFile = (env && env.licenseReportFile) || path.join(__dirname, '..', 'yarn-license-report', `used-packages-${production ? 'prod' : 'dev'}.json`);
   const assetsDir         = path.join(__dirname, '..', 'webpack');
-  const happyThreadPool   = HappyPack.ThreadPool({size: 4});
   console.log(`Generating assets in ${outputDir}`); //eslint-disable-line no-console
 
   const generateConfig = function (entries, splitChunks, plugins) {
@@ -84,7 +83,10 @@ module.exports = function (env) {
             exclude: /node_modules/,
             use:     [
               {
-                loader: 'happypack/loader?id=jsx',
+                loader:  'babel-loader',
+                options: {
+                  cacheDirectory: path.join(__dirname, '..', 'tmp', 'babel-loader')
+                }
               },
               {
                 loader:  'awesome-typescript-loader',
@@ -99,13 +101,38 @@ module.exports = function (env) {
           {
             test:    /\.(msx|js)$/,
             exclude: /node_modules/,
-            use:     'happypack/loader?id=jsx',
+            use:     [{
+              loader:  'babel-loader',
+              options: {
+                cacheDirectory: path.join(__dirname, '..', 'tmp', 'babel-loader')
+              }
+            }]
           },
           {
             test:    /\.scss$/,
             exclude: /node_modules/,
             use:     [
-              'happypack/loader?id=scss'
+              {
+                loader: production ? MiniCssExtractPlugin.loader : 'style-loader',
+              },
+              {
+                loader:  "typings-for-css-modules-loader", // translates CSS into CommonJS
+                options: {
+                  modules:        true,
+                  sourceMap:      true,
+                  camelCase:      true,
+                  importLoaders:  1,
+                  localIdentName: "[name]__[local]___[hash:base64:5]",
+                  namedExport:    true,
+                }
+              },
+              {
+                loader:  "sass-loader", // compiles Sass to CSS, using Node Sass by default
+                options: {
+                  sourceMap: true
+                }
+              }
+
             ]
           },
         ]
@@ -123,42 +150,6 @@ module.exports = function (env) {
   const plugins = [
     new CheckerPlugin(),
     new SassLintPlugin(),
-    new HappyPack({
-      id:         'jsx',
-      loaders:    [
-        {
-          loader:  'babel-loader',
-          options: {
-            cacheDirectory: path.join(__dirname, '..', 'tmp', 'babel-loader')
-          }
-        }
-      ],
-      threadPool: happyThreadPool
-    }),
-    new HappyPack({
-      id:         'scss',
-      loaders:    [
-        {loader: 'style-loader'},
-        {
-          loader:  "typings-for-css-modules-loader", // translates CSS into CommonJS
-          options: {
-            modules:        true,
-            sourceMap:      true,
-            camelCase:      true,
-            importLoaders:  1,
-            localIdentName: "[name]__[local]___[hash:base64:5]",
-            namedExport:    true,
-          }
-        },
-        {
-          loader:  "sass-loader", // compiles Sass to CSS, using Node Sass by default
-          options: {
-            sourceMap: true
-          }
-        }
-      ],
-      threadPool: happyThreadPool
-    }),
     new StatsPlugin('manifest.json', {
       chunkModules: false,
       source:       false,

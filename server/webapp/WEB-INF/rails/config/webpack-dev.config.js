@@ -18,14 +18,13 @@
 
 'use strict';
 
-const merge                = require('webpack-merge');
-const fs                   = require('fs');
-const _                    = require('lodash');
-const path                 = require('path');
-const MiniCssExtractPlugin = require("mini-css-extract-plugin");
-const jasmineCore          = require('jasmine-core');
-const HtmlWebpackPlugin    = require('html-webpack-plugin');
-const baseConfigFn         = require('./webpack-base.config.js');
+const merge             = require('webpack-merge');
+const fs                = require('fs');
+const _                 = require('lodash');
+const path              = require('path');
+const jasmineCore       = require('jasmine-core');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
+const baseConfigFn      = require('./webpack-base.config.js');
 
 module.exports = function (env) {
   const baseConfig   = baseConfigFn(env);
@@ -72,15 +71,15 @@ module.exports = function (env) {
   };
 
   const config = {
-    mode:    'development',
-    devtool: 'inline-source-map',
-    entry:   {
+    mode:      'development',
+    devtool:   'inline-source-map',
+    entry:     {
       specRoot: path.join(__dirname, '..', 'spec', 'webpack', 'specRoot.js')
     },
-    output:  {
+    output:    {
       filename: '[name].js'
     },
-    resolve: {
+    resolve:   {
       modules: [
         //order is important, otherwise monkey patches won't be applied
         path.join(__dirname, '..', 'spec', 'webpack', 'patches'), // provide monkey patches libs for tests
@@ -89,21 +88,21 @@ module.exports = function (env) {
         'node_modules'
       ],
     },
-    plugins: [
-      new MiniCssExtractPlugin({
-        filename:      '[name].css',
-        chunkFilename: '[id].css'
-      }),
+    plugins:   [
       new HtmlWebpackPlugin(jasmineIndexPage),
       new JasmineAssetsPlugin()
     ],
-    module: {
+    devServer: {
+      hot:    true,
+      inline: true
+    },
+    module:    {
       rules: [
         {
-          test:    /\.(woff(2)?|ttf|eot|svg)(\?v=\d+\.\d+\.\d+)?$/,
-          use:     [
+          test: /\.(woff(2)?|ttf|eot|svg)(\?v=\d+\.\d+\.\d+)?$/,
+          use:  [
             {
-              loader: 'file-loader',
+              loader:  'file-loader',
               options: {
                 name:       '[name].[ext]',
                 outputPath: 'fonts/'

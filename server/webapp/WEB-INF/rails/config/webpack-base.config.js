@@ -131,8 +131,10 @@ module.exports = function (env) {
                 options: {
                   sourceMap: true
                 }
+              },
+              {
+                loader: path.resolve(__dirname, 'custom-loader')
               }
-
             ]
           },
         ]

@@ -210,6 +210,15 @@ public class CRJob extends CRBase {
         this.environment_variables.add(variable);
     }
 
+    public boolean hasEnvironmentVariable(String key) {
+        for (CREnvironmentVariable var: environment_variables) {
+            if (var.getName().equals(key)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public String getName() {
         return name;
     }

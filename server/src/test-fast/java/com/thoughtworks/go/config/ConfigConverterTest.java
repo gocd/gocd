@@ -1084,6 +1084,18 @@ public class ConfigConverterTest {
     }
 
     @Test
+    public void shouldConvertParamConfigWhenPassed() throws Exception {
+        PipelineConfig pipeline = new PipelineConfig();
+        pipeline.setName("p1");
+        pipeline.addParam(new ParamConfig("param", "value"));
+
+        Collection<CRParameter> parameters = new ArrayList<>();
+        parameters.add(new CRParameter("param", "value"));
+        CRPipeline crPipeline = configConverter.pipelineConfigToCRPipeline(pipeline);
+        assertThat(crPipeline.getParameters(), is(parameters));
+    }
+
+    @Test
     public void shouldConvertPipelineConfigToCRPipeline() {
         TrackingTool trackingTool = new TrackingTool();
         trackingTool.setLink("link");
@@ -1138,5 +1150,32 @@ public class ConfigConverterTest {
         assertThat(stageConfig.isArtifactCleanupProhibited(), is(true));
         assertThat(stageConfig.hasEnvironmentVariable("testing"), is(true));
         assertThat(stageConfig.getJobs().size(), is(0));
+    }
+
+    @Test
+    public void shouldConvertJobConfigToCRJob() {
+        JobConfig jobConfig = new JobConfig(new CaseInsensitiveString("name"),
+        new ResourceConfigs(new ResourceConfig("resource1")),
+        new ArtifactConfigs(new BuildArtifactConfig("src", "dest")));
+        jobConfig.setRunOnAllAgents(false);
+        jobConfig.setTimeout("120");
+        jobConfig.addTask(new ExecTask());
+        jobConfig.addVariable("key", "value");
+        jobConfig.setRunInstanceCount("5");
+        jobConfig.addTab("tabname", "path");
+        jobConfig.setProperties(new ArtifactPropertiesConfig(new ArtifactPropertyConfig("name", "src", "path")));
+
+        CRJob job = configConverter.jobToCRJob(jobConfig);
+
+        assertThat(job.getName(), is("name"));
+        assertThat(job.hasEnvironmentVariable("key"), is(true));
+        assertThat(job.getTabs().contains(new CRTab("tabname", "path")), is(true));
+        assertThat(job.getResources().contains("resource1"),  is(true));
+        assertThat(job.getArtifacts().contains(new CRBuiltInArtifact("src", "dest")), is(true));
+        assertThat(job.getArtifactPropertiesGenerators().contains(new CRPropertyGenerator("name", "src", "path")), is(true));
+        assertThat(job.isRunOnAllAgents(), is(false));
+        assertThat(job.getRunInstanceCount(), is(5));
+        assertThat(job.getTimeout(), is(120));
+        assertThat(job.getTasks().size(), is(1));
     }
 }

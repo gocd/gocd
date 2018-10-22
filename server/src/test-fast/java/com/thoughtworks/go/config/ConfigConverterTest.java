@@ -16,7 +16,10 @@
 
 package com.thoughtworks.go.config;
 
-import com.thoughtworks.go.config.materials.*;
+import com.thoughtworks.go.config.materials.Filter;
+import com.thoughtworks.go.config.materials.IgnoredFiles;
+import com.thoughtworks.go.config.materials.PackageMaterialConfig;
+import com.thoughtworks.go.config.materials.PluggableSCMMaterialConfig;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
 import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig;
@@ -38,7 +41,6 @@ import com.thoughtworks.go.domain.scm.SCMs;
 import com.thoughtworks.go.plugin.access.configrepo.contract.*;
 import com.thoughtworks.go.plugin.access.configrepo.contract.material.*;
 import com.thoughtworks.go.plugin.access.configrepo.contract.tasks.*;
-import com.thoughtworks.go.plugin.api.task.TaskConfig;
 import com.thoughtworks.go.security.CryptoException;
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.command.HgUrlArgument;
@@ -1177,5 +1179,279 @@ public class ConfigConverterTest {
         assertThat(job.getRunInstanceCount(), is(5));
         assertThat(job.getTimeout(), is(120));
         assertThat(job.getTasks().size(), is(1));
+    }
+
+    @Test
+    public void shouldConvertDependencyMaterialConfigToCRDependencyMaterial() {
+        DependencyMaterialConfig dependencyMaterialConfig = new DependencyMaterialConfig(new CaseInsensitiveString("name"), new CaseInsensitiveString("pipe"), new CaseInsensitiveString("stage"));
+
+        CRDependencyMaterial crDependencyMaterial =
+                (CRDependencyMaterial) configConverter.materialToCRMaterial(dependencyMaterialConfig);
+
+        assertThat(crDependencyMaterial.getName(), is("name"));
+        assertThat(crDependencyMaterial.getPipelineName(), is("pipe"));
+        assertThat(crDependencyMaterial.getStageName(), is("stage"));
+    }
+
+    @Test
+    public void shouldConvertGitMaterialConfigToCRGitMaterial() {
+        GitMaterialConfig gitMaterialConfig = new GitMaterialConfig("url", "branch", true);
+        gitMaterialConfig.setName(new CaseInsensitiveString("name"));
+        gitMaterialConfig.setFolder("folder");
+        gitMaterialConfig.setAutoUpdate(true);
+        gitMaterialConfig.setInvertFilter(false);
+        gitMaterialConfig.setFilter(Filter.create("filter"));
+
+        CRGitMaterial crGitMaterial =
+                (CRGitMaterial) configConverter.materialToCRMaterial(gitMaterialConfig);
+
+        assertThat(crGitMaterial.getName(), is("name"));
+        assertThat(crGitMaterial.getDirectory(), is("folder"));
+        assertThat(crGitMaterial.isAutoUpdate(), is(true));
+        assertThat(crGitMaterial.isWhitelist(), is(false));
+        assertThat(crGitMaterial.getFilterList(), hasItem("filter"));
+        assertThat(crGitMaterial.getUrl(), is("url"));
+        assertThat(crGitMaterial.getBranch(), is("branch"));
+        assertThat(crGitMaterial.shallowClone(), is(true));
+    }
+
+    @Test
+    public void shouldConvertGitMaterialConfigWhenNulls() {
+        GitMaterialConfig gitMaterialConfig = new GitMaterialConfig();
+        gitMaterialConfig.setUrl("url");
+
+        CRGitMaterial crGitMaterial =
+                (CRGitMaterial) configConverter.materialToCRMaterial(gitMaterialConfig);
+
+        assertNull(crGitMaterial.getName());
+        assertNull(crGitMaterial.getDirectory());
+        assertThat(crGitMaterial.isAutoUpdate(), is(true));
+        assertThat(crGitMaterial.shallowClone(), is(false));
+        assertThat(crGitMaterial.getUrl(), is("url"));
+        assertThat(crGitMaterial.getBranch(), is("master"));
+    }
+
+    @Test
+    public void shouldConvertHgMaterialConfigToCRHgMaterial() {
+        HgMaterialConfig hgMaterialConfig = new HgMaterialConfig("url", "folder");
+        hgMaterialConfig.setName(new CaseInsensitiveString("name"));
+        hgMaterialConfig.setFilter(Filter.create("filter"));
+        hgMaterialConfig.setAutoUpdate(true);
+
+        CRHgMaterial crHgMaterial =
+                (CRHgMaterial) configConverter.materialToCRMaterial(hgMaterialConfig);
+
+        assertThat(crHgMaterial.getName(), is("name"));
+        assertThat(crHgMaterial.getDirectory(), is("folder"));
+        assertThat(crHgMaterial.isAutoUpdate(), is(true));
+        assertThat(crHgMaterial.getFilterList(), hasItem("filter"));
+        assertThat(crHgMaterial.getUrl(), is("url"));
+    }
+
+    @Test
+    public void shouldConvertHgMaterialConfigWhenNullName() {
+        HgMaterialConfig hgMaterialConfig = new HgMaterialConfig("url", "folder");
+        hgMaterialConfig.setFilter(Filter.create("filter"));
+        hgMaterialConfig.setAutoUpdate(true);
+
+        CRHgMaterial crHgMaterial =
+                (CRHgMaterial) configConverter.materialToCRMaterial(hgMaterialConfig);
+
+        assertNull(crHgMaterial.getName());
+        assertThat(crHgMaterial.getDirectory(), is("folder"));
+        assertThat(crHgMaterial.isAutoUpdate(), is(true));
+        assertThat(crHgMaterial.getFilterList(), hasItem("filter"));
+        assertThat(crHgMaterial.getUrl(), is("url"));
+    }
+
+    @Test
+    public void shouldConvertP4MaterialConfigWhenEncryptedPassword() {
+        P4MaterialConfig p4MaterialConfig = new P4MaterialConfig("server:port", "view");
+        p4MaterialConfig.setName(new CaseInsensitiveString("name"));
+        p4MaterialConfig.setFolder("folder");
+        p4MaterialConfig.setEncryptedPassword("encryptedvalue");
+        p4MaterialConfig.setFilter(Filter.create("filter"));
+        p4MaterialConfig.setUserName("user");
+        p4MaterialConfig.setUseTickets(true);
+        p4MaterialConfig.setAutoUpdate(false);
+
+        CRP4Material crp4Material =
+                (CRP4Material) configConverter.materialToCRMaterial(p4MaterialConfig);
+
+        assertThat(crp4Material.getName(), is("name"));
+        assertThat(crp4Material.getDirectory(), is("folder"));
+        assertThat(crp4Material.isAutoUpdate(), is(false));
+        assertThat(crp4Material.getFilterList(), hasItem("filter"));
+        assertThat(crp4Material.getServerAndPort(), is("server:port"));
+        assertThat(crp4Material.getUserName(), is("user"));
+        assertThat(crp4Material.getEncryptedPassword(), is("encryptedvalue"));
+        assertNull(crp4Material.getPassword());
+        assertThat(crp4Material.getUseTickets(), is(true));
+        assertThat(crp4Material.getView(), is("view"));
+    }
+
+    @Test
+    public void shouldConvertP4MaterialConfigWhenPlainPassword() {
+        P4MaterialConfig p4MaterialConfig = new P4MaterialConfig("server:port", "view");
+        p4MaterialConfig.setName(new CaseInsensitiveString("name"));
+        p4MaterialConfig.setFolder("folder");
+        p4MaterialConfig.setPassword("password");
+        p4MaterialConfig.setFilter(Filter.create("filter"));
+        p4MaterialConfig.setUserName("user");
+        p4MaterialConfig.setUseTickets(false);
+        p4MaterialConfig.setAutoUpdate(false);
+
+        CRP4Material crp4Material =
+                (CRP4Material) configConverter.materialToCRMaterial(p4MaterialConfig);
+
+        assertThat(crp4Material.getName(), is("name"));
+        assertThat(crp4Material.getDirectory(), is("folder"));
+        assertThat(crp4Material.isAutoUpdate(), is(false));
+        assertThat(crp4Material.getFilterList(), hasItem("filter"));
+        assertThat(crp4Material.getServerAndPort(), is("server:port"));
+        assertThat(crp4Material.getUserName(), is("user"));
+        assertThat(crp4Material.getUseTickets(), is(false));
+        assertThat(crp4Material.getView(), is("view"));
+    }
+
+    @Test
+    public void shouldConvertSvmMaterialConfigWhenEncryptedPassword() {
+        SvnMaterialConfig svnMaterialConfig = new SvnMaterialConfig("url", true);
+        svnMaterialConfig.setName(new CaseInsensitiveString("name"));
+        svnMaterialConfig.setEncryptedPassword("encryptedvalue");
+        svnMaterialConfig.setFolder("folder");
+        svnMaterialConfig.setFilter(Filter.create("filter"));
+        svnMaterialConfig.setUserName("username");
+
+        CRSvnMaterial crSvnMaterial =
+                (CRSvnMaterial) configConverter.materialToCRMaterial(svnMaterialConfig);
+
+        assertThat(crSvnMaterial.getName(), is("name"));
+        assertThat(crSvnMaterial.getDirectory(), is("folder"));
+        assertThat(crSvnMaterial.isAutoUpdate(), is(true));
+        assertThat(crSvnMaterial.getFilterList(), hasItem("filter"));
+        assertThat(crSvnMaterial.getUrl(), is("url"));
+        assertThat(crSvnMaterial.getUserName(), is("username"));
+        assertThat(crSvnMaterial.getEncryptedPassword(), is("encryptedvalue"));
+        assertNull(crSvnMaterial.getPassword());
+        assertThat(crSvnMaterial.isCheckExternals(), is(true));
+    }
+
+    @Test
+    public void shouldConvertSvmMaterialConfigWhenPlainPassword() {
+        SvnMaterialConfig svnMaterialConfig = new SvnMaterialConfig("url", true);
+        svnMaterialConfig.setName(new CaseInsensitiveString("name"));
+        svnMaterialConfig.setPassword("pass");
+        svnMaterialConfig.setFolder("folder");
+        svnMaterialConfig.setFilter(Filter.create("filter"));
+        svnMaterialConfig.setUserName("username");
+
+        CRSvnMaterial crSvnMaterial =
+                (CRSvnMaterial) configConverter.materialToCRMaterial(svnMaterialConfig);
+
+        assertThat(crSvnMaterial.getName(), is("name"));
+        assertThat(crSvnMaterial.getDirectory(), is("folder"));
+        assertThat(crSvnMaterial.isAutoUpdate(), is(true));
+        assertThat(crSvnMaterial.getFilterList(), hasItem("filter"));
+        assertThat(crSvnMaterial.getUrl(), is("url"));
+        assertThat(crSvnMaterial.getUserName(), is("username"));
+        assertNull(crSvnMaterial.getPassword());
+        assertThat(crSvnMaterial.isCheckExternals(), is(true));
+    }
+
+    @Test
+    public void shouldConvertTfsMaterialConfigWhenPlainPassword() {
+        TfsMaterialConfig tfsMaterialConfig = new TfsMaterialConfig();
+        tfsMaterialConfig.setUrl("url");
+        tfsMaterialConfig.setDomain("domain");
+        tfsMaterialConfig.setProjectPath("project");
+        tfsMaterialConfig.setName(new CaseInsensitiveString("name"));
+        tfsMaterialConfig.setPassword("pass");
+        tfsMaterialConfig.setFolder("folder");
+        tfsMaterialConfig.setAutoUpdate(false);
+        tfsMaterialConfig.setFilter(Filter.create("filter"));
+        tfsMaterialConfig.setUserName("user");
+
+        CRTfsMaterial crTfsMaterial =
+                (CRTfsMaterial) configConverter.materialToCRMaterial(tfsMaterialConfig);
+
+        assertThat(crTfsMaterial.getName(), is("name"));
+        assertThat(crTfsMaterial.getDirectory(), is("folder"));
+        assertThat(crTfsMaterial.isAutoUpdate(), is(false));
+        assertThat(crTfsMaterial.getFilterList(), hasItem("filter"));
+        assertThat(crTfsMaterial.getUrl(), is("url"));
+        assertThat(crTfsMaterial.getUserName(), is("user"));
+        assertNull(crTfsMaterial.getPassword());
+        assertThat(crTfsMaterial.getDomain(), is("domain"));
+        assertThat(crTfsMaterial.getProjectPath(), is("project"));
+    }
+
+    @Test
+    public void shouldConvertTfsMaterialConfigWhenEncryptedPassword() {
+        TfsMaterialConfig tfsMaterialConfig = new TfsMaterialConfig();
+        tfsMaterialConfig.setUrl("url");
+        tfsMaterialConfig.setDomain("domain");
+        tfsMaterialConfig.setProjectPath("project");
+        tfsMaterialConfig.setName(new CaseInsensitiveString("name"));
+        tfsMaterialConfig.setEncryptedPassword("encryptedvalue");
+        tfsMaterialConfig.setFolder("folder");
+        tfsMaterialConfig.setAutoUpdate(false);
+        tfsMaterialConfig.setFilter(Filter.create("filter"));
+        tfsMaterialConfig.setUserName("user");
+
+        CRTfsMaterial crTfsMaterial =
+                (CRTfsMaterial) configConverter.materialToCRMaterial(tfsMaterialConfig);
+
+        assertThat(crTfsMaterial.getName(), is("name"));
+        assertThat(crTfsMaterial.getDirectory(), is("folder"));
+        assertThat(crTfsMaterial.isAutoUpdate(), is(false));
+        assertThat(crTfsMaterial.getFilterList(), hasItem("filter"));
+        assertThat(crTfsMaterial.getUrl(), is("url"));
+        assertThat(crTfsMaterial.getUserName(), is("user"));
+        assertThat(crTfsMaterial.getEncryptedPassword(), is("encryptedvalue"));
+        assertNull(crTfsMaterial.getPassword());
+        assertThat(crTfsMaterial.getDomain(), is("domain"));
+        assertThat(crTfsMaterial.getProjectPath(), is("project"));
+    }
+
+    @Test
+    public void shouldConvertPluggableScmMaterialConfig() {
+        SCM myscm = new SCM("scmid", new PluginConfiguration(), new Configuration());
+        SCMs scms = new SCMs(myscm);
+
+        BasicCruiseConfig cruiseConfig = new BasicCruiseConfig();
+        cruiseConfig.setSCMs(scms);
+        when(cachedGoConfig.currentConfig()).thenReturn(cruiseConfig);
+
+        PluggableSCMMaterialConfig pluggableSCMMaterialConfig = new PluggableSCMMaterialConfig(new CaseInsensitiveString("name"), myscm, "directory",  Filter.create("filter"));
+
+        CRPluggableScmMaterial crPluggableScmMaterial =
+                (CRPluggableScmMaterial) configConverter.materialToCRMaterial(pluggableSCMMaterialConfig);
+
+        assertThat(crPluggableScmMaterial.getName(), is("name"));
+        assertThat(crPluggableScmMaterial.getScmId(), is("scmid"));
+        assertThat(crPluggableScmMaterial.getDirectory(), is("directory"));
+        assertThat(crPluggableScmMaterial.getFilterList(), hasItem("filter"));
+    }
+
+    @Test
+    public void shouldConvertPackageMaterialConfig() {
+        PackageRepositories repositories = new PackageRepositories();
+        PackageRepository packageRepository = new PackageRepository();
+        PackageDefinition definition = new PackageDefinition("package-id", "n", new Configuration());
+        packageRepository.addPackage(definition);
+        repositories.add(packageRepository);
+
+        BasicCruiseConfig cruiseConfig = new BasicCruiseConfig();
+        cruiseConfig.setPackageRepositories(repositories);
+        when(cachedGoConfig.currentConfig()).thenReturn(cruiseConfig);
+
+        PackageMaterialConfig packageMaterialConfig = new PackageMaterialConfig(new CaseInsensitiveString("name"), "package-id", definition);
+
+        CRPackageMaterial crPackageMaterial =
+                (CRPackageMaterial) configConverter.materialToCRMaterial(packageMaterialConfig);
+
+        assertThat(crPackageMaterial.getName(), is("name"));
+        assertThat(crPackageMaterial.getPackageId(), is("package-id"));
     }
 }

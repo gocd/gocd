@@ -18,7 +18,6 @@ package com.thoughtworks.go.config;
 
 import com.rits.cloning.Cloner;
 import com.thoughtworks.go.config.materials.*;
-import com.thoughtworks.go.config.materials.dependency.DependencyMaterial;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
 import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig;
@@ -27,7 +26,6 @@ import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
 import com.thoughtworks.go.config.materials.tfs.TfsMaterialConfig;
 import com.thoughtworks.go.config.pluggabletask.PluggableTask;
 import com.thoughtworks.go.config.remote.PartialConfig;
-import com.thoughtworks.go.domain.EnvironmentVariable;
 import com.thoughtworks.go.domain.KillAllChildProcessTask;
 import com.thoughtworks.go.domain.RunIfConfigs;
 import com.thoughtworks.go.domain.Task;
@@ -35,7 +33,6 @@ import com.thoughtworks.go.domain.config.Arguments;
 import com.thoughtworks.go.domain.config.Configuration;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
 import com.thoughtworks.go.domain.config.PluginConfiguration;
-import com.thoughtworks.go.domain.materials.Material;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.domain.packagerepository.PackageDefinition;
 import com.thoughtworks.go.domain.packagerepository.PackageRepository;
@@ -48,8 +45,6 @@ import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.command.HgUrlArgument;
 import com.thoughtworks.go.util.command.UrlArgument;
 import org.apache.commons.lang3.StringUtils;
-import org.eclipse.rdf4j.query.algebra.Str;
-import org.hibernate.annotations.Fetch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -958,11 +953,16 @@ public class ConfigConverter {
         CRDependencyMaterial crDependencyMaterial = new CRDependencyMaterial(
                 dependencyMaterialConfig.getPipelineName().toString(),
                 dependencyMaterialConfig.getStageName().toString());
+        if (dependencyMaterialConfig.getName() != null)
+            crDependencyMaterial.setName(dependencyMaterialConfig.getName().toString());
         return crDependencyMaterial;
     }
 
     private CRScmMaterial scmMaterialToCRScmMaterial(ScmMaterialConfig scmMaterialConfig) {
-        String materialName = scmMaterialConfig.getName().toString();
+        String materialName = null;
+        if (scmMaterialConfig.getName() != null) {
+            materialName = scmMaterialConfig.getName().toString();
+        }
         if (scmMaterialConfig instanceof GitMaterialConfig) {
             GitMaterialConfig git = (GitMaterialConfig) scmMaterialConfig;
             return new CRGitMaterial(materialName, git.getFolder(), git.isAutoUpdate(), git.isShallowClone(), git.getUrl(), git.getBranch(), git.isInvertFilter(), git.getFilterAsString());
@@ -972,13 +972,13 @@ public class ConfigConverter {
         } else if (scmMaterialConfig instanceof P4MaterialConfig) {
             P4MaterialConfig p4MaterialConfig = (P4MaterialConfig) scmMaterialConfig;
 
+
             CRP4Material crP4Material = new CRP4Material(materialName, p4MaterialConfig.getFolder(), p4MaterialConfig.isAutoUpdate(), p4MaterialConfig.getServerAndPort(), p4MaterialConfig.getView(), p4MaterialConfig.getUserName(), null, p4MaterialConfig.getUseTickets(), p4MaterialConfig.isInvertFilter(), p4MaterialConfig.getFilterAsString());
 
             if (p4MaterialConfig.getEncryptedPassword() != null) {
                 crP4Material.setEncryptedPassword(p4MaterialConfig.getEncryptedPassword());
-            } else {
-                crP4Material.setPassword(p4MaterialConfig.getPassword());
             }
+
             return crP4Material;
         } else if (scmMaterialConfig instanceof SvnMaterialConfig) {
             SvnMaterialConfig svnMaterial = (SvnMaterialConfig) scmMaterialConfig;
@@ -1003,11 +1003,11 @@ public class ConfigConverter {
                     tfsMaterialConfig.getDomain(),
                     tfsMaterialConfig.isInvertFilter(),
                     tfsMaterialConfig.getFilterAsString());
-            if (crTfsMaterial.getEncryptedPassword() != null) {
-                crTfsMaterial.setEncryptedPassword(crTfsMaterial.getEncryptedPassword());
-            } else {
-                crTfsMaterial.setPassword(crTfsMaterial.getPassword());
+
+            if (tfsMaterialConfig.getEncryptedPassword() != null) {
+                crTfsMaterial.setEncryptedPassword(tfsMaterialConfig.getEncryptedPassword());
             }
+
             return crTfsMaterial;
         } else
             throw new ConfigConvertionException(

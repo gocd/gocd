@@ -15,7 +15,7 @@
  */
 
 const Personalization = require("models/dashboard/personalization");
-const SparkRoutes     = require('helpers/spark_routes');
+import SparkRoutes from '../../../../webpack/helpers/spark_routes';
 
 describe("Personalization", () => {
   it('should fetch previously selected pipelines with appropriate headers', () => {

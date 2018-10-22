@@ -15,9 +15,12 @@
  */
 
 
-describe('Usage Data Reporter', () => {
-  const UsageDataReporter = require('models/shared/usage_data_reporter');
+import {UsageDataReporter} from "../../../../webpack/models/shared/usage_data_reporter";
+import {EncryptionKeys} from "../../../../webpack/models/shared/data_sharing/usage_data";
 
+require('jasmine-ajax');
+
+describe('Usage Data Reporter', () => {
   const USAGE_DATA_LAST_REPORTED_TIME_KEY = "last_usage_data_reporting_check_time";
 
   const encryptedUsageDataURL     = '/go/api/internal/data_sharing/usagedata/encrypted';
@@ -25,10 +28,8 @@ describe('Usage Data Reporter', () => {
   const usageReportingStartURL    = '/go/api/internal/data_sharing/reporting/start';
   const usageReportingCompleteURL = '/go/api/internal/data_sharing/reporting/complete';
 
-  let reporter;
   beforeEach(() => {
     jasmine.Ajax.install();
-    reporter = new UsageDataReporter();
   });
 
   afterEach(() => {
@@ -40,16 +41,17 @@ describe('Usage Data Reporter', () => {
   it('should do nothing when usage data is already reported within 30 mins(lookup in local storage)', () => {
     triedReportingWithin30Minutes();
 
-    reporter.report();
+    UsageDataReporter.report();
     expect(jasmine.Ajax.requests.count()).toBe(0);
   });
 
+  //@ts-ignore
   it('should do nothing when reporting is not allowed', async () => {
     const yesterday = lastReportedYesterday();
     mockDataSharingReportingGetAPIAndReturn(notAllowedReportingJSON);
 
     expect(localStorage.getItem(USAGE_DATA_LAST_REPORTED_TIME_KEY)).toBe(`${yesterday}`);
-    await reporter.report();
+    await UsageDataReporter.report();
 
     expect(jasmine.Ajax.requests.count()).toBe(1);
     expect(jasmine.Ajax.requests.at(0).url).toBe(usageReportingGetURL);
@@ -59,6 +61,7 @@ describe('Usage Data Reporter', () => {
     expect(new Date(+localStorage.getItem(USAGE_DATA_LAST_REPORTED_TIME_KEY)).getTime()).toBeGreaterThan(yesterday);
   });
 
+  //@ts-ignore
   it('should report usage data to remote server', async () => {
     const signature            = 'some-signature';
     const subordinatePublicKey = 'valid-public-key';
@@ -71,7 +74,7 @@ describe('Usage Data Reporter', () => {
     mockDataSharingReportingCompleteAPI();
 
     expect(localStorage.getItem(USAGE_DATA_LAST_REPORTED_TIME_KEY)).toBe(`${yesterday}`);
-    await reporter.report();
+    await UsageDataReporter.report();
 
     expect(jasmine.Ajax.requests.count()).toBe(6);
     expect(jasmine.Ajax.requests.at(0).url).toBe(usageReportingGetURL);
@@ -83,10 +86,10 @@ describe('Usage Data Reporter', () => {
 
     expect(jasmine.Ajax.requests.at(3).url).toBe(encryptedUsageDataURL);
     expect(jasmine.Ajax.requests.at(3).method).toBe('POST');
-    expect(jasmine.Ajax.requests.at(3).data()).toEqual({
+    expect(JSON.parse(JSON.stringify(jasmine.Ajax.requests.at(3).data())) as EncryptionKeys).toEqual({
       signature,
       'subordinate_public_key': subordinatePublicKey
-    });
+    } as EncryptionKeys);
 
     expect(jasmine.Ajax.requests.at(4).url).toBe(allowedReportingJSON._embedded.data_sharing_server_url);
     expect(jasmine.Ajax.requests.at(4).method).toBe('POST');
@@ -100,6 +103,7 @@ describe('Usage Data Reporter', () => {
     expect(new Date(+localStorage.getItem(USAGE_DATA_LAST_REPORTED_TIME_KEY)).getTime()).toBeGreaterThan(yesterday);
   });
 
+  //@ts-ignore
   it('should not update last reported time if reporting to remote server fails', async () => {
     const yesterday = lastReportedYesterday();
     mockDataSharingReportingGetAPIAndReturn(allowedReportingJSON);
@@ -111,7 +115,7 @@ describe('Usage Data Reporter', () => {
     expect(localStorage.getItem(USAGE_DATA_LAST_REPORTED_TIME_KEY)).toBe(`${yesterday}`);
 
     try {
-      await reporter.report();
+      await UsageDataReporter.report();
     } catch (e) {
       expect(jasmine.Ajax.requests.count()).toBe(5);
       expect(jasmine.Ajax.requests.at(0).url).toBe(usageReportingGetURL);
@@ -135,25 +139,25 @@ describe('Usage Data Reporter', () => {
     }
   });
 
-  function today() {
+  function today(): number {
     return new Date().getTime();
   }
 
-  function yesterday() {
+  function yesterday(): number {
     const date = new Date();
     date.setDate(date.getDate() - 1);
     return date.getTime();
   }
 
-  function triedReportingWithin30Minutes() {
-    const date = today();
-    localStorage.setItem(USAGE_DATA_LAST_REPORTED_TIME_KEY, date);
+  function triedReportingWithin30Minutes(): number {
+    const date: number = today();
+    localStorage.setItem(USAGE_DATA_LAST_REPORTED_TIME_KEY, `${date}`);
     return date;
   }
 
-  function lastReportedYesterday() {
-    const date = yesterday();
-    localStorage.setItem(USAGE_DATA_LAST_REPORTED_TIME_KEY, date);
+  function lastReportedYesterday(): number {
+    const date: number = yesterday();
+    localStorage.setItem(USAGE_DATA_LAST_REPORTED_TIME_KEY, `${date}`);
     return date;
   }
 

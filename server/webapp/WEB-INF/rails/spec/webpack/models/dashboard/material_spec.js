@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
+import sparkRoutes from '../../../../webpack/helpers/spark_routes';
+
 describe("Dashboard", () => {
   describe('Material Model', () => {
     const Stream      = require('mithril/stream');
-    const sparkRoutes = require('helpers/spark_routes');
     const Material    = require('models/dashboard/material');
 
     it('should validate selected material when it is invalid', () => {

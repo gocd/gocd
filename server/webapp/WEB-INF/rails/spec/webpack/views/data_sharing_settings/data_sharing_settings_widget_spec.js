@@ -14,13 +14,14 @@
  * limitations under the License.
  */
 
+import {UsageData} from "../../../../webpack/models/shared/data_sharing/usage_data";
+import {DataSharingSettings} from "../../../../webpack/models/shared/data_sharing/data_sharing_settings";
+
 describe("Data Sharing Settings Widget", () => {
   const $             = require("jquery");
   const m             = require("mithril");
   const simulateEvent = require('simulate-event');
 
-  const UsageData                 = require('models/shared/data_sharing/usage_data');
-  const DataSharingSettings       = require('models/shared/data_sharing/data_sharing_settings');
   const DataSharingSettingsWidget = require("views/data_sharing_settings/data_sharing_settings_widget");
 
   let $root, root;

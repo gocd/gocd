@@ -17,8 +17,9 @@
 const _           = require('lodash');
 const m           = require('mithril');
 const Stream      = require('mithril/stream');
-const sparkRoutes = require('helpers/spark_routes');
 const AjaxHelper  = require('helpers/ajax_helper');
+
+import sparkRoutes from '../../helpers/spark_routes';
 
 class Material {
   selectRevision     = (revision) => {

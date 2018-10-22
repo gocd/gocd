@@ -18,9 +18,10 @@ const Stream               = require('mithril/stream');
 const s                    = require('string-plus');
 const Mixins               = require('models/mixins/model_mixins');
 const PluginConfigurations = require('models/shared/plugin_configurations');
-const SparkRoutes          = require('helpers/spark_routes');
 const Validatable          = require('models/mixins/validatable_mixin');
 const CrudMixins           = require('models/mixins/crud_mixins');
+
+import SparkRoutes from '../../helpers/spark_routes';
 
 const ArtifactStores = function (data) {
   Mixins.HasMany.call(this, {

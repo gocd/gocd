@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
+import {EncryptionKeys, UsageData, UsageDataJSON} from "../../../../../webpack/models/shared/data_sharing/usage_data";
+
 describe('Data Sharing Usage Data', () => {
-  const UsageData                        = require('models/shared/data_sharing/usage_data');
   const dataSharingUsageDataURL          = '/go/api/internal/data_sharing/usagedata';
   const dataSharingEncryptedUsageDataURL = '/go/api/internal/data_sharing/usagedata/encrypted';
 
@@ -28,7 +29,7 @@ describe('Data Sharing Usage Data', () => {
       "oldest_pipeline_execution_time": 1528887811275,
       "gocd_version":                   "18.9.0"
     }
-  };
+  } as UsageDataJSON;
 
   it('should use API version v2', () => {
     expect(UsageData.API_VERSION).toBe('v2');
@@ -36,7 +37,7 @@ describe('Data Sharing Usage Data', () => {
 
   it('should deserialize data sharing usage data from JSON', () => {
     const usageData = UsageData.fromJSON(dataSharingUsageJSON);
-    expect(usageData.message()).toBe(dataSharingUsageJSON);
+    expect(usageData.message()).toEqual(dataSharingUsageJSON);
   });
 
   it('should represent pretty formatted data', () => {
@@ -82,7 +83,7 @@ describe('Data Sharing Usage Data', () => {
       const encryptionKeys = {
         'signature':              'some-signed-key',
         'subordinate_public_key': 'some-public-key'
-      };
+      } as EncryptionKeys;
 
       UsageData.getEncrypted(encryptionKeys).then(successCallback);
       expect(successCallback).toHaveBeenCalled();
@@ -90,7 +91,8 @@ describe('Data Sharing Usage Data', () => {
       expect(jasmine.Ajax.requests.count()).toBe(1);
       expect(jasmine.Ajax.requests.at(0).url).toBe('/go/api/internal/data_sharing/usagedata/encrypted');
       expect(jasmine.Ajax.requests.at(0).method).toBe('POST');
-      expect(jasmine.Ajax.requests.at(0).data()).toEqual(encryptionKeys);
+      const dataFromRequest: EncryptionKeys = JSON.parse(JSON.stringify(jasmine.Ajax.requests.at(0).data()));
+      expect(dataFromRequest).toEqual(encryptionKeys);
     });
   });
 });

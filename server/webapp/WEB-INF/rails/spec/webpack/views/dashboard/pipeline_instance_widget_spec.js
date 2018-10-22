@@ -13,7 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import SparkRoutes from '../../../../webpack/helpers/spark_routes';
+
 describe("Dashboard Pipeline Instance Widget", () => {
+
   const m             = require("mithril");
   const _             = require("lodash");
   const TimeFormatter = require('helpers/time_formatter');
@@ -22,7 +25,6 @@ describe("Dashboard Pipeline Instance Widget", () => {
   const PipelineInstance       = require('models/dashboard/pipeline_instance');
   const Dashboard              = require('models/dashboard/dashboard');
   const DashboardVM            = require("views/dashboard/models/dashboard_view_model");
-  const SparkRoutes            = require("helpers/spark_routes");
 
   let $root, root;
   beforeEach(() => {

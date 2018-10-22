@@ -15,7 +15,8 @@
  */
 
 const RevisionVM = require("views/config_repos/models/revision_vm");
-const SparkRoutes = require("helpers/spark_routes");
+
+import SparkRoutes from '../../../../../webpack/helpers/spark_routes';
 
 const ID = "this-repo-sucks-001";
 

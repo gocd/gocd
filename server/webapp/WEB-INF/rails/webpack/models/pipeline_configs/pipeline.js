@@ -26,8 +26,9 @@ const TrackingTool         = require('models/pipeline_configs/tracking_tool');
 const Stages               = require('models/pipeline_configs/stages');
 const mrequest             = require('helpers/mrequest');
 const Validatable          = require('models/mixins/validatable_mixin');
-const SparkRoutes          = require("helpers/spark_routes");
 const $                    = require('jquery');
+
+import SparkRoutes from '../../helpers/spark_routes';
 
 const Pipeline = function (data) {
   this.constructor.modelType = 'pipeline';

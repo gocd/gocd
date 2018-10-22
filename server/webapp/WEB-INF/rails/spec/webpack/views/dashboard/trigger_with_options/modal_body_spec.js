@@ -13,12 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+import SparkRoutes from '../../../../../webpack/helpers/spark_routes';
+
 describe("Dashboard Pipeline Trigger With Options Modal Body", () => {
   const m                           = require("mithril");
   const Stream                      = require("mithril/stream");
   const Modal                       = require('views/shared/new_modal');
   const TriggerWithOptionsModalBody = require("views/dashboard/trigger_with_options/modal_body");
-  const SparkRoutes                 = require('helpers/spark_routes');
   require('jasmine-ajax');
 
   const TriggerWithOptionsVM   = require('views/dashboard/models/trigger_with_options_vm');

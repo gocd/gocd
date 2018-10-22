@@ -17,13 +17,15 @@
 import * as m from 'mithril';
 
 import {MainPage} from "../views/pages/main";
-
+import {UsageDataReporter} from "../models/shared/usage_data_reporter";
 
 const extractBoolean = function (body: Element, attribute: string): boolean {
   return JSON.parse(body.getAttribute(attribute) as string);
 };
 
 window.addEventListener("DOMContentLoaded", () => {
+  UsageDataReporter.report();
+
   const body: Element = document.querySelector('body') as Element;
   let mountPoint      = document.createElement('div');
   body.appendChild(mountPoint);

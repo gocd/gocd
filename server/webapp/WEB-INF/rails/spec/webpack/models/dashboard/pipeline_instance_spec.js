@@ -14,11 +14,12 @@
  * limitations under the License.
  */
 
+import sparkRoutes from '../../../../webpack/helpers/spark_routes';
+
 describe("Dashboard", () => {
   describe('Pipeline Instance Model', () => {
     const pipelineName     = "up42";
     const PipelineInstance = require('models/dashboard/pipeline_instance');
-    const sparkRoutes      = require('helpers/spark_routes');
 
     it("should deserialize from json", () => {
       const pipelineInstance = new PipelineInstance(pipelineInstanceJson, pipelineName);

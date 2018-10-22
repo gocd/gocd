@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
+import {DataReporting} from "../../../../../webpack/models/shared/data_sharing/data_reporting";
+
 describe('Data Reporting', () => {
-  const DataReporting                     = require('models/shared/data_sharing/data_reporting');
   const DataReportingInfoURL              = '/go/api/internal/data_sharing/reporting/info';
   const DataReportingStartReportingURL    = '/go/api/internal/data_sharing/reporting/start';
   const DataReportingCompleteReportingURL = '/go/api/internal/data_sharing/reporting/complete';
@@ -31,7 +32,7 @@ describe('Data Reporting', () => {
   };
 
   it('should deserialize data reporting from JSON', () => {
-    const reportingInfo = DataReporting.fromJSON(dataReportingJSON, {getResponseHeader: () => 'ETag'});
+    const reportingInfo = DataReporting.fromJSON(dataReportingJSON);
 
     expect(reportingInfo.serverId()).toBe(dataReportingJSON._embedded.server_id);
     expect(reportingInfo.lastReportedAt()).toEqual(new Date(dataReportingJSON._embedded.last_reported_at));

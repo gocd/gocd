@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
+import {UsageData as DataSharingUsageData} from "../models/shared/data_sharing/usage_data";
+import {DataSharingSettings} from "../models/shared/data_sharing/data_sharing_settings";
+
 const $ = require('jquery');
 const m = require('mithril');
-
-const DataSharingSettings  = require('models/shared/data_sharing/data_sharing_settings');
-const DataSharingUsageData = require('models/shared/data_sharing/usage_data');
 
 const PageLoadError             = require('views/shared/page_load_error');
 const DataSharingSettingsWidget = require('views/data_sharing_settings/data_sharing_settings_widget');

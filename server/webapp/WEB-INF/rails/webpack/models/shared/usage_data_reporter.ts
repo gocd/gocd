@@ -14,51 +14,52 @@
  * limitations under the License.
  */
 
-const _          = require('lodash');
-const AjaxHelper = require('helpers/ajax_helper');
+import * as _ from 'lodash';
+import {DataReporting} from "./data_sharing/data_reporting";
+import {EncryptedData, EncryptionKeys, UsageData} from "./data_sharing/usage_data";
 
-const UsageData     = require('models/shared/data_sharing/usage_data');
-const DataReporting = require('models/shared/data_sharing/data_reporting');
+const AjaxHelper = require('helpers/ajax_helper');
 
 const USAGE_DATA_LAST_REPORTED_TIME_KEY = "last_usage_data_reporting_check_time";
 
-const fetchEncryptionKeysFromDataSharingServer = function (url) {
+const fetchEncryptionKeysFromDataSharingServer = function (url: string) {
   return AjaxHelper.GET({url});
 };
 
-const reportToGoCDDataSharingServer = function (url, payload) {
+const reportToGoCDDataSharingServer = function (url: string, payload: EncryptedData) {
   return AjaxHelper.POST({url, payload, contentType: 'application/octet-stream'});
 };
 
-const canTryToReportingUsageData = () => {
-  let lastReportedTime = localStorage.getItem(USAGE_DATA_LAST_REPORTED_TIME_KEY);
+const canTryToReportingUsageData = (): boolean => {
+  let lastReportedTime: string | null = localStorage.getItem(USAGE_DATA_LAST_REPORTED_TIME_KEY);
   if (_.isEmpty(lastReportedTime)) {
     return true;
   }
 
-  lastReportedTime   = JSON.parse(lastReportedTime);
-  const lastUpdateAt = new Date(lastReportedTime);
+  lastReportedTime   = JSON.parse(lastReportedTime as string);
+  const lastUpdateAt = new Date(lastReportedTime as string);
   const halfHourAgo  = new Date(_.now() - 30 * 60 * 1000);
   return halfHourAgo > lastUpdateAt;
 };
 
-const markReportingCheckDone = () => {
+const markReportingCheckDone = (): void => {
   localStorage.setItem(USAGE_DATA_LAST_REPORTED_TIME_KEY, `${new Date().getTime()}`);
 };
 
-const UsageDataReporter = function () {
-  this.report = async () => {
+export class UsageDataReporter {
+  static report = async () => {
     if (!canTryToReportingUsageData()) {
       return;
     }
 
-    const reportingInfo = await DataReporting.get();
+    const reportingInfo: DataReporting = await DataReporting.get();
 
     try {
       if (reportingInfo.canReport()) {
         await DataReporting.startReporting();
-        const encryptionKeys     = await fetchEncryptionKeysFromDataSharingServer(reportingInfo.dataSharingGetEncryptionKeysUrl());
-        const encryptedUsageData = await UsageData.getEncrypted(encryptionKeys);
+        const encryptionKeys: EncryptionKeys    = await fetchEncryptionKeysFromDataSharingServer(reportingInfo.dataSharingGetEncryptionKeysUrl());
+        const encryptedUsageData: EncryptedData = await UsageData.getEncrypted(encryptionKeys);
+
         await reportToGoCDDataSharingServer(reportingInfo.dataSharingServerUrl(), encryptedUsageData);
         await DataReporting.completeReporting();
       }
@@ -66,8 +67,5 @@ const UsageDataReporter = function () {
       markReportingCheckDone();
     }
   };
-};
-
-module.exports = UsageDataReporter;
-
+}
 

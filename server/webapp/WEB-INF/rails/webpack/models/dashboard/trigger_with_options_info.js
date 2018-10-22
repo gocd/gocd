@@ -16,10 +16,11 @@
 
 const _                    = require('lodash');
 const s                    = require('helpers/string-plus');
-const sparkRoutes          = require('helpers/spark_routes');
 const AjaxHelper           = require('helpers/ajax_helper');
 const Material             = require('models/dashboard/material');
 const EnvironmentVariables = require('models/dashboard/environment_variables');
+
+import sparkRoutes from '../../helpers/spark_routes';
 
 const TriggerWithOptionsInfo = function (materials, plainTextVariables, secureVariables) {
   const self = this;

@@ -16,101 +16,101 @@
 
 const m = require('mithril');
 
-module.exports = {
-  adminPipelineConfigPath: (pipelineName) => {
+export default class {
+  static adminPipelineConfigPath = (pipelineName: string): string => {
     return `/go/api/admin/pipelines/${pipelineName}`;
-  },
+  };
 
-  pipelinePausePath: (pipelineName) => {
+  static pipelinePausePath = (pipelineName: string): string => {
     return `/go/api/pipelines/${pipelineName}/pause`;
-  },
+  };
 
-  pipelineUnpausePath: (pipelineName) => {
+  static pipelineUnpausePath = (pipelineName: string): string => {
     return `/go/api/pipelines/${pipelineName}/unpause`;
-  },
+  };
 
-  pipelineUnlockPath: (pipelineName) => {
+  static pipelineUnlockPath = (pipelineName: string): string => {
     return `/go/api/pipelines/${pipelineName}/unlock`;
-  },
+  };
 
-  pipelineTriggerPath: (pipelineName) => {
+  static pipelineTriggerPath = (pipelineName: string): string => {
     return `/go/api/pipelines/${pipelineName}/schedule`;
-  },
+  };
 
-  pipelineTriggerWithOptionsViewPath: (pipelineName) => {
+  static pipelineTriggerWithOptionsViewPath = (pipelineName: string): string => {
     return `/go/api/pipelines/${pipelineName}/trigger_options`;
-  },
+  };
 
-  pipelineMaterialSearchPath: (pipelineName, fingerprint, searchText) => {
+  static pipelineMaterialSearchPath = (pipelineName: string, fingerprint: string, searchText: string): string => {
     const queryString = m.buildQueryString({
       fingerprint,
-      pipeline_name: pipelineName, //eslint-disable-line camelcase
-      search_text:   searchText //eslint-disable-line camelcase
+      'pipeline_name': pipelineName,
+      'search_text':   searchText
     });
     return `/go/api/internal/material_search?${queryString}`;
-  },
+  };
 
-  pipelineSelectionPath: () => {
+  static pipelineSelectionPath = (): string => {
     return '/go/api/internal/pipeline_selection';
-  },
+  };
 
-  pipelineSelectionPipelinesDataPath: () => {
+  static pipelineSelectionPipelinesDataPath = (): string => {
     return '/go/api/internal/pipeline_selection/pipelines_data';
-  },
+  };
 
-  buildCausePath: (pipelineName, pipelineCounter) => {
+  static buildCausePath = (pipelineName: string, pipelineCounter: string): string => {
     return `/go/api/internal/build_cause/${pipelineName}/${pipelineCounter}`;
-  },
+  };
 
-  artifactStoresPath: (id) => {
+  static artifactStoresPath = (id: string): string => {
     if (id) {
       return `/go/api/admin/artifact_stores/${id}`;
     } else {
       return "/go/api/admin/artifact_stores";
     }
-  },
+  };
 
-  DataSharingSettingsPath: () => {
+  static DataSharingSettingsPath = (): string => {
     return '/go/api/data_sharing/settings';
-  },
+  };
 
-  DataSharingUsageDataPath: () => {
+  static DataSharingUsageDataPath = (): string => {
     return '/go/api/internal/data_sharing/usagedata';
-  },
+  };
 
-	DataSharingUsageDataEncryptedPath: () => {
+  static DataSharingUsageDataEncryptedPath = (): string => {
     return '/go/api/internal/data_sharing/usagedata/encrypted';
-  },
+  };
 
-	DataReportingInfoPath: () => {
-		return '/go/api/internal/data_sharing/reporting/info';
-	},
+  static DataReportingInfoPath = (): string => {
+    return '/go/api/internal/data_sharing/reporting/info';
+  };
 
-  DataReportingStartReportingPath: () => {
-		return '/go/api/internal/data_sharing/reporting/start';
-	},
+  static DataReportingStartReportingPath = (): string => {
+    return '/go/api/internal/data_sharing/reporting/start';
+  };
 
-  DataReportingCompleteReportingPath: () => {
+  static DataReportingCompleteReportingPath = (): string => {
     return '/go/api/internal/data_sharing/reporting/complete';
-  },
+  };
 
-  configRepoLastParsedResultPath: (id) => {
+  static configRepoLastParsedResultPath = (id: string): string => {
     return `/go/api/internal/config_repos/${id}/last_parsed_result`;
-  },
+  };
 
-  configRepoTriggerUpdatePath: (id) => {
+  static configRepoTriggerUpdatePath = (id: string): string => {
     return `/go/api/internal/config_repos/${id}/trigger_update`;
-  },
+  };
 
-  configRepoRevisionStatusPath: (id) => {
+  static configRepoRevisionStatusPath = (id: string): string => {
     return `/go/api/internal/config_repos/${id}/status`;
-  },
+  };
 
-  elasticProfilesPath: (profileId) => {
+  static elasticProfilesPath = (profileId:string):string => {
     if (profileId) {
       return `/go/api/elastic/profiles/${profileId}`;
     } else {
       return "/go/api/elastic/profiles";
     }
-  }
+  };
 };

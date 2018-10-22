@@ -13,6 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+import SparkRoutes from '../../../../webpack/helpers/spark_routes';
+
 describe("Dashboard Widget", () => {
   const m               = require("mithril");
   const Stream          = require("mithril/stream");
@@ -23,7 +26,6 @@ describe("Dashboard Widget", () => {
   const Dashboard       = require('models/dashboard/dashboard');
   const DashboardVM     = require("views/dashboard/models/dashboard_view_model");
   const Modal           = require("views/shared/new_modal");
-  const SparkRoutes     = require("helpers/spark_routes");
 
   const PersonalizeVM   = require('views/dashboard/models/personalization_vm');
   const Personalization = require('models/dashboard/personalization');

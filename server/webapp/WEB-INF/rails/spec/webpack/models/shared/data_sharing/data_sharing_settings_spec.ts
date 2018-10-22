@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
+import {DataSharingSettings} from "../../../../../webpack/models/shared/data_sharing/data_sharing_settings";
+
 describe('Data Sharing Settings Model', () => {
   const TimeFormatter          = require('helpers/time_formatter');
-  const DataSharingSettings    = require('models/shared/data_sharing/data_sharing_settings');
   const dataSharingSettingsURL = '/go/api/data_sharing/settings';
 
   const dataSharingSettingsJSON = {

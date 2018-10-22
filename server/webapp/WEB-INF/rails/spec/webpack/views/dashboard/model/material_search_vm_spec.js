@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
+import SparkRoutes from '../../../../../webpack/helpers/spark_routes';
+
 describe("Dashboard Material Search State Model", () => {
-  const SparkRoutes = require('helpers/spark_routes');
 
   const TriggerWithOptionsInfo = require('models/dashboard/trigger_with_options_info');
 

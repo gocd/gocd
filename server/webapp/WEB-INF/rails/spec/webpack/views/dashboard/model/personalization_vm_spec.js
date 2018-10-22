@@ -15,9 +15,10 @@
  */
 
 const Stream            = require("mithril/stream");
-const SparkRoutes       = require("helpers/spark_routes");
 const DashboardFilters  = require("models/dashboard/dashboard_filters");
 const PersonalizationVM = require("views/dashboard/models/personalization_vm");
+
+import SparkRoutes from '../../../../../webpack/helpers/spark_routes';
 
 describe("Personalization View Model", () => {
   it("active() tests if a view name matches the current view case-insensitively", () => {

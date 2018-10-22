@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
+import sparkRoutes from '../../helpers/spark_routes';
+
 const _                = require('lodash');
 const Routes           = require('gen/js-routes');
-const sparkRoutes      = require('helpers/spark_routes');
 const AjaxHelper       = require('helpers/ajax_helper');
 const MaterialRevision = require('models/dashboard/material_revision');
 

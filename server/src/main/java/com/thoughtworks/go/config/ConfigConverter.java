@@ -923,7 +923,7 @@ public class ConfigConverter {
 
     public CREnvironmentVariable environmentVariableConfigToCREnvironmentVariable(EnvironmentVariableConfig environmentVariableConfig) {
         if (environmentVariableConfig.isSecure()) {
-            return new CREnvironmentVariable(environmentVariableConfig.getName(), environmentVariableConfig.getEncryptedValue());
+            return new CREnvironmentVariable(environmentVariableConfig.getName(), null, environmentVariableConfig.getEncryptedValue());
         } else {
             String value = environmentVariableConfig.getValue();
             if(StringUtils.isBlank(value))

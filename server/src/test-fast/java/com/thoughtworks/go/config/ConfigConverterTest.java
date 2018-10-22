@@ -1454,4 +1454,34 @@ public class ConfigConverterTest {
         assertThat(crPackageMaterial.getName(), is("name"));
         assertThat(crPackageMaterial.getPackageId(), is("package-id"));
     }
+
+    @Test
+    public void shouldConvertEnvironmentVariableConfigWhenNotSecure() {
+        EnvironmentVariableConfig environmentVariableConfig = new EnvironmentVariableConfig("key1", "value");
+        CREnvironmentVariable result = configConverter.environmentVariableConfigToCREnvironmentVariable(environmentVariableConfig);
+        assertThat(result.getValue(), is("value"));
+        assertThat(result.getName(), is("key1"));
+        assertThat(result.hasEncryptedValue(), is(false));
+    }
+
+    @Test
+    public void shouldConvertNullEnvironmentVariableConfigWhenNotSecure() {
+        EnvironmentVariableConfig environmentVariableConfig = new EnvironmentVariableConfig("key1", null);
+        CREnvironmentVariable result = configConverter.environmentVariableConfigToCREnvironmentVariable(environmentVariableConfig);
+        assertThat(result.getValue(), is(""));
+        assertThat(result.getName(), is("key1"));
+        assertThat(result.hasEncryptedValue(), is(false));
+    }
+
+    @Test
+    public void shouldConvertEnvironmentVariableConfigWhenSecure() {
+        EnvironmentVariableConfig environmentVariableConfig = new EnvironmentVariableConfig("key1", null);
+        environmentVariableConfig.setIsSecure(true);
+        environmentVariableConfig.setEncryptedValue("encryptedvalue");
+        CREnvironmentVariable result = configConverter.environmentVariableConfigToCREnvironmentVariable(environmentVariableConfig);
+        assertThat(result.hasEncryptedValue(), is(true));
+        assertThat(result.getEncryptedValue(), is("encryptedvalue"));
+        assertNull(result.getValue());
+        assertThat(result.getName(), is("key1"));
+    }
 }

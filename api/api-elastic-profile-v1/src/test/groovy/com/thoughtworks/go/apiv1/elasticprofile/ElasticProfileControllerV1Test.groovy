@@ -540,18 +540,18 @@ class ElasticProfileControllerV1Test implements SecurityServiceTrait, Controller
   }
 
   @Nested
-  class WhereUsed {
+  class Usages {
     @Nested
     class Security implements SecurityTestTrait, GroupAdminUserSecurity {
 
       @Override
       String getControllerMethodUnderTest() {
-        return "whereUsed"
+        return "usages"
       }
 
       @Override
       void makeHttpCall() {
-        getWithApiHeader(controller.controllerPath("/docker/where-used"))
+        getWithApiHeader(controller.controllerPath("/docker/usages"))
       }
     }
 
@@ -567,7 +567,7 @@ class ElasticProfileControllerV1Test implements SecurityServiceTrait, Controller
 
         when(elasticProfileService.getJobsUsingElasticProfile("docker")).thenReturn(jobConfigIdentifiers)
 
-        getWithApiHeader(controller.controllerPath("/docker/where-used"))
+        getWithApiHeader(controller.controllerPath("/docker/usages"))
 
         def expectedResponse = [
           [pipeline_name: "P1", stage_name: "S1", job_name: "J1"],
@@ -585,7 +585,7 @@ class ElasticProfileControllerV1Test implements SecurityServiceTrait, Controller
       void 'should return 404 when profile with id does not exist'() {
         when(elasticProfileService.getJobsUsingElasticProfile("docker")).thenThrow(new RecordNotFoundException("docker"))
 
-        getWithApiHeader(controller.controllerPath("/docker/where-used"))
+        getWithApiHeader(controller.controllerPath("/docker/usages"))
 
         assertThatResponse()
           .isNotFound()

@@ -78,7 +78,7 @@ public class ElasticProfileControllerV1 extends ApiController implements SparkSp
 
             get("", this::index);
             get(Routes.ElasticProfileAPI.ID, this::show);
-            get(Routes.ElasticProfileAPI.ID + "/where-used", this::whereUsed);
+            get(Routes.ElasticProfileAPI.ID + "/usages", this::usages);
             post("", this::create);
             put(Routes.ElasticProfileAPI.ID, this::update);
             delete(Routes.ElasticProfileAPI.ID, this::destroy);
@@ -141,7 +141,7 @@ public class ElasticProfileControllerV1 extends ApiController implements SparkSp
         return renderHTTPOperationResult(result, request, response);
     }
 
-    public String whereUsed(Request request, Response response) {
+    public String usages(Request request, Response response) {
         final String elasticProfileId = StringUtils.stripToEmpty(request.params(PROFILE_ID_PARAM));
         final Collection<JobConfigIdentifier> jobsUsingElasticProfile = elasticProfileService.getJobsUsingElasticProfile(elasticProfileId);
         return JobConfigIdentifierRepresenter.toJSON(jobsUsingElasticProfile);

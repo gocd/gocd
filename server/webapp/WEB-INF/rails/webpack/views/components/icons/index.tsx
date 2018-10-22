@@ -59,7 +59,7 @@ export class Clone extends Icon {
 
 export class Delete extends Icon {
   constructor() {
-    super('delete');
+    super('remove');
   }
 }
 

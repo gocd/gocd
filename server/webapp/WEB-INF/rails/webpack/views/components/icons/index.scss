@@ -38,7 +38,9 @@ $global-icon-size: 16px;
   @include icon-before($type: $fa-var-clone);
 }
 
-.delete {
+
+//delete is a keyword, a literal syntax; can't be accessed using styles.delete hence renaming it to remove
+.remove {
   @include icon-before($type: $fa-var-trash);
 }
 

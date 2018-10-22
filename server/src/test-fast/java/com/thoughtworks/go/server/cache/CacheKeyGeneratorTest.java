@@ -53,7 +53,8 @@ class CacheKeyGeneratorTest {
     @Test
     void shouldAlwaysReturnInternedString() {
         final String generatedCacheKey = cacheKeyGenerator.generate("foo", "bar", new CaseInsensitiveString("1"), 1L);
-        assertThat(generatedCacheKey == "com.thoughtworks.go.domain.Pipeline.$foo.$bar.$1.$1").isTrue();
+        assertThat(generatedCacheKey == "com.thoughtworks.go.domain.Pipeline.$foo.$bar.$1.$1")
+                .describedAs("Using '==' to check returned key is interned String").isTrue();
     }
 
     @Test
@@ -74,5 +75,11 @@ class CacheKeyGeneratorTest {
         thrown.expectMessage("Type class java.lang.Object is not allowed here!");
 
         cacheKeyGenerator.generate("foo", "bar", new Object(), 1L);
+    }
+
+    @Test
+    void shouldConvertCaseInsensitiveStringToLowerCase() {
+        final String generatedCacheKey = cacheKeyGenerator.generate("Foo", "bAR", new CaseInsensitiveString("FAST"), 1L);
+        assertThat(generatedCacheKey).isEqualTo("com.thoughtworks.go.domain.Pipeline.$Foo.$bAR.$fast.$1");
     }
 }

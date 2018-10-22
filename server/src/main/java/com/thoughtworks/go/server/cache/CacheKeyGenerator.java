@@ -38,6 +38,12 @@ public class CacheKeyGenerator {
                 return arg;
             }
             throw new IllegalArgumentException("Type " + arg.getClass() + " is not allowed here!");
+        }).map(arg -> {
+            if (arg instanceof CaseInsensitiveString) {
+                return ((CaseInsensitiveString) arg).toLower();
+            } else {
+                return arg;
+            }
         }).collect(Collectors.toList());
 
         allArgs.add(0, clazz.getName());

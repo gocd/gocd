@@ -119,6 +119,15 @@ public class CRPipeline extends CRBase {
         this.environment_variables = environmentVariables;
     }
 
+    public boolean hasEnvironmentVariable(String key) {
+        for (CREnvironmentVariable var: environment_variables) {
+            if (var.getName().equals(key)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public Collection<CRParameter> getParameters() {
         return parameters;
     }

@@ -16,10 +16,7 @@
 
 package com.thoughtworks.go.config;
 
-import com.thoughtworks.go.config.materials.Filter;
-import com.thoughtworks.go.config.materials.IgnoredFiles;
-import com.thoughtworks.go.config.materials.PackageMaterialConfig;
-import com.thoughtworks.go.config.materials.PluggableSCMMaterialConfig;
+import com.thoughtworks.go.config.materials.*;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
 import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig;
@@ -41,6 +38,7 @@ import com.thoughtworks.go.domain.scm.SCMs;
 import com.thoughtworks.go.plugin.access.configrepo.contract.*;
 import com.thoughtworks.go.plugin.access.configrepo.contract.material.*;
 import com.thoughtworks.go.plugin.access.configrepo.contract.tasks.*;
+import com.thoughtworks.go.plugin.api.task.TaskConfig;
 import com.thoughtworks.go.security.CryptoException;
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.command.HgUrlArgument;
@@ -1083,5 +1081,62 @@ public class ConfigConverterTest {
         PipelineConfig pipeline = configConverter.toPipelineConfig(crPipeline, context);
         assertThat(pipeline.isEmpty(), is(true));
         assertThat(pipeline.getTemplateName(), is(new CaseInsensitiveString("t1")));
+    }
+
+    @Test
+    public void shouldConvertPipelineConfigToCRPipeline() {
+        TrackingTool trackingTool = new TrackingTool();
+        trackingTool.setLink("link");
+        TimerConfig timerConfig = new TimerConfig("timer", true);
+        PipelineConfig pipeline = new PipelineConfig();
+        pipeline.setName("p1");
+        pipeline.setTimer(timerConfig);
+        pipeline.setTrackingTool(trackingTool);
+        pipeline.addEnvironmentVariable("testing", "123");
+
+        StageConfig stage = new StageConfig();
+        stage.setName(new CaseInsensitiveString("build"));
+
+        JobConfig job = new JobConfig();
+        job.setName("buildjob");
+        job.setTasks(new Tasks(new RakeTask()));
+
+        stage.setJobs(new JobConfigs(job));
+        pipeline.addStageWithoutValidityAssertion(stage);
+
+        SvnMaterialConfig mat = new SvnMaterialConfig();
+        mat.setName(new CaseInsensitiveString("mat"));
+        mat.setUrl("url");
+        pipeline.addMaterialConfig(mat);
+
+        CRPipeline crPipeline = configConverter.pipelineConfigToCRPipeline(pipeline);
+        assertThat(crPipeline.getName(), is("p1"));
+        assertThat(crPipeline.getMaterialByName("mat") instanceof CRSvnMaterial, is(true));
+        assertThat(crPipeline.getLabelTemplate(), is(PipelineLabel.COUNT_TEMPLATE));
+        assertThat(crPipeline.getMaterials().size(), is(1));
+        assertThat(crPipeline.hasEnvironmentVariable("testing"), is(true));
+        assertThat(crPipeline.getTrackingTool().getLink(), is("link"));
+        assertThat(crPipeline.getTimer().getTimerSpec(), is("timer"));
+        assertThat(crPipeline.getStages().get(0).getName(), is("build"));
+    }
+
+    @Test
+    public void shouldConvertStageConfigToCRStage() {
+        EnvironmentVariablesConfig envVars = new EnvironmentVariablesConfig();
+        envVars.add("testing", "123");
+
+        StageConfig stage = new StageConfig(new CaseInsensitiveString("stageName"), new JobConfigs(), new Approval());
+        stage.setVariables(envVars);
+        stage.setCleanWorkingDir(true);
+        stage.setArtifactCleanupProhibited(true);
+
+        CRStage stageConfig = configConverter.stageToCRStage(stage);
+
+        assertThat(stageConfig.getName(), is("stageName"));
+        assertThat(stageConfig.isFetchMaterials(), is(true));
+        assertThat(stageConfig.isCleanWorkingDir(), is(true));
+        assertThat(stageConfig.isArtifactCleanupProhibited(), is(true));
+        assertThat(stageConfig.hasEnvironmentVariable("testing"), is(true));
+        assertThat(stageConfig.getJobs().size(), is(0));
     }
 }

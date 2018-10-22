@@ -51,7 +51,7 @@ const RoleUserWidget = {
     const addUserInput = (
       <div class="add-role-user row show">
         <div class="medium-3">
-          <input onkeyup={vnode.state.onInputChange.bind(vnode.state)} value={vnode.state.valueHolder}
+          <input oninput={vnode.state.onInputChange.bind(vnode.state)} value={vnode.state.valueHolder}
                  placeholder="username" type="text" class="columns medium-3 role-user"/>
         </div>
         <div class="columns medium-3 end">

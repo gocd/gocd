@@ -387,7 +387,7 @@ describe("RolesWidget", () => {
       expect($('.reveal .add-role-user-button')).toBeInDOM();
 
       $('.reveal .role-user').val("bob");
-      simulateEvent.simulate($('.reveal .role-user').get(0), 'keyup');
+      simulateEvent.simulate($('.reveal .role-user').get(0), 'input');
       simulateEvent.simulate($('.reveal .add-role-user-button').get(0), 'click');
       m.redraw();
 
@@ -401,11 +401,11 @@ describe("RolesWidget", () => {
       simulateEvent.simulate($('.reveal input[name=role-type-selector].core-role').get(0), 'click');
 
       $('.reveal .role-user').val("alice");
-      simulateEvent.simulate($('.reveal .role-user').get(0), 'keyup');
+      simulateEvent.simulate($('.reveal .role-user').get(0), 'input');
       simulateEvent.simulate($('.reveal .add-role-user-button').get(0), 'click');
 
       $('.reveal .role-user').val("bob");
-      simulateEvent.simulate($('.reveal .role-user').get(0), 'keyup');
+      simulateEvent.simulate($('.reveal .role-user').get(0), 'input');
       simulateEvent.simulate($('.reveal .add-role-user-button').get(0), 'click');
 
       expect(textElements('.reveal .tag')).toEqual(["alice", "bob"]);

@@ -62,3 +62,9 @@ export class Reset extends Button {
     super('btn-reset');
   }
 }
+
+export class Cancel extends Button {
+  constructor() {
+    super('btn-cancel');
+  }
+}

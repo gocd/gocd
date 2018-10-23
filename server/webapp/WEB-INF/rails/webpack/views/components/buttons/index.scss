@@ -17,31 +17,18 @@
 
 $btn-primary: $go-primary;
 $btn-secondary: $go-secondary;
-$btn-reset: $go-reset;
 $btn-text-color: #fff;
-$onhover-darken-ratio: 10%;
-
-$element-margin: 10px;
-
-$button-font-size: 14px;
-$button-font-weight: 400;
-$button-height: 35px;
-$button-padding: 20px;
-
-$small-button-font-size: 13px;
-$small-button-font-weight: 400;
-$small-button-height: 25px;
-$small-button-padding: 10px;
+$btn-reset: #666;
 
 .button {
   border:        1px solid transparent;
-  padding:       0 $button-padding;
-  height:        $button-height;
-  line-height:   $button-height;
+  padding:       0 20px;
+  height:        35px;
+  line-height:   35px;
   border-radius: $global-border-radius;
-  font-size:     $button-font-size;
-  font-weight:   $button-font-weight;
-  margin:        $element-margin;
+  font-size:     14px;
+  font-weight:   400;
+  margin:        10px;
   cursor:        pointer;
   &:active, &:focus {
     outline: 0;
@@ -49,11 +36,11 @@ $small-button-padding: 10px;
 }
 
 .btn-small {
-  padding:     0 $small-button-padding;
-  height:      $small-button-height;
-  line-height: $small-button-height;
-  font-weight: $small-button-font-weight;
-  font-size:   $small-button-font-size;
+  padding:     0 10px;
+  height:      25px;
+  line-height: 25px;
+  font-weight: 400;
+  font-size:   13px;
 }
 
 .btn-primary {
@@ -62,7 +49,7 @@ $small-button-padding: 10px;
   color:        $btn-text-color;
   transition:   $transition;
   &:hover {
-    background: darken($btn-primary, $onhover-darken-ratio);
+    background: darken($btn-primary, 10%);
     transition: $transition;
   }
 }
@@ -73,7 +60,7 @@ $small-button-padding: 10px;
   color:        $btn-text-color;
   transition:   $transition;
   &:hover {
-    background: darken($btn-secondary, $onhover-darken-ratio);
+    background: darken($btn-secondary, 10%);
     transition: $transition;
   }
 }
@@ -84,7 +71,19 @@ $small-button-padding: 10px;
   color:        $btn-text-color;
   transition:   $transition;
   &:hover {
-    background: darken($btn-reset, $onhover-darken-ratio);
+    background: darken($btn-reset, 10%);
     transition: $transition;
+  }
+}
+
+.btn-cancel {
+  background: transparent;
+  border:     none;
+  color:      $text-color;
+  transition: $transition;
+  &:hover {
+    background: transparent;
+    transition: $transition;
+    color:      $text-color;
   }
 }

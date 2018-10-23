@@ -68,7 +68,7 @@ describe "admin/configuration/split_pane.html.erb" do
             end
           end
           expect(current_content).to have_selector("input[type='hidden'][name='go_config[md5]'][value='current-md5']", visible: :hidden)
-          expect(current_content).to have_selector("textarea#content[name='go_config[content]']", :text => "current-content")
+          expect(current_content).to have_selector("textarea#content[name='go_config[content]'][data-config-url='/go/api/admin/config/current-md5.xml']", visible: :hudden)
         end
       end
     end

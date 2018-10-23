@@ -36,6 +36,7 @@ describe "admin/configuration/edit.html.erb" do
   end
 
   it "should render edit" do
+    assign(:render_config_via_ajax, true)
     assign(:go_config, GoConfig.new({"content" => 'config-content', "md5" => 'md5', "location" => "path_to_config_xml"}))
     date = java.util.Date.new(1366866649)
     difference = "#{time_ago_in_words(date.to_string)} #{'ago'}"
@@ -60,9 +61,9 @@ describe "admin/configuration/edit.html.erb" do
               end
             end
             admin.find("div#content_area").tap do |content_area|
-              expect(content_area).to have_selector("textarea#content[spellcheck='false']", :text => "config-content")
-              expect(content_area).to have_selector("input#go_config_md5[value='md5']", { visible: :hidden })
+              expect(content_area).to have_selector("textarea#content[name='go_config[content]'][data-config-url='/go/api/admin/config/md5.xml']", visible: :hidden)
             end
+            expect(config_editor).to have_selector("input#go_config_md5[value='md5']", visible: :hidden)
           end
         end
       end

@@ -56,7 +56,7 @@ describe "admin/configuration/show.html.erb" do
             end
           end
           admin.find("div#content_area").tap do |content_area|
-            expect(content_area).to have_selector("pre#content_container", :text => "config-content")
+            expect(content_area).to have_selector("#content_container #config-xml-content[data-config-url='/go/api/admin/config/md5.xml']", visible: :hidden)
           end
         end
       end

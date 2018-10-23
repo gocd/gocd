@@ -21,7 +21,6 @@ import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -34,10 +33,6 @@ public class AdminService {
         this.goConfigService = goConfigService;
     }
 
-    public Map populateModel(Map model) {
-        goConfigService.populateAdminModel(model);
-        return model;
-    }
 
     public Map<String, Object> configurationJsonForSourceXml() {
         Map<String, Object> json = new LinkedHashMap<>();
@@ -48,11 +43,6 @@ public class AdminService {
         configJson.put("md5", saver.getMd5());
         json.put("config", configJson);
         return json;
-    }
-
-    public Map configurationMapForSourceXml() {
-        HashMap map = new HashMap();
-        return populateModel(map);
     }
 
     public GoConfigValidity updateConfig(Map attributes, HttpLocalizedOperationResult result) {

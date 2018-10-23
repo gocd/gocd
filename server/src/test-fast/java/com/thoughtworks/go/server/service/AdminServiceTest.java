@@ -58,23 +58,6 @@ public class AdminServiceTest {
     }
 
     @Test
-    public void shouldGenerateConfigurationAsMapForSourceXml() throws Exception {
-        Map expected = mock(HashMap.class);
-        doNothing().when(goConfigService).populateAdminModel(anyMap());
-        Map actual = adminService.configurationMapForSourceXml();
-        assertThat(actual, is(expected));
-    }
-
-    @Test
-    public void shouldPopulateAdminModel() throws Exception {
-        Map expected = mock(HashMap.class);
-        doNothing().when(goConfigService).populateAdminModel(expected);
-        Map actual = adminService.populateModel(expected);
-        assertThat(actual, is(expected));
-        verify(goConfigService).populateAdminModel(expected);
-    }
-
-    @Test
     public void shouldUpdateConfig() throws Exception {
         HashMap attributes = new HashMap();
         String content = "config_xml";

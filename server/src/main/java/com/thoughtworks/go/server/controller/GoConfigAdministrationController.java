@@ -16,7 +16,8 @@
 
 package com.thoughtworks.go.server.controller;
 
-import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.CaseInsensitiveString;
+import com.thoughtworks.go.config.TemplatesConfig;
 import com.thoughtworks.go.config.exceptions.ConfigFileHasChangedException;
 import com.thoughtworks.go.config.validation.GoConfigValidity;
 import com.thoughtworks.go.domain.GoConfigRevision;
@@ -29,8 +30,8 @@ import com.thoughtworks.go.server.security.HeaderConstraint;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.SecurityService;
 import com.thoughtworks.go.server.web.JsonView;
-
 import com.thoughtworks.go.util.SystemEnvironment;
+import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,12 +43,12 @@ import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
 import static com.thoughtworks.go.server.controller.actions.JsonAction.jsonByValidity;
+import static com.thoughtworks.go.server.controller.actions.XmlAction.X_CRUISE_CONFIG_MD5;
 
 @Controller
 public class GoConfigAdministrationController {
@@ -76,7 +77,15 @@ public class GoConfigAdministrationController {
     public void getConfigRevision(@RequestParam(value = "version", required = true) String version, HttpServletResponse response) throws Exception {
         GoConfigRevision configRevision = goConfigService.getConfigAtVersion(version);
         String md5 = configRevision.getMd5();
-        XmlAction.xmlFound(configRevision.getContent(), md5).respond(response);
+        response.setStatus(HttpServletResponse.SC_OK);
+        response.setContentType("text/xml");
+        response.setCharacterEncoding("utf-8");
+        response.setHeader(X_CRUISE_CONFIG_MD5, md5);
+        if (configRevision.isByteArrayBacked()) {
+            IOUtils.write(configRevision.getConfigXmlBytes(), response.getOutputStream());
+        } else {
+            response.getWriter().write(configRevision.getContent());
+        }
     }
 
     private RestfulAction getXmlPartial(String groupName, String oldMd5, GoConfigService.XmlPartialSaver xmlPartialSaver) {

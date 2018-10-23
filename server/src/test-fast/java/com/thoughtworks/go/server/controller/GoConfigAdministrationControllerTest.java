@@ -54,7 +54,7 @@ public class GoConfigAdministrationControllerTest {
         controller.getConfigRevision("some-md5", response);
 
         assertThat(response.getContentAsString(), is(configXml));
-        assertThat(response.getHeader(XmlAction.X_CRUISE_CONFIG_MD5).toString(), is("some-md5"));
+        assertThat(response.getHeader(XmlAction.X_CRUISE_CONFIG_MD5), is("some-md5"));
     }
 
     @Test

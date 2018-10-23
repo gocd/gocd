@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-import * as Icons from "../components/icons/index";
 import * as m from 'mithril';
+import * as Icons from "../components/icons/index";
+import * as Buttons from "../components/buttons/index";
 import {HelloWorld} from "../components/hello_world/index";
 import {KeyValuePair} from "../components/key_value_pair/index";
 import {MithrilComponent} from "../../jsx/mithril-component";
 import {CollapsiblePanel} from "../components/collapsible_panel/index";
 
 const HeaderPanel = require('views/components/header_panel');
-const Button      = require('views/components/button');
 
 export = class KitchenSink extends MithrilComponent<null> {
   view() {
@@ -52,8 +52,20 @@ export = class KitchenSink extends MithrilComponent<null> {
           <h1>Work in progress components!</h1>
         </div>
 
-        <h3>This is a simple button:</h3>
-        <Button/>
+        <h3>Buttons:</h3>
+        <Buttons.Primary>Primary Button</Buttons.Primary>
+        <Buttons.Secondary>Secondary Button</Buttons.Secondary>
+        <Buttons.Reset>Reset Button</Buttons.Reset>
+        <Buttons.Primary>Save</Buttons.Primary>
+        <Buttons.Reset>Cancel</Buttons.Reset>
+
+        <br/>
+        <h3>Small Buttons:</h3>
+        <Buttons.Primary small={true}>Small Primary Button</Buttons.Primary>
+        <Buttons.Secondary small={true}>Small Secondary Button</Buttons.Secondary>
+        <Buttons.Reset small={true}>Small Reset Button</Buttons.Reset>
+        <Buttons.Primary small={true}>Save</Buttons.Primary>
+        <Buttons.Reset small={true}>Cancel</Buttons.Reset>
 
         <h3>Some examples of accordions</h3>
 
@@ -65,6 +77,8 @@ export = class KitchenSink extends MithrilComponent<null> {
             'email':      'jdoe@example.com',
           }
         }/>
+
+        <h3>Some examples of inline key value pairs</h3>
         <KeyValuePair inline={true} data={
           {
             'Plugin':  'my-fancy-plugin-name',

@@ -52,7 +52,7 @@ public class UsageStatisticsControllerV3 extends ApiController implements SparkS
 
     @Autowired
     public UsageStatisticsControllerV3(ApiAuthenticationHelper apiAuthenticationHelper, DataSharingUsageDataService dataSharingUsageDataService, SystemEnvironment systemEnvironment) {
-        super(ApiVersion.v2);
+        super(ApiVersion.v3);
         this.apiAuthenticationHelper = apiAuthenticationHelper;
         this.dataSharingUsageDataService = dataSharingUsageDataService;
         this.systemEnvironment = systemEnvironment;

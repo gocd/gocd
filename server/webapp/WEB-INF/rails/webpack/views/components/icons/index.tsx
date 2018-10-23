@@ -17,7 +17,7 @@
 import {MithrilComponent} from "../../../jsx/mithril-component";
 import * as m from 'mithril';
 
-const styles = require('./index.scss');
+const styles     = require('./index.scss');
 const classnames = require('classnames/bind').bind(styles);
 
 class Icon<A = {}> extends MithrilComponent<A> {
@@ -29,7 +29,11 @@ class Icon<A = {}> extends MithrilComponent<A> {
   }
 
   view(vnode: m.Vnode<A>) {
-    return (<a {...vnode.attrs} className={classnames('icon', this.name)}/>)
+    return (
+      <button className={styles.icon}>
+        <i className={classnames(this.name)}/>
+      </button>
+    );
   }
 }
 
@@ -66,5 +70,15 @@ export class Delete extends Icon {
 export class Lock extends Icon {
   constructor() {
     super('lock');
+  }
+}
+
+export class IconGrop extends MithrilComponent<{}> {
+  view(vnode: m.Vnode<{}>) {
+    return (
+      <div className={styles.iconGroup} arial-label="actions">
+        {vnode.children}
+      </div>
+    );
   }
 }

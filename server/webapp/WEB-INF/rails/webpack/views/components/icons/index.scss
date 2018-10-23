@@ -15,11 +15,26 @@
  */
 @import "../../global/common";
 
-$global-icon-size: 16px;
+$global-icon-size: 14px;
+$btn-group-border-radius: 3px;
 
 .icon {
-  font-size: $global-icon-size;
-  overflow:  hidden;
+  border:      none;
+  border-left: 1px solid $border-color;
+  cursor:      pointer;
+  font-size:   $global-icon-size;
+  padding:     7px 15px;
+  flex:        0 1 auto;
+  &:first-child {
+    border-left:   none;
+    border-radius: $btn-group-border-radius 0 0 $btn-group-border-radius;
+  }
+  &:last-child {
+    border-radius: 0 $btn-group-border-radius $btn-group-border-radius 0;
+  }
+  &:focus, &:active {
+    outline: 0;
+  }
 }
 
 .settings {
@@ -38,7 +53,6 @@ $global-icon-size: 16px;
   @include icon-before($type: $fa-var-clone);
 }
 
-
 //delete is a keyword, a literal syntax; can't be accessed using styles.delete hence renaming it to remove
 .remove {
   @include icon-before($type: $fa-var-trash);
@@ -46,4 +60,10 @@ $global-icon-size: 16px;
 
 .lock {
   @include icon-before($type: $fa-var-lock);
+}
+
+.iconGroup {
+  border:        1px solid $border-color;
+  border-radius: $btn-group-border-radius;
+  display:       inline-flex;
 }

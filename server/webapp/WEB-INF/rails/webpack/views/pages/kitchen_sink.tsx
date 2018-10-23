@@ -21,6 +21,7 @@ import {HelloWorld} from "../components/hello_world/index";
 import {KeyValuePair} from "../components/key_value_pair/index";
 import {MithrilComponent} from "../../jsx/mithril-component";
 import {CollapsiblePanel} from "../components/collapsible_panel/index";
+import {IconGrop} from "../components/icons/index";
 
 const HeaderPanel = require('views/components/header_panel');
 
@@ -37,12 +38,14 @@ export = class KitchenSink extends MithrilComponent<null> {
         <hr/>
 
         <h3>Icons</h3>
-        <Icons.Settings/>
-        <Icons.Analytics/>
-        <Icons.Edit/>
-        <Icons.Clone/>
-        <Icons.Delete/>
-        <Icons.Lock/>
+        <IconGrop>
+          <Icons.Settings/>
+          <Icons.Analytics/>
+          <Icons.Edit/>
+          <Icons.Clone/>
+          <Icons.Delete/>
+          <Icons.Lock/>
+        </IconGrop>
         <hr/>
 
         <HelloWorld id="foo"/>

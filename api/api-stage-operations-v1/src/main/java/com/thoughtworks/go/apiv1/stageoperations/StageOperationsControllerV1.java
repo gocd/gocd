@@ -169,7 +169,7 @@ public class StageOperationsControllerV1 extends ApiController implements SparkS
         }
 
         if (stage == null || stage instanceof NullStage) {
-            String message = String.format("Stage '%s' not found", stageName);
+            String message = String.format("Stage '%s' with counter '%s' not found. Please make sure specified stage or stage run with specified counter exists.", stageName, stageCounter);
             operationResult.notFound("Not Found", message, HealthStateType.general(HealthStateScope.GLOBAL));
             return Optional.empty();
         }

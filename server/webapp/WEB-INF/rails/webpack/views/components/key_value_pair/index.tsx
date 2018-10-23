@@ -19,26 +19,32 @@ import * as _ from 'lodash';
 import * as styles from './index.scss';
 import {MithrilComponent} from "../../../jsx/mithril-component";
 
+const classnames = require('classnames/bind').bind(styles);
+
 export interface Attrs {
   data: any
+  inline?: boolean
 }
 
 export class KeyValuePair extends MithrilComponent<Attrs> {
   view(vnode: m.Vnode<Attrs>) {
-    return (<ul className={styles.keyValuePair}>
-      {
-        _.map(vnode.attrs.data, (value, key) => {
-          return [
-            <li>
-              <label className={styles.key}>{key}</label>
-              <span className={styles.value}>
+    const isInline = vnode.attrs.inline;
+    return (
+      <ul className={classnames(styles.keyValuePair, {[styles.keyValuePairInline]: isInline})}>
+        {
+          _.map(vnode.attrs.data, (value, key) => {
+            return [
+              <li className={classnames(styles.keyValueItem, {[styles.keyValueInlineItem]: isInline})}>
+                <label className={styles.key}>{key}</label>
+                <span className={styles.value}>
                   <pre>{value}</pre>
                 </span>
-            </li>
-          ];
-        })
-      }
-    </ul>);
+              </li>
+            ];
+          })
+        }
+      </ul>
+    );
   }
 }
 

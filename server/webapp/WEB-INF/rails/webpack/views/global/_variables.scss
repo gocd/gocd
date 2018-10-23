@@ -15,6 +15,9 @@
  */
 
 //colors
+$go-primary: #943a9e;
+$go-secondary: #31a1ad;
+
 $primary-bg: #f4f8f9;
 $secondary-bg: #e7eef0;
 $text-color: #333;
@@ -45,9 +48,9 @@ $label-margin-bottom: 0;
 
 //border
 
+$border-color: $line-color;
 $global-border-color: $line-color;
 $global-border-radius: 3px;
 
 //transition
-
-$transition : all 0.2s ease-in-out;
+$transition: all 0.2s ease-in-out;

@@ -16,548 +16,549 @@
   -->
 
 <!DOCTYPE urlrewrite PUBLIC "-//tuckey.org//DTD UrlRewrite 2.6//EN"
-        "http://www.tuckey.org/res/dtds/urlrewrite3.2.dtd">
+    "http://www.tuckey.org/res/dtds/urlrewrite3.2.dtd">
 
 <!--
     Configuration file for UrlRewriteFilter 2.6
     http://tuckey.org/urlrewrite/
 -->
+
 <urlrewrite>
-    <rule>
-        <name>Root page</name>
-        <from>^/(home)?/?$</from>
-        <to type="redirect" last="true">/go/pipelines</to>
-    </rule>
-
-    <rule>
-        <name>Spark Elastic Profile Index API</name>
-        <from>^/api/elastic/profiles$</from>
-        <to last="true">/spark/api/elastic/profiles</to>
-        <set name="rails_bound">true</set>
-    </rule>
-
-    <rule>
-        <name>Spark Elastic Profiles API</name>
-        <from>^/api/elastic/profiles/(.*)$</from>
-        <to last="true">/spark/api/elastic/profiles/${escape:$1}</to>
-        <set name="rails_bound">true</set>
-    </rule>
-
-    <rule>
-        <name>Spark Artifact Store Index API</name>
-        <from>^/api/admin/artifact_stores(/?)$</from>
-        <to last="true">/spark/api/admin/artifact_stores</to>
-    </rule>
-
-    <rule>
-        <name>Spark Artifact Store API</name>
-        <from>^/api/admin/artifact_stores/(.*)$</from>
-        <to last="true">/spark/api/admin/artifact_stores/${escape:$1}</to>
-    </rule>
-
-    <rule>
-        <name>Spark Pipeline Config Index API</name>
-        <from>^/api/admin/pipelines(/?)$</from>
-        <to last="true">/spark/api/admin/pipelines</to>
-    </rule>
-
-    <rule>
-        <name>Spark Pipeline Config API</name>
-        <from>^/api/admin/pipelines/(.*)$</from>
-        <to last="true">/spark/api/admin/pipelines/${escape:$1}</to>
-    </rule>
-
-    <rule>
-        <name>Spark Pipeline Groups Index API</name>
-        <from>^/api/admin/pipeline_groups(/?)$</from>
-        <to last="true">/spark/api/admin/pipeline_groups</to>
-    </rule>
-
-    <rule>
-        <name>Spark Pipeline Groups API</name>
-        <from>^/api/admin/pipeline_groups/(.*)$</from>
-        <to last="true">/spark/api/admin/pipeline_groups/${escape:$1}</to>
-    </rule>
-
-    <rule>
-        <name>Spark Template Config Index API</name>
-        <from>^/api/admin/templates(/?)$</from>
-        <to last="true">/spark/api/admin/templates</to>
-    </rule>
-
-    <rule>
-        <name>Spark Template Config API</name>
-        <from>^/api/admin/templates/(.*)$</from>
-        <to last="true">/spark/api/admin/templates/${escape:$1}</to>
-    </rule>
-
-    <rule>
-        <name>Kitchen Sink SPA</name>
-        <from>^/kitchen-sink(/?)$</from>
-        <to last="true">/spark/kitchen-sink</to>
-    </rule>
-
-    <rule>
-        <name>Artifact Stores SPA</name>
-        <from>^/admin/artifact_stores(/?)$</from>
-        <to last="true">/spark/admin/artifact_stores</to>
-    </rule>
-
-    <rule>
-        <name>Plugins SPA</name>
-        <from>^/admin/plugins(/?)$</from>
-        <to last="true">/spark/admin/plugins</to>
-    </rule>
-
-    <rule>
-        <name>Elastic Profiles SPA</name>
-        <from>^/admin/elastic_profiles(/?)$</from>
-        <to last="true">/spark/admin/elastic_profiles</to>
-    </rule>
-
-    <rule>
-        <name>Config Repos SPA</name>
-        <from>^/admin/config_repos(/?)$</from>
-        <to last="true">/spark/admin/config_repos</to>
-    </rule>
-
-    <rule>
-        <name>Agents SPA</name>
-        <from>^/agents(/?)$</from>
-        <to last="true">/spark/agents</to>
-    </rule>
-
-    <rule>
-        <name>Analytics SPA</name>
-        <from>^/analytics(/?)$</from>
-        <to last="true">/spark/analytics</to>
-    </rule>
-
-    <rule>
-        <name>Metrics Consent SPA</name>
-        <from>^/admin/data_sharing/settings(/?)$</from>
-        <to last="true">/spark/admin/data_sharing/settings</to>
-    </rule>
-
-    <rule>
-        <name>Analytics Fetch API</name>
-        <from>^/analytics/([^/]+)/([^/]+)/([^/]+)</from>
-        <to last="true">/spark/analytics/${escape:$1}/${escape:$2}/${escape:$3}</to>
-    </rule>
-
-    <rule>
-        <name>Build Cause API</name>
-        <from>^/api/internal/build_cause/([^/]+)/([^/]+)</from>
-        <to last="true">/spark/api/internal/build_cause/${escape:$1}/${escape:$2}</to>
-    </rule>
-
-    <rule>
-        <name>Spark pipeline selection internal API</name>
-        <from>^/api/internal/pipeline_selection(/?)$</from>
-        <to last="true">/spark/api/internal/pipeline_selection</to>
-    </rule>
-
-    <rule>
-        <name>Spark pipeline selection pipelines data internal API</name>
-        <from>^/api/internal/pipeline_selection/pipelines_data(/?)$</from>
-        <to last="true">/spark/api/internal/pipeline_selection/pipelines_data</to>
-    </rule>
-
-    <rule>
-        <name>Material Search API</name>
-        <from>^/api/internal/material_search(/?)$</from>
-        <to last="true">/spark/api/internal/material_search</to>
-    </rule>
-
-    <rule>
-        <name>Spark Server Health Messages API</name>
-        <from>^/api/server_health_messages(/?)$</from>
-        <to last="true">/spark/api/server_health_messages</to>
-    </rule>
-
-    <rule>
-        <name>Server Health Status API</name>
-        <from>^/api/v1/health(/?)$</from>
-        <to last="true">/spark/api/v1/health</to>
-    </rule>
-
-    <rule>
-        <name>Spark Dashboard API</name>
-        <condition type="header" name="Accept">application\/vnd\.go\.cd\.v2\+json</condition>
-        <from>^/api/dashboard(/?)$</from>
-        <to last="true">/spark/api/dashboard</to>
-    </rule>
-
-    <rule>
-        <name>Roles Config SPA</name>
-        <from>^/admin/security/roles(/?)$</from>
-        <to last="true">/spark/admin/security/roles</to>
-    </rule>
-
-    <rule>
-        <name>System Admins(AdminsConfig) API</name>
-        <from>^/api/admin/security/system_admins$</from>
-        <to last="true">/spark/api/admin/security/system_admins</to>
-    </rule>
-
-    <rule>
-        <name>Spark Security Role Configs API Index API</name>
-        <from>^/api/admin/security/roles(/?)$</from>
-        <to last="true">/spark/api/admin/security/roles</to>
-    </rule>
-
-    <rule>
-        <name>Spark Security Role Configs API</name>
-        <from>^/api/admin/security/roles/(.*)$</from>
-        <to last="true">/spark/api/admin/security/roles/${escape:$1}</to>
-    </rule>
-
-    <rule>
-        <name>Spark Stage Operations API</name>
-        <condition type="header" name="Accept">application\/vnd\.go\.cd\.v1\+json</condition>
-        <from>^/api/stages/([^/]+)/([^/]+)/([^/]+)/run(/?)</from>
-        <to last="true">/spark/api/stages/${escape:$1}/${escape:$2}/${escape:$3}/run</to>
-    </rule>
-
-    <rule>
-        <name>Spark Config Repos API</name>
-        <condition type="header" name="Accept">application\/vnd\.go\.cd\.v1\+json</condition>
-        <from>^/api/internal/config_repos/([^/]+)/(last_parsed_result|trigger_update|status)(/?)</from>
-        <to last="true">/spark/api/internal/config_repos/${escape:$1}/${escape:$2}</to>
-    </rule>
-
-    <rule>
-        <name>Spark pipeline pause/unpause/unlock/trigger_view API/schedule API</name>
-        <condition type="header" name="Accept">application\/vnd\.go\.cd\.v1\+json</condition>
-        <from>^/api/pipelines/([^/]+)/(pause|unpause|unlock|trigger_options|schedule)</from>
-        <to last="true">/spark/api/pipelines/${escape:$1}/${escape:$2}</to>
-    </rule>
-
-    <rule>
-        <name>Plugin Images</name>
-        <from>^/api/plugin_images/(.*)$</from>
-        <to last="true">/spark/api/plugin_images/$1</to>
-    </rule>
-
-    <rule>
-        <name>Encryption API</name>
-        <from>^/api/admin/encrypt(/?)$</from>
-        <to last="true">/spark/api/admin/encrypt</to>
-    </rule>
-
-    <rule>
-        <name>Current User API</name>
-        <from>^/api/current_user(/?)$</from>
-        <to last="true">/spark/api/current_user</to>
-    </rule>
-
-    <rule>
-        <name>Backup API</name>
-        <from>^/api/backups(/?)$</from>
-        <to last="true">/spark/api/backups</to>
-    </rule>
-
-    <rule>
-        <name>Data Sharing APIs</name>
-        <from>^/api/data_sharing/(.*)(/?)$</from>
-        <to last="true">/spark/api/data_sharing/$1</to>
-    </rule>
-
-    <rule>
-        <name>Data Sharing Internal APIs</name>
-        <from>^/api/internal/data_sharing/(.*)(/?)$</from>
-        <to last="true">/spark/api/internal/data_sharing/$1</to>
-    </rule>
-
-    <rule>
-        <name>Data Sharing Reporting APIs</name>
-        <from>^/api/internal/data_sharing/reporting/(.*)(/?)$</from>
-        <to last="true">/spark/api/internal/data_sharing/reporting/$1</to>
-    </rule>
-
-    <rule>
-        <name>Initialize for_rails</name>
-        <from>.*</from>
-        <set name="rails_bound">false</set>
-    </rule>
-
-    <rule>
-        <name>Static content when backup in progress</name>
-        <note>Serve static content when backup in progress</note>
-        <from>^((/static/.*)|(/images/.*)|(/javascripts/.*)|(/stylesheets/.*)|(/compressed/.*))$</from>
-        <to last="true">$1</to>
-    </rule>
-
-    <rule>
-        <name>Rails Plugin Status Report call</name>
-        <from>^/admin/status_reports/(.*)$</from>
-        <to last="true">/rails/admin/status_reports/$1</to>
-        <set name="rails_bound">true</set>
-    </rule>
-
-    <rule>
-        <name>Rails Agent Status Report call</name>
-        <from>^/admin/status_reports/([^/]+)/(.*)</from>
-        <to last="true">/rails/admin/status_reports/$1/$2</to>
-        <set name="rails_bound">true</set>
-    </rule>
-
-    <rule>
-        <name>Dashboard UI</name>
-        <from>^/dashboard(/?)$</from>
-        <to last="true">/spark/dashboard</to>
-    </rule>
-
-    <rule>
-        <name>Default dashboard, based on toggle</name>
-        <from>^/pipelines(/?)$</from>
-        <to last="true">/spark/dashboard</to>
-    </rule>
-
-    <rule>
-        <name>Auth Config SPA</name>
-        <from>^/admin/security/auth_configs(/?)$</from>
-        <to last="true">/spark/admin/security/auth_configs</to>
-    </rule>
-
-    <rule>
-        <name>Rails UI</name>
-        <note>
-            Prepends 'rails/' to Rails urls, so that the request does not go through Java at all
-            (currently RackFilter passes a request to Rails only if Java returns a 40* HTTP response
-        </note>
-        <from>^/((jasmine-specs)|(jasmine-specs/*)|(preferences)|(preferences/.*)|(about)|(agents)|(agents/.*)|(agents\..*)|(environments)|(admin/environments)|(admin/environments/.*)|(admin/environments\..*)|(environments/.*)|(environments\..*)|(pipelines/.*)|(pipelines\.json)|(materials/.*)|(pipelines)|(history/.*)|(shine)|(shine/.*)|(server)|(server/.*)|(admin/config/.*)|(admin/users)|(admin/users/.*)|(failures/.*)|(compare/.*)|(admin/pipelines)|(admin/pipelines/.*)|(admin/pipeline/.*)|(admin/pipeline_group)|(admin/pipeline_group/.*)|(admin/templates)|(admin/templates/.*)|(admin/backup)|(admin/backup/.*)|(admin/commands)|(admin/commands/.*)|(admin/plugins)|(admin/plugins/.*)|(config_change/.*)|(admin/config_xml)|(admin/config_xml/.*)|(admin/package_repositories)|(admin/package_repositories/.*)|(config_view/.*)|(admin/package_definitions)|(admin/package_definitions/.*)|(admin/materials)|(admin/materials/.*)|(assets/.*)|(cctray.xml)|(errors/inactive)|(internal/pipelines/.*))$</from>
-        <to last="true">/rails/$1</to>
-        <set name="rails_bound">true</set>
-    </rule>
-
-    <!-- Rule for Rails Users API should be above the generic rule 'Rails API' -->
-    <rule>
-        <name>Rails Users Index and Delete API</name>
-        <from>^/api/users$</from>
-        <to last="true">/rails/api/users</to>
-        <set name="rails_bound">true</set>
-    </rule>
-
-    <rule>
-        <name>Rails Users Show and Delete API</name>
-        <from>^/api/users/(.*)$</from>
-        <to last="true">/rails/api/users/${escape:$1}</to>
-        <set name="rails_bound">true</set>
-    </rule>
-
-    <rule>
-        <name>Rails Security Auth Configs API Index API</name>
-        <from>^/api/admin/security/auth_configs</from>
-        <to last="true">/rails/api/admin/security/auth_configs</to>
-        <set name="rails_bound">true</set>
-    </rule>
-
-    <rule>
-        <name>Rails Security Auth Configs API</name>
-        <from>^/api/admin/security/auth_configs/(.*)$</from>
-        <to last="true">/rails/api/admin/security/auth_configs/${escape:$1}</to>
-        <set name="rails_bound">true</set>
-    </rule>
-
-    <rule>
-        <name>Rails Config Repo API Index API</name>
-        <from>^/api/admin/config_repos</from>
-        <to last="true">/rails/api/admin/config_repos</to>
-        <set name="rails_bound">true</set>
-    </rule>
-
-    <rule>
-        <name>Rails Config Repo API</name>
-        <from>^/api/admin/config_repos/(.*)$</from>
-        <to last="true">/rails/api/admin/config_repos/${escape:$1}</to>
-        <set name="rails_bound">true</set>
-    </rule>
-
-    <rule>
-        <name>Rails API</name>
-        <from>^/(api/(?!admin/config).*)$</from>
-        <to last="true">/rails/$1</to>
-        <set name="rails_bound">true</set>
-    </rule>
-
-    <rule>
-        <name>Rails Internal API</name>
-        <from>^/(api/config/internal/.*)$</from>
-        <to last="true">/rails/$1</to>
-        <set name="rails_bound">true</set>
-    </rule>
-
-    <rule>
-        <name>Update Check URLs</name>
-        <from>^/(api/version_infos/.*)$</from>
-        <to last="true">/rails/$1</to>
-        <set name="rails_bound">true</set>
-    </rule>
-
-    <rule>
-        <name>Already rails bound</name>
-        <from>^/(rails/.*)$</from>
-        <set name="rails_bound">true</set>
-    </rule>
-
-    <rule>
-        <name>Agent files and properties</name>
-        <note>
-            For agent to download/upload artifacts and publish properties
-        </note>
-        <from>^/remoting/(files|properties)/(.*)</from>
-        <to last="false">/$1/$2</to>
-    </rule>
-
-    <!-- RESTful URLS -->
-    <rule>
-        <name>Set _method attribute to METHOD type</name>
-        <condition type="attribute" name="rails_bound">false</condition>
-        <from>.+</from>
-        <set name="_method">%{method}</set>
-    </rule>
-
-    <rule>
-        <name>Reset _method attribute if _method parameter is passed in</name>
-        <condition type="attribute" name="rails_bound">false</condition>
-        <condition type="parameter" name="_method">.+</condition>
-        <from>.+</from>
-        <set name="_method">%{parameter:_method}</set>
-    </rule>
-
-    <rule>
-        <condition type="request-uri">(.+)\.csv$</condition>
-        <from>(.+)</from>
-        <set name="_type">csv</set>
-    </rule>
-
-    <rule>
-        <condition type="request-uri">(.+)\.json$</condition>
-        <from>(.+)</from>
-        <set name="_type">json</set>
-    </rule>
-
-    <rule>
-        <condition type="request-uri">(.+)\.html$</condition>
-        <from>(.+)</from>
-        <set name="_type">html</set>
-    </rule>
-
-    <rule>
-        <condition type="request-uri">(.+)\.xml$</condition>
-        <from>(.+)</from>
-        <set name="_type">xml</set>
-    </rule>
-
-    <rule>
-        <condition type="request-uri">(.+)\.zip$</condition>
-        <from>(.+)</from>
-        <set name="_type">zip</set>
-    </rule>
-
-    <rule>
-        <name>RESTful rerun - Rerun a stage</name>
-        <from>^/run/([^/]+)/([^/]+)/([^/]+)$</from>
-        <to type="forward">/admin/rerun?pipelineName=$1&amp;pipelineLabel=$2&amp;stageName=$3</to>
-    </rule>
-
-    <rule>
-        <name>RESTful Artifacts - List All builds artifacts</name>
-        <from>^/files/([^/]+)/([^/]+)/([^/]+)/([^/]+)/([^/]+?)(\.(json|html))?(\?.*)?$</from>
-        <to type="forward">/repository/restful/artifact/%{attribute:_method}/%{attribute:_type}?pipelineName=$1&amp;pipelineLabel=$2&amp;stageName=$3&amp;stageCounter=$4&amp;buildName=$5&amp;filePath=</to>
-    </rule>
-
-    <rule>
-        <name>RESTful Artifacts with start LineNumber</name>
-        <condition type="parameter" name="startLineNumber"/>
-        <from>^/files/([^/]+)/([^/]+)/([^/]+)/([^/]+)/([^/]+)/(.*?)(\?.*)?$</from>
-        <to type="forward">/consoleout.json?pipelineName=$1&amp;pipelineLabel=$2&amp;stageName=$3&amp;stageCounter=$4&amp;buildName=$5&amp;filePath=${escape:$6}</to>
-        <set name="startLineNumber">{parameter:startLineNumber}</set>
-    </rule>
-
-    <rule>
-        <name>RESTful Artifacts with SHA1</name>
-        <condition type="parameter" name="sha1"/>
-        <from>^/files/([^/]+)/([^/]+)/([^/]+)/([^/]+)/([^/]+)/(.*?)(\?.*)?$</from>
-        <to type="forward">/repository/restful/artifact/%{attribute:_method}/%{attribute:_type}?pipelineName=$1&amp;pipelineLabel=$2&amp;stageName=$3&amp;stageCounter=$4&amp;buildName=$5&amp;filePath=${escape:$6}</to>
-        <set name="sha1">{parameter:sha1}</set>
-    </rule>
-
-
-    <rule>
-        <name>RESTful Artifacts</name>
-        <from>^/files/([^/]+)/([^/]+)/([^/]+)/([^/]+)/([^/]+)/(.*?)(\?.*)?$</from>
-        <to type="forward">/repository/restful/artifact/%{attribute:_method}/%{attribute:_type}?pipelineName=$1&amp;pipelineLabel=$2&amp;stageName=$3&amp;stageCounter=$4&amp;buildName=$5&amp;filePath=${escape:$6}</to>
-    </rule>
-
-    <rule>
-        <name>RESTful Properties Search for one job</name>
-        <condition type="parameter" name="pipelineLabel"/>
-        <from>^/properties/search(\?.*)?$</from>
-        <to type="forward">/repository/restful/properties/job/search</to>
-    </rule>
-
-    <rule>
-        <name>RESTful Properties Search for all jobs</name>
-        <from>^/properties/search(\?.*)?$</from>
-        <to type="forward">/repository/restful/properties/jobs/search</to>
-    </rule>
-
-    <rule>
-        <name>Post RESTful Property for a job</name>
-        <condition type="parameter" name="value"/>
-        <from>^/properties/([^/]+)/([^/]+)/([^/]+)/([^/]+)/([^/]+)/(.*?)?$</from>
-        <to type="forward">/repository/restful/properties/post?pipelineName=$1&amp;pipelineLabel=$2&amp;stageName=$3&amp;stageCounter=$4&amp;jobName=$5&amp;property=$6</to>
-    </rule>
-
-    <rule>
-        <name>RESTful Property for a job</name>
-        <from>^/properties/([^/]+)/([^/]+)/([^/]+)/([^/]+)/([^/]+)/(.*?)?$</from>
-        <to type="forward">/repository/restful/properties/job/search?pipelineName=$1&amp;pipelineLabel=$2&amp;stageName=$3&amp;stageCounter=$4&amp;jobName=$5&amp;property=$6</to>
-    </rule>
-
-    <rule>
-        <name>RESTful Properties for a job</name>
-        <from>^/properties/([^/]+)/([^/]+)/([^/]+)/([^/]+)/(.*?)?$</from>
-        <to type="forward">/repository/restful/properties/job/search?pipelineName=$1&amp;pipelineLabel=$2&amp;stageName=$3&amp;stageCounter=$4&amp;jobName=$5</to>
-    </rule>
-
-    <rule>
-        <name>Cruise Configuration Administration RESTful url - File</name>
-        <from>^/api/admin/config.xml$</from>
-        <to type="forward" last="true">/admin/restful/configuration/file/%{attribute:_method}/xml?version=current</to>
-    </rule>
-
-    <rule>
-        <name>Cruise Configuration Administration RESTful url - File</name>
-        <from>^/api/admin/config/([^/]+)\.xml$</from>
-        <to type="forward" last="true">/admin/restful/configuration/file/%{attribute:_method}/historical-xml?version=$1</to>
-    </rule>
-
-    <rule>
-        <name>Cruise Configuration Administration RESTful url - File</name>
-        <from>^/admin/configuration/file\.xml(\?.*)?$</from>
-        <to type="forward">/admin/restful/configuration/file/%{attribute:_method}/%{attribute:_type}</to>
-    </rule>
-
-    <rule>
-        <name>Specific Build Detail</name>
-        <from>/tab/build/detail/([^/]+)/([^/]+)/([^/]+)/([^/]+)/([^/]+)</from>
-        <to type="forward">/tab/build/recent?pipelineName=$1&amp;label=$2&amp;stageName=$3&amp;stageCounter=$4&amp;jobName=$5</to>
-    </rule>
-
-
-    <rule>
-        <name>Pipeline history</name>
-        <from>/tab/pipeline/history/([^/]+)</from>
-        <to type="forward">/tab/pipeline/history?pipelineName=$1</to>
-    </rule>
-
-    <rule>
-        <name>Stage detail beta</name>
-        <from>/pipelines/([^/]+)/([^/]+)/([^/]+)/([^/]+)</from>
-        <to type="forward">/pipelines/history?pipelineName=$1&amp;label=$2&amp;stageName=$3&amp;counter=$4</to>
-    </rule>
+  <rule>
+    <name>Root page</name>
+    <from>^/(home)?/?$</from>
+    <to type="redirect" last="true">/go/pipelines</to>
+  </rule>
+
+  <rule>
+    <name>Spark Elastic Profile Index API</name>
+    <from>^/api/elastic/profiles$</from>
+    <to last="true">/spark/api/elastic/profiles</to>
+    <set name="rails_bound">true</set>
+  </rule>
+
+  <rule>
+    <name>Spark Elastic Profiles API</name>
+    <from>^/api/elastic/profiles/(.*)$</from>
+    <to last="true">/spark/api/elastic/profiles/${escape:$1}</to>
+    <set name="rails_bound">true</set>
+  </rule>
+
+  <rule>
+    <name>Spark Artifact Store Index API</name>
+    <from>^/api/admin/artifact_stores(/?)$</from>
+    <to last="true">/spark/api/admin/artifact_stores</to>
+  </rule>
+
+  <rule>
+    <name>Spark Artifact Store API</name>
+    <from>^/api/admin/artifact_stores/(.*)$</from>
+    <to last="true">/spark/api/admin/artifact_stores/${escape:$1}</to>
+  </rule>
+
+  <rule>
+    <name>Spark Pipeline Config Index API</name>
+    <from>^/api/admin/pipelines(/?)$</from>
+    <to last="true">/spark/api/admin/pipelines</to>
+  </rule>
+
+  <rule>
+    <name>Spark Pipeline Config API</name>
+    <from>^/api/admin/pipelines/(.*)$</from>
+    <to last="true">/spark/api/admin/pipelines/${escape:$1}</to>
+  </rule>
+
+  <rule>
+    <name>Spark Pipeline Groups Index API</name>
+    <from>^/api/admin/pipeline_groups(/?)$</from>
+    <to last="true">/spark/api/admin/pipeline_groups</to>
+  </rule>
+
+  <rule>
+    <name>Spark Pipeline Groups API</name>
+    <from>^/api/admin/pipeline_groups/(.*)$</from>
+    <to last="true">/spark/api/admin/pipeline_groups/${escape:$1}</to>
+  </rule>
+
+  <rule>
+    <name>Spark Template Config Index API</name>
+    <from>^/api/admin/templates(/?)$</from>
+    <to last="true">/spark/api/admin/templates</to>
+  </rule>
+
+  <rule>
+    <name>Spark Template Config API</name>
+    <from>^/api/admin/templates/(.*)$</from>
+    <to last="true">/spark/api/admin/templates/${escape:$1}</to>
+  </rule>
+
+  <rule>
+    <name>Kitchen Sink SPA</name>
+    <from>^/kitchen-sink(/?)$</from>
+    <to last="true">/spark/kitchen-sink</to>
+  </rule>
+
+  <rule>
+    <name>Artifact Stores SPA</name>
+    <from>^/admin/artifact_stores(/?)$</from>
+    <to last="true">/spark/admin/artifact_stores</to>
+  </rule>
+
+  <rule>
+    <name>Plugins SPA</name>
+    <from>^/admin/plugins(/?)$</from>
+    <to last="true">/spark/admin/plugins</to>
+  </rule>
+
+  <rule>
+    <name>Elastic Profiles SPA</name>
+    <from>^/admin/elastic_profiles(/?)$</from>
+    <to last="true">/spark/admin/elastic_profiles</to>
+  </rule>
+
+  <rule>
+    <name>Config Repos SPA</name>
+    <from>^/admin/config_repos(/?)$</from>
+    <to last="true">/spark/admin/config_repos</to>
+  </rule>
+
+  <rule>
+    <name>Agents SPA</name>
+    <from>^/agents(/?)$</from>
+    <to last="true">/spark/agents</to>
+  </rule>
+
+  <rule>
+    <name>Analytics SPA</name>
+    <from>^/analytics(/?)$</from>
+    <to last="true">/spark/analytics</to>
+  </rule>
+
+  <rule>
+    <name>Metrics Consent SPA</name>
+    <from>^/admin/data_sharing/settings(/?)$</from>
+    <to last="true">/spark/admin/data_sharing/settings</to>
+  </rule>
+
+  <rule>
+    <name>Analytics Fetch API</name>
+    <from>^/analytics/([^/]+)/([^/]+)/([^/]+)</from>
+    <to last="true">/spark/analytics/${escape:$1}/${escape:$2}/${escape:$3}</to>
+  </rule>
+
+  <rule>
+    <name>Build Cause API</name>
+    <from>^/api/internal/build_cause/([^/]+)/([^/]+)</from>
+    <to last="true">/spark/api/internal/build_cause/${escape:$1}/${escape:$2}</to>
+  </rule>
+
+  <rule>
+    <name>Spark pipeline selection internal API</name>
+    <from>^/api/internal/pipeline_selection(/?)$</from>
+    <to last="true">/spark/api/internal/pipeline_selection</to>
+  </rule>
+
+  <rule>
+    <name>Spark pipeline selection pipelines data internal API</name>
+    <from>^/api/internal/pipeline_selection/pipelines_data(/?)$</from>
+    <to last="true">/spark/api/internal/pipeline_selection/pipelines_data</to>
+  </rule>
+
+  <rule>
+    <name>Material Search API</name>
+    <from>^/api/internal/material_search(/?)$</from>
+    <to last="true">/spark/api/internal/material_search</to>
+  </rule>
+
+  <rule>
+    <name>Spark Server Health Messages API</name>
+    <from>^/api/server_health_messages(/?)$</from>
+    <to last="true">/spark/api/server_health_messages</to>
+  </rule>
+
+  <rule>
+    <name>Server Health Status API</name>
+    <from>^/api/v1/health(/?)$</from>
+    <to last="true">/spark/api/v1/health</to>
+  </rule>
+
+  <rule>
+    <name>Spark Dashboard API</name>
+    <condition type="header" name="Accept">application\/vnd\.go\.cd\.v2\+json</condition>
+    <from>^/api/dashboard(/?)$</from>
+    <to last="true">/spark/api/dashboard</to>
+  </rule>
+
+  <rule>
+    <name>Roles Config SPA</name>
+    <from>^/admin/security/roles(/?)$</from>
+    <to last="true">/spark/admin/security/roles</to>
+  </rule>
+
+  <rule>
+    <name>System Admins(AdminsConfig) API</name>
+    <from>^/api/admin/security/system_admins$</from>
+    <to last="true">/spark/api/admin/security/system_admins</to>
+  </rule>
+
+  <rule>
+    <name>Spark Security Role Configs API Index API</name>
+    <from>^/api/admin/security/roles(/?)$</from>
+    <to last="true">/spark/api/admin/security/roles</to>
+  </rule>
+
+  <rule>
+    <name>Spark Security Role Configs API</name>
+    <from>^/api/admin/security/roles/(.*)$</from>
+    <to last="true">/spark/api/admin/security/roles/${escape:$1}</to>
+  </rule>
+
+  <rule>
+    <name>Spark Stage Operations API</name>
+    <condition type="header" name="Accept">application\/vnd\.go\.cd\.v1\+json</condition>
+    <from>^/api/stages/([^/]+)/([^/]+)/([^/]+)/run(/?)</from>
+    <to last="true">/spark/api/stages/${escape:$1}/${escape:$2}/${escape:$3}/run</to>
+  </rule>
+
+  <rule>
+    <name>Spark Config Repos API</name>
+    <condition type="header" name="Accept">application\/vnd\.go\.cd\.v1\+json</condition>
+    <from>^/api/internal/config_repos/([^/]+)/(last_parsed_result|trigger_update|status)(/?)</from>
+    <to last="true">/spark/api/internal/config_repos/${escape:$1}/${escape:$2}</to>
+  </rule>
+
+  <rule>
+    <name>Spark pipeline pause/unpause/unlock/trigger_view API/schedule API</name>
+    <condition type="header" name="Accept">application\/vnd\.go\.cd\.v1\+json</condition>
+    <from>^/api/pipelines/([^/]+)/(pause|unpause|unlock|trigger_options|schedule)</from>
+    <to last="true">/spark/api/pipelines/${escape:$1}/${escape:$2}</to>
+  </rule>
+
+  <rule>
+    <name>Plugin Images</name>
+    <from>^/api/plugin_images/(.*)$</from>
+    <to last="true">/spark/api/plugin_images/$1</to>
+  </rule>
+
+  <rule>
+    <name>Encryption API</name>
+    <from>^/api/admin/encrypt(/?)$</from>
+    <to last="true">/spark/api/admin/encrypt</to>
+  </rule>
+
+  <rule>
+    <name>Current User API</name>
+    <from>^/api/current_user(/?)$</from>
+    <to last="true">/spark/api/current_user</to>
+  </rule>
+
+  <rule>
+    <name>Backup API</name>
+    <from>^/api/backups(/?)$</from>
+    <to last="true">/spark/api/backups</to>
+  </rule>
+
+  <rule>
+    <name>Data Sharing APIs</name>
+    <from>^/api/data_sharing/(.*)(/?)$</from>
+    <to last="true">/spark/api/data_sharing/$1</to>
+  </rule>
+
+  <rule>
+    <name>Data Sharing Internal APIs</name>
+    <from>^/api/internal/data_sharing/(.*)(/?)$</from>
+    <to last="true">/spark/api/internal/data_sharing/$1</to>
+  </rule>
+
+  <rule>
+    <name>Data Sharing Reporting APIs</name>
+    <from>^/api/internal/data_sharing/reporting/(.*)(/?)$</from>
+    <to last="true">/spark/api/internal/data_sharing/reporting/$1</to>
+  </rule>
+
+  <rule>
+    <name>Initialize for_rails</name>
+    <from>.*</from>
+    <set name="rails_bound">false</set>
+  </rule>
+
+  <rule>
+    <name>Static content when backup in progress</name>
+    <note>Serve static content when backup in progress</note>
+    <from>^((/static/.*)|(/images/.*)|(/javascripts/.*)|(/stylesheets/.*)|(/compressed/.*))$</from>
+    <to last="true">$1</to>
+  </rule>
+
+  <rule>
+    <name>Rails Plugin Status Report call</name>
+    <from>^/admin/status_reports/(.*)$</from>
+    <to last="true">/rails/admin/status_reports/$1</to>
+    <set name="rails_bound">true</set>
+  </rule>
+
+  <rule>
+    <name>Rails Agent Status Report call</name>
+    <from>^/admin/status_reports/([^/]+)/(.*)</from>
+    <to last="true">/rails/admin/status_reports/$1/$2</to>
+    <set name="rails_bound">true</set>
+  </rule>
+
+  <rule>
+    <name>Dashboard UI</name>
+    <from>^/dashboard(/?)$</from>
+    <to last="true">/spark/dashboard</to>
+  </rule>
+
+  <rule>
+    <name>Default dashboard, based on toggle</name>
+    <from>^/pipelines(/?)$</from>
+    <to last="true">/spark/dashboard</to>
+  </rule>
+
+  <rule>
+    <name>Auth Config SPA</name>
+    <from>^/admin/security/auth_configs(/?)$</from>
+    <to last="true">/spark/admin/security/auth_configs</to>
+  </rule>
+
+  <rule>
+    <name>Rails UI</name>
+    <note>
+      Prepends 'rails/' to Rails urls, so that the request does not go through Java at all
+      (currently RackFilter passes a request to Rails only if Java returns a 40* HTTP response
+    </note>
+    <from>
+      ^/((jasmine-specs)|(jasmine-specs/*)|(preferences)|(preferences/.*)|(about)|(agents)|(agents/.*)|(agents\..*)|(environments)|(admin/environments)|(admin/environments/.*)|(admin/environments\..*)|(environments/.*)|(environments\..*)|(pipelines/.*)|(pipelines\.json)|(materials/.*)|(pipelines)|(history/.*)|(shine)|(shine/.*)|(server)|(server/.*)|(admin/config/.*)|(admin/users)|(admin/users/.*)|(failures/.*)|(compare/.*)|(admin/pipelines)|(admin/pipelines/.*)|(admin/pipeline/.*)|(admin/pipeline_group)|(admin/pipeline_group/.*)|(admin/templates)|(admin/templates/.*)|(admin/backup)|(admin/backup/.*)|(admin/commands)|(admin/commands/.*)|(admin/plugins)|(admin/plugins/.*)|(config_change/.*)|(admin/config_xml)|(admin/config_xml/.*)|(admin/package_repositories)|(admin/package_repositories/.*)|(config_view/.*)|(admin/package_definitions)|(admin/package_definitions/.*)|(admin/materials)|(admin/materials/.*)|(assets/.*)|(cctray.xml)|(errors/inactive)|(internal/pipelines/.*))$
+    </from>
+    <to last="true">/rails/$1</to>
+    <set name="rails_bound">true</set>
+  </rule>
+
+  <!-- Rule for Rails Users API should be above the generic rule 'Rails API' -->
+  <rule>
+    <name>Rails Users Index and Delete API</name>
+    <from>^/api/users$</from>
+    <to last="true">/rails/api/users</to>
+    <set name="rails_bound">true</set>
+  </rule>
+
+  <rule>
+    <name>Rails Users Show and Delete API</name>
+    <from>^/api/users/(.*)$</from>
+    <to last="true">/rails/api/users/${escape:$1}</to>
+    <set name="rails_bound">true</set>
+  </rule>
+
+  <rule>
+    <name>Rails Security Auth Configs API Index API</name>
+    <from>^/api/admin/security/auth_configs</from>
+    <to last="true">/rails/api/admin/security/auth_configs</to>
+    <set name="rails_bound">true</set>
+  </rule>
+
+  <rule>
+    <name>Rails Security Auth Configs API</name>
+    <from>^/api/admin/security/auth_configs/(.*)$</from>
+    <to last="true">/rails/api/admin/security/auth_configs/${escape:$1}</to>
+    <set name="rails_bound">true</set>
+  </rule>
+
+  <rule>
+    <name>Rails Config Repo API Index API</name>
+    <from>^/api/admin/config_repos</from>
+    <to last="true">/rails/api/admin/config_repos</to>
+    <set name="rails_bound">true</set>
+  </rule>
+
+  <rule>
+    <name>Rails Config Repo API</name>
+    <from>^/api/admin/config_repos/(.*)$</from>
+    <to last="true">/rails/api/admin/config_repos/${escape:$1}</to>
+    <set name="rails_bound">true</set>
+  </rule>
+
+  <rule>
+    <name>Rails API</name>
+    <from>^/(api/(?!admin/config).*)$</from>
+    <to last="true">/rails/$1</to>
+    <set name="rails_bound">true</set>
+  </rule>
+
+  <rule>
+    <name>Rails Internal API</name>
+    <from>^/(api/config/internal/.*)$</from>
+    <to last="true">/rails/$1</to>
+    <set name="rails_bound">true</set>
+  </rule>
+
+  <rule>
+    <name>Update Check URLs</name>
+    <from>^/(api/version_infos/.*)$</from>
+    <to last="true">/rails/$1</to>
+    <set name="rails_bound">true</set>
+  </rule>
+
+  <rule>
+    <name>Already rails bound</name>
+    <from>^/(rails/.*)$</from>
+    <set name="rails_bound">true</set>
+  </rule>
+
+  <rule>
+    <name>Agent files and properties</name>
+    <note>
+      For agent to download/upload artifacts and publish properties
+    </note>
+    <from>^/remoting/(files|properties)/(.*)</from>
+    <to last="false">/$1/$2</to>
+  </rule>
+
+  <!-- RESTful URLS -->
+  <rule>
+    <name>Set _method attribute to METHOD type</name>
+    <condition type="attribute" name="rails_bound">false</condition>
+    <from>.+</from>
+    <set name="_method">%{method}</set>
+  </rule>
+
+  <rule>
+    <name>Reset _method attribute if _method parameter is passed in</name>
+    <condition type="attribute" name="rails_bound">false</condition>
+    <condition type="parameter" name="_method">.+</condition>
+    <from>.+</from>
+    <set name="_method">%{parameter:_method}</set>
+  </rule>
+
+  <rule>
+    <condition type="request-uri">(.+)\.csv$</condition>
+    <from>(.+)</from>
+    <set name="_type">csv</set>
+  </rule>
+
+  <rule>
+    <condition type="request-uri">(.+)\.json$</condition>
+    <from>(.+)</from>
+    <set name="_type">json</set>
+  </rule>
+
+  <rule>
+    <condition type="request-uri">(.+)\.html$</condition>
+    <from>(.+)</from>
+    <set name="_type">html</set>
+  </rule>
+
+  <rule>
+    <condition type="request-uri">(.+)\.xml$</condition>
+    <from>(.+)</from>
+    <set name="_type">xml</set>
+  </rule>
+
+  <rule>
+    <condition type="request-uri">(.+)\.zip$</condition>
+    <from>(.+)</from>
+    <set name="_type">zip</set>
+  </rule>
+
+  <rule>
+    <name>RESTful rerun - Rerun a stage</name>
+    <from>^/run/([^/]+)/([^/]+)/([^/]+)$</from>
+    <to type="forward">/admin/rerun?pipelineName=$1&amp;pipelineLabel=$2&amp;stageName=$3</to>
+  </rule>
+
+  <rule>
+    <name>RESTful Artifacts - List All builds artifacts</name>
+    <from>^/files/([^/]+)/([^/]+)/([^/]+)/([^/]+)/([^/]+?)(\.(json|html))?(\?.*)?$</from>
+    <to type="forward">/repository/restful/artifact/%{attribute:_method}/%{attribute:_type}?pipelineName=$1&amp;pipelineLabel=$2&amp;stageName=$3&amp;stageCounter=$4&amp;buildName=$5&amp;filePath=</to>
+  </rule>
+
+  <rule>
+    <name>RESTful Artifacts with start LineNumber</name>
+    <condition type="parameter" name="startLineNumber"/>
+    <from>^/files/([^/]+)/([^/]+)/([^/]+)/([^/]+)/([^/]+)/(.*?)(\?.*)?$</from>
+    <to type="forward">/consoleout.json?pipelineName=$1&amp;pipelineLabel=$2&amp;stageName=$3&amp;stageCounter=$4&amp;buildName=$5&amp;filePath=${escape:$6}</to>
+    <set name="startLineNumber">{parameter:startLineNumber}</set>
+  </rule>
+
+  <rule>
+    <name>RESTful Artifacts with SHA1</name>
+    <condition type="parameter" name="sha1"/>
+    <from>^/files/([^/]+)/([^/]+)/([^/]+)/([^/]+)/([^/]+)/(.*?)(\?.*)?$</from>
+    <to type="forward">/repository/restful/artifact/%{attribute:_method}/%{attribute:_type}?pipelineName=$1&amp;pipelineLabel=$2&amp;stageName=$3&amp;stageCounter=$4&amp;buildName=$5&amp;filePath=${escape:$6}</to>
+    <set name="sha1">{parameter:sha1}</set>
+  </rule>
+
+  <rule>
+    <name>RESTful Artifacts</name>
+    <from>^/files/([^/]+)/([^/]+)/([^/]+)/([^/]+)/([^/]+)/(.*?)(\?.*)?$</from>
+    <to type="forward">/repository/restful/artifact/%{attribute:_method}/%{attribute:_type}?pipelineName=$1&amp;pipelineLabel=$2&amp;stageName=$3&amp;stageCounter=$4&amp;buildName=$5&amp;filePath=${escape:$6}</to>
+  </rule>
+
+  <rule>
+    <name>RESTful Properties Search for one job</name>
+    <condition type="parameter" name="pipelineLabel"/>
+    <from>^/properties/search(\?.*)?$</from>
+    <to type="forward">/repository/restful/properties/job/search</to>
+  </rule>
+
+  <rule>
+    <name>RESTful Properties Search for all jobs</name>
+    <from>^/properties/search(\?.*)?$</from>
+    <to type="forward">/repository/restful/properties/jobs/search</to>
+  </rule>
+
+  <rule>
+    <name>Post RESTful Property for a job</name>
+    <condition type="parameter" name="value"/>
+    <from>^/properties/([^/]+)/([^/]+)/([^/]+)/([^/]+)/([^/]+)/(.*?)?$</from>
+    <to type="forward">/repository/restful/properties/post?pipelineName=$1&amp;pipelineLabel=$2&amp;stageName=$3&amp;stageCounter=$4&amp;jobName=$5&amp;property=$6</to>
+  </rule>
+
+  <rule>
+    <name>RESTful Property for a job</name>
+    <from>^/properties/([^/]+)/([^/]+)/([^/]+)/([^/]+)/([^/]+)/(.*?)?$</from>
+    <to type="forward">/repository/restful/properties/job/search?pipelineName=$1&amp;pipelineLabel=$2&amp;stageName=$3&amp;stageCounter=$4&amp;jobName=$5&amp;property=$6</to>
+  </rule>
+
+  <rule>
+    <name>RESTful Properties for a job</name>
+    <from>^/properties/([^/]+)/([^/]+)/([^/]+)/([^/]+)/(.*?)?$</from>
+    <to type="forward">/repository/restful/properties/job/search?pipelineName=$1&amp;pipelineLabel=$2&amp;stageName=$3&amp;stageCounter=$4&amp;jobName=$5</to>
+  </rule>
+
+  <rule>
+    <name>Cruise Configuration Administration RESTful url - File</name>
+    <from>^/api/admin/config.xml$</from>
+    <to type="forward" last="true">/admin/restful/configuration/file/%{attribute:_method}/xml?version=current</to>
+  </rule>
+
+  <rule>
+    <name>Cruise Configuration Administration RESTful url - File</name>
+    <from>^/api/admin/config/([^/]+)\.xml$</from>
+    <to type="forward" last="true">/admin/restful/configuration/file/%{attribute:_method}/historical-xml?version=$1</to>
+  </rule>
+
+  <rule>
+    <name>Cruise Configuration Administration RESTful url - File</name>
+    <from>^/admin/configuration/file\.xml(\?.*)?$</from>
+    <to type="forward">/admin/restful/configuration/file/%{attribute:_method}/%{attribute:_type}</to>
+  </rule>
+
+  <rule>
+    <name>Specific Build Detail</name>
+    <from>/tab/build/detail/([^/]+)/([^/]+)/([^/]+)/([^/]+)/([^/]+)</from>
+    <to type="forward">/tab/build/recent?pipelineName=$1&amp;label=$2&amp;stageName=$3&amp;stageCounter=$4&amp;jobName=$5</to>
+  </rule>
+
+  <rule>
+    <name>Pipeline history</name>
+    <from>/tab/pipeline/history/([^/]+)</from>
+    <to type="forward">/tab/pipeline/history?pipelineName=$1</to>
+  </rule>
+
+  <rule>
+    <name>Stage detail beta</name>
+    <from>/pipelines/([^/]+)/([^/]+)/([^/]+)/([^/]+)</from>
+    <to type="forward">/pipelines/history?pipelineName=$1&amp;label=$2&amp;stageName=$3&amp;counter=$4</to>
+  </rule>
 </urlrewrite>
 

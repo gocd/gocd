@@ -832,7 +832,7 @@ task newApi {
 
     List<String> lines = file('server/webapp/WEB-INF/applicationContext-global.xml').readLines()
     int insertionIdx = lines.findIndexOf {l -> (l =~ /^\s*<context:component-scan /).find()}
-    lines.add(insertionIdx, "    <context:component-scan base-package=\"${packageName}\"/>")
+    lines.add(insertionIdx, "  <context:component-scan base-package=\"${packageName}\"/>")
 
     file('server/webapp/WEB-INF/applicationContext-global.xml').withWriter { out ->
       out.println(lines.join("\n").trim())

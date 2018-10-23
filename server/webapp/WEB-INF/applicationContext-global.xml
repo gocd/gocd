@@ -15,112 +15,113 @@
   ~ limitations under the License.
   -->
 
-
 <!--suppress AutowiredDependenciesInspection -->
-<beans xmlns="http://www.springframework.org/schema/beans"
-       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:context="http://www.springframework.org/schema/context"
        xmlns:aop="http://www.springframework.org/schema/aop"
-       xmlns:p="http://www.springframework.org/schema/p"
+       xmlns="http://www.springframework.org/schema/beans"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
         http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-2.5.xsd
-        http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd" default-init-method="init">
+        http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd"
+       default-init-method="init">
 
-    <context:annotation-config/>
+  <context:annotation-config/>
 
-    <context:component-scan base-package="com.thoughtworks.go.apiv1.configrepooperations"/>
-    <context:component-scan base-package="com.thoughtworks.go.apiv1.elasticprofile"/>
-    <context:component-scan base-package="com.thoughtworks.go.api.spring"/>
-    <context:component-scan base-package="com.thoughtworks.go.api.pluginimages"/>
-    <context:component-scan base-package="com.thoughtworks.go.spark.spring"/>
+  <context:component-scan base-package="com.thoughtworks.go.apiv1.configrepooperations"/>
+  <context:component-scan base-package="com.thoughtworks.go.apiv1.elasticprofile"/>
+  <context:component-scan base-package="com.thoughtworks.go.apiv1.admin.security"/>
+  <context:component-scan base-package="com.thoughtworks.go.apiv1.adminsconfig"/>
+  <context:component-scan base-package="com.thoughtworks.go.apiv1.admin.encryption.spring"/>
+  <context:component-scan base-package="com.thoughtworks.go.apiv1.pipelineoperations"/>
+  <context:component-scan base-package="com.thoughtworks.go.apiv1.stageoperations"/>
+  <context:component-scan base-package="com.thoughtworks.go.apiv2.dashboard"/>
+  <context:component-scan base-package="com.thoughtworks.go.apiv1.currentuser"/>
+  <context:component-scan base-package="com.thoughtworks.go.apiv1.admin.backups"/>
+  <context:component-scan base-package="com.thoughtworks.go.apiv1.serverhealthmessages"/>
+  <context:component-scan base-package="com.thoughtworks.go.apiv1.triggerwithoptionsview"/>
+  <context:component-scan base-package="com.thoughtworks.go.apiv1.materialsearch"/>
+  <context:component-scan base-package="com.thoughtworks.go.apiv1.pipelineselection"/>
+  <context:component-scan base-package="com.thoughtworks.go.apiv1.buildcause"/>
+  <context:component-scan base-package="com.thoughtworks.go.apiv1.artifactstoreconfig"/>
+  <context:component-scan base-package="com.thoughtworks.go.apiv6.admin.pipelineconfig"/>
+  <context:component-scan base-package="com.thoughtworks.go.apiv1.datasharing.settings"/>
+  <context:component-scan base-package="com.thoughtworks.go.apiv2.datasharing.reporting"/>
+  <context:component-scan base-package="com.thoughtworks.go.apiv3.datasharing.usagedata"/>
+  <context:component-scan base-package="com.thoughtworks.go.apiv4.admin.templateconfig"/>
+  <context:component-scan base-package="com.thoughtworks.go.apiv1.serverhealth"/>
+  <context:component-scan base-package="com.thoughtworks.go.apiv1.admin.pipelinegroups"/>
 
-    <context:component-scan base-package="com.thoughtworks.go.spark.spa.spring"/>
+  <context:component-scan base-package="com.thoughtworks.go.api.spring"/>
+  <context:component-scan base-package="com.thoughtworks.go.api.pluginimages"/>
+  <context:component-scan base-package="com.thoughtworks.go.spark.spring"/>
+  <context:component-scan base-package="com.thoughtworks.go.spark.spa.spring"/>
 
-    <context:component-scan base-package="com.thoughtworks.go.apiv1.admin.security" />
-    <context:component-scan base-package="com.thoughtworks.go.apiv1.adminsconfig" />
+  <context:component-scan base-package="com.thoughtworks.go.util"/>
+  <context:component-scan base-package="com.thoughtworks.go.serverhealth"/>
+  <context:component-scan base-package="com.thoughtworks.go.domain"/>
+  <context:component-scan base-package="com.thoughtworks.go.service"/>
+  <context:component-scan base-package="com.thoughtworks.go.server.sweepers"/>
+  <context:component-scan base-package="com.thoughtworks.go.server.cache"/>
+  <context:component-scan base-package="com.thoughtworks.go.server.service"/>
+  <context:component-scan base-package="com.thoughtworks.go.server.perf"/>
+  <context:component-scan base-package="com.thoughtworks.go.server.service.support"/>
+  <context:component-scan base-package="com.thoughtworks.go.plugins"/>
+  <context:component-scan base-package="com.thoughtworks.go.config.registry"/>
+  <context:component-scan base-package="com.thoughtworks.go.server.search"/>
+  <context:component-scan base-package="com.thoughtworks.go.server.messaging"/>
+  <context:component-scan base-package="com.thoughtworks.go.server.util"/>
+  <context:component-scan base-package="com.thoughtworks.go.server.scheduling"/>
+  <context:component-scan base-package="com.thoughtworks.go.server.cronjob"/>
+  <context:component-scan base-package="com.thoughtworks.go.server.materials"/>
+  <context:component-scan base-package="com.thoughtworks.go.server.persistence"/>
+  <context:component-scan base-package="com.thoughtworks.studios.shine"/>
+  <context:component-scan base-package="com.thoughtworks.go.server.web"/>
+  <context:component-scan base-package="com.thoughtworks.go.server.websocket"/>
+  <context:component-scan base-package="com.thoughtworks.go.remote"/>
+  <context:component-scan base-package="com.thoughtworks.go.config"/>
+  <context:component-scan base-package="com.thoughtworks.go.presentation"/>
+  <context:component-scan base-package="com.thoughtworks.go.server.initializers"/>
+  <context:component-scan base-package="com.thoughtworks.go.server.valuestreammap"/>
+  <context:component-scan base-package="com.thoughtworks.go.server.dashboard"/>
+  <context:component-scan base-package="com.thoughtworks.go.plugin.access"/>
+  <context:component-scan base-package="com.thoughtworks.go.server.newsecurity"/>
+  <context:component-scan base-package="com.thoughtworks.go.server.security"/>
 
-    <context:component-scan base-package="com.thoughtworks.go.apiv1.admin.encryption.spring"/>
-    <context:component-scan base-package="com.thoughtworks.go.apiv1.pipelineoperations"/>
-    <context:component-scan base-package="com.thoughtworks.go.apiv1.stageoperations"/>
-    <context:component-scan base-package="com.thoughtworks.go.apiv2.dashboard"/>
-    <context:component-scan base-package="com.thoughtworks.go.apiv1.currentuser"/>
-    <context:component-scan base-package="com.thoughtworks.go.apiv1.admin.backups"/>
-    <context:component-scan base-package="com.thoughtworks.go.apiv1.serverhealthmessages"/>
-    <context:component-scan base-package="com.thoughtworks.go.apiv1.triggerwithoptionsview"/>
-    <context:component-scan base-package="com.thoughtworks.go.apiv1.materialsearch"/>
-    <context:component-scan base-package="com.thoughtworks.go.apiv1.pipelineselection"/>
-    <context:component-scan base-package="com.thoughtworks.go.apiv1.buildcause"/>
-    <context:component-scan base-package="com.thoughtworks.go.apiv1.artifactstoreconfig"/>
-    <context:component-scan base-package="com.thoughtworks.go.apiv6.admin.pipelineconfig"/>
-    <context:component-scan base-package="com.thoughtworks.go.apiv1.datasharing.settings"/>
-    <context:component-scan base-package="com.thoughtworks.go.apiv2.datasharing.reporting"/>
-    <context:component-scan base-package="com.thoughtworks.go.apiv3.datasharing.usagedata"/>
-    <context:component-scan base-package="com.thoughtworks.go.apiv4.admin.templateconfig"/>
-    <context:component-scan base-package="com.thoughtworks.go.apiv1.serverhealth"/>
-    <context:component-scan base-package="com.thoughtworks.go.apiv1.admin.pipelinegroups"/>
+  <import resource="velocity-config.xml"/>
+  <import resource="applicationContext-shine-server.xml"/>
+  <import resource="classpath:applicationContext-plugin-infra.xml"/>
 
-    <context:component-scan base-package="com.thoughtworks.go.util"/>
-    <context:component-scan base-package="com.thoughtworks.go.serverhealth"/>
-    <context:component-scan base-package="com.thoughtworks.go.domain"/>
-    <context:component-scan base-package="com.thoughtworks.go.service"/>
-    <context:component-scan base-package="com.thoughtworks.go.server.sweepers"/>
-    <context:component-scan base-package="com.thoughtworks.go.server.cache"/>
-    <context:component-scan base-package="com.thoughtworks.go.server.service"/>
-    <context:component-scan base-package="com.thoughtworks.go.server.perf"/>
-    <context:component-scan base-package="com.thoughtworks.go.server.service.support"/>
-    <context:component-scan base-package="com.thoughtworks.go.plugins"/>
-    <context:component-scan base-package="com.thoughtworks.go.config.registry"/>
-    <context:component-scan base-package="com.thoughtworks.go.server.search"/>
-    <context:component-scan base-package="com.thoughtworks.go.server.messaging"/>
-    <context:component-scan base-package="com.thoughtworks.go.server.util"/>
-    <context:component-scan base-package="com.thoughtworks.go.server.scheduling"/>
-    <context:component-scan base-package="com.thoughtworks.go.server.cronjob"/>
-    <context:component-scan base-package="com.thoughtworks.go.server.materials"/>
-    <context:component-scan base-package="com.thoughtworks.go.server.persistence"/>
-    <context:component-scan base-package="com.thoughtworks.studios.shine"/>
-    <context:component-scan base-package="com.thoughtworks.go.server.web"/>
-    <context:component-scan base-package="com.thoughtworks.go.server.websocket"/>
-    <context:component-scan base-package="com.thoughtworks.go.remote"/>
-    <context:component-scan base-package="com.thoughtworks.go.config"/>
-    <context:component-scan base-package="com.thoughtworks.go.presentation"/>
-    <context:component-scan base-package="com.thoughtworks.go.server.initializers"/>
-    <context:component-scan base-package="com.thoughtworks.go.server.valuestreammap"/>
-    <context:component-scan base-package="com.thoughtworks.go.server.dashboard"/>
-    <context:component-scan base-package="com.thoughtworks.go.plugin.access"/>
-    <context:component-scan base-package="com.thoughtworks.go.server.newsecurity"/>
-    <context:component-scan base-package="com.thoughtworks.go.server.security"/>
+  <!--enable Spring support for configuring Spring AOP based on @AspectJ aspects-->
+  <aop:aspectj-autoproxy>
+  </aop:aspectj-autoproxy>
 
-    <import resource="velocity-config.xml"/>
-    <import resource="applicationContext-shine-server.xml"/>
-    <import resource="classpath:applicationContext-plugin-infra.xml"/>
+  <!--OVERRIDE THE SPRING ADAPTERS STARTS-->
 
-    <!--enable Spring support for configuring Spring AOP based on @AspectJ aspects-->
-    <aop:aspectj-autoproxy>
-    </aop:aspectj-autoproxy>
+  <bean class="org.springframework.web.servlet.mvc.annotation.AnnotationMethodHandlerAdapter">
+    <property name="supportedMethods">
+      <list>
+        <value>POST</value>
+        <value>GET</value>
+        <value>PUT</value>
+        <value>HEAD</value>
+      </list>
+    </property>
+    <property name="alwaysUseFullPath" value="true"/>
+  </bean>
+  <bean class="org.springframework.web.servlet.mvc.HttpRequestHandlerAdapter"/>
+  <bean class="org.springframework.web.servlet.handler.BeanNameUrlHandlerMapping"/>
+  <bean class="org.springframework.web.servlet.mvc.SimpleControllerHandlerAdapter"/>
+  <bean class="com.thoughtworks.go.server.web.AnnotatedExceptionResolver"/>
+  <!--END OVERRIDE THE SPRING ADAPTERS-->
 
-    <!--OVERIDE THE SPRING ADAPTERS STARTS-->
+  <bean id="configRepositoryValidatorService"
+        class="com.thoughtworks.go.config.validation.ConfigRepositoryValidatorService" autowire="autodetect"
+        lazy-init="false"/>
 
-    <bean class="org.springframework.web.servlet.mvc.annotation.AnnotationMethodHandlerAdapter">
-        <property name="supportedMethods">
-            <list>
-                <value>POST</value>
-                <value>GET</value>
-                <value>PUT</value>
-                <value>HEAD</value>
-            </list>
-        </property>
-        <property name="alwaysUseFullPath" value="true"></property>
-    </bean>
-    <bean class="org.springframework.web.servlet.mvc.HttpRequestHandlerAdapter"/>
-    <bean class="org.springframework.web.servlet.handler.BeanNameUrlHandlerMapping"/>
-    <bean class="org.springframework.web.servlet.mvc.SimpleControllerHandlerAdapter"/>
-    <bean class="com.thoughtworks.go.server.web.AnnotatedExceptionResolver"/>
-    <!--END OVERIDE THE SPRING ADAPTERS-->
+  <bean id="schedulerFactory" class="org.quartz.impl.StdSchedulerFactory"/>
+  <bean id="scheduler" factory-bean="schedulerFactory" factory-method="getScheduler" class="org.quartz.Scheduler"
+        init-method="start" scope="singleton"/>
 
-    <bean id="configRepositoryValidatorService" class="com.thoughtworks.go.config.validation.ConfigRepositoryValidatorService" autowire="autodetect" lazy-init="false" />
-
-    <bean id="schedulerFactory" class="org.quartz.impl.StdSchedulerFactory"  />
-    <bean id="scheduler" factory-bean="schedulerFactory" factory-method="getScheduler" class="org.quartz.Scheduler" init-method="start" scope="singleton"/>
-
-    <bean class="com.thoughtworks.go.server.domain.PipelineTimeline" name="pipelineTimeline" lazy-init="true" autowire="autodetect"/>
+  <bean class="com.thoughtworks.go.server.domain.PipelineTimeline" name="pipelineTimeline" lazy-init="true"
+        autowire="autodetect"/>
 </beans>

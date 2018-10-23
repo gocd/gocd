@@ -122,7 +122,7 @@ class StageOperationsControllerV1Test implements SecurityServiceTrait, Controlle
         assertThatResponse()
           .isNotFound()
           .hasContentType(controller.mimeType)
-          .hasJsonMessage("Not Found { Stage 'stage1' not found }")
+          .hasJsonMessage("Not Found { Stage 'stage1' with counter '1' not found. Please make sure specified stage or stage run with specified counter exists. }")
 
         verifyZeroInteractions(scheduleService)
       }
@@ -136,7 +136,7 @@ class StageOperationsControllerV1Test implements SecurityServiceTrait, Controlle
         assertThatResponse()
           .isNotFound()
           .hasContentType(controller.mimeType)
-          .hasJsonMessage("Not Found { Stage 'stage1' not found }")
+          .hasJsonMessage("Not Found { Stage 'stage1' with counter '1' not found. Please make sure specified stage or stage run with specified counter exists. }")
 
         verifyZeroInteractions(scheduleService)
       }
@@ -254,7 +254,7 @@ class StageOperationsControllerV1Test implements SecurityServiceTrait, Controlle
         assertThatResponse()
           .isNotFound()
           .hasContentType(controller.mimeType)
-          .hasJsonMessage("Not Found { Stage 'stage1' not found }")
+          .hasJsonMessage("Not Found { Stage 'stage1' with counter '1' not found. Please make sure specified stage or stage run with specified counter exists. }")
 
         verifyZeroInteractions(scheduleService)
       }
@@ -268,7 +268,7 @@ class StageOperationsControllerV1Test implements SecurityServiceTrait, Controlle
         assertThatResponse()
           .isNotFound()
           .hasContentType(controller.mimeType)
-          .hasJsonMessage("Not Found { Stage 'stage1' not found }")
+          .hasJsonMessage("Not Found { Stage 'stage1' with counter '1' not found. Please make sure specified stage or stage run with specified counter exists. }")
 
         verifyZeroInteractions(scheduleService)
       }

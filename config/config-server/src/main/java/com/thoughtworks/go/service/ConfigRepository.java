@@ -206,7 +206,7 @@ public class ConfigRepository {
                 LogCommand command = git.log().setMaxCount(pageSize).setSkip(offset);
                 Iterable<RevCommit> revisions = command.call();
                 for (RevCommit revision : revisions) {
-                    GoConfigRevision goConfigRevision = new GoConfigRevision(null, revision.getFullMessage());
+                    GoConfigRevision goConfigRevision = new GoConfigRevision((byte[]) null, revision.getFullMessage());
                     goConfigRevision.setCommitSHA(revision.name());
                     goConfigRevisions.add(goConfigRevision);
                 }
@@ -221,7 +221,7 @@ public class ConfigRepository {
         return new GoConfigRevision(contentFromTree(revision.getTree()), revision.getFullMessage());
     }
 
-    private String contentFromTree(RevTree tree) {
+    private byte[] contentFromTree(RevTree tree) {
         try {
             final ObjectReader reader = gitRepo.newObjectReader();
             CanonicalTreeParser parser = new CanonicalTreeParser();
@@ -240,7 +240,7 @@ public class ConfigRepository {
                 if (path.equals(CRUISE_CONFIG_XML)) {
                     final ObjectId id = parser.getEntryObjectId();
                     final ObjectLoader loader = reader.open(id);
-                    return new String(loader.getBytes());
+                    return loader.getBytes();
                 }
             }
             return null;

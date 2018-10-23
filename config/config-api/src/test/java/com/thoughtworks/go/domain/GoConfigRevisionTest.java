@@ -21,8 +21,12 @@ import com.thoughtworks.go.util.TimeProvider;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.Arrays;
 import java.util.Date;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.hamcrest.CoreMatchers.hasItems;
+import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
@@ -80,5 +84,21 @@ public class GoConfigRevisionTest {
         GoConfigRevision rev2 = new GoConfigRevision("blah blah", "md5", "loser 2", "2.2.3", new TimeProvider());
 
         assertThat(rev1, is(rev2));
+    }
+
+    @Test
+    public void canAnswerIfRevisionContentIsBackedByByteArrayWhenContentIsString() {
+        GoConfigRevision rev = new GoConfigRevision("blah", "md5", "loser", "2.2.2", new TimeProvider());
+        assertThat(rev.isByteArrayBacked(), is(false));
+        assertThat(rev.getConfigXmlBytes(), is(nullValue()));
+        assertThat(rev.getContent(), is("blah"));
+    }
+
+    @Test
+    public void canAnswerIfRevisionContentIsBackedByByteArrayWhenContentIsAByteArray() {
+        GoConfigRevision rev = new GoConfigRevision("blah".getBytes(UTF_8), String.format("user:los||er|||timestamp:%s|schema_version:%s|go_edition:OpenSource|go_version:100.3.||9.71|||||md5:my-||md5||||", date.getTime(), GoConstants.CONFIG_SCHEMA_VERSION));
+        assertThat(rev.isByteArrayBacked(), is(true));
+        assertThat(Arrays.asList(rev.getConfigXmlBytes()), hasItems("blah".getBytes(UTF_8)));
+        assertThat(rev.getContent(), is("blah"));
     }
 }

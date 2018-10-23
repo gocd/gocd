@@ -28,6 +28,9 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.apache.commons.lang3.StringUtils.isBlank;
+
 public class GoConfigRevision {
     private static final String DELIMITER_CHAR = "|";
     private static final String DELIMITER = "\\" + DELIMITER_CHAR;
@@ -69,7 +72,8 @@ public class GoConfigRevision {
     private String username;
     private String goVersion;
     private String goEdition;
-    private final String xml;
+    private String xml;
+    private byte[] configXmlBytes;
     private Date time;
     private int schemaVersion;
 	private String commitSHA;
@@ -82,6 +86,11 @@ public class GoConfigRevision {
         this.goEdition = "OpenSource";
         this.time = provider.currentTime();
         this.schemaVersion = GoConstants.CONFIG_SCHEMA_VERSION;
+    }
+
+    public GoConfigRevision(byte[] configXml, String comment) {
+        this((String) null, comment);
+        this.configXmlBytes = configXml;
     }
 
     public GoConfigRevision(String configXml, String comment) {
@@ -101,6 +110,7 @@ public class GoConfigRevision {
 
 
     private GoConfigRevision(String configXml) {
+        this.configXmlBytes = null;
         this.xml = configXml;
     }
 
@@ -109,7 +119,22 @@ public class GoConfigRevision {
     }
 
     public String getContent() {
+        if (isBlank(xml)) {
+            if (ArrayUtils.isEmpty(configXmlBytes)) {
+                xml = "";
+            } else {
+                xml = new String(configXmlBytes, UTF_8);
+            }
+        }
         return xml;
+    }
+
+    public boolean isByteArrayBacked() {
+        return configXmlBytes != null;
+    }
+
+    public byte[] getConfigXmlBytes() {
+        return configXmlBytes;
     }
 
     public String getComment() {

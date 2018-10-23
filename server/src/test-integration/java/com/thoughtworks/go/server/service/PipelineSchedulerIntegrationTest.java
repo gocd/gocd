@@ -19,18 +19,18 @@ package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.GoConfigDao;
-import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.StageConfig;
-import com.thoughtworks.go.domain.*;
+import com.thoughtworks.go.domain.EnvironmentVariable;
+import com.thoughtworks.go.domain.EnvironmentVariables;
+import com.thoughtworks.go.domain.Pipeline;
+import com.thoughtworks.go.domain.PipelinePauseInfo;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.domain.materials.svn.Subversion;
 import com.thoughtworks.go.domain.materials.svn.SvnCommand;
-import com.thoughtworks.go.helper.PipelineMother;
 import com.thoughtworks.go.helper.SvnTestRepo;
 import com.thoughtworks.go.helper.TestRepo;
 import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
-import com.thoughtworks.go.server.dao.PipelineDao;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.scheduling.ScheduleHelper;
 import com.thoughtworks.go.server.scheduling.ScheduleOptions;
@@ -40,8 +40,6 @@ import com.thoughtworks.go.serverhealth.HealthStateType;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.serverhealth.ServerHealthState;
 import com.thoughtworks.go.util.GoConfigFileHelper;
-import com.thoughtworks.go.util.GoConstants;
-import com.thoughtworks.go.util.TimeProvider;
 import com.thoughtworks.go.utils.Assertions;
 import com.thoughtworks.go.utils.Timeout;
 import org.junit.*;
@@ -58,11 +56,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.function.BooleanSupplier;
 
-import static com.thoughtworks.go.helper.ModificationsMother.modifySomeFiles;
 import static com.thoughtworks.go.matchers.RegexMatcher.matches;
 import static com.thoughtworks.go.util.GoConfigFileHelper.env;
-import static org.hamcrest.Matchers.greaterThan;
-import static org.hamcrest.Matchers.not;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 
@@ -85,10 +80,8 @@ public class PipelineSchedulerIntegrationTest {
     @Autowired private PipelineScheduleQueue pipelineScheduleQueue;
     @Autowired private ScheduleHelper scheduleHelper;
     @Autowired private DatabaseAccessHelper dbHelper;
-    @Autowired private PipelineDao pipelineDao;
     @Autowired private GoCache goCache;
     @Autowired private PipelinePauseService pipelinePauseService;
-    @Autowired private InstanceFactory instanceFactory;
 
     private static final String PIPELINE_NAME = "pipeline1";
     private static final String DEV_STAGE = "dev";
@@ -185,9 +178,9 @@ public class PipelineSchedulerIntegrationTest {
     public void shouldThrowExceptionIfOtherStageIsRunningInTheSamePipeline() throws Exception {
         Pipeline pipeline = makeCompletedPipeline();
         StageConfig ftStage = goConfigService.stageConfigNamed(PIPELINE_MINGLE, FT_STAGE);
-        scheduleService.rerunStage(PIPELINE_MINGLE, pipeline.getCounter().toString(), FT_STAGE);
+        scheduleService.rerunStage(PIPELINE_MINGLE, pipeline.getCounter(), FT_STAGE);
         try {
-            scheduleService.rerunStage(PIPELINE_MINGLE, pipeline.getCounter().toString(), FT_STAGE);
+            scheduleService.rerunStage(PIPELINE_MINGLE, pipeline.getCounter(), FT_STAGE);
             Assert.fail("Should throw exception if fails to re-run stage");
         } catch (Exception ignored) {
             assertThat(ignored.getMessage(), matches("Cannot schedule: Pipeline.+is still in progress"));
@@ -205,20 +198,20 @@ public class PipelineSchedulerIntegrationTest {
 
     @Test
     public void shouldPauseAndUnpausePipeline_identifiedByCaseInsensitiveString() throws Exception {
-
         configHelper.setOperatePermissionForGroup("defaultGroup", "pausedBy");
-        configHelper.addPipeline(PIPELINE_NAME, "stage-name");
+        String pipelineName = PIPELINE_NAME.toUpperCase();
+        configHelper.addPipeline(pipelineName, "stage-name");
 
         Username userName = new Username(new CaseInsensitiveString("pauseBy"));
-        pipelinePauseService.pause(PIPELINE_NAME, "pauseCause", userName);
+        pipelinePauseService.pause(pipelineName, "pauseCause", userName);
 
-        PipelinePauseInfo pauseInfo = pipelinePauseService.pipelinePauseInfo(PIPELINE_NAME);
+        PipelinePauseInfo pauseInfo = pipelinePauseService.pipelinePauseInfo(pipelineName);
         assertThat(pauseInfo.isPaused(), is(true));
         assertThat(pauseInfo.getPauseCause(), is("pauseCause"));
         assertThat(pauseInfo.getPauseBy(), is("pauseBy"));
 
-        pipelinePauseService.unpause(PIPELINE_NAME);
-        pauseInfo = pipelinePauseService.pipelinePauseInfo(PIPELINE_NAME);
+        pipelinePauseService.unpause(pipelineName);
+        pauseInfo = pipelinePauseService.pipelinePauseInfo(pipelineName);
         assertThat(pauseInfo.isPaused(), is(false));
     }
 
@@ -239,80 +232,4 @@ public class PipelineSchedulerIntegrationTest {
         pauseInfo = pipelinePauseService.pipelinePauseInfo(PIPELINE_NAME);
         assertThat(pauseInfo.isPaused(), is(false));
     }
-
-
-    @Test public void returnPipelineForBuildDetailViewShouldContainOnlyMods() throws Exception {
-        Pipeline pipeline = createPipelineWithStagesAndMods();
-        JobInstance job = pipeline.getFirstStage().getJobInstances().first();
-
-        Pipeline slimPipeline = pipelineService.wrapBuildDetails(job);
-        assertThat(slimPipeline.getBuildCause().getMaterialRevisions().totalNumberOfModifications(), is(1));
-        assertThat(slimPipeline.getName(), is(pipeline.getName()));
-        assertThat(slimPipeline.getFirstStage().getJobInstances().size(), is(1));
-    }
-
-    @Test
-    public void shouldApplyLabelFromPreviousPipeline() throws Exception {
-        String oldLabel = createNewPipeline().getLabel();
-        String newLabel = createNewPipeline().getLabel();
-        assertThat(newLabel, is(greaterThan(oldLabel)));
-    }
-
-    private Pipeline createNewPipeline() {
-        if (!goConfigService.hasPipelineNamed(new CaseInsensitiveString("Test"))) {
-            configHelper.addPipeline("Test", "dev");
-        }
-        Pipeline pipeline = new Pipeline("Test", "testing-${COUNT}", BuildCause.createWithEmptyModifications(), new EnvironmentVariables());
-        return pipelineService.save(pipeline);
-    }
-
-    @Test
-    public void shouldIncreaseCounterFromPreviousPipeline() {
-        Pipeline pipeline1 = createNewPipeline();
-        Pipeline pipeline2 = createNewPipeline();
-        assertThat(pipeline2.getCounter(), is(pipeline1.getCounter() + 1));
-    }
-
-    @Test
-    public void shouldFindPipelineByLabel() {
-        Pipeline pipeline = createPipelineWhoseLabelIsNumberAndNotSameWithCounter();
-        Pipeline actual = pipelineService.findPipelineByCounterOrLabel("Test", "10");
-        assertThat(actual.getId(), is(pipeline.getId()));
-        assertThat(actual.getLabel(), is(pipeline.getLabel()));
-        assertThat(actual.getCounter(), is(pipeline.getCounter()));
-    }
-
-    @Test
-    public void shouldFindPipelineByCounter() {
-        Pipeline pipeline = createNewPipeline();
-        Pipeline actual = pipelineService.findPipelineByCounterOrLabel("Test", pipeline.getCounter().toString());
-        assertThat(actual.getId(), is(pipeline.getId()));
-        assertThat(actual.getLabel(), is(pipeline.getLabel()));
-        assertThat(actual.getCounter(), is(pipeline.getCounter()));
-    }
-
-    @Test
-    public void shouldReturnFullPipelineByCounter() {
-        Pipeline pipeline = createPipelineWithStagesAndMods();
-        Pipeline actual = pipelineService.fullPipelineByCounterOrLabel(pipeline.getName(),
-                pipeline.getCounter().toString());
-        assertThat(actual.getStages().size(), is(not(0)));
-        assertThat(actual.getBuildCause().getMaterialRevisions().getRevisions().size(), is(not(0)));
-    }
-
-    private Pipeline createPipelineWhoseLabelIsNumberAndNotSameWithCounter() {
-        Pipeline pipeline = new Pipeline("Test", "${COUNT}0", BuildCause.createWithEmptyModifications(), new EnvironmentVariables());
-        pipeline.updateCounter(9);
-        pipelineDao.save(pipeline);
-        return pipeline;
-    }
-
-    private Pipeline createPipelineWithStagesAndMods() {
-        PipelineConfig config = PipelineMother.twoBuildPlansWithResourcesAndMaterials("tester", "dev");
-        configHelper.addPipeline(CaseInsensitiveString.str(config.name()), CaseInsensitiveString.str(config.first().name()));
-        Pipeline pipeline = instanceFactory.createPipelineInstance(config, modifySomeFiles(config), new DefaultSchedulingContext(GoConstants.DEFAULT_APPROVED_BY), "md5-test", new TimeProvider());
-        dbHelper.savePipelineWithStagesAndMaterials(pipeline);
-        return pipeline;
-    }
-
 }

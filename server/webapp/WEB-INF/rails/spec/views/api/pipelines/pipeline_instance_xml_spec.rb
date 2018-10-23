@@ -34,8 +34,6 @@ describe "/api/pipelines/pipeline_instance" do
     @dependent_pipeline.setId(12)
     @dependent_pipeline.setMaterialConfigs(@pipeline2_config.materialConfigs())
 
-    allow(view).to receive(:stage_url_from_identifier).with("uat/1/default-stage/1").and_return("url_to_default_stage")
-
     @finder = stage_finder
     @context = XmlWriterContext.new("http://test.host/go", nil, nil, nil, @finder)
     assign(:doc, PipelineXmlViewModel.new(@pipeline).toXml(@context))
@@ -125,8 +123,6 @@ describe "/api/pipelines/pipeline_instance" do
     @dependent_pipeline.setMaterialConfigs(@pipeline2_config.materialConfigs())
 
     assign(:doc, PipelineXmlViewModel.new(@dependent_pipeline).toXml(@context))
-
-    allow(view).to receive(:stage_url_from_identifier).with("ua<t/1/def\"ault<-stage/1").and_return("a_url")
 
     render :template => '/api/pipelines/pipeline_instance.xml.erb'
 

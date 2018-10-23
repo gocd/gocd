@@ -19,30 +19,40 @@ package com.thoughtworks.go.apiv1.stageoperations;
 import com.thoughtworks.go.api.ApiController;
 import com.thoughtworks.go.api.ApiVersion;
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
+import com.thoughtworks.go.server.service.PipelineService;
 import com.thoughtworks.go.server.service.ScheduleService;
 import com.thoughtworks.go.server.service.result.HttpOperationResult;
 import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.spring.SparkSpringController;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import spark.Request;
 import spark.Response;
 
 import java.io.IOException;
+import java.util.Optional;
 
+import static com.thoughtworks.go.api.util.HaltApiResponses.haltBecauseOfReason;
 import static spark.Spark.*;
 
 @Component
 public class StageOperationsControllerV1 extends ApiController implements SparkSpringController {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(StageOperationsControllerV1.class);
+
     private final ScheduleService scheduleService;
     private final ApiAuthenticationHelper apiAuthenticationHelper;
+    private final PipelineService pipelineService;
 
     @Autowired
-    public StageOperationsControllerV1(ScheduleService scheduleService, ApiAuthenticationHelper apiAuthenticationHelper) {
+    public StageOperationsControllerV1(ScheduleService scheduleService, ApiAuthenticationHelper apiAuthenticationHelper,
+                                       PipelineService pipelineService) {
         super(ApiVersion.v1);
         this.scheduleService = scheduleService;
         this.apiAuthenticationHelper = apiAuthenticationHelper;
+        this.pipelineService = pipelineService;
     }
 
     @Override
@@ -70,7 +80,14 @@ public class StageOperationsControllerV1 extends ApiController implements SparkS
         String stageName = req.params("stage_name");
         HttpOperationResult result = new HttpOperationResult();
 
-        scheduleService.rerunStage(pipelineName, pipelineCounter, stageName, result);
+        Optional<Integer> pipelineCounterValue = pipelineService.resolvePipelineCounter(pipelineName, pipelineCounter);
+        if (!pipelineCounterValue.isPresent()) {
+            String errorMessage = String.format("Error while running [%s/%s/%s]. Received non-numeric pipeline counter '%s'.", pipelineName, pipelineCounter, stageName, pipelineCounter);
+            LOGGER.error(errorMessage);
+            throw haltBecauseOfReason(errorMessage);
+        }
+
+        scheduleService.rerunStage(pipelineName, pipelineCounterValue.get(), stageName, result);
         return renderHTTPOperationResult(result, req, res);
     }
 }

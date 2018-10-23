@@ -135,16 +135,6 @@ public class JobControllerIntegrationTest {
     }
 
     @Test
-    public void shouldSupportLatest() throws Exception {
-        Pipeline pipeline = fixture.createdPipelineWithAllStagesPassed();
-        Stage stage = pipeline.getFirstStage();
-        JobInstance job = stage.getFirstJob();
-        ModelAndView modelAndView = controller.jobDetail(pipeline.getName(), JobIdentifier.LATEST,
-                stage.getName(), JobIdentifier.LATEST, job.getName());
-        assertThat(presenter(modelAndView).getBuildLocator(), is(job.getIdentifier().buildLocator()));
-    }
-
-    @Test
     public void shouldReturnErrorMessageWhenFailedToFindJob() throws Exception {
         try {
             controller.jobDetail(fixture.pipelineName, "1", fixture.devStage, "1", "invalid-job");

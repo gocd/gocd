@@ -94,7 +94,7 @@ public class ScheduleStageTest {
         Pipeline pipeline = fixture.createdPipelineWithAllStagesPassed();
         Stage oldStage = pipeline.getStages().byName(fixture.devStage);
 
-        scheduleService.rerunStage(pipeline.getName(), String.valueOf(pipeline.getCounter()), fixture.devStage);
+        scheduleService.rerunStage(pipeline.getName(), pipeline.getCounter(), fixture.devStage);
         Stage stage = dbHelper.getStageDao().mostRecentStage(
                 new StageConfigIdentifier(pipeline.getName(), fixture.devStage));
         assertThat(stage.getCounter(), is(oldStage.getCounter() + 1));
@@ -119,7 +119,7 @@ public class ScheduleStageTest {
         jobVariables.add("jobEnv", "jobBaz");
         configHelper.addEnvironmentVariableToJob(fixture.pipelineName, fixture.devStage, fixture.JOB_FOR_DEV_STAGE, jobVariables);
 
-        Stage stage = scheduleService.rerunStage(pipeline.getName(), String.valueOf(pipeline.getCounter()), fixture.devStage);
+        Stage stage = scheduleService.rerunStage(pipeline.getName(), pipeline.getCounter(), fixture.devStage);
 
         dbHelper.passStage(stage);
 
@@ -168,7 +168,7 @@ public class ScheduleStageTest {
     public void shouldRerunOnlyGivenJobsFromExistingStage() throws Exception {
         Pipeline pipeline = fixture.createdPipelineWithAllStagesPassed();
 
-        Stage stage = scheduleService.rerunStage(pipeline.getName(), String.valueOf(pipeline.getCounter()), fixture.devStage);
+        Stage stage = scheduleService.rerunStage(pipeline.getName(), pipeline.getCounter(), fixture.devStage);
 
         dbHelper.passStage(stage);
 
@@ -213,7 +213,7 @@ public class ScheduleStageTest {
     public void shouldConsiderCopyOfRerunJobACopyAndNotRerun() throws Exception {
         Pipeline pipeline = fixture.createdPipelineWithAllStagesPassed();
 
-        Stage stage = scheduleService.rerunStage(pipeline.getName(), String.valueOf(pipeline.getCounter()), fixture.devStage);
+        Stage stage = scheduleService.rerunStage(pipeline.getName(), pipeline.getCounter(), fixture.devStage);
 
         assertThat(stage.hasRerunJobs(), is(false));
 
@@ -311,7 +311,7 @@ public class ScheduleStageTest {
         Pipeline pipeline = fixture.createPipelineWithFirstStagePassedAndSecondStageHasNotStarted();
         String theThirdStage = fixture.stageName(3);
         try {
-            scheduleService.rerunStage(pipeline.getName(), pipeline.getLabel(), theThirdStage);
+            scheduleService.rerunStage(pipeline.getName(), pipeline.getCounter(), theThirdStage);
         } catch (Exception e) {
             assertThat(e.getMessage(), is(String.format(
                     "Can not run stage [%s] in pipeline [%s] because its previous stage has not been run.",
@@ -338,7 +338,7 @@ public class ScheduleStageTest {
         return new Runnable() {
             public void run() {
                 try {
-                    scheduleService.rerunStage(fixture.pipelineName, fixture.pipelineLabel(), ftStage);
+                    scheduleService.rerunStage(fixture.pipelineName, fixture.pipelineCounter(), ftStage);
                 } catch (Exception e) {
                     exceptions.add(e);
                 }

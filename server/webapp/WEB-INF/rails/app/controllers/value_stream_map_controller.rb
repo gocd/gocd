@@ -1,5 +1,5 @@
 ##########################GO-LICENSE-START################################
-# Copyright 2017 ThoughtWorks, Inc.
+# Copyright 2018 ThoughtWorks, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -22,7 +22,7 @@ class ValueStreamMapController < ApplicationController
 
   def show
     begin
-      @pipeline = pipeline_service.findPipelineByCounterOrLabel(params[:pipeline_name], params[:pipeline_counter])
+      @pipeline = pipeline_service.findPipelineByNameAndCounter(params[:pipeline_name], params[:pipeline_counter].to_i)
     rescue
     end
     respond_to do |format|

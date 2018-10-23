@@ -59,33 +59,32 @@ export = class KitchenSink extends MithrilComponent<null> {
         <Buttons.Primary>Primary Button</Buttons.Primary>
         <Buttons.Secondary>Secondary Button</Buttons.Secondary>
         <Buttons.Reset>Reset Button</Buttons.Reset>
-        <Buttons.Primary>Save</Buttons.Primary>
-        <Buttons.Reset>Cancel</Buttons.Reset>
+        <Buttons.Cancel>Cancel</Buttons.Cancel>
 
         <br/>
         <h3>Small Buttons:</h3>
         <Buttons.Primary small={true}>Small Primary Button</Buttons.Primary>
         <Buttons.Secondary small={true}>Small Secondary Button</Buttons.Secondary>
         <Buttons.Reset small={true}>Small Reset Button</Buttons.Reset>
-        <Buttons.Primary small={true}>Save</Buttons.Primary>
-        <Buttons.Reset small={true}>Cancel</Buttons.Reset>
+        <Buttons.Cancel small={true}>Cancel</Buttons.Cancel>
 
         <h3>Some examples of accordions</h3>
 
         <h3>Some examples of key value pairs</h3>
         <KeyValuePair data={
           {
-            'First Name': 'Jon',
-            'Last Name':  'Doe',
-            'email':      'jdoe@example.com',
+            'First Name':                                       'Jon',
+            'Last Name':                                        'Doe',
+            'email':                                            'jdoe@example.com',
+            'some really really really really really long key': 'This is really really really really really really really really really really long junk value'
           }
         }/>
 
         <h3>Some examples of inline key value pairs</h3>
         <KeyValuePair inline={true} data={
           {
-            'Plugin':  'my-fancy-plugin-name',
-            'version': 'v1.0.0-24536'
+            'Plugin':                                           'my-fancy-plugin-name',
+            'some really really really really really long key': 'This is really really really really really really really really really really long junk value'
           }
         }/>
       </main>

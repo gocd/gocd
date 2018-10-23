@@ -121,7 +121,7 @@ public class GoConfigRevision {
     public String getContent() {
         if (isBlank(xml)) {
             if (ArrayUtils.isEmpty(configXmlBytes)) {
-                xml = "";
+                xml = null;
             } else {
                 xml = new String(configXmlBytes, UTF_8);
             }

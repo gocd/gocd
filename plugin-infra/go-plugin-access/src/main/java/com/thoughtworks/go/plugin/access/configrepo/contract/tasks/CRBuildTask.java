@@ -60,9 +60,9 @@ public class CRBuildTask extends CRTask {
     {
         return new CRNantTask(NANT_TYPE_NAME,null,null,null,null);
     }
-    public static CRNantTask nant(String nantFile)
+    public static CRNantTask nant(String nantPath)
     {
-        return new CRNantTask(NANT_TYPE_NAME,nantFile,null,null,null);
+        return new CRNantTask(NANT_TYPE_NAME,null,null,null,nantPath);
     }
     public static CRNantTask nant(String nantFile,String target)
     {

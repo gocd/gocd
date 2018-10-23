@@ -29,8 +29,8 @@ import com.thoughtworks.go.config.materials.tfs.TfsMaterialConfig;
 import com.thoughtworks.go.config.pluggabletask.PluggableTask;
 import com.thoughtworks.go.config.remote.PartialConfig;
 import com.thoughtworks.go.domain.KillAllChildProcessTask;
-import com.thoughtworks.go.domain.config.Configuration;
-import com.thoughtworks.go.domain.config.PluginConfiguration;
+import com.thoughtworks.go.domain.RunIfConfigs;
+import com.thoughtworks.go.domain.config.*;
 import com.thoughtworks.go.domain.label.PipelineLabel;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.domain.packagerepository.PackageDefinition;
@@ -1483,5 +1483,192 @@ public class ConfigConverterTest {
         assertThat(result.getEncryptedValue(), is("encryptedvalue"));
         assertNull(result.getValue());
         assertThat(result.getName(), is("key1"));
+    }
+
+    @Test
+    public void shouldMigratePluggableTasktoCR() {
+        ArrayList<CRConfigurationProperty> configs = new ArrayList<>();
+        configs.add(new CRConfigurationProperty("k", "m", null));
+
+        ConfigurationProperty prop = new ConfigurationProperty(new ConfigurationKey("k"), new ConfigurationValue("m"));
+        Configuration config = new Configuration(prop);
+
+        PluggableTask pluggableTask = new PluggableTask(
+                new PluginConfiguration("myplugin", "1"),
+                config);
+        pluggableTask.setConditions(new RunIfConfigs(RunIfConfig.ANY));
+
+        CRPluggableTask result = (CRPluggableTask) configConverter.taskToCRTask(pluggableTask);
+
+        assertThat(result.getPluginConfiguration().getId(), is("myplugin"));
+        assertThat(result.getPluginConfiguration().getVersion(), is("1"));
+        assertThat(result.getConfiguration(), hasItem(new CRConfigurationProperty("k", "m", null)));
+        assertThat(result.getRunIf(), is(CRRunIf.any));
+    }
+
+    @Test
+    public void shouldMigrateRakeTaskToCR() {
+        RakeTask rakeTask = new RakeTask();
+        rakeTask.setBuildFile("Rakefile.rb");
+        rakeTask.setWorkingDirectory("src");
+        rakeTask.setTarget("build");
+        rakeTask.setConditions(new RunIfConfigs(RunIfConfig.FAILED));
+
+        CRBuildTask result = (CRBuildTask) configConverter.taskToCRTask(rakeTask);
+
+        assertThat(result.getType(), is(CRBuildFramework.rake));
+        assertThat(result.getBuildFile(), is("Rakefile.rb"));
+        assertThat(result.getTarget(), is("build"));
+        assertThat(result.getWorkingDirectory(), is("src"));
+        assertThat(result.getRunIf(), is(CRRunIf.failed));
+    }
+
+    @Test
+    public void shouldMigrateAntTaskToCR() {
+        RakeTask rakeTask = new RakeTask();
+        rakeTask.setBuildFile("Rakefile.rb");
+        rakeTask.setWorkingDirectory("src");
+        rakeTask.setTarget("build");
+        rakeTask.setConditions(new RunIfConfigs(RunIfConfig.FAILED));
+
+        AntTask antTask = new AntTask();
+        antTask.setBuildFile("ant");
+        antTask.setWorkingDirectory("src");
+        antTask.setTarget("build");
+        antTask.setOnCancelConfig(new OnCancelConfig(rakeTask));
+        antTask.setConditions(new RunIfConfigs(RunIfConfig.FAILED));
+
+        CRBuildTask result = (CRBuildTask) configConverter.taskToCRTask(antTask);
+        CRBuildTask onCancel = (CRBuildTask) result.getOnCancel();
+
+        assertThat(result.getRunIf(), is(CRRunIf.failed));
+        assertThat(result.getBuildFile(), is("ant"));
+        assertThat(result.getTarget(), is("build"));
+        assertThat(result.getWorkingDirectory(), is("src"));
+        assertThat(onCancel.getType(), is(CRBuildFramework.rake));
+        assertThat(onCancel.getBuildFile(), is("Rakefile.rb"));
+        assertThat(onCancel.getTarget(), is("build"));
+        assertThat(onCancel.getWorkingDirectory(), is("src"));
+        assertThat(onCancel.getRunIf(), is(CRRunIf.failed));
+    }
+
+    @Test
+    public void shouldMigrateNantTaskToCR() {
+        NantTask nantTask = new NantTask();
+        nantTask.setBuildFile("nant");
+        nantTask.setWorkingDirectory("src");
+        nantTask.setTarget("build");
+        nantTask.setNantPath("path");
+        nantTask.setConditions(new RunIfConfigs(RunIfConfig.PASSED));
+
+        CRNantTask result = (CRNantTask) configConverter.taskToCRTask(nantTask);
+
+        assertThat(result.getRunIf(), is(CRRunIf.passed));
+        assertThat(result.getBuildFile(), is("nant"));
+        assertThat(result.getTarget(), is("build"));
+        assertThat(result.getWorkingDirectory(), is("src"));
+        assertThat(result.getNantPath(), is("path"));
+    }
+
+    @Test
+    public void shouldConvertExecTaskWhenCancelIsNotSpecifiedToCR() {
+        ExecTask execTask = new ExecTask("bash",
+                new Arguments(new Argument("1"), new Argument("2")),
+                "work");
+        execTask.setConditions(new RunIfConfigs(RunIfConfig.FAILED));
+        execTask.setTimeout(120L);
+        CRExecTask result = (CRExecTask) configConverter.taskToCRTask(execTask);
+
+        assertThat(result.getRunIf(), is(CRRunIf.failed));
+        assertThat(result.getCommand(), is("bash"));
+        assertThat(result.getArgs(), hasItem("1"));
+        assertThat(result.getArgs(), hasItem("2"));
+        assertThat(result.getWorkingDirectory(), is("work"));
+        assertThat(result.getTimeout(), is(120L));
+        assertNull(result.getOnCancel());
+    }
+
+    @Test
+    public void shouldConvertExecTaskWhenCancelIsSpecifiedToCR() {
+        ExecTask onCancel = new ExecTask();
+        onCancel.setCommand("kill");
+        ExecTask execTask = new ExecTask("bash",
+                new Arguments(new Argument("1"), new Argument("2")),
+                "work");
+        execTask.setOnCancelConfig(new OnCancelConfig(onCancel));
+        execTask.setConditions(new RunIfConfigs(RunIfConfig.FAILED));
+        execTask.setTimeout(120L);
+
+        CRExecTask result = (CRExecTask) configConverter.taskToCRTask(execTask);
+        CRExecTask crOnCancel = (CRExecTask) result.getOnCancel();
+
+        assertThat(result.getRunIf(), is(CRRunIf.failed));
+        assertThat(result.getCommand(), is("bash"));
+        assertThat(result.getArgs(), hasItem("1"));
+        assertThat(result.getArgs(), hasItem("2"));
+        assertThat(result.getWorkingDirectory(), is("work"));
+        assertThat(result.getTimeout(), is(120L));
+        assertThat(crOnCancel.getCommand(), is("kill"));
+    }
+
+    @Test
+    public void shouldConvertFetchArtifactTaskWhenSourceIsDirectoryToCR() {
+        FetchTask fetchTask = new FetchTask(
+               new CaseInsensitiveString("upstream"),
+               new CaseInsensitiveString("stage"),
+               new CaseInsensitiveString("job"),
+               "src",
+               "dest"
+        );
+        fetchTask.setConditions(new RunIfConfigs(RunIfConfig.FAILED));
+
+        CRFetchArtifactTask result = (CRFetchArtifactTask) configConverter.taskToCRTask(fetchTask);
+
+        assertThat(result.getRunIf(), is(CRRunIf.failed));
+        assertThat(result.getDestination(), is("dest"));
+        assertThat(result.getJob(), is("job"));
+        assertThat(result.getPipelineName(), is("upstream"));
+        assertThat(result.getSource(), is("src"));
+        assertThat(result.sourceIsDirectory(), is(true));
+    }
+
+    @Test
+    public void shouldConvertFetchArtifactTaskWhenSourceIsFileToCR() {
+        FetchTask fetchTask = new FetchTask(
+                new CaseInsensitiveString("upstream"),
+                new CaseInsensitiveString("stage"),
+                new CaseInsensitiveString("job"),
+                "",
+                "dest"
+        );
+        fetchTask.setConditions(new RunIfConfigs(RunIfConfig.FAILED));
+
+        CRFetchArtifactTask result = (CRFetchArtifactTask) configConverter.taskToCRTask(fetchTask);
+
+        assertThat(result.getRunIf(), is(CRRunIf.failed));
+        assertThat(result.getDestination(), is("dest"));
+        assertThat(result.getJob(), is("job"));
+        assertThat(result.getPipelineName(), is("upstream"));
+        assertNull(result.getSource());
+        assertThat(result.sourceIsDirectory(), is(false));
+    }
+
+    @Test
+    public void shouldConvertFetchPluggableArtifactTaskToCRFetchPluggableArtifactTask() {
+        FetchPluggableArtifactTask fetchPluggableArtifactTask = new FetchPluggableArtifactTask(
+        new CaseInsensitiveString("upstream"),
+                new CaseInsensitiveString("stage"),
+                new CaseInsensitiveString("job"),
+                "artifactId");
+        fetchPluggableArtifactTask.setConditions(new RunIfConfigs(RunIfConfig.PASSED));
+
+        CRFetchPluggableArtifactTask result = (CRFetchPluggableArtifactTask) configConverter.taskToCRTask(fetchPluggableArtifactTask);
+
+        assertThat(result.getRunIf(), is(CRRunIf.passed));
+        assertThat(result.getJob(), is("job"));
+        assertThat(result.getPipelineName(), is("upstream"));
+        assertThat(result.getStage(), is("stage"));
+        assertThat(result.getArtifactId(), is("artifactId"));
+        assertThat(result.getConfiguration().isEmpty(), is(true));
     }
 }

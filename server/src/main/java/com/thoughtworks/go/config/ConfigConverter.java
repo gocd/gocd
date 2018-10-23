@@ -754,7 +754,7 @@ public class ConfigConverter {
         return job;
     }
 
-    private CRTask taskToCRTask(Task task) {
+    public CRTask taskToCRTask(Task task) {
         if (task == null)
             throw new ConfigConvertionException("task cannot be null");
 
@@ -791,10 +791,8 @@ public class ConfigConverter {
 
         fetchTask.setDestination(task.getDest());
         fetchTask.setPipelineName(task.getPipelineName().toString());
+        fetchTask.setSourceIsDirectory(task.isSourceAFile());
 
-        if (!task.isSourceAFile()) {
-            fetchTask.setSourceIsDirectory(true);
-        }
         commonCRTaskMembers(fetchTask, task);
         return fetchTask;
     }
@@ -828,7 +826,7 @@ public class ConfigConverter {
         } else if (buildTask instanceof  AntTask) {
             crBuildTask = CRBuildTask.ant();
         } else if (buildTask instanceof NantTask) {
-            crBuildTask = CRBuildTask.nant();
+            crBuildTask = CRBuildTask.nant(((NantTask) buildTask).getNantPath());
         } else {
             throw new RuntimeException(
                     String.format("unknown type of build task '%s'", buildTask));

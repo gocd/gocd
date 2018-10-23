@@ -41,7 +41,6 @@ describe "admin/pipelines/new.html.erb" do
     tvms = java.util.ArrayList.new
     tvms.add(com.thoughtworks.go.presentation.TaskViewModel.new(com.thoughtworks.go.config.AntTask.new,"template"))
     assign(:task_view_models, tvms)
-    assign(:config_context, create_config_context(MockRegistryModule::MockRegistry.new))
 
     @cruise_config = BasicCruiseConfig.new
     repository1 = PackageRepositoryMother.create("repo1", "repo1-name", "pluginid", "version", Configuration.new([ConfigurationPropertyMother.create("k1", false, "v1")].to_java(ConfigurationProperty)))

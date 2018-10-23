@@ -32,7 +32,6 @@ describe "admin/jobs/new.html.erb" do
     tvms = java.util.ArrayList.new
     tvms.add(com.thoughtworks.go.presentation.TaskViewModel.new(com.thoughtworks.go.config.AntTask.new, "template"))
     assign(:task_view_models, tvms)
-    assign(:config_context, create_config_context(MockRegistryModule::MockRegistry.new))
 
     allow(view).to receive(:render_pluggable_form_template).and_return("template")
   end

@@ -15,36 +15,74 @@
  */
 @import "../../global/common";
 
+$item-padding: 5px;
+
+$key-value-pair-width: 150px;
+
+$key-font-size: 13px;
+$key-font-weight: 400;
+
+$value-font-size: 13px;
+$value-font-weight: 600;
+$value-padding-left: 15px;
+
+$inline-key-value-pair-margin: 20px;
+$inline-key-value-item-margin: 50px;
+
 .key-value-pair {
   padding:         0;
-  margin:          0;
-
+  margin:          0 0 $global-margin-bottom 0;
   list-style-type: none;
-  li {
-    @include clearfix();
-    border-bottom: 1px dashed lighten($border-color, 10%);
-    &:last-child {
-      border: none;
-    }
-  }
-
   .key {
-    float:         left;
-    min-width:     150px;
-    clear:         left;
-    font-weight:   400;
-    margin-bottom: 0;
+    min-width: $key-value-pair-width;
   }
-  .value {
-    float:        left;
-    position:     relative;
-    padding-left: 15px;
-    font-weight:  600;
+}
+
+.key {
+  font-size:     $key-font-size;
+  font-weight:   $key-font-weight;
+  margin-bottom: 0;
+}
+
+.value {
+  font-size:   $value-font-size;
+  font-weight: $value-font-weight;
+  position:    relative;
+  @media(min-width: $screen-md) {
+    padding-left: $value-padding-left;
+    margin-left:  0;
     &:before {
       content:     ":";
       position:    absolute;
-      left:        5px;
-      font-weight: 600;
+      left:        $item-padding;
+      font-weight: $value-font-weight;
     }
   }
+  pre {
+    margin: 0;
+  }
+}
+
+.key-value-item {
+  display:        flex;
+  padding:        $item-padding;
+  border-bottom:  1px dashed $border-color;
+  flex-direction: column;
+  align-content:  center;
+  @media(min-width: $screen-md) {
+    flex-direction: row;
+  }
+  &:last-child {
+    border: none;
+  }
+}
+
+//inline key value pair
+.key-value-pair-inline {
+  display:      flex;
+  margin-right: $inline-key-value-pair-margin;
+}
+
+.key-value-inline-item {
+  margin-right: $inline-key-value-item-margin;
 }

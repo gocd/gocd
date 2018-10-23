@@ -22,7 +22,7 @@ import {MithrilComponent} from "../../jsx/mithril-component";
 import {CollapsiblePanel} from "../components/collapsible_panel/index";
 
 const HeaderPanel = require('views/components/header_panel');
-const Button = require('views/components/button');
+const Button      = require('views/components/button');
 
 export = class KitchenSink extends MithrilComponent<null> {
   view() {
@@ -61,8 +61,14 @@ export = class KitchenSink extends MithrilComponent<null> {
         <KeyValuePair data={
           {
             'First Name': 'Jon',
-            'Last Name': 'Doe',
-            'email': 'jdoe@example.com',
+            'Last Name':  'Doe',
+            'email':      'jdoe@example.com',
+          }
+        }/>
+        <KeyValuePair inline={true} data={
+          {
+            'Plugin':  'my-fancy-plugin-name',
+            'version': 'v1.0.0-24536'
           }
         }/>
       </main>

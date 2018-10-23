@@ -76,12 +76,12 @@ public class ElasticProfileControllerV1 extends ApiController implements SparkSp
             before("", mimeType, apiAuthenticationHelper::checkAdminUserOrGroupAdminUserAnd403);
             before("/*", mimeType, apiAuthenticationHelper::checkAdminUserOrGroupAdminUserAnd403);
 
-            get("", this::index);
-            get(Routes.ElasticProfileAPI.ID, this::show);
-            get(Routes.ElasticProfileAPI.ID + "/usages", this::usages);
-            post("", this::create);
-            put(Routes.ElasticProfileAPI.ID, this::update);
-            delete(Routes.ElasticProfileAPI.ID, this::destroy);
+            get("", mimeType, this::index);
+            get(Routes.ElasticProfileAPI.ID, mimeType, this::show);
+            get(Routes.ElasticProfileAPI.ID + Routes.ElasticProfileAPI.USAGES, mimeType, this::usages);
+            post("", mimeType, this::create);
+            put(Routes.ElasticProfileAPI.ID, mimeType, this::update);
+            delete(Routes.ElasticProfileAPI.ID, mimeType, this::destroy);
 
             exception(RecordNotFoundException.class, this::notFound);
         });

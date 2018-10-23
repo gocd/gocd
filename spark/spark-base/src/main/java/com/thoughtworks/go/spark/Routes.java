@@ -285,6 +285,7 @@ public class Routes {
         public static final String BASE = "/api/elastic/profiles";
         public static final String ID = "/:profile_id";
         public static final String DOC = "https://api.gocd.org/current/#elastic-agent-profiles";
+        public static final String USAGES = "/usages";
 
         public static String find() {
             return BASE + ID;

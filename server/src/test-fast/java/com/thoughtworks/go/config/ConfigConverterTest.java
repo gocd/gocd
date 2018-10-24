@@ -1132,6 +1132,7 @@ public class ConfigConverterTest {
         assertThat(crPipeline.getTrackingTool().getLink(), is("link"));
         assertThat(crPipeline.getTimer().getTimerSpec(), is("timer"));
         assertThat(crPipeline.getStages().get(0).getName(), is("build"));
+        assertThat(crPipeline.getStages().get(0).getJobs().size(), is(1));
     }
 
     @Test
@@ -1139,19 +1140,24 @@ public class ConfigConverterTest {
         EnvironmentVariablesConfig envVars = new EnvironmentVariablesConfig();
         envVars.add("testing", "123");
 
+        JobConfig job = new JobConfig();
+        job.setName("buildjob");
+        job.setTasks(new Tasks(new RakeTask()));
+
         StageConfig stage = new StageConfig(new CaseInsensitiveString("stageName"), new JobConfigs(), new Approval());
         stage.setVariables(envVars);
+        stage.setJobs(new JobConfigs(job));
         stage.setCleanWorkingDir(true);
         stage.setArtifactCleanupProhibited(true);
 
-        CRStage stageConfig = configConverter.stageToCRStage(stage);
+        CRStage crStage = configConverter.stageToCRStage(stage);
 
-        assertThat(stageConfig.getName(), is("stageName"));
-        assertThat(stageConfig.isFetchMaterials(), is(true));
-        assertThat(stageConfig.isCleanWorkingDir(), is(true));
-        assertThat(stageConfig.isArtifactCleanupProhibited(), is(true));
-        assertThat(stageConfig.hasEnvironmentVariable("testing"), is(true));
-        assertThat(stageConfig.getJobs().size(), is(0));
+        assertThat(crStage.getName(), is("stageName"));
+        assertThat(crStage.isFetchMaterials(), is(true));
+        assertThat(crStage.isCleanWorkingDir(), is(true));
+        assertThat(crStage.isArtifactCleanupProhibited(), is(true));
+        assertThat(crStage.hasEnvironmentVariable("testing"), is(true));
+        assertThat(crStage.getJobs().size(), is(1));
     }
 
     @Test

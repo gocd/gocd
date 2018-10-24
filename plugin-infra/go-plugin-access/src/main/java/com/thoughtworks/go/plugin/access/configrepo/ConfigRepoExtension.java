@@ -37,6 +37,7 @@ import static java.util.Arrays.asList;
 @Component
 public class ConfigRepoExtension extends AbstractExtension implements ConfigRepoExtensionContract {
     public static final String REQUEST_PARSE_DIRECTORY = "parse-directory";
+    public static final String REQUEST_PIPELINE_EXPORT = "pipeline-export";
 
     private static final List<String> goSupportedVersions = asList("1.0");
 
@@ -44,16 +45,30 @@ public class ConfigRepoExtension extends AbstractExtension implements ConfigRepo
 
     @Autowired
     public ConfigRepoExtension(PluginManager pluginManager) {
-        super(pluginManager, new PluginRequestHelper(pluginManager, goSupportedVersions, CONFIG_REPO_EXTENSION), CONFIG_REPO_EXTENSION);
+        super(pluginManager, new PluginRequestHelper(pluginManager, goSupportedVersions, CONFIG_REPO_EXTENSION), REQUEST_PIPELINE_EXPORT);
         registerHandler("1.0", new PluginSettingsJsonMessageHandler1_0());
         messageHandlerMap.put("1.0", new JsonMessageHandler1_0(new GsonCodec(), new ConfigRepoMigrator()));
         registerMessageHandlerForPluginSettingsRequestProcessor("1.0", new MessageHandlerForPluginSettingsRequestProcessor1_0());
     }
 
     @Override
-    public String pipelineConfigToRemoteConfig(final String pluginId, final CRPipeline pipelineConfig) {
-        GsonCodec gsonCodec = new GsonCodec();
-        return gsonCodec.getGson().toJson(pipelineConfig);
+    public String pipelineConfigToRemoteConfig(final String pluginId, final CRPipeline pipeline) {
+        return pluginRequestHelper.submitRequest(pluginId, REQUEST_PIPELINE_EXPORT, new DefaultPluginInteractionCallback<String>() {
+            @Override
+            public String requestBody(String resolvedExtensionVersion) {
+                return messageHandlerMap.get(resolvedExtensionVersion).requestMessageForPipelineExport(pipeline);
+            }
+
+            @Override
+            public Map<String, String> requestParams(String resolvedExtensionVersion) {
+                return null;
+            }
+
+            @Override
+            public String onSuccess(String responseBody, String resolvedExtensionVersion) {
+                return messageHandlerMap.get(resolvedExtensionVersion).responseMessageForPipelineExport(responseBody);
+            }
+        });
     }
 
     @Override

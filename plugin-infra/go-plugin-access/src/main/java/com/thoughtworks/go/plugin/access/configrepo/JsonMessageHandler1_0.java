@@ -21,8 +21,11 @@ import com.google.gson.GsonBuilder;
 import com.thoughtworks.go.plugin.access.configrepo.codec.GsonCodec;
 import com.thoughtworks.go.plugin.access.configrepo.contract.CRConfigurationProperty;
 import com.thoughtworks.go.plugin.access.configrepo.contract.CRParseResult;
+import com.thoughtworks.go.plugin.access.configrepo.contract.CRPipeline;
 import com.thoughtworks.go.plugin.access.configrepo.messages.ParseDirectoryMessage;
 import com.thoughtworks.go.plugin.access.configrepo.messages.ParseDirectoryResponseMessage;
+import com.thoughtworks.go.plugin.access.configrepo.messages.PipelineExportMessage;
+import com.thoughtworks.go.plugin.access.configrepo.messages.PipelineExportResponseMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,6 +42,12 @@ public class JsonMessageHandler1_0 implements JsonMessageHandler {
     public JsonMessageHandler1_0(GsonCodec gsonCodec, ConfigRepoMigrator configRepoMigrator) {
         codec = gsonCodec;
         migrator = configRepoMigrator;
+    }
+
+    @Override
+    public String requestMessageForPipelineExport(CRPipeline pipeline) {
+        PipelineExportMessage requestMessage = new PipelineExportMessage(codec.getGson().toJson(pipeline));
+        return codec.getGson().toJson(requestMessage);
     }
 
     @Override
@@ -61,6 +70,12 @@ public class JsonMessageHandler1_0 implements JsonMessageHandler {
 
     private ResponseScratch parseResponseForMigration(String responseBody) {
         return new GsonBuilder().create().fromJson(responseBody, ResponseScratch.class);
+    }
+
+    @Override
+    public String responseMessageForPipelineExport(String responseBody) {
+        PipelineExportResponseMessage response = codec.getGson().fromJson(responseBody, PipelineExportResponseMessage.class);
+       return response.getPipelineJson();
     }
 
     @Override

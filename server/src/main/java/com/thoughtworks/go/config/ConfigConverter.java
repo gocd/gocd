@@ -679,7 +679,7 @@ public class ConfigConverter {
         List<CRJob> jobs = new ArrayList();
 
         for(JobConfig job: stageConfig.getJobs()) {
-            jobs.add(jobToCRJob(job));
+            crStage.addJob(jobToCRJob(job));
         }
 
         for (EnvironmentVariableConfig var: stageConfig.getVariables()) {
@@ -687,7 +687,6 @@ public class ConfigConverter {
         }
 
         crStage.setApproval(approvalToCRApproval(stageConfig.getApproval()));
-
         crStage.setFetchMaterials(stageConfig.isFetchMaterials());
         crStage.setArtifactCleanupProhibited(stageConfig.isArtifactCleanupProhibited());
         crStage.setCleanWorkingDir(stageConfig.isCleanWorkingDir());

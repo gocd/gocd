@@ -17,6 +17,7 @@ package com.thoughtworks.go.plugin.access.configrepo;
 
 import com.thoughtworks.go.plugin.access.configrepo.contract.CRConfigurationProperty;
 import com.thoughtworks.go.plugin.access.configrepo.contract.CRParseResult;
+import com.thoughtworks.go.plugin.access.configrepo.contract.CRPipeline;
 
 import java.util.Collection;
 
@@ -24,4 +25,8 @@ public interface JsonMessageHandler {
     String requestMessageForParseDirectory(String destinationFolder, Collection<CRConfigurationProperty> configurations);
 
     CRParseResult responseMessageForParseDirectory(String responseBody);
+
+    String requestMessageForPipelineExport(CRPipeline pipeline);
+
+    String responseMessageForPipelineExport(String responseBody);
 }

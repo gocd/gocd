@@ -34,7 +34,7 @@ export class KeyValuePair extends MithrilViewComponent<Attrs> {
         {
           _.map(vnode.attrs.data, (value, key) => {
             return [
-              <li className={classnames(styles.keyValueItem, {[styles.keyValueInlineItem]: isInline})}>
+              <li className={classnames(styles.keyValueItem, {[styles.keyValueInlineItem]: isInline})} key={key}>
                 <label className={styles.key}>{key}</label>
                 <span className={styles.value}>
                   <pre>{value}</pre>

@@ -13,26 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@import "../../global/common";
 
-//site header
-$site-header: #000728;
-$header-text-color: #ddd;
-$sub-navigation-bg: #313e68;
-$active-menu: #943a9e;
+$collapse-icon-size: 30px;
 
-$header-bg: #33364e;
+.plugin-header {
+  display:     flex;
+  float:       left;
+  align-items: center;
+}
 
-$border-color: $line-color;
-$building: #ffc11b;
-$failed: #fa2d2d;
-
-//footer
-
-$footer-bg: $secondary-bg;
-$footer-fg: #647984;
-$page-header-bg: #fff;
-
-//rgba values - NEED TO BE RENAMED/REORGANIZED
-$box-shadow-color: rgba(0, 0, 0, 0.21);
-$white-opaque: rgba(255, 255, 255, 1);
-$white-transparent: rgba(255, 255, 255, 0);
+.plugin-icon {
+  display:        inline-block;
+  vertical-align: middle;
+  float:          left;
+  img {
+    width:  $collapse-icon-size;
+    height: $collapse-icon-size;
+  }
+}

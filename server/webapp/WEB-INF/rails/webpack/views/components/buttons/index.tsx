@@ -25,8 +25,8 @@ const classnames = bind(styles);
 
 export interface Attrs {
   small?: boolean,
-  disabled?: boolean;
-  onclick?: Function;
+  onclick?: Function,
+  disabled?: boolean
 }
 
 class Button extends MithrilViewComponent<Attrs> {
@@ -40,8 +40,18 @@ class Button extends MithrilViewComponent<Attrs> {
   view(vnode: m.Vnode<Attrs>) {
     const isSmall = vnode.attrs.small;
 
+    const onclick: Function = (evt: any) => {
+      evt.stopPropagation();
+      if (vnode.attrs.disabled) {
+        return
+      }
+
+      vnode.attrs.onclick && vnode.attrs.onclick(evt);
+    };
+
     return (
       <button {...vnode.attrs}
+              onclick={onclick}
               className={classnames(
                 styles.button,
                 {[styles.btnSmall]: isSmall},

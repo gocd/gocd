@@ -14,41 +14,34 @@
  * limitations under the License.
  */
 
-import {MithrilComponent} from "../../jsx/mithril-component";
+import * as m from "mithril";
+import {PluginsWidget} from "./new_plugins/plugins_widget";
 
-const $             = require('jquery');
-const m             = require('mithril');
-const Stream        = require('mithril/stream');
-const PluginsWidget = require('views/plugins/plugins_widget_new');
-const PluginInfos   = require('models/shared/plugin_infos');
-const PageLoadError = require('views/shared/page_load_error');
-const Spinner       = require('views/shared/spinner');
-const HeaderPanel   = require('views/components/header_panel');
+//todo: Change these requires to import
+const Stream      = require('mithril/stream');
+const PluginInfos = require('models/shared/plugin_infos');
+const HeaderPanel = require('views/components/header_panel');
 
-let thingToDisplay = <Spinner/>;
+let pluginInfos = Stream();
 
-const onSuccess = (pluginInfos: any) => {
-  const isUserAnAdmin = $('body').attr('data-is-user-admin');
-  thingToDisplay      =
-    <PluginsWidget pluginInfos={Stream(pluginInfos)} isUserAnAdmin={Stream(isUserAnAdmin === 'true')}/>;
+//todo: change pluginInfos to typescript and fix res:PluginInfos
+const onSuccess = (res: any) => {
+  pluginInfos(res);
   m.redraw();
 };
 
-const onFailure = () => {
-  thingToDisplay = <PageLoadError message="There was a problem fetching plugins"/>;
-  m.redraw();
-};
-
-
-export class PluginsPage extends MithrilComponent<null, null> {
+export class PluginsPage {
   oninit() {
-    PluginInfos.all(null, {'include_bad': true}).then(onSuccess, onFailure);
+    //todo: onfailure render generic error_onload_page
+    PluginInfos.all(null, {'include_bad': true}).then(onSuccess);
   }
 
   view() {
-    return <div>
+    const isUserAnAdmin = document.body.getAttribute('data-is-user-admin');
+
+    return <main class="main-container">
       <HeaderPanel title="Plugins"/>
-      {thingToDisplay}
-    </div>;
+      <PluginsWidget pluginInfos={pluginInfos} isUserAnAdmin={isUserAnAdmin === 'true'}/>
+    </main>;
   }
 }

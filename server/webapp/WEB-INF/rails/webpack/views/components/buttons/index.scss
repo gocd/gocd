@@ -23,8 +23,8 @@ $btn-reset: #666;
 .button {
   border:        1px solid transparent;
   padding:       0 20px;
-  height:        35px;
-  line-height:   35px;
+  height:        $form-element-height;
+  line-height:   $form-element-height;
   border-radius: $global-border-radius;
   font-size:     14px;
   font-weight:   400;
@@ -39,10 +39,15 @@ $btn-reset: #666;
   }
 }
 
+.disabled {
+  cursor:         not-allowed;
+  pointer-events: none;
+}
+
 .btn-small {
   padding:     0 10px;
-  height:      25px;
-  line-height: 25px;
+  height:      $form-element-height-small;
+  line-height: $form-element-height-small;
   font-weight: 400;
   font-size:   13px;
 }

@@ -17,7 +17,6 @@
 import * as m from 'mithril';
 import * as Icons from "../components/icons/index";
 import * as Buttons from "../components/buttons/index";
-import {HelloWorld} from "../components/hello_world/index";
 import {KeyValuePair} from "../components/key_value_pair/index";
 import {MithrilComponent} from "../../jsx/mithril-component";
 import {CollapsiblePanel} from "../components/collapsible_panel/index";
@@ -48,7 +47,6 @@ export = class KitchenSink extends MithrilComponent<null> {
         </IconGrop>
         <hr/>
 
-        <HelloWorld id="foo"/>
         <br/>
 
         <div>

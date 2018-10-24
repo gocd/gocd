@@ -28,7 +28,7 @@ const HeaderPanel = require('views/components/header_panel');
 export = class KitchenSink extends MithrilComponent<null> {
   view() {
     return (
-      <main class="main-container">
+      <div>
         <HeaderPanel title="Kitchen Sink"/>
         <InfoFlashMessage message={"This page is awesome!"}/>
         <SuccessFlashMessage message={"Everything works as expected!"}/>
@@ -90,7 +90,7 @@ export = class KitchenSink extends MithrilComponent<null> {
             'some really really really really really long key': 'This is really really really really really really really really really really long junk value'
           }
         }/>
-      </main>
+      </div>
     );
   }
 };

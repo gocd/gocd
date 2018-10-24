@@ -32,7 +32,9 @@ export class MainPage extends MithrilComponent<Attrs> {
       <div class={styles.page}>
         <div class={styles.pagewrap}>
           <SiteHeader {...vnode.attrs.headerData}/>
-          {vnode.children}
+          <main className={styles.mainContainer}>
+            {vnode.children}
+          </main>
         </div>
         <footer class={styles.sitefooter}>
           <SiteFooter {...vnode.attrs.footerData} />

@@ -36,6 +36,7 @@ describe StagesController do
     @job_presentation_service = double("job presentation service")
     @cruise_config = BasicCruiseConfig.new
     @go_config_service = double("go config service")
+    @system_environment = double('system environment')
     @user = Username.new(CaseInsensitiveString.new("foo"))
     @status = double(HttpOperationResult)
     allow(HttpOperationResult).to receive(:new).and_return(@status)
@@ -47,8 +48,10 @@ describe StagesController do
     allow(controller).to receive(:material_service).and_return(@material_service)
     allow(controller).to receive(:job_presentation_service).and_return(@job_presentation_service)
     allow(controller).to receive(:go_config_service).and_return(@go_config_service)
+    allow(controller).to receive(:system_environment).and_return(@system_environment)
     allow(controller).to receive(:populate_config_validity)
 
+    allow(@system_environment).to receive(:isShineEnabled).and_return(true)
     allow(@go_config_service).to receive(:findGroupNameByPipeline).and_return(nil)
     allow(@go_config_service).to receive(:isPipelineEditable)
 

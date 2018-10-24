@@ -64,7 +64,7 @@ public class BackgroundStageLoaderTest {
     public void shouldNotLoadLatestUsingBackgroundStageStatusListener_IfShineEnabledIsFalse() {
         when(jobInstances.stageState()).thenReturn(StageState.Passed);
         stage.setJobInstances(jobInstances);
-        when(systemEnvironment.getEnvironmentVariable("SHINE_ENABLED")).thenReturn("false");
+        when(systemEnvironment.getEnvironmentVariable("SHINE_ENABLED", "false")).thenReturn("false");
 
         listener.stageStatusChanged(stage);
 
@@ -75,7 +75,7 @@ public class BackgroundStageLoaderTest {
     public void shouldNotLoadLatestUsingBackgroundStageStatusListener_IfShineEnabledIsFalse_CaseInsensitive() {
         when(jobInstances.stageState()).thenReturn(StageState.Passed);
         stage.setJobInstances(jobInstances);
-        when(systemEnvironment.getEnvironmentVariable("SHINE_ENABLED")).thenReturn("FALSE");
+        when(systemEnvironment.getEnvironmentVariable("SHINE_ENABLED", "false")).thenReturn("FALSE");
 
         listener.stageStatusChanged(stage);
 

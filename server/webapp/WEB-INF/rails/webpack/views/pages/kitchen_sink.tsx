@@ -20,7 +20,8 @@ import * as Buttons from "../components/buttons/index";
 import {KeyValuePair} from "../components/key_value_pair/index";
 import {MithrilComponent} from "../../jsx/mithril-component";
 import {CollapsiblePanel} from "../components/collapsible_panel/index";
-import {IconGrop} from "../components/icons/index";
+import {ButtonGroup} from "../components/icons/index";
+import {AlertFlashMessage, InfoFlashMessage, SuccessFlashMessage, WarnFlashMessage} from "../components/flash_message";
 
 const HeaderPanel = require('views/components/header_panel');
 
@@ -29,6 +30,10 @@ export = class KitchenSink extends MithrilComponent<null> {
     return (
       <main class="main-container">
         <HeaderPanel title="Kitchen Sink"/>
+        <InfoFlashMessage message={"This page is awesome!"}/>
+        <SuccessFlashMessage message={"Everything works as expected!"}/>
+        <WarnFlashMessage message={"This might not work!"}/>
+        <AlertFlashMessage message={"Disaster Happened!"}/>
         <h3>CollapsiblePanel</h3>
         <CollapsiblePanel header={<div>Collapsible Panel header</div>}
                           actions={<button>foo</button>}>
@@ -37,14 +42,14 @@ export = class KitchenSink extends MithrilComponent<null> {
         <hr/>
 
         <h3>Icons</h3>
-        <IconGrop>
+        <ButtonGroup>
           <Icons.Settings/>
           <Icons.Analytics/>
           <Icons.Edit/>
           <Icons.Clone/>
           <Icons.Delete/>
           <Icons.Lock/>
-        </IconGrop>
+        </ButtonGroup>
         <hr/>
 
         <br/>

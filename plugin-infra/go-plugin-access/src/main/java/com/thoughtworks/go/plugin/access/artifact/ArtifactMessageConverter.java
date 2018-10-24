@@ -20,6 +20,7 @@ import com.thoughtworks.go.config.ArtifactStore;
 import com.thoughtworks.go.domain.ArtifactPlan;
 import com.thoughtworks.go.domain.config.Configuration;
 import com.thoughtworks.go.plugin.access.artifact.model.PublishArtifactResponse;
+import com.thoughtworks.go.plugin.access.artifact.models.FetchArtifactEnvironmentVariable;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 import com.thoughtworks.go.plugin.domain.artifact.Capabilities;
 import com.thoughtworks.go.plugin.domain.common.Image;
@@ -47,4 +48,6 @@ public interface ArtifactMessageConverter {
     Image getImageResponseFromBody(String responseBody);
 
     Capabilities getCapabilitiesFromResponseBody(String responseBody);
+
+    List<FetchArtifactEnvironmentVariable> getFetchArtifactEnvironmentVariablesFromResponseBody(String responseBody);
 }

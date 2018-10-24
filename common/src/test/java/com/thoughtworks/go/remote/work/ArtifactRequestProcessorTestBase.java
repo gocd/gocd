@@ -31,30 +31,50 @@ import java.util.Collections;
 
 import static com.thoughtworks.go.remote.work.artifact.ArtifactRequestProcessor.Request.CONSOLE_LOG;
 import static com.thoughtworks.go.util.command.TaggedStreamConsumer.*;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.*;
 
-public class ArtifactRequestProcessorTest {
+public abstract class ArtifactRequestProcessorTestBase {
     private GoApiRequest request;
     private GoPluginDescriptor descriptor;
     private DefaultGoPublisher goPublisher;
     private ArtifactRequestProcessor artifactRequestProcessorForPublish;
     private ArtifactRequestProcessor artifactRequestProcessorForFetch;
-    private EnvironmentVariableContext environmentVariableContext;
 
     @Before
     public void setUp() throws Exception {
         request = mock(GoApiRequest.class);
         descriptor = mock(GoPluginDescriptor.class);
         goPublisher = mock(DefaultGoPublisher.class);
-        environmentVariableContext = mock(EnvironmentVariableContext.class);
+        EnvironmentVariableContext environmentVariableContext = mock(EnvironmentVariableContext.class);
         when(environmentVariableContext.secrets()).thenReturn(Collections.singletonList(new PasswordArgument("secret.value")));
 
         artifactRequestProcessorForPublish = ArtifactRequestProcessor.forPublishArtifact(goPublisher, environmentVariableContext);
         artifactRequestProcessorForFetch = ArtifactRequestProcessor.forFetchArtifact(goPublisher, environmentVariableContext);
 
-        when(request.apiVersion()).thenReturn("1.0");
+        when(request.apiVersion()).thenReturn(getRequestPluginVersion());
         when(descriptor.id()).thenReturn("cd.go.artifact.docker");
         when(request.api()).thenReturn(CONSOLE_LOG.requestName());
+    }
+
+    protected abstract String getRequestPluginVersion();
+
+    @Test
+    public void shouldFailForAVersionOutsideOfSupportedVersions() {
+        reset(request);
+        when(request.apiVersion()).thenReturn("3.0");
+        when(request.api()).thenReturn(CONSOLE_LOG.requestName());
+
+        when(request.requestBody()).thenReturn("{\"logLevel\":\"ERROR\",\"message\":\"Error while pushing docker image to registry: foo.\"}");
+
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
+            artifactRequestProcessorForPublish.process(descriptor, request);
+        });
+
+        assertThat(exception.getMessage(), containsString("Unsupported 'go.processor.artifact.console-log' API version: 3.0"));
     }
 
     @Test

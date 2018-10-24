@@ -22,7 +22,9 @@ import com.thoughtworks.go.domain.config.Configuration;
 import com.thoughtworks.go.plugin.access.DefaultPluginInteractionCallback;
 import com.thoughtworks.go.plugin.access.PluginRequestHelper;
 import com.thoughtworks.go.plugin.access.artifact.model.PublishArtifactResponse;
+import com.thoughtworks.go.plugin.access.artifact.models.FetchArtifactEnvironmentVariable;
 import com.thoughtworks.go.plugin.access.common.AbstractExtension;
+import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsJsonMessageHandler;
 import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsJsonMessageHandler1_0;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 import com.thoughtworks.go.plugin.domain.common.PluginConfiguration;
@@ -45,12 +47,13 @@ public class ArtifactExtension extends AbstractExtension {
     @Autowired
     protected ArtifactExtension(PluginManager pluginManager) {
         super(pluginManager, new PluginRequestHelper(pluginManager, SUPPORTED_VERSIONS, ARTIFACT_EXTENSION), ARTIFACT_EXTENSION);
-        addHandler(ArtifactMessageConverterV1.VERSION, new ArtifactMessageConverterV1());
-        registerHandler("1.0", new PluginSettingsJsonMessageHandler1_0());
+        addHandler(V1, new ArtifactMessageConverterV1(), new PluginSettingsJsonMessageHandler1_0());
+        addHandler(V2, new ArtifactMessageConverterV2(), new PluginSettingsJsonMessageHandler1_0());
     }
 
-    private void addHandler(String version, ArtifactMessageConverter extensionHandler) {
+    private void addHandler(String version, ArtifactMessageConverter extensionHandler, PluginSettingsJsonMessageHandler pluginSettingsJsonMessageHandler) {
         messageHandlerMap.put(version, extensionHandler);
+        registerHandler(version, pluginSettingsJsonMessageHandler);
     }
 
     public com.thoughtworks.go.plugin.domain.artifact.Capabilities getCapabilities(String pluginId) {
@@ -192,11 +195,16 @@ public class ArtifactExtension extends AbstractExtension {
     }
 
 
-    public void fetchArtifact(String pluginId, ArtifactStore artifactStore, Configuration configuration, Map<String, Object> metadata, String agentWorkingDirectory) {
-        pluginRequestHelper.submitRequest(pluginId, REQUEST_FETCH_ARTIFACT, new DefaultPluginInteractionCallback<Void>() {
+    public List<FetchArtifactEnvironmentVariable> fetchArtifact(String pluginId, ArtifactStore artifactStore, Configuration configuration, Map<String, Object> metadata, String agentWorkingDirectory) {
+        return pluginRequestHelper.submitRequest(pluginId, REQUEST_FETCH_ARTIFACT, new DefaultPluginInteractionCallback<List<FetchArtifactEnvironmentVariable>>() {
             @Override
             public String requestBody(String resolvedExtensionVersion) {
                 return getMessageHandler(resolvedExtensionVersion).fetchArtifactMessage(artifactStore, configuration, metadata, agentWorkingDirectory);
+            }
+
+            @Override
+            public List<FetchArtifactEnvironmentVariable> onSuccess(String responseBody, String resolvedExtensionVersion) {
+                return getMessageHandler(resolvedExtensionVersion).getFetchArtifactEnvironmentVariablesFromResponseBody(responseBody);
             }
         });
     }

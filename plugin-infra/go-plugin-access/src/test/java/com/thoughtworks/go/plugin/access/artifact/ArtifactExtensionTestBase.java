@@ -20,6 +20,7 @@ import com.thoughtworks.go.config.ArtifactStore;
 import com.thoughtworks.go.config.FetchPluggableArtifactTask;
 import com.thoughtworks.go.domain.ArtifactPlan;
 import com.thoughtworks.go.plugin.access.artifact.model.PublishArtifactResponse;
+import com.thoughtworks.go.plugin.access.artifact.models.FetchArtifactEnvironmentVariable;
 import com.thoughtworks.go.plugin.api.request.GoPluginApiRequest;
 import com.thoughtworks.go.plugin.api.response.DefaultGoPluginApiResponse;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationError;
@@ -47,19 +48,21 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.hasEntry;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.*;
 
-public class ArtifactExtensionTest {
-
-    public static final String PLUGIN_ID = "foo.plugin";
-    private PluginManager pluginManager;
-    private ArtifactExtension artifactExtension;
-    private ArgumentCaptor<GoPluginApiRequest> requestArgumentCaptor;
+public abstract class ArtifactExtensionTestBase {
+    static final String PLUGIN_ID = "foo.plugin";
+    PluginManager pluginManager;
+    ArtifactExtension artifactExtension;
+    ArgumentCaptor<GoPluginApiRequest> requestArgumentCaptor;
 
     @Rule
     public ExpectedException thrown = ExpectedException.none();
+
+    abstract String versionToTestAgainst();
 
     @Before
     public void setUp() throws Exception {
@@ -69,14 +72,14 @@ public class ArtifactExtensionTest {
 
 
         when(pluginManager.isPluginOfType(ARTIFACT_EXTENSION, PLUGIN_ID)).thenReturn(true);
-        when(pluginManager.resolveExtensionVersion(PLUGIN_ID, ARTIFACT_EXTENSION, artifactExtension.goSupportedVersions())).thenReturn("1.0");
+        when(pluginManager.resolveExtensionVersion(PLUGIN_ID, ARTIFACT_EXTENSION, artifactExtension.goSupportedVersions())).thenReturn(versionToTestAgainst());
     }
 
     @Test
     public void shouldGetSupportedVersions() {
         final ArtifactExtension artifactExtension = new ArtifactExtension(null);
 
-        assertThat(artifactExtension.goSupportedVersions(), containsInAnyOrder("1.0"));
+        assertThat(artifactExtension.goSupportedVersions(), containsInAnyOrder("1.0", "2.0"));
     }
 
     @Test
@@ -84,6 +87,8 @@ public class ArtifactExtensionTest {
         final ArtifactExtension artifactExtension = new ArtifactExtension(null);
 
         assertTrue(artifactExtension.getMessageHandler(ArtifactMessageConverterV1.VERSION) instanceof ArtifactMessageConverterV1);
+        assertTrue(artifactExtension.getMessageHandler(ArtifactMessageConverterV2.VERSION) instanceof ArtifactMessageConverterV2);
+        assertThat(artifactExtension.getMessageHandler("3.0"), is(nullValue()));
     }
 
     @Test
@@ -294,30 +299,6 @@ public class ArtifactExtensionTest {
         assertThat(validationResult.getErrors(), containsInAnyOrder(
                 new ValidationError("Filename", "Filename must not be blank.")
         ));
-    }
-
-    @Test
-    public void shouldSubmitFetchArtifactRequest() {
-        when(pluginManager.submitTo(eq(PLUGIN_ID), eq(ARTIFACT_EXTENSION), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success(""));
-        final FetchPluggableArtifactTask pluggableArtifactTask = new FetchPluggableArtifactTask(null, null, "artifactId", create("Filename", false, "build/libs/foo.jar"));
-        artifactExtension.fetchArtifact(PLUGIN_ID, new ArtifactStore("s3", "cd.go.s3"), pluggableArtifactTask.getConfiguration(), Collections.singletonMap("Version", "10.12.0"), "/temp");
-
-        final GoPluginApiRequest request = requestArgumentCaptor.getValue();
-
-        final String requestBody = "{\n" +
-                "  \"artifact_metadata\": {\n" +
-                "    \"Version\": \"10.12.0\"\n" +
-                "  },\n" +
-                "  \"store_configuration\": {},\n" +
-                "  \"fetch_artifact_configuration\": {\n" +
-                "      \"Filename\": \"build/libs/foo.jar\"\n" +
-                "  },\n" +
-                "  \"agent_working_directory\": \"/temp\"\n" +
-                "}";
-
-        assertThat(request.extension(), is(ARTIFACT_EXTENSION));
-        assertThat(request.requestName(), is(REQUEST_FETCH_ARTIFACT));
-        assertThatJson(requestBody).isEqualTo(request.requestBody());
     }
 
     @Test

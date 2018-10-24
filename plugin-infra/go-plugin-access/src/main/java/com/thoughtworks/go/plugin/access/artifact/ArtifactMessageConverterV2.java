@@ -18,6 +18,7 @@ package com.thoughtworks.go.plugin.access.artifact;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
 import com.thoughtworks.go.config.ArtifactStore;
 import com.thoughtworks.go.domain.ArtifactPlan;
 import com.thoughtworks.go.domain.config.Configuration;
@@ -36,8 +37,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class ArtifactMessageConverterV1 implements ArtifactMessageConverter {
-    public static final String VERSION = ArtifactExtensionConstants.V1;
+public class ArtifactMessageConverterV2 implements ArtifactMessageConverter {
+    public static final String VERSION = ArtifactExtensionConstants.V2;
     private static final Gson GSON = new GsonBuilder().serializeNulls().create();
 
     @Override
@@ -105,7 +106,7 @@ public class ArtifactMessageConverterV1 implements ArtifactMessageConverter {
 
     @Override
     public List<FetchArtifactEnvironmentVariable> getFetchArtifactEnvironmentVariablesFromResponseBody(String responseBody) {
-        return new ArrayList<>();
+        return new Gson().fromJson(responseBody, new TypeToken<List<FetchArtifactEnvironmentVariable>>() {}.getType());
     }
 
     private String getTemplateFromResponse(String responseBody, String message) {

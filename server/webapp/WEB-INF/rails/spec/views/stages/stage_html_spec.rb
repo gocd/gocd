@@ -28,6 +28,7 @@ describe 'stages/stage.html.erb' do
   before(:each) do
     allow(view).to receive(:is_user_an_admin?).and_return(true)
     allow(view).to receive(:config_change_path)
+    @system_environment = double('system environment')
 
     in_params :pipeline_name => "pipeline_name", :stage_name => "stage_name", :pipeline_counter => 10, :stage_counter => 3
     @stage_history_page = stage_history_page(10)
@@ -36,6 +37,8 @@ describe 'stages/stage.html.erb' do
     @revisions = MaterialRevisions.new( empty_material_revision_arr)
     @revisions.addAll(ModificationsMother.multipleModifications())
     @revisions.addAll(ModificationsMother.multipleModifications(MaterialsMother.hgMaterial()))
+    allow(view).to receive(:system_environment).and_return(@system_environment)
+    allow(@system_environment).to receive(:isShineEnabled).and_return(true)
     allow(view).to receive(:render_comment).and_return("link to traker")
     assign :pipeline, @pipeline =  pipeline_model("pipeline_name", "blah_label", false, false, "working with agent", false, @revisions).getLatestPipelineInstance()
     assign :current_tab,  "overview"

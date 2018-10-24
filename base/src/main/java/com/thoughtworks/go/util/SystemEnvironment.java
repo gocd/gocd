@@ -592,8 +592,8 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
     }
 
 
-    public String getEnvironmentVariable(String key) {
-        return System.getenv(key);
+    public String getEnvironmentVariable(String key, String defaultValue) {
+        return System.getenv().getOrDefault(key, defaultValue);
     }
 
     public Map<String, String> getGitAllowedProtocols() {
@@ -605,7 +605,7 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
     }
 
     public Boolean isShineEnabled() {
-        String shineEnabled = getEnvironmentVariable("SHINE_ENABLED");
+        String shineEnabled = getEnvironmentVariable("SHINE_ENABLED", "false");
         return shineEnabled == null ? false : !"false".equalsIgnoreCase(shineEnabled); //should return true for shine_enabled set to anything but false.
     }
 

@@ -71,6 +71,9 @@ class StagesController < ApplicationController
   end
 
   def tests
+    unless system_environment.isShineEnabled
+      return head :not_implemented
+    end
     stage = @stage.getStage()
     unless fragment_exist?(view_cache_key.forFbhOfStagesUnderPipeline(stage.getIdentifier().pipelineIdentifier()), :subkey => view_cache_key.forFailedBuildHistoryStage(stage, @response_format))
       pipeline_name = params[:pipeline_name]

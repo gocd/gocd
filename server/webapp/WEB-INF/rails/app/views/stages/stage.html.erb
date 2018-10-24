@@ -6,7 +6,7 @@
         <%= link_with_current_tab 'Overview', "overview" %>
         <%= link_with_current_tab 'Materials', "materials" %>
         <%= link_with_current_tab 'Jobs', "jobs" %>
-        <%= link_with_current_tab 'Tests', "tests" %>
+        <%= link_with_current_tab 'Tests', "tests" if system_environment.isShineEnabled %>
         <%= link_with_current_tab 'Config', "stage_config" %>
         <%= link_with_current_tab 'Graphs', "stats" %>
     </ul>

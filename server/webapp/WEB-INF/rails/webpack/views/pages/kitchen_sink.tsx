@@ -15,37 +15,33 @@
  */
 
 import * as m from 'mithril';
-import * as Icons from "../components/icons/index";
-import * as Buttons from "../components/buttons/index";
-import {HelloWorld} from "../components/hello_world/index";
-import {KeyValuePair} from "../components/key_value_pair/index";
-import {MithrilComponent} from "../../jsx/mithril-component";
-import {CollapsiblePanel} from "../components/collapsible_panel/index";
-import {IconGrop} from "../components/icons/index";
 
-const HeaderPanel = require('views/components/header_panel');
+import {HelloWorld} from "../components/hello_world/index";
+import {MithrilComponent} from "../../jsx/mithril-component";
+
+import * as c from "../components";
 
 export = class KitchenSink extends MithrilComponent<null> {
   view() {
     return (
       <main class="main-container">
-        <HeaderPanel title="Kitchen Sink"/>
+        <c.HeaderPanel title="Kitchen Sink"/>
         <h3>CollapsiblePanel</h3>
-        <CollapsiblePanel header={<div>Collapsible Panel header</div>}
-                          actions={<button>foo</button>}>
+        <c.CollapsiblePanel header={<div>Collapsible Panel header</div>}
+                            actions={<button>foo</button>}>
           <div> Anything can go in the body</div>
-        </CollapsiblePanel>
+        </c.CollapsiblePanel>
         <hr/>
 
         <h3>Icons</h3>
-        <IconGrop>
-          <Icons.Settings/>
-          <Icons.Analytics/>
-          <Icons.Edit/>
-          <Icons.Clone/>
-          <Icons.Delete/>
-          <Icons.Lock/>
-        </IconGrop>
+        <c.IconGrop>
+          <c.Icons.Settings/>
+          <c.Icons.Analytics/>
+          <c.Icons.Edit/>
+          <c.Icons.Clone/>
+          <c.Icons.Delete/>
+          <c.Icons.Lock/>
+        </c.IconGrop>
         <hr/>
 
         <HelloWorld id="foo"/>
@@ -56,22 +52,22 @@ export = class KitchenSink extends MithrilComponent<null> {
         </div>
 
         <h3>Buttons:</h3>
-        <Buttons.Primary>Primary Button</Buttons.Primary>
-        <Buttons.Secondary>Secondary Button</Buttons.Secondary>
-        <Buttons.Reset>Reset Button</Buttons.Reset>
-        <Buttons.Cancel>Cancel</Buttons.Cancel>
+        <c.Buttons.Primary>Primary Button</c.Buttons.Primary>
+        <c.Buttons.Secondary>Secondary Button</c.Buttons.Secondary>
+        <c.Buttons.Reset>Reset Button</c.Buttons.Reset>
+        <c.Buttons.Cancel>Cancel</c.Buttons.Cancel>
 
         <br/>
         <h3>Small Buttons:</h3>
-        <Buttons.Primary small={true}>Small Primary Button</Buttons.Primary>
-        <Buttons.Secondary small={true}>Small Secondary Button</Buttons.Secondary>
-        <Buttons.Reset small={true}>Small Reset Button</Buttons.Reset>
-        <Buttons.Cancel small={true}>Cancel</Buttons.Cancel>
+        <c.Buttons.Primary small={true}>Small Primary Button</c.Buttons.Primary>
+        <c.Buttons.Secondary small={true}>Small Secondary Button</c.Buttons.Secondary>
+        <c.Buttons.Reset small={true}>Small Reset Button</c.Buttons.Reset>
+        <c.Buttons.Cancel small={true}>Cancel</c.Buttons.Cancel>
 
         <h3>Some examples of accordions</h3>
 
         <h3>Some examples of key value pairs</h3>
-        <KeyValuePair data={
+        <c.KeyValuePair data={
           {
             'First Name':                                       'Jon',
             'Last Name':                                        'Doe',
@@ -81,7 +77,7 @@ export = class KitchenSink extends MithrilComponent<null> {
         }/>
 
         <h3>Some examples of inline key value pairs</h3>
-        <KeyValuePair inline={true} data={
+        <c.KeyValuePair inline={true} data={
           {
             'Plugin':                                           'my-fancy-plugin-name',
             'some really really really really really long key': 'This is really really really really really really really really really really long junk value'

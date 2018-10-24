@@ -14,13 +14,23 @@
  * limitations under the License.
  */
 
-const m     = require('mithril');
-const _     = require('lodash');
+
+import * as m from "mithril";
+import * as _ from "lodash";
+
+import {MithrilComponent} from "../../../jsx/mithril-component";
+
 const style = require('./index.scss');
 
-const HeaderPanel = {
-  view(vnode) {
-    let buttons;
+export interface Attrs {
+  title: string | JSX.Element;
+  buttons: JSX.Element;
+}
+
+export class HeaderPanel extends MithrilComponent<Attrs> {
+  view(vnode: m.Vnode<Attrs>) {
+    let buttons: JSX.Element | null = null;
+
     if (!_.isEmpty(vnode.attrs.buttons)) {
       buttons = (
         <div className={style.pageActions} data-test-id="pageActions">
@@ -30,12 +40,12 @@ const HeaderPanel = {
     }
 
     return (<header className={style.pageHeader}>
-      <div class={style.page_title}>
+      <div class={style.pageTitle}>
         <h1 class={style.title} data-test-id="title">{vnode.attrs.title}</h1>
       </div>
       {buttons}
     </header>);
   }
-};
+}
 
 module.exports = HeaderPanel;

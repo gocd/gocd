@@ -20,65 +20,48 @@ import * as m from 'mithril';
 const styles     = require('./index.scss');
 const classnames = require('classnames/bind').bind(styles);
 
-class Icon<A = {}> extends MithrilComponent<A> {
-  private readonly name: string;
+export interface Attrs {
+  message: string
+}
 
-  protected constructor(name: string) {
+class FlashMessage extends MithrilComponent<Attrs> {
+  private readonly type: string;
+
+  protected constructor(type: string) {
     super();
-    this.name = name;
+    this.type = type;
   }
 
-  view(vnode: m.Vnode<A>) {
+  view(vnode: m.Vnode<Attrs>) {
+
     return (
-      <button className={styles.icon}>
-        <i className={classnames(this.name)}/>
-      </button>
-    );
-  }
-}
-
-export class Settings extends Icon {
-  constructor() {
-    super('settings');
-  }
-}
-
-export class Analytics extends Icon {
-  constructor() {
-    super('analytics');
-  }
-}
-
-export class Edit extends Icon {
-  constructor() {
-    super('edit');
-  }
-}
-
-export class Clone extends Icon {
-  constructor() {
-    super('clone');
-  }
-}
-
-export class Delete extends Icon {
-  constructor() {
-    super('remove');
-  }
-}
-
-export class Lock extends Icon {
-  constructor() {
-    super('lock');
-  }
-}
-
-export class ButtonGroup extends MithrilComponent<{}> {
-  view(vnode: m.Vnode<{}>) {
-    return (
-      <div className={styles.buttonGroup} aria-label="actions">
-        {vnode.children}
+      <div className={classnames(this.type, "callout")}>
+        <h5>{vnode.attrs.message}</h5>
       </div>
     );
+  }
+}
+
+export class InfoFlashMessage extends FlashMessage {
+  constructor() {
+    super('info');
+  }
+}
+
+export class SuccessFlashMessage extends FlashMessage {
+  constructor() {
+    super('success');
+  }
+}
+
+export class WarnFlashMessage extends FlashMessage {
+  constructor() {
+    super('warn');
+  }
+}
+
+export class AlertFlashMessage extends FlashMessage {
+  constructor() {
+    super('alert');
   }
 }

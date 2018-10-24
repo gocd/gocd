@@ -62,7 +62,7 @@ $btn-group-border-radius: 3px;
   @include icon-before($type: $fa-var-lock);
 }
 
-.iconGroup {
+.button-group {
   border:        1px solid $border-color;
   border-radius: $btn-group-border-radius;
   display:       inline-flex;

@@ -22,6 +22,7 @@ import {MithrilComponent} from "../../jsx/mithril-component";
 import {CollapsiblePanel} from "../components/collapsible_panel/index";
 import {ButtonGroup} from "../components/icons/index";
 import {AlertFlashMessage, InfoFlashMessage, SuccessFlashMessage, WarnFlashMessage} from "../components/flash_message";
+import {SearchBox} from "../components/search_box";
 
 const HeaderPanel = require('views/components/header_panel');
 
@@ -42,6 +43,9 @@ export = class KitchenSink extends MithrilComponent<null> {
           <div> Anything can go in the body</div>
         </CollapsiblePanel>
         <hr/>
+
+        <h3>Search Box</h3>
+        <SearchBox width={350} attrName="search" model={null} placeholder="Some placeholder"/>
 
         <h3>Icons</h3>
         <ButtonGroup>

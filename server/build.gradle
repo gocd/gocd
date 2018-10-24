@@ -856,7 +856,7 @@ task verifyWar(type: VerifyJarTask) {
         "hibernate-ehcache-${project.versions.hibernate}.jar",
         "hibernate-jpa-2.0-api-1.0.1.Final.jar",
         "httpclient-${project.versions.apacheHttpComponents}.jar",
-        "httpcore-4.4.9.jar",
+        "httpcore-4.4.10.jar",
         "httpmime-${project.versions.apacheHttpComponents}.jar",
         "jackson-annotations-2.9.0.jar",
         "jackson-core-2.9.4.jar",

@@ -221,17 +221,17 @@
   </rule>
 
   <rule>
-    <name>Spark Config Repos API</name>
-    <condition type="header" name="Accept">application\/vnd\.go\.cd\.v2\+json</condition>
-    <from>^/api/admin/config_repos(?:(/)([^/]+))?(?:/?)</from>
-    <to last="true">/spark/api/admin/config_repos$1${escape:$2}</to>
-  </rule>
-
-  <rule>
-    <name>Spark Config Repos Operations API</name>
+    <name>Spark Config Repos Internal Operations API</name>
     <condition type="header" name="Accept">application\/vnd\.go\.cd\.v1\+json</condition>
     <from>^/api/internal/config_repos/([^/]+)/(last_parsed_result|trigger_update|status)(/?)</from>
     <to last="true">/spark/api/internal/config_repos/${escape:$1}/${escape:$2}</to>
+  </rule>
+
+  <rule>
+  <name>Spark Config Repos Internal API</name>
+    <condition type="header" name="Accept">application\/vnd\.go\.cd\.v1\+json</condition>
+    <from>^/api/internal/config_repos(?:(/)([^/]+))?(?:/?)</from>
+    <to last="true">/spark/api/internal/config_repos$1${escape:$2}</to>
   </rule>
 
   <rule>

@@ -20,12 +20,11 @@ import com.thoughtworks.go.api.ApiController;
 import com.thoughtworks.go.api.ApiVersion;
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
 import com.thoughtworks.go.api.util.HaltApiResponses;
-import com.thoughtworks.go.apiv1.configrepos.representers.ConfigRepoRepresenterV2;
-import com.thoughtworks.go.apiv1.configrepos.representers.ConfigReposRepresenterV2;
+import com.thoughtworks.go.apiv1.configrepos.representers.ConfigRepoWithResultRepresenter;
+import com.thoughtworks.go.apiv1.configrepos.representers.ConfigRepoWithResultListRepresenter;
 import com.thoughtworks.go.config.GoRepoConfigDataSource;
 import com.thoughtworks.go.config.PartialConfigParseResult;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
-import com.thoughtworks.go.config.remote.ConfigReposConfig;
 import com.thoughtworks.go.server.service.ConfigRepoService;
 import com.thoughtworks.go.spark.Routes.ConfigRepos;
 import com.thoughtworks.go.spark.spring.SparkSpringController;
@@ -35,7 +34,10 @@ import spark.Request;
 import spark.Response;
 
 import java.io.IOException;
+import java.util.List;
+import java.util.stream.Collectors;
 
+import static com.thoughtworks.go.util.CachedDigestUtils.sha256Hex;
 import static spark.Spark.*;
 
 @Component
@@ -75,24 +77,53 @@ public class ConfigReposInternalControllerV1 extends ApiController implements Sp
     }
 
     String listRepos(Request req, Response res) throws IOException {
-        ConfigReposConfig repos = service.getConfigRepos();
-        return writerForTopLevelObject(req, res, w -> ConfigReposRepresenterV2.toJSON(w, repos, r -> dataSource.getLastParseResult(r.getMaterialConfig())));
+        List<ConfigRepoWithResult> repos = allRepos();
+
+        final String etag = etagFor(repos);
+
+        setEtagHeader(res, etag);
+
+        if (fresh(req, etag)) {
+            return notModified(res);
+        }
+
+        return writerForTopLevelObject(req, res, w -> ConfigRepoWithResultListRepresenter.toJSON(w, repos));
     }
 
     String showRepo(Request req, Response res) throws IOException {
-        ConfigRepoConfig repo = repoFromRequest(req);
-        PartialConfigParseResult result = dataSource.getLastParseResult(repo.getMaterialConfig());
-        return writerForTopLevelObject(req, res, w -> ConfigRepoRepresenterV2.toJSON(w, repo, result));
+        ConfigRepoWithResult repo = repoFromRequest(req);
+
+        final String etag = etagFor(repo);
+
+        setEtagHeader(res, etag);
+
+        if (fresh(req, etag)) {
+            return notModified(res);
+        }
+
+        return writerForTopLevelObject(req, res, w -> ConfigRepoWithResultRepresenter.toJSON(w, repo));
     }
 
-    private ConfigRepoConfig repoFromRequest(Request req) {
+    private String etagFor(Object entity) {
+        return sha256Hex(Integer.toString(entity.hashCode()));
+    }
+
+    private ConfigRepoWithResult repoFromRequest(Request req) {
         ConfigRepoConfig repo = service.getConfigRepo(req.params(":id"));
 
         if (null == repo) {
             throw HaltApiResponses.haltBecauseNotFound();
         }
 
-        return repo;
+        PartialConfigParseResult result = dataSource.getLastParseResult(repo.getMaterialConfig());
+
+        return new ConfigRepoWithResult(repo, result);
     }
 
+    private List<ConfigRepoWithResult> allRepos() {
+        return service.getConfigRepos().stream().map(r -> {
+            PartialConfigParseResult result = dataSource.getLastParseResult(r.getMaterialConfig());
+            return new ConfigRepoWithResult(r, result);
+        }).collect(Collectors.toList());
+    }
 }

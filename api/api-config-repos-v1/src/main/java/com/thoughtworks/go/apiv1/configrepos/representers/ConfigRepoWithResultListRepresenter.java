@@ -17,17 +17,19 @@
 package com.thoughtworks.go.apiv1.configrepos.representers;
 
 import com.thoughtworks.go.api.base.OutputWriter;
-import com.thoughtworks.go.config.remote.ConfigReposConfig;
+import com.thoughtworks.go.apiv1.configrepos.ConfigRepoWithResult;
+
+import java.util.List;
 
 import static com.thoughtworks.go.spark.Routes.ConfigRepos.BASE;
 
-public class ConfigReposRepresenterV2 {
-    public static void toJSON(OutputWriter json, ConfigReposConfig repos, ConfigRepoResultResolver resolver) {
+public class ConfigRepoWithResultListRepresenter {
+    public static void toJSON(OutputWriter json, List<ConfigRepoWithResult> repos) {
         attachLinks(json);
         json.addChild("_embedded", w -> w.addChildList(
                 "config_repos", all -> repos.forEach(
                         repo -> all.addChild(
-                                el -> ConfigRepoRepresenterV2.toJSON(el, repo, resolver.resolve(repo))
+                                el -> ConfigRepoWithResultRepresenter.toJSON(el, repo)
                         )
                 )
         ));

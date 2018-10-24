@@ -16,45 +16,36 @@
 
 package com.thoughtworks.go.apiv1.configrepos.representers
 
+import com.thoughtworks.go.apiv1.configrepos.ConfigRepoWithResult
 import com.thoughtworks.go.config.PartialConfigParseResult
 import com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig
 import com.thoughtworks.go.config.remote.ConfigRepoConfig
-import com.thoughtworks.go.config.remote.ConfigReposConfig
-import com.thoughtworks.go.config.remote.PartialConfig
+import com.thoughtworks.go.domain.config.Configuration
 import com.thoughtworks.go.spark.Routes
 import org.junit.jupiter.api.Test
 
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
 
-class ConfigReposRepresenterV2Test {
+class ConfigRepoWithResultRepresenterTest {
   private static final String TEST_PLUGIN_ID = "test.configrepo.plugin"
   private static final String TEST_REPO_URL = "https://fakeurl.com"
 
   @Test
   void toJSON() {
-    ConfigReposConfig repos = new ConfigReposConfig(repo("foo"), repo("bar"))
-    String json = toObjectString({ w -> ConfigReposRepresenterV2.toJSON(w, repos, resolver()) })
+    String id = "foo"
+    String json = toObjectString({ w ->
+      ConfigRepoWithResultRepresenter.toJSON(w, repo(id))
+    })
+
+    String self = "http://test.host/go${Routes.ConfigRepos.id(id)}"
+    String find = "http://test.host/go${Routes.ConfigRepos.find()}"
 
     assertThatJson(json).isEqualTo([
-      _links   : [
-        self: [href: "http://test.host/go$Routes.ConfigRepos.BASE".toString()]
-      ],
-      _embedded: [
-        config_repos: [
-          expectedRepoJson("foo"),
-          expectedRepoJson("bar")
-        ]
-      ]
-    ])
-  }
-
-  static Map expectedRepoJson(String id) {
-    return [
       _links       : [
-        self: [href: "http://test.host/go${Routes.ConfigRepos.id(id)}".toString()],
+        self: [href: self],
         doc : [href: Routes.ConfigRepos.DOC],
-        find: [href: "http://test.host/go${Routes.ConfigRepos.find()}".toString()],
+        find: [href: find],
       ],
 
       id           : id,
@@ -63,26 +54,32 @@ class ConfigReposRepresenterV2Test {
         type      : "hg",
         attributes: [
           name       : null,
-          url        : "${TEST_REPO_URL}/$id".toString(),
+          url        : TEST_REPO_URL,
           auto_update: true
         ]
       ],
-      configuration: [],
+      configuration: [
+        [key: "foo", value: "bar"],
+        [key: "baz", value: "quu"]
+      ],
 
       last_parse   : [
-        revision: "$id-123".toString(),
-        success : true,
-        error   : null
+        revision: "${id}-123".toString(),
+        success : false,
+        error   : "boom!"
       ]
-    ]
+    ])
   }
 
-  static ConfigRepoConfig repo(String id) {
-    HgMaterialConfig materialConfig = new HgMaterialConfig("$TEST_REPO_URL/$id", "")
-    return new ConfigRepoConfig(materialConfig, TEST_PLUGIN_ID, id)
-  }
+  static ConfigRepoWithResult repo(String id) {
+    Configuration c = new Configuration()
+    c.addNewConfigurationWithValue("foo", "bar", false)
+    c.addNewConfigurationWithValue("baz", "quu", false)
 
-  static ConfigRepoResultResolver resolver() {
-    return { r -> new PartialConfigParseResult("${r.getId()}-123", new PartialConfig()) }
+    HgMaterialConfig materialConfig = new HgMaterialConfig(TEST_REPO_URL, "")
+    ConfigRepoConfig repo = new ConfigRepoConfig(materialConfig, TEST_PLUGIN_ID, id)
+    repo.setConfiguration(c)
+
+    return new ConfigRepoWithResult(repo, new PartialConfigParseResult("${id}-123", new RuntimeException("boom!")))
   }
 }

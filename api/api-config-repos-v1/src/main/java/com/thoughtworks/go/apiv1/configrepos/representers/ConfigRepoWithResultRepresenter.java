@@ -18,13 +18,17 @@ package com.thoughtworks.go.apiv1.configrepos.representers;
 
 import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.api.representers.ConfigurationPropertyRepresenter;
+import com.thoughtworks.go.apiv1.configrepos.ConfigRepoWithResult;
 import com.thoughtworks.go.config.PartialConfigParseResult;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 
 import static com.thoughtworks.go.spark.Routes.ConfigRepos.*;
 
-public class ConfigRepoRepresenterV2 {
-    public static void toJSON(OutputWriter json, ConfigRepoConfig repo, PartialConfigParseResult result) {
+public class ConfigRepoWithResultRepresenter {
+    public static void toJSON(OutputWriter json, ConfigRepoWithResult crwr) {
+        ConfigRepoConfig repo = crwr.repo();
+        PartialConfigParseResult result = crwr.result();
+
         attachLinks(json, repo);
         json.add("id", repo.getId());
         json.add("plugin_id", repo.getConfigProviderPluginName());

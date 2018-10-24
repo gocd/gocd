@@ -16,68 +16,69 @@
 
 package com.thoughtworks.go.apiv1.configrepos.representers
 
+import com.thoughtworks.go.apiv1.configrepos.ConfigRepoWithResult
 import com.thoughtworks.go.config.PartialConfigParseResult
 import com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig
 import com.thoughtworks.go.config.remote.ConfigRepoConfig
-import com.thoughtworks.go.domain.config.Configuration
+import com.thoughtworks.go.config.remote.PartialConfig
 import com.thoughtworks.go.spark.Routes
 import org.junit.jupiter.api.Test
 
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
 
-class ConfigRepoRepresenterV2Test {
+class ConfigRepoWithResultListRepresenterTest {
   private static final String TEST_PLUGIN_ID = "test.configrepo.plugin"
   private static final String TEST_REPO_URL = "https://fakeurl.com"
 
   @Test
   void toJSON() {
-    String json = toObjectString({ w ->
-      ConfigRepoRepresenterV2.toJSON(w, repo("foo"), new PartialConfigParseResult("123", new RuntimeException("boom!")))
-    })
-
-    String self = "http://test.host/go${Routes.ConfigRepos.id("foo")}"
-    String find = "http://test.host/go${Routes.ConfigRepos.find()}"
+    List<ConfigRepoWithResult> repos = [repo("foo"), repo("bar")]
+    String json = toObjectString({ w -> ConfigRepoWithResultListRepresenter.toJSON(w, repos) })
 
     assertThatJson(json).isEqualTo([
+      _links   : [
+        self: [href: "http://test.host/go$Routes.ConfigRepos.BASE".toString()]
+      ],
+      _embedded: [
+        config_repos: [
+          expectedRepoJson("foo"),
+          expectedRepoJson("bar")
+        ]
+      ]
+    ])
+  }
+
+  static Map expectedRepoJson(String id) {
+    return [
       _links       : [
-        self: [href: self],
+        self: [href: "http://test.host/go${Routes.ConfigRepos.id(id)}".toString()],
         doc : [href: Routes.ConfigRepos.DOC],
-        find: [href: find],
+        find: [href: "http://test.host/go${Routes.ConfigRepos.find()}".toString()],
       ],
 
-      id           : "foo",
+      id           : id,
       plugin_id    : TEST_PLUGIN_ID,
       material     : [
         type      : "hg",
         attributes: [
           name       : null,
-          url        : TEST_REPO_URL,
+          url        : "${TEST_REPO_URL}/$id".toString(),
           auto_update: true
         ]
       ],
-      configuration: [
-        [key: "foo", value: "bar"],
-        [key: "baz", value: "quu"]
-      ],
+      configuration: [],
 
       last_parse   : [
-        revision: "123",
-        success : false,
-        error   : "boom!"
+        revision: "$id-123".toString(),
+        success : true,
+        error   : null
       ]
-    ])
+    ]
   }
 
-  static ConfigRepoConfig repo(String id) {
-    Configuration c = new Configuration()
-    c.addNewConfigurationWithValue("foo", "bar", false)
-    c.addNewConfigurationWithValue("baz", "quu", false)
-
-    HgMaterialConfig materialConfig = new HgMaterialConfig(TEST_REPO_URL, "")
-    ConfigRepoConfig repo = new ConfigRepoConfig(materialConfig, TEST_PLUGIN_ID, id)
-    repo.setConfiguration(c)
-
-    return repo
+  static ConfigRepoWithResult repo(String id) {
+    HgMaterialConfig materialConfig = new HgMaterialConfig("$TEST_REPO_URL/$id", "")
+    return  new ConfigRepoWithResult(new ConfigRepoConfig(materialConfig, TEST_PLUGIN_ID, id), new PartialConfigParseResult("${id}-123", new PartialConfig()))
   }
 }

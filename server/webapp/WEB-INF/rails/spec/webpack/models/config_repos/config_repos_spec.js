@@ -15,12 +15,12 @@
  */
 
 const ConfigRepos = require("models/config_repos/config_repos");
-const Routes      = require("gen/js-routes");
+import SparkRoutes from "helpers/spark_routes";
 
 describe("Config Repo CRUD model", () => {
   it("all() should cache etag", (done) => {
     jasmine.Ajax.withMock(() => {
-      jasmine.Ajax.stubRequest(Routes.apiv1AdminConfigReposPath(), undefined, "GET").andReturn({
+      jasmine.Ajax.stubRequest(SparkRoutes.configRepoListPath(), undefined, "GET").andReturn({
         responseText:    JSON.stringify({
           "_embedded": {
             "config_repos": []

@@ -30,7 +30,7 @@ function ConfigRepoVM(data) {
   this.configuration  = Stream();
   this.etag           = Stream(null);
   this.serverErrors   = Stream();
-  this.revisionResult = new RevisionVM(data.id);
+  this.revisionResult = new RevisionVM(data);
 
   Validatable.call(this, { errors: {} });
 

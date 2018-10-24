@@ -124,6 +124,7 @@ function UpdateSupport(model, repos) {
   this.updateRepo = withValidation((repo) => model.update(repo.etag(), repo).then((data, etag) => {
     if (etag) { repo.etag(etag); }
     repo.initialize(data);
+    repo.revisionResult.reload();
 
     const idx = _.findIndex(repos(), (r) => r.id() === repo.id()); // should not fail
     repos().splice(idx, 1, repo);

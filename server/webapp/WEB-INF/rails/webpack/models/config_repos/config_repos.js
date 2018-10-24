@@ -14,16 +14,18 @@
  * limitations under the License.
  */
 
-const ApiHelper = require("helpers/api_helper");
-const Routes    = require("gen/js-routes");
-const Stream    = require("mithril/stream");
+const ApiHelper   = require("helpers/api_helper");
+const Routes      = require("gen/js-routes");
+const Stream      = require("mithril/stream");
+
+import SparkRoutes from "helpers/spark_routes";
 
 function ConfigRepos() {
   this.etag = Stream("");
 
   this.all = () => {
     const promise = ApiHelper.GET({
-      url: Routes.apiv1AdminConfigReposPath(),
+      url: SparkRoutes.configRepoListPath(),
       apiVersion: "v1",
       etag: this.etag()
     });

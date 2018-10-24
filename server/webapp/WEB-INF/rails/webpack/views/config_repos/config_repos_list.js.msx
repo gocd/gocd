@@ -186,6 +186,8 @@ const RevisionResult = {
             <dd class="parse-result failure">{result.error()}</dd>
         }
       </dl>;
+    } else {
+      return <div class="no-revision-yet">This repo hasn't been parsed yet</div>;
     }
   }
 };
@@ -196,7 +198,6 @@ const RevisionActions = {
     const result = vm.revisionResult;
 
     return <div class="revision-actions">
-      <button disabled={result.busy()} onclick={result.reload}>Show Last Parsed Revision</button>
       <button disabled={result.busy()} onclick={result.forceUpdate}>Force Update</button>
     </div>;
   }
@@ -208,7 +209,7 @@ const Revision = {
     const result = repo.revisionResult;
 
     return <section class="last-rev-result">
-      <RevisionResult vm={repo} />
+      <RevisionResult vm={repo} isEdit={vnode.attrs.isEdit} />
       <ServerErrors msg={result.serverErrors()} />
       <RevisionActions vm={repo} />
     </section>;

@@ -1,19 +1,21 @@
-const m           = require("mithril");
-const Stream      = require("mithril/stream");
-const ApiHelper   = require("helpers/api_helper");
-const AjaxPoller  = require("helpers/ajax_poller");
+const m          = require("mithril");
+const _          = require("lodash");
+const Stream     = require("mithril/stream");
+const ApiHelper  = require("helpers/api_helper");
+const AjaxPoller = require("helpers/ajax_poller");
 
 import SparkRoutes from "helpers/spark_routes";
 
 const apiVersion = "v1";
 
-function RevisionVM(repoId) {
+function RevisionVM(data) {
+  const repoId = data.id;
   this.id           = repoId;
   this.busy         = Stream(false);
   this.serverErrors = Stream(null);
-  this.revision     = Stream(null);
-  this.error        = Stream(null);
-  this.success      = Stream(false);
+  this.revision     = Stream(_.get(data, "last_parse.revision"));
+  this.error        = Stream(_.get(data, "last_parse.error"));
+  this.success      = Stream(_.get(data, "last_parse.success"));
 
   const poller = createPoller(this);
 

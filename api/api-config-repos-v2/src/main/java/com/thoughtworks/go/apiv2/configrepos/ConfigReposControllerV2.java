@@ -16,10 +16,8 @@
 
 package com.thoughtworks.go.apiv2.configrepos;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.thoughtworks.go.api.ApiController;
 import com.thoughtworks.go.api.ApiVersion;
-import com.thoughtworks.go.api.CrudController;
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
 import com.thoughtworks.go.api.util.HaltApiResponses;
 import com.thoughtworks.go.apiv2.configrepos.representers.ConfigRepoRepresenterV2;
@@ -41,7 +39,7 @@ import java.io.IOException;
 import static spark.Spark.*;
 
 @Component
-public class ConfigReposControllerV2 extends ApiController implements SparkSpringController, CrudController<ConfigRepoConfig> {
+public class ConfigReposControllerV2 extends ApiController implements SparkSpringController {
 
     private final ConfigRepoService service;
     private final GoRepoConfigDataSource dataSource;
@@ -85,31 +83,6 @@ public class ConfigReposControllerV2 extends ApiController implements SparkSprin
         ConfigRepoConfig repo = repoFromRequest(req);
         PartialConfigParseResult result = dataSource.getLastParseResult(repo.getMaterialConfig());
         return writerForTopLevelObject(req, res, w -> ConfigRepoRepresenterV2.toJSON(w, repo, result));
-    }
-
-    @Override
-    public String etagFor(ConfigRepoConfig repo) {
-        return null; // to be implemented
-    }
-
-    @Override
-    public ConfigRepoConfig doGetEntityFromConfig(String name) {
-        return null; // to be implemented
-    }
-
-    @Override
-    public ConfigRepoConfig getEntityFromRequestBody(Request req) {
-        return null; // to be implemented
-    }
-
-    @Override
-    public String jsonize(Request req, ConfigRepoConfig o) {
-        return null; // to be implemented
-    }
-
-    @Override
-    public JsonNode jsonNode(Request req, ConfigRepoConfig o) {
-        return null; // to be implemented
     }
 
     private ConfigRepoConfig repoFromRequest(Request req) {

@@ -191,7 +191,7 @@ rootProject.ext.versions = [
   jsonUnit            : '1.29.0',
   jsoup               : '1.11.3',
   junit               : '4.12',
-  junit5              : '5.2.0',
+  junit5              : '5.3.1',
   logback             : '1.2.3',
   mail                : '1.6.1',
   mockito             : '2.22.0',

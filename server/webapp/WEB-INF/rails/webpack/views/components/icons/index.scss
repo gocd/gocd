@@ -62,6 +62,10 @@ $btn-group-border-radius: 3px;
   @include icon-before($type: $fa-var-lock);
 }
 
+.close {
+  @include icon-before($type: $fa-var-times);
+}
+
 .button-group {
   border:        1px solid $border-color;
   border-radius: $btn-group-border-radius;

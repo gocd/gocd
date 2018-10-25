@@ -34,6 +34,8 @@ export = class KitchenSink extends MithrilComponent<null> {
         <SuccessFlashMessage message={"Everything works as expected!"}/>
         <WarnFlashMessage message={"This might not work!"}/>
         <AlertFlashMessage message={"Disaster Happened!"}/>
+        <AlertFlashMessage dismissible={true}
+                           message={"Disaster Happened! But you can ignore by closing it"}/>
         <h3>CollapsiblePanel</h3>
         <CollapsiblePanel header={<div>Collapsible Panel header</div>}
                           actions={<button>foo</button>}>
@@ -43,12 +45,13 @@ export = class KitchenSink extends MithrilComponent<null> {
 
         <h3>Icons</h3>
         <ButtonGroup>
-          <Icons.Settings/>
-          <Icons.Analytics/>
-          <Icons.Edit/>
-          <Icons.Clone/>
-          <Icons.Delete/>
-          <Icons.Lock/>
+          <Icons.Settings onclick={() => alert("You pressed settings button!")}/>
+          <Icons.Analytics onclick={() => alert("You pressed analytics button!")}/>
+          <Icons.Edit onclick={() => alert("You pressed edit button!")}/>
+          <Icons.Clone onclick={() => alert("You pressed clone button!")}/>
+          <Icons.Delete onclick={() => alert("You pressed delete button!")}/>
+          <Icons.Lock onclick={() => alert("You pressed lock button!")}/>
+          <Icons.Close onclick={() => alert("You pressed close button!")}/>
         </ButtonGroup>
         <hr/>
 

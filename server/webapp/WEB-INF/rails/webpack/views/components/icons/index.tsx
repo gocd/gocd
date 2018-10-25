@@ -14,13 +14,19 @@
  * limitations under the License.
  */
 
-import {MithrilComponent} from "../../../jsx/mithril-component";
 import * as m from 'mithril';
+import * as _ from "lodash";
+
+import {MithrilComponent} from "../../../jsx/mithril-component";
 
 const styles     = require('./index.scss');
 const classnames = require('classnames/bind').bind(styles);
 
-class Icon<A = {}> extends MithrilComponent<A> {
+export interface Attrs {
+  onclick?: Function
+}
+
+class Icon extends MithrilComponent<Attrs> {
   private readonly name: string;
 
   protected constructor(name: string) {
@@ -28,11 +34,9 @@ class Icon<A = {}> extends MithrilComponent<A> {
     this.name = name;
   }
 
-  view(vnode: m.Vnode<A>) {
+  view(vnode: m.Vnode<Attrs>) {
     return (
-      <button className={styles.icon}>
-        <i className={classnames(this.name)}/>
-      </button>
+      <i {...vnode.attrs} className={classnames(this.name)}/>
     );
   }
 }
@@ -73,11 +77,21 @@ export class Lock extends Icon {
   }
 }
 
+export class Close extends Icon {
+  constructor() {
+    super('close');
+  }
+}
+
 export class ButtonGroup extends MithrilComponent<{}> {
   view(vnode: m.Vnode<{}>) {
     return (
       <div className={styles.buttonGroup} aria-label="actions">
-        {vnode.children}
+        {
+          _.map(vnode.children as any, (ele) => {
+            return <button className={styles.icon}>{ele}</button>
+          })
+        }
       </div>
     );
   }

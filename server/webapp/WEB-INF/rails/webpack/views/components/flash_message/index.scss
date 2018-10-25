@@ -13,31 +13,45 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-$message-font-size: 14px;
-
-$info-message-color: #00bfff;
-$sucess-message-color: #008000;
-$alert-message-color: #f00;
-$warn-message-color: #ffa500;
+@import "../../global/common";
 
 .callout {
-  font-weight: 600;
-  font-style:  $message-font-size;
-}
+  font-weight:     600;
+  font-size:       12px;
+  padding:         7px 10px;
+  border:          1px solid transparent;
+  border-radius:   $global-border-radius;
+  margin:          10px 30px;
+  display:         flex;
+  justify-content: space-between;
 
-.info {
-  background: $info-message-color;
-}
+  p {
+    margin: 0;
+  }
 
-.success {
-  background: $sucess-message-color;
-}
+  .actions {
+    color:  $text-color;
+    cursor: pointer;
+  }
 
-.alert {
-  background: $alert-message-color;
-}
-
-.warn {
-  background: $warn-message-color;
+  &.success {
+    background-color: $success;
+    color:            darken($success, 50%);
+    border-color:     darken($success, 10%);
+  }
+  &.warning {
+    background-color: $warning;
+    color:            darken($warning, 60%);
+    border-color:     darken($warning, 10%);
+  }
+  &.info {
+    background-color: $info;
+    color:            darken($info, 50%);;
+    border-color:     darken($info, 10%);
+  }
+  &.alert {
+    background-color: $alert;
+    color:            darken($alert, 50%);
+    border-color:     darken($alert, 10%);
+  }
 }

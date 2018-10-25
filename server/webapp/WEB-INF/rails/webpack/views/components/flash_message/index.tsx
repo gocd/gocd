@@ -16,15 +16,23 @@
 
 import {MithrilComponent} from "../../../jsx/mithril-component";
 import * as m from 'mithril';
+import * as Icons from "../icons";
 
+const Stream     = require('mithril/stream');
 const styles     = require('./index.scss');
 const classnames = require('classnames/bind').bind(styles);
 
 export interface Attrs {
-  message: string
+  message: string,
+  dismissible?: boolean
 }
 
-class FlashMessage extends MithrilComponent<Attrs> {
+export interface State {
+  message: any,
+  onDismiss: Function
+}
+
+class FlashMessage extends MithrilComponent<Attrs, State> {
   private readonly type: string;
 
   protected constructor(type: string) {
@@ -32,11 +40,34 @@ class FlashMessage extends MithrilComponent<Attrs> {
     this.type = type;
   }
 
-  view(vnode: m.Vnode<Attrs>) {
+  oninit(vnode: m.Vnode<Attrs, State>) {
+    vnode.state.message   = Stream(vnode.attrs.message);
+    vnode.state.onDismiss = function () {
+      vnode.state.message(null);
+      m.redraw();
+    }
+  }
+
+  view(vnode: m.Vnode<Attrs, State>) {
+    if (!vnode.state.message()) {
+      return;
+    }
+
+    const isDismissible = vnode.attrs.dismissible;
+
+    let closeButton: JSX.Element | undefined;
+    if (isDismissible) {
+      closeButton = (
+        <span className={classnames("actions")}>
+          <Icons.Close onclick={vnode.state.onDismiss}/>
+        </span>
+      );
+    }
 
     return (
       <div className={classnames(this.type, "callout")}>
-        <h5>{vnode.attrs.message}</h5>
+        <p>{vnode.state.message()}</p>
+        {closeButton}
       </div>
     );
   }
@@ -56,7 +87,7 @@ export class SuccessFlashMessage extends FlashMessage {
 
 export class WarnFlashMessage extends FlashMessage {
   constructor() {
-    super('warn');
+    super('warning');
   }
 }
 

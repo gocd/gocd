@@ -16,6 +16,7 @@
 
 import * as m from 'mithril';
 import {MithrilComponent} from "../../jsx/mithril-component";
+import {ModalManager} from "../components/modal/modal_manager";
 import {Attrs as SiteFooterAttrs, SiteFooter} from "./partials/site_footer";
 import {Attrs as SiteHeaderAttrs, SiteHeader} from "./partials/site_header";
 
@@ -27,6 +28,10 @@ interface Attrs {
 }
 
 export class MainPage extends MithrilComponent<Attrs> {
+  oninit() {
+    ModalManager.onPageLoad();
+  }
+
   view(vnode: m.Vnode<Attrs>) {
     return (
       <div class={styles.page}>

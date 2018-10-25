@@ -23,7 +23,8 @@ const classnames = require('classnames/bind').bind(styles);
 
 export interface Attrs {
   small?: boolean,
-  disabled?: boolean
+  disabled?: boolean;
+  onclick?: Function;
 }
 
 class Button extends MithrilComponent<Attrs> {

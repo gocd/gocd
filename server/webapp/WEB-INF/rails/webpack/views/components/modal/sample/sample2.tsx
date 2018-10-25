@@ -14,11 +14,17 @@
  * limitations under the License.
  */
 
-// sass-lint:disable indentation
-$zindex: (
-           modal-overlay: 100,
-           site-header: 15,
-           page-header: 5,
-           menu: 11,
-           submenu: 10
-         );
+import * as m from 'mithril';
+import {Modal} from "../index";
+
+export class Sample2 extends Modal {
+
+  body(): JSX.Element {
+    return <p>Here's another modal</p>;
+  }
+
+  title(): string {
+    return "Second Modal";
+  }
+
+}

@@ -16,29 +16,9 @@
 
 import * as m from 'mithril';
 import {Stream} from 'mithril/stream';
-
 import * as styles from './server_health_messages_count_widget.scss';
-import {MithrilComponent} from "../../../jsx/mithril-component";
-import {
-  ServerHealthMessage,
-  ServerHealthMessages
-} from "../../../models/shared/server_health_messages/server_health_messages";
-
-const Modal         = require('views/shared/new_modal');
-const TimeFormatter = require('helpers/time_formatter');
-const classnames    = require('classnames/bind').bind(styles);
-
-class HealthMessageWidget extends MithrilComponent<ServerHealthMessage> {
-  view(vnode: m.Vnode<ServerHealthMessage>) {
-    return (
-      <li class={classnames(styles.serverHealthStatus, vnode.attrs.level.toLowerCase())}>
-        <span class={styles.message}>{vnode.attrs.message}</span>
-        <span class={styles.timestamp}>{TimeFormatter.format(vnode.attrs.time)}</span>
-        <p class={styles.detail}>{m.trust(vnode.attrs.detail)}</p>
-      </li>
-    );
-  }
-}
+import {ServerHealthMessages} from "../../../models/shared/server_health_messages/server_health_messages";
+import {ServerHealthMessagesModal} from './server_health_messages_modal'
 
 interface Attrs {
   serverHealthMessages: Stream<ServerHealthMessages>
@@ -53,30 +33,7 @@ export class ServerHealthMessagesCountWidget implements m.Component<Attrs, State
   private __tsx_attrs: Attrs<Header, Actions> & m.Lifecycle<Attrs<Header, Actions>, this> & { key?: string | number };
 
   oninit(vnode: m.Vnode<Attrs, State>) {
-    const modal = new Modal({
-      size:    'large',
-      title:   'Error and warning messages',
-      body:    () => (
-        <ul class="server-health-statuses">
-          {
-            vnode.attrs.serverHealthMessages().collect((msg: ServerHealthMessage) => {
-              return <HealthMessageWidget {...msg}/>;
-            })
-          }
-        </ul>
-      ),
-      onclose: () => modal.destroy(),
-      buttons: [
-        {
-          text:    "OK",
-          class:   'close',
-          onclick: () => {
-            modal.destroy();
-          }
-        }
-      ]
-    });
-
+    const modal = new ServerHealthMessagesModal(vnode.attrs.serverHealthMessages);
     vnode.state.openServerHealthMessagesModal = () => {
       modal.render();
     };

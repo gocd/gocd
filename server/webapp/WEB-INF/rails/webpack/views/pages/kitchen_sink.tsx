@@ -17,14 +17,40 @@
 import * as m from 'mithril';
 import * as Icons from "../components/icons/index";
 import * as Buttons from "../components/buttons/index";
+
+import {Stream} from "mithril/stream";
+
 import {KeyValuePair} from "../components/key_value_pair/index";
 import {MithrilComponent} from "../../jsx/mithril-component";
 import {CollapsiblePanel} from "../components/collapsible_panel/index";
 import {ButtonGroup} from "../components/icons/index";
 import {AlertFlashMessage, InfoFlashMessage, SuccessFlashMessage, WarnFlashMessage} from "../components/flash_message";
-import {SearchBox} from "../components/search_box";
 
+import {SearchBox} from "../components/search_box";
+import {InputLabel} from "../components/form_elements";
+
+const stream      = require('mithril/stream');
 const HeaderPanel = require('views/components/header_panel');
+
+interface FormComponentState {
+  inputLabel1: Stream<string>;
+}
+
+class FormComponent implements m.Component<{}, FormComponentState> {
+  oninit(vnode: m.Vnode<{}, FormComponentState>) {
+    vnode.state.inputLabel1 = stream("Bob");
+  }
+
+  view(vnode: m.Vnode<{}, FormComponentState>) {
+    return (
+      <ul className="form">
+        <InputLabel label={`name`}
+                    property={vnode.state.inputLabel1}
+                    helpText={`Enter your name. You entered: ${vnode.state.inputLabel1()}`}/>
+      </ul>
+    )
+  }
+}
 
 export = class KitchenSink extends MithrilComponent<null> {
   view() {
@@ -112,6 +138,10 @@ export = class KitchenSink extends MithrilComponent<null> {
             'some really really really really really long key': 'This is really really really really really really really really really really long junk value'
           }
         }/>
+
+        <br/>
+        <h3>Form Elements</h3>
+        <FormComponent/>
       </div>
     );
   }

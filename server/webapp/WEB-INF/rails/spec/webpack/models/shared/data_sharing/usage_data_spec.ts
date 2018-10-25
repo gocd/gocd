@@ -31,8 +31,8 @@ describe('Data Sharing Usage Data', () => {
     }
   } as UsageDataJSON;
 
-  it('should use API version v2', () => {
-    expect(UsageData.API_VERSION).toBe('v2');
+  it('should use API version v3', () => {
+    expect(UsageData.API_VERSION).toBe('v3');
   });
 
   it('should deserialize data sharing usage data from JSON', () => {

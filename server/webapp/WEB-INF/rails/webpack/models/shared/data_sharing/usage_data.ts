@@ -58,7 +58,7 @@ export class UsageData {
     this.represent = () => JSON.stringify(this.message(), null, 4);
   }
 
-  static API_VERSION: string = 'v2';
+  static API_VERSION: string = 'v3';
 
   static fromJSON = function (json: UsageDataJSON) {
     return new UsageData(json);

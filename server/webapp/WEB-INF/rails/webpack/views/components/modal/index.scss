@@ -28,7 +28,7 @@ $white: #fff;
   border:        none;
   border-radius: $overlay-border-radius;
   position:      absolute;
-  z-index:       101;
+  z-index:       map_get($zindex, 'modal-overlay');
   top:           25%;
   left:          50%;
   min-width:     $overlay-width;
@@ -40,7 +40,7 @@ $white: #fff;
   }
 
   &:nth-of-type(1) {
-    z-index: 102;
+    z-index: map_get($zindex, 'modal-overlay-nth');
   }
 
   &:nth-of-type(2) {
@@ -126,5 +126,5 @@ $white: #fff;
   left:       0;
   right:      0;
   bottom:     0;
-  z-index:    map_get($zindex, 'modal-overlay');
+  z-index:    map_get($zindex, 'modal-overlay-bg');
 }

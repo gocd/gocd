@@ -18,7 +18,51 @@
                 </div>
             </div>
             <div id="content_area">
-                <pre id="content_container" class="wrap_pre"><%= html_escape @go_config.content %></pre>
+                <div id="content_container" style="height: 400px">
+                  <textarea data-config-url="<%= "/go/api/admin/config/#{@go_config.md5}.xml" %>" class="wrap_pre" id="config-xml-content" style="display: none;" readonly aria-readonly="true"></textarea>
+                  <div class="spinner-container" style="
+                    position:      relative;
+                    top:           30%;
+                    left:          50%;
+                    border:        16px solid #f3f3f3;
+                    border-top:    16px solid #963fb7;
+                    border-radius: 50%;
+                    width:         100px;
+                    height:        100px;
+                    margin:        -50px 0 0 -50px;
+                    animation:     spin 2s linear infinite;
+                    "></div>
+                </div>
+              <style>
+                #content_container textarea {
+                  cursor: text;
+                  font-family: consolas, monaco, courier, monospace;
+                  color: #333;
+                  line-height: 20px;
+                  font-size: 13px;
+                  background: white;
+                }
+              </style>
+              <script>
+                jQuery(function() {
+                  var httpRequest = new XMLHttpRequest();
+                  let textArea = document.querySelector('#config-xml-content');
+                  httpRequest.open('GET', textArea.getAttribute('data-config-url'), true);
+                  httpRequest.send();
+                  httpRequest.onreadystatechange = function() {
+                    if (httpRequest.readyState === XMLHttpRequest.DONE) {
+                      if (httpRequest.status === 200) {
+                        textArea.value = httpRequest.responseText;
+                      } else {
+                        textArea.value = "There was an error fetching the config xml. Please try again in some time. If the error persists, contact the GoCD server administrator for help.";
+                      }
+                      document.querySelector('.spinner-container').remove();
+                      textArea.removeAttribute('style');
+                      document.querySelector('#content_container').removeAttribute('style');
+                    }
+                  };
+                });
+              </script>
             </div>
         </div>
     </div>

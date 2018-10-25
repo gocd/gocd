@@ -17,17 +17,20 @@
 import * as m from 'mithril';
 import * as Icons from "../components/icons/index";
 import * as Buttons from "../components/buttons/index";
-import {KeyValuePair} from "../components/key_value_pair/index";
+import {KeyValuePair} from "../components/key_value_pair";
 import {MithrilComponent} from "../../jsx/mithril-component";
-import {CollapsiblePanel} from "../components/collapsible_panel/index";
-import {ButtonGroup} from "../components/icons/index";
+import {CollapsiblePanel} from "../components/collapsible_panel";
+import {ButtonGroup} from "../components/icons";
 import {AlertFlashMessage, InfoFlashMessage, SuccessFlashMessage, WarnFlashMessage} from "../components/flash_message";
 import {SearchBox} from "../components/search_box";
+import {SampleModal} from "../components/modal/sample";
 
 const HeaderPanel = require('views/components/header_panel');
 
 export = class KitchenSink extends MithrilComponent<null> {
+
   view() {
+    const sampleModal = new SampleModal();
     return (
       <div>
         <HeaderPanel title="Kitchen Sink"/>
@@ -44,8 +47,12 @@ export = class KitchenSink extends MithrilComponent<null> {
         </CollapsiblePanel>
         <hr/>
 
+
         <h3>Search Box</h3>
         <SearchBox width={350} attrName="search" model={null} placeholder="Some placeholder"/>
+
+        <h3>Modal</h3>
+        <Buttons.Primary onclick={sampleModal.render.bind(sampleModal)}>Open Modal</Buttons.Primary>
 
         <h3>Icons</h3>
         <ButtonGroup>

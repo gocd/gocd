@@ -81,6 +81,17 @@
     "space-after-colon": 2,
     "space-after-comma": 2,
     "url-quotes": 2,
+    "variable-for-property": [
+      2,
+      {
+        "allowed-functions": [
+          "map_get"
+        ],
+        "properties": [
+          "z-index"
+        ]
+      }
+    ],
     "zero-unit": [
       2,
       {

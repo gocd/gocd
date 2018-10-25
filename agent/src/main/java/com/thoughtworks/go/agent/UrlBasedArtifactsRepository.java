@@ -58,7 +58,7 @@ public class UrlBasedArtifactsRepository implements ArtifactsRepository {
     }
 
     @Override
-    public void upload(TaggedStreamConsumer console, File file, String destPath, String buildId) {
+    public void upload(TaggedStreamConsumer console, File file, String destPath) {
         if (!file.exists()) {
             String message = "Failed to find " + file.getAbsolutePath();
             taggedConsumeLineWithPrefix(console, PUBLISH_ERR, message);
@@ -87,7 +87,7 @@ public class UrlBasedArtifactsRepository implements ArtifactsRepository {
                         format("Uploading artifacts from %s to %s", file.getAbsolutePath(), getDestPath(destPath)));
 
                 String normalizedDestPath = FilenameUtils.separatorsToUnix(destPath);
-                String url = getUploadUrl(buildId, normalizedDestPath, publishingAttempts);
+                String url = getUploadUrl(normalizedDestPath, publishingAttempts);
 
                 int statusCode = httpService.upload(url, size, dataToUpload, artifactChecksums(file, normalizedDestPath));
 
@@ -130,8 +130,8 @@ public class UrlBasedArtifactsRepository implements ArtifactsRepository {
         return UrlUtil.concatPath(propertyBaseUrl, UrlUtil.encodeInUtf8(propertyName));
     }
 
-    private String getUploadUrl(String buildId, String normalizedDestPath, int publishingAttempts) {
-        String path = format("%s?attempt=%d&buildId=%s", UrlUtil.encodeInUtf8(normalizedDestPath), publishingAttempts, buildId);
+    private String getUploadUrl(String normalizedDestPath, int publishingAttempts) {
+        String path = format("%s?attempt=%d", UrlUtil.encodeInUtf8(normalizedDestPath), publishingAttempts);
         return UrlUtil.concatPath(artifactsBaseUrl, path);
     }
 

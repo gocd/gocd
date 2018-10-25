@@ -68,7 +68,7 @@ public class URLService implements ServerUrlGenerator{
     // TODO - keep buildId for now because currently we do not support 'jobcounter'
     // and therefore cannot locate job correctly when it is rescheduled
     public String getUploadUrlOfAgent(JobIdentifier jobIdentifier, String filePath, int attempt) {
-        return format("%s/%s/%s/%s?attempt=%d&buildId=%d", baseRemotingURL, "remoting", "files", jobIdentifier.artifactLocator(filePath), attempt, jobIdentifier.getBuildId());
+        return format("%s/%s/%s/%s?attempt=%d", baseRemotingURL, "remoting", "files", jobIdentifier.artifactLocator(filePath), attempt);
     }
 
     /*

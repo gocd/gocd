@@ -135,43 +135,9 @@ public class RestfulServiceTest {
         Stage stage = pipeline.getStages().byName(fixture.devStage);
         JobInstance job = stage.getJobInstances().first();
 
-        JobIdentifier result = restfulService.findJob(pipeline.getName(), String.valueOf(pipeline.getCounter()), stage.getName(), String.valueOf(stage.getCounter()), job.getName(), job.getId());
-        JobIdentifier expect = new JobIdentifier(pipeline, stage, job);
-        expect.setPipelineLabel(null);
-        assertThat(result, is(expect));
-    }
-
-    @Test
-    public void shouldFindOriginalWhenJobCopiedForRerun() throws Exception {
-        Pipeline pipeline = fixture.createdPipelineWithAllStagesPassed();
-        Stage stage = pipeline.getStages().byName(fixture.devStage);
-        JobInstance job = stage.findJob(PipelineWithTwoStages.JOB_FOR_DEV_STAGE);
-        Stage rerunStage = instanceFactory.createStageForRerunOfJobs(stage, a(PipelineWithTwoStages.DEV_STAGE_SECOND_JOB),
-                new DefaultSchedulingContext("loser", new Agents()),
-                fixture.pipelineConfig().getStage(
-                        new CaseInsensitiveString(fixture.devStage)), new TimeProvider(), "md5");
-        stageDao.saveWithJobs(pipeline, rerunStage);
-        dbHelper.passStage(rerunStage);
-
-        JobIdentifier result = restfulService.findJob(pipeline.getName(), String.valueOf(pipeline.getCounter()),
-                stage.getName(), String.valueOf(rerunStage.getCounter()), job.getName());
+        JobIdentifier result = restfulService.findJob(pipeline.getName(), String.valueOf(pipeline.getCounter()), stage.getName(), String.valueOf(stage.getCounter()), job.getName());
         JobIdentifier expect = new JobIdentifier(pipeline, stage, job);
         assertThat(result, is(expect));
-
-        long copiedJobId = rerunStage.getJobInstances().getByName(job.getName()).getId();
-        assertThat(copiedJobId, is(not(job.getId())));//sanity check(its a copy, not the same)
-
-        result = restfulService.findJob(pipeline.getName(), String.valueOf(pipeline.getCounter()), stage.getName(),
-                String.valueOf(rerunStage.getCounter()), job.getName());
-        assertThat(result, is(expect));//still, the job identifier returned should be the same(because other one was a copy)
-
-        result = restfulService.findJob(pipeline.getName(), String.valueOf(pipeline.getCounter()), stage.getName(),
-                String.valueOf(rerunStage.getCounter()), job.getName(), copiedJobId);
-        assertThat(result, is(not(expect)));//since caller knows the buildId, honor it(caller knows what she is doing)
-        StageIdentifier stageIdentifier = rerunStage.getIdentifier();
-        assertThat(result, is(new JobIdentifier(stageIdentifier.getPipelineName(), stageIdentifier.getPipelineCounter(),
-                null, stageIdentifier.getStageName(), stageIdentifier.getStageCounter(), job.getName(),
-                copiedJobId)));
     }
 
     @Test
@@ -183,22 +149,8 @@ public class RestfulServiceTest {
         Stage stage = oldPipeline.getStages().byName(fixture.devStage);
         JobInstance job = stage.getJobInstances().first();
 
-        JobIdentifier result = restfulService.findJob(oldPipeline.getName(), String.valueOf(oldPipeline.getCounter()), stage.getName(), String.valueOf(stage.getCounter()), job.getName(), null);
+        JobIdentifier result = restfulService.findJob(oldPipeline.getName(), String.valueOf(oldPipeline.getCounter()), stage.getName(), String.valueOf(stage.getCounter()), job.getName());
         JobIdentifier expect = new JobIdentifier(oldPipeline, stage, job);
-        assertThat(result, is(expect));
-    }
-
-    @Test
-    public void shouldReturnJobWithLabelWhenSpecifyPipelineLabel() throws Exception {
-        configHelper.setPipelineLabelTemplate(fixture.pipelineName, "label-${COUNT}");
-        Pipeline pipeline = fixture.createdPipelineWithAllStagesPassed();
-        Stage stage = pipeline.getStages().byName(fixture.devStage);
-        JobInstance job = stage.getJobInstances().first();
-
-        JobIdentifier result = restfulService.findJob(pipeline.getName(), pipeline.getCounter().toString(),
-                stage.getName(), String.valueOf(stage.getCounter()), job.getName(), job.getId());
-        JobIdentifier expect = new JobIdentifier(pipeline, stage, job);
-        expect.setPipelineLabel(null);
         assertThat(result, is(expect));
     }
 
@@ -208,11 +160,6 @@ public class RestfulServiceTest {
         StageIdentifier stageIdentifier = restfulService.translateStageCounter(pipeline.getIdentifier(),
                 fixture.devStage, "latest");
         assertThat(stageIdentifier, is(new StageIdentifier(pipeline, pipeline.getStages().byName(fixture.devStage))));
-    }
-
-    private Pipeline createPipelineWithSameLabelButNoCounter(Pipeline pipeline) {
-        pipeline.setCounter(null);
-        return dbHelper.save(pipeline);
     }
 
 }

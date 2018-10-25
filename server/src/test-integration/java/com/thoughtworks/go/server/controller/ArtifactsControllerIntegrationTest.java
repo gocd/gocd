@@ -54,7 +54,6 @@ import org.springframework.web.servlet.ModelAndView;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
-import java.nio.charset.Charset;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -182,7 +181,7 @@ public class ArtifactsControllerIntegrationTest {
 
     @Test
     public void shouldReturn404WhenNoLatestBuildForGet() throws Exception {
-        ModelAndView mav = artifactsController.getArtifactAsHtml(pipelineName, "1", "stage", "1", "build2", "/foo.xml", null, null);
+        ModelAndView mav = artifactsController.getArtifactAsHtml(pipelineName, "1", "stage", "1", "build2", "/foo.xml", null);
         assertValidContentAndStatus(mav, SC_NOT_FOUND, "Job " + pipelineName + "/1/stage/1/build2 not found.");
     }
 
@@ -198,7 +197,7 @@ public class ArtifactsControllerIntegrationTest {
 
     @Test
     public void shouldReturn404WhenNoLastGoodBuildForGet() throws Exception {
-        ModelAndView mav = artifactsController.getArtifactAsHtml(pipelineName, "lastgood", "stage", "1", "build", "/foo.xml", null, null);
+        ModelAndView mav = artifactsController.getArtifactAsHtml(pipelineName, "lastgood", "stage", "1", "build", "/foo.xml", null);
         int status = SC_NOT_FOUND;
         String content = "Job " + pipelineName + "/lastgood/stage/1/build not found.";
         assertValidContentAndStatus(mav, status, content);
@@ -208,13 +207,13 @@ public class ArtifactsControllerIntegrationTest {
     public void shouldReturn404WhenNotAValidBuildForGet() throws Exception {
         ModelAndView mav = artifactsController.getArtifactAsHtml(pipelineName, "whatever", "stage", "1", "build",
                 "/foo.xml",
-                null, null);
+                null);
         assertValidContentAndStatus(mav, SC_NOT_FOUND, "Job " + pipelineName + "/whatever/stage/1/build not found.");
     }
 
     @Test
     public void shouldHaveJobIdentifierInModelForHtmlFolderView() throws Exception {
-        ModelAndView mav = artifactsController.getArtifactAsHtml(pipeline.getName(), pipeline.getLabel(), stage.getName(), String.valueOf(stage.getCounter()), job.getName(), "", null, null);
+        ModelAndView mav = artifactsController.getArtifactAsHtml(pipeline.getName(), pipeline.getLabel(), stage.getName(), String.valueOf(stage.getCounter()), job.getName(), "", null);
         assertThat(mav.getModel().get("jobIdentifier"), is(new JobIdentifier(pipeline, stage, job)));
         assertThat(mav.getViewName(), is("rest/html"));
     }
@@ -223,13 +222,13 @@ public class ArtifactsControllerIntegrationTest {
     public void shouldReturn404WhenNoLatestBuildForPost() throws Exception {
         request.addHeader("Confirm", "true");
         StubMultipartHttpServletRequest multipartRequest = new StubMultipartHttpServletRequest(request);
-        ModelAndView mav = artifactsController.postArtifact(pipelineName, "latest", "stage", "1", "build2", null, "/foo.xml", 1, multipartRequest);
+        ModelAndView mav = artifactsController.postArtifact(pipelineName, "latest", "stage", "1", "build2", "/foo.xml", 1, multipartRequest);
         assertValidContentAndStatus(mav, SC_NOT_FOUND, "Job " + pipelineName + "/latest/stage/1/build2 not found.");
     }
 
     @Test
     public void shouldReturn404WhenNoLatestBuildForPut() throws Exception {
-        ModelAndView mav = artifactsController.putArtifact(pipelineName, "latest", "stage", "1", "build2", null, "/foo.xml", null, request);
+        ModelAndView mav = artifactsController.putArtifact(pipelineName, "latest", "stage", "1", "build2", "/foo.xml", request);
         assertValidContentAndStatus(mav, SC_NOT_FOUND, "Job " + pipelineName + "/latest/stage/1/build2 not found.");
     }
 
@@ -237,8 +236,8 @@ public class ArtifactsControllerIntegrationTest {
         agentService.requestRegistration(new Username("bob"), AgentRuntimeInfo.fromServer(new AgentConfig("uuid", "localhost", "127.0.0.1"),
                 false, "/var/lib", 0L, "linux", false));
         agentService.approve("uuid");
-        artifactsController.putArtifact(pipelineName, "latest", "stage", null, "build2", null, "/foo.xml",
-                "uuid", request);
+        artifactsController.putArtifact(pipelineName, "latest", "stage", null, "build2", "/foo.xml",
+                request);
         Date olderTime = agentService.findAgentAndRefreshStatus("uuid").getLastHeardTime();
         return olderTime;
     }
@@ -585,8 +584,8 @@ public class ArtifactsControllerIntegrationTest {
 
         String filePath = "baz/foobar.html";
         ModelAndView modelAndView = artifactsController.putArtifact(pipelineName.toUpperCase(), Integer.toString(pipeline.getCounter()),
-                stage.getName().toUpperCase(), Integer.toString(stage.getCounter()), job.getName().toUpperCase(), buildId, filePath,
-                null, request);
+                stage.getName().toUpperCase(), Integer.toString(stage.getCounter()), job.getName().toUpperCase(), filePath,
+                request);
         assertValidContentAndStatus(modelAndView, SC_OK, String.format("File %s was appended successfully", filePath));
 
         JobIdentifier jobIdentifier = new JobIdentifier(pipelineName, pipeline.getCounter(), null, stage.getName(), Integer.toString(stage.getCounter()), job.getName(), job.getId());
@@ -601,8 +600,8 @@ public class ArtifactsControllerIntegrationTest {
         request.setContent(consoleLogContent.getBytes());
 
         ModelAndView modelAndView = artifactsController.putArtifact(pipelineName.toUpperCase(), Integer.toString(pipeline.getCounter()),
-                stage.getName().toUpperCase(), Integer.toString(stage.getCounter()), job.getName().toUpperCase(), buildId, "cruise-output/console.log",
-                null, request);
+                stage.getName().toUpperCase(), Integer.toString(stage.getCounter()), job.getName().toUpperCase(), "cruise-output/console.log",
+                request);
 
         String md5Hex = DigestUtils.md5Hex(String.format("%s/1/stage/1/build", pipelineName));
         String path = new File("data/console/", String.format("%s.log", md5Hex)).getPath();
@@ -642,7 +641,7 @@ public class ArtifactsControllerIntegrationTest {
     }
 
     private ModelAndView getFileAsHtml(String file) throws Exception {
-        return artifactsController.getArtifactAsHtml(pipelineName, pipeline.getLabel(), "stage", "1", "build", file, null, null);
+        return artifactsController.getArtifactAsHtml(pipelineName, pipeline.getLabel(), "stage", "1", "build", file, null);
     }
 
     private ModelAndView getFolderAsJson(String file) throws Exception {
@@ -675,13 +674,13 @@ public class ArtifactsControllerIntegrationTest {
         MockMultipartFile multipartFile = new MockMultipartFile(multipartFilename, stream);
         request.addHeader("Confirm", "true");
         StubMultipartHttpServletRequest multipartRequest = new StubMultipartHttpServletRequest(request, multipartFile);
-        return artifactsController.postArtifact(pipelineName, Integer.toString(pipeline.getCounter()), "stage", "LATEST", "build", buildId,
+        return artifactsController.postArtifact(pipelineName, Integer.toString(pipeline.getCounter()), "stage", "LATEST", "build",
                 requestFilename,
                 null, multipartRequest);
     }
 
     private ModelAndView postFileWithChecksum(String requestFileName, MultipartHttpServletRequest multipartRequest) throws Exception {
-        return artifactsController.postArtifact(pipelineName, pipeline.getLabel(), "stage", "LATEST", "build", buildId, requestFileName, null, multipartRequest);
+        return artifactsController.postArtifact(pipelineName, pipeline.getLabel(), "stage", "LATEST", "build", requestFileName, null, multipartRequest);
     }
 
     private ModelAndView putFile(String requestFilename) throws Exception {
@@ -690,7 +689,7 @@ public class ArtifactsControllerIntegrationTest {
 
     private ModelAndView putConsoleLogContent(String requestFilename, String consoleLogContent) throws Exception {
         request.setContent(consoleLogContent.getBytes());
-        return artifactsController.putArtifact(pipelineName, pipeline.getLabel(), "stage", "LATEST", "build", buildId, requestFilename, null, request);
+        return artifactsController.putArtifact(pipelineName, pipeline.getLabel(), "stage", "LATEST", "build", requestFilename, request);
     }
 
     private TypeSafeMatcher<File> exists() {

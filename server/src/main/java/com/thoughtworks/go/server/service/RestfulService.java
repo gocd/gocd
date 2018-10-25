@@ -37,20 +37,14 @@ public class RestfulService {
     @Autowired
     private JobResolverService jobResolverService;
 
-    /**
-     * buildId should only be given when caller is absolutely sure about the job instance
-     * (makes sense in agent-uploading artifacts/properties scenario because agent won't run a job if its copied over(it only executes real jobs)) -JJ
-     * <p>
-     * This does not return pipelineLabel
-     */
-    public JobIdentifier findJob(String pipelineName, String pipelineCounter, String stageName, String stageCounter, String buildName, Long buildId) {
+    public JobIdentifier findJob(String pipelineName, String pipelineCounter, String stageName, String stageCounter, String buildName) {
         JobConfigIdentifier jobConfigIdentifier = goConfigService.translateToActualCase(new JobConfigIdentifier(pipelineName, stageName, buildName));
         PipelineIdentifier pipelineIdentifier;
 
         if (JobIdentifier.LATEST.equalsIgnoreCase(pipelineCounter)) {
             pipelineIdentifier = pipelineService.mostRecentPipelineIdentifier(jobConfigIdentifier.getPipelineName());
         } else if (StringUtils.isNumeric(pipelineCounter)) {
-            pipelineIdentifier = new PipelineIdentifier(jobConfigIdentifier.getPipelineName(), Integer.parseInt(pipelineCounter), null);
+            pipelineIdentifier = new PipelineIdentifier(jobConfigIdentifier.getPipelineName(), Integer.parseInt(pipelineCounter));
         } else {
             throw new RuntimeException("Expected numeric pipeline counter but received '%s'" + pipelineCounter);
         }
@@ -59,20 +53,12 @@ public class RestfulService {
         StageIdentifier stageIdentifier = translateStageCounter(pipelineIdentifier, jobConfigIdentifier.getStageName(), stageCounter);
 
         JobIdentifier jobId;
-        if (buildId == null) {
-            jobId = jobResolverService.actualJobIdentifier(new JobIdentifier(stageIdentifier, jobConfigIdentifier.getJobName()));
-        } else {
-            jobId = new JobIdentifier(stageIdentifier, jobConfigIdentifier.getJobName(), buildId);
-        }
+        jobId = jobResolverService.actualJobIdentifier(new JobIdentifier(stageIdentifier, jobConfigIdentifier.getJobName()));
         if (jobId == null) {
             //fix for #5739
             throw new JobNotFoundException(pipelineName, stageName, buildName);
         }
         return jobId;
-    }
-
-    public JobIdentifier findJob(String pipelineName, String pipelineCounter, String stageName, String stageCounter, String buildName) {
-        return findJob(pipelineName, pipelineCounter, stageName, stageCounter, buildName, null);
     }
 
     public StageIdentifier translateStageCounter(PipelineIdentifier pipelineIdentifier, String stageName, String stageCounter) {

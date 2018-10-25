@@ -100,9 +100,8 @@ public class ArtifactsController {
                                           @RequestParam(value = "stageCounter", required = false) String stageCounter,
                                           @RequestParam("buildName") String buildName,
                                           @RequestParam("filePath") String filePath,
-                                          @RequestParam(value = "sha1", required = false) String sha,
-                                          @RequestParam(value = "serverAlias", required = false) String serverAlias) throws Exception {
-        return getArtifact(filePath, folderViewFactory, pipelineName, pipelineCounter, stageName, stageCounter, buildName, sha, serverAlias);
+                                          @RequestParam(value = "sha1", required = false) String sha) throws Exception {
+        return getArtifact(filePath, folderViewFactory, pipelineName, pipelineCounter, stageName, stageCounter, buildName, sha);
     }
 
     @RequestMapping(value = "/repository/restful/artifact/GET/json", method = RequestMethod.GET)
@@ -114,7 +113,7 @@ public class ArtifactsController {
                                           @RequestParam("filePath") String filePath,
                                           @RequestParam(value = "sha1", required = false) String sha
     ) throws Exception {
-        return getArtifact(filePath, jsonViewFactory, pipelineName, pipelineCounter, stageName, stageCounter, buildName, sha, null);
+        return getArtifact(filePath, jsonViewFactory, pipelineName, pipelineCounter, stageName, stageCounter, buildName, sha);
     }
 
     @RequestMapping(value = "/repository/restful/artifact/GET/zip", method = RequestMethod.GET)
@@ -129,7 +128,7 @@ public class ArtifactsController {
         if (filePath.equals(".zip")) {
             filePath = "./.zip";
         }
-        return getArtifact(filePath, zipViewFactory, pipelineName, pipelineCounter, stageName, stageCounter, buildName, sha, null);
+        return getArtifact(filePath, zipViewFactory, pipelineName, pipelineCounter, stageName, stageCounter, buildName, sha);
     }
 
     @RequestMapping(value = "/repository/restful/artifact/GET/*", method = RequestMethod.GET)
@@ -143,7 +142,6 @@ public class ArtifactsController {
                                      @RequestParam("stageName") String stageName,
                                      @RequestParam(value = "stageCounter", required = false) String stageCounter,
                                      @RequestParam("buildName") String buildName,
-                                     @RequestParam(value = "buildId", required = false) Long buildId,
                                      @RequestParam("filePath") String filePath,
                                      @RequestParam(value = "attempt", required = false) Integer attempt,
                                      MultipartHttpServletRequest request) throws Exception {
@@ -152,8 +150,7 @@ public class ArtifactsController {
             return ResponseCodeView.create(HttpServletResponse.SC_BAD_REQUEST, "Missing required header 'Confirm'");
         }
         try {
-            jobIdentifier = restfulService.findJob(pipelineName, pipelineCounter, stageName, stageCounter,
-                    buildName, buildId);
+            jobIdentifier = restfulService.findJob(pipelineName, pipelineCounter, stageName, stageCounter, buildName);
         } catch (Exception e) {
             return buildNotFound(pipelineName, pipelineCounter, stageName, stageCounter,
                     buildName);
@@ -223,9 +220,7 @@ public class ArtifactsController {
                                     @RequestParam("stageName") String stageName,
                                     @RequestParam(value = "stageCounter", required = false) String stageCounter,
                                     @RequestParam("buildName") String buildName,
-                                    @RequestParam(value = "buildId", required = false) Long buildId,
                                     @RequestParam("filePath") String filePath,
-                                    @RequestParam(value = "agentId", required = false) String agentId,
                                     HttpServletRequest request
     ) throws Exception {
         if (filePath.contains("..")) {
@@ -234,7 +229,7 @@ public class ArtifactsController {
 
         JobIdentifier jobIdentifier;
         try {
-            jobIdentifier = restfulService.findJob(pipelineName, pipelineCounter, stageName, stageCounter, buildName, buildId);
+            jobIdentifier = restfulService.findJob(pipelineName, pipelineCounter, stageName, stageCounter, buildName);
         } catch (Exception e) {
             return buildNotFound(pipelineName, pipelineCounter, stageName, stageCounter, buildName);
         }
@@ -278,7 +273,7 @@ public class ArtifactsController {
         return new ModelAndView("exceptions_page", model);
     }
 
-    ModelAndView getArtifact(String filePath, ArtifactFolderViewFactory folderViewFactory, String pipelineName, String counterOrLabel, String stageName, String stageCounter, String buildName, String sha, String serverAlias) throws Exception {
+    ModelAndView getArtifact(String filePath, ArtifactFolderViewFactory folderViewFactory, String pipelineName, String counterOrLabel, String stageName, String stageCounter, String buildName, String sha) throws Exception {
         LOGGER.info("[Artifact Download] Trying to resolve '{}' for '{}/{}/{}/{}/{}'", filePath, pipelineName, counterOrLabel, stageName, stageCounter, buildName);
         long before = System.currentTimeMillis();
         ArtifactsView view;

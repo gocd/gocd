@@ -78,12 +78,12 @@ public class ArtifactsControllerTest {
         String content = "Testing:";
         request.setContent(content.getBytes());
         JobIdentifier jobIdentifier = new JobIdentifier("pipeline", 10, "label-10", "stage", "2", "build", 103l);
-        when(restfulService.findJob("pipeline", "10", "stage", "2", "build", 103l)).thenReturn(jobIdentifier);
+        when(restfulService.findJob("pipeline", "10", "stage", "2", "build")).thenReturn(jobIdentifier);
         String path = "cruise-output/console.log";
         File artifactFile = new File("junk");
         when(consoleService.consoleLogFile(jobIdentifier)).thenReturn(artifactFile);
         when(consoleService.updateConsoleLog(eq(artifactFile), any(InputStream.class))).thenReturn(true);
-        assertThat(((ResponseCodeView) artifactsController.putArtifact("pipeline", "10", "stage", "2", "build", 103l, path, "agent-id", request).getView()).getStatusCode(), is(HttpServletResponse.SC_OK));
+        assertThat(((ResponseCodeView) artifactsController.putArtifact("pipeline", "10", "stage", "2", "build", path, request).getView()).getStatusCode(), is(HttpServletResponse.SC_OK));
         verify(consoleActivityMonitor).consoleUpdatedFor(jobIdentifier);
     }
 
@@ -106,7 +106,7 @@ public class ArtifactsControllerTest {
     public void shouldReturnHttpErrorCodeWhenChecksumFileSaveFails() throws Exception {
         File artifactFile = new File("junk");
         JobIdentifier jobIdentifier = new JobIdentifier("pipeline-1", 1, "1", "stage-1", "2", "job-1", 122l);
-        when(restfulService.findJob("pipeline-1", "1", "stage-1", "2", "job-1", 122l)).thenReturn(jobIdentifier);
+        when(restfulService.findJob("pipeline-1", "1", "stage-1", "2", "job-1")).thenReturn(jobIdentifier);
         when(artifactService.findArtifact(any(JobIdentifier.class), eq("some-path"))).thenReturn(artifactFile);
         when(artifactService.saveFile(any(File.class), any(InputStream.class), eq(false), eq(1))).thenReturn(true);
         when(artifactService.saveOrAppendFile(any(File.class), any(InputStream.class))).thenReturn(false);
@@ -115,7 +115,7 @@ public class ArtifactsControllerTest {
         mockMultipartHttpServletRequest.addFile(new MockMultipartFile(REGULAR_MULTIPART_FILENAME, "content".getBytes()));
         mockMultipartHttpServletRequest.addFile(new MockMultipartFile(CHECKSUM_MULTIPART_FILENAME, "checksum-content".getBytes()));
 
-        ModelAndView modelAndView = artifactsController.postArtifact("pipeline-1", "1", "stage-1", "2", "job-1", 122L, "some-path", 1, mockMultipartHttpServletRequest);
+        ModelAndView modelAndView = artifactsController.postArtifact("pipeline-1", "1", "stage-1", "2", "job-1", "some-path", 1, mockMultipartHttpServletRequest);
 
 
         ResponseCodeView view = (ResponseCodeView) modelAndView.getView();
@@ -129,12 +129,12 @@ public class ArtifactsControllerTest {
         ArtifactsController controller = new ArtifactsController(artifactService, restfulService, mock(ZipArtifactCache.class), jobInstanceDao, consoleActivityMonitor, consoleService, systemEnvironment) {
             @Override
             ModelAndView getArtifact(String filePath, ArtifactFolderViewFactory folderViewFactory, String pipelineName, String counterOrLabel, String stageName, String stageCounter,
-                                     String buildName, String sha, String serverAlias) throws Exception {
+                                     String buildName, String sha) throws Exception {
                 return returnVal;
             }
         };
 
-        assertThat(controller.getArtifactAsHtml("pipeline", "counter", "stage", "2", "job", "file_name", "sha1", null), sameInstance(returnVal));
+        assertThat(controller.getArtifactAsHtml("pipeline", "counter", "stage", "2", "job", "file_name", "sha1"), sameInstance(returnVal));
         assertThat(controller.getArtifactAsZip("pipeline", "counter", "stage", "2", "job", "file_name", "sha1"), sameInstance(returnVal));
         assertThat(controller.getArtifactAsJson("pipeline", "counter", "stage", "2", "job", "file_name", "sha1"), sameInstance(returnVal));
     }
@@ -144,7 +144,7 @@ public class ArtifactsControllerTest {
         MultipartHttpServletRequest multipartHttpServletRequest = new MockMultipartHttpServletRequest();
 
         when(systemEnvironment.isApiSafeModeEnabled()).thenReturn(true);
-        ModelAndView modelAndView = artifactsController.postArtifact("pipeline", "invalid-label", "stage", "stage-counter", "job-name", 3L, "file-path", 3, multipartHttpServletRequest);
+        ModelAndView modelAndView = artifactsController.postArtifact("pipeline", "invalid-label", "stage", "stage-counter", "job-name", "file-path", 3, multipartHttpServletRequest);
         ResponseCodeView codeView = (ResponseCodeView) modelAndView.getView();
 
         assertThat(codeView.getStatusCode(), is(HttpServletResponse.SC_BAD_REQUEST));

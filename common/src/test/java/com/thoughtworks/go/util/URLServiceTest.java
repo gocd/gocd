@@ -71,7 +71,7 @@ public class URLServiceTest {
         String downloadUrl1 = urlService.getUploadUrlOfAgent(jobIdentifier, "file");
         String downloadUrl2 = urlService.getUploadUrlOfAgent(jobIdentifier, "/file");
         assertThat(downloadUrl1,
-                endsWith("/files/pipelineName/LATEST/stageName/LATEST/buildName/file?attempt=1&buildId=123"));
+                endsWith("/files/pipelineName/LATEST/stageName/LATEST/buildName/file?attempt=1"));
         assertThat(downloadUrl1, endsWith(downloadUrl2));
     }
 
@@ -79,7 +79,7 @@ public class URLServiceTest {
     public void shouldReturnRestfulUrlOfAgentWithAttemptCounter() throws Exception {
         String uploadUrl1 = urlService.getUploadUrlOfAgent(jobIdentifier, "file", 1);
         assertThat(uploadUrl1,
-                endsWith("/files/pipelineName/LATEST/stageName/LATEST/buildName/file?attempt=1&buildId=123"));
+                endsWith("/files/pipelineName/LATEST/stageName/LATEST/buildName/file?attempt=1"));
     }
 
     @Test

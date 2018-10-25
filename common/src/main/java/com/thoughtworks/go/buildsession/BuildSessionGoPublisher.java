@@ -28,17 +28,15 @@ class BuildSessionGoPublisher implements GoPublisher {
     private static final Logger LOG = LoggerFactory.getLogger(BuildSessionGoPublisher.class);
     private final TaggedStreamConsumer buildConsole;
     private final ArtifactsRepository artifactsRepository;
-    private String buildId;
 
-    public BuildSessionGoPublisher(TaggedStreamConsumer buildConsole, ArtifactsRepository artifactsRepository, String buildId) {
+    public BuildSessionGoPublisher(TaggedStreamConsumer buildConsole, ArtifactsRepository artifactsRepository) {
         this.buildConsole = buildConsole;
         this.artifactsRepository = artifactsRepository;
-        this.buildId = buildId;
     }
 
     @Override
     public void upload(File fileToUpload, String destPath) {
-        artifactsRepository.upload(buildConsole, fileToUpload, destPath, buildId);
+        artifactsRepository.upload(buildConsole, fileToUpload, destPath);
     }
 
     @Override

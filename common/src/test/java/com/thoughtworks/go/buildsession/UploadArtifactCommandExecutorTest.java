@@ -38,7 +38,6 @@ public class UploadArtifactCommandExecutorTest extends BuildSessionBasedTestCase
         assertThat(artifactsRepository.getFileUploaded().size(), is(1));
         assertThat(artifactsRepository.getFileUploaded().get(0).file, is(targetFile));
         assertThat(artifactsRepository.getFileUploaded().get(0).destPath, is("foo-dest"));
-        assertThat(artifactsRepository.getFileUploaded().get(0).buildId, is("build1"));
     }
 
     @Test

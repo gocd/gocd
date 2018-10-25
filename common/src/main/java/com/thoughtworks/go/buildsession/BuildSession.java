@@ -307,7 +307,7 @@ public class BuildSession {
     }
 
     BuildSessionGoPublisher getPublisher() {
-        return new BuildSessionGoPublisher(console, artifactsRepository, buildId);
+        return new BuildSessionGoPublisher(console, artifactsRepository);
     }
 
 

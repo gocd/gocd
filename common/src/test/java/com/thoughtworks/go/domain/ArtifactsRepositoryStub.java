@@ -33,14 +33,12 @@ public class ArtifactsRepositoryStub implements ArtifactsRepository {
     public static class FileUpload {
         public File file;
         public String destPath;
-        public String buildId;
 
         @Override
         public String toString() {
             return "FileUpload{" +
                     "file=" + file +
                     ", destPath='" + destPath + '\'' +
-                    ", buildId='" + buildId + '\'' +
                     '}';
         }
     }
@@ -51,14 +49,13 @@ public class ArtifactsRepositoryStub implements ArtifactsRepository {
     }
 
     @Override
-    public void upload(TaggedStreamConsumer console, File file, String destPath, String buildId) {
+    public void upload(TaggedStreamConsumer console, File file, String destPath) {
         if(this.error != null) {
             throw error;
         }
         FileUpload fu = new FileUpload();
         fu.file = file;
         fu.destPath = destPath;
-        fu.buildId = buildId;
         fileUploaded.add(fu);
     }
 

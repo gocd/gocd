@@ -151,6 +151,8 @@ describe("Config Repo List VM", () => {
     clone.allowSave.and.returnValue(true);
 
     vm.updateRepo(clone);
+    expect(clone.revisionResult.reload).toHaveBeenCalled();
+
     expect(clone.etag()).toBe("1234");
     expect(clone.initialize).toHaveBeenCalledWith({id: 1});
     expect(vm.repos()[1]).toBe(clone);
@@ -249,7 +251,8 @@ function cheapRepo(id) {
     clone() { return cheapRepo(id); },
     etag: Stream(null),
     serverErrors: Stream(null),
-    allowSave: jasmine.createSpy("allowSave()")
+    allowSave: jasmine.createSpy("allowSave()"),
+    revisionResult: { reload: jasmine.createSpy("revision.reload()") }
   };
 }
 

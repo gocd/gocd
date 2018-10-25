@@ -13,9 +13,9 @@ function RevisionVM(data) {
   this.id           = repoId;
   this.busy         = Stream(false);
   this.serverErrors = Stream(null);
-  this.revision     = Stream(_.get(data, "last_parse.revision"));
-  this.error        = Stream(_.get(data, "last_parse.error"));
-  this.success      = Stream(_.get(data, "last_parse.success"));
+  this.revision     = Stream(_.get(data, "last_parse.revision", null));
+  this.error        = Stream(_.get(data, "last_parse.error", null));
+  this.success      = Stream(_.get(data, "last_parse.success", false));
 
   const poller = createPoller(this);
 

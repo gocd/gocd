@@ -26,7 +26,7 @@ interface State {
 
 export class ConfigReposPage extends MithrilComponent<null, State> {
   oninit(vnode: m.Vnode<null, State>) {
-    vnode.state.vm = new ReposListVM(new ConfigRepos()).load();
+    vnode.state.vm = new ReposListVM(new ConfigRepos()).start();
     vnode.state.vm.loadPlugins().then(() => m.redraw());
   }
 

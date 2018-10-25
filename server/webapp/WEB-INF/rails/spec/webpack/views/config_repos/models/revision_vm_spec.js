@@ -31,7 +31,7 @@ describe("Revision View Model", () => {
         }
       });
 
-      const vm = new RevisionVM(ID);
+      const vm = new RevisionVM({id: ID});
       vm.reload().then(() => {
         expect(vm.revision()).toBe("1234");
         expect(vm.success()).toBe(false);
@@ -51,7 +51,7 @@ describe("Revision View Model", () => {
         }
       });
 
-      const vm = new RevisionVM(ID);
+      const vm = new RevisionVM({id: ID});
       vm.reload().then(() => done.fail("Request should have failed"), () => {
         expect(vm.serverErrors()).toBe("oh noes!");
         expect(vm.revision()).toBe(null);
@@ -72,7 +72,7 @@ describe("Revision View Model", () => {
         }
       });
 
-      const vm = new RevisionVM(ID);
+      const vm = new RevisionVM({id: ID});
       spyOn(vm, "monitorProgress");
 
       vm.forceUpdate().then(() => {
@@ -92,7 +92,7 @@ describe("Revision View Model", () => {
         }
       });
 
-      const vm = new RevisionVM(ID);
+      const vm = new RevisionVM({id: ID});
       spyOn(vm, "monitorProgress");
 
       vm.forceUpdate().then(() => done.fail("Request should have failed"), () => {

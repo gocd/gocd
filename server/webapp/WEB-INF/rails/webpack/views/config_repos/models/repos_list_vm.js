@@ -19,6 +19,7 @@ const _            = require("lodash");
 const Dfr          = require("jquery").Deferred;
 const PluginInfos  = require("models/shared/plugin_infos");
 const ConfigRepoVM = require("views/config_repos/models/config_repo_vm");
+const AjaxPoller = require("helpers/ajax_poller");
 
 function ReposListVM(model) {
   const repos = Stream([]);
@@ -34,15 +35,23 @@ function ReposListVM(model) {
     }
   };
 
+  // this must return a promise
   this.load = () => {
-    this.errors([]);
-    this.loading(true);
-    model.all().then((data) => {
-      repos(data._embedded.config_repos.map((r) => new ConfigRepoVM(r)));
-    }, addError).always(() => this.loading(false));
+    self.errors([]);
+    self.loading(true);
 
-    return this;
+    return model.all().then((data, _e, status) => {
+      if (304 !== status) {
+        repos(data._embedded.config_repos.map((r) => new ConfigRepoVM(r)));
+      }
+    }, addError).always(() => self.loading(false));
   };
+
+  const poller = new AjaxPoller({
+    fn: this.load
+  });
+
+  this.start = () => { poller.start(); return this; };
 
   this.loadPlugins = () => {
     this.errors([]);

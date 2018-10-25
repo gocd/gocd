@@ -16,22 +16,26 @@
 @import "../../global/common";
 
 .callout {
-  font-weight:     600;
-  font-size:       12px;
-  padding:         7px 10px;
-  border:          1px solid transparent;
-  border-radius:   $global-border-radius;
-  margin:          10px 30px;
-  display:         flex;
-  justify-content: space-between;
+  font-weight:   600;
+  font-size:     12px;
+  padding:       7px 40px 7px 10px;
+  border:        1px solid transparent;
+  border-radius: $global-border-radius;
+  margin:        10px 30px;
+  position:      relative;
 
   p {
     margin: 0;
   }
 
-  .actions {
-    color:  $text-color;
-    cursor: pointer;
+  .close-callout {
+    color:      $text-color;
+    cursor:     pointer;
+    position:   absolute;
+    top:        4px;
+    right:      -1px;
+    border:     none;
+    background: transparent;
   }
 
   &.success {

@@ -15,16 +15,26 @@
  */
 @import "../../global/common";
 
-$global-icon-size: 14px;
-$btn-group-border-radius: 3px;
+$global-icon-size: 16px;
+$btn-group-border-radius: $global-border-radius;
 
-.icon {
+.btn-icon {
   border:      none;
   border-left: 1px solid $border-color;
   cursor:      pointer;
   font-size:   $global-icon-size;
-  padding:     7px 15px;
+  padding:     0 10px;
+  height:      $form-element-height;
   flex:        0 1 auto;
+  color:       $icon-color;
+  transition:  $transition;
+  background:  $icon-bg;
+  &:hover {
+    color:      lighten($icon-color, 100%);
+    transition: $transition;
+    background: $icon-color;
+  }
+
   &:first-child {
     border-left:   none;
     border-radius: $btn-group-border-radius 0 0 $btn-group-border-radius;
@@ -34,6 +44,15 @@ $btn-group-border-radius: 3px;
   }
   &:focus, &:active {
     outline: 0;
+  }
+}
+
+.disabled {
+  opacity:        0.75;
+  cursor:         not-allowed;
+  &:hover {
+    color:      $icon-color;
+    background: $icon-bg;
   }
 }
 

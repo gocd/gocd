@@ -22,7 +22,7 @@ $primary-bg: #f4f8f9;
 $secondary-bg: #e7eef0;
 $text-color: #333;
 $line-color: #e9edef;
-$icon-color: #647984;
+
 $element-bg: #fff;
 $body-color: $text-color;
 $body-bg: $primary-bg;
@@ -31,6 +31,12 @@ $link-color: #0a8fcb;
 $link-hover-color: #0b5b7e;
 $link-decoration: none;
 $link-hover-decoration: none;
+
+//icons
+
+$icon-color: #647984;
+$icon-bg: #fff;
+$icon-bg-hover: #d4eff6;
 
 //fonts
 
@@ -67,3 +73,9 @@ $alert: #feebec;
 $alert-txt: #e5bfc0;
 
 $info: #d3effb;
+
+//forms
+
+$form-element-height : 35px;
+$form-element-height-small : 25px;
+

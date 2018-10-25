@@ -58,9 +58,9 @@ class FlashMessage extends MithrilComponent<Attrs, State> {
     let closeButton: JSX.Element | undefined;
     if (isDismissible) {
       closeButton = (
-        <span className={classnames("actions")}>
+        <button className={classnames("close-callout")}>
           <Icons.Close onclick={vnode.state.onDismiss}/>
-        </span>
+        </button>
       );
     }
 

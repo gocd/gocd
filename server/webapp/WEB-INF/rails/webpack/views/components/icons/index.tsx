@@ -23,7 +23,8 @@ const styles     = require('./index.scss');
 const classnames = require('classnames/bind').bind(styles);
 
 export interface Attrs {
-  onclick?: Function
+  onclick?: Function,
+  disabled?: boolean
 }
 
 class Icon extends MithrilComponent<Attrs> {
@@ -36,7 +37,7 @@ class Icon extends MithrilComponent<Attrs> {
 
   view(vnode: m.Vnode<Attrs>) {
     return (
-      <i {...vnode.attrs} className={classnames(this.name)}/>
+      <i {...vnode.attrs} className={classnames(this.name, {disabled: vnode.attrs.disabled})}/>
     );
   }
 }
@@ -83,13 +84,17 @@ export class Close extends Icon {
   }
 }
 
-export class ButtonGroup extends MithrilComponent<{}> {
-  view(vnode: m.Vnode<{}>) {
+export class ButtonGroup extends MithrilComponent<Attrs> {
+  view(vnode: m.Vnode<Attrs>) {
     return (
       <div className={styles.buttonGroup} aria-label="actions">
         {
           _.map(vnode.children as any, (ele) => {
-            return <button className={styles.icon}>{ele}</button>
+            return (
+              <button className={(classnames(styles.btnIcon, {disabled: ele.attrs.disabled}))}>
+                {ele}
+              </button>
+            );
           })
         }
       </div>

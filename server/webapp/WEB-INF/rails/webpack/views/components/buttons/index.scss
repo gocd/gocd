@@ -33,6 +33,10 @@ $btn-reset: #666;
   &:active, &:focus {
     outline: 0;
   }
+  &:disabled {
+    opacity: 0.4;
+    cursor:  not-allowed;
+  }
 }
 
 .btn-small {
@@ -52,6 +56,12 @@ $btn-reset: #666;
     background: darken($btn-primary, 10%);
     transition: $transition;
   }
+  &:disabled {
+    &:hover {
+      background: $btn-primary;
+      transition: $transition;
+    }
+  }
 }
 
 .btn-secondary {
@@ -63,6 +73,12 @@ $btn-reset: #666;
     background: darken($btn-secondary, 10%);
     transition: $transition;
   }
+  &:disabled {
+    &:hover {
+      background: $btn-secondary;
+      transition: $transition;
+    }
+  }
 }
 
 .btn-reset {
@@ -73,6 +89,12 @@ $btn-reset: #666;
   &:hover {
     background: darken($btn-reset, 10%);
     transition: $transition;
+  }
+  &:disabled {
+    &:hover {
+      background: $btn-reset;
+      transition: $transition;
+    }
   }
 }
 

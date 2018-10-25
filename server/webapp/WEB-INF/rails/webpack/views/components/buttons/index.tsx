@@ -22,7 +22,8 @@ const styles     = require('./index.scss');
 const classnames = require('classnames/bind').bind(styles);
 
 export interface Attrs {
-  small?: boolean
+  small?: boolean,
+  disabled?: boolean
 }
 
 class Button extends MithrilComponent<Attrs> {
@@ -38,7 +39,12 @@ class Button extends MithrilComponent<Attrs> {
 
     return (
       <button {...vnode.attrs}
-              className={classnames(styles.button, {[styles.btnSmall]: isSmall}, styles[this.type])}>
+              className={classnames(
+                styles.button,
+                {[styles.btnSmall]: isSmall},
+                {[styles.disabled]: vnode.attrs.disabled},
+                styles[this.type]
+              )}>
         {vnode.children}
       </button>
     );

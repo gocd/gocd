@@ -47,20 +47,18 @@ export abstract class Modal extends MithrilComponent<any> {
     ModalManager.close(this);
   }
 
-  handleEscapeKey() {
-    $('body').on(`keydown.${this.id}`, (e) => {
-      if (e.key === "Escape") {
-        this.close();
-      }
-    });
+  closeOnEscape(e: KeyboardEvent) {
+    if (e.key === "Escape") {
+      this.close();
+    }
   }
 
   oninit() {
-    this.handleEscapeKey();
+    document.body.addEventListener('keydown', this.closeOnEscape.bind(this));
   }
 
   onremove() {
-    $('body').off(`keydown.${this.id}`);
+    document.body.removeEventListener('keydown', this.closeOnEscape.bind(this));
   }
 
   view() {

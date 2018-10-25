@@ -53,9 +53,9 @@ public class ConfigRepoPlugin implements PartialConfigProvider {
         return "Plugin " + this.pluginId;
     }
 
-    public String pipelineConfigToRemoteConfig(PipelineConfig pipelineConfig) {
+    public String pipelineExport(PipelineConfig pipelineConfig) {
         CRPipeline crPipeline = configConverter.pipelineConfigToCRPipeline(pipelineConfig);
-        return this.crExtension.pipelineConfigToRemoteConfig(this.pluginId, crPipeline);
+        return this.crExtension.pipelineExport(this.pluginId, crPipeline);
     }
 
     public CRParseResult parseDirectory(File configRepoCheckoutDirectory, Collection<CRConfigurationProperty> cRconfigurations) {

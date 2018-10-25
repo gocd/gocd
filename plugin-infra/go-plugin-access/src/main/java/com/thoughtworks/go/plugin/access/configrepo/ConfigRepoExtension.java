@@ -52,7 +52,7 @@ public class ConfigRepoExtension extends AbstractExtension implements ConfigRepo
     }
 
     @Override
-    public String pipelineConfigToRemoteConfig(final String pluginId, final CRPipeline pipeline) {
+    public String pipelineExport(final String pluginId, final CRPipeline pipeline) {
         return pluginRequestHelper.submitRequest(pluginId, REQUEST_PIPELINE_EXPORT, new DefaultPluginInteractionCallback<String>() {
             @Override
             public String requestBody(String resolvedExtensionVersion) {

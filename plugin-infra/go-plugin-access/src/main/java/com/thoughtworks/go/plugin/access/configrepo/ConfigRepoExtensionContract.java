@@ -28,5 +28,5 @@ import java.util.Collection;
 public interface ConfigRepoExtensionContract {
 
     CRParseResult parseDirectory(String pluginId, final String destinationFolder, final Collection<CRConfigurationProperty> configurations);
-    String pipelineConfigToRemoteConfig(String pluginId, final CRPipeline pipelineConfig);
+    String pipelineExport(String pluginId, final CRPipeline pipelineConfig);
 }

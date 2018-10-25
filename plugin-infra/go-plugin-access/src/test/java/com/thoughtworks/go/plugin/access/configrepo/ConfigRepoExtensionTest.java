@@ -15,12 +15,10 @@
  */
 package com.thoughtworks.go.plugin.access.configrepo;
 
-import com.thoughtworks.go.config.PipelineConfig;
-import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.plugin.access.common.AbstractExtension;
+import com.thoughtworks.go.plugin.access.configrepo.codec.GsonCodec;
 import com.thoughtworks.go.plugin.access.configrepo.contract.CRParseResult;
 import com.thoughtworks.go.plugin.access.configrepo.contract.CRPipeline;
-import com.thoughtworks.go.plugin.access.configrepo.contract.CRStage;
 import com.thoughtworks.go.plugin.api.request.GoPluginApiRequest;
 import com.thoughtworks.go.plugin.api.response.DefaultGoPluginApiResponse;
 import com.thoughtworks.go.plugin.infra.PluginManager;
@@ -86,6 +84,21 @@ public class ConfigRepoExtensionTest {
 
         assertRequest(requestArgumentCaptor.getValue(), CONFIG_REPO_EXTENSION, "1.0", ConfigRepoExtension.REQUEST_PARSE_DIRECTORY, null);
         verify(jsonMessageHandler).responseMessageForParseDirectory(responseBody);
+        assertSame(response, deserializedResponse);
+    }
+
+    @Test
+    public void shouldTalkToPluginToGetPipelineExport() throws Exception {
+        CRPipeline pipeline = new CRPipeline();
+        String deserializedResponse = new GsonCodec().getGson().toJson(pipeline);
+        when(jsonMessageHandler.responseMessageForPipelineExport(responseBody)).thenReturn(deserializedResponse);
+
+
+        String response = extension.pipelineExport(PLUGIN_ID, pipeline);
+
+        assertRequest(requestArgumentCaptor.getValue(), CONFIG_REPO_EXTENSION, "1.0", ConfigRepoExtension.REQUEST_PIPELINE_EXPORT, null);
+
+        verify(jsonMessageHandler).responseMessageForPipelineExport(responseBody);
         assertSame(response, deserializedResponse);
     }
 

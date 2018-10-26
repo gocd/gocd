@@ -15,8 +15,9 @@
  */
 
 const m                        = require('mithril');
-const SystemNotificationWidget = require('views/notifications/system_notification_widget');
+const SystemNotificationWidget = require('./system_notification_widget');
 const ComponentMixins          = require('helpers/mithril_component_mixins');
+const styles                   = require('./system_notifications.scss');
 
 const SystemNotificationsWidget = {
   oninit(vnode) {
@@ -38,10 +39,10 @@ const SystemNotificationsWidget = {
     }
     else {
       return (
-        <div class="notifications">
-          <span class="bell"></span>
-          <div class="hover-container">
-            <div class="notification-hover">
+        <div class={styles.notifications}>
+          <span class={styles.bell}></span>
+          <div class={styles.hoverContainer}>
+            <div class={styles.notificationHover}>
               {
                 vnode.state.systemNotifications().mapSystemNotifications((notification) => {
                   return (

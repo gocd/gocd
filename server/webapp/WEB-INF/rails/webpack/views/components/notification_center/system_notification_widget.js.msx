@@ -14,24 +14,26 @@
  * limitations under the License.
  */
 
-const m               = require('mithril');
+const m = require('mithril');
 const ComponentMixins = require('helpers/mithril_component_mixins');
+const style = require('./system_notifications.scss');
 
 const SystemNotificationWidget = {
-  oninit(vnode) {
-    this.args = vnode.attrs;
-    ComponentMixins.HasViewModel.call(this);
-  },
+    oninit(vnode) {
+        this.args = vnode.attrs;
+        ComponentMixins.HasViewModel.call(this);
+    },
 
-  view(vnode) {
-    const notification = vnode.attrs.notification;
-    return (
-      <p>
-        {notification.message} <a href={notification.link} target="_blank">{notification.linkText}</a>
-        <span onclick={vnode.attrs.markAsRead.bind(vnode.attrs, notification)} class="close">X</span>
-      </p>
-    );
-  }
+    view(vnode) {
+        const notification = vnode.attrs.notification;
+        return (
+            <p class={style.notification_item} data-test-id="notification-item">
+                {notification.message} <a href={notification.link} target="_blank">{notification.linkText}</a>
+                <span onclick={vnode.attrs.markAsRead.bind(vnode.attrs, notification)}
+                      data-test-id="notification-item_close" class={style.notification_close}>X</span>
+            </p>
+        );
+    }
 };
 
 module.exports = SystemNotificationWidget;

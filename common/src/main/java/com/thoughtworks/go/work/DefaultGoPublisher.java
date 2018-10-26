@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.work;
 
+import com.thoughtworks.go.config.RunIfConfig;
 import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.domain.JobResult;
 import com.thoughtworks.go.domain.JobState;
@@ -34,15 +35,18 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 
+import static com.thoughtworks.go.domain.JobState.*;
+import static java.lang.String.format;
+
 public class DefaultGoPublisher implements GoPublisher {
+    private static final Logger LOG = LoggerFactory.getLogger(DefaultGoPublisher.class);
+    private final AgentRuntimeInfo agentRuntimeInfo;
+    private final String consoleLogCharset;
     private GoArtifactsManipulator manipulator;
     private JobIdentifier jobIdentifier;
     private AgentIdentifier agentIdentifier;
     private BuildRepositoryRemote remoteBuildRepository;
-    private final AgentRuntimeInfo agentRuntimeInfo;
-    private final String consoleLogCharset;
     private ConsoleOutputTransmitter consoleOutputTransmitter;
-    private static final Logger LOG = LoggerFactory.getLogger(DefaultGoPublisher.class);
     private String currentWorkingDirectory = SystemUtil.currentWorkingDirectory();
 
     public DefaultGoPublisher(GoArtifactsManipulator manipulator, JobIdentifier jobIdentifier,
@@ -81,44 +85,43 @@ public class DefaultGoPublisher implements GoPublisher {
         taggedConsumeLine(null, line);
     }
 
-    public void flushToServer() {
-        consoleOutputTransmitter.flushToServer();
-    }
-
     public void stop() {
         LOG.info("Stopping Transmission for {}", jobIdentifier.toFullString());
         consoleOutputTransmitter.stop();
     }
 
-    public void reportCurrentStatus(JobState state) {
+    private void reportCurrentStatus(JobState state) {
+        consoleOutputTransmitter.flushToServer();
         LOG.info("{} is reporting status [{}] to Go Server for {}", agentIdentifier, state, jobIdentifier.toFullString());
         remoteBuildRepository.reportCurrentStatus(agentRuntimeInfo, jobIdentifier, state);
     }
 
     public void reportCompleting(JobResult result) {
+        consoleOutputTransmitter.flushToServer();
         LOG.info("{} is reporting build result [{}] to Go Server for {}", agentIdentifier, result, jobIdentifier.toFullString());
         remoteBuildRepository.reportCompleting(agentRuntimeInfo, jobIdentifier, result);
     }
 
     public void reportCompleted(JobResult result) {
-        LOG.info("{} is reporting build result [{}] to Go Server for {}", agentIdentifier, result, jobIdentifier.toFullString());
-        remoteBuildRepository.reportCompleted(agentRuntimeInfo, jobIdentifier, result);
+        if (result != null) {
+            LOG.info("{} is reporting build result [{}] to Go Server for {}", agentIdentifier, result, jobIdentifier.toFullString());
+            consoleOutputTransmitter.flushToServer();
+            remoteBuildRepository.reportCompleted(agentRuntimeInfo, jobIdentifier, result);
+        }
+
         reportCompletedAction();
     }
 
-    public void reportCompletedAction() {
+    private void reportCompletedAction() {
         reportAction(COMPLETED, "Job completed");
+        reportCurrentStatus(Completed);
     }
 
     public boolean isIgnored() {
         return remoteBuildRepository.isIgnored(jobIdentifier);
     }
 
-    public void reportAction(String action) {
-        reportAction(NOTICE, action);
-    }
-
-    public void reportAction(String tag, String action) {
+    private void reportAction(String tag, String action) {
         String message = String.format("[%s] %s %s on %s [%s]", GoConstants.PRODUCT_NAME, action, jobIdentifier.buildLocatorForDisplay(),
                 agentIdentifier.getHostName(), currentWorkingDirectory);
         LOG.debug(message);
@@ -149,5 +152,33 @@ public class DefaultGoPublisher implements GoPublisher {
         } else {
             consoleOutputTransmitter.taggedConsumeLine(tag, line);
         }
+    }
+
+    public void reportPreparing() {
+        reportAction(PREP, "Start to prepare");
+        reportCurrentStatus(Preparing);
+    }
+
+    public void reportStartingToBuild() {
+        reportAction(NOTICE, "Start to build");
+        reportCurrentStatus(Building);
+    }
+
+    public void reportCompleting(JobResult result, String tag) {
+        taggedConsumeLineWithPrefix(tag, format("Current job status: %s", RunIfConfig.fromJobResult(result.toLowerCase())));
+        reportCurrentStatus(Completing);
+    }
+
+    public void reportJobCancelled() {
+        reportAction(NOTICE, "Job is cancelled");
+        consoleOutputTransmitter.flushToServer();
+    }
+
+    public void reportBeginToPublishArtifacts() {
+        reportAction(PUBLISH, "Start to upload");
+    }
+
+    public void reportCreatingProperties() {
+        reportAction(NOTICE, "Start to create properties");
     }
 }

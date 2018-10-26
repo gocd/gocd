@@ -36,6 +36,7 @@ dependencies {
 
   compile(group: 'org.eclipse.jgit', name: 'org.eclipse.jgit.http.server', version: project.versions.jgit) {
     exclude(module: 'jsch')
+    exclude(module: 'jzlib')
   }
   compile project(':jetty9')
   compile group: 'javax.servlet', name: 'javax.servlet-api', version: project.versions.servletApi

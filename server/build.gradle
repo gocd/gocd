@@ -308,6 +308,7 @@ dependencies {
   compile group: 'org.slf4j', name: 'slf4j-api', version: project.versions.slf4j
   compile(group: 'org.eclipse.jgit', name: 'org.eclipse.jgit.http.server', version: project.versions.jgit) {
     exclude(module: 'jsch')
+    exclude(module: 'jzlib')
   }
   compile group: 'cglib', name: 'cglib-nodep', version: '2.2'
   compileOnly project(':app-server')

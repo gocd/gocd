@@ -164,7 +164,7 @@ rootProject.ext.versions = [
   cloning             : '1.9.10',
   commonsCodec        : '1.11',
   commonsCollections  : '3.2.2',
-  commonsCollections4 : '4.1',
+  commonsCollections4 : '4.2',
   commonsConfiguration: '2.2',
   commonsFileUpload   : '1.3.3',
   commonsIO           : '2.6',

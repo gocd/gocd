@@ -42,7 +42,6 @@ import static java.util.Arrays.asList;
 
 @Component
 public class ConfigRepoExtension extends AbstractExtension implements ConfigRepoExtensionContract {
-    private static final Logger LOGGER = LoggerFactory.getLogger(ConfigRepoExtension.class);
     public static final String REQUEST_PARSE_DIRECTORY = "parse-directory";
     public static final String REQUEST_PIPELINE_EXPORT = "pipeline-export";
     public static final String REQUEST_CAPABILITIES = "get-capabilities";
@@ -85,6 +84,10 @@ public class ConfigRepoExtension extends AbstractExtension implements ConfigRepo
 
     @Override
     public Capabilities getCapabilities(String pluginId) {
+        String resolvedExtensionVersion = pluginManager.resolveExtensionVersion(pluginId, CONFIG_REPO_EXTENSION, goSupportedVersions);
+        if (resolvedExtensionVersion.equals("1.0")) {
+            return new Capabilities(false);
+        }
        return pluginRequestHelper.submitRequest(pluginId, REQUEST_CAPABILITIES, new DefaultPluginInteractionCallback<Capabilities>() {
            @Override
            public Capabilities onSuccess(String responseBody, String resolvedExtensionVersion) {

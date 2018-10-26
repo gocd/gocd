@@ -93,11 +93,6 @@ public class JsonMessageHandler1_0Test {
     }
 
     @Test
-    public void shouldReturnAllFalseCapabilities() {
-       assertThat(handler.getCapabilitiesFromResponse(""), CoreMatchers.is(new Capabilities()));
-    }
-
-    @Test
     public void shouldErrorWhenTargetVersionOfPluginIsHigher() {
         int targetVersion = JsonMessageHandler1_0.CURRENT_CONTRACT_VERSION + 1;
         String json = "{\n" +

@@ -70,7 +70,7 @@ public class JsonMessageHandler1_0 implements JsonMessageHandler {
 
     @Override
     public Capabilities getCapabilitiesFromResponse(String responseBody) {
-        return new Capabilities();
+        return null;
     }
 
     @Override

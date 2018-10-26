@@ -122,6 +122,17 @@ public class ConfigRepoExtensionTest {
     }
 
     @Test
+    public void shouldRequestCapabilitiesV1() throws Exception {
+        Capabilities capabilities = new Capabilities(false);
+        when(jsonMessageHandler2.getCapabilitiesFromResponse(responseBody)).thenReturn(capabilities);
+//        when(pluginManager.resolveExtensionVersion(PLUGIN_ID, CONFIG_REPO_EXTENSION, new ArrayList<>(Arrays.asList("1.0", "2.0")))).thenReturn("1.0");
+
+        Capabilities res = extension.getCapabilities(PLUGIN_ID);
+
+        assertThat(capabilities, is(res));
+    }
+
+    @Test
     public void shouldSerializePluginSettingsToJSON() throws Exception {
         String pluginId = "plugin_id";
         HashMap<String, String> pluginSettings = new HashMap<>();

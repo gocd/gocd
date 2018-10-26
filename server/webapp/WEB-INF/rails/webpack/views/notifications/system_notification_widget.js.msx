@@ -27,7 +27,7 @@ const SystemNotificationWidget = {
     const notification = vnode.attrs.notification;
     return (
       <p>
-        {notification.message} <a href={notification.link} target="_blank">{notification.linkText}</a>
+        {notification.message()} <a href={notification.link()} target="_blank">{notification.linkText()}</a>
         <span onclick={vnode.attrs.markAsRead.bind(vnode.attrs, notification)} class="close">X</span>
       </p>
     );

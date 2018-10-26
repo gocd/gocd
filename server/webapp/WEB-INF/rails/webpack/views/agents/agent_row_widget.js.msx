@@ -128,7 +128,7 @@ const AgentRowWidget = {
     if (isElasticAgent && pluginInfos()) {
       const pluginInfo = pluginInfos().findById(agent.elasticPluginId());
       if (pluginInfo) {
-        const elasticAgentIconURL = pluginInfo.imageUrl;
+        const elasticAgentIconURL = pluginInfo.imageUrl();
         elasticAgentIcon          = (
           <img class="agent-icon" src={elasticAgentIconURL}/>
         );

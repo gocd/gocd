@@ -5859,10 +5859,10 @@ mississippi@^2.0.0:
     stream-each "^1.1.0"
     through2 "^2.0.0"
 
-mithril@^1.1.1:
-  version "1.1.6"
-  resolved "https://registry.yarnpkg.com/mithril/-/mithril-1.1.6.tgz#bd2cc0de3d3c86076a6a7a30367a601a1bd108f3"
-  integrity sha512-fWcUrQTCqu8M916rj1MFGlHaPh65rznPu6U/N2U9g81H89klDCIptSK5bnkNkC+jyi3sJIXjyGhSQjUnR8jzZA==
+mithril@2.0.0-rc.0:
+  version "2.0.0-rc.0"
+  resolved "https://registry.yarnpkg.com/mithril/-/mithril-2.0.0-rc.0.tgz#d88338181c88430d321852e1d10ddf793c14093b"
+  integrity sha512-BolCY7brBUUzhNUqhnQtHlWL/qJ2VDkGxsHDrBPd1XlYgWQ0qyNuhfhMHT5SjnrXx1xyVjrBeFj9kXigosq/ww==
 
 mixin-deep@^1.2.0:
   version "1.3.1"

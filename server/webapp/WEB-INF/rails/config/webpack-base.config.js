@@ -30,19 +30,19 @@ const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 
 const singlePageAppModuleDir = path.join(__dirname, '..', 'webpack', 'single_page_apps');
 
-const mithrilVersionFromNpm          = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'node_modules/mithril/package.json'), 'utf8')).version;
-const mithrilPatchFileContentAsLines = fs.readFileSync(path.join(__dirname, '..', 'spec/webpack/patches/mithril.js'), 'utf8').split("\n");
-
-const isMithrilVersionLine = function (line) {
-  return _.includes(line, 'm.version = ');
-};
-
-const mithrilVersionFromPatch = _.find(mithrilPatchFileContentAsLines, isMithrilVersionLine)
-  .split("=")[1].trim().replace(/"/g, "");
-
-if (mithrilVersionFromNpm !== mithrilVersionFromPatch) {
-  throw new Error("Please ensure that the patched mithril version is the same as the one installed via nodejs");
-}
+//const mithrilVersionFromNpm          = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'node_modules/mithril/package.json'), 'utf8')).version;
+//const mithrilPatchFileContentAsLines = fs.readFileSync(path.join(__dirname, '..', 'spec/webpack/patches/mithril.js'), 'utf8').split("\n");
+//
+//const isMithrilVersionLine = function (line) {
+//  return _.includes(line, 'm.version = ');
+//};
+//
+//const mithrilVersionFromPatch = _.find(mithrilPatchFileContentAsLines, isMithrilVersionLine)
+//  .split("=")[1].trim().replace(/"/g, "");
+//
+//if (mithrilVersionFromNpm !== mithrilVersionFromPatch) {
+//  throw new Error("Please ensure that the patched mithril version is the same as the one installed via nodejs");
+//}
 
 module.exports = function (env) {
   const production        = (env && env.production === 'true');

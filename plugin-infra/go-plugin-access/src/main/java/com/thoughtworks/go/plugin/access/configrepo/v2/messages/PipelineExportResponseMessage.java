@@ -17,13 +17,13 @@
 package com.thoughtworks.go.plugin.access.configrepo.v2.messages;
 
 public class PipelineExportResponseMessage {
-    private String pipelineJson;
+    private String pipeline;
 
-    public String getPipelineJson() {
-        return pipelineJson;
+    public String getPipeline() {
+        return pipeline;
     }
 
-    public void setPipelineJson(String pipelineJson) {
-        this.pipelineJson = pipelineJson;
+    public void setPipeline(String pipeline) {
+        this.pipeline = pipeline;
     }
 }

@@ -82,7 +82,7 @@ public class JsonMessageHandler2_0 implements JsonMessageHandler {
     @Override
     public String responseMessageForPipelineExport(String responseBody) {
         PipelineExportResponseMessage response = codec.getGson().fromJson(responseBody, PipelineExportResponseMessage.class);
-        return response.getPipelineJson();
+        return response.getPipeline();
     }
 
     @Override

@@ -21,9 +21,10 @@ const styles     = require('./index.scss');
 const classnames = require('classnames/bind').bind(styles);
 
 export interface LabelAttrs {
-  property: Function;
-  label: string;
-  helpText: string;
+  property: Function,
+  label: string,
+  helpText?: string,
+  disabled?: boolean
 }
 
 export class InputLabel extends MithrilComponent<LabelAttrs> {
@@ -32,6 +33,7 @@ export class InputLabel extends MithrilComponent<LabelAttrs> {
       <li className={classnames("form-group")}>
         <label htmlFor="item" className={classnames("form-label", "required")}>{vnode.attrs.label}:</label>
         <input type="text"
+               readonly={vnode.attrs.disabled}
                value={vnode.attrs.property()}
                oninput={(evt: any) => vnode.attrs.property(evt.currentTarget.value)}
                className={classnames("form-control")} id="item"/>

@@ -47,6 +47,9 @@ class FormComponent implements m.Component<{}, FormComponentState> {
         <InputLabel label={`name`}
                     property={vnode.state.inputLabel1}
                     helpText={`Enter your name. You entered: ${vnode.state.inputLabel1()}`}/>
+        <InputLabel label={`entered name`}
+                    disabled={true}
+                    property={vnode.state.inputLabel1}/>
       </ul>
     )
   }

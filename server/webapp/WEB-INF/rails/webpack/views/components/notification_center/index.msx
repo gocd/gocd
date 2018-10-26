@@ -16,7 +16,7 @@
 
 const m                         = require('mithril');
 const Stream                    = require('mithril/stream');
-const SystemNotificationsWidget = require('views/notifications/system_notifications_widget');
+const SystemNotificationsWidget = require('./system_notifications_widget');
 const SystemNotifications       = require('models/notifications/system_notifications');
 const DataSharingNotification   = require('models/notifications/data_sharing_notification');
 const AjaxPoller                = require('helpers/ajax_poller');

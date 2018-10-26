@@ -22,7 +22,7 @@ describe("SystemNotificationsWidget", () => {
   require('jasmine-jquery');
   require('jasmine-ajax');
 
-  const SystemNotificationsWidget = require('views/notifications/system_notifications_widget');
+  const SystemNotificationsWidget = require('../system_notifications_widget');
   const SystemNotifications = require('models/notifications/system_notifications');
 
   let $root, root;
@@ -37,7 +37,7 @@ describe("SystemNotificationsWidget", () => {
     m.mount(root, {
       view() {
         return m(SystemNotificationsWidget, {
-          systemNotifications
+            systemNotifications
         });
       }
     });
@@ -46,7 +46,7 @@ describe("SystemNotificationsWidget", () => {
   beforeEach(() => {
     localStorage.clear();
     localStorage.setItem('system_notifications', JSON.stringify([]));
-  });
+});
 
 
   afterEach(() => {
@@ -62,81 +62,81 @@ describe("SystemNotificationsWidget", () => {
 
   it("should display notification bell and the notifications", () => {
     const notifications = [
-      {
-        "id": "id1",
-        "message": "message 1.",
-        "read": false,
-        "type": "UpdateCheck",
-        "link": "link_1",
-        "linkText": "read more"
-      },
-      {
-        "id": "id2",
-        "message": "message 2.",
-        "read": false,
-        "type": "SomethingOfImportance",
-        "link": "link_2",
-        "linkText": "read more"
-      }
+        {
+            "id": "id1",
+            "message": "message 1.",
+            "read": false,
+            "type": "UpdateCheck",
+            "link": "link_1",
+            "linkText": "read more"
+        },
+        {
+            "id": "id2",
+            "message": "message 2.",
+            "read": false,
+            "type": "SomethingOfImportance",
+            "link": "link_2",
+            "linkText": "read more"
+        }
     ];
 
     systemNotifications(SystemNotifications.fromJSON(notifications));
     m.redraw(true);
-    expect($root.find('.notifications').get(0)).toBeInDOM();
-    expect($root.find('.notifications .bell').get(0)).toBeInDOM();
-    expect($root.find('.notifications .hover-container').get(0)).toBeInDOM();
-    expect($root.find('.notifications .hover-container .notification-hover').get(0)).toBeInDOM();
-    expect($root.find('.notifications .hover-container .notification-hover p').get(0)).toBeInDOM();
-    const allNotifications = $root.find('.notifications .hover-container .notification-hover p');
+    const allNotifications = find('notification-item');
+    expect(allNotifications.get(0)).toBeInDOM();
     expect(allNotifications.length).toBe(2);
     expect(allNotifications.eq(0)).toContainText("message 1. read more");
     expect(allNotifications.eq(0).find('a')).toContainText("read more");
-    expect(allNotifications.eq(0).find('span.close')).toContainText("X");
+    expect(allNotifications.eq(0).find(`[data-test-id='notification-item_close']`)).toContainText("X");
     expect(allNotifications.eq(1)).toContainText("message 2. read more");
     expect(allNotifications.eq(1).find('a')).toContainText("read more");
-    expect(allNotifications.eq(1).find('span.close')).toContainText("X");
+    expect(allNotifications.eq(1).find(`[data-test-id='notification-item_close']`)).toContainText("X");
   });
 
 
   it("should mark a notification as read and stop displaying it when user marks a notification as read", () => {
     const notifications = [
-      {
-        "id": "id1",
-        "message": "message 1.",
-        "read": false,
-        "type": "UpdateCheck",
-        "link": "link_1",
-        "linkText": "read more"
-      },
-      {
-        "id": "id2",
-        "message": "message 2.",
-        "read": false,
-        "type": "SomethingOfImportance",
-        "link": "link_2",
-        "linkText": "read more"
-      }
+        {
+            "id": "id1",
+            "message": "message 1.",
+            "read": false,
+            "type": "UpdateCheck",
+            "link": "link_1",
+            "linkText": "read more"
+        },
+        {
+            "id": "id2",
+            "message": "message 2.",
+            "read": false,
+            "type": "SomethingOfImportance",
+            "link": "link_2",
+            "linkText": "read more"
+        }
     ];
 
     systemNotifications(SystemNotifications.fromJSON(notifications));
     m.redraw(true);
-    let allNotifications = $root.find('.notifications .hover-container .notification-hover p');
+    let allNotifications = find('notification-item');
     expect(allNotifications.length).toBe(2);
-    simulateEvent.simulate(allNotifications.eq(0).find('span.close').get(0), 'click');
+    simulateEvent.simulate(allNotifications.eq(0).find(`[data-test-id='notification-item_close']`).get(0), 'click');
     m.redraw(true);
 
-    allNotifications = $root.find('.notifications .hover-container .notification-hover p');
+    allNotifications = find('notification-item');
     expect(allNotifications.length).toBe(1);
     expect(allNotifications.eq(0)).toContainText("message 2. read more");
 
     expect(systemNotifications().findSystemNotification((m) => {
-      return m.id() === "id1";
+          return m.id() === "id1";
     })).toBeUndefined();
     const remainingNofication = systemNotifications().findSystemNotification((m) => {
-      return m.id() === "id2";
+        return m.id() === "id2";
     });
     expect(remainingNofication).not.toBeUndefined();
     expect(remainingNofication.message()).toBe("message 2.");
     expect(remainingNofication.read()).toBe(false);
   });
+
+  function find(id) {
+    return $root.find(`[data-test-id='${id}']`);
+  }
 });

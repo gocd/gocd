@@ -30,7 +30,6 @@ import com.thoughtworks.go.plugin.domain.elastic.ElasticAgentPluginInfo;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import com.thoughtworks.go.server.domain.ElasticAgentMetadata;
-import com.thoughtworks.go.server.domain.JobStatusListener;
 import com.thoughtworks.go.server.messaging.elasticagents.CreateAgentMessage;
 import com.thoughtworks.go.server.messaging.elasticagents.CreateAgentQueueHandler;
 import com.thoughtworks.go.server.messaging.elasticagents.ServerPingMessage;
@@ -54,7 +53,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 @Service
-public class ElasticAgentPluginService implements JobStatusListener {
+public class ElasticAgentPluginService {
     private static final Logger LOGGER = LoggerFactory.getLogger(ElasticAgentPluginService.class);
 
     private final PluginManager pluginManager;
@@ -66,7 +65,7 @@ public class ElasticAgentPluginService implements JobStatusListener {
     private final GoConfigService goConfigService;
     private final TimeProvider timeProvider;
     private final ServerHealthService serverHealthService;
-    private final ConcurrentHashMap<Long, Long> map = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<Long, Long> jobCreationTimeMap = new ConcurrentHashMap<>();
 
     @Value("${go.elasticplugin.heartbeat.interval}")
     private long elasticPluginHeartBeatInterval;
@@ -138,10 +137,10 @@ public class ElasticAgentPluginService implements JobStatusListener {
         Collection<JobPlan> starvingJobs = new ArrayList<>();
         for (JobPlan jobPlan : newPlan) {
             if (jobPlan.requiresElasticAgent()) {
-                if (!map.containsKey(jobPlan.getJobId())) {
+                if (!jobCreationTimeMap.containsKey(jobPlan.getJobId())) {
                     continue;
                 }
-                long lastTryTime = map.get(jobPlan.getJobId());
+                long lastTryTime = jobCreationTimeMap.get(jobPlan.getJobId());
                 if ((timeProvider.currentTimeMillis() - lastTryTime) >= goConfigService.elasticJobStarvationThreshold()) {
                     starvingJobs.add(jobPlan);
                 }
@@ -157,7 +156,7 @@ public class ElasticAgentPluginService implements JobStatusListener {
         long messageTimeToLive = goConfigService.elasticJobStarvationThreshold() - 10000;
 
         for (JobPlan plan : plansThatRequireElasticAgent) {
-            map.put(plan.getJobId(), timeProvider.currentTimeMillis());
+            jobCreationTimeMap.put(plan.getJobId(), timeProvider.currentTimeMillis());
             if (elasticAgentPluginRegistry.has(plan.getElasticProfile().getPluginId())) {
                 String environment = environmentConfigService.envForPipeline(plan.getPipelineName());
                 createAgentQueue.post(new CreateAgentMessage(goConfigService.serverConfig().getAgentAutoRegisterKey(), environment, plan.getElasticProfile(), plan.getIdentifier()), messageTimeToLive);
@@ -189,10 +188,6 @@ public class ElasticAgentPluginService implements JobStatusListener {
         return elasticAgentPluginRegistry.shouldAssignWork(pluginDescriptor, toAgentMetadata(metadata), environment, configuration, identifier);
     }
 
-    public void reportJobCompletion(String pluginId, String elasticAgentId, JobIdentifier jobIdentifier) {
-        elasticAgentPluginRegistry.reportJobCompletion(pluginId, elasticAgentId, jobIdentifier);
-    }
-
     public String getPluginStatusReport(String pluginId) {
         final ElasticAgentPluginInfo pluginInfo = elasticAgentMetadataStore.getPluginInfo(pluginId);
         if (pluginInfo.getCapabilities().supportsStatusReport()) {
@@ -211,20 +206,17 @@ public class ElasticAgentPluginService implements JobStatusListener {
         throw new UnsupportedOperationException("Plugin does not support agent status report.");
     }
 
-    @Override
-    public void jobStatusChanged(JobInstance job) {
+    public void jobCompleted(JobInstance job) {
         if (job.isAssignedToAgent()) {
-            map.remove(job.getId());
+            jobCreationTimeMap.remove(job.getId());
         }
 
-        if (job.isCompleted()) {
-            AgentInstance agentInstance = agentService.findAgent(job.getAgentUuid());
-            if (agentInstance.isElastic()) {
-                String pluginId = agentInstance.elasticAgentMetadata().elasticPluginId();
-                String elasticAgentId = agentInstance.elasticAgentMetadata().elasticAgentId();
+        AgentInstance agentInstance = agentService.findAgent(job.getAgentUuid());
+        if (agentInstance.isElastic()) {
+            String pluginId = agentInstance.elasticAgentMetadata().elasticPluginId();
+            String elasticAgentId = agentInstance.elasticAgentMetadata().elasticAgentId();
 
-                reportJobCompletion(pluginId, elasticAgentId, job.getIdentifier());
-            }
+            elasticAgentPluginRegistry.reportJobCompletion(pluginId, elasticAgentId, job.getIdentifier());
         }
     }
 }

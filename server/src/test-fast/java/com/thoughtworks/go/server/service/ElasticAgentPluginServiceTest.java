@@ -29,7 +29,6 @@ import com.thoughtworks.go.plugin.domain.elastic.Capabilities;
 import com.thoughtworks.go.plugin.domain.elastic.ElasticAgentPluginInfo;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
-import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.server.domain.ElasticAgentMetadata;
 import com.thoughtworks.go.server.messaging.elasticagents.CreateAgentMessage;
 import com.thoughtworks.go.server.messaging.elasticagents.CreateAgentQueueHandler;
@@ -49,12 +48,13 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.springframework.util.LinkedMultiValueMap;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.UUID;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
@@ -329,7 +329,7 @@ public class ElasticAgentPluginServiceTest {
 
         when(agentService.findAgent(agent.getUuid())).thenReturn(agent);
 
-        service.jobStatusChanged(up42_job);
+        service.jobCompleted(up42_job);
 
         verify(registry, times(1)).reportJobCompletion(elasticPluginId, elasticAgentId, up42_job.getIdentifier());
     }
@@ -342,30 +342,9 @@ public class ElasticAgentPluginServiceTest {
 
         when(agentService.findAgent(agent.getUuid())).thenReturn(agent);
 
-        service.jobStatusChanged(up42_job);
+        service.jobCompleted(up42_job);
 
         verify(registry, times(0)).reportJobCompletion(any(), any(), any());
-    }
-
-    @Test
-    public void shouldNotMakeJobCompletionPluginCallWhenJobIsStillBuilding() {
-        String elasticAgentId = "i-123456";
-        String elasticPluginId = "com.example.aws";
-
-        AgentInstance agent = AgentInstanceMother.idle();
-        AgentConfig agentConfig = new AgentConfig(agent.getUuid(), agent.getHostname(), agent.getIpAddress());
-        agentConfig.setElasticAgentId(elasticAgentId);
-        agentConfig.setElasticPluginId(elasticPluginId);
-        agent.syncConfig(agentConfig);
-
-        JobInstance up42_job = JobInstanceMother.building("up42_job");
-        up42_job.setAgentUuid(agent.getUuid());
-
-        when(agentService.findAgent(agent.getUuid())).thenReturn(agent);
-
-        service.jobStatusChanged(up42_job);
-
-        verify(registry, times(0)).reportJobCompletion(elasticPluginId, elasticAgentId, up42_job.getIdentifier());
     }
 
     private JobPlan plan(int jobId, String pluginId) {

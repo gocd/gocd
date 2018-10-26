@@ -24,6 +24,7 @@ import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.scheduling.ScheduleHelper;
+import com.thoughtworks.go.server.service.ElasticAgentPluginService;
 import com.thoughtworks.go.server.service.StageService;
 import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.util.GoConstants;
@@ -53,6 +54,7 @@ public class JobStatusListenerTest  {
 	@Autowired private ScheduleHelper scheduleHelper;
 	@Autowired private GoConfigDao goConfigDao;
 	@Autowired private GoCache goCache;
+    @Autowired private ElasticAgentPluginService elasticAgentPluginService;
 
     private static final String PIPELINE_NAME = "mingle";
     private static final String STAGE_NAME = "dev";
@@ -93,7 +95,7 @@ public class JobStatusListenerTest  {
     @Test
     public void shouldSendStageCompletedMessage() {
         dbHelper.pass(savedPipeline);
-        listener = new JobStatusListener(new JobStatusTopic(null), stageService, stageStatusTopic);
+        listener = new JobStatusListener(new JobStatusTopic(null), stageService, stageStatusTopic, elasticAgentPluginService);
         final StageStatusMessage stagePassed = new StageStatusMessage(jobIdentifier.getStageIdentifier(), StageState.Passed, StageResult.Passed);
 
         listener.onMessage(new JobStatusMessage(jobIdentifier, JobState.Completed, AGENT1.getUuid()));
@@ -102,7 +104,8 @@ public class JobStatusListenerTest  {
 
     @Test
     public void shouldNotSendStageCompletedMessage() {
-        listener = new JobStatusListener(new JobStatusTopic(null), stageService, stageStatusTopic);
+        dbHelper.pass(savedPipeline);
+        listener = new JobStatusListener(new JobStatusTopic(null), stageService, stageStatusTopic, elasticAgentPluginService);
 
         listener.onMessage(new JobStatusMessage(jobIdentifier, JobState.Completed, AGENT1.getUuid()));
         verify(stageStatusTopic, never()).post(any(StageStatusMessage.class));

@@ -292,6 +292,9 @@ dependencies {
     exclude(module: 'commons-collections')
   }
   compile group: 'velocity-tools', name: 'velocity-tools-view', version: project.versions.velocityToolsView
+  // old digester version required by velocity-tools-view
+  compile group: 'commons-digester', name: 'commons-digester', version: project.versions.commonsDigester
+
   // this is needed by velocity tools view
   compile group: 'commons-lang', name: 'commons-lang', version: project.versions.commonsLang
   compile group: 'commons-collections', name: 'commons-collections', version: project.versions.commonsCollections
@@ -310,7 +313,6 @@ dependencies {
     exclude(module: 'jsch')
     exclude(module: 'jzlib')
   }
-  compile group: 'cglib', name: 'cglib-nodep', version: '2.2'
   compileOnly project(':app-server')
   compileOnly group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: project.versions.bouncyCastle
   compileOnly group: 'org.bouncycastle', name: 'bcpkix-jdk15on', version: project.versions.bouncyCastle
@@ -811,22 +813,22 @@ task verifyWar(type: VerifyJarTask) {
         "antlr-2.7.6.jar",
         "aopalliance-1.0.jar",
         "AppleJavaExtensions-1.4.jar",
-        "asm-1.5.3.jar",
+        "asm-3.3.1.jar",
         "aspectjrt-1.5.4.jar",
         "aspectjweaver-1.5.4.jar",
         "base-${project.version}.jar",
-        "cglib-2.1_3.jar",
-        "cglib-nodep-2.2.jar",
+        "cglib-2.2.2.jar",
         "cloning-${project.versions.cloning}.jar",
         "commandline-${project.version}.jar",
         "common-${project.version}.jar",
-        "commons-beanutils-1.7.0.jar",
+        "commons-beanutils-1.8.3.jar",
         "commons-beanutils-core-1.7.0.jar",
         "commons-codec-${project.versions.commonsCodec}.jar",
         "commons-collections-3.2.2.jar",
         "commons-collections4-${project.versions.commonsCollections4}.jar",
         "commons-dbcp-1.4.jar",
-        "commons-digester-1.8.jar",
+        "commons-digester-${project.versions.commonsDigester}.jar",
+        "commons-digester3-${project.versions.commonsDigester3}.jar",
         "commons-fileupload-${project.versions.commonsFileUpload}.jar",
         "commons-io-${project.versions.commonsIO}.jar",
         "commons-lang-${project.versions.commonsLang}.jar",

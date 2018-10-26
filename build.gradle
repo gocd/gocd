@@ -163,6 +163,8 @@ rootProject.ext.versions = [
   bouncyCastle        : '1.59', // bouncycastle version has to be compatible with the jruby version
   cloning             : '1.9.10',
   commonsCodec        : '1.11',
+  commonsDigester     : '2.1',
+  commonsDigester3    : '3.2',
   commonsCollections  : '3.2.2',
   commonsCollections4 : '4.2',
   commonsConfiguration: '2.3',

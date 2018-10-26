@@ -21,11 +21,17 @@ import com.thoughtworks.go.plugin.access.PluginRequestHelper;
 import com.thoughtworks.go.plugin.access.common.AbstractExtension;
 import com.thoughtworks.go.plugin.access.common.settings.MessageHandlerForPluginSettingsRequestProcessor1_0;
 import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsJsonMessageHandler1_0;
+import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsJsonMessageHandler2_0;
 import com.thoughtworks.go.plugin.access.configrepo.codec.GsonCodec;
 import com.thoughtworks.go.plugin.access.configrepo.contract.CRConfigurationProperty;
 import com.thoughtworks.go.plugin.access.configrepo.contract.CRParseResult;
 import com.thoughtworks.go.plugin.access.configrepo.contract.CRPipeline;
+import com.thoughtworks.go.plugin.access.configrepo.v1.JsonMessageHandler1_0;
+import com.thoughtworks.go.plugin.access.configrepo.v2.JsonMessageHandler2_0;
+import com.thoughtworks.go.plugin.domain.configrepo.Capabilities;
 import com.thoughtworks.go.plugin.infra.PluginManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -36,10 +42,12 @@ import static java.util.Arrays.asList;
 
 @Component
 public class ConfigRepoExtension extends AbstractExtension implements ConfigRepoExtensionContract {
+    private static final Logger LOGGER = LoggerFactory.getLogger(ConfigRepoExtension.class);
     public static final String REQUEST_PARSE_DIRECTORY = "parse-directory";
     public static final String REQUEST_PIPELINE_EXPORT = "pipeline-export";
+    public static final String REQUEST_CAPABILITIES = "get-capabilities";
 
-    private static final List<String> goSupportedVersions = asList("1.0");
+    private static final List<String> goSupportedVersions = asList("1.0", "2.0");
 
     private Map<String, JsonMessageHandler> messageHandlerMap = new HashMap<>();
 
@@ -49,6 +57,10 @@ public class ConfigRepoExtension extends AbstractExtension implements ConfigRepo
         registerHandler("1.0", new PluginSettingsJsonMessageHandler1_0());
         messageHandlerMap.put("1.0", new JsonMessageHandler1_0(new GsonCodec(), new ConfigRepoMigrator()));
         registerMessageHandlerForPluginSettingsRequestProcessor("1.0", new MessageHandlerForPluginSettingsRequestProcessor1_0());
+
+        registerHandler("2.0", new PluginSettingsJsonMessageHandler2_0());
+        messageHandlerMap.put("2.0", new JsonMessageHandler2_0(new GsonCodec(), new ConfigRepoMigrator()));
+        registerMessageHandlerForPluginSettingsRequestProcessor("2.0", new MessageHandlerForPluginSettingsRequestProcessor1_0());
     }
 
     @Override
@@ -69,6 +81,16 @@ public class ConfigRepoExtension extends AbstractExtension implements ConfigRepo
                 return messageHandlerMap.get(resolvedExtensionVersion).responseMessageForPipelineExport(responseBody);
             }
         });
+    }
+
+    @Override
+    public Capabilities getCapabilities(String pluginId) {
+       return pluginRequestHelper.submitRequest(pluginId, REQUEST_CAPABILITIES, new DefaultPluginInteractionCallback<Capabilities>() {
+           @Override
+           public Capabilities onSuccess(String responseBody, String resolvedExtensionVersion) {
+               return messageHandlerMap.get(resolvedExtensionVersion).getCapabilitiesFromResponse(responseBody);
+           }
+       });
     }
 
     @Override

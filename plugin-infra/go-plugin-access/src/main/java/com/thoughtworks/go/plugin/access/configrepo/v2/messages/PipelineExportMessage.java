@@ -14,10 +14,14 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.plugin.access.configrepo.messages;
+package com.thoughtworks.go.plugin.access.configrepo.v2.messages;
 
-public class PipelineExportResponseMessage {
+public class PipelineExportMessage {
     private String pipelineJson;
+
+    public PipelineExportMessage(String pipelineJson) {
+        this.pipelineJson = pipelineJson;
+    }
 
     public String getPipelineJson() {
         return pipelineJson;

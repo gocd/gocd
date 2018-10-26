@@ -27,29 +27,34 @@ import {ButtonGroup} from "../components/icons/index";
 import {AlertFlashMessage, InfoFlashMessage, SuccessFlashMessage, WarnFlashMessage} from "../components/flash_message";
 
 import {SearchBox} from "../components/search_box";
-import {InputLabel} from "../components/form_elements";
+import {InputLabel, TextArea} from "../components/form_elements";
 
 const stream      = require('mithril/stream');
 const HeaderPanel = require('views/components/header_panel');
 
 interface FormComponentState {
-  inputLabel1: Stream<string>;
+  name: Stream<string>;
+  address: Stream<string>;
 }
 
 class FormComponent implements m.Component<{}, FormComponentState> {
   oninit(vnode: m.Vnode<{}, FormComponentState>) {
-    vnode.state.inputLabel1 = stream("Bob");
+    vnode.state.name    = stream("Bob");
+    vnode.state.address = stream("Somewhere on this planet");
   }
 
   view(vnode: m.Vnode<{}, FormComponentState>) {
     return (
       <ul className="form">
         <InputLabel label={`name`}
-                    property={vnode.state.inputLabel1}
-                    helpText={`Enter your name. You entered: ${vnode.state.inputLabel1()}`}/>
+                    property={vnode.state.name}
+                    helpText={`Enter your name. You entered: ${vnode.state.name()}`}/>
         <InputLabel label={`entered name`}
                     disabled={true}
-                    property={vnode.state.inputLabel1}/>
+                    property={vnode.state.name}/>
+        <TextArea label={`name`}
+                  property={vnode.state.address}
+                  helpText={`Enter your name. You entered: ${vnode.state.address()}`}/>
       </ul>
     )
   }

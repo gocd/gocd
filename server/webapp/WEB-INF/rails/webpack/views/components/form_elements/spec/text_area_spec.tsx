@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-import {TextArea} from "../text_area";
+import {InputLabel} from "../input_label";
 import {Stream} from "mithril/stream";
 
-describe("Text area Component", () => {
+describe("Input Label Component", () => {
   const m             = require("mithril");
   const stream        = require("mithril/stream");
   const styles        = require('../index.scss');
@@ -33,7 +33,7 @@ describe("Text area Component", () => {
   // @ts-ignore
   afterEach(window.destroyDomElementForTest);
 
-  it("should render text area component", () => {
+  it("should render input label component", () => {
     const label                    = "Enter magic word";
     const property: Stream<string> = stream("foo");
     const helpText                 = "Magic word is foo";
@@ -73,7 +73,7 @@ describe("Text area Component", () => {
   function mount(label: string, helpText: string, property: Stream<string>) {
     m.mount(root, {
       view() {
-        return (<TextArea label={label} helpText={helpText} property={property}/>)
+        return (<InputLabel label={label} helpText={helpText} property={property}/>)
       }
     });
 

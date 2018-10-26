@@ -15,7 +15,9 @@
  */
 
 import {InputLabel} from "./input_label";
+import {TextArea} from "./text_area";
 
 export {
-  InputLabel
+  InputLabel,
+  TextArea
 }

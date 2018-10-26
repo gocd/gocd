@@ -58,9 +58,9 @@ $form-control-background-color: #fff;
   }
 }
 
-//textarea.form-control {
-//  height: auto;
-//}
+.text-area {
+  height: auto;
+}
 
 .form-control:disabled, .form-control[readonly] {
   background-color: $form-control-disabled-color;

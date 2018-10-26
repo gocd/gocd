@@ -641,8 +641,9 @@ public class ConfigConverter {
         return new TrackingTool(crTrackingTool.getLink(), crTrackingTool.getRegex());
     }
 
-    public CRPipeline pipelineConfigToCRPipeline(PipelineConfig pipelineConfig) {
+    public CRPipeline pipelineConfigToCRPipeline(PipelineConfig pipelineConfig, String groupName) {
         CRPipeline crPipeline = new CRPipeline();
+        crPipeline.setGroupName(groupName);
 
         crPipeline.setName(pipelineConfig.name().toString());
         for(StageConfig stage: pipelineConfig.getStages()) {

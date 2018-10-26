@@ -1093,7 +1093,7 @@ public class ConfigConverterTest {
 
         Collection<CRParameter> parameters = new ArrayList<>();
         parameters.add(new CRParameter("param", "value"));
-        CRPipeline crPipeline = configConverter.pipelineConfigToCRPipeline(pipeline);
+        CRPipeline crPipeline = configConverter.pipelineConfigToCRPipeline(pipeline, "group");
         assertThat(crPipeline.getParameters(), is(parameters));
     }
 
@@ -1123,8 +1123,9 @@ public class ConfigConverterTest {
         mat.setUrl("url");
         pipeline.addMaterialConfig(mat);
 
-        CRPipeline crPipeline = configConverter.pipelineConfigToCRPipeline(pipeline);
+        CRPipeline crPipeline = configConverter.pipelineConfigToCRPipeline(pipeline, "group1");
         assertThat(crPipeline.getName(), is("p1"));
+        assertThat(crPipeline.getGroupName(), is("group1"));
         assertThat(crPipeline.getMaterialByName("mat") instanceof CRSvnMaterial, is(true));
         assertThat(crPipeline.getLabelTemplate(), is(PipelineLabel.COUNT_TEMPLATE));
         assertThat(crPipeline.getMaterials().size(), is(1));

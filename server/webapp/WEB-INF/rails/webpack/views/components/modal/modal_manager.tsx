@@ -27,9 +27,9 @@ export namespace ModalManager {
 
   //call this function once when the SPA is loaded
   export function onPageLoad() {
-    const modalParent:Element = document.createElement('div');
-    modalParent.classList.add('component-modal-container');
-    document.body.append(modalParent);
+    const $body = $('body');
+    const $modalParent = $('<div class="component-modal-container"/>').appendTo($body);
+    $modalParent.data('modals', allModals);
     const ModalDialogs = class extends MithrilComponent<any> {
       view() {
         return (
@@ -41,18 +41,18 @@ export namespace ModalManager {
         );
       }
     };
-    m.mount(modalParent, ModalDialogs);
+    m.mount($modalParent.get(0), ModalDialogs);
   }
 
   export function render(modal: Modal) {
     allModals.push({key: modal.id, value: modal});
-    document.body.classList.add(styles.fixed);
+    $('body').addClass(styles.fixed);
     m.redraw();
   }
 
   export function close(modal: Modal) {
     _.remove(allModals, (entry) => entry.key === modal.id);
-    document.body.classList.remove(styles.fixed);
+    $('body').removeClass(styles.fixed);
     m.redraw();
   }
 }

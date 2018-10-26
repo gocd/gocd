@@ -53,7 +53,7 @@ public class JsonMessageHandler2_0 implements JsonMessageHandler {
 
     @Override
     public String requestMessageForPipelineExport(CRPipeline pipeline) {
-        PipelineExportMessage requestMessage = new PipelineExportMessage(codec.getGson().toJson(pipeline));
+        PipelineExportMessage requestMessage = new PipelineExportMessage(pipeline);
         return codec.getGson().toJson(requestMessage);
     }
 

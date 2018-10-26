@@ -16,18 +16,20 @@
 
 package com.thoughtworks.go.plugin.access.configrepo.v2.messages;
 
+import com.thoughtworks.go.plugin.access.configrepo.contract.CRPipeline;
+
 public class PipelineExportMessage {
-    private String pipelineJson;
+    private CRPipeline pipeline;
 
-    public PipelineExportMessage(String pipelineJson) {
-        this.pipelineJson = pipelineJson;
+    public PipelineExportMessage(CRPipeline pipeline) {
+        this.pipeline = pipeline;
     }
 
-    public String getPipelineJson() {
-        return pipelineJson;
+    public CRPipeline getPipeline() {
+        return pipeline;
     }
 
-    public void setPipelineJson(String pipelineJson) {
-        this.pipelineJson = pipelineJson;
+    public void setPipeline(CRPipeline pipeline) {
+        this.pipeline = pipeline;
     }
 }

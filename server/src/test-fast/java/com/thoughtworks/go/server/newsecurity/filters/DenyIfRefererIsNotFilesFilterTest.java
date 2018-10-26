@@ -25,8 +25,11 @@ import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
 import org.junit.rules.ExpectedException;
 
 import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import java.io.IOException;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -65,6 +68,15 @@ class DenyIfRefererIsNotFilesFilterTest {
 
         thrown.expect(UnsupportedOperationException.class);
         thrown.expectMessage("Filter should not be invoked for `/files/` urls.");
+
+        new DenyIfRefererIsNotFilesFilter().doFilter(request, response, chain);
+    }
+
+    @Test
+    void shouldNotBailIfRefererParsingFails() throws ServletException, IOException {
+        request = HttpRequestBuilder.GET("/auth/login")
+                .withHeader("Referer", "bad uri//com.Slack")
+                .build();
 
         new DenyIfRefererIsNotFilesFilter().doFilter(request, response, chain);
     }

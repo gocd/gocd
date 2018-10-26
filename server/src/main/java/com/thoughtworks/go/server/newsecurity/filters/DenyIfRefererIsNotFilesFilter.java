@@ -25,8 +25,8 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
+import java.net.URI;
+import java.net.URISyntaxException;
 
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
@@ -54,8 +54,12 @@ public class DenyIfRefererIsNotFilesFilter extends OncePerRequestFilter {
         }
     }
 
-    private boolean isRequestFromArtifact(HttpServletRequest request) throws MalformedURLException {
+    private boolean isRequestFromArtifact(HttpServletRequest request) {
         final String referer = request.getHeader("Referer");
-        return isNotBlank(referer) && new URL(referer).getPath().startsWith("/go/files/");
+        try {
+            return isNotBlank(referer) && new URI(referer).getPath().startsWith("/go/files/");
+        } catch (URISyntaxException e) {
+            return false;
+        }
     }
 }

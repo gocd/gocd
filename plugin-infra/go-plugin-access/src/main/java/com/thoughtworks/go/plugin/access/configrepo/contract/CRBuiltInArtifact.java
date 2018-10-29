@@ -17,10 +17,16 @@
 package com.thoughtworks.go.plugin.access.configrepo.contract;
 
 import com.thoughtworks.go.plugin.access.configrepo.ErrorCollection;
+import org.apache.commons.lang3.StringUtils;
+
+import java.io.File;
 
 public class CRBuiltInArtifact extends CRArtifact {
     private String source;
     private String destination;
+
+    private String DEFAULT_DESTINATION_FOR_TEST_ARTIFACTS = "testoutput";
+    private String DEFAULT_DESTINATION_FOR_BUILD_ARTIFACTS = new File("").getPath();
 
     public CRBuiltInArtifact() {
     }
@@ -46,6 +52,12 @@ public class CRBuiltInArtifact extends CRArtifact {
     }
 
     public String getDestination() {
+        if (StringUtils.isBlank(destination)) {
+            return getType() == CRArtifactType.build
+                    ? DEFAULT_DESTINATION_FOR_BUILD_ARTIFACTS
+                    : DEFAULT_DESTINATION_FOR_TEST_ARTIFACTS;
+        }
+
         return destination;
     }
 

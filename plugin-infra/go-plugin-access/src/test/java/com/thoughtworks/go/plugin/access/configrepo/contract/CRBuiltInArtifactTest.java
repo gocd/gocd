@@ -19,57 +19,51 @@ import com.google.gson.JsonParseException;
 import com.thoughtworks.go.plugin.access.configrepo.ErrorCollection;
 import org.junit.Test;
 
+import java.lang.reflect.Type;
 import java.util.Map;
 
-import static junit.framework.TestCase.assertFalse;
-import static junit.framework.TestCase.assertNull;
 import static junit.framework.TestCase.assertTrue;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 public class CRBuiltInArtifactTest extends CRBaseTest<CRBuiltInArtifact> {
-
     private final CRBuiltInArtifact artifact;
     private final CRBuiltInArtifact invalidNoSource;
 
-    public CRBuiltInArtifactTest()
-    {
-        artifact = new CRBuiltInArtifact("src","dest",CRArtifactType.build);
-        invalidNoSource = new CRBuiltInArtifact(null,"dest",CRArtifactType.test);
+    public CRBuiltInArtifactTest() {
+        artifact = new CRBuiltInArtifact("src", "dest", CRArtifactType.build);
+        invalidNoSource = new CRBuiltInArtifact(null, "dest", CRArtifactType.test);
     }
 
     @Override
     public void addGoodExamples(Map<String, CRBuiltInArtifact> examples) {
-        examples.put("artifact",artifact);
+        examples.put("artifact", artifact);
     }
 
     @Override
     public void addBadExamples(Map<String, CRBuiltInArtifact> examples) {
-        examples.put("invalidNoSource",invalidNoSource);
+        examples.put("invalidNoSource", invalidNoSource);
     }
 
-
     @Test
-    public void shouldDeserializeFromAPILikeObject()
-    {
+    public void shouldDeserializeFromAPILikeObject() {
         String json = "{\n" +
                 "      \"source\": \"test\",\n" +
                 "      \"destination\": \"res1\",\n" +
                 "      \"type\": \"test\"\n" +
                 "    }";
-        CRArtifact deserializedValue = gson.fromJson(json,CRArtifact.class);
+        CRArtifact deserializedValue = gson.fromJson(json, CRArtifact.class);
         CRBuiltInArtifact crBuiltInArtifact = (CRBuiltInArtifact) deserializedValue;
-        assertThat(crBuiltInArtifact.getSource(),is("test"));
-        assertThat(crBuiltInArtifact.getDestination(),is("res1"));
-        assertThat(crBuiltInArtifact.getType(),is(CRArtifactType.test));
+        assertThat(crBuiltInArtifact.getSource(), is("test"));
+        assertThat(crBuiltInArtifact.getDestination(), is("res1"));
+        assertThat(crBuiltInArtifact.getType(), is(CRArtifactType.test));
 
         ErrorCollection errors = deserializedValue.getErrors();
         assertTrue(errors.isEmpty());
     }
 
     @Test
-    public void shouldHandleBadArtifactTypeWhenDeserializing()
-    {
+    public void shouldHandleBadArtifactTypeWhenDeserializing() {
         String json = "{\n" +
                 "      \"source\": \"test\",\n" +
                 "      \"destination\": \"res1\",\n" +
@@ -78,6 +72,28 @@ public class CRBuiltInArtifactTest extends CRBaseTest<CRBuiltInArtifact> {
 
         thrown.expect(JsonParseException.class);
         thrown.expectMessage("Invalid or unknown task type 'bla'");
-        gson.fromJson(json,CRArtifact.class);
+        gson.fromJson(json, CRArtifact.class);
+    }
+
+    @Test
+    public void shouldSetDefaultDestinationDirectoryForTestArtifact() {
+        String json = "{\n" +
+                "      \"source\": \"foo\",\n" +
+                "      \"type\": \"test\"\n" +
+                "    }";
+
+        CRBuiltInArtifact artifact = gson.fromJson(json, (Type) CRArtifact.class);
+        assertThat(artifact.getDestination(), is("testoutput"));
+    }
+
+    @Test
+    public void shouldSetDefaultDestinationDirectoryForBuildArtifact() {
+        String json = "{\n" +
+                "      \"source\": \"foo\",\n" +
+                "      \"type\": \"build\"\n" +
+                "    }";
+
+        CRBuiltInArtifact artifact = gson.fromJson(json, (Type) CRArtifact.class);
+        assertThat(artifact.getDestination(), is(""));
     }
 }

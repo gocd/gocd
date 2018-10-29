@@ -28,7 +28,7 @@ $btn-reset: #666;
   border-radius: $global-border-radius;
   font-size:     14px;
   font-weight:   400;
-  margin:        10px;
+  margin:        0 10px;
   cursor:        pointer;
   &:active, &:focus {
     outline: 0;
@@ -103,6 +103,7 @@ $btn-reset: #666;
   border:     none;
   color:      $text-color;
   transition: $transition;
+  padding:    0 10px;
   &:hover {
     background: transparent;
     transition: $transition;

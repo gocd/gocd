@@ -36,6 +36,7 @@ $key-value-pair-width: 150px;
   font-size:   13px;
   font-weight: 600;
   position:    relative;
+
   @media(min-width: $screen-md) {
     padding-left: 15px;
     margin-left:  0;
@@ -47,7 +48,8 @@ $key-value-pair-width: 150px;
     }
   }
   pre {
-    margin: 0;
+    margin:     0;
+    word-break: break-all;
   }
 }
 
@@ -57,6 +59,7 @@ $key-value-pair-width: 150px;
   border-bottom:  1px dashed $border-color;
   flex-direction: column;
   align-content:  center;
+  flex-wrap:      wrap;
   @media(min-width: $screen-md) {
     flex-direction: row;
   }
@@ -69,6 +72,7 @@ $key-value-pair-width: 150px;
 .key-value-pair-inline {
   display:      flex;
   margin-right: 20px;
+  flex-wrap:    wrap;
 }
 
 .key-value-inline-item {

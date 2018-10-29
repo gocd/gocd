@@ -63,7 +63,8 @@ export = class KitchenSink extends MithrilComponent<null> {
           <Icons.Delete onclick={() => alert("You pressed delete button!")}/>
           <Icons.Lock onclick={() => alert("You pressed lock button!")}/>
           <Icons.Close onclick={() => alert("You pressed close button!")}/>
-
+        </ButtonGroup>
+        <ButtonGroup>
           <Icons.Settings disabled={true}/>
           <Icons.Analytics disabled={true}/>
           <Icons.Edit disabled={true}/>
@@ -86,7 +87,7 @@ export = class KitchenSink extends MithrilComponent<null> {
         <Buttons.Secondary>Secondary Button</Buttons.Secondary>
         <Buttons.Reset>Reset Button</Buttons.Reset>
         <Buttons.Cancel>Cancel</Buttons.Cancel>
-
+        <hr/>
         <h3>Disabled Buttons:</h3>
         <Buttons.Primary disabled={true}>Disabled Primary Button</Buttons.Primary>
         <Buttons.Secondary disabled={true}>Disabled Secondary Button</Buttons.Secondary>

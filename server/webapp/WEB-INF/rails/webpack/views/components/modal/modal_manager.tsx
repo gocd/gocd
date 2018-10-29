@@ -17,7 +17,7 @@
 import {Modal} from "./index";
 import * as m from 'mithril';
 import * as _ from 'lodash';
-import {MithrilComponent} from "../../../jsx/mithril-component";
+import {MithrilViewComponent} from "../../../jsx/mithril-component";
 import * as styles from './index.scss';
 
 export namespace ModalManager {
@@ -30,7 +30,7 @@ export namespace ModalManager {
     const $body = $('body');
     const $modalParent = $('<div class="component-modal-container"/>').appendTo($body);
     $modalParent.data('modals', allModals);
-    const ModalDialogs = class extends MithrilComponent<any> {
+    const ModalDialogs = class extends MithrilViewComponent<any> {
       view() {
         return (
           <div>

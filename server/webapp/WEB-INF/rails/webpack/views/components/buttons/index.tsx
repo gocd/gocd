@@ -15,7 +15,7 @@
  */
 
 
-import {MithrilComponent} from "../../../jsx/mithril-component";
+import {MithrilViewComponent} from "../../../jsx/mithril-component";
 import * as m from 'mithril';
 
 const styles     = require('./index.scss');
@@ -27,7 +27,7 @@ export interface Attrs {
   onclick?: Function;
 }
 
-class Button extends MithrilComponent<Attrs> {
+class Button extends MithrilViewComponent<Attrs> {
   private readonly type: string;
 
   protected constructor(type: string) {

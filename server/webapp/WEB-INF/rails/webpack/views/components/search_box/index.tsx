@@ -17,7 +17,7 @@
 
 import * as m from 'mithril';
 import * as style from './index.scss';
-import {MithrilComponent} from "../../../jsx/mithril-component";
+import {MithrilViewComponent} from "../../../jsx/mithril-component";
 
 const f = require("helpers/form_helper");
 
@@ -29,7 +29,7 @@ export interface Attrs {
   model: any;
 }
 
-export class SearchBox extends MithrilComponent<Attrs> {
+export class SearchBox extends MithrilViewComponent<Attrs> {
   view(vnode: m.Vnode<Attrs>) {
     const width = vnode.attrs.width;
     const widthStyle = width ? `width: ${width}px` : `flex-grow: 1`;

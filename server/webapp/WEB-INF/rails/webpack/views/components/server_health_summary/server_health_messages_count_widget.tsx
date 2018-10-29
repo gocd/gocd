@@ -19,6 +19,7 @@ import {Stream} from 'mithril/stream';
 import * as styles from './server_health_messages_count_widget.scss';
 import {ServerHealthMessages} from "../../../models/shared/server_health_messages/server_health_messages";
 import {ServerHealthMessagesModal} from './server_health_messages_modal'
+import {MithrilComponent} from "../../../jsx/mithril-component";
 
 interface Attrs {
   serverHealthMessages: Stream<ServerHealthMessages>
@@ -28,10 +29,7 @@ interface State {
   openServerHealthMessagesModal: () => void;
 }
 
-export class ServerHealthMessagesCountWidget implements m.Component<Attrs, State> {
-  // @ts-ignore
-  private __tsx_attrs: Attrs<Header, Actions> & m.Lifecycle<Attrs<Header, Actions>, this> & { key?: string | number };
-
+export class ServerHealthMessagesCountWidget extends MithrilComponent<Attrs, State> {
   oninit(vnode: m.Vnode<Attrs, State>) {
     const modal = new ServerHealthMessagesModal(vnode.attrs.serverHealthMessages);
     vnode.state.openServerHealthMessagesModal = () => {

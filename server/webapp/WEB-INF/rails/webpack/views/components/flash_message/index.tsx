@@ -16,6 +16,7 @@
 
 import * as m from 'mithril';
 import * as Icons from "../icons";
+import {MithrilComponent} from "../../../jsx/mithril-component";
 
 const Stream     = require('mithril/stream');
 const styles     = require('./index.scss');
@@ -31,13 +32,11 @@ export interface State {
   onDismiss: Function
 }
 
-class FlashMessage implements m.Component<Attrs, State> {
-  // @ts-ignore
-  private __tsx_attrs: Attrs<Header, Actions> & m.Lifecycle<Attrs<Header, Actions>, this> & { key?: string | number };
-
+class FlashMessage extends MithrilComponent<Attrs, State> {
   private readonly type: string;
 
   protected constructor(type: string) {
+    super();
     this.type = type;
   }
 

@@ -17,7 +17,7 @@
 import * as m from 'mithril';
 import * as _ from 'lodash';
 import * as styles from './index.scss';
-import {MithrilComponent} from "../../../jsx/mithril-component";
+import {MithrilViewComponent} from "../../../jsx/mithril-component";
 
 const classnames = require('classnames/bind').bind(styles);
 
@@ -26,7 +26,7 @@ export interface Attrs {
   inline?: boolean
 }
 
-export class KeyValuePair extends MithrilComponent<Attrs> {
+export class KeyValuePair extends MithrilViewComponent<Attrs> {
   view(vnode: m.Vnode<Attrs>) {
     const isInline = vnode.attrs.inline;
     return (

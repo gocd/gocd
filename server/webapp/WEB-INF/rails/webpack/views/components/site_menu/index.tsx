@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {MithrilComponent} from "../../../jsx/mithril-component";
+import {MithrilViewComponent} from "../../../jsx/mithril-component";
 
 import * as m from 'mithril';
 import * as styles from "./index.scss";
@@ -27,7 +27,7 @@ interface SiteHeaderLinkAttrs {
   href?: string;
 }
 
-class SiteHeaderLink extends MithrilComponent<SiteHeaderLinkAttrs> {
+class SiteHeaderLink extends MithrilViewComponent<SiteHeaderLinkAttrs> {
   view(vnode: m.Vnode<SiteHeaderLinkAttrs>) {
     const classes = classnames({
       [styles.siteNavLink]:    vnode.attrs.isNavLink,
@@ -56,7 +56,7 @@ interface SiteNavItemAttrs extends TextWithLink {
   isDropDown?: boolean;
 }
 
-class SiteNavItem extends MithrilComponent<SiteNavItemAttrs> {
+class SiteNavItem extends MithrilViewComponent<SiteNavItemAttrs> {
   view(vnode: m.Vnode<SiteNavItemAttrs>) {
     const dropDownClass = classnames({[styles.isDropDown]: vnode.attrs.isDropDown}, styles.siteNavItem);
 
@@ -83,7 +83,7 @@ class SiteNavItem extends MithrilComponent<SiteNavItemAttrs> {
   }
 }
 
-class SiteSubNav extends MithrilComponent<{}> {
+class SiteSubNav extends MithrilViewComponent<{}> {
   view(vnode: m.Vnode<{}>) {
     return (
       <ul className={styles.siteSubNav}>
@@ -93,7 +93,7 @@ class SiteSubNav extends MithrilComponent<{}> {
   }
 }
 
-class SiteSubNavItem extends MithrilComponent<TextWithLink> {
+class SiteSubNavItem extends MithrilViewComponent<TextWithLink> {
   view(vnode: m.Vnode<TextWithLink>) {
     return (
       <li className={styles.siteSubNavItem}>
@@ -106,7 +106,7 @@ class SiteSubNavItem extends MithrilComponent<TextWithLink> {
   }
 }
 
-class SiteSubNavHeading extends MithrilComponent<Text> {
+class SiteSubNavHeading extends MithrilViewComponent<Text> {
   view(vnode: m.Vnode<Text>) {
     return (
       <li className={styles.siteSubNavItem}>
@@ -124,7 +124,7 @@ export interface Attrs {
   showAnalytics: boolean;
 }
 
-export default class SiteMenu extends MithrilComponent<Attrs> {
+export default class SiteMenu extends MithrilViewComponent<Attrs> {
   view(vnode: m.Vnode<Attrs>) {
 
     const analyticsMenu: JSX.Element | null = vnode.attrs.showAnalytics ?

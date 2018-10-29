@@ -18,7 +18,7 @@
 import * as m from "mithril";
 import * as _ from "lodash";
 
-import {MithrilComponent} from "../../../jsx/mithril-component";
+import {MithrilViewComponent} from "../../../jsx/mithril-component";
 
 const style = require('./index.scss');
 
@@ -27,7 +27,7 @@ export interface Attrs {
   buttons: JSX.Element;
 }
 
-export class HeaderPanel extends MithrilComponent<Attrs> {
+export class HeaderPanel extends MithrilViewComponent<Attrs> {
   view(vnode: m.Vnode<Attrs>) {
     let buttons: JSX.Element | null = null;
 

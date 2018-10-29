@@ -15,7 +15,7 @@
  */
 
 import * as m from 'mithril';
-import {MithrilComponent} from "../../jsx/mithril-component";
+import {MithrilViewComponent} from "../../jsx/mithril-component";
 import {ModalManager} from "../components/modal/modal_manager";
 import {Attrs as SiteFooterAttrs, SiteFooter} from "./partials/site_footer";
 import {Attrs as SiteHeaderAttrs, SiteHeader} from "./partials/site_header";
@@ -27,7 +27,7 @@ interface Attrs {
   footerData: SiteFooterAttrs;
 }
 
-export class MainPage extends MithrilComponent<Attrs> {
+export class MainPage extends MithrilViewComponent<Attrs> {
   oninit() {
     ModalManager.onPageLoad();
   }

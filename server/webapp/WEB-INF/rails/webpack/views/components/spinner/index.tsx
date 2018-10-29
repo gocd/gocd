@@ -19,13 +19,13 @@ import * as m from "mithril";
 const styles     = require('./index.scss');
 const classnames = require('classnames/bind').bind(styles);
 
-import {MithrilComponent} from "../../../jsx/mithril-component";
+import {MithrilViewComponent} from "../../../jsx/mithril-component";
 
 export interface Attrs {
   small?: boolean;
 }
 
-export class Spinner extends MithrilComponent<Attrs> {
+export class Spinner extends MithrilViewComponent<Attrs> {
   view(vnode: m.Vnode<Attrs>) {
     const isSmall = vnode.attrs.small;
 

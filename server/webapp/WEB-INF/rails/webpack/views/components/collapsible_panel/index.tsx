@@ -18,6 +18,7 @@ import * as m from 'mithril';
 import * as stream from 'mithril/stream';
 import {Stream} from 'mithril/stream';
 import * as styles from './index.scss';
+import {MithrilComponent} from "../../../jsx/mithril-component";
 
 const classnames = require('classnames/bind').bind(styles);
 
@@ -31,9 +32,7 @@ export interface State {
   expanded: Stream<boolean>;
 }
 
-export class CollapsiblePanel<Header, Actions> implements m.Component<Attrs<Header, Actions>, State> {
-  // @ts-ignore
-  private __tsx_attrs: Attrs<Header, Actions> & m.Lifecycle<Attrs<Header, Actions>, this> & { key?: string | number };
+export class CollapsiblePanel<Header, Actions> extends MithrilComponent<Attrs<Header, Actions>, State> {
 
   oninit(this: State, vnode: m.Vnode<Attrs<Header, Actions>, State>) {
     vnode.state.expanded = stream(false);

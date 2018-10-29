@@ -15,7 +15,7 @@
  */
 
 import * as m from "mithril";
-import {MithrilComponent} from "../../../jsx/mithril-component";
+import {MithrilViewComponent} from "../../../jsx/mithril-component";
 import * as styles from './site_footer.scss';
 
 export interface Attrs {
@@ -25,7 +25,7 @@ export interface Attrs {
   formattedVersion: string;
 }
 
-export class SiteFooter extends MithrilComponent<Attrs> {
+export class SiteFooter extends MithrilViewComponent<Attrs> {
   view(vnode: m.Vnode<Attrs>) {
 
     return <div className={styles.footer}>

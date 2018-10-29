@@ -16,14 +16,22 @@
 
 import * as m from 'mithril'
 
-export abstract class MithrilComponent<A> implements m.ClassComponent<A> {
-
+export abstract class MithrilComponent<Attrs, State> implements m.Component<Attrs, State> {
   // Required for type checking JSX attributes
   // @ts-ignore: unused
-  private __tsx_attrs: A & m.Lifecycle<A, this> & { key?: string | number };
+  private __tsx_attrs: Attrs & m.Lifecycle<Attrs, State> & { key?: string | number };
+
+  // Copy of m.Component<A>.view required by TS
+  abstract view(vnode: m.Vnode<Attrs, State>): m.Children | null | void;
+}
+
+export abstract class MithrilViewComponent<Attrs> implements m.ClassComponent<Attrs> {
+  // Required for type checking JSX attributes
+  // @ts-ignore: unused
+  private __tsx_attrs: Attrs & m.Lifecycle<Attrs, this> & { key?: string | number };
 
   // Copy of m.ClassComponent<A>.view required by TS
-  abstract view(vnode: m.Vnode<A, this>): m.Children | null | void;
+  abstract view(vnode: m.Vnode<Attrs, this>): m.Children | null | void;
 }
 
 // Set up type checks

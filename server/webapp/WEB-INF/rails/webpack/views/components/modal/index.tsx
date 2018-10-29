@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {MithrilComponent} from "../../../jsx/mithril-component";
+import {MithrilViewComponent} from "../../../jsx/mithril-component";
 import * as m from 'mithril';
 import * as _ from 'lodash';
 import * as styles from './index.scss';
@@ -23,7 +23,7 @@ import * as Buttons from "../buttons";
 
 const uuid4 = require('uuid/v4');
 
-export abstract class Modal extends MithrilComponent<any> {
+export abstract class Modal extends MithrilViewComponent<any> {
   public id: string;
 
   protected constructor() {

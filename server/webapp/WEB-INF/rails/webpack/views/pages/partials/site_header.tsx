@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {MithrilComponent} from "../../../jsx/mithril-component";
+import {MithrilViewComponent} from "../../../jsx/mithril-component";
 
 import * as m from 'mithril';
 import * as styles from './site_header.scss';
@@ -36,7 +36,7 @@ export interface Attrs {
   showAnalyticsDashboard: boolean;
 }
 
-export class SiteHeader extends MithrilComponent<Attrs> {
+export class SiteHeader extends MithrilViewComponent<Attrs> {
   view(vnode: m.Vnode<Attrs>) {
     const showAnalyticsDashboard = vnode.attrs.showAnalyticsDashboard;
     const canViewAdminPage       = vnode.attrs.canViewAdminPage;

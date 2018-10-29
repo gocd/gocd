@@ -17,7 +17,7 @@
 import * as m from 'mithril';
 import * as _ from "lodash";
 
-import {MithrilComponent} from "../../../jsx/mithril-component";
+import {MithrilViewComponent} from "../../../jsx/mithril-component";
 
 const styles     = require('./index.scss');
 const classnames = require('classnames/bind').bind(styles);
@@ -27,7 +27,7 @@ export interface Attrs {
   disabled?: boolean
 }
 
-class Icon extends MithrilComponent<Attrs> {
+class Icon extends MithrilViewComponent<Attrs> {
   private readonly name: string;
 
   protected constructor(name: string) {
@@ -84,7 +84,7 @@ export class Close extends Icon {
   }
 }
 
-export class ButtonGroup extends MithrilComponent<Attrs> {
+export class ButtonGroup extends MithrilViewComponent<Attrs> {
   view(vnode: m.Vnode<Attrs>) {
     return (
       <div className={styles.buttonGroup} aria-label="actions">

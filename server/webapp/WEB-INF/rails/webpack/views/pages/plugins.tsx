@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+import {MithrilComponent} from "../../jsx/mithril-component";
+
 const $             = require('jquery');
 const m             = require('mithril');
 const Stream        = require('mithril/stream');
@@ -25,7 +27,7 @@ const HeaderPanel   = require('views/components/header_panel');
 
 let thingToDisplay = <Spinner/>;
 
-const onSuccess = (pluginInfos) => {
+const onSuccess = (pluginInfos: any) => {
   const isUserAnAdmin = $('body').attr('data-is-user-admin');
   thingToDisplay      =
     <PluginsWidget pluginInfos={Stream(pluginInfos)} isUserAnAdmin={Stream(isUserAnAdmin === 'true')}/>;
@@ -38,7 +40,7 @@ const onFailure = () => {
 };
 
 
-class PluginsPage {
+export class PluginsPage extends MithrilComponent<null, null> {
   oninit() {
     PluginInfos.all(null, {'include_bad': true}).then(onSuccess, onFailure);
   }
@@ -50,5 +52,3 @@ class PluginsPage {
     </div>;
   }
 }
-
-module.exports = PluginsPage;

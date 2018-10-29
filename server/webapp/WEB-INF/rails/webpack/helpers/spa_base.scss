@@ -13,9 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 @import "~normalize-scss/sass/normalize/import-now";
-@import "../global/common";
-@import "../global/typography";
+@import '../views/global/common';
+@import '../views/global/typography';
 
 :global(.component-layout-body) {
   margin:           0;

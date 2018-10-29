@@ -14,10 +14,13 @@
  * limitations under the License.
  */
 
-const m               = require("mithril");
-const ConfigReposPage = require("views/pages/config_repos");
+import Page from "../helpers/spa_base";
+import {KitchenSink} from "../views/pages/kitchen_sink";
 
-window.addEventListener("DOMContentLoaded", () => {
-  const root = document.getElementById("config-repos");
-  m.mount(root, ConfigReposPage);
-});
+export class KitchenSinkSPA extends Page {
+  constructor() {
+    super(KitchenSink);
+  }
+}
+
+new KitchenSinkSPA();

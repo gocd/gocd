@@ -27,9 +27,9 @@ import {SampleModal} from "../components/modal/sample";
 
 const HeaderPanel = require('views/components/header_panel');
 
-export = class KitchenSink extends MithrilViewComponent<null> {
+export class KitchenSink extends MithrilViewComponent<null> {
 
-  view() {
+  view(vnode: m.Vnode<null>) {
     const sampleModal = new SampleModal();
     return (
       <div>

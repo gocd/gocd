@@ -14,20 +14,35 @@
  * limitations under the License.
  */
 
-//fixme: can be deleted after components are created
+//fixme: this is the mount page which renders either old-plugins page or components-based plugins page based on the toggle
 
-const $              = require('jquery');
-const m              = require('mithril');
-const Stream         = require('mithril/stream');
-const PluginsWidget  = require('views/plugins/plugins_widget');
-const PluginInfos    = require('models/shared/plugin_infos');
-const PageLoadError  = require('views/shared/page_load_error');
+import Page from "../helpers/spa_base";
+import {PluginsPage} from "../views/pages/plugins";
+
+const $             = require('jquery');
+const m             = require('mithril');
+const Stream        = require('mithril/stream');
+const PluginsWidget = require('views/plugins/plugins_widget');
+const PluginInfos   = require('models/shared/plugin_infos');
+const PageLoadError = require('views/shared/page_load_error');
+
+export class PluginsSPA extends Page {
+  constructor() {
+    super(PluginsPage);
+  }
+}
 
 $(() => {
   const pluginElement = $('#plugins');
   const isUserAnAdmin = pluginElement.attr('is-user-an-admin');
 
-  const onSuccess = (pluginInfos) => {
+  //todo: This check determines whether the page needs to be rendered using old spa style or using new components styles
+  //pluginsElement div will only be available while rendering using old style.
+  if (pluginElement.get().length === 0) {
+    return new PluginsSPA();
+  }
+
+  const onSuccess = (pluginInfos: any) => {
     const component = {
       view() {
         return (<PluginsWidget pluginInfos={Stream(pluginInfos)} isUserAnAdmin={Stream(isUserAnAdmin === 'true')}/>);

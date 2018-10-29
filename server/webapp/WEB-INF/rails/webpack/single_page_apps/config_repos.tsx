@@ -14,18 +14,13 @@
  * limitations under the License.
  */
 
-const m               = require("mithril");
-const ConfigReposList = require("views/config_repos/config_repos_list");
-const ConfigRepos     = require("models/config_repos/config_repos");
-const ReposListVM     = require("views/config_repos/models/repos_list_vm");
+import Page from "../helpers/spa_base";
+import {ConfigReposPage} from "../views/pages/config_repos";
 
-module.exports = {
-  oninit() {
-    this.vm = new ReposListVM(new ConfigRepos()).load();
-    this.vm.loadPlugins().then(() => m.redraw());
-  },
-
-  view() {
-    return <ConfigReposList vm={this.vm} />;
+export class ConfigReposSPA extends Page {
+  constructor() {
+    super(ConfigReposPage);
   }
-};
+}
+
+new ConfigReposSPA();

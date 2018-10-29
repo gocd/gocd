@@ -17,7 +17,7 @@
 @import "../global/common";
 @import "../global/typography";
 
-body {
+:global(.component-layout-body) {
   margin:           0;
   font-family:      $font-family-base;
   font-size:        $font-size-base;
@@ -26,7 +26,6 @@ body {
   color:            $body-color;
   text-align:       left;
   background-color: $body-bg;
-
 }
 
 @include font-face($font-family: 'FontAwesome',

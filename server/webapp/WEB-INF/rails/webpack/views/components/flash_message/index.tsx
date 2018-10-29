@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import {MithrilComponent} from "../../../jsx/mithril-component";
 import * as m from 'mithril';
 import * as Icons from "../icons";
 
@@ -32,11 +31,13 @@ export interface State {
   onDismiss: Function
 }
 
-class FlashMessage extends MithrilComponent<Attrs, State> {
+class FlashMessage implements m.Component<Attrs, State> {
+  // @ts-ignore
+  private __tsx_attrs: Attrs<Header, Actions> & m.Lifecycle<Attrs<Header, Actions>, this> & { key?: string | number };
+
   private readonly type: string;
 
   protected constructor(type: string) {
-    super();
     this.type = type;
   }
 

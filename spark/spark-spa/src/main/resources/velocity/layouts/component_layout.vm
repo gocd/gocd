@@ -36,7 +36,7 @@
 
 </head>
 
-<body id="${controllerName}-page"
+<body id="${controllerName}-page" class="component-layout-body"
       data-controller-name="${controllerName}"
       data-is-user-admin="${securityService.isUserAdmin(${currentUser})}"
       data-can-user-view-admin="${securityService.canViewAdminPage(${currentUser})}"

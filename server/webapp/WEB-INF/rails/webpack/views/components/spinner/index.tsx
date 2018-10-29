@@ -16,8 +16,10 @@
 
 import * as m from "mithril";
 
-const styles     = require('./index.scss');
-const classnames = require('classnames/bind').bind(styles);
+import * as styles from './index.scss';
+import {bind} from 'classnames/bind';
+
+const classnames = bind(styles);
 
 import {MithrilViewComponent} from "../../../jsx/mithril-component";
 

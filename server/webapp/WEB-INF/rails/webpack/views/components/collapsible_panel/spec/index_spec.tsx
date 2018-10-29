@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
+import * as styles from '../index.scss';
 import {CollapsiblePanel} from "../index";
 
 describe("Collapsible Panel Component", () => {
   const m = require("mithril");
   const simulateEvent = require("simulate-event");
-  const styles = require('../index.scss');
 
   const pageTitle = "Test Header";
   const body = [<div class="collapse-content">This is body</div>];

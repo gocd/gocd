@@ -18,8 +18,10 @@
 import {MithrilViewComponent} from "../../../jsx/mithril-component";
 import * as m from 'mithril';
 
-const styles     = require('./index.scss');
-const classnames = require('classnames/bind').bind(styles);
+import * as styles from './index.scss';
+import {bind} from 'classnames/bind';
+
+const classnames = bind(styles);
 
 export interface Attrs {
   small?: boolean,
@@ -43,8 +45,7 @@ class Button extends MithrilViewComponent<Attrs> {
               className={classnames(
                 styles.button,
                 {[styles.btnSmall]: isSmall},
-                {[styles.disabled]: vnode.attrs.disabled},
-                styles[this.type]
+                this.type
               )}>
         {vnode.children}
       </button>
@@ -54,24 +55,24 @@ class Button extends MithrilViewComponent<Attrs> {
 
 export class Primary extends Button {
   constructor() {
-    super('btn-primary');
+    super(styles.btnPrimary);
   }
 }
 
 export class Secondary extends Button {
   constructor() {
-    super('btn-secondary');
+    super(styles.btnSecondary);
   }
 }
 
 export class Reset extends Button {
   constructor() {
-    super('btn-reset');
+    super(styles.btnReset);
   }
 }
 
 export class Cancel extends Button {
   constructor() {
-    super('btn-cancel');
+    super(styles.btnCancel);
   }
 }

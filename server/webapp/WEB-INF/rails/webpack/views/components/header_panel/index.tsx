@@ -20,7 +20,7 @@ import * as _ from "lodash";
 
 import {MithrilViewComponent} from "../../../jsx/mithril-component";
 
-const style = require('./index.scss');
+import * as style from './index.scss';
 
 export interface Attrs {
   title: string | JSX.Element;
@@ -33,7 +33,7 @@ export class HeaderPanel extends MithrilViewComponent<Attrs> {
 
     if (!_.isEmpty(vnode.attrs.buttons)) {
       buttons = (
-        <div className={style.pageActions} data-test-id="pageActions">
+        <div data-test-id="pageActions">
           {vnode.attrs.buttons}
         </div>
       );

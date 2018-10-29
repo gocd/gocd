@@ -18,9 +18,12 @@ import * as m from 'mithril';
 import * as Icons from "../icons";
 import {MithrilComponent} from "../../../jsx/mithril-component";
 
-const Stream     = require('mithril/stream');
-const styles     = require('./index.scss');
-const classnames = require('classnames/bind').bind(styles);
+const Stream = require('mithril/stream');
+
+import * as styles from './index.scss';
+import {bind} from 'classnames/bind';
+
+const classnames = bind(styles);
 
 export interface Attrs {
   message: string,

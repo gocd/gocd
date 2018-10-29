@@ -20,7 +20,7 @@ import {ModalManager} from "../components/modal/modal_manager";
 import {Attrs as SiteFooterAttrs, SiteFooter} from "./partials/site_footer";
 import {Attrs as SiteHeaderAttrs, SiteHeader} from "./partials/site_header";
 
-const styles     = require('./main.scss');
+import * as styles from './main.scss';
 
 interface Attrs {
   headerData: SiteHeaderAttrs;

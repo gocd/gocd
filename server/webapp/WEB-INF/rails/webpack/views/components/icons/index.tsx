@@ -19,8 +19,10 @@ import * as _ from "lodash";
 
 import {MithrilViewComponent} from "../../../jsx/mithril-component";
 
-const styles     = require('./index.scss');
-const classnames = require('classnames/bind').bind(styles);
+import * as styles from './index.scss';
+import {bind} from 'classnames/bind';
+
+const classnames = bind(styles);
 
 export interface Attrs {
   onclick?: Function,
@@ -44,43 +46,43 @@ class Icon extends MithrilViewComponent<Attrs> {
 
 export class Settings extends Icon {
   constructor() {
-    super('settings');
+    super(styles.settings);
   }
 }
 
 export class Analytics extends Icon {
   constructor() {
-    super('analytics');
+    super(styles.analytics);
   }
 }
 
 export class Edit extends Icon {
   constructor() {
-    super('edit');
+    super(styles.edit);
   }
 }
 
 export class Clone extends Icon {
   constructor() {
-    super('clone');
+    super(styles.clone);
   }
 }
 
 export class Delete extends Icon {
   constructor() {
-    super('remove');
+    super(styles.remove);
   }
 }
 
 export class Lock extends Icon {
   constructor() {
-    super('lock');
+    super(styles.lock);
   }
 }
 
 export class Close extends Icon {
   constructor() {
-    super('close');
+    super(styles.close);
   }
 }
 

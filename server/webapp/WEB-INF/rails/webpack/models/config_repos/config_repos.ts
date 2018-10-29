@@ -14,50 +14,63 @@
  * limitations under the License.
  */
 
-const ApiHelper   = require("helpers/api_helper");
-const Routes      = require("gen/js-routes");
-const Stream      = require("mithril/stream");
+const ApiHelper = require("helpers/api_helper");
+const Routes    = require("gen/js-routes");
+const Stream    = require("mithril/stream");
 
-import SparkRoutes from "helpers/spark_routes";
+import * as types from "mithril/stream";
+import SparkRoutes from "../../helpers/spark_routes";
 
-function ConfigRepos() {
-  this.etag = Stream("");
+type resolver = (d: object, etag?: string, status?: number) => any;
+type rejector = (errorMessage: string, status?: number) => any;
 
-  this.all = () => {
+interface PromiseLike {
+  then: (success: resolver, fail?: rejector) => PromiseLike
+}
+
+interface Persistable {
+  id: string
+}
+
+export default class ConfigRepos {
+  private etag: types.Stream<string>;
+  constructor() {
+    this.etag = Stream("");
+  }
+
+  all = (): PromiseLike => {
     const promise = ApiHelper.GET({
-      url: SparkRoutes.configRepoListPath(),
+      url: SparkRoutes.ConfigRepoListPath(),
       apiVersion: "v1",
       etag: this.etag()
     });
 
-    promise.then((_d, etag) => this.etag(etag));
+    promise.then((_d:any, etag: string) => this.etag(etag));
 
     return promise;
   };
 
-  this.get = (etag, id) => ApiHelper.GET({
+  get = (etag: string, id: string): PromiseLike => ApiHelper.GET({
     url: Routes.apiv1AdminConfigRepoPath(id),
     apiVersion: "v1",
     etag
   });
 
-  this.update = (etag, payload) => ApiHelper.PUT({
+  update = (etag: string, payload: Persistable): PromiseLike => ApiHelper.PUT({
     url: Routes.apiv1AdminConfigRepoPath(payload.id),
     apiVersion: "v1",
     etag,
     payload
   });
 
-  this.delete = (id) => ApiHelper.DELETE({
+  delete = (id: string): PromiseLike => ApiHelper.DELETE({
     url: Routes.apiv1AdminConfigRepoPath(id),
     apiVersion: "v1"
   });
 
-  this.create = (payload) => ApiHelper.POST({
+  create = (payload: object): PromiseLike => ApiHelper.POST({
     url: Routes.apiv1AdminConfigReposPath(),
     apiVersion: "v1",
     payload
   });
-}
-
-module.exports = ConfigRepos;
+};

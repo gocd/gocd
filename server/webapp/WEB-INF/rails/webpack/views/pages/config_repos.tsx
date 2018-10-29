@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
-import {MithrilComponent} from "jsx/mithril-component";
 import * as m from 'mithril';
+import {MithrilComponent} from "jsx/mithril-component";
+import ConfigRepos from "models/config_repos/config_repos";
+
 const ConfigReposList = require("views/config_repos/config_repos_list");
-const ConfigRepos     = require("models/config_repos/config_repos");
 const ReposListVM     = require("views/config_repos/models/repos_list_vm");
 
 interface State {

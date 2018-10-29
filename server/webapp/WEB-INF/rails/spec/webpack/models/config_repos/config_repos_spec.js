@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-const ConfigRepos = require("models/config_repos/config_repos");
+import ConfigRepos from "models/config_repos/config_repos";
 import SparkRoutes from "helpers/spark_routes";
 
 describe("Config Repo CRUD model", () => {
   it("all() should cache etag", (done) => {
     jasmine.Ajax.withMock(() => {
-      jasmine.Ajax.stubRequest(SparkRoutes.configRepoListPath(), undefined, "GET").andReturn({
+      jasmine.Ajax.stubRequest(SparkRoutes.ConfigRepoListPath(), undefined, "GET").andReturn({
         responseText:    JSON.stringify({
           "_embedded": {
             "config_repos": []

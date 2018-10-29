@@ -94,7 +94,7 @@ export default class {
     return '/go/api/internal/data_sharing/reporting/complete';
   }
 
-  static configRepoListPath(): string {
+  static ConfigRepoListPath(): string {
     return `/go/api/internal/config_repos`;
   }
 

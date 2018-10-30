@@ -1002,11 +1002,7 @@ public class ConfigConverter {
     private CRSvnMaterial svnMaterialToCRSvnMaterial(String materialName, SvnMaterialConfig svnMaterial) {
         CRSvnMaterial crSvnMaterial = new CRSvnMaterial(materialName, svnMaterial.getFolder(), svnMaterial.isAutoUpdate(),
                 svnMaterial.getUrl(), svnMaterial.getUserName(), null, svnMaterial.isCheckExternals(), svnMaterial.isInvertFilter(), svnMaterial.filter().ignoredFileNames());
-        if (svnMaterial.getEncryptedPassword() != null) {
-            crSvnMaterial.setEncryptedPassword(svnMaterial.getEncryptedPassword());
-        } else {
-            crSvnMaterial.setPassword(svnMaterial.getPassword());
-        }
+        crSvnMaterial.setEncryptedPassword(svnMaterial.getEncryptedPassword());
         return crSvnMaterial;
     }
 

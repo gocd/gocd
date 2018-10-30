@@ -1145,7 +1145,12 @@ public class ConfigConverterTest {
         job.setName("buildjob");
         job.setTasks(new Tasks(new RakeTask()));
 
-        StageConfig stage = new StageConfig(new CaseInsensitiveString("stageName"), new JobConfigs(), new Approval());
+        AdminRole role = new AdminRole(new CaseInsensitiveString("a_role"));
+        AdminUser user = new AdminUser(new CaseInsensitiveString("a_user"));
+        Approval approval = new Approval();
+        approval.addAdmin(user, role);
+
+        StageConfig stage = new StageConfig(new CaseInsensitiveString("stageName"), new JobConfigs(), approval);
         stage.setVariables(envVars);
         stage.setJobs(new JobConfigs(job));
         stage.setCleanWorkingDir(true);
@@ -1154,6 +1159,8 @@ public class ConfigConverterTest {
         CRStage crStage = configConverter.stageToCRStage(stage);
 
         assertThat(crStage.getName(), is("stageName"));
+        assertThat(crStage.getApproval().getAuthorizedRoles(), hasItem("a_role"));
+        assertThat(crStage.getApproval().getAuthorizedUsers(), hasItem("a_user"));
         assertThat(crStage.isFetchMaterials(), is(true));
         assertThat(crStage.isCleanWorkingDir(), is(true));
         assertThat(crStage.isArtifactCleanupProhibited(), is(true));

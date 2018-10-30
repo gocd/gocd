@@ -701,7 +701,7 @@ public class ConfigConverter {
         }
 
         for(AdminRole role: approval.getAuthConfig().getRoles()) {
-            crApproval.addAuthorizedUser(role.getName().toString());
+            crApproval.addAuthorizedRole(role.getName().toString());
         }
 
         if (approval.getType().equals(Approval.SUCCESS)) {

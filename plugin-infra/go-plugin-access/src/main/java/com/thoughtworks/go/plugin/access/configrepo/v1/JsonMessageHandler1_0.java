@@ -116,7 +116,7 @@ public class JsonMessageHandler1_0 implements JsonMessageHandler {
 
     @Override
     public String requestMessageForPipelineExport(CRPipeline pipeline) {
-        return null;
+        throw new UnsupportedOperationException("V1 Config Repo plugins don't support pipeline export");
     }
 
     private String migrate(String responseBody, int targetVersion) {
@@ -128,7 +128,7 @@ public class JsonMessageHandler1_0 implements JsonMessageHandler {
 
     @Override
     public String responseMessageForPipelineExport(String responseBody) {
-        return null;
+        throw new UnsupportedOperationException("V1 Config Repo plugins don't support pipeline export");
     }
 
 }

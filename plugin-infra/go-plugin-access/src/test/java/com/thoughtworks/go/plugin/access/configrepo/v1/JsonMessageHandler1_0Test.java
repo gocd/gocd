@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,11 +14,14 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.plugin.access.configrepo;
+package com.thoughtworks.go.plugin.access.configrepo.v1;
 
 
+import com.thoughtworks.go.plugin.access.configrepo.ConfigRepoMigrator;
 import com.thoughtworks.go.plugin.access.configrepo.codec.GsonCodec;
 import com.thoughtworks.go.plugin.access.configrepo.contract.CRParseResult;
+import com.thoughtworks.go.plugin.domain.configrepo.Capabilities;
+import org.hamcrest.CoreMatchers;
 import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;

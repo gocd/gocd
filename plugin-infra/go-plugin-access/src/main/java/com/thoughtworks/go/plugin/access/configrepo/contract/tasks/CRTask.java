@@ -83,4 +83,8 @@ public abstract class CRTask extends CRBase {
     public void setRunIf(CRRunIf runIf) {
         this.run_if = runIf;
     }
+
+    public void setOn_cancel(CRTask on_cancel) {
+        this.on_cancel = on_cancel;
+    }
 }

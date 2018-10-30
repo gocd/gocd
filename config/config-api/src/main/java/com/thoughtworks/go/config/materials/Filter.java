@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.config.materials;
 
+import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 
@@ -49,6 +50,14 @@ public class Filter extends LinkedHashSet<IgnoredFiles> implements Validatable {
             f.add(new IgnoredFiles(file));
         }
         return f;        
+    }
+
+    public List<String> ignoredFileNames() {
+        List<String> files = new ArrayList<>();
+        for (IgnoredFiles ignoredFile : this) {
+            files.add(ignoredFile.getPattern());
+        }
+        return files;
     }
 
     public String getStringForDisplay() {

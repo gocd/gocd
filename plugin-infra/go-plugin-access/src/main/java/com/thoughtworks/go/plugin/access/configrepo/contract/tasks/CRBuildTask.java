@@ -60,9 +60,9 @@ public class CRBuildTask extends CRTask {
     {
         return new CRNantTask(NANT_TYPE_NAME,null,null,null,null);
     }
-    public static CRNantTask nant(String nantFile)
+    public static CRNantTask nant(String nantPath)
     {
-        return new CRNantTask(NANT_TYPE_NAME,nantFile,null,null,null);
+        return new CRNantTask(NANT_TYPE_NAME,null,null,null,nantPath);
     }
     public static CRNantTask nant(String nantFile,String target)
     {
@@ -109,6 +109,18 @@ public class CRBuildTask extends CRTask {
         this.target= target;
         this.working_directory = workingDirectory;
         super.type = type.toString();
+    }
+
+    public void setBuild_file(String build_file) {
+        this.build_file = build_file;
+    }
+
+    public void setTarget(String target) {
+        this.target = target;
+    }
+
+    public void setWorking_directory(String working_directory) {
+        this.working_directory = working_directory;
     }
 
     public String getBuildFile() {

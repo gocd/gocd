@@ -112,4 +112,8 @@ public class CRApproval extends CRBase {
         String myLocation = getLocation() == null ? parent : getLocation();
         return String.format("%s; Approval",myLocation);
     }
+
+    public void setApprovalCondition(CRApprovalCondition condition) {
+        type = condition;
+    }
 }

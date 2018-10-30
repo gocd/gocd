@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,31 +14,47 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.plugin.access.configrepo;
-
+package com.thoughtworks.go.plugin.access.configrepo.v2;
 
 import com.google.gson.GsonBuilder;
+import com.thoughtworks.go.plugin.access.configrepo.ConfigRepoMigrator;
+import com.thoughtworks.go.plugin.access.configrepo.ErrorCollection;
+import com.thoughtworks.go.plugin.access.configrepo.JsonMessageHandler;
 import com.thoughtworks.go.plugin.access.configrepo.codec.GsonCodec;
 import com.thoughtworks.go.plugin.access.configrepo.contract.CRConfigurationProperty;
 import com.thoughtworks.go.plugin.access.configrepo.contract.CRParseResult;
-import com.thoughtworks.go.plugin.access.configrepo.messages.ParseDirectoryMessage;
-import com.thoughtworks.go.plugin.access.configrepo.messages.ParseDirectoryResponseMessage;
+import com.thoughtworks.go.plugin.access.configrepo.contract.CRPipeline;
+import com.thoughtworks.go.plugin.access.configrepo.v2.messages.ParseDirectoryMessage;
+import com.thoughtworks.go.plugin.access.configrepo.v2.messages.ParseDirectoryResponseMessage;
+import com.thoughtworks.go.plugin.access.configrepo.v2.messages.PipelineExportMessage;
+import com.thoughtworks.go.plugin.access.configrepo.v2.messages.PipelineExportResponseMessage;
+import com.thoughtworks.go.plugin.domain.configrepo.Capabilities;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
 
-public class JsonMessageHandler1_0 implements JsonMessageHandler {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(JsonMessageHandler1_0.class);
+public class JsonMessageHandler2_0 implements JsonMessageHandler {
+    private static final Logger LOGGER = LoggerFactory.getLogger(JsonMessageHandler2_0.class);
     static final int CURRENT_CONTRACT_VERSION = 3;
 
     private final GsonCodec codec;
     private final ConfigRepoMigrator migrator;
 
-    public JsonMessageHandler1_0(GsonCodec gsonCodec, ConfigRepoMigrator configRepoMigrator) {
+    public JsonMessageHandler2_0(GsonCodec gsonCodec, ConfigRepoMigrator configRepoMigrator) {
         codec = gsonCodec;
         migrator = configRepoMigrator;
+    }
+
+    @Override
+    public Capabilities getCapabilitiesFromResponse(String responseBody) {
+        return codec.getGson().fromJson(responseBody, Capabilities.class);
+    }
+
+    @Override
+    public String requestMessageForPipelineExport(CRPipeline pipeline) {
+        PipelineExportMessage requestMessage = new PipelineExportMessage(pipeline);
+        return codec.getGson().toJson(requestMessage);
     }
 
     @Override
@@ -61,6 +77,12 @@ public class JsonMessageHandler1_0 implements JsonMessageHandler {
 
     private ResponseScratch parseResponseForMigration(String responseBody) {
         return new GsonBuilder().create().fromJson(responseBody, ResponseScratch.class);
+    }
+
+    @Override
+    public String responseMessageForPipelineExport(String responseBody) {
+        PipelineExportResponseMessage response = codec.getGson().fromJson(responseBody, PipelineExportResponseMessage.class);
+        return response.getPipeline();
     }
 
     @Override

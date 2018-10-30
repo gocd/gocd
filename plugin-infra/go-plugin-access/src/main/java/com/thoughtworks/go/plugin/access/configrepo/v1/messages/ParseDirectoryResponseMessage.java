@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.thoughtworks.go.plugin.access.configrepo.messages;
+package com.thoughtworks.go.plugin.access.configrepo.v1.messages;
 
+import com.thoughtworks.go.plugin.access.configrepo.ErrorCollection;
 import com.thoughtworks.go.plugin.access.configrepo.contract.CREnvironment;
 import com.thoughtworks.go.plugin.access.configrepo.contract.CRError;
 import com.thoughtworks.go.plugin.access.configrepo.contract.CRPipeline;
-import com.thoughtworks.go.plugin.access.configrepo.ErrorCollection;
 
 import java.util.ArrayList;
 import java.util.Collection;

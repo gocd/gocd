@@ -25,7 +25,7 @@ import org.slf4j.LoggerFactory;
 import java.util.Map;
 
 public class ConfigRepoMigrator {
-    private static final Logger LOGGER = LoggerFactory.getLogger(JsonMessageHandler1_0.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ConfigRepoMigrator.class);
 
     public String migrate(String oldJSON, int targetVersion) {
         LOGGER.debug("Migrating to version {}: {}", targetVersion, oldJSON);

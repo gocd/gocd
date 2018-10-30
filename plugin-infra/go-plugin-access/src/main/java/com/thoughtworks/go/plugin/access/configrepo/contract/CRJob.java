@@ -206,6 +206,19 @@ public class CRJob extends CRBase {
         this.environment_variables.add(variable);
     }
 
+    public void addEnvironmentVariable(CREnvironmentVariable variable){
+        this.environment_variables.add(variable);
+    }
+
+    public boolean hasEnvironmentVariable(String key) {
+        for (CREnvironmentVariable var: environment_variables) {
+            if (var.getName().equals(key)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public String getName() {
         return name;
     }
@@ -244,6 +257,10 @@ public class CRJob extends CRBase {
 
     public void setArtifacts(Collection<CRArtifact> artifacts) {
         this.artifacts = artifacts;
+    }
+
+    public void addArtifact(CRArtifact artifact) {
+        this.artifacts.add(artifact);
     }
 
     public Collection<CRPropertyGenerator> getArtifactPropertiesGenerators() {

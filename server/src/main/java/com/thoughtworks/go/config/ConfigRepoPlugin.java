@@ -23,6 +23,7 @@ import com.thoughtworks.go.plugin.access.configrepo.ConfigRepoExtension;
 import com.thoughtworks.go.plugin.access.configrepo.InvalidPartialConfigException;
 import com.thoughtworks.go.plugin.access.configrepo.contract.CRConfigurationProperty;
 import com.thoughtworks.go.plugin.access.configrepo.contract.CRParseResult;
+import com.thoughtworks.go.plugin.access.configrepo.contract.CRPipeline;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -50,6 +51,11 @@ public class ConfigRepoPlugin implements PartialConfigProvider {
     @Override
     public String displayName() {
         return "Plugin " + this.pluginId;
+    }
+
+    public String pipelineExport(PipelineConfig pipelineConfig, String groupName) {
+        CRPipeline crPipeline = configConverter.pipelineConfigToCRPipeline(pipelineConfig, groupName);
+        return this.crExtension.pipelineExport(this.pluginId, crPipeline);
     }
 
     public CRParseResult parseDirectory(File configRepoCheckoutDirectory, Collection<CRConfigurationProperty> cRconfigurations) {

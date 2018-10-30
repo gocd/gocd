@@ -16,9 +16,14 @@
 package com.thoughtworks.go.plugin.access.configrepo;
 
 import com.thoughtworks.go.plugin.access.common.AbstractExtension;
+import com.thoughtworks.go.plugin.access.configrepo.codec.GsonCodec;
 import com.thoughtworks.go.plugin.access.configrepo.contract.CRParseResult;
+import com.thoughtworks.go.plugin.access.configrepo.contract.CRPipeline;
+import com.thoughtworks.go.plugin.access.configrepo.v1.JsonMessageHandler1_0;
+import com.thoughtworks.go.plugin.access.configrepo.v2.JsonMessageHandler2_0;
 import com.thoughtworks.go.plugin.api.request.GoPluginApiRequest;
 import com.thoughtworks.go.plugin.api.response.DefaultGoPluginApiResponse;
+import com.thoughtworks.go.plugin.domain.configrepo.Capabilities;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import org.hamcrest.CoreMatchers;
 import org.junit.Before;
@@ -46,7 +51,9 @@ public class ConfigRepoExtensionTest {
     @Mock
     private PluginManager pluginManager;
     @Mock
-    private JsonMessageHandler1_0 jsonMessageHandler;
+    private JsonMessageHandler1_0 jsonMessageHandler1;
+    @Mock
+    private JsonMessageHandler2_0 jsonMessageHandler2;
     private ConfigRepoExtension extension;
     private String requestBody = "expected-request";
     private String responseBody = "expected-response";
@@ -59,11 +66,12 @@ public class ConfigRepoExtensionTest {
     public void setUp() throws Exception {
         initMocks(this);
         extension = new ConfigRepoExtension(pluginManager);
-        extension.getMessageHandlerMap().put("1.0", jsonMessageHandler);
+        extension.getMessageHandlerMap().put("1.0", jsonMessageHandler1);
+        extension.getMessageHandlerMap().put("2.0", jsonMessageHandler2);
 
         requestArgumentCaptor = ArgumentCaptor.forClass(GoPluginApiRequest.class);
 
-        when(pluginManager.resolveExtensionVersion(PLUGIN_ID, CONFIG_REPO_EXTENSION, new ArrayList<>(Arrays.asList("1.0")))).thenReturn("1.0");
+        when(pluginManager.resolveExtensionVersion(PLUGIN_ID, CONFIG_REPO_EXTENSION, new ArrayList<>(Arrays.asList("1.0", "2.0")))).thenReturn("1.0");
         when(pluginManager.isPluginOfType(CONFIG_REPO_EXTENSION, PLUGIN_ID)).thenReturn(true);
         when(pluginManager.submitTo(eq(PLUGIN_ID), eq(CONFIG_REPO_EXTENSION), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success(responseBody));
     }
@@ -76,13 +84,50 @@ public class ConfigRepoExtensionTest {
     @Test
     public void shouldTalkToPluginToGetParsedDirectory() throws Exception {
         CRParseResult deserializedResponse = new CRParseResult();
-        when(jsonMessageHandler.responseMessageForParseDirectory(responseBody)).thenReturn(deserializedResponse);
+        when(jsonMessageHandler1.responseMessageForParseDirectory(responseBody)).thenReturn(deserializedResponse);
 
         CRParseResult response = extension.parseDirectory(PLUGIN_ID, "dir", null);
 
         assertRequest(requestArgumentCaptor.getValue(), CONFIG_REPO_EXTENSION, "1.0", ConfigRepoExtension.REQUEST_PARSE_DIRECTORY, null);
-        verify(jsonMessageHandler).responseMessageForParseDirectory(responseBody);
+        verify(jsonMessageHandler1).responseMessageForParseDirectory(responseBody);
         assertSame(response, deserializedResponse);
+    }
+
+    @Test
+    public void shouldTalkToPluginToGetPipelineExport() throws Exception {
+        CRPipeline pipeline = new CRPipeline();
+        String deserializedResponse = new GsonCodec().getGson().toJson(pipeline);
+        when(jsonMessageHandler2.responseMessageForPipelineExport(responseBody)).thenReturn(deserializedResponse);
+        when(pluginManager.resolveExtensionVersion(PLUGIN_ID, CONFIG_REPO_EXTENSION, new ArrayList<>(Arrays.asList("1.0", "2.0")))).thenReturn("2.0");
+
+
+        String response = extension.pipelineExport(PLUGIN_ID, pipeline);
+
+        assertRequest(requestArgumentCaptor.getValue(), CONFIG_REPO_EXTENSION, "2.0", ConfigRepoExtension.REQUEST_PIPELINE_EXPORT, null);
+
+        verify(jsonMessageHandler2).responseMessageForPipelineExport(responseBody);
+        assertSame(response, deserializedResponse);
+    }
+
+    @Test
+    public void shouldRequestCapabilities() throws Exception {
+        Capabilities capabilities = new Capabilities(true);
+        when(jsonMessageHandler2.getCapabilitiesFromResponse(responseBody)).thenReturn(capabilities);
+        when(pluginManager.resolveExtensionVersion(PLUGIN_ID, CONFIG_REPO_EXTENSION, new ArrayList<>(Arrays.asList("1.0", "2.0")))).thenReturn("2.0");
+
+        Capabilities res = extension.getCapabilities(PLUGIN_ID);
+
+        assertRequest(requestArgumentCaptor.getValue(), CONFIG_REPO_EXTENSION, "2.0", ConfigRepoExtension.REQUEST_CAPABILITIES, null);
+        assertSame(capabilities, res);
+    }
+
+    @Test
+    public void shouldRequestCapabilitiesV1() throws Exception {
+        Capabilities capabilities = new Capabilities(false);
+
+        Capabilities res = extension.getCapabilities(PLUGIN_ID);
+
+        assertThat(capabilities, is(res));
     }
 
     @Test

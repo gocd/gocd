@@ -26,7 +26,9 @@ import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
 import com.thoughtworks.go.config.materials.tfs.TfsMaterialConfig;
 import com.thoughtworks.go.config.pluggabletask.PluggableTask;
 import com.thoughtworks.go.config.remote.PartialConfig;
+import com.thoughtworks.go.domain.KillAllChildProcessTask;
 import com.thoughtworks.go.domain.RunIfConfigs;
+import com.thoughtworks.go.domain.Task;
 import com.thoughtworks.go.domain.config.Arguments;
 import com.thoughtworks.go.domain.config.Configuration;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
@@ -47,6 +49,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Helper to transform config repo classes to config-api classes
@@ -247,7 +250,6 @@ public class ConfigConverter {
         buildTask.target = crBuildTask.getTarget();
         buildTask.workingDirectory = crBuildTask.getWorkingDirectory();
     }
-
 
     private Configuration toConfiguration(Collection<CRConfigurationProperty> properties) {
         Configuration configuration = new Configuration();
@@ -639,4 +641,409 @@ public class ConfigConverter {
         return new TrackingTool(crTrackingTool.getLink(), crTrackingTool.getRegex());
     }
 
+    CRPipeline pipelineConfigToCRPipeline(PipelineConfig pipelineConfig, String groupName) {
+        CRPipeline crPipeline = new CRPipeline();
+        crPipeline.setGroupName(groupName);
+
+        crPipeline.setName(pipelineConfig.name().toString());
+        for(StageConfig stage: pipelineConfig.getStages()) {
+            crPipeline.addStage(stageToCRStage(stage));
+        }
+
+        for (ParamConfig param: pipelineConfig.getParams()) {
+            crPipeline.addParameter(paramToCRParam(param));
+        }
+
+        for (MaterialConfig material: pipelineConfig.materialConfigs()) {
+            crPipeline.addMaterial(materialToCRMaterial(material));
+        }
+
+        for (EnvironmentVariableConfig envVar: pipelineConfig.getVariables()) {
+           crPipeline.addEnvironmentVariable(environmentVariableConfigToCREnvironmentVariable(envVar));
+        }
+
+        if (pipelineConfig.getTemplateName() != null)
+            crPipeline.setTemplate(pipelineConfig.getTemplateName().toString());
+
+        crPipeline.setTrackingTool(trackingToolToCRTrackingTool(pipelineConfig.getTrackingTool()));
+        crPipeline.setTimer(timerConfigToCRTimer(pipelineConfig.getTimer()));
+        crPipeline.setLock_behavior(pipelineConfig.getLockBehavior());
+
+
+        crPipeline.setMingle(mingleToCRMingle(pipelineConfig.getMingleConfig()));
+        crPipeline.setLabelTemplate(pipelineConfig.getLabelTemplate());
+        return crPipeline;
+    }
+
+    CRStage stageToCRStage(StageConfig stageConfig) {
+        CRStage crStage = new CRStage(stageConfig.name().toString());
+
+        for(JobConfig job: stageConfig.getJobs()) {
+            crStage.addJob(jobToCRJob(job));
+        }
+
+        for (EnvironmentVariableConfig var: stageConfig.getVariables()) {
+            crStage.addEnvironmentVariable(environmentVariableConfigToCREnvironmentVariable(var));
+        }
+
+        crStage.setApproval(approvalToCRApproval(stageConfig.getApproval()));
+        crStage.setFetchMaterials(stageConfig.isFetchMaterials());
+        crStage.setArtifactCleanupProhibited(stageConfig.isArtifactCleanupProhibited());
+        crStage.setCleanWorkingDir(stageConfig.isCleanWorkingDir());
+
+        return crStage;
+    }
+
+    private CRApproval approvalToCRApproval(Approval approval) {
+        CRApproval crApproval = new CRApproval();
+        for(AdminUser user: approval.getAuthConfig().getUsers()) {
+           crApproval.addAuthorizedUser(user.getName().toString());
+        }
+
+        for(AdminRole role: approval.getAuthConfig().getRoles()) {
+            crApproval.addAuthorizedRole(role.getName().toString());
+        }
+
+        if (approval.getType().equals(Approval.SUCCESS)) {
+            crApproval.setApprovalCondition(CRApprovalCondition.success);
+        } else {
+            crApproval.setApprovalCondition(CRApprovalCondition.manual);
+
+        }
+
+        return crApproval;
+    }
+
+    CRJob jobToCRJob(JobConfig jobConfig) {
+        CRJob job = new CRJob();
+        job.setName(jobConfig.name().toString());
+
+        for (EnvironmentVariableConfig var: jobConfig.getVariables()) {
+            job.addEnvironmentVariable(environmentVariableConfigToCREnvironmentVariable(var));
+        }
+
+        for (ArtifactPropertyConfig prop: jobConfig.getProperties()) {
+            job.addProperty(new CRPropertyGenerator(prop.getName(), prop.getSrc(), prop.getXpath()));
+        }
+
+        for(Tab tab: jobConfig.getTabs()) {
+            job.addTab(new CRTab(tab.getName(), tab.getPath()));
+        }
+
+        for (ArtifactConfig artifactConfig: jobConfig.artifactConfigs()) {
+           job.addArtifact(artifactConfigToCRArtifact(artifactConfig));
+        }
+
+        if (jobConfig.isRunOnAllAgents()) {
+            job.setRunOnAllAgents(jobConfig.isRunOnAllAgents());
+        } else {
+            job.setRunInstanceCount(jobConfig.getRunInstanceCountValue());
+        }
+
+        for (Task task: jobConfig.tasks()) {
+           job.addTask(taskToCRTask(task));
+        }
+
+        job.setResources(jobConfig.resourceConfigs().resourceNames());
+        job.setElasticProfileId(jobConfig.getElasticProfileId());
+
+        if (jobConfig.getTimeout() != null)
+            job.setTimeout(Integer.valueOf(jobConfig.getTimeout()));
+
+        return job;
+    }
+
+    CRTask taskToCRTask(Task task) {
+        if (task == null)
+            throw new ConfigConvertionException("task cannot be null");
+
+        if (task instanceof PluggableTask)
+            return pluggableTaskToCRPluggableTask((PluggableTask) task);
+        else if (task instanceof BuildTask) {
+            return buildTaskToCRBuildTask((BuildTask) task);
+        } else if (task instanceof ExecTask) {
+            return execTasktoCRExecTask((ExecTask) task);
+        } else if (task instanceof FetchTask) {
+            return fetchTaskToCRFetchTask((FetchTask) task);
+        } else if (task instanceof FetchPluggableArtifactTask) {
+            return fetchPluggableArtifactTaskToCRFetchPluggableTask((FetchPluggableArtifactTask) task);
+        } else
+            throw new RuntimeException(
+                    String.format("unknown type of task '%s'", task));
+    }
+
+    private CRFetchPluggableArtifactTask fetchPluggableArtifactTaskToCRFetchPluggableTask(FetchPluggableArtifactTask task) {
+        List<CRConfigurationProperty> configuration = configurationToCRConfiguration(task.getConfiguration());
+        CRFetchPluggableArtifactTask crTask = new CRFetchPluggableArtifactTask(
+                task.getStage().toString(),
+                task.getJob().toString(), task.getArtifactId(), configuration);
+        crTask.setPipelineName(task.getPipelineName().toString());
+        commonCRTaskMembers(crTask, task);
+        return crTask;
+    }
+
+    private CRFetchArtifactTask fetchTaskToCRFetchTask(FetchTask task) {
+        CRFetchArtifactTask fetchTask = new CRFetchArtifactTask(
+                task.getStage().toString(),
+                task.getJob().toString(),
+                task.getSrc());
+
+        fetchTask.setDestination(task.getDest());
+        fetchTask.setPipelineName(task.getPipelineName().toString());
+        fetchTask.setSourceIsDirectory(!task.isSourceAFile());
+
+        commonCRTaskMembers(fetchTask, task);
+        return fetchTask;
+    }
+
+    private CRPluggableTask pluggableTaskToCRPluggableTask(PluggableTask pluggableTask) {
+        CRPluginConfiguration pluginConfiguration = new CRPluginConfiguration(pluggableTask.getPluginConfiguration().getId(), pluggableTask.getPluginConfiguration().getVersion());
+        List<CRConfigurationProperty> configuration = configurationToCRConfiguration(pluggableTask.getConfiguration());
+        CRPluggableTask task = new CRPluggableTask(pluginConfiguration, configuration);
+        commonCRTaskMembers(task, pluggableTask);
+        return task;
+    }
+
+    private CRExecTask execTasktoCRExecTask(ExecTask task) {
+        CRExecTask crExecTask = new CRExecTask(task.getCommand());
+        crExecTask.setTimeout(task.getTimeout());
+        crExecTask.setWorkingDirectory(task.workingDirectory());
+        crExecTask.setArgs(task.getArgList().stream()
+                .map(Argument::getValue)
+                .collect(Collectors.toList())
+        );
+
+        commonCRTaskMembers(crExecTask, task);
+        return crExecTask;
+    }
+
+    private CRBuildTask buildTaskToCRBuildTask(BuildTask buildTask) {
+        CRBuildTask crBuildTask;
+        if (buildTask instanceof RakeTask) {
+            crBuildTask = CRBuildTask.rake();
+        } else if (buildTask instanceof  AntTask) {
+            crBuildTask = CRBuildTask.ant();
+        } else if (buildTask instanceof NantTask) {
+            crBuildTask = CRBuildTask.nant(((NantTask) buildTask).getNantPath());
+        } else {
+            throw new RuntimeException(
+                    String.format("unknown type of build task '%s'", buildTask));
+        }
+        crBuildTask.setBuild_file(buildTask.getBuildFile());
+        crBuildTask.setTarget(buildTask.getTarget());
+        crBuildTask.setWorking_directory(buildTask.workingDirectory());
+        commonCRTaskMembers(crBuildTask, buildTask);
+        return crBuildTask;
+    }
+
+    private void commonCRTaskMembers(CRTask crTask, AbstractTask task) {
+        Task taskOnCancel = task.cancelTask();
+        if (taskOnCancel != null && !(taskOnCancel instanceof KillAllChildProcessTask))
+            crTask.setOn_cancel(taskToCRTask(taskOnCancel));
+        crTask.setRunIf(crRunIfs(task.runIfConfigs));
+    }
+
+    private CRRunIf crRunIfs(RunIfConfigs runIfs) {
+        if (runIfs == null || runIfs.isEmpty())
+            return CRRunIf.passed;
+       RunIfConfig runIf = runIfs.first();
+        if (runIf.equals(RunIfConfig.ANY)) {
+           return CRRunIf.any;
+        } else if (runIf.equals(RunIfConfig.PASSED)) {
+            return CRRunIf.passed;
+        } else if (runIf.equals(RunIfConfig.FAILED)) {
+            return CRRunIf.failed;
+        } else {
+            throw new RuntimeException(
+                    String.format("unknown run if condition '%s'", runIf));
+        }
+    }
+
+    private List<CRConfigurationProperty> configurationToCRConfiguration(Configuration config) {
+        ArrayList<CRConfigurationProperty> properties = new ArrayList();
+        if (config != null) {
+            for (ConfigurationProperty p : config) {
+                CRConfigurationProperty crProp = new CRConfigurationProperty(p.getKey().getName());
+                if (p.isSecure())
+                    crProp.setEncryptedValue(p.getEncryptedValue());
+                else
+                    crProp.setValue(p.getValue());
+                properties.add(crProp);
+            }
+        }
+        return properties;
+    }
+
+    private CRArtifact artifactConfigToCRArtifact(ArtifactConfig artifactConfig) {
+        if (artifactConfig instanceof BuildArtifactConfig) {
+            BuildArtifactConfig buildArtifact = (BuildArtifactConfig) artifactConfig;
+            return new CRBuiltInArtifact(buildArtifact.getSource(), buildArtifact.getDestination());
+        } else if (artifactConfig instanceof  TestArtifactConfig) {
+            TestArtifactConfig testArtifact = (TestArtifactConfig) artifactConfig;
+            return new CRBuiltInArtifact(testArtifact.getSource(), testArtifact.getDestination(), CRArtifactType.test);
+        } else if (artifactConfig instanceof PluggableArtifactConfig) {
+            PluggableArtifactConfig pluggableArtifact = (PluggableArtifactConfig) artifactConfig;
+            List<CRConfigurationProperty> crConfigurationProperties = configurationToCRConfiguration(pluggableArtifact.getConfiguration());
+            return new CRPluggableArtifact(pluggableArtifact.getId(), pluggableArtifact.getStoreId(), crConfigurationProperties);
+        } else {
+            throw new RuntimeException(String.format("Unsupported Artifact Type: %s.", artifactConfig.getArtifactType()));
+        }
+    }
+
+    private CRMingle mingleToCRMingle(MingleConfig mingleConfig) {
+        CRMingle crMingle = new CRMingle();
+        crMingle.setBaseUrl(mingleConfig.getBaseUrl());
+        crMingle.setProjectIdentifier(mingleConfig.getProjectIdentifier());
+        crMingle.setMqlGroupingConditions(mingleConfig.getQuotedMql());
+        return crMingle;
+    }
+
+    private CRTrackingTool trackingToolToCRTrackingTool(TrackingTool trackingTool) {
+        if (trackingTool == null)
+            return null;
+        return new CRTrackingTool(trackingTool.getLink(), trackingTool.getRegex());
+    }
+
+    private CRParameter paramToCRParam(ParamConfig paramConfig) {
+        return new CRParameter(paramConfig.getName(), paramConfig.getValue());
+    }
+
+    private CRTimer timerConfigToCRTimer(TimerConfig timerConfig) {
+        if (timerConfig == null)
+            return null;
+        String spec =  timerConfig.getTimerSpec();
+        if (StringUtils.isBlank(spec))
+            throw new RuntimeException("timer schedule is not specified");
+        return new CRTimer(spec, timerConfig.shouldTriggerOnlyOnChanges());
+    }
+
+    CREnvironmentVariable environmentVariableConfigToCREnvironmentVariable(EnvironmentVariableConfig environmentVariableConfig) {
+        if (environmentVariableConfig.isSecure()) {
+            return new CREnvironmentVariable(environmentVariableConfig.getName(), null, environmentVariableConfig.getEncryptedValue());
+        } else {
+            String value = environmentVariableConfig.getValue();
+            if(StringUtils.isBlank(value))
+                value = "";
+            return new CREnvironmentVariable(environmentVariableConfig.getName(), value);
+        }
+    }
+
+    private CRPluggableScmMaterial pluggableScmMaterialConfigToCRPluggableScmMaterial(PluggableSCMMaterialConfig pluggableScmMaterialConfig) {
+        SCMs scms = getSCMs();
+        String id = pluggableScmMaterialConfig.getScmId();
+        SCM scmConfig = scms.find(id);
+        if (scmConfig == null)
+            throw new ConfigConvertionException(
+                    String.format("Failed to find referenced scm '%s'", id));
+
+        return new CRPluggableScmMaterial(pluggableScmMaterialConfig.getName().toString(),
+                id, pluggableScmMaterialConfig.getFolder(),
+                pluggableScmMaterialConfig.filter().ignoredFileNames());
+    }
+
+    private CRPackageMaterial packageMaterialToCRPackageMaterial(PackageMaterialConfig packageMaterialConfig) {
+        return new CRPackageMaterial(packageMaterialConfig.getName().toString(), packageMaterialConfig.getPackageId());
+    }
+
+    private CRDependencyMaterial dependencyMaterialConfigToCRDependencyMaterial(DependencyMaterialConfig dependencyMaterialConfig) {
+        CRDependencyMaterial crDependencyMaterial = new CRDependencyMaterial(
+                dependencyMaterialConfig.getPipelineName().toString(),
+                dependencyMaterialConfig.getStageName().toString());
+        if (dependencyMaterialConfig.getName() != null)
+            crDependencyMaterial.setName(dependencyMaterialConfig.getName().toString());
+        return crDependencyMaterial;
+    }
+
+    private CRScmMaterial scmMaterialToCRScmMaterial(ScmMaterialConfig scmConfig) {
+        String name = null;
+        if (scmConfig.getName() != null) {
+            name = scmConfig.getName().toString();
+        }
+
+        if (scmConfig instanceof GitMaterialConfig)
+            return gitMaterialToCRGitMaterial(name, (GitMaterialConfig) scmConfig);
+
+         else if (scmConfig instanceof HgMaterialConfig)
+            return hgMaterialToCRHgMaterial(name, (HgMaterialConfig) scmConfig);
+
+         else if (scmConfig instanceof P4MaterialConfig)
+            return p4MaterialToCRP4Material(name, (P4MaterialConfig) scmConfig);
+
+         else if (scmConfig instanceof SvnMaterialConfig)
+            return svnMaterialToCRSvnMaterial(name, (SvnMaterialConfig) scmConfig);
+
+         else if (scmConfig instanceof TfsMaterialConfig)
+           return tfsMaterialToCRTfsMaterial(name, (TfsMaterialConfig) scmConfig);
+
+         else
+            throw new ConfigConvertionException(
+                    String.format("unknown scm material type '%s'", scmConfig));
+    }
+
+    private CRHgMaterial hgMaterialToCRHgMaterial(String materialName, HgMaterialConfig hgMaterialConfig) {
+        return new CRHgMaterial(materialName, hgMaterialConfig.getFolder(), hgMaterialConfig.isAutoUpdate(), hgMaterialConfig.isInvertFilter(), hgMaterialConfig.filter().ignoredFileNames(), hgMaterialConfig.getUrl());
+    }
+
+    private CRGitMaterial gitMaterialToCRGitMaterial(String materialName, GitMaterialConfig gitMaterialConfig) {
+        return new CRGitMaterial(materialName, gitMaterialConfig.getFolder(), gitMaterialConfig.isAutoUpdate(), gitMaterialConfig.isShallowClone(), gitMaterialConfig.getUrl(), gitMaterialConfig.getBranch(), gitMaterialConfig.isInvertFilter(), gitMaterialConfig.filter().ignoredFileNames());
+
+    }
+
+    private CRP4Material p4MaterialToCRP4Material(String materialName, P4MaterialConfig p4MaterialConfig) {
+        CRP4Material crP4Material = new CRP4Material(materialName, p4MaterialConfig.getFolder(), p4MaterialConfig.isAutoUpdate(), p4MaterialConfig.getServerAndPort(), p4MaterialConfig.getView(), p4MaterialConfig.getUserName(), null, p4MaterialConfig.getUseTickets(), p4MaterialConfig.isInvertFilter(), p4MaterialConfig.filter().ignoredFileNames());
+
+        if (p4MaterialConfig.getEncryptedPassword() != null) {
+            crP4Material.setEncryptedPassword(p4MaterialConfig.getEncryptedPassword());
+        }
+
+        return crP4Material;
+    }
+
+    private CRSvnMaterial svnMaterialToCRSvnMaterial(String materialName, SvnMaterialConfig svnMaterial) {
+        CRSvnMaterial crSvnMaterial = new CRSvnMaterial(materialName, svnMaterial.getFolder(), svnMaterial.isAutoUpdate(),
+                svnMaterial.getUrl(), svnMaterial.getUserName(), null, svnMaterial.isCheckExternals(), svnMaterial.isInvertFilter(), svnMaterial.filter().ignoredFileNames());
+        crSvnMaterial.setEncryptedPassword(svnMaterial.getEncryptedPassword());
+        return crSvnMaterial;
+    }
+
+    private CRTfsMaterial tfsMaterialToCRTfsMaterial(String materialName, TfsMaterialConfig tfsMaterialConfig) {
+        CRTfsMaterial crTfsMaterial = new CRTfsMaterial(materialName,
+                tfsMaterialConfig.getFolder(),
+                tfsMaterialConfig.isAutoUpdate(),
+                tfsMaterialConfig.getUrl(),
+                tfsMaterialConfig.getUserName(),
+                null,
+                null,
+                tfsMaterialConfig.getProjectPath(),
+                tfsMaterialConfig.getDomain(),
+                tfsMaterialConfig.isInvertFilter(),
+                tfsMaterialConfig.filter().ignoredFileNames());
+
+        if (tfsMaterialConfig.getEncryptedPassword() != null) {
+            crTfsMaterial.setEncryptedPassword(tfsMaterialConfig.getEncryptedPassword());
+        }
+
+        return crTfsMaterial;
+    }
+
+    CRMaterial materialToCRMaterial(MaterialConfig materialConfig) {
+        if (materialConfig == null)
+            throw new ConfigConvertionException("material cannot be null");
+
+        if (materialConfig instanceof DependencyMaterialConfig) {
+            return dependencyMaterialConfigToCRDependencyMaterial((DependencyMaterialConfig) materialConfig);
+        } else if (materialConfig instanceof ScmMaterialConfig) {
+            ScmMaterialConfig scmMaterialConfig = (ScmMaterialConfig) materialConfig;
+            return scmMaterialToCRScmMaterial(scmMaterialConfig);
+        } else if (materialConfig instanceof PluggableSCMMaterialConfig) {
+            PluggableSCMMaterialConfig pluggableSCMMaterialConfig = (PluggableSCMMaterialConfig) materialConfig;
+            return pluggableScmMaterialConfigToCRPluggableScmMaterial(pluggableSCMMaterialConfig);
+        } else if (materialConfig instanceof PackageMaterialConfig) {
+            PackageMaterialConfig packageMaterial = (PackageMaterialConfig) materialConfig;
+            return packageMaterialToCRPackageMaterial(packageMaterial);
+        }  else {
+            throw new ConfigConvertionException(
+                    String.format("unknown material type '%s'", materialConfig));
+        }
+    }
 }

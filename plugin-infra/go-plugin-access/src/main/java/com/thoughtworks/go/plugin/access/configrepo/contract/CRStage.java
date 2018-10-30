@@ -62,6 +62,11 @@ public class CRStage extends CRBase {
         variable.setValue(value);
         this.environment_variables.add(variable);
     }
+
+    public void addEnvironmentVariable(CREnvironmentVariable variable){
+        this.environment_variables.add(variable);
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -183,6 +188,15 @@ public class CRStage extends CRBase {
 
     public void setEnvironmentVariables(Collection<CREnvironmentVariable> environmentVariables) {
         this.environment_variables = environmentVariables;
+    }
+
+    public boolean hasEnvironmentVariable(String key) {
+       for (CREnvironmentVariable var: environment_variables) {
+          if (var.getName().equals(key)) {
+              return true;
+          }
+       }
+       return false;
     }
 
     public Collection<CRJob> getJobs() {

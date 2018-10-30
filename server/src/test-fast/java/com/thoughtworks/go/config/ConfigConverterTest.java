@@ -29,8 +29,8 @@ import com.thoughtworks.go.config.materials.tfs.TfsMaterialConfig;
 import com.thoughtworks.go.config.pluggabletask.PluggableTask;
 import com.thoughtworks.go.config.remote.PartialConfig;
 import com.thoughtworks.go.domain.KillAllChildProcessTask;
-import com.thoughtworks.go.domain.config.Configuration;
-import com.thoughtworks.go.domain.config.PluginConfiguration;
+import com.thoughtworks.go.domain.RunIfConfigs;
+import com.thoughtworks.go.domain.config.*;
 import com.thoughtworks.go.domain.label.PipelineLabel;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.domain.packagerepository.PackageDefinition;
@@ -1083,5 +1083,607 @@ public class ConfigConverterTest {
         PipelineConfig pipeline = configConverter.toPipelineConfig(crPipeline, context);
         assertThat(pipeline.isEmpty(), is(true));
         assertThat(pipeline.getTemplateName(), is(new CaseInsensitiveString("t1")));
+    }
+
+    @Test
+    public void shouldConvertParamConfigWhenPassed() throws Exception {
+        PipelineConfig pipeline = new PipelineConfig();
+        pipeline.setName("p1");
+        pipeline.addParam(new ParamConfig("param", "value"));
+
+        Collection<CRParameter> parameters = new ArrayList<>();
+        parameters.add(new CRParameter("param", "value"));
+        CRPipeline crPipeline = configConverter.pipelineConfigToCRPipeline(pipeline, "group");
+        assertThat(crPipeline.getParameters(), is(parameters));
+    }
+
+    @Test
+    public void shouldConvertPipelineConfigToCRPipeline() {
+        TrackingTool trackingTool = new TrackingTool();
+        trackingTool.setLink("link");
+        TimerConfig timerConfig = new TimerConfig("timer", true);
+        PipelineConfig pipeline = new PipelineConfig();
+        pipeline.setName("p1");
+        pipeline.setTimer(timerConfig);
+        pipeline.setTrackingTool(trackingTool);
+        pipeline.addEnvironmentVariable("testing", "123");
+
+        StageConfig stage = new StageConfig();
+        stage.setName(new CaseInsensitiveString("build"));
+
+        JobConfig job = new JobConfig();
+        job.setName("buildjob");
+        job.setTasks(new Tasks(new RakeTask()));
+
+        stage.setJobs(new JobConfigs(job));
+        pipeline.addStageWithoutValidityAssertion(stage);
+
+        SvnMaterialConfig mat = new SvnMaterialConfig();
+        mat.setName(new CaseInsensitiveString("mat"));
+        mat.setUrl("url");
+        pipeline.addMaterialConfig(mat);
+
+        CRPipeline crPipeline = configConverter.pipelineConfigToCRPipeline(pipeline, "group1");
+        assertThat(crPipeline.getName(), is("p1"));
+        assertThat(crPipeline.getGroupName(), is("group1"));
+        assertThat(crPipeline.getMaterialByName("mat") instanceof CRSvnMaterial, is(true));
+        assertThat(crPipeline.getLabelTemplate(), is(PipelineLabel.COUNT_TEMPLATE));
+        assertThat(crPipeline.getMaterials().size(), is(1));
+        assertThat(crPipeline.hasEnvironmentVariable("testing"), is(true));
+        assertThat(crPipeline.getTrackingTool().getLink(), is("link"));
+        assertThat(crPipeline.getTimer().getTimerSpec(), is("timer"));
+        assertThat(crPipeline.getStages().get(0).getName(), is("build"));
+        assertThat(crPipeline.getStages().get(0).getJobs().size(), is(1));
+    }
+
+    @Test
+    public void shouldConvertStageConfigToCRStage() {
+        EnvironmentVariablesConfig envVars = new EnvironmentVariablesConfig();
+        envVars.add("testing", "123");
+
+        JobConfig job = new JobConfig();
+        job.setName("buildjob");
+        job.setTasks(new Tasks(new RakeTask()));
+
+        AdminRole role = new AdminRole(new CaseInsensitiveString("a_role"));
+        AdminUser user = new AdminUser(new CaseInsensitiveString("a_user"));
+        Approval approval = new Approval();
+        approval.addAdmin(user, role);
+
+        StageConfig stage = new StageConfig(new CaseInsensitiveString("stageName"), new JobConfigs(), approval);
+        stage.setVariables(envVars);
+        stage.setJobs(new JobConfigs(job));
+        stage.setCleanWorkingDir(true);
+        stage.setArtifactCleanupProhibited(true);
+
+        CRStage crStage = configConverter.stageToCRStage(stage);
+
+        assertThat(crStage.getName(), is("stageName"));
+        assertThat(crStage.getApproval().getAuthorizedRoles(), hasItem("a_role"));
+        assertThat(crStage.getApproval().getAuthorizedUsers(), hasItem("a_user"));
+        assertThat(crStage.isFetchMaterials(), is(true));
+        assertThat(crStage.isCleanWorkingDir(), is(true));
+        assertThat(crStage.isArtifactCleanupProhibited(), is(true));
+        assertThat(crStage.hasEnvironmentVariable("testing"), is(true));
+        assertThat(crStage.getJobs().size(), is(1));
+    }
+
+    @Test
+    public void shouldConvertJobConfigToCRJob() {
+        JobConfig jobConfig = new JobConfig(new CaseInsensitiveString("name"),
+        new ResourceConfigs(new ResourceConfig("resource1")),
+        new ArtifactConfigs(new BuildArtifactConfig("src", "dest")));
+        jobConfig.setRunOnAllAgents(false);
+        jobConfig.setTimeout("120");
+        jobConfig.addTask(new ExecTask());
+        jobConfig.addVariable("key", "value");
+        jobConfig.setRunInstanceCount("5");
+        jobConfig.addTab("tabname", "path");
+        jobConfig.setProperties(new ArtifactPropertiesConfig(new ArtifactPropertyConfig("name", "src", "path")));
+
+        CRJob job = configConverter.jobToCRJob(jobConfig);
+
+        assertThat(job.getName(), is("name"));
+        assertThat(job.hasEnvironmentVariable("key"), is(true));
+        assertThat(job.getTabs().contains(new CRTab("tabname", "path")), is(true));
+        assertThat(job.getResources().contains("resource1"),  is(true));
+        assertThat(job.getArtifacts().contains(new CRBuiltInArtifact("src", "dest")), is(true));
+        assertThat(job.getArtifactPropertiesGenerators().contains(new CRPropertyGenerator("name", "src", "path")), is(true));
+        assertThat(job.isRunOnAllAgents(), is(false));
+        assertThat(job.getRunInstanceCount(), is(5));
+        assertThat(job.getTimeout(), is(120));
+        assertThat(job.getTasks().size(), is(1));
+    }
+
+    @Test
+    public void shouldConvertDependencyMaterialConfigToCRDependencyMaterial() {
+        DependencyMaterialConfig dependencyMaterialConfig = new DependencyMaterialConfig(new CaseInsensitiveString("name"), new CaseInsensitiveString("pipe"), new CaseInsensitiveString("stage"));
+
+        CRDependencyMaterial crDependencyMaterial =
+                (CRDependencyMaterial) configConverter.materialToCRMaterial(dependencyMaterialConfig);
+
+        assertThat(crDependencyMaterial.getName(), is("name"));
+        assertThat(crDependencyMaterial.getPipelineName(), is("pipe"));
+        assertThat(crDependencyMaterial.getStageName(), is("stage"));
+    }
+
+    @Test
+    public void shouldConvertGitMaterialConfigToCRGitMaterial() {
+        GitMaterialConfig gitMaterialConfig = new GitMaterialConfig("url", "branch", true);
+        gitMaterialConfig.setName(new CaseInsensitiveString("name"));
+        gitMaterialConfig.setFolder("folder");
+        gitMaterialConfig.setAutoUpdate(true);
+        gitMaterialConfig.setInvertFilter(false);
+        gitMaterialConfig.setFilter(Filter.create("filter"));
+
+        CRGitMaterial crGitMaterial =
+                (CRGitMaterial) configConverter.materialToCRMaterial(gitMaterialConfig);
+
+        assertThat(crGitMaterial.getName(), is("name"));
+        assertThat(crGitMaterial.getDirectory(), is("folder"));
+        assertThat(crGitMaterial.isAutoUpdate(), is(true));
+        assertThat(crGitMaterial.isWhitelist(), is(false));
+        assertThat(crGitMaterial.getFilterList(), hasItem("filter"));
+        assertThat(crGitMaterial.getUrl(), is("url"));
+        assertThat(crGitMaterial.getBranch(), is("branch"));
+        assertThat(crGitMaterial.shallowClone(), is(true));
+    }
+
+    @Test
+    public void shouldConvertGitMaterialConfigWhenNulls() {
+        GitMaterialConfig gitMaterialConfig = new GitMaterialConfig();
+        gitMaterialConfig.setUrl("url");
+
+        CRGitMaterial crGitMaterial =
+                (CRGitMaterial) configConverter.materialToCRMaterial(gitMaterialConfig);
+
+        assertNull(crGitMaterial.getName());
+        assertNull(crGitMaterial.getDirectory());
+        assertThat(crGitMaterial.isAutoUpdate(), is(true));
+        assertThat(crGitMaterial.shallowClone(), is(false));
+        assertThat(crGitMaterial.getUrl(), is("url"));
+        assertThat(crGitMaterial.getBranch(), is("master"));
+    }
+
+    @Test
+    public void shouldConvertHgMaterialConfigToCRHgMaterial() {
+        HgMaterialConfig hgMaterialConfig = new HgMaterialConfig("url", "folder");
+        hgMaterialConfig.setName(new CaseInsensitiveString("name"));
+        hgMaterialConfig.setFilter(Filter.create("filter"));
+        hgMaterialConfig.setAutoUpdate(true);
+
+        CRHgMaterial crHgMaterial =
+                (CRHgMaterial) configConverter.materialToCRMaterial(hgMaterialConfig);
+
+        assertThat(crHgMaterial.getName(), is("name"));
+        assertThat(crHgMaterial.getDirectory(), is("folder"));
+        assertThat(crHgMaterial.isAutoUpdate(), is(true));
+        assertThat(crHgMaterial.getFilterList(), hasItem("filter"));
+        assertThat(crHgMaterial.getUrl(), is("url"));
+    }
+
+    @Test
+    public void shouldConvertHgMaterialConfigWhenNullName() {
+        HgMaterialConfig hgMaterialConfig = new HgMaterialConfig("url", "folder");
+        hgMaterialConfig.setFilter(Filter.create("filter"));
+        hgMaterialConfig.setAutoUpdate(true);
+
+        CRHgMaterial crHgMaterial =
+                (CRHgMaterial) configConverter.materialToCRMaterial(hgMaterialConfig);
+
+        assertNull(crHgMaterial.getName());
+        assertThat(crHgMaterial.getDirectory(), is("folder"));
+        assertThat(crHgMaterial.isAutoUpdate(), is(true));
+        assertThat(crHgMaterial.getFilterList(), hasItem("filter"));
+        assertThat(crHgMaterial.getUrl(), is("url"));
+    }
+
+    @Test
+    public void shouldConvertP4MaterialConfigWhenEncryptedPassword() {
+        P4MaterialConfig p4MaterialConfig = new P4MaterialConfig("server:port", "view");
+        p4MaterialConfig.setName(new CaseInsensitiveString("name"));
+        p4MaterialConfig.setFolder("folder");
+        p4MaterialConfig.setEncryptedPassword("encryptedvalue");
+        p4MaterialConfig.setFilter(Filter.create("filter"));
+        p4MaterialConfig.setUserName("user");
+        p4MaterialConfig.setUseTickets(true);
+        p4MaterialConfig.setAutoUpdate(false);
+
+        CRP4Material crp4Material =
+                (CRP4Material) configConverter.materialToCRMaterial(p4MaterialConfig);
+
+        assertThat(crp4Material.getName(), is("name"));
+        assertThat(crp4Material.getDirectory(), is("folder"));
+        assertThat(crp4Material.isAutoUpdate(), is(false));
+        assertThat(crp4Material.getFilterList(), hasItem("filter"));
+        assertThat(crp4Material.getServerAndPort(), is("server:port"));
+        assertThat(crp4Material.getUserName(), is("user"));
+        assertThat(crp4Material.getEncryptedPassword(), is("encryptedvalue"));
+        assertNull(crp4Material.getPassword());
+        assertThat(crp4Material.getUseTickets(), is(true));
+        assertThat(crp4Material.getView(), is("view"));
+    }
+
+    @Test
+    public void shouldConvertP4MaterialConfigWhenPlainPassword() {
+        P4MaterialConfig p4MaterialConfig = new P4MaterialConfig("server:port", "view");
+        p4MaterialConfig.setName(new CaseInsensitiveString("name"));
+        p4MaterialConfig.setFolder("folder");
+        p4MaterialConfig.setPassword("password");
+        p4MaterialConfig.setFilter(Filter.create("filter"));
+        p4MaterialConfig.setUserName("user");
+        p4MaterialConfig.setUseTickets(false);
+        p4MaterialConfig.setAutoUpdate(false);
+
+        CRP4Material crp4Material =
+                (CRP4Material) configConverter.materialToCRMaterial(p4MaterialConfig);
+
+        assertThat(crp4Material.getName(), is("name"));
+        assertThat(crp4Material.getDirectory(), is("folder"));
+        assertThat(crp4Material.isAutoUpdate(), is(false));
+        assertThat(crp4Material.getFilterList(), hasItem("filter"));
+        assertThat(crp4Material.getServerAndPort(), is("server:port"));
+        assertThat(crp4Material.getUserName(), is("user"));
+        assertThat(crp4Material.getUseTickets(), is(false));
+        assertThat(crp4Material.getView(), is("view"));
+    }
+
+    @Test
+    public void shouldConvertSvmMaterialConfigWhenEncryptedPassword() {
+        SvnMaterialConfig svnMaterialConfig = new SvnMaterialConfig("url", true);
+        svnMaterialConfig.setName(new CaseInsensitiveString("name"));
+        svnMaterialConfig.setEncryptedPassword("encryptedvalue");
+        svnMaterialConfig.setFolder("folder");
+        svnMaterialConfig.setFilter(Filter.create("filter"));
+        svnMaterialConfig.setUserName("username");
+
+        CRSvnMaterial crSvnMaterial =
+                (CRSvnMaterial) configConverter.materialToCRMaterial(svnMaterialConfig);
+
+        assertThat(crSvnMaterial.getName(), is("name"));
+        assertThat(crSvnMaterial.getDirectory(), is("folder"));
+        assertThat(crSvnMaterial.isAutoUpdate(), is(true));
+        assertThat(crSvnMaterial.getFilterList(), hasItem("filter"));
+        assertThat(crSvnMaterial.getUrl(), is("url"));
+        assertThat(crSvnMaterial.getUserName(), is("username"));
+        assertThat(crSvnMaterial.getEncryptedPassword(), is("encryptedvalue"));
+        assertNull(crSvnMaterial.getPassword());
+        assertThat(crSvnMaterial.isCheckExternals(), is(true));
+    }
+
+    @Test
+    public void shouldConvertSvmMaterialConfigWhenPlainPassword() {
+        SvnMaterialConfig svnMaterialConfig = new SvnMaterialConfig("url", true);
+        svnMaterialConfig.setName(new CaseInsensitiveString("name"));
+        svnMaterialConfig.setPassword("pass");
+        svnMaterialConfig.setFolder("folder");
+        svnMaterialConfig.setFilter(Filter.create("filter"));
+        svnMaterialConfig.setUserName("username");
+
+        CRSvnMaterial crSvnMaterial =
+                (CRSvnMaterial) configConverter.materialToCRMaterial(svnMaterialConfig);
+
+        assertThat(crSvnMaterial.getName(), is("name"));
+        assertThat(crSvnMaterial.getDirectory(), is("folder"));
+        assertThat(crSvnMaterial.isAutoUpdate(), is(true));
+        assertThat(crSvnMaterial.getFilterList(), hasItem("filter"));
+        assertThat(crSvnMaterial.getUrl(), is("url"));
+        assertThat(crSvnMaterial.getUserName(), is("username"));
+        assertNull(crSvnMaterial.getPassword());
+        assertThat(crSvnMaterial.isCheckExternals(), is(true));
+    }
+
+    @Test
+    public void shouldConvertTfsMaterialConfigWhenPlainPassword() {
+        TfsMaterialConfig tfsMaterialConfig = new TfsMaterialConfig();
+        tfsMaterialConfig.setUrl("url");
+        tfsMaterialConfig.setDomain("domain");
+        tfsMaterialConfig.setProjectPath("project");
+        tfsMaterialConfig.setName(new CaseInsensitiveString("name"));
+        tfsMaterialConfig.setPassword("pass");
+        tfsMaterialConfig.setFolder("folder");
+        tfsMaterialConfig.setAutoUpdate(false);
+        tfsMaterialConfig.setFilter(Filter.create("filter"));
+        tfsMaterialConfig.setUserName("user");
+
+        CRTfsMaterial crTfsMaterial =
+                (CRTfsMaterial) configConverter.materialToCRMaterial(tfsMaterialConfig);
+
+        assertThat(crTfsMaterial.getName(), is("name"));
+        assertThat(crTfsMaterial.getDirectory(), is("folder"));
+        assertThat(crTfsMaterial.isAutoUpdate(), is(false));
+        assertThat(crTfsMaterial.getFilterList(), hasItem("filter"));
+        assertThat(crTfsMaterial.getUrl(), is("url"));
+        assertThat(crTfsMaterial.getUserName(), is("user"));
+        assertNull(crTfsMaterial.getPassword());
+        assertThat(crTfsMaterial.getDomain(), is("domain"));
+        assertThat(crTfsMaterial.getProjectPath(), is("project"));
+    }
+
+    @Test
+    public void shouldConvertTfsMaterialConfigWhenEncryptedPassword() {
+        TfsMaterialConfig tfsMaterialConfig = new TfsMaterialConfig();
+        tfsMaterialConfig.setUrl("url");
+        tfsMaterialConfig.setDomain("domain");
+        tfsMaterialConfig.setProjectPath("project");
+        tfsMaterialConfig.setName(new CaseInsensitiveString("name"));
+        tfsMaterialConfig.setEncryptedPassword("encryptedvalue");
+        tfsMaterialConfig.setFolder("folder");
+        tfsMaterialConfig.setAutoUpdate(false);
+        tfsMaterialConfig.setFilter(Filter.create("filter"));
+        tfsMaterialConfig.setUserName("user");
+
+        CRTfsMaterial crTfsMaterial =
+                (CRTfsMaterial) configConverter.materialToCRMaterial(tfsMaterialConfig);
+
+        assertThat(crTfsMaterial.getName(), is("name"));
+        assertThat(crTfsMaterial.getDirectory(), is("folder"));
+        assertThat(crTfsMaterial.isAutoUpdate(), is(false));
+        assertThat(crTfsMaterial.getFilterList(), hasItem("filter"));
+        assertThat(crTfsMaterial.getUrl(), is("url"));
+        assertThat(crTfsMaterial.getUserName(), is("user"));
+        assertThat(crTfsMaterial.getEncryptedPassword(), is("encryptedvalue"));
+        assertNull(crTfsMaterial.getPassword());
+        assertThat(crTfsMaterial.getDomain(), is("domain"));
+        assertThat(crTfsMaterial.getProjectPath(), is("project"));
+    }
+
+    @Test
+    public void shouldConvertPluggableScmMaterialConfig() {
+        SCM myscm = new SCM("scmid", new PluginConfiguration(), new Configuration());
+        SCMs scms = new SCMs(myscm);
+
+        BasicCruiseConfig cruiseConfig = new BasicCruiseConfig();
+        cruiseConfig.setSCMs(scms);
+        when(cachedGoConfig.currentConfig()).thenReturn(cruiseConfig);
+
+        PluggableSCMMaterialConfig pluggableSCMMaterialConfig = new PluggableSCMMaterialConfig(new CaseInsensitiveString("name"), myscm, "directory",  Filter.create("filter"));
+
+        CRPluggableScmMaterial crPluggableScmMaterial =
+                (CRPluggableScmMaterial) configConverter.materialToCRMaterial(pluggableSCMMaterialConfig);
+
+        assertThat(crPluggableScmMaterial.getName(), is("name"));
+        assertThat(crPluggableScmMaterial.getScmId(), is("scmid"));
+        assertThat(crPluggableScmMaterial.getDirectory(), is("directory"));
+        assertThat(crPluggableScmMaterial.getFilterList(), hasItem("filter"));
+    }
+
+    @Test
+    public void shouldConvertPackageMaterialConfig() {
+        PackageRepositories repositories = new PackageRepositories();
+        PackageRepository packageRepository = new PackageRepository();
+        PackageDefinition definition = new PackageDefinition("package-id", "n", new Configuration());
+        packageRepository.addPackage(definition);
+        repositories.add(packageRepository);
+
+        BasicCruiseConfig cruiseConfig = new BasicCruiseConfig();
+        cruiseConfig.setPackageRepositories(repositories);
+        when(cachedGoConfig.currentConfig()).thenReturn(cruiseConfig);
+
+        PackageMaterialConfig packageMaterialConfig = new PackageMaterialConfig(new CaseInsensitiveString("name"), "package-id", definition);
+
+        CRPackageMaterial crPackageMaterial =
+                (CRPackageMaterial) configConverter.materialToCRMaterial(packageMaterialConfig);
+
+        assertThat(crPackageMaterial.getName(), is("name"));
+        assertThat(crPackageMaterial.getPackageId(), is("package-id"));
+    }
+
+    @Test
+    public void shouldConvertEnvironmentVariableConfigWhenNotSecure() {
+        EnvironmentVariableConfig environmentVariableConfig = new EnvironmentVariableConfig("key1", "value");
+        CREnvironmentVariable result = configConverter.environmentVariableConfigToCREnvironmentVariable(environmentVariableConfig);
+        assertThat(result.getValue(), is("value"));
+        assertThat(result.getName(), is("key1"));
+        assertThat(result.hasEncryptedValue(), is(false));
+    }
+
+    @Test
+    public void shouldConvertNullEnvironmentVariableConfigWhenNotSecure() {
+        EnvironmentVariableConfig environmentVariableConfig = new EnvironmentVariableConfig("key1", null);
+        CREnvironmentVariable result = configConverter.environmentVariableConfigToCREnvironmentVariable(environmentVariableConfig);
+        assertThat(result.getValue(), is(""));
+        assertThat(result.getName(), is("key1"));
+        assertThat(result.hasEncryptedValue(), is(false));
+    }
+
+    @Test
+    public void shouldConvertEnvironmentVariableConfigWhenSecure() {
+        EnvironmentVariableConfig environmentVariableConfig = new EnvironmentVariableConfig("key1", null);
+        environmentVariableConfig.setIsSecure(true);
+        environmentVariableConfig.setEncryptedValue("encryptedvalue");
+        CREnvironmentVariable result = configConverter.environmentVariableConfigToCREnvironmentVariable(environmentVariableConfig);
+        assertThat(result.hasEncryptedValue(), is(true));
+        assertThat(result.getEncryptedValue(), is("encryptedvalue"));
+        assertNull(result.getValue());
+        assertThat(result.getName(), is("key1"));
+    }
+
+    @Test
+    public void shouldMigratePluggableTasktoCR() {
+        ArrayList<CRConfigurationProperty> configs = new ArrayList<>();
+        configs.add(new CRConfigurationProperty("k", "m", null));
+
+        ConfigurationProperty prop = new ConfigurationProperty(new ConfigurationKey("k"), new ConfigurationValue("m"));
+        Configuration config = new Configuration(prop);
+
+        PluggableTask pluggableTask = new PluggableTask(
+                new PluginConfiguration("myplugin", "1"),
+                config);
+        pluggableTask.setConditions(new RunIfConfigs(RunIfConfig.ANY));
+
+        CRPluggableTask result = (CRPluggableTask) configConverter.taskToCRTask(pluggableTask);
+
+        assertThat(result.getPluginConfiguration().getId(), is("myplugin"));
+        assertThat(result.getPluginConfiguration().getVersion(), is("1"));
+        assertThat(result.getConfiguration(), hasItem(new CRConfigurationProperty("k", "m", null)));
+        assertThat(result.getRunIf(), is(CRRunIf.any));
+    }
+
+    @Test
+    public void shouldMigrateRakeTaskToCR() {
+        RakeTask rakeTask = new RakeTask();
+        rakeTask.setBuildFile("Rakefile.rb");
+        rakeTask.setWorkingDirectory("src");
+        rakeTask.setTarget("build");
+        rakeTask.setConditions(new RunIfConfigs(RunIfConfig.FAILED));
+
+        CRBuildTask result = (CRBuildTask) configConverter.taskToCRTask(rakeTask);
+
+        assertThat(result.getType(), is(CRBuildFramework.rake));
+        assertThat(result.getBuildFile(), is("Rakefile.rb"));
+        assertThat(result.getTarget(), is("build"));
+        assertThat(result.getWorkingDirectory(), is("src"));
+        assertThat(result.getRunIf(), is(CRRunIf.failed));
+    }
+
+    @Test
+    public void shouldMigrateAntTaskToCR() {
+        RakeTask rakeTask = new RakeTask();
+        rakeTask.setBuildFile("Rakefile.rb");
+        rakeTask.setWorkingDirectory("src");
+        rakeTask.setTarget("build");
+        rakeTask.setConditions(new RunIfConfigs(RunIfConfig.FAILED));
+
+        AntTask antTask = new AntTask();
+        antTask.setBuildFile("ant");
+        antTask.setWorkingDirectory("src");
+        antTask.setTarget("build");
+        antTask.setOnCancelConfig(new OnCancelConfig(rakeTask));
+        antTask.setConditions(new RunIfConfigs(RunIfConfig.FAILED));
+
+        CRBuildTask result = (CRBuildTask) configConverter.taskToCRTask(antTask);
+        CRBuildTask onCancel = (CRBuildTask) result.getOnCancel();
+
+        assertThat(result.getRunIf(), is(CRRunIf.failed));
+        assertThat(result.getBuildFile(), is("ant"));
+        assertThat(result.getTarget(), is("build"));
+        assertThat(result.getWorkingDirectory(), is("src"));
+        assertThat(onCancel.getType(), is(CRBuildFramework.rake));
+        assertThat(onCancel.getBuildFile(), is("Rakefile.rb"));
+        assertThat(onCancel.getTarget(), is("build"));
+        assertThat(onCancel.getWorkingDirectory(), is("src"));
+        assertThat(onCancel.getRunIf(), is(CRRunIf.failed));
+    }
+
+    @Test
+    public void shouldMigrateNantTaskToCR() {
+        NantTask nantTask = new NantTask();
+        nantTask.setBuildFile("nant");
+        nantTask.setWorkingDirectory("src");
+        nantTask.setTarget("build");
+        nantTask.setNantPath("path");
+        nantTask.setConditions(new RunIfConfigs(RunIfConfig.PASSED));
+
+        CRNantTask result = (CRNantTask) configConverter.taskToCRTask(nantTask);
+
+        assertThat(result.getRunIf(), is(CRRunIf.passed));
+        assertThat(result.getBuildFile(), is("nant"));
+        assertThat(result.getTarget(), is("build"));
+        assertThat(result.getWorkingDirectory(), is("src"));
+        assertThat(result.getNantPath(), is("path"));
+    }
+
+    @Test
+    public void shouldConvertExecTaskWhenCancelIsNotSpecifiedToCR() {
+        ExecTask execTask = new ExecTask("bash",
+                new Arguments(new Argument("1"), new Argument("2")),
+                "work");
+        execTask.setConditions(new RunIfConfigs(RunIfConfig.FAILED));
+        execTask.setTimeout(120L);
+        CRExecTask result = (CRExecTask) configConverter.taskToCRTask(execTask);
+
+        assertThat(result.getRunIf(), is(CRRunIf.failed));
+        assertThat(result.getCommand(), is("bash"));
+        assertThat(result.getArgs(), hasItem("1"));
+        assertThat(result.getArgs(), hasItem("2"));
+        assertThat(result.getWorkingDirectory(), is("work"));
+        assertThat(result.getTimeout(), is(120L));
+        assertNull(result.getOnCancel());
+    }
+
+    @Test
+    public void shouldConvertExecTaskWhenCancelIsSpecifiedToCR() {
+        ExecTask onCancel = new ExecTask();
+        onCancel.setCommand("kill");
+        ExecTask execTask = new ExecTask("bash",
+                new Arguments(new Argument("1"), new Argument("2")),
+                "work");
+        execTask.setOnCancelConfig(new OnCancelConfig(onCancel));
+        execTask.setConditions(new RunIfConfigs(RunIfConfig.FAILED));
+        execTask.setTimeout(120L);
+
+        CRExecTask result = (CRExecTask) configConverter.taskToCRTask(execTask);
+        CRExecTask crOnCancel = (CRExecTask) result.getOnCancel();
+
+        assertThat(result.getRunIf(), is(CRRunIf.failed));
+        assertThat(result.getCommand(), is("bash"));
+        assertThat(result.getArgs(), hasItem("1"));
+        assertThat(result.getArgs(), hasItem("2"));
+        assertThat(result.getWorkingDirectory(), is("work"));
+        assertThat(result.getTimeout(), is(120L));
+        assertThat(crOnCancel.getCommand(), is("kill"));
+    }
+
+    @Test
+    public void shouldConvertFetchArtifactTaskWhenSourceIsDirectoryToCR() {
+        FetchTask fetchTask = new FetchTask(
+               new CaseInsensitiveString("upstream"),
+               new CaseInsensitiveString("stage"),
+               new CaseInsensitiveString("job"),
+               "",
+               "dest"
+        );
+        fetchTask.setSrcdir("src");
+        fetchTask.setConditions(new RunIfConfigs(RunIfConfig.FAILED));
+
+        CRFetchArtifactTask result = (CRFetchArtifactTask) configConverter.taskToCRTask(fetchTask);
+
+        assertThat(result.getRunIf(), is(CRRunIf.failed));
+        assertThat(result.getDestination(), is("dest"));
+        assertThat(result.getJob(), is("job"));
+        assertThat(result.getPipelineName(), is("upstream"));
+        assertThat(result.getSource(), is("src"));
+        assertThat(result.sourceIsDirectory(), is(true));
+    }
+
+    @Test
+    public void shouldConvertFetchArtifactTaskWhenSourceIsFileToCR() {
+        FetchTask fetchTask = new FetchTask(
+                new CaseInsensitiveString("upstream"),
+                new CaseInsensitiveString("stage"),
+                new CaseInsensitiveString("job"),
+                "src",
+                "dest"
+        );
+        fetchTask.setConditions(new RunIfConfigs(RunIfConfig.FAILED));
+
+        CRFetchArtifactTask result = (CRFetchArtifactTask) configConverter.taskToCRTask(fetchTask);
+
+        assertThat(result.getRunIf(), is(CRRunIf.failed));
+        assertThat(result.getDestination(), is("dest"));
+        assertThat(result.getJob(), is("job"));
+        assertThat(result.getPipelineName(), is("upstream"));
+        assertThat(result.getSource(), is("src"));
+        assertThat(result.sourceIsDirectory(), is(false));
+    }
+
+    @Test
+    public void shouldConvertFetchPluggableArtifactTaskToCRFetchPluggableArtifactTask() {
+        FetchPluggableArtifactTask fetchPluggableArtifactTask = new FetchPluggableArtifactTask(
+        new CaseInsensitiveString("upstream"),
+                new CaseInsensitiveString("stage"),
+                new CaseInsensitiveString("job"),
+                "artifactId");
+        fetchPluggableArtifactTask.setConditions(new RunIfConfigs(RunIfConfig.PASSED));
+
+        CRFetchPluggableArtifactTask result = (CRFetchPluggableArtifactTask) configConverter.taskToCRTask(fetchPluggableArtifactTask);
+
+        assertThat(result.getRunIf(), is(CRRunIf.passed));
+        assertThat(result.getJob(), is("job"));
+        assertThat(result.getPipelineName(), is("upstream"));
+        assertThat(result.getStage(), is("stage"));
+        assertThat(result.getArtifactId(), is("artifactId"));
+        assertThat(result.getConfiguration().isEmpty(), is(true));
     }
 }

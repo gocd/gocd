@@ -1,4 +1,5 @@
 {
+  "compileOnSave": true,
   "compilerOptions": {
     "outDir": "./tmp/typescript-out/",
     "lib": [
@@ -13,17 +14,18 @@
     "target": "es5",
     "jsx": "react",
     "jsxFactory": "m",
-    "allowJs": true
+    "allowJs": false
   },
   "include": [
     "webpack/**/*.ts",
     "webpack/**/*.tsx"
   ],
   "awesomeTypescriptLoaderOptions": {
-    "useBabel": true,
+    "useBabel": false,
     "useCache": true,
+    "errorsAsWarnings": false,
     "reportFiles": [
-      "webpack/**/*.{ts,tsx}"
+      "**/*.{ts,tsx}"
     ],
     "cacheDirectory": "tmp/awesome-ts-cache"
   }

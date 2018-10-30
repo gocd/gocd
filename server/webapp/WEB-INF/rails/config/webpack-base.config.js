@@ -101,8 +101,7 @@ module.exports = function (env) {
               {
                 loader:  'awesome-typescript-loader',
                 options: {
-                  configFile:  path.join(__dirname, '..', 'tsconfig.json'),
-                  reportFiles: path.join(assetsDir, '**/*.{ts,tsx}')
+                  configFile:  path.join(__dirname, '..', 'tsconfig.json')
                 }
               },
 

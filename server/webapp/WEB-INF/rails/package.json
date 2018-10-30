@@ -9,7 +9,8 @@
     "jasmine-ci": "karma start --single-run",
     "karma": "karma start",
     "eslint": "eslint --color --ext .js --ext .msx --format stylish webpack/ spec/webpack/ --ignore-pattern gen/",
-    "eslintold": "eslint --no-eslintrc --config .eslintrc-old.json --color --ext .js  --format stylish app/assets/javascripts/ spec/javascripts/"
+    "eslintold": "eslint --no-eslintrc --config .eslintrc-old.json --color --ext .js  --format stylish app/assets/javascripts/ spec/javascripts/",
+    "tslint": "tslint --format stylish webpack/**/*.{ts,tsx}"
   },
   "sasslintConfig": ".webpack-sass-lintrc.json",
   "dependencies": {

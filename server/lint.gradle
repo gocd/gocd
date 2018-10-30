@@ -57,7 +57,19 @@ task eslint(type: YarnRunTask) {
   source(project.file("${project.railsRoot}/spec/webpack"))
 }
 
+task tslint(type: YarnRunTask) {
+  description "Run TSLint"
+  dependsOn 'yarnInstall'
+
+  workingDir = project.railsRoot
+
+  yarnCommand = ['tslint']
+  source(project.file("${project.railsRoot}/webpack"))
+  source(project.file("${project.railsRoot}/spec/webpack"))
+  source(project.file("${project.railsRoot}/tslint.json"))
+}
+
 task lint {
   description 'Run all lint tools'
-  dependsOn eslintold, scssLint, eslint
+  dependsOn eslintold, scssLint, eslint, tslint
 }

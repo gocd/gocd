@@ -311,7 +311,7 @@ describe('Elastic Agent Profile', () => {
 
         ElasticProfiles.Profile.get(profileJSON['id']).then(_.noop, failureCallback);
 
-        expect(failureCallback).toHaveBeenCalledWith('Boom!');
+        expect(failureCallback.calls.argsFor(0)[0]).toBe('Boom!');
 
         expect(jasmine.Ajax.requests.count()).toBe(1);
         const request = jasmine.Ajax.requests.mostRecent();

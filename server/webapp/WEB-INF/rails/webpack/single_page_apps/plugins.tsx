@@ -14,17 +14,21 @@
  * limitations under the License.
  */
 
-//fixme: this is the mount page which renders either old-plugins page or components-based plugins page based on the toggle
+//fixme: this page which renders either old-plugins page or components-based plugins page based on the toggle
 
 import Page from "../helpers/spa_base";
 import {PluginsPage} from "../views/pages/plugins";
 
-const $             = require('jquery');
-const m             = require('mithril');
-const Stream        = require('mithril/stream');
+import * as $ from "jquery";
+import * as m from "mithril";
+
+//tslint:disable
+const stream        = require('mithril/stream');
 const PluginsWidget = require('views/plugins/plugins_widget');
 const PluginInfos   = require('models/shared/plugin_infos');
 const PageLoadError = require('views/shared/page_load_error');
+
+//tslint:enable
 
 export class PluginsSPA extends Page {
   constructor() {
@@ -45,7 +49,7 @@ $(() => {
   const onSuccess = (pluginInfos: any) => {
     const component = {
       view() {
-        return (<PluginsWidget pluginInfos={Stream(pluginInfos)} isUserAnAdmin={Stream(isUserAnAdmin === 'true')}/>);
+        return (<PluginsWidget pluginInfos={stream(pluginInfos)} isUserAnAdmin={stream(isUserAnAdmin === 'true')}/>);
       }
     };
 
@@ -61,5 +65,5 @@ $(() => {
     m.mount($("#plugins").get(0), component);
   };
 
-  PluginInfos.all(null, {'include_bad': true}).then(onSuccess, onFailure);
+  PluginInfos.all(null, {include_bad: true}).then(onSuccess, onFailure);
 });

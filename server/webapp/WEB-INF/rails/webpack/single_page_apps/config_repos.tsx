@@ -23,4 +23,5 @@ export class ConfigReposSPA extends Page {
   }
 }
 
+//tslint:disable-next-line
 new ConfigReposSPA();

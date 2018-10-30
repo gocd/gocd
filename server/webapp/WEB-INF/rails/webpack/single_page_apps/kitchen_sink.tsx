@@ -23,4 +23,5 @@ export class KitchenSinkSPA extends Page {
   }
 }
 
+//tslint:disable-next-line
 new KitchenSinkSPA();

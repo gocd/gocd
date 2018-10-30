@@ -21,8 +21,8 @@ import {UsageDataReporter} from "../models/shared/usage_data_reporter";
 
 import {MithrilViewComponent} from "../jsx/mithril-component";
 import {ModalManager} from "../views/components/modal/modal_manager";
-import {Attrs as SiteHeaderAttrs, SiteHeader} from "../views/pages/partials/site_header";
 import {Attrs as SiteFooterAttrs, SiteFooter} from "../views/pages/partials/site_footer";
+import {Attrs as SiteHeaderAttrs, SiteHeader} from "../views/pages/partials/site_header";
 
 interface Attrs {
   headerData: SiteHeaderAttrs;
@@ -62,7 +62,7 @@ export default abstract class Page {
 
   extractBoolean(body: Element, attribute: string): boolean {
     return JSON.parse(body.getAttribute(attribute) as string);
-  };
+  }
 
   private render() {
     const page = this;
@@ -70,7 +70,7 @@ export default abstract class Page {
       UsageDataReporter.report();
 
       const body: Element = document.querySelector('body') as Element;
-      let mountPoint      = document.createElement('div');
+      const mountPoint      = document.createElement('div');
       body.appendChild(mountPoint);
 
       const copyrightYear    = body.getAttribute('data-version-copyright-year') as string;
@@ -109,7 +109,6 @@ export default abstract class Page {
           );
         }
       });
-    })
+    });
   }
 }
-

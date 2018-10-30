@@ -14,11 +14,12 @@
  * limitations under the License.
  */
 
-import * as m from 'mithril'
+import * as m from 'mithril';
 
 export abstract class MithrilComponent<Attrs, State> implements m.Component<Attrs, State> {
   // Required for type checking JSX attributes
   // @ts-ignore: unused
+  // tslint:disable-next-line
   private __tsx_attrs: Attrs & m.Lifecycle<Attrs, State> & { key?: string | number };
 
   // Copy of m.Component<A>.view required by TS
@@ -28,6 +29,7 @@ export abstract class MithrilComponent<Attrs, State> implements m.Component<Attr
 export abstract class MithrilViewComponent<Attrs> implements m.ClassComponent<Attrs> {
   // Required for type checking JSX attributes
   // @ts-ignore: unused
+  // tslint:disable-next-line
   private __tsx_attrs: Attrs & m.Lifecycle<Attrs, this> & { key?: string | number };
 
   // Copy of m.ClassComponent<A>.view required by TS
@@ -36,7 +38,7 @@ export abstract class MithrilViewComponent<Attrs> implements m.ClassComponent<At
 
 // Set up type checks
 declare global {
-  module JSX {
+  namespace JSX {
     // Return type for elements
     interface Element extends m.Vnode<any, any> {
 
@@ -44,12 +46,12 @@ declare global {
 
     // Element names allowed – with attributes allowed
     interface IntrinsicElements {
-      [elementName: string]: any
+      [elementName: string]: any;
     }
 
     // Where to look for component type information
     interface ElementAttributesProperty {
-      __tsx_attrs: any
+      __tsx_attrs: any;
     }
   }
 

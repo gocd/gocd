@@ -54,7 +54,7 @@ task verifyJar(type: VerifyJarTask) {
           "commons-lang3-${project.versions.commonsLang3}.jar",
           "commons-codec-${project.versions.commonsCodec}.jar",
           "httpclient-${project.versions.apacheHttpComponents}.jar",
-          "httpcore-4.4.9.jar",
+          "httpcore-4.4.10.jar",
           "jcl-over-slf4j-${project.versions.slf4j}.jar",
           "jcommander-${project.versions.jcommander}.jar",
           "joda-time-${project.versions.jodaTime}.jar",

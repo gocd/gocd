@@ -48,7 +48,6 @@ dependencies {
   copyOnly project(path: ':agent-launcher', configuration: 'fatJarConfig')
   copyOnly project(path: ':test:test-agent')
   copyOnly project(path: ':tfs-impl:tfs-impl-14', configuration: 'fatJarConfig')
-  compile group: 'cglib', name: 'cglib-nodep', version: '2.2'
 }
 
 def generatedResourcesOutput = file("resources-generated")

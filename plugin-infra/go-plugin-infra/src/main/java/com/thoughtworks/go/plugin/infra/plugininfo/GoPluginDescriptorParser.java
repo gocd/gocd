@@ -16,19 +16,15 @@
 
 package com.thoughtworks.go.plugin.infra.plugininfo;
 
+import org.apache.commons.digester3.Digester;
+import org.xml.sax.*;
+
+import javax.xml.XMLConstants;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
-import javax.xml.XMLConstants;
-
-import org.apache.commons.digester.Digester;
-import org.xml.sax.ErrorHandler;
-import org.xml.sax.SAXException;
-import org.xml.sax.SAXNotRecognizedException;
-import org.xml.sax.SAXNotSupportedException;
-import org.xml.sax.SAXParseException;
 
 
 public final class GoPluginDescriptorParser {

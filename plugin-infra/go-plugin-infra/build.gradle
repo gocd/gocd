@@ -22,9 +22,7 @@ dependencies {
   compile project(':plugin-infra:go-plugin-activator')
   compile group: 'org.springframework', name: 'spring-context', version: project.versions.spring
   compile group: 'org.apache.commons', name: 'commons-collections4', version: project.versions.commonsCollections4
-  compile(group: 'commons-digester', name: 'commons-digester', version: '1.8') {
-    exclude(module: 'commons-logging')
-  }
+  compile(group: 'org.apache.commons', name: 'commons-digester3', version: project.versions.commonsDigester3)
   compile group: 'commons-codec', name: 'commons-codec', version: project.versions.commonsCodec
   testCompile group: 'org.mockito', name: 'mockito-core', version: project.versions.mockito
   testCompile group: 'org.hamcrest', name: 'hamcrest-library', version: project.versions.hamcrest

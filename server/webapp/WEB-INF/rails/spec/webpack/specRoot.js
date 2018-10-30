@@ -34,4 +34,4 @@ importAll(require.context('../../webpack/views/components', true, /spec\.(js|msx
 //todo: GaneshSPatil should move new_plugins pages under views/ and delete them from pages
 //adding this instead of moving files to avoid conflicts as many people are working on them at the same time
 
-importAll(require.context('../../webpack/views/pages', true, /spec\.(js|msx|ts|tsx)$/));
+importAll(require.context('../../webpack', true, /spec\.(js|msx|ts|tsx)$/));

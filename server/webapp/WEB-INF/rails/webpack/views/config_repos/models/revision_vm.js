@@ -1,9 +1,9 @@
 const m          = require("mithril");
 const _          = require("lodash");
 const Stream     = require("mithril/stream");
-const ApiHelper  = require("helpers/api_helper");
 const AjaxPoller = require("helpers/ajax_poller");
 
+import ApiHelper   from "helpers/api_helper";
 import SparkRoutes from "helpers/spark_routes";
 
 const apiVersion = "v1";

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-const ApiHelper = require("helpers/api_helper");
+import ApiHelper from "helpers/api_helper";
 
 describe("ApiHelper", () => {
   it("should parse ETag from response", (done) => {

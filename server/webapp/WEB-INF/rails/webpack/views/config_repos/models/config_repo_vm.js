@@ -18,9 +18,10 @@ const Stream      = require("mithril/stream");
 const _           = require("lodash");
 const Materials   = require("models/config_repos/materials");
 const Validatable = require("models/mixins/validatable_mixin");
-const ApiHelper   = require("helpers/api_helper");
 const Routes      = require("gen/js-routes");
 const RevisionVM  = require("views/config_repos/models/revision_vm");
+
+import ApiHelper from "helpers/api_helper";
 
 function ConfigRepoVM(data) {
   this.id             = Stream();

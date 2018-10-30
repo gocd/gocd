@@ -17,7 +17,7 @@
 const _           = require('lodash');
 const m           = require('mithril');
 const Stream      = require('mithril/stream');
-const AjaxHelper  = require('helpers/ajax_helper');
+import AjaxHelper from "helpers/ajax_helper";
 
 import sparkRoutes from "helpers/spark_routes";
 

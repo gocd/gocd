@@ -18,7 +18,7 @@ import * as _ from 'lodash';
 import {DataReporting} from "./data_sharing/data_reporting";
 import {EncryptedData, EncryptionKeys, UsageData} from "./data_sharing/usage_data";
 
-const AjaxHelper = require('helpers/ajax_helper');
+import AjaxHelper from "helpers/ajax_helper";
 
 const USAGE_DATA_LAST_REPORTED_TIME_KEY = "last_usage_data_reporting_check_time";
 

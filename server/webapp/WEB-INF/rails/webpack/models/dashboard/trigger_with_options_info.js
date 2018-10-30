@@ -16,7 +16,7 @@
 
 const _                    = require('lodash');
 const s                    = require('helpers/string-plus');
-const AjaxHelper           = require('helpers/ajax_helper');
+import AjaxHelper from "helpers/ajax_helper";
 const Material             = require('models/dashboard/material');
 const EnvironmentVariables = require('models/dashboard/environment_variables');
 

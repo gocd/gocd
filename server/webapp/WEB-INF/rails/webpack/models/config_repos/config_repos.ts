@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-const Routes    = require("gen/js-routes");
-const Stream    = require("mithril/stream");
+const Routes = require("gen/js-routes");
+const Stream = require("mithril/stream");
 
 import * as types from "mithril/stream";
 import SparkRoutes from "../../helpers/spark_routes";

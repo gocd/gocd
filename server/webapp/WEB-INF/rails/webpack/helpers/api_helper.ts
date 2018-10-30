@@ -14,42 +14,19 @@
  * limitations under the License.
  */
 
-const AjaxHelper = require("helpers/ajax_helper");
 const parseError = require("helpers/mrequest").unwrapErrorExtractMessage;
 const Dfr        = require("jquery").Deferred;
 
+import AjaxHelper, { RequestConfig, AjaxPromiseLike, AjaxResolver, AjaxRejector } from "../helpers/ajax_helper";
 import "jquery";
 
-interface RequestConfig {
-  url: string,
-  apiVersion: string,
-  type?: any,
-  timeout?: number,
-  payload?: any,
-  etag?: string | null | undefined,
-  contentType?: boolean | string | undefined,
-}
-
 type xhr = JQuery.jqXHR<any>;
-type AjaxTypedResolver = (data: any, xhr: xhr) => any;
-type AjaxUntypedResolver = (data: any, status: string, xhr: xhr) => any;
-
-type AjaxResolver = AjaxTypedResolver | AjaxUntypedResolver;
-type AjaxRejector = (xhr: xhr, errorText?: string, errorThrown?: any) => any;
-
-// JQuery.Promise is super complex, and perhaps not specific
-// enough (or, at least, we could not figure out how to make it
-// specify the exact parameters for reject/resolve)
-interface AjaxPromiseLike {
-  then: (resolve: AjaxResolver, reject?: AjaxRejector) => any,
-  always: () => any
-}
-
 type AjaxPromiser = () => AjaxPromiseLike;
 
-type ApiResolver = ((d: any) => any) |
-  ((d: any, etag: string) => any) |
-  ((d: any, etag: string, status: number) => any);
+type ApiResolver = ((data: object) => any) |
+  ((data: object, etag: string) => any) |
+  ((data: object, etag: string, status: number) => any);
+
 type ApiRejector = ((errorMessage: string) => any) | ((errorMessage: string, status: number) => any);
 
 interface ApiPromiseLike {
@@ -81,8 +58,6 @@ class ApiHelper {
   static DELETE: ApiCRUDMethod = (config: RequestConfig) => req(() => AjaxHelper.DELETE(config), config);
 };
 
-export {
-  ApiPromiseLike
-};
+export { RequestConfig, ApiPromiseLike, ApiResolver, ApiRejector };
 
 export default ApiHelper;

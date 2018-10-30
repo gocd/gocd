@@ -16,7 +16,7 @@
 
 const _          = require('lodash');
 const Stream     = require('mithril/stream');
-const AjaxHelper = require('helpers/ajax_helper');
+import AjaxHelper from "helpers/ajax_helper";
 const Routes     = require('gen/js-routes');
 
 const DashboardGroups = require('models/dashboard/dashboard_groups');

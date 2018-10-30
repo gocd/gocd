@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-const AjaxHelper = require('helpers/ajax_helper');
+import AjaxHelper from "helpers/ajax_helper";
 const Stream = require('mithril/stream');
 
 const DataSharingNotificationPermission = function (permission) {

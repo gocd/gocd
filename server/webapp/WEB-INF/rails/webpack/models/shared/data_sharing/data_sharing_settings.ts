@@ -18,7 +18,7 @@ import SparkRoutes from "helpers/spark_routes";
 import {Stream} from 'mithril/stream';
 
 const stream        = require('mithril/stream');
-const AjaxHelper    = require('helpers/ajax_helper');
+import AjaxHelper from "helpers/ajax_helper";
 const TimeFormatter = require('helpers/time_formatter');
 
 interface DataSharingInfo {

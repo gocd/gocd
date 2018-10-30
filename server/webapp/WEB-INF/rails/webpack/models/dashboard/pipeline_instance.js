@@ -18,7 +18,7 @@ import sparkRoutes from "helpers/spark_routes";
 
 const _                = require('lodash');
 const Routes           = require('gen/js-routes');
-const AjaxHelper       = require('helpers/ajax_helper');
+import AjaxHelper from "helpers/ajax_helper";
 const MaterialRevision = require('models/dashboard/material_revision');
 
 const StageInstance = function (json, pipelineName, pipelineCounter) {

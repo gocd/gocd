@@ -16,7 +16,7 @@
 
 import SparkRoutes from 'helpers/spark_routes';
 
-const AjaxHelper = require('helpers/ajax_helper');
+import AjaxHelper from "helpers/ajax_helper";
 
 export interface EncryptionKeys {
   signature: string;

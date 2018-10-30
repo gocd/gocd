@@ -1,5 +1,5 @@
 /*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -48,13 +48,19 @@ import static org.mockito.Mockito.*;
         "classpath:WEB-INF/applicationContext-dataLocalAccess.xml",
         "classpath:testPropertyConfigurer.xml"
 })
-public class JobStatusListenerTest  {
-    @Autowired private StageService stageService;
-	@Autowired private DatabaseAccessHelper dbHelper;
-	@Autowired private ScheduleHelper scheduleHelper;
-	@Autowired private GoConfigDao goConfigDao;
-	@Autowired private GoCache goCache;
-    @Autowired private ElasticAgentPluginService elasticAgentPluginService;
+public class JobStatusListenerTest {
+    @Autowired
+    private StageService stageService;
+    @Autowired
+    private DatabaseAccessHelper dbHelper;
+    @Autowired
+    private ScheduleHelper scheduleHelper;
+    @Autowired
+    private GoConfigDao goConfigDao;
+    @Autowired
+    private GoCache goCache;
+    @Autowired
+    private ElasticAgentPluginService elasticAgentPluginService;
 
     private static final String PIPELINE_NAME = "mingle";
     private static final String STAGE_NAME = "dev";
@@ -94,20 +100,26 @@ public class JobStatusListenerTest  {
 
     @Test
     public void shouldSendStageCompletedMessage() {
+        final ElasticAgentPluginService spyOfElasticAgentPluginService = spy(this.elasticAgentPluginService);
         dbHelper.pass(savedPipeline);
-        listener = new JobStatusListener(new JobStatusTopic(null), stageService, stageStatusTopic, elasticAgentPluginService);
+        listener = new JobStatusListener(new JobStatusTopic(null), stageService, stageStatusTopic, spyOfElasticAgentPluginService);
         final StageStatusMessage stagePassed = new StageStatusMessage(jobIdentifier.getStageIdentifier(), StageState.Passed, StageResult.Passed);
 
         listener.onMessage(new JobStatusMessage(jobIdentifier, JobState.Completed, AGENT1.getUuid()));
         verify(stageStatusTopic).post(stagePassed);
+        verify(spyOfElasticAgentPluginService).jobCompleted(any(JobInstance.class));
     }
 
     @Test
     public void shouldNotSendStageCompletedMessage() {
+        final ElasticAgentPluginService spyOfElasticAgentPluginService = spy(this.elasticAgentPluginService);
         dbHelper.pass(savedPipeline);
-        listener = new JobStatusListener(new JobStatusTopic(null), stageService, stageStatusTopic, elasticAgentPluginService);
 
-        listener.onMessage(new JobStatusMessage(jobIdentifier, JobState.Completed, AGENT1.getUuid()));
+        listener = new JobStatusListener(new JobStatusTopic(null), stageService, stageStatusTopic, spyOfElasticAgentPluginService);
+
+        listener.onMessage(new JobStatusMessage(jobIdentifier, JobState.Building, AGENT1.getUuid()));
+
         verify(stageStatusTopic, never()).post(any(StageStatusMessage.class));
+        verify(spyOfElasticAgentPluginService, never()).jobCompleted(any(JobInstance.class));
     }
 }

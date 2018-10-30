@@ -207,16 +207,18 @@ public class ElasticAgentPluginService {
     }
 
     public void jobCompleted(JobInstance job) {
+        AgentInstance agentInstance = agentService.findAgent(job.getAgentUuid());
+        if (!agentInstance.isElastic()) {
+            LOGGER.debug("Agent {} is not elastic. Skipping further execution.", agentInstance.getUuid());
+            return;
+        }
+
         if (job.isAssignedToAgent()) {
             jobCreationTimeMap.remove(job.getId());
         }
 
-        AgentInstance agentInstance = agentService.findAgent(job.getAgentUuid());
-        if (agentInstance.isElastic()) {
-            String pluginId = agentInstance.elasticAgentMetadata().elasticPluginId();
-            String elasticAgentId = agentInstance.elasticAgentMetadata().elasticAgentId();
-
-            elasticAgentPluginRegistry.reportJobCompletion(pluginId, elasticAgentId, job.getIdentifier());
-        }
+        String pluginId = agentInstance.elasticAgentMetadata().elasticPluginId();
+        String elasticAgentId = agentInstance.elasticAgentMetadata().elasticAgentId();
+        elasticAgentPluginRegistry.reportJobCompletion(pluginId, elasticAgentId, job.getIdentifier());
     }
 }

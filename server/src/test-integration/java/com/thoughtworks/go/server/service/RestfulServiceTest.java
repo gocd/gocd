@@ -137,7 +137,6 @@ public class RestfulServiceTest {
 
         JobIdentifier result = restfulService.findJob(pipeline.getName(), String.valueOf(pipeline.getCounter()), stage.getName(), String.valueOf(stage.getCounter()), job.getName(), job.getId());
         JobIdentifier expect = new JobIdentifier(pipeline, stage, job);
-        expect.setPipelineLabel(null);
         assertThat(result, is(expect));
     }
 
@@ -168,10 +167,7 @@ public class RestfulServiceTest {
         result = restfulService.findJob(pipeline.getName(), String.valueOf(pipeline.getCounter()), stage.getName(),
                 String.valueOf(rerunStage.getCounter()), job.getName(), copiedJobId);
         assertThat(result, is(not(expect)));//since caller knows the buildId, honor it(caller knows what she is doing)
-        StageIdentifier stageIdentifier = rerunStage.getIdentifier();
-        assertThat(result, is(new JobIdentifier(stageIdentifier.getPipelineName(), stageIdentifier.getPipelineCounter(),
-                null, stageIdentifier.getStageName(), stageIdentifier.getStageCounter(), job.getName(),
-                copiedJobId)));
+        assertThat(result, is(new JobIdentifier(rerunStage.getIdentifier(), job.getName(), copiedJobId)));
     }
 
     @Test
@@ -198,7 +194,6 @@ public class RestfulServiceTest {
         JobIdentifier result = restfulService.findJob(pipeline.getName(), pipeline.getCounter().toString(),
                 stage.getName(), String.valueOf(stage.getCounter()), job.getName(), job.getId());
         JobIdentifier expect = new JobIdentifier(pipeline, stage, job);
-        expect.setPipelineLabel(null);
         assertThat(result, is(expect));
     }
 

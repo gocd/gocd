@@ -1634,6 +1634,7 @@ public class ConfigConverterTest {
                "",
                "dest"
         );
+        fetchTask.setSrcdir("src");
         fetchTask.setConditions(new RunIfConfigs(RunIfConfig.FAILED));
 
         CRFetchArtifactTask result = (CRFetchArtifactTask) configConverter.taskToCRTask(fetchTask);
@@ -1642,7 +1643,7 @@ public class ConfigConverterTest {
         assertThat(result.getDestination(), is("dest"));
         assertThat(result.getJob(), is("job"));
         assertThat(result.getPipelineName(), is("upstream"));
-        assertNull(result.getSource());
+        assertThat(result.getSource(), is("src"));
         assertThat(result.sourceIsDirectory(), is(true));
     }
 

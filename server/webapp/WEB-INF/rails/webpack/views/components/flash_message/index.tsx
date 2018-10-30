@@ -18,21 +18,19 @@ import * as m from 'mithril';
 import * as Icons from "../icons";
 import {MithrilComponent} from "../../../jsx/mithril-component";
 
-const Stream = require('mithril/stream');
-
 import * as styles from './index.scss';
 import {bind} from 'classnames/bind';
 
 const classnames = bind(styles);
 
 export interface Attrs {
-  message: string,
-  dismissible?: boolean
+  message: string | undefined | null;
+  dismissible?: boolean;
 }
 
 export interface State {
-  message: any,
-  onDismiss: Function
+  isDismissed: boolean;
+  onDismiss: Function;
 }
 
 class FlashMessage extends MithrilComponent<Attrs, State> {
@@ -44,15 +42,13 @@ class FlashMessage extends MithrilComponent<Attrs, State> {
   }
 
   oninit(vnode: m.Vnode<Attrs, State>) {
-    vnode.state.message   = Stream(vnode.attrs.message);
     vnode.state.onDismiss = function () {
-      vnode.state.message(null);
-      m.redraw();
+      vnode.state.isDismissed = true;
     }
   }
 
   view(vnode: m.Vnode<Attrs, State>) {
-    if (!vnode.state.message()) {
+    if (vnode.state.isDismissed || !vnode.attrs.message) {
       return;
     }
 
@@ -69,7 +65,7 @@ class FlashMessage extends MithrilComponent<Attrs, State> {
 
     return (
       <div className={classnames(this.type, "callout")}>
-        <p>{vnode.state.message()}</p>
+        <p>{vnode.attrs.message}</p>
         {closeButton}
       </div>
     );

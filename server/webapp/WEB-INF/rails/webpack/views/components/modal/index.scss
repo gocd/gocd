@@ -23,7 +23,6 @@ $overlay-border-color: $global-border-color;
 $overlay-header-txt: #fff;
 
 .overlay {
-  display:    none;
   border:     none;
   position:   absolute;
   z-index:    map_get($zindex, 'modal-overlay');
@@ -47,9 +46,19 @@ $overlay-header-txt: #fff;
 
   @media(min-width: $screen-lg) {
     width: 700px;
-
   }
+}
 
+.small {
+  width:     30%;
+}
+
+.medium {
+  width:     50%;
+}
+
+.large {
+  width:     90%;
 }
 
 .overlay-header {
@@ -96,8 +105,10 @@ $overlay-header-txt: #fff;
 
   }
   @media(min-width: $screen-md) {
-    min-height: $overlay-height;
-    max-height: 730px;
+    //TODO Fix this
+    height: $overlay-height;
+    //min-height: $overlay-height;
+    //max-height: 730px;
   }
 
 }

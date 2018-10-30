@@ -20,15 +20,22 @@ import * as _ from 'lodash';
 import * as styles from './index.scss';
 import {ModalManager} from "./modal_manager";
 import * as Buttons from "../buttons";
+import {bind} from 'classnames/bind';
 
 const uuid4 = require('uuid/v4');
 
+const classnames = bind(styles);
+
+export enum Size {small, medium, large}
+
 export abstract class Modal extends MithrilViewComponent<any> {
   public id: string;
+  private readonly size: Size;
 
-  protected constructor() {
+  protected constructor(size = Size.medium) {
     super();
-    this.id = `modal-${uuid4()}`;
+    this.id   = `modal-${uuid4()}`;
+    this.size = size;
   }
 
   abstract title(): string;
@@ -62,7 +69,7 @@ export abstract class Modal extends MithrilViewComponent<any> {
   }
 
   view() {
-    return <div className={styles.overlay}>
+    return <div className={classnames(styles.overlay, Size[this.size])}>
       <header className={styles.overlayHeader}>
         <h3>{this.title()}</h3>
         <button className={styles.overlayClose} onclick={this.close.bind(this)}><i className={styles.closeIcon}/>

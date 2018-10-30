@@ -192,7 +192,7 @@ CrudMixins.Refresh = function (options) {
       };
 
       const didReject = ({responseJSON}, _textStatus, _errorThrown) => {
-        deferred.reject(mrequest.unwrapErrorExtractMessage(responseJSON));
+        deferred.reject(mrequest.unwrapErrorExtractMessage(responseJSON), jqXHR);
       };
 
       jqXHR.then(didFulfill, didReject);

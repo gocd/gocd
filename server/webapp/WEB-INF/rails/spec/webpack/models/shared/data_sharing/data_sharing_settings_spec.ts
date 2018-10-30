@@ -81,7 +81,7 @@ describe('Data Sharing Settings Model', () => {
         }
       });
 
-      const successCallback = jasmine.createSpy().and.callFake((metricsSettings) => {
+      const successCallback = jasmine.createSpy().and.callFake((metricsSettings: any) => {
         expect(metricsSettings.allowed()).toBe(dataSharingSettingsJSON._embedded.allow);
         expect(metricsSettings.updatedBy()).toBe(dataSharingSettingsJSON._embedded.updated_by);
       });

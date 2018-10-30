@@ -45,6 +45,7 @@ describe('Data Sharing Usage Data', () => {
     expect(usageData.represent()).toBe(JSON.stringify(dataSharingUsageJSON, null, 4));
   });
 
+
   it('should fetch data sharing usage data', () => {
     jasmine.Ajax.withMock(() => {
       jasmine.Ajax.stubRequest(dataSharingUsageDataURL).andReturn({
@@ -55,7 +56,7 @@ describe('Data Sharing Usage Data', () => {
         }
       });
 
-      const successCallback = jasmine.createSpy().and.callFake((usageData) => {
+      const successCallback = jasmine.createSpy().and.callFake((usageData: any) => {
         expect(usageData.represent()).toBe(JSON.stringify(dataSharingUsageJSON, null, 4));
       });
 
@@ -76,7 +77,7 @@ describe('Data Sharing Usage Data', () => {
         }
       });
 
-      const successCallback = jasmine.createSpy().and.callFake((data) => {
+      const successCallback = jasmine.createSpy().and.callFake((data: any ) => {
         expect(data).toBe(encryptedData);
       });
 

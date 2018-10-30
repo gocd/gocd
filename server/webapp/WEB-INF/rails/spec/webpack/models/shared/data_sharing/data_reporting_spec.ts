@@ -51,7 +51,7 @@ describe('Data Reporting', () => {
         }
       });
 
-      const successCallback = jasmine.createSpy().and.callFake((reportingInfo) => {
+      const successCallback = jasmine.createSpy().and.callFake((reportingInfo: any) => {
         expect(reportingInfo.serverId()).toBe(dataReportingJSON._embedded.server_id);
         expect(reportingInfo.lastReportedAt()).toEqual(new Date(dataReportingJSON._embedded.last_reported_at));
         expect(reportingInfo.dataSharingServerUrl()).toBe(dataReportingJSON._embedded.data_sharing_server_url);
@@ -69,8 +69,7 @@ describe('Data Reporting', () => {
 
   it('should start data reporting', () => {
     jasmine.Ajax.withMock(() => {
-      jasmine.Ajax.stubRequest(DataReportingStartReportingURL, null, 'POST').andReturn({
-        responseText:    null,
+      jasmine.Ajax.stubRequest(DataReportingStartReportingURL, undefined, 'POST').andReturn({
         status:          204,
         responseHeaders: {
           'Content-Type': 'application/vnd.go.cd.v2+json'
@@ -86,8 +85,7 @@ describe('Data Reporting', () => {
 
   it('should complete data reporting', () => {
     jasmine.Ajax.withMock(() => {
-      jasmine.Ajax.stubRequest(DataReportingCompleteReportingURL, null, 'POST').andReturn({
-        responseText:    null,
+      jasmine.Ajax.stubRequest(DataReportingCompleteReportingURL, undefined, 'POST').andReturn({
         status:          204,
         responseHeaders: {
           'Content-Type': 'application/vnd.go.cd.v2+json'

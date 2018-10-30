@@ -57,8 +57,8 @@ describe('Usage Data Reporter', () => {
     expect(jasmine.Ajax.requests.at(0).url).toBe(usageReportingGetURL);
 
     // verify that the last reported time is updated in the local storage
-    expect(new Date(+localStorage.getItem(USAGE_DATA_LAST_REPORTED_TIME_KEY)).getDate()).toBe(new Date().getDate());
-    expect(new Date(+localStorage.getItem(USAGE_DATA_LAST_REPORTED_TIME_KEY)).getTime()).toBeGreaterThan(yesterday);
+    expect(new Date(+(localStorage.getItem(USAGE_DATA_LAST_REPORTED_TIME_KEY) || '')).getDate()).toBe(new Date().getDate());
+    expect(new Date(+(localStorage.getItem(USAGE_DATA_LAST_REPORTED_TIME_KEY) || '')).getTime()).toBeGreaterThan(yesterday);
   });
 
   //@ts-ignore
@@ -99,8 +99,8 @@ describe('Usage Data Reporter', () => {
     expect(jasmine.Ajax.requests.at(5).method).toBe('POST');
 
     // verify that the last reported time is updated in the local storage
-    expect(new Date(+localStorage.getItem(USAGE_DATA_LAST_REPORTED_TIME_KEY)).getDate()).toBe(new Date().getDate());
-    expect(new Date(+localStorage.getItem(USAGE_DATA_LAST_REPORTED_TIME_KEY)).getTime()).toBeGreaterThan(yesterday);
+    expect(new Date(+(localStorage.getItem(USAGE_DATA_LAST_REPORTED_TIME_KEY) || '')).getDate()).toBe(new Date().getDate());
+    expect(new Date(+(localStorage.getItem(USAGE_DATA_LAST_REPORTED_TIME_KEY) || '')).getTime()).toBeGreaterThan(yesterday);
   });
 
   //@ts-ignore
@@ -134,8 +134,8 @@ describe('Usage Data Reporter', () => {
       expect(jasmine.Ajax.requests.filter(usageReportingCompleteURL)).toHaveLength(0);
 
       // verify that the last reported time is updated in the local storage
-      expect(new Date(+localStorage.getItem(USAGE_DATA_LAST_REPORTED_TIME_KEY)).getDate()).toBe(new Date().getDate());
-      expect(new Date(+localStorage.getItem(USAGE_DATA_LAST_REPORTED_TIME_KEY)).getTime()).toBeGreaterThan(yesterday);
+      expect(new Date(+(localStorage.getItem(USAGE_DATA_LAST_REPORTED_TIME_KEY) || '')).getDate()).toBe(new Date().getDate());
+      expect(new Date(+(localStorage.getItem(USAGE_DATA_LAST_REPORTED_TIME_KEY) || '')).getTime()).toBeGreaterThan(yesterday);
     }
   });
 
@@ -161,7 +161,7 @@ describe('Usage Data Reporter', () => {
     return date;
   }
 
-  function mockDataSharingReportingGetAPIAndReturn(json) {
+  function mockDataSharingReportingGetAPIAndReturn(json: any) {
     jasmine.Ajax.stubRequest(usageReportingGetURL, undefined, 'GET').andReturn({
       responseText:    JSON.stringify(json),
       status:          200,
@@ -173,7 +173,6 @@ describe('Usage Data Reporter', () => {
 
   function mockDataSharingReportingStartAPI() {
     jasmine.Ajax.stubRequest(usageReportingStartURL, undefined, 'POST').andReturn({
-      responseText:    null,
       status:          204,
       responseHeaders: {
         'Content-Type': 'application/vnd.go.cd.v1+json'
@@ -183,7 +182,6 @@ describe('Usage Data Reporter', () => {
 
   function mockDataSharingReportingCompleteAPI() {
     jasmine.Ajax.stubRequest(usageReportingCompleteURL, undefined, 'POST').andReturn({
-      responseText:    null,
       status:          204,
       responseHeaders: {
         'Content-Type': 'application/vnd.go.cd.v1+json'
@@ -191,7 +189,7 @@ describe('Usage Data Reporter', () => {
     });
   }
 
-  function mockUsageDataAPIAndReturn(json) {
+  function mockUsageDataAPIAndReturn(json: any) {
     jasmine.Ajax.stubRequest(encryptedUsageDataURL, undefined, 'POST').andReturn({
       responseText: JSON.stringify(json),
       status:       200
@@ -205,7 +203,7 @@ describe('Usage Data Reporter', () => {
     });
   }
 
-  function mockDataSharingServerGetEncryptionKeysAndReturn(signature, subordinatePublicKey) {
+  function mockDataSharingServerGetEncryptionKeysAndReturn(signature: string, subordinatePublicKey: string) {
     jasmine.Ajax.stubRequest(allowedReportingJSON._embedded.data_sharing_get_encryption_keys_url, undefined, 'GET').andReturn({
       responseText: JSON.stringify({
         signature,

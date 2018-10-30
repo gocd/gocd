@@ -24,13 +24,17 @@ import {ButtonGroup} from "../components/icons";
 import {AlertFlashMessage, InfoFlashMessage, SuccessFlashMessage, WarnFlashMessage} from "../components/flash_message";
 import {SearchBox} from "../components/search_box";
 import {SampleModal} from "../components/modal/sample";
+import {Size} from "../components/modal";
 
 const HeaderPanel = require('views/components/header_panel');
 
 export class KitchenSink extends MithrilViewComponent<null> {
 
+  private createModal(size: Size) {
+    new SampleModal(size).render();
+  }
+
   view(vnode: m.Vnode<null>) {
-    const sampleModal = new SampleModal();
     return (
       <div>
         <HeaderPanel title="Kitchen Sink"/>
@@ -52,7 +56,9 @@ export class KitchenSink extends MithrilViewComponent<null> {
         <SearchBox width={350} attrName="search" model={null} placeholder="Some placeholder"/>
 
         <h3>Modal</h3>
-        <Buttons.Primary onclick={sampleModal.render.bind(sampleModal)}>Open Modal</Buttons.Primary>
+        <Buttons.Primary onclick={() => {this.createModal(Size.small)}}>Open Small Modal</Buttons.Primary>
+        <Buttons.Primary onclick={() => {this.createModal(Size.medium)}}>Open Medium Modal</Buttons.Primary>
+        <Buttons.Primary onclick={() => {this.createModal(Size.large)}}>Open Large Modal</Buttons.Primary>
 
         <h3>Icons</h3>
         <ButtonGroup>

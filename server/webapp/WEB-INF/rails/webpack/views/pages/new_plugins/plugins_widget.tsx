@@ -19,7 +19,9 @@ import * as m from "mithril";
 
 import {PluginWidget} from "./plugin_widget";
 import {Spinner} from "../../components/spinner";
-import {MithrilViewComponent} from "../../../jsx/mithril-component";
+import {MithrilComponent} from "../../../jsx/mithril-component";
+import {PluginSettingsModal} from "./plugin_settings_modal";
+import {SuccessFlashMessage} from "../../components/flash_message";
 
 //todo: change this to pluginInfos:PluginInfos
 export interface Attrs {
@@ -27,19 +29,48 @@ export interface Attrs {
   pluginInfos: any;
 }
 
-export class PluginsWidget extends MithrilViewComponent<Attrs> {
-  view(vnode: m.Vnode<Attrs>) {
+interface State {
+  edit: Function;
+  successMessage: string | null;
+  onSuccessfulSave: Function,
+  clearMessage: Function
+}
+
+export class PluginsWidget extends MithrilComponent<Attrs, State> {
+  oninit(vnode: m.Vnode<Attrs, State>) {
+    let timeoutID: number;
+    vnode.state.edit = function (pluginInfo: any, event: MouseEvent) {
+      event.stopPropagation();
+      if (timeoutID) {
+        clearTimeout(timeoutID)
+      }
+
+      new PluginSettingsModal(pluginInfo, vnode.state.onSuccessfulSave).render();
+    };
+
+    vnode.state.clearMessage = function () {
+      vnode.state.successMessage = null;
+    };
+
+    vnode.state.onSuccessfulSave = function (msg: string) {
+      vnode.state.successMessage = msg;
+      timeoutID                  = window.setTimeout(vnode.state.clearMessage.bind(vnode.state), 10000);
+    }
+  }
+
+  view(vnode: m.Vnode<Attrs, State>) {
     if (!vnode.attrs.pluginInfos()) {
       return <Spinner/>
     }
 
-    //todo: NOTE, GoCD is shipped with bundled plugins, no need to check if any plugin exists
-
     return (
       <div class="plugins-settings">
+        <SuccessFlashMessage message={vnode.state.successMessage}/>
         {vnode.attrs.pluginInfos().sortByPluginInfos((pi: any) => pi.id()).map((pluginInfo: any) => {
           return (
-            <PluginWidget pluginInfo={pluginInfo}
+            <PluginWidget key={pluginInfo.id()}
+                          pluginInfo={pluginInfo}
+                          onEdit={vnode.state.edit.bind(vnode.state, pluginInfo)}
                           isUserAnAdmin={vnode.attrs.isUserAnAdmin}/>
           );
         })}

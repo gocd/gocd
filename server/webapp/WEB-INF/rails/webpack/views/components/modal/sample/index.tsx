@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {Modal} from "../index";
+import {Modal, Size} from "../index";
 import * as m from 'mithril';
 import * as styles from './index.scss';
 import * as Buttons from "../../buttons/";
@@ -24,8 +24,8 @@ export class SampleModal extends Modal {
 
   secondModal: Modal;
 
-  constructor() {
-    super();
+  constructor(size: Size) {
+    super(size);
     this.secondModal = new Sample2();
   }
 

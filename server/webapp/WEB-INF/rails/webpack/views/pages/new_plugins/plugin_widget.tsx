@@ -59,8 +59,9 @@ class PluginHeaderWidget extends MithrilViewComponent<PluginHeaderAttrs> {
 
 //todo: change this to pluginInfo:PluginInfo
 export interface Attrs {
-  pluginInfo: any,
-  isUserAnAdmin: boolean
+  pluginInfo: any;
+  isUserAnAdmin: boolean;
+  onEdit: Function;
 }
 
 type OptionalElement = JSX.Element | undefined;
@@ -84,7 +85,7 @@ export class PluginWidget extends MithrilViewComponent<Attrs> {
     }
 
     if (this.doesPluginSupportSettings(pluginInfo)) {
-      settingsButton = <Icons.Settings/>
+      settingsButton = <Icons.Settings onclick={vnode.attrs.onEdit}/>
     }
 
     return (

@@ -79,6 +79,16 @@ module.exports = function (env) {
       module:       {
         rules: [
           {
+            enforce: "pre",
+            test: /\.(js|msx)$/,
+            exclude: [
+              /node_modules/,
+              /js-routes\.js$/
+            ]
+            ,
+            loader: "eslint-loader"
+          },
+          {
             test:    /\.ts(x)?$/,
             exclude: /node_modules/,
             use:     [

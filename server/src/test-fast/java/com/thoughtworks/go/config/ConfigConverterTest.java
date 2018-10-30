@@ -1631,7 +1631,7 @@ public class ConfigConverterTest {
                new CaseInsensitiveString("upstream"),
                new CaseInsensitiveString("stage"),
                new CaseInsensitiveString("job"),
-               "src",
+               "",
                "dest"
         );
         fetchTask.setConditions(new RunIfConfigs(RunIfConfig.FAILED));
@@ -1642,7 +1642,7 @@ public class ConfigConverterTest {
         assertThat(result.getDestination(), is("dest"));
         assertThat(result.getJob(), is("job"));
         assertThat(result.getPipelineName(), is("upstream"));
-        assertThat(result.getSource(), is("src"));
+        assertNull(result.getSource());
         assertThat(result.sourceIsDirectory(), is(true));
     }
 
@@ -1652,7 +1652,7 @@ public class ConfigConverterTest {
                 new CaseInsensitiveString("upstream"),
                 new CaseInsensitiveString("stage"),
                 new CaseInsensitiveString("job"),
-                "",
+                "src",
                 "dest"
         );
         fetchTask.setConditions(new RunIfConfigs(RunIfConfig.FAILED));
@@ -1663,7 +1663,7 @@ public class ConfigConverterTest {
         assertThat(result.getDestination(), is("dest"));
         assertThat(result.getJob(), is("job"));
         assertThat(result.getPipelineName(), is("upstream"));
-        assertNull(result.getSource());
+        assertThat(result.getSource(), is("src"));
         assertThat(result.sourceIsDirectory(), is(false));
     }
 

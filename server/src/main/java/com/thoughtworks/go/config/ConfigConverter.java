@@ -790,7 +790,7 @@ public class ConfigConverter {
 
         fetchTask.setDestination(task.getDest());
         fetchTask.setPipelineName(task.getPipelineName().toString());
-        fetchTask.setSourceIsDirectory(task.isSourceAFile());
+        fetchTask.setSourceIsDirectory(!task.isSourceAFile());
 
         commonCRTaskMembers(fetchTask, task);
         return fetchTask;

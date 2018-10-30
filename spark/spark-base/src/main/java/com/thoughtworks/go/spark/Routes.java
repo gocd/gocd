@@ -51,6 +51,7 @@ public class Routes {
     public static class ConfigRepos {
         public static final String SPA_BASE = "/admin/config_repos";
         public static final String INTERNAL_BASE = "/api/internal/config_repos";
+
         public static final String LAST_PARSED_RESULT_PATH = "/:id/last_parsed_result";
         public static final String STATUS_PATH = "/:id/status";
         public static final String TRIGGER_UPDATE_PATH = "/:id/trigger_update";
@@ -58,8 +59,12 @@ public class Routes {
         public static final String BASE = "/api/admin/config_repos";
         public static final String DOC = "https://api.gocd.org/#config-repos";
 
+        public static final String INDEX_PATH = "";
+        public static final String REPO_PATH = "/:id";
+
+        // For building _links entry in API response
         public static String find() {
-            return BASE + "/:id";
+            return BASE + REPO_PATH;
         }
 
         public static String id(String id) {
@@ -273,6 +278,20 @@ public class Routes {
         }
     }
 
+    public static class ElasticProfileAPI {
+        public static final String BASE = "/api/elastic/profiles";
+        public static final String ID = "/:profile_id";
+        public static final String DOC = "https://api.gocd.org/current/#elastic-agent-profiles";
+
+        public static String find() {
+            return BASE + ID;
+        }
+
+        public static String id(String id) {
+            return find().replaceAll(":profile_id", id);
+        }
+    }
+
     public class ServerHealthMessages {
         public static final String BASE = "/api/server_health_messages";
     }
@@ -330,20 +349,6 @@ public class Routes {
 
     public class ServerHealth {
         public static final String BASE = "/api/v1/health";
-    }
-
-    public static class ElasticProfileAPI {
-        public static final String BASE = "/api/elastic/profiles";
-        public static final String ID = "/:profile_id";
-        public static final String DOC = "https://api.gocd.org/current/#elastic-agent-profiles";
-
-        public static String find() {
-            return BASE + ID;
-        }
-
-        public static String id(String id) {
-            return find().replaceAll(":profile_id", id);
-        }
     }
 
     public class KitchenSink {

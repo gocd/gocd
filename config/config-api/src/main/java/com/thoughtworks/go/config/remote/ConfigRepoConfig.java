@@ -24,10 +24,7 @@ import com.thoughtworks.go.domain.config.ConfigurationProperty;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * Defines single source of remote configuration and name of plugin to interpet it.
@@ -60,14 +57,15 @@ public class ConfigRepoConfig implements Validatable {
 
     private ConfigErrors errors = new ConfigErrors();
 
-    public ConfigRepoConfig(){
+    public ConfigRepoConfig() {
     }
-    public ConfigRepoConfig(MaterialConfig repo, String configProviderPluginName){
+
+    public ConfigRepoConfig(MaterialConfig repo, String configProviderPluginName) {
         this.repo = repo;
         this.configProviderPluginName = configProviderPluginName;
     }
 
-    public ConfigRepoConfig(MaterialConfig repo, String configProviderPluginName, String id){
+    public ConfigRepoConfig(MaterialConfig repo, String configProviderPluginName, String id) {
         this(repo, configProviderPluginName);
         this.id = id;
     }
@@ -89,48 +87,31 @@ public class ConfigRepoConfig implements Validatable {
     }
 
     public void setId(String id) {
-        if(StringUtils.isBlank(id))
+        if (StringUtils.isBlank(id))
             id = null;
         this.id = id;
     }
 
     public void setConfigProviderPluginName(String configProviderPluginName) {
-        if(StringUtils.isBlank(configProviderPluginName))
+        if (StringUtils.isBlank(configProviderPluginName))
             configProviderPluginName = null;
         this.configProviderPluginName = configProviderPluginName;
     }
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
         ConfigRepoConfig that = (ConfigRepoConfig) o;
-
-        if (repo != null ? !repo.equals(that.repo) : that.repo != null) {
-            return false;
-        }
-
-        if (id != null ? !id.equals(that.id) : that.id != null) {
-            return false;
-        }
-
-        if (configProviderPluginName != null ? !configProviderPluginName.equals(that.configProviderPluginName) : that.configProviderPluginName != null) {
-            return false;
-        }
-
-        return true;
+        return Objects.equals(repo, that.repo) &&
+                Objects.equals(configuration, that.configuration) &&
+                Objects.equals(configProviderPluginName, that.configProviderPluginName) &&
+                Objects.equals(id, that.id);
     }
 
     @Override
     public int hashCode() {
-        int result = repo != null ? repo.hashCode() : 0;
-        result = 31 * result + (configProviderPluginName != null ? configProviderPluginName.hashCode() : 0);
-        return result;
+        return Objects.hash(repo, configuration, configProviderPluginName, id);
     }
 
     @Override
@@ -148,7 +129,7 @@ public class ConfigRepoConfig implements Validatable {
 
     @Override
     public void addError(String fieldName, String message) {
-        this.errors.add(fieldName,message);
+        this.errors.add(fieldName, message);
     }
 
     public void validateMaterialUniqueness(Map<String, ConfigRepoConfig> map) {
@@ -166,36 +147,36 @@ public class ConfigRepoConfig implements Validatable {
     }
 
     public void validateIdUniqueness(ArrayList<String> allIds) {
-        if(StringUtils.isBlank(this.id)) {
-            this.errors.add("id",String.format( "Invalid config-repo id", id));
+        if (StringUtils.isBlank(this.id)) {
+            this.errors.add("id", String.format("Invalid config-repo id", id));
         }
-        if(allIds.contains(this.id)) {
-            this.errors.add("unique_id",String.format( "You have defined multiple configuration repositories with the same id - %s", id));
+        if (allIds.contains(this.id)) {
+            this.errors.add("unique_id", String.format("You have defined multiple configuration repositories with the same id - %s", id));
         }
     }
 
     private void validateAutoUpdateEnabled() {
-        if(!this.getMaterialConfig().isAutoUpdate())
-            this.errors.add(AUTO_UPDATE,String.format(
+        if (!this.getMaterialConfig().isAutoUpdate())
+            this.errors.add(AUTO_UPDATE, String.format(
                     "Configuration repository material %s must have autoUpdate enabled",
                     this.getMaterialConfig().getDisplayName()));
     }
 
     private void addMaterialConflictError() {
-        this.errors.add(UNIQUE_REPO,String.format(
+        this.errors.add(UNIQUE_REPO, String.format(
                 "You have defined multiple configuration repositories with the same repository - %s",
                 this.repo.getDisplayName()));
     }
 
     private void validateRepoIsSet() {
         if (this.getMaterialConfig() == null) {
-            this.errors.add(REPO,"Configuration repository material not specified");
+            this.errors.add(REPO, "Configuration repository material not specified");
         }
     }
 
     private void validatePresenceOfId() {
         if (this.getId() == null) {
-            this.errors.add(ID,"Configuration repository id not specified");
+            this.errors.add(ID, "Configuration repository id not specified");
         }
     }
 
@@ -208,16 +189,15 @@ public class ConfigRepoConfig implements Validatable {
     }
 
     private void validateAutoUpdateState(ValidationContext validationContext) {
-        if(validationContext == null)
+        if (validationContext == null)
             return;
 
-        MaterialConfig material  = this.getMaterialConfig();
+        MaterialConfig material = this.getMaterialConfig();
 
         MaterialConfigs allMaterialsByFingerPrint = validationContext.getAllMaterialsByFingerPrint(material.getFingerprint());
         if (allMaterialsByFingerPrint != null) {
-            for(MaterialConfig other : allMaterialsByFingerPrint)
-            {
-                if(!other.isAutoUpdate())
+            for (MaterialConfig other : allMaterialsByFingerPrint) {
+                if (!other.isAutoUpdate())
                     ((ScmMaterialConfig) other).setAutoUpdateMismatchErrorWithConfigRepo();
             }
         }

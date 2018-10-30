@@ -18,6 +18,8 @@ package com.thoughtworks.go.config;
 
 import com.thoughtworks.go.config.remote.PartialConfig;
 
+import java.util.Objects;
+
 public class PartialConfigParseResult {
     private final String revision;
     private PartialConfig lastSuccess;
@@ -47,5 +49,20 @@ public class PartialConfigParseResult {
 
     public String getRevision() {
         return revision;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        PartialConfigParseResult that = (PartialConfigParseResult) o;
+        return Objects.equals(revision, that.revision) &&
+                Objects.equals(lastSuccess, that.lastSuccess) &&
+                Objects.equals(lastFailure, that.lastFailure);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(revision, lastSuccess, lastFailure);
     }
 }

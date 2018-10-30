@@ -10,7 +10,6 @@
 
 <%- unless(Rails.env.test?) %>
   <%= javascript_include_tag *webpack_assets_service.getJSAssetPathsFor("single_page_apps/notification_center", "single_page_apps/version_update_checker_for_rails") %>
-  <%= stylesheet_link_tag *webpack_assets_service.getCSSAssetPathsFor("single_page_apps/base") %>
 <%- end %>
 
 <![if !IE]>

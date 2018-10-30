@@ -99,6 +99,16 @@ public class CRP4Material extends CRScmMaterial {
         this.view = view;
     }
 
+    public CRP4Material(String materialName, String folder, boolean autoUpdate,String serverAndPort,String view,String userName,String password,
+                        boolean useTickets,boolean whitelist, List<String> filters) {
+        super(TYPE_NAME, materialName, folder, autoUpdate,whitelist, filters);
+        this.port = serverAndPort;
+        this.username = userName;
+        this.password = password;
+        this.use_tickets = useTickets;
+        this.view = view;
+    }
+
     public boolean hasEncryptedPassword()
     {
         return StringUtils.isNotBlank(encrypted_password);

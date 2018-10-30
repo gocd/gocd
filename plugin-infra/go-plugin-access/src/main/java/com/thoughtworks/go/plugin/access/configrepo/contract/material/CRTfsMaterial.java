@@ -84,6 +84,18 @@ public class CRTfsMaterial extends CRScmMaterial {
         this.domain = domain;
     }
 
+    public CRTfsMaterial(String materialName, String folder, boolean autoUpdate,String url,String userName,
+                         String password,String encryptedPassword,
+                         String projectPath,String domain,boolean whitelist,List<String> filters) {
+        super(TYPE_NAME, materialName, folder, autoUpdate, whitelist, filters);
+        this.url = url;
+        this.username = userName;
+        this.password = password;
+        this.encrypted_password = encryptedPassword;
+        this.project = projectPath;
+        this.domain = domain;
+    }
+
     @Override
     public String typeName() {
         return TYPE_NAME;

@@ -938,7 +938,7 @@ public class ConfigConverter {
 
         return new CRPluggableScmMaterial(pluggableScmMaterialConfig.getName().toString(),
                 id, pluggableScmMaterialConfig.getFolder(),
-                pluggableScmMaterialConfig.getFilterAsString());
+                pluggableScmMaterialConfig.filter().ignoredFileNames());
     }
 
     private CRPackageMaterial packageMaterialToCRPackageMaterial(PackageMaterialConfig packageMaterialConfig) {
@@ -961,15 +961,15 @@ public class ConfigConverter {
         }
         if (scmMaterialConfig instanceof GitMaterialConfig) {
             GitMaterialConfig git = (GitMaterialConfig) scmMaterialConfig;
-            return new CRGitMaterial(materialName, git.getFolder(), git.isAutoUpdate(), git.isShallowClone(), git.getUrl(), git.getBranch(), git.isInvertFilter(), git.getFilterAsString());
+            return new CRGitMaterial(materialName, git.getFolder(), git.isAutoUpdate(), git.isShallowClone(), git.getUrl(), git.getBranch(), git.isInvertFilter(), git.filter().ignoredFileNames());
         } else if (scmMaterialConfig instanceof HgMaterialConfig) {
             HgMaterialConfig hg = (HgMaterialConfig) scmMaterialConfig;
-            return new CRHgMaterial(materialName, hg.getFolder(), hg.isAutoUpdate(), hg.getUrl(), hg.isInvertFilter(), hg.getFilterAsString());
+            return new CRHgMaterial(materialName, hg.getFolder(), hg.isAutoUpdate(), hg.isInvertFilter(), hg.filter().ignoredFileNames(), hg.getUrl());
         } else if (scmMaterialConfig instanceof P4MaterialConfig) {
             P4MaterialConfig p4MaterialConfig = (P4MaterialConfig) scmMaterialConfig;
 
 
-            CRP4Material crP4Material = new CRP4Material(materialName, p4MaterialConfig.getFolder(), p4MaterialConfig.isAutoUpdate(), p4MaterialConfig.getServerAndPort(), p4MaterialConfig.getView(), p4MaterialConfig.getUserName(), null, p4MaterialConfig.getUseTickets(), p4MaterialConfig.isInvertFilter(), p4MaterialConfig.getFilterAsString());
+            CRP4Material crP4Material = new CRP4Material(materialName, p4MaterialConfig.getFolder(), p4MaterialConfig.isAutoUpdate(), p4MaterialConfig.getServerAndPort(), p4MaterialConfig.getView(), p4MaterialConfig.getUserName(), null, p4MaterialConfig.getUseTickets(), p4MaterialConfig.isInvertFilter(), p4MaterialConfig.filter().ignoredFileNames());
 
             if (p4MaterialConfig.getEncryptedPassword() != null) {
                 crP4Material.setEncryptedPassword(p4MaterialConfig.getEncryptedPassword());
@@ -979,7 +979,7 @@ public class ConfigConverter {
         } else if (scmMaterialConfig instanceof SvnMaterialConfig) {
             SvnMaterialConfig svnMaterial = (SvnMaterialConfig) scmMaterialConfig;
             CRSvnMaterial crSvnMaterial = new CRSvnMaterial(materialName, svnMaterial.getFolder(), svnMaterial.isAutoUpdate(),
-                    svnMaterial.getUrl(), svnMaterial.getUserName(), null, svnMaterial.isCheckExternals(), svnMaterial.isInvertFilter(), svnMaterial.getFilterAsString());
+                    svnMaterial.getUrl(), svnMaterial.getUserName(), null, svnMaterial.isCheckExternals(), svnMaterial.isInvertFilter(), svnMaterial.filter().ignoredFileNames());
             if (svnMaterial.getEncryptedPassword() != null) {
                 crSvnMaterial.setEncryptedPassword(svnMaterial.getEncryptedPassword());
             } else {
@@ -998,7 +998,7 @@ public class ConfigConverter {
                     tfsMaterialConfig.getProjectPath(),
                     tfsMaterialConfig.getDomain(),
                     tfsMaterialConfig.isInvertFilter(),
-                    tfsMaterialConfig.getFilterAsString());
+                    tfsMaterialConfig.filter().ignoredFileNames());
 
             if (tfsMaterialConfig.getEncryptedPassword() != null) {
                 crTfsMaterial.setEncryptedPassword(tfsMaterialConfig.getEncryptedPassword());

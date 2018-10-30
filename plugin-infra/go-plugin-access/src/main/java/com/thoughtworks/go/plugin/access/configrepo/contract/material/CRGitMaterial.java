@@ -38,6 +38,14 @@ public class CRGitMaterial extends CRScmMaterial {
         this.branch = branch;
         this.shallow_clone = shallow_clone;
     }
+
+    public CRGitMaterial(String materialName, String folder, boolean autoUpdate,Boolean shallow_clone,String url,String branch,boolean whitelist, List<String> filters) {
+        super(TYPE_NAME, materialName, folder, autoUpdate,whitelist, filters);
+        this.url = url;
+        this.branch = branch;
+        this.shallow_clone = shallow_clone;
+    }
+
     public CRGitMaterial(String name, String folder, boolean autoUpdate,Boolean shallow_clone, List<String> filter,String url,String branch,boolean whitelist) {
         super(name, folder, autoUpdate,whitelist, filter);
         this.url = url;

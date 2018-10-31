@@ -17,6 +17,7 @@
 package com.thoughtworks.go.server.messaging;
 
 import com.thoughtworks.go.domain.Stage;
+import com.thoughtworks.go.server.service.ElasticAgentPluginService;
 import com.thoughtworks.go.server.service.StageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -26,13 +27,17 @@ public class JobStatusListener implements GoMessageListener<JobStatusMessage> {
     private final JobStatusTopic jobStatusTopic;
     private StageService stageService;
     private final StageStatusTopic stageStatusTopic;
+    private final ElasticAgentPluginService elasticAgentPluginService;
 
     @Autowired
-    public JobStatusListener(JobStatusTopic jobStatusTopic, StageService stageService,
-                             StageStatusTopic stageStatusTopic) {
+    public JobStatusListener(JobStatusTopic jobStatusTopic,
+                             StageService stageService,
+                             StageStatusTopic stageStatusTopic,
+                             ElasticAgentPluginService elasticAgentPluginService) {
         this.jobStatusTopic = jobStatusTopic;
         this.stageService = stageService;
         this.stageStatusTopic = stageStatusTopic;
+        this.elasticAgentPluginService = elasticAgentPluginService;
     }
 
     public void init() {
@@ -43,8 +48,7 @@ public class JobStatusListener implements GoMessageListener<JobStatusMessage> {
         if (message.getJobState().isCompleted()) {
             final Stage stage = stageService.findStageWithIdentifier(message.getStageIdentifier());
             stage.statusHandling((stageState, stageResult) -> stageStatusTopic.post(new StageStatusMessage(message.getStageIdentifier(), stageState, stageResult)));
+            elasticAgentPluginService.jobCompleted(stage.findJob(message.getJobIdentifier().getBuildName()));
         }
     }
-
-
 }

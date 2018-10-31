@@ -16,7 +16,6 @@
 
 package com.thoughtworks.go.remote.work;
 
-import com.thoughtworks.go.config.RunIfConfig;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.materials.MaterialAgentFactory;
 import com.thoughtworks.go.plugin.access.packagematerial.PackageRepositoryExtension;
@@ -41,7 +40,6 @@ import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.Set;
 
-import static com.thoughtworks.go.domain.JobState.*;
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static com.thoughtworks.go.util.ExceptionUtils.messageOf;
 import static java.lang.String.format;
@@ -102,12 +100,7 @@ public class BuildWork implements Work {
     private void reportCompletion(JobResult result) {
         try {
             builders.waitForCancelTasks();
-            if (result == null) {
-                goPublisher.reportCurrentStatus(Completed);
-                goPublisher.reportCompletedAction();
-            } else {
-                goPublisher.reportCompleted(result);
-            }
+            goPublisher.reportCompleted(result);
         } catch (Exception ex) {
             LOGGER.error("New error occurred during error handling:\n"
                     + "build will be rescheduled when agent starts asking for work again", ex);
@@ -117,7 +110,7 @@ public class BuildWork implements Work {
     private JobResult build(EnvironmentVariableContext environmentVariableContext, AgentIdentifier agentIdentifier,
                             PackageRepositoryExtension packageRepositoryExtension, SCMExtension scmExtension) {
         if (this.goPublisher.isIgnored()) {
-            this.goPublisher.reportAction("Job is cancelled");
+            goPublisher.reportJobCancelled();
             return null;
         }
 
@@ -130,7 +123,7 @@ public class BuildWork implements Work {
         dumpEnvironmentVariables(environmentVariableContext);
 
         if (this.goPublisher.isIgnored()) {
-            this.goPublisher.reportAction("Job is cancelled");
+            goPublisher.reportJobCancelled();
             return null;
         }
 
@@ -154,8 +147,7 @@ public class BuildWork implements Work {
     }
 
     private void prepareJob(AgentIdentifier agentIdentifier, PackageRepositoryExtension packageRepositoryExtension, SCMExtension scmExtension) {
-        goPublisher.reportAction(DefaultGoPublisher.PREP, "Start to prepare");
-        goPublisher.reportCurrentStatus(Preparing);
+        goPublisher.reportPreparing();
 
         createWorkingDirectoryIfNotExist(workingDirectory);
         if (!assignment.shouldFetchMaterials()) {
@@ -186,8 +178,7 @@ public class BuildWork implements Work {
     }
 
     private JobResult buildJob(EnvironmentVariableContext environmentVariableContext, String consoleLogCharset) {
-        goPublisher.reportCurrentStatus(Building);
-        goPublisher.reportAction("Start to build");
+        goPublisher.reportStartingToBuild();
         return execute(environmentVariableContext, consoleLogCharset);
     }
 
@@ -197,13 +188,12 @@ public class BuildWork implements Work {
         }
 
         String tag = result.isPassed() ? DefaultGoPublisher.JOB_PASS : DefaultGoPublisher.JOB_FAIL;
-        goPublisher.taggedConsumeLineWithPrefix(tag, format("Current job status: %s", RunIfConfig.fromJobResult(result.toLowerCase())));
+        goPublisher.reportCompleting(result, tag);
 
-        goPublisher.reportCurrentStatus(Completing);
-        goPublisher.reportAction("Start to create properties");
+        goPublisher.reportCreatingProperties();
         harvestProperties(goPublisher);
 
-        goPublisher.reportAction(DefaultGoPublisher.PUBLISH, "Start to upload");
+        goPublisher.reportBeginToPublishArtifacts();
 
         try {
             artifactsPublisher.publishArtifacts(assignment.getArtifactPlans(), environmentVariableContext);

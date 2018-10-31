@@ -19,7 +19,7 @@
 !.idea/copyright/
 !.idea/codeStyleSettings.xml
 !.idea/jsLinters/eslint.xml
-
+bin/
 *.iml
 
 # eclipse
@@ -247,6 +247,7 @@ server/current/
 server/data/
 server/db/config.git/
 server/db/h2db/
+server/db/shine/
 server/db/h2deltas/
 server/felix-cache/
 server/logs/

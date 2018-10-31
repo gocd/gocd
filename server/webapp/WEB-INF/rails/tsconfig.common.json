@@ -24,6 +24,9 @@
     "webpack/**/*.ts",
     "webpack/**/*.tsx"
   ],
+  "exclude": [
+    "node_modules"
+  ],
   "awesomeTypescriptLoaderOptions": {
     "useBabel": false,
     "useCache": true,

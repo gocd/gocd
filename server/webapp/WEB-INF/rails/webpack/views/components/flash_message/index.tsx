@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
+import {MithrilComponent} from "jsx/mithril-component";
 import * as m from 'mithril';
 import * as Icons from "../icons";
-import {MithrilComponent} from "jsx/mithril-component";
 
-import * as styles from './index.scss';
 import {bind} from 'classnames/bind';
+import * as styles from './index.scss';
 
 const classnames = bind(styles);
 
@@ -30,7 +30,7 @@ export interface Attrs {
 
 export interface State {
   isDismissed: boolean;
-  onDismiss: Function;
+  onDismiss?: () => void;
 }
 
 class FlashMessage extends MithrilComponent<Attrs, State> {
@@ -42,9 +42,9 @@ class FlashMessage extends MithrilComponent<Attrs, State> {
   }
 
   oninit(vnode: m.Vnode<Attrs, State>) {
-    vnode.state.onDismiss = function () {
+    vnode.state.onDismiss = () => {
       vnode.state.isDismissed = true;
-    }
+    };
   }
 
   view(vnode: m.Vnode<Attrs, State>) {

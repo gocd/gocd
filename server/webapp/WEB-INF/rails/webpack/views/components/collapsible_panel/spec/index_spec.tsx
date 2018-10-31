@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import * as styles from "../index.scss";
 import {CollapsiblePanel} from "../index";
+import * as styles from "../index.scss";
 
 describe("Collapsible Panel Component", () => {
   const m = require("mithril");
@@ -65,7 +65,7 @@ describe("Collapsible Panel Component", () => {
   function mount() {
     m.mount(root, {
       view() {
-        return (<CollapsiblePanel header={pageTitle}>{body}</CollapsiblePanel>)
+        return (<CollapsiblePanel header={pageTitle}>{body}</CollapsiblePanel>);
       }
     });
 

@@ -97,4 +97,3 @@ export class SiteHeader extends MithrilViewComponent<Attrs> {
     );
   }
 }
-

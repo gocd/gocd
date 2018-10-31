@@ -27,7 +27,7 @@ describe("ServerHealthMessages", () => {
       detail: 'foo',
       time: '2018-10-19T04:07:02Z',
       message: 'something went wrong!'
-    }
+    };
   }
 
   function createWarning(): ServerHealthMessage {
@@ -36,7 +36,7 @@ describe("ServerHealthMessages", () => {
       detail: 'foo',
       time: '2018-10-19T04:07:02Z',
       message: 'something went wrong!'
-    }
+    };
   }
 
   it('should return empty when there are no errors or warnings', () => {

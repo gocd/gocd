@@ -45,11 +45,11 @@ class SiteHeaderLink extends MithrilViewComponent<SiteHeaderLinkAttrs> {
 }
 
 interface Text {
-  text?: string
+  text?: string;
 }
 
 interface TextWithLink extends Text {
-  href?: string
+  href?: string;
 }
 
 interface SiteNavItemAttrs extends TextWithLink {

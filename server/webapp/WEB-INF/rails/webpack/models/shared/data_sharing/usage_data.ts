@@ -19,37 +19,39 @@ import SparkRoutes from 'helpers/spark_routes';
 const AjaxHelper = require('helpers/ajax_helper');
 
 export interface EncryptionKeys {
-  signature: string
-  subordinate_public_key: string
+  signature: string;
+  subordinate_public_key: string;
 }
 
 export interface EncryptedData {
-  aes_encrypted_data: string,
-  rsa_encrypted_aes_key: string
+  aes_encrypted_data: string;
+  rsa_encrypted_aes_key: string;
 }
 
 interface ElasticAgentJobInfo {
-  plugin_id: string,
-  job_count: number
+  plugin_id: string;
+  job_count: number;
 }
 
 interface UsageDataInfo {
-  "pipeline_count": number,
-  "config_repo_pipeline_count": number,
-  "agent_count": number,
-  "oldest_pipeline_execution_time": number,
-  "job_count": number,
-  "elastic_agent_job_count": Array<ElasticAgentJobInfo>,
-  "gocd_version": string
+  "pipeline_count": number;
+  "config_repo_pipeline_count": number;
+  "agent_count": number;
+  "oldest_pipeline_execution_time": number;
+  "job_count": number;
+  "elastic_agent_job_count": ElasticAgentJobInfo[];
+  "gocd_version": string;
 }
 
 export interface UsageDataJSON {
-  "server_id": string,
-  "message_version": number,
-  "data": UsageDataInfo
+  "server_id": string;
+  "message_version": number;
+  "data": UsageDataInfo;
 }
 
 export class UsageData {
+
+  static API_VERSION: string = 'v3';
   public message: () => UsageDataJSON;
   public represent: () => string;
 
@@ -58,11 +60,9 @@ export class UsageData {
     this.represent = () => JSON.stringify(this.message(), null, 4);
   }
 
-  static API_VERSION: string = 'v3';
-
-  static fromJSON = function (json: UsageDataJSON) {
+  static fromJSON(json: UsageDataJSON) {
     return new UsageData(json);
-  };
+  }
 
   static get() {
     return AjaxHelper.GET({
@@ -78,5 +78,5 @@ export class UsageData {
       payload:    data,
       apiVersion: UsageData.API_VERSION
     });
-  };
+  }
 }

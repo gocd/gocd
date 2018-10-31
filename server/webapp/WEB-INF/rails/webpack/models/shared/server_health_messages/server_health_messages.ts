@@ -21,17 +21,28 @@ const CrudMixins = require('models/mixins/crud_mixins');
 const inflection = require('lodash-inflection');
 
 export interface ServerHealthMessage {
-  message: string,
-  detail: string,
-  level: string,
-  time: string
+  message: string;
+  detail: string;
+  level: string;
+  time: string;
 }
 
 export class ServerHealthMessages {
-  private readonly messages: Array<ServerHealthMessage>;
 
-  constructor(messages: Array<ServerHealthMessage>) {
-    this.messages = messages
+  static API_VERSION = 'v1';
+  private readonly messages: ServerHealthMessage[];
+
+  constructor(messages: ServerHealthMessage[]) {
+    this.messages = messages;
+  }
+
+  static fromJSON(messages: ServerHealthMessage[]) {
+    return new ServerHealthMessages(messages);
+  }
+
+  //Typescript requires all to be defined on the model. This is overriden by CrudMixins
+  static all(xhrCB: () => any): any {
+    return null;
   }
 
   countErrors   = () => _.filter(this.messages, {level: 'ERROR'}).length;
@@ -50,21 +61,10 @@ export class ServerHealthMessages {
       messages.push(inflection.pluralize('warning', this.countWarnings(), true));
     }
     return _.join(messages, ' and ');
-  };
+  }
 
   collect<T, K extends keyof T>(cb: any): Array<T[K]> {
     return _.map(this.messages, cb);
-  }
-
-  static API_VERSION = 'v1';
-
-  static fromJSON(messages: Array<ServerHealthMessage>) {
-    return new ServerHealthMessages(messages);
-  }
-
-  //Typescript requires all to be defined on the model. This is overriden by CrudMixins
-  static all(xhrCB: Function): any {
-    return null;
   }
 }
 
@@ -73,5 +73,3 @@ CrudMixins.Index({
   indexUrl: '/go/api/server_health_messages',
   version:  ServerHealthMessages.API_VERSION
 });
-
-

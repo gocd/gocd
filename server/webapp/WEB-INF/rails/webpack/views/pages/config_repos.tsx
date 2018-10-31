@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import * as m from 'mithril';
 import {MithrilComponent} from "jsx/mithril-component";
+import * as m from 'mithril';
 const ConfigReposList = require("views/config_repos/config_repos_list");
 const ConfigRepos     = require("models/config_repos/config_repos");
 const ReposListVM     = require("views/config_repos/models/repos_list_vm");
@@ -34,4 +34,3 @@ export class ConfigReposPage extends MithrilComponent<null, State> {
     return <ConfigReposList vm={vnode.state.vm}/>;
   }
 }
-

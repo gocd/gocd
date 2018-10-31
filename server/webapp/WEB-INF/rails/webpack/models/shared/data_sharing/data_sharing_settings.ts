@@ -14,30 +14,31 @@
  * limitations under the License.
  */
 
-import {Stream} from 'mithril/stream';
 import SparkRoutes from "helpers/spark_routes";
+import {Stream} from 'mithril/stream';
 
 const stream        = require('mithril/stream');
 const AjaxHelper    = require('helpers/ajax_helper');
 const TimeFormatter = require('helpers/time_formatter');
 
-
 interface DataSharingInfo {
-  "allow": boolean,
-  "updated_by": string,
-  "updated_on": string
+  "allow": boolean;
+  "updated_by": string;
+  "updated_on": string;
 }
 
 export interface DataSharingJSON {
-  _embedded: DataSharingInfo
+  _embedded: DataSharingInfo;
 }
 
 export class DataSharingSettings {
-  private etag: string;
-  private originallyAllowed: boolean;
+
+  static API_VERSION = 'v1';
   public allowed: Stream<boolean>;
   public updatedBy: Stream<string>;
   public updatedOn: Stream<string>;
+  private etag: string;
+  private originallyAllowed: boolean;
 
   constructor(data: DataSharingJSON, etag: string) {
     this.etag              = etag;
@@ -48,38 +49,9 @@ export class DataSharingSettings {
     this.updatedOn = stream(TimeFormatter.formatInDate(data._embedded.updated_on));
   }
 
-  hasEverChangedByAdmin = (): boolean => {
-    return this.updatedBy() !== 'Default';
-  };
-
-  toggleConsent = (): void => {
-    this.allowed(!this.allowed());
-  };
-
-  resetConsent = (): void => {
-    this.allowed(this.originallyAllowed);
-  };
-
-  save = () => {
-    return AjaxHelper.PATCH({
-      url:        SparkRoutes.DataSharingSettingsPath(),
-      apiVersion: DataSharingSettings.API_VERSION,
-      payload:    {allow: this.allowed()},
-      etag:       this.etag
-    }).then((data: DataSharingJSON, _textStatus: string, jqXHR: any) => {
-      this.etag              = jqXHR.getResponseHeader('etag');
-      this.originallyAllowed = data._embedded.allow;
-
-      this.allowed(data._embedded.allow);
-      this.updatedBy(data._embedded.updated_by);
-    });
-  };
-
-  static fromJSON = function (json: DataSharingJSON, jqXHR: any) {
+  static fromJSON(json: DataSharingJSON, jqXHR: any) {
     return new DataSharingSettings(json, jqXHR.getResponseHeader('etag'));
-  };
-
-  static API_VERSION = 'v1';
+  }
 
   static get = () => {
     return AjaxHelper.GET({
@@ -87,5 +59,32 @@ export class DataSharingSettings {
       apiVersion: DataSharingSettings.API_VERSION,
       type:       DataSharingSettings
     });
-  };
+  }
+
+  hasEverChangedByAdmin = (): boolean => {
+    return this.updatedBy() !== 'Default';
+  }
+
+  toggleConsent = (): void => {
+    this.allowed(!this.allowed());
+  }
+
+  resetConsent = (): void => {
+    this.allowed(this.originallyAllowed);
+  }
+
+  save = () => {
+    return AjaxHelper.PATCH({
+      url:        SparkRoutes.DataSharingSettingsPath(),
+      apiVersion: DataSharingSettings.API_VERSION,
+      payload:    {allow: this.allowed()},
+      etag:       this.etag
+    }).then((data: DataSharingJSON, textStatus: string, jqXHR: any) => {
+      this.etag              = jqXHR.getResponseHeader('etag');
+      this.originallyAllowed = data._embedded.allow;
+
+      this.allowed(data._embedded.allow);
+      this.updatedBy(data._embedded.updated_by);
+    });
+  }
 }

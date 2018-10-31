@@ -22,11 +22,11 @@ const AjaxHelper = require('helpers/ajax_helper');
 
 const USAGE_DATA_LAST_REPORTED_TIME_KEY = "last_usage_data_reporting_check_time";
 
-const fetchEncryptionKeysFromDataSharingServer = function (url: string) {
+const fetchEncryptionKeysFromDataSharingServer = (url: string) => {
   return AjaxHelper.GET({url});
 };
 
-const reportToGoCDDataSharingServer = function (url: string, payload: EncryptedData) {
+const reportToGoCDDataSharingServer = (url: string, payload: EncryptedData) => {
   return AjaxHelper.POST({url, payload, contentType: 'application/octet-stream'});
 };
 
@@ -66,6 +66,5 @@ export class UsageDataReporter {
     } finally {
       markReportingCheckDone();
     }
-  };
+  }
 }
-

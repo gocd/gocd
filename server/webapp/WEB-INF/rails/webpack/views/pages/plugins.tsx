@@ -22,7 +22,7 @@ const Stream      = require('mithril/stream');
 const PluginInfos = require('models/shared/plugin_infos');
 const HeaderPanel = require('views/components/header_panel');
 
-let pluginInfos = Stream();
+const pluginInfos = Stream();
 
 //todo: change pluginInfos to typescript and fix res:PluginInfos
 const onSuccess = (res: any) => {
@@ -33,7 +33,7 @@ const onSuccess = (res: any) => {
 export class PluginsPage {
   oninit() {
     //todo: onfailure render generic error_onload_page
-    PluginInfos.all(null, {'include_bad': true}).then(onSuccess);
+    PluginInfos.all(null, {include_bad: true}).then(onSuccess);
   }
 
   view() {

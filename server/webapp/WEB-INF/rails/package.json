@@ -10,7 +10,10 @@
     "karma": "karma start",
     "eslint": "eslint --color --ext .js --ext .msx --format stylish webpack/ spec/webpack/ --ignore-pattern gen/",
     "eslintold": "eslint --no-eslintrc --config .eslintrc-old.json --color --ext .js  --format stylish app/assets/javascripts/ spec/javascripts/",
-    "tslint": "tslint --format stylish webpack/**/*.{ts,tsx}"
+    "tslint": "yarn run tslint:prod && yarn run tslint:spec",
+    "tslint:prod": "tslint --format stylish --project webpack/tsconfig.json --config tslint.json",
+    "tslint:spec": "tslint --format stylish --project spec/tsconfig.json --config tslint.json",
+    "tslint:fix": "yarn run tslint:prod --fix && yarn run tslint:spec --fix"
   },
   "sasslintConfig": ".webpack-sass-lintrc.json",
   "dependencies": {

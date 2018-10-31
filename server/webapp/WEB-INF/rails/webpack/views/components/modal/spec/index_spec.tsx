@@ -15,16 +15,16 @@
  */
 
 import * as m from 'mithril';
-import {Modal} from "../index";
+import * as simulateEvent from 'simulate-event';
 import * as Buttons from "../../buttons";
+import {Modal} from "../index";
 import * as styles from "../index.scss";
 import {ModalManager} from "../modal_manager";
-import * as simulateEvent from 'simulate-event';
 
 describe('Modal', () => {
 
   // @ts-ignore
-  let $root:any, root:any;
+  let $root: any, root: any;
 
   beforeEach(() => {
     // @ts-ignore
@@ -64,7 +64,7 @@ describe('Modal', () => {
         ];
       }
 
-    });
+    })();
 
     testModal.render();
     expect($(`.${styles.overlayHeader} h3`)).toContainText('Test Modal');
@@ -113,7 +113,7 @@ describe('Modal', () => {
       title(): string {
         return "Test Modal";
       }
-    });
+    })();
   }
 
 });

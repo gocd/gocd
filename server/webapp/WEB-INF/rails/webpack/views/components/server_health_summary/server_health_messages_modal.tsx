@@ -15,13 +15,13 @@
  */
 
 import * as m from 'mithril';
-import {Modal} from "../modal";
+import {Stream} from 'mithril/stream';
 import {
   ServerHealthMessage,
   ServerHealthMessages
 } from "../../../models/shared/server_health_messages/server_health_messages";
+import {Modal} from "../modal";
 import * as styles from "./server_health_messages_count_widget.scss";
-import {Stream} from 'mithril/stream';
 
 const classnames    = require('classnames/bind').bind(styles);
 const TimeFormatter = require('helpers/time_formatter');
@@ -46,16 +46,16 @@ export class ServerHealthMessagesModal extends Modal {
     </ul>;
   }
 
+  title(): string {
+    return "Error and warning messages";
+  }
+
   private messageView(message: ServerHealthMessage) {
     return <li className={classnames(styles.serverHealthStatus, message.level.toLowerCase())}>
       <span className={styles.message}>{message.message}</span>
       <span className={styles.timestamp}>{TimeFormatter.format(message.time)}</span>
       <p className={styles.detail}>{m.trust(message.detail)}</p>
-    </li>
-  }
-
-  title(): string {
-    return "Error and warning messages";
+    </li>;
   }
 
 }

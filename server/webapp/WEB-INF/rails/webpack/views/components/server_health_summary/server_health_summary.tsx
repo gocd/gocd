@@ -25,9 +25,9 @@ const AjaxPoller = require('helpers/ajax_poller');
 const serverHealthMessages = stream(new ServerHealthMessages([]));
 
 function createRepeater() {
-  return new AjaxPoller((xhrCB:Function) => {
+  return new AjaxPoller((xhrCB: () => void) => {
     return ServerHealthMessages.all(xhrCB)
-      .then((messages:ServerHealthMessages) => {
+      .then((messages: ServerHealthMessages) => {
         serverHealthMessages(messages);
       });
   });

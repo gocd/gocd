@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-import * as m from 'mithril';
-import * as _ from 'lodash';
-import * as styles from "./index.scss";
 import {MithrilViewComponent} from "jsx/mithril-component";
+import * as _ from 'lodash';
+import * as m from 'mithril';
+import * as styles from "./index.scss";
 
 const classnames = require('classnames/bind').bind(styles);
 
 export interface Attrs {
-  data: any
-  inline?: boolean
+  data: any;
+  inline?: boolean;
 }
 
 export class KeyValuePair extends MithrilViewComponent<Attrs> {
@@ -47,5 +47,3 @@ export class KeyValuePair extends MithrilViewComponent<Attrs> {
     );
   }
 }
-
-

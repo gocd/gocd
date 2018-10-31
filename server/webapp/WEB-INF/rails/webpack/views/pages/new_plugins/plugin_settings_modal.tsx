@@ -15,11 +15,11 @@
  */
 
 import * as m from 'mithril';
+import * as Buttons from "views/components/buttons";
+import {AlertFlashMessage} from "views/components/flash_message";
 import {Modal, Size} from "views/components/modal";
 import {Spinner} from "views/components/spinner";
-import {AlertFlashMessage} from "views/components/flash_message";
 import * as foundationStyles from './foundation_hax.scss';
-import * as Buttons from "views/components/buttons";
 
 const PluginSetting = require('models/plugins/plugin_setting');
 const AngularPlugin = require('views/shared/angular_plugin');
@@ -28,17 +28,14 @@ export class PluginSettingsModal extends Modal {
   private readonly pluginInfo: any;
   private pluginSettings: any;
   private errorMessage: string | null = null;
-  private successCallback: Function;
+  private successCallback: (msg: string) => void;
 
-  constructor(pluginInfo: any, successCallback: Function) {
+  constructor(pluginInfo: any, successCallback: (msg: string) => void) {
     super(Size.large);
     this.pluginInfo      = pluginInfo;
     this.successCallback = successCallback;
 
     PluginSetting.get(this.pluginInfo.id()).then(this.onFulfilled.bind(this), this.onFailure.bind(this)).always(m.redraw);
-  }
-
-  validate() {
   }
 
   title() {
@@ -51,7 +48,7 @@ export class PluginSettingsModal extends Modal {
     }
 
     if (!this.pluginSettings) {
-      return <Spinner/>
+      return <Spinner/>;
     }
 
     return (
@@ -69,7 +66,7 @@ export class PluginSettingsModal extends Modal {
     return [
       <Buttons.Primary onclick={this.performSave.bind(this)}>OK</Buttons.Primary>,
       <Buttons.Cancel onclick={this.close.bind(this)}>Cancel</Buttons.Cancel>
-    ]
+    ];
   }
 
   private onFulfilled(pluginSettings: any) {

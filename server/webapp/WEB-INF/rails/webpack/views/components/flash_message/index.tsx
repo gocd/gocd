@@ -16,7 +16,7 @@
 
 import * as m from 'mithril';
 import * as Icons from "../icons";
-import {MithrilComponent} from "../../../jsx/mithril-component";
+import {MithrilComponent} from "jsx/mithril-component";
 
 import * as styles from './index.scss';
 import {bind} from 'classnames/bind';

@@ -18,7 +18,7 @@ const _      = require('lodash');
 const m      = require('mithril');
 const Stream = require('mithril/stream');
 
-import sparkRoutes from '../../../helpers/spark_routes';
+import sparkRoutes from "helpers/spark_routes";
 const AjaxHelper  = require('helpers/ajax_helper');
 
 const SearchVM = function (pipelineName, materials) {

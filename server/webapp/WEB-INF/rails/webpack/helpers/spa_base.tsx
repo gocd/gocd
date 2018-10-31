@@ -17,12 +17,12 @@
 import * as m from 'mithril';
 import * as styles from './spa_base.scss';
 
-import {UsageDataReporter} from "../models/shared/usage_data_reporter";
+import {UsageDataReporter} from "models/shared/usage_data_reporter";
 
-import {MithrilViewComponent} from "../jsx/mithril-component";
-import {ModalManager} from "../views/components/modal/modal_manager";
-import {Attrs as SiteFooterAttrs, SiteFooter} from "../views/pages/partials/site_footer";
-import {Attrs as SiteHeaderAttrs, SiteHeader} from "../views/pages/partials/site_header";
+import {MithrilViewComponent} from "jsx/mithril-component";
+import {ModalManager} from "views/components/modal/modal_manager";
+import {Attrs as SiteFooterAttrs, SiteFooter} from "views/pages/partials/site_footer";
+import {Attrs as SiteHeaderAttrs, SiteHeader} from "views/pages/partials/site_header";
 
 interface Attrs {
   headerData: SiteHeaderAttrs;

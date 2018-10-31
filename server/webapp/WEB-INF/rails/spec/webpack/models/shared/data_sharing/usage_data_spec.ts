@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {EncryptionKeys, UsageData, UsageDataJSON} from "../../../../../webpack/models/shared/data_sharing/usage_data";
+import {EncryptionKeys, UsageData, UsageDataJSON} from "models/shared/data_sharing/usage_data";
 
 describe('Data Sharing Usage Data', () => {
   const dataSharingUsageDataURL          = '/go/api/internal/data_sharing/usagedata';

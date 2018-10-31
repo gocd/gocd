@@ -15,8 +15,8 @@
  */
 
 
-import {UsageDataReporter} from "../../../../webpack/models/shared/usage_data_reporter";
-import {EncryptionKeys} from "../../../../webpack/models/shared/data_sharing/usage_data";
+import {UsageDataReporter} from "models/shared/usage_data_reporter";
+import {EncryptionKeys} from "models/shared/data_sharing/usage_data";
 
 require('jasmine-ajax');
 

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import sparkRoutes from '../../helpers/spark_routes';
+import sparkRoutes from "helpers/spark_routes";
 
 const _                = require('lodash');
 const Routes           = require('gen/js-routes');

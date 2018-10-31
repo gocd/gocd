@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {DataReporting} from "../../../../../webpack/models/shared/data_sharing/data_reporting";
+import {DataReporting} from "models/shared/data_sharing/data_reporting";
 
 describe('Data Reporting', () => {
   const DataReportingInfoURL              = '/go/api/internal/data_sharing/reporting/info';

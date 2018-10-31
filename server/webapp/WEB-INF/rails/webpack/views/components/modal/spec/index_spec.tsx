@@ -17,7 +17,7 @@
 import * as m from 'mithril';
 import {Modal} from "../index";
 import * as Buttons from "../../buttons";
-import * as styles from '../index.scss';
+import * as styles from "../index.scss";
 import {ModalManager} from "../modal_manager";
 import * as simulateEvent from 'simulate-event';
 

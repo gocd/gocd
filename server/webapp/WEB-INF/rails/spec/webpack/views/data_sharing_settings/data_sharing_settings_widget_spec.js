@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import {UsageData} from "../../../../webpack/models/shared/data_sharing/usage_data";
-import {DataSharingSettings} from "../../../../webpack/models/shared/data_sharing/data_sharing_settings";
+import {UsageData} from "models/shared/data_sharing/usage_data";
+import {DataSharingSettings} from "models/shared/data_sharing/data_sharing_settings";
 
 describe("Data Sharing Settings Widget", () => {
   const $             = require("jquery");

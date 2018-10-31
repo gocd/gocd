@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {DataSharingSettings} from "../../../../../webpack/models/shared/data_sharing/data_sharing_settings";
+import {DataSharingSettings} from "models/shared/data_sharing/data_sharing_settings";
 
 describe('Data Sharing Settings Model', () => {
   const TimeFormatter          = require('helpers/time_formatter');

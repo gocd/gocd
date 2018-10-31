@@ -18,10 +18,10 @@
 import * as m from "mithril";
 
 import {PluginWidget} from "./plugin_widget";
-import {Spinner} from "../../components/spinner";
-import {MithrilComponent} from "../../../jsx/mithril-component";
+import {Spinner} from "views/components/spinner";
+import {MithrilComponent} from "jsx/mithril-component";
 import {PluginSettingsModal} from "./plugin_settings_modal";
-import {SuccessFlashMessage} from "../../components/flash_message";
+import {SuccessFlashMessage} from "views/components/flash_message";
 
 //todo: change this to pluginInfos:PluginInfos
 export interface Attrs {

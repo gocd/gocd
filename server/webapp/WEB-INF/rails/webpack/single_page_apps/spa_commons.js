@@ -17,7 +17,7 @@
 const $              = require('jquery');
 const VersionUpdater = require('models/shared/version_updater');
 
-import {UsageDataReporter} from "../models/shared/usage_data_reporter";
+import {UsageDataReporter} from "models/shared/usage_data_reporter";
 
 require('babel-polyfill');
 require('single_page_apps/notification_center');

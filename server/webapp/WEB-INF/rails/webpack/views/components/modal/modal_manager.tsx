@@ -17,7 +17,7 @@
 import {Modal} from "./index";
 import * as m from 'mithril';
 import * as _ from 'lodash';
-import {MithrilViewComponent} from "../../../jsx/mithril-component";
+import {MithrilViewComponent} from "jsx/mithril-component";
 import * as styles from './index.scss';
 
 export namespace ModalManager {

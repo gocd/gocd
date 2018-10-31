@@ -17,7 +17,7 @@
 import {Modal, Size} from "../index";
 import * as m from 'mithril';
 import * as styles from './index.scss';
-import * as Buttons from "../../buttons/";
+import * as Buttons from "../../buttons";
 import {Sample2} from "./sample2";
 
 export class SampleModal extends Modal {

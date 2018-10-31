@@ -15,16 +15,16 @@
  */
 
 import * as m from 'mithril';
-import * as Icons from "../components/icons/index";
-import * as Buttons from "../components/buttons/index";
-import {KeyValuePair} from "../components/key_value_pair";
-import {MithrilViewComponent} from "../../jsx/mithril-component";
-import {CollapsiblePanel} from "../components/collapsible_panel";
-import {ButtonGroup} from "../components/icons";
-import {AlertFlashMessage, InfoFlashMessage, SuccessFlashMessage, WarnFlashMessage} from "../components/flash_message";
-import {SearchBox} from "../components/search_box";
-import {SampleModal} from "../components/modal/sample";
-import {Size} from "../components/modal";
+import * as Icons from "views/components/icons/index";
+import * as Buttons from "views/components/buttons/index";
+import {KeyValuePair} from "views/components/key_value_pair";
+import {MithrilViewComponent} from "jsx/mithril-component";
+import {CollapsiblePanel} from "views/components/collapsible_panel";
+import {ButtonGroup} from "views/components/icons";
+import {AlertFlashMessage, InfoFlashMessage, SuccessFlashMessage, WarnFlashMessage} from "views/components/flash_message";
+import {SearchBox} from "views/components/search_box";
+import {SampleModal} from "views/components/modal/sample";
+import {Size} from "views/components/modal";
 
 const HeaderPanel = require('views/components/header_panel');
 

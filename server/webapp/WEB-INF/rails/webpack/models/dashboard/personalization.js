@@ -18,7 +18,7 @@ const Stream           = require('mithril/stream');
 const DashboardFilters = require('models/dashboard/dashboard_filters');
 const AjaxHelper       = require('helpers/ajax_helper');
 
-import SparkRoutes from '../../helpers/spark_routes';
+import SparkRoutes from "helpers/spark_routes";
 
 function Personalization(filters) {
   let filterSet       = new DashboardFilters(filters);

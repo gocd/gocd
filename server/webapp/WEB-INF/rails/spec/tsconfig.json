@@ -1,0 +1,18 @@
+{
+  "extends": "../tsconfig.common.json",
+  "compilerOptions": {
+    "baseUrl": "..",
+    "paths": {
+      "*": [
+        "webpack/*",
+        "spec/webpack/*",
+        "spec/*"
+      ]
+    }
+  },
+  "include": [
+    "webpack/**/*.ts",
+    "webpack/**/*.tsx",
+    "spec/webpack/**/*.ts"
+  ]
+}

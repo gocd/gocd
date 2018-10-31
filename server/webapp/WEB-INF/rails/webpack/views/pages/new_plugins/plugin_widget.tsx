@@ -17,11 +17,11 @@
 import * as m from "mithril";
 import * as _ from "lodash";
 
-import {MithrilViewComponent} from "../../../jsx/mithril-component";
-import {CollapsiblePanel} from "../../components/collapsible_panel";
-import {KeyValuePair} from "../../components/key_value_pair";
-import * as Buttons from "../../components/buttons";
-import * as Icons from "../../components/icons";
+import {MithrilViewComponent} from "jsx/mithril-component";
+import {CollapsiblePanel} from "views/components/collapsible_panel";
+import {KeyValuePair} from "views/components/key_value_pair";
+import * as Buttons from "views/components/buttons";
+import * as Icons from "views/components/icons";
 
 const Routes     = require('gen/js-routes');
 const styles     = require('./index.scss');

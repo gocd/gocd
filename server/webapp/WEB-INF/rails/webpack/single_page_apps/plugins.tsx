@@ -16,8 +16,8 @@
 
 //fixme: this page which renders either old-plugins page or components-based plugins page based on the toggle
 
-import Page from "../helpers/spa_base";
-import {PluginsPage} from "../views/pages/plugins";
+import Page from "helpers/spa_base";
+import {PluginsPage} from "views/pages/plugins";
 
 import * as $ from "jquery";
 import * as m from "mithril";

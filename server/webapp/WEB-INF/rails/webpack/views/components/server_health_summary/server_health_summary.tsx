@@ -17,7 +17,7 @@
 import * as m from "mithril";
 import * as stream from 'mithril/stream';
 
-import {ServerHealthMessages} from "../../../models/shared/server_health_messages/server_health_messages";
+import {ServerHealthMessages} from "models/shared/server_health_messages/server_health_messages";
 import {ServerHealthMessagesCountWidget} from "./server_health_messages_count_widget";
 
 const AjaxPoller = require('helpers/ajax_poller');

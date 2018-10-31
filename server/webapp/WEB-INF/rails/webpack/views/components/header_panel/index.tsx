@@ -18,9 +18,8 @@
 import * as m from "mithril";
 import * as _ from "lodash";
 
-import {MithrilViewComponent} from "../../../jsx/mithril-component";
-
-import * as style from './index.scss';
+import {MithrilViewComponent} from "jsx/mithril-component";
+import * as style from "./index.scss";
 
 export interface Attrs {
   title: string | JSX.Element;

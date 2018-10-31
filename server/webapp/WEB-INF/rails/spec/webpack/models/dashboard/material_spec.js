@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import sparkRoutes from '../../../../webpack/helpers/spark_routes';
+import sparkRoutes from "helpers/spark_routes";
 
 describe("Dashboard", () => {
   describe('Material Model', () => {

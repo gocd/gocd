@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import {UsageData as DataSharingUsageData} from "../models/shared/data_sharing/usage_data";
-import {DataSharingSettings} from "../models/shared/data_sharing/data_sharing_settings";
+import {UsageData as DataSharingUsageData} from "models/shared/data_sharing/usage_data";
+import {DataSharingSettings} from "models/shared/data_sharing/data_sharing_settings";
 
 const $ = require('jquery');
 const m = require('mithril');

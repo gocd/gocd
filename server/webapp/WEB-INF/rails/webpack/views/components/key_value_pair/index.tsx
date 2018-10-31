@@ -16,8 +16,8 @@
 
 import * as m from 'mithril';
 import * as _ from 'lodash';
-import * as styles from './index.scss';
-import {MithrilViewComponent} from "../../../jsx/mithril-component";
+import * as styles from "./index.scss";
+import {MithrilViewComponent} from "jsx/mithril-component";
 
 const classnames = require('classnames/bind').bind(styles);
 

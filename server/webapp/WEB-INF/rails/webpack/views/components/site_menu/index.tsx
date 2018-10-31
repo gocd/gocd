@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {MithrilViewComponent} from "../../../jsx/mithril-component";
+import {MithrilViewComponent} from "jsx/mithril-component";
 
 import * as m from 'mithril';
 import * as styles from "./index.scss";

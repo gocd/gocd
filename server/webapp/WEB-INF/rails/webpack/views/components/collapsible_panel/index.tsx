@@ -18,7 +18,7 @@ import * as m from 'mithril';
 import * as stream from 'mithril/stream';
 import {Stream} from 'mithril/stream';
 import * as styles from './index.scss';
-import {MithrilComponent} from "../../../jsx/mithril-component";
+import {MithrilComponent} from "jsx/mithril-component";
 
 const classnames = require('classnames/bind').bind(styles);
 

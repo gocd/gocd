@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import * as styles from '../index.scss';
+import * as styles from "../index.scss";
 import {CollapsiblePanel} from "../index";
 
 describe("Collapsible Panel Component", () => {

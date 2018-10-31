@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import SparkRoutes from '../../helpers/spark_routes';
+import SparkRoutes from "helpers/spark_routes";
 
 const _           = require('lodash');
 const Stream      = require('mithril/stream');

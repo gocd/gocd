@@ -101,7 +101,7 @@ module.exports = function (env) {
               {
                 loader:  'awesome-typescript-loader',
                 options: {
-                  configFile:  path.join(__dirname, '..', 'tsconfig.json')
+                  configFileName:  path.join(__dirname, '..', 'tsconfig.common.json')
                 }
               },
 

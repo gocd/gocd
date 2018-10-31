@@ -14,19 +14,18 @@
  * limitations under the License.
  */
 
-
 import {MithrilViewComponent} from "jsx/mithril-component";
 import * as m from 'mithril';
 
-import * as styles from './index.scss';
 import {bind} from 'classnames/bind';
+import * as styles from './index.scss';
 
 const classnames = bind(styles);
 
 export interface Attrs {
-  small?: boolean,
-  onclick?: Function,
-  disabled?: boolean
+  small?: boolean;
+  onclick?: () => void;
+  disabled?: boolean;
 }
 
 class Button extends MithrilViewComponent<Attrs> {
@@ -40,18 +39,9 @@ class Button extends MithrilViewComponent<Attrs> {
   view(vnode: m.Vnode<Attrs>) {
     const isSmall = vnode.attrs.small;
 
-    const onclick: Function = (evt: any) => {
-      evt.stopPropagation();
-      if (vnode.attrs.disabled) {
-        return
-      }
-
-      vnode.attrs.onclick && vnode.attrs.onclick(evt);
-    };
-
     return (
       <button {...vnode.attrs}
-              onclick={onclick}
+              onclick={vnode.attrs.onclick}
               className={classnames(
                 styles.button,
                 {[styles.btnSmall]: isSmall},

@@ -22,12 +22,12 @@ describe('Data Reporting', () => {
   const DataReportingCompleteReportingURL = '/go/api/internal/data_sharing/reporting/complete';
 
   const dataReportingJSON = {
-    "_embedded": {
-      "server_id":                            "621bf5cb-25fa-4c75-9dd2-097ef6b3bdd1",
-      "last_reported_at":                     1529308350019,
-      "data_sharing_server_url":              "https://datasharing.gocd.org/v1",
-      "data_sharing_get_encryption_keys_url": "https://datasharing.gocd.org/encryption_keys",
-      "can_report":                           true
+    _embedded: {
+      server_id:                            "621bf5cb-25fa-4c75-9dd2-097ef6b3bdd1",
+      last_reported_at:                     1529308350019,
+      data_sharing_server_url:              "https://datasharing.gocd.org/v1",
+      data_sharing_get_encryption_keys_url: "https://datasharing.gocd.org/encryption_keys",
+      can_report:                           true
     }
   };
 

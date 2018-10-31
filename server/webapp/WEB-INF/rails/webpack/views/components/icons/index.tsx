@@ -14,19 +14,19 @@
  * limitations under the License.
  */
 
-import * as m from 'mithril';
 import * as _ from "lodash";
+import * as m from 'mithril';
 
 import {MithrilViewComponent} from "jsx/mithril-component";
 
-import * as styles from "./index.scss";
 import {bind} from "classnames/bind";
+import * as styles from "./index.scss";
 
 const classnames = bind(styles);
 
 export interface Attrs {
-  onclick?: Function,
-  disabled?: boolean
+  onclick?: () => void;
+  disabled?: boolean;
 }
 
 class Icon extends MithrilViewComponent<Attrs> {

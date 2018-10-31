@@ -1,10 +1,21 @@
 {
   "defaultSeverity": "error",
   "extends": [
-    "tslint:recommended"
+   "tslint:recommended"
   ],
   "jsRules": {},
   "rules": {
+    //todo: remove this later
+    "no-var-requires": false,
+
+    // retain these
+    "one-variable-per-declaration": false,
+    "max-line-length": false,
+    "array-type": [true, "array-simple"],
+    "object-literal-key-quotes":[true, "consistent-as-needed"],
+    "no-consecutive-blank-lines": true,
+    "no-namespace": false,
+    "no-shadowed-variable": false,
     "quotemark": [
       false
     ],
@@ -16,7 +27,34 @@
     "max-classes-per-file": false,
     "object-literal-sort-keys": false,
     "trailing-comma": false,
-    "comment-format": false
+    "comment-format": false,
+    "typedef-whitespace": [true,   {
+      "call-signature": "nospace",
+      "index-signature": "space",
+      "parameter": "nospace",
+      "property-declaration": "nospace",
+      "variable-declaration": "nospace"
+    }],
+    "member-ordering": [
+      true,
+      {
+        "order": [
+          "public-static-field",
+          "private-static-field",
+
+          "public-instance-field",
+          "private-instance-field",
+
+          "public-constructor",
+          "private-constructor",
+
+          "public-static-method",
+          "public-instance-method",
+          "protected-instance-method",
+          "private-instance-method"
+        ]
+      }
+    ]
   },
   "rulesDirectory": []
 }

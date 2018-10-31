@@ -14,14 +14,13 @@
  * limitations under the License.
  */
 
-
 import * as m from "mithril";
 
-import {PluginWidget} from "./plugin_widget";
-import {Spinner} from "views/components/spinner";
 import {MithrilComponent} from "jsx/mithril-component";
-import {PluginSettingsModal} from "./plugin_settings_modal";
 import {SuccessFlashMessage} from "views/components/flash_message";
+import {Spinner} from "views/components/spinner";
+import {PluginSettingsModal} from "./plugin_settings_modal";
+import {PluginWidget} from "./plugin_widget";
 
 //todo: change this to pluginInfos:PluginInfos
 export interface Attrs {
@@ -30,37 +29,37 @@ export interface Attrs {
 }
 
 interface State {
-  edit: Function;
+  edit: (pluginInfo: any, event: MouseEvent) => void;
   successMessage: string | null;
-  onSuccessfulSave: Function,
-  clearMessage: Function
+  onSuccessfulSave: (msg: string) => void;
+  clearMessage: () => void;
 }
 
 export class PluginsWidget extends MithrilComponent<Attrs, State> {
   oninit(vnode: m.Vnode<Attrs, State>) {
     let timeoutID: number;
-    vnode.state.edit = function (pluginInfo: any, event: MouseEvent) {
+    vnode.state.edit = (pluginInfo: any, event: MouseEvent) => {
       event.stopPropagation();
       if (timeoutID) {
-        clearTimeout(timeoutID)
+        clearTimeout(timeoutID);
       }
 
       new PluginSettingsModal(pluginInfo, vnode.state.onSuccessfulSave).render();
     };
 
-    vnode.state.clearMessage = function () {
+    vnode.state.clearMessage = () => {
       vnode.state.successMessage = null;
     };
 
-    vnode.state.onSuccessfulSave = function (msg: string) {
+    vnode.state.onSuccessfulSave = (msg: string) => {
       vnode.state.successMessage = msg;
       timeoutID                  = window.setTimeout(vnode.state.clearMessage.bind(vnode.state), 10000);
-    }
+    };
   }
 
   view(vnode: m.Vnode<Attrs, State>) {
     if (!vnode.attrs.pluginInfos()) {
-      return <Spinner/>
+      return <Spinner/>;
     }
 
     return (

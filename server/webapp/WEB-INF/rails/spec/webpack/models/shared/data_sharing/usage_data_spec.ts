@@ -21,13 +21,13 @@ describe('Data Sharing Usage Data', () => {
   const dataSharingEncryptedUsageDataURL = '/go/api/internal/data_sharing/usagedata/encrypted';
 
   const dataSharingUsageJSON = {
-    "server_id":       "some-random-string",
-    "message_version": 2,
-    "data":            {
-      "pipeline_count":                 1,
-      "agent_count":                    0,
-      "oldest_pipeline_execution_time": 1528887811275,
-      "gocd_version":                   "18.9.0"
+    server_id:       "some-random-string",
+    message_version: 2,
+    data:            {
+      pipeline_count:                 1,
+      agent_count:                    0,
+      oldest_pipeline_execution_time: 1528887811275,
+      gocd_version:                   "18.9.0"
     }
   } as UsageDataJSON;
 
@@ -44,7 +44,6 @@ describe('Data Sharing Usage Data', () => {
     const usageData = UsageData.fromJSON(dataSharingUsageJSON);
     expect(usageData.represent()).toBe(JSON.stringify(dataSharingUsageJSON, null, 4));
   });
-
 
   it('should fetch data sharing usage data', () => {
     jasmine.Ajax.withMock(() => {
@@ -82,8 +81,8 @@ describe('Data Sharing Usage Data', () => {
       });
 
       const encryptionKeys = {
-        'signature':              'some-signed-key',
-        'subordinate_public_key': 'some-public-key'
+        signature:              'some-signed-key',
+        subordinate_public_key: 'some-public-key'
       } as EncryptionKeys;
 
       UsageData.getEncrypted(encryptionKeys).then(successCallback);

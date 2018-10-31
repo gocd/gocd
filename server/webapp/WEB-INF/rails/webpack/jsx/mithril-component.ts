@@ -46,7 +46,7 @@ declare global {
 
     // Element names allowed – with attributes allowed
     interface IntrinsicElements {
-      [elementName: string]: any;
+      [elementName: string] : any;
     }
 
     // Where to look for component type information

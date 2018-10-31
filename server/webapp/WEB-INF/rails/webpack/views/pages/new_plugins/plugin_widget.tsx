@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-import * as m from "mithril";
 import * as _ from "lodash";
+import * as m from "mithril";
 
 import {MithrilViewComponent} from "jsx/mithril-component";
-import {CollapsiblePanel} from "views/components/collapsible_panel";
-import {KeyValuePair} from "views/components/key_value_pair";
 import * as Buttons from "views/components/buttons";
+import {CollapsiblePanel} from "views/components/collapsible_panel";
 import * as Icons from "views/components/icons";
+import {KeyValuePair} from "views/components/key_value_pair";
 
 const Routes     = require('gen/js-routes');
 const styles     = require('./index.scss');
@@ -29,9 +29,9 @@ const classnames = require('classnames/bind').bind(styles);
 
 interface PluginHeaderAttrs {
   image: JSX.Element;
-  pluginId: string
+  pluginId: string;
   pluginName: string;
-  pluginVersion: string
+  pluginVersion: string;
 }
 
 class PluginHeaderWidget extends MithrilViewComponent<PluginHeaderAttrs> {
@@ -48,8 +48,8 @@ class PluginHeaderWidget extends MithrilViewComponent<PluginHeaderAttrs> {
       (
         <KeyValuePair inline={true} data={
           {
-            'Version': vnode.attrs.pluginVersion,
-            'Id':      vnode.attrs.pluginId
+            Version: vnode.attrs.pluginVersion,
+            Id:      vnode.attrs.pluginId
           }
         }/>
       )
@@ -61,7 +61,7 @@ class PluginHeaderWidget extends MithrilViewComponent<PluginHeaderAttrs> {
 export interface Attrs {
   pluginInfo: any;
   isUserAnAdmin: boolean;
-  onEdit: Function;
+  onEdit: () => void;
 }
 
 type OptionalElement = JSX.Element | undefined;
@@ -85,7 +85,7 @@ export class PluginWidget extends MithrilViewComponent<Attrs> {
     }
 
     if (this.doesPluginSupportSettings(pluginInfo)) {
-      settingsButton = <Icons.Settings onclick={vnode.attrs.onEdit}/>
+      settingsButton = <Icons.Settings onclick={vnode.attrs.onEdit}/>;
     }
 
     return (
@@ -137,4 +137,3 @@ export class PluginWidget extends MithrilViewComponent<Attrs> {
   }
 
 }
-

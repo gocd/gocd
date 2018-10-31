@@ -14,18 +14,18 @@
  * limitations under the License.
  */
 
+import {MithrilComponent} from "jsx/mithril-component";
 import * as m from 'mithril';
 import * as stream from 'mithril/stream';
 import {Stream} from 'mithril/stream';
 import * as styles from './index.scss';
-import {MithrilComponent} from "jsx/mithril-component";
 
 const classnames = require('classnames/bind').bind(styles);
 
 type AttributeType = JSX.Element | m.Component | undefined;
 
 export interface Attrs<Header, Actions> {
-  actions?: AttributeType | Array<AttributeType>;
+  actions?: AttributeType | AttributeType[];
   header: AttributeType | string;
 }
 
@@ -38,7 +38,7 @@ export class CollapsiblePanel<Header, Actions> extends MithrilComponent<Attrs<He
 
   oninit(this: State, vnode: m.Vnode<Attrs<Header, Actions>, State>) {
     vnode.state.expanded = stream(false);
-    vnode.state.toggle   = function () {
+    vnode.state.toggle = () => {
       vnode.state.expanded(!vnode.state.expanded());
     };
   }

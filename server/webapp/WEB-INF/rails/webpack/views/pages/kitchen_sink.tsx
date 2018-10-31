@@ -14,25 +14,21 @@
  * limitations under the License.
  */
 
-import * as m from 'mithril';
-import * as Icons from "views/components/icons/index";
-import * as Buttons from "views/components/buttons/index";
-import {KeyValuePair} from "views/components/key_value_pair";
 import {MithrilViewComponent} from "jsx/mithril-component";
+import * as m from 'mithril';
+import * as Buttons from "views/components/buttons/index";
 import {CollapsiblePanel} from "views/components/collapsible_panel";
-import {ButtonGroup} from "views/components/icons";
 import {AlertFlashMessage, InfoFlashMessage, SuccessFlashMessage, WarnFlashMessage} from "views/components/flash_message";
-import {SearchBox} from "views/components/search_box";
-import {SampleModal} from "views/components/modal/sample";
+import {ButtonGroup} from "views/components/icons";
+import * as Icons from "views/components/icons/index";
+import {KeyValuePair} from "views/components/key_value_pair";
 import {Size} from "views/components/modal";
+import {SampleModal} from "views/components/modal/sample";
+import {SearchBox} from "views/components/search_box";
 
 const HeaderPanel = require('views/components/header_panel');
 
 export class KitchenSink extends MithrilViewComponent<null> {
-
-  private createModal(size: Size) {
-    new SampleModal(size).render();
-  }
 
   view(vnode: m.Vnode<null>) {
     return (
@@ -51,14 +47,13 @@ export class KitchenSink extends MithrilViewComponent<null> {
         </CollapsiblePanel>
         <hr/>
 
-
         <h3>Search Box</h3>
         <SearchBox width={350} attrName="search" model={null} placeholder="Some placeholder"/>
 
         <h3>Modal</h3>
-        <Buttons.Primary onclick={() => {this.createModal(Size.small)}}>Open Small Modal</Buttons.Primary>
-        <Buttons.Primary onclick={() => {this.createModal(Size.medium)}}>Open Medium Modal</Buttons.Primary>
-        <Buttons.Primary onclick={() => {this.createModal(Size.large)}}>Open Large Modal</Buttons.Primary>
+        <Buttons.Primary onclick={() => {this.createModal(Size.small); }}>Open Small Modal</Buttons.Primary>
+        <Buttons.Primary onclick={() => {this.createModal(Size.medium); }}>Open Medium Modal</Buttons.Primary>
+        <Buttons.Primary onclick={() => {this.createModal(Size.large); }}>Open Large Modal</Buttons.Primary>
 
         <h3>Icons</h3>
         <ButtonGroup>
@@ -129,4 +124,8 @@ export class KitchenSink extends MithrilViewComponent<null> {
       </div>
     );
   }
-};
+
+  private createModal(size: Size) {
+    new SampleModal(size).render();
+  }
+}

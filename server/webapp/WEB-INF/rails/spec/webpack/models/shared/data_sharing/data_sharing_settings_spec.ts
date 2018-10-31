@@ -21,10 +21,10 @@ describe('Data Sharing Settings Model', () => {
   const dataSharingSettingsURL = '/go/api/data_sharing/settings';
 
   const dataSharingSettingsJSON = {
-    "_embedded": {
-      "allow":      true,
-      "updated_by": "Admin",
-      "updated_on": "2018-06-14T05:45:30Z"
+    _embedded: {
+      allow:      true,
+      updated_by: "Admin",
+      updated_on: "2018-06-14T05:45:30Z"
     }
   };
 
@@ -45,7 +45,7 @@ describe('Data Sharing Settings Model', () => {
     let settings = DataSharingSettings.fromJSON(dataSharingSettingsJSON, {getResponseHeader: () => 'ETag'});
     expect(settings.hasEverChangedByAdmin()).toBe(true);
 
-    dataSharingSettingsJSON['_embedded']['updated_by'] = 'Default';
+    dataSharingSettingsJSON._embedded.updated_by = 'Default';
 
     settings = DataSharingSettings.fromJSON(dataSharingSettingsJSON, {getResponseHeader: () => 'ETag'});
     expect(settings.hasEverChangedByAdmin()).toBe(false);
@@ -94,9 +94,9 @@ describe('Data Sharing Settings Model', () => {
   it('should patch data sharing settings', () => {
     jasmine.Ajax.withMock(() => {
       const updatedMetricsSettings = {
-        "_embedded": {
-          "allow":      false,
-          "updated_by": "Bob"
+        _embedded: {
+          allow:      false,
+          updated_by: "Bob"
         }
       };
 

@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
+import {bind} from "classnames/bind";
 import {MithrilViewComponent} from "jsx/mithril-component";
-import * as m from 'mithril';
-import * as _ from 'lodash';
-import * as styles from './index.scss';
-import {ModalManager} from "./modal_manager";
+import * as _ from "lodash";
+import * as m from "mithril";
 import * as Buttons from "../buttons";
-import {bind} from 'classnames/bind';
+import * as styles from "./index.scss";
+import {ModalManager} from "./modal_manager";
 
-const uuid4 = require('uuid/v4');
+const uuid4 = require("uuid/v4");
 
 const classnames = bind(styles);
 
@@ -61,11 +61,11 @@ export abstract class Modal extends MithrilViewComponent<any> {
   }
 
   oninit() {
-    document.body.addEventListener('keydown', this.closeOnEscape.bind(this));
+    document.body.addEventListener("keydown", this.closeOnEscape.bind(this));
   }
 
   onremove() {
-    document.body.removeEventListener('keydown', this.closeOnEscape.bind(this));
+    document.body.removeEventListener("keydown", this.closeOnEscape.bind(this));
   }
 
   view() {
@@ -79,10 +79,12 @@ export abstract class Modal extends MithrilViewComponent<any> {
         {this.body()}
       </div>
       <footer className={styles.overlayFooter}>
-        {_.forEach(_.reverse(this.buttons()), button => {
-          return button;
-        })}
+        {
+          _.forEach(_.reverse(this.buttons()), (button) => {
+            return button;
+          })
+        }
       </footer>
-    </div>
+    </div>;
   }
 }

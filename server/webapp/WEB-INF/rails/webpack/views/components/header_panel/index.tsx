@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-
-import * as m from "mithril";
 import * as _ from "lodash";
+import * as m from "mithril";
 
 import {MithrilViewComponent} from "jsx/mithril-component";
 import * as style from "./index.scss";

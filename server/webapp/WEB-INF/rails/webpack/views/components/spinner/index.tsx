@@ -16,8 +16,8 @@
 
 import * as m from "mithril";
 
-import * as styles from './index.scss';
 import {bind} from 'classnames/bind';
+import * as styles from './index.scss';
 
 const classnames = bind(styles);
 

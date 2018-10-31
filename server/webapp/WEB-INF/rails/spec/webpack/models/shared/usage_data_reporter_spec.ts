@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-
-import {UsageDataReporter} from "models/shared/usage_data_reporter";
 import {EncryptionKeys} from "models/shared/data_sharing/usage_data";
+import {UsageDataReporter} from "models/shared/usage_data_reporter";
 
 require('jasmine-ajax');
 
@@ -36,7 +35,6 @@ describe('Usage Data Reporter', () => {
     jasmine.Ajax.uninstall();
     localStorage.removeItem(USAGE_DATA_LAST_REPORTED_TIME_KEY);
   });
-
 
   it('should do nothing when usage data is already reported within 30 mins(lookup in local storage)', () => {
     triedReportingWithin30Minutes();
@@ -88,7 +86,7 @@ describe('Usage Data Reporter', () => {
     expect(jasmine.Ajax.requests.at(3).method).toBe('POST');
     expect(JSON.parse(JSON.stringify(jasmine.Ajax.requests.at(3).data())) as EncryptionKeys).toEqual({
       signature,
-      'subordinate_public_key': subordinatePublicKey
+      subordinate_public_key: subordinatePublicKey
     } as EncryptionKeys);
 
     expect(jasmine.Ajax.requests.at(4).url).toBe(allowedReportingJSON._embedded.data_sharing_server_url);
@@ -207,7 +205,7 @@ describe('Usage Data Reporter', () => {
     jasmine.Ajax.stubRequest(allowedReportingJSON._embedded.data_sharing_get_encryption_keys_url, undefined, 'GET').andReturn({
       responseText: JSON.stringify({
         signature,
-        'subordinate_public_key': subordinatePublicKey
+        subordinate_public_key: subordinatePublicKey
       }),
       status:       200
     });
@@ -220,22 +218,22 @@ describe('Usage Data Reporter', () => {
   }
 
   const notAllowedReportingJSON = {
-    "_embedded": {
-      "server_id":                            "621bf5cb-25fa-4c75-9dd2-097ef6b3bdd1",
-      "last_reported_at":                     1529308350019,
-      "data_sharing_server_url":              "https://datasharing.gocd.org/v1",
-      "data_sharing_get_encryption_keys_url": "https://datasharing.gocd.org/encryption_keys",
-      "can_report":                           false
+    _embedded: {
+      server_id:                            "621bf5cb-25fa-4c75-9dd2-097ef6b3bdd1",
+      last_reported_at:                     1529308350019,
+      data_sharing_server_url:              "https://datasharing.gocd.org/v1",
+      data_sharing_get_encryption_keys_url: "https://datasharing.gocd.org/encryption_keys",
+      can_report:                           false
     }
   };
 
   const allowedReportingJSON = {
-    "_embedded": {
-      "server_id":                            "621bf5cb-25fa-4c75-9dd2-097ef6b3bdd1",
-      "last_reported_at":                     1529308350019,
-      "data_sharing_server_url":              "https://datasharing.gocd.org/v1",
-      "data_sharing_get_encryption_keys_url": "https://datasharing.gocd.org/encryption_keys",
-      "can_report":                           true
+    _embedded: {
+      server_id:                            "621bf5cb-25fa-4c75-9dd2-097ef6b3bdd1",
+      last_reported_at:                     1529308350019,
+      data_sharing_server_url:              "https://datasharing.gocd.org/v1",
+      data_sharing_get_encryption_keys_url: "https://datasharing.gocd.org/encryption_keys",
+      can_report:                           true
     }
   };
 

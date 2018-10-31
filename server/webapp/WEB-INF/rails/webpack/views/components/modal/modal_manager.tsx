@@ -14,28 +14,32 @@
  * limitations under the License.
  */
 
-import {Modal} from "./index";
-import * as m from 'mithril';
-import * as _ from 'lodash';
 import {MithrilViewComponent} from "jsx/mithril-component";
-import * as styles from './index.scss';
+import * as _ from "lodash";
+import * as m from "mithril";
+import {Modal} from "./index";
+import * as styles from "./index.scss";
 
 export namespace ModalManager {
 
-  type ModalEntry = { key: string, value: Modal }
-  let allModals: ModalEntry[] = [];
+  interface ModalEntry {
+    key: string;
+    value: Modal;
+  }
+
+  const allModals: ModalEntry[] = [];
 
   //call this function once when the SPA is loaded
   export function onPageLoad() {
-    const $body = $('body');
-    const $modalParent = $('<div class="component-modal-container"/>').appendTo($body);
-    $modalParent.data('modals', allModals);
+    const $body        = $("body");
+    const $modalParent = $("<div class=\"component-modal-container\"/>").appendTo($body);
+    $modalParent.data("modals", allModals);
     const ModalDialogs = class extends MithrilViewComponent<any> {
       view() {
         return (
           <div>
             {_.map(allModals, (entry) => {
-              return <div class={styles.overlayBg}>{m(entry.value)}</div>
+              return <div class={styles.overlayBg}>{m(entry.value)}</div>;
             })}
           </div>
         );
@@ -46,13 +50,13 @@ export namespace ModalManager {
 
   export function render(modal: Modal) {
     allModals.push({key: modal.id, value: modal});
-    $('body').addClass(styles.fixed);
+    $("body").addClass(styles.fixed);
     m.redraw();
   }
 
   export function close(modal: Modal) {
     _.remove(allModals, (entry) => entry.key === modal.id);
-    $('body').removeClass(styles.fixed);
+    $("body").removeClass(styles.fixed);
     m.redraw();
   }
 }

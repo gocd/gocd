@@ -15,7 +15,7 @@
  */
 
 import * as m from 'mithril';
-import {MithrilComponent} from "../../jsx/mithril-component";
+import {MithrilComponent} from "jsx/mithril-component";
 const ConfigReposList = require("views/config_repos/config_repos_list");
 const ConfigRepos     = require("models/config_repos/config_repos");
 const ReposListVM     = require("views/config_repos/models/repos_list_vm");

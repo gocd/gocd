@@ -15,7 +15,7 @@
  */
 
 import * as m from "mithril";
-import {MithrilViewComponent} from "../../../jsx/mithril-component";
+import {MithrilViewComponent} from "jsx/mithril-component";
 import * as styles from './site_footer.scss';
 
 export interface Attrs {

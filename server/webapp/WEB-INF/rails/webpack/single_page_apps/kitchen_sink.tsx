@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import Page from "../helpers/spa_base";
-import {KitchenSink} from "../views/pages/kitchen_sink";
+import Page from "helpers/spa_base";
+import {KitchenSink} from "views/pages/kitchen_sink";
 
 export class KitchenSinkSPA extends Page {
   constructor() {

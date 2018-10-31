@@ -15,11 +15,11 @@
  */
 
 import * as m from 'mithril';
-import {Modal, Size} from "../../components/modal";
-import {Spinner} from "../../components/spinner";
-import {AlertFlashMessage} from "../../components/flash_message";
+import {Modal, Size} from "views/components/modal";
+import {Spinner} from "views/components/spinner";
+import {AlertFlashMessage} from "views/components/flash_message";
 import * as foundationStyles from './foundation_hax.scss';
-import * as Buttons from "../../components/buttons";
+import * as Buttons from "views/components/buttons";
 
 const PluginSetting = require('models/plugins/plugin_setting');
 const AngularPlugin = require('views/shared/angular_plugin');

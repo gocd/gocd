@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {MithrilViewComponent} from "../../../jsx/mithril-component";
+import {MithrilViewComponent} from "jsx/mithril-component";
 
 import * as m from 'mithril';
 import * as styles from './site_header.scss';
@@ -24,7 +24,7 @@ const classnames = require('classnames/bind').bind(styles);
 const NotificationCenter  = require('views/components/notification_center');
 const ServerHealthSummary = require('views/components/server_health_summary/server_health_summary');
 
-import SiteMenu from "../../components/site_menu";
+import SiteMenu from "views/components/site_menu";
 
 export interface Attrs {
   isAnonymous: boolean;

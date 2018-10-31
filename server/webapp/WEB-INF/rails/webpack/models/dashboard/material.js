@@ -19,7 +19,7 @@ const m           = require('mithril');
 const Stream      = require('mithril/stream');
 const AjaxHelper  = require('helpers/ajax_helper');
 
-import sparkRoutes from '../../helpers/spark_routes';
+import sparkRoutes from "helpers/spark_routes";
 
 class Material {
   selectRevision     = (revision) => {

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import SparkRoutes from '../../../../../webpack/helpers/spark_routes';
+import SparkRoutes from "helpers/spark_routes";
 
 describe("Dashboard Pipeline Trigger With Options Modal Body", () => {
   const m                           = require("mithril");

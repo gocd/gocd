@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import Page from "../helpers/spa_base";
-import {ConfigReposPage} from "../views/pages/config_repos";
+import Page from "helpers/spa_base";
+import {ConfigReposPage} from "views/pages/config_repos";
 
 export class ConfigReposSPA extends Page {
   constructor() {

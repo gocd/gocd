@@ -15,7 +15,7 @@
  */
 
 import {Stream} from 'mithril/stream';
-import SparkRoutes from '../../../helpers/spark_routes';
+import SparkRoutes from "helpers/spark_routes";
 
 const stream     = require('mithril/stream');
 const AjaxHelper = require('helpers/ajax_helper');

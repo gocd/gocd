@@ -22,7 +22,7 @@ const DashboardGroupsWidget   = require('views/dashboard/dashboard_groups_widget
 const PersonalizedViewsWidget = require('views/dashboard/personalized_views_widget');
 const Dropdown                = require('views/shared/dropdown');
 
-import {SearchBox} from "../components/search_box";
+import {SearchBox} from "views/components/search_box";
 
 const GroupingSwitch = {
   view(vnode) {

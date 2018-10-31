@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import SparkRoutes from '../../../../webpack/helpers/spark_routes';
+import SparkRoutes from "helpers/spark_routes";
 
 describe("Dashboard Widget", () => {
   const m               = require("mithril");

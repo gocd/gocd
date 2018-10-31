@@ -28,7 +28,7 @@ const mrequest             = require('helpers/mrequest');
 const Validatable          = require('models/mixins/validatable_mixin');
 const $                    = require('jquery');
 
-import SparkRoutes from '../../helpers/spark_routes';
+import SparkRoutes from "helpers/spark_routes";
 
 const Pipeline = function (data) {
   this.constructor.modelType = 'pipeline';

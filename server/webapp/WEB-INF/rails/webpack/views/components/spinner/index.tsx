@@ -21,7 +21,7 @@ import {bind} from 'classnames/bind';
 
 const classnames = bind(styles);
 
-import {MithrilViewComponent} from "../../../jsx/mithril-component";
+import {MithrilViewComponent} from "jsx/mithril-component";
 
 export interface Attrs {
   small?: boolean;

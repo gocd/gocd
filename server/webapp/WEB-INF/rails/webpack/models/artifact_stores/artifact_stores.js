@@ -21,7 +21,7 @@ const PluginConfigurations = require('models/shared/plugin_configurations');
 const Validatable          = require('models/mixins/validatable_mixin');
 const CrudMixins           = require('models/mixins/crud_mixins');
 
-import SparkRoutes from '../../helpers/spark_routes';
+import SparkRoutes from "helpers/spark_routes";
 
 const ArtifactStores = function (data) {
   Mixins.HasMany.call(this, {

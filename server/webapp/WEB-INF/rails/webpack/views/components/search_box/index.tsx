@@ -17,7 +17,7 @@
 
 import * as m from 'mithril';
 import * as style from './index.scss';
-import {MithrilViewComponent} from "../../../jsx/mithril-component";
+import {MithrilViewComponent} from "jsx/mithril-component";
 
 const f = require("helpers/form_helper");
 

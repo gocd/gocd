@@ -17,7 +17,7 @@
 import {
   ServerHealthMessage,
   ServerHealthMessages
-} from "../../../../../webpack/models/shared/server_health_messages/server_health_messages";
+} from "models/shared/server_health_messages/server_health_messages";
 
 describe("ServerHealthMessages", () => {
 

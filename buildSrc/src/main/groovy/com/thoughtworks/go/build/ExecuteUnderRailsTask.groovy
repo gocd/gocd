@@ -42,9 +42,6 @@ class ExecuteUnderRailsTask extends JavaExec {
 
     classpath(project.tasks.getByName('pathingJar').archivePath)
 
-    if (CURRENT_OS.isWindows()) {
-      environment['CLASSPATH'] += "${File.pathSeparatorChar}${project.tasks.getByName('pathingJar').archivePath}"
-    }
     setup(project, this, disableJRubyOptimization)
   }
 
@@ -57,15 +54,10 @@ class ExecuteUnderRailsTask extends JavaExec {
       }
       environment['PATH'] = (project.additionalJRubyPaths + [environment['PATH']]).join(File.pathSeparator)
 
-      classpath(project.jrubyJar())
       standardOutput = new PrintStream(System.out, true)
       errorOutput = new PrintStream(System.err, true)
 
       environment += project.defaultJRubyEnvironment
-
-      if (CURRENT_OS.isWindows()) {
-        environment += [CLASSPATH: project.jrubyJar().toString()]
-      }
 
       jvmArgs += project.defaultJvmArgs
 

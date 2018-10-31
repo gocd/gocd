@@ -36,12 +36,13 @@ dependencies {
 
   compile(group: 'org.eclipse.jgit', name: 'org.eclipse.jgit.http.server', version: project.versions.jgit) {
     exclude(module: 'jsch')
-    exclude(module: 'jzlib')
   }
   compile project(':jetty9')
   compile group: 'javax.servlet', name: 'javax.servlet-api', version: project.versions.servletApi
-  compile group: 'org.jruby', name: 'jruby-complete', version: project.versions.jruby
-  compile group: 'org.jruby.rack', name: 'jruby-rack', version: versions.rack
+  compile group: 'org.jruby', name: 'jruby', version: project.versions.jruby
+  compile(group: 'org.jruby.rack', name: 'jruby-rack', version: versions.rack) {
+    exclude(module: 'jruby-complete')
+  }
   compile group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: project.versions.bouncyCastle
   compile group: 'org.bouncycastle', name: 'bcpkix-jdk15on', version: project.versions.bouncyCastle
   compile group: 'org.slf4j', name: 'slf4j-api', version: project.versions.slf4j

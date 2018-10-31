@@ -8,6 +8,6 @@ set PATH=${additionalJRubyPaths.join(File.pathSeparator)};%PATH%
 <% print jvmArgs.collect { entry -> $/  "${entry}"/$ }.join(" ^\n") %> ^
 <% print systemProperties.collect { entry -> $/  "-D${entry}"/$ }.join(" ^\n") %> ^
   -cp ^
-  ${jrubyJar};${classpath.join(';')} ^
+  ${classpath.join(';')} ^
   ${mainClassName} ^
   %*

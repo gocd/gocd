@@ -27,8 +27,10 @@ dependencies {
   }
   compile group: 'commons-dbcp', name: 'commons-dbcp', version: '1.4'
   compile group: 'commons-pool', name: 'commons-pool', version: '1.5.6'
-  compile group: 'org.jruby', name: 'jruby-complete', version: project.versions.jruby
-  compile group: 'org.jruby.rack', name: 'jruby-rack', version: versions.rack
+  compile group: 'org.jruby', name: 'jruby', version: project.versions.jruby
+  compile(group: 'org.jruby.rack', name: 'jruby-rack', version: versions.rack) {
+    exclude(module: 'jruby-complete')
+  }
   testCompile project(':common')
   testCompile project(':config:config-server')
   testCompile project(':config:config-api')

@@ -6,7 +6,7 @@ export PATH="${additionalJRubyPaths.join(File.pathSeparator)}:\$PATH"
 
 argv=()
 jvm_args=()
-combined_classpath="${jrubyJar}"
+combined_classpath=""
 watch_for_classpath=0
 
 for arg in "\$@"; do

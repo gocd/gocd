@@ -23,6 +23,7 @@ import java.util.List;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 
 public class BuildArtifactConfigTest {
     @Test
@@ -74,5 +75,23 @@ public class BuildArtifactConfigTest {
         buildArtifactConfig.validateUniqueness(plans);
 
         assertThat(buildArtifactConfig.errors().isEmpty(), is(true));
+    }
+
+    @Test
+    public void shouldAllowOverridingDefaultArtifactDestination() {
+        BuildArtifactConfig artifactConfig = new BuildArtifactConfig("src", "dest");
+        assertThat(artifactConfig.getDestination(), is("dest"));
+
+        TestArtifactConfig testArtifactConfig = new TestArtifactConfig("src", "destination");
+        assertThat(testArtifactConfig.getDestination(), is("destination"));
+    }
+
+    @Test
+    public void shouldNotOverrideDefaultArtifactDestinationWhenNotSpecified() {
+        BuildArtifactConfig artifactConfig = new BuildArtifactConfig("src", null);
+        assertThat(artifactConfig.getDestination(), is(""));
+
+        TestArtifactConfig testArtifactConfig = new TestArtifactConfig("src", null);
+        assertThat(testArtifactConfig.getDestination(), is("testoutput"));
     }
 }

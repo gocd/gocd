@@ -88,7 +88,9 @@ public abstract class BuiltinArtifactConfig implements ArtifactConfig {
     }
 
     public void setDestination(String destination) {
-        this.destination = StringUtils.trim(destination);
+        if (StringUtils.isNotBlank(destination)) {
+            this.destination = StringUtils.trim(destination);
+        }
     }
 
     @Override
@@ -107,6 +109,6 @@ public abstract class BuiltinArtifactConfig implements ArtifactConfig {
 
     @Override
     public String toString() {
-        return MessageFormat.format("Artifact of type {0} copies from {1} to {2}", getArtifactType(), source, destination);
+        return MessageFormat.format("Artifact of type {0} copies from {1} to {2}", getArtifactType(), getSource(), getDestination());
     }
 }

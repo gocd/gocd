@@ -1,6 +1,10 @@
 {
   "compileOnSave": true,
   "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "*": ["webpack/*"]
+    },
     "outDir": "./tmp/typescript-out/",
     "lib": [
       "es2015",

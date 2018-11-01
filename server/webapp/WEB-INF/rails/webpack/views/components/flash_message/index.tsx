@@ -57,14 +57,14 @@ class FlashMessage extends MithrilComponent<Attrs, State> {
     let closeButton: JSX.Element | undefined;
     if (isDismissible) {
       closeButton = (
-        <button className={classnames("close-callout")}>
+        <button className={classnames(styles.closeCallout)}>
           <Icons.Close onclick={vnode.state.onDismiss}/>
         </button>
       );
     }
 
     return (
-      <div className={classnames(this.type, "callout")}>
+      <div className={classnames(this.type, styles.callout)}>
         <p>{vnode.attrs.message}</p>
         {closeButton}
       </div>
@@ -74,24 +74,24 @@ class FlashMessage extends MithrilComponent<Attrs, State> {
 
 export class InfoFlashMessage extends FlashMessage {
   constructor() {
-    super('info');
+    super(styles.info);
   }
 }
 
 export class SuccessFlashMessage extends FlashMessage {
   constructor() {
-    super('success');
+    super(styles.success);
   }
 }
 
 export class WarnFlashMessage extends FlashMessage {
   constructor() {
-    super('warning');
+    super(styles.warning);
   }
 }
 
 export class AlertFlashMessage extends FlashMessage {
   constructor() {
-    super('alert');
+    super(styles.alert);
   }
 }

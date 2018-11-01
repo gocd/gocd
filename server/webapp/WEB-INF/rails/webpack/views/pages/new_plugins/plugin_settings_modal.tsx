@@ -15,27 +15,30 @@
  */
 
 import * as m from 'mithril';
+import {PluginInfo} from "models/shared/plugin_infos_new/plugin_infos";
 import * as Buttons from "views/components/buttons";
 import {AlertFlashMessage} from "views/components/flash_message";
 import {Modal, Size} from "views/components/modal";
 import {Spinner} from "views/components/spinner";
 import * as foundationStyles from './foundation_hax.scss';
 
-const PluginSetting = require('models/plugins/plugin_setting');
-const AngularPlugin = require('views/shared/angular_plugin');
+const PluginSetting    = require('models/plugins/plugin_setting');
+const AngularPluginNew = require('views/shared/angular_plugin_new');
+//const AngularPlugin = require('views/shared/angular_plugin');
+const Stream           = require('mithril/stream');
 
 export class PluginSettingsModal extends Modal {
-  private readonly pluginInfo: any;
+  private readonly pluginInfo: PluginInfo<any>;
   private pluginSettings: any;
   private errorMessage: string | null = null;
   private successCallback: (msg: string) => void;
 
-  constructor(pluginInfo: any, successCallback: (msg: string) => void) {
+  constructor(pluginInfo: PluginInfo<any>, successCallback: (msg: string) => void) {
     super(Size.large);
     this.pluginInfo      = pluginInfo;
     this.successCallback = successCallback;
 
-    PluginSetting.get(this.pluginInfo.id()).then(this.onFulfilled.bind(this), this.onFailure.bind(this)).always(m.redraw);
+    PluginSetting.get(this.pluginInfo.id).then(this.onFulfilled.bind(this), this.onFailure.bind(this)).always(m.redraw);
   }
 
   title() {
@@ -54,9 +57,10 @@ export class PluginSettingsModal extends Modal {
     return (
       <div class={foundationStyles.foundationHax}>
         <div class="row collapse">
-          <AngularPlugin pluginInfoSettings={this.pluginInfo.pluginSettings}
-                         configuration={this.pluginSettings.configuration}
-                         key={this.pluginInfo.id()}/>
+          <AngularPluginNew
+            pluginInfoSettings={Stream(this.pluginInfo.firstExtensionWithPluginSettings().pluginSettings)}
+            configuration={this.pluginSettings.configuration}
+            key={this.pluginInfo.id}/>
         </div>
       </div>
     );
@@ -76,7 +80,7 @@ export class PluginSettingsModal extends Modal {
 
   private onFailure(error: string, jqXHR: XMLHttpRequest) {
     if (jqXHR.status === 404) {
-      this.pluginSettings = new PluginSetting({pluginId: this.pluginInfo.id()});
+      this.pluginSettings = new PluginSetting({pluginId: this.pluginInfo.id});
     } else {
       this.errorMessage = error;
     }

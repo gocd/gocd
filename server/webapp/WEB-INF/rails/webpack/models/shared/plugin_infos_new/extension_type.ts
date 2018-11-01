@@ -17,7 +17,7 @@
 export enum ExtensionType {
 
   CONFIG_REPO = 'configrepo',
-  ELASTIC_AGENTS = 'elastic',
+  ELASTIC_AGENTS = 'elastic-agent',
   AUTHORIZATION = 'authorization',
   SCM = 'scm',
   TASK = 'task',

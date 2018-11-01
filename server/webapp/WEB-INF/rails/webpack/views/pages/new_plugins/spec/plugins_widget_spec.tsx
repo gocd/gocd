@@ -15,6 +15,7 @@
  */
 
 import * as m from "mithril";
+import {PluginInfos} from "models/shared/plugin_infos_new/plugin_infos";
 import {PluginsWidget} from "../plugins_widget";
 
 import * as collapsiblePanelStyles from "../../../components/collapsible_panel/index.scss";
@@ -22,9 +23,9 @@ import * as keyValuePairStyles from "../../../components/key_value_pair/index.sc
 
 describe("New Plugins Widget", () => {
   const simulateEvent = require("simulate-event");
-  const PluginInfos   = require("models/shared/plugin_infos");
 
-  const pluginInfos = PluginInfos.fromJSON([getEAPluginInfo(), getNotificationPluginInfo()]);
+  const data        = [getEAPluginInfo(), getNotificationPluginInfo()];
+  const pluginInfos = PluginInfos.fromJSON({_embedded: {plugin_info: data}});
 
   let $root: any, root: any;
   beforeEach(() => {
@@ -165,8 +166,7 @@ describe("New Plugins Widget", () => {
     m.mount(root, {
       view() {
         return (
-          <PluginsWidget isUserAnAdmin={isUserAdmin}
-                         pluginInfos={() => pluginInfos}/>
+          <PluginsWidget isUserAnAdmin={isUserAdmin} pluginInfos={pluginInfos}/>
         );
       }
     });

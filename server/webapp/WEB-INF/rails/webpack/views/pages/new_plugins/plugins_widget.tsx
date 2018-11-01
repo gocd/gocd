@@ -14,18 +14,19 @@
  * limitations under the License.
  */
 
+import * as _ from "lodash";
 import * as m from "mithril";
 
 import {MithrilComponent} from "jsx/mithril-component";
+import {PluginInfo} from "models/shared/plugin_infos_new/plugin_infos";
 import {SuccessFlashMessage} from "views/components/flash_message";
 import {Spinner} from "views/components/spinner";
 import {PluginSettingsModal} from "./plugin_settings_modal";
 import {PluginWidget} from "./plugin_widget";
 
-//todo: change this to pluginInfos:PluginInfos
 export interface Attrs {
   isUserAnAdmin: boolean;
-  pluginInfos: any;
+  pluginInfos: Array<PluginInfo<any>>;
 }
 
 interface State {
@@ -58,16 +59,15 @@ export class PluginsWidget extends MithrilComponent<Attrs, State> {
   }
 
   view(vnode: m.Vnode<Attrs, State>) {
-    if (!vnode.attrs.pluginInfos()) {
+    if (!vnode.attrs.pluginInfos) {
       return <Spinner/>;
     }
-
     return (
       <div data-test-id="plugins-list">
         <SuccessFlashMessage message={vnode.state.successMessage}/>
-        {vnode.attrs.pluginInfos().sortByPluginInfos((pi: any) => pi.id()).map((pluginInfo: any) => {
+        {_.sortBy(vnode.attrs.pluginInfos, (pluginInfo) => pluginInfo.id).map((pluginInfo: PluginInfo<any>) => {
           return (
-            <PluginWidget key={pluginInfo.id()}
+            <PluginWidget key={pluginInfo.id}
                           pluginInfo={pluginInfo}
                           onEdit={vnode.state.edit.bind(vnode.state, pluginInfo)}
                           isUserAnAdmin={vnode.attrs.isUserAnAdmin}/>

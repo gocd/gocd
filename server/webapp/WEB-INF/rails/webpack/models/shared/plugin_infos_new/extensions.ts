@@ -14,10 +14,13 @@
  * limitations under the License.
  */
 
+import {Stream} from "mithril/stream";
 import {AnalyticsCapabilities} from "./analytics_plugin_capabilities";
 import {AuthCapabilities} from "./authorization_plugin_capabilities";
 import {ElasticPluginCapabilities} from "./elastic_plugin_capabilities";
 import {ExtensionType} from "./extension_type";
+
+const stream = require("mithril/stream");
 
 class Configuration {
   readonly key: string;
@@ -34,12 +37,12 @@ class Configuration {
 }
 
 class PluginSettings {
-  configurations?: Configuration[];
-  viewTemplate?: string;
+  configurations?: Stream<Configuration[]>;
+  viewTemplate?: Stream<string>;
 
   constructor(configurations: Configuration[], viewTemplate: string) {
-    this.configurations = configurations;
-    this.viewTemplate   = viewTemplate;
+    this.configurations = stream(configurations);
+    this.viewTemplate   = stream(viewTemplate);
   }
 
   static fromJSON(data: any): PluginSettings {
@@ -174,7 +177,7 @@ class ElasticAgentSettings extends Extension {
   }
 
   hasPluginSettings(): boolean {
-    return false;
+    return true;
   }
 }
 

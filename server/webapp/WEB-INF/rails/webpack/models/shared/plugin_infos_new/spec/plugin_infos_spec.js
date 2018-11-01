@@ -39,7 +39,7 @@ describe('PluginInfos New', () => {
     },
     "extensions": [
       {
-        "type": "elastic",
+        "type": "elastic-agent",
         "plugin_settings": {
           "configurations": [
             {
@@ -769,20 +769,20 @@ describe('PluginInfos New', () => {
       verifyBasicProperties(pluginInfo, pluginInfoWithElasticAgentExtension);
 
       const extensionInfo = pluginInfo.extensionOfType(ExtensionType.ELASTIC_AGENTS);
-      expect(extensionInfo.profileSettings.viewTemplate).toEqual(pluginInfoWithElasticAgentExtension.extensions[0].profile_settings.view.template);
-      expect(extensionInfo.profileSettings.configurations.length).toEqual(3);
-      expect(extensionInfo.profileSettings.configurations.map((config) => config.key)).toEqual(['Image', 'Command', 'Environment']);
-      expect(extensionInfo.profileSettings.configurations[0].metadata).toEqual({
+      expect(extensionInfo.profileSettings.viewTemplate()).toEqual(pluginInfoWithElasticAgentExtension.extensions[0].profile_settings.view.template);
+      expect(extensionInfo.profileSettings.configurations().length).toEqual(3);
+      expect(extensionInfo.profileSettings.configurations().map((config) => config.key)).toEqual(['Image', 'Command', 'Environment']);
+      expect(extensionInfo.profileSettings.configurations()[0].metadata).toEqual({
         secure:   false,
         required: true
       });
       expect(extensionInfo.capabilities.supportsStatusReport).toBeTruthy();
       expect(extensionInfo.capabilities.supportsAgentStatusReport).toBeTruthy();
 
-      expect(extensionInfo.pluginSettings.viewTemplate).toEqual(pluginInfoWithElasticAgentExtension.extensions[0].plugin_settings.view.template);
-      expect(extensionInfo.pluginSettings.configurations.length).toEqual(1);
-      expect(extensionInfo.pluginSettings.configurations.map((config) => config.key)).toEqual(['instance_type']);
-      expect(extensionInfo.pluginSettings.configurations[0].metadata).toEqual({
+      expect(extensionInfo.pluginSettings.viewTemplate()).toEqual(pluginInfoWithElasticAgentExtension.extensions[0].plugin_settings.view.template);
+      expect(extensionInfo.pluginSettings.configurations().length).toEqual(1);
+      expect(extensionInfo.pluginSettings.configurations().map((config) => config.key)).toEqual(['instance_type']);
+      expect(extensionInfo.pluginSettings.configurations()[0].metadata).toEqual({
         secure:   false,
         required: true
       });
@@ -795,7 +795,7 @@ describe('PluginInfos New', () => {
       verifyBasicProperties(pluginInfo, pluginInfoWithNotificationExtension);
       const extension = pluginInfo.extensionOfType(ExtensionType.NOTIFICATION);
 
-      expect(extension.pluginSettings.viewTemplate).toEqual(pluginInfoWithNotificationExtension.extensions[0].plugin_settings.view.template);
+      expect(extension.pluginSettings.viewTemplate()).toEqual(pluginInfoWithNotificationExtension.extensions[0].plugin_settings.view.template);
     });
   });
 
@@ -805,9 +805,9 @@ describe('PluginInfos New', () => {
       verifyBasicProperties(pluginInfo, pluginInfoWithPackageRepositoryExtension);
 
       const extensionInfo = pluginInfo.extensionOfType(ExtensionType.PACKAGE_REPO);
-      expect(extensionInfo.packageSettings.configurations.length).toEqual(4);
-      expect(extensionInfo.packageSettings.configurations.map((config) => config.key)).toEqual(['PACKAGE_ID', 'POLL_VERSION_FROM', 'POLL_VERSION_TO', 'INCLUDE_PRE_RELEASE']);
-      expect(extensionInfo.packageSettings.configurations[0].metadata).toEqual({
+      expect(extensionInfo.packageSettings.configurations().length).toEqual(4);
+      expect(extensionInfo.packageSettings.configurations().map((config) => config.key)).toEqual(['PACKAGE_ID', 'POLL_VERSION_FROM', 'POLL_VERSION_TO', 'INCLUDE_PRE_RELEASE']);
+      expect(extensionInfo.packageSettings.configurations()[0].metadata).toEqual({
         "part_of_identity": true,
         "display_order":    0,
         "secure":           false,
@@ -815,9 +815,9 @@ describe('PluginInfos New', () => {
         "required":         true
       });
 
-      expect(extensionInfo.repositorySettings.configurations.length).toEqual(3);
-      expect(extensionInfo.repositorySettings.configurations.map((config) => config.key)).toEqual(['REPO_URL', 'USERNAME', 'PASSWORD']);
-      expect(extensionInfo.repositorySettings.configurations[0].metadata).toEqual({
+      expect(extensionInfo.repositorySettings.configurations().length).toEqual(3);
+      expect(extensionInfo.repositorySettings.configurations().map((config) => config.key)).toEqual(['REPO_URL', 'USERNAME', 'PASSWORD']);
+      expect(extensionInfo.repositorySettings.configurations()[0].metadata).toEqual({
         "part_of_identity": true,
         "display_order":    0,
         "secure":           false,
@@ -825,10 +825,10 @@ describe('PluginInfos New', () => {
         "required":         true
       });
 
-      expect(extensionInfo.pluginSettings.viewTemplate).toEqual(pluginInfoWithPackageRepositoryExtension.extensions[0].plugin_settings.view.template);
-      expect(extensionInfo.pluginSettings.configurations.length).toEqual(1);
-      expect(extensionInfo.pluginSettings.configurations.map((config) => config.key)).toEqual(['another-property']);
-      expect(extensionInfo.pluginSettings.configurations[0].metadata).toEqual({
+      expect(extensionInfo.pluginSettings.viewTemplate()).toEqual(pluginInfoWithPackageRepositoryExtension.extensions[0].plugin_settings.view.template);
+      expect(extensionInfo.pluginSettings.configurations().length).toEqual(1);
+      expect(extensionInfo.pluginSettings.configurations().map((config) => config.key)).toEqual(['another-property']);
+      expect(extensionInfo.pluginSettings.configurations()[0].metadata).toEqual({
         secure:   false,
         required: true
       });
@@ -841,10 +841,10 @@ describe('PluginInfos New', () => {
       verifyBasicProperties(pluginInfo, pluginInfoWithTaskExtension);
 
       const extensionInfo = pluginInfo.extensionOfType(ExtensionType.TASK);
-      expect(extensionInfo.taskSettings.viewTemplate).toEqual(pluginInfoWithTaskExtension.extensions[0].task_settings.view.template);
-      expect(extensionInfo.taskSettings.configurations.length).toEqual(4);
-      expect(extensionInfo.taskSettings.configurations.map((config) => config.key)).toEqual(['DockerFile', 'DockerRunArguments', 'IsDockerPush', 'DockerBuildTag']);
-      expect(extensionInfo.taskSettings.configurations[0].metadata).toEqual({
+      expect(extensionInfo.taskSettings.viewTemplate()).toEqual(pluginInfoWithTaskExtension.extensions[0].task_settings.view.template);
+      expect(extensionInfo.taskSettings.configurations().length).toEqual(4);
+      expect(extensionInfo.taskSettings.configurations().map((config) => config.key)).toEqual(['DockerFile', 'DockerRunArguments', 'IsDockerPush', 'DockerBuildTag']);
+      expect(extensionInfo.taskSettings.configurations()[0].metadata).toEqual({
         secure:   false,
         required: false
       });
@@ -857,11 +857,11 @@ describe('PluginInfos New', () => {
       verifyBasicProperties(pluginInfo, pluginInfoWithSCMExtension);
 
       const extensionInfo = pluginInfo.extensionOfType(ExtensionType.SCM);
-      expect(extensionInfo.scmSettings.viewTemplate).toEqual(pluginInfoWithSCMExtension.extensions[0].scm_settings.view.template);
-      expect(extensionInfo.scmSettings.configurations.length).toEqual(3);
-      const keys = extensionInfo.scmSettings.configurations.map((config) => config.key);
+      expect(extensionInfo.scmSettings.viewTemplate()).toEqual(pluginInfoWithSCMExtension.extensions[0].scm_settings.view.template);
+      expect(extensionInfo.scmSettings.configurations().length).toEqual(3);
+      const keys = extensionInfo.scmSettings.configurations().map((config) => config.key);
       expect(keys).toEqual(['url', 'username', 'password']);
-      expect(extensionInfo.scmSettings.configurations[0].metadata).toEqual({
+      expect(extensionInfo.scmSettings.configurations()[0].metadata).toEqual({
         "part_of_identity": true,
         "secure":           false,
         "required":         true
@@ -884,18 +884,18 @@ describe('PluginInfos New', () => {
       verifyBasicProperties(pluginInfo, pluginInfoWithAuthorizationExtension);
 
       const extensionInfo = pluginInfo.extensionOfType(ExtensionType.AUTHORIZATION);
-      expect(extensionInfo.authConfigSettings.viewTemplate).toEqual(pluginInfoWithAuthorizationExtension.extensions[0].auth_config_settings.view.template);
-      expect(extensionInfo.authConfigSettings.configurations.length).toEqual(4);
-      expect(extensionInfo.authConfigSettings.configurations.map((config) => config.key)).toEqual(['Url', 'SearchBases', 'ManagerDN', 'Password']);
-      expect(extensionInfo.authConfigSettings.configurations[0].metadata).toEqual({
+      expect(extensionInfo.authConfigSettings.viewTemplate()).toEqual(pluginInfoWithAuthorizationExtension.extensions[0].auth_config_settings.view.template);
+      expect(extensionInfo.authConfigSettings.configurations().length).toEqual(4);
+      expect(extensionInfo.authConfigSettings.configurations().map((config) => config.key)).toEqual(['Url', 'SearchBases', 'ManagerDN', 'Password']);
+      expect(extensionInfo.authConfigSettings.configurations()[0].metadata).toEqual({
         secure:   false,
         required: true
       });
 
-      expect(extensionInfo.roleSettings.viewTemplate).toEqual(pluginInfoWithAuthorizationExtension.extensions[0].role_settings.view.template);
-      expect(extensionInfo.roleSettings.configurations.length).toEqual(4);
-      expect(extensionInfo.roleSettings.configurations.map((config) => config.key)).toEqual(['AttributeName', 'AttributeValue', 'GroupMembershipFilter', 'GroupMembershipSearchBase']);
-      expect(extensionInfo.roleSettings.configurations[0].metadata).toEqual({
+      expect(extensionInfo.roleSettings.viewTemplate()).toEqual(pluginInfoWithAuthorizationExtension.extensions[0].role_settings.view.template);
+      expect(extensionInfo.roleSettings.configurations().length).toEqual(4);
+      expect(extensionInfo.roleSettings.configurations().map((config) => config.key)).toEqual(['AttributeName', 'AttributeValue', 'GroupMembershipFilter', 'GroupMembershipSearchBase']);
+      expect(extensionInfo.roleSettings.configurations()[0].metadata).toEqual({
         secure:   false,
         required: false
       });
@@ -912,26 +912,26 @@ describe('PluginInfos New', () => {
       verifyBasicProperties(pluginInfo, pluginInfoWithArtifactExtension);
 
       const extensionInfo = pluginInfo.extensionOfType(ExtensionType.ARTIFACT);
-      expect(extensionInfo.storeConfigSettings.viewTemplate).toEqual(pluginInfoWithArtifactExtension.extensions[0].store_config_settings.view.template);
-      expect(extensionInfo.storeConfigSettings.configurations.length).toEqual(3);
-      expect(extensionInfo.storeConfigSettings.configurations.map((config) => config.key)).toEqual(['S3_BUCKET', 'AWS_ACCESS_KEY_ID', 'AWS_SECRET_ACCESS_KEY']);
-      expect(extensionInfo.storeConfigSettings.configurations[0].metadata).toEqual({
+      expect(extensionInfo.storeConfigSettings.viewTemplate()).toEqual(pluginInfoWithArtifactExtension.extensions[0].store_config_settings.view.template);
+      expect(extensionInfo.storeConfigSettings.configurations().length).toEqual(3);
+      expect(extensionInfo.storeConfigSettings.configurations().map((config) => config.key)).toEqual(['S3_BUCKET', 'AWS_ACCESS_KEY_ID', 'AWS_SECRET_ACCESS_KEY']);
+      expect(extensionInfo.storeConfigSettings.configurations()[0].metadata).toEqual({
         secure:   false,
         required: true
       });
 
-      expect(extensionInfo.artifactConfigSettings.viewTemplate).toEqual(pluginInfoWithArtifactExtension.extensions[0].artifact_config_settings.view.template);
-      expect(extensionInfo.artifactConfigSettings.configurations.length).toEqual(1);
-      expect(extensionInfo.artifactConfigSettings.configurations.map((config) => config.key)).toEqual(['Filename']);
-      expect(extensionInfo.artifactConfigSettings.configurations[0].metadata).toEqual({
+      expect(extensionInfo.artifactConfigSettings.viewTemplate()).toEqual(pluginInfoWithArtifactExtension.extensions[0].artifact_config_settings.view.template);
+      expect(extensionInfo.artifactConfigSettings.configurations().length).toEqual(1);
+      expect(extensionInfo.artifactConfigSettings.configurations().map((config) => config.key)).toEqual(['Filename']);
+      expect(extensionInfo.artifactConfigSettings.configurations()[0].metadata).toEqual({
         secure:   false,
         required: false
       });
 
-      expect(extensionInfo.fetchArtifactSettings.viewTemplate).toEqual(pluginInfoWithArtifactExtension.extensions[0].fetch_artifact_settings.view.template);
-      expect(extensionInfo.fetchArtifactSettings.configurations.length).toEqual(1);
-      expect(extensionInfo.fetchArtifactSettings.configurations.map((config) => config.key)).toEqual(['Destination']);
-      expect(extensionInfo.fetchArtifactSettings.configurations[0].metadata).toEqual({
+      expect(extensionInfo.fetchArtifactSettings.viewTemplate()).toEqual(pluginInfoWithArtifactExtension.extensions[0].fetch_artifact_settings.view.template);
+      expect(extensionInfo.fetchArtifactSettings.configurations().length).toEqual(1);
+      expect(extensionInfo.fetchArtifactSettings.configurations().map((config) => config.key)).toEqual(['Destination']);
+      expect(extensionInfo.fetchArtifactSettings.configurations()[0].metadata).toEqual({
         secure:   false,
         required: false
       });
@@ -944,11 +944,11 @@ describe('PluginInfos New', () => {
       verifyBasicProperties(pluginInfo, pluginInfoWithConfigRepoExtension);
       const extension = pluginInfo.extensionOfType(ExtensionType.CONFIG_REPO);
 
-      expect(extension.pluginSettings.viewTemplate).toEqual(pluginInfoWithConfigRepoExtension.extensions[0].plugin_settings.view.template);
-      expect(extension.pluginSettings.configurations.length).toEqual(1);
-      const keys = extension.pluginSettings.configurations.map((config) => config.key);
+      expect(extension.pluginSettings.viewTemplate()).toEqual(pluginInfoWithConfigRepoExtension.extensions[0].plugin_settings.view.template);
+      expect(extension.pluginSettings.configurations().length).toEqual(1);
+      const keys = extension.pluginSettings.configurations().map((config) => config.key);
       expect(keys).toEqual(['pipeline_pattern']);
-      expect(extension.pluginSettings.configurations[0].metadata).toEqual({
+      expect(extension.pluginSettings.configurations()[0].metadata).toEqual({
         secure:   false,
         required: false
       });
@@ -962,10 +962,10 @@ describe('PluginInfos New', () => {
       verifyBasicProperties(pluginInfo, pluginInfoWithAnalyticsExtension);
       const extension = pluginInfo.extensionOfType(ExtensionType.ANALYTICS);
 
-      expect(extension.pluginSettings.viewTemplate).toEqual(pluginInfoWithAnalyticsExtension.extensions[0].plugin_settings.view.template);
-      expect(extension.pluginSettings.configurations.length).toEqual(1);
-      expect(extension.pluginSettings.configurations.map((config) => config.key)).toEqual(['username']);
-      expect(extension.pluginSettings.configurations[0].metadata).toEqual({
+      expect(extension.pluginSettings.viewTemplate()).toEqual(pluginInfoWithAnalyticsExtension.extensions[0].plugin_settings.view.template);
+      expect(extension.pluginSettings.configurations().length).toEqual(1);
+      expect(extension.pluginSettings.configurations().map((config) => config.key)).toEqual(['username']);
+      expect(extension.pluginSettings.configurations()[0].metadata).toEqual({
         secure:   false,
         required: true
       });
@@ -1045,22 +1045,22 @@ describe('PluginInfos New', () => {
 
       expect(pluginInfo.types()).toEqual(['analytics', 'notification', 'package-repository']);
 
-      expect(pluginInfo.extensionOfType(ExtensionType.NOTIFICATION).pluginSettings.configurations.length).toEqual(1);
+      expect(pluginInfo.extensionOfType(ExtensionType.NOTIFICATION).pluginSettings.configurations().length).toEqual(1);
 
       const analyticsExtensionInfo = pluginInfo.extensionOfType(ExtensionType.ANALYTICS);
       expect(analyticsExtensionInfo.capabilities.pipelineSupport()).toEqual([new AnalyticsCapability("rawr", "pipeline")]);
       expect(analyticsExtensionInfo.capabilities.dashboardSupport()).toEqual([new AnalyticsCapability("foo", "dashboard")]);
 
       const packageRepositoryExtensionInfo = pluginInfo.extensionOfType(ExtensionType.PACKAGE_REPO);
-      expect(packageRepositoryExtensionInfo.packageSettings.configurations.length).toEqual(4);
-      expect(packageRepositoryExtensionInfo.repositorySettings.configurations.length).toEqual(3);
+      expect(packageRepositoryExtensionInfo.packageSettings.configurations().length).toEqual(4);
+      expect(packageRepositoryExtensionInfo.repositorySettings.configurations().length).toEqual(3);
     });
 
     it("should find the first extension with the plugin settings to use as settings for the plugin", () => {
       pluginInfoJSON.extensions = [pluginInfoWithNotificationExtension.extensions[0], pluginInfoWithAnalyticsExtension.extensions[0]];
 
       const pluginInfo = PluginInfo.fromJSON(pluginInfoJSON);
-      expect(pluginInfo.firstExtensionWithPluginSettings().pluginSettings.viewTemplate).toEqual(pluginInfoWithNotificationExtension.extensions[0].plugin_settings.view.template);
+      expect(pluginInfo.firstExtensionWithPluginSettings().pluginSettings.viewTemplate()).toEqual(pluginInfoWithNotificationExtension.extensions[0].plugin_settings.view.template);
     });
   });
 

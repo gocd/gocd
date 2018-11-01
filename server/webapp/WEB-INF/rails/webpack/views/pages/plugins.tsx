@@ -15,25 +15,22 @@
  */
 
 import * as m from "mithril";
+import {PluginInfo, PluginInfos} from "../../models/shared/plugin_infos_new/plugin_infos";
 import {PluginsWidget} from "./new_plugins/plugins_widget";
 
-//todo: Change these requires to import
-const Stream      = require('mithril/stream');
-const PluginInfos = require('models/shared/plugin_infos');
 const HeaderPanel = require('views/components/header_panel');
 
-const pluginInfos = Stream();
+let pluginInfos: Array<PluginInfo<any>>;
 
-//todo: change pluginInfos to typescript and fix res:PluginInfos
-const onSuccess = (res: any) => {
-  pluginInfos(res);
+const onSuccess = (res: Array<PluginInfo<any>>) => {
+  pluginInfos = res;
   m.redraw();
 };
 
 export class PluginsPage {
   oninit() {
     //todo: onfailure render generic error_onload_page
-    PluginInfos.all(null, {include_bad: true}).then(onSuccess);
+    PluginInfos.all().then(onSuccess); //todo: include_bad
   }
 
   view() {

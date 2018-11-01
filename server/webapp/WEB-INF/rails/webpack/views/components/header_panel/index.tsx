@@ -22,7 +22,7 @@ import * as style from "./index.scss";
 
 export interface Attrs {
   title: string | JSX.Element;
-  buttons: JSX.Element;
+  buttons?: JSX.Element;
 }
 
 export class HeaderPanel extends MithrilViewComponent<Attrs> {

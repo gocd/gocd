@@ -63,7 +63,7 @@ export class PluginsWidget extends MithrilComponent<Attrs, State> {
     }
 
     return (
-      <div class="plugins-settings">
+      <div data-test-id="plugins-list">
         <SuccessFlashMessage message={vnode.state.successMessage}/>
         {vnode.attrs.pluginInfos().sortByPluginInfos((pi: any) => pi.id()).map((pluginInfo: any) => {
           return (

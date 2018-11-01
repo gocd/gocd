@@ -43,7 +43,7 @@ class PluginHeaderWidget extends MithrilViewComponent<PluginHeaderAttrs> {
         </span>
       ),
       (
-        <div class="plugin-name">{vnode.attrs.pluginName}</div>
+        <div data-test-id="plugin-name">{vnode.attrs.pluginName}</div>
       ),
       (
         <KeyValuePair inline={true} data={
@@ -79,13 +79,14 @@ export class PluginWidget extends MithrilViewComponent<Attrs> {
 
       statusReportButton = (
         <Buttons.Secondary onclick={this.goToStatusReportPage.bind(this, statusReportPath)}
+                           data-test-id="status-report-link"
                            disabled={!isUserAnAdmin}>
           Status Report
         </Buttons.Secondary>);
     }
 
     if (this.doesPluginSupportSettings(pluginInfo)) {
-      settingsButton = <Icons.Settings onclick={vnode.attrs.onEdit}/>;
+      settingsButton = <Icons.Settings data-test-id="edit-plugin-settings" onclick={vnode.attrs.onEdit}/>;
     }
 
     return (

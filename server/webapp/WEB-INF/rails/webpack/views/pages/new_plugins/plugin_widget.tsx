@@ -18,6 +18,8 @@ import * as _ from "lodash";
 import * as m from "mithril";
 
 import {MithrilViewComponent} from "jsx/mithril-component";
+import {ExtensionType} from "models/shared/plugin_infos_new/extension_type";
+import {PluginInfo} from "models/shared/plugin_infos_new/plugin_infos";
 import * as Buttons from "views/components/buttons";
 import {CollapsiblePanel} from "views/components/collapsible_panel";
 import * as Icons from "views/components/icons";
@@ -57,9 +59,8 @@ class PluginHeaderWidget extends MithrilViewComponent<PluginHeaderAttrs> {
   }
 }
 
-//todo: change this to pluginInfo:PluginInfo
 export interface Attrs {
-  pluginInfo: any;
+  pluginInfo: PluginInfo<any>;
   isUserAnAdmin: boolean;
   onEdit: () => void;
 }
@@ -75,7 +76,7 @@ export class PluginWidget extends MithrilViewComponent<Attrs> {
     let settingsButton: OptionalElement;
 
     if (this.doesPluginSupportStatusReport(pluginInfo)) {
-      const statusReportPath: string = Routes.adminStatusReportPath(pluginInfo.id());
+      const statusReportPath: string = Routes.adminStatusReportPath(pluginInfo.id);
 
       statusReportButton = (
         <Buttons.Secondary onclick={this.goToStatusReportPage.bind(this, statusReportPath)}
@@ -91,49 +92,49 @@ export class PluginWidget extends MithrilViewComponent<Attrs> {
 
     return (
       <CollapsiblePanel header={<PluginHeaderWidget image={this.createImageTag(pluginInfo)}
-                                                    pluginName={pluginInfo.about().name()}
-                                                    pluginVersion={pluginInfo.about().version()}
-                                                    pluginId={pluginInfo.id()}/>}
+                                                    pluginName={pluginInfo.about.name}
+                                                    pluginVersion={pluginInfo.about.version}
+                                                    pluginId={pluginInfo.id}/>}
                         actions={[statusReportButton, settingsButton]}>
         <KeyValuePair data={
           {
-            'Description':                 pluginInfo.about().description(),
+            'Description':                 pluginInfo.about.description,
             'Author':                      this.getAuthorInfo(pluginInfo),
-            'Supported operating systems': _.isEmpty(pluginInfo.about().targetOperatingSystems()) ? 'No restrictions' : pluginInfo.about().targetOperatingSystems(),
-            'Plugin file location':        pluginInfo.pluginFileLocation(),
-            'Bundled':                     pluginInfo.bundledPlugin() ? 'Yes' : 'No',
-            'Target Go Version':           pluginInfo.about().targetGoVersion(),
+            'Supported operating systems': _.isEmpty(pluginInfo.about.targetOperatingSystems) ? 'No restrictions' : pluginInfo.about.targetOperatingSystems,
+            'Plugin file location':        pluginInfo.pluginFileLocation,
+            'Bundled':                     pluginInfo.bundledPlugin ? 'Yes' : 'No',
+            'Target Go Version':           pluginInfo.about.targetGoVersion,
           }
         }/>
       </CollapsiblePanel>
     );
   }
 
-  private createImageTag(pluginInfo: any): JSX.Element {
-    if (pluginInfo.imageUrl()) {
-      return <img src={pluginInfo.imageUrl()}/>;
+  private createImageTag(pluginInfo: PluginInfo<any>): JSX.Element {
+    if (pluginInfo.imageUrl) {
+      return <img src={pluginInfo.imageUrl}/>;
     }
     return <span class="unknown-plugin-icon"/>;
   }
 
-  private getAuthorInfo(pluginInfo: any): JSX.Element {
+  private getAuthorInfo(pluginInfo: PluginInfo<any>): JSX.Element {
     return (
-      <a target="_blank" href={pluginInfo.about().vendor().url()}>
-        {pluginInfo.about().vendor().name()}
+      <a target="_blank" href={pluginInfo.about.vendor.url}>
+        {pluginInfo.about.vendor.name}
       </a>
     );
   }
 
-  private doesPluginSupportStatusReport(pluginInfo: any): boolean {
-    const elasticAgentExtensionInfo = pluginInfo.extensions() && pluginInfo.extensions()['elastic-agent'];
-    return elasticAgentExtensionInfo && elasticAgentExtensionInfo.capabilities() && elasticAgentExtensionInfo.capabilities().supportsStatusReport();
+  private doesPluginSupportStatusReport(pluginInfo: PluginInfo<any>): boolean {
+    const elasticAgentExtensionInfo = pluginInfo.extensions && pluginInfo.extensionOfType(ExtensionType.ELASTIC_AGENTS);
+    return elasticAgentExtensionInfo && elasticAgentExtensionInfo.capabilities && elasticAgentExtensionInfo.capabilities.supportsStatusReport;
   }
 
   private goToStatusReportPage(statusReportHref: string): void {
     window.location.href = statusReportHref;
   }
 
-  private doesPluginSupportSettings(pluginInfo: any): boolean {
+  private doesPluginSupportSettings(pluginInfo: PluginInfo<any>): boolean {
     return pluginInfo.supportsPluginSettings();
   }
 

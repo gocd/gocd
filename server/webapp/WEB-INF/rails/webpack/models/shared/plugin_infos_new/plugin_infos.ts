@@ -18,6 +18,9 @@ import {About} from "./about";
 import {ExtensionType} from "./extension_type";
 import {Extension} from "./extensions";
 
+const Routes     = require('gen/js-routes');
+const AjaxHelper = require('helpers/ajax_helper');
+
 enum State {
   active  = "active",
   invalid = "invalid"
@@ -90,8 +93,15 @@ export class PluginInfos<T extends Extension> {
     this.pluginInfo = pluginInfo;
   }
 
+  static all() {
+    return AjaxHelper.GET({
+      url:        Routes.apiv4AdminPluginInfoIndexPath(),
+      apiVersion: PluginInfos.API_VERSION,
+      type:       PluginInfos
+    });
+  }
+
   static fromJSON(data: any) {
     return data._embedded.plugin_info.map((pluginInfo: any) => PluginInfo.fromJSON(pluginInfo));
   }
-
 }

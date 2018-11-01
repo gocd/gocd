@@ -1,0 +1,136 @@
+/*
+ * Copyright 2017 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+const m = require('mithril');
+
+const Stream  = require('mithril/stream');
+const _       = require('lodash');
+const $       = require('jquery');
+const angular = require('angular');
+
+const appName = function (configuration) {
+  return `app-${configuration.uuid()}`;
+};
+
+const controllerName = function (configuration) {
+  return `controller-${configuration.uuid()}`;
+};
+
+const pluginTemplate = function (pluginInfoSettings) {
+  return m.trust(AngularPluginNew.template(pluginInfoSettings.viewTemplate()));
+};
+
+function onCreate(scope, args) {
+  return function (vnode) {
+    const elem = vnode.dom;
+
+    angular.module(appName(args.configuration()), []).controller(controllerName(args.configuration()), ['$scope', function ($scope) {
+      scope($scope);
+
+      $scope.addError = function (field) {
+        $scope.GOINPUTNAME[field.key] = {
+          $error: {
+            server: field.errors.join()
+          }
+        };
+      };
+
+      $scope.clearErrors = function () {
+        $scope.GOINPUTNAME = {};
+      };
+
+      const listeners = [];
+
+      function unregisterExistingListeners() {
+        if (listeners.length !== 0) {
+          // we are re-initializing, so get rid of old watches
+          _.map(listeners, (listener) => {
+            listener();
+          });
+        }
+      }
+
+      function copyOverErrors(configurations, configKey) {
+        const matchingConfig = configurations.findConfiguration((eachConfig) => {
+          return eachConfig.key() === configKey;
+        });
+        if (matchingConfig && matchingConfig.errors().hasErrors(configKey)) {
+          $scope.addError({key: configKey, errors: matchingConfig.errors().errors(configKey)});
+        }
+      }
+
+      function addListeners(configurations, configKey) {
+        const listener = $scope.$watch(configKey, (newValue) => {
+          configurations.setConfiguration(configKey, newValue);
+        });
+        listeners.push(listener);
+      }
+
+      $scope.initialize = function (pluginInfoSettings, configurations) {
+        unregisterExistingListeners();
+        $scope.clearErrors();
+
+        pluginInfoSettings.configurations().map((config) => {
+          $scope[config.key] = configurations.valueFor(config.key);
+          addListeners(configurations, config.key);
+          copyOverErrors(configurations, config.key);
+        });
+
+        const supportedConfigKeys = pluginInfoSettings.configurations.map((configuration) => configuration.key);
+
+        _.remove(configurations, (configuration) => {
+          return !_.includes(supportedConfigKeys, configuration.key);
+        });
+      };
+
+      $scope.initialize(args.pluginInfoSettings(), args.configuration());
+    }]);
+
+    angular.bootstrap(elem, [appName(args.configuration())]);
+  };
+}
+
+function onUpdate(scope, args) {
+  return function (_vnode) {
+    scope().initialize(args.pluginInfoSettings(), args.configuration());
+    scope().$apply();
+  };
+}
+
+const AngularPluginNew = {
+  template(template) {
+    return $('<div></div>').html(template.replace(/GOINPUTNAME\[([^\]]*)\]/g, (_match, name) => {
+      return `GOINPUTNAME['${name}']`;
+    })).html();
+  },
+
+  oninit() {
+    this.$scope = Stream();
+  },
+
+  view(vnode) {
+    return (
+      <div class="plugin-view"
+           ng-controller={controllerName(vnode.attrs.configuration())}
+           oncreate={onCreate(vnode.state.$scope, vnode.attrs)}
+           onupdate={onUpdate(vnode.state.$scope, vnode.attrs)}>
+        {pluginTemplate(vnode.attrs.pluginInfoSettings())}
+      </div>
+    );
+  }
+};
+
+module.exports = AngularPluginNew;

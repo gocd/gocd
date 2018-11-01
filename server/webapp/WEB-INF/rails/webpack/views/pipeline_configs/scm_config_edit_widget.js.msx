@@ -77,9 +77,9 @@ const SCMGlobalCopyWarningWidget = {
 
 const SCMConfigEditWidget = {
   oninit (vnode) {
-    const self      = this;
-    self.scmForEdit = vnode.attrs.scm();
-    self.pluginInfo = Stream(vnode.attrs.pluginInfos().findById(vnode.attrs.scm().pluginMetadata().id()));
+    const self          = this;
+    self.scmForEdit     = vnode.attrs.scm();
+    self.pluginInfoList = Stream(vnode.attrs.pluginInfos().findById(vnode.attrs.scm().pluginMetadata().id()));
   },
 
   view (vnode) {

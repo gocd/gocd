@@ -110,24 +110,38 @@ function onUpdate(scope, args) {
   };
 }
 
+const oncreate = function (vnode) {
+  vnode.children.forEach((elem) => {
+    if (!(elem.dom instanceof Element)) {
+      return;
+    }
+
+    elem.dom.querySelectorAll("script").forEach((script) => {
+      const newScript     = document.createElement('script');
+      newScript.innerHTML = script.innerHTML;
+      script.parentNode.replaceChild(newScript, script);
+    });
+  });
+};
+
 const AngularPlugin = {
-  template (template) {
+  template(template) {
     return $('<div></div>').html(template.replace(/GOINPUTNAME\[([^\]]*)\]/g, (_match, name) => {
       return `GOINPUTNAME['${name}']`;
     })).html();
   },
 
-  oninit () {
+  oninit() {
     this.$scope = Stream();
   },
 
-  view (vnode) {
+  view(vnode) {
     return (
       <div class='plugin-view'
            ng-controller={controllerName(vnode.attrs.configuration())}
            oncreate={onCreate(vnode.state.$scope, vnode.attrs)}
            onupdate={onUpdate(vnode.state.$scope, vnode.attrs)}>
-        {pluginTemplate(vnode.attrs.pluginInfoSettings())}
+        {m.fragment({oncreate}, [pluginTemplate(vnode.attrs.pluginInfoSettings())])}
       </div>
     );
   }

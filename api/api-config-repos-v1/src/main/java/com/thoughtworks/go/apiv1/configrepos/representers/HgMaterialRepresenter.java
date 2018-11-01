@@ -17,12 +17,19 @@
 package com.thoughtworks.go.apiv1.configrepos.representers;
 
 import com.thoughtworks.go.api.base.OutputWriter;
+import com.thoughtworks.go.api.representers.JsonReader;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig;
+import com.thoughtworks.go.domain.materials.MaterialConfig;
+
 
 class HgMaterialRepresenter {
     static void toJSON(OutputWriter json, HgMaterialConfig material) {
         json.add("name", material.getName());
         json.add("auto_update", material.getAutoUpdate());
         json.add("url", material.getUrl());
+    }
+
+    public static MaterialConfig fromJSON(JsonReader json, MaterialConfigHelper m) {
+        return new HgMaterialConfig(m.hgUrl(json), m.autoUpdate(json), null, false, null, m.name(json));
     }
 }

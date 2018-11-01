@@ -18,7 +18,9 @@ package com.thoughtworks.go.apiv1.configrepos.representers;
 
 import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.api.representers.ConfigurationPropertyRepresenter;
+import com.thoughtworks.go.api.representers.JsonReader;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
+import com.thoughtworks.go.domain.materials.MaterialConfig;
 
 import static com.thoughtworks.go.spark.Routes.ConfigRepos.*;
 
@@ -29,6 +31,15 @@ public class ConfigRepoConfigRepresenterV1 {
         json.add("plugin_id", repo.getConfigProviderPluginName());
         json.addChild("material", w -> MaterialRepresenter.toJSON(w, repo.getMaterialConfig()));
         attachConfigurations(json, repo);
+    }
+
+    public static ConfigRepoConfig fromJSON(JsonReader jsonReader, MaterialConfigHelper m) {
+        MaterialConfig material = MaterialRepresenter.fromJSON(jsonReader.readJsonObject("material"), m);
+        String id = jsonReader.getString("id");
+        String pluginId = jsonReader.getString("plugin_id");
+        ConfigRepoConfig repo = new ConfigRepoConfig(material, pluginId, id);
+        repo.addConfigurations(ConfigurationPropertyRepresenter.fromJSONArray(jsonReader, "configuration"));
+        return repo;
     }
 
     private static void attachLinks(OutputWriter json, ConfigRepoConfig repo) {

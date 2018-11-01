@@ -17,6 +17,8 @@
 package com.thoughtworks.go.apiv1.configrepos.representers
 
 import com.thoughtworks.go.api.base.OutputWriter
+import com.thoughtworks.go.api.representers.JsonReader
+import com.thoughtworks.go.api.util.GsonTransformer
 import com.thoughtworks.go.config.materials.PackageMaterialConfig
 import com.thoughtworks.go.config.materials.git.GitMaterialConfig
 import com.thoughtworks.go.domain.materials.MaterialConfig
@@ -31,6 +33,7 @@ import static org.mockito.Mockito.mock
 class MaterialRepresenterTest {
   private static final String REPO_URL = "https://guthib.com/chewbacca"
   private static final String BRANCH = "wookie"
+  private static final materialHelper = new MaterialConfigHelper(null)
 
   @Test
   void toJSON() {
@@ -56,5 +59,33 @@ class MaterialRepresenterTest {
     })
 
     assertEquals("Cannot serialize unsupported material type: PackageMaterialConfig", error.getMessage())
+  }
+
+  @Test
+  void fromJSON() {
+    JsonReader json = GsonTransformer.instance.jsonReaderFrom([
+      type      : "git",
+      attributes: [
+        name       : null,
+        url        : REPO_URL,
+        branch     : BRANCH,
+        auto_update: true
+      ]
+    ])
+
+    MaterialConfig expected = new GitMaterialConfig(REPO_URL, BRANCH)
+    assertEquals(expected, MaterialRepresenter.fromJSON(json, materialHelper))
+  }
+
+  @Test
+  void 'fromJSON fails for unsupported type'() {
+    Throwable error = assertThrows(IllegalArgumentException.class, {
+      JsonReader json = GsonTransformer.instance.jsonReaderFrom([
+        type      : 'package',
+        attributes: [:]
+      ])
+      MaterialRepresenter.fromJSON(json, materialHelper)
+    })
+    assertEquals("Unsupported material type: package", error.getMessage())
   }
 }

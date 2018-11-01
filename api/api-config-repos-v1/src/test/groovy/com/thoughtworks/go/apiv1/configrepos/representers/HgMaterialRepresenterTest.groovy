@@ -16,14 +16,19 @@
 
 package com.thoughtworks.go.apiv1.configrepos.representers
 
+import com.thoughtworks.go.api.representers.JsonReader
+import com.thoughtworks.go.api.util.GsonTransformer
 import com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig
+import com.thoughtworks.go.domain.materials.MaterialConfig
 import org.junit.jupiter.api.Test
 
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
+import static org.junit.jupiter.api.Assertions.assertEquals
 
 class HgMaterialRepresenterTest {
   private static final String REPO_URL = "https://bitnugget.com/chewbacca"
+  private static final MaterialConfigHelper mch = new MaterialConfigHelper(null)
 
   @Test
   void toJSON() {
@@ -35,5 +40,17 @@ class HgMaterialRepresenterTest {
       url        : REPO_URL,
       auto_update: true
     ])
+  }
+
+  @Test
+  void fromJSON() {
+    JsonReader json = GsonTransformer.getInstance().jsonReaderFrom([
+      name      : null,
+      url       : REPO_URL,
+      auto_upate: true
+    ])
+
+    MaterialConfig expected = new HgMaterialConfig(REPO_URL, null)
+    assertEquals(expected, HgMaterialRepresenter.fromJSON(json, mch))
   }
 }

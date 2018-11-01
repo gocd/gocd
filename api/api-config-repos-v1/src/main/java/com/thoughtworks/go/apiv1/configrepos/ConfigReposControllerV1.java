@@ -20,12 +20,17 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.thoughtworks.go.api.ApiController;
 import com.thoughtworks.go.api.ApiVersion;
 import com.thoughtworks.go.api.CrudController;
+import com.thoughtworks.go.api.representers.JsonReader;
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
+import com.thoughtworks.go.api.util.GsonTransformer;
 import com.thoughtworks.go.apiv1.configrepos.representers.ConfigRepoConfigRepresenterV1;
 import com.thoughtworks.go.apiv1.configrepos.representers.ConfigReposConfigRepresenterV1;
+import com.thoughtworks.go.apiv1.configrepos.representers.MaterialConfigHelper;
+import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.config.remote.ConfigReposConfig;
 import com.thoughtworks.go.server.service.ConfigRepoService;
+import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.spark.Routes.ConfigRepos;
 import com.thoughtworks.go.spark.spring.SparkSpringController;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,15 +45,17 @@ import static spark.Spark.*;
 
 @Component
 public class ConfigReposControllerV1 extends ApiController implements SparkSpringController, CrudController<ConfigRepoConfig> {
-    private final ConfigRepoService service;
     private final ApiAuthenticationHelper authHelper;
+    private final ConfigRepoService service;
+    private final MaterialConfigHelper mch;
 
 
     @Autowired
-    public ConfigReposControllerV1(ConfigRepoService service, ApiAuthenticationHelper authHelper) {
+    public ConfigReposControllerV1(ApiAuthenticationHelper authHelper, ConfigRepoService service, MaterialConfigHelper mch) {
         super(ApiVersion.v1);
         this.service = service;
         this.authHelper = authHelper;
+        this.mch = mch;
     }
 
     @Override
@@ -69,6 +76,9 @@ public class ConfigReposControllerV1 extends ApiController implements SparkSprin
 
             get(ConfigRepos.INDEX_PATH, mimeType, this::index);
             get(ConfigRepos.REPO_PATH, mimeType, this::showRepo);
+            post(ConfigRepos.CREATE_PATH, mimeType, this::createRepo);
+
+            exception(RecordNotFoundException.class, this::notFound);
         });
     }
 
@@ -79,6 +89,13 @@ public class ConfigReposControllerV1 extends ApiController implements SparkSprin
     String showRepo(Request req, Response res) {
         ConfigRepoConfig repoConfig = getEntityFromConfig(req.params(":id"));
         return jsonize(req, repoConfig);
+    }
+
+    String createRepo(Request req, Response res) throws IOException {
+        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+        ConfigRepoConfig repoConfig = getEntityFromRequestBody(req);
+        service.createConfigRepo(repoConfig, currentUsername(), result);
+        return handleCreateOrUpdateResponse(req, res, repoConfig, result);
     }
 
     private ConfigReposConfig allRepos() {
@@ -97,7 +114,8 @@ public class ConfigReposControllerV1 extends ApiController implements SparkSprin
 
     @Override
     public ConfigRepoConfig getEntityFromRequestBody(Request req) {
-        return null;
+        JsonReader jsonReader = GsonTransformer.getInstance().jsonReaderFrom(req.body());
+        return ConfigRepoConfigRepresenterV1.fromJSON(jsonReader, mch);
     }
 
     @Override

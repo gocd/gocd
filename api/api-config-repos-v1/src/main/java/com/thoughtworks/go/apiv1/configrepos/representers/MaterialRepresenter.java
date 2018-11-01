@@ -18,6 +18,7 @@ package com.thoughtworks.go.apiv1.configrepos.representers;
 
 import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.api.representers.ErrorGetter;
+import com.thoughtworks.go.api.representers.JsonReader;
 import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig;
 import com.thoughtworks.go.config.materials.perforce.P4MaterialConfig;
@@ -93,5 +94,23 @@ public class MaterialRepresenter {
         if (!MATERIAL_TYPES.containsKey(material.getClass())) {
             throw new IllegalArgumentException(format("Cannot serialize unsupported material type: %s", material.getClass().getSimpleName()));
         }
+    }
+
+    public static MaterialConfig fromJSON(JsonReader json, MaterialConfigHelper m) {
+        String materialType = json.getString("type");
+        JsonReader materialAttrs = json.readJsonObject("attributes");
+        switch (materialType) {
+            case "git":
+                return GitMaterialRepresenter.fromJSON(materialAttrs, m);
+            case "hg":
+                return HgMaterialRepresenter.fromJSON(materialAttrs, m);
+            case "svn":
+                return SvnMaterialRepresenter.fromJSON(materialAttrs, m);
+            case "p4":
+                return P4MaterialRepresenter.fromJSON(materialAttrs, m);
+            case "tfs":
+                return TfsMaterialRepresenter.fromJSON(materialAttrs, m);
+        }
+        throw new IllegalArgumentException(format("Unsupported material type: %s", materialType));
     }
 }

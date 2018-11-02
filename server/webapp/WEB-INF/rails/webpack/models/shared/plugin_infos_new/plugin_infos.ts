@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
+import * as Routes from "gen/ts-routes";
 import {About} from "./about";
 import {ExtensionType} from "./extension_type";
 import {Extension} from "./extensions";
 
-const Routes     = require('gen/js-routes');
-const AjaxHelper = require('helpers/ajax_helper');
+const AjaxHelper = require("helpers/ajax_helper");
 
 enum State {
   active  = "active",
@@ -86,7 +86,7 @@ export class PluginInfo<T extends Extension> {
 
 export class PluginInfos<T extends Extension> {
 
-  public static readonly API_VERSION: string = 'v4';
+  public static readonly API_VERSION: string = "v4";
   readonly pluginInfo: Array<PluginInfo<T>>;
 
   constructor(pluginInfo: Array<PluginInfo<T>>) {
@@ -95,9 +95,9 @@ export class PluginInfos<T extends Extension> {
 
   static all() {
     return AjaxHelper.GET({
-      url:        Routes.apiv4AdminPluginInfoIndexPath(),
+      url: Routes.apiv4AdminPluginInfoIndexPath(),
       apiVersion: PluginInfos.API_VERSION,
-      type:       PluginInfos
+      type: PluginInfos
     });
   }
 

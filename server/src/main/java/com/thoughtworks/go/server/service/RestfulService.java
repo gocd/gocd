@@ -45,12 +45,13 @@ public class RestfulService {
      */
     public JobIdentifier findJob(String pipelineName, String pipelineCounter, String stageName, String stageCounter, String buildName, Long buildId) {
         JobConfigIdentifier jobConfigIdentifier = goConfigService.translateToActualCase(new JobConfigIdentifier(pipelineName, stageName, buildName));
+
         PipelineIdentifier pipelineIdentifier;
 
         if (JobIdentifier.LATEST.equalsIgnoreCase(pipelineCounter)) {
             pipelineIdentifier = pipelineService.mostRecentPipelineIdentifier(jobConfigIdentifier.getPipelineName());
         } else if (StringUtils.isNumeric(pipelineCounter)) {
-            pipelineIdentifier = new PipelineIdentifier(jobConfigIdentifier.getPipelineName(), Integer.parseInt(pipelineCounter), null);
+            pipelineIdentifier = pipelineService.findPipelineByNameAndCounter(pipelineName, Integer.parseInt(pipelineCounter)).getIdentifier();
         } else {
             throw new RuntimeException("Expected numeric pipeline counter but received '%s'" + pipelineCounter);
         }
@@ -80,7 +81,7 @@ public class RestfulService {
             int latestCounter = stageDao.findLatestStageCounter(pipelineIdentifier, stageName);
             return new StageIdentifier(pipelineIdentifier, stageName, String.valueOf(latestCounter));
         } else {
-            return new StageIdentifier(pipelineIdentifier.getName(), pipelineIdentifier.getCounter(), stageName, stageCounter);
+            return new StageIdentifier(pipelineIdentifier, stageName, stageCounter);
         }
     }
 }

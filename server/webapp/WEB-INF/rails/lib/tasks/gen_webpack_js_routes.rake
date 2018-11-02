@@ -14,6 +14,15 @@
 # limitations under the License.
 ##########################################################################
 
+# Some monkey patching for fixing the url prefix
+module TsRoutesExt
+  def build_route_function(*args)
+    super.gsub(/ return /, ' return "/go" + ')
+  end
+end
+
+TsRoutes::Generator.send(:prepend, TsRoutesExt)
+
 task generated_js: :environment do
   raise 'OUTPUT_DIR not set' if ENV['OUTPUT_DIR'].blank?
 

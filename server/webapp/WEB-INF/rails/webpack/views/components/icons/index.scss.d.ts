@@ -9,4 +9,5 @@ export const clone: string;
 export const remove: string;
 export const lock: string;
 export const close: string;
+export const question: string;
 export const buttonGroup: string;

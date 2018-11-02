@@ -1,0 +1,75 @@
+/*
+ * Copyright 2018 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+$line-color: #e9edef;
+$global-border-color: $line-color;
+$global-border-radius: 3px;
+$form-element-height: 35px;
+
+$form-help-text-color: #999;
+
+$form-control-color: #495057;
+$form-control-disabled-color: #e9ecef;
+$form-control-border-color: #80bdff;
+$form-control-background-color: #fff;
+
+.form-group {
+  list-style-type: none;
+  font-size:       14px;
+  margin-bottom:   20px;
+}
+
+.form-label {
+  display:       block;
+  margin-bottom: 5px;
+}
+
+.form-control {
+  display:          block;
+  height:           $form-element-height;
+  line-height:      $form-element-height;
+  padding:          0 10px;
+  font-size:        14px;
+  background-color: $form-control-background-color;
+  background-clip:  padding-box;
+  border:           1px solid $global-border-color;
+  border-radius:    $global-border-radius;
+  transition:       border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+  width:            250px;
+  &:focus {
+    color:            $form-control-color;
+    background-color: $form-control-background-color;
+    border-color:     $form-control-border-color;
+    outline:          0;
+    box-shadow:       0 0 0 0.2rem $form-control-border-color;
+  }
+}
+
+.text-area {
+  height: auto;
+}
+
+.form-control:disabled, .form-control[readonly] {
+  background-color: $form-control-disabled-color;
+  opacity:          1;
+}
+
+.form-help {
+  display:    inline-block;
+  font-size:  12px;
+  margin-top: 5px;
+  color:      $form-help-text-color;
+}

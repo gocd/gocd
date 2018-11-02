@@ -29,7 +29,7 @@ interface Attrs {
   footerData: SiteFooterAttrs;
 }
 
-export class MainPage extends MithrilViewComponent<Attrs> {
+class MainPage extends MithrilViewComponent<Attrs> {
   oninit() {
     ModalManager.onPageLoad();
   }
@@ -51,6 +51,7 @@ export class MainPage extends MithrilViewComponent<Attrs> {
 
   }
 }
+
 export default abstract class Page {
   private readonly pageToMount: any;
 
@@ -69,22 +70,22 @@ export default abstract class Page {
     window.addEventListener("DOMContentLoaded", () => {
       UsageDataReporter.report();
 
-      const body: Element = document.querySelector('body') as Element;
-      const mountPoint      = document.createElement('div');
+      const body: Element = document.querySelector("body") as Element;
+      const mountPoint    = document.createElement("div");
       body.appendChild(mountPoint);
 
-      const copyrightYear    = body.getAttribute('data-version-copyright-year') as string;
-      const goVersion        = body.getAttribute('data-version-go-version') as string;
-      const fullVersion      = body.getAttribute('data-version-full') as string;
-      const formattedVersion = body.getAttribute('data-version-formatted') as string;
+      const copyrightYear    = body.getAttribute("data-version-copyright-year") as string;
+      const goVersion        = body.getAttribute("data-version-go-version") as string;
+      const fullVersion      = body.getAttribute("data-version-full") as string;
+      const formattedVersion = body.getAttribute("data-version-formatted") as string;
 
-      const showAnalyticsDashboard = this.extractBoolean(body, 'data-show-analytics-dashboard');
-      const canViewAdminPage       = this.extractBoolean(body, 'data-can-user-view-admin');
-      const isUserAdmin            = this.extractBoolean(body, 'data-is-user-admin');
-      const isGroupAdmin           = this.extractBoolean(body, 'data-is-user-group-admin');
-      const canViewTemplates       = this.extractBoolean(body, 'data-can-user-view-templates');
-      const isAnonymous            = this.extractBoolean(body, 'data-user-anonymous');
-      const userDisplayName        = body.getAttribute('data-user-display-name') || "";
+      const showAnalyticsDashboard = this.extractBoolean(body, "data-show-analytics-dashboard");
+      const canViewAdminPage       = this.extractBoolean(body, "data-can-user-view-admin");
+      const isUserAdmin            = this.extractBoolean(body, "data-is-user-admin");
+      const isGroupAdmin           = this.extractBoolean(body, "data-is-user-group-admin");
+      const canViewTemplates       = this.extractBoolean(body, "data-can-user-view-templates");
+      const isAnonymous            = this.extractBoolean(body, "data-user-anonymous");
+      const userDisplayName        = body.getAttribute("data-user-display-name") || "";
 
       const footerData = {
         copyrightYear, goVersion, fullVersion, formattedVersion

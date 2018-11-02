@@ -85,6 +85,10 @@ $btn-group-border-radius: $global-border-radius;
   @include icon-before($type: $fa-var-times);
 }
 
+.question {
+  @include icon-before($type: $fa-var-question);
+}
+
 .button-group {
   border:        1px solid $border-color;
   border-radius: $btn-group-border-radius;

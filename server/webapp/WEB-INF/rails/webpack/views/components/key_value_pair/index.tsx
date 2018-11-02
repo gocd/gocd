@@ -15,11 +15,11 @@
  */
 
 import {MithrilViewComponent} from "jsx/mithril-component";
-import * as _ from 'lodash';
-import * as m from 'mithril';
+import * as _ from "lodash";
+import * as m from "mithril";
 import * as styles from "./index.scss";
 
-const classnames = require('classnames/bind').bind(styles);
+const classnames = require("classnames/bind").bind(styles);
 
 export interface Attrs {
   data: any;
@@ -37,7 +37,7 @@ export class KeyValuePair extends MithrilViewComponent<Attrs> {
               <li className={classnames(styles.keyValueItem, {[styles.keyValueInlineItem]: isInline})} key={key}>
                 <label className={styles.key}>{key}</label>
                 <span className={styles.value}>
-                  <pre>{value}</pre>
+                  {value === null ? <em>(Not specified)</em> : <pre>{value}</pre>}
                 </span>
               </li>
             ];

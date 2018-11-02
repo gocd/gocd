@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 
+import {MithrilViewComponent} from "jsx/mithril-component";
 import * as _ from "lodash";
 import * as m from "mithril";
-
-import {MithrilViewComponent} from "jsx/mithril-component";
 import {ExtensionType} from "models/shared/plugin_infos_new/extension_type";
 import {PluginInfo} from "models/shared/plugin_infos_new/plugin_infos";
 import * as Buttons from "views/components/buttons";
@@ -25,7 +24,7 @@ import {CollapsiblePanel} from "views/components/collapsible_panel";
 import * as Icons from "views/components/icons";
 import {KeyValuePair} from "views/components/key_value_pair";
 
-const Routes     = require('gen/js-routes');
+import * as Routes from "gen/ts-routes";
 const styles     = require('./index.scss');
 const classnames = require('classnames/bind').bind(styles);
 

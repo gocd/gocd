@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-import * as m from 'mithril';
+import * as m from "mithril";
 
-export abstract class MithrilComponent<Attrs, State> implements m.Component<Attrs, State> {
+export abstract class MithrilComponent<Attrs = {}, State = {}> implements m.Component<Attrs, State> {
   // Required for type checking JSX attributes
   // @ts-ignore: unused
   // tslint:disable-next-line
@@ -26,7 +26,7 @@ export abstract class MithrilComponent<Attrs, State> implements m.Component<Attr
   abstract view(vnode: m.Vnode<Attrs, State>): m.Children | null | void;
 }
 
-export abstract class MithrilViewComponent<Attrs> implements m.ClassComponent<Attrs> {
+export abstract class MithrilViewComponent<Attrs = {}> implements m.ClassComponent<Attrs> {
   // Required for type checking JSX attributes
   // @ts-ignore: unused
   // tslint:disable-next-line
@@ -46,7 +46,7 @@ declare global {
 
     // Element names allowed – with attributes allowed
     interface IntrinsicElements {
-      [elementName: string] : any;
+      [elementName: string]: any;
     }
 
     // Where to look for component type information

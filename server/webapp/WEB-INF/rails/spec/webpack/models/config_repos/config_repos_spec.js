@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-const ConfigRepos = require("models/config_repos/config_repos");
-const Routes      = require("gen/js-routes");
+import {ConfigReposCRUD as ConfigReposCrud} from "models/config_repos/config_repos_crud";
+
+const Routes = require("gen/js-routes");
 
 describe("Config Repo CRUD model", () => {
   it("all() should cache etag", (done) => {
@@ -27,15 +28,12 @@ describe("Config Repo CRUD model", () => {
           },
         }),
         responseHeaders: {
-          ETag:           `W/"05548388f7ef5042cd39f7fe42e85735--gzip"`,
           "Content-Type": "application/vnd.go.cd.v1+json"
         },
         status:          200
       });
 
-      const configRepos = new ConfigRepos();
-      configRepos.all().then(() => {
-        expect(configRepos.etag()).toEqual(`W/"05548388f7ef5042cd39f7fe42e85735"`);
+      ConfigReposCrud.all().then(() => {
         done();
       }, () => done.fail("request should be successful"));
     });

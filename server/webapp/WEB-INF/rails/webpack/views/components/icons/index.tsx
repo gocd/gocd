@@ -86,6 +86,12 @@ export class Close extends Icon {
   }
 }
 
+export class QuestionMark extends Icon {
+  constructor() {
+    super(styles.question);
+  }
+}
+
 export class ButtonGroup extends MithrilViewComponent<Attrs> {
   view(vnode: m.Vnode<Attrs>) {
     return (

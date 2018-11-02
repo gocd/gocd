@@ -74,6 +74,7 @@ public class InitialContextProvider {
         context.put("spaRefreshInterval", SystemEnvironment.goSpaRefreshInterval());
         context.put("spaTimeout", SystemEnvironment.goSpaTimeout());
         context.put("showAnalyticsDashboard", showAnalyticsDashboard());
+        context.put("devMode", !new SystemEnvironment().useCompressedJs());
         return new VelocityContext(context);
     }
 

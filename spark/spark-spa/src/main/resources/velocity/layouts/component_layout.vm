@@ -26,13 +26,13 @@
   <title>${viewTitle} - Go</title>
 
   <link rel="shortcut icon" href="/go/${railsAssetsService.getAssetPath('cruise.ico')}"/>
-#foreach( $css in ${webpackAssetsService.getCSSAssetPathsFor("single_page_apps/${controllerName}")})
-  <link href="${css}" media="screen" rel="stylesheet"/>
-#end
+    #foreach( $css in ${webpackAssetsService.getCSSAssetPathsFor("single_page_apps/${controllerName}")})
+      <link href="${css}" media="screen" rel="stylesheet"/>
+    #end
 
-#foreach( $js in ${webpackAssetsService.getJSAssetPathsFor("single_page_apps/${controllerName}")})
-  <script src="${js}"></script>
-#end
+    #foreach( $js in ${webpackAssetsService.getJSAssetPathsFor("single_page_apps/${controllerName}")})
+      <script src="${js}"></script>
+    #end
 
 </head>
 
@@ -50,5 +50,36 @@
       data-version-copyright-year="${currentVersion.copyrightYear()}"
       data-version-formatted="${currentVersion.formatted()}"
       data-version-full="${currentVersion.fullVersion()}">
+
+    #if(${devMode})
+    <script>
+      var oldManifestValue = null;
+
+      function checkUpdates(url) {
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', url + '?' + new Date().getTime());
+        xhr.onreadystatechange = function () {
+          if (xhr.readyState === XMLHttpRequest.DONE) {
+            if (xhr.status === 200) {
+              var json = JSON.parse(xhr.responseText)
+              if (oldManifestValue == null) {
+                oldManifestValue = json.hash;
+                return;
+              } else if (oldManifestValue != json.hash) {
+                window.location.reload(true)
+              }
+            }
+          }
+        };
+        xhr.send();
+      }
+
+      if (window.location.search.indexOf('no_hot_reload') === -1) {
+        setInterval(function () {
+          checkUpdates('/go/assets/webpack/manifest.json')
+        }, 1000);
+      }
+    </script>
+    #end
 </body>
 </html>

@@ -57,7 +57,7 @@ public class SpaControllers implements SparkSpringController {
         sparkControllers.add(new ArtifactStoresDelegate(authenticationHelper, templateEngineFactory.create(ArtifactStoresDelegate.class, defaultTemplate)));
         sparkControllers.add(new AnalyticsDelegate(authenticationHelper, templateEngineFactory.create(AnalyticsDelegate.class, defaultTemplate), systemEnvironment, analyticsExtension, pipelineConfigService));
         sparkControllers.add(new DataSharingSettingsDelegate(authenticationHelper, templateEngineFactory.create(DataSharingSettingsDelegate.class, defaultTemplate)));
-        sparkControllers.add(new ConfigReposDelegate(authenticationHelper, templateEngineFactory.create(ConfigReposDelegate.class, componentAware), featureToggleService));
+        sparkControllers.add(new ConfigReposDelegate(authenticationHelper, templateEngineFactory.create(ConfigReposDelegate.class, () -> COMPONENT_LAYOUT_PATH), featureToggleService));
         sparkControllers.add(new KitchenSinkDelegate(templateEngineFactory.create(KitchenSinkDelegate.class, () -> COMPONENT_LAYOUT_PATH)));
     }
 

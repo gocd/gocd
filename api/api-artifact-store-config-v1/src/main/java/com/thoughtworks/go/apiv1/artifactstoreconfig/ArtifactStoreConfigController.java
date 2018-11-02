@@ -17,11 +17,10 @@
 package com.thoughtworks.go.apiv1.artifactstoreconfig;
 
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.thoughtworks.go.api.ApiController;
 import com.thoughtworks.go.api.ApiVersion;
 import com.thoughtworks.go.api.CrudController;
+import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.api.representers.JsonReader;
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
 import com.thoughtworks.go.api.util.GsonTransformer;
@@ -41,6 +40,7 @@ import spark.Request;
 import spark.Response;
 
 import java.io.IOException;
+import java.util.function.Consumer;
 
 import static com.thoughtworks.go.api.util.HaltApiResponses.*;
 import static spark.Spark.*;
@@ -67,25 +67,19 @@ public class ArtifactStoreConfigController extends ApiController implements Spar
     }
 
     @Override
-    public ArtifactStore doGetEntityFromConfig(String name) {
+    public ArtifactStore doFetchEntityFromConfig(String name) {
         return artifactStoreService.findArtifactStore(name);
     }
 
     @Override
-    public ArtifactStore getEntityFromRequestBody(Request req) {
+    public ArtifactStore buildEntityFromRequestBody(Request req) {
         JsonReader jsonReader = GsonTransformer.getInstance().jsonReaderFrom(req.body());
         return ArtifactStoreRepresenter.fromJSON(jsonReader);
     }
 
     @Override
-    public String jsonize(Request req, ArtifactStore artifactStore) {
-        return jsonizeAsTopLevelObject(req, writer -> ArtifactStoreRepresenter.toJSON(writer, artifactStore));
-    }
-
-    @Override
-    public JsonNode jsonNode(Request req, ArtifactStore artifactStore) throws IOException {
-        String jsonize = jsonize(req, artifactStore);
-        return new ObjectMapper().readTree(jsonize);
+    public Consumer<OutputWriter> jsonWriter(ArtifactStore artifactStore) {
+        return writer -> ArtifactStoreRepresenter.toJSON(writer, artifactStore);
     }
 
     @Override
@@ -119,7 +113,7 @@ public class ArtifactStoreConfigController extends ApiController implements Spar
     }
 
     public String show(Request request, Response response) throws IOException {
-        ArtifactStore artifactStore = getEntityFromConfig(request.params(ID_PARAM));
+        ArtifactStore artifactStore = fetchEntityFromConfig(request.params(ID_PARAM));
 
         if (isGetOrHeadRequestFresh(request, artifactStore)) {
             return notModified(response);
@@ -130,9 +124,9 @@ public class ArtifactStoreConfigController extends ApiController implements Spar
     }
 
     public String create(Request request, Response response) throws IOException {
-        ArtifactStore artifactStore = getEntityFromRequestBody(request);
+        ArtifactStore artifactStore = buildEntityFromRequestBody(request);
 
-        haltIfEntityWithSameIdExists(request, artifactStore);
+        haltIfEntityWithSameIdExists(artifactStore);
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         artifactStoreService.create(currentUsername(), artifactStore, result);
@@ -141,8 +135,8 @@ public class ArtifactStoreConfigController extends ApiController implements Spar
     }
 
     public String update(Request req, Response res) throws IOException {
-        ArtifactStore artifactStoreFromServer = getEntityFromConfig(req.params(ID_PARAM));
-        ArtifactStore artifactStoreFromRequest = getEntityFromRequestBody(req);
+        ArtifactStore artifactStoreFromServer = fetchEntityFromConfig(req.params(ID_PARAM));
+        ArtifactStore artifactStoreFromRequest = buildEntityFromRequestBody(req);
 
         if (isRenameAttempt(artifactStoreFromServer, artifactStoreFromRequest)) {
             throw haltBecauseRenameOfEntityIsNotSupported("artifactStore");
@@ -158,7 +152,7 @@ public class ArtifactStoreConfigController extends ApiController implements Spar
     }
 
     public String destroy(Request request, Response response) throws IOException {
-        ArtifactStore artifactStore = getEntityFromConfig(request.params(ID_PARAM));
+        ArtifactStore artifactStore = fetchEntityFromConfig(request.params(ID_PARAM));
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         artifactStoreService.delete(currentUsername(), artifactStore, result);
 
@@ -169,11 +163,11 @@ public class ArtifactStoreConfigController extends ApiController implements Spar
         return !fromServer.getId().equalsIgnoreCase(fromRequest.getId());
     }
 
-    private void haltIfEntityWithSameIdExists(Request req, ArtifactStore artifactStore) throws IOException {
+    private void haltIfEntityWithSameIdExists(ArtifactStore artifactStore) {
         if (artifactStoreService.findArtifactStore(artifactStore.getId()) == null) {
             return;
         }
         artifactStore.addError("id", "Artifact store ids should be unique. Artifact store with the same id exists.");
-        throw haltBecauseEntityAlreadyExists(jsonNode(req, artifactStore), "artifactStore", artifactStore.getId());
+        throw haltBecauseEntityAlreadyExists(jsonWriter(artifactStore), "artifactStore", artifactStore.getId());
     }
 }

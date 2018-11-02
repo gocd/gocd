@@ -16,11 +16,10 @@
 
 package com.thoughtworks.go.apiv1.admin.security;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.thoughtworks.go.api.ApiController;
 import com.thoughtworks.go.api.ApiVersion;
 import com.thoughtworks.go.api.CrudController;
+import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.api.representers.JsonReader;
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
 import com.thoughtworks.go.api.util.GsonTransformer;
@@ -43,6 +42,7 @@ import spark.Request;
 import spark.Response;
 
 import java.io.IOException;
+import java.util.function.Consumer;
 
 import static com.thoughtworks.go.api.util.HaltApiResponses.*;
 import static spark.Spark.*;
@@ -107,7 +107,7 @@ public class RolesControllerV1 extends ApiController implements SparkSpringContr
     }
 
     public String show(Request req, Response res) throws IOException {
-        Role role = getEntityFromConfig(req.params("role_name"));
+        Role role = fetchEntityFromConfig(req.params("role_name"));
 
         if (isGetOrHeadRequestFresh(req, role)) {
             return notModified(res);
@@ -118,7 +118,7 @@ public class RolesControllerV1 extends ApiController implements SparkSpringContr
     }
 
     public String create(Request req, Response res) throws IOException {
-        Role role = getEntityFromRequestBody(req);
+        Role role = buildEntityFromRequestBody(req);
 
         haltIfEntityBySameNameInRequestExists(req, role);
 
@@ -130,7 +130,7 @@ public class RolesControllerV1 extends ApiController implements SparkSpringContr
 
     public String update(Request req, Response res) throws IOException {
         Role roleFromServer = roleConfigService.findRole(req.params(":role_name"));
-        Role roleFromRequest = getEntityFromRequestBody(req);
+        Role roleFromRequest = buildEntityFromRequestBody(req);
 
         if (isRenameAttempt(roleFromServer, roleFromRequest)) {
             throw haltBecauseRenameOfEntityIsNotSupported("roles");
@@ -146,7 +146,7 @@ public class RolesControllerV1 extends ApiController implements SparkSpringContr
     }
 
     public String destroy(Request req, Response res) throws IOException {
-        Role role = getEntityFromConfig(req.params("role_name"));
+        Role role = fetchEntityFromConfig(req.params("role_name"));
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         roleConfigService.delete(SessionUtils.currentUsername(), role, result);
 
@@ -164,32 +164,26 @@ public class RolesControllerV1 extends ApiController implements SparkSpringContr
     }
 
     @Override
-    public Role doGetEntityFromConfig(String name) {
+    public Role doFetchEntityFromConfig(String name) {
         return roleConfigService.findRole(name);
     }
 
     @Override
-    public Role getEntityFromRequestBody(Request req) {
+    public Role buildEntityFromRequestBody(Request req) {
         JsonReader jsonReader = GsonTransformer.getInstance().jsonReaderFrom(req.body());
         return RoleRepresenter.fromJSON(jsonReader);
     }
 
     @Override
-    public String jsonize(Request req, Role role) {
-        return jsonizeAsTopLevelObject(req, writer -> RoleRepresenter.toJSON(writer, role));
+    public Consumer<OutputWriter> jsonWriter(Role role) {
+        return writer -> RoleRepresenter.toJSON(writer, role);
     }
 
-    @Override
-    public JsonNode jsonNode(Request req, Role role) throws IOException {
-        String jsonize = jsonize(req, role);
-        return new ObjectMapper().readTree(jsonize);
-    }
-
-    private void haltIfEntityBySameNameInRequestExists(Request req, Role role) throws IOException {
+    private void haltIfEntityBySameNameInRequestExists(Request req, Role role) {
         if (roleConfigService.findRole(role.getName().toString()) == null) {
             return;
         }
         role.addError("name", "Role names should be unique. Role with the same name exists.");
-        throw haltBecauseEntityAlreadyExists(jsonNode(req, role), "role", role.getName());
+        throw haltBecauseEntityAlreadyExists(jsonWriter(role), "role", role.getName());
     }
 }

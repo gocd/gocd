@@ -16,11 +16,10 @@
 
 package com.thoughtworks.go.apiv1.adminsconfig;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.thoughtworks.go.api.ApiController;
 import com.thoughtworks.go.api.ApiVersion;
 import com.thoughtworks.go.api.CrudController;
+import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.api.representers.JsonReader;
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
 import com.thoughtworks.go.api.util.GsonTransformer;
@@ -37,6 +36,7 @@ import spark.Request;
 import spark.Response;
 
 import java.io.IOException;
+import java.util.function.Consumer;
 
 import static com.thoughtworks.go.api.util.HaltApiResponses.haltBecauseEtagDoesNotMatch;
 import static spark.Spark.*;
@@ -77,12 +77,12 @@ public class AdminControllerV1 extends ApiController implements SparkSpringContr
             return notModified(res);
         } else {
             setEtagHeader(adminsConf, res);
-            return writerForTopLevelObject(req, res, writer -> AdminsConfigRepresenter.toJSON(writer, adminsConf));
+            return writerForTopLevelObject(req, res, jsonWriter(adminsConf));
         }
     }
 
     public String update(Request req, Response res) throws IOException {
-        AdminsConfig adminsConfigFromRequest = getEntityFromRequestBody(req);
+        AdminsConfig adminsConfigFromRequest = buildEntityFromRequestBody(req);
         AdminsConfig adminsConfigFromServer = adminsConfigService.systemAdmins();
 
         if (!isPutRequestFresh(req, adminsConfigFromServer)) {
@@ -102,25 +102,19 @@ public class AdminControllerV1 extends ApiController implements SparkSpringContr
     }
 
     @Override
-    public AdminsConfig doGetEntityFromConfig(String name) {
+    public AdminsConfig doFetchEntityFromConfig(String name) {
         throw new RuntimeException("Not implemented. Unlike other entities, AdminsConfig has a single representation in the config.");
     }
 
     @Override
-    public AdminsConfig getEntityFromRequestBody(Request req) {
+    public AdminsConfig buildEntityFromRequestBody(Request req) {
         JsonReader jsonReader = GsonTransformer.getInstance().jsonReaderFrom(req.body());
         return AdminsConfigRepresenter.fromJSON(jsonReader);
     }
 
     @Override
-    public String jsonize(Request req, AdminsConfig admins) {
-        return jsonizeAsTopLevelObject(req, writer -> AdminsConfigRepresenter.toJSON(writer, admins));
-    }
-
-    @Override
-    public JsonNode jsonNode(Request req, AdminsConfig admins) throws IOException {
-        String jsonize = jsonize(req, admins);
-        return new ObjectMapper().readTree(jsonize);
+    public Consumer<OutputWriter> jsonWriter(AdminsConfig admins) {
+        return writer -> AdminsConfigRepresenter.toJSON(writer, admins);
     }
 
     @Override

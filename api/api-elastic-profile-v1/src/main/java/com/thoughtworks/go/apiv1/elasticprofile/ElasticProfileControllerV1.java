@@ -16,11 +16,10 @@
 
 package com.thoughtworks.go.apiv1.elasticprofile;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.thoughtworks.go.api.ApiController;
 import com.thoughtworks.go.api.ApiVersion;
 import com.thoughtworks.go.api.CrudController;
+import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
 import com.thoughtworks.go.api.util.GsonTransformer;
 import com.thoughtworks.go.apiv1.elasticprofile.representers.ElasticProfileRepresenter;
@@ -40,6 +39,7 @@ import spark.Request;
 import spark.Response;
 
 import java.io.IOException;
+import java.util.function.Consumer;
 
 import static com.thoughtworks.go.api.util.HaltApiResponses.*;
 import static java.lang.String.format;
@@ -90,7 +90,7 @@ public class ElasticProfileControllerV1 extends ApiController implements SparkSp
     }
 
     public String show(Request request, Response response) throws IOException {
-        final ElasticProfile elasticProfile = getEntityFromConfig(request.params(PROFILE_ID_PARAM));
+        final ElasticProfile elasticProfile = fetchEntityFromConfig(request.params(PROFILE_ID_PARAM));
 
         if (isGetOrHeadRequestFresh(request, elasticProfile)) {
             return notModified(response);
@@ -101,8 +101,8 @@ public class ElasticProfileControllerV1 extends ApiController implements SparkSp
     }
 
     public String create(Request request, Response response) throws IOException {
-        final ElasticProfile elasticProfileToCreate = getEntityFromRequestBody(request);
-        haltIfEntityWithSameIdExists(request, elasticProfileToCreate);
+        final ElasticProfile elasticProfileToCreate = buildEntityFromRequestBody(request);
+        haltIfEntityWithSameIdExists(elasticProfileToCreate);
 
         final HttpLocalizedOperationResult operationResult = new HttpLocalizedOperationResult();
         elasticProfileService.create(currentUsername(), elasticProfileToCreate, operationResult);
@@ -112,8 +112,8 @@ public class ElasticProfileControllerV1 extends ApiController implements SparkSp
 
     public String update(Request request, Response response) throws IOException {
         final String profileId = request.params(PROFILE_ID_PARAM);
-        final ElasticProfile existingElasticProfile = getEntityFromConfig(profileId);
-        final ElasticProfile newElasticProfile = getEntityFromRequestBody(request);
+        final ElasticProfile existingElasticProfile = fetchEntityFromConfig(profileId);
+        final ElasticProfile newElasticProfile = buildEntityFromRequestBody(request);
 
         if (isRenameAttempt(profileId, newElasticProfile.getId())) {
             throw haltBecauseRenameOfEntityIsNotSupported("elasticProfile");
@@ -130,7 +130,7 @@ public class ElasticProfileControllerV1 extends ApiController implements SparkSp
     }
 
     public String destroy(Request request, Response response) throws IOException {
-        ElasticProfile elasticProfile = getEntityFromConfig(request.params(PROFILE_ID_PARAM));
+        ElasticProfile elasticProfile = fetchEntityFromConfig(request.params(PROFILE_ID_PARAM));
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         elasticProfileService.delete(currentUsername(), elasticProfile, result);
 
@@ -147,30 +147,25 @@ public class ElasticProfileControllerV1 extends ApiController implements SparkSp
     }
 
     @Override
-    public ElasticProfile doGetEntityFromConfig(String profileID) {
+    public ElasticProfile doFetchEntityFromConfig(String profileID) {
         return elasticProfileService.findProfile(profileID);
     }
 
     @Override
-    public ElasticProfile getEntityFromRequestBody(Request req) {
+    public ElasticProfile buildEntityFromRequestBody(Request req) {
         return ElasticProfileRepresenter.fromJSON(GsonTransformer.getInstance().jsonReaderFrom(req.body()));
     }
 
     @Override
-    public String jsonize(Request req, ElasticProfile elasticProfile) {
-        return jsonizeAsTopLevelObject(req, writer -> ElasticProfileRepresenter.toJSON(writer, elasticProfile));
+    public Consumer<OutputWriter> jsonWriter(ElasticProfile elasticProfile) {
+        return writer -> ElasticProfileRepresenter.toJSON(writer, elasticProfile);
     }
 
-    @Override
-    public JsonNode jsonNode(Request req, ElasticProfile elasticProfile) throws IOException {
-        return new ObjectMapper().readTree(jsonize(req, elasticProfile));
-    }
-
-    private void haltIfEntityWithSameIdExists(Request req, ElasticProfile elasticProfile) throws IOException {
+    private void haltIfEntityWithSameIdExists(ElasticProfile elasticProfile) {
         if (elasticProfileService.findProfile(elasticProfile.getId()) == null) {
             return;
         }
         elasticProfile.addError("id", format("Elastic profile ids should be unique. Elastic profile with id '%s' already exists.", elasticProfile.getId()));
-        throw haltBecauseEntityAlreadyExists(jsonNode(req, elasticProfile), "elasticProfile", elasticProfile.getId());
+        throw haltBecauseEntityAlreadyExists(jsonWriter(elasticProfile), "elasticProfile", elasticProfile.getId());
     }
 }

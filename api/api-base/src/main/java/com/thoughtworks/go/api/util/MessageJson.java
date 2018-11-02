@@ -16,24 +16,24 @@
 
 package com.thoughtworks.go.api.util;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.thoughtworks.go.api.base.JsonOutputWriter;
 import com.thoughtworks.go.api.base.OutputWriter;
 
 import java.io.StringWriter;
+import java.util.function.Consumer;
 
 public class MessageJson {
 
     private final String message;
-    private final JsonNode data;
+    private final Consumer<OutputWriter> json;
 
-    private MessageJson(String message, JsonNode data) {
+    private MessageJson(String message, Consumer<OutputWriter> json) {
         this.message = message;
-        this.data = data;
+        this.json = json;
     }
 
-    public static String create(String message, JsonNode data) {
-        return new MessageJson(message, data).toString();
+    public static String create(String message, Consumer<OutputWriter> json) {
+        return new MessageJson(message, json).toString();
     }
 
     public static String create(String message) {
@@ -44,8 +44,8 @@ public class MessageJson {
         StringWriter buffer = new StringWriter(1024);
         new JsonOutputWriter(buffer, null).forTopLevelObject((OutputWriter writer) -> {
             writer.add("message", message);
-            if (data != null) {
-                writer.add("data", data);
+            if (json != null) {
+                writer.addChild("data", json);
             }
         });
 

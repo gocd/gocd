@@ -17,11 +17,10 @@
 package com.thoughtworks.go.apiv1.admin.pipelinegroups;
 
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.thoughtworks.go.api.ApiController;
 import com.thoughtworks.go.api.ApiVersion;
 import com.thoughtworks.go.api.CrudController;
+import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.api.representers.JsonReader;
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
 import com.thoughtworks.go.api.util.GsonTransformer;
@@ -46,6 +45,7 @@ import spark.Response;
 
 import java.io.IOException;
 import java.util.Optional;
+import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 import static com.thoughtworks.go.api.util.HaltApiResponses.*;
@@ -107,13 +107,13 @@ public class PipelineGroupsControllerV1 extends ApiController implements SparkSp
     }
 
     public String create(Request req, Response res) throws IOException {
-        PipelineConfigs pipelineConfigsFromReq = getEntityFromRequestBody(req);
+        PipelineConfigs pipelineConfigsFromReq = buildEntityFromRequestBody(req);
         String groupName = pipelineConfigsFromReq.getGroup();
         Optional<PipelineConfigs> pipelineConfigsFromServer = findPipelineGroup(groupName);
 
         if (pipelineConfigsFromServer.isPresent()) {
             pipelineConfigsFromReq.addError("name", LocalizedMessage.resourceAlreadyExists("pipeline group", groupName));
-            throw haltBecauseEntityAlreadyExists(jsonNode(req, pipelineConfigsFromReq), "pipeline group", groupName);
+            throw haltBecauseEntityAlreadyExists(jsonWriter(pipelineConfigsFromReq), "pipeline group", groupName);
         }
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
@@ -123,7 +123,7 @@ public class PipelineGroupsControllerV1 extends ApiController implements SparkSp
     }
 
     public String show(Request req, Response res) throws IOException {
-        PipelineConfigs pipelineConfigs = getEntityFromConfig(req.params("group_name"));
+        PipelineConfigs pipelineConfigs = fetchEntityFromConfig(req.params("group_name"));
         if (isGetOrHeadRequestFresh(req, pipelineConfigs)) {
             return notModified(res);
         } else {
@@ -133,8 +133,8 @@ public class PipelineGroupsControllerV1 extends ApiController implements SparkSp
     }
 
     public String update(Request req, Response res) throws IOException {
-        PipelineConfigs pipelineConfigsFromServer = getEntityFromConfig(req.params("group_name"));
-        PipelineConfigs pipelineConfigsFromReq = getEntityFromRequestBody(req);
+        PipelineConfigs pipelineConfigsFromServer = fetchEntityFromConfig(req.params("group_name"));
+        PipelineConfigs pipelineConfigsFromReq = buildEntityFromRequestBody(req);
 
         if (isRenameAttempt(pipelineConfigsFromServer, pipelineConfigsFromReq)) {
             throw haltBecauseRenameOfEntityIsNotSupported("pipeline group");
@@ -150,7 +150,7 @@ public class PipelineGroupsControllerV1 extends ApiController implements SparkSp
     }
 
     public String destroy(Request req, Response res) throws IOException {
-        PipelineConfigs pipelineConfigs = getEntityFromConfig(req.params("group_name"));
+        PipelineConfigs pipelineConfigs = fetchEntityFromConfig(req.params("group_name"));
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         pipelineConfigsService.deleteGroup(SessionUtils.currentUsername(), pipelineConfigs, result);
@@ -164,7 +164,7 @@ public class PipelineGroupsControllerV1 extends ApiController implements SparkSp
     }
 
     @Override
-    public PipelineConfigs doGetEntityFromConfig(String name) {
+    public PipelineConfigs doFetchEntityFromConfig(String name) {
         return findPipelineGroup(name).orElseThrow(RecordNotFoundException::new);
     }
 
@@ -174,20 +174,14 @@ public class PipelineGroupsControllerV1 extends ApiController implements SparkSp
     }
 
     @Override
-    public PipelineConfigs getEntityFromRequestBody(Request req) {
+    public PipelineConfigs buildEntityFromRequestBody(Request req) {
         JsonReader jsonReader = GsonTransformer.getInstance().jsonReaderFrom(req.body());
         return PipelineGroupRepresenter.fromJSON(jsonReader);
     }
 
     @Override
-    public String jsonize(Request req, PipelineConfigs pipelineConfigs) {
-        return jsonizeAsTopLevelObject(req, writer -> PipelineGroupRepresenter.toJSON(writer, pipelineConfigs));
-    }
-
-    @Override
-    public JsonNode jsonNode(Request req, PipelineConfigs pipelineConfigs) throws IOException {
-        String jsonize = jsonize(req, pipelineConfigs);
-        return new ObjectMapper().readTree(jsonize);
+    public Consumer<OutputWriter> jsonWriter(PipelineConfigs pipelineConfigs) {
+        return writer -> PipelineGroupRepresenter.toJSON(writer, pipelineConfigs);
     }
 
     private Stream<PipelineConfigs> streamAllPipelineGroups() {

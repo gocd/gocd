@@ -16,10 +16,10 @@
 
 package com.thoughtworks.go.apiv1.configrepos;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.thoughtworks.go.api.ApiController;
 import com.thoughtworks.go.api.ApiVersion;
 import com.thoughtworks.go.api.CrudController;
+import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.api.representers.JsonReader;
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
 import com.thoughtworks.go.api.util.GsonTransformer;
@@ -39,6 +39,7 @@ import spark.Request;
 import spark.Response;
 
 import java.io.IOException;
+import java.util.function.Consumer;
 
 import static com.thoughtworks.go.util.CachedDigestUtils.sha256Hex;
 import static spark.Spark.*;
@@ -87,13 +88,13 @@ public class ConfigReposControllerV1 extends ApiController implements SparkSprin
     }
 
     String showRepo(Request req, Response res) {
-        ConfigRepoConfig repoConfig = getEntityFromConfig(req.params(":id"));
+        ConfigRepoConfig repoConfig = fetchEntityFromConfig(req.params(":id"));
         return jsonize(req, repoConfig);
     }
 
     String createRepo(Request req, Response res) throws IOException {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        ConfigRepoConfig repoConfig = getEntityFromRequestBody(req);
+        ConfigRepoConfig repoConfig = buildEntityFromRequestBody(req);
         service.createConfigRepo(repoConfig, currentUsername(), result);
         return handleCreateOrUpdateResponse(req, res, repoConfig, result);
     }
@@ -108,23 +109,18 @@ public class ConfigReposControllerV1 extends ApiController implements SparkSprin
     }
 
     @Override
-    public ConfigRepoConfig doGetEntityFromConfig(String id) {
+    public ConfigRepoConfig doFetchEntityFromConfig(String id) {
         return service.getConfigRepo(id);
     }
 
     @Override
-    public ConfigRepoConfig getEntityFromRequestBody(Request req) {
+    public ConfigRepoConfig buildEntityFromRequestBody(Request req) {
         JsonReader jsonReader = GsonTransformer.getInstance().jsonReaderFrom(req.body());
         return ConfigRepoConfigRepresenterV1.fromJSON(jsonReader, mch);
     }
 
     @Override
-    public String jsonize(Request req, ConfigRepoConfig repo) {
-        return jsonizeAsTopLevelObject(req, w -> ConfigRepoConfigRepresenterV1.toJSON(w, repo));
-    }
-
-    @Override
-    public JsonNode jsonNode(Request req, ConfigRepoConfig configRepoConfig) throws IOException {
-        return null;
+    public Consumer<OutputWriter> jsonWriter(ConfigRepoConfig repo) {
+        return w -> ConfigRepoConfigRepresenterV1.toJSON(w, repo);
     }
 }

@@ -307,6 +307,20 @@ public class GoDashboardServiceTest {
         verifyZeroInteractions(dashboardCurrentStateLoader);
     }
 
+    @Test
+    public void shouldRemoveExistingPipelineEntryInCacheWhenPipelineIsRemoved() {
+        BasicCruiseConfig config = GoConfigMother.defaultCruiseConfig();
+        PipelineConfig pipelineConfig = new GoConfigMother().addPipeline(config, "pipeline1", "stage1", "job1");
+        config.findGroupOfPipeline(pipelineConfig).remove(pipelineConfig);
+
+        when(goConfigService.findGroupByPipeline(any())).thenReturn(null);
+        // simulate the event
+        service.updateCacheForPipeline(pipelineConfig.name());
+        verify(cache).remove(pipelineConfig.getName());
+        verify(dashboardCurrentStateLoader).clearEntryFor(pipelineConfig.getName());
+        verifyZeroInteractions(dashboardCurrentStateLoader);
+    }
+
     private List<GoDashboardEnvironment> allEnvironmentsForDashboard(DashboardFilter filter, Username username) {
         when(goConfigService.getEnvironments()).thenReturn(config.getEnvironments());
         when(goConfigService.security()).thenReturn(config.server().security());

@@ -78,8 +78,12 @@ public class GoDashboardService {
 
     public void updateCacheForPipeline(CaseInsensitiveString pipelineName) {
         PipelineConfigs group = goConfigService.findGroupByPipeline(pipelineName);
-        PipelineConfig pipelineConfig = group.findBy(pipelineName);
+        if (group == null) {
+            removePipelineFromCache(pipelineName);
+            return;
+        }
 
+        PipelineConfig pipelineConfig = group.findBy(pipelineName);
         updateCache(group, pipelineConfig);
     }
 
@@ -151,11 +155,15 @@ public class GoDashboardService {
 
     private void updateCache(PipelineConfigs group, PipelineConfig pipelineConfig) {
         if (group == null) {
-            cache.remove(pipelineConfig.name());
-            dashboardCurrentStateLoader.clearEntryFor(pipelineConfig.name());
+            removePipelineFromCache(pipelineConfig.name());
             return;
         }
 
         cache.put(dashboardCurrentStateLoader.pipelineFor(pipelineConfig, group));
+    }
+
+    private void removePipelineFromCache(CaseInsensitiveString pipelineName) {
+        cache.remove(pipelineName);
+        dashboardCurrentStateLoader.clearEntryFor(pipelineName);
     }
 }

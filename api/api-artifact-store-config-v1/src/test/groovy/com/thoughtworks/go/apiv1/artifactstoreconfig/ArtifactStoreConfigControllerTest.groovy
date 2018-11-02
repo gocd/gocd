@@ -40,11 +40,9 @@ import org.mockito.Mock
 import org.mockito.Mockito
 import org.mockito.invocation.InvocationOnMock
 
-import static com.thoughtworks.go.api.base.JsonUtils.toObject
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
-import static com.thoughtworks.go.api.util.HaltApiMessages.entityAlreadyExistsMessage
-import static com.thoughtworks.go.api.util.HaltApiMessages.etagDoesNotMatch
-import static com.thoughtworks.go.api.util.HaltApiMessages.renameOfEntityIsNotSupportedMessage
+import static com.thoughtworks.go.api.base.JsonUtils.toObjectWithoutLinks
+import static com.thoughtworks.go.api.util.HaltApiMessages.*
 import static org.mockito.ArgumentMatchers.any
 import static org.mockito.ArgumentMatchers.eq
 import static org.mockito.Mockito.*
@@ -279,7 +277,7 @@ class ArtifactStoreConfigControllerTest implements ControllerTrait<ArtifactStore
           .isUnprocessableEntity()
           .hasContentType(controller.mimeType)
           .hasJsonMessage(entityAlreadyExistsMessage("artifactStore", "test"))
-          .hasJsonAttribute("data", toObject({ ArtifactStoreRepresenter.toJSON(it, artifactStoreWithError) }))
+          .hasJsonAttribute("data", toObjectWithoutLinks({ ArtifactStoreRepresenter.toJSON(it, artifactStoreWithError) }))
       }
 
     }

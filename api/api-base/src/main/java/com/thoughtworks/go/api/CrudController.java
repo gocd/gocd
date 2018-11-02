@@ -17,6 +17,7 @@
 package com.thoughtworks.go.api;
 
 import com.thoughtworks.go.api.base.OutputWriter;
+import com.thoughtworks.go.api.util.MessageJson;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import spark.Request;
@@ -61,15 +62,9 @@ public interface CrudController<Entity> extends ControllerMethods {
         } else {
             res.status(result.httpCode());
 
-            return writerForTopLevelObject(req, res, writer -> {
-                    writer.add("message", result.message());
+            String errorMessage = result.message();
 
-                    if (entity != null) {
-                        writer.addChild("data", jsonWriter(entity));
-                    }
-                }
-
-            );
+            return null == entity ? MessageJson.create(errorMessage) : MessageJson.create(errorMessage, jsonWriter(entity));
         }
     }
 

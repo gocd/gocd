@@ -305,11 +305,6 @@ class ElasticProfileControllerV1Test implements SecurityServiceTrait, Controller
         def expectedResponseBody = [
           message: "Failed to add elasticProfile 'docker'. Another elasticProfile with the same name already exists.",
           data   : [
-            _links    : [
-              self: [href: "http://test.host/go/api/elastic/profiles/docker"],
-              doc : [href: "https://api.gocd.org/current/#elastic-agent-profiles"],
-              find: [href: "http://test.host/go/api/elastic/profiles/:profile_id"]
-            ],
             id        : "docker",
             plugin_id : "cd.go.docker",
             properties: [[key: "DockerURI", value: "http://foo"]],

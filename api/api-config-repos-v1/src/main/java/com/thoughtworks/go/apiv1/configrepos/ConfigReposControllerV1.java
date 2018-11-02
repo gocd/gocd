@@ -41,6 +41,7 @@ import spark.Response;
 import java.io.IOException;
 import java.util.function.Consumer;
 
+import static com.thoughtworks.go.api.util.HaltApiResponses.haltBecauseEntityAlreadyExists;
 import static com.thoughtworks.go.util.CachedDigestUtils.sha256Hex;
 import static spark.Spark.*;
 
@@ -49,7 +50,6 @@ public class ConfigReposControllerV1 extends ApiController implements SparkSprin
     private final ApiAuthenticationHelper authHelper;
     private final ConfigRepoService service;
     private final MaterialConfigHelper mch;
-
 
     @Autowired
     public ConfigReposControllerV1(ApiAuthenticationHelper authHelper, ConfigRepoService service, MaterialConfigHelper mch) {
@@ -93,10 +93,13 @@ public class ConfigReposControllerV1 extends ApiController implements SparkSprin
     }
 
     String createRepo(Request req, Response res) throws IOException {
+        ConfigRepoConfig repo = buildEntityFromRequestBody(req);
+        haltIfEntityWithSameIdExists(repo);
+
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        ConfigRepoConfig repoConfig = buildEntityFromRequestBody(req);
-        service.createConfigRepo(repoConfig, currentUsername(), result);
-        return handleCreateOrUpdateResponse(req, res, repoConfig, result);
+        service.createConfigRepo(repo, currentUsername(), result);
+
+        return handleCreateOrUpdateResponse(req, res, repo, result);
     }
 
     private ConfigReposConfig allRepos() {
@@ -122,5 +125,15 @@ public class ConfigReposControllerV1 extends ApiController implements SparkSprin
     @Override
     public Consumer<OutputWriter> jsonWriter(ConfigRepoConfig repo) {
         return w -> ConfigRepoConfigRepresenterV1.toJSON(w, repo);
+    }
+
+    private void haltIfEntityWithSameIdExists(ConfigRepoConfig repo) {
+        String id = repo.getId();
+        if (service.getConfigRepo(id) == null) {
+            return;
+        }
+
+        repo.addError("id", "ConfigRepo ids should be unique. A ConfigRepo with the same id already exists.");
+        throw haltBecauseEntityAlreadyExists(jsonWriter(repo), "config-repo", repo.getId());
     }
 }

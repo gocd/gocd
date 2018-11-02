@@ -23,7 +23,9 @@ import com.thoughtworks.go.config.materials.PasswordDeserializer
 import com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig
 import com.thoughtworks.go.config.remote.ConfigRepoConfig
 import com.thoughtworks.go.config.remote.ConfigReposConfig
+import com.thoughtworks.go.server.domain.Username
 import com.thoughtworks.go.server.service.ConfigRepoService
+import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult
 import com.thoughtworks.go.spark.AdminUserSecurity
 import com.thoughtworks.go.spark.ControllerTrait
 import com.thoughtworks.go.spark.Routes
@@ -33,8 +35,10 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.Mock
 
-import static org.mockito.Mockito.when
+import static org.mockito.ArgumentMatchers.any
+import static org.mockito.Mockito.*
 import static org.mockito.MockitoAnnotations.initMocks
+import static org.mockito.internal.verification.VerificationModeFactory.times
 
 class ConfigReposControllerV1Test implements SecurityServiceTrait, ControllerTrait<ConfigReposControllerV1> {
   private static final String TEST_PLUGIN_ID = "test.configrepo.plugin"
@@ -143,6 +147,73 @@ class ConfigReposControllerV1Test implements SecurityServiceTrait, ControllerTra
       getWithApiHeader(controller.controllerPath(ID_1))
 
       assertThatResponse().isNotFound()
+    }
+  }
+
+  @Nested
+  class Create {
+
+    @BeforeEach
+    void setup() {
+      loginAsAdmin()
+    }
+
+    @Test
+    void 'should be able to create new config repo'() {
+      String id = "test-repo"
+
+      postWithApiHeader(controller.controllerBasePath(), [
+        id           : id,
+        plugin_id    : TEST_PLUGIN_ID,
+        material     : [
+          type      : "hg",
+          attributes: [
+            name       : null,
+            url        : "${TEST_REPO_URL}/$id".toString(),
+            auto_update: true
+          ]
+        ],
+        configuration: []
+      ])
+
+      verify(service, times(1)).
+        createConfigRepo(any() as ConfigRepoConfig, any() as Username, any() as HttpLocalizedOperationResult)
+
+      assertThatResponse().
+        isOk().
+        hasJsonBody(expectedRepoJson(id))
+    }
+
+    @Test
+    void 'should not be able to create new config repo with the same id as an existing'() {
+      String id = "test-repo"
+
+      when(service.getConfigRepo(id)).thenReturn(repo(id))
+
+      Map payload = [
+        id           : id,
+        plugin_id    : TEST_PLUGIN_ID,
+        material     : [
+          type      : "hg",
+          attributes: [
+            name       : null,
+            url        : "${TEST_REPO_URL}/$id".toString(),
+            auto_update: true
+          ]
+        ],
+        configuration: []
+      ]
+      postWithApiHeader(controller.controllerBasePath(), payload)
+
+      verify(service, never()).
+        createConfigRepo(any() as ConfigRepoConfig, any() as Username, any() as HttpLocalizedOperationResult)
+
+      assertThatResponse().
+        isUnprocessableEntity().
+        hasJsonBody([
+          message: "Failed to add config-repo 'test-repo'. Another config-repo with the same name already exists.",
+          data: payload
+        ])
     }
   }
 

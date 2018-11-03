@@ -123,7 +123,7 @@ public class ArtifactStoreConfigController extends ApiController implements Spar
         }
     }
 
-    public String create(Request request, Response response) throws IOException {
+    public String create(Request request, Response response) {
         ArtifactStore artifactStore = buildEntityFromRequestBody(request);
 
         haltIfEntityWithSameIdExists(artifactStore);
@@ -134,7 +134,7 @@ public class ArtifactStoreConfigController extends ApiController implements Spar
         return handleCreateOrUpdateResponse(request, response, artifactStore, result);
     }
 
-    public String update(Request req, Response res) throws IOException {
+    public String update(Request req, Response res) {
         ArtifactStore artifactStoreFromServer = fetchEntityFromConfig(req.params(ID_PARAM));
         ArtifactStore artifactStoreFromRequest = buildEntityFromRequestBody(req);
 
@@ -142,7 +142,7 @@ public class ArtifactStoreConfigController extends ApiController implements Spar
             throw haltBecauseRenameOfEntityIsNotSupported("artifactStore");
         }
 
-        if (!isPutRequestFresh(req, artifactStoreFromServer)) {
+        if (isPutRequestStale(req, artifactStoreFromServer)) {
             throw haltBecauseEtagDoesNotMatch("artifactStore", artifactStoreFromServer.getId());
         }
 

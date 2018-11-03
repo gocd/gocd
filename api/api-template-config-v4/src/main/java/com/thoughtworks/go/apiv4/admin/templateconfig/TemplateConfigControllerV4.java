@@ -139,7 +139,7 @@ public class TemplateConfigControllerV4 extends ApiController implements SparkSp
         return renderHTTPOperationResult(result, req, res);
     }
 
-    public String update(Request req, Response res) throws IOException {
+    public String update(Request req, Response res) {
         PipelineTemplateConfig existingTemplateConfig = fetchEntityFromConfig(req.params("template_name"));
         PipelineTemplateConfig templateConfigFromRequest = buildEntityFromRequestBody(req);
 
@@ -147,7 +147,7 @@ public class TemplateConfigControllerV4 extends ApiController implements SparkSp
             throw haltBecauseRenameOfEntityIsNotSupported("templates");
         }
 
-        if (!isPutRequestFresh(req, existingTemplateConfig)) {
+        if (isPutRequestStale(req, existingTemplateConfig)) {
             throw haltBecauseEtagDoesNotMatch("template", existingTemplateConfig.name());
         }
 
@@ -156,7 +156,7 @@ public class TemplateConfigControllerV4 extends ApiController implements SparkSp
         return handleCreateOrUpdateResponse(req, res, templateConfigFromRequest, result);
     }
 
-    public String create(Request req, Response res) throws IOException {
+    public String create(Request req, Response res) {
         PipelineTemplateConfig templateConfigFromRequest = buildEntityFromRequestBody(req);
 
         haltIfEntityBySameNameInRequestExists(templateConfigFromRequest, new HttpLocalizedOperationResult());

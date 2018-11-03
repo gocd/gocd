@@ -117,7 +117,7 @@ public class RolesControllerV1 extends ApiController implements SparkSpringContr
         }
     }
 
-    public String create(Request req, Response res) throws IOException {
+    public String create(Request req, Response res) {
         Role role = buildEntityFromRequestBody(req);
 
         haltIfEntityBySameNameInRequestExists(req, role);
@@ -128,7 +128,7 @@ public class RolesControllerV1 extends ApiController implements SparkSpringContr
         return handleCreateOrUpdateResponse(req, res, role, result);
     }
 
-    public String update(Request req, Response res) throws IOException {
+    public String update(Request req, Response res) {
         Role roleFromServer = roleConfigService.findRole(req.params(":role_name"));
         Role roleFromRequest = buildEntityFromRequestBody(req);
 
@@ -136,7 +136,7 @@ public class RolesControllerV1 extends ApiController implements SparkSpringContr
             throw haltBecauseRenameOfEntityIsNotSupported("roles");
         }
 
-        if (!isPutRequestFresh(req, roleFromServer)) {
+        if (isPutRequestStale(req, roleFromServer)) {
             throw haltBecauseEtagDoesNotMatch("role", roleFromServer.getName());
         }
 

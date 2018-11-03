@@ -38,11 +38,10 @@ import org.springframework.stereotype.Component;
 import spark.Request;
 import spark.Response;
 
-import java.io.IOException;
 import java.util.function.Consumer;
 
 import static com.thoughtworks.go.api.util.HaltApiResponses.haltBecauseEntityAlreadyExists;
-import static com.thoughtworks.go.util.CachedDigestUtils.sha256Hex;
+import static com.thoughtworks.go.api.util.HaltApiResponses.haltBecauseEtagDoesNotMatch;
 import static spark.Spark.*;
 
 @Component
@@ -78,21 +77,27 @@ public class ConfigReposControllerV1 extends ApiController implements SparkSprin
             get(ConfigRepos.INDEX_PATH, mimeType, this::index);
             get(ConfigRepos.REPO_PATH, mimeType, this::showRepo);
             post(ConfigRepos.CREATE_PATH, mimeType, this::createRepo);
+            put(ConfigRepos.UPDATE_PATH, mimeType, this::updateRepo);
 
             exception(RecordNotFoundException.class, this::notFound);
         });
     }
 
     String index(Request req, Response res) {
-        return jsonizeAsTopLevelObject(req, w -> ConfigReposConfigRepresenterV1.toJSON(w, allRepos()));
+        return jsonizeAsTopLevelObject(req, w -> {
+            ConfigReposConfig repos = allRepos();
+            setEtagHeader(res, repos.etag());
+            ConfigReposConfigRepresenterV1.toJSON(w, repos);
+        });
     }
 
     String showRepo(Request req, Response res) {
-        ConfigRepoConfig repoConfig = fetchEntityFromConfig(req.params(":id"));
-        return jsonize(req, repoConfig);
+        ConfigRepoConfig repo = fetchEntityFromConfig(req.params(":id"));
+        setEtagHeader(repo, res);
+        return jsonize(req, repo);
     }
 
-    String createRepo(Request req, Response res) throws IOException {
+    String createRepo(Request req, Response res) {
         ConfigRepoConfig repo = buildEntityFromRequestBody(req);
         haltIfEntityWithSameIdExists(repo);
 
@@ -102,13 +107,27 @@ public class ConfigReposControllerV1 extends ApiController implements SparkSprin
         return handleCreateOrUpdateResponse(req, res, repo, result);
     }
 
+    String updateRepo(Request req, Response res) {
+        String id = req.params(":id");
+        ConfigRepoConfig repo = fetchEntityFromConfig(id);
+
+        if (isPutRequestStale(req, repo)) {
+            throw haltBecauseEtagDoesNotMatch();
+        }
+
+        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+        service.updateConfigRepo(id, repo, currentUsername(), result);
+
+        return handleCreateOrUpdateResponse(req, res, repo, result);
+    }
+
     private ConfigReposConfig allRepos() {
         return service.getConfigRepos();
     }
 
     @Override
-    public String etagFor(ConfigRepoConfig entityFromServer) {
-        return sha256Hex(Integer.toString(entityFromServer.hashCode()));
+    public String etagFor(ConfigRepoConfig repo) {
+        return repo.etag();
     }
 
     @Override

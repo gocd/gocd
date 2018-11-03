@@ -23,7 +23,6 @@ import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import spark.Request;
 import spark.Response;
 
-import java.io.IOException;
 import java.util.Objects;
 import java.util.function.Consumer;
 
@@ -34,13 +33,13 @@ public interface CrudController<Entity> extends ControllerMethods {
         return fresh(req, etagFor(entity));
     }
 
-    default boolean isPutRequestFresh(Request req, Entity entity) {
+    default boolean isPutRequestStale(Request req, Entity entity) {
         String etagFromClient = getIfMatch(req);
         if (etagFromClient == null) {
-            return false;
+            return true;
         }
         String etagFromServer = etagFor(entity);
-        return Objects.equals(etagFromClient, etagFromServer);
+        return !Objects.equals(etagFromClient, etagFromServer);
     }
 
     default Entity fetchEntityFromConfig(String name) {
@@ -55,7 +54,7 @@ public interface CrudController<Entity> extends ControllerMethods {
 
     Entity buildEntityFromRequestBody(Request req);
 
-    default String handleCreateOrUpdateResponse(Request req, Response res, Entity entity, HttpLocalizedOperationResult result) throws IOException {
+    default String handleCreateOrUpdateResponse(Request req, Response res, Entity entity, HttpLocalizedOperationResult result) {
         if (result.isSuccessful()) {
             setEtagHeader(entity, res);
             return jsonize(req, entity);

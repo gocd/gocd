@@ -129,7 +129,7 @@ public class PipelineConfigControllerV6 extends ApiController implements SparkSp
         return renderHTTPOperationResult(result, req, res);
     }
 
-    public String update(Request req, Response res) throws IOException {
+    public String update(Request req, Response res) {
         PipelineConfig existingPipelineConfig =  fetchEntityFromConfig(req.params("pipeline_name"));
         PipelineConfig pipelineConfigFromRequest = buildEntityFromRequestBody(req);
 
@@ -138,7 +138,7 @@ public class PipelineConfigControllerV6 extends ApiController implements SparkSp
         }
 
         haltIfPipelineIsDefinedRemotely(existingPipelineConfig);
-        if (!isPutRequestFresh(req, existingPipelineConfig)) {
+        if (isPutRequestStale(req, existingPipelineConfig)) {
             throw haltBecauseEtagDoesNotMatch("pipeline", existingPipelineConfig.getName());
         }
 
@@ -147,7 +147,7 @@ public class PipelineConfigControllerV6 extends ApiController implements SparkSp
         return handleCreateOrUpdateResponse(req, res, pipelineConfigFromRequest, result);
     }
 
-    public String create(Request req, Response res) throws IOException {
+    public String create(Request req, Response res) {
         PipelineConfig pipelineConfigFromRequest = buildEntityFromRequestBody(req);
 
         haltIfEntityBySameNameInRequestExists(pipelineConfigFromRequest);

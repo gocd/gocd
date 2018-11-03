@@ -81,11 +81,11 @@ public class AdminControllerV1 extends ApiController implements SparkSpringContr
         }
     }
 
-    public String update(Request req, Response res) throws IOException {
+    public String update(Request req, Response res) {
         AdminsConfig adminsConfigFromRequest = buildEntityFromRequestBody(req);
         AdminsConfig adminsConfigFromServer = adminsConfigService.systemAdmins();
 
-        if (!isPutRequestFresh(req, adminsConfigFromServer)) {
+        if (isPutRequestStale(req, adminsConfigFromServer)) {
             throw haltBecauseEtagDoesNotMatch();
         }
 

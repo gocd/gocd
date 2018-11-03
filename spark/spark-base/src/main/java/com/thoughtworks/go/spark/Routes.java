@@ -62,6 +62,7 @@ public class Routes {
         public static final String INDEX_PATH = "";
         public static final String REPO_PATH = "/:id";
         public static final String CREATE_PATH = INDEX_PATH;
+        public static final String UPDATE_PATH = REPO_PATH;
 
         // For building _links entry in API response
         public static String find() {

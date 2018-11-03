@@ -106,7 +106,7 @@ public class PipelineGroupsControllerV1 extends ApiController implements SparkSp
         }
     }
 
-    public String create(Request req, Response res) throws IOException {
+    public String create(Request req, Response res) {
         PipelineConfigs pipelineConfigsFromReq = buildEntityFromRequestBody(req);
         String groupName = pipelineConfigsFromReq.getGroup();
         Optional<PipelineConfigs> pipelineConfigsFromServer = findPipelineGroup(groupName);
@@ -132,7 +132,7 @@ public class PipelineGroupsControllerV1 extends ApiController implements SparkSp
         }
     }
 
-    public String update(Request req, Response res) throws IOException {
+    public String update(Request req, Response res) {
         PipelineConfigs pipelineConfigsFromServer = fetchEntityFromConfig(req.params("group_name"));
         PipelineConfigs pipelineConfigsFromReq = buildEntityFromRequestBody(req);
 
@@ -140,7 +140,7 @@ public class PipelineGroupsControllerV1 extends ApiController implements SparkSp
             throw haltBecauseRenameOfEntityIsNotSupported("pipeline group");
         }
 
-        if (!isPutRequestFresh(req, pipelineConfigsFromServer)) {
+        if (isPutRequestStale(req, pipelineConfigsFromServer)) {
             throw haltBecauseEtagDoesNotMatch("pipeline group", pipelineConfigsFromServer.getGroup());
         }
 

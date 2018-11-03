@@ -100,7 +100,7 @@ public class ElasticProfileControllerV1 extends ApiController implements SparkSp
         return writerForTopLevelObject(request, response, writer -> ElasticProfileRepresenter.toJSON(writer, elasticProfile));
     }
 
-    public String create(Request request, Response response) throws IOException {
+    public String create(Request request, Response response) {
         final ElasticProfile elasticProfileToCreate = buildEntityFromRequestBody(request);
         haltIfEntityWithSameIdExists(elasticProfileToCreate);
 
@@ -110,7 +110,7 @@ public class ElasticProfileControllerV1 extends ApiController implements SparkSp
         return handleCreateOrUpdateResponse(request, response, elasticProfileToCreate, operationResult);
     }
 
-    public String update(Request request, Response response) throws IOException {
+    public String update(Request request, Response response) {
         final String profileId = request.params(PROFILE_ID_PARAM);
         final ElasticProfile existingElasticProfile = fetchEntityFromConfig(profileId);
         final ElasticProfile newElasticProfile = buildEntityFromRequestBody(request);
@@ -119,7 +119,7 @@ public class ElasticProfileControllerV1 extends ApiController implements SparkSp
             throw haltBecauseRenameOfEntityIsNotSupported("elasticProfile");
         }
 
-        if (!isPutRequestFresh(request, existingElasticProfile)) {
+        if (isPutRequestStale(request, existingElasticProfile)) {
             throw haltBecauseEtagDoesNotMatch("elasticProfile", existingElasticProfile.getId());
         }
 

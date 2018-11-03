@@ -36,6 +36,7 @@ import org.junit.jupiter.api.Test
 import org.mockito.Mock
 
 import static org.mockito.ArgumentMatchers.any
+import static org.mockito.ArgumentMatchers.eq
 import static org.mockito.Mockito.*
 import static org.mockito.MockitoAnnotations.initMocks
 import static org.mockito.internal.verification.VerificationModeFactory.times
@@ -108,6 +109,7 @@ class ConfigReposControllerV1Test implements SecurityServiceTrait, ControllerTra
 
       assertThatResponse().
         isOk().
+        hasHeader('ETag', "\"${repos.etag()}\"").
         hasJsonBody([
           _links   : [
             self: [href: "http://test.host/go$Routes.ConfigRepos.BASE".toString()]
@@ -131,7 +133,7 @@ class ConfigReposControllerV1Test implements SecurityServiceTrait, ControllerTra
     }
 
     @Test
-    void 'should show an individual repo '() {
+    void 'fetches a repo'() {
       ConfigRepoConfig repo = repo(ID_1)
       when(service.getConfigRepo(ID_1)).thenReturn(repo)
 
@@ -139,11 +141,12 @@ class ConfigReposControllerV1Test implements SecurityServiceTrait, ControllerTra
 
       assertThatResponse().
         isOk().
+        hasHeader('ETag', "\"${repo.etag()}\""). // test etag does not change
         hasJsonBody(expectedRepoJson(ID_1))
     }
 
     @Test
-    void 'should return 404 if the repo does not exist'() {
+    void 'returns 404 if the repo does not exist'() {
       getWithApiHeader(controller.controllerPath(ID_1))
 
       assertThatResponse().isNotFound()
@@ -159,7 +162,7 @@ class ConfigReposControllerV1Test implements SecurityServiceTrait, ControllerTra
     }
 
     @Test
-    void 'should be able to create new config repo'() {
+    void 'creates a new config repo'() {
       String id = "test-repo"
 
       postWithApiHeader(controller.controllerBasePath(), [
@@ -185,7 +188,7 @@ class ConfigReposControllerV1Test implements SecurityServiceTrait, ControllerTra
     }
 
     @Test
-    void 'should not be able to create new config repo with the same id as an existing'() {
+    void 'create fails if an existing repo has the same id'() {
       String id = "test-repo"
 
       when(service.getConfigRepo(id)).thenReturn(repo(id))
@@ -212,7 +215,85 @@ class ConfigReposControllerV1Test implements SecurityServiceTrait, ControllerTra
         isUnprocessableEntity().
         hasJsonBody([
           message: "Failed to add config-repo 'test-repo'. Another config-repo with the same name already exists.",
-          data: payload
+          data   : payload
+        ])
+    }
+  }
+
+  @Nested
+  class Update {
+
+    @BeforeEach
+    void setup() {
+      loginAsAdmin()
+    }
+
+    @Test
+    void 'updates an existing repo'() {
+      String id = "test-repo"
+
+      ConfigRepoConfig existing = repo(id)
+      when(service.getConfigRepo(id)).thenReturn(existing)
+
+      putWithApiHeader(controller.controllerPath(id), ['If-Match': existing.etag()], [
+        id           : id,
+        plugin_id    : TEST_PLUGIN_ID,
+        material     : [
+          type      : "hg",
+          attributes: [
+            name       : null,
+            url        : "${TEST_REPO_URL}/$id".toString(),
+            auto_update: true
+          ]
+        ],
+        configuration: []
+      ])
+
+      verify(service, times(1)).
+        updateConfigRepo(eq(id), eq(existing), any() as Username, any() as HttpLocalizedOperationResult)
+
+      assertThatResponse().
+        isOk().
+        hasHeader('ETag', "\"${existing.etag()}\""). // test etag does not change
+        hasJsonBody(expectedRepoJson(id))
+    }
+
+    @Test
+    void 'update fails on mismatched etag'() {
+      String id = "test-repo"
+
+      ConfigRepoConfig existing = repo(id)
+      when(service.getConfigRepo(id)).thenReturn(new ConfigRepoConfig(new HgMaterialConfig(TEST_REPO_URL, ""), TEST_PLUGIN_ID, id) {
+        @Override
+        String etag() {
+          return "no-match!"
+        }
+      })
+
+      Map payload = [
+        id           : id,
+        plugin_id    : TEST_PLUGIN_ID,
+        material     : [
+          type      : "hg",
+          attributes: [
+            name       : null,
+            url        : "${TEST_REPO_URL}/$id".toString(),
+            auto_update: true
+          ]
+        ],
+        configuration: []
+      ]
+
+      putWithApiHeader(controller.controllerPath(id), ['If-Match': existing.etag()], payload)
+
+      verify(service, never()).
+        updateConfigRepo(any() as String, any() as ConfigRepoConfig, any() as Username, any() as HttpLocalizedOperationResult)
+
+
+      assertThatResponse().
+        isPreconditionFailed().
+        hasJsonBody([
+          message: "Someone has modified the entity. Please update your copy with the changes and try again."
         ])
     }
   }
@@ -240,7 +321,11 @@ class ConfigReposControllerV1Test implements SecurityServiceTrait, ControllerTra
   }
 
   static ConfigRepoConfig repo(String id) {
-    HgMaterialConfig materialConfig = new HgMaterialConfig("${TEST_REPO_URL}/$id", "")
-    return new ConfigRepoConfig(materialConfig, TEST_PLUGIN_ID, id)
+    return new ConfigRepoConfig(new HgMaterialConfig("${TEST_REPO_URL}/$id", ""), TEST_PLUGIN_ID, id) {
+      @Override
+      String etag() {
+        return "etag-for-${id}"
+      }
+    }
   }
 }

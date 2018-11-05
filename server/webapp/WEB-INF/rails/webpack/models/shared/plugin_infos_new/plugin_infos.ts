@@ -84,12 +84,12 @@ export class PluginInfo<T extends Extension> {
   }
 }
 
-export class PluginInfos<T extends Extension> {
+export class PluginInfos {
 
   public static readonly API_VERSION: string = "v4";
-  readonly pluginInfo: Array<PluginInfo<T>>;
+  readonly pluginInfo: Array<PluginInfo<Extension>>;
 
-  constructor(pluginInfo: Array<PluginInfo<T>>) {
+  constructor(pluginInfo: Array<PluginInfo<Extension>>) {
     this.pluginInfo = pluginInfo;
   }
 

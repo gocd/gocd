@@ -8,6 +8,9 @@
     //todo: remove this later
     "no-var-requires": false,
 
+    //for snake_cased json properties
+    "variable-name": false,
+
     // retain these
     "one-variable-per-declaration": false,
     "max-line-length": false,

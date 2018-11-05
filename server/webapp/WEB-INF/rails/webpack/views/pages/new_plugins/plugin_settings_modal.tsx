@@ -14,22 +14,24 @@
  * limitations under the License.
  */
 
-import * as m from 'mithril';
+import {HttpResponseWithEtag} from "helpers/api_request_builder";
+import * as m from "mithril";
 import {PluginInfo} from "models/shared/plugin_infos_new/plugin_infos";
+import {PluginSettings} from "models/shared/plugin_infos_new/plugin_settings/plugin_settings";
+import {PluginSettingsCRUD} from "models/shared/plugin_infos_new/plugin_settings/plugin_settings_crud";
 import * as Buttons from "views/components/buttons";
 import {AlertFlashMessage} from "views/components/flash_message";
 import {Modal, Size} from "views/components/modal";
 import {Spinner} from "views/components/spinner";
-import * as foundationStyles from './foundation_hax.scss';
+import * as foundationStyles from "./foundation_hax.scss";
 
-const PluginSetting    = require('models/plugins/plugin_setting');
-const AngularPluginNew = require('views/shared/angular_plugin_new');
-//const AngularPlugin = require('views/shared/angular_plugin');
-const Stream           = require('mithril/stream');
+const AngularPluginNew = require("views/shared/angular_plugin_new");
+const Stream           = require("mithril/stream");
 
 export class PluginSettingsModal extends Modal {
   private readonly pluginInfo: PluginInfo<any>;
-  private pluginSettings: any;
+  private pluginSettings?: PluginSettings;
+  private etag?: string;
   private errorMessage: string | null = null;
   private successCallback: (msg: string) => void;
 
@@ -38,7 +40,7 @@ export class PluginSettingsModal extends Modal {
     this.pluginInfo      = pluginInfo;
     this.successCallback = successCallback;
 
-    PluginSetting.get(this.pluginInfo.id).then(this.onFulfilled.bind(this), this.onFailure.bind(this)).always(m.redraw);
+    PluginSettingsCRUD.get(this.pluginInfo.id).then(this.onFulfilled.bind(this), this.onFailure.bind(this));
   }
 
   title() {
@@ -59,7 +61,7 @@ export class PluginSettingsModal extends Modal {
         <div class="row collapse">
           <AngularPluginNew
             pluginInfoSettings={Stream(this.pluginInfo.firstExtensionWithPluginSettings().pluginSettings)}
-            configuration={this.pluginSettings.configuration}
+            configuration={this.pluginSettings}
             key={this.pluginInfo.id}/>
         </div>
       </div>
@@ -73,39 +75,47 @@ export class PluginSettingsModal extends Modal {
     ];
   }
 
-  private onFulfilled(pluginSettings: any) {
-    this.pluginSettings = pluginSettings;
+  private onFulfilled(response: HttpResponseWithEtag<PluginSettings>) {
+    this.pluginSettings = response.object;
+    this.etag           = response.etag;
     this.errorMessage   = null;
   }
 
-  private onFailure(error: string, jqXHR: XMLHttpRequest) {
-    if (jqXHR.status === 404) {
-      this.pluginSettings = new PluginSetting({pluginId: this.pluginInfo.id});
+  private onFailure(response: any) {
+    if (response.status === 404) {
+      this.pluginSettings = new PluginSettings(this.pluginInfo.id);
     } else {
-      this.errorMessage = error;
+      this.errorMessage = response.responseText; //TODO parse properly
     }
   }
 
   private performSave() {
     const self = this;
-    if (this.pluginSettings.etag()) {
-      this.pluginSettings.update()
+    if (!self.pluginSettings) {
+      throw Error("Cannot perform save, pluginSettings not present");
+    }
+    if (self.etag) {
+      PluginSettingsCRUD.update(self.pluginSettings, self.etag)
         .then(() => {
-          self.successCallback(`The plugin settings for ${this.pluginSettings.pluginId()} were updated successfully.`);
-          self.close();
-        }, self.showErrors.bind(self))
-        .always(m.redraw);
+          if (self.pluginSettings) {
+            self.successCallback(`The plugin settings for ${self.pluginSettings.plugin_id} were updated successfully.`);
+            self.close();
+          }
+        }, self.showErrors.bind(self));
     } else {
-      this.pluginSettings.create()
+      PluginSettingsCRUD.create(self.pluginSettings)
         .then(() => {
-          this.successCallback(`The plugin settings for ${this.pluginSettings.pluginId()} were created successfully.`);
-          self.close();
-        }, self.showErrors.bind(self))
-        .always(m.redraw);
+          if (self.pluginSettings) {
+            this.successCallback(`The plugin settings for ${self.pluginSettings.plugin_id} were created successfully.`);
+            self.close();
+          }
+        }, self.showErrors.bind(self));
     }
   }
 
-  private showErrors(pluginSettingsWithError: any) {
-    this.pluginSettings = pluginSettingsWithError;
+  private showErrors(response: any) { //TODO error handling should be in a common place
+    if (response.status === 422 && response.response) {
+      this.pluginSettings = PluginSettings.fromJSON(JSON.parse(response.response).data);
+    }
   }
 }

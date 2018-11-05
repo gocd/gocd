@@ -22,11 +22,11 @@ const $       = require('jquery');
 const angular = require('angular');
 
 const appName = function (configuration) {
-  return `app-${configuration.uuid()}`;
+  return `app-${configuration.uuid}`;
 };
 
 const controllerName = function (configuration) {
-  return `controller-${configuration.uuid()}`;
+  return `controller-${configuration.uuid}`;
 };
 
 const pluginTemplate = function (pluginInfoSettings) {
@@ -37,13 +37,13 @@ function onCreate(scope, args) {
   return function (vnode) {
     const elem = vnode.dom;
 
-    angular.module(appName(args.configuration()), []).controller(controllerName(args.configuration()), ['$scope', function ($scope) {
+    angular.module(appName(args.configuration), []).controller(controllerName(args.configuration), ['$scope', function ($scope) {
       scope($scope);
 
       $scope.addError = function (field) {
         $scope.GOINPUTNAME[field.key] = {
           $error: {
-            server: field.errors.join()
+            server: field.errors
           }
         };
       };
@@ -64,11 +64,9 @@ function onCreate(scope, args) {
       }
 
       function copyOverErrors(configurations, configKey) {
-        const matchingConfig = configurations.findConfiguration((eachConfig) => {
-          return eachConfig.key() === configKey;
-        });
-        if (matchingConfig && matchingConfig.errors().hasErrors(configKey)) {
-          $scope.addError({key: configKey, errors: matchingConfig.errors().errors(configKey)});
+        const matchingConfig = configurations.findConfiguration(configKey);
+        if (matchingConfig && matchingConfig.errors && matchingConfig.errors.length > 0) {
+          $scope.addError({key: configKey, errors: matchingConfig.errors[0]});
         }
       }
 
@@ -96,16 +94,16 @@ function onCreate(scope, args) {
         });
       };
 
-      $scope.initialize(args.pluginInfoSettings(), args.configuration());
+      $scope.initialize(args.pluginInfoSettings(), args.configuration);
     }]);
 
-    angular.bootstrap(elem, [appName(args.configuration())]);
+    angular.bootstrap(elem, [appName(args.configuration)]);
   };
 }
 
 function onUpdate(scope, args) {
   return function (_vnode) {
-    scope().initialize(args.pluginInfoSettings(), args.configuration());
+    scope().initialize(args.pluginInfoSettings(), args.configuration);
     scope().$apply();
   };
 }
@@ -124,7 +122,7 @@ const AngularPluginNew = {
   view(vnode) {
     return (
       <div class="plugin-view"
-           ng-controller={controllerName(vnode.attrs.configuration())}
+           ng-controller={controllerName(vnode.attrs.configuration)}
            oncreate={onCreate(vnode.state.$scope, vnode.attrs)}
            onupdate={onUpdate(vnode.state.$scope, vnode.attrs)}>
         {pluginTemplate(vnode.attrs.pluginInfoSettings())}

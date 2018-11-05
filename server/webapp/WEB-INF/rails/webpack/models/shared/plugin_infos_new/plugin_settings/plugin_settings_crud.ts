@@ -16,7 +16,6 @@
 
 import * as Routes from "gen/ts-routes";
 import {ApiRequestBuilder, ApiVersion, HttpResponseWithEtag} from "helpers/api_request_builder";
-import * as _ from "lodash";
 import {PluginSettings} from "models/shared/plugin_infos_new/plugin_settings/plugin_settings";
 
 export class PluginSettingsCRUD {

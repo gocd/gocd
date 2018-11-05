@@ -33,6 +33,18 @@ export class ApiRequestBuilder {
     return this.makeRequest(url, "PUT", apiVersion, etag, payload);
   }
 
+  static POST(url: string, apiVersion: ApiVersion, payload: any) {
+    return this.makeRequest(url, "POST", apiVersion, undefined, payload);
+  }
+
+  static PATCH(url: string, apiVersion: ApiVersion, payload: any) {
+    return this.makeRequest(url, "PATCH", apiVersion, undefined, payload);
+  }
+
+  static DELETE(url: string, apiVersion: ApiVersion, payload?: any) {
+    return this.makeRequest(url, "DELETE", apiVersion, undefined, payload);
+  }
+
   private static makeRequest(url: string, method: string, apiVersion: ApiVersion, etag?: string, payload?: any) {
     const headers: { [index: string]: string } = {Accept: this.versionHeader(apiVersion)};
 

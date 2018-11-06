@@ -67,6 +67,14 @@ public interface CrudController<Entity> extends ControllerMethods {
         }
     }
 
+    default String handleSimpleMessageResponse(Response res, HttpLocalizedOperationResult result) {
+        if (!result.isSuccessful()) {
+            res.status(result.httpCode());
+        }
+
+        return MessageJson.create(result.message());
+    }
+
     default String jsonize(Request req, Entity entity) {
         return jsonizeAsTopLevelObject(req, jsonWriter(entity));
     }

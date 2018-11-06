@@ -78,22 +78,35 @@ public class ConfigReposControllerV1 extends ApiController implements SparkSprin
             get(ConfigRepos.REPO_PATH, mimeType, this::showRepo);
             post(ConfigRepos.CREATE_PATH, mimeType, this::createRepo);
             put(ConfigRepos.UPDATE_PATH, mimeType, this::updateRepo);
+            delete(ConfigRepos.DELETE_PATH, mimeType, this::deleteRepo);
 
             exception(RecordNotFoundException.class, this::notFound);
         });
     }
 
     String index(Request req, Response res) {
-        return jsonizeAsTopLevelObject(req, w -> {
-            ConfigReposConfig repos = allRepos();
-            setEtagHeader(res, repos.etag());
-            ConfigReposConfigRepresenterV1.toJSON(w, repos);
-        });
+        ConfigReposConfig repos = allRepos();
+        String etag = repos.etag();
+
+        setEtagHeader(res, etag);
+
+        if (fresh(req, etag)) {
+            return notModified(res);
+        }
+
+        return jsonizeAsTopLevelObject(req, w -> ConfigReposConfigRepresenterV1.toJSON(w, repos));
     }
 
     String showRepo(Request req, Response res) {
         ConfigRepoConfig repo = fetchEntityFromConfig(req.params(":id"));
-        setEtagHeader(repo, res);
+        String etag = etagFor(repo);
+
+        setEtagHeader(res, etag);
+
+        if (fresh(req, etag)) {
+            return notModified(res);
+        }
+
         return jsonize(req, repo);
     }
 
@@ -119,6 +132,15 @@ public class ConfigReposControllerV1 extends ApiController implements SparkSprin
         service.updateConfigRepo(id, repo, currentUsername(), result);
 
         return handleCreateOrUpdateResponse(req, res, repo, result);
+    }
+
+    String deleteRepo(Request req, Response res) {
+        ConfigRepoConfig repo = fetchEntityFromConfig(req.params(":id"));
+        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+
+        service.deleteConfigRepo(repo.getId(), currentUsername(), result);
+
+        return handleSimpleMessageResponse(res, result);
     }
 
     private ConfigReposConfig allRepos() {
@@ -148,11 +170,11 @@ public class ConfigReposControllerV1 extends ApiController implements SparkSprin
 
     private void haltIfEntityWithSameIdExists(ConfigRepoConfig repo) {
         String id = repo.getId();
-        if (service.getConfigRepo(id) == null) {
+        if (doFetchEntityFromConfig(id) == null) {
             return;
         }
 
         repo.addError("id", "ConfigRepo ids should be unique. A ConfigRepo with the same id already exists.");
-        throw haltBecauseEntityAlreadyExists(jsonWriter(repo), "config-repo", repo.getId());
+        throw haltBecauseEntityAlreadyExists(jsonWriter(repo), "config-repo", id);
     }
 }

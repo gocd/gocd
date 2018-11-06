@@ -67,28 +67,70 @@ class ConfigReposControllerV1Test implements SecurityServiceTrait, ControllerTra
   }
 
   @Nested
-  class IndexSecurity implements SecurityTestTrait, AdminUserSecurity {
-    @Override
-    String getControllerMethodUnderTest() {
-      return "index"
+  class Security {
+    @Nested
+    class Index implements SecurityTestTrait, AdminUserSecurity {
+      @Override
+      String getControllerMethodUnderTest() {
+        return "index"
+      }
+
+      @Override
+      void makeHttpCall() {
+        getWithApiHeader(controller.controllerBasePath(), [:])
+      }
     }
 
-    @Override
-    void makeHttpCall() {
-      getWithApiHeader(controller.controllerBasePath(), [:])
-    }
-  }
+    @Nested
+    class Show implements SecurityTestTrait, AdminUserSecurity {
+      @Override
+      String getControllerMethodUnderTest() {
+        return "showRepo"
+      }
 
-  @Nested
-  class ShowSecurity implements SecurityTestTrait, AdminUserSecurity {
-    @Override
-    String getControllerMethodUnderTest() {
-      return "showRepo"
+      @Override
+      void makeHttpCall() {
+        getWithApiHeader(controller.controllerPath(ID_1), [:])
+      }
     }
 
-    @Override
-    void makeHttpCall() {
-      getWithApiHeader(controller.controllerPath(ID_1), [:])
+    @Nested
+    class Create implements SecurityTestTrait, AdminUserSecurity {
+      @Override
+      String getControllerMethodUnderTest() {
+        return "createRepo"
+      }
+
+      @Override
+      void makeHttpCall() {
+        postWithApiHeader(controller.controllerBasePath(), [:])
+      }
+    }
+
+    @Nested
+    class Update implements SecurityTestTrait, AdminUserSecurity {
+      @Override
+      String getControllerMethodUnderTest() {
+        return "updateRepo"
+      }
+
+      @Override
+      void makeHttpCall() {
+        putWithApiHeader(controller.controllerPath(ID_1), [:])
+      }
+    }
+
+    @Nested
+    class Delete implements SecurityTestTrait, AdminUserSecurity {
+      @Override
+      String getControllerMethodUnderTest() {
+        return "deleteRepo"
+      }
+
+      @Override
+      void makeHttpCall() {
+        deleteWithApiHeader(controller.controllerPath(ID_1), [:])
+      }
     }
   }
 
@@ -259,6 +301,18 @@ class ConfigReposControllerV1Test implements SecurityServiceTrait, ControllerTra
     }
 
     @Test
+    void 'update fails when config repo does not exist'() {
+      when(service.getConfigRepo(ID_1)).thenReturn(null)
+
+      putWithApiHeader(controller.controllerPath(ID_1), [:])
+
+      verify(service, never()).updateConfigRepo(any() as String, any() as ConfigRepoConfig, any() as Username, any() as HttpLocalizedOperationResult)
+
+      assertThatResponse().
+        isNotFound()
+    }
+
+    @Test
     void 'update fails on mismatched etag'() {
       String id = "test-repo"
 
@@ -292,9 +346,41 @@ class ConfigReposControllerV1Test implements SecurityServiceTrait, ControllerTra
 
       assertThatResponse().
         isPreconditionFailed().
-        hasJsonBody([
-          message: "Someone has modified the entity. Please update your copy with the changes and try again."
-        ])
+        hasJsonMessage("Someone has modified the entity. Please update your copy with the changes and try again.")
+    }
+  }
+
+  @Nested
+  class Delete {
+
+    @BeforeEach
+    void setup() {
+      loginAsAdmin()
+    }
+
+    @Test
+    void 'deletes and existing repo'() {
+      when(service.getConfigRepo(ID_1)).thenReturn(repo(ID_1))
+
+      deleteWithApiHeader(controller.controllerPath(ID_1))
+
+      verify(service, times(1)).deleteConfigRepo(eq(ID_1), any() as Username, any() as HttpLocalizedOperationResult)
+
+      assertThatResponse().
+        isOk()
+      // Testing the JSON message is meaningless as we are mocking the ConfigRepoService, which is what sets the message
+    }
+
+    @Test
+    void 'delete fails when config repo does not exist'() {
+      when(service.getConfigRepo(ID_1)).thenReturn(null)
+
+      deleteWithApiHeader(controller.controllerPath(ID_1))
+
+      verify(service, never()).deleteConfigRepo(eq(ID_1), any() as Username, any() as HttpLocalizedOperationResult)
+
+      assertThatResponse().
+        isNotFound()
     }
   }
 

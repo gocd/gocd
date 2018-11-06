@@ -15,7 +15,7 @@
  */
 
 import * as m from "mithril";
-import {PluginInfos} from "models/shared/plugin_infos_new/plugin_infos";
+import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
 import {PluginsWidget} from "../plugins_widget";
 
 import * as collapsiblePanelStyles from "../../../components/collapsible_panel/index.scss";
@@ -24,8 +24,8 @@ import * as keyValuePairStyles from "../../../components/key_value_pair/index.sc
 describe("New Plugins Widget", () => {
   const simulateEvent = require("simulate-event");
 
-  const data        = [getEAPluginInfo(), getNotificationPluginInfo()];
-  const pluginInfos = PluginInfos.fromJSON({_embedded: {plugin_info: data}});
+  const pluginInfos = [PluginInfo.fromJSON(getEAPluginInfo(), undefined),
+    PluginInfo.fromJSON(getNotificationPluginInfo(), undefined)];
 
   let $root: any, root: any;
   beforeEach(() => {

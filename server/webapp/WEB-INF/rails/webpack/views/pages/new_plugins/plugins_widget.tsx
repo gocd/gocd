@@ -18,7 +18,7 @@ import * as _ from "lodash";
 import * as m from "mithril";
 
 import {MithrilComponent} from "jsx/mithril-component";
-import {PluginInfo} from "models/shared/plugin_infos_new/plugin_infos";
+import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
 import {SuccessFlashMessage} from "views/components/flash_message";
 import {Spinner} from "views/components/spinner";
 import {PluginSettingsModal} from "./plugin_settings_modal";

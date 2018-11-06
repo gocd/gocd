@@ -16,8 +16,8 @@
 
 import {MithrilComponent} from "jsx/mithril-component";
 import * as m from "mithril";
-import {PluginInfo} from "models/shared/plugin_infos_new/plugin_infos";
-import {PluginInfosCRUD} from "models/shared/plugin_infos_new/plugin_infos_crud";
+import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
+import {PluginInfosCRUD} from "models/shared/plugin_infos_new/plugin_info_crud";
 import {PluginsWidget} from "views/pages/new_plugins/plugins_widget";
 
 const HeaderPanel = require('views/components/header_panel');

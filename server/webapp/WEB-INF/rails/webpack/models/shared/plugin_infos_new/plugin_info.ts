@@ -57,7 +57,7 @@ export class PluginInfo<T extends Extension> {
     this.extensions         = extensions;
   }
 
-  static fromJSON(data: any, links?: any) {
+  static fromJSON(data: any, links: any) {
     const extensions: Extension[] = data.extensions.map((extension: any) => Extension.fromJSON(extension));
     const imageUrl                = (links && links.image && links.image.href) || "";
     return new PluginInfo(data.id, About.fromJSON(data.about), imageUrl, Status.fromJSON(data.status),
@@ -78,18 +78,5 @@ export class PluginInfo<T extends Extension> {
 
   firstExtensionWithPluginSettings(): T | undefined {
     return this.extensions.find((ext) => ext.hasPluginSettings());
-  }
-}
-
-export class PluginInfos {
-
-  readonly pluginInfo: Array<PluginInfo<Extension>>;
-
-  constructor(pluginInfo: Array<PluginInfo<Extension>>) {
-    this.pluginInfo = pluginInfo;
-  }
-
-  static fromJSON(data: any) {
-    return data._embedded.plugin_info.map((pluginInfo: any) => PluginInfo.fromJSON(pluginInfo));
   }
 }

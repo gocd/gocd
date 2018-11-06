@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-const s = require('string-plus');
+import * as s from "underscore.string";
 
 namespace ErrorMessages {
   export function duplicate(attribute: string) {
@@ -22,7 +22,7 @@ namespace ErrorMessages {
   }
 
   export function mustBePresent(attribute: string) {
-    return `${s.humanize(attribute).replace(/\bxpath\b/i, 'XPath').replace(/\burl\b/i, 'URL')} must be present`;
+    return `${s.humanize(attribute).replace(/\bxpath\b/i, "XPath").replace(/\burl\b/i, "URL")} must be present`;
   }
 
   export function mustBeAUrl(attribute: string) {

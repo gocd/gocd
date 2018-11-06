@@ -43,13 +43,9 @@ export class PluginSettingsCRUD {
 
   private static extractResponseWithEtag() {
     return (xhr: XMLHttpRequest) => {
-      let etag = xhr.getResponseHeader("etag");
-      if (etag) {
-        etag = etag.replace(/--(gzip|deflate)/, "");
-      }
       return {
         object: PluginSettings.fromJSON(JSON.parse(xhr.responseText)),
-        etag
+        etag: xhr.getResponseHeader("etag")
       } as HttpResponseWithEtag<PluginSettings>;
     };
   }

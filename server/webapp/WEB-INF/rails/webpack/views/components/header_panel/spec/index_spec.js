@@ -14,9 +14,11 @@
  * limitations under the License.
  */
 
+import {HeaderPanel} from "../index";
+
+const m = require("mithril");
+
 describe("Header Panel Component", () => {
-  const m           = require("mithril");
-  const HeaderPanel = require("views/components/header_panel").HeaderPanel;
 
   let $root, root;
 

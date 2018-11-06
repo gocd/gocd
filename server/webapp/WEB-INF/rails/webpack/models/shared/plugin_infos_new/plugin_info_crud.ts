@@ -17,6 +17,7 @@
 import * as Routes from "gen/ts-routes";
 import {ApiRequestBuilder, ApiVersion} from "helpers/api_request_builder";
 import {ExtensionType} from "models/shared/plugin_infos_new/extension_type";
+import {Extension} from "models/shared/plugin_infos_new/extensions";
 import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
 
 export interface PluginInfoQuery {
@@ -27,12 +28,11 @@ export interface PluginInfoQuery {
 export class PluginInfoCRUD {
   private static API_VERSION_HEADER = ApiVersion.v4;
 
-  static all(options?: PluginInfoQuery) {
+  static all(options: PluginInfoQuery): Promise<Array<PluginInfo<Extension>>> {
     return ApiRequestBuilder.GET(Routes.apiv4AdminPluginInfoIndexPath(options), this.API_VERSION_HEADER)
       .then((xhr: XMLHttpRequest) => {
         const data = JSON.parse(xhr.responseText);
         return data._embedded.plugin_info.map((pluginInfo: any) => PluginInfo.fromJSON(pluginInfo, data._links));
       });
   }
-
 }

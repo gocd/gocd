@@ -14,32 +14,33 @@
  * limitations under the License.
  */
 
-import {MithrilComponent} from "jsx/mithril-component";
 import * as m from "mithril";
+import {Extension} from "models/shared/plugin_infos_new/extensions";
 import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
 import {PluginInfoCRUD} from "models/shared/plugin_infos_new/plugin_info_crud";
-import {HeaderPanel} from "views/components/header_panel";
 import {PluginsWidget} from "views/pages/new_plugins/plugins_widget";
+import {Page} from "./page";
 
-let pluginInfos: Array<PluginInfo<any>>;
+export class PluginsPage extends Page {
 
-const onSuccess = (res: Array<PluginInfo<any>>) => {
-  pluginInfos = res;
-  m.redraw();
-};
+  private pluginInfos?: Array<PluginInfo<Extension>>;
 
-export class PluginsPage extends MithrilComponent {
-  oninit() {
-    //todo: onfailure render generic error_onload_page
-    PluginInfoCRUD.all({include_bad: true}).then(onSuccess);
+  pageName() {
+    return "Plugins";
   }
 
-  view() {
-    const isUserAnAdmin = document.body.getAttribute("data-is-user-admin");
+  componentToDisplay() {
+    if (this.pluginInfos) {
+      const isUserAnAdmin = document.body.getAttribute("data-is-user-admin");
+      return <PluginsWidget pluginInfos={this.pluginInfos} isUserAnAdmin={isUserAnAdmin === "true"}/>;
+    }
+  }
 
-    return <main class="main-container">
-      <HeaderPanel title="Plugins"/>
-      <PluginsWidget pluginInfos={pluginInfos} isUserAnAdmin={isUserAnAdmin === "true"}/>
-    </main>;
+  fetchData() {
+    return PluginInfoCRUD.all({include_bad: true}).then(this.onSuccess.bind(this));
+  }
+
+  private onSuccess(pluginInfos: Array<PluginInfo<Extension>>) {
+    this.pluginInfos = pluginInfos;
   }
 }

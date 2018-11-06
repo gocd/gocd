@@ -102,7 +102,6 @@ export class ConfigReposPage extends MithrilComponent<null, State> {
           )
           .then(modal.close.bind(modal));
       });
-
       modal.render();
     };
   }

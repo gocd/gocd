@@ -72,6 +72,7 @@ export class FlashMessage extends MithrilComponent<Attrs, State> {
     return (
       <div data-test-id={`flash-message-${typeElement}`} className={classnames(styles.callout, style)}>
         <p>{vnode.attrs.message}</p>
+        {vnode.children}
         {closeButton}
       </div>
     );

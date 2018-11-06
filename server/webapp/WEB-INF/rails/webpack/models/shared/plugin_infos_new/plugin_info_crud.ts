@@ -16,16 +16,18 @@
 
 import * as Routes from "gen/ts-routes";
 import {ApiRequestBuilder, ApiVersion} from "helpers/api_request_builder";
+import {ExtensionType} from "models/shared/plugin_infos_new/extension_type";
 import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
 
-export class PluginInfosCRUD {
+export interface PluginInfoQuery {
+  include_bad?: boolean;
+  type?: ExtensionType | undefined;
+}
+
+export class PluginInfoCRUD {
   private static API_VERSION_HEADER = ApiVersion.v4;
 
-  static all(includeBad?: boolean) {
-    let options: any = {};
-    if (includeBad) {
-      options = {include_bad: true};
-    }
+  static all(options: PluginInfoQuery) {
     return ApiRequestBuilder.GET(Routes.apiv4AdminPluginInfoIndexPath(options), this.API_VERSION_HEADER)
       .then((xhr: XMLHttpRequest) => {
         const data = JSON.parse(xhr.responseText);

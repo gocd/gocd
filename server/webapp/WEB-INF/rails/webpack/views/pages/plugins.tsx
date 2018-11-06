@@ -16,11 +16,11 @@
 
 import {MithrilComponent} from "jsx/mithril-component";
 import * as m from "mithril";
-import {PluginInfo} from "models/shared/plugin_infos_new/plugin_infos";
-import {PluginInfosCRUD} from "models/shared/plugin_infos_new/plugin_infos_crud";
+import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
+import {PluginInfoCRUD} from "models/shared/plugin_infos_new/plugin_info_crud";
 import {PluginsWidget} from "views/pages/new_plugins/plugins_widget";
 
-const HeaderPanel = require('views/components/header_panel');
+const HeaderPanel = require("views/components/header_panel");
 
 let pluginInfos: Array<PluginInfo<any>>;
 
@@ -32,15 +32,15 @@ const onSuccess = (res: Array<PluginInfo<any>>) => {
 export class PluginsPage extends MithrilComponent {
   oninit() {
     //todo: onfailure render generic error_onload_page
-    PluginInfosCRUD.all(true).then(onSuccess);
+    PluginInfoCRUD.all({include_bad: true}).then(onSuccess);
   }
 
   view() {
-    const isUserAnAdmin = document.body.getAttribute('data-is-user-admin');
+    const isUserAnAdmin = document.body.getAttribute("data-is-user-admin");
 
     return <main class="main-container">
       <HeaderPanel title="Plugins"/>
-      <PluginsWidget pluginInfos={pluginInfos} isUserAnAdmin={isUserAnAdmin === 'true'}/>
+      <PluginsWidget pluginInfos={pluginInfos} isUserAnAdmin={isUserAnAdmin === "true"}/>
     </main>;
   }
 }

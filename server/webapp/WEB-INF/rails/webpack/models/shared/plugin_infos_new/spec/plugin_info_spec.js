@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {PluginInfos, PluginInfo} from "../plugin_infos";
+import {PluginInfo} from "../plugin_info";
 import {ExtensionType} from "../extension_type";
 import {AnalyticsCapability} from "../analytics_plugin_capabilities";
 import * as _ from "lodash";
@@ -631,38 +631,6 @@ describe('PluginInfos New', () => {
     ]
   };
 
-  //TODO commenting out this test until I can figure out why it is needed
-  //it("should deserialize collection", () => {
-  //  const json = [
-  //    {
-  //      "id":      "github.oauth.login",
-  //      "status":  {
-  //        "state": "active"
-  //      },
-  //      "about":   {
-  //        "name":                     "GitHub OAuth Login",
-  //        "version":                  "2.2",
-  //        "target_go_version":        "16.2.1",
-  //        "description":              "Login using GitHub OAuth",
-  //        "target_operating_systems": ['Linux', 'Mac'],
-  //        "vendor":                   {
-  //          "name": "GoCD Contributors",
-  //          "url":  "https://github.com/gocd-contrib/gocd-oauth-login"
-  //        }
-  //      },
-  //      "extensions": [
-  //        {
-  //          "type":    "authorization"
-  //        }
-  //      ]
-  //    }
-  //  ];
-  //
-  //  const pluginInfos = PluginInfos.fromJSON(json);
-  //  expect(pluginInfos.countPluginInfo()).toBe(1);
-  //  expect(pluginInfos.firstPluginInfo().id()).toBe('github.oauth.login');
-  //});
-
   it("should check if plugin settings is supported", () => {
     const withoutPluginSettingsProperty = {
       "id":         "github.pr",
@@ -1000,7 +968,7 @@ describe('PluginInfos New', () => {
       },
     };
 
-    _.each(_.keys(PluginInfos.Extensions), (pluginType) => {
+    _.each(_.keys(ExtensionType), (pluginType) => {
       it(`should read image for ${pluginType}`, () => {
         const pluginInfoJSON      = _.cloneDeep(json);
         pluginInfoJSON.extensions = [
@@ -1008,8 +976,8 @@ describe('PluginInfos New', () => {
             type: pluginType
           }
         ];
-        const pluginInfo          = PluginInfo.fromJSON(pluginInfoJSON);
-        expect(pluginInfo.imageUrl()).toBe(json._links.image.href);
+        const pluginInfo          = PluginInfo.fromJSON(pluginInfoJSON, pluginInfoJSON._links);
+        expect(pluginInfo.imageUrl).toBe(json._links.image.href);
       });
     });
   });

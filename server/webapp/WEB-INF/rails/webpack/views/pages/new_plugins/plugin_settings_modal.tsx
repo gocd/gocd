@@ -16,7 +16,7 @@
 
 import {HttpResponseWithEtag} from "helpers/api_request_builder";
 import * as m from "mithril";
-import {PluginInfo} from "models/shared/plugin_infos_new/plugin_infos";
+import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
 import {PluginSettings} from "models/shared/plugin_infos_new/plugin_settings/plugin_settings";
 import {PluginSettingsCRUD} from "models/shared/plugin_infos_new/plugin_settings/plugin_settings_crud";
 import * as Buttons from "views/components/buttons";

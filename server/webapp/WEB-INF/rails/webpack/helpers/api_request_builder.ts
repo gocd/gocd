@@ -52,7 +52,14 @@ export class ApiRequestBuilder {
       headers[this.etagHeaderName(method)] = etag as string;
     }
 
-    return m.request<XMLHttpRequest>({url, method, headers, data: payload, extract: _.identity, deserialize: _.identity});
+    return m.request<XMLHttpRequest>({
+      url,
+      method,
+      headers,
+      data: payload,
+      extract: _.identity,
+      deserialize: _.identity
+    });
   }
 
   private static versionHeader(version: ApiVersion): string {

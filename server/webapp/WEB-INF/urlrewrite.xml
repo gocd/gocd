@@ -385,13 +385,6 @@
   </rule>
 
   <rule>
-    <name>Rails Config Repo API Index API</name>
-    <from>^/api/admin/config_repos</from>
-    <to last="true">/rails/api/admin/config_repos</to>
-    <set name="rails_bound">true</set>
-  </rule>
-
-  <rule>
     <name>Rails API</name>
     <from>^/(api/(?!admin/config).*)$</from>
     <to last="true">/rails/$1</to>

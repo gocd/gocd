@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import SparkRoutes from "helpers/spark_routes";
 import {ApiRequestBuilder, ApiVersion, HttpResponseWithEtag} from "helpers/api_request_builder";
+import SparkRoutes from "helpers/spark_routes";
 import {ConfigRepo, ConfigRepos} from "./types";
 
 export class ConfigReposCRUD {

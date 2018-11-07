@@ -31,13 +31,13 @@ describe ApiV1::Shared::ConfigOrigin::ConfigRepoOriginRepresenter do
       repo: {
         _links: {
           self: {
-            href: 'http://test.host/api/admin/config_repos/repo1'
+            href: 'http://test.host/go/api/admin/config_repos/repo1'
           },
           doc: {
             href: 'https://api.gocd.org/#config-repos'
           },
           find: {
-            href: 'http://test.host/api/admin/config_repos/:id'
+            href: 'http://test.host/go/api/admin/config_repos/:id'
           }
         },
         id: 'repo1'

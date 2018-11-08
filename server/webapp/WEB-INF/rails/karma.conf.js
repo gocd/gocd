@@ -18,7 +18,6 @@
 
 const path                = require('path');
 const process             = require('process');
-const jasmineSeedReporter = require('karma-jasmine-seed-reporter')
 
 let browsers;
 
@@ -38,11 +37,10 @@ module.exports = function (config) {
     client:        {
       captureConsole: true,
       jasmine: {
-        random: true,
         seed: process.env['JASMINE_SEED']
       }
     },
-    plugins: [jasmineSeedReporter, "karma-*"],
+    plugins: ["karma-*"],
     preprocessors: {
       '**/*.js': ['sourcemap']
     },
@@ -84,7 +82,7 @@ module.exports = function (config) {
     colors:        true,
     logLevel:      process.env['KARMA_LOG_LEVEL'] ? config[`LOG_${process.env['KARMA_LOG_LEVEL'].toUpperCase()}`] : config.LOG_INFO,
     autoWatch:     true,
-    browsers:      browsers,
+    browsers,
     singleRun:     false,
     concurrency:   Infinity
   });

@@ -20,6 +20,8 @@ import * as m from "mithril";
 import {Modal} from "./index";
 import * as styles from "./index.scss";
 
+let modalContainer: Element;
+
 export namespace ModalManager {
 
   interface ModalEntry {
@@ -31,32 +33,40 @@ export namespace ModalManager {
 
   //call this function once when the SPA is loaded
   export function onPageLoad() {
-    const $body        = $("body");
-    const $modalParent = $("<div class=\"component-modal-container\"/>").appendTo($body);
-    $modalParent.data("modals", allModals);
+    if (modalContainer) {
+      throw new Error("Did you initialize modal manager twice?");
+    }
+    const body     = document.body;
+    modalContainer = document.createElement("div");
+    modalContainer.setAttribute("class", "component-modal-container");
+    body.appendChild(modalContainer);
     const ModalDialogs = class extends MithrilViewComponent<any> {
       view() {
         return (
-          <div>
-            {_.map(allModals, (entry) => {
-              return <div class={styles.overlayBg}>{m(entry.value)}</div>;
-            })}
-          </div>
+          _.map(allModals, (entry) => {
+            return <div key={entry.key} data-test-id={entry.key} class={styles.overlayBg}>{m(entry.value)}</div>;
+          })
         );
       }
     };
-    m.mount($modalParent.get(0), ModalDialogs);
+    m.mount(modalContainer, ModalDialogs);
   }
 
   export function render(modal: Modal) {
     allModals.push({key: modal.id, value: modal});
-    $("body").addClass(styles.fixed);
+    document.body.classList.add(styles.fixed);
     m.redraw();
   }
 
   export function close(modal: Modal) {
     _.remove(allModals, (entry) => entry.key === modal.id);
-    $("body").removeClass(styles.fixed);
+    document.body.classList.remove(styles.fixed);
     m.redraw();
+  }
+
+  export function closeAll() {
+    _.forEach(allModals, (m: ModalEntry) => {
+      ModalManager.close(m.value);
+    });
   }
 }

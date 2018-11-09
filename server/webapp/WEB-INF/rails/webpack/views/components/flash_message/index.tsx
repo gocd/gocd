@@ -15,16 +15,24 @@
  */
 
 import {MithrilComponent} from "jsx/mithril-component";
-import * as m from 'mithril';
+import * as m from "mithril";
 import * as Icons from "../icons";
 
-import {bind} from 'classnames/bind';
-import * as styles from './index.scss';
+import {bind} from "classnames/bind";
+import * as styles from "./index.scss";
 
 const classnames = bind(styles);
 
+export enum MessageType {
+  info,
+  success,
+  warning,
+  alert
+}
+
 export interface Attrs {
-  message: string | undefined | null;
+  type: MessageType;
+  message: m.Children;
   dismissible?: boolean;
 }
 
@@ -33,14 +41,7 @@ export interface State {
   onDismiss?: () => void;
 }
 
-class FlashMessage extends MithrilComponent<Attrs, State> {
-  private readonly type: string;
-
-  protected constructor(type: string) {
-    super();
-    this.type = type;
-  }
-
+export class FlashMessage extends MithrilComponent<Attrs, State> {
   oninit(vnode: m.Vnode<Attrs, State>) {
     vnode.state.onDismiss = () => {
       vnode.state.isDismissed = true;
@@ -54,7 +55,7 @@ class FlashMessage extends MithrilComponent<Attrs, State> {
 
     const isDismissible = vnode.attrs.dismissible;
 
-    let closeButton: JSX.Element | undefined;
+    let closeButton: m.Children;
     if (isDismissible) {
       closeButton = (
         <button className={classnames(styles.closeCallout)}>
@@ -63,35 +64,16 @@ class FlashMessage extends MithrilComponent<Attrs, State> {
       );
     }
 
+    const typeElement = MessageType[vnode.attrs.type];
+
+    // @ts-ignore
+    const style: string = styles[typeElement];
+
     return (
-      <div className={classnames(this.type, styles.callout)}>
+      <div data-test-id={`flash-message-${typeElement}`} className={classnames(styles.callout, style)}>
         <p>{vnode.attrs.message}</p>
         {closeButton}
       </div>
     );
-  }
-}
-
-export class InfoFlashMessage extends FlashMessage {
-  constructor() {
-    super(styles.info);
-  }
-}
-
-export class SuccessFlashMessage extends FlashMessage {
-  constructor() {
-    super(styles.success);
-  }
-}
-
-export class WarnFlashMessage extends FlashMessage {
-  constructor() {
-    super(styles.warning);
-  }
-}
-
-export class AlertFlashMessage extends FlashMessage {
-  constructor() {
-    super(styles.alert);
   }
 }

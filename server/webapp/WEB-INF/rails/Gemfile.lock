@@ -231,6 +231,7 @@ PLATFORMS
   universal-java-1.8
   universal-java-10
   universal-java-11
+  universal-java-12
   universal-java-9
 
 DEPENDENCIES

@@ -27,7 +27,7 @@ export interface PluginInfoQuery {
 export class PluginInfoCRUD {
   private static API_VERSION_HEADER = ApiVersion.v4;
 
-  static all(options: PluginInfoQuery) {
+  static all(options?: PluginInfoQuery) {
     return ApiRequestBuilder.GET(Routes.apiv4AdminPluginInfoIndexPath(options), this.API_VERSION_HEADER)
       .then((xhr: XMLHttpRequest) => {
         const data = JSON.parse(xhr.responseText);

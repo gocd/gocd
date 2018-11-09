@@ -19,6 +19,7 @@ $btn-primary: $go-primary;
 $btn-secondary: $go-secondary;
 $btn-text-color: #fff;
 $btn-reset: #666;
+$btn-danger: $go-danger;
 
 .button {
   border:        1px solid transparent;
@@ -52,66 +53,40 @@ $btn-reset: #666;
   font-size:   13px;
 }
 
-.btn-primary {
-  background:   $btn-primary;
-  border-color: $btn-primary;
+@mixin button($background-color) {
+  background:   $background-color;
+  border-color: $background-color;
   color:        $btn-text-color;
   transition:   $transition;
   &:hover {
-    background: darken($btn-primary, 10%);
+    background: darken($background-color, 10%);
     transition: $transition;
   }
   &:disabled {
     &:hover {
-      background: $btn-primary;
+      background: $background-color;
       transition: $transition;
     }
   }
+}
+
+.btn-primary {
+  @include button($background-color: $btn-primary);
+}
+
+.btn-danger {
+  @include button($background-color: $btn-danger);
 }
 
 .btn-secondary {
-  background:   $btn-secondary;
-  border-color: $btn-secondary;
-  color:        $btn-text-color;
-  transition:   $transition;
-  &:hover {
-    background: darken($btn-secondary, 10%);
-    transition: $transition;
-  }
-  &:disabled {
-    &:hover {
-      background: $btn-secondary;
-      transition: $transition;
-    }
-  }
+  @include button($background-color: $btn-secondary);
 }
 
 .btn-reset {
-  background:   $btn-reset;
-  border-color: $btn-reset;
-  color:        $btn-text-color;
-  transition:   $transition;
-  &:hover {
-    background: darken($btn-reset, 10%);
-    transition: $transition;
-  }
-  &:disabled {
-    &:hover {
-      background: $btn-reset;
-      transition: $transition;
-    }
-  }
+  @include button($background-color: $btn-reset);
 }
 
 .btn-cancel {
-  background: transparent;
-  border:     none;
+  @include button($background-color: transparent);
   color:      $text-color;
-  transition: $transition;
-  padding:    0 10px;
-  &:hover {
-    background: transparent;
-    transition: $transition;
-    color:      $text-color;
-  }
 }

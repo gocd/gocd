@@ -14,309 +14,121 @@
  * limitations under the License.
  */
 
-import {HttpResponseWithEtag} from "helpers/api_request_builder";
-import {MithrilComponent, MithrilViewComponent} from "jsx/mithril-component";
-import * as _ from "lodash";
+import {MithrilComponent} from "jsx/mithril-component";
 import * as m from "mithril";
-import {Stream} from "mithril/stream";
 import * as stream from "mithril/stream";
 import {ConfigReposCRUD} from "models/config_repos/config_repos_crud";
-import {
-  ConfigRepo,
-  ConfigRepos, GitMaterialAttributes, HgMaterialAttributes,
-  humanizedMaterialAttributeName,
-  Material, P4MaterialAttributes, SvnMaterialAttributes
-} from "models/config_repos/types";
-import * as Buttons from "../components/buttons";
-import {CollapsiblePanel} from "../components/collapsible_panel";
-import {AlertFlashMessage} from "../components/flash_message";
-import {CheckboxField, TextAreaField, TextField} from "../components/forms/input_fields";
-import {Delete, QuestionMark, Settings} from "../components/icons";
-import {KeyValuePair} from "../components/key_value_pair";
-import {Modal} from "../components/modal";
-import {Spinner} from "../components/spinner";
+import {ConfigRepo} from "models/config_repos/types";
+import {ExtensionType} from "models/shared/plugin_infos_new/extension_type";
+import {PluginInfoCRUD} from "models/shared/plugin_infos_new/plugin_info_crud";
+import * as s from "underscore.string";
+import * as Buttons from "views/components/buttons";
+import {FlashMessage, MessageType} from "views/components/flash_message";
+import {HeaderPanel} from "views/components/header_panel";
+import {DeleteConfirmModal} from "views/components/modal/delete_confirm_modal";
+import {ConfigReposWidget, State} from "views/pages/config_repos/config_repos_widget";
+import {EditConfigRepoModal, NewConfigRepoModal} from "views/pages/config_repos/modals";
 
-const HeaderPanel = require("views/components/header_panel");
+export class ConfigReposPage extends MithrilComponent<null, State> {
+  oninit(vnode: m.Vnode<null, State>) {
+    vnode.state.configRepos = stream();
+    vnode.state.pluginInfos = stream();
+    this.reload(vnode.state);
+    let timeoutID: number;
 
-const configRepos: Stream<ConfigRepos> = stream();
+    const setMessage = (msg: m.Children, type: MessageType) => {
+      vnode.state.message = msg;
+      vnode.state.messageType = type;
+      timeoutID           = window.setTimeout(vnode.state.clearMessage.bind(vnode.state), 10000);
+      this.reload(vnode.state);
+    };
 
-interface Attrs {
-  configRepos: Stream<ConfigRepos>;
-}
+    vnode.state.onError = (msg: m.Children) => {
+      setMessage(msg, MessageType.alert);
+    };
 
-interface SaveOperation {
-  onSuccessfulSave?: (msg: string) => any;
-}
+    vnode.state.onSuccessfulSave = (msg: m.Children) => {
+      setMessage(msg, MessageType.success);
+    };
 
-interface Operations extends SaveOperation {
-  edit: (repo: ConfigRepo, e: MouseEvent) => void;
-  delete: (repo: ConfigRepo, e: MouseEvent) => void;
-}
+    vnode.state.clearMessage = () => {
+      vnode.state.message        = null;
+    };
 
-interface Attrs2 extends Operations {
-  configRepo: ConfigRepo;
-}
+    vnode.state.onAdd = (e: MouseEvent) => {
+      e.stopPropagation();
+      if (timeoutID) {
+        clearTimeout(timeoutID);
+      }
+      new NewConfigRepoModal(vnode.state.onSuccessfulSave, vnode.state.onError, vnode.state.pluginInfos).render();
+    };
 
-class HeaderWidget extends MithrilViewComponent<ConfigRepo> {
-  view(vnode: m.Vnode<ConfigRepo, this>): m.Children | void | null {
-    return [
-      (<QuestionMark/>),
-      (<div data-test-id="repo-id">{vnode.attrs.id}</div>),
-      (<div>{vnode.attrs.plugin_id}</div>),
-      (<div>{vnode.attrs.material.type}</div>),
-    ];
-  }
-}
+    vnode.state.onEdit = (repo: ConfigRepo, e: MouseEvent) => {
+      e.stopPropagation();
+      if (timeoutID) {
+        clearTimeout(timeoutID);
+      }
+      new EditConfigRepoModal(repo.id, vnode.state.onSuccessfulSave, vnode.state.onError, vnode.state.pluginInfos).render();
+    };
 
-class ConfigRepoWidget extends MithrilComponent<Attrs2> {
-  view(vnode: m.Vnode<Attrs2, this>): m.Children | void | null {
-
-    const filteredAttributes = _.reduce(vnode.attrs.configRepo.material.attributes, (accumulator: any, value: any, key: string) => {
-      let renderedValue = value;
-
-      const renderedKey = humanizedMaterialAttributeName(key);
-
-      if (_.isString(value) && value.startsWith("AES:")) {
-        renderedValue = "******";
+    vnode.state.onDelete = (repo: ConfigRepo, e: MouseEvent) => {
+      e.stopPropagation();
+      if (timeoutID) {
+        clearTimeout(timeoutID);
       }
 
-      accumulator[renderedKey] = renderedValue;
-      return accumulator;
-    }, {});
+      const message = <span>Are you sure you want to delete the config repository <strong>{repo.id}</strong>?</span>;
+      const modal   = new DeleteConfirmModal(message, () => {
+        ConfigReposCRUD
+          .delete(repo)
+          .then((resp) => {
+            vnode.state.onSuccessfulSave(resp.message);
+          })
+          .then(modal.close.bind(modal))
+          .catch((xhr: XMLHttpRequest) => {
+              let message;
+              try {
+                message = JSON.parse(xhr.responseText).message;
+              } catch (e) {
+                // ignore
+              }
 
-    const settingsButton = (
-      <Settings data-test-id="edit-config-repo" onclick={vnode.attrs.edit.bind(vnode.attrs)}/>
-    );
+              if (s.isBlank(message)) {
+                message = `There was an unknown error (${xhr.status}) deleting the config repo ${repo.id}.`;
+              }
 
-    const deleteButton = (
-      <Delete data-test-id="delete-config-repo" onclick={vnode.attrs.delete.bind(vnode.attrs)}/>
-    );
+              vnode.state.onError(message);
+            }
+          )
+          .then(modal.close.bind(modal));
+      });
 
-    const actionButtons = [
-      settingsButton, deleteButton
+      modal.render();
+    };
+  }
+
+  view(vnode: m.Vnode<null, State>) {
+    const headerButtons = [
+      <Buttons.Primary onclick={vnode.state.onAdd.bind(this)}>Add</Buttons.Primary>
     ];
 
-    return (
-      <CollapsiblePanel header={<HeaderWidget {...vnode.attrs.configRepo}/>}
-                        actions={actionButtons}
-      >
-        <KeyValuePair data={filteredAttributes}/>
-      </CollapsiblePanel>
-    );
-  }
-}
-
-type EditableMaterial = SaveOperation & Material;
-
-const MATERIAL_TO_COMPONENT_MAP: { [key: string]: MithrilViewComponent<EditableMaterial> } = {
-  git: {
-    view(vnode: m.Vnode<EditableMaterial>): m.Children | void | null {
-      const materialAttributes = vnode.attrs.attributes as GitMaterialAttributes;
-
-      return (
-        <div>
-          <TextField label={humanizedMaterialAttributeName("name")}
-                     onchange={(value: string) => materialAttributes.name = value}
-                     value={materialAttributes.name}/>
-
-          <TextField label={humanizedMaterialAttributeName("url")}
-                     onchange={(value: string) => materialAttributes.url = value}
-                     value={materialAttributes.url}/>
-
-          <TextField label={humanizedMaterialAttributeName("branch")}
-                     onchange={(value: string) => materialAttributes.branch = value}
-                     value={materialAttributes.branch}/>
-
-          <CheckboxField label={humanizedMaterialAttributeName("auto_update")}
-                         onchange={(value: boolean) => materialAttributes.auto_update = value}
-                         value={materialAttributes.auto_update}/>
-        </div>
-      );
-    }
-
-  } as MithrilViewComponent<EditableMaterial>,
-  svn: {
-    view(vnode: m.Vnode<EditableMaterial>): m.Children | void | null {
-      const materialAttributes = vnode.attrs.attributes as SvnMaterialAttributes;
-
-      return (
-        <div>
-          <TextField label={humanizedMaterialAttributeName("name")}
-                     onchange={(value: string) => materialAttributes.name = value}
-                     value={materialAttributes.name}/>
-
-          <TextField label={humanizedMaterialAttributeName("url")}
-                     onchange={(value: string) => materialAttributes.url = value}
-                     value={materialAttributes.url}/>
-
-          <TextField label={humanizedMaterialAttributeName("username")}
-                     onchange={(value: string) => materialAttributes.username = value}
-                     value={materialAttributes.username}/>
-
-          <CheckboxField label={humanizedMaterialAttributeName("auto_update")}
-                         onchange={(value: boolean) => materialAttributes.auto_update = value}
-                         value={materialAttributes.auto_update}/>
-
-          <CheckboxField label={humanizedMaterialAttributeName("check_externals")}
-                         onchange={(value: boolean) => materialAttributes.check_externals = value}
-                         value={materialAttributes.check_externals}/>
-        </div>
-      );
-    }
-
-  } as MithrilViewComponent<EditableMaterial>,
-  hg: {
-    view(vnode: m.Vnode<EditableMaterial>): m.Children | void | null {
-      const materialAttributes = vnode.attrs.attributes as HgMaterialAttributes;
-
-      return (
-        <div>
-          <TextField label={humanizedMaterialAttributeName("name")}
-                     onchange={(value: string) => materialAttributes.name = value}
-                     value={materialAttributes.name}/>
-
-          <TextField label={humanizedMaterialAttributeName("url")}
-                     onchange={(value: string) => materialAttributes.url = value}
-                     value={materialAttributes.url}/>
-
-          <CheckboxField label={humanizedMaterialAttributeName("auto_update")}
-                         onchange={(value: boolean) => materialAttributes.auto_update = value}
-                         value={materialAttributes.auto_update}/>
-        </div>
-      );
-    }
-
-  } as MithrilViewComponent<EditableMaterial>,
-  p4: {
-    view(vnode: m.Vnode<EditableMaterial>): m.Children | void | null {
-      const materialAttributes = vnode.attrs.attributes as P4MaterialAttributes;
-
-      return (
-        <div>
-          <TextField label={humanizedMaterialAttributeName("name")}
-                     onchange={(value: string) => materialAttributes.name = value}
-                     value={materialAttributes.name}/>
-
-          <TextField label={humanizedMaterialAttributeName("port")}
-                     onchange={(value: string) => materialAttributes.port = value}
-                     value={materialAttributes.port}/>
-
-          <CheckboxField label={humanizedMaterialAttributeName("auto_update")}
-                         onchange={(value: boolean) => materialAttributes.auto_update = value}
-                         value={materialAttributes.auto_update}/>
-
-          <CheckboxField label={humanizedMaterialAttributeName("use_tickets")}
-                         onchange={(value: boolean) => materialAttributes.use_tickets = value}
-                         value={materialAttributes.use_tickets}/>
-
-          <TextAreaField label={humanizedMaterialAttributeName("view")}
-                     onchange={(value: string) => materialAttributes.view = value}
-                     value={materialAttributes.view}/>
-        </div>
-      );
-    }
-
-  } as MithrilViewComponent<EditableMaterial>
-};
-
-class ConfigReposModal extends Modal {
-  private readonly repoId: string;
-  private onSuccessfulSave: ((msg: string) => any) | undefined;
-  private repoWithEtag: Stream<HttpResponseWithEtag<ConfigRepo>> = stream();
-  private error: string | undefined;
-
-  constructor(repoId: string, onSuccessfulSave?: (msg: string) => any) {
-    super();
-    this.repoId           = repoId;
-    this.onSuccessfulSave = onSuccessfulSave;
-
-    ConfigReposCRUD
-      .get(repoId)
-      .then(this.repoWithEtag)
-      .catch(this.onRepoGetFailure());
-  }
-
-  body(): JSX.Element {
-    if (this.error) {
-      return (<AlertFlashMessage message={this.error}/>);
-    }
-
-    if (!this.repoWithEtag()) {
-      return <Spinner/>;
-    }
-
-    return m(MATERIAL_TO_COMPONENT_MAP[this.repoWithEtag().object.material.type], {onSuccessfulSave: this.onSuccessfulSave, ...this.repoWithEtag().object.material});
-  }
-
-  title(): string {
-    return `Edit configuration repository ${this.repoId}`;
-  }
-
-  buttons(): JSX.Element[] {
-    return [<Buttons.Primary onclick={this.performSave.bind(this)}>OK</Buttons.Primary>];
-  }
-
-  private performSave() {
-    ConfigReposCRUD.update(this.repoWithEtag()).then(this.close.bind(this));
-  }
-
-  private onRepoGetFailure() {
-    return (error: any) => {
-      if (error instanceof Error) {
-        this.error = error.message;
-      } else {
-        this.error = "There was an unknown error fetching a copy of the config repository. Please try again in some time";
-      }
-    };
-  }
-}
-
-class ConfigReposWidget extends MithrilComponent<Attrs, Operations> {
-  oninit(vnode: m.Vnode<Attrs, Operations>) {
-    vnode.state.onSuccessfulSave = (msg: string) => {
-      // do nothing
-    };
-    vnode.state.edit             = (repo: ConfigRepo, e: MouseEvent) => {
-      e.stopPropagation();
-      new ConfigReposModal(repo.id, vnode.state.onSuccessfulSave).render();
-    };
-    vnode.state.delete           = (repo: ConfigRepo, e: MouseEvent) => {
-      e.stopPropagation();
-    };
-
-  }
-
-  view(vnode: m.Vnode<Attrs, Operations>): m.Children | void | null {
-    if (!vnode.attrs.configRepos()) {
-      return <Spinner/>;
-    }
-
-    return (
-      <div>
-        {/*<SuccessFlashMessage message={vnode.state.successMessage}/>*/}
-        {vnode.attrs.configRepos()._embedded.config_repos.map((configRepo) => {
-          return (
-            <ConfigRepoWidget key={configRepo.id}
-                              configRepo={configRepo}
-                              edit={vnode.state.edit.bind(vnode.state, configRepo)}
-                              delete={vnode.state.delete.bind(vnode.state, configRepo)}
-            />
-          );
-        })}
-      </div>
-    );
-  }
-}
-
-export class ConfigReposPage extends MithrilComponent {
-  oninit() {
-    ConfigReposCRUD.all().then(configRepos);
-  }
-
-  view() {
     return <main class="main-container">
-      <HeaderPanel title="Config repositories"/>
-      <ConfigReposWidget configRepos={configRepos}/>
+      <HeaderPanel title="Config repositories" buttons={headerButtons}/>
+      <FlashMessage type={vnode.state.messageType} message={vnode.state.message}/>
+      <ConfigReposWidget objects={vnode.state.configRepos}
+                         pluginInfos={vnode.state.pluginInfos}
+                         onEdit={vnode.state.onEdit.bind(this)}
+                         onDelete={vnode.state.onDelete.bind(this)}
+      />
     </main>;
+  }
+
+  private reload(state: State) {
+    state.configRepos(null);
+
+    Promise.all([PluginInfoCRUD.all({type: ExtensionType.CONFIG_REPO}), ConfigReposCRUD.all()]).then((args) => {
+      state.pluginInfos(args[0]);
+      state.configRepos(args[1]);
+    });
   }
 }

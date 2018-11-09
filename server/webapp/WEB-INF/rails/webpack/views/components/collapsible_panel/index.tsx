@@ -14,15 +14,16 @@
  * limitations under the License.
  */
 
+import {bind} from "classnames/bind";
 import {MithrilComponent} from "jsx/mithril-component";
 import * as m from 'mithril';
 import * as stream from 'mithril/stream';
 import {Stream} from 'mithril/stream';
 import * as styles from './index.scss';
 
-const classnames = require('classnames/bind').bind(styles);
+const classnames = bind(styles);
 
-type AttributeType = JSX.Element | m.Component | undefined;
+type AttributeType = m.Children;
 
 export interface Attrs<Header, Actions> {
   actions?: AttributeType | AttributeType[];

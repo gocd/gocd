@@ -14,43 +14,21 @@
  * limitations under the License.
  */
 
-import * as m from 'mithril';
-import * as simulateEvent from 'simulate-event';
+import * as m from "mithril";
+import * as simulateEvent from "simulate-event";
 import * as Buttons from "../../buttons";
 import {Modal} from "../index";
 import * as styles from "../index.scss";
-import {ModalManager} from "../modal_manager";
 
-describe('Modal', () => {
-
-  // @ts-ignore
-  let $root: any, root: any;
-
-  beforeEach(() => {
-    // @ts-ignore
-    [$root, root] = window.createDomElementForTest();
-    ModalManager.onPageLoad();
-  });
-
-  afterEach(unmount);
-  // @ts-ignore
-  afterEach(window.destroyDomElementForTest);
-
-  function unmount() {
-    m.mount(root, null);
-    const modalContainer = '.component-modal-container';
-    $(modalContainer).remove();
-    m.redraw();
-  }
-
-  it('should display a modal', () => {
+describe("Modal", () => {
+  it("should display a modal", () => {
     const testModal = new (class TestModal extends Modal {
       constructor() {
         super();
       }
 
       body(): JSX.Element {
-        return m('p', "Hello World!");
+        return m("p", "Hello World!");
       }
 
       title(): string {
@@ -67,36 +45,36 @@ describe('Modal', () => {
     })();
 
     testModal.render();
-    expect($(`.${styles.overlayHeader} h3`)).toContainText('Test Modal');
-    expect($(`.${styles.overlayContent} p`)).toContainText('Hello World!');
+    expect($(`.${styles.overlayHeader} h3`)).toContainText("Test Modal");
+    expect($(`.${styles.overlayContent} p`)).toContainText("Hello World!");
     const buttonsSelector = `.${styles.overlayFooter} button`;
     expect($(buttonsSelector).length).toBe(2);
-    expect($(buttonsSelector).get(0)).toContainText('Cancel');
-    expect($(buttonsSelector).get(1)).toContainText('OK');
-    expect($('body')).toHaveClass(styles.fixed);
+    expect($(buttonsSelector).get(0)).toContainText("Cancel");
+    expect($(buttonsSelector).get(1)).toContainText("OK");
+    expect($("body")).toHaveClass(styles.fixed);
     testModal.close();
-    expect($('body')).not.toHaveClass(styles.fixed);
+    expect($("body")).not.toHaveClass(styles.fixed);
   });
 
-  it('should close modal when escape key is pressed', () => {
+  it("should close modal when escape key is pressed", () => {
     const testModal = aModal();
 
     testModal.render();
 
     const modalSelector = `.${styles.overlayHeader} h3`;
     expect($(modalSelector)).toBeInDOM();
-    simulateEvent.simulate($(modalSelector).get(0), 'keydown', {key: "Escape", keyCode: 27});
+    simulateEvent.simulate($(modalSelector).get(0), "keydown", {key: "Escape", keyCode: 27});
     expect($(modalSelector)).not.toBeInDOM();
     testModal.close();
   });
 
-  it('should render an OK button by default when no buttons are supplied', () => {
+  it("should render an OK button by default when no buttons are supplied", () => {
     const testModal = aModal();
 
     testModal.render();
     const buttonsSelector = `.${styles.overlayFooter} button`;
     expect($(buttonsSelector).length).toBe(1);
-    expect($(buttonsSelector).get(0)).toContainText('OK');
+    expect($(buttonsSelector).get(0)).toContainText("OK");
     testModal.close();
   });
 
@@ -107,7 +85,7 @@ describe('Modal', () => {
       }
 
       body(): JSX.Element {
-        return m('p', "Hello World!");
+        return m("p", "Hello World!");
       }
 
       title(): string {

@@ -18,13 +18,13 @@
 
 'use strict';
 
-const merge                    = require('webpack-merge');
-const fs                       = require('fs');
-const _                        = require('lodash');
-const path                     = require('path');
-const jasmineCore              = require('jasmine-core');
-const HtmlWebpackPlugin        = require('html-webpack-plugin');
-var WebpackBuildNotifierPlugin = require('webpack-build-notifier');
+const merge                      = require('webpack-merge');
+const fs                         = require('fs');
+const _                          = require('lodash');
+const path                       = require('path');
+const jasmineCore                = require('jasmine-core');
+const HtmlWebpackPlugin          = require('html-webpack-plugin');
+const WebpackBuildNotifierPlugin = require('webpack-build-notifier');
 
 const baseConfigFn = require('./webpack-base.config.js');
 

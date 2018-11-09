@@ -4,6 +4,7 @@ export const button: string;
 export const disabled: string;
 export const btnSmall: string;
 export const btnPrimary: string;
+export const btnDanger: string;
 export const btnSecondary: string;
 export const btnReset: string;
 export const btnCancel: string;

@@ -14,17 +14,18 @@
  * limitations under the License.
  */
 
-import * as m from 'mithril';
-import {Stream} from 'mithril/stream';
+import {bind} from "classnames/bind";
+import * as m from "mithril";
+import {Stream} from "mithril/stream";
 import {
   ServerHealthMessage,
   ServerHealthMessages
-} from "../../../models/shared/server_health_messages/server_health_messages";
+} from "models/shared/server_health_messages/server_health_messages";
 import {Modal} from "../modal";
 import * as styles from "./server_health_messages_count_widget.scss";
 
-const classnames    = require('classnames/bind').bind(styles);
-const TimeFormatter = require('helpers/time_formatter');
+const classnames    = bind(styles);
+const TimeFormatter = require("helpers/time_formatter");
 
 export class ServerHealthMessagesModal extends Modal {
 
@@ -57,5 +58,4 @@ export class ServerHealthMessagesModal extends Modal {
       <p className={styles.detail}>{m.trust(message.detail)}</p>
     </li>;
   }
-
 }

@@ -20,7 +20,7 @@ import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
 import {PluginSettings} from "models/shared/plugin_infos_new/plugin_settings/plugin_settings";
 import {PluginSettingsCRUD} from "models/shared/plugin_infos_new/plugin_settings/plugin_settings_crud";
 import * as Buttons from "views/components/buttons";
-import {AlertFlashMessage} from "views/components/flash_message";
+import {FlashMessage, MessageType} from "views/components/flash_message";
 import {Modal, Size} from "views/components/modal";
 import {Spinner} from "views/components/spinner";
 import * as foundationStyles from "./foundation_hax.scss";
@@ -49,7 +49,7 @@ export class PluginSettingsModal extends Modal {
 
   body() {
     if (this.errorMessage) {
-      return (<AlertFlashMessage message={this.errorMessage}/>);
+      return (<FlashMessage type={MessageType.alert} message={this.errorMessage}/>);
     }
 
     if (!this.pluginSettings) {

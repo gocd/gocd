@@ -16,10 +16,11 @@
 
 import {MithrilViewComponent} from "jsx/mithril-component";
 
+import {bind} from "classnames/bind";
 import * as m from 'mithril';
 import * as styles from "./index.scss";
 
-const classnames = require('classnames/bind').bind(styles);
+const classnames = bind(styles);
 
 interface SiteHeaderLinkAttrs {
   isNavLink?: boolean;
@@ -127,7 +128,7 @@ export interface Attrs {
 export default class SiteMenu extends MithrilViewComponent<Attrs> {
   view(vnode: m.Vnode<Attrs>) {
 
-    const analyticsMenu: JSX.Element | null = vnode.attrs.showAnalytics ?
+    const analyticsMenu: m.Children = vnode.attrs.showAnalytics ?
       <SiteNavItem href="/go/analytics" text="Analytics"/> : null;
 
     let adminMenu = <SiteNavItem text="Admin"/>;

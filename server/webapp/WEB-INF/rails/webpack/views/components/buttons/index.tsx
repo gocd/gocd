@@ -15,10 +15,10 @@
  */
 
 import {MithrilViewComponent} from "jsx/mithril-component";
-import * as m from 'mithril';
+import * as m from "mithril";
 
-import {bind} from 'classnames/bind';
-import * as styles from './index.scss';
+import {bind} from "classnames/bind";
+import * as styles from "./index.scss";
 
 const classnames = bind(styles);
 
@@ -42,14 +42,16 @@ class Button extends MithrilViewComponent<Attrs> {
     return (
       <button {...vnode.attrs}
               onclick={vnode.attrs.onclick}
-              className={classnames(
-                styles.button,
-                {[styles.btnSmall]: isSmall},
-                this.type
-              )}>
+              className={classnames(styles.button, {[styles.btnSmall]: isSmall}, this.type)}>
         {vnode.children}
       </button>
     );
+  }
+}
+
+export class Danger extends Button {
+  constructor() {
+    super(styles.btnDanger);
   }
 }
 

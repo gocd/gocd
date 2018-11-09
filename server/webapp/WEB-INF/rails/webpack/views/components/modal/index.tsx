@@ -43,7 +43,7 @@ export abstract class Modal extends MithrilViewComponent<any> {
   abstract body(): JSX.Element;
 
   buttons(): JSX.Element[] {
-    return [<Buttons.Primary onclick={this.close.bind(this)}>OK</Buttons.Primary>];
+    return [<Buttons.Primary data-test-id='button-ok' onclick={this.close.bind(this)}>OK</Buttons.Primary>];
   }
 
   render() {
@@ -71,11 +71,11 @@ export abstract class Modal extends MithrilViewComponent<any> {
   view() {
     return <div className={classnames(styles.overlay, Size[this.size])}>
       <header className={styles.overlayHeader}>
-        <h3>{this.title()}</h3>
+        <h3 data-test-id="modal-title">{this.title()}</h3>
         <button className={styles.overlayClose} onclick={this.close.bind(this)}><i className={styles.closeIcon}/>
         </button>
       </header>
-      <div className={styles.overlayContent}>
+      <div className={styles.overlayContent} data-test-id="modal-body">
         {this.body()}
       </div>
       <footer className={styles.overlayFooter}>

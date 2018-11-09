@@ -16,11 +16,11 @@
 
 import {MithrilViewComponent} from "jsx/mithril-component";
 
+import {bind} from "classnames/bind";
 import * as m from 'mithril';
 import * as styles from './site_header.scss';
 
-const classnames = require('classnames/bind').bind(styles);
-
+const classnames = bind(styles);
 const NotificationCenter  = require('views/components/notification_center');
 const ServerHealthSummary = require('views/components/server_health_summary/server_health_summary');
 
@@ -46,7 +46,7 @@ export class SiteHeader extends MithrilViewComponent<Attrs> {
     const userDisplayName        = vnode.attrs.userDisplayName;
     const isAnonymous            = vnode.attrs.isAnonymous;
 
-    let userMenu: JSX.Element | null = null;
+    let userMenu: m.Children = null;
 
     if (!isAnonymous) {
       userMenu = (

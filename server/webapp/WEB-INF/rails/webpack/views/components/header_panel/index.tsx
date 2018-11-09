@@ -21,13 +21,13 @@ import {MithrilViewComponent} from "jsx/mithril-component";
 import * as style from "./index.scss";
 
 export interface Attrs {
-  title: string | JSX.Element;
-  buttons?: JSX.Element;
+  title: m.Children;
+  buttons?: m.Children;
 }
 
 export class HeaderPanel extends MithrilViewComponent<Attrs> {
   view(vnode: m.Vnode<Attrs>) {
-    let buttons: JSX.Element | null = null;
+    let buttons: m.Children = null;
 
     if (!_.isEmpty(vnode.attrs.buttons)) {
       buttons = (
@@ -45,5 +45,3 @@ export class HeaderPanel extends MithrilViewComponent<Attrs> {
     </header>);
   }
 }
-
-module.exports = HeaderPanel;

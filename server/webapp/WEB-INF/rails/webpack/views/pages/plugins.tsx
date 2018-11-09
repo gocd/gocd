@@ -18,9 +18,8 @@ import {MithrilComponent} from "jsx/mithril-component";
 import * as m from "mithril";
 import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
 import {PluginInfoCRUD} from "models/shared/plugin_infos_new/plugin_info_crud";
+import {HeaderPanel} from "views/components/header_panel";
 import {PluginsWidget} from "views/pages/new_plugins/plugins_widget";
-
-const HeaderPanel = require("views/components/header_panel");
 
 let pluginInfos: Array<PluginInfo<any>>;
 

@@ -15,11 +15,11 @@
  */
 
 import {MithrilComponent} from "jsx/mithril-component";
-import * as m from 'mithril';
-import {Stream} from 'mithril/stream';
+import * as m from "mithril";
+import {Stream} from "mithril/stream";
 import {ServerHealthMessages} from "models/shared/server_health_messages/server_health_messages";
-import * as styles from './server_health_messages_count_widget.scss';
-import {ServerHealthMessagesModal} from './server_health_messages_modal';
+import * as styles from "./server_health_messages_count_widget.scss";
+import {ServerHealthMessagesModal} from "./server_health_messages_modal";
 
 interface Attrs {
   serverHealthMessages: Stream<ServerHealthMessages>;
@@ -31,7 +31,7 @@ interface State {
 
 export class ServerHealthMessagesCountWidget extends MithrilComponent<Attrs, State> {
   oninit(vnode: m.Vnode<Attrs, State>) {
-    const modal = new ServerHealthMessagesModal(vnode.attrs.serverHealthMessages);
+    const modal                               = new ServerHealthMessagesModal(vnode.attrs.serverHealthMessages);
     vnode.state.openServerHealthMessagesModal = () => {
       modal.render();
     };
@@ -41,7 +41,7 @@ export class ServerHealthMessagesCountWidget extends MithrilComponent<Attrs, Sta
     if (vnode.attrs.serverHealthMessages().hasMessages()) {
       return (
         <a class={styles.serverHealthMessagesContainer}
-           onclick={vnode.state.openServerHealthMessagesModal.bind(vnode.state)}> {vnode.attrs.serverHealthMessages().summaryMessage()}</a>
+           onclick={vnode.state.openServerHealthMessagesModal.bind(vnode.state)}>{vnode.attrs.serverHealthMessages().summaryMessage()}</a>
       );
     }
   }

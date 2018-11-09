@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+import {bind} from "classnames/bind";
+import * as Routes from "gen/ts-routes";
 import {MithrilViewComponent} from "jsx/mithril-component";
 import * as _ from "lodash";
 import * as m from "mithril";
@@ -23,11 +25,9 @@ import * as Buttons from "views/components/buttons";
 import {CollapsiblePanel} from "views/components/collapsible_panel";
 import * as Icons from "views/components/icons";
 import {KeyValuePair} from "views/components/key_value_pair";
+import * as styles from "./index.scss";
 
-import * as Routes from "gen/ts-routes";
-const styles     = require('./index.scss');
-const classnames = require('classnames/bind').bind(styles);
-
+const classnames = bind(styles);
 interface PluginHeaderAttrs {
   image: JSX.Element;
   pluginId: string;
@@ -64,7 +64,7 @@ export interface Attrs {
   onEdit: () => void;
 }
 
-type OptionalElement = JSX.Element | undefined;
+type OptionalElement = m.Children;
 
 export class PluginWidget extends MithrilViewComponent<Attrs> {
   view(vnode: m.Vnode<Attrs>) {

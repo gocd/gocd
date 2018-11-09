@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import {ModalManager} from "views/components/modal/modal_manager";
 
 require('jasmine-jquery');
 require('jasmine-ajax');
@@ -22,13 +23,27 @@ const _     = require('lodash');
 const $     = require('jquery');
 const Modal = require('views/shared/new_modal');
 
+jasmine.DEFAULT_TIMEOUT_INTERVAL = 1000;
+
 let container;
+
+document.addEventListener('DOMContentLoaded', () => {
+  ModalManager.onPageLoad();
+});
+
+if (window.location.search.indexOf('showDom=false') >= 0) {
+  $('.component-modal-container').hide();
+} else {
+  $('.component-modal-container').show();
+}
 
 window.createDomElementForTest = function () {
   container = $('<div>');
 
-  if (window.location.search.indexOf('showDom=true') === 0) {
+  if (window.location.search.indexOf('showDom=false') >= 0) {
     container.hide();
+  } else {
+    container.show();
   }
 
   const mithrilMountPoint = $('<div>').attr({class: 'mithril-mount-point'});

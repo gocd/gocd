@@ -18,7 +18,8 @@ import {MithrilViewComponent} from "jsx/mithril-component";
 import * as m from 'mithril';
 import * as Buttons from "views/components/buttons/index";
 import {CollapsiblePanel} from "views/components/collapsible_panel";
-import {AlertFlashMessage, InfoFlashMessage, SuccessFlashMessage, WarnFlashMessage} from "views/components/flash_message";
+import {FlashMessage, MessageType} from "views/components/flash_message";
+import {HeaderPanel} from "views/components/header_panel";
 import {ButtonGroup} from "views/components/icons";
 import * as Icons from "views/components/icons/index";
 import {KeyValuePair} from "views/components/key_value_pair";
@@ -26,19 +27,17 @@ import {Size} from "views/components/modal";
 import {SampleModal} from "views/components/modal/sample";
 import {SearchBox} from "views/components/search_box";
 
-const HeaderPanel = require('views/components/header_panel');
-
 export class KitchenSink extends MithrilViewComponent<null> {
 
   view(vnode: m.Vnode<null>) {
     return (
       <div>
         <HeaderPanel title="Kitchen Sink"/>
-        <InfoFlashMessage message={"This page is awesome!"}/>
-        <SuccessFlashMessage message={"Everything works as expected!"}/>
-        <WarnFlashMessage message={"This might not work!"}/>
-        <AlertFlashMessage message={"Disaster Happened!"}/>
-        <AlertFlashMessage dismissible={true}
+        <FlashMessage type={MessageType.info} message={"This page is awesome!"}/>
+        <FlashMessage type={MessageType.success} message={"Everything works as expected!"}/>
+        <FlashMessage type={MessageType.warning} message={"This might not work!"}/>
+        <FlashMessage type={MessageType.alert} message={"Disaster Happened!"}/>
+        <FlashMessage type={MessageType.alert} dismissible={true}
                            message={"Disaster Happened! But you can ignore by closing it"}/>
         <h3>CollapsiblePanel</h3>
         <CollapsiblePanel header={<div>Collapsible Panel header</div>}
@@ -88,12 +87,14 @@ export class KitchenSink extends MithrilViewComponent<null> {
         <Buttons.Secondary>Secondary Button</Buttons.Secondary>
         <Buttons.Reset>Reset Button</Buttons.Reset>
         <Buttons.Cancel>Cancel</Buttons.Cancel>
+        <Buttons.Danger>Delete</Buttons.Danger>
         <hr/>
         <h3>Disabled Buttons:</h3>
         <Buttons.Primary disabled={true}>Disabled Primary Button</Buttons.Primary>
         <Buttons.Secondary disabled={true}>Disabled Secondary Button</Buttons.Secondary>
         <Buttons.Reset disabled={true}>Disabled Reset Button</Buttons.Reset>
         <Buttons.Cancel disabled={true}>Disabled Cancel</Buttons.Cancel>
+        <Buttons.Danger disabled={true}>Disabled Danger</Buttons.Danger>
 
         <br/>
         <h3>Small Buttons:</h3>

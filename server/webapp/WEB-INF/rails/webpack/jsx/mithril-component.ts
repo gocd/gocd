@@ -15,6 +15,7 @@
  */
 
 import * as m from "mithril";
+import * as base from "./base";
 
 export abstract class MithrilComponent<Attrs = {}, State = {}> implements m.Component<Attrs, State> {
   // Required for type checking JSX attributes
@@ -45,13 +46,16 @@ declare global {
     }
 
     // Element names allowed – with attributes allowed
-    interface IntrinsicElements {
-      [elementName: string]: any;
+    interface IntrinsicElements extends base.IntrinsicElements {
+      // allow unknown elements
+      [name: string]: any;
     }
 
     // Where to look for component type information
     interface ElementAttributesProperty {
       __tsx_attrs: any;
+
+      [name: string]: any;
     }
   }
 

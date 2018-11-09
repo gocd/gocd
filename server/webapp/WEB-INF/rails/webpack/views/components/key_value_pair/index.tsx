@@ -14,12 +14,13 @@
  * limitations under the License.
  */
 
+import {bind} from "classnames/bind";
 import {MithrilViewComponent} from "jsx/mithril-component";
 import * as _ from "lodash";
 import * as m from "mithril";
 import * as styles from "./index.scss";
 
-const classnames = require("classnames/bind").bind(styles);
+const classnames = bind(styles);
 
 export interface Attrs {
   data: any;

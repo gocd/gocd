@@ -14,20 +14,21 @@
  * limitations under the License.
  */
 
-import * as _ from 'lodash';
+import {ApiRequestBuilder} from "helpers/api_request_builder";
+import * as _ from "lodash";
 import {DataReporting} from "./data_sharing/data_reporting";
 import {EncryptedData, EncryptionKeys, UsageData} from "./data_sharing/usage_data";
-
-const AjaxHelper = require('helpers/ajax_helper');
 
 const USAGE_DATA_LAST_REPORTED_TIME_KEY = "last_usage_data_reporting_check_time";
 
 const fetchEncryptionKeysFromDataSharingServer = (url: string) => {
-  return AjaxHelper.GET({url});
+  return ApiRequestBuilder.GET(url).then((xhr: XMLHttpRequest) => {
+    return JSON.parse(xhr.responseText) as EncryptionKeys;
+  });
 };
 
 const reportToGoCDDataSharingServer = (url: string, payload: EncryptedData) => {
-  return AjaxHelper.POST({url, payload, contentType: 'application/octet-stream'});
+  return ApiRequestBuilder.POST(url, undefined, payload, {contentType: "application/octet-stream"});
 };
 
 const canTryToReportingUsageData = (): boolean => {

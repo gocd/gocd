@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import {HTMLAttributes} from "jsx/dom";
 import * as _ from "lodash";
 import * as m from 'mithril';
 
@@ -24,7 +25,7 @@ import * as styles from "./index.scss";
 
 const classnames = bind(styles);
 
-export interface Attrs {
+export interface Attrs extends HTMLAttributes {
   onclick?: () => void;
   disabled?: boolean;
 }

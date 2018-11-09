@@ -17,7 +17,7 @@
 const _         = require('lodash');
 const m         = require('mithril');
 const Stream    = require('mithril/stream');
-const CONSTANTS = require('helpers/constants.js');
+const CONSTANTS = require('helpers/constants');
 
 // Set the name of the hidden property and the change event for visibility
 let hidden, visibilityChange;
@@ -67,13 +67,13 @@ function AjaxPoller (args={}) {
     }
 
     const period = Math.max("number" === typeof options.inSeconds ? options.inSeconds : 0, 0);
-    timeout = setTimeout(fire, period * 1000);
+    timeout      = setTimeout(fire, period * 1000);
   }
 
   function stop() {
     if ("number" === typeof timeout) {
       clearTimeout(timeout);
-      abort = true;
+      abort   = true;
       timeout = null;
     }
 
@@ -98,7 +98,7 @@ function AjaxPoller (args={}) {
     return "undefined" !== typeof document[hidden];
   }
 
-  this.stop = stop;
+  this.stop  = stop;
   this.start = start;
 
   this.restart = () => {

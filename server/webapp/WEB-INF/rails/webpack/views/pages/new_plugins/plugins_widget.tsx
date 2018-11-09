@@ -19,7 +19,7 @@ import * as m from "mithril";
 
 import {MithrilComponent} from "jsx/mithril-component";
 import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
-import {SuccessFlashMessage} from "views/components/flash_message";
+import {FlashMessage, MessageType} from "views/components/flash_message";
 import {Spinner} from "views/components/spinner";
 import {PluginSettingsModal} from "./plugin_settings_modal";
 import {PluginWidget} from "./plugin_widget";
@@ -29,11 +29,14 @@ export interface Attrs {
   pluginInfos: Array<PluginInfo<any>>;
 }
 
-interface State {
-  edit: (pluginInfo: any, event: MouseEvent) => void;
-  successMessage: string | null;
-  onSuccessfulSave: (msg: string) => void;
+interface HasSuccessMessage {
+  successMessage: m.Children;
   clearMessage: () => void;
+}
+
+interface State extends HasSuccessMessage {
+  edit: (pluginInfo: any, event: MouseEvent) => void;
+  onSuccessfulSave: (msg: m.Children) => void;
 }
 
 export class PluginsWidget extends MithrilComponent<Attrs, State> {
@@ -52,7 +55,7 @@ export class PluginsWidget extends MithrilComponent<Attrs, State> {
       vnode.state.successMessage = null;
     };
 
-    vnode.state.onSuccessfulSave = (msg: string) => {
+    vnode.state.onSuccessfulSave = (msg: m.Children) => {
       vnode.state.successMessage = msg;
       timeoutID                  = window.setTimeout(vnode.state.clearMessage.bind(vnode.state), 10000);
     };
@@ -64,7 +67,7 @@ export class PluginsWidget extends MithrilComponent<Attrs, State> {
     }
     return (
       <div data-test-id="plugins-list">
-        <SuccessFlashMessage message={vnode.state.successMessage}/>
+        <FlashMessage type={MessageType.success} message={vnode.state.successMessage}/>
         {_.sortBy(vnode.attrs.pluginInfos, (pluginInfo) => pluginInfo.id).map((pluginInfo: PluginInfo<any>) => {
           return (
             <PluginWidget key={pluginInfo.id}

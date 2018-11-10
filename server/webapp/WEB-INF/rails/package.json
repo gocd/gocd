@@ -89,7 +89,7 @@
     "sass-lint-webpack": "^1.0.0",
     "sass-loader": "^7.1.0",
     "simulate-event": "^1.4.0",
-    "sourcemapped-stacktrace": "^1.1.6",
+    "sourcemapped-stacktrace": "^1.1.9",
     "stats-webpack-plugin": "^0.6.0",
     "style-loader": "^0.23.0",
     "synchronize": "^2.0.0",

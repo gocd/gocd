@@ -19,7 +19,7 @@ const Stream                    = require('mithril/stream');
 const SystemNotificationsWidget = require('./system_notifications_widget');
 const SystemNotifications       = require('models/notifications/system_notifications');
 const DataSharingNotification   = require('models/notifications/data_sharing_notification');
-const AjaxPoller                = require('helpers/ajax_poller');
+const AjaxPoller                = require('helpers/ajax_poller').AjaxPoller;
 
 
 const systemNotifications = Stream(new SystemNotifications());

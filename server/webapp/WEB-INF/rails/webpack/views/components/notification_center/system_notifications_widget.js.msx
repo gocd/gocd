@@ -17,7 +17,7 @@
 const m                        = require('mithril');
 const SystemNotificationWidget = require('./system_notification_widget');
 const ComponentMixins          = require('helpers/mithril_component_mixins');
-const styles                   = require('./system_notifications.scss');
+import styles from './system_notifications.scss';
 
 const SystemNotificationsWidget = {
   oninit(vnode) {

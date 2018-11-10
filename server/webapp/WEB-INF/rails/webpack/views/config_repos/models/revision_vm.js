@@ -1,7 +1,7 @@
 const m           = require("mithril");
 const Stream      = require("mithril/stream");
 const ApiHelper   = require("helpers/api_helper");
-const AjaxPoller  = require("helpers/ajax_poller");
+const AjaxPoller  = require('helpers/ajax_poller').AjaxPoller;
 
 import SparkRoutes from "helpers/spark_routes";
 

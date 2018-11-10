@@ -21,7 +21,7 @@ const DashboardVM     = require('views/dashboard/models/dashboard_view_model');
 const Dashboard       = require('models/dashboard/dashboard');
 const DashboardWidget = require('views/dashboard/dashboard_widget');
 const PluginInfos     = require('models/shared/plugin_infos');
-const AjaxPoller      = require('helpers/ajax_poller');
+const AjaxPoller      = require('helpers/ajax_poller').AjaxPoller;
 const PageLoadError   = require('views/shared/page_load_error');
 
 const PersonalizeVM   = require('views/dashboard/models/personalization_vm');

@@ -14,13 +14,14 @@
  * limitations under the License.
  */
 
-const $                     = require('jquery');
-const m                     = require('mithril');
-const Stream                = require('mithril/stream');
+const $                         = require('jquery');
+const m                         = require('mithril');
+const Stream                    = require('mithril/stream');
 const SystemNotificationsWidget = require('views/notifications/system_notifications_widget');
-const SystemNotifications = require('models/notifications/system_notifications');
-const DataSharingNotification = require('models/notifications/data_sharing_notification');
-const AjaxPoller     = require('helpers/ajax_poller');
+const SystemNotifications       = require('models/notifications/system_notifications');
+const DataSharingNotification   = require('models/notifications/data_sharing_notification');
+const AjaxPoller                = require('helpers/ajax_poller').AjaxPoller;
+
 require('foundation-sites');
 
 $(() => {

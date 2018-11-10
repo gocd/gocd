@@ -20,7 +20,7 @@ import * as stream from 'mithril/stream';
 import {ServerHealthMessages} from "models/shared/server_health_messages/server_health_messages";
 import {ServerHealthMessagesCountWidget} from "./server_health_messages_count_widget";
 
-const AjaxPoller = require('helpers/ajax_poller');
+const AjaxPoller = require('helpers/ajax_poller').AjaxPoller;
 
 const serverHealthMessages = stream(new ServerHealthMessages([]));
 

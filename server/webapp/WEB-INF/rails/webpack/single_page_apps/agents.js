@@ -23,7 +23,7 @@ const PageLoadError  = require('views/shared/page_load_error');
 const AgentsVM       = require('views/agents/models/agents_widget_view_model');
 const RouteHandler   = require('views/agents/models/route_handler');
 const PluginInfos    = require('models/shared/plugin_infos');
-const AjaxPoller     = require('helpers/ajax_poller');
+const AjaxPoller     = require('helpers/ajax_poller').AjaxPoller;
 
 $(() => {
   const $agentElem = $('#agents');

@@ -14,12 +14,18 @@
  * limitations under the License.
  */
 
+/// <reference types="jasmine"/>
+
 declare namespace jasmine {
   interface Matchers<T> {
     toContainSpinner(): boolean;
+
     toContainError(msg: string): boolean;
+
     toContainTitle(title: string): boolean;
+
     toContainBody(body: string): boolean;
+
     toContainButtons(buttons: string[]): boolean;
   }
 }

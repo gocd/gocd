@@ -83,12 +83,6 @@ afterEach(() => {
 });
 
 beforeEach(() => {
-  //set it to 0 as the test should not rely on actual timezone.
-  const meta = $("meta[name='gocd-params']");
-  meta.attr('data-timezone', '0');
-  meta.attr('data-page-timeout', '5000');
-  meta.attr('data-page-refresh-interval', '10000');
-
   if ($('#mithril-component-container').length === 0) {
     const container = $('<div>').attr({id: 'mithril-component-container'}).hide();
     container.append($('<div>').attr({id: 'mithril-mount-point'}));

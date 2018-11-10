@@ -1648,10 +1648,10 @@ boom@5.x.x:
   dependencies:
     hoek "4.x.x"
 
-bourbon@^5.0.1:
-  version "5.0.1"
-  resolved "https://registry.yarnpkg.com/bourbon/-/bourbon-5.0.1.tgz#70ac5c529a7d9e8f1cda088ca2fee2f0a20ea4f6"
-  integrity sha512-bLxjuGghrEHVXwymt/tEQmH78NA0XjkRNXKnazQU+OrHMHT48PLB4y3O00x7FkWWwCKzzvReUez+AxRWgr5WSA==
+bourbon@^5.1.0:
+  version "5.1.0"
+  resolved "https://registry.yarnpkg.com/bourbon/-/bourbon-5.1.0.tgz#84fa10de4c4e837602d8c2ec716d74bcb8915bad"
+  integrity sha512-rO4rwNAVNuzPmnL+DruxAe7DR2YFFo4nHsgDVRd9URMgDxtHmVBUnvFLXPan6teVe7jkybCyxcnR+CKClotj3g==
 
 brace-expansion@^1.1.7:
   version "1.1.9"

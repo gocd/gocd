@@ -21,7 +21,7 @@
     "@types/classnames": "^2.2.6",
     "angular": "file:node-vendor/angular",
     "babel-polyfill": "^6.26.0",
-    "bourbon": "^5.0.1",
+    "bourbon": "^5.1.0",
     "classnames": "^2.2.6",
     "dragula": "^3.7.2",
     "filesize": "^3.5.10",

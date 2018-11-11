@@ -102,10 +102,10 @@
   resolved "https://registry.yarnpkg.com/@types/jasmine-ajax/-/jasmine-ajax-3.1.39.tgz#5ac6945c540c0c12cd6f8f71625a08c29910499a"
   integrity sha512-pDUAnGbFgQDwPQH0yBrY4lXv8XvAPI0Y/mtI3BnczClnts7nQFfQeF3dBqstK9XV9XaOPaB3stp7y15FEmqRbA==
 
-"@types/jasmine-jquery@^1.5.32":
-  version "1.5.32"
-  resolved "https://registry.yarnpkg.com/@types/jasmine-jquery/-/jasmine-jquery-1.5.32.tgz#4d0ffdc4d0a90eb136ef24887ce8089f8177db71"
-  integrity sha512-RvJgUdUCNiQQGXnW61t80e2g/1mIKmBjkOpnoLYfDBDozFp1eZTDW6UliXw1D/Tw9x4p/6PzOmOGkJlxfacP1A==
+"@types/jasmine-jquery@^1.5.33":
+  version "1.5.33"
+  resolved "https://registry.yarnpkg.com/@types/jasmine-jquery/-/jasmine-jquery-1.5.33.tgz#ebc5b43c471c056fb0d16847930dfa2acd48b86d"
+  integrity sha512-yQTTxLDsdyH2GRoyWv4Dp/nCQ1OI8tB4bpOuQIx/09PM0uVTMtiLkjsBTVtsjP+9bvBNUj02a/6rhTWhoakDoA==
   dependencies:
     "@types/jasmine" "*"
     "@types/jquery" "*"

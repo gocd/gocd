@@ -90,7 +90,7 @@
     "sass-loader": "^7.1.0",
     "simulate-event": "^1.4.0",
     "sourcemapped-stacktrace": "^1.1.9",
-    "stats-webpack-plugin": "^0.6.0",
+    "stats-webpack-plugin": "^0.7.0",
     "style-loader": "^0.23.0",
     "synchronize": "^2.0.0",
     "tslint": "^5.11.0",

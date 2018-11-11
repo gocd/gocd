@@ -5383,10 +5383,10 @@ libqp@1.1.0:
   resolved "https://registry.yarnpkg.com/libqp/-/libqp-1.1.0.tgz#f5e6e06ad74b794fb5b5b66988bf728ef1dedbe8"
   integrity sha1-9ebgatdLeU+1tbZpiL9yjvHe2+g=
 
-license-checker@^20.1.0:
-  version "20.1.0"
-  resolved "https://registry.yarnpkg.com/license-checker/-/license-checker-20.1.0.tgz#3b460707d8e26687b4b7f4d43237d30c07464051"
-  integrity sha512-OV1XN7q6iJDq+Lz0Zf8MyZs7AKvTe829MDu/96MacHyNptyjNs+aHhGIJnQ1b0Jdt5Q2Kv/g+KAT4RZhVvCpJg==
+license-checker@^24.0.1:
+  version "24.0.1"
+  resolved "https://registry.yarnpkg.com/license-checker/-/license-checker-24.0.1.tgz#242b2f13bcf5842fc3a42d0d94c14d161e141816"
+  integrity sha512-9qgTmu3aAk4e2L6fWQLLVcip/tZJ0x2K8ZfmEIo8nsB3cibSw/Lp/YplBiOOI3SfnEfLb50T3rDq3X6gai4dEw==
   dependencies:
     chalk "^2.4.1"
     debug "^3.1.0"
@@ -5397,7 +5397,6 @@ license-checker@^20.1.0:
     spdx "^0.5.1"
     spdx-correct "^3.0.0"
     spdx-satisfies "^4.0.0"
-    strip-ansi "^4.0.0"
     treeify "^1.1.0"
 
 load-json-file@^1.0.0:

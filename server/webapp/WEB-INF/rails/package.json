@@ -82,7 +82,7 @@
     "karma-junit-reporter": "^1.2.0",
     "karma-safari-launcher": "^1.0.0",
     "karma-sourcemap-loader": "^0.3.7",
-    "license-checker": "^20.1.0",
+    "license-checker": "^24.0.1",
     "mini-css-extract-plugin": "^0.4.3",
     "node-sass": "^4.10.0",
     "sass-lint": "^1.12.1",

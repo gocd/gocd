@@ -41,7 +41,7 @@
     "uuid": "^3.2.1"
   },
   "devDependencies": {
-    "@types/jasmine": "^2.8.9",
+    "@types/jasmine": "^2.8.11",
     "@types/jasmine-ajax": "^3.1.39",
     "@types/jasmine-jquery": "^1.5.33",
     "@types/lodash": "^4.14.117",

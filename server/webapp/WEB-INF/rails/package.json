@@ -42,7 +42,7 @@
   },
   "devDependencies": {
     "@types/jasmine": "^2.8.9",
-    "@types/jasmine-ajax": "^3.1.38",
+    "@types/jasmine-ajax": "^3.1.39",
     "@types/jasmine-jquery": "^1.5.32",
     "@types/lodash": "^4.14.117",
     "@types/mithril": "^1.1.13",

@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-import {MithrilViewComponent} from "jsx/mithril-component";
-
 import {bind} from "classnames/bind";
+import {MithrilViewComponent} from "jsx/mithril-component";
 import * as m from 'mithril';
 import * as styles from "./index.scss";
 
@@ -123,6 +122,7 @@ export interface Attrs {
   isUserAdmin: boolean;
   canViewAdminPage: boolean;
   showAnalytics: boolean;
+  showConfigRepos: boolean;
 }
 
 export default class SiteMenu extends MithrilViewComponent<Attrs> {
@@ -130,6 +130,9 @@ export default class SiteMenu extends MithrilViewComponent<Attrs> {
 
     const analyticsMenu: m.Children = vnode.attrs.showAnalytics ?
       <SiteNavItem href="/go/analytics" text="Analytics"/> : null;
+
+    const configReposMenu: m.Children = vnode.attrs.showConfigRepos ?
+      <SiteSubNavItem href="/go/admin/config_repos" text="Config Repositories"/> : null;
 
     let adminMenu = <SiteNavItem text="Admin"/>;
 
@@ -140,6 +143,7 @@ export default class SiteMenu extends MithrilViewComponent<Attrs> {
             <div className={styles.subNavigation}>
               <SiteSubNav>
                 <SiteSubNavItem href="/go/admin/pipelines" text="Pipelines"/>
+                {configReposMenu}
                 <SiteSubNavItem href="/go/admin/templates" text="Templates"/>
                 <SiteSubNavItem href="/go/admin/elastic_profiles" text="Elastic Agent Profiles"/>
                 <SiteSubNavItem href="/go/admin/config_xml" text="Config XML"/>

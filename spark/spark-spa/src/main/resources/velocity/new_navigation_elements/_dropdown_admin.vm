@@ -14,6 +14,7 @@
  * limitations under the License.
  *#
 <li role="presentation"><a href="/go/admin/pipelines">Pipelines</a></li>
+#if(${toggles.isToggleOn("config_repos_ui")})<li role="presentation"><a href="/go/admin/config_repos">Config Repositories</a></li>#end
 <li role="presentation"><a href="/go/admin/environments">Environments</a></li>
 <li role="presentation"><a href="/go/admin/templates">Templates</a></li>
 <li role="presentation"><a href="/go/admin/elastic_profiles">Elastic Agent Profiles</a></li>

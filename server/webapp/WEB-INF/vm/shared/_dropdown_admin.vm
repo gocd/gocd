@@ -17,6 +17,7 @@
 <li role="presentation">
     <a href="$req.getContextPath()/admin/pipelines">Pipelines</a>
 </li>
+#if($config_repos_ui)<li role="presentation"><a href="/go/admin/config_repos">Config Repositories</a></li>#end
 <li role="presentation">
   <a href="$req.getContextPath()/admin/environments">Environments</a>
 </li>

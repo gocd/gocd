@@ -14,22 +14,21 @@
  * limitations under the License.
  */
 
-import {MithrilViewComponent} from "jsx/mithril-component";
-
 import {bind} from "classnames/bind";
-import * as m from 'mithril';
-import * as styles from './site_header.scss';
-
-const classnames = bind(styles);
-const NotificationCenter  = require('views/components/notification_center');
-const ServerHealthSummary = require('views/components/server_health_summary/server_health_summary');
-
+import {MithrilViewComponent} from "jsx/mithril-component";
+import * as m from "mithril";
 import SiteMenu from "views/components/site_menu";
+import * as styles from "./site_header.scss";
+
+const classnames          = bind(styles);
+const NotificationCenter  = require("views/components/notification_center");
+const ServerHealthSummary = require("views/components/server_health_summary/server_health_summary");
 
 export interface Attrs {
   isAnonymous: boolean;
   userDisplayName: string;
   canViewTemplates: boolean;
+  showConfigRepos: boolean;
   isGroupAdmin: boolean;
   isUserAdmin: boolean;
   canViewAdminPage: boolean;
@@ -43,6 +42,7 @@ export class SiteHeader extends MithrilViewComponent<Attrs> {
     const isUserAdmin            = vnode.attrs.isUserAdmin;
     const isGroupAdmin           = vnode.attrs.isGroupAdmin;
     const canViewTemplates       = vnode.attrs.canViewTemplates;
+    const showConfigRepos        = vnode.attrs.showConfigRepos;
     const userDisplayName        = vnode.attrs.userDisplayName;
     const isAnonymous            = vnode.attrs.isAnonymous;
 
@@ -81,7 +81,9 @@ export class SiteHeader extends MithrilViewComponent<Attrs> {
                       canViewAdminPage={canViewAdminPage}
                       isUserAdmin={isUserAdmin}
                       isGroupAdmin={isGroupAdmin}
-                      canViewTemplates={canViewTemplates}/>
+                      canViewTemplates={canViewTemplates}
+                      showConfigRepos={showConfigRepos}
+            />
           </div>
 
           <div class={styles.siteHeaderRight}>

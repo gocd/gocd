@@ -16,10 +16,10 @@
 
 import {bind} from "classnames/bind";
 import {MithrilComponent} from "jsx/mithril-component";
-import * as m from 'mithril';
-import * as stream from 'mithril/stream';
-import {Stream} from 'mithril/stream';
-import * as styles from './index.scss';
+import * as m from "mithril";
+import * as stream from "mithril/stream";
+import {Stream} from "mithril/stream";
+import * as styles from "./index.scss";
 
 const classnames = bind(styles);
 
@@ -39,13 +39,19 @@ export class CollapsiblePanel<Header, Actions> extends MithrilComponent<Attrs<He
 
   oninit(this: State, vnode: m.Vnode<Attrs<Header, Actions>, State>) {
     vnode.state.expanded = stream(false);
-    vnode.state.toggle = () => {
+    vnode.state.toggle   = () => {
       vnode.state.expanded(!vnode.state.expanded());
     };
   }
 
   view(vnode: m.Vnode<Attrs<Header, Actions>, State>) {
     const collapsibleClasses = classnames(vnode.state.expanded() && styles.expanded);
+    let actions;
+    if (vnode.attrs.actions) {
+      actions = <div class={styles.actions}>
+        {vnode.attrs.actions}
+      </div>;
+    }
 
     return (
       <div class={classnames(styles.collapse, collapsibleClasses)}>
@@ -55,9 +61,7 @@ export class CollapsiblePanel<Header, Actions> extends MithrilComponent<Attrs<He
           <div class={styles.headerDetails}>
             {vnode.attrs.header}
           </div>
-          <div class={styles.actions}>
-            {vnode.attrs.actions}
-          </div>
+          {actions}
         </div>
 
         <div data-test-id="collapse-body"

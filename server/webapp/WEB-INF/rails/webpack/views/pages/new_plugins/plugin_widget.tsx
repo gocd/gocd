@@ -21,6 +21,7 @@ import * as _ from "lodash";
 import * as m from "mithril";
 import {ExtensionType} from "models/shared/plugin_infos_new/extension_type";
 import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
+import {ButtonIcon} from "views/components/buttons";
 import * as Buttons from "views/components/buttons";
 import {CollapsiblePanel} from "views/components/collapsible_panel";
 import * as Icons from "views/components/icons";
@@ -80,7 +81,7 @@ export class PluginWidget extends MithrilViewComponent<Attrs> {
       statusReportButton = (
         <Buttons.Secondary onclick={this.goToStatusReportPage.bind(this, statusReportPath)}
                            data-test-id="status-report-link"
-                           icon={'asdfd'}
+                           icon={ButtonIcon.DOC}
                            disabled={!isUserAnAdmin}>
           Status Report
         </Buttons.Secondary>);
@@ -130,7 +131,8 @@ export class PluginWidget extends MithrilViewComponent<Attrs> {
     return elasticAgentExtensionInfo && elasticAgentExtensionInfo.capabilities && elasticAgentExtensionInfo.capabilities.supportsStatusReport;
   }
 
-  private goToStatusReportPage(statusReportHref: string): void {
+  private goToStatusReportPage(statusReportHref: string, event: Event): void {
+    event.stopPropagation();
     window.location.href = statusReportHref;
   }
 

@@ -30,10 +30,6 @@ interface Attrs {
 }
 
 class MainPage extends MithrilViewComponent<Attrs> {
-  oninit() {
-    ModalManager.onPageLoad();
-  }
-
   view(vnode: m.Vnode<Attrs>) {
     return (
       <div class={styles.page}>
@@ -108,6 +104,7 @@ export default abstract class Page {
           );
         }
       });
+      ModalManager.onPageLoad();
     });
   }
 }

@@ -22,7 +22,10 @@ import * as styles from "./index.scss";
 
 const classnames = bind(styles);
 
-type ButtonIcon = "foo" | "bar";
+export enum ButtonIcon {
+  ADD,
+  DOC,
+}
 
 export interface Attrs {
   icon?: ButtonIcon;
@@ -48,12 +51,22 @@ class Button extends MithrilViewComponent<Attrs> {
               className={classnames(
                 styles.button,
                 {[styles.btnSmall]: isSmall},
-                vnode.attrs.icon,
+                Button.iconClass(vnode.attrs.icon),
                 this.type
               )}>
         {vnode.children}
       </button>
     );
+  }
+
+  private static iconClass(icon?: ButtonIcon) {
+    switch (icon) {
+      case ButtonIcon.ADD:
+        return styles.iconAdd;
+      case ButtonIcon.DOC:
+        return styles.iconDoc;
+    }
+    return "";
   }
 }
 

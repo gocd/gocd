@@ -1,0 +1,15 @@
+{
+  "openjdk": {
+    "moduleName": "openjdk",
+    "moduleVersion": "11",
+    "moduleUrls": [
+      "https://jdk.java.net/11/"
+    ],
+    "moduleLicenses": [
+      {
+        "moduleLicense": "GPLv2 with the Classpath Exception",
+        "moduleLicenseUrl": "https://openjdk.java.net/legal/gplv2+ce.html"
+      }
+    ]
+  }
+}

@@ -39,6 +39,7 @@ class LicenseReport {
     'The H2 License, Version 1.0',
     'The OpenSymphony Software License 1.1',
     '(OFL-1.1 AND MIT)',
+    "GPLv2 with the Classpath Exception"
   ]
 
   private static Set<String> ALLOWED_LICENSES = LICENSE_EXCEPTIONS + [
@@ -120,6 +121,10 @@ class LicenseReport {
           }
 
           new JsonSlurper().parse(LicenseReport.class.getResourceAsStream("/license-for-javascript-not-in-yarn.json"), "utf-8").each { String moduleName, Map<String, Object> moduleLicenseData ->
+            renderModuleData(markup, counter.incrementAndGet(), moduleName, moduleLicenseData)
+          }
+
+          new JsonSlurper().parse(LicenseReport.class.getResourceAsStream("/license-for-misc-things.json"), "utf-8").each { String moduleName, Map<String, Object> moduleLicenseData ->
             renderModuleData(markup, counter.incrementAndGet(), moduleName, moduleLicenseData)
           }
 

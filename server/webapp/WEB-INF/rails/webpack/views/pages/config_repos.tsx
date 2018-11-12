@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import {MithrilComponent} from "jsx/mithril-component";
 import * as m from "mithril";
 import * as stream from "mithril/stream";
 import {ConfigReposCRUD} from "models/config_repos/config_repos_crud";
@@ -28,19 +27,22 @@ import {HeaderPanel} from "views/components/header_panel";
 import {DeleteConfirmModal} from "views/components/modal/delete_confirm_modal";
 import {ConfigReposWidget, State} from "views/pages/config_repos/config_repos_widget";
 import {EditConfigRepoModal, NewConfigRepoModal} from "views/pages/config_repos/modals";
+import {Page} from "views/pages/page";
 
-export class ConfigReposPage extends MithrilComponent<null, State> {
+export class ConfigReposPage extends Page<null, State> {
+
   oninit(vnode: m.Vnode<null, State>) {
     vnode.state.configRepos = stream();
     vnode.state.pluginInfos = stream();
-    this.reload(vnode.state);
     let timeoutID: number;
 
+    super.oninit(vnode);
+
     const setMessage = (msg: m.Children, type: MessageType) => {
-      vnode.state.message = msg;
+      vnode.state.message     = msg;
       vnode.state.messageType = type;
-      timeoutID           = window.setTimeout(vnode.state.clearMessage.bind(vnode.state), 10000);
-      this.reload(vnode.state);
+      timeoutID               = window.setTimeout(vnode.state.clearMessage.bind(vnode.state), 10000);
+      this.fetchData(vnode);
     };
 
     vnode.state.onError = (msg: m.Children) => {
@@ -52,7 +54,7 @@ export class ConfigReposPage extends MithrilComponent<null, State> {
     };
 
     vnode.state.clearMessage = () => {
-      vnode.state.message        = null;
+      vnode.state.message = null;
     };
 
     vnode.state.onAdd = (e: MouseEvent) => {
@@ -106,28 +108,35 @@ export class ConfigReposPage extends MithrilComponent<null, State> {
     };
   }
 
-  view(vnode: m.Vnode<null, State>) {
-    const headerButtons = [
-      <Buttons.Primary onclick={vnode.state.onAdd.bind(this)}>Add</Buttons.Primary>
-    ];
-
-    return <main class="main-container">
-      <HeaderPanel title="Config repositories" buttons={headerButtons}/>
+  componentToDisplay(vnode: m.Vnode<null, State>): JSX.Element | undefined {
+    return <div>
       <FlashMessage type={vnode.state.messageType} message={vnode.state.message}/>
       <ConfigReposWidget objects={vnode.state.configRepos}
                          pluginInfos={vnode.state.pluginInfos}
                          onEdit={vnode.state.onEdit.bind(this)}
                          onDelete={vnode.state.onDelete.bind(this)}
       />
-    </main>;
+    </div>;
   }
 
-  private reload(state: State) {
+  headerPanel(vnode: m.Vnode<null, State>) {
+    const headerButtons = [
+      <Buttons.Primary onclick={vnode.state.onAdd.bind(this)}>Add</Buttons.Primary>
+    ];
+    return <HeaderPanel title="Config repositories" buttons={headerButtons}/>;
+  }
+
+  fetchData(vnode: m.Vnode<null, State>): Promise<any> {
+    const state = vnode.state;
     state.configRepos(null);
 
-    Promise.all([PluginInfoCRUD.all({type: ExtensionType.CONFIG_REPO}), ConfigReposCRUD.all()]).then((args) => {
+    return Promise.all([PluginInfoCRUD.all({type: ExtensionType.CONFIG_REPO}), ConfigReposCRUD.all()]).then((args) => {
       state.pluginInfos(args[0]);
       state.configRepos(args[1]);
     });
+  }
+
+  pageName(): string {
+    return "Config repositories";
   }
 }

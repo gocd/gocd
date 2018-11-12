@@ -80,11 +80,8 @@ public class ConfigReposConfigTest {
         // so there cannot be one repository parsed by 2 plugins.
         // This also does not seem like practical use case anyway
         repos.validate(null);
-        assertThat(repo1.errors().on(ConfigRepoConfig.UNIQUE_REPO),
-                is("You have defined multiple configuration repositories with the same repository - http://git"));
-        assertThat(repo2.errors().on(ConfigRepoConfig.UNIQUE_REPO),
-                is("You have defined multiple configuration repositories with the same repository - http://git"));
-
+        assertThat(repos.errors().on("material"),
+                is("You have defined multiple configuration repositories with the same repository."));
     }
 
     @Test
@@ -94,17 +91,8 @@ public class ConfigReposConfigTest {
         repos.add(repo1);
         repos.add(repo2);
         repos.validate(null);
-        assertThat(repo2.errors().on("unique_id"),
-                is("You have defined multiple configuration repositories with the same id - id"));
-    }
-
-    @Test
-    public void shouldErrorWhenEmptyIdIsProvided(){
-        ConfigRepoConfig repo1 = new ConfigRepoConfig(new GitMaterialConfig("http://git1"), "myplugin", "  ");
-        repos.add(repo1);
-        repos.validate(null);
-        assertThat(repo1.errors().on("id"),
-                is("Invalid config-repo id"));
+        assertThat(repos.errors().on("id"),
+                is("You have defined multiple configuration repositories with the same id."));
     }
 
     @Test

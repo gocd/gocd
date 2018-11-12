@@ -56,7 +56,7 @@ public interface MaterialConfig extends Serializable, Validatable {
 
     void setAutoUpdate(boolean autoUpdate);
 
-    void validateTree(PipelineConfigSaveValidationContext validationContext);
+    boolean validateTree(ValidationContext validationContext);
 
     void validateNameUniqueness(Map<CaseInsensitiveString, AbstractMaterialConfig> map);
 

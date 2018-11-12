@@ -139,8 +139,7 @@ public class MaterialConfigs extends BaseCollection<MaterialConfig> implements V
         boolean isValid = errors().isEmpty();
 
         for (MaterialConfig materialConfig : this) {
-            materialConfig.validateTree(validationContext);
-            isValid = materialConfig.errors().isEmpty() && isValid;
+            isValid = materialConfig.validateTree(validationContext) && isValid;
         }
         return isValid;
     }

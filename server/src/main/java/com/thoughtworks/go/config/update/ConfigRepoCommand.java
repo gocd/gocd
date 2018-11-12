@@ -19,9 +19,8 @@ package com.thoughtworks.go.config.update;
 import com.thoughtworks.go.config.BasicCruiseConfig;
 import com.thoughtworks.go.config.ConfigSaveValidationContext;
 import com.thoughtworks.go.config.CruiseConfig;
+import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
-import com.thoughtworks.go.config.remote.ConfigReposConfig;
-import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.SecurityService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
@@ -29,54 +28,49 @@ import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import static com.thoughtworks.go.i18n.LocalizedMessage.forbiddenToEdit;
 import static com.thoughtworks.go.serverhealth.HealthStateType.forbidden;
 
-public class ConfigRepoCommand {
+abstract class ConfigRepoCommand implements EntityConfigUpdateCommand<ConfigRepoConfig> {
 
     private final SecurityService securityService;
-    private ConfigRepoConfig preprocessedconfigRepo;
+    private ConfigRepoConfig preprocessedConfigRepo;
     private ConfigRepoConfig configRepo;
-    private final String actionFailed;
     private final Username username;
     private final HttpLocalizedOperationResult result;
 
-    public ConfigRepoCommand(SecurityService securityService, ConfigRepoConfig configRepo, String actionFailed, Username username, HttpLocalizedOperationResult result) {
+    public ConfigRepoCommand(SecurityService securityService, ConfigRepoConfig configRepo, Username username, HttpLocalizedOperationResult result) {
         this.securityService = securityService;
         this.configRepo = configRepo;
-        this.actionFailed = actionFailed;
         this.username = username;
         this.result = result;
     }
 
-
+    @Override
     public boolean isValid(CruiseConfig preprocessedConfig) {
-        ConfigReposConfig configRepos = preprocessedConfig.getConfigRepos();
-        preprocessedconfigRepo = preprocessedConfig.getConfigRepos().getConfigRepo(this.configRepo.getId());
+        preprocessedConfigRepo = preprocessedConfig.getConfigRepos().getConfigRepo(this.configRepo.getId());
 
-
-        configRepos.validate(new ConfigSaveValidationContext(preprocessedConfig));
-        preprocessedconfigRepo.validate(new ConfigSaveValidationContext(preprocessedConfig));
-
-        if (!configRepos.getAllErrors().isEmpty()) {
-            String errors = configRepos.getAllErrors().asString();
-            result.unprocessableEntity(LocalizedMessage.composite(actionFailed, errors));
+        if (!preprocessedConfigRepo.validateTree(new ConfigSaveValidationContext(preprocessedConfig))) {
+            BasicCruiseConfig.copyErrors(preprocessedConfigRepo, configRepo);
             return false;
         }
 
-        return this.configRepo.errors().isEmpty();
+        return true;
     }
 
+    @Override
     public void clearErrors() {
-        BasicCruiseConfig.clearErrors(preprocessedconfigRepo);
+        BasicCruiseConfig.clearErrors(preprocessedConfigRepo);
     }
 
+    @Override
     public ConfigRepoConfig getPreprocessedEntityConfig() {
-        return preprocessedconfigRepo;
+        return preprocessedConfigRepo;
     }
 
+    @Override
     public boolean canContinue(CruiseConfig cruiseConfig) {
         return isUserAuthorized();
     }
 
-    public boolean isUserAuthorized() {
+    private boolean isUserAuthorized() {
         if (!securityService.isUserAdmin(username)) {
             result.forbidden(forbiddenToEdit(), forbidden());
             return false;

@@ -25,11 +25,24 @@ $key-value-pair-width: 150px;
 }
 
 .key {
-  font-size:     13px;
-  font-weight:   400;
-  margin-bottom: 0;
-  width:         $key-value-pair-width;
-  word-break:    break-all;
+  font-size:   13px;
+  font-weight: 400;
+  margin:      0 10px 0 0;
+
+  position:    relative;
+  @media(max-width: $screen-md-min) {
+    &:after {
+      content:     ":";
+      position:    absolute;
+      top:         0;
+      right:       -5px;
+      font-weight: 600;
+    }
+  }
+  @media(min-width: $screen-md) {
+    width: $key-value-pair-width;
+    //word-break: break-all;
+  }
 }
 
 .value {
@@ -40,28 +53,30 @@ $key-value-pair-width: 150px;
   @media(min-width: $screen-md) {
     padding-left: 15px;
     margin-left:  0;
-    &:before {
+    &:after {
       content:     ":";
       position:    absolute;
+      top:         0;
       left:        5px;
       font-weight: 600;
     }
   }
   pre {
-    margin:     0;
-    word-break: break-all;
+    margin:      0;
+    white-space: pre-wrap;
+    word-break:  break-all;
+    word-wrap:   break-word;
   }
 }
 
 .key-value-item {
-  display:        flex;
-  padding:        5px;
-  border-bottom:  1px dashed $border-color;
-  flex-direction: column;
-  align-content:  center;
-  flex-wrap:      wrap;
+  display:       flex;
+  padding:       5px;
+  border-bottom: 1px dashed $border-color;
+  align-content: center;
   @media(min-width: $screen-md) {
     flex-direction: row;
+    flex-wrap:      nowrap;
   }
   &:last-child {
     border: none;
@@ -70,13 +85,18 @@ $key-value-pair-width: 150px;
 
 //inline key value pair
 .key-value-pair-inline {
-  display:      flex;
-  margin-right: 20px;
-  flex-wrap:    wrap;
+  display:       flex;
+  flex-wrap:     wrap;
+  margin-bottom: 0;
+  //@media (min-width: $screen-xl) {
+  //margin: 0 50px 0 0;
+  //}
 }
 
 .key-value-inline-item {
-  margin-right: 50px;
+  margin-right: 20px;
+  border:       none;
+  padding:      0;
   .key {
     width: auto;
   }

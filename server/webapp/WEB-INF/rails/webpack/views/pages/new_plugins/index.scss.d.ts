@@ -2,3 +2,8 @@
 // Please do not change this file!
 export const pluginHeader: string;
 export const pluginIcon: string;
+export const pluginName: string;
+export const unknownPluginIcon: string;
+export const pluginsPage: string;
+export const keyValuePairInline: string;
+export const pluginsList: string;

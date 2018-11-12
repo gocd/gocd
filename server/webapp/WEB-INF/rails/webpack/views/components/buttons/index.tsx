@@ -22,7 +22,10 @@ import * as styles from "./index.scss";
 
 const classnames = bind(styles);
 
+type ButtonIcon = "foo" | "bar";
+
 export interface Attrs {
+  icon?: ButtonIcon;
   small?: boolean;
   onclick?: () => void;
   disabled?: boolean;
@@ -42,7 +45,12 @@ class Button extends MithrilViewComponent<Attrs> {
     return (
       <button {...vnode.attrs}
               onclick={vnode.attrs.onclick}
-              className={classnames(styles.button, {[styles.btnSmall]: isSmall}, this.type)}>
+              className={classnames(
+                styles.button,
+                {[styles.btnSmall]: isSmall},
+                vnode.attrs.icon,
+                this.type
+              )}>
         {vnode.children}
       </button>
     );

@@ -21,6 +21,7 @@ import {MithrilComponent} from "jsx/mithril-component";
 import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
 import {FlashMessage, MessageType} from "views/components/flash_message";
 import {Spinner} from "views/components/spinner";
+import * as styles from "views/pages/partials/site_header.scss";
 import {PluginSettingsModal} from "./plugin_settings_modal";
 import {PluginWidget} from "./plugin_widget";
 

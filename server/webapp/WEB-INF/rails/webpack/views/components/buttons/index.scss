@@ -90,3 +90,16 @@ $btn-danger: $go-danger;
   @include button($background-color: transparent);
   color:      $text-color;
 }
+
+
+.icon-add {
+  border: 10px solid $secondary-bg;
+}
+
+
+.icon-doc {
+  @include icon-before($type: $fa-var-file);
+  &:before {
+    margin: 5px 10px 5px -5px;
+  }
+}

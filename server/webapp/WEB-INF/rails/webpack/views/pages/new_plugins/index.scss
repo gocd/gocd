@@ -16,19 +16,62 @@
 @import "../../global/common";
 
 $collapse-icon-size: 30px;
+$icon-light-color: #e6e6e6;
 
 .plugin-header {
   display:     flex;
-  float:       left;
   align-items: center;
 }
 
 .plugin-icon {
-  display:        inline-block;
+  display:        none;
   vertical-align: middle;
-  float:          left;
+  margin:         0 15px 0 -15px;
   img {
     width:  $collapse-icon-size;
     height: $collapse-icon-size;
   }
+  @media (min-width: $screen-md) {
+    display: inline-block;
+  }
+}
+
+.plugin-name {
+  font-weight:  600;
+  font-size:    13px;
+  margin-right: 50px;
+  @media (min-width: $screen-md) {
+    font-size: 12px;
+  }
+  @media (min-width: $screen-lg) {
+    font-size: 15px;
+  }
+
+}
+
+.unknown-plugin-icon {
+  display: block;
+  &:before {
+    font-family:            'FontAwesome';
+    content:                "\f128";
+    font-weight:            normal;
+    font-style:             normal;
+    display:                inline-block;
+    text-decoration:        inherit;
+    line-height:            1em;
+    margin:                 5px;
+    font-size:              30px;
+    color:                  $icon-light-color;
+    -webkit-font-smoothing: antialiased;
+  }
+}
+
+.plugins-page {
+  .key-value-pair-inline {
+    margin-top: 20px;
+  }
+}
+
+.plugins-list {
+  display: block;
 }

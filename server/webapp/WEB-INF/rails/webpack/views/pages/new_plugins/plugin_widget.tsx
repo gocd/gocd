@@ -44,7 +44,7 @@ class PluginHeaderWidget extends MithrilViewComponent<PluginHeaderAttrs> {
         </span>
       ),
       (
-        <div data-test-id="plugin-name">{vnode.attrs.pluginName}</div>
+        <div data-test-id="plugin-name" class={styles.pluginName} >{vnode.attrs.pluginName}</div>
       ),
       (
         <KeyValuePair inline={true} data={
@@ -80,6 +80,7 @@ export class PluginWidget extends MithrilViewComponent<Attrs> {
       statusReportButton = (
         <Buttons.Secondary onclick={this.goToStatusReportPage.bind(this, statusReportPath)}
                            data-test-id="status-report-link"
+                           icon={'asdfd'}
                            disabled={!isUserAnAdmin}>
           Status Report
         </Buttons.Secondary>);
@@ -113,7 +114,7 @@ export class PluginWidget extends MithrilViewComponent<Attrs> {
     if (pluginInfo.imageUrl) {
       return <img src={pluginInfo.imageUrl}/>;
     }
-    return <span class="unknown-plugin-icon"/>;
+    return <span class={styles.unknownPluginIcon}/>;
   }
 
   private getAuthorInfo(pluginInfo: PluginInfo<any>): JSX.Element {

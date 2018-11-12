@@ -71,8 +71,6 @@ export default abstract class Page {
       UsageDataReporter.report();
 
       const body: Element = document.querySelector("body") as Element;
-      const mountPoint    = document.createElement("div");
-      body.appendChild(mountPoint);
 
       const copyrightYear    = body.getAttribute("data-version-copyright-year") as string;
       const goVersion        = body.getAttribute("data-version-go-version") as string;
@@ -101,7 +99,7 @@ export default abstract class Page {
         isAnonymous
       };
 
-      m.mount(mountPoint, {
+      m.mount(body, {
         view() {
           return (
             <MainPage headerData={headerData} footerData={footerData}>

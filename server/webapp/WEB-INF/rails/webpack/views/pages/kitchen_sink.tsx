@@ -55,6 +55,8 @@ export class KitchenSink extends MithrilViewComponent<null> {
         <Buttons.Primary onclick={() => {this.createModal(Size.large); }}>Open Large Modal</Buttons.Primary>
 
         <h3>Icons</h3>
+        <Icons.Settings onclick={() => alert("You pressed settings button!")}/> <br/>
+      <p>
         <ButtonGroup>
           <Icons.Settings onclick={() => alert("You pressed settings button!")}/>
           <Icons.Analytics onclick={() => alert("You pressed analytics button!")}/>
@@ -64,6 +66,8 @@ export class KitchenSink extends MithrilViewComponent<null> {
           <Icons.Lock onclick={() => alert("You pressed lock button!")}/>
           <Icons.Close onclick={() => alert("You pressed close button!")}/>
         </ButtonGroup>
+      </p>
+        <p>
         <ButtonGroup>
           <Icons.Settings disabled={true}/>
           <Icons.Analytics disabled={true}/>
@@ -72,8 +76,8 @@ export class KitchenSink extends MithrilViewComponent<null> {
           <Icons.Delete disabled={true}/>
           <Icons.Lock disabled={true}/>
           <Icons.Close disabled={true}/>
-
         </ButtonGroup>
+        </p>
         <hr/>
 
         <br/>

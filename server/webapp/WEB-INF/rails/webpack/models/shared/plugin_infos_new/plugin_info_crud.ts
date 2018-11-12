@@ -32,7 +32,7 @@ export class PluginInfoCRUD {
     return ApiRequestBuilder.GET(Routes.apiv4AdminPluginInfoIndexPath(options), this.API_VERSION_HEADER)
       .then((xhr: XMLHttpRequest) => {
         const data = JSON.parse(xhr.responseText);
-        return data._embedded.plugin_info.map((pluginInfo: any) => PluginInfo.fromJSON(pluginInfo, data._links));
+        return data._embedded.plugin_info.map((pluginInfo: any) => PluginInfo.fromJSON(pluginInfo, pluginInfo._links));
       });
   }
 }

@@ -26,14 +26,14 @@ const SystemNotificationsWidget = {
     this.systemNotifications = vnode.attrs.systemNotifications;
     this.markAsRead          = function (notification) {
       notification.markAsRead();
-      ctrl.systemNotifications().removeSystemNotification((e) => {
-        return notification.id() === e.id();
+      ctrl.systemNotifications().remove((e) => {
+        return notification.id === e.id;
       });
       m.redraw();
     };
   },
   view(vnode) {
-    if (vnode.state.systemNotifications().countSystemNotification() === 0) {
+    if (vnode.state.systemNotifications().count() === 0) {
       return (<div/>);
     }
     else {
@@ -43,7 +43,7 @@ const SystemNotificationsWidget = {
           <div class="hover-container">
             <div class="notification-hover">
               {
-                vnode.state.systemNotifications().mapSystemNotifications((notification) => {
+                vnode.state.systemNotifications().map((notification) => {
                   return (
                     <SystemNotificationWidget
                       notification={notification}

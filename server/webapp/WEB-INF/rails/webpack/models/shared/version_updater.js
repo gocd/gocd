@@ -18,7 +18,7 @@ const $        = require('jquery');
 const _        = require('lodash');
 const mrequest = require('helpers/mrequest');
 const Routes   = require('gen/js-routes');
-const SystemNotifications = require('models/notifications/system_notifications');
+const SystemNotifications = require('models/notifications/system_notifications').SystemNotifications;
 
 const VersionUpdater = function () {
   this.update = () => {

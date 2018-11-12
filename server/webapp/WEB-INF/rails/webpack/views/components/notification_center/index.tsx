@@ -14,20 +14,17 @@
  * limitations under the License.
  */
 
-const m                         = require('mithril');
-const Stream                    = require('mithril/stream');
-const SystemNotificationsWidget = require('./system_notifications_widget');
-const SystemNotifications       = require('models/notifications/system_notifications');
-const DataSharingNotification   = require('models/notifications/data_sharing_notification');
-const AjaxPoller                = require('helpers/ajax_poller').AjaxPoller;
-
+import {AjaxPoller} from "helpers/ajax_poller";
+import * as m from "mithril";
+import * as Stream from "mithril/stream";
+import {DataSharingNotification} from "models/notifications/data_sharing_notification";
+import {SystemNotifications} from "models/notifications/system_notifications";
+import {SystemNotificationsWidget} from "views/components/notification_center/system_notifications_widget";
 
 const systemNotifications = Stream(new SystemNotifications());
 
 function createRepeater() {
-  return new AjaxPoller(() => SystemNotifications.all()
-    .then(redraw)
-    .always());
+  return new AjaxPoller(() => SystemNotifications.all().then(redraw));
 }
 
 const repeater = Stream(createRepeater());
@@ -45,8 +42,8 @@ const NotificationCenter = {
   }
 };
 
-const redraw = (data) => {
-  systemNotifications(new SystemNotifications(data.filterSystemNotification((n) => n.read() === false)));
+const redraw = (data: SystemNotifications) => {
+  systemNotifications(new SystemNotifications(data.filter((n) => n.read === false)));
   m.redraw();
 };
 

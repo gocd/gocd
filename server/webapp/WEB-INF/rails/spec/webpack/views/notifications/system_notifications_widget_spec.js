@@ -23,7 +23,7 @@ describe("SystemNotificationsWidget", () => {
   require('jasmine-ajax');
 
   const SystemNotificationsWidget = require('views/notifications/system_notifications_widget');
-  const SystemNotifications = require('models/notifications/system_notifications');
+  const SystemNotifications       = require('models/notifications/system_notifications').SystemNotifications;
 
   let $root, root;
   beforeEach(() => {
@@ -63,19 +63,19 @@ describe("SystemNotificationsWidget", () => {
   it("should display notification bell and the notifications", () => {
     const notifications = [
       {
-        "id": "id1",
-        "message": "message 1.",
-        "read": false,
-        "type": "UpdateCheck",
-        "link": "link_1",
+        "id":       "id1",
+        "message":  "message 1.",
+        "read":     false,
+        "type":     "UpdateCheck",
+        "link":     "link_1",
         "linkText": "read more"
       },
       {
-        "id": "id2",
-        "message": "message 2.",
-        "read": false,
-        "type": "SomethingOfImportance",
-        "link": "link_2",
+        "id":       "id2",
+        "message":  "message 2.",
+        "read":     false,
+        "type":     "SomethingOfImportance",
+        "link":     "link_2",
         "linkText": "read more"
       }
     ];
@@ -101,19 +101,19 @@ describe("SystemNotificationsWidget", () => {
   it("should mark a notification as read and stop displaying it when user marks a notification as read", () => {
     const notifications = [
       {
-        "id": "id1",
-        "message": "message 1.",
-        "read": false,
-        "type": "UpdateCheck",
-        "link": "link_1",
+        "id":       "id1",
+        "message":  "message 1.",
+        "read":     false,
+        "type":     "UpdateCheck",
+        "link":     "link_1",
         "linkText": "read more"
       },
       {
-        "id": "id2",
-        "message": "message 2.",
-        "read": false,
-        "type": "SomethingOfImportance",
-        "link": "link_2",
+        "id":       "id2",
+        "message":  "message 2.",
+        "read":     false,
+        "type":     "SomethingOfImportance",
+        "link":     "link_2",
         "linkText": "read more"
       }
     ];
@@ -129,14 +129,14 @@ describe("SystemNotificationsWidget", () => {
     expect(allNotifications.length).toBe(1);
     expect(allNotifications.eq(0)).toContainText("message 2. read more");
 
-    expect(systemNotifications().findSystemNotification((m) => {
-      return m.id() === "id1";
+    expect(systemNotifications().find((m) => {
+      return m.id === "id1";
     })).toBeUndefined();
-    const remainingNofication = systemNotifications().findSystemNotification((m) => {
-      return m.id() === "id2";
+    const remainingNofication = systemNotifications().find((m) => {
+      return m.id === "id2";
     });
     expect(remainingNofication).not.toBeUndefined();
-    expect(remainingNofication.message()).toBe("message 2.");
-    expect(remainingNofication.read()).toBe(false);
+    expect(remainingNofication.message).toBe("message 2.");
+    expect(remainingNofication.read).toBe(false);
   });
 });

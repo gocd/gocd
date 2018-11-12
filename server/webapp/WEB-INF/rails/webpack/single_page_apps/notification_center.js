@@ -18,36 +18,34 @@ const $                         = require('jquery');
 const m                         = require('mithril');
 const Stream                    = require('mithril/stream');
 const SystemNotificationsWidget = require('views/notifications/system_notifications_widget');
-const SystemNotifications       = require('models/notifications/system_notifications');
-const DataSharingNotification   = require('models/notifications/data_sharing_notification');
+
+const SystemNotifications       = require('models/notifications/system_notifications').SystemNotifications;
+const DataSharingNotification   = require('models/notifications/data_sharing_notification').DataSharingNotification;
 const AjaxPoller                = require('helpers/ajax_poller').AjaxPoller;
 
 require('foundation-sites');
 
 $(() => {
-    DataSharingNotification.createIfNotPresent();
-    const systemNotifications           = Stream(new SystemNotifications());
-    Promise.all([SystemNotifications.all()]).then(() => {
-        m.mount($("#system-notifications").get(0), {
-            view() {
-                return (<SystemNotificationsWidget systemNotifications={systemNotifications} />);
-            }
-        });
-        $(document).foundation();
+  DataSharingNotification.createIfNotPresent();
+  const systemNotifications = Stream(new SystemNotifications());
+  Promise.all([SystemNotifications.all()]).then(() => {
+    m.mount($("#system-notifications").get(0), {
+      view() {
+        return (<SystemNotificationsWidget systemNotifications={systemNotifications}/>);
+      }
     });
+    $(document).foundation();
+  });
 
-    const redraw = (data) => {
-        systemNotifications(new SystemNotifications(data.filterSystemNotification((n) => n.read() === false)));
-        m.redraw();
-    };
+  const redraw = (data) => {
+    systemNotifications(new SystemNotifications(data.filter((n) => n.read === false)));
+    m.redraw();
+  };
 
-    function createRepeater() {
-        return new AjaxPoller(() => SystemNotifications.all()
-            .then(redraw)
-            .always());
-    }
+  function createRepeater() {
+    return new AjaxPoller(() => SystemNotifications.all().then(redraw));
+  }
 
-    const repeater          = Stream(createRepeater());
-    repeater().start();
-
+  const repeater = Stream(createRepeater());
+  repeater().start();
 });

@@ -63,12 +63,14 @@ class LicenseReport {
   private final AtomicInteger counter
   private final File yarnLicenseReport
   private final File reportDir
+  private final File rubygemsLicenseReport
 
-  LicenseReport(Project project, File reportDir, Map<String, Map<String, Object>> licensesForPackagedJarDependencies, File yarnLicenseReport) {
+  LicenseReport(Project project, File reportDir, Map<String, Map<String, Object>> licensesForPackagedJarDependencies, File yarnLicenseReport, File rubygemsLicenseReport) {
     this.licensesForPackagedJarDependencies = licensesForPackagedJarDependencies
     this.reportDir = reportDir
     this.project = project
     this.yarnLicenseReport = yarnLicenseReport
+    this.rubygemsLicenseReport = rubygemsLicenseReport
     this.counter = new AtomicInteger(0)
   }
 
@@ -118,6 +120,10 @@ class LicenseReport {
           }
 
           new JsonSlurper().parse(LicenseReport.class.getResourceAsStream("/license-for-javascript-not-in-yarn.json"), "utf-8").each { String moduleName, Map<String, Object> moduleLicenseData ->
+            renderModuleData(markup, counter.incrementAndGet(), moduleName, moduleLicenseData)
+          }
+
+          new JsonSlurper().parse(this.rubygemsLicenseReport, "utf-8").each { String moduleName, Map<String, Object> moduleLicenseData ->
             renderModuleData(markup, counter.incrementAndGet(), moduleName, moduleLicenseData)
           }
 

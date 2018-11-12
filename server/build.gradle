@@ -213,14 +213,14 @@ project.ext.jrubyexec = { Closure<JavaExecSpec> cl ->
 
 
 def props = [
-  'go.enforce.server.immutability'  : 'N',
-  'rails.use.compressed.js'         : 'false',
-  'go.database.provider'            : 'com.thoughtworks.go.server.database.H2Database',
-  'db.host'                         : 'localhost',
-  'db.user'                         : 'sa',
-  'db.password'                     : '',
-  'db.name'                         : 'cruise',
-  'db.port'                         : ''
+  'go.enforce.server.immutability': 'N',
+  'rails.use.compressed.js'       : 'false',
+  'go.database.provider'          : 'com.thoughtworks.go.server.database.H2Database',
+  'db.host'                       : 'localhost',
+  'db.user'                       : 'sa',
+  'db.password'                   : '',
+  'db.name'                       : 'cruise',
+  'db.port'                       : ''
 ]
 props.putAll(project.hasProperty('testSystemProperties') ? project.testSystemProperties : [:])
 project.ext.testSystemProperties = props
@@ -508,6 +508,27 @@ task findGemsToNotPack {
         'BUNDLE_GEMFILE': file("${project.railsRoot}/Gemfile")
       ]
       args = ['-S', 'rake', '--trace', '--rakefile', 'find-gems-to-package.rake']
+    }
+  }
+}
+
+task generateRubygemsLicenseReport {
+  dependsOn ':server:initializeRailsGems'
+
+  inputs.file("${project.railsRoot}/Gemfile")
+  inputs.file("${project.railsRoot}/Gemfile.lock")
+  inputs.file("rubygems-license-report.rake")
+  ext.licenseReportFile = file("${project.buildDir}/rubygems-license.json")
+  outputs.file(licenseReportFile)
+  outputs.cacheIf { true }
+
+  doFirst {
+    project.jrubyexec {
+      environment += [
+        'OUTPUT_FILE'   : licenseReportFile,
+        'BUNDLE_GEMFILE': file("${project.railsRoot}/Gemfile")
+      ]
+      args = ['-S', 'rake', '--trace', '--rakefile', 'rubygems-license-report.rake']
     }
   }
 }
@@ -1186,7 +1207,10 @@ task licenseReportAggregate {
 
     project.delete(licenseReportAggregateOutputDir)
     project.mkdir(licenseReportAggregateOutputDir)
-    new LicenseReport(project, licenseReportAggregateOutputDir, licensesForPackagedJarDependencies, compileAssetsWebpackProd.ext.licenseReportFile).generate()
+
+
+    def licenseReport = new LicenseReport(project, licenseReportAggregateOutputDir, licensesForPackagedJarDependencies, compileAssetsWebpackProd.ext.licenseReportFile, generateRubygemsLicenseReport.ext.licenseReportFile)
+    licenseReport.generate()
   }
 }
 
@@ -1195,7 +1219,7 @@ apply from: 'jasmine.gradle'
 apply from: 'helpers.gradle'
 apply from: 'lint.gradle'
 
-generateLicenseReport.dependsOn(compileAssetsWebpackProd)
+generateLicenseReport.dependsOn(compileAssetsWebpackProd, generateRubygemsLicenseReport)
 
 task verifyJar {
   dependsOn verifyWar

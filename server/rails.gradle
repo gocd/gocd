@@ -177,7 +177,7 @@ task compileAssetsDev(type: YarnRunTask) {
   onlyIf { !project.hasProperty('fastBuild') }
 
   ext.licenseReportFile = project.file("${project.buildDir}/reports/yarn-license/license-report.json")
-  outputs.file(ext.licenseReportFile)
+  outputs.dir(ext.licenseReportFile.parentFile)
 
   workingDir = project.railsRoot
   destinationDir = project.file("${project.railsRoot}/public/assets/webpack")

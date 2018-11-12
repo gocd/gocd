@@ -16,6 +16,7 @@
 
 import * as m from "mithril";
 import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
+import * as styles from "../index.scss";
 import {PluginsWidget} from "../plugins_widget";
 
 import * as collapsiblePanelStyles from "../../../components/collapsible_panel/index.scss";
@@ -24,7 +25,7 @@ import * as keyValuePairStyles from "../../../components/key_value_pair/index.sc
 describe("New Plugins Widget", () => {
   const simulateEvent = require("simulate-event");
 
-  const pluginInfos = [PluginInfo.fromJSON(getEAPluginInfo(), undefined),
+  const pluginInfos = [PluginInfo.fromJSON(getEAPluginInfo(), getEAPluginInfo()._links),
     PluginInfo.fromJSON(getNotificationPluginInfo(), undefined)];
 
   let $root: any, root: any;
@@ -42,10 +43,11 @@ describe("New Plugins Widget", () => {
     expect(find('plugins-list').get(0).children).toHaveLength(2);
   });
 
-  it("should render plugin name", () => {
+  it("should render plugin name and image", () => {
     expect(find('plugins-list').get(0).children).toHaveLength(2);
 
     expect(find('plugin-name').get(0)).toContainText(getEAPluginInfo().about.name);
+    expect($root.find(`.${styles.pluginIcon} img`).get(0)).toHaveAttr("src", getEAPluginInfo()._links.image.href);
     expect(find('plugin-name').get(1)).toContainText(getNotificationPluginInfo().about.name);
   });
 
@@ -185,6 +187,11 @@ describe("New Plugins Widget", () => {
 
   function getEAPluginInfo() {
     return {
+      _links: {
+        image: {
+          href: "some-image-link"
+        }
+      },
       id:         "cd.go.contrib.elastic-agent.docker",
       status:     {
         state: "active"

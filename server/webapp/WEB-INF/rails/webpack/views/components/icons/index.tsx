@@ -32,64 +32,68 @@ export interface Attrs extends HTMLAttributes {
 
 class Icon extends MithrilViewComponent<Attrs> {
   private readonly name: string;
+  private readonly title: string;
 
-  protected constructor(name: string) {
+  protected constructor(name: string, title: string) {
     super();
     this.name = name;
+    this.title = title;
   }
 
   view(vnode: m.Vnode<Attrs>) {
     return (
-      <i {...vnode.attrs} className={classnames(this.name, {disabled: vnode.attrs.disabled})}/>
+      <button title={this.title} className={(classnames(styles.btnIcon, {disabled: vnode.attrs.disabled}))}>
+        <i {...vnode.attrs} className={classnames(this.name)}/>
+      </button>
     );
   }
 }
 
 export class Settings extends Icon {
   constructor() {
-    super(styles.settings);
+    super(styles.settings, "Settings");
   }
 }
 
 export class Analytics extends Icon {
   constructor() {
-    super(styles.analytics);
+    super(styles.analytics, "Analytics");
   }
 }
 
 export class Edit extends Icon {
   constructor() {
-    super(styles.edit);
+    super(styles.edit, "Edit");
   }
 }
 
 export class Clone extends Icon {
   constructor() {
-    super(styles.clone);
+    super(styles.clone, "Clone");
   }
 }
 
 export class Delete extends Icon {
   constructor() {
-    super(styles.remove);
+    super(styles.remove, "Delete");
   }
 }
 
 export class Lock extends Icon {
   constructor() {
-    super(styles.lock);
+    super(styles.lock, "Lock");
   }
 }
 
 export class Close extends Icon {
   constructor() {
-    super(styles.close);
+    super(styles.close, "Close");
   }
 }
 
 export class QuestionMark extends Icon {
   constructor() {
-    super(styles.question);
+    super(styles.question, "Help");
   }
 }
 
@@ -97,15 +101,7 @@ export class ButtonGroup extends MithrilViewComponent<Attrs> {
   view(vnode: m.Vnode<Attrs>) {
     return (
       <div className={styles.buttonGroup} aria-label="actions">
-        {
-          _.map(vnode.children as any, (ele) => {
-            return (
-              <button className={(classnames(styles.btnIcon, {disabled: ele.attrs.disabled}))}>
-                {ele}
-              </button>
-            );
-          })
-        }
+        {vnode.children}
       </div>
     );
   }

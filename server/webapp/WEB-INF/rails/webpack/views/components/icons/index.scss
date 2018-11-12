@@ -19,37 +19,30 @@ $global-icon-size: 16px;
 $btn-group-border-radius: $global-border-radius;
 
 .btn-icon {
-  border:      none;
-  border-left: 1px solid $border-color;
-  cursor:      pointer;
-  font-size:   $global-icon-size;
-  padding:     0 10px;
-  height:      $form-element-height;
-  flex:        0 1 auto;
-  color:       $icon-color;
-  transition:  $transition;
-  background:  $icon-bg;
+  border:        1px solid $border-color;
+  border-radius: $global-border-radius;
+  cursor:        pointer;
+  font-size:     $global-icon-size;
+  padding:       0 10px;
+  height:        $form-element-height;
+  flex:          0 1 auto;
+  color:         $icon-color;
+  transition:    $transition;
+  background:    $icon-bg;
   &:hover {
     color:      lighten($icon-color, 100%);
     transition: $transition;
     background: $icon-color;
   }
 
-  &:first-child {
-    border-left:   none;
-    border-radius: $btn-group-border-radius 0 0 $btn-group-border-radius;
-  }
-  &:last-child {
-    border-radius: 0 $btn-group-border-radius $btn-group-border-radius 0;
-  }
   &:focus, &:active {
     outline: 0;
   }
 }
 
 .disabled {
-  opacity:        0.75;
-  cursor:         not-allowed;
+  opacity: 0.75;
+  cursor:  not-allowed;
   &:hover {
     color:      $icon-color;
     background: $icon-bg;
@@ -93,4 +86,16 @@ $btn-group-border-radius: $global-border-radius;
   border:        1px solid $border-color;
   border-radius: $btn-group-border-radius;
   display:       inline-flex;
+  .btn-icon {
+    border:        none;
+    border-left:   1px solid $border-color;
+    border-radius: 0;
+    &:first-child {
+      border-left:   none;
+      border-radius: $btn-group-border-radius 0 0 $btn-group-border-radius;
+    }
+    &:last-child {
+      border-radius: 0 $btn-group-border-radius $btn-group-border-radius 0;
+    }
+  }
 }

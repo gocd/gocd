@@ -32,20 +32,26 @@ $header-padding: 10px 50px 10px 30px;
 }
 
 .collapse_header {
-  @include icon-before($fa-var-chevron-right);
+  @include icon-before($fa-var-angle-right);
 
-  display:         flex;
-  justify-content: space-between;
-  align-content:   center;
-  align-items:     center;
-  content:         '';
-  padding:         $header-padding;
-  cursor:          pointer;
+  display:        flex;
+  flex-wrap:      wrap;
+  flex-direction: column;
+  padding:        $header-padding;
+  cursor:         pointer;
+  @media (min-width: $screen-md) {
+    justify-content: space-between;
+  }
+  @media (min-width: $screen-lg) {
+    flex-direction: row;
+    align-items:    center;
+  }
   &:before {
     position:   absolute;
     right:      10px;
+    font-size:  22px;
     color:      $icon-color;
-    top:        10px;
+    top:        14px;
     transition: $transition;
   }
   &.expanded {
@@ -57,12 +63,27 @@ $header-padding: 10px 50px 10px 30px;
 }
 
 .header_details {
-  display:         flex;
-  justify-content: flex-start;
+  display:        flex;
+  flex-direction: column;
+  //align-items:    center;
+  //width:          100%;
+  @media (min-width: $screen-md) {
+    flex-direction: row;
+  }
+  @media (min-width: $screen-lg) {
+    width: auto;
+  }
 }
 
 .actions {
-  justify-content: flex-end;
+  display: flex;
+  margin:  20px 0;
+  //width:   100%;
+  @media (min-width: $screen-lg) {
+    width:  auto;
+    margin: 0;
+  }
+
 }
 
 .collapse_body {

@@ -8,3 +8,5 @@ export const btnDanger: string;
 export const btnSecondary: string;
 export const btnReset: string;
 export const btnCancel: string;
+export const iconAdd: string;
+export const iconDoc: string;

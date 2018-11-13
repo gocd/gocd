@@ -16,7 +16,7 @@
 
 import {HTMLAttributes} from "jsx/dom";
 import * as _ from "lodash";
-import * as m from 'mithril';
+import * as m from "mithril";
 
 import {MithrilViewComponent} from "jsx/mithril-component";
 
@@ -36,14 +36,16 @@ class Icon extends MithrilViewComponent<Attrs> {
 
   protected constructor(name: string, title: string) {
     super();
-    this.name = name;
+    this.name  = name;
     this.title = title;
   }
 
   view(vnode: m.Vnode<Attrs>) {
     return (
-      <button title={this.title} className={(classnames(styles.btnIcon, {disabled: vnode.attrs.disabled}))}>
-        <i {...vnode.attrs} className={classnames(this.name)}/>
+      <button title={this.title}
+              className={(classnames(styles.btnIcon, {disabled: vnode.attrs.disabled}))}
+              {...vnode.attrs}>
+        <i className={classnames(this.name)}/>
       </button>
     );
   }

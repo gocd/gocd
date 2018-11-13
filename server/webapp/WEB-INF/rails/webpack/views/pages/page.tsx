@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {MithrilViewComponent} from "jsx/mithril-component";
+import {MithrilComponent} from "jsx/mithril-component";
 import * as m from "mithril";
 import {HeaderPanel} from "views/components/header_panel";
 import {PageLoadError} from "views/components/page_load_error";
@@ -24,39 +24,42 @@ enum PageState {
   LOADING, OK, FAILED
 }
 
-export abstract class Page extends MithrilViewComponent {
+export abstract class Page<Attrs = {}, State = {}> extends MithrilComponent<Attrs, State> {
 
   private pageState: PageState = PageState.LOADING;
 
-  abstract componentToDisplay(): JSX.Element | undefined;
+  abstract componentToDisplay(vnode: m.Vnode<Attrs, State>): JSX.Element | undefined;
 
   abstract pageName(): string;
 
-  abstract fetchData(): Promise<any>;
+  abstract fetchData(vnode: m.Vnode<Attrs, State>): Promise<any>;
 
-  oninit() {
-    return this.fetchData().then(this._onSuccess.bind(this), this._onFailure.bind(this));
+  oninit(vnode: m.Vnode<Attrs, State>) {
+    this.fetchData(vnode).then(this._onSuccess.bind(this), this._onFailure.bind(this));
   }
 
-  view() {
+  view(vnode: m.Vnode<Attrs, State>) {
     switch (this.pageState) {
       case PageState.FAILED:
         return <PageLoadError message={`There was a problem fetching ${this.pageName()}`}/>;
       case PageState.LOADING:
         return <Spinner/>;
       case PageState.OK:
-        const component = this.componentToDisplay();
+        const component = this.componentToDisplay(vnode);
         if (component) {
           return <main className="main-container">
-            <HeaderPanel title={this.pageName()}/>
+            {this.headerPanel(vnode)}
             {component}
           </main>;
         } else {
           return <PageLoadError message={`There was a problem fetching ${this.pageName()}`}/>;
         }
-
     }
     return <PageLoadError message={`There was a problem fetching ${this.pageName()}`}/>;
+  }
+
+  protected headerPanel(vnode: m.Vnode<Attrs, State>) {
+    return <HeaderPanel title={this.pageName()}/>;
   }
 
   private _onSuccess() {

@@ -36,6 +36,7 @@ import java.util.Arrays;
 import static com.thoughtworks.go.server.service.plugins.processor.elasticagent.v1.ElasticAgentProcessorRequestsV1.*;
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
@@ -88,6 +89,17 @@ public class ElasticAgentRequestProcessorV1Test {
     }
 
     @Test
+    public void shouldIgnoreDisableAgentRequestInAbsenceOfAgentsMatchingTheProvidedAgentMetadata() {
+        when(request.api()).thenReturn(REQUEST_DISABLE_AGENTS);
+        when(request.requestBody()).thenReturn("[{\"agent_id\":\"foo\"}]");
+        when(agentService.findElasticAgent("foo", "cd.go.example.plugin")).thenReturn(null);
+
+        processor.process(pluginDescriptor, request);
+
+        verifyZeroInteractions(agentConfigService);
+    }
+
+    @Test
     public void shouldProcessDeleteAgentRequest() {
         AgentInstance agentInstance = AgentInstance.createFromConfig(new AgentConfig("uuid"), null, null);
 
@@ -98,5 +110,16 @@ public class ElasticAgentRequestProcessorV1Test {
         processor.process(pluginDescriptor, request);
 
         verify(agentConfigService).deleteAgents(processor.usernameFor(pluginDescriptor.id()), agentInstance);
+    }
+
+    @Test
+    public void shouldIgnoreDeleteAgentRequestInAbsenceOfAgentsMatchingTheProvidedAgentMetadata() {
+        when(request.api()).thenReturn(REQUEST_DELETE_AGENTS);
+        when(request.requestBody()).thenReturn("[{\"agent_id\":\"foo\"}]");
+        when(agentService.findElasticAgent("foo", "cd.go.example.plugin")).thenReturn(null);
+
+        processor.process(pluginDescriptor, request);
+
+        verifyZeroInteractions(agentConfigService);
     }
 }

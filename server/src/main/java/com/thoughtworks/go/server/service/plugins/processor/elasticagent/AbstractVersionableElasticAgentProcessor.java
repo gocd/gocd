@@ -26,10 +26,7 @@ import com.thoughtworks.go.server.service.ElasticAgentPluginService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static java.lang.String.format;
@@ -66,13 +63,17 @@ public abstract class AbstractVersionableElasticAgentProcessor implements Versio
             return Collections.emptyList();
         }
 
-        return agentMetadataListFromRequest.stream().map(input -> agentService.findElasticAgent(input.elasticAgentId(), pluginId)).collect(Collectors.toList());
+        return agentMetadataListFromRequest.stream()
+                .map(input -> agentService.findElasticAgent(input.elasticAgentId(), pluginId))
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
     }
 
     protected void deleteAgents(String pluginId, Collection<AgentMetadata> agentsToDelete) {
         final Collection<AgentInstance> agentInstances = getAgentInstances(pluginId, agentsToDelete);
 
         if (agentInstances.isEmpty()) {
+            LOGGER.debug("Skipping request to delete agents from plugin: '{}', no agents found for the metadata: '{}'", pluginId, agentsToDelete);
             return;
         }
 
@@ -83,6 +84,11 @@ public abstract class AbstractVersionableElasticAgentProcessor implements Versio
 
     protected void disableAgents(String pluginId, Collection<AgentMetadata> agentsToDisable) {
         Collection<AgentInstance> agentInstances = getAgentInstances(pluginId, agentsToDisable);
+
+        if (agentInstances.isEmpty()) {
+            LOGGER.debug("Skipping request to disable agents from plugin: '{}', no agents found for the metadata: '{}'", pluginId, agentsToDisable);
+            return;
+        }
 
         LOGGER.debug("Disabling agents from plugin {} {}", pluginId, agentInstances);
         agentConfigService.disableAgents(usernameFor(pluginId), agentInstances.toArray(new AgentInstance[agentInstances.size()]));

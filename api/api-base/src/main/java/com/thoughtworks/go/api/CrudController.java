@@ -16,14 +16,15 @@
 
 package com.thoughtworks.go.api;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import com.thoughtworks.go.api.base.OutputWriter;
+import com.thoughtworks.go.api.util.MessageJson;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import spark.Request;
 import spark.Response;
 
-import java.io.IOException;
 import java.util.Objects;
+import java.util.function.Consumer;
 
 public interface CrudController<Entity> extends ControllerMethods {
     String etagFor(Entity entityFromServer);
@@ -32,50 +33,53 @@ public interface CrudController<Entity> extends ControllerMethods {
         return fresh(req, etagFor(entity));
     }
 
-    default boolean isPutRequestFresh(Request req, Entity entity) {
+    default boolean isPutRequestStale(Request req, Entity entity) {
         String etagFromClient = getIfMatch(req);
         if (etagFromClient == null) {
-            return false;
+            return true;
         }
         String etagFromServer = etagFor(entity);
-        return Objects.equals(etagFromClient, etagFromServer);
+        return !Objects.equals(etagFromClient, etagFromServer);
     }
 
-    default Entity getEntityFromConfig(String name) {
-        Entity entity = doGetEntityFromConfig(name);
+    default Entity fetchEntityFromConfig(String name) {
+        Entity entity = doFetchEntityFromConfig(name);
         if (entity == null) {
             throw new RecordNotFoundException();
         }
         return entity;
     }
 
-    Entity doGetEntityFromConfig(String name);
+    Entity doFetchEntityFromConfig(String name);
 
-    Entity getEntityFromRequestBody(Request req);
+    Entity buildEntityFromRequestBody(Request req);
 
-    default String handleCreateOrUpdateResponse(Request req, Response res, Entity entity, HttpLocalizedOperationResult result) throws IOException {
+    default String handleCreateOrUpdateResponse(Request req, Response res, Entity entity, HttpLocalizedOperationResult result) {
         if (result.isSuccessful()) {
             setEtagHeader(entity, res);
             return jsonize(req, entity);
         } else {
             res.status(result.httpCode());
 
-            JsonNode jsonNode = entity == null ? null : jsonNode(req, entity);
-            return writerForTopLevelObject(req, res, writer -> {
-                    writer.add("message", result.message());
+            String errorMessage = result.message();
 
-                    if (jsonNode != null) {
-                        writer.add("data", jsonNode);
-                    }
-                }
-
-            );
+            return null == entity ? MessageJson.create(errorMessage) : MessageJson.create(errorMessage, jsonWriter(entity));
         }
     }
 
-    String jsonize(Request req, Entity entity);
+    default String handleSimpleMessageResponse(Response res, HttpLocalizedOperationResult result) {
+        if (!result.isSuccessful()) {
+            res.status(result.httpCode());
+        }
 
-    JsonNode jsonNode(Request req, Entity entity) throws IOException;
+        return MessageJson.create(result.message());
+    }
+
+    default String jsonize(Request req, Entity entity) {
+        return jsonizeAsTopLevelObject(req, jsonWriter(entity));
+    }
+
+    Consumer<OutputWriter> jsonWriter(Entity entity);
 
     default void setEtagHeader(Entity entity, Response res) {
         setEtagHeader(res, etagFor(entity));

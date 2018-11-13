@@ -17,7 +17,10 @@
 package com.thoughtworks.go.apiv1.configrepos.representers;
 
 import com.thoughtworks.go.api.base.OutputWriter;
+import com.thoughtworks.go.api.representers.JsonReader;
 import com.thoughtworks.go.config.materials.tfs.TfsMaterialConfig;
+import com.thoughtworks.go.domain.materials.MaterialConfig;
+import com.thoughtworks.go.security.GoCipher;
 
 class TfsMaterialRepresenter {
     static void toJSON(OutputWriter json, TfsMaterialConfig material) {
@@ -28,5 +31,24 @@ class TfsMaterialRepresenter {
         json.add("domain", material.getDomain());
         json.add("username", material.getUserName());
         json.addIfNotNull("encrypted_password", material.getEncryptedPassword());
+    }
+
+    public static MaterialConfig fromJSON(JsonReader json, MaterialConfigHelper m) {
+        TfsMaterialConfig config = new TfsMaterialConfig(
+                m.url(json),
+                m.user(json),
+                m.domain(json),
+                null,
+                m.projectPath(json),
+                new GoCipher(),
+                m.autoUpdate(json),
+                null,
+                false,
+                null,
+                m.name(json)
+        );
+
+        m.encryptedPassword(json, config);
+        return config;
     }
 }

@@ -15,10 +15,7 @@
  *************************GO-LICENSE-END***********************************/
 package com.thoughtworks.go.config.remote;
 
-import com.thoughtworks.go.config.ConfigCollection;
-import com.thoughtworks.go.config.ConfigTag;
-import com.thoughtworks.go.config.Validatable;
-import com.thoughtworks.go.config.ValidationContext;
+import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.domain.BaseCollection;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
@@ -32,7 +29,7 @@ import java.util.Map;
  */
 @ConfigTag("config-repos")
 @ConfigCollection(value = ConfigRepoConfig.class)
-public class ConfigReposConfig extends BaseCollection<ConfigRepoConfig> implements Validatable {
+public class ConfigReposConfig extends BaseCollection<ConfigRepoConfig> implements Validatable, Cacheable {
 
     private ConfigErrors errors = new ConfigErrors();
 

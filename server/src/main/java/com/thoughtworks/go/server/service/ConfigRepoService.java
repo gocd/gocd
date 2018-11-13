@@ -88,6 +88,11 @@ public class ConfigRepoService {
         update(username, configRepo.getId(), result, command);
     }
 
+    public void updateConfigRepo(String repoId, ConfigRepoConfig repo, Username user, HttpLocalizedOperationResult result) {
+        String md5 = entityHashingService.md5ForEntity(repo);
+        updateConfigRepo(repoId, repo, md5, user, result);
+    }
+
     public void updateConfigRepo(String repoIdToUpdate, ConfigRepoConfig newConfigRepo, String md5, Username username, HttpLocalizedOperationResult result) {
         String actionFailed = "Failed to update config repo '" + repoIdToUpdate + "'.";
         UpdateConfigRepoCommand command = new UpdateConfigRepoCommand(securityService, entityHashingService, repoIdToUpdate, newConfigRepo, actionFailed, md5, username, result);

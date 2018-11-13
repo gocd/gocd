@@ -16,16 +16,15 @@
 
 package com.thoughtworks.go.apiv6.admin.pipelineconfig;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.thoughtworks.go.api.ApiController;
 import com.thoughtworks.go.api.ApiVersion;
 import com.thoughtworks.go.api.CrudController;
+import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.api.representers.JsonReader;
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
 import com.thoughtworks.go.api.util.GsonTransformer;
-import com.thoughtworks.go.apiv6.shared.representers.stages.ConfigHelperOptions;
 import com.thoughtworks.go.apiv6.admin.pipelineconfig.representers.PipelineConfigRepresenter;
+import com.thoughtworks.go.apiv6.shared.representers.stages.ConfigHelperOptions;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.config.materials.PasswordDeserializer;
@@ -35,7 +34,6 @@ import com.thoughtworks.go.server.newsecurity.utils.SessionUtils;
 import com.thoughtworks.go.server.service.EntityHashingService;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.PipelineConfigService;
-import com.thoughtworks.go.server.service.PipelinePauseService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.spring.SparkSpringController;
@@ -46,6 +44,7 @@ import spark.Request;
 import spark.Response;
 
 import java.io.IOException;
+import java.util.function.Consumer;
 
 import static com.thoughtworks.go.api.util.HaltApiResponses.*;
 import static spark.Spark.*;
@@ -75,12 +74,12 @@ public class PipelineConfigControllerV6 extends ApiController implements SparkSp
     }
 
     @Override
-    public PipelineConfig doGetEntityFromConfig(String name) {
+    public PipelineConfig doFetchEntityFromConfig(String name) {
         return pipelineConfigService.getPipelineConfig(name);
     }
 
     @Override
-    public PipelineConfig getEntityFromRequestBody(Request req) {
+    public PipelineConfig buildEntityFromRequestBody(Request req) {
         ConfigHelperOptions options = new ConfigHelperOptions(goConfigService.getCurrentConfig(), passwordDeserializer);
         JsonReader jsonReader = GsonTransformer.getInstance().jsonReaderFrom(req.body());
         if ("PUT".equalsIgnoreCase(req.requestMethod())) {
@@ -90,14 +89,8 @@ public class PipelineConfigControllerV6 extends ApiController implements SparkSp
     }
 
     @Override
-    public String jsonize(Request req, PipelineConfig pipelineConfig) {
-        return jsonizeAsTopLevelObject(req, writer -> PipelineConfigRepresenter.toJSON(writer, pipelineConfig));
-    }
-
-    @Override
-    public JsonNode jsonNode(Request req, PipelineConfig pipelineConfig) throws IOException {
-        String jsonize = jsonize(req, pipelineConfig);
-        return new ObjectMapper().readTree(jsonize);
+    public Consumer<OutputWriter> jsonWriter(PipelineConfig pipelineConfig) {
+        return writer -> PipelineConfigRepresenter.toJSON(writer, pipelineConfig);
     }
 
     @Override
@@ -126,7 +119,7 @@ public class PipelineConfigControllerV6 extends ApiController implements SparkSp
     }
 
     public String destroy(Request req, Response res) throws IOException {
-        PipelineConfig existingPipelineConfig = getEntityFromConfig(req.params("pipeline_name"));
+        PipelineConfig existingPipelineConfig = fetchEntityFromConfig(req.params("pipeline_name"));
         haltIfPipelineIsDefinedRemotely(existingPipelineConfig);
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
@@ -136,16 +129,16 @@ public class PipelineConfigControllerV6 extends ApiController implements SparkSp
         return renderHTTPOperationResult(result, req, res);
     }
 
-    public String update(Request req, Response res) throws IOException {
-        PipelineConfig existingPipelineConfig =  getEntityFromConfig(req.params("pipeline_name"));
-        PipelineConfig pipelineConfigFromRequest = getEntityFromRequestBody(req);
+    public String update(Request req, Response res) {
+        PipelineConfig existingPipelineConfig =  fetchEntityFromConfig(req.params("pipeline_name"));
+        PipelineConfig pipelineConfigFromRequest = buildEntityFromRequestBody(req);
 
         if (isRenameAttempt(existingPipelineConfig, pipelineConfigFromRequest)) {
             throw haltBecauseRenameOfEntityIsNotSupported("pipelines");
         }
 
         haltIfPipelineIsDefinedRemotely(existingPipelineConfig);
-        if (!isPutRequestFresh(req, existingPipelineConfig)) {
+        if (isPutRequestStale(req, existingPipelineConfig)) {
             throw haltBecauseEtagDoesNotMatch("pipeline", existingPipelineConfig.getName());
         }
 
@@ -154,10 +147,10 @@ public class PipelineConfigControllerV6 extends ApiController implements SparkSp
         return handleCreateOrUpdateResponse(req, res, pipelineConfigFromRequest, result);
     }
 
-    public String create(Request req, Response res) throws IOException {
-        PipelineConfig pipelineConfigFromRequest = getEntityFromRequestBody(req);
+    public String create(Request req, Response res) {
+        PipelineConfig pipelineConfigFromRequest = buildEntityFromRequestBody(req);
 
-        haltIfEntityBySameNameInRequestExists(req, pipelineConfigFromRequest);
+        haltIfEntityBySameNameInRequestExists(pipelineConfigFromRequest);
         String group = getOrHaltForGroupName(req);
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
@@ -168,7 +161,7 @@ public class PipelineConfigControllerV6 extends ApiController implements SparkSp
     }
 
     public String show(Request req, Response res) throws IOException {
-        PipelineConfig pipelineConfig = getEntityFromConfig(req.params("pipeline_name"));
+        PipelineConfig pipelineConfig = fetchEntityFromConfig(req.params("pipeline_name"));
         if (isGetOrHeadRequestFresh(req, pipelineConfig)) {
             return notModified(res);
         } else {
@@ -196,11 +189,11 @@ public class PipelineConfigControllerV6 extends ApiController implements SparkSp
     }
 
 
-    private void haltIfEntityBySameNameInRequestExists(Request req, PipelineConfig pipelineConfig) throws IOException {
+    private void haltIfEntityBySameNameInRequestExists(PipelineConfig pipelineConfig) {
         if (pipelineConfigService.getPipelineConfig(pipelineConfig.name().toString()) == null) {
             return;
         }
         pipelineConfig.addError("name", LocalizedMessage.resourceAlreadyExists("pipeline", pipelineConfig.name().toString()));
-        throw haltBecauseEntityAlreadyExists(jsonNode(req, pipelineConfig), "pipeline", pipelineConfig.getName());
+        throw haltBecauseEntityAlreadyExists(jsonWriter(pipelineConfig), "pipeline", pipelineConfig.getName());
     }
 }

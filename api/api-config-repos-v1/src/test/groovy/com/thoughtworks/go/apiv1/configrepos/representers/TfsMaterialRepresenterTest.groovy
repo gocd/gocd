@@ -16,6 +16,10 @@
 
 package com.thoughtworks.go.apiv1.configrepos.representers
 
+import com.thoughtworks.go.api.representers.JsonReader
+import com.thoughtworks.go.api.util.GsonTransformer
+import com.thoughtworks.go.config.materials.AbstractMaterialConfig
+import com.thoughtworks.go.config.materials.PasswordDeserializer
 import com.thoughtworks.go.config.materials.tfs.TfsMaterialConfig
 import com.thoughtworks.go.security.GoCipher
 import com.thoughtworks.go.util.command.UrlArgument
@@ -25,6 +29,10 @@ import org.mockito.Mock
 
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
+import static org.junit.jupiter.api.Assertions.assertEquals
+import static org.mockito.ArgumentMatchers.any
+import static org.mockito.ArgumentMatchers.eq
+import static org.mockito.Mockito.mock
 import static org.mockito.Mockito.when
 import static org.mockito.MockitoAnnotations.initMocks
 
@@ -58,7 +66,7 @@ class TfsMaterialRepresenterTest {
   }
 
   @Test
-  void toJSONWithAuth() {
+  void 'toJSON() with auth'() {
     when(cipher.encrypt(PASSWORD)).thenReturn(ENCRYPTED_PASSWORD)
 
     TfsMaterialConfig config = new TfsMaterialConfig(cipher, REPO_URL, USER, DOMAIN, PASSWORD, PROJECT_PATH)
@@ -74,5 +82,27 @@ class TfsMaterialRepresenterTest {
       username          : USER,
       encrypted_password: ENCRYPTED_PASSWORD
     ])
+  }
+
+  @Test
+  void fromJSON() {
+    PasswordDeserializer pd = mock(PasswordDeserializer.class)
+    when(pd.deserialize(eq(PASSWORD), eq(null as String), any() as AbstractMaterialConfig)).thenReturn(ENCRYPTED_PASSWORD)
+    MaterialConfigHelper mch = new MaterialConfigHelper(pd)
+
+    JsonReader json = GsonTransformer.getInstance().jsonReaderFrom([
+      name        : null,
+      url         : REPO_URL.toString(),
+      project_path: PROJECT_PATH,
+      domain      : DOMAIN,
+      auto_update : true,
+      username    : USER,
+      password    : PASSWORD
+    ])
+
+    TfsMaterialConfig expected = new TfsMaterialConfig(mock(GoCipher.class), REPO_URL, USER, DOMAIN, null, PROJECT_PATH)
+    expected.setEncryptedPassword(ENCRYPTED_PASSWORD)
+
+    assertEquals(expected, TfsMaterialRepresenter.fromJSON(json, mch))
   }
 }

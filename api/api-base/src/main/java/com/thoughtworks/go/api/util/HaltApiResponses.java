@@ -16,11 +16,13 @@
 
 package com.thoughtworks.go.api.util;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.google.gson.JsonObject;
+import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import org.springframework.http.HttpStatus;
 import spark.HaltException;
+
+import java.util.function.Consumer;
 
 import static com.thoughtworks.go.api.util.HaltApiMessages.*;
 import static spark.Spark.halt;
@@ -34,7 +36,7 @@ public abstract class HaltApiResponses {
         return halt(HttpStatus.FORBIDDEN.value(), MessageJson.create(forbiddenMessage()));
     }
 
-    public static HaltException haltBecauseEntityAlreadyExists(JsonNode jsonInRequestBody, String entityType, Object existingName) {
+    public static HaltException haltBecauseEntityAlreadyExists(Consumer<OutputWriter> jsonInRequestBody, String entityType, Object existingName) {
         return halt(HttpStatus.UNPROCESSABLE_ENTITY.value(), MessageJson.create(entityAlreadyExistsMessage(entityType, existingName), jsonInRequestBody));
     }
 

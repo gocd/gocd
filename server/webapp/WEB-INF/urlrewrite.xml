@@ -228,10 +228,17 @@
   </rule>
 
   <rule>
-  <name>Spark Config Repos Internal API</name>
+    <name>Spark Config Repos Internal API</name>
     <condition type="header" name="Accept">application\/vnd\.go\.cd\.v1\+json</condition>
     <from>^/api/internal/config_repos(?:(/)([^/]+))?(?:/?)</from>
     <to last="true">/spark/api/internal/config_repos$1${escape:$2}</to>
+  </rule>
+
+  <rule>
+    <name>Spark Config Repos API</name>
+    <condition type="header" name="Accept">application\/vnd\.go\.cd\.v1\+json</condition>
+    <from>^/api/admin/config_repos(?:(/)([^/]+))?(?:/?)</from>
+    <to last="true">/spark/api/admin/config_repos$1${escape:$2}</to>
   </rule>
 
   <rule>
@@ -374,20 +381,6 @@
     <name>Rails Security Auth Configs API</name>
     <from>^/api/admin/security/auth_configs/(.*)$</from>
     <to last="true">/rails/api/admin/security/auth_configs/${escape:$1}</to>
-    <set name="rails_bound">true</set>
-  </rule>
-
-  <rule>
-    <name>Rails Config Repo API Index API</name>
-    <from>^/api/admin/config_repos</from>
-    <to last="true">/rails/api/admin/config_repos</to>
-    <set name="rails_bound">true</set>
-  </rule>
-
-  <rule>
-    <name>Rails Config Repo API</name>
-    <from>^/api/admin/config_repos/(.*)$</from>
-    <to last="true">/rails/api/admin/config_repos/${escape:$1}</to>
     <set name="rails_bound">true</set>
   </rule>
 

@@ -34,8 +34,8 @@ import org.junit.jupiter.api.Test
 import org.mockito.Mock
 import org.mockito.invocation.InvocationOnMock
 
-import static com.thoughtworks.go.api.base.JsonUtils.toObject
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
+import static com.thoughtworks.go.api.base.JsonUtils.toObjectWithoutLinks
 import static com.thoughtworks.go.api.util.HaltApiMessages.entityAlreadyExistsMessage
 import static com.thoughtworks.go.api.util.HaltApiMessages.etagDoesNotMatch
 import static org.mockito.ArgumentMatchers.any
@@ -305,7 +305,7 @@ class RolesControllerV1Test implements SecurityServiceTrait, ControllerTrait<Rol
           .isUnprocessableEntity()
           .hasContentType(controller.mimeType)
           .hasJsonMessage(entityAlreadyExistsMessage("role", "blackbird"))
-          .hasJsonAttribute('data', toObject({ RoleRepresenter.toJSON(it, expectedRole) }))
+          .hasJsonAttribute('data', toObjectWithoutLinks({ RoleRepresenter.toJSON(it, expectedRole) }))
       }
     }
   }

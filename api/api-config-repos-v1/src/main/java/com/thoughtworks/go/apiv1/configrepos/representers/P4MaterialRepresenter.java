@@ -17,7 +17,10 @@
 package com.thoughtworks.go.apiv1.configrepos.representers;
 
 import com.thoughtworks.go.api.base.OutputWriter;
+import com.thoughtworks.go.api.representers.JsonReader;
 import com.thoughtworks.go.config.materials.perforce.P4MaterialConfig;
+import com.thoughtworks.go.domain.materials.MaterialConfig;
+import com.thoughtworks.go.security.GoCipher;
 
 class P4MaterialRepresenter {
     static void toJSON(OutputWriter json, P4MaterialConfig material) {
@@ -28,5 +31,24 @@ class P4MaterialRepresenter {
         json.add("view", material.getView());
         json.add("username", material.getUserName());
         json.addIfNotNull("encrypted_password", material.getEncryptedPassword());
+    }
+
+    public static MaterialConfig fromJSON(JsonReader json, MaterialConfigHelper m) {
+        P4MaterialConfig config = new P4MaterialConfig(
+                m.serverAndPort(json),
+                m.user(json),
+                null,
+                m.useTickets(json),
+                m.view(json),
+                new GoCipher(),
+                m.name(json),
+                m.autoUpdate(json),
+                null,
+                false,
+                null
+        );
+
+        m.encryptedPassword(json, config);
+        return config;
     }
 }

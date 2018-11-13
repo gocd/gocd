@@ -17,19 +17,21 @@
 package com.thoughtworks.go.apiv1.configrepos.representers;
 
 import com.thoughtworks.go.api.base.OutputWriter;
-import com.thoughtworks.go.api.representers.JsonReader;
-import com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig;
-import com.thoughtworks.go.domain.materials.MaterialConfig;
+import com.thoughtworks.go.config.remote.ConfigReposConfig;
 
+import static com.thoughtworks.go.spark.Routes.ConfigRepos.BASE;
 
-class HgMaterialRepresenter {
-    static void toJSON(OutputWriter json, HgMaterialConfig material) {
-        json.add("name", material.getName());
-        json.add("auto_update", material.getAutoUpdate());
-        json.add("url", material.getUrl());
+public class ConfigReposConfigRepresenterV1 {
+    public static void toJSON(OutputWriter json, ConfigReposConfig repos) {
+        attachLinks(json);
+        json.addChild("_embedded", w -> w.addChildList(
+                "config_repos", all -> repos.forEach(
+                        repo -> all.addChild(el -> ConfigRepoConfigRepresenterV1.toJSON(el, repo))
+                )
+        ));
     }
 
-    public static MaterialConfig fromJSON(JsonReader json, MaterialConfigHelper m) {
-        return new HgMaterialConfig(m.hgUrl(json), m.autoUpdate(json), null, false, null, m.name(json));
+    private static void attachLinks(OutputWriter json) {
+        json.addLinks(links -> links.addLink("self", BASE));
     }
 }

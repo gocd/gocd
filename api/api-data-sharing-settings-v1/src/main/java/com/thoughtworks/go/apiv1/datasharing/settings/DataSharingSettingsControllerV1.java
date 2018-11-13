@@ -16,19 +16,18 @@
 
 package com.thoughtworks.go.apiv1.datasharing.settings;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.thoughtworks.go.api.ApiController;
 import com.thoughtworks.go.api.ApiVersion;
 import com.thoughtworks.go.api.CrudController;
+import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.api.representers.JsonReader;
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
 import com.thoughtworks.go.api.util.GsonTransformer;
 import com.thoughtworks.go.apiv1.datasharing.settings.representers.DataSharingSettingsRepresenter;
 import com.thoughtworks.go.server.domain.DataSharingSettings;
+import com.thoughtworks.go.server.service.EntityHashingService;
 import com.thoughtworks.go.server.service.datasharing.DataSharingNotification;
 import com.thoughtworks.go.server.service.datasharing.DataSharingSettingsService;
-import com.thoughtworks.go.server.service.EntityHashingService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.spark.Routes.DataSharing;
 import com.thoughtworks.go.spark.spring.SparkSpringController;
@@ -38,9 +37,8 @@ import org.springframework.stereotype.Component;
 import spark.Request;
 import spark.Response;
 
-import java.io.IOException;
+import java.util.function.Consumer;
 
-import static com.thoughtworks.go.api.util.HaltApiResponses.haltBecauseEtagDoesNotMatch;
 import static spark.Spark.*;
 
 @Component
@@ -101,7 +99,7 @@ public class DataSharingSettingsControllerV1 extends ApiController implements Sp
 
     public String patchDataSharingSettings(Request request, Response response) throws Exception {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        dataSharingSettingsService.createOrUpdate(getEntityFromRequestBody(request));
+        dataSharingSettingsService.createOrUpdate(buildEntityFromRequestBody(request));
         return handleCreateOrUpdateResponse(request, response, dataSharingSettingsService.get(), result);
     }
 
@@ -116,23 +114,18 @@ public class DataSharingSettingsControllerV1 extends ApiController implements Sp
     }
 
     @Override
-    public DataSharingSettings doGetEntityFromConfig(String name) {
+    public DataSharingSettings doFetchEntityFromConfig(String name) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public DataSharingSettings getEntityFromRequestBody(Request request) {
+    public DataSharingSettings buildEntityFromRequestBody(Request request) {
         JsonReader jsonReader = GsonTransformer.getInstance().jsonReaderFrom(request.body());
         return DataSharingSettingsRepresenter.fromJSON(jsonReader, currentUsername(), timeProvider, dataSharingSettingsService.get());
     }
 
     @Override
-    public String jsonize(Request request, DataSharingSettings dataSharingSettings) {
-        return jsonizeAsTopLevelObject(request, writer -> DataSharingSettingsRepresenter.toJSON(writer, dataSharingSettings));
-    }
-
-    @Override
-    public JsonNode jsonNode(Request request, DataSharingSettings dataSharingSettings) throws IOException {
-        return new ObjectMapper().readTree(jsonize(request, dataSharingSettings));
+    public Consumer<OutputWriter> jsonWriter(DataSharingSettings dataSharingSettings) {
+        return writer -> DataSharingSettingsRepresenter.toJSON(writer, dataSharingSettings);
     }
 }

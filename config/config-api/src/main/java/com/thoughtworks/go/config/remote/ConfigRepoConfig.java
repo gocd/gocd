@@ -31,7 +31,7 @@ import java.util.*;
  * This goes to standard static xml configuration.
  */
 @ConfigTag("config-repo")
-public class ConfigRepoConfig implements Validatable {
+public class ConfigRepoConfig implements Validatable, Cacheable {
     // defines source of configuration. Any will fit
     @ConfigSubtag(optional = false)
     private MaterialConfig repo;

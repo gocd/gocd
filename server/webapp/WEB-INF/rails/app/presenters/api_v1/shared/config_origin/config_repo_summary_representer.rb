@@ -20,8 +20,14 @@ module ApiV1
       class ConfigRepoSummaryRepresenter < BaseRepresenter
         alias_method :config_repo, :represented
 
+        def urlFor(url_builder, path)
+          req = url_builder.request
+          ctx = com.thoughtworks.go.spark.RequestContext.new(req.ssl? ? 'https' : 'http', req.host, req.port, '/go')
+          ctx.urlFor(path)
+        end
+
         link :self do |opts|
-          opts[:url_builder].apiv1_admin_config_repo_url(id: config_repo.getId)
+          urlFor(opts[:url_builder], Routes::ConfigRepos::id(config_repo.getId()))
         end
 
         link :doc do |opts|
@@ -29,7 +35,7 @@ module ApiV1
         end
 
         link :find do |opts|
-          opts[:url_builder].apiv1_admin_config_repo_url(id: '__id__').gsub(/__id__/, ':id')
+          urlFor(opts[:url_builder], Routes::ConfigRepos::find())
         end
 
         property :id

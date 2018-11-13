@@ -16,15 +16,20 @@
 
 package com.thoughtworks.go.apiv1.configrepos.representers
 
+import com.thoughtworks.go.api.representers.JsonReader
+import com.thoughtworks.go.api.util.GsonTransformer
 import com.thoughtworks.go.config.materials.git.GitMaterialConfig
+import com.thoughtworks.go.domain.materials.MaterialConfig
 import org.junit.jupiter.api.Test
 
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
+import static org.junit.jupiter.api.Assertions.assertEquals
 
 class GitMaterialRepresenterTest {
   private static final String REPO_URL = "https://guthib.com/chewbacca"
   private static final String BRANCH = "wookie"
+  private static final MaterialConfigHelper mch = new MaterialConfigHelper(null)
 
   @Test
   void toJSON() {
@@ -37,5 +42,18 @@ class GitMaterialRepresenterTest {
       branch     : BRANCH,
       auto_update: true
     ])
+  }
+
+  @Test
+  void fromJSON() {
+    JsonReader json = GsonTransformer.getInstance().jsonReaderFrom([
+      name      : null,
+      url       : REPO_URL,
+      branch    : BRANCH,
+      auto_upate: true
+    ])
+
+    MaterialConfig expected = new GitMaterialConfig(REPO_URL, BRANCH)
+    assertEquals(expected, GitMaterialRepresenter.fromJSON(json, mch))
   }
 }

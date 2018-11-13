@@ -94,6 +94,14 @@ export default class {
     return '/go/api/internal/data_sharing/reporting/complete';
   }
 
+  static ApiConfigReposListPath(): string {
+    return `/go/api/admin/config_repos`;
+  }
+
+  static ApiConfigReposPath(id: string): string {
+    return `/go/api/internal/config_repos/${id}`;
+  }
+
   static configRepoLastParsedResultPath(id: string): string {
     return `/go/api/internal/config_repos/${id}/last_parsed_result`;
   }

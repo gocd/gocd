@@ -17,16 +17,14 @@
 package com.thoughtworks.go.apiv4.admin.templateconfig;
 
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Sets;
 import com.thoughtworks.go.api.ApiController;
 import com.thoughtworks.go.api.ApiVersion;
 import com.thoughtworks.go.api.CrudController;
+import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.api.representers.JsonReader;
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
 import com.thoughtworks.go.api.util.GsonTransformer;
-import com.thoughtworks.go.apiv4.shared.representers.stages.ConfigHelperOptions;
 import com.thoughtworks.go.apiv4.admin.templateconfig.representers.TemplateConfigRepresenter;
 import com.thoughtworks.go.apiv4.admin.templateconfig.representers.TemplatesConfigRepresenter;
 import com.thoughtworks.go.config.PipelineTemplateConfig;
@@ -36,7 +34,6 @@ import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.newsecurity.utils.SessionUtils;
 import com.thoughtworks.go.server.service.EntityHashingService;
-import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.TemplateConfigService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.spark.Routes;
@@ -49,6 +46,7 @@ import spark.Response;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.function.Consumer;
 
 import static com.thoughtworks.go.api.util.HaltApiResponses.*;
 import static spark.Spark.*;
@@ -74,25 +72,19 @@ public class TemplateConfigControllerV4 extends ApiController implements SparkSp
     }
 
     @Override
-    public PipelineTemplateConfig doGetEntityFromConfig(String name) {
+    public PipelineTemplateConfig doFetchEntityFromConfig(String name) {
         return templateConfigService.loadForView(name, new HttpLocalizedOperationResult());
     }
 
     @Override
-    public PipelineTemplateConfig getEntityFromRequestBody(Request req) {
+    public PipelineTemplateConfig buildEntityFromRequestBody(Request req) {
         JsonReader jsonReader = GsonTransformer.getInstance().jsonReaderFrom(req.body());
         return TemplateConfigRepresenter.fromJSON(jsonReader);
     }
 
     @Override
-    public String jsonize(Request req, PipelineTemplateConfig templateConfig) {
-        return jsonizeAsTopLevelObject(req, writer -> TemplateConfigRepresenter.toJSON(writer, templateConfig));
-    }
-
-    @Override
-    public JsonNode jsonNode(Request req, PipelineTemplateConfig pipelineTemplateConfig) throws IOException {
-        String jsonize = jsonize(req, pipelineTemplateConfig);
-        return new ObjectMapper().readTree(jsonize);
+    public Consumer<OutputWriter> jsonWriter(PipelineTemplateConfig templateConfig) {
+        return writer -> TemplateConfigRepresenter.toJSON(writer, templateConfig);
     }
 
     @Override
@@ -138,7 +130,7 @@ public class TemplateConfigControllerV4 extends ApiController implements SparkSp
     }
 
     public String destroy(Request req, Response res) throws IOException {
-        PipelineTemplateConfig existingTemplateConfig = getEntityFromConfig(req.params("template_name"));
+        PipelineTemplateConfig existingTemplateConfig = fetchEntityFromConfig(req.params("template_name"));
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         templateConfigService.deleteTemplateConfig(SessionUtils.currentUsername(), existingTemplateConfig, result);
@@ -147,15 +139,15 @@ public class TemplateConfigControllerV4 extends ApiController implements SparkSp
         return renderHTTPOperationResult(result, req, res);
     }
 
-    public String update(Request req, Response res) throws IOException {
-        PipelineTemplateConfig existingTemplateConfig = getEntityFromConfig(req.params("template_name"));
-        PipelineTemplateConfig templateConfigFromRequest = getEntityFromRequestBody(req);
+    public String update(Request req, Response res) {
+        PipelineTemplateConfig existingTemplateConfig = fetchEntityFromConfig(req.params("template_name"));
+        PipelineTemplateConfig templateConfigFromRequest = buildEntityFromRequestBody(req);
 
         if (isRenameAttempt(existingTemplateConfig, templateConfigFromRequest)) {
             throw haltBecauseRenameOfEntityIsNotSupported("templates");
         }
 
-        if (!isPutRequestFresh(req, existingTemplateConfig)) {
+        if (isPutRequestStale(req, existingTemplateConfig)) {
             throw haltBecauseEtagDoesNotMatch("template", existingTemplateConfig.name());
         }
 
@@ -164,10 +156,10 @@ public class TemplateConfigControllerV4 extends ApiController implements SparkSp
         return handleCreateOrUpdateResponse(req, res, templateConfigFromRequest, result);
     }
 
-    public String create(Request req, Response res) throws IOException {
-        PipelineTemplateConfig templateConfigFromRequest = getEntityFromRequestBody(req);
+    public String create(Request req, Response res) {
+        PipelineTemplateConfig templateConfigFromRequest = buildEntityFromRequestBody(req);
 
-        haltIfEntityBySameNameInRequestExists(req, templateConfigFromRequest, new HttpLocalizedOperationResult());
+        haltIfEntityBySameNameInRequestExists(templateConfigFromRequest, new HttpLocalizedOperationResult());
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
 
@@ -178,7 +170,7 @@ public class TemplateConfigControllerV4 extends ApiController implements SparkSp
     }
 
     public String show(Request req, Response res) throws IOException {
-        PipelineTemplateConfig templateConfig = getEntityFromConfig(req.params("template_name"));
+        PipelineTemplateConfig templateConfig = fetchEntityFromConfig(req.params("template_name"));
         if (isGetOrHeadRequestFresh(req, templateConfig)) {
             return notModified(res);
         } else {
@@ -192,11 +184,11 @@ public class TemplateConfigControllerV4 extends ApiController implements SparkSp
     }
 
 
-    private void haltIfEntityBySameNameInRequestExists(Request req, PipelineTemplateConfig templateConfig, HttpLocalizedOperationResult result) throws IOException {
+    private void haltIfEntityBySameNameInRequestExists(PipelineTemplateConfig templateConfig, HttpLocalizedOperationResult result) {
         if (templateConfigService.loadForView(templateConfig.name().toString(), result) == null) {
             return;
         }
         templateConfig.addError("name", LocalizedMessage.resourceAlreadyExists("template", templateConfig.name().toString()));
-        throw haltBecauseEntityAlreadyExists(jsonNode(req, templateConfig), "template", templateConfig.name());
+        throw haltBecauseEntityAlreadyExists(jsonWriter(templateConfig), "template", templateConfig.name());
     }
 }

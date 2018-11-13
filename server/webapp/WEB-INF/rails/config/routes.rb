@@ -229,7 +229,6 @@ Rails.application.routes.draw do
 
         post 'internal/security/auth_configs/verify_connection' => 'security/auth_configs#verify_connection', as: :internal_verify_connection
 
-        resources :config_repos, param: :id, only: [:create, :update, :show, :index, :destroy], constraints: {id: CONFIG_REPO_ID_FORMAT}
         resources :templates, param: :template_name, except: [:new, :edit], constraints: {template_name: TEMPLATE_NAME_FORMAT}
 
         get 'environments/:environment_name/merged' => 'merged_environments#show', constraints: MERGED_ENVIRONMENT_NAME_CONSTRAINT, as: :merged_environment_show

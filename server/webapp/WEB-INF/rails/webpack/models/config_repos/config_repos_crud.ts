@@ -14,25 +14,25 @@
  * limitations under the License.
  */
 
-import * as Routes from "gen/ts-routes";
 import {ApiRequestBuilder, ApiVersion, HttpResponseWithEtag} from "helpers/api_request_builder";
+import SparkRoutes from "helpers/spark_routes";
 import {ConfigRepo, ConfigRepos} from "./types";
 
 export class ConfigReposCRUD {
   private static API_VERSION_HEADER = ApiVersion.v1;
 
   static all() {
-    return ApiRequestBuilder.GET(Routes.apiv1AdminConfigReposPath(), this.API_VERSION_HEADER)
+    return ApiRequestBuilder.GET(SparkRoutes.ApiConfigReposListPath(), this.API_VERSION_HEADER)
       .then((xhr: XMLHttpRequest) => JSON.parse(xhr.responseText) as ConfigRepos);
   }
 
   static get(id: string) {
-    return ApiRequestBuilder.GET(Routes.apiv1AdminConfigRepoPath(id), this.API_VERSION_HEADER)
+    return ApiRequestBuilder.GET(SparkRoutes.ApiConfigReposPath(id), this.API_VERSION_HEADER)
       .then(this.extractResponseWithEtag());
   }
 
   static update(response: HttpResponseWithEtag<ConfigRepo>) {
-    return ApiRequestBuilder.PUT(Routes.apiv1AdminConfigRepoPath(response.object.id), this.API_VERSION_HEADER, response.object, response.etag)
+    return ApiRequestBuilder.PUT(SparkRoutes.ApiConfigReposPath(response.object.id), this.API_VERSION_HEADER, response.object, response.etag)
       .then(this.extractResponseWithEtag());
   }
 

@@ -17,7 +17,10 @@
 package com.thoughtworks.go.apiv1.configrepos.representers;
 
 import com.thoughtworks.go.api.base.OutputWriter;
+import com.thoughtworks.go.api.representers.JsonReader;
 import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
+import com.thoughtworks.go.domain.materials.MaterialConfig;
+import com.thoughtworks.go.security.GoCipher;
 
 class SvnMaterialRepresenter {
     static void toJSON(OutputWriter json, SvnMaterialConfig material) {
@@ -27,5 +30,23 @@ class SvnMaterialRepresenter {
         json.add("check_externals", material.isCheckExternals());
         json.add("username", material.getUserName());
         json.addIfNotNull("encrypted_password", material.getEncryptedPassword());
+    }
+
+    static MaterialConfig fromJSON(JsonReader json, MaterialConfigHelper m) {
+        SvnMaterialConfig config = new SvnMaterialConfig(
+                m.url(json),
+                m.user(json),
+                null,
+                m.checkExternals(json),
+                new GoCipher(),
+                m.autoUpdate(json),
+                null,
+                false,
+                null,
+                m.name(json)
+        );
+
+        m.encryptedPassword(json, config);
+        return config;
     }
 }

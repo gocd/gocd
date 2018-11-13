@@ -37,12 +37,12 @@ export class ConfigReposCRUD {
   }
 
   static delete(repo: ConfigRepo) {
-    return ApiRequestBuilder.DELETE(Routes.apiv1AdminConfigRepoPath(repo.id), this.API_VERSION_HEADER)
+    return ApiRequestBuilder.DELETE(SparkRoutes.ApiConfigReposPath(repo.id), this.API_VERSION_HEADER)
       .then((xhr: XMLHttpRequest) => JSON.parse(xhr.responseText));
   }
 
   static create(repo: ConfigRepo) {
-    return ApiRequestBuilder.POST(Routes.apiv1AdminConfigReposPath(), this.API_VERSION_HEADER, repo).then(this.extractResponseWithEtag());
+    return ApiRequestBuilder.POST(SparkRoutes.ApiConfigReposListPath(), this.API_VERSION_HEADER, repo).then(this.extractResponseWithEtag());
   }
 
   private static extractResponseWithEtag() {

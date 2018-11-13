@@ -55,7 +55,7 @@ describe("AjaxPoller", () => {
         count++;
         // because timer is set to run every 100ms, that should be the minimum interval between calls
         expect(new Date().getTime() - time).toBeGreaterThanOrEqual(100);
-        expect(new Date().getTime() - time).toBeLessThanOrEqual(100 + 100);
+        expect(new Date().getTime() - time).toBeLessThanOrEqual(100 * 2);
         time = new Date().getTime();
         if (count === 3) {
           done();
@@ -85,7 +85,7 @@ describe("AjaxPoller", () => {
         count++;
         // because timer is set to run every 100ms, that should be the minimum interval between calls
         expect(new Date().getTime() - time).toBeGreaterThanOrEqual(100);
-        expect(new Date().getTime() - time).toBeLessThanOrEqual(100 + 100);
+        expect(new Date().getTime() - time).toBeLessThanOrEqual(100 * 2);
         time = new Date().getTime();
         if (count === 3) {
           done();
@@ -117,7 +117,7 @@ describe("AjaxPoller", () => {
         // because timer is set to run every 100ms (with a 4x backoff because window is invisible)
         // 400ms should be the minimum interval between calls
         expect(new Date().getTime() - time).toBeGreaterThanOrEqual(100 * 4);
-        expect(new Date().getTime() - time).toBeLessThanOrEqual(100 * 4 + 100);
+        expect(new Date().getTime() - time).toBeLessThanOrEqual(100 * 4 * 2);
         time = new Date().getTime();
         if (count === 3) {
           done();
@@ -143,10 +143,10 @@ describe("AjaxPoller", () => {
         count++;
         if (apiPoller.isHidden) {
           expect(new Date().getTime() - time).toBeGreaterThanOrEqual(100 * 4);
-          expect(new Date().getTime() - time).toBeLessThanOrEqual(100 * 4 + 100);
+          expect(new Date().getTime() - time).toBeLessThanOrEqual(100 * 4 * 2);
         } else {
           expect(new Date().getTime() - time).toBeGreaterThanOrEqual(100);
-          expect(new Date().getTime() - time).toBeLessThanOrEqual(100 + 100);
+          expect(new Date().getTime() - time).toBeLessThanOrEqual(100 * 2);
         }
         time = new Date().getTime();
 

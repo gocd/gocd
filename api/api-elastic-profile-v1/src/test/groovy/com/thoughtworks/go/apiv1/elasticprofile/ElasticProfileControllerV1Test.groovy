@@ -23,6 +23,8 @@ import com.thoughtworks.go.apiv1.elasticprofile.representers.ElasticProfileRepre
 import com.thoughtworks.go.apiv1.elasticprofile.representers.ElasticProfilesRepresenter
 import com.thoughtworks.go.config.elastic.ElasticProfile
 import com.thoughtworks.go.config.elastic.ElasticProfiles
+import com.thoughtworks.go.config.exceptions.RecordNotFoundException
+import com.thoughtworks.go.domain.JobConfigIdentifier
 import com.thoughtworks.go.i18n.LocalizedMessage
 import com.thoughtworks.go.server.domain.Username
 import com.thoughtworks.go.server.service.ElasticProfileService
@@ -533,6 +535,62 @@ class ElasticProfileControllerV1Test implements SecurityServiceTrait, Controller
           .isUnprocessableEntity()
           .hasContentType(controller.mimeType)
           .hasJsonMessage('save failed')
+      }
+    }
+  }
+
+  @Nested
+  class Usages {
+    @Nested
+    class Security implements SecurityTestTrait, GroupAdminUserSecurity {
+
+      @Override
+      String getControllerMethodUnderTest() {
+        return "usages"
+      }
+
+      @Override
+      void makeHttpCall() {
+        getWithApiHeader(controller.controllerPath("/docker/usages"))
+      }
+    }
+
+    @Nested
+    class AsAGroupAdmin {
+      @Test
+      void 'should list jobs associated with a profile id'() {
+        def jobConfigIdentifiers = Arrays.asList(
+          new JobConfigIdentifier("P1", "S1", "J1"),
+          new JobConfigIdentifier("P1", "S1", "J2"),
+          new JobConfigIdentifier("P2", "S1", "J3")
+        )
+
+        when(elasticProfileService.getJobsUsingElasticProfile("docker")).thenReturn(jobConfigIdentifiers)
+
+        getWithApiHeader(controller.controllerPath("/docker/usages"))
+
+        def expectedResponse = [
+          [pipeline_name: "P1", stage_name: "S1", job_name: "J1"],
+          [pipeline_name: "P1", stage_name: "S1", job_name: "J2"],
+          [pipeline_name: "P2", stage_name: "S1", job_name: "J3"]
+        ]
+
+        assertThatResponse()
+          .isOk()
+          .hasContentType(controller.mimeType)
+          .hasBodyWithJson(new JsonBuilder(expectedResponse).toString())
+      }
+
+      @Test
+      void 'should return 404 when profile with id does not exist'() {
+        when(elasticProfileService.getJobsUsingElasticProfile("docker")).thenThrow(new RecordNotFoundException("docker"))
+
+        getWithApiHeader(controller.controllerPath("/docker/usages"))
+
+        assertThatResponse()
+          .isNotFound()
+          .hasContentType(controller.mimeType)
+          .hasJsonMessage("Either the resource you requested was not found, or you are not authorized to perform this action.")
       }
     }
   }

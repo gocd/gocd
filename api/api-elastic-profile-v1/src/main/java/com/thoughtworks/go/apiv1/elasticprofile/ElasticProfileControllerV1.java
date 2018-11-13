@@ -24,9 +24,11 @@ import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
 import com.thoughtworks.go.api.util.GsonTransformer;
 import com.thoughtworks.go.apiv1.elasticprofile.representers.ElasticProfileRepresenter;
 import com.thoughtworks.go.apiv1.elasticprofile.representers.ElasticProfilesRepresenter;
+import com.thoughtworks.go.apiv1.elasticprofile.representers.JobConfigIdentifierRepresenter;
 import com.thoughtworks.go.config.PluginProfiles;
 import com.thoughtworks.go.config.elastic.ElasticProfile;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
+import com.thoughtworks.go.domain.JobConfigIdentifier;
 import com.thoughtworks.go.server.service.ElasticProfileService;
 import com.thoughtworks.go.server.service.EntityHashingService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
@@ -39,6 +41,7 @@ import spark.Request;
 import spark.Response;
 
 import java.io.IOException;
+import java.util.Collection;
 import java.util.function.Consumer;
 
 import static com.thoughtworks.go.api.util.HaltApiResponses.*;
@@ -73,11 +76,12 @@ public class ElasticProfileControllerV1 extends ApiController implements SparkSp
             before("", mimeType, apiAuthenticationHelper::checkAdminUserOrGroupAdminUserAnd403);
             before("/*", mimeType, apiAuthenticationHelper::checkAdminUserOrGroupAdminUserAnd403);
 
-            get("", this::index);
-            get(Routes.ElasticProfileAPI.ID, this::show);
-            post("", this::create);
-            put(Routes.ElasticProfileAPI.ID, this::update);
-            delete(Routes.ElasticProfileAPI.ID, this::destroy);
+            get("", mimeType, this::index);
+            get(Routes.ElasticProfileAPI.ID, mimeType, this::show);
+            get(Routes.ElasticProfileAPI.ID + Routes.ElasticProfileAPI.USAGES, mimeType, this::usages);
+            post("", mimeType, this::create);
+            put(Routes.ElasticProfileAPI.ID, mimeType, this::update);
+            delete(Routes.ElasticProfileAPI.ID, mimeType, this::destroy);
 
             exception(RecordNotFoundException.class, this::notFound);
         });
@@ -136,6 +140,13 @@ public class ElasticProfileControllerV1 extends ApiController implements SparkSp
 
         return renderHTTPOperationResult(result, request, response);
     }
+
+    public String usages(Request request, Response response) {
+        final String elasticProfileId = StringUtils.stripToEmpty(request.params(PROFILE_ID_PARAM));
+        final Collection<JobConfigIdentifier> jobsUsingElasticProfile = elasticProfileService.getJobsUsingElasticProfile(elasticProfileId);
+        return JobConfigIdentifierRepresenter.toJSON(jobsUsingElasticProfile);
+    }
+
 
     private boolean isRenameAttempt(String profileIdFromRequestParam, String profileIdFromRequestBody) {
         return !StringUtils.equals(profileIdFromRequestBody, profileIdFromRequestParam);

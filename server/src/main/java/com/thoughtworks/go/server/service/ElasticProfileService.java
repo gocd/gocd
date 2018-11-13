@@ -16,17 +16,25 @@
 
 package com.thoughtworks.go.server.service;
 
-import com.thoughtworks.go.config.PluginProfiles;
+import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.elastic.ElasticProfile;
+import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.config.update.ElasticAgentProfileCreateCommand;
 import com.thoughtworks.go.config.update.ElasticAgentProfileDeleteCommand;
 import com.thoughtworks.go.config.update.ElasticAgentProfileUpdateCommand;
+import com.thoughtworks.go.domain.JobConfigIdentifier;
 import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.plugin.access.elastic.ElasticAgentExtension;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 @Component
 public class ElasticProfileService extends PluginProfilesService<ElasticProfile> {
@@ -58,5 +66,30 @@ public class ElasticProfileService extends PluginProfilesService<ElasticProfile>
     public void create(Username currentUser, ElasticProfile elasticProfile, LocalizedOperationResult result) {
         ElasticAgentProfileCreateCommand command = new ElasticAgentProfileCreateCommand(goConfigService, elasticProfile, elasticAgentExtension, currentUser, result);
         update(currentUser, elasticProfile, result, command);
+    }
+
+    public Collection<JobConfigIdentifier> getJobsUsingElasticProfile(String profileId) {
+        if (findProfile(profileId) == null) {
+            throw new RecordNotFoundException(String.format("Elastic profile with id '%s' does not exist.", profileId));
+        }
+
+        final List<PipelineConfig> allPipelineConfigs = goConfigService.getAllPipelineConfigs();
+        final Set<JobConfigIdentifier> jobsUsingElasticProfile = new HashSet<>();
+
+        for (PipelineConfig pipelineConfig : allPipelineConfigs) {
+            final PipelineConfig stages = pipelineConfig.getStages();
+
+            for (StageConfig stage : stages) {
+                final JobConfigs jobs = stage.getJobs();
+
+                for (JobConfig job : jobs) {
+                    if (StringUtils.equals(profileId, job.getElasticProfileId())) {
+                        jobsUsingElasticProfile.add(new JobConfigIdentifier(pipelineConfig.getName(), stage.name(), job.name()));
+                    }
+                }
+            }
+        }
+
+        return jobsUsingElasticProfile;
     }
 }

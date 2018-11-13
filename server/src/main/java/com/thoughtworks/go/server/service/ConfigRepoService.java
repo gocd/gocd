@@ -83,8 +83,7 @@ public class ConfigRepoService {
     }
 
     public void createConfigRepo(ConfigRepoConfig configRepo, Username username, HttpLocalizedOperationResult result) {
-        String actionFailed = "Failed to add config repo '" + configRepo.getId() + "'.";
-        CreateConfigRepoCommand command = new CreateConfigRepoCommand(securityService, configRepo, actionFailed, username, result);
+        CreateConfigRepoCommand command = new CreateConfigRepoCommand(securityService, configRepo, username, result);
         update(username, configRepo.getId(), result, command);
     }
 
@@ -94,8 +93,7 @@ public class ConfigRepoService {
     }
 
     public void updateConfigRepo(String repoIdToUpdate, ConfigRepoConfig newConfigRepo, String md5, Username username, HttpLocalizedOperationResult result) {
-        String actionFailed = "Failed to update config repo '" + repoIdToUpdate + "'.";
-        UpdateConfigRepoCommand command = new UpdateConfigRepoCommand(securityService, entityHashingService, repoIdToUpdate, newConfigRepo, actionFailed, md5, username, result);
+        UpdateConfigRepoCommand command = new UpdateConfigRepoCommand(securityService, entityHashingService, repoIdToUpdate, newConfigRepo, md5, username, result);
 
         update(username, newConfigRepo.getId(), result, command);
         if (result.isSuccessful()) {

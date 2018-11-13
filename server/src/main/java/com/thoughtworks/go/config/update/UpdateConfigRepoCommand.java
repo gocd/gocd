@@ -17,7 +17,6 @@
 package com.thoughtworks.go.config.update;
 
 import com.thoughtworks.go.config.CruiseConfig;
-import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.config.remote.ConfigReposConfig;
 import com.thoughtworks.go.server.domain.Username;
@@ -27,15 +26,15 @@ import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 
 import static com.thoughtworks.go.i18n.LocalizedMessage.staleResourceConfig;
 
-public class UpdateConfigRepoCommand extends ConfigRepoCommand implements EntityConfigUpdateCommand<ConfigRepoConfig> {
+public class UpdateConfigRepoCommand extends ConfigRepoCommand {
     private final EntityHashingService entityHashingService;
     private final String repoIdToUpdate;
     private final ConfigRepoConfig newConfigRepo;
     private final String md5;
     private final HttpLocalizedOperationResult result;
 
-    public UpdateConfigRepoCommand(SecurityService securityService, EntityHashingService entityHashingService, String repoIdToUpdate, ConfigRepoConfig newConfigRepo, String actionFailed, String md5, Username username, HttpLocalizedOperationResult result) {
-        super(securityService, newConfigRepo, actionFailed, username, result);
+    public UpdateConfigRepoCommand(SecurityService securityService, EntityHashingService entityHashingService, String repoIdToUpdate, ConfigRepoConfig newConfigRepo, String md5, Username username, HttpLocalizedOperationResult result) {
+        super(securityService, newConfigRepo, username, result);
         this.entityHashingService = entityHashingService;
         this.repoIdToUpdate = repoIdToUpdate;
         this.newConfigRepo = newConfigRepo;

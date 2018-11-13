@@ -71,7 +71,7 @@ public class UpdateConfigRepoCommandTest {
 
     @Test
     public void shouldUpdateTheSpecifiedConfigRepo() throws Exception {
-        UpdateConfigRepoCommand command = new UpdateConfigRepoCommand(securityService, entityHashingService, oldConfigRepoId, newConfigRepo, actionFailed, md5, currentUser, result);
+        UpdateConfigRepoCommand command = new UpdateConfigRepoCommand(securityService, entityHashingService, oldConfigRepoId, newConfigRepo, md5, currentUser, result);
 
         assertNull(cruiseConfig.getConfigRepos().getConfigRepo(newConfigRepoId));
         command.update(cruiseConfig);
@@ -80,7 +80,7 @@ public class UpdateConfigRepoCommandTest {
 
     @Test
     public void shouldNotContinueIfTheUserDontHavePermissionsToOperateOnConfigRepos() throws Exception {
-        UpdateConfigRepoCommand command = new UpdateConfigRepoCommand(securityService, entityHashingService, oldConfigRepoId, newConfigRepo, actionFailed, md5, currentUser, result);
+        UpdateConfigRepoCommand command = new UpdateConfigRepoCommand(securityService, entityHashingService, oldConfigRepoId, newConfigRepo, md5, currentUser, result);
         when(securityService.isUserAdmin(currentUser)).thenReturn(false);
         when(entityHashingService.md5ForEntity(oldConfigRepo)).thenReturn(md5);
         HttpLocalizedOperationResult expectedResult = new HttpLocalizedOperationResult();
@@ -92,7 +92,7 @@ public class UpdateConfigRepoCommandTest {
 
     @Test
     public void shouldNotContinueIfMD5IsStale() throws Exception {
-        UpdateConfigRepoCommand command = new UpdateConfigRepoCommand(securityService, entityHashingService, oldConfigRepoId, newConfigRepo, actionFailed, md5, currentUser, result);
+        UpdateConfigRepoCommand command = new UpdateConfigRepoCommand(securityService, entityHashingService, oldConfigRepoId, newConfigRepo, md5, currentUser, result);
         when(securityService.isUserAdmin(currentUser)).thenReturn(true);
         when(entityHashingService.md5ForEntity(oldConfigRepo)).thenReturn("some-hash");
         HttpLocalizedOperationResult expectedResult = new HttpLocalizedOperationResult();
@@ -104,25 +104,17 @@ public class UpdateConfigRepoCommandTest {
 
 
     @Test
-    public void shouldValidateDuplicateRepoId() throws Exception {
+    public void isValid_shouldValidateConfigRepo() {
         newConfigRepo.setMaterialConfig(new GitMaterialConfig("foobar.git", "master"));
         cruiseConfig.getConfigRepos().add(newConfigRepo);
-        UpdateConfigRepoCommand command = new UpdateConfigRepoCommand(securityService, entityHashingService, oldConfigRepoId, newConfigRepo, actionFailed, md5, currentUser, result);
-        command.update(cruiseConfig);
-        assertFalse(command.isValid(cruiseConfig));
-        assertThat(newConfigRepo.errors().size(), is(2));
-        assertThat(newConfigRepo.errors().firstError(), is("You have defined multiple configuration repositories with the same id - new-repo"));
-    }
+        UpdateConfigRepoCommand command = new UpdateConfigRepoCommand(securityService, entityHashingService, oldConfigRepoId, newConfigRepo, md5, currentUser, result);
 
-    @Test
-    public void shouldValidateDuplicateMaterial() throws Exception {
-        cruiseConfig.getConfigRepos().add(newConfigRepo);
-        UpdateConfigRepoCommand command = new UpdateConfigRepoCommand(securityService, entityHashingService, oldConfigRepoId, newConfigRepo, actionFailed, md5, currentUser, result);
         command.update(cruiseConfig);
+
         assertFalse(command.isValid(cruiseConfig));
         assertThat(newConfigRepo.errors().size(), is(2));
-        assertThat(newConfigRepo.errors().firstError(), is("You have defined multiple configuration repositories with the same id - new-repo"));
-        assertThat(newConfigRepo.errors().getAll().get(1), is("You have defined multiple configuration repositories with the same repository - bar.git"));
+        assertThat(newConfigRepo.errors().on("material"), is("You have defined multiple configuration repositories with the same repository - 'foobar.git'."));
+        assertThat(newConfigRepo.errors().on("id"), is("You have defined multiple configuration repositories with the same id - 'new-repo'."));
     }
 
     @Test
@@ -130,7 +122,7 @@ public class UpdateConfigRepoCommandTest {
         when(securityService.isUserAdmin(currentUser)).thenReturn(true);
         when(entityHashingService.md5ForEntity(oldConfigRepo)).thenReturn(md5);
 
-        UpdateConfigRepoCommand command = new UpdateConfigRepoCommand(securityService, entityHashingService, oldConfigRepoId, newConfigRepo, actionFailed, md5, currentUser, result);
+        UpdateConfigRepoCommand command = new UpdateConfigRepoCommand(securityService, entityHashingService, oldConfigRepoId, newConfigRepo, md5, currentUser, result);
         assertThat(command.canContinue(cruiseConfig), is(true));
     }
 }

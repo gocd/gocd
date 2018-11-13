@@ -60,7 +60,7 @@ public class CreateConfigRepoCommandTest {
 
     @Test
     public void shouldAddTheSpecifiedConfigRepo() throws Exception {
-        CreateConfigRepoCommand command = new CreateConfigRepoCommand(securityService, configRepo, actionFailed, currentUser, result);
+        CreateConfigRepoCommand command = new CreateConfigRepoCommand(securityService, configRepo, currentUser, result);
         assertNull(cruiseConfig.getConfigRepos().getConfigRepo(repoId));
         command.update(cruiseConfig);
         assertThat(cruiseConfig.getConfigRepos().getConfigRepo(repoId), is(configRepo));
@@ -68,7 +68,7 @@ public class CreateConfigRepoCommandTest {
 
     @Test
     public void shouldNotContinueIfTheUserDontHavePermissionsToOperateOnPackages() throws Exception {
-        CreateConfigRepoCommand command = new CreateConfigRepoCommand(securityService, configRepo, actionFailed, currentUser, result);
+        CreateConfigRepoCommand command = new CreateConfigRepoCommand(securityService, configRepo, currentUser, result);
         when(securityService.isUserAdmin(currentUser)).thenReturn(false);
         HttpLocalizedOperationResult expectedResult = new HttpLocalizedOperationResult();
         expectedResult.forbidden(forbiddenToEdit(), forbidden());
@@ -78,45 +78,22 @@ public class CreateConfigRepoCommandTest {
     }
 
     @Test
-    public void shouldValidateDuplicateRepoId() throws Exception {
-        ConfigRepoConfig anotherconfigRepo = new ConfigRepoConfig(new GitMaterialConfig("https://foos.git", "master"), "json-plugin", repoId);
-        cruiseConfig.getConfigRepos().add(anotherconfigRepo);
+    public void isValid_shouldValidateConfigRepo() {
+        GitMaterialConfig material = new GitMaterialConfig("https://foo.git", "master");
+        material.setAutoUpdate(false);
+        configRepo.setMaterialConfig(material);
 
-        String error = "You have defined multiple configuration repositories with the same id - repo-1";
-
-        HttpLocalizedOperationResult expectedResult = new HttpLocalizedOperationResult();
-        expectedResult.unprocessableEntity("Could not add config repo repo-1 " + error);
-
-        CreateConfigRepoCommand command = new CreateConfigRepoCommand(securityService, configRepo, actionFailed, currentUser, result);
+        CreateConfigRepoCommand command = new CreateConfigRepoCommand(securityService, configRepo, currentUser, result);
         command.update(cruiseConfig);
 
         assertFalse(command.isValid(cruiseConfig));
-        assertThat(configRepo.errors().firstError(), is(error));
-        assertThat(result, is(expectedResult));
-    }
-
-    @Test
-    public void shouldValidateDuplicateMaterial() throws Exception {
-        ConfigRepoConfig anotherConfigRepo = new ConfigRepoConfig(new GitMaterialConfig("https://foo.git", "master"), "json-plugin", "anotherid");
-        cruiseConfig.getConfigRepos().add(anotherConfigRepo);
-
-        String error = "You have defined multiple configuration repositories with the same repository - https://foo.git";
-        HttpLocalizedOperationResult expectedResult = new HttpLocalizedOperationResult();
-        expectedResult.unprocessableEntity("Could not add config repo repo-1 " + error);
-
-        CreateConfigRepoCommand command = new CreateConfigRepoCommand(securityService, configRepo, actionFailed, currentUser, result);
-        command.update(cruiseConfig);
-
-        assertFalse(command.isValid(cruiseConfig));
-        assertThat(configRepo.errors().size(), is(1));
-        assertThat(configRepo.errors().firstError(), is(error));
-        assertThat(result, is(expectedResult));
+        assertThat(configRepo.getMaterialConfig().errors().on("auto_update"), is("Configuration repository material 'https://foo.git' must have autoUpdate enabled."));
     }
 
     @Test
     public void shouldContinueWithConfigSaveIfUserIsAdmin() {
         when(securityService.isUserAdmin(currentUser)).thenReturn(true);
-        CreateConfigRepoCommand command = new CreateConfigRepoCommand(securityService, configRepo, actionFailed, currentUser, result);
+        CreateConfigRepoCommand command = new CreateConfigRepoCommand(securityService, configRepo, currentUser, result);
         assertThat(command.canContinue(cruiseConfig), is(true));
     }
 }

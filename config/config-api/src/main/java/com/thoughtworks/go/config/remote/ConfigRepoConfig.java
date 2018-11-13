@@ -26,6 +26,8 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.util.*;
 
+import static java.lang.String.format;
+
 /**
  * Defines single source of remote configuration and name of plugin to interpet it.
  * This goes to standard static xml configuration.
@@ -50,9 +52,6 @@ public class ConfigRepoConfig implements Validatable, Cacheable {
     @ConfigAttribute(value = "id", allowNull = false)
     private String id = UUID.randomUUID().toString();
 
-    public static final String AUTO_UPDATE = "autoUpdate";
-    public static final String UNIQUE_REPO = "unique_repo";
-    public static final String REPO = "repo";
     public static final String ID = "id";
 
     private ConfigErrors errors = new ConfigErrors();
@@ -117,9 +116,38 @@ public class ConfigRepoConfig implements Validatable, Cacheable {
     @Override
     public void validate(ValidationContext validationContext) {
         this.validatePresenceOfId();
+        this.validateUniquenessOfId(validationContext);
         this.validateRepoIsSet();
         this.validateAutoUpdateEnabled();
         this.validateAutoUpdateState(validationContext);
+        this.validateMaterialUniqueness(validationContext);
+    }
+
+    private void validateMaterialUniqueness(ValidationContext validationContext) {
+        if (this.getMaterialConfig() != null) {
+            if (!validationContext.getCruiseConfig().getConfigRepos().isUniqueMaterial(this.getMaterialConfig().getFingerprint())) {
+                this.errors.add("material", format(
+                        "You have defined multiple configuration repositories with the same repository - '%s'.",
+                        this.repo.getDisplayName()));
+            }
+        }
+    }
+
+    private void validateUniquenessOfId(ValidationContext validationContext) {
+        if (!validationContext.getCruiseConfig().getConfigRepos().isUniqueId(id)) {
+            this.errors.add(ID, format("You have defined multiple configuration repositories with the same id - '%s'.", id));
+        }
+    }
+
+    public boolean validateTree(ValidationContext validationContext) {
+        validate(validationContext);
+        boolean isValid = errors().isEmpty();
+
+        if (this.getMaterialConfig() != null) {
+            isValid = getMaterialConfig().validateTree(validationContext) && isValid;
+        }
+
+        return isValid;
     }
 
     @Override
@@ -132,45 +160,18 @@ public class ConfigRepoConfig implements Validatable, Cacheable {
         this.errors.add(fieldName, message);
     }
 
-    public void validateMaterialUniqueness(Map<String, ConfigRepoConfig> map) {
-        if (this.getMaterialConfig() == null) {
-            return;
-        }
-        String materialFingerprint = this.getMaterialConfig().getFingerprint();
-        ConfigRepoConfig repoWithSameFingerprint = map.get(materialFingerprint);
-        if (repoWithSameFingerprint != null) {
-            repoWithSameFingerprint.addMaterialConflictError();
-            addMaterialConflictError();
-            return;
-        }
-        map.put(materialFingerprint, this);
-    }
-
-    public void validateIdUniqueness(ArrayList<String> allIds) {
-        if (StringUtils.isBlank(this.id)) {
-            this.errors.add("id", String.format("Invalid config-repo id", id));
-        }
-        if (allIds.contains(this.id)) {
-            this.errors.add("unique_id", String.format("You have defined multiple configuration repositories with the same id - %s", id));
-        }
-    }
-
     private void validateAutoUpdateEnabled() {
-        if (!this.getMaterialConfig().isAutoUpdate())
-            this.errors.add(AUTO_UPDATE, String.format(
-                    "Configuration repository material %s must have autoUpdate enabled",
-                    this.getMaterialConfig().getDisplayName()));
-    }
-
-    private void addMaterialConflictError() {
-        this.errors.add(UNIQUE_REPO, String.format(
-                "You have defined multiple configuration repositories with the same repository - %s",
-                this.repo.getDisplayName()));
+        if (this.getMaterialConfig() != null) {
+            if (!this.getMaterialConfig().isAutoUpdate())
+                this.getMaterialConfig().errors().add("auto_update", format(
+                        "Configuration repository material '%s' must have autoUpdate enabled.",
+                        this.getMaterialConfig().getDisplayName()));
+        }
     }
 
     private void validateRepoIsSet() {
         if (this.getMaterialConfig() == null) {
-            this.errors.add(REPO, "Configuration repository material not specified");
+            this.errors.add("material", "Configuration repository material not specified.");
         }
     }
 
@@ -193,15 +194,13 @@ public class ConfigRepoConfig implements Validatable, Cacheable {
             return;
 
         MaterialConfig material = this.getMaterialConfig();
-
-        MaterialConfigs allMaterialsByFingerPrint = validationContext.getAllMaterialsByFingerPrint(material.getFingerprint());
-        if (allMaterialsByFingerPrint != null) {
-            for (MaterialConfig other : allMaterialsByFingerPrint) {
-                if (!other.isAutoUpdate())
-                    ((ScmMaterialConfig) other).setAutoUpdateMismatchErrorWithConfigRepo();
+        if (material != null) {
+            MaterialConfigs allMaterialsByFingerPrint = validationContext.getAllMaterialsByFingerPrint(material.getFingerprint());
+            if (allMaterialsByFingerPrint.stream().anyMatch(m -> !m.isAutoUpdate())) {
+                getMaterialConfig().errors().add("auto_update", format("Material of type %s (%s) is specified as a configuration repository and pipeline material with disabled autoUpdate."
+                        + " All copies of this material must have autoUpdate enabled or configuration repository must be removed", material.getTypeForDisplay(), material.getDescription()));
             }
         }
-
     }
 
     public Configuration getConfiguration() {

@@ -20,9 +20,8 @@ import com.thoughtworks.go.domain.BaseCollection;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * List of remote configuration sources and how to interpret them
@@ -57,19 +56,33 @@ public class ConfigReposConfig extends BaseCollection<ConfigRepoConfig> implemen
         this.validateIdUniqueness();
     }
 
+    public boolean isUniqueId(final String id) {
+        return Collections.frequency(allIds(), id) <= 1;
+    }
+
+    public boolean isUniqueMaterial(final String fingerPrint) {
+        return Collections.frequency(allMaterialFingerPrints(), fingerPrint) <= 1;
+    }
+
     private void validateIdUniqueness() {
-        ArrayList<String> allIds = new ArrayList<>();
-        for (ConfigRepoConfig configRepo : this) {
-            configRepo.validateIdUniqueness(allIds);
-            allIds.add(configRepo.getId());
+        if (new HashSet<>(allIds()).size() != allIds().size()) {
+            this.errors().add("id", "You have defined multiple configuration repositories with the same id.");
         }
     }
 
     private void validateMaterialUniqueness() {
-        Map<String, ConfigRepoConfig> materialHashMap = new HashMap<>();
-        for (ConfigRepoConfig material : this) {
-            material.validateMaterialUniqueness(materialHashMap);
+        if (new HashSet<>(allMaterialFingerPrints()).size() != allMaterialFingerPrints()
+                .size()) {
+            this.errors().add("material", "You have defined multiple configuration repositories with the same repository.");
         }
+    }
+
+    private List<String> allIds() {
+        return this.stream().map(ConfigRepoConfig::getId).collect(Collectors.toList());
+    }
+
+    private List<String> allMaterialFingerPrints() {
+        return this.stream().map(cr -> cr.getMaterialConfig().getFingerprint()).collect(Collectors.toList());
     }
 
     @Override

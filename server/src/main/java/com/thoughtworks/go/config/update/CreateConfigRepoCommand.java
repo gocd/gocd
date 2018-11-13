@@ -17,17 +17,16 @@
 package com.thoughtworks.go.config.update;
 
 import com.thoughtworks.go.config.CruiseConfig;
-import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.SecurityService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 
-public class CreateConfigRepoCommand extends ConfigRepoCommand implements EntityConfigUpdateCommand<ConfigRepoConfig> {
+public class CreateConfigRepoCommand extends ConfigRepoCommand {
     private final ConfigRepoConfig configRepo;
 
-    public CreateConfigRepoCommand(SecurityService securityService, ConfigRepoConfig configRepo, String actionFailed, Username username, HttpLocalizedOperationResult result) {
-        super(securityService, configRepo, actionFailed, username, result);
+    public CreateConfigRepoCommand(SecurityService securityService, ConfigRepoConfig configRepo, Username username, HttpLocalizedOperationResult result) {
+        super(securityService, configRepo, username, result);
         this.configRepo = configRepo;
     }
 

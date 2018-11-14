@@ -226,6 +226,7 @@ Section "Install"
     upgrade:
         ; Don't do anything special anymore - upgrade logic is now in code. Do the same as we would for an install.
     RMDir /r $INSTDIR\lib
+    RMDir /r $INSTDIR\jre
 
     install:
         SetOverWrite on

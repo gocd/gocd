@@ -30,8 +30,6 @@ class WindowsPackagingTask extends DefaultTask {
   String version
   @Input
   String distVersion
-  @Input
-  Boolean is32Bit = false
 
   Closure<Task> beforePackage
 
@@ -71,15 +69,17 @@ class WindowsPackagingTask extends DefaultTask {
 
       def downloadAction = new DownloadAction(project)
       downloadAction.src(jreLocation())
-      downloadAction.dest("${winRootDir()}/jre-download")
-      if ((defaultJreLocation() == jreLocation()) && oracleLicenseAccepted()) {
-        downloadAction.headers(Cookie: 'oraclelicense=accept-securebackup-cookie')
-      }
+      downloadAction.dest(jreDownloadDir)
       downloadAction.execute()
 
       project.copy {
-        from project.tarTree(project.fileTree("${winRootDir()}/jre-download").include("*").singleFile)
+        from project.zipTree(project.fileTree(jreDownloadDir).singleFile)
         into buildRoot()
+
+        // exclude jdk specific stuff
+        exclude 'jdk*/lib/src.zip'
+        exclude 'jdk*/include/**/*.*'
+        exclude 'jdk*/jmods/**/*.*'
       }
 
       jreDownloadDir.deleteDir()
@@ -93,33 +93,23 @@ class WindowsPackagingTask extends DefaultTask {
   String jreLocation() {
     if (specifiedJreLocation() != null) {
       specifiedJreLocation()
-    } else if (oracleLicenseAccepted()) {
-      defaultJreLocation()
     } else {
-      throw new GradleException("Please specify environment variable WINDOWS_${flavour().toUpperCase()}_JRE_URL to point to a windows JRE location, or specify the environment `ORACLE_JRE_LICENSE_AGREE=Y' and the build script will download it on your behalf.")
+      throw new GradleException("Please specify environment variable WINDOWS_${flavour().toUpperCase()}_JDK_URL to point to a windows JDK location.")
     }
   }
 
-  def oracleLicenseAccepted() {
-    System.getenv("ORACLE_JRE_LICENSE_AGREE") == "Y"
-  }
-
-  def defaultJreLocation() {
-    is32Bit ? "http://download.oracle.com/otn-pub/java/jdk/8u152-b16/aa0333dd3019491ca4f6ddbe78cdb6d0/jre-8u152-windows-i586.tar.gz" : "http://download.oracle.com/otn-pub/java/jdk/8u152-b16/aa0333dd3019491ca4f6ddbe78cdb6d0/jre-8u152-windows-x64.tar.gz"
-  }
-
   def specifiedJreLocation() {
-    System.getenv("WINDOWS_${flavour().toUpperCase()}_JRE_URL")
+    System.getenv("WINDOWS_${flavour().toUpperCase()}_JDK_URL")
   }
 
   def flavour() {
-    is32Bit ? "32bit" : "64bit"
+    "64bit"
   }
 
   def buildPackage() {
     doLast {
       def names = []
-      buildRoot().eachDirMatch(~/jre.*/, { names << it })
+      buildRoot().eachDirMatch(~/jdk.*/, { names << it })
       def jreDir = names.first()
 
       def env = [

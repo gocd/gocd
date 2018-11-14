@@ -20,9 +20,7 @@ module ApiV1
       alias_method :pipeline, :represented
 
       link :self do |opts|
-        req = opts[:url_builder].request
-        ctx = com.thoughtworks.go.spark.RequestContext.new(req.ssl? ? 'https' : 'http', req.host, req.port, '/go')
-        ctx.urlFor(com.thoughtworks.go.spark.Routes::PipelineConfig.name(pipeline.name.toString))
+        spark_url_aware(opts, SparkRoutes::PipelineConfig.name(pipeline.name.toString))
       end
 
       property   :name, exec_context: :decorator

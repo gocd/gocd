@@ -655,6 +655,26 @@ describe('PluginInfos New', () => {
       ]
     };
 
+    const withoutExtensionInfo = {
+      "id":         "github.pr",
+      "status":     {
+        "state": "active"
+      },
+      "about":      {
+        "name":                     "Github Pull Requests Builder",
+        "version":                  "1.3.0-RC2",
+        "target_go_version":        "15.1.0",
+        "description":              "Plugin that polls a GitHub repository for pull requests and triggers a build for each of them",
+        "target_operating_systems": [],
+        "vendor":                   {
+          "name": "Ashwanth Kumar",
+          "url":  "https://github.com/ashwanthkumar/gocd-build-github-pull-requests"
+        }
+      },
+      "extensions": [
+      ]
+    };
+
     const withoutPluginSettingsView = {
       "id":         "github.pr",
       "status":     {
@@ -720,9 +740,9 @@ describe('PluginInfos New', () => {
     const pluginInfoWithoutPluginSettings = PluginInfo.fromJSON(withoutPluginSettingsProperty);
     expect(pluginInfoWithoutPluginSettings.supportsPluginSettings()).toBe(false);
 
-    //TODO can a plugin exist without any extension info?
-    //const pluginInfoWithoutExtensionInfo = PluginInfo.fromJSON(withoutExtensionInfo);
-    //expect(pluginInfoWithoutExtensionInfo.supportsPluginSettings()).toBe(false);
+
+    const pluginInfoWithoutExtensionInfo = PluginInfo.fromJSON(withoutExtensionInfo);
+    expect(pluginInfoWithoutExtensionInfo.supportsPluginSettings()).toBe(false);
 
     const pluginInfoWithoutPluginSettingsView = PluginInfo.fromJSON(withoutPluginSettingsView);
     expect(pluginInfoWithoutPluginSettingsView.supportsPluginSettings()).toBe(false);
@@ -827,22 +847,22 @@ describe('PluginInfos New', () => {
       const extensionInfo = pluginInfo.extensionOfType(ExtensionType.SCM);
       expect(extensionInfo.scmSettings.viewTemplate()).toEqual(pluginInfoWithSCMExtension.extensions[0].scm_settings.view.template);
       expect(extensionInfo.scmSettings.configurations().length).toEqual(3);
-      const keys = extensionInfo.scmSettings.configurations().map((config) => config.key);
+      let keys = extensionInfo.scmSettings.configurations().map((config) => config.key);
       expect(keys).toEqual(['url', 'username', 'password']);
       expect(extensionInfo.scmSettings.configurations()[0].metadata).toEqual({
         "part_of_identity": true,
         "secure":           false,
         "required":         true
       });
-      //TODO invalid as per API docs. SCM doesn't have plugin_settings, only scm_settings
-      //expect(pluginInfo.pluginSettings.viewTemplate).toEqual(pluginInfoWithSCMExtension.extensions[0].plugin_settings.view.template);
-      //expect(pluginInfo.pluginSettings.configurations.length).toEqual(1);
-      //expect(pluginInfo.pluginSettings.configurations.collectConfigurationProperty('key')).toEqual(['another-property']);
-      //expect(pluginInfo.pluginSettings.configurations[0].metadata()).toEqual({
-      //  secure:   false,
-      //  required: true
-      //});
 
+      expect(extensionInfo.pluginSettings.viewTemplate()).toEqual(pluginInfoWithSCMExtension.extensions[0].plugin_settings.view.template);
+      expect(extensionInfo.pluginSettings.configurations().length).toEqual(1);
+      keys = extensionInfo.pluginSettings.configurations().map((config) => config.key);
+      expect(keys).toEqual(['another-property']);
+      expect(extensionInfo.pluginSettings.configurations()[0].metadata).toEqual({
+        secure:   false,
+        required: true
+      });
     });
   });
 

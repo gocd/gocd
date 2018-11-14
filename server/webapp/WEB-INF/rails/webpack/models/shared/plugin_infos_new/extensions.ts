@@ -45,21 +45,37 @@ class PluginSettings {
     this.viewTemplate   = stream(viewTemplate);
   }
 
-  static fromJSON(data: any): PluginSettings {
-    let configurations;
-    if (data && data.configurations) {
-      configurations = data.configurations.map((config: any) => Configuration.fromJSON(config));
+  static tryParsing(data: any) {
+    if (data.plugin_settings) {
+      return PluginSettings.fromJSON(data.plugin_settings);
     }
-    const viewTemplate = data && data.view ? data.view.template : undefined;
+  }
+
+  static fromJSON(pluginSettingsJson: any): PluginSettings {
+    let configurations;
+    if (pluginSettingsJson && pluginSettingsJson.configurations) {
+      configurations = pluginSettingsJson.configurations.map((config: any) => Configuration.fromJSON(config));
+    }
+    const viewTemplate = pluginSettingsJson && pluginSettingsJson.view ? pluginSettingsJson.view.template : undefined;
     return new PluginSettings(configurations, viewTemplate);
+  }
+
+  hasView() {
+    return this.viewTemplate !== undefined && this.viewTemplate() !== undefined && this.viewTemplate().trim().length > 0;
+  }
+
+  hasConfigurations() {
+    return this.configurations !== undefined && this.configurations() !== undefined && this.configurations().length > 0;
   }
 }
 
 export abstract class Extension {
   readonly type: ExtensionType;
+  readonly pluginSettings?: PluginSettings;
 
-  protected constructor(type: ExtensionType) {
-    this.type = type;
+  protected constructor(type: ExtensionType, pluginSettings?: PluginSettings) {
+    this.type           = type;
+    this.pluginSettings = pluginSettings;
   }
 
   static fromJSON(data: any): Extension | undefined {
@@ -86,11 +102,17 @@ export abstract class Extension {
     }
   }
 
-  abstract hasView(): boolean;
+  hasView(): boolean {
+    return this.pluginSettings !== undefined && this.pluginSettings.hasView();
+  }
 
-  abstract hasConfigurations(): boolean;
+  hasConfigurations(): boolean {
+    return this.pluginSettings !== undefined && this.pluginSettings.hasConfigurations();
+  }
 
-  abstract hasPluginSettings(): boolean;
+  hasPluginSettings(): boolean {
+    return this.hasView() && this.hasConfigurations();
+  }
 
 }
 
@@ -100,8 +122,11 @@ class ArtifactSettings extends Extension {
   readonly artifactConfigSettings: PluginSettings;
   readonly fetchArtifactSettings: PluginSettings;
 
-  constructor(storeConfigSettings: PluginSettings, artifactConfigSettings: PluginSettings, fetchArtifactSettings: PluginSettings) {
-    super(ExtensionType.ARTIFACT);
+  constructor(storeConfigSettings: PluginSettings,
+              artifactConfigSettings: PluginSettings,
+              fetchArtifactSettings: PluginSettings,
+              pluginSettings?: PluginSettings) {
+    super(ExtensionType.ARTIFACT, pluginSettings);
     this.storeConfigSettings    = storeConfigSettings;
     this.artifactConfigSettings = artifactConfigSettings;
     this.fetchArtifactSettings  = fetchArtifactSettings;
@@ -109,75 +134,38 @@ class ArtifactSettings extends Extension {
 
   static fromJSON(data: any) {
     return new ArtifactSettings(PluginSettings.fromJSON(data.store_config_settings),
-      PluginSettings.fromJSON(data.artifact_config_settings), PluginSettings.fromJSON(data.fetch_artifact_settings));
+      PluginSettings.fromJSON(data.artifact_config_settings),
+      PluginSettings.fromJSON(data.fetch_artifact_settings),
+      PluginSettings.tryParsing(data));
   }
-
-  hasConfigurations(): boolean {
-    return true;
-  }
-
-  hasView(): boolean {
-    return true;
-  }
-
-  hasPluginSettings(): boolean {
-    return false;
-  }
-
 }
 
 class ConfigRepoSettings extends Extension {
-  readonly pluginSettings: PluginSettings;
 
-  constructor(pluginSettings: PluginSettings) {
-    super(ExtensionType.CONFIG_REPO);
-    this.pluginSettings = pluginSettings;
+  constructor(pluginSettings?: PluginSettings) {
+    super(ExtensionType.CONFIG_REPO, pluginSettings);
   }
 
   static fromJSON(data: any) {
     return new ConfigRepoSettings(PluginSettings.fromJSON(data.plugin_settings));
   }
-
-  hasConfigurations(): boolean {
-    return this.pluginSettings.configurations !== undefined && this.pluginSettings.configurations.length > 0;
-  }
-
-  hasView(): boolean {
-    return this.pluginSettings.viewTemplate !== undefined;
-  }
-
-  hasPluginSettings(): boolean {
-    return true;
-  }
 }
 
 class ElasticAgentSettings extends Extension {
-  readonly pluginSettings: PluginSettings;
   readonly profileSettings: PluginSettings;
   readonly capabilities: ElasticPluginCapabilities;
 
-  constructor(pluginSettings: PluginSettings, profileSettings: PluginSettings, capabilities: ElasticPluginCapabilities) {
-    super(ExtensionType.ELASTIC_AGENTS);
-    this.pluginSettings  = pluginSettings;
+  constructor(profileSettings: PluginSettings,
+              capabilities: ElasticPluginCapabilities,
+              pluginSettings?: PluginSettings) {
+    super(ExtensionType.ELASTIC_AGENTS, pluginSettings);
     this.profileSettings = profileSettings;
     this.capabilities    = capabilities;
   }
 
   static fromJSON(data: any) {
-    return new ElasticAgentSettings(PluginSettings.fromJSON(data.plugin_settings),
-      PluginSettings.fromJSON(data.profile_settings), ElasticPluginCapabilities.fromJSON(data.capabilities));
-  }
-
-  hasConfigurations(): boolean {
-    return this.pluginSettings.configurations !== undefined && this.pluginSettings.configurations.length > 0;
-  }
-
-  hasView(): boolean {
-    return this.pluginSettings.viewTemplate !== undefined;
-  }
-
-  hasPluginSettings(): boolean {
-    return true;
+    return new ElasticAgentSettings(PluginSettings.fromJSON(data.profile_settings),
+      ElasticPluginCapabilities.fromJSON(data.capabilities), PluginSettings.tryParsing(data));
   }
 }
 
@@ -186,8 +174,11 @@ class AuthorizationSettings extends Extension {
   readonly roleSettings: PluginSettings;
   readonly capabilities: AuthCapabilities;
 
-  constructor(authConfigSettings: PluginSettings, roleSettings: PluginSettings, capabilities: AuthCapabilities) {
-    super(ExtensionType.AUTHORIZATION);
+  constructor(authConfigSettings: PluginSettings,
+              roleSettings: PluginSettings,
+              capabilities: AuthCapabilities,
+              pluginSettings?: PluginSettings) {
+    super(ExtensionType.AUTHORIZATION, pluginSettings);
     this.authConfigSettings = authConfigSettings;
     this.roleSettings       = roleSettings;
     this.capabilities       = capabilities;
@@ -195,19 +186,8 @@ class AuthorizationSettings extends Extension {
 
   static fromJSON(data: any) {
     return new AuthorizationSettings(PluginSettings.fromJSON(data.auth_config_settings),
-      PluginSettings.fromJSON(data.role_settings), AuthCapabilities.fromJSON(data.capabilities));
-  }
-
-  hasConfigurations(): boolean {
-    return this.authConfigSettings.configurations !== undefined && this.authConfigSettings.configurations.length > 0;
-  }
-
-  hasView(): boolean {
-    return this.authConfigSettings.viewTemplate !== undefined;
-  }
-
-  hasPluginSettings(): boolean {
-    return false;
+      PluginSettings.fromJSON(data.role_settings), AuthCapabilities.fromJSON(data.capabilities),
+      PluginSettings.tryParsing(data));
   }
 }
 
@@ -215,26 +195,14 @@ class ScmSettings extends Extension {
   readonly displayName: string;
   readonly scmSettings: PluginSettings;
 
-  constructor(displayName: string, scmSettings: PluginSettings) {
-    super(ExtensionType.SCM);
+  constructor(displayName: string, scmSettings: PluginSettings, pluginSettings?: PluginSettings) {
+    super(ExtensionType.SCM, pluginSettings);
     this.displayName = displayName;
     this.scmSettings = scmSettings;
   }
 
   static fromJSON(data: any) {
-    return new ScmSettings(data.display_name, PluginSettings.fromJSON(data.scm_settings));
-  }
-
-  hasConfigurations(): boolean {
-    return false;
-  }
-
-  hasView(): boolean {
-    return false;
-  }
-
-  hasPluginSettings(): boolean {
-    return false;
+    return new ScmSettings(data.display_name, PluginSettings.fromJSON(data.scm_settings), PluginSettings.tryParsing(data));
   }
 }
 
@@ -242,110 +210,53 @@ class TaskSettings extends Extension {
   readonly displayName: string;
   readonly taskSettings: PluginSettings;
 
-  constructor(displayName: string, taskSettings: PluginSettings) {
-    super(ExtensionType.TASK);
+  constructor(displayName: string, taskSettings: PluginSettings, pluginSettings?: PluginSettings) {
+    super(ExtensionType.TASK, pluginSettings);
     this.displayName  = displayName;
     this.taskSettings = taskSettings;
   }
 
   static fromJSON(data: any) {
-    return new TaskSettings(data.display_name, PluginSettings.fromJSON(data.task_settings));
-  }
-
-  hasConfigurations(): boolean {
-    //return this.taskSettings.configurations != undefined && this.taskSettings.configurations.length > 0;
-    return false;
-  }
-
-  hasView(): boolean {
-    //return this.taskSettings.viewTemplate != undefined;
-    return false;
-  }
-
-  hasPluginSettings(): boolean {
-    return false;
+    return new TaskSettings(data.display_name, PluginSettings.fromJSON(data.task_settings), PluginSettings.tryParsing(data));
   }
 }
 
 class PackageRepoSettings extends Extension {
   readonly packageSettings: PluginSettings;
   readonly repositorySettings: PluginSettings;
-  readonly pluginSettings: PluginSettings;
 
-  constructor(packageSettings: PluginSettings, repositorySettings: PluginSettings, pluginSettings: PluginSettings) {
-    super(ExtensionType.PACKAGE_REPO);
+  constructor(packageSettings: PluginSettings, repositorySettings: PluginSettings, pluginSettings?: PluginSettings) {
+    super(ExtensionType.PACKAGE_REPO, pluginSettings);
     this.packageSettings    = packageSettings;
     this.repositorySettings = repositorySettings;
-    this.pluginSettings     = pluginSettings;
   }
 
   static fromJSON(data: any) {
     return new PackageRepoSettings(PluginSettings.fromJSON(data.package_settings),
-      PluginSettings.fromJSON(data.repository_settings), PluginSettings.fromJSON(data.plugin_settings));
-  }
-
-  hasConfigurations(): boolean {
-    return false;
-  }
-
-  hasView(): boolean {
-    return false;
-  }
-
-  hasPluginSettings(): boolean {
-    return true;
+      PluginSettings.fromJSON(data.repository_settings), PluginSettings.tryParsing(data));
   }
 }
 
 class NotificationSettings extends Extension {
-  readonly pluginSettings: PluginSettings;
 
-  constructor(pluginSettings: PluginSettings) {
-    super(ExtensionType.NOTIFICATION);
-    this.pluginSettings = pluginSettings;
+  constructor(pluginSettings?: PluginSettings) {
+    super(ExtensionType.NOTIFICATION, pluginSettings);
   }
 
   static fromJSON(data: any) {
-    return new NotificationSettings(PluginSettings.fromJSON(data.plugin_settings));
-  }
-
-  hasConfigurations(): boolean {
-    return this.pluginSettings.configurations !== undefined && this.pluginSettings.configurations.length > 0;
-  }
-
-  hasView(): boolean {
-    return this.pluginSettings.viewTemplate !== undefined;
-  }
-
-  hasPluginSettings(): boolean {
-    return true;
+    return new NotificationSettings(PluginSettings.tryParsing(data));
   }
 }
 
 class AnalyticsSettings extends Extension {
-  readonly pluginSettings: PluginSettings;
   readonly capabilities: AnalyticsCapabilities;
 
-  constructor(pluginSettings: PluginSettings, capabilities: AnalyticsCapabilities) {
-    super(ExtensionType.ANALYTICS);
-    this.pluginSettings = pluginSettings;
-    this.capabilities   = capabilities;
+  constructor(capabilities: AnalyticsCapabilities, pluginSettings?: PluginSettings) {
+    super(ExtensionType.ANALYTICS, pluginSettings);
+    this.capabilities = capabilities;
   }
 
   static fromJSON(data: any) {
-    return new AnalyticsSettings(PluginSettings.fromJSON(data.plugin_settings),
-      AnalyticsCapabilities.fromJSON(data.capabilities));
-  }
-
-  hasConfigurations(): boolean {
-    return this.pluginSettings.configurations !== undefined && this.pluginSettings.configurations.length > 0;
-  }
-
-  hasView(): boolean {
-    return this.pluginSettings.viewTemplate !== undefined;
-  }
-
-  hasPluginSettings(): boolean {
-    return true;
+    return new AnalyticsSettings(AnalyticsCapabilities.fromJSON(data.capabilities), PluginSettings.tryParsing(data));
   }
 }

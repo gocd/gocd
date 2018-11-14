@@ -20,10 +20,6 @@ import static com.thoughtworks.go.util.CachedDigestUtils.sha256Hex;
 
 public interface Cacheable {
     default String etag() {
-        return sha256(Integer.toString(hashCode()));
-    }
-
-    default String sha256(String subject) {
-        return sha256Hex(subject);
+        return sha256Hex(Integer.toString(hashCode()));
     }
 }

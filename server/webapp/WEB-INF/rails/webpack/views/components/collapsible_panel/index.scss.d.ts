@@ -2,6 +2,7 @@
 // Please do not change this file!
 export const collapse: string;
 export const expanded: string;
+export const error: string;
 export const collapseHeader: string;
 export const headerDetails: string;
 export const actions: string;

@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import * as _ from "lodash";
 import {About} from "./about";
 import {ExtensionType} from "./extension_type";
 import {Extension} from "./extensions";
@@ -46,7 +47,12 @@ export class PluginInfo<T extends Extension> {
   readonly bundledPlugin: boolean;
   readonly extensions: T[];
 
-  constructor(id: string, about: About, imageUrl: string, status: Status, pluginFileLocation: string, bundledPlugin: boolean,
+  constructor(id: string,
+              about: About,
+              imageUrl: string,
+              status: Status,
+              pluginFileLocation: string,
+              bundledPlugin: boolean,
               extensions: T[]) {
     this.id                 = id;
     this.about              = about;
@@ -65,7 +71,8 @@ export class PluginInfo<T extends Extension> {
   }
 
   supportsPluginSettings(): boolean {
-    return this.extensions.length > 0 && this.extensions.reduce((previous, ext) => previous && ext.hasPluginSettings(), true);
+    return this.extensions.length > 0 && this.extensions.reduce((previous,
+                                                                 ext) => previous && ext.hasPluginSettings(), true);
   }
 
   types(): ExtensionType[] {
@@ -78,5 +85,16 @@ export class PluginInfo<T extends Extension> {
 
   firstExtensionWithPluginSettings(): T | undefined {
     return this.extensions.find((ext) => ext.hasPluginSettings());
+  }
+
+  hasErrors(): boolean {
+    return this.status.state === State.invalid;
+  }
+
+  getErrors(): string {
+    if (this.hasErrors() && this.status.messages) {
+      return _.join(this.status.messages, " ");
+    }
+    return "";
   }
 }

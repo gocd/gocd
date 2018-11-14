@@ -71,8 +71,7 @@ export class PluginInfo<T extends Extension> {
   }
 
   supportsPluginSettings(): boolean {
-    return this.extensions.length > 0 && this.extensions.reduce((previous,
-                                                                 ext) => previous && ext.hasPluginSettings(), true);
+    return this.firstExtensionWithPluginSettings() !== undefined;
   }
 
   types(): ExtensionType[] {

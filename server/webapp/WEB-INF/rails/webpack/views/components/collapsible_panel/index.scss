@@ -65,8 +65,7 @@ $header-padding: 10px 50px 10px 30px;
 .header_details {
   display:        flex;
   flex-direction: column;
-  //align-items:    center;
-  //width:          100%;
+  align-items:    center;
   @media (min-width: $screen-md) {
     flex-direction: row;
   }

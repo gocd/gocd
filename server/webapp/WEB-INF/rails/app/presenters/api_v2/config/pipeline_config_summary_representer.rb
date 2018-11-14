@@ -20,7 +20,7 @@ module ApiV2
       alias_method :pipeline, :represented
 
       link :self do |opts|
-        spark_url_aware(opts, SparkRoutes::PipelineConfig.name(pipeline.name.toString))
+        spark_url_for(opts, SparkRoutes::PipelineConfig.name(pipeline.name.toString))
       end
 
       link :doc do |opts|
@@ -28,7 +28,7 @@ module ApiV2
       end
 
       link :find do |opts|
-        spark_url_aware(opts, SparkRoutes::PipelineConfig.find)
+        spark_url_for(opts, SparkRoutes::PipelineConfig.find)
       end
 
       property :name, case_insensitive_string: true

@@ -32,19 +32,19 @@ module ApiV1
       end
 
       link :trigger do |opts|
-        spark_url_aware(opts, SparkRoutes::Pipeline.schedule(pipeline.getName()))
+        spark_url_for(opts, SparkRoutes::Pipeline.schedule(pipeline.getName()))
       end
 
       link :trigger_with_options do |opts|
-        spark_url_aware(opts, SparkRoutes::Pipeline.schedule(pipeline.getName()))
+        spark_url_for(opts, SparkRoutes::Pipeline.schedule(pipeline.getName()))
       end
 
       link :pause do |opts|
-        spark_url_aware(opts, SparkRoutes::Pipeline.pause(pipeline.getName()))
+        spark_url_for(opts, SparkRoutes::Pipeline.pause(pipeline.getName()))
       end
 
       link :unpause do |opts|
-        spark_url_aware(opts, SparkRoutes::Pipeline.unpause(pipeline.getName()))
+        spark_url_for(opts, SparkRoutes::Pipeline.unpause(pipeline.getName()))
       end
 
       property :getName, as: :name

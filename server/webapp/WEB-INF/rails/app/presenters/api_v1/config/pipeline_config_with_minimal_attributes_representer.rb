@@ -20,7 +20,7 @@ module ApiV1
       alias_method :pipeline, :represented
 
       link :self do |opts|
-        spark_url_aware(opts, SparkRoutes::PipelineConfig.name(pipeline.name.toString))
+        spark_url_for(opts, SparkRoutes::PipelineConfig.name(pipeline.name.toString))
       end
 
       property   :name, exec_context: :decorator

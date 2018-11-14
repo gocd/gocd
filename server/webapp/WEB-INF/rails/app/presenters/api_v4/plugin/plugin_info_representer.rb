@@ -46,7 +46,7 @@ module ApiV4
 
       link :image do |opts|
         if plugin.image
-          spark_url_aware(opts, SparkRoutes::PluginImages::pluginImage(plugin.descriptor.id, plugin.getImage.getHash()))
+          spark_url_for(opts, SparkRoutes::PluginImages::pluginImage(plugin.descriptor.id, plugin.getImage.getHash()))
         end
       end
 

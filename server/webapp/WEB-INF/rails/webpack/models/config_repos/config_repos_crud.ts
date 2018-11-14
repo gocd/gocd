@@ -22,22 +22,22 @@ export class ConfigReposCRUD {
   private static API_VERSION_HEADER = ApiVersion.v1;
 
   static all() {
-    return ApiRequestBuilder.GET(SparkRoutes.ApiConfigReposListPath(), this.API_VERSION_HEADER)
+    return ApiRequestBuilder.GET(SparkRoutes.apiConfigReposInternalPath(), this.API_VERSION_HEADER)
       .then((xhr: XMLHttpRequest) => JSON.parse(xhr.responseText) as ConfigRepos);
   }
 
   static get(id: string) {
-    return ApiRequestBuilder.GET(SparkRoutes.ApiConfigReposPath(id), this.API_VERSION_HEADER)
+    return ApiRequestBuilder.GET(SparkRoutes.ApiConfigRepoPath(id), this.API_VERSION_HEADER)
       .then(this.extractResponseWithEtag());
   }
 
   static update(response: HttpResponseWithEtag<ConfigRepo>) {
-    return ApiRequestBuilder.PUT(SparkRoutes.ApiConfigReposPath(response.object.id), this.API_VERSION_HEADER, response.object, response.etag)
+    return ApiRequestBuilder.PUT(SparkRoutes.ApiConfigRepoPath(response.object.id), this.API_VERSION_HEADER, response.object, response.etag)
       .then(this.extractResponseWithEtag());
   }
 
   static delete(repo: ConfigRepo) {
-    return ApiRequestBuilder.DELETE(SparkRoutes.ApiConfigReposPath(repo.id), this.API_VERSION_HEADER)
+    return ApiRequestBuilder.DELETE(SparkRoutes.ApiConfigRepoPath(repo.id), this.API_VERSION_HEADER)
       .then((xhr: XMLHttpRequest) => JSON.parse(xhr.responseText));
   }
 

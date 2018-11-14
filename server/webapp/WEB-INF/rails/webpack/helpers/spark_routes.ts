@@ -98,8 +98,12 @@ export default class {
     return `/go/api/admin/config_repos`;
   }
 
-  static ApiConfigReposPath(id: string): string {
-    return `/go/api/internal/config_repos/${id}`;
+  static ApiConfigRepoPath(id: string): string {
+    return `/go/api/admin/config_repos/${id}`;
+  }
+
+  static apiConfigReposInternalPath(): string {
+    return `/go/api/internal/config_repos`;
   }
 
   static configRepoLastParsedResultPath(id: string): string {

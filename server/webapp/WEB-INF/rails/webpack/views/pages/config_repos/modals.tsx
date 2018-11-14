@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {HttpResponseWithEtag} from "helpers/api_request_builder";
+import {ErrorResponse, ObjectWithEtag} from "helpers/api_request_builder";
 import {MithrilViewComponent} from "jsx/mithril-component";
 import * as _ from "lodash";
 import * as m from "mithril";
@@ -253,15 +253,19 @@ export class NewConfigRepoModal extends ConfigRepoModal {
   }
 
   performSave() {
-    ConfigReposCRUD.create(this.repo()).then(this.close.bind(this)).then(() => {
-      this.onSuccessfulSave(<span>The config repository <em>{this.repo().id}</em> was created successfully!</span>);
-    });
+    ConfigReposCRUD.create(this.repo())
+      .then((result) => {
+        result.do(
+          () => this.onSuccessfulSave(<span>The config repository <em>{this.repo().id}</em> was created successfully!</span>),
+          (result) => this.onError(result.message)
+        );
+    }).then(this.close.bind(this));
   }
 }
 
 export class EditConfigRepoModal extends ConfigRepoModal {
   private readonly repoId: string;
-  private repoWithEtag: Stream<HttpResponseWithEtag<ConfigRepo>> = stream();
+  private repoWithEtag: Stream<ObjectWithEtag<ConfigRepo>> = stream();
 
   constructor(repoId: string,
               onSuccessfulSave: (msg: (m.Children)) => any,
@@ -272,8 +276,8 @@ export class EditConfigRepoModal extends ConfigRepoModal {
 
     ConfigReposCRUD
       .get(repoId)
-      .then(this.repoWithEtag)
-      .catch(this.onRepoGetFailure());
+      .then((result) => result.do(
+        (successResponse) => this.repoWithEtag(successResponse.body), this.onRepoGetFailure));
   }
 
   title(): string {
@@ -292,13 +296,7 @@ export class EditConfigRepoModal extends ConfigRepoModal {
     return this.repoWithEtag() && this.repoWithEtag().object;
   }
 
-  private onRepoGetFailure() {
-    return (error: any) => {
-      if (error instanceof Error) {
-        this.error = error.message;
-      } else {
-        this.error = "There was an unknown error fetching a copy of the config repository. Please try again in some time";
-      }
-    };
+  private onRepoGetFailure(errorResponse: ErrorResponse) {
+    this.error = errorResponse.message;
   }
 }

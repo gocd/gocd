@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {HttpResponseWithEtag} from "helpers/api_request_builder";
+import {ApiResult, ObjectWithEtag} from "helpers/api_request_builder";
 import * as m from "mithril";
 import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
 import {PluginSettings} from "models/shared/plugin_infos_new/plugin_settings/plugin_settings";
@@ -40,7 +40,7 @@ export class PluginSettingsModal extends Modal {
     this.pluginInfo      = pluginInfo;
     this.successCallback = successCallback;
 
-    PluginSettingsCRUD.get(this.pluginInfo.id).then(this.onFulfilled.bind(this), this.onFailure.bind(this));
+    PluginSettingsCRUD.get(this.pluginInfo.id).then(this.onFulfilled.bind(this));
   }
 
   title() {
@@ -75,18 +75,19 @@ export class PluginSettingsModal extends Modal {
     ];
   }
 
-  private onFulfilled(response: HttpResponseWithEtag<PluginSettings>) {
-    this.pluginSettings = response.object;
-    this.etag           = response.etag;
-    this.errorMessage   = null;
-  }
-
-  private onFailure(response: any) {
-    if (response.status === 404) {
-      this.pluginSettings = new PluginSettings(this.pluginInfo.id);
-    } else {
-      this.errorMessage = response.responseText; //TODO parse properly
-    }
+  private onFulfilled(result: ApiResult<ObjectWithEtag<PluginSettings>>) {
+    result.do((successResponse) => {
+      this.pluginSettings = successResponse.body.object;
+      this.etag           = successResponse.body.etag;
+      this.errorMessage   = null;
+    }, (errorResponse) => {
+      if (result.getStatusCode() === 404) {
+        this.pluginSettings = new PluginSettings(this.pluginInfo.id);
+        this.errorMessage   = null;
+      } else {
+        this.errorMessage = errorResponse.message;
+      }
+    });
   }
 
   private performSave() {

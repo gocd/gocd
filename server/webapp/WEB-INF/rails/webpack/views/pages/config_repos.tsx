@@ -14,20 +14,21 @@
  * limitations under the License.
  */
 
+import {ApiResult, ErrorResponse, SuccessResponse} from "helpers/api_request_builder";
 import * as m from "mithril";
 import * as stream from "mithril/stream";
 import {ConfigReposCRUD} from "models/config_repos/config_repos_crud";
-import {ConfigRepo} from "models/config_repos/types";
+import {ConfigRepo, ConfigRepos} from "models/config_repos/types";
 import {ExtensionType} from "models/shared/plugin_infos_new/extension_type";
+import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
 import {PluginInfoCRUD} from "models/shared/plugin_infos_new/plugin_info_crud";
-import * as s from "underscore.string";
 import * as Buttons from "views/components/buttons";
 import {FlashMessage, MessageType} from "views/components/flash_message";
 import {HeaderPanel} from "views/components/header_panel";
 import {DeleteConfirmModal} from "views/components/modal/delete_confirm_modal";
 import {ConfigReposWidget, State} from "views/pages/config_repos/config_repos_widget";
 import {EditConfigRepoModal, NewConfigRepoModal} from "views/pages/config_repos/modals";
-import {Page} from "views/pages/page";
+import {Page, PageState} from "views/pages/page";
 
 export class ConfigReposPage extends Page<null, State> {
 
@@ -36,13 +37,12 @@ export class ConfigReposPage extends Page<null, State> {
     vnode.state.pluginInfos = stream();
     let timeoutID: number;
 
-    super.oninit(vnode);
+    this.fetchData(vnode);
 
     const setMessage = (msg: m.Children, type: MessageType) => {
       vnode.state.message     = msg;
       vnode.state.messageType = type;
       timeoutID               = window.setTimeout(vnode.state.clearMessage.bind(vnode.state), 10000);
-      this.fetchData(vnode);
     };
 
     vnode.state.onError = (msg: m.Children) => {
@@ -51,6 +51,7 @@ export class ConfigReposPage extends Page<null, State> {
 
     vnode.state.onSuccessfulSave = (msg: m.Children) => {
       setMessage(msg, MessageType.success);
+      this.fetchData(vnode);
     };
 
     vnode.state.clearMessage = () => {
@@ -84,24 +85,10 @@ export class ConfigReposPage extends Page<null, State> {
         ConfigReposCRUD
           .delete(repo)
           .then((resp) => {
-            vnode.state.onSuccessfulSave(resp.message);
+            resp.do(
+              (successResponse: SuccessResponse<any>) => vnode.state.onSuccessfulSave(successResponse.body.message),
+              (errorResponse: ErrorResponse) => vnode.state.onError(errorResponse.message));
           })
-          .then(modal.close.bind(modal))
-          .catch((xhr: XMLHttpRequest) => {
-              let message;
-              try {
-                message = JSON.parse(xhr.responseText).message;
-              } catch (e) {
-                // ignore
-              }
-
-              if (s.isBlank(message)) {
-                message = `There was an unknown error (${xhr.status}) deleting the config repo ${repo.id}.`;
-              }
-
-              vnode.state.onError(message);
-            }
-          )
           .then(modal.close.bind(modal));
       });
       modal.render();
@@ -126,13 +113,34 @@ export class ConfigReposPage extends Page<null, State> {
     return <HeaderPanel title="Config repositories" buttons={headerButtons}/>;
   }
 
-  fetchData(vnode: m.Vnode<null, State>): Promise<any> {
+  fetchData(vnode: m.Vnode<null, State>) {
     const state = vnode.state;
     state.configRepos(null);
+    this.pageState = PageState.LOADING;
 
     return Promise.all([PluginInfoCRUD.all({type: ExtensionType.CONFIG_REPO}), ConfigReposCRUD.all()]).then((args) => {
-      state.pluginInfos(args[0]);
-      state.configRepos(args[1]);
+      const pluginInfosResponse: ApiResult<Array<PluginInfo<any>>> = args[0];
+      pluginInfosResponse.do(
+        (successResponse) => {
+          state.pluginInfos(successResponse.body);
+          this.pageState = PageState.OK;
+        },
+        (errorResponse) => {
+          state.onError(errorResponse.message);
+          this.pageState = PageState.FAILED;
+        }
+      );
+      const apiResponse: ApiResult<ConfigRepos> = args[1];
+      apiResponse.do(
+        (successResponse) => {
+          this.pageState = PageState.OK;
+          state.configRepos(successResponse.body);
+        },
+        (errorResponse) => {
+          state.onError(errorResponse.message);
+          this.pageState = PageState.FAILED;
+        }
+      );
     });
   }
 

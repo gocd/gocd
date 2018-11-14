@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {ApiRequestBuilder} from "helpers/api_request_builder";
+import {ApiRequestBuilder, ApiResult} from "helpers/api_request_builder";
 import * as _ from "lodash";
 import {DataReporting} from "./data_sharing/data_reporting";
 import {EncryptedData, EncryptionKeys, UsageData} from "./data_sharing/usage_data";
@@ -22,13 +22,14 @@ import {EncryptedData, EncryptionKeys, UsageData} from "./data_sharing/usage_dat
 const USAGE_DATA_LAST_REPORTED_TIME_KEY = "last_usage_data_reporting_check_time";
 
 const fetchEncryptionKeysFromDataSharingServer = (url: string) => {
-  return ApiRequestBuilder.GET(url).then((xhr: XMLHttpRequest) => {
-    return JSON.parse(xhr.responseText) as EncryptionKeys;
+  return ApiRequestBuilder.GET(url).then((result: ApiResult<string>) => {
+    return result.map((text) => JSON.parse(text) as EncryptionKeys).getOrThrow();
   });
 };
 
 const reportToGoCDDataSharingServer = (url: string, payload: EncryptedData) => {
-  return ApiRequestBuilder.POST(url, undefined, payload, {contentType: "application/octet-stream"});
+  return ApiRequestBuilder.POST(url, undefined, payload, {contentType: "application/octet-stream"})
+    .then((result: ApiResult<string>) => result.getOrThrow());
 };
 
 const canTryToReportingUsageData = (): boolean => {

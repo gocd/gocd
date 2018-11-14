@@ -5,7 +5,7 @@ mod="$((${GO_PIPELINE_COUNTER} % 3))"
 
 function use_jdk() {
   source "${HOME}/.jabba/jabba.sh"
-  jabba use "$1" || jabba install "$1=$2"
+  jabba use "$1" 2>&1 > /dev/null || jabba install "$1=$2"
   jabba use "$1"
 }
 

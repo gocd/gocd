@@ -28,6 +28,7 @@ type AttributeType = m.Children;
 export interface Attrs<Header, Actions> {
   actions?: AttributeType | AttributeType[];
   header: AttributeType | string;
+  error?: boolean;
 }
 
 export interface State {
@@ -45,7 +46,10 @@ export class CollapsiblePanel<Header, Actions> extends MithrilComponent<Attrs<He
   }
 
   view(vnode: m.Vnode<Attrs<Header, Actions>, State>) {
-    const collapsibleClasses = classnames(vnode.state.expanded() && styles.expanded);
+    const collapsibleClasses = classnames({
+      [styles.expanded]: vnode.state.expanded(),
+      [styles.error]: vnode.attrs.error
+    });
     let actions;
     if (vnode.attrs.actions) {
       actions = <div class={styles.actions}>

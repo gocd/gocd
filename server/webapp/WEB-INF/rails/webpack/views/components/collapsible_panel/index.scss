@@ -29,6 +29,9 @@ $header-padding: 10px 50px 10px 30px;
     transition: $transition;
     box-shadow: 0 0 10px $box-shadow-color;
   }
+  &.error {
+    background: $secondary-bg;
+  }
 }
 
 .collapse-header {

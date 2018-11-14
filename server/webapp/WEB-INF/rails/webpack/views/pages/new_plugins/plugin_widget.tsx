@@ -92,22 +92,26 @@ export class PluginWidget extends MithrilViewComponent<Attrs> {
       settingsButton = <Icons.Settings data-test-id="edit-plugin-settings" onclick={vnode.attrs.onEdit}/>;
     }
 
+    let pluginData = {
+      "Description": pluginInfo.about.description,
+      "Author": this.getAuthorInfo(pluginInfo),
+      "Supported operating systems": _.isEmpty(pluginInfo.about.targetOperatingSystems) ? "No restrictions" : pluginInfo.about.targetOperatingSystems,
+      "Plugin file location": pluginInfo.pluginFileLocation,
+      "Bundled": pluginInfo.bundledPlugin ? "Yes" : "No",
+      "Target Go Version": pluginInfo.about.targetGoVersion,
+    };
+    if (pluginInfo.hasErrors()) {
+      pluginData = Object.assign(pluginData, {"There were errors loading the plugin": pluginInfo.getErrors()});
+    }
+
     return (
       <CollapsiblePanel header={<PluginHeaderWidget image={this.createImageTag(pluginInfo)}
                                                     pluginName={pluginInfo.about.name}
                                                     pluginVersion={pluginInfo.about.version}
                                                     pluginId={pluginInfo.id}/>}
-                        actions={[statusReportButton, settingsButton]}>
-        <KeyValuePair data={
-          {
-            "Description": pluginInfo.about.description,
-            "Author": this.getAuthorInfo(pluginInfo),
-            "Supported operating systems": _.isEmpty(pluginInfo.about.targetOperatingSystems) ? "No restrictions" : pluginInfo.about.targetOperatingSystems,
-            "Plugin file location": pluginInfo.pluginFileLocation,
-            "Bundled": pluginInfo.bundledPlugin ? "Yes" : "No",
-            "Target Go Version": pluginInfo.about.targetGoVersion,
-          }
-        }/>
+                        actions={[statusReportButton, settingsButton]}
+                        error={pluginInfo.hasErrors()}>
+        <KeyValuePair data={pluginData}/>
       </CollapsiblePanel>
     );
   }

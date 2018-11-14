@@ -26,7 +26,9 @@ describe("New Plugins Widget", () => {
   const simulateEvent = require("simulate-event");
 
   const pluginInfos = [PluginInfo.fromJSON(getEAPluginInfo(), getEAPluginInfo()._links),
-    PluginInfo.fromJSON(getNotificationPluginInfo(), undefined)];
+    PluginInfo.fromJSON(getNotificationPluginInfo(), undefined),
+    PluginInfo.fromJSON(getYumPluginInfo(), undefined)
+  ];
 
   let $root: any, root: any;
   beforeEach(() => {
@@ -40,11 +42,11 @@ describe("New Plugins Widget", () => {
   afterEach(window.destroyDomElementForTest);
 
   it("should render all plugin infos", () => {
-    expect(find('plugins-list').get(0).children).toHaveLength(2);
+    expect(find('plugins-list').get(0).children).toHaveLength(3);
   });
 
   it("should render plugin name and image", () => {
-    expect(find('plugins-list').get(0).children).toHaveLength(2);
+    expect(find('plugins-list').get(0).children).toHaveLength(3);
 
     expect(find('plugin-name').get(0)).toContainText(getEAPluginInfo().about.name);
     expect($root.find(`.${styles.pluginIcon} img`).get(0)).toHaveAttr("src", getEAPluginInfo()._links.image.href);
@@ -52,7 +54,7 @@ describe("New Plugins Widget", () => {
   });
 
   it("should render plugin id and version", () => {
-    expect(find('plugins-list').get(0).children).toHaveLength(2);
+    expect(find('plugins-list').get(0).children).toHaveLength(3);
 
     const EAPluginHeader           = $root.find(`.${keyValuePairStyles.keyValuePair}`).get(0);
     const notificationPluginHeader = $root.find(`.${keyValuePairStyles.keyValuePair}`).get(2);
@@ -69,7 +71,7 @@ describe("New Plugins Widget", () => {
   });
 
   it("should render all plugin infos collapsed", () => {
-    expect(find('plugins-list').get(0).children).toHaveLength(2);
+    expect(find('plugins-list').get(0).children).toHaveLength(3);
 
     const EAPluginInfo           = $root.find(`.${collapsiblePanelStyles.collapse}`).get(0);
     const NotificationPluginInfo = $root.find(`.${collapsiblePanelStyles.collapse}`).get(1);
@@ -79,7 +81,7 @@ describe("New Plugins Widget", () => {
   });
 
   it("should toggle expanded state of plugin infos on click", () => {
-    expect(find('plugins-list').get(0).children).toHaveLength(2);
+    expect(find('plugins-list').get(0).children).toHaveLength(3);
 
     const EAPluginInfoHeader           = find('collapse-header').get(0);
     const NotificationPluginInfoHeader = find('collapse-header').get(1);
@@ -111,7 +113,7 @@ describe("New Plugins Widget", () => {
   });
 
   it("should render plugin infos information in collapsed body", () => {
-    expect(find('plugins-list').get(0).children).toHaveLength(2);
+    expect(find('plugins-list').get(0).children).toHaveLength(3);
 
     const EAPluginInfoHeader           = find('collapse-header').get(0);
     const NotificationPluginInfoHeader = find('collapse-header').get(1);
@@ -162,6 +164,13 @@ describe("New Plugins Widget", () => {
   it('should render status report link for ea plugins supporting status report', () => {
     expect(find('status-report-link').get(0)).toBeInDOM();
     expect(find('status-report-link')).toHaveLength(1);
+  });
+
+  it("should render error messages for plugins in invalid/error state", () => {
+    const yumPluginInfoBody = find("collapse-body").get(2);
+    expect(yumPluginInfoBody).toContainText("There were errors loading the plugin");
+    expect(yumPluginInfoBody).toContainText("Plugin with ID (yum) is not valid: Incompatible with current operating system 'Mac OS X'. Valid operating systems are: [Linux].");
+    expect($root.find(`.${collapsiblePanelStyles.collapse}`).get(2)).toHaveClass(collapsiblePanelStyles.error);
   });
 
   function mount(pluginInfos: any, isUserAdmin: boolean = true) {
@@ -296,6 +305,36 @@ describe("New Plugins Widget", () => {
             }
           }
         }
+      ]
+    };
+  }
+
+  function getYumPluginInfo() {
+    return {
+      id: "yum",
+      status: {
+        state: "invalid",
+        messages: [
+          "Plugin with ID (yum) is not valid: Incompatible with current operating system 'Mac OS X'. Valid operating systems are: [Linux].",
+        ]
+      },
+      plugin_file_location: "/Users/akshayd/projects/go/gocd/server/plugins/bundled/gocd-yum-repository-poller-plugin.jar",
+      bundled_plugin: true,
+      about: {
+        name: "Yum Plugin",
+        version: "2.0.3",
+        target_go_version: "15.2.0",
+        description: "Plugin that polls a yum repository",
+        target_operating_systems: [
+          "Linux"
+        ],
+        vendor: {
+          name: "ThoughtWorks Go Team",
+          url: "https://www.thoughtworks.com"
+        }
+      },
+      extensions: [
+
       ]
     };
   }

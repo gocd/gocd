@@ -30,6 +30,7 @@ import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.config.remote.ConfigReposConfig;
 import com.thoughtworks.go.server.service.ConfigRepoService;
+import com.thoughtworks.go.server.service.EntityHashingService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.spark.Routes.ConfigRepos;
 import com.thoughtworks.go.spark.spring.SparkSpringController;
@@ -49,13 +50,15 @@ public class ConfigReposControllerV1 extends ApiController implements SparkSprin
     private final ApiAuthenticationHelper authHelper;
     private final ConfigRepoService service;
     private final MaterialConfigHelper mch;
+    private final EntityHashingService entityHashingService;
 
     @Autowired
-    public ConfigReposControllerV1(ApiAuthenticationHelper authHelper, ConfigRepoService service, MaterialConfigHelper mch) {
+    public ConfigReposControllerV1(ApiAuthenticationHelper authHelper, ConfigRepoService service, MaterialConfigHelper mch, EntityHashingService entityHashingService) {
         super(ApiVersion.v1);
         this.service = service;
         this.authHelper = authHelper;
         this.mch = mch;
+        this.entityHashingService = entityHashingService;
     }
 
     @Override
@@ -122,16 +125,17 @@ public class ConfigReposControllerV1 extends ApiController implements SparkSprin
 
     String updateRepo(Request req, Response res) {
         String id = req.params(":id");
-        ConfigRepoConfig repo = fetchEntityFromConfig(id);
+        ConfigRepoConfig repoFromConfig = fetchEntityFromConfig(id);
+        ConfigRepoConfig repoFromRequest = buildEntityFromRequestBody(req);
 
-        if (isPutRequestStale(req, repo)) {
+        if (isPutRequestStale(req, repoFromConfig)) {
             throw haltBecauseEtagDoesNotMatch();
         }
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        service.updateConfigRepo(id, repo, currentUsername(), result);
+        service.updateConfigRepo(id, repoFromRequest, etagFor(repoFromConfig), currentUsername(), result);
 
-        return handleCreateOrUpdateResponse(req, res, repo, result);
+        return handleCreateOrUpdateResponse(req, res, repoFromRequest, result);
     }
 
     String deleteRepo(Request req, Response res) {
@@ -143,13 +147,9 @@ public class ConfigReposControllerV1 extends ApiController implements SparkSprin
         return handleSimpleMessageResponse(res, result);
     }
 
-    private ConfigReposConfig allRepos() {
-        return service.getConfigRepos();
-    }
-
     @Override
     public String etagFor(ConfigRepoConfig repo) {
-        return repo.etag();
+        return entityHashingService.md5ForEntity(repo);
     }
 
     @Override
@@ -166,6 +166,10 @@ public class ConfigReposControllerV1 extends ApiController implements SparkSprin
     @Override
     public Consumer<OutputWriter> jsonWriter(ConfigRepoConfig repo) {
         return w -> ConfigRepoConfigRepresenterV1.toJSON(w, repo);
+    }
+
+    private ConfigReposConfig allRepos() {
+        return service.getConfigRepos();
     }
 
     private void haltIfEntityWithSameIdExists(ConfigRepoConfig repo) {

@@ -25,6 +25,7 @@ import com.thoughtworks.go.config.remote.ConfigRepoConfig
 import com.thoughtworks.go.config.remote.ConfigReposConfig
 import com.thoughtworks.go.server.domain.Username
 import com.thoughtworks.go.server.service.ConfigRepoService
+import com.thoughtworks.go.server.service.EntityHashingService
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult
 import com.thoughtworks.go.spark.AdminUserSecurity
 import com.thoughtworks.go.spark.ControllerTrait
@@ -55,6 +56,9 @@ class ConfigReposControllerV1Test implements SecurityServiceTrait, ControllerTra
 
   private MaterialConfigHelper mch
 
+  @Mock
+  private EntityHashingService entityHashingService
+
   @BeforeEach
   void setUp() {
     initMocks(this)
@@ -63,7 +67,7 @@ class ConfigReposControllerV1Test implements SecurityServiceTrait, ControllerTra
 
   @Override
   ConfigReposControllerV1 createControllerInstance() {
-    new ConfigReposControllerV1(new ApiAuthenticationHelper(securityService, goConfigService), service, mch)
+    new ConfigReposControllerV1(new ApiAuthenticationHelper(securityService, goConfigService), service, mch, entityHashingService)
   }
 
   @Nested
@@ -178,12 +182,13 @@ class ConfigReposControllerV1Test implements SecurityServiceTrait, ControllerTra
     void 'fetches a repo'() {
       ConfigRepoConfig repo = repo(ID_1)
       when(service.getConfigRepo(ID_1)).thenReturn(repo)
+      when(entityHashingService.md5ForEntity(repo)).thenReturn('md5')
 
       getWithApiHeader(controller.controllerPath(ID_1))
 
       assertThatResponse().
         isOk().
-        hasHeader('ETag', "\"${repo.etag()}\""). // test etag does not change
+        hasHeader('ETag', '"md5"'). // test etag does not change
         hasJsonBody(expectedRepoJson(ID_1))
     }
 
@@ -274,17 +279,20 @@ class ConfigReposControllerV1Test implements SecurityServiceTrait, ControllerTra
     void 'updates an existing repo'() {
       String id = "test-repo"
 
-      ConfigRepoConfig existing = repo(id)
+      ConfigRepoConfig existing = new ConfigRepoConfig(new HgMaterialConfig("https://fakeurl.com", null), TEST_PLUGIN_ID, id)
+      ConfigRepoConfig repoFromRequest = new ConfigRepoConfig(new HgMaterialConfig("https://newfakeurl.com", null), TEST_PLUGIN_ID, id)
       when(service.getConfigRepo(id)).thenReturn(existing)
+      when(entityHashingService.md5ForEntity(existing)).thenReturn('md5')
+      when(entityHashingService.md5ForEntity(repoFromRequest)).thenReturn('new_md5')
 
-      putWithApiHeader(controller.controllerPath(id), ['If-Match': existing.etag()], [
+      putWithApiHeader(controller.controllerPath(id), ['If-Match': 'md5'], [
         id           : id,
         plugin_id    : TEST_PLUGIN_ID,
         material     : [
           type      : "hg",
           attributes: [
             name       : null,
-            url        : "${TEST_REPO_URL}/$id".toString(),
+            url        : "https://newfakeurl.com",
             auto_update: true
           ]
         ],
@@ -292,12 +300,12 @@ class ConfigReposControllerV1Test implements SecurityServiceTrait, ControllerTra
       ])
 
       verify(service, times(1)).
-        updateConfigRepo(eq(id), eq(existing), any() as Username, any() as HttpLocalizedOperationResult)
+        updateConfigRepo(eq(id), eq(repoFromRequest), eq('md5'), any() as Username, any() as HttpLocalizedOperationResult)
 
       assertThatResponse().
         isOk().
-        hasHeader('ETag', "\"${existing.etag()}\""). // test etag does not change
-        hasJsonBody(expectedRepoJson(id))
+        hasHeader('ETag', '"new_md5"'). // test etag should change
+        hasJsonBody(expectedRepoJson(id, "https://newfakeurl.com"))
     }
 
     @Test
@@ -306,7 +314,7 @@ class ConfigReposControllerV1Test implements SecurityServiceTrait, ControllerTra
 
       putWithApiHeader(controller.controllerPath(ID_1), [:])
 
-      verify(service, never()).updateConfigRepo(any() as String, any() as ConfigRepoConfig, any() as Username, any() as HttpLocalizedOperationResult)
+      verify(service, never()).updateConfigRepo(any() as String, any() as ConfigRepoConfig, any() as String, any() as Username, any() as HttpLocalizedOperationResult)
 
       assertThatResponse().
         isNotFound()
@@ -341,7 +349,7 @@ class ConfigReposControllerV1Test implements SecurityServiceTrait, ControllerTra
       putWithApiHeader(controller.controllerPath(id), ['If-Match': existing.etag()], payload)
 
       verify(service, never()).
-        updateConfigRepo(any() as String, any() as ConfigRepoConfig, any() as Username, any() as HttpLocalizedOperationResult)
+        updateConfigRepo(any() as String, any() as ConfigRepoConfig, any() as String, any() as Username, any() as HttpLocalizedOperationResult)
 
 
       assertThatResponse().
@@ -384,7 +392,7 @@ class ConfigReposControllerV1Test implements SecurityServiceTrait, ControllerTra
     }
   }
 
-  static Map expectedRepoJson(String id) {
+  static Map expectedRepoJson(String id, String url="${TEST_REPO_URL}/$id".toString()) {
     return [
       _links       : [
         self: [href: "http://test.host/go${Routes.ConfigRepos.id(id)}".toString()],
@@ -398,7 +406,7 @@ class ConfigReposControllerV1Test implements SecurityServiceTrait, ControllerTra
         type      : "hg",
         attributes: [
           name       : null,
-          url        : "${TEST_REPO_URL}/$id".toString(),
+          url        : url,
           auto_update: true
         ]
       ],

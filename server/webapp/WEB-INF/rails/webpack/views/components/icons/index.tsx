@@ -80,6 +80,12 @@ export class Analytics extends Icon {
   }
 }
 
+export class Usage extends Icon {
+  constructor() {
+    super(styles.usage, "Usage");
+  }
+}
+
 export class Edit extends Icon {
   constructor() {
     super(styles.edit, "Edit");

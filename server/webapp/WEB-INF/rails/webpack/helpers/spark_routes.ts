@@ -118,12 +118,16 @@ export default class {
     return `/go/api/internal/config_repos/${id}/status`;
   }
 
-  static elasticProfilesPath(profileId: string): string {
-    if (profileId) {
-      return `/go/api/elastic/profiles/${profileId}`;
-    } else {
-      return "/go/api/elastic/profiles";
-    }
+  static elasticProfilePath(profileId: string): string {
+    return `/go/api/elastic/profiles/${profileId}`;
+  }
+
+  static elasticProfileListPath(): string {
+    return "/go/api/elastic/profiles";
+  }
+
+  static elasticProfileUsagePath(profileId: string): string {
+    return `/go/api/elastic/profiles/${profileId}/usages`;
   }
 
   static agentsPath(uuid?: string): string {

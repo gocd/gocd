@@ -488,4 +488,49 @@ describe("Validatable", () => {
       expect(pipeline.task().errors().hasErrors()).toBe(false);
     });
   });
+
+  describe("validateMaxLength", () => {
+
+    //tslint:disable-next-line
+    interface Variable extends ValidatableMixin {
+    }
+
+    class Variable implements ValidatableMixin {
+      key: Stream<string>;
+
+      constructor(key: string) {
+        ValidatableMixin.call(this);
+        this.key    = stream(key);
+        this.validateMaxLength("key", 10);
+      }
+    }
+
+    applyMixins(Variable, ValidatableMixin);
+
+    it("should validate max length of a given field", () => {
+      const var1      = new Variable("strGreaterThanTenChars");
+
+      var1.validate();
+
+      expect(var1.errors().hasErrors()).toBe(true);
+      expect(var1.errors().errors("key")).toEqual(["Key must not exceed length 10"]);
+    });
+
+    it("should skip validation if attribute is empty", () => {
+      const var1      = new Variable("");
+
+      var1.validate();
+
+      expect(var1.errors().hasErrors()).toBe(false);
+    });
+
+    it("should not give validation errors if field has valid length", () => {
+      const var1      = new Variable("foobarbaz");
+
+      var1.validate();
+
+      expect(var1.errors().hasErrors()).toBe(false);
+    });
+
+  });
 });

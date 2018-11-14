@@ -48,11 +48,13 @@ public class SpaControllers implements SparkSpringController {
         LayoutTemplateProvider componentAware = () -> featureToggleService.isToggleOn(Toggles.COMPONENTS) ? COMPONENT_LAYOUT_PATH : DEFAULT_LAYOUT_PATH;
         LayoutTemplateProvider defaultTemplate = () -> DEFAULT_LAYOUT_PATH;
 
+        final LayoutTemplateProvider elasticProfileSPAPath = () -> featureToggleService.isToggleOn(Toggles.USE_OLD_ELASTIC_PROFILE_SPA) ? DEFAULT_LAYOUT_PATH : COMPONENT_LAYOUT_PATH;
+
         sparkControllers.add(new RolesControllerDelegate(authenticationHelper, templateEngineFactory.create(RolesControllerDelegate.class, defaultTemplate)));
         sparkControllers.add(new AuthConfigsDelegate(authenticationHelper, templateEngineFactory.create(AuthConfigsDelegate.class, defaultTemplate)));
         sparkControllers.add(new AgentsControllerDelegate(authenticationHelper, templateEngineFactory.create(AgentsControllerDelegate.class, defaultTemplate), securityService, systemEnvironment));
         sparkControllers.add(new PluginsDelegate(authenticationHelper, templateEngineFactory.create(PluginsDelegate.class, componentAware), securityService));
-        sparkControllers.add(new ElasticProfilesDelegate(authenticationHelper, templateEngineFactory.create(ElasticProfilesDelegate.class, defaultTemplate)));
+        sparkControllers.add(new ElasticProfilesDelegate(authenticationHelper, templateEngineFactory.create(ElasticProfilesDelegate.class, elasticProfileSPAPath)));
         sparkControllers.add(new NewDashboardDelegate(authenticationHelper, templateEngineFactory.create(NewDashboardDelegate.class, defaultTemplate), securityService, systemEnvironment, pipelineConfigService));
         sparkControllers.add(new ArtifactStoresDelegate(authenticationHelper, templateEngineFactory.create(ArtifactStoresDelegate.class, defaultTemplate)));
         sparkControllers.add(new AnalyticsDelegate(authenticationHelper, templateEngineFactory.create(AnalyticsDelegate.class, defaultTemplate), systemEnvironment, analyticsExtension, pipelineConfigService));

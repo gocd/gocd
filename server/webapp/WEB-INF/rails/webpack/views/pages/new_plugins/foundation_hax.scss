@@ -589,11 +589,17 @@ $topbar-unstack-breakpoint: medium;
 
 @import '~foundation-sites/scss/foundation';
 
-.foundation-hax {
+.foundation-form-hax {
   @include foundation-forms;
-
   :global .form_error {
     @include form-error;
     display: block;
+  }
+}
+
+
+.foundation-grid-hax {
+  :global {
+    @include foundation-grid
   }
 }

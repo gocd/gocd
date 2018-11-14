@@ -40,6 +40,11 @@
         "key": "server_drain_mode_api_toggle_key",
         "description": "Enables API to toggle server drain mode.",
         "value": false
+      },
+      {
+        "key": "use_old_elastic_profile_spa",
+        "description": "Switch elastic profile spa to use old spa.",
+        "value": false
       }
   ]
 }

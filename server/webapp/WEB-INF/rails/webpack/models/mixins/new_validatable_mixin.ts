@@ -59,6 +59,25 @@ class PresenceValidator extends Validator {
   }
 }
 
+class MaxLengthValidator extends Validator {
+  private readonly maxLength: number;
+
+  constructor(maxLength: number, options?: ValidatorOptions) {
+    super(options);
+    this.maxLength = maxLength;
+  }
+
+  protected doValidate(entity: any, attr: string): void {
+    if (s.isBlank(entity[attr]())) {
+      return;
+    }
+
+    if (entity[attr]().length > this.maxLength) {
+      entity.errors().add(attr, this.options.message || ErrorMessages.mustNotExceedMaxLenth(attr, this.maxLength));
+    }
+  }
+}
+
 class UniquenessValidator extends Validator {
   private otherElements: () => any[];
 
@@ -176,6 +195,10 @@ export class ValidatableMixin {
 
   validateUrlPattern(attr: string, options?: ValidatorOptions): void {
     this.validateWith(new UrlPatternValidator(options), attr);
+  }
+
+  validateMaxLength(attr: string, maxAllowedLength: number, options?: ValidatorOptions) {
+    this.validateWith(new MaxLengthValidator(maxAllowedLength, options), attr);
   }
 
   validateAssociated(association: string): void {

@@ -57,7 +57,7 @@ export class PluginSettingsModal extends Modal {
     }
 
     return (
-      <div class={foundationStyles.foundationHax}>
+      <div class={foundationStyles.foundationFormHax}>
         <div class="row collapse">
           <AngularPluginNew
             pluginInfoSettings={Stream(this.pluginInfo.firstExtensionWithPluginSettings().pluginSettings)}

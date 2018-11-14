@@ -36,6 +36,10 @@ export namespace ErrorMessages {
   export function mustContainString(attribute: string, requiredString: string) {
     return `${s.humanize(attribute)} must contain the string '${requiredString}'`;
   }
+
+  export function mustNotExceedMaxLenth(attribute: string, maxLength: number) {
+    return `${s.humanize(attribute)} must not exceed length ${maxLength}`;
+  }
 }
 
 export class Validatable {

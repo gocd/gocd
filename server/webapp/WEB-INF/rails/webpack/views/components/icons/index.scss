@@ -86,6 +86,10 @@ $btn-group-border-radius: $global-border-radius;
   @include icon-before($type: $fa-var-refresh);
 }
 
+.usage {
+  @include icon-before($type: $fa-var-pie-chart);
+}
+
 .button-group {
   border:        1px solid $border-color;
   border-radius: $btn-group-border-radius;

@@ -151,7 +151,7 @@ class ConfigRepoSettings extends Extension {
   }
 }
 
-class ElasticAgentSettings extends Extension {
+export class ElasticAgentSettings extends Extension {
   readonly profileSettings: PluginSettings;
   readonly capabilities: ElasticPluginCapabilities;
 

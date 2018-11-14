@@ -20,7 +20,7 @@ import {ConfigReposCRUD as ConfigReposCrud} from "models/config_repos/config_rep
 describe("Config Repo CRUD model", () => {
   it("all() should cache etag", (done) => {
     jasmine.Ajax.withMock(() => {
-      jasmine.Ajax.stubRequest(SparkRoutes.ApiConfigReposListPath(), undefined, "GET").andReturn({
+      jasmine.Ajax.stubRequest(SparkRoutes.apiConfigReposInternalPath(), undefined, "GET").andReturn({
         responseText:    JSON.stringify({
           "_embedded": {
             "config_repos": []

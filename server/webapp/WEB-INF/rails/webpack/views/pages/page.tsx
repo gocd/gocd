@@ -20,13 +20,13 @@ import {HeaderPanel} from "views/components/header_panel";
 import {PageLoadError} from "views/components/page_load_error";
 import {Spinner} from "views/components/spinner";
 
-enum PageState {
+export enum PageState {
   LOADING, OK, FAILED
 }
 
 export abstract class Page<Attrs = {}, State = {}> extends MithrilComponent<Attrs, State> {
 
-  private pageState: PageState = PageState.LOADING;
+  protected pageState: PageState = PageState.LOADING;
 
   abstract componentToDisplay(vnode: m.Vnode<Attrs, State>): JSX.Element | undefined;
 
@@ -60,6 +60,10 @@ export abstract class Page<Attrs = {}, State = {}> extends MithrilComponent<Attr
 
   protected headerPanel(vnode: m.Vnode<Attrs, State>) {
     return <HeaderPanel title={this.pageName()}/>;
+  }
+
+  protected setErrorState() {
+    this.pageState = PageState.FAILED;
   }
 
   private _onSuccess() {

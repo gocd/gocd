@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {ApiRequestBuilder, ApiVersion, HttpResponseWithEtag} from "helpers/api_request_builder";
+import {ApiRequestBuilder, ApiResult, ApiVersion, ObjectWithEtag} from "helpers/api_request_builder";
 import SparkRoutes from "helpers/spark_routes";
 import {ConfigRepo, ConfigRepos} from "./types";
 
@@ -23,34 +23,34 @@ export class ConfigReposCRUD {
 
   static all() {
     return ApiRequestBuilder.GET(SparkRoutes.apiConfigReposInternalPath(), this.API_VERSION_HEADER)
-      .then((xhr: XMLHttpRequest) => JSON.parse(xhr.responseText) as ConfigRepos);
+      .then((result: ApiResult<string>) => result.map((body) => JSON.parse(body) as ConfigRepos));
   }
 
   static get(id: string) {
     return ApiRequestBuilder.GET(SparkRoutes.ApiConfigRepoPath(id), this.API_VERSION_HEADER)
-      .then(this.extractResponseWithEtag());
+      .then(this.extractObjectWithEtag());
   }
 
-  static update(response: HttpResponseWithEtag<ConfigRepo>) {
+  static update(response: ObjectWithEtag<ConfigRepo>) {
     return ApiRequestBuilder.PUT(SparkRoutes.ApiConfigRepoPath(response.object.id), this.API_VERSION_HEADER, response.object, response.etag)
-      .then(this.extractResponseWithEtag());
+      .then(this.extractObjectWithEtag());
   }
 
   static delete(repo: ConfigRepo) {
     return ApiRequestBuilder.DELETE(SparkRoutes.ApiConfigRepoPath(repo.id), this.API_VERSION_HEADER)
-      .then((xhr: XMLHttpRequest) => JSON.parse(xhr.responseText));
+      .then((result: ApiResult<string>) => result.map((body) => JSON.parse(body)));
   }
 
   static create(repo: ConfigRepo) {
-    return ApiRequestBuilder.POST(SparkRoutes.ApiConfigReposListPath(), this.API_VERSION_HEADER, repo).then(this.extractResponseWithEtag());
+    return ApiRequestBuilder.POST(SparkRoutes.ApiConfigReposListPath(), this.API_VERSION_HEADER, repo).then(this.extractObjectWithEtag());
   }
 
-  private static extractResponseWithEtag() {
-    return (xhr: XMLHttpRequest) => {
-      return {
-        object: JSON.parse(xhr.responseText) as ConfigRepo,
-        etag: xhr.getResponseHeader("etag")
-      } as HttpResponseWithEtag<ConfigRepo>;
+  private static extractObjectWithEtag() {
+    return (result: ApiResult<string>) => {
+      return result.map((body) => {
+        const configRepo = JSON.parse(body) as ConfigRepo;
+        return {object: configRepo, etag: result.getEtag()} as ObjectWithEtag<ConfigRepo>;
+      });
     };
   }
 }

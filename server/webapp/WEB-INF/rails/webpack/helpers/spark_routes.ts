@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import * as m from 'mithril';
+import * as m from "mithril";
 
 export default class {
   static adminPipelineConfigPath(pipelineName: string): string {
@@ -45,17 +45,17 @@ export default class {
     const queryString = m.buildQueryString({
       fingerprint,
       pipeline_name: pipelineName,
-      search_text:   searchText
+      search_text: searchText
     });
     return `/go/api/internal/material_search?${queryString}`;
   }
 
   static pipelineSelectionPath(): string {
-    return '/go/api/internal/pipeline_selection';
+    return "/go/api/internal/pipeline_selection";
   }
 
   static pipelineSelectionPipelinesDataPath(): string {
-    return '/go/api/internal/pipeline_selection/pipelines_data';
+    return "/go/api/internal/pipeline_selection/pipelines_data";
   }
 
   static buildCausePath(pipelineName: string, pipelineCounter: string): string {
@@ -71,27 +71,27 @@ export default class {
   }
 
   static DataSharingSettingsPath(): string {
-    return '/go/api/data_sharing/settings';
+    return "/go/api/data_sharing/settings";
   }
 
   static DataSharingUsageDataPath(): string {
-    return '/go/api/internal/data_sharing/usagedata';
+    return "/go/api/internal/data_sharing/usagedata";
   }
 
   static DataSharingUsageDataEncryptedPath(): string {
-    return '/go/api/internal/data_sharing/usagedata/encrypted';
+    return "/go/api/internal/data_sharing/usagedata/encrypted";
   }
 
   static DataReportingInfoPath(): string {
-    return '/go/api/internal/data_sharing/reporting/info';
+    return "/go/api/internal/data_sharing/reporting/info";
   }
 
   static DataReportingStartReportingPath(): string {
-    return '/go/api/internal/data_sharing/reporting/start';
+    return "/go/api/internal/data_sharing/reporting/start";
   }
 
   static DataReportingCompleteReportingPath(): string {
-    return '/go/api/internal/data_sharing/reporting/complete';
+    return "/go/api/internal/data_sharing/reporting/complete";
   }
 
   static ApiConfigReposListPath(): string {

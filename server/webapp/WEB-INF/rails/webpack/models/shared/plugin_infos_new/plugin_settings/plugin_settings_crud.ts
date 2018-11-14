@@ -15,7 +15,7 @@
  */
 
 import * as Routes from "gen/ts-routes";
-import {ApiRequestBuilder, ApiVersion, HttpResponseWithEtag} from "helpers/api_request_builder";
+import {ApiRequestBuilder, ApiResult, ApiVersion, ObjectWithEtag} from "helpers/api_request_builder";
 import {PluginSettings} from "models/shared/plugin_infos_new/plugin_settings/plugin_settings";
 
 export class PluginSettingsCRUD {
@@ -23,30 +23,32 @@ export class PluginSettingsCRUD {
 
   static all() {
     return ApiRequestBuilder.GET(Routes.apiv1AdminPluginSettingsPath(), this.API_VERSION_HEADER)
-      .then((xhr: XMLHttpRequest) => PluginSettings.fromJSON(JSON.parse(xhr.responseText)));
+      .then((result: ApiResult<string>) => result.map((str) => PluginSettings.fromJSON(JSON.parse(str))));
   }
 
   static get(id: string) {
     return ApiRequestBuilder.GET(Routes.apiv1AdminPluginSettingPath(id), this.API_VERSION_HEADER)
-      .then(this.extractResponseWithEtag());
+      .then(this.extractObjectWithEtag());
   }
 
   static create(pluginSettings: PluginSettings) {
     return ApiRequestBuilder.POST(Routes.apiv1AdminPluginSettingsPath(), this.API_VERSION_HEADER, pluginSettings.toJSON())
-      .then(this.extractResponseWithEtag());
+      .then(this.extractObjectWithEtag());
   }
 
   static update(pluginSettings: PluginSettings, etag: string) {
     return ApiRequestBuilder.PUT(Routes.apiv1AdminPluginSettingPath(pluginSettings.plugin_id), this.API_VERSION_HEADER, pluginSettings.toJSON(), etag)
-      .then(this.extractResponseWithEtag());
+      .then(this.extractObjectWithEtag());
   }
 
-  private static extractResponseWithEtag() {
-    return (xhr: XMLHttpRequest) => {
-      return {
-        object: PluginSettings.fromJSON(JSON.parse(xhr.responseText)),
-        etag: xhr.getResponseHeader("etag")
-      } as HttpResponseWithEtag<PluginSettings>;
+  private static extractObjectWithEtag() {
+    return (result: ApiResult<string>) => {
+      return result.map((str) => {
+        return {
+          object: PluginSettings.fromJSON(JSON.parse(str)),
+          etag: result.getEtag()
+        } as ObjectWithEtag<PluginSettings>;
+      });
     };
   }
 }

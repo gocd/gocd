@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import {ApiResult} from "helpers/api_request_builder";
 import * as m from "mithril";
 import {Extension} from "models/shared/plugin_infos_new/extensions";
 import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
@@ -40,7 +41,10 @@ export class PluginsPage extends Page {
     return PluginInfoCRUD.all({include_bad: true}).then(this.onSuccess.bind(this));
   }
 
-  private onSuccess(pluginInfos: Array<PluginInfo<Extension>>) {
-    this.pluginInfos = pluginInfos;
+  private onSuccess(pluginInfos: ApiResult<Array<PluginInfo<Extension>>>) {
+    pluginInfos.do(
+      (successResponse) => this.pluginInfos = successResponse.body,
+      () => this.setErrorState()
+    );
   }
 }

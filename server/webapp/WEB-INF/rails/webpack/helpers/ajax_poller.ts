@@ -36,7 +36,7 @@ const defaultOptions = {
 
 const doesBrowserSupportPageVisibilityAPI = "undefined" !== typeof document.hidden;
 
-const autoRefreshDisabled = new URL(window.location.href).searchParams.get("auto_refresh") === "false";
+const autoRefreshDisabled = window.location.search.indexOf("auto_refresh=false") >= 0;
 
 export class AjaxPoller<T> {
   private readonly options: Options<T>;

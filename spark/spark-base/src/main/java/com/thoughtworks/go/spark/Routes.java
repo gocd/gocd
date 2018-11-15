@@ -176,18 +176,6 @@ public class Routes {
             return BASE + SCHEDULE_PATH.replaceAll(":pipeline_name", pipelineName);
         }
 
-        public static String pause(String pipelineName) {
-            return BASE + PAUSE_PATH.replaceAll(":pipeline_name", pipelineName);
-        }
-
-        public static String unpause(String pipelineName) {
-            return BASE + UNPAUSE_PATH.replaceAll(":pipeline_name", pipelineName);
-        }
-
-        public static String unlock(String pipelineName) {
-            return BASE + UNLOCK_PATH.replaceAll(":pipeline_name", pipelineName);
-        }
-
         public static String instance(String pipelineName, int pipelineCounter) {
             return BASE + INSTANCE_PATH
                     .replaceAll(":pipeline_name", pipelineName)

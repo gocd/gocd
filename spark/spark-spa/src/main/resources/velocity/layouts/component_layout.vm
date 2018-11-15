@@ -25,12 +25,17 @@
         data-page-timeout="${spaTimeout}">
   <title>${viewTitle} - Go</title>
 
+  <link href="/go/${railsAssetsService.getAssetPath('frameworks.css')}" media="screen" rel="stylesheet"/>
+  #if(${railsAssetsService.getAssetPath("single_page_apps/${controllerName}.css")} != "")
+    <link href="/go/${railsAssetsService.getAssetPath("single_page_apps/${controllerName}.css")}" media="screen"
+          rel="stylesheet"/>
+  #end
   <link rel="shortcut icon" href="/go/${railsAssetsService.getAssetPath('cruise.ico')}"/>
     #foreach( $css in ${webpackAssetsService.getCSSAssetPathsFor("single_page_apps/${controllerName}")})
       <link href="${css}" media="screen" rel="stylesheet"/>
     #end
 
-    #foreach( $js in ${webpackAssetsService.getJSAssetPathsFor("single_page_apps/${controllerName}")})
+    #foreach( $js in ${webpackAssetsService.getJSAssetPathsFor("single_page_apps/${controllerName}", "single_page_apps/spa_commons")})
       <script src="${js}"></script>
     #end
 
@@ -82,5 +87,20 @@
       }
     </script>
     #end
+
+  <div class="page-wrap">
+    <header class="app-header">
+      <div class="row expanded">
+        #parse('new_navigation_elements/_navigation.vm')
+      </div>
+    </header>
+
+    <div class="component-mount-point">
+    </div>
+
+  </div>
+
+  #parse('new_navigation_elements/_footer.vm')
+
 </body>
 </html>

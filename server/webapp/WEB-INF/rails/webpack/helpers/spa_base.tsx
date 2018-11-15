@@ -17,12 +17,12 @@
 import * as m from "mithril";
 import * as styles from "./spa_base.scss";
 
-import {UsageDataReporter} from "models/shared/usage_data_reporter";
+// import {UsageDataReporter} from "models/shared/usage_data_reporter";
 
 import {MithrilViewComponent} from "jsx/mithril-component";
 import {ModalManager} from "views/components/modal/modal_manager";
-import {Attrs as SiteFooterAttrs, SiteFooter} from "views/pages/partials/site_footer";
-import {Attrs as SiteHeaderAttrs, SiteHeader} from "views/pages/partials/site_header";
+import {Attrs as SiteFooterAttrs} from "views/pages/partials/site_footer";
+import {Attrs as SiteHeaderAttrs} from "views/pages/partials/site_header";
 
 interface Attrs {
   headerData: SiteHeaderAttrs;
@@ -32,17 +32,9 @@ interface Attrs {
 class MainPage extends MithrilViewComponent<Attrs> {
   view(vnode: m.Vnode<Attrs>) {
     return (
-      <div class={styles.page}>
-        <div class={styles.pagewrap}>
-          <SiteHeader {...vnode.attrs.headerData}/>
-          <main className={styles.mainContainer}>
-            {vnode.children}
-          </main>
-        </div>
-        <footer class={styles.sitefooter}>
-          <SiteFooter {...vnode.attrs.footerData} />
-        </footer>
-      </div>
+      <main className={styles.mainContainer}>
+        {vnode.children}
+      </main>
     );
 
   }
@@ -64,9 +56,10 @@ export default abstract class Page {
   private render() {
     const page = this;
     window.addEventListener("DOMContentLoaded", () => {
-      UsageDataReporter.report();
+      // UsageDataReporter.report();
 
       const body: Element = document.querySelector("body") as Element;
+      const componentMountPoint = document.querySelector(".component-mount-point") as Element;
 
       const copyrightYear    = body.getAttribute("data-version-copyright-year") as string;
       const goVersion        = body.getAttribute("data-version-go-version") as string;
@@ -97,7 +90,7 @@ export default abstract class Page {
         showConfigRepos
       };
 
-      m.mount(body, {
+      m.mount(componentMountPoint, {
         view() {
           return (
             <MainPage headerData={headerData} footerData={footerData}>

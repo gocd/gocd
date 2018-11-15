@@ -18,7 +18,7 @@
 $overlay-bg: rgba(0, 0, 0, 0.8);
 $overlay-header-bg: $go-darkblue;
 $overlay-width: 500px;
-$overlay-height: 300px;
+$overlay-height: 450px;
 $overlay-border-color: $global-border-color;
 $overlay-header-txt: #fff;
 
@@ -39,7 +39,7 @@ $overlay-header-txt: #fff;
   @media(min-width: $screen-md) {
     min-width:     $overlay-width;
     transform:     translate(-50%, 0);
-    top:           25%;
+    top:           20%;
     left:          50%;
     border-radius: $global-border-radius;
   }
@@ -59,6 +59,7 @@ $overlay-header-txt: #fff;
 
 .large {
   width: 90%;
+  max-width: 75rem;
 }
 
 .overlay-header {

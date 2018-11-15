@@ -23,7 +23,7 @@ import * as Buttons from "views/components/buttons";
 import {FlashMessage, MessageType} from "views/components/flash_message";
 import {Modal, Size} from "views/components/modal";
 import {Spinner} from "views/components/spinner";
-import * as foundationStyles from "./foundation_hax.scss";
+// import * as foundationStyles from "./foundation_hax.scss";
 
 const AngularPluginNew = require("views/shared/angular_plugin_new");
 const Stream           = require("mithril/stream");
@@ -57,14 +57,12 @@ export class PluginSettingsModal extends Modal {
     }
 
     return (
-      <div class={foundationStyles.foundationHax}>
         <div class="row collapse">
           <AngularPluginNew
             pluginInfoSettings={Stream(this.pluginInfo.firstExtensionWithPluginSettings().pluginSettings)}
             configuration={this.pluginSettings}
             key={this.pluginInfo.id}/>
         </div>
-      </div>
     );
   }
 

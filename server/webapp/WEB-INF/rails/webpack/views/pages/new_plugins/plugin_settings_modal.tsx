@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {ApiResult, ObjectWithEtag} from "helpers/api_request_builder";
+import {ApiResult, ErrorResponse, ObjectWithEtag} from "helpers/api_request_builder";
 import * as m from "mithril";
 import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
 import {PluginSettings} from "models/shared/plugin_infos_new/plugin_settings/plugin_settings";
@@ -97,26 +97,31 @@ export class PluginSettingsModal extends Modal {
     }
     if (self.etag) {
       PluginSettingsCRUD.update(self.pluginSettings, self.etag)
-        .then(() => {
-          if (self.pluginSettings) {
-            self.successCallback(`The plugin settings for ${self.pluginSettings.plugin_id} were updated successfully.`);
-            self.close();
-          }
-        }, self.showErrors.bind(self));
+        .then((apiResult) => {
+          apiResult.do(() => {
+              if (self.pluginSettings) {
+                self.successCallback(`The plugin settings for ${self.pluginSettings.plugin_id} were updated successfully.`);
+                self.close();
+              }
+            },
+            (errorResponse) => self.showErrors(apiResult, errorResponse));
+        });
     } else {
       PluginSettingsCRUD.create(self.pluginSettings)
-        .then(() => {
-          if (self.pluginSettings) {
-            this.successCallback(`The plugin settings for ${self.pluginSettings.plugin_id} were created successfully.`);
-            self.close();
-          }
-        }, self.showErrors.bind(self));
+        .then((apiResult) => {
+          apiResult.do(() => {
+            if (self.pluginSettings) {
+              this.successCallback(`The plugin settings for ${self.pluginSettings.plugin_id} were created successfully.`);
+              self.close();
+            }
+          }, (errorResponse) => self.showErrors(apiResult, errorResponse));
+        });
     }
   }
 
-  private showErrors(response: any) { //TODO error handling should be in a common place
-    if (response.status === 422 && response.response) {
-      this.pluginSettings = PluginSettings.fromJSON(JSON.parse(response.response).data);
+  private showErrors(apiResult: ApiResult<ObjectWithEtag<PluginSettings>>, errorResponse: ErrorResponse) {
+    if (apiResult.getStatusCode() === 422 && errorResponse.body) {
+      this.pluginSettings = PluginSettings.fromJSON(JSON.parse(errorResponse.body).data);
     }
   }
 }

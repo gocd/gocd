@@ -30,6 +30,7 @@ export interface SuccessResponse<T> {
 
 export interface ErrorResponse {
   message: string; //more fields can be added if needed
+  body?: string;
 }
 
 export class ApiResult<T> {
@@ -56,8 +57,8 @@ export class ApiResult<T> {
     return new ApiResult<string>({body}, undefined, statusCode, etag);
   }
 
-  static error(message: string, statusCode?: number) {
-    return new ApiResult<string>(undefined, {message}, statusCode);
+  static error(body: string, message: string, statusCode?: number) {
+    return new ApiResult<string>(undefined, {body, message}, statusCode);
   }
 
   getStatusCode(): number {
@@ -112,9 +113,9 @@ export class ApiResult<T> {
       case 201:
         return ApiResult.success(xhr.responseText, xhr.status, xhr.getResponseHeader("etag"));
       case 422:
-        return ApiResult.error(this.parseMessage(xhr), xhr.status);
+        return ApiResult.error(xhr.responseText, this.parseMessage(xhr), xhr.status);
     }
-    return ApiResult.error(`There was an unknown error performing the operation. Possible reason (${xhr.statusText})`, xhr.status);
+    return ApiResult.error(xhr.responseText, `There was an unknown error performing the operation. Possible reason (${xhr.statusText})`, xhr.status);
   }
 
   private static parseMessage(xhr: XMLHttpRequest) {
@@ -177,9 +178,9 @@ export class ApiRequestBuilder {
       return ApiResult.from(xhr);
     }).catch((reason) => {
       try {
-        return ApiResult.error(JSON.parse(reason.message).data.message, reason.status);
+        return ApiResult.error(reason.responseText, JSON.parse(reason.message).data.message, reason.status);
       } catch {
-        return ApiResult.error("There was an unknown error performing the operation.", reason.status);
+        return ApiResult.error(reason.responseText, "There was an unknown error performing the operation.", reason.status);
       }
     });
   }

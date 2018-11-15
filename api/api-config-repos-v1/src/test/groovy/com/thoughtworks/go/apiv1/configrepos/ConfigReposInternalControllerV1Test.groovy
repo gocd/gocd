@@ -170,7 +170,7 @@ class ConfigReposInternalControllerV1Test implements SecurityServiceTrait, Contr
       ],
       configuration: [],
 
-      last_parse   : null == revision ? [revision: null] : [
+      last_parse   : null == revision ? [:] : [
         revision: revision,
         success : success,
         error   : error

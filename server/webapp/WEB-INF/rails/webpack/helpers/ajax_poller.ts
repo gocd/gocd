@@ -74,6 +74,11 @@ export class AjaxPoller<T> {
     }
   }
 
+  restart() {
+    this.stop();
+    this.start(0);
+  }
+
   // overridden for tests to override
   protected isPageHidden() {
     return document.hidden;

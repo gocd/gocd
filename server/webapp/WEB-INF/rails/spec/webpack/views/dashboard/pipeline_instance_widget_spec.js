@@ -218,26 +218,11 @@ describe("Dashboard Pipeline Instance Widget", () => {
     _.each((pipelineNames), (pipelineName) => {
       pipelines.push({
         "_links":                 {
-          "self":                 {
+          "self": {
             "href": "http://localhost:8153/go/api/pipelines/up42/history"
           },
-          "doc":                  {
+          "doc":  {
             "href": "https://api.go.cd/current/#pipelines"
-          },
-          "settings_path":        {
-            "href": "http://localhost:8153/go/admin/pipelines/up42/general"
-          },
-          "trigger":              {
-            "href": "http://localhost:8153/go/api/pipelines/up42/schedule"
-          },
-          "trigger_with_options": {
-            "href": "http://localhost:8153/go/api/pipelines/up42/schedule"
-          },
-          "pause":                {
-            "href": "http://localhost:8153/go/api/pipelines/up42/pause"
-          },
-          "unpause":              {
-            "href": "http://localhost:8153/go/api/pipelines/up42/unpause"
           }
         },
         "name":                   pipelineName,

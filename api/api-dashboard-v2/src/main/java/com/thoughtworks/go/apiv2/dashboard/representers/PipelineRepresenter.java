@@ -82,10 +82,7 @@ public class PipelineRepresenter {
 
     private static void addLinks(OutputLinkWriter linksWriter, GoDashboardPipeline model) {
         String pipelineName = model.name().toString();
-        linksWriter.addLink("self", Routes.Pipeline.history(pipelineName)).addAbsoluteLink("doc", Routes.Pipeline.DOC)
-            .addLink("unlock", Routes.Pipeline.unlock(pipelineName))
-            .addLink("schedule", Routes.Pipeline.schedule(pipelineName))
-            .addLink("pause", Routes.Pipeline.pause(pipelineName))
-            .addLink("unpause", Routes.Pipeline.unpause(pipelineName));
+        linksWriter.addLink("self", Routes.Pipeline.history(pipelineName))
+                .addAbsoluteLink("doc", Routes.Pipeline.DOC);
     }
 }

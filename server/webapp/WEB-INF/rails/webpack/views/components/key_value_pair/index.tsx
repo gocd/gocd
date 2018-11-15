@@ -23,7 +23,8 @@ import * as styles from "./index.scss";
 const classnames = bind(styles);
 
 export interface Attrs {
-  data: any;
+  // pass in an object if you do not care about order, pass an array of key-value pairs if you care about order
+  data: { [key: string]: m.Children } | m.Children[];
   inline?: boolean;
 }
 
@@ -33,9 +34,16 @@ export class KeyValuePair extends MithrilViewComponent<Attrs> {
     return (
       <ul className={classnames(styles.keyValuePair, {[styles.keyValuePairInline]: isInline})}>
         {
-          _.map(vnode.attrs.data, (value, key) => {
+          _.map(vnode.attrs.data, (...args) => {
+            let value, key;
+            if (_.isArray(vnode.attrs.data)) {
+              [key, value] = args[0] as any[];
+            } else {
+              [value, key] = args;
+            }
             return [
-              <li className={classnames(styles.keyValueItem, {[styles.keyValueInlineItem]: isInline})} key={key}>
+              <li className={classnames(styles.keyValueItem, {[styles.keyValueInlineItem]: isInline})}
+                  key={key as string}>
                 <label className={styles.key}>{key}</label>
                 <span className={styles.value}>
                   {value === null ? <em>(Not specified)</em> : <pre>{value}</pre>}

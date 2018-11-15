@@ -29,6 +29,7 @@ import {KeyValuePair} from "views/components/key_value_pair";
 import * as styles from "./index.scss";
 
 const classnames = bind(styles);
+
 interface PluginHeaderAttrs {
   image: JSX.Element;
   pluginId: string;
@@ -40,19 +41,19 @@ class PluginHeaderWidget extends MithrilViewComponent<PluginHeaderAttrs> {
   view(vnode: m.Vnode<PluginHeaderAttrs>) {
     return [
       (
-        <span class={classnames("plugin-icon")}>
+        <span class={classnames(styles.pluginIcon)}>
           {vnode.attrs.image}
         </span>
       ),
       (
-        <div data-test-id="plugin-name" class={styles.pluginName} >{vnode.attrs.pluginName}</div>
+        <div data-test-id="plugin-name" class={styles.pluginName}>{vnode.attrs.pluginName}</div>
       ),
       (
         <KeyValuePair inline={true} data={
-          {
-            Version: vnode.attrs.pluginVersion,
-            Id:      vnode.attrs.pluginId
-          }
+          [
+            ["Id", vnode.attrs.pluginId],
+            ["Version", vnode.attrs.pluginVersion],
+          ]
         }/>
       )
     ];
@@ -99,12 +100,12 @@ export class PluginWidget extends MithrilViewComponent<Attrs> {
                         actions={[statusReportButton, settingsButton]}>
         <KeyValuePair data={
           {
-            'Description':                 pluginInfo.about.description,
-            'Author':                      this.getAuthorInfo(pluginInfo),
-            'Supported operating systems': _.isEmpty(pluginInfo.about.targetOperatingSystems) ? 'No restrictions' : pluginInfo.about.targetOperatingSystems,
-            'Plugin file location':        pluginInfo.pluginFileLocation,
-            'Bundled':                     pluginInfo.bundledPlugin ? 'Yes' : 'No',
-            'Target Go Version':           pluginInfo.about.targetGoVersion,
+            "Description": pluginInfo.about.description,
+            "Author": this.getAuthorInfo(pluginInfo),
+            "Supported operating systems": _.isEmpty(pluginInfo.about.targetOperatingSystems) ? "No restrictions" : pluginInfo.about.targetOperatingSystems,
+            "Plugin file location": pluginInfo.pluginFileLocation,
+            "Bundled": pluginInfo.bundledPlugin ? "Yes" : "No",
+            "Target Go Version": pluginInfo.about.targetGoVersion,
           }
         }/>
       </CollapsiblePanel>

@@ -45,14 +45,24 @@ export class KeyValuePair extends MithrilViewComponent<Attrs> {
               <li className={classnames(styles.keyValueItem, {[styles.keyValueInlineItem]: isInline})}
                   key={key as string}>
                 <label className={styles.key}>{key}</label>
-                <span className={styles.value}>
-                  {value === null ? <em>(Not specified)</em> : <pre>{value}</pre>}
-                </span>
+                <span className={styles.value}>{KeyValuePair.renderedValue(value)}</span>
               </li>
             ];
           })
         }
       </ul>
     );
+  }
+
+  private static renderedValue(value: any) {
+    if (_.isNil(value) || _.isEmpty(value)) {
+      return (<em>(Not specified)</em>);
+    }
+
+    // performat some "primitive" types
+    if (_.isString(value) || _.isBoolean(value) || _.isNumber(value)) {
+      return (<pre>{value}</pre>);
+    }
+    return value;
   }
 }

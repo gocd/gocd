@@ -66,6 +66,31 @@ export class ConfigReposPage extends Page<null, State> {
       new NewConfigRepoModal(vnode.state.onSuccessfulSave, vnode.state.onError, vnode.state.pluginInfos).render();
     };
 
+    vnode.state.onRefresh = (repo: ConfigRepo, e: MouseEvent) => {
+      e.stopPropagation();
+      if (timeoutID) {
+        clearTimeout(timeoutID);
+      }
+
+      ConfigReposCRUD.refresh(repo.id).then((result: ApiResult<any>) => {
+        result.do(() => {
+          setMessage("An update was scheduled for this config repository.", MessageType.success);
+        }, (err: ErrorResponse) => {
+          try {
+            const parse = JSON.parse(err.body || "{}");
+            if (parse.message) {
+              setMessage(`Unable to schedule an update for this config repository. ${parse.message}`, MessageType.alert);
+            } else {
+              setMessage(`Unable to schedule an update for this config repository. ${err.message}`, MessageType.alert);
+            }
+          } catch (e) {
+            setMessage(`Unable to schedule an update for this config repository. ${err.message}`, MessageType.alert);
+          }
+        });
+      });
+
+    };
+
     vnode.state.onEdit = (repo: ConfigRepo, e: MouseEvent) => {
       e.stopPropagation();
       if (timeoutID) {
@@ -100,6 +125,7 @@ export class ConfigReposPage extends Page<null, State> {
       <FlashMessage type={vnode.state.messageType} message={vnode.state.message}/>
       <ConfigReposWidget objects={vnode.state.configRepos}
                          pluginInfos={vnode.state.pluginInfos}
+                         onRefresh={vnode.state.onRefresh.bind(this)}
                          onEdit={vnode.state.onEdit.bind(this)}
                          onDelete={vnode.state.onDelete.bind(this)}
       />

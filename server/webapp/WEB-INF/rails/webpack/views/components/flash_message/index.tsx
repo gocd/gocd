@@ -15,6 +15,7 @@
  */
 
 import {MithrilComponent} from "jsx/mithril-component";
+import * as _ from "lodash";
 import * as m from "mithril";
 import * as Icons from "../icons";
 
@@ -32,7 +33,7 @@ export enum MessageType {
 
 export interface Attrs {
   type: MessageType;
-  message: m.Children;
+  message?: m.Children;
   dismissible?: boolean;
 }
 
@@ -49,7 +50,11 @@ export class FlashMessage extends MithrilComponent<Attrs, State> {
   }
 
   view(vnode: m.Vnode<Attrs, State>) {
-    if (vnode.state.isDismissed || !vnode.attrs.message) {
+    if (vnode.state.isDismissed) {
+      return;
+    }
+
+    if (_.isEmpty(vnode.attrs.message) && _.isEmpty(vnode.children)) {
       return;
     }
 

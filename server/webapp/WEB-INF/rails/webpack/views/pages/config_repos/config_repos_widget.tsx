@@ -21,10 +21,11 @@ import {Stream} from "mithril/stream";
 import {ConfigRepo, ConfigRepos, humanizedMaterialAttributeName} from "models/config_repos/types";
 import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
 import {CollapsiblePanel} from "views/components/collapsible_panel";
-import {MessageType} from "views/components/flash_message";
-import {Delete, QuestionMark, Settings} from "views/components/icons";
+import {FlashMessage, MessageType} from "views/components/flash_message";
+import {Delete, Refresh, Settings} from "views/components/icons";
 import {KeyValuePair} from "views/components/key_value_pair";
 import {Spinner} from "views/components/spinner";
+import * as styles from "./index.scss";
 
 export interface SaveOperation {
   onSuccessfulSave: (msg: m.Children) => any;
@@ -34,6 +35,7 @@ export interface SaveOperation {
 interface Operations<T> {
   onEdit: (obj: T, e: MouseEvent) => void;
   onDelete: (obj: T, e: MouseEvent) => void;
+  onRefresh: (obj: T, e: MouseEvent) => void;
 }
 
 export interface RequiresPluginInfos {
@@ -53,18 +55,60 @@ export interface State extends Operations<ConfigRepo>, SaveOperation, RequiresPl
   clearMessage: () => void;
 }
 
-interface ShowObjectAttrs<T> extends Operations<T> {
+interface ShowObjectAttrs<T> extends Operations<T>, RequiresPluginInfos {
   obj: T;
 }
 
-class HeaderWidget extends MithrilViewComponent<ConfigRepo> {
-  view(vnode: m.Vnode<ConfigRepo, this>): m.Children | void | null {
+interface HeaderWidgetAttrs extends RequiresPluginInfos {
+  repo: ConfigRepo;
+}
+
+function findPluginWithId(infos: Array<PluginInfo<any>>, pluginId: string) {
+  return _.find(infos, {id: pluginId});
+}
+
+class HeaderWidget extends MithrilViewComponent<HeaderWidgetAttrs> {
+  view(vnode: m.Vnode<HeaderWidgetAttrs>): m.Children | void | null {
+
     return [
-      (<QuestionMark/>),
-      (<div data-test-id="repo-id">{vnode.attrs.id}</div>),
-      (<div>{vnode.attrs.plugin_id}</div>),
-      (<div>{vnode.attrs.material.type}</div>),
+      this.statusIcon(vnode),
+      (
+        <KeyValuePair inline={true} data={[
+          ["Id", vnode.attrs.repo.id],
+          ["Plugin ID", vnode.attrs.repo.plugin_id]
+        ]}/>
+      )
     ];
+  }
+
+  private statusIcon(vnode: m.Vnode<HeaderWidgetAttrs>) {
+    const pluginInfo = findPluginWithId(vnode.attrs.pluginInfos(), vnode.attrs.repo.plugin_id);
+
+    if (!pluginInfo) {
+      return (
+        <span className={styles.missingPluginIcon}
+              title={`Plugin '${vnode.attrs.repo.plugin_id}' was not found`}/>
+      );
+    }
+
+    if (_.isEmpty(vnode.attrs.repo.last_parse)) {
+      return (
+        <span className={styles.neverParsed}
+              title={`This configuration repository was never parsed.`}/>
+      );
+    }
+
+    if (vnode.attrs.repo.last_parse.success) {
+      return (
+        <span className={styles.goodLastParseIcon}
+              title={`Last parsed with revision ${vnode.attrs.repo.last_parse.revision}`}/>
+      );
+    } else {
+      return (
+        <span className={styles.lastParseErrorIcon}
+              title={`Last parsed with revision ${vnode.attrs.repo.last_parse.revision}. The error was ${vnode.attrs.repo.last_parse.error}`}/>
+      );
+    }
   }
 }
 
@@ -86,6 +130,10 @@ class ConfigRepoWidget extends MithrilViewComponent<ShowObjectAttrs<ConfigRepo>>
       return accumulator;
     }, {});
 
+    const refreshButton = (
+      <Refresh data-test-id="refresh-config-repo" onclick={vnode.attrs.onRefresh.bind(vnode.attrs)}/>
+    );
+
     const settingsButton = (
       <Settings data-test-id="edit-config-repo" onclick={vnode.attrs.onEdit.bind(vnode.attrs)}/>
     );
@@ -95,12 +143,40 @@ class ConfigRepoWidget extends MithrilViewComponent<ShowObjectAttrs<ConfigRepo>>
     );
 
     const actionButtons = [
-      settingsButton, deleteButton
+      refreshButton, settingsButton, deleteButton
     ];
 
+    let lastParseRevision: m.Children;
+
+    if (vnode.attrs.obj.last_parse && vnode.attrs.obj.last_parse.revision) {
+      lastParseRevision = <div>Last seen revision: <code>{vnode.attrs.obj.last_parse.revision}</code></div>;
+    }
+
+    let maybeWarning: m.Children;
+
+    if (vnode.attrs.obj.last_parse && vnode.attrs.obj.last_parse.error) {
+      maybeWarning = (
+        <FlashMessage type={MessageType.warning}>
+          There was an error parsing this configuration repository:
+          <pre>{vnode.attrs.obj.last_parse.error}</pre>
+        </FlashMessage>
+      );
+    }
+
+    const pluginInfo = findPluginWithId(vnode.attrs.pluginInfos(), vnode.attrs.obj.plugin_id);
+
+    if (!pluginInfo) {
+      maybeWarning = (
+        <FlashMessage type={MessageType.alert}>This plugin is missing</FlashMessage>
+      );
+    }
+
     return (
-      <CollapsiblePanel header={<HeaderWidget {...vnode.attrs.obj}/>}
+      <CollapsiblePanel header={<HeaderWidget repo={vnode.attrs.obj} pluginInfos={vnode.attrs.pluginInfos}/>}
                         actions={actionButtons}>
+        {maybeWarning}
+        {lastParseRevision}
+        <div><strong>SCM configuration for {vnode.attrs.obj.material.type} material</strong></div>
         <KeyValuePair data={filteredAttributes}/>
       </CollapsiblePanel>
     );
@@ -119,7 +195,9 @@ export class ConfigReposWidget extends MithrilViewComponent<Attrs<ConfigRepos>> 
           return (
             <ConfigRepoWidget key={configRepo.id}
                               obj={configRepo}
+                              pluginInfos={vnode.attrs.pluginInfos}
                               onEdit={vnode.attrs.onEdit.bind(vnode.state, configRepo)}
+                              onRefresh={vnode.attrs.onRefresh.bind(vnode.state, configRepo)}
                               onDelete={vnode.attrs.onDelete.bind(vnode.state, configRepo)}
             />
           );

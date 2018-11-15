@@ -22,7 +22,6 @@ import com.thoughtworks.go.config.PartialConfigParseResult;
 public class PartialConfigParseResultRepresenter {
     public static void toJSON(OutputWriter json, PartialConfigParseResult result) {
         if (null == result) {
-            json.add("revision", (String) null);
             return;
         }
 

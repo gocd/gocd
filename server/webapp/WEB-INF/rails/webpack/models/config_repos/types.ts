@@ -27,6 +27,13 @@ export interface ConfigRepo {
   plugin_id: string;
   material: Material;
   configuration: any[];
+  last_parse: LastParse;
+}
+
+export interface LastParse {
+  revision?: string;
+  success?: boolean;
+  error?: string;
 }
 
 export interface Material {

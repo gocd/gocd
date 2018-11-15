@@ -95,7 +95,7 @@ public class ConfigRepoOperationsControllerV1 extends ApiController implements S
             return MessageJson.create("OK");
         } else {
             res.status(HttpStatus.CONFLICT.value());
-            return MessageJson.create("Update already in progress");
+            return MessageJson.create("Update already in progress.");
         }
     }
 

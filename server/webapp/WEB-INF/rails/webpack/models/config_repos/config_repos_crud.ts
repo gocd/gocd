@@ -45,6 +45,10 @@ export class ConfigReposCRUD {
     return ApiRequestBuilder.POST(SparkRoutes.ApiConfigReposListPath(), this.API_VERSION_HEADER, repo).then(this.extractObjectWithEtag());
   }
 
+  static refresh(repoId: string) {
+    return ApiRequestBuilder.POST(SparkRoutes.configRepoTriggerUpdatePath(repoId), this.API_VERSION_HEADER, undefined, {"x-gocd-confirm": "true"});
+  }
+
   private static extractObjectWithEtag() {
     return (result: ApiResult<string>) => {
       return result.map((body) => {

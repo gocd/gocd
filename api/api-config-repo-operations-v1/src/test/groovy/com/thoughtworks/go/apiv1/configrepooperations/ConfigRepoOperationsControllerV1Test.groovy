@@ -249,7 +249,7 @@ class ConfigRepoOperationsControllerV1Test implements SecurityServiceTrait, Cont
       assertThatResponse()
         .isConflict()
         .hasContentType(controller.mimeType)
-        .hasJsonMessage("Update already in progress")
+        .hasJsonMessage("Update already in progress.")
     }
   }
 }

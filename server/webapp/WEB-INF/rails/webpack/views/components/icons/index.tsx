@@ -57,6 +57,12 @@ export class Settings extends Icon {
   }
 }
 
+export class Refresh extends Icon {
+  constructor() {
+    super(styles.refresh, "Refresh");
+  }
+}
+
 export class Analytics extends Icon {
   constructor() {
     super(styles.analytics, "Analytics");

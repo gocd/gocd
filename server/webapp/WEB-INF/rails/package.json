@@ -37,7 +37,7 @@
     "moment-duration-format": "^2.2.1",
     "normalize-scss": "^7.0.1",
     "opensans": "file:vendor/assets/fonts/opensans",
-    "underscore.string": "^3.3.4",
+    "underscore.string": "^3.3.5",
     "uuid": "^3.2.1"
   },
   "devDependencies": {

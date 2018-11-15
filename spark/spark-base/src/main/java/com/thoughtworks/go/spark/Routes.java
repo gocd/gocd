@@ -279,6 +279,7 @@ public class Routes {
         public static final String BASE = "/api/admin/pipelines";
         public static final String NAME = "/:pipeline_name";
         public static final String DOC = "https://api.gocd.org/#pipeline-config";
+        public static final String EXPORT = "/:pipeline_name/export";
 
         public static String find() {
             return BASE + NAME;

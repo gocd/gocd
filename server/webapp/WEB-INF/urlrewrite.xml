@@ -98,15 +98,15 @@
   </rule>
 
   <rule>
-    <name>Spark Pipeline Config Index API</name>
-    <from>^/api/admin/pipelines(/?)$</from>
-    <to last="true">/spark/api/admin/pipelines</to>
+    <name>Spark Pipeline Config Export API</name>
+    <from>^/api/admin/pipelines/([^/]+)/export(?:/?)$</from>
+    <to last="true">/spark/api/admin/pipelines/${escape:$1}/export</to>
   </rule>
 
   <rule>
     <name>Spark Pipeline Config API</name>
-    <from>^/api/admin/pipelines/(.*)$</from>
-    <to last="true">/spark/api/admin/pipelines/${escape:$1}</to>
+    <from>^/api/admin/pipelines(?:(/)([^/]+))?(?:/?)$</from>
+    <to last="true">/spark/api/admin/pipelines$1${escape:$2}</to>
   </rule>
 
   <rule>

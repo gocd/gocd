@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.apiv6.admin.pipelineconfig;
+package com.thoughtworks.go.apiv7.admin.pipelineconfig;
 
 import com.thoughtworks.go.api.ApiController;
 import com.thoughtworks.go.api.ApiVersion;
@@ -23,8 +23,10 @@ import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.api.representers.JsonReader;
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
 import com.thoughtworks.go.api.util.GsonTransformer;
-import com.thoughtworks.go.apiv6.admin.pipelineconfig.representers.PipelineConfigRepresenter;
-import com.thoughtworks.go.apiv6.shared.representers.stages.ConfigHelperOptions;
+import com.thoughtworks.go.apiv7.admin.pipelineconfig.representers.PipelineConfigRepresenter;
+import com.thoughtworks.go.apiv7.shared.representers.stages.ConfigHelperOptions;
+import com.thoughtworks.go.config.ConfigRepoPlugin;
+import com.thoughtworks.go.config.GoConfigPluginService;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.config.materials.PasswordDeserializer;
@@ -49,23 +51,26 @@ import java.util.function.Consumer;
 import static com.thoughtworks.go.api.util.HaltApiResponses.*;
 import static spark.Spark.*;
 
+
 @Component
-public class PipelineConfigControllerV6 extends ApiController implements SparkSpringController, CrudController<PipelineConfig> {
+public class PipelineConfigControllerV7 extends ApiController implements SparkSpringController, CrudController<PipelineConfig> {
 
     private final PipelineConfigService pipelineConfigService;
     private final ApiAuthenticationHelper apiAuthenticationHelper;
     private final EntityHashingService entityHashingService;
     private final PasswordDeserializer passwordDeserializer;
     private GoConfigService goConfigService;
+    private GoConfigPluginService goConfigPluginService;
 
     @Autowired
-    public PipelineConfigControllerV6(PipelineConfigService pipelineConfigService, ApiAuthenticationHelper apiAuthenticationHelper, EntityHashingService entityHashingService, PasswordDeserializer passwordDeserializer, GoConfigService goConfigService) {
-        super(ApiVersion.v6);
+    public PipelineConfigControllerV7(PipelineConfigService pipelineConfigService, ApiAuthenticationHelper apiAuthenticationHelper, EntityHashingService entityHashingService, PasswordDeserializer passwordDeserializer, GoConfigService goConfigService, GoConfigPluginService goConfigPluginService) {
+        super(ApiVersion.v7);
         this.pipelineConfigService = pipelineConfigService;
         this.apiAuthenticationHelper = apiAuthenticationHelper;
         this.entityHashingService = entityHashingService;
         this.passwordDeserializer = passwordDeserializer;
         this.goConfigService = goConfigService;
+        this.goConfigPluginService = goConfigPluginService;
     }
 
     @Override
@@ -114,8 +119,21 @@ public class PipelineConfigControllerV6 extends ApiController implements SparkSp
             put(Routes.PipelineConfig.NAME, mimeType, this::update);
             delete(Routes.PipelineConfig.NAME, mimeType, this::destroy);
 
+            get(Routes.PipelineConfig.EXPORT, mimeType, this::export);
+
             exception(RecordNotFoundException.class, this::notFound);
         });
+    }
+
+    private String export(Request req, Response res) {
+        PipelineConfig pipelineConfig = fetchEntityFromConfig(req.params("pipeline_name"));
+        if (isGetOrHeadRequestFresh(req, pipelineConfig)) {
+            return notModified(res);
+        } else {
+            setEtagHeader(pipelineConfig, res);
+            ConfigRepoPlugin repoPlugin = (ConfigRepoPlugin) goConfigPluginService.partialConfigProviderFor(req.queryParams("pluginId"));
+            return repoPlugin.pipelineExport(pipelineConfig, req.queryParams("groupName"));
+        }
     }
 
     public String destroy(Request req, Response res) throws IOException {
@@ -130,7 +148,7 @@ public class PipelineConfigControllerV6 extends ApiController implements SparkSp
     }
 
     public String update(Request req, Response res) {
-        PipelineConfig existingPipelineConfig = fetchEntityFromConfig(req.params("pipeline_name"));
+        PipelineConfig existingPipelineConfig =  fetchEntityFromConfig(req.params("pipeline_name"));
         PipelineConfig pipelineConfigFromRequest = buildEntityFromRequestBody(req);
 
         if (isRenameAttempt(existingPipelineConfig, pipelineConfigFromRequest)) {
@@ -143,7 +161,7 @@ public class PipelineConfigControllerV6 extends ApiController implements SparkSp
         }
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        pipelineConfigService.updatePipelineConfig(SessionUtils.currentUsername(), pipelineConfigFromRequest, etagFor(existingPipelineConfig), result);
+        pipelineConfigService.updatePipelineConfig(SessionUtils.currentUsername(), pipelineConfigFromRequest,  etagFor(existingPipelineConfig), result);
         return handleCreateOrUpdateResponse(req, res, pipelineConfigFromRequest, result);
     }
 
@@ -185,7 +203,7 @@ public class PipelineConfigControllerV6 extends ApiController implements SparkSp
         if (!jsonReader.hasJsonObject("group") || StringUtils.isBlank(jsonReader.getString("group"))) {
             throw haltBecauseOfReason("Pipeline group must be specified for creating a pipeline.");
         }
-        return jsonReader.getString("group");
+        return  jsonReader.getString("group");
     }
 
 

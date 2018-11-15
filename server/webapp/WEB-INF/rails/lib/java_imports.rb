@@ -287,5 +287,5 @@ module JavaImports
   java_import com.thoughtworks.go.plugin.domain.common.CombinedPluginInfo unless defined? CombinedPluginInfo
   java_import com.thoughtworks.go.server.service.WebpackAssetsService unless defined? WebpackAssetsService
   java_import com.thoughtworks.go.config.GoConfigCloner unless defined? GoConfigCloner
-  java_import com.thoughtworks.go.spark.Routes unless defined? Routes
+  (::SparkRoutes = com.thoughtworks.go.spark.Routes) unless defined? ::SparkRoutes
 end

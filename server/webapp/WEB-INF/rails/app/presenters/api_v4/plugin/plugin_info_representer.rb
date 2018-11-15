@@ -46,8 +46,7 @@ module ApiV4
 
       link :image do |opts|
         if plugin.image
-          ctx = com.thoughtworks.go.spark.RequestContext.new(opts[:url_builder].request.scheme, opts[:url_builder].request.host, opts[:url_builder].request.port, '/go')
-          ctx.urlFor(com.thoughtworks.go.spark.Routes::PluginImages::pluginImage(plugin.descriptor.id, plugin.getImage.getHash()))
+          spark_url_for(opts, SparkRoutes::PluginImages::pluginImage(plugin.descriptor.id, plugin.getImage.getHash()))
         end
       end
 

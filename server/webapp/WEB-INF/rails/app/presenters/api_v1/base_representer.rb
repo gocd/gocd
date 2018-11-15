@@ -18,6 +18,8 @@ require 'roar/decorator'
 require 'roar/json'
 require 'roar/json/hal'
 
+require_relative '../shared/spark_url_aware'
+
 module ApiV1
   class BaseRepresenter < Roar::Decorator
     include Representable::Hash
@@ -25,6 +27,7 @@ module ApiV1
 
     include Roar::JSON::HAL
     include JavaImports
+    include SparkUrlAware
 
     SkipParseOnBlank = lambda { |fragment, *args|
       fragment.blank?

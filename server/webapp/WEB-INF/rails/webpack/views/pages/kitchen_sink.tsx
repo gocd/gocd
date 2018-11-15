@@ -15,7 +15,7 @@
  */
 
 import {MithrilViewComponent} from "jsx/mithril-component";
-import * as m from 'mithril';
+import * as m from "mithril";
 import * as Buttons from "views/components/buttons/index";
 import {CollapsiblePanel} from "views/components/collapsible_panel";
 import {FlashMessage, MessageType} from "views/components/flash_message";
@@ -25,6 +25,7 @@ import * as Icons from "views/components/icons/index";
 import {KeyValuePair} from "views/components/key_value_pair";
 import {Size} from "views/components/modal";
 import {SampleModal} from "views/components/modal/sample";
+import {Panel} from "views/components/panel";
 import {SearchBox} from "views/components/search_box";
 
 export class KitchenSink extends MithrilViewComponent<null> {
@@ -126,6 +127,17 @@ export class KitchenSink extends MithrilViewComponent<null> {
             'some really really really really really long key': 'This is really really really really really really really really really really long junk value'
           }
         }/>
+
+        <br/>
+        <h3>Panel</h3>
+        <Panel header={"This is panel header"} actions={[
+          <Buttons.Primary onclick={() => alert("You pressed primary button!")} small={true}>
+            Primary Button
+          </Buttons.Primary>,
+          <Icons.Settings onclick={() => alert("You pressed settings button!")}/>
+        ]}>
+          <div>This is panel body</div>
+        </Panel>
       </div>
     );
   }

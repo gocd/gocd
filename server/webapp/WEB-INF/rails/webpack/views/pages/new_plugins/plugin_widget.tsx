@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import {bind} from "classnames/bind";
 import * as Routes from "gen/ts-routes";
 import {MithrilViewComponent} from "jsx/mithril-component";
 import * as _ from "lodash";
@@ -28,8 +27,6 @@ import * as Icons from "views/components/icons";
 import {KeyValuePair} from "views/components/key_value_pair";
 import * as styles from "./index.scss";
 
-const classnames = bind(styles);
-
 interface PluginHeaderAttrs {
   image: JSX.Element;
   pluginId: string;
@@ -41,7 +38,7 @@ class PluginHeaderWidget extends MithrilViewComponent<PluginHeaderAttrs> {
   view(vnode: m.Vnode<PluginHeaderAttrs>) {
     return [
       (
-        <span class={classnames(styles.pluginIcon)}>
+        <span class={styles.pluginIcon}>
           {vnode.attrs.image}
         </span>
       ),

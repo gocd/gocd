@@ -403,18 +403,6 @@ describe("Dashboard Widget", () => {
                     },
                     "doc":             {
                       "href": "https://api.go.cd/current/#get-pipeline-instance"
-                    },
-                    "history_url":     {
-                      "href": "http://localhost:8153/go/api/pipelines/up42/history"
-                    },
-                    "vsm_url":         {
-                      "href": "http://localhost:8153/go/pipelines/value_stream_map/up42/1"
-                    },
-                    "compare_url":     {
-                      "href": "http://localhost:8153/go/compare/up42/0/with/1"
-                    },
-                    "build_cause_url": {
-                      "href": "http://localhost:8153/go/pipelines/up42/1/build_cause"
                     }
                   },
                   "label":        "1",
@@ -472,18 +460,6 @@ describe("Dashboard Widget", () => {
                     },
                     "doc":             {
                       "href": "https://api.go.cd/current/#get-pipeline-instance"
-                    },
-                    "history_url":     {
-                      "href": "http://localhost:8153/go/api/pipelines/up43/history"
-                    },
-                    "vsm_url":         {
-                      "href": "http://localhost:8153/go/pipelines/value_stream_map/up43/1"
-                    },
-                    "compare_url":     {
-                      "href": "http://localhost:8153/go/compare/up43/0/with/1"
-                    },
-                    "build_cause_url": {
-                      "href": "http://localhost:8153/go/pipelines/up43/1/build_cause"
                     }
                   },
                   "label":        "1",

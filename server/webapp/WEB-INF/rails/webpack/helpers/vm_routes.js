@@ -17,5 +17,13 @@
 module.exports = {
   pipelineHistoryPath: (pipelineName) => {
     return `/go/tab/pipeline/history/${pipelineName}`;
-  }
+  },
+
+  vsmPath: (pipelineName, pipelineCounter) => {
+    return `/go/pipelines/value_stream_map/${pipelineName}/${pipelineCounter}`;
+  },
+
+  comparePath: (pipelineName, fromCounter, toCounter) => {
+    return `/go/compare/${pipelineName}/${fromCounter}/with/${toCounter}`;
+  },
 };

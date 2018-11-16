@@ -358,4 +358,10 @@ public class Routes {
     public class KitchenSink {
         public static final String SPA_BASE = "/kitchen-sink";
     }
+
+    public class Version {
+        public static final String BASE = "/api/version";
+        public static final String DOC = "https://api.gocd.org/#version";
+        public static final String COMMIT_URL = "https://github.com/gocd/gocd/commit/";
+    }
 }

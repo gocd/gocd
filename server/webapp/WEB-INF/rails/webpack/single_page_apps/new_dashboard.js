@@ -145,6 +145,13 @@ $(() => {
     };
 
     const onerror   = (jqXHR, textStatus, errorThrown) => {
+      // fix for issue #5391
+      //forcefully remove the ETag if server backup is in progress,
+      //so that on next dashboard request, the server will send a 200 and re-render the page
+      if (jqXHR.status === 503) {
+        dashboardVM.etag(null);
+      }
+
       if (textStatus === 'parsererror') {
         const message = {
           type:    "alert",

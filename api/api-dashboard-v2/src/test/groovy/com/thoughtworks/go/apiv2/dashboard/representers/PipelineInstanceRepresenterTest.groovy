@@ -34,10 +34,7 @@ class PipelineInstanceRepresenterTest {
 
     def expectedJson = [
       _links: [
-        self       : [href: 'http://test.host/go/api/pipelines/p1/instance/0'],
-        compare_url: [href: 'http://test.host/go/compare/p1/-1/with/0'],
-        history_url: [href: 'http://test.host/go/api/pipelines/p1/history'],
-        vsm_url    : [href: 'http://test.host/go/pipelines/value_stream_map/p1/0']
+        self       : [href: 'http://test.host/go/api/pipelines/p1/instance/0']
       ],
     ]
 

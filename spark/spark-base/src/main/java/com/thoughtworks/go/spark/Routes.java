@@ -184,11 +184,6 @@ public class Routes {
     }
 
     public static class PipelineInstance {
-        public static String compare(String pipelineName, int fromCounter, int toCounter) {
-            return StrSubstitutor.replace("/compare/${pipeline_name}/${from_counter}/with/${to_counter}",
-                    of("pipeline_name", pipelineName, "from_counter", fromCounter, "to_counter", toCounter));
-        }
-
         public static String vsm(String pipelineName, int pipelineCounter) {
             return StrSubstitutor.replace("/pipelines/value_stream_map/${pipeline_name}/${pipeline_counter}",
                     of("pipeline_name", pipelineName, "pipeline_counter", pipelineCounter));

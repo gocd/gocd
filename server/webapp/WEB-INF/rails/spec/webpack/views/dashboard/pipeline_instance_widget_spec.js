@@ -34,23 +34,11 @@ describe("Dashboard Pipeline Instance Widget", () => {
 
   const pipelineInstanceJson = {
     "_links":       {
-      "self":            {
+      "self": {
         "href": "http://localhost:8153/go/api/pipelines/up42/instance/1"
       },
-      "doc":             {
+      "doc":  {
         "href": "https://api.go.cd/current/#get-pipeline-instance"
-      },
-      "history_url":     {
-        "href": "http://localhost:8153/go/api/pipelines/up42/history"
-      },
-      "vsm_url":         {
-        "href": "http://localhost:8153/go/pipelines/value_stream_map/up42/1"
-      },
-      "compare_url":     {
-        "href": "http://localhost:8153/go/compare/up42/0/with/1"
-      },
-      "build_cause_url": {
-        "href": "http://localhost:8153/go/pipelines/up42/1/build_cause"
       }
     },
     "label":        "1",
@@ -151,7 +139,9 @@ describe("Dashboard Pipeline Instance Widget", () => {
     const compareLink = links.get(0);
 
     expect(compareLink).toContainText('Compare');
-    expect(compareLink.href).toEqual(pipelineInstanceJson._links.compare_url.href);
+
+    const hasCompareLink = compareLink.href.indexOf("/go/compare/up42/0/with/1") >= 0;
+    expect(hasCompareLink).toBe(true);
   });
 
   it("should render changes link", () => {
@@ -178,11 +168,13 @@ describe("Dashboard Pipeline Instance Widget", () => {
   });
 
   it("should render vsm link", () => {
-    const links       = $root.find('.info a');
-    const compareLink = links.get(2);
+    const links   = $root.find('.info a');
+    const vsmLink = links.get(2);
 
-    expect(compareLink).toContainText('VSM');
-    expect(compareLink.href).toEqual(pipelineInstanceJson._links.vsm_url.href);
+    expect(vsmLink).toContainText('VSM');
+
+    const hasVSMLink = vsmLink.href.indexOf("/go/pipelines/value_stream_map/up42/1") >= 0;
+    expect(hasVSMLink).toBe(true);
   });
 
   it("should render stages instance", () => {

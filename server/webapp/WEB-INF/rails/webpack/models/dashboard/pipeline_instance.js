@@ -18,6 +18,7 @@ import sparkRoutes from "helpers/spark_routes";
 
 const _                = require('lodash');
 const Routes           = require('gen/js-routes');
+const VMRoutes         = require('helpers/vm_routes');
 const AjaxHelper       = require('helpers/ajax_helper');
 const MaterialRevision = require('models/dashboard/material_revision');
 
@@ -41,8 +42,8 @@ const PipelineInstance = function (info, pipelineName) {
   this.scheduledAt  = info.scheduled_at;
   this.triggeredBy  = info.triggered_by;
 
-  this.vsmPath     = info._links.vsm_url.href;
-  this.comparePath = info._links.compare_url.href;
+  this.vsmPath     = VMRoutes.vsmPath(this.pipelineName, this.counter);
+  this.comparePath = VMRoutes.comparePath(this.pipelineName, this.counter - 1, this.counter);
 
   this.stages = _.map(info._embedded.stages, (stage) => new StageInstance(stage, this.pipelineName, this.counter));
 

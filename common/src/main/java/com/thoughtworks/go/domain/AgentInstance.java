@@ -39,7 +39,8 @@ import java.util.List;
 /**
  * @understands runtime and configuration information of a builder machine
  */
-public class AgentInstance implements Comparable<AgentInstance> {
+public class AgentInstance implements Comparable<AgentInstance>
+{
     private AgentType agentType;
     protected AgentConfig agentConfig;
     private AgentRuntimeInfo agentRuntimeInfo;

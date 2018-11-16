@@ -100,6 +100,12 @@
   </rule>
 
   <rule>
+    <name>Spark Agents API</name>
+    <from>^/api/new_agents$</from>
+    <to last="true">/spark/api/agents</to>
+  </rule>
+
+  <rule>
     <name>Kitchen Sink SPA</name>
     <from>^/kitchen-sink(/?)$</from>
     <to last="true">/spark/kitchen-sink</to>

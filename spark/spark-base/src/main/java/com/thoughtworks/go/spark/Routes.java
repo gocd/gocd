@@ -296,6 +296,20 @@ public class Routes {
         }
     }
 
+    public static class AgentsAPI {
+        public static final String BASE = "/api/agents";
+        public static final String UUID = "/:uuid";
+        public static final String DOC = "https://api.gocd.org/current/#agents";
+
+        public static String find() {
+            return BASE + UUID;
+        }
+
+        public static String uuid(String uuid) {
+            return find().replaceAll(":uuid", uuid);
+        }
+    }
+
     public class ServerHealthMessages {
         public static final String BASE = "/api/server_health_messages";
     }

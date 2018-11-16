@@ -42,7 +42,7 @@ export interface RequiresPluginInfos {
   pluginInfos: Stream<Array<PluginInfo<any>>>;
 }
 
-interface Attrs<T> extends Operations<T>, RequiresPluginInfos {
+export interface Attrs<T> extends Operations<T>, RequiresPluginInfos {
   objects: Stream<T | null>;
 }
 
@@ -131,15 +131,15 @@ class ConfigRepoWidget extends MithrilViewComponent<ShowObjectAttrs<ConfigRepo>>
     }, {});
 
     const refreshButton = (
-      <Refresh data-test-id="refresh-config-repo" onclick={vnode.attrs.onRefresh.bind(vnode.attrs)}/>
+      <Refresh data-test-id="config-repo-refresh" onclick={vnode.attrs.onRefresh.bind(vnode.attrs)}/>
     );
 
     const settingsButton = (
-      <Settings data-test-id="edit-config-repo" onclick={vnode.attrs.onEdit.bind(vnode.attrs)}/>
+      <Settings data-test-id="config-repo-edit" onclick={vnode.attrs.onEdit.bind(vnode.attrs)}/>
     );
 
     const deleteButton = (
-      <Delete data-test-id="delete-config-repo" onclick={vnode.attrs.onDelete.bind(vnode.attrs)}/>
+      <Delete data-test-id="config-repo-delete" onclick={vnode.attrs.onDelete.bind(vnode.attrs)}/>
     );
 
     const actionButtons = [
@@ -154,7 +154,11 @@ class ConfigRepoWidget extends MithrilViewComponent<ShowObjectAttrs<ConfigRepo>>
 
     let maybeWarning: m.Children;
 
-    if (vnode.attrs.obj.last_parse && vnode.attrs.obj.last_parse.error) {
+    if (_.isEmpty(vnode.attrs.obj.last_parse)) {
+      maybeWarning = (
+        <FlashMessage type={MessageType.warning}>This configuration repository was never parsed.</FlashMessage>
+      );
+    } else if (vnode.attrs.obj.last_parse && vnode.attrs.obj.last_parse.error) {
       maybeWarning = (
         <FlashMessage type={MessageType.warning}>
           There was an error parsing this configuration repository:
@@ -167,7 +171,7 @@ class ConfigRepoWidget extends MithrilViewComponent<ShowObjectAttrs<ConfigRepo>>
 
     if (!pluginInfo) {
       maybeWarning = (
-        <FlashMessage type={MessageType.alert}>This plugin is missing</FlashMessage>
+        <FlashMessage type={MessageType.alert}>This plugin is missing.</FlashMessage>
       );
     }
 
@@ -189,9 +193,17 @@ export class ConfigReposWidget extends MithrilViewComponent<Attrs<ConfigRepos>> 
       return <Spinner/>;
     }
 
+    const configRepos = (vnode.attrs.objects() as ConfigRepos)._embedded.config_repos;
+    if (configRepos.length === 0) {
+      return (
+        <FlashMessage type={MessageType.info}>
+          There are no config repositories setup. Click the "Add" button to add one.
+        </FlashMessage>);
+    }
+
     return (
       <div>
-        {(vnode.attrs.objects() as ConfigRepos)._embedded.config_repos.map((configRepo) => {
+        {configRepos.map((configRepo) => {
           return (
             <ConfigRepoWidget key={configRepo.id}
                               obj={configRepo}

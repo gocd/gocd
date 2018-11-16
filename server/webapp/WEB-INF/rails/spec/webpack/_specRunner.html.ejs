@@ -16,6 +16,35 @@
     <% for (var i = 0; i < htmlWebpackPlugin.options.jasmineJsFiles.length; i++) { %>
     <script src="<%= htmlWebpackPlugin.options.jasmineJsFiles[i] %>"></script>
     <% } %>
+
+    <script>
+      var oldManifestValue = null;
+
+      function checkUpdates(url) {
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', url + '?' + new Date().getTime());
+        xhr.onreadystatechange = function () {
+          if (xhr.readyState === XMLHttpRequest.DONE) {
+            if (xhr.status === 200) {
+              var json = JSON.parse(xhr.responseText)
+              if (oldManifestValue == null) {
+                oldManifestValue = json.hash;
+                return;
+              } else if (oldManifestValue != json.hash) {
+                window.location.reload(true)
+              }
+            }
+          }
+        };
+        xhr.send();
+      }
+
+      if (window.location.search.indexOf('no_hot_reload') === -1) {
+        setInterval(function () {
+          checkUpdates('/go/assets/webpack/manifest.json')
+        }, 1000);
+      }
+    </script>
 </head>
 <body></body>
 </html>

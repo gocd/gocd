@@ -44,8 +44,9 @@ export class KeyValuePair extends MithrilViewComponent<Attrs> {
             return [
               <li className={classnames(styles.keyValueItem, {[styles.keyValueInlineItem]: isInline})}
                   key={key as string}>
-                <label className={styles.key}>{key}</label>
-                <span className={styles.value}>{KeyValuePair.renderedValue(value)}</span>
+                <label data-test-id={`key-value-key-${key as string}`} className={styles.key}>{key}</label>
+                <span data-test-id={`key-value-value-${key as string}`}
+                      className={styles.value}>{KeyValuePair.renderedValue(value)}</span>
               </li>
             ];
           })

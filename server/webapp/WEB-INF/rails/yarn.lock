@@ -87,10 +87,10 @@
     lodash "^4.2.0"
     to-fast-properties "^2.0.0"
 
-"@shopify/draggable@^1.0.0-beta.7":
-  version "1.0.0-beta.7"
-  resolved "https://registry.yarnpkg.com/@shopify/draggable/-/draggable-1.0.0-beta.7.tgz#58c3619ffd88841d337c2922506f4a85540ba7ee"
-  integrity sha512-xNHOcZScvRWfvPeCFyX0JRCuzJuzX1OSjIoJbTb8vYSkHrmw2nEKtnRQZa4p7SIGMxNC7LE50TPWl0J7XV6D0g==
+"@shopify/draggable@^1.0.0-beta.8":
+  version "1.0.0-beta.8"
+  resolved "https://registry.yarnpkg.com/@shopify/draggable/-/draggable-1.0.0-beta.8.tgz#2eb3c2f72298ce3e53fe16f34ab124cc495cd4fc"
+  integrity sha512-9IeBPQM93Ad4qFKUopwuTClzoST/1OId4MaSd/8FB5ScCL2tl25UaOGNR8E2hjiL7xK4LN5+I1Ews6amS7YAiA==
 
 "@types/classnames@^2.2.6":
   version "2.2.6"

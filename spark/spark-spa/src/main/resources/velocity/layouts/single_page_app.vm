@@ -32,7 +32,7 @@
           rel="stylesheet"/>
   #end
 
-  #foreach( $css in ${webpackAssetsService.getCSSAssetPathsFor("single_page_apps/${controllerName}")})
+  #foreach( $css in ${webpackAssetsService.getCSSAssetPathsFor("single_page_apps/${controllerName}", "single_page_apps/header_footer_shim")})
     <link href="${css}" media="screen" rel="stylesheet"/>
   #end
 

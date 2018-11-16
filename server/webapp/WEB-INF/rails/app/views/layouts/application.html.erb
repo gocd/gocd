@@ -5,13 +5,10 @@
 <head>
   <%= render :partial => "shared/head" %>
 </head>
-<body id="<%= page_name %>" class="<%= page_name %>">
+<body id="<%= page_name %>" class="<%= page_name %>" <%= render "shared/body_data_attrs" %>>
 <div class="page-wrap">
   <div id="body_bg">
-    <div id="header">
-      <%= render :partial => "shared/header" %>
-    </div>
-
+    <%= render :partial => "shared/header" %>
     <div id='body_content'>
       <div class="messaging_wrapper" id="messaging_wrapper">
         <%= render :partial => "shared/flash_message" %>
@@ -22,9 +19,6 @@
     </div>
   </div>
 </div>
-<div id='footer-new-foundation'>
-  <%= render :partial => 'navigation_elements/footer' %>
-</div>
-
+<%= render :partial => 'navigation_elements/footer' %>
 </body>
 </html>

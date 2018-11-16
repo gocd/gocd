@@ -9,18 +9,14 @@
   <%= csrf_meta_tags %>
 </head>
 
-<body data-controller-name="<%= controller_name %>" data-action-name="<%= action_name %>" id="<%= controller_name %>-page">
+<body data-controller-name="<%= controller_name %>" data-action-name="<%= action_name %>" id="<%= controller_name %>-page" <%= render "shared/body_data_attrs" %>>
 <div class="page-wrap">
-  <div id="header">
-    <%= render :partial => "shared/header" %>
-  </div>
+  <%= render :partial => "shared/header" %>
 
   <main class="main-container"></main>
 
 </div>
-<div id='footer-new-foundation'>
-  <%= render :partial => 'navigation_elements/footer' %>
-</div>
+<%= render :partial => 'navigation_elements/footer' %>
 <script type="application/javascript">
   jQuery(".main-container").html('<%= escape_javascript(yield) %>');
   angular.bootstrap('#<%= controller_name %>-page');

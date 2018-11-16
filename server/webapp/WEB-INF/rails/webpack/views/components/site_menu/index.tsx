@@ -93,7 +93,7 @@ class SiteSubNav extends MithrilViewComponent<{}> {
   }
 }
 
-class SiteSubNavItem extends MithrilViewComponent<TextWithLink> {
+export class SiteSubNavItem extends MithrilViewComponent<TextWithLink> {
   view(vnode: m.Vnode<TextWithLink>) {
     return (
       <li className={styles.siteSubNavItem}>

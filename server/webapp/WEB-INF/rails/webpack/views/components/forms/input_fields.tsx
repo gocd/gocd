@@ -29,7 +29,7 @@ export interface HasProperty<T> {
 
 export interface LowlevelTextBindings<T> {
   oninput: (newValue: T) => any;
-  value: T;
+  value?: T;
 }
 
 export interface LowlevelCheckboxBindings {
@@ -39,8 +39,10 @@ export interface LowlevelCheckboxBindings {
 
 export interface LabelAttrs<T> {
   label: string;
+  errorText?: string;
   helpText?: string;
   disabled?: boolean;
+  required?: boolean;
 }
 
 type FormFieldAttrs<T> = LabelAttrs<T> & (HasProperty<T> | LowlevelTextBindings<T> | LowlevelCheckboxBindings);
@@ -50,25 +52,44 @@ function isHasPropertyInterface<T>(x: any): x is HasProperty<T> {
 }
 
 abstract class FormField<T> extends MithrilViewComponent<FormFieldAttrs<T>> {
-  protected readonly id: string = `item-${uuid()}`;
+  protected readonly id: string         = `input-${uuid()}`;
+  protected readonly helpTextId: string = `${this.id}-help-text`;
+  protected readonly errorId: string    = `${this.id}-error-text`;
 
   view(vnode: m.Vnode<FormFieldAttrs<T>>) {
     return (
-      <li className={classnames(styles.formGroup)}>
-        <label htmlfor={this.id} className={classnames(styles.formLabel)}>{vnode.attrs.label}:</label>
+      <div className={classnames(styles.formGroup, {[styles.formHasError]: this.hasErrorText(vnode)})}>
+        <label for={this.id} className={classnames(styles.formLabel)}>{vnode.attrs.label}:</label>
         {this.renderInputField(vnode)}
-        <span className={classnames(styles.formHelp)}>{vnode.attrs.helpText}</span>
-      </li>
+        {this.errorSpan(vnode)}
+        {this.getHelpSpan(vnode)}
+      </div>
     );
   }
 
   abstract renderInputField(vnode: m.Vnode<FormFieldAttrs<T>>): m.Children | null | void;
 
   protected defaultAttributes(vnode: m.Vnode<FormFieldAttrs<T>>): { [key: string]: any } {
-    return {
+    const newVar: { [key: string]: string | boolean } = {
       "aria-label": vnode.attrs.label,
-      "readonly": vnode.attrs.disabled
+      "readonly": !!vnode.attrs.disabled,
+      "required": !!vnode.attrs.required
     };
+
+    if (this.hasHelpText(vnode)) {
+      newVar["aria-describedby"] = this.helpTextId;
+    }
+
+    if (this.hasErrorText(vnode)) {
+      newVar["aria-errormessage"] = this.errorId;
+    }
+
+    if (vnode.attrs.required) {
+      newVar["aria-required"] = true;
+      newVar.required         = true;
+    }
+
+    return newVar;
   }
 
   protected bindingAttributes(vnode: m.Vnode<FormFieldAttrs<T>>,
@@ -85,6 +106,28 @@ abstract class FormField<T> extends MithrilViewComponent<FormFieldAttrs<T>> {
     }
 
     return valueAndOnChangeBindings;
+  }
+
+  protected getHelpSpan(vnode: m.Vnode<FormFieldAttrs<T>>) {
+    if (this.hasHelpText(vnode)) {
+      return (<span id={this.helpTextId} className={classnames(styles.formHelp)}>{vnode.attrs.helpText}</span>);
+    }
+  }
+
+  protected hasHelpText(vnode: m.Vnode<FormFieldAttrs<T>>) {
+    return !_.isEmpty(vnode.attrs.helpText);
+  }
+
+  protected hasErrorText(vnode: m.Vnode<FormFieldAttrs<T>>) {
+    return !_.isEmpty(vnode.attrs.errorText);
+  }
+
+  private errorSpan(vnode: m.Vnode<FormFieldAttrs<T>>) {
+    if (this.hasErrorText(vnode)) {
+      return (
+        <span className={styles.formErrorText} id={this.errorId}>{vnode.attrs.errorText}</span>
+      );
+    }
   }
 }
 
@@ -118,7 +161,6 @@ export class TextAreaField extends FormField<string> {
         id={this.id}>{value}</textarea>
     );
   }
-
 }
 
 export class CheckboxField extends FormField<boolean> {

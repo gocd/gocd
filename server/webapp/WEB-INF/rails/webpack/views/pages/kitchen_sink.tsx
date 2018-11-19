@@ -15,10 +15,11 @@
  */
 
 import {MithrilViewComponent} from "jsx/mithril-component";
-import * as m from 'mithril';
+import * as m from "mithril";
 import * as Buttons from "views/components/buttons/index";
 import {CollapsiblePanel} from "views/components/collapsible_panel";
 import {FlashMessage, MessageType} from "views/components/flash_message";
+import {TextField} from "views/components/forms/input_fields";
 import {HeaderPanel} from "views/components/header_panel";
 import {ButtonGroup} from "views/components/icons";
 import * as Icons from "views/components/icons/index";
@@ -38,7 +39,7 @@ export class KitchenSink extends MithrilViewComponent<null> {
         <FlashMessage type={MessageType.warning} message={"This might not work!"}/>
         <FlashMessage type={MessageType.alert} message={"Disaster Happened!"}/>
         <FlashMessage type={MessageType.alert} dismissible={true}
-                           message={"Disaster Happened! But you can ignore by closing it"}/>
+                      message={"Disaster Happened! But you can ignore by closing it"}/>
         <h3>CollapsiblePanel</h3>
         <CollapsiblePanel header={<div>Collapsible Panel header</div>}
                           actions={<button>foo</button>}>
@@ -50,33 +51,39 @@ export class KitchenSink extends MithrilViewComponent<null> {
         <SearchBox width={350} attrName="search" model={null} placeholder="Some placeholder"/>
 
         <h3>Modal</h3>
-        <Buttons.Primary onclick={() => {this.createModal(Size.small); }}>Open Small Modal</Buttons.Primary>
-        <Buttons.Primary onclick={() => {this.createModal(Size.medium); }}>Open Medium Modal</Buttons.Primary>
-        <Buttons.Primary onclick={() => {this.createModal(Size.large); }}>Open Large Modal</Buttons.Primary>
+        <Buttons.Primary onclick={() => {
+          this.createModal(Size.small);
+        }}>Open Small Modal</Buttons.Primary>
+        <Buttons.Primary onclick={() => {
+          this.createModal(Size.medium);
+        }}>Open Medium Modal</Buttons.Primary>
+        <Buttons.Primary onclick={() => {
+          this.createModal(Size.large);
+        }}>Open Large Modal</Buttons.Primary>
 
         <h3>Icons</h3>
         <Icons.Settings onclick={() => alert("You pressed settings button!")}/> <br/>
-      <p>
-        <ButtonGroup>
-          <Icons.Settings onclick={() => alert("You pressed settings button!")}/>
-          <Icons.Analytics onclick={() => alert("You pressed analytics button!")}/>
-          <Icons.Edit onclick={() => alert("You pressed edit button!")}/>
-          <Icons.Clone onclick={() => alert("You pressed clone button!")}/>
-          <Icons.Delete onclick={() => alert("You pressed delete button!")}/>
-          <Icons.Lock onclick={() => alert("You pressed lock button!")}/>
-          <Icons.Close onclick={() => alert("You pressed close button!")}/>
-        </ButtonGroup>
-      </p>
         <p>
-        <ButtonGroup>
-          <Icons.Settings disabled={true}/>
-          <Icons.Analytics disabled={true}/>
-          <Icons.Edit disabled={true}/>
-          <Icons.Clone disabled={true}/>
-          <Icons.Delete disabled={true}/>
-          <Icons.Lock disabled={true}/>
-          <Icons.Close disabled={true}/>
-        </ButtonGroup>
+          <ButtonGroup>
+            <Icons.Settings onclick={() => alert("You pressed settings button!")}/>
+            <Icons.Analytics onclick={() => alert("You pressed analytics button!")}/>
+            <Icons.Edit onclick={() => alert("You pressed edit button!")}/>
+            <Icons.Clone onclick={() => alert("You pressed clone button!")}/>
+            <Icons.Delete onclick={() => alert("You pressed delete button!")}/>
+            <Icons.Lock onclick={() => alert("You pressed lock button!")}/>
+            <Icons.Close onclick={() => alert("You pressed close button!")}/>
+          </ButtonGroup>
+        </p>
+        <p>
+          <ButtonGroup>
+            <Icons.Settings disabled={true}/>
+            <Icons.Analytics disabled={true}/>
+            <Icons.Edit disabled={true}/>
+            <Icons.Clone disabled={true}/>
+            <Icons.Delete disabled={true}/>
+            <Icons.Lock disabled={true}/>
+            <Icons.Close disabled={true}/>
+          </ButtonGroup>
         </p>
         <hr/>
 
@@ -112,20 +119,41 @@ export class KitchenSink extends MithrilViewComponent<null> {
         <h3>Some examples of key value pairs</h3>
         <KeyValuePair data={
           {
-            'First Name':                                       'Jon',
-            'Last Name':                                        'Doe',
-            'email':                                            'jdoe@example.com',
-            'some really really really really really long key': 'This is really really really really really really really really really really long junk value'
+            "First Name": "Jon",
+            "Last Name": "Doe",
+            "email": "jdoe@example.com",
+            "some really really really really really long key": "This is really really really really really really really really really really long junk value"
           }
         }/>
 
         <h3>Some examples of inline key value pairs</h3>
         <KeyValuePair inline={true} data={
           {
-            'Plugin':                                           'my-fancy-plugin-name',
-            'some really really really really really long key': 'This is really really really really really really really really really really long junk value'
+            "Plugin": "my-fancy-plugin-name",
+            "some really really really really really long key": "This is really really really really really really really really really really long junk value"
           }
         }/>
+
+        <h3>Forms</h3>
+        <TextField required={true}
+                   helpText="Enter your username here"
+                   disabled={false}
+                   label="Username"
+                   oninput={(value: string) => {
+                     // ignore
+                   }}
+                   value={"foo"}
+        />
+
+        <TextField required={true}
+                   errorText="This field must be present"
+                   helpText="Lorem ipsum is the dummy text used by the print and typesetting industry"
+                   disabled={false}
+                   label="Lorem ipsum"
+                   oninput={(value: string) => {
+                     // ignore
+                   }}
+        />
       </div>
     );
   }

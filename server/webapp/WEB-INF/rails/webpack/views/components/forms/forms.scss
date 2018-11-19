@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@import "../../global/common";
 
 $line-color: #e9edef;
 $global-border-color: $line-color;
@@ -25,6 +26,8 @@ $form-control-color: #495057;
 $form-control-disabled-color: #e9ecef;
 $form-control-border-color: #80bdff;
 $form-control-background-color: #fff;
+$form-failed-color: $failed;
+$form-failed-field-background-color: lighten($form-failed-color, 35%);
 
 .form-group {
   list-style-type: none;
@@ -72,4 +75,20 @@ $form-control-background-color: #fff;
   font-size:  12px;
   margin-top: 5px;
   color:      $form-help-text-color;
+}
+
+.form-error-text {
+  display:     block;
+  font-size:   12px;
+  margin-top:  5px;
+  font-weight: bolder;
+}
+
+.form-has-error {
+  color: $form-failed-color;
+
+  .form-control {
+    border-color:     $form-failed-color;
+    background-color: $form-failed-field-background-color;
+  }
 }

@@ -5,3 +5,5 @@ export const formLabel: string;
 export const formControl: string;
 export const textArea: string;
 export const formHelp: string;
+export const formErrorText: string;
+export const formHasError: string;

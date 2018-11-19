@@ -87,7 +87,18 @@ public class CreateConfigRepoCommandTest {
         command.update(cruiseConfig);
 
         assertFalse(command.isValid(cruiseConfig));
-        assertThat(configRepo.getMaterialConfig().errors().on("auto_update"), is("Configuration repository material 'https://foo.git' must have autoUpdate enabled."));
+        assertThat(configRepo.getMaterialConfig().errors().on("autoUpdate"), is("Configuration repository material 'https://foo.git' must have autoUpdate enabled."));
+    }
+
+    @Test
+    public void isValid_shouldValidatePresenceOfId() {
+        ConfigRepoConfig configRepo = new ConfigRepoConfig();
+        configRepo.setId("");
+
+        CreateConfigRepoCommand command = new CreateConfigRepoCommand(securityService, configRepo, currentUser, result);
+
+        assertFalse(command.isValid(cruiseConfig));
+        assertThat(configRepo.errors().on("id"), is("Configuration repository id not specified"));
     }
 
     @Test

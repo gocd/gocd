@@ -24,6 +24,7 @@ import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.SecurityService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
+import org.apache.commons.lang3.StringUtils;
 
 import static com.thoughtworks.go.i18n.LocalizedMessage.forbiddenToEdit;
 import static com.thoughtworks.go.serverhealth.HealthStateType.forbidden;
@@ -45,6 +46,11 @@ abstract class ConfigRepoCommand implements EntityConfigUpdateCommand<ConfigRepo
 
     @Override
     public boolean isValid(CruiseConfig preprocessedConfig) {
+        if (StringUtils.isBlank(this.configRepo.getId())) {
+            this.configRepo.addError("id", "Configuration repository id not specified");
+            return false;
+        }
+
         preprocessedConfigRepo = preprocessedConfig.getConfigRepos().getConfigRepo(this.configRepo.getId());
 
         if (!preprocessedConfigRepo.validateTree(new ConfigSaveValidationContext(preprocessedConfig))) {

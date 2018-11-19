@@ -162,9 +162,8 @@ class AgentRepresenterTest {
     @Test
     void 'should represent errors'() {
       AgentInstance agentInstance = agentWithConfigErrors()
-
       def expectedErrors = [
-//        ip_address: ["'IP' is an invalid IP address."],
+        ip_address: ["'IP' is an invalid IP address."],
         resources : [
           $/Resource name 'foo%' is not valid. Valid names much match '^[-\w\s|.]*$'/$,
           $/Resource name 'bar$' is not valid. Valid names much match '^[-\w\s|.]*$'/$

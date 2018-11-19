@@ -36,11 +36,11 @@ import java.util.Date;
 import java.util.List;
 
 //TODO put the logic back to the AgentRuntimeInfo for all the sync method
+
 /**
  * @understands runtime and configuration information of a builder machine
  */
-public class AgentInstance implements Comparable<AgentInstance>
-{
+public class AgentInstance implements Comparable<AgentInstance> {
     private AgentType agentType;
     protected AgentConfig agentConfig;
     private AgentRuntimeInfo agentRuntimeInfo;
@@ -51,7 +51,7 @@ public class AgentInstance implements Comparable<AgentInstance>
     private volatile Date lastHeardTime;
     private TimeProvider timeProvider;
     private SystemEnvironment systemEnvironment;
-    private ConfigErrors errors;
+    private ConfigErrors errors = new ConfigErrors();
 
     protected AgentInstance(AgentConfig agentConfig, AgentType agentType, SystemEnvironment systemEnvironment,
                             AgentStatusChangeListener agentStatusChangeListener) {
@@ -86,7 +86,7 @@ public class AgentInstance implements Comparable<AgentInstance>
     public void syncConfig(AgentConfig agentConfig) {
         this.agentConfig = agentConfig;
 
-        if (agentConfig.isElastic()){
+        if (agentConfig.isElastic()) {
             agentRuntimeInfo = ElasticAgentRuntimeInfo.fromServer(agentRuntimeInfo, agentConfig.getElasticAgentId(), agentConfig.getElasticPluginId());
         }
 
@@ -111,7 +111,7 @@ public class AgentInstance implements Comparable<AgentInstance>
         agentRuntimeInfo.busy(agentBuildingInfo);
     }
 
-//  Used only in tests
+    //  Used only in tests
     public void idle() {
         agentConfigStatus = AgentConfigStatus.Enabled;
         syncStatus(AgentRuntimeStatus.Idle);
@@ -133,7 +133,9 @@ public class AgentInstance implements Comparable<AgentInstance>
     }
 
     public void deny() {
-        if (!canDisable()) { throw new RuntimeException("Should not deny agent when is building."); }
+        if (!canDisable()) {
+            throw new RuntimeException("Should not deny agent when is building.");
+        }
         agentConfig().disable();
         updateConfigStatus(AgentConfigStatus.Disabled);
     }
@@ -166,6 +168,7 @@ public class AgentInstance implements Comparable<AgentInstance>
 
     /**
      * Used only from the old ui. New ui does not have the notion of "approved" agents only "enabled" ones.
+     *
      * @deprecated
      */
     public boolean canApprove() {
@@ -350,7 +353,6 @@ public class AgentInstance implements Comparable<AgentInstance>
         AgentInstance result = new AgentInstance(agentInConfig, type, systemEnvironment, agentStatusChangeListener);
         result.agentConfigStatus = agentInConfig.isDisabled() ? AgentConfigStatus.Disabled : AgentConfigStatus.Enabled;
 
-        result.errors = new ConfigErrors();
         result.errors.addAll(agentInConfig.errors());
         for (ResourceConfig resourceConfig : agentInConfig.getResourceConfigs()) {
             result.errors.addAll(resourceConfig.errors());
@@ -381,19 +383,35 @@ public class AgentInstance implements Comparable<AgentInstance>
     }
 
     public boolean equals(Object that) {
-        if (this == that) { return true; }
-        if (that == null) { return false; }
-        if (getClass() != that.getClass()) { return false; }
+        if (this == that) {
+            return true;
+        }
+        if (that == null) {
+            return false;
+        }
+        if (getClass() != that.getClass()) {
+            return false;
+        }
 
         return equals((AgentInstance) that);
     }
 
     private boolean equals(AgentInstance that) {
-        if (this.agentConfig == null ? that.agentConfig != null : !this.agentConfig.equals(that.agentConfig)) { return false; }
-        if (this.agentRuntimeInfo == null ? that.agentRuntimeInfo != null : !this.agentRuntimeInfo.equals(that.agentRuntimeInfo)) { return false; }
-        if (this.agentConfigStatus != that.agentConfigStatus) { return false; }
-        if (this.agentType != that.agentType) { return false; }
-        if (this.lastHeardTime == null ? that.lastHeardTime != null : !this.lastHeardTime.equals(that.lastHeardTime)) { return false; }
+        if (this.agentConfig == null ? that.agentConfig != null : !this.agentConfig.equals(that.agentConfig)) {
+            return false;
+        }
+        if (this.agentRuntimeInfo == null ? that.agentRuntimeInfo != null : !this.agentRuntimeInfo.equals(that.agentRuntimeInfo)) {
+            return false;
+        }
+        if (this.agentConfigStatus != that.agentConfigStatus) {
+            return false;
+        }
+        if (this.agentType != that.agentType) {
+            return false;
+        }
+        if (this.lastHeardTime == null ? that.lastHeardTime != null : !this.lastHeardTime.equals(that.lastHeardTime)) {
+            return false;
+        }
 
         return true;
     }

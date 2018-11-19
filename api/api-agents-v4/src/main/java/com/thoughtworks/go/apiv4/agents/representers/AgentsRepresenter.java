@@ -18,6 +18,8 @@ package com.thoughtworks.go.apiv4.agents.representers;
 
 import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.domain.AgentInstance;
+import com.thoughtworks.go.server.domain.Username;
+import com.thoughtworks.go.server.service.SecurityService;
 import com.thoughtworks.go.spark.Routes;
 
 import java.util.Collection;
@@ -25,13 +27,13 @@ import java.util.Map;
 
 public class AgentsRepresenter {
 
-    public static void toJSON(OutputWriter writer, Map<AgentInstance, Collection<String>> agentInstanceCollectionMap) {
+    public static void toJSON(OutputWriter writer, Map<AgentInstance, Collection<String>> agentInstanceCollectionMap, SecurityService securityService, Username username) {
         writer.addLinks(
                 outputLinkWriter -> outputLinkWriter
                         .addLink("self", Routes.AgentsAPI.BASE)
                         .addAbsoluteLink("doc", Routes.AgentsAPI.DOC))
                 .addChild("_embedded", embeddedWriter -> embeddedWriter.addChildList("agents",
-                        agentsWriter -> agentInstanceCollectionMap.forEach((key, value) -> agentsWriter.addChild(agentWriter -> AgentRepresenter.toJSON(agentWriter, key, value, null, null))))
+                        agentsWriter -> agentInstanceCollectionMap.forEach((key, value) -> agentsWriter.addChild(agentWriter -> AgentRepresenter.toJSON(agentWriter, key, value, securityService, username))))
                 );
     }
 }

@@ -67,7 +67,7 @@ public class AgentsControllerV4 extends ApiController implements SparkSpringCont
 
     public String index(Request request, Response response) throws IOException {
         return writerForTopLevelObject(request, response,
-                outputWriter -> AgentsRepresenter.toJSON(outputWriter, agentService.agentEnvironmentMap()));
+                outputWriter -> AgentsRepresenter.toJSON(outputWriter, agentService.agentEnvironmentMap(), null, null));
     }
 
     @Override

@@ -46,7 +46,7 @@ class PluginHeaderWidget extends MithrilViewComponent<PluginHeaderAttrs> {
         <div data-test-id="plugin-name" class={styles.pluginName}>{vnode.attrs.pluginName}</div>
       ),
       (
-        <KeyValuePair inline={true} data={
+        <KeyValuePair inline={true} keyValuePairItemClass={styles.pluginMetadataHeader} data={
           [
             ["Id", vnode.attrs.pluginId],
             ["Version", vnode.attrs.pluginVersion],

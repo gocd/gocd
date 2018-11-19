@@ -26,6 +26,7 @@ export interface Attrs {
   // pass in an object if you do not care about order, pass an array of key-value pairs if you care about order
   data: { [key: string]: m.Children } | m.Children[];
   inline?: boolean;
+  keyValuePairItemClass?: string;
 }
 
 export class KeyValuePair extends MithrilViewComponent<Attrs> {
@@ -42,7 +43,7 @@ export class KeyValuePair extends MithrilViewComponent<Attrs> {
               [value, key] = args;
             }
             return [
-              <li className={classnames(styles.keyValueItem, {[styles.keyValueInlineItem]: isInline})}
+              <li className={classnames(styles.keyValueItem, {[styles.keyValueInlineItem]: isInline}, vnode.attrs.keyValuePairItemClass)}
                   key={key as string}>
                 <label data-test-id={`key-value-key-${key as string}`} className={styles.key}>{key}</label>
                 <span data-test-id={`key-value-value-${key as string}`}

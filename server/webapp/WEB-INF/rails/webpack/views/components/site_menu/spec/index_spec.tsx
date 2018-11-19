@@ -98,6 +98,8 @@ describe("Site Menu", () => {
     expect(findMenuItem("/go/admin/package_repositories/new")).not.toBeInDOM();
     expect(findMenuItem("/go/admin/security/auth_configs")).not.toBeInDOM();
     expect(findMenuItem("/go/admin/security/roles")).not.toBeInDOM();
+    expect($root.find(`a.${styles.siteNavLink}`)).toHaveLength(4);
+    expect($root.find(`a.${styles.siteSubNavLink}`)).toHaveLength(1);
   });
 
   it("should display the menus for Group Admins", () => {
@@ -132,6 +134,8 @@ describe("Site Menu", () => {
     expect(findMenuItem("/go/admin/package_repositories/new")).toHaveText("Package Repositories");
     expect(findMenuItem("/go/admin/security/auth_configs")).not.toBeInDOM();
     expect(findMenuItem("/go/admin/security/roles")).not.toBeInDOM();
+    expect($root.find(`a.${styles.siteNavLink}`)).toHaveLength(4);
+    expect($root.find(`a.${styles.siteSubNavLink}`)).toHaveLength(6);
   });
 
   it("should not show analytics when the attribute is passed as false", () => {

@@ -21,9 +21,14 @@ import com.thoughtworks.go.api.ApiVersion;
 import com.thoughtworks.go.api.CrudController;
 import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
+import com.thoughtworks.go.apiv4.agents.representers.AgentRepresenter;
 import com.thoughtworks.go.apiv4.agents.representers.AgentsRepresenter;
-import com.thoughtworks.go.config.Agents;
+import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
+import com.thoughtworks.go.domain.AgentInstance;
+import com.thoughtworks.go.domain.NullAgentInstance;
 import com.thoughtworks.go.server.service.AgentService;
+import com.thoughtworks.go.server.service.EnvironmentConfigService;
+import com.thoughtworks.go.server.service.SecurityService;
 import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.spring.SparkSpringController;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,15 +42,19 @@ import java.util.function.Consumer;
 import static spark.Spark.*;
 
 @Component
-public class AgentsControllerV4 extends ApiController implements SparkSpringController, CrudController<Agents> {
+public class AgentsControllerV4 extends ApiController implements SparkSpringController, CrudController<AgentInstance> {
     private final AgentService agentService;
     private final ApiAuthenticationHelper apiAuthenticationHelper;
+    private final SecurityService securityService;
+    private final EnvironmentConfigService environmentConfigService;
 
     @Autowired
-    public AgentsControllerV4(AgentService agentService, ApiAuthenticationHelper apiAuthenticationHelper) {
+    public AgentsControllerV4(AgentService agentService, ApiAuthenticationHelper apiAuthenticationHelper, SecurityService securityService, EnvironmentConfigService environmentConfigService) {
         super(ApiVersion.v4);
         this.agentService = agentService;
         this.apiAuthenticationHelper = apiAuthenticationHelper;
+        this.securityService = securityService;
+        this.environmentConfigService = environmentConfigService;
     }
 
     @Override
@@ -59,39 +68,50 @@ public class AgentsControllerV4 extends ApiController implements SparkSpringCont
             before("", this::setContentType);
             before("/*", this::setContentType);
             before("", mimeType, apiAuthenticationHelper::checkUserAnd403);
-            before("/*", mimeType, apiAuthenticationHelper::checkAdminUserAnd403);
+            before("/*", mimeType, apiAuthenticationHelper::checkUserAnd403);
 
             get("", mimeType, this::index);
+            get(Routes.AgentsAPI.UUID, mimeType, this::show);
+
+            exception(RecordNotFoundException.class, this::notFound);
         });
     }
 
     public String index(Request request, Response response) throws IOException {
         return writerForTopLevelObject(request, response,
-                outputWriter -> AgentsRepresenter.toJSON(outputWriter, agentService.agentEnvironmentMap(), null, null));
+                outputWriter -> AgentsRepresenter.toJSON(outputWriter, agentService.agentEnvironmentMap(), securityService, currentUsername()));
+    }
+
+    public String show(Request request, Response response) throws IOException {
+        final String uuid = request.params("uuid");
+
+        return writerForTopLevelObject(request, response, outputWriter -> AgentRepresenter.toJSON(outputWriter, fetchEntityFromConfig(uuid), environmentConfigService.environmentsFor(uuid), securityService, currentUsername()));
     }
 
     @Override
-    public String etagFor(Agents entityFromServer) {
-        return null; // to be implemented
+    public String etagFor(AgentInstance entityFromServer) {
+        throw new UnsupportedOperationException();
     }
 
     @Override
-    public Agents doFetchEntityFromConfig(String name) {
+    public AgentInstance doFetchEntityFromConfig(String uuid) {
+        final AgentInstance agentInstance = agentService.findAgent(uuid);
+
+        return agentInstance instanceof NullAgentInstance ? null : agentInstance;
+    }
+
+    @Override
+    public AgentInstance buildEntityFromRequestBody(Request req) {
         return null;
     }
 
     @Override
-    public Agents buildEntityFromRequestBody(Request req) {
-        return null;
-    }
-
-    @Override
-    public String jsonize(Request req, Agents o) {
+    public String jsonize(Request req, AgentInstance o) {
         return null; // to be implemented
     }
 
     @Override
-    public Consumer<OutputWriter> jsonWriter(Agents agentConfigs) {
+    public Consumer<OutputWriter> jsonWriter(AgentInstance agentConfigs) {
         return null;
     }
 }

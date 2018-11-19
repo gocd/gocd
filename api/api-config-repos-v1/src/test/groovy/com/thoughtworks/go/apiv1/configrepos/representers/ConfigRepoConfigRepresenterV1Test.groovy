@@ -65,6 +65,46 @@ class ConfigRepoConfigRepresenterV1Test {
   }
 
   @Test
+  void "toJSON should serialize errors"() {
+    ConfigRepoConfig configRepo = repo(ID)
+    configRepo.addError("id", "Duplicate Id.")
+    configRepo.addError("material", "You have defined multiple configuration repositories with the same repository.")
+    configRepo.getMaterialConfig().addError("autoUpdate", "Cannot be false.")
+    String json = toObjectString({ w ->
+      ConfigRepoConfigRepresenterV1.toJSON(w, configRepo)
+    })
+
+    String self = "http://test.host/go${Routes.ConfigRepos.id(ID)}"
+    String find = "http://test.host/go${Routes.ConfigRepos.find()}"
+
+    assertThatJson(json).isEqualTo([
+      _links       : [
+        self: [href: self],
+        doc : [href: Routes.ConfigRepos.DOC],
+        find: [href: find],
+      ],
+      id           : ID,
+      plugin_id    : TEST_PLUGIN_ID,
+      errors       : ["id": ["Duplicate Id."],
+                     "material": ["You have defined multiple configuration repositories with the same repository."]],
+      material     : [
+        type      : "git",
+        errors    : ["auto_update":["Cannot be false."]],
+        attributes: [
+          name       : null,
+          url        : TEST_REPO_URL,
+          branch     : "master",
+          auto_update: true
+        ]
+      ],
+      configuration: [
+        [key: "foo", value: "bar"],
+        [key: "baz", value: "quu"]
+      ]
+    ])
+  }
+
+  @Test
   void fromJSON() {
     JsonReader json = GsonTransformer.getInstance().jsonReaderFrom([
       id           : ID,

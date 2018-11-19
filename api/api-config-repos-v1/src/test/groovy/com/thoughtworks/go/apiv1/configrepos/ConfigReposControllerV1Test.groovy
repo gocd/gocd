@@ -247,6 +247,9 @@ class ConfigReposControllerV1Test implements SecurityServiceTrait, ControllerTra
             auto_update: true
           ]
         ],
+        errors : [
+          id : [ "ConfigRepo ids should be unique. A ConfigRepo with the same id already exists." ]
+        ],
         configuration: []
       ]
       postWithApiHeader(controller.controllerBasePath(), payload)

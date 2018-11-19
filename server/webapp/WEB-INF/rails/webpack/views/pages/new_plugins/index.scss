@@ -17,6 +17,8 @@
 
 $collapse-icon-size: 30px;
 
+$plugin-row-element-width: 350px;
+
 .plugin-header {
   display:     flex;
   align-items: center;
@@ -40,6 +42,8 @@ $collapse-icon-size: 30px;
   font-weight:  600;
   font-size:    13px;
   margin-right: 50px;
+  max-width:    $plugin-row-element-width;
+  min-width:    $plugin-row-element-width;
   @media (min-width: $screen-md) {
     font-size: 12px;
   }
@@ -62,4 +66,9 @@ $collapse-icon-size: 30px;
 
 .plugins-list {
   display: block;
+}
+
+.plugin-metadata-header {
+  max-width: $plugin-row-element-width;
+  min-width: $plugin-row-element-width;
 }

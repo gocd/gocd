@@ -28,6 +28,7 @@ const classnames = bind(styles);
 export interface Attrs extends HTMLAttributes {
   onclick?: () => void;
   disabled?: boolean;
+  iconOnly?: boolean;
 }
 
 class Icon extends MithrilViewComponent<Attrs> {
@@ -41,6 +42,13 @@ class Icon extends MithrilViewComponent<Attrs> {
   }
 
   view(vnode: m.Vnode<Attrs>) {
+    if (vnode.attrs.iconOnly) {
+      return (
+        <i {...vnode.attrs} title={this.title}
+           className={classnames(this.name, {disabled: vnode.attrs.disabled})}/>
+      );
+    }
+
     return (
       <button title={this.title}
               className={(classnames(styles.btnIcon, {disabled: vnode.attrs.disabled}))}

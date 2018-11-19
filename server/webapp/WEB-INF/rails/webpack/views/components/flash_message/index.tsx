@@ -64,7 +64,7 @@ export class FlashMessage extends MithrilComponent<Attrs, State> {
     if (isDismissible) {
       closeButton = (
         <button className={classnames(styles.closeCallout)}>
-          <Icons.Close onclick={vnode.state.onDismiss}/>
+          <Icons.Close iconOnly={true} onclick={vnode.state.onDismiss}/>
         </button>
       );
     }

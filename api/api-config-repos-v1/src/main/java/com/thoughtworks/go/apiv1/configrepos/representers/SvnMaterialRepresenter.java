@@ -18,11 +18,13 @@ package com.thoughtworks.go.apiv1.configrepos.representers;
 
 import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.api.representers.JsonReader;
+import com.thoughtworks.go.config.materials.PasswordDeserializer;
 import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
-import com.thoughtworks.go.security.GoCipher;
 
 class SvnMaterialRepresenter {
+    private static final PasswordDeserializer PASSWORD_DESERIALIZER = new PasswordDeserializer();
+
     static void toJSON(OutputWriter json, SvnMaterialConfig material) {
         json.add("name", material.getName());
         json.add("auto_update", material.getAutoUpdate());
@@ -32,21 +34,19 @@ class SvnMaterialRepresenter {
         json.addIfNotNull("encrypted_password", material.getEncryptedPassword());
     }
 
-    static MaterialConfig fromJSON(JsonReader json, MaterialConfigHelper m) {
-        SvnMaterialConfig config = new SvnMaterialConfig(
-                m.url(json),
-                m.user(json),
-                null,
-                m.checkExternals(json),
-                new GoCipher(),
-                m.autoUpdate(json),
-                null,
-                false,
-                null,
-                m.name(json)
-        );
+    static MaterialConfig fromJSON(JsonReader json) {
+        SvnMaterialConfig materialConfig = new SvnMaterialConfig();
+        json.readStringIfPresent("name", materialConfig::setName);
+        json.readBooleanIfPresent("auto_update", materialConfig::setAutoUpdate);
+        json.readStringIfPresent("url", materialConfig::setUrl);
+        json.readBooleanIfPresent("check_externals", materialConfig::setCheckExternals);
 
-        m.encryptedPassword(json, config);
-        return config;
+        json.readStringIfPresent("username", materialConfig::setUserName);
+
+        String password = json.getStringOrDefault("password", null);
+        String encryptedPassword = json.getStringOrDefault("encrypted_password", null);
+        PASSWORD_DESERIALIZER.deserialize(password, encryptedPassword, materialConfig);
+
+        return materialConfig;
     }
 }

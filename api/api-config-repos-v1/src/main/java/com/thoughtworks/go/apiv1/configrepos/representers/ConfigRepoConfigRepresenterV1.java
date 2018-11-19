@@ -33,11 +33,13 @@ public class ConfigRepoConfigRepresenterV1 {
         attachConfigurations(json, repo);
     }
 
-    public static ConfigRepoConfig fromJSON(JsonReader jsonReader, MaterialConfigHelper m) {
-        MaterialConfig material = MaterialRepresenter.fromJSON(jsonReader.readJsonObject("material"), m);
-        String id = jsonReader.getString("id");
-        String pluginId = jsonReader.getString("plugin_id");
-        ConfigRepoConfig repo = new ConfigRepoConfig(material, pluginId, id);
+    public static ConfigRepoConfig fromJSON(JsonReader jsonReader) {
+        MaterialConfig material = MaterialRepresenter.fromJSON(jsonReader.readJsonObject("material"));
+        ConfigRepoConfig repo = new ConfigRepoConfig();
+        jsonReader.readStringIfPresent("id", repo::setId);
+        jsonReader.readStringIfPresent("plugin_id", repo::setConfigProviderPluginName);
+        repo.setMaterialConfig(material);
+
         repo.addConfigurations(ConfigurationPropertyRepresenter.fromJSONArray(jsonReader, "configuration"));
         return repo;
     }

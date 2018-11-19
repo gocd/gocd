@@ -18,11 +18,13 @@ package com.thoughtworks.go.apiv1.configrepos.representers;
 
 import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.api.representers.JsonReader;
+import com.thoughtworks.go.config.materials.PasswordDeserializer;
 import com.thoughtworks.go.config.materials.tfs.TfsMaterialConfig;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
-import com.thoughtworks.go.security.GoCipher;
 
 class TfsMaterialRepresenter {
+    private static final PasswordDeserializer PASSWORD_DESERIALIZER = new PasswordDeserializer();
+
     static void toJSON(OutputWriter json, TfsMaterialConfig material) {
         json.add("name", material.getName());
         json.add("auto_update", material.getAutoUpdate());
@@ -33,22 +35,18 @@ class TfsMaterialRepresenter {
         json.addIfNotNull("encrypted_password", material.getEncryptedPassword());
     }
 
-    public static MaterialConfig fromJSON(JsonReader json, MaterialConfigHelper m) {
-        TfsMaterialConfig config = new TfsMaterialConfig(
-                m.url(json),
-                m.user(json),
-                m.domain(json),
-                null,
-                m.projectPath(json),
-                new GoCipher(),
-                m.autoUpdate(json),
-                null,
-                false,
-                null,
-                m.name(json)
-        );
+    public static MaterialConfig fromJSON(JsonReader json) {
+        TfsMaterialConfig materialConfig = new TfsMaterialConfig();
+        json.readStringIfPresent("name", materialConfig::setName);
+        json.readBooleanIfPresent("auto_update", materialConfig::setAutoUpdate);
+        json.readStringIfPresent("url", materialConfig::setUrl);
+        json.readStringIfPresent("project_path", materialConfig::setProjectPath);
+        json.readStringIfPresent("domain", materialConfig::setDomain);
+        json.readStringIfPresent("username", materialConfig::setUserName);
 
-        m.encryptedPassword(json, config);
-        return config;
+        String password = json.getStringOrDefault("password", null);
+        String encryptedPassword = json.getStringOrDefault("encrypted_password", null);
+        PASSWORD_DESERIALIZER.deserialize(password, encryptedPassword, materialConfig);
+        return materialConfig;
     }
 }

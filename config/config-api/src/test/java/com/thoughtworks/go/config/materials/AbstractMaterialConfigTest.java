@@ -126,7 +126,7 @@ public class AbstractMaterialConfigTest {
     @Test
     public void shouldHandleBlankMaterialName(){
         TestMaterialConfig materialConfig = new TestMaterialConfig("");
-        materialConfig.setName(null);
+        materialConfig.setName((CaseInsensitiveString) null);
         materialConfig.validate(PipelineConfigSaveValidationContext.forChain(true, "group", new PipelineConfig()));
         assertThat(materialConfig.errors().getAllOn(AbstractMaterialConfig.MATERIAL_NAME), is(Matchers.nullValue()));
         materialConfig.setName(new CaseInsensitiveString(null));

@@ -85,7 +85,7 @@ class ConfigRepoConfigRepresenterV1Test {
     ])
 
     ConfigRepoConfig expected = repo(ID)
-    ConfigRepoConfig actual = ConfigRepoConfigRepresenterV1.fromJSON(json, new MaterialConfigHelper(null))
+    ConfigRepoConfig actual = ConfigRepoConfigRepresenterV1.fromJSON(json)
 
     assertEquals(expected, actual)
   }

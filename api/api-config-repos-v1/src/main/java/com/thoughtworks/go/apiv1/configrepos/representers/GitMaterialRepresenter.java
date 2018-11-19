@@ -29,17 +29,14 @@ class GitMaterialRepresenter {
         json.addWithDefaultIfBlank("branch", material.getBranch(), "master");
     }
 
-    static MaterialConfig fromJSON(JsonReader json, MaterialConfigHelper m) {
-        return new GitMaterialConfig(
-                m.url(json),
-                m.branch(json),
-                null,
-                m.autoUpdate(json),
-                null,
-                false,
-                null,
-                m.name(json),
-                false
-        );
+    static MaterialConfig fromJSON(JsonReader json) {
+        GitMaterialConfig materialConfig = new GitMaterialConfig();
+
+        json.readStringIfPresent("name", materialConfig::setName);
+        json.readBooleanIfPresent("auto_update", materialConfig::setAutoUpdate);
+        json.readStringIfPresent("url", materialConfig::setUrl);
+        json.readStringIfPresent("branch", materialConfig::setBranch);
+
+        return materialConfig;
     }
 }

@@ -29,7 +29,11 @@ class HgMaterialRepresenter {
         json.add("url", material.getUrl());
     }
 
-    public static MaterialConfig fromJSON(JsonReader json, MaterialConfigHelper m) {
-        return new HgMaterialConfig(m.hgUrl(json), m.autoUpdate(json), null, false, null, m.name(json));
+    public static MaterialConfig fromJSON(JsonReader json) {
+        HgMaterialConfig materialConfig = new HgMaterialConfig();
+        json.readStringIfPresent("name", materialConfig::setName);
+        json.readBooleanIfPresent("auto_update", materialConfig::setAutoUpdate);
+        json.readStringIfPresent("url", materialConfig::setUrl);
+        return materialConfig;
     }
 }

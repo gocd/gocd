@@ -96,20 +96,20 @@ public class MaterialRepresenter {
         }
     }
 
-    public static MaterialConfig fromJSON(JsonReader json, MaterialConfigHelper m) {
+    public static MaterialConfig fromJSON(JsonReader json) {
         String materialType = json.getString("type");
         JsonReader materialAttrs = json.readJsonObject("attributes");
         switch (materialType) {
             case "git":
-                return GitMaterialRepresenter.fromJSON(materialAttrs, m);
+                return GitMaterialRepresenter.fromJSON(materialAttrs);
             case "hg":
-                return HgMaterialRepresenter.fromJSON(materialAttrs, m);
+                return HgMaterialRepresenter.fromJSON(materialAttrs);
             case "svn":
-                return SvnMaterialRepresenter.fromJSON(materialAttrs, m);
+                return SvnMaterialRepresenter.fromJSON(materialAttrs);
             case "p4":
-                return P4MaterialRepresenter.fromJSON(materialAttrs, m);
+                return P4MaterialRepresenter.fromJSON(materialAttrs);
             case "tfs":
-                return TfsMaterialRepresenter.fromJSON(materialAttrs, m);
+                return TfsMaterialRepresenter.fromJSON(materialAttrs);
         }
         throw new IllegalArgumentException(format("Unsupported material type: %s", materialType));
     }

@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.server.service;
 
+import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.Materials;
@@ -114,7 +115,7 @@ public class MaterialExpansionServiceTest {
     public void shouldExpandSvnMaterialWithFolders() {
         SvnMaterialConfig svn = svnMaterialConfig(svnRepo.projectRepositoryUrl(), null);
         SvnMaterialConfig svnExt = svnMaterialConfig(svnRepo.externalRepositoryUrl(), "end2end");
-        svnExt.setName(null);
+        svnExt.setName((CaseInsensitiveString) null);
         PipelineConfig pipelineConfig = new PipelineConfig();
         pipelineConfig.addMaterialConfig(svn);
         String cacheKeyForSvn = materialExpansionService.cacheKeyForSubversionMaterialCommand(svn.getFingerprint());

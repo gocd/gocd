@@ -16,12 +16,12 @@
 
 package com.thoughtworks.go.domain.materials;
 
-import java.io.Serializable;
-import java.util.Map;
-
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.materials.AbstractMaterialConfig;
 import com.thoughtworks.go.config.materials.Filter;
+
+import java.io.Serializable;
+import java.util.Map;
 
 @ConfigInterface
 public interface MaterialConfig extends Serializable, Validatable {
@@ -31,6 +31,8 @@ public interface MaterialConfig extends Serializable, Validatable {
     CaseInsensitiveString getName();
 
     void setName(CaseInsensitiveString name);
+
+    void setName(String name);
 
     Filter filter();
 

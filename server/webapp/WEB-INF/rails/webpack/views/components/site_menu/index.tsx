@@ -168,7 +168,7 @@ export default class SiteMenu extends MithrilViewComponent<Attrs> {
           <div className={styles.subNavigation}>
             <SiteSubNav>
               <SiteSubNavItem href="/go/admin/pipelines" text="Pipelines"/>
-              <SiteSubNavItem text="/go/admin/templates"/>
+              <SiteSubNavItem href="/go/admin/templates" text="Templates"/>
               <SiteSubNavItem href="/go/admin/elastic_profiles" text="Elastic Agent Profiles"/>
               <SiteSubNavItem href="/go/admin/config_xml" text="Config XML"/>
               <SiteSubNavItem href="/go/admin/plugins" text="Plugins"/>
@@ -180,7 +180,7 @@ export default class SiteMenu extends MithrilViewComponent<Attrs> {
         adminMenu = <SiteNavItem isDropDown={true} text="Admin">
           <div className={styles.subNavigation}>
             <SiteSubNav>
-              <SiteSubNavItem text="Templates"/>
+              <SiteSubNavItem href="/go/admin/templates" text="Templates"/>
             </SiteSubNav>
           </div>
         </SiteNavItem>;

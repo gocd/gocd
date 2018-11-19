@@ -24,6 +24,13 @@
 -->
 
 <urlrewrite>
+
+  <rule>
+    <name>Current Version detail</name>
+    <from>^/api/version$</from>
+    <to last="true">/spark/api/version</to>
+  </rule>
+
   <rule>
     <name>Root page</name>
     <from>^/(home)?/?$</from>

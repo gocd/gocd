@@ -16,7 +16,6 @@
 
 package com.thoughtworks.go.server.view.velocity;
 
-import com.thoughtworks.go.CurrentGoCDVersion;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
 import com.thoughtworks.go.domain.JobInstances;
@@ -46,14 +45,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class BuildDetailPageVelocityTemplateTest {
-
-    @Test
-    public void shouldLoadBuildDetailPageTemplateWithoutAnException() throws Exception {
-        HashMap<String, Object> data = new HashMap<>();
-        data.put("currentGoCDVersion", CurrentGoCDVersion.getInstance());
-        Document actualDoc = Jsoup.parse(getBuildDetailVelocityView(data).render());
-        assertThat(actualDoc.select("#footer-new-foundation .copyright").first().html(), containsString(CurrentGoCDVersion.getInstance().formatted()));
-    }
 
     @Test
     public void shouldEscapeBuildCauseOnVelocityTemplate() throws Exception {

@@ -37,7 +37,7 @@
   <script type="text/javascript" src="$req.getContextPath()/$concatenatedJavascriptFilePath"></script>
   <script type="text/javascript"> var contextPath = "$req.getContextPath()"; </script>
 
-  #foreach( $js in ${webpackAssetsService.getAssetPathsFor("single_page_apps/header_footer_shim", "single_page_apps/version_update_checker_for_rails")})
+  #foreach( $js in ${webpackAssetsService.getAssetPathsFor("single_page_apps/header_footer_shim")})
       <script src="${js}"></script>
   #end
     <link rel="stylesheet" type="text/css" href="${webpackAssetsService.getCSSAssetPathsFor("single_page_apps/header_footer_shim")}"

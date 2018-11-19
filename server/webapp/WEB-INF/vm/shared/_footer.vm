@@ -25,11 +25,6 @@
            <div id="back_to_top" class='back_to_top' title="Scroll to Top">Top</div>
     </body>
 
-#if( $goUpdateCheckEnabled )
-<script type="text/javascript">
-    VersionUpdaterForRails.update();
-</script>
-#end
     <script type="text/javascript">
         restoreSidebarStatus();
 

@@ -118,9 +118,12 @@ public class ConfigRepoConfig implements Validatable, Cacheable {
         this.validatePresenceOfId();
         this.validateUniquenessOfId(validationContext);
         this.validateRepoIsSet();
-        this.validateAutoUpdateEnabled();
-        this.validateAutoUpdateState(validationContext);
-        this.validateMaterialUniqueness(validationContext);
+        this.validateMaterial(validationContext);
+        if (isValidMaterial()) {
+            this.validateAutoUpdateEnabled();
+            this.validateAutoUpdateState(validationContext);
+            this.validateMaterialUniqueness(validationContext);
+        }
     }
 
     private void validateMaterialUniqueness(ValidationContext validationContext) {
@@ -141,13 +144,8 @@ public class ConfigRepoConfig implements Validatable, Cacheable {
 
     public boolean validateTree(ValidationContext validationContext) {
         validate(validationContext);
-        boolean isValid = errors().isEmpty();
 
-        if (this.getMaterialConfig() != null) {
-            isValid = getMaterialConfig().validateTree(validationContext) && isValid;
-        }
-
-        return isValid;
+        return errors().isEmpty();
     }
 
     @Override
@@ -160,10 +158,27 @@ public class ConfigRepoConfig implements Validatable, Cacheable {
         this.errors.add(fieldName, message);
     }
 
+    private void validateMaterial(ValidationContext validationContext) {
+        MaterialConfig materialConfig = getMaterialConfig();
+
+        if (materialConfig != null) {
+            materialConfig.validateTree(validationContext);
+        }
+    }
+
+    private boolean isValidMaterial() {
+        MaterialConfig materialConfig = getMaterialConfig();
+        if (materialConfig == null) {
+            return false;
+        }
+
+        return materialConfig.errors().isEmpty();
+    }
+
     private void validateAutoUpdateEnabled() {
         if (this.getMaterialConfig() != null) {
             if (!this.getMaterialConfig().isAutoUpdate())
-                this.getMaterialConfig().errors().add("auto_update", format(
+                this.getMaterialConfig().errors().add("autoUpdate", format(
                         "Configuration repository material '%s' must have autoUpdate enabled.",
                         this.getMaterialConfig().getDisplayName()));
         }
@@ -197,7 +212,7 @@ public class ConfigRepoConfig implements Validatable, Cacheable {
         if (material != null) {
             MaterialConfigs allMaterialsByFingerPrint = validationContext.getAllMaterialsByFingerPrint(material.getFingerprint());
             if (allMaterialsByFingerPrint.stream().anyMatch(m -> !m.isAutoUpdate())) {
-                getMaterialConfig().errors().add("auto_update", format("Material of type %s (%s) is specified as a configuration repository and pipeline material with disabled autoUpdate."
+                getMaterialConfig().errors().add("autoUpdate", format("Material of type %s (%s) is specified as a configuration repository and pipeline material with disabled autoUpdate."
                         + " All copies of this material must have autoUpdate enabled or configuration repository must be removed", material.getTypeForDisplay(), material.getDescription()));
             }
         }

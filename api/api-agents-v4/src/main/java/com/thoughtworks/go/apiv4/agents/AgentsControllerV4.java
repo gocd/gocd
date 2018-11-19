@@ -21,7 +21,11 @@ import com.thoughtworks.go.api.ApiVersion;
 import com.thoughtworks.go.api.CrudController;
 import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
+import com.thoughtworks.go.apiv4.agents.model.AgentBulkUpdateRequest;
+import com.thoughtworks.go.apiv4.agents.model.AgentUpdateRequest;
+import com.thoughtworks.go.apiv4.agents.representers.AgentBulkUpdateRequestRepresenter;
 import com.thoughtworks.go.apiv4.agents.representers.AgentRepresenter;
+import com.thoughtworks.go.apiv4.agents.representers.AgentUpdateRequestRepresenter;
 import com.thoughtworks.go.apiv4.agents.representers.AgentsRepresenter;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.domain.AgentInstance;
@@ -29,6 +33,8 @@ import com.thoughtworks.go.domain.NullAgentInstance;
 import com.thoughtworks.go.server.service.AgentService;
 import com.thoughtworks.go.server.service.EnvironmentConfigService;
 import com.thoughtworks.go.server.service.SecurityService;
+import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
+import com.thoughtworks.go.server.service.result.HttpOperationResult;
 import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.spring.SparkSpringController;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,6 +43,7 @@ import spark.Request;
 import spark.Response;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.function.Consumer;
 
 import static spark.Spark.*;
@@ -67,11 +74,13 @@ public class AgentsControllerV4 extends ApiController implements SparkSpringCont
         path(controllerBasePath(), () -> {
             before("", this::setContentType);
             before("/*", this::setContentType);
-            before("", mimeType, apiAuthenticationHelper::checkUserAnd403);
-            before("/*", mimeType, apiAuthenticationHelper::checkUserAnd403);
+            before("", mimeType, this::checkSecurityOr403);
+            before("/*", mimeType, this::checkSecurityOr403);
 
             get("", mimeType, this::index);
             get(Routes.AgentsAPI.UUID, mimeType, this::show);
+            patch(Routes.AgentsAPI.UUID, mimeType, this::update);
+            patch("", mimeType, this::bulkUpdate);
 
             exception(RecordNotFoundException.class, this::notFound);
         });
@@ -86,6 +95,45 @@ public class AgentsControllerV4 extends ApiController implements SparkSpringCont
         final String uuid = request.params("uuid");
 
         return writerForTopLevelObject(request, response, outputWriter -> AgentRepresenter.toJSON(outputWriter, fetchEntityFromConfig(uuid), environmentConfigService.environmentsFor(uuid), securityService, currentUsername()));
+    }
+
+    public String update(Request request, Response response) throws IOException {
+        final String uuid = request.params("uuid");
+        final AgentUpdateRequest agentUpdateRequest = AgentUpdateRequestRepresenter.fromJSON(request.body());
+        final HttpOperationResult result = new HttpOperationResult();
+
+        final AgentInstance updatedAgentInstance = agentService.updateAgentAttributes(
+                currentUsername(),
+                result,
+                uuid,
+                agentUpdateRequest.getHostname(),
+                agentUpdateRequest.getResources(),
+                agentUpdateRequest.getEnvironments(),
+                agentUpdateRequest.getAgentConfigState()
+        );
+
+        if (result.isSuccess()) {
+            return writerForTopLevelObject(request, response, outputWriter -> AgentRepresenter.toJSON(outputWriter, updatedAgentInstance, environmentConfigService.environmentsFor(uuid), securityService, currentUsername()));
+        }
+
+        return renderHTTPOperationResult(result, request, response);
+    }
+
+    public String bulkUpdate(Request request, Response response) throws IOException {
+        final AgentBulkUpdateRequest bulkUpdateRequest = AgentBulkUpdateRequestRepresenter.fromJSON(request.body());
+
+        final HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+        agentService.bulkUpdateAgentAttributes(currentUsername(),
+                result,
+                bulkUpdateRequest.getUuids(),
+                bulkUpdateRequest.getOperations().getResources().toAdd(),
+                bulkUpdateRequest.getOperations().getResources().toRemove(),
+                bulkUpdateRequest.getOperations().getEnvironments().toAdd(),
+                bulkUpdateRequest.getOperations().getEnvironments().toRemove(),
+                bulkUpdateRequest.getAgentConfigState()
+        );
+
+        return renderHTTPOperationResult(result, request, response);
     }
 
     @Override
@@ -113,5 +161,14 @@ public class AgentsControllerV4 extends ApiController implements SparkSpringCont
     @Override
     public Consumer<OutputWriter> jsonWriter(AgentInstance agentConfigs) {
         return null;
+    }
+
+    private void checkSecurityOr403(Request request, Response response) {
+        if (Arrays.asList("PATCH", "PUT", "DELETE").contains(request.requestMethod().toUpperCase())) {
+            apiAuthenticationHelper.checkAdminUserAnd403(request, response);
+            return;
+        }
+
+        apiAuthenticationHelper.checkUserAnd403(request, response);
     }
 }

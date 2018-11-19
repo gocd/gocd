@@ -21,21 +21,31 @@ import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
 import com.thoughtworks.go.api.util.HaltApiMessages
 import com.thoughtworks.go.domain.AgentInstance
 import com.thoughtworks.go.domain.NullAgentInstance
+import com.thoughtworks.go.server.domain.Username
 import com.thoughtworks.go.server.service.AgentService
 import com.thoughtworks.go.server.service.EnvironmentConfigService
+import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult
+import com.thoughtworks.go.server.service.result.HttpOperationResult
+import com.thoughtworks.go.server.service.result.LocalizedOperationResult
 import com.thoughtworks.go.spark.AdminUserSecurity
 import com.thoughtworks.go.spark.ControllerTrait
 import com.thoughtworks.go.spark.NormalUserSecurity
 import com.thoughtworks.go.spark.SecurityServiceTrait
+import com.thoughtworks.go.util.TriState
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.Mock
+import org.mockito.invocation.InvocationOnMock
 
 import java.util.stream.Stream
 
 import static com.thoughtworks.go.helper.AgentInstanceMother.idle
+import static com.thoughtworks.go.helper.AgentInstanceMother.idleWith
+import static java.util.Collections.singleton
 import static java.util.stream.Collectors.toSet
+import static org.mockito.ArgumentMatchers.*
+import static org.mockito.Mockito.doAnswer
 import static org.mockito.Mockito.when
 import static org.mockito.MockitoAnnotations.initMocks
 
@@ -206,8 +216,80 @@ class AgentsControllerV4Test implements SecurityServiceTrait, ControllerTrait<Ag
 
       @Override
       void makeHttpCall() {
-        getWithApiHeader(controller.controllerPath())
+        patchWithApiHeader(controller.controllerPath("/some-uuid"), [])
       }
+    }
+
+    @Test
+    void 'should update agent information'() {
+      loginAsAdmin()
+      AgentInstance updatedAgentInstance = idleWith("uuid2", "agent02.example.com", "10.0.0.1", "/var/lib/bar", 10, "", Arrays.asList("psql", "java"))
+
+      when(environmentConfigService.environmentsFor("uuid2")).thenReturn(singleton("env1"))
+      when(agentService.updateAgentAttributes(
+        eq(currentUsername()),
+        any() as HttpOperationResult,
+        eq("uuid2"),
+        eq("agent02.example.com"),
+        eq("java,psql"),
+        eq("env1"),
+        eq(TriState.TRUE))
+      ).thenReturn(updatedAgentInstance)
+
+      def requestBody = ["hostname"          : "agent02.example.com",
+                         "agent_config_state": "Enabled",
+                         "resources"         : ["java", "psql"],
+                         "environments"      : ["env1"]
+      ]
+      patchWithApiHeader(controller.controllerPath("/uuid2"), requestBody)
+
+      assertThatResponse()
+        .isOk()
+        .hasContentType(controller.mimeType)
+        .hasJsonBody([
+        "_links"            : [
+          "self": [
+            "href": "http://test.host/go/api/agents/uuid2"
+          ],
+          "doc" : [
+            "href": "https://api.gocd.org/current/#agents"
+          ],
+          "find": [
+            "href": "http://test.host/go/api/agents/:uuid"
+          ]
+        ],
+        "uuid"              : "uuid2",
+        "hostname"          : "agent02.example.com",
+        "ip_address"        : "10.0.0.1",
+        "sandbox"           : "/var/lib/bar",
+        "operating_system"  : "",
+        "free_space"        : "10 bytes",
+        "agent_config_state": "Enabled",
+        "agent_state"       : "Idle",
+        "resources"         : ["java", "psql"],
+        "environments"      : ["env1"],
+        "build_state"       : "Idle"
+      ])
+    }
+
+    @Test
+    void 'should error out when operation is unsuccessful'() {
+      loginAsAdmin()
+      when(agentService.updateAgentAttributes(any() as Username, any() as HttpOperationResult, anyString(), anyString(), anyString(), anyString(), any() as TriState)).thenAnswer({ InvocationOnMock invocation ->
+        def result = invocation.getArgument(1) as HttpOperationResult
+        result.unprocessibleEntity("Not a valid operation", "some description", null)
+        return null
+      })
+
+      def requestBody = ["hostname"          : "agent02.example.com",
+                         "agent_config_state": "Enabled"
+      ]
+
+      patchWithApiHeader(controller.controllerPath("/uuid2"), requestBody)
+
+      assertThatResponse()
+        .isUnprocessableEntity()
+        .hasJsonMessage("Not a valid operation { some description }")
     }
   }
 
@@ -217,14 +299,56 @@ class AgentsControllerV4Test implements SecurityServiceTrait, ControllerTrait<Ag
     class Security implements SecurityTestTrait, AdminUserSecurity {
       @Override
       String getControllerMethodUnderTest() {
-        //TODO:
-        return 'update'
+        return 'bulkUpdate'
       }
 
       @Override
       void makeHttpCall() {
-        getWithApiHeader(controller.controllerPath())
+        patchWithApiHeader(controller.controllerPath(), [])
       }
+    }
+
+    @Test
+    void 'should update agents information for specified agents'() {
+      loginAsAdmin()
+      doAnswer({ InvocationOnMock invocation ->
+        def result = invocation.getArgument(1) as HttpLocalizedOperationResult
+        result.setMessage("Updated agent(s) with uuid(s): [agent-1, agent-2].")
+
+      }).when(agentService).bulkUpdateAgentAttributes(
+        eq(currentUsername()) as Username,
+        any() as LocalizedOperationResult,
+        any() as List<String>,
+        any() as List<String>,
+        any() as List<String>,
+        any() as List<String>,
+        any() as List<String>,
+        any() as TriState
+      )
+
+      def requestBody = [
+        "uuids"             : [
+          "adb9540a-b954-4571-9d9b-2f330739d4da",
+          "adb528b2-b954-1234-9d9b-b27ag4h568e1"
+        ],
+        "operations"        : [
+          "environments": [
+            "add"   : ["Dev", "Test"],
+            "remove": ["Production"]
+          ],
+          "resources"   : [
+            "add"   : ["Linux", "Firefox"],
+            "remove": ["Chrome"]
+          ]
+        ],
+        "agent_config_state": "enabled"
+      ]
+
+      patchWithApiHeader(controller.controllerPath(), requestBody)
+
+      assertThatResponse()
+        .isOk()
+        .hasJsonMessage("Updated agent(s) with uuid(s): [agent-1, agent-2].")
     }
   }
 

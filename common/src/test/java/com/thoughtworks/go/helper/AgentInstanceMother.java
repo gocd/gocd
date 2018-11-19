@@ -48,6 +48,12 @@ public class AgentInstanceMother {
         return idle(new Date(), "CCeDev01");
     }
 
+    public static AgentInstance idleWith(String uuid) {
+        final AgentInstance agentInstance = idle();
+        agentInstance.syncConfig(new AgentConfig(uuid, agentInstance.getHostname(), agentInstance.getIpAddress()));
+        return agentInstance;
+    }
+
     public static AgentInstance idleWith(String uuid, String hostname, String ipAddress, String location, long space, String os, List<String> resources) {
 
         AgentConfig agentConfig = new AgentConfig(uuid, hostname, ipAddress);

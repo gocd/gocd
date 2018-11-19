@@ -23,6 +23,9 @@ describe "/value_stream_map/show_material.html.erb" do
     in_params :material_fingerprint => 'fingerprint', :revision => "revision"
     allow(view).to receive(:can_view_admin_page?).and_return(true)
     allow(view).to receive(:is_user_an_admin?).and_return(true)
+    allow(view).to receive(:is_user_a_group_admin?).and_return(true)
+    allow(view).to receive(:is_user_authorized_to_view_templates?).and_return(true)
+    allow(view).to receive(:current_user).and_return(Username.new(CaseInsensitiveString.new("user")))
   end
 
   describe "render html" do

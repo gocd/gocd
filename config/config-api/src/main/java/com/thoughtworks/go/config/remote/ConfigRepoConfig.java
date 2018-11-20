@@ -24,9 +24,11 @@ import com.thoughtworks.go.domain.config.ConfigurationProperty;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
 import org.apache.commons.lang3.StringUtils;
 
+import javax.annotation.PostConstruct;
 import java.util.*;
 
 import static java.lang.String.format;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 /**
  * Defines single source of remote configuration and name of plugin to interpet it.
@@ -50,7 +52,7 @@ public class ConfigRepoConfig implements Validatable, Cacheable {
     // then pattern-based plugin is just one option
 
     @ConfigAttribute(value = "id", allowNull = false)
-    private String id = UUID.randomUUID().toString();
+    private String id;
 
     public static final String ID = "id";
 
@@ -118,9 +120,12 @@ public class ConfigRepoConfig implements Validatable, Cacheable {
         this.validatePresenceOfId();
         this.validateUniquenessOfId(validationContext);
         this.validateRepoIsSet();
-        this.validateAutoUpdateEnabled();
-        this.validateAutoUpdateState(validationContext);
-        this.validateMaterialUniqueness(validationContext);
+        this.validateMaterial(validationContext);
+        if (isValidMaterial()) {
+            this.validateAutoUpdateEnabled();
+            this.validateAutoUpdateState(validationContext);
+            this.validateMaterialUniqueness(validationContext);
+        }
     }
 
     private void validateMaterialUniqueness(ValidationContext validationContext) {
@@ -141,10 +146,10 @@ public class ConfigRepoConfig implements Validatable, Cacheable {
 
     public boolean validateTree(ValidationContext validationContext) {
         validate(validationContext);
-        boolean isValid = errors().isEmpty();
+        boolean isValid = errors.isEmpty();
 
-        if (this.getMaterialConfig() != null) {
-            isValid = getMaterialConfig().validateTree(validationContext) && isValid;
+        if (getMaterialConfig() != null) {
+            isValid = getMaterialConfig().errors().isEmpty() && isValid;
         }
 
         return isValid;
@@ -160,10 +165,27 @@ public class ConfigRepoConfig implements Validatable, Cacheable {
         this.errors.add(fieldName, message);
     }
 
+    private void validateMaterial(ValidationContext validationContext) {
+        MaterialConfig materialConfig = getMaterialConfig();
+
+        if (materialConfig != null) {
+            materialConfig.validateTree(validationContext);
+        }
+    }
+
+    private boolean isValidMaterial() {
+        MaterialConfig materialConfig = getMaterialConfig();
+        if (materialConfig == null) {
+            return false;
+        }
+
+        return materialConfig.errors().isEmpty();
+    }
+
     private void validateAutoUpdateEnabled() {
         if (this.getMaterialConfig() != null) {
             if (!this.getMaterialConfig().isAutoUpdate())
-                this.getMaterialConfig().errors().add("auto_update", format(
+                this.getMaterialConfig().errors().add("autoUpdate", format(
                         "Configuration repository material '%s' must have autoUpdate enabled.",
                         this.getMaterialConfig().getDisplayName()));
         }
@@ -197,7 +219,7 @@ public class ConfigRepoConfig implements Validatable, Cacheable {
         if (material != null) {
             MaterialConfigs allMaterialsByFingerPrint = validationContext.getAllMaterialsByFingerPrint(material.getFingerprint());
             if (allMaterialsByFingerPrint.stream().anyMatch(m -> !m.isAutoUpdate())) {
-                getMaterialConfig().errors().add("auto_update", format("Material of type %s (%s) is specified as a configuration repository and pipeline material with disabled autoUpdate."
+                getMaterialConfig().errors().add("autoUpdate", format("Material of type %s (%s) is specified as a configuration repository and pipeline material with disabled autoUpdate."
                         + " All copies of this material must have autoUpdate enabled or configuration repository must be removed", material.getTypeForDisplay(), material.getDescription()));
             }
         }
@@ -213,5 +235,12 @@ public class ConfigRepoConfig implements Validatable, Cacheable {
 
     public void addConfigurations(List<ConfigurationProperty> configuration) {
         this.configuration.addAll(configuration);
+    }
+
+    @PostConstruct
+    public void ensureIdExists() {
+        if (isBlank(getId())) {
+            setId(UUID.randomUUID().toString());
+        }
     }
 }

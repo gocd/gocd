@@ -33,7 +33,6 @@ import static org.mockito.Mockito.mock
 class MaterialRepresenterTest {
   private static final String REPO_URL = "https://guthib.com/chewbacca"
   private static final String BRANCH = "wookie"
-  private static final materialHelper = new MaterialConfigHelper(null)
 
   @Test
   void toJSON() {
@@ -74,7 +73,7 @@ class MaterialRepresenterTest {
     ])
 
     MaterialConfig expected = new GitMaterialConfig(REPO_URL, BRANCH)
-    assertEquals(expected, MaterialRepresenter.fromJSON(json, materialHelper))
+    assertEquals(expected, MaterialRepresenter.fromJSON(json))
   }
 
   @Test
@@ -84,7 +83,7 @@ class MaterialRepresenterTest {
         type      : 'package',
         attributes: [:]
       ])
-      MaterialRepresenter.fromJSON(json, materialHelper)
+      MaterialRepresenter.fromJSON(json)
     })
     assertEquals("Unsupported material type: package", error.getMessage())
   }

@@ -29,7 +29,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals
 class GitMaterialRepresenterTest {
   private static final String REPO_URL = "https://guthib.com/chewbacca"
   private static final String BRANCH = "wookie"
-  private static final MaterialConfigHelper mch = new MaterialConfigHelper(null)
 
   @Test
   void toJSON() {
@@ -54,6 +53,6 @@ class GitMaterialRepresenterTest {
     ])
 
     MaterialConfig expected = new GitMaterialConfig(REPO_URL, BRANCH)
-    assertEquals(expected, GitMaterialRepresenter.fromJSON(json, mch))
+    assertEquals(expected, GitMaterialRepresenter.fromJSON(json))
   }
 }

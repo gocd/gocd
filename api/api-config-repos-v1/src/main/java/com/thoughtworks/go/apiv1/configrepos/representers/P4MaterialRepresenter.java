@@ -18,11 +18,13 @@ package com.thoughtworks.go.apiv1.configrepos.representers;
 
 import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.api.representers.JsonReader;
+import com.thoughtworks.go.config.materials.PasswordDeserializer;
 import com.thoughtworks.go.config.materials.perforce.P4MaterialConfig;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
-import com.thoughtworks.go.security.GoCipher;
 
 class P4MaterialRepresenter {
+    private static final PasswordDeserializer PASSWORD_DESERIALIZER = new PasswordDeserializer();
+
     static void toJSON(OutputWriter json, P4MaterialConfig material) {
         json.add("name", material.getName());
         json.add("auto_update", material.getAutoUpdate());
@@ -33,22 +35,18 @@ class P4MaterialRepresenter {
         json.addIfNotNull("encrypted_password", material.getEncryptedPassword());
     }
 
-    public static MaterialConfig fromJSON(JsonReader json, MaterialConfigHelper m) {
-        P4MaterialConfig config = new P4MaterialConfig(
-                m.serverAndPort(json),
-                m.user(json),
-                null,
-                m.useTickets(json),
-                m.view(json),
-                new GoCipher(),
-                m.name(json),
-                m.autoUpdate(json),
-                null,
-                false,
-                null
-        );
+    public static MaterialConfig fromJSON(JsonReader json) {
+        P4MaterialConfig materialConfig = new P4MaterialConfig();
+        json.readStringIfPresent("name", materialConfig::setName);
+        json.readBooleanIfPresent("auto_update", materialConfig::setAutoUpdate);
+        json.readStringIfPresent("port", materialConfig::setServerAndPort);
+        json.readBooleanIfPresent("use_tickets", materialConfig::setUseTickets);
+        json.readStringIfPresent("view", materialConfig::setView);
+        json.readStringIfPresent("username", materialConfig::setUserName);
 
-        m.encryptedPassword(json, config);
-        return config;
+        String password = json.getStringOrDefault("password", null);
+        String encryptedPassword = json.getStringOrDefault("encrypted_password", null);
+        PASSWORD_DESERIALIZER.deserialize(password, encryptedPassword, materialConfig);
+        return materialConfig;
     }
 }

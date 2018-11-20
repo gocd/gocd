@@ -16,8 +16,6 @@
 
 package com.thoughtworks.go.config.materials;
 
-import java.util.*;
-
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.preprocessor.SkipParameterResolution;
 import com.thoughtworks.go.config.validation.NameTypeValidator;
@@ -25,6 +23,8 @@ import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.util.CachedDigestUtils;
 import org.apache.commons.lang3.StringUtils;
+
+import java.util.*;
 
 /**
  * @understands material configuration
@@ -133,6 +133,11 @@ public abstract class AbstractMaterialConfig implements MaterialConfig, ParamsAt
     @Override
     public void setName(final CaseInsensitiveString name) {
         this.name = name;
+    }
+
+    @Override
+    public void setName(String name) {
+        this.name = new CaseInsensitiveString(name);
     }
 
     @Override

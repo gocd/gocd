@@ -83,7 +83,6 @@ class SvnMaterialRepresenterTest {
   void fromJSON() {
     PasswordDeserializer pd = mock(PasswordDeserializer.class)
     when(pd.deserialize(eq(PASSWORD), eq(null as String), any() as AbstractMaterialConfig)).thenReturn(ENCRYPTED_PASSWORD)
-    MaterialConfigHelper mch = new MaterialConfigHelper(pd)
 
     JsonReader json = GsonTransformer.getInstance().jsonReaderFrom([
       name           : null,
@@ -94,7 +93,7 @@ class SvnMaterialRepresenterTest {
       password       : PASSWORD
     ])
 
-    MaterialConfig materialConfig = SvnMaterialRepresenter.fromJSON(json, mch)
+    MaterialConfig materialConfig = SvnMaterialRepresenter.fromJSON(json)
     SvnMaterialConfig expected = new SvnMaterialConfig(REPO_URL, USER, null, false, cipher)
     expected.setEncryptedPassword(ENCRYPTED_PASSWORD)
 

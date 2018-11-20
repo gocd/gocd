@@ -41,7 +41,7 @@ public class JsonReader {
 
     public String getString(String property) {
         return optString(property)
-            .orElseThrow(() -> haltBecauseMissingJsonProperty(property, jsonObject));
+                .orElseThrow(() -> haltBecauseMissingJsonProperty(property, jsonObject));
     }
 
     public String getStringOrDefault(String property, String defaultValue) {
@@ -116,7 +116,7 @@ public class JsonReader {
 
     public JsonReader readJsonObject(String property) {
         return optJsonObject(property)
-            .orElseThrow(() -> haltBecauseMissingJsonProperty(property, jsonObject));
+                .orElseThrow(() -> haltBecauseMissingJsonProperty(property, jsonObject));
     }
 
     public boolean hasJsonObject(String property) {
@@ -140,14 +140,18 @@ public class JsonReader {
             try {
                 Spliterator<JsonElement> iterator = jsonObject.getAsJsonArray(property).spliterator();
                 return Optional.of(
-                    StreamSupport.stream(iterator, false)
-                        .map(JsonElement::getAsString)
-                        .collect(Collectors.toList()));
+                        StreamSupport.stream(iterator, false)
+                                .map(JsonElement::getAsString)
+                                .collect(Collectors.toList()));
             } catch (Exception e) {
                 throw haltBecausePropertyIsNotAJsonStringArray(property, jsonObject);
             }
         }
 
         return Optional.empty();
+    }
+
+    public void readBooleanIfPresent(String key, Consumer<Boolean> consumer) {
+        optBoolean(key).ifPresent(consumer);
     }
 }

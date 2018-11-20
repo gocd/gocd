@@ -26,11 +26,9 @@ import com.thoughtworks.go.helper.GoConfigMother;
 import org.junit.Test;
 
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.hamcrest.core.IsNull.notNullValue;
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
 
 public class ConfigRepoConfigTest {
     @Test
@@ -60,7 +58,7 @@ public class ConfigRepoConfigTest {
         configRepoConfig.validate(validationContext);
 
         assertThat(svn.errors().isEmpty(),is(false));
-        assertThat(svn.errors().on("auto_update"),
+        assertThat(svn.errors().on("autoUpdate"),
                 is("Configuration repository material 'url' must have autoUpdate enabled."));
     }
 
@@ -98,6 +96,20 @@ public class ConfigRepoConfigTest {
     }
 
     @Test
+    public void validate_shouldValidateTheMaterialConfig() {
+        CruiseConfig cruiseConfig = new BasicCruiseConfig();
+        GitMaterialConfig materialConfig = new GitMaterialConfig(null, "master");
+
+        ConfigRepoConfig configRepoConfig = new ConfigRepoConfig(materialConfig, "plug");
+        cruiseConfig.setConfigRepos(new ConfigReposConfig(configRepoConfig));
+
+        ConfigSaveValidationContext validationContext = ConfigSaveValidationContext.forChain(cruiseConfig);
+        configRepoConfig.validate(validationContext);
+
+        assertThat(configRepoConfig.getMaterialConfig().errors().on("url"), is("URL cannot be blank"));
+    }
+
+    @Test
     public void validateTree_shouldValidateTheMaterialConfig() {
         CruiseConfig cruiseConfig = new BasicCruiseConfig();
         MaterialConfig materialConfig = mock(MaterialConfig.class);
@@ -105,11 +117,26 @@ public class ConfigRepoConfigTest {
 
         ConfigRepoConfig configRepoConfig = new ConfigRepoConfig(materialConfig, "plug");
         cruiseConfig.setConfigRepos(new ConfigReposConfig(configRepoConfig));
-
         ConfigSaveValidationContext validationContext = ConfigSaveValidationContext.forChain(cruiseConfig);
+
         configRepoConfig.validateTree(validationContext);
 
         verify(materialConfig).validateTree(validationContext);
+    }
+
+    @Test
+    public void validateTree_configRepoShouldBeInvalidIfMaterialConfigHasErrors() {
+        CruiseConfig cruiseConfig = new BasicCruiseConfig();
+        MaterialConfig materialConfig = mock(MaterialConfig.class);
+        when(materialConfig.errors()).thenReturn(new ConfigErrors());
+
+        ConfigRepoConfig configRepoConfig = new ConfigRepoConfig(materialConfig, "plug", "id");
+        cruiseConfig.setConfigRepos(new ConfigReposConfig(configRepoConfig));
+        ConfigSaveValidationContext validationContext = ConfigSaveValidationContext.forChain(cruiseConfig);
+
+        assertFalse(configRepoConfig.validateTree(validationContext));
+        assertTrue(configRepoConfig.errors().isEmpty());
+        assertFalse(configRepoConfig.getMaterialConfig().errors().isEmpty());
     }
 
     @Test
@@ -132,7 +159,7 @@ public class ConfigRepoConfigTest {
         configRepoConfig.validate(ConfigSaveValidationContext.forChain(cruiseConfig, new BasicPipelineConfigs(), pipeline1));
 
         assertThat(svnInConfigRepo.errors().isEmpty(),is(false));
-        assertThat(svnInConfigRepo.errors().on("auto_update"),
+        assertThat(svnInConfigRepo.errors().on("autoUpdate"),
                 is("Material of type Subversion (url) is specified as a configuration repository and pipeline material with disabled autoUpdate. All copies of this material must have autoUpdate enabled or configuration repository must be removed"));
     }
 
@@ -181,5 +208,18 @@ public class ConfigRepoConfigTest {
         ConfigRepoConfig config = new ConfigRepoConfig(configRepo,"myplugin");
 
         assertThat(config.hasMaterialWithFingerprint(someRepo.getFingerprint()),is(false));
+    }
+
+    @Test
+    public void postContruct_shouldAssignAnIdIfNotPresent() {
+        ConfigRepoConfig configRepo = new ConfigRepoConfig();
+
+        configRepo.ensureIdExists();
+        assertThat(configRepo.getId(), is(notNullValue()));
+
+        configRepo = new ConfigRepoConfig(null, "", "id");
+
+        configRepo.ensureIdExists();
+        assertThat(configRepo.getId(), is("id"));
     }
 }

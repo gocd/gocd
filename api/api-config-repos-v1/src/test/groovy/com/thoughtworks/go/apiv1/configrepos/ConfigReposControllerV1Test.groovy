@@ -18,7 +18,6 @@ package com.thoughtworks.go.apiv1.configrepos
 
 import com.thoughtworks.go.api.SecurityTestTrait
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
-import com.thoughtworks.go.apiv1.configrepos.representers.MaterialConfigHelper
 import com.thoughtworks.go.config.materials.PasswordDeserializer
 import com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig
 import com.thoughtworks.go.config.remote.ConfigRepoConfig
@@ -54,20 +53,17 @@ class ConfigReposControllerV1Test implements SecurityServiceTrait, ControllerTra
   @Mock
   private PasswordDeserializer pd
 
-  private MaterialConfigHelper mch
-
   @Mock
   private EntityHashingService entityHashingService
 
   @BeforeEach
   void setUp() {
     initMocks(this)
-    mch = new MaterialConfigHelper(pd)
   }
 
   @Override
   ConfigReposControllerV1 createControllerInstance() {
-    new ConfigReposControllerV1(new ApiAuthenticationHelper(securityService, goConfigService), service, mch, entityHashingService)
+    new ConfigReposControllerV1(new ApiAuthenticationHelper(securityService, goConfigService), service, entityHashingService)
   }
 
   @Nested
@@ -250,6 +246,9 @@ class ConfigReposControllerV1Test implements SecurityServiceTrait, ControllerTra
             url        : "${TEST_REPO_URL}/$id".toString(),
             auto_update: true
           ]
+        ],
+        errors : [
+          id : [ "ConfigRepo ids should be unique. A ConfigRepo with the same id already exists." ]
         ],
         configuration: []
       ]

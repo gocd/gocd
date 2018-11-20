@@ -88,7 +88,6 @@ class TfsMaterialRepresenterTest {
   void fromJSON() {
     PasswordDeserializer pd = mock(PasswordDeserializer.class)
     when(pd.deserialize(eq(PASSWORD), eq(null as String), any() as AbstractMaterialConfig)).thenReturn(ENCRYPTED_PASSWORD)
-    MaterialConfigHelper mch = new MaterialConfigHelper(pd)
 
     JsonReader json = GsonTransformer.getInstance().jsonReaderFrom([
       name        : null,
@@ -103,6 +102,6 @@ class TfsMaterialRepresenterTest {
     TfsMaterialConfig expected = new TfsMaterialConfig(mock(GoCipher.class), REPO_URL, USER, DOMAIN, null, PROJECT_PATH)
     expected.setEncryptedPassword(ENCRYPTED_PASSWORD)
 
-    assertEquals(expected, TfsMaterialRepresenter.fromJSON(json, mch))
+    assertEquals(expected, TfsMaterialRepresenter.fromJSON(json))
   }
 }

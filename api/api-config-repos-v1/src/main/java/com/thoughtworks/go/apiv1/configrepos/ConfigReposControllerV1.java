@@ -25,7 +25,6 @@ import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
 import com.thoughtworks.go.api.util.GsonTransformer;
 import com.thoughtworks.go.apiv1.configrepos.representers.ConfigRepoConfigRepresenterV1;
 import com.thoughtworks.go.apiv1.configrepos.representers.ConfigReposConfigRepresenterV1;
-import com.thoughtworks.go.apiv1.configrepos.representers.MaterialConfigHelper;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.config.remote.ConfigReposConfig;
@@ -49,15 +48,13 @@ import static spark.Spark.*;
 public class ConfigReposControllerV1 extends ApiController implements SparkSpringController, CrudController<ConfigRepoConfig> {
     private final ApiAuthenticationHelper authHelper;
     private final ConfigRepoService service;
-    private final MaterialConfigHelper mch;
     private final EntityHashingService entityHashingService;
 
     @Autowired
-    public ConfigReposControllerV1(ApiAuthenticationHelper authHelper, ConfigRepoService service, MaterialConfigHelper mch, EntityHashingService entityHashingService) {
+    public ConfigReposControllerV1(ApiAuthenticationHelper authHelper, ConfigRepoService service, EntityHashingService entityHashingService) {
         super(ApiVersion.v1);
         this.service = service;
         this.authHelper = authHelper;
-        this.mch = mch;
         this.entityHashingService = entityHashingService;
     }
 
@@ -160,7 +157,7 @@ public class ConfigReposControllerV1 extends ApiController implements SparkSprin
     @Override
     public ConfigRepoConfig buildEntityFromRequestBody(Request req) {
         JsonReader jsonReader = GsonTransformer.getInstance().jsonReaderFrom(req.body());
-        return ConfigRepoConfigRepresenterV1.fromJSON(jsonReader, mch);
+        return ConfigRepoConfigRepresenterV1.fromJSON(jsonReader);
     }
 
     @Override

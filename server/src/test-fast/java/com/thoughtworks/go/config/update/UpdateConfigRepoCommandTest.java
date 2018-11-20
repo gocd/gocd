@@ -118,6 +118,17 @@ public class UpdateConfigRepoCommandTest {
     }
 
     @Test
+    public void isValid_shouldValidatePresenceOfId() {
+        ConfigRepoConfig configRepo = new ConfigRepoConfig();
+        configRepo.setId("");
+
+        UpdateConfigRepoCommand command = new UpdateConfigRepoCommand(securityService, entityHashingService, oldConfigRepoId, configRepo, md5, currentUser, result);
+
+        assertFalse(command.isValid(cruiseConfig));
+        assertThat(configRepo.errors().on("id"), is("Configuration repository id not specified"));
+    }
+
+    @Test
     public void shouldContinueWithConfigSaveIfUserIsAdmin() {
         when(securityService.isUserAdmin(currentUser)).thenReturn(true);
         when(entityHashingService.md5ForEntity(oldConfigRepo)).thenReturn(md5);

@@ -76,7 +76,6 @@ class P4MaterialRepresenterTest {
   void fromJSON() {
     PasswordDeserializer pd = mock(PasswordDeserializer.class)
     when(pd.deserialize(eq(PASSWORD), eq(null as String), any() as AbstractMaterialConfig)).thenReturn(ENCRYPTED_PASSWORD)
-    MaterialConfigHelper mch = new MaterialConfigHelper(pd)
 
     JsonReader json = GsonTransformer.getInstance().jsonReaderFrom([
       name       : null,
@@ -88,7 +87,7 @@ class P4MaterialRepresenterTest {
       password   : PASSWORD
     ])
 
-    MaterialConfig materialConfig = P4MaterialRepresenter.fromJSON(json, mch)
+    MaterialConfig materialConfig = P4MaterialRepresenter.fromJSON(json)
     P4MaterialConfig expected = new P4MaterialConfig(REPO_URL, VIEW)
     expected.setEncryptedPassword(ENCRYPTED_PASSWORD)
     expected.setUserName("user")

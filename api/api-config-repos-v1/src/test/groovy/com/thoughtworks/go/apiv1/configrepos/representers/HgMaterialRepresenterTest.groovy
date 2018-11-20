@@ -28,7 +28,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals
 
 class HgMaterialRepresenterTest {
   private static final String REPO_URL = "https://bitnugget.com/chewbacca"
-  private static final MaterialConfigHelper mch = new MaterialConfigHelper(null)
 
   @Test
   void toJSON() {
@@ -51,6 +50,6 @@ class HgMaterialRepresenterTest {
     ])
 
     MaterialConfig expected = new HgMaterialConfig(REPO_URL, null)
-    assertEquals(expected, HgMaterialRepresenter.fromJSON(json, mch))
+    assertEquals(expected, HgMaterialRepresenter.fromJSON(json))
   }
 }

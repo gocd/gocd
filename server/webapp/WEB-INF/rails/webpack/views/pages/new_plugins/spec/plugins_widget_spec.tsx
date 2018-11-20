@@ -19,8 +19,8 @@ import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
 import * as styles from "../index.scss";
 import {PluginsWidget} from "../plugins_widget";
 
-import * as collapsiblePanelStyles from "../../../components/collapsible_panel/index.scss";
-import * as keyValuePairStyles from "../../../components/key_value_pair/index.scss";
+import * as collapsiblePanelStyles from "views/components/collapsible_panel/index.scss";
+import * as keyValuePairStyles from "views/components/key_value_pair/index.scss";
 
 describe("New Plugins Widget", () => {
   const simulateEvent = require("simulate-event");

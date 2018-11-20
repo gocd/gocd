@@ -21,7 +21,9 @@ $key-value-pair-width: 150px;
   padding:         0;
   margin:          0 0 $global-margin-bottom 0;
   list-style-type: none;
-
+  :last-child {
+    width: auto;
+  }
 }
 
 .key {
@@ -97,6 +99,7 @@ $key-value-pair-width: 150px;
   margin-right: 20px;
   border:       none;
   padding:      0;
+  width:        25vw;
   .key {
     width: auto;
   }

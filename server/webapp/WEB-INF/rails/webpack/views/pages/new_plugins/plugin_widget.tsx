@@ -16,9 +16,7 @@
 
 import * as Routes from "gen/ts-routes";
 import {MithrilViewComponent} from "jsx/mithril-component";
-import * as _ from "lodash";
 import * as m from "mithril";
-import {ExtensionType} from "models/shared/plugin_infos_new/extension_type";
 import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
 import {ButtonIcon} from "views/components/buttons";
 import * as Buttons from "views/components/buttons";
@@ -36,6 +34,10 @@ interface PluginHeaderAttrs {
 
 class PluginHeaderWidget extends MithrilViewComponent<PluginHeaderAttrs> {
   view(vnode: m.Vnode<PluginHeaderAttrs>) {
+    const data = new Map([
+      ["Id", vnode.attrs.pluginId],
+      ["Version", vnode.attrs.pluginVersion],
+    ]);
     return [
       (
         <span class={styles.pluginIcon}>
@@ -46,12 +48,7 @@ class PluginHeaderWidget extends MithrilViewComponent<PluginHeaderAttrs> {
         <div data-test-id="plugin-name" class={styles.pluginName}>{vnode.attrs.pluginName}</div>
       ),
       (
-        <KeyValuePair inline={true} keyValuePairItemClass={styles.pluginMetadataHeader} data={
-          [
-            ["Id", vnode.attrs.pluginId],
-            ["Version", vnode.attrs.pluginVersion],
-          ]
-        }/>
+        <KeyValuePair inline={true} data={data}/>
       )
     ];
   }
@@ -73,7 +70,7 @@ export class PluginWidget extends MithrilViewComponent<Attrs> {
     let statusReportButton: OptionalElement;
     let settingsButton: OptionalElement;
 
-    if (this.doesPluginSupportStatusReport(pluginInfo)) {
+    if (pluginInfo.supportsStatusReport()) {
       const statusReportPath: string = Routes.adminStatusReportPath(pluginInfo.id);
 
       statusReportButton = (
@@ -85,22 +82,22 @@ export class PluginWidget extends MithrilViewComponent<Attrs> {
         </Buttons.Secondary>);
     }
 
-    if (this.doesPluginSupportSettings(pluginInfo)) {
+    if (pluginInfo.supportsPluginSettings()) {
       settingsButton = <Icons.Settings data-test-id="edit-plugin-settings"
                                        disabled={!isUserAnAdmin}
                                        onclick={vnode.attrs.onEdit}/>;
     }
 
-    let pluginData = {
-      "Description": pluginInfo.about.description,
-      "Author": this.getAuthorInfo(pluginInfo),
-      "Supported operating systems": _.isEmpty(pluginInfo.about.targetOperatingSystems) ? "No restrictions" : pluginInfo.about.targetOperatingSystems,
-      "Plugin file location": pluginInfo.pluginFileLocation,
-      "Bundled": pluginInfo.bundledPlugin ? "Yes" : "No",
-      "Target Go Version": pluginInfo.about.targetGoVersion,
-    };
+    let pluginData = new Map<string, string | JSX.Element>([
+      ["Description", pluginInfo.about.description],
+      ["Author", this.getAuthorInfo(pluginInfo)],
+      ["Supported operating systems", pluginInfo.about.targetOperatingSystemsDisplayValue()],
+      ["Plugin file location", pluginInfo.pluginFileLocation],
+      ["Bundled", pluginInfo.bundledPlugin ? "Yes" : "No"],
+      ["Target Go Version", pluginInfo.about.targetGoVersion],
+    ]);
     if (pluginInfo.hasErrors()) {
-      pluginData = Object.assign(pluginData, {"There were errors loading the plugin": pluginInfo.getErrors()});
+      pluginData = pluginData.set("There were errors loading the plugin", pluginInfo.getErrors());
     }
 
     return (
@@ -130,18 +127,8 @@ export class PluginWidget extends MithrilViewComponent<Attrs> {
     );
   }
 
-  private doesPluginSupportStatusReport(pluginInfo: PluginInfo<any>): boolean {
-    const elasticAgentExtensionInfo = pluginInfo.extensions && pluginInfo.extensionOfType(ExtensionType.ELASTIC_AGENTS);
-    return elasticAgentExtensionInfo && elasticAgentExtensionInfo.capabilities && elasticAgentExtensionInfo.capabilities.supportsStatusReport;
-  }
-
   private goToStatusReportPage(statusReportHref: string, event: Event): void {
     event.stopPropagation();
     window.location.href = statusReportHref;
   }
-
-  private doesPluginSupportSettings(pluginInfo: PluginInfo<any>): boolean {
-    return pluginInfo.supportsPluginSettings();
-  }
-
 }

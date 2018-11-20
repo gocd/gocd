@@ -7,4 +7,3 @@ export const unknownPluginIcon: string;
 export const pluginsPage: string;
 export const keyValuePairInline: string;
 export const pluginsList: string;
-export const pluginMetadataHeader: string;

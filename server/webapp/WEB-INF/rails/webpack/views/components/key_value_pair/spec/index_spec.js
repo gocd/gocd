@@ -47,11 +47,11 @@ describe("Key Value Pair Component", () => {
     m.mount(root, {
       view() {
         return m(KeyValuePair, {
-          data: {
-            'First Name': 'Jon',
-            'Last Name':  'Doe',
-            'email':      'jdoe@example.com',
-          }
+          data: new Map([
+            ['First Name', 'Jon'],
+            ['Last Name', 'Doe'],
+            ['email', 'jdoe@example.com'],
+          ])
         });
       }
     });

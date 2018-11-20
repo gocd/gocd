@@ -37,7 +37,8 @@ export class PluginSettingsCRUD {
   }
 
   static update(pluginSettings: PluginSettings, etag: string) {
-    return ApiRequestBuilder.PUT(Routes.apiv1AdminPluginSettingPath(pluginSettings.plugin_id), this.API_VERSION_HEADER, pluginSettings.toJSON(), etag)
+    return ApiRequestBuilder.PUT(Routes.apiv1AdminPluginSettingPath(pluginSettings.plugin_id), this.API_VERSION_HEADER,
+      {payload: pluginSettings.toJSON(), etag})
       .then(this.extractObjectWithEtag());
   }
 

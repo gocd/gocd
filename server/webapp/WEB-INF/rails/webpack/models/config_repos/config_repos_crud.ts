@@ -32,7 +32,8 @@ export class ConfigReposCRUD {
   }
 
   static update(response: ObjectWithEtag<ConfigRepo>) {
-    return ApiRequestBuilder.PUT(SparkRoutes.ApiConfigRepoPath(response.object.id), this.API_VERSION_HEADER, response.object, response.etag)
+    return ApiRequestBuilder.PUT(SparkRoutes.ApiConfigRepoPath(response.object.id), this.API_VERSION_HEADER,
+      {payload: response.object, etag: response.etag})
       .then(this.extractObjectWithEtag());
   }
 
@@ -42,11 +43,12 @@ export class ConfigReposCRUD {
   }
 
   static create(repo: ConfigRepo) {
-    return ApiRequestBuilder.POST(SparkRoutes.ApiConfigReposListPath(), this.API_VERSION_HEADER, repo).then(this.extractObjectWithEtag());
+    return ApiRequestBuilder.POST(SparkRoutes.ApiConfigReposListPath(), this.API_VERSION_HEADER, {payload: repo})
+      .then(this.extractObjectWithEtag());
   }
 
   static refresh(repoId: string) {
-    return ApiRequestBuilder.POST(SparkRoutes.configRepoTriggerUpdatePath(repoId), this.API_VERSION_HEADER, undefined, {"x-gocd-confirm": "true"});
+    return ApiRequestBuilder.POST(SparkRoutes.configRepoTriggerUpdatePath(repoId), this.API_VERSION_HEADER, {headers: {"x-gocd-confirm": "true"}});
   }
 
   private static extractObjectWithEtag() {

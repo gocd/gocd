@@ -74,7 +74,7 @@ public class BackupFilter implements Filter {
             generateResponseForIsBackupFinishedAPI(response);
             return;
         }
-        if (backupService.isBackingUp()) {
+        if (backupService.isBackingUp() && !isWhitelisted(url)) {
             ((HttpServletResponse) response).setHeader("Cache-Control", "private, max-age=0, no-cache");
             ((HttpServletResponse) response).setDateHeader("Expires", 0);
             if (isAPIUrl(url) && !isMessagesJson(url)) {
@@ -88,6 +88,10 @@ public class BackupFilter implements Filter {
             chain.doFilter(request, response);
         }
 
+    }
+
+    private boolean isWhitelisted(String url) {
+        return url.equals("/go/api/v1/health");
     }
 
     private void generateHTMLResponse(ServletResponse response) {

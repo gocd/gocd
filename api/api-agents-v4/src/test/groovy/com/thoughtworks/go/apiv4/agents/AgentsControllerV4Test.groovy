@@ -42,6 +42,7 @@ import java.util.stream.Stream
 
 import static com.thoughtworks.go.helper.AgentInstanceMother.idle
 import static com.thoughtworks.go.helper.AgentInstanceMother.idleWith
+import static java.util.Arrays.asList
 import static java.util.Collections.singleton
 import static java.util.stream.Collectors.toSet
 import static org.mockito.ArgumentMatchers.*
@@ -85,7 +86,7 @@ class AgentsControllerV4Test implements SecurityServiceTrait, ControllerTrait<Ag
     void "should return a list of agents"() {
       when(agentService.agentEnvironmentMap()).thenReturn(new HashMap<AgentInstance, Collection<String>>() {
         {
-          put(idle(), Arrays.asList("env1", "env2"))
+          put(idle(), asList("env1", "env2"))
         }
       })
 
@@ -223,7 +224,7 @@ class AgentsControllerV4Test implements SecurityServiceTrait, ControllerTrait<Ag
     @Test
     void 'should update agent information'() {
       loginAsAdmin()
-      AgentInstance updatedAgentInstance = idleWith("uuid2", "agent02.example.com", "10.0.0.1", "/var/lib/bar", 10, "", Arrays.asList("psql", "java"))
+      AgentInstance updatedAgentInstance = idleWith("uuid2", "agent02.example.com", "10.0.0.1", "/var/lib/bar", 10, "", asList("psql", "java"))
 
       when(environmentConfigService.environmentsFor("uuid2")).thenReturn(singleton("env1"))
       when(agentService.updateAgentAttributes(
@@ -289,6 +290,7 @@ class AgentsControllerV4Test implements SecurityServiceTrait, ControllerTrait<Ag
 
       assertThatResponse()
         .isUnprocessableEntity()
+        .hasContentType(controller.mimeType)
         .hasJsonMessage("Not a valid operation { some description }")
     }
   }
@@ -348,6 +350,7 @@ class AgentsControllerV4Test implements SecurityServiceTrait, ControllerTrait<Ag
 
       assertThatResponse()
         .isOk()
+        .hasContentType(controller.mimeType)
         .hasJsonMessage("Updated agent(s) with uuid(s): [agent-1, agent-2].")
     }
   }
@@ -358,13 +361,49 @@ class AgentsControllerV4Test implements SecurityServiceTrait, ControllerTrait<Ag
     class Security implements SecurityTestTrait, AdminUserSecurity {
       @Override
       String getControllerMethodUnderTest() {
-        return 'update'
+        return 'deleteAgent'
       }
 
       @Override
       void makeHttpCall() {
-        getWithApiHeader(controller.controllerPath())
+        deleteWithApiHeader(controller.controllerPath("some-uuid"))
       }
+    }
+
+    @Test
+    void 'should delete agent with given uuid'() {
+      loginAsAdmin()
+
+      when(agentService.findAgent("uuid2")).thenReturn(idle())
+      doAnswer({ InvocationOnMock invocation ->
+        def result = invocation.getArgument(1) as HttpOperationResult
+        result.ok("Deleted 1 agent(s).")
+      }).when(agentService).deleteAgents(eq(currentUsername()), any() as HttpOperationResult, eq(asList("uuid2")))
+
+      deleteWithApiHeader(controller.controllerPath("uuid2"))
+
+      assertThatResponse()
+        .isOk()
+        .hasContentType(controller.mimeType)
+        .hasJsonMessage("Deleted 1 agent(s).")
+    }
+
+    @Test
+    void 'should render result in case of error'() {
+      loginAsAdmin()
+
+      doAnswer({ InvocationOnMock invocation ->
+        def result = invocation.getArgument(1) as HttpOperationResult
+        def message = "Failed to delete agent."
+        result.unprocessibleEntity(message, "Some description", null)
+      }).when(agentService).deleteAgents(eq(currentUsername()), any() as HttpOperationResult, eq(asList("uuid2")))
+
+      deleteWithApiHeader(controller.controllerPath("uuid2"))
+
+      assertThatResponse()
+        .isUnprocessableEntity()
+        .hasContentType(controller.mimeType)
+        .hasJsonMessage("Failed to delete agent. { Some description }")
     }
   }
 
@@ -374,13 +413,55 @@ class AgentsControllerV4Test implements SecurityServiceTrait, ControllerTrait<Ag
     class Security implements SecurityTestTrait, AdminUserSecurity {
       @Override
       String getControllerMethodUnderTest() {
-        return 'update'
+        return 'bulkDeleteAgents'
       }
 
       @Override
       void makeHttpCall() {
-        getWithApiHeader(controller.controllerPath())
+        deleteWithApiHeader(controller.controllerPath())
       }
+    }
+
+    @Test
+    void 'should delete agents with uuids'() {
+      loginAsAdmin()
+
+      when(agentService.findAgent("agent-1")).thenReturn(idleWith("agent-1"))
+      when(agentService.findAgent("agent-2")).thenReturn(idleWith("agent-2"))
+
+      doAnswer({ InvocationOnMock invocation ->
+        def result = invocation.getArgument(1) as HttpOperationResult
+        result.ok("Deleted 2 agent(s).")
+      }).when(agentService).deleteAgents(eq(currentUsername()), any() as HttpOperationResult, eq(asList("agent-1", "agent-2")))
+
+      def requestBody = ["uuids": ["agent-1", "agent-2"]]
+
+      deleteWithApiHeader(controller.controllerPath(), requestBody)
+
+      assertThatResponse()
+        .isOk()
+        .hasContentType(controller.mimeType)
+        .hasJsonMessage("Deleted 2 agent(s).")
+    }
+
+    @Test
+    void 'should render result in case of error'() {
+      loginAsAdmin()
+
+      doAnswer({ InvocationOnMock invocation ->
+        def result = invocation.getArgument(1) as HttpOperationResult
+        def message = "Failed to delete agent."
+        result.unprocessibleEntity(message, "Some description", null)
+      }).when(agentService).deleteAgents(eq(currentUsername()), any() as HttpOperationResult, eq(asList("agent-1", "agent-2")))
+
+      def requestBody = ["uuids": ["agent-1", "agent-2"]]
+
+      deleteWithApiHeader(controller.controllerPath(), requestBody)
+
+      assertThatResponse()
+        .isUnprocessableEntity()
+        .hasContentType(controller.mimeType)
+        .hasJsonMessage("Failed to delete agent. { Some description }")
     }
   }
 }

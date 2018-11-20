@@ -16,11 +16,15 @@
 
 package com.thoughtworks.go.apiv4.agents;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.thoughtworks.go.api.ApiController;
 import com.thoughtworks.go.api.ApiVersion;
 import com.thoughtworks.go.api.CrudController;
 import com.thoughtworks.go.api.base.OutputWriter;
+import com.thoughtworks.go.api.representers.JsonReader;
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
+import com.thoughtworks.go.api.util.GsonTransformer;
 import com.thoughtworks.go.apiv4.agents.model.AgentBulkUpdateRequest;
 import com.thoughtworks.go.apiv4.agents.model.AgentUpdateRequest;
 import com.thoughtworks.go.apiv4.agents.representers.AgentBulkUpdateRequestRepresenter;
@@ -43,9 +47,12 @@ import spark.Request;
 import spark.Response;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.function.Consumer;
 
+import static java.util.Collections.singletonList;
 import static spark.Spark.*;
 
 @Component
@@ -81,6 +88,8 @@ public class AgentsControllerV4 extends ApiController implements SparkSpringCont
             get(Routes.AgentsAPI.UUID, mimeType, this::show);
             patch(Routes.AgentsAPI.UUID, mimeType, this::update);
             patch("", mimeType, this::bulkUpdate);
+            delete(Routes.AgentsAPI.UUID, mimeType, this::deleteAgent);
+            delete("", mimeType, this::bulkDeleteAgents);
 
             exception(RecordNotFoundException.class, this::notFound);
         });
@@ -92,9 +101,9 @@ public class AgentsControllerV4 extends ApiController implements SparkSpringCont
     }
 
     public String show(Request request, Response response) throws IOException {
-        final String uuid = request.params("uuid");
+        final AgentInstance agentInstance = fetchEntityFromConfig(request.params("uuid"));
 
-        return writerForTopLevelObject(request, response, outputWriter -> AgentRepresenter.toJSON(outputWriter, fetchEntityFromConfig(uuid), environmentConfigService.environmentsFor(uuid), securityService, currentUsername()));
+        return writerForTopLevelObject(request, response, outputWriter -> AgentRepresenter.toJSON(outputWriter, agentInstance, environmentConfigService.environmentsFor(request.params("uuid")), securityService, currentUsername()));
     }
 
     public String update(Request request, Response response) throws IOException {
@@ -136,6 +145,22 @@ public class AgentsControllerV4 extends ApiController implements SparkSpringCont
         return renderHTTPOperationResult(result, request, response);
     }
 
+    public String deleteAgent(Request request, Response response) throws IOException {
+        final HttpOperationResult result = new HttpOperationResult();
+        agentService.deleteAgents(currentUsername(), result, singletonList(request.params("uuid")));
+        return renderHTTPOperationResult(result, request, response);
+    }
+
+    public String bulkDeleteAgents(Request request, Response response) throws IOException {
+        final JsonReader reader = GsonTransformer.getInstance().jsonReaderFrom(request.body());
+        final List<String> uuids = toList(reader.optJsonArray("uuids").orElse(new JsonArray()));
+
+        final HttpOperationResult result = new HttpOperationResult();
+        agentService.deleteAgents(currentUsername(), result, uuids);
+
+        return renderHTTPOperationResult(result, request, response);
+    }
+
     @Override
     public String etagFor(AgentInstance entityFromServer) {
         throw new UnsupportedOperationException();
@@ -170,5 +195,14 @@ public class AgentsControllerV4 extends ApiController implements SparkSpringCont
         }
 
         apiAuthenticationHelper.checkUserAnd403(request, response);
+    }
+
+    private List<String> toList(JsonArray jsonArray) {
+        final List<String> list = new ArrayList<>();
+        for (JsonElement element : jsonArray) {
+            list.add(element.getAsString());
+        }
+
+        return list;
     }
 }

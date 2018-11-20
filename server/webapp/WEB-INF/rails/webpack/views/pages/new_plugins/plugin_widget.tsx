@@ -86,7 +86,9 @@ export class PluginWidget extends MithrilViewComponent<Attrs> {
     }
 
     if (this.doesPluginSupportSettings(pluginInfo)) {
-      settingsButton = <Icons.Settings data-test-id="edit-plugin-settings" onclick={vnode.attrs.onEdit}/>;
+      settingsButton = <Icons.Settings data-test-id="edit-plugin-settings"
+                                       disabled={!isUserAnAdmin}
+                                       onclick={vnode.attrs.onEdit}/>;
     }
 
     let pluginData = {

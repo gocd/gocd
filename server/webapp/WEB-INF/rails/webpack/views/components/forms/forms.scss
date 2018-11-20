@@ -40,6 +40,10 @@ $form-failed-field-background-color: lighten($form-failed-color, 35%);
   margin-bottom: 5px;
 }
 
+.form-label-required {
+  color: $form-failed-color;
+}
+
 .form-control {
   display:          block;
   height:           $form-element-height;

@@ -57,9 +57,10 @@ abstract class FormField<T> extends MithrilViewComponent<FormFieldAttrs<T>> {
   protected readonly errorId: string    = `${this.id}-error-text`;
 
   view(vnode: m.Vnode<FormFieldAttrs<T>>) {
+    const maybeRequired = this.isRequiredField(vnode) ? <span class={styles.formLabelRequired}>*</span> : undefined;
     return (
       <div className={classnames(styles.formGroup, {[styles.formHasError]: this.hasErrorText(vnode)})}>
-        <label for={this.id} className={classnames(styles.formLabel)}>{vnode.attrs.label}:</label>
+        <label for={this.id} className={styles.formLabel}>{vnode.attrs.label}{maybeRequired}:</label>
         {this.renderInputField(vnode)}
         {this.errorSpan(vnode)}
         {this.getHelpSpan(vnode)}
@@ -70,10 +71,12 @@ abstract class FormField<T> extends MithrilViewComponent<FormFieldAttrs<T>> {
   abstract renderInputField(vnode: m.Vnode<FormFieldAttrs<T>>): m.Children | null | void;
 
   protected defaultAttributes(vnode: m.Vnode<FormFieldAttrs<T>>): { [key: string]: any } {
+    const required = this.isRequiredField(vnode);
+
     const newVar: { [key: string]: string | boolean } = {
       "aria-label": vnode.attrs.label,
       "readonly": !!vnode.attrs.disabled,
-      "required": !!vnode.attrs.required
+      "required": !!required
     };
 
     if (this.hasHelpText(vnode)) {
@@ -84,12 +87,16 @@ abstract class FormField<T> extends MithrilViewComponent<FormFieldAttrs<T>> {
       newVar["aria-errormessage"] = this.errorId;
     }
 
-    if (vnode.attrs.required) {
+    if (required) {
       newVar["aria-required"] = true;
       newVar.required         = true;
     }
 
     return newVar;
+  }
+
+  private isRequiredField(vnode: m.Vnode<FormFieldAttrs<T>>) {
+    return vnode.attrs.required;
   }
 
   protected bindingAttributes(vnode: m.Vnode<FormFieldAttrs<T>>,

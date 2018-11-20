@@ -2,6 +2,7 @@
 // Please do not change this file!
 export const formGroup: string;
 export const formLabel: string;
+export const formLabelRequired: string;
 export const formControl: string;
 export const textArea: string;
 export const formHelp: string;

@@ -102,13 +102,15 @@
   <rule>
     <name>Spark Agents Index API</name>
     <from>^/api/agents$</from>
-    <to last="true">/spark/api/agents</to>
+    <run class="com.thoughtworks.go.server.SparkOrRailsToggle" method="agentsApi"/>
+    <to last="true">/%{attribute:sparkOrRails}/api/agents</to>
   </rule>
 
   <rule>
     <name>Spark Agents API</name>
     <from>^/api/agents/(.*)$</from>
-    <to last="true">/spark/api/agents/${escape:$1}</to>
+    <run class="com.thoughtworks.go.server.SparkOrRailsToggle" method="agentsApi"/>
+    <to last="true">/%{attribute:sparkOrRails}/api/agents/${escape:$1}</to>
   </rule>
 
   <rule>

@@ -30,6 +30,11 @@
         "key": "components",
         "description": "Enables pages being refactored to use components and CSS modules. Needs a server restart.",
         "value": false
+      },
+      {
+        "key": "agent_apis_over_rails",
+        "description": "Allows user to use the agents api from rails. Defaults to spark.",
+        "value": false
       }
   ]
 }

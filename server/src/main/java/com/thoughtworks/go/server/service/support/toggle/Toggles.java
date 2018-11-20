@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@ public class Toggles {
     public static String BROWSER_CONSOLE_LOG_WS = "browser_console_log_ws_key";
     public static String COMPONENTS = "components";
     public static String CONFIG_REPOS_UI = "config_repos_ui";
+    public static String AGENT_APIS_OVER_RAILS = "agent_apis_over_rails";
 
     private static FeatureToggleService service;
 

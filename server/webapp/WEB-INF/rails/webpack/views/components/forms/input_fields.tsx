@@ -95,10 +95,6 @@ abstract class FormField<T> extends MithrilViewComponent<FormFieldAttrs<T>> {
     return newVar;
   }
 
-  private isRequiredField(vnode: m.Vnode<FormFieldAttrs<T>>) {
-    return vnode.attrs.required;
-  }
-
   protected bindingAttributes(vnode: m.Vnode<FormFieldAttrs<T>>,
                               eventName: string,
                               propertyAttribute: string) {
@@ -127,6 +123,10 @@ abstract class FormField<T> extends MithrilViewComponent<FormFieldAttrs<T>> {
 
   protected hasErrorText(vnode: m.Vnode<FormFieldAttrs<T>>) {
     return !_.isEmpty(vnode.attrs.errorText);
+  }
+
+  private isRequiredField(vnode: m.Vnode<FormFieldAttrs<T>>) {
+    return vnode.attrs.required;
   }
 
   private errorSpan(vnode: m.Vnode<FormFieldAttrs<T>>) {

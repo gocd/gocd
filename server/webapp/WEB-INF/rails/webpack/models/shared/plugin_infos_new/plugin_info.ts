@@ -36,6 +36,10 @@ class Status {
   static fromJSON(data: any) {
     return new Status(data.state, data.messages);
   }
+
+  isInvalid() {
+    return this.state === State.invalid;
+  }
 }
 
 export class PluginInfo<T extends Extension> {

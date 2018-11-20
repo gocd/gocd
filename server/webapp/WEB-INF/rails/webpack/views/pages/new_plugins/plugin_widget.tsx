@@ -106,7 +106,8 @@ export class PluginWidget extends MithrilViewComponent<Attrs> {
                                                     pluginVersion={pluginInfo.about.version}
                                                     pluginId={pluginInfo.id}/>}
                         actions={[statusReportButton, settingsButton]}
-                        error={pluginInfo.hasErrors()}>
+                        error={pluginInfo.hasErrors()}
+                        expanded={pluginInfo.status.isInvalid()}>
         <KeyValuePair data={pluginData}/>
       </CollapsiblePanel>
     );

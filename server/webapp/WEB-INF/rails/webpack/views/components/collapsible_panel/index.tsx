@@ -29,6 +29,7 @@ export interface Attrs<Header, Actions> {
   actions?: AttributeType | AttributeType[];
   header: AttributeType | string;
   error?: boolean;
+  expanded?: boolean;
 }
 
 export interface State {
@@ -39,7 +40,7 @@ export interface State {
 export class CollapsiblePanel<Header, Actions> extends MithrilComponent<Attrs<Header, Actions>, State> {
 
   oninit(this: State, vnode: m.Vnode<Attrs<Header, Actions>, State>) {
-    vnode.state.expanded = stream(false);
+    vnode.state.expanded = stream(vnode.attrs.expanded || false);
     vnode.state.toggle   = () => {
       vnode.state.expanded(!vnode.state.expanded());
     };

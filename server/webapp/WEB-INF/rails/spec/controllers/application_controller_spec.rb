@@ -300,7 +300,7 @@ describe ApplicationController do
       end
 
       it "should return only the path to a given resource and not the whole url" do
-        expect(controller.url_for(controller: 'api_v1/version', action: :show, foo: "junk",only_path:false)).to eq("http://test.host/api/version?foo=junk")
+        expect(controller.url_for(controller: 'server', action: :messages, foo: "junk",only_path:false)).to eq("http://test.host/server/messages.json?foo=junk")
       end
 
       it "should cache the url if options is an active-record object" do
@@ -315,8 +315,8 @@ describe ApplicationController do
       end
 
       it "should return full path when requested explicitly" do
-        expect(controller.url_for(controller: 'api_v1/version', action: :show, foo: "junk",
-                                  only_path: false)).to eq("http://test.host/api/version?foo=junk")
+        expect(controller.url_for(controller: 'server', action: :messages, foo: "junk",
+                                  only_path: false)).to eq("http://test.host/server/messages.json?foo=junk")
       end
     end
 
@@ -337,18 +337,18 @@ describe ApplicationController do
 
       it "should cache the url" do
         Services.go_cache.clear
-        expect(controller.url_for(controller: 'api_v1/version', action: :show)).to eq("http://test.host/api/version")
+        expect(controller.url_for(controller: 'server', action: :messages)).to eq("http://test.host/server/messages.json")
         key = Services.go_cache.getKeys.grep(/#{Regexp.quote(com.thoughtworks.go.listener.BaseUrlChangeListener::URLS_CACHE_KEY)}#{Regexp.quote(GoCache::SUB_KEY_DELIMITER)}/).last
         expect(key).to be_present
         Services.go_cache.put(key, "some-random-url")
-        expect(controller.url_for(controller: 'api_v1/version', action: :show)).to eq("some-random-url")
+        expect(controller.url_for(controller: 'server', action: :messages)).to eq("some-random-url")
         expect(Services.go_cache.get(key)).to eq('some-random-url')
       end
 
       it "should cache the url irrespective of option key type" do
         Services.go_cache.clear
-        url_options = {controller: 'api_v1/version', action: :show, foo: 'bar', boo: 'baz'}
-        expect(controller.url_for(url_options)).to eq("http://test.host/api/version?boo=baz&foo=bar")
+        url_options = {controller: 'server', action: :messages, foo: 'bar', boo: 'baz'}
+        expect(controller.url_for(url_options)).to eq("http://test.host/server/messages.json?boo=baz&foo=bar")
         key = Services.go_cache.getKeys.grep(/#{Regexp.quote(com.thoughtworks.go.listener.BaseUrlChangeListener::URLS_CACHE_KEY)}#{Regexp.quote(GoCache::SUB_KEY_DELIMITER)}/).last
         expect(key).to be_present
         Services.go_cache.put(key, "some-random-url")

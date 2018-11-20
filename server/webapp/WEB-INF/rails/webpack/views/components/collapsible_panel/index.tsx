@@ -26,6 +26,7 @@ const classnames = bind(styles);
 type AttributeType = m.Children;
 
 export interface Attrs<Header, Actions> {
+  dataTestId?: string;
   actions?: AttributeType | AttributeType[];
   header: AttributeType | string;
   error?: boolean;
@@ -38,7 +39,6 @@ export interface State {
 }
 
 export class CollapsiblePanel<Header, Actions> extends MithrilComponent<Attrs<Header, Actions>, State> {
-
   oninit(this: State, vnode: m.Vnode<Attrs<Header, Actions>, State>) {
     vnode.state.expanded = stream(vnode.attrs.expanded || false);
     vnode.state.toggle   = () => {
@@ -58,8 +58,13 @@ export class CollapsiblePanel<Header, Actions> extends MithrilComponent<Attrs<He
       </div>;
     }
 
+    const expandCollapseState = vnode.state.expanded() ? "expanded" : "collapsed";
+
     return (
-      <div class={classnames(styles.collapse, collapsibleClasses)}>
+      <div data-test-id={vnode.attrs.dataTestId}
+           data-test-element-state={expandCollapseState}
+           data-test-has-error={vnode.attrs.error}
+           class={classnames(styles.collapse, collapsibleClasses)}>
         <div class={classnames(styles.collapseHeader, collapsibleClasses)}
              data-test-id="collapse-header"
              onclick={vnode.state.toggle}>

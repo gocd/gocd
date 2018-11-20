@@ -30,11 +30,16 @@ export interface Attrs {
 export class KeyValuePair extends MithrilViewComponent<Attrs> {
   view(vnode: m.Vnode<Attrs>) {
     const isInline = vnode.attrs.inline;
+
     const elements: JSX.Element[] = [];
     vnode.attrs.data.forEach((value, key) => {
+
+      const dataTestIdForKey   = `key-value-key-${key.replace(/ /g, "-").toLowerCase() as string}`;
+      const dataTestIdForValue = `key-value-value-${key.replace(/ /g, "-").toLowerCase() as string}`;
+
       elements.push(<li className={classnames(styles.keyValueItem, {[styles.keyValueInlineItem]: isInline})} key={key}>
-        <label data-test-id={`key-value-key-${key}`} className={styles.key}>{key}</label>
-        <span data-test-id={`key-value-value-${key}`}
+        <label data-test-id={dataTestIdForKey} className={styles.key}>{key}</label>
+        <span data-test-id={dataTestIdForValue}
               className={styles.value}>{KeyValuePair.renderedValue(value)}</span>
       </li>);
     });

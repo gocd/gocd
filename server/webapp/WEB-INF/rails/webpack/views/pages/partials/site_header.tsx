@@ -50,8 +50,8 @@ export class SiteHeader extends MithrilViewComponent<Attrs> {
 
     if (!isAnonymous) {
       userMenu = (
-        <div class={classnames(styles.user, styles.isDropDown)}>
-          <a href="#" class={styles.userLink}>
+        <div data-test-id="user-menu" class={classnames(styles.user, styles.isDropDown)}>
+          <a data-test-id="username" href="#" class={styles.userLink}>
             <i class={styles.userIcon}/>
             {userDisplayName}
             <i class={`${styles.caretDownIcon}`}/>

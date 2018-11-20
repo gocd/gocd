@@ -88,9 +88,9 @@ describe("ConfigReposWidget", () => {
     const repo2 = createConfigRepo();
     configRepos({_embedded: {config_repos: [repo1, repo2]}} as ConfigRepos);
     m.redraw();
-    expect(find("key-value-value-Id")).toHaveLength(2);
-    expect($(find("key-value-value-Id").get(0))).toHaveText(repo1.id);
-    expect($(find("key-value-value-Id").get(1))).toHaveText(repo2.id);
+    expect(find("key-value-value-id")).toHaveLength(2);
+    expect($(find("key-value-value-id").get(0))).toHaveText(repo1.id);
+    expect($(find("key-value-value-id").get(1))).toHaveText(repo2.id);
   });
 
   it("should render a single config repo", () => {
@@ -103,8 +103,8 @@ describe("ConfigReposWidget", () => {
     m.redraw();
     expect($root).toContainText("Last seen revision: 1234");
     expect($root.find("strong")).toHaveText("SCM configuration for git material");
-    expect(find("key-value-key-URL")).toContainText(`URL`);
-    expect(find("key-value-value-URL")).toContainText(repo.material.attributes.url);
+    expect(find("key-value-key-url")).toContainText(`URL`);
+    expect(find("key-value-value-url")).toContainText(repo.material.attributes.url);
   });
 
   it("should render a warning message when plugin is missing", () => {

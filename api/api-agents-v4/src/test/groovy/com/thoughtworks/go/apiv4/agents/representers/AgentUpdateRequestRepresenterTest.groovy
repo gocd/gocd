@@ -46,7 +46,7 @@ class AgentUpdateRequestRepresenterTest {
   }
 
   @Test
-  void 'should return empty string when resources are not specified'() {
+  void 'should return empty string when empty resources specified in request body'() {
     def jsonString = new JsonBuilder(["hostname"          : "agent02.example.com",
                                       "agent_config_state": "Enabled",
                                       "resources"         : [],
@@ -59,19 +59,20 @@ class AgentUpdateRequestRepresenterTest {
   }
 
   @Test
-  void 'should return empty string when empty resources array is specified'() {
+  void 'should return empty string when empty environments specified in request'() {
     def jsonString = new JsonBuilder(["hostname"          : "agent02.example.com",
                                       "agent_config_state": "Enabled",
-                                      "environments"      : ["env1"]
+                                      "resources"         : ["Foo"],
+                                      "environments"      : []
     ]).toString()
 
     AgentUpdateRequest agentInfo = AgentUpdateRequestRepresenter.fromJSON(jsonString)
 
-    assertThat(agentInfo.getResources()).isEmpty()
+    assertThat(agentInfo.getEnvironments()).isEmpty()
   }
 
   @Test
-  void 'should return empty string when environments are not specified'() {
+  void 'should return null string when environments are not specified'() {
     def jsonString = new JsonBuilder(["hostname"          : "agent02.example.com",
                                       "agent_config_state": "Enabled",
                                       "resources"         : []
@@ -79,11 +80,11 @@ class AgentUpdateRequestRepresenterTest {
 
     AgentUpdateRequest agentInfo = AgentUpdateRequestRepresenter.fromJSON(jsonString)
 
-    assertThat(agentInfo.getEnvironments()).isEmpty()
+    assertThat(agentInfo.getEnvironments()).isNull()
   }
 
   @Test
-  void 'should return empty string when empty environments array is specified'() {
+  void 'should return null string when resources are not specified'() {
     def jsonString = new JsonBuilder(["hostname"          : "agent02.example.com",
                                       "agent_config_state": "Enabled",
                                       "environments"      : []
@@ -91,7 +92,7 @@ class AgentUpdateRequestRepresenterTest {
 
     AgentUpdateRequest agentInfo = AgentUpdateRequestRepresenter.fromJSON(jsonString)
 
-    assertThat(agentInfo.getEnvironments()).isEmpty()
+    assertThat(agentInfo.getResources()).isNull()
   }
 
   @ParameterizedTest

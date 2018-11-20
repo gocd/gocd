@@ -22,31 +22,42 @@ import com.thoughtworks.go.api.util.HaltApiResponses;
 import com.thoughtworks.go.apiv4.agents.model.AgentBulkUpdateRequest;
 import com.thoughtworks.go.apiv4.agents.model.AgentBulkUpdateRequest.Operation;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 public class AgentBulkUpdateRequestRepresenter extends UpdateRequestRepresenter {
     public static AgentBulkUpdateRequest fromJSON(String requestBody) {
         final JsonReader reader = GsonTransformer.getInstance().jsonReaderFrom(requestBody);
         final List<String> uuids = extractToList(reader.optJsonArray("uuids"));
-        final String agentConfigState = reader.getString("agent_config_state");
+        final String agentConfigState = reader.optString("agent_config_state").orElse(null);
 
         if (uuids.isEmpty()) {
             HaltApiResponses.haltBecauseOfReason("Must specify agent 'uuids' for bulk update.");
         }
 
-        final AgentBulkUpdateRequest.Operations operations = toOperationsFromJSON(reader.readJsonObject("operations"));
+        final AgentBulkUpdateRequest.Operations operations = toOperationsFromJSON(reader.optJsonObject("operations"));
 
         return new AgentBulkUpdateRequest(uuids, operations, toTriState(agentConfigState));
     }
 
-    public static AgentBulkUpdateRequest.Operations toOperationsFromJSON(JsonReader reader) {
-        return new AgentBulkUpdateRequest.Operations(
-                toOperationFromJSON(reader.readJsonObject("environments")),
-                toOperationFromJSON(reader.readJsonObject("resources"))
-        );
+    public static AgentBulkUpdateRequest.Operations toOperationsFromJSON(Optional<JsonReader> optionalReader) {
+        if (optionalReader.isPresent()) {
+            final JsonReader reader = optionalReader.get();
+            return new AgentBulkUpdateRequest.Operations(
+                    toOperationFromJSON(reader.optJsonObject("environments")),
+                    toOperationFromJSON(reader.optJsonObject("resources"))
+            );
+        }
+        return new AgentBulkUpdateRequest.Operations();
     }
 
-    public static Operation toOperationFromJSON(JsonReader reader) {
-        return new Operation(extractToList(reader.optJsonArray("add")), extractToList(reader.optJsonArray("remove")));
+    public static Operation toOperationFromJSON(Optional<JsonReader> optionalJsonReader) {
+        if (optionalJsonReader.isPresent()) {
+            JsonReader reader = optionalJsonReader.get();
+            return new Operation(extractToList(reader.optJsonArray("add")), extractToList(reader.optJsonArray("remove")));
+        }
+
+        return new Operation(Collections.emptyList(), Collections.emptyList());
     }
 }

@@ -37,13 +37,14 @@ abstract class UpdateRequestRepresenter {
     }
 
     static String toCommaSeparatedString(Optional<JsonArray> arrayOptional) {
-        final Set<String> list = new TreeSet<>();
         if (arrayOptional.isPresent()) {
+            final Set<String> list = new TreeSet<>();
             for (JsonElement jsonElement : arrayOptional.get()) {
                 list.add(jsonElement.getAsString());
             }
+            return String.join(",", list);
         }
-        return String.join(",", list);
+        return null;
     }
 
     static TriState toTriState(String agentConfigState) {

@@ -18,6 +18,7 @@ package com.thoughtworks.go.apiv4.agents.model;
 
 import com.thoughtworks.go.util.TriState;
 
+import java.util.Collections;
 import java.util.List;
 
 public class AgentBulkUpdateRequest {
@@ -44,8 +45,14 @@ public class AgentBulkUpdateRequest {
     }
 
     public static class Operations {
+        private static final Operation EMPTY_OPERATION = new Operation(Collections.emptyList(), Collections.emptyList());
         private Operation environments;
         private Operation resources;
+
+        public Operations() {
+            this.environments = EMPTY_OPERATION;
+            this.resources = EMPTY_OPERATION;
+        }
 
         public Operations(Operation environments, Operation resources) {
             this.environments = environments;

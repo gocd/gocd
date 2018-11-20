@@ -100,9 +100,15 @@
   </rule>
 
   <rule>
-    <name>Spark Agents API</name>
-    <from>^/api/new_agents$</from>
+    <name>Spark Agents Index API</name>
+    <from>^/api/agents$</from>
     <to last="true">/spark/api/agents</to>
+  </rule>
+
+  <rule>
+    <name>Spark Agents API</name>
+    <from>^/api/agents/(.*)$</from>
+    <to last="true">/spark/api/agents/${escape:$1}</to>
   </rule>
 
   <rule>

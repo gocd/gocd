@@ -65,4 +65,72 @@ class AgentBulkUpdateRequestRepresenterTest {
       .hasSize(1)
       .contains("Chrome")
   }
+
+  @Test
+  void 'should parse request body without environment'() {
+    def requestBody = new JsonBuilder([
+      "uuids"             : [
+        "adb9540a-b954-4571-9d9b-2f330739d4da",
+        "adb528b2-b954-1234-9d9b-b27ag4h568e1"
+      ],
+      "operations"        : [
+        "resources": [
+          "add"   : ["Linux", "Firefox"],
+          "remove": ["Chrome"]
+        ]
+      ],
+      "agent_config_state": "enabled"
+    ]).toString()
+
+    AgentBulkUpdateRequest request = AgentBulkUpdateRequestRepresenter.fromJSON(requestBody)
+
+    assertThat(request.getAgentConfigState()).isEqualTo(TriState.TRUE)
+    assertThat(request.getUuids())
+      .hasSize(2)
+      .contains("adb9540a-b954-4571-9d9b-2f330739d4da", "adb528b2-b954-1234-9d9b-b27ag4h568e1")
+
+    assertThat(request.getOperations().getEnvironments().toAdd()).isEmpty()
+    assertThat(request.getOperations().getEnvironments().toRemove()).isEmpty()
+
+    assertThat(request.getOperations().getResources().toAdd())
+      .hasSize(2)
+      .contains("Linux", "Firefox")
+    assertThat(request.getOperations().getResources().toRemove())
+      .hasSize(1)
+      .contains("Chrome")
+  }
+
+  @Test
+  void 'should parse request body without resources'() {
+    def requestBody = new JsonBuilder([
+      "uuids"             : [
+        "adb9540a-b954-4571-9d9b-2f330739d4da",
+        "adb528b2-b954-1234-9d9b-b27ag4h568e1"
+      ],
+      "operations"        : [
+        "environments": [
+          "add"   : ["Dev", "Test"],
+          "remove": ["Production"]
+        ]
+      ],
+      "agent_config_state": "enabled"
+    ]).toString()
+
+    AgentBulkUpdateRequest request = AgentBulkUpdateRequestRepresenter.fromJSON(requestBody)
+
+    assertThat(request.getAgentConfigState()).isEqualTo(TriState.TRUE)
+    assertThat(request.getUuids())
+      .hasSize(2)
+      .contains("adb9540a-b954-4571-9d9b-2f330739d4da", "adb528b2-b954-1234-9d9b-b27ag4h568e1")
+
+    assertThat(request.getOperations().getEnvironments().toAdd())
+      .hasSize(2)
+      .contains("Dev", "Test")
+    assertThat(request.getOperations().getEnvironments().toRemove())
+      .hasSize(1)
+      .contains("Production")
+
+    assertThat(request.getOperations().getResources().toAdd()).isEmpty()
+    assertThat(request.getOperations().getResources().toRemove()).isEmpty()
+  }
 }

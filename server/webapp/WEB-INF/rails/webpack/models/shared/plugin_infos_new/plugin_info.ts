@@ -96,4 +96,13 @@ export class PluginInfo<T extends Extension> {
     }
     return "";
   }
+
+  supportsStatusReport() {
+    if (this.extensions) {
+      const elasticAgentExtensionInfo = this.extensionOfType(ExtensionType.ELASTIC_AGENTS);
+      // @ts-ignore
+      return elasticAgentExtensionInfo && elasticAgentExtensionInfo.capabilities && elasticAgentExtensionInfo.capabilities.supportsStatusReport;
+    }
+    return false;
+  }
 }

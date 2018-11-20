@@ -73,10 +73,10 @@ class HeaderWidget extends MithrilViewComponent<HeaderWidgetAttrs> {
     return [
       this.statusIcon(vnode),
       (
-        <KeyValuePair inline={true} data={[
+        <KeyValuePair inline={true} data={new Map([
           ["Id", vnode.attrs.repo.id],
           ["Plugin ID", vnode.attrs.repo.plugin_id]
-        ]}/>
+        ])}/>
       )
     ];
   }
@@ -115,7 +115,7 @@ class HeaderWidget extends MithrilViewComponent<HeaderWidgetAttrs> {
 class ConfigRepoWidget extends MithrilViewComponent<ShowObjectAttrs<ConfigRepo>> {
   view(vnode: m.Vnode<ShowObjectAttrs<ConfigRepo>>): m.Children | void | null {
 
-    const filteredAttributes = _.reduce(vnode.attrs.obj.material.attributes, (accumulator: any,
+    const filteredAttributes = _.reduce(vnode.attrs.obj.material.attributes, (accumulator: Map<string, string>,
                                                                               value: any,
                                                                               key: string) => {
       let renderedValue = value;
@@ -125,10 +125,9 @@ class ConfigRepoWidget extends MithrilViewComponent<ShowObjectAttrs<ConfigRepo>>
       if (_.isString(value) && value.startsWith("AES:")) {
         renderedValue = "******";
       }
-
-      accumulator[renderedKey] = renderedValue;
+      accumulator.set(renderedKey, renderedValue);
       return accumulator;
-    }, {});
+    }, new Map<string, string>());
 
     const refreshButton = (
       <Refresh data-test-id="config-repo-refresh" onclick={vnode.attrs.onRefresh.bind(vnode.attrs)}/>

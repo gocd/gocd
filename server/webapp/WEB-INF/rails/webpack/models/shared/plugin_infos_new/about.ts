@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+import * as _ from "lodash";
+
 export class About {
   name: string;
   version: string;
@@ -22,7 +24,12 @@ export class About {
   targetOperatingSystems: string[];
   vendor: Vendor;
 
-  constructor(name: string, version: string, targetGoVersion: string, description: string, targetOperationSystems: string[], vendor: Vendor) {
+  constructor(name: string,
+              version: string,
+              targetGoVersion: string,
+              description: string,
+              targetOperationSystems: string[],
+              vendor: Vendor) {
     this.name                   = name;
     this.version                = version;
     this.targetGoVersion        = targetGoVersion;
@@ -34,6 +41,13 @@ export class About {
   static fromJSON(data: any) {
     return new About(data.name, data.version, data.target_go_version, data.description, data.target_operating_systems,
       Vendor.fromJSON(data.vendor));
+  }
+
+  targetOperatingSystemsDisplayValue(): string {
+    if (_.isEmpty(this.targetOperatingSystems)) {
+      return "No restrictions";
+    }
+    return _.join(this.targetOperatingSystems, ",");
   }
 }
 

@@ -117,21 +117,23 @@ export class KitchenSink extends MithrilViewComponent<null> {
         <h3>Some examples of accordions</h3>
 
         <h3>Some examples of key value pairs</h3>
-        <KeyValuePair data={
-          {
-            "First Name": "Jon",
-            "Last Name": "Doe",
-            "email": "jdoe@example.com",
-            "some really really really really really long key": "This is really really really really really really really really really really long junk value"
-          }
+        <KeyValuePair data={new Map(
+          [
+            ["First Name", "Jon"],
+            ["Last Name", "Doe"],
+            ["email", "jdoe@example.com"],
+            ["some really really really really really long key", "This is really really really really really really really really really really long junk value"]
+          ])
         }/>
 
         <h3>Some examples of inline key value pairs</h3>
-        <KeyValuePair inline={true} data={
-          {
-            "Plugin": "my-fancy-plugin-name",
-            "some really really really really really long key": "This is really really really really really really really really really really long junk value"
-          }
+        <KeyValuePair inline={true} data={new Map(
+          [
+            ["Plugin", "my-fancy-plugin-name"],
+            ["some really really really really really long key", "This is really really really really really really really really really really long junk value"],
+            ["Instructions", "Run a manual sweep of anomalous airborne or electromagnetic readings. Radiation levels in our atmosphere have increased by 3,000 percent."],
+            ["Version", "3.11 for workgroups"]
+          ])
         }/>
 
         <h3>Forms</h3>

@@ -23,35 +23,24 @@ import * as styles from "./index.scss";
 const classnames = bind(styles);
 
 export interface Attrs {
-  // pass in an object if you do not care about order, pass an array of key-value pairs if you care about order
-  data: { [key: string]: m.Children } | m.Children[];
+  data: Map<string, string | JSX.Element>;
   inline?: boolean;
-  keyValuePairItemClass?: string;
 }
 
 export class KeyValuePair extends MithrilViewComponent<Attrs> {
   view(vnode: m.Vnode<Attrs>) {
     const isInline = vnode.attrs.inline;
+    const elements: JSX.Element[] = [];
+    vnode.attrs.data.forEach((value, key) => {
+      elements.push(<li className={classnames(styles.keyValueItem, {[styles.keyValueInlineItem]: isInline})} key={key}>
+        <label data-test-id={`key-value-key-${key}`} className={styles.key}>{key}</label>
+        <span data-test-id={`key-value-value-${key}`}
+              className={styles.value}>{KeyValuePair.renderedValue(value)}</span>
+      </li>);
+    });
     return (
       <ul className={classnames(styles.keyValuePair, {[styles.keyValuePairInline]: isInline})}>
-        {
-          _.map(vnode.attrs.data, (...args) => {
-            let value, key;
-            if (_.isArray(vnode.attrs.data)) {
-              [key, value] = args[0] as any[];
-            } else {
-              [value, key] = args;
-            }
-            return [
-              <li className={classnames(styles.keyValueItem, {[styles.keyValueInlineItem]: isInline}, vnode.attrs.keyValuePairItemClass)}
-                  key={key as string}>
-                <label data-test-id={`key-value-key-${key as string}`} className={styles.key}>{key}</label>
-                <span data-test-id={`key-value-value-${key as string}`}
-                      className={styles.value}>{KeyValuePair.renderedValue(value)}</span>
-              </li>
-            ];
-          })
-        }
+        {elements}
       </ul>
     );
   }

@@ -126,7 +126,7 @@ export default class {
     }
   }
 
-  static agentsPath(uuid: string): string {
+  static agentsPath(uuid?: string): string {
     if (uuid) {
       return `/go/api/agents/${uuid}`;
     } else {

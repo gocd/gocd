@@ -23,63 +23,10 @@ shared_examples :layout do
     expect(response.body).to have_title("My Title - Go")
   end
 
-  it "should display all the tabs" do
-    render :inline => '<div>content</div>', :layout => @layout_name
-    expect(response.body).to have_selector("li a", text: /Agents/)
-  end
-
-  it "should not display auth block when user not logged in" do
-    render :inline => '<div>content</div>', :layout => @layout_name
-    expect(response.body).to_not have_selector('html body ul.principal')
-  end
-
-  it "should display username and logout botton if a user is logged in" do
-    assign(:user, com.thoughtworks.go.server.domain.Username.new(CaseInsensitiveString.new("maulik suchak")))
-
-    render :inline => '<div>content</div>', :layout => @layout_name
-    expect(response.body).to have_selector(".current_user a[href='#']", text: "maulik suchak")
-    expect(response.body).to have_selector(".current_user a[href='/preferences/notifications']", text: "Preferences")
-    expect(response.body).to have_selector(".current_user .logout a[href='/auth/logout']", text: "Sign out")
-
-    expect(response.body).to have_selector(".user .help a[href='https://gocd.org/help']", text: "Help")
-  end
-
-  it "should not display username and logout botton if anonymous user is logged in" do
-    assign(:user, com.thoughtworks.go.server.domain.Username::ANONYMOUS)
-
-    render :inline => '<div>content</div>', :layout => @layout_name
-
-    expect(response.body).to have_selector(".user .help a[href='https://gocd.org/help']", text: "Help")
-
-    expect(response.body).to_not have_selector(".current_user a[href='#']", text: "maulik suchak")
-    expect(response.body).to_not have_selector(".current_user a[href='/preferences/notifications']", text: "Preferences")
-    expect(response.body).to_not have_selector(".current_user a[href='/auth/logout']", text: "Sign out")
-  end
-
-  it "should link all the tabs right" do
-    allow(view).to receive(:mycruise_available?).and_return(true)
-    render :inline => "<span>foo</span>", :layout => @layout_name
-    expect(response.body).to have_selector("a[href='/pipelines']", text: 'Pipelines')
-    expect(response.body).to have_selector("a[href='/go/agents']", text: 'Agents')
-    expect(response.body).to have_selector("a[href='https://gocd.org/help']", text: 'Help')
-    expect(response.body).to have_selector("a[data-toggle='dropdown']", text: 'Admin')
-  end
-
   it "should disable mycruise tab when mycruise is not available" do
     allow(view).to receive(:mycruise_available?).and_return(false)
     render :inline => "<span>foo</span>", :layout => @layout_name
     expect(response.body).to_not(have_selector("ul.current_user"))
-  end
-
-  it "should disable admin tab when user is not an administrator" do
-    allow(view).to receive(:can_view_admin_page?).and_return(false)
-    render :inline => "<span>foo</span>", :layout => @layout_name
-    expect(response.body).to have_selector('li span', "ADMIN")
-  end
-
-  it "should enable admin tab when user is an administrator" do
-    render :inline => "<span>foo</span>", :layout => @layout_name
-    expect(response.body).to have_selector("li a[data-toggle='dropdown']", text: "Admin")
   end
 
   it "should render page error" do
@@ -88,15 +35,5 @@ shared_examples :layout do
     Capybara.string(response.body).all('div.flash').tap do |flash|
       expect(flash[0]).to have_selector("p.error", :text => "Some error message")
     end
-  end
-
-  it "should have a place holder in the header for error and warning counts" do
-    render :inline => "<span>foo</span>", :layout => @layout_name
-    expect(response.body).to have_selector("div#cruise_message_counts")
-  end
-
-  it "should have a place holder in the header for error and warning content" do
-    render :inline => "<span>foo</span>", :layout => @layout_name
-    expect(response.body).to have_selector("div#cruise_message_body", visible: false)
   end
 end

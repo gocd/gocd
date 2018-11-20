@@ -34,19 +34,6 @@ describe "/layouts/admin" do
     allow(view).to receive(:is_user_authorized_to_view_templates?).and_return(false)
   end
 
-  it "should display only pipeline configurations and pipeline groups tab when the user is a group admin" do
-    allow(view).to receive(:is_user_an_admin?).and_return(false)
-    allow(view).to receive(:is_user_a_group_admin?).and_return(true)
-
-    render :inline => '<div>content</div>', :layout => @layout_name
-    Capybara.string(response.body).find('.sub_tab_container').tap do |tab|
-      expect(tab).to have_selector("#pipeline-groups-tab-button")
-      expect(tab).to_not have_selector("#source-xml-tab-button")
-      expect(tab).to_not have_selector("#server-configuration-tab-button")
-      expect(tab).to_not have_selector("#user-summary-tab-button")
-    end
-  end
-
   it "should display warning message when config not valid" do
     assign(:config_valid, false)
     render :inline => '<div>content</div>', :layout => @layout_name

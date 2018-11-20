@@ -1052,6 +1052,102 @@ describe('PluginInfos New', () => {
     });
   });
 
+  describe("Invalid plugin", () => {
+    let pluginInfoWithErrors, pluginInfoWithoutAboutInfo;
+
+    beforeEach(() => {
+      pluginInfoWithErrors =   {
+        "_links": {
+          "self": {
+            "href": "http://localhost:8153/go/api/admin/plugin_info/test-plugin-xml"
+          },
+          "doc": {
+            "href": "https://api.gocd.org/#plugin-info"
+          },
+          "find": {
+            "href": "http://localhost:8153/go/api/admin/plugin_info/:plugin_id"
+          }
+        },
+        "id": "test-plugin-xml",
+        "status": {
+          "state": "invalid",
+          "messages": [
+            "Plugin with ID (test-plugin-xml) is not valid: Incompatible with current operating system 'Mac OS X'. Valid operating systems are: [Windows]."
+          ]
+        },
+        "plugin_file_location": "/Users/ganeshp/projects/gocd/gocd/server/plugins/external/test-with-some-plugin-xml-values.jar",
+        "bundled_plugin": false,
+        "about": {
+          "version": "1.0.0",
+          "description": "Plugin that has only some fields in its plugin.xml",
+          "target_operating_systems": [
+            "Windows"
+          ],
+          "vendor": {
+            "url": "www.mdaliejaz.com"
+          }
+        },
+        "extensions": [
+
+        ]
+      };
+
+      pluginInfoWithoutAboutInfo = {
+        "_links": {
+          "self": {
+            "href": "http://localhost:8153/go/api/admin/plugin_info/plugin-common.jar"
+          },
+          "doc": {
+            "href": "https://api.gocd.org/#plugin-info"
+          },
+          "find": {
+            "href": "http://localhost:8153/go/api/admin/plugin_info/:plugin_id"
+          }
+        },
+        "id": "plugin-common.jar",
+        "status": {
+          "state": "invalid",
+          "messages": [
+            "No extensions found in this plugin.Please check for @Extension annotations"
+          ]
+        },
+        "plugin_file_location": "/Users/ganeshp/projects/gocd/gocd/server/plugins/external/plugin-common.jar",
+        "bundled_plugin": false,
+        "extensions": [
+
+        ]
+      };
+    });
+
+    it("should deserialize plugin info having errors", () => {
+      const pluginInfo = PluginInfo.fromJSON(pluginInfoWithErrors);
+
+      expect(pluginInfo.status.state).toEqual(pluginInfoWithErrors.status.state);
+      expect(pluginInfo.status.messages).toEqual(pluginInfoWithErrors.status.messages);
+      expect(pluginInfo.about.name).toEqual("");
+      expect(pluginInfo.about.version).toEqual(pluginInfoWithErrors.about.version);
+      expect(pluginInfo.about.targetGoVersion).toEqual("");
+      expect(pluginInfo.about.description).toEqual(pluginInfoWithErrors.about.description);
+      expect(pluginInfo.about.targetOperatingSystems).toEqual(pluginInfoWithErrors.about.target_operating_systems);
+      expect(pluginInfo.about.vendor.name).toEqual("");
+      expect(pluginInfo.about.vendor.url).toEqual(pluginInfoWithErrors.about.vendor.url);
+    });
+
+    it("should deserialize plugin info not containing about information", () => {
+      const pluginInfo = PluginInfo.fromJSON(pluginInfoWithoutAboutInfo);
+
+      expect(pluginInfo.status.state).toEqual(pluginInfoWithoutAboutInfo.status.state);
+      expect(pluginInfo.status.messages).toEqual(pluginInfoWithoutAboutInfo.status.messages);
+      expect(pluginInfo.about.name).toEqual("");
+      expect(pluginInfo.about.version).toEqual("");
+      expect(pluginInfo.about.targetGoVersion).toEqual("");
+      expect(pluginInfo.about.description).toEqual("");
+      expect(pluginInfo.about.targetOperatingSystems).toEqual("");
+      expect(pluginInfo.about.vendor.name).toEqual("");
+      expect(pluginInfo.about.vendor.url).toEqual("");
+    });
+  });
+
   const verifyBasicProperties = (pluginInfo, {id, about, status, extensions}) => {
     expect(pluginInfo.id).toEqual(id);
     expect(pluginInfo.types()).toContain(extensions[0].type);

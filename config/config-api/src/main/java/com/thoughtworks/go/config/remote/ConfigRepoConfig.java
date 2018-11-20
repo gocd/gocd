@@ -24,9 +24,11 @@ import com.thoughtworks.go.domain.config.ConfigurationProperty;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
 import org.apache.commons.lang3.StringUtils;
 
+import javax.annotation.PostConstruct;
 import java.util.*;
 
 import static java.lang.String.format;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 /**
  * Defines single source of remote configuration and name of plugin to interpet it.
@@ -50,7 +52,7 @@ public class ConfigRepoConfig implements Validatable, Cacheable {
     // then pattern-based plugin is just one option
 
     @ConfigAttribute(value = "id", allowNull = false)
-    private String id = UUID.randomUUID().toString();
+    private String id;
 
     public static final String ID = "id";
 
@@ -233,5 +235,12 @@ public class ConfigRepoConfig implements Validatable, Cacheable {
 
     public void addConfigurations(List<ConfigurationProperty> configuration) {
         this.configuration.addAll(configuration);
+    }
+
+    @PostConstruct
+    public void ensureIdExists() {
+        if (isBlank(getId())) {
+            setId(UUID.randomUUID().toString());
+        }
     }
 }

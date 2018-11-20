@@ -26,6 +26,7 @@ import com.thoughtworks.go.helper.GoConfigMother;
 import org.junit.Test;
 
 import static org.hamcrest.core.Is.is;
+import static org.hamcrest.core.IsNull.notNullValue;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
@@ -207,5 +208,18 @@ public class ConfigRepoConfigTest {
         ConfigRepoConfig config = new ConfigRepoConfig(configRepo,"myplugin");
 
         assertThat(config.hasMaterialWithFingerprint(someRepo.getFingerprint()),is(false));
+    }
+
+    @Test
+    public void postContruct_shouldAssignAnIdIfNotPresent() {
+        ConfigRepoConfig configRepo = new ConfigRepoConfig();
+
+        configRepo.ensureIdExists();
+        assertThat(configRepo.getId(), is(notNullValue()));
+
+        configRepo = new ConfigRepoConfig(null, "", "id");
+
+        configRepo.ensureIdExists();
+        assertThat(configRepo.getId(), is("id"));
     }
 }

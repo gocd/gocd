@@ -189,12 +189,12 @@ public class AgentsControllerV4 extends ApiController implements SparkSpringCont
     }
 
     private void checkSecurityOr403(Request request, Response response) {
-        if (Arrays.asList("PATCH", "PUT", "DELETE").contains(request.requestMethod().toUpperCase())) {
-            apiAuthenticationHelper.checkAdminUserAnd403(request, response);
+        if (Arrays.asList("GET", "HEAD").contains(request.requestMethod().toUpperCase())) {
+            apiAuthenticationHelper.checkUserAnd403(request, response);
             return;
         }
 
-        apiAuthenticationHelper.checkUserAnd403(request, response);
+        apiAuthenticationHelper.checkAdminUserAnd403(request, response);
     }
 
     private List<String> toList(JsonArray jsonArray) {

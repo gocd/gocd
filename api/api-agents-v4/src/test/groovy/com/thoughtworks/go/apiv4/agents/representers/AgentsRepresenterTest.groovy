@@ -43,7 +43,7 @@ class AgentsRepresenterTest {
 
   @Test
   void 'should represent agents'() {
-    Map<AgentInstance, Collection<String>> agentEnvironmentMap = new HashMap<AgentInstance, Collection<String>>() {
+    Map<AgentInstance, Collection<String>> agentEnvironmentMap = new TreeMap<AgentInstance, Collection<String>>() {
       {
         put(idle(), asList("uat", "load_test"))
         put(missing(), asList("unit"))

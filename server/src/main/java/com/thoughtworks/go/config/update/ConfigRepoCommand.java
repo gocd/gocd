@@ -28,7 +28,6 @@ import org.apache.commons.lang3.StringUtils;
 
 import static com.thoughtworks.go.i18n.LocalizedMessage.forbiddenToEdit;
 import static com.thoughtworks.go.serverhealth.HealthStateType.forbidden;
-import static org.apache.commons.lang3.StringUtils.isBlank;
 
 abstract class ConfigRepoCommand implements EntityConfigUpdateCommand<ConfigRepoConfig> {
 
@@ -47,7 +46,8 @@ abstract class ConfigRepoCommand implements EntityConfigUpdateCommand<ConfigRepo
 
     @Override
     public boolean isValid(CruiseConfig preprocessedConfig) {
-        if (validateConfigRepoId()) {
+        if (StringUtils.isBlank(this.configRepo.getId())) {
+            this.configRepo.addError("id", "Configuration repository id not specified");
             return false;
         }
 
@@ -74,14 +74,6 @@ abstract class ConfigRepoCommand implements EntityConfigUpdateCommand<ConfigRepo
     @Override
     public boolean canContinue(CruiseConfig cruiseConfig) {
         return isUserAuthorized();
-    }
-
-    private boolean validateConfigRepoId() {
-        if (isBlank(this.configRepo.getId())) {
-            this.configRepo.addError("id", "Configuration repository id not specified");
-            return false;
-        }
-        return true;
     }
 
     private boolean isUserAuthorized() {

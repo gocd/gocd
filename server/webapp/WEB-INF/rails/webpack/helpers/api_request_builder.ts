@@ -16,6 +16,7 @@
 
 import * as _ from "lodash";
 import * as m from "mithril";
+import {Stream} from "mithril/stream";
 
 export enum ApiVersion {v1, v2, v3, v4, v5, v6, v7, v8}
 
@@ -130,41 +131,54 @@ interface Headers {
   [key: string]: string;
 }
 
+export interface RequestOptions {
+  etag?: string;
+  payload: any;
+  headers?: Headers;
+  xhrHandle?: Stream<XMLHttpRequest>; //A reference to the underlying XHR object, which can be used to abort the request
+}
+
 export class ApiRequestBuilder {
-  static GET(url: string, apiVersion?: ApiVersion, etag?: string, headers?: Headers) {
-    return this.makeRequest(url, "GET", apiVersion, etag, headers);
+  static GET(url: string, apiVersion?: ApiVersion, options?: Partial<RequestOptions>) {
+    return this.makeRequest(url, "GET", apiVersion, options);
   }
 
-  static PUT(url: string, apiVersion?: ApiVersion, payload?: any, etag?: string, headers?: Headers) {
-    return this.makeRequest(url, "PUT", apiVersion, etag, payload, headers);
+  static PUT(url: string, apiVersion?: ApiVersion, options?: Partial<RequestOptions>) {
+    return this.makeRequest(url, "PUT", apiVersion, options);
   }
 
-  static POST(url: string, apiVersion?: ApiVersion, payload?: any, headers?: Headers) {
-    return this.makeRequest(url, "POST", apiVersion, undefined, payload, headers);
+  static POST(url: string, apiVersion?: ApiVersion, options?: Partial<RequestOptions>) {
+    return this.makeRequest(url, "POST", apiVersion, options);
   }
 
-  static PATCH(url: string, apiVersion?: ApiVersion, payload?: any, headers?: Headers) {
-    return this.makeRequest(url, "PATCH", apiVersion, undefined, payload, headers);
+  static PATCH(url: string, apiVersion?: ApiVersion, options?: Partial<RequestOptions>) {
+    return this.makeRequest(url, "PATCH", apiVersion, options);
   }
 
-  static DELETE(url: string, apiVersion?: ApiVersion, payload?: any, headers?: Headers) {
-    return this.makeRequest(url, "DELETE", apiVersion, undefined, payload, headers);
+  static DELETE(url: string, apiVersion?: ApiVersion, options?: Partial<RequestOptions>) {
+    return this.makeRequest(url, "DELETE", apiVersion, options);
   }
 
   private static makeRequest(url: string,
                              method: string,
                              apiVersion?: ApiVersion,
-                             etag?: string,
-                             payload?: any,
-                             headers?: Headers): Promise<ApiResult<string>> {
-    headers = _.assign({}, headers);
+                             options?: Partial<RequestOptions>): Promise<ApiResult<string>> {
+    let headers: Headers = {};
+    if (options && options.headers) {
+      headers = _.assign({}, options.headers);
+    }
 
     if (apiVersion !== null) {
       headers.Accept = this.versionHeader(apiVersion as ApiVersion);
     }
 
-    if (!_.isEmpty(etag)) {
-      headers[this.etagHeaderName(method)] = etag as string;
+    if (options && !_.isEmpty(options.etag)) {
+      headers[this.etagHeaderName(method)] = options.etag as string;
+    }
+
+    let payload: any;
+    if (options && options.payload) {
+      payload = options.payload;
     }
 
     return m.request<XMLHttpRequest>({
@@ -173,7 +187,12 @@ export class ApiRequestBuilder {
       headers,
       data: payload,
       extract: _.identity,
-      deserialize: _.identity
+      deserialize: _.identity,
+      config: (xhr) => {
+        if (options && options.xhrHandle) {
+          options.xhrHandle(xhr);
+        }
+      }
     }).then((xhr: XMLHttpRequest) => {
       return ApiResult.from(xhr);
     }).catch((reason) => {

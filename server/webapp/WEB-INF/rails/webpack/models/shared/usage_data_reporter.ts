@@ -28,7 +28,7 @@ const fetchEncryptionKeysFromDataSharingServer = (url: string) => {
 };
 
 const reportToGoCDDataSharingServer = (url: string, payload: EncryptedData) => {
-  return ApiRequestBuilder.POST(url, undefined, payload, {contentType: "application/octet-stream"})
+  return ApiRequestBuilder.POST(url, undefined, {payload, headers: {contentType: "application/octet-stream"}})
     .then((result: ApiResult<string>) => result.getOrThrow());
 };
 

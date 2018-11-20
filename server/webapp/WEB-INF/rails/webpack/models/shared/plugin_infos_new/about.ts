@@ -39,8 +39,13 @@ export class About {
   }
 
   static fromJSON(data: any) {
-    return new About(data.name, data.version, data.target_go_version, data.description, data.target_operating_systems,
-      Vendor.fromJSON(data.vendor));
+    return new About(data.name || "",
+      data.version || "",
+      data.target_go_version || "",
+      data.description || "",
+      data.target_operating_systems || "",
+      Vendor.fromJSON(data.vendor || {})
+    );
   }
 
   targetOperatingSystemsDisplayValue(): string {
@@ -61,6 +66,6 @@ export class Vendor {
   }
 
   static fromJSON(data: any) {
-    return new Vendor(data.name, data.url);
+    return new Vendor(data.name || "", data.url || "");
   }
 }

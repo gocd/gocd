@@ -36,6 +36,10 @@ class Status {
   static fromJSON(data: any) {
     return new Status(data.state, data.messages);
   }
+
+  isInvalid() {
+    return this.state === State.invalid;
+  }
 }
 
 export class PluginInfo<T extends Extension> {
@@ -66,7 +70,7 @@ export class PluginInfo<T extends Extension> {
   static fromJSON(data: any, links?: any) {
     const extensions: Extension[] = data.extensions.map((extension: any) => Extension.fromJSON(extension));
     const imageUrl                = (links && links.image && links.image.href) || "";
-    return new PluginInfo(data.id, About.fromJSON(data.about), imageUrl, Status.fromJSON(data.status),
+    return new PluginInfo(data.id, About.fromJSON(data.about || {}), imageUrl, Status.fromJSON(data.status),
       data.plugin_file_location, data.bundled_plugin, extensions);
   }
 

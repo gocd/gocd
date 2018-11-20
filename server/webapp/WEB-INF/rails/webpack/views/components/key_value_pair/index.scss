@@ -42,8 +42,8 @@ $key-value-pair-width: 150px;
     }
   }
   @media(min-width: $screen-md) {
-    width: $key-value-pair-width;
-    //word-break: break-all;
+    min-width: $key-value-pair-width;
+    max-width: $key-value-pair-width;
   }
 }
 

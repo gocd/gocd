@@ -44,13 +44,16 @@ class Icon extends MithrilViewComponent<Attrs> {
   view(vnode: m.Vnode<Attrs>) {
     if (vnode.attrs.iconOnly) {
       return (
-        <i {...vnode.attrs} title={this.title}
-           className={classnames(this.name, {disabled: vnode.attrs.disabled})}/>
+        <i title={this.title}
+           data-test-disabled-element={vnode.attrs.disabled}
+           className={classnames(this.name, {disabled: vnode.attrs.disabled})}
+           {...vnode.attrs}/>
       );
     }
 
     return (
       <button title={this.title}
+              data-test-disabled-element={vnode.attrs.disabled}
               className={(classnames(styles.btnIcon, {disabled: vnode.attrs.disabled}))}
               {...vnode.attrs}>
         <i className={classnames(this.name)}/>

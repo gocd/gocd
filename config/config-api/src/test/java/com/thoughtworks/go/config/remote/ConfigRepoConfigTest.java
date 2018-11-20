@@ -26,8 +26,7 @@ import com.thoughtworks.go.helper.GoConfigMother;
 import org.junit.Test;
 
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
 public class ConfigRepoConfigTest {
@@ -117,11 +116,26 @@ public class ConfigRepoConfigTest {
 
         ConfigRepoConfig configRepoConfig = new ConfigRepoConfig(materialConfig, "plug");
         cruiseConfig.setConfigRepos(new ConfigReposConfig(configRepoConfig));
-
         ConfigSaveValidationContext validationContext = ConfigSaveValidationContext.forChain(cruiseConfig);
+
         configRepoConfig.validateTree(validationContext);
 
         verify(materialConfig).validateTree(validationContext);
+    }
+
+    @Test
+    public void validateTree_configRepoShouldBeInvalidIfMaterialConfigHasErrors() {
+        CruiseConfig cruiseConfig = new BasicCruiseConfig();
+        MaterialConfig materialConfig = mock(MaterialConfig.class);
+        when(materialConfig.errors()).thenReturn(new ConfigErrors());
+
+        ConfigRepoConfig configRepoConfig = new ConfigRepoConfig(materialConfig, "plug", "id");
+        cruiseConfig.setConfigRepos(new ConfigReposConfig(configRepoConfig));
+        ConfigSaveValidationContext validationContext = ConfigSaveValidationContext.forChain(cruiseConfig);
+
+        assertFalse(configRepoConfig.validateTree(validationContext));
+        assertTrue(configRepoConfig.errors().isEmpty());
+        assertFalse(configRepoConfig.getMaterialConfig().errors().isEmpty());
     }
 
     @Test

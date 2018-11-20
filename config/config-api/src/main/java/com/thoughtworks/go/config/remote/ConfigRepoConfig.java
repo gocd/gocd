@@ -144,8 +144,13 @@ public class ConfigRepoConfig implements Validatable, Cacheable {
 
     public boolean validateTree(ValidationContext validationContext) {
         validate(validationContext);
+        boolean isValid = errors.isEmpty();
 
-        return errors().isEmpty();
+        if (getMaterialConfig() != null) {
+            isValid = getMaterialConfig().errors().isEmpty() && isValid;
+        }
+
+        return isValid;
     }
 
     @Override

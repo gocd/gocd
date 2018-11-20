@@ -125,4 +125,12 @@ export default class {
       return "/go/api/elastic/profiles";
     }
   }
+
+  static agentsPath(uuid: string): string {
+    if (uuid) {
+      return `/go/api/agents/${uuid}`;
+    } else {
+      return `/go/api/agents`;
+    }
+  }
 }

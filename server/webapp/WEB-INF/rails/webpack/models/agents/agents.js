@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,8 +21,8 @@ const s          = require('string-plus');
 const Mixins     = require('models/mixins/model_mixins');
 const filesize   = require('filesize');
 const mrequest   = require('helpers/mrequest');
-const Routes     = require('gen/js-routes');
 const CrudMixins = require('models/mixins/crud_mixins');
+import SparkRoutes from "helpers/spark_routes";
 
 require('lodash-inflection');
 
@@ -116,7 +116,7 @@ const Agents = function (data) {
 
       const jqXHR = $.ajax({
         method:      'PATCH',
-        url:         Routes.apiv4AgentsPath(),
+        url:         SparkRoutes.agentsPath(),
         timeout:     mrequest.timeout,
         beforeSend:  mrequest.xhrConfig.forVersion(Agents.API_VERSION),
         data:        JSON.stringify(json),
@@ -134,7 +134,7 @@ const Agents = function (data) {
 
       const jqXHR = $.ajax({
         method:      'DELETE',
-        url:         Routes.apiv4AgentsPath(),
+        url:         SparkRoutes.agentsPath(),
         timeout:     mrequest.timeout,
         beforeSend:  mrequest.xhrConfig.forVersion(Agents.API_VERSION),
         data:        JSON.stringify(json),
@@ -156,7 +156,7 @@ const Agents = function (data) {
 
       const jqXHR = $.ajax({
         method:      'PATCH',
-        url:         Routes.apiv4AgentsPath(),
+        url:         SparkRoutes.agentsPath(),
         timeout:     mrequest.timeout,
         beforeSend:  mrequest.xhrConfig.forVersion(Agents.API_VERSION),
         data:        JSON.stringify(json),
@@ -180,7 +180,7 @@ const Agents = function (data) {
 
       const jqXHR = $.ajax({
         method:      'PATCH',
-        url:         Routes.apiv4AgentsPath(),
+        url:         SparkRoutes.agentsPath(),
         timeout:     mrequest.timeout,
         beforeSend:  mrequest.xhrConfig.forVersion(Agents.API_VERSION),
         data:        JSON.stringify(json),
@@ -202,7 +202,7 @@ const Agents = function (data) {
 
       const jqXHR = $.ajax({
         method:      'PATCH',
-        url:         Routes.apiv4AgentsPath(),
+        url:         SparkRoutes.agentsPath(),
         timeout:     mrequest.timeout,
         beforeSend:  mrequest.xhrConfig.forVersion(Agents.API_VERSION),
         data:        JSON.stringify(json),
@@ -219,7 +219,7 @@ Agents.API_VERSION = 'v4';
 
 CrudMixins.Index({
   type:     Agents,
-  indexUrl: Routes.apiv4AgentsPath(),
+  indexUrl: SparkRoutes.agentsPath(),
   version:  Agents.API_VERSION,
   dataPath: '_embedded.agents'
 });

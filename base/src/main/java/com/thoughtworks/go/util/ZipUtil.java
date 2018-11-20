@@ -107,7 +107,8 @@ public class ZipUtil {
     }
 
     private void failIfZipEntryPathContainsDirectoryTraversalCharacters(String filepath) {
-        if (filepath.contains("/../") || filepath.startsWith("../") || filepath.endsWith("/..")) {
+        if (filepath.contains("/../") || filepath.startsWith("../") || filepath.endsWith("/..") ||
+                filepath.contains("\\..\\") || filepath.startsWith("..\\") || filepath.endsWith("\\..")) {
             throw new IllegalPathException(String.format("File %s is outside extraction target directory", filepath));
         }
     }

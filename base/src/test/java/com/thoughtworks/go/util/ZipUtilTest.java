@@ -221,7 +221,7 @@ public class ZipUtilTest {
     }
 
     @Test
-    public void shouldPreventFilesFromBeingUnzippedInParentFolders() throws IOException {
+    public void shouldPreventFilesWithUnixSeparatorsFromBeingUnzippedInParentFolders() throws Exception {
         assertFailureToUnzip("File ../2.txt is outside extraction target directory", createZipFileWithEntries("1.txt", "../2.txt"));
         assertFailureToUnzip("File /../2.txt is outside extraction target directory", createZipFileWithEntries("1.txt", "/../2.txt"));
         assertFailureToUnzip("File /1/../2.txt is outside extraction target directory", createZipFileWithEntries("1.txt", "/1/../2.txt"));
@@ -233,6 +233,21 @@ public class ZipUtilTest {
         assertSuccessfulUnzip(createZipFileWithEntries("1.txt", "/1/..2.."));
         assertSuccessfulUnzip(createZipFileWithEntries("1.txt", "/1/...2..."));
         assertSuccessfulUnzip(createZipFileWithEntries("1.txt", "/.../2.txt"));
+    }
+
+    @Test
+    public void shouldPreventFilesWithWindowsSeparatorsFromBeingUnzippedInParentFolders() throws Exception {
+        assertFailureToUnzip("File ..\\2.txt is outside extraction target directory", createZipFileWithEntries("1.txt", "..\\2.txt"));
+        assertFailureToUnzip("File \\..\\2.txt is outside extraction target directory", createZipFileWithEntries("1.txt", "\\..\\2.txt"));
+        assertFailureToUnzip("File \\1\\..\\2.txt is outside extraction target directory", createZipFileWithEntries("1.txt", "\\1\\..\\2.txt"));
+        assertFailureToUnzip("File 1\\..\\2.txt is outside extraction target directory", createZipFileWithEntries("1.txt", "1\\..\\2.txt"));
+        assertFailureToUnzip("File \\2\\.. is outside extraction target directory", createZipFileWithEntries("1.txt", "\\2\\.."));
+        assertFailureToUnzip("File \\2\\..\\ is outside extraction target directory", createZipFileWithEntries("1.txt", "\\2\\..\\"));
+
+        assertSuccessfulUnzip(createZipFileWithEntries("1.txt", "..2.txt"));
+        assertSuccessfulUnzip(createZipFileWithEntries("1.txt", "\\1\\..2.."));
+        assertSuccessfulUnzip(createZipFileWithEntries("1.txt", "\\1\\...2..."));
+        assertSuccessfulUnzip(createZipFileWithEntries("1.txt", "\\...\\2.txt"));
     }
 
     @Test

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-describe("EncryptedValue", () => {
+describe("EncryptedValueOld", () => {
   const EncryptedValue = require('models/pipeline_configs/encrypted_value');
 
   it("should be able to initialize itself from a clear text value", () => {

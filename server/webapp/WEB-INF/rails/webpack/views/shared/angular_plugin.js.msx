@@ -116,7 +116,7 @@ const oncreate = function (vnode) {
       return;
     }
 
-    elem.dom.querySelectorAll("script").forEach((script) => {
+    Array.from(elem.dom.querySelectorAll("script")).forEach((script) => {
       const newScript     = document.createElement('script');
       newScript.innerHTML = script.innerHTML;
       script.parentNode.replaceChild(newScript, script);

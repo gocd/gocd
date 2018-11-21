@@ -279,11 +279,14 @@ class AgentsControllerV4Test implements SecurityServiceTrait, ControllerTrait<Ag
       when(agentService.updateAgentAttributes(any() as Username, any() as HttpOperationResult, anyString(), anyString(), anyString(), anyString(), any() as TriState)).thenAnswer({ InvocationOnMock invocation ->
         def result = invocation.getArgument(1) as HttpOperationResult
         result.unprocessibleEntity("Not a valid operation", "some description", null)
-        return null
+        return idle()
       })
 
-      def requestBody = ["hostname"          : "agent02.example.com",
-                         "agent_config_state": "Enabled"
+      def requestBody = [
+        "hostname"          : "agent02.example.com",
+        "agent_config_state": "",
+        "resources"         : "Java,Linux",
+        "environments"      : ["Foo"]
       ]
 
       patchWithApiHeader(controller.controllerPath("/uuid2"), requestBody)
@@ -291,7 +294,22 @@ class AgentsControllerV4Test implements SecurityServiceTrait, ControllerTrait<Ag
       assertThatResponse()
         .isUnprocessableEntity()
         .hasContentType(controller.mimeType)
-        .hasJsonMessage("Not a valid operation { some description }")
+        .hasJsonBody([
+        "message": "Not a valid operation",
+        "data"   : [
+          "uuid"              : "uuid2",
+          "hostname"          : "CCeDev01",
+          "ip_address"        : "10.18.5.1",
+          "sandbox"           : "/var/lib/foo",
+          "operating_system"  : "",
+          "free_space"        : "10.0 KB",
+          "agent_config_state": "Enabled",
+          "agent_state"       : "Idle",
+          "resources"         : [],
+          "environments"      : [],
+          "build_state"       : "Idle"
+        ]
+      ])
     }
   }
 

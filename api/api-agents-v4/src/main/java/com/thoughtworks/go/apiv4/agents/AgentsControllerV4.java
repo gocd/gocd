@@ -25,6 +25,7 @@ import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.api.representers.JsonReader;
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
 import com.thoughtworks.go.api.util.GsonTransformer;
+import com.thoughtworks.go.api.util.MessageJson;
 import com.thoughtworks.go.apiv4.agents.model.AgentBulkUpdateRequest;
 import com.thoughtworks.go.apiv4.agents.model.AgentUpdateRequest;
 import com.thoughtworks.go.apiv4.agents.representers.AgentBulkUpdateRequestRepresenter;
@@ -121,11 +122,7 @@ public class AgentsControllerV4 extends ApiController implements SparkSpringCont
                 agentUpdateRequest.getAgentConfigState()
         );
 
-        if (result.isSuccess()) {
-            return writerForTopLevelObject(request, response, outputWriter -> AgentRepresenter.toJSON(outputWriter, updatedAgentInstance, environmentConfigService.environmentsFor(uuid), securityService, currentUsername()));
-        }
-
-        return renderHTTPOperationResult(result, request, response);
+        return handleCreateOrUpdateResponse(request, response, updatedAgentInstance, result);
     }
 
     public String bulkUpdate(Request request, Response response) throws IOException {
@@ -179,13 +176,8 @@ public class AgentsControllerV4 extends ApiController implements SparkSpringCont
     }
 
     @Override
-    public String jsonize(Request req, AgentInstance o) {
-        return null; // to be implemented
-    }
-
-    @Override
-    public Consumer<OutputWriter> jsonWriter(AgentInstance agentConfigs) {
-        return null;
+    public Consumer<OutputWriter> jsonWriter(AgentInstance agentInstance) {
+        return outputWriter -> AgentRepresenter.toJSON(outputWriter, agentInstance, environmentConfigService.environmentsFor(agentInstance.getUuid()), securityService, currentUsername());
     }
 
     private void checkSecurityOr403(Request request, Response response) {
@@ -204,5 +196,15 @@ public class AgentsControllerV4 extends ApiController implements SparkSpringCont
         }
 
         return list;
+    }
+
+    private String handleCreateOrUpdateResponse(Request req, Response res, AgentInstance agentInstance, HttpOperationResult result) {
+        if (result.isSuccess()) {
+            return jsonize(req, agentInstance);
+        } else {
+            res.status(result.httpCode());
+            String errorMessage = result.message();
+            return null == agentInstance ? MessageJson.create(errorMessage) : MessageJson.create(errorMessage, jsonWriter(agentInstance));
+        }
     }
 }

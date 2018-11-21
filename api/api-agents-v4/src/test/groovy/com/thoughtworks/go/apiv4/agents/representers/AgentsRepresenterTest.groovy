@@ -19,6 +19,7 @@ package com.thoughtworks.go.apiv4.agents.representers
 import com.thoughtworks.go.domain.AgentInstance
 import com.thoughtworks.go.server.domain.Username
 import com.thoughtworks.go.server.service.SecurityService
+import com.thoughtworks.go.util.SystemUtil
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.mockito.Mock
@@ -83,7 +84,7 @@ class AgentsRepresenterTest {
             "uuid"              : "uuid3",
             "hostname"          : "CCeDev01",
             "ip_address"        : "10.18.5.1",
-            "sandbox"           : "/Volumes/Data/Projects/go/gocd-master/api/api-agents-v4",
+            "sandbox"           : SystemUtil.currentWorkingDirectory(),
             "operating_system"  : "",
             "free_space"        : "Unknown",
             "agent_config_state": "Enabled",

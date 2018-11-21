@@ -100,6 +100,20 @@
   </rule>
 
   <rule>
+    <name>Spark Agents Index API</name>
+    <from>^/api/agents$</from>
+    <run class="com.thoughtworks.go.server.SparkOrRailsToggle" method="agentsApi"/>
+    <to last="true">/%{attribute:sparkOrRails}/api/agents</to>
+  </rule>
+
+  <rule>
+    <name>Spark Agents API</name>
+    <from>^/api/agents/(.*)$</from>
+    <run class="com.thoughtworks.go.server.SparkOrRailsToggle" method="agentsApi"/>
+    <to last="true">/%{attribute:sparkOrRails}/api/agents/${escape:$1}</to>
+  </rule>
+
+  <rule>
     <name>Kitchen Sink SPA</name>
     <from>^/kitchen-sink(/?)$</from>
     <to last="true">/spark/kitchen-sink</to>

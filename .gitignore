@@ -1,5 +1,5 @@
 ##########################################################################
-# Copyright 2016 ThoughtWorks, Inc.
+# Copyright 2018 ThoughtWorks, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -176,6 +176,8 @@ api/api-template-config-v4/target/
 api/api-user-representers-v1/logs/
 api/api-user-representers-v1/out/
 api/api-user-representers-v1/target/
+api/api-agents-v4/out/
+api/api-agents-v4/target/
 app-server/out/
 app-server/target/
 base/logs/

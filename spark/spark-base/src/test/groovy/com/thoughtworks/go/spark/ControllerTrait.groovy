@@ -106,8 +106,12 @@ trait ControllerTrait<T extends SparkController> {
     deleteWithApiHeader(path, [:])
   }
 
-  void deleteWithApiHeader(String path, Map headers) {
-    sendRequest('delete', path, headers + ['accept': controller.mimeType], null)
+  void deleteWithApiHeader(String path, Object body) {
+    deleteWithApiHeader(path, [:], body)
+  }
+
+  void deleteWithApiHeader(String path, Map headers, Object body) {
+    sendRequest('delete', path, headers + ['accept': controller.mimeType], body)
   }
 
   void sendRequest(String httpVerb, String path, Map<String, String> headers, Object requestBody) {

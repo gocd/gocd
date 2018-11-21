@@ -22,5 +22,15 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 public class SparkOrRailsToggle {
+    public void agentsApi(HttpServletRequest request, HttpServletResponse response) {
+        basedOnToggle(Toggles.AGENT_APIS_OVER_RAILS, request);
+    }
 
+    private void basedOnToggle(String toggle, HttpServletRequest request) {
+        if (Toggles.isToggleOn(toggle)) {
+            request.setAttribute("sparkOrRails", "rails");
+        } else {
+            request.setAttribute("sparkOrRails", "spark");
+        }
+    }
 }

@@ -18,6 +18,7 @@ package com.thoughtworks.go.api.representers;
 
 import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.config.Validatable;
+import com.thoughtworks.go.domain.ConfigErrors;
 
 import java.util.Map;
 
@@ -31,6 +32,16 @@ public class ErrorGetter {
 
     public void toJSON(OutputWriter writer, Validatable entity) {
         entity.errors().forEach((key, value) -> {
+            String transformedKey = mapping.get(key);
+            if (transformedKey == null) {
+                transformedKey = key;
+            }
+            writer.addChildList(transformedKey, value);
+        });
+    }
+
+    public void toJSON(OutputWriter writer, ConfigErrors errors) {
+        errors.forEach((key, value) -> {
             String transformedKey = mapping.get(key);
             if (transformedKey == null) {
                 transformedKey = key;

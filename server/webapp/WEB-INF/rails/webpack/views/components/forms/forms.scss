@@ -63,6 +63,14 @@ $form-failed-field-background-color: lighten($form-failed-color, 35%);
     outline:          0;
     box-shadow:       0 0 0 0.2rem $form-control-border-color;
   }
+
+  &.inline {
+    display: inline-block;
+  }
+}
+
+.inline + .reset-encrypted-value, .inline + .override-encrypted-value {
+  padding-left: 10px;
 }
 
 .text-area {

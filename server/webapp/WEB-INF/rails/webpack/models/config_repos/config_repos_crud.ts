@@ -16,46 +16,57 @@
 
 import {ApiRequestBuilder, ApiResult, ApiVersion, ObjectWithEtag} from "helpers/api_request_builder";
 import SparkRoutes from "helpers/spark_routes";
-import {ConfigRepo, ConfigRepos} from "./types";
+import {ConfigRepoJSON, ConfigReposJSON} from "models/config_repos/serialization";
+import {ConfigRepo, ConfigRepos} from "models/config_repos/types";
+
+const s = require("helpers/string-plus");
+
+function toSnakeCaseJSON(o: any) {
+  const text = JSON.stringify(o, s.snakeCaser);
+  return JSON.parse(text);
+}
 
 export class ConfigReposCRUD {
   private static API_VERSION_HEADER = ApiVersion.v1;
 
   static all() {
     return ApiRequestBuilder.GET(SparkRoutes.apiConfigReposInternalPath(), this.API_VERSION_HEADER)
-      .then((result: ApiResult<string>) => result.map((body) => JSON.parse(body) as ConfigRepos));
+                            .then((result: ApiResult<string>) => {
+                              return result.map((body) => {
+                                return ConfigRepos.fromJSON(JSON.parse(body) as ConfigReposJSON);
+                              });
+                            });
   }
 
   static get(id: string) {
     return ApiRequestBuilder.GET(SparkRoutes.ApiConfigRepoPath(id), this.API_VERSION_HEADER)
-      .then(this.extractObjectWithEtag());
+                            .then(this.extractObjectWithEtag());
   }
 
   static update(response: ObjectWithEtag<ConfigRepo>) {
-    return ApiRequestBuilder.PUT(SparkRoutes.ApiConfigRepoPath(response.object.id), this.API_VERSION_HEADER,
-      {payload: response.object, etag: response.etag})
-      .then(this.extractObjectWithEtag());
+    return ApiRequestBuilder.PUT(SparkRoutes.ApiConfigRepoPath(response.object.id()), this.API_VERSION_HEADER,
+                                 {payload: toSnakeCaseJSON(response.object), etag: response.etag})
+                            .then(this.extractObjectWithEtag());
+
   }
 
   static delete(repo: ConfigRepo) {
-    return ApiRequestBuilder.DELETE(SparkRoutes.ApiConfigRepoPath(repo.id), this.API_VERSION_HEADER)
-      .then((result: ApiResult<string>) => result.map((body) => JSON.parse(body)));
+    return ApiRequestBuilder.DELETE(SparkRoutes.ApiConfigRepoPath(repo.id()), this.API_VERSION_HEADER)
+                            .then((result: ApiResult<string>) => result.map((body) => JSON.parse(body)));
   }
 
   static create(repo: ConfigRepo) {
-    return ApiRequestBuilder.POST(SparkRoutes.ApiConfigReposListPath(), this.API_VERSION_HEADER, {payload: repo})
-      .then(this.extractObjectWithEtag());
-  }
-
-  static refresh(repoId: string) {
-    return ApiRequestBuilder.POST(SparkRoutes.configRepoTriggerUpdatePath(repoId), this.API_VERSION_HEADER, {headers: {"x-gocd-confirm": "true"}});
+    return ApiRequestBuilder.POST(SparkRoutes.ApiConfigReposListPath(),
+                                  this.API_VERSION_HEADER,
+                                  {payload: toSnakeCaseJSON(repo)})
+                            .then(this.extractObjectWithEtag());
   }
 
   private static extractObjectWithEtag() {
     return (result: ApiResult<string>) => {
       return result.map((body) => {
-        const configRepo = JSON.parse(body) as ConfigRepo;
-        return {object: configRepo, etag: result.getEtag()} as ObjectWithEtag<ConfigRepo>;
+        const configRepo = JSON.parse(body) as ConfigRepoJSON;
+        return {object: ConfigRepo.fromJSON(configRepo), etag: result.getEtag()} as ObjectWithEtag<ConfigRepo>;
       });
     };
   }

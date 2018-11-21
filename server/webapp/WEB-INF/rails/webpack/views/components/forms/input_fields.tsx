@@ -19,22 +19,13 @@ import {MithrilViewComponent} from "jsx/mithril-component";
 import * as _ from "lodash";
 import * as m from "mithril";
 import * as uuid from "uuid/v4";
+import {EncryptedValue} from "views/components/forms/encrypted_value";
 import * as styles from "./forms.scss";
 
 const classnames = bind(styles);
 
 export interface HasProperty<T> {
   property: (newValue?: T) => T;
-}
-
-export interface LowlevelTextBindings<T> {
-  oninput: (newValue: T) => any;
-  value?: T;
-}
-
-export interface LowlevelCheckboxBindings {
-  onclick: (newValue: boolean) => any;
-  selected: boolean;
 }
 
 export interface LabelAttrs<T> {
@@ -45,11 +36,7 @@ export interface LabelAttrs<T> {
   required?: boolean;
 }
 
-type FormFieldAttrs<T> = LabelAttrs<T> & (HasProperty<T> | LowlevelTextBindings<T> | LowlevelCheckboxBindings);
-
-function isHasPropertyInterface<T>(x: any): x is HasProperty<T> {
-  return "property" in x;
-}
+type FormFieldAttrs<T> = LabelAttrs<T> & HasProperty<T>;
 
 abstract class FormField<T> extends MithrilViewComponent<FormFieldAttrs<T>> {
   protected readonly id: string         = `input-${uuid()}`;
@@ -57,7 +44,8 @@ abstract class FormField<T> extends MithrilViewComponent<FormFieldAttrs<T>> {
   protected readonly errorId: string    = `${this.id}-error-text`;
 
   view(vnode: m.Vnode<FormFieldAttrs<T>>) {
-    const maybeRequired = this.isRequiredField(vnode) ? <span class={styles.formLabelRequired}>*</span> : undefined;
+    const maybeRequired = this.isRequiredField(vnode) ?
+      <span className={styles.formLabelRequired}>*</span> : undefined;
     return (
       <div className={classnames(styles.formGroup, {[styles.formHasError]: this.hasErrorText(vnode)})}>
         <label for={this.id} className={styles.formLabel}>{vnode.attrs.label}{maybeRequired}:</label>
@@ -76,7 +64,11 @@ abstract class FormField<T> extends MithrilViewComponent<FormFieldAttrs<T>> {
     const newVar: { [key: string]: string | boolean } = {
       "aria-label": vnode.attrs.label,
       "readonly": !!vnode.attrs.disabled,
-      "required": !!required
+      "required": !!required,
+      "autocomplete": "off",
+      "autocapitalize": "off",
+      "autocorrect": "off",
+      "spellcheck": false,
     };
 
     if (this.hasHelpText(vnode)) {
@@ -95,22 +87,7 @@ abstract class FormField<T> extends MithrilViewComponent<FormFieldAttrs<T>> {
     return newVar;
   }
 
-  protected bindingAttributes(vnode: m.Vnode<FormFieldAttrs<T>>,
-                              eventName: string,
-                              propertyAttribute: string) {
-    const valueAndOnChangeBindings: { [key: string]: any } = {};
-
-    if (isHasPropertyInterface(vnode.attrs)) {
-      valueAndOnChangeBindings[eventName]         = (evt: any) => (vnode.attrs as HasProperty<T>).property(evt.currentTarget.value);
-      valueAndOnChangeBindings[propertyAttribute] = (vnode.attrs as HasProperty<T>).property();
-    } else {
-      valueAndOnChangeBindings[eventName]         = m.withAttr(propertyAttribute, (vnode.attrs as LowlevelTextBindings<T>).oninput);
-      valueAndOnChangeBindings[propertyAttribute] = (vnode.attrs as LowlevelTextBindings<T>).value;
-    }
-
-    return valueAndOnChangeBindings;
-  }
-
+  // moved
   protected getHelpSpan(vnode: m.Vnode<FormFieldAttrs<T>>) {
     if (this.hasHelpText(vnode)) {
       return (<span id={this.helpTextId} className={classnames(styles.formHelp)}>{vnode.attrs.helpText}</span>);
@@ -125,22 +102,30 @@ abstract class FormField<T> extends MithrilViewComponent<FormFieldAttrs<T>> {
     return !_.isEmpty(vnode.attrs.errorText);
   }
 
-  private isRequiredField(vnode: m.Vnode<FormFieldAttrs<T>>) {
+  protected isRequiredField(vnode: m.Vnode<FormFieldAttrs<T>>) {
     return vnode.attrs.required;
   }
 
-  private errorSpan(vnode: m.Vnode<FormFieldAttrs<T>>) {
+  protected errorSpan(vnode: m.Vnode<FormFieldAttrs<T>>) {
     if (this.hasErrorText(vnode)) {
       return (
         <span className={styles.formErrorText} id={this.errorId}>{vnode.attrs.errorText}</span>
       );
     }
   }
+
+  protected bindingAttributes(vnode: m.Vnode<FormFieldAttrs<T>>,
+                              eventName: string,
+                              propertyAttribute: string): { [key: string]: any } {
+    return {
+      [eventName]: (evt: any) => (vnode.attrs as HasProperty<T>).property(evt.currentTarget.value),
+      [propertyAttribute]: (vnode.attrs as HasProperty<T>).property()
+    };
+  }
 }
 
 export class TextField extends FormField<string> {
   renderInputField(vnode: m.Vnode<FormFieldAttrs<string>>) {
-
     return (
       <input type="text"
              {...this.defaultAttributes(vnode)}
@@ -149,7 +134,54 @@ export class TextField extends FormField<string> {
              id={this.id}/>
     );
   }
+}
 
+export class PasswordField extends FormField<EncryptedValue> {
+  renderInputField(vnode: m.Vnode<FormFieldAttrs<EncryptedValue>>) {
+    const input = <input type="password"
+                         {...this.defaultAttributes(vnode)}
+                         {...this.bindingAttributes(vnode, "oninput", "value")}
+                         className={classnames(styles.formControl, styles.inline)}
+                         id={this.id}/>;
+
+    return [input, PasswordField.resetOrOverride(vnode)];
+  }
+
+  protected defaultAttributes(vnode: m.Vnode<FormFieldAttrs<EncryptedValue>>): { [p: string]: any } {
+    const defaultAttributes = super.defaultAttributes(vnode);
+    if (!vnode.attrs.property().isEditing()) {
+      defaultAttributes.readonly = true;
+    }
+    return defaultAttributes;
+  }
+
+  protected bindingAttributes(vnode: m.Vnode<FormFieldAttrs<EncryptedValue>>,
+                              eventName: string,
+                              propertyAttribute: string) {
+
+    if (vnode.attrs.property().isEditing()) {
+      return {
+        [eventName]: (evt: any) => vnode.attrs.property().value(evt.currentTarget.value),
+        [propertyAttribute]: vnode.attrs.property().value()
+      };
+    } else {
+      return {
+        value: "************"
+      };
+    }
+  }
+
+  private static resetOrOverride(vnode: m.Vnode<FormFieldAttrs<EncryptedValue>>) {
+    if (vnode.attrs.property().isEditing()) {
+      return <a href="javascript:void(0)"
+                className={classnames(styles.overrideEncryptedValue)}
+                onclick={vnode.attrs.property().resetToOriginal.bind(vnode.attrs.property())}>Reset</a>;
+    } else {
+      return <a href="javascript:void(0)"
+                className={classnames(styles.resetEncryptedValue)}
+                onclick={vnode.attrs.property().edit.bind(vnode.attrs.property())}>Change</a>;
+    }
+  }
 }
 
 export class TextAreaField extends FormField<string> {

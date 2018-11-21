@@ -16,10 +16,12 @@
 
 import {MithrilViewComponent} from "jsx/mithril-component";
 import * as m from "mithril";
+import * as stream from "mithril/stream";
 import * as Buttons from "views/components/buttons/index";
 import {CollapsiblePanel} from "views/components/collapsible_panel";
 import {FlashMessage, MessageType} from "views/components/flash_message";
-import {TextField} from "views/components/forms/input_fields";
+import {EncryptedValue} from "views/components/forms/encrypted_value";
+import {PasswordField, TextField} from "views/components/forms/input_fields";
 import {HeaderPanel} from "views/components/header_panel";
 import {ButtonGroup} from "views/components/icons";
 import * as Icons from "views/components/icons/index";
@@ -27,6 +29,15 @@ import {KeyValuePair} from "views/components/key_value_pair";
 import {Size} from "views/components/modal";
 import {SampleModal} from "views/components/modal/sample";
 import {SearchBox} from "views/components/search_box";
+
+const formValue = stream("initial value");
+
+const passwordValue          = stream(new EncryptedValue({clearText: "p@ssword"}));
+const encryptedPasswordValue = stream(new EncryptedValue({cipherText: "AES:junk:more-junk"}));
+
+const x: any             = window;
+x.passwordValue          = passwordValue;
+x.encryptedPasswordValue = encryptedPasswordValue;
 
 export class KitchenSink extends MithrilViewComponent<null> {
 
@@ -141,21 +152,20 @@ export class KitchenSink extends MithrilViewComponent<null> {
                    helpText="Enter your username here"
                    disabled={false}
                    label="Username"
-                   oninput={(value: string) => {
-                     // ignore
-                   }}
-                   value={"foo"}
-        />
+                   property={formValue}/>
 
         <TextField required={true}
                    errorText="This field must be present"
                    helpText="Lorem ipsum is the dummy text used by the print and typesetting industry"
                    disabled={false}
                    label="Lorem ipsum"
-                   oninput={(value: string) => {
-                     // ignore
-                   }}
-        />
+                   property={formValue}/>
+
+        <PasswordField label="Editable password field"
+                       property={passwordValue}/>
+
+        <PasswordField label="Locked password field"
+                       property={encryptedPasswordValue}/>
       </div>
     );
   }

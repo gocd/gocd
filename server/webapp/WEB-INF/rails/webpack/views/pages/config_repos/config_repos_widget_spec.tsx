@@ -18,7 +18,7 @@ import * as $ from "jquery";
 import * as m from "mithril";
 import * as stream from "mithril/stream";
 import {Stream} from "mithril/stream";
-import {ConfigRepo, ConfigRepos} from "models/config_repos/types";
+import {ConfigRepo, GitMaterialAttributes, LastParse} from "models/config_repos/types";
 import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
 import * as simulateEvent from "simulate-event";
 import * as uuid from "uuid/v4";
@@ -26,11 +26,11 @@ import {Attrs, ConfigReposWidget} from "views/pages/config_repos/config_repos_wi
 
 describe("ConfigReposWidget", () => {
   let $root: any, root: any;
-  let attrs: Attrs<ConfigRepos>;
+  let attrs: Attrs<ConfigRepo[]>;
   let onDelete: jasmine.Spy;
   let onEdit: jasmine.Spy;
   let onRefresh: jasmine.Spy;
-  let configRepos: Stream<ConfigRepos | null>;
+  let configRepos: Stream<ConfigRepo[] | null>;
   let pluginInfos: Stream<Array<PluginInfo<any>>>;
 
   beforeEach(() => {
@@ -78,7 +78,7 @@ describe("ConfigReposWidget", () => {
   }
 
   it("should render a message when there are no config repos", () => {
-    configRepos({_embedded: {config_repos: []}} as ConfigRepos);
+    configRepos([]);
     m.redraw();
     expect(find("flash-message-info")).toContainText("There are no config repositories setup. Click the \"Add\" button to add one.");
   });
@@ -86,50 +86,43 @@ describe("ConfigReposWidget", () => {
   it("should render a list of config repos", () => {
     const repo1 = createConfigRepo();
     const repo2 = createConfigRepo();
-    configRepos({_embedded: {config_repos: [repo1, repo2]}} as ConfigRepos);
+    configRepos([repo1, repo2]);
     m.redraw();
     expect(find("key-value-value-id")).toHaveLength(2);
-    expect($(find("key-value-value-id").get(0))).toHaveText(repo1.id);
-    expect($(find("key-value-value-id").get(1))).toHaveText(repo2.id);
+    expect($(find("key-value-value-id").get(0))).toHaveText(repo1.id());
+    expect($(find("key-value-value-id").get(1))).toHaveText(repo2.id());
   });
 
   it("should render a single config repo", () => {
-    const repo      = createConfigRepo();
-    repo.last_parse = {
-      success: true,
-      revision: "1234",
-    };
-    configRepos({_embedded: {config_repos: [repo]}} as ConfigRepos);
+    const repo = createConfigRepo();
+    repo.lastParse(new LastParse("1234", true));
+    configRepos([repo]);
     m.redraw();
     expect($root).toContainText("Last seen revision: 1234");
     expect($root.find("strong")).toHaveText("SCM configuration for git material");
     expect(find("key-value-key-url")).toContainText(`URL`);
-    expect(find("key-value-value-url")).toContainText(repo.material.attributes.url);
+    expect(find("key-value-value-url")).toContainText((repo.material().attributes() as GitMaterialAttributes).url());
   });
 
   it("should render a warning message when plugin is missing", () => {
     const repo = createConfigRepo();
-    configRepos({_embedded: {config_repos: [repo]}} as ConfigRepos);
+    configRepos([repo]);
     m.redraw();
     expect(find("flash-message-alert")).toHaveText("This plugin is missing.");
   });
 
   it("should render a warning message when parsing did not finish", () => {
     const repo = createConfigRepo();
-    configRepos({_embedded: {config_repos: [repo]}} as ConfigRepos);
+    configRepos([repo]);
     pluginInfos([configRepoPluginInfo()]);
     m.redraw();
     expect(find("flash-message-warning")).toHaveText("This configuration repository was never parsed.");
   });
 
   it("should render a warning message when parsing failed", () => {
-    const repo      = createConfigRepo();
-    repo.last_parse = {
-      success: false,
-      error: "blah!",
-      revision: "foo"
-    };
-    configRepos({_embedded: {config_repos: [repo]}} as ConfigRepos);
+    const repo = createConfigRepo();
+    repo.lastParse(new LastParse("foo", false, "blah!"));
+    configRepos([repo]);
     pluginInfos([configRepoPluginInfo()]);
     m.redraw();
     expect(find("flash-message-warning")).toContainText("There was an error parsing this configuration repository:");
@@ -138,7 +131,7 @@ describe("ConfigReposWidget", () => {
 
   it("should callback the delete function when delete button is clicked", () => {
     const repo = createConfigRepo();
-    configRepos({_embedded: {config_repos: [repo]}} as ConfigRepos);
+    configRepos([repo]);
     m.redraw();
 
     simulateEvent.simulate(find("config-repo-delete").get(0), "click");
@@ -148,7 +141,7 @@ describe("ConfigReposWidget", () => {
 
   it("should callback the edit function when edit button is clicked", () => {
     const repo = createConfigRepo();
-    configRepos({_embedded: {config_repos: [repo]}} as ConfigRepos);
+    configRepos([repo]);
     m.redraw();
 
     simulateEvent.simulate(find("config-repo-edit").get(0), "click");
@@ -158,7 +151,7 @@ describe("ConfigReposWidget", () => {
 
   it("should callback the refresh function when refresh button is clicked", () => {
     const repo = createConfigRepo();
-    configRepos({_embedded: {config_repos: [repo]}} as ConfigRepos);
+    configRepos([repo]);
     m.redraw();
 
     simulateEvent.simulate(find("config-repo-refresh").get(0), "click");
@@ -166,8 +159,8 @@ describe("ConfigReposWidget", () => {
     expect(onRefresh).toHaveBeenCalledWith(repo, jasmine.any(MouseEvent));
   });
 
-  function createConfigRepo(id = uuid()): ConfigRepo {
-    return {
+  function createConfigRepo(id = uuid()) {
+    return ConfigRepo.fromJSON({
       material: {
         type: "git",
         attributes: {
@@ -180,7 +173,7 @@ describe("ConfigReposWidget", () => {
       last_parse: {},
       id,
       plugin_id: "json.config.plugin"
-    };
+    });
   }
 
   function configRepoPluginInfo() {

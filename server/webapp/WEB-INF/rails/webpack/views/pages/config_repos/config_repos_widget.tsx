@@ -18,7 +18,7 @@ import {MithrilViewComponent} from "jsx/mithril-component";
 import * as _ from "lodash";
 import * as m from "mithril";
 import {Stream} from "mithril/stream";
-import {ConfigRepo, ConfigRepos, humanizedMaterialAttributeName} from "models/config_repos/types";
+import {ConfigRepo, humanizedMaterialAttributeName} from "models/config_repos/types";
 import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
 import {CollapsiblePanel} from "views/components/collapsible_panel";
 import {FlashMessage, MessageType} from "views/components/flash_message";
@@ -47,7 +47,7 @@ export interface Attrs<T> extends Operations<T>, RequiresPluginInfos {
 }
 
 export interface State extends Operations<ConfigRepo>, SaveOperation, RequiresPluginInfos {
-  configRepos: Stream<ConfigRepos | null>;
+  configRepos: Stream<ConfigRepo[] | null>;
 
   onAdd: (e: MouseEvent) => void;
   message: m.Children;
@@ -74,39 +74,39 @@ class HeaderWidget extends MithrilViewComponent<HeaderWidgetAttrs> {
       this.statusIcon(vnode),
       (
         <KeyValuePair inline={true} data={new Map([
-          ["Id", vnode.attrs.repo.id],
-          ["Plugin ID", vnode.attrs.repo.plugin_id]
-        ])}/>
+                                                    ["Id", vnode.attrs.repo.id()],
+                                                    ["Plugin ID", vnode.attrs.repo.pluginId()]
+                                                  ])}/>
       )
     ];
   }
 
   private statusIcon(vnode: m.Vnode<HeaderWidgetAttrs>) {
-    const pluginInfo = findPluginWithId(vnode.attrs.pluginInfos(), vnode.attrs.repo.plugin_id);
+    const pluginInfo = findPluginWithId(vnode.attrs.pluginInfos(), vnode.attrs.repo.pluginId());
 
     if (!pluginInfo) {
       return (
         <span className={styles.missingPluginIcon}
-              title={`Plugin '${vnode.attrs.repo.plugin_id}' was not found`}/>
+              title={`Plugin '${vnode.attrs.repo.pluginId()}' was not found`}/>
       );
     }
 
-    if (_.isEmpty(vnode.attrs.repo.last_parse)) {
+    if (_.isEmpty(vnode.attrs.repo.lastParse())) {
       return (
         <span className={styles.neverParsed}
               title={`This configuration repository was never parsed.`}/>
       );
     }
 
-    if (vnode.attrs.repo.last_parse.success) {
+    if (vnode.attrs.repo.lastParse().success) {
       return (
         <span className={styles.goodLastParseIcon}
-              title={`Last parsed with revision ${vnode.attrs.repo.last_parse.revision}`}/>
+              title={`Last parsed with revision ${vnode.attrs.repo.lastParse().revision}`}/>
       );
     } else {
       return (
         <span className={styles.lastParseErrorIcon}
-              title={`Last parsed with revision ${vnode.attrs.repo.last_parse.revision}. The error was ${vnode.attrs.repo.last_parse.error}`}/>
+              title={`Last parsed with revision ${vnode.attrs.repo.lastParse().revision}. The error was ${vnode.attrs.repo.lastParse().error}`}/>
       );
     }
   }
@@ -115,15 +115,21 @@ class HeaderWidget extends MithrilViewComponent<HeaderWidgetAttrs> {
 class ConfigRepoWidget extends MithrilViewComponent<ShowObjectAttrs<ConfigRepo>> {
   view(vnode: m.Vnode<ShowObjectAttrs<ConfigRepo>>): m.Children | void | null {
 
-    const filteredAttributes = _.reduce(vnode.attrs.obj.material.attributes, (accumulator: Map<string, string>,
-                                                                              value: any,
-                                                                              key: string) => {
+    const filteredAttributes = _.reduce(vnode.attrs.obj.material().attributes(), (accumulator: Map<string, string>,
+                                                                                  value: any,
+                                                                                  key: string) => {
       let renderedValue = value;
 
       const renderedKey = humanizedMaterialAttributeName(key);
 
-      if (_.isString(value) && value.startsWith("AES:")) {
-        renderedValue = "******";
+      // test for value being a stream
+      if (_.isFunction(value)) {
+        value = value();
+      }
+
+      // test for value being an EncryptedPassword
+      if (value && value.valueForDisplay) {
+        renderedValue = value.valueForDisplay();
       }
       accumulator.set(renderedKey, renderedValue);
       return accumulator;
@@ -147,26 +153,26 @@ class ConfigRepoWidget extends MithrilViewComponent<ShowObjectAttrs<ConfigRepo>>
 
     let lastParseRevision: m.Children;
 
-    if (vnode.attrs.obj.last_parse && vnode.attrs.obj.last_parse.revision) {
-      lastParseRevision = <div>Last seen revision: <code>{vnode.attrs.obj.last_parse.revision}</code></div>;
+    if (vnode.attrs.obj.lastParse() && vnode.attrs.obj.lastParse().revision()) {
+      lastParseRevision = <div>Last seen revision: <code>{vnode.attrs.obj.lastParse().revision()}</code></div>;
     }
 
     let maybeWarning: m.Children;
 
-    if (_.isEmpty(vnode.attrs.obj.last_parse)) {
+    if (_.isEmpty(vnode.attrs.obj.lastParse())) {
       maybeWarning = (
         <FlashMessage type={MessageType.warning}>This configuration repository was never parsed.</FlashMessage>
       );
-    } else if (vnode.attrs.obj.last_parse && vnode.attrs.obj.last_parse.error) {
+    } else if (vnode.attrs.obj.lastParse() && vnode.attrs.obj.lastParse().error()) {
       maybeWarning = (
         <FlashMessage type={MessageType.warning}>
           There was an error parsing this configuration repository:
-          <pre>{vnode.attrs.obj.last_parse.error}</pre>
+          <pre>{vnode.attrs.obj.lastParse().error}</pre>
         </FlashMessage>
       );
     }
 
-    const pluginInfo = findPluginWithId(vnode.attrs.pluginInfos(), vnode.attrs.obj.plugin_id);
+    const pluginInfo = findPluginWithId(vnode.attrs.pluginInfos(), vnode.attrs.obj.pluginId());
 
     if (!pluginInfo) {
       maybeWarning = (
@@ -179,20 +185,20 @@ class ConfigRepoWidget extends MithrilViewComponent<ShowObjectAttrs<ConfigRepo>>
                         actions={actionButtons}>
         {maybeWarning}
         {lastParseRevision}
-        <div><strong>SCM configuration for {vnode.attrs.obj.material.type} material</strong></div>
+        <div><strong>SCM configuration for {vnode.attrs.obj.material().type()} material</strong></div>
         <KeyValuePair data={filteredAttributes}/>
       </CollapsiblePanel>
     );
   }
 }
 
-export class ConfigReposWidget extends MithrilViewComponent<Attrs<ConfigRepos>> {
-  view(vnode: m.Vnode<Attrs<ConfigRepos>>): m.Children | void | null {
+export class ConfigReposWidget extends MithrilViewComponent<Attrs<ConfigRepo[]>> {
+  view(vnode: m.Vnode<Attrs<ConfigRepo[]>>): m.Children | void | null {
     if (!vnode.attrs.objects()) {
       return <Spinner/>;
     }
 
-    const configRepos = (vnode.attrs.objects() as ConfigRepos)._embedded.config_repos;
+    const configRepos = (vnode.attrs.objects() as ConfigRepo[]);
     if (configRepos.length === 0) {
       return (
         <FlashMessage type={MessageType.info}>
@@ -204,7 +210,7 @@ export class ConfigReposWidget extends MithrilViewComponent<Attrs<ConfigRepos>> 
       <div>
         {configRepos.map((configRepo) => {
           return (
-            <ConfigRepoWidget key={configRepo.id}
+            <ConfigRepoWidget key={configRepo.id()}
                               obj={configRepo}
                               pluginInfos={vnode.attrs.pluginInfos}
                               onEdit={vnode.attrs.onEdit.bind(vnode.state, configRepo)}

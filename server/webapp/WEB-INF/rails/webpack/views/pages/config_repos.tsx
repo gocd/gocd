@@ -18,7 +18,7 @@ import {ApiResult, ErrorResponse, SuccessResponse} from "helpers/api_request_bui
 import * as m from "mithril";
 import * as stream from "mithril/stream";
 import {ConfigReposCRUD} from "models/config_repos/config_repos_crud";
-import {ConfigRepo, ConfigRepos} from "models/config_repos/types";
+import {ConfigRepo} from "models/config_repos/types";
 import {ExtensionType} from "models/shared/plugin_infos_new/extension_type";
 import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
 import {PluginInfoCRUD} from "models/shared/plugin_infos_new/plugin_info_crud";
@@ -72,7 +72,7 @@ export class ConfigReposPage extends Page<null, State> {
         clearTimeout(timeoutID);
       }
 
-      ConfigReposCRUD.refresh(repo.id).then((result: ApiResult<any>) => {
+      ConfigReposCRUD.get(repo.id()).then((result: ApiResult<any>) => {
         result.do(() => {
           setMessage("An update was scheduled for this config repository.", MessageType.success);
         }, (err: ErrorResponse) => {
@@ -96,7 +96,7 @@ export class ConfigReposPage extends Page<null, State> {
       if (timeoutID) {
         clearTimeout(timeoutID);
       }
-      new EditConfigRepoModal(repo.id, vnode.state.onSuccessfulSave, vnode.state.onError, vnode.state.pluginInfos).render();
+      new EditConfigRepoModal(repo.id(), vnode.state.onSuccessfulSave, vnode.state.onError, vnode.state.pluginInfos).render();
     };
 
     vnode.state.onDelete = (repo: ConfigRepo, e: MouseEvent) => {
@@ -156,7 +156,7 @@ export class ConfigReposPage extends Page<null, State> {
           this.pageState = PageState.FAILED;
         }
       );
-      const apiResponse: ApiResult<ConfigRepos> = args[1];
+      const apiResponse: ApiResult<ConfigRepo[]> = args[1];
       apiResponse.do(
         (successResponse) => {
           this.pageState = PageState.OK;

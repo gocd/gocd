@@ -23,15 +23,20 @@ import * as stream from "mithril/stream";
 import {ConfigReposCRUD} from "models/config_repos/config_repos_crud";
 import {
   ConfigRepo,
-  GitMaterialAttributes, HgMaterialAttributes,
-  humanizedMaterialAttributeName,
-  MaterialAttributes, P4MaterialAttributes, SvnMaterialAttributes
+  GitMaterialAttributes,
+  HgMaterialAttributes,
+  humanizedMaterialAttributeName, humanizedMaterialNameForMaterialType,
+  Material, MaterialAttributes,
+  P4MaterialAttributes,
+  SvnMaterialAttributes, TfsMaterialAttributes
 } from "models/config_repos/types";
 import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
 import * as Buttons from "views/components/buttons";
 import {FlashMessage, MessageType} from "views/components/flash_message";
 import {
   CheckboxField,
+  Option,
+  PasswordField,
   SelectField,
   SelectFieldOptions,
   TextAreaField,
@@ -44,8 +49,8 @@ import {RequiresPluginInfos, SaveOperation} from "views/pages/config_repos/confi
 type EditableMaterial = SaveOperation & { repo: ConfigRepo } & { isNew: boolean } & RequiresPluginInfos;
 
 class MaterialEditWidget extends MithrilViewComponent<EditableMaterial> {
-  view(vnode: m.Vnode<EditableMaterial>): m.Children | void | null {
-    const materialAttributes = vnode.attrs.repo.material.attributes as MaterialAttributes;
+  view(vnode: m.Vnode<EditableMaterial>) {
+    const materialAttributes = vnode.attrs.repo.material().attributes() as MaterialAttributes;
 
     const pluginList = _.map(vnode.attrs.pluginInfos(), (pluginInfo: PluginInfo<any>) => {
       return {id: pluginInfo.id, text: pluginInfo.about.name};
@@ -54,41 +59,45 @@ class MaterialEditWidget extends MithrilViewComponent<EditableMaterial> {
     return (
       <div>
         <SelectField label="Plugin ID"
-                     oninput={(value: string) => vnode.attrs.repo.plugin_id = value}
-                     value={vnode.attrs.repo.plugin_id}>
-          <SelectFieldOptions selected={vnode.attrs.repo.plugin_id}
+                     property={vnode.attrs.repo.pluginId}
+                     required={true}>
+          <SelectFieldOptions selected={vnode.attrs.repo.pluginId()}
                               items={pluginList}/>
         </SelectField>
 
         <SelectField label={"Material type"}
-                     oninput={(value: string) => {
-                       vnode.attrs.repo.material.type = value;
-                     }}
-                     value={vnode.attrs.repo.material.type}>
-          <SelectFieldOptions selected={vnode.attrs.repo.plugin_id}
-                              items={Object.keys(MATERIAL_TO_COMPONENT_MAP)}/>
+                     property={vnode.attrs.repo.material().typeProxy.bind(vnode.attrs.repo.material())}
+                     required={true}>
+          <SelectFieldOptions selected={vnode.attrs.repo.material().type()}
+                              items={this.materialSelectOptions()}/>
         </SelectField>
 
         <TextField label="Config repository ID"
                    disabled={!vnode.attrs.isNew}
-                   oninput={(value: string) => vnode.attrs.repo.id = value}
-                   value={vnode.attrs.repo.id}/>
+                   property={vnode.attrs.repo.id}
+                   required={true}/>
 
         <CheckboxField label={humanizedMaterialAttributeName("auto_update")}
-                       oninput={(value: boolean) => materialAttributes.auto_update = value}
-                       value={materialAttributes.auto_update}/>
+                       property={vnode.attrs.repo.material().attributes().autoUpdate}/>
 
         <TextField label={humanizedMaterialAttributeName("name")}
-                   oninput={(value: string) => materialAttributes.name = value}
-                   value={materialAttributes.name}/>
+                   property={materialAttributes.name}
+                   required={true}/>
         {vnode.children}
       </div>
     );
   }
+
+  private materialSelectOptions(): Option[] {
+    return _.reduce(MATERIAL_TO_COMPONENT_MAP, (memo, ignore, materialType) => {
+      memo.push({id: materialType, text: humanizedMaterialNameForMaterialType(materialType)});
+      return memo;
+    }, [] as Option[]);
+  }
 }
 
 const NewMaterialComponent = {
-  view(vnode: m.Vnode<EditableMaterial>): m.Children | void | null {
+  view(vnode: m.Vnode<EditableMaterial>) {
     return (
       <MaterialEditWidget isNew={true} {...vnode.attrs}>
       </MaterialEditWidget>
@@ -98,86 +107,118 @@ const NewMaterialComponent = {
 
 const MATERIAL_TO_COMPONENT_MAP: { [key: string]: MithrilViewComponent<EditableMaterial> } = {
   git: {
-    view(vnode: m.Vnode<EditableMaterial>): m.Children | void | null {
-      const materialAttributes = vnode.attrs.repo.material.attributes as GitMaterialAttributes;
+    view(vnode: m.Vnode<EditableMaterial>) {
+      const materialAttributes = vnode.attrs.repo.material().attributes() as GitMaterialAttributes;
 
       return (
         <MaterialEditWidget {...vnode.attrs}>
 
           <TextField label={humanizedMaterialAttributeName("url")}
-                     oninput={(value: string) => materialAttributes.url = value}
-                     value={materialAttributes.url}/>
+                     property={materialAttributes.url}
+                     required={true}/>
 
           <TextField label={humanizedMaterialAttributeName("branch")}
-                     oninput={(value: string) => materialAttributes.branch = value}
-                     value={materialAttributes.branch}/>
+                     property={materialAttributes.branch}/>
 
         </MaterialEditWidget>
       );
     }
-
   } as MithrilViewComponent<EditableMaterial>,
+
   svn: {
-    view(vnode: m.Vnode<EditableMaterial>): m.Children | void | null {
-      const materialAttributes = vnode.attrs.repo.material.attributes as SvnMaterialAttributes;
+    view(vnode: m.Vnode<EditableMaterial>) {
+      const materialAttributes = vnode.attrs.repo.material().attributes() as SvnMaterialAttributes;
 
       return (
         <MaterialEditWidget {...vnode.attrs}>
-
           <TextField label={humanizedMaterialAttributeName("url")}
-                     oninput={(value: string) => materialAttributes.url = value}
-                     value={materialAttributes.url}/>
-
-          <TextField label={humanizedMaterialAttributeName("username")}
-                     oninput={(value: string) => materialAttributes.username = value}
-                     value={materialAttributes.username}/>
+                     property={materialAttributes.url}
+                     required={true}/>
 
           <CheckboxField label={humanizedMaterialAttributeName("check_externals")}
-                         oninput={(value: boolean) => materialAttributes.check_externals = value}
-                         value={materialAttributes.check_externals}/>
+                         property={materialAttributes.checkExternals}/>
+
+          <TextField label={humanizedMaterialAttributeName("username")}
+                     property={materialAttributes.username}/>
+
+          <PasswordField label={humanizedMaterialAttributeName("password")}
+                         property={materialAttributes.password}/>
         </MaterialEditWidget>
       );
     }
-
   } as MithrilViewComponent<EditableMaterial>,
+
   hg: {
-    view(vnode: m.Vnode<EditableMaterial>): m.Children | void | null {
-      const materialAttributes = vnode.attrs.repo.material.attributes as HgMaterialAttributes;
+    view(vnode: m.Vnode<EditableMaterial>) {
+      const materialAttributes = vnode.attrs.repo.material().attributes() as HgMaterialAttributes;
 
       return (
         <MaterialEditWidget {...vnode.attrs}>
 
           <TextField label={humanizedMaterialAttributeName("url")}
-                     oninput={(value: string) => materialAttributes.url = value}
-                     value={materialAttributes.url}/>
+                     property={materialAttributes.url}
+                     required={true}/>
 
         </MaterialEditWidget>
       );
     }
-
   } as MithrilViewComponent<EditableMaterial>,
-  p4: {
-    view(vnode: m.Vnode<EditableMaterial>): m.Children | void | null {
-      const materialAttributes = vnode.attrs.repo.material.attributes as P4MaterialAttributes;
 
+  p4: {
+    view(vnode: m.Vnode<EditableMaterial>) {
+      const materialAttributes = vnode.attrs.repo.material().attributes() as P4MaterialAttributes;
       return (
         <MaterialEditWidget {...vnode.attrs}>
 
           <TextField label={humanizedMaterialAttributeName("port")}
-                     oninput={(value: string) => materialAttributes.port = value}
-                     value={materialAttributes.port}/>
+                     property={materialAttributes.port}
+                     required={true}/>
 
           <CheckboxField label={humanizedMaterialAttributeName("use_tickets")}
-                         oninput={(value: boolean) => materialAttributes.use_tickets = value}
-                         value={materialAttributes.use_tickets}/>
+                         property={materialAttributes.useTickets}/>
 
           <TextAreaField label={humanizedMaterialAttributeName("view")}
-                         oninput={(value: string) => materialAttributes.view = value}
-                         value={materialAttributes.view}/>
+                         property={materialAttributes.view}
+                         required={true}/>
+
+          <TextField label={humanizedMaterialAttributeName("username")}
+                     property={materialAttributes.username}/>
+
+          <PasswordField label={humanizedMaterialAttributeName("password")}
+                         property={materialAttributes.password}/>
         </MaterialEditWidget>
       );
     }
+  } as MithrilViewComponent<EditableMaterial>,
 
+  tfs: {
+    view(vnode: m.Vnode<EditableMaterial>) {
+      const materialAttributes = vnode.attrs.repo.material().attributes() as TfsMaterialAttributes;
+
+      return (
+        <MaterialEditWidget {...vnode.attrs}>
+
+          <TextField label={humanizedMaterialAttributeName("url")}
+                     property={materialAttributes.url}
+                     required={true}/>
+
+          <TextField label={humanizedMaterialAttributeName("project_path")}
+                     property={materialAttributes.projectPath}
+                     required={true}/>
+
+          <TextField label={humanizedMaterialAttributeName("domain")}
+                     property={materialAttributes.domain}/>
+
+          <TextField label={humanizedMaterialAttributeName("username")}
+                     property={materialAttributes.username}
+                     required={true}/>
+
+          <PasswordField label={humanizedMaterialAttributeName("password")}
+                         property={materialAttributes.password}
+                         required={true}/>
+        </MaterialEditWidget>
+      );
+    }
   } as MithrilViewComponent<EditableMaterial>
 };
 
@@ -207,20 +248,20 @@ abstract class ConfigRepoModal extends Modal {
     }
     let materialtocomponentmapElement;
 
-    if (!this.getRepo().material.type) {
+    if (!this.getRepo().material().type()) {
       materialtocomponentmapElement = NewMaterialComponent;
     } else {
-      materialtocomponentmapElement = MATERIAL_TO_COMPONENT_MAP[this.getRepo().material.type];
+      materialtocomponentmapElement = MATERIAL_TO_COMPONENT_MAP[this.getRepo().material().type()];
     }
 
     return m(materialtocomponentmapElement,
-      {
-        onSuccessfulSave: this.onSuccessfulSave,
-        onError: this.onError,
-        repo: this.getRepo(),
-        isNew: this.isNew,
-        pluginInfos: this.pluginInfos
-      });
+             {
+               onSuccessfulSave: this.onSuccessfulSave,
+               onError: this.onError,
+               repo: this.getRepo(),
+               isNew: this.isNew,
+               pluginInfos: this.pluginInfos
+             });
 
   }
 
@@ -240,7 +281,7 @@ export class NewConfigRepoModal extends ConfigRepoModal {
               onError: (msg: (m.Children)) => any,
               pluginInfos: Stream<Array<PluginInfo<any>>>) {
     super(onSuccessfulSave, onError, pluginInfos);
-    this.repo({material: {type: "git", attributes: {}}, plugin_id: pluginInfos()[0].id} as ConfigRepo);
+    this.repo(new ConfigRepo(undefined, pluginInfos()[0].id, new Material("git", new GitMaterialAttributes())));
     this.isNew = true;
   }
 
@@ -254,12 +295,13 @@ export class NewConfigRepoModal extends ConfigRepoModal {
 
   performSave() {
     ConfigReposCRUD.create(this.repo())
-      .then((result) => {
-        result.do(
-          () => this.onSuccessfulSave(<span>The config repository <em>{this.repo().id}</em> was created successfully!</span>),
-          (result) => this.onError(result.message)
-        );
-    }).then(this.close.bind(this));
+                   .then((result) => {
+                     result.do(
+                       () => this.onSuccessfulSave(
+                         <span>The config repository <em>{this.repo().id}</em> was created successfully!</span>),
+                       (result) => this.onError(result.message)
+                     );
+                   }).then(this.close.bind(this));
   }
 }
 

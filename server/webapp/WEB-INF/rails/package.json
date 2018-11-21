@@ -83,7 +83,7 @@
     "karma-safari-launcher": "^1.0.0",
     "karma-sourcemap-loader": "^0.3.7",
     "license-checker": "^24.0.1",
-    "mini-css-extract-plugin": "^0.4.4",
+    "mini-css-extract-plugin": "^0.4.5",
     "node-sass": "^4.10.0",
     "sass-lint": "^1.12.1",
     "sass-lint-webpack": "^1.0.0",

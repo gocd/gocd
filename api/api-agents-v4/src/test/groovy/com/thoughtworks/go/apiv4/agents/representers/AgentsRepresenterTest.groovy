@@ -44,7 +44,7 @@ class AgentsRepresenterTest {
 
   @Test
   void 'should represent agents'() {
-    Map<AgentInstance, Collection<String>> agentEnvironmentMap = new TreeMap<AgentInstance, Collection<String>>() {
+    Map<AgentInstance, Collection<String>> agentEnvironmentMap = new LinkedHashMap<AgentInstance, Collection<String>>() {
       {
         put(idle(), asList("uat", "load_test"))
         put(missing(), asList("unit"))
@@ -69,51 +69,6 @@ class AgentsRepresenterTest {
       ],
       "_embedded": [
         "agents": [
-          [
-            "_links"            : [
-              "self": [
-                "href": "http://test.host/go/api/agents/uuid3"
-              ],
-              "doc" : [
-                "href": "https://api.gocd.org/current/#agents"
-              ],
-              "find": [
-                "href": "http://test.host/go/api/agents/:uuid"
-              ]
-            ],
-            "uuid"              : "uuid3",
-            "hostname"          : "CCeDev01",
-            "ip_address"        : "10.18.5.1",
-            "sandbox"           : SystemUtil.currentWorkingDirectory(),
-            "operating_system"  : "",
-            "free_space"        : "Unknown",
-            "agent_config_state": "Enabled",
-            "agent_state"       : "Building",
-            "resources"         : [
-              "java"
-            ],
-            "environments"      : [
-              "functional_test",
-              "integration"
-            ],
-            "build_state"       : "Building",
-            "build_details"     : [
-              "_links"       : [
-                "job"     : [
-                  "href": "http://test.host/go/tab/build/detail/up42/1/up_42_stage/1/up42_job"
-                ],
-                "stage"   : [
-                  "href": "http://test.host/go/pipelines/up42/1/up_42_stage/1"
-                ],
-                "pipeline": [
-                  "href": "http://test.host/go/tab/pipeline/history/up42"
-                ]
-              ],
-              "pipeline_name": "up42",
-              "stage_name"   : "up_42_stage",
-              "job_name"     : "up42_job"
-            ]
-          ],
           [
             "_links"            : [
               "self": [
@@ -166,6 +121,51 @@ class AgentsRepresenterTest {
               "unit"
             ],
             "build_state"       : "Unknown"
+          ],
+          [
+            "_links"            : [
+              "self": [
+                "href": "http://test.host/go/api/agents/uuid3"
+              ],
+              "doc" : [
+                "href": "https://api.gocd.org/current/#agents"
+              ],
+              "find": [
+                "href": "http://test.host/go/api/agents/:uuid"
+              ]
+            ],
+            "uuid"              : "uuid3",
+            "hostname"          : "CCeDev01",
+            "ip_address"        : "10.18.5.1",
+            "sandbox"           : SystemUtil.currentWorkingDirectory(),
+            "operating_system"  : "",
+            "free_space"        : "Unknown",
+            "agent_config_state": "Enabled",
+            "agent_state"       : "Building",
+            "resources"         : [
+              "java"
+            ],
+            "environments"      : [
+              "functional_test",
+              "integration"
+            ],
+            "build_state"       : "Building",
+            "build_details"     : [
+              "_links"       : [
+                "job"     : [
+                  "href": "http://test.host/go/tab/build/detail/up42/1/up_42_stage/1/up42_job"
+                ],
+                "stage"   : [
+                  "href": "http://test.host/go/pipelines/up42/1/up_42_stage/1"
+                ],
+                "pipeline": [
+                  "href": "http://test.host/go/tab/pipeline/history/up42"
+                ]
+              ],
+              "pipeline_name": "up42",
+              "stage_name"   : "up_42_stage",
+              "job_name"     : "up42_job"
+            ]
           ]
         ]
       ]

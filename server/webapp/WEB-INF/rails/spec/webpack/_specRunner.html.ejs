@@ -13,15 +13,13 @@
     <% for (var i = 0; i < htmlWebpackPlugin.options.jasmineCssFiles.length; i++) { %>
     <link rel="stylesheet" href="<%= htmlWebpackPlugin.options.jasmineCssFiles[i] %>"/>
     <% } %>
-    <% for (var i = 0; i < htmlWebpackPlugin.options.jasmineJsFiles.length; i++) { %>
-    <script src="<%= htmlWebpackPlugin.options.jasmineJsFiles[i] %>"></script>
-    <% } %>
 
     <script>
+      var OriginalXHRClass = XMLHttpRequest;
       var oldManifestValue = null;
 
       function checkUpdates(url) {
-        var xhr = new XMLHttpRequest();
+        var xhr = new OriginalXHRClass();
         xhr.open('GET', url + '?' + new Date().getTime());
         xhr.onreadystatechange = function () {
           if (xhr.readyState === XMLHttpRequest.DONE) {
@@ -45,6 +43,10 @@
         }, 1000);
       }
     </script>
+
+    <% for (var i = 0; i < htmlWebpackPlugin.options.jasmineJsFiles.length; i++) { %>
+    <script src="<%= htmlWebpackPlugin.options.jasmineJsFiles[i] %>"></script>
+    <% } %>
 </head>
 <body></body>
 </html>

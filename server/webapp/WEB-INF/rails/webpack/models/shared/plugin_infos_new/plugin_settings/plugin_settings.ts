@@ -19,7 +19,9 @@ import {Validatable} from "models/mixins/validatable";
 
 export interface ConfigValue {
   getValue(): string;
+
   setValue(value: string): void;
+
   isEncrypted(): boolean;
 }
 
@@ -98,6 +100,9 @@ export class Configuration {
   }
 
   set value(val: string) {
+    if (val === this._value.getValue()) {
+      return;
+    }
     this._value = new PlainTextValue(val);
   }
 

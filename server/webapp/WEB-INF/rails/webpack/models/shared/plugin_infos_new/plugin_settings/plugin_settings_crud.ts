@@ -32,7 +32,7 @@ export class PluginSettingsCRUD {
   }
 
   static create(pluginSettings: PluginSettings) {
-    return ApiRequestBuilder.POST(Routes.apiv1AdminPluginSettingsPath(), this.API_VERSION_HEADER, pluginSettings.toJSON())
+    return ApiRequestBuilder.POST(Routes.apiv1AdminPluginSettingsPath(), this.API_VERSION_HEADER, {payload: pluginSettings.toJSON()})
       .then(this.extractObjectWithEtag());
   }
 

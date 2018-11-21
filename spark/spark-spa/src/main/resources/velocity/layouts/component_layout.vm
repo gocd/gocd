@@ -30,7 +30,7 @@
       <link href="${css}" media="screen" rel="stylesheet"/>
     #end
 
-    #foreach( $js in ${webpackAssetsService.getJSAssetPathsFor("single_page_apps/${controllerName}", "single_page_apps/polyfill")})
+    #foreach( $js in ${webpackAssetsService.getJSAssetPathsFor("single_page_apps/polyfill", "single_page_apps/${controllerName}")})
       <script src="${js}"></script>
     #end
 

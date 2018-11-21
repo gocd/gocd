@@ -77,13 +77,13 @@ public class WebpackAssetsService implements ServletContextAware {
     public Set<String> getJSAssetPathsFor(String... assetNames) throws IOException {
         return getAssetPathsFor(assetNames).stream()
                 .filter(assetName -> assetName.endsWith(".js"))
-                .collect(Collectors.toSet());
+                .collect(Collectors.toCollection(LinkedHashSet::new));
     }
 
     public Set<String> getCSSAssetPathsFor(String... assetNames) throws IOException {
         return getAssetPathsFor(assetNames).stream()
                 .filter(assetName -> assetName.endsWith(".css"))
-                .collect(Collectors.toSet());
+                .collect(Collectors.toCollection(LinkedHashSet::new));
     }
 
     private Map getManifest() throws IOException {

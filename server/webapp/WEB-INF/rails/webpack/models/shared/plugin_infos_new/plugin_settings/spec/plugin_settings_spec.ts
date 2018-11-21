@@ -122,11 +122,12 @@ describe("Plugin Settings", () => {
     });
   });
 
-  it("should send 'encrypted_value' as the key when the value hasn't changed", () => {
+  it("should send 'encrypted_value' as the key when the value hasn't changed, even if the setter is called", () => {
     const configuration  = [
       new Configuration("secret", new EncryptedValue("hidden-value"))
     ];
     const pluginSettings = new PluginSettings("com.thoughtworks.gocd.test", configuration);
+    pluginSettings.configuration[0].value = "hidden-value";
     expect(pluginSettings.toJSON()).toEqual({
       plugin_id: "com.thoughtworks.gocd.test",
       configuration: [

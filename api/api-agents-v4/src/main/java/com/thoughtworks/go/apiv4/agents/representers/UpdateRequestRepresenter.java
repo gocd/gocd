@@ -36,15 +36,15 @@ abstract class UpdateRequestRepresenter {
         return treeSet;
     }
 
-    static String toCommaSeparatedString(Optional<JsonArray> arrayOptional) {
-        if (arrayOptional.isPresent()) {
-            final Set<String> list = new TreeSet<>();
-            for (JsonElement jsonElement : arrayOptional.get()) {
-                list.add(jsonElement.getAsString());
-            }
-            return String.join(",", list);
+    static String toCommaSeparatedString(JsonArray jsonArray) {
+        if (jsonArray == null) {
+            return null;
         }
-        return null;
+        final Set<String> list = new TreeSet<>();
+        for (JsonElement jsonElement : jsonArray) {
+            list.add(jsonElement.getAsString());
+        }
+        return String.join(",", list);
     }
 
     static TriState toTriState(String agentConfigState) {

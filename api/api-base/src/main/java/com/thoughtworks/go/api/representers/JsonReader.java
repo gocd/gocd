@@ -151,6 +151,10 @@ public class JsonReader {
         return Optional.empty();
     }
 
+    public boolean hasJsonArray(String property) {
+        return jsonObject.has(property) && (jsonObject.get(property) instanceof JsonArray);
+    }
+
     public void readBooleanIfPresent(String key, Consumer<Boolean> consumer) {
         optBoolean(key).ifPresent(consumer);
     }

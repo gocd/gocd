@@ -19,6 +19,7 @@ package com.thoughtworks.go.apiv4.agents.representers
 import com.thoughtworks.go.apiv4.agents.model.AgentUpdateRequest
 import com.thoughtworks.go.util.TriState
 import groovy.json.JsonBuilder
+import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments
@@ -45,54 +46,84 @@ class AgentUpdateRequestRepresenterTest {
     assertThat(agentInfo.getEnvironments()).isEqualTo("env1")
   }
 
-  @Test
-  void 'should return empty string when empty resources specified in request body'() {
-    def jsonString = new JsonBuilder(["hostname"          : "agent02.example.com",
-                                      "agent_config_state": "Enabled",
-                                      "resources"         : [],
-                                      "environments"      : ["env1"]
-    ]).toString()
+  @Nested
+  class Resources {
+    @Test
+    void 'should accept comma separated string as resources value'() {
+      def jsonString = new JsonBuilder(["hostname"          : "agent02.example.com",
+                                        "agent_config_state": "Enabled",
+                                        "resources"         : "firefox,chrome,safari"
+      ]).toString()
 
-    AgentUpdateRequest agentInfo = AgentUpdateRequestRepresenter.fromJSON(jsonString)
+      AgentUpdateRequest agentInfo = AgentUpdateRequestRepresenter.fromJSON(jsonString)
 
-    assertThat(agentInfo.getResources()).isEmpty()
+      assertThat(agentInfo.getResources()).isEqualTo("firefox,chrome,safari")
+    }
+
+    @Test
+    void 'should return empty string when empty resources specified in request body'() {
+      def jsonString = new JsonBuilder(["hostname"          : "agent02.example.com",
+                                        "agent_config_state": "Enabled",
+                                        "resources"         : [],
+                                        "environments"      : ["env1"]
+      ]).toString()
+
+      AgentUpdateRequest agentInfo = AgentUpdateRequestRepresenter.fromJSON(jsonString)
+
+      assertThat(agentInfo.getResources()).isEmpty()
+    }
+
+    @Test
+    void 'should return null string when resources are not specified'() {
+      def jsonString = new JsonBuilder(["hostname"          : "agent02.example.com",
+                                        "agent_config_state": "Enabled",
+                                        "environments"      : []
+      ]).toString()
+
+      AgentUpdateRequest agentInfo = AgentUpdateRequestRepresenter.fromJSON(jsonString)
+
+      assertThat(agentInfo.getResources()).isNull()
+    }
   }
 
-  @Test
-  void 'should return empty string when empty environments specified in request'() {
-    def jsonString = new JsonBuilder(["hostname"          : "agent02.example.com",
-                                      "agent_config_state": "Enabled",
-                                      "resources"         : ["Foo"],
-                                      "environments"      : []
-    ]).toString()
+  @Nested
+  class Environments {
+    @Test
+    void 'should accept comma separated string as environments value'() {
+      def jsonString = new JsonBuilder(["hostname"          : "agent02.example.com",
+                                        "agent_config_state": "Enabled",
+                                        "environments"      : "linux,java,psql"
+      ]).toString()
 
-    AgentUpdateRequest agentInfo = AgentUpdateRequestRepresenter.fromJSON(jsonString)
+      AgentUpdateRequest agentInfo = AgentUpdateRequestRepresenter.fromJSON(jsonString)
 
-    assertThat(agentInfo.getEnvironments()).isEmpty()
-  }
+      assertThat(agentInfo.getEnvironments()).isEqualTo("linux,java,psql")
+    }
 
-  @Test
-  void 'should return null string when environments are not specified'() {
-    def jsonString = new JsonBuilder(["hostname"          : "agent02.example.com",
-                                      "agent_config_state": "Enabled",
-                                      "resources"         : []
-    ]).toString()
+    @Test
+    void 'should return empty string when empty environments specified in request'() {
+      def jsonString = new JsonBuilder(["hostname"          : "agent02.example.com",
+                                        "agent_config_state": "Enabled",
+                                        "resources"         : ["Foo"],
+                                        "environments"      : []
+      ]).toString()
 
-    AgentUpdateRequest agentInfo = AgentUpdateRequestRepresenter.fromJSON(jsonString)
+      AgentUpdateRequest agentInfo = AgentUpdateRequestRepresenter.fromJSON(jsonString)
 
-    assertThat(agentInfo.getEnvironments()).isNull()
-  }
+      assertThat(agentInfo.getEnvironments()).isEmpty()
+    }
 
-  @Test
-  void 'should return null string when resources are not specified'() {
-    def jsonString = new JsonBuilder(["hostname"          : "agent02.example.com",
-                                      "agent_config_state": "Enabled",
-                                      "environments"      : []
-    ]).toString()
+    @Test
+    void 'should return null string when environments are not specified'() {
+      def jsonString = new JsonBuilder(["hostname"          : "agent02.example.com",
+                                        "agent_config_state": "Enabled",
+                                        "resources"         : []
+      ]).toString()
 
-    AgentUpdateRequest agentInfo = AgentUpdateRequestRepresenter.fromJSON(jsonString)
+      AgentUpdateRequest agentInfo = AgentUpdateRequestRepresenter.fromJSON(jsonString)
 
-    assertThat(agentInfo.getResources()).isNull()
+      assertThat(agentInfo.getEnvironments()).isNull()
+    }
   }
 
   @ParameterizedTest

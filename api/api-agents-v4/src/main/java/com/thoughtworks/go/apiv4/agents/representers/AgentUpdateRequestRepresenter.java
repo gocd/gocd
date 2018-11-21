@@ -28,8 +28,24 @@ public class AgentUpdateRequestRepresenter extends UpdateRequestRepresenter {
         return new AgentUpdateRequest(
                 reader.getString("hostname"),
                 toTriState(reader.optString("agent_config_state").orElse(null)),
-                toCommaSeparatedString(reader.optJsonArray("environments")),
-                toCommaSeparatedString(reader.optJsonArray("resources"))
+                getEnvironments(reader),
+                getResources(reader)
         );
+    }
+
+    private static String getEnvironments(JsonReader reader) {
+        return readArrayOrString(reader, "environments");
+    }
+
+    private static String getResources(JsonReader reader) {
+        return readArrayOrString(reader, "resources");
+    }
+
+    private static String readArrayOrString(JsonReader reader, String propertyName) {
+        if (reader.hasJsonArray(propertyName)) {
+            return toCommaSeparatedString(reader.optJsonArray(propertyName).orElse(null));
+        }
+
+        return reader.optString(propertyName).orElse(null);
     }
 }

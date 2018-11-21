@@ -73,4 +73,27 @@ class VelocityTemplateEngineFactoryTest {
       .contains(StringEscapeUtils.escapeHtml(userInput))
       .contains("end parent layout")
   }
+
+  @Test
+  void 'it should render footer links'() {
+    def output = engine.create(RolesControllerDelegate.class, { return "layouts/single_page_app.vm" })
+      .render(new ModelAndView(Collections.emptyMap(), "templates/test-template.vm"))
+
+    def document = Jsoup.parse(output)
+    def footer = document.selectFirst(".app-footer")
+    assertThat(footer.text()).contains("Copyright © ${Calendar.getInstance().get(Calendar.YEAR)} ThoughtWorks, Inc.")
+    assertThat(footer.select("a").eachAttr('href')).isEqualTo([
+      "https://www.thoughtworks.com/products",
+      "https://www.apache.org/licenses/LICENSE-2.0",
+      "/go/assets/dependency-license-report-${CurrentGoCDVersion.getInstance().fullVersion()}",
+      "https://twitter.com/goforcd",
+      "https://github.com/gocd/gocd",
+      "https://groups.google.com/d/forum/go-cd",
+      "https://docs.gocd.org/${CurrentGoCDVersion.getInstance().goVersion()}",
+      "https://www.gocd.org/plugins/",
+      "https://api.gocd.org/${CurrentGoCDVersion.getInstance().goVersion()}",
+      "/go/about",
+      "/go/cctray.xml"
+    ].collect { it.toString() })
+  }
 }

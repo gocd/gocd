@@ -21,10 +21,15 @@
         <!-- end content -->
 
     </div></div></div><!-- end of body_bg, body_hightlight, body_wrapper-->
-<div id="app-footer"></div>
+#parse("shared/_copyright_license_info.vm")
            <div id="back_to_top" class='back_to_top' title="Scroll to Top">Top</div>
     </body>
 
+#if( $goUpdateCheckEnabled )
+<script type="text/javascript">
+    VersionUpdaterForRails.update();
+</script>
+#end
     <script type="text/javascript">
         restoreSidebarStatus();
 

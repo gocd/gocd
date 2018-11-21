@@ -1,0 +1,42 @@
+#*
+ * Copyright 2018 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *#
+<footer class="app-footer">
+  <div class="row expanded">
+    <div class="small-12 medium-6 large-8 columns">
+      <p class="copyright">Copyright &copy; ${currentVersion.copyrightYear()}
+        <a href="https://www.thoughtworks.com/products" target='_blank'>ThoughtWorks, Inc.</a>
+        Licensed under
+        <a href="https://www.apache.org/licenses/LICENSE-2.0" target="_blank">Apache License, Version 2.0</a>.<br/>
+        Go includes <a href="/go/assets/dependency-license-report-${currentVersion.fullVersion()}" target="_blank">third-party software</a>.
+        Go Version: ${currentVersion.formatted()}.
+      </p>
+
+    </div>
+    <div class="small-12 medium-6 large-4 columns">
+      <span class="inline-list social">
+        <a href="https://twitter.com/goforcd" title="twitter" class="twitter" target="_blank"></a>
+        <a href="https://github.com/gocd/gocd" title="github" class="github" target="_blank"></a>
+        <a href="https://groups.google.com/d/forum/go-cd" title="forums" class="forums" target="_blank"></a>
+        <a href="https://docs.gocd.org/${currentVersion.goVersion()}" title="documentation" class="documentation"
+           target="_blank"></a>
+        <a href="https://www.gocd.org/plugins/" title="plugins" class="plugins" target="_blank"></a>
+        <a href="https://api.gocd.org/${currentVersion.goVersion()}" title="api" class="api" target="_blank"></a>
+        <a href="/go/about" title="about" class="server-details" target="_blank"></a>
+        <a href="/go/cctray.xml" title="cctray" class="cctray" target="_blank"></a>
+      </span>
+    </div>
+  </div>
+</footer>

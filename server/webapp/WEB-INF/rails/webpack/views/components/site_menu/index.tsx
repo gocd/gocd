@@ -93,7 +93,7 @@ class SiteSubNav extends MithrilViewComponent<{}> {
   }
 }
 
-export class SiteSubNavItem extends MithrilViewComponent<TextWithLink> {
+class SiteSubNavItem extends MithrilViewComponent<TextWithLink> {
   view(vnode: m.Vnode<TextWithLink>) {
     return (
       <li className={styles.siteSubNavItem}>
@@ -144,7 +144,6 @@ export default class SiteMenu extends MithrilViewComponent<Attrs> {
               <SiteSubNav>
                 <SiteSubNavItem href="/go/admin/pipelines" text="Pipelines"/>
                 {configReposMenu}
-                <SiteSubNavItem href="/go/admin/environments" text="Environments"/>
                 <SiteSubNavItem href="/go/admin/templates" text="Templates"/>
                 <SiteSubNavItem href="/go/admin/elastic_profiles" text="Elastic Agent Profiles"/>
                 <SiteSubNavItem href="/go/admin/config_xml" text="Config XML"/>
@@ -169,7 +168,7 @@ export default class SiteMenu extends MithrilViewComponent<Attrs> {
           <div className={styles.subNavigation}>
             <SiteSubNav>
               <SiteSubNavItem href="/go/admin/pipelines" text="Pipelines"/>
-              <SiteSubNavItem href="/go/admin/templates" text="Templates"/>
+              <SiteSubNavItem text="/go/admin/templates"/>
               <SiteSubNavItem href="/go/admin/elastic_profiles" text="Elastic Agent Profiles"/>
               <SiteSubNavItem href="/go/admin/config_xml" text="Config XML"/>
               <SiteSubNavItem href="/go/admin/plugins" text="Plugins"/>
@@ -181,7 +180,7 @@ export default class SiteMenu extends MithrilViewComponent<Attrs> {
         adminMenu = <SiteNavItem isDropDown={true} text="Admin">
           <div className={styles.subNavigation}>
             <SiteSubNav>
-              <SiteSubNavItem href="/go/admin/templates" text="Templates"/>
+              <SiteSubNavItem text="Templates"/>
             </SiteSubNav>
           </div>
         </SiteNavItem>;

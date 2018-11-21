@@ -37,10 +37,9 @@
   <script type="text/javascript" src="$req.getContextPath()/$concatenatedJavascriptFilePath"></script>
   <script type="text/javascript"> var contextPath = "$req.getContextPath()"; </script>
 
-  #foreach( $js in ${webpackAssetsService.getAssetPathsFor("single_page_apps/header_footer_shim")})
+  #foreach( $js in ${webpackAssetsService.getAssetPathsFor("single_page_apps/notification_center", "single_page_apps/version_update_checker_for_rails")})
       <script src="${js}"></script>
   #end
-    <link rel="stylesheet" type="text/css" href="${webpackAssetsService.getCSSAssetPathsFor("single_page_apps/header_footer_shim")}"
 
   <title>
       #if($title)
@@ -66,7 +65,79 @@
         ##    #end
 
 
-          <div id="app-menu">
+          <div id="header">
+            <div class="row">
+              <div class="header">
+                <a href="$req.getContextPath()/pipelines" id="application_logo"></a>
+                    <div class="application_nav">
+                        #if ($principal && $principal != "anonymous")
+                          <ul class="user">
+                            <li class="help">
+                              <a href="https://gocd.org/help" target="_blank">Need Help?</a>
+                            </li>
+                            <li class="current_user icon">
+                              <a href="#" class="current_user_name dropdown-arrow-icon icon">$principal</a>
+                              <ul class="enhanced_dropdown hidden">
+                                <li>
+                                  <a href="$req.getContextPath()/preferences/notifications">Preferences</a>
+                                </li>
+                                <li class="logout">
+                                  <a id="nav-logout" class="sign_out"
+                                     href="$req.getContextPath()/auth/logout">Sign out</a>
+                                </li>
+                              </ul>
+                            </li>
+                          </ul>
+                        #else
+                          <ul class="user">
+                            <li class="help">
+                              <a href="https://gocd.org/help" target="_blank">Need Help?</a>
+                            </li>
+                          </ul>
+                        #end
+                      <ul class="tabs">
+                        <li id="cruise-header-tab-recent-activity"
+                            class="#if($current_tab == 'pipeline' || $current_tab == 'Current Activity') current #end">
+                          <a href="$req.getContextPath()/pipelines">Pipelines</a>
+                        </li>
+                        <li id="cruise-header-tab-agents" class="#if($current_tab == 'Agents') current #end">
+                          <a href="$req.getContextPath()/agents">AGENTS</a>
+                        </li>
+                        #if($supportsAnalyticsDashboard && $userHasAdministratorRights)
+                          <li id="cruise-header-tab-agents" class="#if($current_tab == 'Analytics') current #end">
+                            <a href="$req.getContextPath()/analytics">Analytics</a>
+                          </li>
+                        #end
+
+                        <li id="cruise-header-tab-admin"
+                            class="#if($current_tab ==
+                                'Administration') current #end #if(!$userHasViewAdministratorRights) disabled-when-no-admin-rights #end admin">
+                            #if(!$userHasViewAdministratorRights)
+                              <span>ADMIN</span>
+                            #else
+                              <a class="dropdown-arrow-icon" href="#" data-toggle="dropdown">Admin</a>
+                              <ul class="dropdown-menu" role="menu">
+                                  #if($userHasAdministratorRights)
+                                      #parse("shared/_dropdown_admin.vm")
+                                  #elseif($userHasGroupAdministratorRights)
+                                      #parse("shared/_dropdown_pipeline_group_admin.vm")
+                                  #elseif($userHasTemplateViewUserRights)
+                                    <li role="presentation">
+                                      <a href="$req.getContextPath()/admin/templates">Templates</a>
+                                    </li>
+                                  #end
+                              </ul>
+                            #end
+                        </li>
+                      </ul>
+                      <div class="error_messaging_counter">
+                        <div id="cruise_message_counts" class="cruise_messages"></div>
+                        <div id="cruise_message_body" style="display:none;" class="cruise_message_body"></div>
+                      </div>
+                      <div id="system-notifications" class="system-notifications"></div>
+                    </div>
+              </div>
+            </div>
           </div>
 
           <div id="bd">

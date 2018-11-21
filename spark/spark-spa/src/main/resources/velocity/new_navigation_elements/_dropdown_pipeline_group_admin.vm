@@ -1,4 +1,4 @@
-/*
+#*
  * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,21 +12,10 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */
-
-@import '~bourbon/core/bourbon';
-
-@mixin hover-effect-for-top-menu {
-  color:           $header-text-color;
-  transition:      all 0.3s ease-in-out;
-  text-decoration: none;
-  &:hover {
-    color:      $white-opaque;
-    transition: all 0.3s ease-in-out;
-  }
-  @media(min-width: $screen-md) {
-    font-size:   13px;
-    font-weight: 600;
-  }
-}
-
+ *#
+<li role="presentation"><a href="/go/admin/pipelines">Pipelines</a></li>
+<li role="presentation"><a href="/go/admin/templates">Templates</a></li>
+<li role="presentation"><a href="/go/admin/elastic_profiles">Elastic Agent Profiles</a></li>
+<li role="presentation"><a href="/go/admin/pipelines/snippet">Config XML</a></li>
+<li role="presentation"><a href="/go/admin/plugins">Plugins</a></li>
+<li role="presentation"><a href="/go/admin/package_repositories/new">Package Repositories</a></li>

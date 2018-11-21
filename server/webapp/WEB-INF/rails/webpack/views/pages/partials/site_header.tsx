@@ -17,7 +17,7 @@
 import {bind} from "classnames/bind";
 import {MithrilViewComponent} from "jsx/mithril-component";
 import * as m from "mithril";
-import SiteMenu, {SiteSubNavItem} from "views/components/site_menu";
+import SiteMenu from "views/components/site_menu";
 import * as styles from "./site_header.scss";
 
 const classnames          = bind(styles);
@@ -58,8 +58,12 @@ export class SiteHeader extends MithrilViewComponent<Attrs> {
           </a>
 
           <ul class={styles.userSubnav}>
-            <SiteSubNavItem href="/go/preferences/notifications" text="Preferences"/>
-            <SiteSubNavItem href="/go/auth/logout" text="Sign out"/>
+            <li>
+              <a href="/go/preferences/notifications" class={styles.userSubnavLink}>Preference</a>
+            </li>
+            <li>
+              <a href="/go/auth/logout" class={styles.userSubnavLink}>Sign out</a>
+            </li>
           </ul>
         </div>
       );

@@ -14,19 +14,17 @@
  * limitations under the License.
  */
 
-@import '~bourbon/core/bourbon';
+/* eslint-disable */
 
-@mixin hover-effect-for-top-menu {
-  color:           $header-text-color;
-  transition:      all 0.3s ease-in-out;
-  text-decoration: none;
-  &:hover {
-    color:      $white-opaque;
-    transition: all 0.3s ease-in-out;
-  }
-  @media(min-width: $screen-md) {
-    font-size:   13px;
-    font-weight: 600;
-  }
-}
+const $ = require('jquery');
+const VersionUpdater = require('models/shared/version_updater');
 
+(function () {
+    "use strict";
+    var VersionUpdaterForRails = {
+        update: function () {
+            new VersionUpdater().update();
+        }
+    }
+    window.VersionUpdaterForRails = VersionUpdaterForRails;
+})();

@@ -1,16 +1,16 @@
 <div id="footer-new-foundation">
-  <footer class="app-footer">
-    <div class="row expanded">
-      <div class="small-12 medium-6 large-8 columns">
-        <p class="copyright">Copyright &copy; ${currentGoCDVersion.copyrightYear()}
-          <a href="https://www.thoughtworks.com/products" target="_blank">ThoughtWorks, Inc.</a>
-          Licensed under <a href="https://www.apache.org/licenses/LICENSE-2.0" target="_blank">Apache License, Version 2.0</a>.<br>
-          Go includes <a href="/go/assets/dependency-license-report-${currentGoCDVersion.fullVersion()}" target="_blank">third-party software</a>.
-          Go Version: ${currentGoCDVersion.formatted()}.
-        </p>
+<footer class="app-footer">
+        <div class="row expanded">
+            <div class="small-12 medium-6 large-8 columns">
+                <p class="copyright">Copyright &copy; ${currentGoCDVersion.copyrightYear()}
+                    <a href="https://www.thoughtworks.com/products" target="_blank">ThoughtWorks, Inc.</a>
+                    Licensed under <a href="https://www.apache.org/licenses/LICENSE-2.0" target="_blank">Apache License, Version 2.0</a>.<br>
+                    Go includes <a href="/go/assets/dependency-license-report-${currentGoCDVersion.fullVersion()}" target="_blank">third-party software</a>.
+                    Go Version: ${currentGoCDVersion.formatted()}.
+                </p>
 
-      </div>
-      <div class="small-12 medium-6 large-4 columns">
+            </div>
+            <div class="small-12 medium-6 large-4 columns">
                  <span class="inline-list social">
                         <a href="https://twitter.com/goforcd" title="twitter" class="twitter" target="_blank"></a>
                         <a href="https://github.com/gocd/gocd" title="github" class="github" target="_blank"></a>
@@ -21,7 +21,7 @@
                         <a href="$req.getContextPath()/about" title="about" class="server-details" target="_blank"></a>
                         <a href="$req.getContextPath()/cctray.xml" title="cctray" class="cctray" target="_blank"></a>
                     </span>
-      </div>
-    </div>
-  </footer>
+            </div>
+        </div>
+</footer>
 </div>

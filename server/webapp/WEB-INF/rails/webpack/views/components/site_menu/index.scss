@@ -39,7 +39,7 @@ $subnav-link-color: #bbb;
 
 .site-nav_item {
 
-  line-height: 40px;
+  line-height: 39px;
   position:    relative;
   @media(min-width: $screen-md) {
     padding: 0 7px;
@@ -152,8 +152,6 @@ $subnav-link-color: #bbb;
   @media (max-width: $screen-md-min) {
     line-height: normal;
   }
-  list-style-type: none;
-  float: none;
 }
 
 .site-sub-nav_link {

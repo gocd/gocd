@@ -14,19 +14,20 @@
  * limitations under the License.
  */
 
-@import '~bourbon/core/bourbon';
+const $              = require('jquery');
+const VersionUpdater = require('models/shared/version_updater');
 
-@mixin hover-effect-for-top-menu {
-  color:           $header-text-color;
-  transition:      all 0.3s ease-in-out;
-  text-decoration: none;
-  &:hover {
-    color:      $white-opaque;
-    transition: all 0.3s ease-in-out;
-  }
-  @media(min-width: $screen-md) {
-    font-size:   13px;
-    font-weight: 600;
-  }
-}
+import {UsageDataReporter} from "models/shared/usage_data_reporter";
 
+require('babel-polyfill');
+require('single_page_apps/notification_center');
+require('foundation-sites');
+require('helpers/server_health_messages_helper');
+
+// boilerplate to init menus and check for updates
+$(() => {
+  $(document).foundation();
+
+  new VersionUpdater().update();
+  UsageDataReporter.report();
+});

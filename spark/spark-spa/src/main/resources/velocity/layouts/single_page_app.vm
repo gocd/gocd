@@ -32,32 +32,22 @@
           rel="stylesheet"/>
   #end
 
-  #foreach( $css in ${webpackAssetsService.getCSSAssetPathsFor("single_page_apps/${controllerName}", "single_page_apps/header_footer_shim")})
+  #foreach( $css in ${webpackAssetsService.getCSSAssetPathsFor("single_page_apps/${controllerName}")})
     <link href="${css}" media="screen" rel="stylesheet"/>
   #end
 
-  #foreach( $js in ${webpackAssetsService.getJSAssetPathsFor("single_page_apps/${controllerName}", "single_page_apps/header_footer_shim")})
+  #foreach( $js in ${webpackAssetsService.getJSAssetPathsFor("single_page_apps/${controllerName}", "single_page_apps/spa_commons")})
     <script src="${js}"></script>
   #end
 </head>
 
-<body id="${controllerName}-page"
-      data-controller-name="${controllerName}"
-      data-is-user-admin="${securityService.isUserAdmin(${currentUser})}"
-      data-can-user-view-admin="${securityService.canViewAdminPage(${currentUser})}"
-      data-is-user-group-admin="${securityService.isUserGroupAdmin(${currentUser})}"
-      data-can-user-view-templates="${securityService.isAuthorizedToViewTemplates(${currentUser})}"
-      data-view-name="${viewName}"
-      data-show-analytics-dashboard="${showAnalyticsDashboard}"
-      data-user-display-name="${currentUser.displayName}"
-      data-user-anonymous="${currentUser.anonymous}"
-      data-version-go-version="${currentVersion.goVersion()}"
-      data-version-copyright-year="${currentVersion.copyrightYear()}"
-      data-version-formatted="${currentVersion.formatted()}"
-      data-version-full="${currentVersion.fullVersion()}"
-      data-config-repo-enabled="${toggles.isToggleOn("config_repos_ui")}">
+<body data-controller-name="${controllerName}"
+      id="${controllerName}-page">
 <div class="page-wrap">
-  <header id="app-menu">
+  <header class="app-header">
+    <div class="row expanded">
+      #parse('new_navigation_elements/_navigation.vm')
+    </div>
   </header>
 
   <main class="main-container">
@@ -66,7 +56,7 @@
 
 </div>
 
-  <div id="app-footer"></div>
+  #parse('new_navigation_elements/_footer.vm')
 
 </body>
 </html>

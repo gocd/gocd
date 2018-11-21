@@ -1,0 +1,69 @@
+#*
+ * Copyright 2018 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *#
+<div class="top-bar">
+
+  <div class="medium-6 columns">
+    <div class="top-bar-left">
+      <ul class="dropdown menu" data-dropdown-menu>
+
+        <li class="menu-text"><a href="/go/pipelines" class="logo"></a></li>
+
+        <li>#link_to('Pipelines', "/go/pipelines")</li>
+        <li>#link_to('Agents', "/go/agents")</li>
+        #if($showAnalyticsDashboard)
+          <li>#link_to('Analytics', "/go/analytics")</li>
+        #end
+        <li>
+          #if(${securityService.canViewAdminPage(${currentUser})})
+            <a href="#" onclick="return false;">Admin</a>
+            <ul class="menu vertical admin-dropdown">
+              #if(${securityService.isUserAdmin(${currentUser})})
+                #parse("new_navigation_elements/_dropdown_admin.vm")
+              #elseif(${securityService.isUserGroupAdmin(${currentUser})})
+                #parse("new_navigation_elements/_dropdown_pipeline_group_admin.vm")
+              #elseif(${securityService.isAuthorizedToViewTemplates(${currentUser})})
+                <li role="presentation">
+                  <a href="/go/admin/templates">Templates</a>
+                </li>
+              #end
+            </ul>
+          #else
+            <span>Admin</span>
+          #end
+        </li>
+      </ul>
+    </div>
+  </div>
+  <div class="medium-6 columns">
+    <div class="top-bar-right">
+      <ul class="dropdown menu current-user nav-right" data-dropdown-menu>
+        <li class="server-health-summary"><!-- filled in later by mithril --></li>
+        <li><a href="https://gocd.org/help" target="_blank">Need Help?</a></li>
+        #if(!$currentUser.anonymous)
+          <li class="current-user">
+            <a href="#" onclick="return false;"><i class="user"></i>${currentUser.displayName}</a>
+            <ul class="menu vertical">
+              <li><a href="/go/preferences/notifications">Preferences</a></li>
+              <li><a href="/go/auth/logout">Sign out</a></li>
+            </ul>
+          </li>
+        #end
+      </ul>
+
+      <div id="system-notifications" class="system-notifications"></div>
+    </div>
+  </div>
+</div>

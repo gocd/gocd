@@ -46,7 +46,7 @@
     "@types/jasmine-jquery": "^1.5.33",
     "@types/lodash": "^4.14.118",
     "@types/mithril": "^1.1.13",
-    "@types/node": "^10.12.9",
+    "@types/node": "^10.12.10",
     "@types/underscore.string": "^0.0.32",
     "@types/uuid": "^3.4.4",
     "add-matchers": "^0.5.0",

@@ -26,7 +26,7 @@ public class AgentUpdateRequestRepresenter extends UpdateRequestRepresenter {
         final JsonReader reader = GsonTransformer.getInstance().jsonReaderFrom(requestBody);
 
         return new AgentUpdateRequest(
-                reader.getString("hostname"),
+                reader.optString("hostname").orElse(null),
                 toTriState(reader.optString("agent_config_state").orElse(null)),
                 getEnvironments(reader),
                 getResources(reader)

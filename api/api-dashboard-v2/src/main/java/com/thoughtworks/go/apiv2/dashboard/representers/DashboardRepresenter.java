@@ -25,7 +25,7 @@ public class DashboardRepresenter {
         jsonOutputWriter
             .addLinks(linksWriter -> linksWriter.addLink("self", Routes.Dashboard.SELF)
                 .addAbsoluteLink("doc", Routes.Dashboard.DOC))
-            .add("personalization", dashboardFor.getPersonalizationEtag())
+            .add("_personalization", dashboardFor.getPersonalizationEtag())
             .addChild("_embedded", childWriter -> {
                 childWriter
 

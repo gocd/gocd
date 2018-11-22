@@ -28,11 +28,13 @@ import org.junit.jupiter.api.Test
 
 import static com.thoughtworks.go.api.base.JsonUtils.toObject
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
+import static org.assertj.core.api.Assertions.assertThat
 
 class DashboardRepresenterTest {
 
   @Test
   void 'renders pipeline dashboard with hal representation'() {
+    def personalizationEtag = "sha256hash"
     def user = new Username(new CaseInsensitiveString(SecureRandom.hex()))
     def permissions = new Permissions(Everyone.INSTANCE, Everyone.INSTANCE, Everyone.INSTANCE, Everyone.INSTANCE)
 
@@ -52,7 +54,7 @@ class DashboardRepresenterTest {
     env1.addPipeline(pipeline3)
 
     def actualJson = toObject({
-      DashboardRepresenter.toJSON(it, new DashboardFor([group1, group2], [env1], user, "sha256hash"))
+      DashboardRepresenter.toJSON(it, new DashboardFor([group1, group2], [env1], user, personalizationEtag))
     })
 
     assertThatJson(actualJson._links).isEqualTo([
@@ -74,5 +76,7 @@ class DashboardRepresenterTest {
       toObject({ PipelineRepresenter.toJSON(it, pipeline2, user) }),
       toObject({ PipelineRepresenter.toJSON(it, pipeline3, user) }),
     ])
+
+    assertThat(actualJson._personalization).isEqualTo(personalizationEtag)
   }
 }

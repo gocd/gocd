@@ -115,7 +115,7 @@ $(() => {
   });
 
   function onResponse(dashboardData, message = undefined) {
-    personalizeVM.etag(dashboardData.personalization);
+    personalizeVM.etag(dashboardData['_personalization']);
     dashboard.initialize(dashboardData);
     dashboard.message(message);
   }

@@ -46,6 +46,21 @@ class AgentUpdateRequestRepresenterTest {
     assertThat(agentInfo.getEnvironments()).isEqualTo("env1")
   }
 
+  @Test
+  void 'should create agent update request when request body does not contains hostname'() {
+    def jsonString = new JsonBuilder(["agent_config_state": "Enabled",
+                                      "resources"         : ["java", "psql"],
+                                      "environments"      : ["env1"]
+    ]).toString()
+
+    AgentUpdateRequest agentInfo = AgentUpdateRequestRepresenter.fromJSON(jsonString)
+
+    assertThat(agentInfo.getHostname()).isEqualTo(null)
+    assertThat(agentInfo.getAgentConfigState()).isEqualTo(TriState.TRUE)
+    assertThat(agentInfo.getResources()).isEqualTo("java,psql")
+    assertThat(agentInfo.getEnvironments()).isEqualTo("env1")
+  }
+
   @Nested
   class Resources {
     @Test

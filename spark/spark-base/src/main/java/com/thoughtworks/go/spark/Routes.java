@@ -19,6 +19,8 @@ package com.thoughtworks.go.spark;
 import org.apache.commons.lang3.text.StrSubstitutor;
 
 import static com.google.common.collect.ImmutableMap.of;
+import static java.lang.String.format;
+import static java.lang.String.valueOf;
 
 public class Routes {
 
@@ -186,7 +188,7 @@ public class Routes {
         public static String instance(String pipelineName, int pipelineCounter) {
             return BASE + INSTANCE_PATH
                     .replaceAll(":pipeline_name", pipelineName)
-                    .replaceAll(":pipeline_counter", String.valueOf(pipelineCounter));
+                    .replaceAll(":pipeline_counter", valueOf(pipelineCounter));
         }
     }
 
@@ -300,6 +302,8 @@ public class Routes {
         public static final String BASE = "/api/agents";
         public static final String UUID = "/:uuid";
         public static final String DOC = "https://api.gocd.org/current/#agents";
+        public static final String JOB_RUN_HISTORY = format("%s/job_run_history", UUID);
+        public static final String OFFSET = "/:offset";
 
         public static String find() {
             return BASE + UUID;

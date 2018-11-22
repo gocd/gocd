@@ -20,13 +20,19 @@ import com.thoughtworks.go.api.SecurityTestTrait
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
 import com.thoughtworks.go.api.util.HaltApiMessages
 import com.thoughtworks.go.domain.AgentInstance
+import com.thoughtworks.go.domain.JobInstance
+import com.thoughtworks.go.domain.JobInstances
 import com.thoughtworks.go.domain.NullAgentInstance
 import com.thoughtworks.go.server.domain.Username
 import com.thoughtworks.go.server.service.AgentService
 import com.thoughtworks.go.server.service.EnvironmentConfigService
+import com.thoughtworks.go.server.service.JobInstanceService
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult
 import com.thoughtworks.go.server.service.result.HttpOperationResult
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult
+import com.thoughtworks.go.server.ui.JobInstancesModel
+import com.thoughtworks.go.server.ui.SortOrder
+import com.thoughtworks.go.server.util.Pagination
 import com.thoughtworks.go.spark.AdminUserSecurity
 import com.thoughtworks.go.spark.ControllerTrait
 import com.thoughtworks.go.spark.NormalUserSecurity
@@ -40,8 +46,10 @@ import org.mockito.invocation.InvocationOnMock
 
 import java.util.stream.Stream
 
+import static com.thoughtworks.go.domain.JobState.*
 import static com.thoughtworks.go.helper.AgentInstanceMother.idle
 import static com.thoughtworks.go.helper.AgentInstanceMother.idleWith
+import static com.thoughtworks.go.helper.JobInstanceMother.building
 import static java.util.Arrays.asList
 import static java.util.Collections.singleton
 import static java.util.stream.Collectors.toSet
@@ -57,6 +65,9 @@ class AgentsControllerV4Test implements SecurityServiceTrait, ControllerTrait<Ag
   @Mock
   private EnvironmentConfigService environmentConfigService
 
+  @Mock
+  private JobInstanceService jobInstanceService
+
   @BeforeEach
   void setUp() {
     initMocks(this)
@@ -64,7 +75,7 @@ class AgentsControllerV4Test implements SecurityServiceTrait, ControllerTrait<Ag
 
   @Override
   AgentsControllerV4 createControllerInstance() {
-    return new AgentsControllerV4(agentService, new ApiAuthenticationHelper(securityService, goConfigService), securityService, environmentConfigService)
+    return new AgentsControllerV4(agentService, new ApiAuthenticationHelper(securityService, goConfigService), securityService, environmentConfigService, jobInstanceService)
   }
 
   @Nested
@@ -480,6 +491,158 @@ class AgentsControllerV4Test implements SecurityServiceTrait, ControllerTrait<Ag
         .isUnprocessableEntity()
         .hasContentType(controller.mimeType)
         .hasJsonMessage("Failed to delete agent. { Some description }")
+    }
+  }
+
+  @Nested
+  class JobRunHistory {
+    @Nested
+    class Security implements SecurityTestTrait, NormalUserSecurity {
+      @Override
+      String getControllerMethodUnderTest() {
+        return 'jobRunHistory'
+      }
+
+      @Override
+      void makeHttpCall() {
+        getWithApiHeader(controller.controllerPath("/123", "/job_run_history", "/10"))
+      }
+    }
+
+    @Test
+    void 'should render job run history for given agent uuid from offset'() {
+      final JobInstanceService.JobHistoryColumns jobHistoryColumns = JobInstanceService.JobHistoryColumns.valueOf("completed")
+      final Pagination pagination = Pagination.pageStartingAt(10, 999, 10)
+      JobInstance jobInstance = building("some-config")
+      final JobInstances jobInstances = new JobInstances(jobInstance)
+
+      when(jobInstanceService.totalCompletedJobsCountOn("123")).thenReturn(999)
+      when(jobInstanceService.completedJobsOnAgent("123", jobHistoryColumns, SortOrder.orderFor("DESC"), pagination))
+        .thenReturn(new JobInstancesModel(jobInstances, pagination))
+
+      getWithApiHeader(controller.controllerPath("/123", "/job_run_history", "/10"))
+
+      assertThatResponse()
+        .isOk()
+        .hasContentType(controller.mimeType)
+        .hasJsonBody([
+        "jobs"      : [
+          [
+            "id"                   : -1,
+            "name"                 : "some-config",
+            "rerun"                : false,
+            "agent_uuid"           : "1234",
+            "pipeline_name"        : "pipeline",
+            "pipeline_counter"     : 1,
+            "stage_name"           : "stage",
+            "stage_counter"        : "1",
+            "job_state_transitions": [
+              [
+                "id"               : -1,
+                "state_change_time": jobInstance.getTransition(Scheduled).getStateChangeTime().getTime(),
+                "state"            : "Scheduled"
+              ],
+              [
+                "id"               : -1,
+                "state_change_time": jobInstance.getTransition(Assigned).getStateChangeTime().getTime(),
+                "state"            : "Assigned"
+              ],
+              [
+                "id"               : -1,
+                "state_change_time": jobInstance.getTransition(Preparing).getStateChangeTime().getTime(),
+                "state"            : "Preparing"
+              ],
+              [
+                "id"               : -1,
+                "state_change_time": jobInstance.getTransition(Building).getStateChangeTime().getTime(),
+                "state"            : "Building"
+              ]
+            ],
+            "original_job_id"      : null,
+            "state"                : "Building",
+            "result"               : "Unknown",
+            "scheduled_date"       : jobInstance.getScheduledDate().getTime()
+          ]
+        ],
+        "pagination": [
+          "offset"   : 10,
+          "total"    : 999,
+          "page_size": 10
+        ]
+      ])
+    }
+
+    @Test
+    void 'should render job run history when offset is not specified'() {
+      final JobInstanceService.JobHistoryColumns jobHistoryColumns = JobInstanceService.JobHistoryColumns.valueOf("completed")
+      final Pagination pagination = Pagination.pageStartingAt(null, 999, 10)
+      JobInstance jobInstance = building("some-config")
+      final JobInstances jobInstances = new JobInstances(jobInstance)
+
+      when(jobInstanceService.totalCompletedJobsCountOn("123")).thenReturn(999)
+      when(jobInstanceService.completedJobsOnAgent("123", jobHistoryColumns, SortOrder.orderFor("DESC"), pagination))
+        .thenReturn(new JobInstancesModel(jobInstances, pagination))
+
+      getWithApiHeader(controller.controllerPath("123", "job_run_history"))
+
+      assertThatResponse()
+        .isOk()
+        .hasContentType(controller.mimeType)
+        .hasJsonBody([
+        "jobs"      : [
+          [
+            "id"                   : -1,
+            "name"                 : "some-config",
+            "rerun"                : false,
+            "agent_uuid"           : "1234",
+            "pipeline_name"        : "pipeline",
+            "pipeline_counter"     : 1,
+            "stage_name"           : "stage",
+            "stage_counter"        : "1",
+            "job_state_transitions": [
+              [
+                "id"               : -1,
+                "state_change_time": jobInstance.getTransition(Scheduled).getStateChangeTime().getTime(),
+                "state"            : "Scheduled"
+              ],
+              [
+                "id"               : -1,
+                "state_change_time": jobInstance.getTransition(Assigned).getStateChangeTime().getTime(),
+                "state"            : "Assigned"
+              ],
+              [
+                "id"               : -1,
+                "state_change_time": jobInstance.getTransition(Preparing).getStateChangeTime().getTime(),
+                "state"            : "Preparing"
+              ],
+              [
+                "id"               : -1,
+                "state_change_time": jobInstance.getTransition(Building).getStateChangeTime().getTime(),
+                "state"            : "Building"
+              ]
+            ],
+            "original_job_id"      : null,
+            "state"                : "Building",
+            "result"               : "Unknown",
+            "scheduled_date"       : jobInstance.getScheduledDate().getTime()
+          ]
+        ],
+        "pagination": [
+          "offset"   : 0,
+          "total"    : 999,
+          "page_size": 10
+        ]
+      ])
+    }
+
+    @Test
+    void 'should error out if specified offset is not an integer'() {
+      getWithApiHeader(controller.controllerPath("123", "job_run_history", "not-an-integer"))
+
+      assertThatResponse()
+        .isUnprocessableEntity()
+        .hasContentType(controller.mimeType)
+        .hasJsonMessage("Not a valid offset 'not-an-integer'. Must be an integer.")
     }
   }
 }

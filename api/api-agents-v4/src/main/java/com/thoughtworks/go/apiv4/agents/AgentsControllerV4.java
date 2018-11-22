@@ -28,18 +28,19 @@ import com.thoughtworks.go.api.util.GsonTransformer;
 import com.thoughtworks.go.api.util.MessageJson;
 import com.thoughtworks.go.apiv4.agents.model.AgentBulkUpdateRequest;
 import com.thoughtworks.go.apiv4.agents.model.AgentUpdateRequest;
-import com.thoughtworks.go.apiv4.agents.representers.AgentBulkUpdateRequestRepresenter;
-import com.thoughtworks.go.apiv4.agents.representers.AgentRepresenter;
-import com.thoughtworks.go.apiv4.agents.representers.AgentUpdateRequestRepresenter;
-import com.thoughtworks.go.apiv4.agents.representers.AgentsRepresenter;
+import com.thoughtworks.go.apiv4.agents.representers.*;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.domain.AgentInstance;
 import com.thoughtworks.go.domain.NullAgentInstance;
 import com.thoughtworks.go.server.service.AgentService;
 import com.thoughtworks.go.server.service.EnvironmentConfigService;
+import com.thoughtworks.go.server.service.JobInstanceService;
 import com.thoughtworks.go.server.service.SecurityService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.service.result.HttpOperationResult;
+import com.thoughtworks.go.server.ui.JobInstancesModel;
+import com.thoughtworks.go.server.ui.SortOrder;
+import com.thoughtworks.go.server.util.Pagination;
 import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.spring.SparkSpringController;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,7 +54,10 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.function.Consumer;
 
+import static com.thoughtworks.go.api.util.HaltApiResponses.haltBecauseOfReason;
+import static java.lang.String.format;
 import static java.util.Collections.singletonList;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static spark.Spark.*;
 
 @Component
@@ -62,14 +66,16 @@ public class AgentsControllerV4 extends ApiController implements SparkSpringCont
     private final ApiAuthenticationHelper apiAuthenticationHelper;
     private final SecurityService securityService;
     private final EnvironmentConfigService environmentConfigService;
+    private final JobInstanceService jobInstanceService;
 
     @Autowired
-    public AgentsControllerV4(AgentService agentService, ApiAuthenticationHelper apiAuthenticationHelper, SecurityService securityService, EnvironmentConfigService environmentConfigService) {
+    public AgentsControllerV4(AgentService agentService, ApiAuthenticationHelper apiAuthenticationHelper, SecurityService securityService, EnvironmentConfigService environmentConfigService, JobInstanceService jobInstanceService) {
         super(ApiVersion.v4);
         this.agentService = agentService;
         this.apiAuthenticationHelper = apiAuthenticationHelper;
         this.securityService = securityService;
         this.environmentConfigService = environmentConfigService;
+        this.jobInstanceService = jobInstanceService;
     }
 
     @Override
@@ -87,6 +93,10 @@ public class AgentsControllerV4 extends ApiController implements SparkSpringCont
 
             get("", mimeType, this::index);
             get(Routes.AgentsAPI.UUID, mimeType, this::show);
+            path(Routes.AgentsAPI.JOB_RUN_HISTORY, () -> {
+                get("", mimeType, this::jobRunHistory);
+                get(Routes.AgentsAPI.OFFSET, mimeType, this::jobRunHistory);
+            });
             patch(Routes.AgentsAPI.UUID, mimeType, this::update);
             patch("", mimeType, this::bulkUpdate);
             delete(Routes.AgentsAPI.UUID, mimeType, this::deleteAgent);
@@ -156,6 +166,33 @@ public class AgentsControllerV4 extends ApiController implements SparkSpringCont
         agentService.deleteAgents(currentUsername(), result, uuids);
 
         return renderHTTPOperationResult(result, request, response);
+    }
+
+    public String jobRunHistory(Request request, Response response) throws IOException {
+        final Integer offset = getOffsetFromRequestUrl(request);
+        final String uuid = request.params("uuid");
+        int pageSize = 10;
+        final int completedJobsCount = jobInstanceService.totalCompletedJobsCountOn(uuid);
+
+        final Pagination pagination = Pagination.pageStartingAt(offset, completedJobsCount, pageSize);
+
+        final JobInstancesModel jobInstancesModel = jobInstanceService.completedJobsOnAgent(
+                uuid,
+                JobInstanceService.JobHistoryColumns.valueOf("completed"),
+                SortOrder.orderFor("DESC"),
+                pagination);
+
+        return writerForTopLevelObject(request, response, writer -> JobRunHistoryRepresenter.toJSON(writer, jobInstancesModel));
+
+    }
+
+    private Integer getOffsetFromRequestUrl(Request request) {
+        final String offset = request.params("offset");
+        try {
+            return isNotBlank(offset) ? Integer.parseInt(offset) : null;
+        } catch (NumberFormatException e) {
+            throw haltBecauseOfReason(format("Not a valid offset '%s'. Must be an integer.", offset));
+        }
     }
 
     @Override

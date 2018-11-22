@@ -16,7 +16,7 @@
 
 import * as s from "underscore.string";
 
-namespace ErrorMessages {
+export namespace ErrorMessages {
   export function duplicate(attribute: string) {
     return `${s.humanize(attribute)} is a duplicate`;
   }

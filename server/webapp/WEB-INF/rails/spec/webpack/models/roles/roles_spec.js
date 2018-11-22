@@ -18,7 +18,7 @@ describe('Roles Configuration', () => {
 
   const _      = require('lodash');
   const s      = require('string-plus');
-  const Errors = require('models/mixins/errors');
+  const Errors = require('models/mixins/errors').Errors;
 
   const Roles        = require('models/roles/roles');
   const roleIndexUrl = '/go/api/admin/security/roles';

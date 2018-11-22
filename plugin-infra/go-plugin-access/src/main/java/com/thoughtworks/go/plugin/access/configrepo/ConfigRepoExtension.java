@@ -27,6 +27,7 @@ import com.thoughtworks.go.plugin.configrepo.contract.CRParseResult;
 import com.thoughtworks.go.plugin.configrepo.contract.CRPipeline;
 import com.thoughtworks.go.plugin.access.configrepo.v1.JsonMessageHandler1_0;
 import com.thoughtworks.go.plugin.access.configrepo.v2.JsonMessageHandler2_0;
+import com.thoughtworks.go.plugin.api.info.PluginDescriptor;
 import com.thoughtworks.go.plugin.domain.configrepo.Capabilities;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -141,6 +142,10 @@ public class ConfigRepoExtension extends AbstractExtension implements ConfigRepo
 
     public boolean isConfigRepoPlugin(String pluginId) {
         return pluginManager.isPluginOfType(CONFIG_REPO_EXTENSION, pluginId);
+    }
+
+    public PluginDescriptor pluginDescriptorFor(String pluginId) {
+        return pluginManager.getPluginDescriptorFor(pluginId);
     }
 
     @Override

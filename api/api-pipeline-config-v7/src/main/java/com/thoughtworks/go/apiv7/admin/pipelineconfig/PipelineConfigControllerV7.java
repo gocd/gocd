@@ -49,6 +49,7 @@ import java.io.IOException;
 import java.util.function.Consumer;
 
 import static com.thoughtworks.go.api.util.HaltApiResponses.*;
+import static java.lang.String.format;
 import static spark.Spark.*;
 
 
@@ -112,6 +113,7 @@ public class PipelineConfigControllerV7 extends ApiController implements SparkSp
             before("/*", this::verifyContentType);
             before("", mimeType, apiAuthenticationHelper::checkPipelineCreationAuthorizationAnd403);
             before(Routes.PipelineConfig.NAME, mimeType, apiAuthenticationHelper::checkPipelineGroupAdminUserAnd403);
+            before(Routes.PipelineConfig.EXPORT, mimeType, apiAuthenticationHelper::checkPipelineGroupAdminUserAnd403);
 
             post("", mimeType, this::create);
 
@@ -125,14 +127,31 @@ public class PipelineConfigControllerV7 extends ApiController implements SparkSp
         });
     }
 
-    private String export(Request req, Response res) {
+    public String export(Request req, Response res) {
         PipelineConfig pipelineConfig = fetchEntityFromConfig(req.params("pipeline_name"));
+        String pluginId = req.queryParams("pluginId");
+        String groupName = req.queryParams("groupName");
+
+        if (StringUtils.isBlank(pluginId)) {
+            throw haltBecauseRequiredParamMissing("pluginId");
+        }
+
+        if (StringUtils.isBlank(groupName)) {
+            throw haltBecauseRequiredParamMissing("groupName");
+        }
+
+        if (!goConfigPluginService.supportsPipelineExport(pluginId)) {
+            throw haltBecauseOfReason(format("Plugin `%s` does not support pipeline export or is not a config repo plugin.", pluginId));
+        }
+
+        ConfigRepoPlugin repoPlugin = (ConfigRepoPlugin) goConfigPluginService.partialConfigProviderFor(pluginId);
+
         if (isGetOrHeadRequestFresh(req, pipelineConfig)) {
             return notModified(res);
         } else {
             setEtagHeader(pipelineConfig, res);
-            ConfigRepoPlugin repoPlugin = (ConfigRepoPlugin) goConfigPluginService.partialConfigProviderFor(req.queryParams("pluginId"));
-            return repoPlugin.pipelineExport(pipelineConfig, req.queryParams("groupName"));
+
+            return repoPlugin.pipelineExport(pipelineConfig, groupName);
         }
     }
 
@@ -148,7 +167,7 @@ public class PipelineConfigControllerV7 extends ApiController implements SparkSp
     }
 
     public String update(Request req, Response res) {
-        PipelineConfig existingPipelineConfig =  fetchEntityFromConfig(req.params("pipeline_name"));
+        PipelineConfig existingPipelineConfig = fetchEntityFromConfig(req.params("pipeline_name"));
         PipelineConfig pipelineConfigFromRequest = buildEntityFromRequestBody(req);
 
         if (isRenameAttempt(existingPipelineConfig, pipelineConfigFromRequest)) {
@@ -161,7 +180,7 @@ public class PipelineConfigControllerV7 extends ApiController implements SparkSp
         }
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        pipelineConfigService.updatePipelineConfig(SessionUtils.currentUsername(), pipelineConfigFromRequest,  etagFor(existingPipelineConfig), result);
+        pipelineConfigService.updatePipelineConfig(SessionUtils.currentUsername(), pipelineConfigFromRequest, etagFor(existingPipelineConfig), result);
         return handleCreateOrUpdateResponse(req, res, pipelineConfigFromRequest, result);
     }
 
@@ -190,7 +209,7 @@ public class PipelineConfigControllerV7 extends ApiController implements SparkSp
 
     private void haltIfPipelineIsDefinedRemotely(PipelineConfig existingPipelineConfig) {
         if (!existingPipelineConfig.isLocal()) {
-            throw haltBecauseOfReason(String.format("Can not operate on pipeline '%s' as it is defined remotely in '%s'.", existingPipelineConfig.name(), existingPipelineConfig.getOrigin().displayName()));
+            throw haltBecauseOfReason(format("Can not operate on pipeline '%s' as it is defined remotely in '%s'.", existingPipelineConfig.name(), existingPipelineConfig.getOrigin().displayName()));
         }
     }
 
@@ -203,7 +222,7 @@ public class PipelineConfigControllerV7 extends ApiController implements SparkSp
         if (!jsonReader.hasJsonObject("group") || StringUtils.isBlank(jsonReader.getString("group"))) {
             throw haltBecauseOfReason("Pipeline group must be specified for creating a pipeline.");
         }
-        return  jsonReader.getString("group");
+        return jsonReader.getString("group");
     }
 
 

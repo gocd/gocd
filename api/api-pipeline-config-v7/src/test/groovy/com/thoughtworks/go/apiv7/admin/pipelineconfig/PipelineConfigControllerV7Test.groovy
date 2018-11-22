@@ -108,17 +108,20 @@ class PipelineConfigControllerV7Test implements SecurityServiceTrait, Controller
         loginAsAdmin()
       }
 
+      String pluginId = 'config.repo.json'
+      String groupName = 'group1'
+
       @Test
       void 'should be able to export pipeline config if user is admin and etag is stale'() {
         def pipeline = PipelineConfigMother.pipelineConfig('pipeline1')
         pipeline.setOrigin(new FileConfigOrigin())
         def pipelineMd5 = 'md5_for_pipeline_config'
-        def pluginId = 'config.repo.json'
-        def groupName = 'group1'
 
         when(pipelineConfigService.getPipelineConfig('pipeline1')).thenReturn(pipeline)
         when(entityHashingService.md5ForEntity(pipeline)).thenReturn(pipelineMd5)
+        when(goConfigPluginService.supportsPipelineExport(pluginId)).thenReturn(true)
         when(goConfigPluginService.partialConfigProviderFor(pluginId)).thenReturn(configRepoPlugin)
+
         when(configRepoPlugin.pipelineExport(pipeline, groupName)).thenReturn("message from plugin")
 
         getWithApiHeader(controller.controllerPath("/pipeline1/export?pluginId=${pluginId}&groupName=${groupName}"), ['if-none-match': '"junk"'])
@@ -128,34 +131,91 @@ class PipelineConfigControllerV7Test implements SecurityServiceTrait, Controller
           .hasHeader("Etag", '"md5_for_pipeline_config"')
           .hasBody("message from plugin")
       }
-    }
 
-    @Test
-    void "should return 304 for export pipeline config if etag matches"() {
-      def pipeline = PipelineConfigMother.pipelineConfig("pipeline1")
-      pipeline.setOrigin(new FileConfigOrigin())
-      def pipeline_md5 = 'md5_for_pipeline_config'
+      @Test
+      void 'returns a 400 when pluginId is blank or missing'() {
+        def pipeline = PipelineConfigMother.pipelineConfig("pipeline1")
+        pipeline.setOrigin(new FileConfigOrigin())
 
-      when(pipelineConfigService.getPipelineConfig("pipeline1")).thenReturn(pipeline)
-      when(entityHashingService.md5ForEntity(pipeline)).thenReturn(pipeline_md5)
+        when(pipelineConfigService.getPipelineConfig("pipeline1")).thenReturn(pipeline)
 
-      getWithApiHeader(controller.controllerPath("/pipeline1/export?pluginId=${pluginId}&groupName=${groupName}"), ['if-none-match': '"md5_for_pipeline_config"'])
+        getWithApiHeader(controller.controllerPath("/pipeline1/export?groupName=${groupName}"))
 
-      assertThatResponse()
-        .isNotModified()
-        .hasContentType(controller.mimeType)
-    }
+        assertThatResponse()
+          .isBadRequest()
+          .hasJsonMessage("Request is missing parameter `pluginId`")
 
-    @Test
-    void "should return 404 for export pipeline config if pipeline is not found"() {
-      when(pipelineConfigService.getPipelineConfig("pipeline1")).thenReturn(null)
+        getWithApiHeader(controller.controllerPath("/pipeline1/export?pluginId=%20"))
 
-      getWithApiHeader(controller.controllerPath("/pipeline1/export?pluginId=${pluginId}&groupName=${groupName}"))
+        assertThatResponse()
+          .isBadRequest()
+          .hasJsonMessage("Request is missing parameter `pluginId`")
+      }
 
-      assertThatResponse()
-        .isNotFound()
-        .hasJsonMessage(HaltApiMessages.notFoundMessage())
-        .hasContentType(controller.mimeType)
+      @Test
+      void 'returns a 400 when groupName is blank or missing'() {
+        def pipeline = PipelineConfigMother.pipelineConfig("pipeline1")
+        pipeline.setOrigin(new FileConfigOrigin())
+
+        when(pipelineConfigService.getPipelineConfig("pipeline1")).thenReturn(pipeline)
+
+        getWithApiHeader(controller.controllerPath("/pipeline1/export?pluginId=${pluginId}"))
+
+        assertThatResponse()
+          .isBadRequest()
+          .hasJsonMessage("Request is missing parameter `groupName`")
+
+        getWithApiHeader(controller.controllerPath("/pipeline1/export?pluginId=${pluginId}&groupName=%20"))
+
+        assertThatResponse()
+          .isBadRequest()
+          .hasJsonMessage("Request is missing parameter `groupName`")
+      }
+
+      @Test
+      void 'returns a 422 when plugin does not support export'() {
+        def pipeline = PipelineConfigMother.pipelineConfig("pipeline1")
+        pipeline.setOrigin(new FileConfigOrigin())
+
+        when(pipelineConfigService.getPipelineConfig("pipeline1")).thenReturn(pipeline)
+        when(goConfigPluginService.supportsPipelineExport(pluginId)).thenReturn(false)
+
+        getWithApiHeader(controller.controllerPath("/pipeline1/export?pluginId=${pluginId}&groupName=${groupName}"))
+
+        assertThatResponse()
+          .isUnprocessableEntity()
+          .hasJsonMessage("Plugin `$pluginId` does not support pipeline export or is not a config repo plugin.")
+      }
+
+      @Test
+      void "should return 304 for export pipeline config if etag matches"() {
+        def pipeline = PipelineConfigMother.pipelineConfig("pipeline1")
+        pipeline.setOrigin(new FileConfigOrigin())
+        def pipeline_md5 = 'md5_for_pipeline_config'
+
+        when(pipelineConfigService.getPipelineConfig("pipeline1")).thenReturn(pipeline)
+        when(entityHashingService.md5ForEntity(pipeline)).thenReturn(pipeline_md5)
+        when(goConfigPluginService.supportsPipelineExport(pluginId)).thenReturn(true)
+
+        getWithApiHeader(controller.controllerPath("/pipeline1/export?pluginId=${pluginId}&groupName=${groupName}"), ['if-none-match': '"md5_for_pipeline_config"'])
+
+        assertThatResponse()
+          .hasBody("")
+          .isNotModified()
+          .hasContentType(controller.mimeType)
+      }
+
+      @Test
+      void "should return 404 for export pipeline config if pipeline is not found"() {
+        when(pipelineConfigService.getPipelineConfig("pipeline1")).thenReturn(null)
+
+        getWithApiHeader(controller.controllerPath("/pipeline1/export?pluginId=${pluginId}&groupName=${groupName}"))
+
+        assertThatResponse()
+          .isNotFound()
+          .hasJsonMessage(HaltApiMessages.notFoundMessage())
+          .hasContentType(controller.mimeType)
+      }
     }
   }
 

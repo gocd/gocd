@@ -100,6 +100,12 @@
   </rule>
 
   <rule>
+    <name>Rails API for the job run history api</name>
+    <from>^/api/agents/([^/]+)/job_run_history(?:(?:/)(.*))?(?:/?)$</from>
+    <to last="true">/rails/api/agents/$1/job_run_history/$2</to>
+  </rule>
+
+  <rule>
     <name>Spark Agents Index API</name>
     <from>^/api/agents$</from>
     <run class="com.thoughtworks.go.server.SparkOrRailsToggle" method="agentsApi"/>

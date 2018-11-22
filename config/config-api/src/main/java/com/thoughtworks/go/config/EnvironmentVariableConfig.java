@@ -134,7 +134,6 @@ public class EnvironmentVariableConfig implements Serializable, Validatable, Par
         result = 31 * result + (isSecure ? 1 : 0);
         result = 31 * result + (value != null ? value.hashCode() : 0);
         result = 31 * result + goCipher.passwordHashcode(encryptedValue);
-        result = 31 * result + (configErrors != null ? configErrors.hashCode() : 0);
         return result;
     }
 

@@ -31,6 +31,7 @@ import java.io.File;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import static java.lang.String.format;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
@@ -224,26 +225,21 @@ public class FetchPluggableArtifactTask extends AbstractFetchTask {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-
-        FetchPluggableArtifactTask fetchTask = (FetchPluggableArtifactTask) o;
-
-        if (artifactId != null ? !artifactId.equals(fetchTask.artifactId) : fetchTask.artifactId != null) {
-            return false;
-        }
-
-        if (configuration != null ? !configuration.equals(fetchTask.configuration) : fetchTask.configuration != null) {
-            return false;
-        }
-
-        return super.equals(fetchTask);
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+        FetchPluggableArtifactTask that = (FetchPluggableArtifactTask) o;
+        return Objects.equals(artifactId, that.artifactId) &&
+                Objects.equals(configuration, that.configuration);
     }
 
+    @Override
+    public int hashCode() {
+        int result = super.hashCode();
+        result = 31 * result + (null != artifactId ? artifactId.hashCode() : 0);
+        result = 31 * result + (null != configuration ? configuration.hashCode() : 0);
+        return result;
+    }
 
     @Override
     public String getTypeForDisplay() {

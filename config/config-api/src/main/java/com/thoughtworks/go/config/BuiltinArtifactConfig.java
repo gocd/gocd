@@ -104,7 +104,10 @@ public abstract class BuiltinArtifactConfig implements ArtifactConfig {
 
     @Override
     public int hashCode() {
-        return Objects.hash(source, destination);
+        int result = source != null ? source.hashCode() : 0;
+        result = 31 * result + (destination != null ? destination.hashCode() : 0);
+        result = 31 * result + getArtifactType().hashCode();
+        return result;
     }
 
     @Override

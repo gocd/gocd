@@ -560,35 +560,20 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        if (!super.equals(o)) {
-            return false;
-        }
-
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
         PipelineConfig that = (PipelineConfig) o;
-
-        if (labelTemplate != null ? !labelTemplate.equals(that.labelTemplate) : that.labelTemplate != null) {
-            return false;
-        }
-        if (materialConfigs != null ? !materialConfigs.equals(that.materialConfigs) : that.materialConfigs != null) {
-            return false;
-        }
-        if (name != null ? !name.equals(that.name) : that.name != null) {
-            return false;
-        }
-        if (timer != null ? !timer.equals(that.timer) : that.timer != null) {
-            return false;
-        }
-        if (trackingTool != null ? !trackingTool.equals(that.trackingTool) : that.trackingTool != null) {
-            return false;
-        }
-
-        return true;
+        return Objects.equals(name, that.name) &&
+                Objects.equals(labelTemplate, that.labelTemplate) &&
+                Objects.equals(params, that.params) &&
+                Objects.equals(trackingTool, that.trackingTool) &&
+                Objects.equals(mingleConfig, that.mingleConfig) &&
+                Objects.equals(timer, that.timer) &&
+                Objects.equals(variables, that.variables) &&
+                Objects.equals(materialConfigs, that.materialConfigs) &&
+                Objects.equals(lockBehavior, that.lockBehavior) &&
+                Objects.equals(templateName, that.templateName);
     }
 
     @Override
@@ -599,6 +584,11 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
         result = 31 * result + (trackingTool != null ? trackingTool.hashCode() : 0);
         result = 31 * result + (materialConfigs != null ? materialConfigs.hashCode() : 0);
         result = 31 * result + (timer != null ? timer.hashCode() : 0);
+        result = 31 * result + (params != null ? params.hashCode() : 0);
+        result = 31 * result + (mingleConfig != null ? mingleConfig.hashCode() : 0);
+        result = 31 * result + (variables != null ? variables.hashCode() : 0);
+        result = 31 * result + (lockBehavior != null ? lockBehavior.hashCode() : 0);
+        result = 31 * result + (templateName != null ? templateName.hashCode() : 0);
         return result;
     }
 

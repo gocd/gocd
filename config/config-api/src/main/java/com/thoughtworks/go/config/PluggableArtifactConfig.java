@@ -215,6 +215,7 @@ public class PluggableArtifactConfig implements ArtifactConfig {
     @Override
     public int hashCode() {
         int result = id.hashCode();
+        result = 31 * result + getArtifactType().hashCode();
         result = 31 * result + storeId.hashCode();
         result = 31 * result + (configuration != null ? configuration.hashCode() : 0);
         return result;

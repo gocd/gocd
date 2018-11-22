@@ -206,9 +206,6 @@ public class FetchTask extends AbstractFetchTask {
     @Override
     public int hashCode() {
         int result = super.hashCode();
-        result = 31 * result + (pipelineName != null ? pipelineName.hashCode() : 0);
-        result = 31 * result + (stage != null ? stage.hashCode() : 0);
-        result = 31 * result + (job != null ? job.hashCode() : 0);
         result = 31 * result + (srcfile != null ? srcfile.hashCode() : 0);
         result = 31 * result + (srcdir != null ? srcdir.hashCode() : 0);
         result = 31 * result + (dest != null ? dest.hashCode() : 0);

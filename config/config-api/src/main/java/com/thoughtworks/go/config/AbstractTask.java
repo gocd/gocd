@@ -65,6 +65,7 @@ public abstract class AbstractTask implements Task  {
     public OnCancelConfig onCancelConfig() {
         return onCancelConfig;
     }
+
     public OnCancelConfig getOnCancelConfig() {
         return onCancelConfig;
     }
@@ -76,6 +77,7 @@ public abstract class AbstractTask implements Task  {
     public void setCancelTask(Task task) {
         this.onCancelConfig = new OnCancelConfig(task);
     }
+
     public void setOnCancelConfig(OnCancelConfig onCancelConfig) {
         this.onCancelConfig = onCancelConfig;
     }
@@ -231,6 +233,7 @@ public abstract class AbstractTask implements Task  {
     public int hashCode() {
         int result = runIfConfigs != null ? runIfConfigs.hashCode() : 0;
         result = 31 * result + (onCancelConfig != null ? onCancelConfig.hashCode() : 0);
+        result = 31 * result + getTaskType().hashCode();
         return result;
     }
 

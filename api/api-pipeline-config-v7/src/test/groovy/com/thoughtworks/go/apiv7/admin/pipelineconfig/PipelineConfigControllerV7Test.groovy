@@ -77,6 +77,8 @@ class PipelineConfigControllerV7Test implements SecurityServiceTrait, Controller
   @Mock
   private ConfigRepoPlugin configRepoPlugin
 
+  private final String pipelineEtag = 'md5'
+
   @Override
   PipelineConfigControllerV7 createControllerInstance() {
     return new PipelineConfigControllerV7(pipelineConfigService, new ApiAuthenticationHelper(securityService, goConfigService), entityHashingService, passwordDeserializer, goConfigService, goConfigPluginService)
@@ -102,6 +104,8 @@ class PipelineConfigControllerV7Test implements SecurityServiceTrait, Controller
     @Nested
     class AsAdmin {
 
+      private final String exportEtag = 'big_etag_for_export'
+
       @BeforeEach
       void setUp() {
         enableSecurity()
@@ -113,14 +117,13 @@ class PipelineConfigControllerV7Test implements SecurityServiceTrait, Controller
 
       @Test
       void 'should be able to export pipeline config if user is admin and etag is stale'() {
-        def pipeline = PipelineConfigMother.pipelineConfig('pipeline1')
+        PipelineConfig pipeline = PipelineConfigMother.pipelineConfig('pipeline1')
         pipeline.setOrigin(new FileConfigOrigin())
-        def pipelineMd5 = 'md5_for_pipeline_config'
 
         when(pipelineConfigService.getPipelineConfig('pipeline1')).thenReturn(pipeline)
-        when(entityHashingService.md5ForEntity(pipeline)).thenReturn(pipelineMd5)
         when(goConfigPluginService.supportsPipelineExport(pluginId)).thenReturn(true)
         when(goConfigPluginService.partialConfigProviderFor(pluginId)).thenReturn(configRepoPlugin)
+        when(configRepoPlugin.etagForExport(pipeline, groupName)).thenReturn(exportEtag)
 
         when(configRepoPlugin.pipelineExport(pipeline, groupName)).thenReturn("message from plugin")
 
@@ -128,13 +131,13 @@ class PipelineConfigControllerV7Test implements SecurityServiceTrait, Controller
 
         assertThatResponse()
           .isOk()
-          .hasHeader("Etag", '"md5_for_pipeline_config"')
+          .hasHeader("Etag", "\"$exportEtag\"")
           .hasBody("message from plugin")
       }
 
       @Test
       void 'returns a 400 when pluginId is blank or missing'() {
-        def pipeline = PipelineConfigMother.pipelineConfig("pipeline1")
+        PipelineConfig pipeline = PipelineConfigMother.pipelineConfig("pipeline1")
         pipeline.setOrigin(new FileConfigOrigin())
 
         when(pipelineConfigService.getPipelineConfig("pipeline1")).thenReturn(pipeline)
@@ -154,7 +157,7 @@ class PipelineConfigControllerV7Test implements SecurityServiceTrait, Controller
 
       @Test
       void 'returns a 400 when groupName is blank or missing'() {
-        def pipeline = PipelineConfigMother.pipelineConfig("pipeline1")
+        PipelineConfig pipeline = PipelineConfigMother.pipelineConfig("pipeline1")
         pipeline.setOrigin(new FileConfigOrigin())
 
         when(pipelineConfigService.getPipelineConfig("pipeline1")).thenReturn(pipeline)
@@ -174,7 +177,7 @@ class PipelineConfigControllerV7Test implements SecurityServiceTrait, Controller
 
       @Test
       void 'returns a 422 when plugin does not support export'() {
-        def pipeline = PipelineConfigMother.pipelineConfig("pipeline1")
+        PipelineConfig pipeline = PipelineConfigMother.pipelineConfig("pipeline1")
         pipeline.setOrigin(new FileConfigOrigin())
 
         when(pipelineConfigService.getPipelineConfig("pipeline1")).thenReturn(pipeline)
@@ -189,15 +192,15 @@ class PipelineConfigControllerV7Test implements SecurityServiceTrait, Controller
 
       @Test
       void "should return 304 for export pipeline config if etag matches"() {
-        def pipeline = PipelineConfigMother.pipelineConfig("pipeline1")
+        PipelineConfig pipeline = PipelineConfigMother.pipelineConfig("pipeline1")
         pipeline.setOrigin(new FileConfigOrigin())
-        def pipeline_md5 = 'md5_for_pipeline_config'
 
         when(pipelineConfigService.getPipelineConfig("pipeline1")).thenReturn(pipeline)
-        when(entityHashingService.md5ForEntity(pipeline)).thenReturn(pipeline_md5)
         when(goConfigPluginService.supportsPipelineExport(pluginId)).thenReturn(true)
+        when(goConfigPluginService.partialConfigProviderFor(pluginId)).thenReturn(configRepoPlugin)
+        when(configRepoPlugin.etagForExport(pipeline, groupName)).thenReturn(exportEtag)
 
-        getWithApiHeader(controller.controllerPath("/pipeline1/export?pluginId=${pluginId}&groupName=${groupName}"), ['if-none-match': '"md5_for_pipeline_config"'])
+        getWithApiHeader(controller.controllerPath("/pipeline1/export?pluginId=${pluginId}&groupName=${groupName}"), ['if-none-match': "\"$exportEtag\""])
 
         assertThatResponse()
           .hasBody("")
@@ -250,31 +253,29 @@ class PipelineConfigControllerV7Test implements SecurityServiceTrait, Controller
 
       @Test
       void 'should show pipeline config for an admin'() {
-        def pipeline = PipelineConfigMother.pipelineConfig('pipeline1')
+        PipelineConfig pipeline = PipelineConfigMother.pipelineConfig('pipeline1')
         pipeline.setOrigin(new FileConfigOrigin())
-        def pipelineMd5 = 'md5_for_pipeline_config'
 
         when(pipelineConfigService.getPipelineConfig('pipeline1')).thenReturn(pipeline)
-        when(entityHashingService.md5ForEntity(pipeline)).thenReturn(pipelineMd5)
+        when(entityHashingService.md5ForEntity(pipeline)).thenReturn(pipelineEtag)
 
         getWithApiHeader(controller.controllerPath("/pipeline1"))
 
         assertThatResponse()
           .isOk()
           .hasBodyWithJsonObject(pipeline, PipelineConfigRepresenter)
-          .hasHeader("Etag", '"md5_for_pipeline_config"')
+          .hasHeader("Etag", "\"$pipelineEtag\"")
       }
 
       @Test
       void "should return 304 for show pipeline config if etag sent in request is fresh"() {
-        def pipeline = PipelineConfigMother.pipelineConfig("pipeline1")
+        PipelineConfig pipeline = PipelineConfigMother.pipelineConfig("pipeline1")
         pipeline.setOrigin(new FileConfigOrigin())
-        def pipeline_md5 = 'md5_for_pipeline_config'
 
         when(pipelineConfigService.getPipelineConfig("pipeline1")).thenReturn(pipeline)
-        when(entityHashingService.md5ForEntity(pipeline)).thenReturn(pipeline_md5)
+        when(entityHashingService.md5ForEntity(pipeline)).thenReturn(pipelineEtag)
 
-        getWithApiHeader(controller.controllerPath('/pipeline1'), ['if-none-match': '"md5_for_pipeline_config"'])
+        getWithApiHeader(controller.controllerPath('/pipeline1'), ['if-none-match': "\"$pipelineEtag\""])
 
         assertThatResponse()
           .isNotModified()
@@ -295,18 +296,17 @@ class PipelineConfigControllerV7Test implements SecurityServiceTrait, Controller
 
       @Test
       void "should show pipeline config if etag sent in request is stale"() {
-        def pipeline = PipelineConfigMother.pipelineConfig("pipeline1")
+        PipelineConfig pipeline = PipelineConfigMother.pipelineConfig("pipeline1")
         pipeline.setOrigin(new FileConfigOrigin())
-        def pipeline_md5 = 'md5_for_pipeline_config'
 
         when(pipelineConfigService.getPipelineConfig("pipeline1")).thenReturn(pipeline)
-        when(entityHashingService.md5ForEntity(pipeline)).thenReturn(pipeline_md5)
+        when(entityHashingService.md5ForEntity(pipeline)).thenReturn(pipelineEtag)
 
         getWithApiHeader(controller.controllerPath('/pipeline1'), ['if-none-match': '"junk"'])
 
         assertThatResponse()
           .isOk()
-          .hasEtag('"md5_for_pipeline_config"')
+          .hasEtag("\"$pipelineEtag\"")
           .hasContentType(controller.mimeType)
           .hasBodyWithJsonObject(pipeline, PipelineConfigRepresenter)
       }
@@ -475,12 +475,12 @@ class PipelineConfigControllerV7Test implements SecurityServiceTrait, Controller
       void "should update pipeline config for an admin"() {
         def pipelineConfig = PipelineConfigMother.pipelineConfig("pipeline1")
         pipelineConfig.setOrigin(new FileConfigOrigin())
-        when(entityHashingService.md5ForEntity(pipelineConfig)).thenReturn('md5')
+        when(entityHashingService.md5ForEntity(pipelineConfig)).thenReturn(pipelineEtag)
         when(pipelineConfigService.getPipelineConfig("pipeline1")).thenReturn(pipelineConfig)
 
         def headers = [
           'accept'      : controller.mimeType,
-          'If-Match'    : 'md5',
+          'If-Match'    : pipelineEtag,
           'content-type': 'application/json'
         ]
 
@@ -541,7 +541,7 @@ class PipelineConfigControllerV7Test implements SecurityServiceTrait, Controller
 
         def headers = [
           'accept'      : controller.mimeType,
-          'If-Match'    : 'md5',
+          'If-Match'    : pipelineEtag,
           'content-type': 'application/json'
         ]
 
@@ -557,19 +557,19 @@ class PipelineConfigControllerV7Test implements SecurityServiceTrait, Controller
         HttpLocalizedOperationResult result
         def pipelineConfig = PipelineConfigMother.pipelineConfig("pipeline1")
         pipelineConfig.setOrigin(new FileConfigOrigin())
-        when(entityHashingService.md5ForEntity(pipelineConfig)).thenReturn('md5')
+        when(entityHashingService.md5ForEntity(pipelineConfig)).thenReturn(pipelineEtag)
         when(pipelineConfigService.getPipelineConfig("pipeline1")).thenReturn(pipelineConfig)
 
         pipelineConfig.addError("labelTemplate", String.format(PipelineConfig.LABEL_TEMPLATE_ERROR_MESSAGE, 'foo bar'))
 
-        when(pipelineConfigService.updatePipelineConfig(any(), any(), eq("md5"), any())).then({ InvocationOnMock invocation ->
+        when(pipelineConfigService.updatePipelineConfig(any(), any(), eq(pipelineEtag), any())).then({ InvocationOnMock invocation ->
           result = invocation.getArguments()[3]
           result.unprocessableEntity("message from server")
         })
 
         def headers = [
           'accept'      : controller.mimeType,
-          'If-Match'    : 'md5',
+          'If-Match'    : pipelineEtag,
           'content-type': 'application/json'
         ]
 
@@ -590,7 +590,7 @@ class PipelineConfigControllerV7Test implements SecurityServiceTrait, Controller
 
         def headers = [
           'accept'      : controller.mimeType,
-          'If-Match'    : 'md5',
+          'If-Match'    : pipelineEtag,
           'content-type': 'application/json'
         ]
 
@@ -614,14 +614,14 @@ class PipelineConfigControllerV7Test implements SecurityServiceTrait, Controller
 
         when(goConfigService.getCurrentConfig()).thenReturn(cruiseConfig)
         when(pipelineConfigService.getPipelineConfig("pipeline1")).thenReturn(pipelineConfig)
-        when(entityHashingService.md5ForEntity(pipelineConfig)).thenReturn('md5')
+        when(entityHashingService.md5ForEntity(pipelineConfig)).thenReturn(pipelineEtag)
         when(pipelineConfigService.updatePipelineConfig(any(), any(), any(), any())).then({ InvocationOnMock invocation ->
           pipelineBeingSaved = invocation.getArguments()[1]
         })
 
         def headers = [
           'accept'      : controller.mimeType,
-          'If-Match'    : 'md5',
+          'If-Match'    : pipelineEtag,
           'content-type': 'application/json'
         ]
 
@@ -644,7 +644,7 @@ class PipelineConfigControllerV7Test implements SecurityServiceTrait, Controller
 
         when(goConfigService.getCurrentConfig()).thenReturn(cruiseConfig)
         when(pipelineConfigService.getPipelineConfig("pipeline1")).thenReturn(pipelineConfig)
-        when(entityHashingService.md5ForEntity(pipelineConfig)).thenReturn('md5')
+        when(entityHashingService.md5ForEntity(pipelineConfig)).thenReturn(pipelineEtag)
 
         when(pipelineConfigService.updatePipelineConfig(any(), any(), any(), any())).then({ InvocationOnMock invocation ->
           pipelineBeingSaved = invocation.getArguments()[1]
@@ -652,7 +652,7 @@ class PipelineConfigControllerV7Test implements SecurityServiceTrait, Controller
 
         def headers = [
           'accept'      : controller.mimeType,
-          'If-Match'    : 'md5',
+          'If-Match'    : pipelineEtag,
           'content-type': 'application/json'
         ]
 
@@ -719,7 +719,7 @@ class PipelineConfigControllerV7Test implements SecurityServiceTrait, Controller
 
       @Test
       void "should not delete pipeline config when the pipeline is defined remotely"() {
-        def pipeline = PipelineConfigMother.pipelineConfig("pipeline1")
+        PipelineConfig pipeline = PipelineConfigMother.pipelineConfig("pipeline1")
 
         def gitMaterial = new GitMaterialConfig("https://github.com/config-repos/repo", "master")
         def origin = new RepoConfigOrigin(new ConfigRepoConfig(gitMaterial, "json-plugin"), "revision1")

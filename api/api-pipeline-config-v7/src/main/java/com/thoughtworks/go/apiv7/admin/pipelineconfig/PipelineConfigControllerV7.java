@@ -145,11 +145,12 @@ public class PipelineConfigControllerV7 extends ApiController implements SparkSp
         }
 
         ConfigRepoPlugin repoPlugin = (ConfigRepoPlugin) goConfigPluginService.partialConfigProviderFor(pluginId);
+        String etag = repoPlugin.etagForExport(pipelineConfig, groupName);
 
-        if (isGetOrHeadRequestFresh(req, pipelineConfig)) {
+        if (fresh(req, etag)) {
             return notModified(res);
         } else {
-            setEtagHeader(pipelineConfig, res);
+            setEtagHeader(res, etag);
 
             return repoPlugin.pipelineExport(pipelineConfig, groupName);
         }

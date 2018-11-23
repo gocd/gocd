@@ -123,7 +123,7 @@ public class GoRepoConfigDataSource implements ChangedRepoConfigWatchListListene
                 fingerprintOfPartialToLatestParseResultMap.put(fingerprint, new PartialConfigParseResult(revision, ex));
                 LOGGER.error("Failed to get config plugin for {}", material.getDisplayName());
                 String message = String.format("Failed to obtain configuration plugin '%s' for material: %s",
-                        repoConfig.getConfigProviderPluginName(), material.getLongDescription());
+                        repoConfig.getPluginId(), material.getLongDescription());
                 String errorDescription = ex.getMessage() == null ? ex.toString()
                         : ex.getMessage();
                 serverHealthService.update(ServerHealthState.error(message, errorDescription, HealthStateType.general(scope)));

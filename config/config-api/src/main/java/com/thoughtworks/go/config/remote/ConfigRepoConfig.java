@@ -17,7 +17,6 @@ package com.thoughtworks.go.config.remote;
 
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
-import com.thoughtworks.go.config.materials.ScmMaterialConfig;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.config.Configuration;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
@@ -44,7 +43,7 @@ public class ConfigRepoConfig implements Validatable, Cacheable {
     // TODO something must instantiate this name into proper implementation of ConfigProvider
     // which can be a plugin or embedded class
     @ConfigAttribute(value = "pluginId", allowNull = false)
-    private String configProviderPluginName = "gocd-xml";
+    private String pluginId = "gocd-xml";
     // plugin-name which will process the repository tree to return configuration.
     // as in https://github.com/gocd/gocd/issues/1133#issuecomment-109014208
     // then pattern-based plugin is just one option
@@ -59,13 +58,13 @@ public class ConfigRepoConfig implements Validatable, Cacheable {
     public ConfigRepoConfig() {
     }
 
-    public ConfigRepoConfig(MaterialConfig repo, String configProviderPluginName) {
+    public ConfigRepoConfig(MaterialConfig repo, String pluginId) {
         this.repo = repo;
-        this.configProviderPluginName = configProviderPluginName;
+        this.pluginId = pluginId;
     }
 
-    public ConfigRepoConfig(MaterialConfig repo, String configProviderPluginName, String id) {
-        this(repo, configProviderPluginName);
+    public ConfigRepoConfig(MaterialConfig repo, String pluginId, String id) {
+        this(repo, pluginId);
         this.id = id;
     }
 
@@ -77,8 +76,8 @@ public class ConfigRepoConfig implements Validatable, Cacheable {
         this.repo = config;
     }
 
-    public String getConfigProviderPluginName() {
-        return configProviderPluginName;
+    public String getPluginId() {
+        return pluginId;
     }
 
     public String getId() {
@@ -91,10 +90,10 @@ public class ConfigRepoConfig implements Validatable, Cacheable {
         this.id = id;
     }
 
-    public void setConfigProviderPluginName(String configProviderPluginName) {
-        if (StringUtils.isBlank(configProviderPluginName))
-            configProviderPluginName = null;
-        this.configProviderPluginName = configProviderPluginName;
+    public void setPluginId(String pluginId) {
+        if (StringUtils.isBlank(pluginId))
+            pluginId = null;
+        this.pluginId = pluginId;
     }
 
     @Override
@@ -104,13 +103,13 @@ public class ConfigRepoConfig implements Validatable, Cacheable {
         ConfigRepoConfig that = (ConfigRepoConfig) o;
         return Objects.equals(repo, that.repo) &&
                 Objects.equals(configuration, that.configuration) &&
-                Objects.equals(configProviderPluginName, that.configProviderPluginName) &&
+                Objects.equals(pluginId, that.pluginId) &&
                 Objects.equals(id, that.id);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(repo, configuration, configProviderPluginName, id);
+        return Objects.hash(repo, configuration, pluginId, id);
     }
 
     @Override

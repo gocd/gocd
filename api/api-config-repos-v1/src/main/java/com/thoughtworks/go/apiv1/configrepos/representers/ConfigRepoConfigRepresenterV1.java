@@ -23,7 +23,6 @@ import com.thoughtworks.go.api.representers.JsonReader;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
 
-import java.util.Collection;
 import java.util.Collections;
 
 import static com.thoughtworks.go.spark.Routes.ConfigRepos.*;
@@ -32,7 +31,7 @@ public class ConfigRepoConfigRepresenterV1 {
     public static void toJSON(OutputWriter json, ConfigRepoConfig repo) {
         attachLinks(json, repo);
         json.add("id", repo.getId());
-        json.add("plugin_id", repo.getConfigProviderPluginName());
+        json.add("plugin_id", repo.getPluginId());
         json.addChild("material", w -> MaterialRepresenter.toJSON(w, repo.getMaterialConfig()));
         if (!repo.errors().isEmpty()) {
             json.addChild("errors", errorWriter -> new ErrorGetter(Collections.emptyMap()).toJSON(errorWriter, repo));
@@ -44,7 +43,7 @@ public class ConfigRepoConfigRepresenterV1 {
         MaterialConfig material = MaterialRepresenter.fromJSON(jsonReader.readJsonObject("material"));
         ConfigRepoConfig repo = new ConfigRepoConfig();
         jsonReader.readStringIfPresent("id", repo::setId);
-        jsonReader.readStringIfPresent("plugin_id", repo::setConfigProviderPluginName);
+        jsonReader.readStringIfPresent("plugin_id", repo::setPluginId);
         repo.setMaterialConfig(material);
 
         repo.addConfigurations(ConfigurationPropertyRepresenter.fromJSONArray(jsonReader, "configuration"));

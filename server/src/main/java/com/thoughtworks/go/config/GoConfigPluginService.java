@@ -45,7 +45,7 @@ public class GoConfigPluginService {
 
     public PartialConfigProvider partialConfigProviderFor(ConfigRepoConfig repoConfig)
     {
-        String pluginId = repoConfig.getConfigProviderPluginName();
+        String pluginId = repoConfig.getPluginId();
         return partialConfigProviderFor(pluginId);
     }
 

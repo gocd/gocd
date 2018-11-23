@@ -40,7 +40,6 @@ public class AgentRepresenter {
                 .add("operating_system", agentInstance.getOperatingSystem())
                 .add("agent_config_state", agentInstance.getAgentConfigStatus().toString())
                 .add("agent_state", agentInstance.getRuntimeStatus().agentState().toString())
-                .addChildList("resources", sortedResources(agentInstance))
                 .addChildList("environments", sortedEnvironments(environments))
                 .add("build_state", agentInstance.getRuntimeStatus().buildState().toString());
 
@@ -59,6 +58,8 @@ public class AgentRepresenter {
             outputWriter
                     .add("elastic_plugin_id", agentInstance.elasticAgentMetadata().elasticPluginId())
                     .add("elastic_agent_id", agentInstance.elasticAgentMetadata().elasticAgentId());
+        } else {
+            outputWriter.addChildList("resources", sortedResources(agentInstance));
         }
 
         if (!agentInstance.errors().isEmpty()) {

@@ -16,11 +16,12 @@
 
 import * as _ from "lodash";
 import * as stream from "mithril/stream";
+import {Stream} from "mithril/stream";
 import {Errors} from "models/mixins/errors";
 import {ErrorMessages} from "models/mixins/validatable";
 import * as s from "underscore.string";
 
-interface ValidatorOptions {
+export interface ValidatorOptions {
   message?: string;
   condition?: () => boolean;
 }
@@ -51,9 +52,62 @@ class PresenceValidator extends Validator {
   }
 }
 
+class UniquenessValidator extends Validator {
+  private otherElements: () => Stream<any[]>;
+
+  constructor(otherElements: () => Stream<any[]>, options: ValidatorOptions = {}) {
+    super(options);
+    this.otherElements = otherElements;
+  }
+
+  protected doValidate(entity: any, attrName: string): void {
+    if (s.isBlank(entity[attrName]())) {
+      return;
+    }
+    const duplicate = (this.otherElements())().find((element: any) => element[attrName]() === entity[attrName]());
+    if (!_.isEmpty(duplicate)) {
+      entity.errors().add(attrName, this.options.message || ErrorMessages.duplicate(attrName));
+    }
+  }
+}
+
+class FormatValidator extends Validator {
+  private readonly format: RegExp;
+
+  constructor(format: RegExp, options?: ValidatorOptions) {
+    super(options);
+    this.format = format;
+  }
+
+  protected doValidate(entity: any, attrName: string): void {
+    if (s.isBlank(entity[attrName]())) {
+      return;
+    }
+
+    if (!entity[attrName]().match(this.format)) {
+      entity.errors().add(attrName, this.options.message || `${s.humanize(attrName)} format is invalid`);
+    }
+  }
+}
+
+class UrlPatternValidator extends Validator {
+  private static URL_REGEX = /^http(s)?:\/\/.+/;
+
+  protected doValidate(entity: any, attrName: string): void {
+    if (s.isBlank(entity[attrName]())) {
+      return;
+    }
+
+    if (!entity[attrName]().match(UrlPatternValidator.URL_REGEX)) {
+      entity.errors().add(attrName, this.options.message || ErrorMessages.mustBeAUrl(attrName));
+    }
+  }
+}
+
 export class ValidatableMixin {
-  errors                = stream(new Errors());
-  attrToValidators: any = {};
+  errors                           = stream(new Errors());
+  attrToValidators: any            = {};
+  associationsToValidate: string[] = [];
 
   clearErrors(attr?: string) {
     return attr ? this.errors().clear(attr) : this.errors().clear();
@@ -73,7 +127,16 @@ export class ValidatableMixin {
     return this.errors();
   }
 
-  validateWith(validator: Validator, attr: string): void {
+  isValid(): boolean {
+    this.validate();
+    return _.isEmpty(this.errors().errors()) &&
+      _.every(this.associationsToValidate, (association: string) => {
+        const property = (this as any)[association];
+        return property ? property().isValid() : true;
+      });
+  }
+
+  validateWith<T extends Validator>(validator: T, attr: string): void {
     if (_.has(this.attrToValidators, attr)) {
       this.attrToValidators[attr].push(validator);
     } else {
@@ -83,5 +146,21 @@ export class ValidatableMixin {
 
   validatePresenceOf(attr: string, options?: ValidatorOptions): void {
     this.validateWith(new PresenceValidator(options), attr);
+  }
+
+  validateUniquenessOf(attr: string, otherElements: () => Stream<any[]>, options?: ValidatorOptions): void {
+    this.validateWith(new UniquenessValidator(otherElements, options), attr);
+  }
+
+  validateFormatOf(attr: string, format: RegExp, options?: ValidatorOptions): void {
+    this.validateWith(new FormatValidator(format, options), attr);
+  }
+
+  validateUrlPattern(attr: string, options?: ValidatorOptions): void {
+    this.validateWith(new UrlPatternValidator(options), attr);
+  }
+
+  validateAssociated(association: string): void {
+    this.associationsToValidate.push(association);
   }
 }

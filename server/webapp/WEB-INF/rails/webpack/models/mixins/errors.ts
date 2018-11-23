@@ -51,4 +51,4 @@ export class Errors {
   private _isEmpty() {
     return _.isEmpty(this._errors);
   }
-};
+}

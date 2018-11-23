@@ -96,6 +96,7 @@ class AgentRepresenterTest {
     assertThat(map)
       .containsEntry("elastic_agent_id", "docker-elastic-agent")
       .containsEntry("elastic_plugin_id", "cd.go.docker")
+      .doesNotContainKey("resources")
   }
 
   @Nested

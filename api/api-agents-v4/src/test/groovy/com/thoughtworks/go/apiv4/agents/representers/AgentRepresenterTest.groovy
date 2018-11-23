@@ -72,7 +72,7 @@ class AgentRepresenterTest {
       "ip_address"        : "127.0.0.1",
       "sandbox"           : "/var/lib/go-server",
       "operating_system"  : "Linux",
-      "free_space"        : "10 bytes",
+      "free_space"        : 10,
       "agent_config_state": "Enabled",
       "agent_state"       : "Idle",
       "resources"         : ["firefox", "linux"],

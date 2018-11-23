@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {ErrorResponse, ObjectWithEtag} from "helpers/api_request_builder";
+import {ApiResult, ErrorResponse, ObjectWithEtag} from "helpers/api_request_builder";
 import {MithrilViewComponent} from "jsx/mithril-component";
 import * as _ from "lodash";
 import * as m from "mithril";
@@ -295,13 +295,22 @@ export class NewConfigRepoModal extends ConfigRepoModal {
 
   performSave() {
     ConfigReposCRUD.create(this.repo())
-                   .then((result) => {
-                     result.do(
-                       () => this.onSuccessfulSave(
-                         <span>The config repository <em>{this.repo().id}</em> was created successfully!</span>),
-                       (result) => this.onError(result.message)
-                     );
-                   }).then(this.close.bind(this));
+                   .then((result) => result.do(this.onSuccess,
+                                               (errorResponse) => this.handleError(result, errorResponse)));
+  }
+
+  private onSuccess() {
+    this.onSuccessfulSave(<span>The config repository <em>{this.repo().id}</em> was created successfully!</span>);
+    this.close();
+  }
+
+  private handleError(result: ApiResult<ObjectWithEtag<ConfigRepo>>, errorResponse: ErrorResponse) {
+    if (result.getStatusCode() === 422 && errorResponse.body) {
+      const json = JSON.parse(errorResponse.body);
+      this.repo(ConfigRepo.fromJSON(json.data));
+    } else {
+      this.onError(errorResponse.message);
+    }
   }
 }
 
@@ -327,11 +336,9 @@ export class EditConfigRepoModal extends ConfigRepoModal {
   }
 
   performSave(): void {
-    ConfigReposCRUD.update(this.repoWithEtag()).then(this.close.bind(this)).then(() => {
-      this.onSuccessfulSave(<span>The config repository <em>{this.getRepo().id}</em> was updated successfully!</span>);
-    }).catch(() => {
-      this.error = `There was an error saving the config repository!`;
-    });
+    ConfigReposCRUD.update(this.repoWithEtag())
+                   .then((apiResult) => apiResult.do(this.onSuccess,
+                                                     (errorResponse) => this.handleError(apiResult, errorResponse)));
   }
 
   protected getRepo(): ConfigRepo {
@@ -340,5 +347,20 @@ export class EditConfigRepoModal extends ConfigRepoModal {
 
   private onRepoGetFailure(errorResponse: ErrorResponse) {
     this.error = errorResponse.message;
+  }
+
+  private onSuccess() {
+    this.onSuccessfulSave(<span>The config repository <em>{this.getRepo().id}</em> was updated successfully!</span>);
+    this.close();
+  }
+
+  private handleError(result: ApiResult<ObjectWithEtag<ConfigRepo>>, errorResponse: ErrorResponse) {
+    if (result.getStatusCode() === 422 && errorResponse.body) {
+      const json = JSON.parse(errorResponse.body);
+      const etag = this.repoWithEtag().etag;
+      this.repoWithEtag({etag, object: ConfigRepo.fromJSON(json.data)});
+    } else {
+      this.onError(errorResponse.message);
+    }
   }
 }

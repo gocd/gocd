@@ -16,7 +16,6 @@
 
 import * as _ from "lodash";
 import * as stream from "mithril/stream";
-import {Stream} from "mithril/stream";
 import {Errors} from "models/mixins/errors";
 import {ErrorMessages} from "models/mixins/validatable";
 import * as s from "underscore.string";
@@ -53,9 +52,9 @@ class PresenceValidator extends Validator {
 }
 
 class UniquenessValidator extends Validator {
-  private otherElements: () => Stream<any[]>;
+  private otherElements: () => any[];
 
-  constructor(otherElements: () => Stream<any[]>, options: ValidatorOptions = {}) {
+  constructor(otherElements: () => any[], options: ValidatorOptions = {}) {
     super(options);
     this.otherElements = otherElements;
   }
@@ -64,7 +63,7 @@ class UniquenessValidator extends Validator {
     if (s.isBlank(entity[attrName]())) {
       return;
     }
-    const duplicate = (this.otherElements())().find((element: any) => element[attrName]() === entity[attrName]());
+    const duplicate = (this.otherElements)().find((element: any) => element[attrName]() === entity[attrName]());
     if (!_.isEmpty(duplicate)) {
       entity.errors().add(attrName, this.options.message || ErrorMessages.duplicate(attrName));
     }
@@ -148,8 +147,8 @@ export class ValidatableMixin {
     this.validateWith(new PresenceValidator(options), attr);
   }
 
-  validateUniquenessOf(attr: string, otherElements: () => Stream<any[]>, options?: ValidatorOptions): void {
-    this.validateWith(new UniquenessValidator(otherElements, options), attr);
+  validateUniquenessOf(attr: string, siblings: () => any[], options?: ValidatorOptions): void {
+    this.validateWith(new UniquenessValidator(siblings, options), attr);
   }
 
   validateFormatOf(attr: string, format: RegExp, options?: ValidatorOptions): void {

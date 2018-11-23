@@ -89,7 +89,8 @@ describe("Validatable", () => {
         ValidatableMixin.call(this);
         this.key    = stream(key);
         this.parent = stream();
-        this.validateUniquenessOf("key", () => this.parent().variables);
+        this.validateUniquenessOf("key", () => this.parent().variables()
+                                                   .filter((variable: Variable) => this !== variable));
       }
     }
 
@@ -104,7 +105,6 @@ describe("Validatable", () => {
     applyMixins(Variable, ValidatableMixin);
 
     it("should validate uniqueness of a given field", () => {
-
       const var1      = new Variable("name");
       const var2      = new Variable("name");
       const variables = new Variables([var1, var2]);
@@ -120,6 +120,18 @@ describe("Validatable", () => {
     it("should skip validation if attribute is empty", () => {
       const var1      = new Variable("");
       const var2      = new Variable("");
+      const variables = new Variables([var1, var2]);
+      var1.parent(variables);
+      var2.parent(variables);
+
+      var1.validate();
+
+      expect(var1.errors().hasErrors()).toBe(false);
+    });
+
+    it("should not give validation errors if fields are unique", () => {
+      const var1      = new Variable("name1");
+      const var2      = new Variable("name2");
       const variables = new Variables([var1, var2]);
       var1.parent(variables);
       var2.parent(variables);
@@ -389,7 +401,7 @@ describe("Validatable", () => {
         this.name   = stream("");
         this.parent = stream();
         this.validatePresenceOf("name");
-        this.validateUniquenessOf("key", () => this.parent().variables);
+        this.validateUniquenessOf("key", () => this.parent().variables().filter((variable) => this !== variable));
       }
     }
 

@@ -38,12 +38,17 @@ public class AgentRepresenter {
                 .add("ip_address", agentInstance.getIpAddress())
                 .add("sandbox", agentInstance.getLocation())
                 .add("operating_system", agentInstance.getOperatingSystem())
-                .add("free_space", agentInstance.freeDiskSpace().toString())
                 .add("agent_config_state", agentInstance.getAgentConfigStatus().toString())
                 .add("agent_state", agentInstance.getRuntimeStatus().agentState().toString())
                 .addChildList("resources", sortedResources(agentInstance))
                 .addChildList("environments", sortedEnvironments(environments))
                 .add("build_state", agentInstance.getRuntimeStatus().buildState().toString());
+
+        if (agentInstance.freeDiskSpace() == null || agentInstance.freeDiskSpace().isNullDiskspace()) {
+            outputWriter.add("free_space", "unknown");
+        } else {
+            outputWriter.add("free_space", agentInstance.freeDiskSpace().space());
+        }
 
         if (isBuilding(agentInstance) && hasViewOrOperatePermissionOnPipeline(agentInstance, securityService, username)) {
             outputWriter

@@ -18,7 +18,7 @@ import {MithrilViewComponent} from "jsx/mithril-component";
 import * as _ from "lodash";
 import * as m from "mithril";
 import {Stream} from "mithril/stream";
-import {ConfigRepo, humanizedMaterialAttributeName} from "models/config_repos/types";
+import {ConfigRepo, humanizedMaterialAttributeName, IGNORED_MATERIAL_ATTRIBUTES} from "models/config_repos/types";
 import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
 import {CollapsiblePanel} from "views/components/collapsible_panel";
 import {FlashMessage, MessageType} from "views/components/flash_message";
@@ -118,6 +118,10 @@ class ConfigRepoWidget extends MithrilViewComponent<ShowObjectAttrs<ConfigRepo>>
     const filteredAttributes = _.reduce(vnode.attrs.obj.material().attributes(), (accumulator: Map<string, string>,
                                                                                   value: any,
                                                                                   key: string) => {
+      const isIgnored = IGNORED_MATERIAL_ATTRIBUTES.find((attr) => attr === key);
+      if (isIgnored) {
+        return accumulator;
+      }
       let renderedValue = value;
 
       const renderedKey = humanizedMaterialAttributeName(key);

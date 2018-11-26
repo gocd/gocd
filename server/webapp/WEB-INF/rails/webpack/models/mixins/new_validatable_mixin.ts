@@ -40,7 +40,15 @@ export abstract class Validator {
     this.doValidate(entity, attr);
   }
 
-  protected abstract doValidate(entity: any, attrName: string): void;
+  protected abstract doValidate(entity: any, attr: string): void;
+}
+
+class PasswordPresenceValidator extends Validator {
+  protected doValidate(entity: any, attr: string): void {
+    if (s.isBlank(entity[attr]().value())) {
+      entity.errors().add(attr, this.options.message || ErrorMessages.mustBePresent(attr));
+    }
+  }
 }
 
 class PresenceValidator extends Validator {
@@ -145,6 +153,10 @@ export class ValidatableMixin {
 
   validatePresenceOf(attr: string, options?: ValidatorOptions): void {
     this.validateWith(new PresenceValidator(options), attr);
+  }
+
+  validatePresenceOfPassword(attr: string, options?: ValidatorOptions): void {
+    this.validateWith(new PasswordPresenceValidator(options), attr);
   }
 
   validateUniquenessOf(attr: string, siblings: () => any[], options?: ValidatorOptions): void {

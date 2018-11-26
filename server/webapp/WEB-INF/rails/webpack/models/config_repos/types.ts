@@ -26,6 +26,7 @@ import {
 import {Errors} from "models/mixins/errors";
 import {applyMixins} from "models/mixins/mixins";
 import {ValidatableMixin} from "models/mixins/new_validatable_mixin";
+import {ErrorMessages} from "models/mixins/validatable";
 import {EncryptedValue} from "views/components/forms/encrypted_value";
 
 const s = require("helpers/string-plus");
@@ -326,6 +327,7 @@ export class P4MaterialAttributes extends MaterialAttributes {
     this.username   = stream(username);
     this.password   = stream(plainOrCipherValue({plainText: password, cipherText: encryptedPassword}));
     this.validatePresenceOf("view");
+    this.validatePresenceOf("port", {message: ErrorMessages.mustBePresent("Host and Port")});
   }
 
   static fromJSON(json: P4MaterialAttributesJSON) {
@@ -367,6 +369,8 @@ export class TfsMaterialAttributes extends MaterialAttributes {
     this.password    = stream(plainOrCipherValue({plainText: password, cipherText: encryptedPassword}));
     this.validatePresenceOf("url");
     this.validatePresenceOf("projectPath");
+    this.validatePresenceOf("username");
+    this.validatePresenceOfPassword("password");
   }
 
   static fromJSON(json: TfsMaterialAttributesJSON) {

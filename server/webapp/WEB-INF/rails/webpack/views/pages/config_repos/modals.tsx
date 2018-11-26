@@ -80,7 +80,7 @@ class MaterialEditWidget extends MithrilViewComponent<EditableMaterial> {
                    errorText={vnode.attrs.repo.errors().errorsForDisplay("id")}
                    required={true}/>
 
-        <CheckboxField label={humanizedMaterialAttributeName("auto_update")}
+        <CheckboxField label={humanizedMaterialAttributeName("autoUpdate")}
                        property={vnode.attrs.repo.material().attributes().autoUpdate}/>
 
         <TextField label={humanizedMaterialAttributeName("name")}
@@ -180,15 +180,15 @@ const MATERIAL_TO_COMPONENT_MAP: { [key: string]: MithrilViewComponent<EditableM
           <TextField label={humanizedMaterialAttributeName("port")}
                      property={materialAttributes.port}
                      required={true}
-                     errorText={materialAttributes.errors().errorsForDisplay("url")}/>
+                     errorText={materialAttributes.errors().errorsForDisplay("port")}/>
 
-          <CheckboxField label={humanizedMaterialAttributeName("use_tickets")}
+          <CheckboxField label={humanizedMaterialAttributeName("useTickets")}
                          property={materialAttributes.useTickets}/>
 
           <TextAreaField label={humanizedMaterialAttributeName("view")}
                          property={materialAttributes.view}
                          required={true}
-                         errorText={materialAttributes.errors().errorsForDisplay("view")}/>/>
+                         errorText={materialAttributes.errors().errorsForDisplay("view")}/>
 
           <TextField label={humanizedMaterialAttributeName("username")}
                      property={materialAttributes.username}/>
@@ -222,11 +222,13 @@ const MATERIAL_TO_COMPONENT_MAP: { [key: string]: MithrilViewComponent<EditableM
 
           <TextField label={humanizedMaterialAttributeName("username")}
                      property={materialAttributes.username}
-                     required={true}/>
+                     required={true}
+                     errorText={materialAttributes.errors().errorsForDisplay("username")}/>
 
           <PasswordField label={humanizedMaterialAttributeName("password")}
                          property={materialAttributes.password}
-                         required={true}/>
+                         required={true}
+                         errorText={materialAttributes.errors().errorsForDisplay("password")}/>
         </MaterialEditWidget>
       );
     }

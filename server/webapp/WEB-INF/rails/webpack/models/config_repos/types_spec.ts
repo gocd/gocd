@@ -60,8 +60,9 @@ describe("Config Repo Types", () => {
       expect(configRepo.isValid()).toBe(false);
       expect(configRepo.errors().count()).toBe(0);
       expect(configRepo.material().errors().count()).toBe(0);
-      expect(configRepo.material().attributes().errors().count()).toBe(2);
-      expect(configRepo.material().attributes().errors().keys()).toEqual(["name", "view"]);
+      expect(configRepo.material().attributes().errors().count()).toBe(3);
+      expect(configRepo.material().attributes().errors().keys()).toEqual(["name", "view", "port"]);
+      expect(configRepo.material().attributes().errors().errorsForDisplay("port")).toEqual("Host and port must be present.");
     });
 
     it("should should validate Hg material attributes", () => {
@@ -78,8 +79,8 @@ describe("Config Repo Types", () => {
       expect(configRepo.isValid()).toBe(false);
       expect(configRepo.errors().count()).toBe(0);
       expect(configRepo.material().errors().count()).toBe(0);
-      expect(configRepo.material().attributes().errors().count()).toBe(3);
-      expect(configRepo.material().attributes().errors().keys()).toEqual(["name", "url", "projectPath"]);
+      expect(configRepo.material().attributes().errors().count()).toBe(5);
+      expect(configRepo.material().attributes().errors().keys()).toEqual(["name", "url", "projectPath", "username", "password"]);
     });
   });
 });

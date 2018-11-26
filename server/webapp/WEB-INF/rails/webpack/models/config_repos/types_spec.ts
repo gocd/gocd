@@ -17,17 +17,11 @@
 import {
   ConfigRepo,
   GitMaterialAttributes, HgMaterialAttributes,
-  IGNORED_MATERIAL_ATTRIBUTES,
   Material, P4MaterialAttributes,
   SvnMaterialAttributes, TfsMaterialAttributes
 } from "models/config_repos/types";
-import {ValidatableMixin} from "models/mixins/new_validatable_mixin";
 
 describe("Config Repo Types", () => {
-  it("should ignore attributes that are in the ValidatableMixin", () => {
-    const properties = Object.getOwnPropertyNames(new ValidatableMixin());
-    expect(IGNORED_MATERIAL_ATTRIBUTES).toEqual(properties);
-  });
 
   describe("Validation", () => {
     it("should validate ConfigRepo", () => {
@@ -62,7 +56,8 @@ describe("Config Repo Types", () => {
       expect(configRepo.material().errors().count()).toBe(0);
       expect(configRepo.material().attributes().errors().count()).toBe(3);
       expect(configRepo.material().attributes().errors().keys()).toEqual(["name", "view", "port"]);
-      expect(configRepo.material().attributes().errors().errorsForDisplay("port")).toEqual("Host and port must be present.");
+      expect(configRepo.material().attributes().errors().errorsForDisplay("port"))
+        .toEqual("Host and port must be present.");
     });
 
     it("should should validate Hg material attributes", () => {
@@ -80,7 +75,8 @@ describe("Config Repo Types", () => {
       expect(configRepo.errors().count()).toBe(0);
       expect(configRepo.material().errors().count()).toBe(0);
       expect(configRepo.material().attributes().errors().count()).toBe(5);
-      expect(configRepo.material().attributes().errors().keys()).toEqual(["name", "url", "projectPath", "username", "password"]);
+      expect(configRepo.material().attributes().errors().keys())
+        .toEqual(["name", "url", "projectPath", "username", "password"]);
     });
   });
 });

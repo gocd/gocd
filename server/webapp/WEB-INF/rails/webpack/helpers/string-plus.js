@@ -59,8 +59,10 @@ const mixins = {
     if (value && typeof value === 'object' && !_.isArray(value)) {
       const replacement = {};
       for (const k in value) {
-        if (Object.hasOwnProperty.call(value, k)) {
-          replacement[_.snakeCase(k)] = value[k];
+        if (!k.startsWith("__")) {
+          if (Object.hasOwnProperty.call(value, k)) {
+            replacement[_.snakeCase(k)] = value[k];
+          }
         }
       }
       return replacement;

@@ -413,12 +413,6 @@ const MATERIAL_TYPE_MAP: { [index: string]: string } = {
   p4: "Perforce",
 };
 
-export const IGNORED_MATERIAL_ATTRIBUTES = [
-  "errors",
-  "attrToValidators",
-  "associationsToValidate"
-];
-
 export function humanizedMaterialNameForMaterialType(materialType: string) {
   return MATERIAL_TYPE_MAP[materialType];
 }

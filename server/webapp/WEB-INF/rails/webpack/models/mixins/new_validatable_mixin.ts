@@ -112,21 +112,28 @@ class UrlPatternValidator extends Validator {
 }
 
 export class ValidatableMixin {
-  errors                           = stream(new Errors());
-  attrToValidators: any            = {};
-  associationsToValidate: string[] = [];
+  private __errors                           = stream(new Errors());
+  private __attrToValidators: any            = {};
+  private __associationsToValidate: string[] = [];
+
+  errors(newVal?: Errors) {
+    if (arguments.length > 0) {
+      this.__errors(newVal as Errors);
+    }
+    return this.__errors();
+  }
 
   clearErrors(attr?: string) {
     return attr ? this.errors().clear(attr) : this.errors().clear();
   }
 
   validate(attr?: string) {
-    const attrs = attr ? [attr] : _.keys(this.attrToValidators);
+    const attrs = attr ? [attr] : _.keys(this.__attrToValidators);
 
     this.clearErrors(attr);
 
     _.forEach(attrs, (attr: string) => {
-      _.forEach(this.attrToValidators[attr], (validator: Validator) => {
+      _.forEach(this.__attrToValidators[attr], (validator: Validator) => {
         validator.validate(this, attr);
       });
     });
@@ -137,17 +144,17 @@ export class ValidatableMixin {
   isValid(): boolean {
     this.validate();
     return _.isEmpty(this.errors().errors()) &&
-      _.every(this.associationsToValidate, (association: string) => {
+      _.every(this.__associationsToValidate, (association: string) => {
         const property = (this as any)[association];
         return property ? property().isValid() : true;
       });
   }
 
   validateWith<T extends Validator>(validator: T, attr: string): void {
-    if (_.has(this.attrToValidators, attr)) {
-      this.attrToValidators[attr].push(validator);
+    if (_.has(this.__attrToValidators, attr)) {
+      this.__attrToValidators[attr].push(validator);
     } else {
-      this.attrToValidators[attr] = [validator];
+      this.__attrToValidators[attr] = [validator];
     }
   }
 
@@ -172,6 +179,6 @@ export class ValidatableMixin {
   }
 
   validateAssociated(association: string): void {
-    this.associationsToValidate.push(association);
+    this.__associationsToValidate.push(association);
   }
 }

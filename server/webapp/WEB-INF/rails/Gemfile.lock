@@ -84,7 +84,7 @@ GEM
     js-routes (1.4.4)
       railties (>= 3.2)
       sprockets-rails
-    loofah (2.2.2)
+    loofah (2.2.3)
       crass (~> 1.0.2)
       nokogiri (>= 1.5.9)
     mail (2.7.0)
@@ -107,7 +107,7 @@ GEM
       pry (>= 0.10, < 0.12)
       ruby-debug-base (~> 0.10.4)
     public_suffix (3.0.2)
-    rack (2.0.5)
+    rack (2.0.6)
     rack-test (1.1.0)
       rack (>= 1.0, < 3)
     rails (5.2.1)
@@ -263,4 +263,4 @@ RUBY VERSION
    ruby 2.5.0p0 (jruby 9.2.0.0)
 
 BUNDLED WITH
-   1.16.3
+   1.17.1

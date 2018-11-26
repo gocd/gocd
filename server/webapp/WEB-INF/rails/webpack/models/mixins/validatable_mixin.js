@@ -16,7 +16,7 @@
 
 const _                 = require('lodash');
 const s                 = require('string-plus');
-const Errors            = require('models/mixins/errors');
+const Errors            = require('models/mixins/errors').Errors;
 const Mixins            = require('models/mixins/model_mixins');
 const PresenceValidator = function ({condition, message}) {
   this.validate = (entity, attr) => {

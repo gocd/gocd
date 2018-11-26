@@ -20,7 +20,7 @@
         Stream     = require("mithril/stream"),
         _          = require("lodash"),
         CrudMixins = require("models/mixins/crud_mixins"),
-        Errors     = require("models/mixins/errors");
+        Errors     = require("models/mixins/errors").Errors;
 
   function splitter(string) {
     return _.compact(_.map(string.split(","), _.trim));

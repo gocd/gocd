@@ -23,6 +23,7 @@ public class Toggles {
     public static String COMPONENTS = "components";
     public static String CONFIG_REPOS_UI = "config_repos_ui";
     public static String AGENT_APIS_OVER_RAILS = "agent_apis_over_rails";
+    public static String SERVER_DRAIN_MODE_API_TOGGLE_KEY = "server_drain_mode_api_toggle_key";
 
     private static FeatureToggleService service;
 

@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+import {ErrorsJSON} from "models/mixins/errors";
+
 export interface ConfigReposJSON {
   _embedded: EmbeddedJSON;
 }
@@ -28,6 +30,7 @@ export interface ConfigRepoJSON {
   material: MaterialJSON;
   configuration: any[];
   last_parse: LastParseJSON;
+  errors?: ErrorsJSON;
 }
 
 export interface LastParseJSON {
@@ -49,33 +52,39 @@ export interface ScmAttributesJSON {
 export interface GitMaterialAttributesJSON extends ScmAttributesJSON {
   url: string;
   branch: string;
+  errors?: ErrorsJSON;
 }
 
 export interface UsernamePasswordJSON {
   username?: string;
   password?: string;
   encrypted_password?: string;
+  errors?: ErrorsJSON;
 }
 
 export interface SvnMaterialAttributesJSON extends ScmAttributesJSON, UsernamePasswordJSON {
   url: string;
   check_externals: boolean;
+  errors: ErrorsJSON;
 }
 
 export interface HgMaterialAttributesJSON extends ScmAttributesJSON {
   url: string;
+  errors?: ErrorsJSON;
 }
 
 export interface P4MaterialAttributesJSON extends ScmAttributesJSON, UsernamePasswordJSON {
   port: string;
   use_tickets: boolean;
   view: string;
+  errors?: ErrorsJSON;
 }
 
 export interface TfsMaterialAttributesJSON extends ScmAttributesJSON, UsernamePasswordJSON {
   url: string;
   domain: string;
   project_path: string;
+  errors?: ErrorsJSON;
 }
 
 export type MaterialAttributesJSON =

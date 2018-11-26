@@ -18,6 +18,8 @@ import * as _ from "lodash";
 
 const s = require("string-plus");
 
+export interface ErrorsJSON { [key: string]: string[]; }
+
 export class Errors {
   private _errors: { [key: string]: string[] };
 

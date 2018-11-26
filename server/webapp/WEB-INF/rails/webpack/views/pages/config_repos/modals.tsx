@@ -309,7 +309,7 @@ export class NewConfigRepoModal extends ConfigRepoModal {
       return;
     }
     ConfigReposCRUD.create(this.repo())
-                   .then((result) => result.do(this.onSuccess,
+                   .then((result) => result.do(this.onSuccess.bind(this),
                                                (errorResponse) => this.handleError(result, errorResponse)));
   }
 
@@ -350,8 +350,11 @@ export class EditConfigRepoModal extends ConfigRepoModal {
   }
 
   performSave(): void {
+    if (!this.repoWithEtag().object.isValid()) {
+      return;
+    }
     ConfigReposCRUD.update(this.repoWithEtag())
-                   .then((apiResult) => apiResult.do(this.onSuccess,
+                   .then((apiResult) => apiResult.do(this.onSuccess.bind(this),
                                                      (errorResponse) => this.handleError(apiResult, errorResponse)));
   }
 

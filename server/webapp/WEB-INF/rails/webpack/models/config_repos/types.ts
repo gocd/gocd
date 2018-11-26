@@ -23,6 +23,7 @@ import {
   MaterialAttributesJSON, MaterialJSON,
   P4MaterialAttributesJSON, SvnMaterialAttributesJSON, TfsMaterialAttributesJSON,
 } from "models/config_repos/serialization";
+import {Errors} from "models/mixins/errors";
 import {applyMixins} from "models/mixins/mixins";
 import {ValidatableMixin} from "models/mixins/new_validatable_mixin";
 import {EncryptedValue} from "views/components/forms/encrypted_value";
@@ -89,11 +90,13 @@ export class ConfigRepo implements ValidatableMixin {
   }
 
   static fromJSON(json: ConfigRepoJSON) {
-    return new ConfigRepo(json.id,
-                          json.plugin_id,
-                          Materials.fromJSON(json.material),
-                          json.configuration,
-                          LastParse.fromJSON(json.last_parse));
+    const configRepo = new ConfigRepo(json.id,
+                                      json.plugin_id,
+                                      Materials.fromJSON(json.material),
+                                      json.configuration,
+                                      LastParse.fromJSON(json.last_parse));
+    configRepo.errors(new Errors(json.errors));
+    return configRepo;
   }
 }
 
@@ -226,7 +229,9 @@ export class GitMaterialAttributes extends MaterialAttributes {
   }
 
   static fromJSON(json: GitMaterialAttributesJSON) {
-    return new GitMaterialAttributes(json.name, json.auto_update, json.url, json.branch);
+    const gitMaterialAttributes = new GitMaterialAttributes(json.name, json.auto_update, json.url, json.branch);
+    gitMaterialAttributes.errors(new Errors(json.errors));
+    return gitMaterialAttributes;
   }
 }
 
@@ -267,13 +272,15 @@ export class SvnMaterialAttributes extends MaterialAttributes implements Validat
   }
 
   static fromJSON(json: SvnMaterialAttributesJSON) {
-    return new SvnMaterialAttributes(json.name,
-                                     json.auto_update,
-                                     json.url,
-                                     json.check_externals,
-                                     json.username,
-                                     json.password,
-                                     json.encrypted_password);
+    const svnMaterialAttributes = new SvnMaterialAttributes(json.name,
+                                                            json.auto_update,
+                                                            json.url,
+                                                            json.check_externals,
+                                                            json.username,
+                                                            json.password,
+                                                            json.encrypted_password);
+    svnMaterialAttributes.errors(new Errors(json.errors));
+    return svnMaterialAttributes;
   }
 }
 
@@ -289,7 +296,9 @@ export class HgMaterialAttributes extends MaterialAttributes {
   }
 
   static fromJSON(json: HgMaterialAttributesJSON) {
-    return new HgMaterialAttributes(json.name, json.auto_update, json.url);
+    const hgMaterialAttributes = new HgMaterialAttributes(json.name, json.auto_update, json.url);
+    hgMaterialAttributes.errors(new Errors(json.errors));
+    return hgMaterialAttributes;
   }
 }
 
@@ -320,14 +329,16 @@ export class P4MaterialAttributes extends MaterialAttributes {
   }
 
   static fromJSON(json: P4MaterialAttributesJSON) {
-    return new P4MaterialAttributes(json.name,
-                                    json.auto_update,
-                                    json.port,
-                                    json.use_tickets,
-                                    json.view,
-                                    json.username,
-                                    json.password,
-                                    json.encrypted_password);
+    const p4MaterialAttributes = new P4MaterialAttributes(json.name,
+                                                          json.auto_update,
+                                                          json.port,
+                                                          json.use_tickets,
+                                                          json.view,
+                                                          json.username,
+                                                          json.password,
+                                                          json.encrypted_password);
+    p4MaterialAttributes.errors(new Errors(json.errors));
+    return p4MaterialAttributes;
   }
 }
 
@@ -359,14 +370,16 @@ export class TfsMaterialAttributes extends MaterialAttributes {
   }
 
   static fromJSON(json: TfsMaterialAttributesJSON) {
-    return new TfsMaterialAttributes(json.name,
-                                     json.auto_update,
-                                     json.url,
-                                     json.domain,
-                                     json.project_path,
-                                     json.username,
-                                     json.password,
-                                     json.encrypted_password);
+    const tfsMaterialAttributes = new TfsMaterialAttributes(json.name,
+                                                            json.auto_update,
+                                                            json.url,
+                                                            json.domain,
+                                                            json.project_path,
+                                                            json.username,
+                                                            json.password,
+                                                            json.encrypted_password);
+    tfsMaterialAttributes.errors(new Errors(json.errors));
+    return tfsMaterialAttributes;
   }
 }
 

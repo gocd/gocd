@@ -22,7 +22,8 @@ import {ConfigRepo, humanizedMaterialAttributeName} from "models/config_repos/ty
 import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
 import {CollapsiblePanel} from "views/components/collapsible_panel";
 import {FlashMessage, MessageType} from "views/components/flash_message";
-import {Delete, Refresh, Settings} from "views/components/icons";
+import {HeaderIcon} from "views/components/header_icon";
+import {ButtonGroup, Delete, Refresh, Settings} from "views/components/icons";
 import {KeyValuePair} from "views/components/key_value_pair";
 import {Spinner} from "views/components/spinner";
 import * as styles from "./index.scss";
@@ -85,28 +86,31 @@ class HeaderWidget extends MithrilViewComponent<HeaderWidgetAttrs> {
     const pluginInfo = findPluginWithId(vnode.attrs.pluginInfos(), vnode.attrs.repo.pluginId());
 
     if (!pluginInfo) {
-      return (
-        <span className={styles.missingPluginIcon}
-              title={`Plugin '${vnode.attrs.repo.pluginId()}' was not found`}/>
-      );
+      return <HeaderIcon/>;
     }
 
     if (_.isEmpty(vnode.attrs.repo.lastParse())) {
       return (
-        <span className={styles.neverParsed}
-              title={`This configuration repository was never parsed.`}/>
+        <HeaderIcon>
+          <span className={styles.neverParsed}
+                title={`This configuration repository was never parsed.`}/>
+        </HeaderIcon>
       );
     }
 
     if (vnode.attrs.repo.lastParse().success) {
       return (
-        <span className={styles.goodLastParseIcon}
-              title={`Last parsed with revision ${vnode.attrs.repo.lastParse().revision}`}/>
+        <HeaderIcon>
+          <span className={styles.goodLastParseIcon}
+                title={`Last parsed with revision ${vnode.attrs.repo.lastParse().revision}`}/>
+        </HeaderIcon>
       );
     } else {
       return (
-        <span className={styles.lastParseErrorIcon}
-              title={`Last parsed with revision ${vnode.attrs.repo.lastParse().revision}. The error was ${vnode.attrs.repo.lastParse().error}`}/>
+        <HeaderIcon>
+          <span className={styles.lastParseErrorIcon}
+                title={`Last parsed with revision ${vnode.attrs.repo.lastParse().revision}. The error was ${vnode.attrs.repo.lastParse().error}`}/>
+        </HeaderIcon>
       );
     }
   }
@@ -150,14 +154,16 @@ class ConfigRepoWidget extends MithrilViewComponent<ShowObjectAttrs<ConfigRepo>>
       <Delete data-test-id="config-repo-delete" onclick={vnode.attrs.onDelete.bind(vnode.attrs)}/>
     );
 
-    const actionButtons = [
-      refreshButton, settingsButton, deleteButton
-    ];
+    const actionButtons = <ButtonGroup>
+      {refreshButton}
+      {settingsButton}
+      {deleteButton}
+    </ButtonGroup>;
 
     let lastParseRevision: m.Children;
 
     if (vnode.attrs.obj.lastParse() && vnode.attrs.obj.lastParse().revision()) {
-      lastParseRevision = <div>Last seen revision: <code>{vnode.attrs.obj.lastParse().revision()}</code></div>;
+      lastParseRevision = <p class={styles.lastRevision}>Last seen revision: <code>{vnode.attrs.obj.lastParse().revision()}</code></p>;
     }
 
     let maybeWarning: m.Children;
@@ -188,7 +194,7 @@ class ConfigRepoWidget extends MithrilViewComponent<ShowObjectAttrs<ConfigRepo>>
                         actions={actionButtons}>
         {maybeWarning}
         {lastParseRevision}
-        <div><strong>SCM configuration for {vnode.attrs.obj.material().type()} material</strong></div>
+        <h4 class={styles.scmHeader}>SCM configuration for {vnode.attrs.obj.material().type()} material</h4>
         <KeyValuePair data={filteredAttributes}/>
       </CollapsiblePanel>
     );

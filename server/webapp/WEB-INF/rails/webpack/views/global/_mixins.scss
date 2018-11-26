@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 @import '~bourbon/core/bourbon';
 
 @mixin hover-effect-for-top-menu {
@@ -27,6 +26,14 @@
   @media(min-width: $screen-md) {
     font-size:   13px;
     font-weight: 600;
+  }
+}
+
+%clearfix {
+  &:after {
+    content: "";
+    display: table;
+    clear:   both;
   }
 }
 

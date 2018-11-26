@@ -16,29 +16,39 @@
 @import "../../global/common";
 
 @mixin header-icon($type, $color) {
-  @include icon-before($type: $type, $color: $color, $margin: 5px, $size: 30px) {
+  @include icon-before($type: $type, $color: $color, $size: 25px) {
     text-align: center;
   }
-  width:   1.2rem;
   display: block;
 }
 
 .good-last-parse-icon {
   @include header-icon($type: $fa-var-check, $color: $success-txt);
-  margin: 0 25px 0 -15px; // different margins because the width of icons is different
 }
 
 .last-parse-error-icon {
   @include header-icon($type: $fa-var-exclamation, $color: $warning-txt);
-  margin: 0 13px 0 -3px; // different margins because the width of icons is different
 }
 
 .never-parsed {
   @include header-icon($type: $fa-var-exclamation, $color: $go-danger);
-  margin: 0 13px 0 -3px; // different margins because the width of icons is different
 }
 
 .missing-plugin-icon {
   @include header-icon($type: $fa-var-question, $color: $icon-light-color);
-  margin: 0 17px 0 -7px; // different margins because the width of icons is different
+}
+
+.scm-header {
+  font-weight:   600;
+  margin-bottom: 20px;
+}
+
+.last-revision {
+  margin-bottom: 10px;
+}
+
+code {
+  white-space: pre-wrap;
+  word-break:  break-all;
+  word-wrap:   break-word;
 }

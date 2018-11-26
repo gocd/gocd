@@ -35,9 +35,7 @@ $key-value-pair-width: 150px;
   @media(max-width: $screen-md-min) {
     &:after {
       content:     ":";
-      position:    absolute;
-      top:         0;
-      right:       -5px;
+      margin-left:       10px;
       font-weight: 600;
     }
   }
@@ -72,10 +70,11 @@ $key-value-pair-width: 150px;
 }
 
 .key-value-item {
-  display:       flex;
-  padding:       5px;
-  border-bottom: 1px dashed $border-color;
-  align-content: center;
+  display:        flex;
+  padding:        5px;
+  border-bottom:  1px dashed $border-color;
+  align-content:  center;
+  flex-direction: column;
   @media(min-width: $screen-md) {
     flex-direction: row;
     flex-wrap:      nowrap;
@@ -96,11 +95,13 @@ $key-value-pair-width: 150px;
 }
 
 .key-value-inline-item {
-  margin-right: 20px;
-  border:       none;
-  padding:      0;
-  width:        25vw;
+  margin-right:   20px;
+  border:         none;
+  padding:        0;
+  flex-direction: row;
+
   .key {
-    width: auto;
+    width:     auto;
+    min-width: 0;
   }
 }

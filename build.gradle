@@ -31,7 +31,7 @@ buildscript {
   }
 
   dependencies {
-    classpath 'org.owasp:dependency-check-gradle:3.3.4'
+    classpath 'org.owasp:dependency-check-gradle:4.0.0'
     classpath 'com.github.ben-manes:gradle-versions-plugin:0.20.0'
     classpath "gradle.plugin.nl.javadude.gradle.plugins:license-gradle-plugin:0.14.0"
     classpath 'gradle.plugin.com.github.jk1:gradle-license-report:1.3'
@@ -41,6 +41,7 @@ buildscript {
 apply plugin: 'base'
 apply plugin: "com.github.hierynomus.license"
 apply plugin: 'com.github.jk1.dependency-license-report'
+apply plugin: 'org.owasp.dependencycheck'
 
 if (file('build-ext.gradle').exists()) {
   apply from: 'build-ext.gradle'
@@ -221,6 +222,24 @@ rootProject.ext.versions = [
   ]
 ]
 
+
+dependencyCheck {
+  cve {
+    def baseUrl
+
+    if (System.getenv().containsKey("GO_SERVER_URL")) {
+      baseUrl = "https://nexus.gocd.io/repository/nvd-nist"
+    } else {
+      baseUrl = "https://nvd.nist.gov/feeds"
+    }
+
+    url20Modified = "${baseUrl}/xml/cve/2.0/nvdcve-2.0-modified.xml.gz"
+    url20Base = "${baseUrl}/xml/cve/2.0/nvdcve-2.0-%d.xml.gz"
+    url12Modified = "${baseUrl}/xml/cve/1.2/nvdcve-modified.xml.gz"
+    url12Base = "${baseUrl}/xml/cve/1.2/nvdcve-%d.xml.gz"
+  }
+}
+
 allprojects {
   apply plugin: 'idea'
   apply plugin: 'jacoco'
@@ -282,7 +301,6 @@ subprojects {
 
   apply plugin: 'java'
   apply plugin: 'maven'
-  apply plugin: 'org.owasp.dependencycheck'
   apply plugin: 'com.github.ben-manes.versions'
 
   sourceCompatibility = 1.8
@@ -646,7 +664,7 @@ task allTestsJunitHtmlReport(type: TestReport) { TestReport thisTask ->
 }
 
 static def toCamelCase(String input) {
-  return input.split("[^a-zA-Z0-9]").collect{it.capitalize()}.join("")
+  return input.split("[^a-zA-Z0-9]").collect { it.capitalize() }.join("")
 }
 
 task newApi {
@@ -737,7 +755,9 @@ task newApi {
           import static spark.Spark.*;
 
           @Component
-          public class ${controllerClassName} extends ApiController implements SparkSpringController, CrudController<${entityClassName}> {
+          public class ${controllerClassName} extends ApiController implements SparkSpringController, CrudController<${
+          entityClassName
+        }> {
 
               @Autowired
               public ${controllerClassName}() {
@@ -832,7 +852,7 @@ task newApi {
     }
 
     List<String> lines = file('server/webapp/WEB-INF/applicationContext-global.xml').readLines()
-    int insertionIdx = lines.findIndexOf {l -> (l =~ /^\s*<context:component-scan /).find()}
+    int insertionIdx = lines.findIndexOf { l -> (l =~ /^\s*<context:component-scan /).find() }
     lines.add(insertionIdx, "  <context:component-scan base-package=\"${packageName}\"/>")
 
     file('server/webapp/WEB-INF/applicationContext-global.xml').withWriter { out ->

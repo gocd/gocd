@@ -27,6 +27,11 @@ public class Routes {
         public static final String DOC = "https://api.gocd.org/#backups";
     }
 
+    public static class DrainMode {
+        public static final String BASE = "/api/drain_mode/settings";
+        public static final String DOC = "https://api.gocd.org/current/#server-drain-mode";
+    }
+
     public static class CurrentUser {
         public static final String BASE = "/api/current_user";
     }

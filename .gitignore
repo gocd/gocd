@@ -126,6 +126,10 @@ api/api-data-sharing-settings-v1/target/
 api/api-data-sharing-usage-data-v3/logs/
 api/api-data-sharing-usage-data-v3/out/
 api/api-data-sharing-usage-data-v3/target/
+api/api-server-drain-mode-v1/logs/
+api/api-server-drain-mode-v1/out/
+api/api-server-drain-mode-v1/target/
+api/api-server-drain-mode-v1/config/
 api/api-elastic-profile-v1/out/
 api/api-elastic-profile-v1/logs/
 api/api-elastic-profile-v1/target/

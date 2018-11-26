@@ -35,6 +35,11 @@
         "key": "agent_apis_over_rails",
         "description": "Allows user to use the agents api from rails. Defaults to spark.",
         "value": false
+      },
+      {
+        "key": "server_drain_mode_api_toggle_key",
+        "description": "Enables API to toggle server drain mode.",
+        "value": false
       }
   ]
 }

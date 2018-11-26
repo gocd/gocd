@@ -325,6 +325,12 @@
   </rule>
 
   <rule>
+    <name>Drain Mode APIs</name>
+    <from>^/api/drain_mode/(.*)(/?)$</from>
+    <to last="true">/spark/api/drain_mode/$1</to>
+  </rule>
+
+  <rule>
     <name>Initialize for_rails</name>
     <from>.*</from>
     <set name="rails_bound">false</set>

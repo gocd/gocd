@@ -45,7 +45,7 @@ export abstract class Validator {
 
 class PresenceValidator extends Validator {
   protected doValidate(entity: any, attr: string): void {
-    if (s.isBlank(entity[attr])) {
+    if (s.isBlank(entity[attr]())) {
       entity.errors().add(attr, this.options.message || ErrorMessages.mustBePresent(attr));
     }
   }

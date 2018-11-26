@@ -83,6 +83,9 @@ export class ConfigRepo implements ValidatableMixin {
     this.configuration = stream(configuration);
     this.lastParse     = stream(lastParse);
     ValidatableMixin.call(this);
+    this.validatePresenceOf("id");
+    this.validatePresenceOf("pluginId");
+    this.validateAssociated("material");
   }
 
   static fromJSON(json: ConfigRepoJSON) {
@@ -139,6 +142,7 @@ export class Material implements ValidatableMixin {
     this.attributes = stream(attributes);
     this.type       = stream(type);
     ValidatableMixin.call(this);
+    this.validateAssociated("attributes");
   }
 
   typeProxy(value?: any) {
@@ -165,6 +169,7 @@ export abstract class MaterialAttributes implements ValidatableMixin {
     this.name       = stream(name);
     this.autoUpdate = stream(autoUpdate);
     ValidatableMixin.call(this);
+    this.validatePresenceOf("name");
   }
 
   name: Stream<string>;
@@ -217,6 +222,7 @@ export class GitMaterialAttributes extends MaterialAttributes {
     super(name, autoUpdate);
     this.url    = stream(url);
     this.branch = stream(branch);
+    this.validatePresenceOf("url");
   }
 
   static fromJSON(json: GitMaterialAttributesJSON) {
@@ -257,6 +263,7 @@ export class SvnMaterialAttributes extends MaterialAttributes implements Validat
     this.checkExternals = stream(checkExternals);
     this.username       = stream(username);
     this.password       = stream(plainOrCipherValue({plainText: password, cipherText: encryptedPassword}));
+    this.validatePresenceOf("url");
   }
 
   static fromJSON(json: SvnMaterialAttributesJSON) {
@@ -278,12 +285,15 @@ export class HgMaterialAttributes extends MaterialAttributes {
   constructor(name?: string, autoUpdate?: boolean, url?: string) {
     super(name, autoUpdate);
     this.url = stream(url);
+    this.validatePresenceOf("url");
   }
 
   static fromJSON(json: HgMaterialAttributesJSON) {
     return new HgMaterialAttributes(json.name, json.auto_update, json.url);
   }
 }
+
+applyMixins(HgMaterialAttributes, ValidatableMixin);
 
 export class P4MaterialAttributes extends MaterialAttributes {
   port: Stream<string>;
@@ -306,6 +316,7 @@ export class P4MaterialAttributes extends MaterialAttributes {
     this.view       = stream(view);
     this.username   = stream(username);
     this.password   = stream(plainOrCipherValue({plainText: password, cipherText: encryptedPassword}));
+    this.validatePresenceOf("view");
   }
 
   static fromJSON(json: P4MaterialAttributesJSON) {
@@ -320,7 +331,7 @@ export class P4MaterialAttributes extends MaterialAttributes {
   }
 }
 
-applyMixins(HgMaterialAttributes, ValidatableMixin);
+applyMixins(P4MaterialAttributes, ValidatableMixin);
 
 export class TfsMaterialAttributes extends MaterialAttributes {
   url: Stream<string>;
@@ -343,6 +354,8 @@ export class TfsMaterialAttributes extends MaterialAttributes {
     this.projectPath = stream(projectPath);
     this.username    = stream(username);
     this.password    = stream(plainOrCipherValue({plainText: password, cipherText: encryptedPassword}));
+    this.validatePresenceOf("url");
+    this.validatePresenceOf("projectPath");
   }
 
   static fromJSON(json: TfsMaterialAttributesJSON) {

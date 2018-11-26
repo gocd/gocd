@@ -48,6 +48,14 @@ export class Errors {
     return _.map(this._errors[attrName] || [], s.terminateWithPeriod).join(" ");
   }
 
+  count() {
+    return _.size(this._errors);
+  }
+
+  keys() {
+    return Object.keys(this._errors);
+  }
+
   private _isEmpty() {
     return _.isEmpty(this._errors);
   }

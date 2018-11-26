@@ -141,7 +141,7 @@ const MATERIAL_TO_COMPONENT_MAP: { [key: string]: MithrilViewComponent<EditableM
                      required={true}
                      errorText={materialAttributes.errors().errorsForDisplay("url")}/>
 
-          <CheckboxField label={humanizedMaterialAttributeName("check_externals")}
+          <CheckboxField label={humanizedMaterialAttributeName("checkExternals")}
                          property={materialAttributes.checkExternals}/>
 
           <TextField label={humanizedMaterialAttributeName("username")}

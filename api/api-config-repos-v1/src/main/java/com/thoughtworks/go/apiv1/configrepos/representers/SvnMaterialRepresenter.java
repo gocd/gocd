@@ -34,7 +34,7 @@ class SvnMaterialRepresenter {
         json.addIfNotNull("encrypted_password", material.getEncryptedPassword());
     }
 
-    static MaterialConfig fromJSON(JsonReader json) {
+    static SvnMaterialConfig fromJSON(JsonReader json) {
         SvnMaterialConfig materialConfig = new SvnMaterialConfig();
         json.readStringIfPresent("name", materialConfig::setName);
         json.readBooleanIfPresent("auto_update", materialConfig::setAutoUpdate);
@@ -45,7 +45,7 @@ class SvnMaterialRepresenter {
 
         String password = json.getStringOrDefault("password", null);
         String encryptedPassword = json.getStringOrDefault("encrypted_password", null);
-        PASSWORD_DESERIALIZER.deserialize(password, encryptedPassword, materialConfig);
+        materialConfig.setEncryptedPassword(PASSWORD_DESERIALIZER.deserialize(password, encryptedPassword, materialConfig));
 
         return materialConfig;
     }

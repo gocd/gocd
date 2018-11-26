@@ -35,7 +35,7 @@ class P4MaterialRepresenter {
         json.addIfNotNull("encrypted_password", material.getEncryptedPassword());
     }
 
-    public static MaterialConfig fromJSON(JsonReader json) {
+    public static P4MaterialConfig fromJSON(JsonReader json) {
         P4MaterialConfig materialConfig = new P4MaterialConfig();
         json.readStringIfPresent("name", materialConfig::setName);
         json.readBooleanIfPresent("auto_update", materialConfig::setAutoUpdate);
@@ -46,7 +46,7 @@ class P4MaterialRepresenter {
 
         String password = json.getStringOrDefault("password", null);
         String encryptedPassword = json.getStringOrDefault("encrypted_password", null);
-        PASSWORD_DESERIALIZER.deserialize(password, encryptedPassword, materialConfig);
+        materialConfig.setEncryptedPassword(PASSWORD_DESERIALIZER.deserialize(password, encryptedPassword, materialConfig));
         return materialConfig;
     }
 }

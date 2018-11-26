@@ -35,7 +35,7 @@ class TfsMaterialRepresenter {
         json.addIfNotNull("encrypted_password", material.getEncryptedPassword());
     }
 
-    public static MaterialConfig fromJSON(JsonReader json) {
+    public static TfsMaterialConfig fromJSON(JsonReader json) {
         TfsMaterialConfig materialConfig = new TfsMaterialConfig();
         json.readStringIfPresent("name", materialConfig::setName);
         json.readBooleanIfPresent("auto_update", materialConfig::setAutoUpdate);
@@ -46,7 +46,7 @@ class TfsMaterialRepresenter {
 
         String password = json.getStringOrDefault("password", null);
         String encryptedPassword = json.getStringOrDefault("encrypted_password", null);
-        PASSWORD_DESERIALIZER.deserialize(password, encryptedPassword, materialConfig);
+        materialConfig.setEncryptedPassword(PASSWORD_DESERIALIZER.deserialize(password, encryptedPassword, materialConfig));
         return materialConfig;
     }
 }

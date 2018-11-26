@@ -16,39 +16,38 @@
 
 package com.thoughtworks.go.server.service;
 
-import static java.util.Arrays.asList;
-import java.util.List;
-
 import com.thoughtworks.go.config.BasicCruiseConfig;
 import com.thoughtworks.go.config.BasicPipelineConfigs;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.PipelineConfig;
-
-import static com.thoughtworks.go.helper.PipelineConfigMother.pipelineConfigWithTimer;
+import com.thoughtworks.go.server.domain.ServerDrainMode;
 import com.thoughtworks.go.server.scheduling.BuildCauseProducerService;
 import com.thoughtworks.go.server.service.result.ServerHealthStateOperationResult;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import static org.mockito.Mockito.atLeastOnce;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.ArgumentMatchers.any;
-
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
 import org.quartz.impl.StdSchedulerFactory;
 
+import java.util.List;
+
+import static com.thoughtworks.go.helper.PipelineConfigMother.pipelineConfigWithTimer;
+import static java.util.Arrays.asList;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.*;
+
 public class TimerSchedulerQuartzIntegrationTest {
     private StdSchedulerFactory quartzSchedulerFactory;
     private Scheduler scheduler;
+    private DrainModeService drainModeService;
     private SystemEnvironment systemEnvironment;
 
     @Before
     public void setUp() throws Exception {
+        drainModeService = new DrainModeService();
         quartzSchedulerFactory = new StdSchedulerFactory();
         scheduler = quartzSchedulerFactory.getScheduler();
         systemEnvironment = new SystemEnvironment();
@@ -71,13 +70,35 @@ public class TimerSchedulerQuartzIntegrationTest {
 
         BuildCauseProducerService buildCauseProducerService = mock(BuildCauseProducerService.class);
 
-        TimerScheduler timerScheduler = new TimerScheduler(scheduler, goConfigService, buildCauseProducerService, null, systemEnvironment);
+        TimerScheduler timerScheduler = new TimerScheduler(scheduler, goConfigService, buildCauseProducerService, null, drainModeService, systemEnvironment);
         timerScheduler.initialize();
 
         pauseForScheduling();
         verify(buildCauseProducerService, atLeastOnce()).timerSchedulePipeline(eq(uat), any(
                 ServerHealthStateOperationResult.class));
         verify(buildCauseProducerService, atLeastOnce()).timerSchedulePipeline(eq(dist), any(ServerHealthStateOperationResult.class));
+    }
+
+    @Test
+    public void shouldNotExecuteScheduledJobsWhenServerIsInDrainMode() throws InterruptedException {
+        PipelineConfig uat = pipelineConfigWithTimer("uat", "* * * * * ?");
+        PipelineConfig dist = pipelineConfigWithTimer("dist", "* * * * * ?");
+        List<PipelineConfig> pipelineConfigs = asList(uat, dist);
+
+        GoConfigService goConfigService = mock(GoConfigService.class);
+        when(goConfigService.getAllPipelineConfigs()).thenReturn(pipelineConfigs);
+
+        BuildCauseProducerService buildCauseProducerService = mock(BuildCauseProducerService.class);
+        ServerDrainMode serverDrainMode = new ServerDrainMode();
+        serverDrainMode.setDrainMode(true);
+        drainModeService.update(serverDrainMode);
+
+        TimerScheduler timerScheduler = new TimerScheduler(scheduler, goConfigService, buildCauseProducerService, null, drainModeService, systemEnvironment);
+        timerScheduler.initialize();
+
+        pauseForScheduling();
+        verify(buildCauseProducerService, never()).timerSchedulePipeline(eq(uat), any(ServerHealthStateOperationResult.class));
+        verify(buildCauseProducerService, never()).timerSchedulePipeline(eq(dist), any(ServerHealthStateOperationResult.class));
     }
 
     @Test
@@ -91,7 +112,7 @@ public class TimerSchedulerQuartzIntegrationTest {
 
         BuildCauseProducerService buildCauseProducerService = mock(BuildCauseProducerService.class);
 
-        TimerScheduler timerScheduler = new TimerScheduler(scheduler, goConfigService, buildCauseProducerService, null, systemEnvironment);
+        TimerScheduler timerScheduler = new TimerScheduler(scheduler, goConfigService, buildCauseProducerService, null, drainModeService, systemEnvironment);
         timerScheduler.initialize();
 
         CruiseConfig cruiseConfig = new BasicCruiseConfig();

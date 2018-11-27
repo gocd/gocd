@@ -20,21 +20,13 @@ const path                = require('path');
 const process             = require('process');
 const jasmineSeedReporter = require('karma-jasmine-seed-reporter')
 
-let browsers;
-
-if (process.platform === 'darwin') {
-  browsers = ['Firefox', 'Chrome', 'Safari'];
-} else if (process.platform === 'win32') {
-  browsers = ['Firefox', 'IE'];
-} else {
-  // linux, bsd, et.al.
-  browsers = ['Firefox'];
-}
-
 module.exports = function (config) {
   config.set({
     basePath:      path.join(__dirname, 'public', 'assets', 'webpack'),
-    frameworks:    ['jasmine'],
+    frameworks:    ['jasmine', 'detectBrowsers'],
+    detectBrowsers: {
+      usePhantomJS: false
+    },
     client:        {
       captureConsole: true,
       jasmine: {
@@ -84,7 +76,6 @@ module.exports = function (config) {
     colors:        true,
     logLevel:      process.env['KARMA_LOG_LEVEL'] ? config[`LOG_${process.env['KARMA_LOG_LEVEL'].toUpperCase()}`] : config.LOG_INFO,
     autoWatch:     true,
-    browsers:      browsers,
     singleRun:     false,
     concurrency:   Infinity
   });

@@ -16,7 +16,6 @@
 
 import {bind} from "classnames/bind";
 import {MithrilComponent} from "jsx/mithril-component";
-import * as _ from "lodash";
 import * as m from "mithril";
 import * as styles from "./forms.scss";
 
@@ -25,16 +24,16 @@ const classnames = bind(styles);
 export class Form extends MithrilComponent {
 
   view(vnode: m.Vnode) {
-    let children = vnode.children;
-    if (_.isArray(vnode.children)) {
-      children = _.map(vnode.children as JSX.Element[], (child) => {
-        return <li class={styles.formGroup}>
-          {child}
-        </li>;
-      });
-    }
     return <ul className={classnames(styles.form, styles.formResponsive)}>
-      {children}
+      {vnode.children}
     </ul>;
+  }
+}
+
+export class FormItem extends MithrilComponent {
+  view(vnode: m.Vnode) {
+    return <li class={styles.formGroup}>
+      {vnode.children}
+    </li>;
   }
 }

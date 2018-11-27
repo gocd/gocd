@@ -55,21 +55,8 @@ $plugin-row-element-width: 350px;
 }
 
 .unknown-plugin-icon {
-  @include icon-before($type: $fa-var-question, $color: $icon-light-color, $margin: 5px, $size: 30px);
+  @include icon-before($type: $fa-var-question, $color: $icon-light-color, $margin: 5px, $size: 25px);
   display: block;
-  &:before {
-    font-family:            'FontAwesome';
-    content:                "\f128";
-    font-weight:            normal;
-    font-style:             normal;
-    display:                inline-block;
-    text-decoration:        inherit;
-    line-height:            1em;
-    margin:                 5px;
-    font-size:              25px;
-    color:                  $icon-light-color;
-    -webkit-font-smoothing: antialiased;
-  }
 }
 
 .plugins-page {

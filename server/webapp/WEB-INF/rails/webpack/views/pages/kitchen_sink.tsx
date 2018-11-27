@@ -21,7 +21,7 @@ import * as Buttons from "views/components/buttons/index";
 import {CollapsiblePanel} from "views/components/collapsible_panel";
 import {FlashMessage, MessageType} from "views/components/flash_message";
 import {EncryptedValue} from "views/components/forms/encrypted_value";
-import {Form} from "views/components/forms/form";
+import {Form, FormItem} from "views/components/forms/form";
 import {PasswordField, TextField} from "views/components/forms/input_fields";
 import {HeaderPanel} from "views/components/header_panel";
 import {ButtonGroup} from "views/components/icons";
@@ -150,29 +150,36 @@ export class KitchenSink extends MithrilViewComponent<null> {
 
         <h3>Forms</h3>
         <Form>
-          <TextField required={true}
-                     helpText="Enter your username here"
-                     disabled={false}
-                     label="Username"
-                     property={formValue}/>
-          <TextField required={true}
-                     helpText="Enter your username here"
-                     disabled={false}
-                     label="Username"
-                     property={formValue}/>
-
-          <TextField required={true}
-                     errorText="This field must be present"
-                     helpText="Lorem ipsum is the dummy text used by the print and typesetting industry"
-                     disabled={false}
-                     label="Lorem ipsum"
-                     property={formValue}/>
-
-          <PasswordField label="Editable password field"
-                         property={passwordValue}/>
-
-          <PasswordField label="Locked password field"
-                         property={encryptedPasswordValue}/>
+          <FormItem>
+            <TextField required={true}
+                       helpText="Enter your username here"
+                       disabled={false}
+                       label="Username"
+                       property={formValue}/>
+          </FormItem>
+          <FormItem>
+            <TextField required={true}
+                       helpText="Enter your username here"
+                       disabled={false}
+                       label="Username"
+                       property={formValue}/>
+          </FormItem>
+          <FormItem>
+            <TextField required={true}
+                       errorText="This field must be present"
+                       helpText="Lorem ipsum is the dummy text used by the print and typesetting industry"
+                       disabled={false}
+                       label="Lorem ipsum"
+                       property={formValue}/>
+          </FormItem>
+          <FormItem>
+            <PasswordField label="Editable password field"
+                           property={passwordValue}/>
+          </FormItem>
+          <FormItem>
+            <PasswordField label="Locked password field"
+                           property={encryptedPasswordValue}/>
+          </FormItem>
         </Form>
       </div>
     );

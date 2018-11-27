@@ -33,6 +33,7 @@ import {
 import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
 import * as Buttons from "views/components/buttons";
 import {FlashMessage, MessageType} from "views/components/flash_message";
+import {Form, FormItem} from "views/components/forms/form";
 import {
   CheckboxField,
   Option,
@@ -57,38 +58,48 @@ class MaterialEditWidget extends MithrilViewComponent<EditableMaterial> {
     });
 
     return (
-      <div>
-        <SelectField label="Plugin ID"
-                     property={vnode.attrs.repo.pluginId}
+      <Form>
+        <FormItem>
+          <SelectField label="Plugin ID"
+                       property={vnode.attrs.repo.pluginId}
+                       required={true}
+                       errorText={vnode.attrs.repo.errors().errorsForDisplay("pluginId")}>
+            <SelectFieldOptions selected={vnode.attrs.repo.pluginId()}
+                                items={pluginList}/>
+          </SelectField>
+        </FormItem>
+
+        <FormItem>
+          <SelectField label={"Material type"}
+                       property={vnode.attrs.repo.material().typeProxy.bind(vnode.attrs.repo.material())}
+                       required={true}
+                       errorText={vnode.attrs.repo.errors().errorsForDisplay("material")}>
+            <SelectFieldOptions selected={vnode.attrs.repo.material().type()}
+                                items={this.materialSelectOptions()}/>
+          </SelectField>
+        </FormItem>
+
+        <FormItem>
+          <TextField label="Config repository ID"
+                     disabled={!vnode.attrs.isNew}
+                     property={vnode.attrs.repo.id}
+                     errorText={vnode.attrs.repo.errors().errorsForDisplay("id")}
+                     required={true}/>
+        </FormItem>
+
+        <FormItem>
+          <CheckboxField label={humanizedMaterialAttributeName("autoUpdate")}
+                         property={vnode.attrs.repo.material().attributes().autoUpdate}/>
+        </FormItem>
+
+        <FormItem>
+          <TextField label={humanizedMaterialAttributeName("name")}
+                     property={materialAttributes.name}
                      required={true}
-                     errorText={vnode.attrs.repo.errors().errorsForDisplay("pluginId")}>
-          <SelectFieldOptions selected={vnode.attrs.repo.pluginId()}
-                              items={pluginList}/>
-        </SelectField>
-
-        <SelectField label={"Material type"}
-                     property={vnode.attrs.repo.material().typeProxy.bind(vnode.attrs.repo.material())}
-                     required={true}
-                     errorText={vnode.attrs.repo.errors().errorsForDisplay("material")}>
-          <SelectFieldOptions selected={vnode.attrs.repo.material().type()}
-                              items={this.materialSelectOptions()}/>
-        </SelectField>
-
-        <TextField label="Config repository ID"
-                   disabled={!vnode.attrs.isNew}
-                   property={vnode.attrs.repo.id}
-                   errorText={vnode.attrs.repo.errors().errorsForDisplay("id")}
-                   required={true}/>
-
-        <CheckboxField label={humanizedMaterialAttributeName("autoUpdate")}
-                       property={vnode.attrs.repo.material().attributes().autoUpdate}/>
-
-        <TextField label={humanizedMaterialAttributeName("name")}
-                   property={materialAttributes.name}
-                   required={true}
-                   errorText={materialAttributes.errors().errorsForDisplay("name")}/>
+                     errorText={materialAttributes.errors().errorsForDisplay("name")}/>
+        </FormItem>
         {vnode.children}
-      </div>
+      </Form>
     );
   }
 
@@ -117,13 +128,17 @@ const MATERIAL_TO_COMPONENT_MAP: { [key: string]: MithrilViewComponent<EditableM
       return (
         <MaterialEditWidget {...vnode.attrs}>
 
-          <TextField label={humanizedMaterialAttributeName("url")}
-                     property={materialAttributes.url}
-                     required={true}
-                     errorText={materialAttributes.errors().errorsForDisplay("url")}/>
+          <FormItem>
+            <TextField label={humanizedMaterialAttributeName("url")}
+                       property={materialAttributes.url}
+                       required={true}
+                       errorText={materialAttributes.errors().errorsForDisplay("url")}/>
+          </FormItem>
 
-          <TextField label={humanizedMaterialAttributeName("branch")}
-                     property={materialAttributes.branch}/>
+          <FormItem>
+            <TextField label={humanizedMaterialAttributeName("branch")}
+                       property={materialAttributes.branch}/>
+          </FormItem>
 
         </MaterialEditWidget>
       );
@@ -136,19 +151,27 @@ const MATERIAL_TO_COMPONENT_MAP: { [key: string]: MithrilViewComponent<EditableM
 
       return (
         <MaterialEditWidget {...vnode.attrs}>
-          <TextField label={humanizedMaterialAttributeName("url")}
-                     property={materialAttributes.url}
-                     required={true}
-                     errorText={materialAttributes.errors().errorsForDisplay("url")}/>
+          <FormItem>
+            <TextField label={humanizedMaterialAttributeName("url")}
+                       property={materialAttributes.url}
+                       required={true}
+                       errorText={materialAttributes.errors().errorsForDisplay("url")}/>
+          </FormItem>
 
-          <CheckboxField label={humanizedMaterialAttributeName("checkExternals")}
-                         property={materialAttributes.checkExternals}/>
+          <FormItem>
+            <CheckboxField label={humanizedMaterialAttributeName("checkExternals")}
+                           property={materialAttributes.checkExternals}/>
+          </FormItem>
 
-          <TextField label={humanizedMaterialAttributeName("username")}
-                     property={materialAttributes.username}/>
+          <FormItem>
+            <TextField label={humanizedMaterialAttributeName("username")}
+                       property={materialAttributes.username}/>
+          </FormItem>
 
-          <PasswordField label={humanizedMaterialAttributeName("password")}
-                         property={materialAttributes.password}/>
+          <FormItem>
+            <PasswordField label={humanizedMaterialAttributeName("password")}
+                           property={materialAttributes.password}/>
+          </FormItem>
         </MaterialEditWidget>
       );
     }
@@ -160,12 +183,12 @@ const MATERIAL_TO_COMPONENT_MAP: { [key: string]: MithrilViewComponent<EditableM
 
       return (
         <MaterialEditWidget {...vnode.attrs}>
-
-          <TextField label={humanizedMaterialAttributeName("url")}
-                     property={materialAttributes.url}
-                     required={true}
-                     errorText={materialAttributes.errors().errorsForDisplay("url")}/>
-
+          <FormItem>
+            <TextField label={humanizedMaterialAttributeName("url")}
+                       property={materialAttributes.url}
+                       required={true}
+                       errorText={materialAttributes.errors().errorsForDisplay("url")}/>
+          </FormItem>
         </MaterialEditWidget>
       );
     }
@@ -176,25 +199,35 @@ const MATERIAL_TO_COMPONENT_MAP: { [key: string]: MithrilViewComponent<EditableM
       const materialAttributes = vnode.attrs.repo.material().attributes() as P4MaterialAttributes;
       return (
         <MaterialEditWidget {...vnode.attrs}>
+          <FormItem>
+            <TextField label={humanizedMaterialAttributeName("port")}
+                       property={materialAttributes.port}
+                       required={true}
+                       errorText={materialAttributes.errors().errorsForDisplay("port")}/>
+          </FormItem>
 
-          <TextField label={humanizedMaterialAttributeName("port")}
-                     property={materialAttributes.port}
-                     required={true}
-                     errorText={materialAttributes.errors().errorsForDisplay("port")}/>
+          <FormItem>
+            <CheckboxField label={humanizedMaterialAttributeName("useTickets")}
+                           property={materialAttributes.useTickets}/>
+          </FormItem>
 
-          <CheckboxField label={humanizedMaterialAttributeName("useTickets")}
-                         property={materialAttributes.useTickets}/>
+          <FormItem>
 
-          <TextAreaField label={humanizedMaterialAttributeName("view")}
-                         property={materialAttributes.view}
-                         required={true}
-                         errorText={materialAttributes.errors().errorsForDisplay("view")}/>
+            <TextAreaField label={humanizedMaterialAttributeName("view")}
+                           property={materialAttributes.view}
+                           required={true}
+                           errorText={materialAttributes.errors().errorsForDisplay("view")}/>
+          </FormItem>
 
-          <TextField label={humanizedMaterialAttributeName("username")}
-                     property={materialAttributes.username}/>
+          <FormItem>
+            <TextField label={humanizedMaterialAttributeName("username")}
+                       property={materialAttributes.username}/>
+          </FormItem>
 
-          <PasswordField label={humanizedMaterialAttributeName("password")}
-                         property={materialAttributes.password}/>
+          <FormItem>
+            <PasswordField label={humanizedMaterialAttributeName("password")}
+                           property={materialAttributes.password}/>
+          </FormItem>
         </MaterialEditWidget>
       );
     }
@@ -207,28 +240,38 @@ const MATERIAL_TO_COMPONENT_MAP: { [key: string]: MithrilViewComponent<EditableM
       return (
         <MaterialEditWidget {...vnode.attrs}>
 
-          <TextField label={humanizedMaterialAttributeName("url")}
-                     property={materialAttributes.url}
-                     required={true}
-                     errorText={materialAttributes.errors().errorsForDisplay("url")}/>
+          <FormItem>
+            <TextField label={humanizedMaterialAttributeName("url")}
+                       property={materialAttributes.url}
+                       required={true}
+                       errorText={materialAttributes.errors().errorsForDisplay("url")}/>
+          </FormItem>
 
-          <TextField label={humanizedMaterialAttributeName("projectPath")}
-                     property={materialAttributes.projectPath}
-                     required={true}
-                     errorText={materialAttributes.errors().errorsForDisplay("projectPath")}/>
+          <FormItem>
+            <TextField label={humanizedMaterialAttributeName("projectPath")}
+                       property={materialAttributes.projectPath}
+                       required={true}
+                       errorText={materialAttributes.errors().errorsForDisplay("projectPath")}/>
+          </FormItem>
 
-          <TextField label={humanizedMaterialAttributeName("domain")}
-                     property={materialAttributes.domain}/>
+          <FormItem>
+            <TextField label={humanizedMaterialAttributeName("domain")}
+                       property={materialAttributes.domain}/>
+          </FormItem>
 
-          <TextField label={humanizedMaterialAttributeName("username")}
-                     property={materialAttributes.username}
-                     required={true}
-                     errorText={materialAttributes.errors().errorsForDisplay("username")}/>
+          <FormItem>
+            <TextField label={humanizedMaterialAttributeName("username")}
+                       property={materialAttributes.username}
+                       required={true}
+                       errorText={materialAttributes.errors().errorsForDisplay("username")}/>
+          </FormItem>
 
-          <PasswordField label={humanizedMaterialAttributeName("password")}
-                         property={materialAttributes.password}
-                         required={true}
-                         errorText={materialAttributes.errors().errorsForDisplay("password")}/>
+          <FormItem>
+            <PasswordField label={humanizedMaterialAttributeName("password")}
+                           property={materialAttributes.password}
+                           required={true}
+                           errorText={materialAttributes.errors().errorsForDisplay("password")}/>
+          </FormItem>
         </MaterialEditWidget>
       );
     }

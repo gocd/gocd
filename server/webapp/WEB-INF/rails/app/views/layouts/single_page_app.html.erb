@@ -14,8 +14,9 @@
   <link rel="shortcut icon" href="<%= asset_path('cruise.ico') %>"/>
   <%= stylesheet_link_tag 'frameworks' %>
   <%= stylesheet_link_tag "single_page_apps/#{controller_name}" %>
+  <%= stylesheet_link_tag "single_page_apps/drain_mode_banner.css" %>
 
-  <% webpack_assets_service.getAssetPathsFor("single_page_apps/#{controller_name}", "single_page_apps/spa_commons").each do |js| %>
+  <% webpack_assets_service.getAssetPathsFor("single_page_apps/#{controller_name}", "single_page_apps/spa_commons", "single_page_apps/drain_mode_banner").each do |js| %>
     <script src=<%= "#{js}" %>></script>
   <% end %>
 
@@ -23,6 +24,7 @@
 </head>
 
 <body data-controller-name="<%= controller_name %>"
+      data-is-server-in-drain-mode="<%= is_server_in_drain_mode? %>"
       data-action-name="<%= action_name %>"
       id="<%= controller_name %>-page">
 <div class="page-wrap">
@@ -31,6 +33,9 @@
       <%= render :partial => 'new_navigation_elements/navigation' %>
     </div>
   </header>
+
+  <div id="flash-banner-container">
+  </div>
 
   <main class="main-container">
     <%= yield %>

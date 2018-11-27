@@ -5,7 +5,7 @@
 <head>
   <%= render :partial => "shared/head" %>
 </head>
-<body id="<%= page_name %>" class="<%= page_name %>">
+<body id="<%= page_name %>" class="<%= page_name %>" data-is-server-in-drain-mode="<%= is_server_in_drain_mode? %>">
 <div class="page-wrap">
   <div id="body_bg">
     <div id="header">

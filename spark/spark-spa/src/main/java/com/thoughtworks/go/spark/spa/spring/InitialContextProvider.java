@@ -22,10 +22,7 @@ import com.thoughtworks.go.plugin.domain.analytics.AnalyticsPluginInfo;
 import com.thoughtworks.go.plugin.domain.common.CombinedPluginInfo;
 import com.thoughtworks.go.plugin.domain.common.PluginConstants;
 import com.thoughtworks.go.server.newsecurity.utils.SessionUtils;
-import com.thoughtworks.go.server.service.RailsAssetsService;
-import com.thoughtworks.go.server.service.SecurityService;
-import com.thoughtworks.go.server.service.VersionInfoService;
-import com.thoughtworks.go.server.service.WebpackAssetsService;
+import com.thoughtworks.go.server.service.*;
 import com.thoughtworks.go.server.service.plugins.builder.DefaultPluginInfoFinder;
 import com.thoughtworks.go.server.service.support.toggle.Toggles;
 import com.thoughtworks.go.spark.SparkController;
@@ -46,15 +43,18 @@ public class InitialContextProvider {
     private final WebpackAssetsService webpackAssetsService;
     private final SecurityService securityService;
     private final VersionInfoService versionInfoService;
+    private DrainModeService drainModeService;
     private final DefaultPluginInfoFinder pluginInfoFinder;
 
     @Autowired
     public InitialContextProvider(RailsAssetsService railsAssetsService, WebpackAssetsService webpackAssetsService,
-                                  SecurityService securityService, VersionInfoService versionInfoService, DefaultPluginInfoFinder pluginInfoFinder) {
+                                  SecurityService securityService, VersionInfoService versionInfoService, DrainModeService drainModeService,
+                                  DefaultPluginInfoFinder pluginInfoFinder) {
         this.railsAssetsService = railsAssetsService;
         this.webpackAssetsService = webpackAssetsService;
         this.securityService = securityService;
         this.versionInfoService = versionInfoService;
+        this.drainModeService = drainModeService;
         this.pluginInfoFinder = pluginInfoFinder;
     }
 
@@ -75,6 +75,7 @@ public class InitialContextProvider {
         context.put("spaTimeout", SystemEnvironment.goSpaTimeout());
         context.put("showAnalyticsDashboard", showAnalyticsDashboard());
         context.put("devMode", !new SystemEnvironment().useCompressedJs());
+        context.put("isServerInDrainMode", drainModeService.isDrainMode());
         return new VelocityContext(context);
     }
 

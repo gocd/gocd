@@ -23,6 +23,7 @@ import com.thoughtworks.go.plugin.domain.common.PluginConstants;
 import com.thoughtworks.go.server.newsecurity.models.AuthenticationToken;
 import com.thoughtworks.go.server.newsecurity.utils.SessionUtils;
 import com.thoughtworks.go.server.security.GoAuthority;
+import com.thoughtworks.go.server.service.DrainModeService;
 import com.thoughtworks.go.server.service.RailsAssetsService;
 import com.thoughtworks.go.server.service.VersionInfoService;
 import com.thoughtworks.go.server.service.WebpackAssetsService;
@@ -48,6 +49,7 @@ public class GoVelocityView extends VelocityToolboxView {
     public static final String USE_COMPRESS_JS = "useCompressJS";
     public static final String CONCATENATED_JAVASCRIPT_FILE_PATH = "concatenatedJavascriptFilePath";
     public static final String CONCATENATED_APPLICATION_CSS_FILE_PATH = "concatenatedApplicationCssFilePath";
+    public static final String CONCATENATED_DRAIN_MODE_BANNER_CSS_FILE_PATH = "concatenatedDrainModeBannerCssFilePath";
     public static final String CURRENT_GOCD_VERSION = "currentGoCDVersion";
     public static final String CONCATENATED_VM_APPLICATION_CSS_FILE_PATH = "concatenatedVmApplicationCssFilePath";
     public static final String CONCATENATED_CSS_APPLICATION_CSS_FILE_PATH = "concatenatedCssApplicationCssFilePath";
@@ -60,6 +62,7 @@ public class GoVelocityView extends VelocityToolboxView {
     public static final String GO_UPDATE_CHECK_ENABLED = "goUpdateCheckEnabled";
     public static final String SUPPORTS_ANALYTICS_DASHBOARD = "supportsAnalyticsDashboard";
     public static final String WEBPACK_ASSETS_SERVICE = "webpackAssetsService";
+    public static final String IS_SERVER_IN_DRAIN_MODE = "isServerInDrainMode";
 
     private final SystemEnvironment systemEnvironment;
 
@@ -79,6 +82,10 @@ public class GoVelocityView extends VelocityToolboxView {
         return this.getApplicationContext().getAutowireCapableBeanFactory().getBean(WebpackAssetsService.class);
     }
 
+    DrainModeService drainModeService() {
+        return this.getApplicationContext().getAutowireCapableBeanFactory().getBean(DrainModeService.class);
+    }
+
     VersionInfoService getVersionInfoService() {
         return this.getApplicationContext().getAutowireCapableBeanFactory().getBean(VersionInfoService.class);
     }
@@ -90,6 +97,7 @@ public class GoVelocityView extends VelocityToolboxView {
     protected void exposeHelpers(Context velocityContext, HttpServletRequest request) throws Exception {
         RailsAssetsService railsAssetsService = getRailsAssetsService();
         VersionInfoService versionInfoService = getVersionInfoService();
+
         velocityContext.put(ADMINISTRATOR, true);
         velocityContext.put(GROUP_ADMINISTRATOR, true);
         velocityContext.put(TEMPLATE_ADMINISTRATOR, true);
@@ -104,6 +112,7 @@ public class GoVelocityView extends VelocityToolboxView {
 
         velocityContext.put(CONCATENATED_JAVASCRIPT_FILE_PATH, railsAssetsService.getAssetPath("application.js"));
         velocityContext.put(CONCATENATED_APPLICATION_CSS_FILE_PATH, railsAssetsService.getAssetPath("application.css"));
+        velocityContext.put(CONCATENATED_DRAIN_MODE_BANNER_CSS_FILE_PATH, railsAssetsService.getAssetPath("single_page_apps/drain_mode_banner.css"));
         velocityContext.put(CURRENT_GOCD_VERSION, CurrentGoCDVersion.getInstance());
         velocityContext.put(CONCATENATED_VM_APPLICATION_CSS_FILE_PATH, railsAssetsService.getAssetPath("vm/application.css"));
         velocityContext.put(CONCATENATED_CSS_APPLICATION_CSS_FILE_PATH, railsAssetsService.getAssetPath("css/application.css"));
@@ -118,6 +127,8 @@ public class GoVelocityView extends VelocityToolboxView {
 
         velocityContext.put(SUPPORTS_ANALYTICS_DASHBOARD, supportsAnalyticsDashboard());
         velocityContext.put(WEBPACK_ASSETS_SERVICE, webpackAssetsService());
+        velocityContext.put(IS_SERVER_IN_DRAIN_MODE, drainModeService().isDrainMode());
+
         if (!SessionUtils.hasAuthenticationToken(request)) {
             return;
         }

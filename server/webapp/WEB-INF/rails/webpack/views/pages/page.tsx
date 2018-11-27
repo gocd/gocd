@@ -16,6 +16,7 @@
 
 import {MithrilComponent} from "jsx/mithril-component";
 import * as m from "mithril";
+import * as $ from "jquery";
 import {HeaderPanel} from "views/components/header_panel";
 import {PageLoadError} from "views/components/page_load_error";
 import {Spinner} from "views/components/spinner";
@@ -39,6 +40,13 @@ export abstract class Page<Attrs = {}, State = {}> extends MithrilComponent<Attr
   }
 
   view(vnode: m.Vnode<Attrs, State>) {
+    const isServerInDrainMode = $("body").attr("data-is-server-in-drain-mode");
+
+    let drainModeBanner: JSX.Element | null = null;
+    if (isServerInDrainMode) {
+      drainModeBanner = <div id="flash-banner-container">Server is in drain state. Learn more... </div>;
+    }
+
     switch (this.pageState) {
       case PageState.FAILED:
         return <PageLoadError message={`There was a problem fetching ${this.pageName()}`}/>;
@@ -49,6 +57,7 @@ export abstract class Page<Attrs = {}, State = {}> extends MithrilComponent<Attr
         if (component) {
           return <main className="main-container">
             {this.headerPanel(vnode)}
+            {drainModeBanner}
             {component}
           </main>;
         } else {

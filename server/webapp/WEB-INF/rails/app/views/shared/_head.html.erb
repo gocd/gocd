@@ -5,11 +5,12 @@
 <%= stylesheet_link_tag "application", {media: "all", debug: Rails.env.development? && params[:debug_assets]} %>
 <%= stylesheet_link_tag "patterns/application", {media: "all", debug: Rails.env.development? && params[:debug_assets]} %>
 <%= stylesheet_link_tag "new-theme", {media: "all", debug: Rails.env.development? && params[:debug_assets]} %>
+<%= stylesheet_link_tag "single_page_apps/drain_mode_banner" %>
 
 <%= javascript_include_tag "application", debug: Rails.env.development? && params[:debug_assets] %>
 
 <%- unless(Rails.env.test?) %>
-  <%= javascript_include_tag *webpack_assets_service.getJSAssetPathsFor("single_page_apps/notification_center", "single_page_apps/version_update_checker_for_rails") %>
+  <%= javascript_include_tag *webpack_assets_service.getJSAssetPathsFor("single_page_apps/notification_center", "single_page_apps/version_update_checker_for_rails", "single_page_apps/drain_mode_banner") %>
 <%- end %>
 
 <![if !IE]>

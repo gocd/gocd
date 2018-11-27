@@ -20,10 +20,9 @@
   <meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
   <link href="$req.getContextPath()/$concatenatedCruiseIconFilePath" rel="shortcut icon"/>
   <link rel="stylesheet" type="text/css" href="$req.getContextPath()/$concatenatedApplicationCssFilePath" media="all"/>
-  <link rel="stylesheet" type="text/css" href="$req.getContextPath()/$concatenatedCssApplicationCssFilePath"
-        media="all"/>
-  <link rel="stylesheet" type="text/css" href="$req.getContextPath()/$concatenatedVmApplicationCssFilePath"
-        media="all"/>
+  <link rel="stylesheet" type="text/css" href="$req.getContextPath()/$concatenatedCssApplicationCssFilePath" media="all"/>
+  <link rel="stylesheet" type="text/css" href="$req.getContextPath()/$concatenatedDrainModeBannerCssFilePath" media="all"/>
+  <link rel="stylesheet" type="text/css" href="$req.getContextPath()/$concatenatedVmApplicationCssFilePath" media="all"/>
 
 ## Some VM pages specify extra CSS files they need.
     #if($extra_css_list)
@@ -37,7 +36,7 @@
   <script type="text/javascript" src="$req.getContextPath()/$concatenatedJavascriptFilePath"></script>
   <script type="text/javascript"> var contextPath = "$req.getContextPath()"; </script>
 
-  #foreach( $js in ${webpackAssetsService.getAssetPathsFor("single_page_apps/notification_center", "single_page_apps/version_update_checker_for_rails")})
+  #foreach( $js in ${webpackAssetsService.getAssetPathsFor("single_page_apps/notification_center","single_page_apps/version_update_checker_for_rails","single_page_apps/drain_mode_banner")})
       <script src="${js}"></script>
   #end
 
@@ -52,7 +51,9 @@
     #if(!$current_tab && $currentTab.name)
         #set($current_tab = $currentTab.name)
     #end
-<body>
+<body data-is-server-in-drain-mode="$isServerInDrainMode">
+<div id="flash-banner-container">
+</div>
 <div class="page-wrap">
   <div id="body_bg">
     <div id="body_bg_highlight">

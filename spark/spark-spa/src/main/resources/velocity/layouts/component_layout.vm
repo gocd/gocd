@@ -29,7 +29,7 @@
     #foreach( $css in ${webpackAssetsService.getCSSAssetPathsFor("single_page_apps/${controllerName}")})
       <link href="${css}" media="screen" rel="stylesheet"/>
     #end
-
+    <link href="/go/${railsAssetsService.getAssetPath("single_page_apps/drain_mode_banner.css")}" media="screen" rel="stylesheet"/>
     #foreach( $js in ${webpackAssetsService.getJSAssetPathsFor("single_page_apps/polyfill", "single_page_apps/${controllerName}")})
       <script src="${js}"></script>
     #end
@@ -50,7 +50,8 @@
       data-version-copyright-year="${currentVersion.copyrightYear()}"
       data-version-formatted="${currentVersion.formatted()}"
       data-version-full="${currentVersion.fullVersion()}"
-      data-config-repo-enabled="${toggles.isToggleOn("config_repos_ui")}">
+      data-config-repo-enabled="${toggles.isToggleOn("config_repos_ui")}"
+      data-is-server-in-drain-mode="${isServerInDrainMode}">
 
     #if(${devMode})
     <script>

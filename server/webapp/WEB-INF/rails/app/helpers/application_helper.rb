@@ -541,6 +541,10 @@ module ApplicationHelper
     end
   end
 
+  def is_server_in_drain_mode?
+    drain_mode_service.isDrainMode
+  end
+
   private
   def show_analytics_only_for_admins?
     system_environment.enableAnalyticsOnlyForAdmins

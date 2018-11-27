@@ -118,7 +118,7 @@ abstract class FormField<T> extends MithrilViewComponent<FormFieldAttrs<T>> {
                               eventName: string,
                               propertyAttribute: string): { [key: string]: any } {
     return {
-      [eventName]: (evt: any) => (vnode.attrs as HasProperty<T>).property(evt.currentTarget.value),
+      [eventName]: (evt: any) => (vnode.attrs as HasProperty<T>).property(evt.currentTarget[propertyAttribute]),
       [propertyAttribute]: (vnode.attrs as HasProperty<T>).property()
     };
   }

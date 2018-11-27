@@ -16,7 +16,10 @@
 
 package com.thoughtworks.go.server.newsecurity.filters;
 
+import com.thoughtworks.go.server.newsecurity.filters.helpers.ServerUnavailabilityResponse;
+import com.thoughtworks.go.server.service.DrainModeService;
 import com.thoughtworks.go.util.SystemEnvironment;
+import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,15 +30,20 @@ import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.io.InputStream;
+
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 @Component
 public class ModeAwareFilter implements Filter {
     private static final Logger LOGGER = LoggerFactory.getLogger("GO_MODE_AWARE_FILTER");
     private final SystemEnvironment systemEnvironment;
+    private DrainModeService drainModeService;
 
     @Autowired
-    public ModeAwareFilter(SystemEnvironment systemEnvironment) {
+    public ModeAwareFilter(SystemEnvironment systemEnvironment, DrainModeService drainModeService) {
         this.systemEnvironment = systemEnvironment;
+        this.drainModeService = drainModeService;
     }
 
     @Override
@@ -46,22 +54,51 @@ public class ModeAwareFilter implements Filter {
     public void doFilter(ServletRequest servletRequest,
                          ServletResponse servletResponse,
                          FilterChain filterChain) throws IOException, ServletException {
-        if (shouldBlockRequest((HttpServletRequest) servletRequest)) {
-            LOGGER.warn("Got a non-GET request: {}", servletRequest);
+
+        if (blockBecauseInactive((HttpServletRequest) servletRequest)) {
+            LOGGER.warn("Got a non-GET request: {} while server is in inactive state (Secondary)", servletRequest);
             ((HttpServletResponse) servletResponse).sendRedirect(systemEnvironment.getWebappContextPath() + "/errors/inactive");
+        } else if (blockBecauseDrainMode((HttpServletRequest) servletRequest)) {
+            LOGGER.warn("Got a non-GET request: {} while server is in drain state (Maintenance mode)", servletRequest);
+            String jsonMessage = "server is in drain state (Maintenance mode), please try later.";
+            String htmlResponse = generateHTMLResponse();
+            new ServerUnavailabilityResponse((HttpServletRequest) servletRequest, (HttpServletResponse) servletResponse, jsonMessage, htmlResponse).render();
         } else {
             filterChain.doFilter(servletRequest, servletResponse);
         }
     }
 
-    private boolean shouldBlockRequest(HttpServletRequest servletRequest) {
-        if (systemEnvironment.isServerActive()) return false;
-        if (isReadOnlyRequest(servletRequest)) return false;
+    String generateHTMLResponse() throws IOException {
+        String path = "server_in_drain_mode.html";
+        InputStream resourceAsStream = getClass().getClassLoader().getResourceAsStream(path);
+        //todo: Provide additional info drain_mode approver, time and link to drain mode spa
+        return IOUtils.toString(resourceAsStream, UTF_8);
+    }
+
+    private boolean blockBecauseInactive(HttpServletRequest servletRequest) {
+        return (!systemEnvironment.isServerActive() && !isAllowedRequest(servletRequest));
+    }
+
+    private boolean blockBecauseDrainMode(HttpServletRequest servletRequest) {
+        if (isCancelStageRequest(servletRequest) || isAllowedRequest(servletRequest)) {
+            return false;
+        }
+
+        return drainModeService.isDrainMode();
+    }
+
+    private boolean isCancelStageRequest(HttpServletRequest servletRequest) {
+        return servletRequest.getRequestURI().matches("/go/api/stages/[0-9]*/cancel");
+    }
+
+    private boolean isAllowedRequest(HttpServletRequest servletRequest) {
         if ((systemEnvironment.getWebappContextPath() + "/auth/security_check").equals(servletRequest.getRequestURI()))
-            return false;
+            return true;
         if ((systemEnvironment.getWebappContextPath() + "/api/state/active").equals(servletRequest.getRequestURI()))
-            return false;
-        return true;
+            return true;
+
+
+        return isReadOnlyRequest(servletRequest);
     }
 
     private boolean isReadOnlyRequest(HttpServletRequest servletRequest) {

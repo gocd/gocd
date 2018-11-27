@@ -17,6 +17,7 @@
 package com.thoughtworks.go.server.web;
 
 import com.google.gson.JsonObject;
+import com.thoughtworks.go.server.newsecurity.filters.helpers.ServerUnavailabilityResponse;
 import com.thoughtworks.go.server.service.BackupService;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
@@ -30,7 +31,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -75,74 +75,29 @@ public class BackupFilter implements Filter {
             return;
         }
         if (backupService.isBackingUp() && !isWhitelisted(url)) {
-            ((HttpServletResponse) response).setHeader("Cache-Control", "private, max-age=0, no-cache");
-            ((HttpServletResponse) response).setDateHeader("Expires", 0);
-            if (isAPIUrl(url) && !isMessagesJson(url)) {
-                generateAPIResponse(request, response);
-            } else {
-                generateHTMLResponse(response);
-            }
-
-            ((HttpServletResponse) response).setStatus(HttpServletResponse.SC_SERVICE_UNAVAILABLE);
+            String json = "Server is under maintenance mode, please try later.";
+            String htmlResponse = generateHTMLResponse();
+            new ServerUnavailabilityResponse((HttpServletRequest) request, (HttpServletResponse) response, json, htmlResponse).render();
         } else {
             chain.doFilter(request, response);
         }
-
     }
 
     private boolean isWhitelisted(String url) {
         return url.equals("/go/api/v1/health");
     }
 
-    private void generateHTMLResponse(ServletResponse response) {
+    private String generateHTMLResponse() throws IOException {
         String path = "backup_in_progress.html";
-        response.setContentType("text/html");
-        response.setCharacterEncoding("utf-8");
-        try (InputStream resourceAsStream = getClass().getClassLoader().getResourceAsStream(path)) {
-            String content = IOUtils.toString(resourceAsStream, UTF_8);
-            content = replaceStringLiterals(content);
-            response.getWriter().print(content);
-        } catch (IOException e) {
-            LOGGER.error("General IOException: {}", e.getMessage());
-        }
+        InputStream resourceAsStream = getClass().getClassLoader().getResourceAsStream(path);
+        String content = IOUtils.toString(resourceAsStream, UTF_8);
+        return replaceStringLiterals(content);
     }
 
     String replaceStringLiterals(String content) {
         content = content.replaceAll("%backup_initiated_by%", HtmlUtils.htmlEscape(backupService.backupRunningSinceISO8601()));
         content = content.replaceAll("%backup_started_by%", HtmlUtils.htmlEscape(backupService.backupStartedBy()));
         return content;
-    }
-
-    private void generateAPIResponse(ServletRequest request, ServletResponse response) {
-
-        try {
-            HttpServletRequest httpRequest = (HttpServletRequest) request;
-
-            String message = "Server is under maintenance mode, please try later.";
-
-            if (requestIsOfType(JSON, httpRequest)) {
-                response.setContentType("application/json");
-                JsonObject jsonObject = new JsonObject();
-                jsonObject.addProperty("message", message);
-                response.getWriter().print(jsonObject);
-            } else if (requestIsOfType(XML, httpRequest)) {
-                response.setContentType("application/xml");
-                String xml = String.format("<message> %s </message>", message);
-                response.getWriter().print(xml);
-            } else {
-                generateHTMLResponse(response);
-            }
-
-        } catch (IOException e) {
-            LOGGER.error("General IOException: {}", e.getMessage());
-        }
-    }
-
-    private boolean requestIsOfType(String type, HttpServletRequest request) {
-        String header = request.getHeader("Accept");
-        String contentType = request.getContentType();
-        String url = request.getRequestURI();
-        return header != null && header.contains(type) || url != null && url.endsWith(type) || contentType != null && contentType.contains(type);
     }
 
     private boolean isBackupFinishJsonUrl(String url) {
@@ -158,15 +113,6 @@ public class BackupFilter implements Filter {
         } catch (IOException e) {
             LOGGER.error("General IOException: {}", e.getMessage());
         }
-    }
-
-    private boolean isAPIUrl(String url) {
-        Matcher matcher = PATTERN.matcher(url);
-        return matcher.matches();
-    }
-
-    private boolean isMessagesJson(String url) {
-        return "/go/server/messages.json".equals(url);
     }
 
     @Override

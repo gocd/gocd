@@ -41,4 +41,8 @@ public class DrainModeService {
         LOGGER.debug("[Drain Mode] Server drain mode state updated to 'isDrained={}' by '{}' at '{}'.", fromRequest.isDrainMode(), fromRequest.updatedBy(), fromRequest.updatedOn());
         this.drainMode = fromRequest;
     }
+
+    public boolean isDrainMode() {
+        return get().isDrainMode();
+    }
 }

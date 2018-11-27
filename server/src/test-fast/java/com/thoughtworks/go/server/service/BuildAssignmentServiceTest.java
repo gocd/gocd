@@ -39,6 +39,7 @@ import java.util.UUID;
 
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -63,6 +64,8 @@ public class BuildAssignmentServiceTest {
     @Mock
     private PipelineService pipelineService;
     @Mock
+    private DrainModeService drainModeService;
+    @Mock
     private ScheduledPipelineLoader scheduledPipelineLoader;
     @Mock
     private EnvironmentConfigService environmentConfigService;
@@ -84,7 +87,7 @@ public class BuildAssignmentServiceTest {
     @Before
     public void setUp() throws Exception {
         initMocks(this);
-        buildAssignmentService = new BuildAssignmentService(goConfigService, jobInstanceService, scheduleService, agentService, environmentConfigService, transactionTemplate, scheduledPipelineLoader, pipelineService, builderFactory, agentRemoteHandler, elasticAgentPluginService, systemEnvironment);
+        buildAssignmentService = new BuildAssignmentService(goConfigService, jobInstanceService, scheduleService, agentService, environmentConfigService, transactionTemplate, scheduledPipelineLoader, pipelineService, builderFactory, agentRemoteHandler, drainModeService, elasticAgentPluginService, systemEnvironment);
         elasticProfileId1 = "elastic.profile.id.1";
         elasticProfileId2 = "elastic.profile.id.2";
         elasticAgent = AgentMother.elasticAgent();
@@ -100,6 +103,7 @@ public class BuildAssignmentServiceTest {
         when(jobInstanceService.orderedScheduledBuilds()).thenReturn(jobPlans);
         when(environmentConfigService.filterJobsByAgent(ArgumentMatchers.eq(jobPlans), any(String.class))).thenReturn(jobPlans);
         when(environmentConfigService.envForPipeline(any(String.class))).thenReturn("");
+        when(drainModeService.isDrainMode()).thenReturn(false);
     }
 
     @Test
@@ -159,6 +163,24 @@ public class BuildAssignmentServiceTest {
         JobPlan matchingJob = buildAssignmentService.findMatchingJob(regularAgentInstance);
         assertThat(matchingJob, is(regularJobPlan));
         assertThat(buildAssignmentService.jobPlans().size(), is(1));
+        verify(elasticAgentPluginService, never()).shouldAssignWork(any(ElasticAgentMetadata.class), any(String.class), any(ElasticProfile.class), any(JobIdentifier.class));
+    }
+
+    @Test
+    public void shouldNotMatchJobsDuringDrainMode() {
+        when(drainModeService.isDrainMode()).thenReturn(true);
+        PipelineConfig pipeline = PipelineConfigMother.pipelineConfig(UUID.randomUUID().toString());
+        pipeline.first().getJobs().add(JobConfigMother.jobWithNoResourceRequirement());
+        pipeline.first().getJobs().add(JobConfigMother.elasticJob(elasticProfileId1));
+        JobPlan elasticJobPlan = new InstanceFactory().createJobPlan(pipeline.first().getJobs().last(), schedulingContext);
+        JobPlan regularJobPlan = new InstanceFactory().createJobPlan(pipeline.first().getJobs().first(), schedulingContext);
+        jobPlans.add(elasticJobPlan);
+        jobPlans.add(regularJobPlan);
+        buildAssignmentService.onTimer();
+
+        JobPlan matchingJob = buildAssignmentService.findMatchingJob(regularAgentInstance);
+        assertNull(matchingJob);
+        assertThat(buildAssignmentService.jobPlans().size(), is(0));
         verify(elasticAgentPluginService, never()).shouldAssignWork(any(ElasticAgentMetadata.class), any(String.class), any(ElasticProfile.class), any(JobIdentifier.class));
     }
 

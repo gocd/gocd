@@ -68,6 +68,7 @@ public class BuildAssignmentService implements ConfigChangedListener {
     private final UpstreamPipelineResolver resolver;
     private final BuilderFactory builderFactory;
     private AgentRemoteHandler agentRemoteHandler;
+    private DrainModeService drainModeService;
     private final ElasticAgentPluginService elasticAgentPluginService;
     private final SystemEnvironment systemEnvironment;
 
@@ -75,7 +76,7 @@ public class BuildAssignmentService implements ConfigChangedListener {
     public BuildAssignmentService(GoConfigService goConfigService, JobInstanceService jobInstanceService, ScheduleService scheduleService,
                                   AgentService agentService, EnvironmentConfigService environmentConfigService,
                                   TransactionTemplate transactionTemplate, ScheduledPipelineLoader scheduledPipelineLoader, PipelineService pipelineService, BuilderFactory builderFactory,
-                                  AgentRemoteHandler agentRemoteHandler,
+                                  AgentRemoteHandler agentRemoteHandler, DrainModeService drainModeService,
                                   ElasticAgentPluginService elasticAgentPluginService, SystemEnvironment systemEnvironment) {
         this.goConfigService = goConfigService;
         this.jobInstanceService = jobInstanceService;
@@ -87,6 +88,7 @@ public class BuildAssignmentService implements ConfigChangedListener {
         this.resolver = pipelineService;
         this.builderFactory = builderFactory;
         this.agentRemoteHandler = agentRemoteHandler;
+        this.drainModeService = drainModeService;
         this.elasticAgentPluginService = elasticAgentPluginService;
         this.systemEnvironment = systemEnvironment;
     }
@@ -198,6 +200,11 @@ public class BuildAssignmentService implements ConfigChangedListener {
     }
 
     public void onTimer() {
+        if (drainModeService.isDrainMode()) {
+            LOGGER.debug("[Drain Mode] GoCD server is in 'drain' mode, skip checking build assignments");
+            return;
+        }
+
         reloadJobPlans();
         matchingJobForRegisteredAgents();
     }

@@ -23,6 +23,7 @@ import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
 import * as simulateEvent from "simulate-event";
 import * as uuid from "uuid/v4";
 import {Attrs, ConfigReposWidget} from "views/pages/config_repos/config_repos_widget";
+import * as styles from "views/pages/config_repos/index.scss";
 
 describe("ConfigReposWidget", () => {
   let $root: any, root: any;
@@ -99,7 +100,7 @@ describe("ConfigReposWidget", () => {
     configRepos([repo]);
     m.redraw();
     expect($root).toContainText("Last seen revision: 1234");
-    expect($root.find("strong")).toHaveText("SCM configuration for git material");
+    expect($root.find(`.${styles.scmHeader}`)).toHaveText("SCM configuration for git material");
     expect(find("key-value-key-url")).toContainText(`URL`);
     expect(find("key-value-value-url")).toContainText((repo.material().attributes() as GitMaterialAttributes).url());
   });

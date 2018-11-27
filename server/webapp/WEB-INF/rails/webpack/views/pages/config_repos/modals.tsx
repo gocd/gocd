@@ -288,7 +288,7 @@ abstract class ConfigRepoModal extends Modal {
   protected constructor(onSuccessfulSave: (msg: m.Children) => any,
                         onError: (msg: m.Children) => any,
                         pluginInfos: Stream<Array<PluginInfo<any>>>) {
-    super(Size.large);
+    super(Size.medium);
     this.onSuccessfulSave = onSuccessfulSave;
     this.onError          = onError;
     this.pluginInfos      = pluginInfos;

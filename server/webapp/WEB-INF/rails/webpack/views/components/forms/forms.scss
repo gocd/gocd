@@ -56,6 +56,7 @@ $form-failed-field-background-color: lighten($form-failed-color, 35%);
   border-radius:    $global-border-radius;
   transition:       border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
   width:            250px;
+
   &:focus {
     color:            $form-control-color;
     background-color: $form-control-background-color;
@@ -102,5 +103,38 @@ $form-failed-field-background-color: lighten($form-failed-color, 35%);
   .form-control {
     border-color:     $form-failed-color;
     background-color: $form-failed-field-background-color;
+  }
+}
+
+.form {
+  list-style-type: none;
+  margin:          0 0 20px 0;
+  padding:         0;
+
+}
+
+.form-responsive {
+  display:         flex;
+  flex-wrap:       wrap;
+  justify-content: flex-start;
+
+  .form-group {
+    width:   100%;
+    padding: 0 15px;
+    @media(min-width: $screen-sm) {
+      width:     50%;
+      max-width: 300px;
+    }
+    @media(min-width: $screen-md) {
+      width: 50%;
+    }
+    @media(min-width: $screen-lg) {
+      width: 33.3%;
+
+    }
+    @media(min-width: $screen-lg) {
+      width: 300px;
+
+    }
   }
 }

@@ -21,6 +21,7 @@ import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
 import {ButtonIcon} from "views/components/buttons";
 import * as Buttons from "views/components/buttons";
 import {CollapsiblePanel} from "views/components/collapsible_panel";
+import {HeaderIcon} from "views/components/header_icon";
 import * as Icons from "views/components/icons";
 import {KeyValuePair} from "views/components/key_value_pair";
 import * as styles from "./index.scss";
@@ -40,9 +41,7 @@ class PluginHeaderWidget extends MithrilViewComponent<PluginHeaderAttrs> {
     ]);
     return [
       (
-        <span class={styles.pluginIcon}>
-          {vnode.attrs.image}
-        </span>
+        vnode.attrs.image
       ),
       (
         <div data-test-id="plugin-name" class={styles.pluginName}>{vnode.attrs.pluginName}</div>
@@ -102,7 +101,7 @@ export class PluginWidget extends MithrilViewComponent<Attrs> {
 
     return (
       <CollapsiblePanel dataTestId="plugin-row"
-                        header={<PluginHeaderWidget image={this.createImageTag(pluginInfo)}
+                        header={<PluginHeaderWidget image={<HeaderIcon imageUrl={pluginInfo.imageUrl}/>}
                                                     pluginName={pluginInfo.about.name}
                                                     pluginVersion={pluginInfo.about.version}
                                                     pluginId={pluginInfo.id}/>}
@@ -113,14 +112,6 @@ export class PluginWidget extends MithrilViewComponent<Attrs> {
       </CollapsiblePanel>
     );
   }
-
-  private createImageTag(pluginInfo: PluginInfo<any>): JSX.Element {
-    if (pluginInfo.imageUrl) {
-      return <img src={pluginInfo.imageUrl}/>;
-    }
-    return <span class={styles.unknownPluginIcon}/>;
-  }
-
   private getAuthorInfo(pluginInfo: PluginInfo<any>): JSX.Element {
     return (
       <a target="_blank" href={pluginInfo.about.vendor.url}>

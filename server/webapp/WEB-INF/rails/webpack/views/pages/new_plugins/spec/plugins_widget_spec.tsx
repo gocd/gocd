@@ -16,10 +16,10 @@
 
 import * as m from "mithril";
 import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
-import * as styles from "../index.scss";
 import {PluginsWidget} from "../plugins_widget";
 
 import * as collapsiblePanelStyles from "views/components/collapsible_panel/index.scss";
+import * as headerIconStyles from "views/components/header_icon/index.scss";
 import * as keyValuePairStyles from "views/components/key_value_pair/index.scss";
 
 describe("New Plugins Widget", () => {
@@ -50,7 +50,7 @@ describe("New Plugins Widget", () => {
     expect(find("plugins-list").get(0).children).toHaveLength(4);
 
     expect(find("plugin-name").get(0)).toContainText(getEAPluginInfo().about.name);
-    expect($root.find(`.${styles.pluginIcon} img`).get(0)).toHaveAttr("src", getEAPluginInfo()._links.image.href);
+    expect($root.find(`.${headerIconStyles.headerIcon} img`).get(0)).toHaveAttr("src", getEAPluginInfo()._links.image.href);
     expect(find("plugin-name").get(1)).toContainText(getNotificationPluginInfo().about.name);
   });
 

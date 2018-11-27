@@ -34,7 +34,8 @@ $plugin-row-element-width: 350px;
     vertical-align: middle;
   }
   @media (min-width: $screen-md) {
-    display: inline-block;
+    display: flex;
+    align-items: center;
   }
 }
 
@@ -42,8 +43,8 @@ $plugin-row-element-width: 350px;
   font-weight:  600;
   font-size:    13px;
   margin-right: 50px;
-  max-width:    $plugin-row-element-width;
-  min-width:    $plugin-row-element-width;
+  //max-width:    $plugin-row-element-width;
+  //min-width:    $plugin-row-element-width;
   @media (min-width: $screen-md) {
     font-size: 12px;
   }
@@ -54,7 +55,7 @@ $plugin-row-element-width: 350px;
 }
 
 .unknown-plugin-icon {
-  @include icon-before($type: $fa-var-question, $color: $icon-light-color, $margin: 5px, $size: 30px);
+  @include icon-before($type: $fa-var-question, $color: $icon-light-color, $margin: 5px, $size: 25px);
   display: block;
 }
 

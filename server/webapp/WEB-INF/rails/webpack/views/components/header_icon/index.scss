@@ -13,20 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@import '~bourbon/core/bourbon';
 
-@mixin hover-effect-for-top-menu {
-  color:           $header-text-color;
-  transition:      all 0.3s ease-in-out;
-  text-decoration: none;
-  &:hover {
-    color:      $white-opaque;
-    transition: all 0.3s ease-in-out;
+@import "../../global/common";
+
+$collapse-icon-size: 30px;
+
+.header-icon {
+  display:        none;
+  vertical-align: middle;
+  margin:         0 15px 0 -15px;
+  img {
+    width:          $collapse-icon-size;
+    height:         $collapse-icon-size;
+    vertical-align: middle;
   }
-  @media(min-width: $screen-md) {
-    font-size:   13px;
-    font-weight: 600;
+  @media (min-width: $screen-md) {
+    display: inline-block;
   }
+}
+
+.unknown-icon {
+  @include icon-before($type: $fa-var-question, $color: $icon-light-color, $margin: 5px, $size: 30px);
+  display: block;
 }
 
 

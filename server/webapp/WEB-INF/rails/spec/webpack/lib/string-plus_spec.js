@@ -46,4 +46,26 @@ describe("Should sanitize JSON", () => {
     expect(JSON.parse(JSON.stringify(input, s.snakeCaser))).toEqual(expected);
 
   });
+
+  it('should ignore the keys that start with __', () => {
+    const input = {
+      toSnakeCase: "value",
+      nested:      {
+        __toSnakeCase: "value",
+        __arrays:      ["one", "two"],
+        objectInArray: [{"key": "value"}, {"key2": "value2"}]
+      }
+    };
+
+    /* eslint-disable camelcase */
+    const expected = {
+      to_snake_case: "value",
+      nested:        {
+        object_in_array: [{"key": "value"}, {"key_2": "value2"}]
+      }
+    };
+    /* eslint-enable camelcase */
+
+    expect(JSON.parse(JSON.stringify(input, s.snakeCaser))).toEqual(expected);
+  });
 });

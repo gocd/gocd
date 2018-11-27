@@ -31,11 +31,11 @@ describe("Validatable", () => {
       }
 
       class Material implements ValidatableMixin {
-        readonly name: string;
+        readonly name: Stream<string>;
 
         constructor(name: string) {
+          this.name = stream(name);
           ValidatableMixin.call(this);
-          this.name = name;
           this.validatePresenceOf("name");
         }
       }

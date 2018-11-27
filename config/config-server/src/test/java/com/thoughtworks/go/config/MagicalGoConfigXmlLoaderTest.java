@@ -200,7 +200,7 @@ public class MagicalGoConfigXmlLoaderTest {
         )).config;
         assertThat(cruiseConfig.getConfigRepos().size(), is(1));
         ConfigRepoConfig configRepo = cruiseConfig.getConfigRepos().get(0);
-        assertThat(configRepo.getConfigProviderPluginName(), is("myplugin"));
+        assertThat(configRepo.getPluginId(), is("myplugin"));
     }
 
     @Test

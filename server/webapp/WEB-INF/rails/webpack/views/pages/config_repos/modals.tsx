@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {ErrorResponse, ObjectWithEtag} from "helpers/api_request_builder";
+import {ApiResult, ErrorResponse, ObjectWithEtag} from "helpers/api_request_builder";
 import {MithrilViewComponent} from "jsx/mithril-component";
 import * as _ from "lodash";
 import * as m from "mithril";
@@ -60,14 +60,16 @@ class MaterialEditWidget extends MithrilViewComponent<EditableMaterial> {
       <div>
         <SelectField label="Plugin ID"
                      property={vnode.attrs.repo.pluginId}
-                     required={true}>
+                     required={true}
+                     errorText={vnode.attrs.repo.errors().errorsForDisplay("pluginId")}>
           <SelectFieldOptions selected={vnode.attrs.repo.pluginId()}
                               items={pluginList}/>
         </SelectField>
 
         <SelectField label={"Material type"}
                      property={vnode.attrs.repo.material().typeProxy.bind(vnode.attrs.repo.material())}
-                     required={true}>
+                     required={true}
+                     errorText={vnode.attrs.repo.errors().errorsForDisplay("material")}>
           <SelectFieldOptions selected={vnode.attrs.repo.material().type()}
                               items={this.materialSelectOptions()}/>
         </SelectField>
@@ -75,14 +77,16 @@ class MaterialEditWidget extends MithrilViewComponent<EditableMaterial> {
         <TextField label="Config repository ID"
                    disabled={!vnode.attrs.isNew}
                    property={vnode.attrs.repo.id}
+                   errorText={vnode.attrs.repo.errors().errorsForDisplay("id")}
                    required={true}/>
 
-        <CheckboxField label={humanizedMaterialAttributeName("auto_update")}
+        <CheckboxField label={humanizedMaterialAttributeName("autoUpdate")}
                        property={vnode.attrs.repo.material().attributes().autoUpdate}/>
 
         <TextField label={humanizedMaterialAttributeName("name")}
                    property={materialAttributes.name}
-                   required={true}/>
+                   required={true}
+                   errorText={materialAttributes.errors().errorsForDisplay("name")}/>
         {vnode.children}
       </div>
     );
@@ -115,7 +119,8 @@ const MATERIAL_TO_COMPONENT_MAP: { [key: string]: MithrilViewComponent<EditableM
 
           <TextField label={humanizedMaterialAttributeName("url")}
                      property={materialAttributes.url}
-                     required={true}/>
+                     required={true}
+                     errorText={materialAttributes.errors().errorsForDisplay("url")}/>
 
           <TextField label={humanizedMaterialAttributeName("branch")}
                      property={materialAttributes.branch}/>
@@ -133,9 +138,10 @@ const MATERIAL_TO_COMPONENT_MAP: { [key: string]: MithrilViewComponent<EditableM
         <MaterialEditWidget {...vnode.attrs}>
           <TextField label={humanizedMaterialAttributeName("url")}
                      property={materialAttributes.url}
-                     required={true}/>
+                     required={true}
+                     errorText={materialAttributes.errors().errorsForDisplay("url")}/>
 
-          <CheckboxField label={humanizedMaterialAttributeName("check_externals")}
+          <CheckboxField label={humanizedMaterialAttributeName("checkExternals")}
                          property={materialAttributes.checkExternals}/>
 
           <TextField label={humanizedMaterialAttributeName("username")}
@@ -157,7 +163,8 @@ const MATERIAL_TO_COMPONENT_MAP: { [key: string]: MithrilViewComponent<EditableM
 
           <TextField label={humanizedMaterialAttributeName("url")}
                      property={materialAttributes.url}
-                     required={true}/>
+                     required={true}
+                     errorText={materialAttributes.errors().errorsForDisplay("url")}/>
 
         </MaterialEditWidget>
       );
@@ -172,14 +179,16 @@ const MATERIAL_TO_COMPONENT_MAP: { [key: string]: MithrilViewComponent<EditableM
 
           <TextField label={humanizedMaterialAttributeName("port")}
                      property={materialAttributes.port}
-                     required={true}/>
+                     required={true}
+                     errorText={materialAttributes.errors().errorsForDisplay("port")}/>
 
-          <CheckboxField label={humanizedMaterialAttributeName("use_tickets")}
+          <CheckboxField label={humanizedMaterialAttributeName("useTickets")}
                          property={materialAttributes.useTickets}/>
 
           <TextAreaField label={humanizedMaterialAttributeName("view")}
                          property={materialAttributes.view}
-                         required={true}/>
+                         required={true}
+                         errorText={materialAttributes.errors().errorsForDisplay("view")}/>
 
           <TextField label={humanizedMaterialAttributeName("username")}
                      property={materialAttributes.username}/>
@@ -200,22 +209,26 @@ const MATERIAL_TO_COMPONENT_MAP: { [key: string]: MithrilViewComponent<EditableM
 
           <TextField label={humanizedMaterialAttributeName("url")}
                      property={materialAttributes.url}
-                     required={true}/>
+                     required={true}
+                     errorText={materialAttributes.errors().errorsForDisplay("url")}/>
 
-          <TextField label={humanizedMaterialAttributeName("project_path")}
+          <TextField label={humanizedMaterialAttributeName("projectPath")}
                      property={materialAttributes.projectPath}
-                     required={true}/>
+                     required={true}
+                     errorText={materialAttributes.errors().errorsForDisplay("projectPath")}/>
 
           <TextField label={humanizedMaterialAttributeName("domain")}
                      property={materialAttributes.domain}/>
 
           <TextField label={humanizedMaterialAttributeName("username")}
                      property={materialAttributes.username}
-                     required={true}/>
+                     required={true}
+                     errorText={materialAttributes.errors().errorsForDisplay("username")}/>
 
           <PasswordField label={humanizedMaterialAttributeName("password")}
                          property={materialAttributes.password}
-                         required={true}/>
+                         required={true}
+                         errorText={materialAttributes.errors().errorsForDisplay("password")}/>
         </MaterialEditWidget>
       );
     }
@@ -294,14 +307,26 @@ export class NewConfigRepoModal extends ConfigRepoModal {
   }
 
   performSave() {
+    if (!this.repo().isValid()) {
+      return;
+    }
     ConfigReposCRUD.create(this.repo())
-                   .then((result) => {
-                     result.do(
-                       () => this.onSuccessfulSave(
-                         <span>The config repository <em>{this.repo().id}</em> was created successfully!</span>),
-                       (result) => this.onError(result.message)
-                     );
-                   }).then(this.close.bind(this));
+                   .then((result) => result.do(this.onSuccess.bind(this),
+                                               (errorResponse) => this.handleError(result, errorResponse)));
+  }
+
+  private onSuccess() {
+    this.onSuccessfulSave(<span>The config repository <em>{this.repo().id}</em> was created successfully!</span>);
+    this.close();
+  }
+
+  private handleError(result: ApiResult<ObjectWithEtag<ConfigRepo>>, errorResponse: ErrorResponse) {
+    if (result.getStatusCode() === 422 && errorResponse.body) {
+      const json = JSON.parse(errorResponse.body);
+      this.repo(ConfigRepo.fromJSON(json.data));
+    } else {
+      this.onError(errorResponse.message);
+    }
   }
 }
 
@@ -327,11 +352,12 @@ export class EditConfigRepoModal extends ConfigRepoModal {
   }
 
   performSave(): void {
-    ConfigReposCRUD.update(this.repoWithEtag()).then(this.close.bind(this)).then(() => {
-      this.onSuccessfulSave(<span>The config repository <em>{this.getRepo().id}</em> was updated successfully!</span>);
-    }).catch(() => {
-      this.error = `There was an error saving the config repository!`;
-    });
+    if (!this.repoWithEtag().object.isValid()) {
+      return;
+    }
+    ConfigReposCRUD.update(this.repoWithEtag())
+                   .then((apiResult) => apiResult.do(this.onSuccess.bind(this),
+                                                     (errorResponse) => this.handleError(apiResult, errorResponse)));
   }
 
   protected getRepo(): ConfigRepo {
@@ -340,5 +366,20 @@ export class EditConfigRepoModal extends ConfigRepoModal {
 
   private onRepoGetFailure(errorResponse: ErrorResponse) {
     this.error = errorResponse.message;
+  }
+
+  private onSuccess() {
+    this.onSuccessfulSave(<span>The config repository <em>{this.getRepo().id}</em> was updated successfully!</span>);
+    this.close();
+  }
+
+  private handleError(result: ApiResult<ObjectWithEtag<ConfigRepo>>, errorResponse: ErrorResponse) {
+    if (result.getStatusCode() === 422 && errorResponse.body) {
+      const json = JSON.parse(errorResponse.body);
+      const etag = this.repoWithEtag().etag;
+      this.repoWithEtag({etag, object: ConfigRepo.fromJSON(json.data)});
+    } else {
+      this.onError(errorResponse.message);
+    }
   }
 }

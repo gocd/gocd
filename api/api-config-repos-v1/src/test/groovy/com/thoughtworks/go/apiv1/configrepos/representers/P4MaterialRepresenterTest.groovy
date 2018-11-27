@@ -22,11 +22,13 @@ import com.thoughtworks.go.config.materials.AbstractMaterialConfig
 import com.thoughtworks.go.config.materials.PasswordDeserializer
 import com.thoughtworks.go.config.materials.perforce.P4MaterialConfig
 import com.thoughtworks.go.domain.materials.MaterialConfig
+import com.thoughtworks.go.security.GoCipher
 import org.junit.jupiter.api.Test
 
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
 import static org.junit.jupiter.api.Assertions.assertEquals
+import static org.junit.jupiter.api.Assertions.assertTrue
 import static org.mockito.ArgumentMatchers.any
 import static org.mockito.ArgumentMatchers.eq
 import static org.mockito.Mockito.mock
@@ -36,7 +38,6 @@ class P4MaterialRepresenterTest {
   private static final String REPO_URL = "https://peeforce.com/chewbacca"
   private static final String VIEW = "myView"
   private static final String PASSWORD = "foo"
-  private static final String ENCRYPTED_PASSWORD = "secret-foo"
 
   @Test
   void toJSON() {
@@ -56,8 +57,8 @@ class P4MaterialRepresenterTest {
   @Test
   void 'toJSON() with auth'() {
     P4MaterialConfig config = new P4MaterialConfig(REPO_URL, VIEW)
-    config.setEncryptedPassword(ENCRYPTED_PASSWORD)
     config.setUserName("user")
+    config.setPassword(PASSWORD)
 
     String json = toObjectString({ w -> P4MaterialRepresenter.toJSON(w, config) })
 
@@ -68,15 +69,12 @@ class P4MaterialRepresenterTest {
       use_tickets       : false,
       auto_update       : true,
       username          : "user",
-      encrypted_password: ENCRYPTED_PASSWORD
+      encrypted_password: new GoCipher().encrypt(PASSWORD)
     ])
   }
 
   @Test
   void fromJSON() {
-    PasswordDeserializer pd = mock(PasswordDeserializer.class)
-    when(pd.deserialize(eq(PASSWORD), eq(null as String), any() as AbstractMaterialConfig)).thenReturn(ENCRYPTED_PASSWORD)
-
     JsonReader json = GsonTransformer.getInstance().jsonReaderFrom([
       name       : null,
       port       : REPO_URL,
@@ -87,11 +85,13 @@ class P4MaterialRepresenterTest {
       password   : PASSWORD
     ])
 
+    def goCipher = new GoCipher()
     MaterialConfig materialConfig = P4MaterialRepresenter.fromJSON(json)
     P4MaterialConfig expected = new P4MaterialConfig(REPO_URL, VIEW)
-    expected.setEncryptedPassword(ENCRYPTED_PASSWORD)
     expected.setUserName("user")
+    expected.setEncryptedPassword(goCipher.encrypt(PASSWORD))
 
     assertEquals(expected, materialConfig)
+    assertTrue(goCipher.passwordEquals(expected.encryptedPassword, materialConfig.encryptedPassword))
   }
 }

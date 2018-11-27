@@ -33,14 +33,14 @@ public class ConfigRepoConfigTest {
     @Test
     public void shouldReturnPluginNameWhenSpecified() {
         ConfigRepoConfig config = new ConfigRepoConfig();
-        config.setConfigProviderPluginName("myplugin");
-        assertThat(config.getConfigProviderPluginName(),is("myplugin"));
+        config.setPluginId("myplugin");
+        assertThat(config.getPluginId(),is("myplugin"));
     }
     @Test
     public void shouldReturnNullPluginNameWhenEmpty() {
         ConfigRepoConfig config = new ConfigRepoConfig();
-        config.setConfigProviderPluginName("");
-        assertNull(config.getConfigProviderPluginName());
+        config.setPluginId("");
+        assertNull(config.getPluginId());
     }
 
     @Test

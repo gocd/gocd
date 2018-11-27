@@ -18,6 +18,8 @@ import * as _ from "lodash";
 
 const s = require("string-plus");
 
+export interface ErrorsJSON { [key: string]: string[]; }
+
 export class Errors {
   private _errors: { [key: string]: string[] };
 
@@ -46,6 +48,14 @@ export class Errors {
 
   errorsForDisplay(attrName: string) {
     return _.map(this._errors[attrName] || [], s.terminateWithPeriod).join(" ");
+  }
+
+  count() {
+    return _.size(this._errors);
+  }
+
+  keys() {
+    return Object.keys(this._errors);
   }
 
   private _isEmpty() {

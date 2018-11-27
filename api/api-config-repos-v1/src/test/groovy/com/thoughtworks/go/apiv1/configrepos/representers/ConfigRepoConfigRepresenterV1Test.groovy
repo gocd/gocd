@@ -85,12 +85,12 @@ class ConfigRepoConfigRepresenterV1Test {
       ],
       id           : ID,
       plugin_id    : TEST_PLUGIN_ID,
-      errors       : ["id": ["Duplicate Id."],
-                     "material": ["You have defined multiple configuration repositories with the same repository."]],
+      errors       : ["id"      : ["Duplicate Id."],
+                      "material": ["You have defined multiple configuration repositories with the same repository."]],
       material     : [
         type      : "git",
-        errors    : ["auto_update":["Cannot be false."]],
         attributes: [
+          errors     : ["auto_update": ["Cannot be false."]],
           name       : null,
           url        : TEST_REPO_URL,
           branch     : "master",

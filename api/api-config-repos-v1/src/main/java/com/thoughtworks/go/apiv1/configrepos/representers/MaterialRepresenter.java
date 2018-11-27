@@ -24,6 +24,7 @@ import com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig;
 import com.thoughtworks.go.config.materials.perforce.P4MaterialConfig;
 import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
 import com.thoughtworks.go.config.materials.tfs.TfsMaterialConfig;
+import com.thoughtworks.go.domain.materials.Material;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
 
 import java.util.Collections;
@@ -65,27 +66,38 @@ public class MaterialRepresenter {
     public static void toJSON(OutputWriter json, MaterialConfig material) {
         validateSupportedMaterials(material);
 
-        if (!material.errors().isEmpty()) {
-            json.addChild("errors", errorWriter -> new ErrorGetter(ERROR_MAPPING).toJSON(errorWriter, material));
-        }
-
         json.add("type", MATERIAL_TYPES.get(material.getClass()));
 
         switch (MATERIAL_TYPES.get(material.getClass())) {
             case "git":
-                json.addChild("attributes", attr -> GitMaterialRepresenter.toJSON(attr, (GitMaterialConfig) material));
+                json.addChild("attributes", attr -> {
+                    GitMaterialRepresenter.toJSON(attr, (GitMaterialConfig) material);
+                    addErrors(attr, material);
+                });
                 break;
             case "hg":
-                json.addChild("attributes", attr -> HgMaterialRepresenter.toJSON(attr, (HgMaterialConfig) material));
+                json.addChild("attributes", attr -> {
+                    HgMaterialRepresenter.toJSON(attr, (HgMaterialConfig) material);
+                    addErrors(attr, material);
+                });
                 break;
             case "svn":
-                json.addChild("attributes", attr -> SvnMaterialRepresenter.toJSON(attr, (SvnMaterialConfig) material));
+                json.addChild("attributes", attr -> {
+                    SvnMaterialRepresenter.toJSON(attr, (SvnMaterialConfig) material);
+                    addErrors(attr, material);
+                });
                 break;
             case "p4":
-                json.addChild("attributes", attr -> P4MaterialRepresenter.toJSON(attr, (P4MaterialConfig) material));
+                json.addChild("attributes", attr -> {
+                    P4MaterialRepresenter.toJSON(attr, (P4MaterialConfig) material);
+                    addErrors(attr, material);
+                });
                 break;
             case "tfs":
-                json.addChild("attributes", attr -> TfsMaterialRepresenter.toJSON(attr, (TfsMaterialConfig) material));
+                json.addChild("attributes", attr -> {
+                    TfsMaterialRepresenter.toJSON(attr, (TfsMaterialConfig) material);
+                    addErrors(attr, material);
+                });
                 break;
         }
     }
@@ -112,5 +124,11 @@ public class MaterialRepresenter {
                 return TfsMaterialRepresenter.fromJSON(materialAttrs);
         }
         throw new IllegalArgumentException(format("Unsupported material type: %s", materialType));
+    }
+
+    private static void addErrors(OutputWriter json, MaterialConfig material) {
+        if (!material.errors().isEmpty()) {
+            json.addChild("errors", errorWriter -> new ErrorGetter(ERROR_MAPPING).toJSON(errorWriter, material));
+        }
     }
 }

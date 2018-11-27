@@ -30,6 +30,7 @@ import org.mockito.Mock
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
 import static org.junit.jupiter.api.Assertions.assertEquals
+import static org.junit.jupiter.api.Assertions.assertTrue
 import static org.mockito.ArgumentMatchers.any
 import static org.mockito.ArgumentMatchers.eq
 import static org.mockito.Mockito.mock
@@ -40,10 +41,6 @@ class SvnMaterialRepresenterTest {
   private static final String REPO_URL = "https://dontusesvn.com/chewbacca"
   private static final String USER = "user"
   private static final String PASSWORD = "it's secret!"
-  private static final String ENCRYPTED_PASSWORD = "encrypted!"
-
-  @Mock
-  GoCipher cipher
 
   @BeforeEach
   void setup() { initMocks(this) }
@@ -64,7 +61,7 @@ class SvnMaterialRepresenterTest {
 
   @Test
   void 'toJSON() with auth'() {
-    when(cipher.encrypt(PASSWORD)).thenReturn(ENCRYPTED_PASSWORD)
+    def cipher = new GoCipher()
     SvnMaterialConfig config = new SvnMaterialConfig(REPO_URL, USER, PASSWORD, false, cipher)
 
     String json = toObjectString({ w -> SvnMaterialRepresenter.toJSON(w, config) })
@@ -75,15 +72,12 @@ class SvnMaterialRepresenterTest {
       check_externals   : false,
       auto_update       : true,
       username          : USER,
-      encrypted_password: ENCRYPTED_PASSWORD
+      encrypted_password: cipher.encrypt(PASSWORD)
     ])
   }
 
   @Test
   void fromJSON() {
-    PasswordDeserializer pd = mock(PasswordDeserializer.class)
-    when(pd.deserialize(eq(PASSWORD), eq(null as String), any() as AbstractMaterialConfig)).thenReturn(ENCRYPTED_PASSWORD)
-
     JsonReader json = GsonTransformer.getInstance().jsonReaderFrom([
       name           : null,
       url            : REPO_URL,
@@ -94,9 +88,10 @@ class SvnMaterialRepresenterTest {
     ])
 
     MaterialConfig materialConfig = SvnMaterialRepresenter.fromJSON(json)
-    SvnMaterialConfig expected = new SvnMaterialConfig(REPO_URL, USER, null, false, cipher)
-    expected.setEncryptedPassword(ENCRYPTED_PASSWORD)
+    def goCipher = new GoCipher()
+    SvnMaterialConfig expected = new SvnMaterialConfig(REPO_URL, USER, PASSWORD, false, goCipher)
 
     assertEquals(expected, materialConfig)
+    assertTrue(goCipher.passwordEquals(expected.encryptedPassword, materialConfig.encryptedPassword))
   }
 }

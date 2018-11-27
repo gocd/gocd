@@ -61,7 +61,7 @@ abstract class FormField<T> extends MithrilViewComponent<FormFieldAttrs<T>> {
   protected defaultAttributes(vnode: m.Vnode<FormFieldAttrs<T>>): { [key: string]: any } {
     const required = this.isRequiredField(vnode);
 
-    const newVar: { [key: string]: string | boolean } = {
+    const defaultAttrs: { [key: string]: string | boolean } = {
       "aria-label": vnode.attrs.label,
       "readonly": !!vnode.attrs.disabled,
       "required": !!required,
@@ -72,19 +72,19 @@ abstract class FormField<T> extends MithrilViewComponent<FormFieldAttrs<T>> {
     };
 
     if (this.hasHelpText(vnode)) {
-      newVar["aria-describedby"] = this.helpTextId;
+      defaultAttrs["aria-describedby"] = this.helpTextId;
     }
 
     if (this.hasErrorText(vnode)) {
-      newVar["aria-errormessage"] = this.errorId;
+      defaultAttrs["aria-errormessage"] = this.errorId;
     }
 
     if (required) {
-      newVar["aria-required"] = true;
-      newVar.required         = true;
+      defaultAttrs["aria-required"] = true;
+      defaultAttrs.required         = true;
     }
 
-    return newVar;
+    return defaultAttrs;
   }
 
   // moved

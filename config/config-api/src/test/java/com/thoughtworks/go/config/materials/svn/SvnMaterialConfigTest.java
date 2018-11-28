@@ -76,6 +76,16 @@ public class SvnMaterialConfigTest {
     }
 
     @Test
+    public void validate_shouldEnsureUrlIsNotNull() {
+        SvnMaterialConfig svnMaterialConfig = new SvnMaterialConfig();
+        svnMaterialConfig.setUrl(null);
+
+        svnMaterialConfig.validate(new ConfigSaveValidationContext(null));
+
+        assertThat(svnMaterialConfig.errors().on(SvnMaterialConfig.URL), is("URL cannot be blank"));
+    }
+
+    @Test
     public void validate_shouldEnsureMaterialNameIsValid() {
         SvnMaterialConfig svnMaterialConfig = new SvnMaterialConfig("/foo", "", "", false);
         svnMaterialConfig.validate(new ConfigSaveValidationContext(null));

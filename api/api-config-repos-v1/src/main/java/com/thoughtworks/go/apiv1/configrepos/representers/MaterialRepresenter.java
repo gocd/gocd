@@ -19,12 +19,12 @@ package com.thoughtworks.go.apiv1.configrepos.representers;
 import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.api.representers.ErrorGetter;
 import com.thoughtworks.go.api.representers.JsonReader;
+import com.thoughtworks.go.config.exceptions.UnprocessableEntityException;
 import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig;
 import com.thoughtworks.go.config.materials.perforce.P4MaterialConfig;
 import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
 import com.thoughtworks.go.config.materials.tfs.TfsMaterialConfig;
-import com.thoughtworks.go.domain.materials.Material;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
 
 import java.util.Collections;
@@ -123,7 +123,7 @@ public class MaterialRepresenter {
             case "tfs":
                 return TfsMaterialRepresenter.fromJSON(materialAttrs);
         }
-        throw new IllegalArgumentException(format("Unsupported material type: %s", materialType));
+        throw new UnprocessableEntityException(String.format("Unsupported material type: %s. It has to be one of 'git, hg, svn, p4 and tfs'.", materialType));
     }
 
     private static void addErrors(OutputWriter json, MaterialConfig material) {

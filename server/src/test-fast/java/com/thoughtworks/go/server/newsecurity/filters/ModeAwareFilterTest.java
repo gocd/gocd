@@ -17,6 +17,7 @@
 package com.thoughtworks.go.server.newsecurity.filters;
 
 import com.google.gson.JsonObject;
+import com.thoughtworks.go.http.mocks.HttpRequestBuilder;
 import com.thoughtworks.go.server.service.DrainModeService;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.eclipse.jetty.http.*;
@@ -60,54 +61,77 @@ class ModeAwareFilterTest {
 
     @Test
     void shouldNotBlockNonGetRequestWhenInActiveStateAndNotUnderDrainMode() throws Exception {
-        when(request.getMethod()).thenReturn("get").thenReturn("post").thenReturn("put").thenReturn("delete");
-        when(request.getRequestURI()).thenReturn("/go/foo");
-
         when(systemEnvironment.isServerActive()).thenReturn(true);
         when(drainModeService.isDrainMode()).thenReturn(false);
 
+        request = HttpRequestBuilder.GET("/foo").build();
         filter.doFilter(request, response, filterChain);
-        filter.doFilter(request, response, filterChain);
-        filter.doFilter(request, response, filterChain);
-        filter.doFilter(request, response, filterChain);
+        verify(filterChain, times(1)).doFilter(request, response);
 
-        verify(filterChain, times(4)).doFilter(request, response);
+        request = HttpRequestBuilder.HEAD("/foo").build();
+        filter.doFilter(request, response, filterChain);
+        verify(filterChain, times(1)).doFilter(request, response);
+
+        request = HttpRequestBuilder.POST("/foo").build();
+        filter.doFilter(request, response, filterChain);
+        verify(filterChain, times(1)).doFilter(request, response);
+
+        request = HttpRequestBuilder.PUT("/foo").build();
+        filter.doFilter(request, response, filterChain);
+        verify(filterChain, times(1)).doFilter(request, response);
+
+        request = HttpRequestBuilder.DELETE("/foo").build();
+        filter.doFilter(request, response, filterChain);
+        verify(filterChain, times(1)).doFilter(request, response);
     }
 
     @Test
     void shouldNotBlockGetOrHeadRequestWhenInPassiveState() throws Exception {
-        when(request.getMethod()).thenReturn("get").thenReturn("head");
-        when(request.getRequestURI()).thenReturn("/go/foo");
-
         when(systemEnvironment.isServerActive()).thenReturn(false);
+        when(drainModeService.isDrainMode()).thenReturn(false);
 
-        filter.doFilter(request, response, filterChain);
+        request = HttpRequestBuilder.GET("/foo").build();
         filter.doFilter(request, response, filterChain);
 
-        verify(filterChain, times(2)).doFilter(request, response);
+        verify(filterChain, times(1)).doFilter(request, response);
+
+        request = HttpRequestBuilder.HEAD("/foo").build();
+        filter.doFilter(request, response, filterChain);
+
+        verify(filterChain, times(1)).doFilter(request, response);
     }
 
     @Test
     void shouldNotBlockGetOrHeadRequestWhenInDrainMode() throws Exception {
-        when(request.getMethod()).thenReturn("get").thenReturn("head");
-        when(request.getRequestURI()).thenReturn("/go/foo");
-
         when(systemEnvironment.isServerActive()).thenReturn(true);
         when(drainModeService.isDrainMode()).thenReturn(true);
 
-        filter.doFilter(request, response, filterChain);
+        request = HttpRequestBuilder.GET("/foo").build();
         filter.doFilter(request, response, filterChain);
 
-        verify(filterChain, times(2)).doFilter(request, response);
+        verify(filterChain, times(1)).doFilter(request, response);
+
+        request = HttpRequestBuilder.HEAD("/foo").build();
+        filter.doFilter(request, response, filterChain);
+
+        verify(filterChain, times(1)).doFilter(request, response);
     }
 
     @Test
     void shouldBlockNonGetRequestWhenInPassiveState() throws Exception {
-        when(request.getMethod()).thenReturn("post").thenReturn("put").thenReturn("delete");
         when(systemEnvironment.isServerActive()).thenReturn(false);
+        when(drainModeService.isDrainMode()).thenReturn(false);
 
+        request = HttpRequestBuilder.POST("/foo").build();
         filter.doFilter(request, response, filterChain);
+
+        request = HttpRequestBuilder.PUT("/foo").build();
         filter.doFilter(request, response, filterChain);
+
+        request = HttpRequestBuilder.DELETE("/foo").build();
+        filter.doFilter(request, response, filterChain);
+
+        request = HttpRequestBuilder.PATCH("/foo").build();
         filter.doFilter(request, response, filterChain);
 
         verify(filterChain, never()).doFilter(request, response);
@@ -115,14 +139,19 @@ class ModeAwareFilterTest {
 
     @Test
     void shouldBlockNonGetRequestWhenInDrainMode() throws Exception {
-        when(request.getMethod()).thenReturn("post").thenReturn("put").thenReturn("delete");
-        when(request.getRequestURI()).thenReturn("/go/foo");
-
         when(systemEnvironment.isServerActive()).thenReturn(true);
         when(drainModeService.isDrainMode()).thenReturn(true);
 
+        request = HttpRequestBuilder.POST("/foo").build();
         filter.doFilter(request, response, filterChain);
+
+        request = HttpRequestBuilder.PUT("/foo").build();
         filter.doFilter(request, response, filterChain);
+
+        request = HttpRequestBuilder.DELETE("/foo").build();
+        filter.doFilter(request, response, filterChain);
+
+        request = HttpRequestBuilder.PATCH("/foo").build();
         filter.doFilter(request, response, filterChain);
 
         verify(filterChain, never()).doFilter(request, response);
@@ -130,10 +159,10 @@ class ModeAwareFilterTest {
 
     @Test
     void shouldAllowLoginPostRequestInPassiveState() throws Exception {
-        when(request.getMethod()).thenReturn("post");
+        request = HttpRequestBuilder.POST("/auth/security_check").build();
+
         when(systemEnvironment.isServerActive()).thenReturn(false);
         when(systemEnvironment.getWebappContextPath()).thenReturn("/go");
-        when(request.getRequestURI()).thenReturn("/go/auth/security_check");
 
         filter.doFilter(request, response, filterChain);
 
@@ -142,11 +171,11 @@ class ModeAwareFilterTest {
 
     @Test
     void shouldAllowLoginPostRequestInDrainMode() throws Exception {
-        when(request.getMethod()).thenReturn("post");
+        request = HttpRequestBuilder.POST("/auth/security_check").build();
+
         when(systemEnvironment.isServerActive()).thenReturn(true);
         when(drainModeService.isDrainMode()).thenReturn(true);
         when(systemEnvironment.getWebappContextPath()).thenReturn("/go");
-        when(request.getRequestURI()).thenReturn("/go/auth/security_check");
 
         filter.doFilter(request, response, filterChain);
 
@@ -155,10 +184,10 @@ class ModeAwareFilterTest {
 
     @Test
     void shouldAllowSwitchToActiveStateChangePostRequestInPassiveState() throws Exception {
-        when(request.getMethod()).thenReturn("post");
+        request = HttpRequestBuilder.POST("/api/state/active").build();
+
         when(systemEnvironment.isServerActive()).thenReturn(false);
         when(systemEnvironment.getWebappContextPath()).thenReturn("/go");
-        when(request.getRequestURI()).thenReturn("/go/api/state/active");
 
         filter.doFilter(request, response, filterChain);
 
@@ -167,7 +196,8 @@ class ModeAwareFilterTest {
 
     @Test
     void shouldRedirectToPassiveServerErrorPageForNonGetRequestWhenInPassiveState() throws Exception {
-        when(request.getMethod()).thenReturn("post");
+        request = HttpRequestBuilder.POST("/foo").build();
+
         when(systemEnvironment.isServerActive()).thenReturn(false);
         when(systemEnvironment.getWebappContextPath()).thenReturn("/go");
 
@@ -182,7 +212,7 @@ class ModeAwareFilterTest {
         when(systemEnvironment.isServerActive()).thenReturn(true);
         when(drainModeService.isDrainMode()).thenReturn(true);
 
-        Request request = request(HttpMethod.POST, "", "/go/pipelines");
+        request = HttpRequestBuilder.POST("/pipelines").build();
 
         filter.doFilter(request, response, filterChain);
 
@@ -198,7 +228,31 @@ class ModeAwareFilterTest {
         when(systemEnvironment.isServerActive()).thenReturn(true);
         when(drainModeService.isDrainMode()).thenReturn(true);
 
-        Request request = request(HttpMethod.POST, "", "/go/api/stages/1/cancel");
+        request = HttpRequestBuilder.POST("/api/stages/1/cancel").build();
+
+        filter.doFilter(request, response, filterChain);
+
+        verify(filterChain, times(1)).doFilter(request, response);
+    }
+
+    @Test
+    public void shouldAllowStageCancelPOSTNewAPICallWhileServerIsInDrainMode() throws Exception {
+        when(systemEnvironment.isServerActive()).thenReturn(true);
+        when(drainModeService.isDrainMode()).thenReturn(true);
+
+        request = HttpRequestBuilder.POST("/api/stages/up42_pipeline/up42_stage/cancel").build();
+
+        filter.doFilter(request, response, filterChain);
+
+        verify(filterChain, times(1)).doFilter(request, response);
+    }
+
+    @Test
+    public void shouldAllowDrainModeTogglePOSTCallWhileServerIsInDrainMode() throws Exception {
+        when(systemEnvironment.isServerActive()).thenReturn(true);
+        when(drainModeService.isDrainMode()).thenReturn(true);
+
+        request = HttpRequestBuilder.POST("/api/drain_mode/settings").build();
 
         filter.doFilter(request, response, filterChain);
 
@@ -210,7 +264,8 @@ class ModeAwareFilterTest {
         when(systemEnvironment.isServerActive()).thenReturn(true);
         when(drainModeService.isDrainMode()).thenReturn(true);
 
-        Request request = request(HttpMethod.POST, "application/json", "/go/api/pipelines");
+        request = HttpRequestBuilder.POST("/api/state/active").withHeader("content-type", "application/json").build();
+
         filter.doFilter(request, response, filterChain);
 
         verify(response, times(1)).setContentType("application/json");

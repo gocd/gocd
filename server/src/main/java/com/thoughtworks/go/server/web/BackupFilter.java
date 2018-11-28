@@ -31,7 +31,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.regex.Pattern;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
@@ -45,8 +44,9 @@ public class BackupFilter implements Filter {
 
     @Autowired
     private BackupService backupService;
-    private final static Logger LOGGER = LoggerFactory.getLogger(BackupFilter.class);    // For the Test
-    public static final Pattern PATTERN = Pattern.compile("^((.*/api/.*)|(.*[^/]+\\.(xml|json)(\\?.*)?))$");
+
+    // For the Test
+    private final static Logger LOGGER = LoggerFactory.getLogger(BackupFilter.class);
 
     // For the Test
     protected BackupFilter(BackupService backupService) {
@@ -54,7 +54,6 @@ public class BackupFilter implements Filter {
     }
 
     public BackupFilter() {
-
     }
 
     @Override

@@ -13,12 +13,7 @@
   <%= stylesheet_link_tag *webpack_assets_service.getCSSAssetPathsFor("single_page_apps/header_footer_shim") %>
 <%- end %>
 
-<![if !IE]>
-    <%= javascript_include_tag 'lib/d3-3.1.5.min' %>
-<![endif]>
-<!--[if gt IE 8]><!-->
-    <%= javascript_include_tag 'lib/d3-3.1.5.min' %>
-<!--<![endif]-->
+<%= javascript_include_tag 'lib/d3-3.1.5.min' %>
 
 <%= yield :after_javascript %>
 <link rel="shortcut icon" href="<%=asset_path('cruise.ico')%>"/>

@@ -64,4 +64,5 @@
 //= require "compare_pipelines.js"
 //= require "console_log_tailing.js"
 //= require "js-routes"
+//= require "pipeline_export.js"
 //= require_directory .

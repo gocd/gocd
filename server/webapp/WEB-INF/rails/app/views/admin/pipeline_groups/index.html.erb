@@ -22,7 +22,7 @@
 
   <% @groups.each do |group| %>
       <div class="group pipeline_group">
-        <h2 class="group_name entity_title wrapped_word" id="group-<%= group.getGroup() %>"><%= group.getGroup() %></a></h2>
+        <h2 class="group_name entity_title wrapped_word" id="group-<%= group.getGroup() %>"><%= group.getGroup() %></h2>
         <div class="title_action_wrapper">
           <ul>
             <li>
@@ -84,6 +84,12 @@
                             </li>
                         <%- end -%>
                         <li>
+                          <%= link_to("#{spark_url_for({request: request}, SparkRoutes::PipelineConfig.export(pipeline.name().toString()))}?groupName=#{group.getGroup()}", :class => "export_icon action_icon", :onclick => "ExportAdapter.showExportOptions(event);") do -%>
+                            Export using
+                            <span class="for_down_arrow">&nbsp;</span>
+                          <% end -%>
+                        </li>
+                        <li>
                           <% if pipeline.isLocal() %>
                               <% pipeline_random_id_for_clone = random_dom_id('clone_button_for_') -%>
                               <a href="#" class="clone_pipeline clone_icon action_icon clone_button_for_<%= pipeline.name() -%>" id="<%= pipeline_random_id_for_clone -%>">
@@ -143,6 +149,7 @@
 </div>
 
 <script type="text/javascript">
+  ExportAdapter.init()
   jQuery("li.move_to_group_option").live('click', function (event) {
     var li = jQuery(this);
     var form = li.parents("form").get(0);

@@ -288,6 +288,10 @@ public class Routes {
         public static String name(String name) {
             return find().replaceAll(":pipeline_name", name);
         }
+
+        public static String export(String name) {
+            return (BASE + EXPORT).replaceAll(":pipeline_name", name);
+        }
     }
 
     public static class PipelineTemplateConfig {

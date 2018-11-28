@@ -3397,6 +3397,11 @@ a.add_item {
   @extend %iconstyles;
 }
 
+.export_icon {
+  @include icon-before($type: arrow-down);
+  @extend %iconstyles;
+}
+
 .clone_icon {
   @include icon-before($type: clone);
   @extend %iconstyles;

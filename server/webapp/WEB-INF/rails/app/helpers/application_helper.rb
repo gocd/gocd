@@ -497,6 +497,10 @@ module ApplicationHelper
     Toggles.isToggleOn(Toggles.CONFIG_REPOS_UI)
   end
 
+  def is_server_in_drain_mode?
+    drain_mode_service.isDrainMode
+  end
+
   def edit_path_for_pipeline(pipeline_name)
     if is_pipeline_config_spa_enabled? && is_quick_edit_page_default?
       return edit_admin_pipeline_config_path(:pipeline_name => pipeline_name)

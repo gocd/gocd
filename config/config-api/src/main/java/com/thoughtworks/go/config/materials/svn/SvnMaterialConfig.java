@@ -32,6 +32,7 @@ import java.util.Map;
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static com.thoughtworks.go.util.ExceptionUtils.bombIfNull;
 import static java.lang.String.format;
+import static org.apache.commons.lang3.StringUtils.*;
 import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 
 @ConfigTag(value = "svn", label = "Subversion")
@@ -124,15 +125,15 @@ public class SvnMaterialConfig extends ScmMaterialConfig implements ParamsAttrib
     }
 
     private void resetPassword(String passwordToSet) {
-        if (StringUtils.isBlank(passwordToSet)) {
+        if (isBlank(passwordToSet)) {
             encryptedPassword = null;
         }
         setPasswordIfNotBlank(passwordToSet);
     }
 
     private void setPasswordIfNotBlank(String password) {
-        this.password = StringUtils.stripToNull(password);
-        this.encryptedPassword = StringUtils.stripToNull(encryptedPassword);
+        this.password = stripToNull(password);
+        this.encryptedPassword = stripToNull(encryptedPassword);
 
         if (this.password == null) {
             return;
@@ -162,7 +163,7 @@ public class SvnMaterialConfig extends ScmMaterialConfig implements ParamsAttrib
 
     public String currentPassword() {
         try {
-            return StringUtils.isBlank(encryptedPassword) ? null : this.goCipher.decrypt(encryptedPassword);
+            return isBlank(encryptedPassword) ? null : this.goCipher.decrypt(encryptedPassword);
         } catch (Exception e) {
             throw new RuntimeException("Could not decrypt the password to get the real password", e);
         }
@@ -180,7 +181,7 @@ public class SvnMaterialConfig extends ScmMaterialConfig implements ParamsAttrib
     @PostConstruct
     @Override
     public void ensureEncrypted() {
-        this.userName = StringUtils.stripToNull(this.userName);
+        this.userName = stripToNull(this.userName);
         setPasswordIfNotBlank(password);
 
         if (encryptedPassword != null) {
@@ -217,7 +218,7 @@ public class SvnMaterialConfig extends ScmMaterialConfig implements ParamsAttrib
 
     @Override
     public void validateConcreteScmMaterial() {
-        if (StringUtils.isBlank(url.forDisplay())) {
+        if (url == null || isBlank(url.forDisplay())) {
             errors().add(URL, "URL cannot be blank");
         }
         if (isNotEmpty(this.password) && isNotEmpty(this.encryptedPassword)) {

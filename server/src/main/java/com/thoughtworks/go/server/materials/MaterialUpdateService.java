@@ -32,6 +32,7 @@ import com.thoughtworks.go.server.materials.postcommit.PostCommitHookMaterialTyp
 import com.thoughtworks.go.server.messaging.GoMessageListener;
 import com.thoughtworks.go.server.messaging.GoMessageQueue;
 import com.thoughtworks.go.server.perf.MDUPerformanceLogger;
+import com.thoughtworks.go.server.service.DrainModeService;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.MaterialConfigConverter;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
@@ -65,6 +66,7 @@ public class MaterialUpdateService implements GoMessageListener<MaterialUpdateCo
     private final MaterialUpdateQueue updateQueue;
     private final ConfigMaterialUpdateQueue configUpdateQueue;
     private final DependencyMaterialUpdateQueue dependencyMaterialUpdateQueue;
+    private final DrainModeService drainModeService;
     private final GoConfigWatchList watchList;
     private final GoConfigService goConfigService;
     private final SystemEnvironment systemEnvironment;
@@ -85,7 +87,7 @@ public class MaterialUpdateService implements GoMessageListener<MaterialUpdateCo
                                  GoConfigService goConfigService, SystemEnvironment systemEnvironment,
                                  ServerHealthService serverHealthService, PostCommitHookMaterialTypeResolver postCommitHookMaterialType,
                                  MDUPerformanceLogger mduPerformanceLogger, MaterialConfigConverter materialConfigConverter,
-                                 DependencyMaterialUpdateQueue dependencyMaterialUpdateQueue) {
+                                 DependencyMaterialUpdateQueue dependencyMaterialUpdateQueue, DrainModeService drainModeService) {
         this.watchList = watchList;
         this.goConfigService = goConfigService;
         this.systemEnvironment = systemEnvironment;
@@ -96,6 +98,7 @@ public class MaterialUpdateService implements GoMessageListener<MaterialUpdateCo
         this.mduPerformanceLogger = mduPerformanceLogger;
         this.materialConfigConverter = materialConfigConverter;
         this.dependencyMaterialUpdateQueue = dependencyMaterialUpdateQueue;
+        this.drainModeService = drainModeService;
         completed.addListener(this);
     }
 
@@ -105,6 +108,11 @@ public class MaterialUpdateService implements GoMessageListener<MaterialUpdateCo
     }
 
     public void onTimer() {
+        if (drainModeService.isDrainMode()) {
+            LOGGER.debug("[Drain Mode] GoCD server is in 'drain' mode, skip checking for MDU.");
+            return;
+        }
+
         for (MaterialSource materialSource : materialSources) {
             Set<Material> materialsForUpdate = materialSource.materialsForUpdate();
             LOGGER.debug("[Material Update] [On Timer] materials IN-PROGRESS: {}, ALL-MATERIALS: {}", inProgress, materialsForUpdate);
@@ -168,7 +176,6 @@ public class MaterialUpdateService implements GoMessageListener<MaterialUpdateCo
                 queueFor(material).post(new MaterialUpdateMessage(material, trackingId));
 
                 return true;
-
             } catch (RuntimeException e) {
                 inProgress.remove(material);
                 throw e;
@@ -192,6 +199,11 @@ public class MaterialUpdateService implements GoMessageListener<MaterialUpdateCo
     }
 
     public void onMessage(MaterialUpdateCompletedMessage message) {
+        if (message instanceof MaterialUpdateSkippedMessage) {
+            inProgress.remove(message.getMaterial());
+            return;
+        }
+
         try {
             LOGGER.debug("[Material Update] Material update completed for material {}", message.getMaterial());
 

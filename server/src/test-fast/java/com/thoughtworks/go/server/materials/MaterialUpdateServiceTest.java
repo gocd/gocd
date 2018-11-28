@@ -16,7 +16,10 @@
 
 package com.thoughtworks.go.server.materials;
 
-import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.BasicCruiseConfig;
+import com.thoughtworks.go.config.CaseInsensitiveString;
+import com.thoughtworks.go.config.CruiseConfig;
+import com.thoughtworks.go.config.GoConfigWatchList;
 import com.thoughtworks.go.config.materials.ScmMaterial;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterial;
 import com.thoughtworks.go.config.materials.svn.SvnMaterial;
@@ -32,10 +35,14 @@ import com.thoughtworks.go.server.materials.postcommit.PostCommitHookImplementer
 import com.thoughtworks.go.server.materials.postcommit.PostCommitHookMaterialType;
 import com.thoughtworks.go.server.materials.postcommit.PostCommitHookMaterialTypeResolver;
 import com.thoughtworks.go.server.perf.MDUPerformanceLogger;
+import com.thoughtworks.go.server.service.DrainModeService;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.MaterialConfigConverter;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
-import com.thoughtworks.go.serverhealth.*;
+import com.thoughtworks.go.serverhealth.HealthStateScope;
+import com.thoughtworks.go.serverhealth.HealthStateType;
+import com.thoughtworks.go.serverhealth.ServerHealthService;
+import com.thoughtworks.go.serverhealth.ServerHealthState;
 import com.thoughtworks.go.util.ProcessManager;
 import com.thoughtworks.go.util.ReflectionUtil;
 import com.thoughtworks.go.util.SystemEnvironment;
@@ -50,9 +57,7 @@ import java.util.*;
 import static com.thoughtworks.go.helper.MaterialUpdateMessageMatcher.matchMaterialUpdateMessage;
 import static junit.framework.TestCase.assertTrue;
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
 public class MaterialUpdateServiceTest {
@@ -76,6 +81,7 @@ public class MaterialUpdateServiceTest {
     private SystemEnvironment systemEnvironment;
     private MaterialConfigConverter materialConfigConverter;
     private DependencyMaterialUpdateQueue dependencyMaterialUpdateQueue;
+    private DrainModeService drainModeService;
 
     @Before
     public void setUp() throws Exception {
@@ -92,9 +98,10 @@ public class MaterialUpdateServiceTest {
         materialConfigConverter = mock(MaterialConfigConverter.class);
         MDUPerformanceLogger mduPerformanceLogger = mock(MDUPerformanceLogger.class);
         dependencyMaterialUpdateQueue = mock(DependencyMaterialUpdateQueue.class);
+        drainModeService = mock(DrainModeService.class);
 
-        service = new MaterialUpdateService(queue,configQueue , completed,watchList, goConfigService, systemEnvironment,
-                serverHealthService, postCommitHookMaterialType, mduPerformanceLogger, materialConfigConverter, dependencyMaterialUpdateQueue);
+        service = new MaterialUpdateService(queue, configQueue, completed, watchList, goConfigService, systemEnvironment,
+                serverHealthService, postCommitHookMaterialType, mduPerformanceLogger, materialConfigConverter, dependencyMaterialUpdateQueue, drainModeService);
 
         service.registerMaterialSources(scmMaterialSource);
         service.registerMaterialUpdateCompleteListener(scmMaterialSource);
@@ -126,6 +133,16 @@ public class MaterialUpdateServiceTest {
         service.onTimer();
 
         Mockito.verify(queue).post(matchMaterialUpdateMessage(svnMaterial));
+    }
+
+    @Test
+    public void shouldNotSendMaterialUpdateMessageForAllSchedulableMaterials_onTimerWhenServerIsInDrainMode() throws Exception {
+        when(drainModeService.isDrainMode()).thenReturn(true);
+        when(scmMaterialSource.materialsForUpdate()).thenReturn(new HashSet<>(Arrays.asList(svnMaterial)));
+
+        service.onTimer();
+
+        Mockito.verifyZeroInteractions(queue);
     }
 
     @Test
@@ -389,6 +406,38 @@ public class MaterialUpdateServiceTest {
 
         verify(dependencyMaterialUpdateNotifier).onMaterialUpdate(material);
         verify(scmMaterialSource).onMaterialUpdate(material);
+    }
+
+    @Test
+    public void shouldRemoveFromInProgressOnMaterialUpdateSkippedMessage() {
+        when(scmMaterialSource.materialsForUpdate()).thenReturn(new HashSet<>(Arrays.asList(svnMaterial)));
+        service.onTimer();
+
+        assertTrue(service.isInProgress(svnMaterial));
+
+        service.onMessage(new MaterialUpdateSkippedMessage(svnMaterial, 0));
+
+        assertFalse(service.isInProgress(svnMaterial));
+    }
+
+    @Test
+    public void shouldNotRemoveServerHealthMessageOnMaterialUpdateSkippedMessage() {
+        Material material = mock(Material.class);
+        when(material.getFingerprint()).thenReturn("fingerprint");
+
+        service.onMessage(new MaterialUpdateSkippedMessage(material, 0));
+
+        verifyZeroInteractions(serverHealthService);
+    }
+
+    @Test
+    public void shouldNotNotifyAllMaterialUpdateCompleteListenersOnMaterialUpdateSkippedMessage() {
+        Material material = mock(Material.class);
+
+        service.onMessage(new MaterialUpdateSkippedMessage(material, 0));
+
+        verifyZeroInteractions(dependencyMaterialUpdateNotifier);
+        verifyZeroInteractions(scmMaterialSource);
     }
 
     @Test

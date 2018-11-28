@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -85,6 +85,8 @@ public class ConfigMaterialUpdaterIntegrationTest {
     private ConfigCache configCache;
     @Autowired
     private CachedGoConfig cachedGoConfig;
+    @Autowired
+    private  DrainModeService drainModeService;
 
     @Autowired
     private ConfigMaterialUpdateCompletedTopic configTopic;
@@ -127,7 +129,7 @@ public class ConfigMaterialUpdaterIntegrationTest {
                 stageService, configDbStateRepository);
         goDiskSpaceMonitor.initialize();
 
-        worker = new MaterialUpdateListener(configTopic, materialDatabaseUpdater, logger, goDiskSpaceMonitor);
+        worker = new MaterialUpdateListener(configTopic, materialDatabaseUpdater, logger, goDiskSpaceMonitor, drainModeService);
 
         xmlWriter = new MagicalGoConfigXmlWriter(configCache, ConfigElementImplementationRegistryMother.withNoPlugins());
         configTestRepo = new ConfigTestRepo(hgRepo, xmlWriter);

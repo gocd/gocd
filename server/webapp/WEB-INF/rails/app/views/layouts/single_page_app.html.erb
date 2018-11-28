@@ -15,22 +15,19 @@
   <%= stylesheet_link_tag 'frameworks' %>
   <%= stylesheet_link_tag "single_page_apps/#{controller_name}" %>
 
-  <% webpack_assets_service.getAssetPathsFor("single_page_apps/#{controller_name}", "single_page_apps/spa_commons").each do |js| %>
+  <% webpack_assets_service.getAssetPathsFor("single_page_apps/polyfill", "single_page_apps/#{controller_name}", "single_page_apps/header_footer_shim").each do |js| %>
     <script src=<%= "#{js}" %>></script>
   <% end %>
+  <%= stylesheet_link_tag *webpack_assets_service.getCSSAssetPathsFor("single_page_apps/header_footer_shim") %>s
 
   <%= csrf_meta_tags %>
 </head>
 
 <body data-controller-name="<%= controller_name %>"
       data-action-name="<%= action_name %>"
-      id="<%= controller_name %>-page">
+      id="<%= controller_name %>-page" <%= render "shared/body_data_attrs" %>>
 <div class="page-wrap">
-  <header class="app-header">
-    <div class="row expanded">
-      <%= render :partial => 'new_navigation_elements/navigation' %>
-    </div>
-  </header>
+  <%= render :partial => 'new_navigation_elements/navigation' %>
 
   <main class="main-container">
     <%= yield %>

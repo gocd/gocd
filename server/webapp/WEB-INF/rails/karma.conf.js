@@ -18,27 +18,33 @@
 
 const path                = require('path');
 const process             = require('process');
-const jasmineSeedReporter = require('karma-jasmine-seed-reporter')
+const jasmineSeedReporter = require('karma-jasmine-seed-reporter');
+const _                   = require('lodash');
 
 module.exports = function (config) {
   config.set({
-    basePath:      path.join(__dirname, 'public', 'assets', 'webpack'),
-    frameworks:    ['jasmine', 'detectBrowsers'],
+    basePath:       path.join(__dirname, 'public', 'assets', 'webpack'),
+    frameworks:     ['jasmine', 'detectBrowsers'],
     detectBrowsers: {
-      usePhantomJS: false
-    },
-    client:        {
-      captureConsole: true,
-      jasmine: {
-        random: true,
-        seed: process.env['JASMINE_SEED']
+      usePhantomJS:  false,
+      postDetection: (availableBrowsers) => {
+        _.remove(availableBrowsers, (browser) => browser === 'IE');
+
+        return availableBrowsers;
       }
     },
-    plugins: [jasmineSeedReporter, "karma-*"],
-    preprocessors: {
+    client:         {
+      captureConsole: true,
+      jasmine:        {
+        random: true,
+        seed:   process.env['JASMINE_SEED']
+      }
+    },
+    plugins:        [jasmineSeedReporter, "karma-*"],
+    preprocessors:  {
       '**/*.js': ['sourcemap']
     },
-    files:         [
+    files:          [
       {
         pattern:  'vendor-and-helpers.chunk.js',
         watched:  true,
@@ -52,8 +58,8 @@ module.exports = function (config) {
         served:   true
       },
     ],
-    reporters:     ['progress', 'junit', 'kjhtml', 'html', 'jasmine-seed'],
-    htmlReporter:  {
+    reporters:      ['progress', 'junit', 'kjhtml', 'html', 'jasmine-seed'],
+    htmlReporter:   {
       outputDir:               path.join(__dirname, '..', '..', '..', 'target', 'karma_reports'),
       templatePath:            null,
       focusOnFailures:         true,
@@ -63,7 +69,7 @@ module.exports = function (config) {
       preserveDescribeNesting: false,
       foldAll:                 false,
     },
-    junitReporter: {
+    junitReporter:  {
       outputDir:          path.join(__dirname, '..', '..', '..', 'target', 'karma_reports'),
       outputFile:         undefined,
       suite:              '',
@@ -72,11 +78,11 @@ module.exports = function (config) {
       classNameFormatter: undefined,
       properties:         {}
     },
-    port:          9876,
-    colors:        true,
-    logLevel:      process.env['KARMA_LOG_LEVEL'] ? config[`LOG_${process.env['KARMA_LOG_LEVEL'].toUpperCase()}`] : config.LOG_INFO,
-    autoWatch:     true,
-    singleRun:     false,
-    concurrency:   Infinity
+    port:           9876,
+    colors:         true,
+    logLevel:       process.env['KARMA_LOG_LEVEL'] ? config[`LOG_${process.env['KARMA_LOG_LEVEL'].toUpperCase()}`] : config.LOG_INFO,
+    autoWatch:      true,
+    singleRun:      false,
+    concurrency:    Infinity
   });
 };

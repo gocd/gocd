@@ -16,19 +16,28 @@
 
 import {MithrilViewComponent} from "jsx/mithril-component";
 import * as m from "mithril";
-import * as styles from './site_footer.scss';
+import * as styles from "./site_footer.scss";
 
 export interface Attrs {
   copyrightYear: string;
   goVersion: string;
   fullVersion: string;
   formattedVersion: string;
+  isServerInDrainMode: boolean;
 }
 
 export class SiteFooter extends MithrilViewComponent<Attrs> {
   view(vnode: m.Vnode<Attrs>) {
 
+    let drainModeBanner: JSX.Element | null = null;
+    if (vnode.attrs.isServerInDrainMode) {
+      drainModeBanner = (<div data-test-id="drain-mode-banner" class={styles.drainModeBanner}>
+        GoCD Server is in the drain state (Maintenance mode). Learn more...
+      </div>);
+    }
+
     return <div className={styles.footer}>
+      {drainModeBanner}
       <div class={styles.left}>
         <p class={styles.content}>Copyright &copy; {vnode.attrs.copyrightYear}&nbsp;
           <a href="https://www.thoughtworks.com/products" target="_blank">ThoughtWorks, Inc.</a>

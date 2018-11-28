@@ -82,10 +82,11 @@ export default abstract class Page {
       const isGroupAdmin           = this.extractBoolean(body, "data-is-user-group-admin");
       const canViewTemplates       = this.extractBoolean(body, "data-can-user-view-templates");
       const isAnonymous            = this.extractBoolean(body, "data-user-anonymous");
+      const isServerInDrainMode    = this.extractBoolean(body, "data-is-server-in-drain-mode");
       const userDisplayName        = body.getAttribute("data-user-display-name") || "";
 
       const footerData = {
-        copyrightYear, goVersion, fullVersion, formattedVersion
+        copyrightYear, goVersion, fullVersion, formattedVersion, isServerInDrainMode
       };
 
       const headerData = {

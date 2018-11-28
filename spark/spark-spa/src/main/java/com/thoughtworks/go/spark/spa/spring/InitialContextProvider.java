@@ -22,10 +22,7 @@ import com.thoughtworks.go.plugin.domain.analytics.AnalyticsPluginInfo;
 import com.thoughtworks.go.plugin.domain.common.CombinedPluginInfo;
 import com.thoughtworks.go.plugin.domain.common.PluginConstants;
 import com.thoughtworks.go.server.newsecurity.utils.SessionUtils;
-import com.thoughtworks.go.server.service.RailsAssetsService;
-import com.thoughtworks.go.server.service.SecurityService;
-import com.thoughtworks.go.server.service.VersionInfoService;
-import com.thoughtworks.go.server.service.WebpackAssetsService;
+import com.thoughtworks.go.server.service.*;
 import com.thoughtworks.go.server.service.plugins.builder.DefaultPluginInfoFinder;
 import com.thoughtworks.go.server.service.support.toggle.Toggles;
 import com.thoughtworks.go.spark.SparkController;
@@ -47,15 +44,18 @@ public class InitialContextProvider {
     private final SecurityService securityService;
     private final VersionInfoService versionInfoService;
     private final DefaultPluginInfoFinder pluginInfoFinder;
+    private DrainModeService drainModeService;
 
     @Autowired
     public InitialContextProvider(RailsAssetsService railsAssetsService, WebpackAssetsService webpackAssetsService,
-                                  SecurityService securityService, VersionInfoService versionInfoService, DefaultPluginInfoFinder pluginInfoFinder) {
+                                  SecurityService securityService, VersionInfoService versionInfoService, DefaultPluginInfoFinder pluginInfoFinder,
+                                  DrainModeService drainModeService) {
         this.railsAssetsService = railsAssetsService;
         this.webpackAssetsService = webpackAssetsService;
         this.securityService = securityService;
         this.versionInfoService = versionInfoService;
         this.pluginInfoFinder = pluginInfoFinder;
+        this.drainModeService = drainModeService;
     }
 
     public VelocityContext getVelocityContext(Map<String, Object> modelMap, Class<? extends SparkController> controller, String viewName) {
@@ -63,6 +63,7 @@ public class InitialContextProvider {
         context.put("railsAssetsService", railsAssetsService);
         context.put("webpackAssetsService", webpackAssetsService);
         context.put("securityService", securityService);
+        context.put("drainModeService", drainModeService);
         context.put("currentUser", SessionUtils.currentUsername());
         context.put("controllerName", humanizedControllerName(controller));
         context.put("viewName", viewName);

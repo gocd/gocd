@@ -137,4 +137,8 @@ export default class {
       return `/go/api/agents`;
     }
   }
+
+  static drainModeSettingsPath(): string {
+    return `/go/api/drain_mode/settings`;
+  }
 }

@@ -88,14 +88,12 @@ $btn-danger: $go-danger;
 
 .btn-cancel {
   @include button($background-color: transparent);
-  color:      $text-color;
+  color: $text-color;
 }
-
 
 .icon-add {
   border: 10px solid $secondary-bg;
 }
-
 
 .icon-doc {
   @include icon-before($type: $fa-var-file);

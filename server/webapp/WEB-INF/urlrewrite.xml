@@ -331,6 +331,12 @@
   </rule>
 
   <rule>
+    <name>Drain Mode UI</name>
+    <from>^/admin/drain_mode(/?)$</from>
+    <to last="true">/spark/admin/drain_mode</to>
+  </rule>
+
+  <rule>
     <name>Initialize for_rails</name>
     <from>.*</from>
     <set name="rails_bound">false</set>

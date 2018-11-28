@@ -18,6 +18,8 @@
 package com.thoughtworks.go.server.web;
 
 import com.google.gson.JsonObject;
+import com.thoughtworks.go.http.mocks.HttpRequestBuilder;
+import com.thoughtworks.go.http.mocks.MockHttpServletRequest;
 import com.thoughtworks.go.server.service.BackupService;
 import com.thoughtworks.go.server.util.ServletHelper;
 import org.apache.commons.io.IOUtils;
@@ -148,7 +150,7 @@ public class BackupFilterTest {
         when(backupService.isBackingUp()).thenReturn(true);
         when(backupService.backupRunningSinceISO8601()).thenReturn(BACKUP_STARTED_AT);
         when(backupService.backupStartedBy()).thenReturn(BACKUP_STARTED_BY);
-        Request request = request(HttpMethod.GET, "application/json", "/go/api/agents");
+        MockHttpServletRequest request = HttpRequestBuilder.GET("/api/agents").withHeader("Accept", "application/json").build();
 
         backupFilter.doFilter(request, res, chain);
 
@@ -162,7 +164,7 @@ public class BackupFilterTest {
         when(backupService.isBackingUp()).thenReturn(true);
         when(backupService.backupRunningSinceISO8601()).thenReturn(BACKUP_STARTED_AT);
         when(backupService.backupStartedBy()).thenReturn(BACKUP_STARTED_BY);
-        Request request = request(HttpMethod.GET, "application/json", "/go/api/config.xml");
+        MockHttpServletRequest request = HttpRequestBuilder.GET("/api/config.xml").withHeader("Accept", "application/json").build();
 
         backupFilter.doFilter(request, res, chain);
 

@@ -23,6 +23,9 @@ import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.security.web.util.matcher.OrRequestMatcher;
+import org.springframework.security.web.util.matcher.RegexRequestMatcher;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.RequestMethod;
 
@@ -39,6 +42,11 @@ public class ModeAwareFilter implements Filter {
     private static final Logger LOGGER = LoggerFactory.getLogger("GO_MODE_AWARE_FILTER");
     private final SystemEnvironment systemEnvironment;
     private DrainModeService drainModeService;
+
+    private static final OrRequestMatcher ALLOWED_DRAIN_MODE_REQUEST_MATCHER = new OrRequestMatcher(
+            new RegexRequestMatcher("/api/stages/[0-9]*/cancel", "POST", true),
+            new AntPathRequestMatcher("/api/drain_mode/settings")
+    );
 
     @Autowired
     public ModeAwareFilter(SystemEnvironment systemEnvironment, DrainModeService drainModeService) {
@@ -80,15 +88,15 @@ public class ModeAwareFilter implements Filter {
     }
 
     private boolean blockBecauseDrainMode(HttpServletRequest servletRequest) {
-        if (isCancelStageRequest(servletRequest) || isAllowedRequest(servletRequest)) {
+        if (isWhitelistedRequest(servletRequest) || isAllowedRequest(servletRequest)) {
             return false;
         }
 
         return drainModeService.isDrainMode();
     }
 
-    private boolean isCancelStageRequest(HttpServletRequest servletRequest) {
-        return servletRequest.getRequestURI().matches("/go/api/stages/[0-9]*/cancel");
+    private boolean isWhitelistedRequest(HttpServletRequest servletRequest) {
+        return ALLOWED_DRAIN_MODE_REQUEST_MATCHER.matches(servletRequest);
     }
 
     private boolean isAllowedRequest(HttpServletRequest servletRequest) {

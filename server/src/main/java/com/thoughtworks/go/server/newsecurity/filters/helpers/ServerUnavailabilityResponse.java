@@ -19,19 +19,25 @@ package com.thoughtworks.go.server.newsecurity.filters.helpers;
 import com.google.gson.JsonObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.security.web.util.matcher.OrRequestMatcher;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class ServerUnavailabilityResponse {
     public final String JSON = "json";
     public final String XML = "xml";
 
     private final static Logger LOGGER = LoggerFactory.getLogger(ServerUnavailabilityResponse.class);
-    public static final Pattern PATTERN = Pattern.compile("^((.*/api/.*)|(.*[^/]+\\.(xml|json)(\\?.*)?))$");
+    private static final OrRequestMatcher API_REQUEST_MATCHER = new OrRequestMatcher(
+            new AntPathRequestMatcher("/remoting/**"),
+            new AntPathRequestMatcher("/agent-websocket/**"),
+            new AntPathRequestMatcher("/add-on/*/api/**"),
+            new AntPathRequestMatcher("/api/**"),
+            new AntPathRequestMatcher("/cctray.xml")
+    );
 
     private final HttpServletRequest request;
     private final HttpServletResponse response;
@@ -49,12 +55,10 @@ public class ServerUnavailabilityResponse {
     }
 
     public void render() {
-        String requestURL = request.getRequestURI();
-
         response.setHeader("Cache-Control", "private, max-age=0, no-cache");
         response.setDateHeader("Expires", 0);
 
-        if (isAPIUrl(requestURL) && !isMessagesJson(requestURL)) {
+        if (isAPIRequest(request)) {
             generateAPIResponse();
         } else {
             generateHTMLResponse();
@@ -103,12 +107,7 @@ public class ServerUnavailabilityResponse {
         return header != null && header.contains(type) || url != null && url.endsWith(type) || contentType != null && contentType.contains(type);
     }
 
-    private boolean isAPIUrl(String url) {
-        Matcher matcher = PATTERN.matcher(url);
-        return matcher.matches();
-    }
-
-    private boolean isMessagesJson(String url) {
-        return "/go/server/messages.json".equals(url);
+    private boolean isAPIRequest(HttpServletRequest request) {
+        return API_REQUEST_MATCHER.matches(request);
     }
 }

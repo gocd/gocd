@@ -16,10 +16,10 @@
 package com.thoughtworks.go.config;
 
 import com.thoughtworks.go.plugin.access.configrepo.ConfigRepoExtension;
-import com.thoughtworks.go.plugin.access.configrepo.ErrorCollection;
-import com.thoughtworks.go.plugin.access.configrepo.contract.CREnvironment;
-import com.thoughtworks.go.plugin.access.configrepo.contract.CRParseResult;
-import com.thoughtworks.go.plugin.access.configrepo.contract.CRPipeline;
+import com.thoughtworks.go.plugin.configrepo.contract.ErrorCollection;
+import com.thoughtworks.go.plugin.configrepo.contract.CREnvironment;
+import com.thoughtworks.go.plugin.configrepo.contract.CRParseResult;
+import com.thoughtworks.go.plugin.configrepo.contract.CRPipeline;
 import com.thoughtworks.go.util.ConfigElementImplementationRegistryMother;
 import org.junit.Before;
 import org.junit.Test;

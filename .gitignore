@@ -243,6 +243,9 @@ plugin-infra/go-plugin-infra/descriptor-aware-test-plugin.jar/
 plugin-infra/go-plugin-infra/logs/
 plugin-infra/go-plugin-infra/out/
 plugin-infra/go-plugin-infra/target/
+plugin-infra/go-plugin-config-repo/logs/
+plugin-infra/go-plugin-config-repo/out/
+plugin-infra/go-plugin-config-repo/target/
 plugin-infra/plugin-metadata-store/out/
 plugin-infra/plugin-metadata-store/target/
 rack_hack/logs/

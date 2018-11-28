@@ -23,6 +23,7 @@ dependencies {
   compile project(':commandline')
   compile project(':domain')
   compile project(':plugin-infra:go-plugin-access')
+  compile project(':plugin-infra:go-plugin-config-repo')
   compile project(':javasysmon-wrapper')
   compile group: 'dom4j', name: 'dom4j', version: '1.6.1'
   compile(group: 'org.apache.httpcomponents', name: 'httpmime', version: project.versions.apacheHttpComponents)

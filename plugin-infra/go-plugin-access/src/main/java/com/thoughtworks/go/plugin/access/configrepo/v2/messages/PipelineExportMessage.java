@@ -16,7 +16,7 @@
 
 package com.thoughtworks.go.plugin.access.configrepo.v2.messages;
 
-import com.thoughtworks.go.plugin.access.configrepo.contract.CRPipeline;
+import com.thoughtworks.go.plugin.configrepo.contract.CRPipeline;
 
 public class PipelineExportMessage {
     private CRPipeline pipeline;

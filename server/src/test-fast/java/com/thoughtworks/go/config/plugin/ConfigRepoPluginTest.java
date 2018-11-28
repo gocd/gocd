@@ -17,7 +17,7 @@ package com.thoughtworks.go.config.plugin;
 
 import com.thoughtworks.go.config.ConfigRepoPlugin;
 import com.thoughtworks.go.domain.config.Configuration;
-import com.thoughtworks.go.plugin.access.configrepo.contract.CRConfigurationProperty;
+import com.thoughtworks.go.plugin.configrepo.contract.CRConfigurationProperty;
 import org.junit.Test;
 
 import java.util.List;

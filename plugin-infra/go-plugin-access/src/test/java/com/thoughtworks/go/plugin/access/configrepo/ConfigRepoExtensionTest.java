@@ -16,9 +16,9 @@
 package com.thoughtworks.go.plugin.access.configrepo;
 
 import com.thoughtworks.go.plugin.access.common.AbstractExtension;
-import com.thoughtworks.go.plugin.access.configrepo.codec.GsonCodec;
-import com.thoughtworks.go.plugin.access.configrepo.contract.CRParseResult;
-import com.thoughtworks.go.plugin.access.configrepo.contract.CRPipeline;
+import com.thoughtworks.go.plugin.configrepo.codec.GsonCodec;
+import com.thoughtworks.go.plugin.configrepo.contract.CRParseResult;
+import com.thoughtworks.go.plugin.configrepo.contract.CRPipeline;
 import com.thoughtworks.go.plugin.access.configrepo.v1.JsonMessageHandler1_0;
 import com.thoughtworks.go.plugin.access.configrepo.v2.JsonMessageHandler2_0;
 import com.thoughtworks.go.plugin.api.request.GoPluginApiRequest;

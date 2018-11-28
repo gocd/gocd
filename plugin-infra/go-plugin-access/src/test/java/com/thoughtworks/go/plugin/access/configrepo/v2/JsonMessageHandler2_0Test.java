@@ -17,7 +17,7 @@
 package com.thoughtworks.go.plugin.access.configrepo.v2;
 
 import com.thoughtworks.go.plugin.access.configrepo.ConfigRepoMigrator;
-import com.thoughtworks.go.plugin.access.configrepo.codec.GsonCodec;
+import com.thoughtworks.go.plugin.configrepo.codec.GsonCodec;
 import com.thoughtworks.go.plugin.domain.configrepo.Capabilities;
 import org.hamcrest.CoreMatchers;
 import org.junit.Test;

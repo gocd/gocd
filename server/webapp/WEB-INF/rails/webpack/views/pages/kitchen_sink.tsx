@@ -126,8 +126,6 @@ export class KitchenSink extends MithrilViewComponent<null> {
         <Buttons.Reset small={true}>Small Reset Button</Buttons.Reset>
         <Buttons.Cancel small={true}>Cancel</Buttons.Cancel>
 
-        <h3>Some examples of accordions</h3>
-
         <h3>Some examples of key value pairs</h3>
         <KeyValuePair data={new Map(
           [

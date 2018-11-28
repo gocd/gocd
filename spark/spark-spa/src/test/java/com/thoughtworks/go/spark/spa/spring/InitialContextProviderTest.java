@@ -23,10 +23,7 @@ import com.thoughtworks.go.plugin.domain.common.PluginConstants;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.newsecurity.utils.SessionUtils;
 import com.thoughtworks.go.server.security.userdetail.GoUserPrinciple;
-import com.thoughtworks.go.server.service.RailsAssetsService;
-import com.thoughtworks.go.server.service.SecurityService;
-import com.thoughtworks.go.server.service.VersionInfoService;
-import com.thoughtworks.go.server.service.WebpackAssetsService;
+import com.thoughtworks.go.server.service.*;
 import com.thoughtworks.go.server.service.plugins.builder.DefaultPluginInfoFinder;
 import com.thoughtworks.go.server.service.support.toggle.FeatureToggleService;
 import com.thoughtworks.go.server.service.support.toggle.Toggles;
@@ -53,6 +50,7 @@ class InitialContextProviderTest {
     private VersionInfoService versionInfoService;
     private DefaultPluginInfoFinder pluginInfoFinder;
     private FeatureToggleService featureToggleService;
+    private DrainModeService drainModeService;
 
     @BeforeEach
     void setup() {
@@ -62,9 +60,10 @@ class InitialContextProviderTest {
         versionInfoService = mock(VersionInfoService.class);
         pluginInfoFinder = mock(DefaultPluginInfoFinder.class);
         featureToggleService = mock(FeatureToggleService.class);
+        drainModeService = mock(DrainModeService.class);
         Toggles.initializeWith(featureToggleService);
         initialContextProvider = new InitialContextProvider(railsAssetsService, webpackAssetsService, securityService,
-                versionInfoService, pluginInfoFinder);
+                versionInfoService, pluginInfoFinder, drainModeService);
         SessionUtils.setCurrentUser(new GoUserPrinciple("bob", "Bob"));
     }
 

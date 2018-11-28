@@ -25,6 +25,7 @@ import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.config.remote.ConfigReposConfig;
 import com.thoughtworks.go.domain.config.Admin;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
+import com.thoughtworks.go.plugin.access.configrepo.ConfigRepoExtension;
 import com.thoughtworks.go.presentation.TriStateSelection;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
@@ -34,6 +35,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -44,6 +46,9 @@ import static java.util.Arrays.asList;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
+import static org.mockito.MockitoAnnotations.initMocks;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {
@@ -60,6 +65,11 @@ public class ConfigRepoServiceIntegrationTest {
     private ConfigRepoService configRepoService;
     @Autowired
     private EntityHashingService entityHashingService;
+    @Autowired
+    private SecurityService securityService;
+
+    @Mock
+    private ConfigRepoExtension configRepoExtension;
 
     private String repoId, pluginId;
     private Username user;
@@ -69,6 +79,7 @@ public class ConfigRepoServiceIntegrationTest {
 
     @Before
     public void setUp() throws Exception {
+        initMocks(this);
         user = new Username(new CaseInsensitiveString("current"));
         UpdateConfigCommand command = goConfigService.modifyAdminPrivilegesCommand(asList(user.getUsername().toString()), new TriStateSelection(Admin.GO_SYSTEM_ADMIN, TriStateSelection.Action.add));
         goConfigService.updateConfig(command);
@@ -133,14 +144,23 @@ public class ConfigRepoServiceIntegrationTest {
     public void shouldCreateSpecifiedConfigRepository() throws Exception {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         configHelper.enableSecurity();
+        configRepoService =  new ConfigRepoService(goConfigService, securityService, entityHashingService, configRepoExtension);
+
+        when(configRepoExtension.canHandlePlugin(any())).thenReturn(true);
+
         assertNull(configRepoService.getConfigRepo(repoId));
+
         configRepoService.createConfigRepo(configRepo, user, result);
+
         assertThat(configRepoService.getConfigRepo(repoId), is(configRepo));
         assertThat(result.toString(), result.isSuccessful(), Is.is(true));
     }
 
     @Test
     public void shouldUpdateSpecifiedConfigRepository() throws Exception {
+        configRepoService =  new ConfigRepoService(goConfigService, securityService, entityHashingService, configRepoExtension);
+
+        when(configRepoExtension.canHandlePlugin(any())).thenReturn(true);
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         configHelper.enableSecurity();
         goConfigDao.updateConfig(new UpdateConfigCommand() {

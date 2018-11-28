@@ -21,13 +21,15 @@ import com.thoughtworks.go.config.ConfigSaveValidationContext;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
+import com.thoughtworks.go.plugin.access.configrepo.ConfigRepoExtension;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.SecurityService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
-import org.apache.commons.lang3.StringUtils;
 
 import static com.thoughtworks.go.i18n.LocalizedMessage.forbiddenToEdit;
 import static com.thoughtworks.go.serverhealth.HealthStateType.forbidden;
+import static java.lang.String.format;
+import static org.apache.commons.lang3.StringUtils.*;
 
 abstract class ConfigRepoCommand implements EntityConfigUpdateCommand<ConfigRepoConfig> {
 
@@ -36,18 +38,23 @@ abstract class ConfigRepoCommand implements EntityConfigUpdateCommand<ConfigRepo
     private ConfigRepoConfig configRepo;
     private final Username username;
     private final HttpLocalizedOperationResult result;
+    private ConfigRepoExtension configRepoExtension;
 
-    public ConfigRepoCommand(SecurityService securityService, ConfigRepoConfig configRepo, Username username, HttpLocalizedOperationResult result) {
+    public ConfigRepoCommand(SecurityService securityService, ConfigRepoConfig configRepo, Username username, HttpLocalizedOperationResult result,
+                             ConfigRepoExtension configRepoExtension) {
         this.securityService = securityService;
         this.configRepo = configRepo;
         this.username = username;
         this.result = result;
+        this.configRepoExtension = configRepoExtension;
     }
 
     @Override
     public boolean isValid(CruiseConfig preprocessedConfig) {
-        if (StringUtils.isBlank(this.configRepo.getId())) {
-            this.configRepo.addError("id", "Configuration repository id not specified");
+        validateConfigRepoId(this.configRepo);
+        validateConfigRepoPluginId(this.configRepo);
+
+        if (!this.configRepo.errors().isEmpty()) {
             return false;
         }
 
@@ -59,6 +66,22 @@ abstract class ConfigRepoCommand implements EntityConfigUpdateCommand<ConfigRepo
         }
 
         return true;
+    }
+
+    /*
+     * Ideally we should have all validations in the entity, validating 'id' and 'pluginId' as it
+     * cannot be moved to ConfigRepoConfig
+     * */
+    private void validateConfigRepoId(ConfigRepoConfig configRepo) {
+        if (isBlank(this.configRepo.getId())) {
+            this.configRepo.addError("id", "Configuration repository id not specified");
+        }
+    }
+
+    private void validateConfigRepoPluginId(ConfigRepoConfig configRepo) {
+        if (!configRepoExtension.canHandlePlugin(configRepo.getPluginId())) {
+            configRepo.addError("plugin_id", format("Invalid plugin id: %s", configRepo.getPluginId()));
+        }
     }
 
     @Override

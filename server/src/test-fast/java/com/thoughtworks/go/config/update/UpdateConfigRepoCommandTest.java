@@ -21,6 +21,7 @@ import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.helper.GoConfigMother;
+import com.thoughtworks.go.plugin.access.configrepo.ConfigRepoExtension;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.EntityHashingService;
 import com.thoughtworks.go.server.service.SecurityService;
@@ -54,6 +55,9 @@ public class UpdateConfigRepoCommandTest {
     @Mock
     private EntityHashingService entityHashingService;
 
+    @Mock
+    private ConfigRepoExtension configRepoExtension;
+
     @Before
     public void setup() throws Exception {
         initMocks(this);
@@ -71,7 +75,7 @@ public class UpdateConfigRepoCommandTest {
 
     @Test
     public void shouldUpdateTheSpecifiedConfigRepo() throws Exception {
-        UpdateConfigRepoCommand command = new UpdateConfigRepoCommand(securityService, entityHashingService, oldConfigRepoId, newConfigRepo, md5, currentUser, result);
+        UpdateConfigRepoCommand command = new UpdateConfigRepoCommand(securityService, entityHashingService, oldConfigRepoId, newConfigRepo, md5, currentUser, result, configRepoExtension);
 
         assertNull(cruiseConfig.getConfigRepos().getConfigRepo(newConfigRepoId));
         command.update(cruiseConfig);
@@ -80,7 +84,7 @@ public class UpdateConfigRepoCommandTest {
 
     @Test
     public void shouldNotContinueIfTheUserDontHavePermissionsToOperateOnConfigRepos() throws Exception {
-        UpdateConfigRepoCommand command = new UpdateConfigRepoCommand(securityService, entityHashingService, oldConfigRepoId, newConfigRepo, md5, currentUser, result);
+        UpdateConfigRepoCommand command = new UpdateConfigRepoCommand(securityService, entityHashingService, oldConfigRepoId, newConfigRepo, md5, currentUser, result, configRepoExtension);
         when(securityService.isUserAdmin(currentUser)).thenReturn(false);
         when(entityHashingService.md5ForEntity(oldConfigRepo)).thenReturn(md5);
         HttpLocalizedOperationResult expectedResult = new HttpLocalizedOperationResult();
@@ -92,7 +96,7 @@ public class UpdateConfigRepoCommandTest {
 
     @Test
     public void shouldNotContinueIfMD5IsStale() throws Exception {
-        UpdateConfigRepoCommand command = new UpdateConfigRepoCommand(securityService, entityHashingService, oldConfigRepoId, newConfigRepo, md5, currentUser, result);
+        UpdateConfigRepoCommand command = new UpdateConfigRepoCommand(securityService, entityHashingService, oldConfigRepoId, newConfigRepo, md5, currentUser, result, configRepoExtension);
         when(securityService.isUserAdmin(currentUser)).thenReturn(true);
         when(entityHashingService.md5ForEntity(oldConfigRepo)).thenReturn("some-hash");
         HttpLocalizedOperationResult expectedResult = new HttpLocalizedOperationResult();
@@ -102,12 +106,12 @@ public class UpdateConfigRepoCommandTest {
         assertThat(result, is(expectedResult));
     }
 
-
     @Test
     public void isValid_shouldValidateConfigRepo() {
         newConfigRepo.setMaterialConfig(new GitMaterialConfig("foobar.git", "master"));
         cruiseConfig.getConfigRepos().add(newConfigRepo);
-        UpdateConfigRepoCommand command = new UpdateConfigRepoCommand(securityService, entityHashingService, oldConfigRepoId, newConfigRepo, md5, currentUser, result);
+        UpdateConfigRepoCommand command = new UpdateConfigRepoCommand(securityService, entityHashingService, oldConfigRepoId, newConfigRepo, md5, currentUser, result, configRepoExtension);
+        when(configRepoExtension.canHandlePlugin(newConfigRepo.getPluginId())).thenReturn(true);
 
         command.update(cruiseConfig);
 
@@ -122,10 +126,23 @@ public class UpdateConfigRepoCommandTest {
         ConfigRepoConfig configRepo = new ConfigRepoConfig();
         configRepo.setId("");
 
-        UpdateConfigRepoCommand command = new UpdateConfigRepoCommand(securityService, entityHashingService, oldConfigRepoId, configRepo, md5, currentUser, result);
+        UpdateConfigRepoCommand command = new UpdateConfigRepoCommand(securityService, entityHashingService, oldConfigRepoId, configRepo, md5, currentUser, result, configRepoExtension);
 
         assertFalse(command.isValid(cruiseConfig));
         assertThat(configRepo.errors().on("id"), is("Configuration repository id not specified"));
+    }
+
+    @Test
+    public void isValid_shouldValidatePluginId() {
+        ConfigRepoConfig configRepo = new ConfigRepoConfig();
+        configRepo.setPluginId("invalid_id");
+
+        when(configRepoExtension.canHandlePlugin(configRepo.getPluginId())).thenReturn(false);
+
+        CreateConfigRepoCommand command = new CreateConfigRepoCommand(securityService, configRepo, currentUser, result, configRepoExtension);
+
+        assertFalse(command.isValid(cruiseConfig));
+        assertThat(configRepo.errors().on("plugin_id"), is("Invalid plugin id: invalid_id"));
     }
 
     @Test
@@ -133,7 +150,7 @@ public class UpdateConfigRepoCommandTest {
         when(securityService.isUserAdmin(currentUser)).thenReturn(true);
         when(entityHashingService.md5ForEntity(oldConfigRepo)).thenReturn(md5);
 
-        UpdateConfigRepoCommand command = new UpdateConfigRepoCommand(securityService, entityHashingService, oldConfigRepoId, newConfigRepo, md5, currentUser, result);
+        UpdateConfigRepoCommand command = new UpdateConfigRepoCommand(securityService, entityHashingService, oldConfigRepoId, newConfigRepo, md5, currentUser, result, configRepoExtension);
         assertThat(command.canContinue(cruiseConfig), is(true));
     }
 }

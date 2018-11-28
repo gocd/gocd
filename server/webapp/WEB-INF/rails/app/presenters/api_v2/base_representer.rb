@@ -18,8 +18,6 @@ require 'roar/decorator'
 require 'roar/json'
 require 'roar/json/hal'
 
-require_relative '../shared/spark_url_aware'
-
 module ApiV2
   class BaseRepresenter < Roar::Decorator
     include Representable::Hash

@@ -45,6 +45,7 @@ public class ModeAwareFilter implements Filter {
 
     private static final OrRequestMatcher ALLOWED_DRAIN_MODE_REQUEST_MATCHER = new OrRequestMatcher(
             new RegexRequestMatcher("/api/stages/[0-9]*/cancel", "POST", true),
+            new RegexRequestMatcher("/api/stages/.*/.*/cancel", "POST", true),
             new AntPathRequestMatcher("/api/drain_mode/settings")
     );
 

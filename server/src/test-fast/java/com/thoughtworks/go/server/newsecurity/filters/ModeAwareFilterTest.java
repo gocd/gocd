@@ -236,6 +236,18 @@ class ModeAwareFilterTest {
     }
 
     @Test
+    public void shouldAllowStageCancelPOSTNewAPICallWhileServerIsInDrainMode() throws Exception {
+        when(systemEnvironment.isServerActive()).thenReturn(true);
+        when(drainModeService.isDrainMode()).thenReturn(true);
+
+        request = HttpRequestBuilder.POST("/api/stages/up42_pipeline/up42_stage/cancel").build();
+
+        filter.doFilter(request, response, filterChain);
+
+        verify(filterChain, times(1)).doFilter(request, response);
+    }
+
+    @Test
     public void shouldAllowDrainModeTogglePOSTCallWhileServerIsInDrainMode() throws Exception {
         when(systemEnvironment.isServerActive()).thenReturn(true);
         when(drainModeService.isDrainMode()).thenReturn(true);

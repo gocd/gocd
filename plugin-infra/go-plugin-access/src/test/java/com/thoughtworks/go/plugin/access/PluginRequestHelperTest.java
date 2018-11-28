@@ -63,7 +63,7 @@ public class PluginRequestHelperTest {
         try {
             helper.submitRequest(pluginId, requestName, new DefaultPluginInteractionCallback<Object>() {
                 @Override
-                public Object onSuccess(String responseBody, String resolvedExtensionVersion) {
+                public Object onSuccess(String responseBody, Map<String, String> responseHeaders, String resolvedExtensionVersion) {
                     isSuccessInvoked[0] = true;
                     return null;
                 }
@@ -84,7 +84,7 @@ public class PluginRequestHelperTest {
 
         helper.submitRequest(pluginId, requestName, new DefaultPluginInteractionCallback<Object>() {
             @Override
-            public Object onSuccess(String responseBody, String resolvedExtensionVersion) {
+            public Object onSuccess(String responseBody, Map<String, String> responseHeaders, String resolvedExtensionVersion) {
                 isSuccessInvoked[0] = true;
                 return null;
             }
@@ -102,7 +102,7 @@ public class PluginRequestHelperTest {
 
         helper.submitRequest(pluginId, requestName, new DefaultPluginInteractionCallback<Object>() {
             @Override
-            public Object onSuccess(String responseBody, String resolvedExtensionVersion) {
+            public Object onSuccess(String responseBody, Map<String, String> responseHeaders, String resolvedExtensionVersion) {
                 isSuccessInvoked[0] = true;
                 return null;
             }
@@ -171,7 +171,7 @@ public class PluginRequestHelperTest {
             }
 
             @Override
-            public Object onSuccess(String responseBody, String resolvedExtensionVersion) {
+            public Object onSuccess(String responseBody, Map<String, String> responseHeaders, String resolvedExtensionVersion) {
                 return null;
             }
         });
@@ -216,7 +216,7 @@ public class PluginRequestHelperTest {
             }
 
             @Override
-            public Object onSuccess(String responseBody, String resolvedExtensionVersion) {
+            public Object onSuccess(String responseBody, Map<String, String> responseHeaders, String resolvedExtensionVersion) {
                 return null;
             }
         });

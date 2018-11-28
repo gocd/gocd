@@ -59,7 +59,7 @@ public class ArtifactExtension extends AbstractExtension {
     public com.thoughtworks.go.plugin.domain.artifact.Capabilities getCapabilities(String pluginId) {
         return pluginRequestHelper.submitRequest(pluginId, REQUEST_GET_CAPABILITIES, new DefaultPluginInteractionCallback<com.thoughtworks.go.plugin.domain.artifact.Capabilities>() {
             @Override
-            public com.thoughtworks.go.plugin.domain.artifact.Capabilities onSuccess(String responseBody, String resolvedExtensionVersion) {
+            public com.thoughtworks.go.plugin.domain.artifact.Capabilities onSuccess(String responseBody, Map<String, String> responseHeaders, String resolvedExtensionVersion) {
                 return getMessageHandler(resolvedExtensionVersion).getCapabilitiesFromResponseBody(responseBody);
             }
         });
@@ -68,7 +68,7 @@ public class ArtifactExtension extends AbstractExtension {
     public List<PluginConfiguration> getArtifactStoreMetadata(String pluginId) {
         return pluginRequestHelper.submitRequest(pluginId, REQUEST_STORE_CONFIG_METADATA, new DefaultPluginInteractionCallback<List<PluginConfiguration>>() {
             @Override
-            public List<PluginConfiguration> onSuccess(String responseBody, String resolvedExtensionVersion) {
+            public List<PluginConfiguration> onSuccess(String responseBody, Map<String, String> responseHeaders, String resolvedExtensionVersion) {
                 return getMessageHandler(resolvedExtensionVersion).getMetadataResponseFromBody(responseBody);
             }
         });
@@ -77,7 +77,7 @@ public class ArtifactExtension extends AbstractExtension {
     public String getArtifactStoreView(String pluginId) {
         return pluginRequestHelper.submitRequest(pluginId, REQUEST_STORE_CONFIG_VIEW, new DefaultPluginInteractionCallback<String>() {
             @Override
-            public String onSuccess(String responseBody, String resolvedExtensionVersion) {
+            public String onSuccess(String responseBody, Map<String, String> responseHeaders, String resolvedExtensionVersion) {
                 return getMessageHandler(resolvedExtensionVersion).getViewFromResponseBody(responseBody, "Artifact store view");
             }
         });
@@ -91,7 +91,7 @@ public class ArtifactExtension extends AbstractExtension {
             }
 
             @Override
-            public ValidationResult onSuccess(String responseBody, String resolvedExtensionVersion) {
+            public ValidationResult onSuccess(String responseBody, Map<String, String> responseHeaders, String resolvedExtensionVersion) {
                 return getMessageHandler(resolvedExtensionVersion).getConfigurationValidationResultFromResponseBody(responseBody);
             }
         });
@@ -100,7 +100,7 @@ public class ArtifactExtension extends AbstractExtension {
     public List<PluginConfiguration> getPublishArtifactMetadata(String pluginId) {
         return pluginRequestHelper.submitRequest(pluginId, REQUEST_PUBLISH_ARTIFACT_METADATA, new DefaultPluginInteractionCallback<List<PluginConfiguration>>() {
             @Override
-            public List<PluginConfiguration> onSuccess(String responseBody, String resolvedExtensionVersion) {
+            public List<PluginConfiguration> onSuccess(String responseBody, Map<String, String> responseHeaders, String resolvedExtensionVersion) {
                 return getMessageHandler(resolvedExtensionVersion).getMetadataResponseFromBody(responseBody);
             }
         });
@@ -109,7 +109,7 @@ public class ArtifactExtension extends AbstractExtension {
     public String getPublishArtifactView(String pluginId) {
         return pluginRequestHelper.submitRequest(pluginId, REQUEST_PUBLISH_ARTIFACT_VIEW, new DefaultPluginInteractionCallback<String>() {
             @Override
-            public String onSuccess(String responseBody, String resolvedExtensionVersion) {
+            public String onSuccess(String responseBody, Map<String, String> responseHeaders, String resolvedExtensionVersion) {
                 return getMessageHandler(resolvedExtensionVersion).getViewFromResponseBody(responseBody, "Publish artifact view");
             }
         });
@@ -123,7 +123,7 @@ public class ArtifactExtension extends AbstractExtension {
             }
 
             @Override
-            public ValidationResult onSuccess(String responseBody, String resolvedExtensionVersion) {
+            public ValidationResult onSuccess(String responseBody, Map<String, String> responseHeaders, String resolvedExtensionVersion) {
                 return getMessageHandler(resolvedExtensionVersion).getConfigurationValidationResultFromResponseBody(responseBody);
             }
         });
@@ -137,7 +137,7 @@ public class ArtifactExtension extends AbstractExtension {
             }
 
             @Override
-            public PublishArtifactResponse onSuccess(String responseBody, String resolvedExtensionVersion) {
+            public PublishArtifactResponse onSuccess(String responseBody, Map<String, String> responseHeaders, String resolvedExtensionVersion) {
                 return getMessageHandler(resolvedExtensionVersion).publishArtifactResponse(responseBody);
             }
         });
@@ -147,7 +147,7 @@ public class ArtifactExtension extends AbstractExtension {
     public List<PluginConfiguration> getFetchArtifactMetadata(String pluginId) {
         return pluginRequestHelper.submitRequest(pluginId, REQUEST_FETCH_ARTIFACT_METADATA, new DefaultPluginInteractionCallback<List<PluginConfiguration>>() {
             @Override
-            public List<PluginConfiguration> onSuccess(String responseBody, String resolvedExtensionVersion) {
+            public List<PluginConfiguration> onSuccess(String responseBody, Map<String, String> responseHeaders, String resolvedExtensionVersion) {
                 return getMessageHandler(resolvedExtensionVersion).getMetadataResponseFromBody(responseBody);
             }
         });
@@ -156,7 +156,7 @@ public class ArtifactExtension extends AbstractExtension {
     public String getFetchArtifactView(String pluginId) {
         return pluginRequestHelper.submitRequest(pluginId, REQUEST_FETCH_ARTIFACT_VIEW, new DefaultPluginInteractionCallback<String>() {
             @Override
-            public String onSuccess(String responseBody, String resolvedExtensionVersion) {
+            public String onSuccess(String responseBody, Map<String, String> responseHeaders, String resolvedExtensionVersion) {
                 return getMessageHandler(resolvedExtensionVersion).getViewFromResponseBody(responseBody, "Fetch artifact view");
             }
         });
@@ -170,7 +170,7 @@ public class ArtifactExtension extends AbstractExtension {
             }
 
             @Override
-            public ValidationResult onSuccess(String responseBody, String resolvedExtensionVersion) {
+            public ValidationResult onSuccess(String responseBody, Map<String, String> responseHeaders, String resolvedExtensionVersion) {
                 return getMessageHandler(resolvedExtensionVersion).getConfigurationValidationResultFromResponseBody(responseBody);
             }
         });
@@ -179,7 +179,7 @@ public class ArtifactExtension extends AbstractExtension {
     com.thoughtworks.go.plugin.domain.common.Image getIcon(String pluginId) {
         return pluginRequestHelper.submitRequest(pluginId, REQUEST_GET_PLUGIN_ICON, new DefaultPluginInteractionCallback<com.thoughtworks.go.plugin.domain.common.Image>() {
             @Override
-            public com.thoughtworks.go.plugin.domain.common.Image onSuccess(String responseBody, String resolvedExtensionVersion) {
+            public com.thoughtworks.go.plugin.domain.common.Image onSuccess(String responseBody, Map<String, String> responseHeaders, String resolvedExtensionVersion) {
                 return getMessageHandler(resolvedExtensionVersion).getImageResponseFromBody(responseBody);
             }
         });
@@ -203,7 +203,7 @@ public class ArtifactExtension extends AbstractExtension {
             }
 
             @Override
-            public List<FetchArtifactEnvironmentVariable> onSuccess(String responseBody, String resolvedExtensionVersion) {
+            public List<FetchArtifactEnvironmentVariable> onSuccess(String responseBody, Map<String, String> responseHeaders, String resolvedExtensionVersion) {
                 return getMessageHandler(resolvedExtensionVersion).getFetchArtifactEnvironmentVariablesFromResponseBody(responseBody);
             }
         });

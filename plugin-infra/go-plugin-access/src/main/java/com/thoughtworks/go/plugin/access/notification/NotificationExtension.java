@@ -71,7 +71,7 @@ public class NotificationExtension extends AbstractExtension {
 
 
             @Override
-            public List<String> onSuccess(String responseBody, String resolvedExtensionVersion) {
+            public List<String> onSuccess(String responseBody, Map<String, String> responseHeaders, String resolvedExtensionVersion) {
                 return messageHandlerMap.get(resolvedExtensionVersion).responseMessageForNotificationsInterestedIn(responseBody);
             }
         });
@@ -85,7 +85,7 @@ public class NotificationExtension extends AbstractExtension {
             }
 
             @Override
-            public Result onSuccess(String responseBody, String resolvedExtensionVersion) {
+            public Result onSuccess(String responseBody, Map<String, String> responseHeaders, String resolvedExtensionVersion) {
                 return messageHandlerMap.get(resolvedExtensionVersion).responseMessageForNotify(responseBody);
             }
         });

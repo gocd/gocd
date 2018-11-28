@@ -59,7 +59,7 @@ public class AuthorizationExtension extends AbstractExtension {
     public com.thoughtworks.go.plugin.domain.authorization.Capabilities getCapabilities(String pluginId) {
         return pluginRequestHelper.submitRequest(pluginId, REQUEST_GET_CAPABILITIES, new DefaultPluginInteractionCallback<com.thoughtworks.go.plugin.domain.authorization.Capabilities>() {
             @Override
-            public com.thoughtworks.go.plugin.domain.authorization.Capabilities onSuccess(String responseBody, String resolvedExtensionVersion) {
+            public com.thoughtworks.go.plugin.domain.authorization.Capabilities onSuccess(String responseBody, Map<String, String> responseHeaders, String resolvedExtensionVersion) {
                 return getMessageConverter(resolvedExtensionVersion).getCapabilitiesFromResponseBody(responseBody);
             }
         });
@@ -68,7 +68,7 @@ public class AuthorizationExtension extends AbstractExtension {
     List<PluginConfiguration> getAuthConfigMetadata(String pluginId) {
         return pluginRequestHelper.submitRequest(pluginId, REQUEST_GET_AUTH_CONFIG_METADATA, new DefaultPluginInteractionCallback<List<PluginConfiguration>>() {
             @Override
-            public List<PluginConfiguration> onSuccess(String responseBody, String resolvedExtensionVersion) {
+            public List<PluginConfiguration> onSuccess(String responseBody, Map<String, String> responseHeaders, String resolvedExtensionVersion) {
                 return getMessageConverter(resolvedExtensionVersion).getPluginConfigMetadataResponseFromBody(responseBody);
             }
         });
@@ -77,7 +77,7 @@ public class AuthorizationExtension extends AbstractExtension {
     String getAuthConfigView(String pluginId) {
         return pluginRequestHelper.submitRequest(pluginId, REQUEST_GET_AUTH_CONFIG_VIEW, new DefaultPluginInteractionCallback<String>() {
             @Override
-            public String onSuccess(String responseBody, String resolvedExtensionVersion) {
+            public String onSuccess(String responseBody, Map<String, String> responseHeaders, String resolvedExtensionVersion) {
                 return getMessageConverter(resolvedExtensionVersion).getPluginConfigurationViewFromResponseBody(responseBody);
             }
         });
@@ -91,7 +91,7 @@ public class AuthorizationExtension extends AbstractExtension {
             }
 
             @Override
-            public ValidationResult onSuccess(String responseBody, String resolvedExtensionVersion) {
+            public ValidationResult onSuccess(String responseBody, Map<String, String> responseHeaders, String resolvedExtensionVersion) {
                 return getMessageConverter(resolvedExtensionVersion).getPluginConfigurationValidationResultFromResponseBody(responseBody);
             }
         });
@@ -105,7 +105,7 @@ public class AuthorizationExtension extends AbstractExtension {
             }
 
             @Override
-            public VerifyConnectionResponse onSuccess(String responseBody, String resolvedExtensionVersion) {
+            public VerifyConnectionResponse onSuccess(String responseBody, Map<String, String> responseHeaders, String resolvedExtensionVersion) {
                 return getMessageConverter(resolvedExtensionVersion).getVerifyConnectionResultFromResponseBody(responseBody);
             }
         });
@@ -122,7 +122,7 @@ public class AuthorizationExtension extends AbstractExtension {
             }
 
             @Override
-            public AuthenticationResponse onSuccess(String responseBody, String resolvedExtensionVersion) {
+            public AuthenticationResponse onSuccess(String responseBody, Map<String, String> responseHeaders, String resolvedExtensionVersion) {
                 return getMessageConverter(resolvedExtensionVersion).getAuthenticatedUserFromResponseBody(responseBody);
             }
         });
@@ -131,7 +131,7 @@ public class AuthorizationExtension extends AbstractExtension {
     public List<PluginConfiguration> getRoleConfigurationMetadata(String pluginId) {
         return pluginRequestHelper.submitRequest(pluginId, REQUEST_GET_ROLE_CONFIG_METADATA, new DefaultPluginInteractionCallback<List<PluginConfiguration>>() {
             @Override
-            public List<PluginConfiguration> onSuccess(String responseBody, String resolvedExtensionVersion) {
+            public List<PluginConfiguration> onSuccess(String responseBody, Map<String, String> responseHeaders, String resolvedExtensionVersion) {
                 return getMessageConverter(resolvedExtensionVersion).getRoleConfigMetadataResponseFromBody(responseBody);
             }
         });
@@ -140,7 +140,7 @@ public class AuthorizationExtension extends AbstractExtension {
     public String getRoleConfigurationView(String pluginId) {
         return pluginRequestHelper.submitRequest(pluginId, REQUEST_GET_ROLE_CONFIG_VIEW, new DefaultPluginInteractionCallback<String>() {
             @Override
-            public String onSuccess(String responseBody, String resolvedExtensionVersion) {
+            public String onSuccess(String responseBody, Map<String, String> responseHeaders, String resolvedExtensionVersion) {
                 return getMessageConverter(resolvedExtensionVersion).getRoleConfigurationViewFromResponseBody(responseBody);
             }
         });
@@ -154,7 +154,7 @@ public class AuthorizationExtension extends AbstractExtension {
             }
 
             @Override
-            public ValidationResult onSuccess(String responseBody, String resolvedExtensionVersion) {
+            public ValidationResult onSuccess(String responseBody, Map<String, String> responseHeaders, String resolvedExtensionVersion) {
                 return getMessageConverter(resolvedExtensionVersion).getPluginConfigurationValidationResultFromResponseBody(responseBody);
             }
         });
@@ -168,7 +168,7 @@ public class AuthorizationExtension extends AbstractExtension {
             }
 
             @Override
-            public List<User> onSuccess(String responseBody, String resolvedExtensionVersion) {
+            public List<User> onSuccess(String responseBody, Map<String, String> responseHeaders, String resolvedExtensionVersion) {
                 return getMessageConverter(resolvedExtensionVersion).getSearchUsersFromResponseBody(responseBody);
             }
         });
@@ -177,7 +177,7 @@ public class AuthorizationExtension extends AbstractExtension {
     com.thoughtworks.go.plugin.domain.common.Image getIcon(String pluginId) {
         return pluginRequestHelper.submitRequest(pluginId, REQUEST_GET_PLUGIN_ICON, new DefaultPluginInteractionCallback<com.thoughtworks.go.plugin.domain.common.Image>() {
             @Override
-            public com.thoughtworks.go.plugin.domain.common.Image onSuccess(String responseBody, String resolvedExtensionVersion) {
+            public com.thoughtworks.go.plugin.domain.common.Image onSuccess(String responseBody, Map<String, String> responseHeaders, String resolvedExtensionVersion) {
                 return getMessageConverter(resolvedExtensionVersion).getImageResponseFromBody(responseBody);
             }
         });
@@ -201,7 +201,7 @@ public class AuthorizationExtension extends AbstractExtension {
             }
 
             @Override
-            public Map<String, String> onSuccess(String responseBody, String resolvedExtensionVersion) {
+            public Map<String, String> onSuccess(String responseBody, Map<String, String> responseHeaders, String resolvedExtensionVersion) {
                 return getMessageConverter(resolvedExtensionVersion).getCredentials(responseBody);
             }
         });
@@ -223,7 +223,7 @@ public class AuthorizationExtension extends AbstractExtension {
             }
 
             @Override
-            public AuthenticationResponse onSuccess(String responseBody, String resolvedExtensionVersion) {
+            public AuthenticationResponse onSuccess(String responseBody, Map<String, String> responseHeaders, String resolvedExtensionVersion) {
                 return getMessageConverter(resolvedExtensionVersion).getAuthenticatedUserFromResponseBody(responseBody);
             }
         });
@@ -237,7 +237,7 @@ public class AuthorizationExtension extends AbstractExtension {
             }
 
             @Override
-            public String onSuccess(String responseBody, String resolvedExtensionVersion) {
+            public String onSuccess(String responseBody, Map<String, String> responseHeaders, String resolvedExtensionVersion) {
                 return getMessageConverter(resolvedExtensionVersion).getAuthorizationServerUrl(responseBody);
             }
         });

@@ -34,7 +34,7 @@ public interface ConfigRepoExtensionContract {
 
     CRParseResult parseContent(String pluginId, List<Map<String, String>> content);
 
-    String pipelineExport(String pluginId, final CRPipeline pipelineConfig);
+    ExportedConfig pipelineExport(String pluginId, final CRPipeline pipelineConfig);
 
     Capabilities getCapabilities(String pluginId);
 }

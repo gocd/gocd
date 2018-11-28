@@ -24,6 +24,7 @@ import com.thoughtworks.go.plugin.api.task.TaskExecutionContext;
 import com.thoughtworks.go.plugin.api.task.TaskExecutor;
 
 import java.util.HashMap;
+import java.util.Map;
 
 public class JsonBasedTaskExecutor implements TaskExecutor {
     private String pluginId;
@@ -45,7 +46,7 @@ public class JsonBasedTaskExecutor implements TaskExecutor {
             }
 
             @Override
-            public ExecutionResult onSuccess(String responseBody, String resolvedExtensionVersion) {
+            public ExecutionResult onSuccess(String responseBody, Map<String, String> responseHeaders, String resolvedExtensionVersion) {
                 return handlerMap.get(resolvedExtensionVersion).toExecutionResult(responseBody);
             }
         });

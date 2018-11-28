@@ -50,7 +50,7 @@ public class PluginRequestHelper {
                 throw new RuntimeException("The plugin sent a null response");
             }
             if (DefaultGoApiResponse.SUCCESS_RESPONSE_CODE == response.responseCode()) {
-                return pluginInteractionCallback.onSuccess(response.responseBody(), resolvedExtensionVersion);
+                return pluginInteractionCallback.onSuccess(response.responseBody(), response.responseHeaders(), resolvedExtensionVersion);
             }
             throw new RuntimeException(format("The plugin sent a response that could not be understood by Go. Plugin returned with code '%s' and the following response: '%s'", response.responseCode(), response.responseBody()));
         } catch (Exception e) {

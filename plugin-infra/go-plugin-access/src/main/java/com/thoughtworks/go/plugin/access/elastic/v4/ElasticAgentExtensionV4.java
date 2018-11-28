@@ -44,7 +44,7 @@ public class ElasticAgentExtensionV4 implements VersionedElasticAgentExtension {
     public com.thoughtworks.go.plugin.domain.common.Image getIcon(String pluginId) {
         return pluginRequestHelper.submitRequest(pluginId, REQUEST_GET_PLUGIN_SETTINGS_ICON, new DefaultPluginInteractionCallback<com.thoughtworks.go.plugin.domain.common.Image>() {
             @Override
-            public com.thoughtworks.go.plugin.domain.common.Image onSuccess(String responseBody, String resolvedExtensionVersion) {
+            public com.thoughtworks.go.plugin.domain.common.Image onSuccess(String responseBody, Map<String, String> responseHeaders, String resolvedExtensionVersion) {
                 return elasticAgentExtensionConverterV4.getImageResponseFromBody(responseBody);
             }
         });
@@ -54,7 +54,7 @@ public class ElasticAgentExtensionV4 implements VersionedElasticAgentExtension {
     public Capabilities getCapabilities(String pluginId) {
         return pluginRequestHelper.submitRequest(pluginId, REQUEST_CAPABILITIES, new DefaultPluginInteractionCallback<Capabilities>() {
             @Override
-            public Capabilities onSuccess(String responseBody, String resolvedExtensionVersion) {
+            public Capabilities onSuccess(String responseBody, Map<String, String> responseHeaders, String resolvedExtensionVersion) {
                 return elasticAgentExtensionConverterV4.getCapabilitiesFromResponseBody(responseBody);
             }
         });
@@ -64,7 +64,7 @@ public class ElasticAgentExtensionV4 implements VersionedElasticAgentExtension {
     public List<PluginConfiguration> getElasticProfileMetadata(String pluginId) {
         return pluginRequestHelper.submitRequest(pluginId, REQUEST_GET_PROFILE_METADATA, new DefaultPluginInteractionCallback<List<PluginConfiguration>>() {
             @Override
-            public List<PluginConfiguration> onSuccess(String responseBody, String resolvedExtensionVersion) {
+            public List<PluginConfiguration> onSuccess(String responseBody, Map<String, String> responseHeaders, String resolvedExtensionVersion) {
                 return elasticAgentExtensionConverterV4.getElasticProfileMetadataResponseFromBody(responseBody);
             }
         });
@@ -74,7 +74,7 @@ public class ElasticAgentExtensionV4 implements VersionedElasticAgentExtension {
     public String getElasticProfileView(String pluginId) {
         return pluginRequestHelper.submitRequest(pluginId, REQUEST_GET_PROFILE_VIEW, new DefaultPluginInteractionCallback<String>() {
             @Override
-            public String onSuccess(String responseBody, String resolvedExtensionVersion) {
+            public String onSuccess(String responseBody, Map<String, String> responseHeaders, String resolvedExtensionVersion) {
                 return elasticAgentExtensionConverterV4.getProfileViewResponseFromBody(responseBody);
             }
         });
@@ -89,7 +89,7 @@ public class ElasticAgentExtensionV4 implements VersionedElasticAgentExtension {
             }
 
             @Override
-            public ValidationResult onSuccess(String responseBody, String resolvedExtensionVersion) {
+            public ValidationResult onSuccess(String responseBody, Map<String, String> responseHeaders, String resolvedExtensionVersion) {
                 return elasticAgentExtensionConverterV4.getElasticProfileValidationResultResponseFromBody(responseBody);
             }
         });
@@ -120,7 +120,7 @@ public class ElasticAgentExtensionV4 implements VersionedElasticAgentExtension {
             }
 
             @Override
-            public Boolean onSuccess(String responseBody, String resolvedExtensionVersion) {
+            public Boolean onSuccess(String responseBody, Map<String, String> responseHeaders, String resolvedExtensionVersion) {
                 return elasticAgentExtensionConverterV4.shouldAssignWorkResponseFromBody(responseBody);
             }
         });
@@ -130,7 +130,7 @@ public class ElasticAgentExtensionV4 implements VersionedElasticAgentExtension {
     public String getPluginStatusReport(String pluginId) {
         return pluginRequestHelper.submitRequest(pluginId, REQUEST_STATUS_REPORT, new DefaultPluginInteractionCallback<String>() {
             @Override
-            public String onSuccess(String responseBody, String resolvedExtensionVersion) {
+            public String onSuccess(String responseBody, Map<String, String> responseHeaders, String resolvedExtensionVersion) {
                 return elasticAgentExtensionConverterV4.getStatusReportView(responseBody);
             }
         });
@@ -145,7 +145,7 @@ public class ElasticAgentExtensionV4 implements VersionedElasticAgentExtension {
             }
 
             @Override
-            public String onSuccess(String responseBody, String resolvedExtensionVersion) {
+            public String onSuccess(String responseBody, Map<String, String> responseHeaders, String resolvedExtensionVersion) {
                 return elasticAgentExtensionConverterV4.getStatusReportView(responseBody);
             }
         });

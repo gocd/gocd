@@ -61,7 +61,7 @@ public class SCMExtension extends AbstractExtension {
         return pluginRequestHelper.submitRequest(pluginId, REQUEST_SCM_CONFIGURATION, new DefaultPluginInteractionCallback<SCMPropertyConfiguration>() {
 
             @Override
-            public SCMPropertyConfiguration onSuccess(String responseBody, String resolvedExtensionVersion) {
+            public SCMPropertyConfiguration onSuccess(String responseBody, Map<String, String> responseHeaders, String resolvedExtensionVersion) {
                 return messageHandlerMap.get(resolvedExtensionVersion).responseMessageForSCMConfiguration(responseBody);
             }
         });
@@ -71,7 +71,7 @@ public class SCMExtension extends AbstractExtension {
         return pluginRequestHelper.submitRequest(pluginId, REQUEST_SCM_VIEW, new DefaultPluginInteractionCallback<SCMView>() {
 
             @Override
-            public SCMView onSuccess(String responseBody, String resolvedExtensionVersion) {
+            public SCMView onSuccess(String responseBody, Map<String, String> responseHeaders, String resolvedExtensionVersion) {
                 return messageHandlerMap.get(resolvedExtensionVersion).responseMessageForSCMView(responseBody);
             }
         });
@@ -85,7 +85,7 @@ public class SCMExtension extends AbstractExtension {
             }
 
             @Override
-            public ValidationResult onSuccess(String responseBody, String resolvedExtensionVersion) {
+            public ValidationResult onSuccess(String responseBody, Map<String, String> responseHeaders, String resolvedExtensionVersion) {
                 return messageHandlerMap.get(resolvedExtensionVersion).responseMessageForIsSCMConfigurationValid(responseBody);
             }
         });
@@ -99,7 +99,7 @@ public class SCMExtension extends AbstractExtension {
             }
 
             @Override
-            public Result onSuccess(String responseBody, String resolvedExtensionVersion) {
+            public Result onSuccess(String responseBody, Map<String, String> responseHeaders, String resolvedExtensionVersion) {
                 return messageHandlerMap.get(resolvedExtensionVersion).responseMessageForCheckConnectionToSCM(responseBody);
             }
         });
@@ -113,7 +113,7 @@ public class SCMExtension extends AbstractExtension {
             }
 
             @Override
-            public MaterialPollResult onSuccess(String responseBody, String resolvedExtensionVersion) {
+            public MaterialPollResult onSuccess(String responseBody, Map<String, String> responseHeaders, String resolvedExtensionVersion) {
                 return messageHandlerMap.get(resolvedExtensionVersion).responseMessageForLatestRevision(responseBody);
             }
         });
@@ -127,7 +127,7 @@ public class SCMExtension extends AbstractExtension {
             }
 
             @Override
-            public MaterialPollResult onSuccess(String responseBody, String resolvedExtensionVersion) {
+            public MaterialPollResult onSuccess(String responseBody, Map<String, String> responseHeaders, String resolvedExtensionVersion) {
                 return messageHandlerMap.get(resolvedExtensionVersion).responseMessageForLatestRevisionsSince(responseBody);
             }
         });
@@ -141,7 +141,7 @@ public class SCMExtension extends AbstractExtension {
             }
 
             @Override
-            public Result onSuccess(String responseBody, String resolvedExtensionVersion) {
+            public Result onSuccess(String responseBody, Map<String, String> responseHeaders, String resolvedExtensionVersion) {
                 return messageHandlerMap.get(resolvedExtensionVersion).responseMessageForCheckout(responseBody);
             }
         });

@@ -58,7 +58,7 @@ public class AnalyticsExtension extends AbstractExtension {
     public Capabilities getCapabilities(String pluginId) {
         return pluginRequestHelper.submitRequest(pluginId, REQUEST_GET_CAPABILITIES, new DefaultPluginInteractionCallback<Capabilities>() {
             @Override
-            public Capabilities onSuccess(String responseBody, String resolvedExtensionVersion) {
+            public Capabilities onSuccess(String responseBody, Map<String, String> responseHeaders, String resolvedExtensionVersion) {
                 return getMessageConverter(resolvedExtensionVersion).getCapabilitiesFromResponseBody(responseBody);
             }
         });
@@ -72,7 +72,7 @@ public class AnalyticsExtension extends AbstractExtension {
             }
 
             @Override
-            public AnalyticsData onSuccess(String responseBody, String resolvedExtensionVersion) {
+            public AnalyticsData onSuccess(String responseBody, Map<String, String> responseHeaders, String resolvedExtensionVersion) {
                 AnalyticsData analyticsData = getMessageConverter(resolvedExtensionVersion).getAnalyticsFromResponseBody(responseBody);
                 analyticsData.setAssetRoot(getCurrentStaticAssetsPath(pluginId));
                 return analyticsData;
@@ -83,7 +83,7 @@ public class AnalyticsExtension extends AbstractExtension {
     public Image getIcon(String pluginId) {
         return pluginRequestHelper.submitRequest(pluginId, AnalyticsPluginConstants.REQUEST_GET_PLUGIN_ICON, new DefaultPluginInteractionCallback<com.thoughtworks.go.plugin.domain.common.Image>() {
             @Override
-            public com.thoughtworks.go.plugin.domain.common.Image onSuccess(String responseBody, String resolvedExtensionVersion) {
+            public com.thoughtworks.go.plugin.domain.common.Image onSuccess(String responseBody, Map<String, String> responseHeaders, String resolvedExtensionVersion) {
                 return getMessageConverter(resolvedExtensionVersion).getImageFromResponseBody(responseBody);
             }
         });
@@ -92,7 +92,7 @@ public class AnalyticsExtension extends AbstractExtension {
     public String getStaticAssets(String pluginId) {
         return pluginRequestHelper.submitRequest(pluginId, REQUEST_GET_STATIC_ASSETS, new DefaultPluginInteractionCallback<String>() {
             @Override
-            public String onSuccess(String responseBody, String resolvedExtensionVersion) {
+            public String onSuccess(String responseBody, Map<String, String> responseHeaders, String resolvedExtensionVersion) {
                 return getMessageConverter(resolvedExtensionVersion).getStaticAssetsFromResponseBody(responseBody);
             }
         });

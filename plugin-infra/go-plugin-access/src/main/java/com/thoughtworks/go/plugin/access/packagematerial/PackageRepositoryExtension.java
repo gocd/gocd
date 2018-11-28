@@ -62,7 +62,7 @@ public class PackageRepositoryExtension extends AbstractExtension {
         return pluginRequestHelper.submitRequest(pluginId, REQUEST_REPOSITORY_CONFIGURATION, new DefaultPluginInteractionCallback<RepositoryConfiguration>() {
 
             @Override
-            public RepositoryConfiguration onSuccess(String responseBody, String resolvedExtensionVersion) {
+            public RepositoryConfiguration onSuccess(String responseBody, Map<String, String> responseHeaders, String resolvedExtensionVersion) {
                 return messageConverter(resolvedExtensionVersion).responseMessageForRepositoryConfiguration(responseBody);
             }
         });
@@ -72,7 +72,7 @@ public class PackageRepositoryExtension extends AbstractExtension {
         return pluginRequestHelper.submitRequest(pluginId, REQUEST_PACKAGE_CONFIGURATION, new DefaultPluginInteractionCallback<com.thoughtworks.go.plugin.api.material.packagerepository.PackageConfiguration>() {
 
             @Override
-            public com.thoughtworks.go.plugin.api.material.packagerepository.PackageConfiguration onSuccess(String responseBody, String resolvedExtensionVersion) {
+            public com.thoughtworks.go.plugin.api.material.packagerepository.PackageConfiguration onSuccess(String responseBody, Map<String, String> responseHeaders, String resolvedExtensionVersion) {
                 return messageConverter(resolvedExtensionVersion).responseMessageForPackageConfiguration(responseBody);
             }
         });
@@ -87,7 +87,7 @@ public class PackageRepositoryExtension extends AbstractExtension {
             }
 
             @Override
-            public ValidationResult onSuccess(String responseBody, String resolvedExtensionVersion) {
+            public ValidationResult onSuccess(String responseBody, Map<String, String> responseHeaders, String resolvedExtensionVersion) {
                 return messageConverter(resolvedExtensionVersion).responseMessageForIsRepositoryConfigurationValid(responseBody);
             }
         });
@@ -101,7 +101,7 @@ public class PackageRepositoryExtension extends AbstractExtension {
             }
 
             @Override
-            public ValidationResult onSuccess(String responseBody, String resolvedExtensionVersion) {
+            public ValidationResult onSuccess(String responseBody, Map<String, String> responseHeaders, String resolvedExtensionVersion) {
                 return messageConverter(resolvedExtensionVersion).responseMessageForIsPackageConfigurationValid(responseBody);
             }
         });
@@ -115,7 +115,7 @@ public class PackageRepositoryExtension extends AbstractExtension {
             }
 
             @Override
-            public PackageRevision onSuccess(String responseBody, String resolvedExtensionVersion) {
+            public PackageRevision onSuccess(String responseBody, Map<String, String> responseHeaders, String resolvedExtensionVersion) {
                 return messageConverter(resolvedExtensionVersion).responseMessageForLatestRevision(responseBody);
             }
         });
@@ -129,7 +129,7 @@ public class PackageRepositoryExtension extends AbstractExtension {
             }
 
             @Override
-            public PackageRevision onSuccess(String responseBody, String resolvedExtensionVersion) {
+            public PackageRevision onSuccess(String responseBody, Map<String, String> responseHeaders, String resolvedExtensionVersion) {
                 return messageConverter(resolvedExtensionVersion).responseMessageForLatestRevisionSince(responseBody);
             }
         });
@@ -143,7 +143,7 @@ public class PackageRepositoryExtension extends AbstractExtension {
             }
 
             @Override
-            public Result onSuccess(String responseBody, String resolvedExtensionVersion) {
+            public Result onSuccess(String responseBody, Map<String, String> responseHeaders, String resolvedExtensionVersion) {
                 return messageConverter(resolvedExtensionVersion).responseMessageForCheckConnectionToRepository(responseBody);
             }
         });
@@ -157,7 +157,7 @@ public class PackageRepositoryExtension extends AbstractExtension {
             }
 
             @Override
-            public Result onSuccess(String responseBody, String resolvedExtensionVersion) {
+            public Result onSuccess(String responseBody, Map<String, String> responseHeaders, String resolvedExtensionVersion) {
                 return messageConverter(resolvedExtensionVersion).responseMessageForCheckConnectionToPackage(responseBody);
             }
         });

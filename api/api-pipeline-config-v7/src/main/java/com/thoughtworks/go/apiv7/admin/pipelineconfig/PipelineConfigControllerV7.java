@@ -31,6 +31,7 @@ import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.config.materials.PasswordDeserializer;
 import com.thoughtworks.go.i18n.LocalizedMessage;
+import com.thoughtworks.go.plugin.access.configrepo.ExportedConfig;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.newsecurity.utils.SessionUtils;
 import com.thoughtworks.go.server.service.EntityHashingService;
@@ -152,7 +153,11 @@ public class PipelineConfigControllerV7 extends ApiController implements SparkSp
         } else {
             setEtagHeader(res, etag);
 
-            return repoPlugin.pipelineExport(pipelineConfig, groupName);
+            ExportedConfig export = repoPlugin.pipelineExport(pipelineConfig, groupName);
+
+            res.header("Content-Type", export.getContentType());
+            res.header("Content-Disposition", format("attachment; filename=\"%s\"", export.getFilename()));
+            return export.getContent();
         }
     }
 

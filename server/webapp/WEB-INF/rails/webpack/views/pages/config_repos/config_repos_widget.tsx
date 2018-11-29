@@ -138,7 +138,7 @@ class ConfigRepoWidget extends MithrilViewComponent<ShowObjectAttrs<ConfigRepo>>
       if (value && value.valueForDisplay) {
         renderedValue = value.valueForDisplay();
       }
-      accumulator.set(renderedKey, renderedValue);
+      accumulator.set(renderedKey, _.isFunction(renderedValue) ? renderedValue() : renderedValue);
       return accumulator;
     }, new Map<string, string>());
 

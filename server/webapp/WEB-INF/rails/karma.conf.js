@@ -21,19 +21,22 @@ const process             = require('process');
 const jasmineSeedReporter = require('karma-jasmine-seed-reporter');
 const _                   = require('lodash');
 
+let browsers;
+
+if (process.platform === 'darwin') {
+  browsers = ['Firefox', 'Chrome', 'Safari'];
+} else if (process.platform === 'win32') {
+  browsers = ['Firefox', 'Chrome', 'Edge'];
+} else {
+  // linux, bsd, et.al.
+  browsers = ['Firefox'];
+}
+
 module.exports = function (config) {
   config.set({
-    basePath:       path.join(__dirname, 'public', 'assets', 'webpack'),
-    frameworks:     ['jasmine', 'detectBrowsers'],
-    detectBrowsers: {
-      usePhantomJS:  false,
-      postDetection: (availableBrowsers) => {
-        _.remove(availableBrowsers, (browser) => browser === 'IE');
-
-        return availableBrowsers;
-      }
-    },
-    client:         {
+    basePath:      path.join(__dirname, 'public', 'assets', 'webpack'),
+    frameworks:    ['jasmine'],
+    client:        {
       captureConsole: true,
       jasmine:        {
         random: true,
@@ -78,11 +81,12 @@ module.exports = function (config) {
       classNameFormatter: undefined,
       properties:         {}
     },
-    port:           9876,
-    colors:         true,
-    logLevel:       process.env['KARMA_LOG_LEVEL'] ? config[`LOG_${process.env['KARMA_LOG_LEVEL'].toUpperCase()}`] : config.LOG_INFO,
-    autoWatch:      true,
-    singleRun:      false,
-    concurrency:    Infinity
+    port:          9876,
+    colors:        true,
+    logLevel:      process.env['KARMA_LOG_LEVEL'] ? config[`LOG_${process.env['KARMA_LOG_LEVEL'].toUpperCase()}`] : config.LOG_INFO,
+    autoWatch:     true,
+    browsers:      browsers,
+    singleRun:     false,
+    concurrency:   Infinity
   });
 };

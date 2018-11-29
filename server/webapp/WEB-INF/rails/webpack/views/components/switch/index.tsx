@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-import * as m from "mithril";
+import {bind} from "classnames/bind";
 import {MithrilComponent} from "jsx/mithril-component";
 import {Stream} from "mithril/stream";
 
-import {bind} from "classnames/bind";
+import * as m from "mithril";
 import * as styles from "./index.scss";
 
 const uuid4      = require("uuid/v4");
@@ -28,7 +28,7 @@ export interface Attrs {
   small?: boolean;
   disabled?: boolean;
   label?: string;
-  field: Stream<boolean>
+  field: Stream<boolean>;
 }
 
 export interface State {

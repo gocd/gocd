@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-import {expanded} from "views/components/collapsible_panel/index.scss";
-import {fa} from "views/pages/partials/site_header.scss";
 import {Switch} from "../index";
+
 import * as stream from "mithril/stream";
 import * as styles from "../index.scss";
 

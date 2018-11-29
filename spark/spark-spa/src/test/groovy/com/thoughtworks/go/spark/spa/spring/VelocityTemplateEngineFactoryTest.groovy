@@ -16,19 +16,15 @@
 
 package com.thoughtworks.go.spark.spa.spring
 
-import com.thoughtworks.go.CurrentGoCDVersion
+
 import com.thoughtworks.go.server.newsecurity.utils.SessionUtils
 import com.thoughtworks.go.server.security.userdetail.GoUserPrinciple
-import com.thoughtworks.go.server.service.RailsAssetsService
-import com.thoughtworks.go.server.service.SecurityService
-import com.thoughtworks.go.server.service.VersionInfoService
-import com.thoughtworks.go.server.service.WebpackAssetsService
+import com.thoughtworks.go.server.service.*
 import com.thoughtworks.go.server.service.plugins.builder.DefaultPluginInfoFinder
 import com.thoughtworks.go.server.service.support.toggle.FeatureToggleService
 import com.thoughtworks.go.server.service.support.toggle.Toggles
 import com.thoughtworks.go.spark.spa.RolesControllerDelegate
 import org.apache.commons.lang.StringEscapeUtils
-import org.jsoup.Jsoup
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.core.io.DefaultResourceLoader
@@ -47,7 +43,7 @@ class VelocityTemplateEngineFactoryTest {
   void setUp() {
     initMocks(this)
     Toggles.initializeWith(mock(FeatureToggleService.class))
-    initialContextProvider = new InitialContextProvider(mock(RailsAssetsService.class), mock(WebpackAssetsService), mock(SecurityService), mock(VersionInfoService), mock(DefaultPluginInfoFinder))
+    initialContextProvider = new InitialContextProvider(mock(RailsAssetsService.class), mock(WebpackAssetsService), mock(SecurityService), mock(VersionInfoService), mock(DefaultPluginInfoFinder), mock(DrainModeService))
     engine = new VelocityTemplateEngineFactory(initialContextProvider, new DefaultResourceLoader(getClass().getClassLoader()), "classpath:velocity")
     engine.afterPropertiesSet()
     SessionUtils.setCurrentUser(new GoUserPrinciple("bob", "Bob"))

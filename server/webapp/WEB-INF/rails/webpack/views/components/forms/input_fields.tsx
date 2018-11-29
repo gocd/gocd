@@ -19,6 +19,7 @@ import {MithrilViewComponent} from "jsx/mithril-component";
 import * as _ from "lodash";
 import * as m from "mithril";
 import * as uuid from "uuid/v4";
+import * as Buttons from "views/components/buttons";
 import {EncryptedValue} from "views/components/forms/encrypted_value";
 import * as styles from "./forms.scss";
 
@@ -173,13 +174,15 @@ export class PasswordField extends FormField<EncryptedValue> {
 
   private static resetOrOverride(vnode: m.Vnode<FormFieldAttrs<EncryptedValue>>) {
     if (vnode.attrs.property().isEditing()) {
-      return <a href="javascript:void(0)"
-                className={classnames(styles.overrideEncryptedValue)}
-                onclick={vnode.attrs.property().resetToOriginal.bind(vnode.attrs.property())}>Reset</a>;
+      return <Buttons.Reset small={true}
+                            classNames={styles.formInputReset}
+                            onclick={vnode.attrs.property()
+                                          .resetToOriginal
+                                          .bind(vnode.attrs.property())}>Reset</Buttons.Reset>;
     } else {
-      return <a href="javascript:void(0)"
-                className={classnames(styles.resetEncryptedValue)}
-                onclick={vnode.attrs.property().edit.bind(vnode.attrs.property())}>Change</a>;
+      return <Buttons.Reset small={true}
+                            classNames={styles.formInputReset}
+                            onclick={vnode.attrs.property().edit.bind(vnode.attrs.property())}>Change</Buttons.Reset>;
     }
   }
 }
@@ -218,6 +221,7 @@ export class SelectField extends FormField<string> {
   renderInputField(vnode: m.Vnode<FormFieldAttrs<string>>): m.Children | void | null {
     return (
       <select
+        class={styles.formControl}
         {...this.defaultAttributes(vnode)}
         {...this.bindingAttributes(vnode, "onchange", "value")}>
         {vnode.children}

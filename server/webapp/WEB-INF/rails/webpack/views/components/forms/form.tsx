@@ -37,3 +37,19 @@ export class FormItem extends MithrilComponent {
     </li>;
   }
 }
+
+export class FormHeader extends MithrilComponent {
+  view(vnode: m.Vnode) {
+    return <div class={styles.formHeader}>
+      {vnode.children}
+    </div>;
+  }
+}
+
+export class FormBody extends MithrilComponent {
+  view(vnode: m.Vnode) {
+    return <div>
+      {vnode.children}
+    </div>;
+  }
+}

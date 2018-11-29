@@ -33,7 +33,7 @@ import {
 import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
 import * as Buttons from "views/components/buttons";
 import {FlashMessage, MessageType} from "views/components/flash_message";
-import {Form, FormItem} from "views/components/forms/form";
+import {Form, FormBody, FormHeader, FormItem} from "views/components/forms/form";
 import {
   CheckboxField,
   Option,
@@ -58,48 +58,58 @@ class MaterialEditWidget extends MithrilViewComponent<EditableMaterial> {
     });
 
     return (
-      <Form>
-        <FormItem>
-          <SelectField label="Plugin ID"
-                       property={vnode.attrs.repo.pluginId}
-                       required={true}
-                       errorText={vnode.attrs.repo.errors().errorsForDisplay("pluginId")}>
-            <SelectFieldOptions selected={vnode.attrs.repo.pluginId()}
-                                items={pluginList}/>
-          </SelectField>
-        </FormItem>
+      [
+        (<FormHeader>
+          <Form>
+            <FormItem>
+              <SelectField label="Plugin ID"
+                           property={vnode.attrs.repo.pluginId}
+                           required={true}
+                           errorText={vnode.attrs.repo.errors().errorsForDisplay("pluginId")}>
+                <SelectFieldOptions selected={vnode.attrs.repo.pluginId()}
+                                    items={pluginList}/>
+              </SelectField>
+            </FormItem>
 
-        <FormItem>
-          <SelectField label={"Material type"}
-                       property={vnode.attrs.repo.material().typeProxy.bind(vnode.attrs.repo.material())}
-                       required={true}
-                       errorText={vnode.attrs.repo.errors().errorsForDisplay("material")}>
-            <SelectFieldOptions selected={vnode.attrs.repo.material().type()}
-                                items={this.materialSelectOptions()}/>
-          </SelectField>
-        </FormItem>
+            <FormItem>
+              <SelectField label={"Material type"}
+                           property={vnode.attrs.repo.material().typeProxy.bind(vnode.attrs.repo.material())}
+                           required={true}
+                           errorText={vnode.attrs.repo.errors().errorsForDisplay("material")}>
+                <SelectFieldOptions selected={vnode.attrs.repo.material().type()}
+                                    items={this.materialSelectOptions()}/>
+              </SelectField>
+            </FormItem>
 
-        <FormItem>
-          <TextField label="Config repository ID"
-                     disabled={!vnode.attrs.isNew}
-                     property={vnode.attrs.repo.id}
-                     errorText={vnode.attrs.repo.errors().errorsForDisplay("id")}
-                     required={true}/>
-        </FormItem>
+            <FormItem>
+              <TextField label="Config repository ID"
+                         disabled={!vnode.attrs.isNew}
+                         property={vnode.attrs.repo.id}
+                         errorText={vnode.attrs.repo.errors().errorsForDisplay("id")}
+                         required={true}/>
+            </FormItem>
 
-        <FormItem>
-          <CheckboxField label={humanizedMaterialAttributeName("autoUpdate")}
-                         property={vnode.attrs.repo.material().attributes().autoUpdate}/>
-        </FormItem>
+            <FormItem>
+              <CheckboxField label={humanizedMaterialAttributeName("autoUpdate")}
+                             property={vnode.attrs.repo.material().attributes().autoUpdate}/>
+            </FormItem>
 
-        <FormItem>
-          <TextField label={humanizedMaterialAttributeName("name")}
-                     property={materialAttributes.name}
-                     required={true}
-                     errorText={materialAttributes.errors().errorsForDisplay("name")}/>
-        </FormItem>
-        {vnode.children}
-      </Form>
+            <FormItem>
+              <TextField label={humanizedMaterialAttributeName("name")}
+                         property={materialAttributes.name}
+                         required={true}
+                         errorText={materialAttributes.errors().errorsForDisplay("name")}/>
+            </FormItem>
+          </Form>
+        </FormHeader>),
+        (
+          <FormBody>
+            <Form>
+              {vnode.children}
+            </Form>
+          </FormBody>
+        )
+      ]
     );
   }
 

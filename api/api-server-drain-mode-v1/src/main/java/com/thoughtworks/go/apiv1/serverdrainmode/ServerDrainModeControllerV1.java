@@ -75,20 +75,13 @@ public class ServerDrainModeControllerV1 extends ApiController implements SparkS
             before("", this::verifyContentType);
             before("/*", this::verifyContentType);
 
-            before("", mimeType, apiAuthenticationHelper::checkUserAnd403);
-            before("", mimeType, this::checkAdminUserAnd403OnlyForPatch);
+            before(Routes.DrainMode.SETTINGS, mimeType, apiAuthenticationHelper::checkAdminUserAnd403);
 
-            get("", mimeType, this::show);
-            Spark.patch("", mimeType, this::patch);
+            get(Routes.DrainMode.SETTINGS, mimeType, this::show);
+            Spark.patch(Routes.DrainMode.SETTINGS, mimeType, this::patch);
 
             exception(RecordNotFoundException.class, this::notFound);
         });
-    }
-
-    private void checkAdminUserAnd403OnlyForPatch(Request request, Response response) {
-        if ("PATCH".equals(request.requestMethod())) {
-            apiAuthenticationHelper.checkAdminUserAnd403(request, response);
-        }
     }
 
     public String show(Request req, Response res) throws InvalidPluginTypeException, IOException {

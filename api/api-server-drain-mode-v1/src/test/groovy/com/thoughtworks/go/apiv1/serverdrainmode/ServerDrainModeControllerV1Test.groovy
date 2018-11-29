@@ -63,7 +63,7 @@ class ServerDrainModeControllerV1Test implements SecurityServiceTrait, Controlle
   @Nested
   class get {
     @Nested
-    class Security implements SecurityTestTrait, NormalUserSecurity {
+    class Security implements SecurityTestTrait, AdminUserSecurity {
 
       @Override
       String getControllerMethodUnderTest() {
@@ -72,7 +72,7 @@ class ServerDrainModeControllerV1Test implements SecurityServiceTrait, Controlle
 
       @Override
       void makeHttpCall() {
-        getWithApiHeader(controller.controllerPath())
+        getWithApiHeader(controller.controllerPath('/settings'))
       }
     }
 
@@ -91,7 +91,7 @@ class ServerDrainModeControllerV1Test implements SecurityServiceTrait, Controlle
         when(drainModeService.get()).thenReturn(drainMode)
         when(featureToggleService.isToggleOn(Toggles.SERVER_DRAIN_MODE_API_TOGGLE_KEY)).thenReturn(true)
 
-        getWithApiHeader(controller.controllerPath())
+        getWithApiHeader(controller.controllerPath('/settings'))
 
         assertThatResponse()
           .isOk()
@@ -126,7 +126,7 @@ class ServerDrainModeControllerV1Test implements SecurityServiceTrait, Controlle
 
       @Override
       void makeHttpCall() {
-        patch(controller.controllerPath(), [:])
+        patch(controller.controllerPath('/settings'), [:])
       }
     }
 
@@ -152,7 +152,7 @@ class ServerDrainModeControllerV1Test implements SecurityServiceTrait, Controlle
           'content-type': 'application/json'
         ]
 
-        patchWithApiHeader(controller.controllerBasePath(), headers, data)
+        patchWithApiHeader(controller.controllerPath('/settings'), headers, data)
 
         assertThatResponse()
           .isNotFound()
@@ -176,7 +176,7 @@ class ServerDrainModeControllerV1Test implements SecurityServiceTrait, Controlle
           'content-type': 'application/json'
         ]
 
-        patchWithApiHeader(controller.controllerBasePath(), headers, data)
+        patchWithApiHeader(controller.controllerPath('/settings'), headers, data)
 
         assertThatResponse()
           .isOk()
@@ -205,7 +205,7 @@ class ServerDrainModeControllerV1Test implements SecurityServiceTrait, Controlle
           'content-type': 'application/json'
         ]
 
-        patchWithApiHeader(controller.controllerBasePath(), headers, data)
+        patchWithApiHeader(controller.controllerPath('/settings'), headers, data)
 
         assertThatResponse()
           .isOk()

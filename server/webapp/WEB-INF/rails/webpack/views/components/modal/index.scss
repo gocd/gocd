@@ -18,7 +18,7 @@
 $overlay-bg: rgba(0, 0, 0, 0.8);
 $overlay-header-bg: $go-darkblue;
 $overlay-width: 500px;
-$overlay-height: 550px;
+$overlay-height: 500px;
 $overlay-border-color: $global-border-color;
 $overlay-header-txt: #fff;
 
@@ -54,11 +54,11 @@ $overlay-header-txt: #fff;
 }
 
 .medium {
-  width: 50%;
+  width: 720px;
 }
 
 .large {
-  width: 90%;
+  width: 1050px;
 }
 
 .overlay-header {

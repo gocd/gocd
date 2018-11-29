@@ -15,7 +15,6 @@
  */
 @import "../../global/common";
 
-$line-color: #e9edef;
 $global-border-color: $line-color;
 $global-border-radius: 3px;
 $form-element-height: 35px;
@@ -23,11 +22,20 @@ $form-element-height: 35px;
 $form-help-text-color: #999;
 
 $form-control-color: #495057;
-$form-control-disabled-color: #e9ecef;
+$form-control-disabled-color: #d4d7da;
 $form-control-border-color: #80bdff;
 $form-control-background-color: #fff;
 $form-failed-color: $failed;
 $form-failed-field-background-color: lighten($form-failed-color, 35%);
+
+.form-header {
+  background: $form-header-bg;
+  margin:     -20px -30px $global-margin-bottom -30px;
+  padding:    20px 30px 0;
+}
+
+//.form-body {
+//}
 
 .form-group {
   list-style-type: none;
@@ -70,8 +78,20 @@ $form-failed-field-background-color: lighten($form-failed-color, 35%);
   }
 }
 
-.inline + .reset-encrypted-value, .inline + .override-encrypted-value {
-  padding-left: 10px;
+select.form-control { //sass-lint:disable-line no-qualifying-elements
+  width: 270px;
+}
+
+input[type="checkbox"].form-control { //sass-lint:disable-line no-qualifying-elements
+  width: 35px;
+  &:focus {
+    outline:    0;
+    box-shadow: none;
+  }
+}
+
+.form-input-reset {
+  margin: 5px 0 0;
 }
 
 .text-area {

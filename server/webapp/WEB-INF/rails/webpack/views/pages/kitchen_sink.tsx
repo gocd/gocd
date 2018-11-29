@@ -16,6 +16,7 @@
 
 import {MithrilViewComponent} from "jsx/mithril-component";
 import * as m from "mithril";
+import {Stream} from "mithril/stream";
 import * as stream from "mithril/stream";
 import * as Buttons from "views/components/buttons/index";
 import {CollapsiblePanel} from "views/components/collapsible_panel";
@@ -30,6 +31,7 @@ import {KeyValuePair} from "views/components/key_value_pair";
 import {Size} from "views/components/modal";
 import {SampleModal} from "views/components/modal/sample";
 import {SearchBox} from "views/components/search_box";
+import {Switch} from "views/components/switch";
 
 const formValue = stream("initial value");
 
@@ -40,8 +42,9 @@ const x: any             = window;
 x.passwordValue          = passwordValue;
 x.encryptedPasswordValue = encryptedPasswordValue;
 
-export class KitchenSink extends MithrilViewComponent<null> {
+const switchStream: Stream<boolean> = stream(false);
 
+export class KitchenSink extends MithrilViewComponent<null> {
   view(vnode: m.Vnode<null>) {
     return (
       <div>
@@ -99,6 +102,18 @@ export class KitchenSink extends MithrilViewComponent<null> {
         </p>
         <hr/>
 
+        <br/>
+        <h3>Switches</h3>
+        <label>Switch</label>
+        <Switch field={switchStream}/><br/>
+        <label>Small switch</label>
+        <Switch field={switchStream} small={true}/><br/>
+
+        <label>Switch with label</label>
+        <Switch label={"This is label for a switch"} field={switchStream}/><br/>
+        <Switch field={switchStream} label={"This is label for a small"} small={true}/><br/>
+        <label>Switch state: {`${switchStream()}`}</label>
+        <hr/>
         <br/>
 
         <div>

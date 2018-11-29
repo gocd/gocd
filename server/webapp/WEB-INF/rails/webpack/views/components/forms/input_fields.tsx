@@ -198,7 +198,9 @@ export class TextAreaField extends FormField<string> {
     return (
       <textarea
         {...defaultAttributes}
-        className={classnames(styles.formControl, styles.textArea)}>{value}</textarea>
+        {...this.bindingAttributes(vnode, "onchange", "value")}
+        className={classnames(styles.formControl, styles.textArea)}
+        id={this.id}>{value}</textarea>
     );
   }
 }

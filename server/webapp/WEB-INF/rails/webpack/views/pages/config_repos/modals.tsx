@@ -91,14 +91,7 @@ class MaterialEditWidget extends MithrilViewComponent<EditableMaterial> {
 
             <FormItem>
               <CheckboxField label={humanizedMaterialAttributeName("autoUpdate")}
-                             property={vnode.attrs.repo.material().attributes().autoUpdate}/>
-            </FormItem>
-
-            <FormItem>
-              <TextField label={humanizedMaterialAttributeName("name")}
-                         property={materialAttributes.name}
-                         required={true}
-                         errorText={materialAttributes.errors().errorsForDisplay("name")}/>
+                             property={materialAttributes.autoUpdate}/>
             </FormItem>
           </Form>
         </FormHeader>),

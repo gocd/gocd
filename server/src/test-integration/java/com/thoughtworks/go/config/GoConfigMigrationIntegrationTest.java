@@ -2376,6 +2376,54 @@ public class GoConfigMigrationIntegrationTest {
         assertThat(migratedContent, containsString("<fetchartifact artifactOrigin=\"external\" pipeline=\"foo\" stage=\"stage1\" job=\"job1\" artifactId=\"artifactId1\">"));
     }
 
+    @Test
+    public void shouldRemoveMaterialNameFromConfigRepos_AsPartOf114To115Migration() throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
+        String configXml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
+                "<cruise schemaVersion='114'>" +
+                "<config-repos>\n" +
+                "    <config-repo pluginId=\"yaml.config.plugin\" id=\"test\">\n" +
+                "      <git url=\"test\" branch=\"test\" materialName=\"test\" />\n" +
+                "    </config-repo>\n" +
+                "    <config-repo pluginId=\"yaml.config.plugin\" id=\"test1\">\n" +
+                "      <svn url=\"test\" username=\"\" materialName=\"test\" />\n" +
+                "    </config-repo>\n" +
+                "    <config-repo pluginId=\"yaml.config.plugin\" id=\"test2\">\n" +
+                "      <hg url=\"test\" materialName=\"test\" />\n" +
+                "    </config-repo>\n" +
+                "    <config-repo pluginId=\"yaml.config.plugin\" id=\"asd\">\n" +
+                "      <tfs url=\"test\" username=\"admin\" domain=\"test\" encryptedPassword=\"AES:09M8nDpEgOgRGVVWAnEiMQ==:7lAsVu5nZ6iYhoZ4Alwc5g==\" projectPath=\"test\" materialName=\"test\" />\n" +
+                "    </config-repo>\n" +
+                "    <config-repo pluginId=\"yaml.config.plugin\" id=\"asdasd\">\n" +
+                "      <p4 port=\"test\" username=\"admin\" encryptedPassword=\"AES:A7h8pqjGyz372Kogx5xX/w==:tG1WNNd680UyqOUM1BVrfQ==\" materialName=\"test\">\n" +
+                "        <view><![CDATA[<h1>test</h1>]]></view>\n" +
+                "      </p4>\n" +
+                "    </config-repo>\n" +
+                "  </config-repos>\n" +
+                "</cruise>";
+        String migratedContent = migrateXmlString(configXml, 114);
+
+        assertThat(migratedContent, containsString(
+                "<config-repos>\n" +
+                "    <config-repo pluginId=\"yaml.config.plugin\" id=\"test\">\n" +
+                "      <git url=\"test\" branch=\"test\"/>\n" +
+                "    </config-repo>\n" +
+                "    <config-repo pluginId=\"yaml.config.plugin\" id=\"test1\">\n" +
+                "      <svn url=\"test\" username=\"\"/>\n" +
+                "    </config-repo>\n" +
+                "    <config-repo pluginId=\"yaml.config.plugin\" id=\"test2\">\n" +
+                "      <hg url=\"test\"/>\n" +
+                "    </config-repo>\n" +
+                "    <config-repo pluginId=\"yaml.config.plugin\" id=\"asd\">\n" +
+                "      <tfs url=\"test\" username=\"admin\" domain=\"test\" encryptedPassword=\"AES:09M8nDpEgOgRGVVWAnEiMQ==:7lAsVu5nZ6iYhoZ4Alwc5g==\" projectPath=\"test\"/>\n" +
+                "    </config-repo>\n" +
+                "    <config-repo pluginId=\"yaml.config.plugin\" id=\"asdasd\">\n" +
+                "      <p4 port=\"test\" username=\"admin\" encryptedPassword=\"AES:A7h8pqjGyz372Kogx5xX/w==:tG1WNNd680UyqOUM1BVrfQ==\">\n" +
+                "        <view><![CDATA[<h1>test</h1>]]></view>\n" +
+                "      </p4>\n" +
+                "    </config-repo>\n" +
+                "  </config-repos>"));
+    }
+
     private void assertStringsIgnoringCarriageReturnAreEqual(String expected, String actual) {
         assertEquals(expected.replaceAll("\\r", ""), actual.replaceAll("\\r", ""));
     }

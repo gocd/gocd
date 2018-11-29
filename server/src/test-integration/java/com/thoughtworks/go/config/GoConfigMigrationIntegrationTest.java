@@ -2418,7 +2418,7 @@ public class GoConfigMigrationIntegrationTest {
                 "    </config-repo>\n" +
                 "    <config-repo pluginId=\"yaml.config.plugin\" id=\"asdasd\">\n" +
                 "      <p4 port=\"test\" username=\"admin\" encryptedPassword=\"AES:A7h8pqjGyz372Kogx5xX/w==:tG1WNNd680UyqOUM1BVrfQ==\">\n" +
-                "        <view><![CDATA[<h1>test</h1>]]></view>\n" +
+                "        <view>&lt;h1&gt;test&lt;/h1&gt;</view>\n" +
                 "      </p4>\n" +
                 "    </config-repo>\n" +
                 "  </config-repos>"));

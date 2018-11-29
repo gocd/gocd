@@ -25,13 +25,6 @@
     <xsl:template match="/cruise/config-repos/config-repo/hg/@materialName"/>
     <xsl:template match="/cruise/config-repos/config-repo/tfs/@materialName"/>
     <xsl:template match="/cruise/config-repos/config-repo/p4/@materialName"/>
-    <xsl:template match="/cruise/config-repos/config-repo/p4/view">
-        <xsl:copy>
-            <xsl:text disable-output-escaping="yes">&lt;![CDATA[</xsl:text>
-            <xsl:value-of disable-output-escaping="yes" select="/cruise/config-repos/config-repo/p4/view"/>
-            <xsl:text disable-output-escaping="yes">]]&gt;</xsl:text>
-        </xsl:copy>
-    </xsl:template>
 
     <!-- Copy everything -->
     <xsl:template match="@*|node()">

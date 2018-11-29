@@ -18,6 +18,7 @@ package com.thoughtworks.go.config.update;
 
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
+import com.thoughtworks.go.plugin.access.configrepo.ConfigRepoExtension;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.SecurityService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
@@ -25,8 +26,9 @@ import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 public class CreateConfigRepoCommand extends ConfigRepoCommand {
     private final ConfigRepoConfig configRepo;
 
-    public CreateConfigRepoCommand(SecurityService securityService, ConfigRepoConfig configRepo, Username username, HttpLocalizedOperationResult result) {
-        super(securityService, configRepo, username, result);
+    public CreateConfigRepoCommand(SecurityService securityService, ConfigRepoConfig configRepo, Username username,
+                                   HttpLocalizedOperationResult result, ConfigRepoExtension configRepoExtension) {
+        super(securityService, configRepo, username, result, configRepoExtension);
         this.configRepo = configRepo;
     }
 

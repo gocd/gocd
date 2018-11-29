@@ -21,6 +21,7 @@ import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.helper.GoConfigMother;
+import com.thoughtworks.go.plugin.access.configrepo.ConfigRepoExtension;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.SecurityService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
@@ -46,6 +47,8 @@ public class CreateConfigRepoCommandTest {
     @Mock
     private SecurityService securityService;
     private String actionFailed;
+    @Mock
+    private ConfigRepoExtension configRepoExtension;
 
     @Before
     public void setup() throws Exception {
@@ -60,7 +63,7 @@ public class CreateConfigRepoCommandTest {
 
     @Test
     public void shouldAddTheSpecifiedConfigRepo() throws Exception {
-        CreateConfigRepoCommand command = new CreateConfigRepoCommand(securityService, configRepo, currentUser, result);
+        CreateConfigRepoCommand command = new CreateConfigRepoCommand(securityService, configRepo, currentUser, result, configRepoExtension);
         assertNull(cruiseConfig.getConfigRepos().getConfigRepo(repoId));
         command.update(cruiseConfig);
         assertThat(cruiseConfig.getConfigRepos().getConfigRepo(repoId), is(configRepo));
@@ -68,7 +71,7 @@ public class CreateConfigRepoCommandTest {
 
     @Test
     public void shouldNotContinueIfTheUserDontHavePermissionsToOperateOnPackages() throws Exception {
-        CreateConfigRepoCommand command = new CreateConfigRepoCommand(securityService, configRepo, currentUser, result);
+        CreateConfigRepoCommand command = new CreateConfigRepoCommand(securityService, configRepo, currentUser, result, configRepoExtension);
         when(securityService.isUserAdmin(currentUser)).thenReturn(false);
         HttpLocalizedOperationResult expectedResult = new HttpLocalizedOperationResult();
         expectedResult.forbidden(forbiddenToEdit(), forbidden());
@@ -82,8 +85,9 @@ public class CreateConfigRepoCommandTest {
         GitMaterialConfig material = new GitMaterialConfig("https://foo.git", "master");
         material.setAutoUpdate(false);
         configRepo.setMaterialConfig(material);
+        when(configRepoExtension.canHandlePlugin(configRepo.getPluginId())).thenReturn(true);
 
-        CreateConfigRepoCommand command = new CreateConfigRepoCommand(securityService, configRepo, currentUser, result);
+        CreateConfigRepoCommand command = new CreateConfigRepoCommand(securityService, configRepo, currentUser, result, configRepoExtension);
         command.update(cruiseConfig);
 
         assertFalse(command.isValid(cruiseConfig));
@@ -95,16 +99,26 @@ public class CreateConfigRepoCommandTest {
         ConfigRepoConfig configRepo = new ConfigRepoConfig();
         configRepo.setId("");
 
-        CreateConfigRepoCommand command = new CreateConfigRepoCommand(securityService, configRepo, currentUser, result);
+        CreateConfigRepoCommand command = new CreateConfigRepoCommand(securityService, configRepo, currentUser, result, configRepoExtension);
 
         assertFalse(command.isValid(cruiseConfig));
         assertThat(configRepo.errors().on("id"), is("Configuration repository id not specified"));
     }
 
     @Test
+    public void isValid_shouldValidatePluginId() {
+        when(configRepoExtension.canHandlePlugin(configRepo.getPluginId())).thenReturn(false);
+
+        CreateConfigRepoCommand command = new CreateConfigRepoCommand(securityService, configRepo, currentUser, result, configRepoExtension);
+
+        assertFalse(command.isValid(cruiseConfig));
+        assertThat(configRepo.errors().on("plugin_id"), is("Invalid plugin id: json-plugin"));
+    }
+
+    @Test
     public void shouldContinueWithConfigSaveIfUserIsAdmin() {
         when(securityService.isUserAdmin(currentUser)).thenReturn(true);
-        CreateConfigRepoCommand command = new CreateConfigRepoCommand(securityService, configRepo, currentUser, result);
+        CreateConfigRepoCommand command = new CreateConfigRepoCommand(securityService, configRepo, currentUser, result, configRepoExtension);
         assertThat(command.canContinue(cruiseConfig), is(true));
     }
 }

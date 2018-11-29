@@ -19,6 +19,7 @@ package com.thoughtworks.go.apiv1.configrepos.representers
 import com.thoughtworks.go.api.base.OutputWriter
 import com.thoughtworks.go.api.representers.JsonReader
 import com.thoughtworks.go.api.util.GsonTransformer
+import com.thoughtworks.go.config.exceptions.UnprocessableEntityException
 import com.thoughtworks.go.config.materials.PackageMaterialConfig
 import com.thoughtworks.go.config.materials.git.GitMaterialConfig
 import com.thoughtworks.go.domain.materials.MaterialConfig
@@ -78,13 +79,13 @@ class MaterialRepresenterTest {
 
   @Test
   void 'fromJSON fails for unsupported type'() {
-    Throwable error = assertThrows(IllegalArgumentException.class, {
+    Throwable error = assertThrows(UnprocessableEntityException.class, {
       JsonReader json = GsonTransformer.instance.jsonReaderFrom([
         type      : 'package',
         attributes: [:]
       ])
       MaterialRepresenter.fromJSON(json)
     })
-    assertEquals("Unsupported material type: package", error.getMessage())
+    assertEquals("Unsupported material type: package. It has to be one of 'git, hg, svn, p4 and tfs'.", error.getMessage())
   }
 }

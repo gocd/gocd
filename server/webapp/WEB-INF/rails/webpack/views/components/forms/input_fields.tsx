@@ -25,19 +25,17 @@ import * as styles from "./forms.scss";
 
 const classnames = bind(styles);
 
-export interface HasProperty<T> {
-  property: (newValue?: T) => T;
-}
-
 export interface LabelAttrs<T> {
   label: string;
   errorText?: string;
   helpText?: string;
   disabled?: boolean;
   required?: boolean;
+  small?: boolean;
+  property: (newValue?: T) => T;
 }
 
-type FormFieldAttrs<T> = LabelAttrs<T> & HasProperty<T>;
+type FormFieldAttrs<T> = LabelAttrs<T>;
 
 abstract class FormField<T> extends MithrilViewComponent<FormFieldAttrs<T>> {
   protected readonly id: string         = `input-${uuid()}`;
@@ -49,7 +47,8 @@ abstract class FormField<T> extends MithrilViewComponent<FormFieldAttrs<T>> {
       <span className={styles.formLabelRequired}>*</span> : undefined;
     return (
       <div className={classnames(styles.formGroup, {[styles.formHasError]: this.hasErrorText(vnode)})}>
-        <label for={this.id} className={styles.formLabel}>{vnode.attrs.label}{maybeRequired}:</label>
+        <label for={this.id} className={styles.formLabel}
+               data-test-id="form-field-label">{vnode.attrs.label}{maybeRequired}:</label>
         {this.renderInputField(vnode)}
         {this.errorSpan(vnode)}
         {this.getHelpSpan(vnode)}
@@ -70,6 +69,8 @@ abstract class FormField<T> extends MithrilViewComponent<FormFieldAttrs<T>> {
       "autocapitalize": "off",
       "autocorrect": "off",
       "spellcheck": false,
+      "id": this.id,
+      "data-test-id": "form-field-input"
     };
 
     if (this.hasHelpText(vnode)) {
@@ -119,8 +120,8 @@ abstract class FormField<T> extends MithrilViewComponent<FormFieldAttrs<T>> {
                               eventName: string,
                               propertyAttribute: string): { [key: string]: any } {
     return {
-      [eventName]: (evt: any) => (vnode.attrs as HasProperty<T>).property(evt.currentTarget[propertyAttribute]),
-      [propertyAttribute]: (vnode.attrs as HasProperty<T>).property()
+      [eventName]: (evt: any) => vnode.attrs.property(evt.currentTarget[propertyAttribute]),
+      [propertyAttribute]: vnode.attrs.property()
     };
   }
 }
@@ -131,8 +132,7 @@ export class TextField extends FormField<string> {
       <input type="text"
              {...this.defaultAttributes(vnode)}
              {...this.bindingAttributes(vnode, "oninput", "value")}
-             className={classnames(styles.formControl)}
-             id={this.id}/>
+             className={classnames(styles.formControl)}/>
     );
   }
 }
@@ -142,8 +142,7 @@ export class PasswordField extends FormField<EncryptedValue> {
     const input = <input type="password"
                          {...this.defaultAttributes(vnode)}
                          {...this.bindingAttributes(vnode, "oninput", "value")}
-                         className={classnames(styles.formControl, styles.inline)}
-                         id={this.id}/>;
+                         className={classnames(styles.formControl, styles.inline)}/>;
 
     return [input, PasswordField.resetOrOverride(vnode)];
   }
@@ -199,26 +198,46 @@ export class TextAreaField extends FormField<string> {
     return (
       <textarea
         {...defaultAttributes}
-        className={classnames(styles.formControl, styles.textArea)}
-        id={this.id}>{value}</textarea>
+        className={classnames(styles.formControl, styles.textArea)}>{value}</textarea>
     );
   }
 }
 
 export class CheckboxField extends FormField<boolean> {
-  renderInputField(vnode: m.Vnode<FormFieldAttrs<boolean>>): m.Children | void | null {
+  renderInputField(vnode: m.Vnode<FormFieldAttrs<boolean>>): m.Children {
     return (
       <input type="checkbox"
              {...this.defaultAttributes(vnode)}
              {...this.bindingAttributes(vnode, "onchange", "checked")}
-             className={classnames(styles.formControl)}
-             id={this.id}/>
+             className={this.className(vnode)}/>
     );
+  }
+
+  protected className(vnode: m.Vnode<FormFieldAttrs<boolean>>): string {
+    return classnames(this.defaultAttributes(vnode).className, styles.formControl);
+  }
+}
+
+export class Switch extends CheckboxField {
+  renderInputField(vnode: m.Vnode<FormFieldAttrs<boolean>>): m.Children {
+    const checkboxField = super.renderInputField(vnode);
+
+    return (
+      <div className={classnames({[styles.switchSmall]: vnode.attrs.small}, styles.switchBtn)}
+           data-test-id="switch-wrapper">
+        {checkboxField}
+        <label for={this.id} className={styles.switchPaddle} data-test-id="switch-paddle"/>
+      </div>
+    );
+  }
+
+  protected className(vnode: m.Vnode<FormFieldAttrs<boolean>>): string {
+    return classnames(this.defaultAttributes(vnode).className, styles.formControl, styles.switchInput);
   }
 }
 
 export class SelectField extends FormField<string> {
-  renderInputField(vnode: m.Vnode<FormFieldAttrs<string>>): m.Children | void | null {
+  renderInputField(vnode: m.Vnode<FormFieldAttrs<string>>): m.Children {
     return (
       <select
         class={styles.formControl}
@@ -241,7 +260,7 @@ export interface SelectFieldAttrs {
 }
 
 export class SelectFieldOptions extends MithrilViewComponent<SelectFieldAttrs> {
-  view(vnode: m.Vnode<SelectFieldAttrs>): m.Children | void | null {
+  view(vnode: m.Vnode<SelectFieldAttrs>): m.Children {
     return _.map(vnode.attrs.items, (optionOrString: Option | string) => {
       let id: string;
       let text: string;

@@ -23,7 +23,7 @@ import {CollapsiblePanel} from "views/components/collapsible_panel";
 import {FlashMessage, MessageType} from "views/components/flash_message";
 import {EncryptedValue} from "views/components/forms/encrypted_value";
 import {Form, FormItem} from "views/components/forms/form";
-import {PasswordField, TextField} from "views/components/forms/input_fields";
+import {CheckboxField, PasswordField, Switch, TextField} from "views/components/forms/input_fields";
 import {HeaderPanel} from "views/components/header_panel";
 import {ButtonGroup} from "views/components/icons";
 import * as Icons from "views/components/icons/index";
@@ -31,9 +31,9 @@ import {KeyValuePair} from "views/components/key_value_pair";
 import {Size} from "views/components/modal";
 import {SampleModal} from "views/components/modal/sample";
 import {SearchBox} from "views/components/search_box";
-import {Switch} from "views/components/switch";
 
-const formValue = stream("initial value");
+const formValue     = stream("initial value");
+const checkboxField = stream(false);
 
 const passwordValue          = stream(new EncryptedValue({clearText: "p@ssword"}));
 const encryptedPasswordValue = stream(new EncryptedValue({cipherText: "AES:junk:more-junk"}));
@@ -104,14 +104,11 @@ export class KitchenSink extends MithrilViewComponent<null> {
 
         <br/>
         <h3>Switches</h3>
-        <label>Switch</label>
-        <Switch field={switchStream}/><br/>
-        <label>Small switch</label>
-        <Switch field={switchStream} small={true}/><br/>
+        <Switch property={switchStream} label={"Do you like switch?"} errorText={"Some error"}
+                helpText={"Click if you like switch"}/><br/>
 
-        <label>Switch with label</label>
-        <Switch label={"This is label for a switch"} field={switchStream}/><br/>
-        <Switch field={switchStream} label={"This is label for a small"} small={true}/><br/>
+        <Switch property={switchStream} label={"Do you like small switch?"}
+                helpText={"Click if you like small switch"} small={true}/><br/>
         <label>Switch state: {`${switchStream()}`}</label>
         <hr/>
         <br/>
@@ -184,6 +181,14 @@ export class KitchenSink extends MithrilViewComponent<null> {
                        disabled={false}
                        label="Lorem ipsum"
                        property={formValue}/>
+          </FormItem>
+          <FormItem>
+            <CheckboxField required={true}
+                           errorText="This is a checkbox"
+                           helpText="Do you want ice cream?"
+                           disabled={false}
+                           label="Do you want ice cream?"
+                           property={checkboxField}/>
           </FormItem>
           <FormItem>
             <PasswordField label="Editable password field"

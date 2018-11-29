@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 
-import {Switch} from "../index";
-
 import * as stream from "mithril/stream";
-import * as styles from "../index.scss";
+import {Switch} from "views/components/forms/input_fields";
+import * as styles from "../forms.scss";
 
 describe("Switch component", () => {
   const m             = require("mithril");
@@ -39,10 +38,9 @@ describe("Switch component", () => {
     expect(find("switch-wrapper")).toBeInDOM();
     expect(find("switch-wrapper")).toHaveClass(styles.switchBtn);
 
-    expect(find("switch-label")).toContainText("This is switch");
-    expect(find("switch-label")).toHaveClass(styles.switchLabel);
+    expect(find("form-field-label")).toContainText("This is switch");
 
-    expect(find("switch-checkbox")).toHaveClass(styles.switchInput);
+    expect(find("form-field-input")).toHaveClass(styles.switchInput);
     expect(find("switch-paddle")).toHaveClass(styles.switchPaddle);
   });
 
@@ -59,10 +57,10 @@ describe("Switch component", () => {
 
     expect(switchStream()).toBe(false);
 
-    simulateEvent.simulate(find("switch-checkbox").get(0), "click");
+    simulateEvent.simulate(find("form-field-input").get(0), "click");
     expect(switchStream()).toBe(true);
 
-    simulateEvent.simulate(find("switch-checkbox").get(0), "click");
+    simulateEvent.simulate(find("form-field-input").get(0), "click");
     expect(switchStream()).toBe(false);
   });
 
@@ -81,7 +79,7 @@ describe("Switch component", () => {
   function mount(isSmallSwitch?: boolean) {
     m.mount(root, {
       view() {
-        return (<Switch field={switchStream} label={"This is switch"} small={isSmallSwitch}/>);
+        return (<Switch property={switchStream} label={"This is switch"} small={isSmallSwitch}/>);
       }
     });
 

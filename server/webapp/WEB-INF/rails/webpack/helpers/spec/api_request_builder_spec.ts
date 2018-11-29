@@ -131,7 +131,7 @@ describe("ApiResult", () => {
 
   function mockValidationFailedRequest() {
     return jasmine.Ajax.stubRequest("/foo", undefined, "PUT").andReturn({
-      responseText: JSON.stringify({data: {message: "validation failed"}}),
+      responseText: JSON.stringify({message: "validation failed"}),
       status: 422,
       responseHeaders: {
         "Content-Type": contentType,

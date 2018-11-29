@@ -379,6 +379,7 @@ export class NewConfigRepoModal extends ConfigRepoModal {
       this.repo(ConfigRepo.fromJSON(json.data));
     } else {
       this.onError(errorResponse.message);
+      this.close();
     }
   }
 }
@@ -433,6 +434,7 @@ export class EditConfigRepoModal extends ConfigRepoModal {
       this.repoWithEtag({etag, object: ConfigRepo.fromJSON(json.data)});
     } else {
       this.onError(errorResponse.message);
+      this.close();
     }
   }
 }

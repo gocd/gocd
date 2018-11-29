@@ -326,8 +326,8 @@
 
   <rule>
     <name>Drain Mode APIs</name>
-    <from>^/api/drain_mode/(.*)(/?)$</from>
-    <to last="true">/spark/api/drain_mode/$1</to>
+    <from>^/api/admin/drain_mode/(.*)(/?)$</from>
+    <to last="true">/spark/api/admin/drain_mode/$1</to>
   </rule>
 
   <rule>

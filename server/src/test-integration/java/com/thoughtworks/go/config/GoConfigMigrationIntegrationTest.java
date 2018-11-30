@@ -2311,7 +2311,7 @@ public class GoConfigMigrationIntegrationTest {
                 + configContent
                 + "</cruise>";
 
-        String migratedContent = migrateXmlString(configXml, 113);
+        String migratedContent = migrateXmlString(configXml, 113, 114);
 
         assertThat(migratedContent, containsString("<cruise schemaVersion=\"114\""));
         assertThat(migratedContent, containsString(configContent));

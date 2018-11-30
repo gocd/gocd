@@ -127,6 +127,8 @@ public class CachedGoConfigIntegrationTest {
     private ExternalArtifactsService externalArtifactsService;
     @Autowired
     private ArtifactStoreService artifactStoreService;
+    @Autowired
+    private GoConfigMigration goConfigMigration;
 
     @Rule
     public final TemporaryFolder temporaryFolder = new TemporaryFolder();
@@ -1168,7 +1170,7 @@ public class CachedGoConfigIntegrationTest {
         ArtifactStore artifactStore = new ArtifactStore("dockerhub", "cd.go.artifact.docker.registry");
         artifactStoreService.create(Username.ANONYMOUS, artifactStore, new HttpLocalizedOperationResult());
         File configFile = new File(new SystemEnvironment().getCruiseConfigFile());
-        String config = IOUtils.toString(getClass().getResourceAsStream("/data/pluggable_artifacts_with_params.xml"), UTF_8);
+        String config = goConfigMigration.upgradeIfNecessary(IOUtils.toString(getClass().getResourceAsStream("/data/pluggable_artifacts_with_params.xml"), UTF_8));
         FileUtils.writeStringToFile(configFile, config, UTF_8);
 
         cachedGoConfig.forceReload();
@@ -1189,7 +1191,7 @@ public class CachedGoConfigIntegrationTest {
         ArtifactStore artifactStore = new ArtifactStore("dockerhub", "cd.go.artifact.docker.registry");
         artifactStoreService.create(Username.ANONYMOUS, artifactStore, new HttpLocalizedOperationResult());
         File configFile = new File(new SystemEnvironment().getCruiseConfigFile());
-        String config = IOUtils.toString(getClass().getResourceAsStream("/data/pluggable_artifacts_with_params.xml"), UTF_8);
+        String config = goConfigMigration.upgradeIfNecessary(IOUtils.toString(getClass().getResourceAsStream("/data/pluggable_artifacts_with_params.xml"), UTF_8));
         FileUtils.writeStringToFile(configFile, config, UTF_8);
 
         cachedGoConfig.forceReload();

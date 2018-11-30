@@ -2402,7 +2402,7 @@ public class GoConfigMigrationIntegrationTest {
                 "</cruise>";
         String migratedContent = migrateXmlString(configXml, 114);
 
-        assertThat(migratedContent, containsString(
+        assertStringContainsIgnoringCarriageReturn(migratedContent,
                 "<config-repos>\n" +
                 "    <config-repo pluginId=\"yaml.config.plugin\" id=\"test\">\n" +
                 "      <git url=\"test\" branch=\"test\"/>\n" +
@@ -2421,11 +2421,15 @@ public class GoConfigMigrationIntegrationTest {
                 "        <view>&lt;h1&gt;test&lt;/h1&gt;</view>\n" +
                 "      </p4>\n" +
                 "    </config-repo>\n" +
-                "  </config-repos>"));
+                "  </config-repos>");
     }
 
     private void assertStringsIgnoringCarriageReturnAreEqual(String expected, String actual) {
         assertEquals(expected.replaceAll("\\r", ""), actual.replaceAll("\\r", ""));
+    }
+
+    private void assertStringContainsIgnoringCarriageReturn(String actual, String substring) {
+        assertThat(actual.replaceAll("\\r", ""), containsString(substring.replaceAll("\\r", "")));
     }
 
     private TimerConfig createTimerConfigWithAttribute(String valueForOnChangesInTimer) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {

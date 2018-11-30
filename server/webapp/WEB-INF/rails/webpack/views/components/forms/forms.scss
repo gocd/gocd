@@ -159,7 +159,6 @@ input[type="checkbox"].form-control { //sass-lint:disable-line no-qualifying-ele
   }
 }
 
-
 $switch-on-color: #40b76b;
 $switch-off-color: #cacaca;
 $switch-large-paddle-size: 1.5rem;
@@ -198,25 +197,25 @@ $switch-small-translate-x: 1rem;
   background-color:   $switch-off-color;
   -webkit-transition: 0.4s;
   transition:         0.4s;
-}
 
-.switch-paddle:after {
-  display:            flex;
-  align-self:         center;
-  content:            '';
-  border-radius:      1rem;
-  margin-left:        $switch-large-space-between;
-  height:             $switch-large-paddle-size;
-  width:              $switch-large-paddle-size;
-  background-color:   $white;
-  -webkit-transition: 0.4s;
-  transition:         0.4s;
-}
+  &:after {
+    display:            flex;
+    align-self:         center;
+    content:            '';
+    border-radius:      1rem;
+    margin-left:        $switch-large-space-between;
+    height:             $switch-large-paddle-size;
+    width:              $switch-large-paddle-size;
+    background-color:   $white;
+    -webkit-transition: 0.4s;
+    transition:         0.4s;
+  }
 
-input:checked ~ .switch-paddle:after {
-  -webkit-transform: translateX($switch-large-translate-x);
-  -ms-transform:     translateX($switch-large-translate-x);
-  transform:         translateX($switch-large-translate-x);
+  input:checked ~ &:after {
+    -webkit-transform: translateX($switch-large-translate-x);
+    -ms-transform:     translateX($switch-large-translate-x);
+    transform:         translateX($switch-large-translate-x);
+  }
 }
 
 .switch-input {
@@ -231,17 +230,17 @@ input:checked ~ .switch-paddle {
   .switch-paddle {
     width:  $switch-small-width;
     height: $switch-small-height;
-  }
 
-  .switch-paddle:after {
-    height:      $switch-small-paddle-size;
-    width:       $switch-small-paddle-size;
-    margin-left: $switch-small-space-between;
-  }
+    &:after {
+      height:      $switch-small-paddle-size;
+      width:       $switch-small-paddle-size;
+      margin-left: $switch-small-space-between;
+    }
 
-  input:checked ~ .switch-paddle:after {
-    -webkit-transform: translateX($switch-small-translate-x);
-    -ms-transform:     translateX($switch-small-translate-x);
-    transform:         translateX($switch-small-translate-x);
+    input:checked ~ &:after {
+      -webkit-transform: translateX($switch-small-translate-x);
+      -ms-transform:     translateX($switch-small-translate-x);
+      transform:         translateX($switch-small-translate-x);
+    }
   }
 }

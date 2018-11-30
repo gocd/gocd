@@ -16,7 +16,7 @@
 
 import * as m from "mithril";
 import * as Buttons from "views/components/buttons";
-import {Modal} from "views/components/modal";
+import {Modal, Size} from "views/components/modal";
 
 export class DeleteConfirmModal extends Modal {
   private readonly message: m.Children;
@@ -26,7 +26,7 @@ export class DeleteConfirmModal extends Modal {
   constructor(message: m.Children,
               ondelete: () => any,
               title = "Are you sure?") {
-    super();
+    super(Size.small);
     this.message    = message;
     this.modalTitle = title;
     this.ondelete   = ondelete;

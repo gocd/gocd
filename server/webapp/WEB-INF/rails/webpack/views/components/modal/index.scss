@@ -101,12 +101,12 @@ $overlay-header-txt: #fff;
   padding:    20px 30px;
   overflow-y: auto;
   @media(max-width: $screen-md-min) {
-    height: calc(100vh - 168px);
+    max-height: calc(100vh - 168px);
 
   }
   @media(min-width: $screen-md) {
     //TODO Fix this
-    height: $overlay-height;
+    max-height: $overlay-height;
     //min-height: $overlay-height;
     //max-height: 730px;
   }

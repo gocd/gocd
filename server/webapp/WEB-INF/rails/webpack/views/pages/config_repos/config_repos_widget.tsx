@@ -98,7 +98,7 @@ class HeaderWidget extends MithrilViewComponent<HeaderWidgetAttrs> {
       );
     }
 
-    if (vnode.attrs.repo.lastParse().success) {
+    if (vnode.attrs.repo.lastParse().success()) {
       return (
         <HeaderIcon>
           <span className={styles.goodLastParseIcon}

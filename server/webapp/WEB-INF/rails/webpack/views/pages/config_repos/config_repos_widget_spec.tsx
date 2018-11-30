@@ -22,6 +22,7 @@ import {ConfigRepo, GitMaterialAttributes, LastParse} from "models/config_repos/
 import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
 import * as simulateEvent from "simulate-event";
 import * as uuid from "uuid/v4";
+import * as headerIconStyles from "views/components/header_icon/index.scss";
 import {Attrs, ConfigReposWidget} from "views/pages/config_repos/config_repos_widget";
 import * as styles from "views/pages/config_repos/index.scss";
 
@@ -81,7 +82,8 @@ describe("ConfigReposWidget", () => {
   it("should render a message when there are no config repos", () => {
     configRepos([]);
     m.redraw();
-    expect(find("flash-message-info")).toContainText("There are no config repositories setup. Click the \"Add\" button to add one.");
+    expect(find("flash-message-info"))
+      .toContainText("There are no config repositories setup. Click the \"Add\" button to add one.");
   });
 
   it("should render a list of config repos", () => {
@@ -98,11 +100,13 @@ describe("ConfigReposWidget", () => {
     const repo = createConfigRepo();
     repo.lastParse(new LastParse("1234", true));
     configRepos([repo]);
+    pluginInfos([configRepoPluginInfo()]);
     m.redraw();
     expect($root).toContainText("Last seen revision: 1234");
     expect($root.find(`.${styles.scmHeader}`)).toHaveText("SCM configuration for git material");
     expect(find("key-value-key-url")).toContainText(`URL`);
     expect(find("key-value-value-url")).toContainText((repo.material().attributes() as GitMaterialAttributes).url());
+    expect($root.find(`.${styles.goodLastParseIcon}`)).toBeInDOM();
   });
 
   it("should render a warning message when plugin is missing", () => {
@@ -110,6 +114,7 @@ describe("ConfigReposWidget", () => {
     configRepos([repo]);
     m.redraw();
     expect(find("flash-message-alert")).toHaveText("This plugin is missing.");
+    expect($root.find(`.${headerIconStyles.unknownIcon}`)).toBeInDOM();
   });
 
   it("should render a warning message when parsing did not finish", () => {
@@ -118,6 +123,7 @@ describe("ConfigReposWidget", () => {
     pluginInfos([configRepoPluginInfo()]);
     m.redraw();
     expect(find("flash-message-warning")).toHaveText("This configuration repository was never parsed.");
+    expect($root.find(`.${styles.neverParsed}`)).toBeInDOM();
   });
 
   it("should render a warning message when parsing failed", () => {
@@ -128,6 +134,7 @@ describe("ConfigReposWidget", () => {
     m.redraw();
     expect(find("flash-message-warning")).toContainText("There was an error parsing this configuration repository:");
     expect(find("flash-message-warning")).toContainText("blah!");
+    expect($root.find(`.${styles.lastParseErrorIcon}`)).toBeInDOM();
   });
 
   it("should callback the delete function when delete button is clicked", () => {
@@ -162,19 +169,19 @@ describe("ConfigReposWidget", () => {
 
   function createConfigRepo(id = uuid()) {
     return ConfigRepo.fromJSON({
-      material: {
-        type: "git",
-        attributes: {
-          url: "https://example.com/git/" + uuid(),
-          name: "foo",
-          auto_update: true
-        }
-      },
-      configuration: [],
-      last_parse: {},
-      id,
-      plugin_id: "json.config.plugin"
-    });
+                                 material: {
+                                   type: "git",
+                                   attributes: {
+                                     url: "https://example.com/git/" + uuid(),
+                                     name: "foo",
+                                     auto_update: true
+                                   }
+                                 },
+                                 configuration: [],
+                                 last_parse: {},
+                                 id,
+                                 plugin_id: "json.config.plugin"
+                               });
   }
 
   function configRepoPluginInfo() {

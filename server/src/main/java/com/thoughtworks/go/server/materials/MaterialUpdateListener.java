@@ -58,6 +58,7 @@ public class MaterialUpdateListener implements GoMessageListener<MaterialUpdateM
         }
 
         try {
+            drainModeService.mduStartedForMaterial(material);
             mduPerformanceLogger.pickedUpMaterialForMDU(message.trackingId(), material);
             bombIf(diskSpaceMonitor.isLowOnDisk(), "Cruise server is too low on disk to continue with material update");
             updater.updateMaterial(material);
@@ -66,6 +67,8 @@ public class MaterialUpdateListener implements GoMessageListener<MaterialUpdateM
         } catch (Exception e) {
             topic.post(new MaterialUpdateFailedMessage(material, message.trackingId(), e));
             mduPerformanceLogger.postingMessageAboutMDUFailure(message.trackingId(), material);
+        } finally {
+            drainModeService.mduFinishedForMaterial(material);
         }
     }
 }

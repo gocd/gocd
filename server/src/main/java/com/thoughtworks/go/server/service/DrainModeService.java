@@ -16,20 +16,28 @@
 
 package com.thoughtworks.go.server.service;
 
+import com.thoughtworks.go.domain.materials.Material;
 import com.thoughtworks.go.server.domain.ServerDrainMode;
+import com.thoughtworks.go.util.TimeProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.sql.Timestamp;
+import java.util.Collection;
+import java.util.concurrent.ConcurrentHashMap;
+
 @Service
 public class DrainModeService {
     private static final Logger LOGGER = LoggerFactory.getLogger(DrainModeService.class);
-
+    private static ConcurrentHashMap<String, MaterialPerformingMDU> runningMDUs = new ConcurrentHashMap<>();
     private ServerDrainMode drainMode;
+    private TimeProvider timeProvider;
 
     @Autowired
-    public DrainModeService() {
+    public DrainModeService(TimeProvider timeProvider) {
+        this.timeProvider = timeProvider;
         this.drainMode = new ServerDrainMode();
     }
 
@@ -44,5 +52,35 @@ public class DrainModeService {
 
     public boolean isDrainMode() {
         return get().isDrainMode();
+    }
+
+    public Collection<MaterialPerformingMDU> getRunningMDUs() {
+        return runningMDUs.values();
+    }
+
+    public void mduStartedForMaterial(Material material) {
+        runningMDUs.put(material.getFingerprint(), new MaterialPerformingMDU(material, new Timestamp(timeProvider.currentTimeMillis())));
+    }
+
+    public void mduFinishedForMaterial(Material material) {
+        runningMDUs.remove(material.getFingerprint());
+    }
+
+    public class MaterialPerformingMDU {
+        private final Material material;
+        private final Timestamp timestamp;
+
+        public MaterialPerformingMDU(Material material, Timestamp timestamp) {
+            this.material = material;
+            this.timestamp = timestamp;
+        }
+
+        public Material getMaterial() {
+            return material;
+        }
+
+        public Timestamp getTimestamp() {
+            return timestamp;
+        }
     }
 }

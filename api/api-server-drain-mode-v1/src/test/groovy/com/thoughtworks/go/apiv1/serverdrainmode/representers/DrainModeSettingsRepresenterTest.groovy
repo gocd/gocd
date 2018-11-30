@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.apiv1.serverdrainmode.representer
+package com.thoughtworks.go.apiv1.serverdrainmode.representers
 
 import com.thoughtworks.go.api.util.GsonTransformer
-import com.thoughtworks.go.apiv1.serverdrainmode.representers.DrainModeRepresenter
+import com.thoughtworks.go.apiv1.serverdrainmode.representers.DrainModeSettingsRepresenter
 import com.thoughtworks.go.server.domain.ServerDrainMode
 import com.thoughtworks.go.server.domain.Username
 import com.thoughtworks.go.util.TimeProvider
@@ -34,7 +34,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals
 import static org.mockito.Mockito.when
 import static org.mockito.MockitoAnnotations.initMocks
 
-class DrainModeRepresenterTest {
+class DrainModeSettingsRepresenterTest {
   @BeforeEach
   void setUp() {
     initMocks(this)
@@ -51,12 +51,12 @@ class DrainModeRepresenterTest {
     drainMode.updatedBy("Bob")
     drainMode.updatedOn(new Timestamp(new Date().getTime()))
 
-    def actualJson = toObjectString({ DrainModeRepresenter.toJSON(it, drainMode) })
+    def actualJson = toObjectString({ DrainModeSettingsRepresenter.toJSON(it, drainMode) })
 
     def expectedJson = [
       _links     : [
-        self: [href: 'http://test.host/go/api/drain_mode/settings'],
-        doc : [href: 'https://api.gocd.org/current/#server-drain-mode']
+        self: [href: 'http://test.host/go/api/admin/drain_mode/settings'],
+        doc : [href: 'https://api.gocd.org/current/#drain-mode-settings']
       ],
       "_embedded": [
         drain     : drainMode.isDrainMode(),
@@ -68,7 +68,6 @@ class DrainModeRepresenterTest {
     assertThatJson(actualJson).isEqualTo(expectedJson)
   }
 
-
   @Test
   void "should deserialize server drain mode object"() {
     def json = [
@@ -78,7 +77,7 @@ class DrainModeRepresenterTest {
     def jsonReader = GsonTransformer.instance.jsonReaderFrom(json)
     def time = 10000000l
     when(timeProvider.currentTimeMillis()).thenReturn(time)
-    def deserializedSettings = DrainModeRepresenter.fromJSON(jsonReader,
+    def deserializedSettings = DrainModeSettingsRepresenter.fromJSON(jsonReader,
       new Username("user"), timeProvider,
       new ServerDrainMode(false, "me", new Date()))
     assertEquals(deserializedSettings.isDrainMode(), true)
@@ -93,7 +92,7 @@ class DrainModeRepresenterTest {
     def jsonReader = GsonTransformer.instance.jsonReaderFrom(json)
     def time = 10000000l
     when(timeProvider.currentTimeMillis()).thenReturn(time)
-    def deserializedSettings = DrainModeRepresenter.fromJSON(jsonReader,
+    def deserializedSettings = DrainModeSettingsRepresenter.fromJSON(jsonReader,
       new Username("user"), timeProvider,
       new ServerDrainMode(false, "me", new Date()))
     assertEquals(deserializedSettings.isDrainMode(), false)

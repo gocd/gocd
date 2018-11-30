@@ -25,11 +25,11 @@ import com.thoughtworks.go.util.TimeProvider;
 
 import java.sql.Timestamp;
 
-public class DrainModeRepresenter {
+public class DrainModeSettingsRepresenter {
     public static void toJSON(OutputWriter jsonWriter, ServerDrainMode serverDrainMode) {
         jsonWriter
-                .addLinks(linksWriter -> linksWriter.addLink("self", Routes.DrainMode.BASE)
-                        .addAbsoluteLink("doc", Routes.DrainMode.DOC))
+                .addLinks(linksWriter -> linksWriter.addLink("self", Routes.DrainMode.BASE + Routes.DrainMode.SETTINGS)
+                        .addAbsoluteLink("doc", Routes.DrainMode.SETTINGS_DOC))
                 .addChild("_embedded", childWriter -> {
                     childWriter.add("drain", serverDrainMode.isDrainMode())
                             .add("updated_by", serverDrainMode.updatedBy())

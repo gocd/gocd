@@ -26,7 +26,7 @@ let browsers;
 if (process.platform === 'darwin') {
   browsers = ['Firefox', 'Chrome', 'Safari'];
 } else if (process.platform === 'win32') {
-  browsers = ['Firefox', 'Chrome', 'Edge'];
+  browsers = ['Edge'];
 } else {
   // linux, bsd, et.al.
   browsers = ['Firefox'];

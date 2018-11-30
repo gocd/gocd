@@ -91,14 +91,7 @@ class MaterialEditWidget extends MithrilViewComponent<EditableMaterial> {
 
             <FormItem>
               <CheckboxField label={humanizedMaterialAttributeName("autoUpdate")}
-                             property={vnode.attrs.repo.material().attributes().autoUpdate}/>
-            </FormItem>
-
-            <FormItem>
-              <TextField label={humanizedMaterialAttributeName("name")}
-                         property={materialAttributes.name}
-                         required={true}
-                         errorText={materialAttributes.errors().errorsForDisplay("name")}/>
+                             property={materialAttributes.autoUpdate}/>
             </FormItem>
           </Form>
         </FormHeader>),
@@ -379,6 +372,7 @@ export class NewConfigRepoModal extends ConfigRepoModal {
       this.repo(ConfigRepo.fromJSON(json.data));
     } else {
       this.onError(errorResponse.message);
+      this.close();
     }
   }
 }
@@ -433,6 +427,7 @@ export class EditConfigRepoModal extends ConfigRepoModal {
       this.repoWithEtag({etag, object: ConfigRepo.fromJSON(json.data)});
     } else {
       this.onError(errorResponse.message);
+      this.close();
     }
   }
 }

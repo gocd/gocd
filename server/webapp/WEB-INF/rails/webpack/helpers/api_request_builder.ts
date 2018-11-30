@@ -196,10 +196,11 @@ export class ApiRequestBuilder {
     }).then((xhr: XMLHttpRequest) => {
       return ApiResult.from(xhr);
     }).catch((reason) => {
+      const unknownError = "There was an unknown error performing the operation.";
       try {
-        return ApiResult.error(reason.responseText, JSON.parse(reason.message).data.message, reason.status);
+        return ApiResult.error(reason.responseText, JSON.parse(reason.message).message || unknownError, reason.status);
       } catch {
-        return ApiResult.error(reason.responseText, "There was an unknown error performing the operation.", reason.status);
+        return ApiResult.error(reason.responseText, unknownError, reason.status);
       }
     });
   }

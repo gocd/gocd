@@ -36,8 +36,8 @@ describe("Config Repo Types", () => {
       expect(configRepo.isValid()).toBe(false);
       expect(configRepo.errors().count()).toBe(0);
       expect(configRepo.material().errors().count()).toBe(0);
-      expect(configRepo.material().attributes().errors().count()).toBe(2);
-      expect(configRepo.material().attributes().errors().keys()).toEqual(["name", "url"]);
+      expect(configRepo.material().attributes().errors().count()).toBe(1);
+      expect(configRepo.material().attributes().errors().keys()).toEqual(["url"]);
     });
 
     it("should should validate SVN material attributes", () => {
@@ -45,8 +45,8 @@ describe("Config Repo Types", () => {
       expect(configRepo.isValid()).toBe(false);
       expect(configRepo.errors().count()).toBe(0);
       expect(configRepo.material().errors().count()).toBe(0);
-      expect(configRepo.material().attributes().errors().count()).toBe(2);
-      expect(configRepo.material().attributes().errors().keys()).toEqual(["name", "url"]);
+      expect(configRepo.material().attributes().errors().count()).toBe(1);
+      expect(configRepo.material().attributes().errors().keys()).toEqual(["url"]);
     });
 
     it("should should validate P4 material attributes", () => {
@@ -54,8 +54,8 @@ describe("Config Repo Types", () => {
       expect(configRepo.isValid()).toBe(false);
       expect(configRepo.errors().count()).toBe(0);
       expect(configRepo.material().errors().count()).toBe(0);
-      expect(configRepo.material().attributes().errors().count()).toBe(3);
-      expect(configRepo.material().attributes().errors().keys()).toEqual(["name", "view", "port"]);
+      expect(configRepo.material().attributes().errors().count()).toBe(2);
+      expect(configRepo.material().attributes().errors().keys()).toEqual(["view", "port"]);
       expect(configRepo.material().attributes().errors().errorsForDisplay("port"))
         .toEqual("Host and port must be present.");
     });
@@ -65,8 +65,8 @@ describe("Config Repo Types", () => {
       expect(configRepo.isValid()).toBe(false);
       expect(configRepo.errors().count()).toBe(0);
       expect(configRepo.material().errors().count()).toBe(0);
-      expect(configRepo.material().attributes().errors().count()).toBe(2);
-      expect(configRepo.material().attributes().errors().keys()).toEqual(["name", "url"]);
+      expect(configRepo.material().attributes().errors().count()).toBe(1);
+      expect(configRepo.material().attributes().errors().keys()).toEqual(["url"]);
     });
 
     it("should should validate TFS material attributes", () => {
@@ -74,9 +74,9 @@ describe("Config Repo Types", () => {
       expect(configRepo.isValid()).toBe(false);
       expect(configRepo.errors().count()).toBe(0);
       expect(configRepo.material().errors().count()).toBe(0);
-      expect(configRepo.material().attributes().errors().count()).toBe(5);
+      expect(configRepo.material().attributes().errors().count()).toBe(4);
       expect(configRepo.material().attributes().errors().keys())
-        .toEqual(["name", "url", "projectPath", "username", "password"]);
+        .toEqual(["url", "projectPath", "username", "password"]);
     });
   });
 });

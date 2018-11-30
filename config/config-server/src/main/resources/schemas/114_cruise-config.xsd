@@ -83,7 +83,7 @@
           </xsd:unique>
         </xsd:element>
       </xsd:sequence>
-      <xsd:attribute name="schemaVersion" type="xsd:int" use="required" fixed="115"/>
+      <xsd:attribute name="schemaVersion" type="xsd:int" use="required" fixed="114"/>
     </xsd:complexType>
     <xsd:unique name="uniquePipelines">
       <xsd:selector xpath="pipelines"/>
@@ -168,6 +168,7 @@
     <xsd:attribute name="autoUpdate" type="xsd:boolean" use="optional"/>
     <xsd:attribute name="checkexternals" type="xsd:boolean"/>
     <xsd:attribute name="encryptedPassword" type="xsd:string"/>
+    <xsd:attribute name="materialName" type="nameType" use="optional"/>
   </xsd:complexType>
   <xsd:complexType name="configRepoP4Type">
     <xsd:sequence>
@@ -179,14 +180,17 @@
     <xsd:attribute name="autoUpdate" type="xsd:boolean" use="optional"/>
     <xsd:attribute name="encryptedPassword" type="xsd:string"/>
     <xsd:attribute name="useTickets" type="xsd:boolean" use="optional"/>
+    <xsd:attribute name="materialName" type="nameType" use="optional"/>
   </xsd:complexType>
   <xsd:complexType name="configRepoGitType">
     <xsd:attribute name="url" type="xsd:string" use="required"/>
     <xsd:attribute name="branch" type="xsd:string" use="optional"/>
     <xsd:attribute name="autoUpdate" type="xsd:boolean" use="optional"/>
+    <xsd:attribute name="materialName" type="nameType" use="optional"/>
   </xsd:complexType>
   <xsd:complexType name="configRepoHgType">
     <xsd:attribute name="url" type="xsd:string" use="required"/>
+    <xsd:attribute name="materialName" type="nameType" use="optional"/>
     <xsd:attribute name="autoUpdate" type="xsd:boolean" use="optional"/>
   </xsd:complexType>
   <xsd:complexType name="configRepoTfsType">
@@ -197,6 +201,7 @@
     <xsd:attribute name="autoUpdate" type="xsd:boolean" use="optional"/>
     <xsd:attribute name="encryptedPassword" type="xsd:string"/>
     <xsd:attribute name="projectPath" type="xsd:string" use="required"/>
+    <xsd:attribute name="materialName" type="nameType" use="optional"/>
   </xsd:complexType>
   <xsd:complexType name="configRepoScmReferenceType">
     <xsd:attribute name="ref" type="xsd:string" use="required"/>
@@ -1066,4 +1071,3 @@
     <xsd:attribute name="secure" type="xsd:boolean"/>
   </xsd:complexType>
 </xsd:schema>
-

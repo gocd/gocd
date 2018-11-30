@@ -169,15 +169,12 @@ applyMixins(Material, ValidatableMixin);
 
 export abstract class MaterialAttributes implements ValidatableMixin {
 
+  autoUpdate: Stream<boolean>;
+
   protected constructor(name?: string, autoUpdate?: boolean) {
-    this.name       = stream(name);
     this.autoUpdate = stream(autoUpdate);
     ValidatableMixin.call(this);
-    this.validatePresenceOf("name");
   }
-
-  name: Stream<string>;
-  autoUpdate: Stream<boolean>;
 
   static deserialize(material: MaterialJSON) {
     switch (material.type) {

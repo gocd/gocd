@@ -73,6 +73,15 @@ public class MaterialUpdateListenerTest {
         verify(updater).updateMaterial(MATERIAL);
     }
 
+    @Test
+    public void shouldNotifyDrainModeServiceAboutStartOfMaterialUpdate() throws Exception {
+        setupTransactionTemplateStub();
+        materialUpdateListener.onMessage(new MaterialUpdateMessage(MATERIAL, 0));
+        verify(updater).updateMaterial(MATERIAL);
+        verify(drainModeService).mduStartedForMaterial(MATERIAL);
+        verify(drainModeService).mduFinishedForMaterial(MATERIAL);
+    }
+
     private void setupTransactionTemplateStub() throws Exception {
         when(transactionTemplate.executeWithExceptionHandling(Mockito.any(TransactionCallback.class))).thenAnswer(new Answer<Object>() {
             public Object answer(InvocationOnMock invocationOnMock) throws Throwable {

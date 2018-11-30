@@ -18,14 +18,14 @@ package com.thoughtworks.go.apiv1.serverdrainmode
 
 import com.thoughtworks.go.api.SecurityTestTrait
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
-import com.thoughtworks.go.apiv1.serverdrainmode.representers.DrainModeRepresenter
+import com.thoughtworks.go.apiv1.serverdrainmode.representers.DrainModeInfoRepresenter
+import com.thoughtworks.go.apiv1.serverdrainmode.representers.DrainModeSettingsRepresenter
 import com.thoughtworks.go.server.domain.ServerDrainMode
 import com.thoughtworks.go.server.service.DrainModeService
 import com.thoughtworks.go.server.service.support.toggle.FeatureToggleService
 import com.thoughtworks.go.server.service.support.toggle.Toggles
 import com.thoughtworks.go.spark.AdminUserSecurity
 import com.thoughtworks.go.spark.ControllerTrait
-import com.thoughtworks.go.spark.NormalUserSecurity
 import com.thoughtworks.go.spark.SecurityServiceTrait
 import com.thoughtworks.go.util.TimeProvider
 import org.junit.jupiter.api.BeforeEach
@@ -61,7 +61,7 @@ class ServerDrainModeControllerV1Test implements SecurityServiceTrait, Controlle
   }
 
   @Nested
-  class get {
+  class Get {
     @Nested
     class Security implements SecurityTestTrait, AdminUserSecurity {
 
@@ -96,7 +96,7 @@ class ServerDrainModeControllerV1Test implements SecurityServiceTrait, Controlle
         assertThatResponse()
           .isOk()
           .hasContentType(controller.mimeType)
-          .hasBody(toObjectString({ DrainModeRepresenter.toJSON(it, drainMode) }))
+          .hasBody(toObjectString({ DrainModeSettingsRepresenter.toJSON(it, drainMode) }))
       }
 
       @Test
@@ -115,7 +115,7 @@ class ServerDrainModeControllerV1Test implements SecurityServiceTrait, Controlle
   }
 
   @Nested
-  class patch {
+  class Patch {
     @Nested
     class Security implements SecurityTestTrait, AdminUserSecurity {
 
@@ -181,7 +181,7 @@ class ServerDrainModeControllerV1Test implements SecurityServiceTrait, Controlle
         assertThatResponse()
           .isOk()
           .hasContentType(controller.mimeType)
-          .hasBodyWithJsonObject(drainMode, DrainModeRepresenter.class)
+          .hasBodyWithJsonObject(drainMode, DrainModeSettingsRepresenter.class)
 
         verify(drainModeService).update(captor.capture())
         def drainModeStateBeingSaved = captor.getValue()
@@ -210,12 +210,62 @@ class ServerDrainModeControllerV1Test implements SecurityServiceTrait, Controlle
         assertThatResponse()
           .isOk()
           .hasContentType(controller.mimeType)
-          .hasBodyWithJsonObject(drainMode, DrainModeRepresenter.class)
+          .hasBodyWithJsonObject(drainMode, DrainModeSettingsRepresenter.class)
 
         verify(drainModeService).update(captor.capture())
         def settingsBeingSaved = captor.getValue()
         assertEquals(settingsBeingSaved.isDrainMode(), drainMode.isDrainMode())
         assertEquals(settingsBeingSaved.updatedBy(), currentUsername().getUsername().toString())
+      }
+    }
+  }
+
+  @Nested
+  class Info {
+    @Nested
+    class Security implements SecurityTestTrait, AdminUserSecurity {
+
+      @Override
+      String getControllerMethodUnderTest() {
+        return "getDrainModeInfo"
+      }
+
+      @Override
+      void makeHttpCall() {
+        getWithApiHeader(controller.controllerPath('/info'))
+      }
+    }
+
+    @Nested
+    class AsAdminUser {
+      @BeforeEach
+      void setUp() {
+        enableSecurity()
+        loginAsAdmin()
+      }
+
+      @Test
+      void 'get drain mode info'() {
+        def runningMDUs = []
+        when(drainModeService.getRunningMDUs()).thenReturn(runningMDUs)
+        when(featureToggleService.isToggleOn(Toggles.SERVER_DRAIN_MODE_API_TOGGLE_KEY)).thenReturn(true)
+
+        getWithApiHeader(controller.controllerPath('/info'))
+
+        assertThatResponse()
+          .isOk()
+          .hasContentType(controller.mimeType)
+          .hasBody(toObjectString({ DrainModeInfoRepresenter.toJSON(it, true, runningMDUs) }))
+      }
+
+      @Test
+      void 'should return not found when SERVER_DRAIN_MODE_API_TOGGLE_KEY is turned off'() {
+        when(featureToggleService.isToggleOn(Toggles.SERVER_DRAIN_MODE_API_TOGGLE_KEY)).thenReturn(false)
+
+        getWithApiHeader(controller.controllerPath('/info'))
+
+        assertThatResponse()
+          .isNotFound()
       }
     }
   }

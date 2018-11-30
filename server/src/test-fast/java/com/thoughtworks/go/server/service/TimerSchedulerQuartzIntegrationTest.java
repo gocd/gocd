@@ -24,6 +24,7 @@ import com.thoughtworks.go.server.domain.ServerDrainMode;
 import com.thoughtworks.go.server.scheduling.BuildCauseProducerService;
 import com.thoughtworks.go.server.service.result.ServerHealthStateOperationResult;
 import com.thoughtworks.go.util.SystemEnvironment;
+import com.thoughtworks.go.util.TimeProvider;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -47,7 +48,7 @@ public class TimerSchedulerQuartzIntegrationTest {
 
     @Before
     public void setUp() throws Exception {
-        drainModeService = new DrainModeService();
+        drainModeService = new DrainModeService(new TimeProvider());
         quartzSchedulerFactory = new StdSchedulerFactory();
         scheduler = quartzSchedulerFactory.getScheduler();
         systemEnvironment = new SystemEnvironment();

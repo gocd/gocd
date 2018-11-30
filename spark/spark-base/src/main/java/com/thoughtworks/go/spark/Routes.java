@@ -30,7 +30,9 @@ public class Routes {
     public static class DrainMode {
         public static final String BASE = "/api/admin/drain_mode";
         public static final String SETTINGS = "/settings";
-        public static final String DOC = "https://api.gocd.org/current/#server-drain-mode";
+        public static final String INFO = "/info";
+        public static final String SETTINGS_DOC = "https://api.gocd.org/current/#drain-mode-settings";
+        public static final String INFO_DOC = "https://api.gocd.org/current/#drain-mode-info";
     }
 
     public static class CurrentUser {

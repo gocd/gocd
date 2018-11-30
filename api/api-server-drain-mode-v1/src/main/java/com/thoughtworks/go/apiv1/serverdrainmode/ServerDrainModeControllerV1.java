@@ -21,7 +21,8 @@ import com.thoughtworks.go.api.ApiVersion;
 import com.thoughtworks.go.api.representers.JsonReader;
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
 import com.thoughtworks.go.api.util.GsonTransformer;
-import com.thoughtworks.go.apiv1.serverdrainmode.representers.DrainModeRepresenter;
+import com.thoughtworks.go.apiv1.serverdrainmode.representers.DrainModeInfoRepresenter;
+import com.thoughtworks.go.apiv1.serverdrainmode.representers.DrainModeSettingsRepresenter;
 import com.thoughtworks.go.config.InvalidPluginTypeException;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.server.domain.ServerDrainMode;
@@ -38,6 +39,7 @@ import spark.Response;
 import spark.Spark;
 
 import java.io.IOException;
+import java.util.Collection;
 
 import static spark.Spark.*;
 
@@ -76,9 +78,12 @@ public class ServerDrainModeControllerV1 extends ApiController implements SparkS
             before("/*", this::verifyContentType);
 
             before(Routes.DrainMode.SETTINGS, mimeType, apiAuthenticationHelper::checkAdminUserAnd403);
+            before(Routes.DrainMode.INFO, mimeType, apiAuthenticationHelper::checkAdminUserAnd403);
 
             get(Routes.DrainMode.SETTINGS, mimeType, this::show);
             Spark.patch(Routes.DrainMode.SETTINGS, mimeType, this::patch);
+
+            get(Routes.DrainMode.INFO, mimeType, this::getDrainModeInfo);
 
             exception(RecordNotFoundException.class, this::notFound);
         });
@@ -89,7 +94,7 @@ public class ServerDrainModeControllerV1 extends ApiController implements SparkS
             throw new RecordNotFoundException();
         }
 
-        return writerForTopLevelObject(req, res, writer -> DrainModeRepresenter.toJSON(writer, drainModeService.get()));
+        return writerForTopLevelObject(req, res, writer -> DrainModeSettingsRepresenter.toJSON(writer, drainModeService.get()));
     }
 
     public String patch(Request req, Response res) throws Exception {
@@ -101,9 +106,19 @@ public class ServerDrainModeControllerV1 extends ApiController implements SparkS
         return show(req, res);
     }
 
+    public String getDrainModeInfo(Request req, Response res) throws InvalidPluginTypeException, IOException {
+        if (!featureToggleService.isToggleOn(Toggles.SERVER_DRAIN_MODE_API_TOGGLE_KEY)) {
+            throw new RecordNotFoundException();
+        }
+
+        Collection<DrainModeService.MaterialPerformingMDU> runningMDUs = drainModeService.getRunningMDUs();
+        boolean isServerCompletelyDrained = runningMDUs.isEmpty();
+        return writerForTopLevelObject(req, res, writer -> DrainModeInfoRepresenter.toJSON(writer, isServerCompletelyDrained, runningMDUs));
+    }
+
     public ServerDrainMode buildEntityFromRequestBody(Request request) {
         JsonReader jsonReader = GsonTransformer.getInstance().jsonReaderFrom(request.body());
-        return DrainModeRepresenter.fromJSON(jsonReader, currentUsername(), timeProvider, drainModeService.get());
+        return DrainModeSettingsRepresenter.fromJSON(jsonReader, currentUsername(), timeProvider, drainModeService.get());
     }
 
 }

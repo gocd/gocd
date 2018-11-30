@@ -22,11 +22,14 @@ import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 import org.apache.http.NoHttpResponseException;
 import org.apache.http.StatusLine;
+import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.protocol.HttpClientContext;
 import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.protocol.BasicHttpContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.remoting.httpinvoker.AbstractHttpInvokerRequestExecutor;
 import org.springframework.remoting.httpinvoker.HttpInvokerClientConfiguration;
 import org.springframework.remoting.support.RemoteInvocationResult;
@@ -34,9 +37,13 @@ import org.springframework.remoting.support.RemoteInvocationResult;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Arrays;
+import java.util.List;
 import java.util.zip.GZIPInputStream;
 
 public class GoHttpClientHttpInvokerRequestExecutor extends AbstractHttpInvokerRequestExecutor {
+    private static final Logger LOG = LoggerFactory.getLogger(GoHttpClientHttpInvokerRequestExecutor.class);
+
     private final GoAgentServerHttpClient goAgentServerHttpClient;
     private final SystemEnvironment environment;
 
@@ -82,6 +89,18 @@ public class GoHttpClientHttpInvokerRequestExecutor extends AbstractHttpInvokerR
 
     private void validateResponse(HttpResponse response) throws IOException {
         StatusLine status = response.getStatusLine();
+        if (status.getStatusCode() == 403) {
+            String messagePrefix = "The server returned status code 403. Possible reasons include:";
+
+            List<String> reasons = Arrays.asList(
+                    "This agent has been deleted from the configuration",
+                    "This agent is pending approval",
+                    "There is possibly a reverse proxy (or load balancer) that is terminating SSL. Hint: use port 8154 of the GoCD server. See https://docs.gocd.org/current/installation/configure-reverse-proxy.html#agents-and-reverse-proxies for details."
+            );
+
+            String delimiter = "\n   - ";
+            throw new ClientProtocolException(messagePrefix + delimiter + String.join(delimiter, reasons));
+        }
         if (status.getStatusCode() >= 300) {
             throw new NoHttpResponseException("Did not receive successful HTTP response: status code = " + status.getStatusCode() + ", status message = [" + status.getReasonPhrase() + "]");
         }

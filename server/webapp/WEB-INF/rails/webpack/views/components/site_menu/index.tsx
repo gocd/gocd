@@ -16,7 +16,7 @@
 
 import {bind} from "classnames/bind";
 import {MithrilViewComponent} from "jsx/mithril-component";
-import * as m from 'mithril';
+import * as m from "mithril";
 import * as styles from "./index.scss";
 
 const classnames = bind(styles);
@@ -30,14 +30,14 @@ interface SiteHeaderLinkAttrs {
 class SiteHeaderLink extends MithrilViewComponent<SiteHeaderLinkAttrs> {
   view(vnode: m.Vnode<SiteHeaderLinkAttrs>) {
     const classes = classnames({
-      [styles.siteNavLink]:    vnode.attrs.isNavLink,
-      [styles.siteSubNavLink]: !vnode.attrs.isNavLink,
-    });
+                                 [styles.siteNavLink]: vnode.attrs.isNavLink,
+                                 [styles.siteSubNavLink]: !vnode.attrs.isNavLink,
+                               });
 
     return (
       <a class={classes}
-         href={vnode.attrs.href || '#'}
-         target={vnode.attrs.target || ''}>
+         href={vnode.attrs.href || "#"}
+         target={vnode.attrs.target || ""}>
         {vnode.children}
       </a>
     );
@@ -148,6 +148,7 @@ export default class SiteMenu extends MithrilViewComponent<Attrs> {
                 <SiteSubNavItem href="/go/admin/templates" text="Templates"/>
                 <SiteSubNavItem href="/go/admin/elastic_profiles" text="Elastic Agent Profiles"/>
                 <SiteSubNavItem href="/go/admin/config_xml" text="Config XML"/>
+                <SiteSubNavItem href="/go/admin/data_sharing/settings" text="Data Sharing"/>
                 <SiteSubNavItem href="/go/admin/config/server" text="Server Configuration"/>
               </SiteSubNav>
               <SiteSubNav>

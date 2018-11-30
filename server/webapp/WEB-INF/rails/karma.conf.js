@@ -20,12 +20,17 @@ const path                = require('path');
 const process             = require('process');
 const jasmineSeedReporter = require('karma-jasmine-seed-reporter');
 const _                   = require('lodash');
+const childProcess        = require('child_process'),
 
 let browsers;
 
 if (process.platform === 'darwin') {
   browsers = ['Firefox', 'Chrome', 'Safari'];
 } else if (process.platform === 'win32') {
+
+  // make sure to kill Edge browser before doing anything.
+  childProcess.spawnSync('taskkill', '/IM', 'MicrosoftEdge.exe', '/T');
+
   browsers = ['Edge'];
 } else {
   // linux, bsd, et.al.

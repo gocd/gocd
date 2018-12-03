@@ -52,10 +52,15 @@ export class ServerHealthMessagesModal extends Modal {
   }
 
   private messageView(message: ServerHealthMessage) {
-    return <li className={classnames(styles.serverHealthStatus, message.level.toLowerCase())}>
-      <span className={styles.message}>{message.message}</span>
-      <span className={styles.timestamp}>{TimeFormatter.format(message.time)}</span>
-      <p className={styles.detail}>{m.trust(message.detail)}</p>
+
+    const meassageId = `server-health-message-for-${message.message}`.toLowerCase().replace(/ /g, "-");
+
+    return <li data-test-id={meassageId}
+               data-test-message-level={message.level.toLowerCase()}
+               className={classnames(styles.serverHealthStatus, message.level.toLowerCase())}>
+      <span data-test-class="server-health-message_message" className={styles.message}>{message.message}</span>
+      <span data-test-class="server-health-message_timestamp" className={styles.timestamp}>{TimeFormatter.format(message.time)}</span>
+      <p data-test-class="server-health-message_detail" className={styles.detail}>{m.trust(message.detail)}</p>
     </li>;
   }
 }

@@ -26,14 +26,18 @@ import * as Buttons from "views/components/buttons";
 import {FlashMessage, MessageType} from "views/components/flash_message";
 import {HeaderPanel} from "views/components/header_panel";
 import {DeleteConfirmModal} from "views/components/modal/delete_confirm_modal";
-import {ConfigReposWidget, State} from "views/pages/config_repos/config_repos_widget";
+import {Attrs, ConfigReposWidget} from "views/pages/config_repos/config_repos_widget";
 import {EditConfigRepoModal, NewConfigRepoModal} from "views/pages/config_repos/modals";
 import {Page, PageState} from "views/pages/page";
+import {AddOperation, HasMessage, SaveOperation} from "views/pages/page_operations";
+
+interface State extends AddOperation<ConfigRepo>, Attrs<ConfigRepo>, SaveOperation, HasMessage {
+}
 
 export class ConfigReposPage extends Page<null, State> {
 
   oninit(vnode: m.Vnode<null, State>) {
-    vnode.state.configRepos = stream();
+    vnode.state.objects     = stream();
     vnode.state.pluginInfos = stream();
     let timeoutID: number;
 
@@ -79,7 +83,8 @@ export class ConfigReposPage extends Page<null, State> {
           try {
             const parse = JSON.parse(err.body || "{}");
             if (parse.message) {
-              setMessage(`Unable to schedule an update for this config repository. ${parse.message}`, MessageType.alert);
+              setMessage(`Unable to schedule an update for this config repository. ${parse.message}`,
+                         MessageType.alert);
             } else {
               setMessage(`Unable to schedule an update for this config repository. ${err.message}`, MessageType.alert);
             }
@@ -96,7 +101,10 @@ export class ConfigReposPage extends Page<null, State> {
       if (timeoutID) {
         clearTimeout(timeoutID);
       }
-      new EditConfigRepoModal(repo.id(), vnode.state.onSuccessfulSave, vnode.state.onError, vnode.state.pluginInfos).render();
+      new EditConfigRepoModal(repo.id(),
+                              vnode.state.onSuccessfulSave,
+                              vnode.state.onError,
+                              vnode.state.pluginInfos).render();
     };
 
     vnode.state.onDelete = (repo: ConfigRepo, e: MouseEvent) => {
@@ -123,7 +131,7 @@ export class ConfigReposPage extends Page<null, State> {
   componentToDisplay(vnode: m.Vnode<null, State>): JSX.Element | undefined {
     return <div>
       <FlashMessage type={vnode.state.messageType} message={vnode.state.message}/>
-      <ConfigReposWidget objects={vnode.state.configRepos}
+      <ConfigReposWidget objects={vnode.state.objects}
                          pluginInfos={vnode.state.pluginInfos}
                          onRefresh={vnode.state.onRefresh.bind(vnode.state)}
                          onEdit={vnode.state.onEdit.bind(vnode.state)}
@@ -141,7 +149,7 @@ export class ConfigReposPage extends Page<null, State> {
 
   fetchData(vnode: m.Vnode<null, State>) {
     const state = vnode.state;
-    state.configRepos(null);
+    state.objects(null);
     this.pageState = PageState.LOADING;
 
     return Promise.all([PluginInfoCRUD.all({type: ExtensionType.CONFIG_REPO}), ConfigReposCRUD.all()]).then((args) => {
@@ -160,7 +168,7 @@ export class ConfigReposPage extends Page<null, State> {
       apiResponse.do(
         (successResponse) => {
           this.pageState = PageState.OK;
-          state.configRepos(successResponse.body);
+          state.objects(successResponse.body);
         },
         (errorResponse) => {
           state.onError(errorResponse.message);

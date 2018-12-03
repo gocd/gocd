@@ -26,34 +26,18 @@ import {HeaderIcon} from "views/components/header_icon";
 import {ButtonGroup, Delete, Refresh, Settings} from "views/components/icons";
 import {KeyValuePair} from "views/components/key_value_pair";
 import {Spinner} from "views/components/spinner";
+import {
+  DeleteOperation,
+  EditOperation,
+  RefreshOperation, RequiresPluginInfos
+} from "views/pages/page_operations";
 import * as styles from "./index.scss";
 
-export interface SaveOperation {
-  onSuccessfulSave: (msg: m.Children) => any;
-  onError: (msg: m.Children) => any;
-}
-
-interface Operations<T> {
-  onEdit: (obj: T, e: MouseEvent) => void;
-  onDelete: (obj: T, e: MouseEvent) => void;
-  onRefresh: (obj: T, e: MouseEvent) => void;
-}
-
-export interface RequiresPluginInfos {
-  pluginInfos: Stream<Array<PluginInfo<any>>>;
+interface Operations<T> extends EditOperation<T>, DeleteOperation<T>, RefreshOperation<T> {
 }
 
 export interface Attrs<T> extends Operations<T>, RequiresPluginInfos {
   objects: Stream<T[] | null>;
-}
-
-export interface State extends Operations<ConfigRepo>, SaveOperation, RequiresPluginInfos {
-  configRepos: Stream<ConfigRepo[] | null>;
-
-  onAdd: (e: MouseEvent) => void;
-  message: m.Children;
-  messageType: MessageType;
-  clearMessage: () => void;
 }
 
 interface ShowObjectAttrs<T> extends Operations<T>, RequiresPluginInfos {

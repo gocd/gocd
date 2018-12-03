@@ -45,7 +45,7 @@ import {
 } from "views/components/forms/input_fields";
 import {Modal, Size} from "views/components/modal";
 import {Spinner} from "views/components/spinner";
-import {RequiresPluginInfos, SaveOperation} from "views/pages/config_repos/config_repos_widget";
+import {RequiresPluginInfos, SaveOperation} from "views/pages/page_operations";
 
 type EditableMaterial = SaveOperation & { repo: ConfigRepo } & { isNew: boolean } & RequiresPluginInfos;
 

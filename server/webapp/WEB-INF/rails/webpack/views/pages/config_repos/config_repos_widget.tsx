@@ -23,7 +23,7 @@ import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
 import {CollapsiblePanel} from "views/components/collapsible_panel";
 import {FlashMessage, MessageType} from "views/components/flash_message";
 import {HeaderIcon} from "views/components/header_icon";
-import {ButtonGroup, Delete, Refresh, Settings} from "views/components/icons";
+import {ButtonGroup, Delete, Edit, Refresh} from "views/components/icons";
 import {KeyValuePair} from "views/components/key_value_pair";
 import {Spinner} from "views/components/spinner";
 import {
@@ -131,8 +131,8 @@ class ConfigRepoWidget extends MithrilViewComponent<ShowObjectAttrs<ConfigRepo>>
       <Refresh data-test-id="config-repo-refresh" onclick={vnode.attrs.onRefresh.bind(vnode.attrs, vnode.attrs.obj)}/>
     );
 
-    const settingsButton = (
-      <Settings data-test-id="config-repo-edit" onclick={vnode.attrs.onEdit.bind(vnode.attrs, vnode.attrs.obj)}/>
+    const editButton = (
+      <Edit data-test-id="config-repo-edit" onclick={vnode.attrs.onEdit.bind(vnode.attrs, vnode.attrs.obj)}/>
     );
 
     const deleteButton = (
@@ -141,7 +141,7 @@ class ConfigRepoWidget extends MithrilViewComponent<ShowObjectAttrs<ConfigRepo>>
 
     const actionButtons = <ButtonGroup>
       {refreshButton}
-      {settingsButton}
+      {editButton}
       {deleteButton}
     </ButtonGroup>;
 

@@ -160,6 +160,25 @@ describe("Site Menu", () => {
     expect(findMenuItem("/go/analytics")).not.toBeInDOM();
   });
 
+  it("should not show Admin link for non-admins", () => {
+    mount({
+            canViewTemplates: true,
+            isGroupAdmin: false,
+            isUserAdmin: false,
+            canViewAdminPage: false,
+            showAnalytics: false,
+            showConfigRepos: true
+          } as Attrs);
+    const dashboard = $root.find("a").get(0);
+    const agents    = $root.find("a").get(1);
+    const admin     = $root.find("a").get(2);
+    expect(dashboard).toHaveText("Dashboard");
+    expect(dashboard).toHaveAttr("href", "/go/pipelines");
+    expect(agents).toHaveText("Agents");
+    expect(agents).toHaveAttr("href", "/go/agents");
+    expect(admin).not.toHaveText("Admin");
+  });
+
   function mount(menuAttrs: Attrs) {
     m.mount(root, {
       view() {

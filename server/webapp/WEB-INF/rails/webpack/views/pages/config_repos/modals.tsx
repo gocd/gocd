@@ -26,8 +26,7 @@ import {
   GitMaterialAttributes,
   HgMaterialAttributes,
   humanizedMaterialAttributeName, humanizedMaterialNameForMaterialType,
-  Material, MaterialAttributes,
-  P4MaterialAttributes,
+  Material, P4MaterialAttributes,
   SvnMaterialAttributes, TfsMaterialAttributes
 } from "models/config_repos/types";
 import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";

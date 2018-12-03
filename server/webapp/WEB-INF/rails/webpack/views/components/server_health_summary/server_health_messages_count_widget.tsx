@@ -40,8 +40,11 @@ export class ServerHealthMessagesCountWidget extends MithrilComponent<Attrs, Sta
   view(vnode: m.Vnode<Attrs, State>) {
     if (vnode.attrs.serverHealthMessages().hasMessages()) {
       return (
-        <a class={styles.serverHealthMessagesContainer}
-           onclick={vnode.state.openServerHealthMessagesModal.bind(vnode.state)}>{vnode.attrs.serverHealthMessages().summaryMessage()}</a>
+        <a data-test-id="server-health-messages-count"
+           class={styles.serverHealthMessagesContainer}
+           onclick={vnode.state.openServerHealthMessagesModal.bind(vnode.state)}>
+          {vnode.attrs.serverHealthMessages().summaryMessage()}
+        </a>
       );
     }
   }

@@ -18,12 +18,13 @@ import {bind} from "classnames/bind";
 import {MithrilViewComponent} from "jsx/mithril-component";
 import * as _ from "lodash";
 import * as m from "mithril";
+import * as s from "underscore.string";
 import * as styles from "./index.scss";
 
 const classnames = bind(styles);
 
 export interface Attrs {
-  data: Map<string, string | JSX.Element>;
+  data: Map<string, m.Children>;
   inline?: boolean;
 }
 
@@ -31,11 +32,11 @@ export class KeyValuePair extends MithrilViewComponent<Attrs> {
   view(vnode: m.Vnode<Attrs>) {
     const isInline = vnode.attrs.inline;
 
-    const elements: JSX.Element[] = [];
+    const elements: m.Children[] = [];
     vnode.attrs.data.forEach((value, key) => {
 
-      const dataTestIdForKey   = `key-value-key-${key.replace(/ /g, "-").toLowerCase() as string}`;
-      const dataTestIdForValue = `key-value-value-${key.replace(/ /g, "-").toLowerCase() as string}`;
+      const dataTestIdForKey   = s.slugify(`key-value-key-${key}`);
+      const dataTestIdForValue = s.slugify(`key-value-value-${key}`);
 
       elements.push(<li className={classnames(styles.keyValueItem, {[styles.keyValueInlineItem]: isInline})} key={key}>
         <label data-test-id={dataTestIdForKey} className={styles.key}>{key}</label>
@@ -50,15 +51,29 @@ export class KeyValuePair extends MithrilViewComponent<Attrs> {
     );
   }
 
-  private static renderedValue(value: any) {
+  private static renderedValue(value: m.Children) {
+    // check booleans, because they're weird in JS :-/
+    if (_.isBoolean(value)) {
+      // toString() because `false` values will not be rendered
+      return (<pre>{value.toString()}</pre>);
+    }
+
     if (_.isNil(value) || _.isEmpty(value)) {
-      return (<em>(Not specified)</em>);
+      return this.unspecifiedValue();
+    }
+
+    if (_.isString(value) && s.isBlank(value)) {
+      return this.unspecifiedValue();
     }
 
     // performat some "primitive" types
-    if (_.isString(value) || _.isBoolean(value) || _.isNumber(value)) {
+    if (_.isString(value) || _.isNumber(value)) {
       return (<pre>{value}</pre>);
     }
     return value;
+  }
+
+  private static unspecifiedValue() {
+    return (<em>(Not specified)</em>);
   }
 }

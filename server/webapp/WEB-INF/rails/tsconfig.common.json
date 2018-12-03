@@ -21,7 +21,9 @@
     "target": "es5",
     "jsx": "react",
     "jsxFactory": "m",
-    "allowJs": false
+    "allowJs": false,
+    "strictBindCallApply": true,
+    "strictFunctionTypes": true
   },
   "include": [
     "webpack/**/*.ts",

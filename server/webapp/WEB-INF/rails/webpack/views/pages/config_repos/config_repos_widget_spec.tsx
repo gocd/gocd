@@ -28,7 +28,7 @@ import * as styles from "views/pages/config_repos/index.scss";
 
 describe("ConfigReposWidget", () => {
   let $root: any, root: any;
-  let attrs: Attrs<ConfigRepo[]>;
+  let attrs: Attrs<ConfigRepo>;
   let onDelete: jasmine.Spy;
   let onEdit: jasmine.Spy;
   let onRefresh: jasmine.Spy;

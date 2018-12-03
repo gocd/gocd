@@ -125,16 +125,16 @@ export class ConfigReposPage extends Page<null, State> {
       <FlashMessage type={vnode.state.messageType} message={vnode.state.message}/>
       <ConfigReposWidget objects={vnode.state.configRepos}
                          pluginInfos={vnode.state.pluginInfos}
-                         onRefresh={vnode.state.onRefresh.bind(this)}
-                         onEdit={vnode.state.onEdit.bind(this)}
-                         onDelete={vnode.state.onDelete.bind(this)}
+                         onRefresh={vnode.state.onRefresh.bind(vnode.state)}
+                         onEdit={vnode.state.onEdit.bind(vnode.state)}
+                         onDelete={vnode.state.onDelete.bind(vnode.state)}
       />
     </div>;
   }
 
   headerPanel(vnode: m.Vnode<null, State>) {
     const headerButtons = [
-      <Buttons.Primary onclick={vnode.state.onAdd.bind(this)}>Add</Buttons.Primary>
+      <Buttons.Primary onclick={vnode.state.onAdd.bind(vnode.state)}>Add</Buttons.Primary>
     ];
     return <HeaderPanel title="Config repositories" buttons={headerButtons}/>;
   }

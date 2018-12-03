@@ -26,7 +26,7 @@ import * as styles from "./index.scss";
 const classnames = bind(styles);
 
 export interface Attrs extends HTMLAttributes {
-  onclick?: () => void;
+  onclick?: (e: MouseEvent) => void;
   disabled?: boolean;
   iconOnly?: boolean;
 }

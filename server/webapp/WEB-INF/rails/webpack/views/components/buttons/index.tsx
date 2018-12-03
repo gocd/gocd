@@ -30,7 +30,7 @@ export enum ButtonIcon {
 export interface Attrs {
   icon?: ButtonIcon;
   small?: boolean;
-  onclick?: () => void;
+  onclick?: (e: MouseEvent) => void;
   disabled?: boolean;
   classNames?: string;
 }

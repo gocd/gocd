@@ -44,7 +44,7 @@ export interface RequiresPluginInfos {
 }
 
 export interface Attrs<T> extends Operations<T>, RequiresPluginInfos {
-  objects: Stream<T | null>;
+  objects: Stream<T[] | null>;
 }
 
 export interface State extends Operations<ConfigRepo>, SaveOperation, RequiresPluginInfos {
@@ -143,15 +143,15 @@ class ConfigRepoWidget extends MithrilViewComponent<ShowObjectAttrs<ConfigRepo>>
     }, new Map<string, string>());
 
     const refreshButton = (
-      <Refresh data-test-id="config-repo-refresh" onclick={vnode.attrs.onRefresh.bind(vnode.attrs)}/>
+      <Refresh data-test-id="config-repo-refresh" onclick={vnode.attrs.onRefresh.bind(vnode.attrs, vnode.attrs.obj)}/>
     );
 
     const settingsButton = (
-      <Settings data-test-id="config-repo-edit" onclick={vnode.attrs.onEdit.bind(vnode.attrs)}/>
+      <Settings data-test-id="config-repo-edit" onclick={vnode.attrs.onEdit.bind(vnode.attrs, vnode.attrs.obj)}/>
     );
 
     const deleteButton = (
-      <Delete data-test-id="config-repo-delete" onclick={vnode.attrs.onDelete.bind(vnode.attrs)}/>
+      <Delete data-test-id="config-repo-delete" onclick={vnode.attrs.onDelete.bind(vnode.attrs, vnode.attrs.obj)}/>
     );
 
     const actionButtons = <ButtonGroup>
@@ -163,7 +163,8 @@ class ConfigRepoWidget extends MithrilViewComponent<ShowObjectAttrs<ConfigRepo>>
     let lastParseRevision: m.Children;
 
     if (vnode.attrs.obj.lastParse() && vnode.attrs.obj.lastParse().revision()) {
-      lastParseRevision = <p class={styles.lastRevision}>Last seen revision: <code>{vnode.attrs.obj.lastParse().revision()}</code></p>;
+      lastParseRevision =
+        <p class={styles.lastRevision}>Last seen revision: <code>{vnode.attrs.obj.lastParse().revision()}</code></p>;
     }
 
     let maybeWarning: m.Children;
@@ -201,8 +202,8 @@ class ConfigRepoWidget extends MithrilViewComponent<ShowObjectAttrs<ConfigRepo>>
   }
 }
 
-export class ConfigReposWidget extends MithrilViewComponent<Attrs<ConfigRepo[]>> {
-  view(vnode: m.Vnode<Attrs<ConfigRepo[]>>): m.Children | void | null {
+export class ConfigReposWidget extends MithrilViewComponent<Attrs<ConfigRepo>> {
+  view(vnode: m.Vnode<Attrs<ConfigRepo>>): m.Children | void | null {
     if (!vnode.attrs.objects()) {
       return <Spinner/>;
     }
@@ -222,9 +223,9 @@ export class ConfigReposWidget extends MithrilViewComponent<Attrs<ConfigRepo[]>>
             <ConfigRepoWidget key={configRepo.id()}
                               obj={configRepo}
                               pluginInfos={vnode.attrs.pluginInfos}
-                              onEdit={vnode.attrs.onEdit.bind(vnode.state, configRepo)}
-                              onRefresh={vnode.attrs.onRefresh.bind(vnode.state, configRepo)}
-                              onDelete={vnode.attrs.onDelete.bind(vnode.state, configRepo)}
+                              onEdit={(configRepo, e) => vnode.attrs.onEdit(configRepo, e)}
+                              onRefresh={(configRepo, e) => vnode.attrs.onRefresh(configRepo, e)}
+                              onDelete={(configRepo, e) => vnode.attrs.onDelete(configRepo, e)}
             />
           );
         })}

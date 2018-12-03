@@ -56,7 +56,7 @@ class PluginHeaderWidget extends MithrilViewComponent<PluginHeaderAttrs> {
 export interface Attrs {
   pluginInfo: PluginInfo<any>;
   isUserAnAdmin: boolean;
-  onEdit: () => void;
+  onEdit: (e: MouseEvent) => void;
 }
 
 type OptionalElement = m.Children;
@@ -84,7 +84,7 @@ export class PluginWidget extends MithrilViewComponent<Attrs> {
     if (pluginInfo.supportsPluginSettings()) {
       settingsButton = <Icons.Settings data-test-id="edit-plugin-settings"
                                        disabled={!isUserAnAdmin}
-                                       onclick={vnode.attrs.onEdit}/>;
+                                       onclick={vnode.attrs.onEdit.bind(vnode.attrs)}/>;
     }
 
     let pluginData = new Map<string, string | JSX.Element>([

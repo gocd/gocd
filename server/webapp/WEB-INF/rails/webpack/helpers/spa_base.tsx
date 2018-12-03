@@ -15,6 +15,7 @@
  */
 
 import * as m from "mithril";
+import {VersionUpdater} from "models/shared/version_updater";
 import * as styles from "./spa_base.scss";
 
 import {MithrilViewComponent} from "jsx/mithril-component";
@@ -22,8 +23,6 @@ import {UsageDataReporter} from "models/shared/usage_data_reporter";
 import {ModalManager} from "views/components/modal/modal_manager";
 import {Attrs as SiteFooterAttrs, SiteFooter} from "views/pages/partials/site_footer";
 import {Attrs as SiteHeaderAttrs, SiteHeader} from "views/pages/partials/site_header";
-
-const VersionUpdater = require('models/shared/version_updater');
 
 interface Attrs {
   headerData: SiteHeaderAttrs;
@@ -66,7 +65,7 @@ export default abstract class Page {
     const page = this;
     window.addEventListener("DOMContentLoaded", () => {
       UsageDataReporter.report();
-      new VersionUpdater().update();
+      VersionUpdater.update();
 
       const body: Element = document.querySelector("body") as Element;
 

@@ -16,11 +16,12 @@
 import * as $ from "jquery";
 import * as m from "mithril";
 import {UsageDataReporter} from "models/shared/usage_data_reporter";
+import {VersionUpdater} from "models/shared/version_updater";
 import {ModalManager} from "views/components/modal/modal_manager";
 import {SiteFooter} from "views/pages/partials/site_footer";
 import {Attrs, SiteHeader} from "views/pages/partials/site_header";
-const VersionUpdater = require('models/shared/version_updater');
-require('foundation-sites');
+
+require("foundation-sites");
 
 $(() => {
   window.addEventListener("DOMContentLoaded", () => {
@@ -28,7 +29,7 @@ $(() => {
     $(document).foundation();
     ModalManager.onPageLoad();
     UsageDataReporter.report();
-    new VersionUpdater().update();
+    VersionUpdater.update();
 
     const body = document.querySelector("body") as Element;
 

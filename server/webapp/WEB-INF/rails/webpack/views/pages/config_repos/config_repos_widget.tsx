@@ -106,9 +106,10 @@ class ConfigRepoWidget extends MithrilViewComponent<ShowObjectAttrs<ConfigRepo>>
     const filteredAttributes = _.reduce(vnode.attrs.obj.material().attributes(), (accumulator: Map<string, string>,
                                                                                   value: any,
                                                                                   key: string) => {
-      if (key.startsWith("__")) {
+      if (key.startsWith("__") || key === "autoUpdate") {
         return accumulator;
       }
+
       let renderedValue = value;
 
       const renderedKey = humanizedMaterialAttributeName(key);

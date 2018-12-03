@@ -51,8 +51,6 @@ type EditableMaterial = SaveOperation & { repo: ConfigRepo } & { isNew: boolean 
 
 class MaterialEditWidget extends MithrilViewComponent<EditableMaterial> {
   view(vnode: m.Vnode<EditableMaterial>) {
-    const materialAttributes = vnode.attrs.repo.material().attributes() as MaterialAttributes;
-
     const pluginList = _.map(vnode.attrs.pluginInfos(), (pluginInfo: PluginInfo<any>) => {
       return {id: pluginInfo.id, text: pluginInfo.about.name};
     });
@@ -87,11 +85,6 @@ class MaterialEditWidget extends MithrilViewComponent<EditableMaterial> {
                          property={vnode.attrs.repo.id}
                          errorText={vnode.attrs.repo.errors().errorsForDisplay("id")}
                          required={true}/>
-            </FormItem>
-
-            <FormItem>
-              <CheckboxField label={humanizedMaterialAttributeName("autoUpdate")}
-                             property={materialAttributes.autoUpdate}/>
             </FormItem>
           </Form>
         </FormHeader>),

@@ -94,5 +94,29 @@ public class CRFetchArtifactTest extends CRBaseTest<CRFetchArtifactTask> {
         assertThat(deserializedValue.getRunIf(),is(CRRunIf.passed));
         assertNull(deserializedValue.getDestination());
         assertThat(deserializedValue.sourceIsDirectory(),is(true));
+        assertThat(deserializedValue.getArtifactOrigin(), is(CRAbstractFetchTask.ArtifactOrigin.gocd));
+    }
+
+    @Test
+    public void shouldDeserializeWhenArtifactOriginIsNull()
+    {
+        String json = "{\n" +
+                "              \"type\" : \"fetch\",\n" +
+                "              \"pipeline\" : \"pip\",\n" +
+                "              \"stage\" : \"build1\",\n" +
+                "              \"job\" : \"build\",\n" +
+                "              \"source\" : \"bin\",\n" +
+                "              \"run_if\" : \"passed\"\n" +
+                "            }";
+        CRFetchArtifactTask deserializedValue = (CRFetchArtifactTask)gson.fromJson(json,CRTask.class);
+
+        assertThat(deserializedValue.getPipelineName(),is("pip"));
+        assertThat(deserializedValue.getJob(),is("build"));
+        assertThat(deserializedValue.getStage(),is("build1"));
+        assertThat(deserializedValue.getSource(),is("bin"));
+        assertThat(deserializedValue.getRunIf(),is(CRRunIf.passed));
+        assertNull(deserializedValue.getDestination());
+        assertThat(deserializedValue.sourceIsDirectory(),is(true));
+        assertThat(deserializedValue.getArtifactOrigin(), is(CRAbstractFetchTask.ArtifactOrigin.gocd));
     }
 }

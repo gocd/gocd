@@ -20,6 +20,7 @@ import * as m from "mithril";
 import {Stream} from "mithril/stream";
 import {ConfigRepo, humanizedMaterialAttributeName} from "models/config_repos/types";
 import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
+import {Code} from "views/components/code";
 import {CollapsiblePanel} from "views/components/collapsible_panel";
 import {FlashMessage, MessageType} from "views/components/flash_message";
 import {HeaderIcon} from "views/components/header_icon";
@@ -162,7 +163,7 @@ class ConfigRepoWidget extends MithrilViewComponent<ShowObjectAttrs<ConfigRepo>>
       maybeWarning = (
         <FlashMessage type={MessageType.warning}>
           There was an error parsing this configuration repository:
-          <pre>{vnode.attrs.obj.lastParse().error}</pre>
+          <Code>{vnode.attrs.obj.lastParse().error}</Code>
         </FlashMessage>
       );
     }

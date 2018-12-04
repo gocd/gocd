@@ -16,7 +16,7 @@
 @import "../../global/common";
 
 @mixin header-icon($type, $color) {
-  @include icon-before($type: $type, $color: $color, $size: 25px) {
+  @include icon-before($type: $type, $color: $color, $size: 25px, $margin: 0) {
     text-align: center;
   }
   display: block;
@@ -24,30 +24,18 @@
 
 .good-last-parse-icon {
   @include header-icon($type: $fa-var-check, $color: $success-txt);
-  &:before {
-    margin: 0;
-  }
 }
 
 .last-parse-error-icon {
   @include header-icon($type: $fa-var-exclamation, $color: $warning-txt);
-  &:before {
-    margin: 0;
-  }
 }
 
 .never-parsed {
   @include header-icon($type: $fa-var-exclamation, $color: $go-danger);
-  &:before {
-    margin: 0;
-  }
 }
 
 .missing-plugin-icon {
   @include header-icon($type: $fa-var-question, $color: $icon-light-color);
-  &:before {
-    margin: 0;
-  }
 }
 
 .scm-header {

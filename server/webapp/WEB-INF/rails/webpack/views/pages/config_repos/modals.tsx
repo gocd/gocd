@@ -53,6 +53,23 @@ class MaterialEditWidget extends MithrilViewComponent<EditableMaterial> {
     const pluginList = _.map(vnode.attrs.pluginInfos(), (pluginInfo: PluginInfo<any>) => {
       return {id: pluginInfo.id, text: pluginInfo.about.name};
     });
+    let pluginConfig = null;
+    if (ConfigRepo.JSON_PLUGIN_ID === vnode.attrs.repo.pluginId()) {
+      pluginConfig = [
+        <FormItem>
+          <TextField property={vnode.attrs.repo.__jsonPluginPipelinesPattern}
+                     label={"GoCD pipeline files global pattern"}/>
+        </FormItem>,
+        <FormItem>
+          <TextField property={vnode.attrs.repo.__jsonPluginEnvPattern}
+                     label={"GoCD environment files global pattern"}/>
+        </FormItem>
+      ];
+    } else if (ConfigRepo.YAML_PLUGIN_ID === vnode.attrs.repo.pluginId()) {
+      pluginConfig = <FormItem>
+        <TextField property={vnode.attrs.repo.__yamlPluginPattern} label={"Go YAML files global pattern"}/>
+      </FormItem>;
+    }
 
     return (
       [
@@ -91,6 +108,9 @@ class MaterialEditWidget extends MithrilViewComponent<EditableMaterial> {
           <FormBody>
             <Form>
               {vnode.children}
+            </Form>
+            <Form>
+              {pluginConfig}
             </Form>
           </FormBody>
         )

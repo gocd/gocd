@@ -22,13 +22,10 @@ import {ConfigRepo, ConfigRepos} from "models/config_repos/types";
 const s = require("helpers/string-plus");
 
 export function toSnakeCaseJSON(o: ConfigRepo) {
-  let configuration = [] as any[];
-  if (o.configuration && o.configuration()) {
-    configuration = o.configuration().map((config) => config.toJSON());
-  }
+  const configurations = o.createConfigurationsFromText();
   const text         = JSON.stringify(o, s.snakeCaser);
   const json         = JSON.parse(text);
-  json.configuration = configuration;
+  json.configuration = configurations.map((config) => config.toJSON());
   return json;
 }
 

@@ -19,11 +19,11 @@ import {ConfigRepo, GitMaterialAttributes, Material} from "models/config_repos/t
 import {Configuration, PlainTextValue} from "models/shared/plugin_infos_new/plugin_settings/plugin_settings";
 
 describe("Serialization", () => {
-  it("should serialize configuration properties", () => {
-    const configuration1 = new Configuration("test-key-1", new PlainTextValue("test-value-1"));
-    const configuration2 = new Configuration("test-key-2", new PlainTextValue("test-value-2"));
+  it("should serialize configuration properties for JSON plugin", () => {
+    const configuration1 = new Configuration("pipeline_pattern", new PlainTextValue("test-value-1"));
+    const configuration2 = new Configuration("environment_pattern", new PlainTextValue("test-value-2"));
     const configRepo     = new ConfigRepo("test",
-                                          "test",
+                                          ConfigRepo.JSON_PLUGIN_ID,
                                           new Material("git",
                                                        new GitMaterialAttributes("test",
                                                                                  false,
@@ -31,17 +31,30 @@ describe("Serialization", () => {
                                           [configuration1, configuration2]);
     const json           = toSnakeCaseJSON(configRepo);
     expect(json.configuration)
-      .toEqual([{key: "test-key-1", value: "test-value-1"}, {key: "test-key-2", value: "test-value-2"}]);
+      .toEqual([{key: "pipeline_pattern", value: "test-value-1"}, {key: "environment_pattern", value: "test-value-2"}]);
   });
 
-  it("should not serialize configuration properties when not present", () => {
+  it("should serialize configuration properties for YAML plugin", () => {
+    const configuration1 = new Configuration("file_pattern", new PlainTextValue("test-value-1"));
     const configRepo     = new ConfigRepo("test",
-                                          "test",
+                                          ConfigRepo.YAML_PLUGIN_ID,
                                           new Material("git",
                                                        new GitMaterialAttributes("test",
                                                                                  false,
-                                                                                 "https://example.com")));
+                                                                                 "https://example.com")),
+                                          [configuration1]);
     const json           = toSnakeCaseJSON(configRepo);
+    expect(json.configuration).toEqual([{key: "file_pattern", value: "test-value-1"}]);
+  });
+
+  it("should not serialize configuration properties when not present", () => {
+    const configRepo = new ConfigRepo("test",
+                                      "test",
+                                      new Material("git",
+                                                   new GitMaterialAttributes("test",
+                                                                             false,
+                                                                             "https://example.com")));
+    const json       = toSnakeCaseJSON(configRepo);
     expect(json.configuration).toHaveLength(0);
   });
 });

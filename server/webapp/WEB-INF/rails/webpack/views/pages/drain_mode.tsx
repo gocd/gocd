@@ -23,7 +23,7 @@ import {DrainModeWidget} from "views/pages/drain_mode/drain_mode_widget";
 import {Page} from "views/pages/page";
 
 interface SaveOperation<T> {
-  onSave: (obj: T) => void;
+  onSave: (obj: T, e: Event) => void;
   onSuccessfulSave: (successResponse: SuccessResponse<T>) => void;
   onError: (errorResponse: ErrorResponse) => void;
 }
@@ -31,7 +31,7 @@ interface SaveOperation<T> {
 interface State extends SaveOperation<DrainModeSettings> {
   drainModeSettings: DrainModeSettings;
   message: Message;
-  onReset: (drainModeSettings: DrainModeSettings) => void;
+  onReset: (drainModeSettings: DrainModeSettings, e: Event) => void;
 }
 
 export class Message {
@@ -46,13 +46,14 @@ export class Message {
 
 export class DrainModePage extends Page<null, State> {
   oninit(vnode: m.Vnode<null, State>) {
-    vnode.state.onSave = (drainModeSettings: DrainModeSettings) => {
+    super.oninit(vnode);
+    vnode.state.onSave = (drainModeSettings: DrainModeSettings, e: Event) => {
       DrainModeSettings.update(drainModeSettings)
                        .then((result) => result.do(vnode.state.onSuccessfulSave, vnode.state.onError))
                        .finally(m.redraw);
     };
 
-    vnode.state.onReset = (drainModeSettings: DrainModeSettings) => {
+    vnode.state.onReset = (drainModeSettings: DrainModeSettings, e: Event) => {
       drainModeSettings.reset();
     };
 
@@ -69,8 +70,8 @@ export class DrainModePage extends Page<null, State> {
 
   componentToDisplay(vnode: m.Vnode<null, State>): JSX.Element | undefined {
     return <DrainModeWidget settings={vnode.state.drainModeSettings}
-                            onSave={vnode.state.onSave.bind(this, vnode.state.drainModeSettings)}
-                            onReset={vnode.state.onReset.bind(this, vnode.state.drainModeSettings)}
+                            onSave={vnode.state.onSave.bind(vnode.state)}
+                            onReset={vnode.state.onReset.bind(vnode.state)}
                             message={vnode.state.message}/>;
   }
 

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {MithrilViewComponent} from "jsx/mithril-component";
+import {MithrilComponent} from "jsx/mithril-component";
 import {DrainModeSettings} from "models/drain_mode/drain_mode_settings";
 import {FlashMessage} from "views/components/flash_message";
 import {Switch} from "views/components/forms/input_fields";
@@ -26,12 +26,12 @@ import * as styles from "./index.scss";
 
 interface Attrs {
   settings: DrainModeSettings;
-  message: Message;
-  onSave: (drainModeSettings: DrainModeSettings) => void;
-  onReset: (drainModeSettings: DrainModeSettings) => void;
+  message?: Message;
+  onSave: (drainModeSettings: DrainModeSettings, e: Event) => void;
+  onReset: (drainModeSettings: DrainModeSettings, e: Event) => void;
 }
 
-export class DrainModeWidget extends MithrilViewComponent<Attrs> {
+export class DrainModeWidget extends MithrilComponent<Attrs> {
   view(vnode: m.Vnode<Attrs>) {
     const settings = vnode.attrs.settings;
     let maybeMessage;
@@ -42,7 +42,7 @@ export class DrainModeWidget extends MithrilViewComponent<Attrs> {
 
     return [
       maybeMessage,
-      <div className={styles.drainModeWidget}>
+      <div className={styles.drainModeWidget} data-test-id="drain-mode-widget">
         <div className={styles.drainModeDescription}>
           <p>
             Some description about what is drain mode.
@@ -59,8 +59,10 @@ export class DrainModeWidget extends MithrilViewComponent<Attrs> {
           </div>
 
           <div className="button-wrapper">
-            <Buttons.Primary onclick={vnode.attrs.onSave.bind(this, settings)}>Save</Buttons.Primary>
-            <Buttons.Reset onclick={vnode.attrs.onReset.bind(this, settings)}>Reset</Buttons.Reset>
+            <Buttons.Primary onclick={vnode.attrs.onSave.bind(vnode.attrs, settings)}
+                             data-test-id={"save-drain-mode-settings"}>Save</Buttons.Primary>
+            <Buttons.Reset onclick={vnode.attrs.onReset.bind(vnode.attrs, settings)}
+                           data-test-id={"reset-drain-mode-settings"}>Reset</Buttons.Reset>
           </div>
         </div>
       </div>

@@ -58,16 +58,16 @@ class MaterialEditWidget extends MithrilViewComponent<EditableMaterial> {
       pluginConfig = [
         <FormItem>
           <TextField property={vnode.attrs.repo.__jsonPluginPipelinesPattern}
-                     label={"GoCD pipeline files global pattern"}/>
+                     label="GoCD pipeline files pattern"/>
         </FormItem>,
         <FormItem>
           <TextField property={vnode.attrs.repo.__jsonPluginEnvPattern}
-                     label={"GoCD environment files global pattern"}/>
+                     label="GoCD environment files pattern"/>
         </FormItem>
       ];
     } else if (ConfigRepo.YAML_PLUGIN_ID === vnode.attrs.repo.pluginId()) {
       pluginConfig = <FormItem>
-        <TextField property={vnode.attrs.repo.__yamlPluginPattern} label={"Go YAML files global pattern"}/>
+        <TextField property={vnode.attrs.repo.__yamlPluginPattern} label="GoCD YAML files pattern"/>
       </FormItem>;
     }
 

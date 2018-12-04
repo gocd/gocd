@@ -18,19 +18,18 @@ import SparkRoutes from "helpers/spark_routes";
 import {Stream} from "mithril/stream";
 import * as stream from "mithril/stream";
 
-const s = require("helpers/string-plus");
-
 import {
   ApiRequestBuilder,
   ApiResult,
   ApiVersion
 } from "helpers/api_request_builder";
+import {Jsonizable} from "models/jsonizable";
 
 const TimeFormatter = require("helpers/time_formatter");
 
 interface EmbeddedJSON {
   drain: boolean;
-  updated_by: string | null;
+  updated_by: string;
   updated_on: string;
 }
 
@@ -38,19 +37,20 @@ interface DrainModeSettingsJSON {
   _embedded: EmbeddedJSON;
 }
 
-export class DrainModeSettings {
+export class DrainModeSettings extends Jsonizable {
   private static API_VERSION_HEADER = ApiVersion.v1;
-  public readonly isDrainMode: Stream<boolean>;
-  public readonly updatedOn: Stream<Date | null>;
-  public readonly updatedBy: Stream<string | null>;
 
-  private originalDrainMode: Stream<boolean>;
+  public readonly drain: Stream<boolean>;
+  public readonly updatedOn?: Date;
+  public readonly updatedBy?: string;
+  private __originalDrainMode: Stream<boolean>;
 
-  constructor(isDrainMode: boolean, updatedBy: string | null, updatedOn: string) {
-    this.originalDrainMode = stream(isDrainMode);
-    this.isDrainMode       = stream(isDrainMode);
-    this.updatedBy         = stream(updatedBy);
-    this.updatedOn         = stream(TimeFormatter.formatInDate(updatedOn));
+  constructor(isDrainMode?: boolean, updatedBy?: string, updatedOn?: string) {
+    super();
+    this.__originalDrainMode = stream(isDrainMode);
+    this.drain             = stream(isDrainMode);
+    this.updatedBy         = updatedBy;
+    this.updatedOn         = TimeFormatter.formatInDate(updatedOn);
   }
 
   static fromJSON(data: DrainModeSettingsJSON) {
@@ -67,21 +67,17 @@ export class DrainModeSettings {
     return ApiRequestBuilder.PATCH(
       SparkRoutes.drainModeSettingsPath(),
       this.API_VERSION_HEADER,
-      {payload: drainModeSettings.toJSON()}
+      {payload: drainModeSettings.toSnakeCaseJSON()}
     ).then(this.extractObject());
   }
 
   public reset(): void {
-    this.isDrainMode(this.originalDrainMode());
+    this.drain(this.__originalDrainMode());
   }
 
   private static extractObject() {
     return (result: ApiResult<string>): ApiResult<DrainModeSettings> => {
       return result.map<DrainModeSettings>((body) => DrainModeSettings.fromJSON(JSON.parse(body) as DrainModeSettingsJSON));
     };
-  }
-
-  private toJSON(): object {
-    return JSON.parse(JSON.stringify({drain: this.isDrainMode}, s.snakeCaser));
   }
 }

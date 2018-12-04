@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-import {ErrorResponse, SuccessResponse} from "helpers/api_request_builder";
-import {MithrilComponent} from "jsx/mithril-component";
+import {MithrilViewComponent} from "jsx/mithril-component";
 import {DrainModeSettings} from "models/drain_mode/drain_mode_settings";
-import {FlashMessage, MessageType} from "views/components/flash_message";
+import {FlashMessage} from "views/components/flash_message";
 import {Switch} from "views/components/forms/input_fields";
+import {Message} from "views/pages/drain_mode";
 
 import * as m from "mithril";
 import * as Buttons from "views/components/buttons";
@@ -26,57 +26,18 @@ import * as styles from "./index.scss";
 
 interface Attrs {
   settings: DrainModeSettings;
-}
-
-class Message {
-  type: MessageType;
-  message: string;
-
-  constructor(type: MessageType, message: string) {
-    this.type    = type;
-    this.message = message;
-  }
-}
-
-interface State {
-  settings: DrainModeSettings;
   message: Message;
-
-  onSuccess: (successResponse: SuccessResponse<DrainModeSettings>) => void;
-  onError: (errorResponse: ErrorResponse) => void;
-  save: (drainModeSettings: DrainModeSettings) => void;
-  reset: (drainModeSettings: DrainModeSettings) => void;
+  onSave: (drainModeSettings: DrainModeSettings) => void;
+  onReset: (drainModeSettings: DrainModeSettings) => void;
 }
 
-export class DrainModeWidget extends MithrilComponent<Attrs, State> {
-  oninit(vnode: m.Vnode<Attrs, State>) {
-    vnode.state.save = (drainModeSettings: DrainModeSettings) => {
-      DrainModeSettings.update(drainModeSettings)
-                       .then((result) => result.do(vnode.state.onSuccess, vnode.state.onError))
-                       .finally(m.redraw);
-    };
-
-    vnode.state.reset = (drainModeSettings: DrainModeSettings) => {
-      drainModeSettings.reset();
-    };
-
-    vnode.state.onSuccess = (successResponse: SuccessResponse<DrainModeSettings>) => {
-      vnode.state.settings = successResponse.body;
-      const state            = vnode.state.settings.isDrainMode() ? "on" : "off";
-      vnode.state.message  = new Message(MessageType.success, `Drain mode turned ${state}.`);
-    };
-
-    vnode.state.onError = (errorResponse: ErrorResponse) => {
-      vnode.state.message = new Message(MessageType.alert, errorResponse.message);
-    };
-  }
-
-  view(vnode: m.Vnode<Attrs, State>) {
+export class DrainModeWidget extends MithrilViewComponent<Attrs> {
+  view(vnode: m.Vnode<Attrs>) {
     const settings = vnode.attrs.settings;
     let maybeMessage;
 
-    if (vnode.state.message) {
-      maybeMessage = <FlashMessage type={vnode.state.message.type}>{vnode.state.message.message}</FlashMessage>;
+    if (vnode.attrs.message) {
+      maybeMessage = <FlashMessage type={vnode.attrs.message.type}>{vnode.attrs.message.message}</FlashMessage>;
     }
 
     return [
@@ -89,17 +50,17 @@ export class DrainModeWidget extends MithrilComponent<Attrs, State> {
         </div>
 
         <div className={styles.drainModeInfo}>
-          <p>Is server in drain mode: {`${settings.isDrainMode()}`}</p>
-          <p>Drain mode updated by: {settings.updatedBy()}</p>
-          <p>Drain mode updated on: {settings.updatedOn()}</p>
+          <p>Is server in drain mode: {`${settings.drain()}`}</p>
+          <p>Drain mode updated by: {settings.updatedBy}</p>
+          <p>Drain mode updated on: {settings.updatedOn}</p>
 
           <div>
-            <Switch label={"Toggle Drain Mode"} property={settings.isDrainMode}/>
+            <Switch label={"Toggle Drain Mode"} property={settings.drain}/>
           </div>
 
           <div className="button-wrapper">
-            <Buttons.Primary onclick={vnode.state.save.bind(this, settings)}>Save</Buttons.Primary>
-            <Buttons.Reset onclick={vnode.state.reset.bind(this, settings)}>Reset</Buttons.Reset>
+            <Buttons.Primary onclick={vnode.attrs.onSave.bind(this, settings)}>Save</Buttons.Primary>
+            <Buttons.Reset onclick={vnode.attrs.onReset.bind(this, settings)}>Reset</Buttons.Reset>
           </div>
         </div>
       </div>

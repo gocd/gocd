@@ -32,7 +32,6 @@ export interface Attrs {
   small?: boolean;
   onclick?: (e: MouseEvent) => void;
   disabled?: boolean;
-  classNames?: string;
 }
 
 class Button extends MithrilViewComponent<Attrs> {
@@ -51,7 +50,6 @@ class Button extends MithrilViewComponent<Attrs> {
               onclick={vnode.attrs.onclick}
               className={classnames(
                 styles.button,
-                vnode.attrs.classNames,
                 {[styles.btnSmall]: isSmall},
                 Button.iconClass(vnode.attrs.icon),
                 this.type

@@ -58,6 +58,10 @@ export class KeyValuePair extends MithrilViewComponent<Attrs> {
       return (<pre>{value.toString()}</pre>);
     }
 
+    if (_.isNumber(value)) {
+      return (<pre>{value}</pre>);
+    }
+
     if (_.isNil(value) || _.isEmpty(value)) {
       return this.unspecifiedValue();
     }
@@ -67,7 +71,7 @@ export class KeyValuePair extends MithrilViewComponent<Attrs> {
     }
 
     // performat some "primitive" types
-    if (_.isString(value) || _.isNumber(value)) {
+    if (_.isString(value)) {
       return (<pre>{value}</pre>);
     }
     return value;

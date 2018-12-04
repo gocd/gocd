@@ -13,15 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 @import "../../global/common";
 
-$collapse-icon-size: 30px;
+$collapse-icon-size: 25px;
 
 .header-icon {
   display:        none;
   vertical-align: middle;
   margin:         0 15px 0 -15px;
+  width:          $collapse-icon-size;
+  height:         $collapse-icon-size;
+  text-align:     center;
   img {
     width:          $collapse-icon-size;
     height:         $collapse-icon-size;
@@ -33,7 +35,7 @@ $collapse-icon-size: 30px;
 }
 
 .unknown-icon {
-  @include icon-before($type: $fa-var-question, $color: $icon-light-color, $margin: 5px, $size: 30px);
+  @include icon-before($type: $fa-var-question, $color: $icon-light-color, $size: 25px, $margin: 0);
   display: block;
 }
 

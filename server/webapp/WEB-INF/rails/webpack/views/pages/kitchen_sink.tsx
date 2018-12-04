@@ -87,6 +87,7 @@ export class KitchenSink extends MithrilViewComponent<null> {
             <Icons.Delete onclick={() => alert("You pressed delete button!")}/>
             <Icons.Lock onclick={() => alert("You pressed lock button!")}/>
             <Icons.Close onclick={() => alert("You pressed close button!")}/>
+            <Icons.QuestionMark onclick={() => alert("You pressed question button!")}/>
           </ButtonGroup>
         </p>
         <p>
@@ -98,6 +99,7 @@ export class KitchenSink extends MithrilViewComponent<null> {
             <Icons.Delete disabled={true}/>
             <Icons.Lock disabled={true}/>
             <Icons.Close disabled={true}/>
+            <Icons.QuestionMark disabled={true}/>
           </ButtonGroup>
         </p>
         <hr/>

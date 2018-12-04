@@ -140,9 +140,10 @@ $subnav-link-color: #bbb;
 .site-sub-nav_link-head {
   color:          $header-text-color;
   margin:         20px 0 10px 0;
-  font-weight:    600;
+  font-weight:    800;
   font-size:      12px;
   text-transform: uppercase;
+  border-bottom: 1px solid $icon-color;
   @media(min-width: $screen-md) {
     margin: 5px 0 10px 0;
   }

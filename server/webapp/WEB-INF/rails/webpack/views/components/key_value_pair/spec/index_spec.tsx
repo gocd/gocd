@@ -53,6 +53,12 @@ describe("KeyValuePair", () => {
     expect($root.find(`.${styles.keyValuePair} .${styles.value}`).get(8)).toHaveHtml("<em>(Not specified)</em>");
 
     expect($root.find(`.${styles.keyValuePair} .${styles.value}`).get(9)).toHaveHtml("<strong>grrr!</strong>");
+debugger;
+    expect($root.find(`.${styles.keyValuePair} .${styles.key}`).get(10)).toHaveText("Integer");
+    expect($root.find(`.${styles.keyValuePair} .${styles.value}`).get(10)).toHaveText("1");
+
+    expect($root.find(`.${styles.keyValuePair} .${styles.key}`).get(11)).toHaveText("Float");
+    expect($root.find(`.${styles.keyValuePair} .${styles.value}`).get(11)).toHaveText("3.14");
   });
 
   function data() {
@@ -71,6 +77,9 @@ describe("KeyValuePair", () => {
                                          ["This empty array should also be unset", []],
                                          // html
                                          ["This should be bold", (<strong>grrr!</strong>)],
+                                         //numbers
+                                         ["Integer", 1],
+                                         ["Float", 3.14],
                                        ]);
   }
 

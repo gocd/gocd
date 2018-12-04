@@ -18,7 +18,7 @@ import {toSnakeCaseJSON} from "models/config_repos/config_repos_crud";
 import {ConfigRepo, GitMaterialAttributes, Material} from "models/config_repos/types";
 import {Configuration, PlainTextValue} from "models/shared/plugin_infos_new/plugin_settings/plugin_settings";
 
-describe("Serialization", () => {
+describe("Config Repo Serialization", () => {
   it("should serialize configuration properties for JSON plugin", () => {
     const configuration1 = new Configuration("pipeline_pattern", new PlainTextValue("test-value-1"));
     const configuration2 = new Configuration("environment_pattern", new PlainTextValue("test-value-2"));

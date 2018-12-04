@@ -53,23 +53,6 @@ class MaterialEditWidget extends MithrilViewComponent<EditableMaterial> {
     const pluginList = _.map(vnode.attrs.pluginInfos(), (pluginInfo: PluginInfo<any>) => {
       return {id: pluginInfo.id, text: pluginInfo.about.name};
     });
-    let pluginConfig = null;
-    if (ConfigRepo.JSON_PLUGIN_ID === vnode.attrs.repo.pluginId()) {
-      pluginConfig = [
-        <FormItem>
-          <TextField property={vnode.attrs.repo.__jsonPluginPipelinesPattern}
-                     label="GoCD pipeline files pattern"/>
-        </FormItem>,
-        <FormItem>
-          <TextField property={vnode.attrs.repo.__jsonPluginEnvPattern}
-                     label="GoCD environment files pattern"/>
-        </FormItem>
-      ];
-    } else if (ConfigRepo.YAML_PLUGIN_ID === vnode.attrs.repo.pluginId()) {
-      pluginConfig = <FormItem>
-        <TextField property={vnode.attrs.repo.__yamlPluginPattern} label="GoCD YAML files pattern"/>
-      </FormItem>;
-    }
 
     return (
       [
@@ -109,13 +92,34 @@ class MaterialEditWidget extends MithrilViewComponent<EditableMaterial> {
             <Form>
               {vnode.children}
             </Form>
-            <Form>
-              {pluginConfig}
-            </Form>
+            {this.pluginConfigView(vnode)}
           </FormBody>
         )
       ]
     );
+  }
+
+  private pluginConfigView(vnode: m.Vnode<EditableMaterial>): m.Children {
+    let pluginConfig = null;
+    if (ConfigRepo.JSON_PLUGIN_ID === vnode.attrs.repo.pluginId()) {
+      pluginConfig = <Form>
+        <FormItem>
+          <TextField property={vnode.attrs.repo.__jsonPluginPipelinesPattern}
+                     label="GoCD pipeline files pattern"/>
+        </FormItem>
+        <FormItem>
+          <TextField property={vnode.attrs.repo.__jsonPluginEnvPattern}
+                     label="GoCD environment files pattern"/>
+        </FormItem>
+      </Form>;
+    } else if (ConfigRepo.YAML_PLUGIN_ID === vnode.attrs.repo.pluginId()) {
+      pluginConfig = <Form>
+        <FormItem>
+          <TextField property={vnode.attrs.repo.__yamlPluginPattern} label="GoCD YAML files pattern"/>
+        </FormItem>
+      </Form>;
+    }
+    return pluginConfig;
   }
 
   private materialSelectOptions(): Option[] {

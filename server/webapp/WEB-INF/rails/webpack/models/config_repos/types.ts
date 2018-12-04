@@ -27,6 +27,7 @@ import {Errors} from "models/mixins/errors";
 import {applyMixins} from "models/mixins/mixins";
 import {ValidatableMixin} from "models/mixins/new_validatable_mixin";
 import {ErrorMessages} from "models/mixins/validatable";
+import {Configuration} from "models/shared/plugin_infos_new/plugin_settings/plugin_settings";
 import {EncryptedValue} from "views/components/forms/encrypted_value";
 
 const s = require("helpers/string-plus");
@@ -71,13 +72,13 @@ export class ConfigRepo implements ValidatableMixin {
   id: Stream<string>;
   pluginId: Stream<string>;
   material: Stream<Material>;
-  configuration: Stream<any[]>;
+  configuration: Stream<Configuration[]>;
   lastParse: Stream<LastParse>;
 
   constructor(id?: string,
               pluginId?: string,
               material?: Material,
-              configuration?: any[],
+              configuration?: Configuration[],
               lastParse?: LastParse) {
     this.id            = stream(id);
     this.pluginId      = stream(pluginId);
@@ -91,11 +92,12 @@ export class ConfigRepo implements ValidatableMixin {
   }
 
   static fromJSON(json: ConfigRepoJSON) {
-    const configRepo = new ConfigRepo(json.id,
-                                      json.plugin_id,
-                                      Materials.fromJSON(json.material),
-                                      json.configuration,
-                                      LastParse.fromJSON(json.last_parse));
+    const configurations = json.configuration.map((config) => Configuration.fromJSON(config));
+    const configRepo     = new ConfigRepo(json.id,
+                                          json.plugin_id,
+                                          Materials.fromJSON(json.material),
+                                          configurations,
+                                          LastParse.fromJSON(json.last_parse));
     configRepo.errors(new Errors(json.errors));
     return configRepo;
   }

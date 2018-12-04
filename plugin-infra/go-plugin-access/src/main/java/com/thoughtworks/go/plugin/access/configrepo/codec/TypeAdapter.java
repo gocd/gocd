@@ -33,7 +33,7 @@ public abstract class TypeAdapter {
         JsonPrimitive originField = (JsonPrimitive) jsonObject.get(origin);
         String typeName = prim.getAsString();
 
-        Class<?> klass = classForName(typeName, originField == null ? null : originField.getAsString());
+        Class<?> klass = classForName(typeName, originField == null ? "gocd" : originField.getAsString());
         return context.deserialize(jsonObject, klass);
     }
 

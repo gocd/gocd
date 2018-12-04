@@ -30,8 +30,9 @@ public abstract class CRAbstractFetchTask extends CRTask {
     protected ArtifactOrigin artifactOrigin;
 
     public CRAbstractFetchTask(String type,
-                               ArtifactOrigin gocd) {
+                               ArtifactOrigin artifactOrigin) {
         super(type);
+        this.artifactOrigin = artifactOrigin;
     }
 
     protected CRAbstractFetchTask(String pipeline, String stage, String job, String type) {

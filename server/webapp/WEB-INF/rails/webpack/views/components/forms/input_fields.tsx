@@ -137,6 +137,19 @@ export class TextField extends FormField<string> {
   }
 }
 
+interface FormResetButtonAttrs {
+  onclick?: (e: MouseEvent) => void;
+}
+
+class FormResetButton extends MithrilViewComponent<FormResetButtonAttrs> {
+
+  view(vnode: m.Vnode<FormResetButtonAttrs>): any {
+    return <div class={styles.formInputReset}>
+      <Buttons.Reset small={true} onclick={vnode.attrs.onclick}>{vnode.children}</Buttons.Reset>
+    </div>;
+  }
+}
+
 export class PasswordField extends FormField<EncryptedValue> {
   renderInputField(vnode: m.Vnode<FormFieldAttrs<EncryptedValue>>) {
     const input = <input type="password"
@@ -173,15 +186,11 @@ export class PasswordField extends FormField<EncryptedValue> {
 
   private static resetOrOverride(vnode: m.Vnode<FormFieldAttrs<EncryptedValue>>) {
     if (vnode.attrs.property().isEditing()) {
-      return <Buttons.Reset small={true}
-                            classNames={styles.formInputReset}
-                            onclick={vnode.attrs.property()
-                                          .resetToOriginal
-                                          .bind(vnode.attrs.property())}>Reset</Buttons.Reset>;
+      return <FormResetButton
+        onclick={vnode.attrs.property().resetToOriginal.bind(vnode.attrs.property())}>Reset</FormResetButton>;
     } else {
-      return <Buttons.Reset small={true}
-                            classNames={styles.formInputReset}
-                            onclick={vnode.attrs.property().edit.bind(vnode.attrs.property())}>Change</Buttons.Reset>;
+      return <FormResetButton
+        onclick={vnode.attrs.property().edit.bind(vnode.attrs.property())}>Change</FormResetButton>;
     }
   }
 }

@@ -177,6 +177,7 @@ project.ext.railsSystemProperties = [
   'plugins.work.path'             : project.rails.testPluginsWorkDir,
   'rails.use.compressed.js'       : false,
   'go.enforce.server.immutability': 'N',
+  'jdk.net.URLClassPath.disableClassPathURLCheck': true
 ]
 
 project.ext.railsTasksDefaultDependsOn = [

@@ -27,6 +27,7 @@ import {Errors} from "models/mixins/errors";
 import {applyMixins} from "models/mixins/mixins";
 import {ValidatableMixin} from "models/mixins/new_validatable_mixin";
 import {ErrorMessages} from "models/mixins/validatable";
+import {Configuration, PlainTextValue} from "models/shared/plugin_infos_new/plugin_settings/plugin_settings";
 import {EncryptedValue} from "views/components/forms/encrypted_value";
 
 const s = require("helpers/string-plus");
@@ -68,36 +69,76 @@ export interface TfsMaterialAttributes extends ValidatableMixin {
 }
 
 export class ConfigRepo implements ValidatableMixin {
+  static readonly PIPELINE_PATTERN             = "pipeline_pattern";
+  static readonly ENVIRONMENT_PATTERN          = "environment_pattern";
+  static readonly FILE_PATTERN                 = "file_pattern";
+  static readonly JSON_PLUGIN_ID               = "json.config.plugin";
+  static readonly YAML_PLUGIN_ID               = "yaml.config.plugin";
   id: Stream<string>;
   pluginId: Stream<string>;
   material: Stream<Material>;
-  configuration: Stream<any[]>;
+  configuration: Stream<Configuration[]>;
   lastParse: Stream<LastParse>;
+  __jsonPluginPipelinesPattern: Stream<string> = stream("");
+  __jsonPluginEnvPattern: Stream<string>       = stream("");
+  __yamlPluginPattern: Stream<string>          = stream("");
 
   constructor(id?: string,
               pluginId?: string,
               material?: Material,
-              configuration?: any[],
+              configuration?: Configuration[],
               lastParse?: LastParse) {
     this.id            = stream(id);
     this.pluginId      = stream(pluginId);
     this.material      = stream(material);
     this.configuration = stream(configuration);
     this.lastParse     = stream(lastParse);
+    if (configuration) {
+      this.__jsonPluginPipelinesPattern = stream(ConfigRepo.findConfigurationValue(configuration,
+                                                                                   ConfigRepo.PIPELINE_PATTERN));
+      this.__jsonPluginEnvPattern       = stream(ConfigRepo.findConfigurationValue(configuration,
+                                                                                   ConfigRepo.ENVIRONMENT_PATTERN));
+      this.__yamlPluginPattern          = stream(ConfigRepo.findConfigurationValue(configuration,
+                                                                                   ConfigRepo.FILE_PATTERN));
+    }
     ValidatableMixin.call(this);
     this.validatePresenceOf("id");
     this.validatePresenceOf("pluginId");
     this.validateAssociated("material");
   }
 
+  static findConfigurationValue(configuration: Configuration[], key: string) {
+    const config = configuration.find((config) => config.key === key);
+    return config ? config.value : "";
+  }
+
   static fromJSON(json: ConfigRepoJSON) {
-    const configRepo = new ConfigRepo(json.id,
-                                      json.plugin_id,
-                                      Materials.fromJSON(json.material),
-                                      json.configuration,
-                                      LastParse.fromJSON(json.last_parse));
+    const configurations = json.configuration.map((config) => Configuration.fromJSON(config));
+    const configRepo     = new ConfigRepo(json.id,
+                                          json.plugin_id,
+                                          Materials.fromJSON(json.material),
+                                          configurations,
+                                          LastParse.fromJSON(json.last_parse));
     configRepo.errors(new Errors(json.errors));
     return configRepo;
+  }
+
+  createConfigurationsFromText() {
+    const configurations = [];
+    if (this.pluginId() === ConfigRepo.YAML_PLUGIN_ID && this.__yamlPluginPattern().length > 0) {
+      configurations.push(new Configuration(ConfigRepo.FILE_PATTERN, new PlainTextValue(this.__yamlPluginPattern())));
+    }
+    if (this.pluginId() === ConfigRepo.JSON_PLUGIN_ID) {
+      if (this.__jsonPluginPipelinesPattern().length > 0) {
+        configurations.push(new Configuration(ConfigRepo.PIPELINE_PATTERN,
+                                              new PlainTextValue(this.__jsonPluginPipelinesPattern())));
+      }
+      if (this.__jsonPluginEnvPattern().length > 0) {
+        configurations.push(new Configuration(ConfigRepo.ENVIRONMENT_PATTERN,
+                                              new PlainTextValue(this.__jsonPluginEnvPattern())));
+      }
+    }
+    return configurations;
   }
 }
 

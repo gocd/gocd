@@ -85,7 +85,12 @@ export default abstract class Page {
       const userDisplayName        = body.getAttribute("data-user-display-name") || "";
 
       const footerData = {
-        copyrightYear, goVersion, fullVersion, formattedVersion, isServerInDrainMode
+        copyrightYear,
+        goVersion,
+        fullVersion,
+        formattedVersion,
+        isServerInDrainMode,
+        isSupportedBrowser: !/(MSIE|Trident)/i.test(navigator.userAgent)
       };
 
       const headerData = {

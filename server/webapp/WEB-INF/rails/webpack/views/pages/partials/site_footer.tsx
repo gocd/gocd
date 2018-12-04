@@ -24,20 +24,13 @@ export interface Attrs {
   fullVersion: string;
   formattedVersion: string;
   isServerInDrainMode: boolean;
+  isSupportedBrowser: boolean;
 }
 
 export class SiteFooter extends MithrilViewComponent<Attrs> {
   view(vnode: m.Vnode<Attrs>) {
-
-    let drainModeBanner: JSX.Element | null = null;
-    if (vnode.attrs.isServerInDrainMode) {
-      drainModeBanner = (<div data-test-id="drain-mode-banner" class={styles.drainModeBanner}>
-        GoCD Server is in the drain state (Maintenance mode). Learn more...
-      </div>);
-    }
-
     return <div className={styles.footer}>
-      {drainModeBanner}
+      {SiteFooter.drainModeOrLegacyBrowserBanner(vnode)}
       <div class={styles.left}>
         <p class={styles.content}>Copyright &copy; {vnode.attrs.copyrightYear}&nbsp;
           <a href="https://www.thoughtworks.com/products" target="_blank">ThoughtWorks, Inc.</a>
@@ -66,5 +59,22 @@ export class SiteFooter extends MithrilViewComponent<Attrs> {
         </div>
       </div>
     </div>;
+  }
+
+  private static drainModeOrLegacyBrowserBanner(vnode: m.Vnode<Attrs>) {
+    if (vnode.attrs.isServerInDrainMode) {
+      return (<div data-test-id="drain-mode-banner" class={styles.footerWarningBanner}>
+        GoCD Server is in the drain state (Maintenance mode). Learn more...
+      </div>);
+    }
+
+    if (!vnode.attrs.isSupportedBrowser) {
+      return (<div data-test-id="unsupported-browser-banner" class={styles.footerWarningBanner}>
+        You appear to be using an unsupported browser. Please see <a
+        href={`https://docs.gocd.org/${vnode.attrs.goVersion}/installation/system_requirements.html#client-browser-requirements`}
+        title="supported browsers"
+        target="_blank">this page</a> for a list of supported browsers.
+      </div>);
+    }
   }
 }

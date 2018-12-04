@@ -21,10 +21,7 @@ import com.thoughtworks.go.plugin.domain.analytics.AnalyticsPluginInfo;
 import com.thoughtworks.go.plugin.domain.analytics.Capabilities;
 import com.thoughtworks.go.plugin.domain.analytics.SupportedAnalytics;
 import com.thoughtworks.go.plugin.domain.common.CombinedPluginInfo;
-import com.thoughtworks.go.server.security.GoAuthority;
-import com.thoughtworks.go.server.service.RailsAssetsService;
-import com.thoughtworks.go.server.service.VersionInfoService;
-import com.thoughtworks.go.server.service.WebpackAssetsService;
+import com.thoughtworks.go.server.service.*;
 import com.thoughtworks.go.server.service.plugins.builder.DefaultPluginInfoFinder;
 import com.thoughtworks.go.server.service.support.toggle.FeatureToggleService;
 import com.thoughtworks.go.server.service.support.toggle.Toggles;
@@ -43,10 +40,9 @@ import javax.servlet.http.HttpSession;
 import java.util.Collections;
 import java.util.List;
 
-import static com.thoughtworks.go.server.newsecurity.SessionUtilsHelper.setAuthenticationToken;
 import static com.thoughtworks.go.plugin.domain.common.PluginConstants.ANALYTICS_EXTENSION;
+import static com.thoughtworks.go.server.newsecurity.SessionUtilsHelper.setAuthenticationToken;
 import static org.hamcrest.core.Is.is;
-import static org.hamcrest.core.IsNull.nullValue;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
@@ -68,6 +64,10 @@ public class GoVelocityViewTest {
     private DefaultPluginInfoFinder pluginInfoFinder;
     @Mock
     private WebpackAssetsService webpackAssetsService;
+    @Mock
+    private SecurityService securityService;
+    @Mock
+    private DrainModeService drainModeService;
 
     @Before
     public void setUp() throws Exception {
@@ -79,77 +79,88 @@ public class GoVelocityViewTest {
         doReturn(versionInfoService).when(view).getVersionInfoService();
         doReturn(pluginInfoFinder).when(view).getPluginInfoFinder();
         doReturn(webpackAssetsService).when(view).webpackAssetsService();
+        doReturn(securityService).when(view).getSecurityService();
+        doReturn(drainModeService).when(view).getDrainModeService();
         request = new MockHttpServletRequest();
         velocityContext = new VelocityContext();
     }
 
     @Test
-    public void shouldNotSetSupportsAnalyticsDashboardIfPluginMissing() throws Exception {
+    public void shouldNotShowAnalyticsDashboardIfPluginMissing() throws Exception {
         view.exposeHelpers(velocityContext, request);
-        assertThat(velocityContext.get(GoVelocityView.SUPPORTS_ANALYTICS_DASHBOARD), is(false));
+        assertThat(velocityContext.get(GoVelocityView.SHOW_ANALYTICS_DASHBOARD), is(false));
     }
 
     @Test
-    public void shouldSetSupportsAnalyticsDashboardIfPluginInstalled() throws Exception {
+    public void shouldShowAnalyticsDashboardForAdminIfPluginInstalled() throws Exception {
         List<SupportedAnalytics> supportedAnalytics = Collections.singletonList(new SupportedAnalytics("dashboard", "id", "foo"));
         AnalyticsPluginInfo info = new AnalyticsPluginInfo(null, null, new Capabilities(supportedAnalytics), null);
 
+        when(securityService.isUserAdmin(any())).thenReturn(true);
         when(pluginInfoFinder.allPluginInfos(ANALYTICS_EXTENSION)).thenReturn(Collections.singletonList(new CombinedPluginInfo(info)));
 
         view.exposeHelpers(velocityContext, request);
 
-        assertThat(velocityContext.get(GoVelocityView.SUPPORTS_ANALYTICS_DASHBOARD), is(true));
+        assertThat(velocityContext.get(GoVelocityView.SHOW_ANALYTICS_DASHBOARD), is(true));
+    }
+
+    @Test
+    public void shouldNotShowAnalyticsDashboardForNonAdminEvenIfPluginInstalled() throws Exception {
+        List<SupportedAnalytics> supportedAnalytics = Collections.singletonList(new SupportedAnalytics("dashboard", "id", "foo"));
+        AnalyticsPluginInfo info = new AnalyticsPluginInfo(null, null, new Capabilities(supportedAnalytics), null);
+
+        when(securityService.isUserAdmin(any())).thenReturn(false);
+        when(pluginInfoFinder.allPluginInfos(ANALYTICS_EXTENSION)).thenReturn(Collections.singletonList(new CombinedPluginInfo(info)));
+
+        view.exposeHelpers(velocityContext, request);
+
+        assertThat(velocityContext.get(GoVelocityView.SHOW_ANALYTICS_DASHBOARD), is(false));
     }
 
     @Test
     public void shouldSetAdministratorIfUserIsAdministrator() throws Exception {
-        setAuthenticationToken(request, "jez", GoAuthority.ROLE_SUPERVISOR.asAuthority());
+        when(securityService.isUserAdmin(any())).thenReturn(true);
+
         view.exposeHelpers(velocityContext, request);
+
         assertThat(velocityContext.get(GoVelocityView.ADMINISTRATOR), is(true));
     }
 
     @Test
     public void shouldSetTemplateAdministratorIfUserIsTemplateAdministrator() throws Exception {
-        setAuthenticationToken(request, "jez", GoAuthority.ROLE_TEMPLATE_SUPERVISOR.asAuthority());
+        when(securityService.isAuthorizedToViewAndEditTemplates(any())).thenReturn(true);
+
         view.exposeHelpers(velocityContext, request);
+
         assertThat(velocityContext.get(GoVelocityView.TEMPLATE_ADMINISTRATOR), is(true));
     }
 
     @Test
     public void shouldSetTemplateViewUserRightsForTemplateViewUser() throws Exception {
-        setAuthenticationToken(request, "templateView", GoAuthority.ROLE_TEMPLATE_VIEW_USER.asAuthority());
+        when(securityService.isAuthorizedToViewTemplates(any())).thenReturn(true);
+
         view.exposeHelpers(velocityContext, request);
+
         assertThat(velocityContext.get(GoVelocityView.TEMPLATE_VIEW_USER), is(true));
     }
 
     @Test
     public void shouldSetViewAdministratorRightsIfUserHasAnyLevelOfAdministratorRights() throws Exception {
-        setAuthenticationToken(request, "jez", GoAuthority.ROLE_TEMPLATE_SUPERVISOR.asAuthority());
-        view.exposeHelpers(velocityContext, request);
-        assertThat(velocityContext.get(GoVelocityView.VIEW_ADMINISTRATOR_RIGHTS), is(true));
+        when(securityService.canViewAdminPage(any())).thenReturn(true);
 
-        setAuthenticationToken(request, "jez", GoAuthority.ROLE_GROUP_SUPERVISOR.asAuthority());
         view.exposeHelpers(velocityContext, request);
-        assertThat(velocityContext.get(GoVelocityView.VIEW_ADMINISTRATOR_RIGHTS), is(true));
 
-        setAuthenticationToken(request, "jez", GoAuthority.ROLE_SUPERVISOR.asAuthority());
-        view.exposeHelpers(velocityContext, request);
         assertThat(velocityContext.get(GoVelocityView.VIEW_ADMINISTRATOR_RIGHTS), is(true));
-
-        setAuthenticationToken(request, "jez", GoAuthority.ROLE_TEMPLATE_VIEW_USER.asAuthority());
-        view.exposeHelpers(velocityContext, request);
-        assertThat(velocityContext.get(GoVelocityView.VIEW_ADMINISTRATOR_RIGHTS), is(true));
-
-        setAuthenticationToken(request, "jez", GoAuthority.ROLE_USER.asAuthority());
-        view.exposeHelpers(velocityContext, request);
-        assertThat(velocityContext.get(GoVelocityView.VIEW_ADMINISTRATOR_RIGHTS), is(nullValue()));
     }
 
     @Test
     public void shouldSetGroupAdministratorIfUserIsAPipelineGroupAdministrator() throws Exception {
-        setAuthenticationToken(request, "jez", GoAuthority.ROLE_GROUP_SUPERVISOR.asAuthority());
+        when(securityService.isUserAdmin(any())).thenReturn(false);
+        when(securityService.isUserGroupAdmin(any())).thenReturn(true);
+
         view.exposeHelpers(velocityContext, request);
-        assertThat(velocityContext.get(GoVelocityView.ADMINISTRATOR), is(nullValue()));
+
+        assertThat(velocityContext.get(GoVelocityView.ADMINISTRATOR), is(false));
         assertThat(velocityContext.get(GoVelocityView.GROUP_ADMINISTRATOR), is(true));
     }
 
@@ -188,6 +199,8 @@ public class GoVelocityViewTest {
         doReturn(versionInfoService).when(view).getVersionInfoService();
         doReturn(pluginInfoFinder).when(view).getPluginInfoFinder();
         doReturn(webpackAssetsService).when(view).webpackAssetsService();
+        doReturn(drainModeService).when(view).getDrainModeService();
+        doReturn(securityService).when(view).getSecurityService();
         Request servletRequest = mock(Request.class);
         when(servletRequest.getSession()).thenReturn(mock(HttpSession.class));
 
@@ -216,6 +229,8 @@ public class GoVelocityViewTest {
         doReturn(versionInfoService).when(view).getVersionInfoService();
         doReturn(pluginInfoFinder).when(view).getPluginInfoFinder();
         doReturn(webpackAssetsService).when(view).webpackAssetsService();
+        doReturn(drainModeService).when(view).getDrainModeService();
+        doReturn(securityService).when(view).getSecurityService();
         Request servletRequest = mock(Request.class);
         when(servletRequest.getSession()).thenReturn(mock(HttpSession.class));
 

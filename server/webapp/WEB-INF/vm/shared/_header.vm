@@ -53,7 +53,19 @@
     #if(!$current_tab && $currentTab.name)
         #set($current_tab = $currentTab.name)
     #end
-<body>
+<body
+      data-is-user-admin="$userHasAdministratorRights"
+      data-can-user-view-admin="$userHasViewAdministratorRights"
+      data-is-user-group-admin="$userHasGroupAdministratorRights"
+      data-can-user-view-templates="$userHasTemplateViewUserRights"
+      data-show-analytics-dashboard="$showAnalyticsDashboard"
+      data-user-display-name="$principal"
+      data-user-anonymous="$isAnonymousUser"
+      data-is-server-in-drain-mode="${drainModeService.isDrainMode()}"
+      data-version-go-version="$currentGoCDVersion.goVersion()"
+      data-version-copyright-year="$currentGoCDVersion.copyrightYear()"
+      data-version-formatted="${currentGoCDVersion.formatted()}"
+      data-version-full="${currentGoCDVersion.fullVersion()}">
 <div class="page-wrap">
   <div id="body_bg">
     <div id="body_bg_highlight">

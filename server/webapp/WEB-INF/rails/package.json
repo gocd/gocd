@@ -44,7 +44,7 @@
     "@types/jasmine": "^2.8.11",
     "@types/jasmine-ajax": "^3.1.39",
     "@types/jasmine-jquery": "^1.5.33",
-    "@types/lodash": "^4.14.118",
+    "@types/lodash": "^4.14.119",
     "@types/mithril": "^1.1.13",
     "@types/node": "^10.12.9",
     "@types/underscore.string": "^0.0.32",

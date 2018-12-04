@@ -260,6 +260,66 @@ class ModeAwareFilterTest {
     }
 
     @Test
+    public void shouldAllowBackupsPOSTApiCallWhileServerIsInDrainMode() throws Exception {
+        when(systemEnvironment.isServerActive()).thenReturn(true);
+        when(drainModeService.isDrainMode()).thenReturn(true);
+
+        request = HttpRequestBuilder.POST("/api/backups").build();
+
+        filter.doFilter(request, response, filterChain);
+
+        verify(filterChain, times(1)).doFilter(request, response);
+    }
+
+    @Test
+    public void shouldAllowBackupsPOSTCallInvokedViaUIWhileServerIsInDrainMode() throws Exception {
+        when(systemEnvironment.isServerActive()).thenReturn(true);
+        when(drainModeService.isDrainMode()).thenReturn(true);
+
+        request = HttpRequestBuilder.POST("/admin/backup").build();
+
+        filter.doFilter(request, response, filterChain);
+
+        verify(filterChain, times(1)).doFilter(request, response);
+    }
+
+    @Test
+    public void shouldAllowAgentRemotingPOSTCallInvokedViaAgentWhileServerIsInDrainMode() throws Exception {
+        when(systemEnvironment.isServerActive()).thenReturn(true);
+        when(drainModeService.isDrainMode()).thenReturn(true);
+
+        request = HttpRequestBuilder.POST("/remoting/foo").build();
+
+        filter.doFilter(request, response, filterChain);
+
+        verify(filterChain, times(1)).doFilter(request, response);
+    }
+
+    @Test
+    public void shouldAllowAgentRemotingPUTCallInvokedViaAgentWhileServerIsInDrainMode() throws Exception {
+        when(systemEnvironment.isServerActive()).thenReturn(true);
+        when(drainModeService.isDrainMode()).thenReturn(true);
+
+        request = HttpRequestBuilder.PUT("/remoting/files/up42/4/up42_stage/1/up42_job/cruise-output/console.log?attempt=1&buildId=5").build();
+
+        filter.doFilter(request, response, filterChain);
+
+        verify(filterChain, times(1)).doFilter(request, response);
+    }
+
+    @Test
+    public void shouldAllowAgentWebsocketCallInvokedViaAgentWhileServerIsInDrainMode() throws Exception {
+        when(systemEnvironment.isServerActive()).thenReturn(true);
+        when(drainModeService.isDrainMode()).thenReturn(true);
+
+        request = HttpRequestBuilder.POST("/agent-websocket/foo").build();
+
+        filter.doFilter(request, response, filterChain);
+
+        verify(filterChain, times(1)).doFilter(request, response);
+    }
+
+    @Test
     public void shouldReturn503WhenPOSTAPICallIsMadeWhileServerIsInDrainMode() throws Exception {
         when(systemEnvironment.isServerActive()).thenReturn(true);
         when(drainModeService.isDrainMode()).thenReturn(true);

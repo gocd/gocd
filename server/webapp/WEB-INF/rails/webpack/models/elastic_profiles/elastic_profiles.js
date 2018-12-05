@@ -36,7 +36,7 @@ ElasticProfiles.API_VERSION = 'v1';
 
 CrudMixins.Index({
   type:     ElasticProfiles,
-  indexUrl: SparkRoutes.elasticProfilesPath(),
+  indexUrl: SparkRoutes.elasticProfileListPath(),
   version:  ElasticProfiles.API_VERSION,
   dataPath: '_embedded.profiles'
 });
@@ -59,10 +59,10 @@ ElasticProfiles.Profile = function (data) {
   CrudMixins.AllOperations.call(this, ['refresh', 'update', 'delete', 'create'],
     {
       type:     ElasticProfiles.Profile,
-      indexUrl: SparkRoutes.elasticProfilesPath(),
+      indexUrl: SparkRoutes.elasticProfileListPath(),
       version:  ElasticProfiles.API_VERSION,
       resourceUrl(profile) {
-        return SparkRoutes.elasticProfilesPath(profile.id());
+        return SparkRoutes.elasticProfilePath(profile.id());
       }
     }
   );

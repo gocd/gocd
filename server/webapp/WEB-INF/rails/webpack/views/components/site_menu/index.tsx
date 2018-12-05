@@ -172,7 +172,7 @@ export default class SiteMenu extends MithrilViewComponent<Attrs> {
               <SiteSubNavItem href="/go/admin/pipelines" text="Pipelines"/>
               <SiteSubNavItem href="/go/admin/templates" text="Templates"/>
               <SiteSubNavItem href="/go/admin/elastic_profiles" text="Elastic Agent Profiles"/>
-              <SiteSubNavItem href="/go/admin/config_xml" text="Config XML"/>
+              <SiteSubNavItem href="/go/admin/pipelines/snippet" text="Config XML"/>
               <SiteSubNavItem href="/go/admin/plugins" text="Plugins"/>
               <SiteSubNavItem href="/go/admin/package_repositories/new" text="Package Repositories"/>
             </SiteSubNav>

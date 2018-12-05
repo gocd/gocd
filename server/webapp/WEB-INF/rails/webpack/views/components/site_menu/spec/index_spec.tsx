@@ -128,7 +128,7 @@ describe("Site Menu", () => {
     expect(findMenuItem("/go/admin/config_repos")).not.toBeInDOM();
     expect(findMenuItem("/go/admin/templates")).toHaveText("Templates");
     expect(findMenuItem("/go/admin/elastic_profiles")).toHaveText("Elastic Agent Profiles");
-    expect(findMenuItem("/go/admin/config_xml")).toHaveText("Config XML");
+    expect(findMenuItem("/go/admin/pipelines/snippet")).toHaveText("Config XML");
     expect(findMenuItem("/go/admin/config/server")).not.toBeInDOM();
     expect(findMenuItem("/go/admin/users")).not.toBeInDOM();
     expect(findMenuItem("/go/admin/backup")).not.toBeInDOM();

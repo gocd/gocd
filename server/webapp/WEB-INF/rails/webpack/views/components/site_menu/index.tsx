@@ -134,7 +134,7 @@ export default class SiteMenu extends MithrilViewComponent<Attrs> {
     const configReposMenu: m.Children = vnode.attrs.showConfigRepos ?
       <SiteSubNavItem href="/go/admin/config_repos" text="Config Repositories"/> : null;
 
-    let adminMenu = <SiteNavItem text="Admin"/>;
+    let adminMenu = null;
 
     if (vnode.attrs.canViewAdminPage) {
       if (vnode.attrs.isUserAdmin) {

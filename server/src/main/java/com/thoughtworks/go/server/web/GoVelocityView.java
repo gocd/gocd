@@ -20,23 +20,19 @@ import com.thoughtworks.go.CurrentGoCDVersion;
 import com.thoughtworks.go.plugin.domain.analytics.AnalyticsPluginInfo;
 import com.thoughtworks.go.plugin.domain.common.CombinedPluginInfo;
 import com.thoughtworks.go.plugin.domain.common.PluginConstants;
+import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.newsecurity.models.AuthenticationToken;
 import com.thoughtworks.go.server.newsecurity.utils.SessionUtils;
-import com.thoughtworks.go.server.security.GoAuthority;
-import com.thoughtworks.go.server.service.RailsAssetsService;
-import com.thoughtworks.go.server.service.VersionInfoService;
-import com.thoughtworks.go.server.service.WebpackAssetsService;
+import com.thoughtworks.go.server.service.*;
 import com.thoughtworks.go.server.service.plugins.builder.DefaultPluginInfoFinder;
 import com.thoughtworks.go.server.service.support.toggle.Toggles;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.velocity.Template;
 import org.apache.velocity.context.Context;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.web.servlet.view.velocity.VelocityToolboxView;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.StringWriter;
-import java.util.Set;
 
 public class GoVelocityView extends VelocityToolboxView {
     public static final String PRINCIPAL = "principal";
@@ -58,8 +54,10 @@ public class GoVelocityView extends VelocityToolboxView {
     public static final String PATH_RESOLVER = "pathResolver";
     public static final String GO_UPDATE = "goUpdate";
     public static final String GO_UPDATE_CHECK_ENABLED = "goUpdateCheckEnabled";
-    public static final String SUPPORTS_ANALYTICS_DASHBOARD = "supportsAnalyticsDashboard";
+    public static final String SHOW_ANALYTICS_DASHBOARD = "showAnalyticsDashboard";
     public static final String WEBPACK_ASSETS_SERVICE = "webpackAssetsService";
+    public static final String DRAIN_MODE_SERVICE = "drainModeService";
+    public static final String IS_ANONYMOUS_USER = "isAnonymousUser";
 
     private final SystemEnvironment systemEnvironment;
 
@@ -83,6 +81,14 @@ public class GoVelocityView extends VelocityToolboxView {
         return this.getApplicationContext().getAutowireCapableBeanFactory().getBean(VersionInfoService.class);
     }
 
+    DrainModeService getDrainModeService() {
+        return this.getApplicationContext().getAutowireCapableBeanFactory().getBean(DrainModeService.class);
+    }
+
+    SecurityService getSecurityService() {
+        return this.getApplicationContext().getAutowireCapableBeanFactory().getBean(SecurityService.class);
+    }
+
     DefaultPluginInfoFinder getPluginInfoFinder() {
         return this.getApplicationContext().getAutowireCapableBeanFactory().getBean(DefaultPluginInfoFinder.class);
     }
@@ -90,11 +96,14 @@ public class GoVelocityView extends VelocityToolboxView {
     protected void exposeHelpers(Context velocityContext, HttpServletRequest request) throws Exception {
         RailsAssetsService railsAssetsService = getRailsAssetsService();
         VersionInfoService versionInfoService = getVersionInfoService();
-        velocityContext.put(ADMINISTRATOR, true);
-        velocityContext.put(GROUP_ADMINISTRATOR, true);
-        velocityContext.put(TEMPLATE_ADMINISTRATOR, true);
-        velocityContext.put(VIEW_ADMINISTRATOR_RIGHTS, true);
-        velocityContext.put(TEMPLATE_VIEW_USER, true);
+        SecurityService securityService = getSecurityService();
+        Username username = SessionUtils.getCurrentUser().asUsernameObject();
+
+        velocityContext.put(ADMINISTRATOR, securityService.isUserAdmin(username));
+        velocityContext.put(GROUP_ADMINISTRATOR, securityService.isUserGroupAdmin(username));
+        velocityContext.put(TEMPLATE_ADMINISTRATOR, securityService.isAuthorizedToViewAndEditTemplates(username));
+        velocityContext.put(VIEW_ADMINISTRATOR_RIGHTS, securityService.canViewAdminPage(username));
+        velocityContext.put(TEMPLATE_VIEW_USER, securityService.isAuthorizedToViewTemplates(username));
         velocityContext.put(USE_COMPRESS_JS, systemEnvironment.useCompressedJs());
 
         velocityContext.put(Toggles.PIPELINE_COMMENT_FEATURE_TOGGLE_KEY, Toggles.isToggleOn(Toggles.PIPELINE_COMMENT_FEATURE_TOGGLE_KEY));
@@ -116,16 +125,20 @@ public class GoVelocityView extends VelocityToolboxView {
         velocityContext.put(GO_UPDATE, versionInfoService.getGoUpdate());
         velocityContext.put(GO_UPDATE_CHECK_ENABLED, versionInfoService.isGOUpdateCheckEnabled());
 
-        velocityContext.put(SUPPORTS_ANALYTICS_DASHBOARD, supportsAnalyticsDashboard());
+        velocityContext.put(SHOW_ANALYTICS_DASHBOARD, (securityService.isUserAdmin(username) && supportsAnalyticsDashboard()));
         velocityContext.put(WEBPACK_ASSETS_SERVICE, webpackAssetsService());
+        velocityContext.put(DRAIN_MODE_SERVICE, getDrainModeService());
         if (!SessionUtils.hasAuthenticationToken(request)) {
             return;
         }
-
         final AuthenticationToken<?> authentication = SessionUtils.getAuthenticationToken(request);
 
         setPrincipal(velocityContext, authentication);
-        setAdmininstratorRole(velocityContext, authentication);
+        setAnonymousUser(velocityContext, authentication);
+    }
+
+    private void setAnonymousUser(Context velocityContext, AuthenticationToken<?> authentication) {
+        velocityContext.put(IS_ANONYMOUS_USER, "anonymous".equalsIgnoreCase(authentication.getUser().getDisplayName()));
     }
 
     private boolean supportsAnalyticsDashboard() {
@@ -140,89 +153,6 @@ public class GoVelocityView extends VelocityToolboxView {
 
     private void setPrincipal(Context velocityContext, AuthenticationToken<?> authentication) {
         velocityContext.put(PRINCIPAL, authentication.getUser().getDisplayName());
-    }
-
-    private void setAdmininstratorRole(Context velocityContext, AuthenticationToken<?> authentication) {
-        final Set<GrantedAuthority> authorities = authentication.getUser().getAuthorities();
-        if (authorities == null) {
-            return;
-        }
-        removeAdminFromContextIfNecessary(velocityContext, authorities);
-        removeGroupAdminFromContextIfNecessary(velocityContext, authorities);
-        removeTemplateAdminFromContextIfNecessary(velocityContext, authorities);
-        removeTemplateViewUserFromContextIfNecessary(velocityContext, authorities);
-        removeViewAdminRightsFromContextIfNecessary(velocityContext);
-
-    }
-
-    private void removeViewAdminRightsFromContextIfNecessary(Context context) {
-        if (!(context.containsKey(ADMINISTRATOR) || context.containsKey(GROUP_ADMINISTRATOR) || context.containsKey(TEMPLATE_ADMINISTRATOR) || context.containsKey(TEMPLATE_VIEW_USER)))
-            context.remove(VIEW_ADMINISTRATOR_RIGHTS);
-    }
-
-    private void removeGroupAdminFromContextIfNecessary(Context velocityContext, Set<GrantedAuthority> authorities) {
-        boolean administrator = false;
-        for (GrantedAuthority authority : authorities) {
-            if (isGroupAdministrator(authority)) {
-                administrator = true;
-            }
-        }
-        if (!administrator) {
-            velocityContext.remove(GROUP_ADMINISTRATOR);
-        }
-    }
-
-    private void removeTemplateAdminFromContextIfNecessary(Context velocityContext, Set<GrantedAuthority> authorities) {
-        boolean administrator = false;
-        for (GrantedAuthority authority : authorities) {
-            if (isTemplateAdministrator(authority)) {
-                administrator = true;
-            }
-        }
-        if (!administrator) {
-            velocityContext.remove(TEMPLATE_ADMINISTRATOR);
-        }
-    }
-
-    private void removeTemplateViewUserFromContextIfNecessary(Context velocityContext, Set<GrantedAuthority> authorities) {
-        boolean isTemplateViewUser = false;
-        for (GrantedAuthority authority : authorities) {
-            if (isTemplateViewUser(authority)) {
-                isTemplateViewUser = true;
-            }
-        }
-
-        if (!isTemplateViewUser) {
-            velocityContext.remove(TEMPLATE_VIEW_USER);
-        }
-    }
-
-    private void removeAdminFromContextIfNecessary(Context velocityContext, Set<GrantedAuthority> authorities) {
-        boolean administrator = false;
-        for (GrantedAuthority authority : authorities) {
-            if (isAdministrator(authority)) {
-                administrator = true;
-            }
-        }
-        if (!administrator) {
-            velocityContext.remove(ADMINISTRATOR);
-        }
-    }
-
-    private boolean isAdministrator(GrantedAuthority authority) {
-        return authority.equals(GoAuthority.ROLE_SUPERVISOR.asAuthority());
-    }
-
-    private boolean isGroupAdministrator(GrantedAuthority authority) {
-        return authority.equals(GoAuthority.ROLE_GROUP_SUPERVISOR.asAuthority());
-    }
-
-    private boolean isTemplateAdministrator(GrantedAuthority authority) {
-        return authority.equals(GoAuthority.ROLE_TEMPLATE_SUPERVISOR.asAuthority());
-    }
-
-    private boolean isTemplateViewUser(GrantedAuthority authority) {
-        return authority.equals(GoAuthority.ROLE_TEMPLATE_VIEW_USER.asAuthority());
     }
 
     public String getContentAsString() {

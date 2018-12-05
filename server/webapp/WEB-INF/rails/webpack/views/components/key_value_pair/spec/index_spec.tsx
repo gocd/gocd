@@ -53,7 +53,7 @@ describe("KeyValuePair", () => {
     expect($root.find(`.${styles.keyValuePair} .${styles.value}`).get(8)).toHaveHtml("<em>(Not specified)</em>");
 
     expect($root.find(`.${styles.keyValuePair} .${styles.value}`).get(9)).toHaveHtml("<strong>grrr!</strong>");
-debugger;
+
     expect($root.find(`.${styles.keyValuePair} .${styles.key}`).get(10)).toHaveText("Integer");
     expect($root.find(`.${styles.keyValuePair} .${styles.value}`).get(10)).toHaveText("1");
 

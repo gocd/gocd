@@ -34,7 +34,7 @@ import org.mockito.Mock;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 
 import static com.thoughtworks.go.plugin.domain.common.PluginConstants.CONFIG_REPO_EXTENSION;
@@ -56,9 +56,14 @@ public class ConfigRepoExtensionTest {
     @Mock
     private JsonMessageHandler2_0 jsonMessageHandler2;
     private ConfigRepoExtension extension;
-    private String requestBody = "expected-request";
     private String responseBody = "expected-response";
-    private Map<String, String> responseHeaders = Collections.singletonMap("X-Filename", "pipeline.config");
+    private Map<String, String> responseHeaders = new HashMap<String, String>() {
+        {
+            put("Content-Type", "text/plain");
+            put("X-Export-Filename", "foo.txt");
+        }
+    };
+
     private ArgumentCaptor<GoPluginApiRequest> requestArgumentCaptor;
 
     @Before

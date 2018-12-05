@@ -61,6 +61,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.ArgumentMatcher;
 
 import java.io.File;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 import static com.thoughtworks.go.helper.ConfigFileFixture.configWith;
@@ -766,6 +767,32 @@ public class GoConfigServiceTest {
     }
 
     @Test
+    public void shouldIgnoreXmlEntitiesAndReplaceThemWithEmptyString_DuringPipelineGroupPartialSave() throws Exception {
+        ArgumentCaptor<FullConfigUpdateCommand> commandArgumentCaptor = ArgumentCaptor.forClass(FullConfigUpdateCommand.class);
+        File targetFile = TempFiles.createUniqueFile("somefile");
+        FileUtils.writeStringToFile(targetFile, "CONTENTS_OF_FILE", StandardCharsets.UTF_8);
+
+        cruiseConfig = new BasicCruiseConfig();
+        expectLoad(cruiseConfig);
+        new GoConfigMother().addPipelineWithGroup(cruiseConfig, "group_name", "pipeline1", "stage_name", "job_name");
+        expectLoadForEditing(cruiseConfig);
+        when(systemEnvironment.optimizeFullConfigSave()).thenReturn(true);
+        when(goConfigDao.md5OfConfigFile()).thenReturn("md5");
+        when(goConfigDao.updateFullConfig(commandArgumentCaptor.capture())).thenReturn(null);
+
+        GoConfigService.XmlPartialSaver partialSaver = goConfigService.groupSaver("group_name");
+        GoConfigValidity validity = partialSaver.saveXml(groupXmlWithEntity(targetFile.getAbsolutePath()), "md5");
+
+        PipelineConfigs group = commandArgumentCaptor.getValue().configForEdit().findGroup("group_name");
+        PipelineConfig pipeline = group.findBy(new CaseInsensitiveString("pipeline1"));
+        assertThat(validity.isValid(), Matchers.is(true));
+
+        String entityValue = pipeline.getParams().getParamNamed("foo").getValue();
+        assertThat(entityValue, not(containsString("CONTENTS_OF_FILE")));
+        assertThat(entityValue, isEmptyString());
+    }
+
+    @Test
     public void shouldUpdateXmlUsingNewFlowIfEnabled() throws Exception {
         String groupName = "group_name";
         String md5 = "md5";
@@ -1203,6 +1230,28 @@ public class GoConfigServiceTest {
                 + "  <pipeline name=\"new_name\" labeltemplate=\"${COUNT}-#{foo}\">\n"
                 + "     <params>\n"
                 + "      <param name=\"foo\">test</param>\n"
+                + "    </params>"
+                + "    <materials>\n"
+                + "      <svn url=\"file:///tmp/foo\" />\n"
+                + "    </materials>\n"
+                + "    <stage name=\"stage_name\">\n"
+                + "      <jobs>\n"
+                + "        <job name=\"job_name\" />\n"
+                + "      </jobs>\n"
+                + "    </stage>\n"
+                + "  </pipeline>\n"
+                + "</pipelines>";
+
+    }
+
+    private String groupXmlWithEntity(String filePathToReferToInEntity) {
+        return "<!DOCTYPE foo [  \n" +
+                "<!ELEMENT param ANY >\n" +
+                "<!ENTITY myentity SYSTEM \"file://" + filePathToReferToInEntity + "\" >]>" +
+                "<pipelines group=\"group_name\">\n"
+                + "  <pipeline name=\"pipeline1\" labeltemplate=\"${COUNT}-#{foo}\">\n"
+                + "     <params>\n"
+                + "      <param name=\"foo\">&myentity;</param>\n"
                 + "    </params>"
                 + "    <materials>\n"
                 + "      <svn url=\"file:///tmp/foo\" />\n"

@@ -181,10 +181,16 @@ public class StageService implements StageRunFinder, StageFinder {
     public synchronized void cancelStage(final Stage stage) {
         cancel(stage);
         notifyStageStatusChangeListeners(stage);
+        //Send a notification only if none of the jobs are assigned.
+        // If any of the jobs are assigned. JobStatusListener.onMessage will send the stage cancel notification.
         transactionSynchronizationManager.registerSynchronization(new TransactionSynchronizationAdapter() {
             @Override
             public void afterCommit() {
-                stageStatusTopic.post(new StageStatusMessage(stage.getIdentifier(), stage.stageState(), stage.getResult(), SessionUtils.currentUsername()));
+                JobInstances jobInstances = stage.getJobInstances();
+                boolean noJobIsAssigned = jobInstances.stream().noneMatch(JobInstance::isAssignedToAgent);
+                if (noJobIsAssigned) {
+                    stageStatusTopic.post(new StageStatusMessage(stage.getIdentifier(), stage.stageState(), stage.getResult(), SessionUtils.currentUsername()));
+                }
             }
         });
     }

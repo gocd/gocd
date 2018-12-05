@@ -122,4 +122,14 @@ public class JobStatusListenerTest {
         verify(stageStatusTopic, never()).post(any(StageStatusMessage.class));
         verify(spyOfElasticAgentPluginService, never()).jobCompleted(any(JobInstance.class));
     }
+
+    @Test
+    public void shouldSendStageCompletedMessageForCancelledStage() {
+        dbHelper.cancelStage(savedPipeline.getStages().get(0));
+        listener = new JobStatusListener(new JobStatusTopic(null), stageService, stageStatusTopic, mock(ElasticAgentPluginService.class));
+        final StageStatusMessage stageCancelled = new StageStatusMessage(jobIdentifier.getStageIdentifier(), StageState.Cancelled, StageResult.Cancelled);
+
+        listener.onMessage(new JobStatusMessage(jobIdentifier, JobState.Completed, AGENT1.getUuid()));
+        verify(stageStatusTopic).post(stageCancelled);
+    }
 }

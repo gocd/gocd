@@ -519,6 +519,26 @@ public class StageServiceTest {
     }
 
     @Test
+    public void shouldNotSendStageStatusMessageAfterStageIsCancelledAndAnyOfTheJobIsAssigned() throws SQLException {
+        StageStatusTopic topic = mock(StageStatusTopic.class);
+        final Stage cancelledStage = StageMother.cancelledStage("stage", "job");
+        cancelledStage.setIdentifier(new StageIdentifier("pipeline/1/stage/1"));
+        cancelledStage.getJobInstances().first().setAgentUuid("soem-agent");
+
+        final StageService service = new StageService(stageDao, jobInstanceService, topic, new StageStatusCache(stageDao), null, null, changesetService, goConfigService, transactionTemplate,
+                transactionSynchronizationManager,
+                mock(GoCache.class));
+
+        transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+            public void doInTransactionWithoutResult(TransactionStatus status) {
+                service.cancelStage(cancelledStage);
+            }
+        });
+
+        verifyZeroInteractions(topic);
+    }
+
+    @Test
     public void shouldFindLatestStageFromCache() throws SQLException {
         Stage expectedStage = StageMother.custom("pipeline", "stage", null);
         StageStatusCache cache = new StageStatusCache(stageDao);

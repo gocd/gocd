@@ -18,7 +18,6 @@ package com.thoughtworks.go.domain;
 
 import com.rits.cloning.Cloner;
 import com.thoughtworks.go.config.StageConfig;
-import com.thoughtworks.go.server.domain.StageStatusHandler;
 import com.thoughtworks.go.util.Clock;
 import org.slf4j.Logger;
 import org.joda.time.DateTimeUtils;
@@ -299,12 +298,6 @@ public class Stage extends PersistentObject {
 
     public boolean isCompleted() {
         return stageState().completed();
-    }
-
-    public void statusHandling(StageStatusHandler stageStatusHandler) {
-        if (this.stageState().completedNormally()) {
-            stageStatusHandler.onNormalCompletion(stageState(), result);
-        }
     }
 
     public RunDuration getDuration() {

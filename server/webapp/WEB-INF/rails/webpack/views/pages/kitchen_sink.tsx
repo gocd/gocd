@@ -31,6 +31,7 @@ import {KeyValuePair} from "views/components/key_value_pair";
 import {Size} from "views/components/modal";
 import {SampleModal} from "views/components/modal/sample";
 import {SearchBox} from "views/components/search_box";
+import {Table} from "views/components/table";
 
 const formValue     = stream("initial value");
 const checkboxField = stream(false);
@@ -201,6 +202,12 @@ export class KitchenSink extends MithrilViewComponent<null> {
                            property={encryptedPasswordValue}/>
           </FormItem>
         </Form>
+
+        <h3>Table</h3>
+        <Table headers={["Pipeline", "Stage", "Job", "Action"]} data={[
+          ["LinuxPR", "build", "clean", <Buttons.Primary>Abort</Buttons.Primary>],
+          ["WindowsPR", <label>test</label>, "jasmine", <a href="#!">Go to report</a>]
+        ]}/>
       </div>
     );
   }

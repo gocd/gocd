@@ -87,17 +87,18 @@ export class ElasticProfilesWidget extends MithrilComponent<Attrs, {}> {
         <FlashMessage type={MessageType.info} message={noPluginInstalledMessage}/>
         <div data-test-id="elastic-profile-list">
           {
-            _.map(vnode.attrs.elasticProfiles.groupByPlugin(), (profiles, pluginId) => {
-              const pluginInfo = ElasticProfilesWidget.findPluginInfoByPluginId(vnode.attrs.pluginInfos(), pluginId);
-              const pluginName = pluginInfo ? pluginInfo.about.name : undefined;
-
+            _.entries(vnode.attrs.elasticProfiles.groupByPlugin()).map(([pluginId, profiles], index) => {
+              const pluginInfo           = ElasticProfilesWidget.findPluginInfoByPluginId(vnode.attrs.pluginInfos(),
+                                                                                          pluginId);
+              const pluginName           = pluginInfo ? pluginInfo.about.name : undefined;
               const statusReportButton   = this.createStatusReportButton(pluginId, pluginInfo);
               const pluginImageTag       = ElasticProfilesWidget.createImageTag(pluginInfo);
               const elasticProfileHeader = <ElasticProfilesHeaderWidget image={pluginImageTag}
                                                                         pluginId={pluginId}
                                                                         pluginName={pluginName}/>;
               return (
-                <CollapsiblePanel key={pluginId} header={elasticProfileHeader} actions={statusReportButton}>
+                <CollapsiblePanel key={pluginId} header={elasticProfileHeader} expanded={index === 0}
+                                  actions={statusReportButton}>
                   {
                     profiles.map((profile: ElasticProfile) =>
                                    <ElasticProfileWidget key={profile.id()} elasticProfile={profile}

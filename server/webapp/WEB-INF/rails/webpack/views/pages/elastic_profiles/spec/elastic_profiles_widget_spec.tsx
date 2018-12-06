@@ -69,8 +69,14 @@ describe("New Elastic Profiles Widget", () => {
       mount(pluginInfos, elasticProfiles);
     });
 
-    it("should render all elastic profile infos", () => {
+    it("should render all elastic profile info panels", () => {
       expect(find("elastic-profile-list").get(0).children).toHaveLength(3);
+    });
+
+    it("should always render first profile info panel expanded", () => {
+      expect(find("collapse-header").get(0)).toHaveClass(collapsiblePanelStyles.expanded);
+      expect(find("collapse-header").get(1)).not.toHaveClass(collapsiblePanelStyles.expanded);
+      expect(find("collapse-header").get(2)).not.toHaveClass(collapsiblePanelStyles.expanded);
     });
 
     it("should render plugin name, image and status report button", () => {
@@ -90,7 +96,7 @@ describe("New Elastic Profiles Widget", () => {
     });
 
     it("should toggle between expanded and collapsed state on click of header", () => {
-      const elasticProfileListHeader = find("collapse-header").get(0);
+      const elasticProfileListHeader = find("collapse-header").get(1);
 
       expect(elasticProfileListHeader).not.toHaveClass(collapsiblePanelStyles.expanded);
 

@@ -36,6 +36,7 @@ public class ConfigRepoConfigTest {
         config.setPluginId("myplugin");
         assertThat(config.getPluginId(),is("myplugin"));
     }
+
     @Test
     public void shouldReturnNullPluginNameWhenEmpty() {
         ConfigRepoConfig config = new ConfigRepoConfig();
@@ -75,6 +76,18 @@ public class ConfigRepoConfigTest {
         assertThat(configRepoConfig1.errors().isEmpty(),is(false));
         assertThat(configRepoConfig1.errors().on("id"),
                 is("You have defined multiple configuration repositories with the same id - 'id_1'."));
+    }
+
+    @Test
+    public void validate_shouldCheckPresenceOfPluginId() {
+        ConfigSaveValidationContext validationContext = ConfigSaveValidationContext.forChain(new BasicCruiseConfig());
+
+        ConfigRepoConfig configRepo = new ConfigRepoConfig(null,null, "id_1");
+        configRepo.validate(validationContext);
+
+        assertThat(configRepo.errors().isEmpty(),is(false));
+        assertThat(configRepo.errors().on("plugin_id"),
+                is("Configuration repository plugin_id not specified"));
     }
 
     @Test

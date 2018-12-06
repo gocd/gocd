@@ -26,6 +26,7 @@ import org.apache.commons.lang3.StringUtils;
 import java.util.*;
 
 import static java.lang.String.format;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 /**
  * Defines single source of remote configuration and name of plugin to interpet it.
@@ -43,7 +44,7 @@ public class ConfigRepoConfig implements Validatable, Cacheable {
     // TODO something must instantiate this name into proper implementation of ConfigProvider
     // which can be a plugin or embedded class
     @ConfigAttribute(value = "pluginId", allowNull = false)
-    private String pluginId = "gocd-xml";
+    private String pluginId;
     // plugin-name which will process the repository tree to return configuration.
     // as in https://github.com/gocd/gocd/issues/1133#issuecomment-109014208
     // then pattern-based plugin is just one option
@@ -85,13 +86,13 @@ public class ConfigRepoConfig implements Validatable, Cacheable {
     }
 
     public void setId(String id) {
-        if (StringUtils.isBlank(id))
+        if (isBlank(id))
             id = null;
         this.id = id;
     }
 
     public void setPluginId(String pluginId) {
-        if (StringUtils.isBlank(pluginId))
+        if (isBlank(pluginId))
             pluginId = null;
         this.pluginId = pluginId;
     }
@@ -115,6 +116,7 @@ public class ConfigRepoConfig implements Validatable, Cacheable {
     @Override
     public void validate(ValidationContext validationContext) {
         this.validatePresenceOfId();
+        this.validatePresenceOfPluginId();
         this.validateUniquenessOfId(validationContext);
         this.validateRepoIsSet();
         this.validateMaterial(validationContext);
@@ -195,8 +197,14 @@ public class ConfigRepoConfig implements Validatable, Cacheable {
     }
 
     private void validatePresenceOfId() {
-        if (this.getId() == null) {
+        if (isBlank(this.getId())) {
             this.errors.add(ID, "Configuration repository id not specified");
+        }
+    }
+
+    private void validatePresenceOfPluginId() {
+        if (isBlank(this.getPluginId())) {
+            this.errors.add("plugin_id", "Configuration repository plugin_id not specified");
         }
     }
 

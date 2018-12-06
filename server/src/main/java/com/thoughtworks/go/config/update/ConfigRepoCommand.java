@@ -25,6 +25,7 @@ import com.thoughtworks.go.plugin.access.configrepo.ConfigRepoExtension;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.SecurityService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
+import org.apache.commons.lang3.StringUtils;
 
 import static com.thoughtworks.go.i18n.LocalizedMessage.forbiddenToEdit;
 import static com.thoughtworks.go.serverhealth.HealthStateType.forbidden;
@@ -79,8 +80,8 @@ abstract class ConfigRepoCommand implements EntityConfigUpdateCommand<ConfigRepo
     }
 
     private void validateConfigRepoPluginId(ConfigRepoConfig configRepo) {
-        if (!configRepoExtension.canHandlePlugin(configRepo.getPluginId())) {
-            configRepo.addError("plugin_id", format("Invalid plugin id: %s", configRepo.getPluginId()));
+        if (isNotBlank(configRepo.getPluginId()) && !configRepoExtension.canHandlePlugin(configRepo.getPluginId())) {
+            this.configRepo.addError("plugin_id", format("Invalid plugin id: %s", configRepo.getPluginId()));
         }
     }
 

@@ -53,6 +53,7 @@
 //= require "lib/often-0.3.2.js"
 //= require "lib/component-emitter-1.2.1.js"
 //= require "plugin-endpoint.js"
+//= require "xhr_promise.js"
 //= require "gocd-link-support.js"
 //= require "plugin-endpoint-request-handler.js"
 //= require "ansi_up.js"
@@ -64,5 +65,4 @@
 //= require "compare_pipelines.js"
 //= require "console_log_tailing.js"
 //= require "js-routes"
-//= require "pipeline_export.js"
 //= require_directory .

@@ -52,26 +52,19 @@
         ev.preventDefault();
         ev.stopPropagation();
 
-        var url = el.getAttribute("href") + "&pluginId=" + encodeURIComponent($(ev.currentTarget).data("plugin-id"));
-
-        // Using native XHR so we can work with responseType and response;
-        // jQuery ajax does not support this.
-        var xhr = new XMLHttpRequest();
-
-        xhr.onreadystatechange = function() {
-          if (4 === xhr.readyState) { // request complete
-            if (xhr.status < 400 && xhr.status > 199) {
-              startClientDownload(xhr.response, xhr);
-            } else {
-              handleError(xhr.status, new FileReader().readAsText(xhr.response));
-            }
+        new XhrPromise({
+          url: el.getAttribute("href") + "&pluginId=" + encodeURIComponent($(ev.currentTarget).data("plugin-id")),
+          responseType: "blob",
+          headers: {
+            "Accept": "application/vnd.go.cd.v7+json"
           }
-        };
-
-        xhr.open("GET", url);
-        xhr.responseType = "blob";
-        xhr.setRequestHeader("Accept", "application/vnd.go.cd.v7+json");
-        xhr.send();
+        }).then(function (res) {
+          startClientDownload(res.data, res.xhr);
+        }).catch(function (res) {
+          handleError(res.xhr.status, new FileReader().readAsText(res.error))
+        }).finally(function() {
+          // hide loading indicator
+        });
 
         function startClientDownload(responseBlob, xhr) {
           var name = xhr.getResponseHeader("Content-Disposition").replace(/^attachment; filename=/, "").replace(/^(")(.+)(\1)/, "$2");

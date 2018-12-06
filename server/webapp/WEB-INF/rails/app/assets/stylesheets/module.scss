@@ -2501,10 +2501,10 @@ li.task_property {
 .vsm-entity .warning {
     background: image_url('g9/icons/icon_warning_16.png') no-repeat 0 0;
     color: red;
-    padding-bottom: inherit;
+    padding-bottom: 10px;
     font-weight: bold;
     padding-left: 21px;
-    line-height: 20px;
+    line-height: 17px;
 }
 
 .vsm-entity.conflicts {
@@ -2829,6 +2829,10 @@ li.task_property {
     position: absolute;
     right:    -4px;
     top:      9px;
+}
+
+.pipeline_actions.has-warning {
+  top: 39px;
 }
 
 .usercomment{

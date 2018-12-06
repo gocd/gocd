@@ -1,4 +1,7 @@
-import org.apache.tools.ant.filters.ReplaceTokens
+import com.thoughtworks.go.build.DownloadFile
+import org.apache.commons.codec.digest.DigestUtils
+
+import java.security.SecureRandom
 
 /*
  * Copyright 2016 ThoughtWorks, Inc.
@@ -16,59 +19,194 @@ import org.apache.tools.ant.filters.ReplaceTokens
  * limitations under the License.
  */
 
-task agentOSXZip(type: Zip) { zipTask ->
+configurations {
+  antConfig { transitive = false }
+}
+
+dependencies {
+  antConfig 'com.ultramixer.jarbundler:jarbundler-core:3.3.0'
+}
+
+private File destFile(String url) {
+  new File(gradle.gradleUserHomeDir, "download-cache/${DigestUtils.md5Hex(url)}/${new File(new URL(url).path).name}")
+}
+
+task downloadOSXJre(type: DownloadFile) {
+  def srcUrl = System.getenv("OSX_JDK_URL") ?: 'https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u192-b12/OpenJDK8U-jre_x64_mac_hotspot_8u192b12.tar.gz'
+  src srcUrl
+  dest destFile(srcUrl)
+  checksum 'dea28404b1e8053f459f53cf7d0b97c97ae97f4acecb2856b26002c5a29bb89a'
+}
+
+def setupInstaller(DefaultTask task, String appName, String packageName, String bundleId, String mainClass, File destinationDir, File sourceApplicationStubFile, File applicationJar) {
+  task.dependsOn downloadOSXJre
+
+  def appDir = file("${destinationDir}/${appName}.app")
+
+  def tmpDir = file("${project.buildDir}/tmp/${new BigInteger(32, new SecureRandom()).toString(32)}")
+  def tmpStubFile = file("${tmpDir}/${packageName}")
+  def jreOutputDir = file("${tmpDir}/jre")
+
+  task.configure {
+    doLast("Initialize all dirs") {
+      delete(tmpDir)
+      mkdir(tmpDir)
+
+      mkdir(destinationDir)
+    }
+
+    doLast("extract jre") {
+      def jreTempDir = file("${tmpDir}/tmp-jre")
+      mkdir(jreTempDir)
+
+      // extract
+      project.copy {
+        from project.tarTree(downloadOSXJre.outputs.files.singleFile)
+        into jreTempDir
+      }
+
+      // strip prefix by doing a "move" (aka copy/delete)
+      def names = []
+      jreTempDir.eachDirMatch(~/jdk.*/, {
+        names << it
+      })
+      if (names.isEmpty()) {
+        throw new GradleException("Did not find any jdk in ${jreTempDir}")
+      }
+
+      def jreDir = names.first()
+
+      copy {
+        from jreDir
+        into jreOutputDir
+      }
+
+      delete(jreTempDir)
+    }
+
+    doLast("Create filesystem for package") {
+      def jreDir = "Contents/jre" // relative to package root
+      // copy to tmp stub file
+      mkdir(tmpStubFile.parentFile)
+      copy {
+        from(sourceApplicationStubFile)
+        into(tmpStubFile.parentFile)
+        rename('.*', tmpStubFile.name)
+      }
+
+      ant.taskdef(
+        name: 'jarbundler',
+        classname: 'com.ultramixer.jarbundler.JarBundler',
+        classpath: project.configurations.antConfig.asPath
+      )
+      ant.jarbundler(
+        dir: destinationDir,
+        name: appName,
+        stubFile: tmpStubFile,
+        mainclass: 'com.thoughtworks.gocd.Boot',
+        verbose: true,
+        version: "${project.fullVersion}.${project.distVersion}",
+        bundleid: bundleId,
+        build: project.distVersion,
+        jar: applicationJar,
+        useJavaXKey: true,
+        screenmenu: true,
+        icon: 'gocd.icns',
+        workingdirectory: "\${HOME}/Library/Application Support/${appName}",
+        copyright: "${appName} ${project.fullVersion}.${project.distVersion}. Copyright ThoughtWorks Inc., (c) 2000-${project.copyrightYear}",
+        jvmversion: "${project.targetCompatibility}+",
+      ) {
+        javaproperty(name: 'jar-class-loader.main.class', value: mainClass)
+        javaproperty(name: 'go.application.name', value: appName)
+        javaproperty(name: 'go.java.to.use', value: "\${APP_ROOT}/${jreDir}/Contents/Home/bin/java")
+
+        lsenvironment(name: 'JAVA_HOME', value: "${jreDir}/Contents/Home")
+      }
+
+      copy {
+        from 'osx-shared/gocd.icns'
+        into "${appDir}/Contents/Resources"
+      }
+
+      copy {
+        from jreOutputDir
+        // `JavaApplicationStub64` expects java to be here.
+        into "${appDir}/${jreDir}"
+      }
+    }
+
+    doLast("cleanup tmp dir") {
+      delete(tmpDir)
+    }
+  }
+}
+
+task layoutAgentOSXPackage { DefaultTask thisTask ->
+  def appName = 'Go Agent'
   def packageName = 'go-agent'
-  into 'Go Agent.app'
 
-  configureOsxZip(zipTask, packageName)
+  dependsOn(configurations.agentBootstrapperJar)
 
-  from(configurations.agentBootstrapperJar) {
-    into "Contents/Resources"
-    rename "(.*)-${project.version}.(.*)", '$1.$2'
-  }
+  def destinationDir = file("${project.buildDir}/${packageName}-osx-filesystem")
+
+  def sourceApplicationStubFile = file('osx-shared/JavaApplicationStub64')
+
+  inputs.file(sourceApplicationStubFile)
+  outputs.dir(destinationDir)
+
+  setupInstaller(
+    thisTask,
+    appName,
+    packageName,
+    'com.thoughtworks.studios.cruise.agent',
+    'com.thoughtworks.go.agent.bootstrapper.osx.AgentMacWindow',
+    destinationDir,
+    sourceApplicationStubFile,
+    configurations.agentBootstrapperJar.singleFile
+  )
 }
 
-task serverOSXZip(type: Zip) { zipTask ->
+task agentOSXZip(type: Zip) {
+  def packageName = 'go-agent'
+
+  destinationDir = file("${project.convention.plugins.get("base").distsDir}/osx")
+  archiveName = "${packageName}-${rootProject.fullVersion}-osx.zip"
+
+  from(layoutAgentOSXPackage)
+}
+
+task layoutServerOSXPackage { DefaultTask thisTask ->
+  def appName = 'Go Server'
   def packageName = 'go-server'
-  into 'Go Server.app'
 
-  configureOsxZip(zipTask, packageName)
+  dependsOn(configurations.serverJar)
 
-  from(configurations.serverJar) {
-    into "Contents/Resources"
-    rename "(.*)-${project.version}.(.*)", 'go.$2'
-  }
+  def destinationDir = file("${project.buildDir}/${packageName}-osx-filesystem")
+
+  def sourceApplicationStubFile = file('osx-shared/JavaApplicationStub64')
+
+  inputs.file(sourceApplicationStubFile)
+  outputs.dir(destinationDir)
+
+  setupInstaller(
+    thisTask,
+    appName,
+    packageName,
+    'com.thoughtworks.studios.cruise.server',
+    'com.thoughtworks.go.server.launcher.GoMacLauncher',
+    destinationDir,
+    sourceApplicationStubFile,
+    configurations.serverJar.singleFile
+  )
 }
 
+task serverOSXZip(type: Zip) {
+  def packageName = 'go-server'
 
-private void configureOsxZip(Zip zipTask, String packageName) {
-  zipTask.configure {
-    group project.name
-    description "Build the ${packageName} osx package"
-    destinationDir file("${project.convention.plugins.get("base").distsDir}/osx")
-    archiveName "${packageName}-${rootProject.fullVersion}-osx.zip"
+  destinationDir = file("${project.convention.plugins.get("base").distsDir}/osx")
+  archiveName = "${packageName}-${rootProject.fullVersion}-osx.zip"
 
-    // add atleast one file during the configuration phase, or gradle will crib about the task being up-to-date
-    from('osx-shared/JavaApplicationStub64') {
-      into "Contents/MacOS"
-      rename '.*', packageName
-      fileMode 0755
-    }
-
-    from('osx-shared/gocd.icns') {
-      into "Contents/Resources"
-      rename ".*", "${packageName}.icns"
-    }
-
-    from("${packageName}/osx/Info.plist") {
-      filter ReplaceTokens, tokens: [
-        'distVersion': rootProject.distVersion ? rootProject.distVersion : '',
-        'version'    : rootProject.version.toString(),
-        'currentYear': Calendar.getInstance().get(Calendar.YEAR).toString(),
-      ]
-      into "Contents"
-    }
-  }
+  from(layoutServerOSXPackage)
 }
 
 assemble.dependsOn(":installers:agentOSXZip", ":installers:serverOSXZip")

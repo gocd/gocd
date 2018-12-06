@@ -11,5 +11,18 @@
         "moduleLicenseUrl": "https://openjdk.java.net/legal/gplv2+ce.html"
       }
     ]
+  },
+  "universalJavaApplicationStub": {
+    "moduleName": "universalJavaApplicationStub",
+    "moduleVersion": "3.0.4",
+    "moduleUrls": [
+      "https://github.com/tofi86/universalJavaApplicationStub"
+    ],
+    "moduleLicenses": [
+      {
+        "moduleLicense": "MIT",
+        "moduleLicenseUrl": "https://spdx.org/licenses/MIT.html"
+      }
+    ]
   }
 }

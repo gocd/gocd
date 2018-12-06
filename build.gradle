@@ -667,6 +667,223 @@ static def toCamelCase(String input) {
   return input.split("[^a-zA-Z0-9]").collect { it.capitalize() }.join("")
 }
 
+task newSPA {
+  description = "Helper to create a new SPA. Pass `-PspaName=drain_mode"
+
+  doFirst {
+    String spaName = project.spaName
+    String entityName = toCamelCase(spaName)
+    String modelsBase = "server/webapp/WEB-INF/rails/webpack/models/${spaName}"
+    String pagesBase = "server/webapp/WEB-INF/rails/webpack/views/pages"
+    String widgetBase = "${pagesBase}/${spaName}"
+    String vmBase = "spark/spark-spa/src/main/resources/velocity/${spaName}"
+    String mountPoint = "server/webapp/WEB-INF/rails/webpack/single_page_apps"
+
+    project.delete(modelsBase, widgetBase, vmBase)
+    project.mkdir(modelsBase)
+    project.mkdir(widgetBase)
+    project.mkdir(vmBase)
+
+    String licenseHeader =
+      """
+      * Copyright ${Calendar.getInstance().get(Calendar.YEAR)} ThoughtWorks, Inc.
+      *
+      * Licensed under the Apache License, Version 2.0 (the "License");
+      * you may not use this file except in compliance with the License.
+      * You may obtain a copy of the License at
+      *
+      *     http://www.apache.org/licenses/LICENSE-2.0
+      *
+      * Unless required by applicable law or agreed to in writing, software
+      * distributed under the License is distributed on an "AS IS" BASIS,
+      * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      * See the License for the specific language governing permissions and
+      * limitations under the License.
+      """.stripIndent().trim()
+
+    String javaOrJavaScriptLicencseHeader = "/*\n${licenseHeader}\n*/\n\n"
+
+
+    file("${vmBase}/index.vm").withWriter { out ->
+      def contents =
+        """
+          <div id="drain-mode">
+            <span class="page-spinner"></span>
+          </div>
+        """
+      out.println("#*\n${licenseHeader}\n*#\n\n" + contents.stripIndent().trim())
+    }
+
+    file("${mountPoint}/${spaName}.tsx").withWriter { out ->
+      def contents =
+        """
+          import Page from "helpers/spa_base";
+          import {${entityName}Page} from "views/pages/${spaName}";
+          
+          export class ${entityName}SPA extends Page {
+            constructor() {
+              super(${entityName}Page);
+            }
+          }
+          
+          //tslint:disable-next-line
+          new ${entityName}SPA();
+        """
+      out.println(javaOrJavaScriptLicencseHeader + contents.stripIndent().trim())
+    }
+
+    file("${pagesBase}/${spaName}.tsx").withWriter { out ->
+      def contents =
+        """
+          import * as m from "mithril";
+          import {${entityName}} from "models/${spaName}/${spaName}";
+          import {${entityName}Widget} from "views/pages/${spaName}/${spaName}_widget";
+          import {Page} from "views/pages/page";
+          
+          interface State {
+            dummy?: ${entityName};
+          }
+          
+          export class ${entityName}Page extends Page<null, State> {
+            componentToDisplay(vnode: m.Vnode<null, State>): JSX.Element | undefined {
+              return <${entityName}Widget/>;
+            }
+          
+            pageName(): string {
+              return "SPA Name goes here!";
+            }
+          
+            fetchData(vnode: m.Vnode<null, State>): Promise<any> {
+              // to be implemented
+              return Promise.resolve();
+            }
+          }
+        """
+      out.println(javaOrJavaScriptLicencseHeader + contents.stripIndent().trim())
+    }
+
+    file("${widgetBase}/${spaName}_widget.tsx").withWriter { out ->
+      def contents = 
+        """
+          import {MithrilViewComponent} from "jsx/mithril-component";
+          import * as m from "mithril";
+          import {${entityName}} from "models/${spaName}/${spaName}";
+
+          interface Attrs {
+            dummy?: ${entityName};
+          }
+
+          export class ${entityName}Widget extends MithrilViewComponent<Attrs> {
+            view(vnode: m.Vnode<Attrs>) {
+              return <div> This is widget</div>;
+            }
+          }
+        """
+      out.println(javaOrJavaScriptLicencseHeader + contents.stripIndent().trim())
+    }
+
+    file("${modelsBase}/${spaName}.ts").withWriter { out ->
+      def contents =
+        """
+          interface EmbeddedJSON {
+            dummy?: boolean;
+            // to be implemented
+          }
+          
+          interface ${entityName}JSON {
+            _embedded: EmbeddedJSON;
+          }
+          
+          export class ${entityName} {
+            // to be implemented
+            static fromJSON(data: ${entityName}JSON) {
+              // to be implemented
+            }
+          }
+        """
+      out.println(javaOrJavaScriptLicencseHeader + contents.stripIndent().trim())
+    }
+
+    file("spark/spark-spa/src/main/java/com/thoughtworks/go/spark/spa/${entityName}Delegate.java").withWriter { out ->
+      def contents =
+        """
+          package com.thoughtworks.go.spark.spa;
+          import com.thoughtworks.go.spark.Routes;
+          import com.thoughtworks.go.spark.SparkController;
+          import com.thoughtworks.go.spark.spring.SPAAuthenticationHelper;
+          import spark.ModelAndView;
+          import spark.Request;
+          import spark.Response;
+          import spark.TemplateEngine;
+          import java.util.HashMap;
+          import java.util.Map;
+          import static spark.Spark.*;
+
+          public class ${entityName}Delegate implements SparkController {
+            private final SPAAuthenticationHelper authenticationHelper;
+            private final TemplateEngine engine;
+            public ${entityName}Delegate(SPAAuthenticationHelper authenticationHelper, TemplateEngine engine) {
+              this.authenticationHelper = authenticationHelper;
+              this.engine = engine;
+            }
+             
+            @Override
+            public String controllerBasePath() {
+                  return Routes.${entityName}.SPA_BASE;
+            }
+              
+            @Override
+            public void setupRoutes() {
+               path(controllerBasePath(), () -> {
+                  before("", authenticationHelper::checkAdminUserAnd403);
+                  get("", this::index, engine);
+              });
+            }
+            public ModelAndView index(Request request, Response response) {
+                Map<Object, Object> object = new HashMap<Object, Object>() {{
+                    put("viewTitle", "${entityName}");
+                }};
+                return new ModelAndView(object, "${spaName}/index.vm");
+            }
+          }
+        """
+      out.println(javaOrJavaScriptLicencseHeader + contents.stripIndent().trim())
+    }
+
+    String rule =
+      """
+        <rule>
+          <name>Drain Mode UI</name>
+          <from>^/admin/${spaName}(/?)\$</from>
+          <to last="true">/spark/admin/${spaName}</to>
+        </rule>
+      """
+
+    List<String> lines = file('server/webapp/WEB-INF/urlrewrite.xml').readLines()
+    int insertionIdx = lines.findIndexOf { l -> (l =~ /^\s*<urlrewrite/).find() }
+    lines.add(insertionIdx + 1, rule.stripIndent().trim())
+
+    file('server/webapp/WEB-INF/urlrewrite.xml').withWriter { out ->
+      out.println(lines.join("\n").trim())
+    }
+
+    lines = file('spark/spark-spa/src/main/java/com/thoughtworks/go/spark/spa/spring/SpaControllers.java').readLines()
+    insertionIdx = lines.findIndexOf { l -> (l =~ /^\s*sparkControllers.add/).find() }
+    lines.add(insertionIdx, "\t\tsparkControllers.add(new ${entityName}Delegate(authenticationHelper, templateEngineFactory.create(${entityName}Delegate.class, () -> COMPONENT_LAYOUT_PATH)));")
+
+    file('spark/spark-spa/src/main/java/com/thoughtworks/go/spark/spa/spring/SpaControllers.java').withWriter { out ->
+      out.println(lines.join("\n").trim())
+    }
+
+    lines = file('spark/spark-base/src/main/java/com/thoughtworks/go/spark/Routes.java').readLines()
+    lines.add(lines.size() - 1, "\tpublic class ${entityName} {public static final String SPA_BASE = \"/admin/${spaName}\";}")
+
+    file('spark/spark-base/src/main/java/com/thoughtworks/go/spark/Routes.java').withWriter { out ->
+      out.println(lines.join("\n").trim())
+    }
+  }
+}
+
 task newApi {
   description = "Helper to create a new api module. Pass `-PapiName=roles-config -PapiVersion=v1`"
 

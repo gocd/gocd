@@ -155,7 +155,6 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
     public static GoIntSystemProperty GO_DATABASE_MAX_IDLE = new GoIntSystemProperty("db.maxIdle", 32);
     public static final String H2_DATABASE = "com.thoughtworks.go.server.database.H2Database";
     public static GoStringSystemProperty GO_DATABASE_PROVIDER = new GoStringSystemProperty("go.database.provider", H2_DATABASE);
-    public static GoSystemProperty<Boolean> SHOULD_VALIDATE_XML_AGAINST_DTD = new GoBooleanSystemProperty("validate.xml.against.dtd", false);
     public static GoSystemProperty<String> JETTY_XML_FILE_NAME = new GoStringSystemProperty("jetty.xml.file.name", JETTY_XML);
 
     public static final String JETTY9 = "com.thoughtworks.go.server.Jetty9Server";

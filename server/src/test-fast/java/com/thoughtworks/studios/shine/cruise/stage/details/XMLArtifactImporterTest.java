@@ -24,7 +24,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
 
 import static com.thoughtworks.studios.shine.AssertUtils.assertAskIsFalse;
 import static com.thoughtworks.studios.shine.AssertUtils.assertAskIsTrue;
@@ -35,8 +34,8 @@ public class XMLArtifactImporterTest {
     public static final String URI = "http://example.com/example.owl#";
     public static final String PREFIX = "ex";
 
-    public static final RDFType BAR_CLASS = new RDFType(URI + "Bar");
-    public static final RDFProperty FOO_PROPERTY = new RDFProperty(URI + "foo");
+    private static final RDFType BAR_CLASS = new RDFType(URI + "Bar");
+    private static final RDFProperty FOO_PROPERTY = new RDFProperty(URI + "foo");
 
 
     private XMLArtifactImporter artifactImporter;
@@ -47,55 +46,56 @@ public class XMLArtifactImporterTest {
     }
 
     @Test
-    public void testNothingAnArtifactHandlerDoesCanStopTheImporting() throws Exception {
+    public void testNothingAnArtifactHandlerDoesCanStopTheImporting() {
         artifactImporter.registerHandler(new ExplodingHandler());
 
         artifactImporter.importFile(null, null, new ByteArrayInputStream("<foo />".getBytes()));
         // We didn't explode. Yeah!
     }
 
-    private String SAMPLE_TEST_ARTIFACT=
-            "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" +
-            "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\"\n" +
-            "\"http://www.host.invalid/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\n" +
-            "<testsuite errors=\"0\" failures=\"0\" hostname=\"go-agent-1\" name=\"SmokeTest.scn\" tests=\"1\" time=\"243.47\" timestamp=\"2014-07-29T17:04:06\">\n" +
-            "  <properties />\n" +
-            "  <testcase classname=\"com.thoughtworks.test.XMLJunitOutputListener\" name=\"SmokeTest.scn\" time=\"243.47\" />\n" +
-            "</testsuite>\n";
-
     @Test
-    public void testShouldNotTryToDownloadAndVerifyDtdWhenParsingXmlByDefault() throws Exception {
+    public void shouldNotTryToDownloadAndVerifyDtdWhenParsingXml() {
         XMLRDFizer handler = mock(XMLRDFizer.class);
         when(handler.canHandle(any(Document.class))).thenReturn(false);
         artifactImporter.registerHandler(handler);
 
-        artifactImporter.importFile(null, null, toInputStream(SAMPLE_TEST_ARTIFACT));
+        String SAMPLE_TEST_ARTIFACT_WITH_INVALID_DTD = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" +
+                "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\"\n" +
+                "\"http://www.host.invalid/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\n" +
+                "<testsuite errors=\"0\" failures=\"0\" hostname=\"go-agent-1\" name=\"SmokeTest.scn\" tests=\"1\" time=\"243.47\" timestamp=\"2014-07-29T17:04:06\">\n" +
+                "  <properties />\n" +
+                "  <testcase classname=\"com.thoughtworks.test.XMLJunitOutputListener\" name=\"SmokeTest.scn\" time=\"243.47\" />\n" +
+                "</testsuite>\n";
+        artifactImporter.importFile(null, null, toInputStream(SAMPLE_TEST_ARTIFACT_WITH_INVALID_DTD));
 
-
-        //xml successfully read by SAXReader
+        // Ignored invalid DTD and SAXReader successfully read the XML.
         verify(handler).canHandle(any(Document.class));
     }
 
     @Test
-    public void testShouldTryToDownloadAndVerifyDtdWhenParsingXmlByDefault() throws Exception {
-        try {
-            new SystemEnvironment().set(SystemEnvironment.SHOULD_VALIDATE_XML_AGAINST_DTD,true);
-            XMLRDFizer handler = mock(XMLRDFizer.class);
-            when(handler.canHandle(any(Document.class))).thenReturn(false);
-            artifactImporter.registerHandler(handler);
+    public void shouldNotTryToParseExternalEntitiesInXml() {
+        XMLRDFizer handler = mock(XMLRDFizer.class);
+        when(handler.canHandle(any(Document.class))).thenReturn(false);
+        artifactImporter.registerHandler(handler);
 
-            artifactImporter.importFile(null, null, toInputStream(SAMPLE_TEST_ARTIFACT));
+        String SAMPLE_TEST_ARTIFACT_WITH_EXTERNAL_ENTITY = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" +
+                "<!DOCTYPE foo [  \n" +
+                "<!ELEMENT param ANY >\n" +
+                "<!ENTITY myentity SYSTEM \"file:///some/nonexistent/file\" >]>" +
+                "<testsuite errors=\"0\" failures=\"0\" hostname=\"go-agent-1\" name=\"SmokeTest.scn\" tests=\"1\" time=\"243.47\" timestamp=\"2014-07-29T17:04:06\">\n" +
+                "  <properties />\n" +
+                "  <testcase classname=\"com.thoughtworks.test.XMLJunitOutputListener\" name=\"SmokeTest.scn\" time=\"243.47\">\n" +
+                "    <failure type=\"WrongEntity\">&myentity;</failure>\n" +
+                "  </testcase>\n" +
+                "</testsuite>\n";
+        artifactImporter.importFile(null, null, toInputStream(SAMPLE_TEST_ARTIFACT_WITH_EXTERNAL_ENTITY));
 
-
-            //xml read failed, could not download http://www.host.invalid/TR/xhtml1/DTD/xhtml1-transitional.dtd of SAMPLE_TEST_ARTIFACT
-            verify(handler,never()).canHandle(any(Document.class));
-        } finally {
-            new SystemEnvironment().set(SystemEnvironment.SHOULD_VALIDATE_XML_AGAINST_DTD,false);
-        }
+        // Ignored invalid DTD and SAXReader successfully read the XML.
+        verify(handler).canHandle(any(Document.class));
     }
 
     @Test
-    public void testANonXMLArtifactDoesntBlowUpTheUniverse() throws Exception {
+    public void testANonXMLArtifactDoesntBlowUpTheUniverse() {
         artifactImporter.registerHandler(new StubHandler(true));
 
         artifactImporter.importFile(null, null, new ByteArrayInputStream("XML is for lusers".getBytes()));
@@ -103,7 +103,7 @@ public class XMLArtifactImporterTest {
     }
 
     @Test
-    public void testImportedDataWasAdded() throws IOException {
+    public void testImportedDataWasAdded() {
         artifactImporter.registerHandler(new StubHandler(true));
 
         Graph graph = new InMemoryTempGraphFactory().createTempGraph();
@@ -122,7 +122,7 @@ public class XMLArtifactImporterTest {
     }
 
     @Test
-    public void testSubsequentHandlerIsUsedWhenFirstCannotHandleArtifact() throws Exception {
+    public void testSubsequentHandlerIsUsedWhenFirstCannotHandleArtifact() {
         artifactImporter.registerHandler(new StubHandler(false, "http://foobar/"));
         artifactImporter.registerHandler(new StubHandler(true, "http://A-OK/"));
 
@@ -151,7 +151,7 @@ public class XMLArtifactImporterTest {
     }
 
     @Test
-    public void testSubsequentHandlerIsUsedWhenFirstHandlerBlowsUp () throws Exception {
+    public void testSubsequentHandlerIsUsedWhenFirstHandlerBlowsUp () {
         artifactImporter.registerHandler(new ExplodingHandler());
         artifactImporter.registerHandler(new StubHandler(true, "http://A-OK/"));
 
@@ -175,7 +175,7 @@ public class XMLArtifactImporterTest {
         private boolean canHandle;
         private String stubResourceURI;
 
-        public StubHandler(boolean canHandle) {
+        StubHandler(boolean canHandle) {
             this(canHandle, "http://yadda/");
         }
 

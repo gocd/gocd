@@ -21,6 +21,7 @@ import * as styles from "./index.scss";
 
 interface Attrs {
   imageUrl?: string; //an image URL of the icon
+  dataTestId?: string;
 }
 
 export class HeaderIcon extends MithrilComponent<Attrs> {
@@ -28,7 +29,7 @@ export class HeaderIcon extends MithrilComponent<Attrs> {
   view(vnode: m.Vnode<Attrs>) {
     if (vnode.attrs.imageUrl) {
       return <div class={styles.headerIcon}>
-        <img src={vnode.attrs.imageUrl}/>
+        <img data-test-id={vnode.attrs.dataTestId} src={vnode.attrs.imageUrl}/>
       </div>;
     }
     if (vnode.children && !_.isEmpty(vnode.children)) {

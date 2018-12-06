@@ -25,21 +25,6 @@ $icon-light-color: #e6e6e6;
   display: block;
 }
 
-.plugin-icon {
-  display:        none;
-  vertical-align: middle;
-  margin:         0 15px 0 -15px;
-  align-self:     center;
-  img {
-    width:          $collapse-icon-size;
-    height:         $collapse-icon-size;
-    vertical-align: middle;
-  }
-  @media (min-width: $screen-md) {
-    display: inline-block;
-  }
-}
-
 .plugin-name {
   font-weight:  600;
   font-size:    13px;
@@ -52,10 +37,6 @@ $icon-light-color: #e6e6e6;
     font-size: 15px;
   }
 
-}
-
-.unknown-plugin-icon {
-  @include header-icon($type: $fa-var-question, $color: $icon-light-color);
 }
 
 .plugin-not-installed {

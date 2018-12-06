@@ -16,11 +16,13 @@
 @import "../../global/common";
 
 $key-value-pair-width: 200px;
+$title-element-width: 360px;
 
 .key-value-pair {
   padding:         0;
   margin:          0 0 $global-margin-bottom 0;
   list-style-type: none;
+
   :last-child {
     width: auto;
   }
@@ -63,6 +65,7 @@ $key-value-pair-width: 200px;
       font-weight: 600;
     }
   }
+
   pre {
     margin:      0;
     white-space: pre-wrap;
@@ -81,6 +84,7 @@ $key-value-pair-width: 200px;
     flex-direction: row;
     flex-wrap:      nowrap;
   }
+
   &:last-child {
     border: none;
   }
@@ -103,7 +107,20 @@ $key-value-pair-width: 200px;
   .key {
     width: auto;
     @media(min-width: $screen-md) {
-     flex:  0 0 auto;
+      flex: 0 0 auto;
     }
+  }
+}
+
+.title {
+  font-weight:  600;
+  font-size:    13px;
+  margin-right: 50px;
+  width:        $title-element-width;
+  @media (min-width: $screen-md) {
+    font-size: 12px;
+  }
+  @media (min-width: $screen-lg) {
+    font-size: 15px;
   }
 }

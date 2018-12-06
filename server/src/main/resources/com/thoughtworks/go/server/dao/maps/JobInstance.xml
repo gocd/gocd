@@ -283,7 +283,7 @@
 
     <select id="getRunningJobs" resultMap="select-build-with-identifier">
         <include refid="select-builds-with-identifier"/>
-        WHERE state in ('Scheduled', 'Assigned', 'Preparing', 'Building', 'Completing')
+        WHERE state != 'Completed'
     </select>
 
     <select id="completedJobsOnAgent" resultMap="select-build-with-identifier-transitions">

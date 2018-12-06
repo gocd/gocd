@@ -16,9 +16,16 @@
 
 package com.thoughtworks.go.server.service;
 
+import com.thoughtworks.go.config.BasicCruiseConfig;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.PipelineConfig;
+import com.thoughtworks.go.config.remote.ConfigRepoConfig;
+import com.thoughtworks.go.config.remote.ConfigReposConfig;
+import com.thoughtworks.go.config.remote.PartialConfig;
+import com.thoughtworks.go.config.remote.RepoConfigOrigin;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
+import com.thoughtworks.go.helper.MaterialConfigsMother;
+import com.thoughtworks.go.helper.PartialConfigMother;
 import com.thoughtworks.go.helper.ScheduleCheckMessageMatcher;
 import com.thoughtworks.go.listener.ConfigChangedListener;
 import com.thoughtworks.go.listener.EntityConfigChangedListener;
@@ -38,6 +45,7 @@ import org.mockito.internal.verification.NoMoreInteractions;
 import java.util.*;
 
 import static com.thoughtworks.go.helper.GoConfigMother.configWithPipelines;
+import static java.util.Arrays.asList;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.*;
@@ -198,5 +206,47 @@ public class PipelineSchedulerTest {
         entityConfigChangedListener.onEntityConfigChange(newPipeline);
         scheduler.checkPipelines();
         verify(queue, times(0)).post(ScheduleCheckMessageMatcher.matchScheduleCheckMessage(pipelineName));
+    }
+
+    @Test
+    public void shouldRemovePipelinesOnConfigRepoDeletion() {
+        //setup 2 config repos
+        BasicCruiseConfig cruiseConfig = new BasicCruiseConfig();
+        ConfigRepoConfig repoConfig1 = new ConfigRepoConfig(MaterialConfigsMother.gitMaterialConfig("url1"), "plugin");
+        ConfigRepoConfig repoConfig2 = new ConfigRepoConfig(MaterialConfigsMother.gitMaterialConfig("url2"), "plugin");
+        cruiseConfig.setConfigRepos(new ConfigReposConfig(repoConfig1, repoConfig2));
+        PartialConfig partialConfigInRepo1 = PartialConfigMother.withPipeline("pipeline_in_repo1", new RepoConfigOrigin(repoConfig1, "repo1_r1"));
+        PartialConfig partialConfigInRepo2 = PartialConfigMother.withPipeline("pipeline_in_repo2", new RepoConfigOrigin(repoConfig2, "repo2_r1"));
+        cruiseConfig.merge(asList(partialConfigInRepo1, partialConfigInRepo2), false);
+
+        when(configService.cruiseConfig()).thenReturn(cruiseConfig);
+        ArgumentCaptor<ConfigChangedListener> captor = ArgumentCaptor.forClass(ConfigChangedListener.class);
+        doNothing().when(configService).register(captor.capture());
+        scheduler.initialize();
+        List<ConfigChangedListener> listeners = captor.getAllValues();
+        listeners.get(0).onConfigChange(cruiseConfig);
+        assertThat(listeners.contains(scheduler), is(true));
+        assertThat(listeners.get(2) instanceof EntityConfigChangedListener, is(true));
+        EntityConfigChangedListener<ConfigRepoConfig> entityConfigChangedListener = (EntityConfigChangedListener<ConfigRepoConfig>) listeners.get(2);
+
+        //both should get scheduled
+        scheduler.checkPipelines();
+        verify(queue, times(2)).post(any(ScheduleCheckMessage.class));
+
+        //reset
+        scheduler.onMessage(new ScheduleCheckCompletedMessage("pipeline_in_repo1", 0));
+        scheduler.onMessage(new ScheduleCheckCompletedMessage("pipeline_in_repo2", 0));
+        reset(queue);
+
+        //remove one config repo
+        BasicCruiseConfig updatedConfig = new BasicCruiseConfig();
+        updatedConfig.setConfigRepos(new ConfigReposConfig(repoConfig1, repoConfig2));
+        updatedConfig.merge(Collections.singletonList(partialConfigInRepo1), false);
+        when(configService.cruiseConfig()).thenReturn(updatedConfig);
+        entityConfigChangedListener.onEntityConfigChange(null);
+
+        //removed pipeline should not get scheduled
+        scheduler.checkPipelines();
+        verify(queue, times(1)).post(any(ScheduleCheckMessage.class));
     }
 }

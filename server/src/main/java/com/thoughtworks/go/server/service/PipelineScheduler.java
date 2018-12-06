@@ -17,6 +17,7 @@
 package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.domain.PiplineConfigVisitor;
 import com.thoughtworks.go.listener.ConfigChangedListener;
 import com.thoughtworks.go.listener.EntityConfigChangedListener;
@@ -40,6 +41,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 
 @Service
 public class PipelineScheduler implements ConfigChangedListener, GoMessageListener<ScheduleCheckCompletedMessage> {
@@ -77,6 +79,7 @@ public class PipelineScheduler implements ConfigChangedListener, GoMessageListen
     public void initialize() {
         goConfigService.register(this);
         goConfigService.register(pipelineConfigChangedListener());
+        goConfigService.register(configRepoConfigChangedListener());
         scheduleCheckCompletedTopic.addListener(this);
     }
 
@@ -90,6 +93,16 @@ public class PipelineScheduler implements ConfigChangedListener, GoMessageListen
                         pipelines.remove(pipelineConfig.name().toString());
                     }
                 }
+            }
+        };
+    }
+
+    protected EntityConfigChangedListener<ConfigRepoConfig> configRepoConfigChangedListener() {
+        final Consumer<CruiseConfig> configChangeConsumer = this::onConfigChange;
+        return new EntityConfigChangedListener<ConfigRepoConfig>() {
+            @Override
+            public void onEntityConfigChange(ConfigRepoConfig configRepoConfig) {
+                configChangeConsumer.accept(goConfigService.cruiseConfig());
             }
         };
     }

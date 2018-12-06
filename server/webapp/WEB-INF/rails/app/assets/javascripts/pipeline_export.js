@@ -7,20 +7,22 @@
     this.list = function list() { return [].slice.call(plugins); };
 
     this.init = function init() {
-      $.ajax({
+      new XhrPromise({
         url: Routes.apiv4AdminPluginInfoIndexPath(),
         type: "GET",
-        dataType: "json",
-        beforeSend: function apiHeaders(xhr) {
-          xhr.setRequestHeader("Accept", "application/vnd.go.cd.v4+json");
+        responseType: "json",
+        headers: {
+          Accept: "application/vnd.go.cd.v4+json"
         }
-      }).done(function(data) {
-        plugins = _.filter(data._embedded.plugin_info, function(el) {
+      }).then(function (res) {
+        plugins = _.filter(res.data._embedded.plugin_info, function(el) {
           return "active" === el.status.state && !!_.find(el.extensions, function(ex) {
             return "configrepo" === ex.type
           })
         });
-      }).fail(console.error);
+      }).catch(function (res) {
+        console.error(res.error.message);
+      });
     };
   }
 
@@ -56,7 +58,7 @@
           url: el.getAttribute("href") + "&pluginId=" + encodeURIComponent($(ev.currentTarget).data("plugin-id")),
           responseType: "blob",
           headers: {
-            "Accept": "application/vnd.go.cd.v7+json"
+            Accept: "application/vnd.go.cd.v7+json"
           }
         }).then(function (res) {
           startClientDownload(res.data, res.xhr);

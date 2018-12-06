@@ -208,6 +208,7 @@ task compileAssetsWebpackProd(type: YarnRunTask) {
 }
 
 task compileRailsAssets(type: ExecuteUnderRailsTask) {
+  outputs.cacheIf { true }
   onlyIf { !project.hasProperty('fastBuild') }
 
   def outputAssetsDir = file("${project.buildDir}/rails-assets")

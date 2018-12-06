@@ -1,6 +1,27 @@
 (function($, _, c, global) {
   "use strict";
 
+  function flash() {
+    return document.getElementById("message_pane");
+  }
+
+  function clear(el) {
+    while (el.firstChild) { el.removeChild(el.firstChild); }
+    return el;
+  }
+
+  var Flash = {
+    clear: function () {
+      clear(flash());
+    },
+    error: function (message) {
+      clear(flash()).appendChild(c("p", {class: "error"}, message));
+    },
+    success: function (message) {
+      clear(flash()).appendChild(c("p", {class: "success"}, message));
+    }
+  }
+
   function PluginInfos() {
     var plugins = [];
 
@@ -21,7 +42,7 @@
           })
         });
       }).catch(function (res) {
-        console.error(res.error.message);
+        Flash.error(res.error.message);
       });
     };
   }
@@ -46,9 +67,8 @@
     },
 
     showExportOptions: function showExportOptions(panel, el) {
-      panel.innerHTML = "";
       var dropdown = c("ul", {class: "export-plugins-dropdown"}, _.map(pluginInfos.list(), createPluginListOption));
-      panel.appendChild(dropdown);
+      clear(panel).appendChild(dropdown);
 
       $(dropdown).on("click", ".plugin-choice", function downloadExport(ev) {
         ev.preventDefault();
@@ -59,6 +79,9 @@
           responseType: "blob",
           headers: {
             Accept: "application/vnd.go.cd.v7+json"
+          },
+          beforeSend: function() {
+            Flash.clear();
           }
         }).then(function (res) {
           startClientDownload(res.data, res.xhr);
@@ -74,7 +97,7 @@
         }
 
         function handleError(status, responseText) {
-          console.error(JSON.parse(responseText).message)
+          Flash.error(JSON.parse(responseText).message);
         }
       })
     }

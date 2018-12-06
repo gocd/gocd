@@ -426,7 +426,8 @@ Graph_Renderer = function (container) {
         if (node.instances != null && node.instances != undefined) {
             gui += '<h3 title="' + node.name + '"><a href="' + node.locator + '">' + node.name + '</a></h3>';
             if(node.can_edit) {
-                gui += '<div class="pipeline_actions"> <a class="icon16 setting" href="'+ node.edit_path + '"></a> </div>'
+              var hasWarningClass = (node.view_type === 'WARNING') ? 'has-warning': '';
+              gui += '<div class="pipeline_actions '+ hasWarningClass +'"> <a class="icon16 setting" href="'+ node.edit_path + '"></a> </div>'
             }
             if (node.instances != undefined && node.instances.length > 0 && node.instances[0].stages) {
                 gui += '<ul class="instances">';

@@ -27,7 +27,7 @@
   var pluginInfos = new PluginInfos(); // a private singleton
 
   function createPluginListOption(p) {
-    return c("li", {class: "plugin-choice", "data-plugin-id": p.id}, p.about.name);
+    return c("li", c("a", {class: "plugin-choice", "data-plugin-id": p.id}, p.about.name));
   }
 
   global.ExportAdapter = {
@@ -43,59 +43,45 @@
       document.body.removeChild(a);
     },
 
-    showExportOptions: function showExportOptions(e) {
-      e.preventDefault();
-      e.stopPropagation();
+    showExportOptions: function showExportOptions(panel, el) {
+      panel.innerHTML = "";
+      var dropdown = c("ul", {class: "export-plugins-dropdown"}, _.map(pluginInfos.list(), createPluginListOption));
+      panel.appendChild(dropdown);
 
-      var el = $(e.currentTarget);
+      $(dropdown).on("click", ".plugin-choice", function downloadExport(ev) {
+        ev.preventDefault();
+        ev.stopPropagation();
 
-      if (el.data("open")) {
-        el.find(".export-plugins-dropdown").remove();
-        el.data("open", false);
-      } else {
-        var dropdown = c("ul", {class: "export-plugins-dropdown"}, _.map(pluginInfos.list(), createPluginListOption));
-        el.append(dropdown);
+        var url = el.getAttribute("href") + "&pluginId=" + encodeURIComponent($(ev.currentTarget).data("plugin-id"));
 
-        $(dropdown).on("click", ".plugin-choice", function downloadExport(ev) {
-          ev.preventDefault();
-          ev.stopPropagation();
+        // Using native XHR so we can work with responseType and response;
+        // jQuery ajax does not support this.
+        var xhr = new XMLHttpRequest();
 
-          var url = el.attr("href") + "&pluginId=" + encodeURIComponent($(ev.currentTarget).data("plugin-id"));
-
-          // Using native XHR so we can work with responseType and response;
-          // jQuery ajax does not support this.
-          var xhr = new XMLHttpRequest();
-
-          xhr.onreadystatechange = function() {
-            if (4 === xhr.readyState) { // request complete
-              if (xhr.status < 400 && xhr.status > 199) {
-                startClientDownload(xhr.response, xhr);
-              } else {
-                handleError(xhr.status, new FileReader().readAsText(xhr.response));
-              }
+        xhr.onreadystatechange = function() {
+          if (4 === xhr.readyState) { // request complete
+            if (xhr.status < 400 && xhr.status > 199) {
+              startClientDownload(xhr.response, xhr);
+            } else {
+              handleError(xhr.status, new FileReader().readAsText(xhr.response));
             }
-          };
-
-          xhr.open("GET", url);
-          xhr.responseType = "blob";
-          xhr.setRequestHeader("Accept", "application/vnd.go.cd.v7+json");
-          xhr.send();
-
-          function startClientDownload(responseBlob, xhr) {
-            var name = xhr.getResponseHeader("Content-Disposition").replace(/^attachment; filename=/, "").replace(/^(")(.+)(\1)/, "$2");
-            ExportAdapter.downloadAsFile(URL.createObjectURL(responseBlob), name);
           }
+        };
 
-          function handleError(status, responseText) {
-            console.error(JSON.parse(responseText).message)
-          }
+        xhr.open("GET", url);
+        xhr.responseType = "blob";
+        xhr.setRequestHeader("Accept", "application/vnd.go.cd.v7+json");
+        xhr.send();
 
-          el.find(".export-plugins-dropdown").remove();
-          el.data("open", false);
-        })
+        function startClientDownload(responseBlob, xhr) {
+          var name = xhr.getResponseHeader("Content-Disposition").replace(/^attachment; filename=/, "").replace(/^(")(.+)(\1)/, "$2");
+          ExportAdapter.downloadAsFile(URL.createObjectURL(responseBlob), name);
+        }
 
-        el.data("open", true);
-      }
+        function handleError(status, responseText) {
+          console.error(JSON.parse(responseText).message)
+        }
+      })
     }
   };
 

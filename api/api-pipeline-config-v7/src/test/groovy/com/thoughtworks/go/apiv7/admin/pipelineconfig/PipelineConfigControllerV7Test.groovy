@@ -49,6 +49,7 @@ import org.mockito.invocation.InvocationOnMock
 
 import static com.thoughtworks.go.api.base.JsonUtils.toObject
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
+import static com.thoughtworks.go.plugin.access.configrepo.ExportedConfig.from
 import static org.junit.jupiter.api.Assertions.assertEquals
 import static org.mockito.ArgumentMatchers.any
 import static org.mockito.ArgumentMatchers.eq
@@ -124,8 +125,13 @@ class PipelineConfigControllerV7Test implements SecurityServiceTrait, Controller
         when(goConfigPluginService.supportsPipelineExport(pluginId)).thenReturn(true)
         when(goConfigPluginService.partialConfigProviderFor(pluginId)).thenReturn(configRepoPlugin)
         when(configRepoPlugin.etagForExport(pipeline, groupName)).thenReturn(exportEtag)
-
-        when(configRepoPlugin.pipelineExport(pipeline, groupName)).thenReturn("message from plugin")
+        Map<String, String> headers = new HashMap<String, String>() {
+          {
+            put("Content-Type", "text/plain");
+            put("X-Export-Filename", "foo.txt");
+          }
+        }
+        when(configRepoPlugin.pipelineExport(pipeline, groupName)).thenReturn(from("message from plugin", headers))
 
         getWithApiHeader(controller.controllerPath("/pipeline1/export?pluginId=${pluginId}&groupName=${groupName}"), ['if-none-match': '"junk"'])
 

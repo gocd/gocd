@@ -236,6 +236,10 @@ public class JobInstanceService implements JobPlanLoader, ConfigChangedListener 
         return jobInstanceDao.getBuildingJobs();
     }
 
+    public List<JobInstance> allRunningJobs() {
+        return jobInstanceDao.getRunningJobs();
+    }
+
     public void registerJobStateChangeListener(JobStatusListener jobStatusListener) {
         synchronized (LISTENERS_MODIFICATION_MUTEX) {
             listeners.add(jobStatusListener);

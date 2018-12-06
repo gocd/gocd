@@ -25,8 +25,10 @@ import com.thoughtworks.go.apiv1.serverdrainmode.representers.DrainModeInfoRepre
 import com.thoughtworks.go.apiv1.serverdrainmode.representers.DrainModeSettingsRepresenter;
 import com.thoughtworks.go.config.InvalidPluginTypeException;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
+import com.thoughtworks.go.domain.JobInstance;
 import com.thoughtworks.go.server.domain.ServerDrainMode;
 import com.thoughtworks.go.server.service.DrainModeService;
+import com.thoughtworks.go.server.service.JobInstanceService;
 import com.thoughtworks.go.server.service.support.toggle.FeatureToggleService;
 import com.thoughtworks.go.server.service.support.toggle.Toggles;
 import com.thoughtworks.go.spark.Routes;
@@ -40,6 +42,7 @@ import spark.Spark;
 
 import java.io.IOException;
 import java.util.Collection;
+import java.util.List;
 
 import static spark.Spark.*;
 
@@ -48,18 +51,21 @@ public class ServerDrainModeControllerV1 extends ApiController implements SparkS
 
     private final ApiAuthenticationHelper apiAuthenticationHelper;
     private final DrainModeService drainModeService;
+    private JobInstanceService jobInstanceService;
     private FeatureToggleService featureToggleService;
     private TimeProvider timeProvider;
 
     @Autowired
     public ServerDrainModeControllerV1(ApiAuthenticationHelper apiAuthenticationHelper,
                                        DrainModeService drainModeService,
+                                       JobInstanceService jobInstanceService,
                                        FeatureToggleService featureToggleService,
                                        TimeProvider timeProvider) {
         super(ApiVersion.v1);
 
         this.apiAuthenticationHelper = apiAuthenticationHelper;
         this.drainModeService = drainModeService;
+        this.jobInstanceService = jobInstanceService;
         this.featureToggleService = featureToggleService;
         this.timeProvider = timeProvider;
     }
@@ -112,8 +118,9 @@ public class ServerDrainModeControllerV1 extends ApiController implements SparkS
         }
 
         Collection<DrainModeService.MaterialPerformingMDU> runningMDUs = drainModeService.getRunningMDUs();
-        boolean isServerCompletelyDrained = runningMDUs.isEmpty();
-        return writerForTopLevelObject(req, res, writer -> DrainModeInfoRepresenter.toJSON(writer, isServerCompletelyDrained, runningMDUs));
+        List<JobInstance> jobInstances = jobInstanceService.allRunningJobs();
+        boolean isServerCompletelyDrained = runningMDUs.isEmpty() && jobInstances.isEmpty();
+        return writerForTopLevelObject(req, res, writer -> DrainModeInfoRepresenter.toJSON(writer, isServerCompletelyDrained, runningMDUs, jobInstances));
     }
 
     public ServerDrainMode buildEntityFromRequestBody(Request request) {

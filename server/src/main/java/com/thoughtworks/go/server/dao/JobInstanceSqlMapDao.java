@@ -306,6 +306,10 @@ public class JobInstanceSqlMapDao extends SqlMapClientDaoSupport implements JobI
         return buildingJobs(getActiveJobIds());
     }
 
+    public List<JobInstance> getRunningJobs() {
+        return  getSqlMapClientTemplate().queryForList("getRunningJobs");
+    }
+
     public List<JobInstance> completedJobsOnAgent(String uuid,
                                                   JobInstanceService.JobHistoryColumns jobHistoryColumns,
                                                   SortOrder order,

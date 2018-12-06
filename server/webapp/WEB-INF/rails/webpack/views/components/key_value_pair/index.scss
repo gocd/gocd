@@ -15,7 +15,7 @@
  */
 @import "../../global/common";
 
-$key-value-pair-width: 150px;
+$key-value-pair-width: 200px;
 
 .key-value-pair {
   padding:         0;
@@ -27,11 +27,13 @@ $key-value-pair-width: 150px;
 }
 
 .key {
-  font-size:   13px;
-  font-weight: 400;
-  margin:      0 10px 0 0;
+  font-size:     13px;
+  font-weight:   400;
+  margin:        0 10px 0 0;
+  overflow:      hidden;
+  text-overflow: ellipsis;
 
-  position:    relative;
+  position:      relative;
   @media(max-width: $screen-md-min) {
     &:after {
       content:     ":";

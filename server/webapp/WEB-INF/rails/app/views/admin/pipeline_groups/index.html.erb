@@ -159,7 +159,7 @@
 
     var exportPopup = new MicroContentPopup(dropdownElement, $.extend(new MicroContentPopup.PropagateAllHandler(), {
       before_show: function(e) {
-        ExportAdapter.showExportOptions(dropdownContent, e.currentTarget)
+        ExportAdapter.showExportOptions(dropdownContent, e.currentTarget, exportPopupShower.close);
       }
     }));
 
@@ -167,6 +167,11 @@
     $(".group_pipelines").on("click", ".export_pipeline_config", function (e) {
       e.preventDefault();
       e.stopPropagation();
+
+      if ($(e.currentTarget).is(".loading")) {
+        return;
+      }
+
       exportPopupShower.toggle_popup(e, this);
     });
 

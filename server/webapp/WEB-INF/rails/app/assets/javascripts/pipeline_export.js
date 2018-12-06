@@ -66,7 +66,7 @@
       document.body.removeChild(a);
     },
 
-    showExportOptions: function showExportOptions(panel, el) {
+    showExportOptions: function showExportOptions(panel, el, beforeRequest) {
       var dropdown = c("ul", {class: "export-plugins-dropdown"}, _.map(pluginInfos.list(), createPluginListOption));
       clear(panel).appendChild(dropdown);
 
@@ -74,6 +74,7 @@
         ev.preventDefault();
         ev.stopPropagation();
 
+        el.classList.add("loading");
         new XhrPromise({
           url: el.getAttribute("href") + "&pluginId=" + encodeURIComponent($(ev.currentTarget).data("plugin-id")),
           responseType: "blob",
@@ -82,13 +83,17 @@
           },
           beforeSend: function() {
             Flash.clear();
+
+            if ("function" === typeof beforeRequest) {
+              beforeRequest();
+            }
           }
         }).then(function (res) {
           startClientDownload(res.data, res.xhr);
         }).catch(function (res) {
           handleError(res.xhr.status, new FileReader().readAsText(res.error))
         }).finally(function() {
-          // hide loading indicator
+          el.classList.remove("loading");
         });
 
         function startClientDownload(responseBlob, xhr) {

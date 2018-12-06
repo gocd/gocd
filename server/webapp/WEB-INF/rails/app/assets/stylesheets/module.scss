@@ -37,7 +37,7 @@
  *      18px = 1.25em
  */
 
-
+@import "../new_stylesheets/shared/mixins";
 
 /*
 * Agents
@@ -2068,6 +2068,22 @@ li.template_form_error {
 .group_permissions_table th.remove{
     width: 18px;
     vertical-align: middle;
+}
+
+.export_pipeline_config.loading {
+    @include icon-after($type: spinner);
+
+    color: $disabled-icon-color;
+
+    &:after {
+      @include animation(spin 2s linear infinite);
+
+      color: $icon-txt;
+    }
+
+    .for_down_arrow {
+        display: none;
+    }
 }
 
 /***

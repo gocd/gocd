@@ -36,7 +36,6 @@ interface PluginHeaderAttrs {
 class PluginHeaderWidget extends MithrilViewComponent<PluginHeaderAttrs> {
   view(vnode: m.Vnode<PluginHeaderAttrs>) {
     const data = new Map([
-      ["Id", vnode.attrs.pluginId],
       ["Version", vnode.attrs.pluginVersion],
     ]);
     return [
@@ -88,6 +87,7 @@ export class PluginWidget extends MithrilViewComponent<Attrs> {
     }
 
     let pluginData = new Map<string, string | JSX.Element>([
+      ["Id", pluginInfo.id],
       ["Description", pluginInfo.about.description],
       ["Author", this.getAuthorInfo(pluginInfo)],
       ["Supported operating systems", pluginInfo.about.targetOperatingSystemsDisplayValue()],

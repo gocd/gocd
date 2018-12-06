@@ -54,19 +54,15 @@ describe("New Plugins Widget", () => {
     expect(find("plugin-name").get(1)).toContainText(getNotificationPluginInfo().about.name);
   });
 
-  it("should render plugin id and version", () => {
+  it("should render plugin version", () => {
     expect(find("plugins-list").get(0).children).toHaveLength(4);
 
     const EAPluginHeader           = $root.find(`.${keyValuePairStyles.keyValuePair}`).get(0);
     const notificationPluginHeader = $root.find(`.${keyValuePairStyles.keyValuePair}`).get(2);
 
-    expect(EAPluginHeader).toContainText("Id");
-    expect(EAPluginHeader).toContainText(getEAPluginInfo().id);
     expect(EAPluginHeader).toContainText("Version");
     expect(EAPluginHeader).toContainText(getEAPluginInfo().about.version);
 
-    expect(EAPluginHeader).toContainText("Id");
-    expect(notificationPluginHeader).toContainText(getNotificationPluginInfo().id);
     expect(EAPluginHeader).toContainText("Version");
     expect(notificationPluginHeader).toContainText(getNotificationPluginInfo().about.version);
   });
@@ -129,6 +125,9 @@ describe("New Plugins Widget", () => {
     simulateEvent.simulate(NotificationPluginInfoHeader, "click");
 
     const EAPluginInfoBody = find("collapse-body").get(0);
+
+    expect(EAPluginInfoBody).toContainText("Id");
+    expect(EAPluginInfoBody).toContainText(getEAPluginInfo().id);
 
     expect(EAPluginInfoBody).toContainText("Description");
     expect(EAPluginInfoBody).toContainText(getEAPluginInfo().about.description);

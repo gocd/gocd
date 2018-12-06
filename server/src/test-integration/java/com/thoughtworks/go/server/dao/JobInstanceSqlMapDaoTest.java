@@ -61,18 +61,15 @@ import static com.thoughtworks.go.helper.JobInstanceMother.*;
 import static com.thoughtworks.go.helper.ModificationsMother.modifySomeFiles;
 import static com.thoughtworks.go.server.dao.PersistentObjectMatchers.hasSameId;
 import static com.thoughtworks.go.util.DataStructureUtils.a;
-import static com.thoughtworks.go.util.DataStructureUtils.m;
 import static com.thoughtworks.go.util.GoConstants.DEFAULT_APPROVED_BY;
 import static com.thoughtworks.go.util.LogFixture.logFixtureFor;
 import static org.hamcrest.Matchers.hasProperty;
-import static org.hamcrest.Matchers.sameInstance;
 import static org.hamcrest.collection.IsArrayContaining.hasItemInArray;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNot.not;
 import static org.hamcrest.core.IsNull.notNullValue;
 import static org.hamcrest.core.IsNull.nullValue;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.*;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {
@@ -185,6 +182,31 @@ public class JobInstanceSqlMapDaoTest {
                 new JobIdentifier(PIPELINE_NAME, savedPipeline.getCounter(), savedPipeline.getLabel(), STAGE_NAME,
                         String.valueOf(counter), JOB_NAME));
         assertThat("JobInstance should match", actual.getId(), is(expected.getId()));
+    }
+
+    @Test
+    public void shouldGetAllRunningJobs() throws Exception {
+        //setup schedules 2 jobs, keeping it as is.
+        List<JobInstance> runningJobs = jobInstanceDao.getRunningJobs();
+
+        assertThat(runningJobs.size(), is(2));
+        assertThat(runningJobs.get(0).getName(), is(JOB_NAME));
+        assertThat(runningJobs.get(1).getName(), is(OTHER_JOB_NAME));
+    }
+
+    @Test
+    public void shouldNotIncludeCompletedJobsAsPartOfRunningJobs() throws Exception {
+        JobInstance completed = JobInstanceMother.completed(JOB_NAME, JobResult.Unknown);
+        completed.setScheduledDate(MOST_RECENT_DATE);
+        completed = jobInstanceDao.save(stageId, completed);
+
+        List<JobInstance> runningJobs = jobInstanceDao.getRunningJobs();
+
+        assertThat(runningJobs.size(), is(2));
+        assertThat(runningJobs.get(0).getName(), is(JOB_NAME));
+        assertThat(runningJobs.get(1).getName(), is(OTHER_JOB_NAME));
+
+        assertThat(runningJobs.contains(completed), is(false));
     }
 
     @Test
@@ -309,7 +331,7 @@ public class JobInstanceSqlMapDaoTest {
     }
 
     @Test
-    public void shouldLoadOldestBuild(){
+    public void shouldLoadOldestBuild() {
         JobStateTransition jobStateTransition = jobInstanceDao.oldestBuild();
         assertThat(jobStateTransition.getId(), is(stageDao.stageById(stageId).getJobInstances().first().getTransitions().first().getId()));
     }

@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.apiv1.serverdrainmode.representers
 
+import com.thoughtworks.go.helper.JobInstanceMother
 import com.thoughtworks.go.helper.MaterialsMother
 import com.thoughtworks.go.server.domain.ServerDrainMode
 import com.thoughtworks.go.server.service.DrainModeService
@@ -24,6 +25,9 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.mockito.Mock
 
+import java.sql.Timestamp
+
+import static com.thoughtworks.go.api.base.JsonOutputWriter.jsonDate
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
 import static org.mockito.Mockito.when
@@ -62,9 +66,12 @@ class DrainModeInfoRepresenterTest {
     drainModeService.mduStartedForMaterial(svnMaterial)
 
     def runningMDUs = drainModeService.getRunningMDUs()
+    def scheduled = JobInstanceMother.scheduled("up42_job_1")
+    def building = JobInstanceMother.building("up42_job_2")
+    def jobInstances = Arrays.asList(scheduled, building)
 
     def actualJson = toObjectString({
-      DrainModeInfoRepresenter.toJSON(it, true, runningMDUs)
+      DrainModeInfoRepresenter.toJSON(it, true, runningMDUs, jobInstances)
     })
 
     def expectedJson = [
@@ -119,6 +126,28 @@ class DrainModeInfoRepresenterTest {
                 "encrypted_password": svnMaterial.encryptedPassword
               ],
               "mdu_start_time": "1970-01-01T08:20:00Z"
+            ]
+          ],
+          jobs : [
+            [
+              pipeline_name: scheduled.pipelineName,
+              pipeline_counter: scheduled.pipelineCounter,
+              stage_name: scheduled.stageName,
+              stage_counter: scheduled.stageCounter,
+              name: scheduled.name,
+              state: scheduled.state,
+              scheduled_date: jsonDate(new Timestamp(scheduled.getScheduledDate().getTime())),
+              agent_uuid: scheduled.getAgentUuid()
+            ],
+            [
+              pipeline_name: building.pipelineName,
+              pipeline_counter: building.pipelineCounter,
+              stage_name: building.stageName,
+              stage_counter: building.stageCounter,
+              name: building.name,
+              state: building.state,
+              scheduled_date: jsonDate(new Timestamp(building.getScheduledDate().getTime())),
+              agent_uuid: building.getAgentUuid()
             ]
           ]
         ]

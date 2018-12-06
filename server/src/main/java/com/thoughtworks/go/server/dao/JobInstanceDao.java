@@ -68,4 +68,6 @@ public interface JobInstanceDao {
     int totalCompletedJobsOnAgent(String uuid);
 
     boolean isJobCompleted(JobIdentifier jobIdentifier);
+
+    List<JobInstance> getRunningJobs();
 }

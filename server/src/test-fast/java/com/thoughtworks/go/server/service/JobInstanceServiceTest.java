@@ -52,6 +52,8 @@ import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import static com.thoughtworks.go.helper.JobInstanceMother.completed;
 import static com.thoughtworks.go.helper.JobInstanceMother.scheduled;
@@ -415,5 +417,19 @@ public class JobInstanceServiceTest {
         pipelineConfigChangedListener.onEntityConfigChange(PipelineConfigMother.pipelineConfig("p1", "s_new", new MaterialConfigs(), "j1"));
         assertThat(serverHealthService.logs().errorCount(), is(1));
         assertThat(serverHealthService.logs().get(0).getType().getScope().getScope(), is("p2/s2/j2"));
+    }
+
+    @Test
+    public void shouldGetRunningJobsFromJobInstanceDao() {
+        List<JobInstance> expectedRunningJobs = Arrays.asList(job);
+        when(jobInstanceDao.getRunningJobs()).thenReturn(expectedRunningJobs);
+
+        JobInstanceService jobService = new JobInstanceService(jobInstanceDao, null, null, jobStatusCache, transactionTemplate, transactionSynchronizationManager, null, null, goConfigService,
+                null, pluginManager, serverHealthService);
+
+        List<JobInstance> jobInstances = jobService.allRunningJobs();
+
+        assertThat(jobInstances, is(expectedRunningJobs));
+        verify(jobInstanceDao).getRunningJobs();
     }
 }

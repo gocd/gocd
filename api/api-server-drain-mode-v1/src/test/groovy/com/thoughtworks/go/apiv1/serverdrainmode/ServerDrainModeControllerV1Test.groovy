@@ -22,6 +22,7 @@ import com.thoughtworks.go.apiv1.serverdrainmode.representers.DrainModeInfoRepre
 import com.thoughtworks.go.apiv1.serverdrainmode.representers.DrainModeSettingsRepresenter
 import com.thoughtworks.go.server.domain.ServerDrainMode
 import com.thoughtworks.go.server.service.DrainModeService
+import com.thoughtworks.go.server.service.JobInstanceService
 import com.thoughtworks.go.server.service.support.toggle.FeatureToggleService
 import com.thoughtworks.go.server.service.support.toggle.Toggles
 import com.thoughtworks.go.spark.AdminUserSecurity
@@ -53,11 +54,14 @@ class ServerDrainModeControllerV1Test implements SecurityServiceTrait, Controlle
   FeatureToggleService featureToggleService
 
   @Mock
+  JobInstanceService jobInstanceService
+
+  @Mock
   TimeProvider timeProvider
 
   @Override
   ServerDrainModeControllerV1 createControllerInstance() {
-    new ServerDrainModeControllerV1(new ApiAuthenticationHelper(securityService, goConfigService), drainModeService, featureToggleService, timeProvider)
+    new ServerDrainModeControllerV1(new ApiAuthenticationHelper(securityService, goConfigService), drainModeService, jobInstanceService, featureToggleService, timeProvider)
   }
 
   @Nested
@@ -247,7 +251,9 @@ class ServerDrainModeControllerV1Test implements SecurityServiceTrait, Controlle
       @Test
       void 'get drain mode info'() {
         def runningMDUs = []
+        def runningJobs = []
         when(drainModeService.getRunningMDUs()).thenReturn(runningMDUs)
+        when(jobInstanceService.allBuildingJobs()).thenReturn(runningJobs)
         when(featureToggleService.isToggleOn(Toggles.SERVER_DRAIN_MODE_API_TOGGLE_KEY)).thenReturn(true)
 
         getWithApiHeader(controller.controllerPath('/info'))
@@ -255,7 +261,7 @@ class ServerDrainModeControllerV1Test implements SecurityServiceTrait, Controlle
         assertThatResponse()
           .isOk()
           .hasContentType(controller.mimeType)
-          .hasBody(toObjectString({ DrainModeInfoRepresenter.toJSON(it, true, runningMDUs) }))
+          .hasBody(toObjectString({ DrainModeInfoRepresenter.toJSON(it, true, runningMDUs, runningJobs) }))
       }
 
       @Test

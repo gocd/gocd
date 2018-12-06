@@ -40,6 +40,8 @@
 #                                                                                #
 ##################################################################################
 
+# force unsetting java home, so we can use our own java home
+unset JAVA_HOME
 
 
 # function 'stub_logger()'

@@ -36,8 +36,7 @@ describe("Site Menu", () => {
       isGroupAdmin: true,
       isUserAdmin: true,
       canViewAdminPage: true,
-      showAnalytics: true,
-      showConfigRepos: true
+      showAnalytics: true
     } as Attrs);
     const dashboard = $root.find("a").get(0);
     const agents    = $root.find("a").get(1);
@@ -74,8 +73,7 @@ describe("Site Menu", () => {
       isGroupAdmin: false,
       isUserAdmin: false,
       canViewAdminPage: true,
-      showAnalytics: true,
-      showConfigRepos: true
+      showAnalytics: true
     } as Attrs);
     const dashboard = $root.find("a").get(0);
     const agents    = $root.find("a").get(1);
@@ -110,8 +108,7 @@ describe("Site Menu", () => {
       isGroupAdmin: true,
       isUserAdmin: false,
       canViewAdminPage: true,
-      showAnalytics: true,
-      showConfigRepos: true
+      showAnalytics: true
     } as Attrs);
     const dashboard = $root.find("a").get(0);
     const agents    = $root.find("a").get(1);
@@ -146,8 +143,7 @@ describe("Site Menu", () => {
       isGroupAdmin: true,
       isUserAdmin: false,
       canViewAdminPage: true,
-      showAnalytics: false,
-      showConfigRepos: true
+      showAnalytics: false
     } as Attrs);
     const dashboard = $root.find("a").get(0);
     const agents    = $root.find("a").get(1);
@@ -166,8 +162,7 @@ describe("Site Menu", () => {
             isGroupAdmin: false,
             isUserAdmin: false,
             canViewAdminPage: false,
-            showAnalytics: false,
-            showConfigRepos: true
+            showAnalytics: false
           } as Attrs);
     const dashboard = $root.find("a").get(0);
     const agents    = $root.find("a").get(1);

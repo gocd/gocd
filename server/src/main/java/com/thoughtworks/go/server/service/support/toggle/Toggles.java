@@ -21,7 +21,6 @@ public class Toggles {
     public static String QUICK_EDIT_PAGE_DEFAULT = "quick_edit_page_toggle_key";
     public static String BROWSER_CONSOLE_LOG_WS = "browser_console_log_ws_key";
     public static String COMPONENTS = "components";
-    public static String CONFIG_REPOS_UI = "config_repos_ui";
     public static String AGENT_APIS_OVER_RAILS = "agent_apis_over_rails";
     public static String SERVER_DRAIN_MODE_API_TOGGLE_KEY = "server_drain_mode_api_toggle_key";
     public static String USE_OLD_ELASTIC_PROFILE_SPA = "use_old_elastic_profile_spa";

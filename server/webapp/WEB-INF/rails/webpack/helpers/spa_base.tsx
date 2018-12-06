@@ -75,7 +75,6 @@ export default abstract class Page {
       const formattedVersion = body.getAttribute("data-version-formatted") as string;
 
       const showAnalyticsDashboard = this.extractBoolean(body, "data-show-analytics-dashboard");
-      const showConfigRepos        = this.extractBoolean(body, "data-config-repo-enabled");
       const canViewAdminPage       = this.extractBoolean(body, "data-can-user-view-admin");
       const isUserAdmin            = this.extractBoolean(body, "data-is-user-admin");
       const isGroupAdmin           = this.extractBoolean(body, "data-is-user-group-admin");
@@ -100,8 +99,7 @@ export default abstract class Page {
         isGroupAdmin,
         canViewTemplates,
         userDisplayName,
-        isAnonymous,
-        showConfigRepos
+        isAnonymous
       };
 
       m.mount(body, {

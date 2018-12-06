@@ -43,7 +43,6 @@ $(() => {
     const formattedVersion = body.getAttribute("data-version-formatted") as string;
 
     const showAnalyticsDashboard = extractBoolean(body, "data-show-analytics-dashboard");
-    const showConfigRepos        = extractBoolean(body, "data-config-repo-enabled");
     const canViewAdminPage       = extractBoolean(body, "data-can-user-view-admin");
     const isUserAdmin            = extractBoolean(body, "data-is-user-admin");
     const isGroupAdmin           = extractBoolean(body, "data-is-user-group-admin");
@@ -68,8 +67,7 @@ $(() => {
       isGroupAdmin,
       canViewTemplates,
       userDisplayName,
-      isAnonymous,
-      showConfigRepos
+      isAnonymous
     } as Attrs;
 
     const menuMountPoint = document.querySelector("#app-menu");

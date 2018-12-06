@@ -16,8 +16,7 @@
 
 package com.thoughtworks.go.spark.spa
 
-import com.thoughtworks.go.server.service.support.toggle.FeatureToggleService
-import com.thoughtworks.go.server.service.support.toggle.Toggles
+
 import com.thoughtworks.go.spark.AdminUserSecurity
 import com.thoughtworks.go.spark.ControllerTrait
 import com.thoughtworks.go.spark.SecurityServiceTrait
@@ -28,13 +27,7 @@ class ConfigReposDelegateTest implements ControllerTrait<ConfigReposDelegate>, S
 
   @Override
   ConfigReposDelegate createControllerInstance() {
-    FeatureToggleService features = new FeatureToggleService(null, null) {
-      @Override
-      boolean isToggleOn(String key) {
-        return key == Toggles.CONFIG_REPOS_UI
-      }
-    }
-    return new ConfigReposDelegate(new SPAAuthenticationHelper(securityService, goConfigService), templateEngine, features)
+    return new ConfigReposDelegate(new SPAAuthenticationHelper(securityService, goConfigService), templateEngine)
   }
 
   @Nested

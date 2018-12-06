@@ -50,8 +50,7 @@
       data-version-copyright-year="${currentVersion.copyrightYear()}"
       data-version-formatted="${currentVersion.formatted()}"
       data-version-full="${currentVersion.fullVersion()}"
-      data-is-server-in-drain-mode="${drainModeService.isDrainMode()}"
-      data-config-repo-enabled="${toggles.isToggleOn("config_repos_ui")}">
+      data-is-server-in-drain-mode="${drainModeService.isDrainMode()}">
 
     #if(${devMode})
     <script>

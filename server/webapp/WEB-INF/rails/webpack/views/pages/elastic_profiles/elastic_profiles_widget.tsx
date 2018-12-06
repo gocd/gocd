@@ -27,9 +27,10 @@ import * as Buttons from "views/components/buttons";
 import {ButtonIcon} from "views/components/buttons";
 import {CollapsiblePanel} from "views/components/collapsible_panel";
 import {FlashMessage, MessageType} from "views/components/flash_message";
+import {HeaderIcon} from "views/components/header_icon";
 import * as Icons from "views/components/icons";
 import {ButtonGroup} from "views/components/icons";
-import {KeyValuePair} from "views/components/key_value_pair";
+import {KeyValuePair, KeyValueTitle} from "views/components/key_value_pair";
 import * as styles from "views/pages/elastic_profiles/index.scss";
 import {CloneOperation, DeleteOperation, EditOperation} from "views/pages/page_operations";
 
@@ -49,11 +50,10 @@ interface HeaderAttrs {
 class ElasticProfilesHeaderWidget extends MithrilComponent<HeaderAttrs> {
   view(vnode: m.Vnode<HeaderAttrs, {}>) {
     return [
-      (<span className={styles.pluginIcon}>
-          {vnode.attrs.image}
-        </span>
+      (
+        <KeyValueTitle title={ElasticProfilesHeaderWidget.createPluginNameElement(vnode.attrs.pluginName)}
+                       image={vnode.attrs.image}/>
       ),
-      ElasticProfilesHeaderWidget.createPluginNameElement(vnode.attrs.pluginName),
       (<KeyValuePair inline={true} data={new Map([
                                                    ["Plugin ID", vnode.attrs.pluginId]
                                                  ])}/>)
@@ -151,9 +151,9 @@ export class ElasticProfilesWidget extends MithrilComponent<Attrs, {}> {
 
   private static createImageTag(pluginInfo: PluginInfo<any> | undefined) {
     if (pluginInfo && pluginInfo.imageUrl) {
-      return <img data-test-id="plugin-icon" src={pluginInfo.imageUrl}/>;
+      return <HeaderIcon dataTestId="plugin-icon" imageUrl={pluginInfo.imageUrl}/>;
     }
-    return <span class={styles.unknownPluginIcon}/>;
+    return <HeaderIcon/>;
   }
 
   private createStatusReportButton(pluginId: string, pluginInfo ?: PluginInfo<Extension>) {

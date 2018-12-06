@@ -23,8 +23,7 @@ import * as Buttons from "views/components/buttons";
 import {CollapsiblePanel} from "views/components/collapsible_panel";
 import {HeaderIcon} from "views/components/header_icon";
 import * as Icons from "views/components/icons";
-import {KeyValuePair} from "views/components/key_value_pair";
-import * as styles from "./index.scss";
+import {KeyValuePair, KeyValueTitle} from "views/components/key_value_pair";
 
 interface PluginHeaderAttrs {
   image: JSX.Element;
@@ -40,10 +39,7 @@ class PluginHeaderWidget extends MithrilViewComponent<PluginHeaderAttrs> {
     ]);
     return [
       (
-        vnode.attrs.image
-      ),
-      (
-        <div data-test-id="plugin-name" class={styles.pluginName}>{vnode.attrs.pluginName}</div>
+        <KeyValueTitle image={vnode.attrs.image} titleTestId="plugin-name" title={vnode.attrs.pluginName}/>
       ),
       (
         <KeyValuePair inline={true} data={data}/>
@@ -112,6 +108,7 @@ export class PluginWidget extends MithrilViewComponent<Attrs> {
       </CollapsiblePanel>
     );
   }
+
   private getAuthorInfo(pluginInfo: PluginInfo<any>): JSX.Element {
     return (
       <a target="_blank" href={pluginInfo.about.vendor.url}>

@@ -17,8 +17,6 @@
 
 $collapse-icon-size: 25px;
 
-$plugin-row-element-width: 350px;
-
 .plugin-header {
   display:     flex;
   align-items: center;
@@ -37,20 +35,6 @@ $plugin-row-element-width: 350px;
     display: flex;
     align-items: center;
   }
-}
-
-.plugin-name {
-  font-weight:  600;
-  font-size:    13px;
-  margin-right: 50px;
-  width:        $plugin-row-element-width;
-  @media (min-width: $screen-md) {
-    font-size: 12px;
-  }
-  @media (min-width: $screen-lg) {
-    font-size: 15px;
-  }
-
 }
 
 .unknown-plugin-icon {

@@ -60,7 +60,7 @@ public class MacAboutBox extends JFrame implements ActionListener {
         aboutLabel[1] = new JLabel("Go Server");
         aboutLabel[1].setFont(titleFont);
         aboutLabel[2] = new JLabel(
-                "Server Version " + getCruiseVersion("go.jar"));
+                "Server Version " + getClass().getPackage().getImplementationVersion());
         aboutLabel[2].setFont(bodyFont);
         aboutLabel[3] = new JLabel("<html><a href='http://localhost:8153/go'>"
                 + "http://localhost:8153/go</a></html>");

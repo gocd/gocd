@@ -24,6 +24,7 @@ import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.net.HttpURLConnection;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -41,13 +42,18 @@ public class GoMacLauncher extends JFrame {
     private static final int MAX_SLEEP_SECONDS = 2400;
     private static final int SLEEP_MILLIS = 1000;
     private static final String APPLICATION_SUPPORT_PATHNAME =
-            MessageFormat.format("{0}/Library/Application Support/{1}/", System.getProperty("user.home"), System.getProperty("go.application.name", "Go Server"));
+            MessageFormat.format("{0}/Library/Application Support/{1}/", System.getProperty("user.home"), "Go Server");
     private static final String GO_CONFIG_DIRECTORY_PATH = APPLICATION_SUPPORT_PATHNAME + "config/";
     private static final String CRUISE_SERVER_URL = "http://localhost:8153/go/";
 
     public static void main(String[] args) {
         new File(GO_CONFIG_DIRECTORY_PATH).mkdirs();
-        new GoMacLauncher().spawnProcessAndWait();
+        try {
+            new GoMacLauncher().spawnProcessAndWait();
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+            System.exit(1);
+        }
     }
 
     public GoMacLauncher() throws HeadlessException {
@@ -62,12 +68,11 @@ public class GoMacLauncher extends JFrame {
         setSize(getPreferredSize());
     }
 
-    private int spawnProcessAndWait() {
+    private int spawnProcessAndWait() throws URISyntaxException {
         int exitValue = 0;
 
         String sep = System.getProperty("file.separator");
         String defaultJava = System.getProperty("java.home") + sep + "bin" + sep + "java";
-        String java = System.getProperty("go.java.to.use", defaultJava);
 
         String startMem = System.getProperty("cruise.server.mem", "512");
         String maxMem = System.getProperty("cruise.server.maxmem", "1024");
@@ -77,7 +82,7 @@ public class GoMacLauncher extends JFrame {
         boolean dbDebugMode = System.getProperty("cruise.server.db_debug_mode") != null;
 
         final List<String> arguments = new ArrayList<>();
-        arguments.add(java);
+        arguments.add(defaultJava);
         arguments.add("-Xms" + startMem + "m");
         arguments.add("-Xmx" + maxMem + "m");
         arguments.add("-XX:MaxMetaspaceSize=" + maxPerm + "m");
@@ -93,7 +98,7 @@ public class GoMacLauncher extends JFrame {
         arguments.add("-Dcruise.server.ssl.port=" + System.getProperty("cruise.server.ssl.port", "8154"));
         addOtherArguments(arguments);
         arguments.add("-jar");
-        arguments.add(new File(System.getProperty("go.server.mac.go.jar.dir", "."), "go.jar").getAbsolutePath());
+        arguments.add(new File(getClass().getProtectionDomain().getCodeSource().getLocation().toURI().getPath()).getAbsolutePath());
         LOG.info("Running server as: " + arguments);
 
         String[] args = arguments.toArray(new String[arguments.size()]);

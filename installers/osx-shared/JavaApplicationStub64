@@ -40,8 +40,6 @@
 #                                                                                #
 ##################################################################################
 
-# force unsetting java home, so we can use our own java home
-unset JAVA_HOME
 
 
 # function 'stub_logger()'
@@ -483,6 +481,7 @@ oracle_jre_version=$(get_java_version_from_cmd "${oracle_jre_plugin}")
 
 # first check system variable "$JAVA_HOME" -> has precedence over any other System JVM
 stub_logger '[JavaSearch] Checking for $JAVA_HOME ...'
+JAVA_HOME="$ResourcesFolder/jre/Contents/Home"
 if [ -n "$JAVA_HOME" ] ; then
 	stub_logger "[JavaSearch] ... found JAVA_HOME with value $JAVA_HOME"
 

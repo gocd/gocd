@@ -85,7 +85,7 @@ def setupInstaller(DefaultTask task, String appName, String packageName, String 
     }
 
     doLast("Create filesystem for package") {
-      def jreDir = "Contents/jre" // relative to package root
+      def jreDir = "Contents/Resources/jre" // relative to package root
       // copy to tmp stub file
       mkdir(tmpStubFile.parentFile)
       copy {
@@ -117,10 +117,6 @@ def setupInstaller(DefaultTask task, String appName, String packageName, String 
         jvmversion: "${project.targetCompatibility}+",
       ) {
         javaproperty(name: 'jar-class-loader.main.class', value: mainClass)
-        javaproperty(name: 'go.application.name', value: appName)
-        javaproperty(name: 'go.java.to.use', value: "\${APP_ROOT}/${jreDir}/Contents/Home/bin/java")
-
-        lsenvironment(name: 'JAVA_HOME', value: "${jreDir}/Contents/Home")
       }
 
       copy {

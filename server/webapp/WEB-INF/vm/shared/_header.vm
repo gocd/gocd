@@ -37,10 +37,12 @@
   <script type="text/javascript" src="$req.getContextPath()/$concatenatedJavascriptFilePath"></script>
   <script type="text/javascript"> var contextPath = "$req.getContextPath()"; </script>
 
-  #foreach( $js in ${webpackAssetsService.getAssetPathsFor("single_page_apps/polyfill", "single_page_apps/header_footer_shim")})
+  #foreach( $js in ${webpackAssetsService.getJSAssetPathsFor("single_page_apps/polyfill", "single_page_apps/header_footer_shim")})
       <script src="${js}"></script>
   #end
-    <link rel="stylesheet" type="text/css" href="${webpackAssetsService.getCSSAssetPathsFor("single_page_apps/header_footer_shim")}"
+  #foreach( $css in ${webpackAssetsService.getCSSAssetPathsFor("single_page_apps/header_footer_shim")})
+    <link rel="stylesheet" type="text/css" href="${css}"
+  #end
 
   <title>
       #if($title)

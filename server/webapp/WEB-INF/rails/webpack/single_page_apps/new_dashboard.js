@@ -36,8 +36,6 @@ $(() => {
   const dashboardVM   = new DashboardVM(dashboard);
   const personalizeVM = new PersonalizeVM(currentView);
 
-  personalizeVM.etag(null);
-
   function queryObject() {
     return m.parseQueryString(window.location.search);
   }
@@ -213,9 +211,9 @@ $(() => {
     dashboardVM.searchText(m.route.param('searchedBy') || '');
   };
 
-  repeater().start();
+  const onInitialAPIsResponse = (responses) => {
+    const pluginInfos = responses[1];
 
-  const onPluginInfosResponse = (pluginInfos) => {
     pluginInfos.eachPluginInfo((pluginInfo) => {
       const supportedPipelineAnalytics = pluginInfo.extensions().analytics.capabilities().supportedPipelineAnalytics();
       if (supportedPipelineAnalytics.length > 0) {
@@ -224,9 +222,11 @@ $(() => {
     });
 
     renderView();
+    repeater().start();
   };
 
-  const onPluginInfoApiFailure = (response) => {
+  const onInitialAPIsFailure = (response) => {
+
     m.mount(dashboardElem.get(0), {
       view() {
         return (<PageLoadError message={response}/>);
@@ -234,5 +234,5 @@ $(() => {
     });
   };
 
-  PluginInfos.all(null, {type: 'analytics'}).then(onPluginInfosResponse, onPluginInfoApiFailure);
+  Promise.all([personalizeVM.fetchPersonalization(), PluginInfos.all(null, {type: 'analytics'})]).then(onInitialAPIsResponse, onInitialAPIsFailure);
 });

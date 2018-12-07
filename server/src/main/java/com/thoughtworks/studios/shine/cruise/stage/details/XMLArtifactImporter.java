@@ -25,7 +25,6 @@ import org.dom4j.DocumentException;
 import org.dom4j.io.SAXReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;
 
 import java.io.InputStream;
@@ -52,11 +51,7 @@ public class XMLArtifactImporter {
     public void importFile(Graph graph, URIReference parentJob, InputStream in) {
         try {
             SAXReader saxReader = new SAXReader();
-            if (systemEnvironment.get(SystemEnvironment.SHOULD_VALIDATE_XML_AGAINST_DTD)) {
-                saxReader.setValidation(true);
-            } else {
-                saxReader.setEntityResolver(getCustomEntityResolver());
-            }
+            saxReader.setEntityResolver((publicId, systemId) -> new InputSource(new StringReader("")));
             Document doc = saxReader.read(in);
             importXML(graph, parentJob, doc);
         } catch (DocumentException e) {
@@ -79,8 +74,4 @@ public class XMLArtifactImporter {
         }
     }
 
-    private EntityResolver getCustomEntityResolver() {
-
-        return (s, s2) -> new InputSource(new StringReader(""));
-    }
 }

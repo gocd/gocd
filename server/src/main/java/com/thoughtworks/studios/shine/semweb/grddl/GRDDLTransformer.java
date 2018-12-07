@@ -27,6 +27,7 @@ import org.dom4j.io.DocumentSource;
 import org.dom4j.io.SAXReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.xml.sax.InputSource;
 
 import javax.xml.transform.TransformerException;
 import java.io.InputStream;
@@ -67,7 +68,9 @@ public class GRDDLTransformer {
 
     public Graph transform(InputStream xml, TempGraphFactory graphFactory) throws GrddlTransformException {
         try {
-            Document inputDoc = new SAXReader().read(xml);
+            SAXReader saxReader = new SAXReader();
+            saxReader.setEntityResolver((publicId, systemId) -> new InputSource(new StringReader("")));
+            Document inputDoc = saxReader.read(xml);
             return transform(inputDoc, graphFactory);
         } catch (DocumentException e) {
             throw new GrddlTransformException(e);

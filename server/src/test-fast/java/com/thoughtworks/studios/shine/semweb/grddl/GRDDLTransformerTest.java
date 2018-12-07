@@ -34,41 +34,16 @@ import static org.junit.Assert.assertTrue;
 public class GRDDLTransformerTest {
     @Test
     public void checkXMLBecomesRDF() throws Exception {
-        String inputXML = "<foo>bar</foo>";
-        String xsl = "" +
-                "<?xml version='1.0' encoding='UTF-8'?>" +
-                "<xsl:stylesheet xmlns:xsl='http://www.w3.org/1999/XSL/Transform' " +
-                "xmlns:ex='http://www.example.com/ontology.owl#' " +
-                "xmlns:rdf='http://www.w3.org/1999/02/22-rdf-syntax-ns#' version='1.0'>" +
-                "<xsl:template match='/'>" +
-                "<rdf:RDF>" +
-                "<xsl:apply-templates />" +
-                "</rdf:RDF>" +
-                "</xsl:template>" +
-                "<xsl:template match='foo'>" +
-                "<ex:Foo>" +
-                "<ex:hasBar rdf:datatype='http://www.w3.org/2001/XMLSchema#string'><xsl:value-of select='.'/></ex:hasBar>" +
-                "</ex:Foo>" +
-                "</xsl:template>" +
-                "</xsl:stylesheet>";
+        assertXMLBecomesRDF("<foo>bar</foo>");
+    }
 
-        String ask =
-                "prefix ex: <http://www.example.com/ontology.owl#> " +
-                        "prefix xsd: <http://www.w3.org/2001/XMLSchema#> " +
-
-                        "ASK WHERE { " +
-                        "?foo a ex:Foo ; " +
-                        "ex:hasBar 'bar'^^xsd:string . " +
-                        "}" +
-                        "";
-
-        InputStream xslAsStream = new ByteArrayInputStream(xsl.getBytes());
-        InputStream xmlAsStream = new ByteArrayInputStream(inputXML.getBytes());
-
-        GRDDLTransformer transformer = new GRDDLTransformer(transformerForXSLStream(xslAsStream, "foo.xml"), "foo.xml");
-        Graph graph = transformer.transform(xmlAsStream, new InMemoryTempGraphFactory());
-
-        assertAskIsTrue(graph, (ask));
+    @Test
+    public void shouldIgnoreExternalEntitiesInInput_AndConvertThemToEmptyStrings() throws Exception {
+        assertXMLBecomesRDF("<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" +
+                "<!DOCTYPE foo [  \n" +
+                "<!ELEMENT param ANY >\n" +
+                "<!ENTITY myentity SYSTEM \"file:///some/nonexistent/file\" >]>" +
+                "<foo>bar&myentity;</foo>\n");
     }
 
     @Test
@@ -147,6 +122,43 @@ public class GRDDLTransformerTest {
                         "}";
 
         assertAskIsTrue(transformedGraph, askIfPipelineWasTransformedWell);
+    }
+
+    private void assertXMLBecomesRDF(String inputXML) throws TransformerConfigurationException, GrddlTransformException {
+        String xsl = "" +
+                "<?xml version='1.0' encoding='UTF-8'?>" +
+                "<xsl:stylesheet xmlns:xsl='http://www.w3.org/1999/XSL/Transform' " +
+                "xmlns:ex='http://www.example.com/ontology.owl#' " +
+                "xmlns:rdf='http://www.w3.org/1999/02/22-rdf-syntax-ns#' version='1.0'>" +
+                "<xsl:template match='/'>" +
+                "<rdf:RDF>" +
+                "<xsl:apply-templates />" +
+                "</rdf:RDF>" +
+                "</xsl:template>" +
+                "<xsl:template match='foo'>" +
+                "<ex:Foo>" +
+                "<ex:hasBar rdf:datatype='http://www.w3.org/2001/XMLSchema#string'><xsl:value-of select='.'/></ex:hasBar>" +
+                "</ex:Foo>" +
+                "</xsl:template>" +
+                "</xsl:stylesheet>";
+
+        String ask =
+                "prefix ex: <http://www.example.com/ontology.owl#> " +
+                        "prefix xsd: <http://www.w3.org/2001/XMLSchema#> " +
+
+                        "ASK WHERE { " +
+                        "?foo a ex:Foo ; " +
+                        "ex:hasBar 'bar'^^xsd:string . " +
+                        "}" +
+                        "";
+
+        InputStream xslAsStream = new ByteArrayInputStream(xsl.getBytes());
+        InputStream xmlAsStream = new ByteArrayInputStream(inputXML.getBytes());
+
+        GRDDLTransformer transformer = new GRDDLTransformer(transformerForXSLStream(xslAsStream, "foo.xml"), "foo.xml");
+        Graph graph = transformer.transform(xmlAsStream, new InMemoryTempGraphFactory());
+
+        assertAskIsTrue(graph, (ask));
     }
 
     private XSLTTransformerRegistry transformerForXSLStream(final InputStream xsl, final String key) throws TransformerConfigurationException {

@@ -60,6 +60,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.xml.sax.InputSource;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -1051,6 +1052,7 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
             this.registry = registry;
             this.systemEnvironment = systemEnvironment;
             reader = new SAXReader();
+            reader.setEntityResolver((publicId, systemId) -> new InputSource(new StringReader("")));
         }
 
         private String md5;

@@ -34,3 +34,32 @@
   border:        1px solid $border-color;
   padding:       10px 20px;
 }
+
+.in-progress-subsystems {
+  margin: 10px 0;
+}
+
+.panel {
+  border-radius: 3px;
+  border:        1px solid $border-color;
+  margin:        20px 0;
+}
+
+.panel-header {
+  border-bottom: 1px solid $border-color;
+  padding:       10px 20px;
+  margin:        0;
+}
+
+.panel-body {
+  padding: 10px 20px;
+}
+
+.col-2 {
+  display: flex;
+}
+
+.col-2 .col {
+  width:   50%;
+  padding: 0 15px;
+}

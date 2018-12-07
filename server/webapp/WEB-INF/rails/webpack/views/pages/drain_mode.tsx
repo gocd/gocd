@@ -16,8 +16,10 @@
 
 import {ErrorResponse, SuccessResponse} from "helpers/api_request_builder";
 import * as m from "mithril";
+import {DrainModeCRUD} from "models/drain_mode/drain_mode_crud";
 import {DrainModeSettings} from "models/drain_mode/drain_mode_settings";
-import {MessageType} from "views/components/flash_message";
+import {DrainModeInfo} from "models/drain_mode/types";
+import {FlashMessage, MessageType} from "views/components/flash_message";
 import {HeaderPanel} from "views/components/header_panel";
 import {DrainModeWidget} from "views/pages/drain_mode/drain_mode_widget";
 import {Page} from "views/pages/page";
@@ -30,6 +32,7 @@ interface SaveOperation<T> {
 
 interface State extends SaveOperation<DrainModeSettings> {
   drainModeSettings: DrainModeSettings;
+  drainModeInfo?: DrainModeInfo;
   message: Message;
   onReset: (drainModeSettings: DrainModeSettings, e: Event) => void;
 }
@@ -48,9 +51,10 @@ export class DrainModePage extends Page<null, State> {
   oninit(vnode: m.Vnode<null, State>) {
     super.oninit(vnode);
     vnode.state.onSave = (drainModeSettings: DrainModeSettings, e: Event) => {
-      DrainModeSettings.update(drainModeSettings)
-                       .then((result) => result.do(vnode.state.onSuccessfulSave, vnode.state.onError))
-                       .finally(m.redraw);
+      e.stopPropagation();
+      DrainModeCRUD.update(drainModeSettings)
+                   .then((result) => result.do(vnode.state.onSuccessfulSave, vnode.state.onError))
+                   .finally(m.redraw);
     };
 
     vnode.state.onReset = (drainModeSettings: DrainModeSettings, e: Event) => {
@@ -61,6 +65,7 @@ export class DrainModePage extends Page<null, State> {
       vnode.state.drainModeSettings = successResponse.body;
       const state                   = vnode.state.drainModeSettings.drain() ? "on" : "off";
       vnode.state.message           = new Message(MessageType.success, `Drain mode turned ${state}.`);
+      this.fetchDrainModeInfo(vnode);
     };
 
     vnode.state.onError = (errorResponse: ErrorResponse) => {
@@ -69,10 +74,17 @@ export class DrainModePage extends Page<null, State> {
   }
 
   componentToDisplay(vnode: m.Vnode<null, State>): JSX.Element | undefined {
-    return <DrainModeWidget settings={vnode.state.drainModeSettings}
-                            onSave={vnode.state.onSave.bind(vnode.state)}
-                            onReset={vnode.state.onReset.bind(vnode.state)}
-                            message={vnode.state.message}/>;
+    const mayBeMessage = vnode.state.message ?
+      <FlashMessage type={vnode.state.message.type} message={vnode.state.message.message}/> : null;
+    return (
+      <div>
+        {mayBeMessage}
+        <DrainModeWidget settings={vnode.state.drainModeSettings}
+                         onSave={vnode.state.onSave.bind(vnode.state)}
+                         onReset={vnode.state.onReset.bind(vnode.state)}
+                         drainModeInfo={vnode.state.drainModeInfo}/>
+      </div>
+    );
   }
 
   headerPanel() {
@@ -80,13 +92,24 @@ export class DrainModePage extends Page<null, State> {
   }
 
   fetchData(vnode: m.Vnode<null, State>) {
-    return DrainModeSettings.get().then((settings) => {
+    return DrainModeCRUD.get().then((settings) => {
       settings.do((successResponse) => vnode.state.drainModeSettings = successResponse.body,
-                  () => this.setErrorState());
-    });
+                  vnode.state.onError);
+    }).then(() => this.fetchDrainModeInfo(vnode));
   }
 
   pageName(): string {
     return "Server Drain Mode";
+  }
+
+  private fetchDrainModeInfo(vnode: m.Vnode<null, State>) {
+    if (vnode.state.drainModeSettings.drain()) {
+      DrainModeCRUD.info().then((result) => {
+        result.do((successResponse) => vnode.state.drainModeInfo = successResponse.body,
+                  vnode.state.onError);
+      });
+    } else {
+      vnode.state.drainModeInfo = undefined;
+    }
   }
 }

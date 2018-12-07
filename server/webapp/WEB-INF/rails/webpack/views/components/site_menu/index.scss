@@ -75,7 +75,7 @@ $subnav-link-color: #bbb;
     }
   }
 
-  &:hover {
+  &:hover, &:focus, &:focus-within {
     // background: $sub-navigation-bg;
     @media(min-width: $screen-md) {
       .sub-navigation {

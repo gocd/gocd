@@ -65,7 +65,7 @@ export class SiteHeader extends MithrilViewComponent<Attrs> {
 
     return (
       <header class={styles.siteHeader}>
-        <a href="/go/pipelines" class={styles.gocdLogo}/>
+        <a aria-label="GoCD Logo" href="/go/pipelines" class={styles.gocdLogo}/>
         <div class={styles.navbtn}>
           <div class={styles.bar}/>
         </div>

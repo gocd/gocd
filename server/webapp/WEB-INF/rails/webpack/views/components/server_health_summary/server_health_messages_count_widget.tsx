@@ -41,6 +41,7 @@ export class ServerHealthMessagesCountWidget extends MithrilComponent<Attrs, Sta
     if (vnode.attrs.serverHealthMessages().hasMessages()) {
       return (
         <a data-test-id="server-health-messages-count"
+           aria-label={`Server Health: ${vnode.attrs.serverHealthMessages().summaryMessage()}`}
            class={styles.serverHealthMessagesContainer}
            onclick={vnode.state.openServerHealthMessagesModal.bind(vnode.state)}>
           {vnode.attrs.serverHealthMessages().summaryMessage()}

@@ -252,7 +252,7 @@ class ModeAwareFilterTest {
         when(systemEnvironment.isServerActive()).thenReturn(true);
         when(drainModeService.isDrainMode()).thenReturn(true);
 
-        request = HttpRequestBuilder.POST("/api/drain_mode/settings").build();
+        request = HttpRequestBuilder.POST("/api/admin/drain_mode/settings").build();
 
         filter.doFilter(request, response, filterChain);
 

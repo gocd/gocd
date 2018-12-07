@@ -16,10 +16,7 @@
 
 package com.thoughtworks.go.apiv1.serverdrainmode.representers
 
-import com.thoughtworks.go.api.util.GsonTransformer
-import com.thoughtworks.go.apiv1.serverdrainmode.representers.DrainModeSettingsRepresenter
 import com.thoughtworks.go.server.domain.ServerDrainMode
-import com.thoughtworks.go.server.domain.Username
 import com.thoughtworks.go.util.TimeProvider
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -30,8 +27,6 @@ import java.sql.Timestamp
 import static com.thoughtworks.go.api.base.JsonOutputWriter.jsonDate
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
-import static org.junit.jupiter.api.Assertions.assertEquals
-import static org.mockito.Mockito.when
 import static org.mockito.MockitoAnnotations.initMocks
 
 class DrainModeSettingsRepresenterTest {
@@ -66,37 +61,5 @@ class DrainModeSettingsRepresenterTest {
     ]
 
     assertThatJson(actualJson).isEqualTo(expectedJson)
-  }
-
-  @Test
-  void "should deserialize server drain mode object"() {
-    def json = [
-      drain: true
-    ]
-
-    def jsonReader = GsonTransformer.instance.jsonReaderFrom(json)
-    def time = 10000000l
-    when(timeProvider.currentTimeMillis()).thenReturn(time)
-    def deserializedSettings = DrainModeSettingsRepresenter.fromJSON(jsonReader,
-      new Username("user"), timeProvider,
-      new ServerDrainMode(false, "me", new Date()))
-    assertEquals(deserializedSettings.isDrainMode(), true)
-    assertEquals(deserializedSettings.updatedBy(), "user")
-    assertEquals(deserializedSettings.updatedOn(), new Timestamp(time))
-  }
-
-  @Test
-  void "should set drain flag from the object from server if the user does not pass it along during deserialization of server drain mode"() {
-    def json = [a: ""]
-
-    def jsonReader = GsonTransformer.instance.jsonReaderFrom(json)
-    def time = 10000000l
-    when(timeProvider.currentTimeMillis()).thenReturn(time)
-    def deserializedSettings = DrainModeSettingsRepresenter.fromJSON(jsonReader,
-      new Username("user"), timeProvider,
-      new ServerDrainMode(false, "me", new Date()))
-    assertEquals(deserializedSettings.isDrainMode(), false)
-    assertEquals(deserializedSettings.updatedBy(), "user")
-    assertEquals(deserializedSettings.updatedOn(), new Timestamp(time))
   }
 }

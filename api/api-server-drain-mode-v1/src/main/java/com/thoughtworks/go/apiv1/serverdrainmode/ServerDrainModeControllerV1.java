@@ -33,12 +33,11 @@ import com.thoughtworks.go.server.service.support.toggle.FeatureToggleService;
 import com.thoughtworks.go.server.service.support.toggle.Toggles;
 import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.spring.SparkSpringController;
-import com.thoughtworks.go.util.TimeProvider;
+import com.thoughtworks.go.util.Clock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import spark.Request;
 import spark.Response;
-import spark.Spark;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -53,21 +52,21 @@ public class ServerDrainModeControllerV1 extends ApiController implements SparkS
     private final DrainModeService drainModeService;
     private JobInstanceService jobInstanceService;
     private FeatureToggleService featureToggleService;
-    private TimeProvider timeProvider;
+    private Clock clock;
 
     @Autowired
     public ServerDrainModeControllerV1(ApiAuthenticationHelper apiAuthenticationHelper,
                                        DrainModeService drainModeService,
                                        JobInstanceService jobInstanceService,
                                        FeatureToggleService featureToggleService,
-                                       TimeProvider timeProvider) {
+                                       Clock clock) {
         super(ApiVersion.v1);
 
         this.apiAuthenticationHelper = apiAuthenticationHelper;
         this.drainModeService = drainModeService;
         this.jobInstanceService = jobInstanceService;
         this.featureToggleService = featureToggleService;
-        this.timeProvider = timeProvider;
+        this.clock = clock;
     }
 
     @Override
@@ -87,7 +86,7 @@ public class ServerDrainModeControllerV1 extends ApiController implements SparkS
             before(Routes.DrainMode.INFO, mimeType, apiAuthenticationHelper::checkAdminUserAnd403);
 
             get(Routes.DrainMode.SETTINGS, mimeType, this::show);
-            Spark.patch(Routes.DrainMode.SETTINGS, mimeType, this::patch);
+            post(Routes.DrainMode.SETTINGS, mimeType, this::updateDrainModeState);
 
             get(Routes.DrainMode.INFO, mimeType, this::getDrainModeInfo);
 
@@ -103,12 +102,16 @@ public class ServerDrainModeControllerV1 extends ApiController implements SparkS
         return writerForTopLevelObject(req, res, writer -> DrainModeSettingsRepresenter.toJSON(writer, drainModeService.get()));
     }
 
-    public String patch(Request req, Response res) throws Exception {
+    public String updateDrainModeState(Request req, Response res) throws Exception {
         if (!featureToggleService.isToggleOn(Toggles.SERVER_DRAIN_MODE_API_TOGGLE_KEY)) {
             throw new RecordNotFoundException();
         }
 
-        drainModeService.update(buildEntityFromRequestBody(req));
+        final JsonReader jsonReader = GsonTransformer.getInstance().jsonReaderFrom(req.body());
+
+        final ServerDrainMode serverDrainMode = new ServerDrainMode(jsonReader.getBoolean("drain"), currentUserLoginName().toString(), clock.currentTime());
+
+        drainModeService.update(serverDrainMode);
         return show(req, res);
     }
 
@@ -122,10 +125,4 @@ public class ServerDrainModeControllerV1 extends ApiController implements SparkS
         boolean isServerCompletelyDrained = runningMDUs.isEmpty() && jobInstances.isEmpty();
         return writerForTopLevelObject(req, res, writer -> DrainModeInfoRepresenter.toJSON(writer, isServerCompletelyDrained, runningMDUs, jobInstances));
     }
-
-    public ServerDrainMode buildEntityFromRequestBody(Request request) {
-        JsonReader jsonReader = GsonTransformer.getInstance().jsonReaderFrom(request.body());
-        return DrainModeSettingsRepresenter.fromJSON(jsonReader, currentUsername(), timeProvider, drainModeService.get());
-    }
-
 }

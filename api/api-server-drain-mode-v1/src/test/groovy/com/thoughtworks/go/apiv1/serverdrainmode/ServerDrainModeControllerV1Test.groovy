@@ -17,6 +17,7 @@
 package com.thoughtworks.go.apiv1.serverdrainmode
 
 import com.thoughtworks.go.api.SecurityTestTrait
+import com.thoughtworks.go.api.base.JsonOutputWriter
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
 import com.thoughtworks.go.apiv1.serverdrainmode.representers.DrainModeInfoRepresenter
 import com.thoughtworks.go.apiv1.serverdrainmode.representers.DrainModeSettingsRepresenter
@@ -28,16 +29,17 @@ import com.thoughtworks.go.server.service.support.toggle.Toggles
 import com.thoughtworks.go.spark.AdminUserSecurity
 import com.thoughtworks.go.spark.ControllerTrait
 import com.thoughtworks.go.spark.SecurityServiceTrait
-import com.thoughtworks.go.util.TimeProvider
+import com.thoughtworks.go.util.TestingClock
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.ArgumentCaptor
 import org.mockito.Mock
 
+import java.sql.Timestamp
+
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
-import static org.junit.jupiter.api.Assertions.assertEquals
-import static org.mockito.ArgumentMatchers.any
+import static org.assertj.core.api.Assertions.assertThat
 import static org.mockito.Mockito.*
 import static org.mockito.MockitoAnnotations.initMocks
 
@@ -56,12 +58,11 @@ class ServerDrainModeControllerV1Test implements SecurityServiceTrait, Controlle
   @Mock
   JobInstanceService jobInstanceService
 
-  @Mock
-  TimeProvider timeProvider
+  TestingClock testingClock = new TestingClock()
 
   @Override
   ServerDrainModeControllerV1 createControllerInstance() {
-    new ServerDrainModeControllerV1(new ApiAuthenticationHelper(securityService, goConfigService), drainModeService, jobInstanceService, featureToggleService, timeProvider)
+    new ServerDrainModeControllerV1(new ApiAuthenticationHelper(securityService, goConfigService), drainModeService, jobInstanceService, featureToggleService, testingClock)
   }
 
   @Nested
@@ -119,18 +120,18 @@ class ServerDrainModeControllerV1Test implements SecurityServiceTrait, Controlle
   }
 
   @Nested
-  class Patch {
+  class UpdateDrainModeState {
     @Nested
     class Security implements SecurityTestTrait, AdminUserSecurity {
 
       @Override
       String getControllerMethodUnderTest() {
-        return "patch"
+        return "updateDrainModeState"
       }
 
       @Override
       void makeHttpCall() {
-        patch(controller.controllerPath('/settings'), [:])
+        post(controller.controllerPath('/settings'), [:])
       }
     }
 
@@ -147,16 +148,12 @@ class ServerDrainModeControllerV1Test implements SecurityServiceTrait, Controlle
       @Test
       void 'should return not found when SERVER_DRAIN_MODE_API_TOGGLE_KEY is turned off'() {
         when(featureToggleService.isToggleOn(Toggles.SERVER_DRAIN_MODE_API_TOGGLE_KEY)).thenReturn(false)
-
-        def newDrainModeState = false
-        def data = [drain: newDrainModeState]
-
         def headers = [
           'accept'      : controller.mimeType,
           'content-type': 'application/json'
         ]
 
-        patchWithApiHeader(controller.controllerPath('/settings'), headers, data)
+        postWithApiHeader(controller.controllerPath('/settings'), headers, [:])
 
         assertThatResponse()
           .isNotFound()
@@ -165,61 +162,62 @@ class ServerDrainModeControllerV1Test implements SecurityServiceTrait, Controlle
       @Test
       void 'update server drain mode settings'() {
         def newDrainModeState = false
-
         def data = [drain: newDrainModeState]
-
-        def drainMode = new ServerDrainMode()
-        drainMode.setDrainMode(newDrainModeState)
-        drainMode.updatedBy("Default")
-        def captor = ArgumentCaptor.forClass(ServerDrainMode.class)
-        doNothing().when(drainModeService).update(any())
-        doReturn(drainMode).when(drainModeService).get()
 
         def headers = [
           'accept'      : controller.mimeType,
           'content-type': 'application/json'
         ]
 
-        patchWithApiHeader(controller.controllerPath('/settings'), headers, data)
+        when(drainModeService.get())
+          .thenReturn(new ServerDrainMode(newDrainModeState, currentUserLoginName().toString(), testingClock.currentTime()))
+
+        postWithApiHeader(controller.controllerPath('/settings'), headers, data)
+
+        def captor = ArgumentCaptor.forClass(ServerDrainMode.class)
+        verify(drainModeService).update(captor.capture())
+        def drainModeStateBeingSaved = captor.getValue()
+        assertThat(drainModeStateBeingSaved.isDrainMode()).isFalse()
+        assertThat(drainModeStateBeingSaved.updatedBy()).isEqualTo(currentUserLoginName().toString())
+        assertThat(drainModeStateBeingSaved.updatedOn()).isEqualTo(new Timestamp(testingClock.currentTimeMillis()))
 
         assertThatResponse()
           .isOk()
           .hasContentType(controller.mimeType)
-          .hasBodyWithJsonObject(drainMode, DrainModeSettingsRepresenter.class)
-
-        verify(drainModeService).update(captor.capture())
-        def drainModeStateBeingSaved = captor.getValue()
-        assertEquals(drainModeStateBeingSaved.isDrainMode(), newDrainModeState)
-        assertEquals(drainModeStateBeingSaved.updatedBy(), currentUsername().getUsername().toString())
+          .hasJsonBody([
+          "_links"   : [
+            "self": [
+              "href": "http://test.host/go/api/admin/drain_mode/settings"
+            ],
+            "doc" : [
+              "href": "https://api.gocd.org/current/#drain-mode-settings"
+            ]
+          ],
+          "_embedded": [
+            "drain"     : false,
+            "updated_by": currentUserLoginName().toString(),
+            "updated_on": JsonOutputWriter.jsonDate(testingClock.currentTime())
+          ]
+        ])
       }
 
       @Test
-      void 'should save with previous value of drain flag if the flag is not provided in the patch request'() {
+      void 'should save error out when property drain is not present in payload'() {
         def data = [junk: ""]
-
-        def drainMode = new ServerDrainMode()
-        drainMode.setDrainMode(false)
-        drainMode.updatedBy("user1")
-        def captor = ArgumentCaptor.forClass(ServerDrainMode.class)
-        doNothing().when(drainModeService).update(any())
-        doReturn(drainMode).when(drainModeService).get()
 
         def headers = [
           'accept'      : controller.mimeType,
           'content-type': 'application/json'
         ]
 
-        patchWithApiHeader(controller.controllerPath('/settings'), headers, data)
+        postWithApiHeader(controller.controllerPath('/settings'), headers, data)
 
         assertThatResponse()
-          .isOk()
+          .isUnprocessableEntity()
           .hasContentType(controller.mimeType)
-          .hasBodyWithJsonObject(drainMode, DrainModeSettingsRepresenter.class)
+          .hasJsonMessage("Json `{\\\"junk\\\":\\\"\\\"}` does not contain property 'drain'")
 
-        verify(drainModeService).update(captor.capture())
-        def settingsBeingSaved = captor.getValue()
-        assertEquals(settingsBeingSaved.isDrainMode(), drainMode.isDrainMode())
-        assertEquals(settingsBeingSaved.updatedBy(), currentUsername().getUsername().toString())
+        verifyZeroInteractions(drainModeService)
       }
     }
   }

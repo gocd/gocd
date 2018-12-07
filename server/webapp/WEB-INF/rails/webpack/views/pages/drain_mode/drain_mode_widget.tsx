@@ -16,7 +16,8 @@
 
 import {MithrilViewComponent} from "jsx/mithril-component";
 import {DrainModeSettings} from "models/drain_mode/drain_mode_settings";
-import {DrainModeInfo, Job, Material} from "models/drain_mode/types";
+import {Materials, ScmMaterialAttributes} from "models/drain_mode/material";
+import {DrainModeInfo, Job} from "models/drain_mode/types";
 import {CollapsiblePanel} from "views/components/collapsible_panel";
 import {Switch} from "views/components/forms/input_fields";
 import {KeyValuePair} from "views/components/key_value_pair";
@@ -154,21 +155,30 @@ export class JobInfoWidget extends MithrilViewComponent<JobInfoAttrs> {
 }
 
 class MDUInfoAttrs {
-  materials?: Material[];
+  materials?: Materials;
 }
 
 export class MDUInfoWidget extends MithrilViewComponent<MDUInfoAttrs> {
   view(vnode: m.Vnode<MDUInfoAttrs>): m.Children {
     let inProgressMaterials;
 
-    if (!vnode.attrs.materials || vnode.attrs.materials.length === 0) {
+    if (!vnode.attrs.materials || vnode.attrs.materials.count() === 0) {
       inProgressMaterials = "No material update is in progress.";
     } else {
-      inProgressMaterials = vnode.attrs.materials.map((material) => {
+      inProgressMaterials = vnode.attrs.materials.allScmMaterials().map((material) => {
+        const attributes = material.attributes() as ScmMaterialAttributes;
+        const nameOrUrl  = attributes.name() ? attributes.name() : attributes.url();
+        const headerMap  = new Map([
+                                     ["Type", material.type()],
+                                     ["Name", nameOrUrl],
+                                     ["Auto Update", attributes.name()],
+                                     ["Started At", material.mduStartTime().toString()]
+                                   ]);
+
         return (
           <CollapsiblePanel
-            header={<KeyValuePair inline={true} data={material.headerMap()}/>}>
-            <KeyValuePair data={material.asMap()}/>
+            header={<KeyValuePair inline={true} data={headerMap}/>}>
+            <KeyValuePair data={material.attributesAsMap()}/>
           </CollapsiblePanel>
         );
       });

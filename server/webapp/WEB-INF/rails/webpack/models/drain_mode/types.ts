@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 import * as _ from "lodash";
+import {MaterialJSON, Materials} from "models/drain_mode/material";
 
 const TimeFormatter = require("helpers/time_formatter");
 
@@ -26,28 +27,6 @@ export interface JobJSON {
   stage_name: string;
   state: string;
   agent_uuid?: string;
-}
-
-export interface FilterJSON {
-  ignore: string[];
-}
-
-export interface AttributesJSON {
-  name: string;
-  url: string;
-  mdu_start_time: string;
-  type: string;
-  auto_update: boolean;
-  branch: string;
-  destination: string;
-  filter: FilterJSON;
-  invert_filter: boolean;
-  shallow_clone: boolean;
-  submodule_folder: string;
-}
-
-export interface MaterialJSON {
-  attributes: AttributesJSON;
 }
 
 export interface RunningSystemJSON {
@@ -108,115 +87,18 @@ export class Job {
   }
 }
 
-export class Filter {
-  ignore?: string[];
-
-  constructor(ignore?: string[]) {
-    this.ignore = ignore;
-  }
-
-  static fromJSON(filter: FilterJSON) {
-    return new Filter(filter ? filter.ignore : []);
-  }
-}
-
-export class Attributes {
-  name: string;
-  url: string;
-  mduStartTime: Date;
-  type: string;
-  autoUpdate: boolean;
-  branch: string;
-  destination: string;
-  invertFilter: boolean;
-  shallowClone: boolean;
-  submoduleFolder: string;
-  filter: Filter;
-
-  constructor(type: string, name: string, url: string, branch: string, destination: string,
-              mduStartTime: Date, autoUpdate: boolean,
-              shallowClone: boolean, submoduleFolder: string,
-              invertFilter: boolean, filter: Filter) {
-    this.name            = name;
-    this.url             = url;
-    this.mduStartTime    = mduStartTime;
-    this.type            = type;
-    this.autoUpdate      = autoUpdate;
-    this.branch          = branch;
-    this.destination     = destination;
-    this.filter          = filter;
-    this.invertFilter    = invertFilter;
-    this.shallowClone    = shallowClone;
-    this.submoduleFolder = submoduleFolder;
-  }
-
-  static fromJSON(json: AttributesJSON) {
-    const mduStartTime = json.mdu_start_time ? TimeFormatter.formatInDate(json.mdu_start_time) : null;
-
-    return new Attributes(json.type,
-                          json.name,
-                          json.url,
-                          json.branch,
-                          json.destination,
-                          mduStartTime,
-                          json.auto_update,
-                          json.shallow_clone,
-                          json.submodule_folder,
-                          json.invert_filter,
-                          Filter.fromJSON(json.filter)
-    );
-  }
-}
-
-export class Material {
-  attributes: Attributes;
-
-  constructor(attributes: Attributes) {
-    this.attributes = attributes;
-  }
-
-  static fromJSON(material: MaterialJSON) {
-    return new Material(Attributes.fromJSON(material.attributes));
-  }
-
-  headerMap() {
-    return new Map(
-      [
-        ["type", this.attributes.type],
-        ["name", this.attributes.name],
-        ["url", this.attributes.url],
-        ["branch", this.attributes.branch],
-        ["started At", this.attributes.mduStartTime.toString()]
-      ]
-    );
-  }
-
-  asMap() {
-    const map = new Map();
-    _.forEach(this.attributes, (value, key) => {
-      if (_.isObject(value)) {
-        map.set(key, JSON.stringify(value));
-      } else {
-        map.set(key, value ? value.toString() : null);
-      }
-    });
-    return map;
-  }
-}
-
 export class RunningSystem {
   jobs: Job[];
-  mdu: Material[];
+  mdu: Materials;
 
-  constructor(jobs: Job[], mdu: Material[]) {
+  constructor(jobs: Job[], mdu: Materials) {
     this.jobs = jobs;
     this.mdu  = mdu;
   }
 
   static fromJSON(runningSystemJSON: RunningSystemJSON) {
     const jobs = runningSystemJSON.jobs ? runningSystemJSON.jobs.map(Job.fromJSON) : [];
-    const mdu  = runningSystemJSON.mdu ? runningSystemJSON.mdu.map(Material.fromJSON) : [];
-    return new RunningSystem(jobs, mdu);
+    return new RunningSystem(jobs, Materials.fromJSON(runningSystemJSON.mdu));
   }
 
   groupJobsByStage() {

@@ -1,9 +1,9 @@
 <li role="presentation">
     <%= link_to 'Pipelines', pipeline_groups_path -%>
 </li>
-<%- if com.thoughtworks.go.server.service.support.toggle.Toggles.isToggleOn('config_repos_ui') %>
-<li role="presentation"><a href="/go/admin/config_repos">Config Repositories</a></li>
-<%- end -%>
+<li role="presentation">
+  <a href="/go/admin/config_repos">Config Repositories</a>
+</li>
 <li role="presentation">
   <%= link_to 'Environments', environments_path -%>
 </li>

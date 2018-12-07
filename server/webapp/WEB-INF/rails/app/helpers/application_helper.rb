@@ -493,10 +493,6 @@ module ApplicationHelper
     Toggles.isToggleOn(Toggles.PIPELINE_CONFIG_SINGLE_PAGE_APP)
   end
 
-  def is_config_repos_ui_enabled?
-    Toggles.isToggleOn(Toggles.CONFIG_REPOS_UI)
-  end
-
   def is_server_in_drain_mode?
     drain_mode_service.isDrainMode
   end

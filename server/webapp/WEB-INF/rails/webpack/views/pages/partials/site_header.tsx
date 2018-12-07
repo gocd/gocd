@@ -28,7 +28,6 @@ export interface Attrs {
   isAnonymous: boolean;
   userDisplayName: string;
   canViewTemplates: boolean;
-  showConfigRepos: boolean;
   isGroupAdmin: boolean;
   isUserAdmin: boolean;
   canViewAdminPage: boolean;
@@ -42,7 +41,6 @@ export class SiteHeader extends MithrilViewComponent<Attrs> {
     const isUserAdmin            = vnode.attrs.isUserAdmin;
     const isGroupAdmin           = vnode.attrs.isGroupAdmin;
     const canViewTemplates       = vnode.attrs.canViewTemplates;
-    const showConfigRepos        = vnode.attrs.showConfigRepos;
     const userDisplayName        = vnode.attrs.userDisplayName;
     const isAnonymous            = vnode.attrs.isAnonymous;
 
@@ -78,7 +76,6 @@ export class SiteHeader extends MithrilViewComponent<Attrs> {
                       isUserAdmin={isUserAdmin}
                       isGroupAdmin={isGroupAdmin}
                       canViewTemplates={canViewTemplates}
-                      showConfigRepos={showConfigRepos}
             />
           </div>
 

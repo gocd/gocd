@@ -97,7 +97,7 @@ export class PluginWidget extends MithrilViewComponent<Attrs> {
 
     return (
       <CollapsiblePanel dataTestId="plugin-row"
-                        header={<PluginHeaderWidget image={<HeaderIcon imageUrl={pluginInfo.imageUrl}/>}
+                        header={<PluginHeaderWidget image={<HeaderIcon name="Plugin Icon" imageUrl={pluginInfo.imageUrl}/>}
                                                     pluginName={pluginInfo.about.name}
                                                     pluginVersion={pluginInfo.about.version}
                                                     pluginId={pluginInfo.id}/>}

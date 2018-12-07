@@ -152,7 +152,7 @@ export class ElasticProfilesWidget extends MithrilComponent<Attrs, {}> {
 
   private static createImageTag(pluginInfo: PluginInfo<any> | undefined) {
     if (pluginInfo && pluginInfo.imageUrl) {
-      return <HeaderIcon dataTestId="plugin-icon" imageUrl={pluginInfo.imageUrl}/>;
+      return <HeaderIcon name="Plugin Icon" imageUrl={pluginInfo.imageUrl}/>;
     }
     return <HeaderIcon/>;
   }

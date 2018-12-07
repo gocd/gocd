@@ -76,7 +76,7 @@ class HeaderWidget extends MithrilViewComponent<HeaderWidgetAttrs> {
 
     if (_.isEmpty(vnode.attrs.repo.lastParse())) {
       return (
-        <HeaderIcon>
+        <HeaderIcon name="Never Parsed">
           <span className={styles.neverParsed}
                 title={`This configuration repository was never parsed.`}/>
         </HeaderIcon>
@@ -85,14 +85,14 @@ class HeaderWidget extends MithrilViewComponent<HeaderWidgetAttrs> {
 
     if (vnode.attrs.repo.lastParse().success()) {
       return (
-        <HeaderIcon>
+        <HeaderIcon name="Last Parse Good">
           <span className={styles.goodLastParseIcon}
                 title={`Last parsed with revision ${vnode.attrs.repo.lastParse().revision}`}/>
         </HeaderIcon>
       );
     } else {
       return (
-        <HeaderIcon>
+        <HeaderIcon name="Last Parse Error">
           <span className={styles.lastParseErrorIcon}
                 title={`Last parsed with revision ${vnode.attrs.repo.lastParse().revision}. The error was ${vnode.attrs.repo.lastParse().error}`}/>
         </HeaderIcon>

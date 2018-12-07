@@ -17,19 +17,23 @@
 import {MithrilComponent} from "jsx/mithril-component";
 import * as _ from "lodash";
 import * as m from "mithril";
+import * as s from "underscore.string";
 import * as styles from "./index.scss";
 
 interface Attrs {
   imageUrl?: string; //an image URL of the icon
-  dataTestId?: string;
+  name?: string;
 }
 
 export class HeaderIcon extends MithrilComponent<Attrs> {
 
   view(vnode: m.Vnode<Attrs>) {
+    const name = vnode.attrs.name || "Unknown Icon";
+    const dataTestId = s.slugify(name);
+
     if (vnode.attrs.imageUrl) {
       return <div class={styles.headerIcon}>
-        <img data-test-id={vnode.attrs.dataTestId} src={vnode.attrs.imageUrl}/>
+        <img alt={vnode.attrs.name} data-test-id={dataTestId} src={vnode.attrs.imageUrl}/>
       </div>;
     }
     if (vnode.children && !_.isEmpty(vnode.children)) {
@@ -38,7 +42,7 @@ export class HeaderIcon extends MithrilComponent<Attrs> {
       </div>;
     }
     return <div class={styles.headerIcon}>
-      <span className={styles.unknownIcon}/>
+      <span aria-label={name} className={styles.unknownIcon}/>
     </div>;
   }
 

@@ -46,13 +46,13 @@ abstract class FormField<T> extends MithrilViewComponent<FormFieldAttrs<T>> {
     const maybeRequired = this.isRequiredField(vnode) ?
       <span className={styles.formLabelRequired}>*</span> : undefined;
     return (
-      <div className={classnames(styles.formGroup, {[styles.formHasError]: this.hasErrorText(vnode)})}>
+      <li className={classnames(styles.formGroup, {[styles.formHasError]: this.hasErrorText(vnode)})}>
         <label for={this.id} className={styles.formLabel}
                data-test-id="form-field-label">{vnode.attrs.label}{maybeRequired}:</label>
         {this.renderInputField(vnode)}
         {this.errorSpan(vnode)}
         {this.getHelpSpan(vnode)}
-      </div>
+      </li>
     );
   }
 

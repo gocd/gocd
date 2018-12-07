@@ -22,6 +22,7 @@ $btn-reset: #666;
 $btn-danger: $go-danger;
 
 .button {
+  display:       inline-block;
   border:        1px solid transparent;
   padding:       0 20px;
   height:        $form-element-height;
@@ -29,7 +30,6 @@ $btn-danger: $go-danger;
   border-radius: $global-border-radius;
   font-size:     14px;
   font-weight:   400;
-  margin:        0 10px;
   cursor:        pointer;
   &:active, &:focus {
     outline: 0;
@@ -88,17 +88,16 @@ $btn-danger: $go-danger;
 
 .btn-cancel {
   @include button($background-color: transparent);
-  color:      $text-color;
+  color: $text-color;
 }
-
 
 .icon-add {
   border: 10px solid $secondary-bg;
 }
 
-
 .icon-doc {
   @include icon-before($type: $fa-var-file);
+  margin-right: 10px;
   &:before {
     margin: 5px 10px 5px -5px;
   }

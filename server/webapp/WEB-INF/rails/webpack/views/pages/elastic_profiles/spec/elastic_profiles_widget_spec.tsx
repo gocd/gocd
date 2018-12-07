@@ -83,15 +83,15 @@ describe("New Elastic Profiles Widget", () => {
       expect(find("elastic-profile-list").get(0).children).toHaveLength(3);
 
       expect(find("plugin-name").get(0)).toContainText(TestData.DockerPluginJSON().about.name);
-      expect(find("plugin-icon").get(0)).toHaveAttr("src", TestData.DockerPluginJSON()._links.image.href);
+      expect(find("plugin-icon").get(0)).toBeVisible();
       expect(find("status-report-link").get(0)).toBeVisible();
 
       expect(find("plugin-name").get(1)).toContainText(TestData.DockerSwarmPluginJSON().about.name);
-      expect(find("plugin-icon").get(1)).toHaveAttr("src", TestData.DockerSwarmPluginJSON()._links.image.href);
+      expect(find("plugin-icon").get(1)).toBeVisible();
       expect(find("status-report-link").get(1)).toBeVisible();
 
       expect(find("plugin-name").get(2)).toContainText(TestData.KubernatesPluginJSON().about.name);
-      expect(find("plugin-icon").get(2)).toHaveAttr("src", TestData.KubernatesPluginJSON()._links.image.href);
+      expect(find("plugin-icon").get(2)).toBeVisible();
       expect(find("status-report-link").get(2)).toBeVisible();
     });
 

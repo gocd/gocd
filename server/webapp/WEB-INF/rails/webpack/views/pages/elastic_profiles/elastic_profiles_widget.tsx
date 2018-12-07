@@ -163,6 +163,7 @@ export class ElasticProfilesWidget extends MithrilComponent<Attrs, {}> {
       return (
         <Buttons.Secondary onclick={ElasticProfilesWidget.goToStatusReportPage.bind(this, statusReportPath)}
                            data-test-id="status-report-link"
+                           small={true}
                            icon={ButtonIcon.DOC}>Status Report
         </Buttons.Secondary>
       );

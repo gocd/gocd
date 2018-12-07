@@ -87,8 +87,7 @@ $header-padding: 10px 50px 10px 30px;
   float:   right;
   display: flex;
   margin:  20px 0;
-  //width:   100%;
-  @media (min-width: $screen-lg) {
+  @media (min-width: $screen-xl) {
     width:  auto;
     margin: 0;
   }

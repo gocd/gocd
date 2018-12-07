@@ -139,19 +139,19 @@ export default class SiteMenu extends MithrilViewComponent<Attrs> {
             <div className={styles.subNavigation}>
               <SiteSubNav>
                 <SiteSubNavItem href="/go/admin/pipelines" text="Pipelines"/>
-                <SiteSubNavItem href="/go/admin/config_repos" text="Config Repositories"/>
                 <SiteSubNavItem href="/go/admin/environments" text="Environments"/>
                 <SiteSubNavItem href="/go/admin/templates" text="Templates"/>
-                <SiteSubNavItem href="/go/admin/elastic_profiles" text="Elastic Agent Profiles"/>
                 <SiteSubNavItem href="/go/admin/config_xml" text="Config XML"/>
-                <SiteSubNavItem href="/go/admin/data_sharing/settings" text="Data Sharing"/>
                 <SiteSubNavItem href="/go/admin/config/server" text="Server Configuration"/>
+                <SiteSubNavItem href="/go/admin/backup" text="Backup"/>
+                <SiteSubNavItem href="/go/admin/package_repositories/new" text="Package Repositories"/>
               </SiteSubNav>
               <SiteSubNav>
-                <SiteSubNavItem href="/go/admin/users" text="User Summary"/>
-                <SiteSubNavItem href="/go/admin/backup" text="Backup"/>
+                <SiteSubNavItem href="/go/admin/elastic_profiles" text="Elastic Agent Profiles"/>
                 <SiteSubNavItem href="/go/admin/plugins" text="Plugins"/>
-                <SiteSubNavItem href="/go/admin/package_repositories/new" text="Package Repositories"/>
+                <SiteSubNavItem href="/go/admin/config_repos" text="Config Repositories"/>
+                <SiteSubNavItem href="/go/admin/data_sharing/settings" text="Data Sharing"/>
+                <SiteSubNavItem href="/go/admin/users" text="User Summary"/>
               </SiteSubNav>
               <SiteSubNav>
                 <SiteSubNavHeading text="Security"/>

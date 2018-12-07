@@ -34,6 +34,10 @@ import {
 } from "views/pages/page_operations";
 import * as styles from "./index.scss";
 
+const yamlIcon   = require("./yaml.svg");
+const jsonIcon   = require("./json.svg");
+const groovyIcon = require("./groovy.svg");
+
 interface Operations<T> extends EditOperation<T>, DeleteOperation<T>, RefreshOperation<T> {
 }
 
@@ -57,46 +61,31 @@ class HeaderWidget extends MithrilViewComponent<HeaderWidgetAttrs> {
   view(vnode: m.Vnode<HeaderWidgetAttrs>): m.Children | void | null {
 
     return [
-      this.statusIcon(vnode),
+      this.pluginIcon(vnode),
       (
         <KeyValuePair inline={true} data={new Map([
                                                     ["Id", vnode.attrs.repo.id()],
-                                                    ["Plugin ID", vnode.attrs.repo.pluginId()]
                                                   ])}/>
       )
     ];
   }
 
-  private statusIcon(vnode: m.Vnode<HeaderWidgetAttrs>) {
+  private pluginIcon(vnode: m.Vnode<HeaderWidgetAttrs>) {
     const pluginInfo = findPluginWithId(vnode.attrs.pluginInfos(), vnode.attrs.repo.pluginId());
 
     if (!pluginInfo) {
-      return <HeaderIcon/>;
+      return <HeaderIcon name="Unknown plugin"/>;
     }
 
-    if (_.isEmpty(vnode.attrs.repo.lastParse())) {
-      return (
-        <HeaderIcon name="Never Parsed">
-          <span className={styles.neverParsed}
-                title={`This configuration repository was never parsed.`}/>
-        </HeaderIcon>
-      );
-    }
-
-    if (vnode.attrs.repo.lastParse().success()) {
-      return (
-        <HeaderIcon name="Last Parse Good">
-          <span className={styles.goodLastParseIcon}
-                title={`Last parsed with revision ${vnode.attrs.repo.lastParse().revision}`}/>
-        </HeaderIcon>
-      );
-    } else {
-      return (
-        <HeaderIcon name="Last Parse Error">
-          <span className={styles.lastParseErrorIcon}
-                title={`Last parsed with revision ${vnode.attrs.repo.lastParse().revision}. The error was ${vnode.attrs.repo.lastParse().error}`}/>
-        </HeaderIcon>
-      );
+    switch (pluginInfo!.id) {
+      case "yaml.config.plugin":
+        return <HeaderIcon imageUrl={yamlIcon}/>;
+      case "json.config.plugin":
+        return <HeaderIcon imageUrl={jsonIcon}/>;
+      case "cd.go.contrib.plugins.configrepo.groovy":
+        return <HeaderIcon imageUrl={groovyIcon}/>;
+      default:
+        return <HeaderIcon name="Plugin does not have an icon"/>;
     }
   }
 }
@@ -140,11 +129,13 @@ class ConfigRepoWidget extends MithrilViewComponent<ShowObjectAttrs<ConfigRepo>>
       <Delete data-test-id="config-repo-delete" onclick={vnode.attrs.onDelete.bind(vnode.attrs, vnode.attrs.obj)}/>
     );
 
-    const actionButtons = <ButtonGroup>
-      {refreshButton}
-      {editButton}
-      {deleteButton}
-    </ButtonGroup>;
+    const actionButtons = [
+      this.statusIcon(vnode),
+      <ButtonGroup>
+        {refreshButton}
+        {editButton}
+        {deleteButton}
+      </ButtonGroup>];
 
     let lastParseRevision: m.Children;
 
@@ -179,6 +170,7 @@ class ConfigRepoWidget extends MithrilViewComponent<ShowObjectAttrs<ConfigRepo>>
     return (
       <CollapsiblePanel header={<HeaderWidget repo={vnode.attrs.obj} pluginInfos={vnode.attrs.pluginInfos}/>}
                         actions={actionButtons}>
+        <h4>Plugin ID: {vnode.attrs.obj.pluginId()}</h4>
         {maybeWarning}
         {lastParseRevision}
         <h4 class={styles.scmHeader}>SCM configuration for {vnode.attrs.obj.material().type()} material</h4>
@@ -186,6 +178,40 @@ class ConfigRepoWidget extends MithrilViewComponent<ShowObjectAttrs<ConfigRepo>>
       </CollapsiblePanel>
     );
   }
+
+  private statusIcon(vnode: m.Vnode<ShowObjectAttrs<ConfigRepo>>) {
+    const pluginInfo = findPluginWithId(vnode.attrs.pluginInfos(), vnode.attrs.obj.pluginId());
+
+    if (!pluginInfo) {
+      return <HeaderIcon name="Unknown plugin"/>;
+    }
+
+    if (_.isEmpty(vnode.attrs.obj.lastParse())) {
+      return (
+        <HeaderIcon name="Never Parsed">
+          <span className={styles.neverParsed}
+                title={`This configuration repository was never parsed.`}/>
+        </HeaderIcon>
+      );
+    }
+
+    if (vnode.attrs.obj.lastParse().success()) {
+      return (
+        <HeaderIcon name="Last Parse Good">
+          <span className={styles.goodLastParseIcon}
+                title={`Last parsed with revision ${vnode.attrs.obj.lastParse().revision}`}/>
+        </HeaderIcon>
+      );
+    } else {
+      return (
+        <HeaderIcon name="Last Parse Error">
+          <span className={styles.lastParseErrorIcon}
+                title={`Last parsed with revision ${vnode.attrs.obj.lastParse().revision}. The error was ${vnode.attrs.obj.lastParse().error}`}/>
+        </HeaderIcon>
+      );
+    }
+  }
+
 }
 
 export class ConfigReposWidget extends MithrilViewComponent<Attrs<ConfigRepo>> {

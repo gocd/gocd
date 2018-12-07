@@ -36,13 +36,13 @@ import java.util.Date;
 import static com.thoughtworks.go.domain.materials.Modification.modifications;
 import static org.mockito.Mockito.*;
 
-public class ConfigMaterialUpdaterTest {
+public class ConfigMaterialUpdateListenerTest {
     private GoRepoConfigDataSource repoConfigDataSource;
     private MaterialRepository materialRepository;
     private MaterialChecker materialChecker;
     private ConfigMaterialUpdateCompletedTopic configCompleted;
     private MaterialUpdateCompletedTopic topic;
-    private ConfigMaterialUpdater configUpdater;
+    private ConfigMaterialUpdateListener configUpdater;
     private   MaterialService materialService;
 
     private Material material;
@@ -71,7 +71,7 @@ public class ConfigMaterialUpdaterTest {
 
         when(materialRepository.findLatestModification(material)).thenReturn(mods);
 
-        configUpdater = new ConfigMaterialUpdater(
+        configUpdater = new ConfigMaterialUpdateListener(
                 repoConfigDataSource,materialRepository,materialChecker,
                 configCompleted,topic,materialService,new TestSubprocessExecutionContext());
     }
@@ -80,18 +80,12 @@ public class ConfigMaterialUpdaterTest {
     }
 
     @Test
-    public void shouldSubscribeToMaterialUpdateCompletedMessages()
-    {
-        verify(configCompleted,times(1)).addListener(configUpdater);
-    }
-
-    @Test
     public void shouldPostMaterialUpdateCompletedMessagesFurther()
     {
         MaterialUpdateSuccessfulMessage message = new MaterialUpdateSuccessfulMessage(material, 123);
         this.configUpdater.onMessage(message);
 
-        verify(topic,times(1)).post(message);
+        verify(topic,times(1)).post(new ConfigMaterialUpdateCompletedMessage(material, 123));
     }
 
     @Test
@@ -110,7 +104,7 @@ public class ConfigMaterialUpdaterTest {
         this.configUpdater.onMessage(message);
 
         verify(repoConfigDataSource,times(1)).onCheckoutComplete(material.config(),folder,"1");
-        verify(topic,times(1)).post(message);
+        verify(topic,times(1)).post(new ConfigMaterialUpdateCompletedMessage(material, 123));
     }
     @Test
     public void shouldNotCallGoRepoConfigDataSourceWhenMaterialUpdateFailedMessage()
@@ -119,7 +113,7 @@ public class ConfigMaterialUpdaterTest {
         this.configUpdater.onMessage(message);
 
         verify(repoConfigDataSource,times(0)).onCheckoutComplete(material.config(),folder,"1");
-        verify(topic,times(1)).post(message);
+        verify(topic,times(1)).post(new ConfigMaterialUpdateCompletedMessage(material, 123));
     }
 
     @Test
@@ -133,7 +127,7 @@ public class ConfigMaterialUpdaterTest {
 
         verify(repoConfigDataSource,times(0)).onCheckoutComplete(material.config(),folder,"1");
         // but pass message further anyway
-        verify(topic,times(1)).post(message);
+        verify(topic,times(1)).post(new ConfigMaterialUpdateCompletedMessage(material, 123));
     }
     @Test
     public void shouldCallGoRepoConfigDataSourceWhenNewRevision()
@@ -149,6 +143,6 @@ public class ConfigMaterialUpdaterTest {
         this.configUpdater.onMessage(message);
 
         verify(repoConfigDataSource,times(1)).onCheckoutComplete(material.config(),folder,"2");
-        verify(topic,times(1)).post(message);
+        verify(topic,times(1)).post(new ConfigMaterialUpdateCompletedMessage(material, 123));
     }
 }

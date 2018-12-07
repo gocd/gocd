@@ -16,6 +16,8 @@
 
 package com.thoughtworks.go.server.materials;
 
+import com.thoughtworks.go.config.GoRepoConfigDataSource;
+import com.thoughtworks.go.config.materials.SubprocessExecutionContext;
 import com.thoughtworks.go.server.cronjob.GoDiskSpaceMonitor;
 import com.thoughtworks.go.server.messaging.GoMessageQueue;
 import com.thoughtworks.go.server.messaging.GoMessageTopic;
@@ -23,6 +25,7 @@ import com.thoughtworks.go.server.perf.MDUPerformanceLogger;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
 import com.thoughtworks.go.server.service.DrainModeService;
 import com.thoughtworks.go.server.service.MaterialExpansionService;
+import com.thoughtworks.go.server.service.MaterialService;
 import com.thoughtworks.go.server.service.support.DaemonThreadStatsCollector;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
@@ -40,6 +43,10 @@ public class MaterialUpdateListenerFactory {
     private DependencyMaterialUpdateQueue dependencyMaterialQueue;
     private final DaemonThreadStatsCollector daemonThreadStatsCollector;
     private DrainModeService drainModeService;
+    private GoRepoConfigDataSource repoConfigDataSource;
+    private MaterialChecker materialChecker;
+    private MaterialService materialService;
+    private SubprocessExecutionContext subprocessExecutionContext;
     private SystemEnvironment systemEnvironment;
     private final ServerHealthService serverHealthService;
     private final GoDiskSpaceMonitor diskSpaceMonitor;
@@ -69,7 +76,11 @@ public class MaterialUpdateListenerFactory {
                                          MDUPerformanceLogger mduPerformanceLogger,
                                          DependencyMaterialUpdateQueue dependencyMaterialQueue,
                                          DaemonThreadStatsCollector daemonThreadStatsCollector,
-                                         DrainModeService drainModeService) {
+                                         DrainModeService drainModeService,
+                                         GoRepoConfigDataSource repoConfigDataSource,
+                                         MaterialChecker materialChecker,
+                                         MaterialService materialService,
+                                         SubprocessExecutionContext subprocessExecutionContext) {
         this.topic = topic;
         this.configTopic = configTopic;
         this.queue = queue;
@@ -88,6 +99,10 @@ public class MaterialUpdateListenerFactory {
         this.dependencyMaterialQueue = dependencyMaterialQueue;
         this.daemonThreadStatsCollector = daemonThreadStatsCollector;
         this.drainModeService = drainModeService;
+        this.repoConfigDataSource = repoConfigDataSource;
+        this.materialChecker = materialChecker;
+        this.materialService = materialService;
+        this.subprocessExecutionContext = subprocessExecutionContext;
     }
 
     public void init(){
@@ -100,7 +115,7 @@ public class MaterialUpdateListenerFactory {
         }
 
         for (int i = 0; i < numberOfConfigListeners; i++) {
-            createWorker(this.configQueue, this.configTopic);
+            configQueue.addListener(new ConfigMaterialUpdateListener(repoConfigDataSource, materialRepository, materialChecker, configTopic, topic, materialService, subprocessExecutionContext));
         }
 
         for (int i = 0; i < numberOfDependencyMaterialCheckListeners; i++) {

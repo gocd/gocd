@@ -59,7 +59,7 @@ import static org.mockito.Mockito.mock;
         "classpath:WEB-INF/applicationContext-dataLocalAccess.xml",
         "classpath:testPropertyConfigurer.xml"
 })
-public class ConfigMaterialUpdaterIntegrationTest {
+public class ConfigMaterialUpdateListenerIntegrationTest {
     @Rule
     public final TemporaryFolder temporaryFolder = new TemporaryFolder();
 

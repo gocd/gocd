@@ -23,7 +23,6 @@ const DashboardWidget = require('views/dashboard/dashboard_widget');
 const PluginInfos     = require('models/shared/plugin_infos');
 const AjaxPoller      = require('helpers/ajax_poller').AjaxPoller;
 const PageLoadError   = require('views/shared/page_load_error');
-const Personalization = require("models/dashboard/personalization");
 
 const PersonalizeVM   = require('views/dashboard/models/personalization_vm');
 
@@ -214,10 +213,7 @@ $(() => {
     dashboardVM.searchText(m.route.param('searchedBy') || '');
   };
 
-  Personalization.get().then((personalization) => {
-    currentView(personalization.names()[0]);
-    repeater().start();
-  }, onInitialApiFailure);
+  repeater().start();
 
   const onPluginInfosResponse = (pluginInfos) => {
     pluginInfos.eachPluginInfo((pluginInfo) => {
@@ -230,13 +226,13 @@ $(() => {
     renderView();
   };
 
-  function onInitialApiFailure (response) {
+  const onPluginInfoApiFailure = (response) => {
     m.mount(dashboardElem.get(0), {
       view() {
         return (<PageLoadError message={response}/>);
       }
     });
-  }
+  };
 
-  PluginInfos.all(null, {type: 'analytics'}).then(onPluginInfosResponse, onInitialApiFailure);
+  PluginInfos.all(null, {type: 'analytics'}).then(onPluginInfosResponse, onPluginInfoApiFailure);
 });

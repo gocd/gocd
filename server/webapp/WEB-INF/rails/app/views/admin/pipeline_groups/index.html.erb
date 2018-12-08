@@ -155,11 +155,11 @@
     var dropdownElement = document.getElementById("shared_micro_dropdown"),
         dropdownContent = dropdownElement.querySelector("#shared_micro_dropdown_content");
 
-    ExportAdapter.init();
+    PipelineExport.init();
 
     var exportPopup = new MicroContentPopup(dropdownElement, $.extend(new MicroContentPopup.PropagateAllHandler(), {
       before_show: function(e) {
-        ExportAdapter.showExportOptions(dropdownContent, e.currentTarget, exportPopupShower.close);
+        PipelineExport.showExportOptions(dropdownContent, e.currentTarget, exportPopupShower.close);
       }
     }));
 

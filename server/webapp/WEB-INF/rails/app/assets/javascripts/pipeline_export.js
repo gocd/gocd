@@ -1,4 +1,20 @@
-(function($, _, c, global) {
+/*
+ * Copyright 2018 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+ (function($, _, c, global) {
   "use strict";
 
   function flash() {
@@ -25,7 +41,7 @@
   function PluginInfos() {
     var plugins = [];
 
-    this.list = function list() { return [].slice.call(plugins); };
+    this.plugins = function copyPlugins() { return [].slice.call(plugins); };
 
     this.init = function init() {
       new XhrPromise({
@@ -47,17 +63,11 @@
     };
   }
 
-  var pluginInfos = new PluginInfos(); // a private singleton
-
   function createPluginListOption(p) {
     return c("li", c("a", {class: "plugin-choice", "data-plugin-id": p.id}, p.about.name));
   }
 
-  global.ExportAdapter = {
-    init: function init() {
-      pluginInfos.init();
-    },
-
+  global.PipelineExport = {
     downloadAsFile: function downloadAsFile(blobUrl, name) {
       var a = c("a", {href: blobUrl, download: name, style: "display: none"});
 
@@ -67,7 +77,7 @@
     },
 
     showExportOptions: function showExportOptions(panel, el, beforeRequest) {
-      var dropdown = c("ul", {class: "export-plugins-dropdown"}, _.map(pluginInfos.list(), createPluginListOption));
+      var dropdown = c("ul", {class: "export-plugins-dropdown"}, _.map(this.plugins(), createPluginListOption));
       clear(panel).appendChild(dropdown);
 
       $(dropdown).on("click", ".plugin-choice", function downloadExport(ev) {
@@ -98,7 +108,7 @@
 
         function startClientDownload(responseBlob, xhr) {
           var name = xhr.getResponseHeader("Content-Disposition").replace(/^attachment; filename=/, "").replace(/^(")(.+)(\1)/, "$2");
-          ExportAdapter.downloadAsFile(URL.createObjectURL(responseBlob), name);
+          PipelineExport.downloadAsFile(URL.createObjectURL(responseBlob), name);
         }
 
         function handleError(status, responseText) {
@@ -108,4 +118,5 @@
     }
   };
 
+  PluginInfos.call(global.PipelineExport); // mix in PluginInfos capabilities
 })(jQuery, _, crel, window);

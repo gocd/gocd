@@ -145,4 +145,8 @@ export default class {
   static drainModeInfoPath(): string {
     return `/go/api/admin/drain_mode/info`;
   }
+
+  static cancelStage(pipelineName: string, stageName: string): string {
+    return `/go/api/stages/${pipelineName}/${stageName}/cancel`;
+  }
 }

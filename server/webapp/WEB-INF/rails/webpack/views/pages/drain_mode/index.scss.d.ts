@@ -7,5 +7,6 @@ export const inProgressSubsystems: string;
 export const panel: string;
 export const panelHeader: string;
 export const panelBody: string;
+export const runningSystemHeader: string;
 export const col2: string;
 export const col: string;

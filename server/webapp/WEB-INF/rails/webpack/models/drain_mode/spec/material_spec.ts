@@ -14,49 +14,59 @@
  * limitations under the License.
  */
 
-import {Filter, Material, MaterialJSON} from "models/drain_mode/material";
+import {Filter, Material, MaterialJSON, ScmAttributesJSON, ScmMaterialAttributes} from "models/drain_mode/material";
 
 const TimeFormatter = require("helpers/time_formatter");
 
 describe("Material specs", () => {
 
   it("should deserialize to git material", () => {
-    const material = Material.fromJSON(TestData.git());
+    const materialJSON       = TestData.git();
+    const scmAttributesJSON  = materialJSON.attributes as ScmAttributesJSON;
+    const material           = Material.fromJSON(materialJSON);
+    const materialAttributes = material.attributes() as ScmMaterialAttributes;
 
     expect(material.type).toEqual("git");
-    expect(material.mduStartTime).toEqual(TimeFormatter.formatInDate(TestData.git().mdu_start_time));
-    expect(material.attributes().name()).toEqual(TestData.git().attributes.name);
-    expect(material.attributes().url()).toEqual(TestData.git().attributes.url);
-    expect(material.attributes().autoUpdate()).toEqual(TestData.git().attributes.auto_update);
-    expect(material.attributes().destination()).toEqual(TestData.git().attributes.destination);
-    expect(material.attributes().filter()).toEqual(Filter.fromJSON(TestData.git().attributes.filter));
-    expect(material.attributes().invertFilter()).toEqual(TestData.git().attributes.invert_filter);
+    expect(material.mduStartTime).toEqual(TimeFormatter.formatInDate(materialJSON.mdu_start_time));
+    expect(materialAttributes.name()).toEqual(scmAttributesJSON.name);
+    expect(materialAttributes.url()).toEqual(scmAttributesJSON.url);
+    expect(materialAttributes.autoUpdate()).toEqual(scmAttributesJSON.auto_update);
+    expect(materialAttributes.destination()).toEqual(scmAttributesJSON.destination);
+    expect(materialAttributes.filter()).toEqual(Filter.fromJSON(scmAttributesJSON.filter));
+    expect(materialAttributes.invertFilter()).toEqual(scmAttributesJSON.invert_filter);
   });
 
   it("should deserialize to svn material", () => {
-    const material = Material.fromJSON(TestData.svn());
+    const materialJSON       = TestData.svn();
+    const attributesJSON     = materialJSON.attributes as ScmAttributesJSON;
+    const material           = Material.fromJSON(materialJSON);
+    const materialAttributes = material.attributes() as ScmMaterialAttributes;
 
     expect(material.type).toEqual("svn");
-    expect(material.mduStartTime).toEqual(TimeFormatter.formatInDate(TestData.svn().mdu_start_time));
-    expect(material.attributes().name()).toEqual(TestData.svn().attributes.name);
-    expect(material.attributes().url()).toEqual(TestData.svn().attributes.url);
-    expect(material.attributes().autoUpdate()).toEqual(TestData.svn().attributes.auto_update);
-    expect(material.attributes().destination()).toEqual(TestData.svn().attributes.destination);
-    expect(material.attributes().filter()).toEqual(Filter.fromJSON(TestData.svn().attributes.filter));
-    expect(material.attributes().invertFilter()).toEqual(TestData.svn().attributes.invert_filter);
+    expect(material.mduStartTime).toEqual(TimeFormatter.formatInDate(materialJSON.mdu_start_time));
+    expect(materialAttributes.name()).toEqual(attributesJSON.name);
+    expect(materialAttributes.url()).toEqual(attributesJSON.url);
+    expect(materialAttributes.autoUpdate()).toEqual(attributesJSON.auto_update);
+    expect(materialAttributes.destination()).toEqual(attributesJSON.destination);
+    expect(materialAttributes.filter()).toEqual(Filter.fromJSON(attributesJSON.filter));
+    expect(materialAttributes.invertFilter()).toEqual(attributesJSON.invert_filter);
   });
 
   it("should deserialize to hg material", () => {
-    const material = Material.fromJSON(TestData.hg());
+    const materialJSON       = TestData.hg();
+    const attributesJSON     = materialJSON.attributes as ScmAttributesJSON;
+    const material           = Material.fromJSON(materialJSON);
+    const materialAttributes = material.attributes() as ScmMaterialAttributes;
 
     expect(material.type).toEqual("hg");
-    expect(material.mduStartTime).toEqual(TimeFormatter.formatInDate(TestData.hg().mdu_start_time));
-    expect(material.attributes().name()).toEqual(TestData.hg().attributes.name);
-    expect(material.attributes().url()).toEqual(TestData.hg().attributes.url);
-    expect(material.attributes().autoUpdate()).toEqual(TestData.hg().attributes.auto_update);
-    expect(material.attributes().destination()).toEqual(TestData.hg().attributes.destination);
-    expect(material.attributes().filter()).toEqual(Filter.fromJSON(TestData.hg().attributes.filter));
-    expect(material.attributes().invertFilter()).toEqual(TestData.hg().attributes.invert_filter);
+    expect(material.mduStartTime).toEqual(TimeFormatter.formatInDate(materialJSON.mdu_start_time));
+
+    expect(materialAttributes.name()).toEqual(attributesJSON.name);
+    expect(materialAttributes.url()).toEqual(attributesJSON.url);
+    expect(materialAttributes.autoUpdate()).toEqual(attributesJSON.auto_update);
+    expect(materialAttributes.destination()).toEqual(attributesJSON.destination);
+    expect(materialAttributes.filter()).toEqual(Filter.fromJSON(attributesJSON.filter));
+    expect(materialAttributes.invertFilter()).toEqual(attributesJSON.invert_filter);
   });
 
   it("should validate URL presence", () => {

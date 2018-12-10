@@ -20,12 +20,14 @@ import * as simulateEvent from "simulate-event";
 import {MessageType} from "views/components/flash_message";
 import {Message} from "views/pages/drain_mode";
 import {DrainModeWidget} from "views/pages/drain_mode/drain_mode_widget";
+import {TestData} from "views/pages/drain_mode/spec/test_data";
 import * as styles from "../index.scss";
 
 describe("Drain mode widget test", () => {
   let $root: any, root: any;
   const onSave            = jasmine.createSpy("onSave");
   const onReset           = jasmine.createSpy("onReset");
+  const onCancelStage     = jasmine.createSpy("onCancelStage");
   const drainModeSettings = new DrainModeSettings(true, "bob", "2018-12-04T06:35:56Z");
 
   beforeEach(() => {
@@ -44,7 +46,8 @@ describe("Drain mode widget test", () => {
         return (<DrainModeWidget settings={drainModeSettings}
                                  onSave={onSave}
                                  onReset={onReset}
-                                 message={message}/>);
+                                 onCancelStage={onCancelStage}
+                                 drainModeInfo={TestData.info()}/>);
       }
     });
 

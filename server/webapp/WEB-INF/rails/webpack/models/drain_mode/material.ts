@@ -33,7 +33,7 @@ export interface MaterialJSON {
 }
 
 export interface FilterJSON {
-  ignore: string[];
+  ignore?: string[] | null;
 }
 
 export interface MaterialAttributesJSON {
@@ -45,7 +45,7 @@ export interface MaterialAttributesJSON {
 export interface ScmAttributesJSON extends MaterialAttributesJSON {
   url: string;
   destination: string;
-  filter: FilterJSON;
+  filter?: FilterJSON;
   invert_filter: boolean;
 }
 
@@ -65,10 +65,6 @@ export interface UsernamePasswordJSON {
 }
 
 export interface SvnMaterialAttributesJSON extends ScmAttributesJSON, UsernamePasswordJSON {
-  check_externals: boolean;
-}
-
-export interface SvnMaterialAttributesJSON {
   check_externals: boolean;
 }
 
@@ -100,8 +96,9 @@ export class Filter {
     this.ignore = stream(ignore);
   }
 
-  static fromJSON(filter: FilterJSON) {
-    return new Filter(filter ? filter.ignore : []);
+  static fromJSON(filter?: FilterJSON) {
+    const filterPattern = (filter && filter.ignore) ? filter.ignore : [];
+    return new Filter(filterPattern);
   }
 }
 

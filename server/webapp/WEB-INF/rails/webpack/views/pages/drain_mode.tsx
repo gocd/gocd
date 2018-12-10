@@ -14,11 +14,12 @@
  * limitations under the License.
  */
 
-import {ErrorResponse, SuccessResponse} from "helpers/api_request_builder";
+import {ApiRequestBuilder, ErrorResponse, SuccessResponse} from "helpers/api_request_builder";
+import SparkRoutes from "helpers/spark_routes";
 import * as m from "mithril";
 import {DrainModeCRUD} from "models/drain_mode/drain_mode_crud";
 import {DrainModeSettings} from "models/drain_mode/drain_mode_settings";
-import {DrainModeInfo} from "models/drain_mode/types";
+import {DrainModeInfo, StageLocator} from "models/drain_mode/types";
 import {FlashMessage, MessageType} from "views/components/flash_message";
 import {HeaderPanel} from "views/components/header_panel";
 import {DrainModeWidget} from "views/pages/drain_mode/drain_mode_widget";
@@ -35,6 +36,7 @@ interface State extends SaveOperation<DrainModeSettings> {
   drainModeInfo?: DrainModeInfo;
   message: Message;
   onReset: (drainModeSettings: DrainModeSettings, e: Event) => void;
+  onCancelStage: (stageLocator: StageLocator, e: Event) => void;
 }
 
 export class Message {
@@ -55,6 +57,18 @@ export class DrainModePage extends Page<null, State> {
       DrainModeCRUD.update(drainModeSettings)
                    .then((result) => result.do(vnode.state.onSuccessfulSave, vnode.state.onError))
                    .finally(m.redraw);
+    };
+
+    vnode.state.onCancelStage = (stageLocator: StageLocator, e: Event) => {
+      ApiRequestBuilder.POST(SparkRoutes.cancelStage(stageLocator.pipelineName, stageLocator.stageName),
+                             undefined,
+                             {headers: {Confirm: "true"}})
+                       .then(() => {
+                         vnode.state.message = new Message(
+                           MessageType.success,
+                           `Stage ${stageLocator.stageName} successfully cancelled.`);
+                         this.fetchDrainModeInfo(vnode);
+                       }, vnode.state.onError);
     };
 
     vnode.state.onReset = (drainModeSettings: DrainModeSettings, e: Event) => {
@@ -82,7 +96,8 @@ export class DrainModePage extends Page<null, State> {
         <DrainModeWidget settings={vnode.state.drainModeSettings}
                          onSave={vnode.state.onSave.bind(vnode.state)}
                          onReset={vnode.state.onReset.bind(vnode.state)}
-                         drainModeInfo={vnode.state.drainModeInfo}/>
+                         drainModeInfo={vnode.state.drainModeInfo}
+                         onCancelStage={vnode.state.onCancelStage}/>
       </div>
     );
   }

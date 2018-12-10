@@ -23,15 +23,15 @@ export interface JobJSON {
   pipeline_counter: number;
   pipeline_name: string;
   scheduled_date: string;
-  stage_counter: number;
+  stage_counter: string;
   stage_name: string;
   state: string;
-  agent_uuid?: string;
+  agent_uuid?: string | null;
 }
 
 export interface RunningSystemJSON {
-  mdu: MaterialJSON[];
-  jobs: JobJSON[];
+  mdu?: MaterialJSON[];
+  jobs?: JobJSON[];
 }
 
 export interface EmbeddedJSON {
@@ -43,20 +43,49 @@ export interface DrainModeInfoJSON {
   _embedded: EmbeddedJSON;
 }
 
+export class StageLocator {
+  pipelineName: string;
+  pipelineCounter: string;
+  stageCounter: string;
+  stageName: string;
+
+  constructor(pipelineName: string, pipelineCounter: string,
+              stageName: string, stageCounter: string) {
+    this.pipelineName    = pipelineName;
+    this.pipelineCounter = pipelineCounter;
+    this.stageName       = stageName;
+    this.stageCounter    = stageCounter;
+  }
+
+  static fromStageLocatorString(locator: string) {
+    const parts = locator.split("/");
+    return new StageLocator(parts[0], parts[1], parts[2], parts[3]);
+  }
+
+  asMap() {
+    return new Map([
+                     ["Pipeline Name", this.pipelineName],
+                     ["Pipeline Counter", this.pipelineCounter],
+                     ["Stage Name", this.stageName],
+                     ["Stage Counter", this.stageCounter]
+                   ]);
+  }
+}
+
 export class Job {
   jobName: string;
   pipelineCounter: number;
   pipelineName: string;
-  stageCounter: number;
+  stageCounter: string;
   stageName: string;
   scheduledDate: Date;
   state?: string;
-  agentUUID?: string;
+  agentUUID?: string | null;
 
   constructor(name: string, pipelineCounter: number, pipelineName: string,
-              stageCounter: number, stageName: string,
+              stageCounter: string, stageName: string,
               scheduledDate: Date, state?: string,
-              agentUUID?: string) {
+              agentUUID?: string | null) {
     this.jobName         = name;
     this.pipelineCounter = pipelineCounter;
     this.pipelineName    = pipelineName;
@@ -78,12 +107,12 @@ export class Job {
                    job.agent_uuid);
   }
 
-  stageLocator() {
+  stageLocatorString() {
     return _.join([this.pipelineName, this.pipelineCounter, this.stageName, this.stageCounter], "/");
   }
 
   locator() {
-    return _.join([this.stageLocator(), this.jobName], "/");
+    return _.join([this.stageLocatorString(), this.jobName], "/");
   }
 }
 
@@ -97,17 +126,18 @@ export class RunningSystem {
   }
 
   static fromJSON(runningSystemJSON: RunningSystemJSON) {
-    const jobs = runningSystemJSON.jobs ? runningSystemJSON.jobs.map(Job.fromJSON) : [];
-    return new RunningSystem(jobs, Materials.fromJSON(runningSystemJSON.mdu));
+    const jobs      = runningSystemJSON.jobs ? runningSystemJSON.jobs.map(Job.fromJSON) : [];
+    const materials = runningSystemJSON.mdu ? Materials.fromJSON(runningSystemJSON.mdu) : new Materials([]);
+    return new RunningSystem(jobs, materials);
   }
 
   groupJobsByStage() {
     const groupByStage = new Map();
     this.jobs.forEach((job) => {
-      if (!groupByStage.has(job.stageLocator())) {
-        groupByStage.set(job.stageLocator(), []);
+      if (!groupByStage.has(job.stageLocatorString())) {
+        groupByStage.set(job.stageLocatorString(), []);
       }
-      groupByStage.get(job.stageLocator()).push(job);
+      groupByStage.get(job.stageLocatorString()).push(job);
     });
     return groupByStage;
   }

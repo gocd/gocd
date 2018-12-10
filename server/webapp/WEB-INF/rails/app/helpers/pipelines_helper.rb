@@ -85,11 +85,6 @@ module PipelinesHelper
     "#{prefix}for_pipeline_#{counter}"
   end
 
-  def url_for_pipeline_instance(pipeline, options = {})
-    stage = pipeline.latestStage()
-    stage_detail_tab_pipeline_path(options.merge({:pipeline_name => pipeline.getName(), :pipeline_counter => pipeline.getCounter(), :stage_name => stage.getName(), :stage_counter => stage.getCounter()}))
-  end
-
   def url_for_pipeline_value_stream_map(pipeline, options = {})
     vsm_show_path(options.merge({:pipeline_name => pipeline.getName(), :pipeline_counter => pipeline.getCounter(), :action => "show"}))
   end

@@ -102,11 +102,6 @@ describe PipelinesHelper do
     expect(material_type(MaterialsMother.dependencyMaterial("blah_pipeline", "blah_stage"))).to eq "dependency"
   end
 
-  it "should return the url for given pipeline instance" do
-    pim = pipeline_model("blah-pipeline", "blah-label", false, false, "working with agent", false).getLatestPipelineInstance()
-    expect(url_for_pipeline_instance(pim)).to eq "/pipelines/blah-pipeline/5/cruise/10/pipeline"
-  end
-
   it "should return the url for value stream map of given pipeline instance" do
     pim = pipeline_model("blah-pipeline", "blah-label", false, false, "working with agent", false).getLatestPipelineInstance()
     expect(url_for_pipeline_value_stream_map(pim)).to eq("/pipelines/value_stream_map/blah-pipeline/5")

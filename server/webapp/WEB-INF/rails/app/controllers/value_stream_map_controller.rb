@@ -18,8 +18,6 @@ class ValueStreamMapController < ApplicationController
   include ApplicationHelper, PipelinesHelper
   layout "value_stream_map"
 
-  before_action :redirect_to_stage_pdg_if_ie8, :only => [:show]
-
   def show
     begin
       @pipeline = pipeline_service.findPipelineByNameAndCounter(params[:pipeline_name], params[:pipeline_counter].to_i)
@@ -65,16 +63,6 @@ class ValueStreamMapController < ApplicationController
     end
     pipeline_edit_path_proc = proc {|pipeline_name| edit_path_for_pipeline(pipeline_name)}
     ValueStreamMapModel.new(vsm, result.message(), vsm_path_partial, vsm_material_path_partial, stage_detail_path_partial, pipeline_edit_path_proc).to_json
-  end
-
-  def redirect_to_stage_pdg_if_ie8
-    format = params[:format]
-    user_agent = request.env["HTTP_USER_AGENT"]
-    if (is_ie8?(user_agent) and (format.blank? || format == :html))
-      result = HttpOperationResult.new
-      pim = pipeline_history_service.findPipelineInstance(params[:pipeline_name], params[:pipeline_counter].to_i, current_user, result)
-      redirect_to url_for_pipeline_instance(pim)
-    end
   end
 
 end

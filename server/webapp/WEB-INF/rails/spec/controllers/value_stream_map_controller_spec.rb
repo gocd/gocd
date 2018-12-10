@@ -48,46 +48,6 @@ describe ValueStreamMapController do
     @pipeline_edit_path_quick_edit = proc { |pipeline_name | edit_admin_pipeline_config_path(:pipeline_name => pipeline_name) }
   end
 
-  describe "redirect_to_stage_pdg_if_ie8" do
-    before :each do
-      @pipeline_history_service = double('pipeline history service')
-      allow(controller).to receive(:pipeline_history_service).and_return(@pipeline_history_service)
-    end
-
-    it "should redirect to old pdg page when user is accessing via IE8" do
-      allow(controller).to receive(:is_ie8?).and_return(true)
-      pim = double('PIM')
-      expect(@pipeline_history_service).to receive(:findPipelineInstance).with('foo', 42, @user, an_instance_of(HttpOperationResult)).and_return(pim)
-      allow(controller).to receive(:url_for_pipeline_instance).with(pim).and_return('/some_funky_url')
-
-      get :show, params:{ pipeline_name: 'foo', pipeline_counter: '42' }
-
-      expect(response.status).to eq(302)
-      expect(response).to redirect_to("/some_funky_url")
-    end
-
-    it "should not redirect to old pdg page when user is accessing via IE8 but requesting format is not HTML" do
-      allow(controller).to receive(:is_ie8?).and_return(true)
-      allow(controller).to receive(:generate_vsm_json).and_return('some_json')
-      expect(@pipeline_history_service).to receive(:findPipelineInstance).never
-      expect(@pipeline_service).to receive(:findPipelineByNameAndCounter).with('foo', 42).and_return('pipeline')
-
-      get :show, params:{ pipeline_name: 'foo', pipeline_counter: '42', format: 'json' }
-
-      expect(response.status).to eq(200)
-    end
-
-    it "should not redirect to old pdg page when user is using a browser other than IE8" do
-      allow(controller).to receive(:is_ie8?).and_return(false)
-      expect(@pipeline_history_service).to receive(:findPipelineInstance).never
-      expect(@pipeline_service).to receive(:findPipelineByNameAndCounter).with('foo', 42).and_return('pipeline')
-
-      get :show, params:{ pipeline_name: 'foo', pipeline_counter: '42' }
-
-      expect(response.status).to eq(200)
-    end
-  end
-
   describe "show" do
     it "should route to pdg show path" do
       expect(controller.send(:vsm_show_path, { pipeline_name: "P", pipeline_counter: 1, format: "json" })).to eq("/pipelines/value_stream_map/P/1.json")

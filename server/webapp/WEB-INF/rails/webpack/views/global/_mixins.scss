@@ -16,7 +16,7 @@
 @import '~bourbon/core/bourbon';
 
 @mixin hover-effect-for-top-menu {
-  color:           $header-text-color;
+  color:           $subnav-link-color;
   transition:      all 0.3s ease-in-out;
   text-decoration: none;
   &:hover {
@@ -24,7 +24,11 @@
     transition: all 0.3s ease-in-out;
   }
   &:visited {
-    color: $header-text-color;
+    color: $subnav-link-color;
+    &:hover {
+      color:      $white-opaque;
+      transition: all 0.3s ease-in-out;
+    }
   }
   @media(min-width: $screen-md) {
     font-size:   13px;

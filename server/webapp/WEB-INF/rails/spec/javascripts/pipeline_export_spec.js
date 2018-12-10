@@ -44,7 +44,7 @@ describe("PipelineExport", function () {
     PipelineExport.showExportOptions(panel, link);
     var choice = panel.querySelectorAll("li a")[0];
 
-    jasmine.Ajax.withMock(() => {
+    jasmine.Ajax.withMock(function () {
       jasmine.Ajax.stubRequest(TEST_URL + "&pluginId=" + choice.getAttribute("data-plugin-id"), undefined, "GET").andReturn({
         response: "content here",
         responseHeaders: {

@@ -18,7 +18,7 @@
   "use strict";
 
   function flash() {
-    return document.getElementById("message_pane");
+    return document.getElementById("message_pane") || c("div", {id: "message_pane"});
   }
 
   function clear(el) {

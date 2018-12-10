@@ -24,7 +24,7 @@
       {
         "key": "components",
         "description": "Enables pages being refactored to use components and CSS modules. Needs a server restart.",
-        "value": false
+        "value": true
       },
       {
         "key": "agent_apis_over_rails",

@@ -87,11 +87,15 @@ $header-padding: 10px 50px 10px 30px;
   float:   right;
   display: flex;
   margin:  20px 0;
+  align-items: center;
   @media (min-width: $screen-xl) {
     width:  auto;
     margin: 0;
   }
-
+  @media (min-width: $screen-lg) {
+    width:  auto;
+    margin: 0;
+  }
 }
 
 .collapse-body {

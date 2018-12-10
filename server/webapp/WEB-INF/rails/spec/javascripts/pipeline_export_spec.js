@@ -41,6 +41,11 @@ describe("PipelineExport", function () {
   });
 
   it("clicking on a plugin link causes a download", function(done) {
+    if ("function" !== typeof Promise) {
+      pending();
+      return done();
+    }
+
     PipelineExport.showExportOptions(panel, link);
     var choice = panel.querySelectorAll("li a")[0];
 

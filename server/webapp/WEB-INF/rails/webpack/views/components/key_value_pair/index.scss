@@ -116,11 +116,13 @@ $title-element-width: 360px;
   font-weight:  600;
   font-size:    13px;
   margin-right: 50px;
-  width:        $title-element-width;
+
   @media (min-width: $screen-md) {
     font-size: 12px;
+
   }
   @media (min-width: $screen-lg) {
     font-size: 15px;
+    width:        $title-element-width;
   }
 }

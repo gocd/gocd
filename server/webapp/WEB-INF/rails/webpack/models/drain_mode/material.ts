@@ -113,7 +113,6 @@ export abstract class MaterialAttributes extends ValidatableMixin {
     this.name       = stream(name);
     this.autoUpdate = stream(autoUpdate);
     ValidatableMixin.call(this);
-    this.validatePresenceOf("url");
     this.errors(new Errors(errors));
   }
 
@@ -169,6 +168,8 @@ export abstract class ScmMaterialAttributes extends MaterialAttributes {
     this.validatePresenceOf("url");
   }
 }
+
+applyMixins(ScmMaterialAttributes, ValidatableMixin);
 
 export class GitMaterialAttributes extends ScmMaterialAttributes {
   branch: Stream<string>;
@@ -296,7 +297,7 @@ export class DependencyMaterialAttributes extends MaterialAttributes {
   }
 }
 
-applyMixins(HgMaterialAttributes, ValidatableMixin);
+applyMixins(DependencyMaterialAttributes, ValidatableMixin);
 
 export class P4MaterialAttributes extends ScmMaterialAttributes {
   port: Stream<string>;

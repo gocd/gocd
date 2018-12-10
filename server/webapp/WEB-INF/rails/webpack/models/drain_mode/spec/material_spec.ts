@@ -14,7 +14,14 @@
  * limitations under the License.
  */
 
-import {Filter, Material, MaterialJSON, ScmAttributesJSON, ScmMaterialAttributes} from "models/drain_mode/material";
+import {
+  Filter,
+  Material,
+  MaterialJSON,
+  P4MaterialAttributesJSON,
+  ScmAttributesJSON,
+  ScmMaterialAttributes, TfsMaterialAttributesJSON
+} from "models/drain_mode/material";
 
 const TimeFormatter = require("helpers/time_formatter");
 
@@ -26,13 +33,13 @@ describe("Material specs", () => {
     const material           = Material.fromJSON(materialJSON);
     const materialAttributes = material.attributes() as ScmMaterialAttributes;
 
-    expect(material.type).toEqual("git");
-    expect(material.mduStartTime).toEqual(TimeFormatter.formatInDate(materialJSON.mdu_start_time));
+    expect(material.type()).toEqual("git");
+    expect(material.mduStartTime()).toEqual(TimeFormatter.formatInDate(materialJSON.mdu_start_time));
     expect(materialAttributes.name()).toEqual(scmAttributesJSON.name);
     expect(materialAttributes.url()).toEqual(scmAttributesJSON.url);
     expect(materialAttributes.autoUpdate()).toEqual(scmAttributesJSON.auto_update);
     expect(materialAttributes.destination()).toEqual(scmAttributesJSON.destination);
-    expect(materialAttributes.filter()).toEqual(Filter.fromJSON(scmAttributesJSON.filter));
+    expect(materialAttributes.filter().ignore()).toEqual(Filter.fromJSON(scmAttributesJSON.filter).ignore());
     expect(materialAttributes.invertFilter()).toEqual(scmAttributesJSON.invert_filter);
   });
 
@@ -42,13 +49,13 @@ describe("Material specs", () => {
     const material           = Material.fromJSON(materialJSON);
     const materialAttributes = material.attributes() as ScmMaterialAttributes;
 
-    expect(material.type).toEqual("svn");
-    expect(material.mduStartTime).toEqual(TimeFormatter.formatInDate(materialJSON.mdu_start_time));
+    expect(material.type()).toEqual("svn");
+    expect(material.mduStartTime()).toEqual(TimeFormatter.formatInDate(materialJSON.mdu_start_time));
     expect(materialAttributes.name()).toEqual(attributesJSON.name);
     expect(materialAttributes.url()).toEqual(attributesJSON.url);
     expect(materialAttributes.autoUpdate()).toEqual(attributesJSON.auto_update);
     expect(materialAttributes.destination()).toEqual(attributesJSON.destination);
-    expect(materialAttributes.filter()).toEqual(Filter.fromJSON(attributesJSON.filter));
+    expect(materialAttributes.filter().ignore()).toEqual(Filter.fromJSON(attributesJSON.filter).ignore());
     expect(materialAttributes.invertFilter()).toEqual(attributesJSON.invert_filter);
   });
 
@@ -58,27 +65,135 @@ describe("Material specs", () => {
     const material           = Material.fromJSON(materialJSON);
     const materialAttributes = material.attributes() as ScmMaterialAttributes;
 
-    expect(material.type).toEqual("hg");
-    expect(material.mduStartTime).toEqual(TimeFormatter.formatInDate(materialJSON.mdu_start_time));
+    expect(material.type()).toEqual("hg");
+    expect(material.mduStartTime()).toEqual(TimeFormatter.formatInDate(materialJSON.mdu_start_time));
 
     expect(materialAttributes.name()).toEqual(attributesJSON.name);
     expect(materialAttributes.url()).toEqual(attributesJSON.url);
     expect(materialAttributes.autoUpdate()).toEqual(attributesJSON.auto_update);
     expect(materialAttributes.destination()).toEqual(attributesJSON.destination);
-    expect(materialAttributes.filter()).toEqual(Filter.fromJSON(attributesJSON.filter));
+    expect(materialAttributes.filter().ignore()).toEqual(Filter.fromJSON(attributesJSON.filter).ignore());
     expect(materialAttributes.invertFilter()).toEqual(attributesJSON.invert_filter);
   });
 
   it("should validate URL presence", () => {
-    const material = Material.fromJSON(TestData.git());
+    const materialJSON   = TestData.git();
+    const attributesJSON = materialJSON.attributes as ScmAttributesJSON;
+
+    delete attributesJSON.url;
+    const material = Material.fromJSON(materialJSON);
 
     expect(material.attributes().isValid()).toBe(false);
     expect(material.attributes().errors().count()).toBe(1);
     expect(material.attributes().errors().keys()).toEqual(["url"]);
   });
+
+  describe("P4 test", () => {
+    it("should validate presence of view", () => {
+      const materialJSON   = TestData.p4();
+      const attributesJSON = materialJSON.attributes as P4MaterialAttributesJSON;
+
+      delete attributesJSON.view;
+      const material = Material.fromJSON(materialJSON);
+
+      expect(material.attributes().isValid()).toBe(false);
+      expect(material.attributes().errors().count()).toBe(1);
+      expect(material.attributes().errors().keys()).toEqual(["view"]);
+    });
+
+    it("should validate presence of port", () => {
+      const materialJSON   = TestData.p4();
+      const attributesJSON = materialJSON.attributes as P4MaterialAttributesJSON;
+
+      delete attributesJSON.port;
+      const material = Material.fromJSON(materialJSON);
+
+      expect(material.attributes().isValid()).toBe(false);
+      expect(material.attributes().errors().count()).toBe(1);
+      expect(material.attributes().errors().keys()).toEqual(["port"]);
+    });
+  });
+
+  describe("Tfs test", () => {
+    it("should validate presence of projectPath", () => {
+      const materialJSON   = TestData.tfs();
+      const attributesJSON = materialJSON.attributes as TfsMaterialAttributesJSON;
+
+      delete attributesJSON.project_path;
+      const material = Material.fromJSON(materialJSON);
+
+      expect(material.attributes().isValid()).toBe(false);
+      expect(material.attributes().errors().count()).toBe(1);
+      expect(material.attributes().errors().keys()).toEqual(["projectPath"]);
+    });
+
+    it("should validate presence of username", () => {
+      const materialJSON   = TestData.tfs();
+      const attributesJSON = materialJSON.attributes as TfsMaterialAttributesJSON;
+
+      delete attributesJSON.username;
+      const material = Material.fromJSON(materialJSON);
+
+      expect(material.attributes().isValid()).toBe(false);
+      expect(material.attributes().errors().count()).toBe(1);
+      expect(material.attributes().errors().keys()).toEqual(["username"]);
+    });
+
+    it("should validate presence of password", () => {
+      const materialJSON   = TestData.tfs();
+      const attributesJSON = materialJSON.attributes as TfsMaterialAttributesJSON;
+
+      delete attributesJSON.password;
+      const material = Material.fromJSON(materialJSON);
+
+      expect(material.attributes().isValid()).toBe(false);
+      expect(material.attributes().errors().count()).toBe(1);
+      expect(material.attributes().errors().keys()).toEqual(["password"]);
+    });
+  });
 });
 
 class TestData {
+  static p4(): MaterialJSON {
+    return {
+      type: "p4",
+      attributes: {
+        url: "foo/bar",
+        destination: "bar",
+        filter: {
+          ignore: []
+        },
+        invert_filter: false,
+        name: "Dummy git",
+        auto_update: true,
+        view: "some-view",
+        port: "some-port"
+      },
+      mdu_start_time: "1970-01-01T02:46:40Z"
+    } as MaterialJSON;
+  }
+
+  static tfs(): MaterialJSON {
+    return {
+      type: "tfs",
+      attributes: {
+        url: "foo/bar",
+        destination: "bar",
+        filter: {
+          ignore: []
+        },
+        invert_filter: false,
+        name: "Dummy git",
+        auto_update: true,
+        domain: "foo.com",
+        project_path: "/var/project",
+        username: "bob",
+        password: "badger"
+      },
+      mdu_start_time: "1970-01-01T02:46:40Z"
+    } as MaterialJSON;
+  }
+
   static git(): MaterialJSON {
     return {
       type: "git",

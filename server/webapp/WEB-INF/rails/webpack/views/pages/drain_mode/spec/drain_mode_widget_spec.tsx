@@ -17,8 +17,6 @@
 import * as m from "mithril";
 import {DrainModeSettings} from "models/drain_mode/drain_mode_settings";
 import * as simulateEvent from "simulate-event";
-import {MessageType} from "views/components/flash_message";
-import {Message} from "views/pages/drain_mode";
 import {DrainModeWidget} from "views/pages/drain_mode/drain_mode_widget";
 import {TestData} from "views/pages/drain_mode/spec/test_data";
 import * as styles from "../index.scss";
@@ -40,7 +38,7 @@ describe("Drain mode widget test", () => {
   // @ts-ignore
   afterEach(window.destroyDomElementForTest);
 
-  function mount(message?: Message) {
+  function mount() {
     m.mount(root, {
       view() {
         return (<DrainModeWidget settings={drainModeSettings}
@@ -69,16 +67,6 @@ describe("Drain mode widget test", () => {
     expect($root.find(`.${styles.drainModeInfo}`)).toContainText("Is server in drain mode: true");
     expect($root.find(`.${styles.drainModeInfo}`)).toContainText("Drain mode updated by: bob");
     expect($root.find(`.${styles.drainModeInfo}`)).toContainText("Drain mode updated on: 04 Dec 2018");
-  });
-
-  it("should render message when one present", () => {
-    mount(new Message(MessageType.alert, "Foo"));
-
-    expect(find("flash-message-alert")).toContainText("Foo");
-  });
-
-  it("should not render message when not present", () => {
-    expect(find("flash-message-alert")).not.toBeInDOM();
   });
 
   it("should callback the save function when save button is clicked", () => {

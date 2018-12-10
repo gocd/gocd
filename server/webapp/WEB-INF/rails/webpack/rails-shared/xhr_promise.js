@@ -21,16 +21,18 @@
   // isn't guaranteed to be compiled
 
   /* eslint-disable no-var,prefer-template,object-shorthand,prefer-arrow-callback */
+
+  if ("function" !== Promise.prototype.finally) {
+    // OK, this is a cheap polyfill that is *mostly* conforming, but there
+    // are some differences from the native `finally()`. See here:
+    // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise/finally#Description
+    Promise.prototype.finally = function(callback) {
+      function invokeIgnoringArgs() { callback(); }
+      return this.then(invokeIgnoringArgs, invokeIgnoringArgs);
+    };
+  }
+
   function XhrPromise(settings) {
-    if ("function" !== Promise.prototype.finally) {
-      // OK, this is a cheap polyfill that is *mostly* conforming, but there
-      // are some differences from the native `finally()`. See here:
-      // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise/finally#Description
-      Promise.prototype.finally = function(callback) {
-        function invokeIgnoringArgs() { callback(); }
-        return this.then(invokeIgnoringArgs, invokeIgnoringArgs);
-      };
-    }
     // Uses a native XMLHttpRequest object because jQuery XHR does not support
     // "blob" as a responseType (and doesn't provide a clean way to access the native
     // xhr object)

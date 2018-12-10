@@ -23,6 +23,9 @@
   /* eslint-disable no-var,prefer-template,object-shorthand,prefer-arrow-callback */
   function XhrPromise(settings) {
     if ("function" !== Promise.prototype.finally) {
+      // OK, this is a cheap polyfill that is *mostly* conforming, but there
+      // are some differences from the native `finally()`. See here:
+      // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise/finally#Description
       Promise.prototype.finally = function(callback) {
         function invokeIgnoringArgs() { callback(); }
         return this.then(invokeIgnoringArgs, invokeIgnoringArgs);

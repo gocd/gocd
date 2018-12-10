@@ -22,6 +22,12 @@
 
   /* eslint-disable no-var,prefer-template,object-shorthand,prefer-arrow-callback */
   function XhrPromise(settings) {
+    if ("function" !== Promise.prototype.finally) {
+      Promise.prototype.finally = function(callback) {
+        function invokeIgnoringArgs() { callback(); }
+        return this.then(invokeIgnoringArgs, invokeIgnoringArgs);
+      };
+    }
     // Uses a native XMLHttpRequest object because jQuery XHR does not support
     // "blob" as a responseType (and doesn't provide a clean way to access the native
     // xhr object)

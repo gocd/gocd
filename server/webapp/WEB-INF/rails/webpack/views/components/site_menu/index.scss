@@ -15,8 +15,6 @@
  */
 @import "../../global/common";
 
-
-
 .main-menu {
   display: block;
 }
@@ -75,8 +73,21 @@
     }
   }
 
-  &:hover, &:focus, &:focus-within {
-    // background: $sub-navigation-bg;
+  &:hover {
+    @media(min-width: $screen-md) {
+      .sub-navigation {
+        display: flex;
+      }
+
+      &:before {
+        top:        40px;
+        z-index:    map_get($zindex, 'menu');
+        transition: all 0.1s ease-in-out;
+      }
+    }
+  }
+  //had to split the styles for ie edge
+  &:focus, &:focus-within {
     @media(min-width: $screen-md) {
       .sub-navigation {
         display: flex;

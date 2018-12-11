@@ -18,7 +18,6 @@ package com.thoughtworks.go.spark.spa;
 
 import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.SparkController;
-import com.thoughtworks.go.spark.spring.SPAAuthenticationHelper;
 import spark.ModelAndView;
 import spark.Request;
 import spark.Response;
@@ -26,35 +25,32 @@ import spark.TemplateEngine;
 
 import java.util.HashMap;
 
-import static spark.Spark.*;
+import static spark.Spark.get;
+import static spark.Spark.path;
 
-public class DataSharingSettingsDelegate implements SparkController {
-    private final SPAAuthenticationHelper authenticationHelper;
-    private final TemplateEngine templateEngine;
+public class KitchenSinkController implements SparkController {
+    private final TemplateEngine engine;
 
-    public DataSharingSettingsDelegate(SPAAuthenticationHelper authenticationHelper, TemplateEngine templateEngine) {
-        this.authenticationHelper = authenticationHelper;
-        this.templateEngine = templateEngine;
+    public KitchenSinkController(TemplateEngine engine) {
+        this.engine = engine;
     }
 
     @Override
     public String controllerBasePath() {
-        return Routes.DataSharingSettingsSPA.BASE;
+        return Routes.KitchenSink.SPA_BASE;
     }
 
     @Override
     public void setupRoutes() {
         path(controllerBasePath(), () -> {
-            before("", authenticationHelper::checkAdminUserAnd403);
-            get("", this::index, templateEngine);
+            get("", this::index, engine);
         });
     }
 
-    public ModelAndView index(Request request, Response response) {
+    private ModelAndView index(Request request, Response response) {
         HashMap<Object, Object> object = new HashMap<Object, Object>() {{
-            put("viewTitle", "Data Sharing");
+            put("viewTitle", "Kitchen Sink");
         }};
-
-        return new ModelAndView(object, "data_sharing_settings/index.vm");
+        return new ModelAndView(object, "kitchen_sink/index.vm");
     }
 }

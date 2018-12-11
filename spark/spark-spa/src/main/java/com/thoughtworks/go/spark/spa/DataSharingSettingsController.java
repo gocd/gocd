@@ -28,33 +28,33 @@ import java.util.HashMap;
 
 import static spark.Spark.*;
 
-public class AuthConfigsDelegate implements SparkController {
-
+public class DataSharingSettingsController implements SparkController {
     private final SPAAuthenticationHelper authenticationHelper;
-    private final TemplateEngine engine;
+    private final TemplateEngine templateEngine;
 
-    public AuthConfigsDelegate(SPAAuthenticationHelper authenticationHelper, TemplateEngine engine) {
+    public DataSharingSettingsController(SPAAuthenticationHelper authenticationHelper, TemplateEngine templateEngine) {
         this.authenticationHelper = authenticationHelper;
-        this.engine = engine;
+        this.templateEngine = templateEngine;
     }
 
     @Override
     public String controllerBasePath() {
-        return Routes.AuthConfigSPA.BASE;
+        return Routes.DataSharingSettingsSPA.BASE;
     }
 
     @Override
     public void setupRoutes() {
         path(controllerBasePath(), () -> {
             before("", authenticationHelper::checkAdminUserAnd403);
-            get("", this::index, engine);
+            get("", this::index, templateEngine);
         });
     }
 
     public ModelAndView index(Request request, Response response) {
         HashMap<Object, Object> object = new HashMap<Object, Object>() {{
-            put("viewTitle", "Authorization Configuration");
+            put("viewTitle", "Data Sharing");
         }};
-        return new ModelAndView(object, "auth_configs/index.vm");
+
+        return new ModelAndView(object, "data_sharing_settings/index.vm");
     }
 }

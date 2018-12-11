@@ -29,13 +29,13 @@ import java.util.HashMap;
 
 import static spark.Spark.*;
 
-public class PluginsDelegate implements SparkController {
+public class PluginsController implements SparkController {
 
     private final SPAAuthenticationHelper authenticationHelper;
     private final TemplateEngine engine;
     private final SecurityService securityService;
 
-    public PluginsDelegate(SPAAuthenticationHelper authenticationHelper, TemplateEngine engine, SecurityService securityService) {
+    public PluginsController(SPAAuthenticationHelper authenticationHelper, TemplateEngine engine, SecurityService securityService) {
         this.authenticationHelper = authenticationHelper;
         this.engine = engine;
         this.securityService = securityService; //fixme remove after page is fully componentized

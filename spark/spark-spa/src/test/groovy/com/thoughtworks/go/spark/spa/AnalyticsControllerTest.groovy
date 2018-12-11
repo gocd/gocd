@@ -40,15 +40,15 @@ import static org.mockito.ArgumentMatchers.any
 import static org.mockito.Mockito.*
 import static org.mockito.MockitoAnnotations.initMocks
 
-class AnalyticsDelegateTest implements ControllerTrait<AnalyticsDelegate>, SecurityServiceTrait {
+class AnalyticsControllerTest implements ControllerTrait<AnalyticsController>, SecurityServiceTrait {
   private static final Gson GSON = new Gson()
 
   AnalyticsExtension analyticsExtension = mock(AnalyticsExtension.class)
   PipelineConfigService pipelineConfigService = mock(PipelineConfigService.class)
 
   @Override
-  AnalyticsDelegate createControllerInstance() {
-    return new AnalyticsDelegate(new SPAAuthenticationHelper(securityService, goConfigService), templateEngine, systemEnvironment, analyticsExtension, pipelineConfigService)
+  AnalyticsController createControllerInstance() {
+    return new AnalyticsController(new SPAAuthenticationHelper(securityService, goConfigService), templateEngine, systemEnvironment, analyticsExtension, pipelineConfigService)
   }
 
   @Nested

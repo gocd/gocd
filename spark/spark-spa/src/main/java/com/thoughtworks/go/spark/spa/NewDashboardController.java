@@ -33,15 +33,15 @@ import java.util.HashMap;
 
 import static spark.Spark.*;
 
-public class NewDashboardDelegate implements SparkController {
+public class NewDashboardController implements SparkController {
     private final SPAAuthenticationHelper authenticationHelper;
     private final TemplateEngine engine;
     private final SecurityService securityService;
     private SystemEnvironment systemEnvironment;
     private PipelineConfigService pipelineConfigService;
 
-    public NewDashboardDelegate(SPAAuthenticationHelper authenticationHelper, TemplateEngine engine, SecurityService securityService,
-                                SystemEnvironment systemEnvironment, PipelineConfigService pipelineConfigService) {
+    public NewDashboardController(SPAAuthenticationHelper authenticationHelper, TemplateEngine engine, SecurityService securityService,
+                                  SystemEnvironment systemEnvironment, PipelineConfigService pipelineConfigService) {
         this.authenticationHelper = authenticationHelper;
         this.engine = engine;
         this.securityService = securityService;

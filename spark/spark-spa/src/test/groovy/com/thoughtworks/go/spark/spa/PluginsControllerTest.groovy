@@ -16,8 +16,8 @@
 
 package com.thoughtworks.go.spark.spa
 
-import com.thoughtworks.go.spark.AdminUserSecurity
 import com.thoughtworks.go.spark.ControllerTrait
+import com.thoughtworks.go.spark.GroupAdminUserSecurity
 import com.thoughtworks.go.spark.SecurityServiceTrait
 import com.thoughtworks.go.spark.spring.SPAAuthenticationHelper
 import org.junit.jupiter.api.BeforeEach
@@ -25,17 +25,17 @@ import org.junit.jupiter.api.Nested
 
 import static org.mockito.MockitoAnnotations.initMocks
 
-class DataSharingSettingsDelegateTest implements ControllerTrait<DataSharingSettingsDelegate>, SecurityServiceTrait {
+class PluginsControllerTest implements ControllerTrait<PluginsController>, SecurityServiceTrait {
 
   @Override
-  DataSharingSettingsDelegate createControllerInstance() {
-    return new DataSharingSettingsDelegate(new SPAAuthenticationHelper(securityService, goConfigService), templateEngine)
+  PluginsController createControllerInstance() {
+    return new PluginsController(new SPAAuthenticationHelper(securityService, goConfigService), templateEngine, securityService)
   }
 
   @Nested
   class Index {
     @Nested
-    class Security implements SecurityTestTrait, AdminUserSecurity {
+    class Security implements SecurityTestTrait, GroupAdminUserSecurity {
 
       @Override
       String getControllerMethodUnderTest() {

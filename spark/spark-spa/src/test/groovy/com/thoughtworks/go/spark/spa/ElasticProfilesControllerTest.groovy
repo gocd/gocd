@@ -16,24 +16,26 @@
 
 package com.thoughtworks.go.spark.spa
 
-
-import com.thoughtworks.go.spark.AdminUserSecurity
 import com.thoughtworks.go.spark.ControllerTrait
+import com.thoughtworks.go.spark.GroupAdminUserSecurity
 import com.thoughtworks.go.spark.SecurityServiceTrait
 import com.thoughtworks.go.spark.spring.SPAAuthenticationHelper
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 
-class ConfigReposDelegateTest implements ControllerTrait<ConfigReposDelegate>, SecurityServiceTrait {
+import static org.mockito.MockitoAnnotations.initMocks
+
+class ElasticProfilesControllerTest implements ControllerTrait<ElasticProfilesController>, SecurityServiceTrait {
 
   @Override
-  ConfigReposDelegate createControllerInstance() {
-    return new ConfigReposDelegate(new SPAAuthenticationHelper(securityService, goConfigService), templateEngine)
+  ElasticProfilesController createControllerInstance() {
+    return new ElasticProfilesController(new SPAAuthenticationHelper(securityService, goConfigService), templateEngine)
   }
 
   @Nested
   class Index {
     @Nested
-    class Security implements SecurityTestTrait, AdminUserSecurity {
+    class Security implements SecurityTestTrait, GroupAdminUserSecurity {
 
       @Override
       String getControllerMethodUnderTest() {
@@ -47,4 +49,10 @@ class ConfigReposDelegateTest implements ControllerTrait<ConfigReposDelegate>, S
     }
   }
 
+  @BeforeEach
+  void setUp() {
+    initMocks(this)
+  }
+
 }
+

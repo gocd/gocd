@@ -28,33 +28,33 @@ import java.util.HashMap;
 
 import static spark.Spark.*;
 
-public class ElasticProfilesDelegate implements SparkController {
+public class RolesController implements SparkController {
 
     private final SPAAuthenticationHelper authenticationHelper;
     private final TemplateEngine engine;
 
-    public ElasticProfilesDelegate(SPAAuthenticationHelper authenticationHelper, TemplateEngine engine) {
+    public RolesController(SPAAuthenticationHelper authenticationHelper, TemplateEngine engine) {
         this.authenticationHelper = authenticationHelper;
         this.engine = engine;
     }
 
     @Override
     public String controllerBasePath() {
-        return Routes.ElasticProfilesSPA.BASE;
+        return Routes.RolesSPA.BASE;
     }
 
     @Override
     public void setupRoutes() {
         path(controllerBasePath(), () -> {
-            before("", authenticationHelper::checkAdminUserOrGroupAdminUserAnd403);
+            before("", authenticationHelper::checkAdminUserAnd403);
             get("", this::index, engine);
         });
     }
 
     public ModelAndView index(Request request, Response response) {
         HashMap<Object, Object> object = new HashMap<Object, Object>() {{
-            put("viewTitle", "Elastic Agent Profiles");
+            put("viewTitle", "Server Roles");
         }};
-        return new ModelAndView(object, "elastic_profiles/index.vm");
+        return new ModelAndView(object, "roles/index.vm");
     }
 }

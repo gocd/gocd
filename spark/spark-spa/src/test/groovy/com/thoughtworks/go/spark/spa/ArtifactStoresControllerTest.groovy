@@ -19,13 +19,16 @@ package com.thoughtworks.go.spark.spa
 import com.thoughtworks.go.spark.AdminUserSecurity
 import com.thoughtworks.go.spark.ControllerTrait
 import com.thoughtworks.go.spark.SecurityServiceTrait
+import com.thoughtworks.go.spark.mocks.StubTemplateEngine
 import com.thoughtworks.go.spark.spring.SPAAuthenticationHelper
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
+import org.junit.jupiter.api.Test
+import spark.ModelAndView
 
 import static org.mockito.MockitoAnnotations.initMocks
 
-class AuthConfigsDelegateTest implements ControllerTrait<AuthConfigsDelegate>, SecurityServiceTrait {
+class ArtifactStoresControllerTest implements ControllerTrait<ArtifactStoresController>, SecurityServiceTrait {
 
   @Nested
   class Index {
@@ -42,6 +45,19 @@ class AuthConfigsDelegateTest implements ControllerTrait<AuthConfigsDelegate>, S
         get(controller.controllerPath())
       }
     }
+
+    @Test
+    void 'should return Model and View'() {
+      loginAsAdmin()
+      def expectedBody = new StubTemplateEngine().render(new ModelAndView([viewTitle: "Artifact Stores"], "artifact_stores/index.vm"))
+
+      get(controller.controllerBasePath())
+
+      assertThatResponse()
+        .isOk()
+        .hasContentType("text/html; charset=utf-8")
+        .hasBody(expectedBody)
+    }
   }
 
   @BeforeEach
@@ -50,7 +66,7 @@ class AuthConfigsDelegateTest implements ControllerTrait<AuthConfigsDelegate>, S
   }
 
   @Override
-  AuthConfigsDelegate createControllerInstance() {
-    return new AuthConfigsDelegate(new SPAAuthenticationHelper(securityService, goConfigService), templateEngine)
+  ArtifactStoresController createControllerInstance() {
+    return new ArtifactStoresController(new SPAAuthenticationHelper(securityService, goConfigService), templateEngine)
   }
 }

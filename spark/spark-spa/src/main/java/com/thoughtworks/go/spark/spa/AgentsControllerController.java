@@ -16,9 +16,11 @@
 
 package com.thoughtworks.go.spark.spa;
 
+import com.thoughtworks.go.server.service.SecurityService;
 import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.SparkController;
 import com.thoughtworks.go.spark.spring.SPAAuthenticationHelper;
+import com.thoughtworks.go.util.SystemEnvironment;
 import spark.ModelAndView;
 import spark.Request;
 import spark.Response;
@@ -26,37 +28,45 @@ import spark.TemplateEngine;
 
 import java.util.HashMap;
 
-import static spark.Spark.before;
-import static spark.Spark.get;
-import static spark.Spark.path;
+import static spark.Spark.*;
 
-public class ArtifactStoresDelegate implements SparkController {
+public class AgentsControllerController implements SparkController {
 
     private final SPAAuthenticationHelper authenticationHelper;
-    private final TemplateEngine templateEngine;
+    private final TemplateEngine engine;
+    private final SecurityService securityService;
+    private SystemEnvironment systemEnvironment;
 
-    public ArtifactStoresDelegate(SPAAuthenticationHelper authenticationHelper, TemplateEngine templateEngine) {
+    public AgentsControllerController(SPAAuthenticationHelper authenticationHelper, TemplateEngine engine, SecurityService securityService, SystemEnvironment systemEnvironment) {
         this.authenticationHelper = authenticationHelper;
-        this.templateEngine = templateEngine;
+        this.engine = engine;
+        this.securityService = securityService;
+        this.systemEnvironment = systemEnvironment;
     }
 
     @Override
     public String controllerBasePath() {
-        return Routes.ArtifactStoresSPA.BASE;
+        return Routes.AgentsSPA.BASE;
     }
 
     @Override
     public void setupRoutes() {
         path(controllerBasePath(), () -> {
-            before("", authenticationHelper::checkAdminUserAnd403);
-            get("", this::index, templateEngine);
+            before("", authenticationHelper::checkUserAnd403);
+            get("", this::index, engine);
         });
     }
 
     public ModelAndView index(Request request, Response response) {
         HashMap<Object, Object> object = new HashMap<Object, Object>() {{
-            put("viewTitle", "Artifact Stores");
+            put("viewTitle", "Agents");
+            put("isUserAnAdmin", securityService.isUserAdmin(currentUsername()));
+            put("shouldShowAnalyticsIcon", showAnalyticsIcon());
         }};
-        return new ModelAndView(object, "artifact_stores/index.vm");
+        return new ModelAndView(object, "agents/index.vm");
+    }
+
+    private boolean showAnalyticsIcon() {
+        return systemEnvironment.enableAnalyticsOnlyForAdmins() ? securityService.isUserAdmin(currentUsername()) : true;
     }
 }

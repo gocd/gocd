@@ -41,8 +41,8 @@ import static com.thoughtworks.go.spark.Routes.AnalyticsSPA.SHOW_PATH;
 import static java.lang.String.format;
 import static spark.Spark.*;
 
-public class AnalyticsDelegate implements SparkController {
-    private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(AnalyticsDelegate.class);
+public class AnalyticsController implements SparkController {
+    private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(AnalyticsController.class);
     private static final Gson GSON = new Gson();
 
     private final SPAAuthenticationHelper authenticationHelper;
@@ -51,7 +51,7 @@ public class AnalyticsDelegate implements SparkController {
     private final AnalyticsExtension analyticsExtension;
     private final PipelineConfigService pipelineConfigService;
 
-    public AnalyticsDelegate(SPAAuthenticationHelper authenticationHelper, TemplateEngine engine, SystemEnvironment systemEnvironment, AnalyticsExtension analyticsExtension, PipelineConfigService pipelineConfigService) {
+    public AnalyticsController(SPAAuthenticationHelper authenticationHelper, TemplateEngine engine, SystemEnvironment systemEnvironment, AnalyticsExtension analyticsExtension, PipelineConfigService pipelineConfigService) {
         this.authenticationHelper = authenticationHelper;
         this.engine = engine;
         this.systemEnvironment = systemEnvironment;

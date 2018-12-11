@@ -16,8 +16,6 @@
 
 package com.thoughtworks.go.spark.spa;
 
-import com.thoughtworks.go.server.service.support.toggle.FeatureToggleService;
-import com.thoughtworks.go.server.service.support.toggle.Toggles;
 import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.SparkController;
 import com.thoughtworks.go.spark.spring.SPAAuthenticationHelper;
@@ -28,43 +26,37 @@ import spark.TemplateEngine;
 
 import java.util.HashMap;
 
-import static spark.Spark.*;
+import static spark.Spark.before;
+import static spark.Spark.get;
+import static spark.Spark.path;
 
-public class DrainModeDelegate implements SparkController {
-    private SPAAuthenticationHelper authenticationHelper;
-    private TemplateEngine engine;
-    private FeatureToggleService features;
+public class ArtifactStoresController implements SparkController {
 
-    public DrainModeDelegate(SPAAuthenticationHelper authenticationHelper, TemplateEngine engine, FeatureToggleService features) {
+    private final SPAAuthenticationHelper authenticationHelper;
+    private final TemplateEngine templateEngine;
+
+    public ArtifactStoresController(SPAAuthenticationHelper authenticationHelper, TemplateEngine templateEngine) {
         this.authenticationHelper = authenticationHelper;
-        this.engine = engine;
-        this.features = features;
+        this.templateEngine = templateEngine;
     }
 
     @Override
     public String controllerBasePath() {
-        return Routes.DrainMode.SPA_BASE;
+        return Routes.ArtifactStoresSPA.BASE;
     }
 
     @Override
     public void setupRoutes() {
         path(controllerBasePath(), () -> {
             before("", authenticationHelper::checkAdminUserAnd403);
-            before("", this::featureToggleGuard);
-            get("", this::index, engine);
+            get("", this::index, templateEngine);
         });
     }
 
     public ModelAndView index(Request request, Response response) {
         HashMap<Object, Object> object = new HashMap<Object, Object>() {{
-            put("viewTitle", "Server Drain Mode");
+            put("viewTitle", "Artifact Stores");
         }};
-        return new ModelAndView(object, "drain_mode/index.vm");
-    }
-
-    private void featureToggleGuard(Request req, Response res) {
-        if (!features.isToggleOn(Toggles.SERVER_DRAIN_MODE_API_TOGGLE_KEY)) {
-            res.redirect("/");
-        }
+        return new ModelAndView(object, "artifact_stores/index.vm");
     }
 }

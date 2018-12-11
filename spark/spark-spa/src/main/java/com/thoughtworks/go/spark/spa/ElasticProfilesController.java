@@ -18,6 +18,7 @@ package com.thoughtworks.go.spark.spa;
 
 import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.SparkController;
+import com.thoughtworks.go.spark.spring.SPAAuthenticationHelper;
 import spark.ModelAndView;
 import spark.Request;
 import spark.Response;
@@ -25,32 +26,35 @@ import spark.TemplateEngine;
 
 import java.util.HashMap;
 
-import static spark.Spark.get;
-import static spark.Spark.path;
+import static spark.Spark.*;
 
-public class KitchenSinkDelegate implements SparkController {
+public class ElasticProfilesController implements SparkController {
+
+    private final SPAAuthenticationHelper authenticationHelper;
     private final TemplateEngine engine;
 
-    public KitchenSinkDelegate(TemplateEngine engine) {
+    public ElasticProfilesController(SPAAuthenticationHelper authenticationHelper, TemplateEngine engine) {
+        this.authenticationHelper = authenticationHelper;
         this.engine = engine;
     }
 
     @Override
     public String controllerBasePath() {
-        return Routes.KitchenSink.SPA_BASE;
+        return Routes.ElasticProfilesSPA.BASE;
     }
 
     @Override
     public void setupRoutes() {
         path(controllerBasePath(), () -> {
+            before("", authenticationHelper::checkAdminUserOrGroupAdminUserAnd403);
             get("", this::index, engine);
         });
     }
 
-    private ModelAndView index(Request request, Response response) {
+    public ModelAndView index(Request request, Response response) {
         HashMap<Object, Object> object = new HashMap<Object, Object>() {{
-            put("viewTitle", "Kitchen Sink");
+            put("viewTitle", "Elastic Agent Profiles");
         }};
-        return new ModelAndView(object, "kitchen_sink/index.vm");
+        return new ModelAndView(object, "elastic_profiles/index.vm");
     }
 }

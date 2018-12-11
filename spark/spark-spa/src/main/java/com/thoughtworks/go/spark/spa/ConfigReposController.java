@@ -16,11 +16,9 @@
 
 package com.thoughtworks.go.spark.spa;
 
-import com.thoughtworks.go.server.service.SecurityService;
 import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.SparkController;
 import com.thoughtworks.go.spark.spring.SPAAuthenticationHelper;
-import com.thoughtworks.go.util.SystemEnvironment;
 import spark.ModelAndView;
 import spark.Request;
 import spark.Response;
@@ -30,43 +28,32 @@ import java.util.HashMap;
 
 import static spark.Spark.*;
 
-public class AgentsControllerDelegate implements SparkController {
+public class ConfigReposController implements SparkController {
+    private SPAAuthenticationHelper authenticationHelper;
+    private TemplateEngine engine;
 
-    private final SPAAuthenticationHelper authenticationHelper;
-    private final TemplateEngine engine;
-    private final SecurityService securityService;
-    private SystemEnvironment systemEnvironment;
-
-    public AgentsControllerDelegate(SPAAuthenticationHelper authenticationHelper, TemplateEngine engine, SecurityService securityService, SystemEnvironment systemEnvironment) {
+    public ConfigReposController(SPAAuthenticationHelper authenticationHelper, TemplateEngine engine) {
         this.authenticationHelper = authenticationHelper;
         this.engine = engine;
-        this.securityService = securityService;
-        this.systemEnvironment = systemEnvironment;
     }
 
     @Override
     public String controllerBasePath() {
-        return Routes.AgentsSPA.BASE;
+        return Routes.ConfigRepos.SPA_BASE;
     }
 
     @Override
     public void setupRoutes() {
         path(controllerBasePath(), () -> {
-            before("", authenticationHelper::checkUserAnd403);
+            before("", authenticationHelper::checkAdminUserAnd403);
             get("", this::index, engine);
         });
     }
 
     public ModelAndView index(Request request, Response response) {
         HashMap<Object, Object> object = new HashMap<Object, Object>() {{
-            put("viewTitle", "Agents");
-            put("isUserAnAdmin", securityService.isUserAdmin(currentUsername()));
-            put("shouldShowAnalyticsIcon", showAnalyticsIcon());
+            put("viewTitle", "Config Repos");
         }};
-        return new ModelAndView(object, "agents/index.vm");
-    }
-
-    private boolean showAnalyticsIcon() {
-        return systemEnvironment.enableAnalyticsOnlyForAdmins() ? securityService.isUserAdmin(currentUsername()) : true;
+        return new ModelAndView(object, "config_repos/index.vm");
     }
 }

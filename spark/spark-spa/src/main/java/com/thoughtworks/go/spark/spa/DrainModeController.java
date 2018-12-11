@@ -16,6 +16,8 @@
 
 package com.thoughtworks.go.spark.spa;
 
+import com.thoughtworks.go.server.service.support.toggle.FeatureToggleService;
+import com.thoughtworks.go.server.service.support.toggle.Toggles;
 import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.SparkController;
 import com.thoughtworks.go.spark.spring.SPAAuthenticationHelper;
@@ -28,32 +30,41 @@ import java.util.HashMap;
 
 import static spark.Spark.*;
 
-public class ConfigReposDelegate implements SparkController {
+public class DrainModeController implements SparkController {
     private SPAAuthenticationHelper authenticationHelper;
     private TemplateEngine engine;
+    private FeatureToggleService features;
 
-    public ConfigReposDelegate(SPAAuthenticationHelper authenticationHelper, TemplateEngine engine) {
+    public DrainModeController(SPAAuthenticationHelper authenticationHelper, TemplateEngine engine, FeatureToggleService features) {
         this.authenticationHelper = authenticationHelper;
         this.engine = engine;
+        this.features = features;
     }
 
     @Override
     public String controllerBasePath() {
-        return Routes.ConfigRepos.SPA_BASE;
+        return Routes.DrainMode.SPA_BASE;
     }
 
     @Override
     public void setupRoutes() {
         path(controllerBasePath(), () -> {
             before("", authenticationHelper::checkAdminUserAnd403);
+            before("", this::featureToggleGuard);
             get("", this::index, engine);
         });
     }
 
     public ModelAndView index(Request request, Response response) {
         HashMap<Object, Object> object = new HashMap<Object, Object>() {{
-            put("viewTitle", "Config Repos");
+            put("viewTitle", "Server Drain Mode");
         }};
-        return new ModelAndView(object, "config_repos/index.vm");
+        return new ModelAndView(object, "drain_mode/index.vm");
+    }
+
+    private void featureToggleGuard(Request req, Response res) {
+        if (!features.isToggleOn(Toggles.SERVER_DRAIN_MODE_API_TOGGLE_KEY)) {
+            res.redirect("/");
+        }
     }
 }

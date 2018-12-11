@@ -28,19 +28,19 @@ import java.util.HashMap;
 
 import static spark.Spark.*;
 
-public class RolesControllerDelegate implements SparkController {
+public class AuthConfigsController implements SparkController {
 
     private final SPAAuthenticationHelper authenticationHelper;
     private final TemplateEngine engine;
 
-    public RolesControllerDelegate(SPAAuthenticationHelper authenticationHelper, TemplateEngine engine) {
+    public AuthConfigsController(SPAAuthenticationHelper authenticationHelper, TemplateEngine engine) {
         this.authenticationHelper = authenticationHelper;
         this.engine = engine;
     }
 
     @Override
     public String controllerBasePath() {
-        return Routes.RolesSPA.BASE;
+        return Routes.AuthConfigSPA.BASE;
     }
 
     @Override
@@ -53,8 +53,8 @@ public class RolesControllerDelegate implements SparkController {
 
     public ModelAndView index(Request request, Response response) {
         HashMap<Object, Object> object = new HashMap<Object, Object>() {{
-            put("viewTitle", "Server Roles");
+            put("viewTitle", "Authorization Configuration");
         }};
-        return new ModelAndView(object, "roles/index.vm");
+        return new ModelAndView(object, "auth_configs/index.vm");
     }
 }

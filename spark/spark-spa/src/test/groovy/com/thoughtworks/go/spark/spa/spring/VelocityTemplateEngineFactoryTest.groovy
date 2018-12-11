@@ -23,7 +23,7 @@ import com.thoughtworks.go.server.service.*
 import com.thoughtworks.go.server.service.plugins.builder.DefaultPluginInfoFinder
 import com.thoughtworks.go.server.service.support.toggle.FeatureToggleService
 import com.thoughtworks.go.server.service.support.toggle.Toggles
-import com.thoughtworks.go.spark.spa.RolesControllerDelegate
+import com.thoughtworks.go.spark.spa.RolesController
 import org.apache.commons.lang.StringEscapeUtils
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -51,7 +51,7 @@ class VelocityTemplateEngineFactoryTest {
 
   @Test
   void 'it should render a basic template'() {
-    def output = engine.create(RolesControllerDelegate.class, { return "layouts/test-layout.vm" })
+    def output = engine.create(RolesController.class, { return "layouts/test-layout.vm" })
       .render(new ModelAndView(Collections.emptyMap(), "templates/test-template.vm"))
     assertThat(output)
       .contains("begin parent layout")
@@ -62,7 +62,7 @@ class VelocityTemplateEngineFactoryTest {
   @Test
   void 'it should escape html entities by default'() {
     def userInput = "<script>alert('i can has hax')</script>"
-    def output = engine.create(RolesControllerDelegate.class, { return "layouts/test-layout.vm" })
+    def output = engine.create(RolesController.class, { return "layouts/test-layout.vm" })
       .render(new ModelAndView(Collections.singletonMap("user-input", userInput), "templates/escape-html-entities.vm"))
     assertThat(output)
       .contains("begin parent layout")

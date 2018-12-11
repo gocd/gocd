@@ -96,6 +96,15 @@ describe("ConfigReposWidget", () => {
     expect($(find("key-value-value-id").get(1))).toHaveText(repo2.id());
   });
 
+  it("should render a material attributes and configurations", () => {
+    const repo1 = createConfigRepo();
+    configRepos([repo1]);
+    m.redraw();
+    expect(find("key-value-value-id")).toHaveLength(1);
+    expect(find("key-value-value-url")).toContainText("https://example.com/git/");
+    expect(find("key-value-value-file-pattern")).toHaveText("*.json");
+  });
+
   it("should render a single config repo", () => {
     const repo = createConfigRepo();
     repo.lastParse(new LastParse("1234", true));
@@ -177,7 +186,10 @@ describe("ConfigReposWidget", () => {
                                      auto_update: true
                                    }
                                  },
-                                 configuration: [],
+                                 configuration: [{
+                                   key: "file_pattern",
+                                   value: "*.json"
+                                 }],
                                  last_parse: {},
                                  id,
                                  plugin_id: "json.config.plugin"

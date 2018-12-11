@@ -15,7 +15,7 @@
  */
 @import "../../global/common";
 
-$subnav-link-color: #bbb;
+
 
 .main-menu {
   display: block;
@@ -159,8 +159,6 @@ $subnav-link-color: #bbb;
 
 .site-sub-nav_link {
   @include hover-effect-for-top-menu;
-
-  color:           $subnav-link-color;
   text-decoration: none;
   padding:         5px 0;
   display:         inline-block;

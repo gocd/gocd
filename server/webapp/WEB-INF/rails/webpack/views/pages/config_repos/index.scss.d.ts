@@ -6,3 +6,4 @@ export const neverParsed: string;
 export const missingPluginIcon: string;
 export const scmHeader: string;
 export const lastRevision: string;
+export const statusIcon: string;

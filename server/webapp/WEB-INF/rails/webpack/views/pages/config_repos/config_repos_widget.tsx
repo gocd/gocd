@@ -57,6 +57,17 @@ function findPluginWithId(infos: Array<PluginInfo<any>>, pluginId: string) {
   return _.find(infos, {id: pluginId});
 }
 
+class StatusIcon extends MithrilViewComponent<{name: string}> {
+  view(vnode: m.Vnode<{ name: string }, this>) {
+    return (
+      <div className={styles.statusIcon}>
+        {vnode.children}
+      </div>
+    );
+  }
+
+}
+
 class HeaderWidget extends MithrilViewComponent<HeaderWidgetAttrs> {
   view(vnode: m.Vnode<HeaderWidgetAttrs>): m.Children | void | null {
 
@@ -183,31 +194,34 @@ class ConfigRepoWidget extends MithrilViewComponent<ShowObjectAttrs<ConfigRepo>>
     const pluginInfo = findPluginWithId(vnode.attrs.pluginInfos(), vnode.attrs.obj.pluginId());
 
     if (!pluginInfo) {
-      return <HeaderIcon name="Unknown plugin"/>;
+      return <StatusIcon name="Unknown plugin">
+        <span className={styles.missingPluginIcon}
+              title={`This plugin is not installed or is not configured properly.`}/>
+      </StatusIcon>;
     }
 
     if (_.isEmpty(vnode.attrs.obj.lastParse())) {
       return (
-        <HeaderIcon name="Never Parsed">
+        <StatusIcon name="Never Parsed">
           <span className={styles.neverParsed}
                 title={`This configuration repository was never parsed.`}/>
-        </HeaderIcon>
+        </StatusIcon >
       );
     }
 
     if (vnode.attrs.obj.lastParse().success()) {
       return (
-        <HeaderIcon name="Last Parse Good">
+        <StatusIcon name="Last Parse Good">
           <span className={styles.goodLastParseIcon}
                 title={`Last parsed with revision ${vnode.attrs.obj.lastParse().revision}`}/>
-        </HeaderIcon>
+        </StatusIcon>
       );
     } else {
       return (
-        <HeaderIcon name="Last Parse Error">
+        <StatusIcon name="Last Parse Error">
           <span className={styles.lastParseErrorIcon}
                 title={`Last parsed with revision ${vnode.attrs.obj.lastParse().revision}. The error was ${vnode.attrs.obj.lastParse().error}`}/>
-        </HeaderIcon>
+        </StatusIcon>
       );
     }
   }

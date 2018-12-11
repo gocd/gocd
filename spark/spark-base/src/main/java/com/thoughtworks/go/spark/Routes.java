@@ -397,4 +397,8 @@ public class Routes {
     public class AuthConfigs {
         public static final String SPA_BASE = "/admin/security/auth_configs";
     }
+
+    public class Users {
+        public static final String SPA_BASE = "/admin/users";
+    }
 }

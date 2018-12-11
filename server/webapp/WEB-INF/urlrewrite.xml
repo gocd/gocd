@@ -32,6 +32,13 @@
   </rule>
 
   <rule>
+    <name>users UI</name>
+    <from>^/admin/users(/?)$</from>
+    <run class="com.thoughtworks.go.server.SparkOrRailsToggle" method="usersPageUsingRails"/>
+    <to last="true">/%{attribute:sparkOrRails}/admin/users</to>
+  </rule>
+
+  <rule>
     <name>Current Version detail</name>
     <from>^/api/version$</from>
     <to last="true">/spark/api/version</to>
@@ -619,4 +626,3 @@
     <to type="forward">/pipelines/history?pipelineName=$1&amp;label=$2&amp;stageName=$3&amp;counter=$4</to>
   </rule>
 </urlrewrite>
-

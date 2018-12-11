@@ -48,8 +48,8 @@ public class SpaControllers implements SparkSpringController {
         LayoutTemplateProvider defaultTemplate = () -> DEFAULT_LAYOUT_PATH;
         LayoutTemplateProvider componentTemplate = () -> COMPONENT_LAYOUT_PATH;
 
-
-		sparkControllers.add(new AuthConfigsController(authenticationHelper, templateEngineFactory.create(AuthConfigsController.class, () -> featureToggleService.isToggleOn(Toggles.USE_NEW_AUTH_CONFIG_SPA) ? COMPONENT_LAYOUT_PATH : DEFAULT_LAYOUT_PATH)));
+        sparkControllers.add(new AuthConfigsController(authenticationHelper, templateEngineFactory.create(AuthConfigsController.class, () -> featureToggleService.isToggleOn(Toggles.USE_NEW_AUTH_CONFIG_SPA) ? COMPONENT_LAYOUT_PATH : DEFAULT_LAYOUT_PATH)));
+        sparkControllers.add(new UsersController(authenticationHelper, templateEngineFactory.create(UsersController.class, () -> COMPONENT_LAYOUT_PATH)));
         sparkControllers.add(new RolesController(authenticationHelper, templateEngineFactory.create(RolesController.class, defaultTemplate)));
         sparkControllers.add(new AgentsControllerController(authenticationHelper, templateEngineFactory.create(AgentsControllerController.class, defaultTemplate), securityService, systemEnvironment));
         sparkControllers.add(new NewDashboardController(authenticationHelper, templateEngineFactory.create(NewDashboardController.class, defaultTemplate), securityService, systemEnvironment, pipelineConfigService));

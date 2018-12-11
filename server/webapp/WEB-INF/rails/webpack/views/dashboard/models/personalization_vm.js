@@ -36,6 +36,19 @@ function PersonalizationVM(currentView) {
 
   let requestPending, tick;
 
+  function fetchPersonalization() {
+    return Personalization.get(checksum()).then((personalization, xhr) => {
+      if (304 !== xhr.status) {
+        checksum(parseEtag(xhr));
+
+        names(personalization.names());
+        model(personalization);
+      }
+      requestPending = false;
+      return personalization;
+    });
+  }
+
   function checkForUpdates(etag) {
     if (!arguments.length) { return checksum(); }
 
@@ -47,21 +60,13 @@ function PersonalizationVM(currentView) {
 
     if (!checksum() || etag !== checksum()) {
       requestPending = true;
-      Personalization.get(checksum()).then((personalization, xhr) => {
-        if (304 !== xhr.status) {
-          checksum(parseEtag(xhr));
-
-          names(personalization.names());
-          model(personalization);
-        }
-        requestPending = false;
-      });
+      fetchPersonalization();
     }
   }
 
   const changeListeners = [];
 
-  _.assign(this, {model, names, currentView, etag: checkForUpdates, checksum, errorMessage, loadingView, paged, currentVnode, stagedSort, actionPopup, pipelinesChecksum});
+  _.assign(this, {model, names, currentView, fetchPersonalization, etag: checkForUpdates, checksum, errorMessage, loadingView, paged, currentVnode, stagedSort, actionPopup, pipelinesChecksum});
 
   this.tabs = () => _.map(stagedSort() ? stagedSort().names() : names(), (name) => { return {id: name, name}; });
 

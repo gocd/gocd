@@ -90,7 +90,6 @@ $icon-color: #647984;
     @include icon-before($type: close);
 
     position: absolute;
-    top:      20px;
     right:    20px;
     padding:  5px;
     cursor:   pointer;

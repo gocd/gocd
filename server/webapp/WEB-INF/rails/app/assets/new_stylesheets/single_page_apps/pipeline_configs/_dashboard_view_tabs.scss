@@ -298,6 +298,7 @@ button {
 }
 
 .personalization-update-failed {
+  display: flex;
   .server-error-response {
     float: left;
   }

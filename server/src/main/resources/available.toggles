@@ -30,6 +30,11 @@
         "key": "use_new_auth_config_spa",
         "description": "Switch authorization configuration spa to use new spa.",
         "value": false
+      },
+      {
+        "key": "users_page_using_rails",
+        "description": "Switch users page to use spark.",
+        "value": true
       }
   ]
 }

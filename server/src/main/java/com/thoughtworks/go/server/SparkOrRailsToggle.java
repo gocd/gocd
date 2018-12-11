@@ -22,6 +22,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 public class SparkOrRailsToggle {
+    public void usersPageUsingRails(HttpServletRequest request, HttpServletResponse response) {
+        basedOnToggle(Toggles.USERS_PAGE_USING_RAILS, request);
+    }
+
     public void agentsApi(HttpServletRequest request, HttpServletResponse response) {
         basedOnToggle(Toggles.AGENT_APIS_OVER_RAILS, request);
     }

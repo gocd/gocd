@@ -56,6 +56,8 @@ export class KitchenSink extends MithrilViewComponent<null> {
         <FlashMessage type={MessageType.alert} message={"Disaster Happened!"}/>
         <FlashMessage type={MessageType.alert} dismissible={true}
                       message={"Disaster Happened! But you can ignore by closing it"}/>
+
+        <br/>
         <h3>CollapsiblePanel</h3>
         <CollapsiblePanel header={<div>Collapsible Panel header</div>}
                           actions={<button>foo</button>}>

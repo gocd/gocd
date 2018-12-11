@@ -110,4 +110,30 @@ class JsonReaderTest {
         .isThrownBy({ reader.readJsonObject("foo") })
     }
   }
+
+  @Nested
+  class GetBoolean {
+    @Test
+    void 'should retrieve boolean value'() {
+      def reader = GsonTransformer.instance.jsonReaderFrom([
+        "boolean_true" : true,
+        "boolean_false": false,
+        "string_true"  : "true",
+        "string_false" : "false"
+      ])
+
+      assertThat(reader.getBoolean("boolean_true")).isTrue()
+      assertThat(reader.getBoolean("boolean_false")).isFalse()
+      assertThat(reader.getBoolean("string_true")).isTrue()
+      assertThat(reader.getBoolean("string_false")).isFalse()
+    }
+
+    @Test
+    void 'should error out when property is missing'() {
+      def reader = GsonTransformer.instance.jsonReaderFrom([:])
+
+      assertThatExceptionOfType(HaltException.class)
+        .isThrownBy({reader.getBoolean("foo")})
+    }
+  }
 }

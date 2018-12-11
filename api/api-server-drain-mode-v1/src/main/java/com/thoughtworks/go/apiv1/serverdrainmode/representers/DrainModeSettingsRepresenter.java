@@ -17,13 +17,8 @@
 package com.thoughtworks.go.apiv1.serverdrainmode.representers;
 
 import com.thoughtworks.go.api.base.OutputWriter;
-import com.thoughtworks.go.api.representers.JsonReader;
 import com.thoughtworks.go.server.domain.ServerDrainMode;
-import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.spark.Routes;
-import com.thoughtworks.go.util.TimeProvider;
-
-import java.sql.Timestamp;
 
 public class DrainModeSettingsRepresenter {
     public static void toJSON(OutputWriter jsonWriter, ServerDrainMode serverDrainMode) {
@@ -35,14 +30,5 @@ public class DrainModeSettingsRepresenter {
                             .add("updated_by", serverDrainMode.updatedBy())
                             .add("updated_on", serverDrainMode.updatedOn());
                 });
-    }
-
-    public static ServerDrainMode fromJSON(JsonReader jsonReader, Username currentUsername, TimeProvider timeProvider, ServerDrainMode fromServer) {
-        ServerDrainMode serverDrainMode = new ServerDrainMode();
-        Boolean mode = jsonReader.optBoolean("drain").orElse(fromServer.isDrainMode());
-        serverDrainMode.setDrainMode(mode);
-        serverDrainMode.updatedBy(currentUsername.getUsername().toString());
-        serverDrainMode.updatedOn(new Timestamp(timeProvider.currentTimeMillis()));
-        return serverDrainMode;
     }
 }

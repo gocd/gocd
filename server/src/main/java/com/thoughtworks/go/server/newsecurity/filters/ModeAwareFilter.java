@@ -46,11 +46,11 @@ public class ModeAwareFilter implements Filter {
     private static final OrRequestMatcher ALLOWED_DRAIN_MODE_REQUEST_MATCHER = new OrRequestMatcher(
             new AntPathRequestMatcher("/remoting/**"),
             new AntPathRequestMatcher("/agent-websocket/**"),
-            new RegexRequestMatcher("/api/backups", "POST", true),
-            new RegexRequestMatcher("/admin/backup", "POST", true),
+            new AntPathRequestMatcher("/api/backups", "POST", true),
+            new AntPathRequestMatcher("/admin/backup", "POST", true),
             new RegexRequestMatcher("/api/stages/[0-9]*/cancel", "POST", true),
             new RegexRequestMatcher("/api/stages/.*/.*/cancel", "POST", true),
-            new AntPathRequestMatcher("/api/drain_mode/settings")
+            new AntPathRequestMatcher("/api/admin/drain_mode/*")
     );
 
     @Autowired

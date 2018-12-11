@@ -195,7 +195,7 @@ class ConfigRepoWidget extends MithrilViewComponent<ShowObjectAttrs<ConfigRepo>>
 
     if (!pluginInfo) {
       return <StatusIcon name="Unknown plugin">
-        <span className={styles.unknownPlugin}
+        <span className={styles.missingPluginIcon}
               title={`This plugin is not installed or is not configured properly.`}/>
       </StatusIcon>;
     }

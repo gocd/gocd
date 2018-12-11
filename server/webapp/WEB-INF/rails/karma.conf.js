@@ -29,7 +29,7 @@ if (process.platform === 'darwin') {
 } else if (process.platform === 'win32') {
 
   // make sure to kill Edge browser before doing anything.
-  childProcess.spawnSync('taskkill', ['/IM', 'MicrosoftEdge.exe', '/T']);
+  childProcess.spawnSync('taskkill', ['/F', '/IM', 'MicrosoftEdge.exe', '/T']);
 
   browsers = ['Edge'];
 } else {

@@ -147,7 +147,7 @@ describe("Dashboard Material Revision Widget", () => {
 
     it('should contain a link to stage details page showing pipeline dependencies of the run of the upstream pipeline run', () => {
       const pipelineDependencyLink = $root.find('.comment a').get(0);
-      expect(pipelineDependencyLink.href.indexOf(`/go/pipelines/${pipelineRevisionJson.modifications[0].revision}/pipeline`)).not.toBe(-1);
+      expect(pipelineDependencyLink.href.indexOf(`/go/pipelines/value_stream_map/up42/2`)).not.toBe(-1);
     });
 
   });

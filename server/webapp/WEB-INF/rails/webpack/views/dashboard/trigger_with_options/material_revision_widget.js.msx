@@ -23,14 +23,16 @@ const CommentWidget = require('views/dashboard/comment_render_widget');
 const PipelineModificationWidget = (modification) => {
   const modifiedAtLocalTime  = TimeFormatter.format(modification.modifiedTime);
   const modifiedAtServerTime = TimeFormatter.formatInServerTime(modification.modifiedTime);
+  const pipelineName         = modification.revision.split('/')[0];
+  const pipelineCounter      = modification.revision.split('/')[1];
 
   return (<div class="modifications">
       <div class="item modified_by">
         <a href={modification.stageDetailsUrl}>{modification.revision}</a>
       </div>
-      <div class="item comment">
-        <a href={`/go/pipelines/${modification.revision}/pipeline`}>{modification.pipelineLabel}</a>
-      </div>
+      <span class="item comment">
+        VSM: <a href={`/go/pipelines/value_stream_map/${pipelineName}/${pipelineCounter}`}>{modification.pipelineLabel}</a>
+      </span>
       <div class="item modified-time" title={modifiedAtServerTime}>{modifiedAtLocalTime}</div>
     </div>
   );

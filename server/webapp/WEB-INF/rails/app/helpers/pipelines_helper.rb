@@ -90,7 +90,7 @@ module PipelinesHelper
   end
 
   def url_for_dmr(dmr)
-    stage_detail_tab_pipeline_path({:pipeline_name => dmr.getPipelineName(), :pipeline_counter => dmr.getPipelineCounter(), :stage_name => dmr.getStageName(), :stage_counter => dmr.getStageCounter()})
+    "/go/pipelines/value_stream_map/#{dmr.getPipelineName()}/#{dmr.getPipelineCounter()}"
   end
 
   def with_pipeline_analytics_support(&block)

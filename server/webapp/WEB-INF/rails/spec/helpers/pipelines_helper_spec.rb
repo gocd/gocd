@@ -114,7 +114,7 @@ describe PipelinesHelper do
 
   it "should return the url for given DMR" do
     dmr = DependencyMaterialRevision.create("blah-pipeline", 2, "blah-label", "blah-stage", 3)
-    expect(url_for_dmr(dmr)).to eq("/pipelines/blah-pipeline/2/blah-stage/3/pipeline")
+    expect(url_for_dmr(dmr)).to eq("/go/pipelines/value_stream_map/blah-pipeline/2")
   end
 
   it "should return the dom id for a pipeline group" do

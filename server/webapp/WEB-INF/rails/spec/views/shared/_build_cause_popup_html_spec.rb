@@ -95,7 +95,7 @@ describe "/shared/_build_cause_popup.html.erb" do
       end
       build_cause.find("##{@dependency_material_id}_0.change.changed").tap do |first_dependency_material_modification|
         expect(first_dependency_material_modification).to have_selector(".revision a[href='/pipelines/up_pipeline/10/up_stage/5']", text: "up_pipeline/10/up_stage/5")
-        expect(first_dependency_material_modification).to have_selector(".label a[href='/pipelines/up_pipeline/10/up_stage/5/pipeline']", text: "label-10")
+        expect(first_dependency_material_modification).to have_selector(".label a[href='/go/pipelines/value_stream_map/up_pipeline/10']", text: "label-10")
         expect(first_dependency_material_modification).to have_selector(".completed_at", text: "#{@dependency_revisions.getModification(0).getModifiedTime().iso8601}")
       end
     end

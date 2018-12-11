@@ -704,16 +704,6 @@ task newSPA {
     String javaOrJavaScriptLicencseHeader = "/*\n${licenseHeader}\n*/\n\n"
 
 
-    file("${vmBase}/index.vm").withWriter { out ->
-      def contents =
-        """
-          <div id="drain-mode">
-            <span class="page-spinner"></span>
-          </div>
-        """
-      out.println("#*\n${licenseHeader}\n*#\n\n" + contents.stripIndent().trim())
-    }
-
     file("${mountPoint}/${spaName}.tsx").withWriter { out ->
       def contents =
         """
@@ -804,7 +794,7 @@ task newSPA {
       out.println(javaOrJavaScriptLicencseHeader + contents.stripIndent().trim())
     }
 
-    file("spark/spark-spa/src/main/java/com/thoughtworks/go/spark/spa/${entityName}Delegate.java").withWriter { out ->
+    file("spark/spark-spa/src/main/java/com/thoughtworks/go/spark/spa/${entityName}Controller.java").withWriter { out ->
       def contents =
         """
           package com.thoughtworks.go.spark.spa;
@@ -819,10 +809,10 @@ task newSPA {
           import java.util.Map;
           import static spark.Spark.*;
 
-          public class ${entityName}Delegate implements SparkController {
+          public class ${entityName}Controller implements SparkController {
             private final SPAAuthenticationHelper authenticationHelper;
             private final TemplateEngine engine;
-            public ${entityName}Delegate(SPAAuthenticationHelper authenticationHelper, TemplateEngine engine) {
+            public ${entityName}Controller(SPAAuthenticationHelper authenticationHelper, TemplateEngine engine) {
               this.authenticationHelper = authenticationHelper;
               this.engine = engine;
             }
@@ -843,7 +833,7 @@ task newSPA {
                 Map<Object, Object> object = new HashMap<Object, Object>() {{
                     put("viewTitle", "${entityName}");
                 }};
-                return new ModelAndView(object, "${spaName}/index.vm");
+                return new ModelAndView(object, null);
             }
           }
         """
@@ -853,7 +843,7 @@ task newSPA {
     String rule =
       """
         <rule>
-          <name>Drain Mode UI</name>
+          <name>${spaName} UI</name>
           <from>^/admin/${spaName}(/?)\$</from>
           <to last="true">/spark/admin/${spaName}</to>
         </rule>
@@ -869,7 +859,7 @@ task newSPA {
 
     lines = file('spark/spark-spa/src/main/java/com/thoughtworks/go/spark/spa/spring/SpaControllers.java').readLines()
     insertionIdx = lines.findIndexOf { l -> (l =~ /^\s*sparkControllers.add/).find() }
-    lines.add(insertionIdx, "\t\tsparkControllers.add(new ${entityName}Delegate(authenticationHelper, templateEngineFactory.create(${entityName}Delegate.class, () -> COMPONENT_LAYOUT_PATH)));")
+    lines.add(insertionIdx, "\t\tsparkControllers.add(new ${entityName}Controller(authenticationHelper, templateEngineFactory.create(${entityName}Controller.class, () -> COMPONENT_LAYOUT_PATH)));")
 
     file('spark/spark-spa/src/main/java/com/thoughtworks/go/spark/spa/spring/SpaControllers.java').withWriter { out ->
       out.println(lines.join("\n").trim())

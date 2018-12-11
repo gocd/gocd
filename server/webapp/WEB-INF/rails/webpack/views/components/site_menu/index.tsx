@@ -151,12 +151,12 @@ export default class SiteMenu extends MithrilViewComponent<Attrs> {
                 <SiteSubNavItem href="/go/admin/plugins" text="Plugins"/>
                 <SiteSubNavItem href="/go/admin/config_repos" text="Config Repositories"/>
                 <SiteSubNavItem href="/go/admin/data_sharing/settings" text="Data Sharing"/>
-                <SiteSubNavItem href="/go/admin/users" text="User Summary"/>
               </SiteSubNav>
               <SiteSubNav>
                 <SiteSubNavHeading text="Security"/>
                 <SiteSubNavItem href="/go/admin/security/auth_configs" text="Authorization Configuration"/>
                 <SiteSubNavItem href="/go/admin/security/roles" text="Role configuration"/>
+                <SiteSubNavItem href="/go/admin/users" text="User Summary"/>
               </SiteSubNav>
             </div>
           </SiteNavItem>

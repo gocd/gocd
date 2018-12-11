@@ -143,7 +143,7 @@ $subnav-link-color: #bbb;
   font-weight:    800;
   font-size:      12px;
   text-transform: uppercase;
-  border-bottom: 1px solid $icon-color;
+  border-bottom:  1px solid $icon-color;
   @media(min-width: $screen-md) {
     margin: 5px 0 10px 0;
   }
@@ -154,7 +154,7 @@ $subnav-link-color: #bbb;
     line-height: normal;
   }
   list-style-type: none;
-  float: none;
+  float:           none;
 }
 
 .site-sub-nav_link {
@@ -181,5 +181,8 @@ $subnav-link-color: #bbb;
       width:      100%;
       background: $active-menu;
     }
+  }
+  &:visited {
+    color: $subnav-link-color;
   }
 }

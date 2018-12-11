@@ -26,11 +26,12 @@ import {ElasticAgentSettings, Extension} from "models/shared/plugin_infos_new/ex
 import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
 import * as Buttons from "views/components/buttons";
 import {FlashMessage, MessageType} from "views/components/flash_message";
-import {Form, FormItem} from "views/components/forms/form";
+import {Form, FormHeader} from "views/components/forms/form";
 import {SelectField, SelectFieldOptions, TextField} from "views/components/forms/input_fields";
 import {Modal, Size} from "views/components/modal";
 import {Spinner} from "views/components/spinner";
 import {Table} from "views/components/table";
+import * as styles from "views/pages/elastic_profiles/index.scss";
 import * as foundationStyles from "views/pages/new_plugins/foundation_hax.scss";
 
 const foundationClassNames = bind(foundationStyles);
@@ -51,7 +52,7 @@ abstract class BaseElasticProfileModal extends Modal {
   protected constructor(elasticProfile: ElasticProfile,
                         pluginInfos: Array<PluginInfo<Extension>>,
                         type: ModalType) {
-    super(Size.large);
+    super(Size.medium);
     this.elasticProfile = stream(elasticProfile);
     this.pluginInfos    = pluginInfos;
     this.pluginInfo     = stream(pluginInfos.find(
@@ -100,17 +101,15 @@ abstract class BaseElasticProfileModal extends Modal {
 
     return (
       <div class={foundationClassNames(foundationStyles.foundationGridHax, foundationStyles.foundationFormHax)}>
-        <div class="row collapse">
-          <Form>
-            <FormItem>
+        <div>
+          <FormHeader>
+            <Form>
               <TextField label="Id"
                          disabled={this.modalType === ModalType.edit}
                          property={this.elasticProfile().id}
                          errorText={this.elasticProfile().errors().errorsForDisplay("id")}
                          required={true}/>
-            </FormItem>
 
-            <FormItem>
               <SelectField label="Plugin ID"
                            property={this.pluginIdProxy.bind(this)}
                            required={true}
@@ -118,14 +117,17 @@ abstract class BaseElasticProfileModal extends Modal {
                 <SelectFieldOptions selected={this.elasticProfile().pluginId()}
                                     items={pluginList}/>
               </SelectField>
-            </FormItem>
-          </Form>
+            </Form>
+          </FormHeader>
+
         </div>
-        <div class="row collapse">
-          <AngularPluginNew
-            pluginInfoSettings={stream(pluginSettings)}
-            configuration={this.elasticProfile().properties()}
-            key={this.pluginInfo().id}/>
+        <div class={styles.elasticProfileModalFormBody}>
+          <div class="row collapse">
+            <AngularPluginNew
+              pluginInfoSettings={stream(pluginSettings)}
+              configuration={this.elasticProfile().properties()}
+              key={this.pluginInfo().id}/>
+          </div>
         </div>
       </div>
     );

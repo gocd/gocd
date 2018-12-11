@@ -37,6 +37,17 @@ $collapse-icon-size: 25px;
   }
 }
 
+.plugin-name {
+  font-weight:  600;
+  font-size:    13px;
+  margin-right: 50px;
+  @media (min-width: $screen-md) {
+    font-size: 12px;
+  }
+  @media (min-width: $screen-lg) {
+    font-size: 15px;
+  }
+}
 .unknown-plugin-icon {
   @include icon-before($type: $fa-var-question, $color: $icon-light-color, $margin: 5px, $size: 25px);
   display: block;

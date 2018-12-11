@@ -30,14 +30,6 @@ export class Form extends MithrilComponent {
   }
 }
 
-export class FormItem extends MithrilComponent {
-  view(vnode: m.Vnode) {
-    return <li class={styles.formGroup}>
-      {vnode.children}
-    </li>;
-  }
-}
-
 export class FormHeader extends MithrilComponent {
   view(vnode: m.Vnode) {
     return <div class={styles.formHeader}>

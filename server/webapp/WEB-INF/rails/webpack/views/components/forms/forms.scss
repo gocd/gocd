@@ -91,7 +91,7 @@ input[type="checkbox"].form-control { //sass-lint:disable-line no-qualifying-ele
 }
 
 .form-input-reset {
-  margin: 5px 0 0 -10px;
+  margin: 5px 0 0 0;
 }
 
 .text-area {
@@ -128,7 +128,7 @@ input[type="checkbox"].form-control { //sass-lint:disable-line no-qualifying-ele
 
 .form {
   list-style-type: none;
-  margin:          0 0 20px 0;
+  margin:          0 -15px 20px;
   padding:         0;
 
 }

@@ -25,11 +25,25 @@ $icon-light-color: #e6e6e6;
   display: block;
 }
 
+
+.plugin-icon {
+  display:        none;
+  vertical-align: middle;
+  margin:         0 15px 0 -15px;
+  img {
+    width:          $collapse-icon-size;
+    height:         $collapse-icon-size;
+    vertical-align: middle;
+  }
+  @media (min-width: $screen-md) {
+    display: inline-block;
+  }
+}
+
 .plugin-name {
   font-weight:  600;
   font-size:    13px;
   margin-right: 50px;
-  align-self:   center;
   @media (min-width: $screen-md) {
     font-size: 12px;
   }
@@ -51,3 +65,8 @@ $icon-light-color: #e6e6e6;
 .plugin-info-select {
   display: block;
 }
+
+.elastic-profile-modal-form-body {
+  padding: 0 30px;
+}
+

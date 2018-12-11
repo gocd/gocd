@@ -225,7 +225,7 @@ public class MagicalGoConfigXmlLoaderTest {
     public void shouldLoadConfigWithConfigRepoAndConfiguration() throws Exception {
         CruiseConfig cruiseConfig = xmlLoader.loadConfigHolder(configWithConfigRepos(
                 "  <config-repos>\n"
-                        + "    <config-repo id=\"id1\">\n"
+                        + "    <config-repo id=\"id1\" pluginId=\"gocd-xml\">\n"
                         + "      <git url=\"https://github.com/tomzo/gocd-indep-config-part.git\" />\n"
                         + "      <configuration>\n"
                         + "        <property>\n"

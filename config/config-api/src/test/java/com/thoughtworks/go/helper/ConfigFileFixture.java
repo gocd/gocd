@@ -1325,7 +1325,7 @@ public final class ConfigFileFixture {
             + CONFIG_SCHEMA_VERSION + "\">\n"
             + "  <server artifactsdir=\"other-artifacts\" />\n"
             + "  <config-repos>\n"
-            + "    <config-repo id=\"id1\">\n"
+            + "    <config-repo id=\"id1\" pluginId=\"gocd-xml\">\n"
             + "      <git url=\"https://github.com/tomzo/gocd-indep-config-part.git\" />\n"
             + "    </config-repo >\n"
             + "  </config-repos>\n"

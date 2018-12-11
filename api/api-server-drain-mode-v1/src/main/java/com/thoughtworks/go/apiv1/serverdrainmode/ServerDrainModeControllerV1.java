@@ -18,9 +18,7 @@ package com.thoughtworks.go.apiv1.serverdrainmode;
 
 import com.thoughtworks.go.api.ApiController;
 import com.thoughtworks.go.api.ApiVersion;
-import com.thoughtworks.go.api.representers.JsonReader;
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
-import com.thoughtworks.go.api.util.GsonTransformer;
 import com.thoughtworks.go.apiv1.serverdrainmode.representers.DrainModeInfoRepresenter;
 import com.thoughtworks.go.apiv1.serverdrainmode.representers.DrainModeSettingsRepresenter;
 import com.thoughtworks.go.config.InvalidPluginTypeException;
@@ -29,6 +27,7 @@ import com.thoughtworks.go.domain.JobInstance;
 import com.thoughtworks.go.server.domain.ServerDrainMode;
 import com.thoughtworks.go.server.service.DrainModeService;
 import com.thoughtworks.go.server.service.JobInstanceService;
+import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.service.support.toggle.FeatureToggleService;
 import com.thoughtworks.go.server.service.support.toggle.Toggles;
 import com.thoughtworks.go.spark.Routes;
@@ -83,10 +82,16 @@ public class ServerDrainModeControllerV1 extends ApiController implements SparkS
             before("/*", this::verifyContentType);
 
             before(Routes.DrainMode.SETTINGS, mimeType, apiAuthenticationHelper::checkAdminUserAnd403);
+
+            before(Routes.DrainMode.ENABLE, mimeType, apiAuthenticationHelper::checkAdminUserAnd403);
+            before(Routes.DrainMode.DISABLE, mimeType, apiAuthenticationHelper::checkAdminUserAnd403);
+
             before(Routes.DrainMode.INFO, mimeType, apiAuthenticationHelper::checkAdminUserAnd403);
 
             get(Routes.DrainMode.SETTINGS, mimeType, this::show);
-            post(Routes.DrainMode.SETTINGS, mimeType, this::updateDrainModeState);
+
+            post(Routes.DrainMode.ENABLE, mimeType, this::enableDrainModeState);
+            post(Routes.DrainMode.DISABLE, mimeType, this::disableDrainModeState);
 
             get(Routes.DrainMode.INFO, mimeType, this::getDrainModeInfo);
 
@@ -102,17 +107,40 @@ public class ServerDrainModeControllerV1 extends ApiController implements SparkS
         return writerForTopLevelObject(req, res, writer -> DrainModeSettingsRepresenter.toJSON(writer, drainModeService.get()));
     }
 
-    public String updateDrainModeState(Request req, Response res) throws Exception {
+    public String enableDrainModeState(Request req, Response res) throws Exception {
         if (!featureToggleService.isToggleOn(Toggles.SERVER_DRAIN_MODE_API_TOGGLE_KEY)) {
             throw new RecordNotFoundException();
         }
 
-        final JsonReader jsonReader = GsonTransformer.getInstance().jsonReaderFrom(req.body());
+        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+        ServerDrainMode existingDrainModeState = drainModeService.get();
+        if (existingDrainModeState.isDrainMode()) {
+            result.conflict("Failed to enable server drain mode. Server is already in drain state.");
+            return renderHTTPOperationResult(result, req, res);
+        }
 
-        final ServerDrainMode serverDrainMode = new ServerDrainMode(jsonReader.getBoolean("drain"), currentUserLoginName().toString(), clock.currentTime());
+        drainModeService.update(new ServerDrainMode(true, currentUserLoginName().toString(), clock.currentTime()));
 
-        drainModeService.update(serverDrainMode);
-        return show(req, res);
+        res.status(204);
+        return NOTHING;
+    }
+
+    public String disableDrainModeState(Request req, Response res) throws Exception {
+        if (!featureToggleService.isToggleOn(Toggles.SERVER_DRAIN_MODE_API_TOGGLE_KEY)) {
+            throw new RecordNotFoundException();
+        }
+
+        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+        ServerDrainMode existingDrainModeState = drainModeService.get();
+        if (!existingDrainModeState.isDrainMode()) {
+            result.conflict("Failed to disable server drain mode. Server is not in drain state.");
+            return renderHTTPOperationResult(result, req, res);
+        }
+
+        drainModeService.update(new ServerDrainMode(false, currentUserLoginName().toString(), clock.currentTime()));
+
+        res.status(204);
+        return NOTHING;
     }
 
     public String getDrainModeInfo(Request req, Response res) throws InvalidPluginTypeException, IOException {

@@ -120,18 +120,18 @@ class ServerDrainModeControllerV1Test implements SecurityServiceTrait, Controlle
   }
 
   @Nested
-  class UpdateDrainModeState {
+  class EnableDrainModeState {
     @Nested
     class Security implements SecurityTestTrait, AdminUserSecurity {
 
       @Override
       String getControllerMethodUnderTest() {
-        return "updateDrainModeState"
+        return "enableDrainModeState"
       }
 
       @Override
       void makeHttpCall() {
-        post(controller.controllerPath('/settings'), [:])
+        post(controller.controllerPath('/enable'), [:])
       }
     }
 
@@ -153,17 +153,15 @@ class ServerDrainModeControllerV1Test implements SecurityServiceTrait, Controlle
           'content-type': 'application/json'
         ]
 
-        postWithApiHeader(controller.controllerPath('/settings'), headers, [:])
+        postWithApiHeader(controller.controllerPath('/enable'), headers, [:])
 
         assertThatResponse()
           .isNotFound()
       }
 
       @Test
-      void 'update server drain mode settings'() {
+      void 'enable server drain mode settings'() {
         def newDrainModeState = false
-        def data = [drain: newDrainModeState]
-
         def headers = [
           'accept'      : controller.mimeType,
           'content-type': 'application/json'
@@ -172,7 +170,89 @@ class ServerDrainModeControllerV1Test implements SecurityServiceTrait, Controlle
         when(drainModeService.get())
           .thenReturn(new ServerDrainMode(newDrainModeState, currentUserLoginName().toString(), testingClock.currentTime()))
 
-        postWithApiHeader(controller.controllerPath('/settings'), headers, data)
+        postWithApiHeader(controller.controllerPath('/enable'), headers)
+
+        def captor = ArgumentCaptor.forClass(ServerDrainMode.class)
+        verify(drainModeService).update(captor.capture())
+        def drainModeStateBeingSaved = captor.getValue()
+        assertThat(drainModeStateBeingSaved.isDrainMode()).isTrue()
+        assertThat(drainModeStateBeingSaved.updatedBy()).isEqualTo(currentUserLoginName().toString())
+        assertThat(drainModeStateBeingSaved.updatedOn()).isEqualTo(new Timestamp(testingClock.currentTimeMillis()))
+
+        assertThatResponse()
+          .hasNoContent()
+      }
+
+      @Test
+      void 'should not enable server drain mode in case server is already in drain state'() {
+        when(drainModeService.get()).thenReturn(new ServerDrainMode(true, currentUserLoginName().toString(), testingClock.currentTime()))
+
+        def headers = [
+          'accept'      : controller.mimeType,
+          'content-type': 'application/json'
+        ]
+
+        postWithApiHeader(controller.controllerPath('/enable'), headers)
+
+        assertThatResponse()
+          .isConflict()
+          .hasJsonMessage("Failed to enable server drain mode. Server is already in drain state.")
+      }
+    }
+  }
+
+  @Nested
+  class DisableDrainModeState {
+    @Nested
+    class Security implements SecurityTestTrait, AdminUserSecurity {
+
+      @Override
+      String getControllerMethodUnderTest() {
+        return "disableDrainModeState"
+      }
+
+      @Override
+      void makeHttpCall() {
+        post(controller.controllerPath('/disable'), [:])
+      }
+    }
+
+    @Nested
+    class AsAdminUser {
+      @BeforeEach
+      void setUp() {
+        enableSecurity()
+        loginAsAdmin()
+
+        when(featureToggleService.isToggleOn(Toggles.SERVER_DRAIN_MODE_API_TOGGLE_KEY)).thenReturn(true)
+      }
+
+      @Test
+      void 'should return not found when SERVER_DRAIN_MODE_API_TOGGLE_KEY is turned off'() {
+        when(featureToggleService.isToggleOn(Toggles.SERVER_DRAIN_MODE_API_TOGGLE_KEY)).thenReturn(false)
+        def headers = [
+          'accept'      : controller.mimeType,
+          'content-type': 'application/json'
+        ]
+
+        postWithApiHeader(controller.controllerPath('/disable'), headers, [:])
+
+        assertThatResponse()
+          .isNotFound()
+      }
+
+      @Test
+      void 'disable server drain mode settings'() {
+        def newDrainModeState = true
+        def headers = [
+          'accept'      : controller.mimeType,
+          'content-type': 'application/json'
+        ]
+
+        when(drainModeService.get())
+          .thenReturn(new ServerDrainMode(newDrainModeState, currentUserLoginName().toString(), testingClock.currentTime()))
+
+        postWithApiHeader(controller.controllerPath('/disable'), headers)
 
         def captor = ArgumentCaptor.forClass(ServerDrainMode.class)
         verify(drainModeService).update(captor.capture())
@@ -182,42 +262,23 @@ class ServerDrainModeControllerV1Test implements SecurityServiceTrait, Controlle
         assertThat(drainModeStateBeingSaved.updatedOn()).isEqualTo(new Timestamp(testingClock.currentTimeMillis()))
 
         assertThatResponse()
-          .isOk()
-          .hasContentType(controller.mimeType)
-          .hasJsonBody([
-          "_links"   : [
-            "self": [
-              "href": "http://test.host/go/api/admin/drain_mode/settings"
-            ],
-            "doc" : [
-              "href": "https://api.gocd.org/current/#drain-mode-settings"
-            ]
-          ],
-          "_embedded": [
-            "drain"     : false,
-            "updated_by": currentUserLoginName().toString(),
-            "updated_on": JsonOutputWriter.jsonDate(testingClock.currentTime())
-          ]
-        ])
+          .hasNoContent()
       }
 
       @Test
-      void 'should save error out when property drain is not present in payload'() {
-        def data = [junk: ""]
+      void 'should not disable server drain mode in case server is not in drain state'() {
+        when(drainModeService.get()).thenReturn(new ServerDrainMode(false, currentUserLoginName().toString(), testingClock.currentTime()))
 
         def headers = [
           'accept'      : controller.mimeType,
           'content-type': 'application/json'
         ]
 
-        postWithApiHeader(controller.controllerPath('/settings'), headers, data)
+        postWithApiHeader(controller.controllerPath('/disable'), headers)
 
         assertThatResponse()
-          .isUnprocessableEntity()
-          .hasContentType(controller.mimeType)
-          .hasJsonMessage("Json `{\\\"junk\\\":\\\"\\\"}` does not contain property 'drain'")
-
-        verifyZeroInteractions(drainModeService)
+          .isConflict()
+          .hasJsonMessage("Failed to disable server drain mode. Server is not in drain state.")
       }
     }
   }

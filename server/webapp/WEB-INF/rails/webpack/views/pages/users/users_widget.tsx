@@ -15,15 +15,59 @@
 */
 
 import {MithrilViewComponent} from "jsx/mithril-component";
+import * as _ from "lodash";
 import * as m from "mithril";
-import {Users} from "models/users/users";
+import {Stream} from "mithril/stream";
+import {UserJSON} from "models/users/users";
+import {Table} from "views/components/table";
 
 interface Attrs {
-  dummy?: Users;
+  users: Stream<UserJSON[]>;
+}
+
+export class UsersTableWidget extends MithrilViewComponent<Attrs> {
+  static headers() {
+    return ["Username", "Display Name", "Roles", "Aliases", "Admin", "Email", "Enabled"];
+  }
+
+  static userData(users: UserJSON[]): any[][] {
+    return users.map((user) => {
+      return [
+        user.login_name,
+        user.display_name,
+        undefined, _.join(user.checkin_aliases, ", "),
+        undefined,
+        user.email,
+        user.enabled
+      ];
+    });
+  }
+
+  view(vnode: m.Vnode<Attrs>) {
+    return <Table headers={UsersTableWidget.headers()} data={UsersTableWidget.userData(vnode.attrs.users())}/>;
+  }
+
+}
+
+export class UsersTableActions extends MithrilViewComponent<Attrs> {
+  view(vnode: m.Vnode<Attrs>) {
+    const [enabledUsers, disabledUsers] = _.partition(vnode.attrs.users(), (user) => {
+      return user.enabled;
+    });
+
+    return [
+      <div>Enabled <span data-test-id="enabled-user-count">{enabledUsers.length}</span></div>,
+      <div>Disabled <span data-test-id="disabled-user-count">{disabledUsers.length}</span></div>,
+    ];
+  }
 }
 
 export class UsersWidget extends MithrilViewComponent<Attrs> {
   view(vnode: m.Vnode<Attrs>) {
-    return <div> This is widget</div>;
+    if (_.isEmpty(vnode.attrs.users())) {
+      return (<div>No users found!</div>);
+    }
+
+    return [<UsersTableActions {...vnode.attrs} />, <UsersTableWidget {...vnode.attrs}/>];
   }
 }

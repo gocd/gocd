@@ -14,18 +14,19 @@
 * limitations under the License.
 */
 
-interface EmbeddedJSON {
-  dummy?: boolean;
-  // to be implemented
-}
-
-interface UsersJSON {
+export interface UsersJSON {
   _embedded: EmbeddedJSON;
 }
 
-export class Users {
-  // to be implemented
-  static fromJSON(data: UsersJSON) {
-    // to be implemented
-  }
+export interface EmbeddedJSON {
+  users: UserJSON[];
+}
+
+export interface UserJSON {
+  login_name: string;
+  display_name?: string;
+  enabled: boolean;
+  email?: string;
+  email_me: boolean;
+  checkin_aliases: string[];
 }

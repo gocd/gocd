@@ -16,39 +16,15 @@
 
 package com.thoughtworks.go.apiv1.configrepooperations
 
-import com.thoughtworks.go.api.SecurityTestTrait
+
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
-import com.thoughtworks.go.api.util.HaltApiMessages
-import com.thoughtworks.go.config.GoRepoConfigDataSource
-import com.thoughtworks.go.config.PartialConfigParseResult
-import com.thoughtworks.go.config.remote.ConfigRepoConfig
-import com.thoughtworks.go.config.remote.PartialConfig
-import com.thoughtworks.go.domain.materials.Material
-import com.thoughtworks.go.domain.materials.MaterialConfig
-import com.thoughtworks.go.server.materials.MaterialUpdateService
-import com.thoughtworks.go.server.service.ConfigRepoService
-import com.thoughtworks.go.server.service.MaterialConfigConverter
-import com.thoughtworks.go.spark.AdminUserSecurity
 import com.thoughtworks.go.spark.ControllerTrait
 import com.thoughtworks.go.spark.SecurityServiceTrait
 import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Nested
-import org.junit.jupiter.api.Test
-import org.mockito.Mock
 
-import static org.mockito.Mockito.*
 import static org.mockito.MockitoAnnotations.initMocks
 
 class ConfigRepoOperationsControllerV1Test implements SecurityServiceTrait, ControllerTrait<ConfigRepoOperationsControllerV1> {
-  @Mock
-  GoRepoConfigDataSource dataSource
-  @Mock
-  ConfigRepoService service
-  @Mock
-  MaterialUpdateService materialUpdateService
-  @Mock
-  MaterialConfigConverter converter
-
   private static final ID = "repo1"
 
   @BeforeEach
@@ -58,6 +34,6 @@ class ConfigRepoOperationsControllerV1Test implements SecurityServiceTrait, Cont
 
   @Override
   ConfigRepoOperationsControllerV1 createControllerInstance() {
-    return new ConfigRepoOperationsControllerV1(new ApiAuthenticationHelper(securityService, goConfigService), dataSource, service, materialUpdateService, converter)
+    return new ConfigRepoOperationsControllerV1(new ApiAuthenticationHelper(securityService, goConfigService))
   }
 }

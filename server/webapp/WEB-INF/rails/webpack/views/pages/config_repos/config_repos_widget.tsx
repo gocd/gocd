@@ -20,6 +20,7 @@ import * as m from "mithril";
 import {Stream} from "mithril/stream";
 import {ConfigRepo, humanizedMaterialAttributeName} from "models/config_repos/types";
 import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
+import {Configuration} from "models/shared/plugin_infos_new/plugin_settings/plugin_settings";
 import {Code} from "views/components/code";
 import {CollapsiblePanel} from "views/components/collapsible_panel";
 import {FlashMessage, MessageType} from "views/components/flash_message";
@@ -57,7 +58,7 @@ function findPluginWithId(infos: Array<PluginInfo<any>>, pluginId: string) {
   return _.find(infos, {id: pluginId});
 }
 
-class StatusIcon extends MithrilViewComponent<{name: string}> {
+class StatusIcon extends MithrilViewComponent<{ name: string }> {
   view(vnode: m.Vnode<{ name: string }, this>) {
     return (
       <div className={styles.statusIcon}>
@@ -104,29 +105,15 @@ class HeaderWidget extends MithrilViewComponent<HeaderWidgetAttrs> {
 class ConfigRepoWidget extends MithrilViewComponent<ShowObjectAttrs<ConfigRepo>> {
   view(vnode: m.Vnode<ShowObjectAttrs<ConfigRepo>>): m.Children | void | null {
 
-    const filteredAttributes = _.reduce(vnode.attrs.obj.material().attributes(), (accumulator: Map<string, string>,
-                                                                                  value: any,
-                                                                                  key: string) => {
-      if (key.startsWith("__") || key === "autoUpdate") {
-        return accumulator;
-      }
-
-      let renderedValue = value;
-
-      const renderedKey = humanizedMaterialAttributeName(key);
-
-      // test for value being a stream
-      if (_.isFunction(value)) {
-        value = value();
-      }
-
-      // test for value being an EncryptedPassword
-      if (value && value.valueForDisplay) {
-        renderedValue = value.valueForDisplay();
-      }
-      accumulator.set(renderedKey, _.isFunction(renderedValue) ? renderedValue() : renderedValue);
-      return accumulator;
-    }, new Map<string, string>());
+    const filteredAttributes = _.reduce(vnode.attrs.obj.material().attributes(),
+                                        this.resolveKeyValueForAttribute,
+                                        new Map<string, string>());
+    const allAttributes      = _.reduce(vnode.attrs.obj.configuration(),
+                                        (accumulator: Map<string, string>,
+                                         value: Configuration) => this.resolveKeyValueForAttribute(accumulator,
+                                                                                                   value.value,
+                                                                                                   value.key),
+                                        filteredAttributes);
 
     const refreshButton = (
       <Refresh data-test-id="config-repo-refresh" onclick={vnode.attrs.onRefresh.bind(vnode.attrs, vnode.attrs.obj)}/>
@@ -185,9 +172,26 @@ class ConfigRepoWidget extends MithrilViewComponent<ShowObjectAttrs<ConfigRepo>>
         {maybeWarning}
         {lastParseRevision}
         <h4 class={styles.scmHeader}>SCM configuration for {vnode.attrs.obj.material().type()} material</h4>
-        <KeyValuePair data={filteredAttributes}/>
+        <KeyValuePair data={allAttributes}/>
       </CollapsiblePanel>
     );
+  }
+
+  private resolveKeyValueForAttribute(accumulator: Map<string, string>, value: any, key: string) {
+    if (key.startsWith("__") || key === "autoUpdate") {
+      return accumulator;
+    }
+
+    const renderedKey = humanizedMaterialAttributeName(key);
+    // test for value being a stream
+    let renderedValue = _.isFunction(value) ? value() : value;
+
+    // test for value being an EncryptedPassword
+    if (value && value.valueForDisplay) {
+      renderedValue = value.valueForDisplay();
+    }
+    accumulator.set(renderedKey, _.isFunction(renderedValue) ? renderedValue() : renderedValue);
+    return accumulator;
   }
 
   private statusIcon(vnode: m.Vnode<ShowObjectAttrs<ConfigRepo>>) {
@@ -205,7 +209,7 @@ class ConfigRepoWidget extends MithrilViewComponent<ShowObjectAttrs<ConfigRepo>>
         <StatusIcon name="Never Parsed">
           <span className={styles.neverParsed}
                 title={`This configuration repository was never parsed.`}/>
-        </StatusIcon >
+        </StatusIcon>
       );
     }
 

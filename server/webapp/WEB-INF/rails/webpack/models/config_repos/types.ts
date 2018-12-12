@@ -450,10 +450,14 @@ const MATERIAL_TYPE_MAP: { [index: string]: string } = {
   p4: "Perforce",
 };
 
+const CONFIG_ATTRIBUTE: { [index: string]: string } = {
+  file_pattern: "File Pattern"
+};
+
 export function humanizedMaterialNameForMaterialType(materialType: string) {
   return MATERIAL_TYPE_MAP[materialType];
 }
 
 export function humanizedMaterialAttributeName(key: string) {
-  return HUMAN_NAMES_FOR_MATERIAL_ATTRIBUTES[key] || key;
+  return HUMAN_NAMES_FOR_MATERIAL_ATTRIBUTES[key] || CONFIG_ATTRIBUTE[key] || key;
 }

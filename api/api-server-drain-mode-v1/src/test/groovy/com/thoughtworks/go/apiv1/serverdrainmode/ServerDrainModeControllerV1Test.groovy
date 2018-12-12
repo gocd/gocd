@@ -20,7 +20,6 @@ import com.thoughtworks.go.api.SecurityTestTrait
 import com.thoughtworks.go.api.base.JsonOutputWriter
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
 import com.thoughtworks.go.apiv1.serverdrainmode.representers.DrainModeInfoRepresenter
-import com.thoughtworks.go.apiv1.serverdrainmode.representers.DrainModeSettingsRepresenter
 import com.thoughtworks.go.server.domain.ServerDrainMode
 import com.thoughtworks.go.server.service.DrainModeService
 import com.thoughtworks.go.server.service.JobInstanceService
@@ -63,60 +62,6 @@ class ServerDrainModeControllerV1Test implements SecurityServiceTrait, Controlle
   @Override
   ServerDrainModeControllerV1 createControllerInstance() {
     new ServerDrainModeControllerV1(new ApiAuthenticationHelper(securityService, goConfigService), drainModeService, jobInstanceService, featureToggleService, testingClock)
-  }
-
-  @Nested
-  class Get {
-    @Nested
-    class Security implements SecurityTestTrait, AdminUserSecurity {
-
-      @Override
-      String getControllerMethodUnderTest() {
-        return "show"
-      }
-
-      @Override
-      void makeHttpCall() {
-        getWithApiHeader(controller.controllerPath('/settings'))
-      }
-    }
-
-    @Nested
-    class AsAdminUser {
-      @BeforeEach
-      void setUp() {
-        enableSecurity()
-        loginAsAdmin()
-      }
-
-      @Test
-      void 'get drain mode settings'() {
-        def drainMode = new ServerDrainMode()
-
-        when(drainModeService.get()).thenReturn(drainMode)
-        when(featureToggleService.isToggleOn(Toggles.SERVER_DRAIN_MODE_API_TOGGLE_KEY)).thenReturn(true)
-
-        getWithApiHeader(controller.controllerPath('/settings'))
-
-        assertThatResponse()
-          .isOk()
-          .hasContentType(controller.mimeType)
-          .hasBody(toObjectString({ DrainModeSettingsRepresenter.toJSON(it, drainMode) }))
-      }
-
-      @Test
-      void 'should return not found when SERVER_DRAIN_MODE_API_TOGGLE_KEY is turned off'() {
-        def drainMode = new ServerDrainMode()
-
-        when(drainModeService.get()).thenReturn(drainMode)
-        when(featureToggleService.isToggleOn(Toggles.SERVER_DRAIN_MODE_API_TOGGLE_KEY)).thenReturn(false)
-
-        getWithApiHeader(controller.controllerPath())
-
-        assertThatResponse()
-          .isNotFound()
-      }
-    }
   }
 
   @Nested
@@ -311,6 +256,8 @@ class ServerDrainModeControllerV1Test implements SecurityServiceTrait, Controlle
       void 'get drain mode info'() {
         def runningMDUs = []
         def runningJobs = []
+
+        when(drainModeService.get()).thenReturn(new ServerDrainMode(true, currentUserLoginName().toString(), testingClock.currentTime()))
         when(drainModeService.getRunningMDUs()).thenReturn(runningMDUs)
         when(jobInstanceService.allBuildingJobs()).thenReturn(runningJobs)
         when(featureToggleService.isToggleOn(Toggles.SERVER_DRAIN_MODE_API_TOGGLE_KEY)).thenReturn(true)
@@ -320,7 +267,7 @@ class ServerDrainModeControllerV1Test implements SecurityServiceTrait, Controlle
         assertThatResponse()
           .isOk()
           .hasContentType(controller.mimeType)
-          .hasBody(toObjectString({ DrainModeInfoRepresenter.toJSON(it, true, runningMDUs, runningJobs) }))
+          .hasBody(toObjectString({ DrainModeInfoRepresenter.toJSON(it, drainModeService.get(), true, runningMDUs, runningJobs) }))
       }
 
       @Test

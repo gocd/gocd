@@ -20,7 +20,6 @@ import com.thoughtworks.go.api.ApiController;
 import com.thoughtworks.go.api.ApiVersion;
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
 import com.thoughtworks.go.apiv1.serverdrainmode.representers.DrainModeInfoRepresenter;
-import com.thoughtworks.go.apiv1.serverdrainmode.representers.DrainModeSettingsRepresenter;
 import com.thoughtworks.go.config.InvalidPluginTypeException;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.domain.JobInstance;
@@ -81,14 +80,10 @@ public class ServerDrainModeControllerV1 extends ApiController implements SparkS
             before("", this::verifyContentType);
             before("/*", this::verifyContentType);
 
-            before(Routes.DrainMode.SETTINGS, mimeType, apiAuthenticationHelper::checkAdminUserAnd403);
-
             before(Routes.DrainMode.ENABLE, mimeType, apiAuthenticationHelper::checkAdminUserAnd403);
             before(Routes.DrainMode.DISABLE, mimeType, apiAuthenticationHelper::checkAdminUserAnd403);
 
             before(Routes.DrainMode.INFO, mimeType, apiAuthenticationHelper::checkAdminUserAnd403);
-
-            get(Routes.DrainMode.SETTINGS, mimeType, this::show);
 
             post(Routes.DrainMode.ENABLE, mimeType, this::enableDrainModeState);
             post(Routes.DrainMode.DISABLE, mimeType, this::disableDrainModeState);
@@ -97,14 +92,6 @@ public class ServerDrainModeControllerV1 extends ApiController implements SparkS
 
             exception(RecordNotFoundException.class, this::notFound);
         });
-    }
-
-    public String show(Request req, Response res) throws InvalidPluginTypeException, IOException {
-        if (!featureToggleService.isToggleOn(Toggles.SERVER_DRAIN_MODE_API_TOGGLE_KEY)) {
-            throw new RecordNotFoundException();
-        }
-
-        return writerForTopLevelObject(req, res, writer -> DrainModeSettingsRepresenter.toJSON(writer, drainModeService.get()));
     }
 
     public String enableDrainModeState(Request req, Response res) throws Exception {
@@ -151,6 +138,6 @@ public class ServerDrainModeControllerV1 extends ApiController implements SparkS
         Collection<DrainModeService.MaterialPerformingMDU> runningMDUs = drainModeService.getRunningMDUs();
         List<JobInstance> jobInstances = jobInstanceService.allRunningJobs();
         boolean isServerCompletelyDrained = runningMDUs.isEmpty() && jobInstances.isEmpty();
-        return writerForTopLevelObject(req, res, writer -> DrainModeInfoRepresenter.toJSON(writer, isServerCompletelyDrained, runningMDUs, jobInstances));
+        return writerForTopLevelObject(req, res, writer -> DrainModeInfoRepresenter.toJSON(writer, drainModeService.get(), isServerCompletelyDrained, runningMDUs, jobInstances));
     }
 }

@@ -16,17 +16,20 @@
 
 package com.thoughtworks.go.server.web;
 
+import com.thoughtworks.go.server.service.support.toggle.FeatureToggleService;
+import com.thoughtworks.go.server.service.support.toggle.Toggles;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
 import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
+import java.io.IOException;
+
+import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 public class DefaultHeadersFilterTest {
@@ -37,16 +40,20 @@ public class DefaultHeadersFilterTest {
     private FilterChain chain;
     @Mock
     private ServletRequest request;
+    @Mock
+    private FeatureToggleService featureToggleService;
     private DefaultHeadersFilter filter;
 
     @Before
     public void setUp() throws Exception {
         initMocks(this);
         filter = new DefaultHeadersFilter();
+        Toggles.initializeWith(featureToggleService);
     }
 
     @Test
     public void shouldAddDefaultHeaders() throws Exception {
+        when(featureToggleService.isToggleOn(Toggles.USE_HSTS_HEADER)).thenReturn(true);
         filter.doFilter(request, response, chain);
 
         verify(response).isCommitted();
@@ -54,6 +61,20 @@ public class DefaultHeadersFilterTest {
         verify(response).setHeader("X-Content-Type-Options", "nosniff");
         verify(response).setHeader("X-Frame-Options", "SAMEORIGIN");
         verify(response).setHeader("X-UA-Compatible", "chrome=1");
+        verify(response).setHeader("Strict-Transport-Security", "31536000");
+    }
+
+    @Test
+    public void shouldNotAddHstsHeaderWhenToggledOff() throws ServletException, IOException {
+        when(featureToggleService.isToggleOn(Toggles.USE_HSTS_HEADER)).thenReturn(false);
+        filter.doFilter(request, response, chain);
+
+        verify(response).isCommitted();
+        verify(response).setHeader("X-XSS-Protection", "1; mode=block");
+        verify(response).setHeader("X-Content-Type-Options", "nosniff");
+        verify(response).setHeader("X-Frame-Options", "SAMEORIGIN");
+        verify(response).setHeader("X-UA-Compatible", "chrome=1");
+        verify(response, never()).setHeader(eq("Strict-Transport-Security"), anyString());
     }
 
     @Test

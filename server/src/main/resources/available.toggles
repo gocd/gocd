@@ -40,6 +40,11 @@
         "key": "use_old_elastic_profile_spa",
         "description": "Switch elastic profile spa to use old spa.",
         "value": false
+      },
+      {
+        "key": "use_hsts_header",
+        "description": "Include the HSTS header in all responses",
+        "value": false
       }
   ]
 }

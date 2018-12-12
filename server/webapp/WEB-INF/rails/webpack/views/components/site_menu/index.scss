@@ -15,6 +15,20 @@
  */
 @import "../../global/common";
 
+@mixin ie-edge-fix-for-admin-dropdown {
+  @media(min-width: $screen-md) {
+    .sub-navigation {
+      display: flex;
+    }
+
+    &:before {
+      top:        40px;
+      z-index:    map_get($zindex, 'menu');
+      transition: all 0.1s ease-in-out;
+    }
+  }
+}
+
 .main-menu {
   display: block;
 }

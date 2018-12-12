@@ -63,7 +63,6 @@
 }
 
 .server-health-messages-container {
-  @include hover-effect-for-top-menu;
   @include icon-before($fa-var-exclamation-circle, $margin: 0);
   background-color: darken($failed, 20%);
   display:          flex;
@@ -71,8 +70,10 @@
   border-radius:    $global-border-radius;
   margin:           0 0 20px 0;
   align-items:      center;
+  color:            $white;
+  cursor:           pointer;
   &:before {
-    margin: 0 10px 0 0;
+    margin: 1px 10px 0 0;
   }
   @media(min-width: $screen-md) {
     margin: 0 17px 0 0;

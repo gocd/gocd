@@ -59,21 +59,24 @@ export interface ProfileUsageJSON {
   pipeline_name: string;
   stage_name: string;
   job_name: string;
+  template_name?: string;
 }
 
 export class ProfileUsage {
   pipelineName: Stream<string>;
   jobName: Stream<string>;
   stageName: Stream<string>;
+  templateName: Stream<string>;
 
-  constructor(pipelineName: string, stageName: string, jobName: string) {
+  constructor(pipelineName: string, stageName: string, jobName: string, templateName?: string) {
     this.pipelineName = stream(pipelineName);
     this.stageName    = stream(stageName);
     this.jobName      = stream(jobName);
+    this.templateName = stream(templateName);
   }
 
   static fromJSON(usageJson: ProfileUsageJSON) {
-    return new ProfileUsage(usageJson.pipeline_name, usageJson.stage_name, usageJson.job_name);
+    return new ProfileUsage(usageJson.pipeline_name, usageJson.stage_name, usageJson.job_name, usageJson.template_name);
   }
 }
 
@@ -124,5 +127,4 @@ export class ElasticProfile implements ValidatableMixin {
     };
   }
 }
-
 applyMixins(ElasticProfile, ValidatableMixin);

@@ -271,8 +271,12 @@ export class UsageElasticProfileModal extends Modal {
       return (<span> No usages for profile '{this.profileId}' found.</span>);
     }
 
-    const data = this.usages.map((usage) => [usage.pipelineName(), usage.stageName(), usage.jobName(),
-      <a href={UsageElasticProfileModal.linkToJobSettings(usage)}>Go to job settings</a>]);
+    const data = this.usages.map((usage) => [
+      usage.pipelineName(),
+      usage.stageName(),
+      usage.jobName(),
+      UsageElasticProfileModal.anchorToSettings(usage)
+    ]);
     return (<Table headers={["Pipeline", "Stage", "Job", " "]} data={data}/>);
   }
 
@@ -280,7 +284,13 @@ export class UsageElasticProfileModal extends Modal {
     return "Usages for " + this.profileId;
   }
 
-  private static linkToJobSettings(usage: ProfileUsage) {
-    return `/go/admin/pipelines/${usage.pipelineName()}/stages/${usage.stageName()}/job/${usage.jobName()}/settings`;
+  private static anchorToSettings(usage: ProfileUsage) {
+    let link = `/go/admin/pipelines/${usage.pipelineName()}/stages/${usage.stageName()}/job/${usage.jobName()}/settings`;
+
+    if (usage.templateName()) {
+      link = `/go/admin/templates/${usage.templateName()}/stages/${usage.stageName()}/job/${usage.jobName()}/settings`;
+    }
+
+    return <a href={link}>Go to job settings</a>;
   }
 }

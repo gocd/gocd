@@ -23,12 +23,12 @@ import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
 import com.thoughtworks.go.api.util.GsonTransformer;
 import com.thoughtworks.go.apiv1.elasticprofile.representers.ElasticProfileRepresenter;
+import com.thoughtworks.go.apiv1.elasticprofile.representers.ElasticProfileUsageRepresenter;
 import com.thoughtworks.go.apiv1.elasticprofile.representers.ElasticProfilesRepresenter;
-import com.thoughtworks.go.apiv1.elasticprofile.representers.JobConfigIdentifierRepresenter;
 import com.thoughtworks.go.config.PluginProfiles;
 import com.thoughtworks.go.config.elastic.ElasticProfile;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
-import com.thoughtworks.go.domain.JobConfigIdentifier;
+import com.thoughtworks.go.domain.ElasticProfileUsage;
 import com.thoughtworks.go.server.service.ElasticProfileService;
 import com.thoughtworks.go.server.service.EntityHashingService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
@@ -143,8 +143,8 @@ public class ElasticProfileControllerV1 extends ApiController implements SparkSp
 
     public String usages(Request request, Response response) {
         final String elasticProfileId = StringUtils.stripToEmpty(request.params(PROFILE_ID_PARAM));
-        final Collection<JobConfigIdentifier> jobsUsingElasticProfile = elasticProfileService.getJobsUsingElasticProfile(elasticProfileId);
-        return JobConfigIdentifierRepresenter.toJSON(jobsUsingElasticProfile);
+        final Collection<ElasticProfileUsage> jobsUsingElasticProfile = elasticProfileService.getUsageInformation(elasticProfileId);
+        return ElasticProfileUsageRepresenter.toJSON(jobsUsingElasticProfile);
     }
 
 

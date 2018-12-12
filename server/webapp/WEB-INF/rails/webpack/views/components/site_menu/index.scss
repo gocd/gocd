@@ -15,7 +15,19 @@
  */
 @import "../../global/common";
 
+@mixin ie-edge-fix-for-admin-dropdown {
+  @media(min-width: $screen-md) {
+    .sub-navigation {
+      display: flex;
+    }
 
+    &:before {
+      top:        40px;
+      z-index:    map_get($zindex, 'menu');
+      transition: all 0.1s ease-in-out;
+    }
+  }
+}
 
 .main-menu {
   display: block;
@@ -75,19 +87,11 @@
     }
   }
 
-  &:hover, &:focus, &:focus-within {
-    // background: $sub-navigation-bg;
-    @media(min-width: $screen-md) {
-      .sub-navigation {
-        display: flex;
-      }
-
-      &:before {
-        top:        40px;
-        z-index:    map_get($zindex, 'menu');
-        transition: all 0.1s ease-in-out;
-      }
-    }
+  &:hover {
+    @include ie-edge-fix-for-admin-dropdown
+  }
+  &:focus, &:focus-within {
+    @include ie-edge-fix-for-admin-dropdown
   }
   .caret_down_icon {
     @include icon-before($fa-var-caret-down);

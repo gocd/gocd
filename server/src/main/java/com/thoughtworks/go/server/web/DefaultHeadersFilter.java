@@ -17,7 +17,7 @@
 package com.thoughtworks.go.server.web;
 
 import com.google.common.net.HttpHeaders;
-import com.thoughtworks.go.server.service.support.toggle.Toggles;
+import com.thoughtworks.go.util.SystemEnvironment;
 
 import javax.servlet.*;
 import javax.servlet.http.HttpServletResponse;
@@ -28,6 +28,7 @@ import java.io.IOException;
 public class DefaultHeadersFilter implements Filter {
 
     private static final String ONE_YEAR = String.valueOf(60 * 60 * 24 * 365);
+    private SystemEnvironment systemEnvironment = new SystemEnvironment();
 
     public void destroy() {
     }
@@ -44,7 +45,7 @@ public class DefaultHeadersFilter implements Filter {
             addSecureHeader(response, "X-Content-Type-Options", "nosniff");
             addSecureHeader(response, "X-Frame-Options", "SAMEORIGIN");
             addSecureHeader(response, "X-UA-Compatible", "chrome=1");
-            if(Toggles.isToggleOn(Toggles.USE_HSTS_HEADER)) {
+            if (systemEnvironment.enableHstsHeader()) {
                 addSecureHeader(response, HttpHeaders.STRICT_TRANSPORT_SECURITY, ONE_YEAR);
             }
         }

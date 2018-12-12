@@ -230,6 +230,9 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
     private static GoSystemProperty<Boolean> GO_PLUGIN_CLASSLOADER_OLD = new GoBooleanSystemProperty("gocd.plugins.classloader.old", false);
     public static final GoSystemProperty<String> LOADING_PAGE = new GoStringSystemProperty("loading.page.resource.path", "/loading_pages/default.loading.page.html");
     public static GoSystemProperty<Long> NOTIFICATION_PLUGIN_MESSAGES_TTL = new GoLongSystemProperty("plugins.notification.message.ttl.millis", 2 * 60 * 1000L);
+
+    public static GoSystemProperty<Boolean> ENABLE_HSTS_HEADER = new GoBooleanSystemProperty("gocd.enable.hsts.header", false);
+
     private final static Map<String, String> GIT_ALLOW_PROTOCOL;
 
     static {
@@ -898,6 +901,10 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
 
     public boolean enableAnalyticsOnlyForAdmins() {
         return ENABLE_ANALYTICS_ONLY_FOR_ADMINS.getValue();
+    }
+
+    public boolean enableHstsHeader() {
+        return ENABLE_HSTS_HEADER.getValue();
     }
 
     public boolean shouldFailStartupOnDataError() {

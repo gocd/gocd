@@ -17,7 +17,8 @@
 package com.thoughtworks.go.server.web;
 
 import com.thoughtworks.go.server.service.support.toggle.FeatureToggleService;
-import com.thoughtworks.go.server.service.support.toggle.Toggles;
+import com.thoughtworks.go.util.SystemEnvironment;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -34,6 +35,7 @@ import static org.mockito.MockitoAnnotations.initMocks;
 
 public class DefaultHeadersFilterTest {
 
+    private static final String ENABLE_HSTS_HEADER = "gocd.enable.hsts.header";
     @Mock
     private HttpServletResponse response;
     @Mock
@@ -43,17 +45,23 @@ public class DefaultHeadersFilterTest {
     @Mock
     private FeatureToggleService featureToggleService;
     private DefaultHeadersFilter filter;
+    private SystemEnvironment systemEnvironment;
 
     @Before
     public void setUp() throws Exception {
         initMocks(this);
         filter = new DefaultHeadersFilter();
-        Toggles.initializeWith(featureToggleService);
+        systemEnvironment = new SystemEnvironment();
+    }
+
+    @After
+    public void tearDown() throws Exception {
+        systemEnvironment.clearProperty(ENABLE_HSTS_HEADER);
     }
 
     @Test
     public void shouldAddDefaultHeaders() throws Exception {
-        when(featureToggleService.isToggleOn(Toggles.USE_HSTS_HEADER)).thenReturn(true);
+        systemEnvironment.setProperty("gocd.enable.hsts.header", "true");
         filter.doFilter(request, response, chain);
 
         verify(response).isCommitted();
@@ -66,7 +74,7 @@ public class DefaultHeadersFilterTest {
 
     @Test
     public void shouldNotAddHstsHeaderWhenToggledOff() throws ServletException, IOException {
-        when(featureToggleService.isToggleOn(Toggles.USE_HSTS_HEADER)).thenReturn(false);
+        systemEnvironment.setProperty("gocd.enable.hsts.header", "false");
         filter.doFilter(request, response, chain);
 
         verify(response).isCommitted();

@@ -145,4 +145,12 @@ export default class {
   static cancelStage(pipelineName: string, stageName: string): string {
     return `/go/api/stages/${pipelineName}/${stageName}/cancel`;
   }
+
+  static authConfigPath(authConfigId?: string): string {
+    if (authConfigId) {
+      return `/go/api/admin/security/auth_configs/${authConfigId}`;
+    } else {
+      return "/go/api/admin/security/auth_configs";
+    }
+  }
 }

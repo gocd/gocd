@@ -34,6 +34,9 @@ describe("AuthorizationConfigurationPage", () => {
     expect(find("add-auth-config-button")).toContainText("Add");
   });
 
+  it("should disable add button if no authorization plugins installed", () => {
+    expect(find("add-auth-config-button")).toBeDisabled();
+  });
 
   function mount() {
     m.mount(root, new AuthConfigsPage());

@@ -19,39 +19,28 @@ package com.thoughtworks.go.apiv1.configrepooperations;
 import com.thoughtworks.go.api.ApiController;
 import com.thoughtworks.go.api.ApiVersion;
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
-import com.thoughtworks.go.config.GoRepoConfigDataSource;
-import com.thoughtworks.go.server.materials.MaterialUpdateService;
-import com.thoughtworks.go.server.service.ConfigRepoService;
-import com.thoughtworks.go.server.service.MaterialConfigConverter;
 import com.thoughtworks.go.spark.Routes.ConfigRepos;
 import com.thoughtworks.go.spark.spring.SparkSpringController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import static spark.Spark.*;
+import static spark.Spark.before;
+import static spark.Spark.path;
 
 @Component
 public class ConfigRepoOperationsControllerV1 extends ApiController implements SparkSpringController {
 
     private final ApiAuthenticationHelper authenticationHelper;
-    private final GoRepoConfigDataSource goRepoConfigDataSource;
-    private final ConfigRepoService configRepoService;
-    private final MaterialUpdateService mus;
-    private final MaterialConfigConverter converter;
 
     @Autowired
-    public ConfigRepoOperationsControllerV1(ApiAuthenticationHelper authenticationHelper, GoRepoConfigDataSource goRepoConfigDataSource, ConfigRepoService configRepoService, MaterialUpdateService mus, MaterialConfigConverter converter) {
+    public ConfigRepoOperationsControllerV1(ApiAuthenticationHelper authenticationHelper) {
         super(ApiVersion.v1);
         this.authenticationHelper = authenticationHelper;
-        this.goRepoConfigDataSource = goRepoConfigDataSource;
-        this.configRepoService = configRepoService;
-        this.mus = mus;
-        this.converter = converter;
     }
 
     @Override
     public String controllerBasePath() {
-        return ConfigRepos.INTERNAL_BASE;
+        return ConfigRepos.OPERATIONS_BASE;
     }
 
     @Override

@@ -61,11 +61,6 @@ export class DrainModeWidget extends MithrilViewComponent<Attrs> {
                     onchange={vnode.attrs.toggleDrainMode}
                     property={drainModeInfo.drainModeState}/>
           </div>
-          <div className={styles.col}>
-            <p>Is server in drain mode: {`${drainModeInfo.drainModeState}`}</p>
-            <p>Drain mode updated by: {drainModeInfo.metdata.updatedBy}</p>
-            <p>Drain mode updated on: {drainModeInfo.metdata.updatedOn}</p>
-          </div>
         </div>
         {mayBeDrainInfo}
       </div>

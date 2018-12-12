@@ -60,7 +60,6 @@ public class Routes {
         public static final String SPA_BASE = "/admin/config_repos";
         public static final String INTERNAL_BASE = "/api/internal/config_repos";
 
-        public static final String LAST_PARSED_RESULT_PATH = "/:id/last_parsed_result";
         public static final String STATUS_PATH = "/:id/status";
         public static final String TRIGGER_UPDATE_PATH = "/:id/trigger_update";
 

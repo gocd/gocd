@@ -20,15 +20,20 @@ import com.thoughtworks.go.api.ApiController;
 import com.thoughtworks.go.api.ApiVersion;
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
 import com.thoughtworks.go.api.util.HaltApiResponses;
-import com.thoughtworks.go.apiv1.configrepos.representers.ConfigRepoWithResultRepresenter;
+import com.thoughtworks.go.api.util.MessageJson;
 import com.thoughtworks.go.apiv1.configrepos.representers.ConfigRepoWithResultListRepresenter;
+import com.thoughtworks.go.apiv1.configrepos.representers.ConfigRepoWithResultRepresenter;
 import com.thoughtworks.go.config.GoRepoConfigDataSource;
 import com.thoughtworks.go.config.PartialConfigParseResult;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
+import com.thoughtworks.go.domain.materials.MaterialConfig;
+import com.thoughtworks.go.server.materials.MaterialUpdateService;
 import com.thoughtworks.go.server.service.ConfigRepoService;
+import com.thoughtworks.go.server.service.MaterialConfigConverter;
 import com.thoughtworks.go.spark.Routes.ConfigRepos;
 import com.thoughtworks.go.spark.spring.SparkSpringController;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import spark.Request;
 import spark.Response;
@@ -46,13 +51,17 @@ public class ConfigReposInternalControllerV1 extends ApiController implements Sp
     private final ConfigRepoService service;
     private final GoRepoConfigDataSource dataSource;
     private final ApiAuthenticationHelper authHelper;
+    private final MaterialUpdateService mus;
+    private final MaterialConfigConverter converter;
 
     @Autowired
-    public ConfigReposInternalControllerV1(ApiAuthenticationHelper authHelper, ConfigRepoService service, GoRepoConfigDataSource dataSource) {
+    public ConfigReposInternalControllerV1(ApiAuthenticationHelper authHelper, ConfigRepoService service, GoRepoConfigDataSource dataSource, MaterialUpdateService mus, MaterialConfigConverter converter) {
         super(ApiVersion.v1);
         this.service = service;
         this.dataSource = dataSource;
         this.authHelper = authHelper;
+        this.mus = mus;
+        this.converter = converter;
     }
 
     @Override
@@ -73,6 +82,8 @@ public class ConfigReposInternalControllerV1 extends ApiController implements Sp
 
             get(ConfigRepos.INDEX_PATH, mimeType, this::listRepos);
             get(ConfigRepos.REPO_PATH, mimeType, this::showRepo);
+            get(ConfigRepos.STATUS_PATH, mimeType, this::inProgress);
+            post(ConfigRepos.TRIGGER_UPDATE_PATH, mimeType, this::triggerUpdate);
         });
     }
 
@@ -91,7 +102,7 @@ public class ConfigReposInternalControllerV1 extends ApiController implements Sp
     }
 
     String showRepo(Request req, Response res) throws IOException {
-        ConfigRepoWithResult repo = repoFromRequest(req);
+        ConfigRepoWithResult repo = repoWithResultFromRequest(req);
 
         final String etag = etagFor(repo);
 
@@ -104,11 +115,28 @@ public class ConfigReposInternalControllerV1 extends ApiController implements Sp
         return writerForTopLevelObject(req, res, w -> ConfigRepoWithResultRepresenter.toJSON(w, repo));
     }
 
+    String triggerUpdate(Request req, Response res) {
+        MaterialConfig materialConfig = repoFromRequest(req).getMaterialConfig();
+        if (mus.updateMaterial(converter.toMaterial(materialConfig))) {
+            res.status(HttpStatus.CREATED.value());
+            return MessageJson.create("OK");
+        } else {
+            res.status(HttpStatus.CONFLICT.value());
+            return MessageJson.create("Update already in progress.");
+        }
+    }
+
+    String inProgress(Request req, Response res) {
+        MaterialConfig materialConfig = repoFromRequest(req).getMaterialConfig();
+        final boolean state = mus.isInProgress(converter.toMaterial(materialConfig));
+        return String.format("{\"inProgress\":%b}", state);
+    }
+
     private String etagFor(Object entity) {
         return sha256Hex(Integer.toString(entity.hashCode()));
     }
 
-    private ConfigRepoWithResult repoFromRequest(Request req) {
+    private ConfigRepoWithResult repoWithResultFromRequest(Request req) {
         ConfigRepoConfig repo = service.getConfigRepo(req.params(":id"));
 
         if (null == repo) {
@@ -118,6 +146,16 @@ public class ConfigReposInternalControllerV1 extends ApiController implements Sp
         PartialConfigParseResult result = dataSource.getLastParseResult(repo.getMaterialConfig());
 
         return new ConfigRepoWithResult(repo, result);
+    }
+
+    private ConfigRepoConfig repoFromRequest(Request req) {
+        ConfigRepoConfig repo = service.getConfigRepo(req.params(":id"));
+
+        if (null == repo) {
+            throw HaltApiResponses.haltBecauseNotFound();
+        }
+
+        return repo;
     }
 
     private List<ConfigRepoWithResult> allRepos() {

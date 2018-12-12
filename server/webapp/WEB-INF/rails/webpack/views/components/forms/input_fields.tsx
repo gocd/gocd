@@ -29,6 +29,7 @@ export interface LabelAttrs<T> {
   label: string;
   errorText?: string;
   helpText?: string;
+  onchange?: Function;
   disabled?: boolean;
   required?: boolean;
   small?: boolean;
@@ -122,7 +123,10 @@ abstract class FormField<T> extends MithrilViewComponent<FormFieldAttrs<T>> {
                               eventName: string,
                               propertyAttribute: string): { [key: string]: any } {
     return {
-      [eventName]: (evt: any) => vnode.attrs.property(evt.currentTarget[propertyAttribute]),
+      [eventName]: (evt: any) => {
+        vnode.attrs.property(evt.currentTarget[propertyAttribute]);
+        vnode.attrs.onchange && vnode.attrs.onchange(evt);
+      },
       [propertyAttribute]: vnode.attrs.property()
     };
   }

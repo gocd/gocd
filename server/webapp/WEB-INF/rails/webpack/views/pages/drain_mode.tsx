@@ -17,8 +17,7 @@
 import {ApiRequestBuilder, ErrorResponse, SuccessResponse} from "helpers/api_request_builder";
 import SparkRoutes from "helpers/spark_routes";
 import * as m from "mithril";
-import {DrainModeCRUD} from "models/drain_mode/drain_mode_crud";
-import {DrainModeSettings} from "models/drain_mode/drain_mode_settings";
+import {DrainModeAPIs} from "models/drain_mode/drain_mode_apis";
 import {DrainModeInfo, StageLocator} from "models/drain_mode/types";
 import {FlashMessage, MessageType} from "views/components/flash_message";
 import {HeaderPanel} from "views/components/header_panel";
@@ -31,11 +30,10 @@ interface SaveOperation<T> {
   onError: (errorResponse: ErrorResponse) => void;
 }
 
-interface State extends SaveOperation<DrainModeSettings> {
-  drainModeSettings: DrainModeSettings;
-  drainModeInfo?: DrainModeInfo;
+interface State extends SaveOperation<DrainModeInfo> {
+  drainModeInfo: DrainModeInfo;
   message: Message;
-  onReset: (drainModeSettings: DrainModeSettings, e: Event) => void;
+  toggleDrainMode: (e: Event) => void;
   onCancelStage: (stageLocator: StageLocator, e: Event) => void;
 }
 
@@ -52,11 +50,11 @@ export class Message {
 export class DrainModePage extends Page<null, State> {
   oninit(vnode: m.Vnode<null, State>) {
     super.oninit(vnode);
-    vnode.state.onSave = (drainModeSettings: DrainModeSettings, e: Event) => {
+
+    vnode.state.toggleDrainMode = (e: Event) => {
       e.stopPropagation();
-      DrainModeCRUD.update(drainModeSettings)
-                   .then((result) => result.do(vnode.state.onSuccessfulSave, vnode.state.onError))
-                   .finally(m.redraw);
+      const updateOperation = vnode.state.drainModeInfo.drainModeState() ? DrainModeAPIs.enable : DrainModeAPIs.disable;
+      updateOperation().then(() => this.fetchData(vnode)).finally(m.redraw);
     };
 
     vnode.state.onCancelStage = (stageLocator: StageLocator, e: Event) => {
@@ -67,19 +65,8 @@ export class DrainModePage extends Page<null, State> {
                          vnode.state.message = new Message(
                            MessageType.success,
                            `Stage ${stageLocator.stageName} successfully cancelled.`);
-                         this.fetchDrainModeInfo(vnode);
+                         this.fetchData(vnode);
                        }, vnode.state.onError);
-    };
-
-    vnode.state.onReset = (drainModeSettings: DrainModeSettings, e: Event) => {
-      drainModeSettings.reset();
-    };
-
-    vnode.state.onSuccessfulSave = (successResponse: SuccessResponse<DrainModeSettings>) => {
-      vnode.state.drainModeSettings = successResponse.body;
-      const state                   = vnode.state.drainModeSettings.drain() ? "on" : "off";
-      vnode.state.message           = new Message(MessageType.success, `Drain mode turned ${state}.`);
-      this.fetchDrainModeInfo(vnode);
     };
 
     vnode.state.onError = (errorResponse: ErrorResponse) => {
@@ -93,10 +80,8 @@ export class DrainModePage extends Page<null, State> {
     return (
       <div>
         {mayBeMessage}
-        <DrainModeWidget settings={vnode.state.drainModeSettings}
-                         onSave={vnode.state.onSave.bind(vnode.state)}
-                         onReset={vnode.state.onReset.bind(vnode.state)}
-                         drainModeInfo={vnode.state.drainModeInfo}
+        <DrainModeWidget drainModeInfo={vnode.state.drainModeInfo}
+                         toggleDrainMode={vnode.state.toggleDrainMode}
                          onCancelStage={vnode.state.onCancelStage}/>
       </div>
     );
@@ -107,24 +92,12 @@ export class DrainModePage extends Page<null, State> {
   }
 
   fetchData(vnode: m.Vnode<null, State>) {
-    return DrainModeCRUD.get().then((settings) => {
-      settings.do((successResponse) => vnode.state.drainModeSettings = successResponse.body,
-                  vnode.state.onError);
-    }).then(() => this.fetchDrainModeInfo(vnode));
+    return DrainModeAPIs.info().then((info) => {
+      info.do((successResponse) => vnode.state.drainModeInfo = successResponse.body, vnode.state.onError);
+    });
   }
 
   pageName(): string {
     return "Server Drain Mode";
-  }
-
-  private fetchDrainModeInfo(vnode: m.Vnode<null, State>) {
-    if (vnode.state.drainModeSettings.drain()) {
-      DrainModeCRUD.info().then((result) => {
-        result.do((successResponse) => vnode.state.drainModeInfo = successResponse.body,
-                  vnode.state.onError);
-      });
-    } else {
-      vnode.state.drainModeInfo = undefined;
-    }
   }
 }

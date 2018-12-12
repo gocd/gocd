@@ -16,35 +16,27 @@
 
 import {ApiRequestBuilder, ApiResult, ApiVersion} from "helpers/api_request_builder";
 import SparkRoutes from "helpers/spark_routes";
-import {DrainModeSettings, DrainModeSettingsJSON} from "models/drain_mode/drain_mode_settings";
 import {DrainModeInfo, DrainModeInfoJSON} from "models/drain_mode/types";
 
-export class DrainModeCRUD {
+export class DrainModeAPIs {
   private static API_VERSION_HEADER = ApiVersion.v1;
+  private static CONFIRM_HEADER     = {"X-GoCD-Confirm": "true"};
 
-  static get() {
-    return ApiRequestBuilder
-      .GET(SparkRoutes.drainModeSettingsPath(), this.API_VERSION_HEADER)
-      .then(this.extractSettingsObject());
+  static enable() {
+    return ApiRequestBuilder.POST(SparkRoutes.enableDrainModePath(),
+                                  DrainModeAPIs.API_VERSION_HEADER,
+                                  {headers: DrainModeAPIs.CONFIRM_HEADER});
   }
 
-  static update(drainModeSettings: DrainModeSettings) {
-    return ApiRequestBuilder.POST(
-      SparkRoutes.drainModeSettingsPath(),
-      this.API_VERSION_HEADER,
-      {payload: drainModeSettings.toSnakeCaseJSON()}
-    ).then(this.extractSettingsObject());
+  static disable() {
+    return ApiRequestBuilder.POST(SparkRoutes.disableDrainModePath(),
+                                  DrainModeAPIs.API_VERSION_HEADER,
+                                  {headers: DrainModeAPIs.CONFIRM_HEADER});
   }
 
   static info() {
-    return ApiRequestBuilder.GET(SparkRoutes.drainModeInfoPath(), this.API_VERSION_HEADER)
-                            .then(DrainModeCRUD.extractInfoObject());
-  }
-
-  private static extractSettingsObject() {
-    return (result: ApiResult<string>): ApiResult<DrainModeSettings> => {
-      return result.map<DrainModeSettings>((body) => DrainModeSettings.fromJSON(JSON.parse(body) as DrainModeSettingsJSON));
-    };
+    return ApiRequestBuilder.GET(SparkRoutes.drainModeInfoPath(), DrainModeAPIs.API_VERSION_HEADER)
+                            .then(DrainModeAPIs.extractInfoObject());
   }
 
   private static extractInfoObject() {

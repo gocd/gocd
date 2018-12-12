@@ -24,7 +24,12 @@ export class TestData {
   static infoJSON() {
     return {
       _embedded: {
+        is_drain_mode: true,
         is_completely_drained: false,
+        metadata: {
+          updated_by: "Admin",
+          updated_on: "2018-12-10T04:19:31Z"
+        },
         running_systems: {
           mdu: [
             {

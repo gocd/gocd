@@ -13,7 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 import * as _ from "lodash";
+import * as stream from "mithril/stream";
+import {Stream} from "mithril/stream";
 import {MaterialJSON, Materials} from "models/drain_mode/material";
 
 const TimeFormatter = require("helpers/time_formatter");
@@ -34,8 +37,15 @@ export interface RunningSystemJSON {
   jobs?: JobJSON[];
 }
 
+export interface DrainModeMetadataJSON {
+  updated_by: string;
+  updated_on: string;
+}
+
 export interface EmbeddedJSON {
+  is_drain_mode: boolean;
   is_completely_drained: boolean;
+  metadata: DrainModeMetadataJSON;
   running_systems: RunningSystemJSON;
 }
 
@@ -143,17 +153,38 @@ export class RunningSystem {
   }
 }
 
-export class DrainModeInfo {
-  isCompletelyDrained: boolean;
-  runningSystem: RunningSystem;
+export class DrainModeMetadata {
+  updatedBy: string;
+  updatedOn: Date;
 
-  constructor(isCompletelyDrained: boolean, runningSystem: RunningSystem) {
+  constructor(updatedBy: string, updatedOn: string) {
+    this.updatedBy = updatedBy;
+    this.updatedOn = TimeFormatter.formatInDate(updatedOn);
+  }
+
+  static fromJSON(json: DrainModeMetadataJSON) {
+    return new DrainModeMetadata(json.updated_by, json.updated_on);
+  }
+}
+
+export class DrainModeInfo {
+  readonly drainModeState: Stream<boolean>;
+  public isCompletelyDrained: boolean;
+  public metdata: DrainModeMetadata;
+  public runningSystem: RunningSystem;
+
+  constructor(isDrainMode: boolean, isCompletelyDrained: boolean,
+              drainModeMetadata: DrainModeMetadata, runningSystem: RunningSystem) {
+    this.drainModeState      = stream(isDrainMode);
     this.isCompletelyDrained = isCompletelyDrained;
+    this.metdata             = drainModeMetadata;
     this.runningSystem       = runningSystem;
   }
 
   static fromJSON(json: DrainModeInfoJSON) {
-    return new DrainModeInfo(json._embedded.is_completely_drained,
+    return new DrainModeInfo(json._embedded.is_drain_mode,
+                             json._embedded.is_completely_drained,
+                             DrainModeMetadata.fromJSON(json._embedded.metadata),
                              RunningSystem.fromJSON(json._embedded.running_systems));
   }
 }

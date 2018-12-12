@@ -15,25 +15,43 @@
 */
 
 import * as m from "mithril";
-import {Users} from "models/users/users";
+import {Stream} from "mithril/stream";
+import * as stream from "mithril/stream";
+import {UserJSON} from "models/users/users";
+import {UsersCRUD} from "models/users/users_crud";
+import {Page, PageState} from "views/pages/page";
 import {UsersWidget} from "views/pages/users/users_widget";
-import {Page} from "views/pages/page";
 
 interface State {
-  dummy?: Users;
+  users: Stream<UserJSON[]>;
+
 }
 
 export class UsersPage extends Page<null, State> {
+  oninit(vnode: m.Vnode<null, State>) {
+    super.oninit(vnode);
+    vnode.state.users = stream([] as UserJSON[]);
+  }
+
   componentToDisplay(vnode: m.Vnode<null, State>): JSX.Element | undefined {
-    return <UsersWidget/>;
+    return <UsersWidget users={vnode.state.users}/>;
   }
 
   pageName(): string {
-    return "SPA Name goes here!";
+    return "User summary";
   }
 
   fetchData(vnode: m.Vnode<null, State>): Promise<any> {
-    // to be implemented
-    return Promise.resolve();
+    return Promise.all([UsersCRUD.all()]).then((args) => {
+      const apiResult = args[0];
+      apiResult.do((successResponse) => {
+                     vnode.state.users(successResponse.body);
+                     this.pageState = PageState.OK;
+                   }, (errorResponse) => {
+                     // vnode.state.onError(errorResponse.message);
+                     this.pageState = PageState.FAILED;
+                   }
+      );
+    });
   }
 }

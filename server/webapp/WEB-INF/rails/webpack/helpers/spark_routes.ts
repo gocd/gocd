@@ -43,10 +43,10 @@ export default class {
 
   static pipelineMaterialSearchPath(pipelineName: string, fingerprint: string, searchText: string): string {
     const queryString = m.buildQueryString({
-      fingerprint,
-      pipeline_name: pipelineName,
-      search_text: searchText
-    });
+                                             fingerprint,
+                                             pipeline_name: pipelineName,
+                                             search_text: searchText
+                                           });
     return `/go/api/internal/material_search?${queryString}`;
   }
 
@@ -160,5 +160,9 @@ export default class {
 
   static adminInternalVerifyConnectionPath(): string {
     return `/go/api/admin/internal/security/auth_configs/verify_connection`;
+  }
+
+  static apiUsersListPath() {
+    return "/go/api/users";
   }
 }

@@ -19,7 +19,6 @@
 const path                = require('path');
 const process             = require('process');
 const jasmineSeedReporter = require('karma-jasmine-seed-reporter');
-const _                   = require('lodash');
 const childProcess        = require('child_process');
 
 let browsers;
@@ -29,7 +28,11 @@ if (process.platform === 'darwin') {
 } else if (process.platform === 'win32') {
 
   // make sure to kill Edge browser before doing anything.
-  childProcess.spawnSync('taskkill', ['/F', '/IM', 'MicrosoftEdge.exe', '/T']);
+
+  // code copied from karma-edge-launcher script
+  const escapeRegex = /\\/g;
+  const escapement = '\\\\';
+  childProcess.spawnSync('powershell', [path.join(__dirname, 'node_modules', 'karma-edge-launcher', 'scripts/stop_edge.ps1').replace(escapeRegex, escapement)]);
 
   browsers = ['Edge'];
 } else {
@@ -90,7 +93,7 @@ module.exports = function (config) {
     colors:        true,
     logLevel:      process.env['KARMA_LOG_LEVEL'] ? config[`LOG_${process.env['KARMA_LOG_LEVEL'].toUpperCase()}`] : config.LOG_INFO,
     autoWatch:     true,
-    browsers:      browsers,
+    browsers,
     singleRun:     false,
     concurrency:   Infinity
   });

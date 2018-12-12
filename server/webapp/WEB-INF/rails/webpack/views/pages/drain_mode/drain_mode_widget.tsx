@@ -52,13 +52,14 @@ export class DrainModeWidget extends MithrilViewComponent<Attrs> {
           </p>
         </div>
 
-        <div className={classnames(styles.drainModeInfo, styles.col2)}>
-          <div className={styles.col}>
-            <Switch
-                    label={"Enable Drain Mode"}
-                    onchange={vnode.attrs.toggleDrainMode}
-                    property={drainModeInfo.drainModeState}/>
+        <div className={classnames(styles.drainModeInfo)}>
+          <div class={styles.updatedBy}>
+            {drainModeInfo.metdata.updatedBy} changed the drain mode state on {drainModeInfo.metdata.updatedOn}.
           </div>
+          <Switch label={"Enable Drain Mode"}
+                  onchange={vnode.attrs.toggleDrainMode}
+                  property={drainModeInfo.drainModeState}/>
+          <DisabledSubsystemsWidget drainModeInfo={drainModeInfo}/>
         </div>
         {mayBeDrainInfo}
       </div>

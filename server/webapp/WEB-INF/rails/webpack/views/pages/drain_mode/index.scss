@@ -30,9 +30,18 @@
 }
 
 .drain-mode-info {
+  width:         47%;
   border-radius: 3px;
   border:        1px solid $border-color;
   padding:       10px 20px;
+}
+
+.updated-by {
+  font-size:     13px;
+  display:       inline-block;
+  border-radius: 5px 5px 0 0;
+  font-style:    italic;
+  color:         $footer-fg;
 }
 
 .in-progress-subsystems {
@@ -58,13 +67,4 @@
 .running-system-header {
   padding: 20px 0 10px 0;
   margin:  0;
-}
-
-.col-2 {
-  display: flex;
-}
-
-.col-2 .col {
-  width:   50%;
-  padding: 0 15px;
 }

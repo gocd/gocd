@@ -71,7 +71,7 @@ class DrainModeInfoRepresenterTest {
     def jobInstances = Arrays.asList(scheduled, building)
 
     def actualJson = toObjectString({
-      DrainModeInfoRepresenter.toJSON(it, true, runningMDUs, jobInstances)
+      DrainModeInfoRepresenter.toJSON(it, drainModeService.get(), true, runningMDUs, jobInstances)
     })
 
     def expectedJson = [
@@ -80,7 +80,12 @@ class DrainModeInfoRepresenterTest {
         doc : [href: 'https://api.gocd.org/current/#drain-mode-info']
       ],
       _embedded: [
+        "is_drain_mode"        : true,
         "is_completely_drained": true,
+        "metadata"             : [
+          "updated_by": drainModeService.get().updatedBy(),
+          "updated_on": jsonDate(drainModeService.get().updatedOn())
+        ],
         "running_systems"      : [
           "mdu": [
             [
@@ -130,24 +135,24 @@ class DrainModeInfoRepresenterTest {
           ],
           jobs : [
             [
-              pipeline_name: scheduled.pipelineName,
+              pipeline_name   : scheduled.pipelineName,
               pipeline_counter: scheduled.pipelineCounter,
-              stage_name: scheduled.stageName,
-              stage_counter: scheduled.stageCounter,
-              name: scheduled.name,
-              state: scheduled.state,
-              scheduled_date: jsonDate(new Timestamp(scheduled.getScheduledDate().getTime())),
-              agent_uuid: scheduled.getAgentUuid()
+              stage_name      : scheduled.stageName,
+              stage_counter   : scheduled.stageCounter,
+              name            : scheduled.name,
+              state           : scheduled.state,
+              scheduled_date  : jsonDate(new Timestamp(scheduled.getScheduledDate().getTime())),
+              agent_uuid      : scheduled.getAgentUuid()
             ],
             [
-              pipeline_name: building.pipelineName,
+              pipeline_name   : building.pipelineName,
               pipeline_counter: building.pipelineCounter,
-              stage_name: building.stageName,
-              stage_counter: building.stageCounter,
-              name: building.name,
-              state: building.state,
-              scheduled_date: jsonDate(new Timestamp(building.getScheduledDate().getTime())),
-              agent_uuid: building.getAgentUuid()
+              stage_name      : building.stageName,
+              stage_counter   : building.stageCounter,
+              name            : building.name,
+              state           : building.state,
+              scheduled_date  : jsonDate(new Timestamp(building.getScheduledDate().getTime())),
+              agent_uuid      : building.getAgentUuid()
             ]
           ]
         ]

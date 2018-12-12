@@ -18,14 +18,18 @@ package com.thoughtworks.go.apiv1.configrepos
 
 import com.thoughtworks.go.api.SecurityTestTrait
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
+import com.thoughtworks.go.api.util.HaltApiMessages
 import com.thoughtworks.go.config.GoRepoConfigDataSource
 import com.thoughtworks.go.config.PartialConfigParseResult
 import com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig
 import com.thoughtworks.go.config.remote.ConfigRepoConfig
 import com.thoughtworks.go.config.remote.ConfigReposConfig
 import com.thoughtworks.go.config.remote.PartialConfig
+import com.thoughtworks.go.domain.materials.Material
 import com.thoughtworks.go.domain.materials.MaterialConfig
+import com.thoughtworks.go.server.materials.MaterialUpdateService
 import com.thoughtworks.go.server.service.ConfigRepoService
+import com.thoughtworks.go.server.service.MaterialConfigConverter
 import com.thoughtworks.go.spark.AdminUserSecurity
 import com.thoughtworks.go.spark.ControllerTrait
 import com.thoughtworks.go.spark.Routes
@@ -51,6 +55,12 @@ class ConfigReposInternalControllerV1Test implements SecurityServiceTrait, Contr
   @Mock
   GoRepoConfigDataSource dataSource
 
+  @Mock
+  MaterialUpdateService materialUpdateService
+
+  @Mock
+  MaterialConfigConverter converter
+
   @BeforeEach
   void setUp() {
     initMocks(this)
@@ -58,7 +68,7 @@ class ConfigReposInternalControllerV1Test implements SecurityServiceTrait, Contr
 
   @Override
   ConfigReposInternalControllerV1 createControllerInstance() {
-    new ConfigReposInternalControllerV1(new ApiAuthenticationHelper(securityService, goConfigService), service, dataSource)
+    new ConfigReposInternalControllerV1(new ApiAuthenticationHelper(securityService, goConfigService), service, dataSource, materialUpdateService, converter)
   }
 
   @Nested
@@ -183,5 +193,125 @@ class ConfigReposInternalControllerV1Test implements SecurityServiceTrait, Contr
     ConfigRepoConfig repo = new ConfigRepoConfig(materialConfig, TEST_PLUGIN_ID, id)
 
     return repo
+  }
+
+  @Nested
+  class Status {
+    @Nested
+    class Security implements SecurityTestTrait, AdminUserSecurity {
+      @Override
+      String getControllerMethodUnderTest() {
+        return "inProgress"
+      }
+
+      @Override
+      void makeHttpCall() {
+        getWithApiHeader(controller.controllerPath(ID_1, 'status'), [:])
+      }
+    }
+
+    @Nested
+    class Requests {
+      @BeforeEach
+      void setUp() {
+        loginAsAdmin()
+      }
+
+      @Test
+      void 'should confirm if update is in progress'() {
+        MaterialConfig config = mock(MaterialConfig.class)
+        Material material = mock(Material.class)
+
+        when(service.getConfigRepo(ID_1)).thenReturn(new ConfigRepoConfig(config, null, ID_1))
+        when(converter.toMaterial(config)).thenReturn(material)
+        when(materialUpdateService.isInProgress(material)).thenReturn(true)
+
+        getWithApiHeader(controller.controllerPath(ID_1, 'status'), [:])
+        verify(materialUpdateService).isInProgress(material)
+
+        assertThatResponse()
+          .isOk()
+          .hasContentType(controller.mimeType)
+          .hasJsonBody([inProgress: true])
+      }
+
+      @Test
+      void 'should return false if update is not in progress'() {
+        MaterialConfig config = mock(MaterialConfig.class)
+        Material material = mock(Material.class)
+
+        when(service.getConfigRepo(ID_1)).thenReturn(new ConfigRepoConfig(config, null, ID_1))
+        when(converter.toMaterial(config)).thenReturn(material)
+        when(materialUpdateService.isInProgress(material)).thenReturn(false)
+
+        getWithApiHeader(controller.controllerPath(ID_1, 'status'), [:])
+        verify(materialUpdateService).isInProgress(material)
+
+        assertThatResponse()
+          .isOk()
+          .hasContentType(controller.mimeType)
+          .hasJsonBody([inProgress: false])
+      }
+    }
+  }
+
+  @Nested
+  class Trigger {
+    @Nested
+    class Security implements SecurityTestTrait, AdminUserSecurity {
+      @Override
+      String getControllerMethodUnderTest() {
+        return "triggerUpdate"
+      }
+
+      @Override
+      void makeHttpCall() {
+        postWithApiHeader(controller.controllerPath(ID_1, 'trigger_update'), [:])
+      }
+    }
+
+    @Nested
+    class Requests {
+      @BeforeEach
+      void setUp() {
+        loginAsAdmin()
+      }
+
+      @Test
+      void 'should trigger material update for repo'() {
+        MaterialConfig config = mock(MaterialConfig.class)
+        Material material = mock(Material.class)
+
+        when(service.getConfigRepo(ID_1)).thenReturn(new ConfigRepoConfig(config, null, ID_1))
+        when(converter.toMaterial(config)).thenReturn(material)
+        when(materialUpdateService.updateMaterial(material)).thenReturn(true)
+
+        postWithApiHeader(controller.controllerPath(ID_1, 'trigger_update'), [:])
+        verify(materialUpdateService).updateMaterial(material)
+
+        assertThatResponse()
+          .isCreated()
+          .hasContentType(controller.mimeType)
+          .hasJsonMessage("OK")
+      }
+
+      @Test
+      void 'should not trigger update if update is already in progress'() {
+        MaterialConfig config = mock(MaterialConfig.class)
+        Material material = mock(Material.class)
+
+        when(service.getConfigRepo(ID_1)).thenReturn(new ConfigRepoConfig(config, null, ID_1))
+        when(converter.toMaterial(config)).thenReturn(material)
+        when(materialUpdateService.updateMaterial(material)).thenReturn(false)
+
+        postWithApiHeader(controller.controllerPath(ID_1, 'trigger_update'), [:])
+        verify(materialUpdateService).updateMaterial(material)
+
+        assertThatResponse()
+          .isConflict()
+          .hasContentType(controller.mimeType)
+          .hasJsonMessage("Update already in progress.")
+      }
+    }
   }
 }

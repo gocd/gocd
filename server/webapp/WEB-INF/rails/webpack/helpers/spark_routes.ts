@@ -106,10 +106,6 @@ export default class {
     return `/go/api/internal/config_repos`;
   }
 
-  static configRepoLastParsedResultPath(id: string): string {
-    return `/go/api/internal/config_repos/${id}/last_parsed_result`;
-  }
-
   static configRepoTriggerUpdatePath(id: string): string {
     return `/go/api/internal/config_repos/${id}/trigger_update`;
   }

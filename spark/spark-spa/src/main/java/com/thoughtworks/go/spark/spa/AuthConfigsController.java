@@ -25,11 +25,11 @@ import spark.Response;
 import spark.TemplateEngine;
 
 import java.util.HashMap;
+import java.util.Map;
 
 import static spark.Spark.*;
 
 public class AuthConfigsController implements SparkController {
-
     private final SPAAuthenticationHelper authenticationHelper;
     private final TemplateEngine engine;
 
@@ -40,7 +40,7 @@ public class AuthConfigsController implements SparkController {
 
     @Override
     public String controllerBasePath() {
-        return Routes.AuthConfigSPA.BASE;
+        return Routes.AuthConfigs.SPA_BASE;
     }
 
     @Override
@@ -52,9 +52,9 @@ public class AuthConfigsController implements SparkController {
     }
 
     public ModelAndView index(Request request, Response response) {
-        HashMap<Object, Object> object = new HashMap<Object, Object>() {{
-            put("viewTitle", "Authorization Configuration");
+        Map<Object, Object> object = new HashMap<Object, Object>() {{
+            put("viewTitle", "Authorization Configurations");
         }};
-        return new ModelAndView(object, "auth_configs/index.vm");
+        return new ModelAndView(object, null);
     }
 }

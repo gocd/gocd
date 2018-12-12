@@ -373,10 +373,6 @@ public class Routes {
         public static final String BASE = "/dashboard";
     }
 
-    public class AuthConfigSPA {
-        public static final String BASE = "/admin/security/auth_configs";
-    }
-
     public class PluginsSPA {
         public static final String BASE = "/admin/plugins";
     }
@@ -397,5 +393,9 @@ public class Routes {
         public static final String BASE = "/api/version";
         public static final String DOC = "https://api.gocd.org/#version";
         public static final String COMMIT_URL = "https://github.com/gocd/gocd/commit/";
+    }
+
+    public class AuthConfigs {
+        public static final String SPA_BASE = "/admin/security/auth_configs";
     }
 }

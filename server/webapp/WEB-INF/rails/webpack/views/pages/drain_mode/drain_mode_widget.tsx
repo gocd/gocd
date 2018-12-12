@@ -180,7 +180,7 @@ export class MDUInfoWidget extends MithrilViewComponent<MDUInfoAttrs> {
 
     return (
       <div>
-        <h3 className={styles.runningSystemHeader}>MDU state</h3>
+        <h3 className={styles.runningSystemHeader}>Running MDUs</h3>
         {inProgressMaterials}
       </div>
     );

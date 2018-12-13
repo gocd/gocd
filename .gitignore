@@ -253,6 +253,7 @@ server/agent.jar
 server/artifacts/
 server/artifactsDir/
 server/config/agentkeystore
+server/config/go.feature.toggles
 server/config/keystore
 server/config/truststore
 server/current/

@@ -83,7 +83,11 @@ export class KitchenSink extends MithrilViewComponent<null> {
         <h3>Icons</h3>
         <Icons.Settings onclick={() => alert("You pressed settings button!")}/> <br/>
         <p>
-          <IconGroup>
+          <Icons.Spinner iconOnly={true}/> <br/>
+          <Icons.Check iconOnly={true}/> <br/>
+        </p>
+        <p>
+          <ButtonGroup>
             <Icons.Settings onclick={() => alert("You pressed settings button!")}/>
             <Icons.Analytics onclick={() => alert("You pressed analytics button!")}/>
             <Icons.Edit onclick={() => alert("You pressed edit button!")}/>

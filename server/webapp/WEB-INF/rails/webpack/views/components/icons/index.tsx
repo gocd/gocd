@@ -122,7 +122,19 @@ export class QuestionMark extends Icon {
   }
 }
 
-export class IconGroup extends MithrilViewComponent<Attrs> {
+export class Spinner extends Icon {
+  constructor() {
+    super(styles.spinner, "Spinner");
+  }
+}
+
+export class Check extends Icon {
+  constructor() {
+    super(styles.check, "Check");
+  }
+}
+
+export class ButtonGroup extends MithrilViewComponent<Attrs> {
   view(vnode: m.Vnode<Attrs>) {
     return (
       <div className={styles.iconGroup} aria-label="actions">

@@ -82,6 +82,14 @@ $btn-group-border-radius: $global-border-radius;
   @include icon-before($type: $fa-var-question);
 }
 
+.check {
+  @include icon-before($type: $fa-var-check);
+}
+
+.spinner {
+  @include icon-before($type: $fa-var-spinner);
+}
+
 .refresh {
   @include icon-before($type: $fa-var-refresh);
 }

@@ -18,6 +18,7 @@ import {MithrilViewComponent} from "jsx/mithril-component";
 import * as m from "mithril";
 import {Stream} from "mithril/stream";
 import * as stream from "mithril/stream";
+import {ButtonGroup} from "views/components/buttons/index";
 import * as Buttons from "views/components/buttons/index";
 import {CollapsiblePanel} from "views/components/collapsible_panel";
 import {FlashMessage, MessageType} from "views/components/flash_message";
@@ -25,7 +26,7 @@ import {EncryptedValue} from "views/components/forms/encrypted_value";
 import {Form} from "views/components/forms/form";
 import {CheckboxField, PasswordField, Switch, TextField} from "views/components/forms/input_fields";
 import {HeaderPanel} from "views/components/header_panel";
-import {ButtonGroup} from "views/components/icons";
+import {IconGroup} from "views/components/icons";
 import * as Icons from "views/components/icons/index";
 import {KeyValuePair} from "views/components/key_value_pair";
 import {Size} from "views/components/modal";
@@ -82,7 +83,7 @@ export class KitchenSink extends MithrilViewComponent<null> {
         <h3>Icons</h3>
         <Icons.Settings onclick={() => alert("You pressed settings button!")}/> <br/>
         <p>
-          <ButtonGroup>
+          <IconGroup>
             <Icons.Settings onclick={() => alert("You pressed settings button!")}/>
             <Icons.Analytics onclick={() => alert("You pressed analytics button!")}/>
             <Icons.Edit onclick={() => alert("You pressed edit button!")}/>
@@ -91,10 +92,10 @@ export class KitchenSink extends MithrilViewComponent<null> {
             <Icons.Lock onclick={() => alert("You pressed lock button!")}/>
             <Icons.Close onclick={() => alert("You pressed close button!")}/>
             <Icons.QuestionMark onclick={() => alert("You pressed question button!")}/>
-          </ButtonGroup>
+          </IconGroup>
         </p>
         <p>
-          <ButtonGroup>
+          <IconGroup>
             <Icons.Settings disabled={true}/>
             <Icons.Analytics disabled={true}/>
             <Icons.Edit disabled={true}/>
@@ -103,7 +104,7 @@ export class KitchenSink extends MithrilViewComponent<null> {
             <Icons.Lock disabled={true}/>
             <Icons.Close disabled={true}/>
             <Icons.QuestionMark disabled={true}/>
-          </ButtonGroup>
+          </IconGroup>
         </p>
         <hr/>
 
@@ -123,25 +124,31 @@ export class KitchenSink extends MithrilViewComponent<null> {
         </div>
 
         <h3>Buttons:</h3>
-        <Buttons.Primary>Primary Button</Buttons.Primary>
-        <Buttons.Secondary>Secondary Button</Buttons.Secondary>
-        <Buttons.Reset>Reset Button</Buttons.Reset>
-        <Buttons.Cancel>Cancel</Buttons.Cancel>
-        <Buttons.Danger>Delete</Buttons.Danger>
+        <ButtonGroup>
+          <Buttons.Primary>Primary Button</Buttons.Primary>
+          <Buttons.Secondary>Secondary Button</Buttons.Secondary>
+          <Buttons.Reset>Reset Button</Buttons.Reset>
+          <Buttons.Cancel>Cancel</Buttons.Cancel>
+          <Buttons.Danger>Delete</Buttons.Danger>
+        </ButtonGroup>
         <hr/>
         <h3>Disabled Buttons:</h3>
-        <Buttons.Primary disabled={true}>Disabled Primary Button</Buttons.Primary>
-        <Buttons.Secondary disabled={true}>Disabled Secondary Button</Buttons.Secondary>
-        <Buttons.Reset disabled={true}>Disabled Reset Button</Buttons.Reset>
-        <Buttons.Cancel disabled={true}>Disabled Cancel</Buttons.Cancel>
-        <Buttons.Danger disabled={true}>Disabled Danger</Buttons.Danger>
+        <ButtonGroup>
+          <Buttons.Primary disabled={true}>Disabled Primary Button</Buttons.Primary>
+          <Buttons.Secondary disabled={true}>Disabled Secondary Button</Buttons.Secondary>
+          <Buttons.Reset disabled={true}>Disabled Reset Button</Buttons.Reset>
+          <Buttons.Cancel disabled={true}>Disabled Cancel</Buttons.Cancel>
+          <Buttons.Danger disabled={true}>Disabled Danger</Buttons.Danger>
+        </ButtonGroup>
 
         <br/>
         <h3>Small Buttons:</h3>
-        <Buttons.Primary small={true}>Small Primary Button</Buttons.Primary>
-        <Buttons.Secondary small={true}>Small Secondary Button</Buttons.Secondary>
-        <Buttons.Reset small={true}>Small Reset Button</Buttons.Reset>
-        <Buttons.Cancel small={true}>Cancel</Buttons.Cancel>
+        <ButtonGroup>
+          <Buttons.Primary small={true}>Small Primary Button</Buttons.Primary>
+          <Buttons.Secondary small={true}>Small Secondary Button</Buttons.Secondary>
+          <Buttons.Reset small={true}>Small Reset Button</Buttons.Reset>
+          <Buttons.Cancel small={true}>Cancel</Buttons.Cancel>
+        </ButtonGroup>
 
         <h3>Some examples of key value pairs</h3>
         <KeyValuePair data={new Map(

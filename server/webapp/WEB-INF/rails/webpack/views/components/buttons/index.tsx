@@ -99,3 +99,13 @@ export class Cancel extends Button {
     super(styles.btnCancel);
   }
 }
+
+export class ButtonGroup extends MithrilViewComponent<Attrs> {
+  view(vnode: m.Vnode<Attrs>) {
+    return (
+      <div className={styles.buttonGroup} aria-label="actions">
+        {vnode.children}
+      </div>
+    );
+  }
+}

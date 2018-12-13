@@ -90,7 +90,7 @@ $btn-group-border-radius: $global-border-radius;
   @include icon-before($type: $fa-var-pie-chart);
 }
 
-.button-group {
+.icon-group {
   border:        1px solid $border-color;
   border-radius: $btn-group-border-radius;
   display:       inline-flex;

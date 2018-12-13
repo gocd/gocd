@@ -29,7 +29,7 @@ import {CollapsiblePanel} from "views/components/collapsible_panel";
 import {FlashMessage, MessageType} from "views/components/flash_message";
 import {HeaderIcon} from "views/components/header_icon";
 import * as Icons from "views/components/icons";
-import {ButtonGroup} from "views/components/icons";
+import {IconGroup} from "views/components/icons";
 import {KeyValuePair, KeyValueTitle} from "views/components/key_value_pair";
 import * as styles from "views/pages/elastic_profiles/index.scss";
 import {CloneOperation, DeleteOperation, EditOperation} from "views/pages/page_operations";
@@ -191,14 +191,14 @@ export class ElasticProfileWidget extends MithrilComponent<ProfileAttrs> {
   view(vnode: m.Vnode<ProfileAttrs, {}>) {
     const elasticProfile = vnode.attrs.elasticProfile;
     const actions        = [
-      <ButtonGroup>
+      <IconGroup>
         <Icons.Edit data-test-id="edit-elastic-profile" onclick={vnode.attrs.onEdit}
                     disabled={!vnode.attrs.pluginInfo}/>
         <Icons.Clone data-test-id="clone-elastic-profile" onclick={vnode.attrs.onClone}
                      disabled={!vnode.attrs.pluginInfo}/>
         <Icons.Delete data-test-id="delete-elastic-profile" onclick={vnode.attrs.onDelete}/>
         <Icons.Usage data-test-id="show-usage-elastic-profile" onclick={vnode.attrs.onShowUsage}/>
-      </ButtonGroup>
+      </IconGroup>
     ];
     return (<CollapsiblePanel header={ElasticProfileWidget.profileHeader(elasticProfile.id())}
                               actions={actions}

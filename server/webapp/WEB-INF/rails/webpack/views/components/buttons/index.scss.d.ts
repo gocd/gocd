@@ -10,3 +10,4 @@ export const btnReset: string;
 export const btnCancel: string;
 export const iconAdd: string;
 export const iconDoc: string;
+export const buttonGroup: string;

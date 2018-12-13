@@ -12,4 +12,4 @@ export const close: string;
 export const question: string;
 export const refresh: string;
 export const usage: string;
-export const buttonGroup: string;
+export const iconGroup: string;

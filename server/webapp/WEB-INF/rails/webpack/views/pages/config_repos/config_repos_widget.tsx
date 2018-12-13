@@ -25,7 +25,7 @@ import {Code} from "views/components/code";
 import {CollapsiblePanel} from "views/components/collapsible_panel";
 import {FlashMessage, MessageType} from "views/components/flash_message";
 import {HeaderIcon} from "views/components/header_icon";
-import {ButtonGroup, Delete, Edit, Refresh} from "views/components/icons";
+import {Delete, Edit, IconGroup, Refresh} from "views/components/icons";
 import {KeyValuePair} from "views/components/key_value_pair";
 import {Spinner} from "views/components/spinner";
 import {
@@ -129,11 +129,11 @@ class ConfigRepoWidget extends MithrilViewComponent<ShowObjectAttrs<ConfigRepo>>
 
     const actionButtons = [
       this.statusIcon(vnode),
-      <ButtonGroup>
+      <IconGroup>
         {refreshButton}
         {editButton}
         {deleteButton}
-      </ButtonGroup>];
+      </IconGroup>];
 
     let lastParseRevision: m.Children;
 

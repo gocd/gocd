@@ -39,13 +39,13 @@ public class RequestContext {
         return new RequestContext(req.scheme(), req.raw().getServerName(), req.port(), req.contextPath());
     }
 
-    public Link build(String name, String template, Object... args) {
-        return new Link(name, urlFor(template, args));
+    public Link build(String name, String pathAfterContext) {
+        return new Link(name, urlFor(pathAfterContext));
     }
 
-    public String urlFor(String template, Object... args) {
+    public String urlFor(String pathAfterContext) {
         try {
-            return new URL(protocol, host, port, contextPath + String.format(template, args)).toExternalForm();
+            return new URL(protocol, host, port, contextPath + pathAfterContext).toExternalForm();
         } catch (MalformedURLException e) {
             throw new RuntimeException(e);
         }

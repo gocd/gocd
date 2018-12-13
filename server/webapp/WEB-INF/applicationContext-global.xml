@@ -27,6 +27,7 @@
 
   <context:annotation-config/>
 
+  <context:component-scan base-package="com.thoughtworks.go.apiv1.usersearch"/>
   <context:component-scan base-package="com.thoughtworks.go.apiv1.serverdrainmode"/>
   <context:component-scan base-package="com.thoughtworks.go.apiv4.agents"/>
   <context:component-scan base-package="com.thoughtworks.go.apiv1.version"/>

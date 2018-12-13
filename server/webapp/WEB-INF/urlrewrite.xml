@@ -26,6 +26,12 @@
 <urlrewrite>
 
   <rule>
+    <name>User Search API</name>
+    <from>^/api/user_search(/?)$</from>
+    <to last="true">/spark/api/user_search</to>
+  </rule>
+
+  <rule>
     <name>Current Version detail</name>
     <from>^/api/version$</from>
     <to last="true">/spark/api/version</to>

@@ -185,6 +185,9 @@ api/api-user-representers-v1/out/
 api/api-user-representers-v1/target/
 api/api-agents-v4/out/
 api/api-agents-v4/target/
+api/api-user-search-v1/logs/
+api/api-user-search-v1/out/
+api/api-user-search-v1/target/
 app-server/out/
 app-server/target/
 base/logs/

@@ -16,6 +16,9 @@
 
 package com.thoughtworks.go.spark;
 
+import com.google.common.net.UrlEscapers;
+import com.thoughtworks.go.api.base.OutputLinkWriter;
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.text.StrSubstitutor;
 
 import static com.google.common.collect.ImmutableMap.of;
@@ -240,6 +243,19 @@ public class Routes {
 
         public static String find() {
             return BASE + ":login_name";
+        }
+    }
+
+    public static class UserSearch {
+        public static final String BASE = "/api/user_search";
+        public static final String DOC = "https://api.gocd.org/#user-search";
+
+        public static String self(String searchTerm) {
+            return StrSubstitutor.replace(BASE + "?q=${searchTerm}", of("searchTerm", UrlEscapers.urlFormParameterEscaper().escape(searchTerm)));
+        }
+
+        public static String find() {
+            return BASE + "?q=:search_term";
         }
     }
 

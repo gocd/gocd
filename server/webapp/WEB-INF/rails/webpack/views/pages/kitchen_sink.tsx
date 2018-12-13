@@ -24,7 +24,7 @@ import {CollapsiblePanel} from "views/components/collapsible_panel";
 import {FlashMessage, MessageType} from "views/components/flash_message";
 import {EncryptedValue} from "views/components/forms/encrypted_value";
 import {Form} from "views/components/forms/form";
-import {CheckboxField, PasswordField, Switch, TextField} from "views/components/forms/input_fields";
+import {CheckboxField, PasswordField, RadioField, Switch, TextField} from "views/components/forms/input_fields";
 import {HeaderPanel} from "views/components/header_panel";
 import {IconGroup} from "views/components/icons";
 import * as Icons from "views/components/icons/index";
@@ -35,6 +35,7 @@ import {SearchBox} from "views/components/search_box";
 import {Table} from "views/components/table";
 
 const formValue     = stream("initial value");
+const radioValue    = stream("regular");
 const checkboxField = stream(false);
 
 const passwordValue          = stream(new EncryptedValue({clearText: "p@ssword"}));
@@ -202,6 +203,15 @@ export class KitchenSink extends MithrilViewComponent<null> {
           <PasswordField label="Locked password field"
                          placeholder="password"
                          property={encryptedPasswordValue}/>
+
+          <RadioField<string> label="Choose your favorite pizza topping"
+                              property={radioValue}
+                              possibleValues={new Map([
+                                                        ["Thin Crust", "thin-crust"],
+                                                        ["Cheese burst", "cheese-burst"],
+                                                        ["Boring regular", "regular"],
+                                                      ])}>
+          </RadioField>
         </Form>
 
         <h3>Table</h3>

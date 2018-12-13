@@ -17,11 +17,45 @@
 import Page from "helpers/spa_base";
 import {AuthConfigsPage} from "views/pages/auth_configs";
 
+//tslint:disable
+const m                 = require("mithril");
+const stream            = require("mithril/stream");
+const AuthConfigsWidget = require("views/auth_configs/auth_configs_widget");
+const PluginInfos       = require("models/shared/plugin_infos");
+const PageLoadError     = require("views/shared/page_load_error");
+
+//tslint:enable
+
 export class AuthConfigsSPA extends Page {
   constructor() {
     super(AuthConfigsPage);
   }
 }
 
-//tslint:disable-next-line
-new AuthConfigsSPA();
+$(() => {
+  const authConfigContainer = $("#auth-configs");
+  if (authConfigContainer.get().length === 0) {
+    return new AuthConfigsSPA();
+  }
+
+  const onSuccess = (pluginInfos: any) => {
+    const component = {
+      view() {
+        return (<AuthConfigsWidget pluginInfos={stream(pluginInfos)}/>);
+      }
+    };
+
+    m.mount($("#auth-configs").get(0), component);
+  };
+
+  const onFailure = () => {
+    const component = {
+      view() {
+        return (<PageLoadError message="There was a problem fetching the authorization configurations"/>);
+      }
+    };
+    m.mount($("#auth-configs").get(0), component);
+  };
+
+  PluginInfos.all(null, {type: "authorization"}).then(onSuccess, onFailure);
+});

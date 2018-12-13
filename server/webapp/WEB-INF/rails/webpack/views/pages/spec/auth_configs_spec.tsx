@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import {AuthConfigsPage} from "views/pages/auth_configs";
 import * as m from "mithril";
+import {AuthConfigsPage} from "views/pages/auth_configs";
 
 describe("AuthorizationConfigurationPage", () => {
   let $root: any, root: any;

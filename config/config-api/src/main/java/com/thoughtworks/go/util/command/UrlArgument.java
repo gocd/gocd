@@ -87,14 +87,22 @@ public class UrlArgument extends CommandArgument {
     }
 
     private String clean(String userInfo) {
-        String[] userAndPassword = userInfo.split(":");
-        StringBuilder result = new StringBuilder();
-        result.append(userAndPassword[0]);
-        if (userAndPassword.length > 1) {
-            result.append(":");
-            result.append("******");
+
+        if (userInfo.contains(":"))
+        {
+            String[] userAndPassword = userInfo.split(":");
+            StringBuilder result = new StringBuilder();
+            result.append(userAndPassword[0]);
+            if (userAndPassword.length > 1) {
+                result.append(":");
+                result.append("******");
+            }
+            return result.toString();
         }
-        return result.toString();
+        else if (userInfo.length() <= 32)
+            return userInfo;
+
+        return "******";
     }
 
     public static UrlArgument create(String url) {

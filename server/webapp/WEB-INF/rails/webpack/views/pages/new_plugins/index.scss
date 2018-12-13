@@ -16,6 +16,7 @@
 @import "../../global/common";
 
 $collapse-icon-size: 25px;
+$spinner-wrapper-height: 175px;
 
 .plugin-header {
   display:     flex;
@@ -32,7 +33,7 @@ $collapse-icon-size: 25px;
     vertical-align: middle;
   }
   @media (min-width: $screen-md) {
-    display: flex;
+    display:     flex;
     align-items: center;
   }
 }
@@ -48,6 +49,7 @@ $collapse-icon-size: 25px;
     font-size: 15px;
   }
 }
+
 .unknown-plugin-icon {
   @include icon-before($type: $fa-var-question, $color: $icon-light-color, $margin: 5px, $size: 25px);
   display: block;
@@ -61,4 +63,8 @@ $collapse-icon-size: 25px;
 
 .plugins-list {
   display: block;
+}
+
+.spinner-wrapper {
+  min-height: $spinner-wrapper-height;
 }

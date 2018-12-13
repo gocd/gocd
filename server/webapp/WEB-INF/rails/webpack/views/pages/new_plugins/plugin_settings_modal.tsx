@@ -24,6 +24,7 @@ import {FlashMessage, MessageType} from "views/components/flash_message";
 import {Modal, Size} from "views/components/modal";
 import {Spinner} from "views/components/spinner";
 import * as foundationStyles from "./foundation_hax.scss";
+import * as styles from "./index.scss";
 
 const AngularPluginNew = require("views/shared/angular_plugin_new");
 const Stream           = require("mithril/stream");
@@ -53,7 +54,7 @@ export class PluginSettingsModal extends Modal {
     }
 
     if (!this.pluginSettings) {
-      return <Spinner/>;
+      return <div class={styles.spinnerWrapper}><Spinner/></div>;
     }
 
     return (

@@ -19,7 +19,6 @@ $overlay-bg: rgba(0, 0, 0, 0.8);
 $overlay-header-bg: $go-darkblue;
 $overlay-width: 500px;
 $overlay-height: 500px;
-$minimum-overlay-height: 150px;
 $overlay-border-color: $global-border-color;
 $overlay-header-txt: #fff;
 
@@ -106,7 +105,6 @@ $overlay-header-txt: #fff;
   }
   @media(min-width: $screen-md) {
     max-height: $overlay-height;
-    min-height: $minimum-overlay-height;
   }
 
 }

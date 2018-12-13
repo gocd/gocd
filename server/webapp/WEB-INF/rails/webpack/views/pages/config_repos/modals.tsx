@@ -137,6 +137,7 @@ const MATERIAL_TO_COMPONENT_MAP: { [key: string]: MithrilViewComponent<EditableM
                      errorText={materialAttributes.errors().errorsForDisplay("url")}/>
 
           <TextField label={humanizedMaterialAttributeName("branch")}
+                     placeholder="master"
                      property={materialAttributes.branch}/>
 
         </MaterialEditWidget>

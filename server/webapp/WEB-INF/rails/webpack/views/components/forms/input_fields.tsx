@@ -32,6 +32,7 @@ export interface LabelAttrs<T> {
   disabled?: boolean;
   required?: boolean;
   small?: boolean;
+  placeholder?: string;
   property: (newValue?: T) => T;
 }
 
@@ -70,6 +71,7 @@ abstract class FormField<T> extends MithrilViewComponent<FormFieldAttrs<T>> {
       "autocorrect": "off",
       "spellcheck": false,
       "id": this.id,
+      "placeholder": vnode.attrs.placeholder,
       "data-test-id": "form-field-input"
     };
 

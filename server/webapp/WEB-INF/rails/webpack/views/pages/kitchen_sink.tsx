@@ -169,10 +169,12 @@ export class KitchenSink extends MithrilViewComponent<null> {
                      helpText="Enter your username here"
                      disabled={false}
                      label="Username"
+                     placeholder="username"
                      property={formValue}/>
           <TextField required={true}
                      helpText="Enter your username here"
                      disabled={false}
+                     placeholder="username"
                      label="Username"
                      property={formValue}/>
           <TextField required={true}
@@ -188,8 +190,10 @@ export class KitchenSink extends MithrilViewComponent<null> {
                          label="Do you want ice cream?"
                          property={checkboxField}/>
           <PasswordField label="Editable password field"
+                         placeholder="password"
                          property={passwordValue}/>
           <PasswordField label="Locked password field"
+                         placeholder="password"
                          property={encryptedPasswordValue}/>
         </Form>
 

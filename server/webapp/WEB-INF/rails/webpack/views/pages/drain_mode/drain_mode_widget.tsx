@@ -36,11 +36,14 @@ export class DrainModeWidget extends MithrilViewComponent<Attrs> {
   view(vnode: m.Vnode<Attrs>) {
     const drainModeInfo = vnode.attrs.drainModeInfo;
 
-    const mayBeDrainInfo = (
-      <div data-test-id="in-progress-subsystems" className={styles.inProgressSubsystems}>
-        <DrainModeInfoWidget drainModeInfo={vnode.attrs.drainModeInfo} onCancelStage={vnode.attrs.onCancelStage}/>
-      </div>
-    );
+    let mayBeDrainInfo;
+    if (drainModeInfo.drainModeState()) {
+      mayBeDrainInfo = (
+        <div data-test-id="in-progress-subsystems" className={styles.inProgressSubsystems}>
+          <DrainModeInfoWidget drainModeInfo={vnode.attrs.drainModeInfo} onCancelStage={vnode.attrs.onCancelStage}/>
+        </div>
+      );
+    }
 
     return (
       <div className={styles.drainModeWidget} data-test-id="drain-mode-widget">

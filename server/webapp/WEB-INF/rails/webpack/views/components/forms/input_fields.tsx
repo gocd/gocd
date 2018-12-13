@@ -18,6 +18,7 @@ import {bind} from "classnames/bind";
 import {MithrilViewComponent} from "jsx/mithril-component";
 import * as _ from "lodash";
 import * as m from "mithril";
+import * as s from "underscore.string";
 import * as uuid from "uuid/v4";
 import * as Buttons from "views/components/buttons";
 import {EncryptedValue} from "views/components/forms/encrypted_value";
@@ -288,5 +289,58 @@ export class SelectFieldOptions extends MithrilViewComponent<SelectFieldAttrs> {
                      value={id}
                      selected={vnode.attrs.selected === id}>{text}</option>;
     });
+  }
+}
+
+export interface RadioButtonAttrs<T> {
+  label: string;
+  errorText?: string;
+  disabled?: boolean;
+  required?: boolean;
+  property: (newValue?: T) => T;
+  possibleValues: Map<string, T>;
+}
+
+export class RadioField<T> extends MithrilViewComponent<RadioButtonAttrs<T>> {
+  protected readonly id: string = `input-${uuid()}`;
+  // protected readonly helpTextId: string = `${this.id}-help-text`;
+  // protected readonly errorId: string    = `${this.id}-error-text`;
+
+  view(vnode: m.Vnode<RadioButtonAttrs<T>>) {
+    const maybeRequired = this.isRequiredField(vnode) ?
+      <span className={styles.formLabelRequired}>*</span> : undefined;
+    return (
+      <li className={classnames(styles.formGroup, {[styles.formHasError]: this.hasErrorText(vnode)})}>
+        <label for={this.id} className={styles.formLabel}
+               data-test-id="form-field-label">{vnode.attrs.label}{maybeRequired}:</label>
+        {this.renderInputField(vnode)}
+      </li>
+    );
+  }
+
+  protected isRequiredField(vnode: m.Vnode<RadioButtonAttrs<T>>) {
+    return vnode.attrs.required;
+  }
+
+  protected hasErrorText(vnode: m.Vnode<RadioButtonAttrs<T>>) {
+    return !_.isEmpty(vnode.attrs.errorText);
+  }
+
+  private renderInputField(vnode: m.Vnode<RadioButtonAttrs<T>>) {
+    const result: m.Children[] = [];
+
+    vnode.attrs.possibleValues.forEach((value, key) => {
+      const radioButtonId = `${this.id}-${s.slugify(key)}`;
+      result.push([
+                    <input type="radio"
+                           id={radioButtonId}
+                           name={this.id}
+                           onclick={() => vnode.attrs.property(value)}/>,
+                    <label for={radioButtonId} className={styles.formLabel}
+                           data-test-id="form-field-label">{key}</label>
+                  ]);
+    });
+
+    return result;
   }
 }

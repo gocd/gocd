@@ -40,7 +40,7 @@ export class JobInfoWidget extends MithrilViewComponent<JobInfoAttrs> {
         runningStages.push(
           <CollapsiblePanel header={<KeyValuePair inline={true} data={stageLocator.asMap()}/>}
                             actions={JobInfoWidget.stageCancelButton(stageLocator, vnode)}>
-            <Table headers={["Job", "State", "Agent"]} data={JobInfoWidget.dataForTable(jobs)}/>
+            <Table headers={["Job", "State", "Scheduled At", "Agent"]} data={JobInfoWidget.dataForTable(jobs)}/>
           </CollapsiblePanel>
         );
       });
@@ -57,7 +57,7 @@ export class JobInfoWidget extends MithrilViewComponent<JobInfoAttrs> {
   private static dataForTable(jobs: Job[]): m.Child[][] {
     return jobs.reduce((groups: any[], job) => {
       const jobName = <a href={`/go/tab/build/detail/${job.locator()}`}>{job.jobName}</a>;
-      groups.push([jobName, job.scheduledDate, JobInfoWidget.agentLink(job)]);
+      groups.push([jobName, job.state, job.scheduledDate, JobInfoWidget.agentLink(job)]);
       return groups;
     }, []);
   }

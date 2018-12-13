@@ -116,7 +116,9 @@ export class ApiResult<T> {
       case 422:
         return ApiResult.error(xhr.responseText, this.parseMessage(xhr), xhr.status);
     }
-    return ApiResult.error(xhr.responseText, `There was an unknown error performing the operation. Possible reason (${xhr.statusText})`, xhr.status);
+    return ApiResult.error(xhr.responseText,
+                           `There was an unknown error performing the operation. Possible reason (${xhr.statusText})`,
+                           xhr.status);
   }
 
   private static parseMessage(xhr: XMLHttpRequest) {
@@ -163,6 +165,38 @@ export class ApiRequestBuilder {
                              method: string,
                              apiVersion?: ApiVersion,
                              options?: Partial<RequestOptions>): Promise<ApiResult<string>> {
+    const headers = this.buildHeaders(method, apiVersion, options);
+
+    let payload: any;
+    if (options && options.payload) {
+      payload = options.payload;
+    }
+
+    return m.request<XMLHttpRequest>({
+                                       url,
+                                       method,
+                                       headers,
+                                       data: payload,
+                                       extract: _.identity,
+                                       deserialize: _.identity,
+                                       config: (xhr) => {
+                                         if (options && options.xhrHandle) {
+                                           options.xhrHandle(xhr);
+                                         }
+                                       }
+                                     }).then((xhr: XMLHttpRequest) => {
+      return ApiResult.from(xhr);
+    }).catch((reason) => {
+      const unknownError = "There was an unknown error performing the operation.";
+      try {
+        return ApiResult.error(reason.responseText, JSON.parse(reason.message).message || unknownError, reason.status);
+      } catch {
+        return ApiResult.error(reason.responseText, unknownError, reason.status);
+      }
+    });
+  }
+
+  private static buildHeaders(method: string, apiVersion?: ApiVersion, options?: Partial<RequestOptions>) {
     let headers: Headers = {};
     if (options && options.headers) {
       headers = _.assign({}, options.headers);
@@ -176,33 +210,16 @@ export class ApiRequestBuilder {
       headers[this.etagHeaderName(method)] = options.etag as string;
     }
 
-    let payload: any;
-    if (options && options.payload) {
-      payload = options.payload;
+    if ((!options || !options.payload) && ApiRequestBuilder.isAnUpdate(method)) {
+      headers["X-GoCD-Confirm"] = "true";
     }
 
-    return m.request<XMLHttpRequest>({
-      url,
-      method,
-      headers,
-      data: payload,
-      extract: _.identity,
-      deserialize: _.identity,
-      config: (xhr) => {
-        if (options && options.xhrHandle) {
-          options.xhrHandle(xhr);
-        }
-      }
-    }).then((xhr: XMLHttpRequest) => {
-      return ApiResult.from(xhr);
-    }).catch((reason) => {
-      const unknownError = "There was an unknown error performing the operation.";
-      try {
-        return ApiResult.error(reason.responseText, JSON.parse(reason.message).message || unknownError, reason.status);
-      } catch {
-        return ApiResult.error(reason.responseText, unknownError, reason.status);
-      }
-    });
+    return headers;
+  }
+
+  private static isAnUpdate(method: string) {
+    const updateMethods = ["PUT", "POST", "DELETE", "PATCH"];
+    return updateMethods.includes(method.toUpperCase());
   }
 
   private static versionHeader(version: ApiVersion): string {

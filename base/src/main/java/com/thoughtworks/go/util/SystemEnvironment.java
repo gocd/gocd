@@ -36,6 +36,7 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
 public class SystemEnvironment implements Serializable, ConfigDirProvider {
 
     private static final Logger LOG = LoggerFactory.getLogger(SystemEnvironment.class);
+    private static final long ONE_YEAR = 60 * 60 * 24 * 365;
 
     public static final String CRUISE_LISTEN_HOST = "cruise.listen.host";
     private static final String CRUISE_DATABASE_PORT = "cruise.database.port";
@@ -232,6 +233,9 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
     public static GoSystemProperty<Long> NOTIFICATION_PLUGIN_MESSAGES_TTL = new GoLongSystemProperty("plugins.notification.message.ttl.millis", 2 * 60 * 1000L);
 
     public static GoSystemProperty<Boolean> ENABLE_HSTS_HEADER = new GoBooleanSystemProperty("gocd.enable.hsts.header", false);
+    public static GoSystemProperty<Long> HSTS_HEADER_MAX_AGE = new GoLongSystemProperty("gocd.hsts.header.max.age", ONE_YEAR);
+    public static GoSystemProperty<Boolean> HSTS_HEADER_INCLUDE_SUBDOMAINS = new GoBooleanSystemProperty("gocd.hsts.header.include.subdomains", false);
+    public static GoSystemProperty<Boolean> HSTS_HEADER_PRELOAD = new GoBooleanSystemProperty("gocd.hsts.header.preload", false);
 
     private final static Map<String, String> GIT_ALLOW_PROTOCOL;
 
@@ -905,6 +909,18 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
 
     public boolean enableHstsHeader() {
         return ENABLE_HSTS_HEADER.getValue();
+    }
+
+    public long hstsHeaderMaxAge() {
+        return HSTS_HEADER_MAX_AGE.getValue();
+    }
+
+    public boolean hstsHeaderIncludeSubdomains() {
+        return HSTS_HEADER_INCLUDE_SUBDOMAINS.getValue();
+    }
+
+    public boolean hstsHeaderPreload() {
+        return HSTS_HEADER_PRELOAD.getValue();
     }
 
     public boolean shouldFailStartupOnDataError() {

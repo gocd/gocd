@@ -27,7 +27,6 @@ import java.io.IOException;
 //TODO: ketanpkr newer spring has this baked in.
 public class DefaultHeadersFilter implements Filter {
 
-    private static final String ONE_YEAR = String.valueOf(60 * 60 * 24 * 365);
     private SystemEnvironment systemEnvironment = new SystemEnvironment();
 
     public void destroy() {
@@ -45,9 +44,8 @@ public class DefaultHeadersFilter implements Filter {
             addSecureHeader(response, "X-Content-Type-Options", "nosniff");
             addSecureHeader(response, "X-Frame-Options", "SAMEORIGIN");
             addSecureHeader(response, "X-UA-Compatible", "chrome=1");
-            if (systemEnvironment.enableHstsHeader()) {
-                addSecureHeader(response, HttpHeaders.STRICT_TRANSPORT_SECURITY, ONE_YEAR);
-            }
+            HstsHeader.fromSystemEnvironment(systemEnvironment)
+                    .ifPresent((hstsHeader) -> addSecureHeader(response, hstsHeader.headerName(), hstsHeader.headerValue()));
         }
         chain.doFilter(req, resp);
     }

@@ -16,7 +16,6 @@
 
 package com.thoughtworks.go.server.web;
 
-import com.thoughtworks.go.server.service.support.toggle.FeatureToggleService;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.junit.After;
 import org.junit.Before;
@@ -27,7 +26,6 @@ import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
 import java.io.IOException;
 
 import static org.mockito.Mockito.*;
@@ -42,8 +40,6 @@ public class DefaultHeadersFilterTest {
     private FilterChain chain;
     @Mock
     private ServletRequest request;
-    @Mock
-    private FeatureToggleService featureToggleService;
     private DefaultHeadersFilter filter;
     private SystemEnvironment systemEnvironment;
 
@@ -69,7 +65,7 @@ public class DefaultHeadersFilterTest {
         verify(response).setHeader("X-Content-Type-Options", "nosniff");
         verify(response).setHeader("X-Frame-Options", "SAMEORIGIN");
         verify(response).setHeader("X-UA-Compatible", "chrome=1");
-        verify(response).setHeader("Strict-Transport-Security", "31536000");
+        verify(response).setHeader("Strict-Transport-Security", "max-age=31536000");
     }
 
     @Test

@@ -19,16 +19,16 @@ package com.thoughtworks.go.apiv1.elasticprofile.representers;
 import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.thoughtworks.go.domain.JobConfigIdentifier;
+import com.thoughtworks.go.domain.ElasticProfileUsage;
 
 import java.util.Collection;
 
-public class JobConfigIdentifierRepresenter {
+public class ElasticProfileUsageRepresenter {
     private static Gson GSON = new GsonBuilder().
             setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
             .create();
 
-    public static String toJSON(Collection<JobConfigIdentifier> jobsUsingElasticProfile) {
+    public static String toJSON(Collection<ElasticProfileUsage> jobsUsingElasticProfile) {
         if (jobsUsingElasticProfile == null) {
             return "[]";
         }

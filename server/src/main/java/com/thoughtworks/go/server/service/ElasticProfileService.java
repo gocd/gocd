@@ -22,7 +22,7 @@ import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.config.update.ElasticAgentProfileCreateCommand;
 import com.thoughtworks.go.config.update.ElasticAgentProfileDeleteCommand;
 import com.thoughtworks.go.config.update.ElasticAgentProfileUpdateCommand;
-import com.thoughtworks.go.domain.JobConfigIdentifier;
+import com.thoughtworks.go.domain.ElasticProfileUsage;
 import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.plugin.access.elastic.ElasticAgentExtension;
 import com.thoughtworks.go.server.domain.Username;
@@ -68,13 +68,13 @@ public class ElasticProfileService extends PluginProfilesService<ElasticProfile>
         update(currentUser, elasticProfile, result, command);
     }
 
-    public Collection<JobConfigIdentifier> getJobsUsingElasticProfile(String profileId) {
+    public Collection<ElasticProfileUsage> getUsageInformation(String profileId) {
         if (findProfile(profileId) == null) {
             throw new RecordNotFoundException(String.format("Elastic profile with id '%s' does not exist.", profileId));
         }
 
         final List<PipelineConfig> allPipelineConfigs = goConfigService.getAllPipelineConfigs();
-        final Set<JobConfigIdentifier> jobsUsingElasticProfile = new HashSet<>();
+        final Set<ElasticProfileUsage> jobsUsingElasticProfile = new HashSet<>();
 
         for (PipelineConfig pipelineConfig : allPipelineConfigs) {
             final PipelineConfig stages = pipelineConfig.getStages();
@@ -84,7 +84,16 @@ public class ElasticProfileService extends PluginProfilesService<ElasticProfile>
 
                 for (JobConfig job : jobs) {
                     if (StringUtils.equals(profileId, job.getElasticProfileId())) {
-                        jobsUsingElasticProfile.add(new JobConfigIdentifier(pipelineConfig.getName(), stage.name(), job.name()));
+
+                        String templateName = null;
+                        if (pipelineConfig.getTemplateName() != null) {
+                            templateName = pipelineConfig.getTemplateName().toString();
+                        }
+
+                        jobsUsingElasticProfile.add(new ElasticProfileUsage(pipelineConfig.getName().toString()
+                                , stage.name().toString()
+                                , job.name().toString()
+                                , templateName));
                     }
                 }
             }

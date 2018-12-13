@@ -23,7 +23,7 @@ import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.config.update.ElasticAgentProfileCreateCommand;
 import com.thoughtworks.go.config.update.ElasticAgentProfileDeleteCommand;
 import com.thoughtworks.go.config.update.ElasticAgentProfileUpdateCommand;
-import com.thoughtworks.go.domain.JobConfigIdentifier;
+import com.thoughtworks.go.domain.ElasticProfileUsage;
 import com.thoughtworks.go.plugin.access.PluginNotFoundException;
 import com.thoughtworks.go.plugin.access.elastic.ElasticAgentExtension;
 import com.thoughtworks.go.server.domain.Username;
@@ -35,8 +35,7 @@ import org.junit.jupiter.api.Test;
 import java.util.*;
 
 import static com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother.create;
-import static com.thoughtworks.go.helper.PipelineConfigMother.createPipelineConfig;
-import static com.thoughtworks.go.helper.PipelineConfigMother.pipelineWithElasticJobs;
+import static com.thoughtworks.go.helper.PipelineConfigMother.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
@@ -188,41 +187,45 @@ class ElasticProfileServiceTest {
         @Test
         void shouldReturnJobsUsingElasticProfile() {
             final List<PipelineConfig> allPipelineConfigs = Arrays.asList(
-                    pipelineWithElasticJobs("docker", "P1", "S1", "Job1", "Job2"),
-                    pipelineWithElasticJobs("ecs", "P3", "S1", "Job1"),
+                    templateBasedPipelineWithElasticJobs("docker-template","docker", "P1", "S1", "Job1", "Job2"),
+                    pipelineWithElasticJobs( "ecs", "P3", "S1", "Job1"),
                     createPipelineConfig("P4", "S1", "Job1", "Job2")
             );
 
             when(goConfigService.getAllPipelineConfigs()).thenReturn(allPipelineConfigs);
 
-            final Collection<JobConfigIdentifier> jobsUsingElasticProfile = elasticProfileService.getJobsUsingElasticProfile("docker");
-
-            assertThat(jobsUsingElasticProfile)
+            assertThat(elasticProfileService.getUsageInformation("docker"))
                     .hasSize(2)
                     .contains(
-                            new JobConfigIdentifier("P1", "S1", "Job1"),
-                            new JobConfigIdentifier("P1", "S1", "Job2")
+                            new ElasticProfileUsage("P1", "S1", "Job1", "docker-template"),
+                            new ElasticProfileUsage("P1", "S1", "Job2", "docker-template")
+                    );
+
+            assertThat(elasticProfileService.getUsageInformation("ecs"))
+                    .hasSize(1)
+                    .contains(
+                            new ElasticProfileUsage("P3", "S1", "Job1")
                     );
         }
 
         @Test
         void shouldReturnEmptyWhenNoneOfTheJobMatchesProfileId() {
             final List<PipelineConfig> allPipelineConfigs = Arrays.asList(
-                    pipelineWithElasticJobs("docker", "P1", "S1", "Job1", "Job2"),
+                    templateBasedPipelineWithElasticJobs("docker-template","docker", "P1", "S1", "Job1", "Job2"),
                     pipelineWithElasticJobs("ecs", "P3", "S1", "Job1"),
                     createPipelineConfig("P4", "S1", "Job1", "Job2")
             );
 
             when(goConfigService.getAllPipelineConfigs()).thenReturn(allPipelineConfigs);
 
-            final Collection<JobConfigIdentifier> jobsUsingElasticProfile = elasticProfileService.getJobsUsingElasticProfile("kubernetes");
+            final Collection<ElasticProfileUsage> jobsUsingElasticProfile = elasticProfileService.getUsageInformation("kubernetes");
 
             assertThat(jobsUsingElasticProfile).isEmpty();
         }
 
         @Test
         void shouldErrorOutWhenElasticProfileWithIdDoesNotExist() {
-            final RecordNotFoundException recordNotFoundException = assertThrows(RecordNotFoundException.class, () -> elasticProfileService.getJobsUsingElasticProfile("unknown-profile-id"));
+            final RecordNotFoundException recordNotFoundException = assertThrows(RecordNotFoundException.class, () -> elasticProfileService.getUsageInformation("unknown-profile-id"));
 
             assertThat(recordNotFoundException.getMessage()).isEqualTo("Elastic profile with id 'unknown-profile-id' does not exist.");
         }

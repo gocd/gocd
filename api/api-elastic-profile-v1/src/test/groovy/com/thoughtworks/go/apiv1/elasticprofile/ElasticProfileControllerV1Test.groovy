@@ -24,7 +24,7 @@ import com.thoughtworks.go.apiv1.elasticprofile.representers.ElasticProfilesRepr
 import com.thoughtworks.go.config.elastic.ElasticProfile
 import com.thoughtworks.go.config.elastic.ElasticProfiles
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException
-import com.thoughtworks.go.domain.JobConfigIdentifier
+import com.thoughtworks.go.domain.ElasticProfileUsage
 import com.thoughtworks.go.i18n.LocalizedMessage
 import com.thoughtworks.go.server.domain.Username
 import com.thoughtworks.go.server.service.ElasticProfileService
@@ -559,20 +559,24 @@ class ElasticProfileControllerV1Test implements SecurityServiceTrait, Controller
     class AsAGroupAdmin {
       @Test
       void 'should list jobs associated with a profile id'() {
-        def jobConfigIdentifiers = Arrays.asList(
-          new JobConfigIdentifier("P1", "S1", "J1"),
-          new JobConfigIdentifier("P1", "S1", "J2"),
-          new JobConfigIdentifier("P2", "S1", "J3")
+        def elasticProfileUsages = Arrays.asList(
+          new ElasticProfileUsage("LinuxPR", "build", "compile", "linux-pr"),
+          new ElasticProfileUsage("LinuxPR", "build", "test", "linux-pr"),
+
+          new ElasticProfileUsage("WindowsPR", "clean", "clean-dirs"),
+          new ElasticProfileUsage("WindowsPR", "clean", "clean-artifacts")
         )
 
-        when(elasticProfileService.getJobsUsingElasticProfile("docker")).thenReturn(jobConfigIdentifiers)
+        when(elasticProfileService.getUsageInformation("docker")).thenReturn(elasticProfileUsages)
 
         getWithApiHeader(controller.controllerPath("/docker/usages"))
 
         def expectedResponse = [
-          [pipeline_name: "P1", stage_name: "S1", job_name: "J1"],
-          [pipeline_name: "P1", stage_name: "S1", job_name: "J2"],
-          [pipeline_name: "P2", stage_name: "S1", job_name: "J3"]
+          [pipeline_name: "LinuxPR", stage_name: "build", job_name: "compile", template_name: "linux-pr"],
+          [pipeline_name: "LinuxPR", stage_name: "build", job_name: "test", template_name: "linux-pr"],
+
+          [pipeline_name: "WindowsPR", stage_name: "clean", job_name: "clean-dirs"],
+          [pipeline_name: "WindowsPR", stage_name: "clean", job_name: "clean-artifacts"]
         ]
 
         assertThatResponse()
@@ -583,7 +587,7 @@ class ElasticProfileControllerV1Test implements SecurityServiceTrait, Controller
 
       @Test
       void 'should return 404 when profile with id does not exist'() {
-        when(elasticProfileService.getJobsUsingElasticProfile("docker")).thenThrow(new RecordNotFoundException("docker"))
+        when(elasticProfileService.getUsageInformation("docker")).thenThrow(new RecordNotFoundException("docker"))
 
         getWithApiHeader(controller.controllerPath("/docker/usages"))
 

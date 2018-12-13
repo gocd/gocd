@@ -28,11 +28,10 @@ if (process.platform === 'darwin') {
 } else if (process.platform === 'win32') {
 
   // make sure to kill Edge browser before doing anything.
+  childProcess.spawnSync('taskkill', ['/F', '/IM', 'MicrosoftEdge.exe', '/T']);
 
-  // code copied from karma-edge-launcher script
-  const escapeRegex = /\\/g;
-  const escapement = '\\\\';
-  childProcess.spawnSync('powershell', [path.join(__dirname, 'node_modules', 'karma-edge-launcher', 'scripts/stop_edge.ps1').replace(escapeRegex, escapement)]);
+  // Clear Edge history so that it doesn't re-open tabs after getting killed
+  childProcess.spawnSync('Remove-Item', ["C:\\Users\\developer\\AppData\\Local\\Packages\\Microsoft.MicrosoftEdge_8wekyb3d8bbwe\\AC\\*", '-Force', '-Recurse']);
 
   browsers = ['Edge'];
 } else {

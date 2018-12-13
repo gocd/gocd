@@ -76,14 +76,13 @@ export class ConfigReposPage extends Page<null, State> {
         clearTimeout(timeoutID);
       }
 
-      ConfigReposCRUD.get(repo.id()).then((result: ApiResult<any>) => {
+      ConfigReposCRUD.triggerUpdate(repo.id()).then((result: ApiResult<any>) => {
         result.do(() => {
           setMessage("An update was scheduled for this config repository.", MessageType.success);
         }, (err: ErrorResponse) => {
           try {
-            const parse = JSON.parse(err.body || "{}");
-            if (parse.message) {
-              setMessage(`Unable to schedule an update for this config repository. ${parse.message}`,
+            if (err.message) {
+              setMessage(`Unable to schedule an update for this config repository. ${err.message}`,
                          MessageType.alert);
             } else {
               setMessage(`Unable to schedule an update for this config repository. ${err.message}`, MessageType.alert);

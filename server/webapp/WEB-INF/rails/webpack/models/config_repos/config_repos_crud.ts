@@ -23,9 +23,9 @@ const s = require("helpers/string-plus");
 
 export function toSnakeCaseJSON(o: ConfigRepo) {
   const configurations = o.createConfigurationsFromText();
-  const text         = JSON.stringify(o, s.snakeCaser);
-  const json         = JSON.parse(text);
-  json.configuration = configurations.map((config) => config.toJSON());
+  const text           = JSON.stringify(o, s.snakeCaser);
+  const json           = JSON.parse(text);
+  json.configuration   = configurations.map((config) => config.toJSON());
   return json;
 }
 
@@ -63,6 +63,10 @@ export class ConfigReposCRUD {
                                   this.API_VERSION_HEADER,
                                   {payload: toSnakeCaseJSON(repo)})
                             .then(this.extractObjectWithEtag());
+  }
+
+  static triggerUpdate(id: string) {
+    return ApiRequestBuilder.POST(SparkRoutes.configRepoTriggerUpdatePath(id), this.API_VERSION_HEADER);
   }
 
   private static extractObjectWithEtag() {

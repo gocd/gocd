@@ -55,6 +55,7 @@ import org.mockito.Mockito;
 import java.util.*;
 
 import static com.thoughtworks.go.helper.MaterialUpdateMessageMatcher.matchMaterialUpdateMessage;
+import static com.thoughtworks.go.helper.MaterialUpdateCompletedMessageMatcher.matchMaterialUpdateCompletedMessage;
 import static junit.framework.TestCase.assertTrue;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.*;
@@ -150,16 +151,16 @@ public class MaterialUpdateServiceTest {
         assertTrue(service.updateMaterial(svnMaterial));
 
         Mockito.verify(queue).post(matchMaterialUpdateMessage(svnMaterial));
-        Mockito.verify(configQueue, times(0)).post(any(MaterialUpdateMessage.class));
+        Mockito.verify(configQueue, times(0)).post(any(MaterialUpdateCompletedMessage.class));
     }
 
     @Test
     public void shouldPostUpdateMessageOnConfigQueueForConfigMaterial_updateMaterial() {
         when(watchList.hasConfigRepoWithFingerprint(svnMaterial.getFingerprint())).thenReturn(true);
 
-        assertTrue(service.updateMaterial(svnMaterial));
+        service.onMessage(new MaterialUpdateCompletedMessage(svnMaterial, 0));
 
-        Mockito.verify(configQueue).post(matchMaterialUpdateMessage(svnMaterial));
+        Mockito.verify(configQueue).post(matchMaterialUpdateCompletedMessage(svnMaterial));
         Mockito.verify(queue, times(0)).post(any(MaterialUpdateMessage.class));
     }
 
@@ -171,7 +172,7 @@ public class MaterialUpdateServiceTest {
 
         Mockito.verify(dependencyMaterialUpdateQueue).post(matchMaterialUpdateMessage(dependencyMaterial));
         Mockito.verify(queue, times(0)).post(any(MaterialUpdateMessage.class));
-        Mockito.verify(configQueue, times(0)).post(any(MaterialUpdateMessage.class));
+        Mockito.verify(configQueue, times(0)).post(any(MaterialUpdateCompletedMessage.class));
     }
 
     @Test
@@ -185,22 +186,6 @@ public class MaterialUpdateServiceTest {
         assertTrue(service.updateMaterial(material)); // immediately notify another check-in
 
         verify(queue, times(2)).post(message);
-        verify(material).isAutoUpdate();
-    }
-
-    @Test
-    public void shouldNotAllowConcurrentUpdatesForAutoUpdateConfigMaterials_updateMaterial() throws Exception {
-        ScmMaterial material = mock(ScmMaterial.class);
-        when(material.isAutoUpdate()).thenReturn(true);
-        when(material.getFingerprint()).thenReturn("fingerprint");
-        when(watchList.hasConfigRepoWithFingerprint("fingerprint")).thenReturn(true);
-        MaterialUpdateMessage message = new MaterialUpdateMessage(material, 0);
-        doNothing().when(configQueue).post(message);
-
-        assertTrue(service.updateMaterial(material)); //prune inprogress queue to have this material in it
-        assertFalse(service.updateMaterial(material)); // immediately notify another check-in
-
-        verify(configQueue, times(1)).post(message);
         verify(material).isAutoUpdate();
     }
 

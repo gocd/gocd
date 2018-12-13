@@ -355,6 +355,7 @@ public class BuildCauseProducerService {
                         format("Material update failed for material '%s' because: %s", material.getDisplayName(), failureReason));
                 failed = true;
             } else if (this.configMaterial != null &&
+                    message instanceof ConfigMaterialUpdateCompletedMessage &&
                     material.isSameFlyweight(this.configMaterial)) {
                 // Then we have just updated configuration material.
                 // A chance to refresh our config instance.
@@ -391,6 +392,9 @@ public class BuildCauseProducerService {
                         this.pipelineConfig = newPipelineConfig;
                     }
                 }
+            } else if (this.configMaterial != null &&
+                    material.isSameFlyweight(this.configMaterial)) {
+                return;
             }
 
             pendingMaterials.remove(material.getFingerprint());

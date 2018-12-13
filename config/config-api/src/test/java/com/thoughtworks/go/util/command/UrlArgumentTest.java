@@ -133,4 +133,9 @@ public class UrlArgumentTest {
         Assert.assertThat(result, IsNot.not(StringContains.containsString("cce:password")));
     }
 
+    @Test //BUG #5471
+    public void shouldMaskAuthTokenInUrl() {
+        UrlArgument url = new UrlArgument("https://9bf58jhrb32f29ad0c3983a65g594f1464jgf9a3@somewhere");
+        Assert.assertThat(url.forDisplay(), Is.is("https://******@somewhere"));
+    }
 }

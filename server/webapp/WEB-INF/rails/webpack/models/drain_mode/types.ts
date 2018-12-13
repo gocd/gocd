@@ -112,7 +112,7 @@ export class Job {
                    job.pipeline_name,
                    job.stage_counter,
                    job.stage_name,
-                   TimeFormatter.formatInDate(job.scheduled_date),
+                   TimeFormatter.format(job.scheduled_date),
                    job.state,
                    job.agent_uuid);
   }

@@ -955,6 +955,7 @@ task newApi {
           import com.thoughtworks.go.spark.spring.SparkSpringController;
           import org.springframework.beans.factory.annotation.Autowired;
           import org.springframework.stereotype.Component;
+          import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
           import spark.Request;
 
           import java.io.IOException;
@@ -966,9 +967,12 @@ task newApi {
           entityClassName
         }> {
 
+              private final ApiAuthenticationHelper apiAuthenticationHelper;
+              
               @Autowired
-              public ${controllerClassName}() {
+              public ${controllerClassName}(ApiAuthenticationHelper apiAuthenticationHelper) {
                   super(ApiVersion.${project.apiVersion});
+                  this.apiAuthenticationHelper = apiAuthenticationHelper;
               }
 
               @Override
@@ -979,6 +983,13 @@ task newApi {
               @Override
               public void setupRoutes() {
                   path(controllerBasePath(), () -> {
+                      // uncomment the line below to set the content type on the base path
+                      // before("", mimeType, this::setContentType);
+                      // uncomment the line below to set the content type on nested routes
+                      // before("/*", mimeType, this::setContentType);
+                      
+                      // change the line below to enable appropriate security
+                      before("", this.mimeType, this.apiAuthenticationHelper::checkAdminUserAnd403);
                       // to be implemented
                   });
               }

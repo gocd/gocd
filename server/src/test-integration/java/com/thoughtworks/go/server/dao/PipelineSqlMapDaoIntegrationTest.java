@@ -188,7 +188,7 @@ public class PipelineSqlMapDaoIntegrationTest {
 
     @Test
     public void shouldLoadNaturalOrder() throws SQLException {
-        Pipeline pipeline = new Pipeline("Test", BuildCause.createManualForced(), new Stage("dev", new JobInstances(new JobInstance("unit")), "anonymous", "manual", new TimeProvider()));
+        Pipeline pipeline = new Pipeline("Test", BuildCause.createManualForced(), new Stage("dev", new JobInstances(new JobInstance("unit")), "anonymous", null, "manual", new TimeProvider()));
         savePipeline(pipeline);
         dbHelper.updateNaturalOrder(pipeline.getId(), 2.5);
         PipelineInstanceModel loaded = pipelineDao.loadHistory("Test").get(0);
@@ -200,7 +200,7 @@ public class PipelineSqlMapDaoIntegrationTest {
 
     @Test
     public void shouldLoadStageResult() throws SQLException {
-        Stage stage = new Stage("dev", new JobInstances(new JobInstance("unit")), "anonymous", "manual", new TimeProvider());
+        Stage stage = new Stage("dev", new JobInstances(new JobInstance("unit")), "anonymous", null, "manual", new TimeProvider());
         stage.building();
         Pipeline pipeline = new Pipeline("Test", BuildCause.createManualForced(), stage);
         savePipeline(pipeline);
@@ -212,7 +212,7 @@ public class PipelineSqlMapDaoIntegrationTest {
 
     @Test
     public void shouldLoadStageIdentifier() throws SQLException {
-        Stage stage = new Stage("dev", new JobInstances(new JobInstance("unit")), "anonymous", "manual", new TimeProvider());
+        Stage stage = new Stage("dev", new JobInstances(new JobInstance("unit")), "anonymous", null, "manual", new TimeProvider());
         stage.building();
         Pipeline pipeline = new Pipeline("Test", BuildCause.createManualForced(), stage);
         savePipeline(pipeline);

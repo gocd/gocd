@@ -93,6 +93,7 @@ import static com.thoughtworks.go.util.DataStructureUtils.a;
 import static com.thoughtworks.go.util.SystemUtil.currentWorkingDirectory;
 import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.any;
@@ -191,7 +192,7 @@ public class StageServiceIntegrationTest {
         });
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
             public void doInTransactionWithoutResult(TransactionStatus status) {
-                stageService.cancelStage(stage);
+                stageService.cancelStage(stage, null);
             }
         });
 
@@ -232,7 +233,7 @@ public class StageServiceIntegrationTest {
     }
 
     @Test
-    public void shouldReturnStageWithSpecificCounter() throws Exception {
+    public void shouldReturnStageWithSpecificCounter() {
         Stage firstStage = savedPipeline.getStages().first();
         Stage newInstance = instanceFactory.createStageInstance(pipelineConfig.first(), new DefaultSchedulingContext(
                 "anonymous"), md5, new TimeProvider());
@@ -245,7 +246,7 @@ public class StageServiceIntegrationTest {
     }
 
     @Test
-    public void shouldReturnStageWithSpecificCounter_findStageWithIdentifier() throws Exception {
+    public void shouldReturnStageWithSpecificCounter_findStageWithIdentifier() {
         Stage newInstance = instanceFactory.createStageInstance(pipelineConfig.first(), new DefaultSchedulingContext("anonymous"), md5, new TimeProvider());
         Stage newSavedStage = stageService.save(savedPipeline, newInstance);
 
@@ -256,7 +257,7 @@ public class StageServiceIntegrationTest {
     }
 
     @Test
-    public void shouldReturnTrueIfStageIsActive() throws Exception {
+    public void shouldReturnTrueIfStageIsActive() {
         savedPipeline.getStages().first();
         Stage newInstance = instanceFactory.createStageInstance(pipelineConfig.first(), new DefaultSchedulingContext("anonymous"), md5, new TimeProvider());
         stageService.save(savedPipeline, newInstance);
@@ -266,21 +267,21 @@ public class StageServiceIntegrationTest {
     }
 
     @Test
-    public void shouldSaveStageWithFetchMaterialsFlag() throws Exception {
+    public void shouldSaveStageWithFetchMaterialsFlag() {
         Stage firstStage = savedPipeline.getStages().first();
         Stage savedStage = stageService.stageById(firstStage.getId());
         assertThat(savedStage.shouldFetchMaterials(), is(false));
     }
 
     @Test
-    public void shouldSaveStageWithCleanWorkingDirFlag() throws Exception {
+    public void shouldSaveStageWithCleanWorkingDirFlag() {
         Stage firstStage = savedPipeline.getStages().first();
         Stage savedStage = stageService.stageById(firstStage.getId());
         assertThat(savedStage.shouldCleanWorkingDir(), is(true));
     }
 
     @Test
-    public void shouldGetStageHistoryForCurrentPage() throws Exception {
+    public void shouldGetStageHistoryForCurrentPage() {
 
         StageHistoryEntry[] stages = createFiveStages();
 
@@ -294,7 +295,7 @@ public class StageServiceIntegrationTest {
     }
 
     @Test
-    public void shouldGetStageHistoryForLastPage() throws Exception {
+    public void shouldGetStageHistoryForLastPage() {
 
         StageHistoryEntry[] stages = createFiveStages();
 
@@ -375,13 +376,13 @@ public class StageServiceIntegrationTest {
     }
 
     @Test
-    public void shouldNotifyListenersAfterStageIsCancelled() throws SQLException {
+    public void shouldNotifyListenersAfterStageIsCancelled() {
         StageStatusListener listener = mock(StageStatusListener.class);
         stageService.addStageStatusListener(listener);
 
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
             public void doInTransactionWithoutResult(TransactionStatus status) {
-                stageService.cancelStage(stage);
+                stageService.cancelStage(stage, null);
             }
         });
         stage = stageService.stageById(stage.getId());
@@ -389,18 +390,31 @@ public class StageServiceIntegrationTest {
         verify(listener).stageStatusChanged(stage);
     }
 
-    @Test public void shouldLookupModifiedStageById_afterCancel() throws SQLException {
+    @Test public void shouldLookupModifiedStageById_afterCancel() {
         Stage stageLoadedBeforeCancellation = stageService.stageById(stage.getId());
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
             public void doInTransactionWithoutResult(TransactionStatus status) {
-                stageService.cancelStage(stage);
+                stageService.cancelStage(stage, null);
             }
         });
 
         assertThat(stageService.stageById(stage.getId()), is(not(stageLoadedBeforeCancellation)));
     }
 
-    @Test public void shouldLookupModifiedStageById_afterJobUpdate() throws SQLException {
+    @Test public void shouldSetCancelledByWhileCancellingAStage() {
+        Stage stageLoadedBeforeCancellation = stageService.stageById(stage.getId());
+        transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+            public void doInTransactionWithoutResult(TransactionStatus status) {
+                stageService.cancelStage(stage, "foo");
+            }
+        });
+
+        Stage afterCancel = stageService.stageById(stage.getId());
+        assertThat(afterCancel.getCancelledBy(), is("foo"));
+        assertNull(stageLoadedBeforeCancellation.getCancelledBy());
+    }
+
+    @Test public void shouldLookupModifiedStageById_afterJobUpdate() {
         Stage stageLoadedBeforeUpdate = stageService.stageById(stage.getId());
         dbHelper.completeAllJobs(stage, JobResult.Passed);
         assertThat(stageService.stageById(stage.getId()), is(stageLoadedBeforeUpdate));
@@ -409,7 +423,7 @@ public class StageServiceIntegrationTest {
         assertThat(stageService.stageById(stage.getId()), is(not(stageLoadedBeforeUpdate)));
     }
 
-    @Test public void shouldNotCancelAlreadyCompletedBuild() throws SQLException {
+    @Test public void shouldNotCancelAlreadyCompletedBuild() {
         jobResultTopic.addListener(new GoMessageListener<JobResultMessage>() {
             public void onMessage(JobResultMessage message) {
                 JobIdentifier jobIdentifier = message.getJobIdentifier();
@@ -422,7 +436,7 @@ public class StageServiceIntegrationTest {
         jobInstanceDao.updateStateAndResult(job);
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
             public void doInTransactionWithoutResult(TransactionStatus status) {
-                stageService.cancelStage(stage);
+                stageService.cancelStage(stage, null);
             }
         });
 
@@ -459,7 +473,7 @@ public class StageServiceIntegrationTest {
     }
 
     @Test
-    public void shouldNotifyListenerOnStageStatusChange() throws Exception {
+    public void shouldNotifyListenerOnStageStatusChange() {
         StageStatusListener listener = mock(StageStatusListener.class);
 
         stageService.addStageStatusListener(listener);

@@ -55,7 +55,7 @@ public interface StageDao extends JobDurationStrategy {
 
     Integer getStageOrderInPipeline(long pipelineId, String stageName);
 
-    void updateResult(Stage stage, StageResult result);
+    void updateResult(Stage stage, StageResult result, String username);
 
     int getMaxStageCounter(long pipelineId, String stageName);
 

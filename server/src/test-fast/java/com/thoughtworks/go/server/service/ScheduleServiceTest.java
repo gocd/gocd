@@ -96,7 +96,7 @@ public class ScheduleServiceTest {
         assertThat(result.message(), is("Stage cancelled successfully."));
 
         verify(securityService).hasOperatePermissionForStage(pipeline.getName(), spiedStage.getName(), admin.getUsername().toString());
-        verify(stageService).cancelStage(spiedStage);
+        verify(stageService).cancelStage(spiedStage, admin.getUsername().toString());
         verify(spiedStage).isActive();
     }
 
@@ -156,7 +156,7 @@ public class ScheduleServiceTest {
         assertThat(result.httpCode(), is(SC_FORBIDDEN));
         assertThat(result.isSuccessful(), is(false));
         verify(securityService).hasOperatePermissionForStage(pipeline.getName(), spiedStage.getName(), admin.getUsername().toString());
-        verify(stageService, never()).cancelStage(spiedStage);
+        verify(stageService, never()).cancelStage(spiedStage, admin.getUsername().toString());
         verify(spiedStage).isActive();
     }
 

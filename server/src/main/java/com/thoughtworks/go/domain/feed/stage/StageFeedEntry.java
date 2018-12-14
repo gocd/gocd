@@ -40,6 +40,7 @@ public class StageFeedEntry implements FeedEntry {
     private List<Author> authors = new ArrayList<>();
     private List<MingleCard> mingleCards = new ArrayList<>();
     private String approvedBy;
+    private String cancelledBy;
     private String approvalType;
 
     protected StageFeedEntry() {
@@ -55,10 +56,11 @@ public class StageFeedEntry implements FeedEntry {
         this.stageResult = result;
     }
 
-    public StageFeedEntry(long id, long pipelineId, StageIdentifier identifier, long entryId, Date updateDate, StageResult result, String approvalType, String approvedBy) {
+    public StageFeedEntry(long id, long pipelineId, StageIdentifier identifier, long entryId, Date updateDate, StageResult result, String approvalType, String approvedBy, String cancelledBy) {
         this(id, pipelineId, identifier, entryId, updateDate, result);
         this.approvalType = approvalType;
         this.approvedBy = approvedBy;
+        this.cancelledBy = cancelledBy;
     }
 
     public String getResult() {
@@ -170,5 +172,9 @@ public class StageFeedEntry implements FeedEntry {
 
     public String getApprovedBy() {
         return approvedBy;
+    }
+
+    public String getCancelledBy() {
+        return cancelledBy;
     }
 }

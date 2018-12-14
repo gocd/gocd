@@ -20,6 +20,7 @@
         <result property="name" column="stageName"/>
         <result property="pipelineId" column="pipelineId"/>
         <result property="approvedBy" column="approvedBy"/>
+        <result property="cancelledBy" column="cancelledBy"/>
         <result property="createdTime" column="createdTime"/>
         <result property="orderId" column="orderId"/>
         <result property="result" column="stageResult"/>
@@ -87,6 +88,7 @@
         <id property="id" column="stageId"/>
         <result property="name" column="stageName"/>
         <result property="approvedBy" column="approvedBy"/>
+        <result property="cancelledBy" column="cancelledBy"/>
         <result property="approvalType" column="approvalType"/>
         <result property="counter" column="stageCounter"/>
         <result property="result" column="stageResult"/>
@@ -125,7 +127,7 @@
 
     <update id="updateStageStatus">
         UPDATE stages
-        SET result = #{result}, completedByTransitionId = #{completedByTransitionId}, state = #{state}
+        SET result = #{result}, completedByTransitionId = #{completedByTransitionId}, state = #{state}, cancelledBy = #{cancelledBy}
         WHERE stages.id = #{stageId}
     </update>
 
@@ -215,6 +217,7 @@
         stages.counter as stageCounter,
         stages.pipelineId as pipelineId,
         stages.approvedBy,
+        stages.cancelledBy,
         stages.createdTime,
         stages.orderId,
         stages.result as stageResult,
@@ -247,6 +250,7 @@
         <result property="pipelineId" column="pipelineId"/>
         <result property="approvalType" column="approvalType"/>
         <result property="approvedBy" column="approvedBy"/>
+        <result property="cancelledBy" column="cancelledBy"/>
         <collection property="identifier" resultMap="Stage.stageIdentifier"/>
     </resultMap>
 
@@ -259,6 +263,7 @@
             stages.result AS stageResult,
             stages.pipelineid as pipelineId,
             stages.approvedBy,
+            stages.cancelledBy,
             stages.approvalType,
             stages.latestRun,
             stages.fetchMaterials,
@@ -294,6 +299,7 @@
             stages.fetchMaterials,
             stages.cleanWorkingDir,
             stages.approvedBy,
+            stages.cancelledBy,
             stages.approvalType,
             (SELECT stateChangeTime FROM buildstatetransitions WHERE id = stages.completedByTransitionId) updateDate,
             pipelines.name as pipelineName,
@@ -356,6 +362,7 @@
         pipelines.counter as pipelineCounter,
         pipelines.label as pipelineLabel,
         stages.approvedBy,
+        stages.cancelledBy,
         stages.createdTime,
         stages.orderId,
         stages.result as stageResult,

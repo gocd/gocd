@@ -48,7 +48,7 @@ public class InstanceFactory {
 
     public Stage createStageInstance(StageConfig stageConfig, SchedulingContext context, String md5, Clock clock) {
         return new Stage(CaseInsensitiveString.str(stageConfig.name()), createJobInstances(stageConfig, context, clock),
-                context.getApprovedBy(), stageConfig.approvalType(), stageConfig.isFetchMaterials(), stageConfig.isCleanWorkingDir(), md5, clock);
+                context.getApprovedBy(), null, stageConfig.approvalType(), stageConfig.isFetchMaterials(), stageConfig.isCleanWorkingDir(), md5, clock);
     }
 
     public Stage createStageForRerunOfJobs(Stage stage, List<String> jobNames, SchedulingContext context, StageConfig stageConfig, Clock clock, String latestMd5) {

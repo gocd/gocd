@@ -299,7 +299,7 @@ public class StageSqlMapDaoIntegrationTest {
         when(mockClient.queryForObject("getTotalStageCountForChart", toGet)).thenReturn(3).thenReturn(4);
 
         assertThat(stageDao.getTotalStageCountForChart("maar", "khoon"), is(3));//Should prime the cache
-        Stage stage = new Stage("khoon", new JobInstances(), "foo", "manual", new TimeProvider());
+        Stage stage = new Stage("khoon", new JobInstances(), "foo", null, "manual", new TimeProvider());
         Pipeline pipeline = new Pipeline("maar", "${COUNT}", BuildCause.createWithEmptyModifications(), new EnvironmentVariables(), stage);
         pipeline.setId(1);
         stageDao.save(pipeline, stage);//Should Invalidate the cache
@@ -319,7 +319,7 @@ public class StageSqlMapDaoIntegrationTest {
         when(mockClient.queryForObject("getTotalStageCountForChart", toGet)).thenReturn(3).thenReturn(4);
 
         assertThat(stageDao.getTotalStageCountForChart("maar", "khoon"), is(3));//Should prime the cache
-        Stage stage = new Stage("khoon", new JobInstances(), "foo", "manual", new TimeProvider());
+        Stage stage = new Stage("khoon", new JobInstances(), "foo", null,  "manual", new TimeProvider());
         stage.setIdentifier(new StageIdentifier("maar/2/khoon/1"));
         updateResultInTransaction(stage, StageResult.Cancelled);//Should Invalidate the cache
 
@@ -1940,7 +1940,7 @@ public class StageSqlMapDaoIntegrationTest {
             @Override
             protected void doInTransactionWithoutResult(TransactionStatus status) {
 
-                stageDao.updateResult(stage, result);
+                stageDao.updateResult(stage, result, null);
             }
         });
     }

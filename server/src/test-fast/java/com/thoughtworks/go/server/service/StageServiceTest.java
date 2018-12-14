@@ -329,7 +329,7 @@ public class StageServiceTest {
         foundJob.setResult(JobResult.Unknown);
         JobInstances foundJobInstances = new JobInstances(foundJob);
 
-        Stage foundStage = new Stage(STAGE_NAME, foundJobInstances, "jez", "manual", new TimeProvider());
+        Stage foundStage = new Stage(STAGE_NAME, foundJobInstances, "jez", null, "manual", new TimeProvider());
         foundStage.calculateResult();
 
         assertThat(foundStage.getState(), is(not(StageState.Cancelled)));
@@ -346,7 +346,7 @@ public class StageServiceTest {
         assertThat(foundStage.getResult(), is(StageResult.Cancelled));
 
         verify(jobInstanceService).cancelJob(job);
-        verify(stageDao).updateResult(foundStage, StageResult.Cancelled);
+        verify(stageDao).updateResult(foundStage, StageResult.Cancelled, null);
     }
 
     @Test
@@ -510,7 +510,7 @@ public class StageServiceTest {
 
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
             public void doInTransactionWithoutResult(TransactionStatus status) {
-                service.cancelStage(cancelledStage);
+                service.cancelStage(cancelledStage, null);
             }
         });
 

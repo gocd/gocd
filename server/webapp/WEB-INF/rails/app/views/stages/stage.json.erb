@@ -13,7 +13,7 @@
             <%end%>
     <%end%>
     "pipeline_status_bar": {"html": <%== render_json :partial => "pipelines/status_bar.html.erb", :locals => {:scope => {:pipeline => @pipeline, :current_config_version => @current_config_version, :stage_config_version => @stage.getStage().getConfigVersion()}} %>},
-    "stage_result": {"html": <%== render_json :partial => "stage_result.html", :locals => {:scope => {:state => @stage.getState()}} %>},
+    "stage_result": {"html": <%== render_json :partial => "stage_result.html", :locals => {:scope => {:state => @stage.getState(), :cancelledBy => @stage.getCancelledBy()}} %>},
     "stage_run_details": {"html": <%== render_json :partial => "run_details.html", :locals => {:scope => {}} %>},
     "other_stage_runs": {"html": <%== render_json :partial => "other_stage_runs.html", :locals => {:scope => {}}  %>},
     "current_stage_run": {"html": <%== render_json :partial => "current_stage_run.html", :locals => {:scope => {}}  %>},

@@ -93,7 +93,7 @@ public class InstanceFactoryTest {
         jobInstances.add(new JobInstance("job1", clock));
         jobInstances.add(new JobInstance("job2", clock));
 
-        Stage expectedStage = new Stage("first", jobInstances, "Unknown", Approval.SUCCESS, clock);
+        Stage expectedStage = new Stage("first", jobInstances, "Unknown", null, Approval.SUCCESS, clock);
         assertThat(actualStage, is(expectedStage));
     }
 
@@ -830,7 +830,7 @@ public class InstanceFactoryTest {
     }
 
     private Stage stage(long id, JobInstance... jobs) {
-        Stage stage = new Stage("dev", new JobInstances(jobs), "anonymous", "manual", new TimeProvider());
+        Stage stage = new Stage("dev", new JobInstances(jobs), "anonymous", null, "manual", new TimeProvider());
         stage.setId(id);
         return stage;
     }

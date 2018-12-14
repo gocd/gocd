@@ -1,2 +1,6 @@
 <div class="color_code <%= scope[:state] %>"></div>
+<% if scope[:cancelledBy] %>
+<span class="message" style="float:right; padding: 0;">Cancelled By: <%= scope[:cancelledBy] %></span>
+<% else %>
 <span class="message" style="float:right; padding: 0;"><%= scope[:state] %></span>
+<% end %>

@@ -412,7 +412,7 @@ public class DatabaseAccessHelper extends HibernateDaoSupport {
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
             @Override
             protected void doInTransactionWithoutResult(TransactionStatus status) {
-                stageDao.updateResult(stage, stageResult);
+                stageDao.updateResult(stage, stageResult, null);
             }
         });
     }

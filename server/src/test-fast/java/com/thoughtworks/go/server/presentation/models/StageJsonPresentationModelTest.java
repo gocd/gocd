@@ -238,7 +238,7 @@ public class StageJsonPresentationModelTest {
 
     @Test
     public void shouldEncodeStageLocator() throws Exception {
-        Stage stage1 = new Stage("stage-c%d", new JobInstances(), GoConstants.DEFAULT_APPROVED_BY, "manual", new TimeProvider());
+        Stage stage1 = new Stage("stage-c%d", new JobInstances(), GoConstants.DEFAULT_APPROVED_BY, null, "manual", new TimeProvider());
         stage1.setIdentifier(new StageIdentifier("pipeline-a%b", 1, "label-1", "stage-c%d", "1"));
         StageJsonPresentationModel presenter = new StageJsonPresentationModel(pipeline, stage1, null, agentService);
         Map json = presenter.toJson();
@@ -247,7 +247,7 @@ public class StageJsonPresentationModelTest {
 
     @Test
     public void shouldIncludeStageLocatorForDisplay() throws Exception {
-        Stage stage1 = new Stage("stage-c%d", new JobInstances(), GoConstants.DEFAULT_APPROVED_BY, "manual", new TimeProvider());
+        Stage stage1 = new Stage("stage-c%d", new JobInstances(), GoConstants.DEFAULT_APPROVED_BY, null, "manual", new TimeProvider());
         stage1.setIdentifier(new StageIdentifier("pipeline-a%b", 1, "label-1", "stage-c%d", "1"));
         StageJsonPresentationModel presenter = new StageJsonPresentationModel(pipeline, stage1, null, agentService);
         Map json = presenter.toJson();
@@ -258,7 +258,7 @@ public class StageJsonPresentationModelTest {
     @Test
     public void shouldEncodeBuildLocator() throws Exception {
         JobInstance job = JobInstanceMother.assigned("job-%");
-        Stage stage1 = new Stage("stage-c%d", new JobInstances(job), GoConstants.DEFAULT_APPROVED_BY, "manual", new TimeProvider());
+        Stage stage1 = new Stage("stage-c%d", new JobInstances(job), GoConstants.DEFAULT_APPROVED_BY, null, "manual", new TimeProvider());
         stage1.setIdentifier(new StageIdentifier("pipeline-a%b", 1, "label-1", "stage-c%d", "1"));
         job.setIdentifier(new JobIdentifier("pipeline-a%b", 1, "label-1", "stage-c%d", "1", "job-%", 0L));
         StageJsonPresentationModel presenter = new StageJsonPresentationModel(pipeline, stage1, null, agentService);

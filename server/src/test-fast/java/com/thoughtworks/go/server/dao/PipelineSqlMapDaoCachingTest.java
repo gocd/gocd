@@ -317,7 +317,7 @@ public class PipelineSqlMapDaoCachingTest {
         // ensure cache is initialized
         pipelineDao.loadActivePipelines();
 
-        Stage stage = new Stage("first", new JobInstances(JobInstanceMother.assigned("job")), "me", "whatever", new TimeProvider());
+        Stage stage = new Stage("first", new JobInstances(JobInstanceMother.assigned("job")), "me", null, "whatever", new TimeProvider());
         stage.fail();
         stage.calculateResult();
         changeStageStatus(stage, 1);

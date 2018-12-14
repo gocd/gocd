@@ -178,8 +178,8 @@ public class StageService implements StageRunFinder, StageFinder {
         return null;
     }
 
-    public synchronized void cancelStage(final Stage stage) {
-        cancel(stage);
+    public synchronized void cancelStage(final Stage stage, String username) {
+        cancel(stage, username);
         notifyStageStatusChangeListeners(stage);
         //Send a notification only if none of the jobs are assigned.
         // If any of the jobs are assigned. JobStatusListener.onMessage will send the stage cancel notification.
@@ -195,14 +195,14 @@ public class StageService implements StageRunFinder, StageFinder {
         });
     }
 
-    private void cancel(final Stage stage) {
+    private void cancel(final Stage stage, String username) {
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
             @Override
             protected void doInTransactionWithoutResult(TransactionStatus status) {
                 for (JobInstance job : stage.getJobInstances()) {
                     jobInstanceService.cancelJob(job);
                 }
-                updateStageWithoutNotifications(stage);
+                updateStageWithoutNotifications(stage, username);
             }
         });
     }
@@ -296,13 +296,13 @@ public class StageService implements StageRunFinder, StageFinder {
     public void updateResult(final Stage stage) {
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
             protected void doInTransactionWithoutResult(TransactionStatus status) {
-                updateStageWithoutNotifications(stage);
+                updateStageWithoutNotifications(stage, null);
                 notifyStageStatusChangeListeners(stage);
             }
         });
     }
 
-    private void updateStageWithoutNotifications(final Stage stage) {
+    private void updateStageWithoutNotifications(final Stage stage, String username) {
         stage.calculateResult();
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
             @Override
@@ -313,7 +313,7 @@ public class StageService implements StageRunFinder, StageFinder {
                         clearCachedCompletedStageFeeds(stage.getIdentifier().getPipelineName());
                     }
                 });
-                stageDao.updateResult(stage, stage.getResult());
+                stageDao.updateResult(stage, stage.getResult(), username);
             }
         });
     }
@@ -469,7 +469,7 @@ public class StageService implements StageRunFinder, StageFinder {
                 jobOperation.invoke();
                 stageDao.clearCachedStage(identifier.getStageIdentifier());
                 Stage stage = stageDao.findStageWithIdentifier(identifier.getStageIdentifier());
-                updateStageWithoutNotifications(stage);
+                updateStageWithoutNotifications(stage, null);
                 notifyStageStatusChangeListeners(stage);
             }
         });

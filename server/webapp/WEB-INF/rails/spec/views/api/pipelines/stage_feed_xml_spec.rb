@@ -28,7 +28,7 @@ describe "/api/feeds/index" do
     before(:each) do
       @date = java_date_utc(2004, 12, 25, 12, 0, 0)
       @entry1 = com.thoughtworks.go.domain.feed.stage.StageFeedEntry.new(1, 10,
-                com.thoughtworks.go.domain.StageIdentifier.new("pipeline-name", 1, 'pipeline-label', 'stage-name', 'stage-counter'), 99, @date, StageResult::Passed, "manual", "loser>boozer")
+                com.thoughtworks.go.domain.StageIdentifier.new("pipeline-name", 1, 'pipeline-label', 'stage-name', 'stage-counter'), 99, @date, StageResult::Passed, "manual", "loser>boozer", nil)
 
       @entry1.addAuthor(Author.new("user<loser", "loser@gmail.com"))
       @entry1.addAuthor(Author.new("user>boozer", "boozer@gmail.com"))
@@ -37,7 +37,7 @@ describe "/api/feeds/index" do
       @entry1.addCard(MingleCard.new(MingleConfig.new("https://boast", "project-dead"), "666"))
 
       @entry2 = com.thoughtworks.go.domain.feed.stage.StageFeedEntry.new(2, 11,
-                com.thoughtworks.go.domain.StageIdentifier.new("pipeline-name", 2, 'pipeline-label', 'stage-name', 'stage-counter'), 100, @date, StageResult::Cancelled, "success", "random_guy")
+                com.thoughtworks.go.domain.StageIdentifier.new("pipeline-name", 2, 'pipeline-label', 'stage-name', 'stage-counter'), 100, @date, StageResult::Cancelled, "success", "random_guy", "terminator")
 
       @entry2.addAuthor(Author.new("user anonymous", nil))
       @entry2.addCard(MingleCard.new(MingleConfig.new("https://ghost", "project.happy"), "42"))
@@ -186,6 +186,13 @@ describe "/api/feeds/index" do
 
       root = dom4j_root_for(response.body)
       expect(root.valueOf("//go:author/go:name/.")).to eq("loser>boozer")
+    end
+
+    it "should show cancelledBy if stage was cancelled by a user" do
+      render :template => '/api/pipelines/stage_feed.xml.erb'
+
+      root = dom4j_root_for(response.body)
+      expect(root.valueOf("//go:name/.")).to eq("terminator")
     end
   end
 

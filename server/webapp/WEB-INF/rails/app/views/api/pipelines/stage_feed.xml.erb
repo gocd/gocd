@@ -32,6 +32,12 @@
             </author>
             <%- end -%>
 
+            <%- if entry.getCancelledBy() -%>
+            <cancelledBy>
+                 <go:name><%= cdata_section(entry.getCancelledBy()) -%></go:name>
+            </cancelledBy>
+            <%- end -%>
+
             <% stage_link_title = entry.getStageIdentifier().getStageName() + " Stage Detail" %>
             <link title="<%=stage_link_title-%>" href="<%= resource_url(:id => entry.getId()) %>" rel="alternate" type="application/vnd.go+xml"/>
             <link title="<%=stage_link_title-%>" href="<%= page_url(entry.getStageIdentifier().getStageLocator()) %>" rel="alternate" type="text/html"/>

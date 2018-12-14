@@ -257,22 +257,22 @@ public class StageTest {
 
     @Test
     public void shouldReturnCreatedDateWhenNoTranstions() throws Exception {
-        stage = new Stage("dev", new JobInstances(), "anonymous", "manual", new TimeProvider());
+        stage = new Stage("dev", new JobInstances(), "anonymous", null, "manual", new TimeProvider());
         assertEquals(new Date(stage.getCreatedTime().getTime()), stage.latestTransitionDate());
     }
 
     @Test
     public void shouldCreateAStageWithAGivenConfigVersion() {
-        Stage stage = new Stage("foo-stage", new JobInstances(), "admin", "manual", false, false, "git-sha", new TimeProvider());
+        Stage stage = new Stage("foo-stage", new JobInstances(), "admin", null,"manual", false, false, "git-sha", new TimeProvider());
         assertThat(stage.getConfigVersion(), is("git-sha"));
 
-        stage = new Stage("foo-stage", new JobInstances(), "admin", "manual", new TimeProvider());
+        stage = new Stage("foo-stage", new JobInstances(), "admin", null, "manual", new TimeProvider());
         assertThat(stage.getConfigVersion(), is(nullValue()));
     }
 
     @Test
     public void shouldSetTheCurrentTimeAsCreationTimeForRerunOfJobs() {
-        Stage stage = new Stage("foo-stage", new JobInstances(), "admin", "manual", false, false, "git-sha", new TimeProvider());
+        Stage stage = new Stage("foo-stage", new JobInstances(), "admin", null,"manual", false, false, "git-sha", new TimeProvider());
         Timestamp createdTimeOfRun1 = stage.getCreatedTime();
         long minuteAfter = DateTimeUtils.currentTimeMillis() + 60000;
         freezeTime(minuteAfter);

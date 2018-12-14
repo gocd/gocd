@@ -45,7 +45,7 @@ public class PipelineBuilder {
     }
 
     public PipelineBuilder addStage(String stageName) {
-        stages.add(new Stage(stageName, new JobInstances(), null, null, new TimeProvider()));
+        stages.add(new Stage(stageName, new JobInstances(), null, null, null, new TimeProvider()));
         return this;
     }
 

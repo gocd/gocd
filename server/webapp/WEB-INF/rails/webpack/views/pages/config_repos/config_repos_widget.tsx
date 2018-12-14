@@ -182,9 +182,14 @@ class ConfigRepoWidget extends MithrilViewComponent<ShowObjectAttrs<ConfigRepo>>
       return accumulator;
     }
 
+    let renderedValue = value;
+
     const renderedKey = humanizedMaterialAttributeName(key);
+
     // test for value being a stream
-    let renderedValue = _.isFunction(value) ? value() : value;
+    if (_.isFunction(value)) {
+      value = value();
+    }
 
     // test for value being an EncryptedPassword
     if (value && value.valueForDisplay) {

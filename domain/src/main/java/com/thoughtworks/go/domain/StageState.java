@@ -36,10 +36,6 @@ public enum StageState {
         return this == Passed || this == Failed || this == Cancelled;
     }
 
-    public boolean completedNormally() {
-        return this == Passed || this == Failed;
-    }
-
     public boolean isActive() {
         return !completed() && this != Unknown;
     }

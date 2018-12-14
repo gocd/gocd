@@ -22,7 +22,7 @@ import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
 import {CollapsiblePanel} from "views/components/collapsible_panel";
 import {FlashMessage, MessageType} from "views/components/flash_message";
 import {HeaderIcon} from "views/components/header_icon";
-import {ButtonGroup, Clone, Delete, Edit} from "views/components/icons";
+import {Clone, Delete, Edit, IconGroup} from "views/components/icons";
 import {KeyValuePair} from "views/components/key_value_pair";
 import {CloneOperation, DeleteOperation, EditOperation, RequiresPluginInfos} from "views/pages/page_operations";
 
@@ -47,7 +47,7 @@ export class AuthConfigsWidget extends MithrilViewComponent<Attrs> {
           <KeyValuePair inline={true} data={this.headerMap(authConfig, pluginInfo)}/>];
 
         const actionButtons = [
-          <ButtonGroup>
+          <IconGroup>
             <Edit data-test-id="auth-config-edit"
                   disabled={!pluginInfo}
                   onclick={vnode.attrs.onEdit.bind(vnode.attrs, authConfig)}/>
@@ -56,7 +56,7 @@ export class AuthConfigsWidget extends MithrilViewComponent<Attrs> {
                    onclick={vnode.attrs.onClone.bind(vnode.attrs, authConfig)}/>
             <Delete data-test-id="auth-config-delete"
                     onclick={vnode.attrs.onDelete.bind(vnode.attrs, authConfig)}/>
-          </ButtonGroup>];
+          </IconGroup>];
         return <CollapsiblePanel header={header} actions={actionButtons}>
           <KeyValuePair data={authConfig.properties().asMap()}/>
         </CollapsiblePanel>;

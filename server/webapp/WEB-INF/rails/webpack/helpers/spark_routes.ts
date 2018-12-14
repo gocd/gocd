@@ -153,4 +153,8 @@ export default class {
       return "/go/api/admin/security/auth_configs";
     }
   }
+
+  static adminInternalVerifyConnectionPath(): string {
+    return `/go/api/admin/internal/security/auth_configs/verify_connection`;
+  }
 }

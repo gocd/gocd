@@ -26,6 +26,7 @@ import {Configurations} from "models/shared/configuration";
 import {ExtensionType} from "models/shared/plugin_infos_new/extension_type";
 import {AuthorizationSettings, Extension} from "models/shared/plugin_infos_new/extensions";
 import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
+import {ButtonGroup} from "views/components/buttons";
 import * as Buttons from "views/components/buttons";
 import {FlashMessage, MessageType} from "views/components/flash_message";
 import {Form, FormHeader} from "views/components/forms/form";
@@ -42,9 +43,20 @@ enum ModalType {
   edit, clone, create
 }
 
+class Messages {
+  public message: string;
+  public messageType: MessageType;
+
+  constructor(message: string, messageType: MessageType) {
+    this.message     = message;
+    this.messageType = messageType;
+  }
+}
+
 abstract class BaseAuthConfigModal extends Modal {
   protected authConfig: Stream<AuthConfig>;
-  private errorMessage: null;
+  private errorMessage?: string;
+  private connectionMessage?: Messages;
   private readonly pluginInfo: Stream<PluginInfo<Extension>>;
   private readonly pluginInfos: Array<PluginInfo<Extension>>;
   private readonly modalType: ModalType;
@@ -71,6 +83,24 @@ abstract class BaseAuthConfigModal extends Modal {
     this.performSave();
   }
 
+  performCheckConnection() {
+    if (!this.authConfig().isValid()) {
+      return;
+    }
+    AuthConfigsCRUD
+      .verifyConnection(this.authConfig())
+      .then((result) => {
+        result.do(
+          (successResponse) => {
+            this.connectionMessage = new Messages(successResponse.body.message, MessageType.success);
+          },
+          (errorResponse) => {
+            this.connectionMessage = new Messages(errorResponse.message, MessageType.alert);
+          }
+        );
+      });
+  }
+
   showErrors(apiResult: ApiResult<ObjectWithEtag<AuthConfig>>, errorResponse: ErrorResponse) {
     if (apiResult.getStatusCode() === 422 && errorResponse.body) {
       const profile = AuthConfig.fromJSON(JSON.parse(errorResponse.body).data);
@@ -79,15 +109,22 @@ abstract class BaseAuthConfigModal extends Modal {
   }
 
   buttons() {
-    return [<Buttons.Primary data-test-id="button-ok"
-                             onclick={this.validateAndPerformSave.bind(this)}>Save</Buttons.Primary>];
+    return [<ButtonGroup>
+      <Buttons.Primary data-test-id="button-check-connection" onclick={this.performCheckConnection.bind(this)}>Check
+        connection</Buttons.Primary>
+      <Buttons.Primary data-test-id="button-ok" onclick={this.validateAndPerformSave.bind(this)}>Save</Buttons.Primary>
+    </ButtonGroup>];
   }
 
   body() {
     if (this.errorMessage) {
       return (<FlashMessage type={MessageType.alert} message={this.errorMessage}/>);
     }
-
+    let msgs: any;
+    if (this.connectionMessage) {
+      msgs = (<FlashMessage type={this.connectionMessage.messageType} message={this.connectionMessage.message}
+                            dismissible={false}/>);
+    }
     if (!this.authConfig()) {
       return <Spinner/>;
     }
@@ -103,6 +140,7 @@ abstract class BaseAuthConfigModal extends Modal {
       <div class={foundationClassNames(foundationStyles.foundationGridHax, foundationStyles.foundationFormHax)}>
         <div>
           <FormHeader>
+            {msgs}
             <Form>
               <TextField label="Id"
                          disabled={this.modalType === ModalType.edit}
@@ -119,7 +157,6 @@ abstract class BaseAuthConfigModal extends Modal {
               </SelectField>
             </Form>
           </FormHeader>
-
         </div>
         <div>
           <div class="row collapse">

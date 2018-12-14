@@ -51,6 +51,15 @@ export class AuthConfigsCRUD {
                             .then((result: ApiResult<string>) => result.map((body) => JSON.parse(body)));
   }
 
+  static verifyConnection(authConfig: AuthConfig) {
+    return ApiRequestBuilder.POST(SparkRoutes.adminInternalVerifyConnectionPath(),
+                                  this.API_VERSION_HEADER,
+                                  {payload: authConfig})
+                            .then((result: ApiResult<string>) => {
+                              return result.map((body) => JSON.parse(body));
+                            });
+  }
+
   private static extractObjectWithEtag() {
     return (result: ApiResult<string>) => {
       return result.map((body) => {

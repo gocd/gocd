@@ -15,6 +15,25 @@
  */
 
 export class PluginInfoTestData {
+  static list(...objects: any[]) {
+    return {
+      _links: {
+        self: {
+          href: "https://ci.example.com/go/api/admin/plugin_info"
+        },
+        find: {
+          href: "https://ci.example.com/go/api/admin/plugin_info/:plugin_id"
+        },
+        doc: {
+          href: "https://api.gocd.org/#plugin-info"
+        }
+      },
+      _embedded: {
+        plugin_info: objects
+      }
+    };
+  }
+
   static authorization() {
     return {
       id: "cd.go.authorization.ldap",

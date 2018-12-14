@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import * as $ from "jquery";
 import * as m from "mithril";
 import * as stream from "mithril/stream";
 import {Stream} from "mithril/stream";
@@ -23,6 +22,7 @@ import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
 import * as simulateEvent from "simulate-event";
 import * as uuid from "uuid/v4";
 import * as headerIconStyles from "views/components/header_icon/index.scss";
+import * as keyValueStyles from "views/components/key_value_pair/index.scss";
 import {Attrs, ConfigReposWidget} from "views/pages/config_repos/config_repos_widget";
 import * as styles from "views/pages/config_repos/index.scss";
 
@@ -91,16 +91,17 @@ describe("ConfigReposWidget", () => {
     const repo2 = createConfigRepo();
     configRepos([repo1, repo2]);
     m.redraw();
-    expect(find("key-value-value-id")).toHaveLength(2);
-    expect($(find("key-value-value-id").get(0))).toHaveText(repo1.id());
-    expect($(find("key-value-value-id").get(1))).toHaveText(repo2.id());
+    const title = $root.find(`.${keyValueStyles.title}`);
+    expect(title).toHaveLength(2);
+    expect(title.get(0)).toHaveText(repo1.id());
+    expect(title.get(1)).toHaveText(repo2.id());
   });
 
   it("should render a material attributes and configurations", () => {
     const repo1 = createConfigRepo();
     configRepos([repo1]);
     m.redraw();
-    expect(find("key-value-value-id")).toHaveLength(1);
+    expect($root.find(`.${keyValueStyles.title}`)).toHaveLength(1);
     expect(find("key-value-value-url")).toContainText("https://example.com/git/");
     expect(find("key-value-value-file-pattern")).toHaveText("*.json");
   });
@@ -112,9 +113,10 @@ describe("ConfigReposWidget", () => {
     pluginInfos([configRepoPluginInfo()]);
     m.redraw();
     expect($root).toContainText("Last seen revision: 1234");
-    expect($root.find(`.${styles.scmHeader}`)).toHaveText("SCM configuration for git material");
     expect(find("key-value-key-url")).toContainText(`URL`);
     expect(find("key-value-value-url")).toContainText((repo.material().attributes() as GitMaterialAttributes).url());
+    expect(find("key-value-key-material")).toContainText(`Material`);
+    expect(find("key-value-value-material")).toContainText((repo.material().type()));
     expect($root.find(`.${styles.goodLastParseIcon}`)).toBeInDOM();
   });
 

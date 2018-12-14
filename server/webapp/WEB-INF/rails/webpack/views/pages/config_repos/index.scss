@@ -38,13 +38,17 @@
   @include header-icon($type: $fa-var-question, $color: $icon-light-color);
 }
 
-.scm-header {
-  font-weight:   600;
-  margin-bottom: 20px;
-}
-
 .last-revision {
   margin: 0 0 10px;
+  display: inline-block;
+  border: 1px solid $line-color;
+  background: $secondary-bg;
+  padding: 5px 10px;
+  border-radius: $global-border-radius;
+}
+
+.lastRevisionValue {
+  font-weight: 600;
 }
 
 .status-icon {

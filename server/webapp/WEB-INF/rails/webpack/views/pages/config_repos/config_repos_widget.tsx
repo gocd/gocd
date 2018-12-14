@@ -26,7 +26,7 @@ import {CollapsiblePanel} from "views/components/collapsible_panel";
 import {FlashMessage, MessageType} from "views/components/flash_message";
 import {HeaderIcon} from "views/components/header_icon";
 import {Delete, Edit, IconGroup, Refresh} from "views/components/icons";
-import {KeyValuePair} from "views/components/key_value_pair";
+import {KeyValuePair, KeyValueTitle} from "views/components/key_value_pair";
 import {Spinner} from "views/components/spinner";
 import {
   DeleteOperation,
@@ -73,10 +73,12 @@ class HeaderWidget extends MithrilViewComponent<HeaderWidgetAttrs> {
   view(vnode: m.Vnode<HeaderWidgetAttrs>): m.Children | void | null {
 
     return [
-      this.pluginIcon(vnode),
+      (
+        <KeyValueTitle image={this.pluginIcon(vnode)} title={vnode.attrs.repo.id()}/>
+      ),
       (
         <KeyValuePair inline={true} data={new Map([
-                                                    ["Id", vnode.attrs.repo.id()],
+                                                    ["Plugin Id", vnode.attrs.repo.pluginId()]
                                                   ])}/>
       )
     ];
@@ -105,9 +107,10 @@ class HeaderWidget extends MithrilViewComponent<HeaderWidgetAttrs> {
 class ConfigRepoWidget extends MithrilViewComponent<ShowObjectAttrs<ConfigRepo>> {
   view(vnode: m.Vnode<ShowObjectAttrs<ConfigRepo>>): m.Children | void | null {
 
+    const materialNameAttribute = new Map([["Material", vnode.attrs.obj.material().type()]]);
     const filteredAttributes = _.reduce(vnode.attrs.obj.material().attributes(),
                                         this.resolveKeyValueForAttribute,
-                                        new Map<string, string>());
+                                        materialNameAttribute);
     const allAttributes      = _.reduce(vnode.attrs.obj.configuration(),
                                         (accumulator: Map<string, string>,
                                          value: Configuration) => this.resolveKeyValueForAttribute(accumulator,
@@ -139,7 +142,7 @@ class ConfigRepoWidget extends MithrilViewComponent<ShowObjectAttrs<ConfigRepo>>
 
     if (vnode.attrs.obj.lastParse() && vnode.attrs.obj.lastParse().revision()) {
       lastParseRevision =
-        <p class={styles.lastRevision}>Last seen revision: <code>{vnode.attrs.obj.lastParse().revision()}</code></p>;
+        <span class={styles.lastRevision}>Last seen revision: <code class={styles.lastRevisionValue}>{vnode.attrs.obj.lastParse().revision()}</code></span>;
     }
 
     let maybeWarning: m.Children;
@@ -168,10 +171,8 @@ class ConfigRepoWidget extends MithrilViewComponent<ShowObjectAttrs<ConfigRepo>>
     return (
       <CollapsiblePanel header={<HeaderWidget repo={vnode.attrs.obj} pluginInfos={vnode.attrs.pluginInfos}/>}
                         actions={actionButtons}>
-        <h4>Plugin ID: {vnode.attrs.obj.pluginId()}</h4>
         {maybeWarning}
         {lastParseRevision}
-        <h4 class={styles.scmHeader}>SCM configuration for {vnode.attrs.obj.material().type()} material</h4>
         <KeyValuePair data={allAttributes}/>
       </CollapsiblePanel>
     );

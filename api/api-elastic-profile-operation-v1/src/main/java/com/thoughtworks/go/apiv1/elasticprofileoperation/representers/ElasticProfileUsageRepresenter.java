@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.apiv1.elasticprofile.representers;
+package com.thoughtworks.go.apiv1.elasticprofileoperation.representers;
 
 import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;

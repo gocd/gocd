@@ -23,8 +23,6 @@ import com.thoughtworks.go.apiv1.elasticprofile.representers.ElasticProfileRepre
 import com.thoughtworks.go.apiv1.elasticprofile.representers.ElasticProfilesRepresenter
 import com.thoughtworks.go.config.elastic.ElasticProfile
 import com.thoughtworks.go.config.elastic.ElasticProfiles
-import com.thoughtworks.go.config.exceptions.RecordNotFoundException
-import com.thoughtworks.go.domain.ElasticProfileUsage
 import com.thoughtworks.go.i18n.LocalizedMessage
 import com.thoughtworks.go.server.domain.Username
 import com.thoughtworks.go.server.service.ElasticProfileService
@@ -535,66 +533,6 @@ class ElasticProfileControllerV1Test implements SecurityServiceTrait, Controller
           .isUnprocessableEntity()
           .hasContentType(controller.mimeType)
           .hasJsonMessage('save failed')
-      }
-    }
-  }
-
-  @Nested
-  class Usages {
-    @Nested
-    class Security implements SecurityTestTrait, GroupAdminUserSecurity {
-
-      @Override
-      String getControllerMethodUnderTest() {
-        return "usages"
-      }
-
-      @Override
-      void makeHttpCall() {
-        getWithApiHeader(controller.controllerPath("/docker/usages"))
-      }
-    }
-
-    @Nested
-    class AsAGroupAdmin {
-      @Test
-      void 'should list jobs associated with a profile id'() {
-        def elasticProfileUsages = Arrays.asList(
-          new ElasticProfileUsage("LinuxPR", "build", "compile", "linux-pr"),
-          new ElasticProfileUsage("LinuxPR", "build", "test", "linux-pr"),
-
-          new ElasticProfileUsage("WindowsPR", "clean", "clean-dirs"),
-          new ElasticProfileUsage("WindowsPR", "clean", "clean-artifacts")
-        )
-
-        when(elasticProfileService.getUsageInformation("docker")).thenReturn(elasticProfileUsages)
-
-        getWithApiHeader(controller.controllerPath("/docker/usages"))
-
-        def expectedResponse = [
-          [pipeline_name: "LinuxPR", stage_name: "build", job_name: "compile", template_name: "linux-pr"],
-          [pipeline_name: "LinuxPR", stage_name: "build", job_name: "test", template_name: "linux-pr"],
-
-          [pipeline_name: "WindowsPR", stage_name: "clean", job_name: "clean-dirs"],
-          [pipeline_name: "WindowsPR", stage_name: "clean", job_name: "clean-artifacts"]
-        ]
-
-        assertThatResponse()
-          .isOk()
-          .hasContentType(controller.mimeType)
-          .hasBodyWithJson(new JsonBuilder(expectedResponse).toString())
-      }
-
-      @Test
-      void 'should return 404 when profile with id does not exist'() {
-        when(elasticProfileService.getUsageInformation("docker")).thenThrow(new RecordNotFoundException("docker"))
-
-        getWithApiHeader(controller.controllerPath("/docker/usages"))
-
-        assertThatResponse()
-          .isNotFound()
-          .hasContentType(controller.mimeType)
-          .hasJsonMessage("Either the resource you requested was not found, or you are not authorized to perform this action.")
       }
     }
   }

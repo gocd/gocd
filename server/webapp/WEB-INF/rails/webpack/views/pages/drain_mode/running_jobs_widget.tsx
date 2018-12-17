@@ -72,9 +72,9 @@ export class JobInfoWidget extends MithrilViewComponent<JobInfoAttrs> {
   }
 
   private static stageCancelButton(stageLocator: StageLocator, vnode: m.Vnode<JobInfoAttrs>) {
-    return (<Buttons.Primary onclick={vnode.attrs.onCancelStage.bind(vnode.attrs, stageLocator)}
-                             data-test-id="job-link"
-                             small={true}>Cancel stage</Buttons.Primary>);
+    return (<Buttons.Secondary onclick={vnode.attrs.onCancelStage.bind(vnode.attrs, stageLocator)}
+                               data-test-id="job-link"
+                               small={true}>Cancel stage</Buttons.Secondary>);
   }
 
   private static goTo(href: string, event: Event): void {

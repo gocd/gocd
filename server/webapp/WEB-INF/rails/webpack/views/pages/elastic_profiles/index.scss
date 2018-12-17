@@ -25,7 +25,6 @@ $icon-light-color: #e6e6e6;
   display: block;
 }
 
-
 .plugin-icon {
   display:        none;
   vertical-align: middle;
@@ -68,5 +67,17 @@ $icon-light-color: #e6e6e6;
 
 .elastic-profile-modal-form-body {
   padding: 0 30px;
+}
+
+.table-cell {
+  width:     263px;
+  display:   block;
+  word-wrap: break-word;
+}
+
+.job-settings-link {
+  width:     121px;
+  word-wrap: break-word;
+  display:   block;
 }
 

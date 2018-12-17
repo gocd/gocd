@@ -52,7 +52,7 @@ abstract class BaseElasticProfileModal extends Modal {
   protected constructor(elasticProfile: ElasticProfile,
                         pluginInfos: Array<PluginInfo<Extension>>,
                         type: ModalType) {
-    super(Size.medium);
+    super(Size.large);
     this.elasticProfile = stream(elasticProfile);
     this.pluginInfos    = pluginInfos;
     this.pluginInfo     = stream(pluginInfos.find(

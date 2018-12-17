@@ -65,7 +65,7 @@ class RunningSystemWidget extends MithrilViewComponent<RunningSystemAttrs> {
 
     return <div data-test-id={vnode.attrs.dataTestId} class={styles.runningSystem}>
       {icon}
-      <div>{vnode.attrs.text}</div>
+      <div class={styles.runningSystemText}>{vnode.attrs.text}</div>
     </div>;
   }
 }

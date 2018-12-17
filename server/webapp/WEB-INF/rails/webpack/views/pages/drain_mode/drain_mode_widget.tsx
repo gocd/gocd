@@ -81,6 +81,6 @@ export class DrainModeInfoWidget extends MithrilViewComponent<InfoAttrs> {
       <JobInfoWidget jobs={vnode.attrs.drainModeInfo.runningSystem.groupJobsByStage()}
                      onCancelStage={vnode.attrs.onCancelStage}/>,
       <MDUInfoWidget materials={vnode.attrs.drainModeInfo.runningSystem.mdu}/>
-    ];
+    ] as m.ChildArray;
   }
 }

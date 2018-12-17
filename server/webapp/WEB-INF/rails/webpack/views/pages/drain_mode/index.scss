@@ -37,7 +37,17 @@
 }
 
 .running-system {
-  display: flex;
+  display:     flex;
+  font-size:   20px;
+  padding:     3px;
+  height:      30px;
+  line-height: 30px;
+}
+
+.running-system-text {
+  font-size:    16px;
+  padding-left: 5px;
+  font-style:   italic;
 }
 
 .updated-by {

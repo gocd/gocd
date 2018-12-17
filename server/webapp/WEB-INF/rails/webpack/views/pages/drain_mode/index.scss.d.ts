@@ -4,6 +4,7 @@ export const drainModeWidget: string;
 export const drainModeDescription: string;
 export const drainModeInfo: string;
 export const runningSystem: string;
+export const runningSystemText: string;
 export const updatedBy: string;
 export const inProgressSubsystems: string;
 export const panel: string;

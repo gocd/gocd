@@ -16,21 +16,24 @@
 
 package com.thoughtworks.go.server.web;
 
+import com.thoughtworks.go.util.SystemEnvironment;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
 import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 public class DefaultHeadersFilterTest {
 
+    private static final String ENABLE_HSTS_HEADER = "gocd.enable.hsts.header";
     @Mock
     private HttpServletResponse response;
     @Mock
@@ -38,15 +41,23 @@ public class DefaultHeadersFilterTest {
     @Mock
     private ServletRequest request;
     private DefaultHeadersFilter filter;
+    private SystemEnvironment systemEnvironment;
 
     @Before
     public void setUp() throws Exception {
         initMocks(this);
         filter = new DefaultHeadersFilter();
+        systemEnvironment = new SystemEnvironment();
+    }
+
+    @After
+    public void tearDown() throws Exception {
+        systemEnvironment.clearProperty(ENABLE_HSTS_HEADER);
     }
 
     @Test
     public void shouldAddDefaultHeaders() throws Exception {
+        systemEnvironment.setProperty("gocd.enable.hsts.header", "true");
         filter.doFilter(request, response, chain);
 
         verify(response).isCommitted();
@@ -54,6 +65,20 @@ public class DefaultHeadersFilterTest {
         verify(response).setHeader("X-Content-Type-Options", "nosniff");
         verify(response).setHeader("X-Frame-Options", "SAMEORIGIN");
         verify(response).setHeader("X-UA-Compatible", "chrome=1");
+        verify(response).setHeader("Strict-Transport-Security", "max-age=31536000");
+    }
+
+    @Test
+    public void shouldNotAddHstsHeaderWhenToggledOff() throws ServletException, IOException {
+        systemEnvironment.setProperty("gocd.enable.hsts.header", "false");
+        filter.doFilter(request, response, chain);
+
+        verify(response).isCommitted();
+        verify(response).setHeader("X-XSS-Protection", "1; mode=block");
+        verify(response).setHeader("X-Content-Type-Options", "nosniff");
+        verify(response).setHeader("X-Frame-Options", "SAMEORIGIN");
+        verify(response).setHeader("X-UA-Compatible", "chrome=1");
+        verify(response, never()).setHeader(eq("Strict-Transport-Security"), anyString());
     }
 
     @Test

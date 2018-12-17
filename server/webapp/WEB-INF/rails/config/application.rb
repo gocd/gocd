@@ -47,5 +47,8 @@ module Go
 
     config.action_controller.include_all_helpers = true
     config.action_controller.per_form_csrf_tokens = false
+
+    # Disable default headers in rails, since they are added from other filters like DefaultHeadersFilter
+    config.action_dispatch.default_headers = {}
   end
 end

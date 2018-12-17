@@ -6,3 +6,5 @@ export const pluginNotInstalled: string;
 export const keyValuePair: string;
 export const pluginInfoSelect: string;
 export const elasticProfileModalFormBody: string;
+export const tableCell: string;
+export const jobSettingsLink: string;

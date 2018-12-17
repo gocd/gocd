@@ -261,7 +261,7 @@ export class UsageElasticProfileModal extends Modal {
   private readonly profileId: string;
 
   constructor(profileId: string, usages: ProfileUsage[]) {
-    super(Size.medium);
+    super(Size.large);
     this.usages    = usages;
     this.profileId = profileId;
   }
@@ -272,9 +272,9 @@ export class UsageElasticProfileModal extends Modal {
     }
 
     const data = this.usages.map((usage) => [
-      usage.pipelineName(),
-      usage.stageName(),
-      usage.jobName(),
+      <span className={styles.tableCell}>{usage.pipelineName()}</span>,
+      <span className={styles.tableCell}>{usage.stageName()}</span>,
+      <span className={styles.tableCell}>{usage.jobName()}</span>,
       UsageElasticProfileModal.anchorToSettings(usage)
     ]);
     return (<Table headers={["Pipeline", "Stage", "Job", " "]} data={data}/>);
@@ -291,6 +291,6 @@ export class UsageElasticProfileModal extends Modal {
       link = `/go/admin/templates/${usage.templateName()}/stages/${usage.stageName()}/job/${usage.jobName()}/settings`;
     }
 
-    return <a href={link}>Go to job settings</a>;
+    return <span class={styles.jobSettingsLink}><a href={link}>Go to job settings</a></span>;
   }
 }

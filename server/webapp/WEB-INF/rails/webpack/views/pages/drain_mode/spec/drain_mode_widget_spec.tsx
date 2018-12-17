@@ -15,7 +15,6 @@
  */
 
 import * as m from "mithril";
-import * as simulateEvent from "simulate-event";
 import {DrainModeWidget} from "views/pages/drain_mode/drain_mode_widget";
 import {TestData} from "views/pages/drain_mode/spec/test_data";
 
@@ -37,6 +36,11 @@ describe("Drain Mode Widget", () => {
   it("should provide the description of the drain mode feature", () => {
     const expectedDescription = "The drain mode is a maintenance mode which a GoCD system administrator can put GoCD into so that it is safe to restart it or upgrade it without having running jobs reschedule when it is back.";
     expect(find("drain-mode-description")).toContainText(expectedDescription);
+  });
+
+  it("should provide the drain mode updated information", () => {
+    const expectedUpdatedByInfo = `${TestData.info().metdata.updatedBy} changed the drain mode state on ${TestData.info().metdata.updatedOn}.`;
+    expect(find("drain-mode-updated-by-info")).toContainText(expectedUpdatedByInfo);
   });
 
   //private

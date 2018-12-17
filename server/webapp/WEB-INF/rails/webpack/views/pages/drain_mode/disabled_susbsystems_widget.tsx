@@ -33,16 +33,16 @@ class InformationWhenNotInDrainMode extends MithrilViewComponent<Attrs> {
       <div data-test-id="info-when-not-in-drain-mode-header">Enabling GoCD Server Drain mode will:</div>
       <ul>
         <li data-test-id="stop-material">Stop the material subsystem so that no new materials are polled.</li>
-        <li ddata-test-id="stop-config-repo">Stop polling on config repositories.</li>
-        <li ddata-test-id="stop-pipeline-scheduling">Stop the scheduling subsystem so that no new pipelines are
+        <li data-test-id="stop-config-repo">Stop polling on config repositories.</li>
+        <li data-test-id="stop-pipeline-scheduling">Stop the scheduling subsystem so that no new pipelines are
           triggered (automatically or through timers).
         </li>
-        <li ddata-test-id="stop-work-assignment">Stop the agent subsystem, so that no agents can pick up work if they’re
+        <li data-test-id="stop-work-assignment">Stop the agent subsystem, so that no agents can pick up work if they’re
           idle.
         </li>
-        <li ddata-test-id="stop-manual-trigger">Prevent users from triggering pipelines.</li>
-        <li ddata-test-id="stop-config-changes">Prevent users from modifying configurations.</li>
-        <li ddata-test-id="stop-db-changes">Prevent users from performing operations that modifies state in the database
+        <li data-test-id="stop-manual-trigger">Prevent users from triggering pipelines.</li>
+        <li data-test-id="stop-config-changes">Prevent users from modifying configurations.</li>
+        <li data-test-id="stop-db-changes">Prevent users from performing operations that modifies state in the database
           or filesystem.
         </li>
       </ul>
@@ -76,7 +76,7 @@ class InformationWhenInDrainMode extends MithrilViewComponent<Attrs> {
 
     const message = isCompletelyDrained
       ? <FlashMessage type={MessageType.info} message={"GoCD Server is completely drained."}/>
-      : <FlashMessage type={MessageType.warning} message={"Some sub systems of GoCD are still in progress."}/>;
+      : <FlashMessage type={MessageType.warning} message={"Some subsystems of GoCD are still in progress."}/>;
 
     const mduRunningSystem = vnode.attrs.drainModeInfo.runningSystem.mdu.count() === 0
       ? <RunningSystemWidget inProgess={false} dataTestId={"mdu-stopped"} text={"Stopped material subsystem."}/>

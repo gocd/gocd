@@ -55,7 +55,7 @@ export class DrainModeWidget extends MithrilViewComponent<Attrs> {
         </div>
 
         <div className={classnames(styles.drainModeInfo)}>
-          <div class={styles.updatedBy}>
+          <div data-test-id="drain-mode-updated-by-info" class={styles.updatedBy}>
             {drainModeInfo.metdata.updatedBy} changed the drain mode state on {drainModeInfo.metdata.updatedOn}.
           </div>
           <Switch label={"Enable Drain Mode"}

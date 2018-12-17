@@ -47,8 +47,7 @@ export class DrainModeWidget extends MithrilViewComponent<Attrs> {
 
     return (
       <div className={styles.drainModeWidget} data-test-id="drain-mode-widget">
-
-        <div className={styles.drainModeDescription}>
+        <div data-test-id="drain-mode-description" className={styles.drainModeDescription}>
           <p>
             The drain mode is a maintenance mode which a GoCD system administrator can put GoCD into so that it is
             safe to restart it or upgrade it without having running jobs reschedule when it is back.

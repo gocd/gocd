@@ -18,9 +18,8 @@ import * as m from "mithril";
 import * as simulateEvent from "simulate-event";
 import {DrainModeWidget} from "views/pages/drain_mode/drain_mode_widget";
 import {TestData} from "views/pages/drain_mode/spec/test_data";
-import * as styles from "../index.scss";
 
-describe("Drain mode widget test", () => {
+describe("Drain Mode Widget", () => {
   let $root: any, root: any;
   const toggleDrainMode = jasmine.createSpy("onToggle");
   const onCancelStage   = jasmine.createSpy("onCancelStage");
@@ -35,6 +34,12 @@ describe("Drain mode widget test", () => {
   // @ts-ignore
   afterEach(window.destroyDomElementForTest);
 
+  it("should provide the description of the drain mode feature", () => {
+    const expectedDescription = "The drain mode is a maintenance mode which a GoCD system administrator can put GoCD into so that it is safe to restart it or upgrade it without having running jobs reschedule when it is back.";
+    expect(find("drain-mode-description")).toContainText(expectedDescription);
+  });
+
+  //private
   function mount() {
     m.mount(root, {
       view() {
@@ -55,14 +60,4 @@ describe("Drain mode widget test", () => {
   function find(id: string) {
     return $root.find(`[data-test-id='${id}']`);
   }
-
-  xit("should callback the save function when save button is clicked", () => {
-    simulateEvent.simulate(find("save-drain-mode-settings").get(0), "click");
-  });
-
-  xit("should callback the reset function when reset button is clicked", () => {
-    m.redraw();
-
-    simulateEvent.simulate(find("reset-drain-mode-settings").get(0), "click");
-  });
 });

@@ -62,9 +62,7 @@ export class DrainModePage extends Page<null, State> {
                              undefined,
                              {headers: {Confirm: "true"}})
                        .then(() => {
-                         vnode.state.message = new Message(
-                           MessageType.success,
-                           `Stage ${stageLocator.stageName} successfully cancelled.`);
+                         vnode.state.message = new Message(MessageType.success, `Stage ${stageLocator.stageName} successfully cancelled.`);
                          this.fetchData(vnode);
                        }, vnode.state.onError);
     };

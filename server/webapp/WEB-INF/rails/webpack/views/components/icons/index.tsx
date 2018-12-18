@@ -135,6 +135,12 @@ export class Check extends Icon {
   }
 }
 
+export class Minus extends Icon {
+  constructor() {
+    super(styles.minus, "Minus");
+  }
+}
+
 export class IconGroup extends MithrilViewComponent<Attrs> {
   view(vnode: m.Vnode<Attrs>) {
     return (

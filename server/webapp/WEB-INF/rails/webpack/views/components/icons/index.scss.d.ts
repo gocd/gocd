@@ -14,4 +14,5 @@ export const check: string;
 export const spinner: string;
 export const refresh: string;
 export const usage: string;
+export const minus: string;
 export const iconGroup: string;

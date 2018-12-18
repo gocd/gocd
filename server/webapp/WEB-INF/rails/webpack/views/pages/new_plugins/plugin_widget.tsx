@@ -51,7 +51,6 @@ class PluginHeaderWidget extends MithrilViewComponent<PluginHeaderAttrs> {
 export interface Attrs {
   pluginInfo: PluginInfo<any>;
   isUserAnAdmin: boolean;
-  index: number;
   onEdit: (e: MouseEvent) => void;
 }
 
@@ -104,7 +103,7 @@ export class PluginWidget extends MithrilViewComponent<Attrs> {
                                                     pluginId={pluginInfo.id}/>}
                         actions={[statusReportButton, settingsButton]}
                         error={pluginInfo.hasErrors()}
-                        expanded={pluginInfo.status.isInvalid() || vnode.attrs.index === 0}>
+                        expanded={pluginInfo.status.isInvalid()}>
         <KeyValuePair data={pluginData}/>
       </CollapsiblePanel>
     );

@@ -158,6 +158,14 @@ export default class {
     }
   }
 
+  static rolePath(roleName?: string): string {
+    if (roleName) {
+      return `/go/api/admin/security/roles/${roleName}`;
+    } else {
+      return "/go/api/admin/security/roles";
+    }
+  }
+
   static adminInternalVerifyConnectionPath(): string {
     return `/go/api/admin/internal/security/auth_configs/verify_connection`;
   }

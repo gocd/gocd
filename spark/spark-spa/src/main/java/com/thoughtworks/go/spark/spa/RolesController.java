@@ -25,11 +25,11 @@ import spark.Response;
 import spark.TemplateEngine;
 
 import java.util.HashMap;
+import java.util.Map;
 
 import static spark.Spark.*;
 
 public class RolesController implements SparkController {
-
     private final SPAAuthenticationHelper authenticationHelper;
     private final TemplateEngine engine;
 
@@ -40,7 +40,7 @@ public class RolesController implements SparkController {
 
     @Override
     public String controllerBasePath() {
-        return Routes.RolesSPA.BASE;
+        return Routes.Roles.SPA_BASE;
     }
 
     @Override
@@ -52,7 +52,7 @@ public class RolesController implements SparkController {
     }
 
     public ModelAndView index(Request request, Response response) {
-        HashMap<Object, Object> object = new HashMap<Object, Object>() {{
+        Map<Object, Object> object = new HashMap<Object, Object>() {{
             put("viewTitle", "Server Roles");
         }};
         return new ModelAndView(object, "roles/index.vm");

@@ -7,3 +7,4 @@ export const missingPluginIcon: string;
 export const lastRevision: string;
 export const lastRevisionValue: string;
 export const statusIcon: string;
+export const spinnerWrapper: string;

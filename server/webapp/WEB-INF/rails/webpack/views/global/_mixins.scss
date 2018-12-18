@@ -15,6 +15,8 @@
  */
 @import '~bourbon/core/bourbon';
 
+$spinner-wrapper-height: 175px;
+
 @mixin hover-effect-for-top-menu {
   color:           $subnav-link-color;
   transition:      all 0.3s ease-in-out;
@@ -34,4 +36,8 @@
     font-size:   13px;
     font-weight: 600;
   }
+}
+
+@mixin spinner-for-modal {
+  min-height: $spinner-wrapper-height;
 }

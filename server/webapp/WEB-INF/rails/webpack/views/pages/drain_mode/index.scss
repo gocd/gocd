@@ -19,7 +19,7 @@
   background:    $white;
   border:        1px solid $border-color;
   border-radius: 5px;
-  padding:       20px;
+  padding:       30px;
   position:      relative;
   top:           15px;
 }
@@ -29,19 +29,10 @@
   margin-bottom: 15px;
 }
 
-.drain-mode-info {
-  width:         47%;
-  border-radius: 3px;
-  border:        1px solid $border-color;
-  padding:       10px 20px;
-}
-
 .running-system {
-  display:     flex;
-  font-size:   20px;
-  padding:     3px;
-  height:      30px;
-  line-height: 30px;
+  display:       flex;
+  font-size:     16px;
+  margin-bottom: 7px;
 }
 
 .running-system-text {
@@ -60,6 +51,19 @@
 
 .in-progress-subsystems {
   margin: 10px 0;
+}
+
+.running-sub-system {
+  margin:  20px 0;
+  padding: 0;
+}
+
+.gocd-sub-system-info {
+  padding: 0;
+  li {
+    font-size:     16px;
+    margin-bottom: 10px;
+  }
 }
 
 .panel {

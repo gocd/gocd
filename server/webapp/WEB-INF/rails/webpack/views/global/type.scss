@@ -1,4 +1,4 @@
-/*
+/*!
  * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,10 +14,6 @@
  * limitations under the License.
  */
 
-@import "_fontawesome";
-@import "variables";
-@import "mixins";
-@import "theme";
-@import "measures";
-@import "zindex";
-@import "type";
+p {
+  margin: 0 0 20px 0;
+}

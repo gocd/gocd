@@ -168,7 +168,7 @@ export class DrainModeMetadata {
 }
 
 export class DrainModeInfo {
-  readonly drainModeState: Stream<boolean>;
+  public readonly drainModeState: Stream<boolean>;
   public isCompletelyDrained: boolean;
   public metdata: DrainModeMetadata;
   public runningSystem: RunningSystem;

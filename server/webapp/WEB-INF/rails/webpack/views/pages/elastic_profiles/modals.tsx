@@ -79,8 +79,10 @@ abstract class BaseElasticProfileModal extends Modal {
   }
 
   buttons() {
-    return [<Buttons.Primary data-test-id="button-ok"
-                             onclick={this.validateAndPerformSave.bind(this)}>Save</Buttons.Primary>];
+    return [
+      <Buttons.Primary data-test-id="button-ok" onclick={this.validateAndPerformSave.bind(this)}>Save</Buttons.Primary>,
+      <Buttons.Cancel data-test-id="button-cancel" onclick={this.close.bind(this)}>Cancel</Buttons.Cancel>,
+    ];
   }
 
   body() {

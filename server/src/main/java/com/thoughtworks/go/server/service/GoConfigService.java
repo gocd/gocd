@@ -16,7 +16,6 @@
 
 package com.thoughtworks.go.server.service;
 
-import com.rits.cloning.Cloner;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
 import com.thoughtworks.go.config.elastic.ElasticConfig;
@@ -77,22 +76,20 @@ import static java.util.stream.Collectors.toMap;
 
 @Service
 public class GoConfigService implements Initializer, CruiseConfigProvider {
+    public static final String INVALID_CRUISE_CONFIG_XML = "Invalid Configuration";
+    private static final Logger LOGGER = LoggerFactory.getLogger(GoConfigService.class);
+
+    private final ConfigElementImplementationRegistry registry;
+    private final CachedGoPartials cachedGoPartials;
     private GoConfigDao goConfigDao;
     private PipelineRepository pipelineRepository;
     private GoConfigMigration upgrader;
     private GoCache goCache;
     private ConfigRepository configRepository;
     private ConfigCache configCache;
-
     private GoConfigCloner cloner = new GoConfigCloner();
     private Clock clock = new SystemTimeClock();
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(GoConfigService.class);
-
-    public static final String INVALID_CRUISE_CONFIG_XML = "Invalid Configuration";
-    private final ConfigElementImplementationRegistry registry;
     private InstanceFactory instanceFactory;
-    private final CachedGoPartials cachedGoPartials;
     private SystemEnvironment systemEnvironment;
     private MagicalGoConfigXmlLoader xmlLoader;
 
@@ -1049,10 +1046,64 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
         return xmlLoader.validateCruiseConfig(cruiseConfig);
     }
 
+    public String xml() {
+        return configAsXml(getConfigForEditing());
+    }
+
+    private String configAsXml(CruiseConfig cruiseConfig) {
+        final ByteArrayOutputStream outStream = new ByteArrayOutputStream();
+        try {
+            new MagicalGoConfigXmlWriter(configCache, registry).write(cruiseConfig, outStream, true);
+            return outStream.toString();
+        } catch (Exception e) {
+            throw bomb(e);
+        }
+    }
+
+    // for test
+    public void forceNotifyListeners() {
+        goConfigDao.reloadListeners();
+    }
+
+    public ConfigElementImplementationRegistry getRegistry() {
+        return registry;
+    }
+
+    public Map<String, Map> artifactIdToPluginIdForFetchPluggableArtifact(String stagePatent,
+                                                                          String currentPipelineName,
+                                                                          String currentStageName) {
+
+        final List<PipelineConfig> pipelineConfigs = stagePatent.equals("templates") ? getAllPipelineConfigs() : pipelinesForFetchArtifacts(currentPipelineName);
+        Map<String, Map> allArtifacts = new HashMap<>();
+
+        pipelineConfigs.forEach(pipelineConfig -> {
+            final String pipelineName = pipelineConfig.getName().toString();
+            final HashMap<String, Map> artifactsInPipeline = new HashMap<>();
+            allArtifacts.put(pipelineName, artifactsInPipeline);
+            final boolean isCurrentPipeline = pipelineName.equalsIgnoreCase(currentPipelineName);
+
+            final List<StageConfig> stageConfigs = isCurrentPipeline ? pipelineConfig.allStagesBefore(new CaseInsensitiveString(currentStageName)) : pipelineConfig.getStages();
+
+            stageConfigs.forEach(stageConfig -> {
+                final String stageName = stageConfig.name().toString();
+                artifactsInPipeline.put(stageName, new HashMap<String, Map>());
+                stageConfig.getJobs().forEach(jobConfig -> {
+                    artifactsInPipeline.get(stageName).put(jobConfig.name().toString(), jobConfig.artifactConfigs().getPluggableArtifactConfigs().stream().collect(toMap(PluggableArtifactConfig::getId, c -> {
+                        final ArtifactStore artifactStore = artifactStores().find(c.getStoreId());
+                        return artifactStore == null ? null : artifactStore.getPluginId();
+                    })));
+                });
+            });
+        });
+
+        return allArtifacts;
+    }
+
     public abstract class XmlPartialSaver<T> {
         protected final SAXReader reader;
         private final ConfigElementImplementationRegistry registry;
         private SystemEnvironment systemEnvironment;
+        private String md5;
 
         protected XmlPartialSaver(ConfigElementImplementationRegistry registry, SystemEnvironment systemEnvironment) {
             this.registry = registry;
@@ -1060,8 +1111,6 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
             reader = new SAXReader();
             reader.setEntityResolver((publicId, systemId) -> new InputSource(new StringReader("")));
         }
-
-        private String md5;
 
         protected ConfigSaveState updatePartial(String xmlPartial, final String md5) throws Exception {
             LOGGER.debug("[Config Save] Updating partial");
@@ -1179,7 +1228,6 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
         }
     }
 
-
     private class XmlPartialFileSaver extends XmlPartialSaver<CruiseConfig> {
         private final boolean shouldUpgrade;
 
@@ -1206,20 +1254,6 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
         }
     }
 
-    public String xml() {
-        return configAsXml(getConfigForEditing());
-    }
-
-    private String configAsXml(CruiseConfig cruiseConfig) {
-        final ByteArrayOutputStream outStream = new ByteArrayOutputStream();
-        try {
-            new MagicalGoConfigXmlWriter(configCache, registry).write(cruiseConfig, outStream, true);
-            return outStream.toString();
-        } catch (Exception e) {
-            throw bomb(e);
-        }
-    }
-
     private class XmlPartialPipelineGroupSaver extends XmlPartialSaver<Object> {
         private final String groupName;
 
@@ -1238,44 +1272,5 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
         protected String getXpath() {
             return String.format("//cruise/pipelines[@group='%s']", groupName);
         }
-    }
-
-    // for test
-    public void forceNotifyListeners() {
-        goConfigDao.reloadListeners();
-    }
-
-    public ConfigElementImplementationRegistry getRegistry() {
-        return registry;
-    }
-
-    public Map<String, Map> artifactIdToPluginIdForFetchPluggableArtifact(String stagePatent,
-                                                                          String currentPipelineName,
-                                                                          String currentStageName) {
-
-        final List<PipelineConfig> pipelineConfigs = stagePatent.equals("templates") ? getAllPipelineConfigs() : pipelinesForFetchArtifacts(currentPipelineName);
-        Map<String, Map> allArtifacts = new HashMap<>();
-
-        pipelineConfigs.forEach(pipelineConfig -> {
-            final String pipelineName = pipelineConfig.getName().toString();
-            final HashMap<String, Map> artifactsInPipeline = new HashMap<>();
-            allArtifacts.put(pipelineName, artifactsInPipeline);
-            final boolean isCurrentPipeline = pipelineName.equalsIgnoreCase(currentPipelineName);
-
-            final List<StageConfig> stageConfigs = isCurrentPipeline ? pipelineConfig.allStagesBefore(new CaseInsensitiveString(currentStageName)) : pipelineConfig.getStages();
-
-            stageConfigs.forEach(stageConfig -> {
-                final String stageName = stageConfig.name().toString();
-                artifactsInPipeline.put(stageName, new HashMap<String, Map>());
-                stageConfig.getJobs().forEach(jobConfig -> {
-                    artifactsInPipeline.get(stageName).put(jobConfig.name().toString(), jobConfig.artifactConfigs().getPluggableArtifactConfigs().stream().collect(toMap(PluggableArtifactConfig::getId, c -> {
-                        final ArtifactStore artifactStore = artifactStores().find(c.getStoreId());
-                        return artifactStore == null ? null : artifactStore.getPluginId();
-                    })));
-                });
-            });
-        });
-
-        return allArtifacts;
     }
 }

@@ -47,14 +47,13 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.apache.commons.io.IOUtils.toInputStream;
 
 public class MagicalGoConfigXmlLoader {
-    private static final Logger LOGGER = LoggerFactory.getLogger(MagicalGoConfigXmlLoader.class);
-    private static final SystemEnvironment systemEnvironment = new SystemEnvironment();
-
     public static final List<GoConfigPreprocessor> PREPROCESSORS = Arrays.asList(
             new ConfigRepoPartialPreprocessor(),
             new TemplateExpansionPreprocessor(),
             new ConfigParamPreprocessor());
-
+    public static final List<GoConfigXMLValidator> XML_VALIDATORS = Arrays.asList((GoConfigXMLValidator) new UniqueOnCancelValidator());
+    private static final Logger LOGGER = LoggerFactory.getLogger(MagicalGoConfigXmlLoader.class);
+    private static final SystemEnvironment systemEnvironment = new SystemEnvironment();
     public static final List<GoConfigValidator> VALIDATORS = Arrays.asList(
             new ArtifactDirValidator(),
             new EnvironmentAgentValidator(),
@@ -62,20 +61,38 @@ public class MagicalGoConfigXmlLoader {
             new CommandRepositoryLocationValidator(systemEnvironment),
             new TokenGenerationKeyImmutabilityValidator(systemEnvironment)
     );
-
-    public static final List<GoConfigXMLValidator> XML_VALIDATORS = Arrays.asList((GoConfigXMLValidator) new UniqueOnCancelValidator());
-
     private static final GoConfigCloner CLONER = new GoConfigCloner();
-    private ConfigCache configCache;
     private final ConfigElementImplementationRegistry registry;
+    private ConfigCache configCache;
 
     public MagicalGoConfigXmlLoader(ConfigCache configCache, ConfigElementImplementationRegistry registry) {
         this.configCache = configCache;
         this.registry = registry;
     }
 
-    public interface Callback {
-        void call(CruiseConfig cruiseConfig);
+    public static void setMd5(CruiseConfig configForEdit, String md5) throws NoSuchFieldException, IllegalAccessException {
+        Field field = BasicCruiseConfig.class.getDeclaredField("md5");
+        field.setAccessible(true);
+        field.set(configForEdit, md5);
+    }
+
+    public static List<ConfigErrors> validate(CruiseConfig config) {
+        preprocess(config);
+        List<ConfigErrors> validationErrors = new ArrayList<>();
+        validationErrors.addAll(config.validateAfterPreprocess());
+        return validationErrors;
+    }
+
+    public static void preprocess(CruiseConfig cruiseConfig) {
+        for (GoConfigPreprocessor preProcessor : PREPROCESSORS) {
+            preProcessor.process(cruiseConfig);
+        }
+    }
+
+    public static void validateDom(Element element, final ConfigElementImplementationRegistry registry) throws Exception {
+        for (GoConfigXMLValidator xmlValidator : XML_VALIDATORS) {
+            xmlValidator.validate(element, registry);
+        }
     }
 
     public GoConfigHolder loadConfigHolder(final String content, Callback callback) throws Exception {
@@ -104,12 +121,6 @@ public class MagicalGoConfigXmlLoader {
         return configForEdit;
     }
 
-    public static void setMd5(CruiseConfig configForEdit, String md5) throws NoSuchFieldException, IllegalAccessException {
-        Field field = BasicCruiseConfig.class.getDeclaredField("md5");
-        field.setAccessible(true);
-        field.set(configForEdit, md5);
-    }
-
     public CruiseConfig preprocessAndValidate(CruiseConfig config) throws Exception {
         LOGGER.debug("[Config Validation] In preprocessAndValidate: Cloning.");
         CruiseConfig cloned = CLONER.deepClone(config);
@@ -118,19 +129,6 @@ public class MagicalGoConfigXmlLoader {
         LOGGER.debug("[Config Validation] In preprocessAndValidate: Done.");
         config.encryptSecureProperties(cloned);
         return cloned;
-    }
-
-    public static List<ConfigErrors> validate(CruiseConfig config) {
-        preprocess(config);
-        List<ConfigErrors> validationErrors = new ArrayList<>();
-        validationErrors.addAll(config.validateAfterPreprocess());
-        return validationErrors;
-    }
-
-    public static void preprocess(CruiseConfig cruiseConfig) {
-        for (GoConfigPreprocessor preProcessor : PREPROCESSORS) {
-            preProcessor.process(cruiseConfig);
-        }
     }
 
     public CruiseConfig validateCruiseConfig(CruiseConfig config) throws Exception {
@@ -158,12 +156,6 @@ public class MagicalGoConfigXmlLoader {
         return rootElement;
     }
 
-    public static void validateDom(Element element, final ConfigElementImplementationRegistry registry) throws Exception {
-        for (GoConfigXMLValidator xmlValidator : XML_VALIDATORS) {
-            xmlValidator.validate(element, registry);
-        }
-    }
-
     public <T> T fromXmlPartial(String partial, Class<T> o) throws Exception {
         return fromXmlPartial(toInputStream(partial, UTF_8), o);
     }
@@ -176,5 +168,9 @@ public class MagicalGoConfigXmlLoader {
 
     public GoConfigPreprocessor getPreprocessorOfType(final Class<? extends GoConfigPreprocessor> clazz) {
         return MagicalGoConfigXmlLoader.PREPROCESSORS.stream().filter(item -> item.getClass().isAssignableFrom(clazz)).findFirst().orElse(null);
+    }
+
+    public interface Callback {
+        void call(CruiseConfig cruiseConfig);
     }
 }

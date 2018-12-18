@@ -57,24 +57,22 @@ import static com.thoughtworks.go.util.ExceptionUtils.bomb;
  */
 @Component
 public class GoFileConfigDataSource {
+    public static final String FILESYSTEM = "Filesystem";
     private static final Logger LOGGER = LoggerFactory.getLogger(GoFileConfigDataSource.class.getName());
-
     private final Charset UTF_8 = Charset.forName("UTF-8");
     private final CachedGoPartials cachedGoPartials;
-
-    private ReloadStrategy reloadStrategy = new ReloadIfModified();
     private final MagicalGoConfigXmlWriter magicalGoConfigXmlWriter;
     private final MagicalGoConfigXmlLoader magicalGoConfigXmlLoader;
     private final ConfigRepository configRepository;
-    private SystemEnvironment systemEnvironment;
-    private GoConfigMigration upgrader;
     private final TimeProvider timeProvider;
-    private GoConfigCloner cloner = new GoConfigCloner();
-    public static final String FILESYSTEM = "Filesystem";
-    private ServerHealthService serverHealthService;
-    private ConfigElementImplementationRegistry configElementImplementationRegistry;
     private final FullConfigSaveMergeFlow fullConfigSaveMergeFlow;
     private final FullConfigSaveNormalFlow fullConfigSaveNormalFlow;
+    private ReloadStrategy reloadStrategy = new ReloadIfModified();
+    private SystemEnvironment systemEnvironment;
+    private GoConfigMigration upgrader;
+    private GoConfigCloner cloner = new GoConfigCloner();
+    private ServerHealthService serverHealthService;
+    private ConfigElementImplementationRegistry configElementImplementationRegistry;
     private GoConfigFileReader goConfigFileReader;
     private GoConfigFileWriter goConfigFileWriter;
 
@@ -147,7 +145,7 @@ public class GoFileConfigDataSource {
             LOGGER.info("Config file changed at {}", result.modifiedTime);
             LOGGER.info("Reloading config file: {}", configFile);
 
-            if(systemEnvironment.optimizeFullConfigSave()) {
+            if (systemEnvironment.optimizeFullConfigSave()) {
                 LOGGER.debug("Starting config reload using the optimized flow.");
                 return forceLoad();
             } else {
@@ -323,7 +321,7 @@ public class GoFileConfigDataSource {
         }
     }
 
-//  This method should be removed once we have API's for all entities which should use writeEntityWithLock and full config save should use writeFullConfigWithLock
+    //  This method should be removed once we have API's for all entities which should use writeEntityWithLock and full config save should use writeFullConfigWithLock
     @Deprecated
     public synchronized GoConfigSaveResult writeWithLock(UpdateConfigCommand updatingCommand, GoConfigHolder configHolder) {
         try {
@@ -448,7 +446,7 @@ public class GoFileConfigDataSource {
             if (!systemEnvironment.get(SystemEnvironment.ENABLE_CONFIG_MERGE_FEATURE)) {
                 throw new ConfigMergeException(ConfigFileHasChangedException.CONFIG_CHANGED_PLEASE_REFRESH);
             }
-                goConfigHolder = this.fullConfigSaveMergeFlow.execute(updatingCommand, partials, userName);
+            goConfigHolder = this.fullConfigSaveMergeFlow.execute(updatingCommand, partials, userName);
         } else {
             goConfigHolder = this.fullConfigSaveNormalFlow.execute(updatingCommand, partials, userName);
         }
@@ -577,6 +575,28 @@ public class GoFileConfigDataSource {
         return fileLocation().getAbsolutePath();
     }
 
+    private interface ReloadStrategy {
+        ReloadTestResult requiresReload(File configFile);
+
+        void latestState(CruiseConfig config);
+
+        void hasLatest(ReloadTestResult reloadTestResult);
+
+        void performingReload(ReloadTestResult reloadTestResult);
+
+        class ReloadTestResult {
+            final boolean requiresReload;
+            final long fileSize;
+            final long modifiedTime;
+
+            public ReloadTestResult(boolean requiresReload, long fileSize, long modifiedTime) {
+                this.requiresReload = requiresReload;
+                this.fileSize = fileSize;
+                this.modifiedTime = modifiedTime;
+            }
+        }
+    }
+
     static class GoConfigSaveResult {
         private final GoConfigHolder configHolder;
         private final ConfigSaveState configSaveState;
@@ -593,28 +613,6 @@ public class GoFileConfigDataSource {
         public ConfigSaveState getConfigSaveState() {
             return configSaveState;
         }
-    }
-
-    private interface ReloadStrategy {
-        class ReloadTestResult {
-            final boolean requiresReload;
-            final long fileSize;
-            final long modifiedTime;
-
-            public ReloadTestResult(boolean requiresReload, long fileSize, long modifiedTime) {
-                this.requiresReload = requiresReload;
-                this.fileSize = fileSize;
-                this.modifiedTime = modifiedTime;
-            }
-        }
-
-        ReloadTestResult requiresReload(File configFile);
-
-        void latestState(CruiseConfig config);
-
-        void hasLatest(ReloadTestResult reloadTestResult);
-
-        void performingReload(ReloadTestResult reloadTestResult);
     }
 
     private static class AlwaysReload implements ReloadStrategy {

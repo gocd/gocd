@@ -22,6 +22,7 @@ import {DrainModeInfo, StageLocator} from "models/drain_mode/types";
 import {FlashMessage, MessageType} from "views/components/flash_message";
 import {HeaderPanel} from "views/components/header_panel";
 import {DrainModeWidget} from "views/pages/drain_mode/drain_mode_widget";
+import {AjaxPoller} from "helpers/ajax_poller";
 import {Page} from "views/pages/page";
 
 interface SaveOperation<T> {
@@ -70,6 +71,8 @@ export class DrainModePage extends Page<null, State> {
     vnode.state.onError = (errorResponse: ErrorResponse) => {
       vnode.state.message = new Message(MessageType.alert, errorResponse.message);
     };
+
+    new AjaxPoller(() => this.fetchData(vnode)).start();
   }
 
   componentToDisplay(vnode: m.Vnode<null, State>): JSX.Element | undefined {
@@ -91,7 +94,10 @@ export class DrainModePage extends Page<null, State> {
 
   fetchData(vnode: m.Vnode<null, State>) {
     return DrainModeAPIs.info().then((info) => {
-      info.do((successResponse) => vnode.state.drainModeInfo = successResponse.body, vnode.state.onError);
+      info.do((successResponse) => {
+        vnode.state.drainModeInfo = successResponse.body;
+        m.redraw();
+      }, vnode.state.onError);
     });
   }
 

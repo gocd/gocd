@@ -48,16 +48,14 @@ export class AjaxPoller<T> {
   constructor(options: (() => Promise<T>) | Partial<Options<T>>) {
     // @ts-ignore
     this.options = _.assign({}, defaultOptions, "function" === typeof options ? {repeaterFn: options} : options);
-  }
-
-  start(initialInterval = Math.max(this.options.initialIntervalSeconds, 0)) {
-    this.abort = false;
-
-    this.timeout = window.setTimeout(this.fire.bind(this), initialInterval * 1000);
-
     if (doesBrowserSupportPageVisibilityAPI) {
       document.addEventListener("visibilitychange", this.handleVisibilityChange.bind(this), false);
     }
+  }
+
+  start(initialInterval = Math.max(this.options.initialIntervalSeconds, 0)) {
+    this.abort   = false;
+    this.timeout = window.setTimeout(this.fire.bind(this), initialInterval * 1000);
   }
 
   stop() {
@@ -86,9 +84,10 @@ export class AjaxPoller<T> {
 
   private handleVisibilityChange() {
     // we stop and repoll only when the page becomes visible
-    if (!this.abort && !this.isPageHidden()) {
+    if (this.isPageHidden()) {
       this.stop();
-      this.start(0);
+    } else {
+      this.restart();
     }
   }
 

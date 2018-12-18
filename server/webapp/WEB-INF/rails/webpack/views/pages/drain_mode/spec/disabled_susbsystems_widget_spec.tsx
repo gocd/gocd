@@ -31,8 +31,8 @@ describe("Drain Mode Disabled subsystem Widget", () => {
   // @ts-ignore
   afterEach(window.destroyDomElementForTest);
 
-  describe("During Drain Mode", function () {
-    describe("Completely Drained", function () {
+  describe("During Drain Mode", () => {
+    describe("Completely Drained", () => {
       beforeEach(() => {
         mount(TestData.completelyDrainedInfo());
       });
@@ -42,49 +42,49 @@ describe("Drain Mode Disabled subsystem Widget", () => {
         expect(find("flash-message-info")).toContainText(expectedMessage);
       });
 
-      it("should show mdu stopped information", function () {
+      it("should show mdu stopped information", () => {
         const expectedMessage = "Stopped material subsystem.";
         expect(find("mdu-stopped")).toContainText(expectedMessage);
         expect(find("mdu-stopped")).toContainElement(checkIcon());
         expect(find("mdu-stopped")).not.toContainElement(spinnerIcon());
       });
 
-      it("should show config repo stopped information", function () {
+      it("should show config repo stopped information", () => {
         const expectedMessage = "Stopped polling on config repositories.";
         expect(find("config-repo-polling-stopped")).toContainText(expectedMessage);
         expect(find("config-repo-polling-stopped")).toContainElement(checkIcon());
         expect(find("config-repo-polling-stopped")).not.toContainElement(spinnerIcon());
       });
 
-      it("should show jobs building stopped information", function () {
+      it("should show jobs building stopped information", () => {
         const expectedMessage = "Stopped scheduling subsystem.";
         expect(find("scheduling-system-stopped")).toContainText(expectedMessage);
         expect(find("scheduling-system-stopped")).toContainElement(checkIcon());
         expect(find("scheduling-system-stopped")).not.toContainElement(spinnerIcon());
       });
 
-      it("should show agent assignment stopped information", function () {
+      it("should show agent assignment stopped information", () => {
         const expectedMessage = "Stopped assigning jobs to agents.";
         expect(find("agent-subsystem-stopped")).toContainText(expectedMessage);
         expect(find("agent-subsystem-stopped")).toContainElement(checkIcon());
         expect(find("agent-subsystem-stopped")).not.toContainElement(spinnerIcon());
       });
 
-      it("should show manual pipeline trigger stopped information", function () {
+      it("should show manual pipeline trigger stopped information", () => {
         const expectedMessage = "Stopped pipeline triggers.";
         expect(find("manual-trigger-stopped")).toContainText(expectedMessage);
         expect(find("manual-trigger-stopped")).toContainElement(checkIcon());
         expect(find("manual-trigger-stopped")).not.toContainElement(spinnerIcon());
       });
 
-      it("should show config modification stopped information", function () {
+      it("should show config modification stopped information", () => {
         const expectedMessage = "Stopped config modifications.";
         expect(find("config-changes-stopped")).toContainText(expectedMessage);
         expect(find("config-changes-stopped")).toContainElement(checkIcon());
         expect(find("config-changes-stopped")).not.toContainElement(spinnerIcon());
       });
 
-      it("should show db modification stopped information", function () {
+      it("should show db modification stopped information", () => {
         const expectedMessage = "Stopped database and filesystem modifications.";
         expect(find("db-changes-stopped")).toContainText(expectedMessage);
         expect(find("db-changes-stopped")).toContainElement(checkIcon());
@@ -92,7 +92,7 @@ describe("Drain Mode Disabled subsystem Widget", () => {
       });
     });
 
-    describe("Not Completely Drained", function () {
+    describe("Not Completely Drained", () => {
       beforeEach(() => {
         mount(TestData.info(true));
       });
@@ -102,49 +102,49 @@ describe("Drain Mode Disabled subsystem Widget", () => {
         expect(find("flash-message-warning")).toContainText(expectedMessage);
       });
 
-      it("should show mdu stopped information", function () {
+      it("should show mdu stopped information", () => {
         const expectedMessage = "Waiting for material subsystem to stop..";
         expect(find("mdu-in-progress")).toContainText(expectedMessage);
         expect(find("mdu-in-progress")).toContainElement(spinnerIcon());
         expect(find("mdu-in-progress")).not.toContainElement(checkIcon());
       });
 
-      it("should show config repo stopped information", function () {
+      it("should show config repo stopped information", () => {
         const expectedMessage = "Stopped polling on config repositories.";
         expect(find("config-repo-polling-stopped")).toContainText(expectedMessage);
         expect(find("config-repo-polling-stopped")).toContainElement(checkIcon());
         expect(find("config-repo-polling-stopped")).not.toContainElement(spinnerIcon());
       });
 
-      it("should show jobs building in progress information", function () {
+      it("should show jobs building in progress information", () => {
         const expectedMessage = "Waiting for building jobs to finish..";
         expect(find("scheduling-system-in-progress")).toContainText(expectedMessage);
         expect(find("scheduling-system-in-progress")).toContainElement(spinnerIcon());
         expect(find("scheduling-system-in-progress")).not.toContainElement(checkIcon());
       });
 
-      it("should show agent assignment stopped information", function () {
+      it("should show agent assignment stopped information", () => {
         const expectedMessage = "Stopped assigning jobs to agents.";
         expect(find("agent-subsystem-stopped")).toContainText(expectedMessage);
         expect(find("agent-subsystem-stopped")).toContainElement(checkIcon());
         expect(find("agent-subsystem-stopped")).not.toContainElement(spinnerIcon());
       });
 
-      it("should show manual pipeline trigger stopped information", function () {
+      it("should show manual pipeline trigger stopped information", () => {
         const expectedMessage = "Stopped pipeline triggers.";
         expect(find("manual-trigger-stopped")).toContainText(expectedMessage);
         expect(find("manual-trigger-stopped")).toContainElement(checkIcon());
         expect(find("manual-trigger-stopped")).not.toContainElement(spinnerIcon());
       });
 
-      it("should show config modification stopped information", function () {
+      it("should show config modification stopped information", () => {
         const expectedMessage = "Stopped config modifications.";
         expect(find("config-changes-stopped")).toContainText(expectedMessage);
         expect(find("config-changes-stopped")).toContainElement(checkIcon());
         expect(find("config-changes-stopped")).not.toContainElement(spinnerIcon());
       });
 
-      it("should show db modification stopped information", function () {
+      it("should show db modification stopped information", () => {
         const expectedMessage = "Stopped database and filesystem modifications.";
         expect(find("db-changes-stopped")).toContainText(expectedMessage);
         expect(find("db-changes-stopped")).toContainElement(checkIcon());
@@ -153,7 +153,7 @@ describe("Drain Mode Disabled subsystem Widget", () => {
     });
   });
 
-  describe("Not During Drain Mode", function () {
+  describe("Not During Drain Mode", () => {
     beforeEach(() => {
       mount(TestData.info(false));
     });
@@ -163,7 +163,7 @@ describe("Drain Mode Disabled subsystem Widget", () => {
       expect(find("info-when-not-in-drain-mode-header")).toContainText(expectedHeader);
     });
 
-    it("should provide the list of all the systems that will be disabled", function () {
+    it("should provide the list of all the systems that will be disabled", () => {
       const stopMaterials       = "Stop the material subsystem so that no new materials are polled.";
       const stopConfigRepos     = "Stop polling on config repositories.";
       const stopPipelineTrigger = "Stop the scheduling subsystem so that no new pipelines are triggered (automatically or through timers).";

@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
+import {bind} from "classnames/bind";
 import {MithrilViewComponent} from "jsx/mithril-component";
+import * as m from "mithril";
 import {DrainModeInfo, StageLocator} from "models/drain_mode/types";
 import {Switch} from "views/components/forms/input_fields";
-import {bind} from "classnames/bind";
-import * as m from "mithril";
 import {DisabledSubsystemsWidget} from "views/pages/drain_mode/disabled_susbsystems_widget";
 import {JobInfoWidget} from "views/pages/drain_mode/running_jobs_widget.tsx";
 import {MDUInfoWidget} from "views/pages/drain_mode/running_mdus_widget";

@@ -24,7 +24,7 @@ import * as Icons from "views/components/icons";
 import * as styles from "./index.scss";
 
 interface Attrs {
-  drainModeInfo: DrainModeInfo
+  drainModeInfo: DrainModeInfo;
 }
 
 class InformationWhenNotInDrainMode extends MithrilViewComponent<Attrs> {
@@ -49,7 +49,6 @@ class InformationWhenNotInDrainMode extends MithrilViewComponent<Attrs> {
     </div>;
   }
 }
-
 
 interface RunningSystemAttrs {
   inProgess: boolean;

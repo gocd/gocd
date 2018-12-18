@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import * as m from "mithril";
 import {MithrilViewComponent} from "jsx/mithril-component";
+import * as m from "mithril";
 import {Materials, ScmMaterialAttributes} from "models/drain_mode/material";
 import {CollapsiblePanel} from "views/components/collapsible_panel";
 import {KeyValuePair} from "views/components/key_value_pair";

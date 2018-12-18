@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-
-import * as m from "mithril";
 import {MithrilViewComponent} from "jsx/mithril-component";
+import * as m from "mithril";
 import {Job, StageLocator} from "models/drain_mode/types";
 import * as Buttons from "views/components/buttons";
 import {CollapsiblePanel} from "views/components/collapsible_panel";

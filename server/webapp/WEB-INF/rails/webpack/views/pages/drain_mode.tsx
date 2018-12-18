@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import {AjaxPoller} from "helpers/ajax_poller";
 import {ApiRequestBuilder, ErrorResponse, SuccessResponse} from "helpers/api_request_builder";
 import SparkRoutes from "helpers/spark_routes";
 import * as m from "mithril";
@@ -22,7 +23,6 @@ import {DrainModeInfo, StageLocator} from "models/drain_mode/types";
 import {FlashMessage, MessageType} from "views/components/flash_message";
 import {HeaderPanel} from "views/components/header_panel";
 import {DrainModeWidget} from "views/pages/drain_mode/drain_mode_widget";
-import {AjaxPoller} from "helpers/ajax_poller";
 import {Page} from "views/pages/page";
 
 interface SaveOperation<T> {

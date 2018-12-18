@@ -65,7 +65,7 @@ public class UrlArgumentTest {
     @Test public void shouldWorkWithJustUser() throws Exception {
         String normal = "svn+ssh://user@10.18.7.51:8153";
         UrlArgument url = new UrlArgument(normal);
-        Assert.assertThat(url.forDisplay(), Is.is("svn+ssh://user@10.18.7.51:8153"));
+        Assert.assertThat(url.forDisplay(), Is.is("svn+ssh://******@10.18.7.51:8153"));
     }
 
     @Test public void shouldIgnoreArgumentsThatAreNotRecognisedUrls() throws Exception {

@@ -87,21 +87,9 @@ public class UrlArgument extends CommandArgument {
     }
 
     private String clean(String userInfo) {
-
-        if (userInfo.contains(":"))
-        {
-            String[] userAndPassword = userInfo.split(":");
-            StringBuilder result = new StringBuilder();
-            result.append(userAndPassword[0]);
-            if (userAndPassword.length > 1) {
-                result.append(":");
-                result.append("******");
-            }
-            return result.toString();
+        if (userInfo.contains(":")) {
+            return userInfo.replaceFirst(":.*", ":******");
         }
-        else if (userInfo.length() <= 32)
-            return userInfo;
-
         return "******";
     }
 

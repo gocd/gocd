@@ -44,28 +44,27 @@ enum ModalType {
 
 abstract class BaseElasticProfileModal extends Modal {
   protected elasticProfile: Stream<ElasticProfile>;
-  private errorMessage: null;
   private readonly pluginInfo: Stream<PluginInfo<Extension>>;
   private readonly pluginInfos: Array<PluginInfo<Extension>>;
   private readonly modalType: ModalType;
+  private errorMessage: string | undefined;
 
-  protected constructor(elasticProfile: ElasticProfile,
-                        pluginInfos: Array<PluginInfo<Extension>>,
-                        type: ModalType) {
+  protected constructor(pluginInfos: Array<PluginInfo<Extension>>,
+                        type: ModalType,
+                        elasticProfile?: ElasticProfile) {
     super(Size.extraLargeHackForEaProfiles);
     this.elasticProfile = stream(elasticProfile);
     this.pluginInfos    = pluginInfos;
-    this.pluginInfo     = stream(pluginInfos.find(
-      (pluginInfo) => pluginInfo.id === elasticProfile.pluginId()) || pluginInfos[0]);
+    this.pluginInfo     = stream();
     this.modalType      = type;
   }
 
   abstract performSave(): void;
 
-  abstract modalTitle(elasticProfile: ElasticProfile): string;
+  abstract modalTitle(): string;
 
   validateAndPerformSave() {
-    if (!this.elasticProfile().isValid()) {
+    if (!this.elasticProfile() || !this.elasticProfile().isValid()) {
       return;
     }
     this.performSave();
@@ -91,8 +90,11 @@ abstract class BaseElasticProfileModal extends Modal {
     }
 
     if (!this.elasticProfile()) {
-      return <Spinner/>;
+      return <div class={styles.spinnerWrapper}><Spinner/></div>;
     }
+
+    this.pluginInfo(this.pluginInfos.find(
+      (pluginInfo) => pluginInfo.id === this.elasticProfile().pluginId()) || this.pluginInfos[0]);
 
     const pluginList = _.map(this.pluginInfos, (pluginInfo: PluginInfo<any>) => {
       return {id: pluginInfo.id, text: pluginInfo.about.name};
@@ -136,7 +138,11 @@ abstract class BaseElasticProfileModal extends Modal {
   }
 
   title() {
-    return this.modalTitle(this.elasticProfile());
+    return this.modalTitle();
+  }
+
+  protected onError(error: string) {
+    this.errorMessage = error;
   }
 
   private pluginIdProxy(newValue ?: string) {
@@ -153,19 +159,33 @@ abstract class BaseElasticProfileModal extends Modal {
 
 export class EditElasticProfileModal extends BaseElasticProfileModal {
   private readonly onSuccessfulSave: (msg: m.Children) => any;
-  private etag: string;
+  private etag?: string;
+  private readonly elasticProfileId: string;
 
-  constructor(elasticProfile: ObjectWithEtag<ElasticProfile>,
+  constructor(elasticProfileId: string,
               pluginInfos: Array<PluginInfo<Extension>>,
-              onSuccessfulSave: (msg: m.Children) => any) {
-    super(elasticProfile.object, pluginInfos, ModalType.edit);
-    this.etag             = elasticProfile.etag;
+              onSuccessfulSave: (msg: m.Children) => any
+  ) {
+    super(pluginInfos, ModalType.edit);
+    this.elasticProfileId = elasticProfileId;
     this.onSuccessfulSave = onSuccessfulSave;
+
+    ElasticProfilesCRUD
+      .get(elasticProfileId)
+      .then((result) => {
+        result.do(
+          (successResponse) => {
+            this.elasticProfile(successResponse.body.object);
+            this.etag = successResponse.body.etag;
+          },
+          ((errorResponse) => this.onError(errorResponse.message))
+        );
+      });
   }
 
   performSave() {
     ElasticProfilesCRUD
-      .update(this.elasticProfile(), this.etag)
+      .update(this.elasticProfile(), this.etag!)
       .then((result) => {
         result.do(
           () => {
@@ -183,8 +203,8 @@ export class EditElasticProfileModal extends BaseElasticProfileModal {
       });
   }
 
-  modalTitle(elasticProfile: ElasticProfile) {
-    return "Edit profile " + elasticProfile.id();
+  modalTitle() {
+    return "Edit profile " + this.elasticProfileId;
   }
 }
 
@@ -192,15 +212,23 @@ export class CloneElasticProfileModal extends BaseElasticProfileModal {
   private readonly onSuccessfulSave: (msg: m.Children) => any;
   private readonly sourceProfileId: string;
 
-  constructor(elasticProfile: ElasticProfile,
+  constructor(elasticProfileId: string,
               pluginInfos: Array<PluginInfo<Extension>>,
               onSuccessfulSave: (msg: m.Children) => any) {
-    const _sourceProfileId = elasticProfile.id();
-    elasticProfile.id("");
-
-    super(elasticProfile, pluginInfos, ModalType.create);
-    this.sourceProfileId  = _sourceProfileId;
+    super(pluginInfos, ModalType.create);
+    this.sourceProfileId  = elasticProfileId;
     this.onSuccessfulSave = onSuccessfulSave;
+
+    ElasticProfilesCRUD
+      .get(elasticProfileId)
+      .then((result) => {
+        result.do(
+          (successResponse) => {
+            this.elasticProfile(successResponse.body.object);
+          },
+          (errorResponse) => this.onError(errorResponse.message)
+        );
+      });
   }
 
   performSave() {
@@ -223,7 +251,7 @@ export class CloneElasticProfileModal extends BaseElasticProfileModal {
       }).finally(m.redraw);
   }
 
-  modalTitle(elasticProfile: ElasticProfile) {
+  modalTitle() {
     return "Clone profile " + this.sourceProfileId;
   }
 }
@@ -233,7 +261,7 @@ export class NewElasticProfileModal extends BaseElasticProfileModal {
 
   constructor(pluginInfos: Array<PluginInfo<Extension>>, onSuccessfulSave: (msg: m.Children) => any) {
     const elasticProfile = new ElasticProfile("", pluginInfos[0].id, new Configurations([]));
-    super(elasticProfile, pluginInfos, ModalType.create);
+    super(pluginInfos, ModalType.create, elasticProfile);
     this.onSuccessfulSave = onSuccessfulSave;
   }
 
@@ -253,7 +281,7 @@ export class NewElasticProfileModal extends BaseElasticProfileModal {
       });
   }
 
-  modalTitle(elasticProfile: ElasticProfile) {
+  modalTitle() {
     return "Add a new profile";
   }
 }

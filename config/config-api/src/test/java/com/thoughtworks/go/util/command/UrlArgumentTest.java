@@ -65,7 +65,7 @@ public class UrlArgumentTest {
     @Test public void shouldWorkWithJustUser() throws Exception {
         String normal = "svn+ssh://user@10.18.7.51:8153";
         UrlArgument url = new UrlArgument(normal);
-        Assert.assertThat(url.forDisplay(), Is.is("svn+ssh://user@10.18.7.51:8153"));
+        Assert.assertThat(url.forDisplay(), Is.is("svn+ssh://******@10.18.7.51:8153"));
     }
 
     @Test public void shouldIgnoreArgumentsThatAreNotRecognisedUrls() throws Exception {
@@ -133,4 +133,9 @@ public class UrlArgumentTest {
         Assert.assertThat(result, IsNot.not(StringContains.containsString("cce:password")));
     }
 
+    @Test //BUG #5471
+    public void shouldMaskAuthTokenInUrl() {
+        UrlArgument url = new UrlArgument("https://9bf58jhrb32f29ad0c3983a65g594f1464jgf9a3@somewhere");
+        Assert.assertThat(url.forDisplay(), Is.is("https://******@somewhere"));
+    }
 }

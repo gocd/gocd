@@ -71,7 +71,7 @@ export class PluginSettingsModal extends Modal {
 
   buttons(): JSX.Element[] {
     return [
-      <Buttons.Primary onclick={this.performSave.bind(this)}>OK</Buttons.Primary>,
+      <Buttons.Primary onclick={this.performSave.bind(this)}>Save</Buttons.Primary>,
       <Buttons.Cancel onclick={this.close.bind(this)}>Cancel</Buttons.Cancel>
     ];
   }

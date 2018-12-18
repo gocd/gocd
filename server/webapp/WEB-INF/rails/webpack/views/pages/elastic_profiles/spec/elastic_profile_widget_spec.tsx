@@ -44,7 +44,7 @@ describe("New Elastic Profile Widget", () => {
 
   it("should render elastic profile id", () => {
     const profileHeader = $root.find(`.${keyValuePairStyles.keyValuePair}`).get(0);
-    expect(profileHeader).toContainText("Profile ID");
+    expect(profileHeader).toContainText("Profile Id");
     expect(profileHeader).toContainText(TestData.DockerElasticProfile().id);
   });
 

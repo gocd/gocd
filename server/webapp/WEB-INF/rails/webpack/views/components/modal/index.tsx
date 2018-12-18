@@ -26,7 +26,8 @@ const uuid4 = require("uuid/v4");
 
 const classnames = bind(styles);
 
-export enum Size {small, medium, large}
+//todo: Remove extraLargeHackForEAProfiles once we fix plugins view to provide the modal container dimensions
+export enum Size {small, medium, large, extraLargeHackForEaProfiles}
 
 export abstract class Modal extends MithrilViewComponent<any> {
   public id: string;

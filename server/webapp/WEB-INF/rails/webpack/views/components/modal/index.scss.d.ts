@@ -4,6 +4,7 @@ export const overlay: string;
 export const small: string;
 export const medium: string;
 export const large: string;
+export const extraLargeHackForEaProfiles: string;
 export const overlayHeader: string;
 export const overlayClose: string;
 export const closeIcon: string;

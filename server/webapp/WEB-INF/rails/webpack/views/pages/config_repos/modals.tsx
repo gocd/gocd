@@ -44,6 +44,7 @@ import {
 } from "views/components/forms/input_fields";
 import {Modal, Size} from "views/components/modal";
 import {Spinner} from "views/components/spinner";
+import * as styles from "views/pages/config_repos/index.scss";
 import {RequiresPluginInfos, SaveOperation} from "views/pages/page_operations";
 
 type EditableMaterial = SaveOperation & { repo: ConfigRepo } & { isNew: boolean } & RequiresPluginInfos;
@@ -269,7 +270,7 @@ abstract class ConfigRepoModal extends Modal {
     }
 
     if (!this.getRepo()) {
-      return <Spinner/>;
+      return <div class={styles.spinnerWrapper}><Spinner/></div>;
     }
     let materialtocomponentmapElement;
 
@@ -291,7 +292,10 @@ abstract class ConfigRepoModal extends Modal {
   }
 
   buttons(): JSX.Element[] {
-    return [<Buttons.Primary data-test-id="button-ok" onclick={this.performSave.bind(this)}>OK</Buttons.Primary>];
+    return [
+      <Buttons.Primary data-test-id="button-ok" onclick={this.performSave.bind(this)}>Save</Buttons.Primary>,
+      <Buttons.Cancel data-test-id="button-cancel" onclick={this.close.bind(this)}>Cancel</Buttons.Cancel>
+    ];
   }
 
   abstract performSave(): void;

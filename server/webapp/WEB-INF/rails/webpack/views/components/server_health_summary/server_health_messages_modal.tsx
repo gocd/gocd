@@ -21,7 +21,7 @@ import {
   ServerHealthMessage,
   ServerHealthMessages
 } from "models/shared/server_health_messages/server_health_messages";
-import {Modal} from "../modal";
+import {Modal, Size} from "../modal";
 import * as styles from "./server_health_messages_count_widget.scss";
 
 const classnames    = bind(styles);
@@ -32,7 +32,7 @@ export class ServerHealthMessagesModal extends Modal {
   private readonly messages: Stream<ServerHealthMessages>;
 
   constructor(messages: Stream<ServerHealthMessages>) {
-    super();
+    super(Size.large);
     this.messages = messages;
   }
 

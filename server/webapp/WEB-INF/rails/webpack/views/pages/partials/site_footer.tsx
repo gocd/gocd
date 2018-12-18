@@ -38,11 +38,11 @@ export class SiteFooter extends MithrilViewComponent<Attrs> {
           <a href="https://www.apache.org/licenses/LICENSE-2.0" target="_blank">
             Apache License, Version 2.0
           </a>.
-          Go includes&nbsp;
+          GoCD includes&nbsp;
           <a href={`/go/assets/dependency-license-report-${vnode.attrs.fullVersion}`} target="_blank">
             third-party software
           </a>.
-          Go Version: {vnode.attrs.formattedVersion}.
+          <div>GoCD Version: {vnode.attrs.formattedVersion}.</div>
         </p>
       </div>
       <div class={styles.right}>

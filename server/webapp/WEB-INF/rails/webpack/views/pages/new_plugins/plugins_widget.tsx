@@ -68,13 +68,12 @@ export class PluginsWidget extends MithrilComponent<Attrs, State> {
     return (
       <div data-test-id="plugins-list">
         <FlashMessage type={MessageType.success} message={vnode.state.successMessage}/>
-        {_.sortBy(vnode.attrs.pluginInfos, (pluginInfo) => pluginInfo.id).map((pluginInfo: PluginInfo<any>, index) => {
+        {_.sortBy(vnode.attrs.pluginInfos, (pluginInfo) => pluginInfo.id).map((pluginInfo: PluginInfo<any>) => {
           return (
             <PluginWidget key={pluginInfo.id}
                           pluginInfo={pluginInfo}
                           onEdit={vnode.state.edit.bind(vnode.state, pluginInfo)}
-                          isUserAnAdmin={vnode.attrs.isUserAnAdmin}
-                          index={index}/>
+                          isUserAnAdmin={vnode.attrs.isUserAnAdmin}/>
           );
         })}
       </div>

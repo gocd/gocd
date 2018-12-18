@@ -67,16 +67,6 @@ describe("New Plugins Widget", () => {
     expect(notificationPluginHeader).toContainText(getNotificationPluginInfo().about.version);
   });
 
-  it("should render first plugin info expanded and all other valid plugin infos collapsed", () => {
-    expect(find("plugins-list").get(0).children).toHaveLength(4);
-
-    const EAPluginInfo           = $root.find(`.${collapsiblePanelStyles.collapse}`).get(0);
-    const NotificationPluginInfo = $root.find(`.${collapsiblePanelStyles.collapse}`).get(1);
-
-    expect(EAPluginInfo).toHaveClass(collapsiblePanelStyles.expanded);
-    expect(NotificationPluginInfo).not.toHaveClass(collapsiblePanelStyles.expanded);
-  });
-
   it("should render all invalid plugin infos expanded", () => {
     expect(find("plugins-list").get(0).children).toHaveLength(4);
 
@@ -90,21 +80,21 @@ describe("New Plugins Widget", () => {
     const EAPluginInfoHeader           = find("collapse-header").get(0);
     const NotificationPluginInfoHeader = find("collapse-header").get(1);
 
-    expect(EAPluginInfoHeader).toHaveClass(collapsiblePanelStyles.expanded);
+    expect(EAPluginInfoHeader).not.toHaveClass(collapsiblePanelStyles.expanded);
     expect(NotificationPluginInfoHeader).not.toHaveClass(collapsiblePanelStyles.expanded);
 
     //expand ea plugin info
     simulateEvent.simulate(EAPluginInfoHeader, "click");
     m.redraw();
 
-    expect(EAPluginInfoHeader).not.toHaveClass(collapsiblePanelStyles.expanded);
+    expect(EAPluginInfoHeader).toHaveClass(collapsiblePanelStyles.expanded);
     expect(NotificationPluginInfoHeader).not.toHaveClass(collapsiblePanelStyles.expanded);
 
     //expand notification plugin info
     simulateEvent.simulate(NotificationPluginInfoHeader, "click");
     m.redraw();
 
-    expect(EAPluginInfoHeader).not.toHaveClass(collapsiblePanelStyles.expanded);
+    expect(EAPluginInfoHeader).toHaveClass(collapsiblePanelStyles.expanded);
     expect(NotificationPluginInfoHeader).toHaveClass(collapsiblePanelStyles.expanded);
 
     //collapse both ea and notification plugin info
@@ -112,7 +102,7 @@ describe("New Plugins Widget", () => {
     simulateEvent.simulate(NotificationPluginInfoHeader, "click");
     m.redraw();
 
-    expect(EAPluginInfoHeader).toHaveClass(collapsiblePanelStyles.expanded);
+    expect(EAPluginInfoHeader).not.toHaveClass(collapsiblePanelStyles.expanded);
     expect(NotificationPluginInfoHeader).not.toHaveClass(collapsiblePanelStyles.expanded);
   });
 

@@ -61,6 +61,11 @@ $overlay-header-txt: #fff;
   width: 1050px;
 }
 
+.extra-large-hack-for-EA-profiles {
+  width:     90%;
+  max-width: 1300px;
+}
+
 .overlay-header {
   background:    $overlay-header-bg;
   padding:       15px 20px;

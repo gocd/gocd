@@ -16,7 +16,6 @@
 @import "../../global/common";
 
 $collapse-icon-size: 25px;
-$spinner-wrapper-height: 175px;
 
 .plugin-header {
   display:     flex;
@@ -66,5 +65,5 @@ $spinner-wrapper-height: 175px;
 }
 
 .spinner-wrapper {
-  min-height: $spinner-wrapper-height;
+  @include spinner-for-modal;
 }

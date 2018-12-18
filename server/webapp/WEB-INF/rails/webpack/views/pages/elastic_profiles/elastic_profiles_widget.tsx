@@ -55,7 +55,7 @@ class ElasticProfilesHeaderWidget extends MithrilComponent<HeaderAttrs> {
                        image={vnode.attrs.image}/>
       ),
       (<KeyValuePair inline={true} data={new Map([
-                                                   ["Plugin ID", vnode.attrs.pluginId]
+                                                   ["Plugin Id", vnode.attrs.pluginId]
                                                  ])}/>)
     ];
   }
@@ -183,7 +183,7 @@ export class ElasticProfileWidget extends MithrilComponent<ProfileAttrs> {
 
   static profileHeader(profileId: string) {
     return (<KeyValuePair inline={true} data={new Map([
-                                                        ["Profile ID", profileId]
+                                                        ["Profile Id", profileId]
                                                       ])}/>);
   }
 

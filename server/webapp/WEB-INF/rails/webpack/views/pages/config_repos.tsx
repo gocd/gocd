@@ -143,7 +143,7 @@ export class ConfigReposPage extends Page<null, State> {
     const headerButtons = [
       <Buttons.Primary onclick={vnode.state.onAdd.bind(vnode.state)}>Add</Buttons.Primary>
     ];
-    return <HeaderPanel title="Config repositories" buttons={headerButtons}/>;
+    return <HeaderPanel title="Config Repositories" buttons={headerButtons}/>;
   }
 
   fetchData(vnode: m.Vnode<null, State>) {

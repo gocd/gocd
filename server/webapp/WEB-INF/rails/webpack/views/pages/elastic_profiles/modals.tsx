@@ -52,7 +52,7 @@ abstract class BaseElasticProfileModal extends Modal {
   protected constructor(elasticProfile: ElasticProfile,
                         pluginInfos: Array<PluginInfo<Extension>>,
                         type: ModalType) {
-    super(Size.large);
+    super(Size.extraLargeHackForEaProfiles);
     this.elasticProfile = stream(elasticProfile);
     this.pluginInfos    = pluginInfos;
     this.pluginInfo     = stream(pluginInfos.find(
@@ -79,8 +79,10 @@ abstract class BaseElasticProfileModal extends Modal {
   }
 
   buttons() {
-    return [<Buttons.Primary data-test-id="button-ok"
-                             onclick={this.validateAndPerformSave.bind(this)}>Save</Buttons.Primary>];
+    return [
+      <Buttons.Primary data-test-id="button-ok" onclick={this.validateAndPerformSave.bind(this)}>Save</Buttons.Primary>,
+      <Buttons.Cancel data-test-id="button-cancel" onclick={this.close.bind(this)}>Cancel</Buttons.Cancel>,
+    ];
   }
 
   body() {
@@ -291,6 +293,6 @@ export class UsageElasticProfileModal extends Modal {
       link = `/go/admin/templates/${usage.templateName()}/stages/${usage.stageName()}/job/${usage.jobName()}/settings`;
     }
 
-    return <span class={styles.jobSettingsLink}><a href={link}>Go to job settings</a></span>;
+    return <span class={styles.jobSettingsLink}><a href={link}>Job Settings</a></span>;
   }
 }

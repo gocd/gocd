@@ -17,6 +17,7 @@
 
 $page-item-padding: 30px;
 $header-padding: 10px 50px 10px 30px;
+$collapsible-header-height: 35px;
 
 .collapse {
   background:    $element-bg;
@@ -42,6 +43,7 @@ $header-padding: 10px 50px 10px 30px;
   flex-direction: column;
   padding:        $header-padding;
   cursor:         pointer;
+  height:         $collapsible-header-height;
   @media (min-width: $screen-md) {
     justify-content: space-between;
   }

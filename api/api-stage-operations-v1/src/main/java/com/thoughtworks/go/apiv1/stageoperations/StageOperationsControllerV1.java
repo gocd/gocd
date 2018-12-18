@@ -180,7 +180,7 @@ public class StageOperationsControllerV1 extends ApiController implements SparkS
     private void haltIfRequestBodyDoesNotContainPropertyJobs(Request req) {
         JsonReader requestBody = GsonTransformer.getInstance().jsonReaderFrom(req.body());
         if (!requestBody.hasJsonObject(JOB_NAMES_PROPERTY)) {
-            throw HaltApiResponses.haltBecauseOfReason(String.format("Could not read property '%s' in request body", JOB_NAMES_PROPERTY));
+            throw HaltApiResponses.haltBecauseOfReason("Could not read property '%s' in request body", JOB_NAMES_PROPERTY);
         }
         requestBody.readStringArrayIfPresent(JOB_NAMES_PROPERTY);
     }

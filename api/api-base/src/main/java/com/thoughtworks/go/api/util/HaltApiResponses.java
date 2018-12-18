@@ -57,8 +57,8 @@ public abstract class HaltApiResponses {
         return halt(HttpStatus.PRECONDITION_FAILED.value(), MessageJson.create(etagDoesNotMatch(entityType, name)));
     }
 
-    public static HaltException haltBecauseEtagDoesNotMatch(String customMessage) {
-        return halt(HttpStatus.PRECONDITION_FAILED.value(), MessageJson.create(customMessage));
+    public static HaltException haltBecauseEtagDoesNotMatch(String message, Object... tokens) {
+        return halt(HttpStatus.PRECONDITION_FAILED.value(), MessageJson.create(format(message, tokens)));
     }
 
     public static HaltException haltBecauseEtagDoesNotMatch() {
@@ -109,7 +109,7 @@ public abstract class HaltApiResponses {
         return halt(HttpStatus.UNPROCESSABLE_ENTITY.value(), MessageJson.create(missingJsonProperty(property, jsonObject)));
     }
 
-    public static HaltException haltBecauseOfReason(String message) {
-        return halt(HttpStatus.UNPROCESSABLE_ENTITY.value(), MessageJson.create(message));
+    public static HaltException haltBecauseOfReason(String message, Object... tokens) {
+        return halt(HttpStatus.UNPROCESSABLE_ENTITY.value(), MessageJson.create(format(message, tokens)));
     }
 }

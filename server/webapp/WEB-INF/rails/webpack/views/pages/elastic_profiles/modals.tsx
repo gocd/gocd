@@ -293,6 +293,6 @@ export class UsageElasticProfileModal extends Modal {
       link = `/go/admin/templates/${usage.templateName()}/stages/${usage.stageName()}/job/${usage.jobName()}/settings`;
     }
 
-    return <span class={styles.jobSettingsLink}><a href={link}>Go to job settings</a></span>;
+    return <span class={styles.jobSettingsLink}><a href={link}>Job Settings</a></span>;
   }
 }

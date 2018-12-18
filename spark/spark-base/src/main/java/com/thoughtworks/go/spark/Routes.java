@@ -63,6 +63,8 @@ public class Routes {
         public static final String INTERNAL_BASE = "/api/internal/config_repos";
         public static final String OPERATIONS_BASE = "/api/admin/config_repo_ops";
 
+        public static final String PREFLIGHT_PATH = "/preflight";
+
         public static final String STATUS_PATH = "/:id/status";
         public static final String TRIGGER_UPDATE_PATH = "/:id/trigger_update";
 

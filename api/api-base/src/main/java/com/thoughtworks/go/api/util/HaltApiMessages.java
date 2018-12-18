@@ -90,4 +90,8 @@ public abstract class HaltApiMessages {
     public static String missingJsonProperty(String property, JsonObject jsonObject) {
         return format("Json `%s` does not contain property '%s'", jsonObject, property);
     }
+
+    public static String missingRequestParameter(String paramName) {
+        return format("Request is missing parameter `%s`", paramName);
+    }
 }

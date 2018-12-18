@@ -62,7 +62,7 @@ describe("SiteFooter", () => {
 
     expect($root).toContainHtml("Copyright &copy; 2000");
     expect($root).toContainElement(`a[href="/go/assets/dependency-license-report-${attrs.fullVersion}"]`);
-    expect($root).toContainText(`Go Version: ${attrs.formattedVersion}`);
+    expect($root).toContainText(`GoCD Version: ${attrs.formattedVersion}`);
     expect($root).not.toContainText("drain");
     expect(find("drain-mode-banner")).not.toBeInDOM();
     expect($root).not.toContainText('unsupported browser');

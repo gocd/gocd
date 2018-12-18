@@ -24,32 +24,36 @@ import java.util.List;
 public class GoConfigInvalidMergeException extends GoConfigInvalidException {
     private List<PartialConfig> partialConfigs;
 
-    public GoConfigInvalidMergeException(String summary,CruiseConfig cruiseConfig,
+    public GoConfigInvalidMergeException(CruiseConfig cruiseConfig,
                                          List<PartialConfig> partialConfigs, List<ConfigErrors> allErrors) {
-        super(cruiseConfig,allErrorsToString(allErrors, summary));
+        super(cruiseConfig, allErrors);
         this.partialConfigs = partialConfigs;
     }
 
-    public GoConfigInvalidMergeException(String summary,CruiseConfig cruiseConfig,
-                                         List<PartialConfig> partialConfigs, List<ConfigErrors> allErrors,Throwable e) {
-        super(cruiseConfig,allErrorsToString(allErrors, summary),e);
+    public GoConfigInvalidMergeException(CruiseConfig cruiseConfig,
+                                         List<PartialConfig> partialConfigs, List<ConfigErrors> allErrors, Throwable e) {
+        super(cruiseConfig, allErrors, e);
         this.partialConfigs = partialConfigs;
     }
 
-    public GoConfigInvalidMergeException(String summary,List<PartialConfig> partials, GoConfigInvalidException failed) {
-        this(summary,failed.getCruiseConfig(), partials, failed.getCruiseConfig().getAllErrors(),failed);
+    public GoConfigInvalidMergeException(List<PartialConfig> partials, GoConfigInvalidException failed) {
+        this(failed.getCruiseConfig(), partials, failed.getCruiseConfig().getAllErrors(), failed);
     }
 
-    private static String allErrorsToString(List<ConfigErrors> allErrors, String summary) {
-        if(allErrors == null || allErrors.size() == 0)
+    private static String allErrorsToString(List<String> allErrors) {
+        if (allErrors == null || allErrors.size() == 0)
             return "Error list empty";// should never be
         StringBuilder b = new StringBuilder();
         b.append(allErrors.size()).append("+ errors :: ");
-        for(ConfigErrors e : allErrors)
-        {
-            b.append(e.firstError()).append(";; ");
+        for (String e : allErrors) {
+            b.append(e).append(";; ");
         }
         return b.toString();
+    }
+
+    @Override
+    public String getMessage() {
+        return allErrorsToString(getAllErrors());
     }
 
     public List<PartialConfig> getPartialConfigs() {

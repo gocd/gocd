@@ -791,7 +791,7 @@ public class GoFileConfigDataSourceTest {
         when(cachedGoPartials.lastKnownPartials()).thenReturn(lastKnownPartials);
         when(cachedGoPartials.lastValidPartials()).thenReturn(lastValidPartials);
         when(fullConfigSaveNormalFlow.execute(commandArgumentCaptor.capture(), listArgumentCaptor.capture(), stringArgumentCaptor.capture()))
-                .thenThrow(new GoConfigInvalidException(null, null)).thenReturn(goConfigHolder);
+                .thenThrow(new GoConfigInvalidException(null, Collections.emptyList())).thenReturn(goConfigHolder);
 
         GoFileConfigDataSource source = new GoFileConfigDataSource(null, null, systemEnvironment, null, loader, null, null, cachedGoPartials,
                 fullConfigSaveMergeFlow, fullConfigSaveNormalFlow, goConfigFileReader, null);

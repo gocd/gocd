@@ -348,7 +348,7 @@ public class GoFileConfigDataSource {
                         LOGGER.info("Update operation on merged configuration succeeded with old {} LAST VALID partials.", lastValidPartials.size());
                     } catch (GoConfigInvalidException fallbackFailed) {
                         LOGGER.warn("Merged config update operation failed using fallback LAST VALID {} partials. Exception message was: {}", lastValidPartials.size(), fallbackFailed.getMessage(), fallbackFailed);
-                        throw new GoConfigInvalidMergeException("Fallback merge failed", lastValidPartials, fallbackFailed);
+                        throw new GoConfigInvalidMergeException(lastValidPartials, fallbackFailed);
                     }
                 }
             }
@@ -411,7 +411,7 @@ public class GoFileConfigDataSource {
             LOGGER.debug("Update operation on merged configuration succeeded with old {} LAST VALID partials.", lastValidPartials.size());
         } catch (GoConfigInvalidException fallbackFailed) {
             LOGGER.warn("Merged config update operation failed using fallback LAST VALID {} partials. Exception message was: {}", lastValidPartials.size(), fallbackFailed.getMessage(), fallbackFailed);
-            throw new GoConfigInvalidMergeException("Fallback merge failed", lastValidPartials, fallbackFailed);
+            throw new GoConfigInvalidMergeException(lastValidPartials, fallbackFailed);
         }
         return goConfigHolder;
     }

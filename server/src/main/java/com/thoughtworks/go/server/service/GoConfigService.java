@@ -94,6 +94,7 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
     private InstanceFactory instanceFactory;
     private final CachedGoPartials cachedGoPartials;
     private SystemEnvironment systemEnvironment;
+    private MagicalGoConfigXmlLoader xmlLoader;
 
     @Autowired
     public GoConfigService(GoConfigDao goConfigDao,
@@ -116,6 +117,7 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
         this.instanceFactory = instanceFactory;
         this.cachedGoPartials = cachedGoPartials;
         this.systemEnvironment = systemEnvironment;
+        this.xmlLoader = new MagicalGoConfigXmlLoader(configCache, registry);
     }
 
     //for testing
@@ -1041,6 +1043,10 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
 
     public ArtifactStores artifactStores() {
         return cruiseConfig().getArtifactStores();
+    }
+
+    public CruiseConfig validateCruiseConfig(CruiseConfig cruiseConfig) throws Exception {
+        return xmlLoader.validateCruiseConfig(cruiseConfig);
     }
 
     public abstract class XmlPartialSaver<T> {

@@ -111,11 +111,11 @@ public class MagicalGoConfigXmlLoader {
     }
 
     public CruiseConfig preprocessAndValidate(CruiseConfig config) throws Exception {
-        LOGGER.debug("[Config Save] In preprocessAndValidate: Cloning.");
+        LOGGER.debug("[Config Validation] In preprocessAndValidate: Cloning.");
         CruiseConfig cloned = CLONER.deepClone(config);
-        LOGGER.debug("[Config Save] In preprocessAndValidate: Validating.");
+        LOGGER.debug("[Config Validation] In preprocessAndValidate: Validating.");
         validateCruiseConfig(cloned);
-        LOGGER.debug("[Config Save] In preprocessAndValidate: Done.");
+        LOGGER.debug("[Config Validation] In preprocessAndValidate: Done.");
         config.encryptSecureProperties(cloned);
         return cloned;
     }
@@ -133,14 +133,14 @@ public class MagicalGoConfigXmlLoader {
         }
     }
 
-    private CruiseConfig validateCruiseConfig(CruiseConfig config) throws Exception {
+    public CruiseConfig validateCruiseConfig(CruiseConfig config) throws Exception {
         LOGGER.debug("[Config Save] In validateCruiseConfig: Starting.");
         List<ConfigErrors> allErrors = validate(config);
         if (!allErrors.isEmpty()) {
             if (config.isLocal())
-                throw new GoConfigInvalidException(config, allErrors.get(0).asString());
+                throw new GoConfigInvalidException(config, allErrors);
             else
-                throw new GoConfigInvalidMergeException("Merged validation failed", config, config.getMergedPartials(), allErrors);
+                throw new GoConfigInvalidMergeException(config, config.getMergedPartials(), allErrors);
         }
 
         LOGGER.debug("[Config Save] In validateCruiseConfig: Running validate.");

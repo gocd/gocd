@@ -25,7 +25,11 @@ import java.util.Collection;
 public interface JsonMessageHandler {
     String requestMessageForParseDirectory(String destinationFolder, Collection<CRConfigurationProperty> configurations);
 
+    String requestMessageForParseContent(String content);
+
     CRParseResult responseMessageForParseDirectory(String responseBody);
+
+    CRParseResult responseMessageForParseContent(String responseBody);
 
     String requestMessageForPipelineExport(CRPipeline pipeline);
 

@@ -41,6 +41,20 @@ public class ConfigRepoPlugin implements PartialConfigProvider {
         this.pluginId = pluginId;
     }
 
+    public static List<CRConfigurationProperty> getCrConfigurations(Configuration configuration) {
+        List<CRConfigurationProperty> config = new ArrayList<>();
+        for (ConfigurationProperty prop : configuration) {
+            String configKeyName = prop.getConfigKeyName();
+            if (!prop.isSecure())
+                config.add(new CRConfigurationProperty(configKeyName, prop.getValue(), null));
+            else {
+                CRConfigurationProperty crProp = new CRConfigurationProperty(configKeyName, null, prop.getEncryptedValue());
+                config.add(crProp);
+            }
+        }
+        return config;
+    }
+
     @Override
     public PartialConfig load(File configRepoCheckoutDirectory, PartialConfigLoadContext context) {
         Collection<CRConfigurationProperty> cRconfigurations = getCrConfigurations(context.configuration());
@@ -58,24 +72,18 @@ public class ConfigRepoPlugin implements PartialConfigProvider {
         return this.crExtension.pipelineExport(this.pluginId, crPipeline);
     }
 
+    public PartialConfig parseContent(String content, PartialConfigLoadContext context) {
+        CRParseResult parseResult = this.crExtension.parseContent(pluginId, content);
+        if (parseResult.hasErrors()) {
+            throw new InvalidPartialConfigException(parseResult, parseResult.getErrors().getErrorsAsText());
+        }
+        return configConverter.toPartialConfig(parseResult, context);
+    }
+
     public CRParseResult parseDirectory(File configRepoCheckoutDirectory, Collection<CRConfigurationProperty> cRconfigurations) {
         CRParseResult crParseResult = this.crExtension.parseDirectory(this.pluginId, configRepoCheckoutDirectory.getAbsolutePath(), cRconfigurations);
         if (crParseResult.hasErrors())
             throw new InvalidPartialConfigException(crParseResult, crParseResult.getErrors().getErrorsAsText());
         return crParseResult;
-    }
-
-    public static List<CRConfigurationProperty> getCrConfigurations(Configuration configuration) {
-        List<CRConfigurationProperty> config = new ArrayList<>();
-        for (ConfigurationProperty prop : configuration) {
-            String configKeyName = prop.getConfigKeyName();
-            if (!prop.isSecure())
-                config.add(new CRConfigurationProperty(configKeyName, prop.getValue(), null));
-            else {
-                CRConfigurationProperty crProp = new CRConfigurationProperty(configKeyName, null, prop.getEncryptedValue());
-                config.add(crProp);
-            }
-        }
-        return config;
     }
 }

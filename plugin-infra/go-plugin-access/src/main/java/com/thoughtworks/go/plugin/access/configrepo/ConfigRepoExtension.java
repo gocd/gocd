@@ -30,12 +30,13 @@ import com.thoughtworks.go.plugin.access.configrepo.v1.JsonMessageHandler1_0;
 import com.thoughtworks.go.plugin.access.configrepo.v2.JsonMessageHandler2_0;
 import com.thoughtworks.go.plugin.domain.configrepo.Capabilities;
 import com.thoughtworks.go.plugin.infra.PluginManager;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static com.thoughtworks.go.plugin.domain.common.PluginConstants.CONFIG_REPO_EXTENSION;
 import static java.util.Arrays.asList;
@@ -43,6 +44,7 @@ import static java.util.Arrays.asList;
 @Component
 public class ConfigRepoExtension extends AbstractExtension implements ConfigRepoExtensionContract {
     public static final String REQUEST_PARSE_DIRECTORY = "parse-directory";
+    public static final String REQUEST_PARSE_CONTENT = "parse-content";
     public static final String REQUEST_PIPELINE_EXPORT = "pipeline-export";
     public static final String REQUEST_CAPABILITIES = "get-capabilities";
 
@@ -86,14 +88,14 @@ public class ConfigRepoExtension extends AbstractExtension implements ConfigRepo
     public Capabilities getCapabilities(String pluginId) {
         String resolvedExtensionVersion = pluginManager.resolveExtensionVersion(pluginId, CONFIG_REPO_EXTENSION, goSupportedVersions);
         if (resolvedExtensionVersion.equals("1.0")) {
-            return new Capabilities(false);
+            return new Capabilities(false, false);
         }
-       return pluginRequestHelper.submitRequest(pluginId, REQUEST_CAPABILITIES, new DefaultPluginInteractionCallback<Capabilities>() {
-           @Override
-           public Capabilities onSuccess(String responseBody, String resolvedExtensionVersion) {
-               return messageHandlerMap.get(resolvedExtensionVersion).getCapabilitiesFromResponse(responseBody);
-           }
-       });
+        return pluginRequestHelper.submitRequest(pluginId, REQUEST_CAPABILITIES, new DefaultPluginInteractionCallback<Capabilities>() {
+            @Override
+            public Capabilities onSuccess(String responseBody, String resolvedExtensionVersion) {
+                return messageHandlerMap.get(resolvedExtensionVersion).getCapabilitiesFromResponse(responseBody);
+            }
+        });
     }
 
     @Override
@@ -112,6 +114,26 @@ public class ConfigRepoExtension extends AbstractExtension implements ConfigRepo
             @Override
             public CRParseResult onSuccess(String responseBody, String resolvedExtensionVersion) {
                 return messageHandlerMap.get(resolvedExtensionVersion).responseMessageForParseDirectory(responseBody);
+            }
+        });
+    }
+
+    @Override
+    public CRParseResult parseContent(String pluginId, String content) {
+        return pluginRequestHelper.submitRequest(pluginId, REQUEST_PARSE_CONTENT, new DefaultPluginInteractionCallback<CRParseResult>() {
+            @Override
+            public String requestBody(String resolvedExtensionVersion) {
+                return messageHandlerMap.get(resolvedExtensionVersion).requestMessageForParseContent(content);
+            }
+
+            @Override
+            public Map<String, String> requestParams(String resolvedExtensionVersion) {
+                return null;
+            }
+
+            @Override
+            public CRParseResult onSuccess(String responseBody, String resolvedExtensionVersion) {
+                return messageHandlerMap.get(resolvedExtensionVersion).responseMessageForParseContent(responseBody);
             }
         });
     }

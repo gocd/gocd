@@ -26,29 +26,27 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 
 public class ConfigRepoPluginTest {
-
     @Test
-    public void shouldGetCRConfigurationFromConfigurationWhenInsecureValue(){
+    public void shouldGetCRConfigurationFromConfigurationWhenInsecureValue() {
         Configuration configuration = new Configuration();
-        configuration.addNewConfigurationWithValue("key1","value1",false);
+        configuration.addNewConfigurationWithValue("key1", "value1", false);
 
         List<CRConfigurationProperty> crConfigurations = ConfigRepoPlugin.getCrConfigurations(configuration);
-        assertThat(crConfigurations.size(),is(1));
+        assertThat(crConfigurations.size(), is(1));
         CRConfigurationProperty prop = crConfigurations.get(0);
-        assertThat(prop.getKey(),is("key1"));
-        assertThat(prop.getValue(),is("value1"));
+        assertThat(prop.getKey(), is("key1"));
+        assertThat(prop.getValue(), is("value1"));
     }
 
-
     @Test
-    public void shouldGetCRConfigurationFromConfigurationWhenSecureValue(){
+    public void shouldGetCRConfigurationFromConfigurationWhenSecureValue() {
         Configuration configuration = new Configuration();
-        configuration.addNewConfigurationWithValue("key1","@$$%^1234",true);
+        configuration.addNewConfigurationWithValue("key1", "@$$%^1234", true);
 
         List<CRConfigurationProperty> crConfigurations = ConfigRepoPlugin.getCrConfigurations(configuration);
-        assertThat(crConfigurations.size(),is(1));
+        assertThat(crConfigurations.size(), is(1));
         CRConfigurationProperty prop = crConfigurations.get(0);
-        assertThat(prop.getKey(),is("key1"));
-        assertThat(prop.getEncryptedValue(),is("@$$%^1234"));
+        assertThat(prop.getKey(), is("key1"));
+        assertThat(prop.getEncryptedValue(), is("@$$%^1234"));
     }
 }

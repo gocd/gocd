@@ -33,11 +33,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
+import java.util.Collections;
 
 public class JsonMessageHandler2_0 implements JsonMessageHandler {
-    private static final Logger LOGGER = LoggerFactory.getLogger(JsonMessageHandler2_0.class);
     static final int CURRENT_CONTRACT_VERSION = 3;
-
+    private static final Logger LOGGER = LoggerFactory.getLogger(JsonMessageHandler2_0.class);
     private final GsonCodec codec;
     private final ConfigRepoMigrator migrator;
 
@@ -63,16 +63,17 @@ public class JsonMessageHandler2_0 implements JsonMessageHandler {
         return codec.getGson().toJson(requestMessage);
     }
 
+    @Override
+    public String requestMessageForParseContent(String content) {
+        return codec.getGson().toJson(Collections.singletonMap("content", content));
+    }
+
     private ParseDirectoryMessage prepareMessage_1(String destinationFolder, Collection<CRConfigurationProperty> configurations) {
         ParseDirectoryMessage requestMessage = new ParseDirectoryMessage(destinationFolder);
         for (CRConfigurationProperty conf : configurations) {
             requestMessage.addConfiguration(conf.getKey(), conf.getValue(), conf.getEncryptedValue());
         }
         return requestMessage;
-    }
-
-    class ResponseScratch {
-        public Integer target_version;
     }
 
     private ResponseScratch parseResponseForMigration(String responseBody) {
@@ -126,10 +127,19 @@ public class JsonMessageHandler2_0 implements JsonMessageHandler {
         }
     }
 
+    @Override
+    public CRParseResult responseMessageForParseContent(String responseBody) {
+        return responseMessageForParseDirectory(responseBody);
+    }
+
     private String migrate(String responseBody, int targetVersion) {
         if (targetVersion > CURRENT_CONTRACT_VERSION)
             throw new RuntimeException(String.format("Migration to %s is not supported", targetVersion));
 
         return migrator.migrate(responseBody, targetVersion);
+    }
+
+    class ResponseScratch {
+        public Integer target_version;
     }
 }

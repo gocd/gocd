@@ -99,18 +99,8 @@ export class ElasticProfilesPage extends Page<null, State> {
         clearTimeout(timeoutID);
       }
 
-      ElasticProfilesCRUD
-        .get(elasticProfile.id())
-        .then((result) => {
-          result.do(
-            (successResponse) => {
-              new CloneElasticProfileModal(successResponse.body.object,
-                                           vnode.state.pluginInfos(),
-                                           vnode.state.onSuccessfulSave).render();
-            },
-            onOperationError
-          );
-        });
+      new CloneElasticProfileModal(elasticProfile.id(), vnode.state.pluginInfos(),
+                                   vnode.state.onSuccessfulSave).render();
     };
 
     vnode.state.onEdit = (elasticProfile: ElasticProfile, event: MouseEvent) => {
@@ -119,18 +109,9 @@ export class ElasticProfilesPage extends Page<null, State> {
         clearTimeout(timeoutID);
       }
 
-      ElasticProfilesCRUD
-        .get(elasticProfile.id())
-        .then((result) => {
-          result.do(
-            (successResponse) => {
-              new EditElasticProfileModal(successResponse.body,
-                                          vnode.state.pluginInfos(),
-                                          vnode.state.onSuccessfulSave).render();
-            },
-            onOperationError
-          );
-        });
+      new EditElasticProfileModal(elasticProfile.id(),
+                                  vnode.state.pluginInfos(),
+                                  vnode.state.onSuccessfulSave).render();
     };
 
     vnode.state.onDelete = (id: string, event: MouseEvent) => {

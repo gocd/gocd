@@ -8,3 +8,4 @@ export const pluginInfoSelect: string;
 export const elasticProfileModalFormBody: string;
 export const tableCell: string;
 export const jobSettingsLink: string;
+export const spinnerWrapper: string;

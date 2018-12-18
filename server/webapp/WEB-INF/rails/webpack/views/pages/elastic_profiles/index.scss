@@ -81,3 +81,6 @@ $icon-light-color: #e6e6e6;
   display:   block;
 }
 
+.spinner-wrapper {
+  @include spinner-for-modal;
+}

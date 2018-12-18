@@ -29,8 +29,10 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Component
-public class CachedGoPartials {
+public class CachedGoPartials implements PartialConfigResolver {
     private final ServerHealthService serverHealthService;
+    private Map<String, PartialConfig> fingerprintToLatestValidConfigMap = new ConcurrentHashMap<>();
+    private Map<String, PartialConfig> fingerprintToLatestKnownConfigMap = new ConcurrentHashMap<>();
 
     @Autowired
     public CachedGoPartials(ServerHealthService serverHealthService) {
@@ -75,7 +77,6 @@ public class CachedGoPartials {
         }
     }
 
-
     public void addOrUpdate(String fingerprint, PartialConfig newPart) {
         fingerprintToLatestKnownConfigMap.put(fingerprint, newPart);
     }
@@ -104,9 +105,6 @@ public class CachedGoPartials {
         }
     }
 
-    private Map<String, PartialConfig> fingerprintToLatestValidConfigMap = new ConcurrentHashMap<>();
-    private Map<String, PartialConfig> fingerprintToLatestKnownConfigMap = new ConcurrentHashMap<>();
-
     public Map<String, PartialConfig> getFingerprintToLatestKnownConfigMap() {
         return fingerprintToLatestKnownConfigMap;
     }
@@ -122,5 +120,27 @@ public class CachedGoPartials {
 
     public void markAllKnownAsValid() {
         markAsValid(lastKnownPartials());
+    }
+
+    @Override
+    public PartialConfig findPartialByFingerprint(CruiseConfig cruiseConfig, String fingerprint) {
+        PartialConfig matchingPartial = findPartialByFingerprint(cruiseConfig, fingerprint, getValid(fingerprint));
+        if (matchingPartial == null) {
+            matchingPartial = findPartialByFingerprint(cruiseConfig, fingerprint, getKnown(fingerprint));
+        }
+        return matchingPartial;
+    }
+
+    private PartialConfig findPartialByFingerprint(CruiseConfig cruiseConfig, String fingerprint, PartialConfig partial) {
+        PartialConfig matching = null;
+        if (partial != null) {
+            for (PartialConfig partialConfig : cruiseConfig.getPartials()) {
+                if (partialConfig.getOrigin() instanceof RepoConfigOrigin && (((RepoConfigOrigin) partialConfig.getOrigin()).getMaterial().getFingerprint().equals(fingerprint))) {
+                    matching = partialConfig;
+                    break;
+                }
+            }
+        }
+        return matching;
     }
 }

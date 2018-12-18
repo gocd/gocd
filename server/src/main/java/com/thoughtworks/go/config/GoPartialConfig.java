@@ -16,11 +16,10 @@
 
 package com.thoughtworks.go.config;
 
-import com.rits.cloning.Cloner;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.config.remote.ConfigReposConfig;
 import com.thoughtworks.go.config.remote.PartialConfig;
-import com.thoughtworks.go.config.remote.RepoConfigOrigin;
+import com.thoughtworks.go.config.update.PartialConfigUpdateCommand;
 import com.thoughtworks.go.config.validation.GoConfigValidity;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.serverhealth.HealthStateScope;
@@ -43,14 +42,13 @@ import java.util.Set;
 @Component
 public class GoPartialConfig implements PartialConfigUpdateCompletedListener, ChangedRepoConfigWatchListListener {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(GoPartialConfig.class);
     public static final String INVALID_CRUISE_CONFIG_MERGE = "Invalid Merged Configuration";
-
-    private GoRepoConfigDataSource repoConfigDataSource;
-    private GoConfigWatchList configWatchList;
+    private static final Logger LOGGER = LoggerFactory.getLogger(GoPartialConfig.class);
     private final GoConfigService goConfigService;
     private final CachedGoPartials cachedGoPartials;
     private final ServerHealthService serverHealthService;
+    private GoRepoConfigDataSource repoConfigDataSource;
+    private GoConfigWatchList configWatchList;
 
     @Autowired
     public GoPartialConfig(GoRepoConfigDataSource repoConfigDataSource,
@@ -89,41 +87,19 @@ public class GoPartialConfig implements PartialConfigUpdateCompletedListener, Ch
         }
     }
 
-    public class GoPartialUpdateCommand implements UpdateConfigCommand {
-        private final PartialConfig newPart;
-        private final String fingerprint;
+    public CruiseConfig merge(PartialConfig partialConfig, String fingerprint, CruiseConfig cruiseConfig) {
+        PartialConfigUpdateCommand command = buildUpdateCommand(partialConfig, fingerprint);
+        command.update(cruiseConfig);
+        return cruiseConfig;
+    }
 
-        public GoPartialUpdateCommand(final PartialConfig newPart, final String fingerprint) {
-            this.newPart = newPart;
-            this.fingerprint = fingerprint;
-        }
-
-        @Override
-        public CruiseConfig update(CruiseConfig cruiseConfig) {
-            if (newPart != null && fingerprint != null) {
-                cruiseConfig.getPartials().remove(findMatchingPartial(cruiseConfig, fingerprint));
-                cruiseConfig.getPartials().add(new Cloner().deepClone(newPart));
-
-                for (PartialConfig partial : cruiseConfig.getPartials()) {
-                    for (EnvironmentConfig environmentConfig : partial.getEnvironments()) {
-                        if (!cruiseConfig.getEnvironments().hasEnvironmentNamed(environmentConfig.name())) {
-                            cruiseConfig.addEnvironment(new BasicEnvironmentConfig(environmentConfig.name()));
-                        }
-                    }
-                    for (PipelineConfigs pipelineConfigs : partial.getGroups()) {
-                        if (!cruiseConfig.getGroups().hasGroup(pipelineConfigs.getGroup())) {
-                            cruiseConfig.getGroups().add(new BasicPipelineConfigs(pipelineConfigs.getGroup(), new Authorization()));
-                        }
-                    }
-                }
-            }
-            return cruiseConfig;
-        }
+    public PartialConfigUpdateCommand buildUpdateCommand(final PartialConfig partial, final String fingerprint) {
+        return new PartialConfigUpdateCommand(partial, fingerprint, cachedGoPartials);
     }
 
     private boolean updateConfig(final PartialConfig newPart, final String fingerprint, ConfigRepoConfig repoConfig) {
         try {
-            goConfigService.updateConfig(new GoPartialUpdateCommand(newPart, fingerprint));
+            goConfigService.updateConfig(buildUpdateCommand(newPart, fingerprint));
             return true;
         } catch (Exception e) {
             if (repoConfig != null) {
@@ -133,27 +109,6 @@ public class GoPartialConfig implements PartialConfigUpdateCompletedListener, Ch
             }
             return false;
         }
-    }
-
-    private PartialConfig findMatchingPartial(CruiseConfig cruiseConfig, String fingerprint) {
-        PartialConfig matchingPartial = findMatchingPartial(cruiseConfig, fingerprint, cachedGoPartials.getValid(fingerprint));
-        if (matchingPartial == null) {
-            matchingPartial = findMatchingPartial(cruiseConfig, fingerprint, cachedGoPartials.getKnown(fingerprint));
-        }
-        return matchingPartial;
-    }
-
-    private PartialConfig findMatchingPartial(CruiseConfig cruiseConfig, String fingerprint, PartialConfig partial) {
-        PartialConfig matching = null;
-        if (partial != null) {
-            for (PartialConfig partialConfig : cruiseConfig.getPartials()) {
-                if (partialConfig.getOrigin() instanceof RepoConfigOrigin && (((RepoConfigOrigin) partialConfig.getOrigin()).getMaterial().getFingerprint().equals(fingerprint))) {
-                    matching = partialConfig;
-                    break;
-                }
-            }
-        }
-        return matching;
     }
 
     @Override

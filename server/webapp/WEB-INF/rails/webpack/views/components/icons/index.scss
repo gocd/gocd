@@ -100,6 +100,7 @@ $btn-group-border-radius: $global-border-radius;
 
 .minus {
   @include icon-before($type: $fa-var-minus);
+  font-size: 7px;
 }
 
 .icon-group {

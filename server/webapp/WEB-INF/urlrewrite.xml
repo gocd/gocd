@@ -24,7 +24,6 @@
 -->
 
 <urlrewrite>
-
   <rule>
     <name>User Search API</name>
     <from>^/api/user_search(/?)$</from>
@@ -46,15 +45,15 @@
   <rule>
     <name>Spark Elastic Profile Index API</name>
     <from>^/api/elastic/profiles$</from>
-    <to last="true">/spark/api/elastic/profiles</to>
     <set name="rails_bound">true</set>
+    <to last="true">/spark/api/elastic/profiles</to>
   </rule>
 
   <rule>
     <name>Spark Elastic Profiles API</name>
     <from>^/api/elastic/profiles/(.*)$</from>
-    <to last="true">/spark/api/elastic/profiles/${escape:$1}</to>
     <set name="rails_bound">true</set>
+    <to last="true">/spark/api/elastic/profiles/${escape:$1}</to>
   </rule>
 
   <rule>
@@ -223,7 +222,7 @@
 
   <rule>
     <name>Spark Dashboard API</name>
-    <condition type="header" name="Accept">application\/vnd\.go\.cd\.v2\+json</condition>
+    <condition name="Accept">application\/vnd\.go\.cd\.v2\+json</condition>
     <from>^/api/dashboard(/?)$</from>
     <to last="true">/spark/api/dashboard</to>
   </rule>
@@ -254,42 +253,42 @@
 
   <rule>
     <name>Spark Stage Operations API</name>
-    <condition type="header" name="Accept">application\/vnd\.go\.cd\.v1\+json</condition>
+    <condition name="Accept">application\/vnd\.go\.cd\.v1\+json</condition>
     <from>^/api/stages/([^/]+)/([^/]+)/([^/]+)/run(/?)</from>
     <to last="true">/spark/api/stages/${escape:$1}/${escape:$2}/${escape:$3}/run</to>
   </rule>
 
   <rule>
     <name>Spark Config Repos Internal Operations API</name>
-    <condition type="header" name="Accept">application\/vnd\.go\.cd\.v1\+json</condition>
+    <condition name="Accept">application\/vnd\.go\.cd\.v1\+json</condition>
     <from>^/api/internal/config_repos/([^/]+)/(trigger_update|status)(/?)</from>
     <to last="true">/spark/api/internal/config_repos/${escape:$1}/${escape:$2}</to>
   </rule>
 
   <rule>
     <name>Spark Config Repos Internal API</name>
-    <condition type="header" name="Accept">application\/vnd\.go\.cd\.v1\+json</condition>
+    <condition name="Accept">application\/vnd\.go\.cd\.v1\+json</condition>
     <from>^/api/internal/config_repos(?:(/)([^/]+))?(?:/?)</from>
     <to last="true">/spark/api/internal/config_repos$1${escape:$2}</to>
   </rule>
 
   <rule>
     <name>Spark Config Repos API</name>
-    <condition type="header" name="Accept">application\/vnd\.go\.cd\.v1\+json</condition>
+    <condition name="Accept">application\/vnd\.go\.cd\.v1\+json</condition>
     <from>^/api/admin/config_repos(?:(/)([^/]+))?(?:/?)</from>
     <to last="true">/spark/api/admin/config_repos$1${escape:$2}</to>
   </rule>
 
   <rule>
     <name>Spark pipeline pause/unpause/unlock/trigger_view API/schedule API</name>
-    <condition type="header" name="Accept">application\/vnd\.go\.cd\.v1\+json</condition>
+    <condition name="Accept">application\/vnd\.go\.cd\.v1\+json</condition>
     <from>^/api/pipelines/([^/]+)/(pause|unpause|unlock|trigger_options|schedule)</from>
     <to last="true">/spark/api/pipelines/${escape:$1}/${escape:$2}</to>
   </rule>
 
   <rule>
     <name>Spark Stage Operations APIs for re-rerun</name>
-    <condition type="header" name="Accept">application\/vnd\.go\.cd\.v1\+json</condition>
+    <condition name="Accept">application\/vnd\.go\.cd\.v1\+json</condition>
     <from>^/api/stages/([^/]+)/([^/]+)/([^/]+)/([^/]+)/(run-failed-jobs|run-selected-jobs)(/?)</from>
     <to last="true">/spark/api/stages/${escape:$1}/${escape:$2}/${escape:$3}/${escape:$4}/${escape:$5}</to>
   </rule>
@@ -364,15 +363,15 @@
   <rule>
     <name>Rails Plugin Status Report call</name>
     <from>^/admin/status_reports/(.*)$</from>
-    <to last="true">/rails/admin/status_reports/$1</to>
     <set name="rails_bound">true</set>
+    <to last="true">/rails/admin/status_reports/$1</to>
   </rule>
 
   <rule>
     <name>Rails Agent Status Report call</name>
     <from>^/admin/status_reports/([^/]+)/(.*)</from>
-    <to last="true">/rails/admin/status_reports/$1/$2</to>
     <set name="rails_bound">true</set>
+    <to last="true">/rails/admin/status_reports/$1/$2</to>
   </rule>
 
   <rule>
@@ -402,58 +401,58 @@
     <from>
       ^/((jasmine-specs)|(jasmine-specs/*)|(preferences)|(preferences/.*)|(about)|(agents)|(agents/.*)|(agents\..*)|(environments)|(admin/environments)|(admin/environments/.*)|(admin/environments\..*)|(environments/.*)|(environments\..*)|(pipelines/.*)|(pipelines\.json)|(materials/.*)|(pipelines)|(history/.*)|(shine)|(shine/.*)|(server)|(server/.*)|(admin/config/.*)|(admin/users)|(admin/users/.*)|(failures/.*)|(compare/.*)|(admin/pipelines)|(admin/pipelines/.*)|(admin/pipeline/.*)|(admin/pipeline_group)|(admin/pipeline_group/.*)|(admin/templates)|(admin/templates/.*)|(admin/backup)|(admin/backup/.*)|(admin/commands)|(admin/commands/.*)|(admin/plugins)|(admin/plugins/.*)|(config_change/.*)|(admin/config_xml)|(admin/config_xml/.*)|(admin/package_repositories)|(admin/package_repositories/.*)|(config_view/.*)|(admin/package_definitions)|(admin/package_definitions/.*)|(admin/materials)|(admin/materials/.*)|(assets/.*)|(cctray.xml)|(errors/inactive)|(internal/pipelines/.*))$
     </from>
-    <to last="true">/rails/$1</to>
     <set name="rails_bound">true</set>
+    <to last="true">/rails/$1</to>
   </rule>
 
   <!-- Rule for Rails Users API should be above the generic rule 'Rails API' -->
   <rule>
     <name>Rails Users Index and Delete API</name>
     <from>^/api/users$</from>
-    <to last="true">/rails/api/users</to>
     <set name="rails_bound">true</set>
+    <to last="true">/rails/api/users</to>
   </rule>
 
   <rule>
     <name>Rails Users Show and Delete API</name>
     <from>^/api/users/(.*)$</from>
-    <to last="true">/rails/api/users/${escape:$1}</to>
     <set name="rails_bound">true</set>
+    <to last="true">/rails/api/users/${escape:$1}</to>
   </rule>
 
   <rule>
     <name>Rails Security Auth Configs API Index API</name>
     <from>^/api/admin/security/auth_configs</from>
-    <to last="true">/rails/api/admin/security/auth_configs</to>
     <set name="rails_bound">true</set>
+    <to last="true">/rails/api/admin/security/auth_configs</to>
   </rule>
 
   <rule>
     <name>Rails Security Auth Configs API</name>
     <from>^/api/admin/security/auth_configs/(.*)$</from>
-    <to last="true">/rails/api/admin/security/auth_configs/${escape:$1}</to>
     <set name="rails_bound">true</set>
+    <to last="true">/rails/api/admin/security/auth_configs/${escape:$1}</to>
   </rule>
 
   <rule>
     <name>Rails API</name>
     <from>^/(api/(?!admin/config).*)$</from>
-    <to last="true">/rails/$1</to>
     <set name="rails_bound">true</set>
+    <to last="true">/rails/$1</to>
   </rule>
 
   <rule>
     <name>Rails Internal API</name>
     <from>^/(api/config/internal/.*)$</from>
-    <to last="true">/rails/$1</to>
     <set name="rails_bound">true</set>
+    <to last="true">/rails/$1</to>
   </rule>
 
   <rule>
     <name>Update Check URLs</name>
     <from>^/(api/version_infos/.*)$</from>
-    <to last="true">/rails/$1</to>
     <set name="rails_bound">true</set>
+    <to last="true">/rails/$1</to>
   </rule>
 
   <rule>
@@ -468,7 +467,7 @@
       For agent to download/upload artifacts and publish properties
     </note>
     <from>^/remoting/(files|properties)/(.*)</from>
-    <to last="false">/$1/$2</to>
+    <to>/$1/$2</to>
   </rule>
 
   <!-- RESTful URLS -->
@@ -520,103 +519,103 @@
   <rule>
     <name>RESTful rerun - Rerun a stage</name>
     <from>^/run/([^/]+)/([^/]+)/([^/]+)$</from>
-    <to type="forward">/admin/rerun?pipelineName=$1&amp;pipelineCounter=$2&amp;stageName=$3</to>
+    <to>/admin/rerun?pipelineName=$1&amp;pipelineCounter=$2&amp;stageName=$3</to>
   </rule>
 
   <rule>
     <name>RESTful Artifacts - List All builds artifacts</name>
     <from>^/files/([^/]+)/([^/]+)/([^/]+)/([^/]+)/([^/]+?)(\.(json|html))?(\?.*)?$</from>
-    <to type="forward">/repository/restful/artifact/%{attribute:_method}/%{attribute:_type}?pipelineName=$1&amp;pipelineCounter=$2&amp;stageName=$3&amp;stageCounter=$4&amp;buildName=$5&amp;filePath=</to>
+    <to>/repository/restful/artifact/%{attribute:_method}/%{attribute:_type}?pipelineName=$1&amp;pipelineCounter=$2&amp;stageName=$3&amp;stageCounter=$4&amp;buildName=$5&amp;filePath=</to>
   </rule>
 
   <rule>
     <name>RESTful Artifacts with start LineNumber</name>
     <condition type="parameter" name="startLineNumber"/>
     <from>^/files/([^/]+)/([^/]+)/([^/]+)/([^/]+)/([^/]+)/(.*?)(\?.*)?$</from>
-    <to type="forward">/consoleout.json?pipelineName=$1&amp;pipelineCounter=$2&amp;stageName=$3&amp;stageCounter=$4&amp;buildName=$5&amp;filePath=${escape:$6}</to>
     <set name="startLineNumber">{parameter:startLineNumber}</set>
+    <to>/consoleout.json?pipelineName=$1&amp;pipelineCounter=$2&amp;stageName=$3&amp;stageCounter=$4&amp;buildName=$5&amp;filePath=${escape:$6}</to>
   </rule>
 
   <rule>
     <name>RESTful Artifacts with SHA1</name>
     <condition type="parameter" name="sha1"/>
     <from>^/files/([^/]+)/([^/]+)/([^/]+)/([^/]+)/([^/]+)/(.*?)(\?.*)?$</from>
-    <to type="forward">/repository/restful/artifact/%{attribute:_method}/%{attribute:_type}?pipelineName=$1&amp;pipelineCounter=$2&amp;stageName=$3&amp;stageCounter=$4&amp;buildName=$5&amp;filePath=${escape:$6}</to>
     <set name="sha1">{parameter:sha1}</set>
+    <to>/repository/restful/artifact/%{attribute:_method}/%{attribute:_type}?pipelineName=$1&amp;pipelineCounter=$2&amp;stageName=$3&amp;stageCounter=$4&amp;buildName=$5&amp;filePath=${escape:$6}</to>
   </rule>
 
   <rule>
     <name>RESTful Artifacts</name>
     <from>^/files/([^/]+)/([^/]+)/([^/]+)/([^/]+)/([^/]+)/(.*?)(\?.*)?$</from>
-    <to type="forward">/repository/restful/artifact/%{attribute:_method}/%{attribute:_type}?pipelineName=$1&amp;pipelineCounter=$2&amp;stageName=$3&amp;stageCounter=$4&amp;buildName=$5&amp;filePath=${escape:$6}</to>
+    <to>/repository/restful/artifact/%{attribute:_method}/%{attribute:_type}?pipelineName=$1&amp;pipelineCounter=$2&amp;stageName=$3&amp;stageCounter=$4&amp;buildName=$5&amp;filePath=${escape:$6}</to>
   </rule>
 
   <rule>
     <name>RESTful Properties Search for one job</name>
     <condition type="parameter" name="pipelineCounter"/>
     <from>^/properties/search(\?.*)?$</from>
-    <to type="forward">/repository/restful/properties/job/search</to>
+    <to>/repository/restful/properties/job/search</to>
   </rule>
 
   <rule>
     <name>RESTful Properties Search for all jobs</name>
     <from>^/properties/search(\?.*)?$</from>
-    <to type="forward">/repository/restful/properties/jobs/search</to>
+    <to>/repository/restful/properties/jobs/search</to>
   </rule>
 
   <rule>
     <name>Post RESTful Property for a job</name>
     <condition type="parameter" name="value"/>
     <from>^/properties/([^/]+)/([^/]+)/([^/]+)/([^/]+)/([^/]+)/(.*?)?$</from>
-    <to type="forward">/repository/restful/properties/post?pipelineName=$1&amp;pipelineCounter=$2&amp;stageName=$3&amp;stageCounter=$4&amp;jobName=$5&amp;property=$6</to>
+    <to>/repository/restful/properties/post?pipelineName=$1&amp;pipelineCounter=$2&amp;stageName=$3&amp;stageCounter=$4&amp;jobName=$5&amp;property=$6</to>
   </rule>
 
   <rule>
     <name>RESTful Property for a job</name>
     <from>^/properties/([^/]+)/([^/]+)/([^/]+)/([^/]+)/([^/]+)/(.*?)?$</from>
-    <to type="forward">/repository/restful/properties/job/search?pipelineName=$1&amp;pipelineCounter=$2&amp;stageName=$3&amp;stageCounter=$4&amp;jobName=$5&amp;property=$6</to>
+    <to>/repository/restful/properties/job/search?pipelineName=$1&amp;pipelineCounter=$2&amp;stageName=$3&amp;stageCounter=$4&amp;jobName=$5&amp;property=$6</to>
   </rule>
 
   <rule>
     <name>RESTful Properties for a job</name>
     <from>^/properties/([^/]+)/([^/]+)/([^/]+)/([^/]+)/(.*?)?$</from>
-    <to type="forward">/repository/restful/properties/job/search?pipelineName=$1&amp;pipelineCounter=$2&amp;stageName=$3&amp;stageCounter=$4&amp;jobName=$5</to>
+    <to>/repository/restful/properties/job/search?pipelineName=$1&amp;pipelineCounter=$2&amp;stageName=$3&amp;stageCounter=$4&amp;jobName=$5</to>
   </rule>
 
   <rule>
     <name>Cruise Configuration Administration RESTful url - File</name>
     <from>^/api/admin/config.xml$</from>
-    <to type="forward" last="true">/admin/restful/configuration/file/%{attribute:_method}/xml?version=current</to>
+    <to last="true">/admin/restful/configuration/file/%{attribute:_method}/xml?version=current</to>
   </rule>
 
   <rule>
     <name>Cruise Configuration Administration RESTful url - File</name>
     <from>^/api/admin/config/([^/]+)\.xml$</from>
-    <to type="forward" last="true">/admin/restful/configuration/file/%{attribute:_method}/historical-xml?version=$1</to>
+    <to last="true">/admin/restful/configuration/file/%{attribute:_method}/historical-xml?version=$1</to>
   </rule>
 
   <rule>
     <name>Cruise Configuration Administration RESTful url - File</name>
     <from>^/admin/configuration/file\.xml(\?.*)?$</from>
-    <to type="forward">/admin/restful/configuration/file/%{attribute:_method}/%{attribute:_type}</to>
+    <to>/admin/restful/configuration/file/%{attribute:_method}/%{attribute:_type}</to>
   </rule>
 
   <rule>
     <name>Specific Build Detail</name>
     <from>/tab/build/detail/([^/]+)/([^/]+)/([^/]+)/([^/]+)/([^/]+)</from>
-    <to type="forward">/tab/build/recent?pipelineName=$1&amp;pipelineCounter=$2&amp;stageName=$3&amp;stageCounter=$4&amp;jobName=$5</to>
+    <to>/tab/build/recent?pipelineName=$1&amp;pipelineCounter=$2&amp;stageName=$3&amp;stageCounter=$4&amp;jobName=$5</to>
   </rule>
 
   <rule>
     <name>Pipeline history</name>
     <from>/tab/pipeline/history/([^/]+)</from>
-    <to type="forward">/tab/pipeline/history?pipelineName=$1</to>
+    <to>/tab/pipeline/history?pipelineName=$1</to>
   </rule>
 
   <rule>
     <name>Stage detail beta</name>
     <from>/pipelines/([^/]+)/([^/]+)/([^/]+)/([^/]+)</from>
-    <to type="forward">/pipelines/history?pipelineName=$1&amp;label=$2&amp;stageName=$3&amp;counter=$4</to>
+    <to>/pipelines/history?pipelineName=$1&amp;label=$2&amp;stageName=$3&amp;counter=$4</to>
   </rule>
 </urlrewrite>
 

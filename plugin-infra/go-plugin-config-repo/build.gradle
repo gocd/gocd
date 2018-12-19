@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-description = 'GoCD model Contract for (de)Serializing GoCD data structures'
+description = 'GoCD Model Contract for (de)Serializing GoCD data structures'
 
 dependencies {
   compile project(':domain')

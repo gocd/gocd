@@ -57,20 +57,19 @@ export class DrainModeWidget extends MithrilViewComponent<Attrs> {
           safe to restart it or upgrade it without having running jobs reschedule when it is back.
         </p>
 
-        <div>
-          <div data-test-id="drain-mode-updated-by-info" class={styles.updatedBy}>
+        <div class={styles.drainModeInfo}>
+          <span data-test-id="drain-mode-updated-by-info" class={styles.updatedBy}>
             {drainModeInfo.metdata.updatedBy} changed the drain mode state on {drainModeInfo.metdata.updatedOn}.
-          </div>
-
+          </span>
           <span class={styles.switchWrapper} data-test-id="switch-wrapper">
-            <div class={styles.drainModeLabel}>Enable Drain Mode</div>
+            <span class={styles.drainModeLabel}>Enable Drain Mode:</span>
             <SwitchBtn inProgress={drainModeInfo.drainModeState() && !drainModeInfo.isCompletelyDrained}
                        field={drainModeInfo.drainModeState}
                        onclick={vnode.attrs.toggleDrainMode}/>
             <div class={styles.drainModeStateMessage}>{drainModeStateMessage}</div>
           </span>
-          <DisabledSubsystemsWidget drainModeInfo={drainModeInfo}/>
         </div>
+        <DisabledSubsystemsWidget drainModeInfo={drainModeInfo}/>
         {mayBeDrainInfo}
       </div>
     );

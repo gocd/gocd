@@ -29,6 +29,16 @@
   margin-bottom: 15px;
 }
 
+.drain-mode-info {
+  display:       block;
+  padding:       10px 20px;
+  border:        1px solid $border-color;
+  border-radius: $global-border-radius;
+  @media (min-width: $screen-md) {
+    width: 50%;
+  }
+}
+
 .running-system {
   display:       flex;
   font-size:     16px;
@@ -42,11 +52,14 @@
 }
 
 .updated-by {
-  font-size:     13px;
-  display:       inline-block;
-  border-radius: 5px 5px 0 0;
-  font-style:    italic;
-  color:         $footer-fg;
+  font-size:      13px;
+  border-radius:  5px 5px 0 0;
+  font-style:     italic;
+  color:          $footer-fg;
+  display:        block;
+  border-bottom:  1px solid $border-color;
+  padding-bottom: 5px;
+  margin-bottom:  10px;
 }
 
 .switch-wrapper {
@@ -59,13 +72,14 @@
   font-size:    20px;
   font-weight:  600;
   margin-right: 13px;
+  display:      inline-block;
 }
 
 .drain-mode-state-message {
   font-size:   14px;
   font-weight: 600;
   margin-left: 10px;
-  color:       $subnav-link-color;
+  color:       lighten($text-color, 40%);
 }
 
 .in-progress-subsystems {

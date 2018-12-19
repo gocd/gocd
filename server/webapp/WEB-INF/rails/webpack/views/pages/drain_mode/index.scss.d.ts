@@ -2,6 +2,7 @@
 // Please do not change this file!
 export const drainModeWidget: string;
 export const drainModeDescription: string;
+export const drainModeInfo: string;
 export const runningSystem: string;
 export const runningSystemText: string;
 export const updatedBy: string;

@@ -21,6 +21,7 @@ import * as m from "mithril";
 import * as uuid from "uuid/v4";
 import * as Buttons from "views/components/buttons";
 import {EncryptedValue} from "views/components/forms/encrypted_value";
+import {SwitchBtn} from "views/components/switch";
 import * as styles from "./forms.scss";
 
 const classnames = bind(styles);
@@ -239,19 +240,11 @@ export class CheckboxField extends FormField<boolean> {
 
 export class Switch extends CheckboxField {
   renderInputField(vnode: m.Vnode<FormFieldAttrs<boolean>>): m.Children {
-    const checkboxField = super.renderInputField(vnode);
-
-    return (
-      <div className={classnames({[styles.switchSmall]: vnode.attrs.small}, styles.switchBtn)}
-           data-test-id="switch-wrapper">
-        {checkboxField}
-        <label for={this.id} className={styles.switchPaddle} data-test-id="switch-paddle"/>
-      </div>
-    );
+    return <SwitchBtn small={vnode.attrs.small} field={vnode.attrs.property}/>;
   }
 
   protected className(vnode: m.Vnode<FormFieldAttrs<boolean>>): string {
-    return classnames(this.defaultAttributes(vnode).className, styles.formControl, styles.switchInput);
+    return classnames(this.defaultAttributes(vnode).className, styles.formControl);
   }
 }
 

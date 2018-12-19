@@ -22,8 +22,7 @@ public enum ApiVersion {
     v3(),
     v4(),
     v5(),
-    v6(),
-    v7();
+    v6();
 
     private final String mimeType;
 

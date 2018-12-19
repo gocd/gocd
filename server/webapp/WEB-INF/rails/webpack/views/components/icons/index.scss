@@ -88,6 +88,16 @@ $btn-group-border-radius: $global-border-radius;
 
 .spinner {
   @include icon-before($type: $fa-var-spinner);
+  animation: spin 1500ms linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .refresh {

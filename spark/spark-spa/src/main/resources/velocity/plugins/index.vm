@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *#
-<div id="plugins" is-user-an-admin="${isUserAnAdmin}">
+
+<div id="plugins">
   <span class="page-spinner"></span>
 </div>

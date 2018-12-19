@@ -54,7 +54,7 @@ export class DrainModePage extends Page<null, State> {
 
     vnode.state.toggleDrainMode = (e: Event) => {
       e.stopPropagation();
-      const updateOperation = vnode.state.drainModeInfo.drainModeState() ? DrainModeAPIs.enable : DrainModeAPIs.disable;
+      const updateOperation = vnode.state.drainModeInfo.drainModeState() ? DrainModeAPIs.disable : DrainModeAPIs.enable;
       updateOperation().then(() => this.fetchData(vnode)).finally(m.redraw);
     };
 

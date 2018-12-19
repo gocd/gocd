@@ -49,6 +49,24 @@
   color:         $footer-fg;
 }
 
+.switch-wrapper {
+  display:     flex;
+  align-items: center;
+}
+
+.drain-mode-label {
+  font-size:    20px;
+  font-weight:  600;
+  margin-right: 13px;
+}
+
+.drain-mode-state-message {
+  font-size:   14px;
+  font-weight: 600;
+  margin-left: 10px;
+  color:       $subnav-link-color;
+}
+
 .in-progress-subsystems {
   margin: 10px 0;
 }

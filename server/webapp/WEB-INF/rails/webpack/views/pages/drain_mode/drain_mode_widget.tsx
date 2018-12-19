@@ -14,17 +14,15 @@
  * limitations under the License.
  */
 
-import {bind} from "classnames/bind";
 import {MithrilViewComponent} from "jsx/mithril-component";
 import * as m from "mithril";
 import {DrainModeInfo, StageLocator} from "models/drain_mode/types";
-import {Switch} from "views/components/forms/input_fields";
+import {SwitchBtn} from "views/components/switch";
 import {DisabledSubsystemsWidget} from "views/pages/drain_mode/disabled_susbsystems_widget";
 import {JobInfoWidget} from "views/pages/drain_mode/running_jobs_widget.tsx";
 import {MDUInfoWidget} from "views/pages/drain_mode/running_mdus_widget";
 import * as styles from "./index.scss";
 
-const classnames = bind(styles);
 
 interface Attrs {
   drainModeInfo: DrainModeInfo;
@@ -52,13 +50,17 @@ export class DrainModeWidget extends MithrilViewComponent<Attrs> {
           safe to restart it or upgrade it without having running jobs reschedule when it is back.
         </p>
 
-        <div className={classnames(styles.drainModeInfo)}>
+        <div>
           <div data-test-id="drain-mode-updated-by-info" class={styles.updatedBy}>
             {drainModeInfo.metdata.updatedBy} changed the drain mode state on {drainModeInfo.metdata.updatedOn}.
           </div>
-          <Switch label={"Enable Drain Mode"}
-                  onchange={vnode.attrs.toggleDrainMode}
-                  property={drainModeInfo.drainModeState}/>
+
+          <span class={styles.switchWrapper} data-test-id="switch-wrapper">
+            <div class={styles.drainModeLabel}>Enable Drain Mode</div>
+            <SwitchBtn field={drainModeInfo.drainModeState}
+                        onclick={vnode.attrs.toggleDrainMode}/>
+            <div class={styles.drainModeStateMessage}> foobar </div>
+          </span>
           <DisabledSubsystemsWidget drainModeInfo={drainModeInfo}/>
         </div>
         {mayBeDrainInfo}

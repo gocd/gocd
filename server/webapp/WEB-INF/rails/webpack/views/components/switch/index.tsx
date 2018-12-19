@@ -15,6 +15,7 @@
  */
 
 import * as m from "mithril";
+import {Stream} from "mithril/stream";
 import {MithrilComponent} from "jsx/mithril-component";
 
 import {bind} from "classnames/bind";
@@ -27,7 +28,8 @@ export interface Attrs {
   small?: boolean;
   disabled?: boolean;
   label?: string;
-  field: (newValue?: any) => any
+  onclick?: (e: MouseEvent) => any;
+  field: (newValue?: any) => any | Stream<boolean>
 }
 
 export interface State {
@@ -37,6 +39,10 @@ export interface State {
 export class SwitchBtn extends MithrilComponent<Attrs, State> {
   oninit(vnode: m.Vnode<Attrs, State>) {
     vnode.state.onclick = (e: MouseEvent) => {
+      if (vnode.attrs.onclick) {
+        vnode.attrs.onclick(e);
+      }
+
       const target = e.target as HTMLInputElement;
       vnode.attrs.field(target.checked);
     };

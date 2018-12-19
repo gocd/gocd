@@ -32,7 +32,6 @@ import {KeyValuePair} from "views/components/key_value_pair";
 import {Size} from "views/components/modal";
 import {SampleModal} from "views/components/modal/sample";
 import {SearchBox} from "views/components/search_box";
-import {SwitchBtn} from "views/components/switch";
 import {Table} from "views/components/table";
 
 const formValue     = stream("initial value");

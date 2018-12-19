@@ -25,6 +25,8 @@ import {HeaderPanel} from "views/components/header_panel";
 import {DrainModeWidget} from "views/pages/drain_mode/drain_mode_widget";
 import {Page} from "views/pages/page";
 
+const CLEAR_MESSAGE_AFTER_INTERVAL_IN_SECONDS = 10;
+
 interface SaveOperation<T> {
   onSave: (obj: T, e: Event) => void;
   onSuccessfulSave: (successResponse: SuccessResponse<T>) => void;
@@ -40,11 +42,15 @@ interface State extends SaveOperation<DrainModeInfo> {
 
 export class Message {
   type: MessageType;
-  message: string;
+  message: string | null;
 
   constructor(type: MessageType, message: string) {
     this.type    = type;
     this.message = message;
+    setTimeout(() => {
+      this.message = null;
+      m.redraw();
+    }, CLEAR_MESSAGE_AFTER_INTERVAL_IN_SECONDS * 1000);
   }
 }
 
@@ -64,7 +70,8 @@ export class DrainModePage extends Page<null, State> {
                              undefined,
                              {headers: {Confirm: "true"}})
                        .then(() => {
-                         vnode.state.message = new Message(MessageType.success, `Stage ${stageLocator.stageName} successfully cancelled.`);
+                         vnode.state.message = new Message(MessageType.success,
+                                                           `Stage ${stageLocator.stageName} successfully cancelled.`);
                          this.fetchData(vnode);
                        }, vnode.state.onError);
     };
@@ -77,7 +84,7 @@ export class DrainModePage extends Page<null, State> {
   }
 
   componentToDisplay(vnode: m.Vnode<null, State>): JSX.Element | undefined {
-    const mayBeMessage = vnode.state.message ?
+    const mayBeMessage = (vnode.state.message && vnode.state.message.message !== null) ?
       <FlashMessage type={vnode.state.message.type} message={vnode.state.message.message}/> : null;
     return (
       <div>

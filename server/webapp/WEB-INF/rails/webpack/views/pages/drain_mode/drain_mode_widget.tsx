@@ -23,7 +23,6 @@ import {JobInfoWidget} from "views/pages/drain_mode/running_jobs_widget.tsx";
 import {MDUInfoWidget} from "views/pages/drain_mode/running_mdus_widget";
 import * as styles from "./index.scss";
 
-
 interface Attrs {
   drainModeInfo: DrainModeInfo;
   toggleDrainMode: (e: Event) => void;

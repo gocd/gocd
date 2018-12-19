@@ -15,11 +15,11 @@
  */
 
 import * as m from "mithril";
-import * as styles from "./index.scss";
 import * as Icons from "views/components/icons";
+import * as styles from "./index.scss";
 
-import {DrainModeInfo} from "models/drain_mode/types";
 import {MithrilViewComponent} from "jsx/mithril-component";
+import {DrainModeInfo} from "models/drain_mode/types";
 
 interface Attrs {
   drainModeInfo: DrainModeInfo;

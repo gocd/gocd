@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import {SwitchBtn} from "../index";
 import * as stream from "mithril/stream";
+import {SwitchBtn} from "../index";
 import * as styles from "../index.scss";
 
 describe("SwitchBtn component", () => {

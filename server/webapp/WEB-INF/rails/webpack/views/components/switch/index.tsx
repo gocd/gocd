@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
+import {MithrilComponent} from "jsx/mithril-component";
 import * as m from "mithril";
 import {Stream} from "mithril/stream";
-import {MithrilComponent} from "jsx/mithril-component";
 
 import {bind} from "classnames/bind";
 import * as styles from "./index.scss";
@@ -30,7 +30,7 @@ export interface Attrs {
   disabled?: boolean;
   label?: string;
   onclick?: (e: MouseEvent) => any;
-  field: (newValue?: any) => any | Stream<boolean>
+  field: (newValue?: any) => any | Stream<boolean>;
 }
 
 export interface State {

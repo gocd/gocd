@@ -19,7 +19,7 @@
 require('babel-polyfill');
 
 function importAll(r) {
-  r.keys().forEach(r);
+  r.keys().filter((filename) => !filename.includes('pipeline_configs')).forEach(r);
 }
 
 // ensure that helpers are loaded before anything else

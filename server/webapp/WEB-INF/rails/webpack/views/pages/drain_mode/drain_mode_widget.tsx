@@ -43,6 +43,13 @@ export class DrainModeWidget extends MithrilViewComponent<Attrs> {
       );
     }
 
+    let drainModeStateMessage = "";
+    if (drainModeInfo.drainModeState()) {
+      drainModeStateMessage = drainModeInfo.isCompletelyDrained
+        ? "GoCD Server is completely drained."
+        : "Some subsystems of GoCD are still in progress.";
+    }
+
     return (
       <div className={styles.drainModeWidget} data-test-id="drain-mode-widget">
         <p data-test-id="drain-mode-description" className={styles.drainModeDescription}>
@@ -58,8 +65,8 @@ export class DrainModeWidget extends MithrilViewComponent<Attrs> {
           <span class={styles.switchWrapper} data-test-id="switch-wrapper">
             <div class={styles.drainModeLabel}>Enable Drain Mode</div>
             <SwitchBtn field={drainModeInfo.drainModeState}
-                        onclick={vnode.attrs.toggleDrainMode}/>
-            <div class={styles.drainModeStateMessage}> foobar </div>
+                       onclick={vnode.attrs.toggleDrainMode}/>
+            <div class={styles.drainModeStateMessage}>{drainModeStateMessage}</div>
           </span>
           <DisabledSubsystemsWidget drainModeInfo={drainModeInfo}/>
         </div>

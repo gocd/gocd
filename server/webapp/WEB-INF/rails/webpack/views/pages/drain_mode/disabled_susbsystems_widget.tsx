@@ -15,13 +15,11 @@
  */
 
 import * as m from "mithril";
-
-import {MithrilViewComponent} from "jsx/mithril-component";
-import {DrainModeInfo} from "models/drain_mode/types";
-import {FlashMessage, MessageType} from "views/components/flash_message";
+import * as styles from "./index.scss";
 import * as Icons from "views/components/icons";
 
-import * as styles from "./index.scss";
+import {DrainModeInfo} from "models/drain_mode/types";
+import {MithrilViewComponent} from "jsx/mithril-component";
 
 interface Attrs {
   drainModeInfo: DrainModeInfo;
@@ -84,12 +82,6 @@ class SubsystemInfoWithIconWidget extends MithrilViewComponent<RunningSystemAttr
 
 class InformationWhenInDrainMode extends MithrilViewComponent<Attrs> {
   view(vnode: m.Vnode<Attrs>) {
-    const isCompletelyDrained = vnode.attrs.drainModeInfo.isCompletelyDrained;
-
-    const message = isCompletelyDrained
-      ? <FlashMessage type={MessageType.info} message={"GoCD Server is completely drained."}/>
-      : <FlashMessage type={MessageType.warning} message={"Some subsystems of GoCD are still in progress."}/>;
-
     const mduRunningSystem = vnode.attrs.drainModeInfo.runningSystem.mdu.count() === 0
       ? <SubsystemInfoWithIconWidget inProgress={false} dataTestId={"mdu-stopped"}
                                      text={"Stopped material subsystem."}/>
@@ -103,7 +95,6 @@ class InformationWhenInDrainMode extends MithrilViewComponent<Attrs> {
                                      text={"Waiting for building jobs to finish.."}/>;
 
     return <div data-test-id="info-when-not-in-drain-mode">
-      {message}
       <ul class={styles.runningSubSystem} data-test-id="running-sub-systems">
         {mduRunningSystem}
         <SubsystemInfoWithIconWidget inProgress={false} dataTestId={"config-repo-polling-stopped"}

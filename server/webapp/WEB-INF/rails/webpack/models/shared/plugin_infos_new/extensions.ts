@@ -169,7 +169,7 @@ export class ElasticAgentSettings extends Extension {
   }
 }
 
-class AuthorizationSettings extends Extension {
+export class AuthorizationSettings extends Extension {
   readonly authConfigSettings: PluginSettings;
   readonly roleSettings: PluginSettings;
   readonly capabilities: AuthCapabilities;

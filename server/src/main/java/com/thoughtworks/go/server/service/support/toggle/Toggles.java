@@ -24,6 +24,7 @@ public class Toggles {
     public static String AGENT_APIS_OVER_RAILS = "agent_apis_over_rails";
     public static String SERVER_DRAIN_MODE_API_TOGGLE_KEY = "server_drain_mode_api_toggle_key";
     public static String USE_OLD_ELASTIC_PROFILE_SPA = "use_old_elastic_profile_spa";
+    public static String USE_NEW_AUTH_CONFIG_SPA = "use_new_auth_config_spa";
 
     private static FeatureToggleService service;
 

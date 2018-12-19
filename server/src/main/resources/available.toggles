@@ -40,6 +40,11 @@
         "key": "use_old_elastic_profile_spa",
         "description": "Switch elastic profile spa to use old spa.",
         "value": false
+      },
+      {
+        "key": "use_new_auth_config_spa",
+        "description": "Switch authorization configuration spa to use new spa.",
+        "value": false
       }
   ]
 }

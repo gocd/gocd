@@ -22,6 +22,7 @@ import {DrainModeAPIs} from "models/drain_mode/drain_mode_apis";
 import {DrainModeInfo, StageLocator} from "models/drain_mode/types";
 import {FlashMessage, MessageType} from "views/components/flash_message";
 import {HeaderPanel} from "views/components/header_panel";
+import {ToggleConfirmModal} from "views/pages/drain_mode/confirm_modal";
 import {DrainModeWidget} from "views/pages/drain_mode/drain_mode_widget";
 import {Page} from "views/pages/page";
 
@@ -60,8 +61,16 @@ export class DrainModePage extends Page<null, State> {
 
     vnode.state.toggleDrainMode = (e: Event) => {
       e.stopPropagation();
-      const updateOperation = vnode.state.drainModeInfo.drainModeState() ? DrainModeAPIs.disable : DrainModeAPIs.enable;
-      updateOperation().then(() => this.fetchData(vnode)).finally(m.redraw);
+
+      const enableOrDisableText = vnode.state.drainModeInfo.drainModeState() ? "Disable" : "Enable";
+      const message             = <span>Are you sure you want to <strong>{enableOrDisableText}</strong> GoCD Server drain mode?</span>;
+
+      const modal = new ToggleConfirmModal(message, () => {
+        const updateOperation = vnode.state.drainModeInfo.drainModeState() ? DrainModeAPIs.disable : DrainModeAPIs.enable;
+        updateOperation().then(() => this.fetchData(vnode)).then(modal.close.bind(modal)).finally(m.redraw);
+      });
+
+      modal.render();
     };
 
     vnode.state.onCancelStage = (stageLocator: StageLocator, e: Event) => {

@@ -89,7 +89,7 @@
           url: el.getAttribute("href") + "&pluginId=" + encodeURIComponent($(ev.currentTarget).data("plugin-id")),
           responseType: "blob",
           headers: {
-            Accept: "application/vnd.go.cd.v7+json"
+            Accept: "application/vnd.go.cd.v1+json"
           },
           beforeSend: function() {
             Flash.clear();

@@ -130,6 +130,8 @@ api/api-data-sharing-settings-v1/target/
 api/api-data-sharing-usage-data-v3/logs/
 api/api-data-sharing-usage-data-v3/out/
 api/api-data-sharing-usage-data-v3/target/
+api/api-export-v1/config/
+api/api-export-v1/out/
 api/api-server-drain-mode-v1/logs/
 api/api-server-drain-mode-v1/out/
 api/api-server-drain-mode-v1/target/
@@ -148,8 +150,6 @@ api/api-pipeline-config-v6/config/
 api/api-pipeline-config-v6/logs/
 api/api-pipeline-config-v6/out/
 api/api-pipeline-config-v6/target/
-api/api-pipeline-config-v7/config/
-api/api-pipeline-config-v7/out/
 api/api-pipeline-groups-v1/config/
 api/api-pipeline-groups-v1/logs/
 api/api-pipeline-groups-v1/out/
@@ -184,8 +184,6 @@ api/api-shared-v6/config/
 api/api-shared-v6/logs/
 api/api-shared-v6/out/
 api/api-shared-v6/target/
-api/api-shared-v7/config/
-api/api-shared-v7/out/
 api/api-template-config-v4/out/
 api/api-template-config-v4/target/
 api/api-user-representers-v1/logs/

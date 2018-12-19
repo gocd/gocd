@@ -84,7 +84,7 @@
                             </li>
                         <%- end -%>
                         <li>
-                          <%= link_to("#{spark_url_for({request: request}, SparkRoutes::PipelineConfig.export(pipeline.name().toString()))}?groupName=#{group.getGroup()}", :class => "export_icon action_icon export_pipeline_config") do -%>
+                          <%= link_to("#{spark_url_for({request: request}, SparkRoutes::Export.pipeline(pipeline.name().toString()))}?groupName=#{group.getGroup()}", :class => "export_icon action_icon export_pipeline_config") do -%>
                             Export using
                             <span class="for_down_arrow">&nbsp;</span>
                           <% end -%>

@@ -98,9 +98,9 @@
   </rule>
 
   <rule>
-    <name>Spark Pipeline Config Export API</name>
-    <from>^/api/admin/pipelines/([^/]+)/export(?:/?)$</from>
-    <to last="true">/spark/api/admin/pipelines/${escape:$1}/export</to>
+    <name>Spark Config Export API</name>
+    <from>^/api/admin/export/(pipelines)/([^/]+)(?:/?)$</from>
+    <to last="true">/spark/api/admin/export/${escape:$1}/${escape:$2}</to>
   </rule>
 
   <rule>

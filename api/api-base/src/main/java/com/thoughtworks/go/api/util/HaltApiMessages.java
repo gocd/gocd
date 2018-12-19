@@ -32,11 +32,11 @@ public abstract class HaltApiMessages {
     }
 
     public static String entityAlreadyExistsMessage(String entityType, Object existingName) {
-        return String.format("Failed to add %s '%s'. Another %s with the same name already exists.", entityType, existingName, entityType);
+        return format("Failed to add %s '%s'. Another %s with the same name already exists.", entityType, existingName, entityType);
     }
 
     public static String renameOfEntityIsNotSupportedMessage(String entityType) {
-        return String.format("Renaming of %s is not supported by this API.", entityType);
+        return format("Renaming of %s is not supported by this API.", entityType);
     }
 
     public static String etagDoesNotMatch(String entityType, CaseInsensitiveString name) {
@@ -44,7 +44,7 @@ public abstract class HaltApiMessages {
     }
 
     public static String etagDoesNotMatch(String entityType, String name) {
-        return String.format("Someone has modified the configuration for %s '%s'. Please update your copy of the config with the changes and try again.", entityType, name);
+        return format("Someone has modified the configuration for %s '%s'. Please update your copy of the config with the changes and try again.", entityType, name);
     }
 
     public static String rateLimitExceeded() {
@@ -68,23 +68,23 @@ public abstract class HaltApiMessages {
     }
 
     public static String propertyIsNotAJsonString(String property, JsonObject jsonObject) {
-        return String.format("Could not read property '%s' as a String in json `%s` ", property, jsonObject);
+        return format("Could not read property '%s' as a String in json `%s` ", property, jsonObject);
     }
 
     public static String propertyIsNotAJsonObject(String property, JsonObject jsonObject) {
-        return String.format("Could not read property '%s' as a JsonObject in json `%s`", property, jsonObject);
+        return format("Could not read property '%s' as a JsonObject in json `%s`", property, jsonObject);
     }
 
     public static String propertyIsNotAJsonStringArray(String property, JsonObject jsonObject) {
-        return String.format("Could not read property '%s' as a JsonArray containing string in `%s`", property, jsonObject);
+        return format("Could not read property '%s' as a JsonArray containing string in `%s`", property, jsonObject);
     }
 
     public static String propertyIsNotAJsonArray(String property, JsonObject jsonObject) {
-        return String.format("Could not read property '%s' as a JsonArray in json `%s`", property, jsonObject);
+        return format("Could not read property '%s' as a JsonArray in json `%s`", property, jsonObject);
     }
 
     public static String propertyIsNotAJsonBoolean(String property, JsonObject jsonObject) {
-        return String.format("Could not read property '%s' as a Boolean in json `%s` ", property, jsonObject);
+        return format("Could not read property '%s' as a Boolean in json `%s` ", property, jsonObject);
     }
 
     public static String missingJsonProperty(String property, JsonObject jsonObject) {

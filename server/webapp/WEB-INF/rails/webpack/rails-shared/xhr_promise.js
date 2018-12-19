@@ -22,6 +22,20 @@
 
   /* eslint-disable no-var,prefer-template,object-shorthand,prefer-arrow-callback */
 
+  if ("function" !== typeof Promise) {
+    function NotSupported() { // eslint-disable-line no-inner-declarations
+      throw new Error("Native Promises are not supported in this browser.");
+    }
+
+    if ("undefined" !== typeof module) {
+      module.exports = NotSupported;
+    } else {
+      window.XhrPromise = NotSupported;
+    }
+
+    return;
+  }
+
   if ("function" !== Promise.prototype.finally) {
     // OK, this is a cheap polyfill that is *mostly* conforming, but there
     // are some differences from the native `finally()`. See here:

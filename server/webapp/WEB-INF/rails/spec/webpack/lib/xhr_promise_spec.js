@@ -17,6 +17,10 @@
 const XhrPromise = require("rails-shared/xhr_promise");
 
 describe("XhrPromise", () => {
+  if ("function" !== typeof Promise) {
+    return pending(); // eslint-disable-line no-undef
+  }
+
   it("returns a promise that fires success and complete handlers", (done) => {
     jasmine.Ajax.withMock(() => {
       jasmine.Ajax.stubRequest("http://success.url/here", undefined, "GET").andReturn({

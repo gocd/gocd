@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.apiv1.elasticprofile.representers
+package com.thoughtworks.go.apiv1.elasticprofileoperation.representers
 
 import com.thoughtworks.go.domain.ElasticProfileUsage
 import org.junit.jupiter.api.Test

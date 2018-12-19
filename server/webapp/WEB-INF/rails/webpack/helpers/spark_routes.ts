@@ -123,7 +123,7 @@ export default class {
   }
 
   static elasticProfileUsagePath(profileId: string): string {
-    return `/go/api/elastic/profiles/${profileId}/usages`;
+    return `/go/api/internal/elastic/profiles/${profileId}/usages`;
   }
 
   static agentsPath(uuid?: string): string {

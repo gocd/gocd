@@ -58,6 +58,12 @@
   </rule>
 
   <rule>
+    <name>Spark Elastic Profiles Usage API</name>
+    <from>^/api/internal/elastic/profiles/(.*)/usages$</from>
+    <to last="true">/spark/api/internal/elastic/profiles/${escape:$1}/usages</to>
+  </rule>
+
+  <rule>
     <name>Spark Artifact Store Index API</name>
     <from>^/api/admin/artifact_stores(/?)$</from>
     <to last="true">/spark/api/admin/artifact_stores</to>

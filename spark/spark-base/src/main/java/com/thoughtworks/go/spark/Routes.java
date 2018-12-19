@@ -17,8 +17,6 @@
 package com.thoughtworks.go.spark;
 
 import com.google.common.net.UrlEscapers;
-import com.thoughtworks.go.api.base.OutputLinkWriter;
-import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.text.StrSubstitutor;
 
 import static com.google.common.collect.ImmutableMap.of;
@@ -303,6 +301,7 @@ public class Routes {
 
     public static class ElasticProfileAPI {
         public static final String BASE = "/api/elastic/profiles";
+        public static final String INTERNAL_BASE = "/api/internal/elastic/profiles";
         public static final String ID = "/:profile_id";
         public static final String DOC = "https://api.gocd.org/current/#elastic-agent-profiles";
         public static final String USAGES = "/usages";

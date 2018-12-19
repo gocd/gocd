@@ -4,4 +4,6 @@ export const switchBtn: string;
 export const switchLabel: string;
 export const switchPaddle: string;
 export const switchInput: string;
+export const isSuccess: string;
+export const inProgress: string;
 export const switchSmall: string;

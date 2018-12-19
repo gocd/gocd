@@ -64,7 +64,8 @@ export class DrainModeWidget extends MithrilViewComponent<Attrs> {
 
           <span class={styles.switchWrapper} data-test-id="switch-wrapper">
             <div class={styles.drainModeLabel}>Enable Drain Mode</div>
-            <SwitchBtn field={drainModeInfo.drainModeState}
+            <SwitchBtn inProgress={drainModeInfo.drainModeState() && !drainModeInfo.isCompletelyDrained}
+                       field={drainModeInfo.drainModeState}
                        onclick={vnode.attrs.toggleDrainMode}/>
             <div class={styles.drainModeStateMessage}>{drainModeStateMessage}</div>
           </span>

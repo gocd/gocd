@@ -25,6 +25,7 @@ const uuid4      = require("uuid/v4");
 const classnames = bind(styles);
 
 export interface Attrs {
+  inProgress?: boolean;
   small?: boolean;
   disabled?: boolean;
   label?: string;
@@ -64,7 +65,10 @@ export class SwitchBtn extends MithrilComponent<Attrs, State> {
                onclick={vnode.state.onclick.bind(this)}
                className={styles.switchInput}
                data-test-id="switch-checkbox"/>
-        <label for={switchId} className={styles.switchPaddle} data-test-id="switch-paddle"/>
+        <label for={switchId} className={classnames({
+                                                      [styles.inProgress]: vnode.attrs.field() && vnode.attrs.inProgress,
+                                                      [styles.isSuccess]: vnode.attrs.field() && !vnode.attrs.inProgress
+                                                    }, styles.switchPaddle)} data-test-id="switch-paddle"/>
       </div>);
   }
 }

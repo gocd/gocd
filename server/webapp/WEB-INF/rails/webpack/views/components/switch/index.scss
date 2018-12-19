@@ -16,6 +16,7 @@
 @import "../../global/common";
 
 $switch-on-color: #40b76b;
+$switch-on-in-progress-color: $building;
 $switch-off-color: #cacaca;
 $switch-large-paddle-size: 1.5rem;
 $switch-large-space-between: 0.25rem;
@@ -78,8 +79,12 @@ input:checked ~ .switch-paddle:after {
   display: none;
 }
 
-input:checked ~ .switch-paddle {
+.is-success {
   background: $switch-on-color;
+}
+
+.in-progress {
+  background: $switch-on-in-progress-color;
 }
 
 .switch-small {

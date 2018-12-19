@@ -59,6 +59,7 @@ export class DrainModePage extends Page<null, State> {
     };
 
     vnode.state.onCancelStage = (stageLocator: StageLocator, e: Event) => {
+      e.stopPropagation();
       ApiRequestBuilder.POST(SparkRoutes.cancelStage(stageLocator.pipelineName, stageLocator.stageName),
                              undefined,
                              {headers: {Confirm: "true"}})

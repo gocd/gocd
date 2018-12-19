@@ -16,7 +16,6 @@
 
 package com.thoughtworks.go.util;
 
-import com.rits.cloning.Cloner;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.exceptions.NoSuchEnvironmentException;
 import com.thoughtworks.go.config.materials.Filter;
@@ -34,6 +33,7 @@ import com.thoughtworks.go.domain.materials.svn.SvnCommand;
 import com.thoughtworks.go.domain.packagerepository.PackageRepository;
 import com.thoughtworks.go.domain.scm.SCM;
 import com.thoughtworks.go.helper.*;
+import com.thoughtworks.go.server.service.DrainModeService;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.service.ConfigRepository;
 import org.apache.commons.io.FileUtils;
@@ -110,6 +110,7 @@ public class GoConfigFileHelper {
     public static GoConfigDao createTestingDao() {
         SystemEnvironment systemEnvironment = new SystemEnvironment();
         try {
+            DrainModeService drainModeService = new DrainModeService(new TimeProvider());
             ServerHealthService serverHealthService = new ServerHealthService();
             ConfigRepository configRepository = new ConfigRepository(systemEnvironment);
             configRepository.initialize();
@@ -120,7 +121,7 @@ public class GoConfigFileHelper {
             GoFileConfigDataSource dataSource = new GoFileConfigDataSource(new DoNotUpgrade(), configRepository, systemEnvironment, new TimeProvider(),
                     configCache, configElementImplementationRegistry, serverHealthService, cachedGoPartials, null, normalFlow);
             dataSource.upgradeIfNecessary();
-            CachedGoConfig cachedConfigService = new CachedGoConfig(serverHealthService, dataSource, cachedGoPartials, null, null);
+            CachedGoConfig cachedConfigService = new CachedGoConfig(serverHealthService, dataSource, cachedGoPartials, null, null, drainModeService);
             cachedConfigService.loadConfigIfNull();
             return new GoConfigDao(cachedConfigService);
         } catch (IOException e) {
@@ -134,6 +135,7 @@ public class GoConfigFileHelper {
     public static GoConfigDao createTestingDao(GoPartialConfig partialConfig) {
         SystemEnvironment systemEnvironment = new SystemEnvironment();
         try {
+            DrainModeService drainModeService = new DrainModeService(new TimeProvider());
             ServerHealthService serverHealthService = new ServerHealthService();
             ConfigRepository configRepository = new ConfigRepository(systemEnvironment);
             configRepository.initialize();
@@ -143,7 +145,7 @@ public class GoConfigFileHelper {
                     serverHealthService, new CachedGoPartials(serverHealthService), null, normalFlow);
             dataSource.upgradeIfNecessary();
             CachedGoPartials cachedGoPartials = new CachedGoPartials(serverHealthService);
-            CachedGoConfig cachedConfigService = new CachedGoConfig(serverHealthService, dataSource, cachedGoPartials, null, null);
+            CachedGoConfig cachedConfigService = new CachedGoConfig(serverHealthService, dataSource, cachedGoPartials, null, null, drainModeService);
             cachedConfigService.loadConfigIfNull();
             return new GoConfigDao(cachedConfigService);
         } catch (IOException e) {

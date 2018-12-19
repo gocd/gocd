@@ -23,6 +23,7 @@ import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.listener.ConfigChangedListener;
 import com.thoughtworks.go.listener.EntityConfigChangedListener;
 import com.thoughtworks.go.server.domain.Username;
+import com.thoughtworks.go.server.service.DrainModeService;
 import com.thoughtworks.go.serverhealth.HealthStateType;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.serverhealth.ServerHealthState;
@@ -48,6 +49,7 @@ public class CachedGoConfig {
     private final CachedGoPartials cachedGoPartials;
     private GoConfigMigrator goConfigMigrator;
     private SystemEnvironment systemEnvironment;
+    private DrainModeService drainModeService;
     private final ServerHealthService serverHealthService;
     private List<ConfigChangedListener> listeners = new ArrayList<>();
     private volatile CruiseConfig currentConfig;
@@ -58,12 +60,14 @@ public class CachedGoConfig {
 
     @Autowired
     public CachedGoConfig(ServerHealthService serverHealthService, GoFileConfigDataSource dataSource,
-                          CachedGoPartials cachedGoPartials, GoConfigMigrator goConfigMigrator, SystemEnvironment systemEnvironment) {
+                          CachedGoPartials cachedGoPartials, GoConfigMigrator goConfigMigrator,
+                          SystemEnvironment systemEnvironment, DrainModeService drainModeService) {
         this.serverHealthService = serverHealthService;
         this.dataSource = dataSource;
         this.cachedGoPartials = cachedGoPartials;
         this.goConfigMigrator = goConfigMigrator;
         this.systemEnvironment = systemEnvironment;
+        this.drainModeService = drainModeService;
     }
 
     public static List<ConfigErrors> validate(CruiseConfig config) {
@@ -81,6 +85,11 @@ public class CachedGoConfig {
 
     //NOTE: This method is called on a thread from Spring
     public void onTimer() {
+        if (drainModeService.isDrainMode()) {
+            LOGGER.debug("[Drain Mode] GoCD server is in 'drain' mode, skip loading cruise-config.xml");
+            return;
+        }
+
         this.forceReload();
     }
 
@@ -110,9 +119,10 @@ public class CachedGoConfig {
         loadConfigIfNull();
         return currentConfigForEdit;
     }
+
     public CruiseConfig loadMergedForEditing() {
         loadConfigIfNull();
-        if(mergedCurrentConfigForEdit == null) {
+        if (mergedCurrentConfigForEdit == null) {
             // when there are no partials, just return standard config for edit
             return currentConfigForEdit;
         }
@@ -139,7 +149,7 @@ public class CachedGoConfig {
     }
 
     public synchronized void upgradeConfig() throws Exception {
-        if(systemEnvironment.optimizeFullConfigSave()) {
+        if (systemEnvironment.optimizeFullConfigSave()) {
             GoConfigHolder goConfigHolder = goConfigMigrator.migrate();
             saveValidConfigToCacheAndNotifyConfigChangeListeners(goConfigHolder);
         } else {
@@ -164,7 +174,7 @@ public class CachedGoConfig {
         LOGGER.info("About to notify {} config listeners", saveResult.getEntityConfig().getClass().getName());
 
         for (ConfigChangedListener listener : listeners) {
-            if(listener instanceof EntityConfigChangedListener<?> && ((EntityConfigChangedListener) listener).shouldCareAbout(saveResult.getEntityConfig())){
+            if (listener instanceof EntityConfigChangedListener<?> && ((EntityConfigChangedListener) listener).shouldCareAbout(saveResult.getEntityConfig())) {
                 try {
                     long startTime = System.currentTimeMillis();
                     @SuppressWarnings("unchecked")

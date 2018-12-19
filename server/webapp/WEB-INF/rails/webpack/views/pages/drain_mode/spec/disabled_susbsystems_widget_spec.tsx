@@ -37,11 +37,6 @@ describe("Drain Mode Disabled subsystem Widget", () => {
         mount(TestData.completelyDrainedInfo());
       });
 
-      it("should show completely drained info message", () => {
-        const expectedMessage = "GoCD Server is completely drained.";
-        expect(find("flash-message-info")).toContainText(expectedMessage);
-      });
-
       it("should show mdu stopped information", () => {
         const expectedMessage = "Stopped material subsystem.";
         expect(find("mdu-stopped")).toContainText(expectedMessage);
@@ -95,11 +90,6 @@ describe("Drain Mode Disabled subsystem Widget", () => {
     describe("Not Completely Drained", () => {
       beforeEach(() => {
         mount(TestData.info(true));
-      });
-
-      it("should show drain mode in progress message", () => {
-        const expectedMessage = "Some subsystems of GoCD are still in progress.";
-        expect(find("flash-message-warning")).toContainText(expectedMessage);
       });
 
       it("should show mdu stopped information", () => {

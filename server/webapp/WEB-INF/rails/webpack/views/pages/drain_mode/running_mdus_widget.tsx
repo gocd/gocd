@@ -30,7 +30,7 @@ export class MDUInfoWidget extends MithrilViewComponent<MDUInfoAttrs> {
     let inProgressMaterials;
 
     if (!vnode.attrs.materials || vnode.attrs.materials.count() === 0) {
-      inProgressMaterials = <em>No material update is in progress.</em>;
+      inProgressMaterials = <em data-test-id="no-running-mdus">No material update is in progress.</em>;
     } else {
       inProgressMaterials = vnode.attrs.materials.allScmMaterials().map((material) => {
         const attributes = material.attributes() as ScmMaterialAttributes;
@@ -43,8 +43,7 @@ export class MDUInfoWidget extends MithrilViewComponent<MDUInfoAttrs> {
                                    ]);
 
         return (
-          <CollapsiblePanel
-            header={<KeyValuePair inline={true} data={headerMap}/>}>
+          <CollapsiblePanel header={<KeyValuePair inline={true} data={headerMap}/>}>
             <KeyValuePair data={material.attributesAsMap()}/>
           </CollapsiblePanel>
         );

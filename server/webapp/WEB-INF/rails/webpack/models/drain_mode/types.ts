@@ -80,6 +80,10 @@ export class StageLocator {
                      ["Stage Counter", this.stageCounter]
                    ]);
   }
+
+  toString() {
+    return `${this.pipelineName}/${this.pipelineCounter}/${this.stageName}/${this.stageCounter}`;
+  }
 }
 
 export class Job {

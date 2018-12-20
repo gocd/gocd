@@ -19,10 +19,10 @@ import * as m from "mithril";
 import {Job, Stage, StageLocator} from "models/drain_mode/types";
 import * as Buttons from "views/components/buttons";
 import {CollapsiblePanel} from "views/components/collapsible_panel";
+import * as Icons from "views/components/icons/index";
 import {KeyValuePair} from "views/components/key_value_pair";
 import {Table} from "views/components/table";
 import * as styles from "views/pages/drain_mode/index.scss";
-import * as Icons from "views/components/icons/index";
 
 interface JobInfoAttrs {
   stages: Stage[];
@@ -34,7 +34,7 @@ export class JobInfoWidget extends MithrilViewComponent<JobInfoAttrs> {
     const runningStages: m.Children = [];
 
     if (vnode.attrs.stages.length === 0) {
-      runningStages.push(<em>No running stages.</em>);
+      runningStages.push(<em data-test-id="no-running-stages">No running stages.</em>);
     } else {
       vnode.attrs.stages.forEach((stage: Stage) => {
         const stageLocator = stage.getStageLocator();
@@ -42,7 +42,7 @@ export class JobInfoWidget extends MithrilViewComponent<JobInfoAttrs> {
           <CollapsiblePanel header={<KeyValuePair inline={true} data={stageLocator.asMap()}/>}
                             actions={[
                               stage.isStageCancelInProgress() ? <Icons.Spinner iconOnly={true}/> : null,
-                              <Buttons.Secondary data-test-id="job-link"
+                              <Buttons.Secondary data-test-id={`cancel-stage-btn-for-${stageLocator.toString()}`}
                                                  small={true}
                                                  disabled={stage.isStageCancelInProgress()}
                                                  onclick={(e) => JobInfoWidget.onStageCancel(vnode, stage, e)}>

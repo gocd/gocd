@@ -51,6 +51,7 @@ public class KitchenSinkController implements SparkController {
         HashMap<Object, Object> object = new HashMap<Object, Object>() {{
             put("viewTitle", "Kitchen Sink");
         }};
-        return new ModelAndView(object, "kitchen_sink/index.vm");
+
+        return new ModelAndView(object, null);
     }
 }

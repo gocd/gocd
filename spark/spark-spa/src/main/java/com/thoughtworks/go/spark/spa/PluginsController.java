@@ -56,6 +56,6 @@ public class PluginsController implements SparkController {
             put("viewTitle", "Plugins");
         }};
 
-        return new ModelAndView(object, "plugins/index.vm");
+        return new ModelAndView(object, null);
     }
 }

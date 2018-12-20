@@ -55,6 +55,7 @@ public class ElasticProfilesController implements SparkController {
         HashMap<Object, Object> object = new HashMap<Object, Object>() {{
             put("viewTitle", "Elastic Agent Profiles");
         }};
-        return new ModelAndView(object, "elastic_profiles/index.vm");
+
+        return new ModelAndView(object, null);
     }
 }

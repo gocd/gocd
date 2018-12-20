@@ -54,6 +54,7 @@ public class ConfigReposController implements SparkController {
         HashMap<Object, Object> object = new HashMap<Object, Object>() {{
             put("viewTitle", "Config Repos");
         }};
-        return new ModelAndView(object, "config_repos/index.vm");
+
+        return new ModelAndView(object, null);
     }
 }

@@ -16,30 +16,40 @@
 
 import {MithrilViewComponent} from "jsx/mithril-component";
 import * as m from "mithril";
-import {Job, StageLocator} from "models/drain_mode/types";
+import {Job, Stage, StageLocator} from "models/drain_mode/types";
 import * as Buttons from "views/components/buttons";
 import {CollapsiblePanel} from "views/components/collapsible_panel";
 import {KeyValuePair} from "views/components/key_value_pair";
 import {Table} from "views/components/table";
 import * as styles from "views/pages/drain_mode/index.scss";
+import * as Icons from "views/components/icons/index";
 
 interface JobInfoAttrs {
-  jobs?: Map<string, Job[]>;
+  stages: Stage[];
   onCancelStage: (stageLocator: StageLocator, e: Event) => void;
 }
 
 export class JobInfoWidget extends MithrilViewComponent<JobInfoAttrs> {
   view(vnode: m.Vnode<JobInfoAttrs>): m.Children {
     const runningStages: m.Children = [];
-    if (!vnode.attrs.jobs || vnode.attrs.jobs.size === 0) {
+
+    if (vnode.attrs.stages.length === 0) {
       runningStages.push(<em>No running stages.</em>);
     } else {
-      vnode.attrs.jobs.forEach((jobs, key) => {
-        const stageLocator = StageLocator.fromStageLocatorString(key);
+      vnode.attrs.stages.forEach((stage: Stage) => {
+        const stageLocator = stage.getStageLocator();
         runningStages.push(
           <CollapsiblePanel header={<KeyValuePair inline={true} data={stageLocator.asMap()}/>}
-                            actions={JobInfoWidget.stageCancelButton(stageLocator, vnode)}>
-            <Table headers={["Job", "State", "Scheduled At", "Agent"]} data={JobInfoWidget.dataForTable(jobs)}/>
+                            actions={[
+                              stage.isStageCancelInProgress() ? <Icons.Spinner iconOnly={true}/> : null,
+                              <Buttons.Secondary data-test-id="job-link"
+                                                 small={true}
+                                                 disabled={stage.isStageCancelInProgress()}
+                                                 onclick={(e) => JobInfoWidget.onStageCancel(vnode, stage, e)}>
+                                {stage.isStageCancelInProgress() ? `Canceling..` : `Cancel stage`}
+                              </Buttons.Secondary>]}>
+            <Table headers={["Job", "State", "Scheduled At", "Agent"]}
+                   data={JobInfoWidget.dataForTable(stage.getJobs())}/>
           </CollapsiblePanel>
         );
       });
@@ -51,6 +61,12 @@ export class JobInfoWidget extends MithrilViewComponent<JobInfoAttrs> {
         <div>{runningStages}</div>
       </div>
     );
+  }
+
+  private static onStageCancel(vnode: m.Vnode<JobInfoAttrs>, stage: Stage, e: Event) {
+    e.stopPropagation();
+    stage.startCancelling();
+    vnode.attrs.onCancelStage(stage.getStageLocator(), e);
   }
 
   private static dataForTable(jobs: Job[]): m.Child[][] {
@@ -68,12 +84,6 @@ export class JobInfoWidget extends MithrilViewComponent<JobInfoAttrs> {
                               small={true}>Agent</Buttons.Primary>;
     }
     return <em>(Not assigned)</em>;
-  }
-
-  private static stageCancelButton(stageLocator: StageLocator, vnode: m.Vnode<JobInfoAttrs>) {
-    return (<Buttons.Secondary onclick={vnode.attrs.onCancelStage.bind(vnode.attrs, stageLocator)}
-                               data-test-id="job-link"
-                               small={true}>Cancel stage</Buttons.Secondary>);
   }
 
   private static goTo(href: string, event: Event): void {

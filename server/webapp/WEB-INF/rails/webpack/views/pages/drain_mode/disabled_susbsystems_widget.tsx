@@ -88,7 +88,7 @@ class InformationWhenInDrainMode extends MithrilViewComponent<Attrs> {
       : <SubsystemInfoWithIconWidget inProgress={true} dataTestId={"mdu-in-progress"}
                                      text={"Waiting for material subsystem to stop.."}/>;
 
-    const buildingJobsSystem = vnode.attrs.drainModeInfo.runningSystem.jobs.length === 0
+    const buildingJobsSystem = vnode.attrs.drainModeInfo.runningSystem.stages.length === 0
       ? <SubsystemInfoWithIconWidget inProgress={false} dataTestId={"scheduling-system-stopped"}
                                      text={"Stopped scheduling subsystem."}/>
       : <SubsystemInfoWithIconWidget inProgress={true} dataTestId={"scheduling-system-in-progress"}

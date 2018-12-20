@@ -126,30 +126,67 @@ export class Job {
   }
 }
 
+export class Stage {
+  private __isCancelInProgress: boolean = false;
+  private jobs: Job[];
+  private stageLocator: string;
+
+  constructor(stageLocator: string, jobs: Job[]) {
+    this.jobs         = jobs;
+    this.stageLocator = stageLocator;
+  }
+
+  getStageLocator(): StageLocator {
+    return StageLocator.fromStageLocatorString(this.stageLocator);
+  }
+
+  getStageLocatorAsString(): string {
+    return this.stageLocator;
+  }
+
+  getJobs(): Job[] {
+    return this.jobs;
+  }
+
+  startCancelling(): void {
+    this.__isCancelInProgress = true;
+  }
+
+  isStageCancelInProgress(): boolean {
+    return this.__isCancelInProgress;
+  }
+}
+
 export class RunningSystem {
-  jobs: Job[];
+  stages: Stage[];
   mdu: Materials;
 
-  constructor(jobs: Job[], mdu: Materials) {
-    this.jobs = jobs;
-    this.mdu  = mdu;
+  constructor(stages: Stage[], mdu: Materials) {
+    this.stages = stages;
+    this.mdu    = mdu;
   }
 
   static fromJSON(runningSystemJSON: RunningSystemJSON) {
-    const jobs      = runningSystemJSON.jobs ? runningSystemJSON.jobs.map(Job.fromJSON) : [];
+    const stages    = RunningSystem.groupJobsByStage(runningSystemJSON.jobs ? runningSystemJSON.jobs.map(Job.fromJSON) : []);
     const materials = runningSystemJSON.mdu ? Materials.fromJSON(runningSystemJSON.mdu) : new Materials([]);
-    return new RunningSystem(jobs, materials);
+    return new RunningSystem(stages, materials);
   }
 
-  groupJobsByStage() {
+  private static groupJobsByStage(jobs: Job[]) {
     const groupByStage = new Map();
-    this.jobs.forEach((job) => {
+    jobs.forEach((job) => {
       if (!groupByStage.has(job.stageLocatorString())) {
         groupByStage.set(job.stageLocatorString(), []);
       }
       groupByStage.get(job.stageLocatorString()).push(job);
     });
-    return groupByStage;
+
+    const stages: Stage[] = [];
+    groupByStage.forEach((jobs, stageLocator) => {
+      stages.push(new Stage(stageLocator, jobs));
+    });
+
+    return stages;
   }
 }
 

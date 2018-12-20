@@ -59,7 +59,8 @@ public class DrainModeController implements SparkController {
         HashMap<Object, Object> object = new HashMap<Object, Object>() {{
             put("viewTitle", "Server Drain Mode");
         }};
-        return new ModelAndView(object, "drain_mode/index.vm");
+
+        return new ModelAndView(object, null);
     }
 
     private void featureToggleGuard(Request req, Response res) {

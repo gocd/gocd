@@ -2442,7 +2442,10 @@ li.task_property {
     width: 100%;
 }
 
-.group_pipelines .pipeline td.name,
+.group_pipelines .pipeline td.name {
+    width: 35%;
+}
+
 #admin_templates tr.pipeline td.name {
     width: 50%;
 }

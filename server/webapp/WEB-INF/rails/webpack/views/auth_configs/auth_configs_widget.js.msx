@@ -43,8 +43,8 @@ function showErrors(ctrl, newAuthConfig, callback) {
 
 function showErrorInModal(newAuthConfig, errorMessage, callback) {
   return function (verifyConnectionResponse) {
-    if (verifyConnectionResponse.authConfig) {
-      newAuthConfig(verifyConnectionResponse.authConfig);
+    if (verifyConnectionResponse.entity) {
+      newAuthConfig(verifyConnectionResponse.entity);
     } else {
       errorMessage({});
     }

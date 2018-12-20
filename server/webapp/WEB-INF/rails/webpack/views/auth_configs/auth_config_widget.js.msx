@@ -24,7 +24,7 @@ const AuthConfigWidget = {
     this.args = vnode.attrs;
     ComponentMixins.HasViewModel.call(this);
 
-    const vmStateKey = `show-${vnode.attrs.authConfig.id()}`;
+    const vmStateKey = `show-${vnode.attrs.entity.id()}`;
 
     this.vmState(vmStateKey, Stream(false));
 
@@ -38,7 +38,7 @@ const AuthConfigWidget = {
   },
 
   view (vnode) {
-    const authConfig = vnode.attrs.authConfig;
+    const authConfig = vnode.attrs.entity;
     let image;
     let actionButtons;
 

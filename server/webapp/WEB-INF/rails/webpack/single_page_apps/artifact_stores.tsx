@@ -15,7 +15,11 @@
 */
 
 import Page from "helpers/spa_base";
+import * as  m from "mithril";
 import {ArtifactStoresPage} from "views/pages/artifact_stores";
+
+const $                    = require("jquery");
+const ArtifactStoresWidget = require("views/artifact_stores/artifact_stores_widget");
 
 export class ArtifactStoresSPA extends Page {
   constructor() {
@@ -23,5 +27,12 @@ export class ArtifactStoresSPA extends Page {
   }
 }
 
-//tslint:disable-next-line
-new ArtifactStoresSPA();
+$(() => {
+  const artifactStoresContainer = $("#artifact-stores");
+
+  if (artifactStoresContainer.get().length === 0) {
+    return new ArtifactStoresSPA();
+  }
+
+  m.mount(artifactStoresContainer.get(0), ArtifactStoresWidget);
+});

@@ -26,7 +26,7 @@ import * as Icons from "views/components/icons/index";
 
 interface JobInfoAttrs {
   stages: Stage[];
-  onCancelStage: (stageLocator: StageLocator, e: Event) => void;
+  onCancelStage: (stageLocator: StageLocator) => void;
 }
 
 export class JobInfoWidget extends MithrilViewComponent<JobInfoAttrs> {
@@ -65,7 +65,7 @@ export class JobInfoWidget extends MithrilViewComponent<JobInfoAttrs> {
   private static onStageCancel(vnode: m.Vnode<JobInfoAttrs>, stage: Stage, e: Event) {
     e.stopPropagation();
     stage.startCancelling();
-    vnode.attrs.onCancelStage(stage.getStageLocator(), e);
+    vnode.attrs.onCancelStage(stage.getStageLocator());
   }
 
   private static dataForTable(jobs: Job[]): m.Child[][] {

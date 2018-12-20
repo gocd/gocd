@@ -26,7 +26,7 @@ import * as styles from "./index.scss";
 interface Attrs {
   drainModeInfo: DrainModeInfo;
   toggleDrainMode: (e: Event) => void;
-  onCancelStage: (stageLocator: StageLocator, e: Event) => void;
+  onCancelStage: (stageLocator: StageLocator) => void;
 }
 
 export class DrainModeWidget extends MithrilViewComponent<Attrs> {
@@ -82,7 +82,7 @@ export class DrainModeWidget extends MithrilViewComponent<Attrs> {
 
 interface InfoAttrs {
   drainModeInfo: DrainModeInfo;
-  onCancelStage: (stageLocator: StageLocator, e: Event) => void;
+  onCancelStage: (stageLocator: StageLocator) => void;
 }
 
 export class DrainModeInfoWidget extends MithrilViewComponent<InfoAttrs> {

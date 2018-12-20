@@ -38,7 +38,7 @@ interface State extends SaveOperation<DrainModeInfo> {
   drainModeInfo: DrainModeInfo;
   message: Message;
   toggleDrainMode: (e: Event) => void;
-  onCancelStage: (stageLocator: StageLocator, e: Event) => void;
+  onCancelStage: (stageLocator: StageLocator) => void;
 }
 
 export class Message {
@@ -73,16 +73,15 @@ export class DrainModePage extends Page<null, State> {
       modal.render();
     };
 
-    vnode.state.onCancelStage = (stageLocator: StageLocator, e: Event) => {
-      e.stopPropagation();
-      ApiRequestBuilder.POST(SparkRoutes.cancelStage(stageLocator.pipelineName, stageLocator.stageName),
-                             undefined,
-                             {headers: {Confirm: "true"}})
-                       .then(() => {
-                         vnode.state.message = new Message(MessageType.success,
-                                                           `Stage ${stageLocator.stageName} successfully cancelled.`);
-                         this.fetchData(vnode);
-                       }, vnode.state.onError);
+    vnode.state.onCancelStage = (stageLocator: StageLocator) => {
+      return ApiRequestBuilder.POST(SparkRoutes.cancelStage(stageLocator.pipelineName, stageLocator.stageName),
+                                    undefined,
+                                    {headers: {Confirm: "true"}})
+                              .then(() => {
+                                vnode.state.message = new Message(MessageType.success,
+                                                                  `Stage ${stageLocator.stageName} successfully cancelled.`);
+                                this.fetchData(vnode);
+                              }, vnode.state.onError);
     };
 
     vnode.state.onError = (errorResponse: ErrorResponse) => {

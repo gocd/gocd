@@ -81,8 +81,12 @@ public class ExportControllerV1 extends ApiController implements SparkSpringCont
         String pluginId = requiredQueryParam(req, "pluginId");
         String groupName = requiredQueryParam(req, "groupName");
 
+        if (!crPluginService.isConfigRepoPlugin(pluginId)) {
+            throw haltBecauseOfReason("Plugin `%s` is not a config-repo plugin.", pluginId);
+        }
+
         if (!crPluginService.supportsPipelineExport(pluginId)) {
-            throw haltBecauseOfReason("Plugin `%s` does not support pipeline config export or is not a config-repo plugin.", pluginId);
+            throw haltBecauseOfReason("Plugin `%s` does not support pipeline config export.", pluginId);
         }
 
         ConfigRepoPlugin repoPlugin = crPlugin(pluginId);
@@ -110,7 +114,7 @@ public class ExportControllerV1 extends ApiController implements SparkSpringCont
         PipelineConfig pipeline = configService.pipelineConfigNamed(pipelineName);
 
         if (null == pipeline) {
-            throw new RecordNotFoundException("Cannot locate pipeline config with name: " + pipelineName);
+            throw new RecordNotFoundException(format("Cannot locate pipeline config with name: %s", pipelineName));
         }
 
         return pipeline;

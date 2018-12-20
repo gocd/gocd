@@ -95,6 +95,7 @@ class ExportControllerV1Test implements SecurityServiceTrait, ControllerTrait<Ex
         pipeline.setOrigin(new FileConfigOrigin())
 
         when(goConfigService.pipelineConfigNamed('pipeline1')).thenReturn(pipeline)
+        when(goConfigPluginService.isConfigRepoPlugin(pluginId)).thenReturn(true)
         when(goConfigPluginService.supportsPipelineExport(pluginId)).thenReturn(true)
         when(goConfigPluginService.partialConfigProviderFor(pluginId)).thenReturn(configRepoPlugin)
         when(configRepoPlugin.etagForExport(pipeline, groupName)).thenReturn(exportEtag)
@@ -155,18 +156,34 @@ class ExportControllerV1Test implements SecurityServiceTrait, ControllerTrait<Ex
       }
 
       @Test
+      void 'returns a 422 when plugin is not a configrepo plugin'() {
+        PipelineConfig pipeline = PipelineConfigMother.pipelineConfig("pipeline1")
+        pipeline.setOrigin(new FileConfigOrigin())
+
+        when(goConfigService.pipelineConfigNamed("pipeline1")).thenReturn(pipeline)
+        when(goConfigPluginService.isConfigRepoPlugin(pluginId)).thenReturn(false)
+
+        getWithApiHeader(controller.controllerPath("${pipelinePath("pipeline1")}?pluginId=${pluginId}&groupName=${groupName}"))
+
+        assertThatResponse()
+          .isUnprocessableEntity()
+          .hasJsonMessage("Plugin `$pluginId` is not a config-repo plugin.")
+      }
+
+      @Test
       void 'returns a 422 when plugin does not support export'() {
         PipelineConfig pipeline = PipelineConfigMother.pipelineConfig("pipeline1")
         pipeline.setOrigin(new FileConfigOrigin())
 
         when(goConfigService.pipelineConfigNamed("pipeline1")).thenReturn(pipeline)
+        when(goConfigPluginService.isConfigRepoPlugin(pluginId)).thenReturn(true)
         when(goConfigPluginService.supportsPipelineExport(pluginId)).thenReturn(false)
 
         getWithApiHeader(controller.controllerPath("${pipelinePath("pipeline1")}?pluginId=${pluginId}&groupName=${groupName}"))
 
         assertThatResponse()
           .isUnprocessableEntity()
-          .hasJsonMessage("Plugin `$pluginId` does not support pipeline config export or is not a config-repo plugin.")
+          .hasJsonMessage("Plugin `$pluginId` does not support pipeline config export.")
       }
 
       @Test
@@ -175,6 +192,7 @@ class ExportControllerV1Test implements SecurityServiceTrait, ControllerTrait<Ex
         pipeline.setOrigin(new FileConfigOrigin())
 
         when(goConfigService.pipelineConfigNamed("pipeline1")).thenReturn(pipeline)
+        when(goConfigPluginService.isConfigRepoPlugin(pluginId)).thenReturn(true)
         when(goConfigPluginService.supportsPipelineExport(pluginId)).thenReturn(true)
         when(goConfigPluginService.partialConfigProviderFor(pluginId)).thenReturn(configRepoPlugin)
         when(configRepoPlugin.etagForExport(pipeline, groupName)).thenReturn(exportEtag)

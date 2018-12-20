@@ -45,7 +45,7 @@
 
     this.init = function init() {
       new XhrPromise({
-        url: Routes.apiv4AdminPluginInfoIndexPath(),
+        url: Routes.apiv4AdminPluginInfoIndexPath() + "?type=configrepo",
         type: "GET",
         responseType: "json",
         headers: {
@@ -53,9 +53,7 @@
         }
       }).then(function (res) {
         plugins = _.filter(res.data._embedded.plugin_info, function(el) {
-          return "active" === el.status.state && !!_.find(el.extensions, function(ex) {
-            return "configrepo" === ex.type
-          })
+          return "active" === el.status.state;
         });
       }).catch(function (res) {
         Flash.error(res.error.message);
@@ -101,7 +99,9 @@
         }).then(function (res) {
           startClientDownload(res.data, res.xhr);
         }).catch(function (res) {
-          handleError(res.xhr.status, new FileReader().readAsText(res.error))
+          var reader = new FileReader();
+          reader.onloadend = function () { handleError(res.xhr.status, reader.result); };
+          reader.readAsText(res.xhr.response);
         }).finally(function() {
           el.classList.remove("loading");
         });

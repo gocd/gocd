@@ -55,8 +55,11 @@ public class GoConfigPluginService {
         return new ConfigRepoPlugin(configConverter, crExtension, pluginId);
     }
 
+    public boolean isConfigRepoPlugin(String pluginId) {
+        return crExtension.isConfigRepoPlugin(pluginId);
+    }
+
     public boolean supportsPipelineExport(String pluginId) {
-        return crExtension.isConfigRepoPlugin(pluginId) &&
-                crExtension.getCapabilities(pluginId).isSupportsPipelineExport();
+        return crExtension.getCapabilities(pluginId).isSupportsPipelineExport();
     }
 }

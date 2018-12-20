@@ -45,6 +45,7 @@ class Icon extends MithrilViewComponent<Attrs> {
     if (vnode.attrs.iconOnly) {
       return (
         <i title={this.title}
+           data-test-id={`${this.title}-icon`}
            data-test-disabled-element={vnode.attrs.disabled}
            className={classnames(this.name, {disabled: vnode.attrs.disabled})}
            {...vnode.attrs}/>
@@ -119,6 +120,24 @@ export class Close extends Icon {
 export class QuestionMark extends Icon {
   constructor() {
     super(styles.question, "Help");
+  }
+}
+
+export class Spinner extends Icon {
+  constructor() {
+    super(styles.spinner, "Spinner");
+  }
+}
+
+export class Check extends Icon {
+  constructor() {
+    super(styles.check, "Check");
+  }
+}
+
+export class Minus extends Icon {
+  constructor() {
+    super(styles.minus, "Minus");
   }
 }
 

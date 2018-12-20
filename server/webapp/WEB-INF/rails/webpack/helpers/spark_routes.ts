@@ -134,8 +134,12 @@ export default class {
     }
   }
 
-  static drainModeSettingsPath(): string {
-    return `/go/api/admin/drain_mode/settings`;
+  static enableDrainModePath(): string {
+    return `/go/api/admin/drain_mode/enable`;
+  }
+
+  static disableDrainModePath(): string {
+    return `/go/api/admin/drain_mode/disable`;
   }
 
   static drainModeInfoPath(): string {

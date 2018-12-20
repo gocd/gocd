@@ -15,18 +15,13 @@
  */
 
 import * as m from "mithril";
-import {DrainModeSettings} from "models/drain_mode/drain_mode_settings";
-import * as simulateEvent from "simulate-event";
 import {DrainModeWidget} from "views/pages/drain_mode/drain_mode_widget";
 import {TestData} from "views/pages/drain_mode/spec/test_data";
-import * as styles from "../index.scss";
 
-describe("Drain mode widget test", () => {
+describe("Drain Mode Widget", () => {
   let $root: any, root: any;
-  const onSave            = jasmine.createSpy("onSave");
-  const onReset           = jasmine.createSpy("onReset");
-  const onCancelStage     = jasmine.createSpy("onCancelStage");
-  const drainModeSettings = new DrainModeSettings(true, "bob", "2018-12-04T06:35:56Z");
+  const toggleDrainMode = jasmine.createSpy("onToggle");
+  const onCancelStage   = jasmine.createSpy("onCancelStage");
 
   beforeEach(() => {
     // @ts-ignore
@@ -38,12 +33,21 @@ describe("Drain mode widget test", () => {
   // @ts-ignore
   afterEach(window.destroyDomElementForTest);
 
+  it("should provide the description of the drain mode feature", () => {
+    const expectedDescription = "The drain mode is a maintenance mode which a GoCD system administrator can put GoCD into so that it is safe to restart it or upgrade it without having running jobs reschedule when it is back.";
+    expect(find("drain-mode-description")).toContainText(expectedDescription);
+  });
+
+  it("should provide the drain mode updated information", () => {
+    const expectedUpdatedByInfo = `${TestData.info().metdata.updatedBy} changed the drain mode state on ${TestData.info().metdata.updatedOn}.`;
+    expect(find("drain-mode-updated-by-info")).toContainText(expectedUpdatedByInfo);
+  });
+
+  //private
   function mount() {
     m.mount(root, {
       view() {
-        return (<DrainModeWidget settings={drainModeSettings}
-                                 onSave={onSave}
-                                 onReset={onReset}
+        return (<DrainModeWidget toggleDrainMode={toggleDrainMode}
                                  onCancelStage={onCancelStage}
                                  drainModeInfo={TestData.info()}/>);
       }
@@ -60,26 +64,4 @@ describe("Drain mode widget test", () => {
   function find(id: string) {
     return $root.find(`[data-test-id='${id}']`);
   }
-
-  it("should show drain mode information", () => {
-    expect(find("drain-mode-widget")).toBeInDOM();
-    expect(find("switch-wrapper")).toBeInDOM();
-    expect($root.find(`.${styles.drainModeInfo}`)).toContainText("Is server in drain mode: true");
-    expect($root.find(`.${styles.drainModeInfo}`)).toContainText("Drain mode updated by: bob");
-    expect($root.find(`.${styles.drainModeInfo}`)).toContainText("Drain mode updated on: 04 Dec 2018");
-  });
-
-  it("should callback the save function when save button is clicked", () => {
-    simulateEvent.simulate(find("save-drain-mode-settings").get(0), "click");
-
-    expect(onSave).toHaveBeenCalledWith(drainModeSettings, jasmine.any(Event));
-  });
-
-  it("should callback the reset function when reset button is clicked", () => {
-    m.redraw();
-
-    simulateEvent.simulate(find("reset-drain-mode-settings").get(0), "click");
-
-    expect(onReset).toHaveBeenCalledWith(drainModeSettings, jasmine.any(Event));
-  });
 });

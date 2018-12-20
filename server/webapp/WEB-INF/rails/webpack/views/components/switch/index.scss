@@ -1,0 +1,107 @@
+/*
+ * Copyright 2018 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+@import "../../global/common";
+
+$switch-on-color: #40b76b;
+$switch-on-in-progress-color: $building;
+$switch-off-color: #cacaca;
+$switch-large-paddle-size: 1.5rem;
+$switch-large-space-between: 0.25rem;
+$switch-large-translate-x: 2rem;
+$switch-large-width: 4rem;
+$switch-large-height: 2rem;
+$switch-small-width: 2rem;
+$switch-small-height: 1rem;
+$switch-small-paddle-size: 0.75rem;
+$switch-small-space-between: 0.1255rem;
+$switch-small-translate-x: 1rem;
+
+.switch-btn {
+  display:     flex;
+  outline:     0;
+  position:    relative;
+  font-size:   0.875rem;
+  font-weight: bold;
+  user-select: none;
+}
+
+.switch-label {
+  display:      flex;
+  align-self:   center;
+  margin-right: 5px;
+}
+
+.switch-paddle {
+  align-self:         center;
+  width:              $switch-large-width;
+  height:             $switch-large-height;
+  cursor:             pointer;
+  display:            flex;
+  border-radius:      35px;
+  background-color:   $switch-off-color;
+  -webkit-transition: 0.4s;
+  transition:         0.4s;
+}
+
+.switch-paddle:after {
+  display:            flex;
+  align-self:         center;
+  content:            '';
+  border-radius:      1rem;
+  margin-left:        $switch-large-space-between;
+  height:             $switch-large-paddle-size;
+  width:              $switch-large-paddle-size;
+  background-color:   $white;
+  -webkit-transition: 0.4s;
+  transition:         0.4s;
+}
+
+input:checked ~ .switch-paddle:after {
+  -webkit-transform: translateX($switch-large-translate-x);
+  -ms-transform:     translateX($switch-large-translate-x);
+  transform:         translateX($switch-large-translate-x);
+}
+
+.switch-input {
+  display: none;
+}
+
+.is-success {
+  background: $switch-on-color;
+}
+
+.in-progress {
+  background: $switch-on-in-progress-color;
+}
+
+.switch-small {
+  .switch-paddle {
+    width:  $switch-small-width;
+    height: $switch-small-height;
+  }
+
+  .switch-paddle:after {
+    height:      $switch-small-paddle-size;
+    width:       $switch-small-paddle-size;
+    margin-left: $switch-small-space-between;
+  }
+
+  input:checked ~ .switch-paddle:after {
+    -webkit-transform: translateX($switch-small-translate-x);
+    -ms-transform:     translateX($switch-small-translate-x);
+    transform:         translateX($switch-small-translate-x);
+  }
+}

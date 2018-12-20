@@ -13,8 +13,3 @@ export const formErrorText: string;
 export const formHasError: string;
 export const form: string;
 export const formResponsive: string;
-export const switchBtn: string;
-export const switchLabel: string;
-export const switchPaddle: string;
-export const switchInput: string;
-export const switchSmall: string;

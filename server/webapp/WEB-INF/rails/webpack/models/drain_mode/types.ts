@@ -13,7 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 import * as _ from "lodash";
+import * as stream from "mithril/stream";
+import {Stream} from "mithril/stream";
 import {MaterialJSON, Materials} from "models/drain_mode/material";
 
 const TimeFormatter = require("helpers/time_formatter");
@@ -34,8 +37,15 @@ export interface RunningSystemJSON {
   jobs?: JobJSON[];
 }
 
+export interface DrainModeMetadataJSON {
+  updated_by: string;
+  updated_on: string;
+}
+
 export interface EmbeddedJSON {
+  is_drain_mode: boolean;
   is_completely_drained: boolean;
+  metadata: DrainModeMetadataJSON;
   running_systems: RunningSystemJSON;
 }
 
@@ -70,6 +80,10 @@ export class StageLocator {
                      ["Stage Counter", this.stageCounter]
                    ]);
   }
+
+  toString() {
+    return `${this.pipelineName}/${this.pipelineCounter}/${this.stageName}/${this.stageCounter}`;
+  }
 }
 
 export class Job {
@@ -102,7 +116,7 @@ export class Job {
                    job.pipeline_name,
                    job.stage_counter,
                    job.stage_name,
-                   TimeFormatter.formatInDate(job.scheduled_date),
+                   TimeFormatter.format(job.scheduled_date),
                    job.state,
                    job.agent_uuid);
   }
@@ -116,44 +130,102 @@ export class Job {
   }
 }
 
+export class Stage {
+  private __isCancelInProgress: boolean = false;
+  private jobs: Job[];
+  private stageLocator: string;
+
+  constructor(stageLocator: string, jobs: Job[]) {
+    this.jobs         = jobs;
+    this.stageLocator = stageLocator;
+  }
+
+  getStageLocator(): StageLocator {
+    return StageLocator.fromStageLocatorString(this.stageLocator);
+  }
+
+  getStageLocatorAsString(): string {
+    return this.stageLocator;
+  }
+
+  getJobs(): Job[] {
+    return this.jobs;
+  }
+
+  startCancelling(): void {
+    this.__isCancelInProgress = true;
+  }
+
+  isStageCancelInProgress(): boolean {
+    return this.__isCancelInProgress;
+  }
+}
+
 export class RunningSystem {
-  jobs: Job[];
+  stages: Stage[];
   mdu: Materials;
 
-  constructor(jobs: Job[], mdu: Materials) {
-    this.jobs = jobs;
-    this.mdu  = mdu;
+  constructor(stages: Stage[], mdu: Materials) {
+    this.stages = stages;
+    this.mdu    = mdu;
   }
 
   static fromJSON(runningSystemJSON: RunningSystemJSON) {
-    const jobs      = runningSystemJSON.jobs ? runningSystemJSON.jobs.map(Job.fromJSON) : [];
+    const stages    = RunningSystem.groupJobsByStage(runningSystemJSON.jobs ? runningSystemJSON.jobs.map(Job.fromJSON) : []);
     const materials = runningSystemJSON.mdu ? Materials.fromJSON(runningSystemJSON.mdu) : new Materials([]);
-    return new RunningSystem(jobs, materials);
+    return new RunningSystem(stages, materials);
   }
 
-  groupJobsByStage() {
+  private static groupJobsByStage(jobs: Job[]) {
     const groupByStage = new Map();
-    this.jobs.forEach((job) => {
+    jobs.forEach((job) => {
       if (!groupByStage.has(job.stageLocatorString())) {
         groupByStage.set(job.stageLocatorString(), []);
       }
       groupByStage.get(job.stageLocatorString()).push(job);
     });
-    return groupByStage;
+
+    const stages: Stage[] = [];
+    groupByStage.forEach((jobs, stageLocator) => {
+      stages.push(new Stage(stageLocator, jobs));
+    });
+
+    return stages;
+  }
+}
+
+export class DrainModeMetadata {
+  updatedBy: string;
+  updatedOn: Date;
+
+  constructor(updatedBy: string, updatedOn: string) {
+    this.updatedBy = updatedBy;
+    this.updatedOn = TimeFormatter.formatInDate(updatedOn);
+  }
+
+  static fromJSON(json: DrainModeMetadataJSON) {
+    return new DrainModeMetadata(json.updated_by, json.updated_on);
   }
 }
 
 export class DrainModeInfo {
-  isCompletelyDrained: boolean;
-  runningSystem: RunningSystem;
+  public readonly drainModeState: Stream<boolean>;
+  public isCompletelyDrained: boolean;
+  public metdata: DrainModeMetadata;
+  public runningSystem: RunningSystem;
 
-  constructor(isCompletelyDrained: boolean, runningSystem: RunningSystem) {
+  constructor(isDrainMode: boolean, isCompletelyDrained: boolean,
+              drainModeMetadata: DrainModeMetadata, runningSystem: RunningSystem) {
+    this.drainModeState      = stream(isDrainMode);
     this.isCompletelyDrained = isCompletelyDrained;
+    this.metdata             = drainModeMetadata;
     this.runningSystem       = runningSystem;
   }
 
   static fromJSON(json: DrainModeInfoJSON) {
-    return new DrainModeInfo(json._embedded.is_completely_drained,
+    return new DrainModeInfo(json._embedded.is_drain_mode,
+                             json._embedded.is_completely_drained,
+                             DrainModeMetadata.fromJSON(json._embedded.metadata),
                              RunningSystem.fromJSON(json._embedded.running_systems));
   }
 }

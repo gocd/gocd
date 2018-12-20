@@ -82,12 +82,35 @@ $btn-group-border-radius: $global-border-radius;
   @include icon-before($type: $fa-var-question);
 }
 
+.check {
+  @include icon-before($type: $fa-var-check);
+}
+
+.spinner {
+  @include icon-before($type: $fa-var-spinner);
+  animation: spin 1500ms linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 .refresh {
   @include icon-before($type: $fa-var-refresh);
 }
 
 .usage {
   @include icon-before($type: $fa-var-pie-chart);
+}
+
+.minus {
+  @include icon-before($type: $fa-var-minus);
+  font-size: 7px;
 }
 
 .icon-group {

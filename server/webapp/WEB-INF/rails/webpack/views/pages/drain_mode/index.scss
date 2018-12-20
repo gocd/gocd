@@ -19,7 +19,7 @@
   background:    $white;
   border:        1px solid $border-color;
   border-radius: 5px;
-  padding:       20px;
+  padding:       30px;
   position:      relative;
   top:           15px;
 }
@@ -30,13 +30,73 @@
 }
 
 .drain-mode-info {
-  border-radius: 3px;
-  border:        1px solid $border-color;
+  display:       block;
   padding:       10px 20px;
+  border:        1px solid $border-color;
+  border-radius: $global-border-radius;
+  @media (min-width: $screen-md) {
+    width: 50%;
+  }
+}
+
+.running-system {
+  display:       flex;
+  font-size:     16px;
+  margin-bottom: 7px;
+  align-items:   center;
+}
+
+.running-system-text {
+  font-size:    14px;
+  padding-left: 5px;
+}
+
+.updated-by {
+  font-size:      13px;
+  border-radius:  5px 5px 0 0;
+  font-style:     italic;
+  color:          $footer-fg;
+  display:        block;
+  border-bottom:  1px solid $border-color;
+  padding-bottom: 5px;
+  margin-bottom:  10px;
+}
+
+.switch-wrapper {
+  display:     flex;
+  align-items: center;
+  margin-top:  3px;
+}
+
+.drain-mode-label {
+  font-size:    20px;
+  font-weight:  600;
+  margin-right: 13px;
+  display:      inline-block;
+}
+
+.drain-mode-state-message {
+  font-size:   14px;
+  font-weight: 600;
+  margin-left: 10px;
+  color:       lighten($text-color, 40%);
 }
 
 .in-progress-subsystems {
   margin: 10px 0;
+}
+
+.running-sub-system {
+  margin:  20px 0;
+  padding: 0;
+}
+
+.gocd-sub-system-info {
+  padding: 0;
+  li {
+    font-size:     16px;
+    margin-bottom: 10px;
+  }
 }
 
 .panel {
@@ -60,11 +120,3 @@
   margin:  0;
 }
 
-.col-2 {
-  display: flex;
-}
-
-.col-2 .col {
-  width:   50%;
-  padding: 0 15px;
-}

@@ -29,7 +29,7 @@ class PluginsControllerTest implements ControllerTrait<PluginsController>, Secur
 
   @Override
   PluginsController createControllerInstance() {
-    return new PluginsController(new SPAAuthenticationHelper(securityService, goConfigService), templateEngine, securityService)
+    return new PluginsController(new SPAAuthenticationHelper(securityService, goConfigService), templateEngine)
   }
 
   @Nested

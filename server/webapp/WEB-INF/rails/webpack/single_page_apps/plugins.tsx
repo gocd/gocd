@@ -14,21 +14,8 @@
  * limitations under the License.
  */
 
-//fixme: this page which renders either old-plugins page or components-based plugins page based on the toggle
-
 import Page from "helpers/spa_base";
 import {PluginsPage} from "views/pages/plugins";
-
-import * as $ from "jquery";
-import * as m from "mithril";
-
-//tslint:disable
-const stream        = require('mithril/stream');
-const PluginsWidget = require('views/plugins/plugins_widget');
-const PluginInfos   = require('models/shared/plugin_infos');
-const PageLoadError = require('views/shared/page_load_error');
-
-//tslint:enable
 
 export class PluginsSPA extends Page {
   constructor() {
@@ -36,34 +23,5 @@ export class PluginsSPA extends Page {
   }
 }
 
-$(() => {
-  const pluginElement = $('#plugins');
-  const isUserAnAdmin = pluginElement.attr('is-user-an-admin');
-
-  //todo: This check determines whether the page needs to be rendered using old spa style or using new components styles
-  //pluginsElement div will only be available while rendering using old style.
-  if (pluginElement.get().length === 0) {
-    return new PluginsSPA();
-  }
-
-  const onSuccess = (pluginInfos: any) => {
-    const component = {
-      view() {
-        return (<PluginsWidget pluginInfos={stream(pluginInfos)} isUserAnAdmin={stream(isUserAnAdmin === 'true')}/>);
-      }
-    };
-
-    m.mount($("#plugins").get(0), component);
-  };
-
-  const onFailure = () => {
-    const component = {
-      view() {
-        return (<PageLoadError message="There was a problem fetching plugins"/>);
-      }
-    };
-    m.mount($("#plugins").get(0), component);
-  };
-
-  PluginInfos.all(null, {include_bad: true}).then(onSuccess, onFailure);
-});
+//tslint:disable-next-line
+new PluginsSPA();

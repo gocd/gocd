@@ -16,7 +16,6 @@
 
 package com.thoughtworks.go.spark.spa;
 
-import com.thoughtworks.go.server.service.SecurityService;
 import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.SparkController;
 import com.thoughtworks.go.spark.spring.SPAAuthenticationHelper;
@@ -33,12 +32,10 @@ public class PluginsController implements SparkController {
 
     private final SPAAuthenticationHelper authenticationHelper;
     private final TemplateEngine engine;
-    private final SecurityService securityService;
 
-    public PluginsController(SPAAuthenticationHelper authenticationHelper, TemplateEngine engine, SecurityService securityService) {
+    public PluginsController(SPAAuthenticationHelper authenticationHelper, TemplateEngine engine) {
         this.authenticationHelper = authenticationHelper;
         this.engine = engine;
-        this.securityService = securityService; //fixme remove after page is fully componentized
     }
 
     @Override
@@ -57,8 +54,8 @@ public class PluginsController implements SparkController {
     public ModelAndView index(Request request, Response response) {
         HashMap<Object, Object> object = new HashMap<Object, Object>() {{
             put("viewTitle", "Plugins");
-            put("isUserAnAdmin", securityService.isUserAdmin(currentUsername()));
         }};
-        return new ModelAndView(object, "plugins/index.vm"); //fixme: not really needed with components
+
+        return new ModelAndView(object, "plugins/index.vm");
     }
 }

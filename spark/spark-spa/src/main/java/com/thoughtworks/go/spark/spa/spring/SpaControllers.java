@@ -45,23 +45,23 @@ public class SpaControllers implements SparkSpringController {
                           SystemEnvironment systemEnvironment, AnalyticsExtension analyticsExtension,
                           FeatureToggleService featureToggleService) {
 
-        LayoutTemplateProvider componentAware = () -> featureToggleService.isToggleOn(Toggles.COMPONENTS) ? COMPONENT_LAYOUT_PATH : DEFAULT_LAYOUT_PATH;
         LayoutTemplateProvider defaultTemplate = () -> DEFAULT_LAYOUT_PATH;
+        LayoutTemplateProvider componentTemplate = () -> COMPONENT_LAYOUT_PATH;
 
         final LayoutTemplateProvider elasticProfileSPAPath = () -> featureToggleService.isToggleOn(Toggles.USE_OLD_ELASTIC_PROFILE_SPA) ? DEFAULT_LAYOUT_PATH : COMPONENT_LAYOUT_PATH;
 
 		sparkControllers.add(new AuthConfigsController(authenticationHelper, templateEngineFactory.create(AuthConfigsController.class, () -> featureToggleService.isToggleOn(Toggles.USE_NEW_AUTH_CONFIG_SPA) ? COMPONENT_LAYOUT_PATH : DEFAULT_LAYOUT_PATH)));
         sparkControllers.add(new RolesController(authenticationHelper, templateEngineFactory.create(RolesController.class, defaultTemplate)));
         sparkControllers.add(new AgentsControllerController(authenticationHelper, templateEngineFactory.create(AgentsControllerController.class, defaultTemplate), securityService, systemEnvironment));
-        sparkControllers.add(new PluginsController(authenticationHelper, templateEngineFactory.create(PluginsController.class, componentAware), securityService));
         sparkControllers.add(new ElasticProfilesController(authenticationHelper, templateEngineFactory.create(ElasticProfilesController.class, elasticProfileSPAPath)));
         sparkControllers.add(new NewDashboardController(authenticationHelper, templateEngineFactory.create(NewDashboardController.class, defaultTemplate), securityService, systemEnvironment, pipelineConfigService));
         sparkControllers.add(new ArtifactStoresController(authenticationHelper, templateEngineFactory.create(ArtifactStoresController.class, defaultTemplate)));
         sparkControllers.add(new AnalyticsController(authenticationHelper, templateEngineFactory.create(AnalyticsController.class, defaultTemplate), systemEnvironment, analyticsExtension, pipelineConfigService));
         sparkControllers.add(new DataSharingSettingsController(authenticationHelper, templateEngineFactory.create(DataSharingSettingsController.class, defaultTemplate)));
-        sparkControllers.add(new DrainModeController(authenticationHelper, templateEngineFactory.create(DrainModeController.class, () -> COMPONENT_LAYOUT_PATH), featureToggleService));
-        sparkControllers.add(new ConfigReposController(authenticationHelper, templateEngineFactory.create(ConfigReposController.class, () -> COMPONENT_LAYOUT_PATH)));
-        sparkControllers.add(new KitchenSinkController(templateEngineFactory.create(KitchenSinkController.class, () -> COMPONENT_LAYOUT_PATH)));
+        sparkControllers.add(new DrainModeController(authenticationHelper, templateEngineFactory.create(DrainModeController.class, componentTemplate), featureToggleService));
+        sparkControllers.add(new ConfigReposController(authenticationHelper, templateEngineFactory.create(ConfigReposController.class, componentTemplate)));
+        sparkControllers.add(new KitchenSinkController(templateEngineFactory.create(KitchenSinkController.class, componentTemplate)));
+        sparkControllers.add(new PluginsController(authenticationHelper, templateEngineFactory.create(PluginsController.class, componentTemplate)));
     }
 
     @Override

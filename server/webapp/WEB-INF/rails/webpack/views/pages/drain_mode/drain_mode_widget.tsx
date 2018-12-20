@@ -49,6 +49,11 @@ export class DrainModeWidget extends MithrilViewComponent<Attrs> {
         : "Some subsystems of GoCD are still in progress.";
     }
 
+    let updatedByMessage = "GoCD server drain mode is disabled by default.";
+    if (drainModeInfo.metdata.updatedBy !== null) {
+      updatedByMessage = `${drainModeInfo.metdata.updatedBy} changed the drain mode state on ${drainModeInfo.metdata.updatedOn}.`;
+    }
+
     return (
       <div className={styles.drainModeWidget} data-test-id="drain-mode-widget">
         <p data-test-id="drain-mode-description" className={styles.drainModeDescription}>
@@ -58,7 +63,7 @@ export class DrainModeWidget extends MithrilViewComponent<Attrs> {
 
         <div class={styles.drainModeInfo}>
           <span data-test-id="drain-mode-updated-by-info" class={styles.updatedBy}>
-            {drainModeInfo.metdata.updatedBy} changed the drain mode state on {drainModeInfo.metdata.updatedOn}.
+            {updatedByMessage}
           </span>
           <span class={styles.switchWrapper} data-test-id="switch-wrapper">
             <span class={styles.drainModeLabel}>Enable Drain Mode:</span>

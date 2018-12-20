@@ -23,6 +23,7 @@ public class Toggles {
     public static String AGENT_APIS_OVER_RAILS = "agent_apis_over_rails";
     public static String USE_NEW_AUTH_CONFIG_SPA = "use_new_auth_config_spa";
     public static String USERS_PAGE_USING_RAILS = "users_page_using_rails";
+    public static String USE_OLD_ARTIFACT_STORES_SPA = "use_old_artifact_stores_spa";
 
     private static FeatureToggleService service;
 

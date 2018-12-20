@@ -56,10 +56,9 @@ export class JobInfoWidget extends MithrilViewComponent<JobInfoAttrs> {
     }
 
     return (
-      <div>
-        <h3 className={styles.runningSystemHeader}>Running stages</h3>
+      <CollapsiblePanel header={<h3 className={styles.runningSystemHeader}>Running stages</h3>} expanded={true}>
         <div>{runningStages}</div>
-      </div>
+      </CollapsiblePanel>
     );
   }
 

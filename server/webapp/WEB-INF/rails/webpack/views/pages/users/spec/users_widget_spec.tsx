@@ -1,4 +1,4 @@
-/*
+ /*
  * Copyright 2018 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -98,7 +98,7 @@ describe("UsersWidget", () => {
     m.redraw();
     expect($root.find("table")).toBeInDOM();
     expect(UsersTableWidget.headers())
-      .toEqual(["Username", "Display Name", "Roles", "Aliases", "Admin", "Email", "Enabled"]);
+      .toEqual(["Username", "Display name", "Roles", "Aliases", "Admin", "Email", "Enabled"]);
 
     expect(UsersTableWidget.userData(users())).toHaveLength(2);
 

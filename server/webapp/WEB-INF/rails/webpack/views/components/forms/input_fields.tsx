@@ -75,7 +75,7 @@ abstract class FormField<T> extends MithrilViewComponent<FormFieldAttrs<T>> {
       "spellcheck": false,
       "id": this.id,
       "placeholder": vnode.attrs.placeholder || "",
-      "data-test-id": "form-field-input"
+      "data-test-id": `form-field-input-${s.slugify(vnode.attrs.label)}`
     };
 
     if (this.hasHelpText(vnode)) {

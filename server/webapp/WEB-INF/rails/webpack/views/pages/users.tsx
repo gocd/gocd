@@ -19,18 +19,25 @@ import {Stream} from "mithril/stream";
 import * as stream from "mithril/stream";
 import {UserJSON} from "models/users/users";
 import {UsersCRUD} from "models/users/users_crud";
+import * as Buttons from "views/components/buttons";
+import {HeaderPanel} from "views/components/header_panel";
 import {Page, PageState} from "views/pages/page";
+import {AddOperation} from "views/pages/page_operations";
+import {UserSearchModal} from "views/pages/users/modal";
 import {UsersWidget} from "views/pages/users/users_widget";
 
-interface State {
+interface State extends AddOperation<UserJSON> {
   users: Stream<UserJSON[]>;
-
 }
 
 export class UsersPage extends Page<null, State> {
   oninit(vnode: m.Vnode<null, State>) {
     super.oninit(vnode);
     vnode.state.users = stream([] as UserJSON[]);
+    vnode.state.onAdd = (e) => {
+      e.stopPropagation();
+      new UserSearchModal().render();
+    };
   }
 
   componentToDisplay(vnode: m.Vnode<null, State>): JSX.Element | undefined {
@@ -39,6 +46,13 @@ export class UsersPage extends Page<null, State> {
 
   pageName(): string {
     return "User summary";
+  }
+
+  headerPanel(vnode: m.Vnode<null, State>) {
+    const headerButtons = [];
+    headerButtons.push(<Buttons.Primary onclick={vnode.state.onAdd.bind(vnode.state)}>Add User</Buttons.Primary>);
+
+    return <HeaderPanel title="Elastic Profiles" buttons={headerButtons}/>;
   }
 
   fetchData(vnode: m.Vnode<null, State>): Promise<any> {

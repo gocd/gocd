@@ -25,8 +25,8 @@ export interface EmbeddedJSON {
 export interface UserJSON {
   login_name: string;
   display_name?: string;
-  enabled: boolean;
+  enabled?: boolean;
   email?: string;
-  email_me: boolean;
-  checkin_aliases: string[];
+  email_me?: boolean;
+  checkin_aliases?: string[];
 }

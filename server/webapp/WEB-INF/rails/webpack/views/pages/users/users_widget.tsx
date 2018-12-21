@@ -27,7 +27,7 @@ interface Attrs {
 
 export class UsersTableWidget extends MithrilViewComponent<Attrs> {
   static headers() {
-    return ["Username", "Display Name", "Roles", "Aliases", "Admin", "Email", "Enabled"];
+    return ["Username", "Display name", "Roles", "Aliases", "Admin", "Email", "Enabled"];
   }
 
   static userData(users: UserJSON[]): any[][] {

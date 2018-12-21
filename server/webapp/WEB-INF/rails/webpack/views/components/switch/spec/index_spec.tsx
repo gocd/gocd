@@ -41,7 +41,7 @@ describe("SwitchBtn component", () => {
     expect(find("switch-label")).toContainText("This is switch");
     expect(find("switch-label")).toHaveClass(styles.switchLabel);
 
-    expect(find("form-field-input-this-is-switch")).toHaveClass(styles.switchInput);
+    expect(find("switch-checkbox")).toHaveClass(styles.switchInput);
     expect(find("switch-paddle")).toHaveClass(styles.switchPaddle);
   });
 
@@ -58,10 +58,10 @@ describe("SwitchBtn component", () => {
 
     expect(switchStream()).toBe(false);
 
-    simulateEvent.simulate(find("form-field-input-this-is-switch").get(0), "click");
+    simulateEvent.simulate(find("switch-paddle").get(0), "click");
     expect(switchStream()).toBe(true);
 
-    simulateEvent.simulate(find("form-field-input-this-is-switch").get(0), "click");
+    simulateEvent.simulate(find("switch-paddle").get(0), "click");
     expect(switchStream()).toBe(false);
   });
 

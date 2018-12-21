@@ -17,12 +17,13 @@
 import * as m from "mithril";
 import * as stream from "mithril/stream";
 import {Stream} from "mithril/stream";
-import {UserJSON} from "models/users/users";
+import {User, Users} from "models/users/users";
+import {FlashMessageModel} from "views/components/flash_message";
 import {UsersTableWidget, UsersWidget} from "views/pages/users/users_widget";
 
 describe("UsersWidget", () => {
   let $root: any, root: any;
-  const users: Stream<UserJSON[]> = stream();
+  const users: Stream<Users> = stream(new Users([]));
 
   beforeEach(() => {
     // @ts-ignore
@@ -35,10 +36,12 @@ describe("UsersWidget", () => {
   // @ts-ignore
   afterEach(window.destroyDomElementForTest);
 
+  const flashMessageModel = new FlashMessageModel();
+
   function mount() {
     m.mount(root, {
       view() {
-        return (<UsersWidget users={users}/>);
+        return (<UsersWidget users={users} message={flashMessageModel}/>);
       }
     });
 
@@ -55,65 +58,73 @@ describe("UsersWidget", () => {
   }
 
   it("should render a message if list of users is empty", () => {
-    users([]);
+    users(new Users([]));
     m.redraw();
     expect($root.find("table")).not.toBeInDOM();
     expect($root).toContainText("No users found!");
   });
 
   function bob() {
-    return {
-      email: "bob@example.com",
-      display_name: "Bob",
-      login_name: "bob",
-      email_me: true,
-      checkin_aliases: ["bob@gmail.com"],
-      enabled: true
-    };
+    return User.fromJSON({
+                           email: "bob@example.com",
+                           display_name: "Bob",
+                           login_name: "bob",
+                           email_me: true,
+                           checkin_aliases: ["bob@gmail.com"],
+                           enabled: true
+                         });
   }
 
   function alice() {
-    return {
-      email: "alice@example.com",
-      display_name: "Alice",
-      login_name: "alice",
-      email_me: true,
-      checkin_aliases: ["alice@gmail.com", "alice@acme.com"],
-      enabled: false
-    };
+    return User.fromJSON({
+                           email: "alice@example.com",
+                           display_name: "Alice",
+                           login_name: "alice",
+                           email_me: true,
+                           checkin_aliases: ["alice@gmail.com", "alice@acme.com"],
+                           enabled: false
+                         });
   }
 
   function john() {
-    return {
-      display_name: "Jon Doe",
-      login_name: "jdoe",
-      email_me: true,
-      enabled: false,
-      checkin_aliases: []
-    };
+    return User.fromJSON({
+                           display_name: "Jon Doe",
+                           login_name: "jdoe",
+                           email_me: true,
+                           enabled: false,
+                           checkin_aliases: []
+                         });
   }
 
   it("should render a list of user attributes", () => {
-    users([bob(), alice()]);
+    users(new Users([bob(), alice()]));
     m.redraw();
     expect($root.find("table")).toBeInDOM();
+
     expect(UsersTableWidget.headers())
-      .toEqual(["Username", "Display Name", "Roles", "Aliases", "Admin", "Email", "Enabled"]);
-
+      .toEqual(["Username", "Display name", "Roles", "Admin", "Email", "Enabled"]);
     expect(UsersTableWidget.userData(users())).toHaveLength(2);
-
     expect(UsersTableWidget.userData(users())[0])
-      .toEqual(["bob", "Bob", undefined, "bob@gmail.com", undefined, "bob@example.com", true]);
-
+      .toEqual(["bob", "Bob", undefined, undefined, "bob@example.com", true]);
     expect(UsersTableWidget.userData(users())[1])
-      .toEqual(["alice", "Alice", undefined, "alice@gmail.com, alice@acme.com", undefined, "alice@example.com", false]);
+      .toEqual(["alice", "Alice", undefined, undefined, "alice@example.com", false]);
   });
 
   it("should display the number of enabled and disabled users", () => {
-    users([bob(), alice(), john()]);
+    users(new Users([bob(), alice(), john()]));
     m.redraw();
 
     expect(find("enabled-user-count")).toHaveText("1");
     expect(find("disabled-user-count")).toHaveText("2");
   });
+
+  it("should render flash message if exists", () => {
+    const errorMsg = "Boom!";
+    flashMessageModel.setError(errorMsg);
+    m.redraw();
+
+    expect(find("flash-message-alert")).toBeInDOM();
+    expect(find("flash-message-alert")).toContainText(errorMsg);
+  });
+
 });

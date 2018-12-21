@@ -162,7 +162,12 @@ export default class {
     return `/go/api/admin/internal/security/auth_configs/verify_connection`;
   }
 
-  static apiUsersListPath() {
+  static apiUsersPath() {
     return "/go/api/users";
   }
+
+  static apiUsersSearchPath(searchText: string) {
+    return `/go/api/user_search?${m.buildQueryString({q: searchText})}`;
+  }
+
 }

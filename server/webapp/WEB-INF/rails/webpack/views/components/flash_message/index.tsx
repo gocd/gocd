@@ -83,3 +83,32 @@ export class FlashMessage extends MithrilComponent<Attrs, State> {
     );
   }
 }
+
+export class FlashMessageModel {
+  type: MessageType | null;
+  message: string | null;
+
+  constructor(type: MessageType | null = null, message: string | null = null) {
+    this.type    = type;
+    this.message = message;
+  }
+
+  setSuccess(msg: string) {
+    this.message = msg;
+    this.type    = MessageType.success;
+  }
+
+  setError(msg: string) {
+    this.message = msg;
+    this.type    = MessageType.alert;
+  }
+
+  hasMessage() {
+    return this.message !== null;
+  }
+
+  clear() {
+    this.message = null;
+    this.type    = null;
+  }
+}

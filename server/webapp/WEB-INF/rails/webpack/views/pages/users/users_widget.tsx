@@ -18,24 +18,26 @@ import {MithrilViewComponent} from "jsx/mithril-component";
 import * as _ from "lodash";
 import * as m from "mithril";
 import {Stream} from "mithril/stream";
-import {UserJSON} from "models/users/users";
+import {User, Users} from "models/users/users";
+import {FlashMessage, FlashMessageModel, MessageType} from "views/components/flash_message";
 import {Table} from "views/components/table";
 
 interface Attrs {
-  users: Stream<UserJSON[]>;
+  users: Stream<Users>;
+  message: FlashMessageModel;
 }
 
 export class UsersTableWidget extends MithrilViewComponent<Attrs> {
   static headers() {
-    return ["Username", "Display Name", "Roles", "Aliases", "Admin", "Email", "Enabled"];
+    return ["Username", "Display name", "Roles", "Admin", "Email", "Enabled"];
   }
 
-  static userData(users: UserJSON[]): any[][] {
-    return users.map((user) => {
+  static userData(users: Users): any[][] {
+    return users.list().map((user: User) => {
       return [
-        user.login_name,
-        user.display_name,
-        undefined, _.join(user.checkin_aliases, ", "),
+        user.loginName,
+        user.displayName,
+        undefined,
         undefined,
         user.email,
         user.enabled
@@ -49,25 +51,35 @@ export class UsersTableWidget extends MithrilViewComponent<Attrs> {
 
 }
 
-export class UsersTableActions extends MithrilViewComponent<Attrs> {
+export class UsersActions extends MithrilViewComponent<Attrs> {
   view(vnode: m.Vnode<Attrs>) {
-    const [enabledUsers, disabledUsers] = _.partition(vnode.attrs.users(), (user) => {
-      return user.enabled;
-    });
 
     return [
-      <div>Enabled <span data-test-id="enabled-user-count">{enabledUsers.length}</span></div>,
-      <div>Disabled <span data-test-id="disabled-user-count">{disabledUsers.length}</span></div>,
+      <div>Enabled <span data-test-id="enabled-user-count">{vnode.attrs.users().enabledUsersCount()}</span></div>,
+      <div>Disabled <span data-test-id="disabled-user-count">{vnode.attrs.users().disabledUsersCount()}</span></div>,
     ];
   }
 }
 
 export class UsersWidget extends MithrilViewComponent<Attrs> {
   view(vnode: m.Vnode<Attrs>) {
-    if (_.isEmpty(vnode.attrs.users())) {
-      return (<div>No users found!</div>);
+    let optionalMessage: JSX.Element | null = null;
+    if (vnode.attrs.message.hasMessage()) {
+      optionalMessage =
+        <FlashMessage type={vnode.attrs.message.type as MessageType} message={vnode.attrs.message.message}/>;
     }
 
-    return [<UsersTableActions {...vnode.attrs} />, <UsersTableWidget {...vnode.attrs}/>];
+    if (_.isEmpty(vnode.attrs.users().list())) {
+      return (<div>
+        {optionalMessage}
+        <div>No users found!</div>
+      </div>);
+    }
+
+    return [
+      optionalMessage,
+      <UsersActions {...vnode.attrs} />,
+      <UsersTableWidget {...vnode.attrs}/>
+    ];
   }
 }

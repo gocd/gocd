@@ -58,10 +58,10 @@ describe("SwitchBtn component", () => {
 
     expect(switchStream()).toBe(false);
 
-    simulateEvent.simulate(find("switch-checkbox").get(0), "click");
+    simulateEvent.simulate(find("switch-paddle").get(0), "click");
     expect(switchStream()).toBe(true);
 
-    simulateEvent.simulate(find("switch-checkbox").get(0), "click");
+    simulateEvent.simulate(find("switch-paddle").get(0), "click");
     expect(switchStream()).toBe(false);
   });
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -55,6 +55,7 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
+import static com.thoughtworks.go.util.SystemEnvironment.AGENT_EXTRA_PROPERTIES;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static org.springframework.http.HttpStatus.*;
@@ -115,6 +116,7 @@ public class AgentRegistrationController {
         response.setHeader(SystemEnvironment.AGENT_LAUNCHER_CONTENT_MD5_HEADER, agentLauncherChecksum);
         response.setHeader(SystemEnvironment.AGENT_PLUGINS_ZIP_MD5_HEADER, pluginsZip.md5());
         response.setHeader(SystemEnvironment.AGENT_TFS_SDK_MD5_HEADER, tfsSdkChecksum);
+        response.setHeader(SystemEnvironment.AGENT_EXTRA_PROPERTIES_HEADER, systemEnvironment.get(AGENT_EXTRA_PROPERTIES));
         setOtherHeaders(response);
     }
 
@@ -180,6 +182,7 @@ public class AgentRegistrationController {
 
     private void setOtherHeaders(HttpServletResponse response) {
         response.setHeader("Cruise-Server-Ssl-Port", Integer.toString(systemEnvironment.getSslServerPort()));
+        response.setHeader(SystemEnvironment.AGENT_EXTRA_PROPERTIES_HEADER, systemEnvironment.get(AGENT_EXTRA_PROPERTIES));
     }
 
     @RequestMapping(value = "/admin/agent", method = RequestMethod.GET)

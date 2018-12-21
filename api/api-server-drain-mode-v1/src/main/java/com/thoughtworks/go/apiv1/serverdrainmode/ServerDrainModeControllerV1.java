@@ -49,21 +49,18 @@ public class ServerDrainModeControllerV1 extends ApiController implements SparkS
     private final ApiAuthenticationHelper apiAuthenticationHelper;
     private final DrainModeService drainModeService;
     private JobInstanceService jobInstanceService;
-    private FeatureToggleService featureToggleService;
     private Clock clock;
 
     @Autowired
     public ServerDrainModeControllerV1(ApiAuthenticationHelper apiAuthenticationHelper,
                                        DrainModeService drainModeService,
                                        JobInstanceService jobInstanceService,
-                                       FeatureToggleService featureToggleService,
                                        Clock clock) {
         super(ApiVersion.v1);
 
         this.apiAuthenticationHelper = apiAuthenticationHelper;
         this.drainModeService = drainModeService;
         this.jobInstanceService = jobInstanceService;
-        this.featureToggleService = featureToggleService;
         this.clock = clock;
     }
 
@@ -95,10 +92,6 @@ public class ServerDrainModeControllerV1 extends ApiController implements SparkS
     }
 
     public String enableDrainModeState(Request req, Response res) throws Exception {
-        if (!featureToggleService.isToggleOn(Toggles.SERVER_DRAIN_MODE_API_TOGGLE_KEY)) {
-            throw new RecordNotFoundException();
-        }
-
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         ServerDrainMode existingDrainModeState = drainModeService.get();
         if (existingDrainModeState.isDrainMode()) {
@@ -113,10 +106,6 @@ public class ServerDrainModeControllerV1 extends ApiController implements SparkS
     }
 
     public String disableDrainModeState(Request req, Response res) throws Exception {
-        if (!featureToggleService.isToggleOn(Toggles.SERVER_DRAIN_MODE_API_TOGGLE_KEY)) {
-            throw new RecordNotFoundException();
-        }
-
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         ServerDrainMode existingDrainModeState = drainModeService.get();
         if (!existingDrainModeState.isDrainMode()) {
@@ -131,10 +120,6 @@ public class ServerDrainModeControllerV1 extends ApiController implements SparkS
     }
 
     public String getDrainModeInfo(Request req, Response res) throws InvalidPluginTypeException, IOException {
-        if (!featureToggleService.isToggleOn(Toggles.SERVER_DRAIN_MODE_API_TOGGLE_KEY)) {
-            throw new RecordNotFoundException();
-        }
-
         Collection<DrainModeService.MaterialPerformingMDU> runningMDUs = drainModeService.getRunningMDUs();
         List<JobInstance> jobInstances = jobInstanceService.allRunningJobs();
         boolean isServerCompletelyDrained = runningMDUs.isEmpty() && jobInstances.isEmpty();

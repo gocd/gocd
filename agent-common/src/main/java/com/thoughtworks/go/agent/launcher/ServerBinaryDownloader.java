@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,8 +19,12 @@ package com.thoughtworks.go.agent.launcher;
 import com.thoughtworks.go.agent.ServerUrlGenerator;
 import com.thoughtworks.go.agent.common.ssl.GoAgentServerHttpClientBuilder;
 import com.thoughtworks.go.agent.common.util.Downloader;
+import com.thoughtworks.go.agent.common.util.HeaderUtil;
 import com.thoughtworks.go.util.PerfTimer;
 import com.thoughtworks.go.util.SslVerificationMode;
+import com.thoughtworks.go.util.SystemEnvironment;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.ClientProtocolException;
@@ -34,6 +38,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+import static com.thoughtworks.go.util.SystemEnvironment.AGENT_EXTRA_PROPERTIES_HEADER;
 
 public class ServerBinaryDownloader implements Downloader {
 
@@ -47,6 +57,7 @@ public class ServerBinaryDownloader implements Downloader {
     private static final String SSL_PORT_HEADER = "Cruise-Server-Ssl-Port";
     private static final int HTTP_TIMEOUT_IN_MILLISECONDS = 5000;
     private GoAgentServerHttpClientBuilder httpClientBuilder;
+    private Map<String, String> extraProperties;
 
     public ServerBinaryDownloader(ServerUrlGenerator urlGenerator, File rootCertFile, SslVerificationMode sslVerificationMode) {
         this(new GoAgentServerHttpClientBuilder(rootCertFile, sslVerificationMode), urlGenerator);
@@ -63,6 +74,10 @@ public class ServerBinaryDownloader implements Downloader {
 
     public String getSslPort() {
         return sslPort;
+    }
+
+    public Map<String, String> getExtraProperties() {
+        return extraProperties;
     }
 
     public boolean downloadIfNecessary(final DownloadableFile downloadableFile) {
@@ -98,6 +113,7 @@ public class ServerBinaryDownloader implements Downloader {
             handleInvalidResponse(response, url);
             this.md5 = response.getFirstHeader(MD5_HEADER).getValue();
             this.sslPort = response.getFirstHeader(SSL_PORT_HEADER).getValue();
+            this.extraProperties = HeaderUtil.parseExtraProperties(response.getFirstHeader(AGENT_EXTRA_PROPERTIES_HEADER));
         }
     }
 

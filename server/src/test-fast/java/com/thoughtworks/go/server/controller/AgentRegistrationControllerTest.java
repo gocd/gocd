@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,12 +45,14 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.Base64;
 
+import static com.thoughtworks.go.util.SystemEnvironment.AGENT_EXTRA_PROPERTIES;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.*;
@@ -82,6 +84,7 @@ public class AgentRegistrationControllerTest {
         FileUtils.writeStringToFile(pluginZipFile, "content", UTF_8);
         when(systemEnvironment.get(SystemEnvironment.ALL_PLUGINS_ZIP_PATH)).thenReturn(pluginZipFile.getAbsolutePath());
         when(systemEnvironment.getSslServerPort()).thenReturn(8443);
+        when(systemEnvironment.get(AGENT_EXTRA_PROPERTIES)).thenReturn("");
         pluginsZip = mock(PluginsZip.class);
         controller = new AgentRegistrationController(agentService, goConfigService, systemEnvironment, pluginsZip, agentConfigService);
         controller.populateAgentChecksum();
@@ -90,7 +93,7 @@ public class AgentRegistrationControllerTest {
     }
 
     @Test
-    public void shouldRegisterWithProvidedAgentInformation() throws Exception {
+    public void shouldRegisterWithProvidedAgentInformation() {
         when(goConfigService.hasAgent("blahAgent-uuid")).thenReturn(false);
         ServerConfig serverConfig = mockedServerConfig("token-generation-key", "someKey");
         when(goConfigService.serverConfig()).thenReturn(serverConfig);
@@ -102,7 +105,7 @@ public class AgentRegistrationControllerTest {
     }
 
     @Test
-    public void shouldAutoRegisterAgent() throws Exception {
+    public void shouldAutoRegisterAgent() {
         String uuid = "uuid";
         final ServerConfig serverConfig = mockedServerConfig("token-generation-key", "someKey");
         final String token = token(uuid, serverConfig.getTokenGenerationKey());
@@ -120,7 +123,7 @@ public class AgentRegistrationControllerTest {
     }
 
     @Test
-    public void shouldAutoRegisterAgentWithHostnameFromAutoRegisterProperties() throws Exception {
+    public void shouldAutoRegisterAgentWithHostnameFromAutoRegisterProperties() {
         String uuid = "uuid";
         when(goConfigService.hasAgent(uuid)).thenReturn(false);
         ServerConfig serverConfig = mockedServerConfig("token-generation-key", "someKey");
@@ -137,7 +140,7 @@ public class AgentRegistrationControllerTest {
     }
 
     @Test
-    public void shouldNotAutoRegisterAgentIfKeysDoNotMatch() throws Exception {
+    public void shouldNotAutoRegisterAgentIfKeysDoNotMatch() {
         String uuid = "uuid";
         when(goConfigService.hasAgent(uuid)).thenReturn(false);
         ServerConfig serverConfig = mockedServerConfig("token-generation-key", "someKey");
@@ -153,6 +156,7 @@ public class AgentRegistrationControllerTest {
     @Test
     public void checkAgentStatusShouldIncludeMd5Checksum_forAgent_forLauncher_whenChecksumsAreCached() throws Exception {
         when(pluginsZip.md5()).thenReturn("plugins-zip-md5");
+        when(systemEnvironment.get(AGENT_EXTRA_PROPERTIES)).thenReturn("extra=property");
 
         controller.checkAgentStatus(response);
 
@@ -170,6 +174,18 @@ public class AgentRegistrationControllerTest {
 
         assertEquals("plugins-zip-md5", response.getHeader(SystemEnvironment.AGENT_PLUGINS_ZIP_MD5_HEADER));
         assertEquals("8443", response.getHeader("Cruise-Server-Ssl-Port"));
+    }
+
+    @Test
+    public void checkAgentStatusShouldIncludeExtraPropertiesForAgent() {
+        final String extraPropertiesValue = "extra=property another=extra.property";
+
+        when(pluginsZip.md5()).thenReturn("plugins-zip-md5");
+        when(systemEnvironment.get(AGENT_EXTRA_PROPERTIES)).thenReturn(extraPropertiesValue);
+
+        controller.checkAgentStatus(response);
+
+        assertEquals(extraPropertiesValue, response.getHeader(SystemEnvironment.AGENT_EXTRA_PROPERTIES_HEADER));
     }
 
     @Test
@@ -207,6 +223,17 @@ public class AgentRegistrationControllerTest {
     }
 
     @Test
+    public void contentShouldIncludeExtraAgentProperties_forAgent() throws IOException {
+        final String extraPropertiesValue = "extra=property another=extra.property";
+
+        when(systemEnvironment.get(AGENT_EXTRA_PROPERTIES)).thenReturn(extraPropertiesValue);
+
+        controller.downloadAgent(response);
+
+        assertEquals(extraPropertiesValue, response.getHeader(SystemEnvironment.AGENT_EXTRA_PROPERTIES_HEADER));
+    }
+
+    @Test
     public void contentShouldIncludeMd5Checksum_forAgentLauncher() throws Exception {
         controller.downloadAgentLauncher(response);
         assertEquals("8443", response.getHeader("Cruise-Server-Ssl-Port"));
@@ -221,7 +248,7 @@ public class AgentRegistrationControllerTest {
     }
 
     @Test
-    public void headShouldIncludeMd5Checksum_forPluginsZip() throws Exception {
+    public void headShouldIncludeMd5Checksum_forPluginsZip() {
         when(pluginsZip.md5()).thenReturn("md5");
         controller.checkAgentPluginsZipStatus(response);
 
@@ -263,7 +290,7 @@ public class AgentRegistrationControllerTest {
     }
 
     @Test
-    public void shouldGenerateToken() throws Exception {
+    public void shouldGenerateToken() {
         final ServerConfig serverConfig = mockedServerConfig("agent-auto-register-key", "someKey");
         when(goConfigService.serverConfig()).thenReturn(serverConfig);
         when(agentService.findAgent("uuid-from-agent")).thenReturn(AgentInstanceMother.idle());
@@ -276,7 +303,7 @@ public class AgentRegistrationControllerTest {
     }
 
     @Test
-    public void shouldRejectGenerateTokenRequestIfAgentIsInPendingState() throws Exception {
+    public void shouldRejectGenerateTokenRequestIfAgentIsInPendingState() {
         final ServerConfig serverConfig = mockedServerConfig("agent-auto-register-key", "someKey");
         when(goConfigService.serverConfig()).thenReturn(serverConfig);
         when(agentService.findAgent("uuid-from-agent")).thenReturn(AgentInstanceMother.pendingInstance());
@@ -289,7 +316,7 @@ public class AgentRegistrationControllerTest {
     }
 
     @Test
-    public void shouldRejectGenerateTokenRequestIfAgentIsInConfig() throws Exception {
+    public void shouldRejectGenerateTokenRequestIfAgentIsInConfig() {
         final ServerConfig serverConfig = mockedServerConfig("agent-auto-register-key", "someKey");
         when(goConfigService.serverConfig()).thenReturn(serverConfig);
         when(agentService.findAgent("uuid-from-agent")).thenReturn(AgentInstanceMother.idle());
@@ -302,7 +329,7 @@ public class AgentRegistrationControllerTest {
     }
 
     @Test
-    public void shouldRejectGenerateTokenRequestIfUUIDIsEmpty() throws Exception {
+    public void shouldRejectGenerateTokenRequestIfUUIDIsEmpty() {
         final ResponseEntity responseEntity = controller.getToken("               ");
 
         assertThat(responseEntity.getStatusCode(), is(CONFLICT));
@@ -310,7 +337,7 @@ public class AgentRegistrationControllerTest {
     }
 
     @Test
-    public void shouldRejectRegistrationRequestWhenInvalidTokenProvided() throws Exception {
+    public void shouldRejectRegistrationRequestWhenInvalidTokenProvided() {
         when(goConfigService.hasAgent("blahAgent-uuid")).thenReturn(false);
         ServerConfig serverConfig = mockedServerConfig("token-generation-key", "someKey");
         when(goConfigService.serverConfig()).thenReturn(serverConfig);

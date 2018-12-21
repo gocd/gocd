@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,6 +33,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 import static org.apache.commons.lang3.StringUtils.join;
@@ -65,7 +66,8 @@ public class AgentProcessParentImpl implements AgentProcessParent {
             ServerBinaryDownloader tfsImplDownloader = new ServerBinaryDownloader(urlGenerator, rootCertFile, sslVerificationMode);
             tfsImplDownloader.downloadIfNecessary(DownloadableFile.TFS_IMPL);
 
-            command = agentInvocationCommand(agentDownloader.getMd5(), launcherMd5, pluginZipDownloader.getMd5(), tfsImplDownloader.getMd5(), env, context, agentDownloader.getSslPort());
+            command = agentInvocationCommand(agentDownloader.getMd5(), launcherMd5, pluginZipDownloader.getMd5(), tfsImplDownloader.getMd5(),
+                    env, context, agentDownloader.getSslPort(), agentDownloader.getExtraProperties());
             LOG.info("Launching Agent with command: {}", join(command, " "));
 
             Process agent = invoke(command);
@@ -117,8 +119,8 @@ public class AgentProcessParentImpl implements AgentProcessParent {
     }
 
     private String[] agentInvocationCommand(String agentMD5, String launcherMd5, String agentPluginsZipMd5, String tfsImplMd5, Map<String, String> env, Map context,
-                                            @Deprecated String sslPort // the port is kept for backward compatibility to ensure that old bootstrappers are able to launch new agents
-    ) {
+                                            @Deprecated String sslPort, // the port is kept for backward compatibility to ensure that old bootstrappers are able to launch new agents
+                                            Map<String, String> extraProperties) {
         AgentBootstrapperBackwardCompatibility backwardCompatibility = backwardCompatibility(context);
 
         String startupArgsString = env.get(AGENT_STARTUP_ARGS);
@@ -133,6 +135,9 @@ public class AgentProcessParentImpl implements AgentProcessParent {
                 }
             }
         }
+
+        extraProperties.forEach((key, value) -> commandSnippets.add(property(key, value)));
+
         commandSnippets.add(property(GoConstants.AGENT_PLUGINS_MD5, agentPluginsZipMd5));
         commandSnippets.add(property(GoConstants.AGENT_JAR_MD5, agentMD5));
         commandSnippets.add(property(GoConstants.GIVEN_AGENT_LAUNCHER_JAR_MD5, launcherMd5));

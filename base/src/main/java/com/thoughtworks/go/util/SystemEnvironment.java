@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -64,6 +64,7 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
 
     public static final String AGENT_PLUGINS_ZIP_MD5_HEADER = "Agent-Plugins-Content-MD5";
     public static final String AGENT_TFS_SDK_MD5_HEADER = "TFS-SDK-Content-MD5";
+    public static final String AGENT_EXTRA_PROPERTIES_HEADER = "GoCD-Agent-Extra-Properties";
 
     public static final String EMPTY_STRING = "";
     public static final String BLANK_STRING = EMPTY_STRING;
@@ -145,6 +146,7 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
     public static final GoSystemProperty<Integer> GO_SERVER_SESSION_TIMEOUT_IN_SECONDS = new GoIntSystemProperty("go.server.session.timeout.seconds", 60 * 60 * 24 * 14);
     public static final GoSystemProperty<Integer> GO_SERVER_SESSION_COOKIE_MAX_AGE_IN_SECONDS = new GoIntSystemProperty("go.sessioncookie.maxage.seconds", 60 * 60 * 24 * 14);
     public static final GoSystemProperty<Boolean> GO_SERVER_SESSION_COOKIE_SECURE = new GoBooleanSystemProperty("go.sessioncookie.secure", false);
+    public static final GoSystemProperty<String> AGENT_EXTRA_PROPERTIES = new GoStringSystemProperty("gocd.agent.extra.properties", "");
 
     /* DATABASE CONFIGURATION - Defaults are of H2 */
     public static GoSystemProperty<String> GO_DATABASE_HOST = new GoStringSystemProperty("db.host", "localhost");

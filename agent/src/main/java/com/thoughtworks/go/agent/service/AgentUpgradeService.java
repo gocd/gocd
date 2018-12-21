@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,11 +30,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.util.Map;
+
+import static com.thoughtworks.go.agent.common.util.HeaderUtil.parseExtraProperties;
+import static com.thoughtworks.go.util.SystemEnvironment.*;
 
 @Service
 public class AgentUpgradeService {
     private static final Logger LOGGER = LoggerFactory.getLogger(AgentUpgradeService.class);
-    static final Marker FATAL = MarkerFactory.getMarker("FATAL");
+    private static final Marker FATAL = MarkerFactory.getMarker("FATAL");
     private final GoAgentServerHttpClient httpClient;
     private final SystemEnvironment systemEnvironment;
     private URLService urlService;
@@ -64,23 +68,25 @@ public class AgentUpgradeService {
         this.jvmExitter = jvmExitter;
     }
 
-    public void checkForUpgrade() throws Exception {
+    public void checkForUpgradeAndExtraProperties() throws Exception {
         if (!"".equals(systemEnvironment.getAgentMd5())) {
-            checkForUpgrade(systemEnvironment.getAgentMd5(), systemEnvironment.getGivenAgentLauncherMd5(), systemEnvironment.getAgentPluginsMd5(), systemEnvironment.getTfsImplMd5());
+            checkForUpgradeAndExtraProperties(systemEnvironment.getAgentMd5(), systemEnvironment.getGivenAgentLauncherMd5(),
+                    systemEnvironment.getAgentPluginsMd5(), systemEnvironment.getTfsImplMd5());
         }
     }
 
-    void checkForUpgrade(String agentMd5, String launcherMd5, String agentPluginsMd5, String tfsImplMd5) throws Exception {
+    private void checkForUpgradeAndExtraProperties(String agentMd5, String launcherMd5, String agentPluginsMd5, String tfsImplMd5) throws Exception {
         HttpGet method = getAgentLatestStatusGetMethod();
         try (final CloseableHttpResponse response = httpClient.execute(method)) {
             if (response.getStatusLine().getStatusCode() != 200) {
                 LOGGER.error("[Agent Upgrade] Got status {} {} from GoCD", response.getStatusLine().getStatusCode(), response.getStatusLine());
                 return;
             }
-            validateMd5(agentMd5, response, SystemEnvironment.AGENT_CONTENT_MD5_HEADER, "itself");
-            validateMd5(launcherMd5, response, SystemEnvironment.AGENT_LAUNCHER_CONTENT_MD5_HEADER, "launcher");
-            validateMd5(agentPluginsMd5, response, SystemEnvironment.AGENT_PLUGINS_ZIP_MD5_HEADER, "plugins");
-            validateMd5(tfsImplMd5, response, SystemEnvironment.AGENT_TFS_SDK_MD5_HEADER, "tfs-impl jar");
+            validateMd5(agentMd5, response, AGENT_CONTENT_MD5_HEADER, "itself");
+            validateMd5(launcherMd5, response, AGENT_LAUNCHER_CONTENT_MD5_HEADER, "launcher");
+            validateMd5(agentPluginsMd5, response, AGENT_PLUGINS_ZIP_MD5_HEADER, "plugins");
+            validateMd5(tfsImplMd5, response, AGENT_TFS_SDK_MD5_HEADER, "tfs-impl jar");
+            updateExtraProperties(response.getFirstHeader(AGENT_EXTRA_PROPERTIES_HEADER));
         } catch (IOException ioe) {
             String message = String.format("[Agent Upgrade] Couldn't connect to: %s: %s", urlService.getAgentLatestStatusUrl(), ioe.toString());
             LOGGER.error(message);
@@ -89,6 +95,11 @@ public class AgentUpgradeService {
         } finally {
             method.releaseConnection();
         }
+    }
+
+    private void updateExtraProperties(Header extraPropertiesHeader) {
+        final Map<String, String> extraProperties = parseExtraProperties(extraPropertiesHeader);
+        extraProperties.forEach(System::setProperty);
     }
 
     private void validateMd5(String currentMd5, CloseableHttpResponse response, String agentContentMd5Header, String what) {

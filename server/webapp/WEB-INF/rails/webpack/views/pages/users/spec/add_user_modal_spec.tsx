@@ -16,7 +16,7 @@
 
 import {ModalManager} from "views/components/modal/modal_manager";
 import "views/components/table/spec/table_matchers";
-import {UserSearchModal} from "views/pages/users/modal";
+import {UserSearchModal} from "views/pages/users/add_user_modal";
 
 describe("UserSearchModal", () => {
   afterEach(ModalManager.closeAll);

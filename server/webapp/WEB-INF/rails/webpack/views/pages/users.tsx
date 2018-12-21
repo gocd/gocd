@@ -23,7 +23,7 @@ import * as Buttons from "views/components/buttons";
 import {HeaderPanel} from "views/components/header_panel";
 import {Page, PageState} from "views/pages/page";
 import {AddOperation} from "views/pages/page_operations";
-import {UserSearchModal} from "views/pages/users/modal";
+import {UserSearchModal} from "views/pages/users/add_user_modal";
 import {UsersWidget} from "views/pages/users/users_widget";
 
 interface State extends AddOperation<UserJSON> {

@@ -27,11 +27,6 @@
         "value": false
       },
       {
-        "key": "server_drain_mode_api_toggle_key",
-        "description": "Enables API to toggle server drain mode.",
-        "value": false
-      },
-      {
         "key": "use_new_auth_config_spa",
         "description": "Switch authorization configuration spa to use new spa.",
         "value": false

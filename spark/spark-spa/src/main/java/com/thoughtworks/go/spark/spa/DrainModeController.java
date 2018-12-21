@@ -17,7 +17,6 @@
 package com.thoughtworks.go.spark.spa;
 
 import com.thoughtworks.go.server.service.support.toggle.FeatureToggleService;
-import com.thoughtworks.go.server.service.support.toggle.Toggles;
 import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.SparkController;
 import com.thoughtworks.go.spark.spring.SPAAuthenticationHelper;
@@ -33,12 +32,10 @@ import static spark.Spark.*;
 public class DrainModeController implements SparkController {
     private SPAAuthenticationHelper authenticationHelper;
     private TemplateEngine engine;
-    private FeatureToggleService features;
 
-    public DrainModeController(SPAAuthenticationHelper authenticationHelper, TemplateEngine engine, FeatureToggleService features) {
+    public DrainModeController(SPAAuthenticationHelper authenticationHelper, TemplateEngine engine) {
         this.authenticationHelper = authenticationHelper;
         this.engine = engine;
-        this.features = features;
     }
 
     @Override
@@ -50,7 +47,6 @@ public class DrainModeController implements SparkController {
     public void setupRoutes() {
         path(controllerBasePath(), () -> {
             before("", authenticationHelper::checkAdminUserAnd403);
-            before("", this::featureToggleGuard);
             get("", this::index, engine);
         });
     }
@@ -61,11 +57,5 @@ public class DrainModeController implements SparkController {
         }};
 
         return new ModelAndView(object, null);
-    }
-
-    private void featureToggleGuard(Request req, Response res) {
-        if (!features.isToggleOn(Toggles.SERVER_DRAIN_MODE_API_TOGGLE_KEY)) {
-            res.redirect("/");
-        }
     }
 }

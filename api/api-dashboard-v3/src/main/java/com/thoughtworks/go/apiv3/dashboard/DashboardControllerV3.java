@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.apiv2.dashboard;
+package com.thoughtworks.go.apiv3.dashboard;
 
 
 import com.thoughtworks.go.api.ApiController;
 import com.thoughtworks.go.api.ApiVersion;
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
 import com.thoughtworks.go.api.util.MessageJson;
-import com.thoughtworks.go.apiv2.dashboard.representers.DashboardFor;
-import com.thoughtworks.go.apiv2.dashboard.representers.DashboardRepresenter;
+import com.thoughtworks.go.apiv3.dashboard.representers.DashboardFor;
+import com.thoughtworks.go.apiv3.dashboard.representers.DashboardRepresenter;
 import com.thoughtworks.go.server.dashboard.GoDashboardEnvironment;
 import com.thoughtworks.go.server.dashboard.GoDashboardPipelineGroup;
 import com.thoughtworks.go.server.domain.Username;
@@ -47,7 +47,7 @@ import static com.thoughtworks.go.server.domain.user.DashboardFilter.DEFAULT_NAM
 import static spark.Spark.*;
 
 @Component
-public class DashboardController extends ApiController implements SparkSpringController {
+public class DashboardControllerV3 extends ApiController implements SparkSpringController {
 
     private static final String BEING_PROCESSED = MessageJson.create("Dashboard is being processed, this may take a few seconds. Please check back later.");
     private static final int ACCEPTED = 202;
@@ -61,8 +61,8 @@ public class DashboardController extends ApiController implements SparkSpringCon
     private final ApiAuthenticationHelper apiAuthenticationHelper;
 
     @Autowired
-    public DashboardController(ApiAuthenticationHelper apiAuthenticationHelper, PipelineSelectionsService pipelineSelectionsService, GoDashboardService goDashboardService) {
-        super(ApiVersion.v2);
+    public DashboardControllerV3(ApiAuthenticationHelper apiAuthenticationHelper, PipelineSelectionsService pipelineSelectionsService, GoDashboardService goDashboardService) {
+        super(ApiVersion.v3);
         this.apiAuthenticationHelper = apiAuthenticationHelper;
         this.pipelineSelectionsService = pipelineSelectionsService;
         this.goDashboardService = goDashboardService;

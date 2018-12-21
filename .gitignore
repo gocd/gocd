@@ -117,6 +117,9 @@ api/api-version-v1/out/
 api/api-version-v1/logs/
 api/api-version-v1/target/
 api/api-dashboard-v2/target/
+api/api-dashboard-v3/out/
+api/api-dashboard-v3/logs/
+api/api-dashboard-v3/target/
 api/api-data-sharing-reporting-v2/logs/
 api/api-data-sharing-reporting-v2/out/
 api/api-data-sharing-reporting-v2/target/

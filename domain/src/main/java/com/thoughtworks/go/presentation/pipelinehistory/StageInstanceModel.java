@@ -33,6 +33,7 @@ public class StageInstanceModel implements StageConfigurationModel {
     private boolean scheduled = true; // true if this stage history really happened
     private String approvalType;
     private String approvedBy;
+    private String cancelledBy;
     private String counter;
     private boolean operatePermission;
     private StageInstanceModel previousStage;
@@ -111,6 +112,14 @@ public class StageInstanceModel implements StageConfigurationModel {
 
     public void setApprovedBy(String approvedBy) {
         this.approvedBy = approvedBy;
+    }
+
+    public String getCancelledBy() {
+        return cancelledBy;
+    }
+
+    public void setCancelledBy(String cancelledBy) {
+        this.cancelledBy = cancelledBy;
     }
 
     public String getApprovalDescription() {

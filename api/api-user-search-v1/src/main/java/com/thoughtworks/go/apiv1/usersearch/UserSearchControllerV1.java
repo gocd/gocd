@@ -33,6 +33,8 @@ import spark.Response;
 import java.io.IOException;
 import java.util.List;
 
+import static com.thoughtworks.go.api.util.HaltApiResponses.haltBecauseOfReason;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 import static spark.Spark.*;
 
 @Component
@@ -66,6 +68,9 @@ public class UserSearchControllerV1 extends ApiController implements SparkSpring
     public String show(Request req, Response res) throws IOException {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         String searchTerm = req.queryParams("q");
+        if (isBlank(searchTerm)) {
+            throw haltBecauseOfReason("Search term not specified!");
+        }
         List<UserSearchModel> userSearchModels = userSearchService.search(searchTerm, result);
 
         if (result.isSuccessful()) {

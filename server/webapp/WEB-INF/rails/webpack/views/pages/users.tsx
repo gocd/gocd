@@ -17,28 +17,46 @@
 import * as m from "mithril";
 import {Stream} from "mithril/stream";
 import * as stream from "mithril/stream";
-import {UserJSON} from "models/users/users";
+import {UserJSON, Users} from "models/users/users";
 import {UsersCRUD} from "models/users/users_crud";
+import * as Buttons from "views/components/buttons";
+import {FlashMessageModel} from "views/components/flash_message";
+import {HeaderPanel} from "views/components/header_panel";
 import {Page, PageState} from "views/pages/page";
+import {AddOperation} from "views/pages/page_operations";
+import {UserSearchModal} from "views/pages/users/add_user_modal";
 import {UsersWidget} from "views/pages/users/users_widget";
 
-interface State {
-  users: Stream<UserJSON[]>;
-
+interface State extends AddOperation<UserJSON> {
+  users: Stream<Users>;
+  message: FlashMessageModel;
 }
 
 export class UsersPage extends Page<null, State> {
   oninit(vnode: m.Vnode<null, State>) {
     super.oninit(vnode);
-    vnode.state.users = stream([] as UserJSON[]);
+    vnode.state.message = new FlashMessageModel();
+
+    vnode.state.users = stream(new Users([]));
+    vnode.state.onAdd = (e) => {
+      e.stopPropagation();
+      new UserSearchModal(vnode.state.message, this.fetchData.bind(this, vnode)).render();
+    };
   }
 
   componentToDisplay(vnode: m.Vnode<null, State>): JSX.Element | undefined {
-    return <UsersWidget users={vnode.state.users}/>;
+    return <UsersWidget users={vnode.state.users} message={vnode.state.message}/>;
   }
 
   pageName(): string {
     return "User summary";
+  }
+
+  headerPanel(vnode: m.Vnode<null, State>) {
+    const headerButtons = [];
+    headerButtons.push(<Buttons.Primary onclick={vnode.state.onAdd.bind(vnode.state)}>Add User</Buttons.Primary>);
+
+    return <HeaderPanel title="Elastic Profiles" buttons={headerButtons}/>;
   }
 
   fetchData(vnode: m.Vnode<null, State>): Promise<any> {

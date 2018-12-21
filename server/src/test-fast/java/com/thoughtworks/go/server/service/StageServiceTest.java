@@ -531,7 +531,7 @@ public class StageServiceTest {
 
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
             public void doInTransactionWithoutResult(TransactionStatus status) {
-                service.cancelStage(cancelledStage);
+                service.cancelStage(cancelledStage, null);
             }
         });
 

@@ -300,6 +300,20 @@
   </rule>
 
   <rule>
+    <name>Spark Stage History Offset API</name>
+    <condition type="header" name="Accept">application\/vnd\.go\.cd\.v1\+json</condition>
+    <from>^/api/stages/([^/]+)/([^/]+)/history/([^/]+)(/?)</from>
+    <to last="true">/spark/api/stages/${escape:$1}/${escape:$2}/history/${escape:$3}</to>
+  </rule>
+
+  <rule>
+    <name>Spark Stage History API</name>
+    <condition type="header" name="Accept">application\/vnd\.go\.cd\.v1\+json</condition>
+    <from>^/api/stages/([^/]+)/([^/]+)/history(/?)</from>
+    <to last="true">/spark/api/stages/${escape:$1}/${escape:$2}/history</to>
+  </rule>
+
+  <rule>
     <name>Spark Config Repos Internal Operations API</name>
     <from>^/api/internal/config_repos/([^/]+)/(trigger_update|status)(/?)</from>
     <to last="true">/spark/api/internal/config_repos/${escape:$1}/${escape:$2}</to>

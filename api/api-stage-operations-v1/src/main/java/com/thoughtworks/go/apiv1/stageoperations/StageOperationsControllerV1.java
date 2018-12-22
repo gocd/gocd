@@ -22,15 +22,18 @@ import com.thoughtworks.go.api.representers.JsonReader;
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
 import com.thoughtworks.go.api.util.GsonTransformer;
 import com.thoughtworks.go.api.util.HaltApiResponses;
+import com.thoughtworks.go.apiv1.stageoperations.representers.StageInstancesRepresenter;
 import com.thoughtworks.go.apiv1.stageoperations.representers.StageRepresenter;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.domain.JobInstance;
 import com.thoughtworks.go.domain.NullStage;
 import com.thoughtworks.go.domain.Stage;
+import com.thoughtworks.go.presentation.pipelinehistory.StageInstanceModels;
 import com.thoughtworks.go.server.service.PipelineService;
 import com.thoughtworks.go.server.service.ScheduleService;
 import com.thoughtworks.go.server.service.StageService;
 import com.thoughtworks.go.server.service.result.HttpOperationResult;
+import com.thoughtworks.go.server.util.Pagination;
 import com.thoughtworks.go.serverhealth.HealthStateScope;
 import com.thoughtworks.go.serverhealth.HealthStateType;
 import com.thoughtworks.go.spark.Routes;
@@ -87,10 +90,14 @@ public class StageOperationsControllerV1 extends ApiController implements SparkS
             before(Routes.Stage.TRIGGER_FAILED_JOBS_PATH, mimeType, apiAuthenticationHelper::checkPipelineGroupOperateUserAnd403);
             before(Routes.Stage.TRIGGER_SELECTED_JOBS_PATH, mimeType, apiAuthenticationHelper::checkPipelineGroupOperateUserAnd403);
             before(Routes.Stage.INSTANCE_BY_COUNTER, mimeType, apiAuthenticationHelper::checkPipelineViewPermissionsAnd403);
+            before(Routes.Stage.STAGE_HISTORY, mimeType, apiAuthenticationHelper::checkPipelineViewPermissionsAnd403);
+            before(Routes.Stage.STAGE_HISTORY_OFFSET, mimeType, apiAuthenticationHelper::checkPipelineViewPermissionsAnd403);
             post(Routes.Stage.TRIGGER_STAGE_PATH, mimeType, this::triggerStage);
             post(Routes.Stage.TRIGGER_FAILED_JOBS_PATH, mimeType, this::rerunFailedJobs);
             post(Routes.Stage.TRIGGER_SELECTED_JOBS_PATH, mimeType, this::rerunSelectedJobs);
             get(Routes.Stage.INSTANCE_BY_COUNTER, mimeType, this::instanceByCounter);
+            get(Routes.Stage.STAGE_HISTORY, mimeType, this::history);
+            get(Routes.Stage.STAGE_HISTORY_OFFSET, mimeType, this::history);
 
             exception(RecordNotFoundException.class, this::notFound);
         });
@@ -172,6 +179,24 @@ public class StageOperationsControllerV1 extends ApiController implements SparkS
             return writerForTopLevelObject(req, res, writer -> StageRepresenter.toJSON(writer, stageModel));
         } else {
             return renderHTTPOperationResult(result, req, res);
+        }
+    }
+
+    public String history(Request request, Response response) throws IOException {
+        String pipelineName = request.params("pipeline_name");
+        String stageName = request.params("stage_name");
+        String offset = request.params("offset");
+        int offsetFromRequest = offset == null ? 0 : Integer.parseInt(offset);
+        int pageSize = 10;
+        int stageInstanceCount = stageService.getCount(pipelineName, stageName);
+        HttpOperationResult result = new HttpOperationResult();
+
+        Pagination pagination = Pagination.pageStartingAt(offsetFromRequest, stageInstanceCount, pageSize);
+        StageInstanceModels stageInstanceModels = stageService.findDetailedStageHistoryByOffset(pipelineName, stageName, pagination, currentUsername().getUsername().toString(), result);
+        if (result.canContinue()) {
+            return writerForTopLevelObject(request, response, writer -> StageInstancesRepresenter.toJSON(writer, stageInstanceModels, pagination));
+        } else {
+            return renderHTTPOperationResult(result, request, response);
         }
     }
 

@@ -18,7 +18,10 @@ package com.thoughtworks.go.apiv1.stageoperations
 
 import com.thoughtworks.go.api.SecurityTestTrait
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
+import com.thoughtworks.go.apiv1.stageoperations.representers.StageRepresenter
+import com.thoughtworks.go.config.CaseInsensitiveString
 import com.thoughtworks.go.domain.*
+import com.thoughtworks.go.server.domain.Username
 import com.thoughtworks.go.server.service.PipelineService
 import com.thoughtworks.go.server.service.ScheduleService
 import com.thoughtworks.go.server.service.SchedulingCheckerService
@@ -27,6 +30,7 @@ import com.thoughtworks.go.server.service.result.HttpOperationResult
 import com.thoughtworks.go.serverhealth.HealthStateScope
 import com.thoughtworks.go.serverhealth.HealthStateType
 import com.thoughtworks.go.spark.ControllerTrait
+import com.thoughtworks.go.spark.PipelineAccessSecurity
 import com.thoughtworks.go.spark.PipelineGroupOperateUserSecurity
 import com.thoughtworks.go.spark.SecurityServiceTrait
 import org.junit.jupiter.api.BeforeEach
@@ -344,6 +348,103 @@ class StageOperationsControllerV1Test implements SecurityServiceTrait, Controlle
           .hasJsonMessage("Stage rerun request for stage [${[pipelineName, pipelineCounter, stageName].join("/")}] " +
           "could not be completed because of an unexpected failure. Cause: bewm.")
       }
+    }
+  }
+
+  @Nested
+  class InstanceByCounter {
+    String pipelineName = "up42"
+    String pipelineCounter = "1"
+    String stageName = "run-tests"
+    String stageCounter = "1"
+
+    @BeforeEach
+    void setUp() {
+      when(goConfigService.hasPipelineNamed(new CaseInsensitiveString(pipelineName))).thenReturn(true)
+    }
+
+    @Nested
+    class Security implements SecurityTestTrait, PipelineAccessSecurity {
+
+      @Override
+      String getControllerMethodUnderTest() {
+        return "instanceByCounter"
+      }
+
+      @Override
+      void makeHttpCall() {
+        getWithApiHeader(controller.controllerPath(pipelineName, stageName, 'instance', pipelineCounter, stageCounter), [:])
+      }
+
+      @Override
+      String getPipelineName() {
+        return InstanceByCounter.this.pipelineName
+      }
+    }
+
+    @Nested
+    class AsAuthorizedUser {
+      @BeforeEach
+      void setUp() {
+        loginAsAdmin()
+      }
+
+      @Test
+      void 'should get specified stage instance'() {
+        when(stageService.findStageWithIdentifier(eq(pipelineName), eq(pipelineCounter.toInteger()), eq(stageName), eq(stageCounter), eq(currentUserLoginName().toString()), any() as HttpOperationResult)).thenReturn(getStageModel())
+
+        getWithApiHeader(controller.controllerPath(pipelineName, stageName, 'instance', pipelineCounter, stageCounter), [:])
+
+        assertThatResponse()
+          .isOk()
+          .hasBodyWithJsonObject(getStageModel(), StageRepresenter)
+      }
+
+      def getStageModel() {
+        def stageModel = new Stage()
+        stageModel.setId(456)
+        stageModel.setName('stage name')
+        stageModel.setCounter(1)
+        stageModel.setApprovalType('manual')
+        stageModel.setApprovedBy('me')
+        stageModel.setRerunOfCounter(1)
+        stageModel.setIdentifier(new StageIdentifier('pipeline name', 213, 'stage name', '4'))
+        stageModel.setJobInstances(new JobInstances(getJobInstance()))
+
+        return stageModel
+      }
+
+      def getJobInstance() {
+        def jobInstance = new JobInstance("job")
+        jobInstance.setId(1);
+        jobInstance.setState(JobState.Assigned)
+        jobInstance.setResult(JobResult.Unknown)
+        jobInstance.setAgentUuid("uuid")
+        jobInstance.setScheduledDate(new Date(2018, 12, 21, 12, 30))
+        jobInstance.setOriginalJobId(1)
+        jobInstance.setTransitions(new JobStateTransitions(new JobStateTransition(JobState.Scheduled, new Date(2018, 12, 21, 12, 45)),
+          new JobStateTransition(JobState.Assigned, null)))
+
+        return jobInstance
+      }
+
+      @Test
+      void 'should render 404 if stage cannot be found'() {
+
+        HttpOperationResult result
+        doAnswer({ InvocationOnMock invocation ->
+          result = invocation.getArgument(5)
+          result.notFound("not found", "", HealthStateType.general(HealthStateScope.forStage(pipelineName, stageName)))
+          return mock(Stage)
+        }).when(stageService).findStageWithIdentifier(eq(pipelineName), eq(pipelineCounter.toInteger()), eq(stageName), eq(stageCounter), any() as String, any() as HttpOperationResult)
+
+        getWithApiHeader(controller.controllerPath(pipelineName, stageName, 'instance', pipelineCounter, stageCounter), [:])
+
+        assertThatResponse()
+          .isNotFound()
+          .hasJsonMessage("not found")
+      }
+
     }
   }
 }

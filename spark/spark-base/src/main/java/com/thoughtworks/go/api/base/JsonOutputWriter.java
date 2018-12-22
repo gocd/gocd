@@ -136,7 +136,7 @@ public class JsonOutputWriter {
         @Override
         public JsonOutputWriterUsingJackson addWithDefaultIfBlank(String key, String value, String defaultValue) {
             return withExceptionHandling((jacksonWriter) -> {
-                if (value != null && StringUtils.isNotBlank(value)) {
+                if (StringUtils.isNotBlank(value)) {
                     add(key, value);
                 }
                 else {

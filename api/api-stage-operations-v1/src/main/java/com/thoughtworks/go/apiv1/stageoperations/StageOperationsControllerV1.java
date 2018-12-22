@@ -22,6 +22,7 @@ import com.thoughtworks.go.api.representers.JsonReader;
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
 import com.thoughtworks.go.api.util.GsonTransformer;
 import com.thoughtworks.go.api.util.HaltApiResponses;
+import com.thoughtworks.go.apiv1.stageoperations.representers.StageRepresenter;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.domain.JobInstance;
 import com.thoughtworks.go.domain.NullStage;
@@ -85,9 +86,11 @@ public class StageOperationsControllerV1 extends ApiController implements SparkS
             before(Routes.Stage.TRIGGER_STAGE_PATH, mimeType, apiAuthenticationHelper::checkPipelineGroupOperateUserAnd403);
             before(Routes.Stage.TRIGGER_FAILED_JOBS_PATH, mimeType, apiAuthenticationHelper::checkPipelineGroupOperateUserAnd403);
             before(Routes.Stage.TRIGGER_SELECTED_JOBS_PATH, mimeType, apiAuthenticationHelper::checkPipelineGroupOperateUserAnd403);
+            before(Routes.Stage.INSTANCE_BY_COUNTER, mimeType, apiAuthenticationHelper::checkPipelineViewPermissionsAnd403);
             post(Routes.Stage.TRIGGER_STAGE_PATH, mimeType, this::triggerStage);
             post(Routes.Stage.TRIGGER_FAILED_JOBS_PATH, mimeType, this::rerunFailedJobs);
             post(Routes.Stage.TRIGGER_SELECTED_JOBS_PATH, mimeType, this::rerunSelectedJobs);
+            get(Routes.Stage.INSTANCE_BY_COUNTER, mimeType, this::instanceByCounter);
 
             exception(RecordNotFoundException.class, this::notFound);
         });
@@ -149,6 +152,27 @@ public class StageOperationsControllerV1 extends ApiController implements SparkS
 
         scheduleService.rerunStage(pipelineName, pipelineCounterValue.get(), stageName, result);
         return renderHTTPOperationResult(result, req, res);
+    }
+
+    public String instanceByCounter(Request req, Response res) throws IOException {
+        String pipelineName = req.params("pipeline_name");
+        String pipelineCounter = req.params("pipeline_counter");
+        String stageName = req.params("stage_name");
+        String stageCounter = req.params("stage_counter");
+        HttpOperationResult result = new HttpOperationResult();
+
+        Stage stageModel = stageService.findStageWithIdentifier(pipelineName,
+                Integer.parseInt(pipelineCounter),
+                stageName,
+                stageCounter,
+                currentUsername().getUsername().toString(),
+                result);
+
+        if (result.canContinue()) {
+            return writerForTopLevelObject(req, res, writer -> StageRepresenter.toJSON(writer, stageModel));
+        } else {
+            return renderHTTPOperationResult(result, req, res);
+        }
     }
 
     private Optional<Stage> getStageFromRequestParam(Request request, HttpOperationResult operationResult) {

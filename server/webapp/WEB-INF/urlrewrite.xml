@@ -293,6 +293,13 @@
   </rule>
 
   <rule>
+    <name>Spark Stage Instance API</name>
+    <condition type="header" name="Accept">application\/vnd\.go\.cd\.v1\+json</condition>
+    <from>^/api/stages/([^/]+)/([^/]+)/instance/([^/]+)/([^/]+)(/?)</from>
+    <to last="true">/spark/api/stages/${escape:$1}/${escape:$2}/instance/${escape:$3}/${escape:$4}</to>
+  </rule>
+
+  <rule>
     <name>Spark Config Repos Internal Operations API</name>
     <from>^/api/internal/config_repos/([^/]+)/(trigger_update|status)(/?)</from>
     <to last="true">/spark/api/internal/config_repos/${escape:$1}/${escape:$2}</to>

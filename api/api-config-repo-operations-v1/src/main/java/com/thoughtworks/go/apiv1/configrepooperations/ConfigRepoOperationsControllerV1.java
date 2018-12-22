@@ -104,16 +104,24 @@ public class ConfigRepoOperationsControllerV1 extends ApiController implements S
             List<Map<String, String>> contents = new ArrayList<>();
 
             for (Part ul : uploads) {
+                if (!"files[]".equals(ul.getName())) {
+                    continue;
+                }
+
                 StringWriter w = new StringWriter();
                 IOUtils.copy(ul.getInputStream(), w, StandardCharsets.UTF_8);
                 contents.add(Collections.singletonMap(ul.getSubmittedFileName(), w.toString()));
             }
 
-            PartialConfig partialConfig = plugin.parseContent(contents, context);
-            CruiseConfig config = partialConfigService.merge(partialConfig, context.configMaterial().getFingerprint(), CLONER.deepClone(gcs.getConfigForEditing()));
+            if (contents.isEmpty()) {
+                result.update(Collections.singletonList("No file content provided; check to make sure you POST the form data as `files[]=`"), false);
+            } else {
+                PartialConfig partialConfig = plugin.parseContent(contents, context);
+                CruiseConfig config = partialConfigService.merge(partialConfig, context.configMaterial().getFingerprint(), CLONER.deepClone(gcs.getConfigForEditing()));
 
-            gcs.validateCruiseConfig(config);
-            result.update(Collections.emptyList(), true);
+                gcs.validateCruiseConfig(config);
+                result.update(Collections.emptyList(), true);
+            }
         } catch (PluginNotFoundException e) {
             throw HaltApiResponses.haltBecauseNotFound(e.getMessage());
         } catch (InvalidPartialConfigException e) {

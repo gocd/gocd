@@ -33,6 +33,7 @@ import spark.servlet.SparkFilter
 
 import javax.servlet.Filter
 import javax.servlet.FilterConfig
+import javax.servlet.http.Part
 
 import static org.mockito.Mockito.*
 
@@ -45,6 +46,8 @@ trait ControllerTrait<T extends SparkController> {
   RequestContext requestContext = new TestRequestContext()
   StubTemplateEngine templateEngine = new StubTemplateEngine()
   HttpRequestBuilder httpRequestBuilder = new HttpRequestBuilder()
+  Part part = mock(Part)
+  Collection<Part> parts = Collections.singletonList(part)
 
   void get(String path) {
     sendRequest('get', path, [:], null)
@@ -130,9 +133,17 @@ trait ControllerTrait<T extends SparkController> {
     }
 
     request = httpRequestBuilder.build()
+    request.setParts(parts)
+
     response = new MockHttpServletResponse()
 
     getPrefilter().doFilter(request, response, null)
+  }
+
+  void mockMultipartContent(String name, String filename, String content) {
+    when(part.getName()).thenReturn(name)
+    when(part.getSubmittedFileName()).thenReturn(filename)
+    when(part.getInputStream()).thenReturn(new ByteArrayInputStream(content.getBytes()))
   }
 
   private Filter getPrefilter() {

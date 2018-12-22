@@ -102,6 +102,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
     private boolean secure = false;
     private int remotePort = DEFAULT_SERVER_PORT;
     private String localName = DEFAULT_SERVER_NAME;
+    private Collection<Part> parts = Collections.emptyList();
 
 
     // ---------------------------------------------------------------------
@@ -899,7 +900,11 @@ public class MockHttpServletRequest implements HttpServletRequest {
 
     @Override
     public Collection<Part> getParts() {
-        return Collections.emptyList();
+        return parts;
+    }
+
+    public void setParts(Collection<Part> parts) {
+        this.parts = parts;
     }
 
     @Override

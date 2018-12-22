@@ -86,6 +86,7 @@ class ConfigRepoOperationsControllerV1Test implements SecurityServiceTrait, Cont
 
       @BeforeEach
       void setUp() {
+        mockMultipartContent("files[]", "foo.config", "content")
         loginAsAdmin()
       }
 

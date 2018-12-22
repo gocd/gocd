@@ -29,6 +29,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 public class ConfigRepoPlugin implements PartialConfigProvider {
     private ConfigConverter configConverter;
@@ -72,7 +73,7 @@ public class ConfigRepoPlugin implements PartialConfigProvider {
         return this.crExtension.pipelineExport(this.pluginId, crPipeline);
     }
 
-    public PartialConfig parseContent(String content, PartialConfigLoadContext context) {
+    public PartialConfig parseContent(List<Map<String, String>> content, PartialConfigLoadContext context) {
         CRParseResult parseResult = this.crExtension.parseContent(pluginId, content);
         if (parseResult.hasErrors()) {
             throw new InvalidPartialConfigException(parseResult, parseResult.getErrors().getErrorsAsText());

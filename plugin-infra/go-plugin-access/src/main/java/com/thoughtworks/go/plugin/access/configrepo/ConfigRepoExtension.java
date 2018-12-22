@@ -119,7 +119,7 @@ public class ConfigRepoExtension extends AbstractExtension implements ConfigRepo
     }
 
     @Override
-    public CRParseResult parseContent(String pluginId, String content) {
+    public CRParseResult parseContent(String pluginId, List<Map<String, String>> content) {
         return pluginRequestHelper.submitRequest(pluginId, REQUEST_PARSE_CONTENT, new DefaultPluginInteractionCallback<CRParseResult>() {
             @Override
             public String requestBody(String resolvedExtensionVersion) {

@@ -19,6 +19,7 @@ package com.thoughtworks.go.apiv1.configrepooperations
 import com.thoughtworks.go.api.SecurityTestTrait
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
 import com.thoughtworks.go.config.*
+import com.thoughtworks.go.config.exceptions.GoConfigInvalidException
 import com.thoughtworks.go.config.remote.PartialConfig
 import com.thoughtworks.go.plugin.access.PluginNotFoundException
 import com.thoughtworks.go.plugin.access.configrepo.InvalidPartialConfigException
@@ -100,7 +101,7 @@ class ConfigRepoOperationsControllerV1Test implements SecurityServiceTrait, Cont
       @Test
       void "returns NOT FOUND when plugin does not exist"() {
         def plugin = mock(ConfigRepoPlugin.class)
-        when(plugin.parseContent(any() as String, any() as PartialConfigLoadContext)).thenThrow(new PluginNotFoundException("Not found"))
+        when(plugin.parseContent(any() as List<Map<String, String>>, any() as PartialConfigLoadContext)).thenThrow(new PluginNotFoundException("Not found"))
         when(pluginService.partialConfigProviderFor(PLUGIN_ID)).thenReturn(plugin)
         postWithApiHeader(controller.controllerPath("$PREFLIGHT_PATH?pluginId=$PLUGIN_ID"), [:])
 
@@ -124,7 +125,7 @@ class ConfigRepoOperationsControllerV1Test implements SecurityServiceTrait, Cont
         def plugin = mock(ConfigRepoPlugin.class)
         def partialConfig = mock(PartialConfig.class)
         def cruiseConfig = mock(CruiseConfig.class)
-        when(plugin.parseContent(any() as String, any() as PartialConfigLoadContext)).thenReturn(partialConfig)
+        when(plugin.parseContent(any() as List<Map<String, String>>, any() as PartialConfigLoadContext)).thenReturn(partialConfig)
         when(pluginService.partialConfigProviderFor(PLUGIN_ID)).thenReturn(plugin)
         when(partialConfigService.merge(eq(partialConfig), any() as String, any() as CruiseConfig)).thenReturn(cruiseConfig)
 
@@ -141,7 +142,7 @@ class ConfigRepoOperationsControllerV1Test implements SecurityServiceTrait, Cont
       void "returns serialized PreflightResult when config fails to parse"() {
         def plugin = mock(ConfigRepoPlugin.class)
         def partialConfig = mock(PartialConfig.class)
-        when(plugin.parseContent(any() as String, any() as PartialConfigLoadContext)).thenThrow(new InvalidPartialConfigException(partialConfig, "bad content!"))
+        when(plugin.parseContent(any() as List<Map<String, String>>, any() as PartialConfigLoadContext)).thenThrow(new InvalidPartialConfigException(partialConfig, "bad content!"))
         when(pluginService.partialConfigProviderFor(PLUGIN_ID)).thenReturn(plugin)
 
         postWithApiHeader(controller.controllerPath("$PREFLIGHT_PATH?pluginId=$PLUGIN_ID"), [:])
@@ -160,10 +161,10 @@ class ConfigRepoOperationsControllerV1Test implements SecurityServiceTrait, Cont
         def plugin = mock(ConfigRepoPlugin.class)
         def partialConfig = mock(PartialConfig.class)
         def cruiseConfig = mock(CruiseConfig.class)
-        when(plugin.parseContent(any() as String, any() as PartialConfigLoadContext)).thenReturn(partialConfig)
+        when(plugin.parseContent(any() as List<Map<String, String>>, any() as PartialConfigLoadContext)).thenReturn(partialConfig)
         when(pluginService.partialConfigProviderFor(PLUGIN_ID)).thenReturn(plugin)
         when(partialConfigService.merge(eq(partialConfig), any() as String, any() as CruiseConfig)).thenReturn(cruiseConfig)
-        when(goConfigService.validateCruiseConfig(cruiseConfig)).thenThrow(new RuntimeException("nope!"))
+        when(goConfigService.validateCruiseConfig(cruiseConfig)).thenThrow(new GoConfigInvalidException(cruiseConfig, "nope!"))
 
         postWithApiHeader(controller.controllerPath("$PREFLIGHT_PATH?pluginId=$PLUGIN_ID"), [:])
 

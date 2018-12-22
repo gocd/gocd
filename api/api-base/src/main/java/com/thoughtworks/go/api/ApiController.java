@@ -25,6 +25,7 @@ import org.springframework.util.MimeType;
 import spark.Request;
 import spark.Response;
 
+import javax.servlet.MultipartConfigElement;
 import java.io.IOException;
 import java.util.*;
 
@@ -34,6 +35,7 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
 
 public abstract class ApiController implements ControllerMethods, SparkController {
     private static final Set<String> UPDATE_HTTP_METHODS = new HashSet<>(Arrays.asList("PUT", "POST", "PATCH"));
+    private static final String MULTIPART_REQ_ATTR = "org.eclipse.jetty.multipartConfig";
 
     protected final ApiVersion apiVersion;
     protected String mimeType;
@@ -74,6 +76,10 @@ public abstract class ApiController implements ControllerMethods, SparkControlle
         } else if (request.headers().stream().noneMatch(headerName -> headerName.toLowerCase().equals("x-gocd-confirm"))) {
             throw haltBecauseConfirmHeaderMissing();
         }
+    }
+
+    protected void setMultpipartUpload(Request req, Response res) {
+        req.raw().setAttribute(MULTIPART_REQ_ATTR, new MultipartConfigElement(System.getProperty("java.io.tmpdir", "tmp")));
     }
 
     protected boolean isJsonContentType(Request request) {

@@ -32,6 +32,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 
 public class JsonMessageHandler1_0 implements JsonMessageHandler {
 
@@ -52,7 +54,7 @@ public class JsonMessageHandler1_0 implements JsonMessageHandler {
     }
 
     @Override
-    public String requestMessageForParseContent(String content) {
+    public String requestMessageForParseContent(List<Map<String, String>> content) {
         throw new UnsupportedOperationException("V1 Config Repo plugins don't support parse-content");
     }
 

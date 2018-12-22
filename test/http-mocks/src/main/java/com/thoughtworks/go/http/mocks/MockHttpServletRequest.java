@@ -924,7 +924,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
 
     @Override
     public Collection<Part> getParts() {
-        return null;
+        return Collections.emptyList();
     }
 
     @Override

@@ -34,14 +34,18 @@ import com.thoughtworks.go.server.service.ConfigRepoService;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.util.UuidGenerator;
 import com.thoughtworks.go.spark.spring.SparkSpringController;
+import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import spark.Request;
 import spark.Response;
 import spark.utils.StringUtils;
 
+import javax.servlet.http.Part;
 import java.io.IOException;
-import java.util.Collections;
+import java.io.StringWriter;
+import java.nio.charset.StandardCharsets;
+import java.util.*;
 
 import static com.thoughtworks.go.spark.Routes.ConfigRepos.OPERATIONS_BASE;
 import static com.thoughtworks.go.spark.Routes.ConfigRepos.PREFLIGHT_PATH;
@@ -82,7 +86,7 @@ public class ConfigRepoOperationsControllerV1 extends ApiController implements S
 
             before("/*", mimeType, this::setContentType);
             before("/*", mimeType, authenticationHelper::checkAdminUserAnd403);
-            before("/*", this::verifyContentType);
+            before(PREFLIGHT_PATH, this::setMultpipartUpload);
 
             post(PREFLIGHT_PATH, mimeType, this::preflight);
         });
@@ -96,7 +100,16 @@ public class ConfigRepoOperationsControllerV1 extends ApiController implements S
         final PreflightResult result = new PreflightResult();
 
         try {
-            PartialConfig partialConfig = plugin.parseContent(req.body(), context);
+            Collection<Part> uploads = req.raw().getParts();
+            List<Map<String, String>> contents = new ArrayList<>();
+
+            for (Part ul : uploads) {
+                StringWriter w = new StringWriter();
+                IOUtils.copy(ul.getInputStream(), w, StandardCharsets.UTF_8);
+                contents.add(Collections.singletonMap(ul.getSubmittedFileName(), w.toString()));
+            }
+
+            PartialConfig partialConfig = plugin.parseContent(contents, context);
             CruiseConfig config = partialConfigService.merge(partialConfig, context.configMaterial().getFingerprint(), CLONER.deepClone(gcs.getConfigForEditing()));
 
             gcs.validateCruiseConfig(config);
@@ -108,7 +121,7 @@ public class ConfigRepoOperationsControllerV1 extends ApiController implements S
         } catch (GoConfigInvalidException e) {
             result.update(e.getAllErrors(), false);
         } catch (Exception e) {
-            result.update(Collections.singletonList(e.getMessage()), false);
+            throw HaltApiResponses.haltBecauseOfReason(e.getMessage());
         }
 
         return writerForTopLevelObject(req, res, w -> PreflightResultRepresenter.toJSON(w, result));

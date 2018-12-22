@@ -34,6 +34,8 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 public class JsonMessageHandler2_0 implements JsonMessageHandler {
     static final int CURRENT_CONTRACT_VERSION = 3;
@@ -64,8 +66,8 @@ public class JsonMessageHandler2_0 implements JsonMessageHandler {
     }
 
     @Override
-    public String requestMessageForParseContent(String content) {
-        return codec.getGson().toJson(Collections.singletonMap("content", content));
+    public String requestMessageForParseContent(List<Map<String, String>> contents) {
+        return codec.getGson().toJson(Collections.singletonMap("contents", contents));
     }
 
     private ParseDirectoryMessage prepareMessage_1(String destinationFolder, Collection<CRConfigurationProperty> configurations) {

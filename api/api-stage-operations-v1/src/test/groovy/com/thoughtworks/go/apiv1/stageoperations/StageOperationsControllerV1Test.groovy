@@ -18,15 +18,21 @@ package com.thoughtworks.go.apiv1.stageoperations
 
 import com.thoughtworks.go.api.SecurityTestTrait
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
+import com.thoughtworks.go.apiv1.stageoperations.representers.StageInstancesRepresenter
 import com.thoughtworks.go.apiv1.stageoperations.representers.StageRepresenter
 import com.thoughtworks.go.config.CaseInsensitiveString
 import com.thoughtworks.go.domain.*
+import com.thoughtworks.go.presentation.pipelinehistory.JobHistory
+import com.thoughtworks.go.presentation.pipelinehistory.JobHistoryItem
+import com.thoughtworks.go.presentation.pipelinehistory.StageInstanceModel
+import com.thoughtworks.go.presentation.pipelinehistory.StageInstanceModels
 import com.thoughtworks.go.server.domain.Username
 import com.thoughtworks.go.server.service.PipelineService
 import com.thoughtworks.go.server.service.ScheduleService
 import com.thoughtworks.go.server.service.SchedulingCheckerService
 import com.thoughtworks.go.server.service.StageService
 import com.thoughtworks.go.server.service.result.HttpOperationResult
+import com.thoughtworks.go.server.util.Pagination
 import com.thoughtworks.go.serverhealth.HealthStateScope
 import com.thoughtworks.go.serverhealth.HealthStateType
 import com.thoughtworks.go.spark.ControllerTrait
@@ -39,6 +45,7 @@ import org.junit.jupiter.api.Test
 import org.mockito.Mock
 import org.mockito.invocation.InvocationOnMock
 
+import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
 import static org.mockito.ArgumentMatchers.*
 import static org.mockito.Mockito.*
 import static org.mockito.MockitoAnnotations.initMocks
@@ -445,6 +452,88 @@ class StageOperationsControllerV1Test implements SecurityServiceTrait, Controlle
           .hasJsonMessage("not found")
       }
 
+    }
+  }
+
+
+  @Nested
+  class History {
+    String pipelineName = "up42"
+    String stageName = "run-tests"
+    String offset = "1"
+
+    @BeforeEach
+    void setUp() {
+      when(goConfigService.hasPipelineNamed(new CaseInsensitiveString(pipelineName))).thenReturn(true)
+    }
+
+    @Nested
+    class Security implements SecurityTestTrait, PipelineAccessSecurity {
+
+      @Override
+      String getControllerMethodUnderTest() {
+        return "history"
+      }
+
+      @Override
+      void makeHttpCall() {
+        getWithApiHeader(controller.controllerPath(pipelineName, stageName, 'history'), [:])
+      }
+
+      @Override
+      String getPipelineName() {
+        return History.this.pipelineName
+      }
+    }
+
+    @Nested
+    class AsAuthorizedUser {
+      @BeforeEach
+      void setUp() {
+        loginAsAdmin()
+      }
+
+      @Test
+      void 'should get stage history'() {
+        when(stageService.getCount(eq(pipelineName), eq(stageName))).thenReturn(20)
+        when(stageService.findDetailedStageHistoryByOffset(eq(pipelineName), eq(stageName), any() as Pagination, eq(currentUserLoginName().toString()), any() as HttpOperationResult)).thenReturn(getStageModels())
+
+        getWithApiHeader(controller.controllerPath(pipelineName, stageName, 'history'), [:])
+
+        def expectedJson = toObjectString({ StageInstancesRepresenter.toJSON(it , getStageModels(), new Pagination(0, 20, 10)) })
+
+        assertThatResponse()
+        .isOk()
+        .hasBody(expectedJson)
+
+      }
+
+      @Test
+      void 'should get stage history with offset'() {
+        when(stageService.getCount(eq(pipelineName), eq(stageName))).thenReturn(20)
+        when(stageService.findDetailedStageHistoryByOffset(eq(pipelineName), eq(stageName), any() as Pagination, eq(currentUserLoginName().toString()), any() as HttpOperationResult)).thenReturn(getStageModels())
+
+        getWithApiHeader(controller.controllerPath(pipelineName, stageName, 'history', offset), [:])
+
+        def expectedJson = toObjectString({ StageInstancesRepresenter.toJSON(it , getStageModels(), new Pagination(1, 20, 10)) })
+
+        assertThatResponse()
+          .isOk()
+          .hasBody(expectedJson)
+      }
+
+      def getStageModels() {
+        def jobHistoryItem = new JobHistoryItem("job", JobState.Completed, JobResult.Passed, new Date(2018, 12, 22, 11, 10))
+        jobHistoryItem.setId(34)
+        def jobHistory = new JobHistory()
+        jobHistory.add(jobHistoryItem)
+        def stageInstanceModel = new StageInstanceModel("stage", "3", jobHistory)
+        stageInstanceModel.setId(21)
+        def stageInstances = new StageInstanceModels()
+        stageInstances.add(stageInstanceModel)
+
+        return stageInstances
+      }
     }
   }
 }

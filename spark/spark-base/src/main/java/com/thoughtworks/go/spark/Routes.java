@@ -245,6 +245,8 @@ public class Routes {
         public static final String TRIGGER_FAILED_JOBS_PATH = "/:pipeline_name/:pipeline_counter/:stage_name/:stage_counter/run-failed-jobs";
         public static final String TRIGGER_SELECTED_JOBS_PATH = "/:pipeline_name/:pipeline_counter/:stage_name/:stage_counter/run-selected-jobs";
         public static final String INSTANCE_BY_COUNTER = "/:pipeline_name/:stage_name/instance/:pipeline_counter/:stage_counter";
+        public static final String STAGE_HISTORY = "/:pipeline_name/:stage_name/history";
+        public static final String STAGE_HISTORY_OFFSET = "/:pipeline_name/:stage_name/history/:offset";
 
         public static String self(String pipelineName, String pipelineCounter, String stageName, String stageCounter) {
             return StrSubstitutor.replace("/api/stages/${pipeline_name}/${pipeline_counter}/${stage_name}/${stage_counter}", of(

@@ -61,15 +61,6 @@ export class ArtifactStoresCRUD {
                             .then((result: ApiResult<string>) => result.map((body) => JSON.parse(body)));
   }
 
-  static verifyConnection(artifactStore: ArtifactStore) {
-    return ApiRequestBuilder.POST(SparkRoutes.adminInternalVerifyConnectionPath(),
-                                  this.API_VERSION_HEADER,
-                                  {payload: artifactStore})
-                            .then((result: ApiResult<string>) => {
-                              return result.map((body) => JSON.parse(body));
-                            });
-  }
-
   private static extractObjectWithEtag(result: ApiResult<string>) {
     return result.map((body) => {
       return {

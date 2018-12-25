@@ -27,7 +27,7 @@ import {HeaderPanel} from "views/components/header_panel";
 import {ArtifactStoresWidget} from "views/pages/artifact_stores/artifact_stores_widget";
 import {
   CloneArtifactStoreModal,
-  CreateArtifactStoreModal,
+  CreateArtifactStoreModal, DeleteArtifactStoreModal,
   EditArtifactStoreModal
 } from "views/pages/artifact_stores/modals";
 import {Page, PageState} from "views/pages/page";
@@ -88,6 +88,9 @@ export class ArtifactStoresPage extends Page<null, State> {
 
     vnode.state.onClone = (artifactStore: ArtifactStore, e: Event) => {
       e.stopPropagation();
+      if (timeoutID) {
+        clearTimeout(timeoutID);
+      }
 
       new CloneArtifactStoreModal(artifactStore, vnode.state.pluginInfos(), vnode.state.onSuccessfulSave)
         .render();
@@ -95,6 +98,11 @@ export class ArtifactStoresPage extends Page<null, State> {
 
     vnode.state.onDelete = (artifactStore: ArtifactStore, e: Event) => {
       e.stopPropagation();
+      if (timeoutID) {
+        clearTimeout(timeoutID);
+      }
+
+      new DeleteArtifactStoreModal(artifactStore, [], vnode.state.onSuccessfulSave).render();
     };
   }
 

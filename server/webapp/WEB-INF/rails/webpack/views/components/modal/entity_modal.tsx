@@ -40,8 +40,11 @@ export abstract class EntityModal<T extends ValidatableMixin> extends Modal {
   protected readonly isStale: Stream<boolean>     = stream(true);
   protected readonly etag: Stream<string>         = stream();
 
-  constructor(entity: T, pluginInfos: Array<PluginInfo<any>>, onSuccessfulSave: (msg: m.Children) => any) {
-    super(Size.large);
+  constructor(entity: T,
+              pluginInfos: Array<PluginInfo<any>>,
+              onSuccessfulSave: (msg: m.Children) => any,
+              size: Size = Size.large) {
+    super(size);
     this.entity           = stream(entity);
     this.pluginInfos      = pluginInfos;
     this.onSuccessfulSave = onSuccessfulSave;
@@ -55,12 +58,12 @@ export abstract class EntityModal<T extends ValidatableMixin> extends Modal {
     }
   }
 
-  validateAndSave() {
+  performOperation() {
     if (!this.entity().isValid()) {
       return;
     }
 
-    this.savePromise().then(this.onSaveResult);
+    this.operationPromise().then(this.onSaveResult);
   }
 
   body(): JSX.Element {
@@ -85,14 +88,18 @@ export abstract class EntityModal<T extends ValidatableMixin> extends Modal {
         <Buttons.Cancel data-test-id="button-cancel" onclick={(e) => this.close()}>Cancel</Buttons.Cancel>
         <Buttons.Primary data-test-id="button-save"
                          disabled={this.isStale()}
-                         onclick={this.validateAndSave.bind(this)}>Save</Buttons.Primary>
+                         onclick={this.performOperation.bind(this)}>Save</Buttons.Primary>
       </ButtonGroup>
     ];
   }
 
+  fetchCompleted() {
+    //implement if needed
+  }
+
   protected abstract onPluginChange(entity: Stream<T>, pluginInfo: PluginInfo<any>): void;
 
-  protected abstract savePromise(): Promise<any>;
+  protected abstract operationPromise(): Promise<any>;
 
   protected abstract successMessage(): m.Children;
 
@@ -125,6 +132,7 @@ export abstract class EntityModal<T extends ValidatableMixin> extends Modal {
     this.entity(successResponse.body.object);
     this.etag(successResponse.body.etag);
     this.isStale(false);
+    this.fetchCompleted();
   };
 
   // noinspection TsLint

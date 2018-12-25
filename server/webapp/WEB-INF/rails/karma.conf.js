@@ -31,7 +31,7 @@ if (process.platform === 'darwin') {
   childProcess.spawnSync('taskkill', ['/F', '/IM', 'MicrosoftEdge.exe', '/T']);
 
   // Clear Edge history so that it doesn't re-open tabs after getting killed
-  childProcess.spawnSync('Remove-Item', ["C:\\Users\\developer\\AppData\\Local\\Packages\\Microsoft.MicrosoftEdge_8wekyb3d8bbwe\\AC\\*", '-Force', '-Recurse']);
+  childProcess.spawnSync('Remove-Item', ["C:\\Users\\" +  os.userInfo().username + "\\AppData\\Local\\Packages\\Microsoft.MicrosoftEdge_8wekyb3d8bbwe\\AC\\*", '-Force', '-Recurse']);
 
   browsers = ['Edge'];
 } else {

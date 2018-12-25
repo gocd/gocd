@@ -23,6 +23,7 @@ import * as Buttons from "views/components/buttons";
 import {EncryptedValue} from "views/components/forms/encrypted_value";
 import {SwitchBtn} from "views/components/switch";
 import * as styles from "./forms.scss";
+import * as s from "underscore.string";
 
 const classnames = bind(styles);
 
@@ -51,7 +52,7 @@ abstract class FormField<T> extends MithrilViewComponent<FormFieldAttrs<T>> {
     return (
       <li className={classnames(styles.formGroup, {[styles.formHasError]: this.hasErrorText(vnode)})}>
         <label for={this.id} className={styles.formLabel}
-               data-test-id="form-field-label">{vnode.attrs.label}{maybeRequired}:</label>
+               data-test-id={`form-field-label-${s.slugify(vnode.attrs.label)}`}>{vnode.attrs.label}{maybeRequired}:</label>
         {this.renderInputField(vnode)}
         {this.errorSpan(vnode)}
         {this.getHelpSpan(vnode)}
@@ -74,7 +75,7 @@ abstract class FormField<T> extends MithrilViewComponent<FormFieldAttrs<T>> {
       "spellcheck": false,
       "id": this.id,
       "placeholder": vnode.attrs.placeholder || "",
-      "data-test-id": "form-field-input"
+      "data-test-id": `form-field-input-${s.slugify(vnode.attrs.label)}`
     };
 
     if (this.hasHelpText(vnode)) {

@@ -14,6 +14,7 @@
 * limitations under the License.
 */
 
+import * as _ from "lodash";
 import {Stream} from "mithril/stream";
 import stream = require("mithril/stream");
 import {AuthConfig} from "models/auth_configs/auth_configs_new";
@@ -40,11 +41,18 @@ export interface ArtifactStoreJSON {
 export class ArtifactStores extends Array<ArtifactStore> {
   constructor(...artifactStores: ArtifactStore[]) {
     super(...artifactStores);
+    Object.setPrototypeOf(this, Object.create(ArtifactStores.prototype));
   }
 
   static fromJSON(data: ArtifactStoresJSON) {
     const artifactStores = data._embedded.artifact_stores.map(ArtifactStore.fromJSON);
     return new ArtifactStores(...artifactStores);
+  }
+
+  groupByPlugin() {
+    return _.groupBy(this, (entity) => {
+      return entity.pluginId;
+    });
   }
 }
 

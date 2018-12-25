@@ -26,16 +26,16 @@ const AuthConfigModalBody = {
     };
 
     this.pluginIdChange = function () {
-      const pluginInfo = vnode.attrs.pluginInfos().findById(vnode.attrs.entity().pluginId());
+      const pluginInfo = vnode.attrs.pluginInfos().findById(vnode.attrs.authConfig().pluginId());
 
       if (!pluginInfo) {
         return;
       }
 
       this.setPluginInfo(pluginInfo);
-      const newAuthConfig = new AuthConfigs.AuthConfig({id: vnode.attrs.entity().id(), pluginId: pluginInfo.id()});
-      newAuthConfig.etag(vnode.attrs.entity().etag());
-      vnode.attrs.entity(newAuthConfig);
+      const newAuthConfig = new AuthConfigs.AuthConfig({id: vnode.attrs.authConfig().id(), pluginId: pluginInfo.id()});
+      newAuthConfig.etag(vnode.attrs.authConfig().etag());
+      vnode.attrs.authConfig(newAuthConfig);
     };
 
     this.pluginInfoItems = function () {
@@ -64,17 +64,17 @@ const AuthConfigModalBody = {
     if (!vnode.attrs.pluginInfo()) {
       const firstPluginInfo = vnode.attrs.pluginInfos().firstPluginInfo();
       this.setPluginInfo(firstPluginInfo);
-      vnode.attrs.entity().pluginId(firstPluginInfo.id());
+      vnode.attrs.authConfig().pluginId(firstPluginInfo.id());
     }
 
-    if (!vnode.attrs.entity()) {
+    if (!vnode.attrs.authConfig()) {
       return (
         <div class="modal-spinner"/>
       );
     }
 
     let authConfigIdDisabledMessage;
-    if (vnode.attrs.entity().etag()) {
+    if (vnode.attrs.authConfig().etag()) {
       authConfigIdDisabledMessage = (<div>Editing of auth config ID is not allowed</div>);
     }
 
@@ -82,7 +82,7 @@ const AuthConfigModalBody = {
 
     if (vnode.attrs.pluginInfo()) {
       angularPlugin = (<AngularPlugin pluginInfoSettings={vnode.attrs.pluginInfo().extensions().authorization.authConfigSettings}
-                                      configuration={vnode.attrs.entity().properties}
+                                      configuration={vnode.attrs.authConfig().properties}
                                       key={vnode.attrs.pluginInfo().id()}/>);
     }
     return (
@@ -91,18 +91,18 @@ const AuthConfigModalBody = {
           {errorMessage}
           <f.row key="static-stuff" class="id-and-plugin-id-wrapper">
             <f.column largeSize={4}>
-              <f.input model={vnode.attrs.entity()}
+              <f.input model={vnode.attrs.authConfig()}
                        attrName="id"
                        validate
                        label={[
                          <span class="required">Id</span>,
                          <f.tooltip type="info" content={authConfigIdDisabledMessage} />
                        ]}
-                       disabled={vnode.attrs.entity().etag()}
+                       disabled={vnode.attrs.authConfig().etag()}
                        key="auth-config-id" />
             </f.column>
             <f.column largeSize={4} end>
-              <f.select model={vnode.attrs.entity()}
+              <f.select model={vnode.attrs.authConfig()}
                         attrName="pluginId"
                         label="Plugin Id"
                         items={vnode.state.pluginInfoItems()}

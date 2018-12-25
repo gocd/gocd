@@ -53,7 +53,7 @@ export class ArtifactStoreModalBody extends MithrilViewComponent<Attrs> {
                        errorText={vnode.attrs.artifactStore.errors().errorsForDisplay("id")}
                        required={true}/>
 
-            <SelectField label="Plugin ID"
+            <SelectField label="Plugin Id"
                          property={vnode.attrs.pluginIdProxy.bind(this)}
                          required={true}
                          errorText={vnode.attrs.artifactStore.errors().errorsForDisplay("pluginId")}>

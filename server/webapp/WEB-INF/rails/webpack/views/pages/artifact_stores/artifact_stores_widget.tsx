@@ -23,7 +23,8 @@ import {CollapsiblePanel} from "views/components/collapsible_panel";
 import {FlashMessage, MessageType} from "views/components/flash_message";
 import {HeaderIcon} from "views/components/header_icon";
 import {Clone, Delete, Edit, IconGroup} from "views/components/icons";
-import {KeyValuePair} from "views/components/key_value_pair";
+import {KeyValuePair, KeyValueTitle} from "views/components/key_value_pair";
+import * as styles from "views/pages/elastic_profiles/index.scss";
 import {CloneOperation, DeleteOperation, EditOperation, RequiresPluginInfos} from "views/pages/page_operations";
 
 interface Attrs extends RequiresPluginInfos, EditOperation<ArtifactStore>, CloneOperation<ArtifactStore>, DeleteOperation<ArtifactStore> {
@@ -32,45 +33,67 @@ interface Attrs extends RequiresPluginInfos, EditOperation<ArtifactStore>, Clone
 
 export class ArtifactStoresWidget extends MithrilViewComponent<Attrs> {
   view(vnode: m.Vnode<Attrs>) {
-    let noAuthorizationPluginMessage;
+    let noArtifactStorePluginMessage;
     if (!vnode.attrs.pluginInfos || vnode.attrs.pluginInfos().length === 0) {
-      noAuthorizationPluginMessage =
+      noArtifactStorePluginMessage =
         <FlashMessage type={MessageType.info} message="No artifact plugin installed."/>;
     }
 
-    return <div data-test-id="auth-config-widget">
-      {noAuthorizationPluginMessage}
-      {vnode.attrs.artifactStores.map((artifactStore) => {
-        const pluginInfo = _.find(vnode.attrs.pluginInfos(), {id: artifactStore.pluginId()});
-
-        const header = [ArtifactStoresWidget.headerIcon(pluginInfo),
-          <KeyValuePair inline={true} data={ArtifactStoresWidget.headerMap(artifactStore, pluginInfo)}/>];
-
-        const actionButtons = [
-          <IconGroup>
-            <Edit data-test-id="auth-config-edit"
-                  disabled={!pluginInfo}
-                  onclick={vnode.attrs.onEdit.bind(vnode.attrs, artifactStore)}/>
-            <Clone data-test-id="auth-config-clone"
-                   disabled={!pluginInfo}
-                   onclick={vnode.attrs.onClone.bind(vnode.attrs, artifactStore)}/>
-            <Delete data-test-id="auth-config-delete"
-                    onclick={vnode.attrs.onDelete.bind(vnode.attrs, artifactStore)}/>
-          </IconGroup>];
-        return <CollapsiblePanel header={header} actions={actionButtons}>
-          <KeyValuePair data={artifactStore.properties().asMap()}/>
-        </CollapsiblePanel>;
+    return <div data-test-id="artifact-stores-widget">
+      {noArtifactStorePluginMessage}
+      {_.entries(vnode.attrs.artifactStores.groupByPlugin()).map(([pluginId, artifactStores], index) => {
+        const pluginInfo = _.find(vnode.attrs.pluginInfos(), {id: pluginId});
+        return (<CollapsiblePanel header={ArtifactStoresWidget.groupHeader(pluginId, pluginInfo)}
+                                  dataTestId="artifact-stores-group">
+          {artifactStores.map((artifactStore) => {
+            return ArtifactStoresWidget.viewForArtifactStore(vnode, artifactStore, pluginInfo);
+          })}
+        </CollapsiblePanel>);
       })}
     </div>;
   }
 
-  private static headerMap(artifactStore: ArtifactStore, pluginInfo?: PluginInfo<any>) {
-    const map = new Map();
-    map.set("Id", artifactStore.id());
+  private static viewForArtifactStore(vnode: m.Vnode<Attrs>,
+                                      artifactStore: ArtifactStore,
+                                      pluginInfo?: PluginInfo<any>) {
+    const header = [
+      <KeyValuePair inline={true} data={new Map([["Id", artifactStore.id()]])}/>];
+    return <CollapsiblePanel header={header}
+                             actions={ArtifactStoresWidget.getActionButtons(vnode, artifactStore, pluginInfo)}>
+      <KeyValuePair data={artifactStore.properties().asMap()}/>
+    </CollapsiblePanel>;
+  }
+
+  private static getActionButtons(vnode: m.Vnode<Attrs>,
+                                  artifactStore: ArtifactStore,
+                                  pluginInfo?: PluginInfo<any>) {
+    return [
+      <IconGroup>
+        <Edit data-test-id="artifact-store-edit"
+              disabled={!pluginInfo}
+              onclick={vnode.attrs.onEdit.bind(vnode.attrs, artifactStore)}/>
+        <Clone data-test-id="artifact-store-clone"
+               disabled={!pluginInfo}
+               onclick={vnode.attrs.onClone.bind(vnode.attrs, artifactStore)}/>
+        <Delete data-test-id="artifact-store-delete"
+                onclick={vnode.attrs.onDelete.bind(vnode.attrs, artifactStore)}/>
+      </IconGroup>];
+  }
+
+  private static groupHeader(pluginId: string, pluginInfo?: PluginInfo<any>) {
+    return [
+      <KeyValueTitle title={ArtifactStoresWidget.createPluginNameElement(pluginInfo)}
+                     image={ArtifactStoresWidget.headerIcon(pluginInfo)}/>,
+      < KeyValuePair inline={true} data={new Map([["Plugin Id", pluginId]])}/>
+    ];
+  }
+
+  private static createPluginNameElement(pluginInfo?: PluginInfo<any>) {
     if (pluginInfo) {
-      map.set("Plugin Id", pluginInfo.id);
+      return (<div data-test-id="plugin-name" className={styles.pluginName}>{pluginInfo!.about.name}</div>);
     }
-    return map;
+
+    return (<div data-test-id="plugin-name" className={styles.pluginNotInstalled}>Plugin is not installed</div>);
   }
 
   private static headerIcon(pluginInfo?: PluginInfo<any>) {

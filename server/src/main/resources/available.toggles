@@ -33,7 +33,7 @@
       },
       {
         "key": "use_old_artifact_stores_spa",
-        "description": "Switch old artifact stores spa. Default is component based spa.",
+        "description": "Switch to old artifact stores spa. Default is component based spa.",
         "value": false
       },
       {

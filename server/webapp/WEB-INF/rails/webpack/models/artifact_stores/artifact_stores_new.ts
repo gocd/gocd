@@ -17,7 +17,6 @@
 import * as _ from "lodash";
 import {Stream} from "mithril/stream";
 import stream = require("mithril/stream");
-import {AuthConfig} from "models/auth_configs/auth_configs_new";
 import {Errors} from "models/mixins/errors";
 import {applyMixins} from "models/mixins/mixins";
 import {ValidatableMixin} from "models/mixins/new_validatable_mixin";
@@ -96,4 +95,4 @@ export class ArtifactStore extends ValidatableMixin {
   }
 }
 
-applyMixins(AuthConfig, ValidatableMixin);
+applyMixins(ArtifactStore, ValidatableMixin);

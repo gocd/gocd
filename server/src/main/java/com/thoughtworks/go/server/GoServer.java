@@ -43,7 +43,6 @@ public class GoServer {
 
     private SystemEnvironment systemEnvironment;
     private SSLSocketFactory sslSocketFactory;
-    private final String password = "serverKeystorepa55w0rd";
     private AppServer server;
     protected SubprocessLogger subprocessLogger;
 
@@ -80,7 +79,7 @@ public class GoServer {
 
     AppServer configureServer() throws Exception {
         Constructor<?> constructor = Class.forName(systemEnvironment.get(SystemEnvironment.APP_SERVER)).getConstructor(SystemEnvironment.class, String.class, SSLSocketFactory.class);
-        AppServer server = ((AppServer) constructor.newInstance(systemEnvironment, password, sslSocketFactory));
+        AppServer server = ((AppServer) constructor.newInstance(systemEnvironment, systemEnvironment.getServerKeyStorePassword(), sslSocketFactory));
         server.configure();
         server.addExtraJarsToClasspath(getExtraJarsToBeAddedToClasspath());
         server.setSessionConfig();

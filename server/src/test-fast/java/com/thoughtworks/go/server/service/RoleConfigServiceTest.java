@@ -28,6 +28,13 @@ import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.Arrays;
+import java.util.HashMap;
+
+import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
+import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.*;
 
 public class RoleConfigServiceTest {
@@ -138,5 +145,44 @@ public class RoleConfigServiceTest {
         roleConfigService.delete(admin, role, new HttpLocalizedOperationResult());
 
         verify(configService).updateConfig(any(RoleConfigDeleteCommand.class), eq(admin));
+    }
+
+    @Test
+    public void getRolesForUser_shouldReturnAllTheRolesForTheGivenUser() {
+        Username bob = new Username("Bob");
+        Username john = new Username("John");
+
+        RoleConfig role1 = new RoleConfig(new CaseInsensitiveString("role1"));
+        role1.addUser(new RoleUser(bob.getUsername()));
+        role1.addUser(new RoleUser(john.getUsername()));
+
+        RoleConfig role2 = new RoleConfig(new CaseInsensitiveString("role2"));
+        role2.addUser(new RoleUser(bob.getUsername()));
+
+        RoleConfig role3 = new RoleConfig(new CaseInsensitiveString("role3"));
+        role3.addUser(new RoleUser(john.getUsername()));
+
+        cruiseConfig.server().security().addRole(role1);
+        cruiseConfig.server().security().addRole(role2);
+        cruiseConfig.server().security().addRole(role3);
+
+        ServerConfig serverConfig = new ServerConfig();
+        serverConfig.security().addRole(role1);
+        serverConfig.security().addRole(role2);
+        serverConfig.security().addRole(role3);
+
+        when(configService.serverConfig()).thenReturn(serverConfig);
+
+        HashMap<Username, RolesConfig> userToRolesMap = roleConfigService.getRolesForUser(Arrays.asList(bob, john));
+
+        assertThat(userToRolesMap.size(), is(2));
+
+        assertThat(userToRolesMap.get(bob), hasItem(role1));
+        assertThat(userToRolesMap.get(bob), hasItem(role2));
+        assertThat(userToRolesMap.get(bob), not(hasItem(role3)));
+
+        assertThat(userToRolesMap.get(john), hasItem(role1));
+        assertThat(userToRolesMap.get(john), hasItem(role3));
+        assertThat(userToRolesMap.get(john), not(hasItem(role2)));
     }
 }

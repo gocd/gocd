@@ -183,6 +183,9 @@ api/api-template-config-v4/target/
 api/api-user-representers-v1/logs/
 api/api-user-representers-v1/out/
 api/api-user-representers-v1/target/
+api/api-users-v3/logs/
+api/api-users-v3/out/
+api/api-users-v3/target/
 api/api-agents-v4/out/
 api/api-agents-v4/target/
 api/api-user-search-v1/logs/

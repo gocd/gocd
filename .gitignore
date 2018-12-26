@@ -188,6 +188,7 @@ api/api-agents-v4/target/
 api/api-user-search-v1/logs/
 api/api-user-search-v1/out/
 api/api-user-search-v1/target/
+api/api-elastic-profile-operation-v1/out/
 app-server/out/
 app-server/target/
 base/logs/

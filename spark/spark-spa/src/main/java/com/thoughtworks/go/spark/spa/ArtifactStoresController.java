@@ -25,36 +25,34 @@ import spark.Response;
 import spark.TemplateEngine;
 
 import java.util.HashMap;
+import java.util.Map;
 
-import static spark.Spark.before;
-import static spark.Spark.get;
-import static spark.Spark.path;
+import static spark.Spark.*;
 
 public class ArtifactStoresController implements SparkController {
-
     private final SPAAuthenticationHelper authenticationHelper;
-    private final TemplateEngine templateEngine;
+    private final TemplateEngine engine;
 
-    public ArtifactStoresController(SPAAuthenticationHelper authenticationHelper, TemplateEngine templateEngine) {
+    public ArtifactStoresController(SPAAuthenticationHelper authenticationHelper, TemplateEngine engine) {
         this.authenticationHelper = authenticationHelper;
-        this.templateEngine = templateEngine;
+        this.engine = engine;
     }
 
     @Override
     public String controllerBasePath() {
-        return Routes.ArtifactStoresSPA.BASE;
+        return Routes.ArtifactStores.SPA_BASE;
     }
 
     @Override
     public void setupRoutes() {
         path(controllerBasePath(), () -> {
             before("", authenticationHelper::checkAdminUserAnd403);
-            get("", this::index, templateEngine);
+            get("", this::index, engine);
         });
     }
 
     public ModelAndView index(Request request, Response response) {
-        HashMap<Object, Object> object = new HashMap<Object, Object>() {{
+        Map<Object, Object> object = new HashMap<Object, Object>() {{
             put("viewTitle", "Artifact Stores");
         }};
         return new ModelAndView(object, "artifact_stores/index.vm");

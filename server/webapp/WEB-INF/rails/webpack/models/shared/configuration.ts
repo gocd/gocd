@@ -124,7 +124,9 @@ export class Configuration {
   }
 
   public updateValue(value: string) {
-    this.value = new PlainTextValue(value);
+    if (value !== this.getValue()) {
+      this.value = new PlainTextValue(value);
+    }
   }
 
   public toJSON(): object {

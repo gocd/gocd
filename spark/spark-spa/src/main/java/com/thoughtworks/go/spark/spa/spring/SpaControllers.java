@@ -48,12 +48,12 @@ public class SpaControllers implements SparkSpringController {
         LayoutTemplateProvider defaultTemplate = () -> DEFAULT_LAYOUT_PATH;
         LayoutTemplateProvider componentTemplate = () -> COMPONENT_LAYOUT_PATH;
 
+        sparkControllers.add(new ArtifactStoresController(authenticationHelper, templateEngineFactory.create(ArtifactStoresController.class, () -> featureToggleService.isToggleOn(Toggles.USE_OLD_ARTIFACT_STORES_SPA) ? DEFAULT_LAYOUT_PATH : COMPONENT_LAYOUT_PATH)));
         sparkControllers.add(new AuthConfigsController(authenticationHelper, templateEngineFactory.create(AuthConfigsController.class, () -> featureToggleService.isToggleOn(Toggles.USE_NEW_AUTH_CONFIG_SPA) ? COMPONENT_LAYOUT_PATH : DEFAULT_LAYOUT_PATH)));
         sparkControllers.add(new UsersController(authenticationHelper, templateEngineFactory.create(UsersController.class, () -> COMPONENT_LAYOUT_PATH)));
         sparkControllers.add(new RolesController(authenticationHelper, templateEngineFactory.create(RolesController.class, defaultTemplate)));
         sparkControllers.add(new AgentsControllerController(authenticationHelper, templateEngineFactory.create(AgentsControllerController.class, defaultTemplate), securityService, systemEnvironment));
         sparkControllers.add(new NewDashboardController(authenticationHelper, templateEngineFactory.create(NewDashboardController.class, defaultTemplate), securityService, systemEnvironment, pipelineConfigService));
-        sparkControllers.add(new ArtifactStoresController(authenticationHelper, templateEngineFactory.create(ArtifactStoresController.class, defaultTemplate)));
         sparkControllers.add(new AnalyticsController(authenticationHelper, templateEngineFactory.create(AnalyticsController.class, defaultTemplate), systemEnvironment, analyticsExtension, pipelineConfigService));
         sparkControllers.add(new DataSharingSettingsController(authenticationHelper, templateEngineFactory.create(DataSharingSettingsController.class, defaultTemplate)));
         sparkControllers.add(new DrainModeController(authenticationHelper, templateEngineFactory.create(DrainModeController.class, componentTemplate)));

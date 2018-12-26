@@ -116,7 +116,7 @@ export abstract class Extension {
 
 }
 
-class ArtifactSettings extends Extension {
+export class ArtifactSettings extends Extension {
 
   readonly storeConfigSettings: PluginSettings;
   readonly artifactConfigSettings: PluginSettings;

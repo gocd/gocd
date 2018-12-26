@@ -62,7 +62,7 @@ export default class {
     return `/go/api/internal/build_cause/${pipelineName}/${pipelineCounter}`;
   }
 
-  static artifactStoresPath(id: string): string {
+  static artifactStoresPath(id?: string): string {
     if (id) {
       return `/go/api/admin/artifact_stores/${id}`;
     } else {

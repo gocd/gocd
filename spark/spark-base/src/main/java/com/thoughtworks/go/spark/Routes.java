@@ -341,10 +341,6 @@ public class Routes {
         public static final String BASE = "/admin/security/roles";
     }
 
-    public class ArtifactStoresSPA {
-        public static final String BASE = "/admin/artifact_stores";
-    }
-
     public class PipelineSelection {
         public static final String BASE = "/api/internal/pipeline_selection";
         public static final String PIPELINES_DATA = "/pipelines_data";
@@ -400,5 +396,9 @@ public class Routes {
 
     public class Users {
         public static final String SPA_BASE = "/admin/users";
+    }
+
+    public class ArtifactStores {
+        public static final String SPA_BASE = "/admin/artifact_stores";
     }
 }

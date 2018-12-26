@@ -269,7 +269,7 @@ public class UserService {
     public BulkDeletionFailureResult deleteUsers(List<String> userNames, HttpLocalizedOperationResult result) {
         if (userNames == null || userNames.isEmpty()) {
             result.badRequest("No users selected.");
-            return null;
+            return new BulkDeletionFailureResult();
         }
         synchronized (enableUserMutex) {
             BulkDeletionFailureResult bulkDeletionFailureResult = deletionValidation(userNames);

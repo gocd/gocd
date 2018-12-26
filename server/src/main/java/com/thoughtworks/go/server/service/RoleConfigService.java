@@ -31,6 +31,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.function.Consumer;
+
 import static com.thoughtworks.go.i18n.LocalizedMessage.entityConfigValidationFailed;
 import static com.thoughtworks.go.i18n.LocalizedMessage.saveFailedWithReason;
 
@@ -89,6 +93,22 @@ public class RoleConfigService {
         return goConfigService.serverConfig().security().getRoles();
     }
 
+    public HashMap<Username, RolesConfig> getRolesForUser(List<Username> users) {
+        HashMap<Username, RolesConfig> userToRolesMap = new HashMap<>();
+
+        getRoles().stream().<Consumer<? super Username>>map(role -> user -> {
+            if (role.hasMember(user.getUsername())) {
+                if (!userToRolesMap.containsKey(user)) {
+                    userToRolesMap.put(user, new RolesConfig());
+                }
+
+                userToRolesMap.get(user).add(role);
+            }
+        }).forEach(users::forEach);
+
+        return userToRolesMap;
+    }
+
     public void update(Username currentUser, String md5, Role newRole, LocalizedOperationResult result) {
         validatePluginRoleMetadata(newRole);
         update(currentUser, newRole, result, new RoleConfigUpdateCommand(goConfigService, newRole, authorizationExtension, currentUser, result, hashingService, md5));
@@ -107,11 +127,11 @@ public class RoleConfigService {
     }
 
     private void validatePluginRoleMetadata(Role newRole) {
-        if(newRole instanceof PluginRoleConfig) {
+        if (newRole instanceof PluginRoleConfig) {
             PluginRoleConfig role = (PluginRoleConfig) newRole;
             String pluginId = pluginIdForRole(role);
 
-            if(pluginId == null) {
+            if (pluginId == null) {
                 return;
             }
 

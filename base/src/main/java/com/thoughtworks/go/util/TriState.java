@@ -81,4 +81,12 @@ public abstract class TriState {
         }
         throw new IllegalArgumentException(String.format("The string '%s' does not look like a boolean.", booleanLike));
     }
+
+    public static TriState from(boolean booleanLike) {
+        if (booleanLike) {
+            return TRUE;
+        } else {
+            return FALSE;
+        }
+    }
 }

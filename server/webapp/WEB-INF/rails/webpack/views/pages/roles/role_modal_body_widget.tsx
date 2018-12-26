@@ -27,7 +27,8 @@ import {AuthorizationSettings, Extension} from "models/shared/plugin_infos_new/e
 import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
 import * as Buttons from "views/components/buttons";
 import {Form} from "views/components/forms/form";
-import {SelectField, SelectFieldOptions, TextField} from "views/components/forms/input_fields";
+import {Option, SelectField, SelectFieldOptions, TextField} from "views/components/forms/input_fields";
+import * as styles from "./index.scss";
 
 const AngularPluginNew = require("views/shared/angular_plugin_new");
 
@@ -42,81 +43,71 @@ interface PluginModalAttrs extends ModalAttrs {
 }
 
 export class GoCDRoleModalBodyWidget extends MithrilViewComponent<ModalAttrs> {
-  private newUsername: Stream<string> = stream("");
-  private lastUsernameAdded!: string;
-  private role!: GoCDRole | PluginRole;
+  private newUser: Stream<string> = stream();
+  private lastUserAdded?: string;
 
-  view(vnode: m.Vnode<ModalAttrs, this>): m.Children | void | null {
-    this.role = vnode.attrs.role as GoCDRole;
+  public static deleteUserFromRole(vnode: m.Vnode<ModalAttrs>, username: string) {
+    if (username) {
+      (vnode.attrs.role.attributes() as GoCDAttributes).deleteUser(username);
+    }
+  }
+
+  view(vnode: m.Vnode<ModalAttrs>): m.Children | void | null {
+    const role = vnode.attrs.role as GoCDRole;
     return (<div>
       <div>
-        <div>
-          <TextField label="Role Name"
-                     disabled={vnode.attrs.isNameDisabled}
-                     property={this.role.name}
-                     errorText={this.role.errors().errorsForDisplay("name")}
-                     required={true}/>
-        </div>
-        <div data-test-id="tags" class={"role-edit-only row show"}>
-          {this.role.attributes().users.map((user) => {
+        <TextField label="Role Name"
+                   disabled={vnode.attrs.isNameDisabled}
+                   property={role.name}
+                   errorText={role.errors().errorsForDisplay("name")}
+                   required={true}/>
+        <div className="row collapse">
+          {role.attributes().users.map((user) => {
             return (
               <div data-alert
-                   class={this.getClass(user)}>
+                   className={this.getClass(user)}>
                 {user}
-                {this.getDeleteButton(user)}
+                {this.getDeleteButton(vnode, user)}
               </div>
             );
           })}
         </div>
-        <div>
-          <TextField label="Role users" required={false} property={this.newUsername}/>
-          <Buttons.Primary
+        <div className="row collapse">
+          <TextField label="Role users" required={false} property={this.newUser}/>
+          <Buttons.Secondary
             data-test-id="role-add-user-button"
-            onclick={this.addNewUserToRole.bind(this)}>Add</Buttons.Primary>
+            onclick={this.addNewUserToRole.bind(this, vnode)}>Add</Buttons.Secondary>
         </div>
       </div>
     </div>);
   }
 
-  private getDeleteButton(user: string) {
-    return (<span aria-hidden="true" class="role-user-delete-icon"
-                  onclick={this.deleteUserFromRole.bind(this, user)}>&times;</span>);
+  private getDeleteButton(vnode: m.Vnode<ModalAttrs>, user: string) {
+    return (<span aria-hidden="true" className={styles.roleUserDeleteIcon}
+                  onclick={GoCDRoleModalBodyWidget.deleteUserFromRole.bind(this, vnode, user)}>&times;</span>);
   }
 
   private getClass(user: string) {
-    return this.lastUsernameAdded === user ? "tag current-user-tag" : "tag";
+    return this.lastUserAdded === user ? `${styles.tag} ${styles.currentUserTag}` : `${styles.tag}`;
   }
 
-  private addNewUserToRole(e: MouseEvent) {
-    if (this.newUsername) {
-      (this.role.attributes() as GoCDAttributes).addUser(this.newUsername());
-      this.lastUsernameAdded = this.newUsername();
-      this.newUsername       = stream("");
-    }
-  }
-
-  private deleteUserFromRole(username: string) {
-    if (username) {
-      (this.role.attributes() as GoCDAttributes).deleteUser(username);
+  private addNewUserToRole(vnode: m.Vnode<ModalAttrs>, e: MouseEvent) {
+    if (this.newUser && this.newUser() && this.newUser().length > 0) {
+      (vnode.attrs.role.attributes() as GoCDAttributes).addUser(this.newUser());
+      this.lastUserAdded = this.newUser();
+      this.newUser       = stream("");
     }
   }
 }
 
 export class PluginRoleModalBodyWidget extends MithrilViewComponent<PluginModalAttrs> {
-  private pluginInfo!: Stream<PluginInfo<Extension>>;
-  private pluginInfos!: Array<PluginInfo<Extension>>;
-  private authConfig!: Stream<AuthConfig>;
-  private role!: GoCDRole | PluginRole;
 
-  view(vnode: m.Vnode<PluginModalAttrs, this>): m.Children | void | null {
-    this.pluginInfos = vnode.attrs.pluginInfos;
-    this.role        = vnode.attrs.role;
-
+  view(vnode: m.Vnode<PluginModalAttrs>): m.Children | void | null {
     const pluginAttributes = (vnode.attrs.role.attributes() as PluginAttributes);
     let authID             = pluginAttributes.authConfigId;
     if (!authID) {
       const authConfigOfInstalledPlugin = _.find(vnode.attrs.authConfigs, (authConfig) => {
-        const authConfigWithPlugin = _.find(vnode.state.pluginInfos,
+        const authConfigWithPlugin = _.find(vnode.attrs.pluginInfos,
                                             (pluginInfo) => {
                                               return authConfig.pluginId() === pluginInfo.id;
                                             });
@@ -127,74 +118,79 @@ export class PluginRoleModalBodyWidget extends MithrilViewComponent<PluginModalA
       if (!authConfigOfInstalledPlugin) {
         return;
       }
-      authID                        = authConfigOfInstalledPlugin.id();
-      pluginAttributes.authConfigId = authID;
+      authID = authConfigOfInstalledPlugin.id();
     }
 
     const authConfig = _.find(vnode.attrs.authConfigs, (ac) => ac.id() === authID);
     if (!authConfig) {
       return;
     }
-    const pluginInfo = _.find(vnode.attrs.pluginInfos, (pl) => pl.id === authConfig.pluginId());
+    pluginAttributes.authConfigId = authConfig.id();
+    const pluginInfo              = _.find(vnode.attrs.pluginInfos,
+                                           (pl) => pl.id === authConfig.pluginId());
 
     if (!pluginInfo) {
       return;
     }
-    this.pluginInfo      = stream(pluginInfo);
     const pluginSettings = (pluginInfo
-      .extensionOfType(ExtensionType.AUTHORIZATION)! as AuthorizationSettings).authConfigSettings;
+      .extensionOfType(ExtensionType.AUTHORIZATION)! as AuthorizationSettings).roleSettings;
 
-    const pluginList = _.map(vnode.attrs.pluginInfos, (pluginInfo: PluginInfo<any>) => {
-      return {id: pluginInfo.id, text: pluginInfo.about.name};
-    });
+    let authConfigs = _.map(vnode.attrs.authConfigs, (authConfig: AuthConfig) => {
+      const authConfigWithPlugin = _.find(vnode.attrs.pluginInfos,
+                                          (pluginInfo) => {
+                                            return authConfig.pluginId() === pluginInfo.id;
+                                          });
+      if (authConfigWithPlugin) {
+        return {
+          id: authConfig.id(),
+          text: `${authConfig.id()} (${authConfigWithPlugin.about.name ? authConfigWithPlugin.about.name : authConfig.pluginId})`
+        };
+      }
+    }) as Option[];
+    authConfigs     = _.filter(authConfigs, (value) => {
+      return !!value;
+    }) as Option[];
+
     return (
       <div>
         <div>
-          {/*<FormHeader>*/}
           <Form>
             <TextField label="Id"
                        disabled={vnode.attrs.isNameDisabled}
-                       property={this.authId.bind(this)}
-                       errorText={authConfig.errors().errorsForDisplay("id")}
+                       property={vnode.attrs.role.name}
+                       errorText={vnode.attrs.role.errors().errorsForDisplay("name")}
                        required={true}/>
 
             <SelectField label="Plugin ID"
-                         property={this.pluginIdProxy.bind(this)}
+                         property={this.authConfigIdProxy.bind(this, vnode)}
                          required={true}
-                         errorText={authConfig.errors().errorsForDisplay("pluginId")}>
+                         errorText={vnode.attrs.role.errors().errorsForDisplay("auth_config_id")}>
               <SelectFieldOptions selected={authConfig.pluginId()}
-                                  items={pluginList}/>
+                                  items={authConfigs}/>
             </SelectField>
           </Form>
-          {/*</FormHeader>*/}
         </div>
         <div>
           <div className="row collapse">
             <AngularPluginNew
               pluginInfoSettings={stream(pluginSettings)}
-              configuration={authConfig.properties()}
-              key={this.pluginInfo().id}/>
+              configuration={new Configurations(pluginAttributes.properties())}
+              key={pluginInfo.id}/>
           </div>
         </div>
       </div>);
   }
 
-  private pluginIdProxy(newValue ?: string) {
-    if (newValue) {
-      if (this.pluginInfo().id !== newValue) {
-        const pluginInfo = _.find(this.pluginInfos, (p) => p.id === newValue);
-        this.pluginInfo(pluginInfo!);
-        this.authConfig(new AuthConfig(this.authConfig().id(), pluginInfo!.id, new Configurations([])));
+  private authConfigIdProxy(vnode: m.Vnode<PluginModalAttrs>, newValue?: string) {
+    const role       = vnode.attrs.role as PluginRole;
+    const attributes = role.attributes() as PluginAttributes;
+    if (newValue && attributes.authConfigId !== newValue) {
+      const authConfig = _.find(vnode.attrs.authConfigs, (a) => a.id() === newValue);
+      if (authConfig) {
+        attributes.authConfigId = authConfig.id();
       }
     }
-    return this.pluginInfo().id;
-  }
-
-  private authId(newValue?: string): string {
-    if (newValue) {
-      (this.role.attributes() as PluginAttributes).authConfigId = newValue;
-    }
-    return (this.role.attributes() as PluginAttributes).authConfigId;
+    return attributes.authConfigId;
   }
 
 }

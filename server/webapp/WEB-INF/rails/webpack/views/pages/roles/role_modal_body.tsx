@@ -16,9 +16,10 @@
 
 import {bind} from "classnames/bind";
 import {MithrilViewComponent} from "jsx/mithril-component";
+import * as _ from "lodash";
 import * as m from "mithril";
 import {Stream} from "mithril/stream";
-import {AuthConfigs} from "models/auth_configs/auth_configs_new";
+import {AuthConfig, AuthConfigs} from "models/auth_configs/auth_configs_new";
 import {GoCDRole, PluginRole, RoleType} from "models/roles/roles_new";
 import {Extension} from "models/shared/plugin_infos_new/extensions";
 import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
@@ -104,6 +105,15 @@ export class RoleModalBody extends MithrilViewComponent<RoleModalAttrs> {
   }
 
   private static hasAuthConfigs(vnode: m.Vnode<RoleModalAttrs>) {
-    return vnode.attrs.authConfigs.length === 0;
+    const authConfigsWithInstalledPlugin = _.filter(vnode.attrs.authConfigs, (authConfig: AuthConfig) => {
+      const authConfigWithPlugin = _.find(vnode.attrs.pluginInfos,
+                                          (pluginInfo) => {
+                                            return authConfig.pluginId() === pluginInfo.id;
+                                          });
+      if (authConfigWithPlugin) {
+        return true;
+      }
+    });
+    return authConfigsWithInstalledPlugin.length === 0;
   }
 }

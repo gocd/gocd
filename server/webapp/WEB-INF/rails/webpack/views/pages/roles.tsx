@@ -131,9 +131,9 @@ export class RolesPage extends Page<null, State> {
   }
 
   headerPanel(vnode: m.Vnode<null, State>) {
-    const hasPlugins    = vnode.state.pluginInfos && vnode.state.pluginInfos.length > 0;
+    // const hasPlugins    = vnode.state.pluginInfos && vnode.state.pluginInfos.length > 0;
+    // disabled={!hasPlugins}
     const headerButtons = [(<Buttons.Primary data-test-id="role-add-button"
-                                             disabled={!hasPlugins}
                                              onclick={vnode.state.onAdd.bind(vnode.state)}>Add</Buttons.Primary>)];
 
     return <HeaderPanel title={this.pageName()} buttons={headerButtons}/>;

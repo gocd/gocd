@@ -40,6 +40,7 @@ abstract class BaseRoleModal extends Modal {
   protected readonly pluginInfos: Array<PluginInfo<Extension>>;
   protected readonly authConfigs: AuthConfigs;
   protected readonly onSuccessfulSave: (msg: m.Children) => any;
+  protected readonly errorMessage: Stream<string> = stream();
 
   constructor(role: GoCDRole | PluginRole,
               pluginInfos: Array<PluginInfo<Extension>>,
@@ -93,8 +94,9 @@ abstract class BaseRoleModal extends Modal {
 
   showErrors(apiResult: ApiResult<ObjectWithEtag<GoCDRole | PluginRole>>, errorResponse: ErrorResponse) {
     if (apiResult.getStatusCode() === 422 && errorResponse.body) {
-      const profile = Role.fromJSON(JSON.parse(errorResponse.body).data);
-      this.role(profile);
+      this.role(Role.fromJSON(JSON.parse(errorResponse.body).data));
+    } else {
+      this.errorMessage(errorResponse.message);
     }
   }
 
@@ -127,6 +129,7 @@ export class NewRoleModal extends BaseRoleModal {
   body() {
     return <RoleModalBody role={this.role}
                           action={Action.NEW}
+                          message={this.errorMessage()}
                           pluginInfos={this.pluginInfos}
                           authConfigs={this.authConfigs}
                           changeRoleType={this.changeRoleType.bind(this)}/>;
@@ -155,13 +158,17 @@ abstract class ModalWithFetch extends BaseRoleModal {
               authConfigsOfInstalledPlugin: AuthConfigs,
               onSuccessfulSave: (msg: m.Children) => any) {
     super(role, pluginInfos, authConfigsOfInstalledPlugin, onSuccessfulSave);
+  }
 
-    this.performFetch(role.name())
+  render() {
+    super.render();
+    this.performFetch(this.role().name())
         .then((result) => {
           result.do((successResponse: any) => {
                       this.role(successResponse.body.object);
-                      this.etag(successResponse.etag);
+                      this.etag(successResponse.body.etag);
                       this.isStale(false);
+                      this.fetchCompleted();
                     },
                     (errorResponse: any) => {
                       this.showErrors(result, errorResponse);
@@ -180,6 +187,10 @@ abstract class ModalWithFetch extends BaseRoleModal {
   }
 
   protected abstract performFetch(entityId: string): Promise<any>;
+
+  protected fetchCompleted() {
+    //implement when needed
+  }
 }
 
 export class EditRoleModal extends ModalWithFetch {
@@ -201,6 +212,7 @@ export class EditRoleModal extends ModalWithFetch {
   body() {
     return <RoleModalBody role={this.role}
                           action={Action.EDIT}
+                          message={this.errorMessage()}
                           pluginInfos={this.pluginInfos}
                           authConfigs={this.authConfigs}
                           isStale={this.isStale}/>;
@@ -217,20 +229,18 @@ export class EditRoleModal extends ModalWithFetch {
 }
 
 export class CloneRoleModal extends ModalWithFetch {
-  private readonly sourceProfileId: string;
+  private readonly originalRoleName: string;
 
   constructor(role: GoCDRole | PluginRole,
               pluginInfos: Array<PluginInfo<Extension>>,
               authConfigsOfInstalledPlugin: AuthConfigs,
               onSuccessfulSave: (msg: m.Children) => any) {
-    const _sourceProfileId = role.name();
-    role.name("");
     super(role, pluginInfos, authConfigsOfInstalledPlugin, onSuccessfulSave);
-    this.sourceProfileId = _sourceProfileId;
+    this.originalRoleName = role.name();
   }
 
   modalTitle(role: GoCDRole | PluginRole): string {
-    return `Clone role ${this.sourceProfileId}`;
+    return `Clone role ${this.originalRoleName}`;
   }
 
   performSave(): Promise<any> {
@@ -240,9 +250,14 @@ export class CloneRoleModal extends ModalWithFetch {
   body() {
     return <RoleModalBody role={this.role}
                           action={Action.CLONE}
+                          message={this.errorMessage()}
                           pluginInfos={this.pluginInfos}
                           authConfigs={this.authConfigs}
                           isStale={this.isStale}/>;
+  }
+
+  protected fetchCompleted() {
+    this.role().name("");
   }
 
   protected successMessage(): m.Children {

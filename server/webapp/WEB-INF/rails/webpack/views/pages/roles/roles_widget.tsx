@@ -27,6 +27,7 @@ import {HeaderIcon} from "views/components/header_icon";
 import {Clone, Delete, Edit, IconGroup} from "views/components/icons";
 import {KeyValuePair} from "views/components/key_value_pair";
 import {CloneOperation, DeleteOperation, EditOperation} from "views/pages/page_operations";
+import * as styles from "./index.scss";
 
 interface Attrs extends EditOperation<GoCDRole | PluginRole>, CloneOperation<GoCDRole | PluginRole>, DeleteOperation<GoCDRole | PluginRole> {
   pluginInfos: Array<PluginInfo<Extension>>;
@@ -54,7 +55,7 @@ export class RolesWidget extends MithrilViewComponent<Attrs> {
                               pluginInfo={vnode.attrs.pluginInfos} onEdit={vnode.attrs.onEdit}
                               onClone={vnode.attrs.onClone} onDelete={vnode.attrs.onDelete}/>);
         } else {
-          return (<GoCDRoleWidget role={role} onEdit={vnode.attrs.onEdit} onClone={vnode.attrs.onEdit}
+          return (<GoCDRoleWidget role={role} onEdit={vnode.attrs.onEdit} onClone={vnode.attrs.onClone}
                                   onDelete={vnode.attrs.onDelete}/>);
         }
       })}
@@ -132,9 +133,8 @@ export class GoCDRoleWidget extends RoleWidget {
     if (gocdRole.attributes().users.length === 0) {
       body = (<span data-test-id="no-users-message" class="no-users-message">No users in this role.</span>);
     } else {
-      //todo need to update this to tag component
       body = (gocdRole.attributes().users.map((user) => {
-        return (<div data-alert className="tag">
+        return (<div data-alert className={styles.tag}>
           {user}
         </div>);
       }));

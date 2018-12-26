@@ -115,14 +115,15 @@ export abstract class Role<T> extends ValidatableMixin {
   type: Stream<RoleType>;
   attributes: Stream<T>;
 
-  protected constructor(name: string, type: RoleType, attributes: T, errors?: Errors) {
+  protected constructor(name: string, type: RoleType, attributes: T, errors: Errors = new Errors()) {
     super();
+    ValidatableMixin.call(this);
+
     this.type       = stream(type);
     this.name       = stream(name);
     this.attributes = stream(attributes);
     this.errors(errors);
 
-    ValidatableMixin.call(this);
     this.validatePresenceOf("name");
     this.validateFormatOf("name",
                           new RegExp("^[-a-zA-Z0-9_][-a-zA-Z0-9_.]*$"),

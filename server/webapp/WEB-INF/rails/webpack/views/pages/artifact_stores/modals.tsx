@@ -47,9 +47,9 @@ abstract class ArtifactStoreModal extends EntityModal<ArtifactStore> {
     return ArtifactStoresCRUD.get(this.originalEntityId);
   }
 
-  protected parseJsonToEntity(json: string) {
-    const artifactStoreJSON = JSON.parse(json) as ArtifactStoreJSON;
-    return ArtifactStore.fromJSON(artifactStoreJSON);
+  protected parseJsonToEntity(json: object) {
+    const artifactStore = ArtifactStore.fromJSON(json as ArtifactStoreJSON);
+    return artifactStore;
   }
 
   protected modalBody(): m.Children {

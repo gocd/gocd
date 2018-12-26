@@ -54,7 +54,7 @@ export abstract class EntityModal<T extends ValidatableMixin> extends Modal {
     super.render();
 
     if (this.isStale()) {
-      this.performFetch(this.entity()).then(this.onFetchResult);
+      this.performFetch(this.entity()).then(this.onFetchResult.bind(this));
     }
   }
 
@@ -63,7 +63,7 @@ export abstract class EntityModal<T extends ValidatableMixin> extends Modal {
       return;
     }
 
-    this.operationPromise().then(this.onSaveResult);
+    this.operationPromise().then(this.onSaveResult.bind(this));
   }
 
   body(): JSX.Element {
@@ -107,7 +107,7 @@ export abstract class EntityModal<T extends ValidatableMixin> extends Modal {
 
   protected abstract modalBody(): m.Children;
 
-  protected abstract parseJsonToEntity(json: string): T;
+  protected abstract parseJsonToEntity(json: object): T;
 
   protected pluginIdProxy(newPluginId?: string) {
     if (!newPluginId) {
@@ -122,35 +122,33 @@ export abstract class EntityModal<T extends ValidatableMixin> extends Modal {
     return newPluginId;
   }
 
-  // noinspection TsLint
-  private onFetchResult = (result: ApiResult<ObjectWithEtag<T>>) => {
-    result.do(this.onSuccessfulFetch, (e) => this.onError(e, result.getStatusCode()));
-  };
+  private onFetchResult(result: ApiResult<ObjectWithEtag<T>>) {
+    result.do(this.onSuccessfulFetch.bind(this), (e) => this.onError.bind(this, e, result.getStatusCode()));
+  }
 
-  // noinspection TsLint
-  private onSuccessfulFetch = (successResponse: SuccessResponse<ObjectWithEtag<T>>) => {
+  private onSuccessfulFetch(successResponse: SuccessResponse<ObjectWithEtag<T>>) {
     this.entity(successResponse.body.object);
     this.etag(successResponse.body.etag);
     this.isStale(false);
     this.fetchCompleted();
-  };
+  }
 
-  // noinspection TsLint
-  private onSaveResult = (result: ApiResult<ObjectWithEtag<T>>) => {
-    result.do(this.onSuccess, (e) => this.onError(e, result.getStatusCode()));
-  };
+  private onSaveResult(result: ApiResult<ObjectWithEtag<T>>) {
+    result.do(this.onSuccess.bind(this),
+              this.onError.bind(this, result.unwrap() as ErrorResponse, result.getStatusCode()));
+  }
 
-  // noinspection TsLint
-  private onSuccess = (successResponse: SuccessResponse<ObjectWithEtag<T>>) => {
+  private onSuccess(successResponse: SuccessResponse<ObjectWithEtag<T>>) {
     this.onSuccessfulSave(this.successMessage());
     this.close();
-  };
+  }
 
-  // noinspection TsLint
-  private onError = (errorResponse: ErrorResponse, statusCode: number) => {
-    this.errorMessage(errorResponse.message);
+  private onError(errorResponse: ErrorResponse, statusCode: number) {
     if (422 === statusCode && errorResponse.body) {
-      this.entity(this.parseJsonToEntity(errorResponse.body));
+      const json = JSON.parse(errorResponse.body);
+      this.entity(this.parseJsonToEntity(json.data));
+    } else {
+      this.errorMessage(errorResponse.message);
     }
-  };
+  }
 }

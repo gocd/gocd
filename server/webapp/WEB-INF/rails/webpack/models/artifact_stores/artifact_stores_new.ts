@@ -63,14 +63,14 @@ export class ArtifactStore extends ValidatableMixin {
   constructor(id: string,
               pluginId: string,
               properties: Configurations,
-              errors?: Errors) {
+              errors: Errors = new Errors()) {
     super();
+    ValidatableMixin.call(this);
     this.id         = stream(id);
     this.pluginId   = stream(pluginId);
     this.properties = stream(properties);
     this.errors(errors);
 
-    ValidatableMixin.call(this);
     this.validatePresenceOf("pluginId");
     this.validatePresenceOf("id");
     this.validateFormatOf("id",

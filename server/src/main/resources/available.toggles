@@ -27,8 +27,8 @@
         "value": false
       },
       {
-        "key": "use_new_auth_config_spa",
-        "description": "Switch authorization configuration spa to use new spa.",
+        "key": "use_old_auth_config_spa",
+        "description": "Switch to old authorization configuration spa. Default is new spa.",
         "value": false
       },
       {

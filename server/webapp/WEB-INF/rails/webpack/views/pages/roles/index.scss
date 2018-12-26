@@ -17,6 +17,7 @@
 
 $spinner-wrapper-height: 200px;
 $current-user-tag-bg-color: #eee;
+$disabled-text-color: #999;
 
 .spinner-wrapper {
   min-height: $spinner-wrapper-height;
@@ -55,4 +56,30 @@ $current-user-tag-bg-color: #eee;
 
 .role-user-delete-icon:hover {
   color: $link-hover-color;
+}
+
+
+.disabled {
+  color:  $disabled-text-color;
+  cursor: not-allowed;
+}
+
+.add-user-to-role {
+  display:    flex;
+  align-self: center;
+
+  button {
+    display: inline;
+    margin:  0 0 0.8rem;
+  }
+}
+
+.gocd-role {
+  display: flex;
+}
+
+.users-in-role {
+  display: block;
+  width:   100%;
+  padding: 0 15px;
 }

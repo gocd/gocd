@@ -54,32 +54,33 @@ export class GoCDRoleModalBodyWidget extends MithrilViewComponent<ModalAttrs> {
 
   view(vnode: m.Vnode<ModalAttrs>): m.Children | void | null {
     const role = vnode.attrs.role as GoCDRole;
-    return (<div>
-      <div>
-        <TextField label="Role Name"
-                   disabled={vnode.attrs.isNameDisabled}
-                   property={role.name}
-                   errorText={role.errors().errorsForDisplay("name")}
-                   required={true}/>
-        <div className="row collapse">
-          {role.attributes().users.map((user) => {
-            return (
-              <div data-alert
-                   className={this.getClass(user)}>
-                {user}
-                {this.getDeleteButton(vnode, user)}
-              </div>
-            );
-          })}
-        </div>
-        <div className="row collapse">
-          <TextField label="Role users" required={false} property={this.newUser}/>
-          <Buttons.Secondary
-            data-test-id="role-add-user-button"
-            onclick={this.addNewUserToRole.bind(this, vnode)}>Add</Buttons.Secondary>
-        </div>
-      </div>
-    </div>);
+    return (<Form>
+      <TextField label="Role Name"
+                 disabled={vnode.attrs.isNameDisabled}
+                 property={role.name}
+                 errorText={role.errors().errorsForDisplay("name")}
+                 required={true}/>
+
+      <li className={styles.usersInRole}>
+        {role.attributes().users.map((user) => {
+          return (
+            <div data-alert
+                 className={this.getClass(user)}>
+              {user}
+              {this.getDeleteButton(vnode, user)}
+            </div>
+          );
+        })}
+      </li>
+
+      <TextField label="Role users" required={false} property={this.newUser}/>
+
+      <li className={styles.addUserToRole}>
+        <Buttons.Secondary
+          data-test-id="role-add-user-button"
+          onclick={this.addNewUserToRole.bind(this, vnode)}>Add</Buttons.Secondary>
+      </li>
+    </Form>);
   }
 
   private getDeleteButton(vnode: m.Vnode<ModalAttrs>, user: string) {

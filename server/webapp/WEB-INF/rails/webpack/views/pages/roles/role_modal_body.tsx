@@ -78,7 +78,7 @@ export class RoleModalBody extends MithrilViewComponent<RoleModalAttrs> {
             disabled={RoleModalBody.hasAuthConfigs(vnode)}
             checked={vnode.attrs.role().isPluginRole()}
             onclick={vnode.attrs.changeRoleType && vnode.attrs.changeRoleType.bind(this, RoleType.plugin)}/>
-          <label className={RoleModalBody.hasAuthConfigs(vnode) ? "disabled inline" : "inline"}
+          <label className={RoleModalBody.hasAuthConfigs(vnode) ? `${styles.disabled} inline` : "inline"}
                  disabled={RoleModalBody.hasAuthConfigs(vnode)} for="plugin-role">Plugin Role</label>
         </div>
       );

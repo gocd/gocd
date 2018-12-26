@@ -18,12 +18,12 @@ import {bind} from "classnames/bind";
 import {MithrilViewComponent} from "jsx/mithril-component";
 import * as _ from "lodash";
 import * as m from "mithril";
+import * as s from "underscore.string";
 import * as uuid from "uuid/v4";
 import * as Buttons from "views/components/buttons";
 import {EncryptedValue} from "views/components/forms/encrypted_value";
 import {SwitchBtn} from "views/components/switch";
 import * as styles from "./forms.scss";
-import * as s from "underscore.string";
 
 const classnames = bind(styles);
 

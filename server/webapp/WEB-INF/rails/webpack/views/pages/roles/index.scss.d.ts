@@ -8,3 +8,4 @@ export const roleUserDeleteIcon: string;
 export const disabled: string;
 export const addUserToRole: string;
 export const usersInRole: string;
+export const noUsersMessage: string;

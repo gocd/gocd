@@ -28,6 +28,7 @@ import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
 import * as Buttons from "views/components/buttons";
 import {Form} from "views/components/forms/form";
 import {Option, SelectField, SelectFieldOptions, TextField} from "views/components/forms/input_fields";
+import {UsersWidget} from "views/pages/roles/users_widget";
 import * as styles from "./index.scss";
 
 const AngularPluginNew = require("views/shared/angular_plugin_new");
@@ -46,12 +47,6 @@ export class GoCDRoleModalBodyWidget extends MithrilViewComponent<ModalAttrs> {
   private newUser: Stream<string> = stream();
   private lastUserAdded?: string;
 
-  public static deleteUserFromRole(vnode: m.Vnode<ModalAttrs>, username: string) {
-    if (username) {
-      (vnode.attrs.role.attributes() as GoCDAttributes).deleteUser(username);
-    }
-  }
-
   view(vnode: m.Vnode<ModalAttrs>): m.Children | void | null {
     const role = vnode.attrs.role as GoCDRole;
     return (<Form>
@@ -62,15 +57,9 @@ export class GoCDRoleModalBodyWidget extends MithrilViewComponent<ModalAttrs> {
                  required={true}/>
 
       <li className={styles.usersInRole}>
-        {role.attributes().users.map((user) => {
-          return (
-            <div data-alert
-                 className={this.getClass(user)}>
-              {user}
-              {this.getDeleteButton(vnode, user)}
-            </div>
-          );
-        })}
+        <UsersWidget roleAttributes={role.attributes()}
+                     selectedUser={this.lastUserAdded}
+                     readOnly={false}/>
       </li>
 
       <TextField label="Role users" required={false} property={this.newUser}/>
@@ -81,15 +70,6 @@ export class GoCDRoleModalBodyWidget extends MithrilViewComponent<ModalAttrs> {
           onclick={this.addNewUserToRole.bind(this, vnode)}>Add</Buttons.Primary>
       </li>
     </Form>);
-  }
-
-  private getDeleteButton(vnode: m.Vnode<ModalAttrs>, user: string) {
-    return (<span aria-hidden="true" className={styles.roleUserDeleteIcon}
-                  onclick={GoCDRoleModalBodyWidget.deleteUserFromRole.bind(this, vnode, user)}>&times;</span>);
-  }
-
-  private getClass(user: string) {
-    return this.lastUserAdded === user ? `${styles.tag} ${styles.currentUserTag}` : `${styles.tag}`;
   }
 
   private addNewUserToRole(vnode: m.Vnode<ModalAttrs>, e: MouseEvent) {

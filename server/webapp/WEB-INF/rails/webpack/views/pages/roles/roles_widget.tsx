@@ -22,13 +22,14 @@ import {GoCDRole, PluginAttributes, PluginRole, Roles} from "models/roles/roles_
 import {Configuration} from "models/shared/configuration";
 import {Extension} from "models/shared/plugin_infos_new/extensions";
 import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
+import * as s from "underscore.string";
 import {CollapsiblePanel} from "views/components/collapsible_panel";
 import {HeaderIcon} from "views/components/header_icon";
 import {Clone, Delete, Edit, IconGroup} from "views/components/icons";
 import {KeyValuePair} from "views/components/key_value_pair";
 import {CloneOperation, DeleteOperation, EditOperation} from "views/pages/page_operations";
+import {UsersWidget} from "views/pages/roles/users_widget";
 import * as styles from "./index.scss";
-import * as s from "underscore.string";
 
 interface Attrs extends EditOperation<GoCDRole | PluginRole>, CloneOperation<GoCDRole | PluginRole>, DeleteOperation<GoCDRole | PluginRole> {
   pluginInfos: Array<PluginInfo<Extension>>;
@@ -151,13 +152,9 @@ export class GoCDRoleWidget extends RoleWidget {
     const gocdRole = vnode.attrs.role as GoCDRole;
     let body;
     if (gocdRole.attributes().users.length === 0) {
-      body = (<span data-test-id="no-users-message" class="no-users-message">No users in this role.</span>);
+      body = (<span data-test-id="no-users-message" className={styles.noUsersMessage}>No users in this role.</span>);
     } else {
-      body = (gocdRole.attributes().users.map((user) => {
-        return (<div data-alert className={styles.tag}>
-          {user}
-        </div>);
-      }));
+      body = (<UsersWidget roleAttributes={gocdRole.attributes()}/>);
     }
     return body;
   }

@@ -18,24 +18,29 @@
 $spinner-wrapper-height: 200px;
 $current-user-tag-bg-color: #eee;
 $disabled-text-color: #999;
+$max-user-tag-width: 200px;
 
 .spinner-wrapper {
   min-height: $spinner-wrapper-height;
 }
 
 .tag {
-  margin-right:  5px;
-  padding:       2px 10px;
-  display:       inline-block;
-  font-size:     13px;
-  color:         $text-color;
-  font-weight:   600;
-  border-radius: 2px;
-  border:        1px solid $border-color;
-  margin-bottom: 10px;
+  margin-right:    5px;
+  padding:         2px 10px;
+  display:         inline-flex;
+  font-size:       13px;
+  color:           $text-color;
+  font-weight:     600;
+  border-radius:   2px;
+  border:          1px solid $border-color;
+  margin-bottom:   10px;
+  justify-content: space-between;
 
-  a {
-    float: right;
+  span {
+    max-width:     $max-user-tag-width;
+    overflow:      hidden;
+    text-overflow: ellipsis;
+    white-space:   nowrap;
   }
 }
 
@@ -78,4 +83,9 @@ label.disabled, input[type='radio'][disabled] + label[for] { //sass-lint:disable
   display: block;
   width:   100%;
   padding: 0 15px;
+}
+
+.no-users-message {
+  font-size: 13px;
+  color:     $disabled-text-color;
 }

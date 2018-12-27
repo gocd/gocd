@@ -1,0 +1,140 @@
+/*
+ * Copyright 2018 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import {RolesCRUD} from "models/roles/roles_crud";
+import {Role, RoleJSON, RolesJSON} from "models/roles/roles_new";
+import {RolesTestData} from "views/pages/roles/spec/test_data";
+
+describe("RoleCRUD", () => {
+  beforeEach(() => jasmine.Ajax.install());
+  afterEach(() => jasmine.Ajax.uninstall());
+
+  it("should make get request", () => {
+    jasmine.Ajax.stubRequest("/go/api/admin/security/roles").andReturn(getAllRoles());
+
+    RolesCRUD.all();
+
+    const request = jasmine.Ajax.requests.mostRecent();
+    expect(request.url).toEqual("/go/api/admin/security/roles");
+    expect(request.method).toEqual("GET");
+    expect(request.data()).toEqual(toJSON({} as RolesJSON));
+    expect(request.requestHeaders).toEqual({Accept: "application/vnd.go.cd.v1+json"});
+  });
+
+  it("should create a new gocd role", () => {
+    jasmine.Ajax.stubRequest("/go/api/admin/security/roles").andReturn(getGoCDRole());
+
+    RolesCRUD.create(Role.fromJSON(RolesTestData.GoCDRoleJSON()));
+
+    const request = jasmine.Ajax.requests.mostRecent();
+    expect(request.url).toEqual("/go/api/admin/security/roles");
+    expect(request.method).toEqual("POST");
+    expect(request.data()).toEqual(toJSON(Role.fromJSON(RolesTestData.GoCDRoleJSON())));
+    expect(request.requestHeaders).toEqual({
+                                             "Accept": "application/vnd.go.cd.v1+json",
+                                             "Content-Type": "application/json; charset=utf-8"
+                                           });
+  });
+
+  it("should create a new plugin role", () => {
+    jasmine.Ajax.stubRequest("/go/api/admin/security/roles").andReturn(getPluginRole());
+
+    RolesCRUD.create(Role.fromJSON(RolesTestData.LdapPluginRoleJSON()));
+
+    const request = jasmine.Ajax.requests.mostRecent();
+    expect(request.url).toEqual("/go/api/admin/security/roles");
+    expect(request.method).toEqual("POST");
+    expect(request.data()).toEqual(toJSON(Role.fromJSON(RolesTestData.LdapPluginRoleJSON())));
+    expect(request.requestHeaders).toEqual({
+                                             "Accept": "application/vnd.go.cd.v1+json",
+                                             "Content-Type": "application/json; charset=utf-8"
+                                           });
+  });
+
+  it("should update a gocd role", () => {
+    const gocdRole = Role.fromJSON(RolesTestData.GoCDRoleJSON());
+    jasmine.Ajax.stubRequest(`/go/api/admin/security/roles/${gocdRole.name()}`)
+           .andReturn(getGoCDRole());
+
+    RolesCRUD.update(gocdRole, "some-etag");
+
+    const request = jasmine.Ajax.requests.mostRecent();
+    expect(request.url).toEqual(`/go/api/admin/security/roles/${gocdRole.name()}`);
+    expect(request.method).toEqual("PUT");
+    expect(request.data()).toEqual(toJSON(gocdRole));
+    expect(request.requestHeaders).toEqual({
+                                             "Accept": "application/vnd.go.cd.v1+json",
+                                             "Content-Type": "application/json; charset=utf-8",
+                                             "If-Match": "some-etag"
+                                           });
+  });
+
+  it("should delete a gocd role", () => {
+    const gocdRole = Role.fromJSON(RolesTestData.GoCDRoleJSON());
+    jasmine.Ajax.stubRequest(`/go/api/admin/security/roles/${gocdRole.name()}`)
+           .andReturn(getGoCDRole());
+
+    RolesCRUD.delete(gocdRole.name());
+
+    const request = jasmine.Ajax.requests.mostRecent();
+    expect(request.url).toEqual(`/go/api/admin/security/roles/${gocdRole.name()}`);
+    expect(request.method).toEqual("DELETE");
+    expect(request.data()).toEqual(toJSON({} as RoleJSON));
+    expect(request.requestHeaders).toEqual({
+                                             "Accept": "application/vnd.go.cd.v1+json",
+                                             "Content-Type": "application/json; charset=utf-8",
+                                             "X-GoCD-Confirm": "true"
+                                           });
+
+  });
+});
+
+function toJSON(object: any) {
+  return JSON.parse(JSON.stringify(object));
+}
+
+function getAllRoles() {
+  return {
+    status: 200,
+    responseHeaders: {
+      "Content-Type": "application/vnd.go.cd.v1+json; charset=utf-8",
+      "ETag": "some-etag"
+    },
+    responseText: RolesTestData.GetAllRoles()
+  };
+}
+
+function getGoCDRole() {
+  return {
+    status: 200,
+    responseHeaders: {
+      "Content-Type": "application/vnd.go.cd.v1+json; charset=utf-8",
+      "ETag": "some-etag"
+    },
+    responseText: RolesTestData.GoCDRoleJSON()
+  };
+}
+
+function getPluginRole() {
+  return {
+    status: 200,
+    responseHeaders: {
+      "Content-Type": "application/vnd.go.cd.v1+json; charset=utf-8",
+      "ETag": "some-etag"
+    },
+    responseText: RolesTestData.LdapPluginRoleJSON()
+  };
+}

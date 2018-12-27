@@ -19,7 +19,7 @@ import * as stream from "mithril/stream";
 import {AuthConfigs} from "models/auth_configs/auth_configs_new";
 import {TestData} from "models/auth_configs/spec/test_data";
 import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
-import {PluginInfoTestData} from "models/shared/plugin_infos_new/spec/test_data";
+import {AuthorizationPluginInfo} from "models/shared/plugin_infos_new/spec/test_data";
 import * as simulateEvent from "simulate-event";
 import {AuthConfigsWidget} from "views/pages/auth_configs/auth_configs_widget";
 
@@ -33,7 +33,7 @@ describe("AuthorizationConfigurationWidget", () => {
     [$root, root] = window.createDomElementForTest();
   });
   const authConfigs = AuthConfigs.fromJSON(TestData.authConfigList(TestData.ldapAuthConfig()));
-  const pluginInfos = [PluginInfo.fromJSON(PluginInfoTestData.authorization())];
+  const pluginInfos = [PluginInfo.fromJSON(AuthorizationPluginInfo.ldap())];
 
   beforeEach(() => {
     mount(authConfigs, pluginInfos);

@@ -77,9 +77,14 @@ applyMixins(AuthConfig, ValidatableMixin);
 export class AuthConfigs extends Array<AuthConfig> {
   constructor(...authConfigs: AuthConfig[]) {
     super(...authConfigs);
+    Object.setPrototypeOf(this, Object.create(AuthConfigs.prototype));
   }
 
   static fromJSON(data: AuthConfigsJSON) {
     return new AuthConfigs(...data._embedded.auth_configs.map(AuthConfig.fromJSON));
+  }
+
+  findById(authConfigId: string) {
+    return this.find((authConfig) => authConfig.id() === authConfigId) as AuthConfig;
   }
 }

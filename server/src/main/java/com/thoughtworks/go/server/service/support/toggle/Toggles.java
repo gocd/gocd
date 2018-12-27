@@ -24,6 +24,7 @@ public class Toggles {
     public static String USE_OLD_AUTH_CONFIG_SPA = "use_old_auth_config_spa";
     public static String USERS_PAGE_USING_RAILS = "users_page_using_rails";
     public static String USE_OLD_ARTIFACT_STORES_SPA = "use_old_artifact_stores_spa";
+    public static String USE_OLD_ROLES_SPA = "use_old_roles_spa";
 
     private static FeatureToggleService service;
 

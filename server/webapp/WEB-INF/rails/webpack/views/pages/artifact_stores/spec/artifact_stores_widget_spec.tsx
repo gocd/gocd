@@ -19,7 +19,7 @@ import * as stream from "mithril/stream";
 import {ArtifactStore, ArtifactStores} from "models/artifact_stores/artifact_stores_new";
 import {ArtifactStoreTestData} from "models/artifact_stores/spec/test_data";
 import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
-import {PluginInfoTestData} from "models/shared/plugin_infos_new/spec/test_data";
+import {ArtifactPluginInfo} from "models/shared/plugin_infos_new/spec/test_data";
 import * as simulateEvent from "simulate-event";
 import {ArtifactStoresWidget} from "views/pages/artifact_stores/artifact_stores_widget";
 import {TestHelper} from "views/pages/artifact_stores/spec/test_helper";
@@ -42,7 +42,7 @@ describe("ArtifactStoresModal", () => {
 
   it("should render action buttons", () => {
     const artifactStores = new ArtifactStores(dockerArtifactStore);
-    mount(artifactStores, [PluginInfo.fromJSON(PluginInfoTestData.artifact())]);
+    mount(artifactStores, [PluginInfo.fromJSON(ArtifactPluginInfo.docker())]);
 
     const groups = helper.findByDataTestId("artifact-stores-group");
 
@@ -69,7 +69,7 @@ describe("ArtifactStoresModal", () => {
 
   it("should render artifact store properties", () => {
     const artifactStores = new ArtifactStores(dockerArtifactStore);
-    mount(artifactStores, [PluginInfo.fromJSON(PluginInfoTestData.artifact())]);
+    mount(artifactStores, [PluginInfo.fromJSON(ArtifactPluginInfo.docker())]);
 
     const groups = helper.findByDataTestId("artifact-stores-group");
 
@@ -83,7 +83,7 @@ describe("ArtifactStoresModal", () => {
 
   it("should callback the edit function when edit button is clicked", () => {
     const artifactStores = new ArtifactStores(dockerArtifactStore);
-    mount(artifactStores, [PluginInfo.fromJSON(PluginInfoTestData.artifact())]);
+    mount(artifactStores, [PluginInfo.fromJSON(ArtifactPluginInfo.docker())]);
 
     simulateEvent.simulate(helper.findByDataTestId("artifact-store-edit").get(0), "click");
 
@@ -92,7 +92,7 @@ describe("ArtifactStoresModal", () => {
 
   it("should callback the clone function when clone button is clicked", () => {
     const artifactStores = new ArtifactStores(dockerArtifactStore);
-    mount(artifactStores, [PluginInfo.fromJSON(PluginInfoTestData.artifact())]);
+    mount(artifactStores, [PluginInfo.fromJSON(ArtifactPluginInfo.docker())]);
 
     simulateEvent.simulate(helper.findByDataTestId("artifact-store-clone").get(0), "click");
 
@@ -101,7 +101,7 @@ describe("ArtifactStoresModal", () => {
 
   it("should callback the delete function when delete button is clicked", () => {
     const artifactStores = new ArtifactStores(dockerArtifactStore);
-    mount(artifactStores, [PluginInfo.fromJSON(PluginInfoTestData.artifact())]);
+    mount(artifactStores, [PluginInfo.fromJSON(ArtifactPluginInfo.docker())]);
 
     simulateEvent.simulate(helper.findByDataTestId("artifact-store-delete").get(0), "click");
 
@@ -111,7 +111,7 @@ describe("ArtifactStoresModal", () => {
   it("should list artifact stores", () => {
     const mavenArtifactStore = ArtifactStore.fromJSON(ArtifactStoreTestData.mavenArtifactStore());
     const artifactStores     = new ArtifactStores(dockerArtifactStore, mavenArtifactStore);
-    mount(artifactStores, [PluginInfo.fromJSON(PluginInfoTestData.artifact())]);
+    mount(artifactStores, [PluginInfo.fromJSON(ArtifactPluginInfo.docker())]);
 
     const groups = helper.findByDataTestId("artifact-stores-group");
 

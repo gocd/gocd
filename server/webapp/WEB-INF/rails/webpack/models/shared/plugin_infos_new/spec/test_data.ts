@@ -15,6 +15,7 @@
  */
 
 export class PluginInfoTestData {
+
   static list(...objects: any[]) {
     return {
       _links: {
@@ -33,8 +34,102 @@ export class PluginInfoTestData {
       }
     };
   }
+}
 
-  static authorization() {
+export class ArtifactPluginInfo {
+  static docker() {
+    return {
+      id: "cd.go.artifact.docker.registry",
+      status: {
+        state: "active"
+      },
+      plugin_file_location: "/Volumes/Data/Projects/go/gocd/server/plugins/external/docker-registry-artifact-plugin-1.0.0-3.jar",
+      bundled_plugin: false,
+      about: {
+        name: "Artifact plugin for docker",
+        version: "1.0.0-3",
+        target_go_version: "18.7.0",
+        description: "Plugin allows to push/pull docker image from public or private docker registry",
+        target_operating_systems: [],
+        vendor: {
+          name: "GoCD Contributors",
+          url: "https://github.com/gocd/docker-artifact-plugin"
+        }
+      },
+      extensions: [
+        {
+          type: "artifact",
+          capabilities: {},
+          store_config_settings: {
+            configurations: [
+              {
+                key: "RegistryURL",
+                metadata: {
+                  secure: false,
+                  required: true
+                }
+              },
+              {
+                key: "Username",
+                metadata: {
+                  secure: false,
+                  required: true
+                }
+              },
+              {
+                key: "Password",
+                metadata: {
+                  secure: true,
+                  required: true
+                }
+              }
+            ],
+            view: {
+              template: "<div>This is store config view.</div>"
+            }
+          },
+          artifact_config_settings: {
+            configurations: [
+              {
+                key: "BuildFile",
+                metadata: {
+                  secure: false,
+                  required: false
+                }
+              },
+              {
+                key: "Image",
+                metadata: {
+                  secure: false,
+                  required: false
+                }
+              },
+              {
+                key: "Tag",
+                metadata: {
+                  secure: false,
+                  required: false
+                }
+              }
+            ],
+            view: {
+              template: "<div>This is artifact config view.</div>"
+            }
+          },
+          fetch_artifact_settings: {
+            configurations: [],
+            view: {
+              template: "<div>This is fetch view.</div>"
+            }
+          }
+        }
+      ]
+    };
+  }
+}
+
+export class AuthorizationPluginInfo {
+  static ldap() {
     return {
       id: "cd.go.authorization.ldap",
       status: {
@@ -128,96 +223,6 @@ export class PluginInfoTestData {
             can_authorize: true,
             can_search: false,
             supported_auth_type: "web"
-          }
-        }
-      ]
-    };
-  }
-
-  static artifact() {
-    return {
-      id: "cd.go.artifact.docker.registry",
-      status: {
-        state: "active"
-      },
-      plugin_file_location: "/Volumes/Data/Projects/go/gocd/server/plugins/external/docker-registry-artifact-plugin-1.0.0-3.jar",
-      bundled_plugin: false,
-      about: {
-        name: "Artifact plugin for docker",
-        version: "1.0.0-3",
-        target_go_version: "18.7.0",
-        description: "Plugin allows to push/pull docker image from public or private docker registry",
-        target_operating_systems: [],
-        vendor: {
-          name: "GoCD Contributors",
-          url: "https://github.com/gocd/docker-artifact-plugin"
-        }
-      },
-      extensions: [
-        {
-          type: "artifact",
-          capabilities: {},
-          store_config_settings: {
-            configurations: [
-              {
-                key: "RegistryURL",
-                metadata: {
-                  secure: false,
-                  required: true
-                }
-              },
-              {
-                key: "Username",
-                metadata: {
-                  secure: false,
-                  required: true
-                }
-              },
-              {
-                key: "Password",
-                metadata: {
-                  secure: true,
-                  required: true
-                }
-              }
-            ],
-            view: {
-              template: "<div>This is store config view.</div>"
-            }
-          },
-          artifact_config_settings: {
-            configurations: [
-              {
-                key: "BuildFile",
-                metadata: {
-                  secure: false,
-                  required: false
-                }
-              },
-              {
-                key: "Image",
-                metadata: {
-                  secure: false,
-                  required: false
-                }
-              },
-              {
-                key: "Tag",
-                metadata: {
-                  secure: false,
-                  required: false
-                }
-              }
-            ],
-            view: {
-              template: "<div>This is artifact config view.</div>"
-            }
-          },
-          fetch_artifact_settings: {
-            configurations: [],
-            view: {
-              template: "<div>This is fetch view.</div>"
-            }
           }
         }
       ]

@@ -40,6 +40,11 @@
         "key": "users_page_using_rails",
         "description": "Switch users page to use spark.",
         "value": true
+      },
+      {
+        "key": "use_old_roles_spa",
+        "description": "Switch roles configuration spa to use old spa.",
+        "value": false
       }
   ]
 }

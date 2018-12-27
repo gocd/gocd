@@ -87,6 +87,7 @@ public class Routes {
 
     public static class Roles {
         public static final String BASE = "/api/admin/security/roles";
+        public static final String SPA_BASE = "/admin/security/roles";
         public static final String DOC = "https://api.gocd.org/#roles";
         public static final String NAME_PATH = "/:role_name";
 

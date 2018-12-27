@@ -80,81 +80,108 @@ class DrainModeInfoRepresenterTest {
         doc : [href: 'https://api.gocd.org/current/#drain-mode-info']
       ],
       _embedded: [
-        "is_drain_mode"        : true,
-        "is_completely_drained": true,
-        "metadata"             : [
+        "is_drain_mode": true,
+        "metadata"     : [
           "updated_by": drainModeService.get().updatedBy(),
           "updated_on": jsonDate(drainModeService.get().updatedOn())
         ],
-        "running_systems"      : [
-          "mdu": [
-            [
-              "type"          : "git",
-              "attributes"    : [
-                "url"             : "foo/bar",
-                "destination"     : null,
-                "filter"          : null,
-                "invert_filter"   : false,
-                "name"            : null,
-                "auto_update"     : true,
-                "branch"          : "master",
-                "submodule_folder": null,
-                "shallow_clone"   : false
-              ],
-              "mdu_start_time": "1970-01-01T02:46:40Z"
-            ],
-            [
-              "type"          : "hg",
-              "attributes"    : [
-                "url"          : "hg-url",
-                "destination"  : null,
-                "filter"       : null,
-                "invert_filter": false,
-                "name"         : null,
-                "auto_update"  : true
-              ],
-              "mdu_start_time": "1970-01-01T05:33:20Z"
-            ],
-            [
-              "type"          : "svn",
-              "attributes"    : [
-                "url"               : "url",
-                "destination"       : "svnDir",
-                "filter"            : [
-                  "ignore": ["*.doc"]
+        "attributes"   : [
+          "is_completely_drained": true,
+          "running_systems"      : [
+            "mdu": [
+              [
+                "type"          : "git",
+                "attributes"    : [
+                  "url"             : "foo/bar",
+                  "destination"     : null,
+                  "filter"          : null,
+                  "invert_filter"   : false,
+                  "name"            : null,
+                  "auto_update"     : true,
+                  "branch"          : "master",
+                  "submodule_folder": null,
+                  "shallow_clone"   : false
                 ],
-                "invert_filter"     : false,
-                "name"              : null,
-                "auto_update"       : true,
-                "check_externals"   : true,
-                "username"          : "user",
-                "encrypted_password": svnMaterial.encryptedPassword
+                "mdu_start_time": "1970-01-01T02:46:40Z"
               ],
-              "mdu_start_time": "1970-01-01T08:20:00Z"
-            ]
-          ],
-          jobs : [
-            [
-              pipeline_name   : scheduled.pipelineName,
-              pipeline_counter: scheduled.pipelineCounter,
-              stage_name      : scheduled.stageName,
-              stage_counter   : scheduled.stageCounter,
-              name            : scheduled.name,
-              state           : scheduled.state,
-              scheduled_date  : jsonDate(new Timestamp(scheduled.getScheduledDate().getTime())),
-              agent_uuid      : scheduled.getAgentUuid()
+              [
+                "type"          : "hg",
+                "attributes"    : [
+                  "url"          : "hg-url",
+                  "destination"  : null,
+                  "filter"       : null,
+                  "invert_filter": false,
+                  "name"         : null,
+                  "auto_update"  : true
+                ],
+                "mdu_start_time": "1970-01-01T05:33:20Z"
+              ],
+              [
+                "type"          : "svn",
+                "attributes"    : [
+                  "url"               : "url",
+                  "destination"       : "svnDir",
+                  "filter"            : [
+                    "ignore": ["*.doc"]
+                  ],
+                  "invert_filter"     : false,
+                  "name"              : null,
+                  "auto_update"       : true,
+                  "check_externals"   : true,
+                  "username"          : "user",
+                  "encrypted_password": svnMaterial.encryptedPassword
+                ],
+                "mdu_start_time": "1970-01-01T08:20:00Z"
+              ]
             ],
-            [
-              pipeline_name   : building.pipelineName,
-              pipeline_counter: building.pipelineCounter,
-              stage_name      : building.stageName,
-              stage_counter   : building.stageCounter,
-              name            : building.name,
-              state           : building.state,
-              scheduled_date  : jsonDate(new Timestamp(building.getScheduledDate().getTime())),
-              agent_uuid      : building.getAgentUuid()
+            jobs : [
+              [
+                pipeline_name   : scheduled.pipelineName,
+                pipeline_counter: scheduled.pipelineCounter,
+                stage_name      : scheduled.stageName,
+                stage_counter   : scheduled.stageCounter,
+                name            : scheduled.name,
+                state           : scheduled.state,
+                scheduled_date  : jsonDate(new Timestamp(scheduled.getScheduledDate().getTime())),
+                agent_uuid      : scheduled.getAgentUuid()
+              ],
+              [
+                pipeline_name   : building.pipelineName,
+                pipeline_counter: building.pipelineCounter,
+                stage_name      : building.stageName,
+                stage_counter   : building.stageCounter,
+                name            : building.name,
+                state           : building.state,
+                scheduled_date  : jsonDate(new Timestamp(building.getScheduledDate().getTime())),
+                agent_uuid      : building.getAgentUuid()
+              ]
             ]
           ]
+        ]
+      ]
+    ]
+
+    assertThatJson(actualJson).isEqualTo(expectedJson)
+  }
+
+  @Test
+  void 'should not add attributes if server is not in drain mode'() {
+    def drainModeService = new DrainModeService(timeProvider)
+
+    def actualJson = toObjectString({
+      DrainModeInfoRepresenter.toJSON(it, drainModeService.get(), false, null, null)
+    })
+
+    def expectedJson = [
+      _links   : [
+        self: [href: 'http://test.host/go/api/admin/drain_mode/info'],
+        doc : [href: 'https://api.gocd.org/current/#drain-mode-info']
+      ],
+      _embedded: [
+        "is_drain_mode": false,
+        "metadata"     : [
+          "updated_by": drainModeService.get().updatedBy(),
+          "updated_on": jsonDate(drainModeService.get().updatedOn())
         ]
       ]
     ]

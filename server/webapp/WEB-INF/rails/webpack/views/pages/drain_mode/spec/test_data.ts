@@ -29,14 +29,16 @@ export class TestData {
     return {
       _embedded: {
         is_drain_mode: true,
-        is_completely_drained: true,
         metadata: {
           updated_by: "Admin",
           updated_on: "2018-12-10T04:19:31Z"
         },
-        running_systems: {
-          mdu: [],
-          jobs: []
+        attributes: {
+          is_completely_drained: true,
+          running_systems: {
+            mdu: [],
+            jobs: []
+          }
         }
       }
     };
@@ -46,15 +48,18 @@ export class TestData {
     return {
       _embedded: {
         is_drain_mode: isDrainMode,
-        is_completely_drained: false,
         metadata: {
           updated_by: "Admin",
           updated_on: "2018-12-10T04:19:31Z"
         },
-        running_systems: {
-          mdu: this.getMdu(),
-          jobs: this.getJobs()
+        attributes: {
+          is_completely_drained: false,
+          running_systems: {
+            mdu: this.getMdu(),
+            jobs: this.getJobs()
+          }
         }
+
       }
     };
   }

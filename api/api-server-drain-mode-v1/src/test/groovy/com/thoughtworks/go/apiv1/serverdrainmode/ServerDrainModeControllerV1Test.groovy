@@ -36,8 +36,7 @@ import java.sql.Timestamp
 
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
 import static org.assertj.core.api.Assertions.assertThat
-import static org.mockito.Mockito.verify
-import static org.mockito.Mockito.when
+import static org.mockito.Mockito.*
 import static org.mockito.MockitoAnnotations.initMocks
 
 class ServerDrainModeControllerV1Test implements SecurityServiceTrait, ControllerTrait<ServerDrainModeControllerV1> {
@@ -234,6 +233,24 @@ class ServerDrainModeControllerV1Test implements SecurityServiceTrait, Controlle
           .hasBody(toObjectString({
           DrainModeInfoRepresenter.toJSON(it, drainModeService.get(), true, runningMDUs, runningJobs)
         }))
+      }
+
+      @Test
+      void 'should not fetch running subsystems information when server is not in drain mode'() {
+
+        when(drainModeService.get()).thenReturn(new ServerDrainMode(false, currentUserLoginName().toString(), testingClock.currentTime()))
+
+        getWithApiHeader(controller.controllerPath('/info'))
+
+        assertThatResponse()
+          .isOk()
+          .hasContentType(controller.mimeType)
+          .hasBody(toObjectString({
+          DrainModeInfoRepresenter.toJSON(it, drainModeService.get(), false, null, null)
+        }))
+
+        verifyZeroInteractions(jobInstanceService)
+        verify(drainModeService, never()).getRunningMDUs()
       }
     }
   }

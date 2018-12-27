@@ -16,7 +16,7 @@
 
 import {MithrilViewComponent} from "jsx/mithril-component";
 import * as m from "mithril";
-import {DrainModeInfo, StageLocator} from "models/drain_mode/types";
+import {DrainModeInfo, RunningSystem, StageLocator} from "models/drain_mode/types";
 import {SwitchBtn} from "views/components/switch";
 import {DisabledSubsystemsWidget} from "views/pages/drain_mode/disabled_susbsystems_widget";
 import {JobInfoWidget} from "views/pages/drain_mode/running_jobs_widget.tsx";
@@ -88,9 +88,9 @@ interface InfoAttrs {
 export class DrainModeInfoWidget extends MithrilViewComponent<InfoAttrs> {
   view(vnode: m.Vnode<InfoAttrs>): m.Children {
     return [
-      <JobInfoWidget stages={vnode.attrs.drainModeInfo.runningSystem.stages}
+      <JobInfoWidget stages={(vnode.attrs.drainModeInfo.runningSystem as RunningSystem).stages}
                      onCancelStage={vnode.attrs.onCancelStage}/>,
-      <MDUInfoWidget materials={vnode.attrs.drainModeInfo.runningSystem.mdu}/>
+      <MDUInfoWidget materials={(vnode.attrs.drainModeInfo.runningSystem as RunningSystem).mdu}/>
     ] as m.ChildArray;
   }
 }

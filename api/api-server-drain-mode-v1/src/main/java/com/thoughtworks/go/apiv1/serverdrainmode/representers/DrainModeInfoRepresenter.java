@@ -36,15 +36,20 @@ public class DrainModeInfoRepresenter {
                         .addAbsoluteLink("doc", Routes.DrainMode.INFO_DOC))
                 .addChild("_embedded", childWriter -> {
                     childWriter.add("is_drain_mode", serverDrainMode.isDrainMode());
-                    childWriter.add("is_completely_drained", isServerCompletelyDrained);
                     childWriter.addChild("metadata", metadataChildWriter -> {
                         metadataChildWriter.add("updated_by", serverDrainMode.updatedBy());
                         metadataChildWriter.add("updated_on", serverDrainMode.updatedOn());
                     });
-                    childWriter.addChild("running_systems", runningSystemsChildWriter -> {
-                        runningSystemsChildWriter.addChildList("mdu", runningMDUsToJSON(runningMDUs));
-                        runningSystemsChildWriter.addChildList("jobs", runningJobsToJSON(jobInstances));
-                    });
+
+                    if (serverDrainMode.isDrainMode()) {
+                        childWriter.addChild("attributes", attributesWriter -> {
+                            attributesWriter.add("is_completely_drained", isServerCompletelyDrained);
+                            attributesWriter.addChild("running_systems", runningSystemsChildWriter -> {
+                                runningSystemsChildWriter.addChildList("mdu", runningMDUsToJSON(runningMDUs));
+                                runningSystemsChildWriter.addChildList("jobs", runningJobsToJSON(jobInstances));
+                            });
+                        });
+                    }
                 });
     }
 

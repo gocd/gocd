@@ -88,7 +88,13 @@ export class DrainModePage extends Page<null, State> {
       vnode.state.message = new Message(MessageType.alert, errorResponse.message);
     };
 
-    new AjaxPoller(() => this.fetchData(vnode)).start();
+    const options = {
+      repeaterFn: () => this.fetchData(vnode),
+      intervalSeconds: 30,
+      initialIntervalSeconds: 30
+    };
+
+    new AjaxPoller(options).start();
   }
 
   componentToDisplay(vnode: m.Vnode<null, State>): JSX.Element | undefined {

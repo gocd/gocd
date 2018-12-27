@@ -21,6 +21,7 @@ import {ArtifactStore, ArtifactStoreJSON} from "models/artifact_stores/artifact_
 import {Configurations} from "models/shared/configuration";
 import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
 import * as Buttons from "views/components/buttons";
+import {MessageType} from "views/components/flash_message";
 import {Size} from "views/components/modal";
 import {EntityModal} from "views/components/modal/entity_modal";
 import {ArtifactStoreModalBody} from "views/pages/artifact_stores/artifact_store_modal_body";
@@ -124,9 +125,13 @@ export class CloneArtifactStoreModal extends ArtifactStoreModal {
 }
 
 export class DeleteArtifactStoreModal extends ArtifactStoreModal {
+  protected readonly setMessage: (msg: m.Children, type: MessageType) => void;
 
-  constructor(entity: ArtifactStore, pluginInfos: Array<PluginInfo<any>>, onSuccessfulSave: (msg: m.Children) => any) {
+  constructor(entity: ArtifactStore, pluginInfos: Array<PluginInfo<any>>,
+              onSuccessfulSave: (msg: m.Children) => any,
+              setMessage: (msg: m.Children, type: MessageType) => void) {
     super(entity, pluginInfos, onSuccessfulSave, true, Size.small);
+    this.setMessage = setMessage;
     this.isStale(false);
   }
 
@@ -140,6 +145,12 @@ export class DeleteArtifactStoreModal extends ArtifactStoreModal {
         Delete</Buttons.Danger>,
       <Buttons.Cancel data-test-id="button-no-delete" onclick={this.close.bind(this)}>No</Buttons.Cancel>
     ];
+  }
+
+  operationError(errorResponse: any, statusCode: number) {
+    const json = JSON.parse(errorResponse.body);
+    this.setMessage(json.message, MessageType.alert);
+    this.close();
   }
 
   protected modalBody(): m.Children {

@@ -22,7 +22,7 @@ import {Configurations} from "models/shared/configuration";
 import {ExtensionType} from "models/shared/plugin_infos_new/extension_type";
 import {PluginInfoCRUD} from "models/shared/plugin_infos_new/plugin_info_crud";
 import * as Buttons from "views/components/buttons";
-import {MessageType} from "views/components/flash_message";
+import {FlashMessage, MessageType} from "views/components/flash_message";
 import {HeaderPanel} from "views/components/header_panel";
 import {ArtifactStoresWidget} from "views/pages/artifact_stores/artifact_stores_widget";
 import {
@@ -102,16 +102,19 @@ export class ArtifactStoresPage extends Page<null, State> {
         clearTimeout(timeoutID);
       }
 
-      new DeleteArtifactStoreModal(artifactStore, [], vnode.state.onSuccessfulSave).render();
+      new DeleteArtifactStoreModal(artifactStore, [], vnode.state.onSuccessfulSave, setMessage).render();
     };
   }
 
   componentToDisplay(vnode: m.Vnode<null, State>): JSX.Element | undefined {
-    return <ArtifactStoresWidget artifactStores={vnode.state.artifactStores}
-                                 pluginInfos={vnode.state.pluginInfos}
-                                 onEdit={vnode.state.onEdit}
-                                 onClone={vnode.state.onClone}
-                                 onDelete={vnode.state.onDelete}/>;
+    return (<div>
+      <FlashMessage type={vnode.state.messageType} message={vnode.state.message}/>
+      <ArtifactStoresWidget artifactStores={vnode.state.artifactStores}
+                            pluginInfos={vnode.state.pluginInfos}
+                            onEdit={vnode.state.onEdit}
+                            onClone={vnode.state.onClone}
+                            onDelete={vnode.state.onDelete}/>
+    </div>);
   }
 
   pageName(): string {

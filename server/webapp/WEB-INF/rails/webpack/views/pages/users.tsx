@@ -56,7 +56,7 @@ export class UsersPage extends Page<null, State> {
     const headerButtons = [];
     headerButtons.push(<Buttons.Primary onclick={vnode.state.onAdd.bind(vnode.state)}>Add User</Buttons.Primary>);
 
-    return <HeaderPanel title="Elastic Profiles" buttons={headerButtons}/>;
+    return <HeaderPanel title="Users Management" buttons={headerButtons}/>;
   }
 
   fetchData(vnode: m.Vnode<null, State>): Promise<any> {

@@ -19,7 +19,7 @@ import SparkRoutes from "helpers/spark_routes";
 import {UserJSON, Users, UsersJSON} from "models/users/users";
 
 export class UsersCRUD {
-  static API_VERSION_HEADER = ApiVersion.v2;
+  static API_VERSION_HEADER = ApiVersion.v3;
 
   static all() {
     return ApiRequestBuilder.GET(SparkRoutes.apiUsersPath(), this.API_VERSION_HEADER)

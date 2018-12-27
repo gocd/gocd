@@ -15,6 +15,8 @@
 */
 
 import * as _ from "lodash";
+import {Stream} from "mithril/stream";
+import * as stream from "mithril/stream";
 
 export interface UsersJSON {
   _embedded: EmbeddedJSON;
@@ -26,6 +28,7 @@ interface EmbeddedJSON {
 
 export interface UserJSON {
   login_name: string;
+  is_admin: boolean;
   display_name?: string;
   enabled?: boolean;
   email?: string;
@@ -34,7 +37,9 @@ export interface UserJSON {
 }
 
 export class User {
+  checked: Stream<boolean> = stream(false);
   loginName: string;
+  isAdmin: boolean;
   displayName: string | undefined;
   email: string | undefined;
   emailMe: boolean | undefined;
@@ -47,6 +52,7 @@ export class User {
     this.enabled        = json.enabled;
     this.email          = json.email;
     this.emailMe        = json.email_me;
+    this.isAdmin        = json.is_admin;
     this.checkinAliases = json.checkin_aliases;
   }
 
@@ -55,34 +61,119 @@ export class User {
   }
 }
 
+export class UserFilters {
+  superAdmins: Stream<boolean>   = stream(false);
+  normalUsers: Stream<boolean>   = stream(false);
+  enabledUsers: Stream<boolean>  = stream(false);
+  disabledUsers: Stream<boolean> = stream(false);
+
+  resetFilters() {
+    this.superAdmins(false);
+    this.normalUsers(false);
+    this.enabledUsers(false);
+    this.disabledUsers(false);
+  }
+
+  isAnyPrivilegesFilterApplied() {
+    return this.superAdmins() || this.normalUsers();
+  }
+
+  isAnyUserStateFilterApplied() {
+    return this.enabledUsers() || this.disabledUsers();
+  }
+
+  anyFiltersApplied() {
+    return this.isAnyPrivilegesFilterApplied() || this.isAnyUserStateFilterApplied();
+  }
+
+  applyFiltersOnUser(user: User): boolean {
+    let filterOnPrivileges = !this.isAnyPrivilegesFilterApplied();
+    if (this.superAdmins()) {
+      filterOnPrivileges = filterOnPrivileges || user.isAdmin;
+    }
+
+    if (this.normalUsers()) {
+      filterOnPrivileges = filterOnPrivileges || !user.isAdmin;
+    }
+
+    let filterOnUserState = !this.isAnyUserStateFilterApplied();
+    if (this.enabledUsers()) {
+      filterOnUserState = filterOnUserState || user.enabled as boolean;
+    }
+
+    if (this.disabledUsers()) {
+      filterOnUserState = filterOnUserState || !user.enabled;
+    }
+
+    return filterOnPrivileges && filterOnUserState;
+  }
+}
+
 export class Users {
-  users: User[];
+
+  search: Stream<string> = stream("");
+  filters: UserFilters   = new UserFilters();
+  private readonly __originalUsers: User[];
 
   constructor(users: User[]) {
-    this.users = users;
+    this.__originalUsers = users;
   }
 
   static fromJSON(json: UsersJSON) {
     return new Users(json._embedded.users.map((userJson) => User.fromJSON(userJson)));
   }
 
+  users() {
+    return this.applySearch(this.applyFilters(this.__originalUsers));
+  }
+
   list() {
-    return this.users;
-  }
-
-  enabledUsers() {
-    return _.filter(this.users, (user) => user.enabled);
-  }
-
-  disabledUsers() {
-    return _.filter(this.users, (user) => !user.enabled);
+    return this.users();
   }
 
   enabledUsersCount() {
     return this.enabledUsers().length;
   }
 
+  totalUsersCount() {
+    return this.users().length;
+  }
+
   disabledUsersCount() {
     return this.disabledUsers().length;
+  }
+
+  areAllUsersSelected() {
+    return this.users().every((user) => user.checked());
+  }
+
+  toggleSelection() {
+    this.setSelection(!this.areAllUsersSelected());
+  }
+
+  private applyFilters(users: User[]): User[] {
+    return this.filters.anyFiltersApplied() ? users.filter(this.filters.applyFiltersOnUser.bind(this.filters)) : users;
+  }
+
+  private applySearch(users: User[]): User[] {
+    return users.filter((user: User) => {
+      const matchesLoginName   = user.loginName.includes(this.search());
+      const matchesDisplayName = user.displayName ? user.displayName.includes(this.search()) : false;
+      const matchesEmail       = user.email ? user.email.includes(this.search()) : false;
+
+      return (matchesLoginName || matchesDisplayName || matchesEmail);
+    });
+  }
+
+  private enabledUsers() {
+    return _.filter(this.users(), (user) => user.enabled);
+  }
+
+  private disabledUsers() {
+    return _.filter(this.users(), (user) => !user.enabled);
+  }
+
+  private setSelection(newSelection: boolean) {
+    this.users().forEach((user) => user.checked(newSelection));
   }
 }

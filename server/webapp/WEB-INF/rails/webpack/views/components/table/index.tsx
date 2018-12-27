@@ -21,7 +21,7 @@ import * as s from "underscore.string";
 import * as styles from "./index.scss";
 
 interface Attrs {
-  headers: m.Child[];
+  headers: m.Child[] | any;
   data: m.Child[][];
   "data-test-id"?: string;
 }

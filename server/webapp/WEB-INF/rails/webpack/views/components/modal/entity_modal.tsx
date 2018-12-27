@@ -29,6 +29,7 @@ import {FlashMessage, MessageType} from "views/components/flash_message";
 import {Modal, Size} from "views/components/modal/index";
 import {Spinner} from "views/components/spinner";
 import * as foundationStyles from "views/pages/new_plugins/foundation_hax.scss";
+import * as styles from "./index.scss";
 
 const foundationClassNames = bind(foundationStyles);
 
@@ -72,7 +73,7 @@ export abstract class EntityModal<T extends ValidatableMixin> extends Modal {
     }
 
     if (!this.entity || this.isStale()) {
-      return <Spinner/>;
+      return <div className={styles.spinnerWrapper}><Spinner/></div>;
     }
 
     return (

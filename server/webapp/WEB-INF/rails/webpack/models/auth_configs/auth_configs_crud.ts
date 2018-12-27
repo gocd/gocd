@@ -30,20 +30,20 @@ export class AuthConfigsCRUD {
 
   static get(id: string) {
     return ApiRequestBuilder.GET(SparkRoutes.authConfigPath(id), this.API_VERSION_HEADER)
-                            .then(this.extractObjectWithEtag());
+                            .then(this.extractObjectWithEtag);
   }
 
   static update(updatedAuthConfig: AuthConfig, etag: string) {
     return ApiRequestBuilder.PUT(SparkRoutes.authConfigPath(updatedAuthConfig.id()),
                                  this.API_VERSION_HEADER,
                                  {payload: updatedAuthConfig, etag})
-                            .then(this.extractObjectWithEtag());
+                            .then(this.extractObjectWithEtag);
   }
 
   static create(authConfig: AuthConfig) {
     return ApiRequestBuilder.POST(SparkRoutes.authConfigPath(),
                                   this.API_VERSION_HEADER,
-                                  {payload: authConfig}).then(this.extractObjectWithEtag());
+                                  {payload: authConfig}).then(this.extractObjectWithEtag);
   }
 
   static delete(id: string) {
@@ -60,15 +60,13 @@ export class AuthConfigsCRUD {
                             });
   }
 
-  private static extractObjectWithEtag() {
-    return (result: ApiResult<string>) => {
-      return result.map((body) => {
-        const authConfigJSON = JSON.parse(body) as AuthConfigJSON;
-        return {
-          object: AuthConfig.fromJSON(authConfigJSON),
-          etag: result.getEtag()
-        } as ObjectWithEtag<AuthConfig>;
-      });
-    };
+  private static extractObjectWithEtag(result: ApiResult<string>) {
+    return result.map((body) => {
+      const authConfigJSON = JSON.parse(body) as AuthConfigJSON;
+      return {
+        object: AuthConfig.fromJSON(authConfigJSON),
+        etag: result.getEtag()
+      } as ObjectWithEtag<AuthConfig>;
+    });
   }
 }

@@ -14,11 +14,11 @@
 * limitations under the License.
 */
 
-import {ErrorResponse} from "helpers/api_request_builder";
 import * as m from "mithril";
 import * as stream from "mithril/stream";
 import {AuthConfigsCRUD} from "models/auth_configs/auth_configs_crud";
 import {AuthConfig, AuthConfigs} from "models/auth_configs/auth_configs_new";
+import {Configurations} from "models/shared/configuration";
 import {ExtensionType} from "models/shared/plugin_infos_new/extension_type";
 import {PluginInfoCRUD} from "models/shared/plugin_infos_new/plugin_info_crud";
 import * as Buttons from "views/components/buttons";
@@ -26,10 +26,8 @@ import {FlashMessage, MessageType} from "views/components/flash_message";
 import {HeaderPanel} from "views/components/header_panel";
 import {AuthConfigsWidget} from "views/pages/auth_configs/auth_configs_widget";
 import {
-  CloneAuthConfigModal,
-  DeleteAuthConfigConfirmModal,
-  EditAuthConfigModal,
-  NewAuthConfigModal
+  CloneAuthConfigModal, CreateAuthConfigModal, DeleteAuthConfigModal,
+  EditAuthConfigModal
 } from "views/pages/auth_configs/modals";
 import {Page, PageState} from "views/pages/page";
 import {
@@ -50,13 +48,10 @@ export class AuthConfigsPage extends Page<null, State> {
     let timeoutID: number;
     vnode.state.pluginInfos = stream();
 
-    const setMessage       = (msg: m.Children, type: MessageType) => {
+    const setMessage = (msg: m.Children, type: MessageType) => {
       vnode.state.message     = msg;
       vnode.state.messageType = type;
       timeoutID               = window.setTimeout(vnode.state.clearMessage.bind(vnode.state), 10000);
-    };
-    const onOperationError = (errorResponse: ErrorResponse) => {
-      vnode.state.onError(errorResponse.message);
     };
 
     vnode.state.onSuccessfulSave = (msg: m.Children) => {
@@ -73,7 +68,10 @@ export class AuthConfigsPage extends Page<null, State> {
       if (timeoutID) {
         clearTimeout(timeoutID);
       }
-      new NewAuthConfigModal(vnode.state.pluginInfos(), vnode.state.onSuccessfulSave).render();
+
+      const pluginId      = vnode.state.pluginInfos()[0].id;
+      const newAuthConfig = new AuthConfig("", pluginId, new Configurations([]));
+      new CreateAuthConfigModal(newAuthConfig, vnode.state.pluginInfos(), vnode.state.onSuccessfulSave).render();
     };
 
     vnode.state.onEdit = (obj: AuthConfig, e: MouseEvent) => {
@@ -81,18 +79,8 @@ export class AuthConfigsPage extends Page<null, State> {
       if (timeoutID) {
         clearTimeout(timeoutID);
       }
-      AuthConfigsCRUD
-        .get(obj.id())
-        .then((result) => {
-          result.do(
-            (successResponse) => {
-              new EditAuthConfigModal(successResponse.body,
-                                      vnode.state.pluginInfos(),
-                                      vnode.state.onSuccessfulSave).render();
-            },
-            onOperationError
-          );
-        });
+
+      new EditAuthConfigModal(obj, vnode.state.pluginInfos(), vnode.state.onSuccessfulSave).render();
     };
 
     vnode.state.onClone = (obj: AuthConfig, e: MouseEvent) => {
@@ -100,18 +88,9 @@ export class AuthConfigsPage extends Page<null, State> {
       if (timeoutID) {
         clearTimeout(timeoutID);
       }
-      AuthConfigsCRUD
-        .get(obj.id())
-        .then((result) => {
-          result.do(
-            (successResponse) => {
-              new CloneAuthConfigModal(successResponse.body.object,
-                                       vnode.state.pluginInfos(),
-                                       vnode.state.onSuccessfulSave).render();
-            },
-            onOperationError
-          );
-        });
+
+      new CloneAuthConfigModal(obj, vnode.state.pluginInfos(), vnode.state.onSuccessfulSave).render();
+
     };
 
     vnode.state.onDelete = (obj: AuthConfig, e: MouseEvent) => {
@@ -119,7 +98,7 @@ export class AuthConfigsPage extends Page<null, State> {
       if (timeoutID) {
         clearTimeout(timeoutID);
       }
-      new DeleteAuthConfigConfirmModal(obj, vnode.state.onSuccessfulSave, onOperationError).render();
+      new DeleteAuthConfigModal(obj, vnode.state.pluginInfos(), vnode.state.onSuccessfulSave).render();
     };
   }
 

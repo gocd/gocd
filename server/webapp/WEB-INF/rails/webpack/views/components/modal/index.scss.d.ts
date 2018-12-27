@@ -13,3 +13,4 @@ export const overlayFooter: string;
 export const button: string;
 export const fixed: string;
 export const overlayBg: string;
+export const spinnerWrapper: string;

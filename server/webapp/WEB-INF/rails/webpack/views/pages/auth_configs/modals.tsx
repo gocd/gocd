@@ -14,313 +14,194 @@
  * limitations under the License.
  */
 
-import {bind} from "classnames/bind";
-import {ApiResult, ErrorResponse, ObjectWithEtag} from "helpers/api_request_builder";
-import * as _ from "lodash";
+import {ApiResult} from "helpers/api_request_builder";
 import * as m from "mithril";
 import {Stream} from "mithril/stream";
 import * as stream from "mithril/stream";
 import {AuthConfigsCRUD} from "models/auth_configs/auth_configs_crud";
-import {AuthConfig} from "models/auth_configs/auth_configs_new";
+import {AuthConfig, AuthConfigJSON} from "models/auth_configs/auth_configs_new";
 import {Configurations} from "models/shared/configuration";
-import {ExtensionType} from "models/shared/plugin_infos_new/extension_type";
-import {AuthorizationSettings, Extension} from "models/shared/plugin_infos_new/extensions";
 import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
 import {ButtonGroup} from "views/components/buttons";
 import * as Buttons from "views/components/buttons";
-import {FlashMessage, MessageType} from "views/components/flash_message";
-import {Form, FormHeader} from "views/components/forms/form";
-import {SelectField, SelectFieldOptions, TextField} from "views/components/forms/input_fields";
-import {Modal, Size} from "views/components/modal";
-import {DeleteConfirmModal} from "views/components/modal/delete_confirm_modal";
-import {Spinner} from "views/components/spinner";
-import * as foundationStyles from "views/pages/new_plugins/foundation_hax.scss";
+import {MessageType} from "views/components/flash_message";
+import {Size} from "views/components/modal";
+import {EntityModal} from "views/components/modal/entity_modal";
+import {AuthConfigModalBody} from "views/pages/auth_configs/auth_config_modal_body";
+import {Message} from "views/pages/drain_mode";
 
-const foundationClassNames = bind(foundationStyles);
-const AngularPluginNew     = require("views/shared/angular_plugin_new");
+abstract class AuthConfigModal extends EntityModal<AuthConfig> {
+  protected readonly originalEntityId: string;
+  private disableId: boolean;
+  private message: Stream<Message> = stream();
 
-enum ModalType {
-  edit, clone, create
-}
-
-class Messages {
-  public message: string;
-  public messageType: MessageType;
-
-  constructor(message: string, messageType: MessageType) {
-    this.message     = message;
-    this.messageType = messageType;
-  }
-}
-
-abstract class BaseAuthConfigModal extends Modal {
-  protected authConfig: Stream<AuthConfig>;
-  private errorMessage?: string;
-  private connectionMessage?: Messages;
-  private readonly pluginInfo: Stream<PluginInfo<Extension>>;
-  private readonly pluginInfos: Array<PluginInfo<Extension>>;
-  private readonly modalType: ModalType;
-
-  protected constructor(authConfig: AuthConfig,
-                        pluginInfos: Array<PluginInfo<Extension>>,
-                        type: ModalType) {
-    super(Size.large);
-    this.authConfig  = stream(authConfig);
-    this.pluginInfos = pluginInfos;
-    this.pluginInfo  = stream(pluginInfos.find(
-      (pluginInfo) => pluginInfo.id === authConfig.pluginId()) || pluginInfos[0]);
-    this.modalType   = type;
-  }
-
-  abstract performSave(): void;
-
-  abstract modalTitle(authConfig: AuthConfig): string;
-
-  validateAndPerformSave() {
-    if (!this.authConfig().isValid()) {
-      return;
-    }
-    this.performSave();
+  constructor(entity: AuthConfig,
+              pluginInfos: Array<PluginInfo<any>>,
+              onSuccessfulSave: (msg: m.Children) => any,
+              disableId: boolean = false,
+              size: Size         = Size.large) {
+    super(entity, pluginInfos, onSuccessfulSave, size);
+    this.disableId        = disableId;
+    this.originalEntityId = entity.id();
   }
 
   performCheckConnection() {
-    if (!this.authConfig().isValid()) {
+    if (!this.entity().isValid()) {
       return;
     }
-    AuthConfigsCRUD
-      .verifyConnection(this.authConfig())
-      .then((result) => {
-        result.do(
-          (successResponse) => {
-            this.connectionMessage = new Messages(successResponse.body.message, MessageType.success);
-          },
-          (errorResponse) => {
-            this.connectionMessage = new Messages(errorResponse.message, MessageType.alert);
-          }
-        );
-      });
+
+    AuthConfigsCRUD.verifyConnection(this.entity()).then(this.onVerifyConnectionResult.bind(this));
   }
 
-  showErrors(apiResult: ApiResult<ObjectWithEtag<AuthConfig>>, errorResponse: ErrorResponse) {
-    if (apiResult.getStatusCode() === 422 && errorResponse.body) {
-      const profile = AuthConfig.fromJSON(JSON.parse(errorResponse.body).data);
-      this.authConfig(profile);
-    }
+  onPluginChange(entity: Stream<AuthConfig>, pluginInfo: PluginInfo<any>): void {
+    entity(new AuthConfig(entity().id(), pluginInfo!.id, new Configurations([])));
   }
 
   buttons() {
-    return [<ButtonGroup>
-      <Buttons.Primary data-test-id="button-check-connection" onclick={this.performCheckConnection.bind(this)}>Check
-        connection</Buttons.Primary>
-      <Buttons.Primary data-test-id="button-ok" onclick={this.validateAndPerformSave.bind(this)}>Save</Buttons.Primary>
-    </ButtonGroup>];
+    return [
+      <ButtonGroup>
+        <Buttons.Primary data-test-id="button-check-connection" onclick={this.performCheckConnection.bind(this)}>Check
+          connection</Buttons.Primary>
+        <Buttons.Primary data-test-id="button-save"
+                         disabled={this.isStale()}
+                         onclick={this.performOperation.bind(this)}>Save</Buttons.Primary>
+      </ButtonGroup>
+    ];
   }
 
-  body() {
-    if (this.errorMessage) {
-      return (<FlashMessage type={MessageType.alert} message={this.errorMessage}/>);
-    }
-    let msgs: any;
-    if (this.connectionMessage) {
-      msgs = (<FlashMessage type={this.connectionMessage.messageType} message={this.connectionMessage.message}
-                            dismissible={false}/>);
-    }
-    if (!this.authConfig()) {
-      return <Spinner/>;
-    }
+  protected performFetch(entity: AuthConfig): Promise<any> {
+    return AuthConfigsCRUD.get(this.originalEntityId);
+  }
 
-    const pluginList = _.map(this.pluginInfos, (pluginInfo: PluginInfo<any>) => {
-      return {id: pluginInfo.id, text: pluginInfo.about.name};
-    });
+  protected parseJsonToEntity(json: object) {
+    return AuthConfig.fromJSON(json as AuthConfigJSON);
+  }
 
-    const pluginSettings = (this.pluginInfo()
-                                .extensionOfType(ExtensionType.AUTHORIZATION)! as AuthorizationSettings).authConfigSettings;
+  protected modalBody(): m.Children {
+    return (<div>
+      <AuthConfigModalBody
+        message={this.message()}
+        pluginInfos={this.pluginInfos}
+        authConfig={this.entity()}
+        disableId={this.disableId}
+        pluginIdProxy={this.pluginIdProxy.bind(this)}/>
+    </div>);
+  }
 
+  private onVerifyConnectionResult(result: ApiResult<any>) {
+    result.do(this.onVerifyConnectionSuccess.bind(this),
+              (e) => this.onVerifyConnectionError(e, result.getStatusCode()));
+  }
+
+  private onVerifyConnectionSuccess(successResponse: any) {
+    this.message(new Message(MessageType.success, successResponse.body.message));
+    this.entity(this.parseJsonToEntity(successResponse.body.auth_config));
+  }
+
+  private onVerifyConnectionError(errorResponse: any, statusCode: number) {
+    if (422 === statusCode && errorResponse.body) {
+      const json = JSON.parse(errorResponse.body);
+      this.message(new Message(MessageType.alert, json.message));
+      this.entity(this.parseJsonToEntity(json.auth_config));
+    } else {
+      this.errorMessage(errorResponse.message);
+    }
+  }
+}
+
+export class CreateAuthConfigModal extends AuthConfigModal {
+  constructor(entity: AuthConfig,
+              pluginInfos: Array<PluginInfo<any>>,
+              onSuccessfulSave: (msg: m.Children) => any) {
+    super(entity, pluginInfos, onSuccessfulSave);
+    this.isStale(false);
+  }
+
+  title(): string {
+    return "Create a new authorization configuration";
+  }
+
+  operationPromise(): Promise<any> {
+    return AuthConfigsCRUD.create(this.entity());
+  }
+
+  successMessage(): m.Children {
+    return <span>The authorization configuration <em>{this.entity().id()}</em> was created successfully!</span>;
+  }
+}
+
+export class EditAuthConfigModal extends AuthConfigModal {
+  constructor(entity: AuthConfig, pluginInfos: Array<PluginInfo<any>>, onSuccessfulSave: (msg: m.Children) => any) {
+    super(entity, pluginInfos, onSuccessfulSave, true);
+  }
+
+  title(): string {
+    return `Edit authorization configuration ${this.entity().id()}`;
+  }
+
+  operationPromise(): Promise<any> {
+    return AuthConfigsCRUD.update(this.entity(), this.etag());
+  }
+
+  successMessage(): m.Children {
+    return <span>The authorization configuration <em>{this.entity().id()}</em> was updated successfully!</span>;
+  }
+}
+
+export class CloneAuthConfigModal extends AuthConfigModal {
+  constructor(entity: AuthConfig, pluginInfos: Array<PluginInfo<any>>, onSuccessfulSave: (msg: m.Children) => any) {
+    super(entity, pluginInfos, onSuccessfulSave, false);
+  }
+
+  title(): string {
+    return `Clone authorization configuration ${this.originalEntityId}`;
+  }
+
+  operationPromise(): Promise<any> {
+    return AuthConfigsCRUD.create(this.entity());
+  }
+
+  successMessage(): m.Children {
+    return <span>The authorization configuration <em>{this.originalEntityId}</em> was created successfully!</span>;
+  }
+
+  fetchCompleted() {
+    this.entity().id("");
+  }
+}
+
+export class DeleteAuthConfigModal extends AuthConfigModal {
+
+  constructor(entity: AuthConfig, pluginInfos: Array<PluginInfo<any>>, onSuccessfulSave: (msg: m.Children) => any) {
+    super(entity, pluginInfos, onSuccessfulSave, true, Size.small);
+    this.isStale(false);
+  }
+
+  title(): string {
+    return "Are you sure?";
+  }
+
+  buttons(): any[] {
+    return [
+      <Buttons.Danger data-test-id="button-delete" onclick={this.performOperation.bind(this)}>Yes
+        Delete</Buttons.Danger>,
+      <Buttons.Cancel data-test-id="button-no-delete" onclick={this.close.bind(this)}>No</Buttons.Cancel>
+    ];
+  }
+
+  protected modalBody(): m.Children {
     return (
-      <div class={foundationClassNames(foundationStyles.foundationGridHax, foundationStyles.foundationFormHax)}>
-        <div>
-          <FormHeader>
-            {msgs}
-            <Form>
-              <TextField label="Id"
-                         disabled={this.modalType === ModalType.edit}
-                         property={this.authConfig().id}
-                         errorText={this.authConfig().errors().errorsForDisplay("id")}
-                         required={true}/>
-
-              <SelectField label="Plugin ID"
-                           property={this.pluginIdProxy.bind(this)}
-                           required={true}
-                           errorText={this.authConfig().errors().errorsForDisplay("pluginId")}>
-                <SelectFieldOptions selected={this.authConfig().pluginId()}
-                                    items={pluginList}/>
-              </SelectField>
-            </Form>
-          </FormHeader>
-        </div>
-        <div>
-          <div class="row collapse">
-            <AngularPluginNew
-              pluginInfoSettings={stream(pluginSettings)}
-              configuration={this.authConfig().properties()}
-              key={this.pluginInfo().id}/>
-          </div>
-        </div>
-      </div>
+      <span>
+      Are you sure you want to delete the authorization configuration <strong>{this.originalEntityId}</strong>?
+        </span>
     );
   }
 
-  title() {
-    return this.modalTitle(this.authConfig());
+  protected operationPromise(): Promise<any> {
+    return AuthConfigsCRUD.delete(this.originalEntityId);
   }
 
-  private pluginIdProxy(newValue ?: string) {
-    if (newValue) {
-      if (this.pluginInfo().id !== newValue) {
-        const pluginInfo = _.find(this.pluginInfos, (p) => p.id === newValue);
-        this.pluginInfo(pluginInfo!);
-        this.authConfig(new AuthConfig(this.authConfig().id(), pluginInfo!.id, new Configurations([])));
-      }
-    }
-    return this.pluginInfo().id;
-  }
-}
-
-export class NewAuthConfigModal extends BaseAuthConfigModal {
-  private readonly onSuccessfulSave: (msg: m.Children) => any;
-
-  constructor(pluginInfos: Array<PluginInfo<any>>, onSuccessfulSave: (msg: m.Children) => any) {
-    const authConfig = new AuthConfig("", pluginInfos[0].id, new Configurations([]));
-    super(authConfig, pluginInfos, ModalType.create);
-    this.onSuccessfulSave = onSuccessfulSave;
-  }
-
-  modalTitle(authConfig: AuthConfig): string {
-    return "Add new authorization configuration";
-  }
-
-  performSave(): void {
-    AuthConfigsCRUD
-      .create(this.authConfig())
-      .then((result) => {
-        result.do(
-          () => {
-            this.onSuccessfulSave(<span>The authorization configuration <em>{this.authConfig().id()}</em> was created successfully!</span>);
-            this.close();
-          },
-          (errorResponse) => {
-            this.showErrors(result, errorResponse);
-          }
-        );
-      });
-  }
-
-}
-
-export class EditAuthConfigModal extends BaseAuthConfigModal {
-  private readonly onSuccessfulSave: (msg: m.Children) => any;
-  private etag: string;
-
-  constructor(authConfig: ObjectWithEtag<AuthConfig>,
-              pluginInfos: Array<PluginInfo<any>>,
-              onSuccessfulSave: (msg: m.Children) => any) {
-    super(authConfig.object, pluginInfos, ModalType.edit);
-    this.etag             = authConfig.etag;
-    this.onSuccessfulSave = onSuccessfulSave;
-  }
-
-  modalTitle(authConfig: AuthConfig): string {
-    return `Edit authorization configuration ${authConfig.id()}`;
-  }
-
-  performSave(): void {
-    AuthConfigsCRUD
-      .update(this.authConfig(), this.etag)
-      .then((result) => {
-        result.do(
-          () => {
-            this.onSuccessfulSave(
-              <span>The authorization configuration <em>{this.authConfig().id()}</em> was updated successfully!</span>
-            );
-            this.close();
-          },
-          (errorResponse) => {
-            this.showErrors(result, errorResponse);
-          }
-        );
-      });
-  }
-
-}
-
-export class CloneAuthConfigModal extends BaseAuthConfigModal {
-  private readonly onSuccessfulSave: (msg: m.Children) => any;
-  private readonly sourceProfileId: string;
-
-  constructor(authConfig: AuthConfig,
-              pluginInfos: Array<PluginInfo<any>>,
-              onSuccessfulSave: (msg: m.Children) => any) {
-    const _sourceProfileId = authConfig.id();
-    authConfig.id("");
-
-    super(authConfig, pluginInfos, ModalType.create);
-    this.sourceProfileId  = _sourceProfileId;
-    this.onSuccessfulSave = onSuccessfulSave;
-  }
-
-  modalTitle(authConfig: AuthConfig): string {
-    return `Clone authorization configuration ${this.sourceProfileId}`;
-  }
-
-  performSave(): void {
-    AuthConfigsCRUD
-      .create(this.authConfig())
-      .then((result) => {
-        result.do(
-          () => {
-            this.onSuccessfulSave(
-              <span>The authorization configuration <em>{this.authConfig().id()}</em> was created successfully!</span>
-            );
-            this.close();
-          },
-          (errorResponse) => {
-            this.showErrors(result, errorResponse);
-          }
-        );
-      }).finally(m.redraw);
-  }
-
-}
-
-export class DeleteAuthConfigConfirmModal extends DeleteConfirmModal {
-  private readonly onSuccessfulSave: (msg: m.Children) => any;
-  private readonly onOperationError: (errorResponse: ErrorResponse) => any;
-
-  constructor(authConfig: AuthConfig,
-              onSuccessfulSave: (msg: m.Children) => any,
-              onOperationError: (errorResponse: ErrorResponse) => any) {
-    super(DeleteAuthConfigConfirmModal.deleteConfirmationMessage(authConfig),
-          () => this.delete(authConfig), "Are you sure?");
-    this.onSuccessfulSave = onSuccessfulSave;
-    this.onOperationError = onOperationError;
-  }
-
-  private static deleteConfirmationMessage(authConfig: AuthConfig) {
-    return <span>
-          Are you sure you want to delete the authorization configuration <strong>{authConfig.id()}</strong>?
-        </span>;
-  }
-
-  private delete(obj: AuthConfig) {
-    AuthConfigsCRUD.delete(obj.id())
-                   .then((result) => {
-                     result.do(
-                       () => this.onSuccessfulSave(
-                         <span>The authorization configuration <em>{obj.id()}</em> was deleted successfully!</span>
-                       ),
-                       this.onOperationError
-                     );
-                   })
-                   .finally(this.close.bind(this));
+  protected successMessage(): m.Children {
+    return <span>The authorization configuration <em>{this.originalEntityId}</em> was deleted successfully!</span>;
   }
 }

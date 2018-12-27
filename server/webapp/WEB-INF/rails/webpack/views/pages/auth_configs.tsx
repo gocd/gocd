@@ -98,7 +98,7 @@ export class AuthConfigsPage extends Page<null, State> {
       if (timeoutID) {
         clearTimeout(timeoutID);
       }
-      new DeleteAuthConfigModal(obj, vnode.state.pluginInfos(), vnode.state.onSuccessfulSave).render();
+      new DeleteAuthConfigModal(obj, vnode.state.pluginInfos(), vnode.state.onSuccessfulSave, setMessage).render();
     };
   }
 

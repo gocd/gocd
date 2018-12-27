@@ -171,9 +171,13 @@ export class CloneAuthConfigModal extends AuthConfigModal {
 }
 
 export class DeleteAuthConfigModal extends AuthConfigModal {
+  private setMessage: (msg: m.Children, type: MessageType) => void;
 
-  constructor(entity: AuthConfig, pluginInfos: Array<PluginInfo<any>>, onSuccessfulSave: (msg: m.Children) => any) {
+  constructor(entity: AuthConfig, pluginInfos: Array<PluginInfo<any>>,
+              onSuccessfulSave: (msg: m.Children) => any,
+              setMessage: (msg: m.Children, type: MessageType) => void) {
     super(entity, pluginInfos, onSuccessfulSave, true, Size.small);
+    this.setMessage = setMessage;
     this.isStale(false);
   }
 
@@ -187,6 +191,12 @@ export class DeleteAuthConfigModal extends AuthConfigModal {
         Delete</Buttons.Danger>,
       <Buttons.Cancel data-test-id="button-no-delete" onclick={this.close.bind(this)}>No</Buttons.Cancel>
     ];
+  }
+
+  operationError(errorResponse: any, statusCode: number) {
+    const json = JSON.parse(errorResponse.body);
+    this.setMessage(json.message, MessageType.alert);
+    this.close();
   }
 
   protected modalBody(): m.Children {

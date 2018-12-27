@@ -98,6 +98,10 @@ export abstract class EntityModal<T extends ValidatableMixin> extends Modal {
     //implement if needed
   }
 
+  operationError(errorResponse: any, statusCode: number) {
+    //implement if needed
+  }
+
   protected abstract onPluginChange(entity: Stream<T>, pluginInfo: PluginInfo<any>): void;
 
   protected abstract operationPromise(): Promise<any>;
@@ -147,9 +151,12 @@ export abstract class EntityModal<T extends ValidatableMixin> extends Modal {
   private onError(errorResponse: ErrorResponse, statusCode: number) {
     if (422 === statusCode && errorResponse.body) {
       const json = JSON.parse(errorResponse.body);
-      this.entity(this.parseJsonToEntity(json.data));
+      if (json.data) {
+        this.entity(this.parseJsonToEntity(json.data));
+      }
     } else {
       this.errorMessage(errorResponse.message);
     }
+    this.operationError(errorResponse, statusCode);
   }
 }

@@ -21,6 +21,7 @@ $overlay-width: 500px;
 $overlay-height: 500px;
 $overlay-border-color: $global-border-color;
 $overlay-header-txt: #fff;
+$spinner-wrapper-height: 200px;
 
 .overlay {
   border:     none;
@@ -140,4 +141,8 @@ $overlay-header-txt: #fff;
   right:      0;
   bottom:     0;
   z-index:    map_get($zindex, 'modal-overlay-bg');
+}
+
+.spinner-wrapper {
+  min-height: $spinner-wrapper-height;
 }

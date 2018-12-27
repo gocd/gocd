@@ -41,14 +41,14 @@ export class AuthConfig extends ValidatableMixin {
   pluginId: Stream<string>;
   properties: Stream<Configurations>;
 
-  constructor(id?: string, pluginId?: string, properties?: Configurations, errors?: Errors) {
+  constructor(id?: string, pluginId?: string, properties?: Configurations, errors: Errors = new Errors()) {
     super();
+    ValidatableMixin.call(this);
     this.id         = stream(id);
     this.pluginId   = stream(pluginId);
     this.properties = stream(properties);
     this.errors(errors);
 
-    ValidatableMixin.call(this);
     this.validatePresenceOf("pluginId");
     this.validatePresenceOf("id");
     this.validateFormatOf("id",

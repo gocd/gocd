@@ -29,6 +29,7 @@ import {FlashMessage, MessageType} from "views/components/flash_message";
 import {Modal, Size} from "views/components/modal/index";
 import {Spinner} from "views/components/spinner";
 import * as foundationStyles from "views/pages/new_plugins/foundation_hax.scss";
+import * as styles from "./index.scss";
 
 const foundationClassNames = bind(foundationStyles);
 
@@ -72,7 +73,7 @@ export abstract class EntityModal<T extends ValidatableMixin> extends Modal {
     }
 
     if (!this.entity || this.isStale()) {
-      return <Spinner/>;
+      return <div className={styles.spinnerWrapper}><Spinner/></div>;
     }
 
     return (
@@ -94,6 +95,10 @@ export abstract class EntityModal<T extends ValidatableMixin> extends Modal {
   }
 
   fetchCompleted() {
+    //implement if needed
+  }
+
+  operationError(errorResponse: any, statusCode: number) {
     //implement if needed
   }
 
@@ -146,9 +151,12 @@ export abstract class EntityModal<T extends ValidatableMixin> extends Modal {
   private onError(errorResponse: ErrorResponse, statusCode: number) {
     if (422 === statusCode && errorResponse.body) {
       const json = JSON.parse(errorResponse.body);
-      this.entity(this.parseJsonToEntity(json.data));
+      if (json.data) {
+        this.entity(this.parseJsonToEntity(json.data));
+      }
     } else {
       this.errorMessage(errorResponse.message);
     }
+    this.operationError(errorResponse, statusCode);
   }
 }

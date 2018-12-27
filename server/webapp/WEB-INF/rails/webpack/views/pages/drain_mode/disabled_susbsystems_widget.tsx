@@ -19,7 +19,7 @@ import * as Icons from "views/components/icons";
 import * as styles from "./index.scss";
 
 import {MithrilViewComponent} from "jsx/mithril-component";
-import {DrainModeInfo} from "models/drain_mode/types";
+import {DrainModeInfo, RunningSystem} from "models/drain_mode/types";
 
 interface Attrs {
   drainModeInfo: DrainModeInfo;
@@ -82,13 +82,14 @@ class SubsystemInfoWithIconWidget extends MithrilViewComponent<RunningSystemAttr
 
 class InformationWhenInDrainMode extends MithrilViewComponent<Attrs> {
   view(vnode: m.Vnode<Attrs>) {
-    const mduRunningSystem = vnode.attrs.drainModeInfo.runningSystem.mdu.count() === 0
+    const runningSystem    = vnode.attrs.drainModeInfo.runningSystem as RunningSystem;
+    const mduRunningSystem = runningSystem.mdu.count() === 0
       ? <SubsystemInfoWithIconWidget inProgress={false} dataTestId={"mdu-stopped"}
                                      text={"Stopped material subsystem."}/>
       : <SubsystemInfoWithIconWidget inProgress={true} dataTestId={"mdu-in-progress"}
                                      text={"Waiting for material subsystem to stop.."}/>;
 
-    const buildingJobsSystem = vnode.attrs.drainModeInfo.runningSystem.stages.length === 0
+    const buildingJobsSystem = runningSystem.stages.length === 0
       ? <SubsystemInfoWithIconWidget inProgress={false} dataTestId={"scheduling-system-stopped"}
                                      text={"Stopped scheduling subsystem."}/>
       : <SubsystemInfoWithIconWidget inProgress={true} dataTestId={"scheduling-system-in-progress"}

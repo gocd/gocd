@@ -27,8 +27,6 @@ import com.thoughtworks.go.server.domain.ServerDrainMode;
 import com.thoughtworks.go.server.service.DrainModeService;
 import com.thoughtworks.go.server.service.JobInstanceService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
-import com.thoughtworks.go.server.service.support.toggle.FeatureToggleService;
-import com.thoughtworks.go.server.service.support.toggle.Toggles;
 import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.spring.SparkSpringController;
 import com.thoughtworks.go.util.Clock;
@@ -120,9 +118,19 @@ public class ServerDrainModeControllerV1 extends ApiController implements SparkS
     }
 
     public String getDrainModeInfo(Request req, Response res) throws InvalidPluginTypeException, IOException {
-        Collection<DrainModeService.MaterialPerformingMDU> runningMDUs = drainModeService.getRunningMDUs();
-        List<JobInstance> jobInstances = jobInstanceService.allRunningJobs();
-        boolean isServerCompletelyDrained = runningMDUs.isEmpty() && jobInstances.isEmpty();
-        return writerForTopLevelObject(req, res, writer -> DrainModeInfoRepresenter.toJSON(writer, drainModeService.get(), isServerCompletelyDrained, runningMDUs, jobInstances));
+        ServerDrainMode serverDrainMode = drainModeService.get();
+
+        if (serverDrainMode.isDrainMode()) {
+            Collection<DrainModeService.MaterialPerformingMDU> runningMDUs = drainModeService.getRunningMDUs();
+            List<JobInstance> jobInstances = jobInstanceService.allRunningJobs();
+            boolean isServerCompletelyDrained = runningMDUs.isEmpty() && jobInstances.isEmpty();
+            return writerForTopLevelObject(req, res, writer -> {
+                DrainModeInfoRepresenter.toJSON(writer, serverDrainMode, isServerCompletelyDrained, runningMDUs, jobInstances);
+            });
+        } else {
+            return writerForTopLevelObject(req, res, writer -> {
+                DrainModeInfoRepresenter.toJSON(writer, serverDrainMode, false, null, null);
+            });
+        }
     }
 }

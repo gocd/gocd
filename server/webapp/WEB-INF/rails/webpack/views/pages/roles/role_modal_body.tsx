@@ -54,14 +54,9 @@ export class RoleModalBody extends MithrilViewComponent<RoleModalAttrs> {
     if (!vnode.attrs.role || (vnode.attrs.isStale && vnode.attrs.isStale())) {
       return <div className={styles.spinnerWrapper}><Spinner/></div>;
     }
-    let message: any;
-    if (!RoleModalBody.hasAuthConfigs(vnode)) {
-      message = (<FlashMessage type={MessageType.info} message="No role based authorization configured."/>);
-    }
 
     let mayBeTypeSelector: any;
     if (vnode.attrs.action === Action.NEW) {
-      //TODO: 1. use component
       mayBeTypeSelector = (
         <div data-test-id="role-type-selector">
           <label className="inline">Select type of role:&nbsp;&nbsp;&nbsp;</label>
@@ -102,7 +97,6 @@ export class RoleModalBody extends MithrilViewComponent<RoleModalAttrs> {
     }
 
     return (<div class={foundationClassNames(foundationStyles.foundationGridHax, foundationStyles.foundationFormHax)}>
-        {message}
         {mayBeTypeSelector}
         {roleWidget}
       </div>

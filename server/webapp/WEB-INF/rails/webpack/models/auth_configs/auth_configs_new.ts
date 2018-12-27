@@ -85,6 +85,6 @@ export class AuthConfigs extends Array<AuthConfig> {
   }
 
   findById(authConfigId: string) {
-    return this.find((authConfig) => authConfig.id() === authConfigId);
+    return this.find((authConfig) => authConfig.id() === authConfigId) as AuthConfig;
   }
 }

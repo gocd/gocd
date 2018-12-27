@@ -74,7 +74,6 @@ export class RolesPage extends Page<null, State> {
     vnode.state.onAdd = (e: Event) => {
       e.stopPropagation();
       clearTimeoutFor();
-      // const role = new PluginRole("", new PluginAttributes("", new Configurations([])));
       const role = new GoCDRole("", new GoCDAttributes([]));
       new NewRoleModal(role,
                        vnode.state.pluginInfos,
@@ -131,8 +130,6 @@ export class RolesPage extends Page<null, State> {
   }
 
   headerPanel(vnode: m.Vnode<null, State>) {
-    // const hasPlugins    = vnode.state.pluginInfos && vnode.state.pluginInfos.length > 0;
-    // disabled={!hasPlugins}
     const headerButtons = [(<Buttons.Primary data-test-id="role-add-button"
                                              onclick={vnode.state.onAdd.bind(vnode.state)}>Add</Buttons.Primary>)];
 

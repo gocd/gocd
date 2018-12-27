@@ -42,7 +42,7 @@ interface RoleAttrs extends EditOperation<GoCDRole | PluginRole>, CloneOperation
 }
 
 interface PluginRoleAttrs extends RoleAttrs {
-  pluginInfo: Array<PluginInfo<Extension>>;
+  pluginInfos: Array<PluginInfo<Extension>>;
   authConfigs: AuthConfigs;
 }
 
@@ -54,7 +54,7 @@ export class RolesWidget extends MithrilViewComponent<Attrs> {
           return (
             <PluginRoleWidget role={role}
                               authConfigs={vnode.attrs.authConfigs}
-                              pluginInfo={vnode.attrs.pluginInfos} onEdit={vnode.attrs.onEdit}
+                              pluginInfos={vnode.attrs.pluginInfos} onEdit={vnode.attrs.onEdit}
                               onClone={vnode.attrs.onClone} onDelete={vnode.attrs.onDelete}/>);
         } else {
           return (<GoCDRoleWidget role={role} onEdit={vnode.attrs.onEdit} onClone={vnode.attrs.onClone}
@@ -75,7 +75,7 @@ abstract class RoleWidget extends MithrilViewComponent<RoleAttrs | PluginRoleAtt
     const pluginAttributes = vnode.attrs as PluginRoleAttrs;
     const authConfig       = pluginAttributes.authConfigs.findById(role.attributes().authConfigId);
     if (authConfig) {
-      const pluginInfo = _.find(pluginAttributes.pluginInfo, {id: authConfig.pluginId()});
+      const pluginInfo = _.find(pluginAttributes.pluginInfos, {id: authConfig.pluginId()});
       if (pluginInfo && pluginInfo.imageUrl) {
         return <HeaderIcon name="Plugin Icon" imageUrl={pluginInfo.imageUrl}/>;
       } else {
@@ -97,7 +97,7 @@ abstract class RoleWidget extends MithrilViewComponent<RoleAttrs | PluginRoleAtt
 
     if (authConfig) {
       map.set("Auth Config Id", authConfig.id());
-      const pluginInfo = _.find(pluginAttributes.pluginInfo, {id: authConfig.pluginId()});
+      const pluginInfo = _.find(pluginAttributes.pluginInfos, {id: authConfig.pluginId()});
       if (pluginInfo) {
         map.set("Plugin", pluginInfo.about.name);
       } else {
@@ -108,16 +108,14 @@ abstract class RoleWidget extends MithrilViewComponent<RoleAttrs | PluginRoleAtt
   }
 
   static pluginIsNotInstalled(pluginRoleAttrs: PluginRoleAttrs) {
-    if (!pluginRoleAttrs.pluginInfo || pluginRoleAttrs.pluginInfo.length === 0) {
+    if (!pluginRoleAttrs.pluginInfos || pluginRoleAttrs.pluginInfos.length === 0) {
       return true;
     }
 
     const authConfigId = (pluginRoleAttrs.role.attributes() as PluginAttributes).authConfigId;
-    const pluginId     = _.find(pluginRoleAttrs.authConfigs, (it) => {
-      return it.id() === authConfigId;
-    })!.pluginId();
+    const pluginId     = pluginRoleAttrs.authConfigs.findById(authConfigId)!.pluginId();
 
-    const pluginInfo = _.find(pluginRoleAttrs.pluginInfo, (pluginInfo) => {
+    const pluginInfo = _.find(pluginRoleAttrs.pluginInfos, (pluginInfo) => {
       return pluginId === pluginInfo.id;
     });
 

@@ -102,13 +102,9 @@ export class PluginRoleModalBodyWidget extends MithrilViewComponent<PluginModalA
       authID = authConfigOfInstalledPlugin.id();
     }
 
-    const authConfig = _.find(vnode.attrs.authConfigs, (ac) => ac.id() === authID);
-    if (!authConfig) {
-      return;
-    }
+    const authConfig              = vnode.attrs.authConfigs.findById(authID);
     pluginAttributes.authConfigId = authConfig.id();
-    const pluginInfo              = _.find(vnode.attrs.pluginInfos,
-                                           (pl) => pl.id === authConfig.pluginId());
+    const pluginInfo              = _.find(vnode.attrs.pluginInfos, (pl) => pl.id === authConfig.pluginId());
 
     if (!pluginInfo) {
       return;
@@ -166,7 +162,7 @@ export class PluginRoleModalBodyWidget extends MithrilViewComponent<PluginModalA
     const role       = vnode.attrs.role as PluginRole;
     const attributes = role.attributes() as PluginAttributes;
     if (newValue && attributes.authConfigId !== newValue) {
-      const authConfig = _.find(vnode.attrs.authConfigs, (a) => a.id() === newValue);
+      const authConfig = vnode.attrs.authConfigs.findById(newValue);
       if (authConfig) {
         attributes.authConfigId = authConfig.id();
       }

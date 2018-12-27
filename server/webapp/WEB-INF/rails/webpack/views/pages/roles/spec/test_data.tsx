@@ -17,7 +17,7 @@
 export class RolesTestData {
 
   public static GetAllRoles(): any {
-    const testData = [this.GoCDRoleJSON(), this.PluginRoleJSON()];
+    const testData = [this.GoCDRoleJSON(), this.LdapPluginRoleJSON()];
     return {
       _links: {
         self: {
@@ -57,7 +57,28 @@ export class RolesTestData {
     };
   }
 
-  public static PluginRoleJSON(): any {
+  public static EmptyGoCDRoleJSON(): any {
+    return {
+      _links: {
+        self: {
+          href: "https://ci.example.com/go/api/admin/security/roles/spacetiger"
+        },
+        doc: {
+          href: "https://api.gocd.org/#roles"
+        },
+        find: {
+          href: "https://ci.example.com/go/api/admin/security/roles/:role_name"
+        }
+      },
+      name: "spacetiger",
+      type: "gocd",
+      attributes: {
+        users: []
+      }
+    };
+  }
+
+  public static LdapPluginRoleJSON(): any {
     return {
       _links: {
         self: {
@@ -82,6 +103,22 @@ export class RolesTestData {
           {
             key: "GroupIdentifiers",
             value: "ou=admins,ou=groups,ou=system,dc=example,dc=com"
+          }
+        ]
+      }
+    };
+  }
+
+  public static GitHubPluginRoleJSON(): any {
+    return {
+      name: "github-role",
+      type: "plugin",
+      attributes: {
+        auth_config_id: "github",
+        properties: [
+          {
+            key: "Organization",
+            value: "gocd"
           }
         ]
       }

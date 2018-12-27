@@ -76,9 +76,9 @@ export class GoCDRoleModalBodyWidget extends MithrilViewComponent<ModalAttrs> {
       <TextField label="Role users" required={false} property={this.newUser}/>
 
       <li className={styles.addUserToRole}>
-        <Buttons.Secondary
+        <Buttons.Primary
           data-test-id="role-add-user-button"
-          onclick={this.addNewUserToRole.bind(this, vnode)}>Add</Buttons.Secondary>
+          onclick={this.addNewUserToRole.bind(this, vnode)}>Add</Buttons.Primary>
       </li>
     </Form>);
   }

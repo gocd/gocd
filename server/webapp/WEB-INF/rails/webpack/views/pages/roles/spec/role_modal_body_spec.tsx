@@ -20,14 +20,14 @@ import {AuthConfigs} from "models/auth_configs/auth_configs_new";
 import {TestData} from "models/auth_configs/spec/test_data";
 import {Role, RoleType} from "models/roles/roles_new";
 import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
-import {PluginInfoTestData} from "models/shared/plugin_infos_new/spec/test_data";
+import {AuthorizationPluginInfo} from "models/shared/plugin_infos_new/spec/test_data";
 import * as simulateEvent from "simulate-event";
 import {Action, RoleModalBody} from "views/pages/roles/role_modal_body";
 import {RolesTestData} from "views/pages/roles/spec/test_data";
 
 describe("RoleModalBody", () => {
   const gocdRole       = Role.fromJSON(RolesTestData.GoCDRoleJSON());
-  const pluginInfos    = [PluginInfo.fromJSON(PluginInfoTestData.authorization())];
+  const pluginInfos    = [PluginInfo.fromJSON(AuthorizationPluginInfo.ldap())];
   const authConfigs    = AuthConfigs.fromJSON(TestData.authConfigList(TestData.ldapAuthConfig()));
   const changeRoleType = jasmine.createSpy("changeRoleType");
   let $root: any, root: any;

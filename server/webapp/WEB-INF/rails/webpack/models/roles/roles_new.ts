@@ -63,7 +63,18 @@ export class GoCDAttributes {
   }
 
   addUser(username: string) {
+    if (this.hasUser(username)) {
+      return;
+    }
     this.users.push(username);
+  }
+
+  hasUser(username: string) {
+    if (username && username.length > 0) {
+      const index = this.users.indexOf(username, 0);
+      return index > -1;
+    }
+    return false;
   }
 
   deleteUser(username: string) {

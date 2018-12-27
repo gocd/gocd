@@ -52,12 +52,12 @@ describe("RoleCRUD", () => {
   it("should create a new plugin role", () => {
     jasmine.Ajax.stubRequest("/go/api/admin/security/roles").andReturn(getPluginRole());
 
-    RolesCRUD.create(Role.fromJSON(RolesTestData.PluginRoleJSON()));
+    RolesCRUD.create(Role.fromJSON(RolesTestData.LdapPluginRoleJSON()));
 
     const request = jasmine.Ajax.requests.mostRecent();
     expect(request.url).toEqual("/go/api/admin/security/roles");
     expect(request.method).toEqual("POST");
-    expect(request.data()).toEqual(toJSON(Role.fromJSON(RolesTestData.PluginRoleJSON())));
+    expect(request.data()).toEqual(toJSON(Role.fromJSON(RolesTestData.LdapPluginRoleJSON())));
     expect(request.requestHeaders).toEqual({
                                              "Accept": "application/vnd.go.cd.v1+json",
                                              "Content-Type": "application/json; charset=utf-8"
@@ -135,6 +135,6 @@ function getPluginRole() {
       "Content-Type": "application/vnd.go.cd.v1+json; charset=utf-8",
       "ETag": "some-etag"
     },
-    responseText: RolesTestData.PluginRoleJSON()
+    responseText: RolesTestData.LdapPluginRoleJSON()
   };
 }

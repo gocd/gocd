@@ -18,7 +18,7 @@ import {MithrilViewComponent} from "jsx/mithril-component";
 import * as _ from "lodash";
 import * as m from "mithril";
 import {AuthConfigs} from "models/auth_configs/auth_configs_new";
-import {GoCDRole, PluginRole, Roles} from "models/roles/roles_new";
+import {GoCDRole, PluginAttributes, PluginRole, Roles} from "models/roles/roles_new";
 import {Configuration} from "models/shared/configuration";
 import {Extension} from "models/shared/plugin_infos_new/extensions";
 import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
@@ -28,6 +28,7 @@ import {Clone, Delete, Edit, IconGroup} from "views/components/icons";
 import {KeyValuePair} from "views/components/key_value_pair";
 import {CloneOperation, DeleteOperation, EditOperation} from "views/pages/page_operations";
 import * as styles from "./index.scss";
+import * as s from "underscore.string";
 
 interface Attrs extends EditOperation<GoCDRole | PluginRole>, CloneOperation<GoCDRole | PluginRole>, DeleteOperation<GoCDRole | PluginRole> {
   pluginInfos: Array<PluginInfo<Extension>>;
@@ -105,20 +106,39 @@ abstract class RoleWidget extends MithrilViewComponent<RoleAttrs | PluginRoleAtt
     return map;
   }
 
+  static pluginIsNotInstalled(pluginRoleAttrs: PluginRoleAttrs) {
+    if (!pluginRoleAttrs.pluginInfo || pluginRoleAttrs.pluginInfo.length === 0) {
+      return true;
+    }
+
+    const authConfigId = (pluginRoleAttrs.role.attributes() as PluginAttributes).authConfigId;
+    const pluginId     = _.find(pluginRoleAttrs.authConfigs, (it) => {
+      return it.id() === authConfigId;
+    })!.pluginId();
+
+    const pluginInfo = _.find(pluginRoleAttrs.pluginInfo, (pluginInfo) => {
+      return pluginId === pluginInfo.id;
+    });
+
+    return !pluginInfo;
+  }
+
   view(vnode: m.Vnode<RoleAttrs | PluginRoleAttrs>): m.Children | void | null {
+    const isDisabled    = vnode.attrs.role.isPluginRole() ? RoleWidget.pluginIsNotInstalled(vnode.attrs as PluginRoleAttrs) : false;
     const header        = [RoleWidget.headerIcon(vnode),
       <KeyValuePair inline={true} data={RoleWidget.headerMap(vnode)}/>];
     const actionButtons = [
       <IconGroup>
-        <Edit data-test-id="role-edit"
+        <Edit data-test-id="role-edit" disabled={isDisabled}
               onclick={vnode.attrs.onEdit.bind(vnode.attrs, vnode.attrs.role)}/>
-        <Clone data-test-id="role-clone"
+        <Clone data-test-id="role-clone" disabled={isDisabled}
                onclick={vnode.attrs.onClone.bind(vnode.attrs, vnode.attrs.role)}/>
         <Delete data-test-id="role-delete"
                 onclick={vnode.attrs.onDelete.bind(vnode.attrs, vnode.attrs.role)}/>
       </IconGroup>];
 
-    return (<CollapsiblePanel header={header} actions={actionButtons}>
+    return (<CollapsiblePanel header={header} actions={actionButtons}
+                              dataTestId={`role-${s.slugify(vnode.attrs.role.name())}`}>
       {this.viewForRole(vnode)}
     </CollapsiblePanel>);
   }
@@ -150,7 +170,6 @@ export class PluginRoleWidget extends RoleWidget {
   }
 
   asMap(configurations: Configuration[]): Map<string, string> {
-    //TODO: _.toPairs
     return new Map<string, string>(configurations
                                      .map((prop) => [prop.key, prop.displayValue()] as [string, string]));
   }

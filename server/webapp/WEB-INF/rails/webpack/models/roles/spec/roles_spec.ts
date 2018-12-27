@@ -33,7 +33,7 @@ describe("RoleModel", () => {
   });
 
   it("should deserialize plugin role json", () => {
-    const pluginRoleJSON = RolesTestData.PluginRoleJSON();
+    const pluginRoleJSON = RolesTestData.LdapPluginRoleJSON();
     const pluginRole     = Role.fromJSON(pluginRoleJSON) as PluginRole;
 
     expect(pluginRole.name()).toEqual("blackbird");
@@ -90,7 +90,7 @@ describe("RoleModel", () => {
   });
 
   it("should serialize plugin role to json", () => {
-    const pluginRoleJSON       = RolesTestData.PluginRoleJSON();
+    const pluginRoleJSON       = RolesTestData.LdapPluginRoleJSON();
     const serializedPluginRole = Role.fromJSON(pluginRoleJSON).toJSON();
 
     delete pluginRoleJSON._links;

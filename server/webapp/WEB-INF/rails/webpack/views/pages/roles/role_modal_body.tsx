@@ -54,6 +54,10 @@ export class RoleModalBody extends MithrilViewComponent<RoleModalAttrs> {
     if (!vnode.attrs.role || (vnode.attrs.isStale && vnode.attrs.isStale())) {
       return <div className={styles.spinnerWrapper}><Spinner/></div>;
     }
+    let message: any;
+    if (!RoleModalBody.hasAuthConfigs(vnode)) {
+      message = (<FlashMessage type={MessageType.info} message="No role based authorization configured."/>);
+    }
 
     let mayBeTypeSelector: any;
     if (vnode.attrs.action === Action.NEW) {
@@ -75,11 +79,11 @@ export class RoleModalBody extends MithrilViewComponent<RoleModalAttrs> {
             name="role-type-selector"
             id="plugin-role"
             type="radio"
-            disabled={RoleModalBody.hasAuthConfigs(vnode)}
+            disabled={!RoleModalBody.hasAuthConfigs(vnode)}
             checked={vnode.attrs.role().isPluginRole()}
             onclick={vnode.attrs.changeRoleType && vnode.attrs.changeRoleType.bind(this, RoleType.plugin)}/>
-          <label className={RoleModalBody.hasAuthConfigs(vnode) ? `${styles.disabled} inline` : "inline"}
-                 disabled={RoleModalBody.hasAuthConfigs(vnode)} for="plugin-role">Plugin Role</label>
+          <label className={!RoleModalBody.hasAuthConfigs(vnode) ? `${styles.disabled} inline` : "inline"}
+                 disabled={!RoleModalBody.hasAuthConfigs(vnode)} for="plugin-role">Plugin Role</label>
         </div>
       );
     }
@@ -98,6 +102,7 @@ export class RoleModalBody extends MithrilViewComponent<RoleModalAttrs> {
     }
 
     return (<div class={foundationClassNames(foundationStyles.foundationGridHax, foundationStyles.foundationFormHax)}>
+        {message}
         {mayBeTypeSelector}
         {roleWidget}
       </div>
@@ -114,6 +119,6 @@ export class RoleModalBody extends MithrilViewComponent<RoleModalAttrs> {
         return true;
       }
     });
-    return authConfigsWithInstalledPlugin.length === 0;
+    return authConfigsWithInstalledPlugin.length !== 0;
   }
 }

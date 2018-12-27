@@ -7,5 +7,4 @@ export const colorEffect: string;
 export const roleUserDeleteIcon: string;
 export const disabled: string;
 export const addUserToRole: string;
-export const gocdRole: string;
 export const usersInRole: string;

@@ -59,7 +59,7 @@ $disabled-text-color: #999;
 }
 
 
-.disabled {
+label.disabled, input[type='radio'][disabled] + label[for] { //sass-lint:disable-line no-qualifying-elements
   color:  $disabled-text-color;
   cursor: not-allowed;
 }
@@ -72,10 +72,6 @@ $disabled-text-color: #999;
     display: inline;
     margin:  0 0 0.8rem;
   }
-}
-
-.gocd-role {
-  display: flex;
 }
 
 .users-in-role {

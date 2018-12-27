@@ -82,7 +82,6 @@ describe("RoleModel", () => {
   it("should serialize gocd role to json", () => {
     const goCDRoleJSON = RolesTestData.GoCDRoleJSON();
 
-
     const serializedGoCDRole = Role.fromJSON(goCDRoleJSON).toJSON();
 
     delete goCDRoleJSON._links;

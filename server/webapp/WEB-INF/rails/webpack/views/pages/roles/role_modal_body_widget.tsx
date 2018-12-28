@@ -50,7 +50,7 @@ export class GoCDRoleModalBodyWidget extends MithrilViewComponent<ModalAttrs> {
   view(vnode: m.Vnode<ModalAttrs>): m.Children | void | null {
     const role = vnode.attrs.role as GoCDRole;
     return (<Form>
-      <TextField label="Role Name"
+      <TextField label="Role name"
                  disabled={vnode.attrs.isNameDisabled}
                  property={role.name}
                  errorText={role.errors().errorsForDisplay("name")}
@@ -132,13 +132,13 @@ export class PluginRoleModalBodyWidget extends MithrilViewComponent<PluginModalA
       <div>
         <div>
           <Form>
-            <TextField label="Id"
+            <TextField label="Role name"
                        disabled={vnode.attrs.isNameDisabled}
                        property={vnode.attrs.role.name}
                        errorText={vnode.attrs.role.errors().errorsForDisplay("name")}
                        required={true}/>
 
-            <SelectField label="Plugin ID"
+            <SelectField label="Auth Config Id"
                          property={this.authConfigIdProxy.bind(this, vnode)}
                          required={true}
                          errorText={vnode.attrs.role.errors().errorsForDisplay("auth_config_id")}>

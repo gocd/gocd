@@ -57,7 +57,7 @@ export class GoCDRoleModalBodyWidget extends MithrilViewComponent<ModalAttrs> {
                  required={true}/>
 
       <li className={styles.usersInRole}>
-        <UsersWidget roleAttributes={role.attributes()}
+        <UsersWidget roleAttributes={role.attributes}
                      selectedUser={this.lastUserAdded}
                      readOnly={false}/>
       </li>

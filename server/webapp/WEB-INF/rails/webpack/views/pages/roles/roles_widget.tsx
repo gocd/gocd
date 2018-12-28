@@ -154,7 +154,7 @@ export class GoCDRoleWidget extends RoleWidget {
     if (gocdRole.attributes().users.length === 0) {
       body = (<span data-test-id="no-users-message" className={styles.noUsersMessage}>No users in this role.</span>);
     } else {
-      body = (<UsersWidget roleAttributes={gocdRole.attributes()}/>);
+      body = (<UsersWidget roleAttributes={gocdRole.attributes}/>);
     }
     return body;
   }

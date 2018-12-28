@@ -85,7 +85,7 @@ describe("RoleCRUD", () => {
   it("should delete a gocd role", () => {
     const gocdRole = Role.fromJSON(RolesTestData.GoCDRoleJSON());
     jasmine.Ajax.stubRequest(`/go/api/admin/security/roles/${gocdRole.name()}`)
-           .andReturn(getGoCDRole());
+           .andReturn(deleteRoleResponse());
 
     RolesCRUD.delete(gocdRole.name());
 
@@ -113,7 +113,7 @@ function getAllRoles() {
       "Content-Type": "application/vnd.go.cd.v1+json; charset=utf-8",
       "ETag": "some-etag"
     },
-    responseText: RolesTestData.GetAllRoles()
+    responseText: JSON.stringify(RolesTestData.GetAllRoles())
   };
 }
 
@@ -124,7 +124,17 @@ function getGoCDRole() {
       "Content-Type": "application/vnd.go.cd.v1+json; charset=utf-8",
       "ETag": "some-etag"
     },
-    responseText: RolesTestData.GoCDRoleJSON()
+    responseText: JSON.stringify(RolesTestData.GoCDRoleJSON())
+  };
+}
+
+function deleteRoleResponse() {
+  return {
+    status: 200,
+    responseHeaders: {
+      "Content-Type": "application/vnd.go.cd.v1+json; charset=utf-8"
+    },
+    responseText: JSON.stringify({message: "Role successfully deleted."})
   };
 }
 
@@ -135,6 +145,6 @@ function getPluginRole() {
       "Content-Type": "application/vnd.go.cd.v1+json; charset=utf-8",
       "ETag": "some-etag"
     },
-    responseText: RolesTestData.LdapPluginRoleJSON()
+    responseText: JSON.stringify(RolesTestData.LdapPluginRoleJSON())
   };
 }

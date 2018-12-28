@@ -23,15 +23,16 @@ import * as styles from "./index.scss";
 interface Attrs {
   headers: m.Child[];
   data: m.Child[][];
+  "data-test-id"?: string;
 }
 
 export class Table extends MithrilViewComponent<Attrs> {
   view(vnode: m.Vnode<Attrs>) {
 
-    return ( <table className={styles.table} data-test-id="table">
+    return (<table className={styles.table} data-test-id={vnode.attrs["data-test-id"] || "table"}>
         <thead data-test-id="table-header">
         <tr data-test-id="table-header-row">
-          {vnode.attrs.headers.map((header) => (<th >{Table.renderedValue(header)}</th>))}
+          {vnode.attrs.headers.map((header: any) => (<th>{Table.renderedValue(header)}</th>))}
         </tr>
         </thead>
         <tbody data-test-id="table-body">
@@ -68,6 +69,6 @@ export class Table extends MithrilViewComponent<Attrs> {
   }
 
   private static unspecifiedValue() {
-    return ('');
+    return ("");
   }
 }

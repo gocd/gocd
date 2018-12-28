@@ -39,7 +39,9 @@ export class JobInfoWidget extends MithrilViewComponent<JobInfoAttrs> {
       vnode.attrs.stages.forEach((stage: Stage) => {
         const stageLocator = stage.getStageLocator();
         runningStages.push(
-          <CollapsiblePanel header={<KeyValuePair inline={true} data={stageLocator.asMap()}/>}
+          <CollapsiblePanel header={<KeyValuePair data-test-id={`header-for-${stageLocator.toString()}`}
+                                                  inline={true}
+                                                  data={stageLocator.asMap()}/>}
                             actions={[
                               stage.isStageCancelInProgress() ? <Icons.Spinner iconOnly={true}/> : null,
                               <Buttons.Secondary data-test-id={`cancel-stage-btn-for-${stageLocator.toString()}`}
@@ -48,7 +50,8 @@ export class JobInfoWidget extends MithrilViewComponent<JobInfoAttrs> {
                                                  onclick={(e) => JobInfoWidget.onStageCancel(vnode, stage, e)}>
                                 {stage.isStageCancelInProgress() ? `Canceling..` : `Cancel stage`}
                               </Buttons.Secondary>]}>
-            <Table headers={["Job", "State", "Scheduled At", "Agent"]}
+            <Table data-test-id={`table-for-${stageLocator.toString()}`}
+                   headers={["Job", "State", "Scheduled At", "Agent"]}
                    data={JobInfoWidget.dataForTable(stage.getJobs())}/>
           </CollapsiblePanel>
         );

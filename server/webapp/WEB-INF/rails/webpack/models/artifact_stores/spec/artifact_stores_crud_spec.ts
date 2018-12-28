@@ -23,7 +23,7 @@ describe("ArtifactStoreCRUD", () => {
   afterEach(() => jasmine.Ajax.uninstall());
 
   it("should make get request", () => {
-    jasmine.Ajax.stubRequest("/go/api/admin/artifact_stores").andReturn(artifactStoreResponse());
+    jasmine.Ajax.stubRequest("/go/api/admin/artifact_stores").andReturn(listArtifactStoreResponse());
 
     ArtifactStoresCRUD.all();
 
@@ -72,7 +72,7 @@ describe("ArtifactStoreCRUD", () => {
   it("should delete a artifact store", () => {
     const dockerArtifactStore = ArtifactStoreTestData.dockerArtifactStore();
     jasmine.Ajax.stubRequest(`/go/api/admin/artifact_stores/${dockerArtifactStore.id}`)
-           .andReturn(artifactStoreResponse());
+           .andReturn(deleteArtifactStoreResponse());
 
     ArtifactStoresCRUD.delete(dockerArtifactStore.id);
 
@@ -101,6 +101,28 @@ function artifactStoreResponse() {
       "Content-Type": "application/vnd.go.cd.v1+json; charset=utf-8",
       "ETag": "some-etag"
     },
+    responseText: JSON.stringify(ArtifactStoreTestData.dockerArtifactStore())
+  };
+}
+
+function listArtifactStoreResponse() {
+  return {
+    status: 200,
+    responseHeaders: {
+      "Content-Type": "application/vnd.go.cd.v1+json; charset=utf-8",
+      "ETag": "some-etag"
+    },
     responseText: JSON.stringify(ArtifactStoreTestData.artifactStoreList(ArtifactStoreTestData.dockerArtifactStore()))
+  };
+}
+
+function deleteArtifactStoreResponse() {
+  return {
+    status: 200,
+    responseHeaders: {
+      "Content-Type": "application/vnd.go.cd.v1+json; charset=utf-8",
+      "ETag": "some-etag"
+    },
+    responseText: JSON.stringify({message: "The artifact store successfully deleted."})
   };
 }

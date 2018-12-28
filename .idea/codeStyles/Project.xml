@@ -19,6 +19,9 @@
       <option name="ALIGN_OBJECT_PROPERTIES" value="1" />
       <option name="ALIGN_VAR_STATEMENTS" value="2" />
     </JSCodeStyleSettings>
+    <ScssCodeStyleSettings>
+      <option name="VALUE_ALIGNMENT" value="2" />
+    </ScssCodeStyleSettings>
     <TypeScriptCodeStyleSettings version="0">
       <option name="FORCE_SEMICOLON_STYLE" value="true" />
       <option name="FIELD_PREFIX" value="" />

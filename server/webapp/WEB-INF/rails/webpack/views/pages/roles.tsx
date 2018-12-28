@@ -63,7 +63,7 @@ export class RolesPage extends Page<null, State> {
     };
 
     vnode.state.onSuccessfulSave = (msg: m.Children) => {
-      this.setMessage(vnode, msg, MessageType.success);
+      RolesPage.setMessage(vnode, msg, MessageType.success);
       this.fetchData(vnode);
     };
 
@@ -111,11 +111,14 @@ export class RolesPage extends Page<null, State> {
   }
 
   componentToDisplay(vnode: m.Vnode<null, State>): JSX.Element | undefined {
+    let mayBeNoPluginMessage;
     if (!vnode.state.pluginInfos || vnode.state.pluginInfos.length === 0) {
-      this.setMessage(vnode, "None of the installed plugin supports role based authorization.", MessageType.info);
+      mayBeNoPluginMessage = (<FlashMessage type={MessageType.info}
+                                            message="None of the installed plugin supports role based authorization."/>);
     }
 
     return <div>
+      {mayBeNoPluginMessage}
       <FlashMessage type={vnode.state.messageType} message={vnode.state.message}/>
       <RolesWidget pluginInfos={(vnode.state.pluginInfos)}
                    roles={vnode.state.roles}
@@ -157,16 +160,16 @@ export class RolesPage extends Page<null, State> {
                   });
   }
 
+  private static setMessage(vnode: m.Vnode<null, State>, msg: m.Children, type: MessageType) {
+    vnode.state.message     = msg;
+    vnode.state.messageType = type;
+    vnode.state.timeoutID   = window.setTimeout(vnode.state.clearMessage.bind(vnode.state), 10000);
+  }
+
   private getPluginInfosWithAuthorizeCapabilities(allAuthPluginInfos: Array<PluginInfo<Extension>>) {
     return _.filter(allAuthPluginInfos, (value: PluginInfo<Extension>) => {
       const authorizationSettings = value.extensionOfType(ExtensionType.AUTHORIZATION) as AuthorizationSettings;
       return authorizationSettings && authorizationSettings.capabilities.canAuthorize;
     });
-  }
-
-  private setMessage(vnode: m.Vnode<null, State>, msg: m.Children, type: MessageType) {
-    vnode.state.message     = msg;
-    vnode.state.messageType = type;
-    vnode.state.timeoutID   = window.setTimeout(vnode.state.clearMessage.bind(vnode.state), 10000);
   }
 }

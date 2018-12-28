@@ -181,7 +181,7 @@ export class AuthorizationPluginInfo {
               },
             ],
             view: {
-              template: "<div class=\"form_item_block\">\n    <label ng-class=\"{'is-invalid-label': GOINPUTNAME[Url].$error.server}\">URI:<span class=\"asterix\">*</span></label>\n    <input ng-class=\"{'is-invalid-input': GOINPUTNAME[Url].$error.server}\" type=\"text\" ng-model=\"Url\" ng-required=\"true\" placeholder=\"ldap://your.first.uri:port\"/>\n    <span class=\"form_error form-error\" ng-class=\"{'is-visible': GOINPUTNAME[Url].$error.server}\" ng-show=\"GOINPUTNAME[Url].$error.server\">{{GOINPUTNAME[Url].$error.server}}</span>\n</div>\n\n<div class=\"form_item_block\">\n    <label ng-class=\"{'is-invalid-label': GOINPUTNAME[SearchBases].$error.server}\">Search Base:<span class=\"asterix\">*</span></label>\n    <textarea ng-class=\"{'is-invalid-input': GOINPUTNAME[SearchBases].$error.server}\" type=\"text\" ng-model=\"SearchBases\" ng-required=\"true\" rows=\"3\" placeholder=\"\"></textarea>\n    <span class=\"form_error form-error\" ng-class=\"{'is-visible': GOINPUTNAME[SearchBases].$error.server}\" ng-show=\"GOINPUTNAME[SearchBases].$error.server\">{{GOINPUTNAME[SearchBases].$error.server}}</span>\n</div>\n\n<div class=\"form_item_block\">\n    <label ng-class=\"{'is-invalid-label': GOINPUTNAME[ManagerDN].$error.server}\">Manager DN:<span class=\"asterix\">*</span></label>\n    <input ng-class=\"{'is-invalid-input': GOINPUTNAME[ManagerDN].$error.server}\" type=\"text\" ng-model=\"ManagerDN\" ng-required=\"true\"/>\n    <span class=\"form_error form-error\" ng-class=\"{'is-visible': GOINPUTNAME[ManagerDN].$error.server}\" ng-show=\"GOINPUTNAME[ManagerDN].$error.server\">{{GOINPUTNAME[ManagerDN].$error.server}}</span>\n</div>\n\n<div class=\"form_item_block\">\n    <label ng-class=\"{'is-invalid-label': GOINPUTNAME[Password].$error.server}\">Password:<span class=\"asterix\">*</span></label>\n    <input ng-class=\"{'is-invalid-input': GOINPUTNAME[Password].$error.server}\" type=\"password\" ng-model=\"Password\" ng-required=\"true\"/>\n    <span class=\"form_error form-error\" ng-class=\"{'is-visible': GOINPUTNAME[Password].$error.server}\" ng-show=\"GOINPUTNAME[Password].$error.server\">{{GOINPUTNAME[Password].$error.server}}</span>\n</div>\n\n<div class=\"form_item_block\">\n  <label ng-class=\"{'is-invalid-label': GOINPUTNAME[LoginAttribute].$error.server}\">Search Filter:<span class=\"asterix\">*</span></label>\n  <input ng-class=\"{'is-invalid-input': GOINPUTNAME[LoginAttribute].$error.server}\" type=\"text\" ng-model=\"LoginAttribute\" ng-required=\"true\"/>\n  <span class=\"form_error form-error\" ng-class=\"{'is-visible': GOINPUTNAME[LoginAttribute].$error.server}\" ng-show=\"GOINPUTNAME[LoginAttribute].$error.server\">{{GOINPUTNAME[LoginAttribute].$error.server}}</span>\n</div>\n\n<div class=\"form_item_block\">\n    <label ng-class=\"{'is-invalid-label': GOINPUTNAME[SearchAttributes].$error.server}\">Search Attributes:</label>\n    <input ng-class=\"{'is-invalid-input': GOINPUTNAME[SearchAttributes].$error.server}\" type=\"text\" ng-model=\"SearchAttributes\" ng-required=\"true\" placeholder=\"uid,cn,mail\"/>\n    <span class=\"form_error form-error\" ng-class=\"{'is-visible': GOINPUTNAME[SearchAttributes].$error.server}\" ng-show=\"GOINPUTNAME[SearchAttributes].$error.server\">{{GOINPUTNAME[SearchAttributes].$error.server}}</span>\n</div>\n\n<div class=\"form_item_block\">\n  <label ng-class=\"{'is-invalid-label': GOINPUTNAME[DisplayNameAttribute].$error.server}\">Display Name Attribute:<span class=\"asterix\">*</span></label>\n  <input ng-class=\"{'is-invalid-input': GOINPUTNAME[DisplayNameAttribute].$error.server}\" type=\"text\" ng-model=\"DisplayNameAttribute\" ng-required=\"true\"/>\n  <span class=\"form_error form-error\" ng-class=\"{'is-visible': GOINPUTNAME[DisplayNameAttribute].$error.server}\" ng-show=\"GOINPUTNAME[DisplayNameAttribute].$error.server\">{{GOINPUTNAME[DisplayNameAttribute].$error.server}}</span>\n</div>\n\n<div class=\"form_item_block\">\n  <label ng-class=\"{'is-invalid-label': GOINPUTNAME[EmailAttribute].$error.server}\">Email Attribute:<span class=\"asterix\">*</span></label>\n  <input ng-class=\"{'is-invalid-input': GOINPUTNAME[EmailAttribute].$error.server}\" type=\"text\" ng-model=\"EmailAttribute\" ng-required=\"true\"/>\n  <span class=\"form_error form-error\" ng-class=\"{'is-visible': GOINPUTNAME[EmailAttribute].$error.server}\" ng-show=\"GOINPUTNAME[EmailAttribute].$error.server\">{{GOINPUTNAME[EmailAttribute].$error.server}}</span>\n</div>\n\n\n\n"
+              template: "<div class=\"form_item_block\">This is ldap auth config view.</div>"
             }
           },
           role_settings: {
@@ -216,13 +216,87 @@ export class AuthorizationPluginInfo {
               }
             ],
             view: {
-              template: "<div class=\"row\">\n  <h4>Query user attribute</h4>\n  <div class=\"form_item_block\">\n    <label ng-class=\"{'is-invalid-label': GOINPUTNAME[AttributeName].$error.server}\">Attribute name</label>\n    <textarea ng-class=\"{'is-invalid-input': GOINPUTNAME[AttributeName].$error.server}\" type=\"text\" ng-model=\"AttributeName\" ng-required=\"true\" placeholder=\"OU=foo,dc=example,dc=com\"></textarea>\n    <span class=\"form_error form-error\" ng-class=\"{'is-visible': GOINPUTNAME[AttributeName].$error.server}\" ng-show=\"GOINPUTNAME[AttributeName].$error.server\">{{GOINPUTNAME[AttributeName].$error.server}}</span>\n  </div>\n\n  <div class=\"form_item_block\">\n    <label ng-class=\"{'is-invalid-label': GOINPUTNAME[AttributeValue].$error.server}\">Attribute value</label>\n    <textarea ng-class=\"{'is-invalid-input': GOINPUTNAME[AttributeValue].$error.server}\" type=\"text\" ng-model=\"AttributeValue\" ng-required=\"true\" placeholder=\"OU=foo,dc=example,dc=com\"></textarea>\n    <span class=\"form_error form-error\" ng-class=\"{'is-visible': GOINPUTNAME[AttributeValue].$error.server}\" ng-show=\"GOINPUTNAME[AttributeValue].$error.server\">{{GOINPUTNAME[AttributeValue].$error.server}}</span>\n  </div>\n</div>\n\n<div>\n  <h4>Use group membership filter</h4>\n  <div class=\"row\">\n    <div class=\"form_item_block\">\n      <label ng-class=\"{'is-invalid-label': GOINPUTNAME[GroupMembershipSearchBase].$error.server}\">Group membership search base</label>\n      <textarea ng-class=\"{'is-invalid-input': GOINPUTNAME[GroupMembershipSearchBase].$error.server}\" type=\"text\" ng-model=\"GroupMembershipSearchBase\" ng-required=\"true\" placeholder=\"OU=foo,dc=example,dc=com\"></textarea>\n      <span class=\"form_error form-error\" ng-class=\"{'is-visible': GOINPUTNAME[GroupMembershipSearchBase].$error.server}\" ng-show=\"GOINPUTNAME[GroupMembershipSearchBase].$error.server\">{{GOINPUTNAME[GroupMembershipSearchBase].$error.server}}</span>\n    </div>\n  </div>\n\n  <div class=\"row\">\n    <div class=\"form_item_block\">\n      <label ng-class=\"{'is-invalid-label': GOINPUTNAME[GroupMembershipFilter].$error.server}\">Group membership filter</label>\n      <textarea ng-class=\"{'is-invalid-input': GOINPUTNAME[GroupMembershipFilter].$error.server}\" type=\"text\" ng-model=\"GroupMembershipFilter\" ng-required=\"true\" placeholder=\"OU=foo,dc=example,dc=com\"></textarea>\n      <span class=\"form_error form-error\" ng-class=\"{'is-visible': GOINPUTNAME[GroupMembershipFilter].$error.server}\" ng-show=\"GOINPUTNAME[GroupMembershipFilter].$error.server\">{{GOINPUTNAME[GroupMembershipFilter].$error.server}}</span>\n    </div>\n  </div>\n</div>\n\n\n\n"
+              template: "<div class=\"row\">This is ldap role config view.</div>\n\n\n\n"
             }
           },
           capabilities: {
             can_authorize: true,
             can_search: false,
             supported_auth_type: "web"
+          }
+        }
+      ]
+    };
+  }
+
+  static github() {
+    return {
+      id: "cd.go.authorization.github",
+      status: {
+        state: "active"
+      },
+      plugin_file_location: "/go-working-dir/plugins/external/github-oauth-authorization.jar",
+      bundled_plugin: false,
+      about: {
+        name: "GitHub OAuth authorization plugin",
+        version: "2.2.0-21",
+        target_go_version: "17.5.0",
+        description: "GitHub OAuth authorization plugin for GoCD",
+        target_operating_systems: [],
+        vendor: {
+          name: "GoCD Contributors",
+          url: "https://github.com/gocd-contrib/github-oauth-authorization-plugin"
+        }
+      },
+      extensions: [
+        {
+          type: "authorization",
+          auth_config_settings: {
+            configurations: [
+              {
+                key: "ClientId",
+                metadata: {
+                  secure: true,
+                  required: true
+                }
+              },
+              {
+                key: "ClientSecret",
+                metadata: {
+                  secure: true,
+                  required: true
+                }
+              }
+            ],
+            view: {
+              template: "<div data-plugin-style-id=\"oauth-authorization-plugin\">This is github auth config view.</div>"
+            }
+          },
+          role_settings: {
+            configurations: [
+              {
+                key: "Organizations",
+                metadata: {
+                  secure: false,
+                  required: false
+                }
+              },
+              {
+                key: "Teams",
+                metadata: {
+                  secure: false,
+                  required: false
+                }
+              }
+            ],
+            view: {
+              template: "<div class=\"form_item_block\">This is github role config view.</div>"
+            }
+          },
+          capabilities: {
+            can_search: true,
+            supported_auth_type: "Web",
+            can_authorize: true
           }
         }
       ]

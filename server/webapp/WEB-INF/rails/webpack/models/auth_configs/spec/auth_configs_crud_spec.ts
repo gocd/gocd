@@ -23,7 +23,7 @@ describe("AuthorizationConfigurationCRUD", () => {
   afterEach(() => jasmine.Ajax.uninstall());
 
   it("should make get request", () => {
-    jasmine.Ajax.stubRequest("/go/api/admin/security/auth_configs").andReturn(authConfigResponse());
+    jasmine.Ajax.stubRequest("/go/api/admin/security/auth_configs").andReturn(listAuthConfigResponse());
 
     AuthConfigsCRUD.all();
 
@@ -72,7 +72,7 @@ describe("AuthorizationConfigurationCRUD", () => {
   it("should delete a auth config", () => {
     const ldapAuthConfig = TestData.ldapAuthConfig();
     jasmine.Ajax.stubRequest(`/go/api/admin/security/auth_configs/${ldapAuthConfig.id}`)
-           .andReturn(authConfigResponse());
+           .andReturn(deleteAuthConfigResponse());
 
     AuthConfigsCRUD.delete(ldapAuthConfig.id);
 
@@ -101,6 +101,26 @@ function authConfigResponse() {
       "Content-Type": "application/vnd.go.cd.v1+json; charset=utf-8",
       "ETag": "some-etag"
     },
+    responseText: JSON.stringify(TestData.ldapAuthConfig())
+  };
+}
+
+function listAuthConfigResponse() {
+  return {
+    status: 200,
+    responseHeaders: {
+      "Content-Type": "application/vnd.go.cd.v1+json; charset=utf-8"
+    },
     responseText: JSON.stringify(TestData.authConfigList(TestData.ldapAuthConfig()))
+  };
+}
+
+function deleteAuthConfigResponse() {
+  return {
+    status: 200,
+    responseHeaders: {
+      "Content-Type": "application/vnd.go.cd.v1+json; charset=utf-8"
+    },
+    responseText: JSON.stringify({message: "The auth config successfully deleted."})
   };
 }

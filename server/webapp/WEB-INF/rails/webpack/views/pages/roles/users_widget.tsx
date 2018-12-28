@@ -16,18 +16,19 @@
 
 import {MithrilViewComponent} from "jsx/mithril-component";
 import * as m from "mithril";
+import {Stream} from "mithril/stream";
 import {GoCDAttributes} from "models/roles/roles_new";
-import * as styles from "views/pages/roles/index.scss";
+import * as styles from "./index.scss";
 
 interface UsersWidgetAttrs {
-  roleAttributes: GoCDAttributes;
+  roleAttributes: Stream<GoCDAttributes>;
   selectedUser?: string;
   readOnly?: boolean;
 }
 
 export class UsersWidget extends MithrilViewComponent<UsersWidgetAttrs> {
   view(vnode: m.Vnode<UsersWidgetAttrs>): m.Children | void | null {
-    return vnode.attrs.roleAttributes.users.map((user) => {
+    return vnode.attrs.roleAttributes().users.map((user) => {
       const isSelectedUser = user === vnode.attrs.selectedUser;
       const classForUser   = isSelectedUser ? `${styles.tag} ${styles.currentUserTag}` : `${styles.tag}`;
       let mayBeDeleteButton;
@@ -47,9 +48,9 @@ export class UsersWidget extends MithrilViewComponent<UsersWidgetAttrs> {
     });
   }
 
-  private static deleteUserFromRole(attributes: GoCDAttributes, username: string) {
+  private static deleteUserFromRole(attributes: Stream<GoCDAttributes>, username: string) {
     if (username) {
-      attributes.deleteUser(username);
+      attributes().deleteUser(username);
     }
   }
 

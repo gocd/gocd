@@ -111,11 +111,14 @@ export class RolesPage extends Page<null, State> {
   }
 
   componentToDisplay(vnode: m.Vnode<null, State>): JSX.Element | undefined {
+    let mayBeNoPluginMessage;
     if (!vnode.state.pluginInfos || vnode.state.pluginInfos.length === 0) {
-      this.setMessage(vnode, "None of the installed plugin supports role based authorization.", MessageType.info);
+      mayBeNoPluginMessage = (<FlashMessage type={MessageType.info}
+                                            message="None of the installed plugin supports role based authorization."/>);
     }
 
     return <div>
+      {mayBeNoPluginMessage}
       <FlashMessage type={vnode.state.messageType} message={vnode.state.message}/>
       <RolesWidget pluginInfos={(vnode.state.pluginInfos)}
                    roles={vnode.state.roles}

@@ -15,7 +15,7 @@
  */
 
 import {ApiResult, SuccessResponse} from "helpers/api_request_builder";
-import {User, Users} from "models/users/users";
+import {Users} from "models/users/users";
 import {UsersCRUD} from "models/users/users_crud";
 
 describe("Users CRUD", () => {
@@ -29,7 +29,7 @@ describe("Users CRUD", () => {
 
       const onResponse = jasmine.createSpy().and.callFake((response: ApiResult<any>) => {
         const responseJSON = response.unwrap() as SuccessResponse<any>;
-        expect(responseJSON.body).toEqual(new Users(users().map((userJson) => User.fromJSON(userJson))));
+        expect((responseJSON.body as Users).list()).toHaveLength(2);
         done();
       });
 
@@ -38,7 +38,7 @@ describe("Users CRUD", () => {
       const request = jasmine.Ajax.requests.mostRecent();
       expect(request.url).toEqual(ALL_USERS_API);
       expect(request.method).toEqual("GET");
-      expect(request.requestHeaders).toEqual({Accept: "application/vnd.go.cd.v2+json"});
+      expect(request.requestHeaders).toEqual({Accept: "application/vnd.go.cd.v3+json"});
     });
   });
 
@@ -49,7 +49,7 @@ describe("Users CRUD", () => {
       jasmine.Ajax.stubRequest(ALL_USERS_API, JSON.stringify(userJSON), "POST").andReturn({
                                                                                             status: 200,
                                                                                             responseHeaders: {
-                                                                                              "Content-Type": "application/vnd.go.cd.v2+json; charset=utf-8",
+                                                                                              "Content-Type": "application/vnd.go.cd.v3+json; charset=utf-8",
                                                                                               "ETag": "some-etag"
                                                                                             },
                                                                                             responseText: JSON.stringify(
@@ -69,7 +69,7 @@ describe("Users CRUD", () => {
       expect(request.url).toEqual(ALL_USERS_API);
       expect(request.method).toEqual("POST");
       expect(request.requestHeaders)
-        .toEqual({"Accept": "application/vnd.go.cd.v2+json", "Content-Type": "application/json; charset=utf-8"});
+        .toEqual({"Accept": "application/vnd.go.cd.v3+json", "Content-Type": "application/json; charset=utf-8"});
     });
   });
 });
@@ -79,11 +79,13 @@ function users() {
     {
       display_name: "Bob",
       login_name: "bob",
+      is_admin: true,
       email: "bob@example.com"
     },
     {
       display_name: "Alice",
       login_name: "alice",
+      is_admin: true,
       email: "alice@example.com"
     }
   ];
@@ -93,7 +95,7 @@ function usersResponse() {
   return {
     status: 200,
     responseHeaders: {
-      "Content-Type": "application/vnd.go.cd.v2+json; charset=utf-8",
+      "Content-Type": "application/vnd.go.cd.v3+json; charset=utf-8",
       "ETag": "some-etag"
     },
     responseText: JSON.stringify({

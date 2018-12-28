@@ -57,18 +57,12 @@ describe("UsersWidget", () => {
     return $root.find(`[data-test-id='${id}']`);
   }
 
-  it("should render a message if list of users is empty", () => {
-    users(new Users([]));
-    m.redraw();
-    expect($root.find("table")).not.toBeInDOM();
-    expect($root).toContainText("No users found!");
-  });
-
   function bob() {
     return User.fromJSON({
                            email: "bob@example.com",
                            display_name: "Bob",
                            login_name: "bob",
+                           is_admin: true,
                            email_me: true,
                            checkin_aliases: ["bob@gmail.com"],
                            enabled: true
@@ -80,42 +74,26 @@ describe("UsersWidget", () => {
                            email: "alice@example.com",
                            display_name: "Alice",
                            login_name: "alice",
+                           is_admin: false,
                            email_me: true,
                            checkin_aliases: ["alice@gmail.com", "alice@acme.com"],
                            enabled: false
                          });
   }
 
-  function john() {
-    return User.fromJSON({
-                           display_name: "Jon Doe",
-                           login_name: "jdoe",
-                           email_me: true,
-                           enabled: false,
-                           checkin_aliases: []
-                         });
-  }
-
   it("should render a list of user attributes", () => {
-    users(new Users([bob(), alice()]));
+    const allUsers = new Users([bob(), alice()]);
+    users(allUsers);
     m.redraw();
     expect($root.find("table")).toBeInDOM();
 
-    expect(UsersTableWidget.headers())
+    expect(UsersTableWidget.headers(allUsers).slice(1, 7))
       .toEqual(["Username", "Display name", "Roles", "Admin", "Email", "Enabled"]);
     expect(UsersTableWidget.userData(users())).toHaveLength(2);
-    expect(UsersTableWidget.userData(users())[0])
-      .toEqual(["bob", "Bob", undefined, undefined, "bob@example.com", true]);
-    expect(UsersTableWidget.userData(users())[1])
-      .toEqual(["alice", "Alice", undefined, undefined, "alice@example.com", false]);
-  });
-
-  it("should display the number of enabled and disabled users", () => {
-    users(new Users([bob(), alice(), john()]));
-    m.redraw();
-
-    expect(find("enabled-user-count")).toHaveText("1");
-    expect(find("disabled-user-count")).toHaveText("2");
+    expect(UsersTableWidget.userData(users())[0].slice(1, 7))
+      .toEqual(["bob", "Bob", undefined, "Yes", "bob@example.com", "Yes"]);
+    expect(UsersTableWidget.userData(users())[1].slice(1, 7))
+      .toEqual(["alice", "Alice", undefined, "No", "alice@example.com", "No"]);
   });
 
   it("should render flash message if exists", () => {

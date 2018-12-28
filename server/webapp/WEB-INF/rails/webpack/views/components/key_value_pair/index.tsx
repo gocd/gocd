@@ -26,6 +26,7 @@ const classnames = bind(styles);
 export interface Attrs {
   data: Map<string, m.Children>;
   inline?: boolean;
+  "data-test-id"?: string;
 }
 
 export class KeyValuePair extends MithrilViewComponent<Attrs> {
@@ -45,7 +46,8 @@ export class KeyValuePair extends MithrilViewComponent<Attrs> {
       </li>);
     });
     return (
-      <ul className={classnames(styles.keyValuePair, {[styles.keyValuePairInline]: isInline})}>
+      <ul data-test-id={vnode.attrs['data-test-id']}
+          className={classnames(styles.keyValuePair, {[styles.keyValuePairInline]: isInline})}>
         {elements}
       </ul>
     );

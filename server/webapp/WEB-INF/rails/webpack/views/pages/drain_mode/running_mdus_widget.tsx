@@ -38,13 +38,13 @@ export class MDUInfoWidget extends MithrilViewComponent<MDUInfoAttrs> {
         const headerMap  = new Map([
                                      ["Type", material.type()],
                                      ["Name", nameOrUrl],
-                                     ["Auto Update", attributes.name()],
                                      ["Started At", material.mduStartTime().toString()]
                                    ]);
 
+        const dataTestId = `${nameOrUrl.replace(" ", "-").toLowerCase()}`;
         return (
-          <CollapsiblePanel header={<KeyValuePair inline={true} data={headerMap}/>}>
-            <KeyValuePair data={material.attributesAsMap()}/>
+          <CollapsiblePanel header={<KeyValuePair data-test-id={`header-for-${dataTestId}`} inline={true} data={headerMap}/>}>
+            <KeyValuePair data-test-id={`body-for-${dataTestId}`} data={material.attributesAsMap()}/>
           </CollapsiblePanel>
         );
       });

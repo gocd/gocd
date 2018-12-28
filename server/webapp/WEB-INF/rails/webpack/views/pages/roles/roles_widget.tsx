@@ -31,6 +31,8 @@ import {CloneOperation, DeleteOperation, EditOperation} from "views/pages/page_o
 import {UsersWidget} from "views/pages/roles/users_widget";
 import * as styles from "./index.scss";
 
+const gocdIcon = require("../../../../app/assets/images/gocd.svg");
+
 interface Attrs extends EditOperation<GoCDRole | PluginRole>, CloneOperation<GoCDRole | PluginRole>, DeleteOperation<GoCDRole | PluginRole> {
   pluginInfos: Array<PluginInfo<Extension>>;
   authConfigs: AuthConfigs;
@@ -68,7 +70,7 @@ export class RolesWidget extends MithrilViewComponent<Attrs> {
 abstract class RoleWidget extends MithrilViewComponent<RoleAttrs | PluginRoleAttrs> {
   static headerIcon(vnode: m.Vnode<RoleAttrs | PluginRoleAttrs>) {
     if (!vnode.attrs.role.isPluginRole()) {
-      return <HeaderIcon name="No Plugin" imageUrl="/go/assets/gocd.svg"/>;
+      return <HeaderIcon name="GoCD role" imageUrl={gocdIcon}/>;
     }
 
     const role             = vnode.attrs.role as PluginRole;

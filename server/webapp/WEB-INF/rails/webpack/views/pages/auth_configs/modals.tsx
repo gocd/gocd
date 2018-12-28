@@ -162,7 +162,7 @@ export class CloneAuthConfigModal extends AuthConfigModal {
   }
 
   successMessage(): m.Children {
-    return <span>The authorization configuration <em>{this.originalEntityId}</em> was created successfully!</span>;
+    return <span>The authorization configuration <em>{this.entity().id()}</em> was created successfully!</span>
   }
 
   fetchCompleted() {

@@ -19,12 +19,14 @@ import * as m from "mithril";
 export class TestHelper {
   private root: any;
   private $root: any;
+  private component: any;
 
   mount(component: any) {
+    this.component = component;
     // @ts-ignore
-    const all  = window.createDomElementForTest();
-    this.$root = all[0];
-    this.root  = all[1];
+    const all      = window.createDomElementForTest();
+    this.$root     = all[0];
+    this.root      = all[1];
     m.mount(this.root, {
       view() {
         return <div>{component}</div>;
@@ -33,7 +35,7 @@ export class TestHelper {
     m.redraw();
   }
 
-  unmount(done: any) {
+  unmount(done?: any) {
     m.mount(this.root, null);
     m.redraw();
     //@ts-ignore
@@ -55,5 +57,10 @@ export class TestHelper {
 
   findIn(elem: any, id: string) {
     return $(elem).find(`[data-test-id='${id}']`);
+  }
+
+  remount() {
+    this.unmount();
+    this.mount(this.component);
   }
 }

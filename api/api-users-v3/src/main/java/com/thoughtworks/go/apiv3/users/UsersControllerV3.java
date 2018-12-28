@@ -34,7 +34,7 @@ import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.RoleConfigService;
 import com.thoughtworks.go.server.service.SecurityService;
 import com.thoughtworks.go.server.service.UserService;
-import com.thoughtworks.go.server.service.result.BulkDeletionFailureResult;
+import com.thoughtworks.go.server.service.result.BulkUpdateUsersOperationResult;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.spring.SparkSpringController;
@@ -86,14 +86,16 @@ public class UsersControllerV3 extends ApiController implements SparkSpringContr
             before("/*", this::verifyContentType);
 
             before("", this.mimeType, this.apiAuthenticationHelper::checkAdminUserAnd403);
-            before(Routes.Users.USER_NAME, this.mimeType, this.apiAuthenticationHelper::checkAdminUserAnd403);
+            before("/*", this.mimeType, this.apiAuthenticationHelper::checkAdminUserAnd403);
 
             get("", this.mimeType, this::index);
-            get(Routes.Users.USER_NAME, this.mimeType, this::show);
             post("", this.mimeType, this::create);
+            delete("", this.mimeType, this::bulkDelete);
+
+            get(Routes.Users.USER_NAME, this.mimeType, this::show);
             patch(Routes.Users.USER_NAME, this.mimeType, this::patchUser);
             delete(Routes.Users.USER_NAME, this.mimeType, this::deleteUser);
-            delete("", this.mimeType, this::bulkDelete);
+            patch(Routes.Users.USER_STATE, this.mimeType, this::bulkUpdateUsersState);
         });
     }
 
@@ -150,16 +152,32 @@ public class UsersControllerV3 extends ApiController implements SparkSpringContr
         return renderHTTPOperationResult(result, req, res);
     }
 
+    public String bulkUpdateUsersState(Request req, Response res) throws Exception {
+        BulkUpdateUsersOperationResult result = new BulkUpdateUsersOperationResult();
+        JsonReader jsonReader = GsonTransformer.getInstance().jsonReaderFrom(req.body());
+        List<String> users = jsonReader.readStringArrayIfPresent("users").orElse(Collections.emptyList());
+        boolean shouldEnable = jsonReader.readJsonObject("operations").getBoolean("enable");
+
+        userService.bulkEnableDisableUsers(users, shouldEnable, result);
+
+        if (!result.isSuccessful()) {
+            res.status(result.httpCode());
+            return writerForTopLevelObject(req, res, outputWriter -> BulkDeletionFailureResultRepresenter.toJSON(outputWriter, result));
+        }
+
+        return renderHTTPOperationResult(result, req, res);
+    }
+
     public String bulkDelete(Request req, Response res) throws Exception {
-        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+        BulkUpdateUsersOperationResult result = new BulkUpdateUsersOperationResult();
         JsonReader jsonReader = GsonTransformer.getInstance().jsonReaderFrom(req.body());
         List<String> users = jsonReader.readStringArrayIfPresent("users").orElse(Collections.emptyList());
 
-        BulkDeletionFailureResult deletionFailureResult = userService.deleteUsers(users, result);
+        userService.deleteUsers(users, result);
 
-        if (!deletionFailureResult.isEmpty()) {
+        if (!result.isSuccessful()) {
             res.status(result.httpCode());
-            return writerForTopLevelObject(req, res, outputWriter -> BulkDeletionFailureResultRepresenter.toJSON(outputWriter, deletionFailureResult, result));
+            return writerForTopLevelObject(req, res, outputWriter -> BulkDeletionFailureResultRepresenter.toJSON(outputWriter, result));
         }
 
         return renderHTTPOperationResult(result, req, res);

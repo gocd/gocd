@@ -265,7 +265,7 @@ module JavaImports
   java_import com.thoughtworks.go.config.AdminRole unless defined? AdminRole
   java_import com.thoughtworks.go.plugin.access.elastic.ElasticAgentExtension unless defined? ElasticAgentExtension
   java_import com.thoughtworks.go.plugin.access.elastic.ElasticAgentMetadataStore unless defined? ElasticAgentMetadataStore
-  java_import com.thoughtworks.go.server.service.result.BulkDeletionFailureResult unless defined? BulkDeletionFailureResult
+  java_import com.thoughtworks.go.server.service.result.BulkUpdateUsersOperationResult unless defined? BulkUpdateUsersOperationResult
   java_import com.thoughtworks.go.server.dashboard.GoDashboardPipelines unless defined? GoDashboardPipelines
   java_import com.thoughtworks.go.server.dashboard.GoDashboardPipelineGroup unless defined? GoDashboardPipelineGroup
   java_import com.thoughtworks.go.config.security.Permissions unless defined? Permissions

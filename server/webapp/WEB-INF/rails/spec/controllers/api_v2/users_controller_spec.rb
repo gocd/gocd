@@ -265,7 +265,7 @@ describe ApiV2::UsersController do
         enabled_users = java.util.ArrayList.new
         enabled_users.add('john')
 
-        bulkDeletionFailureResult = BulkDeletionFailureResult.new(non_existent_users, enabled_users)
+        bulkDeletionFailureResult = BulkUpdateUsersOperationResult.new(non_existent_users, enabled_users)
         expect(@user_service).to receive(:deleteUsers).with([@john.name, @joanne.name], an_instance_of(HttpLocalizedOperationResult)) do |users, result|
           result.unprocessableEntity("Deletion failed because some users were either enabled or do not exist.")
           bulkDeletionFailureResult
@@ -284,7 +284,7 @@ describe ApiV2::UsersController do
 
         expect(@user_service).to receive(:deleteUsers).with([], an_instance_of(HttpLocalizedOperationResult)) do |users, result|
           result.badRequest("No users selected.")
-          BulkDeletionFailureResult.new()
+          BulkUpdateUsersOperationResult.new()
         end
 
         delete_with_api_header :bulk_delete, params:{users: []}

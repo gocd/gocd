@@ -41,7 +41,7 @@ public class UserRepresenter {
         writer.addLinks(linksWriter -> linksWriter
                 .addLink("self", String.format("%s/%s", Routes.Users.BASE, user.getUsername().getUsername().toString()))
                 .addLink("find", String.format("%s%s", Routes.Users.BASE, Routes.Users.USER_NAME))
-                .addAbsoluteLink("doc", Routes.Users.INFO_DOC));
+                .addAbsoluteLink("doc", Routes.Users.DOC));
 
         represent(writer, user);
     }

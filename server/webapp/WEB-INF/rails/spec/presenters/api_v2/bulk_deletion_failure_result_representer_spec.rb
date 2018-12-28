@@ -26,7 +26,7 @@ describe ApiV2::BulkDeletionFailureResultRepresenter do
     enabled_users = java.util.ArrayList.new
     enabled_users.add('john')
 
-    presenter   = ApiV2::BulkDeletionFailureResultRepresenter.new(BulkDeletionFailureResult.new(non_existent_users, enabled_users))
+    presenter   = ApiV2::BulkDeletionFailureResultRepresenter.new(BulkUpdateUsersOperationResult.new(non_existent_users, enabled_users))
 
     actual_json = presenter.to_hash(url_builder: UrlBuilder.new)
 
@@ -43,7 +43,7 @@ describe ApiV2::BulkDeletionFailureResultRepresenter do
 
     enabled_users = java.util.ArrayList.new
 
-    presenter   = ApiV2::BulkDeletionFailureResultRepresenter.new(BulkDeletionFailureResult.new(non_existent_users, enabled_users))
+    presenter   = ApiV2::BulkDeletionFailureResultRepresenter.new(BulkUpdateUsersOperationResult.new(non_existent_users, enabled_users))
 
     actual_json = presenter.to_hash(url_builder: UrlBuilder.new)
 

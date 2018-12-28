@@ -28,7 +28,7 @@ import com.thoughtworks.go.helper.UsersMother
 import com.thoughtworks.go.i18n.LocalizedMessage
 import com.thoughtworks.go.server.service.RoleConfigService
 import com.thoughtworks.go.server.service.UserService
-import com.thoughtworks.go.server.service.result.BulkDeletionFailureResult
+import com.thoughtworks.go.server.service.result.BulkUpdateUsersOperationResult
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult
 import com.thoughtworks.go.spark.AdminUserSecurity
 import com.thoughtworks.go.spark.ControllerTrait
@@ -350,20 +350,22 @@ class UsersControllerV3Test implements SecurityServiceTrait, ControllerTrait<Use
     class AsAdmin {
       def usersToDelete = ['John', 'Bob']
 
-      @Test
-      void 'should delete a list of users'() {
+      @BeforeEach
+      void setUp() {
         enableSecurity()
         loginAsAdmin()
+       }
 
+      @Test
+      void 'should delete a list of users'() {
         def requestBody = [
           users: usersToDelete
         ]
 
         doAnswer({ InvocationOnMock invocation ->
-          HttpLocalizedOperationResult result = (HttpLocalizedOperationResult) invocation.arguments.last()
+          BulkUpdateUsersOperationResult result = (BulkUpdateUsersOperationResult) invocation.arguments.last()
           result.setMessage(LocalizedMessage.resourcesDeleteSuccessful("Users", usersToDelete))
-          return new BulkDeletionFailureResult()
-        }).when(userService).deleteUsers(eq(usersToDelete), any(HttpLocalizedOperationResult.class))
+        }).when(userService).deleteUsers(eq(usersToDelete), any(BulkUpdateUsersOperationResult.class))
 
         deleteWithApiHeader(controller.controllerPath(), requestBody)
 
@@ -374,18 +376,16 @@ class UsersControllerV3Test implements SecurityServiceTrait, ControllerTrait<Use
 
       @Test
       void 'should render error while deleting the enabled user'() {
-        enableSecurity()
-        loginAsAdmin()
-
         def requestBody = [
           users: usersToDelete
         ]
 
         doAnswer({ InvocationOnMock invocation ->
-          HttpLocalizedOperationResult result = (HttpLocalizedOperationResult) invocation.arguments.last()
+          BulkUpdateUsersOperationResult result = (BulkUpdateUsersOperationResult) invocation.arguments.last()
           result.unprocessableEntity("Deletion failed because some users were either enabled or do not exist.")
-          return new BulkDeletionFailureResult(usersToDelete, [])
-        }).when(userService).deleteUsers(eq(usersToDelete), any(HttpLocalizedOperationResult.class))
+          result.addNonExistentUserName(usersToDelete[0])
+          result.addNonExistentUserName(usersToDelete[1])
+        }).when(userService).deleteUsers(eq(usersToDelete), any(BulkUpdateUsersOperationResult.class))
 
         deleteWithApiHeader(controller.controllerPath(), requestBody)
 
@@ -393,6 +393,80 @@ class UsersControllerV3Test implements SecurityServiceTrait, ControllerTrait<Use
           .isUnprocessableEntity()
           .hasJsonMessage("Deletion failed because some users were either enabled or do not exist.")
           .hasJsonAttribute("non_existent_users", usersToDelete)
+      }
+    }
+  }
+
+  @Nested
+  class BulkEnableDisableUsers {
+    def bulkEnableDisableUsersPath = '/operations/state'
+
+    @Nested
+    class Security implements SecurityTestTrait, AdminUserSecurity {
+      @Override
+      String getControllerMethodUnderTest() {
+        return "bulkUpdateUsersState"
+      }
+
+      @Override
+      void makeHttpCall() {
+        patchWithApiHeader(controller.controllerPath(bulkEnableDisableUsersPath), [:])
+      }
+    }
+
+    @Nested
+    class AsAdmin {
+      def usersToEnable = ['John', 'Bob']
+
+      @BeforeEach
+      void setUp() {
+        enableSecurity()
+        loginAsAdmin()
+      }
+
+      @Test
+      void 'should enable a list of users'() {
+
+        def requestBody = [
+          users     : usersToEnable,
+          operations: [
+            enable: true
+          ]
+        ]
+
+        doAnswer({ InvocationOnMock invocation ->
+          BulkUpdateUsersOperationResult result = (BulkUpdateUsersOperationResult) invocation.arguments.last()
+          result.setMessage("Users '${usersToEnable.join(', ')}' were enabled successfully.")
+        }).when(userService).bulkEnableDisableUsers(eq(usersToEnable), eq(true), any(BulkUpdateUsersOperationResult.class))
+
+        patchWithApiHeader(controller.controllerPath(bulkEnableDisableUsersPath), requestBody)
+
+        assertThatResponse()
+          .isOk()
+          .hasJsonMessage("Users 'John, Bob' were enabled successfully.")
+      }
+
+      @Test
+      void 'should fail to enable non existing user'() {
+        def requestBody = [
+          users     : usersToEnable,
+          operations: [
+            enable: true
+          ]
+        ]
+
+        doAnswer({ InvocationOnMock invocation ->
+          BulkUpdateUsersOperationResult result = (BulkUpdateUsersOperationResult) invocation.arguments.last()
+          result.unprocessableEntity("Update failed because some users do not exist.")
+          result.addNonExistentUserName('John')
+        }).when(userService).bulkEnableDisableUsers(eq(usersToEnable), eq(true), any(BulkUpdateUsersOperationResult.class))
+
+        patchWithApiHeader(controller.controllerPath(bulkEnableDisableUsersPath), requestBody)
+
+        assertThatResponse()
+          .isUnprocessableEntity()
+          .hasJsonMessage("Update failed because some users do not exist.")
+          .hasJsonAttribute("non_existent_users", ['John'])
       }
     }
   }

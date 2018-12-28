@@ -29,12 +29,14 @@ import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.exceptions.UserEnabledException;
 import com.thoughtworks.go.server.exceptions.UserNotFoundException;
 import com.thoughtworks.go.server.security.OnlyKnownUsersAllowedException;
-import com.thoughtworks.go.server.service.result.BulkDeletionFailureResult;
+import com.thoughtworks.go.server.service.result.BulkUpdateUsersOperationResult;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.util.TriState;
 import com.thoughtworks.go.util.comparator.AlphaAsciiCollectionComparator;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.TransactionStatus;
@@ -46,6 +48,7 @@ import static com.thoughtworks.go.i18n.LocalizedMessage.resourceAlreadyExists;
 import static com.thoughtworks.go.i18n.LocalizedMessage.resourceNotFound;
 import static com.thoughtworks.go.serverhealth.HealthStateScope.GLOBAL;
 import static com.thoughtworks.go.serverhealth.HealthStateType.general;
+import static org.apache.commons.lang3.StringUtils.join;
 
 @Service
 public class UserService {
@@ -266,37 +269,79 @@ public class UserService {
         }
     }
 
-    public BulkDeletionFailureResult deleteUsers(List<String> userNames, HttpLocalizedOperationResult result) {
-        if (userNames == null || userNames.isEmpty()) {
-            result.badRequest("No users selected.");
-            return new BulkDeletionFailureResult();
-        }
+    public void deleteUsers(List<String> userNames, BulkUpdateUsersOperationResult result) {
         synchronized (enableUserMutex) {
-            BulkDeletionFailureResult bulkDeletionFailureResult = deletionValidation(userNames);
-
-            if (bulkDeletionFailureResult.isEmpty()) {
+            boolean isValid = performUserDeletionValidation(userNames, result);
+            if (isValid) {
                 userDao.deleteUsers(userNames);
                 result.setMessage(LocalizedMessage.resourcesDeleteSuccessful("Users", userNames));
-            } else {
-                result.unprocessableEntity("Deletion failed because some users were either enabled or do not exist.");
             }
-            return bulkDeletionFailureResult;
         }
     }
 
-    private BulkDeletionFailureResult deletionValidation(List<String> userNames) {
-        BulkDeletionFailureResult bulkDeletionFailureResult = new BulkDeletionFailureResult();
+    public void bulkEnableDisableUsers(List<String> userNames, boolean shouldEnable, BulkUpdateUsersOperationResult result) {
+        synchronized (enableUserMutex) {
+            boolean isValid = performUserUpdateValidation(userNames, result);
+            if (isValid) {
+                if (shouldEnable) {
+                    enable(userNames, result);
+                } else {
+                    disable(userNames, result);
+                }
+
+                if (result.isSuccessful()) {
+                    String enabledOrDisabled = shouldEnable ? "enabled" : "disabled";
+                    result.setMessage(String.format("Users '%s' were %s successfully.", join(userNames, ", "), enabledOrDisabled));
+                }
+            }
+        }
+    }
+
+    private boolean performUserDeletionValidation(List<String> userNames, BulkUpdateUsersOperationResult result) {
+        boolean isValid = validateUserSelection(userNames, result);
+        if (!isValid) {
+            return false;
+        }
+
         for (String userName : userNames) {
             User user = userDao.findUser(userName);
             if (user instanceof NullUser) {
-                bulkDeletionFailureResult.addNonExistentUserName(userName);
+                result.addNonExistentUserName(userName);
+                result.unprocessableEntity("Deletion failed because some users do not exist.");
                 continue;
             }
             if (user.isEnabled()) {
-                bulkDeletionFailureResult.addEnabledUserName(userName);
+                result.addEnabledUserName(userName);
+                result.unprocessableEntity("Deletion failed because some users were enabled.");
             }
         }
-        return bulkDeletionFailureResult;
+
+        return result.isSuccessful();
+    }
+
+    private boolean performUserUpdateValidation(List<String> userNames, BulkUpdateUsersOperationResult result) {
+        boolean isValid = validateUserSelection(userNames, result);
+        if (!isValid) {
+            return false;
+        }
+
+        for (String userName : userNames) {
+            User user = userDao.findUser(userName);
+            if (user instanceof NullUser) {
+                result.addNonExistentUserName(userName);
+                result.unprocessableEntity("Update failed because some users do not exist.");
+            }
+        }
+
+        return result.isSuccessful();
+    }
+
+    private boolean validateUserSelection(List<String> userNames, BulkUpdateUsersOperationResult result) {
+        if (CollectionUtils.isEmpty(userNames)) {
+            result.badRequest("No users selected.");
+            return false;
+        }
+        return true;
     }
 
     public enum SortableColumn {

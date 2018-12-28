@@ -21,9 +21,9 @@ import org.junit.Test;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 
-public class BulkDeletionFailureResultTest {
+public class BulkUpdateUsersOperationResultTest {
     @Test
     public void isSuccessfulIfThereAreNoEnabledOrNonExistentUsers() throws Exception {
-        assertThat(new BulkDeletionFailureResult().isEmpty(), is(true));
+        assertThat(new BulkUpdateUsersOperationResult().isEmpty(), is(true));
     }
 }

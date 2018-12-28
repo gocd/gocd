@@ -18,14 +18,13 @@ package com.thoughtworks.go.apiv3.users.representers;
 
 import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.apiv3.users.model.UserToRepresent;
-import com.thoughtworks.go.domain.User;
 import com.thoughtworks.go.spark.Routes;
 
 import java.util.Collection;
 
 public class UsersRepresenter {
     public static void toJSON(OutputWriter writer, Collection<UserToRepresent> users) {
-        writer.addLinks(linksWriter -> linksWriter.addLink("self", Routes.Users.BASE).addAbsoluteLink("doc", Routes.Users.INFO_DOC))
+        writer.addLinks(linksWriter -> linksWriter.addLink("self", Routes.Users.BASE).addAbsoluteLink("doc", Routes.Users.DOC))
                 .addChild("_embedded", childWriter -> {
                     childWriter.addChildList("users", userWriter -> {
                         users.forEach(user -> {

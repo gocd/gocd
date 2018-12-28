@@ -71,6 +71,7 @@ public class User extends PersistentObject {
 
     public User(User user) {
         this(user.name, user.displayName, new String[]{user.matcher}, user.email, user.emailMe);
+        this.enabled = user.enabled;
         this.id = user.id;
         for (NotificationFilter filter : user.notificationFilters) {
             this.notificationFilters.add(new NotificationFilter(filter));

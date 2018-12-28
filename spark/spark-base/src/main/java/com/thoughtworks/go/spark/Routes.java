@@ -399,7 +399,8 @@ public class Routes {
         public static final String BASE = "/api/users";
         public static final String USER_NAME = "/:login_name";
         public static final String SPA_BASE = "/admin/users";
-        public static final String INFO_DOC = "https://api.gocd.org/#users";
+        public static final String DOC = "https://api.gocd.org/#users";
+        public static final String USER_STATE = "/operations/state";
     }
 
     public class ArtifactStores {

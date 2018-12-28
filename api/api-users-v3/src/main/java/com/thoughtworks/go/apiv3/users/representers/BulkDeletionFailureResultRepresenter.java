@@ -17,17 +17,16 @@
 package com.thoughtworks.go.apiv3.users.representers;
 
 import com.thoughtworks.go.api.base.OutputWriter;
-import com.thoughtworks.go.server.service.result.BulkDeletionFailureResult;
-import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
+import com.thoughtworks.go.server.service.result.BulkUpdateUsersOperationResult;
 
 import java.util.List;
 
 public class BulkDeletionFailureResultRepresenter {
-    public static void toJSON(OutputWriter outputWriter, BulkDeletionFailureResult deletionFailureResult, HttpLocalizedOperationResult result) {
+    public static void toJSON(OutputWriter outputWriter, BulkUpdateUsersOperationResult result) {
         outputWriter.add("message", result.message());
 
-        List<String> nonExistentUsers = deletionFailureResult.getNonExistentUsers();
-        List<String> enabledUsers = deletionFailureResult.getEnabledUsers();
+        List<String> nonExistentUsers = result.getNonExistentUsers();
+        List<String> enabledUsers = result.getEnabledUsers();
 
         if (!nonExistentUsers.isEmpty()) {
             outputWriter.addChildList("non_existent_users", nonExistentUsers);

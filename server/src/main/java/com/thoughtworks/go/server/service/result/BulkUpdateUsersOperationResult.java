@@ -18,16 +18,16 @@ package com.thoughtworks.go.server.service.result;
 
 import java.util.ArrayList;
 import java.util.List;
-public class BulkDeletionFailureResult {
+public class BulkUpdateUsersOperationResult extends HttpLocalizedOperationResult {
     private List<String> nonExistentUsers;
     private List<String> enabledUsers;
 
-    public BulkDeletionFailureResult() {
+    public BulkUpdateUsersOperationResult() {
         nonExistentUsers = new ArrayList<>();
         enabledUsers = new ArrayList<>();
     }
 
-    public BulkDeletionFailureResult(List<String> nonExistentUsers, List<String> enabledUsers) {
+    public BulkUpdateUsersOperationResult(List<String> nonExistentUsers, List<String> enabledUsers) {
         this.nonExistentUsers = new ArrayList<>();
         this.nonExistentUsers = nonExistentUsers;
         this.enabledUsers = new ArrayList<>();

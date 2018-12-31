@@ -118,7 +118,7 @@ export class ArtifactStoresPage extends Page<null, State> {
   }
 
   pageName(): string {
-    return "Authorization Configurations";
+    return "Artifact Stores";
   }
 
   headerPanel(vnode: m.Vnode<null, State>): any {

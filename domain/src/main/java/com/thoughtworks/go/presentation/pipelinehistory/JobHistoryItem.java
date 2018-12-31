@@ -32,7 +32,7 @@ public class JobHistoryItem implements BuildStateAware {
     private JobHistoryItem() {
     }
 
-    JobHistoryItem(String name, JobState state, JobResult result, Date scheduledDate) {
+    public JobHistoryItem(String name, JobState state, JobResult result, Date scheduledDate) {
         if (scheduledDate == null) { throw new IllegalArgumentException("Scheduled date cannot be null"); }
         this.name = name;
         this.state = state;

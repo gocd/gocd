@@ -101,7 +101,7 @@ public class AgentService {
         agentInstances.sync(agents);
     }
 
-    AgentInstances agents() {
+    public AgentInstances agents() {
         return agentInstances;
     }
 

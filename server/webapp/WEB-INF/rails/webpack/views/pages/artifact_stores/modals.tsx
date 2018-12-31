@@ -116,7 +116,7 @@ export class CloneArtifactStoreModal extends ArtifactStoreModal {
   }
 
   successMessage(): m.Children {
-    return <span>The artifact store <em>{this.originalEntityId}</em> was created successfully!</span>;
+    return <span>The artifact store <em>{this.entity().id()}</em> was created successfully!</span>;
   }
 
   fetchCompleted() {
@@ -156,7 +156,7 @@ export class DeleteArtifactStoreModal extends ArtifactStoreModal {
   protected modalBody(): m.Children {
     return (
       <span>
-      Are you sure you want to delete the authorization configuration <strong>{this.originalEntityId}</strong>?
+      Are you sure you want to delete the authorization configuration <strong>{this.entity().id()}</strong>?
         </span>
     );
   }
@@ -166,6 +166,6 @@ export class DeleteArtifactStoreModal extends ArtifactStoreModal {
   }
 
   protected successMessage(): m.Children {
-    return <span>The authorization configuration <em>{this.originalEntityId}</em> was deleted successfully!</span>;
+    return <span>The artifact store <em>{this.entity().id()}</em> was deleted successfully!</span>;
   }
 }

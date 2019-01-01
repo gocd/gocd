@@ -34,6 +34,7 @@ public class Stage extends PersistentObject {
     private String name;
     private JobInstances jobInstances = new JobInstances();
     private String approvedBy;
+    private String cancelledBy;
     private int orderId;
     private Timestamp createdTime;
     private Timestamp lastTransitionedTime;
@@ -57,22 +58,23 @@ public class Stage extends PersistentObject {
     public Stage() {
     }
 
-    public Stage(String name, JobInstances jobInstances, String approvedBy, String approvalType, final Clock clock) {
-        this(name, jobInstances, approvedBy, approvalType, StageConfig.DEFAULT_FETCH_MATERIALS, StageConfig.DEFAULT_CLEAN_WORKING_DIR, clock);
+    public Stage(String name, JobInstances jobInstances, String approvedBy, String cancelledBy, String approvalType, final Clock clock) {
+        this(name, jobInstances, approvedBy, cancelledBy, approvalType, StageConfig.DEFAULT_FETCH_MATERIALS, StageConfig.DEFAULT_CLEAN_WORKING_DIR, clock);
     }
 
-    public Stage(String name, JobInstances jobInstances, String approvedBy, String approvalType, boolean fetchMaterials, boolean cleanWorkingDir, final Clock clock) {
+    public Stage(String name, JobInstances jobInstances, String approvedBy, String cancelledBy, String approvalType, boolean fetchMaterials, boolean cleanWorkingDir, final Clock clock) {
         this.name = name;
         this.jobInstances = jobInstances;
         this.approvedBy = approvedBy;
+        this.cancelledBy = cancelledBy;
         this.approvalType = approvalType;
         this.fetchMaterials = fetchMaterials;
         this.cleanWorkingDir = cleanWorkingDir;
         this.createdTime = new Timestamp(clock.currentTimeMillis());
     }
 
-    public Stage(String name, JobInstances jobInstances, String approvedBy, String approvalType, boolean fetchMaterials, boolean cleanWorkingDir, String configVersion, final Clock clock) {
-        this(name, jobInstances, approvedBy, approvalType, fetchMaterials, cleanWorkingDir, clock);
+    public Stage(String name, JobInstances jobInstances, String approvedBy, String cancelledBy, String approvalType, boolean fetchMaterials, boolean cleanWorkingDir, String configVersion, final Clock clock) {
+        this(name, jobInstances, approvedBy, cancelledBy, approvalType, fetchMaterials, cleanWorkingDir, clock);
         this.configVersion = configVersion;
     }
 
@@ -169,6 +171,14 @@ public class Stage extends PersistentObject {
 
     public void setApprovedBy(String approvedBy) {
         this.approvedBy = approvedBy;
+    }
+
+    public String getCancelledBy() {
+        return cancelledBy;
+    }
+
+    public void setCancelledBy(String cancelledBy) {
+        this.cancelledBy = cancelledBy;
     }
 
     public boolean isApproved() {
@@ -375,6 +385,9 @@ public class Stage extends PersistentObject {
         if (approvedBy != null ? !approvedBy.equals(stage.approvedBy) : stage.approvedBy != null) {
             return false;
         }
+        if (cancelledBy != null ? !cancelledBy.equals(stage.cancelledBy) : stage.cancelledBy != null) {
+            return false;
+        }
         if (createdTime != null ? !createdTime.equals(stage.createdTime) : stage.createdTime != null) {
             return false;
         }
@@ -398,6 +411,7 @@ public class Stage extends PersistentObject {
         result1 = 31 * result1 + (name != null ? name.hashCode() : 0);
         result1 = 31 * result1 + (jobInstances != null ? jobInstances.hashCode() : 0);
         result1 = 31 * result1 + (approvedBy != null ? approvedBy.hashCode() : 0);
+        result1 = 31 * result1 + (cancelledBy != null ? cancelledBy.hashCode() : 0);
         result1 = 31 * result1 + orderId;
         result1 = 31 * result1 + (createdTime != null ? createdTime.hashCode() : 0);
         result1 = 31 * result1 + (approvalType != null ? approvalType.hashCode() : 0);

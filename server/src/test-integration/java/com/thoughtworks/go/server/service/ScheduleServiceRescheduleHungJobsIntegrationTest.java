@@ -121,7 +121,7 @@ public class ScheduleServiceRescheduleHungJobsIntegrationTest {
 
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
             public void doInTransactionWithoutResult(TransactionStatus status) {
-                stageService.cancelStage(stageOf(pipeline));
+                stageService.cancelStage(stageOf(pipeline), null);
             }
         });
 

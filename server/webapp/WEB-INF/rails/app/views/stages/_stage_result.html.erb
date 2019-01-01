@@ -1,2 +1,6 @@
 <div class="color_code <%= scope[:state] %>"></div>
+<% if scope[:state].to_s.eql?"Cancelled" %>
+<span class="message" style="float:right; padding: 0;">Cancelled by: <%= scope[:cancelledBy].nil? ? "GoCD" : scope[:cancelledBy] %></span>
+<% else %>
 <span class="message" style="float:right; padding: 0;"><%= scope[:state] %></span>
+<% end %>

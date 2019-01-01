@@ -94,7 +94,7 @@ public class GoPropertiesTestTest {
         final Stage firstStage = newPipeline.getFirstStage();
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
             public void doInTransactionWithoutResult(TransactionStatus status) {
-                stageService.cancelStage(stageService.stageById(firstStage.getId()));
+                stageService.cancelStage(stageService.stageById(firstStage.getId()), null);
             }
         });
         Pipeline pipelineFromDb = pipelineDao.mostRecentFullPipelineByName(newPipeline.getName());
@@ -109,7 +109,7 @@ public class GoPropertiesTestTest {
         final Stage firstStage = newPipeline.getFirstStage();
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
             public void doInTransactionWithoutResult(TransactionStatus status) {
-                stageService.cancelStage(stageService.stageById(firstStage.getId()));
+                stageService.cancelStage(stageService.stageById(firstStage.getId()), null);
             }
         });
 

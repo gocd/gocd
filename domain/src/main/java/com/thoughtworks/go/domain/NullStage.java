@@ -24,7 +24,7 @@ import com.thoughtworks.go.util.TimeProvider;
 public final class NullStage extends Stage {
 
     public NullStage(String stageName, JobInstances nullBuilds) {
-        super(stageName, nullBuilds, null, null, new TimeProvider());
+        super(stageName, nullBuilds, null, null, null, new TimeProvider());
     }
 
     public NullStage(String stageName) {

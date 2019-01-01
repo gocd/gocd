@@ -48,7 +48,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataRetrievalFailureException;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionSynchronizationAdapter;
 
@@ -282,7 +281,7 @@ public class StageSqlMapDao extends SqlMapClientDaoSupport implements StageDao, 
         return (Integer) getSqlMapClientTemplate().queryForObject("getStageOrderInPipeline", params);
     }
 
-    public void updateResult(final Stage stage, final StageResult result) {
+    public void updateResult(final Stage stage, final StageResult result, String username) {
         transactionSynchronizationManager.registerSynchronization(new TransactionSynchronizationAdapter() {
             @Override
             public void afterCommit() {
@@ -295,6 +294,7 @@ public class StageSqlMapDao extends SqlMapClientDaoSupport implements StageDao, 
         getSqlMapClientTemplate().update("updateStageStatus", arguments("stageId", stage.getId())
                 .and("result", result.toString())
                 .and("state", stage.getState())
+                .and("cancelledBy", username)
                 .and("completedByTransitionId", stage.getCompletedByTransitionId()).asMap());
 
         upddateLastTransitionedTime(stage);

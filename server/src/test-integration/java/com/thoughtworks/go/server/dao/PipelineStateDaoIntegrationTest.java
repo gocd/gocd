@@ -182,7 +182,7 @@ public class PipelineStateDaoIntegrationTest {
         final int[] errors = new int[1];
         for (int i = 0; i < 10; i++) {
             JobInstances jobInstances = new JobInstances(JobInstanceMother.completed("job"));
-            Stage stage = new Stage("stage-1", jobInstances, "shilpa", "auto", new TimeProvider());
+            Stage stage = new Stage("stage-1", jobInstances, "shilpa", null, "auto", new TimeProvider());
             final Pipeline pipeline = PipelineMother.pipeline("mingle", stage);
             pipeline.setCounter(i + 1);
             Thread thread = new Thread(new Runnable() {

@@ -11,7 +11,7 @@
     </div>
 
     <div class="result" id="stage_result">
-        <%= render :partial=> "stages/stage_result.html", :locals=>{:scope => {:state => @stage.getState()}}%>
+        <%= render :partial=> "stages/stage_result.html", :locals=>{:scope => {:state => @stage.getState(), :cancelledBy => @stage.getCancelledBy()}}%>
     </div>
 </div>
 

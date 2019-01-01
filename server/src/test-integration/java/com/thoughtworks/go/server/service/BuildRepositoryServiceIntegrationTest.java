@@ -364,7 +364,7 @@ public class BuildRepositoryServiceIntegrationTest {
         final Stage stage = stageDao.mostRecentWithBuilds(CaseInsensitiveString.str(mingle.name()), devStage);
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
             public void doInTransactionWithoutResult(TransactionStatus status) {
-                stageService.cancelStage(stage);
+                stageService.cancelStage(stage, null);
             }
         });
 

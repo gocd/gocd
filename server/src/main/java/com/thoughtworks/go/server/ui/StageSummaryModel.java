@@ -56,6 +56,10 @@ public class StageSummaryModel {
         return stage.getApprovedBy();
     }
 
+    public String getCancelledBy() {
+        return stage.getCancelledBy();
+    }
+
     public long getId() {
         return stage.getId();
     }

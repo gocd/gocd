@@ -252,7 +252,7 @@ public class ScheduleServiceStageTriggerTest {
             public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
                 throw new RuntimeException();
             }
-        }).when(stageService).cancelStage(stage);
+        }).when(stageService).cancelStage(stage, null);
 
         StageOrderService stageOrderService = mock(StageOrderService.class);
         SchedulingPerformanceLogger schedulingPerformanceLogger = mock(SchedulingPerformanceLogger.class);

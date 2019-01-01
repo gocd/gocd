@@ -19,13 +19,13 @@ package com.thoughtworks.go.api;
 import com.google.gson.reflect.TypeToken;
 import com.thoughtworks.go.api.util.GsonTransformer;
 import com.thoughtworks.go.api.util.MessageJson;
+import com.thoughtworks.go.server.util.RequestUtils;
 import com.thoughtworks.go.spark.SparkController;
 import org.springframework.util.InvalidMimeTypeException;
 import org.springframework.util.MimeType;
 import spark.Request;
 import spark.Response;
 
-import javax.servlet.MultipartConfigElement;
 import java.io.IOException;
 import java.util.*;
 
@@ -35,7 +35,6 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
 
 public abstract class ApiController implements ControllerMethods, SparkController {
     private static final Set<String> UPDATE_HTTP_METHODS = new HashSet<>(Arrays.asList("PUT", "POST", "PATCH"));
-    private static final String MULTIPART_REQ_ATTR = "org.eclipse.jetty.multipartConfig";
 
     protected final ApiVersion apiVersion;
     protected String mimeType;
@@ -78,8 +77,8 @@ public abstract class ApiController implements ControllerMethods, SparkControlle
         }
     }
 
-    protected void setMultpipartUpload(Request req, Response res) {
-        req.raw().setAttribute(MULTIPART_REQ_ATTR, new MultipartConfigElement(System.getProperty("java.io.tmpdir", "tmp")));
+    protected void setMultipartUpload(Request req, Response res) {
+        RequestUtils.configureMultipart(req.raw());
     }
 
     protected boolean isJsonContentType(Request request) {

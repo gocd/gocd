@@ -36,7 +36,12 @@ public class PartialConfigUpdateCommand implements UpdateConfigCommand {
     @Override
     public CruiseConfig update(CruiseConfig cruiseConfig) {
         if (partial != null && fingerprint != null) {
-            cruiseConfig.getPartials().remove(resolver.findPartialByFingerprint(cruiseConfig, fingerprint));
+            PartialConfig config = resolver.findPartialByFingerprint(cruiseConfig, fingerprint);
+
+            if (null != config) {
+                cruiseConfig.getPartials().remove(config);
+            }
+
             cruiseConfig.getPartials().add(CLONER.deepClone(partial));
 
             for (PartialConfig partial : cruiseConfig.getPartials()) {

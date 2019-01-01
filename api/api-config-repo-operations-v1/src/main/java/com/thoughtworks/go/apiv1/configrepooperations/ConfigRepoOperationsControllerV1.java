@@ -86,7 +86,7 @@ public class ConfigRepoOperationsControllerV1 extends ApiController implements S
 
             before("/*", mimeType, this::setContentType);
             before("/*", mimeType, authenticationHelper::checkAdminUserAnd403);
-            before(PREFLIGHT_PATH, this::setMultpipartUpload);
+            before(PREFLIGHT_PATH, this::setMultipartUpload);
 
             post(PREFLIGHT_PATH, mimeType, this::preflight);
         });

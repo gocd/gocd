@@ -75,75 +75,47 @@ public class MockHttpServletRequest implements HttpServletRequest {
     private static final String CONTENT_TYPE_HEADER = "Content-Type";
 
     private static final String CHARSET_PREFIX = "charset=";
-
-
-    private boolean active = true;
+    private final Map<String, Object> attributes = new LinkedHashMap<>();
 
 
     // ---------------------------------------------------------------------
     // ServletRequest properties
     // ---------------------------------------------------------------------
-
-    private final Map<String, Object> attributes = new LinkedHashMap<>();
-
-    private String characterEncoding;
-
-    private byte[] content;
-
-    private String contentType;
-
     private final Map<String, String[]> parameters = new LinkedHashMap<>(16);
-
-    private String protocol = DEFAULT_PROTOCOL;
-
-    private String scheme = DEFAULT_PROTOCOL;
-
-    private String serverName = DEFAULT_SERVER_NAME;
-
-    private int serverPort = DEFAULT_SERVER_PORT;
-
-    private String remoteAddr = DEFAULT_REMOTE_ADDR;
-
-    private String remoteHost = DEFAULT_REMOTE_HOST;
-
     /**
      * List of locales in descending order
      */
     private final List<Locale> locales = new LinkedList<>();
-
-    private boolean secure = false;
-
     private final ServletContext servletContext;
-
+    private final Map<String, HeaderValueHolder> headers = new LinkedCaseInsensitiveMap<>();
+    private final Set<String> userRoles = new HashSet<>();
+    private boolean active = true;
+    private String characterEncoding;
+    private byte[] content;
+    private String contentType;
+    private String protocol = DEFAULT_PROTOCOL;
+    private String scheme = DEFAULT_PROTOCOL;
+    private String serverName = DEFAULT_SERVER_NAME;
+    private int serverPort = DEFAULT_SERVER_PORT;
+    private String remoteAddr = DEFAULT_REMOTE_ADDR;
+    private String remoteHost = DEFAULT_REMOTE_HOST;
+    private boolean secure = false;
     private int remotePort = DEFAULT_SERVER_PORT;
-
     private String localName = DEFAULT_SERVER_NAME;
-
-    private String localAddr = DEFAULT_SERVER_ADDR;
-
-    private int localPort = DEFAULT_SERVER_PORT;
+    private Collection<Part> parts = Collections.emptyList();
 
 
     // ---------------------------------------------------------------------
     // HttpServletRequest properties
     // ---------------------------------------------------------------------
-
+    private String localAddr = DEFAULT_SERVER_ADDR;
+    private int localPort = DEFAULT_SERVER_PORT;
     private String authType;
-
     private Cookie[] cookies;
-
-    private final Map<String, HeaderValueHolder> headers = new LinkedCaseInsensitiveMap<>();
-
     private String method;
-
     private String pathInfo;
-
     private String queryString;
-
     private String remoteUser;
-
-    private final Set<String> userRoles = new HashSet<>();
-
     private Principal userPrincipal;
 
     private String requestedSessionId;
@@ -348,6 +320,10 @@ public class MockHttpServletRequest implements HttpServletRequest {
         return getContentLength();
     }
 
+    public String getContentType() {
+        return this.contentType;
+    }
+
     public void setContentType(String contentType) {
         this.contentType = contentType;
         if (contentType != null) {
@@ -358,10 +334,6 @@ public class MockHttpServletRequest implements HttpServletRequest {
             }
             updateContentTypeHeader();
         }
-    }
-
-    public String getContentType() {
-        return this.contentType;
     }
 
     public ServletInputStream getInputStream() {
@@ -506,36 +478,36 @@ public class MockHttpServletRequest implements HttpServletRequest {
         return Collections.unmodifiableMap(this.parameters);
     }
 
-    public void setProtocol(String protocol) {
-        this.protocol = protocol;
-    }
-
     public String getProtocol() {
         return this.protocol;
     }
 
-    public void setScheme(String scheme) {
-        this.scheme = scheme;
+    public void setProtocol(String protocol) {
+        this.protocol = protocol;
     }
 
     public String getScheme() {
         return this.scheme;
     }
 
-    public void setServerName(String serverName) {
-        this.serverName = serverName;
+    public void setScheme(String scheme) {
+        this.scheme = scheme;
     }
 
     public String getServerName() {
         return this.serverName;
     }
 
-    public void setServerPort(int serverPort) {
-        this.serverPort = serverPort;
+    public void setServerName(String serverName) {
+        this.serverName = serverName;
     }
 
     public int getServerPort() {
         return this.serverPort;
+    }
+
+    public void setServerPort(int serverPort) {
+        this.serverPort = serverPort;
     }
 
     public BufferedReader getReader() throws UnsupportedEncodingException {
@@ -549,20 +521,20 @@ public class MockHttpServletRequest implements HttpServletRequest {
         }
     }
 
-    public void setRemoteAddr(String remoteAddr) {
-        this.remoteAddr = remoteAddr;
-    }
-
     public String getRemoteAddr() {
         return this.remoteAddr;
     }
 
-    public void setRemoteHost(String remoteHost) {
-        this.remoteHost = remoteHost;
+    public void setRemoteAddr(String remoteAddr) {
+        this.remoteAddr = remoteAddr;
     }
 
     public String getRemoteHost() {
         return this.remoteHost;
+    }
+
+    public void setRemoteHost(String remoteHost) {
+        this.remoteHost = remoteHost;
     }
 
     public void setAttribute(String name, Object value) {
@@ -604,12 +576,12 @@ public class MockHttpServletRequest implements HttpServletRequest {
         return Collections.enumeration(this.locales);
     }
 
-    public void setSecure(boolean secure) {
-        this.secure = secure;
-    }
-
     public boolean isSecure() {
         return this.secure;
+    }
+
+    public void setSecure(boolean secure) {
+        this.secure = secure;
     }
 
     public RequestDispatcher getRequestDispatcher(String path) {
@@ -620,36 +592,36 @@ public class MockHttpServletRequest implements HttpServletRequest {
         return this.servletContext.getRealPath(path);
     }
 
-    public void setRemotePort(int remotePort) {
-        this.remotePort = remotePort;
-    }
-
     public int getRemotePort() {
         return this.remotePort;
     }
 
-    public void setLocalName(String localName) {
-        this.localName = localName;
+    public void setRemotePort(int remotePort) {
+        this.remotePort = remotePort;
     }
 
     public String getLocalName() {
         return this.localName;
     }
 
-    public void setLocalAddr(String localAddr) {
-        this.localAddr = localAddr;
+    public void setLocalName(String localName) {
+        this.localName = localName;
     }
 
     public String getLocalAddr() {
         return this.localAddr;
     }
 
-    public void setLocalPort(int localPort) {
-        this.localPort = localPort;
+    public void setLocalAddr(String localAddr) {
+        this.localAddr = localAddr;
     }
 
     public int getLocalPort() {
         return this.localPort;
+    }
+
+    public void setLocalPort(int localPort) {
+        this.localPort = localPort;
     }
 
 
@@ -657,20 +629,20 @@ public class MockHttpServletRequest implements HttpServletRequest {
     // HttpServletRequest interface
     // ---------------------------------------------------------------------
 
-    public void setAuthType(String authType) {
-        this.authType = authType;
-    }
-
     public String getAuthType() {
         return this.authType;
     }
 
-    public void setCookies(Cookie... cookies) {
-        this.cookies = cookies;
+    public void setAuthType(String authType) {
+        this.authType = authType;
     }
 
     public Cookie[] getCookies() {
         return this.cookies;
+    }
+
+    public void setCookies(Cookie... cookies) {
+        this.cookies = cookies;
     }
 
     /**
@@ -759,20 +731,20 @@ public class MockHttpServletRequest implements HttpServletRequest {
         return Collections.enumeration(this.headers.keySet());
     }
 
-    public void setMethod(String method) {
-        this.method = method;
-    }
-
     public String getMethod() {
         return this.method;
     }
 
-    public void setPathInfo(String pathInfo) {
-        this.pathInfo = pathInfo;
+    public void setMethod(String method) {
+        this.method = method;
     }
 
     public String getPathInfo() {
         return this.pathInfo;
+    }
+
+    public void setPathInfo(String pathInfo) {
+        this.pathInfo = pathInfo;
     }
 
     public String getPathTranslated() {
@@ -783,20 +755,24 @@ public class MockHttpServletRequest implements HttpServletRequest {
         return this.servletContext.getContextPath();
     }
 
-    public void setQueryString(String queryString) {
-        this.queryString = queryString;
+    public void setContextPath(String contextPath) {
+        ((MockServletContext) this.servletContext).setContextPath(contextPath);
     }
 
     public String getQueryString() {
         return this.queryString;
     }
 
-    public void setRemoteUser(String remoteUser) {
-        this.remoteUser = remoteUser;
+    public void setQueryString(String queryString) {
+        this.queryString = queryString;
     }
 
     public String getRemoteUser() {
         return this.remoteUser;
+    }
+
+    public void setRemoteUser(String remoteUser) {
+        this.remoteUser = remoteUser;
     }
 
     public void addUserRole(String role) {
@@ -808,28 +784,28 @@ public class MockHttpServletRequest implements HttpServletRequest {
                 ((MockServletContext) this.servletContext).getDeclaredRoles().contains(role)));
     }
 
-    public void setUserPrincipal(Principal userPrincipal) {
-        this.userPrincipal = userPrincipal;
-    }
-
     public Principal getUserPrincipal() {
         return this.userPrincipal;
     }
 
-    public void setRequestedSessionId(String requestedSessionId) {
-        this.requestedSessionId = requestedSessionId;
+    public void setUserPrincipal(Principal userPrincipal) {
+        this.userPrincipal = userPrincipal;
     }
 
     public String getRequestedSessionId() {
         return this.requestedSessionId;
     }
 
-    public void setRequestURI(String requestURI) {
-        this.requestURI = requestURI;
+    public void setRequestedSessionId(String requestedSessionId) {
+        this.requestedSessionId = requestedSessionId;
     }
 
     public String getRequestURI() {
         return this.requestURI;
+    }
+
+    public void setRequestURI(String requestURI) {
+        this.requestURI = requestURI;
     }
 
     public StringBuffer getRequestURL() {
@@ -842,20 +818,12 @@ public class MockHttpServletRequest implements HttpServletRequest {
         return url;
     }
 
-    public void setServletPath(String servletPath) {
-        this.servletPath = servletPath;
-    }
-
     public String getServletPath() {
         return this.servletPath;
     }
 
-    public void setSession(HttpSession session) {
-        this.session = session;
-        if (session instanceof MockHttpSession) {
-            MockHttpSession mockSession = ((MockHttpSession) session);
-            mockSession.access();
-        }
+    public void setServletPath(String servletPath) {
+        this.servletPath = servletPath;
     }
 
     public HttpSession getSession(boolean create) {
@@ -875,33 +843,41 @@ public class MockHttpServletRequest implements HttpServletRequest {
         return getSession(true);
     }
 
+    public void setSession(HttpSession session) {
+        this.session = session;
+        if (session instanceof MockHttpSession) {
+            MockHttpSession mockSession = ((MockHttpSession) session);
+            mockSession.access();
+        }
+    }
+
     @Override
     public String changeSessionId() {
         return null;
-    }
-
-    public void setRequestedSessionIdValid(boolean requestedSessionIdValid) {
-        this.requestedSessionIdValid = requestedSessionIdValid;
     }
 
     public boolean isRequestedSessionIdValid() {
         return this.requestedSessionIdValid;
     }
 
-    public void setRequestedSessionIdFromCookie(boolean requestedSessionIdFromCookie) {
-        this.requestedSessionIdFromCookie = requestedSessionIdFromCookie;
+    public void setRequestedSessionIdValid(boolean requestedSessionIdValid) {
+        this.requestedSessionIdValid = requestedSessionIdValid;
     }
 
     public boolean isRequestedSessionIdFromCookie() {
         return this.requestedSessionIdFromCookie;
     }
 
-    public void setRequestedSessionIdFromURL(boolean requestedSessionIdFromURL) {
-        this.requestedSessionIdFromURL = requestedSessionIdFromURL;
+    public void setRequestedSessionIdFromCookie(boolean requestedSessionIdFromCookie) {
+        this.requestedSessionIdFromCookie = requestedSessionIdFromCookie;
     }
 
     public boolean isRequestedSessionIdFromURL() {
         return this.requestedSessionIdFromURL;
+    }
+
+    public void setRequestedSessionIdFromURL(boolean requestedSessionIdFromURL) {
+        this.requestedSessionIdFromURL = requestedSessionIdFromURL;
     }
 
     public boolean isRequestedSessionIdFromUrl() {
@@ -924,7 +900,11 @@ public class MockHttpServletRequest implements HttpServletRequest {
 
     @Override
     public Collection<Part> getParts() {
-        return null;
+        return parts;
+    }
+
+    public void setParts(Collection<Part> parts) {
+        this.parts = parts;
     }
 
     @Override
@@ -935,9 +915,5 @@ public class MockHttpServletRequest implements HttpServletRequest {
     @Override
     public <T extends HttpUpgradeHandler> T upgrade(Class<T> handlerClass) {
         return null;
-    }
-
-    public void setContextPath(String contextPath) {
-        ((MockServletContext) this.servletContext).setContextPath(contextPath);
     }
 }

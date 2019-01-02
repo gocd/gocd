@@ -18,18 +18,47 @@ package com.thoughtworks.go.config.exceptions;
 
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.domain.AllConfigErrors;
+import com.thoughtworks.go.domain.ConfigErrors;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 public class GoConfigInvalidException extends RuntimeException {
     private final CruiseConfig cruiseConfig;
+    private List<String> allErrors;
 
     public GoConfigInvalidException(CruiseConfig cruiseConfig, String error) {
         super(error);
+        allErrors = Collections.singletonList(error);
         this.cruiseConfig = cruiseConfig;
     }
 
-    protected GoConfigInvalidException(CruiseConfig cruiseConfig, String message, Throwable e) {
-        super(message, e);
+    public GoConfigInvalidException(CruiseConfig cruiseConfig, List<ConfigErrors> errors) {
+        super(firstError(errors));
+        allErrors = extractErrors(errors);
         this.cruiseConfig = cruiseConfig;
+    }
+
+    protected GoConfigInvalidException(CruiseConfig cruiseConfig, List<ConfigErrors> errors, Throwable e) {
+        super(firstError(errors), e);
+        this.cruiseConfig = cruiseConfig;
+        this.allErrors = extractErrors(errors);
+    }
+
+    private static List<String> extractErrors(List<ConfigErrors> errors) {
+        List<String> allErrors = new ArrayList<>();
+        for (ConfigErrors er : errors) {
+            allErrors.addAll(er.getAll());
+        }
+        return allErrors;
+    }
+
+    private static String firstError(List<ConfigErrors> errors) {
+        if (!errors.isEmpty()) {
+            return errors.get(0).asString();
+        }
+        return null;
     }
 
     public CruiseConfig getCruiseConfig() {
@@ -38,5 +67,9 @@ public class GoConfigInvalidException extends RuntimeException {
 
     public String getAllErrorMessages() {
         return new AllConfigErrors(cruiseConfig.getAllErrors()).asString();
+    }
+
+    public List<String> getAllErrors() {
+        return allErrors;
     }
 }

@@ -21,6 +21,7 @@ import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.config.remote.ConfigReposConfig;
 import com.thoughtworks.go.config.remote.PartialConfig;
+import com.thoughtworks.go.config.update.PartialConfigUpdateCommand;
 import com.thoughtworks.go.helper.PartialConfigMother;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
@@ -38,21 +39,19 @@ import static org.mockito.Mockito.*;
 
 public class GoPartialConfigTest {
 
+    File folder = new File("dir");
     private GoConfigPluginService configPluginService;
     private GoConfigWatchList configWatchList;
     private PartialConfigProvider plugin;
     private GoRepoConfigDataSource repoConfigDataSource;
-
     private BasicCruiseConfig cruiseConfig;
-
     private GoPartialConfig partialConfig;
-
-    File folder = new File("dir");
     private CachedGoConfig cachedGoConfig;
     private ConfigRepoConfig configRepoConfig;
     private CachedGoPartials cachedGoPartials;
     private GoConfigService goConfigService;
     private ServerHealthService serverHealthService;
+    private PartialConfigUpdateCommand updateCommand;
 
     @Before
     public void setUp() {
@@ -72,7 +71,26 @@ public class GoPartialConfigTest {
         cachedGoPartials = new CachedGoPartials(serverHealthService);
         goConfigService = mock(GoConfigService.class);
         serverHealthService = mock(ServerHealthService.class);
-        partialConfig = new GoPartialConfig(repoConfigDataSource, configWatchList, goConfigService, cachedGoPartials, serverHealthService);
+
+        updateCommand = null;
+        partialConfig = new GoPartialConfig(repoConfigDataSource, configWatchList, goConfigService, cachedGoPartials, serverHealthService) {
+            @Override
+            public PartialConfigUpdateCommand buildUpdateCommand(PartialConfig partial, String fingerprint) {
+                if (null == updateCommand) {
+                    return super.buildUpdateCommand(partial, fingerprint);
+                }
+                return updateCommand;
+            }
+        };
+    }
+
+    @Test
+    public void mergeAppliesUpdateToConfig() {
+        updateCommand = mock(PartialConfigUpdateCommand.class);
+        PartialConfig partial = new PartialConfig();
+
+        partialConfig.merge(partial, "finger", cruiseConfig);
+        verify(updateCommand, times(1)).update(cruiseConfig);
     }
 
     @Test

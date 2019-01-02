@@ -20,13 +20,15 @@ import java.util.Objects;
 
 public class Capabilities {
     private boolean supportsPipelineExport;
+    private boolean supportsParseContent;
 
     public Capabilities() {
-        this(false);
+        this(false, false);
     }
 
-    public Capabilities(boolean supportsPipelineExport) {
+    public Capabilities(boolean supportsPipelineExport, boolean supportsParseContent) {
         this.supportsPipelineExport = supportsPipelineExport;
+        this.supportsParseContent = supportsParseContent;
     }
 
     public boolean isSupportsPipelineExport() {
@@ -37,16 +39,25 @@ public class Capabilities {
         this.supportsPipelineExport = supportsPipelineExport;
     }
 
+    public boolean isSupportsParseContent() {
+        return supportsParseContent;
+    }
+
+    public void setSupportsParseContent(boolean supportsParseContent) {
+        this.supportsParseContent = supportsParseContent;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Capabilities that = (Capabilities) o;
-        return supportsPipelineExport == that.supportsPipelineExport;
+        return supportsPipelineExport == that.supportsPipelineExport &&
+                supportsParseContent == that.supportsParseContent;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(supportsPipelineExport);
+        return Objects.hash(supportsPipelineExport, supportsParseContent);
     }
 }

@@ -25,11 +25,16 @@ import spark.HaltException;
 import java.util.function.Consumer;
 
 import static com.thoughtworks.go.api.util.HaltApiMessages.*;
+import static java.lang.String.format;
 import static spark.Spark.halt;
 
 public abstract class HaltApiResponses {
     public static HaltException haltBecauseNotFound() {
         return halt(HttpStatus.NOT_FOUND.value(), MessageJson.create(notFoundMessage()));
+    }
+
+    public static HaltException haltBecauseNotFound(String message, Object... tokens) {
+        return halt(HttpStatus.NOT_FOUND.value(), MessageJson.create(format(message, tokens)));
     }
 
     public static HaltException haltBecauseForbidden() {
@@ -52,8 +57,8 @@ public abstract class HaltApiResponses {
         return halt(HttpStatus.PRECONDITION_FAILED.value(), MessageJson.create(etagDoesNotMatch(entityType, name)));
     }
 
-    public static HaltException haltBecauseEtagDoesNotMatch(String customMessage) {
-        return halt(HttpStatus.PRECONDITION_FAILED.value(), MessageJson.create(customMessage));
+    public static HaltException haltBecauseEtagDoesNotMatch(String message, Object... tokens) {
+        return halt(HttpStatus.PRECONDITION_FAILED.value(), MessageJson.create(format(message, tokens)));
     }
 
     public static HaltException haltBecauseEtagDoesNotMatch() {
@@ -66,6 +71,10 @@ public abstract class HaltApiResponses {
 
     public static HaltException haltBecauseJsonContentTypeExpected() {
         return halt(HttpStatus.UNSUPPORTED_MEDIA_TYPE.value(), MessageJson.create(jsonContentTypeExpected()));
+    }
+
+    public static HaltException haltBecauseRequiredParamMissing(String paramName) {
+        return halt(HttpStatus.BAD_REQUEST.value(), MessageJson.create(missingRequestParameter(paramName)));
     }
 
     public static HaltException haltBecauseConfirmHeaderMissing() {
@@ -100,7 +109,7 @@ public abstract class HaltApiResponses {
         return halt(HttpStatus.UNPROCESSABLE_ENTITY.value(), MessageJson.create(missingJsonProperty(property, jsonObject)));
     }
 
-    public static HaltException haltBecauseOfReason(String message) {
-        return halt(HttpStatus.UNPROCESSABLE_ENTITY.value(), MessageJson.create(message));
+    public static HaltException haltBecauseOfReason(String message, Object... tokens) {
+        return halt(HttpStatus.UNPROCESSABLE_ENTITY.value(), MessageJson.create(format(message, tokens)));
     }
 }

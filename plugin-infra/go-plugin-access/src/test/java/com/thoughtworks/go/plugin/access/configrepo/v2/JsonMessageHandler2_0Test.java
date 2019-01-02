@@ -35,6 +35,6 @@ public class JsonMessageHandler2_0Test {
 
     @Test
     public void shouldReturnAllFalseCapabilities() {
-        assertThat(handler.getCapabilitiesFromResponse("{\"supportsPipelineExport\":\"true\"}"), CoreMatchers.is(new Capabilities(true)));
+        assertThat(handler.getCapabilitiesFromResponse("{\"supportsPipelineExport\":\"true\",\"supportsParseContent\":\"true\"}"), CoreMatchers.is(new Capabilities(true, true)));
     }
 }

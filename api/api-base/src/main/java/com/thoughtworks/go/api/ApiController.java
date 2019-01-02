@@ -19,6 +19,7 @@ package com.thoughtworks.go.api;
 import com.google.gson.reflect.TypeToken;
 import com.thoughtworks.go.api.util.GsonTransformer;
 import com.thoughtworks.go.api.util.MessageJson;
+import com.thoughtworks.go.server.util.RequestUtils;
 import com.thoughtworks.go.spark.SparkController;
 import org.springframework.util.InvalidMimeTypeException;
 import org.springframework.util.MimeType;
@@ -74,6 +75,10 @@ public abstract class ApiController implements ControllerMethods, SparkControlle
         } else if (request.headers().stream().noneMatch(headerName -> headerName.toLowerCase().equals("x-gocd-confirm"))) {
             throw haltBecauseConfirmHeaderMissing();
         }
+    }
+
+    protected void setMultipartUpload(Request req, Response res) {
+        RequestUtils.configureMultipart(req.raw());
     }
 
     protected boolean isJsonContentType(Request request) {

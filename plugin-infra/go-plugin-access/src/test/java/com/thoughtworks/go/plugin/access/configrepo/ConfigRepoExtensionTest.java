@@ -47,7 +47,8 @@ import static org.mockito.MockitoAnnotations.initMocks;
 
 public class ConfigRepoExtensionTest {
     public static final String PLUGIN_ID = "plugin-id";
-
+    @Rule
+    public ExpectedException thrown = ExpectedException.none();
     @Mock
     private PluginManager pluginManager;
     @Mock
@@ -57,10 +58,7 @@ public class ConfigRepoExtensionTest {
     private ConfigRepoExtension extension;
     private String requestBody = "expected-request";
     private String responseBody = "expected-response";
-
     private ArgumentCaptor<GoPluginApiRequest> requestArgumentCaptor;
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
 
     @Before
     public void setUp() throws Exception {
@@ -111,7 +109,7 @@ public class ConfigRepoExtensionTest {
 
     @Test
     public void shouldRequestCapabilities() throws Exception {
-        Capabilities capabilities = new Capabilities(true);
+        Capabilities capabilities = new Capabilities(true, true);
         when(jsonMessageHandler2.getCapabilitiesFromResponse(responseBody)).thenReturn(capabilities);
         when(pluginManager.resolveExtensionVersion(PLUGIN_ID, CONFIG_REPO_EXTENSION, new ArrayList<>(Arrays.asList("1.0", "2.0")))).thenReturn("2.0");
 
@@ -123,7 +121,7 @@ public class ConfigRepoExtensionTest {
 
     @Test
     public void shouldRequestCapabilitiesV1() throws Exception {
-        Capabilities capabilities = new Capabilities(false);
+        Capabilities capabilities = new Capabilities(false, false);
 
         Capabilities res = extension.getCapabilities(PLUGIN_ID);
 

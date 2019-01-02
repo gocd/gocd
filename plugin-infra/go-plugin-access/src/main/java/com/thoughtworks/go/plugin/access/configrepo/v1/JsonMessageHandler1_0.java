@@ -32,12 +32,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 
 public class JsonMessageHandler1_0 implements JsonMessageHandler {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(JsonMessageHandler1_0.class);
     static final int CURRENT_CONTRACT_VERSION = 3;
-
+    private static final Logger LOGGER = LoggerFactory.getLogger(JsonMessageHandler1_0.class);
     private final GsonCodec codec;
     private final ConfigRepoMigrator migrator;
 
@@ -52,16 +53,17 @@ public class JsonMessageHandler1_0 implements JsonMessageHandler {
         return codec.getGson().toJson(requestMessage);
     }
 
+    @Override
+    public String requestMessageForParseContent(List<Map<String, String>> content) {
+        throw new UnsupportedOperationException("V1 Config Repo plugins don't support parse-content");
+    }
+
     private ParseDirectoryMessage prepareMessage_1(String destinationFolder, Collection<CRConfigurationProperty> configurations) {
         ParseDirectoryMessage requestMessage = new ParseDirectoryMessage(destinationFolder);
         for (CRConfigurationProperty conf : configurations) {
             requestMessage.addConfiguration(conf.getKey(), conf.getValue(), conf.getEncryptedValue());
         }
         return requestMessage;
-    }
-
-    class ResponseScratch {
-        public Integer target_version;
     }
 
     private ResponseScratch parseResponseForMigration(String responseBody) {
@@ -115,6 +117,11 @@ public class JsonMessageHandler1_0 implements JsonMessageHandler {
     }
 
     @Override
+    public CRParseResult responseMessageForParseContent(String responseBody) {
+        throw new UnsupportedOperationException("V1 Config Repo plugins don't support parse-content");
+    }
+
+    @Override
     public String requestMessageForPipelineExport(CRPipeline pipeline) {
         throw new UnsupportedOperationException("V1 Config Repo plugins don't support pipeline export");
     }
@@ -129,6 +136,10 @@ public class JsonMessageHandler1_0 implements JsonMessageHandler {
     @Override
     public String responseMessageForPipelineExport(String responseBody) {
         throw new UnsupportedOperationException("V1 Config Repo plugins don't support pipeline export");
+    }
+
+    class ResponseScratch {
+        public Integer target_version;
     }
 
 }

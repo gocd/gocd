@@ -109,7 +109,6 @@ public class ConfigCipherUpdaterTest {
     @Test
     public void shouldMigrateEncryptedPasswordsThatWereEncryptedWithFlawedCipher() throws Exception {
         String originalConfig = readFileToString(originalConfigFile, UTF_8);
-        String plainText = new GoCipher().decrypt(passwordEncryptedWithFlawedCipher);
         assertThat(originalConfig, containsString("encryptedPassword=\"" + passwordEncryptedWithFlawedCipher + "\""));
 
         updater.migrate();
@@ -143,7 +142,6 @@ public class ConfigCipherUpdaterTest {
     @Test
     public void shouldMigrateEncryptedManagerPasswordsEncryptedWithFlawedCipher() throws Exception {
         String originalConfig = readFileToString(originalConfigFile, UTF_8);
-        String plainText = new GoCipher().decrypt(passwordEncryptedWithFlawedCipher);
 
         assertThat(originalConfig, containsString("encryptedPassword=\"" + passwordEncryptedWithFlawedCipher + "\""));
 

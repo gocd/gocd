@@ -20,7 +20,6 @@ public class Toggles {
     public static String PIPELINE_CONFIG_SINGLE_PAGE_APP = "pipeline_config_single_page_app_key";
     public static String QUICK_EDIT_PAGE_DEFAULT = "quick_edit_page_toggle_key";
     public static String BROWSER_CONSOLE_LOG_WS = "browser_console_log_ws_key";
-    public static String AGENT_APIS_OVER_RAILS = "agent_apis_over_rails";
     public static String USE_OLD_AUTH_CONFIG_SPA = "use_old_auth_config_spa";
     public static String USERS_PAGE_USING_RAILS = "users_page_using_rails";
     public static String USE_OLD_ARTIFACT_STORES_SPA = "use_old_artifact_stores_spa";

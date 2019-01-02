@@ -26,10 +26,6 @@ public class SparkOrRailsToggle {
         basedOnToggle(Toggles.USERS_PAGE_USING_RAILS, request);
     }
 
-    public void agentsApi(HttpServletRequest request, HttpServletResponse response) {
-        basedOnToggle(Toggles.AGENT_APIS_OVER_RAILS, request);
-    }
-
     private void basedOnToggle(String toggle, HttpServletRequest request) {
         if (Toggles.isToggleOn(toggle)) {
             request.setAttribute("sparkOrRails", "rails");

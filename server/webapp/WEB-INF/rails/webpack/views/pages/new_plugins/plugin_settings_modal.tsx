@@ -130,6 +130,8 @@ export class PluginSettingsModal extends Modal {
       this.pluginSettings = PluginSettings.fromJSON(JSON.parse(errorResponse.body).data);
     }
 
-    this.errorMessage = JSON.parse(errorResponse.body as string).message;
+    apiResult.do(() => {
+      // do nothing
+    }, (errorResponse) => {this.errorMessage = errorResponse.message; });
   }
 }

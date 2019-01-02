@@ -115,7 +115,10 @@ export class ApiResult<T> {
         return ApiResult.success(xhr.responseText, xhr.status, xhr.getResponseHeader("etag"));
       case 422:
         return ApiResult.error(xhr.responseText, this.parseMessage(xhr), xhr.status);
+      case 503:
+        return ApiResult.error(xhr.responseText, this.parseMessage(xhr), xhr.status);
     }
+
     return ApiResult.error(xhr.responseText,
                            `There was an unknown error performing the operation. Possible reason (${xhr.statusText})`,
                            xhr.status);

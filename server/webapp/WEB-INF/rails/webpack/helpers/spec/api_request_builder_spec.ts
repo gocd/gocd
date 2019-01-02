@@ -69,6 +69,19 @@ describe("Api Request Builder", () => {
       });
     });
 
+    it("should create ApiResult for request server unavailable response", (done) => {
+      mockServerUnavailableRequest();
+      ApiRequestBuilder.PUT("/foo", ApiVersion.v1).then((result) => {
+        // @ts-ignore
+        expect(result.unwrap().message).toEqual("server is in drain state (Maintenance mode), please try later.");
+        expect(result.getEtag()).toBeNull();
+        expect(result.getStatusCode()).toEqual(503);
+        done();
+      }, () => {
+        done.fail("should have passed");
+      });
+    });
+
     it("should create ApiResult for request failing with an internal server error", (done) => {
       mockInternalServerError();
       ApiRequestBuilder.GET("/foo", ApiVersion.v1).then((result) => {
@@ -181,6 +194,17 @@ describe("Api Request Builder", () => {
                   .andReturn({
                                responseText: JSON.stringify({message: "validation failed"}),
                                status: 422,
+                               responseHeaders: {
+                                 "Content-Type": contentType,
+                               }
+                             });
+  }
+
+  function mockServerUnavailableRequest() {
+    return jasmine.Ajax.stubRequest("/foo", undefined, "PUT")
+                  .andReturn({
+                               responseText: JSON.stringify({message: "server is in drain state (Maintenance mode), please try later."}),
+                               status: 503,
                                responseHeaders: {
                                  "Content-Type": contentType,
                                }

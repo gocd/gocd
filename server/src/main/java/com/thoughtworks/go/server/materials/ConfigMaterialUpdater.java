@@ -37,35 +37,28 @@ import java.io.File;
 /**
  * Updates configuration from repositories.
  */
-@Service
 public class ConfigMaterialUpdater implements GoMessageListener<MaterialUpdateCompletedMessage> {
     private static final Logger LOGGER = LoggerFactory.getLogger(ConfigMaterialUpdater.class);
 
     private GoRepoConfigDataSource repoConfigDataSource;
     private MaterialRepository materialRepository;
     private MaterialChecker materialChecker;
-    private ConfigMaterialUpdateCompletedTopic configCompleted;
     private MaterialUpdateCompletedTopic topic;
     private MaterialService materialService;
     private SubprocessExecutionContext subprocessExecutionContext;
 
-    @Autowired
     public ConfigMaterialUpdater(GoRepoConfigDataSource repoConfigDataSource,
                                  MaterialRepository materialRepository,
                                  MaterialChecker materialChecker,
-                                 ConfigMaterialUpdateCompletedTopic configCompletedTopic,
                                  MaterialUpdateCompletedTopic topic,
                                  MaterialService materialService,
                                  SubprocessExecutionContext subprocessExecutionContext) {
         this.repoConfigDataSource = repoConfigDataSource;
         this.materialChecker = materialChecker;
         this.materialRepository = materialRepository;
-        this.configCompleted = configCompletedTopic;
         this.topic = topic;
         this.materialService = materialService;
         this.subprocessExecutionContext = subprocessExecutionContext;
-
-        this.configCompleted.addListener(this);
     }
 
     @Override

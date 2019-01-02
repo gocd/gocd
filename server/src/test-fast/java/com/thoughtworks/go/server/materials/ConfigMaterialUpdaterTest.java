@@ -70,10 +70,8 @@ public class ConfigMaterialUpdaterTest {
 
         when(materialRepository.findLatestModification(material)).thenReturn(mods);
 
-        configUpdater = new ConfigMaterialUpdater(
-                repoConfigDataSource, materialRepository, materialChecker,
-                configCompleted, topic, materialService, new TestSubprocessExecutionContext());
-
+        configUpdater = new ConfigMaterialUpdater(repoConfigDataSource, materialRepository, materialChecker,
+                topic, materialService, new TestSubprocessExecutionContext());
     }
 
     private MaterialRevisions revisions(Material material, Modification modification) {

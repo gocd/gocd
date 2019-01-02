@@ -85,7 +85,7 @@ public class GoCipherTest {
     }
 
     @Test
-    public void shouldNotEnableDesCipherIfCipherFileMissing() {
+    public void shouldNotCreateDesCipherIfCipherFileMissing() {
         assertThat(desCipherFile).doesNotExist();
 
         GoCipher goCipher = new GoCipher(systemEnvironment);
@@ -94,31 +94,10 @@ public class GoCipherTest {
     }
 
     @Test
-    public void shouldNotEnableDesCipherIfCipherFileIsPresentAndDESIsNotEnabled() throws IOException {
-        resetCipher.setupDESCipherFile();
-        assertThat(desCipherFile).exists();
-        when(systemEnvironment.desEnabled()).thenReturn(false);
-
-        GoCipher goCipher = new GoCipher(systemEnvironment);
-        assertThat(goCipher.aesEncrypter).isNotNull();
-        assertThat(goCipher.desEncrypter).isNull();
-    }
-
-    @Test
-    public void shouldNotEnableDesCipherIfCipherFileIsAbsentAndDESIsEnabled() {
-        assertThat(desCipherFile).doesNotExist();
-        when(systemEnvironment.desEnabled()).thenReturn(true);
-        GoCipher goCipher = new GoCipher(systemEnvironment);
-        assertThat(goCipher.aesEncrypter).isNotNull();
-        assertThat(goCipher.desEncrypter).isNull();
-    }
-
-    @Test
-    public void shouldEnableDesCipherIfCipherFileIsPresentAndDESIsEnabled() throws IOException {
+    public void shouldCreateDesEncryptorIfCipherFileIsPresent() throws IOException {
         resetCipher.setupDESCipherFile();
         assertThat(desCipherFile).exists();
 
-        when(systemEnvironment.desEnabled()).thenReturn(true);
         GoCipher goCipher = new GoCipher(systemEnvironment);
 
         assertThat(goCipher.aesEncrypter).isNotNull();

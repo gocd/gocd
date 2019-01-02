@@ -22,7 +22,7 @@ import * as style from "./index.scss";
 
 export interface Attrs {
   title: m.Children;
-  sectionName: m.Children;
+  sectionName?: m.Children;
   buttons?: m.Children;
 }
 

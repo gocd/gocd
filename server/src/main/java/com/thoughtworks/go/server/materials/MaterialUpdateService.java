@@ -173,7 +173,7 @@ public class MaterialUpdateService implements GoMessageListener<MaterialUpdateCo
             LOGGER.debug("[Material Update] Starting update of material {}", material);
             try {
                 long trackingId = mduPerformanceLogger.materialSentToUpdateQueue(material);
-                postMaterialToCorrespondingQueue(material, trackingId);
+                queueFor(material).post(new MaterialUpdateMessage(material, trackingId));
 
                 return true;
             } catch (RuntimeException e) {
@@ -201,11 +201,6 @@ public class MaterialUpdateService implements GoMessageListener<MaterialUpdateCo
     public void onMessage(MaterialUpdateCompletedMessage message) {
         if (message instanceof MaterialUpdateSkippedMessage) {
             inProgress.remove(message.getMaterial());
-            return;
-        }
-
-        if (!(message instanceof ConfigMaterialUpdateCompletedMessage) && isConfigMaterial(message.getMaterial())) {
-            configUpdateQueue.post(message);
             return;
         }
 
@@ -262,12 +257,12 @@ public class MaterialUpdateService implements GoMessageListener<MaterialUpdateCo
         return systemEnvironment.get(SystemEnvironment.MATERIAL_UPDATE_INACTIVE_TIMEOUT) * 60 * 1000L;
     }
 
-    private void postMaterialToCorrespondingQueue(Material material, long trackingId) {
-        if (material instanceof DependencyMaterial) {
-            dependencyMaterialUpdateQueue.post(new MaterialUpdateMessage(material, trackingId));
-        } else {
-            updateQueue.post(new MaterialUpdateMessage(material, trackingId));
+    private GoMessageQueue<MaterialUpdateMessage> queueFor(Material material) {
+        if (isConfigMaterial(material)) {
+            return configUpdateQueue;
         }
+
+        return (material instanceof DependencyMaterial) ? dependencyMaterialUpdateQueue : updateQueue;
     }
 
     ProcessManager getProcessManager() {

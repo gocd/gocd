@@ -407,7 +407,7 @@ public class BuildCauseProducerServiceTest {
         verify(goConfigService, times(1)).pipelineConfigNamed(pipelineConfig.name());
 
         MaterialUpdateStatusListener statusListener = extractMaterialListenerInstanceFromRegisterCall();
-        statusListener.onMaterialUpdate(new ConfigMaterialUpdateCompletedMessage(material1, 0));
+        statusListener.onMaterialUpdate(new MaterialUpdateSuccessfulMessage(material1, 0));
         verify(mockMaterialUpdateStatusNotifier).removeListenerFor(pipelineConfig);
 
         verify(goConfigService, times(2)).pipelineConfigNamed(pipelineConfig.name());
@@ -433,7 +433,7 @@ public class BuildCauseProducerServiceTest {
         verify(goConfigService, times(1)).pipelineConfigNamed(pipelineConfig.name());
 
         MaterialUpdateStatusListener statusListener = extractMaterialListenerInstanceFromRegisterCall();
-        statusListener.onMaterialUpdate(new ConfigMaterialUpdateCompletedMessage(material1, 0));
+        statusListener.onMaterialUpdate(new MaterialUpdateSuccessfulMessage(material1, 0));
         verify(mockMaterialUpdateStatusNotifier).registerListenerFor(eq(pipelineConfig), any(MaterialUpdateStatusListener.class));
         verify(goConfigService, times(1)).pipelineConfigNamed(pipelineConfig.name());
     }
@@ -468,7 +468,7 @@ public class BuildCauseProducerServiceTest {
         when(pipelineScheduleQueue.mostRecentScheduled(updatedPipelineConfig.name())).thenReturn(BuildCause.createNeverRun());
         when(materialChecker.findLatestRevisions(any(), eq(materials))).thenReturn(new MaterialRevisions());
         MaterialUpdateStatusListener statusListener = extractMaterialListenerInstanceFromRegisterCall();
-        statusListener.onMaterialUpdate(new ConfigMaterialUpdateCompletedMessage(material1, 0));
+        statusListener.onMaterialUpdate(new MaterialUpdateSuccessfulMessage(material1, 0));
 
         verify(goConfigService, times(2)).pipelineConfigNamed(pipelineConfig.name());
 

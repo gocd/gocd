@@ -24,7 +24,7 @@ import org.springframework.stereotype.Component;
  * @understands messages about required material updates
  */
 @Component
-public class ConfigMaterialUpdateQueue extends GoMessageQueue<MaterialUpdateCompletedMessage> {
+public class ConfigMaterialUpdateQueue extends GoMessageQueue<MaterialUpdateMessage> {
     @Autowired
     public ConfigMaterialUpdateQueue(MessagingService messaging) {
         super(messaging, "config-material-update-required");

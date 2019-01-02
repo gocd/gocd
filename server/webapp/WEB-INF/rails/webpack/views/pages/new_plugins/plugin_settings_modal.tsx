@@ -33,7 +33,7 @@ export class PluginSettingsModal extends Modal {
   private readonly pluginInfo: PluginInfo<any>;
   private pluginSettings?: PluginSettings;
   private etag?: string;
-  private errorMessage: string | null = null;
+  private errorMessage: string | undefined | null = null;
   private successCallback: (msg: string) => void;
 
   constructor(pluginInfo: PluginInfo<any>, successCallback: (msg: string) => void) {
@@ -49,8 +49,10 @@ export class PluginSettingsModal extends Modal {
   }
 
   body() {
+    let errorSection: JSX.Element | undefined;
+
     if (this.errorMessage) {
-      return (<FlashMessage type={MessageType.alert} message={this.errorMessage}/>);
+      errorSection = (<FlashMessage type={MessageType.alert} message={this.errorMessage}/>);
     }
 
     if (!this.pluginSettings) {
@@ -58,12 +60,15 @@ export class PluginSettingsModal extends Modal {
     }
 
     return (
-      <div class={foundationStyles.foundationFormHax}>
-        <div class="row collapse">
-          <AngularPluginNew
-            pluginInfoSettings={Stream(this.pluginInfo.firstExtensionWithPluginSettings().pluginSettings)}
-            configuration={this.pluginSettings}
-            key={this.pluginInfo.id}/>
+      <div>
+        {errorSection}
+        <div className={foundationStyles.foundationFormHax}>
+          <div className="row collapse">
+            <AngularPluginNew
+              pluginInfoSettings={Stream(this.pluginInfo.firstExtensionWithPluginSettings().pluginSettings)}
+              configuration={this.pluginSettings}
+              key={this.pluginInfo.id}/>
+          </div>
         </div>
       </div>
     );
@@ -124,5 +129,7 @@ export class PluginSettingsModal extends Modal {
     if (apiResult.getStatusCode() === 422 && errorResponse.body) {
       this.pluginSettings = PluginSettings.fromJSON(JSON.parse(errorResponse.body).data);
     }
+
+    this.errorMessage = JSON.parse(errorResponse.body as string).message;
   }
 }

@@ -22,8 +22,17 @@ import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
 import com.thoughtworks.go.apiv1.serverdrainmode.representers.DrainModeInfoRepresenter;
 import com.thoughtworks.go.config.InvalidPluginTypeException;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
+import com.thoughtworks.go.domain.AgentInstance;
+import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.domain.JobInstance;
+import com.thoughtworks.go.presentation.pipelinehistory.JobHistoryItem;
+import com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModel;
+import com.thoughtworks.go.presentation.pipelinehistory.StageInstanceModel;
+import com.thoughtworks.go.server.dashboard.GoDashboardCache;
+import com.thoughtworks.go.server.dashboard.GoDashboardPipeline;
+import com.thoughtworks.go.server.domain.AgentInstances;
 import com.thoughtworks.go.server.domain.ServerDrainMode;
+import com.thoughtworks.go.server.service.AgentService;
 import com.thoughtworks.go.server.service.DrainModeService;
 import com.thoughtworks.go.server.service.JobInstanceService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
@@ -36,7 +45,9 @@ import spark.Request;
 import spark.Response;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 
 import static spark.Spark.*;
@@ -45,20 +56,23 @@ import static spark.Spark.*;
 public class ServerDrainModeControllerV1 extends ApiController implements SparkSpringController {
 
     private final ApiAuthenticationHelper apiAuthenticationHelper;
+    private GoDashboardCache dashboardCache;
+    private AgentService agentService;
     private final DrainModeService drainModeService;
-    private JobInstanceService jobInstanceService;
     private Clock clock;
 
     @Autowired
     public ServerDrainModeControllerV1(ApiAuthenticationHelper apiAuthenticationHelper,
+                                       GoDashboardCache dashboardCache,
+                                       AgentService agentService,
                                        DrainModeService drainModeService,
-                                       JobInstanceService jobInstanceService,
                                        Clock clock) {
         super(ApiVersion.v1);
 
         this.apiAuthenticationHelper = apiAuthenticationHelper;
+        this.dashboardCache = dashboardCache;
+        this.agentService = agentService;
         this.drainModeService = drainModeService;
-        this.jobInstanceService = jobInstanceService;
         this.clock = clock;
     }
 
@@ -122,7 +136,7 @@ public class ServerDrainModeControllerV1 extends ApiController implements SparkS
 
         if (serverDrainMode.isDrainMode()) {
             Collection<DrainModeService.MaterialPerformingMDU> runningMDUs = drainModeService.getRunningMDUs();
-            List<JobInstance> jobInstances = jobInstanceService.allRunningJobs();
+            List<JobInstance> jobInstances = getRunningJobs();
             boolean isServerCompletelyDrained = runningMDUs.isEmpty() && jobInstances.isEmpty();
             return writerForTopLevelObject(req, res, writer -> {
                 DrainModeInfoRepresenter.toJSON(writer, serverDrainMode, isServerCompletelyDrained, runningMDUs, jobInstances);
@@ -132,5 +146,58 @@ public class ServerDrainModeControllerV1 extends ApiController implements SparkS
                 DrainModeInfoRepresenter.toJSON(writer, serverDrainMode, false, null, null);
             });
         }
+    }
+
+    private List<JobInstance> getRunningJobs() {
+        Collection<GoDashboardPipeline> pipelines = dashboardCache.allEntries().getPipelines();
+        HashMap<String, String> buildToAgentUUIDMap = getBuildLocatorToAgentUUIDMap();
+
+        ArrayList<JobInstance> runningJobs = new ArrayList<>();
+        for (GoDashboardPipeline pipeline : pipelines) {
+            for (PipelineInstanceModel pipelineInstance : pipeline.model().getActivePipelineInstances()) {
+                String pipelineName = pipelineInstance.getName();
+                int pipelineCounter = pipelineInstance.getCounter();
+                String pipelineLabel = pipelineInstance.getLabel();
+
+                if (!pipelineInstance.isAnyStageActive()) {
+                    continue;
+                }
+
+                StageInstanceModel runningStage = pipelineInstance.activeStage();
+                for (JobHistoryItem job : runningStage.getBuildHistory()) {
+                    String stageName = runningStage.getName();
+                    String stageCounter = runningStage.getCounter();
+                    if (job.isRunning()) {
+                        JobIdentifier jobIdentifier = new JobIdentifier(pipelineName, pipelineCounter, pipelineLabel, stageName, stageCounter, job.getName());
+                        runningJobs.add(createJobInstance(job, jobIdentifier, buildToAgentUUIDMap.get(jobIdentifier.buildLocator())));
+                    }
+                }
+            }
+        }
+
+        return runningJobs;
+    }
+
+    private HashMap<String, String> getBuildLocatorToAgentUUIDMap() {
+        AgentInstances agents = agentService.agents();
+
+        HashMap<String, String> buildToAgentUUIDMap = new HashMap<>();
+        for (AgentInstance agent : agents) {
+            if (agent.isBuilding()) {
+                buildToAgentUUIDMap.put(agent.getBuildLocator(), agent.getUuid());
+            }
+        }
+        return buildToAgentUUIDMap;
+    }
+
+    private JobInstance createJobInstance(JobHistoryItem job, JobIdentifier jobIdentifier, String agentUUID) {
+        JobInstance jobInstance = new JobInstance(job.getName());
+
+        jobInstance.setIdentifier(jobIdentifier);
+        jobInstance.setState(job.getState());
+        jobInstance.setScheduledDate(job.getScheduledDate());
+        jobInstance.setAgentUuid(agentUUID);
+
+        return jobInstance;
     }
 }

@@ -19,9 +19,22 @@ package com.thoughtworks.go.apiv1.serverdrainmode
 import com.thoughtworks.go.api.SecurityTestTrait
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
 import com.thoughtworks.go.apiv1.serverdrainmode.representers.DrainModeInfoRepresenter
+import com.thoughtworks.go.config.remote.FileConfigOrigin
+import com.thoughtworks.go.domain.AgentInstance
+import com.thoughtworks.go.domain.JobIdentifier
+import com.thoughtworks.go.domain.JobInstance
+import com.thoughtworks.go.domain.JobResult
+import com.thoughtworks.go.domain.JobState
+import com.thoughtworks.go.helper.AgentInstanceMother
+import com.thoughtworks.go.presentation.pipelinehistory.*
+import com.thoughtworks.go.server.dashboard.GoDashboardCache
+import com.thoughtworks.go.server.dashboard.GoDashboardPipeline
+import com.thoughtworks.go.server.dashboard.GoDashboardPipelines
+import com.thoughtworks.go.server.dashboard.TimeStampBasedCounter
+import com.thoughtworks.go.server.domain.AgentInstances
 import com.thoughtworks.go.server.domain.ServerDrainMode
+import com.thoughtworks.go.server.service.AgentService
 import com.thoughtworks.go.server.service.DrainModeService
-import com.thoughtworks.go.server.service.JobInstanceService
 import com.thoughtworks.go.spark.AdminUserSecurity
 import com.thoughtworks.go.spark.ControllerTrait
 import com.thoughtworks.go.spark.SecurityServiceTrait
@@ -35,27 +48,34 @@ import org.mockito.Mock
 import java.sql.Timestamp
 
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
+import static com.thoughtworks.go.domain.PipelinePauseInfo.notPaused
 import static org.assertj.core.api.Assertions.assertThat
 import static org.mockito.Mockito.*
 import static org.mockito.MockitoAnnotations.initMocks
 
 class ServerDrainModeControllerV1Test implements SecurityServiceTrait, ControllerTrait<ServerDrainModeControllerV1> {
-  @BeforeEach
-  void setUp() {
-    initMocks(this)
-  }
+  @Mock
+  AgentService agentService
+
+  @Mock
+  TimeStampBasedCounter timeStampBasedCounter
 
   @Mock
   DrainModeService drainModeService
 
   @Mock
-  JobInstanceService jobInstanceService
+  GoDashboardCache goDashboardCache
 
   TestingClock testingClock = new TestingClock()
 
+  @BeforeEach
+  void setUp() {
+    initMocks(this)
+  }
+
   @Override
   ServerDrainModeControllerV1 createControllerInstance() {
-    new ServerDrainModeControllerV1(new ApiAuthenticationHelper(securityService, goConfigService), drainModeService, jobInstanceService, testingClock)
+    new ServerDrainModeControllerV1(new ApiAuthenticationHelper(securityService, goConfigService), goDashboardCache, agentService, drainModeService, testingClock)
   }
 
   @Nested
@@ -223,7 +243,8 @@ class ServerDrainModeControllerV1Test implements SecurityServiceTrait, Controlle
 
         when(drainModeService.get()).thenReturn(new ServerDrainMode(true, currentUserLoginName().toString(), testingClock.currentTime()))
         when(drainModeService.getRunningMDUs()).thenReturn(runningMDUs)
-        when(jobInstanceService.allBuildingJobs()).thenReturn(runningJobs)
+        when(goDashboardCache.allEntries()).thenReturn(new GoDashboardPipelines(new HashMap<>(), new TimeStampBasedCounter(testingClock)))
+        when(agentService.agents()).thenReturn(new AgentInstances(null))
 
         getWithApiHeader(controller.controllerPath('/info'))
 
@@ -236,8 +257,51 @@ class ServerDrainModeControllerV1Test implements SecurityServiceTrait, Controlle
       }
 
       @Test
-      void 'should not fetch running subsystems information when server is not in drain mode'() {
+      void 'get drain mode info when jobs are running'() {
+        def job1Identifier = new JobIdentifier("up42", 1, "up42", "stage1", "1", "job1")
+        def job2Identifier = new JobIdentifier("up42", 1, "up42", "stage1", "1", "job2")
 
+        def buildingAgent = AgentInstanceMother.building(job1Identifier.buildLocator())
+
+        def dashboardPipelinesMap = new HashMap<>()
+        dashboardPipelinesMap.put("up42", getRunningPipeline("up42"))
+
+        def job1 = new JobInstance("job1")
+        job1.setState(JobState.Building)
+        job1.setScheduledDate(new Date(1))
+        job1.setIdentifier(job1Identifier)
+        job1.setAgentUuid(buildingAgent.getUuid())
+
+        def job2 = new JobInstance("job2")
+        job2.setState(JobState.Scheduled)
+        job2.setScheduledDate(new Date(1))
+        job2.setIdentifier(job2Identifier)
+
+        def dashboardPipelines = new GoDashboardPipelines(dashboardPipelinesMap, new TimeStampBasedCounter(testingClock))
+
+        def agentInstances = new AgentInstances(null)
+        agentInstances.add(buildingAgent)
+
+        def runningMDUs = []
+        def runningJobs = [job1, job2]
+
+        when(drainModeService.get()).thenReturn(new ServerDrainMode(true, currentUserLoginName().toString(), testingClock.currentTime()))
+        when(drainModeService.getRunningMDUs()).thenReturn(runningMDUs)
+        when(goDashboardCache.allEntries()).thenReturn(dashboardPipelines)
+        when(agentService.agents()).thenReturn(agentInstances)
+
+        getWithApiHeader(controller.controllerPath('/info'))
+
+        assertThatResponse()
+          .isOk()
+          .hasContentType(controller.mimeType)
+          .hasBody(toObjectString({
+          DrainModeInfoRepresenter.toJSON(it, drainModeService.get(), false, runningMDUs, runningJobs)
+        }))
+      }
+
+      @Test
+      void 'should not fetch running subsystems information when server is not in drain mode'() {
         when(drainModeService.get()).thenReturn(new ServerDrainMode(false, currentUserLoginName().toString(), testingClock.currentTime()))
 
         getWithApiHeader(controller.controllerPath('/info'))
@@ -249,8 +313,23 @@ class ServerDrainModeControllerV1Test implements SecurityServiceTrait, Controlle
           DrainModeInfoRepresenter.toJSON(it, drainModeService.get(), false, null, null)
         }))
 
-        verifyZeroInteractions(jobInstanceService)
+        verifyZeroInteractions(goDashboardCache)
+        verifyZeroInteractions(agentService)
         verify(drainModeService, never()).getRunningMDUs()
+      }
+
+      GoDashboardPipeline getRunningPipeline(String pipelineName) {
+        def pipelineModel = new PipelineModel(pipelineName, false, false, notPaused())
+        def allStages = new StageInstanceModels()
+
+        def allJobs = new JobHistory()
+        allJobs.add(new JobHistoryItem("job1", JobState.Building, JobResult.Unknown, new Date(1)))
+        allJobs.add(new JobHistoryItem("job2", JobState.Scheduled, JobResult.Unknown, new Date(1)))
+        allJobs.add(new JobHistoryItem("job4", JobState.Completed, JobResult.Passed, new Date(1)))
+        allStages.add(new StageInstanceModel("stage1", "1", allJobs))
+        def pipelineInstanceModel = new PipelineInstanceModel(pipelineName, 1, pipelineName, null, allStages)
+        pipelineModel.addPipelineInstance(pipelineInstanceModel)
+        return new GoDashboardPipeline(pipelineModel, null, "group1", new TimeStampBasedCounter(testingClock), new FileConfigOrigin())
       }
     }
   }

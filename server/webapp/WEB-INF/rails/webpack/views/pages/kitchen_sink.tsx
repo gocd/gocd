@@ -50,7 +50,7 @@ export class KitchenSink extends MithrilViewComponent<null> {
   view(vnode: m.Vnode<null>) {
     return (
       <div>
-        <HeaderPanel title="Kitchen Sink"/>
+        <HeaderPanel title="Kitchen Sink" sectionName={'Admin'}/>
         <FlashMessage type={MessageType.info} message={"This page is awesome!"}/>
         <FlashMessage type={MessageType.success} message={"Everything works as expected!"}/>
         <FlashMessage type={MessageType.warning} message={"This might not work!"}/>

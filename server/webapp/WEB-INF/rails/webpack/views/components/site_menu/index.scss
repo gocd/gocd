@@ -86,7 +86,6 @@
       border-top:   10px solid $site-header;
     }
   }
-
   &:hover {
     @include ie-edge-fix-for-admin-dropdown
   }

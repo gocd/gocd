@@ -22,6 +22,7 @@ import * as style from "./index.scss";
 
 export interface Attrs {
   title: m.Children;
+  sectionName?: m.Children;
   buttons?: m.Children;
 }
 
@@ -39,9 +40,18 @@ export class HeaderPanel extends MithrilViewComponent<Attrs> {
 
     return (<header className={style.pageHeader}>
       <div class={style.pageTitle}>
+        {this.maybeSection(vnode)}
         <h1 class={style.title} data-test-id="title">{vnode.attrs.title}</h1>
       </div>
       {buttons}
     </header>);
+  }
+
+  private maybeSection(vnode: m.Vnode<Attrs>) {
+    if (vnode.attrs.sectionName) {
+      return (
+        <h1 className={style.sectionName} data-test-id="section-name">{vnode.attrs.sectionName}</h1>
+      );
+    }
   }
 }

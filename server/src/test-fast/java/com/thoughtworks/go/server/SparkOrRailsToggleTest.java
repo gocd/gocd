@@ -37,27 +37,4 @@ class SparkOrRailsToggleTest {
         Toggles.initializeWith(featureToggleService);
         request = mock(HttpServletRequest.class);
     }
-
-    @Nested
-    class AgentApisOverRailsToggle {
-        @Test
-        void shouldForwardToRails() {
-            SparkOrRailsToggle sparkOrRailsToggle = new SparkOrRailsToggle();
-            when(featureToggleService.isToggleOn(Toggles.AGENT_APIS_OVER_RAILS)).thenReturn(false);
-
-            sparkOrRailsToggle.agentsApi(request, null);
-
-            verify(request).setAttribute("sparkOrRails", "spark");
-        }
-
-        @Test
-        void shouldForwardToSpark() {
-            SparkOrRailsToggle sparkOrRailsToggle = new SparkOrRailsToggle();
-            when(featureToggleService.isToggleOn(Toggles.AGENT_APIS_OVER_RAILS)).thenReturn(true);
-
-            sparkOrRailsToggle.agentsApi(request, null);
-
-            verify(request).setAttribute("sparkOrRails", "rails");
-        }
-    }
 }

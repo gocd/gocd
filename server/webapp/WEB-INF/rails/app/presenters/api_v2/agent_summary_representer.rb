@@ -19,7 +19,7 @@ module ApiV2
     alias_method :agent, :represented
 
     link :self do |opts|
-      opts[:url_builder].apiv4_agent_url(agent.getUuid())
+      spark_url_for(opts, SparkRoutes::AgentsAPI.uuid(agent.getUuid()))
     end
 
     link :doc do |opts|
@@ -27,7 +27,7 @@ module ApiV2
     end
 
     link :find do |opts|
-      opts[:url_builder].apiv4_agent_url(':uuid')
+      spark_url_for(opts, SparkRoutes::AgentsAPI.find())
     end
 
     property :uuid

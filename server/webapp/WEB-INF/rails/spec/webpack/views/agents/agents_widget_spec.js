@@ -14,13 +14,14 @@
  * limitations under the License.
  */
 
+import SparkRoutes from "helpers/spark_routes";
+
 describe("Agents Widget", () => {
 
   const $            = require("jquery");
   const m            = require('mithril');
   const Stream       = require('mithril/stream');
   const _            = require('lodash');
-  const Routes       = require('gen/js-routes');
   const RouteHandler = require('views/agents/models/route_handler');
 
   const simulateEvent = require('simulate-event');
@@ -471,7 +472,7 @@ describe("Agents Widget", () => {
   };
 
   const allowBulkUpdate = (method) => {
-    jasmine.Ajax.stubRequest(Routes.apiv4AgentsPath(), null, method).andReturn({
+    jasmine.Ajax.stubRequest(SparkRoutes.agentsPath(), null, method).andReturn({
       responseText: JSON.stringify({}),
       headers:      {
         'Content-Type': 'application/json'

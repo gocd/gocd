@@ -45,3 +45,11 @@ export interface AddOperation<T> {
 export interface RequiresPluginInfos {
   pluginInfos: Stream<Array<PluginInfo<any>>>;
 }
+
+export interface EnableOperation<T> {
+  onEnable: (obj: T, e: MouseEvent) => void;
+}
+
+export interface DisableOperation<T> {
+  onDisable: (obj: T, e: MouseEvent) => void;
+}

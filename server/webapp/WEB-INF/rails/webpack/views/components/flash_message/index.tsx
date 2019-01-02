@@ -129,6 +129,7 @@ export class FlashMessageModelWithTimeout extends FlashMessageModel {
   }
 
   setMessage(type: MessageType, message: m.Children) {
+    this.clear();
     super.setMessage(type, message);
     this.timeoutID = window.setTimeout(this.clear.bind(this), this.interval);
   }

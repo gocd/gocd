@@ -14,23 +14,28 @@
  * limitations under the License.
  */
 
-import * as $ from "jquery";
+import * as _ from "lodash";
 import * as m from "mithril";
 import * as stream from "mithril/stream";
 import {Stream} from "mithril/stream";
+import {UserFilters} from "models/users/user_filters";
 import {User, Users} from "models/users/users";
-import {FlashMessageModel} from "views/components/flash_message";
 import {UsersActionsWidget} from "views/pages/users/user_actions_widget";
-
-const simulateEvent = require("simulate-event");
 
 describe("User Actions Widget", () => {
   let $root: any, root: any;
-  const users: Stream<Users> = stream(new Users([]));
+  const users: Stream<Users> = stream(new Users());
+  const usersFilter          = stream(new UserFilters());
+  let onEnable: (users: Users, e: MouseEvent) => void;
+  let onDisable: (users: Users, e: MouseEvent) => void;
+  let onDelete: (users: Users, e: MouseEvent) => void;
 
   beforeEach(() => {
     // @ts-ignore
     [$root, root] = window.createDomElementForTest();
+    onEnable      = _.noop;
+    onDisable     = _.noop;
+    onDelete     = _.noop;
   });
 
   beforeEach(mount);
@@ -39,12 +44,15 @@ describe("User Actions Widget", () => {
   // @ts-ignore
   afterEach(window.destroyDomElementForTest);
 
-  const flashMessageModel = new FlashMessageModel();
-
   function mount() {
     m.mount(root, {
       view() {
-        return (<UsersActionsWidget users={users} message={flashMessageModel}/>);
+        return (
+          <UsersActionsWidget users={users}
+                              onEnable={onEnable}
+                              onDisable={onDisable}
+                              onDelete={onDelete}
+                              userFilter={usersFilter}/>);
       }
     });
 
@@ -96,7 +104,7 @@ describe("User Actions Widget", () => {
   }
 
   it("should display the number of enabled and disabled users", () => {
-    users(new Users([bob(), alice(), john()]));
+    users(new Users(bob(), alice(), john()));
     m.redraw();
 
     expect(find("all-user-count")).toHaveText("3");
@@ -104,158 +112,4 @@ describe("User Actions Widget", () => {
     expect(find("disabled-user-count")).toHaveText("2");
   });
 
-  describe("search", () => {
-    it("should show filtered users based on the search query", () => {
-      users(new Users([bob(), alice(), john()]));
-      m.redraw();
-
-      expect(find("all-user-count")).toHaveText("3");
-      expect(find("enabled-user-count")).toHaveText("1");
-      expect(find("disabled-user-count")).toHaveText("2");
-
-      const searchBy = "Jon Doe";
-
-      const searchField = find("search-box").get(0);
-      $(searchField).val(searchBy);
-      simulateEvent.simulate(searchField, "input");
-
-      m.redraw();
-
-      expect(find("all-user-count")).toHaveText("1");
-      expect(find("enabled-user-count")).toHaveText("0");
-      expect(find("disabled-user-count")).toHaveText("1");
-    });
-  });
-
-  describe("Filters", () => {
-    it("it should show filters buttons", () => {
-      users(new Users([bob(), alice(), john()]));
-      expect(find("filters-btn")).toBeInDOM();
-    });
-
-    it("should not show filters view by default", () => {
-      users(new Users([bob(), alice(), john()]));
-
-      expect(find("filters-view")).toBeInDOM();
-      expect(find("filters-view").get(0).getAttribute("data-test-visible")).toBe("false");
-    });
-
-    it("should toggle visibility of filters view on filters-btn click", () => {
-      users(new Users([bob(), alice(), john()]));
-      expect(find("filters-view").get(0).getAttribute("data-test-visible")).toBe("false");
-
-      find("filters-btn").click();
-      m.redraw();
-
-      expect(find("filters-view").get(0).getAttribute("data-test-visible")).toBe("true");
-    });
-
-    it("should filter users based on admin privileges", () => {
-      users(new Users([bob(), alice(), john()]));
-      m.redraw();
-
-      expect(find("all-user-count")).toHaveText("3");
-      expect(find("enabled-user-count")).toHaveText("1");
-      expect(find("disabled-user-count")).toHaveText("2");
-
-      find("filters-btn").click();
-      m.redraw();
-
-      find("form-field-input-super-administrators").click();
-      m.redraw();
-
-      expect(find("all-user-count")).toHaveText("2");
-      expect(find("enabled-user-count")).toHaveText("1");
-      expect(find("disabled-user-count")).toHaveText("1");
-    });
-
-    it("should filter users based on normal user privileges", () => {
-      users(new Users([bob(), alice(), john()]));
-      m.redraw();
-
-      expect(find("all-user-count")).toHaveText("3");
-      expect(find("enabled-user-count")).toHaveText("1");
-      expect(find("disabled-user-count")).toHaveText("2");
-
-      find("filters-btn").click();
-      m.redraw();
-
-      find("form-field-input-normal-users").click();
-      m.redraw();
-
-      expect(find("all-user-count")).toHaveText("1");
-      expect(find("enabled-user-count")).toHaveText("0");
-      expect(find("disabled-user-count")).toHaveText("1");
-    });
-
-    it("should filter enabled users", () => {
-      users(new Users([bob(), alice(), john()]));
-      m.redraw();
-
-      expect(find("all-user-count")).toHaveText("3");
-      expect(find("enabled-user-count")).toHaveText("1");
-      expect(find("disabled-user-count")).toHaveText("2");
-
-      find("filters-btn").click();
-      m.redraw();
-
-      find("form-field-input-enabled").click();
-      m.redraw();
-
-      expect(find("all-user-count")).toHaveText("1");
-      expect(find("enabled-user-count")).toHaveText("1");
-      expect(find("disabled-user-count")).toHaveText("0");
-    });
-
-    it("should filter disabled users", () => {
-      users(new Users([bob(), alice(), john()]));
-      m.redraw();
-
-      expect(find("all-user-count")).toHaveText("3");
-      expect(find("enabled-user-count")).toHaveText("1");
-      expect(find("disabled-user-count")).toHaveText("2");
-
-      find("filters-btn").click();
-      m.redraw();
-
-      find("form-field-input-disabled").click();
-      m.redraw();
-
-      expect(find("all-user-count")).toHaveText("2");
-      expect(find("enabled-user-count")).toHaveText("0");
-      expect(find("disabled-user-count")).toHaveText("2");
-    });
-
-    it("should reset all filters", () => {
-      users(new Users([bob(), alice(), john()]));
-      m.redraw();
-
-      //expand fliters
-      find("filters-btn").click();
-      m.redraw();
-
-      //apply all filters
-      find("form-field-input-super-administrators").click();
-      find("form-field-input-normal-users").click();
-      find("form-field-input-enabled").click();
-      find("form-field-input-disabled").click();
-      m.redraw();
-
-      //verify all filters are applied
-      expect(find("form-field-input-super-administrators").get(0).checked).toBe(true);
-      expect(find("form-field-input-normal-users").get(0).checked).toBe(true);
-      expect(find("form-field-input-enabled").get(0).checked).toBe(true);
-      expect(find("form-field-input-disabled").get(0).checked).toBe(true);
-
-      //reset filters
-      find("reset-filter-btn").click();
-      m.redraw();
-
-      //verify all filters are reset
-      expect(find("form-field-input-super-administrators").get(0).checked).toBe(false);
-      expect(find("form-field-input-normal-users").get(0).checked).toBe(false);
-      expect(find("form-field-input-enabled").get(0).checked).toBe(false);
-      expect(find("form-field-input-disabled").get(0).checked).toBe(false);
-    });
-  });
 });

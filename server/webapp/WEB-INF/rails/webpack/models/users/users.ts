@@ -26,6 +26,23 @@ interface EmbeddedJSON {
   users: UserJSON[];
 }
 
+export interface UserStateUpdateOperationJSON {
+  enable: boolean;
+}
+
+export interface BulkUserOperationJSON {
+  users: string[];
+}
+
+export interface BulkUserUpdateJSON extends BulkUserOperationJSON {
+  operations: UserStateUpdateOperationJSON;
+}
+
+export interface UserRoleJSON {
+  name: string;
+  type: "gocd" | "plugin";
+}
+
 export interface UserJSON {
   login_name: string;
   is_admin: boolean;
@@ -34,101 +51,60 @@ export interface UserJSON {
   email?: string;
   email_me?: boolean;
   checkin_aliases?: string[];
+  roles?: UserRoleJSON[];
 }
 
 export class User {
   checked: Stream<boolean> = stream(false);
-  loginName: string;
-  isAdmin: boolean;
-  displayName: string | undefined;
-  email: string | undefined;
-  emailMe: boolean | undefined;
-  enabled: boolean | undefined;
-  checkinAliases: string[] | undefined;
+  loginName: Stream<string>;
+  isAdmin: Stream<boolean>;
+  displayName: Stream<string>;
+  email: Stream<string>;
+  emailMe: Stream<boolean>;
+  enabled: Stream<boolean>;
+  checkinAliases: Stream<string[]>;
+  roles: Stream<UserRoleJSON[]>;
 
   constructor(json: UserJSON) {
-    this.loginName      = json.login_name;
-    this.displayName    = json.display_name;
-    this.enabled        = json.enabled;
-    this.email          = json.email;
-    this.emailMe        = json.email_me;
-    this.isAdmin        = json.is_admin;
-    this.checkinAliases = json.checkin_aliases;
+    this.loginName      = stream(json.login_name);
+    this.displayName    = stream(json.display_name);
+    this.enabled        = stream(json.enabled);
+    this.email          = stream(json.email);
+    this.emailMe        = stream(json.email_me);
+    this.isAdmin        = stream(json.is_admin);
+    this.checkinAliases = stream(json.checkin_aliases);
+    this.roles          = stream(json.roles);
   }
 
   static fromJSON(json: UserJSON) {
     return new User(json);
   }
-}
 
-export class UserFilters {
-  superAdmins: Stream<boolean>   = stream(false);
-  normalUsers: Stream<boolean>   = stream(false);
-  enabledUsers: Stream<boolean>  = stream(false);
-  disabledUsers: Stream<boolean> = stream(false);
+  matches(searchText: string) {
+    const matchesLoginName   = this.loginName().includes(searchText);
+    const matchesDisplayName = this.displayName() ? this.displayName().includes(searchText) : false;
+    const matchesEmail       = this.email() ? this.email().includes(searchText) : false;
 
-  resetFilters() {
-    this.superAdmins(false);
-    this.normalUsers(false);
-    this.enabledUsers(false);
-    this.disabledUsers(false);
+    return (matchesLoginName || matchesDisplayName || matchesEmail);
   }
 
-  isAnyPrivilegesFilterApplied() {
-    return this.superAdmins() || this.normalUsers();
+  gocdRoles() {
+    return _(this.roles()).filter((role) => "gocd" === role.type).map((role) => role.name).value();
   }
 
-  isAnyUserStateFilterApplied() {
-    return this.enabledUsers() || this.disabledUsers();
-  }
-
-  anyFiltersApplied() {
-    return this.isAnyPrivilegesFilterApplied() || this.isAnyUserStateFilterApplied();
-  }
-
-  applyFiltersOnUser(user: User): boolean {
-    let filterOnPrivileges = !this.isAnyPrivilegesFilterApplied();
-    if (this.superAdmins()) {
-      filterOnPrivileges = filterOnPrivileges || user.isAdmin;
-    }
-
-    if (this.normalUsers()) {
-      filterOnPrivileges = filterOnPrivileges || !user.isAdmin;
-    }
-
-    let filterOnUserState = !this.isAnyUserStateFilterApplied();
-    if (this.enabledUsers()) {
-      filterOnUserState = filterOnUserState || user.enabled as boolean;
-    }
-
-    if (this.disabledUsers()) {
-      filterOnUserState = filterOnUserState || !user.enabled;
-    }
-
-    return filterOnPrivileges && filterOnUserState;
+  pluginRoles() {
+    return _(this.roles()).filter((role) => "gocd" !== role.type).map((role) => role.name).value();
   }
 }
 
-export class Users {
-
-  search: Stream<string> = stream("");
-  filters: UserFilters   = new UserFilters();
-  private readonly __originalUsers: User[];
-
-  constructor(users: User[]) {
-    this.__originalUsers = users;
+export class Users extends Array<User> {
+  constructor(...users: User[]) {
+    super(...users);
+    Object.setPrototypeOf(this, Object.create(Users.prototype));
   }
 
   static fromJSON(json: UsersJSON) {
-    return new Users(json._embedded.users.map((userJson) => User.fromJSON(userJson)));
-  }
-
-  users() {
-    return this.applySearch(this.applyFilters(this.__originalUsers));
-  }
-
-  list() {
-    return this.users();
+    return new Users(...json._embedded.users.map((userJson) => User.fromJSON(userJson)));
   }
 
   enabledUsersCount() {
@@ -136,7 +112,7 @@ export class Users {
   }
 
   totalUsersCount() {
-    return this.users().length;
+    return this.length;
   }
 
   disabledUsersCount() {
@@ -144,36 +120,34 @@ export class Users {
   }
 
   areAllUsersSelected() {
-    return this.users().every((user) => user.checked());
+    return this.every((user) => user.checked());
+  }
+
+  selectedUsers() {
+    return _.filter(this, (user) => user.checked());
+  }
+
+  userNamesOfSelectedUsers() {
+    return _.map(this.selectedUsers(), (user) => user.loginName());
+  }
+
+  anyUserSelected() {
+    return this.selectedUsers().length > 0;
   }
 
   toggleSelection() {
     this.setSelection(!this.areAllUsersSelected());
   }
 
-  private applyFilters(users: User[]): User[] {
-    return this.filters.anyFiltersApplied() ? users.filter(this.filters.applyFiltersOnUser.bind(this.filters)) : users;
-  }
-
-  private applySearch(users: User[]): User[] {
-    return users.filter((user: User) => {
-      const matchesLoginName   = user.loginName.includes(this.search());
-      const matchesDisplayName = user.displayName ? user.displayName.includes(this.search()) : false;
-      const matchesEmail       = user.email ? user.email.includes(this.search()) : false;
-
-      return (matchesLoginName || matchesDisplayName || matchesEmail);
-    });
-  }
-
   private enabledUsers() {
-    return _.filter(this.users(), (user) => user.enabled);
+    return _.filter(this, (user) => user.enabled());
   }
 
   private disabledUsers() {
-    return _.filter(this.users(), (user) => !user.enabled);
+    return _.filter(this, (user) => !user.enabled());
   }
 
   private setSelection(newSelection: boolean) {
-    this.users().forEach((user) => user.checked(newSelection));
+    this.forEach((user) => user.checked(newSelection));
   }
 }

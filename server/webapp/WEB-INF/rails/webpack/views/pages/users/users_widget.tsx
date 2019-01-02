@@ -14,17 +14,22 @@
 * limitations under the License.
 */
 
+import {bind} from "classnames/bind";
 import {MithrilViewComponent} from "jsx/mithril-component";
 import * as m from "mithril";
 import {Stream} from "mithril/stream";
+import {UserFilters} from "models/users/user_filters";
 import {User, Users} from "models/users/users";
-import {FlashMessage, FlashMessageModel, MessageType} from "views/components/flash_message";
 import {Table} from "views/components/table";
+import {DeleteOperation, DisableOperation, EnableOperation} from "views/pages/page_operations";
 import {UsersActionsWidget} from "views/pages/users/user_actions_widget";
+import * as styles from "./index.scss";
 
-export interface Attrs {
-  users: Stream<Users>;
-  message: FlashMessageModel;
+const classnames = bind(styles);
+
+export interface Attrs extends EnableOperation<Users>, DisableOperation<Users>, DeleteOperation<Users> {
+  users: () => Users;
+  userFilter: Stream<UserFilters>;
 }
 
 export class UsersTableWidget extends MithrilViewComponent<Attrs> {
@@ -37,15 +42,15 @@ export class UsersTableWidget extends MithrilViewComponent<Attrs> {
   }
 
   static userData(users: Users): any[][] {
-    return users.list().map((user: User) => {
+    return users.map((user: User) => {
       return [
-        <input type="checkbox" checked={user.checked()} onclick={() => user.checked(!user.checked())}/>,
-        user.loginName,
-        user.displayName,
-        undefined,
-        user.isAdmin ? "Yes" : "No",
-        user.email,
-        user.enabled ? "Yes" : "No"
+        <input type="checkbox" checked={user.checked()} onclick={m.withAttr("checked", user.checked)}/>,
+        user.loginName(),
+        user.displayName(),
+        this.roles(user),
+        user.isAdmin() ? "Yes" : "No",
+        user.email(),
+        user.enabled() ? "Yes" : "No"
       ];
     });
   }
@@ -54,18 +59,25 @@ export class UsersTableWidget extends MithrilViewComponent<Attrs> {
     return <Table headers={UsersTableWidget.headers(vnode.attrs.users() as Users)}
                   data={UsersTableWidget.userData(vnode.attrs.users())}/>;
   }
+
+  private static roles(user: User) {
+    return (
+      <span>
+        {user.gocdRoles().map((roleName) => {
+          return <span className={classnames(styles.gocdRole)}>{roleName}</span>;
+        })}
+        {user.pluginRoles().map((roleName) => {
+          return <span className={classnames(styles.pluginRole)}>{roleName}</span>;
+        })}
+      </span>
+    );
+  }
 }
 
 export class UsersWidget extends MithrilViewComponent<Attrs> {
   view(vnode: m.Vnode<Attrs>) {
-    let optionalMessage: m.Children;
-    if (vnode.attrs.message.hasMessage()) {
-      optionalMessage =
-        <FlashMessage type={vnode.attrs.message.type as MessageType} message={vnode.attrs.message.message}/>;
-    }
 
     return [
-      optionalMessage,
       <UsersActionsWidget {...vnode.attrs} />,
       <UsersTableWidget {...vnode.attrs}/>
     ];

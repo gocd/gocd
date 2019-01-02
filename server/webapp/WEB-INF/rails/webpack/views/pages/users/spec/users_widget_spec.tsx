@@ -14,20 +14,26 @@
  * limitations under the License.
  */
 
+import * as _ from "lodash";
 import * as m from "mithril";
 import * as stream from "mithril/stream";
 import {Stream} from "mithril/stream";
+import {UserFilters} from "models/users/user_filters";
 import {User, Users} from "models/users/users";
-import {FlashMessageModel, MessageType} from "views/components/flash_message";
-import {UsersTableWidget, UsersWidget} from "views/pages/users/users_widget";
-
 describe("UsersWidget", () => {
   let $root: any, root: any;
-  const users: Stream<Users> = stream(new Users([]));
+  const users: Stream<Users> = stream(new Users());
+  const usersFilter          = stream(new UserFilters());
+  let onEnable: (users: Users, e: MouseEvent) => void;
+  let onDisable: (users: Users, e: MouseEvent) => void;
+  let onDelete: (users: Users, e: MouseEvent) => void;
 
   beforeEach(() => {
     // @ts-ignore
     [$root, root] = window.createDomElementForTest();
+    onEnable      = _.noop;
+    onDisable     = _.noop;
+    onDelete     = _.noop;
   });
 
   beforeEach(mount);
@@ -36,12 +42,16 @@ describe("UsersWidget", () => {
   // @ts-ignore
   afterEach(window.destroyDomElementForTest);
 
-  const flashMessageModel = new FlashMessageModel();
-
   function mount() {
     m.mount(root, {
       view() {
-        return (<UsersWidget users={users} message={flashMessageModel}/>);
+        return (<UsersWidget
+          onEnable={onEnable}
+          onDisable={onDisable}
+          onDelete={onDelete}
+          users={users}
+          userFilter={usersFilter}
+        />);
       }
     });
 
@@ -51,10 +61,6 @@ describe("UsersWidget", () => {
   function unmount() {
     m.mount(root, null);
     m.redraw();
-  }
-
-  function find(id: string) {
-    return $root.find(`[data-test-id='${id}']`);
   }
 
   function bob() {
@@ -82,27 +88,34 @@ describe("UsersWidget", () => {
   }
 
   it("should render a list of user attributes", () => {
-    const allUsers = new Users([bob(), alice()]);
+    const allUsers = new Users(bob(), alice());
     users(allUsers);
+    const userData = UsersTableWidget.userData(users());
     m.redraw();
+
+    const bobUserData = userData[0];
+    const aliceUserData = userData[1];
+
     expect($root.find("table")).toBeInDOM();
 
     expect(UsersTableWidget.headers(allUsers).slice(1, 7))
       .toEqual(["Username", "Display name", "Roles", "Admin", "Email", "Enabled"]);
+
     expect(UsersTableWidget.userData(users())).toHaveLength(2);
-    expect(UsersTableWidget.userData(users())[0].slice(1, 7))
-      .toEqual(["bob", "Bob", undefined, "Yes", "bob@example.com", "Yes"]);
-    expect(UsersTableWidget.userData(users())[1].slice(1, 7))
-      .toEqual(["alice", "Alice", undefined, "No", "alice@example.com", "No"]);
-  });
 
-  it("should render flash message if exists", () => {
-    const errorMsg = "Boom!";
-    flashMessageModel.setMessage(MessageType.alert, errorMsg);
-    m.redraw();
+    expect(bobUserData[1]).toEqual("bob");
+    expect(bobUserData[2]).toEqual("Bob");
+    expect(bobUserData[4]).toEqual("Yes");
+    expect(bobUserData[5]).toEqual("bob@example.com");
+    expect(bobUserData[6]).toEqual("Yes");
 
-    expect(find("flash-message-alert")).toBeInDOM();
-    expect(find("flash-message-alert")).toContainText(errorMsg);
+    expect(aliceUserData[1]).toEqual("alice");
+    expect(aliceUserData[2]).toEqual("Alice");
+    expect(aliceUserData[4]).toEqual("No");
+    expect(aliceUserData[5]).toEqual("alice@example.com");
+    expect(aliceUserData[6]).toEqual("No");
   });
 
 });
+
+import {UsersTableWidget, UsersWidget} from "views/pages/users/users_widget";

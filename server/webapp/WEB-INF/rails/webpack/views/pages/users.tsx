@@ -17,32 +17,73 @@
 import * as m from "mithril";
 import {Stream} from "mithril/stream";
 import * as stream from "mithril/stream";
-import {UserJSON, Users} from "models/users/users";
+import {UserFilters} from "models/users/user_filters";
+import {BulkUserOperationJSON, BulkUserUpdateJSON, UserJSON, Users} from "models/users/users";
 import {UsersCRUD} from "models/users/users_crud";
 import * as Buttons from "views/components/buttons";
+import {FlashMessage, MessageType} from "views/components/flash_message";
 import {HeaderPanel} from "views/components/header_panel";
 import {Page, PageState} from "views/pages/page";
-import {AddOperation} from "views/pages/page_operations";
+import {AddOperation, DeleteOperation, DisableOperation, EnableOperation} from "views/pages/page_operations";
 import {UserSearchModal} from "views/pages/users/add_user_modal";
-import {UsersWidget} from "views/pages/users/users_widget";
+import {Attrs, UsersWidget} from "views/pages/users/users_widget";
 
-interface State extends AddOperation<UserJSON> {
-  users: Stream<Users>;
+interface State extends AddOperation<UserJSON>, EnableOperation<Users>, DisableOperation<Users>, DeleteOperation<Users>, Attrs {
+  initialUsers: Stream<Users>;
 }
 
 export class UsersPage extends Page<null, State> {
   oninit(vnode: m.Vnode<null, State>) {
     super.oninit(vnode);
 
-    vnode.state.users = stream(new Users([]));
+    vnode.state.initialUsers = stream(new Users());
+    vnode.state.userFilter   = stream(new UserFilters());
+
     vnode.state.onAdd = (e) => {
       e.stopPropagation();
       new UserSearchModal(this.flashMessage, this.fetchData.bind(this, vnode)).render();
     };
+
+    vnode.state.onEnable = (usersToEnable, e) => {
+      const json = {
+        operations: {
+          enable: true,
+        },
+        users: usersToEnable.userNamesOfSelectedUsers()
+      };
+
+      this.bulkUserStateChange(vnode, json);
+    };
+
+    vnode.state.onDisable = (usersToDisable, e) => {
+      const json = {
+        operations: {
+          enable: false,
+        },
+        users: usersToDisable.userNamesOfSelectedUsers()
+      };
+
+      this.bulkUserStateChange(vnode, json);
+    };
+
+    vnode.state.onDelete = (usersToDelete, e) => {
+      const json = {
+        users: usersToDelete.userNamesOfSelectedUsers()
+      };
+
+      this.bulkUserDelete(vnode, json);
+    };
+
+    vnode.state.users = () => vnode.state.userFilter().performFilteringOn(vnode.state.initialUsers());
   }
 
   componentToDisplay(vnode: m.Vnode<null, State>): JSX.Element | undefined {
-    return <UsersWidget users={vnode.state.users} message={this.flashMessage}/>;
+    return (
+      <div>
+        <FlashMessage type={this.flashMessage.type} message={this.flashMessage.message}/>
+        <UsersWidget {...vnode.state} />
+      </div>
+    );
   }
 
   pageName(): string {
@@ -60,7 +101,7 @@ export class UsersPage extends Page<null, State> {
     return Promise.all([UsersCRUD.all()]).then((args) => {
       const apiResult = args[0];
       apiResult.do((successResponse) => {
-                     vnode.state.users(successResponse.body);
+                     vnode.state.initialUsers(successResponse.body);
                      this.pageState = PageState.OK;
                    }, (errorResponse) => {
                      // vnode.state.onError(errorResponse.message);
@@ -68,5 +109,35 @@ export class UsersPage extends Page<null, State> {
                    }
       );
     });
+  }
+
+  bulkUserStateChange(vnode: m.Vnode<null, State>, json: BulkUserUpdateJSON): void {
+    UsersCRUD.bulkUserStateUpdate(json)
+             .then((apiResult) => {
+               apiResult.do((successResponse) => {
+                 this.pageState = PageState.OK;
+                 this.flashMessage.setMessage(MessageType.success, `Users were ${json.operations.enable ? "enabled" : "disabled"} successfully!`);
+                 this.fetchData(vnode);
+               }, (errorResponse) => {
+                 // vnode.state.onError(errorResponse.message);
+                 this.flashMessage.setMessage(MessageType.alert, errorResponse.message);
+                 this.fetchData(vnode);
+               });
+             });
+  }
+
+  private bulkUserDelete(vnode: m.Vnode<null, State>, json: BulkUserOperationJSON): void {
+    UsersCRUD.bulkUserDelete(json)
+             .then((apiResult) => {
+               apiResult.do((successResponse) => {
+                 this.pageState = PageState.OK;
+                 this.flashMessage.setMessage(MessageType.success, "Users were deleted successfully!");
+                 this.fetchData(vnode);
+               }, (errorResponse) => {
+                 // vnode.state.onError(errorResponse.message);
+                 this.flashMessage.setMessage(MessageType.alert, errorResponse.message);
+                 this.fetchData(vnode);
+               });
+             });
   }
 }

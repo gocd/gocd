@@ -14,21 +14,18 @@
  * limitations under the License.
  */
 
-import * as m from "mithril";
-
 import {bind} from "classnames/bind";
 import {MithrilComponent, MithrilViewComponent} from "jsx/mithril-component";
-import {UserFilters} from "models/users/users";
-import * as Buttons from "views/components/buttons";
-import {CheckboxField} from "views/components/forms/input_fields";
-import {SearchBox} from "views/components/search_box";
+import * as m from "mithril";
+import {Stream} from "mithril/stream";
+import * as stream from "mithril/stream";
+import {UserFilters} from "models/users/user_filters";
+import {ButtonGroup, Cancel, Secondary} from "views/components/buttons";
+import {CheckboxField, SearchField} from "views/components/forms/input_fields";
 import {Attrs} from "views/pages/users/users_widget";
 import * as styles from "./index.scss";
 
 const classnames = bind(styles);
-
-import {Stream} from "mithril/stream";
-import * as stream from "mithril/stream";
 
 export interface State {
   toggleFiltersView: () => void;
@@ -47,10 +44,10 @@ export class FiltersView extends MithrilViewComponent<FiltersViewAttrs> {
                 class={classnames({hidden: !vnode.attrs.showFilters()}, styles.filterView)}>
       <span data-test-id="filter-by-header" class={styles.filterByHeader}>
         <h4 data-test-id="filter-by-heading" class={styles.filterByHeading}> Filter By </h4>
-        <Buttons.Cancel data-test-id="reset-filter-btn"
-                        onclick={vnode.attrs.userFilters.resetFilters.bind(vnode.attrs.userFilters)}>
+        <Cancel data-test-id="reset-filter-btn"
+                onclick={vnode.attrs.userFilters.resetFilters.bind(vnode.attrs.userFilters)}>
           <u>Reset Filters</u>
-        </Buttons.Cancel>
+        </Cancel>
       </span>
       <div>
         <div data-test-id="filter-by-privileges">
@@ -88,9 +85,17 @@ export class UsersActionsWidget extends MithrilComponent<Attrs, State> {
         <div>Enabled: <span data-test-id="enabled-user-count">{vnode.attrs.users().enabledUsersCount()}</span></div>
         <div>Disabled: <span data-test-id="disabled-user-count">{vnode.attrs.users().disabledUsersCount()}</span></div>
       </span>
-      <SearchBox width={450} attrName="search" model={vnode.attrs.users()} placeholder="Search User"/>
-      <Buttons.Primary data-test-id="filters-btn" onclick={vnode.state.toggleFiltersView}>Filters</Buttons.Primary>
-      <FiltersView showFilters={vnode.state.showFilters} userFilters={vnode.attrs.users().filters}/>
+      <ButtonGroup>
+        <Secondary onclick={vnode.attrs.onEnable.bind(vnode.attrs, vnode.attrs.users())}
+                   disabled={!vnode.attrs.users().anyUserSelected()}>Enable</Secondary>
+        <Secondary onclick={vnode.attrs.onDisable.bind(vnode.attrs, vnode.attrs.users())}
+                   disabled={!vnode.attrs.users().anyUserSelected()}>Disable</Secondary>
+        <Secondary onclick={vnode.attrs.onDelete.bind(vnode.attrs, vnode.attrs.users())}
+                   disabled={!vnode.attrs.users().anyUserSelected()}>Delete</Secondary>
+      </ButtonGroup>
+      <SearchField property={vnode.attrs.userFilter().searchText} dataTestId={"search-box"}/>
+      <Secondary data-test-id="filters-btn" onclick={vnode.state.toggleFiltersView}>Filters</Secondary>
+      <FiltersView showFilters={vnode.state.showFilters} userFilters={vnode.attrs.userFilter()}/>
     </div>;
   }
 }

@@ -78,7 +78,7 @@ public class UserService {
     public void disable(final List<String> usersToBeDisabled, LocalizedOperationResult result) {
         synchronized (disableUserMutex) {
             if (willDisableAllAdmins(usersToBeDisabled)) {
-                result.badRequest("Did not disable any of the selected users. Ensure that all configured admins are not being disabled.");
+                result.badRequest("There must be atleast one admin user enabled!");
                 return;
             }
             transactionTemplate.execute(new TransactionCallbackWithoutResult() {

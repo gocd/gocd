@@ -608,7 +608,7 @@ public class UserServiceTest {
 
         verify(userDao, never()).disableUsers(usernames);
         assertThat(result.isSuccessful(), is(false));
-        assertThat(result.message(), containsString("Did not disable any of the selected users. Ensure that all configured admins are not being disabled."));
+        assertThat(result.message(), containsString("There must be atleast one admin user enabled!"));
     }
 
     @Test

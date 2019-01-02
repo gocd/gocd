@@ -29,7 +29,7 @@ describe("Users CRUD", () => {
 
       const onResponse = jasmine.createSpy().and.callFake((response: ApiResult<any>) => {
         const responseJSON = response.unwrap() as SuccessResponse<any>;
-        expect((responseJSON.body as Users).list()).toHaveLength(2);
+        expect((responseJSON.body as Users)).toHaveLength(2);
         done();
       });
 
@@ -68,6 +68,73 @@ describe("Users CRUD", () => {
 
       expect(request.url).toEqual(ALL_USERS_API);
       expect(request.method).toEqual("POST");
+      expect(request.requestHeaders)
+        .toEqual({"Accept": "application/vnd.go.cd.v3+json", "Content-Type": "application/json; charset=utf-8"});
+    });
+  });
+
+  describe("bulkUserStateUpdate", () => {
+    const BULK_UPDATE_USERS_API = "/go/api/users/operations/state";
+    it("should make a patch request", (done) => {
+      const bulkUpdateUserJSON      = {
+        users: ["bob", "alice"],
+        operations: {
+          enable: true
+        }
+      };
+
+      jasmine.Ajax.stubRequest(BULK_UPDATE_USERS_API, JSON.stringify(bulkUpdateUserJSON), "PATCH").andReturn({
+                                                                                            status: 200,
+                                                                                            responseHeaders: {
+                                                                                              "Content-Type": "application/vnd.go.cd.v3+json; charset=utf-8",
+                                                                                              "ETag": "some-etag"
+                                                                                            },
+                                                                                            responseText: JSON.stringify(
+                                                                                              bulkUpdateUserJSON)
+                                                                                          });
+
+      const onResponse = jasmine.createSpy().and.callFake((response: ApiResult<any>) => {
+        done();
+      } );
+
+      UsersCRUD.bulkUserStateUpdate(bulkUpdateUserJSON).then(onResponse);
+
+      const request = jasmine.Ajax.requests.mostRecent();
+
+      expect(request.url).toEqual(BULK_UPDATE_USERS_API);
+      expect(request.method).toEqual("PATCH");
+      expect(request.requestHeaders)
+        .toEqual({"Accept": "application/vnd.go.cd.v3+json", "Content-Type": "application/json; charset=utf-8"});
+    });
+  });
+
+  describe("bulkUserDelete", () => {
+    const BULK_DELETE_USERS_API = "/go/api/users";
+    it("should make a delete request", (done) => {
+      const bulkDeleteUserJSON      = {
+        users: ["bob", "alice"]
+      };
+
+      jasmine.Ajax.stubRequest(BULK_DELETE_USERS_API, JSON.stringify(bulkDeleteUserJSON), "DELETE").andReturn({
+                                                                                                               status: 200,
+                                                                                                               responseHeaders: {
+                                                                                                                 "Content-Type": "application/vnd.go.cd.v3+json; charset=utf-8",
+                                                                                                                 "ETag": "some-etag"
+                                                                                                               },
+                                                                                                               responseText: JSON.stringify(
+                                                                                                                 bulkDeleteUserJSON)
+                                                                                                             });
+
+      const onResponse = jasmine.createSpy().and.callFake((response: ApiResult<any>) => {
+        done();
+      } );
+
+      UsersCRUD.bulkUserDelete(bulkDeleteUserJSON).then(onResponse);
+
+      const request = jasmine.Ajax.requests.mostRecent();
+
+      expect(request.url).toEqual(BULK_DELETE_USERS_API);
+      expect(request.method).toEqual("DELETE");
       expect(request.requestHeaders)
         .toEqual({"Accept": "application/vnd.go.cd.v3+json", "Content-Type": "application/json; charset=utf-8"});
     });

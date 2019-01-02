@@ -34,6 +34,6 @@ public class RoleRepresenter {
     }
 
     private static String getRoleType(Role role) {
-        return (isaPluginRole(role)) ? "plugin" : "GoCD";
+        return (isaPluginRole(role)) ? "plugin" : "gocd";
     }
 }

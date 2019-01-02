@@ -16,7 +16,7 @@
 
 import {ApiRequestBuilder, ApiResult, ApiVersion} from "helpers/api_request_builder";
 import SparkRoutes from "helpers/spark_routes";
-import {UserJSON, Users, UsersJSON} from "models/users/users";
+import {BulkUserOperationJSON, BulkUserUpdateJSON, UserJSON, Users, UsersJSON} from "models/users/users";
 
 export class UsersCRUD {
   static API_VERSION_HEADER = ApiVersion.v3;
@@ -38,6 +38,25 @@ export class UsersCRUD {
                               });
                             });
   }
+
+  static bulkUserStateUpdate(bulkStateChangeJson: BulkUserUpdateJSON) {
+    return ApiRequestBuilder.PATCH(SparkRoutes.apiBulkUserStateUpdatePath(), this.API_VERSION_HEADER, {payload: bulkStateChangeJson})
+                            .then((result: ApiResult<string>) => {
+                              return result.map((body) => {
+                                // return Users.fromJSON(JSON.parse(body) as UsersJSON);
+                              });
+                            });
+  }
+
+  static bulkUserDelete(bulkStateChangeJson: BulkUserOperationJSON) {
+    return ApiRequestBuilder.DELETE(SparkRoutes.apiUsersPath(), this.API_VERSION_HEADER, {payload: bulkStateChangeJson})
+                            .then((result: ApiResult<string>) => {
+                              return result.map((body) => {
+                                // return Users.fromJSON(JSON.parse(body) as UsersJSON);
+                              });
+                            });
+  }
+
 }
 
 export class UserSearchCRUD {

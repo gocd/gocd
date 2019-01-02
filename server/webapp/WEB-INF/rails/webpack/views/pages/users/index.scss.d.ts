@@ -4,3 +4,5 @@ export const hidden: string;
 export const filterView: string;
 export const filterByHeader: string;
 export const filterByHeading: string;
+export const pluginRole: string;
+export const gocdRole: string;

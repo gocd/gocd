@@ -174,6 +174,10 @@ export default class {
     return "/go/api/users";
   }
 
+  static apiBulkUserStateUpdatePath() {
+    return "/go/api/users/operations/state";
+  }
+
   static apiUsersSearchPath(searchText: string) {
     return `/go/api/user_search?${m.buildQueryString({q: searchText})}`;
   }

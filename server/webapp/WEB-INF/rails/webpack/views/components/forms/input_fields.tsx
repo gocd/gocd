@@ -28,7 +28,7 @@ import * as styles from "./forms.scss";
 const classnames = bind(styles);
 
 export interface LabelAttrs<T> {
-  label: string;
+  label?: string;
   errorText?: string;
   helpText?: string;
   onchange?: (evt: any) => void;
@@ -37,6 +37,7 @@ export interface LabelAttrs<T> {
   small?: boolean;
   placeholder?: string;
   property: (newValue?: T) => T;
+  dataTestId?: string;
 }
 
 type FormFieldAttrs<T> = LabelAttrs<T>;
@@ -47,12 +48,10 @@ abstract class FormField<T> extends MithrilViewComponent<FormFieldAttrs<T>> {
   protected readonly errorId: string    = `${this.id}-error-text`;
 
   view(vnode: m.Vnode<FormFieldAttrs<T>>) {
-    const maybeRequired = this.isRequiredField(vnode) ?
-      <span className={styles.formLabelRequired}>*</span> : undefined;
+
     return (
       <li className={classnames(styles.formGroup, {[styles.formHasError]: this.hasErrorText(vnode)})}>
-        <label for={this.id} className={styles.formLabel}
-               data-test-id={`form-field-label-${s.slugify(vnode.attrs.label)}`}>{vnode.attrs.label}{maybeRequired}:</label>
+        {this.renderLabel(vnode)}
         {this.renderInputField(vnode)}
         {this.errorSpan(vnode)}
         {this.getHelpSpan(vnode)}
@@ -66,17 +65,24 @@ abstract class FormField<T> extends MithrilViewComponent<FormFieldAttrs<T>> {
     const required = this.isRequiredField(vnode);
 
     const defaultAttrs: { [key: string]: string | boolean } = {
-      "aria-label": vnode.attrs.label,
-      "readonly": !!vnode.attrs.disabled,
-      "required": !!required,
-      "autocomplete": "off",
-      "autocapitalize": "off",
-      "autocorrect": "off",
-      "spellcheck": false,
-      "id": this.id,
-      "placeholder": vnode.attrs.placeholder || "",
-      "data-test-id": `form-field-input-${s.slugify(vnode.attrs.label)}`
+      readonly: !!vnode.attrs.disabled,
+      required: !!required,
+      autocomplete: "off",
+      autocapitalize: "off",
+      autocorrect: "off",
+      spellcheck: false,
+      id: this.id,
+      placeholder: vnode.attrs.placeholder || "",
     };
+
+    if (this.hasLabelText(vnode)) {
+      defaultAttrs["aria-label"]   = vnode.attrs.label as string;
+      defaultAttrs["data-test-id"] = `form-field-input-${s.slugify(vnode.attrs.label as string)}`;
+    }
+
+    if (this.hasDataTestId(vnode)) {
+      defaultAttrs["data-test-id"] = vnode.attrs.dataTestId as string;
+    }
 
     if (this.hasHelpText(vnode)) {
       defaultAttrs["aria-describedby"] = this.helpTextId;
@@ -103,6 +109,14 @@ abstract class FormField<T> extends MithrilViewComponent<FormFieldAttrs<T>> {
 
   protected hasHelpText(vnode: m.Vnode<FormFieldAttrs<T>>) {
     return !_.isEmpty(vnode.attrs.helpText);
+  }
+
+  protected hasDataTestId(vnode: m.Vnode<FormFieldAttrs<T>>) {
+    return !_.isEmpty(vnode.attrs.dataTestId);
+  }
+
+  protected hasLabelText(vnode: m.Vnode<FormFieldAttrs<T>>) {
+    return !_.isEmpty(vnode.attrs.label);
   }
 
   protected hasErrorText(vnode: m.Vnode<FormFieldAttrs<T>>) {
@@ -134,6 +148,16 @@ abstract class FormField<T> extends MithrilViewComponent<FormFieldAttrs<T>> {
       [propertyAttribute]: vnode.attrs.property()
     };
   }
+
+  private renderLabel(vnode: m.Vnode<FormFieldAttrs<T>>) {
+    if (this.hasLabelText(vnode)) {
+      const maybeRequired = this.isRequiredField(vnode) ?
+        <span className={styles.formLabelRequired}>*</span> : undefined;
+
+      return <label for={this.id} className={styles.formLabel}
+                    data-test-id={`form-field-label-${s.slugify(vnode.attrs.label as string)}`}>{vnode.attrs.label}{maybeRequired}:</label>;
+    }
+  }
 }
 
 export class TextField extends FormField<string> {
@@ -143,6 +167,19 @@ export class TextField extends FormField<string> {
              {...this.defaultAttributes(vnode)}
              {...this.bindingAttributes(vnode, "oninput", "value")}
              className={classnames(styles.formControl)}/>
+    );
+  }
+}
+
+export class SearchField extends FormField<string> {
+  renderInputField(vnode: m.Vnode<FormFieldAttrs<string>>) {
+    return (
+      <span className={classnames(styles.searchBoxWrapper)}>
+      <input type="search"
+             {...this.defaultAttributes(vnode)}
+             {...this.bindingAttributes(vnode, "oninput", "value")}
+             className={classnames(styles.formControl, styles.searchBoxInput)}/>
+      </span>
     );
   }
 }

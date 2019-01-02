@@ -377,7 +377,7 @@ public class UserServiceIntegrationTest {
 
         assertThat(result.isSuccessful(), is(false));
         assertThat(result.httpCode(), is(HttpServletResponse.SC_BAD_REQUEST));
-        assertThat(result.message(), is("Did not disable any of the selected users. Ensure that all configured admins are not being disabled."));
+        assertThat(result.message(), is("There must be atleast one admin user enabled!"));
     }
 
     @Test

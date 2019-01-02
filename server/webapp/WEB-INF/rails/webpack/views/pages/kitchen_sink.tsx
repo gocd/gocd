@@ -24,18 +24,18 @@ import {CollapsiblePanel} from "views/components/collapsible_panel";
 import {FlashMessage, MessageType} from "views/components/flash_message";
 import {EncryptedValue} from "views/components/forms/encrypted_value";
 import {Form} from "views/components/forms/form";
-import {CheckboxField, PasswordField, Switch, TextField} from "views/components/forms/input_fields";
+import {CheckboxField, PasswordField, SearchField, Switch, TextField} from "views/components/forms/input_fields";
 import {HeaderPanel} from "views/components/header_panel";
 import {IconGroup} from "views/components/icons";
 import * as Icons from "views/components/icons/index";
 import {KeyValuePair} from "views/components/key_value_pair";
 import {Size} from "views/components/modal";
 import {SampleModal} from "views/components/modal/sample";
-import {SearchBox} from "views/components/search_box";
 import {Table} from "views/components/table";
 
-const formValue     = stream("initial value");
-const checkboxField = stream(false);
+const formValue        = stream("initial value");
+const searchFieldValue = stream("");
+const checkboxField    = stream(false);
 
 const passwordValue          = stream(new EncryptedValue({clearText: "p@ssword"}));
 const encryptedPasswordValue = stream(new EncryptedValue({cipherText: "AES:junk:more-junk"}));
@@ -67,7 +67,10 @@ export class KitchenSink extends MithrilViewComponent<null> {
         <hr/>
 
         <h3>Search Box</h3>
-        <SearchBox width={350} attrName="search" model={null} placeholder="Some placeholder"/>
+        <SearchField placeholder="Search"
+                     label="Search for a username"
+                     property={searchFieldValue}/>
+        {/*<SearchField width={350} attrName="search" model={null} placeholder="Some placeholder"/>*/}
 
         <h3>Modal</h3>
         <Buttons.Primary onclick={() => {

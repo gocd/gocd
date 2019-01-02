@@ -60,7 +60,7 @@ class UserRepresenterTest {
       roles          : [
         [
           name: 'gocdRole',
-          type: 'GoCD'
+          type: 'gocd'
         ],
         [
           name      : 'pluginRole',

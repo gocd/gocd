@@ -20,23 +20,23 @@ describe("Users Model", () => {
   it("should deserialize from JSON", () => {
     const users = Users.fromJSON(usersJSON());
 
-    expect(users.list()).toHaveLength(7);
+    expect(users).toHaveLength(7);
   });
 
   it("should deserialize User JSON", () => {
     const users = Users.fromJSON(usersJSON());
 
-    expect(users.list()).toHaveLength(7);
+    expect(users).toHaveLength(7);
 
-    const rootUser     = users.list()[0];
+    const rootUser     = users[0];
     const rootUserJSON = usersJSON()._embedded.users[0];
 
-    expect(rootUser.loginName).toEqual(rootUserJSON.login_name);
-    expect(rootUser.displayName).toEqual(rootUserJSON.display_name);
-    expect(rootUser.enabled).toEqual(rootUserJSON.enabled);
-    expect(rootUser.email).toEqual(rootUserJSON.email);
-    expect(rootUser.emailMe).toEqual(rootUserJSON.email_me);
-    expect(rootUser.checkinAliases).toEqual(rootUserJSON.checkin_aliases);
+    expect(rootUser.loginName()).toEqual(rootUserJSON.login_name);
+    expect(rootUser.displayName()).toEqual(rootUserJSON.display_name as string);
+    expect(rootUser.enabled()).toEqual(rootUserJSON.enabled as boolean);
+    expect(rootUser.email()).toEqual(rootUserJSON.email as string);
+    expect(rootUser.emailMe()).toEqual(rootUserJSON.email_me as boolean);
+    expect(rootUser.checkinAliases()).toEqual(rootUserJSON.checkin_aliases as string[]);
   });
 
   it("should return total users count", () => {
@@ -66,221 +66,33 @@ describe("Users Model", () => {
       users.toggleSelection();
       expect(users.areAllUsersSelected()).toBe(true);
     });
-  });
 
-  describe("Search", () => {
-    it("should return all users when no search query is provided", () => {
-      const users = Users.fromJSON(usersJSON());
-      expect(users.totalUsersCount()).toBe(7);
-      expect(users.search()).toBe("");
-    });
-
-    it("should return searched users when search query is provided", () => {
+    it("should return all selected users", () => {
       const users = Users.fromJSON(usersJSON());
 
-      expect(users.totalUsersCount()).toBe(7);
-      expect(users.search()).toBe("");
+      expect(users.selectedUsers().length).toBe(0);
+      users[0].checked(true);
 
-      const searchQuery = "admin";
-      users.search(searchQuery);
-
-      expect(users.list()).toHaveLength(2);
-      expect(users.list()[0].displayName).toBe("admin");
-      expect(users.list()[1].displayName).toBe("cruise_admin");
-
-      expect(users.search()).toBe(searchQuery);
+      expect(users.selectedUsers().length).toBe(1);
+      expect(users.selectedUsers()[0].loginName()).toBe("root");
     });
 
-    it("should return no users when search query is provided which doesnt match any user", () => {
+    it("should return usernames of all selected users", () => {
       const users = Users.fromJSON(usersJSON());
 
-      expect(users.totalUsersCount()).toBe(7);
-      expect(users.search()).toBe("");
+      expect(users.userNamesOfSelectedUsers().length).toBe(0);
+      users[0].checked(true);
 
-      const searchQuery = "some-stupid-query-which-doesn't-match-any-user";
-      users.search(searchQuery);
-
-      expect(users.list()).toHaveLength(0);
-      expect(users.search()).toBe(searchQuery);
+      expect(users.userNamesOfSelectedUsers()).toEqual(["root"]);
     });
-  });
 
-  describe("Filters", () => {
-    it("should turn off all the filters by default", () => {
+    it("should tell if any user is selected", () => {
       const users = Users.fromJSON(usersJSON());
-      expect(users.filters.anyFiltersApplied()).toBe(false);
 
-      expect(users.filters.superAdmins()).toBe(false);
-      expect(users.filters.normalUsers()).toBe(false);
-      expect(users.filters.enabledUsers()).toBe(false);
-      expect(users.filters.disabledUsers()).toBe(false);
-    });
+      expect(users.anyUserSelected()).toBe(false);
+      users[0].checked(true);
 
-    it("should reset all filters", () => {
-      const users = Users.fromJSON(usersJSON());
-      expect(users.filters.anyFiltersApplied()).toBe(false);
-
-      users.filters.superAdmins(true);
-
-      expect(users.filters.anyFiltersApplied()).toBe(true);
-
-      users.filters.resetFilters();
-
-      expect(users.filters.anyFiltersApplied()).toBe(false);
-      expect(users.filters.superAdmins()).toBe(false);
-      expect(users.filters.normalUsers()).toBe(false);
-      expect(users.filters.enabledUsers()).toBe(false);
-      expect(users.filters.disabledUsers()).toBe(false);
-    });
-
-    describe("Privileges Section", () => {
-      it("should filter users based by admin privileges", () => {
-        const users = Users.fromJSON(usersJSON());
-
-        expect(users.totalUsersCount()).toBe(7);
-        users.filters.superAdmins(true);
-
-        expect(users.totalUsersCount()).toBe(5);
-        expect(users.list()[0].displayName).toBe("root");
-        expect(users.list()[1].displayName).toBe("jez");
-        expect(users.list()[2].displayName).toBe("jigsaw");
-        expect(users.list()[3].displayName).toBe("admin");
-        expect(users.list()[4].displayName).toBe("cruise_admin");
-      });
-
-      it("should filter users based by normal user privileges", () => {
-        const users = Users.fromJSON(usersJSON());
-
-        expect(users.totalUsersCount()).toBe(7);
-        users.filters.normalUsers(true);
-        expect(users.totalUsersCount()).toBe(2);
-        expect(users.list()[0].displayName).toBe("operate");
-        expect(users.list()[1].displayName).toBe("view");
-      });
-
-      it("should apply multiple filters", () => {
-        const users = Users.fromJSON(usersJSON());
-
-        expect(users.totalUsersCount()).toBe(7);
-        users.filters.superAdmins(true);
-        users.filters.normalUsers(true);
-
-        expect(users.totalUsersCount()).toBe(7);
-      });
-
-      it("should apply multiple filters along with search query", () => {
-        const users = Users.fromJSON(usersJSON());
-
-        expect(users.totalUsersCount()).toBe(7);
-
-        users.filters.superAdmins(true);
-        expect(users.totalUsersCount()).toBe(5);
-
-        expect(users.list()[0].displayName).toBe("root");
-        expect(users.list()[1].displayName).toBe("jez");
-        expect(users.list()[2].displayName).toBe("jigsaw");
-        expect(users.list()[3].displayName).toBe("admin");
-        expect(users.list()[4].displayName).toBe("cruise_admin");
-
-        const searchQuery = "admin";
-        users.search(searchQuery);
-
-        expect(users.list()).toHaveLength(2);
-        expect(users.list()[0].displayName).toBe("admin");
-        expect(users.list()[1].displayName).toBe("cruise_admin");
-
-        expect(users.search()).toBe(searchQuery);
-      });
-    });
-
-    describe("User state section", () => {
-      it("should filter enabled users", () => {
-        const users = Users.fromJSON(usersJSON());
-
-        expect(users.totalUsersCount()).toBe(7);
-
-        users.filters.enabledUsers(true);
-
-        expect(users.totalUsersCount()).toBe(5);
-        expect(users.list()[0].displayName).toBe("jez");
-        expect(users.list()[1].displayName).toBe("admin");
-        expect(users.list()[2].displayName).toBe("cruise_admin");
-        expect(users.list()[3].displayName).toBe("operate");
-        expect(users.list()[4].displayName).toBe("view");
-      });
-
-      it("should filter disabled users", () => {
-        const users = Users.fromJSON(usersJSON());
-
-        expect(users.totalUsersCount()).toBe(7);
-
-        users.filters.disabledUsers(true);
-
-        expect(users.totalUsersCount()).toBe(2);
-        expect(users.list()[0].displayName).toBe("root");
-        expect(users.list()[1].displayName).toBe("jigsaw");
-      });
-
-      it("should apply multiple filters", () => {
-        const users = Users.fromJSON(usersJSON());
-
-        expect(users.totalUsersCount()).toBe(7);
-        users.filters.enabledUsers(true);
-        users.filters.disabledUsers(true);
-
-        expect(users.totalUsersCount()).toBe(7);
-      });
-
-      it("should apply multiple filters along with search query", () => {
-        const users = Users.fromJSON(usersJSON());
-
-        expect(users.totalUsersCount()).toBe(7);
-
-        users.filters.enabledUsers(true);
-        expect(users.totalUsersCount()).toBe(5);
-
-        expect(users.list()[0].displayName).toBe("jez");
-        expect(users.list()[1].displayName).toBe("admin");
-        expect(users.list()[2].displayName).toBe("cruise_admin");
-        expect(users.list()[3].displayName).toBe("operate");
-        expect(users.list()[4].displayName).toBe("view");
-
-        const searchQuery = "admin";
-        users.search(searchQuery);
-
-        expect(users.list()).toHaveLength(2);
-        expect(users.list()[0].displayName).toBe("admin");
-        expect(users.list()[1].displayName).toBe("cruise_admin");
-
-        expect(users.search()).toBe(searchQuery);
-      });
-    });
-
-    describe("Privileges and User State Section", () => {
-      it("should select all the enabled admin users", () => {
-        const users = Users.fromJSON(usersJSON());
-
-        expect(users.totalUsersCount()).toBe(7);
-
-        users.filters.superAdmins(true);
-        users.filters.enabledUsers(true);
-
-        expect(users.totalUsersCount()).toBe(3);
-        expect(users.list()[0].displayName).toBe("jez");
-        expect(users.list()[1].displayName).toBe("admin");
-        expect(users.list()[2].displayName).toBe("cruise_admin");
-      });
-
-      it("should select all the disabled normal users", () => {
-        const users = Users.fromJSON(usersJSON());
-
-        expect(users.totalUsersCount()).toBe(7);
-
-        users.filters.normalUsers(true);
-        users.filters.disabledUsers(true);
-
-        expect(users.totalUsersCount()).toBe(0);
-      });
+      expect(users.anyUserSelected()).toBe(true);
     });
   });
 
@@ -295,7 +107,8 @@ describe("Users Model", () => {
             enabled: false,
             email: undefined,
             email_me: false,
-            checkin_aliases: []
+            checkin_aliases: [],
+            roles: []
           },
           {
             login_name: "jez",
@@ -304,7 +117,8 @@ describe("Users Model", () => {
             enabled: true,
             email: undefined,
             email_me: false,
-            checkin_aliases: []
+            checkin_aliases: [],
+            roles: []
           },
           {
             login_name: "jigsaw",
@@ -313,7 +127,8 @@ describe("Users Model", () => {
             enabled: false,
             email: undefined,
             email_me: false,
-            checkin_aliases: []
+            checkin_aliases: [],
+            roles: []
           },
           {
             login_name: "admin",
@@ -325,7 +140,8 @@ describe("Users Model", () => {
             checkin_aliases: [
               "alias1@gmail.com",
               "alias2@example.com"
-            ]
+            ],
+            roles: []
           },
           {
             login_name: "cruise_admin",
@@ -334,7 +150,8 @@ describe("Users Model", () => {
             enabled: true,
             email: undefined,
             email_me: false,
-            checkin_aliases: []
+            checkin_aliases: [],
+            roles: []
           },
           {
             login_name: "operate",
@@ -343,7 +160,8 @@ describe("Users Model", () => {
             enabled: true,
             email: undefined,
             email_me: false,
-            checkin_aliases: []
+            checkin_aliases: [],
+            roles: []
           },
           {
             login_name: "view",
@@ -352,7 +170,8 @@ describe("Users Model", () => {
             enabled: true,
             email: undefined,
             email_me: false,
-            checkin_aliases: []
+            checkin_aliases: [],
+            roles: []
           }
         ]
       }

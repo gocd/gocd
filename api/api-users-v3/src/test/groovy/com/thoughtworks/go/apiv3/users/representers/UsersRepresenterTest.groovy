@@ -53,7 +53,7 @@ class UsersRepresenterTest {
             roles          : [
               [
                 name: 'gocdRole',
-                type: 'GoCD',
+                type: 'gocd',
               ]
             ],
             checkin_aliases: ['Bob', 'awesome']

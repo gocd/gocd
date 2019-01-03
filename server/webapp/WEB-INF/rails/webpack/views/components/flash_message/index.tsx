@@ -14,12 +14,11 @@
  * limitations under the License.
  */
 
+import {bind} from "classnames/bind";
 import {MithrilComponent} from "jsx/mithril-component";
 import * as _ from "lodash";
 import * as m from "mithril";
 import * as Icons from "../icons";
-
-import {bind} from "classnames/bind";
 import * as styles from "./index.scss";
 
 const classnames = bind(styles);
@@ -85,30 +84,58 @@ export class FlashMessage extends MithrilComponent<Attrs, State> {
 }
 
 export class FlashMessageModel {
-  type: MessageType | null;
-  message: string | null;
+  protected _type: MessageType;
+  protected _message?: m.Children;
 
-  constructor(type: MessageType | null = null, message: string | null = null) {
-    this.type    = type;
-    this.message = message;
-  }
-
-  setSuccess(msg: string) {
-    this.message = msg;
-    this.type    = MessageType.success;
-  }
-
-  setError(msg: string) {
-    this.message = msg;
-    this.type    = MessageType.alert;
+  constructor(type: MessageType = MessageType.success, message?: m.Children) {
+    this._type    = type;
+    this._message = message;
   }
 
   hasMessage() {
-    return this.message !== null;
+    return !_.isNil(this._message);
+  }
+
+  get type() {
+    return this._type;
+  }
+
+  get message() {
+    return this._message;
+  }
+
+  setMessage(type: MessageType, message: m.Children) {
+    this._type    = type;
+    this._message = message;
   }
 
   clear() {
-    this.message = null;
-    this.type    = null;
+    this._message = undefined;
+  }
+}
+
+export class FlashMessageModelWithTimeout extends FlashMessageModel {
+  private readonly interval: number;
+  private timeoutID?: number;
+
+  constructor(interval = 10000, type: MessageType = MessageType.success, message?: m.Children) {
+    super(type, message);
+    this.interval = interval;
+  }
+
+  clear() {
+    super.clear();
+    this.clearTimeout();
+  }
+
+  setMessage(type: MessageType, message: m.Children) {
+    super.setMessage(type, message);
+    this.timeoutID = window.setTimeout(this.clear.bind(this), this.interval);
+  }
+
+  private clearTimeout() {
+    if (this.timeoutID) {
+      window.clearTimeout(this.timeoutID);
+    }
   }
 }

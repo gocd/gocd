@@ -80,11 +80,12 @@ export class UserSearchModal extends Modal {
     UsersCRUD.create(this.selectedUser())
              .then((apiResult) => {
                apiResult.do(() => {
-                 this.pageLevelMessage.setSuccess(`User '${this.selectedUser().login_name}' added successfully.`);
+                 this.pageLevelMessage.setMessage(MessageType.success,
+                                                  `User '${this.selectedUser().login_name}' added successfully.`);
                  this.refreshUsers();
                  this.close();
                }, (errorResponse) => {
-                 this.modalLevelMessage.setError(errorResponse.message);
+                 this.modalLevelMessage.setMessage(MessageType.alert, errorResponse.message);
                });
              }).finally(m.redraw);
   }

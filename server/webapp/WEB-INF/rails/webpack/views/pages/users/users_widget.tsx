@@ -58,7 +58,7 @@ export class UsersTableWidget extends MithrilViewComponent<Attrs> {
 
 export class UsersWidget extends MithrilViewComponent<Attrs> {
   view(vnode: m.Vnode<Attrs>) {
-    let optionalMessage: JSX.Element | null = null;
+    let optionalMessage: m.Children;
     if (vnode.attrs.message.hasMessage()) {
       optionalMessage =
         <FlashMessage type={vnode.attrs.message.type as MessageType} message={vnode.attrs.message.message}/>;

@@ -39,7 +39,6 @@ import {
   CloneOperation,
   DeleteOperation,
   EditOperation,
-  HasMessage,
   SaveOperation
 } from "views/pages/page_operations";
 import {Page, PageState} from "./page";
@@ -48,56 +47,41 @@ export interface RequiresPluginInfos {
   pluginInfos: Stream<Array<PluginInfo<Extension>>>;
 }
 
-export interface State extends RequiresPluginInfos, SaveOperation, EditOperation<ElasticProfile>, CloneOperation<ElasticProfile>, DeleteOperation<string>, AddOperation<void>, HasMessage {
+export interface State extends RequiresPluginInfos, SaveOperation, EditOperation<ElasticProfile>, CloneOperation<ElasticProfile>, DeleteOperation<string>, AddOperation<void>{
   onShowUsages: (profileId: string, event: MouseEvent) => void;
   elasticProfiles: ElasticProfiles;
 }
 
 export class ElasticProfilesPage extends Page<null, State> {
   oninit(vnode: m.Vnode<null, State>) {
-    let timeoutID: number;
-
     vnode.state.pluginInfos     = stream();
     vnode.state.elasticProfiles = new ElasticProfiles([]);
 
     this.fetchData(vnode);
 
-    const setMessage       = (msg: m.Children, type: MessageType) => {
-      vnode.state.message     = msg;
-      vnode.state.messageType = type;
-      timeoutID               = window.setTimeout(vnode.state.clearMessage.bind(vnode.state), 10000);
-    };
     const onOperationError = (errorResponse: ErrorResponse) => {
       vnode.state.onError(errorResponse.message);
     };
 
     vnode.state.onSuccessfulSave = (msg: m.Children) => {
-      setMessage(msg, MessageType.success);
+      this.flashMessage.setMessage(MessageType.success, msg);
       this.fetchData(vnode);
     };
 
     vnode.state.onError = (msg: m.Children) => {
-      setMessage(msg, MessageType.alert);
-    };
-
-    vnode.state.clearMessage = () => {
-      vnode.state.message = null;
+      this.flashMessage.setMessage(MessageType.alert, msg);
     };
 
     vnode.state.onAdd = (e: MouseEvent) => {
       e.stopPropagation();
-      if (timeoutID) {
-        clearTimeout(timeoutID);
-      }
+      this.flashMessage.clear();
 
       new NewElasticProfileModal(vnode.state.pluginInfos(), vnode.state.onSuccessfulSave).render();
     };
 
     vnode.state.onClone = (elasticProfile: ElasticProfile, event: MouseEvent) => {
       event.stopPropagation();
-      if (timeoutID) {
-        clearTimeout(timeoutID);
-      }
+      this.flashMessage.clear();
 
       new CloneElasticProfileModal(elasticProfile.id(), vnode.state.pluginInfos(),
                                    vnode.state.onSuccessfulSave).render();
@@ -105,9 +89,7 @@ export class ElasticProfilesPage extends Page<null, State> {
 
     vnode.state.onEdit = (elasticProfile: ElasticProfile, event: MouseEvent) => {
       event.stopPropagation();
-      if (timeoutID) {
-        clearTimeout(timeoutID);
-      }
+      this.flashMessage.clear();
 
       new EditElasticProfileModal(elasticProfile.id(),
                                   vnode.state.pluginInfos(),
@@ -116,9 +98,7 @@ export class ElasticProfilesPage extends Page<null, State> {
 
     vnode.state.onDelete = (id: string, event: MouseEvent) => {
       event.stopPropagation();
-      if (timeoutID) {
-        clearTimeout(timeoutID);
-      }
+      this.flashMessage.clear();
 
       const deleteConfirmMsg = (
         <span>
@@ -145,9 +125,7 @@ export class ElasticProfilesPage extends Page<null, State> {
 
     vnode.state.onShowUsages = (id: string, event: MouseEvent) => {
       event.stopPropagation();
-      if (timeoutID) {
-        clearTimeout(timeoutID);
-      }
+      this.flashMessage.clear();
 
       ElasticProfilesCRUD.usage(id).then((result) => {
         result.do(
@@ -166,7 +144,7 @@ export class ElasticProfilesPage extends Page<null, State> {
 
   componentToDisplay(vnode: m.Vnode<null, State>) {
     return <div>
-      <FlashMessage type={vnode.state.messageType} message={vnode.state.message}/>
+      <FlashMessage type={this.flashMessage.type} message={this.flashMessage.message}/>
       <ElasticProfilesWidget
         elasticProfiles={vnode.state.elasticProfiles}
         pluginInfos={vnode.state.pluginInfos}

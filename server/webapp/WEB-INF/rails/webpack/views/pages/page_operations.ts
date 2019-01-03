@@ -16,7 +16,6 @@
 import * as m from "mithril";
 import {Stream} from "mithril/stream";
 import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
-import {MessageType} from "views/components/flash_message";
 
 export interface SaveOperation {
   onSuccessfulSave: (msg: m.Children) => void;
@@ -45,10 +44,4 @@ export interface AddOperation<T> {
 
 export interface RequiresPluginInfos {
   pluginInfos: Stream<Array<PluginInfo<any>>>;
-}
-
-export interface HasMessage {
-  message: m.Children;
-  messageType: MessageType;
-  clearMessage: () => void;
 }

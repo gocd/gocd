@@ -35,40 +35,27 @@ import {
   AddOperation,
   CloneOperation,
   DeleteOperation,
-  EditOperation, HasMessage,
+  EditOperation,
   RequiresPluginInfos, SaveOperation
 } from "views/pages/page_operations";
 
-interface State extends RequiresPluginInfos, AddOperation<ArtifactStore>, EditOperation<ArtifactStore>, CloneOperation<ArtifactStore>, DeleteOperation<ArtifactStore>, HasMessage, SaveOperation {
+interface State extends RequiresPluginInfos, AddOperation<ArtifactStore>, EditOperation<ArtifactStore>, CloneOperation<ArtifactStore>, DeleteOperation<ArtifactStore>, SaveOperation {
   artifactStores: ArtifactStores;
 }
 
 export class ArtifactStoresPage extends Page<null, State> {
   oninit(vnode: m.Vnode<null, State>) {
     super.oninit(vnode);
-    let timeoutID: number;
     vnode.state.pluginInfos = stream();
 
-    const setMessage = (msg: m.Children, type: MessageType) => {
-      vnode.state.message     = msg;
-      vnode.state.messageType = type;
-      timeoutID               = window.setTimeout(vnode.state.clearMessage.bind(vnode.state), 10000);
-    };
-
     vnode.state.onSuccessfulSave = (msg: m.Children) => {
-      setMessage(msg, MessageType.success);
+      this.flashMessage.setMessage(MessageType.success, msg);
       this.fetchData(vnode);
-    };
-
-    vnode.state.clearMessage = () => {
-      vnode.state.message = null;
     };
 
     vnode.state.onAdd = (e: Event) => {
       e.stopPropagation();
-      if (timeoutID) {
-        clearTimeout(timeoutID);
-      }
+      this.flashMessage.clear();
 
       const pluginId         = vnode.state.pluginInfos()[0].id;
       const newArtifactStore = new ArtifactStore("", pluginId, new Configurations([]));
@@ -78,9 +65,7 @@ export class ArtifactStoresPage extends Page<null, State> {
 
     vnode.state.onEdit = (artifactStore: ArtifactStore, e: Event) => {
       e.stopPropagation();
-      if (timeoutID) {
-        clearTimeout(timeoutID);
-      }
+      this.flashMessage.clear();
 
       new EditArtifactStoreModal(artifactStore, vnode.state.pluginInfos(), vnode.state.onSuccessfulSave)
         .render();
@@ -88,9 +73,7 @@ export class ArtifactStoresPage extends Page<null, State> {
 
     vnode.state.onClone = (artifactStore: ArtifactStore, e: Event) => {
       e.stopPropagation();
-      if (timeoutID) {
-        clearTimeout(timeoutID);
-      }
+      this.flashMessage.clear();
 
       new CloneArtifactStoreModal(artifactStore, vnode.state.pluginInfos(), vnode.state.onSuccessfulSave)
         .render();
@@ -98,17 +81,15 @@ export class ArtifactStoresPage extends Page<null, State> {
 
     vnode.state.onDelete = (artifactStore: ArtifactStore, e: Event) => {
       e.stopPropagation();
-      if (timeoutID) {
-        clearTimeout(timeoutID);
-      }
+      this.flashMessage.clear();
 
-      new DeleteArtifactStoreModal(artifactStore, [], vnode.state.onSuccessfulSave, setMessage).render();
+      new DeleteArtifactStoreModal(artifactStore, [], vnode.state.onSuccessfulSave, this.flashMessage.setMessage).render();
     };
   }
 
   componentToDisplay(vnode: m.Vnode<null, State>): JSX.Element | undefined {
     return (<div>
-      <FlashMessage type={vnode.state.messageType} message={vnode.state.message}/>
+      <FlashMessage type={this.flashMessage.type} message={this.flashMessage.message}/>
       <ArtifactStoresWidget artifactStores={vnode.state.artifactStores}
                             pluginInfos={vnode.state.pluginInfos}
                             onEdit={vnode.state.onEdit}

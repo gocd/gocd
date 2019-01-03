@@ -27,14 +27,14 @@ import {EntityModal} from "views/components/modal/entity_modal";
 import {ArtifactStoreModalBody} from "views/pages/artifact_stores/artifact_store_modal_body";
 
 abstract class ArtifactStoreModal extends EntityModal<ArtifactStore> {
-  private disableId: boolean;
+  private readonly disableId: boolean;
   protected readonly originalEntityId: string;
 
-  constructor(entity: ArtifactStore,
-              pluginInfos: Array<PluginInfo<any>>,
-              onSuccessfulSave: (msg: m.Children) => any,
-              disableId: boolean = false,
-              size: Size         = Size.large) {
+  protected constructor(entity: ArtifactStore,
+                        pluginInfos: Array<PluginInfo<any>>,
+                        onSuccessfulSave: (msg: m.Children) => any,
+                        disableId: boolean = false,
+                        size: Size         = Size.large) {
     super(entity, pluginInfos, onSuccessfulSave, size);
     this.disableId        = disableId;
     this.originalEntityId = entity.id();
@@ -49,8 +49,7 @@ abstract class ArtifactStoreModal extends EntityModal<ArtifactStore> {
   }
 
   protected parseJsonToEntity(json: object) {
-    const artifactStore = ArtifactStore.fromJSON(json as ArtifactStoreJSON);
-    return artifactStore;
+    return ArtifactStore.fromJSON(json as ArtifactStoreJSON);
   }
 
   protected modalBody(): m.Children {
@@ -125,11 +124,11 @@ export class CloneArtifactStoreModal extends ArtifactStoreModal {
 }
 
 export class DeleteArtifactStoreModal extends ArtifactStoreModal {
-  protected readonly setMessage: (msg: m.Children, type: MessageType) => void;
+  protected readonly setMessage: (type: MessageType, msg: m.Children) => void;
 
   constructor(entity: ArtifactStore, pluginInfos: Array<PluginInfo<any>>,
               onSuccessfulSave: (msg: m.Children) => any,
-              setMessage: (msg: m.Children, type: MessageType) => void) {
+              setMessage: (type: MessageType, msg: m.Children) => void) {
     super(entity, pluginInfos, onSuccessfulSave, true, Size.small);
     this.setMessage = setMessage;
     this.isStale(false);
@@ -157,7 +156,7 @@ export class DeleteArtifactStoreModal extends ArtifactStoreModal {
     return (
       <span>
       Are you sure you want to delete the authorization configuration <strong>{this.entity().id()}</strong>?
-        </span>
+      </span>
     );
   }
 

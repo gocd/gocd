@@ -18,7 +18,7 @@ import * as m from "mithril";
 import * as stream from "mithril/stream";
 import {Stream} from "mithril/stream";
 import {User, Users} from "models/users/users";
-import {FlashMessageModel} from "views/components/flash_message";
+import {FlashMessageModel, MessageType} from "views/components/flash_message";
 import {UsersTableWidget, UsersWidget} from "views/pages/users/users_widget";
 
 describe("UsersWidget", () => {
@@ -98,7 +98,7 @@ describe("UsersWidget", () => {
 
   it("should render flash message if exists", () => {
     const errorMsg = "Boom!";
-    flashMessageModel.setError(errorMsg);
+    flashMessageModel.setMessage(MessageType.alert, errorMsg);
     m.redraw();
 
     expect(find("flash-message-alert")).toBeInDOM();

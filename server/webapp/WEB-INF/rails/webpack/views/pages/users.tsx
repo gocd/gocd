@@ -20,7 +20,6 @@ import * as stream from "mithril/stream";
 import {UserJSON, Users} from "models/users/users";
 import {UsersCRUD} from "models/users/users_crud";
 import * as Buttons from "views/components/buttons";
-import {FlashMessageModel} from "views/components/flash_message";
 import {HeaderPanel} from "views/components/header_panel";
 import {Page, PageState} from "views/pages/page";
 import {AddOperation} from "views/pages/page_operations";
@@ -29,23 +28,21 @@ import {UsersWidget} from "views/pages/users/users_widget";
 
 interface State extends AddOperation<UserJSON> {
   users: Stream<Users>;
-  message: FlashMessageModel;
 }
 
 export class UsersPage extends Page<null, State> {
   oninit(vnode: m.Vnode<null, State>) {
     super.oninit(vnode);
-    vnode.state.message = new FlashMessageModel();
 
     vnode.state.users = stream(new Users([]));
     vnode.state.onAdd = (e) => {
       e.stopPropagation();
-      new UserSearchModal(vnode.state.message, this.fetchData.bind(this, vnode)).render();
+      new UserSearchModal(this.flashMessage, this.fetchData.bind(this, vnode)).render();
     };
   }
 
   componentToDisplay(vnode: m.Vnode<null, State>): JSX.Element | undefined {
-    return <UsersWidget users={vnode.state.users} message={vnode.state.message}/>;
+    return <UsersWidget users={vnode.state.users} message={this.flashMessage}/>;
   }
 
   pageName(): string {

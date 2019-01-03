@@ -16,6 +16,7 @@
 
 import {MithrilComponent} from "jsx/mithril-component";
 import * as m from "mithril";
+import {FlashMessageModelWithTimeout} from "views/components/flash_message";
 import {HeaderPanel} from "views/components/header_panel";
 import {PageLoadError} from "views/components/page_load_error";
 import {Spinner} from "views/components/spinner";
@@ -25,6 +26,7 @@ export enum PageState {
 }
 
 export abstract class Page<Attrs = {}, State = {}> extends MithrilComponent<Attrs, State> {
+  protected flashMessage = new FlashMessageModelWithTimeout(10000);
 
   protected pageState: PageState = PageState.LOADING;
 

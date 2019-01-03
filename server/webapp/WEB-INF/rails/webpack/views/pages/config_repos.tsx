@@ -29,9 +29,9 @@ import {DeleteConfirmModal} from "views/components/modal/delete_confirm_modal";
 import {Attrs, ConfigReposWidget} from "views/pages/config_repos/config_repos_widget";
 import {EditConfigRepoModal, NewConfigRepoModal} from "views/pages/config_repos/modals";
 import {Page, PageState} from "views/pages/page";
-import {AddOperation, HasMessage, SaveOperation} from "views/pages/page_operations";
+import {AddOperation, SaveOperation} from "views/pages/page_operations";
 
-interface State extends AddOperation<ConfigRepo>, Attrs<ConfigRepo>, SaveOperation, HasMessage {
+interface State extends AddOperation<ConfigRepo>, Attrs<ConfigRepo>, SaveOperation {
 }
 
 export class ConfigReposPage extends Page<null, State> {
@@ -39,56 +39,43 @@ export class ConfigReposPage extends Page<null, State> {
   oninit(vnode: m.Vnode<null, State>) {
     vnode.state.objects     = stream();
     vnode.state.pluginInfos = stream();
-    let timeoutID: number;
 
     this.fetchData(vnode);
 
-    const setMessage = (msg: m.Children, type: MessageType) => {
-      vnode.state.message     = msg;
-      vnode.state.messageType = type;
-      timeoutID               = window.setTimeout(vnode.state.clearMessage.bind(vnode.state), 10000);
-    };
-
     vnode.state.onError = (msg: m.Children) => {
-      setMessage(msg, MessageType.alert);
+      this.flashMessage.setMessage(MessageType.alert, msg);
     };
 
     vnode.state.onSuccessfulSave = (msg: m.Children) => {
-      setMessage(msg, MessageType.success);
+      this.flashMessage.setMessage(MessageType.success, msg);
       this.fetchData(vnode);
-    };
-
-    vnode.state.clearMessage = () => {
-      vnode.state.message = null;
     };
 
     vnode.state.onAdd = (e: MouseEvent) => {
       e.stopPropagation();
-      if (timeoutID) {
-        clearTimeout(timeoutID);
-      }
+      this.flashMessage.clear();
       new NewConfigRepoModal(vnode.state.onSuccessfulSave, vnode.state.onError, vnode.state.pluginInfos).render();
     };
 
     vnode.state.onRefresh = (repo: ConfigRepo, e: MouseEvent) => {
       e.stopPropagation();
-      if (timeoutID) {
-        clearTimeout(timeoutID);
-      }
+      this.flashMessage.clear();
 
       ConfigReposCRUD.triggerUpdate(repo.id()).then((result: ApiResult<any>) => {
         result.do(() => {
-          setMessage("An update was scheduled for this config repository.", MessageType.success);
+          this.flashMessage.setMessage(MessageType.success, "An update was scheduled for this config repository.");
         }, (err: ErrorResponse) => {
           try {
             if (err.message) {
-              setMessage(`Unable to schedule an update for this config repository. ${err.message}`,
-                         MessageType.alert);
+              this.flashMessage.setMessage(MessageType.alert,
+                                           `Unable to schedule an update for this config repository. ${err.message}`);
             } else {
-              setMessage(`Unable to schedule an update for this config repository. ${err.message}`, MessageType.alert);
+              this.flashMessage.setMessage(MessageType.alert,
+                                           `Unable to schedule an update for this config repository. ${err.message}`);
             }
           } catch (e) {
-            setMessage(`Unable to schedule an update for this config repository. ${err.message}`, MessageType.alert);
+            this.flashMessage.setMessage(MessageType.alert,
+                                         `Unable to schedule an update for this config repository. ${err.message}`);
           }
         });
       });
@@ -97,9 +84,7 @@ export class ConfigReposPage extends Page<null, State> {
 
     vnode.state.onEdit = (repo: ConfigRepo, e: MouseEvent) => {
       e.stopPropagation();
-      if (timeoutID) {
-        clearTimeout(timeoutID);
-      }
+      this.flashMessage.clear();
       new EditConfigRepoModal(repo.id(),
                               vnode.state.onSuccessfulSave,
                               vnode.state.onError,
@@ -108,9 +93,7 @@ export class ConfigReposPage extends Page<null, State> {
 
     vnode.state.onDelete = (repo: ConfigRepo, e: MouseEvent) => {
       e.stopPropagation();
-      if (timeoutID) {
-        clearTimeout(timeoutID);
-      }
+      this.flashMessage.clear();
 
       const message = <span>Are you sure you want to delete the config repository <strong>{repo.id}</strong>?</span>;
       const modal   = new DeleteConfirmModal(message, () => {
@@ -129,7 +112,7 @@ export class ConfigReposPage extends Page<null, State> {
 
   componentToDisplay(vnode: m.Vnode<null, State>): JSX.Element | undefined {
     return <div>
-      <FlashMessage type={vnode.state.messageType} message={vnode.state.message}/>
+      <FlashMessage type={this.flashMessage.type} message={this.flashMessage.message}/>
       <ConfigReposWidget objects={vnode.state.objects}
                          pluginInfos={vnode.state.pluginInfos}
                          onRefresh={vnode.state.onRefresh.bind(vnode.state)}

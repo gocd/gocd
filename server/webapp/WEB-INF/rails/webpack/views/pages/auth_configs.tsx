@@ -34,40 +34,27 @@ import {
   AddOperation,
   CloneOperation,
   DeleteOperation,
-  EditOperation, HasMessage,
+  EditOperation,
   RequiresPluginInfos, SaveOperation
 } from "views/pages/page_operations";
 
-interface State extends AddOperation<AuthConfig>, RequiresPluginInfos, EditOperation<AuthConfig>, CloneOperation<AuthConfig>, DeleteOperation<AuthConfig>, SaveOperation, HasMessage {
+interface State extends AddOperation<AuthConfig>, RequiresPluginInfos, EditOperation<AuthConfig>, CloneOperation<AuthConfig>, DeleteOperation<AuthConfig>, SaveOperation {
   authConfigs: AuthConfigs;
 }
 
 export class AuthConfigsPage extends Page<null, State> {
   oninit(vnode: m.Vnode<null, State>) {
     super.oninit(vnode);
-    let timeoutID: number;
     vnode.state.pluginInfos = stream();
 
-    const setMessage = (msg: m.Children, type: MessageType) => {
-      vnode.state.message     = msg;
-      vnode.state.messageType = type;
-      timeoutID               = window.setTimeout(vnode.state.clearMessage.bind(vnode.state), 10000);
-    };
-
     vnode.state.onSuccessfulSave = (msg: m.Children) => {
-      setMessage(msg, MessageType.success);
+      this.flashMessage.setMessage(MessageType.success, msg);
       this.fetchData(vnode);
-    };
-
-    vnode.state.clearMessage = () => {
-      vnode.state.message = null;
     };
 
     vnode.state.onAdd = (e: Event) => {
       e.stopPropagation();
-      if (timeoutID) {
-        clearTimeout(timeoutID);
-      }
+      this.flashMessage.clear();
 
       const pluginId      = vnode.state.pluginInfos()[0].id;
       const newAuthConfig = new AuthConfig("", pluginId, new Configurations([]));
@@ -76,18 +63,14 @@ export class AuthConfigsPage extends Page<null, State> {
 
     vnode.state.onEdit = (obj: AuthConfig, e: MouseEvent) => {
       e.stopPropagation();
-      if (timeoutID) {
-        clearTimeout(timeoutID);
-      }
+      this.flashMessage.clear();
 
       new EditAuthConfigModal(obj, vnode.state.pluginInfos(), vnode.state.onSuccessfulSave).render();
     };
 
     vnode.state.onClone = (obj: AuthConfig, e: MouseEvent) => {
       e.stopPropagation();
-      if (timeoutID) {
-        clearTimeout(timeoutID);
-      }
+      this.flashMessage.clear();
 
       new CloneAuthConfigModal(obj, vnode.state.pluginInfos(), vnode.state.onSuccessfulSave).render();
 
@@ -95,16 +78,17 @@ export class AuthConfigsPage extends Page<null, State> {
 
     vnode.state.onDelete = (obj: AuthConfig, e: MouseEvent) => {
       e.stopPropagation();
-      if (timeoutID) {
-        clearTimeout(timeoutID);
-      }
-      new DeleteAuthConfigModal(obj, vnode.state.pluginInfos(), vnode.state.onSuccessfulSave, setMessage).render();
+      this.flashMessage.clear();
+      new DeleteAuthConfigModal(obj, vnode.state.pluginInfos(), vnode.state.onSuccessfulSave, (msg: m.Children,
+                                                                                               type: MessageType) => {
+        this.flashMessage.setMessage(type, msg);
+      }).render();
     };
   }
 
   componentToDisplay(vnode: m.Vnode<null, State>): JSX.Element | undefined {
     return <div>
-      <FlashMessage type={vnode.state.messageType} message={vnode.state.message}/>
+      <FlashMessage type={this.flashMessage.type} message={this.flashMessage.message}/>
       <AuthConfigsWidget authConfigs={vnode.state.authConfigs}
                          pluginInfos={vnode.state.pluginInfos}
                          onEdit={vnode.state.onEdit.bind(vnode.state)}

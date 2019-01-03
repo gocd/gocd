@@ -34,17 +34,15 @@ import {
   CloneOperation,
   DeleteOperation,
   EditOperation,
-  HasMessage,
   SaveOperation
 } from "views/pages/page_operations";
 import {CloneRoleModal, DeleteRoleConfirmModal, EditRoleModal, NewRoleModal} from "views/pages/roles/modals";
 import {RolesWidget} from "views/pages/roles/roles_widget";
 
-export interface State extends HasMessage, AddOperation<GoCDRole | PluginRole>, EditOperation<GoCDRole | PluginRole>, CloneOperation<GoCDRole | PluginRole>, DeleteOperation<GoCDRole | PluginRole>, SaveOperation {
+export interface State extends AddOperation<GoCDRole | PluginRole>, EditOperation<GoCDRole | PluginRole>, CloneOperation<GoCDRole | PluginRole>, DeleteOperation<GoCDRole | PluginRole>, SaveOperation {
   pluginInfos: Array<PluginInfo<Extension>>;
   authConfigs: AuthConfigs;
   roles: Roles;
-  timeoutID: number;
 }
 
 export class RolesPage extends Page<null, State> {
@@ -56,24 +54,14 @@ export class RolesPage extends Page<null, State> {
       vnode.state.onError(errorResponse.message);
     };
 
-    const clearTimeoutFor = () => {
-      if (vnode.state.timeoutID) {
-        clearTimeout(vnode.state.timeoutID);
-      }
-    };
-
     vnode.state.onSuccessfulSave = (msg: m.Children) => {
-      RolesPage.setMessage(vnode, msg, MessageType.success);
+      this.flashMessage.setMessage(MessageType.success, msg);
       this.fetchData(vnode);
-    };
-
-    vnode.state.clearMessage = () => {
-      vnode.state.message = null;
     };
 
     vnode.state.onAdd = (e: Event) => {
       e.stopPropagation();
-      clearTimeoutFor();
+      this.flashMessage.clear();
       const role = new GoCDRole("", new GoCDAttributes([]));
       new NewRoleModal(role,
                        vnode.state.pluginInfos,
@@ -83,7 +71,7 @@ export class RolesPage extends Page<null, State> {
 
     vnode.state.onEdit = (role: GoCDRole | PluginRole, e: Event) => {
       e.stopPropagation();
-      clearTimeoutFor();
+      this.flashMessage.clear();
 
       new EditRoleModal(role,
                         vnode.state.pluginInfos,
@@ -94,7 +82,7 @@ export class RolesPage extends Page<null, State> {
 
     vnode.state.onClone = (role: GoCDRole | PluginRole, e: Event) => {
       e.stopPropagation();
-      clearTimeoutFor();
+      this.flashMessage.clear();
 
       new CloneRoleModal(role,
                          vnode.state.pluginInfos,
@@ -105,7 +93,7 @@ export class RolesPage extends Page<null, State> {
 
     vnode.state.onDelete = (role: GoCDRole | PluginRole, e: Event) => {
       e.stopPropagation();
-      clearTimeoutFor();
+      this.flashMessage.clear();
       new DeleteRoleConfirmModal(role, vnode.state.onSuccessfulSave, onOperationError).render();
     };
   }
@@ -119,7 +107,7 @@ export class RolesPage extends Page<null, State> {
 
     return <div>
       {mayBeNoPluginMessage}
-      <FlashMessage type={vnode.state.messageType} message={vnode.state.message}/>
+      <FlashMessage type={this.flashMessage.type} message={this.flashMessage.message}/>
       <RolesWidget pluginInfos={(vnode.state.pluginInfos)}
                    roles={vnode.state.roles}
                    authConfigs={vnode.state.authConfigs}
@@ -158,12 +146,6 @@ export class RolesPage extends Page<null, State> {
                       vnode.state.roles = successResponse.body;
                     }, () => this.setErrorState());
                   });
-  }
-
-  private static setMessage(vnode: m.Vnode<null, State>, msg: m.Children, type: MessageType) {
-    vnode.state.message     = msg;
-    vnode.state.messageType = type;
-    vnode.state.timeoutID   = window.setTimeout(vnode.state.clearMessage.bind(vnode.state), 10000);
   }
 
   private getPluginInfosWithAuthorizeCapabilities(allAuthPluginInfos: Array<PluginInfo<Extension>>) {

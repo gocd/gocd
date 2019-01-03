@@ -163,14 +163,6 @@ public class TaskExtensionTest {
     }
 
     @Test
-    public void shouldNotSupportFetchingPluginSettings() throws Exception {
-        thrown.expect(UnsupportedOperationException.class);
-        thrown.expectMessage("Fetch PluginSettings is not supported by Task Endpoint.");
-
-        extension.pluginSettingsJSON("plugin_id", Collections.emptyMap());
-    }
-
-    @Test
     public void shouldValidateTask() {
         GoPluginApiResponse response = mock(GoPluginApiResponse.class);
         TaskExtension jsonBasedTaskExtension = new TaskExtension(pluginManager);

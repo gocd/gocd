@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,16 +14,11 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.plugin.access.common.settings;
-
-import com.thoughtworks.go.util.json.JsonHelper;
+package com.thoughtworks.go.server.service.plugins.processor.pluginsettings;
 
 import java.util.Map;
 
-public class MessageHandlerForPluginSettingsRequestProcessor1_0 implements MessageHandlerForPluginSettingsRequestProcessor {
+public interface MessageHandlerForPluginSettingsRequestProcessor {
 
-    @Override
-    public String pluginSettingsToJSON(Map<String, String> pluginSettings) {
-        return pluginSettings.isEmpty() ? null : JsonHelper.toJsonString(pluginSettings);
-    }
+    String pluginSettingsToJSON(Map<String, String> pluginSettings);
 }

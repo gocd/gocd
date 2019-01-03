@@ -21,8 +21,6 @@ import com.thoughtworks.go.plugin.access.PluginRequestHelper;
 import com.thoughtworks.go.plugin.access.analytics.V1.AnalyticsMessageConverterV1;
 import com.thoughtworks.go.plugin.access.analytics.V2.AnalyticsMessageConverterV2;
 import com.thoughtworks.go.plugin.access.common.AbstractExtension;
-import com.thoughtworks.go.plugin.access.common.settings.MessageHandlerForPluginSettingsRequestProcessor;
-import com.thoughtworks.go.plugin.access.common.settings.MessageHandlerForPluginSettingsRequestProcessor1_0;
 import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsJsonMessageHandler;
 import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsJsonMessageHandler2_0;
 import com.thoughtworks.go.plugin.domain.analytics.AnalyticsData;
@@ -46,17 +44,15 @@ public class AnalyticsExtension extends AbstractExtension {
     @Autowired
     public AnalyticsExtension(PluginManager pluginManager) {
         super(pluginManager, new PluginRequestHelper(pluginManager, SUPPORTED_VERSIONS, ANALYTICS_EXTENSION), ANALYTICS_EXTENSION);
-        addHandler(AnalyticsMessageConverterV1.VERSION, new PluginSettingsJsonMessageHandler2_0(), new AnalyticsMessageConverterV1(),
-                new MessageHandlerForPluginSettingsRequestProcessor1_0());
-        addHandler(AnalyticsMessageConverterV2.VERSION, new PluginSettingsJsonMessageHandler2_0(), new AnalyticsMessageConverterV2(),
-                new MessageHandlerForPluginSettingsRequestProcessor1_0());
+        addHandler(AnalyticsMessageConverterV1.VERSION, new PluginSettingsJsonMessageHandler2_0(), new AnalyticsMessageConverterV1()
+        );
+        addHandler(AnalyticsMessageConverterV2.VERSION, new PluginSettingsJsonMessageHandler2_0(), new AnalyticsMessageConverterV2()
+        );
     }
 
-    private void addHandler(String version, PluginSettingsJsonMessageHandler messageHandler, AnalyticsMessageConverter extensionHandler,
-                            MessageHandlerForPluginSettingsRequestProcessor messageHandlerForPluginSettingsRequestProcessor) {
+    private void addHandler(String version, PluginSettingsJsonMessageHandler messageHandler, AnalyticsMessageConverter extensionHandler) {
         pluginSettingsMessageHandlerMap.put(version, messageHandler);
         messageHandlerMap.put(version, extensionHandler);
-        registerMessageHandlerForPluginSettingsRequestProcessor(version, messageHandlerForPluginSettingsRequestProcessor);
     }
 
     public Capabilities getCapabilities(String pluginId) {

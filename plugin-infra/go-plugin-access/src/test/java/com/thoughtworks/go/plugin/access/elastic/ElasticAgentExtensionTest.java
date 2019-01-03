@@ -18,8 +18,6 @@ package com.thoughtworks.go.plugin.access.elastic;
 
 import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.plugin.access.common.AbstractExtension;
-import com.thoughtworks.go.plugin.access.common.settings.MessageHandlerForPluginSettingsRequestProcessor;
-import com.thoughtworks.go.plugin.access.common.settings.MessageHandlerForPluginSettingsRequestProcessor1_0;
 import com.thoughtworks.go.plugin.api.request.GoPluginApiRequest;
 import com.thoughtworks.go.plugin.api.response.DefaultGoPluginApiResponse;
 import com.thoughtworks.go.plugin.infra.PluginManager;
@@ -38,7 +36,6 @@ import static com.thoughtworks.go.plugin.access.elastic.v3.ElasticAgentPluginCon
 import static com.thoughtworks.go.plugin.domain.common.PluginConstants.ELASTIC_AGENT_EXTENSION;
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson;
 import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.Matchers.instanceOf;
 import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
@@ -98,14 +95,6 @@ public class ElasticAgentExtensionTest {
     }
 
     @Test
-    public void shouldHaveMessageHandlerForPluginSettingsRequestProcessorForAllExtensionVersions() {
-        final ElasticAgentExtensionExposingHandlers extension = new ElasticAgentExtensionExposingHandlers(pluginManager);
-
-        assertThat(extension.messageHandlerForPluginSettingsRequestProcessor("3.0"),
-                instanceOf(MessageHandlerForPluginSettingsRequestProcessor1_0.class));
-    }
-
-    @Test
     public void shouldMakeJobCompletionCall() {
         when(pluginManager.resolveExtensionVersion(PLUGIN_ID, ELASTIC_AGENT_EXTENSION, SUPPORTED_VERSIONS)).thenReturn("4.0");
 
@@ -121,11 +110,6 @@ public class ElasticAgentExtensionTest {
     class ElasticAgentExtensionExposingHandlers extends ElasticAgentExtension {
         public ElasticAgentExtensionExposingHandlers(PluginManager pluginManager) {
             super(pluginManager);
-        }
-
-        @Override
-        public MessageHandlerForPluginSettingsRequestProcessor messageHandlerForPluginSettingsRequestProcessor(String pluginVersion) {
-            return super.messageHandlerForPluginSettingsRequestProcessor(pluginVersion);
         }
 
         @Override

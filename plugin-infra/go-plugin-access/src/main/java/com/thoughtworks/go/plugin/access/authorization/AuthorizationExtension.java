@@ -244,11 +244,6 @@ public class AuthorizationExtension extends AbstractExtension {
     }
 
     @Override
-    public String pluginSettingsJSON(String pluginId, Map<String, String> pluginSettings) {
-        throw new UnsupportedOperationException("Fetch Plugin Settings is not supported by Authorization endpoint.");
-    }
-
-    @Override
     protected List<String> goSupportedVersions() {
         return SUPPORTED_VERSIONS;
     }

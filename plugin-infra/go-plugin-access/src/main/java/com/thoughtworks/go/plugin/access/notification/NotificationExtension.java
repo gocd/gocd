@@ -52,24 +52,18 @@ public class NotificationExtension extends AbstractExtension {
     public NotificationExtension(PluginManager pluginManager) {
         super(pluginManager, new PluginRequestHelper(pluginManager, goSupportedVersions, NOTIFICATION_EXTENSION), NOTIFICATION_EXTENSION);
 
-        registerHandlers("1.0", new PluginSettingsJsonMessageHandler1_0(), new JsonMessageHandler1_0(),
-                new MessageHandlerForPluginSettingsRequestProcessor1_0());
+        registerHandlers("1.0", new PluginSettingsJsonMessageHandler1_0(), new JsonMessageHandler1_0());
 
-        registerHandlers("2.0", new PluginSettingsJsonMessageHandler1_0(), new JsonMessageHandler2_0(),
-                new MessageHandlerForPluginSettingsRequestProcessor1_0());
+        registerHandlers("2.0", new PluginSettingsJsonMessageHandler1_0(), new JsonMessageHandler2_0());
 
-        registerHandlers("3.0", new PluginSettingsJsonMessageHandler2_0(), new JsonMessageHandler3_0(),
-                new MessageHandlerForPluginSettingsRequestProcessor1_0());
+        registerHandlers("3.0", new PluginSettingsJsonMessageHandler2_0(), new JsonMessageHandler3_0());
 
-        registerHandlers("4.0", new PluginSettingsJsonMessageHandler2_0(), new JsonMessageHandler4_0(),
-                new MessageHandlerForPluginSettingsRequestProcessor1_0());
+        registerHandlers("4.0", new PluginSettingsJsonMessageHandler2_0(), new JsonMessageHandler4_0());
     }
 
-    private void registerHandlers(String version, PluginSettingsJsonMessageHandler pluginSettingsJsonMessageHandler, JsonMessageHandler jsonMessageHandler,
-                                  MessageHandlerForPluginSettingsRequestProcessor messageHandlerForPluginSettingsRequestProcessor) {
+    private void registerHandlers(String version, PluginSettingsJsonMessageHandler pluginSettingsJsonMessageHandler, JsonMessageHandler jsonMessageHandler) {
         registerHandler(version, pluginSettingsJsonMessageHandler);
         messageHandlerMap.put(version, jsonMessageHandler);
-        registerMessageHandlerForPluginSettingsRequestProcessor(version, messageHandlerForPluginSettingsRequestProcessor);
     }
 
     public List<String> getNotificationsOfInterestFor(String pluginId) {

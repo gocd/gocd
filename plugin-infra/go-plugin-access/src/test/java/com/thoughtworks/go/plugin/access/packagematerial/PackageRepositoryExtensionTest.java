@@ -340,20 +340,6 @@ public class PackageRepositoryExtensionTest {
         }
     }
 
-    @Test
-    public void shouldSerializePluginSettingsToJSON() throws Exception {
-        String pluginId = "plugin_id";
-        HashMap<String, String> pluginSettings = new HashMap<>();
-        pluginSettings.put("key1", "value1");
-        pluginSettings.put("key2", "value2");
-
-        when(pluginManager.resolveExtensionVersion(pluginId, PACKAGE_MATERIAL_EXTENSION, extension.goSupportedVersions())).thenReturn("1.0");
-
-        String pluginSettingsJSON = extension.pluginSettingsJSON(pluginId, pluginSettings);
-
-        assertThat(pluginSettingsJSON, is("{\"key1\":\"value1\",\"key2\":\"value2\"}"));
-    }
-
     private void assertPropertyConfiguration(PackageMaterialProperty property, String key, String value, boolean partOfIdentity, boolean required, boolean secure, String displayName, int displayOrder) {
         assertThat(property.getKey(), is(key));
         assertThat(property.getValue(), is(value));

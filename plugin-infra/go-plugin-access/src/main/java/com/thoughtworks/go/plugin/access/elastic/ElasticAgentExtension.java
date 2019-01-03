@@ -19,8 +19,6 @@ package com.thoughtworks.go.plugin.access.elastic;
 import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.plugin.access.PluginRequestHelper;
 import com.thoughtworks.go.plugin.access.common.AbstractExtension;
-import com.thoughtworks.go.plugin.access.common.settings.MessageHandlerForPluginSettingsRequestProcessor;
-import com.thoughtworks.go.plugin.access.common.settings.MessageHandlerForPluginSettingsRequestProcessor1_0;
 import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsJsonMessageHandler1_0;
 import com.thoughtworks.go.plugin.access.elastic.models.AgentMetadata;
 import com.thoughtworks.go.plugin.access.elastic.v3.ElasticAgentExtensionV3;
@@ -52,16 +50,8 @@ public class ElasticAgentExtension extends AbstractExtension {
 
         registerHandler(ElasticAgentExtensionV3.VERSION, new PluginSettingsJsonMessageHandler1_0());
         registerHandler(ElasticAgentExtensionV4.VERSION, new PluginSettingsJsonMessageHandler1_0());
-
-        final MessageHandlerForPluginSettingsRequestProcessor1_0 pluginSettingsRequestProcessor = new MessageHandlerForPluginSettingsRequestProcessor1_0();
-
-        registerProcessor(ElasticAgentExtensionV3.VERSION, pluginSettingsRequestProcessor);
-        registerProcessor(ElasticAgentExtensionV4.VERSION, pluginSettingsRequestProcessor);
     }
 
-    private void registerProcessor(String version, MessageHandlerForPluginSettingsRequestProcessor pluginSettingsRequestProcessor) {
-        registerMessageHandlerForPluginSettingsRequestProcessor(version, pluginSettingsRequestProcessor);
-    }
 
     public void createAgent(String pluginId, final String autoRegisterKey, final String environment, final Map<String, String> configuration, JobIdentifier jobIdentifier) {
         getVersionedElasticAgentExtension(pluginId).createAgent(pluginId, autoRegisterKey, environment, configuration, jobIdentifier);

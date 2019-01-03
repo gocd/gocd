@@ -128,21 +128,6 @@ public class ConfigRepoExtensionTest {
         assertThat(capabilities, is(res));
     }
 
-    @Test
-    public void shouldSerializePluginSettingsToJSON() throws Exception {
-        String pluginId = "plugin_id";
-        HashMap<String, String> pluginSettings = new HashMap<>();
-        pluginSettings.put("key1", "val1");
-        pluginSettings.put("key2", "val2");
-
-        ConfigRepoExtension configRepoExtension = new ConfigRepoExtension(pluginManager);
-
-        when(pluginManager.resolveExtensionVersion(pluginId, CONFIG_REPO_EXTENSION, configRepoExtension.goSupportedVersions())).thenReturn("1.0");
-        String pluginSettingsJSON = configRepoExtension.pluginSettingsJSON(pluginId, pluginSettings);
-
-        assertThat(pluginSettingsJSON, CoreMatchers.is("{\"key1\":\"val1\",\"key2\":\"val2\"}"));
-    }
-
     private void assertRequest(GoPluginApiRequest goPluginApiRequest, String extensionName, String version, String requestName, String requestBody) {
         assertThat(goPluginApiRequest.extension(), is(extensionName));
         assertThat(goPluginApiRequest.extensionVersion(), is(version));

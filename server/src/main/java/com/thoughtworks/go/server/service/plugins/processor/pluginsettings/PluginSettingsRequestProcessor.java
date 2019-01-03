@@ -18,7 +18,6 @@ package com.thoughtworks.go.server.service.plugins.processor.pluginsettings;
 
 import com.thoughtworks.go.domain.NullPlugin;
 import com.thoughtworks.go.domain.Plugin;
-import com.thoughtworks.go.plugin.access.common.settings.GoPluginExtension;
 import com.thoughtworks.go.plugin.api.request.GoApiRequest;
 import com.thoughtworks.go.plugin.api.response.DefaultGoApiResponse;
 import com.thoughtworks.go.plugin.api.response.GoApiResponse;
@@ -26,13 +25,13 @@ import com.thoughtworks.go.plugin.infra.GoPluginApiRequestProcessor;
 import com.thoughtworks.go.plugin.infra.PluginRequestProcessorRegistry;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import com.thoughtworks.go.server.dao.PluginSqlMapDao;
+import com.thoughtworks.go.server.service.plugins.processor.pluginsettings.v1.MessageHandlerForPluginSettingsRequestProcessor1_0;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import static java.lang.String.format;
@@ -43,24 +42,25 @@ public class PluginSettingsRequestProcessor implements GoPluginApiRequestProcess
     public static final String GET_PLUGIN_SETTINGS = "go.processor.plugin-settings.get";
 
     private final PluginSqlMapDao pluginSqlMapDao;
-    private final List<GoPluginExtension> extensions;
+    private Map<String, MessageHandlerForPluginSettingsRequestProcessor> versionToMessageHandlerMap;
 
     @Autowired
     public PluginSettingsRequestProcessor(PluginRequestProcessorRegistry registry,
-                                          PluginSqlMapDao pluginSqlMapDao,
-                                          List<GoPluginExtension> extensions) {
+                                          PluginSqlMapDao pluginSqlMapDao) {
         this.pluginSqlMapDao = pluginSqlMapDao;
-        this.extensions = extensions;
+        this.versionToMessageHandlerMap = new HashMap<>();
+
+        versionToMessageHandlerMap.put("1.0", new MessageHandlerForPluginSettingsRequestProcessor1_0());
         registry.registerProcessorFor(GET_PLUGIN_SETTINGS, this);
     }
 
     @Override
     public GoApiResponse process(GoPluginDescriptor pluginDescriptor, GoApiRequest goPluginApiRequest) {
         try {
-            GoPluginExtension extension = extensionFor(pluginDescriptor.id(), goPluginApiRequest.pluginIdentifier().getExtension());
+            MessageHandlerForPluginSettingsRequestProcessor processor = versionToMessageHandlerMap.get(goPluginApiRequest.apiVersion());
 
             DefaultGoApiResponse response = new DefaultGoApiResponse(200);
-            response.setResponseBody(extension.pluginSettingsJSON(pluginDescriptor.id(), pluginSettingsFor(pluginDescriptor.id())));
+            response.setResponseBody(processor.pluginSettingsToJSON(pluginSettingsFor(pluginDescriptor.id())));
 
             return response;
         } catch (Exception e) {
@@ -85,16 +85,5 @@ public class PluginSettingsRequestProcessor implements GoPluginApiRequestProcess
         }
 
         return pluginSettingsAsMap;
-    }
-
-    private GoPluginExtension extensionFor(String pluginId, String extensionType) {
-        for (GoPluginExtension extension : extensions) {
-            if (extension.extensionName().equals(extensionType) && extension.canHandlePlugin(pluginId)) {
-                return extension;
-            }
-        }
-
-        throw new IllegalArgumentException(format(
-                "Plugin '%s' is not supported by any extension point", pluginId));
     }
 }

@@ -33,6 +33,4 @@ public interface GoPluginExtension {
     ValidationResult validatePluginSettings(String pluginId, PluginSettingsConfiguration configuration);
 
     void notifyPluginSettingsChange(String pluginId, Map<String, String> pluginSettings);
-
-    String pluginSettingsJSON(String pluginId, Map<String, String> pluginSettings);
 }

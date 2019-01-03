@@ -327,14 +327,6 @@ public class AuthorizationExtensionTest {
         assertThat(authorizationServerRedirectUrl, is("url_to_authorization_server"));
     }
 
-    @Test
-    public void shouldNotSupportFetchingPluginSettings() throws Exception {
-        thrown.expect(UnsupportedOperationException.class);
-        thrown.expectMessage("Fetch Plugin Settings is not supported by Authorization endpoint.");
-
-        authorizationExtension.pluginSettingsJSON("plugin_id", Collections.emptyMap());
-    }
-
     private void assertRequest(GoPluginApiRequest goPluginApiRequest, String extensionName, String version, String requestName, String requestBody) {
         Assert.assertThat(goPluginApiRequest.extension(), Is.is(extensionName));
         Assert.assertThat(goPluginApiRequest.extensionVersion(), Is.is(version));

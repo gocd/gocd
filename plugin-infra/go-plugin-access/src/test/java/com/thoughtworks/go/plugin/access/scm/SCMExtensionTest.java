@@ -245,19 +245,6 @@ public class SCMExtensionTest {
         }
     }
 
-    @Test
-    public void shouldSerializePluginSettingsToJSON() throws Exception {
-        String pluginId = "plugin_id";
-        HashMap<String, String> pluginSettings = new HashMap<>();
-        pluginSettings.put("key1", "val1");
-        pluginSettings.put("key2", "val2");
-
-        when(pluginManager.resolveExtensionVersion(pluginId, SCM_EXTENSION, scmExtension.goSupportedVersions())).thenReturn("1.0");
-        String pluginSettingsJSON = scmExtension.pluginSettingsJSON(pluginId, pluginSettings);
-
-        assertThat(pluginSettingsJSON, CoreMatchers.is("{\"key1\":\"val1\",\"key2\":\"val2\"}"));
-    }
-
     private void assertRequest(GoPluginApiRequest goPluginApiRequest, String extensionName, String version, String requestName, String requestBody) {
         assertThat(goPluginApiRequest.extension(), is(extensionName));
         assertThat(goPluginApiRequest.extensionVersion(), is(version));

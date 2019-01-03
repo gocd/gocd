@@ -31,7 +31,6 @@ public abstract class AbstractExtension implements GoPluginExtension {
     protected final PluginRequestHelper pluginRequestHelper;
     private final String extensionName;
     protected Map<String, PluginSettingsJsonMessageHandler> pluginSettingsMessageHandlerMap = new HashMap<>();
-    private Map<String, MessageHandlerForPluginSettingsRequestProcessor> messageHandlersForPluginSettingsRequestProcessor = new HashMap<>();
 
     protected AbstractExtension(PluginManager pluginManager, PluginRequestHelper pluginRequestHelper, String extensionName) {
         this.pluginManager = pluginManager;
@@ -86,12 +85,6 @@ public abstract class AbstractExtension implements GoPluginExtension {
     }
 
     @Override
-    public String pluginSettingsJSON(String pluginId, Map<String, String> pluginSettings) {
-        String resolvedExtensionVersion = pluginManager.resolveExtensionVersion(pluginId, extensionName, goSupportedVersions());
-        return messageHandlerForPluginSettingsRequestProcessor(resolvedExtensionVersion).pluginSettingsToJSON(pluginSettings);
-    }
-
-    @Override
     public ValidationResult validatePluginSettings(String pluginId, final PluginSettingsConfiguration configuration) {
         return pluginRequestHelper.submitRequest(pluginId, PluginSettingsConstants.REQUEST_VALIDATE_PLUGIN_SETTINGS, new DefaultPluginInteractionCallback<ValidationResult>() {
             @Override
@@ -104,14 +97,6 @@ public abstract class AbstractExtension implements GoPluginExtension {
                 return pluginSettingsMessageHandlerMap.get(resolvedExtensionVersion).responseMessageForPluginSettingsValidation(responseBody);
             }
         });
-    }
-
-    protected void registerMessageHandlerForPluginSettingsRequestProcessor(String apiVersion, MessageHandlerForPluginSettingsRequestProcessor handler) {
-        messageHandlersForPluginSettingsRequestProcessor.put(apiVersion, handler);
-    }
-
-    protected MessageHandlerForPluginSettingsRequestProcessor messageHandlerForPluginSettingsRequestProcessor(String pluginVersion) {
-        return messageHandlersForPluginSettingsRequestProcessor.get(pluginVersion);
     }
 
     protected abstract List<String> goSupportedVersions();

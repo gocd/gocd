@@ -47,7 +47,7 @@ export interface RequiresPluginInfos {
   pluginInfos: Stream<Array<PluginInfo<Extension>>>;
 }
 
-export interface State extends RequiresPluginInfos, SaveOperation, EditOperation<ElasticProfile>, CloneOperation<ElasticProfile>, DeleteOperation<string>, AddOperation<void>{
+export interface State extends RequiresPluginInfos, SaveOperation, EditOperation<ElasticProfile>, CloneOperation<ElasticProfile>, DeleteOperation<string>, AddOperation<void> {
   onShowUsages: (profileId: string, event: MouseEvent) => void;
   elasticProfiles: ElasticProfiles;
 }

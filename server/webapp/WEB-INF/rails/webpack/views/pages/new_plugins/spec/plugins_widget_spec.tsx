@@ -131,7 +131,7 @@ describe("New Plugins Widget", () => {
     expect(EAPluginInfoBody).toContainText("Bundled");
     expect(EAPluginInfoBody).toContainText("No");
 
-    expect(EAPluginInfoBody).toContainText("Target Go Version");
+    expect(EAPluginInfoBody).toContainText("Target GoCD Version");
     expect(EAPluginInfoBody).toContainText("16.12.0");
 
     const NotificationPluginInfoBody = find("collapse-body").get(1);
@@ -148,7 +148,7 @@ describe("New Plugins Widget", () => {
     expect(NotificationPluginInfoBody).toContainText("Bundled");
     expect(NotificationPluginInfoBody).toContainText("No");
 
-    expect(NotificationPluginInfoBody).toContainText("Target Go Version");
+    expect(NotificationPluginInfoBody).toContainText("Target GoCD Version");
     expect(NotificationPluginInfoBody).toContainText("15.1.0");
   });
 

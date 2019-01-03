@@ -27,16 +27,15 @@ import com.thoughtworks.go.server.service.GoConfigService;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 
 import java.util.Arrays;
 import java.util.Collections;
 
 import static com.thoughtworks.go.server.service.plugins.processor.serverinfo.ServerInfoRequestProcessor.GET_SERVER_ID;
+import static java.lang.String.format;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 public class ServerInfoRequestProcessorTest {
@@ -60,7 +59,7 @@ public class ServerInfoRequestProcessorTest {
         serverConfig.setSiteUrl("http://example.com:8153/go");
 
         processorRegistry = new PluginRequestProcessorRegistry();
-        processor = new ServerInfoRequestProcessor(processorRegistry, goConfigService, Collections.singletonList(pluginExtension));
+        processor = new ServerInfoRequestProcessor(processorRegistry, goConfigService);
 
         when(goConfigService.serverConfig()).thenReturn(serverConfig);
         when(pluginExtension.extensionName()).thenReturn("extension1");
@@ -68,69 +67,30 @@ public class ServerInfoRequestProcessorTest {
     }
 
     @Test
-    public void shouldRegisterAPIRequestWithProcessor() throws Exception {
+    public void shouldRegisterAPIRequestWithProcessor() {
         DefaultGoApiRequest request = new DefaultGoApiRequest(GET_SERVER_ID, "1.0", new GoPluginIdentifier("extension1", Collections.singletonList("1.0")));
         assertThat(processorRegistry.canProcess(request), is(true));
     }
 
     @Test
-    public void shouldReturnAServerIdInJSONForm() throws Exception {
+    public void shouldReturnAServerIdInJSONForm() {
         DefaultGoApiRequest request = new DefaultGoApiRequest(GET_SERVER_ID, "1.0", new GoPluginIdentifier("extension1", Arrays.asList("1.0")));
 
-        when(pluginExtension.canHandlePlugin(pluginId)).thenReturn(true);
-        when(pluginExtension.serverInfoJSON(pluginId, serverConfig.getServerId(), serverConfig.getSiteUrl().getUrl(), serverConfig.getSecureSiteUrl().getUrl())).thenReturn("server_info");
 
         GoApiResponse response = processor.process(pluginDescriptor, request);
 
         assertThat(response.responseCode(), is(200));
-        assertThat(response.responseBody(), is("server_info"));
+        assertThat(response.responseBody(),
+                is(format("{\"server_id\":\"%s\",\"site_url\":\"%s\",\"secure_site_url\":\"%s\"}",
+                        serverConfig.getServerId(), serverConfig.getSiteUrl().getUrl(), serverConfig.getSecureSiteUrl().getUrl())));
     }
 
     @Test
-    public void shouldReturnAErrorResponseIfExtensionDoesNotSupportServerInfo() throws Exception {
+    public void shouldReturnAErrorResponseIfExtensionDoesNotSupportServerInfo() {
         DefaultGoApiRequest request = new DefaultGoApiRequest(GET_SERVER_ID, "bad-version", new GoPluginIdentifier("foo", Arrays.asList("1.0")));
-
-        when(pluginExtension.canHandlePlugin(pluginId)).thenReturn(true);
-        when(pluginExtension.serverInfoJSON(any(String.class), any(String.class), any(String.class), any(String.class))).thenThrow(new UnsupportedOperationException("Operation not supported."));
 
         GoApiResponse response = processor.process(pluginDescriptor, request);
 
         assertThat(response.responseCode(), is(400));
-    }
-
-    @Test
-    public void shouldRouteToTheRightExtensionBasedOnTheRequest_WhenAPluginHasMultipleExtensions() throws Exception {
-        GoPluginExtension anotherPluginExtension = mock(GoPluginExtension.class);
-        processor = new ServerInfoRequestProcessor(processorRegistry, goConfigService, Arrays.asList(this.pluginExtension, anotherPluginExtension));
-
-
-
-        DefaultGoApiRequest requestFromExtension1 = new DefaultGoApiRequest(GET_SERVER_ID, "1.0", new GoPluginIdentifier("extension1", Arrays.asList("1.0")));
-        setupExpectationsFor(pluginExtension, pluginId, "extension1");
-        setupExpectationsFor(anotherPluginExtension, pluginId, "extension2");
-
-        processor.process(pluginDescriptor, requestFromExtension1);
-
-        verify(pluginExtension).serverInfoJSON(pluginId, serverConfig.getServerId(), serverConfig.getSiteUrl().getUrl(), serverConfig.getSecureSiteUrl().getUrl());
-        verify(anotherPluginExtension, never()).serverInfoJSON(anyString(), anyString(), anyString(), anyString());
-        Mockito.reset(pluginExtension, anotherPluginExtension);
-
-
-
-        DefaultGoApiRequest requestFromExtension2 = new DefaultGoApiRequest(GET_SERVER_ID, "1.0", new GoPluginIdentifier("extension2", Arrays.asList("1.0")));
-        setupExpectationsFor(pluginExtension, pluginId, "extension1");
-        setupExpectationsFor(anotherPluginExtension, pluginId, "extension2");
-
-        processor.process(pluginDescriptor, requestFromExtension2);
-
-        verify(pluginExtension, never()).serverInfoJSON(anyString(), anyString(), anyString(), anyString());
-        verify(anotherPluginExtension).serverInfoJSON(pluginId, serverConfig.getServerId(), serverConfig.getSiteUrl().getUrl(), serverConfig.getSecureSiteUrl().getUrl());
-        Mockito.reset(pluginExtension, anotherPluginExtension);
-    }
-
-    private void setupExpectationsFor(GoPluginExtension extension, String pluginId, String extensionType) {
-        when(extension.extensionName()).thenReturn(extensionType);
-        when(extension.canHandlePlugin(pluginId)).thenReturn(true);
-        when(extension.serverInfoJSON(pluginId, serverConfig.getServerId(), serverConfig.getSiteUrl().getUrl(), serverConfig.getSecureSiteUrl().getUrl())).thenReturn("server_info");
     }
 }

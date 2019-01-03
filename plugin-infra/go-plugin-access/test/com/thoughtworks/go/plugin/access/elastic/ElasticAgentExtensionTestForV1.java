@@ -53,16 +53,4 @@ public class ElasticAgentExtensionTestForV1 {
 
         assertThat(pluginSettingsJSON, is("{\"key1\":\"val1\",\"key2\":\"val2\"}"));
     }
-
-    @Test
-    public void shouldSerializeServerInfoToJSON() throws Exception {
-        String pluginId = "plugin_id";
-        ElasticAgentExtension extension = new ElasticAgentExtension(pluginManager);
-
-        when(pluginManager.resolveExtensionVersion(pluginId, extension.goSupportedVersions())).thenReturn("1.0");
-
-        String serverInfoJSON = extension.serverInfoJSON(pluginId, "x12adf", "http://my.build.com", "https://my.build.com");
-
-        assertThat(serverInfoJSON, Is.is("{\"server_id\":\"x12adf\",\"site_url\":\"http://my.build.com\",\"secure_site_url\":\"https://my.build.com\"}"));
-    }
 }

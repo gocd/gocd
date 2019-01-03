@@ -143,14 +143,6 @@ public class ConfigRepoExtensionTest {
         assertThat(pluginSettingsJSON, CoreMatchers.is("{\"key1\":\"val1\",\"key2\":\"val2\"}"));
     }
 
-    @Test
-    public void shouldNotExposeServerInfo() throws Exception {
-        thrown.expect(UnsupportedOperationException.class);
-        thrown.expectMessage("Fetch Server Info is not supported by ConfigRepo endpoint.");
-
-        extension.serverInfoJSON("plugin_id", "server_id", "site_url", "secure_site_url");
-    }
-
     private void assertRequest(GoPluginApiRequest goPluginApiRequest, String extensionName, String version, String requestName, String requestBody) {
         assertThat(goPluginApiRequest.extension(), is(extensionName));
         assertThat(goPluginApiRequest.extensionVersion(), is(version));

@@ -18,8 +18,6 @@ package com.thoughtworks.go.plugin.access.elastic;
 
 import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.plugin.access.common.AbstractExtension;
-import com.thoughtworks.go.plugin.access.common.serverinfo.MessageHandlerForServerInfoRequestProcessor;
-import com.thoughtworks.go.plugin.access.common.serverinfo.MessageHandlerForServerInfoRequestProcessor1_0;
 import com.thoughtworks.go.plugin.access.common.settings.MessageHandlerForPluginSettingsRequestProcessor;
 import com.thoughtworks.go.plugin.access.common.settings.MessageHandlerForPluginSettingsRequestProcessor1_0;
 import com.thoughtworks.go.plugin.api.request.GoPluginApiRequest;
@@ -54,7 +52,6 @@ public class ElasticAgentExtensionTest {
     protected ArgumentCaptor<GoPluginApiRequest> requestArgumentCaptor;
     protected GoPluginDescriptor descriptor;
     protected ElasticAgentExtension extension;
-
 
     @Before
     public void setUp() throws Exception {
@@ -109,14 +106,6 @@ public class ElasticAgentExtensionTest {
     }
 
     @Test
-    public void shouldHaveMessageHandlerForServerInfoRequestProcessorForAllExtensionVersions() {
-        final ElasticAgentExtensionExposingHandlers extension = new ElasticAgentExtensionExposingHandlers(pluginManager);
-
-        assertThat(extension.messageHandlerForServerInfoRequestProcessor("3.0"),
-                instanceOf(MessageHandlerForServerInfoRequestProcessor1_0.class));
-    }
-
-    @Test
     public void shouldMakeJobCompletionCall() {
         when(pluginManager.resolveExtensionVersion(PLUGIN_ID, ELASTIC_AGENT_EXTENSION, SUPPORTED_VERSIONS)).thenReturn("4.0");
 
@@ -137,11 +126,6 @@ public class ElasticAgentExtensionTest {
         @Override
         public MessageHandlerForPluginSettingsRequestProcessor messageHandlerForPluginSettingsRequestProcessor(String pluginVersion) {
             return super.messageHandlerForPluginSettingsRequestProcessor(pluginVersion);
-        }
-
-        @Override
-        public MessageHandlerForServerInfoRequestProcessor messageHandlerForServerInfoRequestProcessor(String pluginVersion) {
-            return super.messageHandlerForServerInfoRequestProcessor(pluginVersion);
         }
 
         @Override

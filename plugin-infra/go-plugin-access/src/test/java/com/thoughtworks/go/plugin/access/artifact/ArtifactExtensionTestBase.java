@@ -310,14 +310,6 @@ public abstract class ArtifactExtensionTestBase {
     }
 
     @Test
-    public void shouldNotExposeServerInfo() {
-        thrown.expect(UnsupportedOperationException.class);
-        thrown.expectMessage("Fetch Server Info is not supported by Artifact endpoint.");
-
-        artifactExtension.serverInfoJSON("plugin_id", "server_id", "site_url", "secure_site_url");
-    }
-
-    @Test
     public void shouldGetCapabilities() {
         when(pluginManager.submitTo(eq(PLUGIN_ID), eq(ARTIFACT_EXTENSION), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success("{}"));
 

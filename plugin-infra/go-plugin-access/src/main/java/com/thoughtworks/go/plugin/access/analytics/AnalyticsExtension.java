@@ -115,9 +115,4 @@ public class AnalyticsExtension extends AbstractExtension {
     private String getCurrentStaticAssetsPath(String pluginId) {
         return AnalyticsMetadataStore.instance().getPluginInfo(pluginId).getStaticAssetsPath();
     }
-
-    @Override
-    public String serverInfoJSON(String pluginId, String serverId, String siteUrl, String secureSiteUrl) {
-        throw new UnsupportedOperationException("Fetch Server Info is not supported by Analytics endpoint.");
-    }
 }

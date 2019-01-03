@@ -150,9 +150,4 @@ public class ConfigRepoExtension extends AbstractExtension implements ConfigRepo
     protected List<String> goSupportedVersions() {
         return goSupportedVersions;
     }
-
-    @Override
-    public String serverInfoJSON(String pluginId, String serverId, String siteUrl, String secureSiteUrl) {
-        throw new UnsupportedOperationException("Fetch Server Info is not supported by ConfigRepo endpoint.");
-    }
 }

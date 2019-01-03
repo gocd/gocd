@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,6 @@
 package com.thoughtworks.go.server.service.plugins.processor.serverinfo;
 
 import com.thoughtworks.go.config.ServerConfig;
-import com.thoughtworks.go.plugin.access.common.settings.GoPluginExtension;
 import com.thoughtworks.go.plugin.api.request.GoApiRequest;
 import com.thoughtworks.go.plugin.api.response.DefaultGoApiResponse;
 import com.thoughtworks.go.plugin.api.response.GoApiResponse;
@@ -25,12 +24,14 @@ import com.thoughtworks.go.plugin.infra.GoPluginApiRequestProcessor;
 import com.thoughtworks.go.plugin.infra.PluginRequestProcessorRegistry;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import com.thoughtworks.go.server.service.GoConfigService;
+import com.thoughtworks.go.server.service.plugins.processor.serverinfo.v1.MessageHandlerForServerInfoRequestProcessor1_0;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 import static java.lang.String.format;
 
@@ -40,38 +41,29 @@ public class ServerInfoRequestProcessor implements GoPluginApiRequestProcessor {
     public static final String GET_SERVER_ID = "go.processor.server-info.get";
 
     private final GoConfigService configService;
-    private final List<GoPluginExtension> extensions;
+    private Map<String, MessageHandlerForServerInfoRequestProcessor> versionToMessageHandlerMap;
 
     @Autowired
-    public ServerInfoRequestProcessor(PluginRequestProcessorRegistry registry, GoConfigService configService, List<GoPluginExtension> extensions) {
+    public ServerInfoRequestProcessor(PluginRequestProcessorRegistry registry, GoConfigService configService) {
         this.configService = configService;
-        this.extensions = extensions;
+        this.versionToMessageHandlerMap = new HashMap<>();
+
+        this.versionToMessageHandlerMap.put("1.0", new MessageHandlerForServerInfoRequestProcessor1_0());
         registry.registerProcessorFor(GET_SERVER_ID, this);
     }
 
     @Override
     public GoApiResponse process(GoPluginDescriptor pluginDescriptor, GoApiRequest goPluginApiRequest) {
         try {
-            GoPluginExtension extension = extensionFor(pluginDescriptor.id(), goPluginApiRequest.pluginIdentifier().getExtension());
-
+            MessageHandlerForServerInfoRequestProcessor requestProcessor = this.versionToMessageHandlerMap.get(goPluginApiRequest.apiVersion());
             ServerConfig serverConfig = configService.serverConfig();
-            String serverInfoJSON = extension.serverInfoJSON(pluginDescriptor.id(), serverConfig.getServerId(), serverConfig.getSiteUrl().getUrl(), serverConfig.getSecureSiteUrl().getUrl());
+
+            String serverInfoJSON = requestProcessor.serverInfoToJSON(serverConfig);
 
             return DefaultGoApiResponse.success(serverInfoJSON);
         } catch (Exception e) {
             LOGGER.error(format("Error processing ServerInfo request from plugin: %s.", pluginDescriptor.id()), e);
             return DefaultGoApiResponse.badRequest(format("Error while processing get ServerInfo request - %s", e.getMessage()));
         }
-    }
-
-    private GoPluginExtension extensionFor(String pluginId, String extensionType) {
-        for (GoPluginExtension extension : extensions) {
-            if (extension.extensionName().equals(extensionType) && extension.canHandlePlugin(pluginId)) {
-                return extension;
-            }
-        }
-
-        throw new IllegalArgumentException(format(
-                "Plugin '%s' is not supported by any extension point", pluginId));
     }
 }

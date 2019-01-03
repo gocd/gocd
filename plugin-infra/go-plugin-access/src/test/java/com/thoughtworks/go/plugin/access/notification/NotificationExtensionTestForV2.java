@@ -66,16 +66,4 @@ public class NotificationExtensionTestForV2 extends NotificationExtensionTestBas
         assertThat(pluginSettingsJSON, is("{\"key1\":\"value1\",\"key2\":\"value2\"}"));
     }
 
-    @Test
-    public void shouldSerializeServerInfoToJSON() throws Exception {
-        String pluginId = "plugin_id";
-
-        NotificationExtension notificationExtension = new NotificationExtension(pluginManager);
-
-        when(pluginManager.resolveExtensionVersion(pluginId, PluginConstants.NOTIFICATION_EXTENSION, notificationExtension.goSupportedVersions())).thenReturn("1.0");
-
-        String serverInfoJSON = notificationExtension.serverInfoJSON(pluginId, "x12adf", "http://build.com", "https://build.com");
-
-        assertThat(serverInfoJSON, Is.is("{\"server_id\":\"x12adf\",\"site_url\":\"http://build.com\",\"secure_site_url\":\"https://build.com\"}"));
-    }
 }

@@ -354,14 +354,6 @@ public class PackageRepositoryExtensionTest {
         assertThat(pluginSettingsJSON, is("{\"key1\":\"value1\",\"key2\":\"value2\"}"));
     }
 
-    @Test
-    public void shouldNotExposeServerInfoToJSON() throws Exception {
-        thrown.expect(UnsupportedOperationException.class);
-        thrown.expectMessage("Fetch Server Info is not supported by PackageRepository endpoint.");
-
-        extension.serverInfoJSON("plugin_id", "server_id", "site_url", "secure_site_url");
-    }
-
     private void assertPropertyConfiguration(PackageMaterialProperty property, String key, String value, boolean partOfIdentity, boolean required, boolean secure, String displayName, int displayOrder) {
         assertThat(property.getKey(), is(key));
         assertThat(property.getValue(), is(value));

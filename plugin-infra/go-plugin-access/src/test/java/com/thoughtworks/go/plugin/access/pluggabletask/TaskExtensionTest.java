@@ -171,14 +171,6 @@ public class TaskExtensionTest {
     }
 
     @Test
-    public void shouldNotSupportServerInfoToJSON() throws Exception {
-        thrown.expect(UnsupportedOperationException.class);
-        thrown.expectMessage("Fetch Server Info is not supported by Task endpoint.");
-
-        extension.serverInfoJSON("plugin_id", "server_id", "site_url", "secure_site_url");
-    }
-
-    @Test
     public void shouldValidateTask() {
         GoPluginApiResponse response = mock(GoPluginApiResponse.class);
         TaskExtension jsonBasedTaskExtension = new TaskExtension(pluginManager);

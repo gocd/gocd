@@ -18,7 +18,6 @@ package com.thoughtworks.go.plugin.access.common;
 
 import com.thoughtworks.go.plugin.access.DefaultPluginInteractionCallback;
 import com.thoughtworks.go.plugin.access.PluginRequestHelper;
-import com.thoughtworks.go.plugin.access.common.serverinfo.MessageHandlerForServerInfoRequestProcessor;
 import com.thoughtworks.go.plugin.access.common.settings.*;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 import com.thoughtworks.go.plugin.infra.PluginManager;
@@ -33,7 +32,6 @@ public abstract class AbstractExtension implements GoPluginExtension {
     private final String extensionName;
     protected Map<String, PluginSettingsJsonMessageHandler> pluginSettingsMessageHandlerMap = new HashMap<>();
     private Map<String, MessageHandlerForPluginSettingsRequestProcessor> messageHandlersForPluginSettingsRequestProcessor = new HashMap<>();
-    private Map<String, MessageHandlerForServerInfoRequestProcessor> messageHandlersForServerInfoRequestProcessor = new HashMap<>();
 
     protected AbstractExtension(PluginManager pluginManager, PluginRequestHelper pluginRequestHelper, String extensionName) {
         this.pluginManager = pluginManager;
@@ -94,12 +92,6 @@ public abstract class AbstractExtension implements GoPluginExtension {
     }
 
     @Override
-    public String serverInfoJSON(String pluginId, String serverId, String siteUrl, String secureSiteUrl) {
-        String resolvedExtensionVersion = pluginManager.resolveExtensionVersion(pluginId, extensionName, goSupportedVersions());
-        return messageHandlerForServerInfoRequestProcessor(resolvedExtensionVersion).serverInfoToJSON(serverId, siteUrl, secureSiteUrl);
-    }
-
-    @Override
     public ValidationResult validatePluginSettings(String pluginId, final PluginSettingsConfiguration configuration) {
         return pluginRequestHelper.submitRequest(pluginId, PluginSettingsConstants.REQUEST_VALIDATE_PLUGIN_SETTINGS, new DefaultPluginInteractionCallback<ValidationResult>() {
             @Override
@@ -118,16 +110,8 @@ public abstract class AbstractExtension implements GoPluginExtension {
         messageHandlersForPluginSettingsRequestProcessor.put(apiVersion, handler);
     }
 
-    protected void registerMessageHandlerForServerInfoRequestProcessor(String apiVersion, MessageHandlerForServerInfoRequestProcessor handler) {
-        messageHandlersForServerInfoRequestProcessor.put(apiVersion, handler);
-    }
-
     protected MessageHandlerForPluginSettingsRequestProcessor messageHandlerForPluginSettingsRequestProcessor(String pluginVersion) {
         return messageHandlersForPluginSettingsRequestProcessor.get(pluginVersion);
-    }
-
-    protected MessageHandlerForServerInfoRequestProcessor messageHandlerForServerInfoRequestProcessor(String pluginVersion) {
-        return messageHandlersForServerInfoRequestProcessor.get(pluginVersion);
     }
 
     protected abstract List<String> goSupportedVersions();

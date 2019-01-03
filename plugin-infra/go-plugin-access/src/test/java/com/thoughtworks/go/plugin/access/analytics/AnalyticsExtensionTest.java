@@ -155,14 +155,6 @@ public class AnalyticsExtensionTest {
         assertThat(pluginSettingsJSON, Is.is("{\"key1\":\"val1\",\"key2\":\"val2\"}"));
     }
 
-    @Test
-    public void shouldNotExposeServerInfo() {
-        thrown.expect(UnsupportedOperationException.class);
-        thrown.expectMessage("Fetch Server Info is not supported by Analytics endpoint.");
-
-        analyticsExtension.serverInfoJSON("plugin_id", "server_id", "site_url", "secure_site_url");
-    }
-
     private void assertRequest(GoPluginApiRequest goPluginApiRequest, String extensionName, String version, String requestName, String requestBody) {
         assertThat(goPluginApiRequest.extension(), Is.is(extensionName));
         assertThat(goPluginApiRequest.extensionVersion(), Is.is(version));

@@ -229,7 +229,7 @@
         SELECT
         pipelines.id as pipelineId, pipelines.name as pipelineName, buildCauseType, label, buildCauseMessage,
         pipelines.counter as pipelineCounter, pipelines.label as pipelineLabel, pipelines.naturalOrder as naturalOrder,
-        pipelines.comment as pipelineComment, stages.name as stageName,stages.counter as stageCounter, stages.id as stageId, stages.approvedBy as approvedBy,
+        pipelines.comment as pipelineComment, stages.name as stageName,stages.counter as stageCounter, stages.id as stageId, stages.approvedBy as approvedBy, stages.cancelledBy as cancelledBy,
         stages.approvalType as approvalType, stages.result as stageResult, stages.latestRun, stages.rerunOfCounter,
         builds.id as buildId, builds.name as buildName, builds.state as buildState, builds.result as buildResult,
         builds.scheduledDate as scheduledDate, stages.orderId as orderId

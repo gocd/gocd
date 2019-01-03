@@ -439,7 +439,7 @@
 
     <select id="getDetailedStageHistory" resultMap="stage-with-job-history">
         SELECT pipelines.name as pipelineName, pipelines.counter as pipelineCounter, pipelines.label as pipelineLabel,
-        stages.name as stageName, stages.counter as stageCounter, stages.id as stageId, stages.approvedBy as approvedBy,
+        stages.name as stageName, stages.counter as stageCounter, stages.id as stageId, stages.approvedBy as approvedBy, stages.cancelledBy as cancelledBy,
         stages.approvalType as approvalType, stages.result as stageResult, stages.rerunOfCounter,
         builds.id as buildId, builds.name as buildName, builds.state as buildState, builds.result as buildResult, builds.scheduledDate as scheduledDate
         FROM stages
@@ -493,7 +493,7 @@
         SELECT stages.name as stageName, stages.id as stageId,
         stages.pipelineId as pipelineId, stages.approvalType,
         stages.counter as stageCounter, stages.completedByTransitionId as completedByTransitionId,
-        stages.state as stageState, stages.approvedBy, stages.createdTime, stages.orderId, stages.result as stageResult,
+        stages.state as stageState, stages.approvedBy, stages.cancelledBy, stages.createdTime, stages.orderId, stages.result as stageResult,
         stages.latestRun, stages.fetchMaterials, stages.cleanWorkingDir, stages.rerunOfCounter, stages.artifactsDeleted, stages.configVersion, stages.lastTransitionedTime
         FROM stages
         INNER JOIN builds ON stages.id = builds.stageId
@@ -506,6 +506,7 @@
         stages.counter as stageCounter,
         stages.pipelineId as pipelineId,
         stages.approvedBy,
+        stages.cancelledBy,
         stages.createdTime,
         stages.orderId,
         stages.result as stageResult,
@@ -580,6 +581,7 @@
         stages.counter as stageCounter,
         stages.pipelineId as pipelineId,
         stages.approvedBy,
+        stages.cancelledBy,
         stages.createdTime,
         stages.orderId,
         stages.result as stageResult,

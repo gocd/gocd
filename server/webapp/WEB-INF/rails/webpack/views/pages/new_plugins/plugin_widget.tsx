@@ -89,7 +89,7 @@ export class PluginWidget extends MithrilViewComponent<Attrs> {
       ["Supported operating systems", pluginInfo.about.targetOperatingSystemsDisplayValue()],
       ["Plugin file location", pluginInfo.pluginFileLocation],
       ["Bundled", pluginInfo.bundledPlugin ? "Yes" : "No"],
-      ["Target Go Version", pluginInfo.about.targetGoVersion],
+      ["Target GoCD Version", pluginInfo.about.targetGoVersion],
     ]);
     if (pluginInfo.hasErrors()) {
       pluginData = pluginData.set("There were errors loading the plugin", pluginInfo.getErrors());

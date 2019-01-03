@@ -228,7 +228,6 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
     private static GoSystemProperty<Boolean> ENABLE_ANALYTICS_ONLY_FOR_ADMINS = new GoBooleanSystemProperty("go.enable.analytics.only.for.admins", false);
     public static final GoSystemProperty<Boolean> FAIL_STARTUP_ON_DATA_ERROR = new GoBooleanSystemProperty("gocd.fail.startup.on.data.error", false);
     private static final GoSystemProperty<Boolean> JOB_DETAILS_USE_IFRAME_SANDBOX = new GoBooleanSystemProperty("gocd.job.details.sandbox", true);
-    private static final GoSystemProperty<Boolean> DES_CIPHER_ENABLED = new GoBooleanSystemProperty("gocd.des.cipher.enabled", true);
     private static GoSystemProperty<Boolean> GO_PLUGIN_CLASSLOADER_OLD = new GoBooleanSystemProperty("gocd.plugins.classloader.old", false);
     public static final GoSystemProperty<String> LOADING_PAGE = new GoStringSystemProperty("loading.page.resource.path", "/loading_pages/default.loading.page.html");
     public static GoSystemProperty<Long> NOTIFICATION_PLUGIN_MESSAGES_TTL = new GoLongSystemProperty("plugins.notification.message.ttl.millis", 2 * 60 * 1000L);
@@ -934,10 +933,6 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
 
     public boolean useIframeSandbox() {
         return JOB_DETAILS_USE_IFRAME_SANDBOX.getValue();
-    }
-
-    public boolean desEnabled() {
-        return DES_CIPHER_ENABLED.getValue();
     }
 
     public boolean pluginClassLoaderHasOldBehaviour() {

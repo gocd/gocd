@@ -38,7 +38,7 @@ public class GoCipher implements Serializable {
     public GoCipher(SystemEnvironment systemEnvironment) {
         this.aesEncrypter = new AESEncrypter(new AESCipherProvider(systemEnvironment));
 
-        if (desCipherFileExists(systemEnvironment) && systemEnvironment.desEnabled()) {
+        if (desCipherFileExists(systemEnvironment)) {
             this.desEncrypter = new DESEncrypter(new DESCipherProvider(systemEnvironment));
         } else {
             this.desEncrypter = null;
@@ -56,8 +56,6 @@ public class GoCipher implements Serializable {
     public String decrypt(String cipherText) throws CryptoException {
         if (isAES(cipherText)) {
             return aesEncrypter.decrypt(cipherText);
-        } else if (desEncrypter != null) {
-            return desEncrypter.decrypt(cipherText);
         } else {
             throw new CryptoException("Unable to decrypt cipherText");
         }

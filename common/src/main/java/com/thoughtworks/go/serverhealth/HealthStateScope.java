@@ -232,7 +232,7 @@ public class HealthStateScope implements Comparable<HealthStateScope> {
         },
         MATERIAL {
             public boolean isRemovedFromConfig(CruiseConfig cruiseConfig, String materialScope) {
-                for (MaterialConfig materialConfig : cruiseConfig.getAllUniqueMaterials()) {
+                for (MaterialConfig materialConfig : cruiseConfig.getAllUniqueMaterialsOfPipelinesAndConfigRepos()) {
                     if (HealthStateScope.forMaterialConfig(materialConfig).getScope().equals(materialScope)) {
                         return false;
                     }
@@ -242,7 +242,7 @@ public class HealthStateScope implements Comparable<HealthStateScope> {
         },
         MATERIAL_UPDATE {
             public boolean isRemovedFromConfig(CruiseConfig cruiseConfig, String materialScope) {
-                for (MaterialConfig materialConfig : cruiseConfig.getAllUniqueMaterials()) {
+                for (MaterialConfig materialConfig : cruiseConfig.getAllUniqueMaterialsOfPipelinesAndConfigRepos()) {
                     if (HealthStateScope.forMaterialConfigUpdate(materialConfig).getScope().equals(materialScope)) {
                         return false;
                     }

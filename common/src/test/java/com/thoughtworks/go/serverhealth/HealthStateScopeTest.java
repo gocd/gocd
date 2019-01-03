@@ -20,6 +20,7 @@ import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig;
 import com.thoughtworks.go.config.materials.svn.SvnMaterial;
+import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.helper.MaterialConfigsMother;
 import com.thoughtworks.go.helper.MaterialsMother;
@@ -63,6 +64,22 @@ public class HealthStateScopeTest {
         config.pipelineConfigByName(new CaseInsensitiveString("blahPipeline")).addMaterialConfig(hgMaterialConfig);
         assertThat(HealthStateScope.forMaterialConfig(hgMaterialConfig).isRemovedFromConfig(config),is(false));
         assertThat(HealthStateScope.forMaterial(MaterialsMother.svnMaterial("file:///bar")).isRemovedFromConfig(config),is(true));
+    }
+
+    @Test
+    public void shouldNotRemoveScopeWhenMaterialBelongsToConfigRepoMaterial() throws Exception {
+        HgMaterialConfig hgMaterialConfig = MaterialConfigsMother.hgMaterialConfig();
+        CruiseConfig config = GoConfigMother.pipelineHavingJob("blahPipeline", "blahStage", "blahJob", "fii", "baz");
+        config.getConfigRepos().add(new ConfigRepoConfig(hgMaterialConfig, "id1", "foo"));
+        assertThat(HealthStateScope.forMaterialConfig(hgMaterialConfig).isRemovedFromConfig(config),is(false));
+    }
+
+    @Test
+    public void shouldNotRemoveScopeWhenMaterialUpdateBelongsToConfigRepoMaterial() throws Exception {
+        HgMaterialConfig hgMaterialConfig = MaterialConfigsMother.hgMaterialConfig();
+        CruiseConfig config = GoConfigMother.pipelineHavingJob("blahPipeline", "blahStage", "blahJob", "fii", "baz");
+        config.getConfigRepos().add(new ConfigRepoConfig(hgMaterialConfig, "id1", "foo"));
+        assertThat(HealthStateScope.forMaterialConfigUpdate(hgMaterialConfig).isRemovedFromConfig(config),is(false));
     }
 
     @Test

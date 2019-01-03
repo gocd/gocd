@@ -1039,6 +1039,10 @@ public class BasicCruiseConfig implements CruiseConfig {
         return getUniqueMaterials(false, true);
     }
 
+    public Set<MaterialConfig> getAllUniqueMaterialsOfPipelinesAndConfigRepos() {
+        return getUniqueMaterials(false, false);
+    }
+
     private Set<MaterialConfig> getUniqueMaterials(boolean ignoreManualPipelines, boolean ignoreConfigRepos) {
         Set<MaterialConfig> materialConfigs = new HashSet<>();
         Set<Map> uniqueMaterials = new HashSet<>();

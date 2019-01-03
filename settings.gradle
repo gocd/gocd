@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ include ':agent-common'
 include ':agent-launcher'
 include ':agent-process-launcher'
 include ':api:api-admins-config-v1'
+include ':api:api-admins-config-v2'
 include ':api:api-agents-v4'
 include ':api:api-api-shared-v1'
 include ':api:api-artifact-store-config-v1'

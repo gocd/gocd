@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import {AjaxPoller} from "helpers/ajax_poller";
 import {ApiResult, ErrorResponse, SuccessResponse} from "helpers/api_request_builder";
 import * as m from "mithril";
 import * as stream from "mithril/stream";
@@ -125,6 +126,8 @@ export class ConfigReposPage extends Page<null, State> {
       });
       modal.render();
     };
+
+    new AjaxPoller({repeaterFn: this.refreshConfigRepos.bind(this, vnode), initialIntervalSeconds: 10}).start();
   }
 
   componentToDisplay(vnode: m.Vnode<null, State>): JSX.Element | undefined {
@@ -164,20 +167,28 @@ export class ConfigReposPage extends Page<null, State> {
         }
       );
       const apiResponse: ApiResult<ConfigRepo[]> = args[1];
-      apiResponse.do(
-        (successResponse) => {
-          this.pageState = PageState.OK;
-          state.objects(successResponse.body);
-        },
-        (errorResponse) => {
-          state.onError(errorResponse.message);
-          this.pageState = PageState.FAILED;
-        }
-      );
+      this.onConfigReposAPIResponse(apiResponse, vnode);
     });
+  }
+
+  refreshConfigRepos(vnode: m.Vnode<null, State>) {
+    return ConfigReposCRUD.all().then((response) => this.onConfigReposAPIResponse(response, vnode));
   }
 
   pageName(): string {
     return "Config repositories";
+  }
+
+  private onConfigReposAPIResponse(apiResponse: ApiResult<ConfigRepo[]>, vnode: m.Vnode<null, State>) {
+    apiResponse.do(
+      (successResponse) => {
+        this.pageState = PageState.OK;
+        vnode.state.objects(successResponse.body);
+      },
+      (errorResponse) => {
+        vnode.state.onError(errorResponse.message);
+        this.pageState = PageState.FAILED;
+      }
+    );
   }
 }

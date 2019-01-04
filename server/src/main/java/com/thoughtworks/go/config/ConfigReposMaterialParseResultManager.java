@@ -22,6 +22,7 @@ package com.thoughtworks.go.config;
 
 
 import com.thoughtworks.go.config.remote.PartialConfig;
+import com.thoughtworks.go.domain.materials.Modification;
 
 import java.util.Map;
 import java.util.Set;
@@ -42,11 +43,21 @@ public class ConfigReposMaterialParseResultManager {
         fingerprintOfPartialToParseResultMap.remove(fingerprint);
     }
 
-    public void parseFailed(String fingerprint, String revision, Exception exception) {
-        fingerprintOfPartialToParseResultMap.put(fingerprint, new PartialConfigParseResult(revision, exception));
+    public PartialConfigParseResult parseFailed(String fingerprint, Modification modification, Exception exception) {
+        PartialConfigParseResult existingResult = get(fingerprint);
+        if (existingResult == null) { //if no result exists in the map, create a new one
+            return fingerprintOfPartialToParseResultMap.put(fingerprint, PartialConfigParseResult.parseFailed(modification, exception));
+        } else {
+            PartialConfigParseResult newResult = PartialConfigParseResult.parseFailed(modification, exception);
+            newResult.setGoodModification(existingResult.getGoodModification());
+            newResult.setPartialConfig(existingResult.getPartialConfig());
+            return fingerprintOfPartialToParseResultMap.put(fingerprint, newResult);
+        }
     }
 
-    public void parseSuccess(String fingerprint, String revision, PartialConfig newPart) {
-        fingerprintOfPartialToParseResultMap.put(fingerprint, new PartialConfigParseResult(revision, newPart));
+    public PartialConfigParseResult parseSuccess(String fingerprint, Modification modification, PartialConfig newPart) {
+        //if no result exists in the map, create a new one
+        //if already a result exists in the map, override the result, as the latest modification is successful. regardless of the result being successful or failed
+        return fingerprintOfPartialToParseResultMap.put(fingerprint, PartialConfigParseResult.parseSuccess(modification, newPart));
     }
 }

@@ -43,16 +43,16 @@ public class ConfigMaterialUpdateListenerTest {
     private ConfigMaterialUpdateCompletedTopic configCompleted;
     private MaterialUpdateCompletedTopic topic;
     private ConfigMaterialUpdateListener configUpdater;
-    private   MaterialService materialService;
+    private MaterialService materialService;
 
     private Material material;
     private File folder = new File("checkoutDir");
-    private  MaterialRevisions mods;
+    private MaterialRevisions mods;
     private MaterialPoller poller;
+    private Modification svnModification;
 
     @Before
-    public void SetUp()
-    {
+    public void SetUp() {
         repoConfigDataSource = mock(GoRepoConfigDataSource.class);
         materialChecker = mock(MaterialChecker.class);
         materialRepository = mock(MaterialRepository.class);
@@ -60,80 +60,77 @@ public class ConfigMaterialUpdateListenerTest {
         topic = mock(MaterialUpdateCompletedTopic.class);
         materialService = mock(MaterialService.class);
 
-        material = new SvnMaterial("url","tom","pass",false);
+        material = new SvnMaterial("url", "tom", "pass", false);
 
         when(materialRepository.folderFor(material)).thenReturn(folder);
         poller = mock(MaterialPoller.class);
         when(materialService.getPollerImplementation(any(Material.class))).thenReturn(poller);
 
-        Modification svnModification = new Modification("user", "commend", "em@il", new Date(), "1");
-        mods = revisions(material,svnModification);
+        svnModification = new Modification("user", "commend", "em@il", new Date(), "1");
+        mods = revisions(material, svnModification);
 
         when(materialRepository.findLatestModification(material)).thenReturn(mods);
 
         configUpdater = new ConfigMaterialUpdateListener(
-                repoConfigDataSource,materialRepository,materialChecker,
-                configCompleted,topic,materialService,new TestSubprocessExecutionContext());
+                repoConfigDataSource, materialRepository, materialChecker,
+                configCompleted, topic, materialService, new TestSubprocessExecutionContext());
     }
+
     private MaterialRevisions revisions(Material material, Modification modification) {
         return new MaterialRevisions(new MaterialRevision(material, modifications(modification)));
     }
 
     @Test
-    public void shouldPostMaterialUpdateCompletedMessagesFurther()
-    {
+    public void shouldPostMaterialUpdateCompletedMessagesFurther() {
         MaterialUpdateSuccessfulMessage message = new MaterialUpdateSuccessfulMessage(material, 123);
         this.configUpdater.onMessage(message);
 
-        verify(topic,times(1)).post(new ConfigMaterialUpdateCompletedMessage(material, 123));
+        verify(topic, times(1)).post(new ConfigMaterialUpdateCompletedMessage(material, 123));
     }
 
     @Test
-    public void shouldPerformCheckoutUsingMaterialPoller()
-    {
+    public void shouldPerformCheckoutUsingMaterialPoller() {
         MaterialUpdateSuccessfulMessage message = new MaterialUpdateSuccessfulMessage(material, 123);
         this.configUpdater.onMessage(message);
 
-        verify(poller,times(1)).checkout(any(Material.class),any(File.class), any(Revision.class),any(SubprocessExecutionContext.class));
+        verify(poller, times(1)).checkout(any(Material.class), any(File.class), any(Revision.class), any(SubprocessExecutionContext.class));
     }
 
     @Test
-    public void shouldCallGoRepoConfigDataSourceWhenMaterialUpdateSuccessfulMessage()
-    {
+    public void shouldCallGoRepoConfigDataSourceWhenMaterialUpdateSuccessfulMessage() {
         MaterialUpdateSuccessfulMessage message = new MaterialUpdateSuccessfulMessage(material, 123);
         this.configUpdater.onMessage(message);
 
-        verify(repoConfigDataSource,times(1)).onCheckoutComplete(material.config(),folder,"1");
-        verify(topic,times(1)).post(new ConfigMaterialUpdateCompletedMessage(material, 123));
+        verify(repoConfigDataSource, times(1)).onCheckoutComplete(material.config(), folder, svnModification);
+        verify(topic, times(1)).post(new ConfigMaterialUpdateCompletedMessage(material, 123));
     }
+
     @Test
-    public void shouldNotCallGoRepoConfigDataSourceWhenMaterialUpdateFailedMessage()
-    {
+    public void shouldNotCallGoRepoConfigDataSourceWhenMaterialUpdateFailedMessage() {
         MaterialUpdateFailedMessage message = new MaterialUpdateFailedMessage(material, 123, new RuntimeException("bla"));
         this.configUpdater.onMessage(message);
 
-        verify(repoConfigDataSource,times(0)).onCheckoutComplete(material.config(),folder,"1");
-        verify(topic,times(1)).post(new ConfigMaterialUpdateCompletedMessage(material, 123));
+        verify(repoConfigDataSource, times(0)).onCheckoutComplete(material.config(), folder, getModificationFor("1"));
+        verify(topic, times(1)).post(new ConfigMaterialUpdateCompletedMessage(material, 123));
     }
 
     @Test
-    public void shouldNotCallGoRepoConfigDataSourceWhenNoChanges()
-    {
+    public void shouldNotCallGoRepoConfigDataSourceWhenNoChanges() {
         when(repoConfigDataSource.getRevisionAtLastAttempt(material.config())).thenReturn("1");
-        when(materialChecker.findSpecificRevision(material,"1")).thenReturn(mods.getMaterialRevision(0));
+        when(materialChecker.findSpecificRevision(material, "1")).thenReturn(mods.getMaterialRevision(0));
 
         MaterialUpdateSuccessfulMessage message = new MaterialUpdateSuccessfulMessage(material, 123);
         this.configUpdater.onMessage(message);
 
-        verify(repoConfigDataSource,times(0)).onCheckoutComplete(material.config(),folder,"1");
+        verify(repoConfigDataSource, times(0)).onCheckoutComplete(material.config(), folder, getModificationFor("1"));
         // but pass message further anyway
-        verify(topic,times(1)).post(new ConfigMaterialUpdateCompletedMessage(material, 123));
+        verify(topic, times(1)).post(new ConfigMaterialUpdateCompletedMessage(material, 123));
     }
+
     @Test
-    public void shouldCallGoRepoConfigDataSourceWhenNewRevision()
-    {
+    public void shouldCallGoRepoConfigDataSourceWhenNewRevision() {
         when(repoConfigDataSource.getRevisionAtLastAttempt(material.config())).thenReturn("1");
-        when(materialChecker.findSpecificRevision(material,"1")).thenReturn(mods.getMaterialRevision(0));
+        when(materialChecker.findSpecificRevision(material, "1")).thenReturn(mods.getMaterialRevision(0));
 
         Modification svnModification = new Modification("user", "commend", "em@il", new Date(), "2");
         MaterialRevisions mods2 = revisions(material, svnModification);
@@ -142,7 +139,14 @@ public class ConfigMaterialUpdateListenerTest {
         MaterialUpdateSuccessfulMessage message = new MaterialUpdateSuccessfulMessage(material, 123);
         this.configUpdater.onMessage(message);
 
-        verify(repoConfigDataSource,times(1)).onCheckoutComplete(material.config(),folder,"2");
-        verify(topic,times(1)).post(new ConfigMaterialUpdateCompletedMessage(material, 123));
+        verify(repoConfigDataSource, times(1)).onCheckoutComplete(material.config(), folder, svnModification);
+        verify(topic, times(1)).post(new ConfigMaterialUpdateCompletedMessage(material, 123));
+    }
+
+    private Modification getModificationFor(String revision) {
+        Modification modification = new Modification();
+        modification.setRevision(revision);
+        return modification;
     }
 }
+

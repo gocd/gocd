@@ -69,20 +69,20 @@ public class AdminsConfigService {
         }
     }
 
-    public void bulkUpdate(Username currentUser, List<String> users, List<String> roles, boolean isAdmin, String md5, LocalizedOperationResult result) {
+    public void bulkUpdate(Username currentUser,
+                           List<String> usersToAdd,
+                           List<String> usersToRemove,
+                           List<String> rolesToAdd,
+                           List<String> rolesToRemove,
+                           String md5, LocalizedOperationResult result) {
         Set<Admin> admins = new HashSet<>(systemAdmins());
-        if (isAdmin) {
-            users.forEach(user -> admins.add(new AdminUser(user)));
-            roles.forEach(role -> admins.add(new AdminRole(role)));
-        } else {
-            users.forEach(user -> admins.remove(new AdminUser(new CaseInsensitiveString(user))));
-            roles.forEach(role -> admins.remove(new AdminRole(new CaseInsensitiveString(role))));
-        }
-        AdminsConfigUpdateCommand command = new AdminsConfigUpdateCommand(goConfigService, new AdminsConfig(admins), currentUser, result, entityHashingService, md5);
+        usersToAdd.forEach(user -> admins.add(new AdminUser(user)));
+        rolesToAdd.forEach(role -> admins.add(new AdminRole(role)));
+        usersToRemove.forEach(user -> admins.remove(new AdminUser(new CaseInsensitiveString(user))));
+        rolesToRemove.forEach(role -> admins.remove(new AdminRole(new CaseInsensitiveString(role))));
+        AdminsConfigUpdateCommand command = new AdminsConfigUpdateCommand(goConfigService, new AdminsConfig(admins),
+                currentUser, result, entityHashingService, md5);
         updateConfig(currentUser, result, command);
-        if (result.isSuccessful()) {
-            result.setMessage("Admins updated successfully");
-        }
     }
 }
 

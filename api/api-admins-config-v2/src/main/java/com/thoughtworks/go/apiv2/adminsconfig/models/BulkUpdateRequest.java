@@ -20,25 +20,31 @@ import java.util.List;
 
 public class BulkUpdateRequest {
 
-    private List<String> users;
-    private List<String> roles;
-    private boolean isAdmin;
+    private List<String> usersToAdd;
+    private List<String> usersToRemove;
+    private List<String> rolesToAdd;
+    private List<String> rolesToRemove;
 
-    public BulkUpdateRequest(List<String> users, List<String> roles, boolean isAdmin) {
-        this.users = users;
-        this.roles = roles;
-        this.isAdmin = isAdmin;
+    public BulkUpdateRequest(List<String> usersToAdd, List<String> usersToRemove, List<String> rolesToAdd, List<String> rolesToRemove) {
+        this.usersToAdd = usersToAdd;
+        this.usersToRemove = usersToRemove;
+        this.rolesToAdd = rolesToAdd;
+        this.rolesToRemove = rolesToRemove;
     }
 
-    public List<String> getUsers() {
-        return users;
+    public List<String> getUsersToAdd() {
+        return usersToAdd;
     }
 
-    public List<String> getRoles() {
-        return roles;
+    public List<String> getUsersToRemove() {
+        return usersToRemove;
     }
 
-    public boolean isAdmin() {
-        return isAdmin;
+    public List<String> getRolesToAdd() {
+        return rolesToAdd;
+    }
+
+    public List<String> getRolesToRemove() {
+        return rolesToRemove;
     }
 }

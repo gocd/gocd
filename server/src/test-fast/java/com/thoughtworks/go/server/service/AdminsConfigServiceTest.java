@@ -29,6 +29,7 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 
+import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.hasSize;
@@ -81,7 +82,7 @@ public class AdminsConfigServiceTest {
         Username user = new Username("user");
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
 
-        adminsConfigService.bulkUpdate(user, singletonList("newUser1"), singletonList("newRole1"), true, "md5", result);
+        adminsConfigService.bulkUpdate(user, singletonList("newUser1"), emptyList(), singletonList("newRole1"), emptyList(), "md5", result);
 
         ArgumentCaptor<AdminsConfigUpdateCommand> captor = ArgumentCaptor.forClass(AdminsConfigUpdateCommand.class);
         verify(goConfigService).updateConfig(captor.capture(), eq(user));
@@ -105,7 +106,7 @@ public class AdminsConfigServiceTest {
         Username user = new Username("user");
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
 
-        adminsConfigService.bulkUpdate(user, singletonList("adminUser1"), singletonList("adminRole1"), false, "md5", result);
+        adminsConfigService.bulkUpdate(user, emptyList(), singletonList("adminUser1"), emptyList(), singletonList("adminRole1"), "md5", result);
 
         ArgumentCaptor<AdminsConfigUpdateCommand> captor = ArgumentCaptor.forClass(AdminsConfigUpdateCommand.class);
         verify(goConfigService).updateConfig(captor.capture(), eq(user));

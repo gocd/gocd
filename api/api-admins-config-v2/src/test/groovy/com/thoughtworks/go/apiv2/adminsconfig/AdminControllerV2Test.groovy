@@ -268,22 +268,30 @@ class AdminControllerV2Test implements ControllerTrait<AdminControllerV2>, Secur
 
       @Test
       void 'should patch the system admins'() {
-        AdminsConfig configInServer = new AdminsConfig(new AdminUser(new CaseInsensitiveString("admin")))
+        AdminsConfig expectedConfig = new AdminsConfig(new AdminUser("jez"), new AdminUser("tez"),
+          new AdminRole("super"), new AdminRole("duper"))
 
-        when(adminsConfigService.systemAdmins()).thenReturn(configInServer)
-        when(entityHashingService.md5ForEntity(configInServer)).thenReturn("cached-md5")
+        when(adminsConfigService.systemAdmins()).thenReturn(expectedConfig)
+        when(entityHashingService.md5ForEntity(expectedConfig)).thenReturn("cached-md5")
 
         patchWithApiHeader(controller.controllerPath(), [
-          users: ["jez", "tez"],
           operations: [
-            isAdmin: true
+            users: [
+              add   : ["jez", "tez"],
+              remove: ["admin"]
+            ],
+            roles: [
+              add   : ["super", "duper"],
+              remove: ["wonky", "donkey"]
+            ]
           ]
         ])
 
-        verify(adminsConfigService).bulkUpdate(any(), eq(["jez", "tez"]), eq([]), eq(true), eq("cached-md5"), any(HttpLocalizedOperationResult.class))
+        verify(adminsConfigService).bulkUpdate(any(), eq(["jez", "tez"]), eq(["admin"]), eq(["super", "duper"]), eq(["wonky", "donkey"]), eq("cached-md5"), any(HttpLocalizedOperationResult.class))
         assertThatResponse()
           .isOk()
           .hasContentType(controller.mimeType)
+          .hasBodyWithJsonObject(expectedConfig, AdminsConfigRepresenter)
       }
 
       @Test
@@ -292,15 +300,16 @@ class AdminControllerV2Test implements ControllerTrait<AdminControllerV2>, Secur
 
         when(adminsConfigService.systemAdmins()).thenReturn(configInServer)
         when(entityHashingService.md5ForEntity(configInServer)).thenReturn("cached-md5")
-        when(adminsConfigService.bulkUpdate(any(), eq(["jez", "tez"]), eq([]), eq(true), eq("cached-md5"), any(HttpLocalizedOperationResult.class))).then({ InvocationOnMock invocation ->
+        when(adminsConfigService.bulkUpdate(any(), eq(["jez", "tez"]), eq([]), eq([]), eq([]), eq("cached-md5"), any(HttpLocalizedOperationResult.class))).then({ InvocationOnMock invocation ->
           HttpLocalizedOperationResult result = invocation.getArguments().last()
           result.unprocessableEntity("validation failed")
         })
 
         patchWithApiHeader(controller.controllerPath(), [
-          users: ["jez", "tez"],
           operations: [
-            isAdmin: true
+            users: [
+              add   : ["jez", "tez"],
+            ]
           ]
         ])
 

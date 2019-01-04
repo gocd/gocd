@@ -103,9 +103,15 @@ public class AdminControllerV2 extends ApiController implements SparkSpringContr
         JsonReader jsonReader = GsonTransformer.getInstance().jsonReaderFrom(request.body());
         BulkUpdateRequest bulkUpdateRequest = BulkUpdateRequestRepresenter.fromJSON(jsonReader);
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        adminsConfigService.bulkUpdate(currentUsername(), bulkUpdateRequest.getUsers(), bulkUpdateRequest.getRoles(),
-                bulkUpdateRequest.isAdmin(), etagFor(adminsConfigService.systemAdmins()), result);
-        return renderHTTPOperationResult(result, request, response);
+        adminsConfigService.bulkUpdate(currentUsername(),
+                bulkUpdateRequest.getUsersToAdd(), bulkUpdateRequest.getUsersToRemove(),
+                bulkUpdateRequest.getRolesToAdd(), bulkUpdateRequest.getRolesToRemove(),
+                etagFor(adminsConfigService.systemAdmins()), result);
+        if (result.isSuccessful()) {
+            return writerForTopLevelObject(request, response, jsonWriter(adminsConfigService.systemAdmins()));
+        } else {
+            return renderHTTPOperationResult(result, request, response);
+        }
     }
 
     @Override

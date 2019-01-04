@@ -19,16 +19,29 @@ package com.thoughtworks.go.apiv2.adminsconfig.representers;
 import com.thoughtworks.go.api.representers.JsonReader;
 import com.thoughtworks.go.apiv2.adminsconfig.models.BulkUpdateRequest;
 
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
+
+import static java.util.Collections.emptyList;
 
 public class BulkUpdateRequestRepresenter {
 
     public static BulkUpdateRequest fromJSON(JsonReader jsonReader) {
-        Optional<List<String>> users = jsonReader.readStringArrayIfPresent("users");
-        Optional<List<String>> roles = jsonReader.readStringArrayIfPresent("roles");
-        boolean isAdmin = jsonReader.readJsonObject("operations").getBoolean("isAdmin");
-        return new BulkUpdateRequest(users.orElse(Collections.emptyList()), roles.orElse(Collections.emptyList()), isAdmin);
+        JsonReader operations = jsonReader.readJsonObject("operations");
+        List<String> usersToAdd = new ArrayList<>();
+        List<String> usersToRemove = new ArrayList<>();
+        List<String> rolesToAdd = new ArrayList<>();
+        List<String> rolesToRemove = new ArrayList<>();
+
+        operations.optJsonObject("users").ifPresent(reader -> {
+            usersToAdd.addAll(reader.readStringArrayIfPresent("add").orElse(emptyList()));
+            usersToRemove.addAll(reader.readStringArrayIfPresent("remove").orElse(emptyList()));
+        });
+
+        operations.optJsonObject("roles").ifPresent(reader -> {
+            rolesToAdd.addAll(reader.readStringArrayIfPresent("add").orElse(emptyList()));
+            rolesToRemove.addAll(reader.readStringArrayIfPresent("remove").orElse(emptyList()));
+        });
+        return new BulkUpdateRequest(usersToAdd, usersToRemove, rolesToAdd, rolesToRemove);
     }
 }

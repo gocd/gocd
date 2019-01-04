@@ -80,7 +80,7 @@ public class AdminsConfigTest {
 
     @Test
     public void shouldValidatePresenceOfUserName() {
-        AdminsConfig adminsConfig = new AdminsConfig(new AdminUser(null));
+        AdminsConfig adminsConfig = new AdminsConfig(new AdminUser(""));
         ValidationContext validationContext = mock(ValidationContext.class);
 
         assertFalse(adminsConfig.validateTree(validationContext));

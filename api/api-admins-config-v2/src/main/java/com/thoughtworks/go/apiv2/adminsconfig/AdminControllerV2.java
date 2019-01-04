@@ -23,7 +23,9 @@ import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.api.representers.JsonReader;
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
 import com.thoughtworks.go.api.util.GsonTransformer;
+import com.thoughtworks.go.apiv2.adminsconfig.models.BulkUpdateRequest;
 import com.thoughtworks.go.apiv2.adminsconfig.representers.AdminsConfigRepresenter;
+import com.thoughtworks.go.apiv2.adminsconfig.representers.BulkUpdateRequestRepresenter;
 import com.thoughtworks.go.config.AdminsConfig;
 import com.thoughtworks.go.server.service.AdminsConfigService;
 import com.thoughtworks.go.server.service.EntityHashingService;
@@ -68,6 +70,7 @@ public class AdminControllerV2 extends ApiController implements SparkSpringContr
 
             get("", mimeType, this::show);
             put("", mimeType, this::update);
+            patch("", mimeType, this::bulkUpdate);
         });
     }
 
@@ -94,6 +97,15 @@ public class AdminControllerV2 extends ApiController implements SparkSpringContr
         adminsConfigService.update(currentUsername(), adminsConfigFromRequest, etagFor(adminsConfigFromServer), result);
 
         return handleCreateOrUpdateResponse(req, res, adminsConfigFromRequest, result);
+    }
+
+    public String bulkUpdate(Request request, Response response) throws IOException {
+        JsonReader jsonReader = GsonTransformer.getInstance().jsonReaderFrom(request.body());
+        BulkUpdateRequest bulkUpdateRequest = BulkUpdateRequestRepresenter.fromJSON(jsonReader);
+        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+        adminsConfigService.bulkUpdate(currentUsername(), bulkUpdateRequest.getUsers(), bulkUpdateRequest.getRoles(),
+                bulkUpdateRequest.isAdmin(), etagFor(adminsConfigService.systemAdmins()), result);
+        return renderHTTPOperationResult(result, request, response);
     }
 
     @Override

@@ -134,7 +134,6 @@ class AdminControllerV2Test implements ControllerTrait<AdminControllerV2>, Secur
     }
   }
 
-
   @Nested
   class Update {
     @Nested
@@ -231,6 +230,84 @@ class AdminControllerV2Test implements ControllerTrait<AdminControllerV2>, Secur
         assertThatResponse().isPreconditionFailed()
           .hasContentType(controller.mimeType)
           .hasJsonMessage("Someone has modified the entity. Please update your copy with the changes and try again.")
+      }
+    }
+  }
+
+  @Nested
+  class Patch {
+    @Nested
+    class Security implements SecurityTestTrait, AdminUserSecurity {
+      AdminsConfig config
+
+      @BeforeEach
+      void setUp() {
+        config = new AdminsConfig(new AdminUser(new CaseInsensitiveString("admin")))
+        when(adminsConfigService.systemAdmins()).thenReturn(config)
+        when(entityHashingService.md5ForEntity(config)).thenReturn('cached-md5')
+      }
+
+      @Override
+      String getControllerMethodUnderTest() {
+        return "bulkUpdate"
+      }
+
+      @Override
+      void makeHttpCall() {
+        patchWithApiHeader(controller.controllerPath(), [])
+      }
+    }
+
+    @Nested
+    class AsAdmin {
+      @BeforeEach
+      void setUp() {
+        enableSecurity()
+        loginAsAdmin()
+      }
+
+      @Test
+      void 'should patch the system admins'() {
+        AdminsConfig configInServer = new AdminsConfig(new AdminUser(new CaseInsensitiveString("admin")))
+
+        when(adminsConfigService.systemAdmins()).thenReturn(configInServer)
+        when(entityHashingService.md5ForEntity(configInServer)).thenReturn("cached-md5")
+
+        patchWithApiHeader(controller.controllerPath(), [
+          users: ["jez", "tez"],
+          operations: [
+            isAdmin: true
+          ]
+        ])
+
+        verify(adminsConfigService).bulkUpdate(any(), eq(["jez", "tez"]), eq([]), eq(true), eq("cached-md5"), any(HttpLocalizedOperationResult.class))
+        assertThatResponse()
+          .isOk()
+          .hasContentType(controller.mimeType)
+      }
+
+      @Test
+      void 'should return a response with errors if patch fails'() {
+        AdminsConfig configInServer = new AdminsConfig(new AdminUser(new CaseInsensitiveString("admin")))
+
+        when(adminsConfigService.systemAdmins()).thenReturn(configInServer)
+        when(entityHashingService.md5ForEntity(configInServer)).thenReturn("cached-md5")
+        when(adminsConfigService.bulkUpdate(any(), eq(["jez", "tez"]), eq([]), eq(true), eq("cached-md5"), any(HttpLocalizedOperationResult.class))).then({ InvocationOnMock invocation ->
+          HttpLocalizedOperationResult result = invocation.getArguments().last()
+          result.unprocessableEntity("validation failed")
+        })
+
+        patchWithApiHeader(controller.controllerPath(), [
+          users: ["jez", "tez"],
+          operations: [
+            isAdmin: true
+          ]
+        ])
+
+        assertThatResponse()
+          .isUnprocessableEntity()
+          .hasContentType(controller.mimeType)
+          .hasJsonMessage("validation failed")
       }
     }
   }

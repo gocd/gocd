@@ -37,6 +37,10 @@ public class AdminUser implements Admin {
         this.name = name;
     }
 
+    public AdminUser(String name) {
+        this.name = new CaseInsensitiveString(name);
+    }
+
     public void validate(ValidationContext validationContext) {
         if (name == null || name.isBlank())
             addError("User cannot be blank.");

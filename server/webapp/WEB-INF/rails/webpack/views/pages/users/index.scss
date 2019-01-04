@@ -41,3 +41,95 @@
 .gocd-role {
   @include icon-before($type: $fa-var-circle, $color: $go-primary);
 }
+
+.user-management-header {
+  display:         flex;
+  justify-content: space-between;
+  margin-bottom:   10px;
+}
+
+.user-actions {
+  display: flex;
+}
+
+.user-count {
+  display:         flex;
+  justify-content: flex-start;
+  align-items:     Center;
+}
+
+.user-count-list {
+  list-style-type: none;
+  margin:          0;
+  display:         flex;
+  padding:         0;
+
+  li {
+    margin-right: 20px;
+  }
+}
+
+.count-all {
+  color:       $black;
+  font-weight: 600;
+}
+
+.count-enabled {
+  color:       $go-green;
+  font-weight: 600;
+}
+
+.count-disabled {
+  color:       $go-danger;
+  font-weight: 600;
+}
+
+.user-filters {
+  display: flex;
+}
+
+
+.filter-dropdown {
+  position: relative;
+}
+
+.filter-dropdown-content {
+  background:    $white;
+  width:         570px;
+  position:      absolute;
+  top:           36px;
+  right:         0;
+  border-radius: $global-border-radius;
+  padding:       10px 20px 0;
+  box-shadow:    0 2px 4px $box-shadow-color;
+}
+
+.filter-header {
+  display:         flex;
+  justify-content: space-between;
+  padding:         0 20px 10px 20px;
+  margin:          0 -20px;
+  border-bottom:   1px solid $border-color;
+
+  h4 {
+    margin: 0;
+  }
+}
+
+.filters-body {
+  display: flex;
+}
+
+.filter-items {
+  width:   33.3%;
+  padding: 15px 0;
+}
+
+.filter-items-head {
+  margin: 0 0 20px 0;
+}
+
+.roles-list {
+  max-height: 150px;
+  overflow:   auto;
+}

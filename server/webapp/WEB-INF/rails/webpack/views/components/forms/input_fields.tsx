@@ -172,6 +172,11 @@ export class TextField extends FormField<string> {
 }
 
 export class SearchField extends FormField<string> {
+
+  view(vnode: m.Vnode<FormFieldAttrs<string>>): any {
+    return this.renderInputField(vnode);
+  }
+
   renderInputField(vnode: m.Vnode<FormFieldAttrs<string>>) {
     return (
       <span className={classnames(styles.searchBoxWrapper)}>

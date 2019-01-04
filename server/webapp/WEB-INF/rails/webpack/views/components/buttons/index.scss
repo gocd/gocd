@@ -22,15 +22,15 @@ $btn-reset: #666;
 $btn-danger: $go-danger;
 
 .button {
-  display: inline-block;
-  border: 1px solid transparent;
-  padding: 0 20px;
-  height: $form-element-height;
-  line-height: $form-element-height;
+  display:       inline-block;
+  border:        1px solid transparent;
+  padding:       0 20px;
+  height:        $form-element-height;
+  line-height:   $form-element-height;
   border-radius: $global-border-radius;
-  font-size: 14px;
-  font-weight: 400;
-  cursor: pointer;
+  font-size:     14px;
+  font-weight:   400;
+  cursor:        pointer;
 
   &:active, &:focus {
     outline: 0;
@@ -38,28 +38,28 @@ $btn-danger: $go-danger;
 
   &:disabled {
     opacity: 0.4;
-    cursor: not-allowed;
+    cursor:  not-allowed;
   }
 }
 
 .disabled {
-  cursor: not-allowed;
+  cursor:         not-allowed;
   pointer-events: none;
 }
 
 .btn-small {
-  padding: 0 10px;
-  height: $form-element-height-small;
+  padding:     0 10px;
+  height:      $form-element-height-small;
   line-height: $form-element-height-small;
   font-weight: 400;
-  font-size: 13px;
+  font-size:   13px;
 }
 
 @mixin button($background-color) {
-  background: $background-color;
+  background:   $background-color;
   border-color: $background-color;
-  color: $btn-text-color;
-  transition: $transition;
+  color:        $btn-text-color;
+  transition:   $transition;
   &:hover {
     background: darken($background-color, 10%);
     transition: $transition;
@@ -93,6 +93,34 @@ $btn-danger: $go-danger;
   color: $text-color;
 }
 
+.btn-link {
+  color:           $text-color;
+  padding:         0;
+  text-decoration: underline;
+  line-height:     normal;
+  height:          auto;
+}
+
+.btn-dropdown {
+  @include button($background-color: $white);
+  @include icon-after($type: $fa-var-angle-down);
+  color:  $text-color;
+  border: 1px solid $border-color;
+
+  &:hover {
+    background-color: $white;
+  }
+
+  &:after,
+  &:before {
+    color: $icon-color;
+  }
+
+  &:after {
+    margin-right: -5px;
+  }
+}
+
 .icon-add {
   border: 10px solid $secondary-bg;
 }
@@ -106,8 +134,37 @@ $btn-danger: $go-danger;
   }
 }
 
+.icon-filter {
+  @include icon-before($type: $fa-var-filter);
+
+  &:before {
+    margin: 5px 10px 5px -5px;
+  }
+}
+
+.button + .button {
+  margin-left: 20px;
+}
+
 .button-group {
+  display: inline-flex;
+
   .button + .button {
-    margin-left: 20px;
+    margin-left: 1px;
+  }
+
+  > .button {
+    border:        none;
+    border-left:   1px solid $border-color;
+    border-radius: 0;
+
+    &:first-child {
+      border-left:   none;
+      border-radius: $global-border-radius 0 0 $global-border-radius;
+    }
+
+    &:last-child {
+      border-radius: 0 $global-border-radius $global-border-radius 0;
+    }
   }
 }

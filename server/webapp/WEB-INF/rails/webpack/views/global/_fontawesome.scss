@@ -59,3 +59,10 @@
     @content;
   }
 }
+
+@mixin icon-after($type, $size: auto, $margin: 5px, $line-height: 1em, $color: auto, $top: auto, $shadow: none, $font: 'font-awesome', $progress-spinner: false) {
+  &:after {
+    @include icon($type, $size, $margin, $line-height, $color, $top, $shadow, $font: $font);
+    @content;
+  }
+}

@@ -18,7 +18,7 @@ import {MithrilViewComponent} from "jsx/mithril-component";
 import * as m from "mithril";
 import {Stream} from "mithril/stream";
 import * as stream from "mithril/stream";
-import {ButtonGroup} from "views/components/buttons/index";
+import {ButtonGroup, ButtonIcon} from "views/components/buttons/index";
 import * as Buttons from "views/components/buttons/index";
 import {CollapsiblePanel} from "views/components/collapsible_panel";
 import {FlashMessage, MessageType} from "views/components/flash_message";
@@ -130,20 +130,31 @@ export class KitchenSink extends MithrilViewComponent<null> {
         <hr/>
         <br/>
 
-        <div>
-          <h1>Work in progress components!</h1>
-        </div>
+        <h3>Buttons without a grouping:</h3>
+        <Buttons.Secondary>Button</Buttons.Secondary>
+        <Buttons.Secondary>Secondary Button</Buttons.Secondary>
+        <Buttons.Reset>Reset Button</Buttons.Reset>
+        <Buttons.Cancel>Cancel</Buttons.Cancel>
+        <Buttons.Danger>Delete</Buttons.Danger>
+        <hr/>
 
-        <h3>Buttons:</h3>
+        <h3>Button with icon:</h3>
+        <Buttons.Dropdown icon={ButtonIcon.FILTER}>Button with icon</Buttons.Dropdown>
+
+        <h3>Button link:</h3>
+        <Buttons.Link>Button link</Buttons.Link>
+
+        <h3>Button group with buttons:</h3>
         <ButtonGroup>
-          <Buttons.Primary>Primary Button</Buttons.Primary>
-          <Buttons.Secondary>Secondary Button</Buttons.Secondary>
-          <Buttons.Reset>Reset Button</Buttons.Reset>
-          <Buttons.Cancel>Cancel</Buttons.Cancel>
-          <Buttons.Danger>Delete</Buttons.Danger>
+          <Buttons.Secondary>Button</Buttons.Secondary>
+          <Buttons.Secondary>Button</Buttons.Secondary>
+          <Buttons.Secondary>Button</Buttons.Secondary>
+          <Buttons.Secondary>Button</Buttons.Secondary>
+          <Buttons.Secondary>Button</Buttons.Secondary>
         </ButtonGroup>
         <hr/>
-        <h3>Disabled Buttons:</h3>
+
+        <h3>Button group with disabled buttons:</h3>
         <ButtonGroup>
           <Buttons.Primary disabled={true}>Disabled Primary Button</Buttons.Primary>
           <Buttons.Secondary disabled={true}>Disabled Secondary Button</Buttons.Secondary>

@@ -25,6 +25,7 @@ const classnames = bind(styles);
 export enum ButtonIcon {
   ADD,
   DOC,
+  FILTER,
 }
 
 export interface Attrs {
@@ -65,6 +66,8 @@ class Button extends MithrilViewComponent<Attrs> {
         return styles.iconAdd;
       case ButtonIcon.DOC:
         return styles.iconDoc;
+      case ButtonIcon.FILTER:
+        return styles.iconFilter;
     }
     return "";
   }
@@ -100,8 +103,20 @@ export class Cancel extends Button {
   }
 }
 
-export class ButtonGroup extends MithrilViewComponent<Attrs> {
-  view(vnode: m.Vnode<Attrs>) {
+export class Dropdown extends Button {
+  constructor() {
+    super(styles.btnDropdown);
+  }
+}
+
+export class Link extends Button {
+  constructor() {
+    super(styles.btnLink);
+  }
+}
+
+export class ButtonGroup extends MithrilViewComponent<{}> {
+  view(vnode: m.Vnode) {
     return (
       <div className={styles.buttonGroup} aria-label="actions">
         {vnode.children}

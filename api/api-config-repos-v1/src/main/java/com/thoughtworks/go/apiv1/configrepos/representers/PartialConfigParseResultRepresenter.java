@@ -25,8 +25,26 @@ public class PartialConfigParseResultRepresenter {
             return;
         }
 
-        json.add("revision", result.getRevision());
-        json.add("success", result.isSuccessful());
+        json.addChild("latest_parsed_modification", outputWriter -> {
+            outputWriter.add("username", result.getLatestParsedModification().getUserName());
+            outputWriter.add("email_address", result.getLatestParsedModification().getEmailAddress());
+            outputWriter.add("revision", result.getLatestParsedModification().getRevision());
+            outputWriter.add("comment", result.getLatestParsedModification().getComment());
+            outputWriter.add("modified_time", result.getLatestParsedModification().getModifiedTime());
+        });
+
+        if (result.getGoodModification() != null) {
+            json.addChild("good_modification", outputWriter -> {
+                outputWriter.add("username", result.getGoodModification().getUserName());
+                outputWriter.add("email_address", result.getGoodModification().getEmailAddress());
+                outputWriter.add("revision", result.getGoodModification().getRevision());
+                outputWriter.add("comment", result.getGoodModification().getComment());
+                outputWriter.add("modified_time", result.getGoodModification().getModifiedTime());
+            });
+        } else {
+            json.add("good_modification", (String) null);
+        }
+
         json.add("error", result.isSuccessful() ? null : result.getLastFailure().getMessage());
     }
 }

@@ -35,7 +35,7 @@ public class ConfigRepoWithResultRepresenter {
         json.addChild("material", w -> MaterialRepresenter.toJSON(w, repo.getMaterialConfig()));
         attachConfigurations(json, repo);
 
-        json.addChild("last_parse", w -> PartialConfigParseResultRepresenter.toJSON(w, result));
+        json.addChild("parse_info", w -> PartialConfigParseResultRepresenter.toJSON(w, result));
     }
 
     private static void attachLinks(OutputWriter json, ConfigRepoConfig repo) {

@@ -121,7 +121,7 @@ describe("Filters", () => {
 
       userFilters.enabledUsers(true);
       expect(userFilters.isAnyUserStateFilterApplied()).toBe(true);
-    })
+    });
 
     it("should filter enabled users", () => {
       const users = Users.fromJSON(usersJSON());
@@ -216,7 +216,7 @@ describe("Search", () => {
     const users = Users.fromJSON(usersJSON());
 
     const userFilters = new UserFilters();
-    userFilters.searchText("admin")
+    userFilters.searchText("admin");
 
     const filteredUsers = userFilters.performFilteringOn(users);
 
@@ -229,7 +229,7 @@ describe("Search", () => {
     const users = Users.fromJSON(usersJSON());
 
     const userFilters = new UserFilters();
-    userFilters.searchText("some-stupid-query-which-doesn't-match-any-user")
+    userFilters.searchText("some-stupid-query-which-doesn't-match-any-user");
 
     const filteredUsers = userFilters.performFilteringOn(users);
 

@@ -63,7 +63,7 @@
             bottomActionBar = activeTab.find('.console-footer-action-bar');
 
         topActionBar.pinOnScroll({
-          'z-index':      100,
+          'z-index':      9,
           top:            90,
           requiredScroll: 233
         });

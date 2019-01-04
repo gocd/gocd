@@ -78,8 +78,8 @@ public class GoServer {
     }
 
     AppServer configureServer() throws Exception {
-        Constructor<?> constructor = Class.forName(systemEnvironment.get(SystemEnvironment.APP_SERVER)).getConstructor(SystemEnvironment.class, String.class, SSLSocketFactory.class);
-        AppServer server = ((AppServer) constructor.newInstance(systemEnvironment, systemEnvironment.getServerKeyStorePassword(), sslSocketFactory));
+        Constructor<?> constructor = Class.forName(systemEnvironment.get(SystemEnvironment.APP_SERVER)).getConstructor(SystemEnvironment.class, String.class);
+        AppServer server = ((AppServer) constructor.newInstance(systemEnvironment, systemEnvironment.getServerKeyStorePassword()));
         server.configure();
         server.addExtraJarsToClasspath(getExtraJarsToBeAddedToClasspath());
         server.setSessionConfig();

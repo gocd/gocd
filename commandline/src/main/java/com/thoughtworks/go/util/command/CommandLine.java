@@ -60,7 +60,6 @@ public class CommandLine {
     private Map<String, String> env = new HashMap<>();
     private List<String> inputs = new ArrayList<>();
     private String encoding;
-    public static final long NO_TIMEOUT = -1;
     private final String ERROR_STREAM_PREFIX_FOR_SCRIPTS = "";
     private final String ERROR_STREAM_PREFIX_FOR_CMDS = "STDERR: ";
 

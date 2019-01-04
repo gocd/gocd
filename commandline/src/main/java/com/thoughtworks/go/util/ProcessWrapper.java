@@ -37,14 +37,12 @@ public class ProcessWrapper {
     private long startTime;
     private String processTag;
     private String command;
-    private ConsoleOutputStreamConsumer consumer;
     private static final Logger LOGGER = LoggerFactory.getLogger(ProcessWrapper.class);
 
     ProcessWrapper(Process process, String processTag, String command, ConsoleOutputStreamConsumer consumer, String encoding, String errorPrefix) {
         this.process = process;
         this.processTag = processTag;
         this.command = command;
-        this.consumer = consumer;
         this.startTime = System.currentTimeMillis();
         this.processOutputStream = StreamPumper.pump(process.getInputStream(), new OutputConsumer(consumer), "", encoding);
         this.processErrorStream = StreamPumper.pump(process.getErrorStream(), new ErrorConsumer(consumer), errorPrefix, encoding);

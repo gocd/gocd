@@ -22,7 +22,6 @@ import com.thoughtworks.go.config.materials.ScmMaterial;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterial;
 import com.thoughtworks.go.domain.MaterialRevision;
 import com.thoughtworks.go.domain.materials.scm.PluggableSCMMaterialAgent;
-import com.thoughtworks.go.plugin.access.packagematerial.PackageRepositoryExtension;
 import com.thoughtworks.go.plugin.access.scm.SCMExtension;
 import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.util.command.ConsoleOutputStreamConsumer;
@@ -33,18 +32,15 @@ public class MaterialAgentFactory {
     private ConsoleOutputStreamConsumer consumer;
     private File workingDirectory;
     private final AgentIdentifier agentIdentifier;
-    private PackageRepositoryExtension packageRepositoryExtension;
     private SCMExtension scmExtension;
 
     public MaterialAgentFactory(ConsoleOutputStreamConsumer consumer,
                                 File workingDirectory,
                                 AgentIdentifier agentIdentifier,
-                                PackageRepositoryExtension packageRepositoryExtension,
                                 SCMExtension scmExtension) {
         this.consumer = consumer;
         this.workingDirectory = workingDirectory;
         this.agentIdentifier = agentIdentifier;
-        this.packageRepositoryExtension = packageRepositoryExtension;
         this.scmExtension = scmExtension;
     }
 

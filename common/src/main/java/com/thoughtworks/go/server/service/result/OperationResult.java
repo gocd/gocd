@@ -39,8 +39,6 @@ public interface OperationResult {
 
     boolean canContinue();
 
-    ServerHealthState paymentRequired(String message, String description, HealthStateType type);
-
     ServerHealthState forbidden(String message, String description, HealthStateType id);
 
     void conflict(String message, String description, HealthStateType healthStateType);

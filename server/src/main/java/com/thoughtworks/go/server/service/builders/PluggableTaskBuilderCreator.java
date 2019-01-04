@@ -20,18 +20,15 @@ import com.thoughtworks.go.config.pluggabletask.PluggableTask;
 import com.thoughtworks.go.domain.Pipeline;
 import com.thoughtworks.go.domain.builder.Builder;
 import com.thoughtworks.go.domain.builder.pluggableTask.PluggableTaskBuilder;
-import com.thoughtworks.go.plugin.access.pluggabletask.TaskExtension;
 import com.thoughtworks.go.server.service.UpstreamPipelineResolver;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 public class PluggableTaskBuilderCreator implements TaskBuilder<PluggableTask> {
-    private TaskExtension taskExtension;
 
     @Autowired
-    public PluggableTaskBuilderCreator(TaskExtension taskExtension) {
-        this.taskExtension = taskExtension;
+    public PluggableTaskBuilderCreator() {
     }
 
     @Override

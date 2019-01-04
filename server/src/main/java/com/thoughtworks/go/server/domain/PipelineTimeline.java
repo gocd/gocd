@@ -16,18 +16,6 @@
 
 package com.thoughtworks.go.server.domain;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
-import java.util.TreeSet;
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
-
 import com.rits.cloning.Cloner;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.domain.PipelineTimelineEntry;
@@ -38,9 +26,12 @@ import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionSynchronizationAdapter;
+
+import java.util.*;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
  * @understands a sorted collection of PipelineMaterialModification
@@ -362,83 +353,4 @@ public class PipelineTimeline {
         }
     }
 
-    public static class Users {
-        private TreeMap<MaterialUserConfig, MaterialUserConfig> byFolder = new TreeMap<>();
-        private Map<CaseInsensitiveString, LinkedList<PipelineTimelineEntry>> byFlyweight = new HashMap<>();
-    }
-
-    public static class MaterialUserConfig implements Comparable<MaterialUserConfig> {
-        private final CaseInsensitiveString pipelineName;
-        private final String folder;
-        private LinkedList<PipelineTimelineEntry> entries;
-
-        public MaterialUserConfig(CaseInsensitiveString pipelineName, String folder) {
-            this.pipelineName = pipelineName;
-            this.folder = folder;
-        }
-
-        public synchronized void add(PipelineTimelineEntry entry) {
-            if (entries == null) {
-                entries = new LinkedList<>();
-            }
-            entries.addFirst(entry);
-        }
-
-        public List<PipelineTimelineEntry> instances() {
-            return entries;
-        }
-
-        @Override
-        public int compareTo(MaterialUserConfig o) {
-            int diff = pipelineName.compareTo(o.pipelineName);
-            if (diff != 0) {
-                return diff;
-            }
-            if (folder == null && o.folder == null) {
-                return 0;
-            } else if (folder != null & o.folder == null) {
-                return 1;
-            } else if (o.folder != null && folder == null) {
-                return -1;
-            } else {
-                return folder.compareTo(o.folder);
-            }
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) {
-                return true;
-            }
-            if (o == null || getClass() != o.getClass()) {
-                return false;
-            }
-
-            MaterialUserConfig that = (MaterialUserConfig) o;
-
-            if (folder != null ? !folder.equals(that.folder) : that.folder != null) {
-                return false;
-            }
-            if (pipelineName != null ? !pipelineName.equals(that.pipelineName) : that.pipelineName != null) {
-                return false;
-            }
-
-            return true;
-        }
-
-        @Override
-        public int hashCode() {
-            int result = pipelineName != null ? pipelineName.hashCode() : 0;
-            result = 31 * result + (folder != null ? folder.hashCode() : 0);
-            return result;
-        }
-
-        @Override
-        public String toString() {
-            return "MaterialUserConfig{" +
-                    "pipelineName=" + pipelineName +
-                    ", folder='" + folder + '\'' +
-                    '}';
-        }
-    }
 }

@@ -29,8 +29,6 @@ import java.util.*;
  */
 @Deprecated
 public class AgentViewModel implements Comparable<AgentViewModel>{
-    static final String MISSING_AGENT_BOOTSTRAPPER_VERSION = "Unknown";
-    static final String OLDER_AGENT_BOOTSTRAPPER_VERSION = "Older";
     private AgentInstance agentInstance;
     private Set<String> environments;
 

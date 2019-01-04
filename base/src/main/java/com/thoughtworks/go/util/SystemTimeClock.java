@@ -16,23 +16,13 @@
 
 package com.thoughtworks.go.util;
 
-import java.io.Serializable;
-import java.util.Calendar;
-import java.util.Date;
-
 import com.thoughtworks.go.utils.Timeout;
 import org.joda.time.DateTime;
 
+import java.io.Serializable;
+import java.util.Date;
+
 public class SystemTimeClock implements Clock, Serializable {
-    public static final Date ETERNITY;
-
-    static {
-        Calendar calendar = Calendar.getInstance();
-        calendar.set(9999, Calendar.DECEMBER, 31, 0, 0, 0);
-        calendar.set(Calendar.MILLISECOND, 0);
-        ETERNITY = calendar.getTime();
-    }
-
     public Date currentTime() {
         return new Date();
     }

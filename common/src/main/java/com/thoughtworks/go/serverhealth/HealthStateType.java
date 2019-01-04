@@ -70,18 +70,6 @@ public class HealthStateType implements Comparable<HealthStateType> {
         return new HealthStateType("INVALID_LICENSE", 402, scope, null);
     }
 
-    public static HealthStateType expiredLicense(HealthStateScope scope) {
-        return new HealthStateType("EXPIRED_LICENSE", 402, scope, null);
-    }
-
-    public static HealthStateType userLimitExceeded(HealthStateScope scope) {
-        return new HealthStateType("USER_LIMIT_EXCEEDED", 402, scope, null);
-    }
-
-    public static HealthStateType exceedsAgentLimit(HealthStateScope scope) {
-        return new HealthStateType("EXCEEDS_AGENT_LIMIT", 402, scope, null);
-    }
-
     public static HealthStateType artifactsDiskFull() {
         return new HealthStateType("ARTIFACTS_DISK_FULL", 400, HealthStateScope.GLOBAL, null);
     }

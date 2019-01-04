@@ -29,12 +29,6 @@ public class Users extends BaseCollection<User> {
         super(users);
     }
 
-    public void accept(UserHandler handler) {
-        for (User setting : this) {
-            handler.visit(setting);
-        }
-    }
-
     public Users filter(Predicate<User> filter) {
         return new Users(this.stream().filter(filter).collect(Collectors.toList()));
     }

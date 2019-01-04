@@ -17,7 +17,6 @@ package com.thoughtworks.go.server;
 
 import com.thoughtworks.go.util.SystemEnvironment;
 
-import javax.net.ssl.SSLSocketFactory;
 import java.util.HashMap;
 
 public class AppServerStub extends AppServer {
@@ -25,8 +24,8 @@ public class AppServerStub extends AppServer {
     public HashMap<String, Object> calls = new HashMap<>();
     public HashMap<String, String> initparams = new HashMap<>();
 
-    public AppServerStub(SystemEnvironment systemEnvironment, String password, SSLSocketFactory sslSocketFactory) {
-        super(systemEnvironment, password, sslSocketFactory);
+    public AppServerStub(SystemEnvironment systemEnvironment, String password) {
+        super(systemEnvironment, password);
     }
 
     @Override

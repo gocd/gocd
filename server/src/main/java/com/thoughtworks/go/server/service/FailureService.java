@@ -18,7 +18,6 @@ package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.domain.JobIdentifier;
-import com.thoughtworks.go.domain.StageFinder;
 import com.thoughtworks.go.domain.testinfo.FailureDetails;
 import com.thoughtworks.go.server.dao.sparql.ShineDao;
 import com.thoughtworks.go.server.domain.Username;
@@ -34,13 +33,11 @@ import org.springframework.stereotype.Service;
 public class FailureService {
     private SecurityService securityService;
     private ShineDao shineDao;
-    private final StageFinder stageFinder;
 
     @Autowired
-    public FailureService(SecurityService securityService, ShineDao shineDao, StageFinder stageFinder) {
+    public FailureService(SecurityService securityService, ShineDao shineDao) {
         this.securityService = securityService;
         this.shineDao = shineDao;
-        this.stageFinder = stageFinder;
     }
 
     public FailureDetails failureDetailsFor(JobIdentifier jobIdentifier, String suiteName, String testName, Username username, HttpLocalizedOperationResult result) {

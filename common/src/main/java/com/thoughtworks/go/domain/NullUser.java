@@ -21,7 +21,4 @@ public class NullUser extends User {
         super("", new String[]{}, "", false);
     }
 
-    @Override
-    public void handler(UserHandler handler) {
-    }
 }

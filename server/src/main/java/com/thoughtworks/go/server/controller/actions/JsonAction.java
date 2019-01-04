@@ -57,10 +57,6 @@ public class JsonAction implements RestfulAction {
         return jsonOK(new LinkedHashMap());
     }
 
-    public static JsonAction jsonPaymentRequired(Object json) {
-        return new JsonAction(SC_PAYMENT_REQUIRED, json);
-    }
-
     public static JsonAction jsonNotAcceptable(Object json) {
         return new JsonAction(SC_NOT_ACCEPTABLE, json);
     }

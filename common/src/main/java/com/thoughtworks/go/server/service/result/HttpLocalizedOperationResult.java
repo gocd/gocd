@@ -53,12 +53,6 @@ public class HttpLocalizedOperationResult implements LocalizedOperationResult {
     }
 
     @Override
-    public void preconditionFailed(String message) {
-        this.message = message;
-        this.httpCode = HttpStatus.SC_PRECONDITION_FAILED;
-    }
-
-    @Override
     public void forbidden(String message, HealthStateType healthStateType) {
         this.message = message;
         this.healthStateType = healthStateType;
@@ -105,12 +99,6 @@ public class HttpLocalizedOperationResult implements LocalizedOperationResult {
     public void notAcceptable(String message) {
         this.message = message;
         httpCode = HttpStatus.SC_NOT_ACCEPTABLE;
-    }
-
-    @Override
-    public void failedDependency(String message) {
-        this.message = message;
-        httpCode = HttpStatus.SC_FAILED_DEPENDENCY;
     }
 
     public boolean isSuccessful() {

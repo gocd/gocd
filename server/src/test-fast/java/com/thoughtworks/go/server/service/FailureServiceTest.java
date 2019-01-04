@@ -51,7 +51,7 @@ public class FailureServiceTest {
         shineDao = mock(ShineDao.class);
         securityService = mock(SecurityService.class);
         stageFinder = mock(StageFinder.class);
-        failureService = new FailureService(securityService, shineDao, stageFinder);
+        failureService = new FailureService(securityService, shineDao);
         username = new Username(new CaseInsensitiveString("foo"));
         jobIdentifier = new JobIdentifier(new StageIdentifier("pipeline", 10, "stage", "5"), "job");
         result = new HttpLocalizedOperationResult();

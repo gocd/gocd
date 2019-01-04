@@ -29,8 +29,6 @@ public interface LocalizedOperationResult {
 
     void notFound(String message, HealthStateType healthStateType);
 
-    void failedDependency(String message);
-
     boolean isSuccessful();
 
     void connectionError(String message);
@@ -50,8 +48,6 @@ public interface LocalizedOperationResult {
     void notImplemented(String message);
 
     void unprocessableEntity(String message);
-
-    void preconditionFailed(String message);
 
     void accepted(String message);
 }

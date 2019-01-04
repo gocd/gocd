@@ -133,10 +133,6 @@ public class User extends PersistentObject {
         this.matcher = new Matcher(matcher).toString();
     }
 
-    public void handler(UserHandler handler) {
-        handler.visit(this);
-    }
-
     boolean matchModification(MaterialRevisions materialRevisions) {
         if (StringUtils.isEmpty(this.matcher)) {
             return false;

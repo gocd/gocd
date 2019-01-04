@@ -43,7 +43,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.management.MBeanServer;
-import javax.net.ssl.SSLSocketFactory;
 import javax.servlet.SessionCookieConfig;
 import java.io.File;
 import java.io.FileInputStream;
@@ -64,12 +63,12 @@ public class Jetty9Server extends AppServer {
     private GoSSLConfig goSSLConfig;
     private final DeploymentManager deploymentManager;
 
-    public Jetty9Server(SystemEnvironment systemEnvironment, String password, SSLSocketFactory sslSocketFactory) {
-        this(systemEnvironment, password, sslSocketFactory, new Server(), new DeploymentManager());
+    public Jetty9Server(SystemEnvironment systemEnvironment, String password) {
+        this(systemEnvironment, password, new Server(), new DeploymentManager());
     }
 
-    Jetty9Server(SystemEnvironment systemEnvironment, String password, SSLSocketFactory sslSocketFactory, Server server, DeploymentManager deploymentManager) {
-        super(systemEnvironment, password, sslSocketFactory);
+    Jetty9Server(SystemEnvironment systemEnvironment, String password, Server server, DeploymentManager deploymentManager) {
+        super(systemEnvironment, password);
         systemEnvironment.set(SystemEnvironment.JETTY_XML_FILE_NAME, JETTY_XML);
         this.server = server;
         goSSLConfig = new GoSSLConfig(systemEnvironment);

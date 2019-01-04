@@ -28,8 +28,6 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.protocol.HttpClientContext;
 import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.protocol.BasicHttpContext;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.remoting.httpinvoker.AbstractHttpInvokerRequestExecutor;
 import org.springframework.remoting.httpinvoker.HttpInvokerClientConfiguration;
 import org.springframework.remoting.support.RemoteInvocationResult;
@@ -44,7 +42,6 @@ import java.util.zip.GZIPInputStream;
 import static com.thoughtworks.go.CurrentGoCDVersion.docsUrl;
 
 public class GoHttpClientHttpInvokerRequestExecutor extends AbstractHttpInvokerRequestExecutor {
-    private static final Logger LOG = LoggerFactory.getLogger(GoHttpClientHttpInvokerRequestExecutor.class);
 
     private final GoAgentServerHttpClient goAgentServerHttpClient;
     private final SystemEnvironment environment;

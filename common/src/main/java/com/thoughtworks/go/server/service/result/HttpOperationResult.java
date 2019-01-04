@@ -78,11 +78,6 @@ public class HttpOperationResult implements OperationResult {
         return serverHealthStateOperationResult.canContinue();
     }
 
-    public ServerHealthState paymentRequired(String message, String description, HealthStateType type) {
-        this.message = message;
-        return serverHealthStateOperationResult.paymentRequired(message, description, type);
-    }
-
     public ServerHealthState forbidden(String message, String description, HealthStateType id) {
         this.message = message;
         httpCode = SC_FORBIDDEN;

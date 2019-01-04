@@ -61,10 +61,6 @@ public class ServerHealthServiceUpdatingOperationResult implements OperationResu
         return kickMe(ServerHealthState.success(healthStateType), true);
     }
 
-    public ServerHealthState paymentRequired(String message, String description, HealthStateType type) {
-        throw new RuntimeException("Not yet implemented");
-    }
-
     public ServerHealthState unauthorized(String message, String description, HealthStateType id) {
         throw new RuntimeException("Not yet implemented");
     }

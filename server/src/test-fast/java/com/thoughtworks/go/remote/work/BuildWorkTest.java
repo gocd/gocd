@@ -197,7 +197,7 @@ public class BuildWorkTest {
     private com.thoughtworks.go.remote.work.BuildRepositoryRemoteStub buildRepository;
     private GoArtifactsManipulatorStub artifactManipulator;
     private static BuilderFactory builderFactory = new BuilderFactory(new AntTaskBuilder(), new ExecTaskBuilder(), new NantTaskBuilder(),
-            new RakeTaskBuilder(), new PluggableTaskBuilderCreator(mock(TaskExtension.class)), new KillAllChildProcessTaskBuilder(),
+            new RakeTaskBuilder(), new PluggableTaskBuilderCreator(), new KillAllChildProcessTaskBuilder(),
             new FetchTaskBuilder(mock(GoConfigService.class)), new NullTaskBuilder());
     @Mock
     private static UpstreamPipelineResolver resolver;

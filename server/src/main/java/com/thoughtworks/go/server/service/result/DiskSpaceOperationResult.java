@@ -60,10 +60,6 @@ public class DiskSpaceOperationResult implements OperationResult {
         return canContinue;
     }
 
-    public ServerHealthState paymentRequired(String message, String description, HealthStateType type) {
-        throw new RuntimeException("Not yet implemented");
-    }
-
     public ServerHealthState unauthorized(String message, String description, HealthStateType id) {
         throw new RuntimeException("Not yet implemented");
     }

@@ -29,9 +29,6 @@ import java.util.*;
 @Deprecated
 public class AgentsViewModel extends BaseCollection<AgentViewModel> {
 
-    private static final String RESOURCE = "resource";
-    private static final String STATUS = "status";
-
     public AgentsViewModel() {
     }
 

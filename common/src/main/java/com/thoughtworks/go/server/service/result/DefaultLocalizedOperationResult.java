@@ -37,11 +37,6 @@ public class DefaultLocalizedOperationResult implements LocalizedOperationResult
     }
 
     @Override
-    public void failedDependency(String message) {
-
-    }
-
-    @Override
     public boolean isSuccessful() {
         return true;
     }
@@ -89,11 +84,6 @@ public class DefaultLocalizedOperationResult implements LocalizedOperationResult
 
     @Override
     public void unprocessableEntity(String message) {
-
-    }
-
-    @Override
-    public void preconditionFailed(String message) {
 
     }
 

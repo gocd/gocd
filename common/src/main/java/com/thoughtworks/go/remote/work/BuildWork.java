@@ -18,7 +18,6 @@ package com.thoughtworks.go.remote.work;
 
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.materials.MaterialAgentFactory;
-import com.thoughtworks.go.plugin.access.packagematerial.PackageRepositoryExtension;
 import com.thoughtworks.go.plugin.access.scm.SCMExtension;
 import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.remote.work.artifact.ArtifactsPublisher;
@@ -77,7 +76,7 @@ public class BuildWork implements Work {
     public void doWork(EnvironmentVariableContext environmentVariableContext, AgentWorkContext agentWorkContext) {
         initialize(agentWorkContext);
         try {
-            JobResult result = build(environmentVariableContext, agentWorkContext.getAgentIdentifier(), agentWorkContext.getPackageRepositoryExtension(), agentWorkContext.getScmExtension());
+            JobResult result = build(environmentVariableContext, agentWorkContext.getAgentIdentifier(), agentWorkContext.getScmExtension());
             reportCompletion(result);
         } catch (InvalidAgentException e) {
             LOGGER.error("Agent UUID changed in the middle of the build.", e);
@@ -108,7 +107,7 @@ public class BuildWork implements Work {
     }
 
     private JobResult build(EnvironmentVariableContext environmentVariableContext, AgentIdentifier agentIdentifier,
-                            PackageRepositoryExtension packageRepositoryExtension, SCMExtension scmExtension) {
+                            SCMExtension scmExtension) {
         if (this.goPublisher.isIgnored()) {
             goPublisher.reportJobCancelled();
             return null;
@@ -116,7 +115,7 @@ public class BuildWork implements Work {
 
         goPublisher.consumeLineWithPrefix(format("Job Started: %s\n", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss z").format(timeProvider.currentTime())));
 
-        prepareJob(agentIdentifier, packageRepositoryExtension, scmExtension);
+        prepareJob(agentIdentifier, scmExtension);
 
         setupEnvrionmentContext(environmentVariableContext);
 
@@ -146,7 +145,7 @@ public class BuildWork implements Work {
         return consumer;
     }
 
-    private void prepareJob(AgentIdentifier agentIdentifier, PackageRepositoryExtension packageRepositoryExtension, SCMExtension scmExtension) {
+    private void prepareJob(AgentIdentifier agentIdentifier, SCMExtension scmExtension) {
         goPublisher.reportPreparing();
 
         createWorkingDirectoryIfNotExist(workingDirectory);
@@ -156,7 +155,7 @@ public class BuildWork implements Work {
         }
 
         ConsoleOutputStreamConsumer consumer = new LabeledOutputStreamConsumer(DefaultGoPublisher.PREP, DefaultGoPublisher.PREP_ERR, processOutputStreamConsumer());
-        MaterialAgentFactory materialAgentFactory = new MaterialAgentFactory(consumer, workingDirectory, agentIdentifier, packageRepositoryExtension, scmExtension);
+        MaterialAgentFactory materialAgentFactory = new MaterialAgentFactory(consumer, workingDirectory, agentIdentifier, scmExtension);
 
         materialRevisions.getMaterials().cleanUp(workingDirectory, consumer);
 

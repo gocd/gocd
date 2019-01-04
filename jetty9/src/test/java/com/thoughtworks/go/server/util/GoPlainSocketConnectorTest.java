@@ -18,14 +18,14 @@ package com.thoughtworks.go.server.util;
 
 import com.thoughtworks.go.server.Jetty9Server;
 import com.thoughtworks.go.util.SystemEnvironment;
-import org.eclipse.jetty.server.*;
+import org.eclipse.jetty.server.HttpConfiguration;
+import org.eclipse.jetty.server.HttpConnectionFactory;
+import org.eclipse.jetty.server.ServerConnector;
 import org.junit.Before;
 import org.junit.Test;
 
-import javax.net.ssl.SSLSocketFactory;
-
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -42,7 +42,7 @@ public class GoPlainSocketConnectorTest {
         when(systemEnvironment.get(SystemEnvironment.IDLE_TIMEOUT)).thenReturn(200);
         when(systemEnvironment.getListenHost()).thenReturn("foo");
         when(systemEnvironment.get(SystemEnvironment.GO_SSL_RENEGOTIATION_ALLOWED)).thenReturn(true);
-        Jetty9Server server = new Jetty9Server(systemEnvironment, null, mock(SSLSocketFactory.class));
+        Jetty9Server server = new Jetty9Server(systemEnvironment, null);
 
         connector = (ServerConnector) new GoPlainSocketConnector(server, systemEnvironment).getConnector();
 

@@ -46,10 +46,6 @@ public class ServerHealthStateOperationResult implements OperationResult {
         return lastHealthState == null ||  lastHealthState.isSuccess();
     }
 
-    public ServerHealthState paymentRequired(String message, String description, HealthStateType type) {
-        return error(message, description, type);
-    }
-
     @Override
     public ServerHealthState forbidden(String message, String description, HealthStateType id) {
         return error(message, description, id);

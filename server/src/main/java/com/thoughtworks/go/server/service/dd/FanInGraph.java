@@ -45,7 +45,6 @@ import static com.thoughtworks.go.server.service.dd.DependencyFanInNode.Revision
 
 public class FanInGraph {
     private static final int REVISION_BUFFER_SIZE = 5;
-    private static final int DEFAULT_BACK_TRACK_LIMIT = 100;
 
     private final PipelineDao pipelineDao;
     private final CruiseConfig cruiseConfig;

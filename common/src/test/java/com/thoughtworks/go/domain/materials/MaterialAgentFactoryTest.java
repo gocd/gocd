@@ -63,7 +63,7 @@ public class MaterialAgentFactoryTest {
         String agentUuid = "uuid-01783738";
         File workingDirectory = temporaryFolder.newFolder();
         MaterialAgentFactory factory = new MaterialAgentFactory(new ProcessOutputStreamConsumer(new DevNull(), new DevNull()), workingDirectory,
-                new AgentIdentifier("host", "1.1.1.1", agentUuid), packageRepositoryExtension, scmExtension);
+                new AgentIdentifier("host", "1.1.1.1", agentUuid), scmExtension);
         GitMaterial gitMaterial = new GitMaterial("http://foo", "master", "dest_folder");
 
         MaterialAgent agent = factory.createAgent(new MaterialRevision(gitMaterial));
@@ -78,7 +78,7 @@ public class MaterialAgentFactoryTest {
     public void shouldGetPackageMaterialAgent() {
         File workingDirectory = new File("/tmp/workingDirectory");
         MaterialRevision revision = new MaterialRevision(new PackageMaterial(), new Modifications());
-        MaterialAgentFactory factory = new MaterialAgentFactory(null, workingDirectory, null, packageRepositoryExtension, scmExtension);
+        MaterialAgentFactory factory = new MaterialAgentFactory(null, workingDirectory, null, scmExtension);
         MaterialAgent agent = factory.createAgent(revision);
 
         assertThat(agent, is(NO_OP));
@@ -88,7 +88,7 @@ public class MaterialAgentFactoryTest {
     public void shouldGetPluggableSCMMaterialAgent() {
         File workingDirectory = new File("/tmp/workingDirectory");
         MaterialRevision revision = new MaterialRevision(new PluggableSCMMaterial(), new Modifications());
-        MaterialAgentFactory factory = new MaterialAgentFactory(null, workingDirectory, null, packageRepositoryExtension, scmExtension);
+        MaterialAgentFactory factory = new MaterialAgentFactory(null, workingDirectory, null, scmExtension);
         MaterialAgent agent = factory.createAgent(revision);
 
         assertThat(agent instanceof PluggableSCMMaterialAgent, is(true));

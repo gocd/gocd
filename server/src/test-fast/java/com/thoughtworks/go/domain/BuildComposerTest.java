@@ -206,7 +206,7 @@ public class BuildComposerTest extends BuildSessionBasedTestCase {
             + "</job>";
 
     private static BuilderFactory builderFactory = new BuilderFactory(new AntTaskBuilder(), new ExecTaskBuilder(), new NantTaskBuilder(), new RakeTaskBuilder(),
-            new PluggableTaskBuilderCreator(mock(TaskExtension.class)), new KillAllChildProcessTaskBuilder(), new FetchTaskBuilder(mock(GoConfigService.class)), new NullTaskBuilder());
+            new PluggableTaskBuilderCreator(), new KillAllChildProcessTaskBuilder(), new FetchTaskBuilder(mock(GoConfigService.class)), new NullTaskBuilder());
     @Mock
     private static UpstreamPipelineResolver resolver;
 

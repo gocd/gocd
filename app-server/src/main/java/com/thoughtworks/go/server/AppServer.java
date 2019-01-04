@@ -18,17 +18,13 @@ package com.thoughtworks.go.server;
 
 import com.thoughtworks.go.util.SystemEnvironment;
 
-import javax.net.ssl.SSLSocketFactory;
-
 public abstract class AppServer {
     protected SystemEnvironment systemEnvironment;
     protected String password;
-    protected SSLSocketFactory sslSocketFactory;
 
-    public AppServer(SystemEnvironment systemEnvironment, String password, SSLSocketFactory sslSocketFactory) {
+    public AppServer(SystemEnvironment systemEnvironment, String password) {
         this.systemEnvironment = systemEnvironment;
         this.password = password;
-        this.sslSocketFactory = sslSocketFactory;
     }
 
     abstract void addExtraJarsToClasspath(String extraClasspath);

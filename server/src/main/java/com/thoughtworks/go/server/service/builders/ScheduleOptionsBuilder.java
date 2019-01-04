@@ -38,7 +38,7 @@ public class ScheduleOptionsBuilder {
 
     public ScheduleOptionsBuilder(GoConfigService goConfigService) {
         this.goConfigService = goConfigService;
-        builders = Arrays.asList(new MDUOptionBuilder(goConfigService), new MaterialsBuilder(goConfigService), new EnvironmentVariableBuilder(goConfigService), new SecureEnvironmentVariableBuilder(goConfigService));
+        builders = Arrays.asList(new MDUOptionBuilder(), new MaterialsBuilder(goConfigService), new EnvironmentVariableBuilder(goConfigService), new SecureEnvironmentVariableBuilder(goConfigService));
     }
 
     public ScheduleOptions build(HttpOperationResult result, String pipelineName, PipelineScheduleOptions pipelineScheduleOptions) {
@@ -86,10 +86,8 @@ public class ScheduleOptionsBuilder {
     }
 
     private class MDUOptionBuilder implements Builder {
-        private GoConfigService goConfigService;
 
-        public MDUOptionBuilder(GoConfigService goConfigService) {
-            this.goConfigService = goConfigService;
+        public MDUOptionBuilder() {
         }
 
         @Override

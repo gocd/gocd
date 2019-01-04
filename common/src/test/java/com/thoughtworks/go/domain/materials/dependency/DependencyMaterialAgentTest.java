@@ -49,7 +49,7 @@ public class DependencyMaterialAgentTest {
 
     @Test
     public void shouldBeCreatedByAgentFactory() {
-        MaterialAgentFactory factory = new MaterialAgentFactory(ProcessOutputStreamConsumer.inMemoryConsumer(), new File("blah"), new AgentIdentifier("", "", ""), null, null);
+        MaterialAgentFactory factory = new MaterialAgentFactory(ProcessOutputStreamConsumer.inMemoryConsumer(), new File("blah"), new AgentIdentifier("", "", ""), null);
         MaterialAgent createdAgent = factory.createAgent(materialRevision("pipeline-name", 1, "pipeline-label", "stage-name", 1));
 
         assertThat(createdAgent, is(NO_OP));

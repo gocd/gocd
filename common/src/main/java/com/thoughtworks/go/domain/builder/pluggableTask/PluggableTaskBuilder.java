@@ -45,7 +45,6 @@ import java.util.Map;
 public class PluggableTaskBuilder extends Builder implements Serializable {
     private final String workingDir;
     private String pluginId;
-    private String version;
     private Map<String, Map<String, String>> pluginConfig;
 
     public PluggableTaskBuilder(RunIfConfigs conditions, Builder cancelBuilder, PluggableTask task, String description, String workingDir) {
@@ -57,7 +56,6 @@ public class PluggableTaskBuilder extends Builder implements Serializable {
     private void extractFrom(PluggableTask task) {
         PluginConfiguration pluginConfiguration = task.getPluginConfiguration();
         pluginId = pluginConfiguration.getId();
-        version = pluginConfiguration.getVersion();
 
         pluginConfig = task.configAsMap();
     }

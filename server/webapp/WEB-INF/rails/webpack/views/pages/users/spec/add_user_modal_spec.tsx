@@ -30,7 +30,7 @@ describe("UserSearchModal", () => {
        modal.render();
        expect(modal).toContainTitle("Search users");
        expect(modal).toContainButtons(["Close", "Add"]);
-       expect($(`[data-test-id='${modal.id}'] [data-test-id='form-field-input-search-query']`)).toBeInDOM();
+       expect($(`[data-test-id='${modal.id}'] [data-test-id='user-search-query']`)).toBeInDOM();
      }
   );
 

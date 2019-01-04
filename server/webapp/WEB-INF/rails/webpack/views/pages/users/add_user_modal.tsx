@@ -24,7 +24,7 @@ import * as uuid from "uuid/v4";
 import * as Buttons from "views/components/buttons";
 import {Primary} from "views/components/buttons";
 import {FlashMessage, FlashMessageModel, MessageType} from "views/components/flash_message";
-import {TextField} from "views/components/forms/input_fields";
+import {SearchField} from "views/components/forms/input_fields";
 import {Modal, Size} from "views/components/modal";
 import {Spinner} from "views/components/spinner";
 import {Table} from "views/components/table";
@@ -58,7 +58,7 @@ export class UserSearchModal extends Modal {
     return (
       <div>
         {optionalErrorMesage}
-        <TextField label={"Search query"} property={this.searchText}/>
+        <SearchField label='Search query' property={this.searchText} dataTestId={"user-search-query"}/>
         <Primary onclick={this.search.bind(this)}>Search</Primary>
         {this.renderTable()}
       </div>

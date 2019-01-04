@@ -27,7 +27,9 @@ import org.mockito.Mock;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.mockito.Mockito.*;
+import static com.thoughtworks.go.server.service.plugins.processor.elasticagent.v1.ElasticAgentProcessorRequestsV1.*;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 public class ElasticAgentRequestProcessorTest {
@@ -35,10 +37,6 @@ public class ElasticAgentRequestProcessorTest {
     private PluginRequestProcessorRegistry pluginRequestProcessorRegistry;
     @Mock
     private ElasticAgentRequestProcessorV1 processorForV1;
-    @Mock
-    private ElasticAgentRequestProcessorV1 processorForV2;
-    @Mock
-    private ElasticAgentRequestProcessorV1 processorForV3;
     @Mock
     private GoPluginDescriptor pluginDescriptor;
     @Mock
@@ -52,10 +50,15 @@ public class ElasticAgentRequestProcessorTest {
 
         final Map<String, VersionableElasticAgentProcessor> processorMap = new HashMap<>();
         processorMap.put("1.0", processorForV1);
-        processorMap.put("2.0", processorForV2);
-        processorMap.put("3.0", processorForV3);
 
         processor = new ElasticAgentRequestProcessor(pluginRequestProcessorRegistry, processorMap);
+    }
+
+    @Test
+    public void shouldRegisterItselfForRequestProcessing() {
+        verify(pluginRequestProcessorRegistry).registerProcessorFor(REQUEST_DISABLE_AGENTS, processor);
+        verify(pluginRequestProcessorRegistry).registerProcessorFor(REQUEST_DELETE_AGENTS, processor);
+        verify(pluginRequestProcessorRegistry).registerProcessorFor(REQUEST_SERVER_LIST_AGENTS, processor);
     }
 
     @Test
@@ -65,31 +68,5 @@ public class ElasticAgentRequestProcessorTest {
         processor.process(pluginDescriptor, goApiRequest);
 
         verify(processorForV1).process(pluginDescriptor, goApiRequest);
-        verify(processorForV2, times(0)).process(pluginDescriptor, goApiRequest);
-        verify(processorForV3, times(0)).process(pluginDescriptor, goApiRequest);
-    }
-
-    @Test
-    public void shouldDelegateRequestToElasticAgentRequestProcessorV2WhenRequestApiVersionIsV2() {
-        when(goApiRequest.apiVersion()).thenReturn("2.0");
-
-        processor.process(pluginDescriptor, goApiRequest);
-
-        verify(processorForV2).process(pluginDescriptor, goApiRequest);
-
-        verify(processorForV1, times(0)).process(pluginDescriptor, goApiRequest);
-        verify(processorForV3, times(0)).process(pluginDescriptor, goApiRequest);
-    }
-
-    @Test
-    public void shouldDelegateRequestToElasticAgentRequestProcessorV3WhenRequestApiVersionIsV3() {
-        when(goApiRequest.apiVersion()).thenReturn("3.0");
-
-        processor.process(pluginDescriptor, goApiRequest);
-
-        verify(processorForV3).process(pluginDescriptor, goApiRequest);
-
-        verify(processorForV1, times(0)).process(pluginDescriptor, goApiRequest);
-        verify(processorForV2, times(0)).process(pluginDescriptor, goApiRequest);
     }
 }

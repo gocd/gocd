@@ -18,12 +18,12 @@ package com.thoughtworks.go.plugin.access.configrepo.v2;
 
 import com.google.gson.GsonBuilder;
 import com.thoughtworks.go.plugin.access.configrepo.ConfigRepoMigrator;
-import com.thoughtworks.go.plugin.access.configrepo.ErrorCollection;
+import com.thoughtworks.go.plugin.configrepo.contract.ErrorCollection;
 import com.thoughtworks.go.plugin.access.configrepo.JsonMessageHandler;
-import com.thoughtworks.go.plugin.access.configrepo.codec.GsonCodec;
-import com.thoughtworks.go.plugin.access.configrepo.contract.CRConfigurationProperty;
-import com.thoughtworks.go.plugin.access.configrepo.contract.CRParseResult;
-import com.thoughtworks.go.plugin.access.configrepo.contract.CRPipeline;
+import com.thoughtworks.go.plugin.configrepo.codec.GsonCodec;
+import com.thoughtworks.go.plugin.configrepo.contract.CRConfigurationProperty;
+import com.thoughtworks.go.plugin.configrepo.contract.CRParseResult;
+import com.thoughtworks.go.plugin.configrepo.contract.CRPipeline;
 import com.thoughtworks.go.plugin.access.configrepo.v2.messages.ParseDirectoryMessage;
 import com.thoughtworks.go.plugin.access.configrepo.v2.messages.ParseDirectoryResponseMessage;
 import com.thoughtworks.go.plugin.access.configrepo.v2.messages.PipelineExportMessage;

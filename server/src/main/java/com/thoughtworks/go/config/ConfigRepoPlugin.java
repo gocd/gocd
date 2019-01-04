@@ -21,9 +21,9 @@ import com.thoughtworks.go.domain.config.Configuration;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
 import com.thoughtworks.go.plugin.access.configrepo.ConfigRepoExtension;
 import com.thoughtworks.go.plugin.access.configrepo.InvalidPartialConfigException;
-import com.thoughtworks.go.plugin.access.configrepo.contract.CRConfigurationProperty;
-import com.thoughtworks.go.plugin.access.configrepo.contract.CRParseResult;
-import com.thoughtworks.go.plugin.access.configrepo.contract.CRPipeline;
+import com.thoughtworks.go.plugin.configrepo.contract.CRConfigurationProperty;
+import com.thoughtworks.go.plugin.configrepo.contract.CRParseResult;
+import com.thoughtworks.go.plugin.configrepo.contract.CRPipeline;
 
 import java.io.File;
 import java.util.ArrayList;

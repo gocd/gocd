@@ -16,7 +16,7 @@
 
 package com.thoughtworks.go.plugin.access.configrepo.v2.messages;
 
-import com.thoughtworks.go.plugin.access.configrepo.contract.CRConfigurationProperty;
+import com.thoughtworks.go.plugin.configrepo.contract.CRConfigurationProperty;
 
 import java.util.ArrayList;
 import java.util.Collection;

@@ -870,6 +870,7 @@ task verifyWar(type: VerifyJarTask) {
         "go-plugin-access-${project.version}.jar",
         "go-plugin-activator-${project.version}.jar",
         "go-plugin-api-${project.version}.jar",
+        "go-plugin-config-repo-${project.version}.jar",
         "go-plugin-api-internal-${project.version}.jar",
         "go-plugin-domain-${project.version}.jar",
         "go-plugin-infra-${project.version}.jar",

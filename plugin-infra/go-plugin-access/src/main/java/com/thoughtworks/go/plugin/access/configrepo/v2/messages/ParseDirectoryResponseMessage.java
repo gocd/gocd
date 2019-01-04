@@ -15,10 +15,10 @@
  */
 package com.thoughtworks.go.plugin.access.configrepo.v2.messages;
 
-import com.thoughtworks.go.plugin.access.configrepo.contract.CREnvironment;
-import com.thoughtworks.go.plugin.access.configrepo.contract.CRError;
-import com.thoughtworks.go.plugin.access.configrepo.contract.CRPipeline;
-import com.thoughtworks.go.plugin.access.configrepo.ErrorCollection;
+import com.thoughtworks.go.plugin.configrepo.contract.CREnvironment;
+import com.thoughtworks.go.plugin.configrepo.contract.CRError;
+import com.thoughtworks.go.plugin.configrepo.contract.CRPipeline;
+import com.thoughtworks.go.plugin.configrepo.contract.ErrorCollection;
 
 import java.util.ArrayList;
 import java.util.Collection;

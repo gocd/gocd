@@ -18,10 +18,8 @@ package com.thoughtworks.go.plugin.access.configrepo.v1;
 
 
 import com.thoughtworks.go.plugin.access.configrepo.ConfigRepoMigrator;
-import com.thoughtworks.go.plugin.access.configrepo.codec.GsonCodec;
-import com.thoughtworks.go.plugin.access.configrepo.contract.CRParseResult;
-import com.thoughtworks.go.plugin.domain.configrepo.Capabilities;
-import org.hamcrest.CoreMatchers;
+import com.thoughtworks.go.plugin.configrepo.codec.GsonCodec;
+import com.thoughtworks.go.plugin.configrepo.contract.CRParseResult;
 import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;

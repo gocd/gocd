@@ -21,6 +21,7 @@ import com.thoughtworks.go.config.PartialConfigParseResult
 import com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig
 import com.thoughtworks.go.config.remote.ConfigRepoConfig
 import com.thoughtworks.go.config.remote.PartialConfig
+import com.thoughtworks.go.domain.materials.Modification
 import com.thoughtworks.go.spark.Routes
 import org.junit.jupiter.api.Test
 
@@ -68,17 +69,34 @@ class ConfigRepoWithResultListRepresenterTest {
         ]
       ],
       configuration: [],
-
-      last_parse   : [
-        revision: "$id-123".toString(),
-        success : true,
-        error   : null
+      parse_info   : [
+        error                     : null,
+        good_modification         : [
+          "username"     : null,
+          "email_address": null,
+          "revision"     : "${id}-123".toString(),
+          "comment"      : null,
+          "modified_time": null
+        ],
+        latest_parsed_modification: [
+          "username"     : null,
+          "email_address": null,
+          "revision"     : "${id}-123".toString(),
+          "comment"      : null,
+          "modified_time": null
+        ]
       ]
     ]
   }
 
   static ConfigRepoWithResult repo(String id) {
     HgMaterialConfig materialConfig = new HgMaterialConfig("$TEST_REPO_URL/$id", "")
-    return  new ConfigRepoWithResult(new ConfigRepoConfig(materialConfig, TEST_PLUGIN_ID, id), new PartialConfigParseResult("${id}-123", new PartialConfig()))
+
+    Modification modification = new Modification()
+    modification.setRevision("${id}-123")
+
+    PartialConfig partialConfig = new PartialConfig()
+    PartialConfigParseResult expectedParseResult = PartialConfigParseResult.parseSuccess(modification, partialConfig)
+    return new ConfigRepoWithResult(new ConfigRepoConfig(materialConfig, TEST_PLUGIN_ID, id), expectedParseResult)
   }
 }

@@ -21,9 +21,12 @@ import com.thoughtworks.go.config.PartialConfigParseResult
 import com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig
 import com.thoughtworks.go.config.remote.ConfigRepoConfig
 import com.thoughtworks.go.domain.config.Configuration
+import com.thoughtworks.go.domain.materials.Modification
+import com.thoughtworks.go.helper.ModificationsMother
 import com.thoughtworks.go.spark.Routes
 import org.junit.jupiter.api.Test
 
+import static com.thoughtworks.go.api.base.JsonOutputWriter.jsonDate
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
 
@@ -34,8 +37,10 @@ class ConfigRepoWithResultRepresenterTest {
   @Test
   void toJSON() {
     String id = "foo"
+    ConfigRepoWithResult result = repo(id)
+
     String json = toObjectString({ w ->
-      ConfigRepoWithResultRepresenter.toJSON(w, repo(id))
+      ConfigRepoWithResultRepresenter.toJSON(w, result)
     })
 
     String self = "http://test.host/go${Routes.ConfigRepos.id(id)}"
@@ -63,15 +68,26 @@ class ConfigRepoWithResultRepresenterTest {
         [key: "baz", value: "quu"]
       ],
 
-      last_parse   : [
-        revision: "${id}-123".toString(),
-        success : false,
-        error   : "boom!"
+      parse_info   : [
+        error                     : "Boom!",
+        good_modification         : null,
+        latest_parsed_modification: [
+          "username"     : "lgao",
+          "email_address": "foo@bar.com",
+          "revision"     : "foo-123",
+          "comment"      : "Fixing the not checked in files",
+          "modified_time": jsonDate(result.result().latestParsedModification.modifiedTime)
+        ]
       ]
     ])
   }
 
   static ConfigRepoWithResult repo(String id) {
+    Modification modification = ModificationsMother.oneModifiedFile("${id}-123")
+    Exception exception = new Exception("Boom!")
+
+    PartialConfigParseResult expectedParseResult = PartialConfigParseResult.parseFailed(modification, exception)
+
     Configuration c = new Configuration()
     c.addNewConfigurationWithValue("foo", "bar", false)
     c.addNewConfigurationWithValue("baz", "quu", false)
@@ -80,6 +96,6 @@ class ConfigRepoWithResultRepresenterTest {
     ConfigRepoConfig repo = new ConfigRepoConfig(materialConfig, TEST_PLUGIN_ID, id)
     repo.setConfiguration(c)
 
-    return new ConfigRepoWithResult(repo, new PartialConfigParseResult("${id}-123", new RuntimeException("boom!")))
+    return new ConfigRepoWithResult(repo, expectedParseResult)
   }
 }

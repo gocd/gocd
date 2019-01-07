@@ -18,7 +18,6 @@ package com.thoughtworks.go.apiv1.configrepos
 
 import com.thoughtworks.go.api.SecurityTestTrait
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
-import com.thoughtworks.go.api.util.HaltApiMessages
 import com.thoughtworks.go.config.GoRepoConfigDataSource
 import com.thoughtworks.go.config.PartialConfigParseResult
 import com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig
@@ -27,6 +26,7 @@ import com.thoughtworks.go.config.remote.ConfigReposConfig
 import com.thoughtworks.go.config.remote.PartialConfig
 import com.thoughtworks.go.domain.materials.Material
 import com.thoughtworks.go.domain.materials.MaterialConfig
+import com.thoughtworks.go.domain.materials.Modification
 import com.thoughtworks.go.server.materials.MaterialUpdateService
 import com.thoughtworks.go.server.service.ConfigRepoService
 import com.thoughtworks.go.server.service.MaterialConfigConverter
@@ -107,10 +107,16 @@ class ConfigReposInternalControllerV1Test implements SecurityServiceTrait, Contr
 
     @Test
     void 'should list existing config repos with associated parse results'() {
+      Modification modification = new Modification()
+      modification.setRevision("abc")
+
+      PartialConfig partialConfig = new PartialConfig()
+      PartialConfigParseResult result = PartialConfigParseResult.parseSuccess(modification, partialConfig);
+
       ConfigReposConfig repos = new ConfigReposConfig(repo(ID_1), repo(ID_2))
       when(service.getConfigRepos()).thenReturn(repos)
       when(dataSource.getLastParseResult(repos.get(0).getMaterialConfig())).thenReturn(null)
-      when(dataSource.getLastParseResult(repos.get(1).getMaterialConfig())).thenReturn(new PartialConfigParseResult("abc", new PartialConfig()))
+      when(dataSource.getLastParseResult(repos.get(1).getMaterialConfig())).thenReturn(result)
 
       getWithApiHeader(controller.controllerBasePath())
 
@@ -122,8 +128,8 @@ class ConfigReposInternalControllerV1Test implements SecurityServiceTrait, Contr
           ],
           _embedded: [
             config_repos: [
-              expectedRepoJson(ID_1, null, false, null),
-              expectedRepoJson(ID_2, "abc", true, null)
+              expectedRepoJson(ID_1, null, null),
+              expectedRepoJson(ID_2, "abc", null)
             ]
           ]
         ])
@@ -140,15 +146,21 @@ class ConfigReposInternalControllerV1Test implements SecurityServiceTrait, Contr
 
     @Test
     void 'should show an individual repo with its parse result'() {
+      Modification modification = new Modification()
+      modification.setRevision("abc")
+
+      PartialConfig partialConfig = new PartialConfig()
+      PartialConfigParseResult result = PartialConfigParseResult.parseSuccess(modification, partialConfig);
+
       ConfigRepoConfig repo = repo(ID_1)
       when(service.getConfigRepo(ID_1)).thenReturn(repo)
-      when(dataSource.getLastParseResult(repo.getMaterialConfig())).thenReturn(new PartialConfigParseResult("abc", new PartialConfig()))
+      when(dataSource.getLastParseResult(repo.getMaterialConfig())).thenReturn(result)
 
       getWithApiHeader(controller.controllerPath(ID_1))
 
       assertThatResponse().
         isOk().
-        hasJsonBody(expectedRepoJson(ID_1, "abc", true, null))
+        hasJsonBody(expectedRepoJson(ID_1, "abc", null))
     }
 
     @Test
@@ -160,7 +172,7 @@ class ConfigReposInternalControllerV1Test implements SecurityServiceTrait, Contr
     }
   }
 
-  static Map expectedRepoJson(String id, String revision, boolean success, String error) {
+  static Map expectedRepoJson(String id, String revision, String error) {
     return [
       _links       : [
         self: [href: "http://test.host/go${Routes.ConfigRepos.id(id)}".toString()],
@@ -180,10 +192,22 @@ class ConfigReposInternalControllerV1Test implements SecurityServiceTrait, Contr
       ],
       configuration: [],
 
-      last_parse   : null == revision ? [:] : [
-        revision: revision,
-        success : success,
-        error   : error
+      parse_info   : null == revision ? [:] : [
+        error                     : error,
+        good_modification         : [
+          "username"     : null,
+          "email_address": null,
+          "revision"     : revision,
+          "comment"      : null,
+          "modified_time": null
+        ],
+        latest_parsed_modification: [
+          "username"     : null,
+          "email_address": null,
+          "revision"     : revision,
+          "comment"      : null,
+          "modified_time": null
+        ]
       ]
     ]
   }

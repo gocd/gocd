@@ -59,7 +59,7 @@ public class PartialConfigParseResult {
         return goodModification;
     }
 
-    public PartialConfig getPartialConfig() {
+    public PartialConfig lastGoodPartialConfig() {
         return partialConfig;
     }
 

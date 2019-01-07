@@ -88,7 +88,7 @@ class ConfigReposMaterialParseResultManagerTest {
         assertThat(parseResult.isSuccessful(), is(false));
         assertThat(parseResult.getLatestParsedModification(), is(modification2));
         assertThat(parseResult.getGoodModification(), is(modification));
-        assertThat(parseResult.getPartialConfig(), is(partialConfig));
+        assertThat(parseResult.lastGoodPartialConfig(), is(partialConfig));
         assertThat(parseResult.getLastFailure(), is(exception));
     }
 
@@ -115,7 +115,7 @@ class ConfigReposMaterialParseResultManagerTest {
         assertThat(parseResult.isSuccessful(), is(true));
         assertThat(parseResult.getLatestParsedModification(), is(modification2));
         assertThat(parseResult.getGoodModification(), is(modification2));
-        assertThat(parseResult.getPartialConfig(), is(partialConfig));
+        assertThat(parseResult.lastGoodPartialConfig(), is(partialConfig));
         assertThat(parseResult.getLastFailure(), is(nullValue()));
     }
 

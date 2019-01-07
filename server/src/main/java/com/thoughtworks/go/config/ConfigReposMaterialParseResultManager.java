@@ -50,7 +50,7 @@ public class ConfigReposMaterialParseResultManager {
         } else {
             PartialConfigParseResult newResult = PartialConfigParseResult.parseFailed(modification, exception);
             newResult.setGoodModification(existingResult.getGoodModification());
-            newResult.setPartialConfig(existingResult.getPartialConfig());
+            newResult.setPartialConfig(existingResult.lastGoodPartialConfig());
             return fingerprintOfPartialToParseResultMap.put(fingerprint, newResult);
         }
     }

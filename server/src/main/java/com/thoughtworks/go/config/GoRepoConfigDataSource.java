@@ -84,7 +84,7 @@ public class GoRepoConfigDataSource implements ChangedRepoConfigWatchListListene
         if (!result.isSuccessful())
             throw result.getLastFailure();
 
-        return result.getPartialConfig();
+        return result.lastGoodPartialConfig();
     }
 
     @Override

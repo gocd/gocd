@@ -20,7 +20,9 @@ import com.thoughtworks.go.config.materials.SubprocessExecutionContext;
 import com.thoughtworks.go.domain.MaterialRevision;
 import com.thoughtworks.go.domain.MaterialRevisions;
 import com.thoughtworks.go.domain.materials.Material;
+import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.domain.materials.Revision;
+import com.thoughtworks.go.domain.materials.mercurial.StringRevision;
 import com.thoughtworks.go.server.messaging.GoMessageListener;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
 import com.thoughtworks.go.server.service.MaterialService;
@@ -73,16 +75,16 @@ public class ConfigMaterialUpdateListener implements GoMessageListener<MaterialU
             } else {
                 File folder = materialRepository.folderFor(material);
                 MaterialRevisions latestModification = materialRepository.findLatestModification(material);
-                Revision revision = latestModification.firstModifiedMaterialRevision().getRevision();
+                Modification modification = latestModification.firstModifiedMaterialRevision().getLatestModification();
 
                 MaterialRevision lastParseRevision = getMaterialRevisionAtLastParseAttempt(message);
                 if (lastParseRevision == null) {
                     //never parsed
-                    updateConfigurationFromCheckout(folder, revision, material);
+                    updateConfigurationFromCheckout(folder, modification, material);
                 } else if (latestModification.findRevisionFor(material.config())
                         .hasChangedSince(lastParseRevision)) {
                     // revision has changed. the config files might have been updated
-                    updateConfigurationFromCheckout(folder, revision, material);
+                    updateConfigurationFromCheckout(folder, modification, material);
                 } else {
                     // revision is the same as last time, no need to parse again
                 }
@@ -94,10 +96,11 @@ public class ConfigMaterialUpdateListener implements GoMessageListener<MaterialU
         }
     }
 
-    private void updateConfigurationFromCheckout(File folder, Revision revision, Material material) {
+    private void updateConfigurationFromCheckout(File folder, Modification modification, Material material) {
+        Revision revision = new StringRevision(modification.getRevision());
         MaterialPoller poller = this.materialService.getPollerImplementation(material);
         poller.checkout(material, folder, revision, this.subprocessExecutionContext);
-        this.repoConfigDataSource.onCheckoutComplete(material.config(), folder, revision.getRevision());
+        this.repoConfigDataSource.onCheckoutComplete(material.config(), folder, modification);
     }
 
     private MaterialRevision getMaterialRevisionAtLastParseAttempt(MaterialUpdateCompletedMessage message) {

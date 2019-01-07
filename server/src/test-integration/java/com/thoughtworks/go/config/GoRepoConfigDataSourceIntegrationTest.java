@@ -18,6 +18,7 @@ package com.thoughtworks.go.config;
 
 import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
+import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.util.GoConfigFileHelper;
@@ -85,7 +86,9 @@ public class GoRepoConfigDataSourceIntegrationTest {
         configHelper.addConfigRepo(configRepoConfig);
 
         goConfigService.forceNotifyListeners();
-        repoConfigDataSource.onCheckoutComplete(configRepoConfig.getMaterialConfig(), templateConfigRepo, latestRevision);
+        Modification modification = new Modification();
+        modification.setRevision(latestRevision);
+        repoConfigDataSource.onCheckoutComplete(configRepoConfig.getMaterialConfig(), templateConfigRepo, modification);
 
     }
 

@@ -22,13 +22,12 @@ import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.config.remote.ConfigReposConfig;
 import com.thoughtworks.go.config.remote.PartialConfig;
 import com.thoughtworks.go.config.update.PartialConfigUpdateCommand;
+import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.helper.PartialConfigMother;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 
 import java.io.File;
 
@@ -119,7 +118,7 @@ public class GoPartialConfigTest {
         PartialConfig part = new PartialConfig();
         when(plugin.load(any(File.class), any(PartialConfigLoadContext.class))).thenReturn(part);
 
-        repoConfigDataSource.onCheckoutComplete(material, folder, "7a8f");
+        repoConfigDataSource.onCheckoutComplete(material, folder, getModificationFor("7a8f"));
 
         assertThat(partialConfig.lastPartials().size(), is(1));
         assertThat(partialConfig.lastPartials().get(0), is(part));
@@ -133,7 +132,7 @@ public class GoPartialConfigTest {
         when(plugin.load(any(File.class), any(PartialConfigLoadContext.class)))
                 .thenThrow(new RuntimeException("Failed parsing"));
 
-        repoConfigDataSource.onCheckoutComplete(material, folder, "7a8f");
+        repoConfigDataSource.onCheckoutComplete(material, folder, getModificationFor("7a8f"));
 
         assertThat(repoConfigDataSource.latestParseHasFailedForMaterial(material), is(true));
 
@@ -147,11 +146,11 @@ public class GoPartialConfigTest {
         PartialConfig part = new PartialConfig();
         when(plugin.load(any(File.class), any(PartialConfigLoadContext.class))).thenReturn(part);
 
-        repoConfigDataSource.onCheckoutComplete(material, folder, "7a8f");
+        repoConfigDataSource.onCheckoutComplete(material, folder, getModificationFor("7a8f"));
 
         when(plugin.load(any(File.class), any(PartialConfigLoadContext.class)))
                 .thenThrow(new RuntimeException("Failed parsing"));
-        repoConfigDataSource.onCheckoutComplete(material, folder, "6354");
+        repoConfigDataSource.onCheckoutComplete(material, folder, getModificationFor("6354"));
 
         assertThat(repoConfigDataSource.latestParseHasFailedForMaterial(material), is(true));
 
@@ -166,7 +165,7 @@ public class GoPartialConfigTest {
         PartialConfig part = new PartialConfig();
         when(plugin.load(any(File.class), any(PartialConfigLoadContext.class))).thenReturn(part);
 
-        repoConfigDataSource.onCheckoutComplete(material, folder, "7a8f");
+        repoConfigDataSource.onCheckoutComplete(material, folder, getModificationFor("7a8f"));
 
         assertThat(partialConfig.lastPartials().size(), is(1));
         assertThat(partialConfig.lastPartials().get(0), is(part));
@@ -199,19 +198,16 @@ public class GoPartialConfigTest {
         PartialConfigUpdateCompletedListener listener = mock(PartialConfigUpdateCompletedListener.class);
         repoConfigDataSource.registerListener(listener);
 
-        repoConfigDataSource.onCheckoutComplete(material, folder, "7a8f");
+        repoConfigDataSource.onCheckoutComplete(material, folder, getModificationFor("7a8f"));
         verify(listener, times(1)).onSuccessPartialConfig(any(ConfigRepoConfig.class), any(PartialConfig.class));
     }
 
     @Test
     public void shouldMergeRemoteGroupToMain() {
-        when(goConfigService.updateConfig(any(UpdateConfigCommand.class))).thenAnswer(new Answer<Object>() {
-            @Override
-            public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
-                UpdateConfigCommand command = (UpdateConfigCommand) invocationOnMock.getArguments()[0];
-                command.update(cruiseConfig);
-                return cruiseConfig;
-            }
+        when(goConfigService.updateConfig(any(UpdateConfigCommand.class))).thenAnswer(invocationOnMock -> {
+            UpdateConfigCommand command = (UpdateConfigCommand) invocationOnMock.getArguments()[0];
+            command.update(cruiseConfig);
+            return cruiseConfig;
         });
         partialConfig.onSuccessPartialConfig(configRepoConfig, PartialConfigMother.withPipeline("p1"));
         assertThat(cruiseConfig.getPartials().size(), is(1));
@@ -220,16 +216,19 @@ public class GoPartialConfigTest {
 
     @Test
     public void shouldMergeRemoteEnvironmentToMain() {
-        when(goConfigService.updateConfig(any(UpdateConfigCommand.class))).thenAnswer(new Answer<Object>() {
-            @Override
-            public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
-                UpdateConfigCommand command = (UpdateConfigCommand) invocationOnMock.getArguments()[0];
-                command.update(cruiseConfig);
-                return cruiseConfig;
-            }
+        when(goConfigService.updateConfig(any(UpdateConfigCommand.class))).thenAnswer(invocationOnMock -> {
+            UpdateConfigCommand command = (UpdateConfigCommand) invocationOnMock.getArguments()[0];
+            command.update(cruiseConfig);
+            return cruiseConfig;
         });
         partialConfig.onSuccessPartialConfig(configRepoConfig, PartialConfigMother.withEnvironment("env1"));
         assertThat(cruiseConfig.getPartials().size(), is(1));
         assertThat(cruiseConfig.getPartials().get(0).getEnvironments().first().name(), is(new CaseInsensitiveString("env1")));
+    }
+
+    private Modification getModificationFor(String revision) {
+        Modification modification = new Modification();
+        modification.setRevision(revision);
+        return modification;
     }
 }

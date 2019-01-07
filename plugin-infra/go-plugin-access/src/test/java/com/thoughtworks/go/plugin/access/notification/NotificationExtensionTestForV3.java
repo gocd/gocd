@@ -80,34 +80,6 @@ public class NotificationExtensionTestForV3 extends NotificationExtensionTestBas
                 supportedVersion, REQUEST_NOTIFY_PLUGIN_SETTINGS_CHANGE, "{\"foo\":\"bar\"}");
     }
 
-    @Test
-    public void shouldSerializePluginSettingsToJSON() throws Exception {
-        String pluginId = "plugin_id";
-        HashMap<String, String> pluginSettings = new HashMap<>();
-        pluginSettings.put("key1", "val1");
-        pluginSettings.put("key2", "val2");
-
-        NotificationExtension notificationExtension = new NotificationExtension(pluginManager);
-
-        when(pluginManager.resolveExtensionVersion(pluginId, NOTIFICATION_EXTENSION, notificationExtension.goSupportedVersions())).thenReturn(apiVersion());
-        String pluginSettingsJSON = notificationExtension.pluginSettingsJSON(pluginId, pluginSettings);
-
-        assertThat(pluginSettingsJSON, is("{\"key1\":\"val1\",\"key2\":\"val2\"}"));
-    }
-
-    @Test
-    public void shouldSerializeServerInfoToJSON() throws Exception {
-        String pluginId = "plugin_id";
-
-        NotificationExtension notificationExtension = new NotificationExtension(pluginManager);
-
-        when(pluginManager.resolveExtensionVersion(pluginId, NOTIFICATION_EXTENSION, notificationExtension.goSupportedVersions())).thenReturn("1.0");
-
-        String serverInfoJSON = notificationExtension.serverInfoJSON(pluginId, "x12ad", "http://build.com", "https://build.com");
-
-        assertThat(serverInfoJSON, Is.is("{\"server_id\":\"x12ad\",\"site_url\":\"http://build.com\",\"secure_site_url\":\"https://build.com\"}"));
-    }
-
     private void assertRequest(GoPluginApiRequest goPluginApiRequest, String extensionName, String version, String requestName, String requestBody) {
         Assert.assertThat(goPluginApiRequest.extension(), Is.is(extensionName));
         Assert.assertThat(goPluginApiRequest.extensionVersion(), Is.is(version));

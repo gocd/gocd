@@ -23,8 +23,6 @@ import com.thoughtworks.go.plugin.access.PluginRequestHelper;
 import com.thoughtworks.go.plugin.access.authorization.models.AuthenticationResponse;
 import com.thoughtworks.go.plugin.access.authorization.models.User;
 import com.thoughtworks.go.plugin.access.common.AbstractExtension;
-import com.thoughtworks.go.plugin.access.common.serverinfo.MessageHandlerForServerInfoRequestProcessor;
-import com.thoughtworks.go.plugin.access.common.serverinfo.MessageHandlerForServerInfoRequestProcessor1_0;
 import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsJsonMessageHandler;
 import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsJsonMessageHandler1_0;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
@@ -49,15 +47,13 @@ public class AuthorizationExtension extends AbstractExtension {
     @Autowired
     public AuthorizationExtension(PluginManager pluginManager) {
         super(pluginManager, new PluginRequestHelper(pluginManager, SUPPORTED_VERSIONS, AUTHORIZATION_EXTENSION), AUTHORIZATION_EXTENSION);
-        addHandler(AuthorizationMessageConverterV1.VERSION, new PluginSettingsJsonMessageHandler1_0(), new AuthorizationMessageConverterV1(),
-                new MessageHandlerForServerInfoRequestProcessor1_0());
+        addHandler(AuthorizationMessageConverterV1.VERSION, new PluginSettingsJsonMessageHandler1_0(), new AuthorizationMessageConverterV1()
+        );
     }
 
-    private void addHandler(String version, PluginSettingsJsonMessageHandler messageHandler, AuthorizationMessageConverterV1 extensionHandler,
-                            MessageHandlerForServerInfoRequestProcessor messageHandlerForServerInfoRequestProcessor) {
+    private void addHandler(String version, PluginSettingsJsonMessageHandler messageHandler, AuthorizationMessageConverterV1 extensionHandler) {
         registerHandler(version, messageHandler);
         messageHandlerMap.put(version, extensionHandler);
-        registerMessageHandlerForServerInfoRequestProcessor(version, messageHandlerForServerInfoRequestProcessor);
     }
 
     public com.thoughtworks.go.plugin.domain.authorization.Capabilities getCapabilities(String pluginId) {
@@ -245,11 +241,6 @@ public class AuthorizationExtension extends AbstractExtension {
                 return getMessageConverter(resolvedExtensionVersion).getAuthorizationServerUrl(responseBody);
             }
         });
-    }
-
-    @Override
-    public String pluginSettingsJSON(String pluginId, Map<String, String> pluginSettings) {
-        throw new UnsupportedOperationException("Fetch Plugin Settings is not supported by Authorization endpoint.");
     }
 
     @Override

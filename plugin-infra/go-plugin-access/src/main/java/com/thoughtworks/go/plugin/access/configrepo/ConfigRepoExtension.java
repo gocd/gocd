@@ -19,7 +19,6 @@ package com.thoughtworks.go.plugin.access.configrepo;
 import com.thoughtworks.go.plugin.access.DefaultPluginInteractionCallback;
 import com.thoughtworks.go.plugin.access.PluginRequestHelper;
 import com.thoughtworks.go.plugin.access.common.AbstractExtension;
-import com.thoughtworks.go.plugin.access.common.settings.MessageHandlerForPluginSettingsRequestProcessor1_0;
 import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsJsonMessageHandler1_0;
 import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsJsonMessageHandler2_0;
 import com.thoughtworks.go.plugin.configrepo.codec.GsonCodec;
@@ -57,11 +56,9 @@ public class ConfigRepoExtension extends AbstractExtension implements ConfigRepo
         super(pluginManager, new PluginRequestHelper(pluginManager, goSupportedVersions, CONFIG_REPO_EXTENSION), CONFIG_REPO_EXTENSION);
         registerHandler("1.0", new PluginSettingsJsonMessageHandler1_0());
         messageHandlerMap.put("1.0", new JsonMessageHandler1_0(new GsonCodec(), new ConfigRepoMigrator()));
-        registerMessageHandlerForPluginSettingsRequestProcessor("1.0", new MessageHandlerForPluginSettingsRequestProcessor1_0());
 
         registerHandler("2.0", new PluginSettingsJsonMessageHandler2_0());
         messageHandlerMap.put("2.0", new JsonMessageHandler2_0(new GsonCodec(), new ConfigRepoMigrator()));
-        registerMessageHandlerForPluginSettingsRequestProcessor("2.0", new MessageHandlerForPluginSettingsRequestProcessor1_0());
     }
 
     @Override
@@ -149,10 +146,5 @@ public class ConfigRepoExtension extends AbstractExtension implements ConfigRepo
     @Override
     protected List<String> goSupportedVersions() {
         return goSupportedVersions;
-    }
-
-    @Override
-    public String serverInfoJSON(String pluginId, String serverId, String siteUrl, String secureSiteUrl) {
-        throw new UnsupportedOperationException("Fetch Server Info is not supported by ConfigRepo endpoint.");
     }
 }

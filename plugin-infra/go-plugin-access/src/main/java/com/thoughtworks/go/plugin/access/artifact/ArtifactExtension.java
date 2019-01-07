@@ -208,14 +208,4 @@ public class ArtifactExtension extends AbstractExtension {
             }
         });
     }
-
-    @Override
-    public String pluginSettingsJSON(String pluginId, Map<String, String> pluginSettings) {
-        throw new UnsupportedOperationException("Fetch Plugin Settings is not supported by Artifact endpoint.");
-    }
-
-    @Override
-    public String serverInfoJSON(String pluginId, String serverId, String siteUrl, String secureSiteUrl) {
-        throw new UnsupportedOperationException("Fetch Server Info is not supported by Artifact endpoint.");
-    }
 }

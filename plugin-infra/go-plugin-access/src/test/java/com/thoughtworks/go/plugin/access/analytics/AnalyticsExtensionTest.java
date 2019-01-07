@@ -141,28 +141,6 @@ public class AnalyticsExtensionTest {
         analyticsExtension.getStaticAssets(PLUGIN_ID);
     }
 
-    @Test
-    public void shouldSerializePluginSettingsToJSON() {
-        String pluginId = "plugin_id";
-        HashMap<String, String> pluginSettings = new HashMap<>();
-        pluginSettings.put("key1", "val1");
-        pluginSettings.put("key2", "val2");
-
-        when(pluginManager.resolveExtensionVersion(pluginId, ANALYTICS_EXTENSION, analyticsExtension.goSupportedVersions())).thenReturn("1.0");
-
-        String pluginSettingsJSON = analyticsExtension.pluginSettingsJSON(pluginId, pluginSettings);
-
-        assertThat(pluginSettingsJSON, Is.is("{\"key1\":\"val1\",\"key2\":\"val2\"}"));
-    }
-
-    @Test
-    public void shouldNotExposeServerInfo() {
-        thrown.expect(UnsupportedOperationException.class);
-        thrown.expectMessage("Fetch Server Info is not supported by Analytics endpoint.");
-
-        analyticsExtension.serverInfoJSON("plugin_id", "server_id", "site_url", "secure_site_url");
-    }
-
     private void assertRequest(GoPluginApiRequest goPluginApiRequest, String extensionName, String version, String requestName, String requestBody) {
         assertThat(goPluginApiRequest.extension(), Is.is(extensionName));
         assertThat(goPluginApiRequest.extensionVersion(), Is.is(version));

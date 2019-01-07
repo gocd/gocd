@@ -30,7 +30,7 @@ import java.util.Map;
 import static java.lang.String.format;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 
-public class PluginSettingsJsonMessageHandlerBase implements PluginSettingsJsonMessageHandler {
+public abstract class PluginSettingsJsonMessageHandlerBase implements PluginSettingsJsonMessageHandler {
     private final JSONResultMessageHandler jsonResultMessageHandler;
 
     public PluginSettingsJsonMessageHandlerBase() {
@@ -106,11 +106,6 @@ public class PluginSettingsJsonMessageHandlerBase implements PluginSettingsJsonM
     @Override
     public ValidationResult responseMessageForPluginSettingsValidation(String responseBody) {
         return jsonResultMessageHandler.toValidationResult(responseBody);
-    }
-
-    @Override
-    public boolean supportsPluginSettingsNotification() {
-        return false;
     }
 
     private Map parseResponseToMap(String responseBody) {

@@ -70,17 +70,7 @@ public class TaskExtension extends AbstractExtension {
     }
 
     @Override
-    public String pluginSettingsJSON(String pluginId, Map<String, String> pluginSettings) {
-        throw new UnsupportedOperationException("Fetch PluginSettings is not supported by Task Endpoint.");
-    }
-
-    @Override
     protected List<String> goSupportedVersions() {
         return supportedVersions;
-    }
-
-    @Override
-    public String serverInfoJSON(String pluginId, String serverId, String siteUrl, String secureSiteUrl) {
-        throw new UnsupportedOperationException("Fetch Server Info is not supported by Task endpoint.");
     }
 }

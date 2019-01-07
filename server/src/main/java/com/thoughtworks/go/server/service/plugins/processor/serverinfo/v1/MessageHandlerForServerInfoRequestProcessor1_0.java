@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,20 +14,27 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.plugin.access.common.serverinfo;
+package com.thoughtworks.go.server.service.plugins.processor.serverinfo.v1;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import com.thoughtworks.go.config.ServerConfig;
+import com.thoughtworks.go.server.service.plugins.processor.serverinfo.MessageHandlerForServerInfoRequestProcessor;
 
 public class MessageHandlerForServerInfoRequestProcessor1_0 implements MessageHandlerForServerInfoRequestProcessor {
+    private final Gson gson;
+
+    public MessageHandlerForServerInfoRequestProcessor1_0() {
+        gson = new Gson();
+    }
 
     @Override
-    public String serverInfoToJSON(String serverId, String siteUrl, String secureSiteUrl) {
-        Gson gson = new Gson();
+    public String serverInfoToJSON(ServerConfig serverConfig) {
         JsonObject object = new JsonObject();
-        object.addProperty("server_id", serverId);
-        object.addProperty("site_url", siteUrl);
-        object.addProperty("secure_site_url", secureSiteUrl);
+
+        object.addProperty("server_id", serverConfig.getServerId());
+        object.addProperty("site_url", serverConfig.getSiteUrl().getUrl());
+        object.addProperty("secure_site_url", serverConfig.getSecureSiteUrl().getUrl());
 
         return gson.toJson(object);
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.plugin.access.common.settings;
+package com.thoughtworks.go.server.service.plugins.processor.serverinfo;
 
-import java.util.Map;
+import com.thoughtworks.go.config.ServerConfig;
 
-public interface MessageHandlerForPluginSettingsRequestProcessor {
+public interface MessageHandlerForServerInfoRequestProcessor {
 
-    String pluginSettingsToJSON(Map<String, String> pluginSettings);
+    String serverInfoToJSON(ServerConfig serverConfig);
 }

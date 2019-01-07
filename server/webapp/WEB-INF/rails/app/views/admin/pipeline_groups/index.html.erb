@@ -83,12 +83,24 @@
                               </a>
                             </li>
                         <%- end -%>
+
+                      <%- unless pipeline.hasTemplate() -%>
                         <li>
                           <%= link_to("#{spark_url_for({request: request}, SparkRoutes::Export.pipeline(pipeline.name().toString()))}?groupName=#{group.getGroup()}", :class => "export_icon action_icon export_pipeline_config") do -%>
                             Export using
                             <span class="for_down_arrow">&nbsp;</span>
                           <% end -%>
                         </li>
+                      <%- else -%>
+                        <li>
+                          <span class="export_icon export_disabled action_icon export_pipeline_config" title="Cannot export pipelines defined by templates.">
+                            Export using
+                            <!-- want to maintain spacing, so include the arrow even if it's invisible -->
+                            <span class="for_down_arrow">&nbsp;</span>
+                          </span>
+                        </li>
+                      <%- end -%>
+
                         <li>
                           <% if pipeline.isLocal() %>
                               <% pipeline_random_id_for_clone = random_dom_id('clone_button_for_') -%>
@@ -165,6 +177,10 @@
 
     var exportPopupShower = new MicroContentPopup.Shower(exportPopup);
     $(".group_pipelines").on("click", ".export_pipeline_config", function (e) {
+      if ($(e.currentTarget).hasClass("export_disabled")) {
+        return;
+      }
+
       e.preventDefault();
       e.stopPropagation();
 

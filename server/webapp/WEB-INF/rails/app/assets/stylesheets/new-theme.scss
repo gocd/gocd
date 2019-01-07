@@ -3402,6 +3402,20 @@ a.add_item {
   @extend %iconstyles;
 }
 
+.export_disabled {
+  color: $disabled-icon-color;
+
+  &:before, &:hover, &:focus {
+    color: $disabled-icon-color;
+  }
+
+  cursor: default;
+
+  .for_down_arrow {
+    visibility: hidden; // want to maintain spacing
+  }
+}
+
 .clone_icon {
   @include icon-before($type: clone);
   @extend %iconstyles;

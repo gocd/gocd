@@ -17,6 +17,8 @@
 import * as m from "mithril";
 import {Stream} from "mithril/stream";
 import * as stream from "mithril/stream";
+import {RolesCRUD} from "models/roles/roles_crud";
+import {Roles} from "models/roles/roles_new";
 import {UserFilters} from "models/users/user_filters";
 import {BulkUserOperationJSON, BulkUserUpdateJSON, UserJSON, Users} from "models/users/users";
 import {UsersCRUD} from "models/users/users_crud";
@@ -38,6 +40,7 @@ export class UsersPage extends Page<null, State> {
 
     vnode.state.initialUsers = stream(new Users());
     vnode.state.userFilter   = stream(new UserFilters());
+    vnode.state.roles        = stream(new Roles());
 
     vnode.state.onAdd = (e) => {
       e.stopPropagation();
@@ -98,15 +101,26 @@ export class UsersPage extends Page<null, State> {
   }
 
   fetchData(vnode: m.Vnode<null, State>): Promise<any> {
-    return Promise.all([UsersCRUD.all()]).then((args) => {
-      const apiResult = args[0];
-      apiResult.do((successResponse) => {
-                     vnode.state.initialUsers(successResponse.body);
-                     this.pageState = PageState.OK;
-                   }, (errorResponse) => {
-                     // vnode.state.onError(errorResponse.message);
-                     this.pageState = PageState.FAILED;
-                   }
+    return Promise.all([UsersCRUD.all(), RolesCRUD.all('gocd')]).then((args) => {
+      const userResult  = args[0];
+      const rolesResult = args[1];
+
+      userResult.do((successResponse) => {
+                      vnode.state.initialUsers(successResponse.body);
+                      this.pageState = PageState.OK;
+                    }, (errorResponse) => {
+                      // vnode.state.onError(errorResponse.message);
+                      this.pageState = PageState.FAILED;
+                    }
+      );
+
+      rolesResult.do((successResponse) => {
+                       vnode.state.roles(successResponse.body);
+                       this.pageState = PageState.OK;
+                     }, (errorResponse) => {
+                       // vnode.state.onError(errorResponse.message);
+                       this.pageState = PageState.FAILED;
+                     }
       );
     });
   }
@@ -116,7 +130,8 @@ export class UsersPage extends Page<null, State> {
              .then((apiResult) => {
                apiResult.do((successResponse) => {
                  this.pageState = PageState.OK;
-                 this.flashMessage.setMessage(MessageType.success, `Users were ${json.operations.enable ? "enabled" : "disabled"} successfully!`);
+                 this.flashMessage.setMessage(MessageType.success,
+                                              `Users were ${json.operations.enable ? "enabled" : "disabled"} successfully!`);
                  this.fetchData(vnode);
                }, (errorResponse) => {
                  // vnode.state.onError(errorResponse.message);

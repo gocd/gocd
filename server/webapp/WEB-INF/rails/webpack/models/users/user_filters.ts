@@ -20,17 +20,19 @@ import * as stream from "mithril/stream";
 import {User, Users} from "models/users/users";
 
 export class UserFilters {
-  searchText: Stream<string>     = stream("");
-  superAdmins: Stream<boolean>   = stream(false);
-  normalUsers: Stream<boolean>   = stream(false);
-  enabledUsers: Stream<boolean>  = stream(false);
-  disabledUsers: Stream<boolean> = stream(false);
+  searchText: Stream<string>                                             = stream("");
+  superAdmins: Stream<boolean>                                           = stream(false);
+  normalUsers: Stream<boolean>                                           = stream(false);
+  enabledUsers: Stream<boolean>                                          = stream(false);
+  disabledUsers: Stream<boolean>                                         = stream(false);
+  private readonly __selectedRoles: Stream<Map<string, Stream<boolean>>> = stream(new Map());
 
   resetFilters() {
     this.superAdmins(false);
     this.normalUsers(false);
     this.enabledUsers(false);
     this.disabledUsers(false);
+    this.__selectedRoles().clear();
   }
 
   isAnyPrivilegesFilterApplied() {
@@ -41,8 +43,22 @@ export class UserFilters {
     return this.enabledUsers() || this.disabledUsers();
   }
 
+  isAnyRoleFilterApplied() {
+    return this.selectedRoles().length > 0;
+  }
+
+  selectedRoles() {
+    const result: string[] = [];
+    this.__selectedRoles().forEach((selected, roleName) => {
+      if (selected()) {
+        result.push(roleName);
+      }
+    });
+    return result;
+  }
+
   anyFiltersApplied() {
-    return this.isAnyPrivilegesFilterApplied() || this.isAnyUserStateFilterApplied();
+    return this.isAnyPrivilegesFilterApplied() || this.isAnyUserStateFilterApplied() || this.isAnyRoleFilterApplied();
   }
 
   performFilteringOn(users: Users) {
@@ -55,7 +71,14 @@ export class UserFilters {
       return new Users(...filteredUsersBasedOnText);
 
     }
+  }
 
+  roleSelectionFor(roleName: string) {
+    if (!this.__selectedRoles().has(roleName)) {
+      this.__selectedRoles().set(roleName, stream(false));
+    }
+
+    return this.__selectedRoles().get(roleName) as Stream<boolean>;
   }
 
   private applyFiltersOnUser(user: User): boolean {
@@ -77,6 +100,11 @@ export class UserFilters {
       filterOnUserState = filterOnUserState || !user.enabled();
     }
 
-    return filterOnPrivileges && filterOnUserState;
+    let filterOnRole = !this.isAnyRoleFilterApplied();
+
+    if (this.isAnyRoleFilterApplied()) {
+      filterOnRole = filterOnRole || _.intersection(this.selectedRoles(), user.gocdRoles()).length > 0;
+    }
+    return filterOnPrivileges && filterOnUserState && filterOnRole;
   }
 }

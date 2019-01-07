@@ -149,14 +149,18 @@ abstract class FormField<T> extends MithrilViewComponent<FormFieldAttrs<T>> {
     };
   }
 
-  private renderLabel(vnode: m.Vnode<FormFieldAttrs<T>>) {
+  protected renderLabel(vnode: m.Vnode<FormFieldAttrs<T>>) {
     if (this.hasLabelText(vnode)) {
       const maybeRequired = this.isRequiredField(vnode) ?
         <span className={styles.formLabelRequired}>*</span> : undefined;
 
-      return <label for={this.id} className={styles.formLabel}
-                    data-test-id={`form-field-label-${s.slugify(vnode.attrs.label as string)}`}>{vnode.attrs.label}{maybeRequired}:</label>;
+      return <label for={this.id} className={this.labelClass()}
+                    data-test-id={`form-field-label-${s.slugify(vnode.attrs.label as string)}`}>{vnode.attrs.label}{maybeRequired}</label>;
     }
+  }
+
+  protected labelClass() {
+    return styles.formLabel;
   }
 }
 
@@ -267,6 +271,20 @@ export class TextAreaField extends FormField<string> {
 }
 
 export class CheckboxField extends FormField<boolean> {
+  view(vnode: m.Vnode<FormFieldAttrs<boolean>>) {
+
+    return (
+      <li className={classnames(styles.formGroup, {[styles.formHasError]: this.hasErrorText(vnode)})}>
+        <div className={styles.formCheck}>
+          {this.renderInputField(vnode)}
+          {this.renderLabel(vnode)}
+          {this.errorSpan(vnode)}
+          {this.getHelpSpan(vnode)}
+        </div>
+      </li>
+    );
+  }
+
   renderInputField(vnode: m.Vnode<FormFieldAttrs<boolean>>): m.Children {
     return (
       <input type="checkbox"
@@ -276,12 +294,16 @@ export class CheckboxField extends FormField<boolean> {
     );
   }
 
+  protected labelClass(): string {
+    return styles.formCheckLabel;
+  }
+
   protected className(vnode: m.Vnode<FormFieldAttrs<boolean>>): string {
-    return classnames(this.defaultAttributes(vnode).className, styles.formControl);
+    return classnames(this.defaultAttributes(vnode).className, styles.formCheckInput);
   }
 }
 
-export class Switch extends CheckboxField {
+export class Switch extends FormField<boolean> {
   renderInputField(vnode: m.Vnode<FormFieldAttrs<boolean>>): m.Children {
     return <SwitchBtn small={vnode.attrs.small} field={vnode.attrs.property}/>;
   }

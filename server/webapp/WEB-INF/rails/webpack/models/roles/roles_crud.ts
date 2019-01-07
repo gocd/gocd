@@ -21,8 +21,8 @@ import {GoCDRole, PluginRole, Role, Roles} from "models/roles/roles_new";
 export class RolesCRUD {
   private static API_VERSION_HEADER = ApiVersion.v1;
 
-  static all() {
-    return ApiRequestBuilder.GET(SparkRoutes.rolePath(), this.API_VERSION_HEADER)
+  static all(type?: 'gocd' | 'plugin') {
+    return ApiRequestBuilder.GET(SparkRoutes.rolesPath(type), this.API_VERSION_HEADER)
                             .then((result: ApiResult<string>) => result.map((body) => {
                               return Roles.fromJSON(JSON.parse(body));
                             }));
@@ -34,7 +34,7 @@ export class RolesCRUD {
   }
 
   static create(role: GoCDRole | PluginRole) {
-    return ApiRequestBuilder.POST(SparkRoutes.rolePath(),
+    return ApiRequestBuilder.POST(SparkRoutes.rolesPath(),
                                   this.API_VERSION_HEADER,
                                   {payload: role}).then(this.extractObjectWithEtag);
   }

@@ -18,11 +18,13 @@ import * as _ from "lodash";
 import * as m from "mithril";
 import * as stream from "mithril/stream";
 import {Stream} from "mithril/stream";
+import {Roles} from "models/roles/roles_new";
 import {UserFilters} from "models/users/user_filters";
 import {User, Users} from "models/users/users";
 describe("UsersWidget", () => {
   let $root: any, root: any;
   const users: Stream<Users> = stream(new Users());
+  const roles: Stream<Roles> = stream(new Roles());
   const usersFilter          = stream(new UserFilters());
   let onEnable: (users: Users, e: MouseEvent) => void;
   let onDisable: (users: Users, e: MouseEvent) => void;
@@ -50,6 +52,7 @@ describe("UsersWidget", () => {
           onDisable={onDisable}
           onDelete={onDelete}
           users={users}
+          roles={roles}
           userFilter={usersFilter}
         />);
       }

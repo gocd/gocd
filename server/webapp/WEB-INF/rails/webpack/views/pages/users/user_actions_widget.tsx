@@ -19,6 +19,7 @@ import {MithrilComponent, MithrilViewComponent} from "jsx/mithril-component";
 import * as m from "mithril";
 import {Stream} from "mithril/stream";
 import * as stream from "mithril/stream";
+import {Roles} from "models/roles/roles_new";
 import {UserFilters} from "models/users/user_filters";
 import {ButtonGroup, ButtonIcon, Dropdown, Link, Secondary} from "views/components/buttons";
 import {CheckboxField, SearchField} from "views/components/forms/input_fields";
@@ -35,6 +36,7 @@ export interface State {
 export interface FiltersViewAttrs {
   showFilters: Stream<boolean>;
   userFilters: UserFilters;
+  roles: Stream<Roles>;
 }
 
 export class FiltersView extends MithrilViewComponent<FiltersViewAttrs> {
@@ -53,7 +55,7 @@ export class FiltersView extends MithrilViewComponent<FiltersViewAttrs> {
       </header>
       <div className={classnames(styles.filtersBody)}>
         <div className={classnames(styles.filterItems)}>
-          <h4 className={classnames(styles.filterItemsHead)} data-test-id="filter-by-privileges-heading">Privilages</h4>
+          <h4 className={classnames(styles.filterItemsHead)} data-test-id="filter-by-privileges-heading">Privileges</h4>
           <div data-test-id="filter-by-privileges">
             <CheckboxField label="Super Administrators"
                            property={vnode.attrs.userFilters.superAdmins}/>
@@ -62,8 +64,9 @@ export class FiltersView extends MithrilViewComponent<FiltersViewAttrs> {
           </div>
         </div>
         <div className={classnames(styles.filterItems)}>
-          <h4 className={classnames(styles.filterItemsHead)} data-test-id="filter-by-users-state-heading">User
-            state</h4>
+          <h4 className={classnames(styles.filterItemsHead)} data-test-id="filter-by-users-state-heading">
+            User state
+          </h4>
           <div data-test-id="filter-by-privileges">
             <CheckboxField label="Enabled"
                            property={vnode.attrs.userFilters.enabledUsers}/>
@@ -71,8 +74,23 @@ export class FiltersView extends MithrilViewComponent<FiltersViewAttrs> {
                            property={vnode.attrs.userFilters.disabledUsers}/>
           </div>
         </div>
+
+        <div className={classnames(styles.filterItems)}>
+          <h4 className={classnames(styles.filterItemsHead)} data-test-id="filter-by-role-heading">Roles</h4>
+          <div data-test-id="filter-by-roles">
+            {this.renderRoles(vnode)}
+          </div>
+        </div>
       </div>
     </div>;
+  }
+
+  private renderRoles(vnode: m.Vnode<FiltersViewAttrs>) {
+    return vnode.attrs.roles().map((role) => {
+      const usersFilters = vnode.attrs.userFilters;
+      return <CheckboxField label={role.name()}
+                            property={usersFilters.roleSelectionFor(role.name())}/>;
+    });
   }
 }
 
@@ -115,7 +133,8 @@ export class UsersActionsWidget extends MithrilComponent<Attrs, State> {
         <div className={classnames(styles.filterDropdown)}>
           <Dropdown data-test-id="filters-btn" onclick={vnode.state.toggleFiltersView}
                     icon={ButtonIcon.FILTER}>Filters</Dropdown>
-          <FiltersView showFilters={vnode.state.showFilters} userFilters={vnode.attrs.userFilter()}/>
+          <FiltersView showFilters={vnode.state.showFilters} roles={vnode.attrs.roles}
+                       userFilters={vnode.attrs.userFilter()}/>
         </div>
       </div>
     </div>;

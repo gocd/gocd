@@ -18,6 +18,7 @@ import {bind} from "classnames/bind";
 import {MithrilViewComponent} from "jsx/mithril-component";
 import * as m from "mithril";
 import {Stream} from "mithril/stream";
+import {Roles} from "models/roles/roles_new";
 import {UserFilters} from "models/users/user_filters";
 import {User, Users} from "models/users/users";
 import {Table} from "views/components/table";
@@ -29,6 +30,7 @@ const classnames = bind(styles);
 
 export interface Attrs extends EnableOperation<Users>, DisableOperation<Users>, DeleteOperation<Users> {
   users: () => Users;
+  roles: Stream<Roles>;
   userFilter: Stream<UserFilters>;
 }
 

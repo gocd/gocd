@@ -75,12 +75,32 @@ $form-failed-field-background-color: lighten($form-failed-color, 35%);
   }
 }
 
+.form-check {
+  position:      relative;
+  display:       block;
+  padding-left:  15px;
+  margin-bottom: 10px;
+
+  .form-check-input {
+    @include size(16px, 16px);
+    position:    absolute;
+    margin-top:  3px;
+    margin-left: -15px;
+  }
+
+  .form-check-label {
+    display:     inline-block;
+    margin-left: 5px;
+  }
+}
+
 select.form-control { //sass-lint:disable-line no-qualifying-elements
   width: 270px;
 }
 
 input[type="checkbox"].form-control { //sass-lint:disable-line no-qualifying-elements
   width: 35px;
+
   &:focus {
     outline:    0;
     box-shadow: none;

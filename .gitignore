@@ -171,6 +171,10 @@ api/api-roles-config-v1/config/
 api/api-roles-config-v1/logs/
 api/api-roles-config-v1/out/
 api/api-roles-config-v1/target/
+api/api-roles-config-v2/config/
+api/api-roles-config-v2/logs/
+api/api-roles-config-v2/out/
+api/api-roles-config-v2/target/
 api/api-server-health-messages-v1/logs/
 api/api-server-health-messages-v1/out/
 api/api-server-health-messages-v1/target/

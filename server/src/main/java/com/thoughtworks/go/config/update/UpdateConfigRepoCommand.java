@@ -21,7 +21,9 @@ import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.config.remote.ConfigReposConfig;
 import com.thoughtworks.go.plugin.access.configrepo.ConfigRepoExtension;
 import com.thoughtworks.go.server.domain.Username;
+import com.thoughtworks.go.server.materials.MaterialUpdateService;
 import com.thoughtworks.go.server.service.EntityHashingService;
+import com.thoughtworks.go.server.service.MaterialConfigConverter;
 import com.thoughtworks.go.server.service.SecurityService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 
@@ -36,8 +38,9 @@ public class UpdateConfigRepoCommand extends ConfigRepoCommand {
 
     public UpdateConfigRepoCommand(SecurityService securityService, EntityHashingService entityHashingService,
                                    String repoIdToUpdate, ConfigRepoConfig newConfigRepo, String md5, Username username,
-                                   HttpLocalizedOperationResult result, ConfigRepoExtension configRepoExtension) {
-        super(securityService, newConfigRepo, username, result, configRepoExtension);
+                                   HttpLocalizedOperationResult result, ConfigRepoExtension configRepoExtension,
+                                   MaterialUpdateService materialUpdateService, MaterialConfigConverter converter) {
+        super(securityService, newConfigRepo, username, result, configRepoExtension, materialUpdateService, converter);
         this.entityHashingService = entityHashingService;
         this.repoIdToUpdate = repoIdToUpdate;
         this.newConfigRepo = newConfigRepo;
@@ -49,6 +52,7 @@ public class UpdateConfigRepoCommand extends ConfigRepoCommand {
     public void update(CruiseConfig preprocessedConfig) {
         ConfigReposConfig configRepos = preprocessedConfig.getConfigRepos();
         configRepos.replace(configRepos.getConfigRepo(repoIdToUpdate), newConfigRepo);
+        scheduleMaterialUpdate(newConfigRepo);
     }
 
     @Override

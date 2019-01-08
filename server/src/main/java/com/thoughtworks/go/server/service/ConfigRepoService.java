@@ -27,6 +27,7 @@ import com.thoughtworks.go.config.update.UpdateConfigRepoCommand;
 import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.plugin.access.configrepo.ConfigRepoExtension;
 import com.thoughtworks.go.server.domain.Username;
+import com.thoughtworks.go.server.materials.MaterialUpdateService;
 import com.thoughtworks.go.server.service.materials.PackageDefinitionService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import org.slf4j.Logger;
@@ -43,15 +44,19 @@ public class ConfigRepoService {
     private SecurityService securityService;
     private EntityHashingService entityHashingService;
     private ConfigRepoExtension configRepoExtension;
+    private final MaterialUpdateService materialUpdateService;
+    private final MaterialConfigConverter converter;
     public static final Logger LOGGER = LoggerFactory.getLogger(PackageDefinitionService.class);
 
     @Autowired
     public ConfigRepoService(GoConfigService goConfigService, SecurityService securityService, EntityHashingService entityHashingService,
-                             ConfigRepoExtension configRepoExtension) {
+                             ConfigRepoExtension configRepoExtension, MaterialUpdateService materialUpdateService, MaterialConfigConverter converter) {
         this.goConfigService = goConfigService;
         this.securityService = securityService;
         this.entityHashingService = entityHashingService;
         this.configRepoExtension = configRepoExtension;
+        this.materialUpdateService = materialUpdateService;
+        this.converter = converter;
     }
 
     public ConfigRepoConfig getConfigRepo(String repoId) {
@@ -87,14 +92,14 @@ public class ConfigRepoService {
     }
 
     public void createConfigRepo(ConfigRepoConfig configRepo, Username username, HttpLocalizedOperationResult result) {
-        CreateConfigRepoCommand command = new CreateConfigRepoCommand(securityService, configRepo, username, result, configRepoExtension);
+        CreateConfigRepoCommand command = new CreateConfigRepoCommand(securityService, configRepo, username, result, configRepoExtension, materialUpdateService, converter);
         update(username, configRepo.getId(), result, command);
     }
 
     public void updateConfigRepo(String repoIdToUpdate, ConfigRepoConfig newConfigRepo, String md5OfExistingConfigRepo,
                                  Username username, HttpLocalizedOperationResult result) {
         UpdateConfigRepoCommand command = new UpdateConfigRepoCommand(securityService, entityHashingService, repoIdToUpdate,
-                newConfigRepo, md5OfExistingConfigRepo, username, result, configRepoExtension);
+                newConfigRepo, md5OfExistingConfigRepo, username, result, configRepoExtension, materialUpdateService, converter);
 
         update(username, newConfigRepo.getId(), result, command);
         if (result.isSuccessful()) {

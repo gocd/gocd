@@ -18,11 +18,15 @@ package com.thoughtworks.go.config.update;
 
 import com.thoughtworks.go.config.BasicCruiseConfig;
 import com.thoughtworks.go.config.CaseInsensitiveString;
+import com.thoughtworks.go.config.materials.ScmMaterial;
 import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.helper.GoConfigMother;
+import com.thoughtworks.go.helper.MaterialsMother;
 import com.thoughtworks.go.plugin.access.configrepo.ConfigRepoExtension;
 import com.thoughtworks.go.server.domain.Username;
+import com.thoughtworks.go.server.materials.MaterialUpdateService;
+import com.thoughtworks.go.server.service.MaterialConfigConverter;
 import com.thoughtworks.go.server.service.SecurityService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import org.junit.Before;
@@ -33,7 +37,7 @@ import static com.thoughtworks.go.i18n.LocalizedMessage.forbiddenToEdit;
 import static com.thoughtworks.go.serverhealth.HealthStateType.forbidden;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.*;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 public class CreateConfigRepoCommandTest {
@@ -49,6 +53,10 @@ public class CreateConfigRepoCommandTest {
     private String actionFailed;
     @Mock
     private ConfigRepoExtension configRepoExtension;
+    @Mock
+    private MaterialUpdateService materialUpdateService;
+    @Mock
+    private MaterialConfigConverter materialConfigConverter;
 
     @Before
     public void setup() throws Exception {
@@ -63,7 +71,7 @@ public class CreateConfigRepoCommandTest {
 
     @Test
     public void shouldAddTheSpecifiedConfigRepo() throws Exception {
-        CreateConfigRepoCommand command = new CreateConfigRepoCommand(securityService, configRepo, currentUser, result, configRepoExtension);
+        CreateConfigRepoCommand command = new CreateConfigRepoCommand(securityService, configRepo, currentUser, result, configRepoExtension, materialUpdateService, materialConfigConverter);
         assertNull(cruiseConfig.getConfigRepos().getConfigRepo(repoId));
         command.update(cruiseConfig);
         assertThat(cruiseConfig.getConfigRepos().getConfigRepo(repoId), is(configRepo));
@@ -71,7 +79,7 @@ public class CreateConfigRepoCommandTest {
 
     @Test
     public void shouldNotContinueIfTheUserDontHavePermissionsToOperateOnPackages() throws Exception {
-        CreateConfigRepoCommand command = new CreateConfigRepoCommand(securityService, configRepo, currentUser, result, configRepoExtension);
+        CreateConfigRepoCommand command = new CreateConfigRepoCommand(securityService, configRepo, currentUser, result, configRepoExtension, materialUpdateService, materialConfigConverter);
         when(securityService.isUserAdmin(currentUser)).thenReturn(false);
         HttpLocalizedOperationResult expectedResult = new HttpLocalizedOperationResult();
         expectedResult.forbidden(forbiddenToEdit(), forbidden());
@@ -87,7 +95,7 @@ public class CreateConfigRepoCommandTest {
         configRepo.setMaterialConfig(material);
         when(configRepoExtension.canHandlePlugin(configRepo.getPluginId())).thenReturn(true);
 
-        CreateConfigRepoCommand command = new CreateConfigRepoCommand(securityService, configRepo, currentUser, result, configRepoExtension);
+        CreateConfigRepoCommand command = new CreateConfigRepoCommand(securityService, configRepo, currentUser, result, configRepoExtension, materialUpdateService, materialConfigConverter);
         command.update(cruiseConfig);
 
         assertFalse(command.isValid(cruiseConfig));
@@ -99,7 +107,7 @@ public class CreateConfigRepoCommandTest {
         ConfigRepoConfig configRepo = new ConfigRepoConfig();
         configRepo.setId("");
 
-        CreateConfigRepoCommand command = new CreateConfigRepoCommand(securityService, configRepo, currentUser, result, configRepoExtension);
+        CreateConfigRepoCommand command = new CreateConfigRepoCommand(securityService, configRepo, currentUser, result, configRepoExtension, materialUpdateService, materialConfigConverter);
 
         assertFalse(command.isValid(cruiseConfig));
         assertThat(configRepo.errors().on("id"), is("Configuration repository id not specified"));
@@ -109,7 +117,7 @@ public class CreateConfigRepoCommandTest {
     public void isValid_shouldValidatePluginId() {
         when(configRepoExtension.canHandlePlugin(configRepo.getPluginId())).thenReturn(false);
 
-        CreateConfigRepoCommand command = new CreateConfigRepoCommand(securityService, configRepo, currentUser, result, configRepoExtension);
+        CreateConfigRepoCommand command = new CreateConfigRepoCommand(securityService, configRepo, currentUser, result, configRepoExtension, materialUpdateService, materialConfigConverter);
 
         assertFalse(command.isValid(cruiseConfig));
         assertThat(configRepo.errors().on("plugin_id"), is("Invalid plugin id: json-plugin"));
@@ -118,7 +126,20 @@ public class CreateConfigRepoCommandTest {
     @Test
     public void shouldContinueWithConfigSaveIfUserIsAdmin() {
         when(securityService.isUserAdmin(currentUser)).thenReturn(true);
-        CreateConfigRepoCommand command = new CreateConfigRepoCommand(securityService, configRepo, currentUser, result, configRepoExtension);
+        CreateConfigRepoCommand command = new CreateConfigRepoCommand(securityService, configRepo, currentUser, result, configRepoExtension, materialUpdateService, materialConfigConverter);
         assertThat(command.canContinue(cruiseConfig), is(true));
+    }
+
+    @Test
+    public void shouldScheduleAMaterialUpdateUponUpdate() {
+        ScmMaterial material = MaterialsMother.gitMaterial("bar.git");
+        when(materialConfigConverter.toMaterial(configRepo.getMaterialConfig())).thenReturn(material);
+
+        CreateConfigRepoCommand command = new CreateConfigRepoCommand(securityService, configRepo, currentUser, result, configRepoExtension, materialUpdateService, materialConfigConverter);
+        assertNull(cruiseConfig.getConfigRepos().getConfigRepo(repoId));
+        command.update(cruiseConfig);
+        assertThat(cruiseConfig.getConfigRepos().getConfigRepo(repoId), is(configRepo));
+
+        verify(materialUpdateService, times(1)).updateMaterial(material);
     }
 }

@@ -23,14 +23,16 @@ import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.plugin.access.configrepo.ConfigRepoExtension;
 import com.thoughtworks.go.server.domain.Username;
+import com.thoughtworks.go.server.materials.MaterialUpdateService;
+import com.thoughtworks.go.server.service.MaterialConfigConverter;
 import com.thoughtworks.go.server.service.SecurityService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
-import org.apache.commons.lang3.StringUtils;
 
 import static com.thoughtworks.go.i18n.LocalizedMessage.forbiddenToEdit;
 import static com.thoughtworks.go.serverhealth.HealthStateType.forbidden;
 import static java.lang.String.format;
-import static org.apache.commons.lang3.StringUtils.*;
+import static org.apache.commons.lang3.StringUtils.isBlank;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 abstract class ConfigRepoCommand implements EntityConfigUpdateCommand<ConfigRepoConfig> {
 
@@ -40,14 +42,18 @@ abstract class ConfigRepoCommand implements EntityConfigUpdateCommand<ConfigRepo
     private final Username username;
     private final HttpLocalizedOperationResult result;
     private ConfigRepoExtension configRepoExtension;
+    private final MaterialUpdateService materialUpdateService;
+    private final MaterialConfigConverter converter;
 
     public ConfigRepoCommand(SecurityService securityService, ConfigRepoConfig configRepo, Username username, HttpLocalizedOperationResult result,
-                             ConfigRepoExtension configRepoExtension) {
+                             ConfigRepoExtension configRepoExtension, MaterialUpdateService materialUpdateService, MaterialConfigConverter converter) {
         this.securityService = securityService;
         this.configRepo = configRepo;
         this.username = username;
         this.result = result;
         this.configRepoExtension = configRepoExtension;
+        this.materialUpdateService = materialUpdateService;
+        this.converter = converter;
     }
 
     @Override
@@ -106,5 +112,9 @@ abstract class ConfigRepoCommand implements EntityConfigUpdateCommand<ConfigRepo
             return false;
         }
         return true;
+    }
+
+    protected void scheduleMaterialUpdate(ConfigRepoConfig configRepo) {
+        materialUpdateService.updateMaterial(converter.toMaterial(configRepo.getMaterialConfig()));
     }
 }

@@ -39,6 +39,7 @@ stylesheets:
 #
 helpers:
   - 'helpers/**/*.js'
+  - 'helpers/*.js'
 
 # spec_files
 #

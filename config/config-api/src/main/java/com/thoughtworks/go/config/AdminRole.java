@@ -16,14 +16,15 @@
 
 package com.thoughtworks.go.config;
 
-import java.util.List;
-
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.config.Admin;
 
+import java.util.List;
+
 @ConfigTag("role")
 public class AdminRole implements Admin {
-    @ConfigValue private CaseInsensitiveString name;
+    @ConfigValue
+    private CaseInsensitiveString name;
     private ConfigErrors configErrors = new ConfigErrors();
     public static final String ADMIN = "roles";
 
@@ -34,7 +35,7 @@ public class AdminRole implements Admin {
         this.name = name;
     }
 
-    public AdminRole(final Role role){
+    public AdminRole(final Role role) {
         this(role.getName());
     }
 
@@ -81,7 +82,7 @@ public class AdminRole implements Admin {
     }
 
     public int hashCode() {
-        return name.hashCode();
+        return 31 * describe().hashCode() + (null != name ? name.hashCode() : 0);
     }
 
     public String toString() {

@@ -41,6 +41,9 @@ describe "admin/pipeline_groups/index.html.erb" do
     allow(view).to receive(:is_user_an_admin?).and_return(true)
     allow(view).to receive(:is_quick_edit_page_default?).and_return(false)
     allow(view).to receive(:is_pipeline_config_spa_enabled?).and_return(false)
+    def view.spark_url_for(*args)
+      return ""
+    end
   end
 
   def groups(*named)

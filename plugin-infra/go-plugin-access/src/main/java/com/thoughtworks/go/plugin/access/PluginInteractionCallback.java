@@ -25,5 +25,5 @@ public interface PluginInteractionCallback<T> {
 
     Map<String, String> requestHeaders(String resolvedExtensionVersion);
 
-    T onSuccess(String responseBody, String resolvedExtensionVersion);
+    T onSuccess(String responseBody, Map<String, String> responseHeaders, String resolvedExtensionVersion);
 }

@@ -130,7 +130,7 @@ public class PipelineConfigControllerV6 extends ApiController implements SparkSp
     }
 
     public String update(Request req, Response res) {
-        PipelineConfig existingPipelineConfig =  fetchEntityFromConfig(req.params("pipeline_name"));
+        PipelineConfig existingPipelineConfig = fetchEntityFromConfig(req.params("pipeline_name"));
         PipelineConfig pipelineConfigFromRequest = buildEntityFromRequestBody(req);
 
         if (isRenameAttempt(existingPipelineConfig, pipelineConfigFromRequest)) {
@@ -143,7 +143,7 @@ public class PipelineConfigControllerV6 extends ApiController implements SparkSp
         }
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        pipelineConfigService.updatePipelineConfig(SessionUtils.currentUsername(), pipelineConfigFromRequest,  etagFor(existingPipelineConfig), result);
+        pipelineConfigService.updatePipelineConfig(SessionUtils.currentUsername(), pipelineConfigFromRequest, etagFor(existingPipelineConfig), result);
         return handleCreateOrUpdateResponse(req, res, pipelineConfigFromRequest, result);
     }
 
@@ -185,7 +185,7 @@ public class PipelineConfigControllerV6 extends ApiController implements SparkSp
         if (!jsonReader.hasJsonObject("group") || StringUtils.isBlank(jsonReader.getString("group"))) {
             throw haltBecauseOfReason("Pipeline group must be specified for creating a pipeline.");
         }
-        return  jsonReader.getString("group");
+        return jsonReader.getString("group");
     }
 
 

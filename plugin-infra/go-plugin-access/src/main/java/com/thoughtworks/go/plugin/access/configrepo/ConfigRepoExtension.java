@@ -21,12 +21,13 @@ import com.thoughtworks.go.plugin.access.PluginRequestHelper;
 import com.thoughtworks.go.plugin.access.common.AbstractExtension;
 import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsJsonMessageHandler1_0;
 import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsJsonMessageHandler2_0;
+import com.thoughtworks.go.plugin.access.configrepo.v1.JsonMessageHandler1_0;
+import com.thoughtworks.go.plugin.access.configrepo.v2.JsonMessageHandler2_0;
+import com.thoughtworks.go.plugin.api.info.PluginDescriptor;
 import com.thoughtworks.go.plugin.configrepo.codec.GsonCodec;
 import com.thoughtworks.go.plugin.configrepo.contract.CRConfigurationProperty;
 import com.thoughtworks.go.plugin.configrepo.contract.CRParseResult;
 import com.thoughtworks.go.plugin.configrepo.contract.CRPipeline;
-import com.thoughtworks.go.plugin.access.configrepo.v1.JsonMessageHandler1_0;
-import com.thoughtworks.go.plugin.access.configrepo.v2.JsonMessageHandler2_0;
 import com.thoughtworks.go.plugin.domain.configrepo.Capabilities;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -62,8 +63,8 @@ public class ConfigRepoExtension extends AbstractExtension implements ConfigRepo
     }
 
     @Override
-    public String pipelineExport(final String pluginId, final CRPipeline pipeline) {
-        return pluginRequestHelper.submitRequest(pluginId, REQUEST_PIPELINE_EXPORT, new DefaultPluginInteractionCallback<String>() {
+    public ExportedConfig pipelineExport(final String pluginId, final CRPipeline pipeline) {
+        return pluginRequestHelper.submitRequest(pluginId, REQUEST_PIPELINE_EXPORT, new DefaultPluginInteractionCallback<ExportedConfig>() {
             @Override
             public String requestBody(String resolvedExtensionVersion) {
                 return messageHandlerMap.get(resolvedExtensionVersion).requestMessageForPipelineExport(pipeline);
@@ -75,8 +76,8 @@ public class ConfigRepoExtension extends AbstractExtension implements ConfigRepo
             }
 
             @Override
-            public String onSuccess(String responseBody, String resolvedExtensionVersion) {
-                return messageHandlerMap.get(resolvedExtensionVersion).responseMessageForPipelineExport(responseBody);
+            public ExportedConfig onSuccess(String responseBody, Map<String, String> responseHeaders, String resolvedExtensionVersion) {
+                return messageHandlerMap.get(resolvedExtensionVersion).responseMessageForPipelineExport(responseBody, responseHeaders);
             }
         });
     }
@@ -89,7 +90,7 @@ public class ConfigRepoExtension extends AbstractExtension implements ConfigRepo
         }
         return pluginRequestHelper.submitRequest(pluginId, REQUEST_CAPABILITIES, new DefaultPluginInteractionCallback<Capabilities>() {
             @Override
-            public Capabilities onSuccess(String responseBody, String resolvedExtensionVersion) {
+            public Capabilities onSuccess(String responseBody, Map<String, String> responseHeaders, String resolvedExtensionVersion) {
                 return messageHandlerMap.get(resolvedExtensionVersion).getCapabilitiesFromResponse(responseBody);
             }
         });
@@ -109,7 +110,7 @@ public class ConfigRepoExtension extends AbstractExtension implements ConfigRepo
             }
 
             @Override
-            public CRParseResult onSuccess(String responseBody, String resolvedExtensionVersion) {
+            public CRParseResult onSuccess(String responseBody, Map<String, String> responseHeaders, String resolvedExtensionVersion) {
                 return messageHandlerMap.get(resolvedExtensionVersion).responseMessageForParseDirectory(responseBody);
             }
         });
@@ -129,7 +130,7 @@ public class ConfigRepoExtension extends AbstractExtension implements ConfigRepo
             }
 
             @Override
-            public CRParseResult onSuccess(String responseBody, String resolvedExtensionVersion) {
+            public CRParseResult onSuccess(String responseBody, Map<String, String> responseHeaders, String resolvedExtensionVersion) {
                 return messageHandlerMap.get(resolvedExtensionVersion).responseMessageForParseContent(responseBody);
             }
         });
@@ -141,6 +142,10 @@ public class ConfigRepoExtension extends AbstractExtension implements ConfigRepo
 
     public boolean isConfigRepoPlugin(String pluginId) {
         return pluginManager.isPluginOfType(CONFIG_REPO_EXTENSION, pluginId);
+    }
+
+    public PluginDescriptor pluginDescriptorFor(String pluginId) {
+        return pluginManager.getPluginDescriptorFor(pluginId);
     }
 
     @Override

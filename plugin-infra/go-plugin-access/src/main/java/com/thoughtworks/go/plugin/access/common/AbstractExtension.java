@@ -52,7 +52,7 @@ public abstract class AbstractExtension implements GoPluginExtension {
     public PluginSettingsConfiguration getPluginSettingsConfiguration(String pluginId) {
         return pluginRequestHelper.submitRequest(pluginId, PluginSettingsConstants.REQUEST_PLUGIN_SETTINGS_CONFIGURATION, new DefaultPluginInteractionCallback<PluginSettingsConfiguration>() {
             @Override
-            public PluginSettingsConfiguration onSuccess(String responseBody, String resolvedExtensionVersion) {
+            public PluginSettingsConfiguration onSuccess(String responseBody, Map<String, String> responseHeaders, String resolvedExtensionVersion) {
                 return pluginSettingsMessageHandlerMap.get(resolvedExtensionVersion).responseMessageForPluginSettingsConfiguration(responseBody);
             }
         });
@@ -62,7 +62,7 @@ public abstract class AbstractExtension implements GoPluginExtension {
     public String getPluginSettingsView(String pluginId) {
         return pluginRequestHelper.submitRequest(pluginId, PluginSettingsConstants.REQUEST_PLUGIN_SETTINGS_VIEW, new DefaultPluginInteractionCallback<String>() {
             @Override
-            public String onSuccess(String responseBody, String resolvedExtensionVersion) {
+            public String onSuccess(String responseBody, Map<String, String> responseHeaders, String resolvedExtensionVersion) {
                 return pluginSettingsMessageHandlerMap.get(resolvedExtensionVersion).responseMessageForPluginSettingsView(responseBody);
             }
         });
@@ -93,7 +93,7 @@ public abstract class AbstractExtension implements GoPluginExtension {
             }
 
             @Override
-            public ValidationResult onSuccess(String responseBody, String resolvedExtensionVersion) {
+            public ValidationResult onSuccess(String responseBody, Map<String, String> responseHeaders, String resolvedExtensionVersion) {
                 return pluginSettingsMessageHandlerMap.get(resolvedExtensionVersion).responseMessageForPluginSettingsValidation(responseBody);
             }
         });

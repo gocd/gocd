@@ -19,14 +19,15 @@ package com.thoughtworks.go.plugin.access.configrepo.v1;
 
 import com.google.gson.GsonBuilder;
 import com.thoughtworks.go.plugin.access.configrepo.ConfigRepoMigrator;
-import com.thoughtworks.go.plugin.configrepo.contract.ErrorCollection;
+import com.thoughtworks.go.plugin.access.configrepo.ExportedConfig;
 import com.thoughtworks.go.plugin.access.configrepo.JsonMessageHandler;
+import com.thoughtworks.go.plugin.access.configrepo.v1.messages.ParseDirectoryMessage;
+import com.thoughtworks.go.plugin.access.configrepo.v1.messages.ParseDirectoryResponseMessage;
 import com.thoughtworks.go.plugin.configrepo.codec.GsonCodec;
 import com.thoughtworks.go.plugin.configrepo.contract.CRConfigurationProperty;
 import com.thoughtworks.go.plugin.configrepo.contract.CRParseResult;
 import com.thoughtworks.go.plugin.configrepo.contract.CRPipeline;
-import com.thoughtworks.go.plugin.access.configrepo.v1.messages.ParseDirectoryMessage;
-import com.thoughtworks.go.plugin.access.configrepo.v1.messages.ParseDirectoryResponseMessage;
+import com.thoughtworks.go.plugin.configrepo.contract.ErrorCollection;
 import com.thoughtworks.go.plugin.domain.configrepo.Capabilities;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -134,7 +135,7 @@ public class JsonMessageHandler1_0 implements JsonMessageHandler {
     }
 
     @Override
-    public String responseMessageForPipelineExport(String responseBody) {
+    public ExportedConfig responseMessageForPipelineExport(String responseBody, Map<String, String> headers) {
         throw new UnsupportedOperationException("V1 Config Repo plugins don't support pipeline export");
     }
 

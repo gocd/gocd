@@ -25,6 +25,7 @@ import com.thoughtworks.go.plugin.api.task.TaskExecutor;
 import com.thoughtworks.go.plugin.api.task.TaskView;
 
 import java.util.HashMap;
+import java.util.Map;
 
 public class JsonBasedPluggableTask implements Task {
     private PluginRequestHelper pluginRequestHelper;
@@ -41,7 +42,7 @@ public class JsonBasedPluggableTask implements Task {
     public TaskConfig config() {
         return pluginRequestHelper.submitRequest(pluginId, TaskExtension.CONFIGURATION_REQUEST, new DefaultPluginInteractionCallback<TaskConfig>() {
             @Override
-            public TaskConfig onSuccess(String responseBody, String resolvedExtensionVersion) {
+            public TaskConfig onSuccess(String responseBody, Map<String, String> responseHeaders, String resolvedExtensionVersion) {
                 return handlerMap.get(resolvedExtensionVersion).convertJsonToTaskConfig(responseBody);
             }
         });
@@ -58,7 +59,7 @@ public class JsonBasedPluggableTask implements Task {
 
 
             @Override
-            public TaskView onSuccess(String responseBody, String resolvedExtensionVersion) {
+            public TaskView onSuccess(String responseBody, Map<String, String> responseHeaders, String resolvedExtensionVersion) {
                 return handlerMap.get(resolvedExtensionVersion).toTaskView(responseBody);
             }
         });
@@ -73,7 +74,7 @@ public class JsonBasedPluggableTask implements Task {
             }
 
             @Override
-            public ValidationResult onSuccess(String responseBody, String resolvedExtensionVersion) {
+            public ValidationResult onSuccess(String responseBody, Map<String, String> responseHeaders, String resolvedExtensionVersion) {
                 return handlerMap.get(resolvedExtensionVersion).toValidationResult(responseBody);
             }
         });

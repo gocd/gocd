@@ -15,6 +15,8 @@
 ##########################GO-LICENSE-END##################################
 
 class Admin::PipelineGroupsController < AdminController
+  helper SparkUrlAware
+
   CLONER = GoConfigCloner.new()
 
   before_action :load_config_for_edit

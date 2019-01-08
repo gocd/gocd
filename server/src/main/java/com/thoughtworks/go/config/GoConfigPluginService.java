@@ -33,26 +33,33 @@ public class GoConfigPluginService {
     private final XmlPartialConfigProvider embeddedXmlPlugin;
     private ConfigConverter configConverter;
 
-    @Autowired public GoConfigPluginService(ConfigRepoExtension configRepoExtension,
-            ConfigCache configCache,ConfigElementImplementationRegistry configElementImplementationRegistry,
-            CachedGoConfig cachedGoConfig)
-    {
+    @Autowired
+    public GoConfigPluginService(ConfigRepoExtension configRepoExtension, ConfigCache configCache,
+                                 ConfigElementImplementationRegistry configElementImplementationRegistry,
+                                 CachedGoConfig cachedGoConfig) {
         this.crExtension = configRepoExtension;
         MagicalGoConfigXmlLoader loader = new MagicalGoConfigXmlLoader(configCache, configElementImplementationRegistry);
         embeddedXmlPlugin = new XmlPartialConfigProvider(loader);
-        configConverter = new ConfigConverter(new GoCipher(),cachedGoConfig);
+        configConverter = new ConfigConverter(new GoCipher(), cachedGoConfig);
     }
 
-    public PartialConfigProvider partialConfigProviderFor(ConfigRepoConfig repoConfig)
-    {
+    public PartialConfigProvider partialConfigProviderFor(ConfigRepoConfig repoConfig) {
         String pluginId = repoConfig.getPluginId();
         return partialConfigProviderFor(pluginId);
     }
 
     public PartialConfigProvider partialConfigProviderFor(String pluginId) {
-        if(pluginId == null || pluginId.equals(XmlPartialConfigProvider.providerName))
+        if (pluginId == null || pluginId.equals(XmlPartialConfigProvider.providerName))
             return embeddedXmlPlugin;
 
-        return new ConfigRepoPlugin(configConverter,crExtension,pluginId);
+        return new ConfigRepoPlugin(configConverter, crExtension, pluginId);
+    }
+
+    public boolean isConfigRepoPlugin(String pluginId) {
+        return crExtension.isConfigRepoPlugin(pluginId);
+    }
+
+    public boolean supportsPipelineExport(String pluginId) {
+        return crExtension.getCapabilities(pluginId).isSupportsPipelineExport();
     }
 }

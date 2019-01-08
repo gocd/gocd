@@ -16,17 +16,17 @@
 
 package com.thoughtworks.go.domain;
 
-import java.util.List;
-
 import com.thoughtworks.go.config.ConfigInterface;
 import com.thoughtworks.go.config.ParamsAttributeAware;
 import com.thoughtworks.go.config.Validatable;
 import com.thoughtworks.go.config.ValidationContext;
 import com.thoughtworks.go.service.TaskFactory;
 
+import java.util.List;
+
 @ConfigInterface
 public interface Task extends ParamsAttributeAware, Validatable {
-    public static final String TASK_TYPE = "task_type";
+    String TASK_TYPE = "task_type";
 
     RunIfConfigs getConditions();
 

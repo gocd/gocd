@@ -18,16 +18,17 @@ package com.thoughtworks.go.plugin.access.configrepo.v2;
 
 import com.google.gson.GsonBuilder;
 import com.thoughtworks.go.plugin.access.configrepo.ConfigRepoMigrator;
-import com.thoughtworks.go.plugin.configrepo.contract.ErrorCollection;
+import com.thoughtworks.go.plugin.access.configrepo.ExportedConfig;
 import com.thoughtworks.go.plugin.access.configrepo.JsonMessageHandler;
-import com.thoughtworks.go.plugin.configrepo.codec.GsonCodec;
-import com.thoughtworks.go.plugin.configrepo.contract.CRConfigurationProperty;
-import com.thoughtworks.go.plugin.configrepo.contract.CRParseResult;
-import com.thoughtworks.go.plugin.configrepo.contract.CRPipeline;
 import com.thoughtworks.go.plugin.access.configrepo.v2.messages.ParseDirectoryMessage;
 import com.thoughtworks.go.plugin.access.configrepo.v2.messages.ParseDirectoryResponseMessage;
 import com.thoughtworks.go.plugin.access.configrepo.v2.messages.PipelineExportMessage;
 import com.thoughtworks.go.plugin.access.configrepo.v2.messages.PipelineExportResponseMessage;
+import com.thoughtworks.go.plugin.configrepo.codec.GsonCodec;
+import com.thoughtworks.go.plugin.configrepo.contract.CRConfigurationProperty;
+import com.thoughtworks.go.plugin.configrepo.contract.CRParseResult;
+import com.thoughtworks.go.plugin.configrepo.contract.CRPipeline;
+import com.thoughtworks.go.plugin.configrepo.contract.ErrorCollection;
 import com.thoughtworks.go.plugin.domain.configrepo.Capabilities;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -83,9 +84,9 @@ public class JsonMessageHandler2_0 implements JsonMessageHandler {
     }
 
     @Override
-    public String responseMessageForPipelineExport(String responseBody) {
+    public ExportedConfig responseMessageForPipelineExport(String responseBody, Map<String, String> headers) {
         PipelineExportResponseMessage response = codec.getGson().fromJson(responseBody, PipelineExportResponseMessage.class);
-        return response.getPipeline();
+        return ExportedConfig.from(response.getPipeline(), headers);
     }
 
     @Override

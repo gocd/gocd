@@ -35,7 +35,7 @@ public class DefaultPluginInteractionCallback<T> implements PluginInteractionCal
     }
 
     @Override
-    public T onSuccess(String responseBody, String resolvedExtensionVersion) {
+    public T onSuccess(String responseBody, Map<String, String> responseHeaders, String resolvedExtensionVersion) {
         return null;
     }
 }

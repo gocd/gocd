@@ -20,16 +20,16 @@ import com.thoughtworks.go.config.remote.PartialConfig;
 import com.thoughtworks.go.domain.config.Configuration;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
 import com.thoughtworks.go.plugin.access.configrepo.ConfigRepoExtension;
+import com.thoughtworks.go.plugin.access.configrepo.ExportedConfig;
 import com.thoughtworks.go.plugin.access.configrepo.InvalidPartialConfigException;
 import com.thoughtworks.go.plugin.configrepo.contract.CRConfigurationProperty;
 import com.thoughtworks.go.plugin.configrepo.contract.CRParseResult;
 import com.thoughtworks.go.plugin.configrepo.contract.CRPipeline;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+
+import static com.thoughtworks.go.util.CachedDigestUtils.sha256Hex;
 
 public class ConfigRepoPlugin implements PartialConfigProvider {
     private ConfigConverter configConverter;
@@ -68,7 +68,7 @@ public class ConfigRepoPlugin implements PartialConfigProvider {
         return "Plugin " + this.pluginId;
     }
 
-    public String pipelineExport(PipelineConfig pipelineConfig, String groupName) {
+    public ExportedConfig pipelineExport(PipelineConfig pipelineConfig, String groupName) {
         CRPipeline crPipeline = configConverter.pipelineConfigToCRPipeline(pipelineConfig, groupName);
         return this.crExtension.pipelineExport(this.pluginId, crPipeline);
     }
@@ -86,5 +86,9 @@ public class ConfigRepoPlugin implements PartialConfigProvider {
         if (crParseResult.hasErrors())
             throw new InvalidPartialConfigException(crParseResult, crParseResult.getErrors().getErrorsAsText());
         return crParseResult;
+    }
+
+    public String etagForExport(PipelineConfig pipelineConfig, String groupName) {
+        return sha256Hex(Integer.toString(Objects.hash(pipelineConfig, groupName, crExtension.pluginDescriptorFor(pluginId))));
     }
 }

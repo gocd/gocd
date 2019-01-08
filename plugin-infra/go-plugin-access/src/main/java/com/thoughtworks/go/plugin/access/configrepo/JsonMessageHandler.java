@@ -35,7 +35,7 @@ public interface JsonMessageHandler {
 
     String requestMessageForPipelineExport(CRPipeline pipeline);
 
-    String responseMessageForPipelineExport(String responseBody);
+    ExportedConfig responseMessageForPipelineExport(String responseBody, Map<String, String> headers);
 
     Capabilities getCapabilitiesFromResponse(String responseBody);
 }

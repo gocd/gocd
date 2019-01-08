@@ -15,14 +15,14 @@
 		    <% end %>
 		</span>
   </h1>
-  <div id="div_move_to_groups" class="hidden enhanced_dropdown">
-    <div class="resources_selector scrollable_panel" id="content_move_to_groups">
+  <div id="shared_micro_dropdown" class="hidden enhanced_dropdown">
+    <div class="resources_selector scrollable_panel" id="shared_micro_dropdown_content">
     </div>
   </div>
 
   <% @groups.each do |group| %>
       <div class="group pipeline_group">
-        <h2 class="group_name entity_title wrapped_word" id="group-<%= group.getGroup() %>"><%= group.getGroup() %></a></h2>
+        <h2 class="group_name entity_title wrapped_word" id="group-<%= group.getGroup() %>"><%= group.getGroup() %></h2>
         <div class="title_action_wrapper">
           <ul>
             <li>
@@ -83,6 +83,24 @@
                               </a>
                             </li>
                         <%- end -%>
+
+                      <%- unless pipeline.hasTemplate() -%>
+                        <li>
+                          <%= link_to("#{spark_url_for({request: request}, SparkRoutes::Export.pipeline(pipeline.name().toString()))}?groupName=#{group.getGroup()}", :class => "export_icon action_icon export_pipeline_config") do -%>
+                            Export using
+                            <span class="for_down_arrow">&nbsp;</span>
+                          <% end -%>
+                        </li>
+                      <%- else -%>
+                        <li>
+                          <span class="export_icon export_disabled action_icon export_pipeline_config" title="Cannot export pipelines defined by templates.">
+                            Export using
+                            <!-- want to maintain spacing, so include the arrow even if it's invisible -->
+                            <span class="for_down_arrow">&nbsp;</span>
+                          </span>
+                        </li>
+                      <%- end -%>
+
                         <li>
                           <% if pipeline.isLocal() %>
                               <% pipeline_random_id_for_clone = random_dom_id('clone_button_for_') -%>
@@ -143,27 +161,58 @@
 </div>
 
 <script type="text/javascript">
-  jQuery("li.move_to_group_option").live('click', function (event) {
-    var li = jQuery(this);
-    var form = li.parents("form").get(0);
-    jQuery(form["group_name"]).val(li.text());
-    form.submit();
-  });
+  (function ($) {
+    "use strict";
 
-  AjaxForm.error_box_selector = '#MB_content';
-  var content_box             = jQuery("#content_move_to_groups");
-  var groupPopup              = new MicroContentPopup("div_move_to_groups", new ContextualPropagatingAjaxPopupHandler(content_box.get(0),
-    function (event) {
-      var moveurl = event.target.getAttribute("href");
-      if (moveurl == null) {
-        moveurl = jQuery(event.target).parent("a").attr("href");
+    var dropdownElement = document.getElementById("shared_micro_dropdown"),
+        dropdownContent = dropdownElement.querySelector("#shared_micro_dropdown_content");
+
+    PipelineExport.init();
+
+    var exportPopup = new MicroContentPopup(dropdownElement, $.extend(new MicroContentPopup.PropagateAllHandler(), {
+      before_show: function(e) {
+        PipelineExport.showExportOptions(dropdownContent, e.currentTarget, exportPopupShower.close);
       }
-      return moveurl;
     }));
 
-  var groupPopupShower = new MicroContentPopup.LiveShower(groupPopup);
-  jQuery('.move_pipeline').live('click', function (event) {
-    groupPopupShower.toggle_popup(event, this);
-  });
+    var exportPopupShower = new MicroContentPopup.Shower(exportPopup);
+    $(".group_pipelines").on("click", ".export_pipeline_config", function (e) {
+      if ($(e.currentTarget).hasClass("export_disabled")) {
+        return;
+      }
 
+      e.preventDefault();
+      e.stopPropagation();
+
+      if ($(e.currentTarget).is(".loading")) {
+        return;
+      }
+
+      exportPopupShower.toggle_popup(e, this);
+    });
+
+    $("li.move_to_group_option").live("click", function (event) {
+      var li = $(this);
+      var form = li.parents("form").get(0);
+      $(form["group_name"]).val(li.text());
+      form.submit();
+    });
+
+    AjaxForm.error_box_selector = "#MB_content";
+
+    var groupPopup = new MicroContentPopup(dropdownElement, new ContextualPropagatingAjaxPopupHandler(dropdownContent,
+      function (event) {
+        var moveurl = event.target.getAttribute("href");
+        if (moveurl == null) {
+          moveurl = $(event.target).parent("a").attr("href");
+        }
+        return moveurl;
+      }));
+
+    var groupPopupShower = new MicroContentPopup.LiveShower(groupPopup);
+
+    $(".move_pipeline").live("click", function (event) {
+      groupPopupShower.toggle_popup(event, this);
+    });
+  })(jQuery);
 </script>

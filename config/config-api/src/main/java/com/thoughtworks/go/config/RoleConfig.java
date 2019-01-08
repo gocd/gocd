@@ -91,6 +91,14 @@ public class RoleConfig implements Role {
         this.users.remove(roleUser);
     }
 
+    public void addUsersWithName(List<String> usersToAdd) {
+        usersToAdd.forEach(user -> addUser(new RoleUser(user)));
+    }
+
+    public void removeUsersWithName(List<String> usersToRemove) {
+        usersToRemove.forEach(user -> removeUser(new RoleUser(user)));
+    }
+
     @Override
     public boolean hasErrors() {
         return !configErrors.isEmpty();

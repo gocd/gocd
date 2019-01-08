@@ -410,6 +410,71 @@ class RolesControllerV2Test implements SecurityServiceTrait, ControllerTrait<Rol
   }
 
   @Nested
+  class BulkUpdate {
+    @Nested
+    class Security implements SecurityTestTrait, AdminUserSecurity {
+      RoleConfig roleConfig = new RoleConfig('role', new RoleUser('user'))
+
+      @BeforeEach
+      void setUp() {
+        when(roleConfigService.findRole(roleConfig.name.toString())).thenReturn(roleConfig)
+      }
+
+      @Override
+      String getControllerMethodUnderTest() {
+        return "bulkUpdate"
+      }
+
+      @Override
+      void makeHttpCall() {
+        patchWithApiHeader(controller.controllerPath(), [:])
+      }
+    }
+
+    @Nested
+    class AsAdmin {
+      @BeforeEach
+      void setUp() {
+        enableSecurity()
+        loginAsAdmin()
+      }
+
+      @Test
+      void 'should bulk update GoCD Roles'() {
+        Role role = new RoleConfig('foo', new RoleUser("user"))
+
+        when(roleConfigService.getRoles()).thenReturn(new RolesConfig(role))
+
+        def headers = [
+          'accept'      : controller.mimeType,
+          'content-type': 'application/json'
+        ]
+        def body = [
+          "operations": [
+            [
+              "role" : "foo",
+              "users": [
+                "add"   : [
+                  "user1",
+                  "user2"
+                ],
+                "remove": [
+                  "user"
+                ]
+              ]
+            ]
+          ]
+        ]
+
+        patchWithApiHeader(controller.controllerPath(), headers, body)
+
+        assertThatResponse()
+          .isOk()
+          .hasContentType(controller.mimeType)
+          .hasBodyWithJsonObject(new RolesConfig(role), RolesRepresenter.class)
+      }
+
+  @Nested
   class Destroy {
     @Nested
     class Security implements SecurityTestTrait, AdminUserSecurity {

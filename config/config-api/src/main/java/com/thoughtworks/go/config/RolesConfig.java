@@ -99,10 +99,10 @@ public class RolesConfig extends BaseCollection<Role> implements Validatable {
         return null;
     }
 
-    public Role findByNameAndType(final CaseInsensitiveString roleName, Class cls) {
+    public <T extends Role> T findByNameAndType(final CaseInsensitiveString roleName, Class<T> cls) {
         for (Role role : this) {
             if (role.getName().equals(roleName) && (role.getClass().getCanonicalName().equals(cls.getCanonicalName()))) {
-                return role;
+                return (T) role;
             }
         }
         return null;

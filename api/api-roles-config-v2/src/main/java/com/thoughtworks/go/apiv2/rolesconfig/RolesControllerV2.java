@@ -23,12 +23,15 @@ import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.api.representers.JsonReader;
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
 import com.thoughtworks.go.api.util.GsonTransformer;
+import com.thoughtworks.go.apiv2.rolesconfig.representers.GoCDRolesBulkUpdateRequestRepresenter;
 import com.thoughtworks.go.apiv2.rolesconfig.representers.RoleRepresenter;
 import com.thoughtworks.go.apiv2.rolesconfig.representers.RolesRepresenter;
 import com.thoughtworks.go.config.InvalidPluginTypeException;
 import com.thoughtworks.go.config.Role;
+import com.thoughtworks.go.config.RoleConfig;
 import com.thoughtworks.go.config.RolesConfig;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
+import com.thoughtworks.go.config.update.GoCDRolesBulkUpdateRequest;
 import com.thoughtworks.go.server.newsecurity.utils.SessionUtils;
 import com.thoughtworks.go.server.service.EntityHashingService;
 import com.thoughtworks.go.server.service.RoleConfigService;
@@ -74,6 +77,7 @@ public class RolesControllerV2 extends ApiController implements SparkSpringContr
 
             get("", mimeType, this::index);
             post("", mimeType, this::create);
+            patch("", mimeType, this::bulkUpdate);
 
             get(Routes.Roles.NAME_PATH, mimeType, this::show);
             put(Routes.Roles.NAME_PATH, mimeType, this::update);
@@ -153,6 +157,20 @@ public class RolesControllerV2 extends ApiController implements SparkSpringContr
 
         return renderHTTPOperationResult(result, req, res);
     }
+
+    public String bulkUpdate(Request req, Response res) throws IOException {
+        JsonReader jsonReader = GsonTransformer.getInstance().jsonReaderFrom(req.body());
+        GoCDRolesBulkUpdateRequest bulkUpdateRequest = GoCDRolesBulkUpdateRequestRepresenter.fromJSON(jsonReader);
+        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+        roleConfigService.bulkUpdate(bulkUpdateRequest, SessionUtils.currentUsername(), result);
+        if (result.isSuccessful()) {
+            RolesConfig goCDRoles = roleConfigService.getRoles().ofType("gocd");
+            return writerForTopLevelObject(req, res, writer -> RolesRepresenter.toJSON(writer, goCDRoles));
+        } else {
+            return renderHTTPOperationResult(result, req, res);
+        }
+    }
+
 
     @Override
     public String etagFor(Role entityFromServer) {

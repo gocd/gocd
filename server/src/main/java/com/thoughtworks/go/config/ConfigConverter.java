@@ -670,7 +670,10 @@ public class ConfigConverter {
         crPipeline.setLock_behavior(pipelineConfig.getLockBehavior());
 
 
-        crPipeline.setMingle(mingleToCRMingle(pipelineConfig.getMingleConfig()));
+        if (pipelineConfig.getMingleConfig().isDefined()) {
+            crPipeline.setMingle(mingleToCRMingle(pipelineConfig.getMingleConfig()));
+        }
+
         crPipeline.setLabelTemplate(pipelineConfig.getLabelTemplate());
         return crPipeline;
     }
@@ -717,6 +720,8 @@ public class ConfigConverter {
     CRJob jobToCRJob(JobConfig jobConfig) {
         CRJob job = new CRJob();
         job.setName(jobConfig.name().toString());
+        job.setResources(jobConfig.resourceConfigs().resourceNames());
+        job.setElasticProfileId(jobConfig.getElasticProfileId());
 
         for (EnvironmentVariableConfig var: jobConfig.getVariables()) {
             job.addEnvironmentVariable(environmentVariableConfigToCREnvironmentVariable(var));
@@ -744,11 +749,9 @@ public class ConfigConverter {
            job.addTask(taskToCRTask(task));
         }
 
-        job.setResources(jobConfig.resourceConfigs().resourceNames());
-        job.setElasticProfileId(jobConfig.getElasticProfileId());
-
-        if (jobConfig.getTimeout() != null)
+        if (jobConfig.getTimeout() != null) {
             job.setTimeout(Integer.valueOf(jobConfig.getTimeout()));
+        }
 
         return job;
     }

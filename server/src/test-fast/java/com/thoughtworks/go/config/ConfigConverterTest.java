@@ -1134,6 +1134,7 @@ public class ConfigConverterTest {
         assertThat(crPipeline.getTimer().getTimerSpec(), is("timer"));
         assertThat(crPipeline.getStages().get(0).getName(), is("build"));
         assertThat(crPipeline.getStages().get(0).getJobs().size(), is(1));
+        assertNull(crPipeline.getMingle());
     }
 
     @Test
@@ -1193,6 +1194,19 @@ public class ConfigConverterTest {
         assertThat(job.getRunInstanceCount(), is(5));
         assertThat(job.getTimeout(), is(120));
         assertThat(job.getTasks().size(), is(1));
+    }
+
+    @Test
+    public void shouldConvertJobConfigToCRJobWithNullTimeouBeingZerot() {
+        JobConfig jobConfig = new JobConfig(new CaseInsensitiveString("name"),
+                new ResourceConfigs(new ResourceConfig("resource1")),
+                new ArtifactConfigs(new BuildArtifactConfig("src", "dest")));
+        jobConfig.setRunOnAllAgents(false);
+        jobConfig.addTask(new ExecTask());
+
+        CRJob job = configConverter.jobToCRJob(jobConfig);
+
+        assertThat(job.getTimeout(), is(0));
     }
 
     @Test

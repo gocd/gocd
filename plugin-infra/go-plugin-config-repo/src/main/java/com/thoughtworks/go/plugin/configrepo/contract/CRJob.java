@@ -29,7 +29,7 @@ public class CRJob extends CRBase {
     private Collection<CRPropertyGenerator> properties = new ArrayList<>();
     private String elastic_profile_id;
     private String run_instance_count;
-    private Integer timeout;
+    private Integer timeout = 0;
 
     private List<CRTask> tasks = new ArrayList<>();
 

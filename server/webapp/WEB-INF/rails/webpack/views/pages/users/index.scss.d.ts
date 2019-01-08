@@ -2,17 +2,11 @@
 // Please do not change this file!
 export const hidden: string;
 export const filterView: string;
-export const filterByHeader: string;
 export const filterByHeading: string;
 export const pluginRole: string;
 export const gocdRole: string;
 export const userManagementHeader: string;
 export const userActions: string;
-export const userCount: string;
-export const userCountList: string;
-export const countAll: string;
-export const countEnabled: string;
-export const countDisabled: string;
 export const userFilters: string;
 export const filterDropdown: string;
 export const filterDropdownContent: string;

@@ -22,6 +22,7 @@ import * as stream from "mithril/stream";
 import {Roles} from "models/roles/roles_new";
 import {UserFilters} from "models/users/user_filters";
 import {ButtonGroup, ButtonIcon, Dropdown, Link, Secondary} from "views/components/buttons";
+import {Counts, CountsAttr} from "views/components/counts";
 import {CheckboxField, SearchField} from "views/components/forms/input_fields";
 import {Attrs} from "views/pages/users/users_widget";
 import * as styles from "./index.scss";
@@ -104,6 +105,23 @@ export class UsersActionsWidget extends MithrilComponent<Attrs, State> {
   }
 
   view(vnode: m.Vnode<Attrs, State>) {
+    const counts = [
+      {
+        count: vnode.attrs.users().totalUsersCount(),
+        label: "Total"
+      },
+      {
+        count: vnode.attrs.users().enabledUsersCount(),
+        label: "Enabled",
+        color: "green"
+      },
+      {
+        count: vnode.attrs.users().disabledUsersCount(),
+        label: "Disabled",
+        color: "red"
+      }
+    ] as CountsAttr[];
+
     return <div className={classnames(styles.userManagementHeader)}>
       <div className={classnames(styles.userActions)}>
         <ButtonGroup>
@@ -115,19 +133,7 @@ export class UsersActionsWidget extends MithrilComponent<Attrs, State> {
                      disabled={!vnode.attrs.users().anyUserSelected()}>Delete</Secondary>
         </ButtonGroup>
       </div>
-      <div className={classnames(styles.userCount)}>
-        <ul data-test-id="users-count" className={classnames(styles.userCountList)}>
-          <li>Total: <span data-test-id="all-user-count" className={classnames(styles.countAll)}>{vnode.attrs.users()
-                                                                                                       .totalUsersCount()}</span>
-          </li>
-          <li>Enabled: <span data-test-id="enabled-user-count"
-                             className={classnames(styles.countEnabled)}>{vnode.attrs.users()
-                                                                               .enabledUsersCount()}</span></li>
-          <li>Disabled: <span data-test-id="disabled-user-count"
-                              className={classnames(styles.countDisabled)}>{vnode.attrs.users()
-                                                                                 .disabledUsersCount()}</span></li>
-        </ul>
-      </div>
+      <Counts counts={counts} dataTestId="users"/>
       <div className={classnames(styles.userFilters)}>
         <SearchField property={vnode.attrs.userFilter().searchText} dataTestId={"search-box"}/>
         <div className={classnames(styles.filterDropdown)}>

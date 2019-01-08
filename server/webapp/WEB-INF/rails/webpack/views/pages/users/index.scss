@@ -24,11 +24,6 @@
   width: 400px;
 }
 
-.filter-by-header {
-  display:     flex;
-  align-items: center;
-}
-
 .filter-by-heading {
   width: 60%;
 }
@@ -50,38 +45,6 @@
 
 .user-actions {
   display: flex;
-}
-
-.user-count {
-  display:         flex;
-  justify-content: flex-start;
-  align-items:     Center;
-}
-
-.user-count-list {
-  list-style-type: none;
-  margin:          0;
-  display:         flex;
-  padding:         0;
-
-  li {
-    margin-right: 20px;
-  }
-}
-
-.count-all {
-  color:       $black;
-  font-weight: 600;
-}
-
-.count-enabled {
-  color:       $go-green;
-  font-weight: 600;
-}
-
-.count-disabled {
-  color:       $go-danger;
-  font-weight: 600;
 }
 
 .user-filters {

@@ -110,9 +110,9 @@ describe("User Actions Widget", () => {
     users(new Users(bob(), alice(), john()));
     m.redraw();
 
-    expect(find("all-user-count")).toHaveText("3");
-    expect(find("enabled-user-count")).toHaveText("1");
-    expect(find("disabled-user-count")).toHaveText("2");
+    expect(find("users-total")).toHaveText("3");
+    expect(find("users-enabled")).toHaveText("1");
+    expect(find("users-disabled")).toHaveText("2");
   });
 
 });

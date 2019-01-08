@@ -15,32 +15,46 @@
  */
 
 import {bind} from "classnames/bind";
-import {MithrilComponent} from "jsx/mithril-component";
+import {MithrilViewComponent} from "jsx/mithril-component";
 import * as m from "mithril";
 import * as styles from "./forms.scss";
 
 const classnames = bind(styles);
 
-export class Form extends MithrilComponent {
+interface Attrs {
+  dataTestId?: string;
+  compactForm?: boolean;
+}
 
-  view(vnode: m.Vnode) {
-    return <ul className={classnames(styles.form, styles.formResponsive)}>
+function dataTestIdAttrs(attrs: Attrs) {
+  if (attrs.dataTestId) {
+    return {
+      "data-test-id": attrs.dataTestId
+    };
+  } else {
+    return {};
+  }
+}
+
+export class Form extends MithrilViewComponent<Attrs> {
+  view(vnode: m.Vnode<Attrs>) {
+    return <ul className={classnames(styles.form, (vnode.attrs.compactForm ? styles.formCompact : styles.formResponsive))} {...dataTestIdAttrs(vnode.attrs)}>
       {vnode.children}
     </ul>;
   }
 }
 
-export class FormHeader extends MithrilComponent {
-  view(vnode: m.Vnode) {
-    return <div class={styles.formHeader}>
+export class FormHeader extends MithrilViewComponent<Attrs> {
+  view(vnode: m.Vnode<Attrs>) {
+    return <div class={styles.formHeader} {...dataTestIdAttrs(vnode.attrs)}>
       {vnode.children}
     </div>;
   }
 }
 
-export class FormBody extends MithrilComponent {
-  view(vnode: m.Vnode) {
-    return <div>
+export class FormBody extends MithrilViewComponent<Attrs> {
+  view(vnode: m.Vnode<Attrs>) {
+    return <div {...dataTestIdAttrs(vnode.attrs)}>
       {vnode.children}
     </div>;
   }

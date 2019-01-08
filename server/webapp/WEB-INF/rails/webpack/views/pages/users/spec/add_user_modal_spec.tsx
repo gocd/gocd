@@ -29,7 +29,7 @@ describe("UserSearchModal", () => {
        const modal = new UserSearchModal(flashMessageModel, refreshUsers);
        modal.render();
        expect(modal).toContainTitle("Search users");
-       expect(modal).toContainButtons(["Close", "Add"]);
+       expect(modal).toContainButtons(["Cancel", "Add"]);
        expect($(`[data-test-id='${modal.id}'] [data-test-id='user-search-query']`)).toBeInDOM();
      }
   );

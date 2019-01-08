@@ -55,7 +55,7 @@ export class AuthConfigModalBody extends MithrilViewComponent<Attrs> {
           {mayBeMessage}
           <Form>
             <TextField label="Id"
-                       disabled={vnode.attrs.disableId}
+                       readonly={vnode.attrs.disableId}
                        property={vnode.attrs.authConfig.id}
                        errorText={vnode.attrs.authConfig.errors().errorsForDisplay("id")}
                        required={true}/>

@@ -15,32 +15,47 @@
 */
 
 import * as m from "mithril";
-import {Stream} from "mithril/stream";
 import * as stream from "mithril/stream";
+import {Stream} from "mithril/stream";
 import {RolesCRUD} from "models/roles/roles_crud";
-import {Roles} from "models/roles/roles_new";
+import {BulkUserRoleUpdateJSON, GoCDAttributes, GoCDRole, Roles} from "models/roles/roles_new";
+import {TriStateCheckbox} from "models/tri_state_checkbox";
+import {computeBulkUpdateRolesJSON, computeRolesSelection} from "models/users/role_selection";
 import {UserFilters} from "models/users/user_filters";
-import {BulkUserOperationJSON, BulkUserUpdateJSON, UserJSON, Users} from "models/users/users";
+import {BulkUserOperationJSON, BulkUserUpdateJSON, Users} from "models/users/users";
 import {UsersCRUD} from "models/users/users_crud";
 import * as Buttons from "views/components/buttons";
 import {FlashMessage, MessageType} from "views/components/flash_message";
 import {HeaderPanel} from "views/components/header_panel";
 import {Page, PageState} from "views/pages/page";
-import {AddOperation, DeleteOperation, DisableOperation, EnableOperation} from "views/pages/page_operations";
+import {AddOperation} from "views/pages/page_operations";
 import {UserSearchModal} from "views/pages/users/add_user_modal";
-import {Attrs, UsersWidget} from "views/pages/users/users_widget";
+import {State as UserActionsState} from "views/pages/users/user_actions_widget";
+import {UsersWidget} from "views/pages/users/users_widget";
 
-interface State extends AddOperation<UserJSON>, EnableOperation<Users>, DisableOperation<Users>, DeleteOperation<Users>, Attrs {
+interface State extends UserActionsState, AddOperation<Users> {
   initialUsers: Stream<Users>;
 }
 
 export class UsersPage extends Page<null, State> {
   oninit(vnode: m.Vnode<null, State>) {
     super.oninit(vnode);
+    vnode.state.initialUsers   = stream(new Users());
+    vnode.state.userFilters    = stream(new UserFilters());
+    vnode.state.roles          = stream(new Roles());
+    vnode.state.rolesSelection = stream(new Map<GoCDRole, TriStateCheckbox>());
 
-    vnode.state.initialUsers = stream(new Users());
-    vnode.state.userFilter   = stream(new UserFilters());
-    vnode.state.roles        = stream(new Roles());
+    vnode.state.showFilters   = stream(false);
+    vnode.state.showRoles     = stream(false);
+    vnode.state.roleNameToAdd = stream();
+
+    vnode.state.initializeRolesDropdownAttrs = () => {
+      if (vnode.state.showRoles()) {
+        vnode.state.rolesSelection(computeRolesSelection(vnode.state.roles(),
+                                                         vnode.state.users().selectedUsers()));
+        vnode.state.roleNameToAdd("");
+      }
+    };
 
     vnode.state.onAdd = (e) => {
       e.stopPropagation();
@@ -77,14 +92,27 @@ export class UsersPage extends Page<null, State> {
       this.bulkUserDelete(vnode, json);
     };
 
-    vnode.state.users = () => vnode.state.userFilter().performFilteringOn(vnode.state.initialUsers());
+    vnode.state.onRolesAdd = (roleName: string, users: Users) => {
+      const gocdAttributes = new GoCDAttributes(users.userNamesOfSelectedUsers());
+      const role           = new GoCDRole(roleName, gocdAttributes);
+      this.bulkAddNewRoleOnUsers(vnode, role);
+      vnode.state.showRoles(false);
+    };
+
+    vnode.state.onRolesUpdate = (rolesSelection: Map<GoCDRole, TriStateCheckbox>, users: Users) => {
+      const bulkUpdateJSON = computeBulkUpdateRolesJSON(rolesSelection, users);
+      this.bulkUpdateExistingRolesOnUsers(vnode, bulkUpdateJSON);
+      vnode.state.showRoles(false);
+    };
+
+    vnode.state.users = () => vnode.state.userFilters().performFilteringOn(vnode.state.initialUsers());
   }
 
   componentToDisplay(vnode: m.Vnode<null, State>): JSX.Element | undefined {
     return (
       <div>
         <FlashMessage type={this.flashMessage.type} message={this.flashMessage.message}/>
-        <UsersWidget {...vnode.state} />
+        <UsersWidget {...vnode.state}/>
       </div>
     );
   }
@@ -101,7 +129,7 @@ export class UsersPage extends Page<null, State> {
   }
 
   fetchData(vnode: m.Vnode<null, State>): Promise<any> {
-    return Promise.all([UsersCRUD.all(), RolesCRUD.all('gocd')]).then((args) => {
+    return Promise.all([UsersCRUD.all(), RolesCRUD.all("gocd")]).then((args) => {
       const userResult  = args[0];
       const rolesResult = args[1];
 
@@ -122,10 +150,11 @@ export class UsersPage extends Page<null, State> {
                        this.pageState = PageState.FAILED;
                      }
       );
+
     });
   }
 
-  bulkUserStateChange(vnode: m.Vnode<null, State>, json: BulkUserUpdateJSON): void {
+  private bulkUserStateChange(vnode: m.Vnode<null, State>, json: BulkUserUpdateJSON): void {
     UsersCRUD.bulkUserStateUpdate(json)
              .then((apiResult) => {
                apiResult.do((successResponse) => {
@@ -147,6 +176,36 @@ export class UsersPage extends Page<null, State> {
                apiResult.do((successResponse) => {
                  this.pageState = PageState.OK;
                  this.flashMessage.setMessage(MessageType.success, "Users were deleted successfully!");
+                 this.fetchData(vnode);
+               }, (errorResponse) => {
+                 // vnode.state.onError(errorResponse.message);
+                 this.flashMessage.setMessage(MessageType.alert, errorResponse.message);
+                 this.fetchData(vnode);
+               });
+             });
+  }
+
+  private bulkAddNewRoleOnUsers(vnode: m.Vnode<null, State>, role: GoCDRole) {
+    RolesCRUD.create(role)
+             .then((apiResult) => {
+               apiResult.do((successResponse) => {
+                 this.pageState = PageState.OK;
+                 this.flashMessage.setMessage(MessageType.success, "Role is added successfully!");
+                 this.fetchData(vnode);
+               }, (errorResponse) => {
+                 // vnode.state.onError(errorResponse.message);
+                 this.flashMessage.setMessage(MessageType.alert, errorResponse.message);
+                 this.fetchData(vnode);
+               });
+             });
+  }
+
+  private bulkUpdateExistingRolesOnUsers(vnode: m.Vnode<null, State>, bulkUpdateJSON: BulkUserRoleUpdateJSON) {
+    RolesCRUD.bulkUserRoleUpdate(bulkUpdateJSON)
+             .then((apiResult) => {
+               apiResult.do((successResponse) => {
+                 this.pageState = PageState.OK;
+                 this.flashMessage.setMessage(MessageType.success, "Roles are updated successfully!");
                  this.fetchData(vnode);
                }, (errorResponse) => {
                  // vnode.state.onError(errorResponse.message);

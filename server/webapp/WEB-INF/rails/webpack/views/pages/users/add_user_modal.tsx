@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import {bind} from "classnames/bind";
 import * as _ from "lodash";
 import * as m from "mithril";
 import * as stream from "mithril/stream";
@@ -22,12 +23,14 @@ import {UserJSON} from "models/users/users";
 import {UsersCRUD, UserSearchCRUD} from "models/users/users_crud";
 import * as uuid from "uuid/v4";
 import * as Buttons from "views/components/buttons";
-import {Primary} from "views/components/buttons";
 import {FlashMessage, FlashMessageModel, MessageType} from "views/components/flash_message";
-import {SearchField} from "views/components/forms/input_fields";
+import {SearchFieldWithButton} from "views/components/forms/input_fields";
 import {Modal, Size} from "views/components/modal";
 import {Spinner} from "views/components/spinner";
 import {Table} from "views/components/table";
+import * as styles from "views/pages/users/index.scss";
+
+const classnames = bind(styles);
 
 export class UserSearchModal extends Modal {
 
@@ -58,8 +61,12 @@ export class UserSearchModal extends Modal {
     return (
       <div>
         {optionalErrorMesage}
-        <SearchField label='Search query' property={this.searchText} dataTestId={"user-search-query"}/>
-        <Primary onclick={this.search.bind(this)}>Search</Primary>
+        <div className={classnames(styles.searchUser)}>
+          <SearchFieldWithButton property={this.searchText}
+                                 dataTestId={"user-search-query"}
+                                 onclick={this.search.bind(this)}
+                                 buttonDisableReason={"Please type the search query to search user."}/>
+        </div>
         {this.renderTable()}
       </div>
     );
@@ -68,7 +75,7 @@ export class UserSearchModal extends Modal {
   buttons(): JSX.Element[] {
     return [
       <Buttons.Primary data-test-id="button-add" onclick={this.addUser.bind(this)}>Add</Buttons.Primary>,
-      <Buttons.Secondary data-test-id="button-close" onclick={this.close.bind(this)}>Close</Buttons.Secondary>
+      <Buttons.Cancel data-test-id="button-close" onclick={this.close.bind(this)}>Cancel</Buttons.Cancel>
     ];
   }
 

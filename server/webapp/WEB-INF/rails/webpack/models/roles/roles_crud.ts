@@ -16,10 +16,10 @@
 
 import {ApiRequestBuilder, ApiResult, ApiVersion, ObjectWithEtag} from "helpers/api_request_builder";
 import SparkRoutes from "helpers/spark_routes";
-import {GoCDRole, PluginRole, Role, Roles} from "models/roles/roles_new";
+import {BulkUserRoleUpdateJSON, GoCDRole, PluginRole, Role, Roles} from "models/roles/roles_new";
 
 export class RolesCRUD {
-  private static API_VERSION_HEADER = ApiVersion.v1;
+  private static API_VERSION_HEADER = ApiVersion.v2;
 
   static all(type?: 'gocd' | 'plugin') {
     return ApiRequestBuilder.GET(SparkRoutes.rolesPath(type), this.API_VERSION_HEADER)
@@ -49,6 +49,15 @@ export class RolesCRUD {
   static delete(id: string) {
     return ApiRequestBuilder.DELETE(SparkRoutes.rolePath(id), this.API_VERSION_HEADER)
                             .then((result: ApiResult<string>) => result.map((body) => JSON.parse(body)));
+  }
+
+  static bulkUserRoleUpdate(bulkUserRoleUpdateJSON: BulkUserRoleUpdateJSON) {
+    return ApiRequestBuilder.PATCH(SparkRoutes.rolesPath(), this.API_VERSION_HEADER, {payload: bulkUserRoleUpdateJSON})
+                            .then((result: ApiResult<string>) => {
+                              return result.map((body) => {
+                                // return;
+                              });
+                            });
   }
 
   private static extractObjectWithEtag(result: ApiResult<string>) {

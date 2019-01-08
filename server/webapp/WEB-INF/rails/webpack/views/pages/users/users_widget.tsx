@@ -17,30 +17,32 @@
 import {bind} from "classnames/bind";
 import {MithrilViewComponent} from "jsx/mithril-component";
 import * as m from "mithril";
-import {Stream} from "mithril/stream";
-import {Roles} from "models/roles/roles_new";
-import {UserFilters} from "models/users/user_filters";
 import {User, Users} from "models/users/users";
 import {Table} from "views/components/table";
-import {DeleteOperation, DisableOperation, EnableOperation} from "views/pages/page_operations";
-import {UsersActionsWidget} from "views/pages/users/user_actions_widget";
+import {State as UserActionsState, UsersActionsWidget} from "views/pages/users/user_actions_widget";
 import * as styles from "./index.scss";
 
 const classnames = bind(styles);
 
-export interface Attrs extends EnableOperation<Users>, DisableOperation<Users>, DeleteOperation<Users> {
-  users: () => Users;
-  roles: Stream<Roles>;
-  userFilter: Stream<UserFilters>;
-}
-
-export class UsersTableWidget extends MithrilViewComponent<Attrs> {
+export class UsersTableWidget extends MithrilViewComponent<UserActionsState> {
   static headers(users: Users) {
     return [
       <input type="checkbox"
              checked={users.areAllUsersSelected()}
              onclick={users.toggleSelection.bind(users)}/>,
-      "Username", "Display name", "Roles", "Admin", "Email", "Enabled"];
+      "Username",
+      "Display name",
+      <span>
+        Roles
+        <div className={classnames(styles.roleLegends)}>
+          <div className={classnames(styles.roleGocd)}>GoCD</div>
+          <div className={classnames(styles.rolePlugin)}>Plugin</div>
+        </div>
+      </span>,
+      "Admin",
+      "Email",
+      "Enabled"
+    ];
   }
 
   static userData(users: Users): any[][] {
@@ -57,7 +59,7 @@ export class UsersTableWidget extends MithrilViewComponent<Attrs> {
     });
   }
 
-  view(vnode: m.Vnode<Attrs>) {
+  view(vnode: m.Vnode<UserActionsState>) {
     return <Table headers={UsersTableWidget.headers(vnode.attrs.users() as Users)}
                   data={UsersTableWidget.userData(vnode.attrs.users())}/>;
   }
@@ -76,9 +78,8 @@ export class UsersTableWidget extends MithrilViewComponent<Attrs> {
   }
 }
 
-export class UsersWidget extends MithrilViewComponent<Attrs> {
-  view(vnode: m.Vnode<Attrs>) {
-
+export class UsersWidget extends MithrilViewComponent<UserActionsState> {
+  view(vnode: m.Vnode<UserActionsState>) {
     return [
       <UsersActionsWidget {...vnode.attrs} />,
       <UsersTableWidget {...vnode.attrs}/>

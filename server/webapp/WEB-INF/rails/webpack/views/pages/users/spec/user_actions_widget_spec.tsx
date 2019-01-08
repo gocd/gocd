@@ -18,26 +18,36 @@ import * as _ from "lodash";
 import * as m from "mithril";
 import * as stream from "mithril/stream";
 import {Stream} from "mithril/stream";
-import {Roles} from "models/roles/roles_new";
+import {GoCDRole, Roles} from "models/roles/roles_new";
+import {TriStateCheckbox} from "models/tri_state_checkbox";
 import {UserFilters} from "models/users/user_filters";
 import {User, Users} from "models/users/users";
-import {UsersActionsWidget} from "views/pages/users/user_actions_widget";
+import {State as UserActionsState, UsersActionsWidget} from "views/pages/users/user_actions_widget";
 
 describe("User Actions Widget", () => {
   let $root: any, root: any;
-  const users: Stream<Users> = stream(new Users());
-  const roles: Stream<Roles> = stream(new Roles());
-  const usersFilter          = stream(new UserFilters());
-  let onEnable: (users: Users, e: MouseEvent) => void;
-  let onDisable: (users: Users, e: MouseEvent) => void;
-  let onDelete: (users: Users, e: MouseEvent) => void;
+  let attrs: UserActionsState;
+  let users: Stream<Users>;
 
   beforeEach(() => {
+    users         = stream(new Users());
+    attrs         = {
+      users,
+      roles: stream(new Roles()),
+      userFilters: stream(new UserFilters()),
+      initializeRolesDropdownAttrs: _.noop,
+      showRoles: stream(false),
+      showFilters: stream(false),
+      rolesSelection: stream(new Map<GoCDRole, TriStateCheckbox>()),
+      onEnable: _.noop,
+      onDisable: _.noop,
+      onDelete: _.noop,
+      onRolesUpdate: _.noop,
+      roleNameToAdd: stream(),
+      onRolesAdd: _.noop
+    };
     // @ts-ignore
     [$root, root] = window.createDomElementForTest();
-    onEnable      = _.noop;
-    onDisable     = _.noop;
-    onDelete     = _.noop;
   });
 
   beforeEach(mount);
@@ -50,12 +60,7 @@ describe("User Actions Widget", () => {
     m.mount(root, {
       view() {
         return (
-          <UsersActionsWidget users={users}
-                              roles={roles}
-                              onEnable={onEnable}
-                              onDisable={onDisable}
-                              onDelete={onDelete}
-                              userFilter={usersFilter}/>);
+          <UsersActionsWidget {...attrs}/>);
       }
     });
 

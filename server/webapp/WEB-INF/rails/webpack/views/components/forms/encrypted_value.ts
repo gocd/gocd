@@ -44,13 +44,16 @@ export class EncryptedValue {
     this._canEdit       = stream(!this.isSecure());
   }
 
-  value(...args: any) {
+  value(...args: any): string {
     if (args.length) {
+      const any: string = args[0];
       if (this.isPlain()) {
-        return this._value(args[0]);
+        this._value(any);
+        return this._value();
       } else {
         if (this._canEdit()) {
-          return this._value(args[0]);
+          this._value(any);
+          return this._value();
         } else {
           throw new Error("You cannot edit a cipher text value!");
         }

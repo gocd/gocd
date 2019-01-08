@@ -51,6 +51,18 @@ export interface RolesJSON {
   _embedded: EmbeddedJSON;
 }
 
+export interface UserRoleUpdateJSON {
+  role: string;
+  users: {
+    add?: string[];
+    remove?: string[];
+  };
+}
+
+export interface BulkUserRoleUpdateJSON {
+  operations: UserRoleUpdateJSON[];
+}
+
 export class GoCDAttributes {
   users: string[];
 

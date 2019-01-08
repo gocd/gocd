@@ -81,9 +81,10 @@ export class User {
   }
 
   matches(searchText: string) {
-    const matchesLoginName   = this.loginName().includes(searchText);
-    const matchesDisplayName = this.displayName() ? this.displayName().includes(searchText) : false;
-    const matchesEmail       = this.email() ? this.email().includes(searchText) : false;
+    searchText = searchText.toLowerCase();
+    const matchesLoginName   = this.loginName().toLowerCase().includes(searchText);
+    const matchesDisplayName = this.displayName() ? this.displayName().toLowerCase().includes(searchText) : false;
+    const matchesEmail       = this.email() ? this.email().toLowerCase().includes(searchText) : false;
 
     return (matchesLoginName || matchesDisplayName || matchesEmail);
   }

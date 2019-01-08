@@ -21,7 +21,10 @@ describe("User Model", () => {
     const user = User.fromJSON(userJSON());
 
     expect(user.matches("some random text")).toBe(false);
-    expect(user.matches("admin")).toBe(true);
+    expect(user.matches("aDmiN")).toBe(true);
+    expect(user.matches("bOb")).toBe(true);
+    expect(user.matches("EXAMPLE")).toBe(true);
+    expect(user.matches("BuilDER")).toBe(true);
   });
 
   it("should return all GoCD roles", () => {
@@ -36,11 +39,11 @@ describe("User Model", () => {
 
   function userJSON(): UserJSON {
     return {
-      login_name: "admin",
+      login_name: "Administrator",
       is_admin: true,
-      display_name: "admin",
+      display_name: "Bob the builder",
       enabled: true,
-      email: "admin@example.com",
+      email: "Bob@example.com",
       email_me: false,
       checkin_aliases: [
         "alias1@gmail.com",

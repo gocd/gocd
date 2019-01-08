@@ -28,6 +28,7 @@ import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.plugin.access.configrepo.ConfigRepoExtension;
 import com.thoughtworks.go.presentation.TriStateSelection;
 import com.thoughtworks.go.server.domain.Username;
+import com.thoughtworks.go.server.materials.MaterialUpdateService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.util.GoConfigFileHelper;
 import org.hamcrest.core.Is;
@@ -67,6 +68,10 @@ public class ConfigRepoServiceIntegrationTest {
     private EntityHashingService entityHashingService;
     @Autowired
     private SecurityService securityService;
+    @Autowired
+    private MaterialUpdateService materialUpdateService;
+    @Autowired
+    private MaterialConfigConverter materialConfigConverter;
 
     @Mock
     private ConfigRepoExtension configRepoExtension;
@@ -144,7 +149,7 @@ public class ConfigRepoServiceIntegrationTest {
     public void shouldCreateSpecifiedConfigRepository() throws Exception {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         configHelper.enableSecurity();
-        configRepoService =  new ConfigRepoService(goConfigService, securityService, entityHashingService, configRepoExtension);
+        configRepoService =  new ConfigRepoService(goConfigService, securityService, entityHashingService, configRepoExtension, materialUpdateService, materialConfigConverter);
 
         when(configRepoExtension.canHandlePlugin(any())).thenReturn(true);
 
@@ -158,7 +163,7 @@ public class ConfigRepoServiceIntegrationTest {
 
     @Test
     public void shouldUpdateSpecifiedConfigRepository() throws Exception {
-        configRepoService =  new ConfigRepoService(goConfigService, securityService, entityHashingService, configRepoExtension);
+        configRepoService =  new ConfigRepoService(goConfigService, securityService, entityHashingService, configRepoExtension, materialUpdateService, materialConfigConverter);
 
         when(configRepoExtension.canHandlePlugin(any())).thenReturn(true);
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();

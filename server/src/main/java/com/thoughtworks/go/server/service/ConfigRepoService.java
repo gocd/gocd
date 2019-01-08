@@ -25,8 +25,10 @@ import com.thoughtworks.go.config.update.CreateConfigRepoCommand;
 import com.thoughtworks.go.config.update.DeleteConfigRepoCommand;
 import com.thoughtworks.go.config.update.UpdateConfigRepoCommand;
 import com.thoughtworks.go.i18n.LocalizedMessage;
+import com.thoughtworks.go.listener.EntityConfigChangedListener;
 import com.thoughtworks.go.plugin.access.configrepo.ConfigRepoExtension;
 import com.thoughtworks.go.server.domain.Username;
+import com.thoughtworks.go.server.materials.MaterialUpdateService;
 import com.thoughtworks.go.server.service.materials.PackageDefinitionService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import org.slf4j.Logger;
@@ -46,12 +48,20 @@ public class ConfigRepoService {
     public static final Logger LOGGER = LoggerFactory.getLogger(PackageDefinitionService.class);
 
     @Autowired
-    public ConfigRepoService(GoConfigService goConfigService, SecurityService securityService, EntityHashingService entityHashingService,
-                             ConfigRepoExtension configRepoExtension) {
+    public ConfigRepoService(GoConfigService goConfigService, SecurityService securityService, EntityHashingService entityHashingService, ConfigRepoExtension configRepoExtension,
+                             MaterialUpdateService materialUpdateService, MaterialConfigConverter converter) {
         this.goConfigService = goConfigService;
         this.securityService = securityService;
         this.entityHashingService = entityHashingService;
         this.configRepoExtension = configRepoExtension;
+        goConfigService.register(new EntityConfigChangedListener<ConfigRepoConfig>() {
+            @Override
+            public void onEntityConfigChange(ConfigRepoConfig entity) {
+                if (getConfigRepo(entity.getId()) != null) {
+                    materialUpdateService.updateMaterial(converter.toMaterial(entity.getMaterialConfig()));
+                }
+            }
+        });
     }
 
     public ConfigRepoConfig getConfigRepo(String repoId) {

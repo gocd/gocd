@@ -39,6 +39,10 @@ public class AdminRole implements Admin {
         this(role.getName());
     }
 
+    public AdminRole(final String name) {
+        this.name = new CaseInsensitiveString(name);
+    }
+
     public boolean isSameAs(Admin admin, List<Role> memberRoles) {
         if (this.name == null || memberRoles == null) {
             return false;

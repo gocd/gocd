@@ -16,15 +16,20 @@
 
 package com.thoughtworks.go.server.service;
 
-import com.thoughtworks.go.config.AdminsConfig;
+import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
 import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
 import com.thoughtworks.go.config.update.AdminsConfigUpdateCommand;
+import com.thoughtworks.go.domain.config.Admin;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import static com.thoughtworks.go.i18n.LocalizedMessage.saveFailedWithReason;
 
@@ -62,6 +67,22 @@ public class AdminsConfigService {
                 }
             }
         }
+    }
+
+    public void bulkUpdate(Username currentUser,
+                           List<String> usersToAdd,
+                           List<String> usersToRemove,
+                           List<String> rolesToAdd,
+                           List<String> rolesToRemove,
+                           String md5, LocalizedOperationResult result) {
+        Set<Admin> admins = new HashSet<>(systemAdmins());
+        usersToAdd.forEach(user -> admins.add(new AdminUser(user)));
+        rolesToAdd.forEach(role -> admins.add(new AdminRole(role)));
+        usersToRemove.forEach(user -> admins.remove(new AdminUser(new CaseInsensitiveString(user))));
+        rolesToRemove.forEach(role -> admins.remove(new AdminRole(new CaseInsensitiveString(role))));
+        AdminsConfigUpdateCommand command = new AdminsConfigUpdateCommand(goConfigService, new AdminsConfig(admins),
+                currentUser, result, entityHashingService, md5);
+        updateConfig(currentUser, result, command);
     }
 }
 

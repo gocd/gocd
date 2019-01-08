@@ -18,6 +18,7 @@ package com.thoughtworks.go.config;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import com.thoughtworks.go.domain.BaseCollection;
 import com.thoughtworks.go.domain.ConfigErrors;
@@ -35,6 +36,10 @@ public class AdminsConfig extends BaseCollection<Admin> implements Validatable {
 
     public AdminsConfig(Admin... admins) {
         addAll(asList(admins));
+    }
+
+    public AdminsConfig(Set<Admin> admins) {
+        addAll(admins);
     }
 
     public boolean isAdmin(Admin username, List<Role> memberRoles) {

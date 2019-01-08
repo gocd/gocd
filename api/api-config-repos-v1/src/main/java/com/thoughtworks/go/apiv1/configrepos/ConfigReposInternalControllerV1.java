@@ -145,7 +145,7 @@ public class ConfigReposInternalControllerV1 extends ApiController implements Sp
 
         PartialConfigParseResult result = dataSource.getLastParseResult(repo.getMaterialConfig());
 
-        return new ConfigRepoWithResult(repo, result);
+        return new ConfigRepoWithResult(repo, result, isMaterialUpdateInProgress(repo));
     }
 
     private ConfigRepoConfig repoFromRequest(Request req) {
@@ -161,7 +161,11 @@ public class ConfigReposInternalControllerV1 extends ApiController implements Sp
     private List<ConfigRepoWithResult> allRepos() {
         return service.getConfigRepos().stream().map(r -> {
             PartialConfigParseResult result = dataSource.getLastParseResult(r.getMaterialConfig());
-            return new ConfigRepoWithResult(r, result);
+            return new ConfigRepoWithResult(r, result, isMaterialUpdateInProgress(r));
         }).collect(Collectors.toList());
+    }
+
+    private boolean isMaterialUpdateInProgress(ConfigRepoConfig configRepoConfig) {
+        return mus.isInProgress(converter.toMaterial(configRepoConfig.getMaterialConfig()));
     }
 }

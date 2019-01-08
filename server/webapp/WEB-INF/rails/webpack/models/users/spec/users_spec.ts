@@ -14,7 +14,8 @@
  * limitations under the License.
  */
 
-import {Users, UsersJSON} from "models/users/users";
+import {usersJSON} from "models/users/spec/fixtures";
+import {Users} from "models/users/users";
 
 describe("Users Model", () => {
   it("should deserialize from JSON", () => {
@@ -96,85 +97,4 @@ describe("Users Model", () => {
     });
   });
 
-  function usersJSON(): UsersJSON {
-    return {
-      _embedded: {
-        users: [
-          {
-            login_name: "root",
-            is_admin: true,
-            display_name: "root",
-            enabled: false,
-            email: undefined,
-            email_me: false,
-            checkin_aliases: [],
-            roles: []
-          },
-          {
-            login_name: "jez",
-            is_admin: true,
-            display_name: "jez",
-            enabled: true,
-            email: undefined,
-            email_me: false,
-            checkin_aliases: [],
-            roles: []
-          },
-          {
-            login_name: "jigsaw",
-            is_admin: true,
-            display_name: "jigsaw",
-            enabled: false,
-            email: undefined,
-            email_me: false,
-            checkin_aliases: [],
-            roles: []
-          },
-          {
-            login_name: "admin",
-            is_admin: true,
-            display_name: "admin",
-            enabled: true,
-            email: "admin@example.com",
-            email_me: false,
-            checkin_aliases: [
-              "alias1@gmail.com",
-              "alias2@example.com"
-            ],
-            roles: []
-          },
-          {
-            login_name: "cruise_admin",
-            is_admin: true,
-            display_name: "cruise_admin",
-            enabled: true,
-            email: undefined,
-            email_me: false,
-            checkin_aliases: [],
-            roles: []
-          },
-          {
-            login_name: "operate",
-            is_admin: false,
-            display_name: "operate",
-            enabled: true,
-            email: undefined,
-            email_me: false,
-            checkin_aliases: [],
-            roles: []
-          },
-          {
-            login_name: "view",
-            is_admin: false,
-            display_name: "view",
-            enabled: true,
-            email: undefined,
-            email_me: false,
-            checkin_aliases: [],
-            roles: []
-          }
-        ]
-      }
-    };
-  }
 });

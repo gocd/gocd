@@ -31,7 +31,7 @@ describe("RoleCRUD", () => {
     expect(request.url).toEqual("/go/api/admin/security/roles");
     expect(request.method).toEqual("GET");
     expect(request.data()).toEqual(toJSON({} as RolesJSON));
-    expect(request.requestHeaders).toEqual({Accept: "application/vnd.go.cd.v1+json"});
+    expect(request.requestHeaders).toEqual({Accept: "application/vnd.go.cd.v2+json"});
   });
 
   it("should create a new gocd role", () => {
@@ -44,7 +44,7 @@ describe("RoleCRUD", () => {
     expect(request.method).toEqual("POST");
     expect(request.data()).toEqual(toJSON(Role.fromJSON(RolesTestData.GoCDRoleJSON())));
     expect(request.requestHeaders).toEqual({
-                                             "Accept": "application/vnd.go.cd.v1+json",
+                                             "Accept": "application/vnd.go.cd.v2+json",
                                              "Content-Type": "application/json; charset=utf-8"
                                            });
   });
@@ -59,7 +59,7 @@ describe("RoleCRUD", () => {
     expect(request.method).toEqual("POST");
     expect(request.data()).toEqual(toJSON(Role.fromJSON(RolesTestData.LdapPluginRoleJSON())));
     expect(request.requestHeaders).toEqual({
-                                             "Accept": "application/vnd.go.cd.v1+json",
+                                             "Accept": "application/vnd.go.cd.v2+json",
                                              "Content-Type": "application/json; charset=utf-8"
                                            });
   });
@@ -76,7 +76,7 @@ describe("RoleCRUD", () => {
     expect(request.method).toEqual("PUT");
     expect(request.data()).toEqual(toJSON(gocdRole));
     expect(request.requestHeaders).toEqual({
-                                             "Accept": "application/vnd.go.cd.v1+json",
+                                             "Accept": "application/vnd.go.cd.v2+json",
                                              "Content-Type": "application/json; charset=utf-8",
                                              "If-Match": "some-etag"
                                            });
@@ -94,7 +94,7 @@ describe("RoleCRUD", () => {
     expect(request.method).toEqual("DELETE");
     expect(request.data()).toEqual(toJSON({} as RoleJSON));
     expect(request.requestHeaders).toEqual({
-                                             "Accept": "application/vnd.go.cd.v1+json",
+                                             "Accept": "application/vnd.go.cd.v2+json",
                                              "Content-Type": "application/json; charset=utf-8",
                                              "X-GoCD-Confirm": "true"
                                            });
@@ -110,7 +110,7 @@ function getAllRoles() {
   return {
     status: 200,
     responseHeaders: {
-      "Content-Type": "application/vnd.go.cd.v1+json; charset=utf-8",
+      "Content-Type": "application/vnd.go.cd.v2+json; charset=utf-8",
       "ETag": "some-etag"
     },
     responseText: JSON.stringify(RolesTestData.GetAllRoles())
@@ -121,7 +121,7 @@ function getGoCDRole() {
   return {
     status: 200,
     responseHeaders: {
-      "Content-Type": "application/vnd.go.cd.v1+json; charset=utf-8",
+      "Content-Type": "application/vnd.go.cd.v2+json; charset=utf-8",
       "ETag": "some-etag"
     },
     responseText: JSON.stringify(RolesTestData.GoCDRoleJSON())
@@ -132,7 +132,7 @@ function deleteRoleResponse() {
   return {
     status: 200,
     responseHeaders: {
-      "Content-Type": "application/vnd.go.cd.v1+json; charset=utf-8"
+      "Content-Type": "application/vnd.go.cd.v2+json; charset=utf-8"
     },
     responseText: JSON.stringify({message: "Role successfully deleted."})
   };
@@ -142,7 +142,7 @@ function getPluginRole() {
   return {
     status: 200,
     responseHeaders: {
-      "Content-Type": "application/vnd.go.cd.v1+json; charset=utf-8",
+      "Content-Type": "application/vnd.go.cd.v2+json; charset=utf-8",
       "ETag": "some-etag"
     },
     responseText: JSON.stringify(RolesTestData.LdapPluginRoleJSON())

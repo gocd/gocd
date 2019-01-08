@@ -15,32 +15,6 @@
  */
 @import "../../global/common";
 
-$btn-primary: $go-primary;
-$btn-secondary: $go-secondary;
-$btn-text-color: #fff;
-$btn-reset: #666;
-$btn-danger: $go-danger;
-
-.button {
-  display:       inline-block;
-  border:        1px solid transparent;
-  padding:       0 20px;
-  height:        $form-element-height;
-  line-height:   $form-element-height;
-  border-radius: $global-border-radius;
-  font-size:     14px;
-  font-weight:   400;
-  cursor:        pointer;
-
-  &:active, &:focus {
-    outline: 0;
-  }
-
-  &:disabled {
-    opacity: 0.4;
-    cursor:  not-allowed;
-  }
-}
 
 .disabled {
   cursor:         not-allowed;
@@ -53,23 +27,6 @@ $btn-danger: $go-danger;
   line-height: $form-element-height-small;
   font-weight: 400;
   font-size:   13px;
-}
-
-@mixin button($background-color) {
-  background:   $background-color;
-  border-color: $background-color;
-  color:        $btn-text-color;
-  transition:   $transition;
-  &:hover {
-    background: darken($background-color, 10%);
-    transition: $transition;
-  }
-  &:disabled {
-    &:hover {
-      background: $background-color;
-      transition: $transition;
-    }
-  }
 }
 
 .btn-primary {
@@ -94,6 +51,7 @@ $btn-danger: $go-danger;
 }
 
 .btn-link {
+  @include button($background-color: transparent);
   color:           $text-color;
   padding:         0;
   text-decoration: underline;
@@ -101,22 +59,14 @@ $btn-danger: $go-danger;
   height:          auto;
 }
 
-.btn-dropdown {
+.btn-default {
   @include button($background-color: $white);
-  @include icon-after($type: $fa-var-angle-down);
   color:  $text-color;
   border: 1px solid $border-color;
+}
 
-  &:hover {
-    background-color: $white;
-  }
-
-  &:after,
-  &:before {
-    color: $icon-color;
-  }
-
-  &:after {
+.btn-dropdown {
+  @include icon-after($type: $fa-var-angle-down) {
     margin-right: -5px;
   }
 }
@@ -150,7 +100,7 @@ $btn-danger: $go-danger;
   display: inline-flex;
 
   .button + .button {
-    margin-left: 1px;
+    margin-left: 0;
   }
 
   > .button {
@@ -164,6 +114,14 @@ $btn-danger: $go-danger;
     }
 
     &:last-child {
+      border-radius: 0 $global-border-radius $global-border-radius 0;
+    }
+  }
+
+  > .btn-dropdown-container {
+    border-left: 1px solid $line-color;
+    position: relative;
+    .btn-dropdown {
       border-radius: 0 $global-border-radius $global-border-radius 0;
     }
   }

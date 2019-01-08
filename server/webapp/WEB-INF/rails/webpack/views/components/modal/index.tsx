@@ -18,7 +18,6 @@ import {bind} from "classnames/bind";
 import {MithrilViewComponent} from "jsx/mithril-component";
 import * as _ from "lodash";
 import * as m from "mithril";
-import {ButtonGroup} from "../buttons";
 import * as Buttons from "../buttons";
 import * as styles from "./index.scss";
 import {ModalManager} from "./modal_manager";
@@ -81,13 +80,11 @@ export abstract class Modal extends MithrilViewComponent<any> {
         {this.body()}
       </div>
       <footer className={styles.overlayFooter}>
-        <ButtonGroup>
         {
           _.forEach(_.reverse(this.buttons()), (button) => {
             return button;
           })
         }
-        </ButtonGroup>
       </footer>
     </div>;
   }

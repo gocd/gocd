@@ -18,8 +18,10 @@ import {bind} from "classnames/bind";
 import {MithrilViewComponent} from "jsx/mithril-component";
 import * as _ from "lodash";
 import * as m from "mithril";
+import {TriStateCheckbox} from "models/tri_state_checkbox";
 import * as s from "underscore.string";
 import * as uuid from "uuid/v4";
+import {OnClickHandler} from "views/components/buttons";
 import * as Buttons from "views/components/buttons";
 import {EncryptedValue} from "views/components/forms/encrypted_value";
 import {SwitchBtn} from "views/components/switch";
@@ -27,174 +29,160 @@ import * as styles from "./forms.scss";
 
 const classnames = bind(styles);
 
-export interface LabelAttrs<T> {
-  label?: string;
-  errorText?: string;
-  helpText?: string;
-  onchange?: (evt: any) => void;
-  disabled?: boolean;
+interface RequiredFieldAttr {
   required?: boolean;
-  small?: boolean;
+}
+
+interface LabelAttr extends RequiredFieldAttr {
+  label?: string;
+}
+
+interface ErrorTextAttr {
+  errorText?: string;
+}
+
+interface HelpTextAttr {
+  helpText?: string;
+}
+
+interface PlaceholderAttr {
   placeholder?: string;
-  property: (newValue?: T) => T;
+}
+
+interface DataTestIdAttr {
   dataTestId?: string;
 }
 
-type FormFieldAttrs<T> = LabelAttrs<T>;
-
-abstract class FormField<T> extends MithrilViewComponent<FormFieldAttrs<T>> {
-  protected readonly id: string         = `input-${uuid()}`;
-  protected readonly helpTextId: string = `${this.id}-help-text`;
-  protected readonly errorId: string    = `${this.id}-error-text`;
-
-  view(vnode: m.Vnode<FormFieldAttrs<T>>) {
-
-    return (
-      <li className={classnames(styles.formGroup, {[styles.formHasError]: this.hasErrorText(vnode)})}>
-        {this.renderLabel(vnode)}
-        {this.renderInputField(vnode)}
-        {this.errorSpan(vnode)}
-        {this.getHelpSpan(vnode)}
-      </li>
-    );
-  }
-
-  abstract renderInputField(vnode: m.Vnode<FormFieldAttrs<T>>): m.Children | null | void;
-
-  protected defaultAttributes(vnode: m.Vnode<FormFieldAttrs<T>>): { [key: string]: any } {
-    const required = this.isRequiredField(vnode);
-
-    const defaultAttrs: { [key: string]: string | boolean } = {
-      readonly: !!vnode.attrs.disabled,
-      required: !!required,
-      autocomplete: "off",
-      autocapitalize: "off",
-      autocorrect: "off",
-      spellcheck: false,
-      id: this.id,
-      placeholder: vnode.attrs.placeholder || "",
-    };
-
-    if (this.hasLabelText(vnode)) {
-      defaultAttrs["aria-label"]   = vnode.attrs.label as string;
-      defaultAttrs["data-test-id"] = `form-field-input-${s.slugify(vnode.attrs.label as string)}`;
-    }
-
-    if (this.hasDataTestId(vnode)) {
-      defaultAttrs["data-test-id"] = vnode.attrs.dataTestId as string;
-    }
-
-    if (this.hasHelpText(vnode)) {
-      defaultAttrs["aria-describedby"] = this.helpTextId;
-    }
-
-    if (this.hasErrorText(vnode)) {
-      defaultAttrs["aria-errormessage"] = this.errorId;
-    }
-
-    if (required) {
-      defaultAttrs["aria-required"] = true;
-      defaultAttrs.required         = true;
-    }
-
-    return defaultAttrs;
-  }
-
-  // moved
-  protected getHelpSpan(vnode: m.Vnode<FormFieldAttrs<T>>) {
-    if (this.hasHelpText(vnode)) {
-      return (<span id={this.helpTextId} className={classnames(styles.formHelp)}>{vnode.attrs.helpText}</span>);
-    }
-  }
-
-  protected hasHelpText(vnode: m.Vnode<FormFieldAttrs<T>>) {
-    return !_.isEmpty(vnode.attrs.helpText);
-  }
-
-  protected hasDataTestId(vnode: m.Vnode<FormFieldAttrs<T>>) {
-    return !_.isEmpty(vnode.attrs.dataTestId);
-  }
-
-  protected hasLabelText(vnode: m.Vnode<FormFieldAttrs<T>>) {
-    return !_.isEmpty(vnode.attrs.label);
-  }
-
-  protected hasErrorText(vnode: m.Vnode<FormFieldAttrs<T>>) {
-    return !_.isEmpty(vnode.attrs.errorText);
-  }
-
-  protected isRequiredField(vnode: m.Vnode<FormFieldAttrs<T>>) {
-    return vnode.attrs.required;
-  }
-
-  protected errorSpan(vnode: m.Vnode<FormFieldAttrs<T>>) {
-    if (this.hasErrorText(vnode)) {
-      return (
-        <span className={styles.formErrorText} id={this.errorId}>{vnode.attrs.errorText}</span>
-      );
-    }
-  }
-
-  protected bindingAttributes(vnode: m.Vnode<FormFieldAttrs<T>>,
-                              eventName: string,
-                              propertyAttribute: string): { [key: string]: any } {
-    return {
-      [eventName]: (evt: any) => {
-        vnode.attrs.property(evt.currentTarget[propertyAttribute]);
-        if (vnode.attrs.onchange) {
-          vnode.attrs.onchange(evt);
-        }
-      },
-      [propertyAttribute]: vnode.attrs.property()
-    };
-  }
-
-  protected renderLabel(vnode: m.Vnode<FormFieldAttrs<T>>) {
-    if (this.hasLabelText(vnode)) {
-      const maybeRequired = this.isRequiredField(vnode) ?
-        <span className={styles.formLabelRequired}>*</span> : undefined;
-
-      return <label for={this.id} className={this.labelClass()}
-                    data-test-id={`form-field-label-${s.slugify(vnode.attrs.label as string)}`}>{vnode.attrs.label}{maybeRequired}</label>;
-    }
-  }
-
-  protected labelClass() {
-    return styles.formLabel;
-  }
+interface ReadonlyAttr {
+  readonly?: boolean;
 }
 
-export class TextField extends FormField<string> {
-  renderInputField(vnode: m.Vnode<FormFieldAttrs<string>>) {
-    return (
-      <input type="text"
-             {...this.defaultAttributes(vnode)}
-             {...this.bindingAttributes(vnode, "oninput", "value")}
-             className={classnames(styles.formControl)}/>
-    );
-  }
+interface SmallSizeAttr {
+  small?: boolean;
 }
 
-export class SearchField extends FormField<string> {
-
-  view(vnode: m.Vnode<FormFieldAttrs<string>>): any {
-    return this.renderInputField(vnode);
-  }
-
-  renderInputField(vnode: m.Vnode<FormFieldAttrs<string>>) {
-    return (
-      <span className={classnames(styles.searchBoxWrapper)}>
-      <input type="search"
-             {...this.defaultAttributes(vnode)}
-             {...this.bindingAttributes(vnode, "oninput", "value")}
-             className={classnames(styles.formControl, styles.searchBoxInput)}/>
-      </span>
-    );
-  }
+interface BindingsAttr<T> {
+  onchange?: (evt: any) => void;
+  property: (newValue?: T) => T;
 }
+
+type BaseAttrs<T> = DataTestIdAttr & HelpTextAttr & ErrorTextAttr & LabelAttr & BindingsAttr<T> & ReadonlyAttr;
+
+interface DefaultAttrs {
+  [key: string]: string | boolean;
+}
+
+const textInputFieldDefaultAttrs = {
+  autocomplete: "off",
+  autocapitalize: "off",
+  autocorrect: "off",
+  spellcheck: false
+};
 
 interface FormResetButtonAttrs {
   onclick?: (e: MouseEvent) => void;
+}
+
+export interface Option {
+  id: string;
+  text: string;
+}
+
+interface SelectFieldAttrs {
+  items: Array<Option | string>;
+  selected?: string;
+}
+
+type HelpTextComponentAttrs = HelpTextAttr & { helpTextId: string };
+type ErrorTextComponentAttrs = ErrorTextAttr & { errorId: string };
+type LabelComponentAttrs = LabelAttr & { fieldId: string };
+
+class RequiredLabel extends MithrilViewComponent<RequiredFieldAttr> {
+
+  static isRequiredField(attrs: RequiredFieldAttr) {
+    return attrs.required;
+  }
+
+  static defaultAttributes(attrs: RequiredFieldAttr) {
+    if (this.isRequiredField(attrs)) {
+      return {
+        "aria-required": true,
+        "required": true
+      };
+    }
+  }
+
+  view(vnode: m.Vnode<RequiredFieldAttr>) {
+    if (RequiredLabel.isRequiredField(vnode.attrs)) {
+      return (<span className={styles.formLabelRequired}>*</span>);
+    }
+  }
+
+}
+
+class Label extends MithrilViewComponent<LabelComponentAttrs> {
+
+  static hasLabelText(attrs: LabelAttr) {
+    return !_.isEmpty(attrs.label);
+  }
+
+  static defaultAttributes(attrs: LabelAttr) {
+    if (this.hasLabelText(attrs)) {
+      return {
+        "aria-label": attrs.label as string,
+      };
+    }
+  }
+
+  view(vnode: m.Vnode<LabelComponentAttrs>) {
+    if (Label.hasLabelText(vnode.attrs)) {
+      return <label for={vnode.attrs.fieldId}
+                    data-test-id={`form-field-label-${s.slugify(vnode.attrs.label as string)}`}
+                    className={classnames(styles.formLabel)}>
+        {vnode.attrs.label}
+        <RequiredLabel {...vnode.attrs} />
+      </label>;
+    }
+  }
+
+}
+
+class HelpText extends MithrilViewComponent<HelpTextComponentAttrs> {
+  static hasHelpText(attrs: HelpTextComponentAttrs) {
+    return !_.isEmpty(attrs.helpText);
+  }
+
+  static defaultAttributes(attrs: HelpTextComponentAttrs) {
+    if (HelpText.hasHelpText(attrs)) {
+      return {"aria-describedby": attrs.helpTextId};
+    }
+  }
+
+  view(vnode: m.Vnode<HelpTextComponentAttrs>) {
+    if (!_.isEmpty(vnode.attrs.helpText)) {
+      return (<span id={vnode.attrs.helpTextId} className={classnames(styles.formHelp)}>{vnode.attrs.helpText}</span>);
+    }
+  }
+
+}
+
+class ErrorText extends MithrilViewComponent<ErrorTextComponentAttrs> {
+
+  static hasErrorText(attrs: ErrorTextAttr) {
+    return !_.isEmpty(attrs.errorText);
+  }
+
+  static defaultAttributes(attrs: ErrorTextComponentAttrs) {
+    if (ErrorText.hasErrorText(attrs)) {
+      return {"aria-errormessage": attrs.errorId};
+    }
+  }
+
+  view(vnode: m.Vnode<ErrorTextComponentAttrs>) {
+    if (ErrorText.hasErrorText(vnode.attrs)) {
+      return <span className={styles.formErrorText} id={vnode.attrs.errorId}>{vnode.attrs.errorText}</span>;
+    }
+  }
 }
 
 class FormResetButton extends MithrilViewComponent<FormResetButtonAttrs> {
@@ -206,41 +194,157 @@ class FormResetButton extends MithrilViewComponent<FormResetButtonAttrs> {
   }
 }
 
-export class PasswordField extends FormField<EncryptedValue> {
-  renderInputField(vnode: m.Vnode<FormFieldAttrs<EncryptedValue>>) {
+type EventName = "oninput" | "onchange";
+
+function bindingAttributes<T>(attrs: BindingsAttr<T> & ReadonlyAttr,
+                              eventName: EventName,
+                              propertyAttribute: string) {
+  const bindingAttributes: any = {
+    [propertyAttribute]: attrs.property()
+  };
+
+  if (!attrs.readonly) {
+    bindingAttributes[eventName] = (evt: any) => {
+      attrs.property(evt.currentTarget[propertyAttribute]);
+      if (attrs.onchange) {
+        attrs.onchange(evt);
+      }
+    };
+  }
+
+  return bindingAttributes;
+}
+
+function defaultAttributes<T, V>(attrs: BaseAttrs<T> & V,
+                                 id: string,
+                                 helpTextId: string,
+                                 errorId: string): DefaultAttrs {
+  const required = RequiredLabel.isRequiredField(attrs as RequiredFieldAttr);
+
+  const defaultAttrs: DefaultAttrs = {
+    "readonly": !!(attrs.readonly),
+    "disabled": !!(attrs.readonly),
+    "required": !!required,
+    "id": id,
+    "data-test-id": `form-field-input-${s.slugify(attrs.label as string)}`
+  };
+
+  if (attrs.dataTestId) {
+    defaultAttrs["data-test-id"] = attrs.dataTestId as string;
+  }
+
+  return _.assign(defaultAttrs,
+                  RequiredLabel.defaultAttributes(attrs),
+                  Label.defaultAttributes(attrs),
+                  HelpText.defaultAttributes({helpTextId, ...attrs}),
+                  ErrorText.defaultAttributes({errorId, ...attrs})
+  );
+}
+
+abstract class FormField<T, V = {}> extends MithrilViewComponent<BaseAttrs<T> & V> {
+  protected readonly id: string         = `input-${uuid()}`;
+  protected readonly helpTextId: string = `${this.id}-help-text`;
+  protected readonly errorId: string    = `${this.id}-error-text`;
+
+  view(vnode: m.Vnode<BaseAttrs<T> & V>) {
+    return (
+      <li className={classnames(styles.formGroup,
+                                {[styles.formHasError]: ErrorText.hasErrorText(vnode.attrs)})}>
+        <Label {...vnode.attrs} fieldId={this.id}/>
+        {this.renderInputField(vnode)}
+        <ErrorText {...vnode.attrs} errorId={this.errorId}/>
+        <HelpText {...vnode.attrs} helpTextId={this.helpTextId}/>
+      </li>
+    );
+  }
+
+  protected defaultAttributes(attrs: BaseAttrs<T> & V): DefaultAttrs {
+    return defaultAttributes(attrs, this.id, this.helpTextId, this.errorId);
+  }
+
+  protected bindingAttributes(attrs: BaseAttrs<T>,
+                              eventName: EventName,
+                              propertyAttribute: string): any {
+    return bindingAttributes(attrs, eventName, propertyAttribute);
+  }
+
+  protected abstract renderInputField(vnode: m.Vnode<BaseAttrs<T> & V>): m.Children;
+}
+
+export class TextField extends FormField<string, RequiredFieldAttr & PlaceholderAttr> {
+
+  renderInputField(vnode: m.Vnode<BaseAttrs<string> & RequiredFieldAttr & PlaceholderAttr>) {
+    return (
+      <input type="text"
+             className={classnames(styles.formControl)}
+             {...this.defaultAttributes(vnode.attrs)}
+             {...this.bindingAttributes(vnode.attrs, "oninput", "value")}
+      />
+    );
+  }
+
+  protected defaultAttributes(attrs: BaseAttrs<string> & RequiredFieldAttr & PlaceholderAttr) {
+    const defaultAttributes = super.defaultAttributes(attrs);
+    if (!_.isEmpty(attrs.placeholder)) {
+      defaultAttributes.placeholder = attrs.placeholder as string;
+    }
+
+    return _.assign(defaultAttributes, textInputFieldDefaultAttrs);
+  }
+}
+
+export class TextAreaField extends TextField {
+  renderInputField(vnode: m.Vnode<BaseAttrs<string> & RequiredFieldAttr & PlaceholderAttr>) {
+
+    return (
+      <textarea
+        className={classnames(styles.formControl, styles.textArea)}
+        {...this.defaultAttributes(vnode.attrs)}
+        oninput={(e) => {
+          vnode.attrs.property((e.target as HTMLTextAreaElement).value);
+          if (vnode.attrs.onchange) {
+            vnode.attrs.onchange(e);
+          }
+        }}>{vnode.attrs.property()}</textarea>
+    );
+  }
+
+}
+
+export class PasswordField extends FormField<EncryptedValue, RequiredFieldAttr & PlaceholderAttr> {
+
+  renderInputField(vnode: m.Vnode<BaseAttrs<EncryptedValue> & RequiredFieldAttr & PlaceholderAttr>) {
     const input = <input type="password"
-                         {...this.defaultAttributes(vnode)}
-                         {...this.bindingAttributes(vnode, "oninput", "value")}
-                         className={classnames(styles.formControl, styles.inline)}/>;
+                         className={classnames(styles.formControl, styles.inline)}
+                         {...this.defaultAttributes(vnode.attrs)}
+                         {...this.bindingAttributes(vnode.attrs, "oninput", "value")}/>;
 
     return [input, PasswordField.resetOrOverride(vnode)];
   }
 
-  protected defaultAttributes(vnode: m.Vnode<FormFieldAttrs<EncryptedValue>>): { [p: string]: any } {
-    const defaultAttributes = super.defaultAttributes(vnode);
-    if (!vnode.attrs.property().isEditing()) {
-      defaultAttributes.readonly = true;
-    }
-    return defaultAttributes;
+  protected defaultAttributes(attrs: BaseAttrs<EncryptedValue> & RequiredFieldAttr & PlaceholderAttr): any {
+    return _.assign(super.defaultAttributes(attrs), textInputFieldDefaultAttrs, {
+      readonly: !attrs.property().isEditing()
+    });
   }
 
-  protected bindingAttributes(vnode: m.Vnode<FormFieldAttrs<EncryptedValue>>,
+  protected bindingAttributes(attrs: BaseAttrs<EncryptedValue>,
                               eventName: string,
-                              propertyAttribute: string) {
-
-    if (vnode.attrs.property().isEditing()) {
+                              propertyAttribute: string): any {
+    if (attrs.property().isEditing()) {
       return {
-        [eventName]: (evt: any) => vnode.attrs.property().value(evt.currentTarget.value),
-        [propertyAttribute]: vnode.attrs.property().value()
+        [eventName]: (evt: any) => attrs.property().value(evt.currentTarget.value),
+        [propertyAttribute]: attrs.property().value()
       };
     } else {
       return {
         value: "************"
       };
     }
+
   }
 
-  private static resetOrOverride(vnode: m.Vnode<FormFieldAttrs<EncryptedValue>>) {
+  private static resetOrOverride(vnode: m.Vnode<BaseAttrs<EncryptedValue> & RequiredFieldAttr & PlaceholderAttr>) {
     if (vnode.attrs.property().isEditing()) {
       return <FormResetButton
         onclick={vnode.attrs.property().resetToOriginal.bind(vnode.attrs.property())}>Reset</FormResetButton>;
@@ -251,89 +355,116 @@ export class PasswordField extends FormField<EncryptedValue> {
   }
 }
 
-export class TextAreaField extends FormField<string> {
-  renderInputField(vnode: m.Vnode<FormFieldAttrs<string>>) {
-
-    const defaultAttributes = this.defaultAttributes(vnode);
-
-    const value = defaultAttributes.value;
-
-    delete defaultAttributes.value;
-
+export class SearchField extends FormField<string, PlaceholderAttr> {
+  view(vnode: m.Vnode<BindingsAttr<string> & PlaceholderAttr>): any {
     return (
-      <textarea
-        {...defaultAttributes}
-        {...this.bindingAttributes(vnode, "onchange", "value")}
-        className={classnames(styles.formControl, styles.textArea)}
-        id={this.id}>{value}</textarea>
+      <span className={classnames(styles.searchBoxWrapper)}>
+      <input type="search"
+             className={classnames(styles.formControl, styles.searchBoxInput)}
+             {...this.defaultAttributes(vnode.attrs)}
+             {...this.bindingAttributes(vnode.attrs, "oninput", "value")}/>
+      </span>
     );
+  }
+
+  protected renderInputField(vnode: m.Vnode<BaseAttrs<string> & PlaceholderAttr>): m.Children {
+    throw new Error("unsupported!");
   }
 }
 
 export class CheckboxField extends FormField<boolean> {
-  view(vnode: m.Vnode<FormFieldAttrs<boolean>>) {
-
+  view(vnode: m.Vnode<BaseAttrs<boolean>>) {
     return (
-      <li className={classnames(styles.formGroup, {[styles.formHasError]: this.hasErrorText(vnode)})}>
+      <li className={classnames(styles.formGroup,
+                                {[styles.formHasError]: ErrorText.hasErrorText(vnode.attrs as ErrorTextAttr)})}>
         <div className={styles.formCheck}>
           {this.renderInputField(vnode)}
-          {this.renderLabel(vnode)}
-          {this.errorSpan(vnode)}
-          {this.getHelpSpan(vnode)}
+          <Label {...vnode.attrs as LabelAttr} fieldId={this.id}/>
+          <ErrorText {...vnode.attrs as ErrorTextAttr} errorId={this.errorId}/>
+          <HelpText {...vnode.attrs as HelpTextAttr} helpTextId={this.helpTextId}/>
         </div>
       </li>
     );
   }
 
-  renderInputField(vnode: m.Vnode<FormFieldAttrs<boolean>>): m.Children {
+  renderInputField(vnode: m.Vnode<BaseAttrs<boolean>>) {
     return (
       <input type="checkbox"
-             {...this.defaultAttributes(vnode)}
-             {...this.bindingAttributes(vnode, "onchange", "checked")}
-             className={this.className(vnode)}/>
+             {...this.defaultAttributes(vnode.attrs)}
+             {...this.bindingAttributes(vnode.attrs, "onchange", "checked")}
+             className={classnames(styles.formCheckInput)}/>);
+  }
+}
+
+export class TriStateCheckboxField extends FormField<TriStateCheckbox> {
+  view(vnode: m.Vnode<BaseAttrs<TriStateCheckbox>>) {
+    return (
+      <li className={classnames(styles.formGroup,
+                                {[styles.formHasError]: ErrorText.hasErrorText(vnode.attrs as ErrorTextAttr)})}>
+        <div className={styles.formCheck}>
+          {this.renderInputField(vnode)}
+          <Label {...vnode.attrs as LabelAttr} fieldId={this.id}/>
+          <ErrorText {...vnode.attrs as ErrorTextAttr} errorId={this.errorId}/>
+          <HelpText {...vnode.attrs as HelpTextAttr} helpTextId={this.helpTextId}/>
+        </div>
+      </li>
     );
   }
 
-  protected labelClass(): string {
-    return styles.formCheckLabel;
+  renderInputField(vnode: m.Vnode<BaseAttrs<TriStateCheckbox>>) {
+    return (
+      <input type="checkbox"
+             {...this.defaultAttributes(vnode.attrs)}
+             {...this.bindingAttributes(vnode.attrs, "onchange", "checked")}
+             className={classnames(styles.formCheckInput)}/>);
   }
 
-  protected className(vnode: m.Vnode<FormFieldAttrs<boolean>>): string {
-    return classnames(this.defaultAttributes(vnode).className, styles.formCheckInput);
+  protected bindingAttributes(attrs: BaseAttrs<TriStateCheckbox>,
+                              eventName: string,
+                              propertyAttribute: string): any {
+    const triStateCheckbox = attrs.property();
+
+    const bindingAttributes: any = {
+      [propertyAttribute]: triStateCheckbox.isChecked(),
+      indeterminate: triStateCheckbox.isIndeterminate()
+    };
+
+    if (!attrs.readonly) {
+      bindingAttributes[eventName] = (evt: any) => {
+        triStateCheckbox.click();
+        if (attrs.onchange) {
+          attrs.onchange(evt);
+        }
+      };
+    }
+
+    return bindingAttributes;
   }
 }
 
-export class Switch extends FormField<boolean> {
-  renderInputField(vnode: m.Vnode<FormFieldAttrs<boolean>>): m.Children {
+export class Switch extends FormField<boolean, SmallSizeAttr> {
+  protected renderInputField(vnode: m.Vnode<BaseAttrs<boolean> & SmallSizeAttr>): m.Children {
     return <SwitchBtn small={vnode.attrs.small} field={vnode.attrs.property}/>;
   }
-
-  protected className(vnode: m.Vnode<FormFieldAttrs<boolean>>): string {
-    return classnames(this.defaultAttributes(vnode).className, styles.formControl);
-  }
 }
 
-export class SelectField extends FormField<string> {
-  renderInputField(vnode: m.Vnode<FormFieldAttrs<string>>): m.Children {
+export class SelectField extends FormField<string, RequiredFieldAttr> {
+  renderInputField(vnode: m.Vnode<BaseAttrs<string> & RequiredFieldAttr>) {
     return (
       <select
         class={styles.formControl}
-        {...this.defaultAttributes(vnode)}
-        {...this.bindingAttributes(vnode, "onchange", "value")}>
+        {...this.defaultAttributes(vnode.attrs)}
+        onchange={(e) => {
+          vnode.attrs.property((e.target as HTMLInputElement).value);
+          if (vnode.attrs.onchange) {
+            vnode.attrs.onchange(e);
+          }
+        }}
+        value={vnode.attrs.property()}>
         {vnode.children}
       </select>
     );
   }
-}
-
-export interface Option {
-  id: string;
-  text: string;
-}
-
-export interface SelectFieldAttrs {
-  items: Array<Option | string>;
-  selected?: string;
 }
 
 export class SelectFieldOptions extends MithrilViewComponent<SelectFieldAttrs> {
@@ -354,4 +485,95 @@ export class SelectFieldOptions extends MithrilViewComponent<SelectFieldAttrs> {
                      selected={vnode.attrs.selected === id}>{text}</option>;
     });
   }
+}
+
+interface ButtonDisableReason {
+  buttonDisableReason: string;
+}
+
+type QuickAddFieldAttrs =
+  PlaceholderAttr
+  & OnClickHandler
+  & BindingsAttr<string>
+  & ReadonlyAttr
+  & DataTestIdAttr
+  & ButtonDisableReason;
+
+export class QuickAddField extends MithrilViewComponent<QuickAddFieldAttrs> {
+  protected readonly id: string         = `input-${uuid()}`;
+  protected readonly helpTextId: string = `${this.id}-help-text`;
+  protected readonly errorId: string    = `${this.id}-error-text`;
+
+  view(vnode: m.Vnode<QuickAddFieldAttrs>) {
+
+    const defaultAttrs: DefaultAttrs = {};
+
+    if (vnode.attrs.dataTestId) {
+      defaultAttrs["data-test-id"] = vnode.attrs.dataTestId;
+    }
+
+    return (
+      <li className={classnames(styles.formGroup, styles.formGroupTextFieldWithButton)} {...defaultAttrs}>
+        {this.renderInputField(vnode)}
+        {this.renderButton(vnode)}
+      </li>
+    );
+  }
+
+  protected defaultAttributes(attrs: QuickAddFieldAttrs): DefaultAttrs {
+    const result = defaultAttributes(attrs, this.id, this.helpTextId, this.errorId);
+    if (!_.isEmpty(attrs.placeholder)) {
+      result.placeholder = attrs.placeholder as string;
+    }
+
+    delete result["data-test-id"];
+
+    return _.assign(result, textInputFieldDefaultAttrs);
+  }
+
+  protected renderButton(vnode: m.Vnode<QuickAddFieldAttrs>): m.Children {
+    const btnAttrs = this.btnAttrs(vnode);
+    return <button onclick={vnode.attrs.onclick}
+                   className={classnames(styles.quickAddButton)} {...btnAttrs}>
+      Add
+    </button>;
+  }
+
+  protected renderInputField(vnode: m.Vnode<QuickAddFieldAttrs>): m.Children {
+    return <input type="text"
+                  className={classnames(styles.formControl)}
+                  {...this.defaultAttributes(vnode.attrs)}
+                  {...bindingAttributes(vnode.attrs, "oninput", "value")}/>;
+  }
+
+  protected btnAttrs(vnode: m.Vnode<QuickAddFieldAttrs>): DefaultAttrs {
+    const btnAttrs: DefaultAttrs = {};
+
+    if (_.isEmpty(vnode.attrs.property())) {
+      btnAttrs.disabled = true;
+      btnAttrs.title    = vnode.attrs.buttonDisableReason;
+    }
+    return btnAttrs;
+  }
+}
+
+export class SearchFieldWithButton extends QuickAddField {
+  protected renderButton(vnode: m.Vnode<QuickAddFieldAttrs>) {
+    const btnAttrs = this.btnAttrs(vnode);
+
+    return <button onclick={vnode.attrs.onclick}
+                   className={classnames(styles.searchButton)} {...btnAttrs} >
+      Search
+    </button>;
+  }
+
+  protected renderInputField(vnode: m.Vnode<QuickAddFieldAttrs>) {
+    return <span className={classnames(styles.searchBoxWrapper)}>
+      <input type="search"
+             className={classnames(styles.formControl, styles.searchBoxInput)}
+             {...this.defaultAttributes(vnode.attrs)}
+             {...bindingAttributes(vnode.attrs, "oninput", "value")}/>
+    </span>;
+  }
+
 }

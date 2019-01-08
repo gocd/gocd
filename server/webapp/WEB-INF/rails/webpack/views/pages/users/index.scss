@@ -19,11 +19,6 @@
   display: none;
 }
 
-//filter view
-.filter-view {
-  width: 400px;
-}
-
 .filter-by-heading {
   width: 60%;
 }
@@ -43,28 +38,44 @@
   margin-bottom:   10px;
 }
 
+.user-actions-and-counts {
+  display:         flex;
+  justify-content: flex-start;
+}
+
 .user-actions {
   display: flex;
+  margin-right: 20px;
 }
 
 .user-filters {
   display: flex;
 }
 
-
 .filter-dropdown {
   position: relative;
+  margin-left: 5px;
+}
+
+@mixin dropdownContent() {
+  background:    $white;
+  position:      absolute;
+  border-radius: $global-border-radius;
+  padding:       20px;
+  box-shadow:    0 2px 4px $box-shadow-color;
 }
 
 .filter-dropdown-content {
-  background:    $white;
-  width:         570px;
-  position:      absolute;
-  top:           36px;
-  right:         0;
-  border-radius: $global-border-radius;
-  padding:       10px 20px 0;
-  box-shadow:    0 2px 4px $box-shadow-color;
+  @include dropdownContent();
+  top:   36px;
+  right: 0;
+  width: 570px;
+}
+
+.roles-dropdown-content {
+  @include dropdownContent();
+  width: 250px;
+  right: 0;
 }
 
 .filter-header {
@@ -93,6 +104,38 @@
 }
 
 .roles-list {
-  max-height: 150px;
-  overflow:   auto;
+  max-height:    250px;
+  overflow:      auto;
+  margin-bottom: 10px;
+}
+
+.filter-by-roles {
+  max-height: 250px;
+  overflow:   scroll;
+}
+
+.role-legends {
+  display:       inline-flex;
+  background:    $white;
+  flex-wrap:     nowrap;
+  padding:       0 5px 0 0;
+  border-radius: 3px;
+  margin-left:   10px;
+}
+
+.role-gocd {
+  @include icon-before($type: $fa-var-circle, $color: $go-primary);
+  font-size: 12px;
+}
+
+.role-plugin {
+  @include icon-before($type: $fa-var-circle, $color: $warning-txt);
+  font-size: 12px;
+}
+
+.search-user{
+  margin-bottom: 20px;
+  .button{
+    margin-left: 5px;
+  }
 }

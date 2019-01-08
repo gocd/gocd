@@ -17,25 +17,35 @@
 import * as _ from "lodash";
 import * as m from "mithril";
 import * as stream from "mithril/stream";
-import {Stream} from "mithril/stream";
-import {Roles} from "models/roles/roles_new";
+import {GoCDRole, Roles} from "models/roles/roles_new";
+import {TriStateCheckbox} from "models/tri_state_checkbox";
 import {UserFilters} from "models/users/user_filters";
 import {User, Users} from "models/users/users";
+import {State as UserActionsState} from "views/pages/users/user_actions_widget";
+
 describe("UsersWidget", () => {
   let $root: any, root: any;
-  const users: Stream<Users> = stream(new Users());
-  const roles: Stream<Roles> = stream(new Roles());
-  const usersFilter          = stream(new UserFilters());
-  let onEnable: (users: Users, e: MouseEvent) => void;
-  let onDisable: (users: Users, e: MouseEvent) => void;
-  let onDelete: (users: Users, e: MouseEvent) => void;
+
+  let attrs: UserActionsState;
 
   beforeEach(() => {
+    attrs         = {
+      users: stream(new Users()),
+      roles: stream(new Roles()),
+      userFilters: stream(new UserFilters()),
+      initializeRolesDropdownAttrs: _.noop,
+      showRoles: stream(false),
+      showFilters: stream(false),
+      rolesSelection: stream(new Map<GoCDRole, TriStateCheckbox>()),
+      onEnable: _.noop,
+      onDisable: _.noop,
+      onDelete: _.noop,
+      onRolesUpdate: _.noop,
+      roleNameToAdd: stream(),
+      onRolesAdd: _.noop
+    };
     // @ts-ignore
     [$root, root] = window.createDomElementForTest();
-    onEnable      = _.noop;
-    onDisable     = _.noop;
-    onDelete     = _.noop;
   });
 
   beforeEach(mount);
@@ -47,14 +57,7 @@ describe("UsersWidget", () => {
   function mount() {
     m.mount(root, {
       view() {
-        return (<UsersWidget
-          onEnable={onEnable}
-          onDisable={onDisable}
-          onDelete={onDelete}
-          users={users}
-          roles={roles}
-          userFilter={usersFilter}
-        />);
+        return (<UsersWidget {...attrs}/>);
       }
     });
 
@@ -92,19 +95,22 @@ describe("UsersWidget", () => {
 
   it("should render a list of user attributes", () => {
     const allUsers = new Users(bob(), alice());
-    users(allUsers);
-    const userData = UsersTableWidget.userData(users());
+    const userData = UsersTableWidget.userData(allUsers);
     m.redraw();
 
-    const bobUserData = userData[0];
+    const bobUserData   = userData[0];
     const aliceUserData = userData[1];
+    const headers       = UsersTableWidget.headers(allUsers);
 
     expect($root.find("table")).toBeInDOM();
 
-    expect(UsersTableWidget.headers(allUsers).slice(1, 7))
-      .toEqual(["Username", "Display name", "Roles", "Admin", "Email", "Enabled"]);
+    expect(headers[1]).toEqual("Username");
+    expect(headers[2]).toEqual("Display name");
+    expect(headers[4]).toEqual("Admin");
+    expect(headers[5]).toEqual("Email");
+    expect(headers[6]).toEqual("Enabled");
 
-    expect(UsersTableWidget.userData(users())).toHaveLength(2);
+    expect(UsersTableWidget.userData(allUsers)).toHaveLength(2);
 
     expect(bobUserData[1]).toEqual("bob");
     expect(bobUserData[2]).toEqual("Bob");

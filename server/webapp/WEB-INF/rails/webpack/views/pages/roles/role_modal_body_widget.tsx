@@ -51,7 +51,7 @@ export class GoCDRoleModalBodyWidget extends MithrilViewComponent<ModalAttrs> {
     const role = vnode.attrs.role as GoCDRole;
     return (<Form>
       <TextField label="Role name"
-                 disabled={vnode.attrs.isNameDisabled}
+                 readonly={vnode.attrs.isNameDisabled}
                  property={role.name}
                  errorText={role.errors().errorsForDisplay("name")}
                  required={true}/>
@@ -133,7 +133,7 @@ export class PluginRoleModalBodyWidget extends MithrilViewComponent<PluginModalA
         <div>
           <Form>
             <TextField label="Role name"
-                       disabled={vnode.attrs.isNameDisabled}
+                       readonly={vnode.attrs.isNameDisabled}
                        property={vnode.attrs.role.name}
                        errorText={vnode.attrs.role.errors().errorsForDisplay("name")}
                        required={true}/>

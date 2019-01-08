@@ -81,7 +81,7 @@ export class User {
   }
 
   matches(searchText: string) {
-    searchText = searchText.toLowerCase();
+    searchText               = searchText.toLowerCase();
     const matchesLoginName   = this.loginName().toLowerCase().includes(searchText);
     const matchesDisplayName = this.displayName() ? this.displayName().toLowerCase().includes(searchText) : false;
     const matchesEmail       = this.email() ? this.email().toLowerCase().includes(searchText) : false;
@@ -125,7 +125,7 @@ export class Users extends Array<User> {
   }
 
   selectedUsers() {
-    return _.filter(this, (user) => user.checked());
+    return new Users(..._.filter(this, (user) => user.checked()));
   }
 
   userNamesOfSelectedUsers() {
@@ -141,11 +141,11 @@ export class Users extends Array<User> {
   }
 
   private enabledUsers() {
-    return _.filter(this, (user) => user.enabled());
+    return new Users(..._.filter(this, (user) => user.enabled()));
   }
 
   private disabledUsers() {
-    return _.filter(this, (user) => !user.enabled());
+    return new Users(..._.filter(this, (user) => !user.enabled()));
   }
 
   private setSelection(newSelection: boolean) {

@@ -14,83 +14,41 @@
  * limitations under the License.
  */
 
+import {RoleJSON, RolesJSON} from "models/roles/roles_new";
+
 export class RolesTestData {
 
-  public static GetAllRoles(): any {
+  public static GetAllRoles() {
     const testData = [this.GoCDRoleJSON(), this.LdapPluginRoleJSON()];
     return {
-      _links: {
-        self: {
-          href: "https://ci.example.com/go/api/admin/security/roles"
-        },
-        doc: {
-          href: "https://api.gocd.org/#roles"
-        },
-        find: {
-          href: "https://ci.example.com/go/api/admin/security/roles/:role_name"
-        }
-      },
       _embedded: {
         roles: testData
       }
-    };
+    } as RolesJSON;
   }
 
-  public static GoCDRoleJSON(): any {
+  public static GoCDRoleJSON(roleName = "spacetiger", users = ["alice", "bob", "robin"]) {
     return {
-      _links: {
-        self: {
-          href: "https://ci.example.com/go/api/admin/security/roles/spacetiger"
-        },
-        doc: {
-          href: "https://api.gocd.org/#roles"
-        },
-        find: {
-          href: "https://ci.example.com/go/api/admin/security/roles/:role_name"
-        }
-      },
-      name: "spacetiger",
+      name: roleName,
       type: "gocd",
       attributes: {
-        users: ["alice", "bob", "robin"]
+        users
       }
-    };
+    } as RoleJSON;
   }
 
-  public static EmptyGoCDRoleJSON(): any {
+  public static EmptyGoCDRoleJSON() {
     return {
-      _links: {
-        self: {
-          href: "https://ci.example.com/go/api/admin/security/roles/spacetiger"
-        },
-        doc: {
-          href: "https://api.gocd.org/#roles"
-        },
-        find: {
-          href: "https://ci.example.com/go/api/admin/security/roles/:role_name"
-        }
-      },
       name: "spacetiger",
       type: "gocd",
       attributes: {
         users: []
       }
-    };
+    } as RoleJSON;
   }
 
-  public static LdapPluginRoleJSON(): any {
+  public static LdapPluginRoleJSON() {
     return {
-      _links: {
-        self: {
-          href: "https://ci.example.com/go/api/admin/security/roles/blackbird"
-        },
-        doc: {
-          href: "https://api.gocd.org/#roles"
-        },
-        find: {
-          href: "https://ci.example.com/go/api/admin/security/roles/:role_name"
-        }
-      },
       name: "blackbird",
       type: "plugin",
       attributes: {
@@ -106,10 +64,10 @@ export class RolesTestData {
           }
         ]
       }
-    };
+    } as RoleJSON;
   }
 
-  public static GitHubPluginRoleJSON(): any {
+  public static GitHubPluginRoleJSON() {
     return {
       name: "github-role",
       type: "plugin",
@@ -122,6 +80,6 @@ export class RolesTestData {
           }
         ]
       }
-    };
+    } as RoleJSON;
   }
 }

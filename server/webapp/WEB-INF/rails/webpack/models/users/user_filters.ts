@@ -69,7 +69,6 @@ export class UserFilters {
       return new Users(...filteredUsers);
     } else {
       return new Users(...filteredUsersBasedOnText);
-
     }
   }
 
@@ -79,6 +78,24 @@ export class UserFilters {
     }
 
     return this.__selectedRoles().get(roleName) as Stream<boolean>;
+  }
+
+  filtersCount() {
+    let count = 0;
+    if (this.superAdmins()) {
+      count += 1;
+    }
+    if (this.normalUsers()) {
+      count += 1;
+    }
+    if (this.enabledUsers()) {
+      count += 1;
+    }
+    if (this.disabledUsers()) {
+      count += 1;
+    }
+    count += this.selectedRoles().length;
+    return count;
   }
 
   private applyFiltersOnUser(user: User): boolean {

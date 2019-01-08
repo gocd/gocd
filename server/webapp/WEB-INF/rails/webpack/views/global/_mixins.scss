@@ -41,3 +41,39 @@ $spinner-wrapper-height: 175px;
 @mixin spinner-for-modal {
   min-height: $spinner-wrapper-height;
 }
+
+@mixin button($background-color) {
+  display:       inline-block;
+  padding:       0 20px;
+  height:        $form-element-height;
+  line-height:   $form-element-height;
+  border-radius: $global-border-radius;
+  font-size:     14px;
+  font-weight:   400;
+  cursor:        pointer;
+  background:    $background-color;
+  border:        1px solid $background-color;
+  color:         $btn-text-color;
+  transition:    $transition;
+
+  &:active, &:focus {
+    outline: 0;
+  }
+
+  &:disabled {
+    opacity: 0.4;
+    cursor:  not-allowed;
+  }
+
+  &:hover {
+    background: darken($background-color, 10%);
+    transition: $transition;
+  }
+
+  &:disabled {
+    &:hover {
+      background: $background-color;
+      transition: $transition;
+    }
+  }
+}

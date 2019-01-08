@@ -74,7 +74,7 @@ class MaterialEditWidget extends MithrilViewComponent<EditableMaterial> {
                                     items={this.materialSelectOptions()}/>
               </SelectField>
               <TextField label="Config repository ID"
-                         disabled={!vnode.attrs.isNew}
+                         readonly={!vnode.attrs.isNew}
                          property={vnode.attrs.repo.id}
                          errorText={vnode.attrs.repo.errors().errorsForDisplay("id")}
                          required={true}/>

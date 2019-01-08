@@ -18,13 +18,21 @@ import {MithrilViewComponent} from "jsx/mithril-component";
 import * as m from "mithril";
 import {Stream} from "mithril/stream";
 import * as stream from "mithril/stream";
-import {ButtonGroup, ButtonIcon} from "views/components/buttons/index";
+import {TriStateCheckbox} from "models/tri_state_checkbox";
+import {ButtonGroup, ButtonIcon} from "views/components/buttons";
 import * as Buttons from "views/components/buttons/index";
 import {CollapsiblePanel} from "views/components/collapsible_panel";
 import {FlashMessage, MessageType} from "views/components/flash_message";
 import {EncryptedValue} from "views/components/forms/encrypted_value";
 import {Form} from "views/components/forms/form";
-import {CheckboxField, PasswordField, SearchField, Switch, TextField} from "views/components/forms/input_fields";
+import {
+  CheckboxField,
+  PasswordField, QuickAddField,
+  SearchField, SearchFieldWithButton,
+  Switch,
+  TextField,
+  TriStateCheckboxField
+} from "views/components/forms/input_fields";
 import {HeaderPanel} from "views/components/header_panel";
 import {IconGroup} from "views/components/icons";
 import * as Icons from "views/components/icons/index";
@@ -42,9 +50,7 @@ const checkboxField    = stream(false);
 const passwordValue          = stream(new EncryptedValue({clearText: "p@ssword"}));
 const encryptedPasswordValue = stream(new EncryptedValue({cipherText: "AES:junk:more-junk"}));
 
-const x: any             = window;
-x.passwordValue          = passwordValue;
-x.encryptedPasswordValue = encryptedPasswordValue;
+const triStateCheckbox = stream(new TriStateCheckbox());
 
 const switchStream: Stream<boolean> = stream(false);
 
@@ -52,7 +58,7 @@ export class KitchenSink extends MithrilViewComponent<null> {
   view(vnode: m.Vnode<null>) {
     return (
       <div>
-        <HeaderPanel title="Kitchen Sink" sectionName={'Admin'}/>
+        <HeaderPanel title="Kitchen Sink" sectionName={"Admin"}/>
         <FlashMessage type={MessageType.info} message={"This page is awesome!"}/>
         <FlashMessage type={MessageType.success} message={"Everything works as expected!"}/>
         <FlashMessage type={MessageType.warning} message={"This might not work!"}/>
@@ -155,7 +161,7 @@ export class KitchenSink extends MithrilViewComponent<null> {
         <hr/>
 
         <h3>Button with icon:</h3>
-        <Buttons.Dropdown icon={ButtonIcon.FILTER}>Button with icon</Buttons.Dropdown>
+        <Buttons.Default dropdown={true} icon={ButtonIcon.FILTER}>Button with icon</Buttons.Default>
 
         <h3>Button link:</h3>
         <Buttons.Link>Button link</Buttons.Link>
@@ -212,28 +218,30 @@ export class KitchenSink extends MithrilViewComponent<null> {
         <Form>
           <TextField required={true}
                      helpText="Enter your username here"
-                     disabled={false}
                      label="Username"
                      placeholder="username"
                      property={formValue}/>
           <TextField required={true}
                      helpText="Enter your username here"
-                     disabled={false}
                      placeholder="username"
                      label="Username"
                      property={formValue}/>
           <TextField required={true}
                      errorText="This field must be present"
                      helpText="Lorem ipsum is the dummy text used by the print and typesetting industry"
-                     disabled={false}
                      label="Lorem ipsum"
                      property={formValue}/>
           <CheckboxField required={true}
-                         errorText="This is a checkbox"
+                         errorText={!checkboxField() ? "You must get some icecream" : undefined}
                          helpText="Do you want ice cream?"
-                         disabled={false}
                          label="Do you want ice cream?"
                          property={checkboxField}/>
+
+          <TriStateCheckboxField
+            label="Tri state checkbox"
+            property={triStateCheckbox}
+            helpText={`Tristate state is: ${triStateCheckbox().state()}`}/>
+
           <PasswordField label="Editable password field"
                          placeholder="password"
                          property={passwordValue}/>
@@ -241,6 +249,10 @@ export class KitchenSink extends MithrilViewComponent<null> {
                          placeholder="password"
                          property={encryptedPasswordValue}/>
         </Form>
+
+        <QuickAddField property={formValue} buttonDisableReason={"Add text to enable quick add"}/>
+
+        <SearchFieldWithButton property={formValue} buttonDisableReason={"Add text to enable search"}/>
 
         <h3>Table</h3>
         <Table headers={["Pipeline", "Stage", "Job", "Action"]} data={[

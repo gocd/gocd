@@ -40,7 +40,7 @@ addMatchers({
     return document.querySelector(`[data-test-id='${modal.id}'] [data-test-id='modal-body']`).innerText.trim() === body;
   },
   toContainButtons: (expectedButtons: string[], modal: Modal) => {
-    const actualButtons = _.map(document.querySelectorAll(`[data-test-id='${modal.id}'] footer * *`), (e, i) => {
+    const actualButtons = _.map(document.querySelectorAll(`[data-test-id='${modal.id}'] footer *`), (e, i) => {
       // @ts-ignore
       return e.innerText;
     });

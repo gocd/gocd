@@ -61,6 +61,7 @@ $form-failed-field-background-color: lighten($form-failed-color, 35%);
   border-radius:    $global-border-radius;
   transition:       border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
   width:            250px;
+  box-sizing:       border-box;
 
   &:focus {
     color:            $form-control-color;
@@ -88,7 +89,7 @@ $form-failed-field-background-color: lighten($form-failed-color, 35%);
     margin-left: -15px;
   }
 
-  .form-check-label {
+  .form-label{
     display:     inline-block;
     margin-left: 5px;
   }
@@ -145,7 +146,7 @@ input[type="checkbox"].form-control { //sass-lint:disable-line no-qualifying-ele
 
 .form {
   list-style-type: none;
-  margin:          0 -15px 20px;
+  margin:          0 0 20px;
   padding:         0;
 
 }
@@ -190,3 +191,32 @@ input[type="checkbox"].form-control { //sass-lint:disable-line no-qualifying-ele
   }
 }
 
+.form-group-text-field-with-button {
+  display: flex;
+  padding: 0;
+  width:   auto;
+
+  .form-control {
+    border-radius: $global-border-radius 0 0 $global-border-radius;
+  }
+
+  .quick-add-button {
+    @include button($background-color: $btn-secondary);
+    border-radius: 0 $global-border-radius $global-border-radius 0;
+  }
+
+  .search-button {
+    @include button($background-color: $btn-secondary);
+    border-radius: 0 $global-border-radius $global-border-radius 0;
+  }
+}
+
+.form-compact {
+  .form-group {
+    margin-bottom: 10px;
+  }
+
+  .form-check {
+    margin-bottom: 0;
+  }
+}

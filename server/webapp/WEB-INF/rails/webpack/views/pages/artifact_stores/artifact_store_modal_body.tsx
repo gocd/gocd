@@ -48,7 +48,7 @@ export class ArtifactStoreModalBody extends MithrilViewComponent<Attrs> {
         <FormHeader>
           <Form>
             <TextField label="Id"
-                       disabled={vnode.attrs.disableId}
+                       readonly={vnode.attrs.disableId}
                        property={vnode.attrs.artifactStore.id}
                        errorText={vnode.attrs.artifactStore.errors().errorsForDisplay("id")}
                        required={true}/>

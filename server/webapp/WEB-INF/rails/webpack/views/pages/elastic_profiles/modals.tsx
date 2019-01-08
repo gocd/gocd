@@ -109,7 +109,7 @@ abstract class BaseElasticProfileModal extends Modal {
           <FormHeader>
             <Form>
               <TextField label="Id"
-                         disabled={this.modalType === ModalType.edit}
+                         readonly={this.modalType === ModalType.edit}
                          property={this.elasticProfile().id}
                          errorText={this.elasticProfile().errors().errorsForDisplay("id")}
                          required={true}/>

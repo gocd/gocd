@@ -82,17 +82,15 @@ describe("RoleModel", () => {
   it("should serialize gocd role to json", () => {
     const goCDRoleJSON = RolesTestData.GoCDRoleJSON();
 
-    const serializedGoCDRole = Role.fromJSON(goCDRoleJSON).toJSON();
+    const serializedGoCDRole = JSON.parse(JSON.stringify(Role.fromJSON(goCDRoleJSON)));
 
-    delete goCDRoleJSON._links;
     expect(serializedGoCDRole).toEqual(goCDRoleJSON);
   });
 
   it("should serialize plugin role to json", () => {
     const pluginRoleJSON       = RolesTestData.LdapPluginRoleJSON();
-    const serializedPluginRole = Role.fromJSON(pluginRoleJSON).toJSON();
+    const serializedPluginRole = JSON.parse(JSON.stringify(Role.fromJSON(pluginRoleJSON)));
 
-    delete pluginRoleJSON._links;
     expect(serializedPluginRole).toEqual(pluginRoleJSON);
   });
 

@@ -71,7 +71,7 @@ describe("Dashboard", () => {
           responseText:    JSON.stringify(dashboardData),
           responseHeaders: {
             ETag:           'etag',
-            'Content-Type': 'application/vnd.go.cd.v2+json'
+            'Content-Type': 'application/vnd.go.cd.v3+json'
           },
           status:          200
         });
@@ -90,7 +90,7 @@ describe("Dashboard", () => {
         const request = jasmine.Ajax.requests.mostRecent();
         expect(request.method).toBe('GET');
         expect(request.url).toBe('/go/api/dashboard');
-        expect(request.requestHeaders['Accept']).toContain('application/vnd.go.cd.v2+json');
+        expect(request.requestHeaders['Accept']).toContain('application/vnd.go.cd.v3+json');
       });
     });
 

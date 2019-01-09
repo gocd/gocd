@@ -26,11 +26,13 @@ const StageInstance = function (json, pipelineName, pipelineCounter) {
   this.name                  = json.name;
   this.counter               = json.counter;
   this.status                = json.status;
+  this.cancelledBy           = json.cancelled_by;
   this.stageDetailTabPath    = Routes.stageDetailTabDefaultPath(pipelineName, pipelineCounter, json.name, json.counter);
   this.isBuilding            = () => json.status === 'Building';
   this.isFailing             = () => json.status === 'Failing';
   this.isFailed              = () => json.status === 'Failed';
   this.isBuildingOrCompleted = () => json.status !== 'Unknown';
+  this.isCancelled           = () => json.status === 'Cancelled';
 };
 
 const PipelineInstance = function (info, pipelineName) {

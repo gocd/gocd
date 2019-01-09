@@ -21,8 +21,10 @@ const StagesInstanceWidget = {
   view: (vnode) => {
     const stages        = vnode.attrs.stages;
     const stageInstance = _.map(stages, (stage) => {
-      const stageStatus = `${stage.name} (${stage.status})`;
-
+      let stageStatus = `${stage.name} (${stage.status})`;
+      if (stage.isCancelled()) {
+        stageStatus = `${stage.name} (cancelled by: ${stage.cancelledBy})`;
+      }
       if (stage.isBuildingOrCompleted()) {
         return (<a href={stage.stageDetailTabPath}
                    class={`pipeline_stage ${stage.status.toLowerCase()}`}

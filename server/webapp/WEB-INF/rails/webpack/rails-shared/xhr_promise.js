@@ -17,15 +17,17 @@
  (function () {
   "use strict";
 
+   var NotSupported = function() { // eslint-disable-line no-inner-declarations
+     throw new Error("Native Promises are not supported in this browser.");
+   }
+
   // This file is shared between new and old pages, so we can't use ES6 syntax as the file
   // isn't guaranteed to be compiled
 
   /* eslint-disable no-var,prefer-template,object-shorthand,prefer-arrow-callback */
 
   if ("function" !== typeof Promise) {
-    function NotSupported() { // eslint-disable-line no-inner-declarations
-      throw new Error("Native Promises are not supported in this browser.");
-    }
+
 
     if ("undefined" !== typeof module) {
       module.exports = NotSupported;
@@ -46,7 +48,7 @@
     };
   }
 
-  function XhrPromise(settings) {
+  var XhrPromise = function(settings) {
     // Uses a native XMLHttpRequest object because jQuery XHR does not support
     // "blob" as a responseType (and doesn't provide a clean way to access the native
     // xhr object)

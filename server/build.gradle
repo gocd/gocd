@@ -329,6 +329,7 @@ dependencies {
   testCompile group: 'org.jsoup', name: 'jsoup', version: project.versions.jsoup
   testCompile group: 'org.xmlunit', name: 'xmlunit-matchers', version: project.versions.xmlUnitMatchers
   testCompile group: 'org.assertj', name: 'assertj-core', version: project.versions.assertJ
+
   testCompile project(':test:http-mocks')
 
   testCompileOnly group: 'junit', name: 'junit', version: project.versions.junit

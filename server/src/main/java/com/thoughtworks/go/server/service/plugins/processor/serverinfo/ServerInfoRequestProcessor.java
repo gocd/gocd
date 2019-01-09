@@ -25,6 +25,7 @@ import com.thoughtworks.go.plugin.infra.PluginRequestProcessorRegistry;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.plugins.processor.serverinfo.v1.MessageHandlerForServerInfoRequestProcessor1_0;
+import com.thoughtworks.go.server.service.plugins.processor.serverinfo.v2.MessageHandlerForServerInfoRequestProcessor2_0;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,7 +39,7 @@ import static java.lang.String.format;
 @Component
 public class ServerInfoRequestProcessor implements GoPluginApiRequestProcessor {
     private static final Logger LOGGER = LoggerFactory.getLogger(ServerInfoRequestProcessor.class);
-    public static final String GET_SERVER_ID = "go.processor.server-info.get";
+    public static final String GET_SERVER_INFO = "go.processor.server-info.get";
 
     private final GoConfigService configService;
     private Map<String, MessageHandlerForServerInfoRequestProcessor> versionToMessageHandlerMap;
@@ -49,7 +50,8 @@ public class ServerInfoRequestProcessor implements GoPluginApiRequestProcessor {
         this.versionToMessageHandlerMap = new HashMap<>();
 
         this.versionToMessageHandlerMap.put("1.0", new MessageHandlerForServerInfoRequestProcessor1_0());
-        registry.registerProcessorFor(GET_SERVER_ID, this);
+        this.versionToMessageHandlerMap.put("2.0", new MessageHandlerForServerInfoRequestProcessor2_0());
+        registry.registerProcessorFor(GET_SERVER_INFO, this);
     }
 
     @Override

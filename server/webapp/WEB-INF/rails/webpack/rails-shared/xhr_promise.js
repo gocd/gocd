@@ -17,9 +17,9 @@
  (function () {
   "use strict";
 
-   var NotSupported = function() { // eslint-disable-line no-inner-declarations
+   var NotSupported = function() { // eslint-disable-line
      throw new Error("Native Promises are not supported in this browser.");
-   }
+   };
 
   // This file is shared between new and old pages, so we can't use ES6 syntax as the file
   // isn't guaranteed to be compiled
@@ -88,7 +88,7 @@
 
       xhr.send();
     });
-  }
+  };
 
   if ("undefined" !== typeof module) {
     module.exports = XhrPromise;

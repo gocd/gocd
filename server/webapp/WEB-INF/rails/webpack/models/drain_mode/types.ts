@@ -163,21 +163,27 @@ export class Stage {
 }
 
 export class RunningSystem {
-  stages: Stage[];
-  mdu: Materials;
+  buildingJobsGroupedByStages: Stage[];
+  scheduledJobsGroupedByStages: Stage[];
+  materialUpdateInProgress: Materials;
 
-  constructor(stages: Stage[], mdu: Materials) {
-    this.stages = stages;
-    this.mdu    = mdu;
+  constructor(buildingJobsGroupedByStages: Stage[], scheduledJobsGroupedByStages: Stage[], mdu: Materials) {
+    this.buildingJobsGroupedByStages  = buildingJobsGroupedByStages;
+    this.scheduledJobsGroupedByStages = scheduledJobsGroupedByStages;
+    this.materialUpdateInProgress     = mdu;
   }
 
   static fromJSON(runningSystemJSON: RunningSystemJSON | null = null) {
     if (runningSystemJSON === null) {
       return null;
     }
-    const buildingJobsGroupedByStages    = RunningSystem.groupJobsByStage(runningSystemJSON.building_jobs ? runningSystemJSON.building_jobs.map(Job.fromJSON) : []);
-    const materials = runningSystemJSON.material_update_in_progress ? Materials.fromJSON(runningSystemJSON.material_update_in_progress) : new Materials([]);
-    return new RunningSystem(buildingJobsGroupedByStages, materials);
+    const buildingJobsGroupedByStages  = RunningSystem.groupJobsByStage(runningSystemJSON.building_jobs ? runningSystemJSON.building_jobs.map(
+      Job.fromJSON) : []);
+    const scheduledJobsGroupedByStages = RunningSystem.groupJobsByStage(runningSystemJSON.scheduled_jobs ? runningSystemJSON.scheduled_jobs.map(
+      Job.fromJSON) : []);
+    const materials                    = runningSystemJSON.material_update_in_progress ? Materials.fromJSON(
+      runningSystemJSON.material_update_in_progress) : new Materials([]);
+    return new RunningSystem(buildingJobsGroupedByStages, scheduledJobsGroupedByStages, materials);
   }
 
   private static groupJobsByStage(jobs: Job[]) {

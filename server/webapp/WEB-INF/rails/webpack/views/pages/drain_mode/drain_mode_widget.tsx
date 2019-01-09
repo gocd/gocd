@@ -88,9 +88,13 @@ interface InfoAttrs {
 export class DrainModeInfoWidget extends MithrilViewComponent<InfoAttrs> {
   view(vnode: m.Vnode<InfoAttrs>): m.Children {
     return [
-      <JobInfoWidget stages={(vnode.attrs.drainModeInfo.runningSystem as RunningSystem).stages}
+      <JobInfoWidget stages={(vnode.attrs.drainModeInfo.runningSystem as RunningSystem).buildingJobsGroupedByStages}
+                     title={"Running Stages"}
                      onCancelStage={vnode.attrs.onCancelStage}/>,
-      <MDUInfoWidget materials={(vnode.attrs.drainModeInfo.runningSystem as RunningSystem).mdu}/>
+      <MDUInfoWidget materials={(vnode.attrs.drainModeInfo.runningSystem as RunningSystem).materialUpdateInProgress}/>,
+      <JobInfoWidget stages={(vnode.attrs.drainModeInfo.runningSystem as RunningSystem).scheduledJobsGroupedByStages}
+                     title={"Scheduled Stages"}
+                     onCancelStage={vnode.attrs.onCancelStage}/>,
     ] as m.ChildArray;
   }
 }

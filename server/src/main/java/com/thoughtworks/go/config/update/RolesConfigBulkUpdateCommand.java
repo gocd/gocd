@@ -46,14 +46,13 @@ public class RolesConfigBulkUpdateCommand implements EntityConfigUpdateCommand<R
         this.result = result;
     }
 
-
     @Override
     public void update(CruiseConfig preprocessedConfig) throws Exception {
         RolesConfig rolesInConfig = preprocessedConfig.server().security().getRoles();
         for (GoCDRolesBulkUpdateRequest.Operation operation : goCDRolesBulkUpdateRequest.getOperations()) {
             RoleConfig existingRole = rolesInConfig.findByNameAndType(new CaseInsensitiveString(operation.getRoleName()), RoleConfig.class);
             if (existingRole == null) {
-                result.badRequest(resourceNotFound("Role", operation.getRoleName()));
+                result.unprocessableEntity(resourceNotFound("Role", operation.getRoleName()));
                 throw new NoSuchRoleException(operation.getRoleName());
             }
             existingRole.addUsersWithName(operation.getUsersToAdd());

@@ -27,18 +27,16 @@ export class TestData {
 
   static completelyDrainedJSON() {
     return {
-      _embedded: {
-        is_drain_mode: true,
-        metadata: {
-          updated_by: "Admin",
-          updated_on: "2018-12-10T04:19:31Z"
-        },
-        attributes: {
-          is_completely_drained: true,
-          running_systems: {
-            mdu: [],
-            jobs: []
-          }
+      is_drain_mode: true,
+      metadata: {
+        updated_by: "Admin",
+        updated_on: "2018-12-10T04:19:31Z"
+      },
+      attributes: {
+        is_completely_drained: true,
+        running_systems: {
+          material_update_in_progress: [],
+          building_jobs: []
         }
       }
     };
@@ -46,20 +44,17 @@ export class TestData {
 
   static infoJSON(isDrainMode: boolean) {
     return {
-      _embedded: {
-        is_drain_mode: isDrainMode,
-        metadata: {
-          updated_by: "Admin",
-          updated_on: "2018-12-10T04:19:31Z"
-        },
-        attributes: {
-          is_completely_drained: false,
-          running_systems: {
-            mdu: this.getMdu(),
-            jobs: this.getJobs()
-          }
+      is_drain_mode: isDrainMode,
+      metadata: {
+        updated_by: "Admin",
+        updated_on: "2018-12-10T04:19:31Z"
+      },
+      attributes: {
+        is_completely_drained: false,
+        running_systems: {
+          material_update_in_progress: this.getMdu(),
+          building_jobs: this.getJobs()
         }
-
       }
     };
   }

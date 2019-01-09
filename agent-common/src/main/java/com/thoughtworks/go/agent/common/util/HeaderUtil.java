@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.agent.common.util;
 
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.Header;
 import org.slf4j.Logger;
@@ -27,6 +28,8 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+
 public class HeaderUtil {
     private static Logger LOGGER = LoggerFactory.getLogger(HeaderUtil.class);
 
@@ -36,7 +39,13 @@ public class HeaderUtil {
         }
 
         try {
-            return Arrays.stream(extraPropertiesHeader.getValue().trim().split(" +"))
+            final String headerValue = new String(Base64.decodeBase64(extraPropertiesHeader.getValue()), UTF_8);
+
+            if (StringUtils.isBlank(headerValue)) {
+                return new HashMap<>();
+            }
+
+            return Arrays.stream(headerValue.trim().split(" +"))
                     .map(property -> property.split("="))
                     .collect(Collectors.toMap(
                             keyAndValue -> keyAndValue[0].replaceAll("%20", " "),

@@ -33,6 +33,7 @@ import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -47,6 +48,7 @@ import javax.crypto.spec.SecretKeySpec;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
@@ -54,6 +56,7 @@ import java.util.Base64;
 
 import static com.thoughtworks.go.util.SystemEnvironment.AGENT_EXTRA_PROPERTIES;
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.util.Base64.getEncoder;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
@@ -177,15 +180,16 @@ public class AgentRegistrationControllerTest {
     }
 
     @Test
-    public void checkAgentStatusShouldIncludeExtraPropertiesForAgent() {
+    public void checkAgentStatusShouldIncludeExtraPropertiesInBase64() {
         final String extraPropertiesValue = "extra=property another=extra.property";
+        final String base64ExtraPropertiesValue = java.util.Base64.getEncoder().encodeToString(extraPropertiesValue.getBytes(UTF_8));
 
         when(pluginsZip.md5()).thenReturn("plugins-zip-md5");
         when(systemEnvironment.get(AGENT_EXTRA_PROPERTIES)).thenReturn(extraPropertiesValue);
 
         controller.checkAgentStatus(response);
 
-        assertEquals(extraPropertiesValue, response.getHeader(SystemEnvironment.AGENT_EXTRA_PROPERTIES_HEADER));
+        assertEquals(base64ExtraPropertiesValue, response.getHeader(SystemEnvironment.AGENT_EXTRA_PROPERTIES_HEADER));
     }
 
     @Test
@@ -223,14 +227,28 @@ public class AgentRegistrationControllerTest {
     }
 
     @Test
-    public void contentShouldIncludeExtraAgentProperties_forAgent() throws IOException {
+    public void contentShouldIncludeExtraAgentPropertiesInBase64_forAgent() throws IOException {
         final String extraPropertiesValue = "extra=property another=extra.property";
+        final String base64ExtraPropertiesValue = getEncoder().encodeToString(extraPropertiesValue.getBytes(UTF_8));
 
         when(systemEnvironment.get(AGENT_EXTRA_PROPERTIES)).thenReturn(extraPropertiesValue);
 
         controller.downloadAgent(response);
 
-        assertEquals(extraPropertiesValue, response.getHeader(SystemEnvironment.AGENT_EXTRA_PROPERTIES_HEADER));
+        assertEquals(base64ExtraPropertiesValue, response.getHeader(SystemEnvironment.AGENT_EXTRA_PROPERTIES_HEADER));
+    }
+
+    @Test
+    public void shouldSendAnEmptyStringInBase64_AsAgentExtraProperties_IfTheValueIsTooBigAfterConvertingToBase64() throws IOException {
+        final String longExtraPropertiesValue = StringUtils.rightPad("", AgentRegistrationController.MAX_HEADER_LENGTH, "z");
+        final String expectedValueToBeUsedForProperties = "";
+        final String expectedBase64ExtraPropertiesValue = getEncoder().encodeToString(expectedValueToBeUsedForProperties.getBytes(UTF_8));
+
+        when(systemEnvironment.get(AGENT_EXTRA_PROPERTIES)).thenReturn(longExtraPropertiesValue);
+
+        controller.downloadAgent(response);
+
+        assertEquals(expectedBase64ExtraPropertiesValue, response.getHeader(SystemEnvironment.AGENT_EXTRA_PROPERTIES_HEADER));
     }
 
     @Test

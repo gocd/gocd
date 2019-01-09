@@ -16,19 +16,22 @@
 
 package com.thoughtworks.go.agent.common.util;
 
+import org.apache.commons.codec.binary.Base64;
 import org.apache.http.message.BasicHeader;
 import org.junit.Test;
 
 import java.util.HashMap;
 import java.util.Map;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
 public class HeaderUtilTest {
     @Test
     public void shouldGetExtraPropertiesFromHeader() {
-        assertExtraProperties(null, new HashMap<>());
+        assertExtraPropertiesWithoutBase64(null, new HashMap<>());
+        assertExtraPropertiesWithoutBase64("", new HashMap<>());
         assertExtraProperties("", new HashMap<>());
 
         assertExtraProperties("Key1=Value1 key2=value2", new HashMap<String, String>() {{
@@ -57,10 +60,14 @@ public class HeaderUtilTest {
         assertExtraProperties("abc", new HashMap<>());
     }
 
-    private void assertExtraProperties(String actualHeaderValue, Map<String, String> expectedProperties) {
-        final Map<String, String> actualResult = HeaderUtil.parseExtraProperties(new BasicHeader("some-key", actualHeaderValue));
-        assertThat(actualResult, is(expectedProperties));
+    private void assertExtraProperties(String actualHeaderValueBeforeBase64, Map<String, String> expectedProperties) {
+        String headerValueInBase64 = Base64.encodeBase64String(actualHeaderValueBeforeBase64.getBytes(UTF_8));
+        assertExtraPropertiesWithoutBase64(headerValueInBase64, expectedProperties);
+    }
 
+    private void assertExtraPropertiesWithoutBase64(String actualHeaderValue, Map<String, String> expectedProperties) {
+        Map<String, String> actualResult = HeaderUtil.parseExtraProperties(new BasicHeader("some-key", actualHeaderValue));
+        assertThat(actualResult, is(expectedProperties));
     }
 
 }

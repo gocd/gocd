@@ -33,7 +33,9 @@ import org.junit.rules.TestRule;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.stream.Collectors.toMap;
+import static org.apache.commons.codec.binary.Base64.encodeBase64String;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -166,7 +168,7 @@ public class AgentUpgradeServiceTest {
     public void shouldSetAnyExtraPropertiesSentByTheServer() throws Exception {
         setupForNoChangesToMD5();
 
-        expectHeaderValue(SystemEnvironment.AGENT_EXTRA_PROPERTIES_HEADER, "abc=def%20ghi  jkl%20mno=pqr%20stu");
+        expectHeaderValue(SystemEnvironment.AGENT_EXTRA_PROPERTIES_HEADER, encodeBase64String("abc=def%20ghi  jkl%20mno=pqr%20stu".getBytes(UTF_8)));
         agentUpgradeService.checkForUpgradeAndExtraProperties();
 
         assertThat(System.getProperty("abc"), is("def ghi"));
@@ -179,7 +181,7 @@ public class AgentUpgradeServiceTest {
 
         final Map<Object, Object> before = System.getProperties().entrySet().stream().collect(toMap(Entry::getKey, Entry::getValue));
 
-        expectHeaderValue(SystemEnvironment.AGENT_EXTRA_PROPERTIES_HEADER, "this_is_invalid");
+        expectHeaderValue(SystemEnvironment.AGENT_EXTRA_PROPERTIES_HEADER, encodeBase64String("this_is_invalid".getBytes(UTF_8)));
         agentUpgradeService.checkForUpgradeAndExtraProperties();
 
         final Map<Object, Object> after = System.getProperties().entrySet().stream().collect(toMap(Entry::getKey, Entry::getValue));

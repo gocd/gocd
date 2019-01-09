@@ -19,12 +19,14 @@ package com.thoughtworks.go.apiv2.adminsconfig
 import com.thoughtworks.go.api.SecurityTestTrait
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
 import com.thoughtworks.go.apiv2.adminsconfig.representers.AdminsConfigRepresenter
+import com.thoughtworks.go.apiv2.adminsconfig.representers.BulkUpdateFailureResultRepresenter
 import com.thoughtworks.go.config.AdminRole
 import com.thoughtworks.go.config.AdminUser
 import com.thoughtworks.go.config.AdminsConfig
 import com.thoughtworks.go.config.CaseInsensitiveString
 import com.thoughtworks.go.server.service.AdminsConfigService
 import com.thoughtworks.go.server.service.EntityHashingService
+import com.thoughtworks.go.server.service.result.BulkUpdateAdminsResult
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult
 import com.thoughtworks.go.spark.AdminUserSecurity
 import com.thoughtworks.go.spark.ControllerTrait
@@ -272,6 +274,8 @@ class AdminControllerV2Test implements ControllerTrait<AdminControllerV2>, Secur
           new AdminRole("super"), new AdminRole("duper"))
 
         when(adminsConfigService.systemAdmins()).thenReturn(expectedConfig)
+        when(adminsConfigService.bulkUpdate(any(), eq(["jez", "tez"]), eq(["admin"]), eq(["super", "duper"]), eq(["wonky", "donkey"]), eq("cached-md5")))
+          .thenReturn(new BulkUpdateAdminsResult())
         when(entityHashingService.md5ForEntity(expectedConfig)).thenReturn("cached-md5")
 
         patchWithApiHeader(controller.controllerPath(), [
@@ -287,7 +291,7 @@ class AdminControllerV2Test implements ControllerTrait<AdminControllerV2>, Secur
           ]
         ])
 
-        verify(adminsConfigService).bulkUpdate(any(), eq(["jez", "tez"]), eq(["admin"]), eq(["super", "duper"]), eq(["wonky", "donkey"]), eq("cached-md5"), any(HttpLocalizedOperationResult.class))
+        verify(adminsConfigService).bulkUpdate(any(), eq(["jez", "tez"]), eq(["admin"]), eq(["super", "duper"]), eq(["wonky", "donkey"]), eq("cached-md5"))
         assertThatResponse()
           .isOk()
           .hasContentType(controller.mimeType)
@@ -298,17 +302,18 @@ class AdminControllerV2Test implements ControllerTrait<AdminControllerV2>, Secur
       void 'should return a response with errors if patch fails'() {
         AdminsConfig configInServer = new AdminsConfig(new AdminUser(new CaseInsensitiveString("admin")))
 
+        def result = new BulkUpdateAdminsResult()
+        result.nonExistentRoles = [new CaseInsensitiveString("jez"), new CaseInsensitiveString("tez")]
+        result.unprocessableEntity("validation failed")
         when(adminsConfigService.systemAdmins()).thenReturn(configInServer)
         when(entityHashingService.md5ForEntity(configInServer)).thenReturn("cached-md5")
-        when(adminsConfigService.bulkUpdate(any(), eq(["jez", "tez"]), eq([]), eq([]), eq([]), eq("cached-md5"), any(HttpLocalizedOperationResult.class))).then({ InvocationOnMock invocation ->
-          HttpLocalizedOperationResult result = invocation.getArguments().last()
-          result.unprocessableEntity("validation failed")
-        })
+        when(adminsConfigService.bulkUpdate(any(), eq(["jez", "tez"]), eq([]), eq([]), eq([]), eq("cached-md5")))
+          .thenReturn(result)
 
         patchWithApiHeader(controller.controllerPath(), [
           operations: [
             users: [
-              add   : ["jez", "tez"],
+              add: ["jez", "tez"],
             ]
           ]
         ])
@@ -316,7 +321,7 @@ class AdminControllerV2Test implements ControllerTrait<AdminControllerV2>, Secur
         assertThatResponse()
           .isUnprocessableEntity()
           .hasContentType(controller.mimeType)
-          .hasJsonMessage("validation failed")
+          .hasBodyWithJsonObject(result, BulkUpdateFailureResultRepresenter.class)
       }
     }
   }

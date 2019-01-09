@@ -16,13 +16,11 @@
 
 package com.thoughtworks.go.server.service;
 
-import com.thoughtworks.go.config.AdminRole;
-import com.thoughtworks.go.config.AdminUser;
-import com.thoughtworks.go.config.AdminsConfig;
-import com.thoughtworks.go.config.BasicCruiseConfig;
+import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.update.AdminsConfigUpdateCommand;
 import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.server.domain.Username;
+import com.thoughtworks.go.server.service.result.BulkUpdateAdminsResult;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import org.junit.Before;
 import org.junit.Test;
@@ -78,9 +76,8 @@ public class AdminsConfigServiceTest {
         when(goConfigService.serverConfig()).thenReturn(cruiseConfig.server());
 
         Username user = new Username("user");
-        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
 
-        adminsConfigService.bulkUpdate(user, singletonList("newUser1"), emptyList(), singletonList("newRole1"), emptyList(), "md5", result);
+        adminsConfigService.bulkUpdate(user, singletonList("newUser1"), emptyList(), singletonList("newRole1"), emptyList(), "md5");
 
         ArgumentCaptor<AdminsConfigUpdateCommand> captor = ArgumentCaptor.forClass(AdminsConfigUpdateCommand.class);
         verify(goConfigService).updateConfig(captor.capture(), eq(user));
@@ -102,9 +99,8 @@ public class AdminsConfigServiceTest {
         when(goConfigService.serverConfig()).thenReturn(cruiseConfig.server());
 
         Username user = new Username("user");
-        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
 
-        adminsConfigService.bulkUpdate(user, emptyList(), singletonList("adminUser1"), emptyList(), singletonList("adminRole1"), "md5", result);
+        adminsConfigService.bulkUpdate(user, emptyList(), singletonList("adminUser1"), emptyList(), singletonList("adminRole1"), "md5");
 
         ArgumentCaptor<AdminsConfigUpdateCommand> captor = ArgumentCaptor.forClass(AdminsConfigUpdateCommand.class);
         verify(goConfigService).updateConfig(captor.capture(), eq(user));
@@ -126,12 +122,16 @@ public class AdminsConfigServiceTest {
         when(goConfigService.serverConfig()).thenReturn(cruiseConfig.server());
 
         Username user = new Username("user");
-        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
 
-        adminsConfigService.bulkUpdate(user, emptyList(), emptyList(), emptyList(), singletonList("someOtherRole"), "md5", result);
+        BulkUpdateAdminsResult result = adminsConfigService.bulkUpdate(user, emptyList(), emptyList(), emptyList(),
+                singletonList("someOtherRole"), "md5");
 
         assertThat(result.isSuccessful(), is(false));
-        assertThat(result.httpCode(), is(404));
+        assertThat(result.httpCode(), is(422));
+        assertThat(result.message(), is("Update failed because some users or roles do not exist under super admins."));
+        assertThat(result.getNonExistentRoles(), hasSize(1));
+        assertThat(result.getNonExistentRoles(), hasItem(new CaseInsensitiveString("someOtherRole")));
+        assertThat(result.getNonExistentUsers(), hasSize(0));
 
         verify(goConfigService, times(0)).updateConfig(any(), any());
     }
@@ -145,12 +145,15 @@ public class AdminsConfigServiceTest {
         when(goConfigService.serverConfig()).thenReturn(cruiseConfig.server());
 
         Username user = new Username("user");
-        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
 
-        adminsConfigService.bulkUpdate(user, emptyList(), singletonList("someOtherUser"), emptyList(), emptyList(), "md5", result);
+        BulkUpdateAdminsResult result = adminsConfigService.bulkUpdate(user, emptyList(), singletonList("someOtherUser"),
+                emptyList(), emptyList(), "md5");
 
         assertThat(result.isSuccessful(), is(false));
-        assertThat(result.httpCode(), is(404));
+        assertThat(result.httpCode(), is(422));
+        assertThat(result.getNonExistentUsers(), hasSize(1));
+        assertThat(result.getNonExistentUsers(), hasItem(new CaseInsensitiveString("someOtherUser")));
+        assertThat(result.getNonExistentRoles(), hasSize(0));
 
         verify(goConfigService, times(0)).updateConfig(any(), any());
     }

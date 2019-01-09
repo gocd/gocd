@@ -473,6 +473,8 @@ class RolesControllerV2Test implements SecurityServiceTrait, ControllerTrait<Rol
           .hasContentType(controller.mimeType)
           .hasBodyWithJsonObject(new RolesConfig(role), RolesRepresenter.class)
       }
+    }
+  }
 
   @Nested
   class Destroy {

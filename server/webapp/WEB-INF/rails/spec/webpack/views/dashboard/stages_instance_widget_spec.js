@@ -69,6 +69,22 @@ describe("Dashboard Stages Instance Widget", () => {
           "status":       "Unknown",
           "approved_by":  "changes",
           "scheduled_at": "2017-11-10T07:25:28.539Z"
+        },
+        {
+          "_links":       {
+            "self": {
+              "href": "http://localhost:8153/go/api/stages/up42/1/cancelled_stage/1"
+            },
+            "doc":  {
+              "href": "https://api.go.cd/current/#get-stage-instance"
+            }
+          },
+          "name":         "cancelled_stage",
+          "counter":      "1",
+          "status":       "Cancelled",
+          "cancelled_by": "someone",
+          "approved_by":  "changes",
+          "scheduled_at": "2017-11-10T07:25:28.539Z"
         }
       ]
     }
@@ -115,8 +131,10 @@ describe("Dashboard Stages Instance Widget", () => {
     const stages       = pipelineInstanceJson._embedded.stages;
     const stage1Status = `${stages[0].name} (${stages[0].status})`;
     const stage2Status = `${stages[1].name} (${stages[1].status})`;
+    const stage3Status = `${stages[2].name} (cancelled by: ${stages[2].cancelled_by})`;
 
     expect($root.find('.pipeline_stage').get(0).title).toEqual(stage1Status);
     expect($root.find('.pipeline_stage').get(1).title).toEqual(stage2Status);
+    expect($root.find('.pipeline_stage').get(2).title).toEqual(stage3Status);
   });
 });

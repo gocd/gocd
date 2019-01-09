@@ -17,10 +17,11 @@
 const _          = require('lodash');
 const Stream     = require('mithril/stream');
 const AjaxHelper = require('helpers/ajax_helper');
-const Routes     = require('gen/js-routes');
 
 const DashboardGroups = require('models/dashboard/dashboard_groups');
 const Pipelines       = require('models/dashboard/pipelines');
+
+import SparkRoutes from "helpers/spark_routes";
 
 function Dashboard() {
   let pipelineGroups = DashboardGroups.fromPipelineGroupsJSON([]);
@@ -50,11 +51,11 @@ function Dashboard() {
   };
 }
 
-Dashboard.API_VERSION = 'v2';
+Dashboard.API_VERSION = 'v3';
 
 Dashboard.get = (viewName, etag) => {
   return AjaxHelper.GET({
-    url:        Routes.apiv2ShowDashboardPath({viewName}),
+    url:        SparkRoutes.showDashboardPath({viewName}),
     apiVersion: Dashboard.API_VERSION,
     etag
   });

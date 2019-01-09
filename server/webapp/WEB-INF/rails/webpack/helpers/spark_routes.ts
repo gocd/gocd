@@ -70,6 +70,10 @@ export default class {
     }
   }
 
+  static showDashboardPath(): string {
+    return "/go/api/dashboard";
+  }
+
   static DataSharingSettingsPath(): string {
     return "/go/api/data_sharing/settings";
   }

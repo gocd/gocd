@@ -44,7 +44,7 @@ public class DrainModeInfoRepresenter {
             jsonWriter.addChild("attributes", attributesWriter -> {
                 attributesWriter.add("is_completely_drained", isServerCompletelyDrained);
                 attributesWriter.addChild("running_systems", runningSystemsChildWriter -> {
-                    runningSystemsChildWriter.addChildList("mdu", runningMDUsToJSON(runningMDUs));
+                    runningSystemsChildWriter.addChildList("material_update_in_progress", runningMDUsToJSON(runningMDUs));
                     runningSystemsChildWriter.addChildList("building_jobs", runningJobsToJSON(buildingJobs));
                     runningSystemsChildWriter.addChildList("scheduled_jobs", runningJobsToJSON(scheduledJobs));
                 });

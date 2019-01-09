@@ -89,7 +89,7 @@ class DrainModeInfoRepresenterTest {
       "attributes"   : [
         "is_completely_drained": true,
         "running_systems"      : [
-          "mdu"         : [
+          "material_update_in_progress": [
             [
               "type"          : "git",
               "attributes"    : [
@@ -135,7 +135,7 @@ class DrainModeInfoRepresenterTest {
               "mdu_start_time": "1970-01-01T08:20:00Z"
             ]
           ],
-          building_jobs : [
+          building_jobs                : [
             [
               pipeline_name   : building.pipelineName,
               pipeline_counter: building.pipelineCounter,
@@ -147,7 +147,7 @@ class DrainModeInfoRepresenterTest {
               agent_uuid      : building.getAgentUuid()
             ]
           ],
-          scheduled_jobs: [
+          scheduled_jobs               : [
             [
               pipeline_name   : scheduled.pipelineName,
               pipeline_counter: scheduled.pipelineCounter,

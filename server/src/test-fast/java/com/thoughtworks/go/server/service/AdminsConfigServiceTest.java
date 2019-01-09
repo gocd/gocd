@@ -31,13 +31,11 @@ import org.mockito.Mock;
 
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
-import static org.hamcrest.Matchers.hasItems;
-import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 public class AdminsConfigServiceTest {
@@ -117,5 +115,43 @@ public class AdminsConfigServiceTest {
         assertThat(adminsConfig.getUsers(), hasItems(new AdminUser("adminUser2")));
         assertThat(adminsConfig.getRoles(), hasSize(1));
         assertThat(adminsConfig.getRoles(), hasItems(new AdminRole("adminRole2")));
+    }
+
+    @Test
+    public void bulkUpdate_shouldValidateThatRoleIsAnAdminWhenTryingToRemove() {
+        AdminsConfig config = new AdminsConfig(new AdminUser("adminUser1"), new AdminUser("adminUser2"),
+                new AdminRole("adminRole1"), new AdminRole("adminRole2"));
+        cruiseConfig = GoConfigMother.defaultCruiseConfig();
+        cruiseConfig.server().security().setAdminsConfig(config);
+        when(goConfigService.serverConfig()).thenReturn(cruiseConfig.server());
+
+        Username user = new Username("user");
+        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+
+        adminsConfigService.bulkUpdate(user, emptyList(), emptyList(), emptyList(), singletonList("someOtherRole"), "md5", result);
+
+        assertThat(result.isSuccessful(), is(false));
+        assertThat(result.httpCode(), is(404));
+
+        verify(goConfigService, times(0)).updateConfig(any(), any());
+    }
+
+    @Test
+    public void bulkUpdate_shouldValidateThatUserIsAnAdminWhenTryingToRemove() {
+        AdminsConfig config = new AdminsConfig(new AdminUser("adminUser1"), new AdminUser("adminUser2"),
+                new AdminRole("adminRole1"), new AdminRole("adminRole2"));
+        cruiseConfig = GoConfigMother.defaultCruiseConfig();
+        cruiseConfig.server().security().setAdminsConfig(config);
+        when(goConfigService.serverConfig()).thenReturn(cruiseConfig.server());
+
+        Username user = new Username("user");
+        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+
+        adminsConfigService.bulkUpdate(user, emptyList(), singletonList("someOtherUser"), emptyList(), emptyList(), "md5", result);
+
+        assertThat(result.isSuccessful(), is(false));
+        assertThat(result.httpCode(), is(404));
+
+        verify(goConfigService, times(0)).updateConfig(any(), any());
     }
 }

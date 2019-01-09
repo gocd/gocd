@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.server.service;
 
+import com.google.common.collect.Sets;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
 import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
@@ -23,6 +24,8 @@ import com.thoughtworks.go.config.update.AdminsConfigUpdateCommand;
 import com.thoughtworks.go.domain.config.Admin;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
+import com.thoughtworks.go.serverhealth.HealthStateType;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -30,8 +33,10 @@ import org.springframework.stereotype.Component;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static com.thoughtworks.go.i18n.LocalizedMessage.saveFailedWithReason;
+import static org.apache.commons.lang.StringUtils.join;
 
 @Component
 public class AdminsConfigService {
@@ -75,15 +80,33 @@ public class AdminsConfigService {
                            List<String> rolesToAdd,
                            List<String> rolesToRemove,
                            String md5, LocalizedOperationResult result) {
-        Set<Admin> admins = new HashSet<>(systemAdmins());
-        usersToAdd.forEach(user -> admins.add(new AdminUser(user)));
-        rolesToAdd.forEach(role -> admins.add(new AdminRole(role)));
-        usersToRemove.forEach(user -> admins.remove(new AdminUser(new CaseInsensitiveString(user))));
-        rolesToRemove.forEach(role -> admins.remove(new AdminRole(new CaseInsensitiveString(role))));
-        AdminsConfigUpdateCommand command = new AdminsConfigUpdateCommand(goConfigService, new AdminsConfig(admins),
+        Set<Admin> existingAdmins = new HashSet<>(systemAdmins());
+        Set<CaseInsensitiveString> existingAdminNames = existingAdmins.stream().map(Admin::getName).collect(Collectors.toSet());
+
+        Sets.SetView<CaseInsensitiveString> invalidUsersToRemove = Sets.difference(caseInsensitive(usersToRemove), existingAdminNames);
+        if (invalidUsersToRemove.size() > 0) {
+            result.notFound(String.format("Couldn't find user(s) [%s] to be removed from admin list", join(invalidUsersToRemove, ",")),
+                    HealthStateType.notFound());
+            return;
+        }
+
+        Sets.SetView<CaseInsensitiveString> invalidRolesToRemove = Sets.difference(caseInsensitive(rolesToRemove), existingAdminNames);
+        if (invalidRolesToRemove.size() > 0) {
+            result.notFound(String.format("Couldn't find roles(s) [%s] to be removed from admin list", join(invalidRolesToRemove, ", ")),
+                    HealthStateType.notFound());
+            return;
+        }
+
+        usersToAdd.forEach(user -> existingAdmins.add(new AdminUser(user)));
+        rolesToAdd.forEach(role -> existingAdmins.add(new AdminRole(role)));
+        usersToRemove.forEach(user -> existingAdmins.remove(new AdminUser(new CaseInsensitiveString(user))));
+        rolesToRemove.forEach(role -> existingAdmins.remove(new AdminRole(new CaseInsensitiveString(role))));
+        AdminsConfigUpdateCommand command = new AdminsConfigUpdateCommand(goConfigService, new AdminsConfig(existingAdmins),
                 currentUser, result, entityHashingService, md5);
         updateConfig(currentUser, result, command);
     }
+
+    private Set<CaseInsensitiveString> caseInsensitive(List<String> list) {
+        return list.stream().map(CaseInsensitiveString::new).collect(Collectors.toSet());
+    }
 }
-
-

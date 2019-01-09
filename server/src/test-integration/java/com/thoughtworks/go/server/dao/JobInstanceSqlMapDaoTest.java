@@ -64,7 +64,7 @@ import static com.thoughtworks.go.util.DataStructureUtils.a;
 import static com.thoughtworks.go.util.GoConstants.DEFAULT_APPROVED_BY;
 import static com.thoughtworks.go.util.LogFixture.logFixtureFor;
 import static org.hamcrest.Matchers.hasProperty;
-import static org.hamcrest.collection.IsArrayContaining.hasItemInArray;
+import static org.hamcrest.Matchers.hasItemInArray;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNot.not;
 import static org.hamcrest.core.IsNull.notNullValue;

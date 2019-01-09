@@ -41,7 +41,6 @@ import static com.thoughtworks.go.helper.ModificationsMother.modifyOneFile;
 import static com.thoughtworks.go.util.DataStructureUtils.a;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.Matchers.*;
-import static org.hamcrest.collection.IsArrayContaining.hasItemInArray;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.notNullValue;
 import static org.junit.Assert.assertThat;

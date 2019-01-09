@@ -68,10 +68,12 @@ class DrainModeInfoRepresenterTest {
     def runningMDUs = drainModeService.getRunningMDUs()
     def scheduled = JobInstanceMother.scheduled("up42_job_1")
     def building = JobInstanceMother.building("up42_job_2")
-    def jobInstances = Arrays.asList(scheduled, building)
+
+    def buildingJobs = Arrays.asList(building)
+    def scheduledJobs = Arrays.asList(scheduled)
 
     def actualJson = toObjectString({
-      DrainModeInfoRepresenter.toJSON(it, drainModeService.get(), true, runningMDUs, jobInstances)
+      DrainModeInfoRepresenter.toJSON(it, drainModeService.get(), true, runningMDUs, buildingJobs, scheduledJobs)
     })
 
     def expectedJson = [
@@ -88,7 +90,7 @@ class DrainModeInfoRepresenterTest {
         "attributes"   : [
           "is_completely_drained": true,
           "running_systems"      : [
-            "mdu": [
+            "mdu"         : [
               [
                 "type"          : "git",
                 "attributes"    : [
@@ -134,17 +136,7 @@ class DrainModeInfoRepresenterTest {
                 "mdu_start_time": "1970-01-01T08:20:00Z"
               ]
             ],
-            jobs : [
-              [
-                pipeline_name   : scheduled.pipelineName,
-                pipeline_counter: scheduled.pipelineCounter,
-                stage_name      : scheduled.stageName,
-                stage_counter   : scheduled.stageCounter,
-                name            : scheduled.name,
-                state           : scheduled.state,
-                scheduled_date  : jsonDate(new Timestamp(scheduled.getScheduledDate().getTime())),
-                agent_uuid      : scheduled.getAgentUuid()
-              ],
+            building_jobs : [
               [
                 pipeline_name   : building.pipelineName,
                 pipeline_counter: building.pipelineCounter,
@@ -154,6 +146,18 @@ class DrainModeInfoRepresenterTest {
                 state           : building.state,
                 scheduled_date  : jsonDate(new Timestamp(building.getScheduledDate().getTime())),
                 agent_uuid      : building.getAgentUuid()
+              ]
+            ],
+            scheduled_jobs: [
+              [
+                pipeline_name   : scheduled.pipelineName,
+                pipeline_counter: scheduled.pipelineCounter,
+                stage_name      : scheduled.stageName,
+                stage_counter   : scheduled.stageCounter,
+                name            : scheduled.name,
+                state           : scheduled.state,
+                scheduled_date  : jsonDate(new Timestamp(scheduled.getScheduledDate().getTime())),
+                agent_uuid      : scheduled.getAgentUuid()
               ]
             ]
           ]
@@ -169,7 +173,7 @@ class DrainModeInfoRepresenterTest {
     def drainModeService = new DrainModeService(timeProvider)
 
     def actualJson = toObjectString({
-      DrainModeInfoRepresenter.toJSON(it, drainModeService.get(), false, null, null)
+      DrainModeInfoRepresenter.toJSON(it, drainModeService.get(), false, null, null, null)
     })
 
     def expectedJson = [

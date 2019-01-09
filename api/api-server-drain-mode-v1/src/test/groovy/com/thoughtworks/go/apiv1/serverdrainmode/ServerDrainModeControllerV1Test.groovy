@@ -20,7 +20,6 @@ import com.thoughtworks.go.api.SecurityTestTrait
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
 import com.thoughtworks.go.apiv1.serverdrainmode.representers.DrainModeInfoRepresenter
 import com.thoughtworks.go.config.remote.FileConfigOrigin
-import com.thoughtworks.go.domain.AgentInstance
 import com.thoughtworks.go.domain.JobIdentifier
 import com.thoughtworks.go.domain.JobInstance
 import com.thoughtworks.go.domain.JobResult
@@ -252,7 +251,7 @@ class ServerDrainModeControllerV1Test implements SecurityServiceTrait, Controlle
           .isOk()
           .hasContentType(controller.mimeType)
           .hasBody(toObjectString({
-          DrainModeInfoRepresenter.toJSON(it, drainModeService.get(), true, runningMDUs, runningJobs)
+          DrainModeInfoRepresenter.toJSON(it, drainModeService.get(), true, runningMDUs, runningJobs, [])
         }))
       }
 
@@ -260,8 +259,11 @@ class ServerDrainModeControllerV1Test implements SecurityServiceTrait, Controlle
       void 'get drain mode info when jobs are running'() {
         def job1Identifier = new JobIdentifier("up42", 1, "up42", "stage1", "1", "job1")
         def job2Identifier = new JobIdentifier("up42", 1, "up42", "stage1", "1", "job2")
+        def job3Identifier = new JobIdentifier("up42", 1, "up42", "stage1", "1", "job3")
 
-        def buildingAgent = AgentInstanceMother.building(job1Identifier.buildLocator())
+        def buildingAgent1 = AgentInstanceMother.building(job1Identifier.buildLocator())
+        def buildingAgent2 = AgentInstanceMother.building(job3Identifier.buildLocator())
+        buildingAgent2.agentConfig().setUuid("agent-2")
 
         def dashboardPipelinesMap = new HashMap<>()
         dashboardPipelinesMap.put("up42", getRunningPipeline("up42"))
@@ -270,20 +272,28 @@ class ServerDrainModeControllerV1Test implements SecurityServiceTrait, Controlle
         job1.setState(JobState.Building)
         job1.setScheduledDate(new Date(1))
         job1.setIdentifier(job1Identifier)
-        job1.setAgentUuid(buildingAgent.getUuid())
+        job1.setAgentUuid(buildingAgent1.getUuid())
 
         def job2 = new JobInstance("job2")
         job2.setState(JobState.Scheduled)
         job2.setScheduledDate(new Date(1))
         job2.setIdentifier(job2Identifier)
 
+        def job3 = new JobInstance("job3")
+        job3.setState(JobState.Building)
+        job3.setScheduledDate(new Date(1))
+        job3.setIdentifier(job3Identifier)
+        job3.setAgentUuid(buildingAgent2.getUuid())
+
         def dashboardPipelines = new GoDashboardPipelines(dashboardPipelinesMap, new TimeStampBasedCounter(testingClock))
 
         def agentInstances = new AgentInstances(null)
-        agentInstances.add(buildingAgent)
+        agentInstances.add(buildingAgent1)
+        agentInstances.add(buildingAgent2)
 
         def runningMDUs = []
-        def runningJobs = [job1, job2]
+        def buildingJobs = [job1, job3]
+        def scheduledJobs = [job2]
 
         when(drainModeService.get()).thenReturn(new ServerDrainMode(true, currentUserLoginName().toString(), testingClock.currentTime()))
         when(drainModeService.getRunningMDUs()).thenReturn(runningMDUs)
@@ -296,7 +306,7 @@ class ServerDrainModeControllerV1Test implements SecurityServiceTrait, Controlle
           .isOk()
           .hasContentType(controller.mimeType)
           .hasBody(toObjectString({
-          DrainModeInfoRepresenter.toJSON(it, drainModeService.get(), false, runningMDUs, runningJobs)
+          DrainModeInfoRepresenter.toJSON(it, drainModeService.get(), false, runningMDUs, buildingJobs, scheduledJobs)
         }))
       }
 
@@ -310,7 +320,7 @@ class ServerDrainModeControllerV1Test implements SecurityServiceTrait, Controlle
           .isOk()
           .hasContentType(controller.mimeType)
           .hasBody(toObjectString({
-          DrainModeInfoRepresenter.toJSON(it, drainModeService.get(), false, null, null)
+          DrainModeInfoRepresenter.toJSON(it, drainModeService.get(), false, null, null, null)
         }))
 
         verifyZeroInteractions(goDashboardCache)
@@ -323,9 +333,12 @@ class ServerDrainModeControllerV1Test implements SecurityServiceTrait, Controlle
         def allStages = new StageInstanceModels()
 
         def allJobs = new JobHistory()
+
         allJobs.add(new JobHistoryItem("job1", JobState.Building, JobResult.Unknown, new Date(1)))
         allJobs.add(new JobHistoryItem("job2", JobState.Scheduled, JobResult.Unknown, new Date(1)))
+        allJobs.add(new JobHistoryItem("job3", JobState.Building, JobResult.Unknown, new Date(1)))
         allJobs.add(new JobHistoryItem("job4", JobState.Completed, JobResult.Passed, new Date(1)))
+
         allStages.add(new StageInstanceModel("stage1", "1", allJobs))
         def pipelineInstanceModel = new PipelineInstanceModel(pipelineName, 1, pipelineName, null, allStages)
         pipelineModel.addPipelineInstance(pipelineInstanceModel)

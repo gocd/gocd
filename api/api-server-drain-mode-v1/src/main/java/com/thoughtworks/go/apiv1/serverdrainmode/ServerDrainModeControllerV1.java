@@ -34,7 +34,6 @@ import com.thoughtworks.go.server.domain.AgentInstances;
 import com.thoughtworks.go.server.domain.ServerDrainMode;
 import com.thoughtworks.go.server.service.AgentService;
 import com.thoughtworks.go.server.service.DrainModeService;
-import com.thoughtworks.go.server.service.JobInstanceService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.spring.SparkSpringController;
@@ -45,10 +44,7 @@ import spark.Request;
 import spark.Response;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 import static spark.Spark.*;
 
@@ -136,23 +132,28 @@ public class ServerDrainModeControllerV1 extends ApiController implements SparkS
 
         if (serverDrainMode.isDrainMode()) {
             Collection<DrainModeService.MaterialPerformingMDU> runningMDUs = drainModeService.getRunningMDUs();
-            List<JobInstance> jobInstances = getRunningJobs();
-            boolean isServerCompletelyDrained = runningMDUs.isEmpty() && jobInstances.isEmpty();
+            List<ArrayList<JobInstance>> allRunningJobs = getRunningJobs();
+            ArrayList<JobInstance> buildingJobs = allRunningJobs.get(0);
+            ArrayList<JobInstance> scheduledJobs = allRunningJobs.get(1);
+
+            boolean isServerCompletelyDrained = runningMDUs.isEmpty() && buildingJobs.isEmpty();
             return writerForTopLevelObject(req, res, writer -> {
-                DrainModeInfoRepresenter.toJSON(writer, serverDrainMode, isServerCompletelyDrained, runningMDUs, jobInstances);
+                DrainModeInfoRepresenter.toJSON(writer, serverDrainMode, isServerCompletelyDrained, runningMDUs, buildingJobs, scheduledJobs);
             });
         } else {
             return writerForTopLevelObject(req, res, writer -> {
-                DrainModeInfoRepresenter.toJSON(writer, serverDrainMode, false, null, null);
+                DrainModeInfoRepresenter.toJSON(writer, serverDrainMode, false, null, null, null);
             });
         }
     }
 
-    private List<JobInstance> getRunningJobs() {
+    private List<ArrayList<JobInstance>> getRunningJobs() {
         Collection<GoDashboardPipeline> pipelines = dashboardCache.allEntries().getPipelines();
         HashMap<String, String> buildToAgentUUIDMap = getBuildLocatorToAgentUUIDMap();
 
-        ArrayList<JobInstance> runningJobs = new ArrayList<>();
+        ArrayList<JobInstance> buildingJobs = new ArrayList<>();
+        ArrayList<JobInstance> scheduledJobs = new ArrayList<>();
+
         for (GoDashboardPipeline pipeline : pipelines) {
             for (PipelineInstanceModel pipelineInstance : pipeline.model().getActivePipelineInstances()) {
                 String pipelineName = pipelineInstance.getName();
@@ -169,13 +170,18 @@ public class ServerDrainModeControllerV1 extends ApiController implements SparkS
                     String stageCounter = runningStage.getCounter();
                     if (job.isRunning()) {
                         JobIdentifier jobIdentifier = new JobIdentifier(pipelineName, pipelineCounter, pipelineLabel, stageName, stageCounter, job.getName());
-                        runningJobs.add(createJobInstance(job, jobIdentifier, buildToAgentUUIDMap.get(jobIdentifier.buildLocator())));
+                        String agentUUID = buildToAgentUUIDMap.get(jobIdentifier.buildLocator());
+                        if (agentUUID != null) {
+                            buildingJobs.add(createJobInstance(job, jobIdentifier, agentUUID));
+                        } else {
+                            scheduledJobs.add(createJobInstance(job, jobIdentifier, null));
+                        }
                     }
                 }
             }
         }
 
-        return runningJobs;
+        return Arrays.asList(buildingJobs, scheduledJobs);
     }
 
     private HashMap<String, String> getBuildLocatorToAgentUUIDMap() {

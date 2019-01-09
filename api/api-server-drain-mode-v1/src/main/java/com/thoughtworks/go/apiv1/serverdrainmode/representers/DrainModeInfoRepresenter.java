@@ -25,12 +25,13 @@ import com.thoughtworks.go.server.service.DrainModeService.MaterialPerformingMDU
 import com.thoughtworks.go.spark.Routes;
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.function.Consumer;
 
 public class DrainModeInfoRepresenter {
-    public static void toJSON(OutputWriter jsonWriter, ServerDrainMode serverDrainMode, boolean isServerCompletelyDrained, Collection<MaterialPerformingMDU> runningMDUs, List<JobInstance> jobInstances) {
+    public static void toJSON(OutputWriter jsonWriter, ServerDrainMode serverDrainMode, boolean isServerCompletelyDrained, Collection<MaterialPerformingMDU> runningMDUs, List<JobInstance> buildingJobs, List<JobInstance> scheduledJobs) {
         jsonWriter
                 .addLinks(linksWriter -> linksWriter.addLink("self", Routes.DrainMode.BASE + Routes.DrainMode.INFO)
                         .addAbsoluteLink("doc", Routes.DrainMode.INFO_DOC))
@@ -46,7 +47,8 @@ public class DrainModeInfoRepresenter {
                             attributesWriter.add("is_completely_drained", isServerCompletelyDrained);
                             attributesWriter.addChild("running_systems", runningSystemsChildWriter -> {
                                 runningSystemsChildWriter.addChildList("mdu", runningMDUsToJSON(runningMDUs));
-                                runningSystemsChildWriter.addChildList("jobs", runningJobsToJSON(jobInstances));
+                                runningSystemsChildWriter.addChildList("building_jobs", runningJobsToJSON(buildingJobs));
+                                runningSystemsChildWriter.addChildList("scheduled_jobs", runningJobsToJSON(scheduledJobs));
                             });
                         });
                     }

@@ -25,7 +25,6 @@ import com.thoughtworks.go.config.materials.ScmMaterialConfig;
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.ReflectionUtil;
 import com.thoughtworks.go.util.command.UrlArgument;
-import org.hamcrest.core.Is;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -33,8 +32,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.hamcrest.core.Is.is;
-import static org.hamcrest.core.IsNull.nullValue;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 
@@ -130,7 +129,7 @@ public class SvnMaterialConfigTest {
         svnMaterial.setConfigAttributes(map);
         assertThat(ReflectionUtil.getField(svnMaterial, "password"), is(nullValue()));
         assertThat(svnMaterial.getPassword(), is("secret"));
-        assertThat(svnMaterial.getEncryptedPassword(), Is.is(new GoCipher().encrypt("secret")));
+        assertThat(svnMaterial.getEncryptedPassword(), is(new GoCipher().encrypt("secret")));
 
         //Dont change
         map.put(SvnMaterialConfig.PASSWORD, "Hehehe");

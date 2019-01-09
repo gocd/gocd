@@ -16,11 +16,11 @@
 
 package com.thoughtworks.go.domain;
 
-import static org.hamcrest.Matchers.greaterThan;
-import static org.hamcrest.core.Is.is;
-import static org.hamcrest.number.OrderingComparison.lessThan;
-import static org.junit.Assert.assertThat;
 import org.junit.Test;
+
+import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
 
 public class IpAddressTest  {
 
@@ -43,8 +43,8 @@ public class IpAddressTest  {
         assertThat(IpAddress.create("10.12.34.20").compareTo(IpAddress.create("10.12.34.20")),is(0));
         assertThat(IpAddress.create("112.12.34.20").compareTo(IpAddress.create("10.12.34.20")), is(greaterThan(0)));
         assertThat(IpAddress.create("10.12.34.20").compareTo(IpAddress.create("")), is(greaterThan(0)));
-        assertThat(IpAddress.create("").compareTo(IpAddress.create("10.12.34.3")), is(lessThan(0)));
-        assertThat(IpAddress.create("").compareTo(IpAddress.create("")), is(lessThan(0)));
+        assertThat(IpAddress.create("").compareTo(IpAddress.create("10.12.34.3")), is(org.hamcrest.Matchers.lessThan(0)));
+        assertThat(IpAddress.create("").compareTo(IpAddress.create("")), is(org.hamcrest.Matchers.lessThan(0)));
         assertThat(IpAddress.create("8:8:8:8:8:8:8:8").compareTo(IpAddress.create("10.12.34.20")), is(greaterThan(0)));
     }
 

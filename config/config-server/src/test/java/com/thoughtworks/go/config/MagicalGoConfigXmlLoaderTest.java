@@ -31,7 +31,6 @@ import com.thoughtworks.go.config.pluggabletask.PluggableTask;
 import com.thoughtworks.go.config.preprocessor.ConfigParamPreprocessor;
 import com.thoughtworks.go.config.preprocessor.ConfigRepoPartialPreprocessor;
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
-import com.thoughtworks.go.config.remote.ConfigOrigin;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.config.remote.FileConfigOrigin;
 import com.thoughtworks.go.config.remote.PartialConfig;
@@ -79,7 +78,6 @@ import com.thoughtworks.go.util.command.UrlArgument;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.IOUtils;
 import org.hamcrest.Matchers;
-import org.hamcrest.core.Is;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -106,13 +104,7 @@ import static com.thoughtworks.go.util.GoConstants.CONFIG_SCHEMA_VERSION;
 import static java.lang.String.format;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Arrays.asList;
-import static org.hamcrest.CoreMatchers.instanceOf;
-import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.Matchers.*;
-import static org.hamcrest.core.Is.is;
-import static org.hamcrest.core.IsCollectionContaining.hasItem;
-import static org.hamcrest.core.IsNot.not;
-import static org.hamcrest.core.IsNull.nullValue;
 import static org.junit.Assert.*;
 
 @RunWith(JunitExtRunner.class)
@@ -185,7 +177,7 @@ public class MagicalGoConfigXmlLoaderTest {
         CruiseConfig cruiseConfig = xmlLoader.loadConfigHolder(ONE_CONFIG_REPO).config;
         assertThat(cruiseConfig.getConfigRepos().size(), is(1));
         ConfigRepoConfig configRepo = cruiseConfig.getConfigRepos().get(0);
-        assertThat(configRepo.getMaterialConfig(), Is.<MaterialConfig>is(new GitMaterialConfig("https://github.com/tomzo/gocd-indep-config-part.git")));
+        assertThat(configRepo.getMaterialConfig(), is(new GitMaterialConfig("https://github.com/tomzo/gocd-indep-config-part.git")));
     }
 
     @Test
@@ -216,9 +208,9 @@ public class MagicalGoConfigXmlLoaderTest {
         )).config;
         assertThat(cruiseConfig.getConfigRepos().size(), is(2));
         ConfigRepoConfig configRepo1 = cruiseConfig.getConfigRepos().get(0);
-        assertThat(configRepo1.getMaterialConfig(), Is.<MaterialConfig>is(new GitMaterialConfig("https://github.com/tomzo/gocd-indep-config-part.git")));
+        assertThat(configRepo1.getMaterialConfig(), is(new GitMaterialConfig("https://github.com/tomzo/gocd-indep-config-part.git")));
         ConfigRepoConfig configRepo2 = cruiseConfig.getConfigRepos().get(1);
-        assertThat(configRepo2.getMaterialConfig(), Is.<MaterialConfig>is(new GitMaterialConfig("https://github.com/tomzo/gocd-refmain-config-part.git")));
+        assertThat(configRepo2.getMaterialConfig(), is(new GitMaterialConfig("https://github.com/tomzo/gocd-refmain-config-part.git")));
     }
 
     @Test
@@ -296,15 +288,15 @@ public class MagicalGoConfigXmlLoaderTest {
                 cruiseConfig.setPartials(asList(new PartialConfig()));
             }
         });
-        assertThat(goConfigHolder.config.getOrigin(), Is.<ConfigOrigin>is(new MergeConfigOrigin()));
-        assertThat(goConfigHolder.configForEdit.getOrigin(), Is.<ConfigOrigin>is(new FileConfigOrigin()));
+        assertThat(goConfigHolder.config.getOrigin(), is(new MergeConfigOrigin()));
+        assertThat(goConfigHolder.configForEdit.getOrigin(), is(new FileConfigOrigin()));
     }
 
     @Test
     public void shouldSetConfigOriginInPipeline_AfterLoadingConfigFile() throws Exception {
         CruiseConfig cruiseConfig = xmlLoader.loadConfigHolder(CONFIG).config;
         PipelineConfig pipelineConfig1 = cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("pipeline1"));
-        assertThat(pipelineConfig1.getOrigin(), Is.<ConfigOrigin>is(new FileConfigOrigin()));
+        assertThat(pipelineConfig1.getOrigin(), is(new FileConfigOrigin()));
     }
 
     @Test
@@ -320,7 +312,7 @@ public class MagicalGoConfigXmlLoaderTest {
                         + "</environments>");
         EnvironmentsConfig environmentsConfig = ConfigMigrator.loadWithMigration(content).config.getEnvironments();
         EnvironmentConfig uat = environmentsConfig.get(0);
-        assertThat(uat.getOrigin(), Is.<ConfigOrigin>is(new FileConfigOrigin()));
+        assertThat(uat.getOrigin(), is(new FileConfigOrigin()));
     }
 
     @Test

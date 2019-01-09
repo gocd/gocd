@@ -63,9 +63,7 @@ import com.thoughtworks.go.util.command.ConsoleResult;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.eclipse.jgit.api.errors.GitAPIException;
-import org.hamcrest.CoreMatchers;
 import org.hamcrest.Matchers;
-import org.hamcrest.core.Is;
 import org.junit.*;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
@@ -90,11 +88,11 @@ import com.thoughtworks.go.util.*;
 import static com.thoughtworks.go.helper.ConfigFileFixture.DEFAULT_XML_WITH_2_AGENTS;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Arrays.asList;
-import static org.hamcrest.CoreMatchers.startsWith;
+import static org.hamcrest.Matchers.startsWith;
 import static org.hamcrest.Matchers.not;
-import static org.hamcrest.core.Is.is;
-import static org.hamcrest.core.IsNull.nullValue;
-import static org.hamcrest.core.StringContains.containsString;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
+import static org.hamcrest.Matchers.containsString;
 import static org.junit.Assert.*;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -504,14 +502,14 @@ public class CachedGoConfigIntegrationTest {
 
         CruiseConfig cruiseConfig = cachedGoConfig.currentConfig();
         ExecTask devExec = (ExecTask) cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("dev")).getFirstStageConfig().jobConfigByConfigName(new CaseInsensitiveString("job1")).getTasks().first();
-        assertThat(devExec, Is.is(new ExecTask("/bin/ls", "/tmp", (String) null)));
+        assertThat(devExec, is(new ExecTask("/bin/ls", "/tmp", (String) null)));
 
         ExecTask acceptanceExec = (ExecTask) cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("acceptance")).getFirstStageConfig().jobConfigByConfigName(new CaseInsensitiveString("job1")).getTasks().first();
-        assertThat(acceptanceExec, Is.is(new ExecTask("/bin/twist", "./acceptance", (String) null)));
+        assertThat(acceptanceExec, is(new ExecTask("/bin/twist", "./acceptance", (String) null)));
 
         cruiseConfig = cachedGoConfig.loadForEditing();
         devExec = (ExecTask) cruiseConfig.getTemplateByName(new CaseInsensitiveString("abc")).get(0).jobConfigByConfigName(new CaseInsensitiveString("job1")).getTasks().first();
-        assertThat(devExec, Is.is(new ExecTask("/bin/#{command}", "#{dir}", (String) null)));
+        assertThat(devExec, is(new ExecTask("/bin/#{command}", "#{dir}", (String) null)));
 
         assertThat(cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("dev")).size(), Matchers.is(0));
         assertThat(cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("acceptance")).size(), Matchers.is(0));
@@ -549,7 +547,7 @@ public class CachedGoConfigIntegrationTest {
 
         CruiseConfig cruiseConfig = cachedGoConfig.currentConfig();
         ExecTask devExec = (ExecTask) cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("dev")).getFirstStageConfig().jobConfigByConfigName(new CaseInsensitiveString("job1")).getTasks().first();
-        assertThat(devExec, Is.is(new ExecTask("/bin/ls#{a}#{b}", "/tmp", (String) null)));
+        assertThat(devExec, is(new ExecTask("/bin/ls#{a}#{b}", "/tmp", (String) null)));
     }
 
     @Test
@@ -582,7 +580,7 @@ public class CachedGoConfigIntegrationTest {
         cachedGoConfig.forceReload();
 
         CruiseConfig cruiseConfig = cachedGoConfig.currentConfig();
-        assertThat(cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("dev")).getLabelTemplate(), Is.is("cruise-1.2-${COUNT}"));
+        assertThat(cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("dev")).getLabelTemplate(), is("cruise-1.2-${COUNT}"));
     }
 
     @Test
@@ -1182,7 +1180,7 @@ public class CachedGoConfigIntegrationTest {
                 .getExternalArtifactConfigs().get(0).getConfiguration();
         assertThat(ancestorPluggablePublishAftifactConfigAfterEncryption.getProperty("Image").getValue(), is("SECRET"));
         assertThat(ancestorPluggablePublishAftifactConfigAfterEncryption.getProperty("Image").getEncryptedValue(), is(new GoCipher().encrypt("SECRET")));
-        assertThat(ancestorPluggablePublishAftifactConfigAfterEncryption.getProperty("Image").getConfigValue(), is(CoreMatchers.nullValue()));
+        assertThat(ancestorPluggablePublishAftifactConfigAfterEncryption.getProperty("Image").getConfigValue(), is(nullValue()));
     }
 
     @Test
@@ -1204,7 +1202,7 @@ public class CachedGoConfigIntegrationTest {
 
         assertThat(childFetchConfigAfterEncryption.getProperty("FetchProperty").getValue(), is("SECRET"));
         assertThat(childFetchConfigAfterEncryption.getProperty("FetchProperty").getEncryptedValue(), is(new GoCipher().encrypt("SECRET")));
-        assertThat(childFetchConfigAfterEncryption.getProperty("FetchProperty").getConfigValue(), is(CoreMatchers.nullValue()));
+        assertThat(childFetchConfigAfterEncryption.getProperty("FetchProperty").getConfigValue(), is(nullValue()));
     }
 
     private void setupMetadataForPlugin() {

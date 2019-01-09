@@ -18,17 +18,16 @@ package com.thoughtworks.go.domain;
 
 import org.junit.Test;
 
-import static org.hamcrest.core.Is.is;
-import static org.hamcrest.number.OrderingComparison.greaterThan;
-import static org.hamcrest.number.OrderingComparison.lessThan;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.greaterThan;
 import static org.junit.Assert.assertThat;
 
 public class DiskSpaceTest {
 
     @Test
     public void shouldCompareDiskSpace() {
-        assertThat(new DiskSpace(10L).compareTo(new DiskSpace(12L)), is(lessThan(0)));
-        assertThat(DiskSpace.unknownDiskSpace().compareTo(new DiskSpace(12L)), is(lessThan(0)));
+        assertThat(new DiskSpace(10L).compareTo(new DiskSpace(12L)), is(org.hamcrest.Matchers.lessThan(0)));
+        assertThat(DiskSpace.unknownDiskSpace().compareTo(new DiskSpace(12L)), is(org.hamcrest.Matchers.lessThan(0)));
         assertThat(new DiskSpace(10L).compareTo(DiskSpace.unknownDiskSpace()), is(greaterThan(0)));
         assertThat(DiskSpace.unknownDiskSpace().compareTo(DiskSpace.unknownDiskSpace()), is(0));
     }
@@ -40,4 +39,3 @@ public class DiskSpaceTest {
         assertThat(DiskSpace.unknownDiskSpace().toString(), is("Unknown"));
     }
 }
-                                                           

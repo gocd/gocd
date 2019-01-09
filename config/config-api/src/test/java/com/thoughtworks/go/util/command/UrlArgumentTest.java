@@ -16,17 +16,13 @@
 
 package com.thoughtworks.go.util.command;
 
-import java.net.MalformedURLException;
-
-import org.hamcrest.core.Is;
-import org.hamcrest.core.IsNot;
-import org.hamcrest.core.StringContains;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import static org.hamcrest.core.Is.is;
-import static org.hamcrest.core.IsNot.not;
+import java.net.MalformedURLException;
+
+import static org.hamcrest.Matchers.*;
 
 public class UrlArgumentTest {
     private static final String URL_WITH_PASSWORD = "http://username:password@somehere";
@@ -39,39 +35,39 @@ public class UrlArgumentTest {
     }
 
     @Test public void shouldReturnStringValueForCommandLine() throws Exception {
-        Assert.assertThat(argument.forCommandline(), Is.is(URL_WITH_PASSWORD));
+        Assert.assertThat(argument.forCommandline(), is(URL_WITH_PASSWORD));
     }
 
     @Test public void shouldReturnStringValueForReporting() throws Exception {
-        Assert.assertThat(argument.forDisplay(), Is.is("http://username:******@somehere"));
+        Assert.assertThat(argument.forDisplay(), is("http://username:******@somehere"));
     }
 
     @Test public void shouldReturnValueForToString() throws Exception {
-        Assert.assertThat(argument.toString(), Is.is("http://username:******@somehere"));
+        Assert.assertThat(argument.toString(), is("http://username:******@somehere"));
     }
 
     @Test public void shouldNotChangeNormalURL() throws Exception {
         String normal = "http://normal/foo/bar/baz?a=b&c=d#fragment";
         UrlArgument url = new UrlArgument(normal);
-        Assert.assertThat(url.toString(), Is.is(normal));
+        Assert.assertThat(url.toString(), is(normal));
     }
 
     @Test public void shouldWorkWithSvnSshUrl() throws Exception {
         String normal = "svn+ssh://user:password@10.18.7.51:8153";
         UrlArgument url = new UrlArgument(normal);
-        Assert.assertThat(url.toString(), Is.is("svn+ssh://user:******@10.18.7.51:8153"));
+        Assert.assertThat(url.toString(), is("svn+ssh://user:******@10.18.7.51:8153"));
     }
 
     @Test public void shouldWorkWithJustUser() throws Exception {
         String normal = "svn+ssh://user@10.18.7.51:8153";
         UrlArgument url = new UrlArgument(normal);
-        Assert.assertThat(url.forDisplay(), Is.is("svn+ssh://******@10.18.7.51:8153"));
+        Assert.assertThat(url.forDisplay(), is("svn+ssh://******@10.18.7.51:8153"));
     }
 
     @Test public void shouldIgnoreArgumentsThatAreNotRecognisedUrls() throws Exception {
         String notAUrl = "C:\\foo\\bar\\baz";
         UrlArgument url = new UrlArgument(notAUrl);
-        Assert.assertThat(url.toString(), Is.is(notAUrl));
+        Assert.assertThat(url.toString(), is(notAUrl));
     }
 
     @Test public void shouldBeEqualBasedOnCommandLine() throws Exception {
@@ -85,7 +81,7 @@ public class UrlArgumentTest {
         UrlArgument url2 = new UrlArgument("http://user:other@10.18.7.51:8153");
         UrlArgument url3 = new UrlArgument("http://user:password@10.18.7.51:8153");
         Assert.assertThat(url1, is(url3));
-        Assert.assertThat(url1, Is.is(not(url2)));
+        Assert.assertThat(url1, is(not(url2)));
     }
 
     @Test public void shouldIgnoreTrailingSlashesOnURIs() throws Exception {
@@ -97,8 +93,8 @@ public class UrlArgumentTest {
     @Test
      public void shouldMaskPasswordInHgUrlWithBranch(){
          UrlArgument url = new UrlArgument("http://cce:password@10.18.3.171:8080/hg/connect4/trunk#foo");
-         Assert.assertThat(url.hostInfoForCommandline(), Is.is("http://cce:password@10.18.3.171:8080"));
-         Assert.assertThat(url.hostInfoForDisplay(), Is.is("http://cce:******@10.18.3.171:8080"));
+         Assert.assertThat(url.hostInfoForCommandline(), is("http://cce:password@10.18.3.171:8080"));
+         Assert.assertThat(url.hostInfoForDisplay(), is("http://cce:******@10.18.3.171:8080"));
      }
 
     @Test //BUG #2973
@@ -128,14 +124,14 @@ public class UrlArgumentTest {
 
         UrlArgument url = new UrlArgument("http://cce:password@10.18.3.171:8080/svn/connect4/trunk");
         String result = url.replaceSecretInfo(output);
-        Assert.assertThat(result, StringContains.containsString("<url>http://cce:******@10.18.3.171:8080/svn/connect4/trunk</url>"));
-        Assert.assertThat(result, StringContains.containsString("<root>http://cce:******@10.18.3.171:8080/svn/connect4</root>"));
-        Assert.assertThat(result, IsNot.not(StringContains.containsString("cce:password")));
+        Assert.assertThat(result, containsString("<url>http://cce:******@10.18.3.171:8080/svn/connect4/trunk</url>"));
+        Assert.assertThat(result, containsString("<root>http://cce:******@10.18.3.171:8080/svn/connect4</root>"));
+        Assert.assertThat(result, not(containsString("cce:password")));
     }
 
     @Test //BUG #5471
     public void shouldMaskAuthTokenInUrl() {
         UrlArgument url = new UrlArgument("https://9bf58jhrb32f29ad0c3983a65g594f1464jgf9a3@somewhere");
-        Assert.assertThat(url.forDisplay(), Is.is("https://******@somewhere"));
+        Assert.assertThat(url.forDisplay(), is("https://******@somewhere"));
     }
 }

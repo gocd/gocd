@@ -25,15 +25,13 @@ import com.thoughtworks.go.helper.MaterialsMother;
 import com.thoughtworks.go.util.DateUtils;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
-import org.hamcrest.core.IsNull;
 import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.Date;
 
 import static java.util.Arrays.asList;
-import static org.hamcrest.core.Is.is;
-import static org.hamcrest.core.IsNot.not;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -56,7 +54,7 @@ public class SCMXmlViewModelTest {
 
         Element changeSet = modificationsTag.element("changeset");
 
-        assertThat(changeSet, is(not(IsNull.nullValue())));
+        assertThat(changeSet, is(not(nullValue())));
         assertThat(changeSet.attributeValue("changesetUri"), is("http://someurl:8153/go/api/materials/1/changeset/revision-1.xml"));
         assertThat(changeSet.element("user").getText(), is(userName));
         assertThat(changeSet.element("revision").getText(), is(revision));

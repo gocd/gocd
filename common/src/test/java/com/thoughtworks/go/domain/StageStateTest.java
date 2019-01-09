@@ -21,7 +21,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.hamcrest.Matcher;
-import static org.hamcrest.core.Is.is;
+import static org.hamcrest.Matchers.is;
 import org.junit.After;
 import static org.junit.Assert.assertThat;
 import org.junit.Before;

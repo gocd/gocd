@@ -19,10 +19,10 @@ package com.thoughtworks.go.plugin.access.configrepo.v2;
 import com.thoughtworks.go.plugin.access.configrepo.ConfigRepoMigrator;
 import com.thoughtworks.go.plugin.configrepo.codec.GsonCodec;
 import com.thoughtworks.go.plugin.domain.configrepo.Capabilities;
-import org.hamcrest.CoreMatchers;
 import org.junit.Test;
 
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.assertThat;
+import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.mock;
 
 public class JsonMessageHandler2_0Test {
@@ -35,6 +35,6 @@ public class JsonMessageHandler2_0Test {
 
     @Test
     public void shouldReturnAllFalseCapabilities() {
-        assertThat(handler.getCapabilitiesFromResponse("{\"supportsPipelineExport\":\"true\",\"supportsParseContent\":\"true\"}"), CoreMatchers.is(new Capabilities(true, true)));
+        assertThat(handler.getCapabilitiesFromResponse("{\"supportsPipelineExport\":\"true\",\"supportsParseContent\":\"true\"}"), is(new Capabilities(true, true)));
     }
 }

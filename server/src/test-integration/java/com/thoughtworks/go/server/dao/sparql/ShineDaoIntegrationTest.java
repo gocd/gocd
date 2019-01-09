@@ -40,12 +40,10 @@ import com.thoughtworks.studios.shine.cruise.stage.details.LazyStageGraphLoader;
 import com.thoughtworks.studios.shine.cruise.stage.details.StageResourceImporter;
 import com.thoughtworks.studios.shine.cruise.stage.details.StageStorage;
 import com.thoughtworks.studios.shine.net.StubGoURLRepository;
-import org.hamcrest.core.Is;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.contrib.java.lang.system.EnvironmentVariables;
 import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -57,10 +55,11 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
+import static com.thoughtworks.go.domain.testinfo.TestStatus.Failure;
 import static com.thoughtworks.studios.shine.cruise.builder.JunitXML.junitXML;
-import static org.hamcrest.CoreMatchers.hasItems;
+import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.hasItem;
-import static org.hamcrest.core.Is.is;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {
@@ -133,7 +132,7 @@ public class ShineDaoIntegrationTest {
         List<TestInformation> tests = suites.get(0).tests();
         assertThat(tests.size(), is(2));
         assertThat(tests.get(0).getName(), is("test1"));
-        assertThat(tests.get(0).getStatus(), Is.is(TestStatus.Failure));
+        assertThat(tests.get(0).getStatus(), is(Failure));
         assertThat(tests.get(0).getJobNames(), hasItems("NixBuild", "WinBuild"));
         assertThat(tests.get(1).getName(), is("test2"));
         assertThat(tests.get(1).getStatus(), is(TestStatus.Error));

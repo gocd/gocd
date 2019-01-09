@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.Map;
 
 import static com.thoughtworks.go.util.TestUtils.contains;
-import static org.hamcrest.core.Is.is;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;

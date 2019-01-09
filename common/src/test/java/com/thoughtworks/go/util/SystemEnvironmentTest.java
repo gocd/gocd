@@ -30,7 +30,7 @@ import java.io.File;
 import java.util.Properties;
 
 import static org.hamcrest.Matchers.nullValue;
-import static org.hamcrest.core.Is.is;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.*;
 
 @RunWith(JunitExtRunner.class)

@@ -19,7 +19,7 @@ package com.thoughtworks.go.server.controller;
 import java.io.UnsupportedEncodingException;
 
 import static com.thoughtworks.go.util.GoConstants.RESPONSE_CHARSET;
-import static org.hamcrest.core.Is.is;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertEquals;
 import org.springframework.mock.web.MockHttpServletResponse;

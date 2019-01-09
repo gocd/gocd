@@ -17,12 +17,11 @@
 package com.thoughtworks.go.validation;
 
 import com.thoughtworks.go.domain.materials.ValidationBean;
-
-import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
-
-import org.hamcrest.core.Is;
 import org.junit.Test;
+
+import static com.thoughtworks.go.validation.PipelineGroupValidator.ERRORR_MESSAGE;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
 
 public class PipelineGroupValidatorTest {
 
@@ -43,7 +42,7 @@ public class PipelineGroupValidatorTest {
         ValidationBean validationBean = Validator.PIPELINEGROUP.validate("pipeline GroupName");
         assertThat(validationBean.isValid(), is(false));
         assertThat(validationBean.getError(),
-                Is.is(PipelineGroupValidator.ERRORR_MESSAGE));
+                is(ERRORR_MESSAGE));
     }
 
     @Test
@@ -51,7 +50,7 @@ public class PipelineGroupValidatorTest {
         ValidationBean validationBean = Validator.PIPELINEGROUP.validate("pipeline& GroupName");
         assertThat(validationBean.isValid(), is(false));
         assertThat(validationBean.getError(),
-                Is.is(PipelineGroupValidator.ERRORR_MESSAGE));
+                is(ERRORR_MESSAGE));
     }
 
 }

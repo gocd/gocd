@@ -20,7 +20,7 @@ import java.util.Arrays;
 
 import org.junit.Test;
 
-import static org.hamcrest.core.Is.is;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
 public class PathFromAncestorTest {
@@ -35,7 +35,7 @@ public class PathFromAncestorTest {
         PathFromAncestor path = new PathFromAncestor(new CaseInsensitiveString("grand-parent/parent/child"));
         assertThat(path.pathIncludingAncestor(), is(Arrays.asList(new CaseInsensitiveString("child"), new CaseInsensitiveString("parent"), new CaseInsensitiveString("grand-parent"))));
     }
-    
+
     @Test
     public void shouldUnderstandAncestorName() {
         PathFromAncestor path = new PathFromAncestor(new CaseInsensitiveString("grand-parent/parent/child"));
@@ -47,7 +47,7 @@ public class PathFromAncestorTest {
         PathFromAncestor path = new PathFromAncestor(new CaseInsensitiveString("grand-parent/parent/child"));
         assertThat(path.getDirectParentName(), is(new CaseInsensitiveString("child")));
     }
-    
+
     @Test
     public void shouldReturnPath_asToString() {//this is important because its used in xml fragment that is spit out on job-console
         assertThat(new PathFromAncestor(new CaseInsensitiveString("grand-parent/parent/child")).toString(), is("grand-parent/parent/child"));

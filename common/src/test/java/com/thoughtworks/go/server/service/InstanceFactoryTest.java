@@ -26,8 +26,6 @@ import com.thoughtworks.go.util.Clock;
 import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.TimeProvider;
 import com.thoughtworks.go.utils.Timeout;
-import org.hamcrest.CoreMatchers;
-import org.hamcrest.core.IsNull;
 import org.joda.time.DateTime;
 import org.junit.Before;
 import org.junit.Test;
@@ -37,12 +35,13 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.UUID;
 
+import static com.thoughtworks.go.domain.JobResult.Passed;
+import static com.thoughtworks.go.domain.JobResult.Unknown;
+import static com.thoughtworks.go.domain.JobState.Completed;
+import static com.thoughtworks.go.domain.JobState.Scheduled;
 import static com.thoughtworks.go.helper.ModificationsMother.modifyOneFile;
 import static com.thoughtworks.go.util.DataStructureUtils.a;
-import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.Matchers.*;
-import static org.hamcrest.core.Is.is;
-import static org.hamcrest.core.IsNull.notNullValue;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.any;
@@ -178,15 +177,15 @@ public class InstanceFactoryTest {
         JobInstance rails = jobInstance(old, "rails", 7, 10);
         JobInstance java = jobInstance(old, "java", 12, 22);
         Stage stage = stage(9, rails, java);
-        assertThat(stage.hasRerunJobs(), CoreMatchers.is(false));
+        assertThat(stage.hasRerunJobs(), is(false));
 
         Stage newStage = instanceFactory.createStageForRerunOfJobs(stage, a("rails"), new DefaultSchedulingContext("loser", new Agents()), StageConfigMother.custom("dev", "rails", "java"),
                 new TimeProvider(), "md5");
-        assertThat(stage.hasRerunJobs(), CoreMatchers.is(false));
+        assertThat(stage.hasRerunJobs(), is(false));
 
-        assertThat(newStage.getId(), CoreMatchers.is(-1l));
-        assertThat(newStage.getJobInstances().size(), CoreMatchers.is(2));
-        assertThat(newStage.isLatestRun(), CoreMatchers.is(true));
+        assertThat(newStage.getId(), is(-1l));
+        assertThat(newStage.getJobInstances().size(), is(2));
+        assertThat(newStage.isLatestRun(), is(true));
 
         JobInstance newRails = newStage.getJobInstances().getByName("rails");
         assertNewJob(old, newRails);
@@ -206,10 +205,10 @@ public class InstanceFactoryTest {
         Stage newStage = instanceFactory.createStageForRerunOfJobs(stage, a("rails"), new DefaultSchedulingContext("loser", new Agents()), StageConfigMother.custom("dev", "rails", "java"),
                 new TimeProvider(), "md5");
         newStage.setCounter(3);
-        assertThat(newStage.getId(), CoreMatchers.is(-1l));
-        assertThat(newStage.getJobInstances().size(), CoreMatchers.is(2));
-        assertThat(newStage.isLatestRun(), CoreMatchers.is(true));
-        assertThat(newStage.getRerunOfCounter(), CoreMatchers.is(2));
+        assertThat(newStage.getId(), is(-1l));
+        assertThat(newStage.getJobInstances().size(), is(2));
+        assertThat(newStage.isLatestRun(), is(true));
+        assertThat(newStage.getRerunOfCounter(), is(2));
 
         JobInstance newJava = newStage.getJobInstances().getByName("java");
         assertCopiedJob(newJava, 12l);
@@ -220,10 +219,10 @@ public class InstanceFactoryTest {
         newStage = instanceFactory.createStageForRerunOfJobs(newStage, a("rails"), new DefaultSchedulingContext("loser", new Agents()), StageConfigMother.custom("dev", "rails", "java"),
                 new TimeProvider(), "md5");
         newStage.setCounter(4);
-        assertThat(newStage.getId(), CoreMatchers.is(-1l));
-        assertThat(newStage.getJobInstances().size(), CoreMatchers.is(2));
-        assertThat(newStage.isLatestRun(), CoreMatchers.is(true));
-        assertThat(newStage.getRerunOfCounter(), CoreMatchers.is(2));
+        assertThat(newStage.getId(), is(-1l));
+        assertThat(newStage.getJobInstances().size(), is(2));
+        assertThat(newStage.isLatestRun(), is(true));
+        assertThat(newStage.getRerunOfCounter(), is(2));
 
         newJava = newStage.getJobInstances().getByName("java");
         assertCopiedJob(newJava, 12l);
@@ -253,7 +252,7 @@ public class InstanceFactoryTest {
                 StageConfigMother.custom("test", "first-job", "second-job"),
                 new TimeProvider(),
                 "latest");
-        assertThat(clonedStage.getConfigVersion(), CoreMatchers.is("latest"));
+        assertThat(clonedStage.getConfigVersion(), is("latest"));
     }
 
     @Test
@@ -373,7 +372,7 @@ public class InstanceFactoryTest {
         JobInstances jobs = instanceFactory.createJobInstance(new CaseInsensitiveString("someStage"), jobConfig, new DefaultSchedulingContext(), new TimeProvider(), jobNameGenerator);
 
         assertThat(jobs.toArray(), hasItemInArray(hasProperty("name", is("foo"))));
-        assertThat(jobs.toArray(), hasItemInArray(hasProperty("agentUuid", IsNull.nullValue())));
+        assertThat(jobs.toArray(), hasItemInArray(hasProperty("agentUuid", nullValue())));
         assertThat(jobs.toArray(), hasItemInArray(hasProperty("runOnAllAgents", is(false))));
         assertThat(jobs.size(), is(1));
     }
@@ -394,8 +393,8 @@ public class InstanceFactoryTest {
         } catch (CannotRerunJobException e) {
             exception = e;
         }
-        assertThat(exception.getJobName(), CoreMatchers.is("rails"));
-        assertThat(newStage, CoreMatchers.is(nullValue()));
+        assertThat(exception.getJobName(), is("rails"));
+        assertThat(newStage, is(nullValue()));
     }
 
     @Test
@@ -406,8 +405,8 @@ public class InstanceFactoryTest {
         Stage stage = stage(9, rails, java);
         Stage newStage = instanceFactory.createStageForRerunOfJobs(stage, a("rails"), new DefaultSchedulingContext("loser", new Agents()), StageConfigMother.custom("dev", "rails", "java"),
                 new TimeProvider(), "md5");
-        assertThat(newStage.getJobInstances().getByName("rails").getAgentUuid(), CoreMatchers.is(nullValue()));
-        assertThat(newStage.getJobInstances().getByName("java").getAgentUuid(), CoreMatchers.is(not(nullValue())));
+        assertThat(newStage.getJobInstances().getByName("rails").getAgentUuid(), is(nullValue()));
+        assertThat(newStage.getJobInstances().getByName("java").getAgentUuid(), is(not(nullValue())));
     }
 
     @Test
@@ -536,7 +535,7 @@ public class InstanceFactoryTest {
             instanceFactory.createStageForRerunOfJobs(stage, a("rails-runOnAll-1", "rails-runOnAll-2"), schedulingContext, stageConfig, new TimeProvider(), "md5");
             fail("should have failed when multiple run on all agents jobs are selected when job-config does not have run on all flag anymore");
         } catch (IllegalArgumentException e) {
-            assertThat(e.getMessage(), CoreMatchers.is("Cannot schedule multiple instances of job named 'rails'."));
+            assertThat(e.getMessage(), is("Cannot schedule multiple instances of job named 'rails'."));
         }
     }
 
@@ -562,19 +561,19 @@ public class InstanceFactoryTest {
 
         Stage newStage = instanceFactory.createStageForRerunOfJobs(stage, a("rails-runOnAll-1"), schedulingContext, stageConfig, new TimeProvider(), "md5");
 
-        assertThat(newStage.getJobInstances().size(), CoreMatchers.is(3));
+        assertThat(newStage.getJobInstances().size(), is(3));
 
         JobInstance newRailsJob = newStage.getJobInstances().getByName("rails");
         assertNewJob(old, newRailsJob);
-        assertThat(newRailsJob.getAgentUuid(), CoreMatchers.is("abcd1234"));
+        assertThat(newRailsJob.getAgentUuid(), is("abcd1234"));
 
         JobInstance copiedRailsJob = newStage.getJobInstances().getByName("rails-runOnAll-2");
         assertCopiedJob(copiedRailsJob, 102l);
-        assertThat(copiedRailsJob.getAgentUuid(), CoreMatchers.is("1234abcd"));
+        assertThat(copiedRailsJob.getAgentUuid(), is("1234abcd"));
 
         JobInstance copiedJavaJob = newStage.getJobInstances().getByName("java");
         assertCopiedJob(copiedJavaJob, 12l);
-        assertThat(copiedJavaJob.getAgentUuid(), CoreMatchers.is(not(nullValue())));
+        assertThat(copiedJavaJob.getAgentUuid(), is(not(nullValue())));
     }
 
     @Test
@@ -592,19 +591,19 @@ public class InstanceFactoryTest {
                 new AgentConfig("1234abcd", "ghost", "192.168.1.2", new ResourceConfigs(new ResourceConfig("baz"), new ResourceConfig("foobar"))),
                 new AgentConfig("7890abdc", "lost", "10.4.3.55", new ResourceConfigs(new ResourceConfig("crapyagent"))))), stageConfig, new TimeProvider(), "md5");
 
-        assertThat(newStage.getJobInstances().size(), CoreMatchers.is(3));
+        assertThat(newStage.getJobInstances().size(), is(3));
 
         JobInstance newRailsFirstJob = newStage.getJobInstances().getByName("rails-runOnAll-1");
         assertNewJob(old, newRailsFirstJob);
-        assertThat(newRailsFirstJob.getAgentUuid(), CoreMatchers.is("abcd1234"));
+        assertThat(newRailsFirstJob.getAgentUuid(), is("abcd1234"));
 
         JobInstance newRailsSecondJob = newStage.getJobInstances().getByName("rails-runOnAll-2");
         assertNewJob(old, newRailsSecondJob);
-        assertThat(newRailsSecondJob.getAgentUuid(), CoreMatchers.is("1234abcd"));
+        assertThat(newRailsSecondJob.getAgentUuid(), is("1234abcd"));
 
         JobInstance copiedJavaJob = newStage.getJobInstances().getByName("java");
         assertCopiedJob(copiedJavaJob, 12l);
-        assertThat(copiedJavaJob.getAgentUuid(), CoreMatchers.is(not(nullValue())));
+        assertThat(copiedJavaJob.getAgentUuid(), is(not(nullValue())));
     }
 
     @Test
@@ -635,8 +634,8 @@ public class InstanceFactoryTest {
         } catch (CannotRerunJobException e) {
             exception = e;
         }
-        assertThat(exception.getJobName(), CoreMatchers.is("rails"));
-        assertThat(newStage, CoreMatchers.is(nullValue()));
+        assertThat(exception.getJobName(), is("rails"));
+        assertThat(newStage, is(nullValue()));
     }
 
     @Test
@@ -871,30 +870,30 @@ public class InstanceFactoryTest {
     }
 
     private void assertCopiedJob(JobInstance newJava, final long originalId) {
-        assertThat(newJava.getId(), CoreMatchers.is(-1l));
-        assertThat(newJava.getTransitions().isEmpty(), CoreMatchers.is(false));
-        assertThat(newJava.getResult(), CoreMatchers.is(JobResult.Passed));
-        assertThat(newJava.getState(), CoreMatchers.is(JobState.Completed));
-        assertThat(newJava.getTransitions().byState(JobState.Scheduled).getId(), CoreMatchers.is(-1l));
-        assertThat(newJava.getTransitions().byState(JobState.Completed).getId(), CoreMatchers.is(-1l));
-        assertThat(newJava.getOriginalJobId(), CoreMatchers.is(originalId));
-        assertThat(newJava.isRerun(), CoreMatchers.is(false));
-        assertThat(newJava.isCopy(), CoreMatchers.is(true));
+        assertThat(newJava.getId(), is(-1l));
+        assertThat(newJava.getTransitions().isEmpty(), is(false));
+        assertThat(newJava.getResult(), is(Passed));
+        assertThat(newJava.getState(), is(Completed));
+        assertThat(newJava.getTransitions().byState(Scheduled).getId(), is(-1l));
+        assertThat(newJava.getTransitions().byState(Completed).getId(), is(-1l));
+        assertThat(newJava.getOriginalJobId(), is(originalId));
+        assertThat(newJava.isRerun(), is(false));
+        assertThat(newJava.isCopy(), is(true));
     }
 
     private void assertNewJob(Date old, JobInstance newRails) {
         JobStateTransition newSchedulingTransition = assertNewJob(newRails);
-        assertThat(newSchedulingTransition.getStateChangeTime().after(old), CoreMatchers.is(true));
+        assertThat(newSchedulingTransition.getStateChangeTime().after(old), is(true));
     }
 
     private JobStateTransition assertNewJob(JobInstance newRails) {
-        assertThat(newRails.getId(), CoreMatchers.is(-1l));
-        assertThat(newRails.getTransitions().size(), CoreMatchers.is(1));
+        assertThat(newRails.getId(), is(-1l));
+        assertThat(newRails.getTransitions().size(), is(1));
         JobStateTransition newSchedulingTransition = newRails.getTransitions().byState(JobState.Scheduled);
-        assertThat(newSchedulingTransition.getId(), CoreMatchers.is(-1l));
-        assertThat(newRails.getResult(), CoreMatchers.is(JobResult.Unknown));
-        assertThat(newRails.getState(), CoreMatchers.is(JobState.Scheduled));
-        assertThat(newRails.isRerun(), CoreMatchers.is(true));
+        assertThat(newSchedulingTransition.getId(), is(-1l));
+        assertThat(newRails.getResult(), is(Unknown));
+        assertThat(newRails.getState(), is(Scheduled));
+        assertThat(newRails.isRerun(), is(true));
         return newSchedulingTransition;
     }
 

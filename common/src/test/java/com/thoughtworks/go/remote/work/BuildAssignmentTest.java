@@ -48,7 +48,7 @@ import java.io.IOException;
 import java.util.*;
 
 import static com.thoughtworks.go.config.materials.svn.SvnMaterial.createSvnMaterialWithMock;
-import static org.hamcrest.core.Is.is;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.MockitoAnnotations.initMocks;
 

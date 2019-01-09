@@ -19,7 +19,7 @@ package com.thoughtworks.go.config;
 import com.thoughtworks.go.config.helper.ValidationContextMother;
 import org.junit.Test;
 
-import static org.hamcrest.core.Is.is;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
 

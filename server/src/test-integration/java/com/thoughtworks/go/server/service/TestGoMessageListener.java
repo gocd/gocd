@@ -24,7 +24,7 @@ import com.thoughtworks.go.server.messaging.GoMessageListener;
 import org.hamcrest.Matcher;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
-import static org.hamcrest.core.IsCollectionContaining.hasItem;
+import static org.hamcrest.Matchers.hasItem;
 
 public class TestGoMessageListener implements GoMessageListener {
     private static final int TIMEOUT = 10000;

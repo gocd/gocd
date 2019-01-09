@@ -33,7 +33,7 @@ import org.junit.Test;
 import java.util.Arrays;
 
 import static com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother.create;
-import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.contains;
 import static org.junit.Assert.*;
 

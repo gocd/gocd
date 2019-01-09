@@ -35,7 +35,7 @@ import java.util.Arrays;
 import java.util.Set;
 
 import static com.thoughtworks.go.util.DataStructureUtils.s;
-import static org.hamcrest.core.Is.is;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.matchers.JUnitMatchers.hasItems;
 import static org.mockito.ArgumentMatchers.any;

@@ -30,7 +30,6 @@ import com.thoughtworks.go.util.DateUtils;
 import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.JsonUtils;
 import com.thoughtworks.go.util.JsonValue;
-import org.hamcrest.core.Is;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -42,9 +41,7 @@ import java.util.Map;
 import static com.thoughtworks.go.helper.PipelineConfigMother.createPipelineConfigWithStages;
 import static net.javacrumbs.jsonunit.core.Option.IGNORING_EXTRA_FIELDS;
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson;
-import static org.hamcrest.Matchers.hasKey;
-import static org.hamcrest.Matchers.not;
-import static org.hamcrest.core.Is.is;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 
 public class PipelineHistoryJsonPresentationModelTest {
@@ -179,7 +176,7 @@ public class PipelineHistoryJsonPresentationModelTest {
         pipelinePauseInfo.setPaused(true);
         HashMap<String, Object> map = new HashMap(presenter.toJson());
 
-        assertThat(map.get("paused"), Is.<Object>is("true"));
+        assertThat(map.get("paused"), is("true"));
         assertThat(map, not(hasKey("needsApproval")));
     }
 

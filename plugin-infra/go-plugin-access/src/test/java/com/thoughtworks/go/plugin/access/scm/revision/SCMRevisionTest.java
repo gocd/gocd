@@ -23,7 +23,7 @@ import org.junit.Test;
 import java.util.Date;
 import java.util.HashMap;
 
-import static org.hamcrest.core.Is.is;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.*;
 
 public class SCMRevisionTest {

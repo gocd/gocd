@@ -27,7 +27,7 @@ import com.thoughtworks.go.config.ResourceConfig;
 import com.thoughtworks.go.config.ResourceConfigs;
 
 import static org.hamcrest.Matchers.hasItem;
-import static org.hamcrest.core.Is.is;
+import static org.hamcrest.Matchers.is;
 import org.hamcrest.Matchers;
 import static org.junit.Assert.assertThat;
 import org.junit.Before;

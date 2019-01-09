@@ -33,7 +33,7 @@ import java.util.Date;
 import java.util.Set;
 
 import static com.thoughtworks.go.util.DataStructureUtils.s;
-import static org.hamcrest.core.Is.is;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;

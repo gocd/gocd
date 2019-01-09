@@ -22,7 +22,6 @@ import com.thoughtworks.go.helper.SvnRemoteRepository;
 import com.thoughtworks.go.util.command.InMemoryStreamConsumer;
 import com.thoughtworks.go.util.command.ProcessOutputStreamConsumer;
 import org.apache.commons.io.FileUtils;
-import org.hamcrest.core.Is;
 import org.jdom2.input.SAXBuilder;
 import org.junit.After;
 import org.junit.Before;
@@ -94,65 +93,65 @@ public class SvnCommandRemoteTest {
     @Test
     public void shouldMaskPassword_CheckConnection() {
         ValidationBean goodResponse = command.checkConnection();
-        assertThat(goodResponse.isValid(), Is.is(true));
-        assertThat("Plain text password detected!", goodResponse.getError().contains(HARRYS_PASSWORD), Is.is(false));
+        assertThat(goodResponse.isValid(), is(true));
+        assertThat("Plain text password detected!", goodResponse.getError().contains(HARRYS_PASSWORD), is(false));
 
         ValidationBean badResponse = badUserNameCommand().checkConnection();
-        assertThat(badResponse.isValid(), Is.is(false));
-        assertThat("Plain text password detected!", badResponse.getError().contains(HARRYS_PASSWORD), Is.is(false));
+        assertThat(badResponse.isValid(), is(false));
+        assertThat("Plain text password detected!", badResponse.getError().contains(HARRYS_PASSWORD), is(false));
 
         badResponse = badPasswordCommand().checkConnection();
-        assertThat(badResponse.isValid(), Is.is(false));
-        assertThat("Plain text password detected!", badResponse.getError().contains("some_bad_password"), Is.is(false));
+        assertThat(badResponse.isValid(), is(false));
+        assertThat("Plain text password detected!", badResponse.getError().contains("some_bad_password"), is(false));
 
         badResponse = badUrlCommand().checkConnection();
-        assertThat(badResponse.isValid(), Is.is(false));
-        assertThat("Plain text password detected!", badResponse.getError().contains(HARRYS_PASSWORD), Is.is(false));
+        assertThat(badResponse.isValid(), is(false));
+        assertThat("Plain text password detected!", badResponse.getError().contains(HARRYS_PASSWORD), is(false));
     }
 
     @Test
     public void shouldMaskPassword_UpdateTo() {
         command.checkoutTo(outputStreamConsumer, workingDir, new SubversionRevision(2));
         command.updateTo(outputStreamConsumer, workingDir, new SubversionRevision(2));
-        assertThat("Plain text password detected!", outputStreamConsumer.getAllOutput().contains(HARRYS_PASSWORD), Is.is(false));
+        assertThat("Plain text password detected!", outputStreamConsumer.getAllOutput().contains(HARRYS_PASSWORD), is(false));
 
         try {
             badUserNameCommand().updateTo(outputStreamConsumer, workingDir, new SubversionRevision(2));
             fail("should have failed");
         } catch (Exception e) {
-            assertThat("Plain text password detected!", e.getMessage().contains(HARRYS_PASSWORD), Is.is(false));
-            assertThat("Plain text password detected!", outputStreamConsumer.getAllOutput().contains(HARRYS_PASSWORD), Is.is(false));
+            assertThat("Plain text password detected!", e.getMessage().contains(HARRYS_PASSWORD), is(false));
+            assertThat("Plain text password detected!", outputStreamConsumer.getAllOutput().contains(HARRYS_PASSWORD), is(false));
         }
 
         try {
             badPasswordCommand().updateTo(outputStreamConsumer, workingDir, new SubversionRevision(2));
             fail("should have failed");
         } catch (Exception e) {
-            assertThat("Plain text password detected!", e.getMessage().contains("some_bad_password"), Is.is(false));
-            assertThat("Plain text password detected!", outputStreamConsumer.getAllOutput().contains("some_bad_password"), Is.is(false));
+            assertThat("Plain text password detected!", e.getMessage().contains("some_bad_password"), is(false));
+            assertThat("Plain text password detected!", outputStreamConsumer.getAllOutput().contains("some_bad_password"), is(false));
         }
 
         try {
             badUrlCommand().updateTo(outputStreamConsumer, workingDir, new SubversionRevision(2));
             fail("should have failed");
         } catch (Exception e) {
-            assertThat("Plain text password detected!", e.getMessage().contains(HARRYS_PASSWORD), Is.is(false));
-            assertThat("Plain text password detected!", outputStreamConsumer.getAllOutput().contains(HARRYS_PASSWORD), Is.is(false));
+            assertThat("Plain text password detected!", e.getMessage().contains(HARRYS_PASSWORD), is(false));
+            assertThat("Plain text password detected!", outputStreamConsumer.getAllOutput().contains(HARRYS_PASSWORD), is(false));
         }
     }
 
     @Test
     public void shouldMaskPassword_CheckoutTo() {
         command.checkoutTo(outputStreamConsumer, workingDir, new SubversionRevision(2));
-        assertThat("Plain text password detected!", outputStreamConsumer.getAllOutput().contains(HARRYS_PASSWORD), Is.is(false));
+        assertThat("Plain text password detected!", outputStreamConsumer.getAllOutput().contains(HARRYS_PASSWORD), is(false));
 
         try {
             FileUtils.deleteQuietly(workingDir);
             badUserNameCommand().checkoutTo(outputStreamConsumer, workingDir, new SubversionRevision(2));
             fail("should have failed");
         } catch (Exception e) {
-            assertThat("Plain text password detected!", e.getMessage().contains(HARRYS_PASSWORD), Is.is(false));
-            assertThat("Plain text password detected!", outputStreamConsumer.getAllOutput().contains(HARRYS_PASSWORD), Is.is(false));
+            assertThat("Plain text password detected!", e.getMessage().contains(HARRYS_PASSWORD), is(false));
+            assertThat("Plain text password detected!", outputStreamConsumer.getAllOutput().contains(HARRYS_PASSWORD), is(false));
         }
 
         try {
@@ -160,8 +159,8 @@ public class SvnCommandRemoteTest {
             badPasswordCommand().checkoutTo(outputStreamConsumer, workingDir, new SubversionRevision(2));
             fail("should have failed");
         } catch (Exception e) {
-            assertThat("Plain text password detected!", e.getMessage().contains("some_bad_password"), Is.is(false));
-            assertThat("Plain text password detected!", outputStreamConsumer.getAllOutput().contains("some_bad_password"), Is.is(false));
+            assertThat("Plain text password detected!", e.getMessage().contains("some_bad_password"), is(false));
+            assertThat("Plain text password detected!", outputStreamConsumer.getAllOutput().contains("some_bad_password"), is(false));
         }
 
         try {
@@ -169,8 +168,8 @@ public class SvnCommandRemoteTest {
             badUrlCommand().checkoutTo(outputStreamConsumer, workingDir, new SubversionRevision(2));
             fail("should have failed");
         } catch (Exception e) {
-            assertThat("Plain text password detected!", e.getMessage().contains(HARRYS_PASSWORD), Is.is(false));
-            assertThat("Plain text password detected!", outputStreamConsumer.getAllOutput().contains(HARRYS_PASSWORD), Is.is(false));
+            assertThat("Plain text password detected!", e.getMessage().contains(HARRYS_PASSWORD), is(false));
+            assertThat("Plain text password detected!", outputStreamConsumer.getAllOutput().contains(HARRYS_PASSWORD), is(false));
         }
     }
 
@@ -180,21 +179,21 @@ public class SvnCommandRemoteTest {
             badUserNameCommand().getAllExternalURLs();
             fail("should have failed");
         } catch (Exception e) {
-            assertThat("Plain text password detected!", e.getMessage().contains(HARRYS_PASSWORD), Is.is(false));
+            assertThat("Plain text password detected!", e.getMessage().contains(HARRYS_PASSWORD), is(false));
         }
 
         try {
             badPasswordCommand().getAllExternalURLs();
             fail("should have failed");
         } catch (Exception e) {
-            assertThat("Plain text password detected!", e.getMessage().contains("some_bad_password"), Is.is(false));
+            assertThat("Plain text password detected!", e.getMessage().contains("some_bad_password"), is(false));
         }
 
         try {
             badUrlCommand().getAllExternalURLs();
             fail("should have failed");
         } catch (Exception e) {
-            assertThat("Plain text password detected!", e.getMessage().contains(HARRYS_PASSWORD), Is.is(false));
+            assertThat("Plain text password detected!", e.getMessage().contains(HARRYS_PASSWORD), is(false));
         }
     }
 
@@ -204,21 +203,21 @@ public class SvnCommandRemoteTest {
             badUserNameCommand().latestModification();
             fail("should have failed");
         } catch (Exception e) {
-            assertThat("Plain text password detected!", e.getMessage().contains(HARRYS_PASSWORD), Is.is(false));
+            assertThat("Plain text password detected!", e.getMessage().contains(HARRYS_PASSWORD), is(false));
         }
 
         try {
             badPasswordCommand().latestModification();
             fail("should have failed");
         } catch (Exception e) {
-            assertThat("Plain text password detected!", e.getMessage().contains("some_bad_password"), Is.is(false));
+            assertThat("Plain text password detected!", e.getMessage().contains("some_bad_password"), is(false));
         }
 
         try {
             badUrlCommand().latestModification();
             fail("should have failed");
         } catch (Exception e) {
-            assertThat("Plain text password detected!", e.getMessage().contains(HARRYS_PASSWORD), Is.is(false));
+            assertThat("Plain text password detected!", e.getMessage().contains(HARRYS_PASSWORD), is(false));
         }
     }
 
@@ -228,21 +227,21 @@ public class SvnCommandRemoteTest {
             badUserNameCommand().latestModification();
             fail("should have failed");
         } catch (Exception e) {
-            assertThat("Plain text password detected!", e.getMessage().contains(HARRYS_PASSWORD), Is.is(false));
+            assertThat("Plain text password detected!", e.getMessage().contains(HARRYS_PASSWORD), is(false));
         }
 
         try {
             badPasswordCommand().latestModification();
             fail("should have failed");
         } catch (Exception e) {
-            assertThat("Plain text password detected!", e.getMessage().contains("some_bad_password"), Is.is(false));
+            assertThat("Plain text password detected!", e.getMessage().contains("some_bad_password"), is(false));
         }
 
         try {
             badUrlCommand().latestModification();
             fail("should have failed");
         } catch (Exception e) {
-            assertThat("Plain text password detected!", e.getMessage().contains(HARRYS_PASSWORD), Is.is(false));
+            assertThat("Plain text password detected!", e.getMessage().contains(HARRYS_PASSWORD), is(false));
         }
     }
 
@@ -252,21 +251,21 @@ public class SvnCommandRemoteTest {
             badUserNameCommand().remoteInfo(new SAXBuilder());
             fail("should have failed");
         } catch (Exception e) {
-            assertThat("Plain text password detected!", e.getMessage().contains(HARRYS_PASSWORD), Is.is(false));
+            assertThat("Plain text password detected!", e.getMessage().contains(HARRYS_PASSWORD), is(false));
         }
 
         try {
             badPasswordCommand().remoteInfo(new SAXBuilder());
             fail("should have failed");
         } catch (Exception e) {
-            assertThat("Plain text password detected!", e.getMessage().contains("some_bad_password"), Is.is(false));
+            assertThat("Plain text password detected!", e.getMessage().contains("some_bad_password"), is(false));
         }
 
         try {
             badUrlCommand().remoteInfo(new SAXBuilder());
             fail("should have failed");
         } catch (Exception e) {
-            assertThat("Plain text password detected!", e.getMessage().contains(HARRYS_PASSWORD), Is.is(false));
+            assertThat("Plain text password detected!", e.getMessage().contains(HARRYS_PASSWORD), is(false));
         }
     }
 
@@ -276,21 +275,21 @@ public class SvnCommandRemoteTest {
             badUserNameCommand().workingDirInfo(workingDir);
             fail("should have failed");
         } catch (Exception e) {
-            assertThat("Plain text password detected!", e.getMessage().contains(HARRYS_PASSWORD), Is.is(false));
+            assertThat("Plain text password detected!", e.getMessage().contains(HARRYS_PASSWORD), is(false));
         }
 
         try {
             badPasswordCommand().workingDirInfo(workingDir);
             fail("should have failed");
         } catch (Exception e) {
-            assertThat("Plain text password detected!", e.getMessage().contains("some_bad_password"), Is.is(false));
+            assertThat("Plain text password detected!", e.getMessage().contains("some_bad_password"), is(false));
         }
 
         try {
             badUrlCommand().workingDirInfo(workingDir);
             fail("should have failed");
         } catch (Exception e) {
-            assertThat("Plain text password detected!", e.getMessage().contains(HARRYS_PASSWORD), Is.is(false));
+            assertThat("Plain text password detected!", e.getMessage().contains(HARRYS_PASSWORD), is(false));
         }
     }
 
@@ -305,24 +304,24 @@ public class SvnCommandRemoteTest {
             badUserNameCommand().commit(outputStreamConsumer, workingDir, "message");
             fail("should have failed");
         } catch (Exception e) {
-            assertThat("Plain text password detected!", outputStreamConsumer.getAllOutput().contains(HARRYS_PASSWORD), Is.is(false));
-            assertThat("Plain text password detected!", e.getMessage().contains(HARRYS_PASSWORD), Is.is(false));
+            assertThat("Plain text password detected!", outputStreamConsumer.getAllOutput().contains(HARRYS_PASSWORD), is(false));
+            assertThat("Plain text password detected!", e.getMessage().contains(HARRYS_PASSWORD), is(false));
         }
 
         try {
             badPasswordCommand().commit(outputStreamConsumer, workingDir, "message");
             fail("should have failed");
         } catch (Exception e) {
-            assertThat("Plain text password detected!", outputStreamConsumer.getAllOutput().contains("some_bad_password"), Is.is(false));
-            assertThat("Plain text password detected!", e.getMessage().contains("some_bad_password"), Is.is(false));
+            assertThat("Plain text password detected!", outputStreamConsumer.getAllOutput().contains("some_bad_password"), is(false));
+            assertThat("Plain text password detected!", e.getMessage().contains("some_bad_password"), is(false));
         }
 
         try {
             badUrlCommand().commit(outputStreamConsumer, workingDir, "message");
             fail("should have failed");
         } catch (Exception e) {
-            assertThat("Plain text password detected!", outputStreamConsumer.getAllOutput().contains(HARRYS_PASSWORD), Is.is(false));
-            assertThat("Plain text password detected!", e.getMessage().contains(HARRYS_PASSWORD), Is.is(false));
+            assertThat("Plain text password detected!", outputStreamConsumer.getAllOutput().contains(HARRYS_PASSWORD), is(false));
+            assertThat("Plain text password detected!", e.getMessage().contains(HARRYS_PASSWORD), is(false));
         }
     }
 
@@ -332,21 +331,21 @@ public class SvnCommandRemoteTest {
             badUserNameCommand().propset(workingDir, "svn:ignore", "*.foo");
             fail("should have failed");
         } catch (Exception e) {
-            assertThat("Plain text password detected!", e.getMessage().contains(HARRYS_PASSWORD), Is.is(false));
+            assertThat("Plain text password detected!", e.getMessage().contains(HARRYS_PASSWORD), is(false));
         }
 
         try {
             badPasswordCommand().propset(workingDir, "svn:ignore", "*.foo");
             fail("should have failed");
         } catch (Exception e) {
-            assertThat("Plain text password detected!", e.getMessage().contains("some_bad_password"), Is.is(false));
+            assertThat("Plain text password detected!", e.getMessage().contains("some_bad_password"), is(false));
         }
 
         try {
             badUrlCommand().propset(workingDir, "svn:ignore", "*.foo");
             fail("should have failed");
         } catch (Exception e) {
-            assertThat("Plain text password detected!", e.getMessage().contains(HARRYS_PASSWORD), Is.is(false));
+            assertThat("Plain text password detected!", e.getMessage().contains(HARRYS_PASSWORD), is(false));
         }
     }
 

@@ -19,7 +19,7 @@ package com.thoughtworks.go.config.elastic;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
-import static org.hamcrest.CoreMatchers.*;
+import static org.hamcrest.Matchers.*;
 
 public class ElasticProfilesTest {
 

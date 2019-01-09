@@ -32,7 +32,7 @@ import org.junit.Test;
 
 import static com.thoughtworks.go.helper.MaterialConfigsMother.dependencyMaterialConfig;
 import static org.hamcrest.Matchers.hasItem;
-import static org.hamcrest.core.Is.is;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;

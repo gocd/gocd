@@ -22,7 +22,7 @@ import org.junit.Test;
 import org.junit.Before;
 import static org.junit.Assert.assertThat;
 import org.mockito.Mockito;
-import static org.hamcrest.core.Is.is;
+import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.containsString;
 
 public class StageLockCheckerTest {
@@ -37,7 +37,7 @@ public class StageLockCheckerTest {
         checker = new StageLockChecker(pipeline, lockService);
         result = new HttpOperationResult();
     }
-    
+
     @Test
     public void shouldAllowStagesInTheSamePipelineInstance() throws Exception {
         Mockito.when(lockService.canScheduleStageInPipeline(pipeline)).thenReturn(true);

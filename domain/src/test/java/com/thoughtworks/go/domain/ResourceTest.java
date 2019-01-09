@@ -19,7 +19,7 @@ package com.thoughtworks.go.domain;
 import com.rits.cloning.Cloner;
 import org.junit.Test;
 
-import static org.hamcrest.core.IsEqual.equalTo;
+import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertThat;
 
 public class ResourceTest {

@@ -29,8 +29,7 @@ import org.junit.jupiter.api.Test
 
 import static com.thoughtworks.go.api.base.JsonUtils.toObject
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
-import static org.hamcrest.MatcherAssert.assertThat
-import static org.hamcrest.Matchers.is
+import static org.assertj.core.api.Assertions.assertThat
 
 class UserRepresenterTest {
 
@@ -91,7 +90,7 @@ class UserRepresenterTest {
     User expectedUser = UsersMother.withName("Bob")
     JsonReader jsonReader = GsonTransformer.getInstance().jsonReaderFrom(json)
 
-    assertThat(expectedUser, is(UserRepresenter.fromJSON(jsonReader, isLoginNameOptional)))
+    assertThat(expectedUser).isEqualTo(UserRepresenter.fromJSON(jsonReader, isLoginNameOptional))
   }
 
   @Test
@@ -108,7 +107,7 @@ class UserRepresenterTest {
     expectedUser.enable()
 
     JsonReader jsonReader = GsonTransformer.getInstance().jsonReaderFrom(json)
-    assertThat(expectedUser, is(UserRepresenter.fromJSON(jsonReader, isLoginNameOptional)))
+    assertThat(expectedUser).isEqualTo(UserRepresenter.fromJSON(jsonReader, isLoginNameOptional))
   }
 
   @Test

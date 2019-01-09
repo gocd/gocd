@@ -27,7 +27,7 @@ import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.packagerepository.PackageDefinitionMother;
 import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.helper.MaterialConfigsMother;
-import org.hamcrest.CoreMatchers;
+import org.hamcrest.Matchers;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -36,8 +36,8 @@ import java.util.List;
 
 import static com.thoughtworks.go.util.TestUtils.contains;
 import static java.util.Collections.singletonList;
-import static org.hamcrest.Matchers.startsWith;
-import static org.hamcrest.core.Is.is;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
@@ -84,7 +84,7 @@ public class PipelineConfigValidationTest {
     public void rejectsLabelTemplateWithBadTruncation() {
         assertLabelTemplate("foo-${material[:5}-bar", errors -> {
             assertEquals(1, errors.size());
-            assertThat(errors.get(0), startsWith("Invalid label"));
+            assertThat(errors.get(0), Matchers.startsWith("Invalid label"));
         });
     }
 
@@ -119,7 +119,7 @@ public class PipelineConfigValidationTest {
     public void isValid_shouldEnsureLabelTemplateRefersToAMaterialOrCOUNT() {
         assertLabelTemplate("label-template-without-material-or-count", errors -> {
             assertEquals(1, errors.size());
-            assertThat(errors.get(0), startsWith("Invalid label"));
+            assertThat(errors.get(0), Matchers.startsWith("Invalid label"));
         });
     }
 
@@ -127,7 +127,7 @@ public class PipelineConfigValidationTest {
     public void isValid_shouldEnsureLabelTemplateHasValidVariablePattern() {
         assertLabelTemplate("pipeline-${COUNT", errors -> {
             assertEquals(1, errors.size());
-            assertThat(errors.get(0), startsWith("Invalid label"));
+            assertThat(errors.get(0), Matchers.startsWith("Invalid label"));
         });
     }
 
@@ -423,7 +423,7 @@ public class PipelineConfigValidationTest {
         config.addTemplate(new PipelineTemplateConfig(new CaseInsensitiveString("t1")));
         pipelineConfig.setTemplateName(new CaseInsensitiveString("t1"));
         pipelineConfig.validateTree(PipelineConfigSaveValidationContext.forChain(true, "group", config, pipelineConfig));
-        assertThat(pipelineConfig.errors().getAllOn("template"), is(CoreMatchers.nullValue()));
+        assertThat(pipelineConfig.errors().getAllOn("template"), is(nullValue()));
     }
 
     @Test

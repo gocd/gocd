@@ -36,8 +36,8 @@ import org.junit.Test;
 
 import static com.thoughtworks.go.helper.ModificationsMother.aCheckIn;
 import static com.thoughtworks.go.helper.ModificationsMother.multipleCheckin;
-import static org.hamcrest.core.Is.is;
-import static org.hamcrest.core.IsNull.notNullValue;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 

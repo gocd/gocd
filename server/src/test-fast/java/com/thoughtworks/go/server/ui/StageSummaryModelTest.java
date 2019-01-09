@@ -28,7 +28,7 @@ import static com.thoughtworks.go.helper.StageMother.completedFailedStageInstanc
 import static com.thoughtworks.go.helper.StageMother.custom;
 
 import com.thoughtworks.go.server.domain.JobDurationStrategy;
-import static org.hamcrest.core.Is.is;
+import static org.hamcrest.Matchers.is;
 
 import org.joda.time.Duration;
 import static org.junit.Assert.assertThat;

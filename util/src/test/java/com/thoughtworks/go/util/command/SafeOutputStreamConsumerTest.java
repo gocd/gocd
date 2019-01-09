@@ -18,9 +18,9 @@ package com.thoughtworks.go.util.command;
 
 import org.junit.Test;
 
-import static org.hamcrest.CoreMatchers.containsString;
+import static org.hamcrest.Matchers.containsString;
 import static org.junit.Assert.assertThat;
-import static org.hamcrest.core.IsNot.not;
+import static org.hamcrest.Matchers.not;
 
 public class SafeOutputStreamConsumerTest {
 

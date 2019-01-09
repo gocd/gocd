@@ -29,7 +29,7 @@ import org.junit.Test;
 import java.nio.ByteBuffer;
 import java.util.concurrent.Future;
 
-import static org.hamcrest.core.Is.is;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.*;
 

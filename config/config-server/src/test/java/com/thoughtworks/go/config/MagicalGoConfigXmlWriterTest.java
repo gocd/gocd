@@ -46,7 +46,6 @@ import com.thoughtworks.go.util.XsdValidationException;
 import com.thoughtworks.go.util.command.UrlArgument;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.hamcrest.core.Is;
 import org.jdom2.input.JDOMParseException;
 import org.junit.Before;
 import org.junit.Rule;
@@ -62,7 +61,6 @@ import static com.thoughtworks.go.util.DataStructureUtils.m;
 import static com.thoughtworks.go.util.GoConstants.CONFIG_SCHEMA_VERSION;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.hamcrest.Matchers.*;
-import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
@@ -735,13 +733,13 @@ public class MagicalGoConfigXmlWriterTest {
         CruiseConfig config = xmlLoader.loadConfigHolder(IOUtils.toString(inputStream, UTF_8)).config;
         JobConfig job = config.jobConfigByName("pipeline1", "mingle", "cardlist", true);
 
-        assertThat(job.tasks().size(), Is.is(2));
-        assertThat(job.tasks().findFirstByType(AntTask.class).getConditions().get(0), Is.is(new RunIfConfig("failed")));
+        assertThat(job.tasks().size(), is(2));
+        assertThat(job.tasks().findFirstByType(AntTask.class).getConditions().get(0), is(new RunIfConfig("failed")));
 
         RunIfConfigs conditions = job.tasks().findFirstByType(NantTask.class).getConditions();
-        assertThat(conditions.get(0), Is.is(new RunIfConfig("failed")));
-        assertThat(conditions.get(1), Is.is(new RunIfConfig("any")));
-        assertThat(conditions.get(2), Is.is(new RunIfConfig("passed")));
+        assertThat(conditions.get(0), is(new RunIfConfig("failed")));
+        assertThat(conditions.get(1), is(new RunIfConfig("any")));
+        assertThat(conditions.get(2), is(new RunIfConfig("passed")));
     }
 
     @Test

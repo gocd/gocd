@@ -21,7 +21,6 @@ import com.thoughtworks.go.domain.AgentRuntimeStatus;
 import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.websocket.MessageEncoding;
 import org.apache.commons.io.FileUtils;
-import org.hamcrest.core.Is;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -30,12 +29,11 @@ import org.junit.rules.TemporaryFolder;
 
 import java.io.File;
 
+import static com.thoughtworks.go.domain.AgentRuntimeStatus.Idle;
 import static com.thoughtworks.go.util.SystemUtil.currentWorkingDirectory;
+import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
-import static org.hamcrest.Matchers.nullValue;
-import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.*;
 
 public class AgentRuntimeInfoTest {
     private static final int OLD_IDX = 0;
@@ -65,7 +63,7 @@ public class AgentRuntimeInfoTest {
         AgentRuntimeInfo agentRuntimeInfo = AgentRuntimeInfo.fromServer(
                 new AgentConfig("uuid", "localhost", "127.0.0.1"), false, "/var/lib", 0L, "linux", false);
 
-        assertThat(agentRuntimeInfo.getRuntimeStatus(), Is.is(AgentRuntimeStatus.Idle));
+        assertThat(agentRuntimeInfo.getRuntimeStatus(), is(Idle));
     }
 
     @Test

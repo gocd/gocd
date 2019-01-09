@@ -21,8 +21,10 @@ import com.googlecode.junit.ext.RunIf;
 import com.googlecode.junit.ext.checkers.OSChecker;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.hamcrest.core.Is;
-import org.junit.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 
@@ -160,7 +162,7 @@ public class ZipUtilTest {
 
         String someStuff = zipUtil.getFileContentInsideZip(new ZipInputStream(new FileInputStream(zipFile)), "some-file.txt");
 
-        assertThat(someStuff, Is.is("some-text-here"));
+        assertThat(someStuff, is("some-text-here"));
     }
 
     @Test

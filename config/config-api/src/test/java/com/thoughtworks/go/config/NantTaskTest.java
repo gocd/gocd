@@ -17,15 +17,12 @@
 package com.thoughtworks.go.config;
 
 import com.thoughtworks.go.domain.TaskProperty;
-import org.hamcrest.core.Is;
 import org.junit.Test;
 
 import java.io.File;
 
 import static com.thoughtworks.go.util.DataStructureUtils.m;
-import static org.hamcrest.CoreMatchers.hasItems;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.core.IsNull.nullValue;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 
 public class NantTaskTest {
@@ -82,7 +79,7 @@ public class NantTaskTest {
         NantTask task = new NantTask();
         String path = "c:/nant/bin";
         task.setNantPath(path);
-        assertThat(task.command(), Is.is(new File(path, "nant").getPath()));
+        assertThat(task.command(), is(new File(path, "nant").getPath()));
     }
 
     @Test
@@ -90,6 +87,6 @@ public class NantTaskTest {
         NantTask task = new NantTask();
         task.setBuildFile("build/build.xml");
         task.setTarget("compile");
-        assertThat(task.arguments(), Is.is("-buildfile:\"build/build.xml\" compile"));
+        assertThat(task.arguments(), is("-buildfile:\"build/build.xml\" compile"));
     }
 }

@@ -35,7 +35,7 @@ import static com.thoughtworks.go.plugin.access.elastic.ElasticAgentExtension.SU
 import static com.thoughtworks.go.plugin.access.elastic.v3.ElasticAgentPluginConstantsV3.REQUEST_GET_PLUGIN_SETTINGS_ICON;
 import static com.thoughtworks.go.plugin.domain.common.PluginConstants.ELASTIC_AGENT_EXTENSION;
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson;
-import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;

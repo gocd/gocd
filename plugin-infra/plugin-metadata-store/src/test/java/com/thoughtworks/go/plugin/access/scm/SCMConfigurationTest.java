@@ -15,11 +15,10 @@
  */
 package com.thoughtworks.go.plugin.access.scm;
 
-import org.hamcrest.core.Is;
 import org.junit.Test;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.*;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
 
 public class SCMConfigurationTest {
     @Test
@@ -46,6 +45,6 @@ public class SCMConfigurationTest {
         SCMConfiguration p1 = new SCMConfiguration("k1").with(SCMConfiguration.DISPLAY_ORDER, 1);
         SCMConfiguration p2 = new SCMConfiguration("k2").with(SCMConfiguration.DISPLAY_ORDER, 3);
 
-        assertThat(p2.compareTo(p1), Is.is(2));
+        assertThat(p2.compareTo(p1), is(2));
     }
 }

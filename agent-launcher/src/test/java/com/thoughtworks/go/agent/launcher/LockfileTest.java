@@ -16,26 +16,17 @@
 
 package com.thoughtworks.go.agent.launcher;
 
-import java.io.File;
-import java.io.IOException;
-
 import org.apache.commons.io.FileUtils;
-import org.hamcrest.core.Is;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import static org.hamcrest.core.Is.is;
+import java.io.File;
+import java.io.IOException;
+
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.doCallRealMethod;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class LockfileTest {
 
@@ -58,7 +49,7 @@ public class LockfileTest {
         Lockfile spy = spy(lockfile);
         doReturn(false).when(spy).lockFileChangedWithinMinutes(10);
         when(lockfile.exists()).thenReturn(true);
-        assertThat(spy.exists(), Is.is(false));
+        assertThat(spy.exists(), is(false));
     }
 
     @Test
@@ -68,7 +59,7 @@ public class LockfileTest {
         Lockfile spy = spy(lockfile);
         doReturn(true).when(spy).lockFileChangedWithinMinutes(10);
         when(lockfile.exists()).thenReturn(true);
-        assertThat(spy.exists(), Is.is(true));
+        assertThat(spy.exists(), is(true));
     }
 
 

@@ -38,8 +38,8 @@ import java.util.List;
 import static com.thoughtworks.go.helper.HgTestRepo.*;
 import static java.lang.String.format;
 import static org.hamcrest.Matchers.not;
-import static org.hamcrest.core.Is.is;
-import static org.hamcrest.core.StringContains.containsString;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.containsString;
 import static org.junit.Assert.assertThat;
 
 public class HgMaterialUpdaterTest extends BuildSessionBasedTestCase {

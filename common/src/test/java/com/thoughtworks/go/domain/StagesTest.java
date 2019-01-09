@@ -16,15 +16,14 @@
 
 package com.thoughtworks.go.domain;
 
-import java.util.Date;
-
 import com.thoughtworks.go.helper.StageMother;
 import org.hamcrest.Matchers;
-import org.hamcrest.core.Is;
 import org.junit.Test;
 
+import java.util.Date;
+
 import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.core.Is.is;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
@@ -41,11 +40,11 @@ public class StagesTest {
     public void shouldThrowExceptionWhenIdNotFound() throws Exception {
         new Stages().byId(100);
     }
-    
+
     @Test
     public void shouldReturnFalseWhenNoStageExist() throws Exception {
         Stages stages = new Stages();
-        assertThat(stages.isAnyStageActive(), Is.is(false));
+        assertThat(stages.isAnyStageActive(), is(false));
     }
 
     @Test

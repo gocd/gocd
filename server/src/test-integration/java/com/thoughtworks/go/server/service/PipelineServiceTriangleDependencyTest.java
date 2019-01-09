@@ -75,7 +75,7 @@ import static com.thoughtworks.go.helper.ModificationsMother.createSvnMaterialWi
 import static com.thoughtworks.go.helper.ModificationsMother.dependencyMaterialRevision;
 import static com.thoughtworks.go.helper.ModificationsMother.oneModifiedFile;
 import static com.thoughtworks.go.domain.config.CaseInsensitiveStringMother.str;
-import static org.hamcrest.core.Is.is;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;

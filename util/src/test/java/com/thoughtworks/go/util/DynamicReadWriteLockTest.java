@@ -20,7 +20,7 @@ import org.junit.Before;
 import org.junit.After;
 import org.junit.Test;
 import static org.junit.Assert.assertThat;
-import static org.hamcrest.core.Is.is;
+import static org.hamcrest.Matchers.is;
 
 public class DynamicReadWriteLockTest {
     private DynamicReadWriteLock readWriteLock;

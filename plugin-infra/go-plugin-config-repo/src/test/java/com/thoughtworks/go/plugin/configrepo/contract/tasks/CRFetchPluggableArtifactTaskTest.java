@@ -23,8 +23,8 @@ import org.junit.Test;
 import java.util.Map;
 
 import static junit.framework.TestCase.assertNull;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertThat;
+import static org.hamcrest.Matchers.is;
 
 public class CRFetchPluggableArtifactTaskTest extends CRBaseTest<CRFetchPluggableArtifactTask> {
 

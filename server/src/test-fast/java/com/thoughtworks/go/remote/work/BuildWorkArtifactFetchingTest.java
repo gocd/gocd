@@ -36,8 +36,8 @@ import static com.thoughtworks.go.domain.JobResult.Passed;
 import static com.thoughtworks.go.matchers.ConsoleOutMatcher.containsResult;
 import static com.thoughtworks.go.util.SystemUtil.currentWorkingDirectory;
 import static org.hamcrest.Matchers.not;
-import static org.hamcrest.core.Is.is;
-import static org.hamcrest.core.StringContains.containsString;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.containsString;
 import static org.junit.Assert.assertThat;
 
 public class BuildWorkArtifactFetchingTest {

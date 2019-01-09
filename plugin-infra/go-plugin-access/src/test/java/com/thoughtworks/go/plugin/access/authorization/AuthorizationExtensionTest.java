@@ -31,7 +31,6 @@ import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 import com.thoughtworks.go.plugin.domain.common.Metadata;
 import com.thoughtworks.go.plugin.domain.common.PluginConfiguration;
 import com.thoughtworks.go.plugin.infra.PluginManager;
-import org.hamcrest.core.Is;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
@@ -48,11 +47,8 @@ import static com.thoughtworks.go.plugin.access.authorization.AuthorizationPlugi
 import static com.thoughtworks.go.plugin.api.response.DefaultGoPluginApiResponse.SUCCESS_RESPONSE_CODE;
 import static com.thoughtworks.go.plugin.domain.common.PluginConstants.AUTHORIZATION_EXTENSION;
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson;
-import static org.hamcrest.CoreMatchers.hasItem;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.hamcrest.Matchers.hasSize;
+import static org.junit.Assert.assertThat;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
@@ -328,9 +324,9 @@ public class AuthorizationExtensionTest {
     }
 
     private void assertRequest(GoPluginApiRequest goPluginApiRequest, String extensionName, String version, String requestName, String requestBody) {
-        Assert.assertThat(goPluginApiRequest.extension(), Is.is(extensionName));
-        Assert.assertThat(goPluginApiRequest.extensionVersion(), Is.is(version));
-        Assert.assertThat(goPluginApiRequest.requestName(), Is.is(requestName));
+        Assert.assertThat(goPluginApiRequest.extension(), is(extensionName));
+        Assert.assertThat(goPluginApiRequest.extensionVersion(), is(version));
+        Assert.assertThat(goPluginApiRequest.requestName(), is(requestName));
         assertThatJson(requestBody).isEqualTo(goPluginApiRequest.requestBody());
     }
 }

@@ -30,7 +30,7 @@ import org.junit.Test;
 import java.io.File;
 import java.util.concurrent.Semaphore;
 
-import static org.hamcrest.CoreMatchers.sameInstance;
+import static org.hamcrest.Matchers.sameInstance;
 import static org.junit.Assert.*;
 
 public class LazyStageGraphLoaderTest {

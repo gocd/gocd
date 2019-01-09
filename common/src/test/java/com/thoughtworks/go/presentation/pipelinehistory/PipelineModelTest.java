@@ -27,7 +27,7 @@ import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.helper.ModificationsMother;
 import org.junit.Test;
 
-import static org.hamcrest.core.Is.is;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
 public class PipelineModelTest {
@@ -49,7 +49,7 @@ public class PipelineModelTest {
     @Test
     public void shouldNotBeAbleToscheduleIfTheLatestPipelineIsPreparingToSchedule() throws Exception {
         PipelineInstanceModel instanceModel = PipelineInstanceModel.createPreparingToSchedule("pipelineName", new StageInstanceModels());
-        
+
         PipelineModel pipelineModel = new PipelineModel(instanceModel.getName(), true, true, PipelinePauseInfo.notPaused());
         pipelineModel.addPipelineInstance(instanceModel);
 

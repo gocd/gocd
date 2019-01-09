@@ -26,8 +26,7 @@ import org.junit.jupiter.api.Test
 
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
-import static org.hamcrest.MatcherAssert.assertThat
-import static org.hamcrest.Matchers.is
+import static org.assertj.core.api.Assertions.assertThat
 
 class AdminsConfigRepresenterTest {
   @Test
@@ -51,7 +50,7 @@ class AdminsConfigRepresenterTest {
     def actualJson = toObjectString({ AdminsConfigRepresenter.toJSON(it, config) })
 
     final LinkedHashMap<String, Object> expected = ["_links": ["doc": ["href": "https://api.gocd.org/#system_admins"], "self": ["href": "http://test.host/go/api/admin/security/system_admins"]], "roles": ["xyz"], "users": ["admin"], "errors": ["roles": ["Role does not exist"], "users": ["User name cannot be blank"]]]
-    assertThatJson(actualJson).isEqualTo(expected);
+    assertThatJson(actualJson).isEqualTo(expected)
   }
 
   @Test
@@ -61,7 +60,7 @@ class AdminsConfigRepresenterTest {
       'users': ['user1', 'user2']
     ]
 
-    JsonReader jsonReader = GsonTransformer.getInstance().jsonReaderFrom(requestJSON);
+    JsonReader jsonReader = GsonTransformer.getInstance().jsonReaderFrom(requestJSON)
     AdminsConfig adminsConfig = AdminsConfigRepresenter.fromJSON(jsonReader);
 
     def expected = new AdminsConfig(
@@ -70,6 +69,6 @@ class AdminsConfigRepresenterTest {
       new AdminRole(new CaseInsensitiveString("qa")),
       new AdminRole(new CaseInsensitiveString("dev")),
     )
-    assertThat(adminsConfig, is(expected))
+    assertThat(adminsConfig).isEqualTo(expected)
   }
 }

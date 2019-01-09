@@ -23,6 +23,7 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.fail;
 
 public class StubGoPublisher extends DefaultGoPublisher {
@@ -77,7 +78,7 @@ public class StubGoPublisher extends DefaultGoPublisher {
 
         for (File file : uploadedFiles.keySet()) {
             if (file.getAbsolutePath().endsWith(endOfFileName)) {
-                org.junit.Assert.assertThat(uploadedFiles.get(file), org.hamcrest.core.Is.is(destination));
+                org.junit.Assert.assertThat(uploadedFiles.get(file), is(destination));
                 return;
             }
         }

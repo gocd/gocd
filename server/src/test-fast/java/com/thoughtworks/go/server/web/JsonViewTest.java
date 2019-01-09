@@ -31,7 +31,7 @@ import static com.thoughtworks.go.server.web.JsonRenderer.render;
 import static com.thoughtworks.go.server.web.JsonView.asMap;
 import static com.thoughtworks.go.server.web.i18n.CurrentStatus.WAITING;
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson;
-import static org.hamcrest.core.Is.is;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;

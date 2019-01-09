@@ -43,7 +43,7 @@ import java.util.Date;
 
 import static com.thoughtworks.go.domain.materials.Modification.modifications;
 import static java.lang.String.format;
-import static org.hamcrest.core.Is.is;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.never;

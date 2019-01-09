@@ -16,27 +16,20 @@
 
 package com.thoughtworks.go.domain.materials;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import com.google.gson.Gson;
+import com.thoughtworks.go.domain.MaterialInstance;
+import com.thoughtworks.go.domain.materials.svn.SvnMaterialInstance;
+import com.thoughtworks.go.util.json.JsonHelper;
+import org.junit.Test;
+
+import java.io.*;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-import com.google.gson.Gson;
-import com.thoughtworks.go.domain.MaterialInstance;
-import com.thoughtworks.go.domain.materials.svn.SvnMaterialInstance;
-import com.thoughtworks.go.util.json.JsonHelper;
-import org.hamcrest.core.Is;
-import org.junit.Test;
-
-import static org.hamcrest.Matchers.hasItems;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.core.IsNot.not;
-import static org.hamcrest.core.IsNull.nullValue;
+import static com.thoughtworks.go.domain.materials.Modification.ANONYMOUS;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 
 public class ModificationTest {
@@ -44,11 +37,11 @@ public class ModificationTest {
     @Test
     public void shouldReturnAnonymousWhenUserNameIsEmpty() {
         Modification modification = new Modification("", "comment", null, null, null);
-        assertThat(modification.getUserDisplayName(), Is.is(Modification.ANONYMOUS));
+        assertThat(modification.getUserDisplayName(), is(ANONYMOUS));
         modification.setUserName("");
-        assertThat(modification.getUserDisplayName(), Is.is(Modification.ANONYMOUS));
+        assertThat(modification.getUserDisplayName(), is(ANONYMOUS));
         modification.setUserName("   ");
-        assertThat(modification.getUserDisplayName(), Is.is(Modification.ANONYMOUS));
+        assertThat(modification.getUserDisplayName(), is(ANONYMOUS));
     }
 
     @Test public void shouldAllowAdditionalData() throws Exception {
@@ -66,7 +59,7 @@ public class ModificationTest {
     @Test
     public void shouldReturnUserNameWhenUserNameIsNotEmpty() throws Exception {
         Modification modification = new Modification("jack", "", null, null, null);
-        assertThat(modification.getUserDisplayName(), Is.is("jack"));
+        assertThat(modification.getUserDisplayName(), is("jack"));
     }
 
     @Test

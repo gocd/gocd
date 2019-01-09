@@ -28,15 +28,14 @@ import static com.thoughtworks.go.domain.packagerepository.ConfigurationProperty
 import static com.thoughtworks.go.plugin.access.artifact.ArtifactExtensionConstants.REQUEST_FETCH_ARTIFACT
 import static com.thoughtworks.go.plugin.domain.common.PluginConstants.ARTIFACT_EXTENSION
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
-import static org.hamcrest.CoreMatchers.is
-import static org.hamcrest.MatcherAssert.assertThat
+import static org.assertj.core.api.Assertions.assertThat
 import static org.mockito.ArgumentMatchers.eq
 import static org.mockito.Mockito.when
 
 class ArtifactExtensionForV2Test extends ArtifactExtensionTestBase {
     @Override
     String versionToTestAgainst() {
-        return ArtifactMessageConverterV2.VERSION;
+        return ArtifactMessageConverterV2.VERSION
     }
 
     @Test
@@ -65,20 +64,20 @@ class ArtifactExtensionForV2Test extends ArtifactExtensionTestBase {
           ]
         ]
 
-        when(pluginManager.submitTo(eq(PLUGIN_ID), eq(ARTIFACT_EXTENSION), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success(new Gson().toJson(responseHash)));
-        final FetchPluggableArtifactTask pluggableArtifactTask = new FetchPluggableArtifactTask(null, null, "artifactId", create("Filename", false, "build/libs/foo.jar"));
+        when(pluginManager.submitTo(eq(PLUGIN_ID), eq(ARTIFACT_EXTENSION), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success(new Gson().toJson(responseHash)))
+        final FetchPluggableArtifactTask pluggableArtifactTask = new FetchPluggableArtifactTask(null, null, "artifactId", create("Filename", false, "build/libs/foo.jar"))
 
-        List<FetchArtifactEnvironmentVariable> environmentVariables = artifactExtension.fetchArtifact(PLUGIN_ID, new ArtifactStore("s3", "cd.go.s3"), pluggableArtifactTask.getConfiguration(), Collections.singletonMap("Version", "10.12.0"), "/temp");
+        List<FetchArtifactEnvironmentVariable> environmentVariables = artifactExtension.fetchArtifact(PLUGIN_ID, new ArtifactStore("s3", "cd.go.s3"), pluggableArtifactTask.getConfiguration(), Collections.singletonMap("Version", "10.12.0"), "/temp")
 
-        final GoPluginApiRequest request = requestArgumentCaptor.getValue();
+        final GoPluginApiRequest request = requestArgumentCaptor.getValue()
 
-        assertThat(request.extension(), is(ARTIFACT_EXTENSION));
-        assertThat(request.requestName(), is(REQUEST_FETCH_ARTIFACT));
-        assertThatJson(request.requestBody()).isEqualTo(requestHash);
+        assertThat(request.extension()).isEqualTo(ARTIFACT_EXTENSION)
+        assertThat(request.requestName()).isEqualTo(REQUEST_FETCH_ARTIFACT)
+        assertThatJson(request.requestBody()).isEqualTo(requestHash)
 
-        assertThat(environmentVariables, is([
+        assertThat(environmentVariables).isEqualTo([
           new FetchArtifactEnvironmentVariable("VAR1", "VALUE1", true),
           new FetchArtifactEnvironmentVariable("VAR2", "VALUE2", false),
-        ]));
+        ])
     }
 }

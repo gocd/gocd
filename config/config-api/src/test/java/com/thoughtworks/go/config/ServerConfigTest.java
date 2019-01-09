@@ -21,7 +21,6 @@ import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.hamcrest.core.Is;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -30,9 +29,7 @@ import java.io.File;
 import java.io.IOException;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
-import static org.hamcrest.core.IsNull.nullValue;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
 
 public class ServerConfigTest {
@@ -75,14 +72,14 @@ public class ServerConfigTest {
     @Test
     public void shouldReturnDefaultTaskRepositoryLocation() {
         ServerConfig serverConfig = new ServerConfig(null,null, new ServerSiteUrlConfig("http://foo.bar:813"), new ServerSiteUrlConfig());
-        assertThat(serverConfig.getCommandRepositoryLocation(),Is.is("default"));
+        assertThat(serverConfig.getCommandRepositoryLocation(), is("default"));
     }
 
     @Test
     public void shouldReturnTaskRepositoryLocation() {
         ServerConfig serverConfig = new ServerConfig(null,null, new ServerSiteUrlConfig("http://foo.bar:813"), new ServerSiteUrlConfig());
         serverConfig.setCommandRepositoryLocation("foo");
-        assertThat(serverConfig.getCommandRepositoryLocation(),Is.is("foo"));
+        assertThat(serverConfig.getCommandRepositoryLocation(), is("foo"));
     }
 
     @Test
@@ -100,16 +97,16 @@ public class ServerConfigTest {
         GoCipher goCipher = new GoCipher();
         MailHost mailHost = new MailHost("abc", 12, "admin", "p", null, true, true, "anc@mail.com", "anc@mail.com", goCipher);
         ServerConfig serverConfig = new ServerConfig(null, mailHost, null, null);
-        assertThat(serverConfig.mailHost().getPassword(), Is.is("p"));
+        assertThat(serverConfig.mailHost().getPassword(), is("p"));
 
         String encryptedPassword = serverConfig.mailHost().getEncryptedPassword();
         serverConfig.updateMailHost(new MailHost("abc", 12, "admin", "p", encryptedPassword, false /* Password Not Changed */, true, "anc@mail.com", "anc@mail.com", goCipher));
-        assertThat(serverConfig.mailHost().getPassword(), Is.is("p"));
-        assertThat(serverConfig.mailHost().getEncryptedPassword(), Is.is(encryptedPassword));
+        assertThat(serverConfig.mailHost().getPassword(), is("p"));
+        assertThat(serverConfig.mailHost().getEncryptedPassword(), is(encryptedPassword));
 
         serverConfig.updateMailHost(new MailHost("abc", 12, "admin", null, "", true, true, "anc@mail.com", "anc@mail.com"));
-        assertThat(serverConfig.mailHost().getPassword(), Is.is(nullValue()));
-        assertThat(serverConfig.mailHost().getEncryptedPassword(), Is.is(nullValue()));
+        assertThat(serverConfig.mailHost().getPassword(), is(nullValue()));
+        assertThat(serverConfig.mailHost().getEncryptedPassword(), is(nullValue()));
     }
 
     @Test

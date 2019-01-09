@@ -24,7 +24,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.PrintWriter;
 
 import static org.hamcrest.Matchers.not;
-import static org.hamcrest.core.StringContains.containsString;
+import static org.hamcrest.Matchers.containsString;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;

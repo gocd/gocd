@@ -22,7 +22,7 @@ import com.thoughtworks.go.domain.materials.Modification;
 import org.junit.Assert;
 import org.junit.Test;
 
-import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.Matchers.is;
 
 public class SCMRevisionTest {
     @Test

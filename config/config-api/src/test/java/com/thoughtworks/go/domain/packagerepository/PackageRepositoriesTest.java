@@ -33,8 +33,8 @@ import org.junit.Test;
 
 import static com.thoughtworks.go.plugin.api.config.Property.PART_OF_IDENTITY;
 import static java.util.Arrays.asList;
-import static org.hamcrest.core.Is.is;
-import static org.hamcrest.core.IsNull.nullValue;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 

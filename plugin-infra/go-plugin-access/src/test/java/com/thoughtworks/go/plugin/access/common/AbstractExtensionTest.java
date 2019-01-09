@@ -22,7 +22,6 @@ import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsJsonMessa
 import com.thoughtworks.go.plugin.api.request.GoPluginApiRequest;
 import com.thoughtworks.go.plugin.api.response.DefaultGoPluginApiResponse;
 import com.thoughtworks.go.plugin.infra.PluginManager;
-import org.hamcrest.core.Is;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -37,9 +36,8 @@ import java.util.Map;
 import static com.thoughtworks.go.plugin.access.common.settings.PluginSettingsConstants.REQUEST_NOTIFY_PLUGIN_SETTINGS_CHANGE;
 import static com.thoughtworks.go.plugin.api.response.DefaultGoPluginApiResponse.SUCCESS_RESPONSE_CODE;
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
+import static org.hamcrest.Matchers.is;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
@@ -109,9 +107,9 @@ public class AbstractExtensionTest {
     }
 
     private void assertRequest(GoPluginApiRequest goPluginApiRequest, String extensionName, String version, String requestName, String requestBody) {
-        Assert.assertThat(goPluginApiRequest.extension(), Is.is(extensionName));
-        Assert.assertThat(goPluginApiRequest.extensionVersion(), Is.is(version));
-        Assert.assertThat(goPluginApiRequest.requestName(), Is.is(requestName));
+        Assert.assertThat(goPluginApiRequest.extension(), is(extensionName));
+        Assert.assertThat(goPluginApiRequest.extensionVersion(), is(version));
+        Assert.assertThat(goPluginApiRequest.requestName(), is(requestName));
         assertThatJson(requestBody).isEqualTo(goPluginApiRequest.requestBody());
     }
 }

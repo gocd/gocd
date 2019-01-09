@@ -34,7 +34,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import static com.thoughtworks.go.util.DataStructureUtils.s;
-import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;

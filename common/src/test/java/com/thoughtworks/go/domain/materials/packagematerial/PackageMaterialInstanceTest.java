@@ -23,7 +23,6 @@ import com.thoughtworks.go.domain.packagerepository.PackageDefinition;
 import com.thoughtworks.go.helper.MaterialsMother;
 import com.thoughtworks.go.util.ReflectionUtil;
 import com.thoughtworks.go.util.json.JsonHelper;
-import org.hamcrest.core.Is;
 import org.junit.Test;
 
 import static org.hamcrest.Matchers.is;
@@ -41,10 +40,10 @@ public class PackageMaterialInstanceTest {
 
         PackageMaterial constructedMaterial = (PackageMaterial) materialInstance.toOldMaterial(null, null, null);
 
-        assertThat(constructedMaterial.getPackageDefinition().getConfiguration(), Is.is(packageDefinition.getConfiguration()));
-        assertThat(constructedMaterial.getPackageDefinition().getRepository().getPluginConfiguration().getId(), Is.is(packageDefinition.getRepository().getPluginConfiguration().getId()));
-        assertThat(constructedMaterial.getPackageDefinition().getRepository().getConfiguration(), Is.is(packageDefinition.getRepository().getConfiguration()));
-        assertThat(constructedMaterial.getId(), Is.is(1L));
+        assertThat(constructedMaterial.getPackageDefinition().getConfiguration(), is(packageDefinition.getConfiguration()));
+        assertThat(constructedMaterial.getPackageDefinition().getRepository().getPluginConfiguration().getId(), is(packageDefinition.getRepository().getPluginConfiguration().getId()));
+        assertThat(constructedMaterial.getPackageDefinition().getRepository().getConfiguration(), is(packageDefinition.getRepository().getConfiguration()));
+        assertThat(constructedMaterial.getId(), is(1L));
     }
 
     @Test
@@ -95,7 +94,7 @@ public class PackageMaterialInstanceTest {
 
         PackageMaterial constructedMaterial = (PackageMaterial) materialInstance.toOldMaterial(null, null, null);
 
-        assertThat(constructedMaterial.getFingerprint(), Is.is(fingerprint));
+        assertThat(constructedMaterial.getFingerprint(), is(fingerprint));
     }
 
 

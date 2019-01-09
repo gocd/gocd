@@ -18,7 +18,10 @@ package com.thoughtworks.go.config;
 
 import com.thoughtworks.go.config.materials.ScmMaterialConfig;
 import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
-import com.thoughtworks.go.config.remote.*;
+import com.thoughtworks.go.config.remote.ConfigRepoConfig;
+import com.thoughtworks.go.config.remote.ConfigReposConfig;
+import com.thoughtworks.go.config.remote.PartialConfig;
+import com.thoughtworks.go.config.remote.RepoConfigOrigin;
 import com.thoughtworks.go.domain.config.Configuration;
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.helper.PartialConfigMother;
@@ -27,15 +30,14 @@ import com.thoughtworks.go.serverhealth.HealthStateScope;
 import com.thoughtworks.go.serverhealth.HealthStateType;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.serverhealth.ServerHealthState;
-import org.hamcrest.core.Is;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.io.File;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertThat;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
@@ -91,7 +93,7 @@ public class GoRepoConfigDataSourceTest {
         PartialConfig partialConfig = repoConfigDataSource.latestPartialConfigForMaterial(material);
         assertNotNull(partialConfig.getOrigin());
         RepoConfigOrigin repoConfigOrigin = new RepoConfigOrigin(configRepo, "7a8f");
-        assertThat(partialConfig.getOrigin(), Is.<ConfigOrigin>is(repoConfigOrigin));
+        assertThat(partialConfig.getOrigin(), is(repoConfigOrigin));
     }
 
     @Test
@@ -110,10 +112,10 @@ public class GoRepoConfigDataSourceTest {
         RepoConfigOrigin repoConfigOrigin = new RepoConfigOrigin(configRepo, "7a8f");
 
         assertNotNull(partialConfig.getOrigin());
-        assertThat(partialConfig.getOrigin(), Is.<ConfigOrigin>is(repoConfigOrigin));
+        assertThat(partialConfig.getOrigin(), is(repoConfigOrigin));
 
         PipelineConfig pipe = partialConfig.getGroups().get(0).get(0);
-        assertThat(pipe.getOrigin(), Is.<ConfigOrigin>is(repoConfigOrigin));
+        assertThat(pipe.getOrigin(), is(repoConfigOrigin));
     }
 
     @Test
@@ -132,10 +134,10 @@ public class GoRepoConfigDataSourceTest {
         RepoConfigOrigin repoConfigOrigin = new RepoConfigOrigin(configRepo, "7a8f");
 
         assertNotNull(partialConfig.getOrigin());
-        assertThat(partialConfig.getOrigin(), Is.<ConfigOrigin>is(repoConfigOrigin));
+        assertThat(partialConfig.getOrigin(), is(repoConfigOrigin));
 
         EnvironmentConfig environmentConfig = partialConfig.getEnvironments().get(0);
-        assertThat(environmentConfig.getOrigin(), Is.<ConfigOrigin>is(repoConfigOrigin));
+        assertThat(environmentConfig.getOrigin(), is(repoConfigOrigin));
     }
 
 

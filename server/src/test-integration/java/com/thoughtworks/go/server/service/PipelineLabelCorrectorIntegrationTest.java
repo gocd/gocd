@@ -44,7 +44,7 @@ import java.sql.SQLException;
 
 import static com.thoughtworks.go.util.IBatisUtil.arguments;
 import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.core.Is.is;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
 @RunWith(SpringJUnit4ClassRunner.class)

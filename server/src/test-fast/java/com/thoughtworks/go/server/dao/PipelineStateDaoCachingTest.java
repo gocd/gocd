@@ -47,8 +47,8 @@ import java.util.List;
 import java.util.UUID;
 
 import static com.thoughtworks.go.domain.PipelineState.NOT_LOCKED;
-import static org.hamcrest.core.Is.is;
-import static org.hamcrest.core.IsNull.nullValue;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 

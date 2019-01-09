@@ -17,21 +17,21 @@
 package com.thoughtworks.go.domain;
 
 import org.junit.Test;
+
+import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
-import static org.hamcrest.core.Is.is;
-import static org.hamcrest.number.OrderingComparison.lessThan;
-import static org.hamcrest.number.OrderingComparison.greaterThan;
 
 public class AgentStatusTest {
     @Test
-    public void shouldCompareStatusAsExpected() { 
+    public void shouldCompareStatusAsExpected() {
         AgentStatus statusInOrder[] = new AgentStatus[] {AgentStatus.Pending, AgentStatus.LostContact, AgentStatus.Missing,
                 AgentStatus.Building, AgentStatus.Cancelled, AgentStatus.Idle, AgentStatus.Disabled};
         AgentStatus previous = null;
 
         for(AgentStatus status : statusInOrder) {
             if(previous != null) {
-                assertThat(previous.compareTo(status), is(lessThan(0)));
+                assertThat(previous.compareTo(status), is(org.hamcrest.Matchers.lessThan(0)));
                 assertThat(status.compareTo(previous), is(greaterThan(0)));
             }
             previous = status;

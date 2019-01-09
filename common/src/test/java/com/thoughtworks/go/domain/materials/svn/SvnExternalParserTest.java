@@ -18,7 +18,7 @@ package com.thoughtworks.go.domain.materials.svn;
 
 import java.util.List;
 
-import static org.hamcrest.core.Is.is;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import org.junit.Test;
 
@@ -131,7 +131,7 @@ public class SvnExternalParserTest {
         assertThat(externals.get(0),
                 is(new SvnExternal("trunk/end2end", "file:///tmp/testSvnRepo-1246619674077/end2end")));
     }
-    
+
     @Test
     public void shouldSupportUrlWithEncodedSpaces() throws Exception {
         String svnExternals = "file:///C:/Program%20Files/trunk - end2end file:///C:/Program%20Files/testSvnRepo-1246619674077/end2end";

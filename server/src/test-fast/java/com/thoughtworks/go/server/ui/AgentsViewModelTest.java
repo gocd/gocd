@@ -25,8 +25,7 @@ import org.junit.Test;
 import java.util.Date;
 
 import static org.hamcrest.Matchers.greaterThan;
-import static org.hamcrest.core.Is.is;
-import static org.hamcrest.number.OrderingComparison.lessThan;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
@@ -37,7 +36,7 @@ public class AgentsViewModelTest {
         AgentsViewModel instances = agentsViewModel();
         instances.sortBy(AgentViewModel.STATUS_COMPARATOR, SortOrder.ASC);
         for (int i = 1; i < instances.size(); i++) {
-            assertThat(instances.get(i - 1).getStatus().compareTo(instances.get(i).getStatus()), is(lessThan(0)));
+            assertThat(instances.get(i - 1).getStatus().compareTo(instances.get(i).getStatus()), is(org.hamcrest.Matchers.lessThan(0)));
         }
     }
 

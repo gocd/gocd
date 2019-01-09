@@ -17,12 +17,12 @@
 package com.thoughtworks.go.domain;
 
 import com.thoughtworks.go.helper.JobInstanceMother;
-import org.hamcrest.core.Is;
 import org.junit.Test;
 
 import java.util.Calendar;
 import java.util.Date;
 
+import static com.thoughtworks.go.domain.StageState.*;
 import static com.thoughtworks.go.helper.JobInstanceMother.*;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
@@ -96,7 +96,7 @@ public class JobInstancesTest {
         builds.add(completed("passports", JobResult.Passed));
         builds.add(completed("visas", JobResult.Cancelled));
         builds.add(scheduled("flights"));
-        assertThat(builds.stageState(), Is.is(StageState.Building));
+        assertThat(builds.stageState(), is(Building));
     }
 
     @Test public void jobShouldBeCancelledWhenNoActiveBuildAndHaveAtLeastOneCancelledJob() {
@@ -105,7 +105,7 @@ public class JobInstancesTest {
         builds.add(completed("passports-failed", JobResult.Failed));
         builds.add(completed("visas", JobResult.Cancelled));
         builds.add(completed("flights", JobResult.Cancelled));
-        assertThat(builds.stageState(), Is.is(StageState.Cancelled));
+        assertThat(builds.stageState(), is(Cancelled));
     }
 
     @Test public void shouldReturnStatusFailingWhenAnyPlansHaveFailedAndNotAllAreCompleted() {
@@ -113,7 +113,7 @@ public class JobInstancesTest {
         builds.add(completed("passports", JobResult.Failed));
         builds.add(completed("visas", JobResult.Passed));
         builds.add(scheduled("flights"));
-        assertThat(builds.stageState(), Is.is(StageState.Failing));
+        assertThat(builds.stageState(), is(Failing));
     }
 
     @Test

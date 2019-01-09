@@ -15,18 +15,16 @@
  */
 package com.thoughtworks.go.config;
 
-import com.thoughtworks.go.config.remote.ConfigOrigin;
 import com.thoughtworks.go.config.remote.FileConfigOrigin;
 import com.thoughtworks.go.config.remote.RepoConfigOrigin;
 import com.thoughtworks.go.helper.PipelineConfigMother;
-import org.hamcrest.core.Is;
 import org.junit.Test;
 
 import static com.thoughtworks.go.util.DataStructureUtils.m;
 import static junit.framework.TestCase.assertNull;
 import static junit.framework.TestCase.assertSame;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.core.IsNull.nullValue;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 
 public class BasicPipelineConfigsTest extends PipelineConfigsTestBase {
@@ -76,14 +74,14 @@ public class BasicPipelineConfigsTest extends PipelineConfigsTestBase {
         PipelineConfig pipe = PipelineConfigMother.pipelineConfig("pipeline1");
         PipelineConfigs group = new BasicPipelineConfigs(pipe);
         group.setOrigins(new FileConfigOrigin());
-        assertThat(pipe.getOrigin(), Is.<ConfigOrigin>is(new FileConfigOrigin()));
+        assertThat(pipe.getOrigin(), is(new FileConfigOrigin()));
     }
     @Test
     public void shouldSetOriginInAuthorization() {
         PipelineConfig pipe = PipelineConfigMother.pipelineConfig("pipeline1");
         PipelineConfigs group = new BasicPipelineConfigs(pipe);
         group.setOrigins(new FileConfigOrigin());
-        assertThat(group.getAuthorization().getOrigin(), Is.<ConfigOrigin>is(new FileConfigOrigin()));
+        assertThat(group.getAuthorization().getOrigin(), is(new FileConfigOrigin()));
     }
 
 

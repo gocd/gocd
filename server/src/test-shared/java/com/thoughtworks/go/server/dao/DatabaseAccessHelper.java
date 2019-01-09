@@ -49,8 +49,6 @@ import org.dbunit.database.AmbiguousTableNameException;
 import org.dbunit.dataset.DefaultDataSet;
 import org.dbunit.dataset.DefaultTable;
 import org.dbunit.operation.DatabaseOperation;
-import org.hamcrest.core.Is;
-import org.hamcrest.core.IsNot;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -74,7 +72,10 @@ import java.util.Date;
 import java.util.List;
 
 import static com.thoughtworks.go.domain.JobResult.Failed;
+import static com.thoughtworks.go.domain.PersistentObject.NOT_PERSISTED;
 import static com.thoughtworks.go.helper.ModificationsMother.modifyOneFile;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
 
 @Component
 public class DatabaseAccessHelper extends HibernateDaoSupport {
@@ -565,11 +566,11 @@ public class DatabaseAccessHelper extends HibernateDaoSupport {
     }
 
     static void assertNotInserted(long instanceId) {
-        Assert.assertThat("Already thinks it's inserted", instanceId, Is.is(PersistentObject.NOT_PERSISTED));
+        Assert.assertThat("Already thinks it's inserted", instanceId, is(NOT_PERSISTED));
     }
 
     static void assertIsInserted(long instanceId) {
-        Assert.assertThat("Not inserted", instanceId, Is.is(IsNot.not(PersistentObject.NOT_PERSISTED)));
+        Assert.assertThat("Not inserted", instanceId, is(not(NOT_PERSISTED)));
     }
 
     public Pipeline schedulePipeline(PipelineConfig pipelineConfig, Clock clock) {

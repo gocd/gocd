@@ -16,11 +16,9 @@
 
 package com.thoughtworks.go.plugin.access.packagematerial;
 
-import com.thoughtworks.go.plugin.access.packagematerial.PackageConfiguration;
-import org.hamcrest.core.Is;
 import org.junit.Test;
 
-import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
 public class PackageConfigurationTest {
@@ -45,7 +43,7 @@ public class PackageConfigurationTest {
     public void shouldSortPackageConfigurationByDisplayOrder() throws Exception {
         PackageConfiguration p1 = new PackageConfiguration("k1").with(PackageConfiguration.DISPLAY_ORDER, 1);
         PackageConfiguration p2 = new PackageConfiguration("k2").with(PackageConfiguration.DISPLAY_ORDER, 3);
-        assertThat(p2.compareTo(p1), Is.is(2));
+        assertThat(p2.compareTo(p1), is(2));
 
     }
 }

@@ -62,7 +62,6 @@ import com.thoughtworks.go.util.ReflectionUtil;
 import com.thoughtworks.go.util.TimeProvider;
 import com.thoughtworks.go.utils.Assertions;
 import com.thoughtworks.go.utils.Timeout;
-import org.hamcrest.core.Is;
 import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.Before;
@@ -91,8 +90,8 @@ import static com.thoughtworks.go.helper.ModificationsMother.checkinWithComment;
 import static com.thoughtworks.go.helper.ModificationsMother.modifyOneFile;
 import static com.thoughtworks.go.util.DataStructureUtils.a;
 import static com.thoughtworks.go.util.SystemUtil.currentWorkingDirectory;
-import static org.hamcrest.CoreMatchers.*;
-import static org.hamcrest.core.Is.is;
+import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
@@ -212,7 +211,7 @@ public class StageServiceIntegrationTest {
         fixture = new PipelineWithMultipleStages(4, materialRepository, transactionTemplate, temporaryFolder);
         fixture.usingConfigHelper(configFileHelper).usingDbHelper(dbHelper).onSetUp();
         Pipeline pipeline = fixture.createdPipelineWithAllStagesPassed();
-        assertThat(stageService.isAnyStageActiveForPipeline(pipeline.getIdentifier()), Is.is(false));
+        assertThat(stageService.isAnyStageActiveForPipeline(pipeline.getIdentifier()), is(false));
     }
 
     @Test
@@ -221,7 +220,7 @@ public class StageServiceIntegrationTest {
         fixture.usingConfigHelper(configFileHelper).usingDbHelper(dbHelper).onSetUp();
 
         Pipeline pipeline = fixture.createPipelineWithFirstStageAssigned();
-        assertThat(stageService.isAnyStageActiveForPipeline(pipeline.getIdentifier()), Is.is(true));
+        assertThat(stageService.isAnyStageActiveForPipeline(pipeline.getIdentifier()), is(true));
     }
 
     @Test
@@ -607,18 +606,18 @@ public class StageServiceIntegrationTest {
         Pipeline pipeline = dbHelper.schedulePipelineWithAllStages(pipelineConfig, ModificationsMother.modifySomeFiles(pipelineConfig));
         dbHelper.pass(pipeline);
         StageSummaryModels stages = stageService.findStageHistoryForChart(pipelineConfig.name().toString(), pipelineConfig.first().name().toString(), 1, 10, new Username(new CaseInsensitiveString("loser")));
-        assertThat(stages.size(), Is.is(1));
+        assertThat(stages.size(), is(1));
 
         scheduleService.rerunJobs(pipeline.getFirstStage(), Arrays.asList(CaseInsensitiveString.str(pipelineConfig.first().getJobs().first().name())), new HttpOperationResult());
         stages = stageService.findStageHistoryForChart(pipelineConfig.name().toString(), pipelineConfig.first().name().toString(), 1, 10, new Username(new CaseInsensitiveString("loser")));
 
-        assertThat(stages.size(), Is.is(1)); //should not retrieve stages with rerun jobs
+        assertThat(stages.size(), is(1)); //should not retrieve stages with rerun jobs
 
         pipeline = dbHelper.schedulePipelineWithAllStages(pipelineConfig, ModificationsMother.modifySomeFiles(pipelineConfig));
         dbHelper.cancelStage(pipeline.getFirstStage());
         stages = stageService.findStageHistoryForChart(pipelineConfig.name().toString(), pipelineConfig.first().name().toString(), 1, 10, new Username(new CaseInsensitiveString("loser")));
 
-        assertThat(stages.size(), Is.is(1)); //should not retrieve cancelled stages
+        assertThat(stages.size(), is(1)); //should not retrieve cancelled stages
     }
 
     @Test

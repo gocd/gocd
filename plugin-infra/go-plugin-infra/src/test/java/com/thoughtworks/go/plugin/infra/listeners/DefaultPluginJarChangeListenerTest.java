@@ -21,7 +21,6 @@ import com.thoughtworks.go.plugin.infra.monitor.PluginFileDetails;
 import com.thoughtworks.go.plugin.infra.plugininfo.*;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.io.FileUtils;
-import org.hamcrest.CoreMatchers;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -36,8 +35,8 @@ import static com.thoughtworks.go.util.SystemEnvironment.PLUGIN_ACTIVATOR_JAR_PA
 import static com.thoughtworks.go.util.SystemEnvironment.PLUGIN_BUNDLE_PATH;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Arrays.asList;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.not;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.*;
@@ -224,8 +223,8 @@ public class DefaultPluginJarChangeListenerTest {
 
         spy.pluginJarUpdated(new PluginFileDetails(pluginFile, true));
 
-        assertThat(expectedBundleDirectoryForInvalidPlugin.exists(), CoreMatchers.is(true));
-        assertThat(bundleDirectoryForOldPlugin.exists(), CoreMatchers.is(false));
+        assertThat(expectedBundleDirectoryForInvalidPlugin.exists(), is(true));
+        assertThat(bundleDirectoryForOldPlugin.exists(), is(false));
         verify(registry).unloadPlugin(descriptorForInvalidPlugin);
         verify(osgiFramework).unloadPlugin(oldPluginDescriptor);
         verify(registry).loadPlugin(descriptorForInvalidPlugin);

@@ -45,7 +45,7 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.EnumSet;
 
-import static org.hamcrest.core.Is.is;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;

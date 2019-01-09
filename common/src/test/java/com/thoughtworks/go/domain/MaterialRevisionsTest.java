@@ -35,8 +35,8 @@ import java.util.Date;
 import java.util.Map;
 
 import static com.thoughtworks.go.helper.ModificationsMother.*;
-import static org.hamcrest.core.Is.is;
-import static org.hamcrest.core.IsNull.nullValue;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 
 public class MaterialRevisionsTest {

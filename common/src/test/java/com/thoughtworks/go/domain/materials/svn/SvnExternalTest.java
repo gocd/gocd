@@ -33,7 +33,7 @@ import java.io.IOException;
 import java.util.List;
 
 import static com.thoughtworks.go.helper.MaterialsMother.svnMaterial;
-import static org.hamcrest.core.Is.is;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
 public class SvnExternalTest {

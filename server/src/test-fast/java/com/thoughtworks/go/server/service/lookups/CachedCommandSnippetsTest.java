@@ -33,7 +33,7 @@ import org.mockito.Mock;
 
 import static com.thoughtworks.go.helper.CommandSnippetMother.validSnippet;
 import static com.thoughtworks.go.util.SystemEnvironment.COMMAND_REPOSITORY_DIRECTORY;
-import static org.hamcrest.core.Is.is;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;

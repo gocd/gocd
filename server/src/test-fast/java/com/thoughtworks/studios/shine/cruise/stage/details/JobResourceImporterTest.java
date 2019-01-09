@@ -41,7 +41,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.thoughtworks.studios.shine.AssertUtils.assertAskIsFalse;
-import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.junit.matchers.JUnitMatchers.hasItem;

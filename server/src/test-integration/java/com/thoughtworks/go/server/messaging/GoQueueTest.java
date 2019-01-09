@@ -31,7 +31,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import static com.thoughtworks.go.utils.Assertions.assertWillHappen;
-import static org.hamcrest.core.Is.is;
+import static org.hamcrest.Matchers.is;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {

@@ -128,8 +128,8 @@ class ConfigReposInternalControllerV1Test implements SecurityServiceTrait, Contr
           ],
           _embedded: [
             config_repos: [
-              expectedRepoJson(ID_1, null, null),
-              expectedRepoJson(ID_2, "abc", null)
+              expectedRepoJson(ID_1, null, null, false),
+              expectedRepoJson(ID_2, "abc", null, false)
             ]
           ]
         ])
@@ -160,7 +160,7 @@ class ConfigReposInternalControllerV1Test implements SecurityServiceTrait, Contr
 
       assertThatResponse().
         isOk().
-        hasJsonBody(expectedRepoJson(ID_1, "abc", null))
+        hasJsonBody(expectedRepoJson(ID_1, "abc", null, false))
     }
 
     @Test
@@ -172,17 +172,17 @@ class ConfigReposInternalControllerV1Test implements SecurityServiceTrait, Contr
     }
   }
 
-  static Map expectedRepoJson(String id, String revision, String error) {
+  static Map expectedRepoJson(String id, String revision, String error, boolean isInProgress) {
     return [
-      _links       : [
+      _links                     : [
         self: [href: "http://test.host/go${Routes.ConfigRepos.id(id)}".toString()],
         doc : [href: Routes.ConfigRepos.DOC],
         find: [href: "http://test.host/go${Routes.ConfigRepos.find()}".toString()],
       ],
 
-      id           : id,
-      plugin_id    : TEST_PLUGIN_ID,
-      material     : [
+      id                         : id,
+      plugin_id                  : TEST_PLUGIN_ID,
+      material                   : [
         type      : "hg",
         attributes: [
           name       : null,
@@ -190,9 +190,11 @@ class ConfigReposInternalControllerV1Test implements SecurityServiceTrait, Contr
           auto_update: true
         ]
       ],
-      configuration: [],
+      configuration              : [],
 
-      parse_info   : null == revision ? [:] : [
+      material_update_in_progress: isInProgress,
+
+      parse_info                 : null == revision ? [:] : [
         error                     : error,
         good_modification         : [
           "username"     : null,

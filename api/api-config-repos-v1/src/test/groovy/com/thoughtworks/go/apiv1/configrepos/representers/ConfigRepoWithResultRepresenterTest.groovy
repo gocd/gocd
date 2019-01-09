@@ -47,15 +47,15 @@ class ConfigRepoWithResultRepresenterTest {
     String find = "http://test.host/go${Routes.ConfigRepos.find()}"
 
     assertThatJson(json).isEqualTo([
-      _links       : [
+      _links                     : [
         self: [href: self],
         doc : [href: Routes.ConfigRepos.DOC],
         find: [href: find],
       ],
 
-      id           : id,
-      plugin_id    : TEST_PLUGIN_ID,
-      material     : [
+      id                         : id,
+      plugin_id                  : TEST_PLUGIN_ID,
+      material                   : [
         type      : "hg",
         attributes: [
           name       : null,
@@ -63,12 +63,12 @@ class ConfigRepoWithResultRepresenterTest {
           auto_update: true
         ]
       ],
-      configuration: [
+      configuration              : [
         [key: "foo", value: "bar"],
         [key: "baz", value: "quu"]
       ],
-
-      parse_info   : [
+      material_update_in_progress: false,
+      parse_info                 : [
         error                     : "Boom!",
         good_modification         : null,
         latest_parsed_modification: [
@@ -96,6 +96,6 @@ class ConfigRepoWithResultRepresenterTest {
     ConfigRepoConfig repo = new ConfigRepoConfig(materialConfig, TEST_PLUGIN_ID, id)
     repo.setConfiguration(c)
 
-    return new ConfigRepoWithResult(repo, expectedParseResult)
+    return new ConfigRepoWithResult(repo, expectedParseResult, false)
   }
 }

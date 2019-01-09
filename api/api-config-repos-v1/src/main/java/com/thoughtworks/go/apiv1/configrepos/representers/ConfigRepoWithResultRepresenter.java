@@ -35,6 +35,7 @@ public class ConfigRepoWithResultRepresenter {
         json.addChild("material", w -> MaterialRepresenter.toJSON(w, repo.getMaterialConfig()));
         attachConfigurations(json, repo);
 
+        json.add("material_update_in_progress", crwr.isMaterialUpdateInProgress());
         json.addChild("parse_info", w -> PartialConfigParseResultRepresenter.toJSON(w, result));
     }
 

@@ -24,10 +24,12 @@ import java.util.Objects;
 public class ConfigRepoWithResult {
     private final ConfigRepoConfig repo;
     private final PartialConfigParseResult result;
+    private final boolean isMaterialUpdateInProgress;
 
-    public ConfigRepoWithResult(ConfigRepoConfig repo, PartialConfigParseResult result) {
+    public ConfigRepoWithResult(ConfigRepoConfig repo, PartialConfigParseResult result, boolean isMaterialUpdateInProgress) {
         this.repo = repo;
         this.result = result;
+        this.isMaterialUpdateInProgress = isMaterialUpdateInProgress;
     }
 
     public ConfigRepoConfig repo() {
@@ -36,6 +38,10 @@ public class ConfigRepoWithResult {
 
     public PartialConfigParseResult result() {
         return result;
+    }
+
+    public boolean isMaterialUpdateInProgress() {
+        return isMaterialUpdateInProgress;
     }
 
     @Override

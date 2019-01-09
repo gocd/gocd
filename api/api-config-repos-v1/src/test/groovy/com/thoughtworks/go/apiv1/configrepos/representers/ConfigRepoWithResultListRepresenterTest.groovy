@@ -52,15 +52,15 @@ class ConfigRepoWithResultListRepresenterTest {
 
   static Map expectedRepoJson(String id) {
     return [
-      _links       : [
+      _links                     : [
         self: [href: "http://test.host/go${Routes.ConfigRepos.id(id)}".toString()],
         doc : [href: Routes.ConfigRepos.DOC],
         find: [href: "http://test.host/go${Routes.ConfigRepos.find()}".toString()],
       ],
 
-      id           : id,
-      plugin_id    : TEST_PLUGIN_ID,
-      material     : [
+      id                         : id,
+      plugin_id                  : TEST_PLUGIN_ID,
+      material                   : [
         type      : "hg",
         attributes: [
           name       : null,
@@ -68,8 +68,9 @@ class ConfigRepoWithResultListRepresenterTest {
           auto_update: true
         ]
       ],
-      configuration: [],
-      parse_info   : [
+      configuration              : [],
+      material_update_in_progress: false,
+      parse_info                 : [
         error                     : null,
         good_modification         : [
           "username"     : null,
@@ -97,6 +98,6 @@ class ConfigRepoWithResultListRepresenterTest {
 
     PartialConfig partialConfig = new PartialConfig()
     PartialConfigParseResult expectedParseResult = PartialConfigParseResult.parseSuccess(modification, partialConfig)
-    return new ConfigRepoWithResult(new ConfigRepoConfig(materialConfig, TEST_PLUGIN_ID, id), expectedParseResult)
+    return new ConfigRepoWithResult(new ConfigRepoConfig(materialConfig, TEST_PLUGIN_ID, id), expectedParseResult, false)
   }
 }

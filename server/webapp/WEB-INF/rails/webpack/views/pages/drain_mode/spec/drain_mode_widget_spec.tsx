@@ -38,6 +38,14 @@ describe("Drain Mode Widget", () => {
     expect(find("drain-mode-description")).toContainText(expectedDescription);
   });
 
+  it("should add a link to the drain mode documentation", () => {
+    const expectedLink = "https://docs.gocd.org/advanced_usage/drain_mode.html";
+    const expectedText = "Learn more..";
+
+    expect($root.find("a")[0].href).toBe(expectedLink);
+    expect($root.find("a")[0].innerText).toBe(expectedText);
+  });
+
   it("should provide the drain mode updated information", () => {
     const expectedUpdatedByInfo = `${TestData.info().metdata.updatedBy} changed the drain mode state on ${TestData.info().metdata.updatedOn}.`;
     expect(find("drain-mode-updated-by-info")).toContainText(expectedUpdatedByInfo);

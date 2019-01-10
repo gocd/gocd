@@ -108,7 +108,7 @@ List<String> partitionFiles(Collection originalFiles) {
   return currentPartition ?: []
 }
 
-def COPYRIGHT_YEAR = '2018'
+def COPYRIGHT_YEAR = '2019'
 def GO_VERSION_SEGMENTS = [
   year         : 19,
   releaseInYear: 1,

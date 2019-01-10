@@ -66,7 +66,7 @@ export class SiteFooter extends MithrilViewComponent<Attrs> {
       return (<div data-test-id="drain-mode-banner" class={styles.footerWarningBanner}>
         GoCD Server is in the drain state (Maintenance mode).
         &nbsp;
-        <a href="https://docs.gocd.org/advanced_usage/drain_mode.html">Learn more..</a>
+        <a target="_blank" href="https://docs.gocd.org/advanced_usage/drain_mode.html">Learn more..</a>
       </div>);
     }
 

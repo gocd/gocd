@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -82,6 +82,7 @@ public class FakeGoServer extends ExternalResource {
     private Server server;
     private int port;
     private int securePort;
+    private String extraPropertiesHeaderValue;
 
     public int getPort() {
         return port;
@@ -149,9 +150,9 @@ public class FakeGoServer extends ExternalResource {
         securePort = secureConnnector.getLocalPort();
     }
 
-    public static final class AgentStatusApi extends HttpServlet {
+    private static final class AgentStatusApi extends HttpServlet {
         public static String status = "disabled";
-        public static Properties pluginProps = new Properties();
+        static Properties pluginProps = new Properties();
 
         @Override
         protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
@@ -163,6 +164,15 @@ public class FakeGoServer extends ExternalResource {
             resp.getOutputStream().write(baos.toByteArray());
             baos.close();
         }
+    }
+
+    public FakeGoServer setExtraPropertiesHeaderValue(String value) {
+        extraPropertiesHeaderValue = value;
+        return this;
+    }
+
+    String getExtraPropertiesHeaderValue() {
+        return extraPropertiesHeaderValue;
     }
 
     private void addlatestAgentStatusCall(WebAppContext wac) {

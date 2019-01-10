@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,6 +39,8 @@ import java.io.FileInputStream;
 import java.net.UnknownHostException;
 import java.security.DigestInputStream;
 import java.security.MessageDigest;
+import java.util.HashMap;
+import java.util.Map;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
@@ -55,7 +57,7 @@ public class ServerBinaryDownloaderTest {
     public ExpectedException exception = ExpectedException.none();
 
     @After
-    public void tearDown() throws Exception {
+    public void tearDown() {
         FileUtils.deleteQuietly(new File(Downloader.AGENT_BINARY));
         FileUtils.deleteQuietly(DownloadableFile.AGENT.getLocalFile());
     }
@@ -76,7 +78,32 @@ public class ServerBinaryDownloaderTest {
     }
 
     @Test
-    public void shouldDownloadAgentJarFile() throws Exception {
+    public void shouldGetExtraPropertiesFromHeader() {
+        assertExtraProperties("", new HashMap<>());
+
+        assertExtraProperties("Key1=Value1 key2=value2", new HashMap<String, String>() {{
+            put("Key1", "Value1");
+            put("key2", "value2");
+        }});
+
+        assertExtraProperties("Key1=Value1 key2=value2 key2=value3", new HashMap<String, String>() {{
+            put("Key1", "Value1");
+            put("key2", "value2");
+        }});
+
+        assertExtraProperties("Key1%20WithSpace=Value1%20WithSpace key2=value2", new HashMap<String, String>() {{
+            put("Key1 WithSpace", "Value1 WithSpace");
+            put("key2", "value2");
+        }});
+    }
+
+    @Test
+    public void shouldNotFailIfExtraPropertiesAreNotFormattedProperly() {
+        assertExtraProperties("abc", new HashMap<>());
+    }
+
+    @Test
+    public void shouldDownloadAgentJarFile() {
         ServerBinaryDownloader downloader = new ServerBinaryDownloader(ServerUrlGeneratorMother.generatorFor("localhost", server.getPort()), null, SslVerificationMode.NONE);
         assertThat(DownloadableFile.AGENT.doesNotExist(), is(true));
         downloader.downloadIfNecessary(DownloadableFile.AGENT);
@@ -84,7 +111,7 @@ public class ServerBinaryDownloaderTest {
     }
 
     @Test
-    public void shouldReturnTrueIfTheFileIsDownloaded() throws Exception {
+    public void shouldReturnTrueIfTheFileIsDownloaded() {
         ServerBinaryDownloader downloader = new ServerBinaryDownloader(ServerUrlGeneratorMother.generatorFor("localhost", server.getPort()), null, SslVerificationMode.NONE);
         assertThat(downloader.downloadIfNecessary(DownloadableFile.AGENT), is(true));
     }
@@ -153,5 +180,17 @@ public class ServerBinaryDownloaderTest {
         when(closeableHttpClient.execute(any(HttpRequestBase.class))).thenReturn(httpResponse);
         ServerBinaryDownloader downloader = new ServerBinaryDownloader(builder, ServerUrlGeneratorMother.generatorFor("localhost", server.getPort()));
         assertThat(downloader.download(DownloadableFile.AGENT), is(false));
+    }
+
+    private void assertExtraProperties(String valueToSet, Map<String, String> expectedValue) {
+        ServerBinaryDownloader downloader = new ServerBinaryDownloader(ServerUrlGeneratorMother.generatorFor("localhost", server.getPort()), null, SslVerificationMode.NONE);
+        try {
+            server.setExtraPropertiesHeaderValue(valueToSet);
+            downloader.downloadIfNecessary(DownloadableFile.AGENT);
+
+            assertThat(downloader.getExtraProperties(), is(expectedValue));
+        } finally {
+            server.setExtraPropertiesHeaderValue(null);
+        }
     }
 }

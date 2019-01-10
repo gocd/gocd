@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -55,6 +55,9 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
+import static com.thoughtworks.go.util.SystemEnvironment.AGENT_EXTRA_PROPERTIES;
+import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.apache.commons.codec.binary.Base64.encodeBase64String;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static org.springframework.http.HttpStatus.*;
@@ -62,6 +65,7 @@ import static org.springframework.http.HttpStatus.*;
 @Controller
 public class AgentRegistrationController {
     private static final Logger LOG = LoggerFactory.getLogger(AgentRegistrationController.class);
+    static final int MAX_HEADER_LENGTH = 4096;
     private final AgentService agentService;
     private final GoConfigService goConfigService;
     private final SystemEnvironment systemEnvironment;
@@ -70,6 +74,7 @@ public class AgentRegistrationController {
     private volatile String agentChecksum;
     private volatile String agentLauncherChecksum;
     private volatile String tfsSdkChecksum;
+    private volatile String agentExtraProperties;
     private Mac mac;
 
     private final InputStreamSrc agentJarSrc;
@@ -115,6 +120,7 @@ public class AgentRegistrationController {
         response.setHeader(SystemEnvironment.AGENT_LAUNCHER_CONTENT_MD5_HEADER, agentLauncherChecksum);
         response.setHeader(SystemEnvironment.AGENT_PLUGINS_ZIP_MD5_HEADER, pluginsZip.md5());
         response.setHeader(SystemEnvironment.AGENT_TFS_SDK_MD5_HEADER, tfsSdkChecksum);
+        response.setHeader(SystemEnvironment.AGENT_EXTRA_PROPERTIES_HEADER, getAgentExtraProperties());
         setOtherHeaders(response);
     }
 
@@ -180,6 +186,7 @@ public class AgentRegistrationController {
 
     private void setOtherHeaders(HttpServletResponse response) {
         response.setHeader("Cruise-Server-Ssl-Port", Integer.toString(systemEnvironment.getSslServerPort()));
+        response.setHeader(SystemEnvironment.AGENT_EXTRA_PROPERTIES_HEADER, getAgentExtraProperties());
     }
 
     @RequestMapping(value = "/admin/agent", method = RequestMethod.GET)
@@ -224,7 +231,7 @@ public class AgentRegistrationController {
         String preferredHostname = hostname;
 
         try {
-            if (!Base64.encodeBase64String(hmac().doFinal(uuid.getBytes())).equals(token)) {
+            if (!encodeBase64String(hmac().doFinal(uuid.getBytes())).equals(token)) {
                 String message = "Not a valid token.";
                 LOG.error("Rejecting request for registration. Error: HttpCode=[{}] Message=[{}] UUID=[{}] Hostname=[{}]" +
                         "ElasticAgentID=[{}] PluginID=[{}]", FORBIDDEN, message, uuid, hostname, elasticAgentId, elasticPluginId);
@@ -331,7 +338,17 @@ public class AgentRegistrationController {
                     CONFLICT, message, agentInstance.isPending(), uuid);
             return new ResponseEntity<>(message, CONFLICT);
         }
-        return new ResponseEntity<>(Base64.encodeBase64String(hmac().doFinal(uuid.getBytes())), OK);
+        return new ResponseEntity<>(encodeBase64String(hmac().doFinal(uuid.getBytes())), OK);
+    }
+
+    private String getAgentExtraProperties() {
+        if (agentExtraProperties == null) {
+            String base64OfSystemProperty = encodeBase64String(systemEnvironment.get(AGENT_EXTRA_PROPERTIES).getBytes(UTF_8));
+            String base64OfEmptyString = encodeBase64String("".getBytes(UTF_8));
+
+            this.agentExtraProperties = base64OfSystemProperty.length() >= MAX_HEADER_LENGTH ? base64OfEmptyString : base64OfSystemProperty;
+        }
+        return agentExtraProperties;
     }
 
     private void sendFile(InputStreamSrc input, HttpServletResponse response) throws IOException {

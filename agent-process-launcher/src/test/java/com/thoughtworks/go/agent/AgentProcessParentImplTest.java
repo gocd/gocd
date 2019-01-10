@@ -106,6 +106,37 @@ public class AgentProcessParentImplTest {
         }));
     }
 
+    @Test
+    public void shouldAddAnyExtraPropertiesFoundToTheAgentInvocation() throws InterruptedException, IOException {
+        final List<String> cmd = new ArrayList<>();
+        String expectedAgentMd5 = TEST_AGENT.getMd5();
+        String expectedAgentPluginsMd5 = TEST_AGENT_PLUGINS.getMd5();
+        String expectedTfsMd5 = TEST_TFS_IMPL.getMd5();
+
+        server.setExtraPropertiesHeaderValue("extra.property=value1%20with%20space extra%20property%20with%20space=value2%20with%20space");
+        AgentProcessParentImpl bootstrapper = createBootstrapper(cmd);
+        int returnCode = bootstrapper.run("launcher_version", "bar", getURLGenerator(), new HashMap<>(), context());
+
+        assertThat(returnCode, is(42));
+        assertThat(cmd.toArray(new String[]{}), equalTo(new String[]{
+                (getProperty("java.home") + getProperty("file.separator") + "bin" + getProperty("file.separator") + "java"),
+                "-Dextra.property=value1 with space",
+                "-Dextra property with space=value2 with space",
+                "-Dagent.plugins.md5=" + expectedAgentPluginsMd5,
+                "-Dagent.binary.md5=" + expectedAgentMd5,
+                "-Dagent.launcher.md5=bar",
+                "-Dagent.tfs.md5=" + expectedTfsMd5,
+                "-jar",
+                "agent.jar",
+                "-serverUrl",
+                "https://localhost:" + server.getSecurePort() + "/go/",
+                "-sslVerificationMode",
+                "NONE",
+                "-rootCertFile",
+                "/path/to/cert.pem"
+        }));
+    }
+
     private Process mockProcess() throws InterruptedException {
         return mockProcess(new ByteArrayInputStream(new byte[0]), new ByteArrayInputStream(new byte[0]), new ByteArrayOutputStream());
     }

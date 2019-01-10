@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -80,7 +80,7 @@ public abstract class AgentController {
     public final void loop() {
         try {
             LOG.debug("[Agent Loop] Trying to retrieve work.");
-            agentUpgradeService.checkForUpgrade();
+            agentUpgradeService.checkForUpgradeAndExtraProperties();
             sslInfrastructureService.registerIfNecessary(getAgentAutoRegistrationProperties());
             work();
             LOG.debug("[Agent Loop] Successfully retrieved work.");

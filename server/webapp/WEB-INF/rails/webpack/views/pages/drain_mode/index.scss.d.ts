@@ -16,3 +16,5 @@ export const panel: string;
 export const panelHeader: string;
 export const panelBody: string;
 export const runningSystemHeader: string;
+export const scheduledStagesTitleWrapper: string;
+export const scheduledStagesTitle: string;

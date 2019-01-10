@@ -18,6 +18,8 @@ import {MithrilViewComponent} from "jsx/mithril-component";
 import * as m from "mithril";
 import {DrainModeInfo, RunningSystem, StageLocator} from "models/drain_mode/types";
 import {SwitchBtn} from "views/components/switch";
+import {TooltipSize} from "views/components/tooltip";
+import * as Tooltip from "views/components/tooltip";
 import {DisabledSubsystemsWidget} from "views/pages/drain_mode/disabled_susbsystems_widget";
 import {JobInfoWidget} from "views/pages/drain_mode/running_jobs_widget.tsx";
 import {MDUInfoWidget} from "views/pages/drain_mode/running_mdus_widget";
@@ -93,7 +95,11 @@ export class DrainModeInfoWidget extends MithrilViewComponent<InfoAttrs> {
                      onCancelStage={vnode.attrs.onCancelStage}/>,
       <MDUInfoWidget materials={(vnode.attrs.drainModeInfo.runningSystem as RunningSystem).materialUpdateInProgress}/>,
       <JobInfoWidget stages={(vnode.attrs.drainModeInfo.runningSystem as RunningSystem).scheduledJobsGroupedByStages}
-                     title={"Scheduled Stages"}
+                     title={<span class={styles.scheduledStagesTitleWrapper}>
+                       <div class={styles.scheduledStagesTitle}> Scheduled Stages </div>
+                       <Tooltip.Info size={TooltipSize.large}
+                                     content={"Scheduled stages contains the jobs which are scheduled but not yet assigned to any agent. As the job assignment to agents is stopped during drain mode, scheduled jobs will not have a side effect on the server state. Hence, Scheduled stages are ignored while considering server drain mode."}/>
+                     </span>}
                      onCancelStage={vnode.attrs.onCancelStage}/>,
     ] as m.ChildArray;
   }

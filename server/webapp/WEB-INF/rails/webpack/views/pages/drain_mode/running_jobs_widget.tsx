@@ -26,7 +26,7 @@ import * as styles from "views/pages/drain_mode/index.scss";
 
 interface JobInfoAttrs {
   stages: Stage[];
-  title: string;
+  title: string | JSX.Element;
   onCancelStage: (stageLocator: StageLocator) => void;
 }
 

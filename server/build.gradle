@@ -242,7 +242,7 @@ dependencies {
   copyOnly project(path: ':agent-launcher', configuration: 'fatJarConfig')
   copyOnlyTestData project(':test:test-agent')
 
-  compile group: 'commons-dbcp', name: 'commons-dbcp', version: '1.4'
+  compile group: 'org.apache.commons', name: 'commons-dbcp2', version: project.versions.commonsDbcp
   compile group: 'com.h2database', name: 'h2', version: project.versions.h2db
   compile group: 'net.sf', name: 'dbdeploy', version: '2.11.1'
   compile(group: 'org.hibernate', name: 'hibernate-ehcache', version: project.versions.hibernate) {
@@ -849,7 +849,7 @@ task verifyWar(type: VerifyJarTask) {
         "commons-codec-${project.versions.commonsCodec}.jar",
         "commons-collections-3.2.2.jar",
         "commons-collections4-${project.versions.commonsCollections4}.jar",
-        "commons-dbcp-1.4.jar",
+        "commons-dbcp2-${project.versions.commonsDbcp}.jar",
         "commons-digester-${project.versions.commonsDigester}.jar",
         "commons-digester3-${project.versions.commonsDigester3}.jar",
         "commons-fileupload-${project.versions.commonsFileUpload}.jar",
@@ -857,7 +857,7 @@ task verifyWar(type: VerifyJarTask) {
         "commons-lang-${project.versions.commonsLang}.jar",
         "commons-lang3-${project.versions.commonsLang3}.jar",
         "commons-net-2.0.jar",
-        "commons-pool-1.5.6.jar",
+        "commons-pool2-${project.versions.commonsPool}.jar",
         "config-api-${project.version}.jar",
         "config-server-${project.version}.jar",
         "database-${project.version}.jar",

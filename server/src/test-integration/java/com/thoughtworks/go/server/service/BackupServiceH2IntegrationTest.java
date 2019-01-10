@@ -36,7 +36,7 @@ import com.thoughtworks.go.service.ConfigRepository;
 import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.TimeProvider;
-import org.apache.commons.dbcp.BasicDataSource;
+import org.apache.commons.dbcp2.BasicDataSource;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.NameFileFilter;
 import org.apache.commons.io.filefilter.TrueFileFilter;
@@ -192,7 +192,7 @@ public class BackupServiceH2IntegrationTest {
         source.setUrl("jdbc:h2:" + file.getAbsolutePath() + "/cruise;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE");
         source.setUsername("sa");
         source.setPassword("");
-        source.setMaxActive(32);
+        source.setMaxTotal(32);
         source.setMaxIdle(32);
         return source;
     }

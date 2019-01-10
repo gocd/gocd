@@ -25,8 +25,8 @@ dependencies {
     exclude(module: 'commons-logging')
     exclude(module: 'commons-collections')
   }
-  compile group: 'commons-dbcp', name: 'commons-dbcp', version: '1.4'
-  compile group: 'commons-pool', name: 'commons-pool', version: '1.5.6'
+  compile group: 'org.apache.commons', name: 'commons-dbcp2', version: project.versions.commonsDbcp
+  compile group: 'org.apache.commons', name: 'commons-pool2', version: project.versions.commonsPool
   compile group: 'org.jruby', name: 'jruby-complete', version: project.versions.jruby
   compile group: 'org.jruby.rack', name: 'jruby-rack', version: versions.rack
   testCompile project(':common')

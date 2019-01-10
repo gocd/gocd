@@ -16,6 +16,17 @@
 
 package com.thoughtworks.go.server.database;
 
+import com.googlecode.junit.ext.JunitExtRunner;
+import com.googlecode.junit.ext.RunIf;
+import com.thoughtworks.go.database.Database;
+import com.thoughtworks.go.junitext.DatabaseChecker;
+import com.thoughtworks.go.util.SystemEnvironment;
+import org.apache.commons.dbcp2.BasicDataSource;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
 import java.io.File;
 import java.io.IOException;
 import java.sql.Connection;
@@ -23,32 +34,12 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-import com.googlecode.junit.ext.JunitExtRunner;
-import com.googlecode.junit.ext.RunIf;
-import com.thoughtworks.go.database.Database;
-import com.thoughtworks.go.junitext.DatabaseChecker;
-import com.thoughtworks.go.util.SystemEnvironment;
-import org.apache.commons.dbcp.BasicDataSource;
-import org.hamcrest.Description;
-import org.hamcrest.Matcher;
-import org.hamcrest.TypeSafeMatcher;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-
 import static com.thoughtworks.go.server.database.DatabaseFixture.assertColumnType;
 import static com.thoughtworks.go.server.database.DatabaseFixture.numericQuery;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @RunWith(JunitExtRunner.class)
 @RunIf(value = DatabaseChecker.class, arguments = {DatabaseChecker.H2})
@@ -185,7 +176,7 @@ public class H2DatabaseTest {
     @Test
     public void shouldUseParamterizedActiveAndIdleConnections() throws Exception {
         BasicDataSource dataSource = h2Database.createDataSource();
-        assertThat(dataSource.getMaxActive(),is(20));
+        assertThat(dataSource.getMaxTotal(),is(20));
         assertThat(dataSource.getMaxIdle(),is(10));
     }
 

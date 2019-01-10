@@ -19,7 +19,7 @@ package com.thoughtworks.go.server.database;
 import com.thoughtworks.go.util.SystemEnvironment;
 import net.sf.dbdeploy.InMemory;
 import net.sf.dbdeploy.database.syntax.HsqlDbmsSyntax;
-import org.apache.commons.dbcp.BasicDataSource;
+import org.apache.commons.dbcp2.BasicDataSource;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -22,8 +22,8 @@ dependencies {
   compile project(':config:config-server')
   compile project(':common')
   compile project(':rack_hack')
-  compile group: 'commons-dbcp', name: 'commons-dbcp', version: '1.4'
-  compile group: 'commons-pool', name: 'commons-pool', version: '1.5.6'
+  compile group: 'org.apache.commons', name: 'commons-dbcp2', version: project.versions.commonsDbcp
+  compile group: 'org.apache.commons', name: 'commons-pool2', version: project.versions.commonsPool
   compile group: 'org.slf4j', name: 'slf4j-api', version: project.versions.slf4j
 
   testCompile project(':common')

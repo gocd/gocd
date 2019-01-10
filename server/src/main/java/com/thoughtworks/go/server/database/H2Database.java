@@ -20,7 +20,7 @@ import com.thoughtworks.go.database.Database;
 import com.thoughtworks.go.database.QueryExtensions;
 import com.thoughtworks.go.server.util.H2EventListener;
 import com.thoughtworks.go.util.SystemEnvironment;
-import org.apache.commons.dbcp.BasicDataSource;
+import org.apache.commons.dbcp2.BasicDataSource;
 import org.h2.tools.Server;
 import org.h2.util.StringUtils;
 import org.slf4j.Logger;
@@ -126,7 +126,7 @@ public class H2Database implements Database {
         source.setUrl(url);
         source.setUsername(databaseUsername);
         source.setPassword(databasePassword);
-        source.setMaxActive(configuration.getMaxActive());
+        source.setMaxTotal(configuration.getMaxActive());
         source.setMaxIdle(configuration.getMaxIdle());
     }
 

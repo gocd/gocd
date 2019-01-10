@@ -64,7 +64,9 @@ export class SiteFooter extends MithrilViewComponent<Attrs> {
   private static drainModeOrLegacyBrowserBanner(vnode: m.Vnode<Attrs>) {
     if (vnode.attrs.isServerInDrainMode) {
       return (<div data-test-id="drain-mode-banner" class={styles.footerWarningBanner}>
-        GoCD Server is in the drain state (Maintenance mode). Learn more...
+        GoCD Server is in the drain state (Maintenance mode).
+        &nbsp;
+        <a href="https://docs.gocd.org/advanced_usage/drain_mode.html">Learn more..</a>
       </div>);
     }
 

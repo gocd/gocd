@@ -36,6 +36,7 @@ import com.thoughtworks.go.domain.packagerepository.PackageRepository;
 import com.thoughtworks.go.helper.ConfigFileFixture;
 import com.thoughtworks.go.security.CryptoException;
 import com.thoughtworks.go.security.GoCipher;
+import com.thoughtworks.go.security.ResetCipher;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.serverhealth.*;
 import com.thoughtworks.go.service.ConfigRepository;
@@ -110,6 +111,8 @@ public class GoConfigMigrationIntegrationTest {
     private CachedGoPartials cachedGoPartials;
     @Rule
     public final TemporaryFolder temporaryFolder = new TemporaryFolder();
+    @Rule
+    public ResetCipher resetCipher = new ResetCipher();
 
     private String currentGoServerVersion;
     private MagicalGoConfigXmlLoader loader;
@@ -127,6 +130,8 @@ public class GoConfigMigrationIntegrationTest {
         serverHealthService.removeAllLogs();
         currentGoServerVersion = CurrentGoCDVersion.getInstance().formatted();
         loader = new MagicalGoConfigXmlLoader(new ConfigCache(), ConfigElementImplementationRegistryMother.withNoPlugins());
+        resetCipher.setupDESCipherFile();
+        resetCipher.setupAESCipherFile();
         password = UUID.randomUUID().toString();
         encryptedPassword = new GoCipher().encrypt(password);
     }

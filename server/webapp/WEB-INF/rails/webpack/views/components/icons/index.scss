@@ -113,6 +113,14 @@ $btn-group-border-radius: $global-border-radius;
   font-size: 7px;
 }
 
+.info-circle {
+  @include icon-before($type: $fa-var-info-circle);
+}
+
+.question-circle {
+  @include icon-before($type: $fa-var-question-circle);
+}
+
 .icon-group {
   border:        1px solid $border-color;
   border-radius: $btn-group-border-radius;

@@ -141,6 +141,18 @@ export class Minus extends Icon {
   }
 }
 
+export class InfoCircle extends Icon {
+  constructor() {
+    super(styles.infoCircle, "Info Circle");
+  }
+}
+
+export class QuestionCircle extends Icon {
+  constructor() {
+    super(styles.questionCircle, "Question Circle");
+  }
+}
+
 export class IconGroup extends MithrilViewComponent<Attrs> {
   view(vnode: m.Vnode<Attrs>) {
     return (

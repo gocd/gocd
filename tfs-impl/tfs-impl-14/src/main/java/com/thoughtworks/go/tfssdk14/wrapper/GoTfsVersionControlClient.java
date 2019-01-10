@@ -17,6 +17,7 @@
 package com.thoughtworks.go.tfssdk14.wrapper;
 
 import com.microsoft.tfs.core.clients.versioncontrol.VersionControlClient;
+import com.microsoft.tfs.core.clients.versioncontrol.WorkspaceLocation;
 import com.microsoft.tfs.core.clients.versioncontrol.soapextensions.Changeset;
 import com.microsoft.tfs.core.clients.versioncontrol.soapextensions.RecursionType;
 import com.microsoft.tfs.core.clients.versioncontrol.soapextensions.Workspace;
@@ -25,6 +26,9 @@ import com.microsoft.tfs.core.clients.versioncontrol.specs.version.LatestVersion
 
 import java.io.File;
 import java.util.ArrayList;
+
+import static com.microsoft.tfs.core.clients.versioncontrol.WorkspaceLocation.SERVER;
+import static java.lang.System.getProperty;
 
 public class GoTfsVersionControlClient {
     private final VersionControlClient client;
@@ -57,7 +61,8 @@ public class GoTfsVersionControlClient {
     }
 
     public GoTfsWorkspace createWorkspace(String workspace) {
-        return new GoTfsWorkspace(client.createWorkspace(null, workspace, null, null, null, null));
+        WorkspaceLocation workspaceLocation = "Y".equalsIgnoreCase(getProperty("toggle.agent.tfs.use.server.workspace.location", "N")) ? SERVER : null;
+        return new GoTfsWorkspace(client.createWorkspace(null, workspace, null, workspaceLocation, null, null));
     }
 
     public Changeset[] queryHistory(String projectPath, ChangesetVersionSpec uptoRevision, int revsToLoad) {

@@ -16,8 +16,8 @@
 
 package com.thoughtworks.go.domain;
 
-import static org.hamcrest.core.Is.is;
-import static org.hamcrest.core.IsInstanceOf.instanceOf;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.not;
 import org.junit.Assert;
 import static org.junit.Assert.assertThat;

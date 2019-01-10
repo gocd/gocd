@@ -20,7 +20,7 @@ import org.junit.Test;
 
 import java.util.HashMap;
 
-import static org.hamcrest.CoreMatchers.containsString;
+import static org.hamcrest.Matchers.containsString;
 import static org.junit.Assert.assertThat;
 
 public class ExceptionTemplateTest {

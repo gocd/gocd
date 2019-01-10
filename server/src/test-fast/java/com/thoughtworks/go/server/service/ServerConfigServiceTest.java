@@ -18,12 +18,12 @@ package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.ConfigSaveState;
 import com.thoughtworks.go.config.MailHost;
-import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
-import org.hamcrest.core.Is;
 import org.junit.Test;
 
+import static com.thoughtworks.go.i18n.LocalizedMessage.composite;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -41,7 +41,7 @@ public class ServerConfigServiceTest {
                 ConfigSaveState.MERGED);
         serverConfigService.updateServerConfig(mailHost, null, null, null, null, true, "http://site", "https://site", "location", result, "md5");
 
-        assertThat(result.message(), Is.is(LocalizedMessage.composite("Saved configuration successfully.", "The configuration was modified by someone else, but your changes were merged successfully.")));
+        assertThat(result.message(), is(composite("Saved configuration successfully.", "The configuration was modified by someone else, but your changes were merged successfully.")));
     }
 
     @Test
@@ -56,7 +56,7 @@ public class ServerConfigServiceTest {
                 ConfigSaveState.UPDATED);
         serverConfigService.updateServerConfig(mailHost, null, null, null, null, true, "http://site", "https://site", "location", result, "md5");
 
-        assertThat(result.message(), Is.is("Saved configuration successfully."));
+        assertThat(result.message(), is("Saved configuration successfully."));
 
     }
 

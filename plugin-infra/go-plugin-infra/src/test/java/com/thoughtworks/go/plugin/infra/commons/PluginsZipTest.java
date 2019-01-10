@@ -34,9 +34,9 @@ import java.util.zip.ZipFile;
 
 import static com.thoughtworks.go.util.SystemEnvironment.*;
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.hamcrest.CoreMatchers.*;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.core.Is.is;
+import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.assertThat;
+import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.*;
 
 public class PluginsZipTest {

@@ -19,8 +19,8 @@ package com.thoughtworks.go.server.transaction;
 import com.thoughtworks.go.server.cache.GoCache;
 import org.springframework.transaction.TransactionStatus;
 
-import static org.hamcrest.CoreMatchers.nullValue;
-import static org.hamcrest.core.Is.is;
+import static org.hamcrest.Matchers.nullValue;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
 class TransactionCacheAssertionUtil {

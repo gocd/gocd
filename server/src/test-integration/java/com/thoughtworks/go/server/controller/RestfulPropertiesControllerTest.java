@@ -26,7 +26,6 @@ import com.thoughtworks.go.server.service.PropertiesService;
 import com.thoughtworks.go.server.service.RestfulService;
 import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.util.SystemEnvironment;
-import org.hamcrest.core.Is;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -44,9 +43,9 @@ import java.util.Map;
 
 import static com.thoughtworks.go.server.controller.RestfulActionTestHelper.assertContentStatusWithTextPlain;
 import static javax.servlet.http.HttpServletResponse.*;
-import static org.hamcrest.core.Is.is;
-import static org.hamcrest.core.IsNot.not;
-import static org.hamcrest.core.StringContains.containsString;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.containsString;
 import static org.junit.Assert.assertThat;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {
@@ -281,7 +280,7 @@ public class RestfulPropertiesControllerTest {
         propertiesController.jobSearch("unknown", oldPipeline.getLabel(), "stage",
                 String.valueOf(oldStage.getCounter()), "build",
                 "json", null, response);
-        assertThat(response.getStatus(), Is.is(SC_NOT_FOUND));
+        assertThat(response.getStatus(), is(SC_NOT_FOUND));
     }
 
 

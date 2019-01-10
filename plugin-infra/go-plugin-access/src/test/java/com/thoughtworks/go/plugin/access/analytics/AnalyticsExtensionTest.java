@@ -24,7 +24,6 @@ import com.thoughtworks.go.plugin.domain.analytics.SupportedAnalytics;
 import com.thoughtworks.go.plugin.domain.common.PluginConstants;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
-import org.hamcrest.core.Is;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -35,14 +34,13 @@ import org.mockito.Mock;
 
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 
 import static com.thoughtworks.go.plugin.access.analytics.AnalyticsPluginConstants.*;
 import static com.thoughtworks.go.plugin.api.response.DefaultGoPluginApiResponse.SUCCESS_RESPONSE_CODE;
 import static com.thoughtworks.go.plugin.domain.common.PluginConstants.ANALYTICS_EXTENSION;
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson;
-import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.when;
@@ -142,9 +140,9 @@ public class AnalyticsExtensionTest {
     }
 
     private void assertRequest(GoPluginApiRequest goPluginApiRequest, String extensionName, String version, String requestName, String requestBody) {
-        assertThat(goPluginApiRequest.extension(), Is.is(extensionName));
-        assertThat(goPluginApiRequest.extensionVersion(), Is.is(version));
-        assertThat(goPluginApiRequest.requestName(), Is.is(requestName));
+        assertThat(goPluginApiRequest.extension(), is(extensionName));
+        assertThat(goPluginApiRequest.extensionVersion(), is(version));
+        assertThat(goPluginApiRequest.requestName(), is(requestName));
         assertThatJson(requestBody).isEqualTo(goPluginApiRequest.requestBody());
     }
 }

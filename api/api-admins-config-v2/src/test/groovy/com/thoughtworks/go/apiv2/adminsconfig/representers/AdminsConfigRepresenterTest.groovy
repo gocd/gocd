@@ -26,8 +26,7 @@ import org.junit.jupiter.api.Test
 
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
-import static org.hamcrest.MatcherAssert.assertThat
-import static org.hamcrest.Matchers.is
+import static org.assertj.core.api.Assertions.assertThat
 
 class AdminsConfigRepresenterTest {
   @Test
@@ -70,6 +69,6 @@ class AdminsConfigRepresenterTest {
       new AdminRole(new CaseInsensitiveString("qa")),
       new AdminRole(new CaseInsensitiveString("dev")),
     )
-    assertThat(adminsConfig, is(expected))
+    assertThat(adminsConfig).isEqualTo(expected)
   }
 }

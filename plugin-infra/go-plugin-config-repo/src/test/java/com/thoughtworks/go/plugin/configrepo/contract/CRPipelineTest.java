@@ -29,8 +29,8 @@ import java.util.Map;
 import static com.thoughtworks.go.util.TestUtils.contains;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertThat;
+import static org.hamcrest.Matchers.is;
 
 public class CRPipelineTest extends CRBaseTest<CRPipeline> {
 

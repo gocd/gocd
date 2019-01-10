@@ -42,11 +42,7 @@ import static com.thoughtworks.go.domain.AgentInstance.AgentType.LOCAL;
 import static com.thoughtworks.go.domain.AgentInstance.AgentType.REMOTE;
 import static com.thoughtworks.go.util.SystemUtil.currentWorkingDirectory;
 import static java.util.Arrays.asList;
-import static org.hamcrest.Matchers.greaterThan;
-import static org.hamcrest.Matchers.nullValue;
-import static org.hamcrest.core.Is.is;
-import static org.hamcrest.core.IsNot.not;
-import static org.hamcrest.number.OrderingComparison.lessThan;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 

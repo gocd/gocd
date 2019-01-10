@@ -20,7 +20,7 @@ import com.thoughtworks.go.plugin.access.authorization.models.AuthenticationResp
 import com.thoughtworks.go.plugin.access.authorization.models.User;
 import org.junit.Test;
 
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.assertThat;
 import static org.hamcrest.Matchers.*;
 
 public class AuthenticationResponseTest {

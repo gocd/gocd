@@ -31,8 +31,8 @@ import javax.mail.Transport;
 import javax.mail.internet.MimeMessage;
 import java.util.Properties;
 
-import static org.hamcrest.core.Is.is;
-import static org.hamcrest.core.IsNot.not;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.*;

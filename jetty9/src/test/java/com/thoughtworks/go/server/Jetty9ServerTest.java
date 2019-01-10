@@ -27,13 +27,11 @@ import org.eclipse.jetty.server.*;
 import org.eclipse.jetty.server.handler.ContextHandler;
 import org.eclipse.jetty.server.handler.ContextHandlerCollection;
 import org.eclipse.jetty.server.handler.HandlerCollection;
-import org.eclipse.jetty.server.handler.RequestLogHandler;
 import org.eclipse.jetty.util.thread.QueuedThreadPool;
 import org.eclipse.jetty.webapp.JettyWebXmlConfiguration;
 import org.eclipse.jetty.webapp.WebAppContext;
 import org.eclipse.jetty.webapp.WebInfConfiguration;
 import org.eclipse.jetty.webapp.WebXmlConfiguration;
-import org.hamcrest.CoreMatchers;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -54,12 +52,9 @@ import java.io.PrintWriter;
 import java.util.*;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.hamcrest.Matchers.instanceOf;
-import static org.hamcrest.Matchers.typeCompatibleWith;
-import static org.hamcrest.core.Is.is;
-import static org.hamcrest.core.IsNot.not;
-import static org.hamcrest.core.IsNull.nullValue;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
@@ -280,7 +275,7 @@ public class Jetty9ServerTest {
         jetty9Server.startHandlers();
 
         WebAppContext webAppContext = (WebAppContext) getLoadedHandlers().get(WebAppContext.class);
-        assertThat(webAppContext.getInitParameter("name"), CoreMatchers.is("value"));
+        assertThat(webAppContext.getInitParameter("name"), is("value"));
     }
 
     @Test

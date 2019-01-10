@@ -45,7 +45,6 @@ import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.util.ReflectionUtil;
 import org.apache.commons.io.IOUtils;
-import org.hamcrest.CoreMatchers;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -62,13 +61,13 @@ import static com.thoughtworks.go.i18n.LocalizedMessage.forbiddenToEditGroup;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Arrays.asList;
 import static javax.servlet.http.HttpServletResponse.SC_CONFLICT;
-import static org.hamcrest.CoreMatchers.anyOf;
-import static org.hamcrest.CoreMatchers.startsWith;
+import static org.hamcrest.Matchers.anyOf;
+import static org.hamcrest.Matchers.startsWith;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.sameInstance;
-import static org.hamcrest.core.Is.is;
-import static org.hamcrest.core.IsNot.not;
-import static org.hamcrest.core.IsNull.nullValue;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -821,7 +820,7 @@ public class GoConfigServiceIntegrationTest {
                 .getExternalArtifactConfigs().get(0).getConfiguration();
         assertThat(ancestorPluggablePublishAftifactConfigAfterEncryption.getProperty("Image").getValue(), is("NEW_SECRET"));
         assertThat(ancestorPluggablePublishAftifactConfigAfterEncryption.getProperty("Image").getEncryptedValue(), startsWith("AES:"));
-        assertThat(ancestorPluggablePublishAftifactConfigAfterEncryption.getProperty("Image").getConfigValue(), is(CoreMatchers.nullValue()));
+        assertThat(ancestorPluggablePublishAftifactConfigAfterEncryption.getProperty("Image").getConfigValue(), is(nullValue()));
     }
 
     @Test
@@ -841,7 +840,7 @@ public class GoConfigServiceIntegrationTest {
 
         assertThat(childFetchConfigAfterEncryption.getProperty("FetchProperty").getValue(), is("NEW_SECRET"));
         assertThat(childFetchConfigAfterEncryption.getProperty("FetchProperty").getEncryptedValue(), startsWith("AES:"));
-        assertThat(childFetchConfigAfterEncryption.getProperty("FetchProperty").getConfigValue(), is(CoreMatchers.nullValue()));
+        assertThat(childFetchConfigAfterEncryption.getProperty("FetchProperty").getConfigValue(), is(nullValue()));
     }
 
     private void setupMetadataForPlugin() {

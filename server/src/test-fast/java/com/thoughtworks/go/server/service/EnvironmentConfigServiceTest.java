@@ -27,7 +27,6 @@ import com.thoughtworks.go.presentation.environment.EnvironmentPipelineModel;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
-import org.hamcrest.core.Is;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -38,7 +37,7 @@ import static com.thoughtworks.go.helper.EnvironmentConfigMother.*;
 import static com.thoughtworks.go.helper.PipelineConfigMother.pipelineConfig;
 import static java.util.Arrays.asList;
 import static org.hamcrest.Matchers.hasItem;
-import static org.hamcrest.core.Is.is;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
@@ -124,7 +123,7 @@ public class EnvironmentConfigServiceTest {
         environmentConfigService.sync(environments);
         when(mockGoConfigService.getMergedConfigForEditing()).thenReturn(config);
 
-        assertThat(environmentConfigService.getAllMergedEnvironments(), Is.is(Arrays.asList(env)));
+        assertThat(environmentConfigService.getAllMergedEnvironments(), is(asList(env)));
         assertThat(result.isSuccessful(), is(true));
     }
 
@@ -430,7 +429,7 @@ public class EnvironmentConfigServiceTest {
         environments.add(env);
         environmentConfigService.sync(environments);
         when(mockGoConfigService.getMergedConfigForEditing()).thenReturn(config);
-        assertThat(environmentConfigService.getMergedEnvironmentforDisplay("foo", result).getConfigElement(), Is.is(env));
+        assertThat(environmentConfigService.getMergedEnvironmentforDisplay("foo", result).getConfigElement(), is(env));
         assertThat(result.isSuccessful(), is(true));
     }
 

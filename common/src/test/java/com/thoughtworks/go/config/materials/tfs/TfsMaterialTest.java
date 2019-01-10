@@ -21,16 +21,13 @@ import com.thoughtworks.go.config.materials.AbstractMaterial;
 import com.thoughtworks.go.config.materials.PasswordAwareMaterial;
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.domain.materials.TestSubprocessExecutionContext;
-import com.thoughtworks.go.domain.materials.ValidationBean;
 import com.thoughtworks.go.domain.materials.mercurial.StringRevision;
 import com.thoughtworks.go.domain.materials.tfs.TfsCommand;
 import com.thoughtworks.go.security.CryptoException;
 import com.thoughtworks.go.security.GoCipher;
-import com.thoughtworks.go.util.DataStructureUtils;
 import com.thoughtworks.go.util.ReflectionUtil;
 import com.thoughtworks.go.util.command.UrlArgument;
 import org.hamcrest.Matchers;
-import org.hamcrest.core.Is;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -42,9 +39,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import static com.thoughtworks.go.config.materials.AbstractMaterial.SQL_CRITERIA_TYPE;
+import static com.thoughtworks.go.domain.materials.ValidationBean.valid;
 import static com.thoughtworks.go.util.DataStructureUtils.m;
-import static org.hamcrest.core.Is.is;
-import static org.hamcrest.core.IsNull.nullValue;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.*;
@@ -102,8 +101,8 @@ public class TfsMaterialTest {
     @Test
     public void shouldInjectAllRelevantAttributesInSqlCriteriaMap() {
         TfsMaterial tfsMaterial = new TfsMaterial(new GoCipher(), new UrlArgument("my-url"), "loser", DOMAIN, "foo_bar_baz", "/dev/null");
-        assertThat(tfsMaterial.getSqlCriteria(), Is.is(DataStructureUtils.m(
-                AbstractMaterial.SQL_CRITERIA_TYPE, (Object) "TfsMaterial",
+        assertThat(tfsMaterial.getSqlCriteria(), is(m(
+                SQL_CRITERIA_TYPE, (Object) "TfsMaterial",
                 "url", "my-url",
                 "username", "loser",
                 "projectPath", "/dev/null", "domain", DOMAIN)));
@@ -230,7 +229,7 @@ public class TfsMaterialTest {
         doNothing().when(tfsCommand).checkConnection();
         TfsMaterial spy = spy(tfsMaterialFirstCollectionFirstProject);
         doReturn(tfsCommand).when(spy).tfs(execCtx);
-        assertThat(spy.checkConnection(execCtx), Is.is(ValidationBean.valid()));
+        assertThat(spy.checkConnection(execCtx), is(valid()));
         verify(tfsCommand, times(1)).checkConnection();
     }
 

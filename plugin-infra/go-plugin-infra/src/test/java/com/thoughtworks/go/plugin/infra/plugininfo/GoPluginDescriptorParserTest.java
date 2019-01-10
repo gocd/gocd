@@ -24,7 +24,7 @@ import java.io.File;
 import java.io.InputStream;
 
 import static com.thoughtworks.go.util.TestUtils.contains;
-import static org.hamcrest.core.Is.is;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 

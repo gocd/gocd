@@ -30,8 +30,8 @@ import java.util.*;
 
 import static com.thoughtworks.go.domain.materials.dependency.DependencyMaterialRevision.create;
 import static org.hamcrest.Matchers.not;
-import static org.hamcrest.collection.IsMapContaining.hasEntry;
-import static org.hamcrest.core.Is.is;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.hasEntry;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;

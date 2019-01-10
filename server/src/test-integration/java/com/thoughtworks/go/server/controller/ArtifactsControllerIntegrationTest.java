@@ -37,7 +37,6 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
 import org.hamcrest.Description;
 import org.hamcrest.TypeSafeMatcher;
-import org.hamcrest.core.IsInstanceOf;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -68,11 +67,10 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static javax.servlet.http.HttpServletResponse.*;
 import static org.apache.commons.io.FileUtils.deleteDirectory;
 import static org.apache.commons.io.FileUtils.readFileToString;
-import static org.hamcrest.CoreMatchers.containsString;
-import static org.hamcrest.core.Is.is;
-import static org.hamcrest.core.IsInstanceOf.instanceOf;
-import static org.hamcrest.core.IsNot.not;
-import static org.hamcrest.number.OrderingComparison.lessThan;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.instanceOf;
+import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
@@ -192,7 +190,7 @@ public class ArtifactsControllerIntegrationTest {
     }
 
     private void assertStatus(ModelAndView mav, int responseCode) {
-        assertThat(mav.getView(), is(IsInstanceOf.<Object>instanceOf(ResponseCodeView.class)));
+        assertThat(mav.getView(), is(instanceOf(ResponseCodeView.class)));
         assertThat(((ResponseCodeView) mav.getView()).getStatusCode(), is(responseCode));
     }
 
@@ -397,7 +395,7 @@ public class ArtifactsControllerIntegrationTest {
         String original = readFileToString(file(artifactsRoot, "foo/bar.txt"), UTF_8);
 
         putFile("/foo/bar.txt");
-        assertThat(original.length(), is(lessThan(readFileToString(file(artifactsRoot, "foo/bar.txt"), UTF_8).length())));
+        assertThat(original.length(), is(org.hamcrest.Matchers.lessThan(readFileToString(file(artifactsRoot, "foo/bar.txt"), UTF_8).length())));
     }
 
     @Test

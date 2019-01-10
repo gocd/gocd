@@ -41,10 +41,9 @@ import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.valuestreammap.DownstreamInstancePopulator;
 import com.thoughtworks.go.server.valuestreammap.RunStagesPopulator;
 import com.thoughtworks.go.server.valuestreammap.UnrunStagesPopulator;
-import org.hamcrest.CoreMatchers;
-import org.hamcrest.core.IsNull;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
 
 import java.util.*;
@@ -54,8 +53,7 @@ import static com.thoughtworks.go.helper.ModificationsMother.checkinWithComment;
 import static java.util.Arrays.asList;
 import static javax.servlet.http.HttpServletResponse.*;
 import static junit.framework.TestCase.assertNull;
-import static org.hamcrest.Matchers.nullValue;
-import static org.hamcrest.core.Is.is;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
@@ -617,7 +615,7 @@ public class ValueStreamMapServiceTest {
         VSMTestHelper.assertNodeHasRevisions(graph, new CaseInsensitiveString("p3"), new PipelineRevision("p3", 1, "LABEL-P3"));
         VSMTestHelper.assertSCMNodeHasMaterialRevisions(graph, new CaseInsensitiveString(git.getFingerprint()), new MaterialRevision(git, false, modifications));
 
-        verify(runStagesPopulator).apply(any(ValueStreamMap.class));
+        verify(runStagesPopulator).apply(ArgumentMatchers.any(ValueStreamMap.class));
     }
 
     @Test
@@ -653,7 +651,7 @@ public class ValueStreamMapServiceTest {
 
         VSMTestHelper.assertSCMNodeHasMaterialRevisions(graph, new CaseInsensitiveString(git.getFingerprint()), new MaterialRevision(git, false, gitModifications));
 
-        verify(runStagesPopulator).apply(any(ValueStreamMap.class));
+        verify(runStagesPopulator).apply(ArgumentMatchers.any(ValueStreamMap.class));
     }
 
     @Test
@@ -694,7 +692,7 @@ public class ValueStreamMapServiceTest {
                 new MaterialRevision(git, false, modification1, modification2),
                 new MaterialRevision(git, false, modification3));
 
-        verify(runStagesPopulator).apply(any(ValueStreamMap.class));
+        verify(runStagesPopulator).apply(ArgumentMatchers.any(ValueStreamMap.class));
     }
 
     @Test
@@ -858,7 +856,7 @@ public class ValueStreamMapServiceTest {
 
         ValueStreamMapPresentationModel graph = valueStreamMapService.getValueStreamMap(new CaseInsensitiveString("MYPIPELINE"), 1, user, result);
 
-        assertThat(graph, is(IsNull.nullValue()));
+        assertThat(graph, is(nullValue()));
         assertThat(result.isSuccessful(), is(false));
         assertThat(result.message(), is("Value Stream Map of pipeline 'MYPIPELINE' with counter '1' can not be rendered. Please check the server log for details."));
 
@@ -1033,7 +1031,7 @@ public class ValueStreamMapServiceTest {
                 nodeIdsAtLevel.add(node.getId());
             }
         }
-        assertThat(nodeIdsAtLevel, CoreMatchers.hasItems(nodeIds));
+        assertThat(nodeIdsAtLevel, hasItems(nodeIds));
     }
 
     private DependencyMaterialDetail dependencyMaterial(String pipelineName, int pipelineCounter) {

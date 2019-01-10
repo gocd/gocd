@@ -35,7 +35,7 @@ import java.io.IOException;
 
 import static com.thoughtworks.go.config.MaterialRevisionsMatchers.containsModifiedFile;
 import static com.thoughtworks.go.util.command.ProcessOutputStreamConsumer.inMemoryConsumer;
-import static org.hamcrest.core.Is.is;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
 public class P4MultipleMaterialsTest {

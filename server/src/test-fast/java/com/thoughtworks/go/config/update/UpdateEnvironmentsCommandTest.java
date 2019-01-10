@@ -22,7 +22,7 @@ import com.thoughtworks.go.config.EnvironmentsConfig;
 import com.thoughtworks.go.helper.GoConfigMother;
 import org.junit.Test;
 
-import static org.hamcrest.core.Is.is;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
 public class UpdateEnvironmentsCommandTest {

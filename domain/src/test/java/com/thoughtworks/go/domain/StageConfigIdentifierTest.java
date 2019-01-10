@@ -18,7 +18,7 @@ package com.thoughtworks.go.domain;
 
 import org.junit.Test;
 
-import static org.hamcrest.core.Is.is;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
 public class StageConfigIdentifierTest {
@@ -29,7 +29,7 @@ public class StageConfigIdentifierTest {
         StageConfigIdentifier stageConfigIdentifier2 = new StageConfigIdentifier("pipelinename", "stageName");
         assertThat(stageConfigIdentifier1, is(stageConfigIdentifier2));
     }
-    
+
     @Test
     public void shouldUseCaseInsensitiveStringForStageName() {
         StageConfigIdentifier stageConfigIdentifier1 = new StageConfigIdentifier("pipelineName", "stageName");

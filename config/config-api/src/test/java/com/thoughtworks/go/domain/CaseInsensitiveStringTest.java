@@ -20,12 +20,12 @@ import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.util.ReflectionUtil;
 import org.junit.Test;
 
-import static org.hamcrest.CoreMatchers.nullValue;
+import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.lessThan;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.sameInstance;
-import static org.hamcrest.core.Is.is;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
 public class CaseInsensitiveStringTest {
@@ -37,7 +37,7 @@ public class CaseInsensitiveStringTest {
         assertThat(name, is(new CaseInsensitiveString("SOMENAME")));
         assertThat(name, not(new CaseInsensitiveString("SOMECRAP")));
     }
-    
+
     @Test
     public void shouldUnderstandBlankString() {
         assertThat(new CaseInsensitiveString("someName").isBlank(), is(false));
@@ -72,7 +72,7 @@ public class CaseInsensitiveStringTest {
         assertThat(new CaseInsensitiveString("foo").toUpper(), is("FOO"));
         assertThat(new CaseInsensitiveString("FOO").toLower(), is("foo"));
     }
-    
+
     @Test
     public void shouldReturnNullSafeStringRepresentation() {
         assertThat(CaseInsensitiveString.str(new CaseInsensitiveString("foo")), is("foo"));

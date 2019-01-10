@@ -19,7 +19,7 @@ package com.thoughtworks.go.domain;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import org.junit.Test;
 
-import static org.hamcrest.core.Is.is;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
 public class JobIdentifierTest {
@@ -53,7 +53,7 @@ public class JobIdentifierTest {
         assertThat(id.artifactLocator("consoleoutput/log.xml"),
                 is("cruise/1234/dev/1/linux-firefox-1/consoleoutput/log.xml"));
     }
-    
+
     @Test
     public void shouldFixFilePathWithPrecedingSlash() {
         JobIdentifier id = new JobIdentifier("cruise", 1234, "1.0.1234", "dev", "1", "linux-firefox-1", 100L);

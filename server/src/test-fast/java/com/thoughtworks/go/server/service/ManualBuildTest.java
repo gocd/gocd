@@ -28,7 +28,7 @@ import com.thoughtworks.go.server.domain.Username;
 import org.junit.Before;
 import org.junit.Test;
 
-import static org.hamcrest.core.Is.is;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
 public class ManualBuildTest {
@@ -45,7 +45,7 @@ public class ManualBuildTest {
         BuildCause buildCause = manualBuild.onModifications(materialRevisions, false, null);
         assertThat(buildCause.getApprover(), is("cruise-user"));
     }
-    
+
     @Test public void shouldPopulateProducedBuildCauseApproverForEmptyModificationBuildCause() throws Exception {
         BuildCause buildCause = manualBuild.onEmptyModifications(null, materialRevisions);
         assertThat(buildCause.getApprover(), is("cruise-user"));

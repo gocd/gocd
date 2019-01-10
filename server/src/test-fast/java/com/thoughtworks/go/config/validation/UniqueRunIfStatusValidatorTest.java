@@ -30,8 +30,8 @@ import java.io.ByteArrayInputStream;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.hamcrest.Matchers.anyOf;
 import static org.hamcrest.Matchers.not;
-import static org.hamcrest.core.Is.is;
-import static org.hamcrest.core.IsNull.nullValue;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 

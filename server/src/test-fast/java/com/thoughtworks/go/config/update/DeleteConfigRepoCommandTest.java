@@ -25,13 +25,12 @@ import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.SecurityService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
-import org.hamcrest.core.Is;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
+import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.core.IsEqual.equalTo;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
@@ -82,6 +81,6 @@ public class DeleteConfigRepoCommandTest {
     public void shouldNotContinueWhenConfigRepoNoLongerExists() {
         cruiseConfig.getConfigRepos().remove(0);
         DeleteConfigRepoCommand command = new DeleteConfigRepoCommand(securityService, repoId, currentUser, result);
-        assertThat(command.canContinue(cruiseConfig), Is.is(false));
+        assertThat(command.canContinue(cruiseConfig), is(false));
     }
 }

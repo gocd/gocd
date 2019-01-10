@@ -18,7 +18,7 @@ package com.thoughtworks.go.domain;
 
 import org.junit.Test;
 
-import static org.hamcrest.CoreMatchers.hasItem;
+import static org.hamcrest.Matchers.hasItem;
 import static org.junit.Assert.assertThat;
 
 public class FolderDirectoryEntryTest {

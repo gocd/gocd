@@ -24,7 +24,6 @@ import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.util.GoConfigFileHelper;
-import org.hamcrest.core.Is;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -35,8 +34,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import static org.hamcrest.core.Is.is;
-import static org.hamcrest.core.IsNull.nullValue;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -75,7 +74,7 @@ public class AgentAssignmentTest {
         JobInstance assigned = JobInstanceMother.assignedWithAgentId("dev", "uuid");
         agentAssignment.jobStatusChanged(assigned);
 
-        assertThat(agentAssignment.latestActiveJobOnAgent("uuid"), Is.is(assigned));
+        assertThat(agentAssignment.latestActiveJobOnAgent("uuid"), is(assigned));
     }
 
     @Test
@@ -83,7 +82,7 @@ public class AgentAssignmentTest {
         JobInstance scheduled = JobInstanceMother.scheduled("dev");
         agentAssignment.jobStatusChanged(scheduled);
 
-        assertThat(agentAssignment.latestActiveJobOnAgent("uuid"), Is.is(nullValue()));
+        assertThat(agentAssignment.latestActiveJobOnAgent("uuid"), is(nullValue()));
     }
 
     @Test
@@ -91,7 +90,7 @@ public class AgentAssignmentTest {
         Pipeline pipeline = fixture.createPipelineWithFirstStageAssigned("uuid");
         JobInstance expected = pipeline.getFirstStage().getJobInstances().first();
 
-        assertThat(agentAssignment.latestActiveJobOnAgent("uuid").getId(), Is.is(expected.getId()));
+        assertThat(agentAssignment.latestActiveJobOnAgent("uuid").getId(), is(expected.getId()));
     }
 
     @Test

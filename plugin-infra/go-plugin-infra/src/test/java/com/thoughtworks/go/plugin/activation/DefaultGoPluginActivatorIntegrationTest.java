@@ -50,7 +50,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.zip.ZipInputStream;
 
-import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.*;
 
 public class DefaultGoPluginActivatorIntegrationTest {

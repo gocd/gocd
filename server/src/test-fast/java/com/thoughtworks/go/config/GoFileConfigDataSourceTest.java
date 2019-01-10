@@ -44,7 +44,6 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.hamcrest.Matchers;
-import org.hamcrest.core.Is;
 import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.Before;
@@ -65,10 +64,11 @@ import static com.thoughtworks.go.util.GoConfigFileHelper.loadAndMigrate;
 import static com.thoughtworks.go.util.LogFixture.logFixtureFor;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Arrays.asList;
+import static org.apache.commons.io.FileUtils.readFileToString;
 import static org.hamcrest.Matchers.not;
-import static org.hamcrest.core.Is.is;
-import static org.hamcrest.core.IsNull.nullValue;
-import static org.hamcrest.core.StringContains.containsString;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
+import static org.hamcrest.Matchers.containsString;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.*;
@@ -223,7 +223,7 @@ public class GoFileConfigDataSourceTest {
             assertThat(e.getMessage(), containsString("Content is not allowed in prolog"));
         }
 
-        assertThat(FileUtils.readFileToString(file, UTF_8), Is.is(originalCopy));
+        assertThat(readFileToString(file, UTF_8), is(originalCopy));
     }
 
     @Test

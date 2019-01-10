@@ -41,7 +41,6 @@ import com.thoughtworks.go.util.LogFixture;
 import com.thoughtworks.go.util.TimeProvider;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import org.hamcrest.Matchers;
-import org.hamcrest.core.Is;
 import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.Before;
@@ -64,11 +63,11 @@ import static com.thoughtworks.go.util.DataStructureUtils.a;
 import static com.thoughtworks.go.util.GoConstants.DEFAULT_APPROVED_BY;
 import static com.thoughtworks.go.util.LogFixture.logFixtureFor;
 import static org.hamcrest.Matchers.hasProperty;
-import static org.hamcrest.collection.IsArrayContaining.hasItemInArray;
-import static org.hamcrest.core.Is.is;
-import static org.hamcrest.core.IsNot.not;
-import static org.hamcrest.core.IsNull.notNullValue;
-import static org.hamcrest.core.IsNull.nullValue;
+import static org.hamcrest.Matchers.hasItemInArray;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -552,7 +551,7 @@ public class JobInstanceSqlMapDaoTest {
             Pipeline pipeline = pipelineDao.pipelineWithMaterialsAndModsByBuildId(instance.getId());
             String locator = pipeline.getName() +
                     "/" + pipeline.getLabel() + "/" + savedStage.getName() + "/1/" + JOB_NAME;
-            assertThat(instance.getIdentifier().buildLocator(), Is.is(locator));
+            assertThat(instance.getIdentifier().buildLocator(), is(locator));
         }
     }
 

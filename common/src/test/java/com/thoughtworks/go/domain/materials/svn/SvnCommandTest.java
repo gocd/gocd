@@ -25,7 +25,6 @@ import com.thoughtworks.go.helper.SvnTestRepo;
 import com.thoughtworks.go.junitext.EnhancedOSChecker;
 import com.thoughtworks.go.util.command.*;
 import org.hamcrest.Matchers;
-import org.hamcrest.core.Is;
 import org.jdom2.input.SAXBuilder;
 import org.junit.After;
 import org.junit.Before;
@@ -48,10 +47,7 @@ import java.util.List;
 import static com.thoughtworks.go.junitext.EnhancedOSChecker.DO_NOT_RUN_ON;
 import static com.thoughtworks.go.junitext.EnhancedOSChecker.WINDOWS;
 import static com.thoughtworks.go.util.command.ProcessOutputStreamConsumer.inMemoryConsumer;
-import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.Matchers.*;
-import static org.hamcrest.core.Is.is;
-import static org.hamcrest.core.IsNot.not;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.any;
@@ -219,7 +215,7 @@ public class SvnCommandTest {
     public void shouldCheckoutToSpecificRevision() {
         subversion.checkoutTo(outputStreamConsumer, checkoutFolder, revision(2));
         assertThat(checkoutFolder.exists(), is(true));
-        assertThat(checkoutFolder.listFiles().length, org.hamcrest.core.Is.is(not(0)));
+        assertThat(checkoutFolder.listFiles().length, is(not(0)));
         assertAtRevision(2, "TestReport-Unit.xml");
     }
 
@@ -265,7 +261,7 @@ public class SvnCommandTest {
 
     protected void assertAtRevision(int rev, String file) {
         String[] filenames = checkoutFolder.list(DOT_SVN_IGNORING_FILTER);
-        assertThat(filenames.length, Is.is(rev));
+        assertThat(filenames.length, is(rev));
         assertThat(Arrays.asList(filenames), org.junit.matchers.JUnitMatchers.hasItem(file));
     }
 

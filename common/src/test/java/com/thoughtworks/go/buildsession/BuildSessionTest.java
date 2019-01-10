@@ -26,8 +26,8 @@ import static com.thoughtworks.go.domain.BuildCommand.*;
 import static com.thoughtworks.go.domain.JobResult.Failed;
 import static com.thoughtworks.go.domain.JobResult.Passed;
 import static com.thoughtworks.go.domain.JobState.*;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertThat;
+import static org.hamcrest.Matchers.is;
 
 public class BuildSessionTest extends BuildSessionBasedTestCase {
     @Test

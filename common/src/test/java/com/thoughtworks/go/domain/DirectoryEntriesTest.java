@@ -26,8 +26,8 @@ import org.junit.Test;
 import java.io.IOException;
 import java.io.StringReader;
 
-import static org.hamcrest.CoreMatchers.hasItem;
-import static org.hamcrest.core.Is.is;
+import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
 /**

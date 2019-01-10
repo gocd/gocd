@@ -36,9 +36,9 @@ import com.thoughtworks.go.server.service.PipelineUnlockApiService;
 import com.thoughtworks.go.server.service.SchedulingCheckerService;
 import com.thoughtworks.go.util.Clock;
 import org.hamcrest.Matcher;
-import org.hamcrest.core.Is;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
@@ -48,13 +48,13 @@ import java.util.function.Predicate;
 
 import static com.thoughtworks.go.config.CaseInsensitiveString.str;
 import static com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModels.createPipelineInstanceModels;
+import static com.thoughtworks.go.presentation.pipelinehistory.PreparingToScheduleInstance.PreparingToScheduleBuildCause;
 import static com.thoughtworks.go.util.DataStructureUtils.a;
 import static com.thoughtworks.go.util.DataStructureUtils.m;
 import static java.util.Collections.singletonList;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
-import static org.hamcrest.core.Is.is;
-import static org.hamcrest.core.IsNot.not;
+import static org.junit.Assert.assertThat;
+import static org.hamcrest.Matchers.*;
+import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
@@ -140,7 +140,7 @@ public class GoDashboardCurrentStateLoaderTest {
         assertThat(specialPIM.getCanRun(), is(false));
         assertThat(specialPIM.isPreparingToSchedule(), is(true));
         assertThat(specialPIM.getCounter(), is(-1));
-        assertThat(specialPIM.getBuildCause(), Is.is(new PreparingToScheduleInstance.PreparingToScheduleBuildCause()));
+        assertThat(specialPIM.getBuildCause(), is(new PreparingToScheduleBuildCause()));
         assertStages(specialPIM, "stage1");
     }
 
@@ -456,7 +456,7 @@ public class GoDashboardCurrentStateLoaderTest {
         PipelineConfig pipeline1 = goConfigMother.addPipelineWithGroup(config, "group1", "pipeline1", "stage1", "job1");
         PipelineConfig pipeline2 = goConfigMother.addPipelineWithGroup(config, "group1", "pipeline2", "stage1", "job1");
         PipelineConfig pipeline3 = goConfigMother.addPipelineWithGroup(config, "group1", "pipeline3", "stage1", "job1");
-        when(pipelineSqlMapDao.loadHistoryForDashboard(any(ArrayList.class))).thenReturn(PipelineInstanceModels.createPipelineInstanceModels());
+        when(pipelineSqlMapDao.loadHistoryForDashboard(ArgumentMatchers.any(List.class))).thenReturn(PipelineInstanceModels.createPipelineInstanceModels());
         List<GoDashboardPipeline> goDashboardPipelines = loader.allPipelines(config);
         assertThat(goDashboardPipelines, hasSize(3));
 

@@ -22,7 +22,7 @@ import org.junit.Test;
 import java.util.Calendar;
 import java.util.Date;
 
-import static org.hamcrest.core.Is.is;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.*;
 
 public class DateUtilsTest {

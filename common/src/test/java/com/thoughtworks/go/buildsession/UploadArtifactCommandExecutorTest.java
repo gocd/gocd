@@ -24,8 +24,8 @@ import static com.thoughtworks.go.domain.BuildCommand.uploadArtifact;
 import static com.thoughtworks.go.domain.JobResult.Failed;
 import static com.thoughtworks.go.domain.JobResult.Passed;
 import static com.thoughtworks.go.matchers.ConsoleOutMatcher.printedRuleDoesNotMatchFailure;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertThat;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertTrue;
 
 public class UploadArtifactCommandExecutorTest extends BuildSessionBasedTestCase {

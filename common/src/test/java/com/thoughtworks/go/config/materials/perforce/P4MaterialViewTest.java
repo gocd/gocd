@@ -19,8 +19,8 @@ package com.thoughtworks.go.config.materials.perforce;
 import static org.junit.Assert.assertThat;
 
 import org.junit.Test;
-import static org.hamcrest.CoreMatchers.containsString;
-import static org.hamcrest.core.Is.is;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.is;
 
 public class P4MaterialViewTest {
     private static final String CLIENT_NAME = "cruise-ccedev01-mingle";
@@ -82,7 +82,7 @@ public class P4MaterialViewTest {
     @Test
     public void shouldAddErrorsToTheErrorCollection() {
         P4MaterialView view = new P4MaterialView("//depot/... //something/...");
-        view.addError("key", "some error");        
+        view.addError("key", "some error");
         assertThat(view.errors().on("key"), is("some error"));
     }
 

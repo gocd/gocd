@@ -56,7 +56,6 @@ import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.Matchers;
-import org.hamcrest.core.Is;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -82,12 +81,12 @@ import static com.thoughtworks.go.helper.ModificationsMother.*;
 import static com.thoughtworks.go.server.dao.PersistentObjectMatchers.hasSameId;
 import static com.thoughtworks.go.util.GoConstants.DEFAULT_APPROVED_BY;
 import static com.thoughtworks.go.util.IBatisUtil.arguments;
-import static org.hamcrest.CoreMatchers.containsString;
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.*;
-import static org.hamcrest.core.Is.is;
-import static org.hamcrest.core.IsCollectionContaining.hasItem;
-import static org.hamcrest.core.IsInstanceOf.instanceOf;
-import static org.hamcrest.core.IsNot.not;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.instanceOf;
+import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.*;
 
 
@@ -1503,9 +1502,9 @@ public class PipelineSqlMapDaoIntegrationTest {
         dbHelper.pass(pipeline);
         long jobId = pipeline.getStages().get(0).getJobInstances().get(0).getId();
         Pipeline pipelineFromDB = pipelineDao.pipelineWithMaterialsAndModsByBuildId(jobId);
-        assertThat(pipelineFromDB.getBuildCause().getApprover(), Is.is(username));
-        assertThat(pipelineFromDB.getBuildCause().getBuildCauseMessage(), Is.is("Forced by username"));
-        assertThat(pipelineFromDB.getName(), Is.is(pipelineName));
+        assertThat(pipelineFromDB.getBuildCause().getApprover(), is(username));
+        assertThat(pipelineFromDB.getBuildCause().getBuildCauseMessage(), is("Forced by username"));
+        assertThat(pipelineFromDB.getName(), is(pipelineName));
     }
 
     @Test

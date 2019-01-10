@@ -24,7 +24,7 @@ import java.util.List;
 import com.thoughtworks.go.domain.DirectoryEntry;
 import com.thoughtworks.go.domain.FolderDirectoryEntry;
 import com.thoughtworks.go.domain.JobIdentifier;
-import static org.hamcrest.core.Is.is;
+import static org.hamcrest.Matchers.is;
 
 import org.apache.commons.io.FileUtils;
 import org.junit.After;

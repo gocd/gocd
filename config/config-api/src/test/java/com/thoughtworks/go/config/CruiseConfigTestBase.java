@@ -43,19 +43,14 @@ import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.ReflectionUtil;
 import com.thoughtworks.go.util.command.UrlArgument;
 import org.hamcrest.Matchers;
-import org.hamcrest.core.Is;
 import org.junit.Test;
 
 import java.util.*;
 
 import static com.thoughtworks.go.helper.PipelineConfigMother.*;
-import static org.hamcrest.Matchers.hasItem;
-import static org.hamcrest.Matchers.hasItems;
-import static org.hamcrest.core.Is.is;
-import static org.hamcrest.core.IsNot.not;
-import static org.hamcrest.core.IsNull.notNullValue;
-import static org.hamcrest.core.IsNull.nullValue;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
+import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.*;
 
 public abstract class CruiseConfigTestBase {
@@ -988,7 +983,7 @@ public abstract class CruiseConfigTestBase {
         assertThat(cruiseConfig.getGroups().get(0).getGroup(), is("group1"));
 
         MergePipelineConfigs mergedEnv = (MergePipelineConfigs) cruiseConfig.getGroups().get(0);
-        assertThat(mergedEnv.getLocal().getOrigin(), Is.<ConfigOrigin>is(new UIConfigOrigin()));
+        assertThat(mergedEnv.getLocal().getOrigin(), is(new UIConfigOrigin()));
 
         Authorization authorization = new Authorization(new AdminsConfig(
                 new AdminUser(new CaseInsensitiveString("firstTemplate-admin"))));

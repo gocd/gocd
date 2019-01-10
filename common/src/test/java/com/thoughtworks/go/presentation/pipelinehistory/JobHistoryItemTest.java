@@ -22,13 +22,13 @@ import com.thoughtworks.go.domain.JobResult;
 import com.thoughtworks.go.domain.JobState;
 import org.junit.Test;
 import static org.junit.Assert.assertThat;
-import static org.hamcrest.core.Is.is;
+import static org.hamcrest.Matchers.is;
 
 public class JobHistoryItemTest {
 
     @Test public void shouldBeUnsuccessfullyCompletedWhenFailedOrCancelled() {
         assertThat(new JobHistoryItem("", JobState.Completed, JobResult.Failed, new Date()).hasUnsuccessfullyCompleted(),is(true));
-        assertThat(new JobHistoryItem("", JobState.Completed, JobResult.Cancelled, new Date()).hasUnsuccessfullyCompleted(),is(true));    
+        assertThat(new JobHistoryItem("", JobState.Completed, JobResult.Cancelled, new Date()).hasUnsuccessfullyCompleted(),is(true));
     }
 
     @Test public void shouldPassedWhenJobCompletesSuccessfully() {

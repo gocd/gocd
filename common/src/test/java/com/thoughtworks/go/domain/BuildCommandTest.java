@@ -21,7 +21,7 @@ import com.thoughtworks.go.websocket.MessageEncoding;
 import org.junit.Test;
 
 import static com.thoughtworks.go.util.MapBuilder.map;
-import static org.hamcrest.core.Is.is;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
 public class BuildCommandTest {

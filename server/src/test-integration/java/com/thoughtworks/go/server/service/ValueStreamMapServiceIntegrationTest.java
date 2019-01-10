@@ -30,11 +30,6 @@ import com.thoughtworks.go.server.presentation.models.ValueStreamMapPresentation
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.util.GoConfigFileHelper;
-import com.thoughtworks.go.util.ReflectionUtil;
-import org.apache.commons.collections4.Transformer;
-import org.hamcrest.core.Is;
-import org.hamcrest.core.IsCollectionContaining;
-import org.hamcrest.core.IsNull;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -48,10 +43,11 @@ import java.util.List;
 
 import static com.thoughtworks.go.domain.valuestreammap.VSMTestHelper.assertInstances;
 import static com.thoughtworks.go.domain.valuestreammap.VSMTestHelper.assertStageDetails;
+import static com.thoughtworks.go.domain.valuestreammap.VSMViewType.NO_PERMISSION;
 import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
 import static javax.servlet.http.HttpServletResponse.SC_NOT_IMPLEMENTED;
 import static org.apache.commons.collections4.CollectionUtils.collect;
-import static org.hamcrest.core.Is.is;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
@@ -291,7 +287,7 @@ public class ValueStreamMapServiceIntegrationTest {
 
         u.saveConfigWith("P1", u.m(git));
 
-        assertThat(valueStreamMapService.getValueStreamMap(pipeline, 1, username, result), is(IsNull.nullValue()));
+        assertThat(valueStreamMapService.getValueStreamMap(pipeline, 1, username, result), is(nullValue()));
         assertThat(result.isSuccessful(), is(false));
         assertThat(result.httpCode(), is(SC_NOT_FOUND));
         assertThat(result.message(), is("Pipeline 'NewlyCreated' with counter '1' not found."));
@@ -299,7 +295,7 @@ public class ValueStreamMapServiceIntegrationTest {
 
     @Test
     public void shouldNotReturnGraphForNonExistentPipeline() {
-        assertThat(valueStreamMapService.getValueStreamMap(new CaseInsensitiveString("does_not_exist"), 1, username, result), is(IsNull.nullValue()));
+        assertThat(valueStreamMapService.getValueStreamMap(new CaseInsensitiveString("does_not_exist"), 1, username, result), is(nullValue()));
         assertThat(result.isSuccessful(), is(false));
         assertThat(result.httpCode(), is(SC_NOT_FOUND));
         assertThat(result.message(), is("Pipeline 'does_not_exist' with counter '1' not found."));
@@ -396,7 +392,7 @@ public class ValueStreamMapServiceIntegrationTest {
         PipelineDependencyNode p1_node = (PipelineDependencyNode) allLevels.get(CURRENT_PIPELINE_LEVEL - 1).get(1);
         assertThat(p1_node.revisions().toString(), p1_node.revisions().isEmpty(), is(true));
         assertThat(p1_node.getMessage(), is("You are not authorized to view this pipeline."));
-        assertThat(p1_node.getViewType(), Is.is(VSMViewType.NO_PERMISSION));
+        assertThat(p1_node.getViewType(), is(NO_PERMISSION));
 
         PipelineDependencyNode currentNode = (PipelineDependencyNode) allLevels.get(CURRENT_PIPELINE_LEVEL).get(0);
         assertThat(currentNode.revisions().toString(), currentNode.revisions().isEmpty(), is(false));
@@ -487,7 +483,7 @@ public class ValueStreamMapServiceIntegrationTest {
         Node nodeForGit = graph.getNodesAtEachLevel().get(0).get(0);
         assertThat(nodeForGit.revisions().size(), is(2));
         Collection<String> revisionStrings = collect(nodeForGit.revisions(), Revision::getRevisionString);
-        assertThat(revisionStrings, IsCollectionContaining.hasItems("g1-1", "g1-2"));
+        assertThat(revisionStrings, hasItems("g1-1", "g1-2"));
     }
 
     @Test

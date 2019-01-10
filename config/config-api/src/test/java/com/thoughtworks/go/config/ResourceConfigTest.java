@@ -22,9 +22,8 @@ import org.junit.Test;
 
 import java.lang.reflect.Field;
 
-import static org.hamcrest.core.Is.is;
-import static org.hamcrest.number.OrderingComparison.greaterThan;
-import static org.hamcrest.number.OrderingComparison.lessThan;
+import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
 public class ResourceConfigTest {
@@ -104,7 +103,7 @@ public class ResourceConfigTest {
     public void shouldCompareBasedOnName() {
         ResourceConfig resourceConfigA = new ResourceConfig("aaa");
         ResourceConfig resourceConfigB = new ResourceConfig("bbb");
-        assertThat(resourceConfigA.compareTo(resourceConfigB), is(lessThan(0)));
+        assertThat(resourceConfigA.compareTo(resourceConfigB), is(org.hamcrest.Matchers.lessThan(0)));
         assertThat(resourceConfigB.compareTo(resourceConfigA), is(greaterThan(0)));
         assertThat(resourceConfigA.compareTo(resourceConfigA), is(0));
     }

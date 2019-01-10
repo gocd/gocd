@@ -18,7 +18,7 @@ package com.thoughtworks.go.server.messaging;
 
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.SystemUtil;
-import static org.hamcrest.core.Is.is;
+import static org.hamcrest.Matchers.is;
 import org.junit.After;
 import static org.junit.Assert.assertThat;
 import org.junit.Test;

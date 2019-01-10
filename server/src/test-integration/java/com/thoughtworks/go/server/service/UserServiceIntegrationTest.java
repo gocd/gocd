@@ -37,7 +37,6 @@ import com.thoughtworks.go.server.security.userdetail.GoUserPrinciple;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.util.TriState;
-import org.hamcrest.CoreMatchers;
 import org.hamcrest.Matcher;
 import org.junit.After;
 import org.junit.Before;
@@ -53,11 +52,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.hamcrest.CoreMatchers.containsString;
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.instanceOf;
-import static org.hamcrest.core.Is.is;
-import static org.hamcrest.core.IsCollectionContaining.hasItem;
-import static org.hamcrest.core.IsNot.not;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
@@ -761,6 +760,6 @@ public class UserServiceIntegrationTest {
     }
 
     private Matcher<? super User> isANullUser() {
-        return is(CoreMatchers.<Object>instanceOf(NullUser.class));
+        return is(instanceOf(NullUser.class));
     }
 }

@@ -41,8 +41,8 @@ import java.util.List;
 import static com.thoughtworks.go.plugin.access.notification.v2.StageConverter.DATE_PATTERN;
 import static java.util.Arrays.asList;
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertThat;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.fail;
 
 public class JsonMessageHandler2_0_Test {

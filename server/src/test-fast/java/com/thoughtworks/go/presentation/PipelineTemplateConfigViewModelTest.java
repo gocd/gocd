@@ -31,7 +31,7 @@ import com.thoughtworks.go.helper.StageConfigMother;
 import org.junit.Test;
 
 import static com.thoughtworks.go.util.DataStructureUtils.m;
-import static org.hamcrest.core.Is.is;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
 

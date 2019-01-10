@@ -22,7 +22,7 @@ import com.thoughtworks.go.util.ReflectionUtil;
 import org.junit.Test;
 
 import static org.hamcrest.Matchers.hasItem;
-import static org.hamcrest.core.Is.is;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
 public class DefaultSchedulingContextTest {
@@ -40,7 +40,7 @@ public class DefaultSchedulingContextTest {
         DefaultSchedulingContext context = new DefaultSchedulingContext("approved", matchingAgents);
         assertThat(context.findAgentsMatching(new ResourceConfigs()), is(matchingAgents));
     }
-    
+
     @Test public void shouldOnlyFindAgentsThatMatchResourcesSpecified() throws Exception {
         AgentConfig linux = agent("uuid1", "linux");
         AgentConfig windows = agent("uuid2", "windows");

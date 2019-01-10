@@ -35,7 +35,6 @@ import com.thoughtworks.go.util.ConfigElementImplementationRegistryMother;
 import com.thoughtworks.go.util.FileUtil;
 import com.thoughtworks.go.utils.Timeout;
 import org.apache.commons.io.FileUtils;
-import org.hamcrest.core.Is;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -61,9 +60,7 @@ import static com.thoughtworks.go.matchers.ConsoleOutMatcher.*;
 import static com.thoughtworks.go.matchers.RegexMatcher.matches;
 import static com.thoughtworks.go.util.TestUtils.copyAndClose;
 import static org.apache.commons.lang3.SystemUtils.IS_OS_WINDOWS;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.not;
-import static org.hamcrest.core.StringContains.containsString;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
@@ -544,7 +541,7 @@ public class BuildComposerTest extends BuildSessionBasedTestCase {
 
         build(willUploadTestArtifact("test-reports", "test-report-dest"), PIPELINE_NAME, false, false);
 
-        assertThat(artifactsRepository.getFileUploaded().size(), Is.is(2));
+        assertThat(artifactsRepository.getFileUploaded().size(), is(2));
         assertThat(artifactsRepository.getFileUploaded().get(0).file, is(basedir));
         assertThat(artifactsRepository.getFileUploaded().get(0).destPath, is("test-report-dest"));
         assertThat(artifactsRepository.getFileUploaded().get(1).destPath, is("testoutput"));

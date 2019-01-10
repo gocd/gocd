@@ -58,8 +58,6 @@ import static com.thoughtworks.go.helper.ModificationsMother.modifyOneFile;
 import static com.thoughtworks.go.util.GoConfigFileHelper.env;
 import static com.thoughtworks.go.util.GoConstants.DEFAULT_APPROVED_BY;
 import static org.hamcrest.Matchers.*;
-import static org.hamcrest.collection.IsArrayContaining.hasItemInArray;
-import static org.hamcrest.number.OrderingComparison.greaterThan;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 

@@ -59,7 +59,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.hamcrest.core.Is.is;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;

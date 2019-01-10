@@ -28,7 +28,7 @@ import java.util.Collections;
 
 import static com.thoughtworks.go.domain.PipelinePauseInfo.notPaused;
 import static com.thoughtworks.go.util.DataStructureUtils.s;
-import static org.hamcrest.core.Is.is;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;

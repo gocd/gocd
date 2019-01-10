@@ -28,7 +28,6 @@ import com.thoughtworks.go.helper.ModificationsMother;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import org.apache.commons.lang3.StringUtils;
-import org.hamcrest.core.Is;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.contrib.java.lang.system.RestoreSystemProperties;
@@ -128,8 +127,8 @@ public class EnvironmentVariableContextTest {
 
         materialRevisions.populateEnvironmentVariables(context, temporaryFolder.newFolder());
 
-        assertThat(context.getProperty("GO_DEPENDENCY_LABEL_UPSTREAMPIPELINE"), Is.is("pipeline-label"));
-        assertThat(context.getProperty("GO_DEPENDENCY_LOCATOR_UPSTREAMPIPELINE"), Is.is("pipeline-name/1/stage-name/1"));
+        assertThat(context.getProperty("GO_DEPENDENCY_LABEL_UPSTREAMPIPELINE"), is("pipeline-label"));
+        assertThat(context.getProperty("GO_DEPENDENCY_LOCATOR_UPSTREAMPIPELINE"), is("pipeline-name/1/stage-name/1"));
     }
 
     @Test
@@ -145,9 +144,9 @@ public class EnvironmentVariableContextTest {
 
         materialRevisions.populateEnvironmentVariables(context, temporaryFolder.newFolder());
 
-        assertThat(context.getProperty("GO_DEPENDENCY_LABEL_PIPELINE_NAME"), Is.is("pipeline-label"));
+        assertThat(context.getProperty("GO_DEPENDENCY_LABEL_PIPELINE_NAME"), is("pipeline-label"));
         assertThat(context.getProperty("GO_DEPENDENCY_LOCATOR_PIPELINE_NAME"),
-                Is.is("pipeline-name/1/stage-name/1"));
+                is("pipeline-name/1/stage-name/1"));
     }
 
     private MaterialRevision materialRevision(String materialName, String pipelineName, Integer pipelineCounter,

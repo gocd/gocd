@@ -28,8 +28,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 import static com.thoughtworks.go.utils.SerializationTester.serializeAndDeserialize;
-import static org.hamcrest.core.Is.is;
-import static org.hamcrest.core.IsNull.nullValue;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 
 public class DefaultJobPlanTest {

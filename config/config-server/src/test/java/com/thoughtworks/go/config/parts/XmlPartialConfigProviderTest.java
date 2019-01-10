@@ -31,7 +31,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 
-import static org.hamcrest.core.Is.is;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;

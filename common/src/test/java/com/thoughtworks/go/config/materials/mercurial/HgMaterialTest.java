@@ -33,7 +33,6 @@ import com.thoughtworks.go.util.command.InMemoryStreamConsumer;
 import com.thoughtworks.go.util.command.UrlArgument;
 import org.apache.commons.io.FileUtils;
 import org.hamcrest.Matchers;
-import org.hamcrest.core.StringContains;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -52,10 +51,7 @@ import static com.thoughtworks.go.junitext.EnhancedOSChecker.DO_NOT_RUN_ON;
 import static com.thoughtworks.go.util.JsonUtils.from;
 import static com.thoughtworks.go.util.command.ProcessOutputStreamConsumer.inMemoryConsumer;
 import static java.lang.String.format;
-import static org.hamcrest.Matchers.not;
-import static org.hamcrest.core.Is.is;
-import static org.hamcrest.core.IsNull.nullValue;
-import static org.hamcrest.core.StringContains.containsString;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -238,7 +234,7 @@ public class HgMaterialTest {
             hgMaterial.latestModification(workingFolder, new TestSubprocessExecutionContext());
             fail("Should have thrown an exception when failed to clone from an invalid url");
         } catch (Exception e) {
-            assertThat(e.getMessage(), StringContains.containsString("abort: repository " + url + " not found!"));
+            assertThat(e.getMessage(), containsString("abort: repository " + url + " not found!"));
         }
     }
 

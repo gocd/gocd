@@ -20,7 +20,6 @@ import com.thoughtworks.go.plugin.domain.artifact.ArtifactPluginInfo;
 import com.thoughtworks.go.plugin.domain.artifact.Capabilities;
 import com.thoughtworks.go.plugin.domain.common.*;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
-import org.hamcrest.core.Is;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -65,7 +64,7 @@ public class ArtifactPluginInfoBuilderTest {
 
         ArtifactPluginInfo pluginInfo = new ArtifactPluginInfoBuilder(extension).pluginInfoFor(descriptor);
 
-        assertThat(pluginInfo.getStoreConfigSettings(), Is.is(new PluggableInstanceSettings(pluginConfigurations, new PluginView("store_config"))));
+        assertThat(pluginInfo.getStoreConfigSettings(), is(new PluggableInstanceSettings(pluginConfigurations, new PluginView("store_config"))));
     }
 
     @Test
@@ -80,7 +79,7 @@ public class ArtifactPluginInfoBuilderTest {
 
         ArtifactPluginInfo pluginInfo = new ArtifactPluginInfoBuilder(extension).pluginInfoFor(descriptor);
 
-        assertThat(pluginInfo.getArtifactConfigSettings(), Is.is(new PluggableInstanceSettings(pluginConfigurations, new PluginView("artifact_config"))));
+        assertThat(pluginInfo.getArtifactConfigSettings(), is(new PluggableInstanceSettings(pluginConfigurations, new PluginView("artifact_config"))));
     }
 
     @Test
@@ -96,7 +95,7 @@ public class ArtifactPluginInfoBuilderTest {
 
         ArtifactPluginInfo pluginInfo = new ArtifactPluginInfoBuilder(extension).pluginInfoFor(descriptor);
 
-        assertThat(pluginInfo.getFetchArtifactSettings(), Is.is(new PluggableInstanceSettings(pluginConfigurations, new PluginView("fetch_artifact_view"))));
+        assertThat(pluginInfo.getFetchArtifactSettings(), is(new PluggableInstanceSettings(pluginConfigurations, new PluginView("fetch_artifact_view"))));
     }
 
     @Test

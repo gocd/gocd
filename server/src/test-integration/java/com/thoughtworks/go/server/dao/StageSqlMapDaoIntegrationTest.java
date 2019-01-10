@@ -44,7 +44,6 @@ import net.sf.ehcache.Element;
 import net.sf.ehcache.event.CacheEventListener;
 import org.assertj.core.api.Assertions;
 import org.hamcrest.Matchers;
-import org.hamcrest.core.Is;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -72,10 +71,10 @@ import static com.thoughtworks.go.util.GoConstants.DEFAULT_APPROVED_BY;
 import static com.thoughtworks.go.util.IBatisUtil.arguments;
 import static java.util.Arrays.asList;
 import static org.hamcrest.Matchers.*;
-import static org.hamcrest.core.Is.is;
-import static org.hamcrest.core.IsInstanceOf.instanceOf;
-import static org.hamcrest.core.IsNot.not;
-import static org.hamcrest.core.IsNull.nullValue;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.instanceOf;
+import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -1448,8 +1447,8 @@ public class StageSqlMapDaoIntegrationTest {
 
         Stage reloaded = stageDao.stageById(stage.getId());
 
-        assertThat(reloaded.getName(), Is.is("dev"));
-        assertThat(reloaded.getConfigVersion(), Is.is("git-sha"));
+        assertThat(reloaded.getName(), is("dev"));
+        assertThat(reloaded.getConfigVersion(), is("git-sha"));
     }
 
     @Test

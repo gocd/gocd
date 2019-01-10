@@ -20,7 +20,6 @@ import com.thoughtworks.go.util.SubprocessLogger;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.TestFileUtil;
 import com.thoughtworks.go.util.validators.Validation;
-import org.hamcrest.CoreMatchers;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -32,9 +31,7 @@ import java.io.File;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.core.IsNot.not;
-import static org.hamcrest.core.IsNull.nullValue;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
@@ -119,7 +116,7 @@ public class GoServerTest {
         assertThat(appServerStub.calls.get("hasStarted"), is(true));
         assertThat(appServerStub.calls.get("configure"), is(true));
         assertThat(appServerStub.calls.get("start"), is(true));
-        assertThat(appServerStub.calls.get("stop"), is(CoreMatchers.nullValue()));
+        assertThat(appServerStub.calls.get("stop"), is(nullValue()));
 
         goServer.stop();
         assertThat(appServerStub.calls.get("stop"), is(true));

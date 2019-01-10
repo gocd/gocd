@@ -21,8 +21,8 @@ import com.thoughtworks.go.helper.GoConfigMother;
 import org.junit.Test;
 
 import static com.thoughtworks.go.util.TestUtils.contains;
-import static org.hamcrest.core.Is.is;
-import static org.hamcrest.core.IsNull.nullValue;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 

@@ -16,7 +16,7 @@
 
 package com.thoughtworks.go.config;
 
-import static org.hamcrest.core.Is.is;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import org.junit.Test;
 

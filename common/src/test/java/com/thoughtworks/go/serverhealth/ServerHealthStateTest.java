@@ -25,8 +25,8 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import static org.hamcrest.core.Is.is;
-import static org.hamcrest.core.IsNull.nullValue;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
@@ -84,7 +84,7 @@ public class ServerHealthStateTest {
     public void shouldNotTrumpErrorIfCurrentIsSuccess() {
         assertThat(ERROR_SERVER_HEALTH_STATE.trump(SUCCESS_SERVER_HEALTH_STATE), is(ERROR_SERVER_HEALTH_STATE));
     }
-    
+
     @Test
     public void shouldtNotTrumpErrorIfCurrentIsWarning() {
         assertThat(ERROR_SERVER_HEALTH_STATE.trump(WARNING_SERVER_HEALTH_STATE), is(ERROR_SERVER_HEALTH_STATE));
@@ -112,7 +112,7 @@ public class ServerHealthStateTest {
         ServerHealthState fooErrorCopy = ServerHealthState.error("my message", "my description", HealthStateType.general(HealthStateScope.forPipeline("foo")));
         assertThat(fooError, is(fooErrorCopy));
     }
-    
+
     @Test
     public void shouldNotAllowNullMessage() {
         ServerHealthState nullError = null;

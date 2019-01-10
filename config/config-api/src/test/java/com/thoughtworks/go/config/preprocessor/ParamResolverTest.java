@@ -33,7 +33,7 @@ import java.util.Arrays;
 import java.util.Collections;
 
 import static com.thoughtworks.go.util.ReflectionUtil.setField;
-import static org.hamcrest.CoreMatchers.*;
+import static org.hamcrest.Matchers.*;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 
@@ -104,7 +104,7 @@ public class ParamResolverTest {
         new ParamResolver(new ParamSubstitutionHandlerFactory(params(param("foo", "pavan"), param("bar", "jj"))), fieldCache).resolve(pipelineConfig);
         assertThat(pipelineConfig.getLabelTemplate(), is("2.1-${COUNT}-#{foo}-bar-jj"));
     }
-    
+
     @Test
     public void shouldInterpolateLiteralEscapedSequences() {
         PipelineConfig pipelineConfig = PipelineConfigMother.createPipelineConfig("cruise", "dev", "ant");

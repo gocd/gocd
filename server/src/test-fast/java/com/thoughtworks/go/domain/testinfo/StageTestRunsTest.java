@@ -19,7 +19,7 @@ package com.thoughtworks.go.domain.testinfo;
 import java.util.List;
 import java.util.Arrays;
 
-import static org.hamcrest.core.Is.is;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
 import org.junit.Test;

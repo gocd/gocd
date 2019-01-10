@@ -52,7 +52,6 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.SystemUtils;
 import org.assertj.core.api.Assertions;
 import org.hamcrest.Matchers;
-import org.hamcrest.core.IsInstanceOf;
 import org.jdom2.input.JDOMParseException;
 import org.junit.Assert;
 import org.junit.Before;
@@ -69,12 +68,12 @@ import static java.lang.String.format;
 import static javax.servlet.http.HttpServletResponse.SC_BAD_REQUEST;
 import static javax.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
 import static junit.framework.TestCase.assertTrue;
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.*;
-import static org.hamcrest.core.Is.is;
-import static org.hamcrest.core.IsNull.nullValue;
-import static org.hamcrest.core.StringContains.containsString;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
+import static org.hamcrest.Matchers.containsString;
 import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -819,7 +818,7 @@ public class GoConfigServiceTest {
         PipelineConfig pipeline = group.findBy(new CaseInsensitiveString("new_name"));
         assertThat(pipeline.name(), is(new CaseInsensitiveString("new_name")));
         assertThat(pipeline.getLabelTemplate(), is("${COUNT}-#{foo}"));
-        assertThat(pipeline.materialConfigs().first(), is(IsInstanceOf.instanceOf(SvnMaterialConfig.class)));
+        assertThat(pipeline.materialConfigs().first(), is(instanceOf(SvnMaterialConfig.class)));
         assertThat(pipeline.materialConfigs().first().getUriForDisplay(), is("file:///tmp/foo"));
     }
 
@@ -1213,7 +1212,7 @@ public class GoConfigServiceTest {
                 PipelineConfig pipeline = group.findBy(new CaseInsensitiveString(newPipelineName));
                 assertThat(pipeline.name(), is(new CaseInsensitiveString(newPipelineName)));
                 assertThat(pipeline.getLabelTemplate(), is(labelTemplate));
-                assertThat(pipeline.materialConfigs().first(), is(IsInstanceOf.instanceOf(SvnMaterialConfig.class)));
+                assertThat(pipeline.materialConfigs().first(), is(instanceOf(SvnMaterialConfig.class)));
                 assertThat(pipeline.materialConfigs().first().getUriForDisplay(), is("file:///tmp/foo"));
 
                 return true;

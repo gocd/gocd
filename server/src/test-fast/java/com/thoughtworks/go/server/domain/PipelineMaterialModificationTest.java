@@ -24,7 +24,7 @@ import java.util.List;
 
 import static com.thoughtworks.go.helper.PipelineMaterialModificationMother.modification;
 import com.thoughtworks.go.domain.PipelineTimelineEntry;
-import static org.hamcrest.core.Is.is;
+import static org.hamcrest.Matchers.is;
 import org.joda.time.DateTime;
 import static org.junit.Assert.assertThat;
 import org.junit.Test;

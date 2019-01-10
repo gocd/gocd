@@ -50,8 +50,8 @@ import static com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceM
 import static javax.servlet.http.HttpServletResponse.SC_NOT_IMPLEMENTED;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.not;
-import static org.hamcrest.core.Is.is;
-import static org.hamcrest.core.IsNull.nullValue;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;

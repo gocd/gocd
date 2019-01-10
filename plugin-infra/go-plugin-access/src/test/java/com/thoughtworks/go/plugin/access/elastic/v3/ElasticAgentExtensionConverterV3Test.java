@@ -29,7 +29,7 @@ import java.util.Map;
 
 import static java.lang.String.format;
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson;
-import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.*;
 
 public class ElasticAgentExtensionConverterV3Test {

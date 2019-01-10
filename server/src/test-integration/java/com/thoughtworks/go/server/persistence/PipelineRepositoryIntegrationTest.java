@@ -59,8 +59,8 @@ import static com.thoughtworks.go.helper.PipelineConfigMother.createPipelineConf
 import static com.thoughtworks.go.server.domain.user.DashboardFilter.DEFAULT_NAME;
 import static com.thoughtworks.go.util.DataStructureUtils.a;
 import static org.hamcrest.Matchers.hasItem;
-import static org.hamcrest.core.Is.is;
-import static org.hamcrest.core.IsNull.nullValue;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.*;
 
 @RunWith(SpringJUnit4ClassRunner.class)

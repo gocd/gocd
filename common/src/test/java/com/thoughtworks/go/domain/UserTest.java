@@ -16,24 +16,18 @@
 
 package com.thoughtworks.go.domain;
 
+import com.thoughtworks.go.domain.exception.ValidationException;
+import com.thoughtworks.go.helper.MaterialsMother;
+import org.junit.Test;
+
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
-import com.thoughtworks.go.domain.exception.ValidationException;
-import com.thoughtworks.go.helper.MaterialsMother;
-import org.hamcrest.core.Is;
-import org.junit.Test;
-
 import static com.thoughtworks.go.helper.ModificationsMother.aCheckIn;
-import static org.hamcrest.Matchers.sameInstance;
-import static org.hamcrest.core.Is.is;
-import static org.hamcrest.core.IsNot.not;
-import static org.hamcrest.core.StringContains.containsString;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
+import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.*;
 
 public class UserTest {
     private MaterialRevisions materialRevisions;
@@ -233,7 +227,7 @@ public class UserTest {
         user.addNotificationFilter(new NotificationFilter("p1","S1", StageEvent.Fixed, true));
         User clonedUser = new User(user);
         assertThat(clonedUser, is(user));
-        assertThat(clonedUser.getId(), Is.is(user.getId()));
+        assertThat(clonedUser.getId(), is(user.getId()));
         assertThat(clonedUser, not(sameInstance(user)));
         assertThat(clonedUser.getNotificationFilters(), is(user.getNotificationFilters()));
         assertThat(clonedUser.getNotificationFilters(), not(sameInstance(user.getNotificationFilters())));

@@ -20,7 +20,7 @@ import com.thoughtworks.go.config.*;
 import org.junit.Test;
 
 import static org.hamcrest.Matchers.hasItem;
-import static org.hamcrest.core.Is.*;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 
 public class UpdateResourceCommandTest {

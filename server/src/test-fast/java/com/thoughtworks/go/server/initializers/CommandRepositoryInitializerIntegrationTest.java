@@ -30,7 +30,7 @@ import java.io.FileInputStream;
 import java.util.zip.ZipInputStream;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.hamcrest.core.Is.is;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
 public class CommandRepositoryInitializerIntegrationTest {

@@ -16,8 +16,6 @@
 
 package com.thoughtworks.go.server.domain.xml;
 
-import java.util.Date;
-
 import com.thoughtworks.go.domain.XmlWriterContext;
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.domain.materials.Modifications;
@@ -25,11 +23,11 @@ import com.thoughtworks.go.helper.MaterialsMother;
 import com.thoughtworks.go.util.DateUtils;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
-import org.hamcrest.core.IsNull;
 import org.junit.Test;
 
-import static org.hamcrest.core.Is.is;
-import static org.hamcrest.core.IsNot.not;
+import java.util.Date;
+
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -48,7 +46,7 @@ public class PackageXmlViewModelTest {
         when(writerContext.getBaseUrl()).thenReturn("http://someurl:8153/go");
         new PipelineXmlViewModel.PackageXmlViewModel(MaterialsMother.packageMaterial()).populateXmlForModifications(modifications, writerContext, modificationsTag);
         Element changeSet = modificationsTag.element("changeset");
-        assertThat(changeSet, is(not(IsNull.nullValue())));
+        assertThat(changeSet, is(not(nullValue())));
         assertThat(changeSet.attributeValue("changesetUri"), is("http://someurl:8153/go/api/materials/1/changeset/package-1.0.0.rpm.xml"));
         assertThat(changeSet.element("user").getText(), is(userName));
         assertThat(changeSet.element("revision").getText(), is(revision));

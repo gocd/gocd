@@ -17,7 +17,7 @@
 package com.thoughtworks.go.domain.materials.git;
 
 import com.thoughtworks.go.util.DateUtils;
-import static org.hamcrest.core.Is.is;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import org.junit.Test;
 
@@ -47,7 +47,7 @@ public class GitModificationParserTest {
     public void shouldHaveCommitDate() {
         simulateOneComment();
         assertThat(
-                parser.getModifications().get(0).getModifiedTime(), 
+                parser.getModifications().get(0).getModifiedTime(),
                 is(DateUtils.parseISO8601("2009-08-11 13:08:51 -0700")));
     }
 

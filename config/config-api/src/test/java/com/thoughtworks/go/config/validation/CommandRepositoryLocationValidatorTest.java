@@ -16,17 +16,17 @@
 
 package com.thoughtworks.go.config.validation;
 
-import java.io.File;
-
 import com.thoughtworks.go.config.BasicCruiseConfig;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.ServerConfig;
 import com.thoughtworks.go.util.SystemEnvironment;
-import org.hamcrest.core.Is;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.File;
+
 import static com.thoughtworks.go.util.SystemEnvironment.COMMAND_REPOSITORY_DIRECTORY;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
@@ -94,7 +94,7 @@ public class CommandRepositoryLocationValidatorTest {
             validator.validate(cruiseConfig);
             fail("should have thrown :" + message);
         } catch (Exception e) {
-            assertThat(e.getMessage(), Is.is(message));
+            assertThat(e.getMessage(), is(message));
         }
     }
 }

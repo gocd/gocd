@@ -20,8 +20,8 @@ import java.util.Arrays;
 
 import com.thoughtworks.go.domain.JobIdentifier;
 import static org.hamcrest.Matchers.hasItem;
-import static org.hamcrest.core.Is.is;
-import static org.hamcrest.core.IsNot.not;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertThat;
 import org.junit.Test;
 
@@ -72,7 +72,7 @@ public class TestInformationTest {
 
         TestInformation testInformation2 = new TestInformation("testA", TestStatus.Error);
         testInformation2.addJob(new JobIdentifier("", -1, "", "", "", "job-2"));
-        
+
         assertThat(testInformation1, not(testInformation2));
         assertThat(testInformation2, not(testInformation1));
         assertThat(Arrays.asList(testInformation1),not(hasItem(testInformation2)));

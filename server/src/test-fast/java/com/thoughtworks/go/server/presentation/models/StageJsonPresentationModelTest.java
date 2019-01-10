@@ -46,7 +46,7 @@ import static com.thoughtworks.go.helper.ModificationsMother.multipleModificatio
 import static com.thoughtworks.go.helper.StageConfigMother.oneBuildPlanWithResourcesAndMaterials;
 import static net.javacrumbs.jsonunit.core.Option.IGNORING_EXTRA_FIELDS;
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson;
-import static org.hamcrest.core.Is.is;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
 import static org.mockito.ArgumentMatchers.any;

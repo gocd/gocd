@@ -22,7 +22,6 @@ import com.thoughtworks.go.config.security.users.Users;
 import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.helper.StageConfigMother;
 import com.thoughtworks.go.server.service.GoConfigService;
-import org.hamcrest.CoreMatchers;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -33,11 +32,10 @@ import java.util.Map;
 import java.util.Set;
 
 import static com.thoughtworks.go.util.DataStructureUtils.s;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.not;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static java.util.Collections.emptySet;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -731,16 +729,16 @@ public class GoConfigPipelinePermissionsAuthorityTest {
         when(configService.findGroupByPipeline(p2Config.name())).thenReturn(config.findGroup("group2"));
 
         Permissions p1Permissions = service.permissionsForPipeline(p1Config.name());
-        assertThat(p1Permissions.viewers(), CoreMatchers.<Users>is(new AllowedUsers(s("superadmin1", "viewer1"), Collections.emptySet())));
-        assertThat(p1Permissions.operators(), CoreMatchers.<Users>is(new AllowedUsers(s("superadmin1", "operator1"), Collections.emptySet())));
-        assertThat(p1Permissions.admins(), CoreMatchers.<Users>is(new AllowedUsers(s("superadmin1"), Collections.emptySet())));
-        assertThat(p1Permissions.pipelineOperators(), CoreMatchers.<Users>is(new AllowedUsers(s("superadmin1", "operator1"), Collections.emptySet())));
+        assertThat(p1Permissions.viewers(), is(new AllowedUsers(s("superadmin1", "viewer1"), emptySet())));
+        assertThat(p1Permissions.operators(), is(new AllowedUsers(s("superadmin1", "operator1"), emptySet())));
+        assertThat(p1Permissions.admins(), is(new AllowedUsers(s("superadmin1"), emptySet())));
+        assertThat(p1Permissions.pipelineOperators(), is(new AllowedUsers(s("superadmin1", "operator1"), emptySet())));
 
         Permissions p2Permission = service.permissionsForPipeline(p2Config.name());
-        assertThat(p2Permission.viewers(), CoreMatchers.<Users>is(new AllowedUsers(s("superadmin1", "groupadmin1"), Collections.emptySet())));
-        assertThat(p2Permission.operators(), CoreMatchers.<Users>is(new AllowedUsers(s("superadmin1", "groupadmin1"), Collections.emptySet())));
-        assertThat(p2Permission.admins(), CoreMatchers.<Users>is(new AllowedUsers(s("superadmin1", "groupadmin1"), Collections.emptySet())));
-        assertThat(p2Permission.pipelineOperators(), CoreMatchers.<Users>is(new AllowedUsers(s("superadmin1", "groupadmin1"), Collections.emptySet())));
+        assertThat(p2Permission.viewers(), is(new AllowedUsers(s("superadmin1", "groupadmin1"), emptySet())));
+        assertThat(p2Permission.operators(), is(new AllowedUsers(s("superadmin1", "groupadmin1"), emptySet())));
+        assertThat(p2Permission.admins(), is(new AllowedUsers(s("superadmin1", "groupadmin1"), emptySet())));
+        assertThat(p2Permission.pipelineOperators(), is(new AllowedUsers(s("superadmin1", "groupadmin1"), emptySet())));
     }
 
     private Map<CaseInsensitiveString, Permissions> getPipelinesAndTheirPermissions() {
@@ -752,7 +750,7 @@ public class GoConfigPipelinePermissionsAuthorityTest {
 
     private void assertViewers(Map<CaseInsensitiveString, Permissions> permissionsForAllPipelines, String pipelineToCheckFor, Set<PluginRoleConfig> pluginRoleConfigs, String... expectedViewers) {
         Permissions permissions = permissionsForAllPipelines.get(new CaseInsensitiveString(pipelineToCheckFor));
-        assertThat(permissions.viewers(), CoreMatchers.<Users>is(new AllowedUsers(s(expectedViewers), pluginRoleConfigs)));
+        assertThat(permissions.viewers(), is(new AllowedUsers(s(expectedViewers), pluginRoleConfigs)));
     }
 
     private void assertOperators(Map<CaseInsensitiveString, Permissions> permissionsForAllPipelines, String pipelineToCheckFor, Set<PluginRoleConfig> pluginRoleConfigs, String... expectedOperators) {
@@ -762,17 +760,17 @@ public class GoConfigPipelinePermissionsAuthorityTest {
 
     private void assertPipelineOperators(Map<CaseInsensitiveString, Permissions> permissionsForAllPipelines, String pipelineToCheckFor, Set<PluginRoleConfig> pluginRoleConfigs, String... expectedOperators) {
         Permissions permissions = permissionsForAllPipelines.get(new CaseInsensitiveString(pipelineToCheckFor));
-        assertThat(permissions.pipelineOperators(), CoreMatchers.<Users>is(new AllowedUsers(s(expectedOperators), pluginRoleConfigs)));
+        assertThat(permissions.pipelineOperators(), is(new AllowedUsers(s(expectedOperators), pluginRoleConfigs)));
     }
 
     private void assertGroupOperators(Map<CaseInsensitiveString, Permissions> permissionsForAllPipelines, String pipelineToCheckFor, Set<PluginRoleConfig> pluginRoleConfigs, String... expectedOperators) {
         Permissions permissions = permissionsForAllPipelines.get(new CaseInsensitiveString(pipelineToCheckFor));
-        assertThat(permissions.operators(), CoreMatchers.<Users>is(new AllowedUsers(s(expectedOperators), pluginRoleConfigs)));
+        assertThat(permissions.operators(), is(new AllowedUsers(s(expectedOperators), pluginRoleConfigs)));
     }
 
     private void assertAdmins(Map<CaseInsensitiveString, Permissions> permissionsForAllPipelines, String pipelineToCheckFor, Set<PluginRoleConfig> pluginRoleConfigs, String... expectedAdmins) {
         Permissions permissions = permissionsForAllPipelines.get(new CaseInsensitiveString(pipelineToCheckFor));
-        assertThat(permissions.admins(), CoreMatchers.<Users>is(new AllowedUsers(s(expectedAdmins), pluginRoleConfigs)));
+        assertThat(permissions.admins(), is(new AllowedUsers(s(expectedAdmins), pluginRoleConfigs)));
     }
 
     private void assertPipelinesInMap(Map<CaseInsensitiveString, Permissions> pipelinesToPermissions, String... expectedPipelines) {

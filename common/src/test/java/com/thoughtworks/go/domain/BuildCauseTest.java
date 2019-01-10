@@ -26,7 +26,7 @@ import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.domain.materials.Modification;
 import static com.thoughtworks.go.helper.ModificationsMother.oneModifiedFile;
 import com.thoughtworks.go.helper.MaterialsMother;
-import static org.hamcrest.core.Is.is;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 

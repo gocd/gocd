@@ -24,7 +24,6 @@ import com.thoughtworks.go.domain.label.PipelineLabel;
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.helper.MaterialsMother;
 import com.thoughtworks.go.helper.ModificationsMother;
-import org.hamcrest.core.Is;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -32,7 +31,9 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.hamcrest.core.Is.is;
+import static com.thoughtworks.go.domain.InsecureEnvironmentVariables.EMPTY_ENV_VARS;
+import static com.thoughtworks.go.domain.label.PipelineLabel.defaultLabel;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.*;
 
 public class PipelineLabelTest {
@@ -125,7 +126,7 @@ public class PipelineLabelTest {
         namedRevisions.put(new CaseInsensitiveString("upstream"), longLabel(300));
 
         label.updateLabel(namedRevisions, 1);
-        assertThat(label.toString().length(), Is.is(255));
+        assertThat(label.toString().length(), is(255));
     }
 
     @Test
@@ -135,25 +136,25 @@ public class PipelineLabelTest {
         namedRevisions.put(new CaseInsensitiveString("upstream"), longLabel(154));
 
         label.updateLabel(namedRevisions, 1);
-        assertThat(label.toString().length(), Is.is(154));
+        assertThat(label.toString().length(), is(154));
     }
 
     @Test
     public void shouldCreateDefaultLabelIfTemplateIsNull() {
         PipelineLabel label = PipelineLabel.create(null, InsecureEnvironmentVariables.EMPTY_ENV_VARS);
-        assertThat(label, Is.is(PipelineLabel.defaultLabel()));
+        assertThat(label, is(defaultLabel()));
     }
 
     @Test
     public void shouldCreateDefaultLabelIfTemplateIsEmtpty() {
         PipelineLabel label = PipelineLabel.create("", InsecureEnvironmentVariables.EMPTY_ENV_VARS);
-        assertThat(label, Is.is(PipelineLabel.defaultLabel()));
+        assertThat(label, is(defaultLabel()));
     }
 
     @Test
     public void shouldCreateLabelIfTemplateIsProvided() {
         PipelineLabel label = PipelineLabel.create("Pipeline-${ABC}", InsecureEnvironmentVariables.EMPTY_ENV_VARS);
-        assertThat(label, Is.is(new PipelineLabel("Pipeline-${ABC}", InsecureEnvironmentVariables.EMPTY_ENV_VARS)));
+        assertThat(label, is(new PipelineLabel("Pipeline-${ABC}", EMPTY_ENV_VARS)));
     }
 
     @Test

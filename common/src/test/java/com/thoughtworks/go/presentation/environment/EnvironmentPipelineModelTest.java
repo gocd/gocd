@@ -22,7 +22,7 @@ import java.util.Collections;
 
 import org.junit.Test;
 import static org.junit.Assert.assertThat;
-import static org.hamcrest.core.Is.is;
+import static org.hamcrest.Matchers.is;
 
 
 public class EnvironmentPipelineModelTest {
@@ -38,7 +38,7 @@ public class EnvironmentPipelineModelTest {
         assertThat(foo.isAssociatedWithEnvironment(null), is(false));
     }
 
-    
+
     @Test
     public void shouldUnderstandWhenAssiciatedWithADifferentEnvironment() {
         EnvironmentPipelineModel foo = new EnvironmentPipelineModel("foo", "env");

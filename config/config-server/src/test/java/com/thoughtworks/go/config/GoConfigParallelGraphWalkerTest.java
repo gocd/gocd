@@ -28,7 +28,7 @@ import com.thoughtworks.go.helper.PipelineConfigMother;
 import org.junit.Test;
 
 import static java.util.Arrays.asList;
-import static org.hamcrest.core.Is.is;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
 public class GoConfigParallelGraphWalkerTest {

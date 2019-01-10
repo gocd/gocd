@@ -20,10 +20,10 @@ import com.thoughtworks.go.server.service.result.OperationResult;
 import com.thoughtworks.go.server.service.result.ServerHealthStateOperationResult;
 import com.thoughtworks.go.serverhealth.HealthStateType;
 import com.thoughtworks.go.serverhealth.ServerHealthState;
-import org.hamcrest.core.Is;
 import org.junit.Test;
 
 import static com.thoughtworks.go.server.service.CompositeCheckerTest.StubCheckerFactory.*;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
 public class CompositeCheckerTest {
@@ -33,7 +33,7 @@ public class CompositeCheckerTest {
         CompositeChecker checker = new CompositeChecker(successful(), successful());
         ServerHealthStateOperationResult result = new ServerHealthStateOperationResult();
         checker.check(result);
-        assertThat(result.getServerHealthState(), Is.is(SUCCESS_SERVER_HEALTH_STATE));
+        assertThat(result.getServerHealthState(), is(SUCCESS_SERVER_HEALTH_STATE));
     }
 
     @Test
@@ -41,7 +41,7 @@ public class CompositeCheckerTest {
         CompositeChecker checker = new CompositeChecker(StubCheckerFactory.warning(), StubCheckerFactory.successful());
         ServerHealthStateOperationResult result = new ServerHealthStateOperationResult();
         checker.check(result);
-        assertThat(result.getServerHealthState(), Is.is(WARNING_SERVER_HEALTH_STATE));
+        assertThat(result.getServerHealthState(), is(WARNING_SERVER_HEALTH_STATE));
     }
 
     @Test
@@ -49,7 +49,7 @@ public class CompositeCheckerTest {
         CompositeChecker checker = new CompositeChecker(StubCheckerFactory.warning(), StubCheckerFactory.error());
         ServerHealthStateOperationResult result = new ServerHealthStateOperationResult();
         checker.check(result);
-        assertThat(result.getServerHealthState(), Is.is(ERROR_SERVER_HEALTH_STATE));
+        assertThat(result.getServerHealthState(), is(ERROR_SERVER_HEALTH_STATE));
     }
 
     @Test
@@ -57,7 +57,7 @@ public class CompositeCheckerTest {
         CompositeChecker checker = new CompositeChecker(StubCheckerFactory.error(), StubCheckerFactory.anotherError());
         ServerHealthStateOperationResult result = new ServerHealthStateOperationResult();
         checker.check(result);
-        assertThat(result.getServerHealthState(), Is.is(ERROR_SERVER_HEALTH_STATE));
+        assertThat(result.getServerHealthState(), is(ERROR_SERVER_HEALTH_STATE));
     }
 
    static class StubCheckerFactory {

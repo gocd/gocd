@@ -20,7 +20,7 @@ import com.thoughtworks.go.config.ServerConfig;
 import org.junit.Test;
 
 import static java.lang.String.format;
-import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
 public class MessageHandlerForServerInfoRequestProcessor1_0Test {

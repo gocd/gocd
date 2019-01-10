@@ -34,7 +34,7 @@ import org.junit.Test;
 import org.mockito.InOrder;
 import org.mockito.ArgumentMatchers;
 
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;

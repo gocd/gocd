@@ -16,10 +16,10 @@
 
 package com.thoughtworks.go.domain;
 
-import org.hamcrest.core.Is;
 import org.junit.Test;
 
 import static java.util.Arrays.asList;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.matchers.JUnitMatchers.hasItems;
 
@@ -52,6 +52,6 @@ public class ConfigErrorsTest {
         ConfigErrors configErrors = new ConfigErrors();
         configErrors.add("field", "error");
         configErrors.add("field", "error");
-        assertThat(configErrors.getAllOn("field"), Is.is(asList("error")));
+        assertThat(configErrors.getAllOn("field"), is(asList("error")));
     }
 }

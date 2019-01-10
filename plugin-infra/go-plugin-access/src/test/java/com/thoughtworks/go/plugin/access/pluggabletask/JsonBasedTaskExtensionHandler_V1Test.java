@@ -23,14 +23,13 @@ import com.thoughtworks.go.plugin.api.response.execution.ExecutionResult;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationError;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 import com.thoughtworks.go.plugin.api.task.*;
-import org.hamcrest.CoreMatchers;
 import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
@@ -201,16 +200,16 @@ public class JsonBasedTaskExtensionHandler_V1Test {
 
         ValidationResult result = new JsonBasedTaskExtensionHandler_V1().toValidationResult(jsonResponse);
 
-        Assert.assertThat(result.isSuccessful(), CoreMatchers.is(false));
+        Assert.assertThat(result.isSuccessful(), is(false));
 
 
         ValidationError error1 = result.getErrors().get(0);
         ValidationError error2 = result.getErrors().get(1);
 
-        Assert.assertThat(error1.getKey(), CoreMatchers.is("key1"));
-        Assert.assertThat(error1.getMessage(), CoreMatchers.is("err1"));
-        Assert.assertThat(error2.getKey(), CoreMatchers.is("key2"));
-        Assert.assertThat(error2.getMessage(), CoreMatchers.is("err2"));
+        Assert.assertThat(error1.getKey(), is("key1"));
+        Assert.assertThat(error1.getMessage(), is("err1"));
+        Assert.assertThat(error2.getKey(), is("key2"));
+        Assert.assertThat(error2.getMessage(), is("err2"));
     }
 
     @Test
@@ -225,7 +224,7 @@ public class JsonBasedTaskExtensionHandler_V1Test {
 
         ValidationResult result = new JsonBasedTaskExtensionHandler_V1().toValidationResult(jsonResponse);
 
-        Assert.assertThat(result.isSuccessful(), CoreMatchers.is(true));
+        Assert.assertThat(result.isSuccessful(), is(true));
     }
 
     @Test
@@ -266,8 +265,8 @@ public class JsonBasedTaskExtensionHandler_V1Test {
 
         TaskView view = new JsonBasedTaskExtensionHandler_V1().toTaskView(jsonResponse);
 
-        Assert.assertThat(view.displayValue(), CoreMatchers.is("MyTaskPlugin"));
-        Assert.assertThat(view.template(), CoreMatchers.is("<html>junk</html>"));
+        Assert.assertThat(view.displayValue(), is("MyTaskPlugin"));
+        Assert.assertThat(view.template(), is("<html>junk</html>"));
     }
 
     @Test

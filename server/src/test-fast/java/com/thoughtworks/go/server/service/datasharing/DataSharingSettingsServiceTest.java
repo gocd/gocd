@@ -31,7 +31,7 @@ import org.springframework.transaction.support.TransactionCallback;
 
 import java.util.Date;
 
-import static org.hamcrest.core.Is.is;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;

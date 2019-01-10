@@ -57,7 +57,7 @@ import java.util.*;
 import static com.thoughtworks.go.helper.MaterialUpdateMessageMatcher.matchMaterialUpdateMessage;
 import static com.thoughtworks.go.helper.MaterialUpdateCompletedMessageMatcher.matchMaterialUpdateCompletedMessage;
 import static junit.framework.TestCase.assertTrue;
-import static org.hamcrest.core.Is.is;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 

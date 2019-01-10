@@ -37,7 +37,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import static com.thoughtworks.go.config.PipelineConfigs.DEFAULT_GROUP;
-import static org.hamcrest.core.Is.is;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {
@@ -155,7 +155,7 @@ public class StageApprovalAuthorizationTest {
         StageConfig stage = StageConfigMother.custom("ft", new Approval(new AuthConfig(new AdminUser(new CaseInsensitiveString("cruise")))));
         PipelineConfig pipeline = CONFIG_HELPER.addStageToPipeline(PIPELINE_NAME, stage);
         assertThat(securityService.hasOperatePermissionForStage(CaseInsensitiveString.str(pipeline.name()), CaseInsensitiveString.str(stage.name()), "cruise"), is(true));
-        assertThat(securityService.hasOperatePermissionForStage(PIPELINE_NAME, STAGE_NAME, "anyone"), is(false));        
+        assertThat(securityService.hasOperatePermissionForStage(PIPELINE_NAME, STAGE_NAME, "anyone"), is(false));
     }
 
 }

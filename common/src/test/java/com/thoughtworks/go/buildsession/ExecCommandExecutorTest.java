@@ -36,10 +36,10 @@ import static com.thoughtworks.go.junitext.EnhancedOSChecker.WINDOWS;
 import static com.thoughtworks.go.matchers.ConsoleOutMatcher.printedAppsMissingInfoOnUnix;
 import static com.thoughtworks.go.matchers.ConsoleOutMatcher.printedAppsMissingInfoOnWindows;
 import static com.thoughtworks.go.util.LogFixture.logFixtureFor;
-import static org.hamcrest.CoreMatchers.containsString;
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
+import static org.junit.Assert.assertThat;
 import static org.hamcrest.Matchers.not;
-import static org.hamcrest.core.Is.is;
+import static org.hamcrest.Matchers.is;
 
 @RunWith(JunitExtRunner.class)
 public class ExecCommandExecutorTest extends BuildSessionBasedTestCase {

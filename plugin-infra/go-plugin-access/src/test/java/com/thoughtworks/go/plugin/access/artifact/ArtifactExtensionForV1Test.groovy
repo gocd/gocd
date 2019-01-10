@@ -14,59 +14,37 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.plugin.access.artifact;
+package com.thoughtworks.go.plugin.access.artifact
 
-import com.thoughtworks.go.config.ArtifactStore;
-import com.thoughtworks.go.config.FetchPluggableArtifactTask;
-import com.thoughtworks.go.domain.ArtifactPlan;
-import com.thoughtworks.go.plugin.access.artifact.model.PublishArtifactResponse;
-import com.thoughtworks.go.plugin.access.artifact.models.FetchArtifactEnvironmentVariable;
-import com.thoughtworks.go.plugin.api.request.GoPluginApiRequest;
-import com.thoughtworks.go.plugin.api.response.DefaultGoPluginApiResponse;
-import com.thoughtworks.go.plugin.api.response.validation.ValidationError;
-import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
-import com.thoughtworks.go.plugin.domain.common.Metadata;
-import com.thoughtworks.go.plugin.domain.common.PluginConfiguration;
-import com.thoughtworks.go.plugin.infra.PluginManager;
-import com.thoughtworks.go.util.command.EnvironmentVariableContext;
-import org.hamcrest.Matchers;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
-import org.mockito.ArgumentCaptor;
+import com.thoughtworks.go.config.ArtifactStore
+import com.thoughtworks.go.config.FetchPluggableArtifactTask
+import com.thoughtworks.go.plugin.access.artifact.models.FetchArtifactEnvironmentVariable
+import com.thoughtworks.go.plugin.api.request.GoPluginApiRequest
+import com.thoughtworks.go.plugin.api.response.DefaultGoPluginApiResponse
+import org.junit.Test
 
-import java.util.Collections;
-import java.util.List;
-
-import static com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother.create;
-import static com.thoughtworks.go.plugin.access.artifact.ArtifactExtensionConstants.*;
-import static com.thoughtworks.go.plugin.api.response.DefaultGoPluginApiResponse.SUCCESS_RESPONSE_CODE;
-import static com.thoughtworks.go.plugin.domain.common.PluginConstants.ARTIFACT_EXTENSION;
-import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.hamcrest.Matchers.emptyCollectionOf;
-import static org.hamcrest.Matchers.hasEntry;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.*;
+import static com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother.create
+import static com.thoughtworks.go.plugin.access.artifact.ArtifactExtensionConstants.REQUEST_FETCH_ARTIFACT
+import static com.thoughtworks.go.plugin.domain.common.PluginConstants.ARTIFACT_EXTENSION
+import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
+import static org.assertj.core.api.Assertions.assertThat
+import static org.mockito.ArgumentMatchers.eq
+import static org.mockito.Mockito.when
 
 class ArtifactExtensionForV1Test extends ArtifactExtensionTestBase {
     @Override
     String versionToTestAgainst() {
-        return ArtifactMessageConverterV1.VERSION;
+        return ArtifactMessageConverterV1.VERSION
     }
 
     @Test
     void shouldSubmitFetchArtifactRequest() {
-        when(pluginManager.submitTo(eq(PLUGIN_ID), eq(ARTIFACT_EXTENSION), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success(""));
-        final FetchPluggableArtifactTask pluggableArtifactTask = new FetchPluggableArtifactTask(null, null, "artifactId", create("Filename", false, "build/libs/foo.jar"));
+        when(pluginManager.submitTo(eq(PLUGIN_ID), eq(ARTIFACT_EXTENSION), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success(""))
+        final FetchPluggableArtifactTask pluggableArtifactTask = new FetchPluggableArtifactTask(null, null, "artifactId", create("Filename", false, "build/libs/foo.jar"))
 
-        List<FetchArtifactEnvironmentVariable> environmentVariables = artifactExtension.fetchArtifact(PLUGIN_ID, new ArtifactStore("s3", "cd.go.s3"), pluggableArtifactTask.getConfiguration(), Collections.singletonMap("Version", "10.12.0"), "/temp");
+        List<FetchArtifactEnvironmentVariable> environmentVariables = artifactExtension.fetchArtifact(PLUGIN_ID, new ArtifactStore("s3", "cd.go.s3"), pluggableArtifactTask.getConfiguration(), Collections.singletonMap("Version", "10.12.0"), "/temp")
 
-        final GoPluginApiRequest request = requestArgumentCaptor.getValue();
+        final GoPluginApiRequest request = requestArgumentCaptor.getValue()
 
         def requestHash = [
           artifact_metadata: [
@@ -79,10 +57,10 @@ class ArtifactExtensionForV1Test extends ArtifactExtensionTestBase {
           "agent_working_directory": "/temp"
         ]
 
-        assertThat(request.extension(), is(ARTIFACT_EXTENSION));
-        assertThat(request.requestName(), is(REQUEST_FETCH_ARTIFACT));
-        assertThatJson(request.requestBody()).isEqualTo(requestHash);
+        assertThat(request.extension()).isEqualTo(ARTIFACT_EXTENSION)
+        assertThat(request.requestName()).isEqualTo(REQUEST_FETCH_ARTIFACT)
+        assertThatJson(request.requestBody()).isEqualTo(requestHash)
 
-        assertThat(environmentVariables, is([]))
+        assertThat(environmentVariables).isEmpty()
     }
 }

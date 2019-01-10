@@ -21,7 +21,7 @@ import java.util.List;
 import org.junit.Test;
 import org.junit.Before;
 import static org.junit.Assert.assertThat;
-import static org.hamcrest.core.Is.is;
+import static org.hamcrest.Matchers.is;
 import com.thoughtworks.go.domain.JobIdentifier;
 
 public class TestSuiteTest {
@@ -42,7 +42,7 @@ public class TestSuiteTest {
         assertThat(tests.get(1).getName(),is("testB"));
         assertThat(tests.get(2).getName(),is("testC"));
     }
-    
+
 
 
     @Test

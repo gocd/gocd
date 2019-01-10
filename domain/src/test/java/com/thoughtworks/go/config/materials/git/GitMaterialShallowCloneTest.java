@@ -26,7 +26,6 @@ import com.thoughtworks.go.domain.materials.mercurial.StringRevision;
 import com.thoughtworks.go.helper.TestRepo;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.hamcrest.Matchers;
-import org.hamcrest.core.Is;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -41,7 +40,7 @@ import java.util.Map;
 
 import static com.thoughtworks.go.domain.materials.git.GitTestRepo.*;
 import static com.thoughtworks.go.util.command.ProcessOutputStreamConsumer.inMemoryConsumer;
-import static org.hamcrest.core.Is.is;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -126,13 +125,13 @@ public class GitMaterialShallowCloneTest {
     @Test
     public void xmlAttributesShouldIncludesShallowFlag() {
         GitMaterial material = new GitMaterial(repo.projectRepositoryUrl(), true);
-        assertThat(material.getAttributesForXml().get("shallowClone"), Is.<Object>is(true));
+        assertThat(material.getAttributesForXml().get("shallowClone"), is(true));
     }
     @Test
     public void attributesShouldIncludeShallowFlag() {
         GitMaterial material = new GitMaterial(repo.projectRepositoryUrl(), true);
         Map gitConfig = (Map) (material.getAttributes(false).get("git-configuration"));
-        assertThat(gitConfig.get("shallow-clone"), Is.<Object>is(true));
+        assertThat(gitConfig.get("shallow-clone"), is(true));
     }
 
     @Test

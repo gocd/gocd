@@ -23,7 +23,7 @@ import com.thoughtworks.go.plugin.domain.common.Image;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import org.junit.Test;
 
-import static org.hamcrest.core.Is.is;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
 public class AuthPluginInfoViewModelTest {

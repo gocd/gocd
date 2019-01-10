@@ -39,7 +39,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import static org.apache.commons.lang3.StringEscapeUtils.escapeHtml4;
-import static org.hamcrest.core.Is.is;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
 public class MaterialRevisionsJsonBuilderTest {

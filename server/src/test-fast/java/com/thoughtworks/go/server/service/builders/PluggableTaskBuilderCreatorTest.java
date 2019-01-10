@@ -25,12 +25,11 @@ import com.thoughtworks.go.domain.config.Configuration;
 import com.thoughtworks.go.domain.config.PluginConfiguration;
 import com.thoughtworks.go.plugin.access.pluggabletask.TaskExtension;
 import com.thoughtworks.go.server.service.UpstreamPipelineResolver;
-import org.hamcrest.core.Is;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.*;
 
@@ -74,7 +73,7 @@ public class PluggableTaskBuilderCreatorTest {
         when(builderFactory.builderFor(cancelExecTask, pipeline, resolver)).thenReturn(builderForCancelTask);
         Builder expected = expectedBuilder(pluggableTask, builderForCancelTask);
         Builder actual = pluggableTaskBuilderCreator.createBuilder(builderFactory, pluggableTask, pipeline, resolver);
-        assertThat(actual, Is.is(expected));
+        assertThat(actual, is(expected));
     }
 
     @Test

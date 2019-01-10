@@ -16,10 +16,10 @@
 
 package com.thoughtworks.go.config.parser;
 
-import org.hamcrest.core.Is;
-import org.hamcrest.core.IsNull;
 import org.junit.Test;
 
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 
 public class ConfigReferenceElementsTest {
@@ -29,13 +29,13 @@ public class ConfigReferenceElementsTest {
         ConfigReferenceElements configReferenceElements = new ConfigReferenceElements();
         Object referenceElement = new Object();
         configReferenceElements.add("collection", "id", referenceElement);
-        assertThat(configReferenceElements.get("collection", "id"), Is.is(referenceElement));
+        assertThat(configReferenceElements.get("collection", "id"), is(referenceElement));
     }
 
     @Test
     public void shouldReturnNullReferenceElementWhenCollectionIsMissing(){
         ConfigReferenceElements configReferenceElements = new ConfigReferenceElements();
-        assertThat(configReferenceElements.get("missing-collection", "id"), Is.is(IsNull.nullValue()));
+        assertThat(configReferenceElements.get("missing-collection", "id"), is(nullValue()));
     }
 
     @Test
@@ -43,6 +43,6 @@ public class ConfigReferenceElementsTest {
         ConfigReferenceElements configReferenceElements = new ConfigReferenceElements();
         Object referenceElement = new Object();
         configReferenceElements.add("collection", "id", referenceElement);
-        assertThat(configReferenceElements.get("collection", "other-id"), Is.is(IsNull.nullValue()));
+        assertThat(configReferenceElements.get("collection", "other-id"), is(nullValue()));
     }
 }

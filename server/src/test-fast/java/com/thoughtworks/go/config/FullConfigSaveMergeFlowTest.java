@@ -24,7 +24,6 @@ import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
 import com.thoughtworks.go.config.remote.PartialConfig;
 import com.thoughtworks.go.config.update.FullConfigUpdateCommand;
 import com.thoughtworks.go.domain.GoConfigRevision;
-import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.service.ConfigRepository;
 import com.thoughtworks.go.util.TimeProvider;
 import org.jdom2.Document;
@@ -37,8 +36,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.core.Is.is;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.*;
 
 public class FullConfigSaveMergeFlowTest {

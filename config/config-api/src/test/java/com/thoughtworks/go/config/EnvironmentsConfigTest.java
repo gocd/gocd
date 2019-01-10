@@ -16,21 +16,16 @@
 
 package com.thoughtworks.go.config;
 
-import com.thoughtworks.go.config.BasicEnvironmentConfig;
-import com.thoughtworks.go.config.CaseInsensitiveString;
-import com.thoughtworks.go.config.EnvironmentConfig;
-import com.thoughtworks.go.config.EnvironmentsConfig;
 import com.thoughtworks.go.config.exceptions.NoSuchEnvironmentException;
 import com.thoughtworks.go.config.merge.MergeEnvironmentConfig;
 import com.thoughtworks.go.config.remote.FileConfigOrigin;
 import com.thoughtworks.go.config.remote.RepoConfigOrigin;
 import org.hamcrest.Matchers;
-import org.hamcrest.core.Is;
 import org.junit.Before;
 import org.junit.Test;
 
 import static org.hamcrest.Matchers.hasItem;
-import static org.hamcrest.core.Is.is;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
@@ -48,7 +43,7 @@ public class EnvironmentsConfigTest {
 
     @Test
     public void shouldFindEnvironmentGivenPipelineName() throws Exception {
-        assertThat(configs.findEnvironmentForPipeline(new CaseInsensitiveString("deployment")), Is.<EnvironmentConfig>is(env));
+        assertThat(configs.findEnvironmentForPipeline(new CaseInsensitiveString("deployment")), is(env));
     }
 
     @Test public void shouldFindIfAGivenPipelineBelongsToAnyEnvironment() throws Exception {
@@ -68,7 +63,7 @@ public class EnvironmentsConfigTest {
     }
 
     @Test public void shouldFindEnvironmentConfigGivenAnEnvironmentName() throws Exception {
-        assertThat(configs.named(new CaseInsensitiveString("uat")), Is.<EnvironmentConfig>is(env));
+        assertThat(configs.named(new CaseInsensitiveString("uat")), is(env));
     }
 
     @Test
@@ -117,14 +112,14 @@ public class EnvironmentsConfigTest {
     public void shouldGetLocalPartsWhenOriginIsNull()
     {
         assertThat(configs.getLocal().size(), is(1));
-        assertThat(configs.getLocal().get(0), Is.<EnvironmentConfig>is(env));
+        assertThat(configs.getLocal().get(0), is(env));
     }
     @Test
     public void shouldGetLocalPartsWhenOriginIsFile()
     {
         env.setOrigins(new FileConfigOrigin());
         assertThat(configs.getLocal().size(), is(1));
-        assertThat(configs.getLocal().get(0), Is.<EnvironmentConfig>is(env));
+        assertThat(configs.getLocal().get(0), is(env));
     }
     @Test
     public void shouldGetLocalPartsWhenOriginIsRepo()

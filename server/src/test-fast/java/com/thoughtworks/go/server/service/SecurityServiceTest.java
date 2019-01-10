@@ -23,7 +23,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import static com.thoughtworks.go.helper.PipelineTemplateConfigMother.createTemplate;
-import static org.hamcrest.core.Is.is;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.*;
 

@@ -40,7 +40,7 @@ import org.junit.Test;
 
 import static com.thoughtworks.go.helper.MaterialConfigsMother.filteredHgMaterialConfig;
 import static org.hamcrest.Matchers.hasItems;
-import static org.hamcrest.core.Is.is;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
 public class PipelineConfigDependencyGraphTest {

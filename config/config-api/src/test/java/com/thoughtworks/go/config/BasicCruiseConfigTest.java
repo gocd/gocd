@@ -38,7 +38,6 @@ import com.thoughtworks.go.plugin.domain.common.PluginConfiguration;
 import com.thoughtworks.go.security.CryptoException;
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.security.ResetCipher;
-import org.hamcrest.core.Is;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -53,7 +52,6 @@ import static com.thoughtworks.go.helper.PipelineConfigMother.createGroup;
 import static com.thoughtworks.go.helper.PipelineConfigMother.createPipelineConfig;
 import static java.util.Arrays.asList;
 import static org.hamcrest.Matchers.*;
-import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -124,7 +122,7 @@ public class BasicCruiseConfigTest extends CruiseConfigTestBase {
         BasicCruiseConfig mainCruiseConfig = new BasicCruiseConfig(pipelines);
         PipelineConfig pipe = pipelines.get(0);
         mainCruiseConfig.setOrigins(new FileConfigOrigin());
-        assertThat(pipe.getOrigin(), Is.<ConfigOrigin>is(new FileConfigOrigin()));
+        assertThat(pipe.getOrigin(), is(new FileConfigOrigin()));
     }
 
     @Test
@@ -133,7 +131,7 @@ public class BasicCruiseConfigTest extends CruiseConfigTestBase {
         BasicEnvironmentConfig env = new BasicEnvironmentConfig(new CaseInsensitiveString("e"));
         mainCruiseConfig.addEnvironment(env);
         mainCruiseConfig.setOrigins(new FileConfigOrigin());
-        assertThat(env.getOrigin(), Is.<ConfigOrigin>is(new FileConfigOrigin()));
+        assertThat(env.getOrigin(), is(new FileConfigOrigin()));
     }
 
 

@@ -24,7 +24,6 @@ import com.thoughtworks.go.config.remote.*;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.helper.*;
-import org.hamcrest.core.Is;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -34,7 +33,6 @@ import static com.thoughtworks.go.helper.PartialConfigMother.createRepoOrigin;
 import static com.thoughtworks.go.helper.PipelineConfigMother.createGroup;
 import static com.thoughtworks.go.helper.PipelineConfigMother.createPipelineConfig;
 import static org.hamcrest.Matchers.*;
-import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.*;
 
 public class MergeCruiseConfigTest extends CruiseConfigTestBase {
@@ -94,7 +92,7 @@ public class MergeCruiseConfigTest extends CruiseConfigTestBase {
 
     @Test
     public void shouldReturnRemoteOriginOfTheGroup() {
-        assertThat(cruiseConfig.findGroup("remote_group").getOrigin(), Is.<ConfigOrigin>is(createRepoOrigin()));
+        assertThat(cruiseConfig.findGroup("remote_group").getOrigin(), is(createRepoOrigin()));
     }
 
     @Test

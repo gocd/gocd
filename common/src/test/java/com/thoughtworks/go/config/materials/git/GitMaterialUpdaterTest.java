@@ -32,7 +32,6 @@ import com.thoughtworks.go.util.command.CommandLine;
 import com.thoughtworks.go.util.command.InMemoryStreamConsumer;
 import org.apache.commons.io.FileUtils;
 import org.hamcrest.Matchers;
-import org.hamcrest.core.Is;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -52,9 +51,7 @@ import static java.lang.String.format;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static junit.framework.TestCase.assertTrue;
 import static org.apache.commons.io.filefilter.FileFilterUtils.*;
-import static org.hamcrest.CoreMatchers.containsString;
-import static org.hamcrest.core.Is.is;
-import static org.hamcrest.core.IsNot.not;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 
 public class GitMaterialUpdaterTest extends BuildSessionBasedTestCase {
@@ -151,14 +148,14 @@ public class GitMaterialUpdaterTest extends BuildSessionBasedTestCase {
         updateTo(material, new RevisionContext(new StringRevision("origin/master")), JobResult.Passed);
         InMemoryStreamConsumer output = inMemoryConsumer();
         CommandLine.createCommandLine("git").withEncoding("UTF-8").withArg("branch").withWorkingDir(workingDir).run(output, "");
-        assertThat(output.getStdOut(), Is.is("* master"));
+        assertThat(output.getStdOut(), is("* master"));
 
         GitMaterial material1 = new GitMaterial(repoWithBranch.projectRepositoryUrl(), "foo", null, true);
         updateTo(material1, new RevisionContext(new StringRevision("origin/foo")), JobResult.Passed);
 
         output = inMemoryConsumer();
         CommandLine.createCommandLine("git").withEncoding("UTF-8").withArg("branch").withWorkingDir(workingDir).run(output, "");
-        assertThat(output.getStdOut(), Is.is("* foo"));
+        assertThat(output.getStdOut(), is("* foo"));
     }
 
     @Test

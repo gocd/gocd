@@ -22,8 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.hamcrest.Matchers.greaterThan;
-import static org.hamcrest.core.Is.is;
-import static org.hamcrest.number.OrderingComparison.lessThan;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
 public class ResourceConfigsTest {
@@ -61,7 +60,7 @@ public class ResourceConfigsTest {
         resourceConfigsA.add(new ResourceConfig("aaa"));
         resourceConfigsB.add(new ResourceConfig("xyz"));
         resourceConfigsB.add(new ResourceConfig("bbb"));
-        assertThat(resourceConfigsA.compareTo(resourceConfigsB), is(lessThan(0)));
+        assertThat(resourceConfigsA.compareTo(resourceConfigsB), is(org.hamcrest.Matchers.lessThan(0)));
         assertThat(resourceConfigsB.compareTo(resourceConfigsA), is(greaterThan(0)));
     }
 
@@ -73,7 +72,7 @@ public class ResourceConfigsTest {
         resourceConfigsA.add(new ResourceConfig("xyz"));
         resourceConfigsB.add(new ResourceConfig("xyz"));
         resourceConfigsB.add(new ResourceConfig("zzz"));
-        assertThat(resourceConfigsA.compareTo(resourceConfigsB), is(lessThan(0)));
+        assertThat(resourceConfigsA.compareTo(resourceConfigsB), is(org.hamcrest.Matchers.lessThan(0)));
         assertThat(resourceConfigsB.compareTo(resourceConfigsA), is(greaterThan(0)));
     }
 

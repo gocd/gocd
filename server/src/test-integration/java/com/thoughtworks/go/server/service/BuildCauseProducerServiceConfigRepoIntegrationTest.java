@@ -52,7 +52,6 @@ import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.util.ConfigElementImplementationRegistryMother;
 import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.util.SystemEnvironment;
-import org.hamcrest.core.IsNot;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -69,9 +68,7 @@ import java.util.List;
 import java.util.Map;
 
 import static junit.framework.Assert.fail;
-import static org.hamcrest.CoreMatchers.containsString;
-import static org.hamcrest.Matchers.hasItem;
-import static org.hamcrest.core.Is.is;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 
@@ -392,7 +389,7 @@ public class BuildCauseProducerServiceConfigRepoIntegrationTest {
         waitForMaterialNotInProgress();
         // config is correct
         cachedGoConfig.throwExceptionIfExists();
-        assertThat(pipelineScheduleQueue.toBeScheduled().keySet(), IsNot.not(hasItem(new CaseInsensitiveString(PIPELINE_NAME))));
+        assertThat(pipelineScheduleQueue.toBeScheduled().keySet(), not(hasItem(new CaseInsensitiveString(PIPELINE_NAME))));
         assertThat(goConfigService.hasPipelineNamed(pipelineConfig.name()),is(false));
     }
 

@@ -31,7 +31,7 @@ import org.mockito.Mock;
 import java.util.Arrays;
 import java.util.Collections;
 
-import static org.hamcrest.core.Is.is;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;

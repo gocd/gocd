@@ -16,8 +16,6 @@
 
 package com.thoughtworks.go.domain.materials.perforce;
 
-import java.util.List;
-
 import com.thoughtworks.go.config.materials.perforce.P4Material;
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.domain.materials.TestSubprocessExecutionContext;
@@ -26,14 +24,13 @@ import com.thoughtworks.go.util.command.CommandLine;
 import com.thoughtworks.go.util.command.ConsoleResult;
 import com.thoughtworks.go.util.command.InMemoryStreamConsumer;
 import com.thoughtworks.go.util.command.ProcessOutputStreamConsumer;
-import org.hamcrest.core.Is;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import java.util.List;
+
 import static com.thoughtworks.go.util.command.ProcessOutputStreamConsumer.inMemoryConsumer;
-import static org.hamcrest.CoreMatchers.containsString;
-import static org.hamcrest.CoreMatchers.instanceOf;
-import static org.hamcrest.core.Is.is;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.verify;
@@ -53,7 +50,7 @@ public abstract class P4CommandTestBase extends PerforceFixture {
         p4 = p4Fixture.createClient("client", "//NonExistantDepot/... //client/..." );
         p4.checkConnection();
     }
-    
+
     @Test
     public void shouldCheckConnectionAndReturnErrorIfIncorrectViewMentioned() throws Exception {
         p4 = p4Fixture.createClient("client", "//depot/FolderThatDoesNotExist... //client/..." );
@@ -79,10 +76,10 @@ public abstract class P4CommandTestBase extends PerforceFixture {
         InMemoryStreamConsumer output = inMemoryConsumer();
         p4.execute(p4.p4("client", "-o"), null, output, true);
         String actualClientSpec = output.getStdOut();
-        assertThat(actualClientSpec.contains("Client:\tp4test_1"), Is.is(true));
-        assertThat(actualClientSpec.contains("Options:\tnoallwrite clobber nocompress unlocked nomodtime rmdir"), Is.is(true));
-        assertThat(actualClientSpec.contains("View:\n\t//depot/... //p4test_1/..."), Is.is(true));
-        assertThat(actualClientSpec.contains("LineEnd:\tlocal"), Is.is(true));
+        assertThat(actualClientSpec.contains("Client:\tp4test_1"), is(true));
+        assertThat(actualClientSpec.contains("Options:\tnoallwrite clobber nocompress unlocked nomodtime rmdir"), is(true));
+        assertThat(actualClientSpec.contains("View:\n\t//depot/... //p4test_1/..."), is(true));
+        assertThat(actualClientSpec.contains("LineEnd:\tlocal"), is(true));
     }
 
     @Test

@@ -27,7 +27,6 @@ import com.thoughtworks.go.helper.TestRepo;
 import com.thoughtworks.go.mail.SysOutStreamConsumer;
 import com.thoughtworks.go.matchers.RegexMatcher;
 import com.thoughtworks.go.util.DateUtils;
-import com.thoughtworks.go.util.ReflectionUtil;
 import com.thoughtworks.go.util.command.CommandLine;
 import com.thoughtworks.go.util.command.CommandLineException;
 import com.thoughtworks.go.util.command.InMemoryStreamConsumer;
@@ -37,7 +36,6 @@ import org.apache.commons.io.IOUtils;
 import org.hamcrest.Description;
 import org.hamcrest.Matchers;
 import org.hamcrest.TypeSafeMatcher;
-import org.hamcrest.core.Is;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -55,16 +53,13 @@ import java.util.regex.Pattern;
 
 import static com.thoughtworks.go.domain.materials.git.GitTestRepo.*;
 import static com.thoughtworks.go.util.DateUtils.parseRFC822;
+import static com.thoughtworks.go.util.ReflectionUtil.getField;
 import static com.thoughtworks.go.util.command.ProcessOutputStreamConsumer.inMemoryConsumer;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.apache.commons.io.filefilter.FileFilterUtils.*;
 import static org.apache.commons.lang3.time.DateUtils.addDays;
 import static org.apache.commons.lang3.time.DateUtils.setMilliseconds;
-import static org.hamcrest.Matchers.anyOf;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.core.IsNot.not;
-import static org.hamcrest.core.StringContains.containsString;
-import static org.hamcrest.core.StringEndsWith.endsWith;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
@@ -110,10 +105,10 @@ public class GitCommandTest {
 
     @Test
     public void shouldDefaultToMasterIfNoBranchIsSpecified(){
-        assertThat(ReflectionUtil.getField(new GitCommand(null, gitLocalRepoDir, null, false, new HashMap<>(), null), "branch"), Is.is("master"));
-        assertThat(ReflectionUtil.getField(new GitCommand(null, gitLocalRepoDir, " ", false, new HashMap<>(), null), "branch"), Is.is("master"));
-        assertThat(ReflectionUtil.getField(new GitCommand(null, gitLocalRepoDir, "master", false, new HashMap<>(), null), "branch"), Is.is("master"));
-        assertThat(ReflectionUtil.getField(new GitCommand(null, gitLocalRepoDir, "branch", false, new HashMap<>(), null), "branch"), Is.is("branch"));
+        assertThat(getField(new GitCommand(null, gitLocalRepoDir, null, false, new HashMap<>(), null), "branch"), is("master"));
+        assertThat(getField(new GitCommand(null, gitLocalRepoDir, " ", false, new HashMap<>(), null), "branch"), is("master"));
+        assertThat(getField(new GitCommand(null, gitLocalRepoDir, "master", false, new HashMap<>(), null), "branch"), is("master"));
+        assertThat(getField(new GitCommand(null, gitLocalRepoDir, "branch", false, new HashMap<>(), null), "branch"), is("branch"));
     }
 
     @Test
@@ -122,7 +117,7 @@ public class GitCommandTest {
         git.clone(output, repoUrl);
         CommandLine commandLine = CommandLine.createCommandLine("git").withEncoding("UTF-8").withArg("branch").withWorkingDir(gitLocalRepoDir);
         commandLine.run(output, "");
-        assertThat(output.getStdOut(), Is.is("* master"));
+        assertThat(output.getStdOut(), is("* master"));
     }
 
     @Test
@@ -193,7 +188,7 @@ public class GitCommandTest {
         branchedGit.clone(inMemoryConsumer(), gitFooBranchBundle.projectRepositoryUrl());
         InMemoryStreamConsumer output = inMemoryConsumer();
         CommandLine.createCommandLine("git").withEncoding("UTF-8").withArg("branch").withWorkingDir(gitLocalRepoDir).run(output, "");
-        assertThat(output.getStdOut(), Is.is("* foo"));
+        assertThat(output.getStdOut(), is("* foo"));
     }
 
     @Test
@@ -203,7 +198,7 @@ public class GitCommandTest {
         gitCloneCommand.withArg("--branch=" + BRANCH).withArg(new UrlArgument(gitFooBranchBundle.projectRepositoryUrl())).withArg(gitLocalRepoDir.getAbsolutePath());
         gitCloneCommand.run(inMemoryConsumer(), "");
         git = new GitCommand(null, gitLocalRepoDir, BRANCH, false, new HashMap<>(), null);
-        assertThat(git.getCurrentBranch(), Is.is(BRANCH));
+        assertThat(git.getCurrentBranch(), is(BRANCH));
     }
 
     @Test
@@ -653,7 +648,7 @@ public class GitCommandTest {
     }
 
     private void assertWorkingCopyNotCheckedOut() {
-        assertThat(gitLocalRepoDir.listFiles(), Is.is(new File[]{new File(gitLocalRepoDir, ".git")}));
+        assertThat(gitLocalRepoDir.listFiles(), is(new File[]{new File(gitLocalRepoDir, ".git")}));
     }
 
     private void assertWorkingCopyCheckedOut(File workingDir) {

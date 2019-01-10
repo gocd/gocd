@@ -21,20 +21,14 @@ import com.thoughtworks.go.domain.TaskProperty;
 import com.thoughtworks.go.domain.config.Arguments;
 import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.helper.StageConfigMother;
-import org.hamcrest.core.Is;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.util.List;
 
 import static com.thoughtworks.go.util.DataStructureUtils.m;
-import static org.hamcrest.CoreMatchers.hasItems;
-import static org.hamcrest.core.Is.is;
-import static org.hamcrest.core.IsNull.nullValue;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertFalse;
+import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.*;
 
 public class ExecTaskTest {
 
@@ -47,7 +41,7 @@ public class ExecTaskTest {
         ExecTask task = new ExecTask("ant", "-f build.xml run", "subfolder");
         task.setTimeout(600);
         assertThat(task.describe(),
-                Is.is("ant -f build.xml run"));
+                is("ant -f build.xml run"));
     }
 
     @Test
@@ -55,7 +49,7 @@ public class ExecTaskTest {
         ExecTask task = new ExecTask("echo", null, new Arguments(new Argument("abc"), new Argument("hello baby!")));
         task.setTimeout(600);
         assertThat(task.describe(),
-                Is.is("echo abc \"hello baby!\""));
+                is("echo abc \"hello baby!\""));
     }
 
     @Test

@@ -37,7 +37,7 @@ import java.util.UUID;
 import java.util.zip.Deflater;
 
 import static javax.servlet.http.HttpServletResponse.SC_OK;
-import static org.hamcrest.core.Is.is;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.*;
 

@@ -21,7 +21,7 @@ import org.junit.Test;
 
 import java.util.Map;
 
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.assertThat;
 import static com.thoughtworks.go.util.TestUtils.contains;
 
 public class CRParameterTest extends CRBaseTest<CRParameter> {

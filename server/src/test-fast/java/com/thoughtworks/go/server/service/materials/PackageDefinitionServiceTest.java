@@ -30,7 +30,6 @@ import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 import com.thoughtworks.go.server.service.EntityHashingService;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
-import org.hamcrest.core.Is;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -145,8 +144,8 @@ public class PackageDefinitionServiceTest {
 
         assertPackageConfiguration(packageConfigurationsCaptor.getValue().list(), packageDefinition.getConfiguration());
         assertPackageConfiguration(packageRepositoryConfigurationsCaptor.getValue().list(), packageRepository.getConfiguration());
-        assertThat(result.isSuccessful(), Is.is(true));
-        assertThat(result.message(), Is.is("OK. Got Package!!!"));
+        assertThat(result.isSuccessful(), is(true));
+        assertThat(result.message(), is("OK. Got Package!!!"));
         verify(packageRepositoryExtension).checkConnectionToPackage(anyString(), any(com.thoughtworks.go.plugin.api.material.packagerepository.PackageConfiguration.class), any(RepositoryConfiguration.class));
     }
 
@@ -175,8 +174,8 @@ public class PackageDefinitionServiceTest {
 
         assertPackageConfiguration(packageConfigurationsCaptor.getValue().list(), packageDefinition.getConfiguration());
         assertPackageConfiguration(packageRepositoryConfigurationsCaptor.getValue().list(), packageRepository.getConfiguration());
-        assertThat(result.isSuccessful(), Is.is(false));
-        assertThat(result.message(), Is.is("Package check Failed. Reason(s): Package not available\nRepo not available"));
+        assertThat(result.isSuccessful(), is(false));
+        assertThat(result.message(), is("Package check Failed. Reason(s): Package not available\nRepo not available"));
         verify(packageRepositoryExtension).checkConnectionToPackage(anyString(), any(com.thoughtworks.go.plugin.api.material.packagerepository.PackageConfiguration.class), any(RepositoryConfiguration.class));
     }
 
@@ -205,8 +204,8 @@ public class PackageDefinitionServiceTest {
 
         service.checkConnection(packageDefinition, result);
 
-        assertThat(result.isSuccessful(), Is.is(false));
-        assertThat(result.message(), Is.is("Package check Failed. Reason(s): Check connection for package not implemented!!"));
+        assertThat(result.isSuccessful(), is(false));
+        assertThat(result.message(), is("Package check Failed. Reason(s): Check connection for package not implemented!!"));
         verify(packageRepositoryExtension).checkConnectionToPackage(anyString(), any(com.thoughtworks.go.plugin.api.material.packagerepository.PackageConfiguration.class), any(RepositoryConfiguration.class));
     }
 

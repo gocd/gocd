@@ -31,7 +31,6 @@ import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.materials.MaterialUpdateService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.util.GoConfigFileHelper;
-import org.hamcrest.core.Is;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -142,7 +141,7 @@ public class ConfigRepoServiceIntegrationTest {
         configRepoService.deleteConfigRepo(repoId, user, result);
 
         assertNull(configRepoService.getConfigRepo(repoId));
-        assertThat(result.toString(), result.isSuccessful(), Is.is(true));
+        assertThat(result.toString(), result.isSuccessful(), is(true));
     }
 
     @Test
@@ -158,7 +157,7 @@ public class ConfigRepoServiceIntegrationTest {
         configRepoService.createConfigRepo(configRepo, user, result);
 
         assertThat(configRepoService.getConfigRepo(repoId), is(configRepo));
-        assertThat(result.toString(), result.isSuccessful(), Is.is(true));
+        assertThat(result.toString(), result.isSuccessful(), is(true));
     }
 
     @Test
@@ -183,7 +182,7 @@ public class ConfigRepoServiceIntegrationTest {
 
         configRepoService.updateConfigRepo(repoId, toUpdateWith, entityHashingService.md5ForEntity(configRepo), user, result);
 
-        assertThat(result.toString(), result.isSuccessful(), Is.is(true));
+        assertThat(result.toString(), result.isSuccessful(), is(true));
 
         assertThat(configRepoService.getConfigRepos().size(), is(1));
         assertThat(configRepoService.getConfigRepo(newRepoId), is(toUpdateWith));

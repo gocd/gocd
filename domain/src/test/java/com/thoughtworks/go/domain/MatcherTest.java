@@ -20,7 +20,7 @@ package com.thoughtworks.go.domain;
 import java.util.Arrays;
 
 import com.thoughtworks.go.validation.Validator;
-import static org.hamcrest.core.Is.is;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
 import org.junit.Test;

@@ -19,8 +19,8 @@ package com.thoughtworks.go.server.ui;
 import com.thoughtworks.go.config.MingleConfig;
 import org.junit.Test;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertThat;
+import static org.hamcrest.Matchers.is;
 
 public class MingleCardTest {
     @Test

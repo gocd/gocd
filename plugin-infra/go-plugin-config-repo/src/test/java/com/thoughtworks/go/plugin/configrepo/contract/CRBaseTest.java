@@ -30,8 +30,8 @@ import java.util.Map;
 
 import static junit.framework.TestCase.assertNotNull;
 import static junit.framework.TestCase.fail;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertThat;
+import static org.hamcrest.Matchers.is;
 
 public abstract class CRBaseTest<T extends CRBase> {
 

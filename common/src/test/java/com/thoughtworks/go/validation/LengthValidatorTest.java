@@ -17,7 +17,7 @@
 package com.thoughtworks.go.validation;
 
 import com.thoughtworks.go.domain.materials.ValidationBean;
-import static org.hamcrest.core.Is.is;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import org.junit.Test;
 

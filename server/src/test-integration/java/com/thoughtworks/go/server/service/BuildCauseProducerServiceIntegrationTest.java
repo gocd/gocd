@@ -60,7 +60,6 @@ import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.util.ReflectionUtil;
 import com.thoughtworks.go.util.SystemEnvironment;
-import org.hamcrest.core.Is;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -81,9 +80,9 @@ import java.util.concurrent.ConcurrentMap;
 import static com.thoughtworks.go.util.DataStructureUtils.m;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.core.IsNot.not;
-import static org.hamcrest.core.IsNull.nullValue;
-import static org.hamcrest.core.StringContains.containsString;
+import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.nullValue;
+import static org.hamcrest.Matchers.containsString;
 import static org.junit.Assert.*;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -446,7 +445,7 @@ public class BuildCauseProducerServiceIntegrationTest {
         assertThat(result.isSuccess(), is(true));
         assertThat(result.message(), is(String.format("Request to schedule pipeline %s accepted", manualTriggerPipeline.name())));
         assertThat(materialUpdateStatusNotifier.hasListenerFor(manualTriggerPipeline), is(false));
-        assertThat(triggerMonitor.isAlreadyTriggered(manualTriggerPipeline.name()), Is.is(false));
+        assertThat(triggerMonitor.isAlreadyTriggered(manualTriggerPipeline.name()), is(false));
 
         BuildCause buildCause = pipelineScheduleQueue.toBeScheduled().get(manualTriggerPipeline.name());
         assertNotNull(buildCause);
@@ -478,7 +477,7 @@ public class BuildCauseProducerServiceIntegrationTest {
         assertMDUPendingForMaterial(remotePipeline, configRepoMaterial);
         assertMDUNotPendingForMaterial(remotePipeline, svn);
         assertMDUNotPendingForMaterial(remotePipeline, git);
-        assertThat(triggerMonitor.isAlreadyTriggered(remotePipeline.name()), Is.is(true));
+        assertThat(triggerMonitor.isAlreadyTriggered(remotePipeline.name()), is(true));
         BuildCause buildCause = pipelineScheduleQueue.toBeScheduled().get(remotePipeline.name().toString());
         assertNull(buildCause);
     }
@@ -492,7 +491,7 @@ public class BuildCauseProducerServiceIntegrationTest {
         assertMDUPendingForMaterial(manualTriggerPipeline, materialForManualTriggerPipeline);
         assertThat(result.isSuccess(), is(true));
         assertThat(result.message(), is(String.format("Request to schedule pipeline %s accepted", manualTriggerPipeline.name())));
-        assertThat(triggerMonitor.isAlreadyTriggered(manualTriggerPipeline.name()), Is.is(true));
+        assertThat(triggerMonitor.isAlreadyTriggered(manualTriggerPipeline.name()), is(true));
         BuildCause buildCause = pipelineScheduleQueue.toBeScheduled().get(manualTriggerPipeline.name().toString());
         assertNull(buildCause);
     }

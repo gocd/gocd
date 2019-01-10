@@ -17,7 +17,6 @@
 package com.thoughtworks.go.plugin.infra.plugininfo;
 
 import org.apache.commons.io.FileUtils;
-import org.hamcrest.CoreMatchers;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -29,7 +28,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Arrays;
 
-import static org.hamcrest.core.Is.is;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.spy;
@@ -63,9 +62,9 @@ public class GoPluginDescriptorBuilderTest {
 
         GoPluginDescriptor expectedDescriptor = buildExpectedDescriptor
                 (pluginJarName, pluginJarFile.getAbsolutePath());
-        assertThat(descriptor, CoreMatchers.is(expectedDescriptor));
-        assertThat(descriptor.isInvalid(), CoreMatchers.is(false));
-        assertThat(descriptor.isBundledPlugin(), CoreMatchers.is(true));
+        assertThat(descriptor, is(expectedDescriptor));
+        assertThat(descriptor.isInvalid(), is(false));
+        assertThat(descriptor.isBundledPlugin(), is(true));
     }
 
     @Test
@@ -77,9 +76,9 @@ public class GoPluginDescriptorBuilderTest {
         GoPluginDescriptor descriptor = goPluginDescriptorBuilder.build(pluginJarFile, true);
 
         GoPluginDescriptor expectedDescriptor = buildXMLSchemaErrorDescriptor(pluginJarName);
-        assertThat(descriptor, CoreMatchers.is(expectedDescriptor));
-        assertThat(descriptor.isInvalid(), CoreMatchers.is(true));
-        assertThat(descriptor.isBundledPlugin(), CoreMatchers.is(true));
+        assertThat(descriptor, is(expectedDescriptor));
+        assertThat(descriptor.isInvalid(), is(true));
+        assertThat(descriptor.isBundledPlugin(), is(true));
         assertThat(descriptor.getStatus().getMessages(), is(expectedDescriptor.getStatus().getMessages()));
     }
 

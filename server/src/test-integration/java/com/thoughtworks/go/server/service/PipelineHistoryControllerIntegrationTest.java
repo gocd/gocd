@@ -29,7 +29,6 @@ import com.thoughtworks.go.server.persistence.MaterialRepository;
 import com.thoughtworks.go.server.scheduling.ScheduleHelper;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.util.GoConfigFileHelper;
-import org.hamcrest.core.Is;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -48,7 +47,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 import java.util.Map;
 
-import static org.hamcrest.core.Is.is;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {
@@ -163,7 +162,7 @@ public class PipelineHistoryControllerIntegrationTest {
     public void shouldDisplayExceptionPageWhenPipelineIsNotFound() throws Exception {
         ModelAndView list = controller.list("Un-available");
         assertThat(list.getViewName(), is("exceptions_page"));
-        assertThat(list.getModel().get("errorMessage"), Is.<Object>is("Pipeline 'Un-available' not found."));
+        assertThat(list.getModel().get("errorMessage"), is("Pipeline 'Un-available' not found."));
     }
 
     @Test

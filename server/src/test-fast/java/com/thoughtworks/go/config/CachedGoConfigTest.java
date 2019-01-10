@@ -25,14 +25,13 @@ import com.thoughtworks.go.server.service.DrainModeService;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.serverhealth.ServerHealthState;
 import com.thoughtworks.go.util.SystemEnvironment;
-import org.hamcrest.core.Is;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertThat;
+import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
@@ -187,10 +186,10 @@ public class CachedGoConfigTest {
         ConfigSaveState saveState = cachedGoConfig.writeFullConfigWithLock(mock(FullConfigUpdateCommand.class));
 
         assertThat(saveState, is(configSaveState));
-        assertThat(cachedGoConfig.currentConfig(), Is.<CruiseConfig>is(config));
-        assertThat(cachedGoConfig.loadForEditing(), Is.<CruiseConfig>is(configForEdit));
+        assertThat(cachedGoConfig.currentConfig(), is(config));
+        assertThat(cachedGoConfig.loadForEditing(), is(configForEdit));
         assertThat(cachedGoConfig.loadConfigHolder(), is(goConfigHolder));
-        assertThat(cachedGoConfig.loadMergedForEditing(), Is.<CruiseConfig>is(mergedConfigForEdit));
+        assertThat(cachedGoConfig.loadMergedForEditing(), is(mergedConfigForEdit));
         verify(serverHealthService, times(2)).update(any(ServerHealthState.class));
     }
 
@@ -213,10 +212,10 @@ public class CachedGoConfigTest {
 
         cachedGoConfig.upgradeConfig();
 
-        assertThat(cachedGoConfig.currentConfig(), Is.<CruiseConfig>is(config));
-        assertThat(cachedGoConfig.loadForEditing(), Is.<CruiseConfig>is(configForEdit));
+        assertThat(cachedGoConfig.currentConfig(), is(config));
+        assertThat(cachedGoConfig.loadForEditing(), is(configForEdit));
         assertThat(cachedGoConfig.loadConfigHolder(), is(goConfigHolder));
-        assertThat(cachedGoConfig.loadMergedForEditing(), Is.<CruiseConfig>is(mergedConfigForEdit));
+        assertThat(cachedGoConfig.loadMergedForEditing(), is(mergedConfigForEdit));
         verify(serverHealthService).update(any(ServerHealthState.class));
     }
 

@@ -28,8 +28,8 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionSynchronizationAdapter;
 
-import static org.hamcrest.core.Is.is;
-import static org.hamcrest.core.IsNull.nullValue;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
@@ -243,7 +243,7 @@ public class TransactionTemplateTest {
         assertThat(returnVal, is("bar"));
         assertThat(afterCommitHappened[0], is(false));//because it registered no synchronization
     }
-    
+
     @Test
     public void shouldPropagateExceptionsOutOfTransactionSurrounding() throws IOException {
         TransactionTemplate template = new TransactionTemplate(transactionTemplate);
@@ -372,7 +372,7 @@ public class TransactionTemplateTest {
                         });
 
                         secondNestedTransactionCalledTransactionSynchronization[0] = numberOfTimesSynchronizationWasCalled[0] > 0;
-                        
+
                         return ret;
                     }
                 });
@@ -388,7 +388,7 @@ public class TransactionTemplateTest {
         assertThat(secondNestedTransactionHappened[0], is(true));
         assertThat(secondNestedTransactionCalledTransactionSynchronization[0], is(false));
     }
-    
+
     @Test
     public void shouldUnderstand_InTransaction_AcrossNestedInvocations() {
         final TransactionTemplate template = new TransactionTemplate(transactionTemplate);

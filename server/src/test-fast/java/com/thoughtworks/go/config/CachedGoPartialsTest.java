@@ -28,7 +28,7 @@ import com.thoughtworks.go.serverhealth.ServerHealthState;
 import org.junit.Before;
 import org.junit.Test;
 
-import static org.hamcrest.core.Is.is;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
 public class CachedGoPartialsTest {

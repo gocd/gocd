@@ -16,21 +16,20 @@
 
 package com.thoughtworks.go.server.service.builders;
 
-import java.io.File;
-
 import com.googlecode.junit.ext.JunitExtRunner;
 import com.googlecode.junit.ext.RunIf;
 import com.thoughtworks.go.config.NantTask;
-import com.thoughtworks.go.domain.builder.CommandBuilder;
 import com.thoughtworks.go.domain.NullPipeline;
 import com.thoughtworks.go.domain.Pipeline;
+import com.thoughtworks.go.domain.builder.CommandBuilder;
 import com.thoughtworks.go.junitext.EnhancedOSChecker;
 import com.thoughtworks.go.server.service.UpstreamPipelineResolver;
-import org.hamcrest.core.Is;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import java.io.File;
 
 import static com.thoughtworks.go.junitext.EnhancedOSChecker.DO_NOT_RUN_ON;
 import static com.thoughtworks.go.junitext.EnhancedOSChecker.WINDOWS;
@@ -120,7 +119,7 @@ public class NantTaskBuilderTest {
         NantTask nantTask = new NantTask();
         nantTask.setWorkingDirectory("folder1\\folder2");
         CommandBuilder builder = (CommandBuilder) nantTaskBuilder.createBuilder(builderFactory, nantTask, ExecTaskBuilderTest.pipelineStub("label", "/var/cruise-agent/pipelines/cruise"), resolver);
-        assertThat(builder.getWorkingDir(), Is.is(new File("/var/cruise-agent/pipelines/cruise/folder1/folder2")));
+        assertThat(builder.getWorkingDir(), is(new File("/var/cruise-agent/pipelines/cruise/folder1/folder2")));
     }
 
     @Test
@@ -140,7 +139,7 @@ public class NantTaskBuilderTest {
 
         CommandBuilder builder = (CommandBuilder) nantTaskBuilder.createBuilder(builderFactory, task, pipeline, resolver);
 
-        assertThat(builder.getArgs(), Is.is("-buildfile:\"pavan/build.xml\""));
+        assertThat(builder.getArgs(), is("-buildfile:\"pavan/build.xml\""));
     }
 
 }

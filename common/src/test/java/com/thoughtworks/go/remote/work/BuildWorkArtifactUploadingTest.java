@@ -59,9 +59,9 @@ import java.util.UUID;
 
 import static com.thoughtworks.go.matchers.ConsoleOutMatcher.*;
 import static com.thoughtworks.go.util.SystemUtil.currentWorkingDirectory;
-import static org.hamcrest.core.Is.is;
-import static org.hamcrest.core.IsNot.not;
-import static org.hamcrest.core.StringContains.containsString;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.containsString;
 import static org.junit.Assert.assertThat;
 import static org.mockito.MockitoAnnotations.initMocks;
 

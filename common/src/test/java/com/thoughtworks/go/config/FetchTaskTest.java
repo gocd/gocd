@@ -28,7 +28,6 @@ import com.thoughtworks.go.domain.materials.dependency.DependencyMaterialRevisio
 import com.thoughtworks.go.helper.*;
 import com.thoughtworks.go.util.ReflectionUtil;
 import org.hamcrest.Matchers;
-import org.hamcrest.core.Is;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -36,9 +35,7 @@ import java.io.File;
 import java.util.Date;
 
 import static com.thoughtworks.go.util.DataStructureUtils.m;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.startsWith;
-import static org.hamcrest.core.IsNull.nullValue;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.matchers.JUnitMatchers.hasItems;
@@ -209,14 +206,14 @@ public class FetchTaskTest {
     public void validate_shouldNotTryAndValidateWhenWithinTemplate() throws Exception {
         FetchTask task = new FetchTask(new CaseInsensitiveString("dummy"), new CaseInsensitiveString("stage"), new CaseInsensitiveString("job"), "src", "dest");
         task.validate(ConfigSaveValidationContext.forChain(config, new TemplatesConfig(), downstream.getStage(new CaseInsensitiveString("stage"))));
-        assertThat(task.errors().isEmpty(), Is.is(true));
+        assertThat(task.errors().isEmpty(), is(true));
     }
 
     @Test
     public void validate_shouldValidateBlankStageAndJobWhenWithinTemplate() throws Exception {
         FetchTask task = new FetchTask(new CaseInsensitiveString("dummy"), new CaseInsensitiveString(""), new CaseInsensitiveString(""), "src", "dest");
         task.validate(ConfigSaveValidationContext.forChain(config, new TemplatesConfig(), downstream.getStage(new CaseInsensitiveString("stage"))));
-        assertThat(task.errors().isEmpty(), Is.is(false));
+        assertThat(task.errors().isEmpty(), is(false));
         assertThat(task.errors().on(FetchTask.STAGE), is("Stage is a required field."));
         assertThat(task.errors().on(FetchTask.JOB), is("Job is a required field."));
     }

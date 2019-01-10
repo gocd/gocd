@@ -16,12 +16,14 @@
 
 package com.thoughtworks.go.server.service;
 
+import com.google.common.collect.Sets;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
 import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
 import com.thoughtworks.go.config.update.AdminsConfigUpdateCommand;
 import com.thoughtworks.go.domain.config.Admin;
 import com.thoughtworks.go.server.domain.Username;
+import com.thoughtworks.go.server.service.result.BulkUpdateAdminsResult;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,8 +32,10 @@ import org.springframework.stereotype.Component;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static com.thoughtworks.go.i18n.LocalizedMessage.saveFailedWithReason;
+import static org.apache.commons.lang.StringUtils.join;
 
 @Component
 public class AdminsConfigService {
@@ -69,21 +73,46 @@ public class AdminsConfigService {
         }
     }
 
-    public void bulkUpdate(Username currentUser,
-                           List<String> usersToAdd,
-                           List<String> usersToRemove,
-                           List<String> rolesToAdd,
-                           List<String> rolesToRemove,
-                           String md5, LocalizedOperationResult result) {
-        Set<Admin> admins = new HashSet<>(systemAdmins());
-        usersToAdd.forEach(user -> admins.add(new AdminUser(user)));
-        rolesToAdd.forEach(role -> admins.add(new AdminRole(role)));
-        usersToRemove.forEach(user -> admins.remove(new AdminUser(new CaseInsensitiveString(user))));
-        rolesToRemove.forEach(role -> admins.remove(new AdminRole(new CaseInsensitiveString(role))));
-        AdminsConfigUpdateCommand command = new AdminsConfigUpdateCommand(goConfigService, new AdminsConfig(admins),
+    public BulkUpdateAdminsResult bulkUpdate(Username currentUser,
+                                             List<String> usersToAdd,
+                                             List<String> usersToRemove,
+                                             List<String> rolesToAdd,
+                                             List<String> rolesToRemove,
+                                             String md5) {
+        Set<Admin> existingAdmins = new HashSet<>(systemAdmins());
+        BulkUpdateAdminsResult result = validateUsersAndRolesForBulkUpdate(usersToRemove, rolesToRemove, existingAdmins);
+        if (!result.isSuccessful()) {
+            return result;
+        }
+
+        usersToAdd.forEach(user -> existingAdmins.add(new AdminUser(user)));
+        rolesToAdd.forEach(role -> existingAdmins.add(new AdminRole(role)));
+        usersToRemove.forEach(user -> existingAdmins.remove(new AdminUser(new CaseInsensitiveString(user))));
+        rolesToRemove.forEach(role -> existingAdmins.remove(new AdminRole(new CaseInsensitiveString(role))));
+        AdminsConfigUpdateCommand command = new AdminsConfigUpdateCommand(goConfigService, new AdminsConfig(existingAdmins),
                 currentUser, result, entityHashingService, md5);
         updateConfig(currentUser, result, command);
+        return result;
+    }
+
+    private BulkUpdateAdminsResult validateUsersAndRolesForBulkUpdate(List<String> usersToRemove, List<String> rolesToRemove,
+                                                                      Set<Admin> existingAdmins) {
+        Set<CaseInsensitiveString> existingAdminNames = existingAdmins.stream().map(Admin::getName).collect(Collectors.toSet());
+        Sets.SetView<CaseInsensitiveString> invalidUsersToRemove = Sets.difference(caseInsensitive(usersToRemove), existingAdminNames);
+        Sets.SetView<CaseInsensitiveString> invalidRolesToRemove = Sets.difference(caseInsensitive(rolesToRemove), existingAdminNames);
+        BulkUpdateAdminsResult result = new BulkUpdateAdminsResult();
+        if (invalidUsersToRemove.size() > 0) {
+            result.setNonExistentUsers(invalidUsersToRemove);
+            result.unprocessableEntity("Update failed because some users or roles do not exist under super admins.");
+        }
+        if (invalidRolesToRemove.size() > 0) {
+            result.setNonExistentRoles(invalidRolesToRemove);
+            result.unprocessableEntity("Update failed because some users or roles do not exist under super admins.");
+        }
+        return result;
+    }
+
+    private Set<CaseInsensitiveString> caseInsensitive(List<String> list) {
+        return list.stream().map(CaseInsensitiveString::new).collect(Collectors.toSet());
     }
 }
-
-

@@ -25,10 +25,12 @@ import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
 import com.thoughtworks.go.api.util.GsonTransformer;
 import com.thoughtworks.go.apiv2.adminsconfig.models.BulkUpdateRequest;
 import com.thoughtworks.go.apiv2.adminsconfig.representers.AdminsConfigRepresenter;
+import com.thoughtworks.go.apiv2.adminsconfig.representers.BulkUpdateFailureResultRepresenter;
 import com.thoughtworks.go.apiv2.adminsconfig.representers.BulkUpdateRequestRepresenter;
 import com.thoughtworks.go.config.AdminsConfig;
 import com.thoughtworks.go.server.service.AdminsConfigService;
 import com.thoughtworks.go.server.service.EntityHashingService;
+import com.thoughtworks.go.server.service.result.BulkUpdateAdminsResult;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.spring.SparkSpringController;
@@ -102,15 +104,15 @@ public class AdminControllerV2 extends ApiController implements SparkSpringContr
     public String bulkUpdate(Request request, Response response) throws IOException {
         JsonReader jsonReader = GsonTransformer.getInstance().jsonReaderFrom(request.body());
         BulkUpdateRequest bulkUpdateRequest = BulkUpdateRequestRepresenter.fromJSON(jsonReader);
-        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        adminsConfigService.bulkUpdate(currentUsername(),
+        BulkUpdateAdminsResult result = adminsConfigService.bulkUpdate(currentUsername(),
                 bulkUpdateRequest.getUsersToAdd(), bulkUpdateRequest.getUsersToRemove(),
                 bulkUpdateRequest.getRolesToAdd(), bulkUpdateRequest.getRolesToRemove(),
-                etagFor(adminsConfigService.systemAdmins()), result);
+                etagFor(adminsConfigService.systemAdmins()));
         if (result.isSuccessful()) {
             return writerForTopLevelObject(request, response, jsonWriter(adminsConfigService.systemAdmins()));
         } else {
-            return renderHTTPOperationResult(result, request, response);
+            response.status(result.httpCode());
+            return writerForTopLevelObject(request, response, outputWriter -> BulkUpdateFailureResultRepresenter.toJSON(outputWriter, result));
         }
     }
 

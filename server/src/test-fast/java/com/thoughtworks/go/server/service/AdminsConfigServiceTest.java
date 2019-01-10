@@ -16,13 +16,11 @@
 
 package com.thoughtworks.go.server.service;
 
-import com.thoughtworks.go.config.AdminRole;
-import com.thoughtworks.go.config.AdminUser;
-import com.thoughtworks.go.config.AdminsConfig;
-import com.thoughtworks.go.config.BasicCruiseConfig;
+import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.update.AdminsConfigUpdateCommand;
 import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.server.domain.Username;
+import com.thoughtworks.go.server.service.result.BulkUpdateAdminsResult;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import org.junit.Before;
 import org.junit.Test;
@@ -31,13 +29,11 @@ import org.mockito.Mock;
 
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
-import static org.hamcrest.Matchers.hasItems;
-import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 public class AdminsConfigServiceTest {
@@ -80,9 +76,8 @@ public class AdminsConfigServiceTest {
         when(goConfigService.serverConfig()).thenReturn(cruiseConfig.server());
 
         Username user = new Username("user");
-        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
 
-        adminsConfigService.bulkUpdate(user, singletonList("newUser1"), emptyList(), singletonList("newRole1"), emptyList(), "md5", result);
+        adminsConfigService.bulkUpdate(user, singletonList("newUser1"), emptyList(), singletonList("newRole1"), emptyList(), "md5");
 
         ArgumentCaptor<AdminsConfigUpdateCommand> captor = ArgumentCaptor.forClass(AdminsConfigUpdateCommand.class);
         verify(goConfigService).updateConfig(captor.capture(), eq(user));
@@ -104,9 +99,8 @@ public class AdminsConfigServiceTest {
         when(goConfigService.serverConfig()).thenReturn(cruiseConfig.server());
 
         Username user = new Username("user");
-        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
 
-        adminsConfigService.bulkUpdate(user, emptyList(), singletonList("adminUser1"), emptyList(), singletonList("adminRole1"), "md5", result);
+        adminsConfigService.bulkUpdate(user, emptyList(), singletonList("adminUser1"), emptyList(), singletonList("adminRole1"), "md5");
 
         ArgumentCaptor<AdminsConfigUpdateCommand> captor = ArgumentCaptor.forClass(AdminsConfigUpdateCommand.class);
         verify(goConfigService).updateConfig(captor.capture(), eq(user));
@@ -117,5 +111,50 @@ public class AdminsConfigServiceTest {
         assertThat(adminsConfig.getUsers(), hasItems(new AdminUser("adminUser2")));
         assertThat(adminsConfig.getRoles(), hasSize(1));
         assertThat(adminsConfig.getRoles(), hasItems(new AdminRole("adminRole2")));
+    }
+
+    @Test
+    public void bulkUpdate_shouldValidateThatRoleIsAnAdminWhenTryingToRemove() {
+        AdminsConfig config = new AdminsConfig(new AdminUser("adminUser1"), new AdminUser("adminUser2"),
+                new AdminRole("adminRole1"), new AdminRole("adminRole2"));
+        cruiseConfig = GoConfigMother.defaultCruiseConfig();
+        cruiseConfig.server().security().setAdminsConfig(config);
+        when(goConfigService.serverConfig()).thenReturn(cruiseConfig.server());
+
+        Username user = new Username("user");
+
+        BulkUpdateAdminsResult result = adminsConfigService.bulkUpdate(user, emptyList(), emptyList(), emptyList(),
+                singletonList("someOtherRole"), "md5");
+
+        assertThat(result.isSuccessful(), is(false));
+        assertThat(result.httpCode(), is(422));
+        assertThat(result.message(), is("Update failed because some users or roles do not exist under super admins."));
+        assertThat(result.getNonExistentRoles(), hasSize(1));
+        assertThat(result.getNonExistentRoles(), hasItem(new CaseInsensitiveString("someOtherRole")));
+        assertThat(result.getNonExistentUsers(), hasSize(0));
+
+        verify(goConfigService, times(0)).updateConfig(any(), any());
+    }
+
+    @Test
+    public void bulkUpdate_shouldValidateThatUserIsAnAdminWhenTryingToRemove() {
+        AdminsConfig config = new AdminsConfig(new AdminUser("adminUser1"), new AdminUser("adminUser2"),
+                new AdminRole("adminRole1"), new AdminRole("adminRole2"));
+        cruiseConfig = GoConfigMother.defaultCruiseConfig();
+        cruiseConfig.server().security().setAdminsConfig(config);
+        when(goConfigService.serverConfig()).thenReturn(cruiseConfig.server());
+
+        Username user = new Username("user");
+
+        BulkUpdateAdminsResult result = adminsConfigService.bulkUpdate(user, emptyList(), singletonList("someOtherUser"),
+                emptyList(), emptyList(), "md5");
+
+        assertThat(result.isSuccessful(), is(false));
+        assertThat(result.httpCode(), is(422));
+        assertThat(result.getNonExistentUsers(), hasSize(1));
+        assertThat(result.getNonExistentUsers(), hasItem(new CaseInsensitiveString("someOtherUser")));
+        assertThat(result.getNonExistentRoles(), hasSize(0));
+
+        verify(goConfigService, times(0)).updateConfig(any(), any());
     }
 }

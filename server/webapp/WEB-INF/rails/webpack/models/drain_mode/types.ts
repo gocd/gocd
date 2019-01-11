@@ -33,8 +33,9 @@ export interface JobJSON {
 }
 
 export interface RunningSystemJSON {
-  mdu?: MaterialJSON[];
-  jobs?: JobJSON[];
+  material_update_in_progress?: MaterialJSON[];
+  building_jobs?: JobJSON[];
+  scheduled_jobs?: JobJSON[];
 }
 
 export interface DrainModeMetadataJSON {
@@ -47,14 +48,10 @@ export interface Attributes {
   running_systems?: RunningSystemJSON;
 }
 
-export interface EmbeddedJSON {
+export interface DrainModeInfoJSON {
   is_drain_mode: boolean;
   metadata: DrainModeMetadataJSON;
   attributes?: Attributes;
-}
-
-export interface DrainModeInfoJSON {
-  _embedded: EmbeddedJSON;
 }
 
 export class StageLocator {
@@ -166,21 +163,27 @@ export class Stage {
 }
 
 export class RunningSystem {
-  stages: Stage[];
-  mdu: Materials;
+  buildingJobsGroupedByStages: Stage[];
+  scheduledJobsGroupedByStages: Stage[];
+  materialUpdateInProgress: Materials;
 
-  constructor(stages: Stage[], mdu: Materials) {
-    this.stages = stages;
-    this.mdu    = mdu;
+  constructor(buildingJobsGroupedByStages: Stage[], scheduledJobsGroupedByStages: Stage[], mdu: Materials) {
+    this.buildingJobsGroupedByStages  = buildingJobsGroupedByStages;
+    this.scheduledJobsGroupedByStages = scheduledJobsGroupedByStages;
+    this.materialUpdateInProgress     = mdu;
   }
 
   static fromJSON(runningSystemJSON: RunningSystemJSON | null = null) {
     if (runningSystemJSON === null) {
       return null;
     }
-    const stages    = RunningSystem.groupJobsByStage(runningSystemJSON.jobs ? runningSystemJSON.jobs.map(Job.fromJSON) : []);
-    const materials = runningSystemJSON.mdu ? Materials.fromJSON(runningSystemJSON.mdu) : new Materials([]);
-    return new RunningSystem(stages, materials);
+    const buildingJobsGroupedByStages  = RunningSystem.groupJobsByStage(runningSystemJSON.building_jobs ? runningSystemJSON.building_jobs.map(
+      Job.fromJSON) : []);
+    const scheduledJobsGroupedByStages = RunningSystem.groupJobsByStage(runningSystemJSON.scheduled_jobs ? runningSystemJSON.scheduled_jobs.map(
+      Job.fromJSON) : []);
+    const materials                    = runningSystemJSON.material_update_in_progress ? Materials.fromJSON(
+      runningSystemJSON.material_update_in_progress) : new Materials([]);
+    return new RunningSystem(buildingJobsGroupedByStages, scheduledJobsGroupedByStages, materials);
   }
 
   private static groupJobsByStage(jobs: Job[]) {
@@ -232,10 +235,10 @@ export class DrainModeInfo {
   }
 
   static fromJSON(json: DrainModeInfoJSON) {
-    json._embedded.attributes = json._embedded.attributes || {} as Attributes;
-    return new DrainModeInfo(json._embedded.is_drain_mode,
-                             json._embedded.attributes.is_completely_drained,
-                             DrainModeMetadata.fromJSON(json._embedded.metadata),
-                             RunningSystem.fromJSON(json._embedded.attributes.running_systems));
+    json.attributes = json.attributes || {} as Attributes;
+    return new DrainModeInfo(json.is_drain_mode,
+                             json.attributes.is_completely_drained,
+                             DrainModeMetadata.fromJSON(json.metadata),
+                             RunningSystem.fromJSON(json.attributes.running_systems));
   }
 }

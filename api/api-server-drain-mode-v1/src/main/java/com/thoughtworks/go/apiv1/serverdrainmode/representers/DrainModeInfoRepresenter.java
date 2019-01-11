@@ -30,27 +30,26 @@ import java.util.List;
 import java.util.function.Consumer;
 
 public class DrainModeInfoRepresenter {
-    public static void toJSON(OutputWriter jsonWriter, ServerDrainMode serverDrainMode, boolean isServerCompletelyDrained, Collection<MaterialPerformingMDU> runningMDUs, List<JobInstance> jobInstances) {
+    public static void toJSON(OutputWriter jsonWriter, ServerDrainMode serverDrainMode, boolean isServerCompletelyDrained, Collection<MaterialPerformingMDU> runningMDUs, List<JobInstance> buildingJobs, List<JobInstance> scheduledJobs) {
         jsonWriter
                 .addLinks(linksWriter -> linksWriter.addLink("self", Routes.DrainMode.BASE + Routes.DrainMode.INFO)
-                        .addAbsoluteLink("doc", Routes.DrainMode.INFO_DOC))
-                .addChild("_embedded", childWriter -> {
-                    childWriter.add("is_drain_mode", serverDrainMode.isDrainMode());
-                    childWriter.addChild("metadata", metadataChildWriter -> {
-                        metadataChildWriter.add("updated_by", serverDrainMode.updatedBy());
-                        metadataChildWriter.add("updated_on", serverDrainMode.updatedOn());
-                    });
+                        .addAbsoluteLink("doc", Routes.DrainMode.INFO_DOC));
+        jsonWriter.add("is_drain_mode", serverDrainMode.isDrainMode());
+        jsonWriter.addChild("metadata", metadataChildWriter -> {
+            metadataChildWriter.add("updated_by", serverDrainMode.updatedBy());
+            metadataChildWriter.add("updated_on", serverDrainMode.updatedOn());
+        });
 
-                    if (serverDrainMode.isDrainMode()) {
-                        childWriter.addChild("attributes", attributesWriter -> {
-                            attributesWriter.add("is_completely_drained", isServerCompletelyDrained);
-                            attributesWriter.addChild("running_systems", runningSystemsChildWriter -> {
-                                runningSystemsChildWriter.addChildList("mdu", runningMDUsToJSON(runningMDUs));
-                                runningSystemsChildWriter.addChildList("jobs", runningJobsToJSON(jobInstances));
-                            });
-                        });
-                    }
+        if (serverDrainMode.isDrainMode()) {
+            jsonWriter.addChild("attributes", attributesWriter -> {
+                attributesWriter.add("is_completely_drained", isServerCompletelyDrained);
+                attributesWriter.addChild("running_systems", runningSystemsChildWriter -> {
+                    runningSystemsChildWriter.addChildList("material_update_in_progress", runningMDUsToJSON(runningMDUs));
+                    runningSystemsChildWriter.addChildList("building_jobs", runningJobsToJSON(buildingJobs));
+                    runningSystemsChildWriter.addChildList("scheduled_jobs", runningJobsToJSON(scheduledJobs));
                 });
+            });
+        }
     }
 
     private static Consumer<OutputListWriter> runningMDUsToJSON(Collection<MaterialPerformingMDU> runningMDUs) {

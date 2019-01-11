@@ -18,6 +18,8 @@ import {MithrilViewComponent} from "jsx/mithril-component";
 import * as m from "mithril";
 import {DrainModeInfo, RunningSystem, StageLocator} from "models/drain_mode/types";
 import {SwitchBtn} from "views/components/switch";
+import {TooltipSize} from "views/components/tooltip";
+import * as Tooltip from "views/components/tooltip";
 import {DisabledSubsystemsWidget} from "views/pages/drain_mode/disabled_susbsystems_widget";
 import {JobInfoWidget} from "views/pages/drain_mode/running_jobs_widget.tsx";
 import {MDUInfoWidget} from "views/pages/drain_mode/running_mdus_widget";
@@ -59,6 +61,8 @@ export class DrainModeWidget extends MithrilViewComponent<Attrs> {
         <p data-test-id="drain-mode-description" className={styles.drainModeDescription}>
           The drain mode is a maintenance mode which a GoCD system administrator can put GoCD into so that it is
           safe to restart it or upgrade it without having running jobs reschedule when it is back.
+          &nbsp;
+          <a target="_blank" href="https://docs.gocd.org/advanced_usage/drain_mode.html">Learn more..</a>
         </p>
 
         <div class={styles.drainModeInfo}>
@@ -88,9 +92,17 @@ interface InfoAttrs {
 export class DrainModeInfoWidget extends MithrilViewComponent<InfoAttrs> {
   view(vnode: m.Vnode<InfoAttrs>): m.Children {
     return [
-      <JobInfoWidget stages={(vnode.attrs.drainModeInfo.runningSystem as RunningSystem).stages}
+      <JobInfoWidget stages={(vnode.attrs.drainModeInfo.runningSystem as RunningSystem).buildingJobsGroupedByStages}
+                     title={"Running Stages"}
                      onCancelStage={vnode.attrs.onCancelStage}/>,
-      <MDUInfoWidget materials={(vnode.attrs.drainModeInfo.runningSystem as RunningSystem).mdu}/>
+      <MDUInfoWidget materials={(vnode.attrs.drainModeInfo.runningSystem as RunningSystem).materialUpdateInProgress}/>,
+      <JobInfoWidget stages={(vnode.attrs.drainModeInfo.runningSystem as RunningSystem).scheduledJobsGroupedByStages}
+                     title={<span class={styles.scheduledStagesTitleWrapper}>
+                       <div class={styles.scheduledStagesTitle}> Scheduled Stages </div>
+                       <Tooltip.Info size={TooltipSize.large}
+                                     content={"Scheduled stages contains the jobs which are scheduled but not yet assigned to any agent. As the job assignment to agents is stopped during drain mode, scheduled jobs will not have a side effect on the server state. Hence, Scheduled stages are ignored while considering server drain mode."}/>
+                     </span>}
+                     onCancelStage={vnode.attrs.onCancelStage}/>,
     ] as m.ChildArray;
   }
 }

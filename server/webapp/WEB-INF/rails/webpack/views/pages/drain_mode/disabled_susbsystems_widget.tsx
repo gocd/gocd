@@ -83,13 +83,13 @@ class SubsystemInfoWithIconWidget extends MithrilViewComponent<RunningSystemAttr
 class InformationWhenInDrainMode extends MithrilViewComponent<Attrs> {
   view(vnode: m.Vnode<Attrs>) {
     const runningSystem    = vnode.attrs.drainModeInfo.runningSystem as RunningSystem;
-    const mduRunningSystem = runningSystem.mdu.count() === 0
+    const mduRunningSystem = runningSystem.materialUpdateInProgress.count() === 0
       ? <SubsystemInfoWithIconWidget inProgress={false} dataTestId={"mdu-stopped"}
                                      text={"Stopped material subsystem."}/>
       : <SubsystemInfoWithIconWidget inProgress={true} dataTestId={"mdu-in-progress"}
                                      text={"Waiting for material subsystem to stop.."}/>;
 
-    const buildingJobsSystem = runningSystem.stages.length === 0
+    const buildingJobsSystem = runningSystem.buildingJobsGroupedByStages.length === 0
       ? <SubsystemInfoWithIconWidget inProgress={false} dataTestId={"scheduling-system-stopped"}
                                      text={"Stopped scheduling subsystem."}/>
       : <SubsystemInfoWithIconWidget inProgress={true} dataTestId={"scheduling-system-in-progress"}

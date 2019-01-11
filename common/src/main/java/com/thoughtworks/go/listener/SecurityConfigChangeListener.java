@@ -18,6 +18,7 @@ package com.thoughtworks.go.listener;
 
 import com.thoughtworks.go.config.AdminsConfig;
 import com.thoughtworks.go.config.Role;
+import com.thoughtworks.go.config.RolesConfig;
 import com.thoughtworks.go.config.SecurityAuthConfig;
 
 import java.util.Arrays;
@@ -27,12 +28,12 @@ public abstract class SecurityConfigChangeListener extends EntityConfigChangedLi
     private final List<Class<?>> securityConfigClasses = Arrays.asList(
             SecurityAuthConfig.class,
             Role.class,
-            AdminsConfig.class
+            AdminsConfig.class,
+            RolesConfig.class
     );
 
     @Override
     public boolean shouldCareAbout(Object entity) {
         return securityConfigClasses.stream().anyMatch(aClass -> aClass.isAssignableFrom(entity.getClass()));
     }
-
 }

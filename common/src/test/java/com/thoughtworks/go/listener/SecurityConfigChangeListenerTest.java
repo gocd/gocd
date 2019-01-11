@@ -16,10 +16,7 @@
 
 package com.thoughtworks.go.listener;
 
-import com.thoughtworks.go.config.AdminsConfig;
-import com.thoughtworks.go.config.PluginRoleConfig;
-import com.thoughtworks.go.config.RoleConfig;
-import com.thoughtworks.go.config.SecurityAuthConfig;
+import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.elastic.ElasticProfile;
 import org.junit.Test;
 
@@ -70,6 +67,17 @@ public class SecurityConfigChangeListenerTest {
             }
         };
         assertThat(securityConfigChangeListener.shouldCareAbout(new AdminsConfig()), is(true));
+    }
+
+    @Test
+    public void shouldCareAboutRolesConfigChange() {
+        SecurityConfigChangeListener securityConfigChangeListener = new SecurityConfigChangeListener() {
+            @Override
+            public void onEntityConfigChange(Object entity) {
+
+            }
+        };
+        assertThat(securityConfigChangeListener.shouldCareAbout(new RolesConfig()), is(true));
     }
 
     @Test

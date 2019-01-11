@@ -16,15 +16,14 @@
 
 package com.thoughtworks.go.config.update;
 
-import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.BasicCruiseConfig;
+import com.thoughtworks.go.config.CruiseConfig;
+import com.thoughtworks.go.config.Role;
 import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
-import com.thoughtworks.go.config.materials.MaterialConfigs;
-import com.thoughtworks.go.config.remote.ConfigReposConfig;
-import com.thoughtworks.go.domain.packagerepository.PackageRepository;
-import com.thoughtworks.go.domain.scm.SCM;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
+import com.thoughtworks.go.validation.RolesConfigUpdateValidator;
 
 import static com.thoughtworks.go.i18n.LocalizedMessage.forbiddenToEdit;
 import static com.thoughtworks.go.serverhealth.HealthStateType.forbidden;
@@ -62,126 +61,12 @@ abstract class RoleConfigCommand implements EntityConfigUpdateCommand<Role> {
     public boolean isValid(CruiseConfig preprocessedConfig) {
         preprocessedRole = preprocessedConfig.server().security().getRoles().findByNameAndType(role.getName(), role.getClass());
 
-        if (!preprocessedRole.validateTree(validationContextWithSecurityConfig(preprocessedConfig))) {
+        if (!preprocessedRole.validateTree(RolesConfigUpdateValidator.validationContextWithSecurityConfig(preprocessedConfig))) {
             BasicCruiseConfig.copyErrors(preprocessedRole, role);
             return false;
         }
 
         return true;
-    }
-
-    protected ValidationContext validationContextWithSecurityConfig(final CruiseConfig preprocessedConfig) {
-        return new ValidationContext() {
-            @Override
-            public ConfigReposConfig getConfigRepos() {
-                return null;
-            }
-
-            @Override
-            public boolean isWithinPipelines() {
-                return false;
-            }
-
-            @Override
-            public PipelineConfig getPipeline() {
-                return null;
-            }
-
-            @Override
-            public MaterialConfigs getAllMaterialsByFingerPrint(String fingerprint) {
-                return null;
-            }
-
-            @Override
-            public StageConfig getStage() {
-                return null;
-            }
-
-            @Override
-            public boolean isWithinTemplates() {
-                return false;
-            }
-
-            @Override
-            public String getParentDisplayName() {
-                return null;
-            }
-
-            @Override
-            public Validatable getParent() {
-                return null;
-            }
-
-            @Override
-            public JobConfig getJob() {
-                return null;
-            }
-
-            @Override
-            public PipelineConfigs getPipelineGroup() {
-                return null;
-            }
-
-            @Override
-            public PipelineTemplateConfig getTemplate() {
-                return null;
-            }
-
-            @Override
-            public PipelineConfig getPipelineConfigByName(CaseInsensitiveString pipelineName) {
-                return null;
-            }
-
-            @Override
-            public boolean shouldCheckConfigRepo() {
-                return false;
-            }
-
-            @Override
-            public SecurityConfig getServerSecurityConfig() {
-                return preprocessedConfig.server().security();
-            }
-
-            @Override
-            public boolean doesTemplateExist(CaseInsensitiveString template) {
-                return false;
-            }
-
-            @Override
-            public SCM findScmById(String scmID) {
-                return null;
-            }
-
-            @Override
-            public PackageRepository findPackageById(String packageId) {
-                return null;
-            }
-
-            @Override
-            public ValidationContext withParent(Validatable validatable) {
-                return null;
-            }
-
-            @Override
-            public boolean isValidProfileId(String profileId) {
-                return false;
-            }
-
-            @Override
-            public boolean shouldNotCheckRole() {
-                return false;
-            }
-
-            @Override
-            public ArtifactStores artifactStores() {
-                return null;
-            }
-
-            @Override
-            public CruiseConfig getCruiseConfig() {
-                return null;
-            }
-        };
     }
 
     final Role findExistingRole(CruiseConfig cruiseConfig) {

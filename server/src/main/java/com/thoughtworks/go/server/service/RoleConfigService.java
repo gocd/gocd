@@ -19,13 +19,12 @@ package com.thoughtworks.go.server.service;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
 import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
-import com.thoughtworks.go.config.update.RoleConfigCreateCommand;
-import com.thoughtworks.go.config.update.RoleConfigDeleteCommand;
-import com.thoughtworks.go.config.update.RoleConfigUpdateCommand;
+import com.thoughtworks.go.config.update.*;
 import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.plugin.access.authorization.AuthorizationExtension;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.plugins.validators.authorization.RoleConfigurationValidator;
+import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -75,7 +74,7 @@ public class RoleConfigService {
             goConfigService.updateConfig(command, currentUser);
         } catch (Exception e) {
             if (e instanceof GoConfigInvalidException) {
-                result.unprocessableEntity(entityConfigValidationFailed(getTagName(role), role.getName(), ((GoConfigInvalidException) e).getAllErrorMessages()));
+                result.unprocessableEntity(entityConfigValidationFailed(getTagName(role.getClass()), role.getName(), ((GoConfigInvalidException) e).getAllErrorMessages()));
             } else {
                 if (!result.hasMessage()) {
                     LOGGER.error(e.getMessage(), e);
@@ -85,8 +84,8 @@ public class RoleConfigService {
         }
     }
 
-    private String getTagName(Role role) {
-        return role.getClass().getAnnotation(ConfigTag.class).value();
+    private String getTagName(Class<?> clazz) {
+        return clazz.getAnnotation(ConfigTag.class).value();
     }
 
     public RolesConfig getRoles() {
@@ -114,10 +113,29 @@ public class RoleConfigService {
         update(currentUser, newRole, result, new RoleConfigUpdateCommand(goConfigService, newRole, authorizationExtension, currentUser, result, hashingService, md5));
     }
 
+    public void bulkUpdate(GoCDRolesBulkUpdateRequest bulkUpdateRequest, Username currentUser,
+                           HttpLocalizedOperationResult result) {
+        RolesConfigBulkUpdateCommand command = new RolesConfigBulkUpdateCommand(bulkUpdateRequest, currentUser,
+                goConfigService, result);
+
+        try {
+            goConfigService.updateConfig(command, currentUser);
+        } catch (Exception e) {
+            if (e instanceof GoConfigInvalidException) {
+                result.unprocessableEntity(entityConfigValidationFailed(getTagName(RolesConfig.class), bulkUpdateRequest.getRolesToUpdateAsString(), ((GoConfigInvalidException) e).getAllErrorMessages()));
+            } else {
+                if (!result.hasMessage()) {
+                    LOGGER.error(e.getMessage(), e);
+                    result.internalServerError(saveFailedWithReason("An error occurred while saving the role config. Please check the logs for more information."));
+                }
+            }
+        }
+    }
+
     public void delete(Username currentUser, Role role, LocalizedOperationResult result) {
         update(currentUser, role, result, new RoleConfigDeleteCommand(goConfigService, role, authorizationExtension, currentUser, result));
         if (result.isSuccessful()) {
-            result.setMessage(LocalizedMessage.resourceDeleteSuccessful(getTagName(role).toLowerCase(), role.getName()));
+            result.setMessage(LocalizedMessage.resourceDeleteSuccessful(getTagName(role.getClass()).toLowerCase(), role.getName()));
         }
     }
 

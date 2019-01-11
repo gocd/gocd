@@ -16,27 +16,31 @@
 
 package com.thoughtworks.go.apiv1.configrepooperations;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class PreflightResult {
-    private List<String> errors;
+    private Set<String> errors = new HashSet<>();
     private boolean valid = false;
 
     public PreflightResult() {
     }
 
     public PreflightResult update(List<String> errors, boolean valid) {
-        this.errors = errors;
+        this.errors.addAll(errors);
         this.valid = valid;
         return this;
     }
 
     public List<String> getErrors() {
-        return errors;
+        return new ArrayList<>(errors);
     }
 
     public void setErrors(List<String> errors) {
-        this.errors = errors;
+        this.errors.clear();
+        this.errors.addAll(errors);
     }
 
     public boolean isValid() {

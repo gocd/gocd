@@ -111,17 +111,18 @@ public class JobController {
                                   @RequestParam("stageName") String stageName,
                                   @RequestParam("stageCounter") String stageCounter,
                                   @RequestParam("jobName") String jobName) throws Exception {
-        if (!StringUtils.isNumeric(pipelineCounter)) {
+        if (!StringUtils.isNumeric(pipelineCounter) && !JobIdentifier.LATEST.equalsIgnoreCase(pipelineCounter)) {
             throw bomb(String.format("Expected numeric pipelineCounter, but received '%s' for [%s/%s/%s/%s/%s]", pipelineCounter, pipelineName, pipelineCounter, stageName,
                     stageCounter, jobName));
 
         }
-        if (!StringUtils.isNumeric(stageCounter)) {
+        if (!StringUtils.isNumeric(stageCounter) && !JobIdentifier.LATEST.equalsIgnoreCase(stageCounter)) {
             throw bomb(String.format("Expected numeric stageCounter, but received '%s' for [%s/%s/%s/%s/%s]", stageCounter, pipelineName, pipelineCounter, stageName,
                     stageCounter, jobName));
 
         }
-        Pipeline pipeline = pipelineService.findPipelineByNameAndCounter(pipelineName, Integer.parseInt(pipelineCounter));
+
+        Pipeline pipeline = pipelineService.findPipelineByCounterOrLatestKeyword(pipelineName, pipelineCounter);
         if (pipeline == null) {
             throw bomb(String.format("Job %s/%s/%s/%s/%s not found", pipelineName, pipelineCounter, stageName,
                     stageCounter, jobName));

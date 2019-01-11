@@ -55,7 +55,7 @@ Dashboard.API_VERSION = 'v3';
 
 Dashboard.get = (viewName, etag) => {
   return AjaxHelper.GET({
-    url:        SparkRoutes.showDashboardPath({viewName}),
+    url:        SparkRoutes.showDashboardPath(viewName),
     apiVersion: Dashboard.API_VERSION,
     etag
   });

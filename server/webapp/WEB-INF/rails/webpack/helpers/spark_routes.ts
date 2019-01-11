@@ -70,7 +70,10 @@ export default class {
     }
   }
 
-  static showDashboardPath(): string {
+  static showDashboardPath(viewName?: string): string {
+    if (viewName) {
+      return `/go/api/dashboard?${m.buildQueryString({viewName})}`;
+    }
     return "/go/api/dashboard";
   }
 

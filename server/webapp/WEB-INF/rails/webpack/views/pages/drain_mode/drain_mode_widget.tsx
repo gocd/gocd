@@ -17,6 +17,7 @@
 import {MithrilViewComponent} from "jsx/mithril-component";
 import * as m from "mithril";
 import {DrainModeInfo, RunningSystem, StageLocator} from "models/drain_mode/types";
+import {Link} from "views/components/link";
 import {SwitchBtn} from "views/components/switch";
 import {TooltipSize} from "views/components/tooltip";
 import * as Tooltip from "views/components/tooltip";
@@ -62,7 +63,7 @@ export class DrainModeWidget extends MithrilViewComponent<Attrs> {
           The drain mode is a maintenance mode which a GoCD system administrator can put GoCD into so that it is
           safe to restart it or upgrade it without having running jobs reschedule when it is back.
           &nbsp;
-          <a target="_blank" href="https://docs.gocd.org/advanced_usage/drain_mode.html">Learn more..</a>
+          <Link target="_blank" href="https://docs.gocd.org/advanced_usage/drain_mode.html">Learn more..</Link>
         </p>
 
         <div class={styles.drainModeInfo}>

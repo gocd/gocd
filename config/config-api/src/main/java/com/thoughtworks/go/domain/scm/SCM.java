@@ -21,6 +21,7 @@ import com.google.gson.annotations.SerializedName;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.builder.ConfigurationPropertyBuilder;
 import com.thoughtworks.go.config.materials.AbstractMaterialConfig;
+import com.thoughtworks.go.config.remote.ConfigOrigin;
 import com.thoughtworks.go.config.validation.NameTypeValidator;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.config.Configuration;
@@ -54,6 +55,7 @@ public class SCM implements Serializable, Validatable {
     public static final String ERRORS_KEY = "errors";
 
     private ConfigErrors errors = new ConfigErrors();
+    private ConfigOrigin origin;
 
     @ConfigAttribute(value = "id", allowNull = true)
     private String id;
@@ -331,5 +333,13 @@ public class SCM implements Serializable, Validatable {
 
     public String getSCMType() {
         return "pluggable_material_" + getPluginConfiguration().getId().replaceAll("[^a-zA-Z0-9_]", "_");
+    }
+
+    public ConfigOrigin getOrigin() {
+        return origin;
+    }
+
+    public void setOrigin(ConfigOrigin origin) {
+        this.origin = origin;
     }
 }

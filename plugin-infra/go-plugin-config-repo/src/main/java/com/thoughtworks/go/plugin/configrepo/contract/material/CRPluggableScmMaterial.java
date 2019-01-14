@@ -16,9 +16,13 @@
 
 package com.thoughtworks.go.plugin.configrepo.contract.material;
 
+import com.thoughtworks.go.plugin.configrepo.contract.CRConfigurationProperty;
+import com.thoughtworks.go.plugin.configrepo.contract.CRPluginConfiguration;
 import com.thoughtworks.go.plugin.configrepo.contract.ErrorCollection;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 
 
@@ -28,6 +32,9 @@ public class CRPluggableScmMaterial extends CRMaterial implements SourceCodeMate
     private String scm_id;
     protected String destination;
     private CRFilter filter;
+
+    private CRPluginConfiguration plugin_configuration;
+    private Collection<CRConfigurationProperty> configuration = new ArrayList<>();
 
     public CRPluggableScmMaterial(){
         type = TYPE_NAME;
@@ -111,7 +118,9 @@ public class CRPluggableScmMaterial extends CRMaterial implements SourceCodeMate
     @Override
     public void getErrors(ErrorCollection errors, String parentLocation) {
         String location = getLocation(parentLocation);
-        errors.checkMissing(location,"scm_id", scm_id);
+        if (getScmId() == null && plugin_configuration == null) {
+            errors.addError(location, "Either the scm_id or the plugin_configuration must be set");
+        }
     }
 
     @Override
@@ -125,5 +134,21 @@ public class CRPluggableScmMaterial extends CRMaterial implements SourceCodeMate
     @Override
     public String getDestination() {
         return destination;
+    }
+
+    public CRPluginConfiguration getPluginConfiguration() {
+        return plugin_configuration;
+    }
+
+    public void setPluginConfiguration(CRPluginConfiguration pluginConfiguration) {
+        this.plugin_configuration = pluginConfiguration;
+    }
+
+    public Collection<CRConfigurationProperty> getConfiguration() {
+        return configuration;
+    }
+
+    public void setConfiguration(Collection<CRConfigurationProperty> configuration) {
+        this.configuration = configuration;
     }
 }

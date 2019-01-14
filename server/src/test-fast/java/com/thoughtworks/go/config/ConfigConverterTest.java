@@ -770,6 +770,48 @@ public class ConfigConverterTest {
     }
 
     @Test
+    public void shouldConvertPluggableScmMaterialWithNewSCM() {
+        Configuration config = new Configuration();
+        config.addNewConfigurationWithValue("url", "url", false);
+        SCM myscm = new SCM("scmid", new PluginConfiguration("plugin_id", "1.0"), config);
+        myscm.setName("name");
+
+        CRPluggableScmMaterial crPluggableScmMaterial = new CRPluggableScmMaterial("name", "scmid", "directory", filter);
+        crPluggableScmMaterial.setPluginConfiguration(new CRPluginConfiguration("plugin_id", "1.0"));
+        crPluggableScmMaterial.getConfiguration().add(new CRConfigurationProperty("url", "url"));
+
+        PluggableSCMMaterialConfig pluggableSCMMaterialConfig =
+                (PluggableSCMMaterialConfig) configConverter.toMaterialConfig(crPluggableScmMaterial, context);
+
+        assertThat(pluggableSCMMaterialConfig.getName().toLower(), is("name"));
+        assertThat(pluggableSCMMaterialConfig.getSCMConfig(), is(myscm));
+        assertThat(pluggableSCMMaterialConfig.getScmId(), is("scmid"));
+        assertThat(pluggableSCMMaterialConfig.getFolder(), is("directory"));
+        assertThat(pluggableSCMMaterialConfig.getFilterAsString(), is("filter"));
+    }
+
+    @Test
+    public void shouldConvertPluggableScmMaterialWithNewSCMPluginVersionShouldDefaultToEmptyString() {
+        Configuration config = new Configuration();
+        config.addNewConfigurationWithValue("url", "url", false);
+        SCM myscm = new SCM("scmid", new PluginConfiguration("plugin_id", ""), config);
+        myscm.setName("name");
+
+        CRPluggableScmMaterial crPluggableScmMaterial = new CRPluggableScmMaterial("name", "scmid", "directory", filter);
+        crPluggableScmMaterial.setPluginConfiguration(new CRPluginConfiguration("plugin_id", null));
+        crPluggableScmMaterial.getConfiguration().add(new CRConfigurationProperty("url", "url"));
+
+        PluggableSCMMaterialConfig pluggableSCMMaterialConfig =
+                (PluggableSCMMaterialConfig) configConverter.toMaterialConfig(crPluggableScmMaterial, context);
+
+        assertThat(pluggableSCMMaterialConfig.getName().toLower(), is("name"));
+        assertThat(pluggableSCMMaterialConfig.getSCMConfig(), is(myscm));
+        assertThat(pluggableSCMMaterialConfig.getScmId(), is("scmid"));
+        assertThat(pluggableSCMMaterialConfig.getFolder(), is("directory"));
+        assertThat(pluggableSCMMaterialConfig.getFilterAsString(), is("filter"));
+    }
+
+    @Test
     public void shouldConvertPackageMaterial() {
         PackageRepositories repositories = new PackageRepositories();
         PackageRepository packageRepository = new PackageRepository();

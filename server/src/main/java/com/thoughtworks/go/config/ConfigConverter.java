@@ -60,6 +60,7 @@ public class ConfigConverter {
     private final GoCipher cipher;
     private final CachedGoConfig cachedGoConfig;
     private Cloner cloner = new Cloner();
+    private SCMs newSCMs = new SCMs();
 
     public ConfigConverter(GoCipher goCipher, CachedGoConfig cachedGoConfig) {
         this.cipher = goCipher;
@@ -77,6 +78,7 @@ public class ConfigConverter {
             BasicPipelineConfigs pipelineConfigs = toBasicPipelineConfigs(crPipelineGroup, context);
             partialConfig.getGroups().add(pipelineConfigs);
         }
+        partialConfig.setScms(newSCMs);
         return partialConfig;
     }
 
@@ -344,9 +346,18 @@ public class ConfigConverter {
     }
 
     private PluggableSCMMaterialConfig toPluggableScmMaterialConfig(CRPluggableScmMaterial crPluggableScmMaterial) {
-        SCMs scms = getSCMs();
         String id = crPluggableScmMaterial.getScmId();
-        SCM scmConfig = scms.find(id);
+        CRPluginConfiguration pluginConfig = crPluggableScmMaterial.getPluginConfiguration();
+        SCM scmConfig;
+
+        if (pluginConfig == null) {
+            scmConfig = getSCMs().find(id);
+        } else {
+            scmConfig = new SCM(id, toPluginConfiguration(pluginConfig), toConfiguration(crPluggableScmMaterial.getConfiguration()));
+            scmConfig.setName(crPluggableScmMaterial.getName());
+            newSCMs.add(scmConfig);
+        }
+
         if (scmConfig == null)
             throw new ConfigConvertionException(
                     String.format("Failed to find referenced scm '%s'", id));

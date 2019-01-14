@@ -21,6 +21,10 @@ import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.config.remote.PartialConfig;
 import com.thoughtworks.go.config.remote.RepoConfigOrigin;
+import com.thoughtworks.go.domain.config.Configuration;
+import com.thoughtworks.go.domain.config.PluginConfiguration;
+import com.thoughtworks.go.domain.scm.SCM;
+import com.thoughtworks.go.domain.scm.SCMs;
 import com.thoughtworks.go.helper.PartialConfigMother;
 import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.serverhealth.HealthStateLevel;
@@ -234,6 +238,23 @@ public class GoPartialConfigIntegrationTest {
         assertThat(goConfigDao.loadConfigHolder().config.hasPipelineNamed(new CaseInsensitiveString("pipe-with-params")), is(true));
         String resolvedParam = goConfigDao.loadConfigHolder().config.getPipelineConfigByName(new CaseInsensitiveString("pipe-with-params")).getStage("stage").getVariables().get(0).getValue();
         assertThat(resolvedParam, is("paramValue"));
+    }
+
+    @Test
+    public void shouldSaveSCMs() throws Exception {
+        Configuration config = new Configuration();
+        config.addNewConfigurationWithValue("url", "url", false);
+        PluginConfiguration pluginConfig = new PluginConfiguration("plugin.id", "1.0");
+        PartialConfig scmPartial = PartialConfigMother.withSCM("scm_id", "name", pluginConfig, config, new RepoConfigOrigin(repoConfig1, "124"));
+        goPartialConfig.onSuccessPartialConfig(repoConfig1, scmPartial);
+        SCMs scms = goConfigDao.loadConfigHolder().config.getSCMs();
+        SCM scm = scms.first();
+        assertThat(scms.size(), is(1));
+        assertThat(scm.getSCMId(), is("scm_id"));
+        assertThat(scm.getName(), is("name"));
+        assertThat(scm.getPluginConfiguration(), is(pluginConfig));
+        assertThat(scm.getConfiguration(), is(config));
+        assertThat(cacheContainsPartial(cachedGoPartials.lastKnownPartials(), scmPartial), is(true));
     }
 
     @Test

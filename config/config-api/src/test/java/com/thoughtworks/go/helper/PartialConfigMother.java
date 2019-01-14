@@ -25,7 +25,11 @@ import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.config.remote.PartialConfig;
 import com.thoughtworks.go.config.remote.RepoConfigOrigin;
 import com.thoughtworks.go.domain.PipelineGroups;
+import com.thoughtworks.go.domain.config.Configuration;
+import com.thoughtworks.go.domain.config.PluginConfiguration;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
+import com.thoughtworks.go.domain.scm.SCM;
+import com.thoughtworks.go.domain.scm.SCMs;
 
 public class PartialConfigMother {
     public static PartialConfig empty() {
@@ -50,6 +54,15 @@ public class PartialConfigMother {
         PartialConfig partialConfig = new PartialConfig(new PipelineGroups(pipes));
         partialConfig.setOrigins(repoOrigin);
         return partialConfig;
+    }
+
+    public static PartialConfig withSCM(String scmId, String name, PluginConfiguration pluginConfig, Configuration config, RepoConfigOrigin repoOrigin) {
+       SCM scm = new SCM(scmId, pluginConfig, config);
+       scm.setName(name);
+       PartialConfig partialConfig = new PartialConfig();
+       partialConfig.setOrigins(repoOrigin);
+       partialConfig.setScms(new SCMs(scm));
+       return partialConfig;
     }
 
     public static PartialConfig withPipelineMultipleMaterials(String name, RepoConfigOrigin repoOrigin) {

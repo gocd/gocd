@@ -20,6 +20,8 @@ import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.preprocessor.SkipParameterResolution;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.PipelineGroups;
+import com.thoughtworks.go.domain.scm.SCM;
+import com.thoughtworks.go.domain.scm.SCMs;
 
 /**
  * Part of cruise configuration that can be stored outside of main cruise-config.xml.
@@ -31,6 +33,7 @@ public class PartialConfig implements Validatable, ConfigOriginTraceable {
 
     @ConfigSubtag(label = "groups") private PipelineGroups pipelines = new PipelineGroups();
     @ConfigSubtag @SkipParameterResolution private EnvironmentsConfig environments = new EnvironmentsConfig();
+    @ConfigSubtag @SkipParameterResolution private SCMs scms = new SCMs();
 
     private ConfigOrigin origin;
 
@@ -44,9 +47,15 @@ public class PartialConfig implements Validatable, ConfigOriginTraceable {
         this.pipelines = pipelines;
     }
 
+    public PartialConfig(EnvironmentsConfig environments,PipelineGroups pipelines, SCMs scms){
+        this.environments = environments;
+        this.pipelines = pipelines;
+        this.scms = scms;
+    }
+
     @Override
     public String toString() {
-        return String.format("ConfigPartial: %s pipes, %s environments; From %s",pipelines.size(),environments.size(),origin);
+        return String.format("ConfigPartial: %s pipes, %s environments, %s scms; From %s",pipelines.size(),environments.size(), scms.size(),origin);
     }
 
     @Override
@@ -80,6 +89,10 @@ public class PartialConfig implements Validatable, ConfigOriginTraceable {
         for(PipelineConfigs pipes : this.pipelines)
         {
             pipes.setOrigins(origins);
+        }
+        for(SCM scm: this.scms)
+        {
+           scm.setOrigin(origins);
         }
     }
 
@@ -129,5 +142,13 @@ public class PartialConfig implements Validatable, ConfigOriginTraceable {
         result = 31 * result + getEnvironments().hashCode();
         result = 31 * result + (getOrigin() != null ? getOrigin().hashCode() : 0);
         return result;
+    }
+
+    public SCMs getScms() {
+        return scms;
+    }
+
+    public void setScms(SCMs scms) {
+        this.scms = scms;
     }
 }

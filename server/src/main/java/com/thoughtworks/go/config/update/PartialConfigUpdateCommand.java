@@ -19,6 +19,7 @@ package com.thoughtworks.go.config.update;
 import com.rits.cloning.Cloner;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.remote.PartialConfig;
+import com.thoughtworks.go.domain.scm.SCM;
 
 public class PartialConfigUpdateCommand implements UpdateConfigCommand {
     private static final Cloner CLONER = new Cloner();
@@ -45,6 +46,11 @@ public class PartialConfigUpdateCommand implements UpdateConfigCommand {
             cruiseConfig.getPartials().add(CLONER.deepClone(partial));
 
             for (PartialConfig partial : cruiseConfig.getPartials()) {
+                for(SCM scm : partial.getScms()) {
+                    if (cruiseConfig.getSCMs().find(scm.getSCMId()) == null) {
+                        cruiseConfig.getSCMs().add(scm);
+                    }
+                }
                 for (EnvironmentConfig environmentConfig : partial.getEnvironments()) {
                     if (!cruiseConfig.getEnvironments().hasEnvironmentNamed(environmentConfig.name())) {
                         cruiseConfig.addEnvironment(new BasicEnvironmentConfig(environmentConfig.name()));

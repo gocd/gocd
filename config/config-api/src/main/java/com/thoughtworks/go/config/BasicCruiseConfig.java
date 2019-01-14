@@ -173,6 +173,7 @@ public class BasicCruiseConfig implements CruiseConfig {
 
         groups = mergeStrategy.mergePipelineConfigs();
         environments = mergeStrategy.mergeEnvironmentConfigs();
+        scms = mergeStrategy.mergeScms();
     }
 
     // for tests
@@ -233,6 +234,9 @@ public class BasicCruiseConfig implements CruiseConfig {
             }
             for (PipelineConfigs pipes : groups) {
                 pipes.setOrigins(origins);
+            }
+            for (SCM scm : scms) {
+                scm.setOrigin(origin);
             }
         }
 
@@ -333,6 +337,16 @@ public class BasicCruiseConfig implements CruiseConfig {
             }
 
             return environments;
+        }
+
+        private SCMs mergeScms() {
+            SCMs scms = new SCMs();
+            scms.addAll(BasicCruiseConfig.this.scms);
+
+            for (PartialConfig part : this.parts) {
+                scms.addAll(part.getScms());
+            }
+            return scms;
         }
 
         private PipelineGroups mergePipelineConfigs() {

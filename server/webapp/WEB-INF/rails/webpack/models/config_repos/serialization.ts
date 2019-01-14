@@ -29,13 +29,20 @@ export interface ConfigRepoJSON {
   plugin_id: string;
   material: MaterialJSON;
   configuration: any[];
-  last_parse: LastParseJSON;
-  errors?: ErrorsJSON;
+  parse_info: ParseInfoJSON;
 }
 
-export interface LastParseJSON {
-  revision?: string;
-  success?: boolean;
+export interface MaterialModificationJSON {
+  username: string;
+  email_address: string | null;
+  revision: string;
+  comment: string;
+  modified_time: string;
+}
+
+export interface ParseInfoJSON {
+  latest_parsed_modification: MaterialModificationJSON;
+  good_modification: MaterialModificationJSON;
   error?: string;
 }
 

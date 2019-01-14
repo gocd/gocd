@@ -25,6 +25,7 @@ import com.thoughtworks.go.plugin.access.configrepo.InvalidPartialConfigExceptio
 import com.thoughtworks.go.plugin.configrepo.contract.CRConfigurationProperty;
 import com.thoughtworks.go.plugin.configrepo.contract.CRParseResult;
 import com.thoughtworks.go.plugin.configrepo.contract.CRPipeline;
+import com.thoughtworks.go.plugin.configrepo.contract.ErrorCollection;
 
 import java.io.File;
 import java.util.*;
@@ -76,7 +77,7 @@ public class ConfigRepoPlugin implements PartialConfigProvider {
     public PartialConfig parseContent(List<Map<String, String>> content, PartialConfigLoadContext context) {
         CRParseResult parseResult = this.crExtension.parseContent(pluginId, content);
         if (parseResult.hasErrors()) {
-            throw new InvalidPartialConfigException(parseResult, parseResult.getErrors().getErrorsAsText());
+            throw new InvalidPartialConfigException(parseResult, parseResult.getErrors().yamlFormat());
         }
         return configConverter.toPartialConfig(parseResult, context);
     }

@@ -27,6 +27,7 @@ import com.thoughtworks.go.config.remote.FileConfigOrigin
 import com.thoughtworks.go.helper.PipelineConfigMother
 import com.thoughtworks.go.spark.AdminUserSecurity
 import com.thoughtworks.go.spark.ControllerTrait
+import com.thoughtworks.go.spark.GroupAdminUserSecurity
 import com.thoughtworks.go.spark.SecurityServiceTrait
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
@@ -64,7 +65,7 @@ class ExportControllerV1Test implements SecurityServiceTrait, ControllerTrait<Ex
     }
 
     @Nested
-    class Security implements SecurityTestTrait, AdminUserSecurity {
+    class Security implements SecurityTestTrait, GroupAdminUserSecurity {
 
       @Override
       String getControllerMethodUnderTest() {

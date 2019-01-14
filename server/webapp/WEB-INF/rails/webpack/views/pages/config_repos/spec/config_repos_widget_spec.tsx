@@ -17,7 +17,7 @@
 import * as m from "mithril";
 import * as stream from "mithril/stream";
 import {Stream} from "mithril/stream";
-import {ConfigRepo, GitMaterialAttributes, LastParse} from "models/config_repos/types";
+import {ConfigRepo, GitMaterialAttributes, ParseInfo} from "models/config_repos/types";
 import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
 import * as simulateEvent from "simulate-event";
 import * as uuid from "uuid/v4";
@@ -108,7 +108,7 @@ describe("ConfigReposWidget", () => {
 
   it("should render a single config repo", () => {
     const repo = createConfigRepo();
-    repo.lastParse(new LastParse("1234", true));
+    (repo.lastParse() as ParseInfo).error(null);
     configRepos([repo]);
     pluginInfos([configRepoPluginInfo()]);
     m.redraw();
@@ -130,6 +130,7 @@ describe("ConfigReposWidget", () => {
 
   it("should render a warning message when parsing did not finish", () => {
     const repo = createConfigRepo();
+    repo.lastParse(null);
     configRepos([repo]);
     pluginInfos([configRepoPluginInfo()]);
     m.redraw();
@@ -139,7 +140,6 @@ describe("ConfigReposWidget", () => {
 
   it("should render a warning message when parsing failed", () => {
     const repo = createConfigRepo();
-    repo.lastParse(new LastParse("foo", false, "blah!"));
     configRepos([repo]);
     pluginInfos([configRepoPluginInfo()]);
     m.redraw();
@@ -192,7 +192,23 @@ describe("ConfigReposWidget", () => {
                                    key: "file_pattern",
                                    value: "*.json"
                                  }],
-                                 last_parse: {},
+                                 parse_info: {
+                                   latest_parsed_modification: {
+                                     username: "GaneshSPatil <ganeshpl@thoughtworks.com>",
+                                     email_address: null,
+                                     revision: "1234",
+                                     comment: "Revert \"Revert \"Delete this\"\"\n\nThis reverts commit 2daccbb7389e87c9eb789f6188065d344fbbb9b1.",
+                                     modified_time: "2019-01-14T05:39:40Z"
+                                   },
+                                   good_modification: {
+                                     username: "GaneshSPatil <ganeshpl@thoughtworks.com>",
+                                     email_address: null,
+                                     revision: "1234",
+                                     comment: "Revert \"Delete this\"\n\nThis reverts commit 9b402012ea5c24ce032c8ef4582c0a9ce2d14ade.",
+                                     modified_time: "2019-01-11T11:24:08Z"
+                                   },
+                                   error: "blah!"
+                                 },
                                  id,
                                  plugin_id: "json.config.plugin"
                                });

@@ -18,7 +18,7 @@ import {MithrilViewComponent} from "jsx/mithril-component";
 import * as _ from "lodash";
 import * as m from "mithril";
 import {Stream} from "mithril/stream";
-import {ConfigRepo, humanizedMaterialAttributeName} from "models/config_repos/types";
+import {ConfigRepo, humanizedMaterialAttributeName, ParseInfo} from "models/config_repos/types";
 import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
 import {Configuration} from "models/shared/plugin_infos_new/plugin_settings/plugin_settings";
 import {Code} from "views/components/code";
@@ -109,15 +109,15 @@ class ConfigRepoWidget extends MithrilViewComponent<ShowObjectAttrs<ConfigRepo>>
   view(vnode: m.Vnode<ShowObjectAttrs<ConfigRepo>>): m.Children | void | null {
 
     const materialNameAttribute = new Map([["Material", vnode.attrs.obj.material().type()]]);
-    const filteredAttributes = _.reduce(vnode.attrs.obj.material().attributes(),
-                                        this.resolveKeyValueForAttribute,
-                                        materialNameAttribute);
-    const allAttributes      = _.reduce(vnode.attrs.obj.configuration(),
-                                        (accumulator: Map<string, string>,
-                                         value: Configuration) => this.resolveKeyValueForAttribute(accumulator,
-                                                                                                   value.value,
-                                                                                                   value.key),
-                                        filteredAttributes);
+    const filteredAttributes    = _.reduce(vnode.attrs.obj.material().attributes(),
+                                           this.resolveKeyValueForAttribute,
+                                           materialNameAttribute);
+    const allAttributes         = _.reduce(vnode.attrs.obj.configuration(),
+                                           (accumulator: Map<string, string>,
+                                            value: Configuration) => this.resolveKeyValueForAttribute(accumulator,
+                                                                                                      value.value,
+                                                                                                      value.key),
+                                           filteredAttributes);
 
     const refreshButton = (
       <Refresh data-test-id="config-repo-refresh" onclick={vnode.attrs.onRefresh.bind(vnode.attrs, vnode.attrs.obj)}/>
@@ -141,22 +141,23 @@ class ConfigRepoWidget extends MithrilViewComponent<ShowObjectAttrs<ConfigRepo>>
 
     let lastParseRevision: m.Children;
 
-    if (vnode.attrs.obj.lastParse() && vnode.attrs.obj.lastParse().revision()) {
-      lastParseRevision =
-        <span class={styles.lastRevision}>Last seen revision: <code class={styles.lastRevisionValue}>{vnode.attrs.obj.lastParse().revision()}</code></span>;
+    const parseInfo = vnode.attrs.obj.lastParse();
+    if (parseInfo && parseInfo.latestParsedModification.revision) {
+      lastParseRevision = <span class={styles.lastRevision}>Last seen revision: <code
+        class={styles.lastRevisionValue}>{parseInfo.latestParsedModification.revision}</code></span>;
     }
 
     let maybeWarning: m.Children;
 
-    if (_.isEmpty(vnode.attrs.obj.lastParse())) {
+    if (_.isEmpty(parseInfo)) {
       maybeWarning = (
         <FlashMessage type={MessageType.warning}>This configuration repository was never parsed.</FlashMessage>
       );
-    } else if (vnode.attrs.obj.lastParse() && vnode.attrs.obj.lastParse().error()) {
+    } else if (parseInfo && parseInfo.error()) {
       maybeWarning = (
         <FlashMessage type={MessageType.warning}>
           There was an error parsing this configuration repository:
-          <Code>{vnode.attrs.obj.lastParse().error}</Code>
+          <Code>{parseInfo.error}</Code>
         </FlashMessage>
       );
     }
@@ -211,7 +212,8 @@ class ConfigRepoWidget extends MithrilViewComponent<ShowObjectAttrs<ConfigRepo>>
       </StatusIcon>;
     }
 
-    if (_.isEmpty(vnode.attrs.obj.lastParse())) {
+    let parseInfo = vnode.attrs.obj.lastParse();
+    if (_.isEmpty(parseInfo)) {
       return (
         <StatusIcon name="Never Parsed">
           <span className={styles.neverParsed}
@@ -220,18 +222,19 @@ class ConfigRepoWidget extends MithrilViewComponent<ShowObjectAttrs<ConfigRepo>>
       );
     }
 
-    if (vnode.attrs.obj.lastParse().success()) {
+    parseInfo = parseInfo as ParseInfo;
+    if (!parseInfo.error()) {
       return (
         <StatusIcon name="Last Parse Good">
           <span className={styles.goodLastParseIcon}
-                title={`Last parsed with revision ${vnode.attrs.obj.lastParse().revision}`}/>
+                title={`Last parsed with revision ${parseInfo.goodModification.revision}`}/>
         </StatusIcon>
       );
     } else {
       return (
         <StatusIcon name="Last Parse Error">
           <span className={styles.lastParseErrorIcon}
-                title={`Last parsed with revision ${vnode.attrs.obj.lastParse().revision}. The error was ${vnode.attrs.obj.lastParse().error}`}/>
+                title={`Last parsed with revision ${parseInfo.latestParsedModification.revision}. The error was ${parseInfo.error}`}/>
         </StatusIcon>
       );
     }

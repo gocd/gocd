@@ -19,9 +19,9 @@ import {Stream} from "mithril/stream";
 import * as stream from "mithril/stream";
 import {
   ConfigRepoJSON,
-  ConfigReposJSON, GitMaterialAttributesJSON, HgMaterialAttributesJSON, LastParseJSON,
-  MaterialAttributesJSON, MaterialJSON,
-  P4MaterialAttributesJSON, SvnMaterialAttributesJSON, TfsMaterialAttributesJSON,
+  ConfigReposJSON, GitMaterialAttributesJSON, HgMaterialAttributesJSON, MaterialAttributesJSON,
+  MaterialJSON, MaterialModificationJSON,
+  P4MaterialAttributesJSON, ParseInfoJSON, SvnMaterialAttributesJSON, TfsMaterialAttributesJSON,
 } from "models/config_repos/serialization";
 import {Errors} from "models/mixins/errors";
 import {applyMixins} from "models/mixins/mixins";
@@ -69,25 +69,25 @@ export interface TfsMaterialAttributes extends ValidatableMixin {
 }
 
 export class ConfigRepo implements ValidatableMixin {
-  static readonly PIPELINE_PATTERN             = "pipeline_pattern";
-  static readonly ENVIRONMENT_PATTERN          = "environment_pattern";
-  static readonly FILE_PATTERN                 = "file_pattern";
-  static readonly JSON_PLUGIN_ID               = "json.config.plugin";
-  static readonly YAML_PLUGIN_ID               = "yaml.config.plugin";
-  id: Stream<string>;
-  pluginId: Stream<string>;
-  material: Stream<Material>;
-  configuration: Stream<Configuration[]>;
-  lastParse: Stream<LastParse>;
-  __jsonPluginPipelinesPattern: Stream<string> = stream("");
-  __jsonPluginEnvPattern: Stream<string>       = stream("");
-  __yamlPluginPattern: Stream<string>          = stream("");
+  static readonly PIPELINE_PATTERN                             = "pipeline_pattern";
+  static readonly ENVIRONMENT_PATTERN                          = "environment_pattern";
+  static readonly FILE_PATTERN                                 = "file_pattern";
+  static readonly JSON_PLUGIN_ID                               = "json.config.plugin";
+  static readonly YAML_PLUGIN_ID                               = "yaml.config.plugin";
+                  id: Stream<string>;
+                  pluginId: Stream<string>;
+                  material: Stream<Material>;
+                  configuration: Stream<Configuration[]>;
+                  lastParse: Stream<ParseInfo | null>;
+                  __jsonPluginPipelinesPattern: Stream<string> = stream("");
+                  __jsonPluginEnvPattern: Stream<string>       = stream("");
+                  __yamlPluginPattern: Stream<string>          = stream("");
 
   constructor(id?: string,
               pluginId?: string,
               material?: Material,
               configuration?: Configuration[],
-              lastParse?: LastParse) {
+              lastParse?: ParseInfo | null) {
     this.id            = stream(id);
     this.pluginId      = stream(pluginId);
     this.material      = stream(material);
@@ -114,12 +114,13 @@ export class ConfigRepo implements ValidatableMixin {
 
   static fromJSON(json: ConfigRepoJSON) {
     const configurations = json.configuration.map((config) => Configuration.fromJSON(config));
-    const configRepo     = new ConfigRepo(json.id,
-                                          json.plugin_id,
-                                          Materials.fromJSON(json.material),
-                                          configurations,
-                                          LastParse.fromJSON(json.last_parse));
-    configRepo.errors(new Errors(json.errors));
+    const parseInfo        = ParseInfo.fromJSON(json.parse_info);
+
+    const configRepo = new ConfigRepo(json.id,
+                                      json.plugin_id,
+                                      Materials.fromJSON(json.material),
+                                      configurations,
+                                      parseInfo);
     return configRepo;
   }
 
@@ -152,26 +153,52 @@ export abstract class ConfigRepos {
   }
 }
 
-export class LastParse implements ValidatableMixin {
-  revision: Stream<string>;
-  success: Stream<boolean>;
-  error: Stream<string>;
+export class MaterialModification {
+  readonly username: string;
+  readonly emailAddress: string | null;
+  readonly revision: string;
+  readonly comment: string;
+  readonly modifiedTime: string;
 
-  constructor(revision?: string, success?: boolean, error?: string) {
-    this.revision = stream(revision);
-    this.success  = stream(success);
-    this.error    = stream(error);
-    ValidatableMixin.call(this);
+  constructor(username: string, emailAddress: string | null, revision: string, comment: string, modifiedTime: string) {
+    this.username     = username;
+    this.emailAddress = emailAddress;
+    this.revision     = revision;
+    this.comment      = comment;
+    this.modifiedTime = modifiedTime;
   }
 
-  static fromJSON(json: LastParseJSON) {
-    if (!_.isEmpty(json)) {
-      return new LastParse(json.revision, json.success, json.error);
-    }
+  static fromJSON(modification: MaterialModificationJSON): MaterialModification {
+    return new MaterialModification(modification.username,
+                                    modification.email_address,
+                                    modification.revision,
+                                    modification.comment,
+                                    modification.modified_time);
   }
 }
 
-applyMixins(LastParse, ValidatableMixin);
+export class ParseInfo {
+  error: Stream<string | null>;
+  readonly latestParsedModification: MaterialModification;
+  readonly goodModification: MaterialModification;
+
+  constructor(latestParsedModification: MaterialModification,
+              goodModification: MaterialModification,
+              error: string | undefined | null) {
+    this.latestParsedModification = latestParsedModification;
+    this.goodModification         = goodModification;
+    this.error                    = stream(error);
+  }
+
+  static fromJSON(json: ParseInfoJSON) {
+    if (!_.isEmpty(json)) {
+      const latestParsedModification = MaterialModification.fromJSON(json.latest_parsed_modification);
+      const goodModification         = MaterialModification.fromJSON(json.good_modification);
+
+      return new ParseInfo(latestParsedModification, goodModification, json.error);
+    }
+  }
+}
 
 class Materials {
   static fromJSON(material: MaterialJSON): Material {

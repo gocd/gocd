@@ -13,6 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *#
-<div id="dashboard" class="dashboard" data-is-quick-edit-page-enabled="${isQuickEditPageEnabled}" data-should-show-analytics-icon="${shouldShowAnalyticsIcon}">
+<div id="dashboard" class="dashboard" data-should-show-analytics-icon="${shouldShowAnalyticsIcon}">
   <span class="page-spinner"/>
 </div>

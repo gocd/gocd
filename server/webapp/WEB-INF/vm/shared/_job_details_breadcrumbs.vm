@@ -41,12 +41,8 @@
     </ul>
       #if($isEditableViaUI && ($userHasAdministratorRights || $userHasGroupAdministratorRights))
         <div class="job_detail_setting">
-            #if($pipeline_config_single_page_app_key && $quick_edit_page_toggle_key)
-              <a href="$req.getContextPath()/admin/pipelines/$presenter.pipelineName/edit" class="icon16 setting"></a>
-            #else
-              <a href="$req.getContextPath()/admin/pipelines/$presenter.pipelineName/general"
-                 class="icon16 setting"></a>
-            #end
+            <a href="$req.getContextPath()/admin/pipelines/$presenter.pipelineName/general"
+               class="icon16 setting"></a>
         </div>
       #end
     <div id="build_status" class="build-status"></div>

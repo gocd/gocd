@@ -95,7 +95,7 @@ describe("Dashboard Pipeline Widget", () => {
 
     it('should disable pipeline settings showing tooltip information for non admin users', () => {
       unmount();
-      mount(false, false, {}, {}, true, true);
+      mount(false, {}, {}, true, true);
 
       expect(pipeline.canAdminister).toBe(false);
       expect($root.find('.edit_config')).toHaveClass('disabled');
@@ -104,7 +104,7 @@ describe("Dashboard Pipeline Widget", () => {
 
     it('should disable pipeline settings for config repo pipelines', () => {
       unmount();
-      mount(false, true, {}, {}, true, true, true);
+      mount(true, {}, {}, true, true, true);
 
       expect(pipeline.isDefinedInConfigRepo()).toBe(true);
       expect($root.find('.edit_config')).toHaveClass('disabled');
@@ -113,7 +113,7 @@ describe("Dashboard Pipeline Widget", () => {
 
   describe("Pipeline Analytics", () => {
     beforeEach(() => {
-      mount(false, false, {}, {}, true, true, false, {"plugin-x": "pipeline_duration"}, true);
+      mount(false, {}, {}, true, true, false, {"plugin-x": "pipeline_duration"}, true);
     });
 
     afterEach(() => {
@@ -136,7 +136,7 @@ describe("Dashboard Pipeline Widget", () => {
 
     it("should not display the analytics icon if the user is not an admin", () => {
       unmount();
-      mount(false, false, {}, {}, true, true, false, {"plugin-x": "pipeline_duration"}, false);
+      mount(false, {}, {}, true, true, false, {"plugin-x": "pipeline_duration"}, false);
       expect($root.find('.pipeline-analytics')).not.toBeInDOM();
     });
   });
@@ -152,15 +152,8 @@ describe("Dashboard Pipeline Widget", () => {
 
       it("should disable pipeline settings button for non admin users", () => {
         unmount();
-        mount(true, false);
+        mount(false);
         expect($root.find('.edit_config')).toHaveClass("disabled");
-      });
-
-      it("should link to pipeline settings quick edit path when toggles are enabled", () => {
-        unmount();
-        mount(true);
-        const expectedPath = pipeline.quickEditPath;
-        expect($root.find('.edit_config').get(0).href.indexOf(expectedPath)).not.toEqual(-1);
       });
 
       it("should render pipeline settings icon", () => {
@@ -177,7 +170,7 @@ describe("Dashboard Pipeline Widget", () => {
           "pause_reason": "under construction"
         };
 
-        mount(false, true, pauseInfo);
+        mount(true, pauseInfo);
       });
 
       afterEach(unmount);
@@ -190,7 +183,7 @@ describe("Dashboard Pipeline Widget", () => {
 
       it('should disable pause button for non admin users', () => {
         unmount();
-        mount(false, true, pauseInfo, undefined, false);
+        mount(true, pauseInfo, undefined, false);
 
         expect($root.find('.unpause')).toHaveClass('disabled');
       });
@@ -201,7 +194,7 @@ describe("Dashboard Pipeline Widget", () => {
 
       it('should not add onclick handler for non admin users', () => {
         unmount();
-        mount(false, true, pauseInfo, undefined, false);
+        mount(true, pauseInfo, undefined, false);
 
         expect(_.isFunction($root.find('.unpause').get(0).onclick)).toBe(false);
       });
@@ -218,7 +211,7 @@ describe("Dashboard Pipeline Widget", () => {
           "pause_reason": null
         };
 
-        mount(false, true, pauseInfo, undefined, false);
+        mount(true, pauseInfo, undefined, false);
         expect($root.find('.pipeline_pause-message')).toContainText('Paused by admin ()');
       });
 
@@ -287,7 +280,7 @@ describe("Dashboard Pipeline Widget", () => {
         dashboard        = {};
         dashboard.reload = jasmine.createSpy();
 
-        mount(false, true, pauseInfo, dashboard);
+        mount(true, pauseInfo, dashboard);
       });
 
       afterEach(() => {
@@ -301,7 +294,7 @@ describe("Dashboard Pipeline Widget", () => {
 
       it('should disable pause button for non admin users', () => {
         unmount();
-        mount(false, true, pauseInfo, dashboard, false);
+        mount(true, pauseInfo, dashboard, false);
 
         expect($root.find('.pause')).toHaveClass('disabled');
       });
@@ -312,7 +305,7 @@ describe("Dashboard Pipeline Widget", () => {
 
       it('should not add onclick handler for non admin users', () => {
         unmount();
-        mount(false, true, pauseInfo, dashboard, false);
+        mount(true, pauseInfo, dashboard, false);
 
         expect(_.isFunction($root.find('.pause').get(0).onclick)).toBe(false);
       });
@@ -434,7 +427,7 @@ describe("Dashboard Pipeline Widget", () => {
 
       it("should have tooltip for pause button when it is disabled", () => {
         unmount();
-        mount(false, true, pauseInfo, {}, false);
+        mount(true, pauseInfo, {}, false);
         const pauseButton = $root.find('.pause');
         expect(pauseButton).toHaveAttr('data-tooltip-id');
         const tooltipId = $(pauseButton).attr('data-tooltip-id');
@@ -448,7 +441,7 @@ describe("Dashboard Pipeline Widget", () => {
           "canUnlock": true,
           "locked":    true
         };
-        mount(false, true, undefined, lockInfo);
+        mount(true, undefined, lockInfo);
       });
 
       afterEach(unmount);
@@ -468,7 +461,7 @@ describe("Dashboard Pipeline Widget", () => {
           "locked":    true
         };
 
-        mount(false, true, undefined, lockInfo);
+        mount(true, undefined, lockInfo);
         expect($root.find('.pipeline_locked')).toHaveClass('disabled');
       });
 
@@ -537,7 +530,7 @@ describe("Dashboard Pipeline Widget", () => {
 
       it('should disable trigger button for non admin users', () => {
         unmount();
-        mount(false, true, {}, {}, false, false);
+        mount(true, {}, {}, false, false);
 
         expect($root.find('.play')).toHaveClass('disabled');
       });
@@ -560,14 +553,14 @@ describe("Dashboard Pipeline Widget", () => {
 
       it('should disable trigger button when pipeline is locked', () => {
         unmount();
-        mount(false, true, undefined, {"locked": true});
+        mount(true, undefined, {"locked": true});
 
         expect($root.find('.play')).toHaveClass('disabled');
       });
 
       it('should disable trigger button when pipeline is paused', () => {
         unmount();
-        mount(false, true, {
+        mount(true, {
           "paused":       true,
           "paused_by":    "admin",
           "pause_reason": "under construction"
@@ -578,7 +571,7 @@ describe("Dashboard Pipeline Widget", () => {
 
       it('should not add onclick handler pipeline is locked', () => {
         unmount();
-        mount(false, true, undefined, {"locked": true});
+        mount(true, undefined, {"locked": true});
 
         expect(_.isFunction($root.find('.play').get(0).onclick)).toBe(false);
       });
@@ -589,7 +582,7 @@ describe("Dashboard Pipeline Widget", () => {
 
       it('should not add onclick handler for non admin users', () => {
         unmount();
-        mount(false, true, {}, {}, false, false);
+        mount(true, {}, {}, false, false);
 
         expect(_.isFunction($root.find('.play').get(0).onclick)).toBe(false);
       });
@@ -636,7 +629,7 @@ describe("Dashboard Pipeline Widget", () => {
 
       it("should have tooltips for trigger buttons when it is disabled", () => {
         unmount();
-        mount(false, true, {}, {}, true, false);
+        mount(true, {}, {}, true, false);
         const playButton = $root.find('.pipeline_operations .play');
         expect(playButton).toHaveAttr('data-tooltip-id');
         const tooltipId = $(playButton).attr('data-tooltip-id');
@@ -658,7 +651,7 @@ describe("Dashboard Pipeline Widget", () => {
 
       it('should disable trigger with options button for non admin users', () => {
         unmount();
-        mount(false, true, {}, {}, false, false);
+        mount(true, {}, {}, false, false);
 
         expect($root.find('.play_with_options')).toHaveClass('disabled');
       });
@@ -681,13 +674,13 @@ describe("Dashboard Pipeline Widget", () => {
 
       it('should disable trigger with options button when pipeline is locked', () => {
         unmount();
-        mount(false, true, undefined, {"locked": true});
+        mount(true, undefined, {"locked": true});
         expect($root.find('.play_with_options')).toHaveClass('disabled');
       });
 
       it('should disable trigger with options button when pipeline is paused', () => {
         unmount();
-        mount(false, true, {
+        mount(true, {
           "paused":       true,
           "paused_by":    "admin",
           "pause_reason": "under construction"
@@ -700,7 +693,7 @@ describe("Dashboard Pipeline Widget", () => {
 
       it('should not add onclick handler pipeline is locked', () => {
         unmount();
-        mount(false, true, undefined, {"locked": true});
+        mount(true, undefined, {"locked": true});
 
         expect(_.isFunction($root.find('.play_with_options').get(0).onclick)).toBe(false);
       });
@@ -711,7 +704,7 @@ describe("Dashboard Pipeline Widget", () => {
 
       it('should not add onclick handler for non admin users', () => {
         unmount();
-        mount(false, true, {}, {}, false, false);
+        mount(true, {}, {}, false, false);
 
         expect(_.isFunction($root.find('.play_with_options').get(0).onclick)).toBe(false);
       });
@@ -829,7 +822,7 @@ describe("Dashboard Pipeline Widget", () => {
 
       it("should have tooltips when it is disabled", () => {
         unmount();
-        mount(false, true, {}, {}, true, false);
+        mount(true, {}, {}, true, false);
         const playButton = $root.find('.pipeline_operations .play_with_options');
         expect(playButton).toHaveAttr('data-tooltip-id');
         const tooltipId = $(playButton).attr('data-tooltip-id');
@@ -862,7 +855,7 @@ describe("Dashboard Pipeline Widget", () => {
     });
   });
 
-  function mount(isQuickEditPageEnabled = false, canAdminister = true, pauseInfo = {}, lockInfo = {}, canPause = true, canOperate = true, fromConfigRepo = false, pluginsSupportingAnalytics = {}, shouldShowAnalyticsIcon = false) {
+  function mount(canAdminister = true, pauseInfo = {}, lockInfo = {}, canPause = true, canOperate = true, fromConfigRepo = false, pluginsSupportingAnalytics = {}, shouldShowAnalyticsIcon = false) {
     pipelinesJson = [{
       "_links":                 {
         "self":                 {
@@ -923,7 +916,6 @@ describe("Dashboard Pipeline Widget", () => {
         return m(PipelineWidget, {
           pipeline,
           invalidateEtag: () => {},
-          isQuickEditPageEnabled,
           pluginsSupportingAnalytics,
           shouldShowAnalyticsIcon,
           doCancelPolling,

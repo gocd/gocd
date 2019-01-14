@@ -39,8 +39,6 @@ describe "admin/pipeline_groups/index.html.erb" do
                                         CaseInsensitiveString.new("pipeline_with_template_in_group_quux") => CanDeleteResult.new(true, 'Delete this pipeline.')
     })
     allow(view).to receive(:is_user_an_admin?).and_return(true)
-    allow(view).to receive(:is_quick_edit_page_default?).and_return(false)
-    allow(view).to receive(:is_pipeline_config_spa_enabled?).and_return(false)
     def view.spark_url_for(*args)
       return ""
     end
@@ -120,28 +118,6 @@ describe "admin/pipeline_groups/index.html.erb" do
                   expect(ul).to have_selector("li span.delete_parent")
                 end
               end
-            end
-          end
-        end
-      end
-    end
-  end
-
-  it "should display all pipelines with edit links pointing to quick edit page when quick edit toggles are enabled" do
-    allow(view).to receive(:is_quick_edit_page_default?).and_return(true)
-    allow(view).to receive(:is_pipeline_config_spa_enabled?).and_return(true)
-
-    render
-
-    Capybara.string(response.body).find('div.group_pipelines').tap do |div|
-      div.all("div.group").tap do |groups|
-        groups[0].find("table").tap do |table|
-          table.find("tbody").tap do |tbody|
-            tbody.first("tr.pipeline").tap do |tr|
-              expect(tr).to have_selector("td.name a[href='#{edit_admin_pipeline_config_path(:pipeline_name => "pipeline_in_group_foo")}']", :text => "pipeline_in_group_foo")
-            end
-            table.all("tr.pipeline")[2].tap do |tr|
-              expect(tr).to have_selector("td.name a[href='#{edit_admin_pipeline_config_path(:pipeline_name => "pipeline_2_in_group_foo")}']", :text => "pipeline_2_in_group_foo")
             end
           end
         end

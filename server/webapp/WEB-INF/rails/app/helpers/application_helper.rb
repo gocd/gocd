@@ -485,22 +485,11 @@ module ApplicationHelper
     form_remote_tag(options)
   end
 
-  def is_quick_edit_page_default?
-    Toggles.isToggleOn(Toggles.QUICK_EDIT_PAGE_DEFAULT)
-  end
-
-  def is_pipeline_config_spa_enabled?
-    Toggles.isToggleOn(Toggles.PIPELINE_CONFIG_SINGLE_PAGE_APP)
-  end
-
   def is_server_in_drain_mode?
     drain_mode_service.isDrainMode
   end
 
   def edit_path_for_pipeline(pipeline_name)
-    if is_pipeline_config_spa_enabled? && is_quick_edit_page_default?
-      return edit_admin_pipeline_config_path(:pipeline_name => pipeline_name)
-    end
     pipeline_edit_path(:pipeline_name => pipeline_name, :current_tab => 'general')
   end
 

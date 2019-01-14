@@ -506,7 +506,6 @@ describe("Dashboard Widget", () => {
         return m(DashboardWidget, {
           personalizeVM,
           showSpinner,
-          isQuickEditPageEnabled:     false,
           pluginsSupportingAnalytics: {},
           shouldShowAnalyticsIcon:    false,
           doCancelPolling,

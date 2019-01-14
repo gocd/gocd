@@ -50,7 +50,6 @@ const DashboardWidget = {
     const sharedGroupArgs = _.assign(_.pick(args, [
       "doCancelPolling",
       "doRefreshImmediately",
-      "isQuickEditPageEnabled",
       "pluginsSupportingAnalytics", "shouldShowAnalyticsIcon"
     ]), _.pick(vm, ["operationMessages", "dropdown", "buildCause"]));
 

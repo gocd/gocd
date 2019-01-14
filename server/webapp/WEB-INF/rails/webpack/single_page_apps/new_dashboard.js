@@ -28,7 +28,6 @@ const PersonalizeVM   = require('views/dashboard/models/personalization_vm');
 
 $(() => {
   const dashboardElem              = $('#dashboard');
-  const isQuickEditPageEnabled     = JSON.parse(dashboardElem.attr('data-is-quick-edit-page-enabled'));
   const shouldShowAnalyticsIcon    = JSON.parse(dashboardElem.attr('data-should-show-analytics-icon'));
   const pluginsSupportingAnalytics = {};
 
@@ -193,7 +192,6 @@ $(() => {
         return m(DashboardWidget, {
           personalizeVM,
           showSpinner,
-          isQuickEditPageEnabled,
           pluginsSupportingAnalytics,
           shouldShowAnalyticsIcon,
           vm:                   dashboardVM,

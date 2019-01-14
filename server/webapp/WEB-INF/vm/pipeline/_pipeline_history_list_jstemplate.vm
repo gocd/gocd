@@ -51,11 +51,7 @@
                 {/if}
             </span>
             #if($isEditableViaUI && ($userHasAdministratorRights || $userHasGroupAdministratorRights))
-                #if($pipeline_config_single_page_app_key && $quick_edit_page_toggle_key)
-                  <div class="pipeline_settings"><a href="$req.getContextPath()/admin/pipelines/$pipelineName/edit" class="icon16 setting"></a></div>
-                #else
-                  <div class="pipeline_settings"><a href="$req.getContextPath()/admin/pipelines/$pipelineName/general" class="icon16 setting"></a></div>
-                #end
+              <div class="pipeline_settings"><a href="$req.getContextPath()/admin/pipelines/$pipelineName/general" class="icon16 setting"></a></div>
             #end
         </div>
         </div>

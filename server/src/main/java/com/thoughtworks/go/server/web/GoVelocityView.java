@@ -107,8 +107,6 @@ public class GoVelocityView extends VelocityToolboxView {
         velocityContext.put(USE_COMPRESS_JS, systemEnvironment.useCompressedJs());
 
         velocityContext.put(Toggles.PIPELINE_COMMENT_FEATURE_TOGGLE_KEY, Toggles.isToggleOn(Toggles.PIPELINE_COMMENT_FEATURE_TOGGLE_KEY));
-        velocityContext.put(Toggles.QUICK_EDIT_PAGE_DEFAULT, Toggles.isToggleOn(Toggles.QUICK_EDIT_PAGE_DEFAULT));
-        velocityContext.put(Toggles.PIPELINE_CONFIG_SINGLE_PAGE_APP, Toggles.isToggleOn(Toggles.PIPELINE_CONFIG_SINGLE_PAGE_APP));
 
         velocityContext.put(CONCATENATED_JAVASCRIPT_FILE_PATH, railsAssetsService.getAssetPath("application.js"));
         velocityContext.put(CONCATENATED_APPLICATION_CSS_FILE_PATH, railsAssetsService.getAssetPath("application.css"));

@@ -36,7 +36,6 @@ describe("Dashboard", () => {
 
       expect(pipeline.canAdminister).toBe(true);
       expect(pipeline.settingsPath).toBe(`/go/admin/pipelines/${pipelineJson.name}/general`);
-      expect(pipeline.quickEditPath).toBe(`/go/admin/pipelines/${pipelineJson.name}/edit`);
 
       expect(pipeline.historyPath).toBe(`/go/tab/pipeline/history/${pipelineJson.name}`);
       expect(pipeline.instances.length).toEqual(pipelineJson._embedded.instances.length);

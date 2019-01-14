@@ -19,7 +19,6 @@ package com.thoughtworks.go.spark.spa;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.PipelineConfigService;
 import com.thoughtworks.go.server.service.SecurityService;
-import com.thoughtworks.go.server.service.support.toggle.Toggles;
 import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.SparkController;
 import com.thoughtworks.go.spark.spring.SPAAuthenticationHelper;
@@ -71,7 +70,6 @@ public class NewDashboardController implements SparkController {
         }
         HashMap<Object, Object> object = new HashMap<Object, Object>() {{
             put("viewTitle", "Dashboard");
-            put("isQuickEditPageEnabled", Toggles.isToggleOn(Toggles.PIPELINE_CONFIG_SINGLE_PAGE_APP) && Toggles.isToggleOn(Toggles.QUICK_EDIT_PAGE_DEFAULT));
             put("shouldShowAnalyticsIcon", showAnalyticsIcon());
         }};
         return new ModelAndView(object, "new_dashboard/index.vm");

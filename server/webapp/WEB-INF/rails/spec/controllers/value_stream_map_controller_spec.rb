@@ -31,8 +31,6 @@ describe ValueStreamMapController do
     @user = double('some user')
     allow(controller).to receive(:current_user).and_return(@user)
     allow(controller).to receive(:is_ie8?).and_return(false)
-    allow(controller).to receive(:is_quick_edit_page_default?).and_return(false)
-    allow(controller).to receive(:is_pipeline_config_spa_enabled?).and_return(false)
     allow(@result).to receive(:isSuccessful).and_return(true)
     allow(@result).to receive(:message).and_return(nil)
     @vsm_path_partial = proc do |name, counter|
@@ -45,7 +43,6 @@ describe ValueStreamMapController do
       stage_detail_tab_path_for(pipeline_name: pipeline_name, pipeline_counter: pipeline_counter, stage_name: stage_name, stage_counter: stage_counter)
     end
     @pipeline_edit_path_normal_edit = proc { |pipeline_name | pipeline_edit_path(:pipeline_name => pipeline_name, :current_tab => 'general') }
-    @pipeline_edit_path_quick_edit = proc { |pipeline_name | edit_admin_pipeline_config_path(:pipeline_name => pipeline_name) }
   end
 
   describe "show" do
@@ -91,23 +88,6 @@ describe ValueStreamMapController do
         expect(response.status).to eq(200)
 
         expect(response.body).to eq(ValueStreamMapModel.new(model, nil, @vsm_path_partial, @vsm_material_path_partial, @stage_detail_path_partial, @pipeline_edit_path_normal_edit).to_json)
-      end
-
-      it "should get the pipeline dependency graph json when pipeline quick edit toggle is set to true" do
-        allow(controller).to receive(:is_quick_edit_page_default?).and_return(true)
-        allow(controller).to receive(:is_pipeline_config_spa_enabled?).and_return(true)
-        pipeline = "P1"
-        allow(@pipeline_service).to receive(:findPipelineByNameAndCounter).with("P1", 1).and_return(nil)
-        vsm = ValueStreamMap.new(CaseInsensitiveString.new(pipeline), nil)
-        vsm.addUpstreamNode(PipelineDependencyNode.new(CaseInsensitiveString.new("git"), "git"), nil, CaseInsensitiveString.new(pipeline))
-        model = vsm.presentationModel()
-        expect(@value_stream_map_service).to receive(:getValueStreamMap).with(CaseInsensitiveString.new(pipeline), 1, @user, @result).and_return(model)
-
-        get :show, params:{pipeline_name: pipeline, pipeline_counter: 1, format: "json"}
-
-        expect(response.status).to eq(200)
-
-        expect(response.body).to eq(ValueStreamMapModel.new(model, nil, @vsm_path_partial, @vsm_material_path_partial, @stage_detail_path_partial, @pipeline_edit_path_quick_edit).to_json)
       end
 
       it "should render pipeline dependency graph JSON with pipeline instance and stage details" do

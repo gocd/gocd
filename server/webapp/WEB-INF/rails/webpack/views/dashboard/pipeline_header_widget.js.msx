@@ -44,7 +44,7 @@ const PipelineHeaderWidget = {
     let settingsButton;
     const analyticsIcons = [];
     if (pipeline.canAdminister && !pipeline.isDefinedInConfigRepo()) {
-      const settingsPath = vnode.attrs.isQuickEditPageEnabled ? pipeline.quickEditPath : pipeline.settingsPath;
+      const settingsPath = pipeline.settingsPath;
       settingsButton     = (<a class={`edit_config`} aria-label={`Edit Configuration for Pipeline ${pipeline.name}`} title={'Edit Pipeline Configuration'} href={settingsPath}/>);
     } else {
       settingsButton = (<f.link class="edit_config disabled" aria-label={pipeline.getSettingsDisabledTooltipText()} title={'Edit Configuration Disabled'}

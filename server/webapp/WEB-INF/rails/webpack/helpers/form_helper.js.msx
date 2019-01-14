@@ -19,7 +19,6 @@ const $     = require('jquery');
 const _     = require('lodash');
 const uuid4 = require('uuid/v4');
 const s     = require('string-plus');
-const Mixin = require('models/mixins/model_mixins');
 require('foundation-sites');
 const Stream            = require('mithril/stream');
 
@@ -187,39 +186,6 @@ const f = {
     }
   },
 
-  textarea: {
-    view(vnode) {
-      const defaultAttrs = {
-        autocomplete:   "off",
-        autocapitalize: "off",
-        autocorrect:    "off",
-        spellcheck:     "off"
-      };
-
-      const args = _.assign({}, defaultAttrs, vnode.attrs); // copy attrs instead of modifying in-place
-
-      const model            = wireUpModel(args, "value", "oninput"),
-            validationErrors = validateModel(model, args),
-            label            = coerceArray(deleteKeyAndReturnValue(args, "label", []), wrapTextInSpan), // label can be a string or an array
-            contentAfter     = coerceArray(deleteKeyAndReturnValue(args, "contentAfter", []), wrapTextInSpan);
-
-      args["class"]    = compactClasses(args, validationErrors ? "is-invalid-input" : null);
-      const labelAttrs = {};
-
-      if (validationErrors) {
-        labelAttrs["class"] = "is-invalid-label";
-        contentAfter.push(validationErrors);
-      }
-
-      const element = <textarea {...args}></textarea>;
-      return _.isEmpty(label) ? [element, contentAfter] : <label {...labelAttrs}>
-        {label}
-        {element}
-        {contentAfter}
-      </label>;
-    }
-  },
-
   checkbox: {
     view(vnode) {
       const args   = _.assign({}, vnode.attrs); // copy attrs instead of modifying in-place
@@ -272,151 +238,6 @@ const f = {
         {element}
         {contentAfter}
       </label>;
-    }
-  },
-
-  resetAttrButton: {
-    view(vnode) {
-      const resetFnName = `resetToOriginal${_.upperFirst(vnode.attrs.attrName)}`;
-      return <f.button type="reset" onclick={vnode.attrs.model[resetFnName].bind(vnode.attrs.model)}/>;
-    }
-  },
-
-  tabs: {
-    oninit(vnode) {
-      this.selectedIndex = s.defaultToStream(vnode.attrs.selectedIndex || 0);
-
-      this.classNameForTab = function (tabIndex) {
-        return this.selectedIndex() === tabIndex ? 'is-active' : '';
-      };
-
-      this.componentClass = compactClasses(vnode.attrs);
-
-      this.prefixedClass = function (suffix) {
-        if (!s.isBlank(this.componentClass)) {
-          return `${this.componentClass}-${suffix}`;
-        }
-      };
-    },
-
-    view(vnode) {
-      const children = vnode.children;
-
-      const tabs = (
-        <ul class={_.compact(['tabs', vnode.attrs.isVertical ? 'vertical' : undefined]).join(' ')}>
-          {_.map(vnode.attrs.tabTitles, (tabTitle, tabIndex) => {
-
-            let tabTitleElem;
-
-            if (s.isBlank(tabTitle)) {
-              tabTitleElem = (<a href='javascript:void(0)'>{m.trust('&nbsp;')}</a>);
-            }
-            else if (_.isString(tabTitle)) {
-              tabTitleElem = (<a href='javascript:void(0)'>{tabTitle}</a>);
-            } else {
-              tabTitleElem = tabTitle;
-            }
-
-            return (
-              <li
-                class={_.compact(['tabs-title', vnode.state.classNameForTab(tabIndex), vnode.state.prefixedClass('tabs-title')]).join(' ')}
-                onclick={vnode.state.selectedIndex.bind(vnode.state, tabIndex)}
-                key={vnode.attrs.tabKeys[tabIndex]}>
-                {tabTitleElem}
-              </li>
-            );
-          })}
-        </ul>
-      );
-
-      const tabsContent = (
-        <div
-          class={_.compact([vnode.attrs.isVertical ? 'vertical' : undefined, 'tabs-content', 'tabs-content-container', vnode.state.prefixedClass('tabs-content-container')]).join(' ')}>
-          {_.map(_.flatten(children), (child, tabIndex) => {
-
-            let renderedChild;
-
-            if (tabIndex === vnode.state.selectedIndex()) {
-              renderedChild = child;
-            }
-
-            return (
-              <div
-                class={_.compact(['tabs-panel', vnode.state.classNameForTab(tabIndex), vnode.state.prefixedClass('tabs-panel')]).join(' ')}>
-                {renderedChild}
-              </div>
-            );
-          })}
-        </div>
-      );
-
-      if (vnode.attrs.isVertical) {
-        return (
-          <f.row
-            class={_.compact(['collapse', vnode.state.componentClass, 'tab-container', vnode.state.prefixedClass('tab-container')]).join(' ')}>
-            <f.column size={2}>
-              {tabs}
-            </f.column>
-            <f.column size={10}>
-              {tabsContent}
-            </f.column>
-          </f.row>
-        );
-      } else {
-        return (
-          <div
-            class={_.compact([vnode.state.componentClass, 'tab-container', vnode.state.prefixedClass('tab-container')]).join(' ')}>
-            {tabs}
-            {tabsContent}
-          </div>
-        );
-      }
-    }
-  },
-
-  accordion: {
-    oninit(vnode) {
-      this.selectedIndex = Mixin.TogglingGetterSetter(s.defaultToStream(vnode.attrs.selectedIndex || 0));
-
-      this.classNameForAccordionIndex = function (tabIndex) {
-        return this.selectedIndex() === tabIndex ? 'is-active' : null;
-      };
-
-      this.classNameForAccordionContent = function (tabIndex) {
-        return this.selectedIndex() === tabIndex ? 'show' : 'hide';
-      };
-    },
-
-    view(vnode) {
-      const ctrl     = vnode.state;
-      const args     = vnode.attrs;
-      const children = vnode.children;
-
-      return (
-        <ul class={compactClasses(args, 'accordion')} data-accordion data-multi-expand="true">
-          {_.map(_.flatten(children), (child, index) => {
-            let renderedChild;
-
-            if (index === ctrl.selectedIndex()) {
-              renderedChild = child;
-            }
-            return (
-              <li class={_.compact(['accordion-item', ctrl.classNameForAccordionIndex(index)]).join(' ')}
-                  key={args.accordionKeys[index]} data-accordion-item>
-                <a href="javascript:void(0)"
-                   class="accordion-title"
-                   onclick={ctrl.selectedIndex.bind(ctrl, index)}>
-                  {args.accordionTitles[index]}
-                </a>
-
-                <div class={_.compact(['accordion-content', ctrl.classNameForAccordionContent(index)]).join(' ')}>
-                  {renderedChild}
-                </div>
-              </li>
-            );
-          })}
-        </ul>
-      );
     }
   },
 
@@ -521,12 +342,6 @@ const f = {
       return (<a href="javascript:void(0)"
                  class={compactClasses(args)} {...args}>{vnode.children}
       </a>);
-    }
-  },
-
-  anchor: {
-    view(vnode) {
-      return (<a href={vnode.attrs.href} class={compactClasses(vnode.attrs)} {...vnode.attrs}>{vnode.children}</a>);
     }
   },
 

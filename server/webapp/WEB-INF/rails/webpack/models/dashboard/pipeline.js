@@ -30,7 +30,6 @@ const Pipeline = function (info) {
 
   this.canAdminister = info.can_administer;
   this.settingsPath  = Routes.pipelineEditPath('pipelines', info.name, 'general');
-  this.quickEditPath = Routes.editAdminPipelineConfigPath(info.name);
 
   this.historyPath = VMRoutes.pipelineHistoryPath(info.name);
   this.instances   = _.map(info._embedded.instances, (instance) => new PipelineInstance(instance, info.name));

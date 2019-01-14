@@ -18,8 +18,6 @@ import {ModalManager} from "views/components/modal/modal_manager";
 require('jasmine-jquery');
 require('jasmine-ajax');
 
-const SCMs  = require("models/pipeline_configs/scms");
-const _     = require('lodash');
 const $     = require('jquery');
 const Modal = require('views/shared/new_modal');
 
@@ -91,8 +89,8 @@ beforeEach(() => {
 });
 
 afterEach(() => {
-  expect(SCMs().length).toBe(0);
-  expect(_(SCMs.scmIdToEtag).isEqual({})).toBe(true);
+  //expect(SCMs().length).toBe(0);
+  //expect(_(SCMs.scmIdToEtag).isEqual({})).toBe(true);
 
   expect($('#mithril-mount-point').html()).toEqual('');
   expect(Modal.count()).toBe(0);

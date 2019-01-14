@@ -7,16 +7,6 @@
          "value": false
       },
       {
-         "key": "pipeline_config_single_page_app_key",
-         "description": "Enables the pipeline config single page application. Default: enabled.",
-         "value": false
-      },
-      {
-         "key": "quick_edit_page_toggle_key",
-         "description": "Enables the pipeline config single page application to be the default page. Default: disabled.",
-         "value": false
-      },
-      {
          "key": "browser_console_log_ws_key",
          "description": "Enables rendering console logs via websockets. Default: disabled.",
          "value": false

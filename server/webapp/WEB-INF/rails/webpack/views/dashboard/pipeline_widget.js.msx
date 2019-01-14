@@ -51,8 +51,7 @@ const PipelineWidget = {
                                 doRefreshImmediately={vnode.attrs.doRefreshImmediately}
                                 pluginsSupportingAnalytics={vnode.attrs.pluginsSupportingAnalytics}
                                 shouldShowAnalyticsIcon={vnode.attrs.shouldShowAnalyticsIcon}
-                                operationMessages={vnode.attrs.operationMessages}
-                                isQuickEditPageEnabled={vnode.attrs.isQuickEditPageEnabled}/>
+                                operationMessages={vnode.attrs.operationMessages}/>
           <div className="pipeline_instances">
             {pipelineInstances}
           </div>

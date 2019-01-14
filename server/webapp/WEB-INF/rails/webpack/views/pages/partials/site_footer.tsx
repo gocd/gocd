@@ -16,6 +16,7 @@
 
 import {MithrilViewComponent} from "jsx/mithril-component";
 import * as m from "mithril";
+import {Link} from "views/components/link";
 import * as styles from "./site_footer.scss";
 
 export interface Attrs {
@@ -66,7 +67,7 @@ export class SiteFooter extends MithrilViewComponent<Attrs> {
       return (<div data-test-id="drain-mode-banner" class={styles.footerWarningBanner}>
         GoCD Server is in the drain state (Maintenance mode).
         &nbsp;
-        <a target="_blank" href="https://docs.gocd.org/advanced_usage/drain_mode.html">Learn more..</a>
+        <Link target="_blank" href="https://docs.gocd.org/advanced_usage/drain_mode.html">Learn more..</Link>
       </div>);
     }
 

@@ -18,6 +18,8 @@ import {MithrilViewComponent} from "jsx/mithril-component";
 import * as m from "mithril";
 
 import {bind} from "classnames/bind";
+import {InfoCircle, QuestionCircle} from "views/components/icons";
+import * as Icons from "views/components/icons";
 import * as styles from "./index.scss";
 
 const classnames = bind(styles);
@@ -34,9 +36,9 @@ export interface Attrs {
 }
 
 class Tooltip extends MithrilViewComponent<Attrs> {
-  tooltipType: string;
+  tooltipType: QuestionCircle | InfoCircle;
 
-  constructor(tooltipType: string) {
+  constructor(tooltipType: any) {
     super();
     this.tooltipType = tooltipType;
   }
@@ -46,12 +48,11 @@ class Tooltip extends MithrilViewComponent<Attrs> {
     const size = styles[TooltipSize[vnode.attrs.size || TooltipSize.small]];
 
     return (
-      <div data-test-id="tooltip-wrapper">
-        <div className={this.tooltipType}>
-          <span data-test-id="tooltip-content"
-                className={classnames(styles.tooltiptext, size)}>
-            {vnode.attrs.content}
-          </span>
+      <div data-test-id="tooltip-wrapper" class={styles.tooltipWrapper}>
+        {m(this.tooltipType, {iconOnly: true})}
+        <div data-test-id="tooltip-content"
+             className={classnames(styles.tooltipContent, size)}>
+          <p>{vnode.attrs.content}</p>
         </div>
       </div>);
   }
@@ -59,12 +60,12 @@ class Tooltip extends MithrilViewComponent<Attrs> {
 
 export class Info extends Tooltip {
   constructor() {
-    super(styles.infoTooltip);
+    super(Icons.InfoCircle);
   }
 }
 
 export class Help extends Tooltip {
   constructor() {
-    super(styles.helpTooltip);
+    super(Icons.QuestionCircle);
   }
 }

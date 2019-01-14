@@ -92,6 +92,12 @@
   </rule>
 
   <rule>
+    <name>Spark Environment Index API</name>
+    <from>^/api/admin/environments(/?)$</from>
+    <to last="true">/spark/api/admin/environments</to>
+  </rule>
+
+  <rule>
     <name>Spark Artifact Store API</name>
     <from>^/api/admin/artifact_stores/(.*)$</from>
     <to last="true">/spark/api/admin/artifact_stores/${escape:$1}</to>

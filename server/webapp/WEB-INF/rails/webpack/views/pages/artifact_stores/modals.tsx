@@ -148,7 +148,7 @@ export class DeleteArtifactStoreModal extends ArtifactStoreModal {
 
   operationError(errorResponse: any, statusCode: number) {
     const json = JSON.parse(errorResponse.body);
-    this.setMessage(json.message, MessageType.alert);
+    this.setMessage(MessageType.alert, json.message);
     this.close();
   }
 

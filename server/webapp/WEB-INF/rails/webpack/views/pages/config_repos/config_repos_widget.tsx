@@ -142,7 +142,7 @@ class ConfigRepoWidget extends MithrilViewComponent<ShowObjectAttrs<ConfigRepo>>
     let lastParseRevision: m.Children;
 
     const parseInfo = vnode.attrs.obj.lastParse();
-    if (parseInfo && parseInfo.latestParsedModification.revision) {
+    if (parseInfo && parseInfo.latestParsedModification && parseInfo.latestParsedModification.revision) {
       lastParseRevision = <span class={styles.lastRevision}>Last seen revision: <code
         class={styles.lastRevisionValue}>{parseInfo.latestParsedModification.revision}</code></span>;
     }
@@ -223,7 +223,7 @@ class ConfigRepoWidget extends MithrilViewComponent<ShowObjectAttrs<ConfigRepo>>
     }
 
     parseInfo = parseInfo as ParseInfo;
-    if (!parseInfo.error()) {
+    if (!parseInfo.error() && parseInfo.goodModification != null) {
       return (
         <StatusIcon name="Last Parse Good">
           <span className={styles.goodLastParseIcon}
@@ -231,10 +231,14 @@ class ConfigRepoWidget extends MithrilViewComponent<ShowObjectAttrs<ConfigRepo>>
         </StatusIcon>
       );
     } else {
+      const title: string = (parseInfo.latestParsedModification != null)
+        ? `Last parsed with revision ${parseInfo.latestParsedModification.revision}. The error was ${parseInfo.error}`
+        : `Error: ${parseInfo.error}`;
+
       return (
         <StatusIcon name="Last Parse Error">
           <span className={styles.lastParseErrorIcon}
-                title={`Last parsed with revision ${parseInfo.latestParsedModification.revision}. The error was ${parseInfo.error}`}/>
+                title={title}/>
         </StatusIcon>
       );
     }

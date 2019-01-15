@@ -23,16 +23,63 @@ package com.thoughtworks.go.config;
 
 import com.thoughtworks.go.config.remote.PartialConfig;
 import com.thoughtworks.go.domain.materials.Modification;
+import com.thoughtworks.go.server.service.ConfigRepoService;
+import com.thoughtworks.go.serverhealth.HealthStateScope;
+import com.thoughtworks.go.serverhealth.ServerHealthService;
+import com.thoughtworks.go.serverhealth.ServerHealthState;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class ConfigReposMaterialParseResultManager {
     private Map<String, PartialConfigParseResult> fingerprintOfPartialToParseResultMap = new ConcurrentHashMap<>();
+    private ServerHealthService serverHealthService;
+    private ConfigRepoService configRepoService;
+
+    public ConfigReposMaterialParseResultManager(ServerHealthService serverHealthService, ConfigRepoService configRepoService) {
+        this.serverHealthService = serverHealthService;
+        this.configRepoService = configRepoService;
+    }
 
     public PartialConfigParseResult get(String fingerprint) {
-        return fingerprintOfPartialToParseResultMap.get(fingerprint);
+        PartialConfigParseResult result = fingerprintOfPartialToParseResultMap.get(fingerprint);
+        // config repository was never parsed, check if there are any material clone or update related errors
+        if (result == null) {
+            HealthStateScope healthStateScope = HealthStateScope.forMaterialConfig(configRepoService.findByFingerprint(fingerprint).getMaterialConfig());
+            List<ServerHealthState> serverHealthStates = serverHealthService.filterByScope(healthStateScope);
+            if (!serverHealthStates.isEmpty()) {
+                result = PartialConfigParseResult.parseFailed(null, represent(serverHealthStates.get(0)));
+            }
+        }
+
+        //config repository was parsed, but does not have merge or clone related errors.
+        if (result != null && result.getLastFailure() == null) {
+            HealthStateScope healthStateScope = HealthStateScope.forPartialConfigRepo(fingerprint);
+            List<ServerHealthState> serverHealthStates = serverHealthService.filterByScope(healthStateScope);
+            if (!serverHealthStates.isEmpty()) {
+                result.setException(represent(serverHealthStates.get(0)));
+
+                //clear out the good modification, in case good modification is same as of latest parsed modification
+                if (result.getLatestParsedModification().equals(result.getGoodModification())) {
+                    result.setGoodModification(null);
+                    result.setPartialConfig(null);
+                }
+            }
+        }
+
+        return result;
+    }
+
+    private Exception represent(ServerHealthState serverHealthState) {
+        String message = new StringBuilder()
+                .append(serverHealthState.getMessage())
+                .append("\n\t")
+                .append(serverHealthState.getDescription())
+                .toString();
+
+        return new Exception(message);
     }
 
     public Set<String> allFingerprints() {

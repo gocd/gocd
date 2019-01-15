@@ -24,6 +24,7 @@ import com.thoughtworks.go.config.remote.PartialConfig;
 import com.thoughtworks.go.config.update.PartialConfigUpdateCommand;
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.helper.PartialConfigMother;
+import com.thoughtworks.go.server.service.ConfigRepoService;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import org.junit.Before;
@@ -51,9 +52,11 @@ public class GoPartialConfigTest {
     private GoConfigService goConfigService;
     private ServerHealthService serverHealthService;
     private PartialConfigUpdateCommand updateCommand;
+    private ConfigRepoService configRepoService;
 
     @Before
     public void setUp() {
+        configRepoService = mock(ConfigRepoService.class);
         serverHealthService = mock(ServerHealthService.class);
         configPluginService = mock(GoConfigPluginService.class);
         plugin = mock(PartialConfigProvider.class);
@@ -66,7 +69,7 @@ public class GoPartialConfigTest {
         when(cachedGoConfig.currentConfig()).thenReturn(cruiseConfig);
 
         configWatchList = new GoConfigWatchList(cachedGoConfig, mock(GoConfigService.class));
-        repoConfigDataSource = new GoRepoConfigDataSource(configWatchList, configPluginService, serverHealthService);
+        repoConfigDataSource = new GoRepoConfigDataSource(configWatchList, configPluginService, serverHealthService, configRepoService);
         cachedGoPartials = new CachedGoPartials(serverHealthService);
         goConfigService = mock(GoConfigService.class);
         serverHealthService = mock(ServerHealthService.class);
@@ -81,6 +84,8 @@ public class GoPartialConfigTest {
                 return updateCommand;
             }
         };
+
+        when(configRepoService.findByFingerprint(anyString())).thenReturn(configRepoConfig);
     }
 
     @Test

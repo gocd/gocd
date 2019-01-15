@@ -101,6 +101,13 @@ public class ConfigRepoService {
         update(username, configRepo.getId(), result, command);
     }
 
+    public ConfigRepoConfig findByFingerprint(String fingerprint) {
+        return getConfigRepos().stream()
+                .filter(configRepo -> configRepo.getMaterialConfig().getFingerprint().equalsIgnoreCase(fingerprint))
+                .findFirst().orElse(null);
+
+    }
+
     public void updateConfigRepo(String repoIdToUpdate, ConfigRepoConfig newConfigRepo, String md5OfExistingConfigRepo,
                                  Username username, HttpLocalizedOperationResult result) {
         UpdateConfigRepoCommand command = new UpdateConfigRepoCommand(securityService, entityHashingService, repoIdToUpdate,

@@ -41,8 +41,8 @@ export interface MaterialModificationJSON {
 }
 
 export interface ParseInfoJSON {
-  latest_parsed_modification: MaterialModificationJSON;
-  good_modification: MaterialModificationJSON;
+  latest_parsed_modification?: MaterialModificationJSON;
+  good_modification?: MaterialModificationJSON;
   error?: string;
 }
 

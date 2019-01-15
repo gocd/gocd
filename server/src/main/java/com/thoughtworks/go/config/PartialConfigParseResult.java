@@ -110,4 +110,14 @@ public class PartialConfigParseResult {
     public int hashCode() {
         return Objects.hash(latestParsedModification, goodModification, partialConfig, exception);
     }
+
+    @Override
+    public String toString() {
+        return "PartialConfigParseResult{" +
+                "latestParsedModification=" + latestParsedModification +
+                ", goodModification=" + goodModification +
+                ", partialConfig=" + partialConfig +
+                ", exception=" + exception +
+                '}';
+    }
 }

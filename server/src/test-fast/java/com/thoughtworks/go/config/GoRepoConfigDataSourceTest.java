@@ -25,6 +25,7 @@ import com.thoughtworks.go.config.remote.RepoConfigOrigin;
 import com.thoughtworks.go.domain.config.Configuration;
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.helper.PartialConfigMother;
+import com.thoughtworks.go.server.service.ConfigRepoService;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.serverhealth.HealthStateScope;
 import com.thoughtworks.go.serverhealth.HealthStateType;
@@ -36,7 +37,6 @@ import org.junit.Test;
 
 import java.io.File;
 
-import static org.junit.Assert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
@@ -50,6 +50,7 @@ public class GoRepoConfigDataSourceTest {
 
     private BasicCruiseConfig cruiseConfig;
     private ServerHealthService serverHealthService;
+    private ConfigRepoService configRepoService;
 
     File folder = new File("dir");
 
@@ -57,6 +58,7 @@ public class GoRepoConfigDataSourceTest {
     public void setUp() {
         serverHealthService = new ServerHealthService();
         configPluginService = mock(GoConfigPluginService.class);
+        configRepoService = mock(ConfigRepoService.class);
         plugin = mock(PartialConfigProvider.class);
         when(configPluginService.partialConfigProviderFor(any(ConfigRepoConfig.class))).thenReturn(plugin);
 
@@ -65,10 +67,12 @@ public class GoRepoConfigDataSourceTest {
         when(cachedGoConfig.currentConfig()).thenReturn(cruiseConfig);
 
         configWatchList = new GoConfigWatchList(cachedGoConfig, mock(GoConfigService.class));
+        repoConfigDataSource = new GoRepoConfigDataSource(configWatchList, configPluginService, serverHealthService, configRepoService);
 
-        repoConfigDataSource = new GoRepoConfigDataSource(configWatchList, configPluginService, serverHealthService);
+        ScmMaterialConfig material = new GitMaterialConfig("http://my.git");
+        ConfigRepoConfig configRepoConfig = new ConfigRepoConfig(material, "myplugin");
+        when(configRepoService.findByFingerprint(anyString())).thenReturn(configRepoConfig);
     }
-
 
     @Test
     public void shouldCallPluginLoadOnCheckout_WhenMaterialInWatchList() {

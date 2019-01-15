@@ -22,6 +22,7 @@ import com.thoughtworks.go.config.remote.RepoConfigOrigin;
 import com.thoughtworks.go.domain.config.Configuration;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.domain.materials.Modification;
+import com.thoughtworks.go.server.service.ConfigRepoService;
 import com.thoughtworks.go.serverhealth.HealthStateScope;
 import com.thoughtworks.go.serverhealth.HealthStateType;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
@@ -44,13 +45,14 @@ public class GoRepoConfigDataSource implements ChangedRepoConfigWatchListListene
     private final ServerHealthService serverHealthService;
     private GoConfigPluginService configPluginService;
     private GoConfigWatchList configWatchList;
-    private ConfigReposMaterialParseResultManager configReposMaterialParseResultManager = new ConfigReposMaterialParseResultManager();
+    private ConfigReposMaterialParseResultManager configReposMaterialParseResultManager;
 
     private List<PartialConfigUpdateCompletedListener> listeners = new ArrayList<>();
 
     @Autowired
     public GoRepoConfigDataSource(GoConfigWatchList configWatchList, GoConfigPluginService configPluginService,
-                                  ServerHealthService healthService) {
+                                  ServerHealthService healthService, ConfigRepoService configRepoService) {
+        configReposMaterialParseResultManager = new ConfigReposMaterialParseResultManager(healthService, configRepoService);
         this.configPluginService = configPluginService;
         this.serverHealthService = healthService;
         this.configWatchList = configWatchList;

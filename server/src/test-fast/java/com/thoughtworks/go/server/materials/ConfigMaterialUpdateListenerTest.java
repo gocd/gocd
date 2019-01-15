@@ -36,13 +36,13 @@ import java.util.Date;
 import static com.thoughtworks.go.domain.materials.Modification.modifications;
 import static org.mockito.Mockito.*;
 
-public class ConfigMaterialUpdaterTest {
+public class ConfigMaterialUpdateListenerTest {
     private GoRepoConfigDataSource repoConfigDataSource;
     private MaterialRepository materialRepository;
     private MaterialChecker materialChecker;
     private ConfigMaterialUpdateCompletedTopic configCompleted;
     private MaterialUpdateCompletedTopic topic;
-    private ConfigMaterialUpdater configUpdater;
+    private ConfigMaterialUpdateListener configUpdater;
     private   MaterialService materialService;
     private Material material;
     private File folder = new File("checkoutDir");
@@ -70,7 +70,7 @@ public class ConfigMaterialUpdaterTest {
 
         when(materialRepository.findLatestModification(material)).thenReturn(mods);
 
-        configUpdater = new ConfigMaterialUpdater(repoConfigDataSource, materialRepository, materialChecker,
+        configUpdater = new ConfigMaterialUpdateListener(repoConfigDataSource, materialRepository, materialChecker,
                 topic, materialService, new TestSubprocessExecutionContext());
     }
 

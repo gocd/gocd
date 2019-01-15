@@ -27,7 +27,7 @@ import org.springframework.stereotype.Component;
 import static java.util.stream.IntStream.range;
 
 @Component
-public class ConfigMaterialPostUpdateListenersFactory {
+public class ConfigMaterialUpdateListenerFactory {
     private ConfigMaterialPostUpdateQueue configMaterialPostUpdateQueue;
     private final GoRepoConfigDataSource repoConfigDataSource;
     private final MaterialRepository materialRepository;
@@ -38,14 +38,14 @@ public class ConfigMaterialPostUpdateListenersFactory {
     private SystemEnvironment systemEnvironment;
 
     @Autowired
-    public ConfigMaterialPostUpdateListenersFactory(SystemEnvironment systemEnvironment,
-                                                    ConfigMaterialPostUpdateQueue configMaterialPostUpdateQueue,
-                                                    GoRepoConfigDataSource repoConfigDataSource,
-                                                    MaterialRepository materialRepository,
-                                                    MaterialChecker materialChecker,
-                                                    MaterialUpdateCompletedTopic materialUpdateCompletedTopic,
-                                                    MaterialService materialService,
-                                                    SubprocessExecutionContext subprocessExecutionContext) {
+    public ConfigMaterialUpdateListenerFactory(SystemEnvironment systemEnvironment,
+                                               ConfigMaterialPostUpdateQueue configMaterialPostUpdateQueue,
+                                               GoRepoConfigDataSource repoConfigDataSource,
+                                               MaterialRepository materialRepository,
+                                               MaterialChecker materialChecker,
+                                               MaterialUpdateCompletedTopic materialUpdateCompletedTopic,
+                                               MaterialService materialService,
+                                               SubprocessExecutionContext subprocessExecutionContext) {
         this.systemEnvironment = systemEnvironment;
         this.configMaterialPostUpdateQueue = configMaterialPostUpdateQueue;
         this.repoConfigDataSource = repoConfigDataSource;
@@ -60,7 +60,7 @@ public class ConfigMaterialPostUpdateListenersFactory {
         int numberOfConfigMaterialPostUpdateListeners = systemEnvironment.getNumberOfConfigMaterialPostUpdateListeners();
 
         range(0, numberOfConfigMaterialPostUpdateListeners).forEach(i ->
-                this.configMaterialPostUpdateQueue.addListener(new ConfigMaterialUpdater(repoConfigDataSource, materialRepository,
+                this.configMaterialPostUpdateQueue.addListener(new ConfigMaterialUpdateListener(repoConfigDataSource, materialRepository,
                         materialChecker, materialUpdateCompletedTopic, materialService, subprocessExecutionContext))
         );
     }

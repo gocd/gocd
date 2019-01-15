@@ -27,7 +27,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
-public class ConfigMaterialPostUpdateListenersFactoryTest {
+public class ConfigMaterialUpdateListenerFactoryTest {
     @Mock
     private SystemEnvironment systemEnvironment;
 
@@ -45,10 +45,10 @@ public class ConfigMaterialPostUpdateListenersFactoryTest {
 
         when(systemEnvironment.getNumberOfConfigMaterialPostUpdateListeners()).thenReturn(numberOfConfigMaterialPostUpdateListeners);
 
-        ConfigMaterialPostUpdateListenersFactory factory = new ConfigMaterialPostUpdateListenersFactory(systemEnvironment, configMaterialPostUpdateQueue,
+        ConfigMaterialUpdateListenerFactory factory = new ConfigMaterialUpdateListenerFactory(systemEnvironment, configMaterialPostUpdateQueue,
                 null, null, null, null, null, null);
         factory.init();
 
-        verify(configMaterialPostUpdateQueue, new Times(numberOfConfigMaterialPostUpdateListeners)).addListener(any(ConfigMaterialUpdater.class));
+        verify(configMaterialPostUpdateQueue, new Times(numberOfConfigMaterialPostUpdateListeners)).addListener(any(ConfigMaterialUpdateListener.class));
     }
 }

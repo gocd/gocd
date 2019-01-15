@@ -29,16 +29,14 @@ import com.thoughtworks.go.server.service.MaterialService;
 import com.thoughtworks.go.server.service.materials.MaterialPoller;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
 import java.io.File;
 
 /**
  * Updates configuration from repositories.
  */
-public class ConfigMaterialUpdater implements GoMessageListener<MaterialUpdateCompletedMessage> {
-    private static final Logger LOGGER = LoggerFactory.getLogger(ConfigMaterialUpdater.class);
+public class ConfigMaterialUpdateListener implements GoMessageListener<MaterialUpdateCompletedMessage> {
+    private static final Logger LOGGER = LoggerFactory.getLogger(ConfigMaterialUpdateListener.class);
 
     private GoRepoConfigDataSource repoConfigDataSource;
     private MaterialRepository materialRepository;
@@ -47,12 +45,12 @@ public class ConfigMaterialUpdater implements GoMessageListener<MaterialUpdateCo
     private MaterialService materialService;
     private SubprocessExecutionContext subprocessExecutionContext;
 
-    public ConfigMaterialUpdater(GoRepoConfigDataSource repoConfigDataSource,
-                                 MaterialRepository materialRepository,
-                                 MaterialChecker materialChecker,
-                                 MaterialUpdateCompletedTopic topic,
-                                 MaterialService materialService,
-                                 SubprocessExecutionContext subprocessExecutionContext) {
+    public ConfigMaterialUpdateListener(GoRepoConfigDataSource repoConfigDataSource,
+                                        MaterialRepository materialRepository,
+                                        MaterialChecker materialChecker,
+                                        MaterialUpdateCompletedTopic topic,
+                                        MaterialService materialService,
+                                        SubprocessExecutionContext subprocessExecutionContext) {
         this.repoConfigDataSource = repoConfigDataSource;
         this.materialChecker = materialChecker;
         this.materialRepository = materialRepository;
@@ -88,6 +86,9 @@ public class ConfigMaterialUpdater implements GoMessageListener<MaterialUpdateCo
                     // revision is the same as last time, no need to parse again
                 }
             }
+            LOGGER.debug("[Config Material Update] Completed parsing of Config material {}.", material);
+        } catch (Exception ex) {
+            LOGGER.error("[Config Material Update] Error updating config material: {} . Reason: {}", material, ex.getMessage());
         } finally {
             // always post the original message further
             // this will remove material from inProgress in MUS

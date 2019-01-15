@@ -49,15 +49,15 @@ def dependencies = [
     user: 'tomzo',
     repo: 'gocd-yaml-config-plugin',
     release: '0.7.0',
-    asset: 'yaml-config-plugin-0.7.0.jar',
-    checksum: 'b4114ae8d145fad17e6d39dd7a42e6aa0f5191fff86b76806732f118d9214155'
+    asset: 'yaml-config-plugin-0.8.5.jar',
+    checksum: 'bf7d4313e3b28e447344f30c3b0029fc758ba28cadf2a77556bcfd9559ec356c'
   ),
   new GithubArtifact(
     user: 'tomzo',
     repo: 'gocd-json-config-plugin',
-    release: '0.2.1',
-    asset: 'json-config-plugin-0.2.1.jar',
-    checksum: 'd82d93f016a5f2e25d2afa8a0a181d45e898b27947d202220695d4f765e7ef7d'
+    release: '0.3.5',
+    asset: 'json-config-plugin-0.3.5.jar',
+    checksum: '88072e24a719a4176a95d55bd1440b193a710697b4819ef9b9946ca2709beae5'
   )
 ]
 

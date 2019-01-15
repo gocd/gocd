@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,13 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.thoughtworks.go.server.materials;
 
-import com.thoughtworks.go.domain.materials.Material;
+import com.thoughtworks.go.server.messaging.GoMessageQueue;
+import com.thoughtworks.go.server.messaging.MessagingService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
-public class ConfigMaterialUpdateCompletedMessage extends MaterialUpdateCompletedMessage {
-    public ConfigMaterialUpdateCompletedMessage(Material material, long trackingId) {
-        super(material, trackingId);
+/**
+ * @understands messages about completed config material updates
+ */
+@Component
+public class ConfigMaterialPostUpdateQueue extends GoMessageQueue<MaterialUpdateCompletedMessage> {
+    @Autowired
+    public ConfigMaterialPostUpdateQueue(MessagingService messaging) {
+        super(messaging, "config-material-update-completed");
     }
 }

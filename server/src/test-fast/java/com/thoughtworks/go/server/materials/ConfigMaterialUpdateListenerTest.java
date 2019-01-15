@@ -43,8 +43,7 @@ public class ConfigMaterialUpdateListenerTest {
     private ConfigMaterialUpdateCompletedTopic configCompleted;
     private MaterialUpdateCompletedTopic topic;
     private ConfigMaterialUpdateListener configUpdater;
-    private MaterialService materialService;
-
+    private   MaterialService materialService;
     private Material material;
     private File folder = new File("checkoutDir");
     private MaterialRevisions mods;
@@ -71,9 +70,8 @@ public class ConfigMaterialUpdateListenerTest {
 
         when(materialRepository.findLatestModification(material)).thenReturn(mods);
 
-        configUpdater = new ConfigMaterialUpdateListener(
-                repoConfigDataSource, materialRepository, materialChecker,
-                configCompleted, topic, materialService, new TestSubprocessExecutionContext());
+        configUpdater = new ConfigMaterialUpdateListener(repoConfigDataSource, materialRepository, materialChecker,
+                topic, materialService, new TestSubprocessExecutionContext());
     }
 
     private MaterialRevisions revisions(Material material, Modification modification) {
@@ -85,7 +83,7 @@ public class ConfigMaterialUpdateListenerTest {
         MaterialUpdateSuccessfulMessage message = new MaterialUpdateSuccessfulMessage(material, 123);
         this.configUpdater.onMessage(message);
 
-        verify(topic, times(1)).post(new ConfigMaterialUpdateCompletedMessage(material, 123));
+        verify(topic, times(1)).post(message);
     }
 
     @Test
@@ -102,7 +100,7 @@ public class ConfigMaterialUpdateListenerTest {
         this.configUpdater.onMessage(message);
 
         verify(repoConfigDataSource, times(1)).onCheckoutComplete(material.config(), folder, svnModification);
-        verify(topic, times(1)).post(new ConfigMaterialUpdateCompletedMessage(material, 123));
+        verify(topic, times(1)).post(message);
     }
 
     @Test
@@ -111,7 +109,7 @@ public class ConfigMaterialUpdateListenerTest {
         this.configUpdater.onMessage(message);
 
         verify(repoConfigDataSource, times(0)).onCheckoutComplete(material.config(), folder, getModificationFor("1"));
-        verify(topic, times(1)).post(new ConfigMaterialUpdateCompletedMessage(material, 123));
+        verify(topic, times(1)).post(message);
     }
 
     @Test
@@ -124,7 +122,7 @@ public class ConfigMaterialUpdateListenerTest {
 
         verify(repoConfigDataSource, times(0)).onCheckoutComplete(material.config(), folder, getModificationFor("1"));
         // but pass message further anyway
-        verify(topic, times(1)).post(new ConfigMaterialUpdateCompletedMessage(material, 123));
+        verify(topic, times(1)).post(message);
     }
 
     @Test
@@ -139,8 +137,9 @@ public class ConfigMaterialUpdateListenerTest {
         MaterialUpdateSuccessfulMessage message = new MaterialUpdateSuccessfulMessage(material, 123);
         this.configUpdater.onMessage(message);
 
+
         verify(repoConfigDataSource, times(1)).onCheckoutComplete(material.config(), folder, svnModification);
-        verify(topic, times(1)).post(new ConfigMaterialUpdateCompletedMessage(material, 123));
+        verify(topic, times(1)).post(message);
     }
 
     private Modification getModificationFor(String revision) {

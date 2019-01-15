@@ -18,8 +18,8 @@ package com.thoughtworks.go.server.materials;
 
 import com.thoughtworks.go.domain.materials.Material;
 import com.thoughtworks.go.server.cronjob.GoDiskSpaceMonitor;
+import com.thoughtworks.go.server.messaging.GoMessageChannel;
 import com.thoughtworks.go.server.messaging.GoMessageListener;
-import com.thoughtworks.go.server.messaging.GoMessageTopic;
 import com.thoughtworks.go.server.perf.MDUPerformanceLogger;
 import com.thoughtworks.go.server.service.DrainModeService;
 import org.slf4j.Logger;
@@ -33,15 +33,15 @@ import static com.thoughtworks.go.util.ExceptionUtils.bombIf;
 public class MaterialUpdateListener implements GoMessageListener<MaterialUpdateMessage> {
     private static final Logger LOGGER = LoggerFactory.getLogger(MaterialUpdateListener.class);
 
-    private final GoMessageTopic<MaterialUpdateCompletedMessage> topic;
+    private final GoMessageChannel<MaterialUpdateCompletedMessage> channel;
     private final MaterialDatabaseUpdater updater;
     private final MDUPerformanceLogger mduPerformanceLogger;
     private final GoDiskSpaceMonitor diskSpaceMonitor;
     private DrainModeService drainModeService;
 
-    public MaterialUpdateListener(GoMessageTopic<MaterialUpdateCompletedMessage> topic, MaterialDatabaseUpdater updater,
+    public MaterialUpdateListener(GoMessageChannel<MaterialUpdateCompletedMessage> channel, MaterialDatabaseUpdater updater,
                                   MDUPerformanceLogger mduPerformanceLogger, GoDiskSpaceMonitor diskSpaceMonitor, DrainModeService drainModeService) {
-        this.topic = topic;
+        this.channel = channel;
         this.updater = updater;
         this.mduPerformanceLogger = mduPerformanceLogger;
         this.diskSpaceMonitor = diskSpaceMonitor;
@@ -53,7 +53,7 @@ public class MaterialUpdateListener implements GoMessageListener<MaterialUpdateM
 
         if (drainModeService.isDrainMode()) {
             LOGGER.debug("[Drain Mode] GoCD server is in 'drain' mode, skip performing MDU for material {}.", material);
-            topic.post(new MaterialUpdateSkippedMessage(material, message.trackingId()));
+            channel.post(new MaterialUpdateSkippedMessage(material, message.trackingId()));
             return;
         }
 
@@ -63,9 +63,9 @@ public class MaterialUpdateListener implements GoMessageListener<MaterialUpdateM
             bombIf(diskSpaceMonitor.isLowOnDisk(), "Cruise server is too low on disk to continue with material update");
             updater.updateMaterial(material);
             mduPerformanceLogger.postingMessageAboutMDUCompletion(message.trackingId(), material);
-            topic.post(new MaterialUpdateSuccessfulMessage(material, message.trackingId())); //This should happen only if the transaction is committed.
+            channel.post(new MaterialUpdateSuccessfulMessage(material, message.trackingId())); //This should happen only if the transaction is committed.
         } catch (Exception e) {
-            topic.post(new MaterialUpdateFailedMessage(material, message.trackingId(), e));
+            channel.post(new MaterialUpdateFailedMessage(material, message.trackingId(), e));
             mduPerformanceLogger.postingMessageAboutMDUFailure(message.trackingId(), material);
         } finally {
             drainModeService.mduFinishedForMaterial(material);

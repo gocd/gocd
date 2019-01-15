@@ -16,15 +16,12 @@
 
 package com.thoughtworks.go.server.materials;
 
-import com.thoughtworks.go.config.GoRepoConfigDataSource;
-import com.thoughtworks.go.config.materials.SubprocessExecutionContext;
 import com.thoughtworks.go.server.cronjob.GoDiskSpaceMonitor;
 import com.thoughtworks.go.server.messaging.GoMessageListener;
 import com.thoughtworks.go.server.perf.MDUPerformanceLogger;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
 import com.thoughtworks.go.server.service.DrainModeService;
 import com.thoughtworks.go.server.service.MaterialExpansionService;
-import com.thoughtworks.go.server.service.MaterialService;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.util.SystemEnvironment;
@@ -59,10 +56,7 @@ public class MaterialUpdateListenerFactoryTest {
     @Mock private MDUPerformanceLogger mduPerformanceLogger;
     @Mock private DependencyMaterialUpdateQueue dependencyMaterialQueue;
     @Mock private DrainModeService drainModeService;
-    @Mock private GoRepoConfigDataSource repoConfigDataSource;
-    @Mock private SubprocessExecutionContext subprocessExecutionContext;
-    @Mock private MaterialChecker materialChecker;
-    @Mock private MaterialService materialService;
+    @Mock ConfigMaterialPostUpdateQueue configMaterialPostUpdateQueue;
 
     @Before
     public void setUp() throws Exception {
@@ -70,47 +64,44 @@ public class MaterialUpdateListenerFactoryTest {
     }
 
     @Test
-    public void shouldCreateCompetingConsumersForSuppliedQueue() throws Exception {
+    public void shouldCreateCompetingConsumersForSuppliedQueue() {
         when(systemEnvironment.getNumberOfMaterialCheckListener()).thenReturn(NUMBER_OF_CONSUMERS);
 
-        MaterialUpdateListenerFactory factory = new MaterialUpdateListenerFactory(topic,configTopic, queue, configQueue,
+        MaterialUpdateListenerFactory factory = new MaterialUpdateListenerFactory(topic, queue, configQueue,
                 materialRepository, systemEnvironment, healthService, diskSpaceMonitor,
                 transactionTemplate, dependencyMaterialUpdater, scmMaterialUpdater,
                 packageMaterialUpdater, pluggableSCMMaterialUpdater, materialExpansionService, mduPerformanceLogger,
-                dependencyMaterialQueue, null, drainModeService,
-                repoConfigDataSource, materialChecker, materialService, subprocessExecutionContext);
+                dependencyMaterialQueue, drainModeService, configMaterialPostUpdateQueue);
         factory.init();
 
         verify(queue, new Times(NUMBER_OF_CONSUMERS)).addListener(any(GoMessageListener.class));
     }
 
     @Test
-    public void shouldCreateCompetingConsumersForSuppliedConfigQueue() throws Exception {
+    public void shouldCreateCompetingConsumersForSuppliedConfigQueue() {
         when(systemEnvironment.getNumberOfConfigMaterialCheckListener()).thenReturn(NUMBER_OF_CONFIG_CONSUMERS);
 
-        MaterialUpdateListenerFactory factory = new MaterialUpdateListenerFactory(topic,configTopic, queue, configQueue,
+        MaterialUpdateListenerFactory factory = new MaterialUpdateListenerFactory(topic, queue, configQueue,
                 materialRepository, systemEnvironment, healthService, diskSpaceMonitor,
                 transactionTemplate, dependencyMaterialUpdater, scmMaterialUpdater,
                 packageMaterialUpdater, pluggableSCMMaterialUpdater, materialExpansionService, mduPerformanceLogger,
-                dependencyMaterialQueue, null, drainModeService,
-                repoConfigDataSource, materialChecker, materialService, subprocessExecutionContext);
+                dependencyMaterialQueue, drainModeService, configMaterialPostUpdateQueue);
         factory.init();
 
         verify(configQueue, new Times(NUMBER_OF_CONFIG_CONSUMERS)).addListener(any(GoMessageListener.class));
     }
 
     @Test
-    public void shouldCreateCompetingConsumersForSuppliedDependencyMaterialQueue() throws Exception {
+    public void shouldCreateCompetingConsumersForSuppliedDependencyMaterialQueue() {
         int noOfDependencyMaterialCheckListeners = 3;
 
         when(systemEnvironment.getNumberOfDependencyMaterialUpdateListeners()).thenReturn(noOfDependencyMaterialCheckListeners);
 
-        MaterialUpdateListenerFactory factory = new MaterialUpdateListenerFactory(topic,configTopic, queue, configQueue,
+        MaterialUpdateListenerFactory factory = new MaterialUpdateListenerFactory(topic, queue, configQueue,
                 materialRepository, systemEnvironment, healthService, diskSpaceMonitor,
                 transactionTemplate, dependencyMaterialUpdater, scmMaterialUpdater,
                 packageMaterialUpdater, pluggableSCMMaterialUpdater, materialExpansionService, mduPerformanceLogger,
-                dependencyMaterialQueue, null, drainModeService,
-                repoConfigDataSource, materialChecker, materialService, subprocessExecutionContext);
+                dependencyMaterialQueue, drainModeService, configMaterialPostUpdateQueue);
         factory.init();
 
         verify(dependencyMaterialQueue, new Times(noOfDependencyMaterialCheckListeners)).addListener(any(GoMessageListener.class));

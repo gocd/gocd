@@ -41,7 +41,6 @@ public class ConfigMaterialUpdateListener implements GoMessageListener<MaterialU
     private GoRepoConfigDataSource repoConfigDataSource;
     private MaterialRepository materialRepository;
     private MaterialChecker materialChecker;
-    private ConfigMaterialUpdateCompletedTopic configCompleted;
     private MaterialUpdateCompletedTopic topic;
     private MaterialService materialService;
     private SubprocessExecutionContext subprocessExecutionContext;
@@ -49,14 +48,12 @@ public class ConfigMaterialUpdateListener implements GoMessageListener<MaterialU
     public ConfigMaterialUpdateListener(GoRepoConfigDataSource repoConfigDataSource,
                                         MaterialRepository materialRepository,
                                         MaterialChecker materialChecker,
-                                        ConfigMaterialUpdateCompletedTopic configCompletedTopic,
                                         MaterialUpdateCompletedTopic topic,
                                         MaterialService materialService,
                                         SubprocessExecutionContext subprocessExecutionContext) {
         this.repoConfigDataSource = repoConfigDataSource;
         this.materialChecker = materialChecker;
         this.materialRepository = materialRepository;
-        this.configCompleted = configCompletedTopic;
         this.topic = topic;
         this.materialService = materialService;
         this.subprocessExecutionContext = subprocessExecutionContext;
@@ -89,10 +86,13 @@ public class ConfigMaterialUpdateListener implements GoMessageListener<MaterialU
                     // revision is the same as last time, no need to parse again
                 }
             }
+            LOGGER.debug("[Config Material Update] Completed parsing of Config material {}.", material);
+        } catch (Exception ex) {
+            LOGGER.error("[Config Material Update] Error updating config material: {} . Reason: {}", material, ex.getMessage());
         } finally {
-            // always post this message further
+            // always post the original message further
             // this will remove material from inProgress in MUS
-            topic.post(new ConfigMaterialUpdateCompletedMessage(message.getMaterial(), message.trackingId()));
+            topic.post(message);
         }
     }
 

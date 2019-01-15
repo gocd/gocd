@@ -16,17 +16,13 @@
 
 package com.thoughtworks.go.server.materials;
 
-import com.thoughtworks.go.config.GoRepoConfigDataSource;
-import com.thoughtworks.go.config.materials.SubprocessExecutionContext;
 import com.thoughtworks.go.server.cronjob.GoDiskSpaceMonitor;
+import com.thoughtworks.go.server.messaging.GoMessageChannel;
 import com.thoughtworks.go.server.messaging.GoMessageQueue;
-import com.thoughtworks.go.server.messaging.GoMessageTopic;
 import com.thoughtworks.go.server.perf.MDUPerformanceLogger;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
 import com.thoughtworks.go.server.service.DrainModeService;
 import com.thoughtworks.go.server.service.MaterialExpansionService;
-import com.thoughtworks.go.server.service.MaterialService;
-import com.thoughtworks.go.server.service.support.DaemonThreadStatsCollector;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.util.SystemEnvironment;
@@ -36,17 +32,12 @@ import org.springframework.stereotype.Component;
 @Component
 public class MaterialUpdateListenerFactory {
     private MaterialUpdateCompletedTopic topic;
-    private ConfigMaterialUpdateCompletedTopic configTopic;
     private final MaterialRepository materialRepository;
     private MaterialUpdateQueue queue;
     private ConfigMaterialUpdateQueue configQueue;
     private DependencyMaterialUpdateQueue dependencyMaterialQueue;
-    private final DaemonThreadStatsCollector daemonThreadStatsCollector;
     private DrainModeService drainModeService;
-    private GoRepoConfigDataSource repoConfigDataSource;
-    private MaterialChecker materialChecker;
-    private MaterialService materialService;
-    private SubprocessExecutionContext subprocessExecutionContext;
+    private ConfigMaterialPostUpdateQueue configMaterialPostUpdateQueue;
     private SystemEnvironment systemEnvironment;
     private final ServerHealthService serverHealthService;
     private final GoDiskSpaceMonitor diskSpaceMonitor;
@@ -60,7 +51,6 @@ public class MaterialUpdateListenerFactory {
 
     @Autowired
     public MaterialUpdateListenerFactory(MaterialUpdateCompletedTopic topic,
-                                         ConfigMaterialUpdateCompletedTopic configTopic,
                                          MaterialUpdateQueue queue,
                                          ConfigMaterialUpdateQueue configQueue,
                                          MaterialRepository materialRepository,
@@ -75,14 +65,9 @@ public class MaterialUpdateListenerFactory {
                                          MaterialExpansionService materialExpansionService,
                                          MDUPerformanceLogger mduPerformanceLogger,
                                          DependencyMaterialUpdateQueue dependencyMaterialQueue,
-                                         DaemonThreadStatsCollector daemonThreadStatsCollector,
                                          DrainModeService drainModeService,
-                                         GoRepoConfigDataSource repoConfigDataSource,
-                                         MaterialChecker materialChecker,
-                                         MaterialService materialService,
-                                         SubprocessExecutionContext subprocessExecutionContext) {
+                                         ConfigMaterialPostUpdateQueue configMaterialPostUpdateQueue) {
         this.topic = topic;
-        this.configTopic = configTopic;
         this.queue = queue;
         this.configQueue = configQueue;
         this.materialRepository = materialRepository;
@@ -97,15 +82,11 @@ public class MaterialUpdateListenerFactory {
         this.materialExpansionService = materialExpansionService;
         this.mduPerformanceLogger = mduPerformanceLogger;
         this.dependencyMaterialQueue = dependencyMaterialQueue;
-        this.daemonThreadStatsCollector = daemonThreadStatsCollector;
         this.drainModeService = drainModeService;
-        this.repoConfigDataSource = repoConfigDataSource;
-        this.materialChecker = materialChecker;
-        this.materialService = materialService;
-        this.subprocessExecutionContext = subprocessExecutionContext;
+        this.configMaterialPostUpdateQueue = configMaterialPostUpdateQueue;
     }
 
-    public void init(){
+    public void init() {
         int numberOfStandardMaterialListeners = systemEnvironment.getNumberOfMaterialCheckListener();
         int numberOfConfigListeners = systemEnvironment.getNumberOfConfigMaterialCheckListener();
         int numberOfDependencyMaterialCheckListeners = systemEnvironment.getNumberOfDependencyMaterialUpdateListeners();
@@ -115,7 +96,7 @@ public class MaterialUpdateListenerFactory {
         }
 
         for (int i = 0; i < numberOfConfigListeners; i++) {
-            configQueue.addListener(new ConfigMaterialUpdateListener(repoConfigDataSource, materialRepository, materialChecker, configTopic, topic, materialService, subprocessExecutionContext));
+            createWorker(this.configQueue, this.configMaterialPostUpdateQueue);
         }
 
         for (int i = 0; i < numberOfDependencyMaterialCheckListeners; i++) {
@@ -123,7 +104,7 @@ public class MaterialUpdateListenerFactory {
         }
     }
 
-    private void createWorker(GoMessageQueue<MaterialUpdateMessage> queue, GoMessageTopic<MaterialUpdateCompletedMessage> topic) {
+    private void createWorker(GoMessageQueue<MaterialUpdateMessage> queue, GoMessageChannel<MaterialUpdateCompletedMessage> topic) {
         MaterialDatabaseUpdater updater = new MaterialDatabaseUpdater(materialRepository, serverHealthService, transactionTemplate, dependencyMaterialUpdater, scmMaterialUpdater,
                 packageMaterialUpdater, pluggableSCMMaterialUpdater, materialExpansionService);
         queue.addListener(new MaterialUpdateListener(topic, updater, mduPerformanceLogger, diskSpaceMonitor, drainModeService));

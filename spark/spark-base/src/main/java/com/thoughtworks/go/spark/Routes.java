@@ -164,7 +164,7 @@ public class Routes {
 
         public static final String BASE = "/api/admin/environments";
 
-        static final String NAME = "/:name";
+        public static final String NAME = "/:name";
 
         public static String find() {
             return BASE + NAME;

@@ -31,7 +31,7 @@ class EnvironmentVariableRepresenterTest {
   void 'should serialize to JSON'() {
     EnvironmentVariableConfig config = new EnvironmentVariableConfig("JAVA_HOME","/bin/java")
 
-    def json = toObjectString({ EnvrironmentVariableRepresenter.toJSON(it, config) })
+    def json = toObjectString({ EnvironmentVariableRepresenter.toJSON(it, config) })
 
     assertThatJson(json).isEqualTo([
       "name": "JAVA_HOME",
@@ -44,7 +44,7 @@ class EnvironmentVariableRepresenterTest {
   void 'should serialize secure environment variable to JSON'() {
     EnvironmentVariableConfig config = new EnvironmentVariableConfig(new GoCipher(),"secret","password",true)
 
-    def json = toObjectString({ EnvrironmentVariableRepresenter.toJSON(it, config) })
+    def json = toObjectString({ EnvironmentVariableRepresenter.toJSON(it, config) })
 
     assertThatJson(json).isEqualTo([
       "encrypted_value": "****",

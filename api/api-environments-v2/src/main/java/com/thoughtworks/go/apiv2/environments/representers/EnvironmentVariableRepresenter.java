@@ -16,16 +16,27 @@
 
 package com.thoughtworks.go.apiv2.environments.representers;
 
+import com.google.gson.JsonObject;
 import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.config.EnvironmentVariableConfig;
+import com.thoughtworks.go.security.GoCipher;
 
 
-public class EnvrironmentVariableRepresenter {
+public class EnvironmentVariableRepresenter {
     public static void toJSON(OutputWriter outputWriter, EnvironmentVariableConfig environmentVariableConfig) {
         outputWriter
                 .add("secure", environmentVariableConfig.isSecure())
                 .add("name", environmentVariableConfig.getName());
         addValue(outputWriter, environmentVariableConfig);
+    }
+
+    public static EnvironmentVariableConfig fromJSON(JsonObject jsonReader) {
+        String name = jsonReader.get("name").getAsString();
+        String value = jsonReader.get("value").getAsString();
+        boolean secure = jsonReader.has("secure") && jsonReader.get("secure").getAsBoolean();
+
+        EnvironmentVariableConfig environmentConfig = new EnvironmentVariableConfig(new GoCipher(), name, value, secure);
+        return environmentConfig;
     }
 
     private static void addValue(OutputWriter outputWriter, EnvironmentVariableConfig environmentVariableConfig) {

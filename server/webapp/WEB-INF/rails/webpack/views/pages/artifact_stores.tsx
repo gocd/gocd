@@ -83,7 +83,8 @@ export class ArtifactStoresPage extends Page<null, State> {
       e.stopPropagation();
       this.flashMessage.clear();
 
-      new DeleteArtifactStoreModal(artifactStore, [], vnode.state.onSuccessfulSave, this.flashMessage.setMessage).render();
+      new DeleteArtifactStoreModal(artifactStore, [], vnode.state.onSuccessfulSave,
+                                   this.flashMessage.setMessage.bind(this.flashMessage)).render();
     };
   }
 

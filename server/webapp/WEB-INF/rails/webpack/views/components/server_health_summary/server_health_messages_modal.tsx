@@ -53,9 +53,9 @@ export class ServerHealthMessagesModal extends Modal {
   }
 
   private messageView(message: ServerHealthMessage) {
-    const meassageId = `server-health-message-for-${s.slugify(message.message)}`.toLowerCase().replace(/ /g, "-");
+    const messageId = `server-health-message-for-${s.slugify(message.message)}`;
 
-    return <li data-test-id={meassageId}
+    return <li data-test-id={messageId}
                data-test-message-level={message.level.toLowerCase()}
                className={classnames(styles.serverHealthStatus, message.level.toLowerCase())}>
       <span data-test-class="server-health-message_message" className={styles.message}>{message.message}</span>

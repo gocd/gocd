@@ -86,7 +86,7 @@ class ConfigReposMaterialParseResultManagerTest {
         PartialConfig partialConfig = new PartialConfig();
         manager.parseSuccess(fingerprint, modification, partialConfig);
 
-        String expectedBeautifiedMessage = String.format("%s\n\t%s", serverHealthState.getMessage(), serverHealthState.getDescription());
+        String expectedBeautifiedMessage = String.format("%s\n%s", serverHealthState.getMessage().toUpperCase(), serverHealthState.getDescription());
 
         assertThat(manager.get(fingerprint).isSuccessful(), is(false));
         assertThat(manager.get(fingerprint).getLastFailure().getMessage(), is(expectedBeautifiedMessage));
@@ -116,7 +116,7 @@ class ConfigReposMaterialParseResultManagerTest {
 
         ConfigReposMaterialParseResultManager manager = new ConfigReposMaterialParseResultManager(serverHealthService, configRepoService);
 
-        String expectedBeautifiedMessage = String.format("%s\n\t%s", serverHealthState.getMessage(), serverHealthState.getDescription());
+        String expectedBeautifiedMessage = String.format("%s\n%s", serverHealthState.getMessage().toUpperCase(), serverHealthState.getDescription());
 
         assertThat(manager.get(fingerprint).isSuccessful(), is(false));
         assertThat(manager.get(fingerprint).getLastFailure().getMessage(), is(expectedBeautifiedMessage));

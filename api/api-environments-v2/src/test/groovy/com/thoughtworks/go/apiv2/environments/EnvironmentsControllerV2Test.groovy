@@ -36,6 +36,7 @@ import org.mockito.Mock
 import org.mockito.invocation.InvocationOnMock
 
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
+import static com.thoughtworks.go.api.util.HaltApiMessages.notFoundMessage
 import static org.mockito.ArgumentMatchers.*
 import static org.mockito.Mockito.when
 import static org.mockito.MockitoAnnotations.initMocks
@@ -189,8 +190,8 @@ class EnvironmentsControllerV2Test implements SecurityServiceTrait, ControllerTr
         getWithApiHeader(controller.controllerPath("env1"))
 
         assertThatResponse()
-          .isBadRequest()
-          .hasJsonMessage("No such environment")
+          .isNotFound()
+          .hasJsonMessage(notFoundMessage())
       }
     }
   }
@@ -244,7 +245,7 @@ class EnvironmentsControllerV2Test implements SecurityServiceTrait, ControllerTr
       }
 
       @Test
-      void 'should error out if the environment doesnt exist'() {
+      void 'should error out if the environment does not exist'() {
         when(environmentConfigService.getMergedEnvironmentforDisplay(anyString(), any(HttpLocalizedOperationResult.class)))
           .then({ InvocationOnMock invocation ->
           HttpLocalizedOperationResult result = (HttpLocalizedOperationResult) invocation.getArguments().last()
@@ -254,8 +255,8 @@ class EnvironmentsControllerV2Test implements SecurityServiceTrait, ControllerTr
         getWithApiHeader(controller.controllerPath("env1"))
 
         assertThatResponse()
-          .isBadRequest()
-          .hasJsonMessage("No such environment")
+          .isNotFound()
+          .hasJsonMessage(notFoundMessage())
       }
     }
   }
@@ -286,6 +287,57 @@ class EnvironmentsControllerV2Test implements SecurityServiceTrait, ControllerTr
 
 
       @Test
+      void 'should not update if environment rename is attempted'() {
+        def existingConfig = new BasicEnvironmentConfig(new CaseInsensitiveString("env1"))
+        existingConfig.addAgent("agent1")
+        existingConfig.addEnvironmentVariable("JAVA_HOME", "/bin/java")
+        existingConfig.addPipeline(new CaseInsensitiveString("Pipeline1"))
+
+        def newConfig = new BasicEnvironmentConfig(new CaseInsensitiveString("env2"))
+        newConfig.addAgent("agent1")
+        newConfig.addEnvironmentVariable("JAVA_HOME", "/bin/java")
+        newConfig.addPipeline(new CaseInsensitiveString("Pipeline1"))
+
+        when(entityHashingService.md5ForEntity(existingConfig)).thenReturn("ffff")
+        when(environmentConfigService.getMergedEnvironmentforDisplay(
+          eq("env1"),
+          any(HttpLocalizedOperationResult))
+        ).thenReturn(new ConfigElementForEdit<>(existingConfig, "ffff"))
+
+        def json = toObjectString({ EnvironmentRepresenter.toJSON(it, newConfig) })
+
+        putWithApiHeader(controller.controllerPath("env1"),['if-match': 'ffff'], json)
+
+        assertThatResponse()
+          .isUnprocessableEntity()
+          .hasJsonMessage("Renaming of environment is not supported by this API.")
+      }
+
+      @Test
+      void 'should not update if etag doesn not match'() {
+        def env1 = new BasicEnvironmentConfig(new CaseInsensitiveString("env1"))
+        env1.addAgent("agent1")
+        env1.addEnvironmentVariable("JAVA_HOME", "/bin/java")
+        env1.addPipeline(new CaseInsensitiveString("Pipeline1"))
+
+
+        when(environmentConfigService.getMergedEnvironmentforDisplay(
+          eq("env1"),
+          any(HttpLocalizedOperationResult))
+        ).thenReturn(new ConfigElementForEdit<>(env1, "ffff"))
+
+        when(entityHashingService.md5ForEntity(env1)).thenReturn("wrong-md5")
+
+        def json = toObjectString({ EnvironmentRepresenter.toJSON(it, env1) })
+
+        putWithApiHeader(controller.controllerPath("env1"),['if-match': 'ffff'], json)
+
+        assertThatResponse()
+          .isPreconditionFailed()
+          .hasJsonMessage("Someone has modified the configuration for environment 'env1'. Please update your copy of the config with the changes and try again.")
+      }
+
+      @Test
       void 'should update environment'() {
         def env1 = new BasicEnvironmentConfig(new CaseInsensitiveString("env1"))
         env1.addAgent("agent1")
@@ -294,11 +346,12 @@ class EnvironmentsControllerV2Test implements SecurityServiceTrait, ControllerTr
         env1.addPipeline(new CaseInsensitiveString("Pipeline1"))
         env1.addPipeline(new CaseInsensitiveString("Pipeline2"))
 
-
         when(entityHashingService.md5ForEntity(env1)).thenReturn("ffff")
 
-        when(environmentConfigService.getMergedEnvironmentforDisplay(eq("env1"), any(HttpLocalizedOperationResult)))
-        .thenReturn(new ConfigElementForEdit<>(env1, "ffff"))
+        when(
+            environmentConfigService.getMergedEnvironmentforDisplay(eq("env1"),
+            any(HttpLocalizedOperationResult))
+        ).thenReturn(new ConfigElementForEdit<>(env1, "ffff"))
 
         when(environmentConfigService.updateEnvironment(eq("env1"), eq(env1), eq(currentUsername()), anyString(), any(HttpLocalizedOperationResult))).then({
           InvocationOnMock invocation ->
@@ -326,8 +379,8 @@ class EnvironmentsControllerV2Test implements SecurityServiceTrait, ControllerTr
         putWithApiHeader(controller.controllerPath("env1"), [name: "env1"])
 
         assertThatResponse()
-          .isBadRequest()
-          .hasJsonMessage("The environment does not exist")
+          .isNotFound()
+          .hasJsonMessage(notFoundMessage())
       }
     }
   }
@@ -355,7 +408,6 @@ class EnvironmentsControllerV2Test implements SecurityServiceTrait, ControllerTr
         enableSecurity()
         loginAsAdmin()
       }
-
 
       @Test
       void 'should update attributes of environment'() {
@@ -438,8 +490,8 @@ class EnvironmentsControllerV2Test implements SecurityServiceTrait, ControllerTr
         patchWithApiHeader(controller.controllerPath("env1"), [name: "env1"])
 
         assertThatResponse()
-          .isBadRequest()
-          .hasJsonMessage("The environment does not exist")
+          .isNotFound()
+          .hasJsonMessage(notFoundMessage())
       }
     }
   }

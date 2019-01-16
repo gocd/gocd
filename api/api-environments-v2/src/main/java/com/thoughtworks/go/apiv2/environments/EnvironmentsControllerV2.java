@@ -23,18 +23,20 @@ import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.api.representers.JsonReader;
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
 import com.thoughtworks.go.api.util.GsonTransformer;
+import com.thoughtworks.go.apiv2.environments.model.PatchEnvironmentRequest;
 import com.thoughtworks.go.apiv2.environments.representers.EnvironmentRepresenter;
-import com.thoughtworks.go.apiv2.environments.representers.EnvironmentVariableRepresenter;
 import com.thoughtworks.go.apiv2.environments.representers.EnvironmentsRepresenter;
+import com.thoughtworks.go.apiv2.environments.representers.PatchEnvironmentRequestRepresenter;
 import com.thoughtworks.go.config.BasicEnvironmentConfig;
 import com.thoughtworks.go.config.EnvironmentConfig;
-import com.thoughtworks.go.config.EnvironmentVariableConfig;
+import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.domain.ConfigElementForEdit;
 import com.thoughtworks.go.server.service.EntityHashingService;
 import com.thoughtworks.go.server.service.EnvironmentConfigService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.spring.SparkSpringController;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -42,10 +44,10 @@ import spark.Request;
 import spark.Response;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 import static com.thoughtworks.go.api.util.HaltApiResponses.*;
 import static java.lang.String.format;
@@ -54,6 +56,7 @@ import static spark.Spark.*;
 @Component
 public class EnvironmentsControllerV2 extends ApiController implements SparkSpringController, CrudController<EnvironmentConfig> {
 
+    private static final String SEP_CHAR = "/";
     private final ApiAuthenticationHelper apiAuthenticationHelper;
     private final EnvironmentConfigService environmentConfigService;
     private final EntityHashingService entityHashingService;
@@ -85,26 +88,28 @@ public class EnvironmentsControllerV2 extends ApiController implements SparkSpri
             post("", mimeType, this::create);
             put(Routes.Environments.NAME, mimeType, this::update);
             patch(Routes.Environments.NAME, this::partialUpdate);
+            exception(RecordNotFoundException.class, this::notFound);
         });
     }
 
     public String index(Request request, Response response) throws IOException {
         List<EnvironmentConfig> environmentViewModelList = environmentConfigService.getAllMergedEnvironments();
+
+        setEtagHeader(response, calculateEtag(environmentViewModelList));
+
         return writerForTopLevelObject(request, response,
                 outputWriter -> EnvironmentsRepresenter.toJSON(outputWriter, environmentViewModelList));
     }
 
     public String show(Request request, Response response) throws IOException {
         String environmentName = request.params("name");
-        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
 
-        ConfigElementForEdit<EnvironmentConfig> configElementForEdit = environmentConfigService.getMergedEnvironmentforDisplay(environmentName, result);
+        EnvironmentConfig  environmentConfig = fetchEntityFromConfig(environmentName);
 
-        if (result.isSuccessful()) {
-            return writerForTopLevelObject(request, response,
-                    outputWriter -> EnvironmentRepresenter.toJSON(outputWriter, configElementForEdit.getConfigElement()));
-        }
-        return handleSimpleMessageResponse(response, result);
+        setEtagHeader(environmentConfig, response);
+
+        return writerForTopLevelObject(request, response,
+                outputWriter -> EnvironmentRepresenter.toJSON(outputWriter, environmentConfig));
     }
 
     public String create(Request request, Response response) {
@@ -116,6 +121,8 @@ public class EnvironmentsControllerV2 extends ApiController implements SparkSpri
 
         environmentConfigService.createEnvironment(environmentConfigToCreate, currentUsername(), operationResult);
 
+        setEtagHeader(environmentConfigToCreate, response);
+
         return handleCreateOrUpdateResponse(request, response, environmentConfigToCreate, operationResult);
     }
 
@@ -125,79 +132,60 @@ public class EnvironmentsControllerV2 extends ApiController implements SparkSpri
 
         final HttpLocalizedOperationResult operationResult = new HttpLocalizedOperationResult();
 
-        ConfigElementForEdit<EnvironmentConfig> configElementForEdit = environmentConfigService.getMergedEnvironmentforDisplay(environmentName, operationResult);
+        EnvironmentConfig  oldEnvironmentConfig = fetchEntityFromConfig(environmentName);
 
-        if (operationResult.isSuccessful()) {
-            if (!StringUtils.equals(environmentName, environmentConfig.name().toString())) {
-                throw haltBecauseRenameOfEntityIsNotSupported("environment");
-            }
-
-            if (isPutRequestStale(request, configElementForEdit.getConfigElement())) {
-                throw haltBecauseEtagDoesNotMatch("environment", environmentName);
-            }
-
-            environmentConfigService.updateEnvironment(environmentConfig.name().toString(),
-                    environmentConfig, currentUsername(), configElementForEdit.getMd5(), operationResult);
-
-            return handleCreateOrUpdateResponse(request, response, environmentConfig, operationResult);
+        if (isPutRequestStale(request, oldEnvironmentConfig)) {
+            throw haltBecauseEtagDoesNotMatch("environment", environmentName);
         }
 
-        return handleSimpleMessageResponse(response, operationResult);
+        if (!StringUtils.equals(environmentName, environmentConfig.name().toString())) {
+            throw haltBecauseRenameOfEntityIsNotSupported("environment");
+        }
+
+        environmentConfigService.updateEnvironment(environmentConfig.name().toString(),
+                environmentConfig, currentUsername(), etagFor(oldEnvironmentConfig), operationResult);
+
+        setEtagHeader(environmentConfig, response);
+
+        return handleCreateOrUpdateResponse(request, response, environmentConfig, operationResult);
     }
 
     public String partialUpdate(Request request, Response response) {
-        JsonReader jsonReader = GsonTransformer.getInstance().jsonReaderFrom(request.body());
-        List<String> pipelineToAdd = extractListFromJson(jsonReader, "pipelines", "add");
-        List<String> pipelineToRemove = extractListFromJson(jsonReader, "pipelines", "remove");
-        List<String> agentsToAdd = extractListFromJson(jsonReader, "agents", "add");
-        List<String> agentsToRemove = extractListFromJson(jsonReader, "agents", "remove");
-        List<String> envVariablesToRemove = extractListFromJson(jsonReader, "environment_variables", "remove");
-
-        List<EnvironmentVariableConfig> environmentVariablesToAdd = new ArrayList<>();
-
-        if (jsonReader.hasJsonObject("environment_variables")) {
-            jsonReader.readJsonObject("environment_variables").readArrayIfPresent("add",
-                    array ->
-                            array.forEach(envVariable -> environmentVariablesToAdd
-                                    .add(EnvironmentVariableRepresenter.fromJSON(envVariable.getAsJsonObject()))
-                            ));
-        }
-
-
         String environmentName = request.params("name");
+        JsonReader jsonReader = GsonTransformer.getInstance().jsonReaderFrom(request.body());
+        PatchEnvironmentRequest patchRequest = PatchEnvironmentRequestRepresenter.fromJSON(jsonReader);
 
-        final HttpLocalizedOperationResult operationResult = new HttpLocalizedOperationResult();
 
-        ConfigElementForEdit<EnvironmentConfig> configElementForEdit = environmentConfigService.getMergedEnvironmentforDisplay(environmentName, operationResult);
+        HttpLocalizedOperationResult operationResult = new HttpLocalizedOperationResult();
 
-        if (operationResult.isSuccessful()) {
-            environmentConfigService.patchEnvironment(configElementForEdit.getConfigElement(), pipelineToAdd, pipelineToRemove,
-                    agentsToAdd, agentsToRemove, environmentVariablesToAdd, envVariablesToRemove, currentUsername(), operationResult);
+        EnvironmentConfig  environmentConfig = fetchEntityFromConfig(environmentName);
 
-            ConfigElementForEdit<EnvironmentConfig> updateConfigElement = environmentConfigService.getMergedEnvironmentforDisplay(environmentName, operationResult);
+        environmentConfigService.patchEnvironment(environmentConfig,
+                patchRequest.getPipelineToAdd(),
+                patchRequest.getPipelineToRemove(),
+                patchRequest.getAgentsToAdd(),
+                patchRequest.getAgentsToRemove(),
+                patchRequest.getEnvironmentVariablesToAdd(),
+                patchRequest.getEnvironmentVariablesToRemove(),
+                currentUsername(),
+                operationResult
+        );
 
-            return handleCreateOrUpdateResponse(request, response, updateConfigElement.getConfigElement(), operationResult);
-        }
+        EnvironmentConfig updateConfigElement = fetchEntityFromConfig(environmentName);
 
-        return handleSimpleMessageResponse(response, operationResult);
-    }
+        setEtagHeader(updateConfigElement, response);
 
-    private List<String> extractListFromJson(JsonReader jsonReader, String parentKey, String childKey) {
-        return (jsonReader.hasJsonObject(parentKey))
-                ? jsonReader.readJsonObject(parentKey).readStringArrayIfPresent(childKey).orElseGet(Collections::emptyList)
-                : Collections.emptyList();
+        return handleCreateOrUpdateResponse(request, response, updateConfigElement, operationResult);
     }
 
     public String remove(Request request, Response response) {
         String environmentName = request.params("name");
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
 
-        ConfigElementForEdit<EnvironmentConfig> configElementForEdit = environmentConfigService.getMergedEnvironmentforDisplay(environmentName, result);
+        EnvironmentConfig  environmentConfig = fetchEntityFromConfig(environmentName);
 
-        if (result.isSuccessful()) {
-            environmentConfigService.deleteEnvironment(configElementForEdit.getConfigElement(), currentUsername(),
+        environmentConfigService.deleteEnvironment(environmentConfig, currentUsername(),
                     result);
-        }
         return handleSimpleMessageResponse(response, result);
     }
 
@@ -233,5 +221,20 @@ public class EnvironmentsControllerV2 extends ApiController implements SparkSpri
 
         environmentConfig.addError("name", format("Environment name should be unique. Environment with name '%s' already exists.", environmentConfig.name().toString()));
         throw haltBecauseEntityAlreadyExists(jsonWriter(environmentConfig), "environment", environmentConfig.name().toString());
+    }
+
+    private List<String> extractListFromJson(JsonReader jsonReader, String parentKey, String childKey) {
+        return (jsonReader.hasJsonObject(parentKey))
+                ? jsonReader.readJsonObject(parentKey).readStringArrayIfPresent(childKey).orElseGet(Collections::emptyList)
+                : Collections.emptyList();
+    }
+
+    private String calculateEtag(List<EnvironmentConfig> environmentConfigs) {
+        final String environmentConfigSegment = environmentConfigs
+                .stream()
+                .map(this::etagFor)
+                .collect(Collectors.joining(SEP_CHAR));
+
+        return DigestUtils.sha256Hex(StringUtils.joinWith(SEP_CHAR, currentUsername().getUsername(), environmentConfigSegment));
     }
 }

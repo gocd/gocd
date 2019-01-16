@@ -26,6 +26,10 @@ public class SparkOrRailsToggle {
         basedOnToggle(Toggles.USERS_PAGE_USING_RAILS, request);
     }
 
+    public void environmentsUsingRails(HttpServletRequest request, HttpServletResponse response) {
+        basedOnToggle(Toggles.USE_OLD_ENVIRONMENTS_API, request);
+    }
+
     private void basedOnToggle(String toggle, HttpServletRequest request) {
         if (Toggles.isToggleOn(toggle)) {
             request.setAttribute("sparkOrRails", "rails");

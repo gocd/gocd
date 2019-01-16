@@ -972,16 +972,16 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
 
     public Pipeline findPipelineByCounterOrLatestKeyword(String pipelineName, String counterOrLabel) {
         Pipeline pipeline = null;
-        try {
+
+        if (StringUtils.isNumeric(counterOrLabel)) {
             int pipelineCounter = Integer.parseInt(counterOrLabel);
             pipeline = findPipelineByNameAndCounter(pipelineName, pipelineCounter);
-        } catch (NumberFormatException e) {
-            //it maybe 'latest' label
+        }
+        else if (JobIdentifier.LATEST.equalsIgnoreCase(counterOrLabel)) {
+            PipelineIdentifier pipelineIdentifier = mostRecentPipelineIdentifier(pipelineName);
+            pipeline = findPipelineByNameAndCounter(pipelineName, pipelineIdentifier.getCounter());
         }
 
-        if (JobIdentifier.LATEST.equalsIgnoreCase(counterOrLabel)) {
-            pipeline = mostRecentPipeline(pipelineName);
-        }
         return pipeline;
     }
 

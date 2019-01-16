@@ -106,7 +106,7 @@ public class JobControllerTest {
             jobController.jobDetail("p1", "some-string", "s1", "1", "job");
             fail("Expected an exception to be thrown");
         } catch (Exception e) {
-            assertThat(e.getMessage(), is("Expected numeric pipelineCounter, but received 'some-string' for [p1/some-string/s1/1/job]"));
+            assertThat(e.getMessage(), is("Expected numeric pipelineCounter or latest keyword, but received 'some-string' for [p1/some-string/s1/1/job]"));
         }
     }
 
@@ -116,7 +116,7 @@ public class JobControllerTest {
             jobController.jobDetail("p1", "1", "s1", "some-string", "job");
             fail("Expected an exception to be thrown");
         } catch (Exception e) {
-            assertThat(e.getMessage(), is("Expected numeric stageCounter, but received 'some-string' for [p1/1/s1/some-string/job]"));
+            assertThat(e.getMessage(), is("Expected numeric stageCounter or latest keyword, but received 'some-string' for [p1/1/s1/some-string/job]"));
         }
     }
 }

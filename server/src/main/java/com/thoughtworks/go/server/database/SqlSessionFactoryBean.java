@@ -25,28 +25,21 @@ import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.jdbc.datasource.TransactionAwareDataSourceProxy;
 import org.springframework.stereotype.Component;
-import org.springframework.util.ReflectionUtils;
 
 import javax.sql.DataSource;
 import java.io.IOException;
-import java.lang.reflect.Field;
-
-import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 @Component
 public class SqlSessionFactoryBean implements FactoryBean<SqlSessionFactory>, InitializingBean {
-    private DatabaseStrategy databaseStrategy;
     private final DataSource dataSource;
     private final Resource configLocation;
     private SqlSessionFactory sqlSessionFactory;
 
     @Autowired
-    public SqlSessionFactoryBean(DatabaseStrategy databaseStrategy, DataSource dataSource, @Value("classpath:/sql-map-config.xml") Resource configLocation) {
-        this.databaseStrategy = databaseStrategy;
+    public SqlSessionFactoryBean(DataSource dataSource, @Value("classpath:/sql-map-config.xml") Resource configLocation) {
         this.dataSource = dataSource instanceof TransactionAwareDataSourceProxy ? dataSource : new TransactionAwareDataSourceProxy(dataSource);
         this.configLocation = configLocation;
     }
@@ -78,24 +71,11 @@ public class SqlSessionFactoryBean implements FactoryBean<SqlSessionFactory>, In
     private SqlSessionFactory buildSqlSessionFactory() throws IOException {
         SqlSessionFactoryBuilder factoryBuilder = new SqlSessionFactoryBuilder();
 
-
-        Configuration baseConfiguration = new XMLConfigBuilder(configLocation.getInputStream()).parse();
-
-        String ibatisConfigXmlLocation = databaseStrategy.getIbatisConfigXmlLocation();
-        if (isNotBlank(ibatisConfigXmlLocation)) {
-            XMLConfigBuilder builder = new XMLConfigBuilder(new ClassPathResource(ibatisConfigXmlLocation).getInputStream());
-
-            // hacky way to "inject" a previous configuration
-            Field configurationField = ReflectionUtils.findField(XMLConfigBuilder.class, "configuration");
-            ReflectionUtils.makeAccessible(configurationField);
-            ReflectionUtils.setField(configurationField, builder, baseConfiguration);
-
-            baseConfiguration = builder.parse();
-        }
-
-        baseConfiguration.setEnvironment(new Environment(getClass().getSimpleName(), new SpringManagedTransactionFactory(), this.dataSource));
-
-        return factoryBuilder.build(baseConfiguration);
+        XMLConfigBuilder xmlConfigBuilder = new XMLConfigBuilder(configLocation.getInputStream());
+        Configuration configuration = xmlConfigBuilder.getConfiguration();
+        configuration.setEnvironment(new Environment(getClass().getSimpleName(), new SpringManagedTransactionFactory(), this.dataSource));
+        xmlConfigBuilder.parse();
+        return factoryBuilder.build(configuration);
     }
 
 }

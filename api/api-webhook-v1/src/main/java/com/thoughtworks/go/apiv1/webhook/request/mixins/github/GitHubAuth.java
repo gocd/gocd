@@ -19,7 +19,8 @@ package com.thoughtworks.go.apiv1.webhook.request.mixins.github;
 import com.thoughtworks.go.apiv1.webhook.request.mixins.HasAuth;
 import org.apache.commons.codec.digest.HmacAlgorithms;
 import org.apache.commons.codec.digest.HmacUtils;
-import org.h2.util.Utils;
+
+import java.security.MessageDigest;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
@@ -33,7 +34,7 @@ public interface GitHubAuth extends HasAuth {
 
         String expectedSignature = "sha1=" + new HmacUtils(HmacAlgorithms.HMAC_SHA_1, secret).hmacHex(request().body());
 
-        if (!Utils.compareSecure(expectedSignature.getBytes(), signature.getBytes())) {
+        if (!MessageDigest.isEqual(expectedSignature.getBytes(), signature.getBytes())) {
             throw die("HMAC signature specified via 'X-Hub-Signature' did not match!");
         }
     }

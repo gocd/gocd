@@ -19,11 +19,11 @@ import com.opensymphony.oscache.base.Cache;
 import com.rits.cloning.Cloner;
 import com.thoughtworks.go.config.elastic.ClusterProfile;
 import com.thoughtworks.go.config.elastic.ElasticProfile;
-import com.thoughtworks.go.database.Database;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.server.cache.CacheKeyGenerator;
 import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.cache.LazyCache;
+import com.thoughtworks.go.server.database.Database;
 import com.thoughtworks.go.server.domain.JobStatusListener;
 import com.thoughtworks.go.server.persistence.ArtifactPlanRepository;
 import com.thoughtworks.go.server.persistence.ResourceRepository;
@@ -33,7 +33,6 @@ import com.thoughtworks.go.server.transaction.SqlMapClientDaoSupport;
 import com.thoughtworks.go.server.transaction.TransactionSynchronizationManager;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.server.ui.SortOrder;
-import com.thoughtworks.go.server.util.SqlUtil;
 import com.thoughtworks.go.util.SystemEnvironment;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
@@ -588,9 +587,8 @@ public class JobInstanceSqlMapDao extends SqlMapClientDaoSupport implements JobI
 
     @Override
     public JobInstances findHungJobs(List<String> liveAgentIdList) {
-        String sqlValue = SqlUtil.joinWithQuotesForSql(liveAgentIdList.toArray());
         List<JobInstance> list = getSqlMapClientTemplate().queryForList("getHungJobs",
-                arguments("liveAgentIdList", sqlValue).asMap());
+                arguments("liveAgentIdList", liveAgentIdList).asMap());
         return new JobInstances(list);
     }
 

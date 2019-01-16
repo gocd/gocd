@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!--
+  ~ Copyright 2020 ThoughtWorks, Inc.
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+    <changeSet author="gocd(generated)" id="102">
+        <createView fullDefinition="false" remarks="" viewName="_BUILDS">SELECT
+            B.ID,
+            B.NAME,
+            B.STATE,
+            B.RESULT,
+            B.AGENTUUID,
+            B.SCHEDULEDDATE,
+            B.STAGEID,
+            B.IGNORED,
+            B.RUNONALLAGENTS,
+            B.ORIGINALJOBID,
+            B.RERUN,
+            B.RUNMULTIPLEINSTANCE,
+            P.ID AS PIPELINEID,
+            P.NAME AS PIPELINENAME,
+            P.LABEL AS PIPELINELABEL,
+            P.COUNTER AS PIPELINECOUNTER,
+            S.NAME AS STAGENAME,
+            S.COUNTER AS STAGECOUNTER,
+            S.FETCHMATERIALS,
+            S.CLEANWORKINGDIR,
+            S.RERUNOFCOUNTER
+            FROM BUILDS B
+
+            INNER JOIN STAGES S ON S.ID = B.STAGEID
+            INNER JOIN PIPELINES P ON P.ID = S.PIPELINEID
+        </createView>
+    </changeSet>
+    <changeSet author="gocd(generated)" id="103">
+        <createView fullDefinition="false" remarks="" viewName="_STAGES">SELECT
+            S.ID,
+            S.NAME,
+            S.APPROVEDBY,
+            S.PIPELINEID,
+            S.CREATEDTIME,
+            S.ORDERID,
+            S.RESULT,
+            S.APPROVALTYPE,
+            S.COUNTER,
+            S.COMPLETEDBYTRANSITIONID,
+            S.STATE,
+            S.LATESTRUN,
+            S.FETCHMATERIALS,
+            S.CLEANWORKINGDIR,
+            S.RERUNOFCOUNTER,
+            S.ARTIFACTSDELETED,
+            S.CONFIGVERSION,
+            S.LASTTRANSITIONEDTIME,
+            P.NAME AS PIPELINENAME,
+            P.BUILDCAUSETYPE,
+            P.BUILDCAUSEBY,
+            P.LABEL AS PIPELINELABEL,
+            P.BUILDCAUSEMESSAGE,
+            P.COUNTER AS PIPELINECOUNTER,
+            PS.LOCKED,
+            P.NATURALORDER
+            FROM STAGES S
+
+            INNER JOIN PIPELINES P ON P.ID = S.PIPELINEID
+            LEFT OUTER JOIN PIPELINESTATES PS ON PS.LOCKEDBYPIPELINEID = S.PIPELINEID
+        </createView>
+    </changeSet>
+</databaseChangeLog>

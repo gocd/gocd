@@ -127,14 +127,12 @@ public class GoServer {
         ArrayList<Validator> validators = new ArrayList<>();
         validators.add(new ServerPortValidator(systemEnvironment.getServerPort()));
         validators.add(new ServerPortValidator(systemEnvironment.getSslServerPort()));
-        validators.add(new ServerPortValidator(systemEnvironment.getDatabaseSeverPort()));
         validators.add(FileValidator.defaultFile("cruise.war"));
         validators.add(FileValidator.configFile("cruise-config.xml", systemEnvironment));
         validators.add(FileValidator.configFileAlwaysOverwrite("cruise-config.xsd", systemEnvironment));
         validators.add(FileValidator.configFile("jetty.xml", systemEnvironment));
         validators.add(new JettyWorkDirValidator());
         validators.add(FileValidator.configFile(systemEnvironment.get(systemEnvironment.GO_UPDATE_SERVER_PUBLIC_KEY_FILE_NAME), systemEnvironment));
-        validators.add(new DatabaseValidator());
         return validators;
     }
 }

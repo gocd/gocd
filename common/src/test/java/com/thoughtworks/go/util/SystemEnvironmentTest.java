@@ -17,7 +17,6 @@ package com.thoughtworks.go.util;
 
 import ch.qos.logback.classic.Level;
 import com.rits.cloning.Cloner;
-import com.thoughtworks.go.junit5.EnableIfH2;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -162,13 +161,6 @@ class SystemEnvironmentTest {
     }
 
     @Test
-    void shouldUnderstandH2CacheSize() {
-        assertThat(systemEnvironment.getCruiseDbCacheSize()).isEqualTo(String.valueOf(128 * 1024));
-        System.setProperty(SystemEnvironment.CRUISE_DB_CACHE_SIZE, String.valueOf(512 * 1024));
-        assertThat(systemEnvironment.getCruiseDbCacheSize()).isEqualTo(String.valueOf(512 * 1024));
-    }
-
-    @Test
     void shouldReturnTheJobWarningLimit() {
         assertThat(systemEnvironment.getUnresponsiveJobWarningThreshold()).isEqualTo(5 * 60 * 1000L);
         System.setProperty(SystemEnvironment.UNRESPONSIVE_JOB_WARNING_THRESHOLD, "30");
@@ -266,16 +258,6 @@ class SystemEnvironmentTest {
         assertThat(systemEnvironment.pluginLoggingLevel("some-plugin-5")).isEqualTo(Level.WARN);
         assertThat(systemEnvironment.pluginLoggingLevel("some-plugin-6")).isEqualTo(Level.ERROR);
     }
-
-
-    @Test
-    @EnableIfH2
-    void shouldGetGoDatabaseProvider() {
-        assertThat(systemEnvironment.getDatabaseProvider()).as("default provider should be h2db").isEqualTo("com.thoughtworks.go.server.database.H2Database");
-        System.setProperty("go.database.provider", "foo");
-        assertThat(systemEnvironment.getDatabaseProvider()).isEqualTo("foo");
-    }
-
 
     @Test
     void shouldFindGoServerStatusToBeActiveByDefault() {

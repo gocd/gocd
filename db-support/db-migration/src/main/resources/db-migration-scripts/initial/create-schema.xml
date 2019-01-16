@@ -1,0 +1,454 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!--
+  ~ Copyright 2020 ThoughtWorks, Inc.
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+    <changeSet author="gocd(generated)" id="1">
+        <createTable tableName="ACCESSTOKEN">
+            <column autoIncrement="true" name="ID" type="${dataType.long}">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="VALUE" type="${dataType.caseSensitiveString_255}">
+                <constraints nullable="false"/>
+            </column>
+            <column name="SALTID" type="${dataType.caseSensitiveString_8}">
+                <constraints nullable="false"/>
+            </column>
+            <column name="SALTVALUE" type="${dataType.caseSensitiveString_255}">
+                <constraints nullable="false"/>
+            </column>
+            <column name="DESCRIPTION" type="${dataType.caseSensitiveCharacterBlob}">
+                <constraints nullable="false"/>
+            </column>
+            <column name="REVOKED" type="${dataType.boolean}"/>
+            <column name="REVOKEDAT" type="${dataType.timeStamp}"/>
+            <column name="CREATEDAT" type="${dataType.timeStamp}"/>
+            <column name="LASTUSED" type="${dataType.timeStamp}"/>
+            <column name="USERNAME" type="${dataType.caseInSensitiveString_255}">
+                <constraints nullable="false"/>
+            </column>
+            <column name="AUTHCONFIGID" type="${dataType.caseInSensitiveString_255}">
+                <constraints nullable="false"/>
+            </column>
+            <column name="REVOKECAUSE" type="${dataType.caseSensitiveCharacterBlob}"/>
+            <column name="REVOKEDBY" type="${dataType.caseSensitiveString_255}"/>
+            <column defaultValueBoolean="false" name="DELETEDBECAUSEUSERDELETED" type="${dataType.boolean}"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="gocd(generated)" id="2">
+        <createTable tableName="AGENTS">
+            <column autoIncrement="true" name="ID" type="${dataType.long}">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="UUID" type="${dataType.caseSensitiveString_255}">
+                <constraints nullable="false"/>
+            </column>
+            <column name="COOKIE" type="${dataType.caseSensitiveString_40}">
+                <constraints nullable="false"/>
+            </column>
+            <column name="HOSTNAME" type="${dataType.caseSensitiveString_255}"/>
+            <column name="IPADDRESS" type="${dataType.caseSensitiveString_50}"/>
+            <column name="ELASTICAGENTID" type="${dataType.caseSensitiveString_2048}"/>
+            <column name="ELASTICPLUGINID" type="${dataType.caseSensitiveString_2048}"/>
+            <column defaultValueBoolean="true" name="DISABLED" type="${dataType.boolean}"/>
+            <column name="ENVIRONMENTS" type="${dataType.caseSensitiveCharacterBlob}"/>
+            <column name="RESOURCES" type="${dataType.caseSensitiveCharacterBlob}"/>
+            <column defaultValueBoolean="true" name="DELETED" type="${dataType.boolean}"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="gocd(generated)" id="3">
+        <createTable tableName="ARTIFACTPLANS">
+            <column autoIncrement="true" name="ID" type="${dataType.long}">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="BUILDID" type="${dataType.long}"/>
+            <column name="SRC" type="${dataType.caseSensitiveString_255}"/>
+            <column name="DEST" type="${dataType.caseSensitiveString_255}"/>
+            <column name="ARTIFACTTYPE" type="${dataType.caseSensitiveString_255}"/>
+            <column name="PLUGGABLEARTIFACTCONFIGJSON" type="${dataType.caseSensitiveCharacterBlob}"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="gocd(generated)" id="4">
+        <createTable tableName="BUILDS">
+            <column autoIncrement="true" name="ID" type="${dataType.long}">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="NAME" type="${dataType.caseInSensitiveString_255}"/>
+            <column name="STATE" type="${dataType.caseSensitiveString_50}"/>
+            <column name="RESULT" type="${dataType.caseSensitiveString_50}"/>
+            <column name="AGENTUUID" type="${dataType.caseSensitiveString_255}"/>
+            <column name="SCHEDULEDDATE" type="${dataType.timeStamp}"/>
+            <column name="STAGEID" type="${dataType.long}"/>
+            <column defaultValueBoolean="false" name="IGNORED" type="${dataType.boolean}"/>
+            <column defaultValueBoolean="false" name="RUNONALLAGENTS" type="${dataType.boolean}"/>
+            <column name="ORIGINALJOBID" type="${dataType.long}"/>
+            <column defaultValueBoolean="false" name="RERUN" type="${dataType.boolean}">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueBoolean="false" name="RUNMULTIPLEINSTANCE" type="${dataType.boolean}"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="gocd(generated)" id="5">
+        <createTable tableName="BUILDSTATETRANSITIONS">
+            <column autoIncrement="true" name="ID" type="${dataType.long}">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="CURRENTSTATE" type="${dataType.caseSensitiveString_255}">
+                <constraints nullable="false"/>
+            </column>
+            <column name="STATECHANGETIME" type="${dataType.timeStamp}">
+                <constraints nullable="false"/>
+            </column>
+            <column name="BUILDID" type="${dataType.long}">
+                <constraints nullable="false"/>
+            </column>
+            <column name="STAGEID" type="${dataType.long}"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="gocd(generated)" id="7">
+        <createTable tableName="DATASHARINGSETTINGS">
+            <column autoIncrement="true" name="ID" type="${dataType.long}">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="ALLOWSHARING" type="${dataType.boolean}">
+                <constraints nullable="false"/>
+            </column>
+            <column name="UPDATEDBY" type="${dataType.caseSensitiveString_255}"/>
+            <column name="UPDATEDON" type="${dataType.timeStamp}"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="gocd(generated)" id="8">
+        <createTable tableName="ENVIRONMENTVARIABLES">
+            <column autoIncrement="true" name="ID" type="${dataType.long}">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="ENTITYID" type="${dataType.long}"/>
+            <column name="VARIABLENAME" type="${dataType.caseSensitiveString_255}"/>
+            <column name="VARIABLEVALUE" type="${dataType.caseSensitiveCharacterBlob}"/>
+            <column name="ENTITYTYPE" type="${dataType.caseSensitiveString_100}">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueBoolean="false" name="ISSECURE" type="${dataType.boolean}"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="gocd(generated)" id="9">
+        <createTable tableName="JOBAGENTMETADATA">
+            <column autoIncrement="true" name="ID" type="${dataType.long}">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="JOBID" type="${dataType.long}">
+                <constraints nullable="false"/>
+            </column>
+            <column name="ELASTICAGENTPROFILEMETADATA" type="${dataType.caseSensitiveCharacterBlob}">
+                <constraints nullable="false"/>
+            </column>
+            <column name="METADATAVERSION" type="${dataType.caseSensitiveString_50}"/>
+            <column name="CLUSTERPROFILEMETADATA" type="${dataType.caseSensitiveCharacterBlob}"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="gocd(generated)" id="10">
+        <createTable tableName="MATERIALS">
+            <column autoIncrement="true" name="ID" type="${dataType.long}">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="TYPE" type="${dataType.caseSensitiveString_255}"/>
+            <column name="URL" type="${dataType.caseSensitiveCharacterBlob}"/>
+            <column name="USERNAME" type="${dataType.caseSensitiveString_255}"/>
+            <column defaultValueBoolean="false" name="CHECKEXTERNALS" type="${dataType.boolean}"/>
+            <column name="PIPELINENAME" type="${dataType.caseSensitiveString_255}"/>
+            <column name="STAGENAME" type="${dataType.caseSensitiveString_255}"/>
+            <column name="VIEW" type="${dataType.caseSensitiveCharacterBlob}"/>
+            <column name="BRANCH" type="${dataType.caseSensitiveCharacterBlob}"/>
+            <column name="SUBMODULEFOLDER" type="${dataType.caseSensitiveCharacterBlob}"/>
+            <column name="USETICKETS" type="${dataType.caseSensitiveString_10}"/>
+            <column name="FINGERPRINT" type="${dataType.caseSensitiveChar_64}">
+                <constraints nullable="false"/>
+            </column>
+            <column name="FLYWEIGHTNAME" type="${dataType.caseSensitiveString_50}">
+                <constraints nullable="false"/>
+            </column>
+            <column name="WORKSPACE" type="${dataType.caseSensitiveString_255}"/>
+            <column name="PROJECTPATH" type="${dataType.caseSensitiveString_255}"/>
+            <column name="DOMAIN" type="${dataType.caseSensitiveString_255}"/>
+            <column name="CONFIGURATION" type="${dataType.caseSensitiveCharacterBlob}"/>
+            <column name="ADDITIONALDATA" type="${dataType.caseSensitiveCharacterBlob}"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="gocd(generated)" id="11">
+        <createTable tableName="MODIFICATIONS">
+            <column autoIncrement="true" name="ID" type="${dataType.long}">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="TYPE" type="${dataType.caseSensitiveString_255}"/>
+            <column name="USERNAME" type="${dataType.caseSensitiveString_255}"/>
+            <column name="COMMENT" type="${dataType.caseSensitiveString_infinite}"/>
+            <column name="EMAILADDRESS" type="${dataType.caseSensitiveString_255}"/>
+            <column name="REVISION" type="${dataType.caseSensitiveString_1024}"/>
+            <column name="MODIFIEDTIME" type="${dataType.timeStamp}"/>
+            <column defaultValueBoolean="false" name="FROMEXTERNAL" type="${dataType.boolean}"/>
+            <column name="MATERIALID" type="${dataType.long}"/>
+            <column name="PIPELINELABEL" type="${dataType.caseSensitiveString_255}"/>
+            <column name="PIPELINEID" type="${dataType.long}"/>
+            <column name="ADDITIONALDATA" type="${dataType.caseSensitiveCharacterBlob}"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="gocd(generated)" id="12">
+        <createTable tableName="MODIFIEDFILES">
+            <column autoIncrement="true" name="ID" type="${dataType.long}">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="FILENAME" type="${dataType.caseSensitiveString_1024}"/>
+            <column name="REVISION" type="${dataType.caseSensitiveString_50}"/>
+            <column name="FOLDERNAME" type="${dataType.caseSensitiveString_512}"/>
+            <column name="ACTION" type="${dataType.caseSensitiveString_50}"/>
+            <column name="MODIFICATIONID" type="${dataType.long}">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="gocd(generated)" id="13">
+        <createTable tableName="NOTIFICATIONFILTERS">
+            <column autoIncrement="true" name="ID" type="${dataType.long}">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="USERID" type="${dataType.long}"/>
+            <column name="PIPELINE" type="${dataType.caseSensitiveString_255}"/>
+            <column name="STAGE" type="${dataType.caseSensitiveString_255}"/>
+            <column name="EVENT" type="${dataType.caseSensitiveString_50}"/>
+            <column name="MYCHECKIN" type="${dataType.boolean}"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="gocd(generated)" id="14">
+        <createTable tableName="PIPELINELABELCOUNTS">
+            <column autoIncrement="true" name="ID" type="${dataType.long}">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="PIPELINENAME" type="${dataType.caseSensitiveString_255}"/>
+            <column name="LABELCOUNT" type="${dataType.long}"/>
+            <column name="PAUSE_CAUSE" type="${dataType.caseSensitiveString_255}"/>
+            <column name="PAUSE_BY" type="${dataType.caseSensitiveString_255}"/>
+            <column defaultValueBoolean="false" name="PAUSED" type="${dataType.boolean}"/>
+            <column name="CASEINSENSITIVEPIPELINENAME" type="${dataType.caseInSensitiveString_255}"/>
+            <column name="PAUSED_AT" type="${dataType.timeStamp}"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="gocd(generated)" id="15">
+        <createTable tableName="PIPELINEMATERIALREVISIONS">
+            <column autoIncrement="true" name="ID" type="${dataType.long}">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="FOLDER" type="${dataType.caseSensitiveString_255}"/>
+            <column name="NAME" type="${dataType.caseSensitiveString_255}"/>
+            <column name="PIPELINEID" type="${dataType.long}">
+                <constraints nullable="false"/>
+            </column>
+            <column name="TOREVISIONID" type="${dataType.long}">
+                <constraints nullable="false"/>
+            </column>
+            <column name="FROMREVISIONID" type="${dataType.long}">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueBoolean="false" name="CHANGED" type="${dataType.boolean}"/>
+            <column name="MATERIALID" type="${dataType.long}"/>
+            <column name="ACTUALFROMREVISIONID" type="${dataType.long}">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="gocd(generated)" id="16">
+        <createTable tableName="PIPELINES">
+            <column autoIncrement="true" name="ID" type="${dataType.long}">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="NAME" type="${dataType.caseInSensitiveString_255}"/>
+            <column name="BUILDCAUSETYPE" type="${dataType.caseSensitiveString_255}"/>
+            <column name="BUILDCAUSEBY" type="${dataType.caseSensitiveString_255}"/>
+            <column name="LABEL" type="${dataType.caseSensitiveString_255}"/>
+            <column name="BUILDCAUSEMESSAGE" type="${dataType.caseSensitiveString_infinite}"/>
+            <column name="COUNTER" type="${dataType.long}"/>
+            <column defaultValueNumeric="0.0" name="NATURALORDER" type="${dataType.double_17}">
+                <constraints nullable="false"/>
+            </column>
+            <column name="COMMENT" type="${dataType.caseSensitiveCharacterBlob}"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="gocd(generated)" id="17">
+        <createTable tableName="PIPELINESELECTIONS">
+            <column autoIncrement="true" name="ID" type="${dataType.long}">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="SELECTIONS" type="${dataType.caseSensitiveString_infinite}"/>
+            <column name="LASTUPDATE" type="${dataType.timeStamp}"/>
+            <column name="USERID" type="${dataType.long}"/>
+            <column defaultValueBoolean="true" name="ISBLACKLIST" type="${dataType.boolean}"/>
+            <column name="FILTERS" type="${dataType.caseSensitiveCharacterBlob}"/>
+            <column defaultValueNumeric="0" name="VERSION" type="${dataType.integer}">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="gocd(generated)" id="18">
+        <createTable tableName="PIPELINESTATES">
+            <column autoIncrement="true" name="ID" type="${dataType.long}">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="PIPELINENAME" type="${dataType.caseInSensitiveString_255}">
+                <constraints nullable="false"/>
+            </column>
+            <column name="LOCKED" type="${dataType.boolean}"/>
+            <column name="LOCKEDBYPIPELINEID" type="${dataType.long}"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="gocd(generated)" id="19">
+        <createTable tableName="PLUGINS">
+            <column autoIncrement="true" name="ID" type="${dataType.long}">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="PLUGINID" type="${dataType.caseSensitiveString_255}">
+                <constraints nullable="false"/>
+            </column>
+            <column name="CONFIGURATION" type="${dataType.caseSensitiveCharacterBlob}"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="gocd(generated)" id="20">
+        <createTable tableName="RESOURCES">
+            <column autoIncrement="true" name="ID" type="${dataType.long}">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="NAME" type="${dataType.caseSensitiveString_255}"/>
+            <column name="BUILDID" type="${dataType.long}">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="gocd(generated)" id="21">
+        <createTable tableName="SERVERBACKUPS">
+            <column autoIncrement="true" name="ID" type="${dataType.long}">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="PATH" type="${dataType.caseSensitiveString_2048}"/>
+            <column name="TIME" type="${dataType.timeStamp}"/>
+            <column name="USERNAME" type="${dataType.caseInSensitiveString_255}"/>
+            <column name="STATUS" type="${dataType.caseSensitiveString_255}">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MESSAGE" type="${dataType.caseSensitiveCharacterBlob}"/>
+            <column name="PROGRESSSTATUS" type="${dataType.caseSensitiveString_255}"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="gocd(generated)" id="22">
+        <createTable tableName="STAGEARTIFACTCLEANUPPROHIBITED">
+            <column autoIncrement="true" name="ID" type="${dataType.long}">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="STAGENAME" type="${dataType.caseInSensitiveString_255}">
+                <constraints nullable="false"/>
+            </column>
+            <column name="PIPELINENAME" type="${dataType.caseInSensitiveString_255}">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueBoolean="false" name="PROHIBITED" type="${dataType.boolean}">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="gocd(generated)" id="23">
+        <createTable tableName="STAGES">
+            <column autoIncrement="true" name="ID" type="${dataType.long}">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="NAME" type="${dataType.caseInSensitiveString_255}"/>
+            <column name="APPROVEDBY" type="${dataType.caseSensitiveString_255}"/>
+            <column name="PIPELINEID" type="${dataType.long}"/>
+            <column name="CREATEDTIME" type="${dataType.timeStamp}"/>
+            <column name="ORDERID" type="${dataType.integer}">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValue="Unknown" name="RESULT" type="${dataType.caseSensitiveString_50}">
+                <constraints nullable="false"/>
+            </column>
+            <column name="APPROVALTYPE" type="${dataType.caseSensitiveString_255}"/>
+            <column name="COUNTER" type="${dataType.integer}">
+                <constraints nullable="false"/>
+            </column>
+            <column name="COMPLETEDBYTRANSITIONID" type="${dataType.long}"/>
+            <column defaultValue="Unknown" name="STATE" type="${dataType.caseSensitiveString_50}">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueBoolean="false" name="LATESTRUN" type="${dataType.boolean}">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueBoolean="true" name="FETCHMATERIALS" type="${dataType.boolean}">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueBoolean="false" name="CLEANWORKINGDIR" type="${dataType.boolean}">
+                <constraints nullable="false"/>
+            </column>
+            <column name="RERUNOFCOUNTER" type="${dataType.integer}"/>
+            <column defaultValueBoolean="false" name="ARTIFACTSDELETED" type="${dataType.boolean}">
+                <constraints nullable="false"/>
+            </column>
+            <column name="CONFIGVERSION" type="${dataType.caseSensitiveString_255}"/>
+            <column name="LASTTRANSITIONEDTIME" type="${dataType.timeStamp}"/>
+            <column name="CANCELLEDBY" type="${dataType.caseSensitiveString_255}"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="gocd(generated)" id="24">
+        <createTable tableName="USAGEDATAREPORTING">
+            <column autoIncrement="true" name="ID" type="${dataType.long}">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="SERVERID" type="${dataType.caseSensitiveString_255}">
+                <constraints nullable="false"/>
+            </column>
+            <column name="LASTREPORTEDAT" type="${dataType.timeStamp}"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="gocd(generated)" id="25">
+        <createTable tableName="USERS">
+            <column autoIncrement="true" name="ID" type="${dataType.long}">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="NAME" type="${dataType.caseInSensitiveString_255}">
+                <constraints nullable="false"/>
+            </column>
+            <column name="EMAIL" type="${dataType.caseSensitiveString_255}"/>
+            <column name="MATCHER" type="${dataType.caseSensitiveString_255}"/>
+            <column defaultValueBoolean="false" name="EMAILME" type="${dataType.boolean}"/>
+            <column defaultValueBoolean="true" name="ENABLED" type="${dataType.boolean}">
+                <constraints nullable="false"/>
+            </column>
+            <column name="DISPLAYNAME" type="${dataType.caseSensitiveString_255}"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="gocd(generated)" id="26">
+        <createTable tableName="VERSIONINFOS">
+            <column autoIncrement="true" name="ID" type="${dataType.long}">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="COMPONENTNAME" type="${dataType.caseSensitiveString_255}">
+                <constraints nullable="false"/>
+            </column>
+            <column name="INSTALLEDVERSION" type="${dataType.caseSensitiveString_100}">
+                <constraints nullable="false"/>
+            </column>
+            <column name="LATESTVERSION" type="${dataType.caseSensitiveString_50}"/>
+            <column name="LATESTVERSIONUPDATEDAT" type="${dataType.timeStamp}"/>
+        </createTable>
+    </changeSet>
+</databaseChangeLog>

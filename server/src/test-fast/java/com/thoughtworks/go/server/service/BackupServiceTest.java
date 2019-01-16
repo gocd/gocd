@@ -16,7 +16,7 @@
 package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.CaseInsensitiveString;
-import com.thoughtworks.go.database.Database;
+import com.thoughtworks.go.server.database.Database;
 import com.thoughtworks.go.server.domain.BackupStatus;
 import com.thoughtworks.go.server.domain.ServerBackup;
 import com.thoughtworks.go.server.domain.Username;

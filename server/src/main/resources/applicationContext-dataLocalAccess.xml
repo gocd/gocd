@@ -31,7 +31,7 @@
     <context:component-scan base-package="com.thoughtworks.go.server.database"/>
     <context:component-scan base-package="com.thoughtworks.go.server.persistence"/>
     <import resource="propertyConfigurer.xml"/>
-    <import resource="classpath*:optional-development-server-configurer.xml" />
+    <import resource="classpath*:optional-development-server-configurer.xml"/>
 
     <bean id="cache" class="com.opensymphony.oscache.base.Cache">
         <constructor-arg value="true"/>
@@ -47,10 +47,6 @@
         <constructor-arg value="1000"/>
         <!-- capacity -->
     </bean>
-
-    <bean id="databaseUpgraderDataSourceFactory" class="com.thoughtworks.go.server.util.DatabaseUpgraderDataSourceFactory"/>
-
-    <bean id="goDataSource" factory-bean="databaseUpgraderDataSourceFactory" factory-method="dataSource" scope="singleton"/>
 
     <!-- ========================= RESOURCE DEFINITIONS ========================= -->
     <!-- Local Apache Commons DBCP DataSource that refers to a combined database -->
@@ -70,7 +66,8 @@
         </constructor-arg>
     </bean>
 
-    <bean id="transactionSynchronizationManager" class="com.thoughtworks.go.server.transaction.TransactionSynchronizationManager"/>
+    <bean id="transactionSynchronizationManager"
+          class="com.thoughtworks.go.server.transaction.TransactionSynchronizationManager"/>
 
 
     <!-- ========================= HIBERNATE ========================= -->
@@ -83,7 +80,7 @@
                 <value>classpath:/hibernate-mappings/*</value>
             </list>
         </property>
-        <property name="hibernateProperties" ref="hibernateProperties" />
+        <property name="hibernateProperties" ref="hibernateProperties"/>
         <property name="entityInterceptor">
             <bean class="com.thoughtworks.go.server.transaction.TransactionCacheInterceptor" lazy-init="true">
                 <constructor-arg index="0" ref="goCache"/>

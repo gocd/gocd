@@ -23,6 +23,8 @@ import com.thoughtworks.go.util.SystemEnvironment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
+
 public class DatabaseDiskSpaceFullChecker extends DiskSpaceChecker {
     private static final Logger LOGGER = LoggerFactory.getLogger(DatabaseDiskSpaceFullChecker.class);
 
@@ -30,7 +32,8 @@ public class DatabaseDiskSpaceFullChecker extends DiskSpaceChecker {
 
     public DatabaseDiskSpaceFullChecker(EmailSender sender, SystemEnvironment systemEnvironment,
                                         GoConfigService goConfigService, final SystemDiskSpaceChecker diskSpaceChecker) {
-        super(sender, systemEnvironment, systemEnvironment.getDbFolder(), goConfigService, DATABASE_DISK_FULL_ID, diskSpaceChecker);
+        // TODO
+        super(sender, systemEnvironment, new File(SystemEnvironment.DB_BASE_DIR), goConfigService, DATABASE_DISK_FULL_ID, diskSpaceChecker);
     }
 
     @Override

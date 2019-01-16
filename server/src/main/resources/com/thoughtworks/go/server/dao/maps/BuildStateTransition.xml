@@ -43,10 +43,17 @@
         INSERT INTO buildStateTransitions (currentState, stateChangeTime, buildId, stageId)
         VALUES (?, ?, ?, ?)
         <selectKey keyProperty="id" resultType="long" order="AFTER">
-            CALL IDENTITY();
+            <if test="_databaseId == 'h2'">
+                CALL IDENTITY();
+            </if>
+            <if test="_databaseId == 'postgresql'">
+                SELECT lastval();
+            </if>
+            <if test="_databaseId == 'mysql'">
+                SELECT LAST_INSERT_ID();
+            </if>
         </selectKey>
     </insert>
-
 
     <select id="oldestBuild" resultMap="build-transition">
       SELECT * FROM BUILDSTATETRANSITIONS

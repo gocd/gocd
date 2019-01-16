@@ -32,7 +32,7 @@ export class ToggleConfirmModal extends Modal {
     this.onsave     = onsave;
   }
 
-  body(): JSX.Element {
+  body(): m.Children {
     return <div>{this.message}</div>;
   }
 
@@ -40,7 +40,7 @@ export class ToggleConfirmModal extends Modal {
     return this.modalTitle;
   }
 
-  buttons(): JSX.Element[] {
+  buttons(): m.ChildArray {
     return [
       <Buttons.Primary data-test-id="button-save" onclick={this.onsave.bind(this)}>Save</Buttons.Primary>,
       <Buttons.Cancel data-test-id="button-cancel" onclick={this.close.bind(this)}>Cancel</Buttons.Cancel>

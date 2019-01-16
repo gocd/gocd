@@ -27,7 +27,7 @@ describe("Modal", () => {
         super();
       }
 
-      body(): JSX.Element {
+      body(): m.Children {
         return m("p", "Hello World!");
       }
 
@@ -35,7 +35,7 @@ describe("Modal", () => {
         return "Test Modal";
       }
 
-      buttons(): JSX.Element[] {
+      buttons(): m.ChildArray {
         return [
           <Buttons.Primary>OK</Buttons.Primary>,
           <Buttons.Cancel>Cancel</Buttons.Cancel>
@@ -84,7 +84,7 @@ describe("Modal", () => {
         super();
       }
 
-      body(): JSX.Element {
+      body(): m.Children {
         return m("p", "Hello World!");
       }
 

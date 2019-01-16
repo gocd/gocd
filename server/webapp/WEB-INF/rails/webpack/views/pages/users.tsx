@@ -108,7 +108,7 @@ export class UsersPage extends Page<null, State> {
     vnode.state.users = () => vnode.state.userFilters().performFilteringOn(vnode.state.initialUsers());
   }
 
-  componentToDisplay(vnode: m.Vnode<null, State>): JSX.Element | undefined {
+  componentToDisplay(vnode: m.Vnode<null, State>): m.Children {
     return (
       <div>
         <FlashMessage type={this.flashMessage.type} message={this.flashMessage.message}/>

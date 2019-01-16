@@ -113,7 +113,7 @@ export class ConfigReposPage extends Page<null, State> {
     new AjaxPoller({repeaterFn: this.refreshConfigRepos.bind(this, vnode), initialIntervalSeconds: 10}).start();
   }
 
-  componentToDisplay(vnode: m.Vnode<null, State>): JSX.Element | undefined {
+  componentToDisplay(vnode: m.Vnode<null, State>): m.Children {
     return <div>
       <FlashMessage type={this.flashMessage.type} message={this.flashMessage.message}/>
       <ConfigReposWidget objects={vnode.state.objects}

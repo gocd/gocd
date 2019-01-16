@@ -19,7 +19,7 @@ import {Modal} from "../index";
 
 export class Sample2 extends Modal {
 
-  body(): JSX.Element {
+  body(): m.Children {
     return <p>Here's another modal</p>;
   }
 

@@ -98,7 +98,7 @@ export class RolesPage extends Page<null, State> {
     };
   }
 
-  componentToDisplay(vnode: m.Vnode<null, State>): JSX.Element | undefined {
+  componentToDisplay(vnode: m.Vnode<null, State>): m.Children {
     let mayBeNoPluginMessage;
     if (!vnode.state.pluginInfos || vnode.state.pluginInfos.length === 0) {
       mayBeNoPluginMessage = (<FlashMessage type={MessageType.info}

@@ -264,7 +264,7 @@ abstract class ConfigRepoModal extends Modal {
     this.pluginInfos      = pluginInfos;
   }
 
-  body(): JSX.Element {
+  body(): m.Children {
     if (this.error) {
       return (<FlashMessage type={MessageType.alert} message={this.error}/>);
     }
@@ -291,7 +291,7 @@ abstract class ConfigRepoModal extends Modal {
 
   }
 
-  buttons(): JSX.Element[] {
+  buttons(): m.ChildArray {
     return [
       <Buttons.Primary data-test-id="button-ok" onclick={this.performSave.bind(this)}>Save</Buttons.Primary>,
       <Buttons.Cancel data-test-id="button-cancel" onclick={this.close.bind(this)}>Cancel</Buttons.Cancel>

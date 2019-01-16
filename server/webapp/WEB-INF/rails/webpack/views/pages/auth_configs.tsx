@@ -86,7 +86,7 @@ export class AuthConfigsPage extends Page<null, State> {
     };
   }
 
-  componentToDisplay(vnode: m.Vnode<null, State>): JSX.Element | undefined {
+  componentToDisplay(vnode: m.Vnode<null, State>): m.Children {
     return <div>
       <FlashMessage type={this.flashMessage.type} message={this.flashMessage.message}/>
       <AuthConfigsWidget authConfigs={vnode.state.authConfigs}

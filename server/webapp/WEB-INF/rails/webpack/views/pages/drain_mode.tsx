@@ -97,7 +97,7 @@ export class DrainModePage extends Page<null, State> {
     new AjaxPoller(options).start();
   }
 
-  componentToDisplay(vnode: m.Vnode<null, State>): JSX.Element | undefined {
+  componentToDisplay(vnode: m.Vnode<null, State>): m.Children {
     const mayBeMessage = (vnode.state.message && vnode.state.message.message !== null) ?
       <FlashMessage type={vnode.state.message.type} message={vnode.state.message.message}/> : null;
     return (

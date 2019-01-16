@@ -41,9 +41,9 @@ export abstract class Modal extends MithrilViewComponent<any> {
 
   abstract title(): string;
 
-  abstract body(): JSX.Element;
+  abstract body(): m.Children;
 
-  buttons(): JSX.Element[] {
+  buttons(): m.ChildArray {
     return [<Buttons.Primary data-test-id='button-ok' onclick={this.close.bind(this)}>OK</Buttons.Primary>];
   }
 

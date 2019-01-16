@@ -30,7 +30,7 @@ export abstract class Page<Attrs = {}, State = {}> extends MithrilComponent<Attr
 
   protected pageState: PageState = PageState.LOADING;
 
-  abstract componentToDisplay(vnode: m.Vnode<Attrs, State>): JSX.Element | undefined;
+  abstract componentToDisplay(vnode: m.Vnode<Attrs, State>): m.Children;
 
   abstract pageName(): string;
 

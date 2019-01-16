@@ -50,8 +50,8 @@ export class UserSearchModal extends Modal {
     this.refreshUsers     = refreshUsers;
   }
 
-  body(): JSX.Element {
-    let optionalErrorMesage: JSX.Element | null = null;
+  body(): m.Children {
+    let optionalErrorMesage: m.Children;
 
     if (this.modalLevelMessage.hasMessage()) {
       optionalErrorMesage =
@@ -72,7 +72,7 @@ export class UserSearchModal extends Modal {
     );
   }
 
-  buttons(): JSX.Element[] {
+  buttons(): m.ChildArray {
     return [
       <Buttons.Primary data-test-id="button-add" onclick={this.addUser.bind(this)}>Add</Buttons.Primary>,
       <Buttons.Cancel data-test-id="button-close" onclick={this.close.bind(this)}>Cancel</Buttons.Cancel>

@@ -737,7 +737,7 @@ task newSPA {
           }
           
           export class ${entityName}Page extends Page<null, State> {
-            componentToDisplay(vnode: m.Vnode<null, State>): JSX.Element | undefined {
+            componentToDisplay(vnode: m.Vnode<null, State>): m.Children {
               return <${entityName}Widget/>;
             }
           

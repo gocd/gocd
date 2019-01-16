@@ -32,7 +32,7 @@ export class DeleteConfirmModal extends Modal {
     this.ondelete   = ondelete;
   }
 
-  body(): JSX.Element {
+  body(): m.Children {
     return <div>{this.message}</div>;
   }
 
@@ -40,7 +40,7 @@ export class DeleteConfirmModal extends Modal {
     return this.modalTitle;
   }
 
-  buttons(): JSX.Element[] {
+  buttons(): m.ChildArray {
     return [
       <Buttons.Danger data-test-id='button-delete' onclick={this.ondelete.bind(this)}>Yes Delete</Buttons.Danger>,
       <Buttons.Cancel data-test-id='button-no-delete' onclick={this.close.bind(this)}>No</Buttons.Cancel>

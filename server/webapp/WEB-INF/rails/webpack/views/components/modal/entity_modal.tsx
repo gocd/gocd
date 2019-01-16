@@ -67,7 +67,7 @@ export abstract class EntityModal<T extends ValidatableMixin> extends Modal {
     this.operationPromise().then(this.onSaveResult.bind(this));
   }
 
-  body(): JSX.Element {
+  body(): m.Children {
     if (this.errorMessage()) {
       return (<FlashMessage type={MessageType.alert} message={this.errorMessage()}/>);
     }

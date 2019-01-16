@@ -49,7 +49,7 @@ export class PluginSettingsModal extends Modal {
   }
 
   body() {
-    let errorSection: JSX.Element | undefined;
+    let errorSection: m.Children;
 
     if (this.errorMessage) {
       errorSection = (<FlashMessage type={MessageType.alert} message={this.errorMessage}/>);
@@ -74,7 +74,7 @@ export class PluginSettingsModal extends Modal {
     );
   }
 
-  buttons(): JSX.Element[] {
+  buttons(): m.ChildArray {
     return [
       <Buttons.Primary onclick={this.performSave.bind(this)}>Save</Buttons.Primary>,
       <Buttons.Cancel onclick={this.close.bind(this)}>Cancel</Buttons.Cancel>

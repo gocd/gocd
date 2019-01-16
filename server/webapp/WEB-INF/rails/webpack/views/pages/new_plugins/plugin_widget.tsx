@@ -26,7 +26,7 @@ import * as Icons from "views/components/icons";
 import {KeyValuePair, KeyValueTitle} from "views/components/key_value_pair";
 
 interface PluginHeaderAttrs {
-  image: JSX.Element;
+  image: m.Children;
   pluginId: string;
   pluginName: string;
   pluginVersion: string;
@@ -82,7 +82,7 @@ export class PluginWidget extends MithrilViewComponent<Attrs> {
                                        onclick={vnode.attrs.onEdit.bind(vnode.attrs)}/>;
     }
 
-    let pluginData = new Map<string, string | JSX.Element>([
+    let pluginData = new Map<string, string | m.Children>([
       ["Id", pluginInfo.id],
       ["Description", pluginInfo.about.description],
       ["Author", this.getAuthorInfo(pluginInfo)],
@@ -109,7 +109,7 @@ export class PluginWidget extends MithrilViewComponent<Attrs> {
     );
   }
 
-  private getAuthorInfo(pluginInfo: PluginInfo<any>): JSX.Element {
+  private getAuthorInfo(pluginInfo: PluginInfo<any>): m.Children {
     return (
       <a target="_blank" href={pluginInfo.about.vendor.url}>
         {pluginInfo.about.vendor.name}

@@ -37,7 +37,7 @@ export class ServerHealthMessagesModal extends Modal {
     this.messages = messages;
   }
 
-  body(): JSX.Element {
+  body(): m.Children {
     return <ul className={styles.serverHealthStatuses}>
       {
         this.messages().collect((msg: ServerHealthMessage) => {

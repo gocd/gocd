@@ -161,19 +161,15 @@ public class Routes {
 
     public static class Environments {
         public static final String DOC = "https://api.go.cd/current/#environment-config";
-
         public static final String BASE = "/api/admin/environments";
-
         public static final String NAME = "/:name";
 
         public static String find() {
             return BASE + NAME;
         }
-
         public static String name(String name) {
             return BASE + NAME.replaceAll(":name", name);
         }
-
     }
 
     public static class DataSharing {

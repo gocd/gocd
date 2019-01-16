@@ -21,9 +21,6 @@ import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.config.EnvironmentPipelineConfig;
 import com.thoughtworks.go.spark.Routes;
 
-
-
-
 public class PipelineRepresenter {
     public static void toJSON(OutputWriter outputWriter, EnvironmentPipelineConfig pipelineConfig) {
         outputWriter

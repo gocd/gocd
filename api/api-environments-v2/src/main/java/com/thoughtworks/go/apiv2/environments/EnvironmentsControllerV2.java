@@ -103,7 +103,7 @@ public class EnvironmentsControllerV2 extends ApiController implements SparkSpri
     public String show(Request request, Response response) throws IOException {
         String environmentName = request.params("name");
 
-        EnvironmentConfig  environmentConfig = fetchEntityFromConfig(environmentName);
+        EnvironmentConfig environmentConfig = fetchEntityFromConfig(environmentName);
 
         setEtagHeader(environmentConfig, response);
 
@@ -113,24 +113,20 @@ public class EnvironmentsControllerV2 extends ApiController implements SparkSpri
 
     public String create(Request request, Response response) {
         final BasicEnvironmentConfig environmentConfigToCreate = (BasicEnvironmentConfig) buildEntityFromRequestBody(request);
+        final HttpLocalizedOperationResult operationResult = new HttpLocalizedOperationResult();
 
         haltIfEntityWithSameNameExists(environmentConfigToCreate);
-
-        final HttpLocalizedOperationResult operationResult = new HttpLocalizedOperationResult();
 
         environmentConfigService.createEnvironment(environmentConfigToCreate, currentUsername(), operationResult);
 
         setEtagHeader(environmentConfigToCreate, response);
-
         return handleCreateOrUpdateResponse(request, response, environmentConfigToCreate, operationResult);
     }
 
     public String update(Request request, Response response) {
         String environmentName = request.params("name");
         BasicEnvironmentConfig environmentConfig = (BasicEnvironmentConfig) buildEntityFromRequestBody(request);
-
-        EnvironmentConfig  oldEnvironmentConfig = fetchEntityFromConfig(environmentName);
-
+        EnvironmentConfig oldEnvironmentConfig = fetchEntityFromConfig(environmentName);
         HttpLocalizedOperationResult operationResult = new HttpLocalizedOperationResult();
 
         if (isPutRequestStale(request, oldEnvironmentConfig)) {
@@ -145,7 +141,6 @@ public class EnvironmentsControllerV2 extends ApiController implements SparkSpri
                 environmentConfig, currentUsername(), etagFor(oldEnvironmentConfig), operationResult);
 
         setEtagHeader(environmentConfig, response);
-
         return handleCreateOrUpdateResponse(request, response, environmentConfig, operationResult);
     }
 
@@ -153,11 +148,8 @@ public class EnvironmentsControllerV2 extends ApiController implements SparkSpri
         String environmentName = request.params("name");
         JsonReader jsonReader = GsonTransformer.getInstance().jsonReaderFrom(request.body());
         PatchEnvironmentRequest patchRequest = PatchEnvironmentRequestRepresenter.fromJSON(jsonReader);
-
-
         HttpLocalizedOperationResult operationResult = new HttpLocalizedOperationResult();
-
-        EnvironmentConfig  environmentConfig = fetchEntityFromConfig(environmentName);
+        EnvironmentConfig environmentConfig = fetchEntityFromConfig(environmentName);
 
         environmentConfigService.patchEnvironment(environmentConfig,
                 patchRequest.getPipelineToAdd(),
@@ -173,18 +165,15 @@ public class EnvironmentsControllerV2 extends ApiController implements SparkSpri
         EnvironmentConfig updateConfigElement = fetchEntityFromConfig(environmentName);
 
         setEtagHeader(updateConfigElement, response);
-
         return handleCreateOrUpdateResponse(request, response, updateConfigElement, operationResult);
     }
 
     public String remove(Request request, Response response) {
         String environmentName = request.params("name");
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+        EnvironmentConfig environmentConfig = fetchEntityFromConfig(environmentName);
 
-        EnvironmentConfig  environmentConfig = fetchEntityFromConfig(environmentName);
-
-        environmentConfigService.deleteEnvironment(environmentConfig, currentUsername(),
-                    result);
+        environmentConfigService.deleteEnvironment(environmentConfig, currentUsername(), result);
         return handleSimpleMessageResponse(response, result);
     }
 
@@ -202,7 +191,8 @@ public class EnvironmentsControllerV2 extends ApiController implements SparkSpri
 
     @Override
     public EnvironmentConfig buildEntityFromRequestBody(Request req) {
-        return EnvironmentRepresenter.fromJSON(GsonTransformer.getInstance().jsonReaderFrom(req.body()));
+        JsonReader jsonReader = GsonTransformer.getInstance().jsonReaderFrom(req.body());
+        return EnvironmentRepresenter.fromJSON(jsonReader);
     }
 
     @Override
@@ -228,6 +218,6 @@ public class EnvironmentsControllerV2 extends ApiController implements SparkSpri
                 .map(this::etagFor)
                 .collect(Collectors.joining(SEP_CHAR));
 
-        return DigestUtils.sha256Hex(StringUtils.joinWith(SEP_CHAR, currentUsername().getUsername(), environmentConfigSegment));
+        return DigestUtils.sha256Hex(environmentConfigSegment);
     }
 }

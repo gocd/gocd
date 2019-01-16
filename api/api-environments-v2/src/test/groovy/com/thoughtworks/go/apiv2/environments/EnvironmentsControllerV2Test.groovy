@@ -470,6 +470,15 @@ class EnvironmentsControllerV2Test implements SecurityServiceTrait, ControllerTr
       }
 
       @Test
+      void 'should error out when name parameter is missing'() {
+        postWithApiHeader(controller.controllerPath(), [somethingRandom: "sjdiajdisajdi"])
+
+        assertThatResponse()
+          .isUnprocessableEntity()
+          .hasJsonMessage("Json `{\\\"somethingRandom\\\":\\\"sjdiajdisajdi\\\"}` does not contain property 'name'")
+      }
+
+      @Test
       void 'should error out if the environment already exists'() {
         when(environmentConfigService.getMergedEnvironmentforDisplay(anyString(), any(HttpLocalizedOperationResult.class)))
           .thenReturn(new ConfigElementForEdit<EnvironmentConfig>(new BasicEnvironmentConfig(), "md5string"))

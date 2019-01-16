@@ -43,7 +43,4 @@
       </stage>
     </pipeline>
   </pipelines>
-  <agents>
-    <agent hostname="in-dvishal.local" ipaddress="127.0.0.1" uuid="88c6bd38-8fbe-4d72-a893-c55cf1d3d62b" />
-  </agents>
 </cruise>

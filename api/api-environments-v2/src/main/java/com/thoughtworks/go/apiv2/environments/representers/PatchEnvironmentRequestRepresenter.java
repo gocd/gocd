@@ -21,37 +21,44 @@ import com.thoughtworks.go.apiv2.environments.model.PatchEnvironmentRequest;
 import com.thoughtworks.go.config.EnvironmentVariableConfig;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
+
+import static java.util.Collections.emptyList;
 
 public class PatchEnvironmentRequestRepresenter {
     public static PatchEnvironmentRequest fromJSON(JsonReader jsonReader) {
-        List<String> pipelineToAdd = extractListFromJson(jsonReader, "pipelines", "add");
-        List<String> pipelineToRemove = extractListFromJson(jsonReader, "pipelines", "remove");
-        List<String> agentsToAdd = extractListFromJson(jsonReader, "agents", "add");
-        List<String> agentsToRemove = extractListFromJson(jsonReader, "agents", "remove");
-        List<String> envVariablesToRemove = extractListFromJson(jsonReader, "environment_variables", "remove");
+        List<String> pipelineToAdd = new ArrayList<>();
+        List<String> pipelineToRemove = new ArrayList<>();
+        List<String> agentsToAdd = new ArrayList<>();
+        List<String> agentsToRemove = new ArrayList<>();
+        List<EnvironmentVariableConfig> envVariablesToAdd = new ArrayList<>();
+        List<String> envVariableToRemove = new ArrayList<>();
 
-        List<EnvironmentVariableConfig> environmentVariablesToAdd = new ArrayList<>();
 
-        if (jsonReader.hasJsonObject("environment_variables")) {
-            jsonReader.readJsonObject("environment_variables").readArrayIfPresent("add",
-                    array ->
-                            array.forEach(envVariable -> environmentVariablesToAdd
+        jsonReader.optJsonObject("pipelines").ifPresent(reader -> {
+            pipelineToAdd.addAll(reader.readStringArrayIfPresent("add").orElse(emptyList()));
+            pipelineToRemove.addAll(reader.readStringArrayIfPresent("remove").orElse(emptyList()));
+        });
+
+
+        jsonReader.optJsonObject("agents").ifPresent(reader -> {
+            agentsToAdd.addAll(reader.readStringArrayIfPresent("add").orElse(emptyList()));
+            agentsToRemove.addAll(reader.readStringArrayIfPresent("remove").orElse(emptyList()));
+        });
+
+        jsonReader.optJsonObject("environment_variables").ifPresent(reader -> {
+            envVariableToRemove.addAll(reader.readStringArrayIfPresent("remove").orElse(emptyList()));
+
+            reader.readArrayIfPresent("add", array ->
+                            array.forEach(envVariable -> envVariablesToAdd
                                     .add(EnvironmentVariableRepresenter.fromJSON(envVariable.getAsJsonObject()))
                             ));
-        }
+        });
 
         PatchEnvironmentRequest patchRequest = new PatchEnvironmentRequest(
-            pipelineToAdd, pipelineToRemove, agentsToAdd, agentsToRemove, environmentVariablesToAdd, envVariablesToRemove
+                pipelineToAdd, pipelineToRemove, agentsToAdd, agentsToRemove, envVariablesToAdd, envVariableToRemove
         );
 
         return patchRequest;
-    }
-
-    private static List<String> extractListFromJson(JsonReader jsonReader, String parentKey, String childKey) {
-        return (jsonReader.hasJsonObject(parentKey))
-                ? jsonReader.readJsonObject(parentKey).readStringArrayIfPresent(childKey).orElseGet(Collections::emptyList)
-                : Collections.emptyList();
     }
 }

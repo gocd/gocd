@@ -79,6 +79,19 @@ class PartialConfigParseResultRepresenterTest {
   }
 
   @Test
+  void 'toJSON() with no modification and having an error'() {
+    def exception = new Exception("Boom!")
+    PartialConfigParseResult result = PartialConfigParseResult.parseFailed(null, exception)
+    String json = toObjectString({ w -> PartialConfigParseResultRepresenter.toJSON(w, result) })
+
+    assertThatJson(json).isEqualTo([
+      latest_parsed_modification: null,
+      good_modification         : null,
+      error                     : 'Boom!'
+    ])
+  }
+
+  @Test
   void 'toJSON() with old modification being good and latest parsed modification being bad'() {
     def modification = ModificationsMother.oneModifiedFile("rev1")
     def modification2 = ModificationsMother.oneModifiedFile("rev1")

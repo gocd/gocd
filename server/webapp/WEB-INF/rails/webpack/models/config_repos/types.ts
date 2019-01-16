@@ -114,7 +114,7 @@ export class ConfigRepo implements ValidatableMixin {
 
   static fromJSON(json: ConfigRepoJSON) {
     const configurations = json.configuration.map((config) => Configuration.fromJSON(config));
-    const parseInfo        = ParseInfo.fromJSON(json.parse_info);
+    const parseInfo      = ParseInfo.fromJSON(json.parse_info);
 
     const configRepo = new ConfigRepo(json.id,
                                       json.plugin_id,
@@ -179,11 +179,11 @@ export class MaterialModification {
 
 export class ParseInfo {
   error: Stream<string | null>;
-  readonly latestParsedModification: MaterialModification;
-  readonly goodModification: MaterialModification;
+  readonly latestParsedModification: MaterialModification | null;
+  readonly goodModification: MaterialModification | null;
 
-  constructor(latestParsedModification: MaterialModification,
-              goodModification: MaterialModification,
+  constructor(latestParsedModification: MaterialModification | null,
+              goodModification: MaterialModification | null,
               error: string | undefined | null) {
     this.latestParsedModification = latestParsedModification;
     this.goodModification         = goodModification;
@@ -192,8 +192,8 @@ export class ParseInfo {
 
   static fromJSON(json: ParseInfoJSON) {
     if (!_.isEmpty(json)) {
-      const latestParsedModification = MaterialModification.fromJSON(json.latest_parsed_modification);
-      const goodModification         = MaterialModification.fromJSON(json.good_modification);
+      const latestParsedModification = json.latest_parsed_modification ? MaterialModification.fromJSON(json.latest_parsed_modification) : null;
+      const goodModification         = json.good_modification ? MaterialModification.fromJSON(json.good_modification) : null;
 
       return new ParseInfo(latestParsedModification, goodModification, json.error);
     }

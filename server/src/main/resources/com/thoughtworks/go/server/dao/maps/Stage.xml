@@ -164,7 +164,23 @@
         fetchMaterials, cleanWorkingDir, rerunOfCounter, configVersion, lastTransitionedTime)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         <selectKey keyProperty="id" resultType="long" order="AFTER">
-            CALL IDENTITY();
+            <if test="_databaseId == 'h2'">
+                CALL IDENTITY();
+            </if>
+            <if test="_databaseId == 'postgresql'">
+                SELECT lastval();
+            </if>
+            <if test="_databaseId == 'mysql'">
+                SELECT LAST_INSERT_ID();
+            </if>
+        </selectKey>
+    </insert>
+
+    <insert id="insertStage-mysql" parameterMap="insert-stage-param">
+        INSERT INTO stages (name, pipelineId, approvedBy, createdTime, orderId, approvalType, counter, state, latestRun, fetchMaterials, cleanWorkingDir, rerunOfCounter, configVersion, lastTransitionedTime)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        <selectKey keyProperty="id" resultType="long" order="AFTER">
+            SELECT LAST_INSERT_ID();
         </selectKey>
     </insert>
 
@@ -191,8 +207,8 @@
     </select>
 
     <select id="getMostRecentCompletedStage" resultMap="select-stage-without-builds">
-        SELECT id as stageId, name as stageName, result as stageResult, counter as stageCounter, state as stageState, *
-        FROM _stages
+        SELECT id as stageId, name as stageName, result as stageResult, counter as stageCounter, state as stageState, s.*
+        FROM _stages s
         WHERE pipelineName = #{pipelineName} AND name = #{stageName}
         AND result IS NOT NULL AND result != 'Unknown'
         ORDER BY id DESC
@@ -211,8 +227,8 @@
 
 
     <select id="getMostRecentStage" resultMap="select-stage-with-identifier">
-        SELECT id as stageId, name as stageName, result as stageResult, counter as stageCounter, state as stageState, *
-        FROM _stages
+        SELECT id as stageId, name as stageName, result as stageResult, counter as stageCounter, state as stageState, s.*
+        FROM _stages s
         WHERE name = #{stageName}
             AND pipelineName = #{pipelineName}
         ORDER BY id DESC
@@ -410,8 +426,8 @@
     </sql>
 
     <select id="findStageHistoryForChartPerPipeline" resultMap="select-stage-with-identifier">
-        SELECT id as stageId, name as stageName, result as stageResult, counter as stageCounter, state as stageState, *
-        FROM _stages
+        SELECT id as stageId, name as stageName, result as stageResult, counter as stageCounter, state as stageState, s.*
+        FROM _stages s
         WHERE pipelineName = #{pipelineName} AND name = #{stageName} AND rerunOfCounter IS NULL AND state != 'Cancelled'
         ORDER BY id DESC
         LIMIT #{limit} OFFSET #{offset}
@@ -440,8 +456,8 @@
 
     <select id="findStageHistoryPage" resultMap="select-stage-history-entry">
         SELECT
-            id as stageId, name as stageName, counter as stageCounter, state as stageState, *
-        FROM _stages
+            id as stageId, name as stageName, counter as stageCounter, state as stageState, s.*
+        FROM _stages s
         WHERE name = #{stageName}
         AND pipelineName = #{pipelineName}
         ORDER BY id DESC
@@ -450,8 +466,8 @@
 
     <select id="findStageHistoryEntryBefore" resultMap="select-stage-history-entry">
         SELECT
-            id as stageId, name as stageName, counter as stageCounter, state as stageState, *
-        FROM _stages
+            id as stageId, name as stageName, counter as stageCounter, state as stageState, s.*
+        FROM _stages s
         WHERE
           name = #{stageName}
           AND pipelineName = #{pipelineName}

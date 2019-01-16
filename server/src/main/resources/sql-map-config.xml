@@ -61,6 +61,12 @@
         handler="org.apache.ibatis.type.EnumTypeHandler"/>
   </typeHandlers>
 
+  <databaseIdProvider type="DB_VENDOR">
+    <property name="MySQL" value="mysql"/>
+    <property name="H2" value="h2"/>
+    <property name="PostgreSQL" value="postgresql"/>
+  </databaseIdProvider>
+
   <mappers>
     <mapper resource="com/thoughtworks/go/server/dao/maps/Pipeline.xml"/>
     <mapper resource="com/thoughtworks/go/server/dao/maps/Stage.xml"/>

@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.server.service;
 
-import com.googlecode.junit.ext.RunIf;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.GoConfigDao;
@@ -26,7 +25,6 @@ import com.thoughtworks.go.config.materials.mercurial.HgMaterial;
 import com.thoughtworks.go.domain.valuestreammap.Node;
 import com.thoughtworks.go.helper.MaterialsMother;
 import com.thoughtworks.go.helpers.GraphGenerator;
-import com.thoughtworks.go.junitext.DatabaseChecker;
 import com.thoughtworks.go.junitext.GoJUnitExtSpringRunner;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.domain.Username;
@@ -122,7 +120,6 @@ public class ValueStreamMapPerformanceTest {
     }
 
     @Test(timeout = 240000)
-    @RunIf(value = DatabaseChecker.class, arguments = {DatabaseChecker.H2})
     public void shouldTestVSMForMeshInUpstreamAndDownstream() throws Exception {
         int numberOfNodesPerLevel = 5;
         int numberOfLevels = 5;

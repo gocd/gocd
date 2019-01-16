@@ -48,7 +48,7 @@ import com.thoughtworks.go.helper.*;
 import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.dao.PipelineSqlMapDao;
-import com.thoughtworks.go.server.database.DatabaseStrategy;
+import com.thoughtworks.go.server.database.Database;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.InstanceFactory;
 import com.thoughtworks.go.server.service.MaterialConfigConverter;
@@ -121,7 +121,7 @@ public class MaterialRepositoryIntegrationTest {
     @Autowired
     private MaterialExpansionService materialExpansionService;
     @Autowired
-    private DatabaseStrategy databaseStrategy;
+    private Database databaseStrategy;
 
     private HibernateTemplate originalTemplate;
     private String md5 = "md5-test";

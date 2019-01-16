@@ -20,7 +20,6 @@ import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterial;
-import com.thoughtworks.go.database.Database;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.domain.materials.Modification;
@@ -30,6 +29,7 @@ import com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModels;
 import com.thoughtworks.go.server.cache.CacheKeyGenerator;
 import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.cache.LazyCache;
+import com.thoughtworks.go.server.database.Database;
 import com.thoughtworks.go.server.domain.StageStatusListener;
 import com.thoughtworks.go.server.initializers.Initializer;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
@@ -37,7 +37,6 @@ import com.thoughtworks.go.server.transaction.SqlMapClientDaoSupport;
 import com.thoughtworks.go.server.transaction.TransactionSynchronizationManager;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.server.util.Pagination;
-import com.thoughtworks.go.server.util.SqlUtil;
 import com.thoughtworks.go.util.Clock;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.TimeProvider;
@@ -931,7 +930,7 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
             return loadHistoryForDashboard(pipelineNames.get(0));
         }
 
-        Map<String, Object> args = arguments("pipelineNames", SqlUtil.joinWithQuotesForSql(pipelineNames.toArray())).asMap();
+        Map<String, Object> args = arguments("pipelineNames", pipelineNames).asMap();
         List<PipelineInstanceModel> resultSet = getSqlMapClientTemplate().queryForList("getPipelinesForDashboard", args);
         return PipelineInstanceModels.createPipelineInstanceModels(resultSet);
     }

@@ -15,7 +15,7 @@
  */
 package com.thoughtworks.go.server.dao;
 
-import com.thoughtworks.go.database.Database;
+import com.thoughtworks.go.server.database.Database;
 import com.thoughtworks.go.domain.Pipeline;
 import com.thoughtworks.go.domain.PipelineState;
 import com.thoughtworks.go.domain.Stage;

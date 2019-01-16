@@ -17,9 +17,9 @@
 package com.thoughtworks.go.apiv1.webhook.request.mixins.bitbucketcloud;
 
 import com.thoughtworks.go.apiv1.webhook.request.mixins.HasAuth;
-import org.h2.util.Utils;
 import spark.Request;
 
+import java.security.MessageDigest;
 import java.util.Base64;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -38,7 +38,7 @@ public interface BitBucketCloudAuth extends HasAuth {
             throw die("No token specified via basic authentication!");
         }
 
-        if (!Utils.compareSecure(token.getBytes(), webhookSecret.getBytes())) {
+        if (!MessageDigest.isEqual(token.getBytes(), webhookSecret.getBytes())) {
             throw die("Token specified via basic authentication did not match!");
         }
 

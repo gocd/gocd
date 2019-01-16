@@ -15,67 +15,41 @@
  */
 package com.thoughtworks.go.server.transaction;
 
-import com.thoughtworks.go.database.Database;
 import com.thoughtworks.go.server.cache.GoCache;
-import com.thoughtworks.go.util.SystemEnvironment;
-import org.apache.ibatis.mapping.MappedStatement;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.springframework.jdbc.JdbcUpdateAffectedIncorrectNumberOfRowsException;
 
 import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
 
 public class SqlMapClientTemplate {
     private GoCache goCache;
     private final org.mybatis.spring.SqlSessionTemplate delegate;
-    private final SystemEnvironment systemEnvironment;
-    private final Database database;
 
-    private final ConcurrentHashMap<String, String> translatedStatementNames = new ConcurrentHashMap<>();
-
-    public SqlMapClientTemplate(GoCache goCache, SystemEnvironment systemEnvironment, Database database, SqlSessionFactory sqlSessionFactory) {
+    public SqlMapClientTemplate(GoCache goCache, SqlSessionFactory sqlSessionFactory) {
         this.goCache = goCache;
         this.delegate = new org.mybatis.spring.SqlSessionTemplate(sqlSessionFactory);
-        this.systemEnvironment = systemEnvironment;
-        this.database = database;
-    }
-
-    private String translateStatementName(String statementName) {
-        return translatedStatementNames.computeIfAbsent(statementName, statementName1 -> {
-            if (systemEnvironment.isDefaultDbProvider()) {
-                return statementName1;
-            }
-            String forExternalDb = String.format("%s-%s", statementName1, database.getType());
-            MappedStatement statement;
-            try {
-                statement = delegate.getConfiguration().getMappedStatement(forExternalDb);
-            } catch (Exception e) {
-                statement = null;
-            }
-            return statement != null ? forExternalDb : statementName1;
-        });
     }
 
     public Object queryForObject(String statementName, Object parameter) {
-        return delegate.selectOne(translateStatementName(statementName), parameter);
+        return delegate.selectOne(statementName, parameter);
     }
 
     public List queryForList(String statementName, Object parameter) {
-        return delegate.selectList(translateStatementName(statementName), parameter);
+        return delegate.selectList(statementName, parameter);
     }
 
     public List queryForList(String statementName) {
-        return delegate.selectList(translateStatementName(statementName));
+        return delegate.selectList(statementName);
     }
 
     public void insert(String statementName, Object parameter) {
         goCache.stopServingForTransaction();
-        delegate.insert(translateStatementName(statementName), parameter);
+        delegate.insert(statementName, parameter);
     }
 
     public int update(String statementName, Object parameter) {
         goCache.stopServingForTransaction();
-        return delegate.update(translateStatementName(statementName), parameter);
+        return delegate.update(statementName, parameter);
     }
 
     public void update(String statementName, Object parameter, int requiredRowsAffected) {
@@ -89,6 +63,6 @@ public class SqlMapClientTemplate {
 
     public void delete(String statementName, Object parameter) {
         goCache.stopServingForTransaction();
-        delegate.delete(translateStatementName(statementName), parameter);
+        delegate.delete(statementName, parameter);
     }
 }

@@ -36,16 +36,17 @@ class LicenseReport {
     'Custom: https://raw.github.com/bjoerge/deferred.js/master/dist/dfrrd.js',
     'dom4j BSD license',
     'Similar to Apache License but with the acknowledgment clause removed',
-    'The H2 License, Version 1.0',
     'The OpenSymphony Software License 1.1',
     '(OFL-1.1 AND MIT)',
     "GPLv2 with the Classpath Exception",
-    "GNU LESSER GENERAL PUBLIC LICENSE, Version 2.1"
+    "GNU LESSER GENERAL PUBLIC LICENSE, Version 2.1",
+    "MPL 2.0 or EPL 1.0",
   ]
 
   private static Set<String> ALLOWED_LICENSES = (LICENSE_EXCEPTIONS + [
     APACHE_1_1,
     APACHE_2_0,
+    BSD_2_CLAUSE,
     BSD_2_CLAUSE_FREEBSD,
     BSD_3_CLAUSE,
     CDDL_1_0,
@@ -96,7 +97,7 @@ class LicenseReport {
           licensesForPackagedJarDependencies.each { String moduleName, Map<String, Object> moduleLicenseData ->
             // find what project contains the specific module
             def additionalFiles = []
-            def projectWithDependency = rootProject.subprojects.find { Project eachProject ->
+            def projectWithDependency = rootProject.allprojects.find { Project eachProject ->
               additionalFiles = eachProject.fileTree("${eachProject.licenseReport.outputDir}/${moduleLicenseData.moduleName.split(':').first()}-${moduleLicenseData.moduleVersion}.jar")
               !additionalFiles.isEmpty()
             }

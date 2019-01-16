@@ -90,16 +90,6 @@ class ExecuteUnderRailsTask extends JavaExec {
       into project.rails.testConfigDir
     }
 
-    project.copy {
-      from('db/dbtemplate/h2db')
-      into project.rails.testH2DbDir
-    }
-
-    project.copy {
-      from('db/migrate/h2deltas')
-      into project.rails.testDbDeltasDir
-    }
-
     try {
       debugEnvironment(this, originalEnv)
       dumpTaskCommand(this)

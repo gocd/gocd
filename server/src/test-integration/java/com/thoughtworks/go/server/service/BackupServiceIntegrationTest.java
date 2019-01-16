@@ -19,7 +19,7 @@ import com.thoughtworks.go.CurrentGoCDVersion;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.materials.SubprocessExecutionContext;
 import com.thoughtworks.go.config.materials.git.GitMaterial;
-import com.thoughtworks.go.database.Database;
+import com.thoughtworks.go.server.database.Database;
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.domain.materials.RevisionContext;
 import com.thoughtworks.go.domain.materials.mercurial.StringRevision;

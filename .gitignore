@@ -53,6 +53,7 @@ hs_err_pid*
 
 # ignore cipher file generated at runtime
 server/config/cipher.aes
+server/config/db.properties
 
 resources-generated/
 .DS_Store
@@ -216,6 +217,16 @@ config/config-server/out/
 config/config-server/target/
 db/out/
 db/target/
+db-support/db-migration/out/
+db-support/db-migration/target/
+db-support/db-support-base/out/
+db-support/db-support-base/target/
+db-support/db-support-h2/out/
+db-support/db-support-h2/target/
+db-support/db-support-mysql/out/
+db-support/db-support-mysql/target/
+db-support/db-support-postgresql/out/
+db-support/db-support-postgresql/target/
 development-utility/development-agent/out/
 development-utility/development-agent/target/
 development-utility/development-server/out/
@@ -270,8 +281,6 @@ server/current/
 server/data/
 server/db/config.git/
 server/db/h2db/
-server/db/shine/
-server/db/h2deltas/
 server/felix-cache/
 server/logs/
 server/out/

@@ -17,7 +17,8 @@
 package com.thoughtworks.go.apiv1.webhook.request.mixins.gitlab;
 
 import com.thoughtworks.go.apiv1.webhook.request.mixins.HasAuth;
-import org.h2.util.Utils;
+
+import java.security.MessageDigest;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
@@ -29,7 +30,7 @@ public interface GitLabAuth extends HasAuth {
             throw die("No token specified in the 'X-Gitlab-Token' header!");
         }
 
-        if (!Utils.compareSecure(token.getBytes(), webhookSecret.getBytes())) {
+        if (!MessageDigest.isEqual(token.getBytes(), webhookSecret.getBytes())) {
             throw die("Token specified in the 'X-Gitlab-Token' header did not match!");
         }
     }

@@ -1,0 +1,402 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!--
+  ~ Copyright 2020 ThoughtWorks, Inc.
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+    <changeSet author="gocd(generated)" id="27">
+        <addUniqueConstraint columnNames="JOBID" tableName="JOBAGENTMETADATA"/>
+    </changeSet>
+    <changeSet author="gocd(generated)" id="28">
+        <addUniqueConstraint columnNames="VALUE" tableName="ACCESSTOKEN"/>
+    </changeSet>
+    <changeSet author="gocd(generated)" id="29">
+        <addUniqueConstraint columnNames="SALTID" tableName="ACCESSTOKEN"/>
+    </changeSet>
+    <changeSet author="gocd(generated)" id="30">
+        <addUniqueConstraint columnNames="SALTVALUE" tableName="ACCESSTOKEN"/>
+    </changeSet>
+    <changeSet author="gocd(generated)" id="31">
+        <addUniqueConstraint columnNames="UUID" tableName="AGENTS"/>
+    </changeSet>
+    <changeSet author="gocd(generated)" id="32">
+        <addUniqueConstraint columnNames="COOKIE" tableName="AGENTS"/>
+    </changeSet>
+    <changeSet author="gocd(generated)" id="33">
+        <addUniqueConstraint columnNames="COMPONENTNAME" tableName="VERSIONINFOS"/>
+    </changeSet>
+    <changeSet author="gocd(generated)" id="34">
+        <addUniqueConstraint columnNames="PLUGINID" tableName="PLUGINS"/>
+    </changeSet>
+    <changeSet author="gocd(generated)" id="35">
+        <addUniqueConstraint columnNames="FLYWEIGHTNAME" constraintName="MATERIALS_FLYWEIGHTNAME_UNIQUE"
+                             tableName="MATERIALS"/>
+    </changeSet>
+    <changeSet author="gocd(generated)" id="36">
+        <addUniqueConstraint columnNames="FINGERPRINT" constraintName="UNIQUE_FINGERPRINT" tableName="MATERIALS"/>
+    </changeSet>
+    <changeSet author="gocd(generated)" id="37">
+        <addUniqueConstraint columnNames="NAME" constraintName="UNIQUE_NAME" tableName="USERS"/>
+    </changeSet>
+    <changeSet author="gocd(generated)" id="38">
+        <addUniqueConstraint columnNames="PIPELINEID, NAME, COUNTER" constraintName="UNIQUE_PIPELINE_ID_NAME_COUNTER"
+                             tableName="STAGES"/>
+    </changeSet>
+    <changeSet author="gocd(generated)" id="39">
+        <addUniqueConstraint columnNames="PIPELINENAME" constraintName="UNIQUE_PIPELINE_NAME"
+                             tableName="PIPELINELABELCOUNTS"/>
+    </changeSet>
+    <changeSet author="gocd(generated)" id="40">
+        <addUniqueConstraint columnNames="PIPELINENAME" constraintName="UNIQUE_PIPELINE_STATE"
+                             tableName="PIPELINESTATES"/>
+    </changeSet>
+    <changeSet author="gocd(generated)" id="41">
+        <createIndex indexName="FK_BUILDTRANSITIONS_STAGES" tableName="BUILDSTATETRANSITIONS">
+            <column name="STAGEID"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="gocd(generated)" id="42">
+        <createIndex indexName="FK_MODIFICATIONS_PIPELINEID" tableName="MODIFICATIONS">
+            <column name="PIPELINEID"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="gocd(generated)" id="43">
+        <createIndex indexName="FK_MODIFIEDFILES_MODIFICATIONS" tableName="MODIFIEDFILES">
+            <column name="MODIFICATIONID"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="gocd(generated)" id="44">
+        <createIndex indexName="FK_NOTIFICATIONFILTERS_USERS" tableName="NOTIFICATIONFILTERS">
+            <column name="USERID"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="gocd(generated)" id="45">
+        <createIndex indexName="FK_PIPELINESELECTIONS_USERID" tableName="PIPELINESELECTIONS">
+            <column name="USERID"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="gocd(generated)" id="46">
+        <createIndex indexName="FK_PMR_ACTUALFROMREVISIONID" tableName="PIPELINEMATERIALREVISIONS">
+            <column name="ACTUALFROMREVISIONID"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="gocd(generated)" id="47">
+        <createIndex indexName="FK_PMR_FROM_REVISION" tableName="PIPELINEMATERIALREVISIONS">
+            <column name="FROMREVISIONID"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="gocd(generated)" id="48">
+        <createIndex indexName="FK_PMR_MATERIALID" tableName="PIPELINEMATERIALREVISIONS">
+            <column name="MATERIALID"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="gocd(generated)" id="49">
+        <createIndex indexName="FK_PMR_TO_REVISION" tableName="PIPELINEMATERIALREVISIONS">
+            <column name="TOREVISIONID"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="gocd(generated)" id="50">
+        <createIndex indexName="FK_RESOURCES_BUILDS" tableName="RESOURCES">
+            <column name="BUILDID"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="gocd(generated)" id="51">
+        <createIndex indexName="IDX_ARTIFACTPLAN_BUILD_ID" tableName="ARTIFACTPLANS">
+            <column name="BUILDID"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="gocd(generated)" id="52">
+        <createIndex indexName="IDX_BST_BUILDID_CURRENTSTATE" tableName="BUILDSTATETRANSITIONS">
+            <column name="BUILDID"/>
+            <column name="CURRENTSTATE"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="gocd(generated)" id="53">
+        <createIndex indexName="IDX_BUILDSTATETRANSITION_BUILD_ID" tableName="BUILDSTATETRANSITIONS">
+            <column name="BUILDID"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="gocd(generated)" id="54">
+        <createIndex indexName="IDX_BUILDS_AGENTID_STAGEID_NAME" tableName="BUILDS">
+            <column name="NAME"/>
+            <column name="AGENTUUID"/>
+            <column name="STAGEID"/>
+            <column name="STATE"/>
+            <column name="RESULT"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="gocd(generated)" id="55">
+        <createIndex indexName="IDX_BUILDS_NAME_STAGE_ID" tableName="BUILDS">
+            <column name="NAME"/>
+            <column name="STAGEID"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="gocd(generated)" id="56">
+        <createIndex indexName="IDX_BUILDS_NAME_STATE_STAGEID" tableName="BUILDS">
+            <column name="NAME"/>
+            <column name="STATE"/>
+            <column name="STAGEID"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="gocd(generated)" id="57">
+        <createIndex indexName="IDX_BUILDS_STAGEID" tableName="BUILDS">
+            <column name="STAGEID"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="gocd(generated)" id="58">
+        <createIndex indexName="IDX_BUILD_AGENT" tableName="BUILDS">
+            <column name="AGENTUUID"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="gocd(generated)" id="59">
+        <createIndex indexName="IDX_BUILD_IGNORED" tableName="BUILDS">
+            <column defaultValueBoolean="false" name="IGNORED"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="gocd(generated)" id="60">
+        <createIndex indexName="IDX_BUILD_NAME" tableName="BUILDS">
+            <column name="NAME"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="gocd(generated)" id="61">
+        <createIndex indexName="IDX_BUILD_RESULT" tableName="BUILDS">
+            <column name="RESULT"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="gocd(generated)" id="62">
+        <createIndex indexName="IDX_BUILD_STATE" tableName="BUILDS">
+            <column name="STATE"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="gocd(generated)" id="63">
+        <createIndex indexName="IDX_ENVIRONMENTVARIABLES_ENTITYTYPE" tableName="ENVIRONMENTVARIABLES">
+            <column name="ENTITYTYPE"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="gocd(generated)" id="64">
+        <createIndex indexName="IDX_ENV_JOB_ID" tableName="ENVIRONMENTVARIABLES">
+            <column name="ENTITYID"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="gocd(generated)" id="65">
+        <createIndex indexName="IDX_MATERIALS_PIPELINENAME" tableName="MATERIALS">
+            <column name="PIPELINENAME"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="gocd(generated)" id="66">
+        <createIndex indexName="IDX_MODIFICATIONS_MATERIALID_ID" tableName="MODIFICATIONS">
+            <column name="MATERIALID"/>
+            <column name="ID"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="gocd(generated)" id="67">
+        <createIndex indexName="IDX_MODIFICATIONS_MODIFIEDTIME" tableName="MODIFICATIONS">
+            <column name="MODIFIEDTIME"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="gocd(generated)" id="68">
+        <createIndex indexName="IDX_MODIFICATIONS_REVISION" tableName="MODIFICATIONS">
+            <column name="${index.modifications.revisions.columnName}"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="gocd(generated)" id="69">
+        <createIndex indexName="IDX_MOD_NEW_MATERIAL_ID" tableName="MODIFICATIONS">
+            <column name="MATERIALID"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="gocd(generated)" id="70">
+        <createIndex indexName="IDX_PIPELINELABELCOUNTS_CASEINSENSITIVEPIPELINENAME" tableName="PIPELINELABELCOUNTS">
+            <column name="CASEINSENSITIVEPIPELINENAME"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="gocd(generated)" id="71">
+        <createIndex indexName="IDX_PIPELINES_NAME_COUNTER" tableName="PIPELINES">
+            <column name="NAME"/>
+            <column name="COUNTER"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="gocd(generated)" id="72">
+        <createIndex indexName="IDX_PIPELINE_LABEL" tableName="PIPELINES">
+            <column name="LABEL"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="gocd(generated)" id="73">
+        <createIndex indexName="IDX_PIPELINE_NAME" tableName="PIPELINES">
+            <column name="NAME"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="gocd(generated)" id="74">
+        <createIndex indexName="IDX_PIPELINE_NAME_ID" tableName="PIPELINES">
+            <column name="NAME"/>
+            <column name="ID"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="gocd(generated)" id="75">
+        <createIndex indexName="IDX_PMR_PIPELINE_ID" tableName="PIPELINEMATERIALREVISIONS">
+            <column name="PIPELINEID"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="gocd(generated)" id="76">
+        <createIndex indexName="IDX_STAGEARTIFACTCLEANUPPROHIBITED_PIPELINENAME"
+                     tableName="STAGEARTIFACTCLEANUPPROHIBITED">
+            <column name="PIPELINENAME"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="gocd(generated)" id="77">
+        <createIndex indexName="IDX_STAGES_COMPLETEDBYTRANSITIONID" tableName="STAGES">
+            <column descending="true" name="COMPLETEDBYTRANSITIONID"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="gocd(generated)" id="78">
+        <createIndex indexName="IDX_STAGES_COUNTER_INDEX" tableName="STAGES">
+            <column name="COUNTER"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="gocd(generated)" id="79">
+        <createIndex indexName="IDX_STAGES_NAME_LATESTRUN_RESULT" tableName="STAGES">
+            <column name="NAME"/>
+            <column defaultValueBoolean="false" name="LATESTRUN"/>
+            <column name="RESULT"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="gocd(generated)" id="80">
+        <createIndex indexName="IDX_STAGES_NAME_PIPELINEID" tableName="STAGES">
+            <column name="NAME"/>
+            <column name="PIPELINEID"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="gocd(generated)" id="81">
+        <createIndex indexName="IDX_STAGES_ORDERID" tableName="STAGES">
+            <column name="ORDERID"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="gocd(generated)" id="82">
+        <createIndex indexName="IDX_STAGES_PIPELINEID" tableName="STAGES">
+            <column name="PIPELINEID"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="gocd(generated)" id="83">
+        <createIndex indexName="IDX_STAGES_STATE" tableName="STAGES">
+            <column name="STATE"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="gocd(generated)" id="84">
+        <createIndex indexName="IDX_STAGE_NAME" tableName="STAGES">
+            <column name="NAME"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="gocd(generated)" id="85">
+        <createIndex indexName="IDX_STATE_TRANSITION" tableName="BUILDSTATETRANSITIONS">
+            <column name="CURRENTSTATE"/>
+        </createIndex>
+    </changeSet>
+    <changeSet author="gocd(generated)" id="86">
+        <addForeignKeyConstraint baseColumnNames="BUILDID" baseTableName="ARTIFACTPLANS"
+                                 constraintName="FK_ARTIFACTPLANS_BUILDS" deferrable="false" initiallyDeferred="false"
+                                 onDelete="CASCADE" onUpdate="RESTRICT" referencedColumnNames="ID"
+                                 referencedTableName="BUILDS" validate="true"/>
+    </changeSet>
+    <changeSet author="gocd(generated)" id="87">
+        <addForeignKeyConstraint baseColumnNames="BUILDID" baseTableName="BUILDSTATETRANSITIONS"
+                                 constraintName="FK_BUILDSTATETRANSITIONS_BUILDS" deferrable="false"
+                                 initiallyDeferred="false" onDelete="CASCADE" onUpdate="RESTRICT"
+                                 referencedColumnNames="ID" referencedTableName="BUILDS" validate="true"/>
+    </changeSet>
+    <changeSet author="gocd(generated)" id="88">
+        <addForeignKeyConstraint baseColumnNames="STAGEID" baseTableName="BUILDS" constraintName="FK_BUILDS_STAGES"
+                                 deferrable="false" initiallyDeferred="false" onDelete="CASCADE" onUpdate="RESTRICT"
+                                 referencedColumnNames="ID" referencedTableName="STAGES" validate="true"/>
+    </changeSet>
+    <changeSet author="gocd(generated)" id="89">
+        <addForeignKeyConstraint baseColumnNames="STAGEID" baseTableName="BUILDSTATETRANSITIONS"
+                                 constraintName="FK_BUILDTRANSITIONS_STAGES" deferrable="false"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
+                                 referencedColumnNames="ID" referencedTableName="STAGES" validate="true"/>
+    </changeSet>
+    <changeSet author="gocd(generated)" id="90">
+        <addForeignKeyConstraint baseColumnNames="JOBID" baseTableName="JOBAGENTMETADATA"
+                                 constraintName="FK_JOBAGENTMETADATA_JOBS" deferrable="false" initiallyDeferred="false"
+                                 onDelete="CASCADE" onUpdate="RESTRICT" referencedColumnNames="ID"
+                                 referencedTableName="BUILDS" validate="true"/>
+    </changeSet>
+    <changeSet author="gocd(generated)" id="91">
+        <addForeignKeyConstraint baseColumnNames="PIPELINEID" baseTableName="MODIFICATIONS"
+                                 constraintName="FK_MODIFICATIONS_PIPELINEID" deferrable="false"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
+                                 referencedColumnNames="ID" referencedTableName="PIPELINES" validate="true"/>
+    </changeSet>
+    <changeSet author="gocd(generated)" id="92">
+        <addForeignKeyConstraint baseColumnNames="MODIFICATIONID" baseTableName="MODIFIEDFILES"
+                                 constraintName="FK_MODIFIEDFILES_MODIFICATIONS" deferrable="false"
+                                 initiallyDeferred="false" onDelete="CASCADE" onUpdate="RESTRICT"
+                                 referencedColumnNames="ID" referencedTableName="MODIFICATIONS" validate="true"/>
+    </changeSet>
+    <changeSet author="gocd(generated)" id="93">
+        <addForeignKeyConstraint baseColumnNames="USERID" baseTableName="NOTIFICATIONFILTERS"
+                                 constraintName="FK_NOTIFICATIONFILTERS_USERS" deferrable="false"
+                                 initiallyDeferred="false" onDelete="CASCADE" onUpdate="RESTRICT"
+                                 referencedColumnNames="ID" referencedTableName="USERS" validate="true"/>
+    </changeSet>
+    <changeSet author="gocd(generated)" id="94">
+        <addForeignKeyConstraint baseColumnNames="USERID" baseTableName="PIPELINESELECTIONS"
+                                 constraintName="FK_PIPELINESELECTIONS_USERID" deferrable="false"
+                                 initiallyDeferred="false" onDelete="CASCADE" onUpdate="RESTRICT"
+                                 referencedColumnNames="ID" referencedTableName="USERS" validate="true"/>
+    </changeSet>
+    <changeSet author="gocd(generated)" id="95">
+        <addForeignKeyConstraint baseColumnNames="ACTUALFROMREVISIONID" baseTableName="PIPELINEMATERIALREVISIONS"
+                                 constraintName="FK_PMR_ACTUALFROMREVISIONID" deferrable="false"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT"
+                                 referencedColumnNames="ID" referencedTableName="MODIFICATIONS" validate="true"/>
+    </changeSet>
+    <changeSet author="gocd(generated)" id="96">
+        <addForeignKeyConstraint baseColumnNames="FROMREVISIONID" baseTableName="PIPELINEMATERIALREVISIONS"
+                                 constraintName="FK_PMR_FROM_REVISION" deferrable="false" initiallyDeferred="false"
+                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID"
+                                 referencedTableName="MODIFICATIONS" validate="true"/>
+    </changeSet>
+    <changeSet author="gocd(generated)" id="97">
+        <addForeignKeyConstraint baseColumnNames="MATERIALID" baseTableName="PIPELINEMATERIALREVISIONS"
+                                 constraintName="FK_PMR_MATERIALID" deferrable="false" initiallyDeferred="false"
+                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID"
+                                 referencedTableName="MATERIALS" validate="true"/>
+    </changeSet>
+    <changeSet author="gocd(generated)" id="98">
+        <addForeignKeyConstraint baseColumnNames="PIPELINEID" baseTableName="PIPELINEMATERIALREVISIONS"
+                                 constraintName="FK_PMR_PIPELINE" deferrable="false" initiallyDeferred="false"
+                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID"
+                                 referencedTableName="PIPELINES" validate="true"/>
+    </changeSet>
+    <changeSet author="gocd(generated)" id="99">
+        <addForeignKeyConstraint baseColumnNames="TOREVISIONID" baseTableName="PIPELINEMATERIALREVISIONS"
+                                 constraintName="FK_PMR_TO_REVISION" deferrable="false" initiallyDeferred="false"
+                                 onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="ID"
+                                 referencedTableName="MODIFICATIONS" validate="true"/>
+    </changeSet>
+    <changeSet author="gocd(generated)" id="100">
+        <addForeignKeyConstraint baseColumnNames="BUILDID" baseTableName="RESOURCES"
+                                 constraintName="FK_RESOURCES_BUILDS" deferrable="false" initiallyDeferred="false"
+                                 onDelete="CASCADE" onUpdate="RESTRICT" referencedColumnNames="ID"
+                                 referencedTableName="BUILDS" validate="true"/>
+    </changeSet>
+    <changeSet author="gocd(generated)" id="101">
+        <addForeignKeyConstraint baseColumnNames="PIPELINEID" baseTableName="STAGES"
+                                 constraintName="FK_STAGES_PIPELINES" deferrable="false" initiallyDeferred="false"
+                                 onDelete="CASCADE" onUpdate="RESTRICT" referencedColumnNames="ID"
+                                 referencedTableName="PIPELINES" validate="true"/>
+    </changeSet>
+</databaseChangeLog>

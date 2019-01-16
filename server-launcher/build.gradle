@@ -149,18 +149,6 @@ task mainJar(type: Jar) {
   from("${project(':server').projectDir}/src/main/resources/config/logback.xml") { into 'config' }
 }
 
-task h2deltasZip(type: Zip) {
-  archiveBaseName = 'h2deltas'
-  destinationDirectory = file("${project.buildDir}/${project.libsDirName}")
-  from("${project(':server').projectDir}/db/migrate/h2deltas") { into '/h2deltas' }
-}
-
-task h2dbZip(type: Zip) {
-  archiveBaseName = 'h2db'
-  destinationDirectory = file("${project.buildDir}/${project.libsDirName}")
-  from("${project(':server').projectDir}/db/dbtemplate/h2db") { into '/h2db' }
-}
-
 def commandRepoCheckoutDir = file("${project.buildDir}/go-command-repo")
 
 task cloneCommandRepository(type: Exec) {
@@ -195,7 +183,7 @@ task fatJar(type: Jar) {
   finalizedBy 'verifyFatJar'
   dependsOn ':server:jar'
   dependsOn ':server:war'
-  dependsOn configurations.packagingInDefaultFilesDir, h2dbZip, h2deltasZip, defaultCommandSnippetsZip, configurations.pluginsZip,
+  dependsOn configurations.packagingInDefaultFilesDir, defaultCommandSnippetsZip, configurations.pluginsZip,
     (project(':jetty9').configurations.compileOnly - project(':jetty9').configurations.compile),
     configurations.packagingInLibDir, mainJar, configurations.extractedAtTopLevel
 
@@ -218,8 +206,6 @@ task fatJar(type: Jar) {
   from("${project(':server').projectDir}/config/jetty.xml") { into 'defaultFiles/config' }
   from("${project(':server').projectDir}/config/go_update_server.pub") { into 'defaultFiles/config' }
   from("${project(':config:config-server').projectDir}/src/main/resources/cruise-config.xsd") { into 'defaultFiles/config' }
-  from(h2dbZip) { into 'defaultFiles' rename "(.*)-${project.version}.zip", '$1.zip' }
-  from(h2deltasZip) { into 'defaultFiles' rename "(.*)-${project.version}.zip", '$1.zip' }
   from(defaultCommandSnippetsZip) { into 'defaultFiles' rename "(.*)-${project.version}.zip", '$1.zip' }
   from(configurations.pluginsZip) { into 'defaultFiles' rename "(.*)-${project.version}.zip", '$1.zip' }
 
@@ -254,8 +240,6 @@ task verifyFatJar(type: VerifyJarTask) {
       "agent.jar",
       "tfs-impl-14.jar",
       "plugins.zip",
-      "h2deltas.zip",
-      "h2db.zip",
       "defaultCommandSnippets.zip"
     ],
     "lib"         : [

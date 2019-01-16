@@ -44,7 +44,6 @@ import spark.Request;
 import spark.Response;
 
 import java.io.IOException;
-import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -84,10 +83,10 @@ public class EnvironmentsControllerV2 extends ApiController implements SparkSpri
             before("/*", mimeType, apiAuthenticationHelper::checkAdminUserAnd403);
             get("", mimeType, this::index);
             get(Routes.Environments.NAME, mimeType, this::show);
-            delete(Routes.Environments.NAME, this::remove);
             post("", mimeType, this::create);
             put(Routes.Environments.NAME, mimeType, this::update);
             patch(Routes.Environments.NAME, this::partialUpdate);
+            delete(Routes.Environments.NAME, this::remove);
             exception(RecordNotFoundException.class, this::notFound);
         });
     }
@@ -130,9 +129,9 @@ public class EnvironmentsControllerV2 extends ApiController implements SparkSpri
         String environmentName = request.params("name");
         BasicEnvironmentConfig environmentConfig = (BasicEnvironmentConfig) buildEntityFromRequestBody(request);
 
-        final HttpLocalizedOperationResult operationResult = new HttpLocalizedOperationResult();
-
         EnvironmentConfig  oldEnvironmentConfig = fetchEntityFromConfig(environmentName);
+
+        HttpLocalizedOperationResult operationResult = new HttpLocalizedOperationResult();
 
         if (isPutRequestStale(request, oldEnvironmentConfig)) {
             throw haltBecauseEtagDoesNotMatch("environment", environmentName);
@@ -221,12 +220,6 @@ public class EnvironmentsControllerV2 extends ApiController implements SparkSpri
 
         environmentConfig.addError("name", format("Environment name should be unique. Environment with name '%s' already exists.", environmentConfig.name().toString()));
         throw haltBecauseEntityAlreadyExists(jsonWriter(environmentConfig), "environment", environmentConfig.name().toString());
-    }
-
-    private List<String> extractListFromJson(JsonReader jsonReader, String parentKey, String childKey) {
-        return (jsonReader.hasJsonObject(parentKey))
-                ? jsonReader.readJsonObject(parentKey).readStringArrayIfPresent(childKey).orElseGet(Collections::emptyList)
-                : Collections.emptyList();
     }
 
     private String calculateEtag(List<EnvironmentConfig> environmentConfigs) {

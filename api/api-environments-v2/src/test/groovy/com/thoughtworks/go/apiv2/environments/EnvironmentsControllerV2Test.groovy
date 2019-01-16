@@ -19,6 +19,7 @@ package com.thoughtworks.go.apiv2.environments
 import com.thoughtworks.go.api.SecurityTestTrait
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
 import com.thoughtworks.go.apiv2.environments.representers.EnvironmentRepresenter
+import com.thoughtworks.go.apiv2.environments.representers.EnvironmentsRepresenter
 import com.thoughtworks.go.config.BasicEnvironmentConfig
 import com.thoughtworks.go.config.CaseInsensitiveString
 import com.thoughtworks.go.config.EnvironmentConfig
@@ -92,91 +93,15 @@ class EnvironmentsControllerV2Test implements SecurityServiceTrait, ControllerTr
         env1.addPipeline(new CaseInsensitiveString("Pipeline1"))
         env1.addPipeline(new CaseInsensitiveString("Pipeline2"))
 
-        when(environmentConfigService.getMergedEnvironmentforDisplay(eq("env1"), any(HttpLocalizedOperationResult.class))).thenReturn(new ConfigElementForEdit(env1, "3123abcef"))
+        when(entityHashingService.md5ForEntity(env1)).thenReturn("md5-hash")
+        when(environmentConfigService.getMergedEnvironmentforDisplay(eq("env1"), any(HttpLocalizedOperationResult.class))).thenReturn(new ConfigElementForEdit(env1, "md5-hash"))
 
         getWithApiHeader(controller.controllerPath("env1"))
 
-        assertThatResponse().isOk().hasJsonBody([
-          "_links"               : [
-            "doc" : [
-              "href": "https://api.go.cd/current/#environment-config"
-            ],
-            "find": [
-              "href": "http://test.host/go/api/admin/environments/:name"
-            ],
-            "self": [
-              "href": "http://test.host/go/api/admin/environments/env1"
-            ]
-          ],
-          "agents"               : [
-            [
-              "_links": [
-                "doc" : [
-                  "href": "https://api.gocd.org/current/#agents"
-                ],
-                "find": [
-                  "href": "/api/agents/:uuid"
-                ],
-                "self": [
-                  "href": "http://test.host/go/api/agents/agent1"
-                ]
-              ],
-              "uuid"  : "agent1"
-            ],
-            [
-              "_links": [
-                "doc" : [
-                  "href": "https://api.gocd.org/current/#agents"
-                ],
-                "find": [
-                  "href": "/api/agents/:uuid"
-                ],
-                "self": [
-                  "href": "http://test.host/go/api/agents/agent2"
-                ]
-              ],
-              "uuid"  : "agent2"
-            ]
-          ],
-          "environment_variables": [
-            [
-              "name"  : "JAVA_HOME",
-              "secure": false,
-              "value" : "/bin/java"
-            ]
-          ],
-          "name"                 : "env1",
-          "pipelines"            : [
-            [
-              "_links": [
-                "doc" : [
-                  "href": "https://api.go.cd/current/#pipelines"
-                ],
-                "find": [
-                  "href": "/api/admin/pipelines/:pipeline_name"
-                ],
-                "self": [
-                  "href": "http://test.host/go/api/pipelines/Pipeline1/history"
-                ]
-              ],
-              "name"  : "Pipeline1"
-            ],
-            [
-              "_links": [
-                "doc" : [
-                  "href": "https://api.go.cd/current/#pipelines"
-                ],
-                "find": [
-                  "href": "/api/admin/pipelines/:pipeline_name"
-                ],
-                "self": [
-                  "href": "http://test.host/go/api/pipelines/Pipeline2/history"
-                ]
-              ],
-              "name"  : "Pipeline2"
-            ]
-          ]
-        ])
+        assertThatResponse()
+          .isOk()
+          .hasEtag('"md5-hash"')
+          .hasBodyWithJsonObject(env1, EnvironmentRepresenter)
       }
 
       @Test
@@ -219,7 +144,6 @@ class EnvironmentsControllerV2Test implements SecurityServiceTrait, ControllerTr
         enableSecurity()
         loginAsAdmin()
       }
-
 
       @Test
       void 'should delete environment with specified name'() {
@@ -287,7 +211,7 @@ class EnvironmentsControllerV2Test implements SecurityServiceTrait, ControllerTr
 
 
       @Test
-      void 'should not update if environment rename is attempted'() {
+      void 'should error out on update if environment rename is attempted'() {
         def existingConfig = new BasicEnvironmentConfig(new CaseInsensitiveString("env1"))
         existingConfig.addAgent("agent1")
         existingConfig.addEnvironmentVariable("JAVA_HOME", "/bin/java")
@@ -314,7 +238,7 @@ class EnvironmentsControllerV2Test implements SecurityServiceTrait, ControllerTr
       }
 
       @Test
-      void 'should not update if etag doesn not match'() {
+      void 'should not update if etag does not match'() {
         def env1 = new BasicEnvironmentConfig(new CaseInsensitiveString("env1"))
         env1.addAgent("agent1")
         env1.addEnvironmentVariable("JAVA_HOME", "/bin/java")
@@ -365,11 +289,12 @@ class EnvironmentsControllerV2Test implements SecurityServiceTrait, ControllerTr
 
         assertThatResponse()
           .isOk()
-          .hasJsonBody(json)
+          .hasEtag('"ffff"')
+          .hasBodyWithJsonObject(env1, EnvironmentRepresenter)
       }
 
       @Test
-      void 'should error out if the environment doesnt exist'() {
+      void 'should error out if the environment does not exist'() {
         when(environmentConfigService.getMergedEnvironmentforDisplay(eq("env1"), any(HttpLocalizedOperationResult)))
         .then({
           InvocationOnMock invocation ->
@@ -420,19 +345,17 @@ class EnvironmentsControllerV2Test implements SecurityServiceTrait, ControllerTr
         oldConfig.addPipeline(new CaseInsensitiveString("Pipeline2"))
         oldConfig.addPipeline(new CaseInsensitiveString("Pipeline3"))
 
-
         def updatedConfig = new BasicEnvironmentConfig(new CaseInsensitiveString("env1"))
         updatedConfig.addAgent("agent1")
         updatedConfig.addEnvironmentVariable("JAVA_HOME", "/bin/java")
         updatedConfig.addPipeline(new CaseInsensitiveString("Pipeline1"))
         updatedConfig.addPipeline(new CaseInsensitiveString("Pipeline2"))
 
-
+        when(entityHashingService.md5ForEntity(updatedConfig)).thenReturn("md5-hash")
         when(environmentConfigService.getMergedEnvironmentforDisplay(eq("env1"), any(HttpLocalizedOperationResult)))
           .thenReturn(new ConfigElementForEdit<>(oldConfig, "old_md5_hash"))
         when(environmentConfigService.getMergedEnvironmentforDisplay(eq("env1"), any(HttpLocalizedOperationResult)))
           .thenReturn(new ConfigElementForEdit<>(updatedConfig, "new_md5_hash"))
-
         when(environmentConfigService.patchEnvironment(
           eq(oldConfig), anyList(), anyList(), anyList(), anyList(),anyList(), anyList(),eq(currentUsername()), any(HttpLocalizedOperationResult))
         ).then({
@@ -472,11 +395,10 @@ class EnvironmentsControllerV2Test implements SecurityServiceTrait, ControllerTr
           ]
         ])
 
-        def json = toObjectString({ EnvironmentRepresenter.toJSON(it, updatedConfig) })
-
         assertThatResponse()
           .isOk()
-          .hasJsonBody(json)
+          .hasEtag('"md5-hash"')
+          .hasBodyWithJsonObject(updatedConfig, EnvironmentRepresenter)
       }
 
       @Test
@@ -532,6 +454,7 @@ class EnvironmentsControllerV2Test implements SecurityServiceTrait, ControllerTr
 
         def json = toObjectString({ EnvironmentRepresenter.toJSON(it, env1) })
 
+        when(entityHashingService.md5ForEntity(env1)).thenReturn("md5-hash")
         when(environmentConfigService.createEnvironment(eq(env1), eq(currentUsername()), any(HttpLocalizedOperationResult))).then({
           InvocationOnMock invocation ->
             HttpLocalizedOperationResult result = (HttpLocalizedOperationResult) invocation.arguments.last()
@@ -542,6 +465,7 @@ class EnvironmentsControllerV2Test implements SecurityServiceTrait, ControllerTr
 
         assertThatResponse()
           .isOk()
+          .hasEtag('"md5-hash"')
           .hasJsonBody(json)
       }
 
@@ -558,7 +482,6 @@ class EnvironmentsControllerV2Test implements SecurityServiceTrait, ControllerTr
       }
     }
   }
-
 
   @Nested
   class Index {
@@ -600,121 +523,8 @@ class EnvironmentsControllerV2Test implements SecurityServiceTrait, ControllerTr
 
         getWithApiHeader(controller.controllerBasePath())
 
-        assertThatResponse().hasJsonBody([
-          "_embedded": [
-            "environments": [
-              [
-                "_links"               : [
-                  "doc" : [
-                    "href": "https://api.go.cd/current/#environment-config"
-                  ],
-                  "find": [
-                    "href": "http://test.host/go/api/admin/environments/:name"
-                  ],
-                  "self": [
-                    "href": "http://test.host/go/api/admin/environments/env1"
-                  ]
-                ],
-                "agents"               : [
-                  [
-                    "_links": [
-                      "doc" : [
-                        "href": "https://api.gocd.org/current/#agents"
-                      ],
-                      "find": [
-                        "href": "/api/agents/:uuid"
-                      ],
-                      "self": [
-                        "href": "http://test.host/go/api/agents/agent1"
-                      ]
-                    ],
-                    "uuid"  : "agent1"
-                  ],
-                  [
-                    "_links": [
-                      "doc" : [
-                        "href": "https://api.gocd.org/current/#agents"
-                      ],
-                      "find": [
-                        "href": "/api/agents/:uuid"
-                      ],
-                      "self": [
-                        "href": "http://test.host/go/api/agents/agent2"
-                      ]
-                    ],
-                    "uuid"  : "agent2"
-                  ]
-                ],
-                "environment_variables": [
-                  [
-                    "name"  : "JAVA_HOME",
-                    "secure": false,
-                    "value" : "/bin/java"
-                  ]
-                ],
-                "name"                 : "env1",
-                "pipelines"            : [
-                  [
-                    "_links": [
-                      "doc" : [
-                        "href": "https://api.go.cd/current/#pipelines"
-                      ],
-                      "find": [
-                        "href": "/api/admin/pipelines/:pipeline_name"
-                      ],
-                      "self": [
-                        "href": "http://test.host/go/api/pipelines/Pipeline1/history"
-                      ]
-                    ],
-                    "name"  : "Pipeline1"
-                  ],
-                  [
-                    "_links": [
-                      "doc" : [
-                        "href": "https://api.go.cd/current/#pipelines"
-                      ],
-                      "find": [
-                        "href": "/api/admin/pipelines/:pipeline_name"
-                      ],
-                      "self": [
-                        "href": "http://test.host/go/api/pipelines/Pipeline2/history"
-                      ]
-                    ],
-                    "name"  : "Pipeline2"
-                  ]
-                ]
-              ],
-              [
-                "_links"               : [
-                  "doc" : [
-                    "href": "https://api.go.cd/current/#environment-config"
-                  ],
-                  "find": [
-                    "href": "http://test.host/go/api/admin/environments/:name"
-                  ],
-                  "self": [
-                    "href": "http://test.host/go/api/admin/environments/env2"
-                  ]
-                ],
-                "agents"               : [],
-                "environment_variables": [],
-                "name"                 : "env2",
-                "pipelines"            : []
-              ]
-            ]
-          ],
-          "_links"   : [
-            "doc" : [
-              "href": "https://api.go.cd/current/#environment-config"
-            ],
-            "find": [
-              "href": "http://test.host/go/api/admin/environments/:name"
-            ],
-            "self": [
-              "href": "http://test.host/go/api/admin/environments"
-            ]
-          ]
-        ])
+        assertThatResponse()
+          .hasBodyWithJsonObject(listOfEnvironmentConfigs, EnvironmentsRepresenter)
       }
 
 
@@ -727,9 +537,6 @@ class EnvironmentsControllerV2Test implements SecurityServiceTrait, ControllerTr
           "_links"   : [
             "doc" : [
               "href": "https://api.go.cd/current/#environment-config"
-            ],
-            "find": [
-              "href": "http://test.host/go/api/admin/environments/:name"
             ],
             "self": [
               "href": "http://test.host/go/api/admin/environments"

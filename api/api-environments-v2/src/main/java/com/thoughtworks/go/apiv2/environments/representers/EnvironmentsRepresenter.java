@@ -27,8 +27,7 @@ public class EnvironmentsRepresenter {
             writer.addLinks(
                     outputLinkWriter -> outputLinkWriter
                             .addLink("self", Routes.Environments.BASE)
-                            .addAbsoluteLink("doc", Routes.Environments.DOC)
-                            .addLink("find", Routes.Environments.find()))
+                            .addAbsoluteLink("doc", Routes.Environments.DOC))
                     .addChild("_embedded",
                             embeddedWriter -> embeddedWriter.addChildList("environments",
                                     environmentsWriter -> environmentViewModelList.forEach(

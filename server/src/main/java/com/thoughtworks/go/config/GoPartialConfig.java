@@ -103,7 +103,7 @@ public class GoPartialConfig implements PartialConfigUpdateCompletedListener, Ch
             return true;
         } catch (Exception e) {
             if (repoConfig != null) {
-                String description = String.format("%s -  Config-Repo: %s", GoConfigValidity.invalid(e).errorMessage(), newPart.getOrigin().displayName());
+                String description = String.format("%s- For Config Repo: %s", GoConfigValidity.invalid(e).errorMessage(), newPart.getOrigin().displayName());
                 ServerHealthState state = ServerHealthState.error(INVALID_CRUISE_CONFIG_MERGE, description, HealthStateType.general(HealthStateScope.forPartialConfigRepo(repoConfig)));
                 serverHealthService.update(state);
             }

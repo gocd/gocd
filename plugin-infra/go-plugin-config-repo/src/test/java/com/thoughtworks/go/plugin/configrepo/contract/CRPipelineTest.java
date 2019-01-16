@@ -93,8 +93,8 @@ public class CRPipelineTest extends CRBaseTest<CRPipeline> {
         String fullError = errors.getErrorsAsText();
 
         assertThat(fullError,contains("pipe4.json; Pipeline pipe4"));
-        assertThat(fullError,contains("Missing field 'group'"));
-        assertThat(fullError,contains("Pipeline has no stages"));
+        assertThat(fullError,contains("Missing field 'group'."));
+        assertThat(fullError,contains("Pipeline has no stages."));
     }
 
     @Test
@@ -114,7 +114,7 @@ public class CRPipelineTest extends CRBaseTest<CRPipeline> {
         String fullError = errors.getErrorsAsText();
 
         assertThat(fullError,contains("Pipeline pipe4; Git material"));
-        assertThat(fullError,contains("Missing field 'url'"));
+        assertThat(fullError,contains("Missing field 'url'."));
     }
     @Test
     public void shouldCheckMissingDestinationDirectoryWhenManySCMs()

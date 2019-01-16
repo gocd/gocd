@@ -67,10 +67,11 @@ public class ErrorCollection {
         for (Map.Entry<String, List<String>> entry : this.errors.entrySet()) {
             errorsBuilder.append('\n');
             errorsBuilder.append(entry.getKey()).append(';');
-            for (String message : entry.getValue()) {
-                errorsBuilder.append('\n').append('\t').append('-').append(' ');
-                errorsBuilder.append(message);
+
+            for (int i = 1; i <= entry.getValue().size(); i++) {
+                errorsBuilder.append('\n').append(i).append(". ").append(entry.getValue().get(i - 1));
             }
+            errorsBuilder.append("\n");
         }
         return errorsBuilder.toString();
     }
@@ -85,7 +86,7 @@ public class ErrorCollection {
     public void checkMissing(String location, String fieldName, Object value) {
         if (value == null) {
             List<String> list = getOrCreateErrorList(location);
-            list.add(String.format("Missing field '%s'", fieldName));
+            list.add(String.format("Missing field '%s'.", fieldName));
         }
     }
 

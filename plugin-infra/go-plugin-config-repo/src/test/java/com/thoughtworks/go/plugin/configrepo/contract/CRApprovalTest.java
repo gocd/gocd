@@ -91,6 +91,6 @@ public class CRApprovalTest extends CRBaseTest<CRApproval> {
         String fullError = errors.getErrorsAsText();
 
         assertThat(fullError,contains("Pipeline abc; Approval"));
-        assertThat(fullError,contains("Missing field 'type'"));
+        assertThat(fullError,contains("Missing field 'type'."));
     }
 }

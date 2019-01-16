@@ -43,11 +43,14 @@ public class GoConfigInvalidMergeException extends GoConfigInvalidException {
     private static String allErrorsToString(List<String> allErrors) {
         if (allErrors == null || allErrors.size() == 0)
             return "Error list empty";// should never be
+
         StringBuilder b = new StringBuilder();
-        b.append(allErrors.size()).append("+ errors :: ");
-        for (String e : allErrors) {
-            b.append(e).append(";; ");
+        b.append("Number of errors: ").append(allErrors.size()).append("+").append("\n");
+
+        for (int i = 1; i <= allErrors.size(); i++) {
+            b.append(i).append(". ").append(allErrors.get(i - 1)).append(";; \n");
         }
+
         return b.toString();
     }
 

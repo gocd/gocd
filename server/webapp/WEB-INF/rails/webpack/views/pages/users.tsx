@@ -18,6 +18,7 @@ import * as _ from "lodash";
 import * as m from "mithril";
 import {Stream} from "mithril/stream";
 import * as stream from "mithril/stream";
+import {AdminsCRUD, BulkUpdateSystemAdminJSON} from "models/admins/admin_crud";
 import {RolesCRUD} from "models/roles/roles_crud";
 import {BulkUserRoleUpdateJSON, GoCDAttributes, GoCDRole, Roles} from "models/roles/roles_new";
 import {TriStateCheckbox} from "models/tri_state_checkbox";
@@ -92,6 +93,30 @@ export class UsersPage extends Page<null, State> {
       };
 
       this.bulkUserDelete(vnode, json);
+    };
+
+    vnode.state.onMakeAdmin = (usersToMakeAdmin, e) => {
+      const json = {
+        operations: {
+          users: {
+            add: usersToMakeAdmin.userNamesOfSelectedUsers()
+          }
+        }
+      };
+
+      this.bulkUpdateSystemAdmins(vnode, json);
+    };
+
+    vnode.state.onRemoveAdmin = (usersToRemoveAdmin, e) => {
+      const json = {
+        operations: {
+          users: {
+            remove: usersToRemoveAdmin.userNamesOfSelectedUsers()
+          }
+        }
+      };
+
+      this.bulkUpdateSystemAdmins(vnode, json);
     };
 
     vnode.state.onRolesAdd = (roleName: string, users: Users) => {
@@ -190,6 +215,23 @@ export class UsersPage extends Page<null, State> {
                });
              });
   }
+
+  private bulkUpdateSystemAdmins(vnode: m.Vnode<null, State>, json: BulkUpdateSystemAdminJSON): void {
+    AdminsCRUD.bulkUpdate(json)
+             .then((apiResult) => {
+               apiResult.do((successResponse) => {
+                 this.pageState = PageState.OK;
+                 this.flashMessage.setMessage(MessageType.success,
+                                              `Users were updated successfully!`);
+                 this.fetchData(vnode);
+               }, (errorResponse) => {
+                 // vnode.state.onError(errorResponse.message);
+                 this.flashMessage.setMessage(MessageType.alert, errorResponse.message);
+                 this.fetchData(vnode);
+               });
+             });
+  }
+
 
   private bulkAddNewRoleOnUsers(vnode: m.Vnode<null, State>, role: GoCDRole) {
     RolesCRUD.create(role)

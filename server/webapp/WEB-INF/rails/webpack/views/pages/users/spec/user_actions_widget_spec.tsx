@@ -44,7 +44,9 @@ describe("User Actions Widget", () => {
       onDelete: _.noop,
       onRolesUpdate: _.noop,
       roleNameToAdd: stream(),
-      onRolesAdd: _.noop
+      onRolesAdd: _.noop,
+      onMakeAdmin: _.noop,
+      onRemoveAdmin: _.noop
     };
     // @ts-ignore
     [$root, root] = window.createDomElementForTest();

@@ -40,21 +40,11 @@ export class UsersCRUD {
   }
 
   static bulkUserStateUpdate(bulkStateChangeJson: BulkUserUpdateJSON) {
-    return ApiRequestBuilder.PATCH(SparkRoutes.apiBulkUserStateUpdatePath(), this.API_VERSION_HEADER, {payload: bulkStateChangeJson})
-                            .then((result: ApiResult<string>) => {
-                              return result.map((body) => {
-                                // return Users.fromJSON(JSON.parse(body) as UsersJSON);
-                              });
-                            });
+    return ApiRequestBuilder.PATCH(SparkRoutes.apiBulkUserStateUpdatePath(), this.API_VERSION_HEADER, {payload: bulkStateChangeJson});
   }
 
   static bulkUserDelete(bulkStateChangeJson: BulkUserOperationJSON) {
-    return ApiRequestBuilder.DELETE(SparkRoutes.apiUsersPath(), this.API_VERSION_HEADER, {payload: bulkStateChangeJson})
-                            .then((result: ApiResult<string>) => {
-                              return result.map((body) => {
-                                // return Users.fromJSON(JSON.parse(body) as UsersJSON);
-                              });
-                            });
+    return ApiRequestBuilder.DELETE(SparkRoutes.apiUsersPath(), this.API_VERSION_HEADER, {payload: bulkStateChangeJson});
   }
 
 }

@@ -249,7 +249,7 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
     }
 
     public PipelineConfig editablePipelineConfigNamed(final String name) {
-        return getConfigForEditing().pipelineConfigByName(new CaseInsensitiveString(name));
+        return getMergedConfigForEditing().pipelineConfigByName(new CaseInsensitiveString(name));
     }
 
     public PipelineConfig pipelineConfigNamed(final CaseInsensitiveString name) {

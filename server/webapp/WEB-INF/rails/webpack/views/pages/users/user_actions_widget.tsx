@@ -50,6 +50,15 @@ export interface HasRoleSelection {
   rolesSelection: Stream<Map<GoCDRole, TriStateCheckbox>>;
 }
 
+interface MakeAdminOperation<T> {
+  onMakeAdmin: (obj: T, e: MouseEvent) => void;
+}
+
+interface RemoveAdminOperation<T> {
+  onRemoveAdmin: (obj: T, e: MouseEvent) => void;
+}
+
+
 export interface RolesViewAttrs extends HasRoleSelection {
   initializeRolesDropdownAttrs: () => void;
   onRolesUpdate: (rolesSelection: Map<GoCDRole, TriStateCheckbox>, users: Users) => void;
@@ -66,7 +75,7 @@ export interface FiltersViewAttrs {
   roles: Stream<Roles>;
 }
 
-export interface State extends RolesViewAttrs, FiltersViewAttrs, EnableOperation<Users>, DisableOperation<Users>, DeleteOperation<Users> {
+export interface State extends RolesViewAttrs, FiltersViewAttrs, EnableOperation<Users>, DisableOperation<Users>, DeleteOperation<Users>, MakeAdminOperation<Users>, RemoveAdminOperation<Users> {
 }
 
 class FiltersView extends Dropdown<FiltersViewAttrs> {
@@ -229,6 +238,10 @@ export class UsersActionsWidget extends MithrilViewComponent<State> {
                        disabled={!vnode.attrs.users().anyUserSelected()}>Disable</Secondary>
             <Secondary onclick={vnode.attrs.onDelete.bind(vnode.attrs, vnode.attrs.users())}
                        disabled={!vnode.attrs.users().anyUserSelected()}>Delete</Secondary>
+            <Secondary onclick={vnode.attrs.onMakeAdmin.bind(vnode.attrs, vnode.attrs.users())}
+                       disabled={!vnode.attrs.users().anyUserSelected()}>Make admin</Secondary>
+            <Secondary onclick={vnode.attrs.onRemoveAdmin.bind(vnode.attrs, vnode.attrs.users())}
+                       disabled={!vnode.attrs.users().anyUserSelected()}>Remove admin</Secondary>
             <RolesDropdown {...vnode.attrs} show={vnode.attrs.showRoles}/>
           </ButtonGroup>
         </div>

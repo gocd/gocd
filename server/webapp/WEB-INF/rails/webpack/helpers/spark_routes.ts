@@ -193,4 +193,8 @@ export default class {
     return `/go/api/user_search?${m.buildQueryString({q: searchText})}`;
   }
 
+  static apisystemAdminsPath() {
+    return "/go/api/admin/security/system_admins";
+  }
+
 }

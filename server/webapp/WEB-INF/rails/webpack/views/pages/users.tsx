@@ -14,9 +14,10 @@
 * limitations under the License.
 */
 
+import * as _ from "lodash";
 import * as m from "mithril";
-import * as stream from "mithril/stream";
 import {Stream} from "mithril/stream";
+import * as stream from "mithril/stream";
 import {RolesCRUD} from "models/roles/roles_crud";
 import {BulkUserRoleUpdateJSON, GoCDAttributes, GoCDRole, Roles} from "models/roles/roles_new";
 import {TriStateCheckbox} from "models/tri_state_checkbox";
@@ -40,6 +41,7 @@ interface State extends UserActionsState, AddOperation<Users> {
 export class UsersPage extends Page<null, State> {
   oninit(vnode: m.Vnode<null, State>) {
     super.oninit(vnode);
+
     vnode.state.initialUsers   = stream(new Users());
     vnode.state.userFilters    = stream(new UserFilters());
     vnode.state.roles          = stream(new Roles());
@@ -109,8 +111,16 @@ export class UsersPage extends Page<null, State> {
   }
 
   componentToDisplay(vnode: m.Vnode<null, State>): m.Children {
+    let bannerToDisplay;
+    const meta = this.getMeta();
+    if (!_.isEmpty(meta) && meta.noAdminsConfigured) {
+      bannerToDisplay = (<FlashMessage type={MessageType.alert}
+                                       message='There are currently no administrators defined in the configuration. This makes everyone an adminstrator. We recommend that you explicitly select all users and click "make admin".'/>);
+    }
+
     return (
       <div>
+        {bannerToDisplay}
         <FlashMessage type={this.flashMessage.type} message={this.flashMessage.message}/>
         <UsersWidget {...vnode.state}/>
       </div>

@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.spark.spa.spring;
 
+import com.google.gson.Gson;
 import com.thoughtworks.go.spark.SparkController;
 import org.apache.velocity.Template;
 import org.apache.velocity.VelocityContext;
@@ -28,6 +29,7 @@ import java.util.Collections;
 import java.util.Map;
 
 class VelocityTemplateEngine extends TemplateEngine {
+    private static final Gson GSON = new Gson();
     private final InitialContextProvider initialContextProvider;
     private final Class<? extends SparkController> controller;
     private final VelocityEngine velocityEngine;
@@ -51,6 +53,8 @@ class VelocityTemplateEngine extends TemplateEngine {
             VelocityContext context = initialContextProvider.getVelocityContext((Map) model, controller, modelAndView.getViewName());
             StringWriter writer = new StringWriter();
             template.merge(context, writer);
+            Object meta = context.get("meta");
+            context.put("meta", GSON.toJson(meta));
             return writer.toString();
         } else {
             throw new IllegalArgumentException("modelAndView must be of type java.util.Map");

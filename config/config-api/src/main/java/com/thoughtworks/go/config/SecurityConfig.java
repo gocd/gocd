@@ -89,10 +89,10 @@ public class SecurityConfig implements Validatable {
     }
 
     public boolean isAdmin(Admin admin) {
-        return !isSecurityEnabled() || noAdminsRequired() || adminsConfig.isAdmin(admin, rolesConfig.memberRoles(admin));
+        return !isSecurityEnabled() || noAdminsConfigured() || adminsConfig.isAdmin(admin, rolesConfig.memberRoles(admin));
     }
 
-    private boolean noAdminsRequired() {
+    public boolean noAdminsConfigured() {
         return adminsConfig == null || adminsConfig.isEmpty();
     }
 

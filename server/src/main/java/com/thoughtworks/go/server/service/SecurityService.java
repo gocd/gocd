@@ -209,6 +209,10 @@ public class SecurityService {
         return goConfigService.cruiseConfig().isAuthorizedToViewTemplates(username.getUsername());
     }
 
+    public boolean noAdminsConfigured() {
+        return goConfigService.security().noAdminsConfigured();
+    }
+
     public static class UserRoleMatcherImpl implements UserRoleMatcher {
         private final SecurityConfig securityConfig;
 

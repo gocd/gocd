@@ -68,6 +68,11 @@ export abstract class Page<Attrs = {}, State = {}> extends MithrilComponent<Attr
     this.pageState = PageState.FAILED;
   }
 
+  protected getMeta(): any {
+    const meta = document.body.getAttribute("data-meta");
+    return meta ? JSON.parse(meta) : {};
+  }
+
   private _onSuccess() {
     this.pageState = PageState.OK;
   }

@@ -319,7 +319,9 @@ dependencies {
   compileOnly group: 'org.bouncycastle', name: 'bcpkix-jdk15on', version: project.versions.bouncyCastle
   compileOnly group: 'org.eclipse.jetty.websocket', name: 'websocket-server', version: versions.jetty
 
-  testCompile group: 'org.dbunit', name: 'dbunit', version: project.versions.dbunit
+  testCompile(group: 'org.dbunit', name: 'dbunit', version: project.versions.dbunit) {
+    exclude(group: 'postgresql')
+  }
   testCompile project(path: ':common', configuration: 'testOutput')
   testCompile project(path: ':config:config-server', configuration: 'testOutput')
   testCompile project(path: ':config:config-api', configuration: 'testOutput')

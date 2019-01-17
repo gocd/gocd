@@ -111,7 +111,7 @@ public class ExportControllerV1 extends ApiController implements SparkSpringCont
 
     private PipelineConfig pipelineConfigFromRequest(Request req) {
         final String pipelineName = requiredParam(req, "pipeline_name");
-        PipelineConfig pipeline = configService.pipelineConfigNamed(pipelineName);
+        PipelineConfig pipeline = configService.editablePipelineConfigNamed(pipelineName);
 
         if (null == pipeline) {
             throw new RecordNotFoundException(format("Cannot locate pipeline config with name: %s", pipelineName));

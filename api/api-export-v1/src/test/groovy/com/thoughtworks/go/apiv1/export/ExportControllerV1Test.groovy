@@ -24,7 +24,6 @@ import com.thoughtworks.go.config.GoConfigPluginService
 import com.thoughtworks.go.config.PipelineConfig
 import com.thoughtworks.go.config.remote.FileConfigOrigin
 import com.thoughtworks.go.helper.PipelineConfigMother
-import com.thoughtworks.go.spark.AdminUserSecurity
 import com.thoughtworks.go.spark.ControllerTrait
 import com.thoughtworks.go.spark.GroupAdminUserSecurity
 import com.thoughtworks.go.spark.SecurityServiceTrait
@@ -95,7 +94,7 @@ class ExportControllerV1Test implements SecurityServiceTrait, ControllerTrait<Ex
         PipelineConfig pipeline = PipelineConfigMother.pipelineConfig('pipeline1')
         pipeline.setOrigin(new FileConfigOrigin())
 
-        when(goConfigService.pipelineConfigNamed('pipeline1')).thenReturn(pipeline)
+        when(goConfigService.editablePipelineConfigNamed('pipeline1')).thenReturn(pipeline)
         when(goConfigPluginService.isConfigRepoPlugin(pluginId)).thenReturn(true)
         when(goConfigPluginService.supportsPipelineExport(pluginId)).thenReturn(true)
         when(goConfigPluginService.partialConfigProviderFor(pluginId)).thenReturn(configRepoPlugin)
@@ -121,7 +120,7 @@ class ExportControllerV1Test implements SecurityServiceTrait, ControllerTrait<Ex
         PipelineConfig pipeline = PipelineConfigMother.pipelineConfig("pipeline1")
         pipeline.setOrigin(new FileConfigOrigin())
 
-        when(goConfigService.pipelineConfigNamed("pipeline1")).thenReturn(pipeline)
+        when(goConfigService.editablePipelineConfigNamed("pipeline1")).thenReturn(pipeline)
 
         getWithApiHeader(controller.controllerPath("${pipelinePath("pipeline1")}?groupName=${groupName}"))
 
@@ -141,7 +140,7 @@ class ExportControllerV1Test implements SecurityServiceTrait, ControllerTrait<Ex
         PipelineConfig pipeline = PipelineConfigMother.pipelineConfig("pipeline1")
         pipeline.setOrigin(new FileConfigOrigin())
 
-        when(goConfigService.pipelineConfigNamed("pipeline1")).thenReturn(pipeline)
+        when(goConfigService.editablePipelineConfigNamed("pipeline1")).thenReturn(pipeline)
 
         getWithApiHeader(controller.controllerPath("${pipelinePath("pipeline1")}?pluginId=${pluginId}"))
 
@@ -161,7 +160,7 @@ class ExportControllerV1Test implements SecurityServiceTrait, ControllerTrait<Ex
         PipelineConfig pipeline = PipelineConfigMother.pipelineConfig("pipeline1")
         pipeline.setOrigin(new FileConfigOrigin())
 
-        when(goConfigService.pipelineConfigNamed("pipeline1")).thenReturn(pipeline)
+        when(goConfigService.editablePipelineConfigNamed("pipeline1")).thenReturn(pipeline)
         when(goConfigPluginService.isConfigRepoPlugin(pluginId)).thenReturn(false)
 
         getWithApiHeader(controller.controllerPath("${pipelinePath("pipeline1")}?pluginId=${pluginId}&groupName=${groupName}"))
@@ -176,7 +175,7 @@ class ExportControllerV1Test implements SecurityServiceTrait, ControllerTrait<Ex
         PipelineConfig pipeline = PipelineConfigMother.pipelineConfig("pipeline1")
         pipeline.setOrigin(new FileConfigOrigin())
 
-        when(goConfigService.pipelineConfigNamed("pipeline1")).thenReturn(pipeline)
+        when(goConfigService.editablePipelineConfigNamed("pipeline1")).thenReturn(pipeline)
         when(goConfigPluginService.isConfigRepoPlugin(pluginId)).thenReturn(true)
         when(goConfigPluginService.supportsPipelineExport(pluginId)).thenReturn(false)
 
@@ -192,7 +191,7 @@ class ExportControllerV1Test implements SecurityServiceTrait, ControllerTrait<Ex
         PipelineConfig pipeline = PipelineConfigMother.pipelineConfig("pipeline1")
         pipeline.setOrigin(new FileConfigOrigin())
 
-        when(goConfigService.pipelineConfigNamed("pipeline1")).thenReturn(pipeline)
+        when(goConfigService.editablePipelineConfigNamed("pipeline1")).thenReturn(pipeline)
         when(goConfigPluginService.isConfigRepoPlugin(pluginId)).thenReturn(true)
         when(goConfigPluginService.supportsPipelineExport(pluginId)).thenReturn(true)
         when(goConfigPluginService.partialConfigProviderFor(pluginId)).thenReturn(configRepoPlugin)
@@ -208,7 +207,7 @@ class ExportControllerV1Test implements SecurityServiceTrait, ControllerTrait<Ex
 
       @Test
       void "should return 404 for export pipeline config if pipeline is not found"() {
-        when(goConfigService.pipelineConfigNamed("pipeline1")).thenReturn(null)
+        when(goConfigService.editablePipelineConfigNamed("pipeline1")).thenReturn(null)
 
         getWithApiHeader(controller.controllerPath("${pipelinePath("pipeline1")}?pluginId=${pluginId}&groupName=${groupName}"))
 

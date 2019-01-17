@@ -81,10 +81,6 @@ public class ExportControllerV1 extends ApiController implements SparkSpringCont
         String pluginId = requiredQueryParam(req, "pluginId");
         String groupName = requiredQueryParam(req, "groupName");
 
-        if (pipelineConfig.hasTemplate()) {
-            throw haltBecauseOfReason("Pipeline `%s` cannot be exported because pipelines defined by templates are not yet supported by config-repo plugins.", pipelineConfig.name());
-        }
-
         if (!crPluginService.isConfigRepoPlugin(pluginId)) {
             throw haltBecauseOfReason("Plugin `%s` is not a config-repo plugin.", pluginId);
         }

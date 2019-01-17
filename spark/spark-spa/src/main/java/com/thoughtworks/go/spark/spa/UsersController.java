@@ -59,7 +59,7 @@ public class UsersController implements SparkController {
         JsonObject noAdminsConfigured = new JsonObject();
         noAdminsConfigured.addProperty("noAdminsConfigured", this.securityService.noAdminsConfigured());
         Map<Object, Object> object = new HashMap<Object, Object>() {{
-            put("viewTitle", "User Summary");
+            put("viewTitle", "Users Management");
             put("meta", noAdminsConfigured);
         }};
         return new ModelAndView(object, null);

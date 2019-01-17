@@ -55,6 +55,18 @@ describe("Users Model", () => {
     expect(users.disabledUsersCount()).toBe(2);
   });
 
+  it("should return all users sorted by usernames", () => {
+    const users = Users.fromJSON(usersJSON());
+    const sortedUsers = users.sortedByUsername();
+    expect(sortedUsers[0].loginName()).toBe("admin");
+    expect(sortedUsers[1].loginName()).toBe("cruise_admin");
+    expect(sortedUsers[2].loginName()).toBe("jez");
+    expect(sortedUsers[3].loginName()).toBe("jigsaw");
+    expect(sortedUsers[4].loginName()).toBe("operate");
+    expect(sortedUsers[5].loginName()).toBe("root");
+    expect(sortedUsers[6].loginName()).toBe("view");
+  });
+
   describe("Users Selection", () => {
     it("should tell if all users are selected", () => {
       const users = Users.fromJSON(usersJSON());

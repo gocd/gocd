@@ -74,7 +74,7 @@ export class UserSearchModal extends Modal {
 
   buttons(): m.ChildArray {
     return [
-      <Buttons.Primary data-test-id="button-add" onclick={this.addUser.bind(this)}>Add</Buttons.Primary>,
+      <Buttons.Primary data-test-id="button-add" onclick={this.addUser.bind(this)} disabled={_.isEmpty(this.selectedUser())}>Add</Buttons.Primary>,
       <Buttons.Cancel data-test-id="button-close" onclick={this.close.bind(this)}>Cancel</Buttons.Cancel>
     ];
   }
@@ -113,7 +113,7 @@ export class UserSearchModal extends Modal {
 
   private renderTable() {
     if (this.searchStatus()) {
-      return <Spinner/>;
+      return <div className={styles.spinnerWrapper}><Spinner/></div>;
     }
 
     if (_.isEmpty(this.userResult())) {

@@ -140,6 +140,12 @@ export class Users extends Array<User> {
     this.setSelection(!this.areAllUsersSelected());
   }
 
+  sortedByUsername() {
+    return new Users(...(_.orderBy(this, (user) => {
+      return user.loginName();
+    })));
+  }
+
   private enabledUsers() {
     return new Users(..._.filter(this, (user) => user.enabled()));
   }

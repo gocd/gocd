@@ -107,7 +107,7 @@ export class UsersPage extends Page<null, State> {
       vnode.state.showRoles(false);
     };
 
-    vnode.state.users = () => vnode.state.userFilters().performFilteringOn(vnode.state.initialUsers());
+    vnode.state.users = () => vnode.state.userFilters().performFilteringOn(vnode.state.initialUsers()).sortedByUsername();
   }
 
   componentToDisplay(vnode: m.Vnode<null, State>): m.Children {
@@ -128,7 +128,7 @@ export class UsersPage extends Page<null, State> {
   }
 
   pageName(): string {
-    return "User summary";
+    return "Users Management";
   }
 
   headerPanel(vnode: m.Vnode<null, State>) {
@@ -142,12 +142,11 @@ export class UsersPage extends Page<null, State> {
     return Promise.all([UsersCRUD.all(), RolesCRUD.all("gocd")]).then((args) => {
       const userResult  = args[0];
       const rolesResult = args[1];
-
       userResult.do((successResponse) => {
                       vnode.state.initialUsers(successResponse.body);
                       this.pageState = PageState.OK;
                     }, (errorResponse) => {
-                      // vnode.state.onError(errorResponse.message);
+                      this.flashMessage.setMessage(MessageType.alert, errorResponse.message);
                       this.pageState = PageState.FAILED;
                     }
       );
@@ -156,11 +155,10 @@ export class UsersPage extends Page<null, State> {
                        vnode.state.roles(successResponse.body);
                        this.pageState = PageState.OK;
                      }, (errorResponse) => {
-                       // vnode.state.onError(errorResponse.message);
+                       this.flashMessage.setMessage(MessageType.alert, errorResponse.message);
                        this.pageState = PageState.FAILED;
                      }
       );
-
     });
   }
 
@@ -173,7 +171,6 @@ export class UsersPage extends Page<null, State> {
                                               `Users were ${json.operations.enable ? "enabled" : "disabled"} successfully!`);
                  this.fetchData(vnode);
                }, (errorResponse) => {
-                 // vnode.state.onError(errorResponse.message);
                  this.flashMessage.setMessage(MessageType.alert, errorResponse.message);
                  this.fetchData(vnode);
                });
@@ -188,7 +185,6 @@ export class UsersPage extends Page<null, State> {
                  this.flashMessage.setMessage(MessageType.success, "Users were deleted successfully!");
                  this.fetchData(vnode);
                }, (errorResponse) => {
-                 // vnode.state.onError(errorResponse.message);
                  this.flashMessage.setMessage(MessageType.alert, errorResponse.message);
                  this.fetchData(vnode);
                });
@@ -203,7 +199,6 @@ export class UsersPage extends Page<null, State> {
                  this.flashMessage.setMessage(MessageType.success, "Role is added successfully!");
                  this.fetchData(vnode);
                }, (errorResponse) => {
-                 // vnode.state.onError(errorResponse.message);
                  this.flashMessage.setMessage(MessageType.alert, errorResponse.message);
                  this.fetchData(vnode);
                });
@@ -218,7 +213,6 @@ export class UsersPage extends Page<null, State> {
                  this.flashMessage.setMessage(MessageType.success, "Roles are updated successfully!");
                  this.fetchData(vnode);
                }, (errorResponse) => {
-                 // vnode.state.onError(errorResponse.message);
                  this.flashMessage.setMessage(MessageType.alert, errorResponse.message);
                  this.fetchData(vnode);
                });

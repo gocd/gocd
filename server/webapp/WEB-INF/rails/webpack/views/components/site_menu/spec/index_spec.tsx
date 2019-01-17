@@ -59,7 +59,7 @@ describe("Site Menu", () => {
     expect(findMenuItem("/go/admin/data_sharing/settings")).toHaveText("Data Sharing");
     expect(findMenuItem("/go/admin/drain_mode")).toHaveText("Server Drain Mode");
     expect(findMenuItem("/go/admin/config/server")).toHaveText("Server Configuration");
-    expect(findMenuItem("/go/admin/users")).toHaveText("User Summary");
+    expect(findMenuItem("/go/admin/users")).toHaveText("Users Management");
     expect(findMenuItem("/go/admin/backup")).toHaveText("Backup");
     expect(findMenuItem("/go/admin/plugins")).toHaveText("Plugins");
     expect(findMenuItem("/go/admin/package_repositories/new")).toHaveText("Package Repositories");

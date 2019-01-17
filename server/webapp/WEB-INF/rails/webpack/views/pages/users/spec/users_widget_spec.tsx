@@ -111,18 +111,19 @@ describe("UsersWidget", () => {
     expect(headers[6]).toEqual("Enabled");
 
     expect(UsersTableWidget.userData(allUsers)).toHaveLength(2);
+    expect(bobUserData[1].text).toEqual("bob");
+    expect(bobUserData[2].text).toEqual("Bob");
+    expect(bobUserData[4].text).toEqual("Yes");
+    expect(bobUserData[5].text).toEqual("bob@example.com");
+    expect(bobUserData[6].text).toEqual("Yes");
+    expect(bobUserData[1].attrs.className).not.toContain("disabled");
 
-    expect(bobUserData[1]).toEqual("bob");
-    expect(bobUserData[2]).toEqual("Bob");
-    expect(bobUserData[4]).toEqual("Yes");
-    expect(bobUserData[5]).toEqual("bob@example.com");
-    expect(bobUserData[6]).toEqual("Yes");
-
-    expect(aliceUserData[1]).toEqual("alice");
-    expect(aliceUserData[2]).toEqual("Alice");
-    expect(aliceUserData[4]).toEqual("No");
-    expect(aliceUserData[5]).toEqual("alice@example.com");
-    expect(aliceUserData[6]).toEqual("No");
+    expect(aliceUserData[1].text).toEqual("alice");
+    expect(aliceUserData[2].text).toEqual("Alice");
+    expect(aliceUserData[4].text).toEqual("No");
+    expect(aliceUserData[5].text).toEqual("alice@example.com");
+    expect(aliceUserData[6].text).toEqual("No");
+    expect(aliceUserData[1].attrs.className).toContain("disabled");
   });
 
 });

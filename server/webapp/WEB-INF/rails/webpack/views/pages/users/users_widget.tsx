@@ -47,14 +47,15 @@ export class UsersTableWidget extends MithrilViewComponent<UserActionsState> {
 
   static userData(users: Users): any[][] {
     return users.map((user: User) => {
+      const className = (user.enabled() ? "" : styles.disabled);
       return [
         <input type="checkbox" checked={user.checked()} onclick={m.withAttr("checked", user.checked)}/>,
-        user.loginName(),
-        user.displayName(),
-        this.roles(user),
-        user.isAdmin() ? "Yes" : "No",
-        user.email(),
-        user.enabled() ? "Yes" : "No"
+        <span className={className}>{user.loginName()}</span>,
+        <span className={className}>{user.displayName()}</span>,
+        <span className={className}>{this.roles(user)}</span>,
+        <span className={className}>{user.isAdmin() ? "Yes" : "No"}</span>,
+        <span className={className}>{user.email()}</span>,
+        <span className={className}>{user.enabled() ? "Yes" : "No"}</span>
       ];
     });
   }

@@ -22,3 +22,5 @@ export const roleGocd: string;
 export const rolePlugin: string;
 export const searchUser: string;
 export const button: string;
+export const disabled: string;
+export const spinnerWrapper: string;

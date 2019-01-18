@@ -19,11 +19,9 @@ package com.thoughtworks.go.server.service;
 import com.thoughtworks.go.config.ConfigTag;
 import com.thoughtworks.go.config.PluginProfile;
 import com.thoughtworks.go.config.PluginProfiles;
-import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
 import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
 import com.thoughtworks.go.config.update.PluginProfileCommand;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
-import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.plugin.access.PluginNotFoundException;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 import com.thoughtworks.go.server.domain.Username;
@@ -65,9 +63,9 @@ public abstract class PluginProfilesService<M extends PluginProfile> {
         try {
             ValidationResult result = command.validateUsingExtension(newPluginProfile.getPluginId(), newPluginProfile.getConfigurationAsMap(true));
             addErrorsToConfiguration(result, newPluginProfile);
-        }catch (PluginNotFoundException e) {
+        } catch (PluginNotFoundException e) {
             newPluginProfile.addError("pluginId", String.format("Plugin with id `%s` is not found.", newPluginProfile.getPluginId()));
-        }catch (Exception e) {
+        } catch (Exception e) {
             //Ignore - it will be the invalid cipher text exception for an encrypted value. This will be validated later during entity update
         }
     }
@@ -88,7 +86,9 @@ public abstract class PluginProfilesService<M extends PluginProfile> {
 
     protected void update(Username currentUser, M pluginProfile, LocalizedOperationResult result, PluginProfileCommand command) {
         try {
-            validatePluginProperties(command, pluginProfile);
+            if (command.isNotADeleteCommand()) {
+                validatePluginProperties(command, pluginProfile);
+            }
             goConfigService.updateConfig(command, currentUser);
         } catch (Exception e) {
             if (e instanceof GoConfigInvalidException) {

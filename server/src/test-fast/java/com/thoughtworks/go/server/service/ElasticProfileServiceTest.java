@@ -187,8 +187,8 @@ class ElasticProfileServiceTest {
         @Test
         void shouldReturnJobsUsingElasticProfile() {
             final List<PipelineConfig> allPipelineConfigs = Arrays.asList(
-                    templateBasedPipelineWithElasticJobs("docker-template","docker", "P1", "S1", "Job1", "Job2"),
-                    pipelineWithElasticJobs( "ecs", "P3", "S1", "Job1"),
+                    templateBasedPipelineWithElasticJobs("docker-template", "docker", "P1", "S1", "Job1", "Job2"),
+                    pipelineWithElasticJobs("ecs", "P3", "S1", "Job1"),
                     createPipelineConfig("P4", "S1", "Job1", "Job2")
             );
 
@@ -211,7 +211,7 @@ class ElasticProfileServiceTest {
         @Test
         void shouldReturnEmptyWhenNoneOfTheJobMatchesProfileId() {
             final List<PipelineConfig> allPipelineConfigs = Arrays.asList(
-                    templateBasedPipelineWithElasticJobs("docker-template","docker", "P1", "S1", "Job1", "Job2"),
+                    templateBasedPipelineWithElasticJobs("docker-template", "docker", "P1", "S1", "Job1", "Job2"),
                     pipelineWithElasticJobs("ecs", "P3", "S1", "Job1"),
                     createPipelineConfig("P4", "S1", "Job1", "Job2")
             );

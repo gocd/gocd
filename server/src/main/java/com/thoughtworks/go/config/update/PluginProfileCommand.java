@@ -102,4 +102,8 @@ public abstract class PluginProfileCommand<T extends PluginProfile, M extends Pl
 
     protected abstract boolean isAuthorized();
 
+    public boolean isNotADeleteCommand() {
+            return true;
+    };
+
 }

@@ -72,6 +72,11 @@ public class DeleteArtifactStoreConfigCommand extends ArtifactStoreConfigCommand
         return true;
     }
 
+    @Override
+    public boolean isNotADeleteCommand() {
+        return false;
+    }
+
     private void populateReferences(List<Map<JobConfigIdentifier, List<PluggableArtifactConfig>>> usedByPipelines, PipelineConfig pipelineConfig) {
         for (StageConfig stage : pipelineConfig) {
             JobConfigs jobs = stage.getJobs();

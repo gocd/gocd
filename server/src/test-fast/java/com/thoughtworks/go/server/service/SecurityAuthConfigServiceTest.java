@@ -124,7 +124,7 @@ public class SecurityAuthConfigServiceTest {
     }
 
     @Test
-     public void shouldAddSecurityAuthConfigToConfig() {
+    public void shouldAddSecurityAuthConfigToConfig() {
         SecurityAuthConfig securityAuthConfig = new SecurityAuthConfig("ldap", "cd.go.ldap");
 
         Username username = new Username("username");

@@ -64,8 +64,6 @@ public class SecurityAuthConfigService extends PluginProfilesService<SecurityAut
         update(currentUser, newSecurityAuthConfig, result, command);
     }
 
-
-
     public void delete(Username currentUser, SecurityAuthConfig newSecurityAuthConfig, LocalizedOperationResult result) {
         update(currentUser, newSecurityAuthConfig, result, new SecurityAuthConfigDeleteCommand(goConfigService, newSecurityAuthConfig, authorizationExtension, currentUser, result));
         if (result.isSuccessful()) {

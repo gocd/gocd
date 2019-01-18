@@ -48,6 +48,11 @@ public class SecurityAuthConfigDeleteCommand extends SecurityAuthConfigCommand {
         return isValidForDelete(preprocessedConfig);
     }
 
+    @Override
+    public boolean isNotADeleteCommand() {
+        return false;
+    }
+
     private boolean isValidForDelete(CruiseConfig preprocessedConfig) {
         RolesConfig rolesConfig = preprocessedConfig.server().security().getRoles();
 

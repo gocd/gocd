@@ -52,6 +52,10 @@ public class ElasticAgentProfileDeleteCommand extends ElasticAgentProfileCommand
         return isValidForDelete(preprocessedConfig);
     }
 
+    @Override
+    public boolean isNotADeleteCommand() {
+        return false;
+    }
 
     private boolean isValidForDelete(CruiseConfig preprocessedConfig) {
         List<PipelineConfig> allPipelineConfigs = preprocessedConfig.getAllPipelineConfigs();

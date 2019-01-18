@@ -50,7 +50,9 @@ import {RequiresPluginInfos, SaveOperation} from "views/pages/page_operations";
 type EditableMaterial = SaveOperation & { repo: ConfigRepo } & { isNew: boolean } & RequiresPluginInfos;
 
 class MaterialEditWidget extends MithrilViewComponent<EditableMaterial> {
-  private checkConnectionResult: JSX.Element | undefined;
+  private testConnectionError: m.Child | undefined;
+  private testConnectionButtonIcon: m.Child | undefined;
+  private testConnectionButtonText: string = "Test Connection";
 
   view(vnode: m.Vnode<EditableMaterial>) {
     const pluginList = _.map(vnode.attrs.pluginInfos(), (pluginInfo: PluginInfo<any>) => {
@@ -87,10 +89,10 @@ class MaterialEditWidget extends MithrilViewComponent<EditableMaterial> {
               <FormBody>
                 <Form>
                   {vnode.children}
-                  {this.checkConnectionButton(vnode)}
+                  {this.getTestConnectionButton(vnode)}
                 </Form>
               </FormBody>
-              <div className={styles.checkConnectionResult}>{this.checkConnectionResult}</div>
+              <div className={styles.testConnectionResult}>{this.testConnectionError}</div>
             </div>
             <div class={styles.pluginFilePatternConfigWrapper}>
               <FormBody>
@@ -105,24 +107,47 @@ class MaterialEditWidget extends MithrilViewComponent<EditableMaterial> {
     );
   }
 
-  private checkConnectionButton(vnode: m.Vnode<EditableMaterial>): m.Child {
-    return <li className={styles.checkConnectionButtonWrapper}>
+  private getTestConnectionButton(vnode: m.Vnode<EditableMaterial>): m.Child {
+    return (<li className={styles.testConnectionButtonWrapper}>
       <Buttons.Secondary data-test-id="button-ok"
-                         onclick={() => this.checkConnection(vnode.attrs.repo.material())}>Check
-        Connection</Buttons.Secondary>
-    </li>;
+                         onclick={() => this.testConnection(vnode.attrs.repo.material())}>
+        {this.testConnectionButtonIcon}
+        {this.testConnectionButtonText}
+      </Buttons.Secondary>
+    </li>);
   }
 
-  private checkConnection(material: Material) {
-    this.checkConnectionResult = <FlashMessage type={MessageType.info} message={"Checking connection..."}/>;
+  private testConnection(material: Material) {
+    this.testConnectionInProgress();
 
     ConfigReposCRUD.checkConnection(material).then((result: ApiResult<any>) => {
       result.do(() => {
-        this.checkConnectionResult = (<FlashMessage type={MessageType.success} message={"Connection OK"}/>);
+        this.testConnectionSuccessful();
       }, (err: ErrorResponse) => {
-        this.checkConnectionResult = (<FlashMessage type={MessageType.alert} message={<pre>{err.message}</pre>}/>);
+        this.testConnectionFailed(err);
       });
+    }).finally(() => {
+      this.testConnectionComplete();
     });
+  }
+
+  private testConnectionFailed(err: ErrorResponse) {
+    this.testConnectionButtonIcon = <span className={styles.testConnectionFailure}></span>;
+    this.testConnectionError = <FlashMessage type={MessageType.alert} message={<pre>{err.message}</pre>}/>;
+  }
+
+  private testConnectionSuccessful() {
+    this.testConnectionButtonIcon = <span className={styles.testConnectionSuccess}></span>;
+  }
+
+  private testConnectionInProgress() {
+    this.testConnectionButtonIcon = <span className={styles.testConnectionInProgress}></span>;
+    this.testConnectionButtonText = "Testing Connection..."
+    this.testConnectionError = undefined;
+  }
+
+  private testConnectionComplete() {
+    this.testConnectionButtonText = "Test Connection";
   }
 
   private pluginConfigView(vnode: m.Vnode<EditableMaterial>): m.Children {

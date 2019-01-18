@@ -67,24 +67,55 @@ code {
   @include spinner-for-modal;
 }
 
-.check-connection-result {
+.test-connection-result {
   margin-top: -10px;
   margin-left: 15px;
+  min-height: 10px;
 }
 
-.check-connection-button-wrapper {
+.test-connection-button-wrapper {
   margin-left: 15px;
   width: 100%;
-}
-
-.material-config-wrapper {
-  border-bottom: 1px solid $border-color;
 }
 
 .plugin-file-pattern-config-wrapper {
   margin-top: 20px;
 }
 
-.check-connection-result-error {
-  margin: 0;
+@mixin test-connection-button-icon($type) {
+  @include icon-before($type: $type, $color: $icon-light-color, $size: 15px, $margin: 0) {
+    display: inline-block;
+    margin-right: 5px;
+    @content
+  }
+  font-size: 11px;
 }
+
+.test-connection-success {
+  @include test-connection-button-icon($type: $fa-var-check);
+}
+
+.test-connection-failure {
+  @include test-connection-button-icon($type:
+                                         $fa-var-exclamation);
+}
+
+.test-connection-in-progress {
+  @include test-connection-button-icon($type: $fa-var-spinner) {
+    animation: rotate 0.8s linear infinite;
+  }
+
+  @keyframes rotate {
+    from {
+      transform: rotate(0deg);
+    }
+
+    to {
+      transform: rotate(359deg);
+    }
+  }
+}
+.material-config-wrapper {
+  border-bottom: 1px solid $border-color;
+}
+

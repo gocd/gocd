@@ -66,3 +66,25 @@ code {
 .spinner-wrapper {
   @include spinner-for-modal;
 }
+
+.check-connection-result {
+  margin-top: -10px;
+  margin-left: 15px;
+}
+
+.check-connection-button-wrapper {
+  margin-left: 15px;
+  width: 100%;
+}
+
+.material-config-wrapper {
+  border-bottom: 1px solid $border-color;
+}
+
+.plugin-file-pattern-config-wrapper {
+  margin-top: 20px;
+}
+
+.check-connection-result-error {
+  margin: 0;
+}

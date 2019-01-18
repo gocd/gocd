@@ -117,6 +117,10 @@ export default class {
     return `/go/api/internal/config_repos/${id}/trigger_update`;
   }
 
+  static configRepoCheckConnection(): string {
+    return `/go/api/admin/internal/material_test`;
+  }
+
   static configRepoRevisionStatusPath(id: string): string {
     return `/go/api/internal/config_repos/${id}/status`;
   }

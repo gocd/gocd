@@ -8,3 +8,8 @@ export const lastRevision: string;
 export const lastRevisionValue: string;
 export const statusIcon: string;
 export const spinnerWrapper: string;
+export const checkConnectionResult: string;
+export const checkConnectionButtonWrapper: string;
+export const materialConfigWrapper: string;
+export const pluginFilePatternConfigWrapper: string;
+export const checkConnectionResultError: string;

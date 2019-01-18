@@ -50,6 +50,8 @@ import {RequiresPluginInfos, SaveOperation} from "views/pages/page_operations";
 type EditableMaterial = SaveOperation & { repo: ConfigRepo } & { isNew: boolean } & RequiresPluginInfos;
 
 class MaterialEditWidget extends MithrilViewComponent<EditableMaterial> {
+  private checkConnectionResult: JSX.Element | undefined;
+
   view(vnode: m.Vnode<EditableMaterial>) {
     const pluginList = _.map(vnode.attrs.pluginInfos(), (pluginInfo: PluginInfo<any>) => {
       return {id: pluginInfo.id, text: pluginInfo.about.name};
@@ -80,16 +82,47 @@ class MaterialEditWidget extends MithrilViewComponent<EditableMaterial> {
                          required={true}/>
           </Form>
         </FormHeader>),
-        (
-          <FormBody>
-            <Form>
-              {vnode.children}
-              {this.pluginConfigView(vnode)}
-            </Form>
-          </FormBody>
+        (<div>
+            <div class={styles.materialConfigWrapper}>
+              <FormBody>
+                <Form>
+                  {vnode.children}
+                  {this.checkConnectionButton(vnode)}
+                </Form>
+              </FormBody>
+              <div className={styles.checkConnectionResult}>{this.checkConnectionResult}</div>
+            </div>
+            <div class={styles.pluginFilePatternConfigWrapper}>
+              <FormBody>
+                <Form>
+                  {this.pluginConfigView(vnode)}
+                </Form>
+              </FormBody>
+            </div>
+          </div>
         )
       ]
     );
+  }
+
+  private checkConnectionButton(vnode: m.Vnode<EditableMaterial>): m.Child {
+    return <li className={styles.checkConnectionButtonWrapper}>
+      <Buttons.Secondary data-test-id="button-ok"
+                         onclick={() => this.checkConnection(vnode.attrs.repo.material())}>Check
+        Connection</Buttons.Secondary>
+    </li>;
+  }
+
+  private checkConnection(material: Material) {
+    this.checkConnectionResult = <FlashMessage type={MessageType.info} message={"Checking connection..."}/>;
+
+    ConfigReposCRUD.checkConnection(material).then((result: ApiResult<any>) => {
+      result.do(() => {
+        this.checkConnectionResult = (<FlashMessage type={MessageType.success} message={"Connection OK"}/>);
+      }, (err: ErrorResponse) => {
+        this.checkConnectionResult = (<FlashMessage type={MessageType.alert} message={<pre>{err.message}</pre>}/>);
+      });
+    });
   }
 
   private pluginConfigView(vnode: m.Vnode<EditableMaterial>): m.Children {

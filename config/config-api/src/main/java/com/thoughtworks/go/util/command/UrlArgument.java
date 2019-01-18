@@ -41,7 +41,7 @@ public class UrlArgument extends CommandArgument {
             URI uri = new URI(sanitizeUrl());
             if (uri.getUserInfo() != null) {
                 //(String scheme, String userInfo, String host, int port, String path, String query, String fragment)
-                uri = new URI(uri.getScheme(), clean(uri.getUserInfo()), uri.getHost(), uri.getPort(), uri.getPath(), uri.getQuery(), uri.getFragment());
+                uri = new URI(uri.getScheme(), clean(uri.getScheme(), uri.getUserInfo()), uri.getHost(), uri.getPort(), uri.getPath(), uri.getQuery(), uri.getFragment());
             }
             return uriToDisplay(uri);
         } catch (URISyntaxException e) {
@@ -63,7 +63,7 @@ public class UrlArgument extends CommandArgument {
             URI uri = new URI(url);
             if (uri.getUserInfo() != null) {
                 //(String scheme, String userInfo, String host, int port, String path, String query, String fragment)
-                uri = new URI(uri.getScheme(), clean(uri.getUserInfo()), uri.getHost(), uri.getPort(), null, null, null);
+                uri = new URI(uri.getScheme(), clean(uri.getScheme(), uri.getUserInfo()), uri.getHost(), uri.getPort(), null, null, null);
             }
             return uri.toString();
         } catch (URISyntaxException e) {
@@ -86,9 +86,11 @@ public class UrlArgument extends CommandArgument {
         }
     }
 
-    private String clean(String userInfo) {
+    private String clean(String scheme, String userInfo) {
         if (userInfo.contains(":")) {
             return userInfo.replaceFirst(":.*", ":******");
+        } else if ("ssh".equals(scheme) || "svn+ssh".equals(scheme)) {
+            return userInfo;
         }
         return "******";
     }

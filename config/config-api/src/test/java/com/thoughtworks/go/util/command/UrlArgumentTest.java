@@ -58,10 +58,22 @@ public class UrlArgumentTest {
         Assert.assertThat(url.toString(), is("svn+ssh://user:******@10.18.7.51:8153"));
     }
 
-    @Test public void shouldWorkWithJustUser() throws Exception {
+    @Test public void shouldNotMaskWithJustUserForSvnSshProtocol() throws Exception {
         String normal = "svn+ssh://user@10.18.7.51:8153";
         UrlArgument url = new UrlArgument(normal);
-        Assert.assertThat(url.forDisplay(), is("svn+ssh://******@10.18.7.51:8153"));
+        Assert.assertThat(url.forDisplay(), is("svn+ssh://user@10.18.7.51:8153"));
+    }
+
+    @Test public void shouldNotMaskWithJustUserForSshProtocol() throws Exception {
+        String normal = "ssh://user@10.18.7.51:8153";
+        UrlArgument url = new UrlArgument(normal);
+        Assert.assertThat(url.forDisplay(), is("ssh://user@10.18.7.51:8153"));
+    }
+
+    @Test public void shouldMaskWithUsernameAndPasswordForSshProtocol() throws Exception {
+        String normal = "ssh://user:password@10.18.7.51:8153";
+        UrlArgument url = new UrlArgument(normal);
+        Assert.assertThat(url.forDisplay(), is("ssh://user:******@10.18.7.51:8153"));
     }
 
     @Test public void shouldIgnoreArgumentsThatAreNotRecognisedUrls() throws Exception {

@@ -3,7 +3,12 @@ git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 
 ruby '2.5.0'
 
-gem 'rails', '5.2.1'
+gem 'actionpack', '5.2.1'
+gem 'actionview', '5.2.1'
+gem 'activemodel', '5.2.1'
+gem 'activesupport', '5.2.1'
+gem 'railties', '5.2.1'
+
 gem 'sass-rails', '5.0.7'
 gem 'uglifier'
 

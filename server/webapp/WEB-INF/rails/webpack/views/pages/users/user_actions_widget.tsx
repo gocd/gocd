@@ -58,7 +58,6 @@ interface RemoveAdminOperation<T> {
   onRemoveAdmin: (obj: T, e: MouseEvent) => void;
 }
 
-
 export interface RolesViewAttrs extends HasRoleSelection {
   initializeRolesDropdownAttrs: () => void;
   onRolesUpdate: (rolesSelection: Map<GoCDRole, TriStateCheckbox>, users: Users) => void;

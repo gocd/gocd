@@ -232,7 +232,6 @@ export class UsersPage extends Page<null, State> {
              });
   }
 
-
   private bulkAddNewRoleOnUsers(vnode: m.Vnode<null, State>, role: GoCDRole) {
     RolesCRUD.create(role)
              .then((apiResult) => {

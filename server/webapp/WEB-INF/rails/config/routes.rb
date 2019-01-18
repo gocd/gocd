@@ -276,8 +276,6 @@ Rails.application.routes.draw do
       delete 'users', controller: 'users', action: 'bulk_delete'
       patch 'users/:login_name', to: 'users#update', constraints: {login_name: /(.*?)/}
 
-      get 'dashboard', controller: :dashboard, action: :dashboard, as: :show_dashboard
-
       match '*url', via: :all, to: 'errors#not_found'
     end
   end

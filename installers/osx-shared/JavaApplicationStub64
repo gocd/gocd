@@ -753,9 +753,9 @@ if [[ -f "/etc/default/${CFBundleName}" ]]; then
   source "/etc/default/${CFBundleName}"
 fi
 
-if [[ -f "${USER_HOME}/Library/ApplicationSupport/${CFBundleName}/overrides.env" ]]; then
-  stub_logger "Loading environment variables from '${USER_HOME}/Library/ApplicationSupport/${CFBundleName}/overrides.env'"
-  source "${USER_HOME}/Library/ApplicationSupport/${CFBundleName}/overrides.env"
+if [[ -f "${USER_HOME}/Library/Application Support/${CFBundleName}/overrides.env" ]]; then
+  stub_logger "Loading environment variables from '${USER_HOME}/Library/Application Support/${CFBundleName}/overrides.env'"
+  source "${USER_HOME}/Library/Application Support/${CFBundleName}/overrides.env"
 fi
 
 if [[ ! -d "${WorkingDirectory}" ]]; then

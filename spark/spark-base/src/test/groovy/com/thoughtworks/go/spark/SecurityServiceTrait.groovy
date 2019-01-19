@@ -97,6 +97,15 @@ trait SecurityServiceTrait {
     when(goConfigService.findGroupNameByPipeline(new CaseInsensitiveString(pipelineName))).thenReturn(groupName)
   }
 
+  void loginAsGroupAdminofPipeline(String pipelineName) {
+    Username username = loginAsRandomUser()
+    String groupName = generateGroupName()
+
+    when(securityService.isUserAdmin(username)).thenReturn(false)
+    when(securityService.isUserGroupAdmin(username)).thenReturn(true)
+    when(securityService.isUserAdminOfGroup(username, groupName)).thenReturn(true)
+  }
+
   void loginAsGroupOperateUser(String pipelineName) {
     Username username = loginAsRandomUser()
     String groupName = generateGroupName()

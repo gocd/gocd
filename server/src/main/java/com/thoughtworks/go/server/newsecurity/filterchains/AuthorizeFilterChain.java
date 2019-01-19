@@ -87,6 +87,7 @@ public class AuthorizeFilterChain extends FilterChainProxy {
                 // new controllers, so we say `ROLE_USER`, and let the controller handle authorization
                 .addAuthorityFilterChain("/api/admin/internal/*", apiAccessDeniedHandler, ROLE_USER)
                 .addAuthorityFilterChain("/api/admin/pipelines/**", apiAccessDeniedHandler, ROLE_USER)
+                .addAuthorityFilterChain("/api/admin/export/**", apiAccessDeniedHandler, ROLE_USER)
                 .addAuthorityFilterChain("/api/admin/encrypt", apiAccessDeniedHandler, ROLE_USER)
                 .addAuthorityFilterChain("/api/admin/scms/**", apiAccessDeniedHandler, ROLE_USER)
                 .addAuthorityFilterChain("/api/admin/repositories/**", apiAccessDeniedHandler, ROLE_USER)

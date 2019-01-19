@@ -25,7 +25,7 @@ import com.thoughtworks.go.config.GoConfigPluginService
 import com.thoughtworks.go.config.PipelineConfig
 import com.thoughtworks.go.config.remote.FileConfigOrigin
 import com.thoughtworks.go.helper.PipelineConfigMother
-import com.thoughtworks.go.spark.AdminUserSecurity
+import com.thoughtworks.go.server.domain.Username
 import com.thoughtworks.go.spark.ControllerTrait
 import com.thoughtworks.go.spark.GroupAdminUserSecurity
 import com.thoughtworks.go.spark.SecurityServiceTrait
@@ -36,7 +36,8 @@ import org.mockito.Mock
 
 import static com.thoughtworks.go.plugin.access.configrepo.ExportedConfig.from
 import static com.thoughtworks.go.spark.Routes.Export
-import static org.mockito.Mockito.mock
+import static org.mockito.ArgumentMatchers.any
+import static org.mockito.ArgumentMatchers.eq
 import static org.mockito.Mockito.when
 import static org.mockito.MockitoAnnotations.initMocks
 
@@ -50,7 +51,7 @@ class ExportControllerV1Test implements SecurityServiceTrait, ControllerTrait<Ex
 
   @Override
   ExportControllerV1 createControllerInstance() {
-    new ExportControllerV1(new ApiAuthenticationHelper(securityService, goConfigService), goConfigPluginService, goConfigService)
+    new ExportControllerV1(new ApiAuthenticationHelper(securityService, goConfigService), goConfigPluginService, goConfigService, securityService)
   }
 
   @BeforeEach
@@ -79,7 +80,64 @@ class ExportControllerV1Test implements SecurityServiceTrait, ControllerTrait<Ex
     }
 
     @Nested
+    class AsGroupAdmin {
+      private static final String PIPELINE1 = 'pipeline1'
+      private static final String pluginId = "test.config.plugin"
+      private static final PipelineConfig pipeline = PipelineConfigMother.pipelineConfig(PIPELINE1)
+
+      @BeforeEach
+      void setUp() {
+        enableSecurity()
+      }
+
+      @Test
+      void 'should be able to export pipeline config if admin of pipeline group'() {
+        loginAsGroupAdmin()
+        String groupName = "correctGroup"
+
+        when(goConfigService.findGroupNameByPipeline(new CaseInsensitiveString(PIPELINE1))).thenReturn(groupName)
+        when(goConfigService.pipelineConfigNamed(PIPELINE1)).thenReturn(pipeline)
+        when(goConfigPluginService.isConfigRepoPlugin(pluginId)).thenReturn(true)
+        when(goConfigPluginService.supportsPipelineExport(pluginId)).thenReturn(true)
+        when(goConfigPluginService.partialConfigProviderFor(pluginId)).thenReturn(configRepoPlugin)
+        when(configRepoPlugin.etagForExport(eq(pipeline) as PipelineConfig, any() as String)).thenReturn("etag")
+        Map<String, String> headers = new HashMap<String, String>() {
+          {
+            put("Content-Type", "text/plain")
+            put("X-Export-Filename", "foo.txt")
+          }
+        }
+        when(configRepoPlugin.pipelineExport(pipeline, groupName)).thenReturn(from("message from plugin", headers))
+
+        getWithApiHeader(controller.controllerPath("${pipelinePath(PIPELINE1)}?pluginId=${pluginId}"), ['if-none-match': '"junk"'])
+
+        assertThatResponse()
+          .isOk()
+          .hasBody("message from plugin")
+      }
+
+      @Test
+      void "should return 403 if not admin of the pipeline's group"() {
+        String pipelineName = pipeline.name().toString()
+        loginAsGroupAdminofPipeline(pipelineName)
+
+        when(goConfigService.pipelineConfigNamed(pipelineName)).thenReturn(pipeline)
+        when(goConfigService.findGroupNameByPipeline(new CaseInsensitiveString(pipelineName))).thenReturn("groupNotAdminOf")
+
+        getWithApiHeader(controller.controllerPath("${pipelinePath(pipelineName)}?pluginId=${pluginId}"))
+
+        assertThatResponse()
+          .isForbidden()
+          .hasJsonMessage("You are not authorized to perform this action.")
+      }
+    }
+
+    @Nested
     class AsAdmin {
+
+      private static final String PIPELINE1 = 'pipeline1'
+      private static final String pluginId = 'test.config.plugin'
+      private static final String groupName = 'group1'
 
       private final String exportEtag = 'big_etag_for_export'
 
@@ -87,17 +145,16 @@ class ExportControllerV1Test implements SecurityServiceTrait, ControllerTrait<Ex
       void setUp() {
         enableSecurity()
         loginAsAdmin()
+        when(goConfigService.findGroupNameByPipeline(new CaseInsensitiveString(PIPELINE1))).thenReturn(groupName)
+        when(securityService.isUserAdminOfGroup(any() as Username, any() as String)).thenReturn(true)
       }
-
-      String pluginId = 'test.config.plugin'
-      String groupName = 'group1'
 
       @Test
       void 'should be able to export pipeline config if user is admin and etag is stale'() {
-        PipelineConfig pipeline = PipelineConfigMother.pipelineConfig('pipeline1')
+        PipelineConfig pipeline = PipelineConfigMother.pipelineConfig(PIPELINE1)
         pipeline.setOrigin(new FileConfigOrigin())
 
-        when(goConfigService.pipelineConfigNamed('pipeline1')).thenReturn(pipeline)
+        when(goConfigService.pipelineConfigNamed(PIPELINE1)).thenReturn(pipeline)
         when(goConfigPluginService.isConfigRepoPlugin(pluginId)).thenReturn(true)
         when(goConfigPluginService.supportsPipelineExport(pluginId)).thenReturn(true)
         when(goConfigPluginService.partialConfigProviderFor(pluginId)).thenReturn(configRepoPlugin)
@@ -110,7 +167,7 @@ class ExportControllerV1Test implements SecurityServiceTrait, ControllerTrait<Ex
         }
         when(configRepoPlugin.pipelineExport(pipeline, groupName)).thenReturn(from("message from plugin", headers))
 
-        getWithApiHeader(controller.controllerPath("${pipelinePath("pipeline1")}?pluginId=${pluginId}&groupName=${groupName}"), ['if-none-match': '"junk"'])
+        getWithApiHeader(controller.controllerPath("${pipelinePath(PIPELINE1)}?pluginId=${pluginId}"), ['if-none-match': '"junk"'])
 
         assertThatResponse()
           .isOk()
@@ -120,69 +177,33 @@ class ExportControllerV1Test implements SecurityServiceTrait, ControllerTrait<Ex
 
       @Test
       void 'returns a 400 when pluginId is blank or missing'() {
-        PipelineConfig pipeline = PipelineConfigMother.pipelineConfig("pipeline1")
+        PipelineConfig pipeline = PipelineConfigMother.pipelineConfig(PIPELINE1)
         pipeline.setOrigin(new FileConfigOrigin())
 
-        when(goConfigService.pipelineConfigNamed("pipeline1")).thenReturn(pipeline)
+        when(goConfigService.pipelineConfigNamed(PIPELINE1)).thenReturn(pipeline)
 
-        getWithApiHeader(controller.controllerPath("${pipelinePath("pipeline1")}?groupName=${groupName}"))
+        getWithApiHeader(controller.controllerPath("${pipelinePath(PIPELINE1)}"))
 
         assertThatResponse()
           .isBadRequest()
           .hasJsonMessage("Request is missing parameter `pluginId`")
 
-        getWithApiHeader(controller.controllerPath("${pipelinePath("pipeline1")}?pluginId=%20"))
+        getWithApiHeader(controller.controllerPath("${pipelinePath(PIPELINE1)}?pluginId=%20"))
 
         assertThatResponse()
           .isBadRequest()
           .hasJsonMessage("Request is missing parameter `pluginId`")
-      }
-
-      @Test
-      void 'returns a 400 when groupName is blank or missing'() {
-        PipelineConfig pipeline = PipelineConfigMother.pipelineConfig("pipeline1")
-        pipeline.setOrigin(new FileConfigOrigin())
-
-        when(goConfigService.pipelineConfigNamed("pipeline1")).thenReturn(pipeline)
-
-        getWithApiHeader(controller.controllerPath("${pipelinePath("pipeline1")}?pluginId=${pluginId}"))
-
-        assertThatResponse()
-          .isBadRequest()
-          .hasJsonMessage("Request is missing parameter `groupName`")
-
-        getWithApiHeader(controller.controllerPath("${pipelinePath("pipeline1")}?pluginId=${pluginId}&groupName=%20"))
-
-        assertThatResponse()
-          .isBadRequest()
-          .hasJsonMessage("Request is missing parameter `groupName`")
-      }
-
-      @Test
-      void 'returns a 422 when pipeline is defined by a template'() {
-        PipelineConfig pipeline = mock(PipelineConfig)
-        when(pipeline.hasTemplate()).thenReturn(true)
-        when(pipeline.name()).thenReturn(new CaseInsensitiveString("pipeline1"))
-
-        when(goConfigService.pipelineConfigNamed("pipeline1")).thenReturn(pipeline)
-        when(goConfigPluginService.isConfigRepoPlugin(pluginId)).thenReturn(false)
-
-        getWithApiHeader(controller.controllerPath("${pipelinePath("pipeline1")}?pluginId=${pluginId}&groupName=${groupName}"))
-
-        assertThatResponse()
-          .isUnprocessableEntity()
-          .hasJsonMessage("Pipeline `pipeline1` cannot be exported because pipelines defined by templates are not yet supported by config-repo plugins.")
       }
 
       @Test
       void 'returns a 422 when plugin is not a configrepo plugin'() {
-        PipelineConfig pipeline = PipelineConfigMother.pipelineConfig("pipeline1")
+        PipelineConfig pipeline = PipelineConfigMother.pipelineConfig(PIPELINE1)
         pipeline.setOrigin(new FileConfigOrigin())
 
-        when(goConfigService.pipelineConfigNamed("pipeline1")).thenReturn(pipeline)
+        when(goConfigService.pipelineConfigNamed(PIPELINE1)).thenReturn(pipeline)
         when(goConfigPluginService.isConfigRepoPlugin(pluginId)).thenReturn(false)
 
-        getWithApiHeader(controller.controllerPath("${pipelinePath("pipeline1")}?pluginId=${pluginId}&groupName=${groupName}"))
+        getWithApiHeader(controller.controllerPath("${pipelinePath(PIPELINE1)}?pluginId=${pluginId}"))
 
         assertThatResponse()
           .isUnprocessableEntity()
@@ -191,14 +212,14 @@ class ExportControllerV1Test implements SecurityServiceTrait, ControllerTrait<Ex
 
       @Test
       void 'returns a 422 when plugin does not support export'() {
-        PipelineConfig pipeline = PipelineConfigMother.pipelineConfig("pipeline1")
+        PipelineConfig pipeline = PipelineConfigMother.pipelineConfig(PIPELINE1)
         pipeline.setOrigin(new FileConfigOrigin())
 
-        when(goConfigService.pipelineConfigNamed("pipeline1")).thenReturn(pipeline)
+        when(goConfigService.pipelineConfigNamed(PIPELINE1)).thenReturn(pipeline)
         when(goConfigPluginService.isConfigRepoPlugin(pluginId)).thenReturn(true)
         when(goConfigPluginService.supportsPipelineExport(pluginId)).thenReturn(false)
 
-        getWithApiHeader(controller.controllerPath("${pipelinePath("pipeline1")}?pluginId=${pluginId}&groupName=${groupName}"))
+        getWithApiHeader(controller.controllerPath("${pipelinePath(PIPELINE1)}?pluginId=${pluginId}"))
 
         assertThatResponse()
           .isUnprocessableEntity()
@@ -207,16 +228,16 @@ class ExportControllerV1Test implements SecurityServiceTrait, ControllerTrait<Ex
 
       @Test
       void "should return 304 for export pipeline config if etag matches"() {
-        PipelineConfig pipeline = PipelineConfigMother.pipelineConfig("pipeline1")
+        PipelineConfig pipeline = PipelineConfigMother.pipelineConfig(PIPELINE1)
         pipeline.setOrigin(new FileConfigOrigin())
 
-        when(goConfigService.pipelineConfigNamed("pipeline1")).thenReturn(pipeline)
+        when(goConfigService.pipelineConfigNamed(PIPELINE1)).thenReturn(pipeline)
         when(goConfigPluginService.isConfigRepoPlugin(pluginId)).thenReturn(true)
         when(goConfigPluginService.supportsPipelineExport(pluginId)).thenReturn(true)
         when(goConfigPluginService.partialConfigProviderFor(pluginId)).thenReturn(configRepoPlugin)
         when(configRepoPlugin.etagForExport(pipeline, groupName)).thenReturn(exportEtag)
 
-        getWithApiHeader(controller.controllerPath("${pipelinePath("pipeline1")}?pluginId=${pluginId}&groupName=${groupName}"), ['if-none-match': "\"$exportEtag\""])
+        getWithApiHeader(controller.controllerPath("${pipelinePath(PIPELINE1)}?pluginId=${pluginId}"), ['if-none-match': "\"$exportEtag\""])
 
         assertThatResponse()
           .hasBody("")
@@ -226,9 +247,9 @@ class ExportControllerV1Test implements SecurityServiceTrait, ControllerTrait<Ex
 
       @Test
       void "should return 404 for export pipeline config if pipeline is not found"() {
-        when(goConfigService.pipelineConfigNamed("pipeline1")).thenReturn(null)
+        when(goConfigService.pipelineConfigNamed(PIPELINE1)).thenReturn(null)
 
-        getWithApiHeader(controller.controllerPath("${pipelinePath("pipeline1")}?pluginId=${pluginId}&groupName=${groupName}"))
+        getWithApiHeader(controller.controllerPath("${pipelinePath(PIPELINE1)}?pluginId=${pluginId}"))
 
         assertThatResponse()
           .isNotFound()

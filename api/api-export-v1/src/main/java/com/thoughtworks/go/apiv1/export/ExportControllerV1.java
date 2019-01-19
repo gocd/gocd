@@ -25,7 +25,9 @@ import com.thoughtworks.go.config.GoConfigPluginService;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.plugin.access.configrepo.ExportedConfig;
+import com.thoughtworks.go.server.newsecurity.utils.SessionUtils;
 import com.thoughtworks.go.server.service.GoConfigService;
+import com.thoughtworks.go.server.service.SecurityService;
 import com.thoughtworks.go.spark.Routes.Export;
 import com.thoughtworks.go.spark.spring.SparkSpringController;
 import org.apache.commons.lang3.StringUtils;
@@ -44,13 +46,15 @@ public class ExportControllerV1 extends ApiController implements SparkSpringCont
     private final ApiAuthenticationHelper apiAuthenticationHelper;
     private final GoConfigPluginService crPluginService;
     private final GoConfigService configService;
+    private final SecurityService securityService;
 
     @Autowired
-    public ExportControllerV1(ApiAuthenticationHelper apiAuthenticationHelper, GoConfigPluginService crPluginService, GoConfigService configService) {
+    public ExportControllerV1(ApiAuthenticationHelper apiAuthenticationHelper, GoConfigPluginService crPluginService, GoConfigService configService, SecurityService securityService) {
         super(ApiVersion.v1);
         this.apiAuthenticationHelper = apiAuthenticationHelper;
         this.crPluginService = crPluginService;
         this.configService = configService;
+        this.securityService = securityService;
     }
 
     @Override
@@ -68,7 +72,7 @@ public class ExportControllerV1 extends ApiController implements SparkSpringCont
             before("/*", this::verifyContentType);
 
             before("", this.mimeType, this.apiAuthenticationHelper::checkAdminUserAnd403);
-            before(Export.PIPELINES_PATH, mimeType, apiAuthenticationHelper::checkPipelineGroupAdminUserAnd403);
+            before(Export.PIPELINES_PATH, mimeType, this.apiAuthenticationHelper::checkAdminUserOrGroupAdminUserAnd403);
 
             get(Export.PIPELINES_PATH, mimeType, this::exportPipeline);
 
@@ -77,9 +81,13 @@ public class ExportControllerV1 extends ApiController implements SparkSpringCont
     }
 
     public String exportPipeline(Request req, Response res) {
-        PipelineConfig pipelineConfig = pipelineConfigFromRequest(req);
         String pluginId = requiredQueryParam(req, "pluginId");
-        String groupName = requiredQueryParam(req, "groupName");
+        PipelineConfig pipelineConfig = pipelineConfigFromRequest(req);
+        String groupName = configService.findGroupNameByPipeline(pipelineConfig.name());
+
+        if (!securityService.isUserAdminOfGroup(SessionUtils.currentUsername(), groupName)) {
+            throw HaltApiResponses.haltBecauseForbidden();
+        }
 
         if (pipelineConfig.hasTemplate()) {
             throw haltBecauseOfReason("Pipeline `%s` cannot be exported because pipelines defined by templates are not yet supported by config-repo plugins.", pipelineConfig.name());
@@ -114,7 +122,7 @@ public class ExportControllerV1 extends ApiController implements SparkSpringCont
     }
 
     private PipelineConfig pipelineConfigFromRequest(Request req) {
-        final String pipelineName = requiredParam(req, "pipeline_name");
+        final String pipelineName = req.params("pipeline_name");
         PipelineConfig pipeline = configService.pipelineConfigNamed(pipelineName);
 
         if (null == pipeline) {
@@ -122,16 +130,6 @@ public class ExportControllerV1 extends ApiController implements SparkSpringCont
         }
 
         return pipeline;
-    }
-
-    private String requiredParam(final Request req, final String name) {
-        String value = req.params(name);
-
-        if (StringUtils.isBlank(value)) {
-            throw HaltApiResponses.haltBecauseRequiredParamMissing(name);
-        }
-
-        return value;
     }
 
     private String requiredQueryParam(final Request req, final String name) {

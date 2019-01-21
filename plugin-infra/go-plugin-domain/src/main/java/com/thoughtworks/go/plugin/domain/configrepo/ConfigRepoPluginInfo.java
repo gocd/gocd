@@ -17,14 +17,15 @@
 package com.thoughtworks.go.plugin.domain.configrepo;
 
 import com.thoughtworks.go.plugin.api.info.PluginDescriptor;
+import com.thoughtworks.go.plugin.domain.common.Image;
 import com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings;
 import com.thoughtworks.go.plugin.domain.common.PluginConstants;
 import com.thoughtworks.go.plugin.domain.common.PluginInfo;
 
 public class ConfigRepoPluginInfo extends PluginInfo {
 
-    public ConfigRepoPluginInfo(PluginDescriptor descriptor, PluggableInstanceSettings pluginSettings) {
-        super(descriptor, PluginConstants.CONFIG_REPO_EXTENSION, pluginSettings, null);
+    public ConfigRepoPluginInfo(PluginDescriptor descriptor, Image image, PluggableInstanceSettings pluginSettings) {
+        super(descriptor, PluginConstants.CONFIG_REPO_EXTENSION, pluginSettings, image);
     }
 
 }

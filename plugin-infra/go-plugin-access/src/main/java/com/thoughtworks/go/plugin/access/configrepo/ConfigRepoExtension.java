@@ -28,6 +28,7 @@ import com.thoughtworks.go.plugin.configrepo.codec.GsonCodec;
 import com.thoughtworks.go.plugin.configrepo.contract.CRConfigurationProperty;
 import com.thoughtworks.go.plugin.configrepo.contract.CRParseResult;
 import com.thoughtworks.go.plugin.configrepo.contract.CRPipeline;
+import com.thoughtworks.go.plugin.domain.common.Image;
 import com.thoughtworks.go.plugin.domain.configrepo.Capabilities;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,6 +44,7 @@ import static java.util.Arrays.asList;
 
 @Component
 public class ConfigRepoExtension extends AbstractExtension implements ConfigRepoExtensionContract {
+    public static final String REQUEST_GET_PLUGIN_ICON = "get-icon";
     public static final String REQUEST_PARSE_DIRECTORY = "parse-directory";
     public static final String REQUEST_PARSE_CONTENT = "parse-content";
     public static final String REQUEST_PIPELINE_EXPORT = "pipeline-export";
@@ -151,5 +153,14 @@ public class ConfigRepoExtension extends AbstractExtension implements ConfigRepo
     @Override
     protected List<String> goSupportedVersions() {
         return goSupportedVersions;
+    }
+
+    public Image getIcon(String pluginId) {
+        return pluginRequestHelper.submitRequest(pluginId, REQUEST_GET_PLUGIN_ICON, new DefaultPluginInteractionCallback<com.thoughtworks.go.plugin.domain.common.Image>() {
+            @Override
+            public com.thoughtworks.go.plugin.domain.common.Image onSuccess(String responseBody, Map<String, String> responseHeaders, String resolvedExtensionVersion) {
+                return messageHandlerMap.get(resolvedExtensionVersion).getImageResponseFromBody(responseBody);
+            }
+        });
     }
 }

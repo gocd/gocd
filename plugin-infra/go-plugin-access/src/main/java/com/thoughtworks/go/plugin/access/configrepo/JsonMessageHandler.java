@@ -18,6 +18,7 @@ package com.thoughtworks.go.plugin.access.configrepo;
 import com.thoughtworks.go.plugin.configrepo.contract.CRConfigurationProperty;
 import com.thoughtworks.go.plugin.configrepo.contract.CRParseResult;
 import com.thoughtworks.go.plugin.configrepo.contract.CRPipeline;
+import com.thoughtworks.go.plugin.domain.common.Image;
 import com.thoughtworks.go.plugin.domain.configrepo.Capabilities;
 
 import java.util.Collection;
@@ -37,4 +38,6 @@ public interface JsonMessageHandler {
     ExportedConfig responseMessageForPipelineExport(String responseBody, Map<String, String> headers);
 
     Capabilities getCapabilitiesFromResponse(String responseBody);
+
+    Image getImageResponseFromBody(String responseBody);
 }

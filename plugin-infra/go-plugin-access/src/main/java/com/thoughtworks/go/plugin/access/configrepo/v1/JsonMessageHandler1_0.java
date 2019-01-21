@@ -28,6 +28,7 @@ import com.thoughtworks.go.plugin.configrepo.contract.CRConfigurationProperty;
 import com.thoughtworks.go.plugin.configrepo.contract.CRParseResult;
 import com.thoughtworks.go.plugin.configrepo.contract.CRPipeline;
 import com.thoughtworks.go.plugin.configrepo.contract.ErrorCollection;
+import com.thoughtworks.go.plugin.domain.common.Image;
 import com.thoughtworks.go.plugin.domain.configrepo.Capabilities;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -72,6 +73,11 @@ public class JsonMessageHandler1_0 implements JsonMessageHandler {
 
     @Override
     public Capabilities getCapabilitiesFromResponse(String responseBody) {
+        return null;
+    }
+
+    @Override
+    public Image getImageResponseFromBody(String responseBody) {
         return null;
     }
 

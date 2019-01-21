@@ -125,7 +125,7 @@ public class UsersControllerV3 extends ApiController implements SparkSpringContr
             throw haltBecauseEntityAlreadyExists(jsonWriter(user, new HashMap<>()), "User", user.getName());
         }
 
-        return saveUserAndRenderResult(req, res, result, user, user.getName());
+        return saveUserAndRenderResult(req, res, result, user, user, user.getName());
     }
 
     public String patchUser(Request req, Response res) throws Exception {
@@ -134,7 +134,8 @@ public class UsersControllerV3 extends ApiController implements SparkSpringContr
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         User userFromRequest = buildUserEntityFromRequestBody(req, true);
 
-        if (userService.findUserByName(username).equals(new NullUser())) {
+        User existingUser = userService.findUserByName(username);
+        if (existingUser.equals(new NullUser())) {
             throw haltBecauseNotFound();
         }
 
@@ -142,7 +143,7 @@ public class UsersControllerV3 extends ApiController implements SparkSpringContr
             throw haltBecauseRenameOfEntityIsNotSupported("User");
         }
 
-        return saveUserAndRenderResult(req, res, result, userFromRequest, username);
+        return saveUserAndRenderResult(req, res, result, existingUser, userFromRequest, username);
     }
 
     public String deleteUser(Request req, Response res) throws Exception {
@@ -183,8 +184,8 @@ public class UsersControllerV3 extends ApiController implements SparkSpringContr
         return renderHTTPOperationResult(result, req, res);
     }
 
-    private String saveUserAndRenderResult(Request req, Response res, HttpLocalizedOperationResult result, User user, String username) throws IOException {
-        userService.save(user, TriState.from(user.isEnabled()), TriState.from(user.isEmailMe()), user.getEmail(), user.getMatcher(), result);
+    private String saveUserAndRenderResult(Request req, Response res, HttpLocalizedOperationResult result, User userToOperate, User userFromRequest, String username) throws IOException {
+        userService.save(userToOperate, TriState.from(userFromRequest.isEnabled()), TriState.from(userFromRequest.isEmailMe()), userFromRequest.getEmail(), userFromRequest.getMatcher(), result);
         boolean isSaved = result.isSuccessful();
         if (isSaved) {
             return writerForTopLevelObject(req, res, writer -> UserRepresenter.toJSON(writer, getUserToRepresent(userService.findUserByName(username), roleConfigService.getRolesForUser(Collections.singletonList(new Username(username))))));

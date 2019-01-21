@@ -50,7 +50,7 @@ public class JsonMessageHandler2_0 implements JsonMessageHandler {
 
     @Override
     public Capabilities getCapabilitiesFromResponse(String responseBody) {
-        return codec.getGson().fromJson(responseBody, Capabilities.class);
+        return com.thoughtworks.go.plugin.access.configrepo.v2.models.Capabilities.fromJSON(responseBody).toCapabilities();
     }
 
     @Override

@@ -54,7 +54,7 @@ abstract class RoleConfigCommand implements EntityConfigUpdateCommand<Role> {
 
     @Override
     public boolean canContinue(CruiseConfig cruiseConfig) {
-        return isAuthorized();
+        return isUserAuthorized();
     }
 
     @Override
@@ -73,7 +73,8 @@ abstract class RoleConfigCommand implements EntityConfigUpdateCommand<Role> {
         return cruiseConfig.server().security().getRoles().findByName(role.getName());
     }
 
-    protected final boolean isAuthorized() {
+    @Override
+    public final boolean isUserAuthorized() {
         if (goConfigService.isUserAdmin(currentUser)) {
             return true;
         }

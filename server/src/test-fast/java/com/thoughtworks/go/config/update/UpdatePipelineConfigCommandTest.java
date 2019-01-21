@@ -71,7 +71,7 @@ public class UpdatePipelineConfigCommandTest {
 
         when(goConfigService.findGroupNameByPipeline(pipelineConfig.name())).thenReturn("group1");
         when(goConfigService.canEditPipeline(pipelineConfig.name().toString(),username,localizedOperationResult,"group1")).thenReturn(false);
-        assertFalse(command.canContinue(mock(CruiseConfig.class)));
+        assertFalse(command.isUserAuthorized());
     }
 
     @Test

@@ -40,6 +40,15 @@ public abstract class ElasticAgentProfileCommand extends PluginProfileCommand<El
     }
 
     @Override
+    public final boolean isUserAuthorized() {
+        if (!(goConfigService.isUserAdmin(currentUser) || goConfigService.isGroupAdministrator(currentUser.getUsername()))) {
+            result.forbidden(forbiddenToEdit(), forbidden());
+            return false;
+        }
+        return true;
+    }
+
+    @Override
     protected ElasticProfiles getPluginProfiles(CruiseConfig preprocessedConfig) {
         return preprocessedConfig.getElasticConfig().getProfiles();
     }
@@ -52,13 +61,5 @@ public abstract class ElasticAgentProfileCommand extends PluginProfileCommand<El
     @Override
     protected String getObjectDescriptor() {
         return "Elastic agent profile";
-    }
-
-    protected final boolean isAuthorized() {
-        if (!(goConfigService.isUserAdmin(currentUser) || goConfigService.isGroupAdministrator(currentUser.getUsername()))) {
-            result.forbidden(forbiddenToEdit(), forbidden());
-            return false;
-        }
-        return true;
     }
 }

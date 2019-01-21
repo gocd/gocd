@@ -89,7 +89,7 @@ public class DeleteTemplateConfigCommandTest {
 
         DeleteTemplateConfigCommand command = new DeleteTemplateConfigCommand(pipelineTemplateConfig, result, securityService, currentUser, externalArtifactsService);
 
-        assertThat(command.canContinue(cruiseConfig), is(false));
+        assertThat(command.isUserAuthorized(), is(false));
         assertThat(result.message(), equalTo("Unauthorized to edit."));
     }
 

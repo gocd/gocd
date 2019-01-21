@@ -32,12 +32,9 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentMatchers;
 
-import java.util.Map;
-
 import static org.junit.Assert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.ArgumentMatchers.anyMapOf;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -69,7 +66,7 @@ public class SecurityAuthConfigCommandTest {
         SecurityAuthConfigCommand command = new SecurityAuthConfigCommandTest.StubCommand(goConfigService, securityAuthConfig, extension, currentUser, result);
         assertThat(cruiseConfig.server().security().securityAuthConfigs().find("foo"), nullValue());
 
-        assertThat(command.canContinue(cruiseConfig), is(false));
+        assertThat(command.isUserAuthorized(), is(false));
         assertThat(result.message(), equalTo("Unauthorized to edit."));
     }
 
@@ -96,7 +93,7 @@ public class SecurityAuthConfigCommandTest {
         SecurityAuthConfigCommand command = new SecurityAuthConfigCommandTest.StubCommand(goConfigService, securityAuthConfig, extension, currentUser, result);
         assertThat(cruiseConfig.server().security().securityAuthConfigs().find("foo"), nullValue());
 
-        assertThat(command.canContinue(cruiseConfig), is(false));
+        assertThat(command.isUserAuthorized(), is(false));
         assertThat(result.message(), equalTo("Unauthorized to edit."));
     }
 
@@ -146,7 +143,7 @@ public class SecurityAuthConfigCommandTest {
         SecurityAuthConfigCommand command = new SecurityAuthConfigCommandTest.StubCommand(goConfigService, securityAuthConfig, extension, currentUser, result);
         assertThat(cruiseConfig.server().security().securityAuthConfigs().find("ldap"), nullValue());
 
-        assertThat(command.canContinue(cruiseConfig), is(false));
+        assertThat(command.isUserAuthorized(), is(false));
     }
 
     private class StubCommand extends SecurityAuthConfigCommand {

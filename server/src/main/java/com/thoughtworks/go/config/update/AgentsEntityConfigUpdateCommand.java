@@ -68,10 +68,6 @@ public class AgentsEntityConfigUpdateCommand implements EntityConfigUpdateComman
 
     @Override
     public boolean canContinue(CruiseConfig cruiseConfig) {
-        if (!isAuthorized()) {
-            return false;
-        }
-
         if (isAnyOperationPerformedOnAgents()) {
             return true;
         }
@@ -156,7 +152,8 @@ public class AgentsEntityConfigUpdateCommand implements EntityConfigUpdateComman
         }
     }
 
-    private boolean isAuthorized() {
+    @Override
+    public boolean isUserAuthorized() {
         if (goConfigService.isAdministrator(username.getUsername())) {
             return true;
         }

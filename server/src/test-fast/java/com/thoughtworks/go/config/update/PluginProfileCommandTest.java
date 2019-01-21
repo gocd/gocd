@@ -67,7 +67,7 @@ public class PluginProfileCommandTest {
         PluginProfileCommand command = new StubSecurityAuthConfigCommand(goConfigService, securityAuthConfig, currentUser, result);
         assertThat(cruiseConfig.server().security().securityAuthConfigs().find("foo"), nullValue());
 
-        assertThat(command.canContinue(cruiseConfig), is(false));
+        assertThat(command.isUserAuthorized(), is(false));
         assertThat(result.message(), equalTo("Unauthorized to edit."));
     }
 
@@ -139,7 +139,8 @@ public class PluginProfileCommandTest {
             return "some foo object";
         }
 
-        protected final boolean isAuthorized() {
+        @Override
+        public final boolean isUserAuthorized() {
             if (goConfigService.isUserAdmin(currentUser)) {
                 return true;
             }

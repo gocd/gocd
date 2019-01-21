@@ -76,7 +76,7 @@ public class CreateSCMConfigCommandTest {
 
         CreateSCMConfigCommand command = new CreateSCMConfigCommand(scm, pluggableScmService, result, currentUser, goConfigService);
 
-        assertThat(command.canContinue(cruiseConfig), is(false));
+        assertThat(command.isUserAuthorized(), is(false));
     }
 
     @Test

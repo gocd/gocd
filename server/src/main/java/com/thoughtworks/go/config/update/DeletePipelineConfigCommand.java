@@ -51,14 +51,14 @@ public class DeletePipelineConfigCommand implements EntityConfigUpdateCommand<Pi
     @Override
     public boolean isValid(CruiseConfig preprocessedConfig) {
         for (PipelineConfig pipeline : preprocessedConfig.getAllPipelineConfigs()) {
-            if(pipeline.materialConfigs().hasDependencyMaterial(pipelineConfig)){
+            if (pipeline.materialConfigs().hasDependencyMaterial(pipelineConfig)) {
                 this.result.unprocessableEntity("Cannot delete pipeline '" + pipelineConfig.name() + "' as pipeline '" + String.format("%s (%s)", pipeline.name(), pipeline.getOriginDisplayName()) + "' depends on it");
                 return false;
             }
         }
 
         for (EnvironmentConfig environment : preprocessedConfig.getEnvironments()) {
-            if(environment.getPipelineNames().contains(pipelineConfig.name())){
+            if (environment.getPipelineNames().contains(pipelineConfig.name())) {
                 this.result.unprocessableEntity("Cannot delete pipeline '" + pipelineConfig.name() + "' as it is present in environment '" + environment.name() + "'.");
                 return false;
             }
@@ -79,6 +79,11 @@ public class DeletePipelineConfigCommand implements EntityConfigUpdateCommand<Pi
 
     @Override
     public boolean canContinue(CruiseConfig cruiseConfig) {
+        return true;
+    }
+
+    @Override
+    public boolean isUserAuthorized() {
         String groupName = goConfigService.findGroupNameByPipeline(pipelineConfig.name());
         if (goConfigService.groups().hasGroup(groupName) && !goConfigService.isUserAdminOfGroup(currentUser.getUsername(), groupName)) {
             result.forbidden(LocalizedMessage.forbiddenToDelete("Pipeline", pipelineConfig.getName()), HealthStateType.forbidden());

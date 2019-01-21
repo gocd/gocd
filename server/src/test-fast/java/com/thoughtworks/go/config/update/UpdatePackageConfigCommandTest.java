@@ -100,7 +100,7 @@ public class UpdatePackageConfigCommandTest {
         HttpLocalizedOperationResult expectedResult = new HttpLocalizedOperationResult();
         expectedResult.forbidden(forbiddenToEdit(), forbidden());
 
-        assertThat(command.canContinue(cruiseConfig), is(false));
+        assertThat(command.isUserAuthorized(), is(false));
         assertThat(result, is(expectedResult));
     }
 

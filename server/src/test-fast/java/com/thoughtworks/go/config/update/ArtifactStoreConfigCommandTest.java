@@ -31,10 +31,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
-
-import java.util.Map;
 
 import static org.junit.Assert.assertThat;
 import static org.hamcrest.Matchers.*;
@@ -71,7 +68,7 @@ public class ArtifactStoreConfigCommandTest {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         StubCommand command = new StubCommand(goConfigService, artifactStore, extension, currentUser, result);
 
-        assertThat(command.canContinue(cruiseConfig), is(false));
+        assertThat(command.isUserAuthorized(), is(false));
         assertThat(result.message(), is("Unauthorized to edit."));
     }
 
@@ -96,7 +93,7 @@ public class ArtifactStoreConfigCommandTest {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         StubCommand command = new StubCommand(goConfigService, artifactStore, extension, currentUser, result);
 
-        assertThat(command.canContinue(cruiseConfig), is(false));
+        assertThat(command.isUserAuthorized(), is(false));
         assertThat(result.message(), is("Unauthorized to edit."));
     }
 
@@ -146,7 +143,7 @@ public class ArtifactStoreConfigCommandTest {
         StubCommand command = new StubCommand(goConfigService, artifactStore, extension, currentUser, result);
         assertThat(cruiseConfig.getArtifactStores().find("docker"), nullValue());
 
-        assertThat(command.canContinue(cruiseConfig), is(false));
+        assertThat(command.isUserAuthorized(), is(false));
     }
 
     @Test

@@ -74,7 +74,7 @@ public class CreatePipelineConfigCommandTest {
         when(mock.hasGroup("group1")).thenReturn(true);
         when(goConfigService.isUserAdminOfGroup(username.getUsername(), "group1")).thenReturn(false);
 
-        assertFalse(command.canContinue(mock(CruiseConfig.class)));
+        assertFalse(command.isUserAuthorized());
     }
 
     @Test

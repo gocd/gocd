@@ -58,7 +58,7 @@ public class CreatePackageConfigCommand extends PackageConfigCommand implements 
 
     @Override
     public boolean canContinue(CruiseConfig cruiseConfig) {
-        if (!isAuthorized()) {
+        if (!isUserAuthorized()) {
             return false;
         }
         if (cruiseConfig.getPackageRepositories().find(repositoryId) == null) {

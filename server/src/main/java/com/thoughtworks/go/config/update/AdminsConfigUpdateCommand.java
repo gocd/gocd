@@ -70,8 +70,18 @@ public class AdminsConfigUpdateCommand implements EntityConfigUpdateCommand<Admi
 
     @Override
     public boolean canContinue(CruiseConfig cruiseConfig) {
-        return isAuthorized() && isRequestFresh(cruiseConfig);
+        return isRequestFresh(cruiseConfig);
     }
+
+    @Override
+    public final boolean isUserAuthorized() {
+        if (goConfigService.isUserAdmin(currentUser)) {
+            return true;
+        }
+        result.forbidden(forbiddenToEdit(), forbidden());
+        return false;
+    }
+
     @Override
     public void clearErrors() {
         BasicCruiseConfig.clearErrors(admin);
@@ -86,7 +96,6 @@ public class AdminsConfigUpdateCommand implements EntityConfigUpdateCommand<Admi
         return cruiseConfig.server().security().adminsConfig();
     }
 
-
     private boolean isRequestFresh(CruiseConfig cruiseConfig) {
         AdminsConfig existingAdminsConfig = findExistingAdmin(cruiseConfig);
 
@@ -96,14 +105,5 @@ public class AdminsConfigUpdateCommand implements EntityConfigUpdateCommand<Admi
             result.stale(staleResourceConfig("System admins", existingAdminsConfig.getClass().getName()));
         }
         return freshRequest;
-    }
-
-    private final boolean isAuthorized() {
-        if (goConfigService.isUserAdmin(currentUser)) {
-            return true;
-        }
-
-        result.forbidden(forbiddenToEdit(), forbidden());
-        return false;
     }
 }

@@ -121,7 +121,7 @@ public class UpdateEnvironmentCommandTest {
     public void shouldNotContinueIfTheUserDontHavePermissionsToOperateOnEnvironments() throws Exception {
         UpdateEnvironmentCommand command = new UpdateEnvironmentCommand(goConfigService, oldEnvironmentConfig.name().toString(), newEnvironmentConfig, currentUser, actionFailed, md5, entityHashingService, result);
         when(goConfigService.isAdministrator(currentUser.getUsername())).thenReturn(false);
-        assertThat(command.canContinue(cruiseConfig), is(false));
+        assertThat(command.isUserAuthorized(), is(false));
         HttpLocalizedOperationResult expectResult = new HttpLocalizedOperationResult();
         expectResult.forbidden("Failed to access environment 'Test'. User 'user' does not have permission to access environment.", HealthStateType.forbidden());
 

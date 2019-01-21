@@ -83,10 +83,11 @@ public class RolesConfigBulkUpdateCommand implements EntityConfigUpdateCommand<R
 
     @Override
     public boolean canContinue(CruiseConfig cruiseConfig) {
-        return isAuthorized();
+        return true;
     }
 
-    private boolean isAuthorized() {
+    @Override
+    public boolean isUserAuthorized() {
         if (goConfigService.isUserAdmin(currentUser)) {
             return true;
         }

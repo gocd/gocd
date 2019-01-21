@@ -16,7 +16,9 @@
 
 package com.thoughtworks.go.config.update;
 
-import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.CruiseConfig;
+import com.thoughtworks.go.config.PipelineConfig;
+import com.thoughtworks.go.config.PipelineConfigSaveValidationContext;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.EntityHashingService;
 import com.thoughtworks.go.server.service.ExternalArtifactsService;
@@ -60,7 +62,7 @@ public class UpdatePipelineConfigCommand extends PipelineConfigCommand {
         PipelineConfigSaveValidationContext validationContext = PipelineConfigSaveValidationContext.forChain(false, getPipelineGroup(), preprocessedConfig, preprocessedPipelineConfig);
         validatePublishAndFetchExternalConfigs(preprocessedPipelineConfig, preprocessedConfig);
         boolean isValid = preprocessedPipelineConfig.validateTree(validationContext)
-                          && preprocessedPipelineConfig.getAllErrors().isEmpty();
+                && preprocessedPipelineConfig.getAllErrors().isEmpty();
         if (!isValid) {
             copyErrors(preprocessedPipelineConfig, pipelineConfig);
         }
@@ -69,10 +71,13 @@ public class UpdatePipelineConfigCommand extends PipelineConfigCommand {
 
     @Override
     public boolean canContinue(CruiseConfig cruiseConfig) {
-        return canEditPipeline() && isRequestFresh(cruiseConfig);
+        return isRequestFresh(cruiseConfig);
     }
 
-    private boolean canEditPipeline() {
+    @Override
+    public boolean isUserAuthorized() {
+        //TODO this checks not only authorization, but also if the pipeline exists.
+        //checking pipeline existence should be moved to the validation function
         return goConfigService.canEditPipeline(pipelineConfig.name().toString(), currentUser, result, getPipelineGroup());
     }
 

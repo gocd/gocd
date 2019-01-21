@@ -68,7 +68,7 @@ public class DeleteEnvironmentCommandTest {
     public void shouldNotContinueIfTheUserDoesNotHavePermissionsToOperateOnEnvironments() throws Exception {
         DeleteEnvironmentCommand command = new DeleteEnvironmentCommand(goConfigService, environmentConfig, currentUser, actionFailed, result);
         when(goConfigService.isUserAdmin(currentUser)).thenReturn(false);
-        assertThat(command.canContinue(cruiseConfig), is(false));
+        assertThat(command.isUserAuthorized(), is(false));
         assertFalse(result.isSuccessful());
         assertThat(result.httpCode(), is(403));
         assertThat(result.message(), containsString("Failed to access environment 'Dev'. User 'user' does not have permission to access environment."));

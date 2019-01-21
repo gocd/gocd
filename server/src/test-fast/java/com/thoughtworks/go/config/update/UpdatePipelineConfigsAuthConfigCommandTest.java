@@ -20,10 +20,8 @@ import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.exceptions.PipelineGroupNotFoundException;
 import com.thoughtworks.go.domain.PipelineGroups;
 import com.thoughtworks.go.helper.GoConfigMother;
-import com.thoughtworks.go.helper.StageConfigMother;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.EntityHashingService;
-import com.thoughtworks.go.server.service.ExternalArtifactsService;
 import com.thoughtworks.go.server.service.SecurityService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import org.apache.http.HttpStatus;
@@ -171,7 +169,7 @@ public class UpdatePipelineConfigsAuthConfigCommandTest {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         UpdatePipelineConfigsAuthCommand command = new UpdatePipelineConfigsAuthCommand("group", newAuthorization, result, user, "md5", entityHashingService, securityService);
 
-        assertFalse(command.canContinue(cruiseConfig));
+        assertFalse(command.isUserAuthorized());
         assertThat(result.httpCode(), is(HttpStatus.SC_FORBIDDEN));
     }
 }

@@ -90,10 +90,11 @@ public class DeletePackageConfigCommand implements EntityConfigUpdateCommand<Pac
 
     @Override
     public boolean canContinue(CruiseConfig cruiseConfig) {
-        return isAuthorized();
+        return true;
     }
 
-    private boolean isAuthorized() {
+    @Override
+    public boolean isUserAuthorized() {
         if (!(goConfigService.isUserAdmin(username) || goConfigService.isGroupAdministrator(username.getUsername()))) {
             result.forbidden(forbiddenToEdit(), forbidden());
             return false;

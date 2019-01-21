@@ -109,7 +109,7 @@ public class AddEnvironmentCommandTest {
         HttpLocalizedOperationResult expectedResult = new HttpLocalizedOperationResult();
         expectedResult.forbidden("Failed to access environment 'Dev'. User 'user' does not have permission to access environment.", HealthStateType.forbidden());
 
-        assertThat(command.canContinue(cruiseConfig), is(false));
+        assertThat(command.isUserAuthorized(), is(false));
         assertThat(result, is(expectedResult));
     }
 

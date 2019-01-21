@@ -89,7 +89,7 @@ public class GoConfigDao {
         synchronized (GoConfigWriteLock.class) {
             try {
                 LOGGER.info("Config update for entity request by {} is being processed", currentUser);
-                if (!command.canContinue(cachedConfigService.currentConfig())) {
+                if (!command.isUserAuthorized() || !command.canContinue(cachedConfigService.currentConfig())) {
                     throw new ConfigUpdateCheckFailedException();
                 }
                 cachedConfigService.writeEntityWithLock(command, currentUser);

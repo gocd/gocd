@@ -38,6 +38,11 @@ public class AgentsUpdateCommand implements EntityConfigUpdateCommand<Agents> {
     }
 
     @Override
+    public boolean isUserAuthorized() {
+        return true;
+    }
+
+    @Override
     public void update(CruiseConfig preprocessedConfig) throws Exception {
         updatedConfig = command.update(preprocessedConfig);
     }

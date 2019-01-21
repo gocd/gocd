@@ -39,6 +39,15 @@ abstract class ArtifactStoreConfigCommand extends PluginProfileCommand<ArtifactS
     }
 
     @Override
+    public final boolean isUserAuthorized() {
+        if (goConfigService.isUserAdmin(currentUser)) {
+            return true;
+        }
+        result.forbidden(forbiddenToEdit(), forbidden());
+        return false;
+    }
+
+    @Override
     protected ArtifactStores getPluginProfiles(CruiseConfig preprocessedConfig) {
         return preprocessedConfig.getArtifactStores();
     }
@@ -51,14 +60,6 @@ abstract class ArtifactStoreConfigCommand extends PluginProfileCommand<ArtifactS
     @Override
     protected String getObjectDescriptor() {
         return "Artifact store";
-    }
-
-    protected final boolean isAuthorized() {
-        if (goConfigService.isUserAdmin(currentUser)) {
-            return true;
-        }
-        result.forbidden(forbiddenToEdit(), forbidden());
-        return false;
     }
 
 }

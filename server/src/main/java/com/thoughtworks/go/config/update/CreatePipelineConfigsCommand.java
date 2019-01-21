@@ -60,6 +60,11 @@ public class CreatePipelineConfigsCommand extends PipelineConfigsCommand {
 
     @Override
     public boolean canContinue(CruiseConfig cruiseConfig) {
+        return true;
+    }
+
+    @Override
+    public boolean isUserAuthorized() {
         return isUserAdmin();
     }
 }

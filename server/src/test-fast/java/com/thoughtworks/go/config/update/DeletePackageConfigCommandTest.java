@@ -116,7 +116,7 @@ public class DeletePackageConfigCommandTest {
     public void shouldNotContinueIfTheUserDontHavePermissionsToOperateOnPackages() throws Exception {
         DeletePackageConfigCommand command = new DeletePackageConfigCommand(goConfigService, packageDefinition, currentUser, result);
         when(goConfigService.isUserAdmin(currentUser)).thenReturn(false);
-        assertThat(command.canContinue(cruiseConfig), is(false));
+        assertThat(command.isUserAuthorized(), is(false));
 
         HttpLocalizedOperationResult expectedResult = new HttpLocalizedOperationResult();
         expectedResult.forbidden(forbiddenToEdit(), forbidden());

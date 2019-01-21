@@ -334,7 +334,7 @@ public class PatchEnvironmentCommandTest {
     public void shouldNotContinueIfTheUserDontHavePermissionsToOperateOnEnvironments() throws Exception {
         PatchEnvironmentCommand command = new PatchEnvironmentCommand(goConfigService, environmentConfig, pipelinesToAdd, pipelinesToRemove, agentsToAdd, agentsToRemove, envVarsToAdd, envVarsToRemove, currentUser, actionFailed, result);
         when(goConfigService.isAdministrator(currentUser.getUsername())).thenReturn(false);
-        assertThat(command.canContinue(cruiseConfig), is(false));
+        assertThat(command.isUserAuthorized(), is(false));
         HttpLocalizedOperationResult expectResult = new HttpLocalizedOperationResult();
         expectResult.forbidden("Failed to access environment 'Dev'. User 'user' does not have permission to access environment.", HealthStateType.forbidden());
         assertThat(result, is(expectResult));

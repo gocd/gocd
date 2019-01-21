@@ -98,7 +98,7 @@ public class DeletePipelineConfigsCommandTest {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         DeletePipelineConfigsCommand command = new DeletePipelineConfigsCommand(pipelineConfigs, result, user, securityService);
 
-        assertFalse(command.canContinue(cruiseConfig));
+        assertFalse(command.isUserAuthorized());
         assertThat(result.httpCode(), is(HttpStatus.SC_FORBIDDEN));
     }
 }

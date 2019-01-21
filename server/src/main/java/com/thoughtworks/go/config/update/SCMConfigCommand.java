@@ -72,10 +72,11 @@ public abstract class SCMConfigCommand implements EntityConfigUpdateCommand<SCM>
 
     @Override
     public boolean canContinue(CruiseConfig cruiseConfig) {
-        return isAuthorized();
+        return true;
     }
 
-    private boolean isAuthorized() {
+    @Override
+    public boolean isUserAuthorized() {
         if (!(goConfigService.isUserAdmin(currentUser) || goConfigService.isGroupAdministrator(currentUser.getUsername()))) {
             result.forbidden(forbiddenToEdit(), forbidden());
             return false;

@@ -16,7 +16,9 @@
 
 package com.thoughtworks.go.config.update;
 
-import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.CruiseConfig;
+import com.thoughtworks.go.config.PipelineConfig;
+import com.thoughtworks.go.config.PipelineConfigSaveValidationContext;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.ExternalArtifactsService;
 import com.thoughtworks.go.server.service.GoConfigService;
@@ -60,6 +62,11 @@ public class CreatePipelineConfigCommand extends PipelineConfigCommand {
 
     @Override
     public boolean canContinue(CruiseConfig cruiseConfig) {
+        return true;
+    }
+
+    @Override
+    public boolean isUserAuthorized() {
         if (goConfigService.groups().hasGroup(groupName) && !goConfigService.isUserAdminOfGroup(currentUser.getUsername(), groupName)) {
             result.forbidden(forbiddenToEditGroup(groupName), forbidden());
             return false;

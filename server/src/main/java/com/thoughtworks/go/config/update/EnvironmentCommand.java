@@ -63,6 +63,11 @@ public abstract class EnvironmentCommand implements EntityConfigUpdateCommand<En
 
     @Override
     public boolean canContinue(CruiseConfig cruiseConfig) {
+        return true;
+    }
+
+    @Override
+    public boolean isUserAuthorized() {
         if (!goConfigService.isAdministrator(username.getUsername())) {
             result.forbidden(LocalizedMessage.forbiddenToEditResource("environment", environmentConfig.name(), username.getDisplayName()), HealthStateType.forbidden());
             return false;

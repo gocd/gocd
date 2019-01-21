@@ -21,6 +21,8 @@ import com.thoughtworks.go.config.CruiseConfig;
 public interface EntityConfigUpdateCommand<T> extends CheckedUpdateCommand {
     void update(CruiseConfig preprocessedConfig) throws Exception;
 
+    boolean isUserAuthorized();
+
     boolean isValid(CruiseConfig preprocessedConfig);
 
     void clearErrors();

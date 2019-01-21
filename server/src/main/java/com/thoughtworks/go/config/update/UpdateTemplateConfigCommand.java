@@ -66,10 +66,11 @@ public class UpdateTemplateConfigCommand extends TemplateConfigCommand {
 
     @Override
     public boolean canContinue(CruiseConfig cruiseConfig) {
-        return isRequestFresh(cruiseConfig) && isUserAuthorized();
+        return isRequestFresh(cruiseConfig);
     }
 
-    private boolean isUserAuthorized() {
+    @Override
+    public boolean isUserAuthorized() {
         if (!securityService.isAuthorizedToEditTemplate(templateConfig.name(), currentUser)) {
             result.forbidden(forbiddenToEdit(), forbidden());
             return false;
@@ -86,4 +87,3 @@ public class UpdateTemplateConfigCommand extends TemplateConfigCommand {
         return freshRequest;
     }
 }
-

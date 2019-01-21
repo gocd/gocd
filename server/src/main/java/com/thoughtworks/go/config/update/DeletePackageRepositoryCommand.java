@@ -71,9 +71,9 @@ public class DeletePackageRepositoryCommand implements EntityConfigUpdateCommand
 
     private List<String> populateList(Map<String, List<Pair<PipelineConfig, PipelineConfigs>>> packageUsageInPipelines) {
         ArrayList<String> pipleines = new ArrayList<>();
-        for(String key: packageUsageInPipelines.keySet()) {
+        for (String key : packageUsageInPipelines.keySet()) {
             List<Pair<PipelineConfig, PipelineConfigs>> pairs = packageUsageInPipelines.get(key);
-            for(Pair<PipelineConfig, PipelineConfigs> pair : pairs) {
+            for (Pair<PipelineConfig, PipelineConfigs> pair : pairs) {
                 pipleines.add(pair.first().getName().toLower());
             }
         }
@@ -92,10 +92,11 @@ public class DeletePackageRepositoryCommand implements EntityConfigUpdateCommand
 
     @Override
     public boolean canContinue(CruiseConfig cruiseConfig) {
-        return isAuthorized();
+        return true;
     }
 
-    private boolean isAuthorized() {
+    @Override
+    public boolean isUserAuthorized() {
         if (!(goConfigService.isUserAdmin(username) || goConfigService.isGroupAdministrator(username.getUsername()))) {
             result.forbidden(forbiddenToEdit(), forbidden());
             return false;

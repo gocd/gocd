@@ -112,7 +112,7 @@ public class AgentsEntityConfigUpdateCommandTest {
         AgentsEntityConfigUpdateCommand command = new AgentsEntityConfigUpdateCommand(agentInstances, currentUser, result, uuids, environmentsToAdd,
                 environmentsToRemove, triState, resourcesToAdd, resourcesToRemove, goConfigService);
         when(goConfigService.isAdministrator(currentUser.getUsername())).thenReturn(false);
-        assertFalse(command.canContinue(cruiseConfig));
+        assertFalse(command.isUserAuthorized());
         HttpLocalizedOperationResult expectedResult = new HttpLocalizedOperationResult();
         expectedResult.forbidden(forbiddenToEdit(), forbidden());
         assertThat(result, is(expectedResult));

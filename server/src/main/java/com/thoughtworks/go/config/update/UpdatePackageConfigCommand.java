@@ -68,7 +68,7 @@ public class UpdatePackageConfigCommand extends PackageConfigCommand {
 
     @Override
     public boolean canContinue(CruiseConfig cruiseConfig) {
-        return isAuthorized() && isRepositoryPresent(cruiseConfig) && isIdSame() && isRequestFresh();
+        return isRepositoryPresent(cruiseConfig) && isIdSame() && isRequestFresh();
     }
 
     private boolean isRepositoryPresent(CruiseConfig cruiseConfig) {

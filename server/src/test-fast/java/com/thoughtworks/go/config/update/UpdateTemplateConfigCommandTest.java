@@ -148,7 +148,7 @@ public class UpdateTemplateConfigCommandTest {
 
         UpdateTemplateConfigCommand command = new UpdateTemplateConfigCommand(pipelineTemplateConfig, currentUser, securityService, result, "md5", entityHashingService, externalArtifactsService);
 
-        assertThat(command.canContinue(cruiseConfig), is(false));
+        assertThat(command.isUserAuthorized(), is(false));
         assertThat(result.message(), equalTo("Unauthorized to edit."));
     }
 

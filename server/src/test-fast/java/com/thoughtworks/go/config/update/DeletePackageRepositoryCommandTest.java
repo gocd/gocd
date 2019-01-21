@@ -95,7 +95,7 @@ public class DeletePackageRepositoryCommandTest {
         when(goConfigService.isUserAdmin(currentUser)).thenReturn(false);
         DeletePackageRepositoryCommand command = new DeletePackageRepositoryCommand(goConfigService, packageRepository, currentUser, result);
 
-        assertFalse(command.canContinue(cruiseConfig));
+        assertFalse(command.isUserAuthorized());
         assertThat(result, is(expectedResult));
     }
 

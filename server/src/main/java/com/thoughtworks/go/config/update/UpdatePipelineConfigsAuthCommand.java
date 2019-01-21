@@ -64,7 +64,12 @@ public class UpdatePipelineConfigsAuthCommand extends PipelineConfigsCommand {
 
     @Override
     public boolean canContinue(CruiseConfig cruiseConfig) {
-        return isRequestFresh(cruiseConfig) && isUserAdminOfGroup(group);
+        return isRequestFresh(cruiseConfig);
+    }
+
+    @Override
+    public boolean isUserAuthorized() {
+        return isUserAdminOfGroup(group);
     }
 
     private boolean isRequestFresh(CruiseConfig cruiseConfig) {

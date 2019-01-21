@@ -47,6 +47,15 @@ abstract class PackageConfigCommand implements EntityConfigUpdateCommand<Package
         this.username = username;
     }
 
+    @Override
+    public boolean isUserAuthorized() {
+        if (!(goConfigService.isUserAdmin(username) || goConfigService.isGroupAdministrator(username.getUsername()))) {
+            result.forbidden(forbiddenToEdit(), forbidden());
+            return false;
+        }
+        return true;
+    }
+
     public boolean isValid(CruiseConfig preprocessedConfig, String repositoryId) {
         PackageRepositories packageRepositories = preprocessedConfig.getPackageRepositories();
         PackageRepository repository = packageRepositories.find(repositoryId);
@@ -62,14 +71,6 @@ abstract class PackageConfigCommand implements EntityConfigUpdateCommand<Package
         }
         BasicCruiseConfig.copyErrors(preprocessedPackageDefinition, packageDefinition);
         return false;
-    }
-
-    protected boolean isAuthorized() {
-        if (!(goConfigService.isUserAdmin(username) || goConfigService.isGroupAdministrator(username.getUsername()))) {
-            result.forbidden(forbiddenToEdit(), forbidden());
-            return false;
-        }
-        return true;
     }
 
     @Override

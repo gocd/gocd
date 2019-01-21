@@ -159,7 +159,7 @@ public class CreatePipelineConfigsCommandTest {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         CreatePipelineConfigsCommand command = new CreatePipelineConfigsCommand(newPipelineConfigs, user, result, securityService);
 
-        assertFalse(command.canContinue(cruiseConfig));
+        assertFalse(command.isUserAuthorized());
         assertThat(result.httpCode(), is(HttpStatus.SC_FORBIDDEN));
     }
 }

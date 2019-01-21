@@ -76,7 +76,7 @@ public class AdminsConfigUpdateCommandTest {
 
         AdminsConfigUpdateCommand command = new AdminsConfigUpdateCommand(goConfigService, new AdminsConfig(), currentUser, result, entityHashingService, null);
 
-        assertFalse(command.canContinue(cruiseConfig));
+        assertFalse(command.isUserAuthorized());
         assertThat(result.httpCode(), is(403));
     }
 

@@ -62,7 +62,7 @@ public abstract class PluginProfileCommand<T extends PluginProfile, M extends Pl
 
     @Override
     public boolean canContinue(CruiseConfig cruiseConfig) {
-        return isAuthorized();
+        return true;
     }
 
     protected boolean isValidForCreateOrUpdate(CruiseConfig preprocessedConfig) {
@@ -99,7 +99,5 @@ public abstract class PluginProfileCommand<T extends PluginProfile, M extends Pl
     private String getTagName() {
         return profile.getClass().getAnnotation(ConfigTag.class).value();
     }
-
-    protected abstract boolean isAuthorized();
 
 }

@@ -20,7 +20,6 @@ import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.exceptions.NoSuchRoleException;
 import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.server.domain.Username;
-import com.thoughtworks.go.server.service.EntityHashingService;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import org.junit.Before;
@@ -36,7 +35,6 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertFalse;
-import static org.mockito.ArgumentMatchers.refEq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -89,7 +87,7 @@ public class RolesConfigBulkUpdateCommandTest {
         GoCDRolesBulkUpdateRequest request = new GoCDRolesBulkUpdateRequest(Collections.emptyList());
         RolesConfigBulkUpdateCommand command = new RolesConfigBulkUpdateCommand(request, viewUser, goConfigService, result);
 
-        assertFalse(command.canContinue(null));
+        assertFalse(command.isUserAuthorized());
         assertFalse(result.isSuccessful());
         assertThat(result.httpCode(), is(403));
     }

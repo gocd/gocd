@@ -50,6 +50,11 @@ public class CreateTemplateConfigCommand extends TemplateConfigCommand {
 
     @Override
     public boolean canContinue(CruiseConfig cruiseConfig) {
+        return true;
+    }
+
+    @Override
+    public boolean isUserAuthorized() {
         if (!(securityService.isUserAdmin(currentUser) || securityService.isUserGroupAdmin(currentUser))) {
             result.forbidden(forbiddenToEdit(), forbidden());
             return false;

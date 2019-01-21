@@ -456,15 +456,14 @@ public abstract class GoConfigDaoTestBase {
         when(cachedConfigService.currentConfig()).thenReturn(cruiseConfig);
         goConfigDao = new GoConfigDao(cachedConfigService);
         EntityConfigUpdateCommand command = mock(EntityConfigUpdateCommand.class);
-        when(command.canContinue(cruiseConfig)).thenReturn(false);
+        when(command.isUserAuthorized()).thenReturn(false);
         try {
             goConfigDao.updateConfig(command, new Username(new CaseInsensitiveString("user")));
             fail("Expected to throw exception of type:" + ConfigUpdateCheckFailedException.class.getName());
         } catch (Exception e) {
             assertTrue(e instanceof ConfigUpdateCheckFailedException);
         }
-        verify(cachedConfigService).currentConfig();
-        verifyNoMoreInteractions(cachedConfigService);
+        verifyZeroInteractions(cachedConfigService);
     }
 
     @Test
@@ -475,6 +474,7 @@ public abstract class GoConfigDaoTestBase {
         EntityConfigUpdateCommand saveCommand = mock(EntityConfigUpdateCommand.class);
         when(saveCommand.isValid(cruiseConfig)).thenReturn(true);
         when(saveCommand.canContinue(cruiseConfig)).thenReturn(true);
+        when(saveCommand.isUserAuthorized()).thenReturn(true);
         goConfigDao = new GoConfigDao(cachedConfigService);
         Username currentUser = new Username(new CaseInsensitiveString("user"));
         goConfigDao.updateConfig(saveCommand, currentUser);

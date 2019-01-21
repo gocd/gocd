@@ -65,10 +65,11 @@ public class DeleteTemplateConfigCommand extends TemplateConfigCommand {
 
     @Override
     public boolean canContinue(CruiseConfig cruiseConfig) {
-        return doesTemplateExist(cruiseConfig) && isUserAuthorized();
+        return doesTemplateExist(cruiseConfig);
     }
 
-    private boolean isUserAuthorized() {
+    @Override
+    public boolean isUserAuthorized() {
         if (!securityService.isAuthorizedToEditTemplate(templateConfig.name(), currentUser)) {
             result.forbidden(forbiddenToEdit(), forbidden());
             return false;

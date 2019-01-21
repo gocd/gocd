@@ -39,6 +39,15 @@ public abstract class SecurityAuthConfigCommand extends PluginProfileCommand<Sec
     }
 
     @Override
+    public final boolean isUserAuthorized() {
+        if (goConfigService.isUserAdmin(currentUser)) {
+            return true;
+        }
+        result.forbidden(forbiddenToEdit(), forbidden());
+        return false;
+    }
+
+    @Override
     protected SecurityAuthConfigs getPluginProfiles(CruiseConfig preprocessedConfig) {
         return preprocessedConfig.server().security().securityAuthConfigs();
     }
@@ -51,14 +60,6 @@ public abstract class SecurityAuthConfigCommand extends PluginProfileCommand<Sec
     @Override
     protected String getObjectDescriptor() {
         return "Security auth config";
-    }
-
-    protected final boolean isAuthorized() {
-        if (goConfigService.isUserAdmin(currentUser)) {
-            return true;
-        }
-        result.forbidden(forbiddenToEdit(), forbidden());
-        return false;
     }
 
 }

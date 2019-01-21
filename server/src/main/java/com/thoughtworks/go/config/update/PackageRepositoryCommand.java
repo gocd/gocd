@@ -69,10 +69,11 @@ public abstract class PackageRepositoryCommand implements EntityConfigUpdateComm
 
     @Override
     public boolean canContinue(CruiseConfig cruiseConfig) {
-        return isAuthorized();
+        return true;
     }
 
-    private boolean isAuthorized() {
+    @Override
+    public boolean isUserAuthorized() {
         if (!(goConfigService.isUserAdmin(username) || goConfigService.isGroupAdministrator(username.getUsername()))) {
             result.forbidden(forbiddenToEdit(), forbidden());
             return false;

@@ -71,7 +71,7 @@ public class DeleteConfigRepoCommandTest {
     public void shouldNotContinueIfTheUserDontHavePermissionsToOperateOnConfigRepos() throws Exception {
         DeleteConfigRepoCommand command = new DeleteConfigRepoCommand(securityService, repoId, currentUser, result);
         when(goConfigService.isUserAdmin(currentUser)).thenReturn(false);
-        assertThat(command.canContinue(cruiseConfig), is(false));
+        assertThat(command.isUserAuthorized(), is(false));
         assertFalse(result.isSuccessful());
         assertThat(result.httpCode(), is(403));
         assertThat(result.message(), equalTo("Unauthorized to edit."));

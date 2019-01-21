@@ -108,7 +108,7 @@ describe("UsersWidget", () => {
 
     expect(headers[1]).toEqual("Username");
     expect(headers[2]).toEqual("Display name");
-    expect(headers[4]).toEqual("Admin");
+    expect(headers[4]).toEqual("System Admin");
     expect(headers[5]).toEqual("Email");
     expect(headers[6]).toEqual("Enabled");
 

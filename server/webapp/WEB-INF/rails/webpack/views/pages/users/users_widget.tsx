@@ -39,7 +39,7 @@ export class UsersTableWidget extends MithrilViewComponent<UserActionsState> {
           <div className={classnames(styles.rolePlugin)}>Plugin</div>
         </div>
       </span>,
-      "Admin",
+      "System Admin",
       "Email",
       "Enabled"
     ];

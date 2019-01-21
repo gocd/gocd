@@ -238,9 +238,9 @@ export class UsersActionsWidget extends MithrilViewComponent<State> {
             <Secondary onclick={vnode.attrs.onDelete.bind(vnode.attrs, vnode.attrs.users())}
                        disabled={!vnode.attrs.users().anyUserSelected()}>Delete</Secondary>
             <Secondary onclick={vnode.attrs.onMakeAdmin.bind(vnode.attrs, vnode.attrs.users())}
-                       disabled={!vnode.attrs.users().anyUserSelected()}>Make admin</Secondary>
+                       disabled={!vnode.attrs.users().anyUserSelected()}>Make System Admin</Secondary>
             <Secondary onclick={vnode.attrs.onRemoveAdmin.bind(vnode.attrs, vnode.attrs.users())}
-                       disabled={!vnode.attrs.users().anyUserSelected()}>Remove admin</Secondary>
+                       disabled={!vnode.attrs.users().anyUserSelected()}>Revoke System Admin</Secondary>
             <RolesDropdown {...vnode.attrs} show={vnode.attrs.showRoles}/>
           </ButtonGroup>
         </div>

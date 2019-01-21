@@ -45,7 +45,10 @@ import javax.servlet.http.Part;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 import static com.thoughtworks.go.spark.Routes.ConfigRepos.OPERATIONS_BASE;
 import static com.thoughtworks.go.spark.Routes.ConfigRepos.PREFLIGHT_PATH;
@@ -101,7 +104,7 @@ public class ConfigRepoOperationsControllerV1 extends ApiController implements S
 
         try {
             Collection<Part> uploads = req.raw().getParts();
-            List<Map<String, String>> contents = new ArrayList<>();
+            Map<String, String> contents = new LinkedHashMap<>();
 
             for (Part ul : uploads) {
                 if (!"files[]".equals(ul.getName())) {
@@ -110,7 +113,7 @@ public class ConfigRepoOperationsControllerV1 extends ApiController implements S
 
                 StringWriter w = new StringWriter();
                 IOUtils.copy(ul.getInputStream(), w, StandardCharsets.UTF_8);
-                contents.add(Collections.singletonMap(ul.getSubmittedFileName(), w.toString()));
+                contents.put(ul.getSubmittedFileName(), w.toString());
             }
 
             if (contents.isEmpty()) {

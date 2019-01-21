@@ -35,7 +35,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 
 public class JsonMessageHandler2_0 implements JsonMessageHandler {
@@ -67,7 +66,7 @@ public class JsonMessageHandler2_0 implements JsonMessageHandler {
     }
 
     @Override
-    public String requestMessageForParseContent(List<Map<String, String>> contents) {
+    public String requestMessageForParseContent(Map<String, String> contents) {
         return codec.getGson().toJson(Collections.singletonMap("contents", contents));
     }
 

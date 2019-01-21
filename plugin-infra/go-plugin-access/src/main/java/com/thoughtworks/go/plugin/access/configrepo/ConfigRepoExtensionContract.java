@@ -22,7 +22,6 @@ import com.thoughtworks.go.plugin.configrepo.contract.CRPipeline;
 import com.thoughtworks.go.plugin.domain.configrepo.Capabilities;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -32,7 +31,7 @@ public interface ConfigRepoExtensionContract {
 
     CRParseResult parseDirectory(String pluginId, final String destinationFolder, final Collection<CRConfigurationProperty> configurations);
 
-    CRParseResult parseContent(String pluginId, List<Map<String, String>> content);
+    CRParseResult parseContent(String pluginId, Map<String, String> content);
 
     ExportedConfig pipelineExport(String pluginId, final CRPipeline pipelineConfig);
 

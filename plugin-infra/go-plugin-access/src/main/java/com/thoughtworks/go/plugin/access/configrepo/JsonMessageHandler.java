@@ -21,13 +21,12 @@ import com.thoughtworks.go.plugin.configrepo.contract.CRPipeline;
 import com.thoughtworks.go.plugin.domain.configrepo.Capabilities;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 
 public interface JsonMessageHandler {
     String requestMessageForParseDirectory(String destinationFolder, Collection<CRConfigurationProperty> configurations);
 
-    String requestMessageForParseContent(List<Map<String, String>> contents);
+    String requestMessageForParseContent(Map<String, String> contents);
 
     CRParseResult responseMessageForParseDirectory(String responseBody);
 

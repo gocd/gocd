@@ -102,7 +102,7 @@ class ConfigRepoOperationsControllerV1Test implements SecurityServiceTrait, Cont
       @Test
       void "returns NOT FOUND when plugin does not exist"() {
         def plugin = mock(ConfigRepoPlugin.class)
-        when(plugin.parseContent(any() as List<Map<String, String>>, any() as PartialConfigLoadContext)).thenThrow(new PluginNotFoundException("Not found"))
+        when(plugin.parseContent(any() as Map<String, String>, any() as PartialConfigLoadContext)).thenThrow(new PluginNotFoundException("Not found"))
         when(pluginService.partialConfigProviderFor(PLUGIN_ID)).thenReturn(plugin)
         postWithApiHeader(controller.controllerPath("$PREFLIGHT_PATH?pluginId=$PLUGIN_ID"), [:])
 
@@ -126,7 +126,7 @@ class ConfigRepoOperationsControllerV1Test implements SecurityServiceTrait, Cont
         def plugin = mock(ConfigRepoPlugin.class)
         def partialConfig = mock(PartialConfig.class)
         def cruiseConfig = mock(CruiseConfig.class)
-        when(plugin.parseContent(any() as List<Map<String, String>>, any() as PartialConfigLoadContext)).thenReturn(partialConfig)
+        when(plugin.parseContent(any() as Map<String, String>, any() as PartialConfigLoadContext)).thenReturn(partialConfig)
         when(pluginService.partialConfigProviderFor(PLUGIN_ID)).thenReturn(plugin)
         when(partialConfigService.merge(eq(partialConfig), any() as String, any() as CruiseConfig)).thenReturn(cruiseConfig)
 
@@ -143,7 +143,7 @@ class ConfigRepoOperationsControllerV1Test implements SecurityServiceTrait, Cont
       void "returns serialized PreflightResult when config fails to parse"() {
         def plugin = mock(ConfigRepoPlugin.class)
         def partialConfig = mock(PartialConfig.class)
-        when(plugin.parseContent(any() as List<Map<String, String>>, any() as PartialConfigLoadContext)).thenThrow(new InvalidPartialConfigException(partialConfig, "bad content!"))
+        when(plugin.parseContent(any() as Map<String, String>, any() as PartialConfigLoadContext)).thenThrow(new InvalidPartialConfigException(partialConfig, "bad content!"))
         when(pluginService.partialConfigProviderFor(PLUGIN_ID)).thenReturn(plugin)
 
         postWithApiHeader(controller.controllerPath("$PREFLIGHT_PATH?pluginId=$PLUGIN_ID"), [:])
@@ -162,7 +162,7 @@ class ConfigRepoOperationsControllerV1Test implements SecurityServiceTrait, Cont
         def plugin = mock(ConfigRepoPlugin.class)
         def partialConfig = mock(PartialConfig.class)
         def cruiseConfig = mock(CruiseConfig.class)
-        when(plugin.parseContent(any() as List<Map<String, String>>, any() as PartialConfigLoadContext)).thenReturn(partialConfig)
+        when(plugin.parseContent(any() as Map<String, String>, any() as PartialConfigLoadContext)).thenReturn(partialConfig)
         when(pluginService.partialConfigProviderFor(PLUGIN_ID)).thenReturn(plugin)
         when(partialConfigService.merge(eq(partialConfig), any() as String, any() as CruiseConfig)).thenReturn(cruiseConfig)
         when(goConfigService.validateCruiseConfig(cruiseConfig)).thenThrow(new GoConfigInvalidException(cruiseConfig, "nope!"))

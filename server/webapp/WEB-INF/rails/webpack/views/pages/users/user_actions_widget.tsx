@@ -96,7 +96,7 @@ class FiltersView extends Dropdown<FiltersViewAttrs> {
             <h4 className={classnames(styles.filterItemsHead)}
                 data-test-id="filter-by-privileges-heading">Privileges</h4>
             <Form compactForm={true} data-test-id="filter-by-privileges">
-              <CheckboxField label="Super Administrators"
+              <CheckboxField label="System Administrators"
                              property={vnode.attrs.userFilters().superAdmins}/>
               <CheckboxField label="Normal Users"
                              property={vnode.attrs.userFilters().normalUsers}/>

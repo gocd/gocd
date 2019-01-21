@@ -139,8 +139,8 @@ export class UsersPage extends Page<null, State> {
     let bannerToDisplay;
     const meta = this.getMeta();
     if (!_.isEmpty(meta) && meta.noAdminsConfigured) {
-      bannerToDisplay = (<FlashMessage type={MessageType.alert}
-                                       message='There are currently no administrators defined in the configuration. This makes everyone an adminstrator. We recommend that you explicitly select all users and click "make admin".'/>);
+      bannerToDisplay = (<FlashMessage type={MessageType.warning}
+                                       message='There are currently no administrators defined in the configuration. This makes everyone an administrator. We recommend that you explicitly select all users and click "make admin".'/>);
     }
 
     return (

@@ -21,7 +21,7 @@ import * as stream from "mithril/stream";
 import {AdminsCRUD, BulkUpdateSystemAdminJSON} from "models/admins/admin_crud";
 import {RolesCRUD} from "models/roles/roles_crud";
 import {BulkUserRoleUpdateJSON, GoCDAttributes, GoCDRole, Roles} from "models/roles/roles_new";
-import {TriStateCheckbox} from "models/tri_state_checkbox";
+import {TriStateCheckbox, TristateState} from "models/tri_state_checkbox";
 import {computeBulkUpdateRolesJSON, computeRolesSelection} from "models/users/role_selection";
 import {UserFilters} from "models/users/user_filters";
 import {BulkUserOperationJSON, BulkUserUpdateJSON, Users} from "models/users/users";
@@ -122,8 +122,17 @@ export class UsersPage extends Page<null, State> {
     vnode.state.onRolesAdd = (roleName: string, users: Users) => {
       const gocdAttributes = new GoCDAttributes(users.userNamesOfSelectedUsers());
       const role           = new GoCDRole(roleName, gocdAttributes);
-      this.bulkAddNewRoleOnUsers(vnode, role);
-      vnode.state.showRoles(false);
+
+      RolesCRUD.create(role)
+               .then((apiResult) => {
+                 apiResult.do((_successResponse) => {
+                   vnode.state.roleNameToAdd("");
+                   vnode.state.roles().push(role);
+                   vnode.state.rolesSelection().set(role, new TriStateCheckbox(TristateState.on));
+                 }, (errorResponse) => {
+                   this.flashMessage.setMessage(MessageType.alert, errorResponse.message);
+                 });
+               });
     };
 
     vnode.state.onRolesUpdate = (rolesSelection: Map<GoCDRole, TriStateCheckbox>, users: Users) => {
@@ -226,20 +235,6 @@ export class UsersPage extends Page<null, State> {
                  this.fetchData(vnode);
                }, (errorResponse) => {
                  // vnode.state.onError(errorResponse.message);
-                 this.flashMessage.setMessage(MessageType.alert, errorResponse.message);
-                 this.fetchData(vnode);
-               });
-             });
-  }
-
-  private bulkAddNewRoleOnUsers(vnode: m.Vnode<null, State>, role: GoCDRole) {
-    RolesCRUD.create(role)
-             .then((apiResult) => {
-               apiResult.do((successResponse) => {
-                 this.pageState = PageState.OK;
-                 this.flashMessage.setMessage(MessageType.success, "Role is added successfully!");
-                 this.fetchData(vnode);
-               }, (errorResponse) => {
                  this.flashMessage.setMessage(MessageType.alert, errorResponse.message);
                  this.fetchData(vnode);
                });

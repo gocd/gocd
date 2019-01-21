@@ -19,13 +19,11 @@ package com.thoughtworks.go.apiv1.export
 import com.thoughtworks.go.api.SecurityTestTrait
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
 import com.thoughtworks.go.api.util.HaltApiMessages
-import com.thoughtworks.go.config.CaseInsensitiveString
 import com.thoughtworks.go.config.ConfigRepoPlugin
 import com.thoughtworks.go.config.GoConfigPluginService
 import com.thoughtworks.go.config.PipelineConfig
 import com.thoughtworks.go.config.remote.FileConfigOrigin
 import com.thoughtworks.go.helper.PipelineConfigMother
-import com.thoughtworks.go.spark.AdminUserSecurity
 import com.thoughtworks.go.spark.ControllerTrait
 import com.thoughtworks.go.spark.GroupAdminUserSecurity
 import com.thoughtworks.go.spark.SecurityServiceTrait
@@ -36,7 +34,6 @@ import org.mockito.Mock
 
 import static com.thoughtworks.go.plugin.access.configrepo.ExportedConfig.from
 import static com.thoughtworks.go.spark.Routes.Export
-import static org.mockito.Mockito.mock
 import static org.mockito.Mockito.when
 import static org.mockito.MockitoAnnotations.initMocks
 
@@ -97,7 +94,7 @@ class ExportControllerV1Test implements SecurityServiceTrait, ControllerTrait<Ex
         PipelineConfig pipeline = PipelineConfigMother.pipelineConfig('pipeline1')
         pipeline.setOrigin(new FileConfigOrigin())
 
-        when(goConfigService.pipelineConfigNamed('pipeline1')).thenReturn(pipeline)
+        when(goConfigService.editablePipelineConfigNamed('pipeline1')).thenReturn(pipeline)
         when(goConfigPluginService.isConfigRepoPlugin(pluginId)).thenReturn(true)
         when(goConfigPluginService.supportsPipelineExport(pluginId)).thenReturn(true)
         when(goConfigPluginService.partialConfigProviderFor(pluginId)).thenReturn(configRepoPlugin)
@@ -123,7 +120,7 @@ class ExportControllerV1Test implements SecurityServiceTrait, ControllerTrait<Ex
         PipelineConfig pipeline = PipelineConfigMother.pipelineConfig("pipeline1")
         pipeline.setOrigin(new FileConfigOrigin())
 
-        when(goConfigService.pipelineConfigNamed("pipeline1")).thenReturn(pipeline)
+        when(goConfigService.editablePipelineConfigNamed("pipeline1")).thenReturn(pipeline)
 
         getWithApiHeader(controller.controllerPath("${pipelinePath("pipeline1")}?groupName=${groupName}"))
 
@@ -143,7 +140,7 @@ class ExportControllerV1Test implements SecurityServiceTrait, ControllerTrait<Ex
         PipelineConfig pipeline = PipelineConfigMother.pipelineConfig("pipeline1")
         pipeline.setOrigin(new FileConfigOrigin())
 
-        when(goConfigService.pipelineConfigNamed("pipeline1")).thenReturn(pipeline)
+        when(goConfigService.editablePipelineConfigNamed("pipeline1")).thenReturn(pipeline)
 
         getWithApiHeader(controller.controllerPath("${pipelinePath("pipeline1")}?pluginId=${pluginId}"))
 
@@ -159,27 +156,11 @@ class ExportControllerV1Test implements SecurityServiceTrait, ControllerTrait<Ex
       }
 
       @Test
-      void 'returns a 422 when pipeline is defined by a template'() {
-        PipelineConfig pipeline = mock(PipelineConfig)
-        when(pipeline.hasTemplate()).thenReturn(true)
-        when(pipeline.name()).thenReturn(new CaseInsensitiveString("pipeline1"))
-
-        when(goConfigService.pipelineConfigNamed("pipeline1")).thenReturn(pipeline)
-        when(goConfigPluginService.isConfigRepoPlugin(pluginId)).thenReturn(false)
-
-        getWithApiHeader(controller.controllerPath("${pipelinePath("pipeline1")}?pluginId=${pluginId}&groupName=${groupName}"))
-
-        assertThatResponse()
-          .isUnprocessableEntity()
-          .hasJsonMessage("Pipeline `pipeline1` cannot be exported because pipelines defined by templates are not yet supported by config-repo plugins.")
-      }
-
-      @Test
       void 'returns a 422 when plugin is not a configrepo plugin'() {
         PipelineConfig pipeline = PipelineConfigMother.pipelineConfig("pipeline1")
         pipeline.setOrigin(new FileConfigOrigin())
 
-        when(goConfigService.pipelineConfigNamed("pipeline1")).thenReturn(pipeline)
+        when(goConfigService.editablePipelineConfigNamed("pipeline1")).thenReturn(pipeline)
         when(goConfigPluginService.isConfigRepoPlugin(pluginId)).thenReturn(false)
 
         getWithApiHeader(controller.controllerPath("${pipelinePath("pipeline1")}?pluginId=${pluginId}&groupName=${groupName}"))
@@ -194,7 +175,7 @@ class ExportControllerV1Test implements SecurityServiceTrait, ControllerTrait<Ex
         PipelineConfig pipeline = PipelineConfigMother.pipelineConfig("pipeline1")
         pipeline.setOrigin(new FileConfigOrigin())
 
-        when(goConfigService.pipelineConfigNamed("pipeline1")).thenReturn(pipeline)
+        when(goConfigService.editablePipelineConfigNamed("pipeline1")).thenReturn(pipeline)
         when(goConfigPluginService.isConfigRepoPlugin(pluginId)).thenReturn(true)
         when(goConfigPluginService.supportsPipelineExport(pluginId)).thenReturn(false)
 
@@ -210,7 +191,7 @@ class ExportControllerV1Test implements SecurityServiceTrait, ControllerTrait<Ex
         PipelineConfig pipeline = PipelineConfigMother.pipelineConfig("pipeline1")
         pipeline.setOrigin(new FileConfigOrigin())
 
-        when(goConfigService.pipelineConfigNamed("pipeline1")).thenReturn(pipeline)
+        when(goConfigService.editablePipelineConfigNamed("pipeline1")).thenReturn(pipeline)
         when(goConfigPluginService.isConfigRepoPlugin(pluginId)).thenReturn(true)
         when(goConfigPluginService.supportsPipelineExport(pluginId)).thenReturn(true)
         when(goConfigPluginService.partialConfigProviderFor(pluginId)).thenReturn(configRepoPlugin)
@@ -226,7 +207,7 @@ class ExportControllerV1Test implements SecurityServiceTrait, ControllerTrait<Ex
 
       @Test
       void "should return 404 for export pipeline config if pipeline is not found"() {
-        when(goConfigService.pipelineConfigNamed("pipeline1")).thenReturn(null)
+        when(goConfigService.editablePipelineConfigNamed("pipeline1")).thenReturn(null)
 
         getWithApiHeader(controller.controllerPath("${pipelinePath("pipeline1")}?pluginId=${pluginId}&groupName=${groupName}"))
 

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {toSnakeCaseJSON} from "models/config_repos/config_repos_crud";
+import {configRepoToSnakeCaseJSON} from "models/config_repos/config_repos_crud";
 import {ConfigRepo, GitMaterialAttributes, Material} from "models/config_repos/types";
 import {Configuration, PlainTextValue} from "models/shared/plugin_infos_new/plugin_settings/plugin_settings";
 
@@ -29,7 +29,7 @@ describe("Config Repo Serialization", () => {
                                                                                  false,
                                                                                  "https://example.com")),
                                           [configuration1, configuration2]);
-    const json           = toSnakeCaseJSON(configRepo);
+    const json           = configRepoToSnakeCaseJSON(configRepo);
     expect(json.configuration)
       .toEqual([{key: "pipeline_pattern", value: "test-value-1"}, {key: "environment_pattern", value: "test-value-2"}]);
   });
@@ -43,7 +43,7 @@ describe("Config Repo Serialization", () => {
                                                                                  false,
                                                                                  "https://example.com")),
                                           [configuration1]);
-    const json           = toSnakeCaseJSON(configRepo);
+    const json           = configRepoToSnakeCaseJSON(configRepo);
     expect(json.configuration).toEqual([{key: "file_pattern", value: "test-value-1"}]);
   });
 
@@ -54,7 +54,7 @@ describe("Config Repo Serialization", () => {
                                                    new GitMaterialAttributes("test",
                                                                              false,
                                                                              "https://example.com")));
-    const json       = toSnakeCaseJSON(configRepo);
+    const json       = configRepoToSnakeCaseJSON(configRepo);
     expect(json.configuration).toHaveLength(0);
   });
 });

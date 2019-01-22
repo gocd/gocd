@@ -17,14 +17,18 @@
 import {ApiRequestBuilder, ApiResult, ApiVersion, ObjectWithEtag} from "helpers/api_request_builder";
 import SparkRoutes from "helpers/spark_routes";
 import {ConfigRepoJSON, ConfigReposJSON} from "models/config_repos/serialization";
-import {ConfigRepo, ConfigRepos} from "models/config_repos/types";
+import {ConfigRepo, ConfigRepos, Material} from "models/config_repos/types";
 
 const s = require("helpers/string-plus");
 
-export function toSnakeCaseJSON(o: ConfigRepo) {
-  const configurations = o.createConfigurationsFromText();
+function toSnakeCaseJSON(o: object) {
   const text           = JSON.stringify(o, s.snakeCaser);
-  const json           = JSON.parse(text);
+  return JSON.parse(text);
+}
+
+export function configRepoToSnakeCaseJSON(o: ConfigRepo) {
+  const configurations = o.createConfigurationsFromText();
+  const json           = toSnakeCaseJSON(o);
   json.configuration   = configurations.map((config) => config.toJSON());
   return json;
 }
@@ -48,7 +52,7 @@ export class ConfigReposCRUD {
 
   static update(response: ObjectWithEtag<ConfigRepo>) {
     return ApiRequestBuilder.PUT(SparkRoutes.ApiConfigRepoPath(response.object.id()), this.API_VERSION_HEADER,
-                                 {payload: toSnakeCaseJSON(response.object), etag: response.etag})
+                                 {payload: configRepoToSnakeCaseJSON(response.object), etag: response.etag})
                             .then(this.extractObjectWithEtag());
 
   }
@@ -61,12 +65,17 @@ export class ConfigReposCRUD {
   static create(repo: ConfigRepo) {
     return ApiRequestBuilder.POST(SparkRoutes.ApiConfigReposListPath(),
                                   this.API_VERSION_HEADER,
-                                  {payload: toSnakeCaseJSON(repo)})
+                                  {payload: configRepoToSnakeCaseJSON(repo)})
                             .then(this.extractObjectWithEtag());
   }
 
   static triggerUpdate(id: string) {
     return ApiRequestBuilder.POST(SparkRoutes.configRepoTriggerUpdatePath(id), this.API_VERSION_HEADER);
+  }
+
+  static checkConnection(material: Material) {
+    return ApiRequestBuilder
+      .POST(SparkRoutes.configRepoCheckConnection(), this.API_VERSION_HEADER, {payload: toSnakeCaseJSON(material)});
   }
 
   private static extractObjectWithEtag() {

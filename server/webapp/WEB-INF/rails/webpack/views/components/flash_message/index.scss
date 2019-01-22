@@ -23,11 +23,14 @@
   border-radius: $global-border-radius;
   margin:        0 0 10px 0;
   position:      relative;
-
   p {
     margin: 0;
   }
-
+  pre {
+    margin: 0;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+  }
   .close-callout {
     color:      $text-color;
     cursor:     pointer;

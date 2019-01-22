@@ -50,6 +50,10 @@ import {RequiresPluginInfos, SaveOperation} from "views/pages/page_operations";
 type EditableMaterial = SaveOperation & { repo: ConfigRepo } & { isNew: boolean } & RequiresPluginInfos;
 
 class MaterialEditWidget extends MithrilViewComponent<EditableMaterial> {
+  private testConnectionError: m.Child | undefined;
+  private testConnectionButtonIcon: m.Child | undefined;
+  private testConnectionButtonText: string = "Test Connection";
+
   view(vnode: m.Vnode<EditableMaterial>) {
     const pluginList = _.map(vnode.attrs.pluginInfos(), (pluginInfo: PluginInfo<any>) => {
       return {id: pluginInfo.id, text: pluginInfo.about.name};
@@ -80,19 +84,30 @@ class MaterialEditWidget extends MithrilViewComponent<EditableMaterial> {
                          required={true}/>
           </Form>
         </FormHeader>),
-        (
-          <FormBody>
-            <Form>
-              {vnode.children}
-              {this.pluginConfigView(vnode)}
-            </Form>
-          </FormBody>
+        (<div>
+            <div class={styles.materialConfigWrapper}>
+              <FormBody>
+                <Form>
+                  {vnode.children}
+                  {this.getTestConnectionButton(vnode)}
+                </Form>
+              </FormBody>
+              <div className={styles.testConnectionResult}>{this.testConnectionError}</div>
+            </div>
+            <div class={styles.pluginFilePatternConfigWrapper}>
+              <FormBody>
+                <Form>
+                  {MaterialEditWidget.pluginConfigView(vnode)}
+                </Form>
+              </FormBody>
+            </div>
+          </div>
         )
       ]
     );
   }
 
-  private pluginConfigView(vnode: m.Vnode<EditableMaterial>): m.Children {
+  private static pluginConfigView(vnode: m.Vnode<EditableMaterial>): m.Children {
     let pluginConfig = null;
     if (ConfigRepo.JSON_PLUGIN_ID === vnode.attrs.repo.pluginId()) {
       pluginConfig = [
@@ -105,6 +120,49 @@ class MaterialEditWidget extends MithrilViewComponent<EditableMaterial> {
       pluginConfig = (<TextField property={vnode.attrs.repo.__yamlPluginPattern} label="GoCD YAML files pattern"/>);
     }
     return pluginConfig;
+  }
+
+  private getTestConnectionButton(vnode: m.Vnode<EditableMaterial>): m.Child {
+    return (<li className={styles.testConnectionButtonWrapper}>
+      <Buttons.Secondary data-test-id="button-ok"
+                         onclick={() => this.testConnection(vnode.attrs.repo.material())}>
+        {this.testConnectionButtonIcon}
+        {this.testConnectionButtonText}
+      </Buttons.Secondary>
+    </li>);
+  }
+
+  private testConnection(material: Material) {
+    this.testConnectionInProgress();
+
+    ConfigReposCRUD.checkConnection(material).then((result: ApiResult<any>) => {
+      result.do(() => {
+        this.testConnectionSuccessful();
+      }, (err: ErrorResponse) => {
+        this.testConnectionFailed(err);
+      });
+    }).finally(() => {
+      this.testConnectionComplete();
+    });
+  }
+
+  private testConnectionFailed(err: ErrorResponse) {
+    this.testConnectionButtonIcon = <span className={styles.testConnectionFailure}/>;
+    this.testConnectionError = <FlashMessage type={MessageType.alert} message={<pre>{err.message}</pre>}/>;
+  }
+
+  private testConnectionSuccessful() {
+    this.testConnectionButtonIcon = <span className={styles.testConnectionSuccess}/>;
+  }
+
+  private testConnectionInProgress() {
+    this.testConnectionButtonIcon = <span className={styles.testConnectionInProgress}/>;
+    this.testConnectionButtonText = "Testing Connection...";
+    this.testConnectionError = undefined;
+  }
+
+  private testConnectionComplete() {
+    this.testConnectionButtonText = "Test Connection";
   }
 
   private materialSelectOptions(): Option[] {

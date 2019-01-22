@@ -97,7 +97,7 @@ class MaterialEditWidget extends MithrilViewComponent<EditableMaterial> {
             <div class={styles.pluginFilePatternConfigWrapper}>
               <FormBody>
                 <Form>
-                  {this.pluginConfigView(vnode)}
+                  {MaterialEditWidget.pluginConfigView(vnode)}
                 </Form>
               </FormBody>
             </div>
@@ -105,6 +105,21 @@ class MaterialEditWidget extends MithrilViewComponent<EditableMaterial> {
         )
       ]
     );
+  }
+
+  private static pluginConfigView(vnode: m.Vnode<EditableMaterial>): m.Children {
+    let pluginConfig = null;
+    if (ConfigRepo.JSON_PLUGIN_ID === vnode.attrs.repo.pluginId()) {
+      pluginConfig = [
+        <TextField property={vnode.attrs.repo.__jsonPluginPipelinesPattern}
+                   label="GoCD pipeline files pattern"/>,
+        <TextField property={vnode.attrs.repo.__jsonPluginEnvPattern}
+                   label="GoCD environment files pattern"/>
+      ];
+    } else if (ConfigRepo.YAML_PLUGIN_ID === vnode.attrs.repo.pluginId()) {
+      pluginConfig = (<TextField property={vnode.attrs.repo.__yamlPluginPattern} label="GoCD YAML files pattern"/>);
+    }
+    return pluginConfig;
   }
 
   private getTestConnectionButton(vnode: m.Vnode<EditableMaterial>): m.Child {
@@ -132,37 +147,22 @@ class MaterialEditWidget extends MithrilViewComponent<EditableMaterial> {
   }
 
   private testConnectionFailed(err: ErrorResponse) {
-    this.testConnectionButtonIcon = <span className={styles.testConnectionFailure}></span>;
+    this.testConnectionButtonIcon = <span className={styles.testConnectionFailure}/>;
     this.testConnectionError = <FlashMessage type={MessageType.alert} message={<pre>{err.message}</pre>}/>;
   }
 
   private testConnectionSuccessful() {
-    this.testConnectionButtonIcon = <span className={styles.testConnectionSuccess}></span>;
+    this.testConnectionButtonIcon = <span className={styles.testConnectionSuccess}/>;
   }
 
   private testConnectionInProgress() {
-    this.testConnectionButtonIcon = <span className={styles.testConnectionInProgress}></span>;
-    this.testConnectionButtonText = "Testing Connection..."
+    this.testConnectionButtonIcon = <span className={styles.testConnectionInProgress}/>;
+    this.testConnectionButtonText = "Testing Connection...";
     this.testConnectionError = undefined;
   }
 
   private testConnectionComplete() {
     this.testConnectionButtonText = "Test Connection";
-  }
-
-  private pluginConfigView(vnode: m.Vnode<EditableMaterial>): m.Children {
-    let pluginConfig = null;
-    if (ConfigRepo.JSON_PLUGIN_ID === vnode.attrs.repo.pluginId()) {
-      pluginConfig = [
-        <TextField property={vnode.attrs.repo.__jsonPluginPipelinesPattern}
-                   label="GoCD pipeline files pattern"/>,
-        <TextField property={vnode.attrs.repo.__jsonPluginEnvPattern}
-                   label="GoCD environment files pattern"/>
-      ];
-    } else if (ConfigRepo.YAML_PLUGIN_ID === vnode.attrs.repo.pluginId()) {
-      pluginConfig = (<TextField property={vnode.attrs.repo.__yamlPluginPattern} label="GoCD YAML files pattern"/>);
-    }
-    return pluginConfig;
   }
 
   private materialSelectOptions(): Option[] {

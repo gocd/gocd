@@ -78,6 +78,29 @@ describe("Modal", () => {
     testModal.close();
   });
 
+  it("should close the modal when the overlay outside is clicked", () => {
+    const testModal = aModal();
+    testModal.render();
+
+    const modalSelector = `.${styles.overlayHeader} h3`;
+    const bgSelector    = `.${styles.overlayBg}`;
+    expect($(modalSelector)).toBeInDOM();
+    simulateEvent.simulate($(bgSelector).get(0), "click");
+    expect($(modalSelector)).not.toBeInDOM();
+    testModal.close();
+  });
+
+  it("should not close the modal when clicked inside", () => {
+    const testModal = aModal();
+    testModal.render();
+
+    const modalSelector = `.${styles.overlayHeader} h3`;
+    expect($(modalSelector)).toBeInDOM();
+    simulateEvent.simulate($("#modal-inside").get(0), "click");
+    expect($(modalSelector)).toBeInDOM();
+    testModal.close();
+  });
+
   function aModal() {
     return new (class TestModal extends Modal {
       constructor() {
@@ -85,7 +108,7 @@ describe("Modal", () => {
       }
 
       body(): m.Children {
-        return m("p", "Hello World!");
+        return m("p", {id: "modal-inside"}, "Hello World!");
       }
 
       title(): string {

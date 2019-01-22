@@ -49,7 +49,7 @@ public class AuthToken extends PersistentObject {
     public AuthToken(String name, String value, String description, Boolean isRevoked, Date createdAt, Date lastUsed) {
         this(name, value, description, isRevoked);
         this.createdAt = new Timestamp(createdAt.getTime());
-        this.lastUsed = lastUsed != null ? new Timestamp(lastUsed.getTime()) : null;
+        setLastUsed(lastUsed);
     }
 
     public String getName() {
@@ -76,7 +76,7 @@ public class AuthToken extends PersistentObject {
         this.description = description;
     }
 
-    public Boolean getRevoked() {
+    public Boolean isRevoked() {
         return isRevoked;
     }
 
@@ -89,7 +89,7 @@ public class AuthToken extends PersistentObject {
     }
 
     public void setLastUsed(Date lastUsed) {
-        this.lastUsed = new Timestamp(lastUsed.getTime());
+        this.lastUsed = lastUsed != null ? new Timestamp(lastUsed.getTime()) : null;
     }
 
     public Date getCreatedAt() {

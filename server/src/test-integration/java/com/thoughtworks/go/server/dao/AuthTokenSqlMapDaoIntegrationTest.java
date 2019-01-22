@@ -17,9 +17,8 @@
 package com.thoughtworks.go.server.dao;
 
 import com.thoughtworks.go.domain.AuthToken;
-import com.thoughtworks.go.domain.User;
+import com.thoughtworks.go.server.cache.GoCache;
 import org.apache.commons.lang.RandomStringUtils;
-import org.hibernate.SessionFactory;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -30,7 +29,9 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.util.Date;
 
+import static com.thoughtworks.go.server.dao.AuthTokenSqlMapDao.AUTH_TOKEN_CACHE_KEY;
 import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -45,8 +46,9 @@ public class AuthTokenSqlMapDaoIntegrationTest {
 
     @Autowired
     private DatabaseAccessHelper dbHelper;
+
     @Autowired
-    private SessionFactory sessionFactory;
+    private GoCache goCache;
 
     @Before
     public void setup() throws Exception {
@@ -58,6 +60,7 @@ public class AuthTokenSqlMapDaoIntegrationTest {
     public void teardown() throws Exception {
         authTokenSqlMapDao.deleteAll();
         dbHelper.onTearDown();
+        goCache.clear();
     }
 
     @Test
@@ -72,6 +75,51 @@ public class AuthTokenSqlMapDaoIntegrationTest {
         assertThat(authTokenSqlMapDao.load(savedAuthToken.getId()), is(authToken));
     }
 
+    @Test
+    public void shouldReturnNullWhenNoAuthTokenFoundForTheSpecifiedName() {
+        String tokenName = "auth-token-for-apis";
+        AuthToken savedAuthToken = authTokenSqlMapDao.findAuthToken(tokenName);
+        assertNull(savedAuthToken);
+    }
+
+    @Test
+    public void shouldNotPopulateCacheWhenNoAuthTokenFoundForTheSpecifiedTokenName() {
+        String tokenName = "auth-token-for-apis";
+        AuthToken savedAuthToken = authTokenSqlMapDao.findAuthToken(tokenName);
+
+        assertNull(savedAuthToken);
+        assertNull(goCache.get(AUTH_TOKEN_CACHE_KEY, tokenName));
+    }
+
+    @Test
+    public void shouldCacheAuthTokenValueUponFirstGet() {
+        String tokenName = "auth-token-for-apis";
+        AuthToken authToken = authTokenWithName(tokenName);
+
+        authTokenSqlMapDao.saveOrUpdate(authToken);
+
+        assertNull(goCache.get(AUTH_TOKEN_CACHE_KEY, tokenName));
+        AuthToken savedAuthToken = authTokenSqlMapDao.findAuthToken(tokenName);
+        assertThat(goCache.get(AUTH_TOKEN_CACHE_KEY, tokenName), is(savedAuthToken));
+    }
+
+    @Test
+    public void shouldRemoveAuthTokenFromCacheUponUpdate() {
+        String tokenName = "auth-token-for-apis";
+        AuthToken authToken = authTokenWithName(tokenName);
+
+        authTokenSqlMapDao.saveOrUpdate(authToken);
+
+        assertNull(goCache.get(AUTH_TOKEN_CACHE_KEY, tokenName));
+        AuthToken savedAuthToken = authTokenSqlMapDao.findAuthToken(tokenName);
+        assertThat(goCache.get(AUTH_TOKEN_CACHE_KEY, tokenName), is(savedAuthToken));
+        assertThat(goCache.get(AUTH_TOKEN_CACHE_KEY, savedAuthToken.getValue()), is(savedAuthToken));
+
+        authTokenSqlMapDao.saveOrUpdate(authToken);
+
+        assertNull(goCache.get(AUTH_TOKEN_CACHE_KEY, tokenName));
+        assertNull(goCache.get(AUTH_TOKEN_CACHE_KEY, savedAuthToken.getValue()));
+    }
 
     private AuthToken authTokenWithName(String tokenName) {
         String tokenValue = RandomStringUtils.randomAlphanumeric(32).toUpperCase();

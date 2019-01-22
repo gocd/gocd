@@ -23,7 +23,6 @@ import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import org.hibernate.SessionFactory;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.orm.hibernate3.HibernateTemplate;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.TransactionStatus;
@@ -31,15 +30,13 @@ import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionSynchronizationAdapter;
 
-import java.util.Date;
-
 @Component
 public class AuthTokenSqlMapDao extends HibernateDaoSupport implements AuthTokenDao {
     private SessionFactory sessionFactory;
     private TransactionTemplate transactionTemplate;
     private GoCache goCache;
     private final TransactionSynchronizationManager transactionSynchronizationManager;
-    protected static final String ENABLED_USER_COUNT_CACHE_KEY = "ENABLED_USER_COUNT_CACHE_KEY".intern();
+    protected static final String AUTH_TOKEN_CACHE_KEY = "AUTH_TOKEN_CACHE_KEY".intern();
 
     @Autowired
     public AuthTokenSqlMapDao(SessionFactory sessionFactory,
@@ -54,33 +51,66 @@ public class AuthTokenSqlMapDao extends HibernateDaoSupport implements AuthToken
     }
 
     public void saveOrUpdate(final AuthToken authToken) {
-        validateAuthToken(authToken);
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
             @Override
             protected void doInTransactionWithoutResult(TransactionStatus status) {
                 transactionSynchronizationManager.registerSynchronization(new TransactionSynchronizationAdapter() {
                     @Override
                     public void afterCommit() {
-                        clearEnabledUserCountFromCache();
+                        removeFromCache(authToken);
                     }
                 });
-                sessionFactory.getCurrentSession().saveOrUpdate(setCreatedOrUpdatedTime(authToken));
+                sessionFactory.getCurrentSession().saveOrUpdate(authToken);
             }
         });
     }
 
     public AuthToken findAuthToken(final String tokenName) {
-        return (AuthToken) transactionTemplate.execute((TransactionCallback) transactionStatus -> {
-            AuthToken token = (AuthToken) sessionFactory.getCurrentSession()
-                    .createCriteria(AuthToken.class)
-                    .add(Restrictions.eq("name", tokenName))
-                    .setCacheable(true).uniqueResult();
-            return token;
-        });
+        AuthToken token = (AuthToken) goCache.get(AUTH_TOKEN_CACHE_KEY, tokenName);
+        if (token == null) {
+            synchronized (tokenName) {
+                token = (AuthToken) goCache.get(AUTH_TOKEN_CACHE_KEY, tokenName);
+                if (token != null) {
+                    return token;
+                }
+
+                token = (AuthToken) transactionTemplate.execute((TransactionCallback) transactionStatus -> {
+                    AuthToken savedToken = (AuthToken) sessionFactory.getCurrentSession()
+                            .createCriteria(AuthToken.class)
+                            .add(Restrictions.eq("name", tokenName))
+                            .setCacheable(true).uniqueResult();
+                    return savedToken;
+                });
+
+                if (token != null) {
+                    populateInCache(token);
+                }
+            }
+        }
+
+        return token;
     }
 
     public AuthToken load(final long id) {
         return (AuthToken) transactionTemplate.execute((TransactionCallback) transactionStatus -> sessionFactory.getCurrentSession().get(AuthToken.class, id));
+    }
+
+    private void populateInCache(AuthToken token) {
+        synchronized (token.getName()) {
+            goCache.put(AUTH_TOKEN_CACHE_KEY, token.getName(), token);
+        }
+        synchronized (token.getValue()) {
+            goCache.put(AUTH_TOKEN_CACHE_KEY, token.getValue(), token);
+        }
+    }
+
+    private void removeFromCache(AuthToken token) {
+        synchronized (token.getName()) {
+            goCache.remove(AUTH_TOKEN_CACHE_KEY, token.getName());
+        }
+        synchronized (token.getValue()) {
+            goCache.remove(AUTH_TOKEN_CACHE_KEY, token.getValue());
+        }
     }
 
     // Used only by tests
@@ -91,7 +121,7 @@ public class AuthTokenSqlMapDao extends HibernateDaoSupport implements AuthToken
                 transactionSynchronizationManager.registerSynchronization(new TransactionSynchronizationAdapter() {
                     @Override
                     public void afterCommit() {
-                        clearEnabledUserCountFromCache();
+                        clearAllAuthTokensFromCache();
                     }
                 });
                 sessionFactory.getCurrentSession().createQuery("DELETE FROM AuthToken").executeUpdate();
@@ -99,29 +129,10 @@ public class AuthTokenSqlMapDao extends HibernateDaoSupport implements AuthToken
         });
     }
 
-    private void clearEnabledUserCountFromCache() {
-        synchronized (ENABLED_USER_COUNT_CACHE_KEY) {
-            goCache.remove(ENABLED_USER_COUNT_CACHE_KEY);
+    //required only for tests
+    private void clearAllAuthTokensFromCache() {
+        synchronized (AUTH_TOKEN_CACHE_KEY) {
+            goCache.remove(AUTH_TOKEN_CACHE_KEY);
         }
     }
-
-    protected HibernateTemplate hibernateTemplate() {
-        return getHibernateTemplate();
-    }
-
-    private void validateAuthToken(AuthToken authToken) {
-//        if (authToken.isAnonymous()) {
-//            throw new IllegalArgumentException(String.format("User name '%s' is not permitted.", authToken.getName()));
-//        }
-    }
-
-
-    private AuthToken setCreatedOrUpdatedTime(AuthToken token) {
-        if (token.getCreatedAt() != null) {
-            token.setCreatedAt(new Date());
-        }
-
-        return token;
-    }
-
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -66,12 +66,10 @@ public class PipelineSqlMapDaoCachingTest {
     private PipelineSqlMapDao pipelineDao;
     private TransactionTemplate transactionTemplate;
     private TransactionSynchronizationManager transactionSynchronizationManager;
-    private GoConfigDao configFileDao;
-    private org.hibernate.SessionFactory mockSessionFactory;
     private SqlMapClientTemplate mockTemplate;
     private EnvironmentVariableDao environmentVariableDao;
     private MaterialRepository repository;
-    private Session session;
+    private TimeProvider timeProvider;
 
     @Before
     public void setup() throws Exception {
@@ -81,14 +79,15 @@ public class PipelineSqlMapDaoCachingTest {
         mockTemplate = mock(SqlMapClientTemplate.class);
         repository = mock(MaterialRepository.class);
         environmentVariableDao = mock(EnvironmentVariableDao.class);
-        mockSessionFactory = mock(SessionFactory.class);
+        SessionFactory mockSessionFactory = mock(SessionFactory.class);
         repository = mock(MaterialRepository.class);
         transactionTemplate = mock(TransactionTemplate.class);
-        configFileDao = mock(GoConfigDao.class);
+        GoConfigDao configFileDao = mock(GoConfigDao.class);
+        timeProvider = mock(TimeProvider.class);
         pipelineDao = new PipelineSqlMapDao(null, repository, goCache, environmentVariableDao, transactionTemplate, null,
-                transactionSynchronizationManager, null, configFileDao, mock(Database.class), mockSessionFactory);
+                transactionSynchronizationManager, null, configFileDao, mock(Database.class), mockSessionFactory, timeProvider);
         pipelineDao.setSqlMapClientTemplate(mockTemplate);
-        session = mock(Session.class);
+        Session session = mock(Session.class);
         when(mockSessionFactory.getCurrentSession()).thenReturn(session);
         when(configFileDao.load()).thenReturn(GoConfigMother.defaultCruiseConfig());
     }
@@ -202,7 +201,7 @@ public class PipelineSqlMapDaoCachingTest {
 
         //need to mock configfileDao for this test
         pipelineDao = new PipelineSqlMapDao(null, repository, goCache, environmentVariableDao, transactionTemplate, null,
-                transactionSynchronizationManager, null, mockconfigFileDao, null, mock(SessionFactory.class));
+                transactionSynchronizationManager, null, mockconfigFileDao, null, mock(SessionFactory.class), timeProvider);
         pipelineDao.setSqlMapClientTemplate(mockTemplate);
 
         PipelineInstanceModel pipeline = new PipelineInstanceModel(pipelineName, -2, "label", BuildCause.createManualForced(), new StageInstanceModels());
@@ -304,7 +303,7 @@ public class PipelineSqlMapDaoCachingTest {
 
         //need to mock configfileDao for this test
         pipelineDao = new PipelineSqlMapDao(null, repository, goCache, environmentVariableDao, transactionTemplate, null,
-                transactionSynchronizationManager, null, mockconfigFileDao, null, mock(SessionFactory.class));
+                transactionSynchronizationManager, null, mockconfigFileDao, null, mock(SessionFactory.class), timeProvider);
         pipelineDao.setSqlMapClientTemplate(mockTemplate);
 
         PipelineInstanceModel first = model(1, JobState.Building, JobResult.Unknown);
@@ -341,7 +340,7 @@ public class PipelineSqlMapDaoCachingTest {
 
         //need to mock configfileDao for this test
         pipelineDao = new PipelineSqlMapDao(null, repository, goCache, environmentVariableDao, transactionTemplate, null,
-                transactionSynchronizationManager, null, mockconfigFileDao, null, mock(SessionFactory.class));
+                transactionSynchronizationManager, null, mockconfigFileDao, null, mock(SessionFactory.class), timeProvider);
         pipelineDao.setSqlMapClientTemplate(mockTemplate);
 
         PipelineInstanceModel first = model(1, JobState.Completed, JobResult.Passed);

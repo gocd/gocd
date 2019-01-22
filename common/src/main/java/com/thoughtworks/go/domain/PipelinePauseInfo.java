@@ -1,32 +1,38 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.domain;
 
 import java.io.Serializable;
+import java.util.Date;
 
 public class PipelinePauseInfo implements Serializable {
     private boolean paused;
     private String pauseCause;
     private String pauseBy;
+    private Date pausedAt;
 
     public static final PipelinePauseInfo NULL = notPaused();
 
     public static PipelinePauseInfo notPaused() {
-        return new PipelinePauseInfo(false, "", "");
+        return new PipelinePauseInfo(false, "", "", null);
+    }
+
+    public static PipelinePauseInfo paused(String pauseCause, String pauseBy, Date pausedAt) {
+        return new PipelinePauseInfo(true, pauseCause, pauseBy, pausedAt);
     }
 
     public static PipelinePauseInfo paused(String pauseCause, String pauseBy) {
@@ -35,10 +41,15 @@ public class PipelinePauseInfo implements Serializable {
 
     protected PipelinePauseInfo() {}
 
-    public PipelinePauseInfo(boolean paused, String pauseCause, String pauseBy) {
+    public PipelinePauseInfo(boolean paused, String pauseCause, String pauseBy, Date pausedAt) {
         this.paused = paused;
         this.pauseCause = pauseCause;
         this.pauseBy = pauseBy;
+        this.pausedAt = pausedAt;
+    }
+
+    public PipelinePauseInfo(boolean paused, String pauseCause, String pauseBy) {
+        this(paused, pauseCause, pauseBy, new Date());
     }
 
     public boolean isPaused() {
@@ -65,12 +76,21 @@ public class PipelinePauseInfo implements Serializable {
         this.pauseBy = pauseBy;
     }
 
+    public Date getPausedAt() {
+        return pausedAt;
+    }
+
+    public void setPausedAt(Date pausedAt) {
+        this.pausedAt = pausedAt;
+    }
+
     @Override
     public String toString() {
         return "PipelinePauseInfo{" +
                 "paused=" + paused +
                 ", pauseCause='" + pauseCause + '\'' +
                 ", pauseBy='" + pauseBy + '\'' +
+                ", pausedAt=" + pausedAt +
                 '}';
     }
 
@@ -94,6 +114,9 @@ public class PipelinePauseInfo implements Serializable {
         if (pauseCause != null ? !pauseCause.equals(that.pauseCause) : that.pauseCause != null) {
             return false;
         }
+        if (pausedAt != null ? !pausedAt.equals(that.pausedAt) : that.pausedAt != null) {
+            return false;
+        }
 
         return true;
     }
@@ -103,6 +126,7 @@ public class PipelinePauseInfo implements Serializable {
         int result = (paused ? 1 : 0);
         result = 31 * result + (pauseCause != null ? pauseCause.hashCode() : 0);
         result = 31 * result + (pauseBy != null ? pauseBy.hashCode() : 0);
+        result = 31 * result + (pausedAt != null ? pausedAt.hashCode() : 0);
         return result;
     }
 }

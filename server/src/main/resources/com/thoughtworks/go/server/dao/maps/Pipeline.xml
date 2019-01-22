@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  ~ Copyright 2018 ThoughtWorks, Inc.
+  ~ Copyright 2019 ThoughtWorks, Inc.
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -26,6 +26,7 @@
         <result property="pauseCause" column="pause_cause"/>
         <result property="pauseBy" column="pause_by"/>
         <result property="paused" column="paused"/>
+        <result property="pausedAt" column="paused_at" />
     </resultMap>
 
     <resultMap id="select-pipeline" type="com.thoughtworks.go.domain.Pipeline">
@@ -188,19 +189,19 @@
     </select>
 
     <select id="getPipelinePauseState" resultMap="select-pipeline-pause-info">
-        SELECT pause_cause, pause_by, paused
+        SELECT pause_cause, pause_by, paused, paused_at
         FROM pipelineLabelCounts
         WHERE caseInsensitivePipelineName = #{value}
     </select>
 
     <insert id="insertPipelinePauseState">
-        INSERT INTO pipelineLabelCounts (pipelineName, pause_cause, pause_by, paused, caseInsensitivePipelineName)
-        VALUES (#{pipelineName}, #{pauseCause}, #{pauseBy}, true, #{pipelineName})
+        INSERT INTO pipelineLabelCounts (pipelineName, pause_cause, pause_by, paused_at, paused, caseInsensitivePipelineName)
+        VALUES (#{pipelineName}, #{pauseCause}, #{pauseBy}, #{pausedAt}, true, #{pipelineName})
     </insert>
 
     <update id="updatePipelinePauseState">
         UPDATE pipelineLabelCounts
-        SET pause_cause = #{pauseCause}, pause_by = #{pauseBy}, paused = #{paused}
+        SET pause_cause = #{pauseCause}, pause_by = #{pauseBy}, paused = #{paused}, paused_at = #{pausedAt}
         WHERE caseInsensitivePipelineName = #{pipelineName}
     </update>
 

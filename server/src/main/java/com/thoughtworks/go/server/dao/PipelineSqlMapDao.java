@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,7 +39,9 @@ import com.thoughtworks.go.server.transaction.TransactionSynchronizationManager;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.server.util.Pagination;
 import com.thoughtworks.go.server.util.SqlUtil;
+import com.thoughtworks.go.util.Clock;
 import com.thoughtworks.go.util.SystemEnvironment;
+import com.thoughtworks.go.util.TimeProvider;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
@@ -85,6 +87,7 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
     private final GoConfigDao configFileDao;
     private SessionFactory sessionFactory;
     private final Cloner cloner = new Cloner();
+    private Clock timeProvider;
     private final ReadWriteLock activePipelineRWLock = new ReentrantReadWriteLock();
     private final Lock activePipelineReadLock = activePipelineRWLock.readLock();
     private final Lock activePipelineWriteLock = activePipelineRWLock.writeLock();
@@ -100,7 +103,8 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
                              SystemEnvironment systemEnvironment,
                              GoConfigDao configFileDao,
                              Database database,
-                             SessionFactory sessionFactory) {
+                             SessionFactory sessionFactory,
+                             TimeProvider timeProvider) {
         super(goCache, sqlSessionFactory, systemEnvironment, database);
         this.stageDao = stageDao;
         this.materialRepository = materialRepository;
@@ -110,6 +114,7 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
         this.systemEnvironment = systemEnvironment;
         this.configFileDao = configFileDao;
         this.sessionFactory = sessionFactory;
+        this.timeProvider = timeProvider;
         this.cacheKeyGenerator = new CacheKeyGenerator(getClass());
         this.pipelineByBuildIdCache = new LazyCache(createCacheIfRequired(PipelineSqlMapDao.class.getName()), transactionSynchronizationManager);
     }
@@ -792,7 +797,7 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
     public void pause(String pipelineName, String pauseCause, String pauseBy) {
         String cacheKey = cacheKeyForPauseState(pipelineName);
         synchronized (cacheKey) {
-            Map<String, Object> args = arguments("pipelineName", pipelineName).and("pauseCause", pauseCause).and("pauseBy", pauseBy).and("paused", true).asMap();
+            Map<String, Object> args = arguments("pipelineName", pipelineName).and("pauseCause", pauseCause).and("pauseBy", pauseBy).and("paused", true).and("pausedAt", timeProvider.currentTime()).asMap();
             PipelinePauseInfo pipelinePauseInfo = (PipelinePauseInfo) getSqlMapClientTemplate().queryForObject("getPipelinePauseState", pipelineName);
             if (pipelinePauseInfo == null) {
                 getSqlMapClientTemplate().insert("insertPipelinePauseState", args);
@@ -806,7 +811,7 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
     public void unpause(String pipelineName) {
         String cacheKey = cacheKeyForPauseState(pipelineName);
         synchronized (cacheKey) {
-            Map<String, Object> args = arguments("pipelineName", pipelineName).and("pauseCause", null).and("pauseBy", null).and("paused", false).asMap();
+            Map<String, Object> args = arguments("pipelineName", pipelineName).and("pauseCause", null).and("pauseBy", null).and("paused", false).and("pausedAt", null).asMap();
             getSqlMapClientTemplate().update("updatePipelinePauseState", args);
             goCache.remove(cacheKey);
         }

@@ -1083,24 +1083,6 @@ public class PipelineSqlMapDaoIntegrationTest {
     }
 
     @Test
-    public void shouldFindPipelineByNameAndLatestKeyword() {
-        Pipeline pipeline = new Pipeline("Test", BuildCause.createWithEmptyModifications());
-        savePipeline(pipeline);
-        Pipeline loadedPipeline = pipelineDao.findPipelineByCounterOrLatestKeyword("Test", "latest");
-        assertThat(loadedPipeline.getId(), is(pipeline.getId()));
-        loadedPipeline = pipelineDao.findPipelineByCounterOrLatestKeyword("tEsT", "latest");
-        assertThat(loadedPipeline.getId(), is(pipeline.getId()));
-    }
-
-    @Test
-    public void shouldNotFindAnyPipelineWhenArbitraryKeywordIsProvided() {
-        Pipeline pipeline = new Pipeline("Test", BuildCause.createWithEmptyModifications());
-        savePipeline(pipeline);
-        Pipeline loadedPipeline = pipelineDao.findPipelineByCounterOrLatestKeyword("Test", "random");
-        assertThat(loadedPipeline, is(nullValue()));
-    }
-
-    @Test
     public void shouldFindTheRightPipelineWithUseOfTilde() {
         Pipeline correctPipeline = new Pipeline("Test", BuildCause.createWithEmptyModifications());
         savePipeline(correctPipeline);

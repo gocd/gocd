@@ -969,20 +969,4 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
         }
         return result;
     }
-
-    public Pipeline findPipelineByCounterOrLatestKeyword(String pipelineName, String counterOrLabel) {
-        Pipeline pipeline = null;
-
-        if (StringUtils.isNumeric(counterOrLabel)) {
-            int pipelineCounter = Integer.parseInt(counterOrLabel);
-            pipeline = findPipelineByNameAndCounter(pipelineName, pipelineCounter);
-        }
-        else if (JobIdentifier.LATEST.equalsIgnoreCase(counterOrLabel)) {
-            PipelineIdentifier pipelineIdentifier = mostRecentPipelineIdentifier(pipelineName);
-            pipeline = findPipelineByNameAndCounter(pipelineName, pipelineIdentifier.getCounter());
-        }
-
-        return pipeline;
-    }
-
 }

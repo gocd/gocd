@@ -104,10 +104,6 @@ public class PipelineService implements UpstreamPipelineResolver {
         }
     }
 
-    public Pipeline findPipelineByCounterOrLatestKeyword(String pipelineName, String counterOrLabel) {
-        return pipelineDao.findPipelineByCounterOrLatestKeyword(pipelineName, counterOrLabel);
-    }
-
     private void updateCounter(Pipeline pipeline) {
         Integer lastCount = pipelineDao.getCounterForPipeline(pipeline.getName());
         pipeline.updateCounter(lastCount);

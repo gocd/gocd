@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -123,6 +123,8 @@ public class PipelineSqlMapDaoIntegrationTest {
     private InstanceFactory instanceFactory;
     @Autowired
     private DependencyMaterialUpdateNotifier notifier;
+    @Autowired
+    private TimeProvider timeProvider;
 
     private String md5 = "md5-test";
     private ScheduleTestUtil u;
@@ -1334,7 +1336,10 @@ public class PipelineSqlMapDaoIntegrationTest {
         PipelinePauseInfo actual = pipelineDao.pauseState(mingleConfig.name().toString());
         PipelinePauseInfo expected = new PipelinePauseInfo(true, "cause", "by");
 
-        assertThat(actual, is(expected));
+        assertThat(actual.isPaused(), is(expected.isPaused()));
+        assertThat(actual.getPauseCause(), is(expected.getPauseCause()));
+        assertThat(actual.getPauseBy(), is(expected.getPauseBy()));
+        assertNotNull(actual.getPausedAt());
     }
 
     @Test
@@ -1347,7 +1352,10 @@ public class PipelineSqlMapDaoIntegrationTest {
         PipelinePauseInfo actual = pipelineDao.pauseState(mingleConfig.name().toString().toUpperCase());
         PipelinePauseInfo expected = new PipelinePauseInfo(true, "cause", "by");
 
-        assertThat(actual, is(expected));
+        assertThat(actual.isPaused(), is(expected.isPaused()));
+        assertThat(actual.getPauseCause(), is(expected.getPauseCause()));
+        assertThat(actual.getPauseBy(), is(expected.getPauseBy()));
+        assertNotNull(actual.getPausedAt());
     }
 
     @Test
@@ -1377,7 +1385,7 @@ public class PipelineSqlMapDaoIntegrationTest {
     }
 
     @Test
-    public void shouldPauseNewPipeline() throws Exception {
+    public void shouldPauseNewPipeline() {
         PipelineConfig newlyAddedPipelineConfig = PipelineMother.twoBuildPlansWithResourcesAndMaterials("newly-added-pipeline-config", "dev");
 
         pipelineDao.pause(newlyAddedPipelineConfig.name().toString(), "cause", "by");
@@ -1385,7 +1393,10 @@ public class PipelineSqlMapDaoIntegrationTest {
         PipelinePauseInfo actual = pipelineDao.pauseState(newlyAddedPipelineConfig.name().toString());
         PipelinePauseInfo expected = new PipelinePauseInfo(true, "cause", "by");
 
-        assertThat(actual, is(expected));
+        assertThat(actual.isPaused(), is(expected.isPaused()));
+        assertThat(actual.getPauseCause(), is(expected.getPauseCause()));
+        assertThat(actual.getPauseBy(), is(expected.getPauseBy()));
+        assertNotNull(actual.getPausedAt());
     }
 
     @Test
@@ -1406,7 +1417,10 @@ public class PipelineSqlMapDaoIntegrationTest {
         pipelineDao.pause(mingleConfig.name().toString(), "really good reason", "me");
 
         PipelinePauseInfo actual = pipelineDao.pauseState(mingleConfig.name().toString().toUpperCase());
-        assertThat(actual, is(new PipelinePauseInfo(true, "really good reason", "me")));
+        assertThat(actual.isPaused(), is(true));
+        assertThat(actual.getPauseCause(), is("really good reason"));
+        assertThat(actual.getPauseBy(), is("me"));
+        assertNotNull(actual.getPausedAt());
     }
 
     @Test

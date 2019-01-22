@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,6 +31,7 @@ import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
 import com.thoughtworks.go.server.transaction.SqlMapClientTemplate;
 import com.thoughtworks.go.util.SystemEnvironment;
+import com.thoughtworks.go.util.TimeProvider;
 import org.assertj.core.api.Assertions;
 import org.hibernate.SessionFactory;
 import org.junit.Assert;
@@ -61,6 +62,7 @@ class PipelineSqlMapDaoTest {
     private SqlMapClientTemplate sqlMapClientTemplate;
     private MaterialRepository materialRepository;
     private GoConfigDao configFileDao;
+    private TimeProvider timeProvider;
 
     @BeforeEach
     void setUp() throws Exception {
@@ -68,7 +70,8 @@ class PipelineSqlMapDaoTest {
         sqlMapClientTemplate = mock(SqlMapClientTemplate.class);
         materialRepository = mock(MaterialRepository.class);
         configFileDao = mock(GoConfigDao.class);
-        pipelineSqlMapDao = new PipelineSqlMapDao(null, materialRepository, goCache, null, null, null, null, null, configFileDao, null, null);
+        timeProvider = mock(TimeProvider.class);
+        pipelineSqlMapDao = new PipelineSqlMapDao(null, materialRepository, goCache, null, null, null, null, null, configFileDao, null, null, timeProvider);
         pipelineSqlMapDao.setSqlMapClientTemplate(sqlMapClientTemplate);
     }
 
@@ -123,7 +126,7 @@ class PipelineSqlMapDaoTest {
 
     @Test
     void shouldGetLatestRevisionFromOrderedLists() {
-        PipelineSqlMapDao pipelineSqlMapDao = new PipelineSqlMapDao(null, null, null, null, null, null, null, new SystemEnvironment(), mock(GoConfigDao.class), mock(Database.class), mock(SessionFactory.class));
+        PipelineSqlMapDao pipelineSqlMapDao = new PipelineSqlMapDao(null, null, null, null, null, null, null, new SystemEnvironment(), mock(GoConfigDao.class), mock(Database.class), mock(SessionFactory.class), timeProvider);
         ArrayList list1 = new ArrayList();
         ArrayList list2 = new ArrayList();
         Assert.assertThat(pipelineSqlMapDao.getLatestRevisionFromOrderedLists(list1, list2), is((String) null));

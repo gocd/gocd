@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,7 +38,7 @@ class PipelineModelMother {
   }
 
   static PipelineModel pipeline_model_with_instances(instances, pipeline_name, can_force = true, pause_cause = null, can_operate = true, revisions = new MaterialRevisions(), can_administer = false) {
-    def pipeline_model = new PipelineModel(pipeline_name, can_force, can_operate, pause_cause ? PipelinePauseInfo.paused(pause_cause, "raghu") : PipelinePauseInfo.notPaused())
+    def pipeline_model = new PipelineModel(pipeline_name, can_force, can_operate, pause_cause ? PipelinePauseInfo.paused(pause_cause, "raghu", new Date(12345)) : PipelinePauseInfo.notPaused())
 
     instances.each { instance ->
       pipeline_model.addPipelineInstance(instance)

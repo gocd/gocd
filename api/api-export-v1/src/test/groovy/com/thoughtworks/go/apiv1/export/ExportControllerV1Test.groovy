@@ -19,6 +19,7 @@ package com.thoughtworks.go.apiv1.export
 import com.thoughtworks.go.api.SecurityTestTrait
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
 import com.thoughtworks.go.api.util.HaltApiMessages
+import com.thoughtworks.go.config.CaseInsensitiveString
 import com.thoughtworks.go.config.ConfigRepoPlugin
 import com.thoughtworks.go.config.GoConfigPluginService
 import com.thoughtworks.go.config.PipelineConfig
@@ -94,6 +95,7 @@ class ExportControllerV1Test implements SecurityServiceTrait, ControllerTrait<Ex
         PipelineConfig pipeline = PipelineConfigMother.pipelineConfig('pipeline1')
         pipeline.setOrigin(new FileConfigOrigin())
 
+        when(goConfigService.findGroupNameByPipeline(new CaseInsensitiveString("pipeline1"))).thenReturn(groupName)
         when(goConfigService.editablePipelineConfigNamed('pipeline1')).thenReturn(pipeline)
         when(goConfigPluginService.isConfigRepoPlugin(pluginId)).thenReturn(true)
         when(goConfigPluginService.supportsPipelineExport(pluginId)).thenReturn(true)
@@ -107,7 +109,7 @@ class ExportControllerV1Test implements SecurityServiceTrait, ControllerTrait<Ex
         }
         when(configRepoPlugin.pipelineExport(pipeline, groupName)).thenReturn(from("message from plugin", headers))
 
-        getWithApiHeader(controller.controllerPath("${pipelinePath("pipeline1")}?pluginId=${pluginId}&groupName=${groupName}"), ['if-none-match': '"junk"'])
+        getWithApiHeader(controller.controllerPath("${pipelinePath("pipeline1")}?pluginId=${pluginId}"), ['if-none-match': '"junk"'])
 
         assertThatResponse()
           .isOk()
@@ -122,7 +124,7 @@ class ExportControllerV1Test implements SecurityServiceTrait, ControllerTrait<Ex
 
         when(goConfigService.editablePipelineConfigNamed("pipeline1")).thenReturn(pipeline)
 
-        getWithApiHeader(controller.controllerPath("${pipelinePath("pipeline1")}?groupName=${groupName}"))
+        getWithApiHeader(controller.controllerPath("${pipelinePath("pipeline1")}"))
 
         assertThatResponse()
           .isBadRequest()
@@ -136,26 +138,6 @@ class ExportControllerV1Test implements SecurityServiceTrait, ControllerTrait<Ex
       }
 
       @Test
-      void 'returns a 400 when groupName is blank or missing'() {
-        PipelineConfig pipeline = PipelineConfigMother.pipelineConfig("pipeline1")
-        pipeline.setOrigin(new FileConfigOrigin())
-
-        when(goConfigService.editablePipelineConfigNamed("pipeline1")).thenReturn(pipeline)
-
-        getWithApiHeader(controller.controllerPath("${pipelinePath("pipeline1")}?pluginId=${pluginId}"))
-
-        assertThatResponse()
-          .isBadRequest()
-          .hasJsonMessage("Request is missing parameter `groupName`")
-
-        getWithApiHeader(controller.controllerPath("${pipelinePath("pipeline1")}?pluginId=${pluginId}&groupName=%20"))
-
-        assertThatResponse()
-          .isBadRequest()
-          .hasJsonMessage("Request is missing parameter `groupName`")
-      }
-
-      @Test
       void 'returns a 422 when plugin is not a configrepo plugin'() {
         PipelineConfig pipeline = PipelineConfigMother.pipelineConfig("pipeline1")
         pipeline.setOrigin(new FileConfigOrigin())
@@ -163,7 +145,7 @@ class ExportControllerV1Test implements SecurityServiceTrait, ControllerTrait<Ex
         when(goConfigService.editablePipelineConfigNamed("pipeline1")).thenReturn(pipeline)
         when(goConfigPluginService.isConfigRepoPlugin(pluginId)).thenReturn(false)
 
-        getWithApiHeader(controller.controllerPath("${pipelinePath("pipeline1")}?pluginId=${pluginId}&groupName=${groupName}"))
+        getWithApiHeader(controller.controllerPath("${pipelinePath("pipeline1")}?pluginId=${pluginId}"))
 
         assertThatResponse()
           .isUnprocessableEntity()
@@ -179,7 +161,7 @@ class ExportControllerV1Test implements SecurityServiceTrait, ControllerTrait<Ex
         when(goConfigPluginService.isConfigRepoPlugin(pluginId)).thenReturn(true)
         when(goConfigPluginService.supportsPipelineExport(pluginId)).thenReturn(false)
 
-        getWithApiHeader(controller.controllerPath("${pipelinePath("pipeline1")}?pluginId=${pluginId}&groupName=${groupName}"))
+        getWithApiHeader(controller.controllerPath("${pipelinePath("pipeline1")}?pluginId=${pluginId}"))
 
         assertThatResponse()
           .isUnprocessableEntity()
@@ -191,13 +173,14 @@ class ExportControllerV1Test implements SecurityServiceTrait, ControllerTrait<Ex
         PipelineConfig pipeline = PipelineConfigMother.pipelineConfig("pipeline1")
         pipeline.setOrigin(new FileConfigOrigin())
 
+        when(goConfigService.findGroupNameByPipeline(new CaseInsensitiveString("pipeline1"))).thenReturn(groupName)
         when(goConfigService.editablePipelineConfigNamed("pipeline1")).thenReturn(pipeline)
         when(goConfigPluginService.isConfigRepoPlugin(pluginId)).thenReturn(true)
         when(goConfigPluginService.supportsPipelineExport(pluginId)).thenReturn(true)
         when(goConfigPluginService.partialConfigProviderFor(pluginId)).thenReturn(configRepoPlugin)
         when(configRepoPlugin.etagForExport(pipeline, groupName)).thenReturn(exportEtag)
 
-        getWithApiHeader(controller.controllerPath("${pipelinePath("pipeline1")}?pluginId=${pluginId}&groupName=${groupName}"), ['if-none-match': "\"$exportEtag\""])
+        getWithApiHeader(controller.controllerPath("${pipelinePath("pipeline1")}?pluginId=${pluginId}"), ['if-none-match': "\"$exportEtag\""])
 
         assertThatResponse()
           .hasBody("")
@@ -209,7 +192,7 @@ class ExportControllerV1Test implements SecurityServiceTrait, ControllerTrait<Ex
       void "should return 404 for export pipeline config if pipeline is not found"() {
         when(goConfigService.editablePipelineConfigNamed("pipeline1")).thenReturn(null)
 
-        getWithApiHeader(controller.controllerPath("${pipelinePath("pipeline1")}?pluginId=${pluginId}&groupName=${groupName}"))
+        getWithApiHeader(controller.controllerPath("${pipelinePath("pipeline1")}?pluginId=${pluginId}"))
 
         assertThatResponse()
           .isNotFound()

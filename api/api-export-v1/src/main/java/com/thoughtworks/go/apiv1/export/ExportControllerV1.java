@@ -67,7 +67,6 @@ public class ExportControllerV1 extends ApiController implements SparkSpringCont
             before("", this::verifyContentType);
             before("/*", this::verifyContentType);
 
-            before("", this.mimeType, this.apiAuthenticationHelper::checkAdminUserAnd403);
             before(Export.PIPELINES_PATH, mimeType, apiAuthenticationHelper::checkPipelineGroupAdminUserAnd403);
 
             get(Export.PIPELINES_PATH, mimeType, this::exportPipeline);
@@ -79,7 +78,7 @@ public class ExportControllerV1 extends ApiController implements SparkSpringCont
     public String exportPipeline(Request req, Response res) {
         PipelineConfig pipelineConfig = pipelineConfigFromRequest(req);
         String pluginId = requiredQueryParam(req, "pluginId");
-        String groupName = requiredQueryParam(req, "groupName");
+        String groupName = configService.findGroupNameByPipeline(pipelineConfig.getName());
 
         if (!crPluginService.isConfigRepoPlugin(pluginId)) {
             throw haltBecauseOfReason("Plugin `%s` is not a config-repo plugin.", pluginId);
@@ -110,7 +109,7 @@ public class ExportControllerV1 extends ApiController implements SparkSpringCont
     }
 
     private PipelineConfig pipelineConfigFromRequest(Request req) {
-        final String pipelineName = requiredParam(req, "pipeline_name");
+        final String pipelineName = req.params("pipeline_name");
         PipelineConfig pipeline = configService.editablePipelineConfigNamed(pipelineName);
 
         if (null == pipeline) {

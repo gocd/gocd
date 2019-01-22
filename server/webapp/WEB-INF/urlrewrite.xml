@@ -98,6 +98,20 @@
   </rule>
 
   <rule>
+    <name>Spark Environment Index API</name>
+    <from>^/api/admin/environments(/?)$</from>
+    <run class="com.thoughtworks.go.server.SparkOrRailsToggle" method="environmentsUsingRails"/>
+    <to last="true">/%{attribute:sparkOrRails}/api/admin/environments</to>
+  </rule>
+
+  <rule>
+    <name>Spark Environment CRUD API</name>
+    <from>^/api/admin/environments/(.*)$</from>
+    <run class="com.thoughtworks.go.server.SparkOrRailsToggle" method="environmentsUsingRails"/>
+    <to last="true">/%{attribute:sparkOrRails}/api/admin/environments/${escape:$1}</to>
+  </rule>
+
+  <rule>
     <name>Spark Config Export API</name>
     <from>^/api/admin/export/(pipelines)/([^/]+)(?:/?)$</from>
     <to last="true">/spark/api/admin/export/${escape:$1}/${escape:$2}</to>

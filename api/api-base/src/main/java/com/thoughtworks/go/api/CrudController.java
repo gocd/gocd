@@ -84,6 +84,4 @@ public interface CrudController<Entity> extends ControllerMethods {
     default void setEtagHeader(Entity entity, Response res) {
         setEtagHeader(res, etagFor(entity));
     }
-
-
 }

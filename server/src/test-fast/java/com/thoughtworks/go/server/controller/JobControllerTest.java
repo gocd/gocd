@@ -23,10 +23,7 @@ import com.thoughtworks.go.dto.DurationBean;
 import com.thoughtworks.go.helper.JobInstanceMother;
 import com.thoughtworks.go.server.dao.JobInstanceDao;
 import com.thoughtworks.go.server.domain.Agent;
-import com.thoughtworks.go.server.service.AgentService;
-import com.thoughtworks.go.server.service.GoConfigService;
-import com.thoughtworks.go.server.service.JobInstanceService;
-import com.thoughtworks.go.server.service.StageService;
+import com.thoughtworks.go.server.service.*;
 import com.thoughtworks.go.util.JsonValue;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.junit.Before;
@@ -36,6 +33,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 import static com.thoughtworks.go.util.JsonUtils.from;
 import static org.hamcrest.Matchers.is;
@@ -51,6 +49,7 @@ public class JobControllerTest {
     private GoConfigService jobConfigService;
     private AgentService agentService;
     private StageService stageService;
+    private PipelineService pipelineService;
     private MockHttpServletResponse response;
     private SystemEnvironment systemEnvironment;
 
@@ -63,7 +62,8 @@ public class JobControllerTest {
         stageService = mock(StageService.class);
         response = new MockHttpServletResponse();
         systemEnvironment = mock(SystemEnvironment.class);
-        jobController = new JobController(jobInstanceService, agentService, jobInstanceDao, jobConfigService, null, null, null, null, stageService, null, systemEnvironment);
+        pipelineService = mock(PipelineService.class);
+        jobController = new JobController(jobInstanceService, agentService, jobInstanceDao, jobConfigService, pipelineService, null, null, null, stageService, null, systemEnvironment);
     }
 
     @Test
@@ -106,17 +106,18 @@ public class JobControllerTest {
             jobController.jobDetail("p1", "some-string", "s1", "1", "job");
             fail("Expected an exception to be thrown");
         } catch (Exception e) {
-            assertThat(e.getMessage(), is("Expected numeric pipelineCounter, but received 'some-string' for [p1/some-string/s1/1/job]"));
+            assertThat(e.getMessage(), is("Expected numeric pipelineCounter or latest keyword, but received 'some-string' for [p1/some-string/s1/1/job]"));
         }
     }
 
     @Test
     public void shouldThrowErrorIfUserPassesANonNumericValueForStageCounter() throws Exception {
         try {
+            when(pipelineService.resolvePipelineCounter("p1", "1")).thenReturn(Optional.of(1));
             jobController.jobDetail("p1", "1", "s1", "some-string", "job");
             fail("Expected an exception to be thrown");
         } catch (Exception e) {
-            assertThat(e.getMessage(), is("Expected numeric stageCounter, but received 'some-string' for [p1/1/s1/some-string/job]"));
+            assertThat(e.getMessage(), is("Expected numeric stageCounter or latest keyword, but received 'some-string' for [p1/1/s1/some-string/job]"));
         }
     }
 }

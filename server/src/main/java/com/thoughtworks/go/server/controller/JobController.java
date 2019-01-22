@@ -111,17 +111,21 @@ public class JobController {
                                   @RequestParam("stageName") String stageName,
                                   @RequestParam("stageCounter") String stageCounter,
                                   @RequestParam("jobName") String jobName) throws Exception {
-        if (!StringUtils.isNumeric(pipelineCounter)) {
-            throw bomb(String.format("Expected numeric pipelineCounter, but received '%s' for [%s/%s/%s/%s/%s]", pipelineCounter, pipelineName, pipelineCounter, stageName,
+        Optional<Integer> pipelineCounterValue = pipelineService.resolvePipelineCounter(pipelineName, pipelineCounter);
+
+        if (!pipelineCounterValue.isPresent()) {
+            throw bomb(String.format("Expected numeric pipelineCounter or latest keyword, but received '%s' for [%s/%s/%s/%s/%s]", pipelineCounter, pipelineName, pipelineCounter, stageName,
+                    stageCounter, jobName));
+        }
+
+        if (!isValidCounter(stageCounter)) {
+            throw bomb(String.format("Expected numeric stageCounter or latest keyword, but received '%s' for [%s/%s/%s/%s/%s]", stageCounter, pipelineName, pipelineCounter, stageName,
                     stageCounter, jobName));
 
         }
-        if (!StringUtils.isNumeric(stageCounter)) {
-            throw bomb(String.format("Expected numeric stageCounter, but received '%s' for [%s/%s/%s/%s/%s]", stageCounter, pipelineName, pipelineCounter, stageName,
-                    stageCounter, jobName));
 
-        }
-        Pipeline pipeline = pipelineService.findPipelineByNameAndCounter(pipelineName, Integer.parseInt(pipelineCounter));
+        Pipeline pipeline = pipelineService.findPipelineByNameAndCounter(pipelineName, pipelineCounterValue.get());
+
         if (pipeline == null) {
             throw bomb(String.format("Job %s/%s/%s/%s/%s not found", pipelineName, pipelineCounter, stageName,
                     stageCounter, jobName));
@@ -131,6 +135,54 @@ public class JobController {
 
         JobInstance instance = jobInstanceDao.mostRecentJobWithTransitions(new JobIdentifier(stageIdentifier, jobName));
         return getModelAndView(instance);
+    }
+
+    @ErrorHandler
+    public ModelAndView handle(HttpServletRequest request, HttpServletResponse response, Exception e) {
+        LOGGER.error("Job detail page error: ", e);
+        Map model = new HashMap();
+        model.put(ERROR_FOR_PAGE, e.getMessage());
+        return new ModelAndView("exceptions_page", model);
+    }
+
+    @RequestMapping(value = "/**/jobStatus.json", method = RequestMethod.GET)
+    public ModelAndView handleRequest(@RequestParam(value = "pipelineName") String pipelineName,
+                                      @RequestParam(value = "stageName") String stageName,
+                                      @RequestParam(value = "jobId") long jobId,
+                                      HttpServletResponse response) {
+        Object json;
+        try {
+            JobInstance requestedInstance = jobInstanceService.buildByIdWithTransitions(jobId);
+            JobInstance mostRecentJobInstance = jobInstanceDao.mostRecentJobWithTransitions(requestedInstance.getIdentifier());
+
+            JobStatusJsonPresentationModel presenter = new JobStatusJsonPresentationModel(mostRecentJobInstance,
+                    agentService.findAgentObjectByUuid(mostRecentJobInstance.getAgentUuid()),
+                    stageService.getBuildDuration(pipelineName, stageName, mostRecentJobInstance));
+            json = createBuildInfo(presenter);
+        } catch (Exception e) {
+            LOGGER.warn(null, e);
+            json = errorJsonMap(e);
+        }
+        return jsonFound(json).respond(response);
+    }
+
+    private JobDetailPresentationModel presenter(JobInstance current) {
+        String pipelineName = current.getIdentifier().getPipelineName();
+        String stageName = current.getIdentifier().getStageName();
+        JobInstances recent25 = jobInstanceService.latestCompletedJobs(pipelineName, stageName, current.getName());
+        AgentConfig agentConfig = goConfigService.agentByUuid(current.getAgentUuid());
+        Pipeline pipelineWithOneBuild = pipelineService.wrapBuildDetails(current);
+        Tabs customizedTabs = goConfigService.getCustomizedTabs(pipelineWithOneBuild.getName(),
+                pipelineWithOneBuild.getFirstStage().getName(), current.getName());
+        TrackingTool trackingTool = goConfigService.pipelineConfigNamed(
+                new CaseInsensitiveString(pipelineWithOneBuild.getName())).trackingTool();
+        Properties properties = propertiesService.getPropertiesForJob(current.getId());
+        Stage stage = stageService.getStageByBuild(current);
+        return new JobDetailPresentationModel(current, recent25, agentConfig, pipelineWithOneBuild, customizedTabs, trackingTool, artifactService, properties, stage);
+    }
+
+    private boolean isValidCounter(String pipelineCounter) {
+        return StringUtils.isNumeric(pipelineCounter) || JobIdentifier.LATEST.equalsIgnoreCase(pipelineCounter);
     }
 
     private ModelAndView getModelAndView(JobInstance jobDetail) {
@@ -169,50 +221,6 @@ public class JobController {
 
             data.put("elasticAgentPluginId", pluginId);
         }
-    }
-
-    @ErrorHandler
-    public ModelAndView handle(HttpServletRequest request, HttpServletResponse response, Exception e) {
-        LOGGER.error("Job detail page error: ", e);
-        Map model = new HashMap();
-        model.put(ERROR_FOR_PAGE, e.getMessage());
-        return new ModelAndView("exceptions_page", model);
-    }
-
-    private JobDetailPresentationModel presenter(JobInstance current) {
-        String pipelineName = current.getIdentifier().getPipelineName();
-        String stageName = current.getIdentifier().getStageName();
-        JobInstances recent25 = jobInstanceService.latestCompletedJobs(pipelineName, stageName, current.getName());
-        AgentConfig agentConfig = goConfigService.agentByUuid(current.getAgentUuid());
-        Pipeline pipelineWithOneBuild = pipelineService.wrapBuildDetails(current);
-        Tabs customizedTabs = goConfigService.getCustomizedTabs(pipelineWithOneBuild.getName(),
-                pipelineWithOneBuild.getFirstStage().getName(), current.getName());
-        TrackingTool trackingTool = goConfigService.pipelineConfigNamed(
-                new CaseInsensitiveString(pipelineWithOneBuild.getName())).trackingTool();
-        Properties properties = propertiesService.getPropertiesForJob(current.getId());
-        Stage stage = stageService.getStageByBuild(current);
-        return new JobDetailPresentationModel(current, recent25, agentConfig, pipelineWithOneBuild, customizedTabs, trackingTool, artifactService, properties, stage);
-    }
-
-    @RequestMapping(value = "/**/jobStatus.json", method = RequestMethod.GET)
-    public ModelAndView handleRequest(@RequestParam(value = "pipelineName") String pipelineName,
-                                      @RequestParam(value = "stageName") String stageName,
-                                      @RequestParam(value = "jobId") long jobId,
-                                      HttpServletResponse response) {
-        Object json;
-        try {
-            JobInstance requestedInstance = jobInstanceService.buildByIdWithTransitions(jobId);
-            JobInstance mostRecentJobInstance = jobInstanceDao.mostRecentJobWithTransitions(requestedInstance.getIdentifier());
-
-            JobStatusJsonPresentationModel presenter = new JobStatusJsonPresentationModel(mostRecentJobInstance,
-                    agentService.findAgentObjectByUuid(mostRecentJobInstance.getAgentUuid()),
-                    stageService.getBuildDuration(pipelineName, stageName, mostRecentJobInstance));
-            json = createBuildInfo(presenter);
-        } catch (Exception e) {
-            LOGGER.warn(null, e);
-            json = errorJsonMap(e);
-        }
-        return jsonFound(json).respond(response);
     }
 
     private Map errorJsonMap(Exception e) {

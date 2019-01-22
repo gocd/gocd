@@ -888,6 +888,7 @@ task newApi {
     String packageName = "com.thoughtworks.go.api${project.apiVersion}.${apiName.replaceAll(~/[^a-zA-Z]/, '')}"
     String entityClassName = toCamelCase(apiName)
     String controllerClassName = "${entityClassName}Controller${project.apiVersion.capitalize()}"
+    String[] ignoredFiles = ["${newProjectName}/out/", "${newProjectName}/target/", "${newProjectName}/logs/"]
 
     project.delete(moduleDir)
     project.mkdir(moduleDir)
@@ -1107,6 +1108,12 @@ task newApi {
       def existingProjects = rootProject.allprojects.findAll { prj -> prj.childProjects.isEmpty() }.collect { it.path }
       def newProjects = existingProjects + [":api:${newProjectName}"]
       newProjects.sort().unique().each { out.println "include '${it}'" }
+    }
+
+    file('.gitignore').withWriterAppend {out ->
+      ignoredFiles.each {line ->
+        out.println(line)
+      }
     }
   }
 }

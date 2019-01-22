@@ -871,7 +871,7 @@ public class PipelineConfigServiceIntegrationTest {
         assertThat(((RepoConfigOrigin) cachedGoPartials.getKnown(repoConfig1.getMaterialConfig().getFingerprint()).getOrigin()).getRevision(), is("repo1_r2"));
         assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig1)).size(), is(1));
         assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig1)).get(0).getMessage(), is("Invalid Merged Configuration"));
-        assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig1)).get(0).getDescription(), is("1+ errors :: Invalid stage name ''. This must be alphanumeric and can contain underscores and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.;;  -  Config-Repo: url at repo1_r2"));
+        assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig1)).get(0).getDescription(), is("Number of errors: 1+\n1. Invalid stage name ''. This must be alphanumeric and can contain underscores and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.;; \n- For Config Repo: url at repo1_r2"));
         assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig2)).isEmpty(), is(true));
 
         String xml = new MagicalGoConfigXmlWriter(configCache, registry).toXmlPartial(pipelineConfig);
@@ -889,7 +889,7 @@ public class PipelineConfigServiceIntegrationTest {
 
         assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig1)).size(), is(1));
         assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig1)).get(0).getMessage(), is("Invalid Merged Configuration"));
-        assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig1)).get(0).getDescription(), is("1+ errors :: Invalid stage name ''. This must be alphanumeric and can contain underscores and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.;;  -  Config-Repo: url at repo1_r2"));
+        assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig1)).get(0).getDescription(), is("Number of errors: 1+\n1. Invalid stage name ''. This must be alphanumeric and can contain underscores and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.;; \n- For Config Repo: url at repo1_r2"));
         assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig2)).isEmpty(), is(true));
     }
 
@@ -911,7 +911,7 @@ public class PipelineConfigServiceIntegrationTest {
         assertThat(((RepoConfigOrigin) cachedGoPartials.getKnown(repoConfig1.getMaterialConfig().getFingerprint()).getOrigin()).getRevision(), is("repo1_r2"));
         assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig1)).size(), is(1));
         assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig1)).get(0).getMessage(), is("Invalid Merged Configuration"));
-        assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig1)).get(0).getDescription(), is(String.format("1+ errors :: Stage with name 'upstream_stage_renamed' does not exist on pipeline '%s', it is being referred to from pipeline 'remote-downstream' (url at repo1_r2);;  -  Config-Repo: url at repo1_r2", pipelineConfig.name())));
+        assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig1)).get(0).getDescription(), is(String.format("Number of errors: 1+\n1. Stage with name 'upstream_stage_renamed' does not exist on pipeline '%s', it is being referred to from pipeline 'remote-downstream' (url at repo1_r2);; \n- For Config Repo: url at repo1_r2", pipelineConfig.name())));
         assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig2)).isEmpty(), is(true));
 
         String xml = new MagicalGoConfigXmlWriter(configCache, registry).toXmlPartial(pipelineConfig);
@@ -950,7 +950,7 @@ public class PipelineConfigServiceIntegrationTest {
         assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig1)).isEmpty(), is(true));
         assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig2)).size(), is(1));
         assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig2)).get(0).getMessage(), is("Invalid Merged Configuration"));
-        assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig2)).get(0).getDescription(), is("1+ errors :: Invalid stage name ''. This must be alphanumeric and can contain underscores and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.;;  -  Config-Repo: url2 at repo2_r2"));
+        assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig2)).get(0).getDescription(), is("Number of errors: 1+\n1. Invalid stage name ''. This must be alphanumeric and can contain underscores and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.;; \n- For Config Repo: url2 at repo2_r2"));
 
         final CaseInsensitiveString upstreamStageRenamed = new CaseInsensitiveString("upstream_stage_renamed");
         partialConfig = PartialConfigMother.pipelineWithDependencyMaterial("remote-downstream", new PipelineConfig(pipelineConfig.name(), pipelineConfig.materialConfigs(), new StageConfig(upstreamStageRenamed, new JobConfigs())), new RepoConfigOrigin(repoConfig1, "repo1_r2"));
@@ -963,10 +963,10 @@ public class PipelineConfigServiceIntegrationTest {
         assertThat(((RepoConfigOrigin) cachedGoPartials.getKnown(repoConfig1.getMaterialConfig().getFingerprint()).getOrigin()).getRevision(), is("repo1_r2"));
         assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig1)).size(), is(1));
         assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig1)).get(0).getMessage(), is("Invalid Merged Configuration"));
-        assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig1)).get(0).getDescription(), is(String.format("1+ errors :: Stage with name 'upstream_stage_renamed' does not exist on pipeline '%s', it is being referred to from pipeline 'remote-downstream' (url at repo1_r2);;  -  Config-Repo: url at repo1_r2", pipelineConfig.name())));
+        assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig1)).get(0).getDescription(), is(String.format("Number of errors: 1+\n1. Stage with name 'upstream_stage_renamed' does not exist on pipeline '%s', it is being referred to from pipeline 'remote-downstream' (url at repo1_r2);; \n- For Config Repo: url at repo1_r2", pipelineConfig.name())));
         assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig2)).size(), is(1));
         assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig2)).get(0).getMessage(), is("Invalid Merged Configuration"));
-        assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig2)).get(0).getDescription(), is("1+ errors :: Invalid stage name ''. This must be alphanumeric and can contain underscores and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.;;  -  Config-Repo: url2 at repo2_r2"));
+        assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig2)).get(0).getDescription(), is("Number of errors: 1+\n1. Invalid stage name ''. This must be alphanumeric and can contain underscores and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.;; \n- For Config Repo: url2 at repo2_r2"));
 
         String xml = new MagicalGoConfigXmlWriter(configCache, registry).toXmlPartial(pipelineConfig);
         String md5 = CachedDigestUtils.md5Hex(xml);
@@ -981,8 +981,8 @@ public class PipelineConfigServiceIntegrationTest {
                 "it is being referred to from pipeline 'remote-downstream' (url at repo1_r1)]" +
                 System.lineSeparator() +
                 "Merged config update operation failed using fallback LAST KNOWN 2 partials. " +
-                "Exception message was: 1+ errors :: Invalid stage name ''. This must be alphanumeric and can contain underscores and periods " +
-                "(however, it cannot start with a period). The maximum allowed length is 255 characters.;; ]. Please correct and resubmit.", pipelineConfig.name(), pipelineConfig.name())));
+                "Exception message was: Number of errors: 1+\n1. Invalid stage name ''. This must be alphanumeric and can contain underscores and periods " +
+                "(however, it cannot start with a period). The maximum allowed length is 255 characters.;; \n]. Please correct and resubmit.", pipelineConfig.name(), pipelineConfig.name())));
         assertThat(ErrorCollector.getAllErrors(pipelineConfig).isEmpty(), is(true));
         currentConfig = goConfigService.getCurrentConfig();
         assertThat(currentConfig.getAllPipelineNames().contains(remoteDownstreamPipeline.name()), is(true));
@@ -997,10 +997,10 @@ public class PipelineConfigServiceIntegrationTest {
         assertThat(((RepoConfigOrigin) cachedGoPartials.getKnown(repoConfig2.getMaterialConfig().getFingerprint()).getOrigin()).getRevision(), is("repo2_r2"));
         assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig1)).size(), is(1));
         assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig1)).get(0).getMessage(), is("Invalid Merged Configuration"));
-        assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig1)).get(0).getDescription(), is(String.format("1+ errors :: Stage with name 'upstream_stage_renamed' does not exist on pipeline '%s', it is being referred to from pipeline 'remote-downstream' (url at repo1_r2);;  -  Config-Repo: url at repo1_r2", pipelineConfig.name())));
+        assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig1)).get(0).getDescription(), is(String.format("Number of errors: 1+\n1. Stage with name 'upstream_stage_renamed' does not exist on pipeline '%s', it is being referred to from pipeline 'remote-downstream' (url at repo1_r2);; \n- For Config Repo: url at repo1_r2", pipelineConfig.name())));
         assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig2)).size(), is(1));
         assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig2)).get(0).getMessage(), is("Invalid Merged Configuration"));
-        assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig2)).get(0).getDescription(), is("1+ errors :: Invalid stage name ''. This must be alphanumeric and can contain underscores and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.;;  -  Config-Repo: url2 at repo2_r2"));
+        assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig2)).get(0).getDescription(), is("Number of errors: 1+\n1. Invalid stage name ''. This must be alphanumeric and can contain underscores and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.;; \n- For Config Repo: url2 at repo2_r2"));
     }
 
     @Test
@@ -1019,7 +1019,7 @@ public class PipelineConfigServiceIntegrationTest {
         assertThat(((RepoConfigOrigin) cachedGoPartials.getKnown(repoConfig1.getMaterialConfig().getFingerprint()).getOrigin()).getRevision(), is("repo1_r2"));
         assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig1)).size(), is(1));
         assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig1)).get(0).getMessage(), is("Invalid Merged Configuration"));
-        assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig1)).get(0).getDescription(), is(String.format("1+ errors :: Stage with name 'upstream_stage_renamed' does not exist on pipeline '%s', it is being referred to from pipeline 'remote-downstream' (url at repo1_r2);;  -  Config-Repo: url at repo1_r2", pipelineConfig.name())));
+        assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig1)).get(0).getDescription(), is(String.format("Number of errors: 1+\n1. Stage with name 'upstream_stage_renamed' does not exist on pipeline '%s', it is being referred to from pipeline 'remote-downstream' (url at repo1_r2);; \n- For Config Repo: url at repo1_r2", pipelineConfig.name())));
         assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig2)).isEmpty(), is(true));
 
         String xml = new MagicalGoConfigXmlWriter(configCache, registry).toXmlPartial(pipelineConfig);
@@ -1035,8 +1035,8 @@ public class PipelineConfigServiceIntegrationTest {
                 "it is being referred to from pipeline 'remote-downstream' (url at repo1_r1)]" +
                 System.lineSeparator() +
                 "Merged config update operation failed using fallback LAST KNOWN 2 partials. " +
-                "Exception message was: 1+ errors :: Stage with name 'upstream_stage_renamed' does not exist on pipeline " +
-                "'%s', it is being referred to from pipeline 'remote-downstream' (url at repo1_r2);; ]. " +
+                "Exception message was: Number of errors: 1+\n1. Stage with name 'upstream_stage_renamed' does not exist on pipeline " +
+                "'%s', it is being referred to from pipeline 'remote-downstream' (url at repo1_r2);; \n]. " +
                 "Please correct and resubmit.", pipelineConfig.name(), pipelineConfig.name(), pipelineConfig.name())));
         currentConfig = goConfigService.getCurrentConfig();
         assertThat(currentConfig.getAllPipelineNames().contains(remoteDownstreamPipeline.name()), is(true));
@@ -1050,7 +1050,7 @@ public class PipelineConfigServiceIntegrationTest {
         assertThat(((RepoConfigOrigin) cachedGoPartials.lastKnownPartials().get(0).getOrigin()).getRevision(), is("repo1_r2"));
         assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig1)).size(), is(1));
         assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig1)).get(0).getMessage(), is("Invalid Merged Configuration"));
-        assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig1)).get(0).getDescription(), is(String.format("1+ errors :: Stage with name 'upstream_stage_renamed' does not exist on pipeline '%s', it is being referred to from pipeline 'remote-downstream' (url at repo1_r2);;  -  Config-Repo: url at repo1_r2", pipelineConfig.name())));
+        assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig1)).get(0).getDescription(), is(String.format("Number of errors: 1+\n1. Stage with name 'upstream_stage_renamed' does not exist on pipeline '%s', it is being referred to from pipeline 'remote-downstream' (url at repo1_r2);; \n- For Config Repo: url at repo1_r2", pipelineConfig.name())));
         assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig2)).isEmpty(), is(true));
     }
 

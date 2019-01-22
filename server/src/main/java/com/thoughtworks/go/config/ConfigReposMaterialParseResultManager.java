@@ -74,8 +74,8 @@ public class ConfigReposMaterialParseResultManager {
 
     private Exception represent(ServerHealthState serverHealthState) {
         String message = new StringBuilder()
-                .append(serverHealthState.getMessage())
-                .append("\n\t")
+                .append(serverHealthState.getMessage().toUpperCase())
+                .append("\n")
                 .append(serverHealthState.getDescription())
                 .toString();
 

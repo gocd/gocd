@@ -95,6 +95,6 @@ public class CRStageTest extends CRBaseTest<CRStage> {
         String fullError = errors.getErrorsAsText();
 
         assertThat(fullError,contains("TEST; Stage (build)"));
-        assertThat(fullError,contains("Missing field 'name'"));
+        assertThat(fullError,contains("Missing field 'name'."));
     }
 }

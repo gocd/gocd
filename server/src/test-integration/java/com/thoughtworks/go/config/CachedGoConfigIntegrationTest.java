@@ -346,7 +346,7 @@ public class CachedGoConfigIntegrationTest {
         } catch (RuntimeException ex) {
             String errorMessage = ex.getMessage();
             assertThat(errorMessage, containsString("You have defined multiple pipelines named 'pipe1'. Pipeline names must be unique. Source(s):"));
-            Matcher matcher = Pattern.compile("^.*\\[(.*),\\s(.*)\\].*$").matcher(errorMessage);
+            Matcher matcher = Pattern.compile("^.*\\[(.*),\\s(.*)\\].*$", Pattern.DOTALL | Pattern.MULTILINE).matcher(errorMessage);
             assertThat(matcher.matches(), is(true));
             assertThat(matcher.groupCount(), is(2));
             PipelineConfig pipe1 = goConfigService.pipelineConfigNamed(new CaseInsensitiveString("pipe1"));
@@ -951,7 +951,7 @@ public class CachedGoConfigIntegrationTest {
         goPartialConfig.onSuccessPartialConfig(repoConfig1, invalidPartialInRepo1Revision2);
         assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig1)).size(), is(1));
         assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig1)).get(0).getMessage(), is("Invalid Merged Configuration"));
-        assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig1)).get(0).getDescription(), is("1+ errors :: Invalid stage name ''. This must be alphanumeric and can contain underscores and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.;;  -  Config-Repo: url1 at repo1_r2"));
+        assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig1)).get(0).getDescription(), is("Number of errors: 1+\n1. Invalid stage name ''. This must be alphanumeric and can contain underscores and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.;; \n- For Config Repo: url1 at repo1_r2"));
         assertThat(serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig2)).isEmpty(), is(true));
 
         int countBeforeDeletion = cachedGoConfig.currentConfig().getConfigRepos().size();

@@ -368,7 +368,7 @@ public class CRPipeline extends CRBase {
 
     private void validateAtLeastOneStage(ErrorCollection errors, String location) {
         if(!hasStages())
-            errors.addError(location,"Pipeline has no stages");
+            errors.addError(location,"Pipeline has no stages.");
     }
 
     private boolean hasStages() {
@@ -386,7 +386,7 @@ public class CRPipeline extends CRBase {
 
     private void validateAtLeastOneMaterial(ErrorCollection errors, String location) {
         if(this.materials == null || this.materials.isEmpty())
-            errors.addError(location,"Pipeline has no materials");
+            errors.addError(location,"Pipeline has no materials.");
     }
 
     public boolean hasTemplate() {

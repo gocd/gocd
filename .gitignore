@@ -51,6 +51,9 @@ hs_err_pid*
 # intellij has a tendency to cache rake tasks
 .rakeTasks
 
+# ignore cipher file generated at runtime
+server/config/cipher.aes
+
 resources-generated/
 .DS_Store
 

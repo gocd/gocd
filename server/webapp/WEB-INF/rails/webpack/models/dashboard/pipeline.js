@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,6 +37,7 @@ const Pipeline = function (info) {
   this.isPaused    = info.pause_info.paused;
   this.pausedBy    = info.pause_info.paused_by;
   this.pausedCause = info.pause_info.pause_reason;
+  this.pausedAt    = info.pause_info.paused_at;
   this.canPause    = info.can_pause;
 
 

@@ -49,7 +49,7 @@ public class PipelinePauseInfo implements Serializable {
     }
 
     public PipelinePauseInfo(boolean paused, String pauseCause, String pauseBy) {
-        this(paused, pauseCause, pauseBy, new Date());
+        this(paused, pauseCause, pauseBy, null);
     }
 
     public boolean isPaused() {

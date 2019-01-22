@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ describe("Dashboard Pipeline Widget", () => {
   const _             = require("lodash");
   const $             = require('jquery');
   const simulateEvent = require('simulate-event');
+  const TimeFormatter = require('helpers/time_formatter');
   require('jasmine-ajax');
 
   const PipelineWidget = require("views/dashboard/pipeline_widget");
@@ -274,7 +275,8 @@ describe("Dashboard Pipeline Widget", () => {
         pauseInfo = {
           "paused":       false,
           "paused_by":    "admin",
-          "pause_reason": "under construction"
+          "pause_reason": "under construction",
+          "paused_at":    "1970-01-01T00:00:12Z"
         };
 
         dashboard        = {};
@@ -354,6 +356,8 @@ describe("Dashboard Pipeline Widget", () => {
         expect(doRefreshImmediately).toHaveBeenCalled();
 
         expect($root.find('.pipeline_pause-message')).toBeInDOM();
+        expect($root.find('.pipeline_pause-message')).toContainText(`on ${TimeFormatter.format(pauseInfo.paused_at)}`);
+        expect($root.find('.pipeline_pause-message div').get(1).title).toEqual(TimeFormatter.formatInServerTime(pauseInfo.paused_at));
         expect($root.find('.pipeline_message')).toContainText(responseMessage);
         expect($root.find('.pipeline_message')).toHaveClass("success");
       });

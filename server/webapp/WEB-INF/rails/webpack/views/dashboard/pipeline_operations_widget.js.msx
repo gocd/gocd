@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-const m      = require('mithril');
-const Stream = require('mithril/stream');
-const f      = require('helpers/form_helper');
+const m             = require('mithril');
+const Stream        = require('mithril/stream');
+const f             = require('helpers/form_helper');
+const TimeFormatter = require('helpers/time_formatter');
 
 const TriggerWithOptionsInfo = require('models/dashboard/trigger_with_options_info');
 
@@ -192,7 +193,9 @@ const PipelineOperationsWidget = {
 
     let pipelinePauseMessage;
     if (pipeline.isPaused) {
-      pipelinePauseMessage = (<div className="pipeline_pause-message">{pausedMessage}</div>);
+      const pausedAtLocalTime  = TimeFormatter.format(pipeline.pausedAt);
+      const pausedAtServerTime = TimeFormatter.formatInServerTime(pipeline.pausedAt);
+      pipelinePauseMessage = (<div className="pipeline_pause-message"><div>{pausedMessage}</div><div title={pausedAtServerTime}>on {pausedAtLocalTime}</div></div>);
     }
 
     return (

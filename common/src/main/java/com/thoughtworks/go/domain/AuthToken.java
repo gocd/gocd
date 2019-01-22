@@ -22,7 +22,9 @@ import java.util.Objects;
 
 public class AuthToken extends PersistentObject {
     private String name;
+    //this is the hashed token value
     private String value;
+    private String originalValue;
     private String description;
     private Boolean isRevoked = false;
     private Timestamp createdAt;
@@ -98,6 +100,14 @@ public class AuthToken extends PersistentObject {
 
     public void setCreatedAt(Date createdAt) {
         this.createdAt = new Timestamp(createdAt.getTime());
+    }
+
+    public String getOriginalValue() {
+        return originalValue;
+    }
+
+    public void setOriginalValue(String originalValue) {
+        this.originalValue = originalValue;
     }
 
     @Override

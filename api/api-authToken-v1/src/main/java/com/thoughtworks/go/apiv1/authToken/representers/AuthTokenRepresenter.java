@@ -36,7 +36,7 @@ public class AuthTokenRepresenter {
                 });
 
         if (includeTokenValue) {
-            outputWriter.add("token", token.getValue());
+            outputWriter.add("token", token.getOriginalValue());
         }
     }
 }

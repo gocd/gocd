@@ -19,10 +19,13 @@ package com.thoughtworks.go.server.service;
 import com.thoughtworks.go.domain.AuthToken;
 import com.thoughtworks.go.server.dao.AuthTokenDao;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
+import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.lang.RandomStringUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
+
+import java.security.MessageDigest;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.*;
@@ -44,7 +47,7 @@ class AuthTokenServiceTest {
     }
 
     @Test
-    void shouldValidateAuthTokenName() {
+    void shouldValidateAuthTokenName() throws Exception {
         String invalidTokenName = "@#my_%_fancy_%_token#@";
         authTokenService.create(invalidTokenName, null, result);
 
@@ -56,7 +59,7 @@ class AuthTokenServiceTest {
     }
 
     @Test
-    void shouldValidateAuthTokenDescription() {
+    void shouldValidateAuthTokenDescription() throws Exception {
         String tokenName = "token1";
         String longerDescription = RandomStringUtils.randomAlphanumeric(1025).toUpperCase();
         authTokenService.create(tokenName, longerDescription, result);
@@ -69,7 +72,7 @@ class AuthTokenServiceTest {
     }
 
     @Test
-    void shouldMakeACallToSQLDaoForAuthTokenCreation() {
+    void shouldMakeACallToSQLDaoForAuthTokenCreation() throws Exception {
         String tokenName = "token1";
         String longerDescription = RandomStringUtils.randomAlphanumeric(1024).toUpperCase();
         authTokenService.create(tokenName, longerDescription, result);
@@ -80,7 +83,7 @@ class AuthTokenServiceTest {
     }
 
     @Test
-    void shouldValidateExistenceOfAnotherAuthTokenWithTheSameName() {
+    void shouldValidateExistenceOfAnotherAuthTokenWithTheSameName() throws Exception {
         String tokenName = "token1";
         String longerDescription = RandomStringUtils.randomAlphanumeric(1024).toUpperCase();
 
@@ -94,5 +97,25 @@ class AuthTokenServiceTest {
 
         verify(authTokenDao, times(1)).findAuthToken(tokenName);
         verifyNoMoreInteractions(authTokenDao);
+    }
+
+    @Test
+    void hashToken_shouldHashTheProvidedString() throws Exception {
+        String tokenValue = "token1";
+        String hashed = authTokenService.hashToken(tokenValue);
+
+        String expectedHash = new String(Hex.encodeHex(MessageDigest.getInstance("MD5").digest(tokenValue.getBytes())));
+        assertThat(hashed, is(expectedHash));
+    }
+
+    @Test
+    void hashToken_shouldGenerateTheSameHashValueForTheSameInputString() throws Exception {
+        String tokenValue = "new-token";
+        String hashed1 = authTokenService.hashToken(tokenValue);
+        String hashed2 = authTokenService.hashToken(tokenValue);
+
+        String expectedHash = new String(Hex.encodeHex(MessageDigest.getInstance("MD5").digest(tokenValue.getBytes())));
+        assertThat(hashed1, is(expectedHash));
+        assertThat(hashed1, is(hashed2));
     }
 }

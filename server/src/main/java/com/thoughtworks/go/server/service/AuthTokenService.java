@@ -24,6 +24,8 @@ import org.apache.commons.codec.binary.Hex;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
 import java.security.SecureRandom;
 import java.util.Date;
 
@@ -36,40 +38,51 @@ public class AuthTokenService {
         this.authTokenDao = authTokenDao;
     }
 
-    public void create(String tokenName, String description, HttpLocalizedOperationResult result) {
+    public AuthToken create(String tokenName, String description, HttpLocalizedOperationResult result) throws Exception {
         if (!new NameTypeValidator().isNameValid(tokenName)) {
             result.unprocessableEntity(NameTypeValidator.errorMessage("auth token", tokenName));
-            return;
+            return null;
         }
 
         if (description != null && description.length() > 1024) {
             result.unprocessableEntity("Validation Failed. Auth token description can not be longer than 1024 characters.");
-            return;
+            return null;
         }
 
         if (authTokenDao.findAuthToken(tokenName) != null) {
             result.conflict("Validation Failed. Another auth token with name '" + tokenName + "' already exists.");
-            return;
+            return null;
         }
 
         AuthToken tokenToCreate = getAuthTokenFor(tokenName, description);
         authTokenDao.saveOrUpdate(tokenToCreate);
+        return tokenToCreate;
     }
 
-    private AuthToken getAuthTokenFor(String tokenName, String description) {
+    private AuthToken getAuthTokenFor(String tokenName, String description) throws Exception {
         AuthToken authToken = new AuthToken();
 
         authToken.setName(tokenName);
         authToken.setDescription(description);
         authToken.setCreatedAt(new Date());
 
-        authToken.setValue(generateNewToken());
+        String originalToken = generateNewToken();
+        //original value needs to be there for rendering back to the user.
+        authToken.setOriginalValue(originalToken);
+        //hashed value needs to be there to persist it in the DB.
+        authToken.setValue(hashToken(originalToken));
 
         //redundant, if not specified as the object will set it to false.But for good practice (and clarity), lets set it explicitly.
         authToken.setLastUsed(null);
         authToken.setRevoked(false);
 
         return authToken;
+    }
+
+    public String hashToken(String originalToken) throws Exception {
+        MessageDigest md5 = MessageDigest.getInstance("MD5");
+        byte[] digestedToken = md5.digest(originalToken.getBytes(StandardCharsets.UTF_8));
+        return new String(Hex.encodeHex(digestedToken));
     }
 
     private String generateNewToken() {

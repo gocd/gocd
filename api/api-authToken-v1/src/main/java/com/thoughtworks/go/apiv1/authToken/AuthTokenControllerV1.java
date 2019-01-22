@@ -76,10 +76,10 @@ public class AuthTokenControllerV1 extends ApiController implements SparkSpringC
         String tokenName = reader.getString("name");
         String tokenDescription = reader.optString("description").orElse(null);
 
-        authTokenService.create(tokenName, tokenDescription, result);
+        AuthToken created = authTokenService.create(tokenName, tokenDescription, result);
 
         if (result.isSuccessful()) {
-            return renderAuthToken(request, response, findAuthToken(tokenName), true);
+            return renderAuthToken(request, response, created, true);
         }
 
         return renderHTTPOperationResult(result, request, response);

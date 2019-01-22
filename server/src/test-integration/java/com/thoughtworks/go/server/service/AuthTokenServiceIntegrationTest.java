@@ -16,9 +16,9 @@
 
 package com.thoughtworks.go.server.service;
 
-import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.domain.AuthToken;
 import com.thoughtworks.go.server.dao.AuthTokenSqlMapDao;
+import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import org.junit.After;
 import org.junit.Assert;
@@ -67,21 +67,31 @@ public class AuthTokenServiceIntegrationTest {
         String tokenDescription = "This is my first token";
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
 
-        authTokenService.create(tokenName, tokenDescription, result);
+        AuthToken createdToken = authTokenService.create(tokenName, tokenDescription, result);
 
-        AuthToken savedToken = authTokenService.find(tokenName);
+        AuthToken fetchedToken = authTokenService.find(tokenName);
 
         assertTrue(result.isSuccessful());
-        assertThat(savedToken.getName(), is(tokenName));
-        assertThat(savedToken.getDescription(), is(tokenDescription));
-        assertNotNull(savedToken.getValue());
-        assertNotNull(savedToken.getCreatedAt());
-        assertNull(savedToken.getLastUsed());
-        assertFalse(savedToken.isRevoked());
+        assertThat(createdToken.getName(), is(tokenName));
+        assertThat(createdToken.getDescription(), is(tokenDescription));
+        assertNotNull(createdToken.getValue());
+        assertNotNull(createdToken.getOriginalValue());
+        assertNotNull(createdToken.getCreatedAt());
+        assertNull(createdToken.getLastUsed());
+        assertFalse(createdToken.isRevoked());
+
+        assertThat(fetchedToken.getValue(), is(createdToken.getValue()));
+        assertThat(fetchedToken.getName(), is(createdToken.getName()));
+        assertThat(fetchedToken.getDescription(), is(createdToken.getDescription()));
+        assertThat(fetchedToken.getCreatedAt(), is(createdToken.getCreatedAt()));
+        assertThat(fetchedToken.getLastUsed(), is(createdToken.getLastUsed()));
+        assertThat(fetchedToken.isRevoked(), is(createdToken.isRevoked()));
+
+        assertNull(fetchedToken.getOriginalValue());
     }
 
     @Test
-    public void shouldFailToCreateAuthTokenWhenOneWithTheSameNameAlreadyExists() {
+    public void shouldFailToCreateAuthTokenWhenOneWithTheSameNameAlreadyExists() throws Exception {
         String tokenName = "token1";
         String tokenDescription = "This is my first token";
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();

@@ -19,7 +19,7 @@ require 'rails_helper'
 describe ApiV1::Config::PluginSettingsRepresenter do
   describe 'serialize' do
     it 'renders plugin settings with hal representation' do
-      plugin_info = com.thoughtworks.go.plugin.domain.configrepo.ConfigRepoPluginInfo.new(nil, com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings.new([com.thoughtworks.go.plugin.domain.common.PluginConfiguration.new('username', nil)]))
+      plugin_info = com.thoughtworks.go.plugin.domain.configrepo.ConfigRepoPluginInfo.new(nil, nil, com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings.new([com.thoughtworks.go.plugin.domain.common.PluginConfiguration.new('username', nil)]))
       presenter = ApiV1::Config::PluginSettingsRepresenter.new({plugin_settings: plugin_settings(plugin_info), plugin_info: plugin_info})
       actual_json = presenter.to_hash(url_builder: UrlBuilder.new)
       expect(actual_json).to have_link(:self).with_url(UrlBuilder.new.apiv1_admin_plugin_setting_url(plugin_id: 'foo.bar'))
@@ -34,7 +34,7 @@ describe ApiV1::Config::PluginSettingsRepresenter do
   describe 'deserialize' do
     it 'create plugin settings out of given json' do
       plugin_settings = PluginSettings.new
-      plugin_info = com.thoughtworks.go.plugin.domain.configrepo.ConfigRepoPluginInfo.new(nil, com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings.new([com.thoughtworks.go.plugin.domain.common.PluginConfiguration.new('username', nil)]))
+      plugin_info = com.thoughtworks.go.plugin.domain.configrepo.ConfigRepoPluginInfo.new(nil, nil, com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings.new([com.thoughtworks.go.plugin.domain.common.PluginConfiguration.new('username', nil)]))
       ApiV1::Config::PluginSettingsRepresenter.new({plugin_settings: plugin_settings, plugin_info: plugin_info}).from_hash(plugin_settings_json)
       expected_plugin_settings = plugin_settings
       expect(expected_plugin_settings.getPluginId).to eq(plugin_settings.getPluginId)

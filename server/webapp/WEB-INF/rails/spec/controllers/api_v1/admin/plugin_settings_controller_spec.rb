@@ -21,7 +21,7 @@ describe ApiV1::Admin::PluginSettingsController do
   include ApiV1::ApiVersionHelper
 
   before :each do
-    @plugin_info = com.thoughtworks.go.plugin.domain.configrepo.ConfigRepoPluginInfo.new(nil, com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings.new([com.thoughtworks.go.plugin.domain.common.PluginConfiguration.new('username', nil)]))
+    @plugin_info = com.thoughtworks.go.plugin.domain.configrepo.ConfigRepoPluginInfo.new(nil, nil, com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings.new([com.thoughtworks.go.plugin.domain.common.PluginConfiguration.new('username', nil)]))
     @plugin_settings = PluginSettings.new("plugin.id.1")
     @plugin_settings.addConfigurations(@plugin_info, [ConfigurationProperty.new(ConfigurationKey.new('username'), ConfigurationValue.new('admin'))])
     @plugin_service = double('plugin_service')
@@ -183,7 +183,7 @@ describe ApiV1::Admin::PluginSettingsController do
         login_as_admin
         @plugin_service = double('plugin_service')
         allow(controller).to receive(:plugin_service).and_return(@plugin_service)
-        allow(@plugin_service).to receive(:pluginInfoForExtensionThatHandlesPluginSettings).with('plugin.id.2').exactly(2).times.and_return(com.thoughtworks.go.plugin.domain.configrepo.ConfigRepoPluginInfo.new(nil, com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings.new(
+        allow(@plugin_service).to receive(:pluginInfoForExtensionThatHandlesPluginSettings).with('plugin.id.2').exactly(2).times.and_return(com.thoughtworks.go.plugin.domain.configrepo.ConfigRepoPluginInfo.new(nil, nil, com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings.new(
           [
             com.thoughtworks.go.plugin.domain.common.PluginConfiguration.new('url', nil),
             com.thoughtworks.go.plugin.domain.common.PluginConfiguration.new('password', nil)
@@ -309,7 +309,7 @@ describe ApiV1::Admin::PluginSettingsController do
         allow(controller).to receive(:plugin_service).and_return(@plugin_service)
 
         expect(@plugin_service).to receive(:pluginInfoForExtensionThatHandlesPluginSettings).with('plugin.id.1').exactly(2).times.and_return(
-          com.thoughtworks.go.plugin.domain.configrepo.ConfigRepoPluginInfo.new(nil, com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings.new(
+          com.thoughtworks.go.plugin.domain.configrepo.ConfigRepoPluginInfo.new(nil, nil, com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings.new(
             [com.thoughtworks.go.plugin.domain.common.PluginConfiguration.new('url', nil), com.thoughtworks.go.plugin.domain.common.PluginConfiguration.new('password', nil)])))
         allow(controller).to receive(:check_for_stale_request)
         hash = {plugin_id: 'plugin.id.1', configuration: [{"key" => 'url', "value" => 'git@github.com:foo/bagdgr.git'}, {"key" => 'password', "value" => "some-value"}]}
@@ -346,7 +346,7 @@ describe ApiV1::Admin::PluginSettingsController do
         @plugin_service = double('plugin_service')
         allow(controller).to receive(:plugin_service).and_return(@plugin_service)
         expect(@plugin_service).to receive(:pluginInfoForExtensionThatHandlesPluginSettings).with('plugin.id.1').exactly(2).times.and_return(
-          com.thoughtworks.go.plugin.domain.configrepo.ConfigRepoPluginInfo.new(nil, com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings.new(
+          com.thoughtworks.go.plugin.domain.configrepo.ConfigRepoPluginInfo.new(nil, nil, com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings.new(
             [com.thoughtworks.go.plugin.domain.common.PluginConfiguration.new('url', nil), com.thoughtworks.go.plugin.domain.common.PluginConfiguration.new('password', nil)])))
         controller.request.env['HTTP_IF_MATCH'] = controller.send(:generate_strong_etag, 'md5')
         hash = {plugin_id: 'plugin.id.1', configuration: [{key: 'url', value: 'git@github.com:foo/bar.git'}, {key: 'password', value: "some-value"}]}

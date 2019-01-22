@@ -163,7 +163,7 @@ describe ApiV4::Admin::PluginInfosController do
 
       allPluginInfos = [CombinedPluginInfo.new(AnalyticsPluginInfo.new(descriptor, nil, nil, nil)),
                         CombinedPluginInfo.new(AuthorizationPluginInfo.new(descriptor, nil, nil, nil, nil)),
-                        CombinedPluginInfo.new(ConfigRepoPluginInfo.new(descriptor, @plugin_settings)),
+                        CombinedPluginInfo.new(ConfigRepoPluginInfo.new(descriptor, nil, @plugin_settings)),
                         CombinedPluginInfo.new(ElasticAgentPluginInfo.new(descriptor, nil, nil, nil, nil)),
                         CombinedPluginInfo.new(NotificationPluginInfo.new(descriptor, @plugin_settings)),
                         CombinedPluginInfo.new(PackageMaterialPluginInfo.new(descriptor, nil, nil, nil)),

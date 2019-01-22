@@ -69,7 +69,8 @@ class PipelineRepresenterTest {
       pause_info            : [
         paused      : false,
         paused_by   : null,
-        pause_reason: null
+        pause_reason: null,
+        paused_at   : null
       ],
       can_operate           : false,
       can_administer        : false,
@@ -93,6 +94,23 @@ class PipelineRepresenterTest {
     def json = toObject({ PipelineRepresenter.toJSON(it, pipeline, new Username(new CaseInsensitiveString(SecureRandom.hex()))) })
 
     assertThatJson(json).node("from_config_repo").isEqualTo(false)
+  }
+
+  @Test
+  void 'should render pause info'() {
+    def counter = mock(Counter.class)
+    when(counter.getNext()).thenReturn(1l)
+    def permissions = new Permissions(NoOne.INSTANCE, NoOne.INSTANCE, NoOne.INSTANCE, NoOne.INSTANCE)
+    def pipeline = new GoDashboardPipeline(pipeline_model('p1', 'p1l1', false, true, "under construction"), permissions, "grp", counter, null)
+
+    def json = toObject({ PipelineRepresenter.toJSON(it, pipeline, new Username(new CaseInsensitiveString(SecureRandom.hex()))) })
+
+    assertThatJson(json).node("pause_info").isEqualTo([
+      paused: true,
+      paused_by: 'raghu',
+      pause_reason: 'under construction',
+      paused_at: '1970-01-01T00:00:12Z'
+    ])
   }
 
   @Nested
@@ -162,7 +180,8 @@ class PipelineRepresenterTest {
       pause_info            : [
         paused      : false,
         paused_by   : null,
-        pause_reason: null
+        pause_reason: null,
+        paused_at   : null
       ],
       can_operate           : false,
       can_administer        : false,

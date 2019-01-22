@@ -77,6 +77,7 @@ public class PipelineRepresenter {
             writer.add("paused", pausedInfo.isPaused());
             writer.add("paused_by", StringUtils.isBlank(pausedInfo.getPauseBy()) ? null : pausedInfo.getPauseBy());
             writer.add("pause_reason", StringUtils.isBlank(pausedInfo.getPauseCause()) ? null : pausedInfo.getPauseCause());
+            writer.add("paused_at", pausedInfo.getPausedAt());
         };
     }
 

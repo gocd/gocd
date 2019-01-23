@@ -77,7 +77,7 @@ public class ExportControllerV1 extends ApiController implements SparkSpringCont
 
     public String exportPipeline(Request req, Response res) {
         PipelineConfig pipelineConfig = pipelineConfigFromRequest(req);
-        String pluginId = requiredQueryParam(req, "pluginId");
+        String pluginId = requiredQueryParam(req, "plugin_id");
         String groupName = configService.findGroupNameByPipeline(pipelineConfig.getName());
 
         if (!crPluginService.isConfigRepoPlugin(pluginId)) {

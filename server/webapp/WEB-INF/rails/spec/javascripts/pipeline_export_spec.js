@@ -17,7 +17,7 @@
 
 describe("PipelineExport", function () {
   var c = crel, panel, link;
-  var TEST_URL = "http://export.me?groupName=test";
+  var TEST_URL = "http://export.me";
 
   beforeEach(function setup() {
     panel = c("div"), link = c("a", {href: TEST_URL}, "click me");
@@ -50,7 +50,7 @@ describe("PipelineExport", function () {
     var choice = panel.querySelectorAll("li a")[0];
 
     jasmine.Ajax.withMock(function () {
-      jasmine.Ajax.stubRequest(TEST_URL + "&pluginId=" + choice.getAttribute("data-plugin-id"), undefined, "GET").andReturn({
+      jasmine.Ajax.stubRequest(TEST_URL + "?plugin_id=" + choice.getAttribute("data-plugin-id"), undefined, "GET").andReturn({
         response: "content here",
         responseHeaders: {
           "Content-Type": "text/plain",

@@ -28,8 +28,9 @@ import com.thoughtworks.go.server.service.support.toggle.FeatureToggleService;
 import com.thoughtworks.go.server.service.support.toggle.Toggles;
 import com.thoughtworks.go.util.JsonValue;
 import com.thoughtworks.go.util.SystemEnvironment;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -40,7 +41,7 @@ import java.util.Optional;
 import static com.thoughtworks.go.util.JsonUtils.from;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.*;
 
 public class JobControllerTest {
@@ -57,7 +58,7 @@ public class JobControllerTest {
     private RestfulService restfulService;
     private PropertiesService propertiesService;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         jobInstanceService = mock(JobInstanceService.class);
         jobInstanceDao = mock(JobInstanceDao.class);
@@ -106,64 +107,79 @@ public class JobControllerTest {
         assertThat(buildingInfo.getString("last_build_duration"), is("5"));
     }
 
-    @Test
-    public void shouldThrowErrorIfUserPassesANonNumericValueForPipelineCounter() throws Exception {
-        try {
-            jobController.jobDetail("p1", "some-string", "s1", "1", "job");
-            fail("Expected an exception to be thrown");
-        } catch (Exception e) {
-            assertThat(e.getMessage(), is("Expected numeric pipelineCounter or latest keyword, but received 'some-string' for [p1/some-string/s1/1/job]"));
+    @Nested
+    class JobDetail {
+
+        @Test
+        public void shouldReturnJobDetail() throws Exception {
+            ModelAndView modelAndView = jobController.jobDetail("p1", "1", "s1", "2",
+                    "job1");
+            assertThat(modelAndView.getModel().isEmpty(), is(false));
+            assertThat(modelAndView.getModel().get("useIframeSandbox"), is(false));
+            assertThat(modelAndView.getModel().get("websocketEnabled"), is(true));
+            assertThat(modelAndView.getModel().get("isEditableViaUI"), is(false));
+            assertThat(modelAndView.getModel().get("isAgentAlive"), is(false));
         }
-    }
 
-    @Test
-    public void shouldThrowErrorIfUserPassesANonNumericValueForStageCounter() throws Exception {
-        try {
-            when(pipelineService.resolvePipelineCounter("p1", "1")).thenReturn(Optional.of(1));
-            jobController.jobDetail("p1", "1", "s1", "some-string", "job");
-            fail("Expected an exception to be thrown");
-        } catch (Exception e) {
-            assertThat(e.getMessage(), is("Expected numeric stageCounter or latest keyword, but received 'some-string' for [p1/1/s1/some-string/job]"));
+        @Test
+        public void shouldThrowErrorIfUserPassesANonNumericValueForPipelineCounter() throws Exception {
+            try {
+                when(pipelineService.resolvePipelineCounter("p1", "some-string")).thenReturn(Optional.empty());
+                jobController.jobDetail("p1", "some-string", "s1", "1", "job");
+                fail("Expected an exception to be thrown");
+            } catch (Exception e) {
+                assertThat(e.getMessage(), is("Expected numeric pipelineCounter or latest keyword, but received 'some-string' for [p1/some-string/s1/1/job]"));
+            }
         }
-    }
 
-    @Test
-    public void shouldAcceptLatestAsPipelineCounter() throws Exception {
-        setupMocksForJobDetail();
-        ModelAndView modelAndView = jobController.jobDetail("p1", "latest", "s1", "12", "job1");
-        assertThat(modelAndView.getModel().isEmpty(), is(false));
-    }
+        @Test
+        public void shouldThrowErrorIfUserPassesANonNumericValueForStageCounter() throws Exception {
+            try {
+                when(pipelineService.resolvePipelineCounter("p1", "1")).thenReturn(Optional.of(1));
+                jobController.jobDetail("p1", "1", "s1", "some-string", "job");
+                fail("Expected an exception to be thrown");
+            } catch (Exception e) {
+                assertThat(e.getMessage(), is("Expected numeric stageCounter or latest keyword, but received 'some-string' for [p1/1/s1/some-string/job]"));
+            }
+        }
 
-    @Test
-    public void shouldAcceptLatestAsStageCounter() throws Exception {
-        setupMocksForJobDetail();
-        ModelAndView modelAndView = jobController.jobDetail("p1", "1", "s1", "latest", "job1");
-        assertThat(modelAndView.getModel().isEmpty(), is(false));
-    }
+        @Test
+        public void shouldAcceptLatestAsPipelineCounter() throws Exception {
+            ModelAndView modelAndView = jobController.jobDetail("p1", "latest", "s1", "12", "job1");
+            assertThat(modelAndView.getModel().isEmpty(), is(false));
+        }
 
-    private void setupMocksForJobDetail() {
-        Pipeline pipeline = PipelineMother.passedPipelineInstance("p1", "s1", "build");
-        JobIdentifier jobIdentifier = JobIdentifierMother.jobIdentifier("p1");
-        StageIdentifier stageIdentifier = new StageIdentifier("p1", 1, "s1", "1");
-        JobInstance jobInstance = JobInstanceMother.jobInstance("building", "one");
-        jobInstance.setIdentifier(jobIdentifier);
-        jobInstance.setId(12);
-        jobInstance.setState(JobState.Unknown);
+        @Test
+        public void shouldAcceptLatestAsStageCounter() throws Exception {
+            ModelAndView modelAndView = jobController.jobDetail("p1", "1", "s1", "latest", "job1");
+            assertThat(modelAndView.getModel().isEmpty(), is(false));
+        }
 
-        when(jobInstanceService.latestCompletedJobs("p1", "s1", jobInstance.getName())).thenReturn(new JobInstances());
-        when(jobConfigService.agentByUuid(anyString())).thenReturn(new AgentConfig());
-        when(pipelineService.wrapBuildDetails(jobInstance)).thenReturn(pipeline);
-        when(pipelineService.resolvePipelineCounter(eq("p1"), anyString())).thenReturn(Optional.of(1));
-        when(restfulService.translateStageCounter(any(PipelineIdentifier.class), eq("s1"), anyString())).thenReturn(stageIdentifier);
-        when(pipelineService.findPipelineByNameAndCounter("p1", 1)).thenReturn(pipeline);
-        when(jobInstanceDao.mostRecentJobWithTransitions(jobIdentifier)).thenReturn(jobInstance);
-        when(jobInstanceDao.mostRecentJobWithTransitions(any(JobIdentifier.class))).thenReturn(jobInstance);
-        when(jobConfigService.pipelineConfigNamed(any(CaseInsensitiveString.class))).thenReturn(PipelineConfigMother.pipelineConfig("p1"));
-        when(propertiesService.getPropertiesForJob(any(Long.class))).thenReturn(new Properties());
-        when(stageService.getStageByBuild(jobInstance)).thenReturn(StageMother.passedStageInstance("s1", "plan1", "p1"));
+        @BeforeEach
+        void setupMocksForJobDetail() {
+            Pipeline pipeline = PipelineMother.passedPipelineInstance("p1", "s1", "build");
+            JobIdentifier jobIdentifier = JobIdentifierMother.jobIdentifier("p1");
+            StageIdentifier stageIdentifier = new StageIdentifier("p1", 1, "s1", "1");
+            JobInstance jobInstance = JobInstanceMother.jobInstance("building", "one");
+            jobInstance.setIdentifier(jobIdentifier);
+            jobInstance.setId(12);
+            jobInstance.setState(JobState.Unknown);
 
-        FeatureToggleService featureToggleService = mock(FeatureToggleService.class);
-        when(featureToggleService.isToggleOn(anyString())).thenReturn(true);
-        Toggles.initializeWith(featureToggleService);
+            when(jobInstanceService.latestCompletedJobs("p1", "s1", jobInstance.getName())).thenReturn(new JobInstances());
+            when(jobConfigService.agentByUuid(anyString())).thenReturn(new AgentConfig());
+            when(pipelineService.wrapBuildDetails(jobInstance)).thenReturn(pipeline);
+            when(pipelineService.resolvePipelineCounter(eq("p1"), anyString())).thenReturn(Optional.of(1));
+            when(restfulService.translateStageCounter(any(PipelineIdentifier.class), eq("s1"), anyString())).thenReturn(stageIdentifier);
+            when(pipelineService.findPipelineByNameAndCounter("p1", 1)).thenReturn(pipeline);
+            when(jobInstanceDao.mostRecentJobWithTransitions(jobIdentifier)).thenReturn(jobInstance);
+            when(jobInstanceDao.mostRecentJobWithTransitions(any(JobIdentifier.class))).thenReturn(jobInstance);
+            when(jobConfigService.pipelineConfigNamed(any(CaseInsensitiveString.class))).thenReturn(PipelineConfigMother.pipelineConfig("p1"));
+            when(propertiesService.getPropertiesForJob(any(Long.class))).thenReturn(new Properties());
+            when(stageService.getStageByBuild(jobInstance)).thenReturn(StageMother.passedStageInstance("s1", "plan1", "p1"));
+
+            FeatureToggleService featureToggleService = mock(FeatureToggleService.class);
+            when(featureToggleService.isToggleOn(anyString())).thenReturn(true);
+            Toggles.initializeWith(featureToggleService);
+        }
     }
 }

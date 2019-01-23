@@ -65,7 +65,7 @@ public class AuthTokenSqlMapDao extends HibernateDaoSupport implements AuthToken
         });
     }
 
-    public AuthToken findAuthToken(final String tokenName) {
+    public AuthToken findAuthToken(final String tokenName, String username) {
         AuthToken token = (AuthToken) goCache.get(AUTH_TOKEN_CACHE_KEY, tokenName);
         if (token == null) {
             synchronized (tokenName) {
@@ -78,6 +78,7 @@ public class AuthTokenSqlMapDao extends HibernateDaoSupport implements AuthToken
                     AuthToken savedToken = (AuthToken) sessionFactory.getCurrentSession()
                             .createCriteria(AuthToken.class)
                             .add(Restrictions.eq("name", tokenName))
+                            .add(Restrictions.eq("username", username))
                             .setCacheable(true).uniqueResult();
                     return savedToken;
                 });
@@ -96,8 +97,10 @@ public class AuthTokenSqlMapDao extends HibernateDaoSupport implements AuthToken
     }
 
     private void populateInCache(AuthToken token) {
-        synchronized (token.getName()) {
-            goCache.put(AUTH_TOKEN_CACHE_KEY, token.getName(), token);
+        String cacheKey = String.format("%s_%s", token.getUsername(), token.getName());
+
+        synchronized (cacheKey) {
+            goCache.put(AUTH_TOKEN_CACHE_KEY, cacheKey, token);
         }
         synchronized (token.getValue()) {
             goCache.put(AUTH_TOKEN_CACHE_KEY, token.getValue(), token);
@@ -105,8 +108,10 @@ public class AuthTokenSqlMapDao extends HibernateDaoSupport implements AuthToken
     }
 
     private void removeFromCache(AuthToken token) {
-        synchronized (token.getName()) {
-            goCache.remove(AUTH_TOKEN_CACHE_KEY, token.getName());
+        String cacheKey = String.format("%s_%s", token.getUsername(), token.getName());
+
+        synchronized (cacheKey) {
+            goCache.remove(AUTH_TOKEN_CACHE_KEY, cacheKey);
         }
         synchronized (token.getValue()) {
             goCache.remove(AUTH_TOKEN_CACHE_KEY, token.getValue());

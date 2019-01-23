@@ -66,7 +66,7 @@ class AuthTokenControllerV1Test implements ControllerTrait<AuthTokenControllerV1
     class Security implements SecurityTestTrait, AdminUserSecurity {
       @BeforeEach
       void setUp() {
-        when(authTokenService.find(tokenName)).thenReturn(token)
+        when(authTokenService.find(tokenName, username)).thenReturn(token)
       }
 
       @Override

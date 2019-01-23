@@ -49,11 +49,12 @@ public class AuthTokenSqlMapDaoIntegrationTest {
 
     @Autowired
     private GoCache goCache;
+    private String username;
 
     @Before
     public void setup() throws Exception {
         dbHelper.onSetUp();
-        authTokenSqlMapDao.deleteAll();
+        username = "Bob";
     }
 
     @After
@@ -70,7 +71,7 @@ public class AuthTokenSqlMapDaoIntegrationTest {
 
         authTokenSqlMapDao.saveOrUpdate(authToken);
 
-        AuthToken savedAuthToken = authTokenSqlMapDao.findAuthToken(tokenName);
+        AuthToken savedAuthToken = authTokenSqlMapDao.findAuthToken(tokenName, username);
         assertThat(savedAuthToken, is(authToken));
         assertThat(authTokenSqlMapDao.load(savedAuthToken.getId()), is(authToken));
     }
@@ -78,14 +79,14 @@ public class AuthTokenSqlMapDaoIntegrationTest {
     @Test
     public void shouldReturnNullWhenNoAuthTokenFoundForTheSpecifiedName() {
         String tokenName = "auth-token-for-apis";
-        AuthToken savedAuthToken = authTokenSqlMapDao.findAuthToken(tokenName);
+        AuthToken savedAuthToken = authTokenSqlMapDao.findAuthToken(tokenName, username);
         assertNull(savedAuthToken);
     }
 
     @Test
     public void shouldNotPopulateCacheWhenNoAuthTokenFoundForTheSpecifiedTokenName() {
         String tokenName = "auth-token-for-apis";
-        AuthToken savedAuthToken = authTokenSqlMapDao.findAuthToken(tokenName);
+        AuthToken savedAuthToken = authTokenSqlMapDao.findAuthToken(tokenName, username);
 
         assertNull(savedAuthToken);
         assertNull(goCache.get(AUTH_TOKEN_CACHE_KEY, tokenName));
@@ -97,10 +98,11 @@ public class AuthTokenSqlMapDaoIntegrationTest {
         AuthToken authToken = authTokenWithName(tokenName);
 
         authTokenSqlMapDao.saveOrUpdate(authToken);
+        String cacheKey = String.format("%s_%s", username, tokenName);
 
-        assertNull(goCache.get(AUTH_TOKEN_CACHE_KEY, tokenName));
-        AuthToken savedAuthToken = authTokenSqlMapDao.findAuthToken(tokenName);
-        assertThat(goCache.get(AUTH_TOKEN_CACHE_KEY, tokenName), is(savedAuthToken));
+        assertNull(goCache.get(AUTH_TOKEN_CACHE_KEY, cacheKey));
+        AuthToken savedAuthToken = authTokenSqlMapDao.findAuthToken(tokenName, username);
+        assertThat(goCache.get(AUTH_TOKEN_CACHE_KEY, cacheKey), is(savedAuthToken));
     }
 
     @Test
@@ -110,24 +112,25 @@ public class AuthTokenSqlMapDaoIntegrationTest {
 
         authTokenSqlMapDao.saveOrUpdate(authToken);
 
-        assertNull(goCache.get(AUTH_TOKEN_CACHE_KEY, tokenName));
-        AuthToken savedAuthToken = authTokenSqlMapDao.findAuthToken(tokenName);
-        assertThat(goCache.get(AUTH_TOKEN_CACHE_KEY, tokenName), is(savedAuthToken));
+        String cacheKey = String.format("%s_%s", username, tokenName);
+
+        assertNull(goCache.get(AUTH_TOKEN_CACHE_KEY, cacheKey));
+        AuthToken savedAuthToken = authTokenSqlMapDao.findAuthToken(tokenName, username);
+        assertThat(goCache.get(AUTH_TOKEN_CACHE_KEY, cacheKey), is(savedAuthToken));
         assertThat(goCache.get(AUTH_TOKEN_CACHE_KEY, savedAuthToken.getValue()), is(savedAuthToken));
 
         authTokenSqlMapDao.saveOrUpdate(authToken);
 
-        assertNull(goCache.get(AUTH_TOKEN_CACHE_KEY, tokenName));
+        assertNull(goCache.get(AUTH_TOKEN_CACHE_KEY, cacheKey));
         assertNull(goCache.get(AUTH_TOKEN_CACHE_KEY, savedAuthToken.getValue()));
     }
 
     private AuthToken authTokenWithName(String tokenName) {
         String tokenValue = RandomStringUtils.randomAlphanumeric(32).toUpperCase();
         String tokenDescription = RandomStringUtils.randomAlphanumeric(512).toUpperCase();
-        Boolean isRevoked = false;
-        Date createdAt = new Date();
-        Date lastUsed = null;
+        AuthToken authToken = new AuthToken(tokenName, tokenValue, tokenDescription, false, new Date(), null);
+        authToken.setUsername(username);
 
-        return new AuthToken(tokenName, tokenValue, tokenDescription, isRevoked, createdAt, lastUsed);
+        return authToken;
     }
 }

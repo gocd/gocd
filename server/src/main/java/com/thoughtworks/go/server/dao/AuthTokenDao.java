@@ -16,12 +16,13 @@
 
 package com.thoughtworks.go.server.dao;
 
+import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.domain.AuthToken;
 
 public interface AuthTokenDao {
     void saveOrUpdate(AuthToken authToken);
 
-    AuthToken findAuthToken(String name);
+    AuthToken findAuthToken(String name, String username);
 
     AuthToken load(long id);
 

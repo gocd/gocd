@@ -31,5 +31,6 @@
         <property name="isRevoked"/>
         <property name="createdAt"/>
         <property name="lastUsed"/>
+        <property name="username"/>
     </class>
 </hibernate-mapping>

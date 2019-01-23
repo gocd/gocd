@@ -16,6 +16,8 @@
 
 package com.thoughtworks.go.domain;
 
+import com.thoughtworks.go.config.CaseInsensitiveString;
+
 import java.sql.Timestamp;
 import java.util.Date;
 import java.util.Objects;
@@ -29,6 +31,7 @@ public class AuthToken extends PersistentObject {
     private Boolean isRevoked = false;
     private Timestamp createdAt;
     private Timestamp lastUsed;
+    private String username;
 
     public AuthToken() {
     }
@@ -108,6 +111,14 @@ public class AuthToken extends PersistentObject {
 
     public void setOriginalValue(String originalValue) {
         this.originalValue = originalValue;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     @Override

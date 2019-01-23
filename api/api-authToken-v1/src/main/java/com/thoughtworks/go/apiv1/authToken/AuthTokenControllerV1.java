@@ -76,7 +76,7 @@ public class AuthTokenControllerV1 extends ApiController implements SparkSpringC
         String tokenName = reader.getString("name");
         String tokenDescription = reader.optString("description").orElse(null);
 
-        AuthToken created = authTokenService.create(tokenName, tokenDescription, result);
+        AuthToken created = authTokenService.create(tokenName, tokenDescription, currentUsername(), result);
 
         if (result.isSuccessful()) {
             return renderAuthToken(request, response, created, true);
@@ -86,7 +86,7 @@ public class AuthTokenControllerV1 extends ApiController implements SparkSpringC
     }
 
     public String getAuthToken(Request request, Response response) throws Exception {
-        final AuthToken token = authTokenService.find(request.params("token_name"));
+        final AuthToken token = authTokenService.find(request.params("token_name"), currentUsername());
 
         if (token == null) {
             throw new RecordNotFoundException();

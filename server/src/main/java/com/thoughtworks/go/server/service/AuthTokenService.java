@@ -19,6 +19,7 @@ package com.thoughtworks.go.server.service;
 import com.thoughtworks.go.config.validation.NameTypeValidator;
 import com.thoughtworks.go.domain.AuthToken;
 import com.thoughtworks.go.server.dao.AuthTokenDao;
+import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import org.apache.commons.codec.binary.Hex;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,7 +39,7 @@ public class AuthTokenService {
         this.authTokenDao = authTokenDao;
     }
 
-    public AuthToken create(String tokenName, String description, HttpLocalizedOperationResult result) throws Exception {
+    public AuthToken create(String tokenName, String description, Username username, HttpLocalizedOperationResult result) throws Exception {
         if (!new NameTypeValidator().isNameValid(tokenName)) {
             result.unprocessableEntity(NameTypeValidator.errorMessage("auth token", tokenName));
             return null;
@@ -49,17 +50,17 @@ public class AuthTokenService {
             return null;
         }
 
-        if (authTokenDao.findAuthToken(tokenName) != null) {
-            result.conflict("Validation Failed. Another auth token with name '" + tokenName + "' already exists.");
+        if (authTokenDao.findAuthToken(tokenName, username.getUsername().toString()) != null) {
+            result.conflict(String.format("Validation Failed. Another auth token with name '%s' already exists.", tokenName));
             return null;
         }
 
-        AuthToken tokenToCreate = getAuthTokenFor(tokenName, description);
+        AuthToken tokenToCreate = getAuthTokenFor(tokenName, description, username);
         authTokenDao.saveOrUpdate(tokenToCreate);
         return tokenToCreate;
     }
 
-    private AuthToken getAuthTokenFor(String tokenName, String description) throws Exception {
+    private AuthToken getAuthTokenFor(String tokenName, String description, Username username) throws Exception {
         AuthToken authToken = new AuthToken();
 
         authToken.setName(tokenName);
@@ -71,6 +72,8 @@ public class AuthTokenService {
         authToken.setOriginalValue(originalToken);
         //hashed value needs to be there to persist it in the DB.
         authToken.setValue(hashToken(originalToken));
+
+        authToken.setUsername(username.getUsername().toString());
 
         //redundant, if not specified as the object will set it to false.But for good practice (and clarity), lets set it explicitly.
         authToken.setLastUsed(null);
@@ -91,7 +94,7 @@ public class AuthTokenService {
         return Hex.encodeHexString(randomBytes);
     }
 
-    public AuthToken find(String tokenName) {
-        return authTokenDao.findAuthToken(tokenName);
+    public AuthToken find(String tokenName, Username username) {
+        return authTokenDao.findAuthToken(tokenName, username.getUsername().toString());
     }
 }

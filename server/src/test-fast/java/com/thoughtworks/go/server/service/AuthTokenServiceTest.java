@@ -18,6 +18,7 @@ package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.domain.AuthToken;
 import com.thoughtworks.go.server.dao.AuthTokenDao;
+import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.lang.RandomStringUtils;
@@ -38,18 +39,21 @@ class AuthTokenServiceTest {
     private AuthTokenDao authTokenDao;
     private AuthTokenService authTokenService;
     private HttpLocalizedOperationResult result;
+    private Username username;
 
     @BeforeEach
     void setUp() {
         initMocks(this);
         authTokenService = new AuthTokenService(authTokenDao);
         result = new HttpLocalizedOperationResult();
+
+        username = new Username("Bob");
     }
 
     @Test
     void shouldValidateAuthTokenName() throws Exception {
         String invalidTokenName = "@#my_%_fancy_%_token#@";
-        authTokenService.create(invalidTokenName, null, result);
+        authTokenService.create(invalidTokenName, null, username, result);
 
         assertFalse(result.isSuccessful());
         assertThat(result.httpCode(), is(422));
@@ -62,7 +66,7 @@ class AuthTokenServiceTest {
     void shouldValidateAuthTokenDescription() throws Exception {
         String tokenName = "token1";
         String longerDescription = RandomStringUtils.randomAlphanumeric(1025).toUpperCase();
-        authTokenService.create(tokenName, longerDescription, result);
+        authTokenService.create(tokenName, longerDescription, username, result);
 
         assertFalse(result.isSuccessful());
         assertThat(result.httpCode(), is(422));
@@ -75,7 +79,7 @@ class AuthTokenServiceTest {
     void shouldMakeACallToSQLDaoForAuthTokenCreation() throws Exception {
         String tokenName = "token1";
         String longerDescription = RandomStringUtils.randomAlphanumeric(1024).toUpperCase();
-        authTokenService.create(tokenName, longerDescription, result);
+        authTokenService.create(tokenName, longerDescription, username, result);
 
         assertTrue(result.isSuccessful());
 
@@ -87,15 +91,15 @@ class AuthTokenServiceTest {
         String tokenName = "token1";
         String longerDescription = RandomStringUtils.randomAlphanumeric(1024).toUpperCase();
 
-        when(authTokenDao.findAuthToken(tokenName)).thenReturn(new AuthToken(tokenName, "value"));
+        when(authTokenDao.findAuthToken(tokenName, username.getUsername().toString())).thenReturn(new AuthToken(tokenName, "value"));
 
-        authTokenService.create(tokenName, longerDescription, result);
+        authTokenService.create(tokenName, longerDescription, username, result);
 
         assertFalse(result.isSuccessful());
         assertThat(result.httpCode(), is(409));
         assertThat(result.message(), is("Validation Failed. Another auth token with name 'token1' already exists."));
 
-        verify(authTokenDao, times(1)).findAuthToken(tokenName);
+        verify(authTokenDao, times(1)).findAuthToken(tokenName, username.getUsername().toString());
         verifyNoMoreInteractions(authTokenDao);
     }
 

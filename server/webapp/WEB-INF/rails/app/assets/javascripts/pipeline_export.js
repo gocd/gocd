@@ -84,7 +84,7 @@
 
         el.classList.add("loading");
         new XhrPromise({
-          url: el.getAttribute("href") + "&plugin_id=" + encodeURIComponent($(ev.currentTarget).data("plugin-id")),
+          url: el.getAttribute("href") + "?plugin_id=" + encodeURIComponent($(ev.currentTarget).data("plugin-id")),
           responseType: "blob",
           headers: {
             Accept: "application/vnd.go.cd.v1+json"

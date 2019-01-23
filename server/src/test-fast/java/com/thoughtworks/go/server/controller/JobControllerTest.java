@@ -16,14 +16,16 @@
 
 package com.thoughtworks.go.server.controller;
 
-import com.thoughtworks.go.domain.JobInstance;
-import com.thoughtworks.go.domain.JobResult;
-import com.thoughtworks.go.domain.JobState;
+import com.thoughtworks.go.config.AgentConfig;
+import com.thoughtworks.go.config.CaseInsensitiveString;
+import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.dto.DurationBean;
-import com.thoughtworks.go.helper.JobInstanceMother;
+import com.thoughtworks.go.helper.*;
 import com.thoughtworks.go.server.dao.JobInstanceDao;
 import com.thoughtworks.go.server.domain.Agent;
 import com.thoughtworks.go.server.service.*;
+import com.thoughtworks.go.server.service.support.toggle.FeatureToggleService;
+import com.thoughtworks.go.server.service.support.toggle.Toggles;
 import com.thoughtworks.go.util.JsonValue;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.junit.Before;
@@ -52,6 +54,8 @@ public class JobControllerTest {
     private PipelineService pipelineService;
     private MockHttpServletResponse response;
     private SystemEnvironment systemEnvironment;
+    private RestfulService restfulService;
+    private PropertiesService propertiesService;
 
     @Before
     public void setUp() throws Exception {
@@ -63,7 +67,9 @@ public class JobControllerTest {
         response = new MockHttpServletResponse();
         systemEnvironment = mock(SystemEnvironment.class);
         pipelineService = mock(PipelineService.class);
-        jobController = new JobController(jobInstanceService, agentService, jobInstanceDao, jobConfigService, pipelineService, null, null, null, stageService, null, systemEnvironment);
+        restfulService = mock(RestfulService.class);
+        propertiesService = mock(PropertiesService.class);
+        jobController = new JobController(jobInstanceService, agentService, jobInstanceDao, jobConfigService, pipelineService, restfulService, null, propertiesService, stageService, null, systemEnvironment);
     }
 
     @Test
@@ -119,5 +125,45 @@ public class JobControllerTest {
         } catch (Exception e) {
             assertThat(e.getMessage(), is("Expected numeric stageCounter or latest keyword, but received 'some-string' for [p1/1/s1/some-string/job]"));
         }
+    }
+
+    @Test
+    public void shouldAcceptLatestAsPipelineCounter() throws Exception {
+        setupMocksForJobDetail();
+        ModelAndView modelAndView = jobController.jobDetail("p1", "latest", "s1", "12", "job1");
+        assertThat(modelAndView.getModel().isEmpty(), is(false));
+    }
+
+    @Test
+    public void shouldAcceptLatestAsStageCounter() throws Exception {
+        setupMocksForJobDetail();
+        ModelAndView modelAndView = jobController.jobDetail("p1", "1", "s1", "latest", "job1");
+        assertThat(modelAndView.getModel().isEmpty(), is(false));
+    }
+
+    private void setupMocksForJobDetail() {
+        Pipeline pipeline = PipelineMother.passedPipelineInstance("p1", "s1", "build");
+        JobIdentifier jobIdentifier = JobIdentifierMother.jobIdentifier("p1");
+        StageIdentifier stageIdentifier = new StageIdentifier("p1", 1, "s1", "1");
+        JobInstance jobInstance = JobInstanceMother.jobInstance("building", "one");
+        jobInstance.setIdentifier(jobIdentifier);
+        jobInstance.setId(12);
+        jobInstance.setState(JobState.Unknown);
+
+        when(jobInstanceService.latestCompletedJobs("p1", "s1", jobInstance.getName())).thenReturn(new JobInstances());
+        when(jobConfigService.agentByUuid(anyString())).thenReturn(new AgentConfig());
+        when(pipelineService.wrapBuildDetails(jobInstance)).thenReturn(pipeline);
+        when(pipelineService.resolvePipelineCounter(eq("p1"), anyString())).thenReturn(Optional.of(1));
+        when(restfulService.translateStageCounter(any(PipelineIdentifier.class), eq("s1"), anyString())).thenReturn(stageIdentifier);
+        when(pipelineService.findPipelineByNameAndCounter("p1", 1)).thenReturn(pipeline);
+        when(jobInstanceDao.mostRecentJobWithTransitions(jobIdentifier)).thenReturn(jobInstance);
+        when(jobInstanceDao.mostRecentJobWithTransitions(any(JobIdentifier.class))).thenReturn(jobInstance);
+        when(jobConfigService.pipelineConfigNamed(any(CaseInsensitiveString.class))).thenReturn(PipelineConfigMother.pipelineConfig("p1"));
+        when(propertiesService.getPropertiesForJob(any(Long.class))).thenReturn(new Properties());
+        when(stageService.getStageByBuild(jobInstance)).thenReturn(StageMother.passedStageInstance("s1", "plan1", "p1"));
+
+        FeatureToggleService featureToggleService = mock(FeatureToggleService.class);
+        when(featureToggleService.isToggleOn(anyString())).thenReturn(true);
+        Toggles.initializeWith(featureToggleService);
     }
 }

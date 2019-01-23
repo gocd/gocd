@@ -86,7 +86,7 @@ public abstract class PluginProfilesService<M extends PluginProfile> {
 
     protected void update(Username currentUser, M pluginProfile, LocalizedOperationResult result, PluginProfileCommand command) {
         try {
-            if (command.isNotADeleteCommand()) {
+            if (command.shouldValidatePluginProperties()) {
                 validatePluginProperties(command, pluginProfile);
             }
             goConfigService.updateConfig(command, currentUser);

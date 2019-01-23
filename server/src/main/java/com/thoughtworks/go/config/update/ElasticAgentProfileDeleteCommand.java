@@ -53,7 +53,7 @@ public class ElasticAgentProfileDeleteCommand extends ElasticAgentProfileCommand
     }
 
     @Override
-    public boolean isNotADeleteCommand() {
+    public boolean shouldValidatePluginProperties() {
         return false;
     }
 

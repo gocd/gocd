@@ -200,6 +200,17 @@ public class SecurityAuthConfigServiceTest {
     }
 
     @Test
+    public void shouldNotPerformPluginValidationsWhileDeletingSecurityAuthConfigInConfig() {
+        SecurityAuthConfig securityAuthConfig = new SecurityAuthConfig("ldap", "cd.go.ldap");
+
+        Username username = new Username("username");
+        securityAuthConfigService.delete(username, securityAuthConfig, new HttpLocalizedOperationResult());
+
+        verify(goConfigService).updateConfig(any(SecurityAuthConfigDeleteCommand.class), eq(username));
+        verify(extension,never()).validateAuthConfig(securityAuthConfig.getPluginId(), securityAuthConfig.getConfigurationAsMap(true));
+    }
+
+    @Test
     public void shouldGetSecurityAuthConfigByGivenId() throws Exception {
         SecurityAuthConfig authConfig = new SecurityAuthConfig("ldap", "cd.go.ldap");
         SecurityConfig securityConfig = new SecurityConfig();

@@ -49,7 +49,7 @@ public class SecurityAuthConfigDeleteCommand extends SecurityAuthConfigCommand {
     }
 
     @Override
-    public boolean isNotADeleteCommand() {
+    public boolean shouldValidatePluginProperties() {
         return false;
     }
 

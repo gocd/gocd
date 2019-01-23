@@ -35,8 +35,7 @@ import static com.thoughtworks.go.domain.packagerepository.ConfigurationProperty
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 public class ArtifactStoreServiceTest {
@@ -145,5 +144,16 @@ public class ArtifactStoreServiceTest {
         artifactStoreService.delete(admin, artifactStore, result);
 
         verify(configService).updateConfig(any(DeleteArtifactStoreConfigCommand.class), eq(admin));
+    }
+
+    @Test
+    public void shouldNotInvokePluginValidationsWhileDeletingTheArtifactStoreToConfig() {
+        ArtifactStore artifactStore = new ArtifactStore("docker", "cd.go.artifact.docker", create("key", false, "val"));
+        Username admin = new Username("admin");
+        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+
+        artifactStoreService.delete(admin, artifactStore, result);
+
+        verify(extension,never()).validateArtifactStoreConfig(eq("cd.go.artifact.docker"), anyMap());
     }
 }

@@ -73,7 +73,7 @@ public class DeleteArtifactStoreConfigCommand extends ArtifactStoreConfigCommand
     }
 
     @Override
-    public boolean isNotADeleteCommand() {
+    public boolean shouldValidatePluginProperties() {
         return false;
     }
 

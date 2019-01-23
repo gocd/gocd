@@ -14,6 +14,7 @@
         <role name="xyz" />
       </roles>
       <admins>
+        <user>jez</user>
         <user>admin</user>
       </admins>
     </security>

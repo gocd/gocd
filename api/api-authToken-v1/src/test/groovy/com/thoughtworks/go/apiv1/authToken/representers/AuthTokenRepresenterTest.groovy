@@ -16,12 +16,12 @@
 
 package com.thoughtworks.go.apiv1.authToken.representers
 
-import com.thoughtworks.go.domain.AuthToken
-import org.apache.commons.lang.RandomStringUtils
+
 import org.junit.jupiter.api.Test
 
 import static com.thoughtworks.go.api.base.JsonOutputWriter.jsonDate
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
+import static com.thoughtworks.go.helper.AuthTokenMother.authTokenWithName
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
 
 class AuthTokenRepresenterTest {
@@ -88,13 +88,5 @@ class AuthTokenRepresenterTest {
     ]
 
     assertThatJson(json).isEqualTo(expectedJSON)
-  }
-
-  static AuthToken authTokenWithName(String tokenName) {
-    String tokenValue = RandomStringUtils.randomAlphanumeric(32)
-    String tokenDescription = RandomStringUtils.randomAlphanumeric(512).toUpperCase()
-    def token = new AuthToken(tokenName, tokenValue, tokenDescription, false, new Date(), null)
-    token.setOriginalValue("the-real-token")
-    return token
   }
 }

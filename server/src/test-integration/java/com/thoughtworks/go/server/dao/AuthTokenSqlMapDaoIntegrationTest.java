@@ -17,6 +17,7 @@
 package com.thoughtworks.go.server.dao;
 
 import com.thoughtworks.go.domain.AuthToken;
+import com.thoughtworks.go.helper.AuthTokenMother;
 import com.thoughtworks.go.server.cache.GoCache;
 import org.apache.commons.lang.RandomStringUtils;
 import org.junit.After;
@@ -29,6 +30,8 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.util.Date;
 
+import static com.thoughtworks.go.helper.AuthTokenMother.authTokenWithName;
+import static com.thoughtworks.go.helper.AuthTokenMother.authTokenWithNameForUser;
 import static com.thoughtworks.go.server.dao.AuthTokenSqlMapDao.AUTH_TOKEN_CACHE_KEY;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertNull;
@@ -95,7 +98,7 @@ public class AuthTokenSqlMapDaoIntegrationTest {
     @Test
     public void shouldCacheAuthTokenValueUponFirstGet() {
         String tokenName = "auth-token-for-apis";
-        AuthToken authToken = authTokenWithName(tokenName);
+        AuthToken authToken = authTokenWithNameForUser(tokenName, username);
 
         authTokenSqlMapDao.saveOrUpdate(authToken);
         String cacheKey = String.format("%s_%s", username, tokenName);
@@ -108,7 +111,7 @@ public class AuthTokenSqlMapDaoIntegrationTest {
     @Test
     public void shouldRemoveAuthTokenFromCacheUponUpdate() {
         String tokenName = "auth-token-for-apis";
-        AuthToken authToken = authTokenWithName(tokenName);
+        AuthToken authToken = authTokenWithNameForUser(tokenName, username);
 
         authTokenSqlMapDao.saveOrUpdate(authToken);
 
@@ -123,14 +126,5 @@ public class AuthTokenSqlMapDaoIntegrationTest {
 
         assertNull(goCache.get(AUTH_TOKEN_CACHE_KEY, cacheKey));
         assertNull(goCache.get(AUTH_TOKEN_CACHE_KEY, savedAuthToken.getValue()));
-    }
-
-    private AuthToken authTokenWithName(String tokenName) {
-        String tokenValue = RandomStringUtils.randomAlphanumeric(32).toUpperCase();
-        String tokenDescription = RandomStringUtils.randomAlphanumeric(512).toUpperCase();
-        AuthToken authToken = new AuthToken(tokenName, tokenValue, tokenDescription, false, new Date(), null);
-        authToken.setUsername(username);
-
-        return authToken;
     }
 }

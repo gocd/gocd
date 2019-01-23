@@ -22,7 +22,7 @@ description    VARCHAR(1024),
 isRevoked      BOOLEAN,
 createdAt      TIMESTAMP,
 lastUsed       TIMESTAMP,
-username       VARCHAR(255) Not NULL,
+username       VARCHAR_IGNORECASE(255) Not NULL,
 );
 
 --//@UNDO

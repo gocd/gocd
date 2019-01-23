@@ -108,7 +108,7 @@ class AuthTokenServiceTest {
         String tokenValue = "token1";
         String hashed = authTokenService.hashToken(tokenValue);
 
-        String expectedHash = new String(Hex.encodeHex(MessageDigest.getInstance("MD5").digest(tokenValue.getBytes())));
+        String expectedHash = new String(Hex.encodeHex(MessageDigest.getInstance("SHA-256").digest(tokenValue.getBytes())));
         assertThat(hashed, is(expectedHash));
     }
 
@@ -118,7 +118,7 @@ class AuthTokenServiceTest {
         String hashed1 = authTokenService.hashToken(tokenValue);
         String hashed2 = authTokenService.hashToken(tokenValue);
 
-        String expectedHash = new String(Hex.encodeHex(MessageDigest.getInstance("MD5").digest(tokenValue.getBytes())));
+        String expectedHash = new String(Hex.encodeHex(MessageDigest.getInstance("SHA-256").digest(tokenValue.getBytes())));
         assertThat(hashed1, is(expectedHash));
         assertThat(hashed1, is(hashed2));
     }

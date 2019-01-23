@@ -83,7 +83,7 @@ public class AuthTokenService {
     }
 
     public String hashToken(String originalToken) throws Exception {
-        MessageDigest md5 = MessageDigest.getInstance("MD5");
+        MessageDigest md5 = MessageDigest.getInstance("SHA-256");
         byte[] digestedToken = md5.digest(originalToken.getBytes(StandardCharsets.UTF_8));
         return new String(Hex.encodeHex(digestedToken));
     }

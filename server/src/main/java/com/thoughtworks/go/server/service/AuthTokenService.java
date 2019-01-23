@@ -29,6 +29,7 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.SecureRandom;
 import java.util.Date;
+import java.util.List;
 
 @Service
 public class AuthTokenService {
@@ -96,5 +97,9 @@ public class AuthTokenService {
 
     public AuthToken find(String tokenName, Username username) {
         return authTokenDao.findAuthToken(tokenName, username.getUsername().toString());
+    }
+
+    public List<AuthToken> findAllTokensForUser(Username username) {
+        return authTokenDao.findAllTokensForUser(username.getUsername().toString());
     }
 }

@@ -22,6 +22,7 @@ import com.thoughtworks.go.api.representers.JsonReader;
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
 import com.thoughtworks.go.api.util.GsonTransformer;
 import com.thoughtworks.go.apiv1.authToken.representers.AuthTokenRepresenter;
+import com.thoughtworks.go.apiv1.authToken.representers.AuthTokensRepresenter;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.domain.AuthToken;
 import com.thoughtworks.go.server.service.AuthTokenService;
@@ -34,6 +35,7 @@ import spark.Request;
 import spark.Response;
 
 import java.io.IOException;
+import java.util.List;
 
 import static spark.Spark.*;
 
@@ -64,6 +66,7 @@ public class AuthTokenControllerV1 extends ApiController implements SparkSpringC
             before("", mimeType, this.apiAuthenticationHelper::checkUserAnd403);
             before("/*", mimeType, this.apiAuthenticationHelper::checkUserAnd403);
 
+            get("", mimeType, this::getAllAuthTokens);
             post("", mimeType, this::createAuthToken);
             get(Routes.AuthToken.TOKEN_NAME, mimeType, this::getAuthToken);
 
@@ -96,6 +99,11 @@ public class AuthTokenControllerV1 extends ApiController implements SparkSpringC
         }
 
         return renderAuthToken(request, response, token, false);
+    }
+
+    public String getAllAuthTokens(Request request, Response response) throws Exception {
+        List<AuthToken> allTokens = authTokenService.findAllTokensForUser(currentUsername());
+        return writerForTopLevelObject(request, response, outputWriter -> AuthTokensRepresenter.toJSON(outputWriter, allTokens));
     }
 
     private String renderAuthToken(Request request, Response response, AuthToken token, boolean includeTokenValue) throws IOException {

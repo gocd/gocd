@@ -87,6 +87,23 @@ class AuthTokenServiceTest {
     }
 
     @Test
+    void shouldMakeACallToSQLDaoForFetchingAuthToken() throws Exception {
+        String tokenName = "token1";
+        authTokenService.find(tokenName, username);
+
+        verify(authTokenDao, times(1)).findAuthToken(tokenName, username.getUsername().toString());
+        verifyNoMoreInteractions(authTokenDao);
+    }
+
+    @Test
+    void shouldMakeACallToSQLDaoForFetchingAllAuthTokensBelongingToAUser() throws Exception {
+        authTokenService.findAllTokensForUser(username);
+
+        verify(authTokenDao, times(1)).findAllTokensForUser(username.getUsername().toString());
+        verifyNoMoreInteractions(authTokenDao);
+    }
+
+    @Test
     void shouldValidateExistenceOfAnotherAuthTokenWithTheSameName() throws Exception {
         String tokenName = "token1";
         String longerDescription = RandomStringUtils.randomAlphanumeric(1024).toUpperCase();

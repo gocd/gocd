@@ -20,6 +20,7 @@ import com.thoughtworks.go.api.SecurityTestTrait
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
 import com.thoughtworks.go.api.util.HaltApiMessages
 import com.thoughtworks.go.apiv1.authToken.representers.AuthTokenRepresenter
+import com.thoughtworks.go.apiv1.authToken.representers.AuthTokensRepresenter
 import com.thoughtworks.go.server.domain.Username
 import com.thoughtworks.go.server.service.AuthTokenService
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult
@@ -199,6 +200,50 @@ class AuthTokenControllerV1Test implements ControllerTrait<AuthTokenControllerV1
         assertThatResponse()
           .isUnprocessableEntity()
           .hasJsonMessage("Boom!")
+      }
+    }
+  }
+
+  @Nested
+  class Index {
+    def token = authTokenWithName("token1")
+
+    @Nested
+    class Security implements SecurityTestTrait, NormalUserSecurity {
+      @BeforeEach
+      void setUp() {
+        when(authTokenService.findAllTokensForUser(any(Username.class))).thenReturn([token])
+      }
+
+      @Override
+      String getControllerMethodUnderTest() {
+        return "getAllAuthTokens"
+      }
+
+      @Override
+      void makeHttpCall() {
+        getWithApiHeader(controller.controllerPath())
+      }
+    }
+
+    @Nested
+    class AsAdmin {
+      @BeforeEach
+      void setUp() {
+        enableSecurity()
+        loginAsAdmin()
+
+        when(authTokenService.findAllTokensForUser(any(Username.class))).thenReturn([token])
+      }
+
+      @Test
+      void 'should render all the auth tokens'() {
+        getWithApiHeader(controller.controllerPath())
+
+        assertThatResponse()
+          .isOk()
+          .hasContentType(controller.mimeType)
+          .hasBody(toObjectString({ AuthTokensRepresenter.toJSON(it, [token]) }))
       }
     }
   }

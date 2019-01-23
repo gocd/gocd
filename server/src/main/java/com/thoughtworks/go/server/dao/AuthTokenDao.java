@@ -19,6 +19,8 @@ package com.thoughtworks.go.server.dao;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.domain.AuthToken;
 
+import java.util.List;
+
 public interface AuthTokenDao {
     void saveOrUpdate(AuthToken authToken);
 
@@ -27,4 +29,6 @@ public interface AuthTokenDao {
     AuthToken load(long id);
 
     void deleteAll();
+
+    List<AuthToken> findAllTokensForUser(String toString);
 }

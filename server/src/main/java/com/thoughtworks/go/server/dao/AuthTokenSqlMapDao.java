@@ -20,6 +20,7 @@ import com.thoughtworks.go.domain.AuthToken;
 import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.transaction.TransactionSynchronizationManager;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
+import org.hibernate.Query;
 import org.hibernate.SessionFactory;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +30,8 @@ import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionSynchronizationAdapter;
+
+import java.util.List;
 
 @Component
 public class AuthTokenSqlMapDao extends HibernateDaoSupport implements AuthTokenDao {
@@ -90,6 +93,16 @@ public class AuthTokenSqlMapDao extends HibernateDaoSupport implements AuthToken
         }
 
         return token;
+    }
+
+    @Override
+    public List<AuthToken> findAllTokensForUser(String username) {
+        return (List<AuthToken>) transactionTemplate.execute((TransactionCallback) transactionStatus -> {
+            Query query = sessionFactory.getCurrentSession().createQuery("FROM AuthToken where username = :username");
+            query.setString("username", username);
+            query.setCacheable(true);
+            return query.list();
+        });
     }
 
     public AuthToken load(final long id) {

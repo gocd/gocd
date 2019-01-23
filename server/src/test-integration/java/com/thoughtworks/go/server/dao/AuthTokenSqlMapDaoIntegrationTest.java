@@ -17,9 +17,7 @@
 package com.thoughtworks.go.server.dao;
 
 import com.thoughtworks.go.domain.AuthToken;
-import com.thoughtworks.go.helper.AuthTokenMother;
 import com.thoughtworks.go.server.cache.GoCache;
-import org.apache.commons.lang.RandomStringUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -28,11 +26,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import java.util.Date;
+import java.util.List;
 
 import static com.thoughtworks.go.helper.AuthTokenMother.authTokenWithName;
 import static com.thoughtworks.go.helper.AuthTokenMother.authTokenWithNameForUser;
 import static com.thoughtworks.go.server.dao.AuthTokenSqlMapDao.AUTH_TOKEN_CACHE_KEY;
+import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
@@ -84,6 +83,31 @@ public class AuthTokenSqlMapDaoIntegrationTest {
         String tokenName = "auth-token-for-apis";
         AuthToken savedAuthToken = authTokenSqlMapDao.findAuthToken(tokenName, username);
         assertNull(savedAuthToken);
+    }
+
+    @Test
+    public void shouldReturnAllTheAuthTokensBelongingToAUser() {
+        String user1 = "Bob";
+        String user2 = "John";
+
+        String tokenName1 = "token1-created-by-Bob";
+        String tokenName2 = "token2-created-by-Bob";
+        String tokenName3 = "token2-created-by-John";
+
+        authTokenSqlMapDao.saveOrUpdate(authTokenWithNameForUser(tokenName1, user1));
+        authTokenSqlMapDao.saveOrUpdate(authTokenWithNameForUser(tokenName2, user1));
+        authTokenSqlMapDao.saveOrUpdate(authTokenWithNameForUser(tokenName3, user2));
+
+        List<AuthToken> user1AuthTokens = authTokenSqlMapDao.findAllTokensForUser(user1);
+        List<AuthToken> user2AuthTokens = authTokenSqlMapDao.findAllTokensForUser(user2);
+
+        assertThat(user1AuthTokens, hasSize(2));
+        assertThat(user2AuthTokens, hasSize(1));
+
+        assertThat(user1AuthTokens.get(0).getName(), is(tokenName1));
+        assertThat(user1AuthTokens.get(1).getName(), is(tokenName2));
+
+        assertThat(user2AuthTokens.get(0).getName(), is(tokenName3));
     }
 
     @Test

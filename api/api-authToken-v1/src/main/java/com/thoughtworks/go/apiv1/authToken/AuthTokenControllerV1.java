@@ -61,10 +61,13 @@ public class AuthTokenControllerV1 extends ApiController implements SparkSpringC
             before("", mimeType, this::setContentType);
             before("/*", mimeType, this::setContentType);
 
-            before("", mimeType, this.apiAuthenticationHelper::checkAdminUserAnd403);
+            before("", mimeType, this.apiAuthenticationHelper::checkUserAnd403);
+            before("/*", mimeType, this.apiAuthenticationHelper::checkUserAnd403);
 
             post("", mimeType, this::createAuthToken);
             get(Routes.AuthToken.TOKEN_NAME, mimeType, this::getAuthToken);
+
+            exception(RecordNotFoundException.class, this::notFound);
         });
     }
 

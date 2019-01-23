@@ -18,31 +18,29 @@ package com.thoughtworks.go.apiv1.authToken
 
 import com.thoughtworks.go.api.SecurityTestTrait
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
-import com.thoughtworks.go.config.AdminRole
-import com.thoughtworks.go.config.AdminUser
-import com.thoughtworks.go.config.AdminsConfig
-import com.thoughtworks.go.config.CaseInsensitiveString
+import com.thoughtworks.go.api.util.HaltApiMessages
+import com.thoughtworks.go.apiv1.authToken.representers.AuthTokenRepresenter
+import com.thoughtworks.go.server.domain.Username
 import com.thoughtworks.go.server.service.AuthTokenService
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult
-import com.thoughtworks.go.spark.AdminUserSecurity
 import com.thoughtworks.go.spark.ControllerTrait
+import com.thoughtworks.go.spark.NormalUserSecurity
 import com.thoughtworks.go.spark.SecurityServiceTrait
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.Mock
-import org.mockito.Mockito
 import org.mockito.invocation.InvocationOnMock
 
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
-import static com.thoughtworks.go.apiv1.authToken.representers.AuthTokenRepresenterTest.authTokenWithName
+import static com.thoughtworks.go.helper.AuthTokenMother.authTokenWithName
 import static org.mockito.ArgumentMatchers.any
 import static org.mockito.ArgumentMatchers.eq
-import static org.mockito.Mockito.verify
 import static org.mockito.Mockito.when
 import static org.mockito.MockitoAnnotations.initMocks
 
 class AuthTokenControllerV1Test implements ControllerTrait<AuthTokenControllerV1>, SecurityServiceTrait {
+  def username = currentUsername()
 
   @Mock
   AuthTokenService authTokenService
@@ -63,10 +61,10 @@ class AuthTokenControllerV1Test implements ControllerTrait<AuthTokenControllerV1
     def token = authTokenWithName(tokenName)
 
     @Nested
-    class Security implements SecurityTestTrait, AdminUserSecurity {
+    class Security implements SecurityTestTrait, NormalUserSecurity {
       @BeforeEach
       void setUp() {
-        when(authTokenService.find(tokenName, username)).thenReturn(token)
+        when(authTokenService.find(eq(tokenName), any(Username.class))).thenReturn(token)
       }
 
       @Override
@@ -82,55 +80,53 @@ class AuthTokenControllerV1Test implements ControllerTrait<AuthTokenControllerV1
 
     @Nested
     class AsAdmin {
-      HttpLocalizedOperationResult result
-
       @BeforeEach
       void setUp() {
         enableSecurity()
         loginAsAdmin()
-        this.result = new HttpLocalizedOperationResult()
+
+        when(authTokenService.find(eq(tokenName), any(Username.class))).thenReturn(token)
       }
 
       @Test
-      void 'should render the security admins config'() {
-        getWithApiHeader(controller.controllerPath())
+      void 'should render the auth token'() {
+        getWithApiHeader(controller.controllerPath(tokenName))
 
         assertThatResponse()
           .isOk()
-          .hasEtag('"md5"')
           .hasContentType(controller.mimeType)
-          .hasBodyWithJsonObject(config, AdminsConfigRepresenter)
+          .hasBody(toObjectString({ AuthTokenRepresenter.toJSON(it, token, false) }))
       }
 
+      @Test
+      void 'should render not found when the specified auth token does not exists'() {
+        when(authTokenService.find(eq(tokenName), any(Username.class))).thenReturn(null)
+
+        getWithApiHeader(controller.controllerPath(tokenName))
+
+        assertThatResponse()
+          .isNotFound()
+          .hasJsonMessage(HaltApiMessages.notFoundMessage())
+          .hasContentType(controller.mimeType)
+      }
     }
   }
 
-
   @Nested
-  class Update {
+  class Create {
+    def tokenName = "token1"
+    def token = authTokenWithName(tokenName)
+
     @Nested
-    class Security implements SecurityTestTrait, AdminUserSecurity {
-      AdminsConfig config
-
-      @BeforeEach
-      void setUp() {
-        config = new AdminsConfig(new AdminUser(new CaseInsensitiveString("admin")))
-        when(adminsConfigService.systemAdmins()).thenReturn(config)
-        when(entityHashingService.md5ForEntity(config)).thenReturn('cached-md5')
-      }
-
+    class Security implements SecurityTestTrait, NormalUserSecurity {
       @Override
       String getControllerMethodUnderTest() {
-        return "update"
+        return "createAuthToken"
       }
 
       @Override
       void makeHttpCall() {
-        sendRequest('put', controller.controllerPath(), [
-          'accept'      : controller.mimeType,
-          'If-Match'    : 'cached-md5',
-          'content-type': 'application/json'
-        ], toObjectString({ AdminsConfigRepresenter.toJSON(it, this.config) }))
+        postWithApiHeader(controller.controllerPath(), [:])
       }
     }
 
@@ -140,68 +136,71 @@ class AuthTokenControllerV1Test implements ControllerTrait<AuthTokenControllerV1
       void setUp() {
         enableSecurity()
         loginAsAdmin()
+
+        when(authTokenService.create(eq(tokenName), eq(token.description), any(Username.class), any(HttpLocalizedOperationResult.class))).thenReturn(token)
       }
 
       @Test
-      void 'should update the system admins'() {
-        AdminsConfig configInServer = new AdminsConfig(new AdminUser(new CaseInsensitiveString("admin")))
-        AdminsConfig configFromRequest = new AdminsConfig(new AdminUser(new CaseInsensitiveString("admin")),
-          new AdminUser(new CaseInsensitiveString("new_admin")))
+      void 'should create a new auth token'() {
+        def requestBody = [
+          name       : token.name,
+          description: token.description
+        ]
 
-        when(adminsConfigService.systemAdmins()).thenReturn(configInServer)
-        when(entityHashingService.md5ForEntity(configInServer)).thenReturn("cached-md5")
+        postWithApiHeader(controller.controllerPath(), requestBody)
 
-        putWithApiHeader(controller.controllerPath(), ['if-match': 'cached-md5'], toObjectString({
-          AdminsConfigRepresenter.toJSON(it, configFromRequest)
-        }))
-
-        verify(adminsConfigService).update(any(), eq(configFromRequest), eq("cached-md5"), any(HttpLocalizedOperationResult.class));
         assertThatResponse()
           .isOk()
           .hasContentType(controller.mimeType)
-          .hasBodyWithJsonObject(configFromRequest, AdminsConfigRepresenter)
+          .hasBody(toObjectString({ AuthTokenRepresenter.toJSON(it, token, true) }))
       }
 
       @Test
-      void 'should return a response with errors if update fails'() {
-        AdminsConfig configInServer = new AdminsConfig(new AdminUser(new CaseInsensitiveString("admin")))
-        AdminsConfig configFromRequest = new AdminsConfig(new AdminUser(new CaseInsensitiveString("admin")),
-          new AdminUser(new CaseInsensitiveString("new_admin")))
+      void 'should create a new auth token without providing token description'() {
+        token.setDescription(null)
+        when(authTokenService.create(eq(tokenName), eq(token.description), any(Username.class), any(HttpLocalizedOperationResult.class))).thenReturn(token)
 
+        def requestBody = [
+          name: token.name
+        ]
 
-        when(adminsConfigService.systemAdmins()).thenReturn(configInServer)
-        when(entityHashingService.md5ForEntity(configInServer)).thenReturn("cached-md5")
-        when(adminsConfigService.update(any(), eq(configFromRequest), eq("cached-md5"), any(HttpLocalizedOperationResult.class))).then({ InvocationOnMock invocation ->
-          HttpLocalizedOperationResult result = invocation.getArguments().last()
-          result.unprocessableEntity("validation failed")
-        })
+        postWithApiHeader(controller.controllerPath(), requestBody)
 
-        putWithApiHeader(controller.controllerPath(), ['if-match': 'cached-md5'], toObjectString({
-          AdminsConfigRepresenter.toJSON(it, configFromRequest)
-        }))
+        assertThatResponse()
+          .isOk()
+          .hasContentType(controller.mimeType)
+          .hasBody(toObjectString({ AuthTokenRepresenter.toJSON(it, token, true) }))
+      }
+
+      @Test
+      void 'should fail to create a new auth token when no token name is specified'() {
+        def requestBody = [
+          no_name: token.name
+        ]
+
+        postWithApiHeader(controller.controllerPath(), requestBody)
 
         assertThatResponse()
           .isUnprocessableEntity()
-          .hasContentType(controller.mimeType)
-          .hasJsonMessage("validation failed")
       }
 
       @Test
-      void 'should not update a stale system admins request'() {
-        AdminsConfig systemAdminsRequest = new AdminsConfig(new AdminRole(new CaseInsensitiveString("admin")))
-        AdminsConfig systemAdminsInServer = new AdminsConfig(new AdminRole(new CaseInsensitiveString("role1")))
+      void 'should show errors occurred while creating a new auth token'() {
+        when(authTokenService.create(eq(tokenName), eq(token.description), any(Username.class), any(HttpLocalizedOperationResult.class))).then({ InvocationOnMock invocation ->
+          HttpLocalizedOperationResult result = invocation.getArguments().last()
+          result.unprocessableEntity("Boom!")
+        })
 
-        when(adminsConfigService.systemAdmins()).thenReturn(systemAdminsInServer)
-        when(entityHashingService.md5ForEntity(systemAdminsInServer)).thenReturn('cached-md5')
+        def requestBody = [
+          name       : token.name,
+          description: token.description
+        ]
 
-        putWithApiHeader(controller.controllerPath(), ['if-match': 'some-string'], toObjectString({
-          AdminsConfigRepresenter.toJSON(it, systemAdminsRequest)
-        }))
+        postWithApiHeader(controller.controllerPath(), requestBody)
 
-        verify(adminsConfigService, Mockito.never()).update(any(), any(), any(), any())
-        assertThatResponse().isPreconditionFailed()
-          .hasContentType(controller.mimeType)
-          .hasJsonMessage("Someone has modified the entity. Please update your copy with the changes and try again.")
+        assertThatResponse()
+          .isUnprocessableEntity()
+          .hasJsonMessage("Boom!")
       }
     }
   }

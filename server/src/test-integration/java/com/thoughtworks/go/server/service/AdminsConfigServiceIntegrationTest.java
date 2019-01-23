@@ -109,7 +109,7 @@ public class AdminsConfigServiceIntegrationTest {
         adminsConfigService.update(USERNAME, newSystemAdmins, md5ForEntity, result);
 
         assertThat(result.httpCode(), is(422));
-        assertThat(result.message(), is("Validation failed while updating System Admins, check errors."));
+        assertThat(result.message(), is("Validations failed for admins. Error(s): [Role \"qas\" does not exist.]. Please correct and resubmit."));
         assertThat(adminsConfigService.systemAdmins().size(), is(0));
         assertThat(newSystemAdmins.errors().on("roles"), is("Role \"qas\" does not exist."));
     }

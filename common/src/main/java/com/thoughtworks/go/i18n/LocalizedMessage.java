@@ -157,6 +157,10 @@ public abstract class LocalizedMessage {
         return "Validations failed for " + entityType + " '" + entityName + "'. Error(s): [" + errors + "]. Please correct and resubmit.";
     }
 
+    public static String entityConfigValidationFailed(String entityType, String errors) {
+        return "Validations failed for " + entityType + ". Error(s): [" + errors + "]. Please correct and resubmit.";
+    }
+
     public static String entityConfigValidationFailed(String entityType, CaseInsensitiveString entityName, String errors) {
         return entityConfigValidationFailed(entityType, entityName.toString(), errors);
     }

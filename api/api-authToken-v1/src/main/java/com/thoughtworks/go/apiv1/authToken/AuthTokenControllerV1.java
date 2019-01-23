@@ -86,7 +86,8 @@ public class AuthTokenControllerV1 extends ApiController implements SparkSpringC
     }
 
     public String getAuthToken(Request request, Response response) throws Exception {
-        final AuthToken token = findAuthToken(request.params("token_name"));
+        final AuthToken token = authTokenService.find(request.params("token_name"));
+
         if (token == null) {
             throw new RecordNotFoundException();
         }
@@ -98,7 +99,4 @@ public class AuthTokenControllerV1 extends ApiController implements SparkSpringC
         return writerForTopLevelObject(request, response, outputWriter -> AuthTokenRepresenter.toJSON(outputWriter, token, includeTokenValue));
     }
 
-    private AuthToken findAuthToken(String tokenName) {
-        return authTokenService.find(tokenName);
-    }
 }

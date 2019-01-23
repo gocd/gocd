@@ -44,7 +44,10 @@ export namespace ModalManager {
       view() {
         return (
           _.map(allModals, (entry) => {
-            return <div key={entry.key} data-test-id={entry.key} class={styles.overlayBg}>{m(entry.value)}</div>;
+            return <div key={entry.key}
+                        data-test-id={entry.key}
+                        class={styles.overlayBg}
+                        onclick={(event) => overlayBackgroundClicked(event, entry.value)}>{m(entry.value)}</div>;
           })
         );
       }
@@ -56,14 +59,12 @@ export namespace ModalManager {
     allModals.push({key: modal.id, value: modal});
     document.body.classList.add(styles.fixed);
     m.redraw();
-    addOutsideClickListener(modal);
   }
 
   export function close(modal: Modal) {
     _.remove(allModals, (entry) => entry.key === modal.id);
     document.body.classList.remove(styles.fixed);
     m.redraw();
-    removeOutsideClickListener(modal);
   }
 
   export function closeAll() {
@@ -72,20 +73,10 @@ export namespace ModalManager {
     });
   }
 
-  function overlayBackgroundClicked(modal: Modal) {
-    return (event: Event) => {
-      const overlayBg = document.getElementsByClassName(styles.overlayBg).item(0);
-      if (event.target === overlayBg) {
-        modal.close();
-      }
-    };
-  }
-
-  function addOutsideClickListener(modal: Modal) {
-    modalContainer.addEventListener("click", overlayBackgroundClicked(modal));
-  }
-
-  function removeOutsideClickListener(modal: Modal) {
-    modalContainer.removeEventListener("click", overlayBackgroundClicked(modal));
+  function overlayBackgroundClicked(event: Event, modal: Modal) {
+    const overlayBg = document.getElementsByClassName(styles.overlayBg).item(0);
+    if (event.target === overlayBg) {
+      modal.close();
+    }
   }
 }

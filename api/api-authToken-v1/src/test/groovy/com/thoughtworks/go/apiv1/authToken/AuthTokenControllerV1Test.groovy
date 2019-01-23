@@ -40,8 +40,6 @@ import static org.mockito.Mockito.when
 import static org.mockito.MockitoAnnotations.initMocks
 
 class AuthTokenControllerV1Test implements ControllerTrait<AuthTokenControllerV1>, SecurityServiceTrait {
-  def username = currentUsername()
-
   @Mock
   AuthTokenService authTokenService
 
@@ -187,7 +185,7 @@ class AuthTokenControllerV1Test implements ControllerTrait<AuthTokenControllerV1
       @Test
       void 'should show errors occurred while creating a new auth token'() {
         when(authTokenService.create(eq(tokenName), eq(token.description), any(Username.class), any(HttpLocalizedOperationResult.class))).then({ InvocationOnMock invocation ->
-          HttpLocalizedOperationResult result = invocation.getArguments().last()
+          HttpLocalizedOperationResult result = invocation.getArguments().last() as HttpLocalizedOperationResult
           result.unprocessableEntity("Boom!")
         })
 

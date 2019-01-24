@@ -43,7 +43,7 @@ export class SiteFooter extends MithrilViewComponent<Attrs> {
           <a href={`/go/assets/dependency-license-report-${vnode.attrs.fullVersion}`} target="_blank">
             third-party software
           </a>.
-          <div>GoCD Version: {vnode.attrs.formattedVersion}.</div>
+          <span className={styles.gocdVersion}>GoCD Version: {vnode.attrs.formattedVersion}.</span>
         </p>
       </div>
       <div class={styles.right}>

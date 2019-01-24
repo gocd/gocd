@@ -38,6 +38,7 @@ $drain-mode-banner-message-font-size: 17px;
   display:         flex;
   flex-direction:  column;
   justify-content: space-between;
+  line-height:     19px;
   @media(min-width: $screen-md) {
     flex-direction: row;
   }
@@ -61,6 +62,10 @@ $drain-mode-banner-message-font-size: 17px;
   font-size:  12px;
   margin:     0;
 
+  a {
+    color: $link-color;
+  }
+
 }
 
 .right {
@@ -74,6 +79,10 @@ $drain-mode-banner-message-font-size: 17px;
   @media(min-width: $screen-lg) {
     width: 30%;
   }
+}
+
+.gocd-version {
+  display: block;
 }
 
 .social a {

@@ -5,6 +5,7 @@ export const footer: string;
 export const left: string;
 export const content: string;
 export const right: string;
+export const gocdVersion: string;
 export const social: string;
 export const twitter: string;
 export const github: string;

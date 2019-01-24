@@ -267,6 +267,6 @@ public class SecurityAuthConfigServiceTest {
     private AuthorizationPluginInfo pluginInfo(String githubPluginId, String name, SupportedAuthType supportedAuthType) {
         GoPluginDescriptor.About about = new GoPluginDescriptor.About(name, "1.0", null, null, null, null);
         GoPluginDescriptor descriptor = new GoPluginDescriptor(githubPluginId, "1.0", about, null, null, false);
-        return new AuthorizationPluginInfo(descriptor, null, null, new Image("svg", "data", "hash"), new Capabilities(supportedAuthType, true, true));
+        return new AuthorizationPluginInfo(descriptor, null, null, new Image("svg", "data", "hash"), new Capabilities(supportedAuthType, true, true, false));
     }
 }

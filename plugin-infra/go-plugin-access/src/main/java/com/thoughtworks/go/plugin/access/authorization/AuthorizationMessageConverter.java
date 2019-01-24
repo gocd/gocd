@@ -18,9 +18,9 @@ package com.thoughtworks.go.plugin.access.authorization;
 
 import com.thoughtworks.go.config.PluginRoleConfig;
 import com.thoughtworks.go.config.SecurityAuthConfig;
-import com.thoughtworks.go.plugin.access.authorization.models.AuthenticationResponse;
-import com.thoughtworks.go.plugin.access.authorization.models.User;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
+import com.thoughtworks.go.plugin.domain.authorization.AuthenticationResponse;
+import com.thoughtworks.go.plugin.domain.authorization.User;
 import com.thoughtworks.go.plugin.domain.common.PluginConfiguration;
 import com.thoughtworks.go.plugin.domain.common.VerifyConnectionResponse;
 
@@ -50,6 +50,8 @@ public interface AuthorizationMessageConverter {
 
     String authenticateUserRequestBody(String username, String password, List<SecurityAuthConfig> authConfigs, List<PluginRoleConfig> roleConfigs);
 
+    String authenticateUserRequestBody(String username, List<SecurityAuthConfig> authConfigs, List<PluginRoleConfig> roleConfigs);
+
     AuthenticationResponse getAuthenticatedUserFromResponseBody(String responseBody);
 
     List<User> getSearchUsersFromResponseBody(String responseBody);
@@ -67,4 +69,6 @@ public interface AuthorizationMessageConverter {
     String getAuthorizationServerUrl(String responseBody);
 
     String authorizationServerUrlRequestBody(String pluginId, List<SecurityAuthConfig> authConfigs, String siteUrl);
+
+
 }

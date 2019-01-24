@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,14 +14,15 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.plugin.access.authorization.models;
+package com.thoughtworks.go.plugin.access.authorization.v2;
 
+import com.thoughtworks.go.plugin.domain.common.VerifyConnectionResponse;
 import org.junit.Test;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.*;
 
-public class VerifyConnectionResponseTest {
+public class VerifyConnectionResponseDTOTest {
 
     @Test
     public void shouldDeserializeSuccessResponseFromJSON() throws Exception {
@@ -30,7 +31,7 @@ public class VerifyConnectionResponseTest {
                 "  \"message\": \"Connection check passed\"\n" +
                 "}";
 
-        com.thoughtworks.go.plugin.domain.common.VerifyConnectionResponse response = VerifyConnectionResponse.fromJSON(json).response();
+        VerifyConnectionResponse response = VerifyConnectionResponseDTO.fromJSON(json).response();
 
         assertThat(response.getStatus(), is("success"));
         assertThat(response.getMessage(), is("Connection check passed"));
@@ -44,7 +45,7 @@ public class VerifyConnectionResponseTest {
                 "  \"message\": \"Connection check failed\"\n" +
                 "}";
 
-        com.thoughtworks.go.plugin.domain.common.VerifyConnectionResponse response = VerifyConnectionResponse.fromJSON(json).response();
+        VerifyConnectionResponse response = VerifyConnectionResponseDTO.fromJSON(json).response();
 
         assertThat(response.getStatus(), is("failure"));
         assertThat(response.getMessage(), is("Connection check failed"));
@@ -68,7 +69,7 @@ public class VerifyConnectionResponseTest {
                 "  ]\n" +
                 "}";
 
-        com.thoughtworks.go.plugin.domain.common.VerifyConnectionResponse response = VerifyConnectionResponse.fromJSON(json).response();
+        VerifyConnectionResponse response = VerifyConnectionResponseDTO.fromJSON(json).response();
 
         assertThat(response.getStatus(), is("validation-failed"));
         assertThat(response.getMessage(), is("Validation failed"));

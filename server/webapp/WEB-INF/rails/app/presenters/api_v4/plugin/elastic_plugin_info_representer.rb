@@ -29,7 +29,6 @@ module ApiV4
                skip_nil: true,
                expect_hash: true,
                inherit: false,
-               class: com.thoughtworks.go.plugin.domain.elastic.Capabilities,
                decorator: ElasticPluginCapabilitiesRepresenter
     end
   end

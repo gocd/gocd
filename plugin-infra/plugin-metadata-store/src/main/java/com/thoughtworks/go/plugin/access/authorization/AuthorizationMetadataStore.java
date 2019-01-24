@@ -18,10 +18,12 @@ package com.thoughtworks.go.plugin.access.authorization;
 
 import com.thoughtworks.go.plugin.access.common.MetadataStore;
 import com.thoughtworks.go.plugin.domain.authorization.AuthorizationPluginInfo;
+import com.thoughtworks.go.plugin.domain.authorization.Capabilities;
 import com.thoughtworks.go.plugin.domain.authorization.SupportedAuthType;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.function.Predicate;
 
 public class AuthorizationMetadataStore extends MetadataStore<AuthorizationPluginInfo> {
     private static final AuthorizationMetadataStore store = new AuthorizationMetadataStore();
@@ -48,13 +50,11 @@ public class AuthorizationMetadataStore extends MetadataStore<AuthorizationPlugi
     }
 
     public Set<String> getPluginsThatSupportsUserSearch() {
-        Set<String> plugins = new HashSet<>();
-        for (AuthorizationPluginInfo pluginInfo : this.pluginInfos.values()) {
-            if (pluginInfo.getCapabilities().canSearch()) {
-                plugins.add(pluginInfo.getDescriptor().id());
-            }
-        }
-        return plugins;
+        return getPluginsWithCapabilities(Capabilities::canSearch);
+    }
+
+    public Set<String> getPluginsThatSupportsGetUserRoles() {
+        return getPluginsWithCapabilities(Capabilities::canGetUserRoles);
     }
 
     public Set<AuthorizationPluginInfo> getPluginsThatSupportsWebBasedAuthentication() {
@@ -75,5 +75,19 @@ public class AuthorizationMetadataStore extends MetadataStore<AuthorizationPlugi
         }
 
         return pluginInfos.get(pluginId).getCapabilities().getSupportedAuthType() == SupportedAuthType.Web;
+    }
+
+    public boolean doesPluginSupportTokenBasedAuthentication(String pluginId) {
+        return getPluginsThatSupportsGetUserRoles().contains(pluginId);
+    }
+
+    private Set<String> getPluginsWithCapabilities(Predicate<Capabilities> predicate) {
+        Set<String> plugins = new HashSet<>();
+        for (AuthorizationPluginInfo pluginInfo : this.pluginInfos.values()) {
+            if (predicate.test(pluginInfo.getCapabilities())) {
+                plugins.add(pluginInfo.getDescriptor().id());
+            }
+        }
+        return plugins;
     }
 }

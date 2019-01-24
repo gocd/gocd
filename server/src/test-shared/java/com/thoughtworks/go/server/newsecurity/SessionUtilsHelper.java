@@ -16,10 +16,7 @@
 
 package com.thoughtworks.go.server.newsecurity;
 
-import com.thoughtworks.go.server.newsecurity.models.AccessToken;
-import com.thoughtworks.go.server.newsecurity.models.AnonymousCredential;
-import com.thoughtworks.go.server.newsecurity.models.AuthenticationToken;
-import com.thoughtworks.go.server.newsecurity.models.UsernamePassword;
+import com.thoughtworks.go.server.newsecurity.models.*;
 import com.thoughtworks.go.server.newsecurity.utils.SessionUtils;
 import com.thoughtworks.go.server.security.GoAuthority;
 import com.thoughtworks.go.server.security.userdetail.GoUserPrinciple;
@@ -93,6 +90,13 @@ public class SessionUtilsHelper {
         return goUserPrinciple;
     }
 
+    public static GoUserPrinciple loginAs(HttpServletRequest request, String username, GrantedAuthority... grantedAuthorities) {
+        final GoUserPrinciple goUserPrinciple = loginAs(username, grantedAuthorities);
+        final AuthenticationToken<AuthTokenCredential> authenticationToken = new AuthenticationToken<>(goUserPrinciple,
+                new AuthTokenCredential(goUserPrinciple.getUsername()), null, 0L, null);
+        SessionUtils.setAuthenticationTokenAfterRecreatingSession(authenticationToken, request);
+        return goUserPrinciple;
+    }
 
     public static GoUserPrinciple loginAsRandomUser(HttpServletRequest request,
                                                     GrantedAuthority... grantedAuthorities) {

@@ -39,7 +39,7 @@ public class AuthorizationPluginInfoBuilderTest {
     @Before
     public void setUp() throws Exception {
         extension = mock(AuthorizationExtension.class);
-        when(extension.getCapabilities(any(String.class))).thenReturn(new Capabilities(SupportedAuthType.Password, true, true));
+        when(extension.getCapabilities(any(String.class))).thenReturn(new Capabilities(SupportedAuthType.Password, true, true, false));
     }
 
     @Test
@@ -77,7 +77,7 @@ public class AuthorizationPluginInfoBuilderTest {
     @Test
     public void shouldNotHaveRoleSettingsInPluginInfoIfPluginCannotAuthorize() throws Exception {
         GoPluginDescriptor descriptor = new GoPluginDescriptor("plugin1", null, null, null, null, false);
-        Capabilities capabilities = new Capabilities(SupportedAuthType.Password, true, false);
+        Capabilities capabilities = new Capabilities(SupportedAuthType.Password, true, false, false);
 
         when(extension.getCapabilities(descriptor.id())).thenReturn(capabilities);
 
@@ -110,7 +110,7 @@ public class AuthorizationPluginInfoBuilderTest {
     @Test
     public void shouldBuildPluginInfoWithCapablities() throws Exception {
         GoPluginDescriptor descriptor = new GoPluginDescriptor("plugin1", null, null, null, null, false);
-        Capabilities capabilities = new Capabilities(SupportedAuthType.Password, true, true);
+        Capabilities capabilities = new Capabilities(SupportedAuthType.Password, true, true, false);
 
         when(extension.getCapabilities(descriptor.id())).thenReturn(capabilities);
 

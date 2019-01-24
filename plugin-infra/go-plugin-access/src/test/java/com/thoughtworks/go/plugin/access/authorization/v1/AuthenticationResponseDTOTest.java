@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,16 +14,14 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.plugin.access.authorization;
+package com.thoughtworks.go.plugin.access.authorization.v1;
 
-import com.thoughtworks.go.plugin.access.authorization.models.AuthenticationResponse;
-import com.thoughtworks.go.plugin.access.authorization.models.User;
 import org.junit.Test;
 
-import static org.junit.Assert.assertThat;
 import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.assertThat;
 
-public class AuthenticationResponseTest {
+public class AuthenticationResponseDTOTest {
 
     @Test
     public void shouldAbleToDeserializeJSON() throws Exception {
@@ -37,9 +35,9 @@ public class AuthenticationResponseTest {
                 "  \"roles\": [\"admin\",\"blackbird\"]\n" +
                 "}";
 
-        AuthenticationResponse authenticationResponse = AuthenticationResponse.fromJSON(json);
+        AuthenticationResponseDTO authenticationResponse = AuthenticationResponseDTO.fromJSON(json);
 
-        assertThat(authenticationResponse.getUser(), is(new User("gocd", "GoCD Admin", "gocd@go.cd")));
+        assertThat(authenticationResponse.getUser(), is(new UserDTO("gocd", "GoCD Admin", "gocd@go.cd")));
         assertThat(authenticationResponse.getRoles(), hasSize(2));
         assertThat(authenticationResponse.getRoles(), containsInAnyOrder("admin", "blackbird"));
     }

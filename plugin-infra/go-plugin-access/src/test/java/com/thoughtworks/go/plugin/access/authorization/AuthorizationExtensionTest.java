@@ -20,22 +20,22 @@ import com.thoughtworks.go.config.PluginRoleConfig;
 import com.thoughtworks.go.config.SecurityAuthConfig;
 import com.thoughtworks.go.config.SecurityAuthConfigs;
 import com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother;
-import com.thoughtworks.go.plugin.access.authorization.models.AuthenticationResponse;
-import com.thoughtworks.go.plugin.access.authorization.models.SupportedAuthType;
-import com.thoughtworks.go.plugin.access.authorization.models.User;
 import com.thoughtworks.go.plugin.access.common.AbstractExtension;
 import com.thoughtworks.go.plugin.api.request.GoPluginApiRequest;
 import com.thoughtworks.go.plugin.api.response.DefaultGoPluginApiResponse;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationError;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
+import com.thoughtworks.go.plugin.domain.authorization.AuthenticationResponse;
+import com.thoughtworks.go.plugin.domain.authorization.SupportedAuthType;
+import com.thoughtworks.go.plugin.domain.authorization.User;
 import com.thoughtworks.go.plugin.domain.common.Metadata;
 import com.thoughtworks.go.plugin.domain.common.PluginConfiguration;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.function.Executable;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 
@@ -47,9 +47,10 @@ import static com.thoughtworks.go.plugin.access.authorization.AuthorizationPlugi
 import static com.thoughtworks.go.plugin.api.response.DefaultGoPluginApiResponse.SUCCESS_RESPONSE_CODE;
 import static com.thoughtworks.go.plugin.domain.common.PluginConstants.AUTHORIZATION_EXTENSION;
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson;
-import static org.junit.Assert.assertThat;
 import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
@@ -61,13 +62,10 @@ public class AuthorizationExtensionTest {
     private ArgumentCaptor<GoPluginApiRequest> requestArgumentCaptor;
     private AuthorizationExtension authorizationExtension;
 
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
-
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         initMocks(this);
-        when(pluginManager.resolveExtensionVersion(PLUGIN_ID, AUTHORIZATION_EXTENSION, Arrays.asList("1.0"))).thenReturn("1.0");
+        when(pluginManager.resolveExtensionVersion(PLUGIN_ID, AUTHORIZATION_EXTENSION, Arrays.asList("1.0", "2.0"))).thenReturn("1.0");
         when(pluginManager.isPluginOfType(AUTHORIZATION_EXTENSION, PLUGIN_ID)).thenReturn(true);
 
         authorizationExtension = new AuthorizationExtension(pluginManager);
@@ -267,12 +265,14 @@ public class AuthorizationExtensionTest {
     }
 
     @Test
-    public void authenticateUser_shouldErrorOutInAbsenceOfSecurityAuthConfigs() throws Exception {
-        thrown.expect(MissingAuthConfigsException.class);
-        thrown.expectMessage("No AuthConfigs configured for plugin: plugin-id, Plugin would need at-least one auth_config to authenticate user.");
+    void authenticateUser_shouldErrorOutInAbsenceOfSecurityAuthConfigs() {
+        Executable codeThatShouldThrowError = () -> {
+            authorizationExtension.authenticateUser(PLUGIN_ID, "bob", "secret", null, null);
+        };
 
-        authorizationExtension.authenticateUser(PLUGIN_ID, "bob", "secret", null, null);
+        MissingAuthConfigsException exception = assertThrows(MissingAuthConfigsException.class, codeThatShouldThrowError);
 
+        assertThat(exception.getMessage(), equalTo("No AuthConfigs configured for plugin: plugin-id, Plugin would need at-least one auth_config to authenticate user."));
         verifyNoMoreInteractions(pluginManager);
     }
 
@@ -321,6 +321,63 @@ public class AuthorizationExtensionTest {
 
         assertRequest(requestArgumentCaptor.getValue(), AUTHORIZATION_EXTENSION, "1.0", REQUEST_AUTHORIZATION_SERVER_URL, requestBody);
         assertThat(authorizationServerRedirectUrl, is("url_to_authorization_server"));
+    }
+
+
+    @Nested
+    class AuthorizationExtension_v2 {
+        @BeforeEach
+        public void setup() {
+            when(pluginManager.resolveExtensionVersion(PLUGIN_ID, AUTHORIZATION_EXTENSION, Arrays.asList("1.0", "2.0"))).thenReturn("2.0");
+        }
+
+        @Test
+        public void shouldTalkToPlugin_To_GetUserRoles() {
+            String requestBody = "{\"auth_configs\":[{\"configuration\":{\"foo\":\"bar\"},\"id\":\"ldap\"}],\"role_configs\":[],\"username\":\"fooUser\"}";
+            String responseBody = "{\n" +
+                    "  \"user\": {\n" +
+                    "      \"username\":\"bob\",\n" +
+                    "      \"display_name\": \"Bob\",\n" +
+                    "      \"email\": \"bob@example.com\"\n" +
+                    "  },\n" +
+                    "  \"roles\": [\"super-admin\", \"view-only\", \"operator\"] \n" +
+                    "}";
+
+            when(pluginManager.submitTo(eq(PLUGIN_ID), eq(AUTHORIZATION_EXTENSION), requestArgumentCaptor.capture())).thenReturn(new DefaultGoPluginApiResponse(SUCCESS_RESPONSE_CODE, responseBody));
+
+
+            AuthenticationResponse authenticationResponse = authorizationExtension.authenticateUser(PLUGIN_ID, "fooUser", Collections.singletonList(new SecurityAuthConfig("ldap", "cd.go.ldap", ConfigurationPropertyMother.create("foo", false, "bar"))), Collections.emptyList());
+
+            assertRequest(requestArgumentCaptor.getValue(), AUTHORIZATION_EXTENSION, "2.0", REQUEST_GET_USER_ROLES, requestBody);
+            assertThat(authenticationResponse.getUser(), is(new User("bob", "Bob", "bob@example.com")));
+            assertThat(authenticationResponse.getRoles(), hasSize(3));
+            assertThat(authenticationResponse.getRoles(), equalTo(Arrays.asList("super-admin", "view-only", "operator")));
+        }
+
+        @Test
+        void authenticateUser_shouldErrorOutInAbsenceOfSecurityAuthConfigs() {
+            Executable codeThatShouldThrowError = () -> {
+                authorizationExtension.authenticateUser(PLUGIN_ID, "fooUser", null, null);
+            };
+
+            MissingAuthConfigsException exception = assertThrows(MissingAuthConfigsException.class, codeThatShouldThrowError);
+
+            assertThat(exception.getMessage(), equalTo("No AuthConfigs configured for plugin: plugin-id, Plugin would need at-least one auth_config to authenticate user."));
+            verifyNoMoreInteractions(pluginManager);
+        }
+
+        @Test
+        public void shouldTalkToPlugin_To_GetCapabilities() {
+            String responseBody = "{\"supported_auth_type\":\"password\",\"can_search\":true,\"can_get_user_roles\":true}";
+            when(pluginManager.submitTo(eq(PLUGIN_ID), eq(AUTHORIZATION_EXTENSION), requestArgumentCaptor.capture())).thenReturn(new DefaultGoPluginApiResponse(SUCCESS_RESPONSE_CODE, responseBody));
+
+            com.thoughtworks.go.plugin.domain.authorization.Capabilities capabilities = authorizationExtension.getCapabilities(PLUGIN_ID);
+
+            assertRequest(requestArgumentCaptor.getValue(), AUTHORIZATION_EXTENSION, "2.0", REQUEST_GET_CAPABILITIES, null);
+            assertThat(capabilities.getSupportedAuthType().toString(), is(SupportedAuthType.Password.toString()));
+            assertThat(capabilities.canSearch(), is(true));
+            assertThat(capabilities.canGetUserRoles(), is(true));
+        }
     }
 
     private void assertRequest(GoPluginApiRequest goPluginApiRequest, String extensionName, String version, String requestName, String requestBody) {

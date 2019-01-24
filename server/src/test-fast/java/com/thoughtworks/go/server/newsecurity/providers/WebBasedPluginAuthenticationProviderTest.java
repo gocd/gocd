@@ -21,11 +21,7 @@ import com.thoughtworks.go.domain.ServerSiteUrlConfig;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
 import com.thoughtworks.go.plugin.access.authorization.AuthorizationExtension;
 import com.thoughtworks.go.plugin.access.authorization.AuthorizationMetadataStore;
-import com.thoughtworks.go.plugin.access.authorization.models.AuthenticationResponse;
-import com.thoughtworks.go.plugin.access.authorization.models.User;
-import com.thoughtworks.go.plugin.domain.authorization.AuthorizationPluginInfo;
-import com.thoughtworks.go.plugin.domain.authorization.Capabilities;
-import com.thoughtworks.go.plugin.domain.authorization.SupportedAuthType;
+import com.thoughtworks.go.plugin.domain.authorization.*;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import com.thoughtworks.go.server.newsecurity.models.AccessToken;
 import com.thoughtworks.go.server.newsecurity.models.AuthenticationToken;
@@ -356,7 +352,7 @@ class WebBasedPluginAuthenticationProviderTest {
     private void addPluginSupportingWebBasedAuthentication(String pluginId) {
         AuthorizationPluginInfo pluginInfo = new AuthorizationPluginInfo(
                 new GoPluginDescriptor(pluginId, null, null, null, null, false), null, null, null,
-                new Capabilities(SupportedAuthType.Web, true, false));
+                new Capabilities(SupportedAuthType.Web, true, false, false));
         AuthorizationMetadataStore.instance().setPluginInfo(pluginInfo);
     }
 }

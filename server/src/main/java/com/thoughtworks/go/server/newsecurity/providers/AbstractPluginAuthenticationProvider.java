@@ -20,7 +20,8 @@ import com.thoughtworks.go.CurrentGoCDVersion;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.PluginRoleConfig;
 import com.thoughtworks.go.config.SecurityAuthConfig;
-import com.thoughtworks.go.plugin.access.authorization.models.AuthenticationResponse;
+import com.thoughtworks.go.plugin.domain.authorization.AuthenticationResponse;
+import com.thoughtworks.go.plugin.domain.authorization.User;
 import com.thoughtworks.go.server.newsecurity.models.AuthenticationToken;
 import com.thoughtworks.go.server.newsecurity.models.Credentials;
 import com.thoughtworks.go.server.security.AuthorityGranter;
@@ -116,7 +117,7 @@ public abstract class AbstractPluginAuthenticationProvider<T extends Credentials
             LOGGER.debug("Authenticating user using the authorization plugin: `{}`", pluginId);
             AuthenticationResponse response = authenticateWithExtension(pluginId, credentials, authConfig, roleConfigs);
 
-            com.thoughtworks.go.plugin.access.authorization.models.User user = ensureDisplayNamePresent(response.getUser());
+            User user = ensureDisplayNamePresent(response.getUser());
             if (user != null) {
                 userService.addUserIfDoesNotExist(toDomainUser(user));
 

@@ -20,12 +20,14 @@ import com.thoughtworks.go.config.PluginRoleConfig;
 import com.thoughtworks.go.config.SecurityAuthConfig;
 import com.thoughtworks.go.plugin.access.DefaultPluginInteractionCallback;
 import com.thoughtworks.go.plugin.access.PluginRequestHelper;
-import com.thoughtworks.go.plugin.access.authorization.models.AuthenticationResponse;
-import com.thoughtworks.go.plugin.access.authorization.models.User;
+import com.thoughtworks.go.plugin.access.authorization.v1.AuthorizationMessageConverterV1;
+import com.thoughtworks.go.plugin.access.authorization.v2.AuthorizationMessageConverterV2;
 import com.thoughtworks.go.plugin.access.common.AbstractExtension;
 import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsJsonMessageHandler;
 import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsJsonMessageHandler1_0;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
+import com.thoughtworks.go.plugin.domain.authorization.AuthenticationResponse;
+import com.thoughtworks.go.plugin.domain.authorization.User;
 import com.thoughtworks.go.plugin.domain.common.PluginConfiguration;
 import com.thoughtworks.go.plugin.domain.common.VerifyConnectionResponse;
 import com.thoughtworks.go.plugin.infra.PluginManager;
@@ -49,9 +51,11 @@ public class AuthorizationExtension extends AbstractExtension {
         super(pluginManager, new PluginRequestHelper(pluginManager, SUPPORTED_VERSIONS, AUTHORIZATION_EXTENSION), AUTHORIZATION_EXTENSION);
         addHandler(AuthorizationMessageConverterV1.VERSION, new PluginSettingsJsonMessageHandler1_0(), new AuthorizationMessageConverterV1()
         );
+        addHandler(AuthorizationMessageConverterV2.VERSION, new PluginSettingsJsonMessageHandler1_0(), new AuthorizationMessageConverterV2()
+        );
     }
 
-    private void addHandler(String version, PluginSettingsJsonMessageHandler messageHandler, AuthorizationMessageConverterV1 extensionHandler) {
+    private void addHandler(String version, PluginSettingsJsonMessageHandler messageHandler, AuthorizationMessageConverter extensionHandler) {
         registerHandler(version, messageHandler);
         messageHandlerMap.put(version, extensionHandler);
     }
@@ -112,9 +116,7 @@ public class AuthorizationExtension extends AbstractExtension {
     }
 
     public AuthenticationResponse authenticateUser(String pluginId, final String username, final String password, List<SecurityAuthConfig> authConfigs, List<PluginRoleConfig> pluginRoleConfigs) {
-        if (authConfigs == null || authConfigs.isEmpty()) {
-            throw new MissingAuthConfigsException(String.format("No AuthConfigs configured for plugin: %s, Plugin would need at-least one auth_config to authenticate user.", pluginId));
-        }
+        errorOutIfEmpty(authConfigs, pluginId);
         return pluginRequestHelper.submitRequest(pluginId, REQUEST_AUTHENTICATE_USER, new DefaultPluginInteractionCallback<AuthenticationResponse>() {
             @Override
             public String requestBody(String resolvedExtensionVersion) {
@@ -207,14 +209,27 @@ public class AuthorizationExtension extends AbstractExtension {
         });
     }
 
+    public AuthenticationResponse authenticateUser(String pluginId, String username, List<SecurityAuthConfig> authConfigs, List<PluginRoleConfig> roleConfigs) {
+        errorOutIfEmpty(authConfigs, pluginId);
+        return pluginRequestHelper.submitRequest(pluginId, REQUEST_GET_USER_ROLES, new DefaultPluginInteractionCallback<AuthenticationResponse>() {
+            @Override
+            public String requestBody(String resolvedExtensionVersion) {
+                return getMessageConverter(resolvedExtensionVersion).authenticateUserRequestBody(username, authConfigs, roleConfigs);
+            }
+
+            @Override
+            public AuthenticationResponse onSuccess(String responseBody, Map<String, String> responseHeaders, String resolvedExtensionVersion) {
+                return getMessageConverter(resolvedExtensionVersion).getAuthenticatedUserFromResponseBody(responseBody);
+            }
+        });
+    }
+
     public AuthorizationMessageConverter getMessageConverter(String version) {
         return messageHandlerMap.get(version);
     }
 
     public AuthenticationResponse authenticateUser(String pluginId, Map<String, String> credentials, List<SecurityAuthConfig> authConfigs, List<PluginRoleConfig> roleConfigs) {
-        if (authConfigs == null || authConfigs.isEmpty()) {
-            throw new MissingAuthConfigsException(String.format("No AuthConfigs configured for plugin: %s, Plugin would need at-least one auth_config to authenticate user.", pluginId));
-        }
+        errorOutIfEmpty(authConfigs, pluginId);
 
         return pluginRequestHelper.submitRequest(pluginId, REQUEST_AUTHENTICATE_USER, new DefaultPluginInteractionCallback<AuthenticationResponse>() {
             @Override
@@ -227,6 +242,12 @@ public class AuthorizationExtension extends AbstractExtension {
                 return getMessageConverter(resolvedExtensionVersion).getAuthenticatedUserFromResponseBody(responseBody);
             }
         });
+    }
+
+    private void errorOutIfEmpty(List<SecurityAuthConfig> authConfigs, String pluginId) {
+        if (authConfigs == null || authConfigs.isEmpty()) {
+            throw new MissingAuthConfigsException(String.format("No AuthConfigs configured for plugin: %s, Plugin would need at-least one auth_config to authenticate user.", pluginId));
+        }
     }
 
     public String getAuthorizationServerUrl(String pluginId, List<SecurityAuthConfig> authConfigs, String siteUrl) {

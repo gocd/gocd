@@ -49,7 +49,8 @@ public class MainFilterChain extends FilterChainProxy {
                            AuthorizeFilterChain authorizeFilterChain,
                            DenyGoCDAccessForArtifactsFilterChain denyGoCDAccessForArtifactsFilterChain,
                            ArtifactSizeEnforcementFilterChain artifactSizeEnforcementFilterChain,
-                           FlashLoadingFilter flashLoadingFilter) {
+                           FlashLoadingFilter flashLoadingFilter
+                           ) {
 
         super(FilterChainBuilder.newInstance()
                 .addFilterChain("/**",

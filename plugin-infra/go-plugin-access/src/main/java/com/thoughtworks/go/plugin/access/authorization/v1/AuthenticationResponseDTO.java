@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,31 +14,32 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.plugin.access.authorization.models;
+package com.thoughtworks.go.plugin.access.authorization.v1;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
+import com.thoughtworks.go.plugin.domain.authorization.AuthenticationResponse;
 
 import java.util.List;
 
-public class AuthenticationResponse {
+class AuthenticationResponseDTO {
     private static final Gson GSON = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
 
     @Expose
     @SerializedName("user")
-    private final User user;
+    private final UserDTO user;
     @Expose
     @SerializedName("roles")
     private final List<String> roles;
 
-    public AuthenticationResponse(User user, List<String> roles) {
+    public AuthenticationResponseDTO(UserDTO user, List<String> roles) {
         this.user = user;
         this.roles = roles;
     }
 
-    public User getUser() {
+    public UserDTO getUser() {
         return user;
     }
 
@@ -46,7 +47,11 @@ public class AuthenticationResponse {
         return roles;
     }
 
-    public static AuthenticationResponse fromJSON(String json) {
-        return GSON.fromJson(json, AuthenticationResponse.class);
+    public static AuthenticationResponseDTO fromJSON(String json) {
+        return GSON.fromJson(json, AuthenticationResponseDTO.class);
+    }
+
+    public AuthenticationResponse toDomainModel() {
+        return new AuthenticationResponse(this.user.toDomainModel(), this.roles);
     }
 }

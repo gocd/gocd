@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,8 +21,8 @@ import com.thoughtworks.go.config.SecurityAuthConfig;
 import com.thoughtworks.go.plugin.access.authorization.AuthorizationExtension;
 import com.thoughtworks.go.plugin.access.authorization.AuthorizationMetadataStore;
 import com.thoughtworks.go.plugin.domain.authorization.AuthenticationResponse;
+import com.thoughtworks.go.server.newsecurity.models.AuthTokenCredential;
 import com.thoughtworks.go.server.newsecurity.models.AuthenticationToken;
-import com.thoughtworks.go.server.newsecurity.models.UsernamePassword;
 import com.thoughtworks.go.server.security.AuthorityGranter;
 import com.thoughtworks.go.server.security.userdetail.GoUserPrinciple;
 import com.thoughtworks.go.server.service.GoConfigService;
@@ -37,18 +37,18 @@ import java.util.List;
 import static java.util.Collections.singletonList;
 
 @Component
-public class PasswordBasedPluginAuthenticationProvider extends AbstractPluginAuthenticationProvider<UsernamePassword> {
+public class AuthTokenBasedPluginAuthenticationProvider extends AbstractPluginAuthenticationProvider<AuthTokenCredential> {
     private final AuthorizationExtension authorizationExtension;
     private final AuthorizationMetadataStore store;
     private final Clock clock;
 
     @Autowired
-    public PasswordBasedPluginAuthenticationProvider(AuthorizationExtension authorizationExtension,
-                                                     AuthorityGranter authorityGranter,
-                                                     GoConfigService goConfigService,
-                                                     PluginRoleService pluginRoleService,
-                                                     UserService userService,
-                                                     Clock clock) {
+    public AuthTokenBasedPluginAuthenticationProvider(AuthorizationExtension authorizationExtension,
+                                                      AuthorityGranter authorityGranter,
+                                                      GoConfigService goConfigService,
+                                                      PluginRoleService pluginRoleService,
+                                                      UserService userService,
+                                                      Clock clock) {
         super(goConfigService, pluginRoleService, userService, authorityGranter);
         this.authorizationExtension = authorizationExtension;
         this.store = AuthorizationMetadataStore.instance();
@@ -56,8 +56,8 @@ public class PasswordBasedPluginAuthenticationProvider extends AbstractPluginAut
     }
 
     @Override
-    protected String getUsername(AuthenticationToken<UsernamePassword> authenticationToken) {
-        return authenticationToken.getCredentials().getUsername();
+    protected String getUsername(AuthenticationToken<AuthTokenCredential> authenticationToken) {
+        return authenticationToken.getUser().getUsername();
     }
 
     @Override
@@ -67,21 +67,21 @@ public class PasswordBasedPluginAuthenticationProvider extends AbstractPluginAut
 
     @Override
     protected boolean doesPluginSupportAuthentication(String pluginId) {
-        return store.doesPluginSupportPasswordBasedAuthentication(pluginId);
+        return store.doesPluginSupportTokenBasedAuthentication(pluginId);
     }
 
     @Override
     protected AuthenticationResponse authenticateWithExtension(String pluginId,
-                                                               UsernamePassword credentials,
+                                                               AuthTokenCredential credentials,
                                                                SecurityAuthConfig authConfig,
                                                                List<PluginRoleConfig> pluginRoleConfigs) {
-        return authorizationExtension.authenticateUser(pluginId, credentials.getUsername(), credentials.getPassword(),
+        return authorizationExtension.authenticateUser(pluginId, credentials.getUsername(),
                 singletonList(authConfig), pluginRoleConfigs);
     }
 
     @Override
-    protected AuthenticationToken<UsernamePassword> createAuthenticationToken(GoUserPrinciple userPrinciple,
-                                                                              UsernamePassword credentials,
+    protected AuthenticationToken<AuthTokenCredential> createAuthenticationToken(GoUserPrinciple userPrinciple,
+                                                                              AuthTokenCredential credentials,
                                                                               String pluginId,
                                                                               String authConfigId) {
         return new AuthenticationToken<>(userPrinciple, credentials, pluginId, clock.currentTimeMillis(), authConfigId);

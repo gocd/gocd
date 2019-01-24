@@ -14,7 +14,6 @@
 * limitations under the License.
 */
 
-import * as _ from "lodash";
 import * as m from "mithril";
 import {Stream} from "mithril/stream";
 import * as stream from "mithril/stream";
@@ -42,6 +41,7 @@ interface State extends UserActionsState, AddOperation<Users> {
 export class UsersPage extends Page<null, State> {
   oninit(vnode: m.Vnode<null, State>) {
     super.oninit(vnode);
+    vnode.state.noAdminsConfigured = stream(false);
 
     vnode.state.initialUsers   = stream(new Users());
     vnode.state.userFilters    = stream(new UserFilters());
@@ -146,10 +146,9 @@ export class UsersPage extends Page<null, State> {
 
   componentToDisplay(vnode: m.Vnode<null, State>): m.Children {
     let bannerToDisplay;
-    const meta = this.getMeta();
-    if (!_.isEmpty(meta) && meta.noAdminsConfigured) {
+    if (vnode.state.noAdminsConfigured()) {
       bannerToDisplay = (<FlashMessage type={MessageType.warning}
-                                       message='There are currently no administrators defined in the configuration. This makes everyone an administrator. We recommend that you explicitly select all users and click "make admin".'/>);
+                                       message='There are currently no administrators defined in the configuration. This makes everyone an administrator. We recommend that you explicitly make user a system administrator.'/>);
     }
 
     return (
@@ -173,9 +172,11 @@ export class UsersPage extends Page<null, State> {
   }
 
   fetchData(vnode: m.Vnode<null, State>): Promise<any> {
-    return Promise.all([UsersCRUD.all(), RolesCRUD.all("gocd")]).then((args) => {
-      const userResult  = args[0];
-      const rolesResult = args[1];
+    return Promise.all([AdminsCRUD.all(), UsersCRUD.all(), RolesCRUD.all("gocd")]).then((args) => {
+      const adminsResult = args[0];
+      const userResult   = args[1];
+      const rolesResult  = args[2];
+
       userResult.do((successResponse) => {
                       vnode.state.initialUsers(successResponse.body);
                       this.pageState = PageState.OK;
@@ -193,6 +194,18 @@ export class UsersPage extends Page<null, State> {
                        this.pageState = PageState.FAILED;
                      }
       );
+
+      adminsResult.do((successResponse) => {
+        const roles = (JSON.parse(successResponse.body).roles as string[]);
+        const users = (JSON.parse(successResponse.body).users as string[]);
+
+        const noAdminsConfigured = ((roles.length === 0) && (users.length === 0));
+        vnode.state.noAdminsConfigured(noAdminsConfigured);
+        this.pageState = PageState.OK;
+      }, (errorResponse) => {
+        this.flashMessage.setMessage(MessageType.alert, errorResponse.message);
+        this.pageState = PageState.FAILED;
+      });
     });
   }
 

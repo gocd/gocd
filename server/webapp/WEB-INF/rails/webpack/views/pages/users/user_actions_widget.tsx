@@ -75,6 +75,7 @@ export interface FiltersViewAttrs {
 }
 
 export interface State extends RolesViewAttrs, FiltersViewAttrs, EnableOperation<Users>, DisableOperation<Users>, DeleteOperation<Users>, MakeAdminOperation<Users>, RemoveAdminOperation<Users> {
+  noAdminsConfigured: Stream<boolean>;
 }
 
 class FiltersView extends Dropdown<FiltersViewAttrs> {
@@ -237,10 +238,6 @@ export class UsersActionsWidget extends MithrilViewComponent<State> {
                        disabled={!vnode.attrs.users().anyUserSelected()}>Disable</Secondary>
             <Secondary onclick={vnode.attrs.onDelete.bind(vnode.attrs, vnode.attrs.users())}
                        disabled={!vnode.attrs.users().anyUserSelected()}>Delete</Secondary>
-            <Secondary onclick={vnode.attrs.onMakeAdmin.bind(vnode.attrs, vnode.attrs.users())}
-                       disabled={!vnode.attrs.users().anyUserSelected()}>Make System Admin</Secondary>
-            <Secondary onclick={vnode.attrs.onRemoveAdmin.bind(vnode.attrs, vnode.attrs.users())}
-                       disabled={!vnode.attrs.users().anyUserSelected()}>Revoke System Admin</Secondary>
             <RolesDropdown {...vnode.attrs} show={vnode.attrs.showRoles}/>
           </ButtonGroup>
         </div>

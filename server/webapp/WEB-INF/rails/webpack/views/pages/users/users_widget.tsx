@@ -19,6 +19,7 @@ import {MithrilViewComponent} from "jsx/mithril-component";
 import * as m from "mithril";
 import {User, Users} from "models/users/users";
 import {Table} from "views/components/table";
+import {SuperAdminPrivilegeSwitch} from "views/pages/users/super_admin_toggle_widget";
 import {State as UserActionsState, UsersActionsWidget} from "views/pages/users/user_actions_widget";
 import * as styles from "./index.scss";
 
@@ -45,7 +46,7 @@ export class UsersTableWidget extends MithrilViewComponent<UserActionsState> {
     ];
   }
 
-  static userData(users: Users): any[][] {
+  static userData(users: Users, vnode: m.Vnode<UserActionsState>): any[][] {
     return users.map((user: User) => {
       const className = (user.enabled() ? "" : styles.disabled);
       return [
@@ -53,7 +54,10 @@ export class UsersTableWidget extends MithrilViewComponent<UserActionsState> {
         <span className={className}>{user.loginName()}</span>,
         <span className={className}>{user.displayName()}</span>,
         <span className={className}>{this.roles(user)}</span>,
-        <span className={className}>{user.isAdmin() ? "Yes" : "No"}</span>,
+        <SuperAdminPrivilegeSwitch user={user}
+                                   noAdminsConfigured={vnode.attrs.noAdminsConfigured}
+                                   onRemoveAdmin={vnode.attrs.onRemoveAdmin}
+                                   onMakeAdmin={vnode.attrs.onMakeAdmin}/>,
         <span className={className}>{user.email()}</span>,
         <span className={className}>{user.enabled() ? "Yes" : "No"}</span>
       ];
@@ -62,7 +66,7 @@ export class UsersTableWidget extends MithrilViewComponent<UserActionsState> {
 
   view(vnode: m.Vnode<UserActionsState>) {
     return <Table headers={UsersTableWidget.headers(vnode.attrs.users() as Users)}
-                  data={UsersTableWidget.userData(vnode.attrs.users())}/>;
+                  data={UsersTableWidget.userData(vnode.attrs.users(), vnode)}/>;
   }
 
   private static roles(user: User) {

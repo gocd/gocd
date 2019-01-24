@@ -29,6 +29,10 @@ export interface BulkUpdateSystemAdminJSON {
 export class AdminsCRUD {
   static API_VERSION_HEADER = ApiVersion.v2;
 
+  static all() {
+    return ApiRequestBuilder.GET(SparkRoutes.apisystemAdminsPath(), this.API_VERSION_HEADER);
+  }
+
   static bulkUpdate(bulkUpdateSystemAdminJson: BulkUpdateSystemAdminJSON) {
     return ApiRequestBuilder.PATCH(SparkRoutes.apisystemAdminsPath(), this.API_VERSION_HEADER, {payload: bulkUpdateSystemAdminJson});
 

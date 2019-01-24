@@ -80,6 +80,18 @@ export class User {
     return new User(json);
   }
 
+  static clone(existingUser: User) {
+    return new User({
+                      login_name: existingUser.loginName(),
+                      display_name: existingUser.displayName(),
+                      enabled: existingUser.enabled(),
+                      email: existingUser.email(),
+                      email_me: existingUser.emailMe(),
+                      is_admin: existingUser.isAdmin(),
+                      checkin_aliases: existingUser.checkinAliases()
+                    });
+  }
+
   matches(searchText: string) {
     searchText               = searchText.toLowerCase();
     const matchesLoginName   = this.loginName().toLowerCase().includes(searchText);

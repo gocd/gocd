@@ -51,7 +51,7 @@ type EditableMaterial = SaveOperation & { repo: ConfigRepo } & { isNew: boolean 
 
 class MaterialEditWidget extends MithrilViewComponent<EditableMaterial> {
   private testConnectionError: m.Child | undefined;
-  private testConnectionButtonIcon: m.Child | undefined;
+  private testConnectionButtonIcon: string | undefined;
   private testConnectionButtonText: string = "Test Connection";
 
   view(vnode: m.Vnode<EditableMaterial>) {
@@ -124,9 +124,9 @@ class MaterialEditWidget extends MithrilViewComponent<EditableMaterial> {
 
   private getTestConnectionButton(vnode: m.Vnode<EditableMaterial>): m.Child {
     return (<li className={styles.testConnectionButtonWrapper}>
-      <Buttons.Secondary data-test-id="button-ok"
+      <Buttons.Secondary data-test-id="test-connection-button"
                          onclick={() => this.testConnection(vnode.attrs.repo.material())}>
-        {this.testConnectionButtonIcon}
+        <span className={this.testConnectionButtonIcon} data-test-id="test-connection-icon"/>
         {this.testConnectionButtonText}
       </Buttons.Secondary>
     </li>);
@@ -147,16 +147,16 @@ class MaterialEditWidget extends MithrilViewComponent<EditableMaterial> {
   }
 
   private testConnectionFailed(err: ErrorResponse) {
-    this.testConnectionButtonIcon = <span className={styles.testConnectionFailure}/>;
+    this.testConnectionButtonIcon = styles.testConnectionFailure;
     this.testConnectionError = <FlashMessage type={MessageType.alert} message={<pre>{err.message}</pre>}/>;
   }
 
   private testConnectionSuccessful() {
-    this.testConnectionButtonIcon = <span className={styles.testConnectionSuccess}/>;
+    this.testConnectionButtonIcon = styles.testConnectionSuccess;
   }
 
   private testConnectionInProgress() {
-    this.testConnectionButtonIcon = <span className={styles.testConnectionInProgress}/>;
+    this.testConnectionButtonIcon = styles.testConnectionInProgress;
     this.testConnectionButtonText = "Testing Connection...";
     this.testConnectionError = undefined;
   }

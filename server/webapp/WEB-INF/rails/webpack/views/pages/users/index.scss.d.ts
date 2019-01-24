@@ -24,3 +24,5 @@ export const searchUser: string;
 export const button: string;
 export const disabled: string;
 export const spinnerWrapper: string;
+export const adminSwitchWrapper: string;
+export const isAdminText: string;

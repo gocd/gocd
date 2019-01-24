@@ -16,8 +16,6 @@
 
 package com.thoughtworks.go.spark.spa;
 
-import com.google.gson.JsonObject;
-import com.thoughtworks.go.server.service.SecurityService;
 import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.SparkController;
 import com.thoughtworks.go.spark.spring.SPAAuthenticationHelper;
@@ -34,12 +32,10 @@ import static spark.Spark.*;
 public class UsersController implements SparkController {
     private final SPAAuthenticationHelper authenticationHelper;
     private final TemplateEngine engine;
-    private final SecurityService securityService;
 
-    public UsersController(SPAAuthenticationHelper authenticationHelper, TemplateEngine engine, SecurityService securityService) {
+    public UsersController(SPAAuthenticationHelper authenticationHelper, TemplateEngine engine) {
         this.authenticationHelper = authenticationHelper;
         this.engine = engine;
-        this.securityService = securityService;
     }
 
     @Override
@@ -56,11 +52,8 @@ public class UsersController implements SparkController {
     }
 
     public ModelAndView index(Request request, Response response) {
-        JsonObject noAdminsConfigured = new JsonObject();
-        noAdminsConfigured.addProperty("noAdminsConfigured", this.securityService.noAdminsConfigured());
         Map<Object, Object> object = new HashMap<Object, Object>() {{
             put("viewTitle", "Users Management");
-            put("meta", noAdminsConfigured);
         }};
         return new ModelAndView(object, null);
     }

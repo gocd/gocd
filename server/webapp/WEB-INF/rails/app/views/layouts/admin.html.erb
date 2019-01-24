@@ -75,7 +75,7 @@
                       <%= link_to 'Server Configuration', edit_server_config_path, :id => 'tab-link-of-server-configuration' -%>
                     </li>
                     <li id="user-summary-tab-button" class="<%= @tab_name == "user-listing" ? "current_tab" : "" -%>">
-                      <%= link_to "User Summary", user_listing_path, :id => "tab-link-of-user-listing" %>
+                      <%= link_to "Users Management", user_listing_path, :id => "tab-link-of-user-listing" %>
                     </li>
                     <li id="backup-tab-button" class="<%= @tab_name == "backup" ? "current_tab" : "" -%>">
                       <%= link_to "Backup", backup_server_path, :id => "tab-link-of-backup" %>

@@ -63,6 +63,7 @@ export class UserSearchModal extends Modal {
         {optionalErrorMesage}
         <div className={classnames(styles.searchUser)}>
           <SearchFieldWithButton property={this.searchText}
+                                 placeholder={'Search user..'}
                                  dataTestId={"user-search-query"}
                                  onclick={this.search.bind(this)}
                                  buttonDisableReason={"Please type the search query to search user."}/>
@@ -74,13 +75,13 @@ export class UserSearchModal extends Modal {
 
   buttons(): m.ChildArray {
     return [
-      <Buttons.Primary data-test-id="button-add" onclick={this.addUser.bind(this)} disabled={_.isEmpty(this.selectedUser())}>Add</Buttons.Primary>,
+      <Buttons.Primary data-test-id="button-add" onclick={this.addUser.bind(this)} disabled={_.isEmpty(this.selectedUser())}>Import</Buttons.Primary>,
       <Buttons.Cancel data-test-id="button-close" onclick={this.close.bind(this)}>Cancel</Buttons.Cancel>
     ];
   }
 
   title(): string {
-    return "Search users";
+    return "Import User";
   }
 
   private addUser() {

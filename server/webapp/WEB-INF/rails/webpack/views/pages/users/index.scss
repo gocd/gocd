@@ -69,9 +69,10 @@ $spinner-wrapper-height: 100px;
 
 .filter-dropdown-content {
   @include dropdownContent();
-  top:   36px;
-  right: 0;
-  width: 570px;
+  z-index:    map_get($zindex, 'users-management-filter');
+  top:     36px;
+  right:   0;
+  width:   570px;
 }
 
 .roles-dropdown-content {

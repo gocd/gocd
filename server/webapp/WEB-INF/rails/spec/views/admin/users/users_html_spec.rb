@@ -31,7 +31,7 @@ describe "/admin/users/users.html.erb" do
   it "should have the aggregrates on the page header" do
     render
 
-    expect(response.body).to have_selector("h1", :text=>/User Summary/)
+    expect(response.body).to have_selector("h1", :text=>/Users Management/)
     Capybara.string(response.body).find("div ul.user_counts").tap do |div|
         expect(div).to have_selector("li.enabled", "Enabled: 20")
         expect(div).to have_selector("li.disabled", "Disabled: 10")

@@ -110,8 +110,13 @@ public class CacheInformationProvider implements ServerInfoProvider {
         json.put("Eternal", config.isEternal());
         json.put("Time To Idle Seconds", config.getTimeToIdleSeconds());
         json.put("time To Live Seconds", config.getTimeToLiveSeconds());
-        json.put("Persistence Configuration Strategy", config.getPersistenceConfiguration().getStrategy());
-        json.put("Persistence Configuration Synchronous writes", config.getPersistenceConfiguration().getSynchronousWrites());
+        if (config.getPersistenceConfiguration() != null) {
+            json.put("Persistence Configuration Strategy", config.getPersistenceConfiguration().getStrategy());
+            json.put("Persistence Configuration Synchronous writes", config.getPersistenceConfiguration().getSynchronousWrites());
+        } else {
+            json.put("Persistence Configuration Strategy", "NONE");
+            json.put("Persistence Configuration Synchronous writes", false);
+        }
         json.put("Disk Spool Buffer Size in MB", config.getDiskSpoolBufferSizeMB());
         json.put("Disk Access Stripes", config.getDiskAccessStripes());
         json.put("Disk Expiry Thread Interval Seconds", config.getDiskExpiryThreadIntervalSeconds());

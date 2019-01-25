@@ -67,8 +67,8 @@ public class GoConfigMigration {
             e.printStackTrace();
             System.err.println(
                     "There are errors in the Cruise config file.  Please read the error message and correct the errors.\n"
-                            + "Once fixed, please restart Cruise.\nError: " + e.getMessage());
-            LOG.error("There are errors in the Cruise config file.  Please read the error message and correct the errors.\nOnce fixed, please restart Cruise.\nError: {}", e.getMessage());
+                            + "Once fixed, please restart GoCD.\nError: " + e.getMessage());
+            LOG.error("There are errors in the Cruise config file.  Please read the error message and correct the errors.\nOnce fixed, please restart GoCD.\nError: {}", e.getMessage());
             // Send exit signal in a separate thread otherwise it will deadlock jetty
             new Thread(() -> System.exit(1)).start();
 

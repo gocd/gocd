@@ -121,6 +121,7 @@ export class ConfigRepo implements ValidatableMixin {
                                       Materials.fromJSON(json.material),
                                       configurations,
                                       parseInfo);
+    configRepo.errors(new Errors(json.errors));
     return configRepo;
   }
 

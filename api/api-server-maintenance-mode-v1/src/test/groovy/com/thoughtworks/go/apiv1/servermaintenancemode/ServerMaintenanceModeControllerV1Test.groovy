@@ -127,7 +127,7 @@ class ServerMaintenanceModeControllerV1Test implements SecurityServiceTrait, Con
       }
 
       @Test
-      void 'should not enable server maintenance mode in case server is already in maintenance state'() {
+      void 'should not enable server maintenance mode in case server is already in maintenance mode'() {
         when(maintenanceModeService.get()).thenReturn(new ServerMaintenanceMode(true, currentUserLoginName().toString(), testingClock.currentTime()))
 
         def headers = [

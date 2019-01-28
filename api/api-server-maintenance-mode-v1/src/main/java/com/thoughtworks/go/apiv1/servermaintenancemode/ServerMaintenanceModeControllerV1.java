@@ -103,7 +103,7 @@ public class ServerMaintenanceModeControllerV1 extends ApiController implements 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         ServerMaintenanceMode existingMaintenanceModeState = maintenanceModeService.get();
         if (existingMaintenanceModeState.isMaintenanceMode()) {
-            result.conflict("Failed to enable server maintenance mode. Server is already in maintenance state.");
+            result.conflict("Failed to enable server maintenance mode. Server is already in maintenance mode.");
             return renderHTTPOperationResult(result, req, res);
         }
 
@@ -117,7 +117,7 @@ public class ServerMaintenanceModeControllerV1 extends ApiController implements 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         ServerMaintenanceMode existingMaintenanceModeState = maintenanceModeService.get();
         if (!existingMaintenanceModeState.isMaintenanceMode()) {
-            result.conflict("Failed to disable server maintenance mode. Server is not in maintenance state.");
+            result.conflict("Failed to disable server maintenance mode. Server is not in maintenance mode.");
             return renderHTTPOperationResult(result, req, res);
         }
 

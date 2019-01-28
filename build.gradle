@@ -111,11 +111,11 @@ List<String> partitionFiles(Collection originalFiles) {
 def COPYRIGHT_YEAR = '2019'
 def GO_VERSION_SEGMENTS = [
   year         : 19,
-  releaseInYear: 1,
+  releaseInYear: 2,
   patch        : 0
 ]
 def GO_VERSION = [GO_VERSION_SEGMENTS.year, GO_VERSION_SEGMENTS.releaseInYear, GO_VERSION_SEGMENTS.patch].join('.')
-def GO_VERSION_PREVIOUS = '18.12.0'
+def GO_VERSION_PREVIOUS = '19.1.0'
 def DIST_VERSION = releaseRevision()
 def GIT_REVISION = gitRevision()
 

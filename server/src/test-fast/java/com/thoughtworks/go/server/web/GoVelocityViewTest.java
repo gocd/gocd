@@ -67,7 +67,7 @@ public class GoVelocityViewTest {
     @Mock
     private SecurityService securityService;
     @Mock
-    private DrainModeService drainModeService;
+    private MaintenanceModeService maintenanceModeService;
 
     @Before
     public void setUp() throws Exception {
@@ -80,7 +80,7 @@ public class GoVelocityViewTest {
         doReturn(pluginInfoFinder).when(view).getPluginInfoFinder();
         doReturn(webpackAssetsService).when(view).webpackAssetsService();
         doReturn(securityService).when(view).getSecurityService();
-        doReturn(drainModeService).when(view).getDrainModeService();
+        doReturn(maintenanceModeService).when(view).getMaintenanceModeService();
         request = new MockHttpServletRequest();
         velocityContext = new VelocityContext();
     }
@@ -199,7 +199,7 @@ public class GoVelocityViewTest {
         doReturn(versionInfoService).when(view).getVersionInfoService();
         doReturn(pluginInfoFinder).when(view).getPluginInfoFinder();
         doReturn(webpackAssetsService).when(view).webpackAssetsService();
-        doReturn(drainModeService).when(view).getDrainModeService();
+        doReturn(maintenanceModeService).when(view).getMaintenanceModeService();
         doReturn(securityService).when(view).getSecurityService();
         Request servletRequest = mock(Request.class);
         when(servletRequest.getSession()).thenReturn(mock(HttpSession.class));
@@ -229,7 +229,7 @@ public class GoVelocityViewTest {
         doReturn(versionInfoService).when(view).getVersionInfoService();
         doReturn(pluginInfoFinder).when(view).getPluginInfoFinder();
         doReturn(webpackAssetsService).when(view).webpackAssetsService();
-        doReturn(drainModeService).when(view).getDrainModeService();
+        doReturn(maintenanceModeService).when(view).getMaintenanceModeService();
         doReturn(securityService).when(view).getSecurityService();
         Request servletRequest = mock(Request.class);
         when(servletRequest.getSession()).thenReturn(mock(HttpSession.class));

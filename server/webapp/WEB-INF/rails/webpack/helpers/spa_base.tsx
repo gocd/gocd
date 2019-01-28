@@ -74,23 +74,23 @@ export default abstract class Page {
       const fullVersion      = body.getAttribute("data-version-full") as string;
       const formattedVersion = body.getAttribute("data-version-formatted") as string;
 
-      const showAnalyticsDashboard = this.extractBoolean(body, "data-show-analytics-dashboard");
-      const canViewAdminPage       = this.extractBoolean(body, "data-can-user-view-admin");
-      const isUserAdmin            = this.extractBoolean(body, "data-is-user-admin");
-      const isGroupAdmin           = this.extractBoolean(body, "data-is-user-group-admin");
-      const canViewTemplates       = this.extractBoolean(body, "data-can-user-view-templates");
-      const isAnonymous            = this.extractBoolean(body, "data-user-anonymous");
-      const isServerInDrainMode    = this.extractBoolean(body, "data-is-server-in-drain-mode");
-      const userDisplayName        = body.getAttribute("data-user-display-name") || "";
+      const showAnalyticsDashboard    = this.extractBoolean(body, "data-show-analytics-dashboard");
+      const canViewAdminPage          = this.extractBoolean(body, "data-can-user-view-admin");
+      const isUserAdmin               = this.extractBoolean(body, "data-is-user-admin");
+      const isGroupAdmin              = this.extractBoolean(body, "data-is-user-group-admin");
+      const canViewTemplates          = this.extractBoolean(body, "data-can-user-view-templates");
+      const isAnonymous               = this.extractBoolean(body, "data-user-anonymous");
+      const isServerInMaintenanceMode = this.extractBoolean(body, "data-is-server-in-maintenance-mode");
+      const userDisplayName           = body.getAttribute("data-user-display-name") || "";
 
       const footerData = {
         copyrightYear,
         goVersion,
         fullVersion,
         formattedVersion,
-        isServerInDrainMode,
+        isServerInMaintenanceMode,
         isSupportedBrowser: !/(MSIE|Trident)/i.test(navigator.userAgent)
-      };
+      } as SiteFooterAttrs;
 
       const headerData = {
         showAnalyticsDashboard,

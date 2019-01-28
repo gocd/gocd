@@ -388,15 +388,15 @@
   </rule>
 
   <rule>
-    <name>Drain Mode APIs</name>
-    <from>^/api/admin/drain_mode/(.*)(/?)$</from>
-    <to last="true">/spark/api/admin/drain_mode/$1</to>
+    <name>Maintenance Mode APIs</name>
+    <from>^/api/admin/maintenance_mode/(.*)(/?)$</from>
+    <to last="true">/spark/api/admin/maintenance_mode/$1</to>
   </rule>
 
   <rule>
-    <name>Drain Mode UI</name>
-    <from>^/admin/drain_mode(/?)$</from>
-    <to last="true">/spark/admin/drain_mode</to>
+    <name>Maintenance Mode UI</name>
+    <from>^/admin/maintenance_mode(/?)$</from>
+    <to last="true">/spark/admin/maintenance_mode</to>
   </rule>
 
   <rule>

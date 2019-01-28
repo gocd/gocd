@@ -35,7 +35,7 @@
   <context:component-scan base-package="com.thoughtworks.go.apiv1.export"/>
   <context:component-scan base-package="com.thoughtworks.go.apiv1.elasticprofileoperation"/>
   <context:component-scan base-package="com.thoughtworks.go.apiv1.usersearch"/>
-  <context:component-scan base-package="com.thoughtworks.go.apiv1.serverdrainmode"/>
+  <context:component-scan base-package="com.thoughtworks.go.apiv1.servermaintenancemode"/>
   <context:component-scan base-package="com.thoughtworks.go.apiv4.agents"/>
   <context:component-scan base-package="com.thoughtworks.go.apiv1.version"/>
   <context:component-scan base-package="com.thoughtworks.go.apiv1.configrepos"/>

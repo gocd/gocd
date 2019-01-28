@@ -55,7 +55,7 @@ describe("SiteFooter", () => {
       formattedVersion: "x.y.z-1234-sha",
       fullVersion: "x.y.z-1234",
       goVersion: "x.y.z",
-      isServerInDrainMode: false,
+      isServerInMaintenanceMode: false,
       isSupportedBrowser: true
     };
     mount(attrs);
@@ -63,24 +63,24 @@ describe("SiteFooter", () => {
     expect($root).toContainHtml("Copyright &copy; 2000");
     expect($root).toContainElement(`a[href="/go/assets/dependency-license-report-${attrs.fullVersion}"]`);
     expect($root).toContainText(`GoCD Version: ${attrs.formattedVersion}`);
-    expect($root).not.toContainText("drain");
-    expect(find("drain-mode-banner")).not.toBeInDOM();
+    expect($root).not.toContainText("maintenance");
+    expect(find("maintenance-mode-banner")).not.toBeInDOM();
     expect($root).not.toContainText('unsupported browser');
   });
 
-  it("should render drain mode banner", () => {
+  it("should render maintenance mode banner", () => {
     const attrs = {
       copyrightYear: "2000",
       formattedVersion: "x.y.z-1234-sha",
       fullVersion: "x.y.z-1234",
       goVersion: "x.y.z",
-      isServerInDrainMode: true,
+      isServerInMaintenanceMode: true,
       isSupportedBrowser: true
     };
     mount(attrs);
 
-    expect(find("drain-mode-banner")).toBeInDOM();
-    expect($root).toContainText("drain");
+    expect(find("maintenance-mode-banner")).toBeInDOM();
+    expect($root).toContainText("maintenance");
     expect($root).not.toContainText('unsupported browser');
   });
 
@@ -90,14 +90,14 @@ describe("SiteFooter", () => {
       formattedVersion: "x.y.z-1234-sha",
       fullVersion: "x.y.z-1234",
       goVersion: "x.y.z",
-      isServerInDrainMode: false,
+      isServerInMaintenanceMode: false,
       isSupportedBrowser: false
     };
     mount(attrs);
 
-    expect(find("drain-mode-banner")).not.toBeInDOM();
+    expect(find("maintenance-mode-banner")).not.toBeInDOM();
     expect(find("unsupported-browser-banner")).toBeInDOM();
-    expect($root).not.toContainText("drain");
+    expect($root).not.toContainText("maintenance");
     expect($root).toContainText('unsupported browser');
   });
 

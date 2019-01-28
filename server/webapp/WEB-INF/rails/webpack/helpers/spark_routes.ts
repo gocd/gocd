@@ -145,16 +145,16 @@ export default class {
     }
   }
 
-  static enableDrainModePath(): string {
-    return `/go/api/admin/drain_mode/enable`;
+  static enableMaintenanceModePath(): string {
+    return `/go/api/admin/maintenance_mode/enable`;
   }
 
-  static disableDrainModePath(): string {
-    return `/go/api/admin/drain_mode/disable`;
+  static disableMaintenanceModePath(): string {
+    return `/go/api/admin/maintenance_mode/disable`;
   }
 
-  static drainModeInfoPath(): string {
-    return `/go/api/admin/drain_mode/info`;
+  static maintenanceModeInfoPath(): string {
+    return `/go/api/admin/maintenance_mode/info`;
   }
 
   static cancelStage(pipelineName: string, stageName: string): string {

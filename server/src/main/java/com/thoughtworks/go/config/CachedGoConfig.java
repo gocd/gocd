@@ -23,7 +23,7 @@ import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.listener.ConfigChangedListener;
 import com.thoughtworks.go.listener.EntityConfigChangedListener;
 import com.thoughtworks.go.server.domain.Username;
-import com.thoughtworks.go.server.service.DrainModeService;
+import com.thoughtworks.go.server.service.MaintenanceModeService;
 import com.thoughtworks.go.serverhealth.HealthStateType;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.serverhealth.ServerHealthState;
@@ -49,7 +49,7 @@ public class CachedGoConfig {
     private final CachedGoPartials cachedGoPartials;
     private GoConfigMigrator goConfigMigrator;
     private SystemEnvironment systemEnvironment;
-    private DrainModeService drainModeService;
+    private MaintenanceModeService maintenanceModeService;
     private final ServerHealthService serverHealthService;
     private List<ConfigChangedListener> listeners = new ArrayList<>();
     private volatile CruiseConfig currentConfig;
@@ -61,13 +61,13 @@ public class CachedGoConfig {
     @Autowired
     public CachedGoConfig(ServerHealthService serverHealthService, GoFileConfigDataSource dataSource,
                           CachedGoPartials cachedGoPartials, GoConfigMigrator goConfigMigrator,
-                          SystemEnvironment systemEnvironment, DrainModeService drainModeService) {
+                          SystemEnvironment systemEnvironment, MaintenanceModeService maintenanceModeService) {
         this.serverHealthService = serverHealthService;
         this.dataSource = dataSource;
         this.cachedGoPartials = cachedGoPartials;
         this.goConfigMigrator = goConfigMigrator;
         this.systemEnvironment = systemEnvironment;
-        this.drainModeService = drainModeService;
+        this.maintenanceModeService = maintenanceModeService;
     }
 
     public static List<ConfigErrors> validate(CruiseConfig config) {
@@ -85,8 +85,8 @@ public class CachedGoConfig {
 
     //NOTE: This method is called on a thread from Spring
     public void onTimer() {
-        if (drainModeService.isDrainMode()) {
-            LOGGER.debug("[Drain Mode] GoCD server is in 'drain' mode, skip loading cruise-config.xml");
+        if (maintenanceModeService.isMaintenanceMode()) {
+            LOGGER.debug("[Maintenance Mode] GoCD server is in 'maintenance' mode, skip loading cruise-config.xml");
             return;
         }
 

@@ -35,7 +35,7 @@ import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.GoConfigRevision;
 import com.thoughtworks.go.helper.*;
 import com.thoughtworks.go.plugin.access.configrepo.ConfigRepoExtension;
-import com.thoughtworks.go.server.service.DrainModeService;
+import com.thoughtworks.go.server.service.MaintenanceModeService;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.service.ConfigRepository;
@@ -116,7 +116,7 @@ public class GoFileConfigDataSourceTest {
                 cachedGoPartials, fullConfigSaveMergeFlow, fullConfigSaveNormalFlow);
 
         dataSource.upgradeIfNecessary();
-        CachedGoConfig cachedGoConfig = new CachedGoConfig(serverHealthService, dataSource, mock(CachedGoPartials.class), null, null, mock(DrainModeService.class));
+        CachedGoConfig cachedGoConfig = new CachedGoConfig(serverHealthService, dataSource, mock(CachedGoPartials.class), null, null, mock(MaintenanceModeService.class));
         cachedGoConfig.loadConfigIfNull();
         goConfigDao = new GoConfigDao(cachedGoConfig);
         configHelper.load();

@@ -57,7 +57,7 @@ public class TimerSchedulerTest {
     @Mock
     private SystemEnvironment systemEnvironment;
     @Mock
-    private DrainModeService drainModeService;
+    private MaintenanceModeService maintenanceModeService;
 
     @Before
     public void setup() {
@@ -76,9 +76,9 @@ public class TimerSchedulerTest {
                 pipelineConfig("dist"));
         when(goConfigService.getAllPipelineConfigs()).thenReturn(pipelineConfigs);
         when(systemEnvironment.isServerActive()).thenReturn(true);
-        when(drainModeService.isDrainMode()).thenReturn(false);
+        when(maintenanceModeService.isMaintenanceMode()).thenReturn(false);
 
-        TimerScheduler timerScheduler = new TimerScheduler(scheduler, goConfigService, null, null, drainModeService, systemEnvironment);
+        TimerScheduler timerScheduler = new TimerScheduler(scheduler, goConfigService, null, null, maintenanceModeService, systemEnvironment);
         timerScheduler.initialize();
 
         JobDetail expectedJob = JobBuilder.newJob()
@@ -96,11 +96,11 @@ public class TimerSchedulerTest {
     public void shouldUpdateServerHealthStatusWhenCronSpecCantBeParsed() throws Exception {
         when(goConfigService.getAllPipelineConfigs()).thenReturn(asList(pipelineConfigWithTimer("uat", "bad cron spec!!!")));
         when(systemEnvironment.isServerActive()).thenReturn(true);
-        when(drainModeService.isDrainMode()).thenReturn(false);
+        when(maintenanceModeService.isMaintenanceMode()).thenReturn(false);
 
         ServerHealthService serverHealthService = mock(ServerHealthService.class);
 
-        TimerScheduler timerScheduler = new TimerScheduler(scheduler, goConfigService, null, serverHealthService, drainModeService, systemEnvironment);
+        TimerScheduler timerScheduler = new TimerScheduler(scheduler, goConfigService, null, serverHealthService, maintenanceModeService, systemEnvironment);
         timerScheduler.initialize();
 
         verify(serverHealthService).update(
@@ -115,9 +115,9 @@ public class TimerSchedulerTest {
                 pipelineConfigWithTimer("dist", "0 15 10 ? * MON-FRI"));
         when(goConfigService.getAllPipelineConfigs()).thenReturn(pipelineConfigs);
         when(systemEnvironment.isServerActive()).thenReturn(true);
-        when(drainModeService.isDrainMode()).thenReturn(false);
+        when(maintenanceModeService.isMaintenanceMode()).thenReturn(false);
 
-        TimerScheduler timerScheduler = new TimerScheduler(scheduler, goConfigService, null, mock(ServerHealthService.class), drainModeService, systemEnvironment);
+        TimerScheduler timerScheduler = new TimerScheduler(scheduler, goConfigService, null, mock(ServerHealthService.class), maintenanceModeService, systemEnvironment);
         timerScheduler.initialize();
 
         JobDetail expectedJob = JobBuilder.newJob()
@@ -142,10 +142,10 @@ public class TimerSchedulerTest {
         when(goConfigService.getAllPipelineConfigs()).thenReturn(asList(pipelineConfigWithTimer("uat", "* * * * * ?")));
 
         when(systemEnvironment.isServerActive()).thenReturn(true);
-        when(drainModeService.isDrainMode()).thenReturn(false);
+        when(maintenanceModeService.isMaintenanceMode()).thenReturn(false);
         ServerHealthService serverHealthService = mock(ServerHealthService.class);
 
-        TimerScheduler timerScheduler = new TimerScheduler(scheduler, goConfigService, null, serverHealthService, drainModeService, systemEnvironment);
+        TimerScheduler timerScheduler = new TimerScheduler(scheduler, goConfigService, null, serverHealthService, maintenanceModeService, systemEnvironment);
         timerScheduler.initialize();
 
         verify(serverHealthService).update(
@@ -156,9 +156,9 @@ public class TimerSchedulerTest {
 
     @Test
     public void shouldRegisterAsACruiseConfigChangeListener() throws Exception {
-        TimerScheduler timerScheduler = new TimerScheduler(scheduler, goConfigService, null, null, drainModeService, systemEnvironment);
+        TimerScheduler timerScheduler = new TimerScheduler(scheduler, goConfigService, null, null, maintenanceModeService, systemEnvironment);
         when(systemEnvironment.isServerActive()).thenReturn(true);
-        when(drainModeService.isDrainMode()).thenReturn(false);
+        when(maintenanceModeService.isMaintenanceMode()).thenReturn(false);
 
         timerScheduler.initialize();
 
@@ -168,10 +168,10 @@ public class TimerSchedulerTest {
     @Test
     public void shouldRescheduleTimerTriggerPipelineWhenItsConfigChanges() throws SchedulerException {
         when(systemEnvironment.isServerActive()).thenReturn(true);
-        when(drainModeService.isDrainMode()).thenReturn(false);
+        when(maintenanceModeService.isMaintenanceMode()).thenReturn(false);
         String pipelineName = "timer-based-pipeline";
         when(scheduler.getJobDetail(jobKey(pipelineName, PIPELINE_TRIGGGER_TIMER_GROUP))).thenReturn(mock(JobDetail.class));
-        TimerScheduler timerScheduler = new TimerScheduler(scheduler, goConfigService, null, null, drainModeService, systemEnvironment);
+        TimerScheduler timerScheduler = new TimerScheduler(scheduler, goConfigService, null, null, maintenanceModeService, systemEnvironment);
         ArgumentCaptor<ConfigChangedListener> captor = ArgumentCaptor.forClass(ConfigChangedListener.class);
         doNothing().when(goConfigService).register(captor.capture());
         timerScheduler.initialize();
@@ -199,10 +199,10 @@ public class TimerSchedulerTest {
 
     @Test
     public void shouldNotScheduleJobsForAServerInStandbyMode() {
-        TimerScheduler timerScheduler = new TimerScheduler(scheduler, goConfigService, null, null, drainModeService, systemEnvironment);
+        TimerScheduler timerScheduler = new TimerScheduler(scheduler, goConfigService, null, null, maintenanceModeService, systemEnvironment);
 
         when(systemEnvironment.isServerInStandbyMode()).thenReturn(true);
-        when(drainModeService.isDrainMode()).thenReturn(false);
+        when(maintenanceModeService.isMaintenanceMode()).thenReturn(false);
 
         timerScheduler.initialize();
 

@@ -86,7 +86,7 @@ public class ConfigMaterialUpdateListenerIntegrationTest {
     @Autowired
     private CachedGoConfig cachedGoConfig;
     @Autowired
-    private  DrainModeService drainModeService;
+    private MaintenanceModeService maintenanceModeService;
 
     @Autowired
     private ConfigMaterialUpdateCompletedTopic configTopic;
@@ -129,7 +129,7 @@ public class ConfigMaterialUpdateListenerIntegrationTest {
                 stageService, configDbStateRepository);
         goDiskSpaceMonitor.initialize();
 
-        worker = new MaterialUpdateListener(configTopic, materialDatabaseUpdater, logger, goDiskSpaceMonitor, drainModeService);
+        worker = new MaterialUpdateListener(configTopic, materialDatabaseUpdater, logger, goDiskSpaceMonitor, maintenanceModeService);
 
         xmlWriter = new MagicalGoConfigXmlWriter(configCache, ConfigElementImplementationRegistryMother.withNoPlugins());
         configTestRepo = new ConfigTestRepo(hgRepo, xmlWriter);

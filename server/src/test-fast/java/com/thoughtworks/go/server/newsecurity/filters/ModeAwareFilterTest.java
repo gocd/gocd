@@ -18,7 +18,7 @@ package com.thoughtworks.go.server.newsecurity.filters;
 
 import com.google.gson.JsonObject;
 import com.thoughtworks.go.http.mocks.HttpRequestBuilder;
-import com.thoughtworks.go.server.service.DrainModeService;
+import com.thoughtworks.go.server.service.MaintenanceModeService;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.eclipse.jetty.http.*;
 import org.eclipse.jetty.server.HttpChannel;
@@ -40,7 +40,7 @@ class ModeAwareFilterTest {
     @Mock
     private SystemEnvironment systemEnvironment;
     @Mock
-    private DrainModeService drainModeService;
+    private MaintenanceModeService maintenanceModeService;
     @Mock
     private HttpServletRequest request;
     @Mock
@@ -56,13 +56,13 @@ class ModeAwareFilterTest {
     void setUp() throws Exception {
         initMocks(this);
         when(response.getWriter()).thenReturn(writer);
-        filter = new ModeAwareFilter(systemEnvironment, drainModeService);
+        filter = new ModeAwareFilter(systemEnvironment, maintenanceModeService);
     }
 
     @Test
-    void shouldNotBlockNonGetRequestWhenInActiveStateAndNotUnderDrainMode() throws Exception {
+    void shouldNotBlockNonGetRequestWhenInActiveStateAndNotUnderMaintenanceMode() throws Exception {
         when(systemEnvironment.isServerActive()).thenReturn(true);
-        when(drainModeService.isDrainMode()).thenReturn(false);
+        when(maintenanceModeService.isMaintenanceMode()).thenReturn(false);
 
         request = HttpRequestBuilder.GET("/foo").build();
         filter.doFilter(request, response, filterChain);
@@ -88,7 +88,7 @@ class ModeAwareFilterTest {
     @Test
     void shouldNotBlockGetOrHeadRequestWhenInPassiveState() throws Exception {
         when(systemEnvironment.isServerActive()).thenReturn(false);
-        when(drainModeService.isDrainMode()).thenReturn(false);
+        when(maintenanceModeService.isMaintenanceMode()).thenReturn(false);
 
         request = HttpRequestBuilder.GET("/foo").build();
         filter.doFilter(request, response, filterChain);
@@ -102,9 +102,9 @@ class ModeAwareFilterTest {
     }
 
     @Test
-    void shouldNotBlockGetOrHeadRequestWhenInDrainMode() throws Exception {
+    void shouldNotBlockGetOrHeadRequestWhenInMaintenanceMode() throws Exception {
         when(systemEnvironment.isServerActive()).thenReturn(true);
-        when(drainModeService.isDrainMode()).thenReturn(true);
+        when(maintenanceModeService.isMaintenanceMode()).thenReturn(true);
 
         request = HttpRequestBuilder.GET("/foo").build();
         filter.doFilter(request, response, filterChain);
@@ -120,7 +120,7 @@ class ModeAwareFilterTest {
     @Test
     void shouldBlockNonGetRequestWhenInPassiveState() throws Exception {
         when(systemEnvironment.isServerActive()).thenReturn(false);
-        when(drainModeService.isDrainMode()).thenReturn(false);
+        when(maintenanceModeService.isMaintenanceMode()).thenReturn(false);
 
         request = HttpRequestBuilder.POST("/foo").build();
         filter.doFilter(request, response, filterChain);
@@ -138,9 +138,9 @@ class ModeAwareFilterTest {
     }
 
     @Test
-    void shouldBlockNonGetRequestWhenInDrainMode() throws Exception {
+    void shouldBlockNonGetRequestWhenInMaintenanceMode() throws Exception {
         when(systemEnvironment.isServerActive()).thenReturn(true);
-        when(drainModeService.isDrainMode()).thenReturn(true);
+        when(maintenanceModeService.isMaintenanceMode()).thenReturn(true);
 
         request = HttpRequestBuilder.POST("/foo").build();
         filter.doFilter(request, response, filterChain);
@@ -170,11 +170,11 @@ class ModeAwareFilterTest {
     }
 
     @Test
-    void shouldAllowLoginPostRequestInDrainMode() throws Exception {
+    void shouldAllowLoginPostRequestInMaintenanceMode() throws Exception {
         request = HttpRequestBuilder.POST("/auth/security_check").build();
 
         when(systemEnvironment.isServerActive()).thenReturn(true);
-        when(drainModeService.isDrainMode()).thenReturn(true);
+        when(maintenanceModeService.isMaintenanceMode()).thenReturn(true);
         when(systemEnvironment.getWebappContextPath()).thenReturn("/go");
 
         filter.doFilter(request, response, filterChain);
@@ -208,9 +208,9 @@ class ModeAwareFilterTest {
     }
 
     @Test
-    public void shouldReturn503WhenPOSTCallIsMadeWhileServerIsInDrainMode() throws Exception {
+    public void shouldReturn503WhenPOSTCallIsMadeWhileServerIsInMaintenanceMode() throws Exception {
         when(systemEnvironment.isServerActive()).thenReturn(true);
-        when(drainModeService.isDrainMode()).thenReturn(true);
+        when(maintenanceModeService.isMaintenanceMode()).thenReturn(true);
 
         request = HttpRequestBuilder.POST("/pipelines").build();
 
@@ -224,9 +224,9 @@ class ModeAwareFilterTest {
     }
 
     @Test
-    public void shouldAllowStageCancelPOSTCallWhileServerIsInDrainMode() throws Exception {
+    public void shouldAllowStageCancelPOSTCallWhileServerIsInMaintenanceMode() throws Exception {
         when(systemEnvironment.isServerActive()).thenReturn(true);
-        when(drainModeService.isDrainMode()).thenReturn(true);
+        when(maintenanceModeService.isMaintenanceMode()).thenReturn(true);
 
         request = HttpRequestBuilder.POST("/api/stages/1/cancel").build();
 
@@ -236,9 +236,9 @@ class ModeAwareFilterTest {
     }
 
     @Test
-    public void shouldAllowStageCancelPOSTNewAPICallWhileServerIsInDrainMode() throws Exception {
+    public void shouldAllowStageCancelPOSTNewAPICallWhileServerIsInMaintenanceMode() throws Exception {
         when(systemEnvironment.isServerActive()).thenReturn(true);
-        when(drainModeService.isDrainMode()).thenReturn(true);
+        when(maintenanceModeService.isMaintenanceMode()).thenReturn(true);
 
         request = HttpRequestBuilder.POST("/api/stages/up42_pipeline/up42_stage/cancel").build();
 
@@ -248,11 +248,11 @@ class ModeAwareFilterTest {
     }
 
     @Test
-    public void shouldAllowDrainModeTogglePOSTCallWhileServerIsInDrainMode() throws Exception {
+    public void shouldAllowMaintenanceModeTogglePOSTCallWhileServerIsInMaintenanceMode() throws Exception {
         when(systemEnvironment.isServerActive()).thenReturn(true);
-        when(drainModeService.isDrainMode()).thenReturn(true);
+        when(maintenanceModeService.isMaintenanceMode()).thenReturn(true);
 
-        request = HttpRequestBuilder.POST("/api/admin/drain_mode/settings").build();
+        request = HttpRequestBuilder.POST("/api/admin/maintenance_mode/settings").build();
 
         filter.doFilter(request, response, filterChain);
 
@@ -260,9 +260,9 @@ class ModeAwareFilterTest {
     }
 
     @Test
-    public void shouldAllowBackupsPOSTApiCallWhileServerIsInDrainMode() throws Exception {
+    public void shouldAllowBackupsPOSTApiCallWhileServerIsInMaintenanceMode() throws Exception {
         when(systemEnvironment.isServerActive()).thenReturn(true);
-        when(drainModeService.isDrainMode()).thenReturn(true);
+        when(maintenanceModeService.isMaintenanceMode()).thenReturn(true);
 
         request = HttpRequestBuilder.POST("/api/backups").build();
 
@@ -272,9 +272,9 @@ class ModeAwareFilterTest {
     }
 
     @Test
-    public void shouldAllowBackupsPOSTCallInvokedViaUIWhileServerIsInDrainMode() throws Exception {
+    public void shouldAllowBackupsPOSTCallInvokedViaUIWhileServerIsInMaintenanceMode() throws Exception {
         when(systemEnvironment.isServerActive()).thenReturn(true);
-        when(drainModeService.isDrainMode()).thenReturn(true);
+        when(maintenanceModeService.isMaintenanceMode()).thenReturn(true);
 
         request = HttpRequestBuilder.POST("/admin/backup").build();
 
@@ -284,9 +284,9 @@ class ModeAwareFilterTest {
     }
 
     @Test
-    public void shouldAllowAgentRemotingPOSTCallInvokedViaAgentWhileServerIsInDrainMode() throws Exception {
+    public void shouldAllowAgentRemotingPOSTCallInvokedViaAgentWhileServerIsInMaintenanceMode() throws Exception {
         when(systemEnvironment.isServerActive()).thenReturn(true);
-        when(drainModeService.isDrainMode()).thenReturn(true);
+        when(maintenanceModeService.isMaintenanceMode()).thenReturn(true);
 
         request = HttpRequestBuilder.POST("/remoting/foo").build();
 
@@ -296,9 +296,9 @@ class ModeAwareFilterTest {
     }
 
     @Test
-    public void shouldAllowAgentRemotingPUTCallInvokedViaAgentWhileServerIsInDrainMode() throws Exception {
+    public void shouldAllowAgentRemotingPUTCallInvokedViaAgentWhileServerIsInMaintenanceMode() throws Exception {
         when(systemEnvironment.isServerActive()).thenReturn(true);
-        when(drainModeService.isDrainMode()).thenReturn(true);
+        when(maintenanceModeService.isMaintenanceMode()).thenReturn(true);
 
         request = HttpRequestBuilder.PUT("/remoting/files/up42/4/up42_stage/1/up42_job/cruise-output/console.log?attempt=1&buildId=5").build();
 
@@ -308,9 +308,9 @@ class ModeAwareFilterTest {
     }
 
     @Test
-    public void shouldAllowAgentWebsocketCallInvokedViaAgentWhileServerIsInDrainMode() throws Exception {
+    public void shouldAllowAgentWebsocketCallInvokedViaAgentWhileServerIsInMaintenanceMode() throws Exception {
         when(systemEnvironment.isServerActive()).thenReturn(true);
-        when(drainModeService.isDrainMode()).thenReturn(true);
+        when(maintenanceModeService.isMaintenanceMode()).thenReturn(true);
 
         request = HttpRequestBuilder.POST("/agent-websocket/foo").build();
 
@@ -320,9 +320,9 @@ class ModeAwareFilterTest {
     }
 
     @Test
-    public void shouldReturn503WhenPOSTAPICallIsMadeWhileServerIsInDrainMode() throws Exception {
+    public void shouldReturn503WhenPOSTAPICallIsMadeWhileServerIsInMaintenanceMode() throws Exception {
         when(systemEnvironment.isServerActive()).thenReturn(true);
-        when(drainModeService.isDrainMode()).thenReturn(true);
+        when(maintenanceModeService.isMaintenanceMode()).thenReturn(true);
 
         request = HttpRequestBuilder.POST("/api/state/active").withHeader("content-type", "application/json").build();
 
@@ -330,7 +330,7 @@ class ModeAwareFilterTest {
 
         verify(response, times(1)).setContentType("application/json");
         JsonObject json = new JsonObject();
-        json.addProperty("message", "server is in drain state (Maintenance mode), please try later.");
+        json.addProperty("message", "server is in maintenance state (Maintenance mode), please try later.");
         verify(writer).print(json);
 
         verify(response).setHeader("Cache-Control", "private, max-age=0, no-cache");

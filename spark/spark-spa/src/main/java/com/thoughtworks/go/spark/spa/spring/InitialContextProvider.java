@@ -44,18 +44,18 @@ public class InitialContextProvider {
     private final SecurityService securityService;
     private final VersionInfoService versionInfoService;
     private final DefaultPluginInfoFinder pluginInfoFinder;
-    private DrainModeService drainModeService;
+    private MaintenanceModeService maintenanceModeService;
 
     @Autowired
     public InitialContextProvider(RailsAssetsService railsAssetsService, WebpackAssetsService webpackAssetsService,
                                   SecurityService securityService, VersionInfoService versionInfoService, DefaultPluginInfoFinder pluginInfoFinder,
-                                  DrainModeService drainModeService) {
+                                  MaintenanceModeService maintenanceModeService) {
         this.railsAssetsService = railsAssetsService;
         this.webpackAssetsService = webpackAssetsService;
         this.securityService = securityService;
         this.versionInfoService = versionInfoService;
         this.pluginInfoFinder = pluginInfoFinder;
-        this.drainModeService = drainModeService;
+        this.maintenanceModeService = maintenanceModeService;
     }
 
     public VelocityContext getVelocityContext(Map<String, Object> modelMap, Class<? extends SparkController> controller, String viewName) {
@@ -63,7 +63,7 @@ public class InitialContextProvider {
         context.put("railsAssetsService", railsAssetsService);
         context.put("webpackAssetsService", webpackAssetsService);
         context.put("securityService", securityService);
-        context.put("drainModeService", drainModeService);
+        context.put("maintenanceModeService", maintenanceModeService);
         context.put("currentUser", SessionUtils.currentUsername());
         context.put("controllerName", humanizedControllerName(controller));
         context.put("viewName", viewName);

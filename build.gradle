@@ -670,7 +670,7 @@ static def toCamelCase(String input) {
 }
 
 task newSPA {
-  description = "Helper to create a new SPA. Pass `-PspaName=drain_mode"
+  description = "Helper to create a new SPA. Pass `-PspaName=maintenance_mode"
 
   doFirst {
     String spaName = project.spaName

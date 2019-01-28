@@ -64,7 +64,7 @@ public class BuildAssignmentServiceTest {
     @Mock
     private PipelineService pipelineService;
     @Mock
-    private DrainModeService drainModeService;
+    private MaintenanceModeService maintenanceModeService;
     @Mock
     private ScheduledPipelineLoader scheduledPipelineLoader;
     @Mock
@@ -87,7 +87,7 @@ public class BuildAssignmentServiceTest {
     @Before
     public void setUp() throws Exception {
         initMocks(this);
-        buildAssignmentService = new BuildAssignmentService(goConfigService, jobInstanceService, scheduleService, agentService, environmentConfigService, transactionTemplate, scheduledPipelineLoader, pipelineService, builderFactory, agentRemoteHandler, drainModeService, elasticAgentPluginService, systemEnvironment);
+        buildAssignmentService = new BuildAssignmentService(goConfigService, jobInstanceService, scheduleService, agentService, environmentConfigService, transactionTemplate, scheduledPipelineLoader, pipelineService, builderFactory, agentRemoteHandler, maintenanceModeService, elasticAgentPluginService, systemEnvironment);
         elasticProfileId1 = "elastic.profile.id.1";
         elasticProfileId2 = "elastic.profile.id.2";
         elasticAgent = AgentMother.elasticAgent();
@@ -103,7 +103,7 @@ public class BuildAssignmentServiceTest {
         when(jobInstanceService.orderedScheduledBuilds()).thenReturn(jobPlans);
         when(environmentConfigService.filterJobsByAgent(ArgumentMatchers.eq(jobPlans), any(String.class))).thenReturn(jobPlans);
         when(environmentConfigService.envForPipeline(any(String.class))).thenReturn("");
-        when(drainModeService.isDrainMode()).thenReturn(false);
+        when(maintenanceModeService.isMaintenanceMode()).thenReturn(false);
     }
 
     @Test
@@ -167,8 +167,8 @@ public class BuildAssignmentServiceTest {
     }
 
     @Test
-    public void shouldNotMatchJobsDuringDrainMode() {
-        when(drainModeService.isDrainMode()).thenReturn(true);
+    public void shouldNotMatchJobsDuringMaintenanceMode() {
+        when(maintenanceModeService.isMaintenanceMode()).thenReturn(true);
         PipelineConfig pipeline = PipelineConfigMother.pipelineConfig(UUID.randomUUID().toString());
         pipeline.first().getJobs().add(JobConfigMother.jobWithNoResourceRequirement());
         pipeline.first().getJobs().add(JobConfigMother.elasticJob(elasticProfileId1));

@@ -32,7 +32,7 @@ import com.thoughtworks.go.server.materials.postcommit.PostCommitHookMaterialTyp
 import com.thoughtworks.go.server.messaging.GoMessageListener;
 import com.thoughtworks.go.server.messaging.GoMessageQueue;
 import com.thoughtworks.go.server.perf.MDUPerformanceLogger;
-import com.thoughtworks.go.server.service.DrainModeService;
+import com.thoughtworks.go.server.service.MaintenanceModeService;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.MaterialConfigConverter;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
@@ -66,7 +66,7 @@ public class MaterialUpdateService implements GoMessageListener<MaterialUpdateCo
     private final MaterialUpdateQueue updateQueue;
     private final ConfigMaterialUpdateQueue configUpdateQueue;
     private final DependencyMaterialUpdateQueue dependencyMaterialUpdateQueue;
-    private final DrainModeService drainModeService;
+    private final MaintenanceModeService maintenanceModeService;
     private final GoConfigWatchList watchList;
     private final GoConfigService goConfigService;
     private final SystemEnvironment systemEnvironment;
@@ -87,7 +87,7 @@ public class MaterialUpdateService implements GoMessageListener<MaterialUpdateCo
                                  GoConfigService goConfigService, SystemEnvironment systemEnvironment,
                                  ServerHealthService serverHealthService, PostCommitHookMaterialTypeResolver postCommitHookMaterialType,
                                  MDUPerformanceLogger mduPerformanceLogger, MaterialConfigConverter materialConfigConverter,
-                                 DependencyMaterialUpdateQueue dependencyMaterialUpdateQueue, DrainModeService drainModeService) {
+                                 DependencyMaterialUpdateQueue dependencyMaterialUpdateQueue, MaintenanceModeService maintenanceModeService) {
         this.watchList = watchList;
         this.goConfigService = goConfigService;
         this.systemEnvironment = systemEnvironment;
@@ -98,7 +98,7 @@ public class MaterialUpdateService implements GoMessageListener<MaterialUpdateCo
         this.mduPerformanceLogger = mduPerformanceLogger;
         this.materialConfigConverter = materialConfigConverter;
         this.dependencyMaterialUpdateQueue = dependencyMaterialUpdateQueue;
-        this.drainModeService = drainModeService;
+        this.maintenanceModeService = maintenanceModeService;
         completed.addListener(this);
     }
 
@@ -108,8 +108,8 @@ public class MaterialUpdateService implements GoMessageListener<MaterialUpdateCo
     }
 
     public void onTimer() {
-        if (drainModeService.isDrainMode()) {
-            LOGGER.debug("[Drain Mode] GoCD server is in 'drain' mode, skip checking for MDU.");
+        if (maintenanceModeService.isMaintenanceMode()) {
+            LOGGER.debug("[Maintenance Mode] GoCD server is in 'maintenance' mode, skip checking for MDU.");
             return;
         }
 

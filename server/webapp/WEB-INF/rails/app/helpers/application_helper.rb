@@ -485,8 +485,8 @@ module ApplicationHelper
     form_remote_tag(options)
   end
 
-  def is_server_in_drain_mode?
-    drain_mode_service.isDrainMode
+  def is_server_in_maintenance_mode?
+    maintenance_mode_service.isMaintenanceMode
   end
 
   def edit_path_for_pipeline(pipeline_name)

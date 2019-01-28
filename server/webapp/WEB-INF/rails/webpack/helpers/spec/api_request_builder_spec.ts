@@ -73,7 +73,7 @@ describe("Api Request Builder", () => {
       mockServerUnavailableRequest();
       ApiRequestBuilder.PUT("/foo", ApiVersion.v1).then((result) => {
         // @ts-ignore
-        expect(result.unwrap().message).toEqual("server is in drain state (Maintenance mode), please try later.");
+        expect(result.unwrap().message).toEqual("server is in maintenance mode, please try later.");
         expect(result.getEtag()).toBeNull();
         expect(result.getStatusCode()).toEqual(503);
         done();
@@ -203,7 +203,7 @@ describe("Api Request Builder", () => {
   function mockServerUnavailableRequest() {
     return jasmine.Ajax.stubRequest("/foo", undefined, "PUT")
                   .andReturn({
-                               responseText: JSON.stringify({message: "server is in drain state (Maintenance mode), please try later."}),
+                               responseText: JSON.stringify({message: "server is in maintenance mode, please try later."}),
                                status: 503,
                                responseHeaders: {
                                  "Content-Type": contentType,

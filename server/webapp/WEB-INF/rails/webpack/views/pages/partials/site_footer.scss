@@ -58,9 +58,10 @@ $maintenance-mode-banner-message-font-size: 17px;
 }
 
 .content {
-  word-break: break-all;
-  font-size:  12px;
-  margin:     0;
+  word-break:  break-all;
+  font-size:   12px;
+  margin:      0;
+  line-height: 19px;
 
   a {
     color: $link-color;

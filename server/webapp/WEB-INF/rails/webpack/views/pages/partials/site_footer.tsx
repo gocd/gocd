@@ -67,7 +67,7 @@ export class SiteFooter extends MithrilViewComponent<Attrs> {
       return (<div data-test-id="maintenance-mode-banner" class={styles.footerWarningBanner}>
         GoCD Server is in maintenance mode.
         &nbsp;
-        <Link target="_blank" href="https://docs.gocd.org/advanced_usage/maintenance_mode.html">Learn more..</Link>
+        <Link target="_blank" href="https://docs.gocd.org/current/advanced_usage/maintenance_mode.html">Learn more..</Link>
       </div>);
     }
 

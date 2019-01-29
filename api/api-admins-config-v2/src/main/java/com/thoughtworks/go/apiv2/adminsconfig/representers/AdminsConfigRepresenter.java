@@ -34,6 +34,10 @@ public class AdminsConfigRepresenter {
         jsonWriter.addLinks(
                 outputLinkWriter -> outputLinkWriter.addAbsoluteLink("doc", Routes.SystemAdmins.DOC)
                         .addLink("self", Routes.SystemAdmins.BASE));
+        toJSONWithoutLinks(jsonWriter, admin);
+    }
+
+    public static void toJSONWithoutLinks(OutputWriter jsonWriter, AdminsConfig admin) {
         jsonWriter.addChildList("roles", rolesAsString(admin.getRoles()));
         jsonWriter.addChildList("users", userAsString(admin.getUsers()));
         if (admin.hasErrors()) {

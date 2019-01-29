@@ -103,6 +103,7 @@ public class AdminsConfigService {
         AdminsConfigUpdateCommand command = new AdminsConfigUpdateCommand(goConfigService, new AdminsConfig(existingAdmins),
                 currentUser, result, entityHashingService, md5);
         updateConfig(currentUser, result, command);
+        result.setAdminsConfig(command.getEntity());
         return result;
     }
 

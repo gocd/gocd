@@ -16,11 +16,14 @@
 
 package com.thoughtworks.go.apiv2.adminsconfig.representers
 
-
+import com.thoughtworks.go.config.AdminRole
+import com.thoughtworks.go.config.AdminUser
+import com.thoughtworks.go.config.AdminsConfig
 import com.thoughtworks.go.server.service.result.BulkUpdateAdminsResult
 import org.junit.jupiter.api.Test
 
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
+import static com.thoughtworks.go.api.base.JsonUtils.toObjectWithoutLinks
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
 
 class BulkUpdateFailureResultRepresenterTest {
@@ -29,8 +32,9 @@ class BulkUpdateFailureResultRepresenterTest {
   void shouldNotSerializeNonExistentUsersAndRolesWhenAbsent() {
     def result = new BulkUpdateAdminsResult()
     result.unprocessableEntity("Validation Failed")
+    result.adminsConfig = new AdminsConfig(new AdminUser("adminUser"), new AdminRole("adminRole"))
     def json = toObjectString { BulkUpdateFailureResultRepresenter.toJSON(it, result) }
-    def expected = [message: "Validation Failed"]
+    def expected = [message: "Validation Failed", data: [roles: ["adminRole"], users: ["adminUser"]]]
 
     assertThatJson(json).isEqualTo(expected)
   }

@@ -33,6 +33,9 @@ public class BulkUpdateFailureResultRepresenter {
         if (result.getNonExistentRoles() != null && result.getNonExistentRoles().size() > 0) {
             outputWriter.addChildList("non_existent_roles", toStringList(result.getNonExistentRoles()));
         }
+        if (result.getAdminsConfig() != null) {
+            outputWriter.addChild("data", childWriter -> AdminsConfigRepresenter.toJSONWithoutLinks(childWriter, result.getAdminsConfig()));
+        }
     }
 
     private static List<String> toStringList(List<CaseInsensitiveString> list) {

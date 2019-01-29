@@ -72,7 +72,7 @@ export class MaintenanceModeWidget extends MithrilViewComponent<Attrs> {
           </span>
           <span class={styles.switchWrapper} data-test-id="switch-wrapper">
             <span class={styles.maintenanceModeLabel}>Enable Maintenance Mode:</span>
-            <SwitchBtn inProgress={maintenanceModeInfo.maintenanceModeState() && !maintenanceModeInfo.hasRunningSystems}
+            <SwitchBtn inProgress={maintenanceModeInfo.maintenanceModeState() && maintenanceModeInfo.hasRunningSystems}
                        field={maintenanceModeInfo.maintenanceModeState}
                        onclick={vnode.attrs.toggleMaintenanceMode}/>
             <div class={styles.maintenanceModeStateMessage}>{maintenanceModeStateMessage}</div>

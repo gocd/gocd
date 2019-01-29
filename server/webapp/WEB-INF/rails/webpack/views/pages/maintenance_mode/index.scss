@@ -34,8 +34,10 @@
   padding:       10px 20px;
   border:        1px solid $border-color;
   border-radius: $global-border-radius;
-  @media (min-width: $screen-md) {
-    width: 50%;
+  width:         100%;
+  box-sizing:    border-box;
+  @media (min-width: $screen-xxl) {
+    width: 55%;
   }
 }
 

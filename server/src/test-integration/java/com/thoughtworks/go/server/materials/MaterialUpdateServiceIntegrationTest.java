@@ -24,7 +24,7 @@ import com.thoughtworks.go.config.materials.svn.SvnMaterial;
 import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
 import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.server.perf.MDUPerformanceLogger;
-import com.thoughtworks.go.server.service.DrainModeService;
+import com.thoughtworks.go.server.service.MaintenanceModeService;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.MaterialConfigConverter;
 import com.thoughtworks.go.serverhealth.HealthStateScope;
@@ -51,7 +51,7 @@ public class MaterialUpdateServiceIntegrationTest {
     @Autowired private ServerHealthService serverHealthService;
     @Autowired private SystemEnvironment systemEnvironment;
     @Autowired private MaterialConfigConverter materialConfigConverter;
-    @Autowired private DrainModeService drainModeService;
+    @Autowired private MaintenanceModeService maintenanceModeService;
 
     @Test public void shouldClearServerHealthLogsForMaterialThatNoLongerExistsInCruiseConfig() throws Exception {
         HealthStateScope badScope = HealthStateScope.forMaterial(new SvnMaterial("non-existent-url!", "user", "pwd", false));
@@ -63,7 +63,7 @@ public class MaterialUpdateServiceIntegrationTest {
 
         MaterialUpdateService materialUpdateService = new MaterialUpdateService(null,null, mock(MaterialUpdateCompletedTopic.class),
                 mock(GoConfigWatchList.class),mock(GoConfigService.class),
-                systemEnvironment, serverHealthService, null, mock(MDUPerformanceLogger.class), materialConfigConverter, null, drainModeService);
+                systemEnvironment, serverHealthService, null, mock(MDUPerformanceLogger.class), materialConfigConverter, null, maintenanceModeService);
 
         materialUpdateService.onConfigChange(configWithMaterial(goodMaterial));
 

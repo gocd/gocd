@@ -20,7 +20,7 @@ import com.thoughtworks.go.config.materials.svn.SvnMaterial;
 import com.thoughtworks.go.helper.MaterialsMother;
 import com.thoughtworks.go.server.cronjob.GoDiskSpaceMonitor;
 import com.thoughtworks.go.server.perf.MDUPerformanceLogger;
-import com.thoughtworks.go.server.service.DrainModeService;
+import com.thoughtworks.go.server.service.MaintenanceModeService;
 import com.thoughtworks.go.server.transaction.TransactionCallback;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import org.junit.Before;
@@ -39,7 +39,7 @@ public class MaterialUpdateListenerTest {
     private GoDiskSpaceMonitor diskSpaceMonitor;
     private TransactionTemplate transactionTemplate;
     private MDUPerformanceLogger mduPerformanceLogger;
-    private DrainModeService drainModeService;
+    private MaintenanceModeService maintenanceModeService;
 
     @Before
     public void setUp() throws Exception {
@@ -48,8 +48,8 @@ public class MaterialUpdateListenerTest {
         diskSpaceMonitor = mock(GoDiskSpaceMonitor.class);
         transactionTemplate = mock(TransactionTemplate.class);
         mduPerformanceLogger = mock(MDUPerformanceLogger.class);
-        drainModeService = mock(DrainModeService.class);
-        materialUpdateListener = new MaterialUpdateListener(topic, updater, mduPerformanceLogger, diskSpaceMonitor, drainModeService);
+        maintenanceModeService = mock(MaintenanceModeService.class);
+        materialUpdateListener = new MaterialUpdateListener(topic, updater, mduPerformanceLogger, diskSpaceMonitor, maintenanceModeService);
     }
 
     @Test
@@ -60,8 +60,8 @@ public class MaterialUpdateListenerTest {
     }
 
     @Test
-    public void shouldNotUpdateOnMessageWhenServerIsInDrainMode() {
-        when(drainModeService.isDrainMode()).thenReturn(true);
+    public void shouldNotUpdateOnMessageWhenServerIsInMaintenanceMode() {
+        when(maintenanceModeService.isMaintenanceMode()).thenReturn(true);
         materialUpdateListener.onMessage(new MaterialUpdateMessage(MATERIAL, 0));
         verifyZeroInteractions(updater);
     }
@@ -74,12 +74,12 @@ public class MaterialUpdateListenerTest {
     }
 
     @Test
-    public void shouldNotifyDrainModeServiceAboutStartOfMaterialUpdate() throws Exception {
+    public void shouldNotifyMaintenanceModeServiceAboutStartOfMaterialUpdate() throws Exception {
         setupTransactionTemplateStub();
         materialUpdateListener.onMessage(new MaterialUpdateMessage(MATERIAL, 0));
         verify(updater).updateMaterial(MATERIAL);
-        verify(drainModeService).mduStartedForMaterial(MATERIAL);
-        verify(drainModeService).mduFinishedForMaterial(MATERIAL);
+        verify(maintenanceModeService).mduStartedForMaterial(MATERIAL);
+        verify(maintenanceModeService).mduFinishedForMaterial(MATERIAL);
     }
 
     private void setupTransactionTemplateStub() throws Exception {
@@ -108,8 +108,8 @@ public class MaterialUpdateListenerTest {
     }
 
     @Test
-    public void shouldPostUpdateSkippedMessageWhenServerIsInDrainMode() {
-        when(drainModeService.isDrainMode()).thenReturn(true);
+    public void shouldPostUpdateSkippedMessageWhenServerIsInMaintenanceMode() {
+        when(maintenanceModeService.isMaintenanceMode()).thenReturn(true);
         materialUpdateListener.onMessage(new MaterialUpdateMessage(MATERIAL, 10));
         verify(topic).post(new MaterialUpdateSkippedMessage(MATERIAL, 10));
     }

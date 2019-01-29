@@ -20,7 +20,7 @@ import com.thoughtworks.go.config.BasicCruiseConfig;
 import com.thoughtworks.go.config.BasicPipelineConfigs;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.PipelineConfig;
-import com.thoughtworks.go.server.domain.ServerDrainMode;
+import com.thoughtworks.go.server.domain.ServerMaintenanceMode;
 import com.thoughtworks.go.server.scheduling.BuildCauseProducerService;
 import com.thoughtworks.go.server.service.result.ServerHealthStateOperationResult;
 import com.thoughtworks.go.util.SystemEnvironment;
@@ -43,12 +43,12 @@ import static org.mockito.Mockito.*;
 public class TimerSchedulerQuartzIntegrationTest {
     private StdSchedulerFactory quartzSchedulerFactory;
     private Scheduler scheduler;
-    private DrainModeService drainModeService;
+    private MaintenanceModeService maintenanceModeService;
     private SystemEnvironment systemEnvironment;
 
     @Before
     public void setUp() throws Exception {
-        drainModeService = new DrainModeService(new TimeProvider());
+        maintenanceModeService = new MaintenanceModeService(new TimeProvider());
         quartzSchedulerFactory = new StdSchedulerFactory();
         scheduler = quartzSchedulerFactory.getScheduler();
         systemEnvironment = new SystemEnvironment();
@@ -71,7 +71,7 @@ public class TimerSchedulerQuartzIntegrationTest {
 
         BuildCauseProducerService buildCauseProducerService = mock(BuildCauseProducerService.class);
 
-        TimerScheduler timerScheduler = new TimerScheduler(scheduler, goConfigService, buildCauseProducerService, null, drainModeService, systemEnvironment);
+        TimerScheduler timerScheduler = new TimerScheduler(scheduler, goConfigService, buildCauseProducerService, null, maintenanceModeService, systemEnvironment);
         timerScheduler.initialize();
 
         pauseForScheduling();
@@ -81,7 +81,7 @@ public class TimerSchedulerQuartzIntegrationTest {
     }
 
     @Test
-    public void shouldNotExecuteScheduledJobsWhenServerIsInDrainMode() throws InterruptedException {
+    public void shouldNotExecuteScheduledJobsWhenServerIsInMaintenanceMode() throws InterruptedException {
         PipelineConfig uat = pipelineConfigWithTimer("uat", "* * * * * ?");
         PipelineConfig dist = pipelineConfigWithTimer("dist", "* * * * * ?");
         List<PipelineConfig> pipelineConfigs = asList(uat, dist);
@@ -90,11 +90,11 @@ public class TimerSchedulerQuartzIntegrationTest {
         when(goConfigService.getAllPipelineConfigs()).thenReturn(pipelineConfigs);
 
         BuildCauseProducerService buildCauseProducerService = mock(BuildCauseProducerService.class);
-        ServerDrainMode serverDrainMode = new ServerDrainMode();
-        serverDrainMode.setDrainMode(true);
-        drainModeService.update(serverDrainMode);
+        ServerMaintenanceMode serverMaintenanceMode = new ServerMaintenanceMode();
+        serverMaintenanceMode.setMaintenanceMode(true);
+        maintenanceModeService.update(serverMaintenanceMode);
 
-        TimerScheduler timerScheduler = new TimerScheduler(scheduler, goConfigService, buildCauseProducerService, null, drainModeService, systemEnvironment);
+        TimerScheduler timerScheduler = new TimerScheduler(scheduler, goConfigService, buildCauseProducerService, null, maintenanceModeService, systemEnvironment);
         timerScheduler.initialize();
 
         pauseForScheduling();
@@ -113,7 +113,7 @@ public class TimerSchedulerQuartzIntegrationTest {
 
         BuildCauseProducerService buildCauseProducerService = mock(BuildCauseProducerService.class);
 
-        TimerScheduler timerScheduler = new TimerScheduler(scheduler, goConfigService, buildCauseProducerService, null, drainModeService, systemEnvironment);
+        TimerScheduler timerScheduler = new TimerScheduler(scheduler, goConfigService, buildCauseProducerService, null, maintenanceModeService, systemEnvironment);
         timerScheduler.initialize();
 
         CruiseConfig cruiseConfig = new BasicCruiseConfig();

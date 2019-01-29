@@ -56,25 +56,25 @@ public class TimerScheduler implements ConfigChangedListener {
     private GoConfigService goConfigService;
     private BuildCauseProducerService buildCauseProducerService;
     private ServerHealthService serverHealthService;
-    private DrainModeService drainModeService;
+    private MaintenanceModeService maintenanceModeService;
     private SystemEnvironment systemEnvironment;
     private Scheduler quartzScheduler;
     protected static final String PIPELINE_TRIGGGER_TIMER_GROUP = "PIPELINE_TRIGGGER_TIMER_GROUP";
     protected static final String BUILD_CAUSE_PRODUCER_SERVICE = "BuildCauseProducerService";
-    protected static final String DRAIN_MODE_SERVICE = "DrainModeService";
+    protected static final String MAINTENANCE_MODE_SERVICE = "MaintenanceModeService";
     protected static final String PIPELINE_CONFIG = "PipelineConfig";
 
     @Autowired
     public TimerScheduler(Scheduler scheduler, GoConfigService goConfigService,
                           BuildCauseProducerService buildCauseProducerService,
                           ServerHealthService serverHealthService,
-                          DrainModeService drainModeService,
+                          MaintenanceModeService maintenanceModeService,
                           SystemEnvironment systemEnvironment) {
         this.goConfigService = goConfigService;
         this.buildCauseProducerService = buildCauseProducerService;
         this.quartzScheduler = scheduler;
         this.serverHealthService = serverHealthService;
-        this.drainModeService = drainModeService;
+        this.maintenanceModeService = maintenanceModeService;
         this.systemEnvironment = systemEnvironment;
     }
 
@@ -146,7 +146,7 @@ public class TimerScheduler implements ConfigChangedListener {
     private JobDataMap jobDataMapFor(PipelineConfig pipelineConfig) {
         JobDataMap map = new JobDataMap();
         map.put(BUILD_CAUSE_PRODUCER_SERVICE, buildCauseProducerService);
-        map.put(DRAIN_MODE_SERVICE, drainModeService);
+        map.put(MAINTENANCE_MODE_SERVICE, maintenanceModeService);
         map.put(PIPELINE_CONFIG, pipelineConfig);
         return map;
     }
@@ -183,11 +183,11 @@ public class TimerScheduler implements ConfigChangedListener {
         public void execute(JobExecutionContext context) {
             JobDataMap jobDataMap = context.getJobDetail().getJobDataMap();
             BuildCauseProducerService buildCauseProducerService = (BuildCauseProducerService) jobDataMap.get(BUILD_CAUSE_PRODUCER_SERVICE);
-            DrainModeService drainModeService = (DrainModeService) jobDataMap.get(DRAIN_MODE_SERVICE);
+            MaintenanceModeService maintenanceModeService = (MaintenanceModeService) jobDataMap.get(MAINTENANCE_MODE_SERVICE);
             PipelineConfig pipelineConfig = (PipelineConfig) jobDataMap.get(PIPELINE_CONFIG);
 
-            if (drainModeService.isDrainMode()) {
-                LOG.debug("[Drain Mode] GoCD server is in 'drain' mode, skipping scheduling of timer triggered pipeline: '{}'.", pipelineConfig.getName());
+            if (maintenanceModeService.isMaintenanceMode()) {
+                LOG.debug("[Maintenance Mode] GoCD server is in 'maintenance' mode, skipping scheduling of timer triggered pipeline: '{}'.", pipelineConfig.getName());
                 return;
             }
 

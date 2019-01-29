@@ -53,7 +53,7 @@ module Services
     :config_repository,
     :default_plugin_info_finder,
     :default_plugin_manager,
-    :drain_mode_service,
+    :maintenance_mode_service,
     :elastic_profile_service,
     :entity_hashing_service,
     :environment_config_service,

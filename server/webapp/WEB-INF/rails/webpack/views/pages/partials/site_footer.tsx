@@ -24,14 +24,14 @@ export interface Attrs {
   goVersion: string;
   fullVersion: string;
   formattedVersion: string;
-  isServerInDrainMode: boolean;
+  isServerInMaintenanceMode: boolean;
   isSupportedBrowser: boolean;
 }
 
 export class SiteFooter extends MithrilViewComponent<Attrs> {
   view(vnode: m.Vnode<Attrs>) {
     return <div className={styles.footer}>
-      {SiteFooter.drainModeOrLegacyBrowserBanner(vnode)}
+      {SiteFooter.maintenanceModeOrLegacyBrowserBanner(vnode)}
       <div class={styles.left}>
         <p class={styles.content}>Copyright &copy; {vnode.attrs.copyrightYear}&nbsp;
           <a href="https://www.thoughtworks.com/products" target="_blank">ThoughtWorks, Inc.</a>
@@ -62,12 +62,12 @@ export class SiteFooter extends MithrilViewComponent<Attrs> {
     </div>;
   }
 
-  private static drainModeOrLegacyBrowserBanner(vnode: m.Vnode<Attrs>) {
-    if (vnode.attrs.isServerInDrainMode) {
-      return (<div data-test-id="drain-mode-banner" class={styles.footerWarningBanner}>
-        GoCD Server is in the drain state (Maintenance mode).
+  private static maintenanceModeOrLegacyBrowserBanner(vnode: m.Vnode<Attrs>) {
+    if (vnode.attrs.isServerInMaintenanceMode) {
+      return (<div data-test-id="maintenance-mode-banner" class={styles.footerWarningBanner}>
+        GoCD Server is in maintenance mode.
         &nbsp;
-        <Link target="_blank" href="https://docs.gocd.org/advanced_usage/drain_mode.html">Learn more..</Link>
+        <Link target="_blank" href="https://docs.gocd.org/advanced_usage/maintenance_mode.html">Learn more..</Link>
       </div>);
     }
 

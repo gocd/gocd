@@ -45,7 +45,7 @@ import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.dao.JobInstanceDao;
 import com.thoughtworks.go.server.dao.PipelineDao;
 import com.thoughtworks.go.server.dao.StageDao;
-import com.thoughtworks.go.server.domain.ServerDrainMode;
+import com.thoughtworks.go.server.domain.ServerMaintenanceMode;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.materials.DependencyMaterialUpdateNotifier;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
@@ -118,7 +118,7 @@ public class BuildAssignmentServiceIntegrationTest {
     @Autowired private PipelineConfigService pipelineConfigService;
     @Autowired private ElasticAgentPluginService elasticAgentPluginService;
     @Autowired private DependencyMaterialUpdateNotifier notifier;
-    @Autowired private DrainModeService drainModeService;
+    @Autowired private MaintenanceModeService maintenanceModeService;
 
     private PipelineConfig evolveConfig;
     private static final String STAGE_NAME = "dev";
@@ -150,7 +150,7 @@ public class BuildAssignmentServiceIntegrationTest {
 
     @Before
     public void setUp() throws Exception {
-        drainModeService.update(new ServerDrainMode(false, "admin", new Date()));
+        maintenanceModeService.update(new ServerMaintenanceMode(false, "admin", new Date()));
         configCache = new ConfigCache();
         registry = ConfigElementImplementationRegistryMother.withNoPlugins();
         configHelper = new GoConfigFileHelper().usingCruiseConfigDao(goConfigDao);
@@ -395,7 +395,7 @@ public class BuildAssignmentServiceIntegrationTest {
         };
 
         final BuildAssignmentService buildAssignmentServiceUnderTest = new BuildAssignmentService(goConfigService, mockJobInstanceService, scheduleService,
-                agentService, environmentConfigService, transactionTemplate, scheduledPipelineLoader, pipelineService, builderFactory, agentRemoteHandler, drainModeService, elasticAgentPluginService, systemEnvironment);
+                agentService, environmentConfigService, transactionTemplate, scheduledPipelineLoader, pipelineService, builderFactory, agentRemoteHandler, maintenanceModeService, elasticAgentPluginService, systemEnvironment);
 
         final Throwable[] fromThread = new Throwable[1];
         buildAssignmentServiceUnderTest.onTimer();
@@ -438,7 +438,7 @@ public class BuildAssignmentServiceIntegrationTest {
         when(mockGoConfigService.getCurrentConfig()).thenReturn(config);
 
         buildAssignmentService = new BuildAssignmentService(mockGoConfigService, jobInstanceService, scheduleService, agentService, environmentConfigService,
-                transactionTemplate, scheduledPipelineLoader, pipelineService, builderFactory, agentRemoteHandler, drainModeService, elasticAgentPluginService, systemEnvironment);
+                transactionTemplate, scheduledPipelineLoader, pipelineService, builderFactory, agentRemoteHandler, maintenanceModeService, elasticAgentPluginService, systemEnvironment);
         buildAssignmentService.onTimer();
 
         AgentConfig agentConfig = AgentMother.localAgent();
@@ -658,8 +658,8 @@ public class BuildAssignmentServiceIntegrationTest {
     }
 
     @Test
-    public void shouldNotScheduleJobsDuringServerDrainMode() throws Exception {
-        drainModeService.update(new ServerDrainMode(true, "admin", new Date()));
+    public void shouldNotScheduleJobsDuringServerMaintenanceMode() throws Exception {
+        maintenanceModeService.update(new ServerMaintenanceMode(true, "admin", new Date()));
 
         JobConfig jobConfig = evolveConfig.findBy(new CaseInsensitiveString(STAGE_NAME)).jobConfigByInstanceName("unit", true);
         jobConfig.addResourceConfig("some-resource");

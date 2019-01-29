@@ -25,7 +25,7 @@ import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
 import {FlashMessage} from "views/components/flash_message";
 import {Form, FormHeader} from "views/components/forms/form";
 import {SelectField, SelectFieldOptions, TextField} from "views/components/forms/input_fields";
-import {Message} from "views/pages/drain_mode";
+import {Message} from "views/pages/maintenance_mode";
 
 const AngularPluginNew = require("views/shared/angular_plugin_new");
 

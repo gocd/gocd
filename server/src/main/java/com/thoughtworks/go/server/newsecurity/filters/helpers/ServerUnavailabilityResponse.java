@@ -17,6 +17,7 @@
 package com.thoughtworks.go.server.newsecurity.filters.helpers;
 
 import com.google.gson.JsonObject;
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
@@ -79,7 +80,7 @@ public class ServerUnavailabilityResponse {
                 response.getWriter().print(jsonObject);
             } else if (requestIsOfType(XML, httpRequest)) {
                 response.setContentType("application/xml");
-                String xml = String.format("<message> %s </message>", jsonMessage);
+                String xml = String.format("<message>%s</message>", StringEscapeUtils.escapeXml11(jsonMessage));
                 response.getWriter().print(xml);
             } else {
                 generateHTMLResponse();

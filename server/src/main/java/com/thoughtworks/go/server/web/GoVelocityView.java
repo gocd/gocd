@@ -56,7 +56,7 @@ public class GoVelocityView extends VelocityToolboxView {
     public static final String GO_UPDATE_CHECK_ENABLED = "goUpdateCheckEnabled";
     public static final String SHOW_ANALYTICS_DASHBOARD = "showAnalyticsDashboard";
     public static final String WEBPACK_ASSETS_SERVICE = "webpackAssetsService";
-    public static final String DRAIN_MODE_SERVICE = "drainModeService";
+    public static final String MAINTENANCE_MODE_SERVICE = "maintenanceModeService";
     public static final String IS_ANONYMOUS_USER = "isAnonymousUser";
 
     private final SystemEnvironment systemEnvironment;
@@ -81,8 +81,8 @@ public class GoVelocityView extends VelocityToolboxView {
         return this.getApplicationContext().getAutowireCapableBeanFactory().getBean(VersionInfoService.class);
     }
 
-    DrainModeService getDrainModeService() {
-        return this.getApplicationContext().getAutowireCapableBeanFactory().getBean(DrainModeService.class);
+    MaintenanceModeService getMaintenanceModeService() {
+        return this.getApplicationContext().getAutowireCapableBeanFactory().getBean(MaintenanceModeService.class);
     }
 
     SecurityService getSecurityService() {
@@ -124,7 +124,7 @@ public class GoVelocityView extends VelocityToolboxView {
 
         velocityContext.put(SHOW_ANALYTICS_DASHBOARD, (securityService.isUserAdmin(username) && supportsAnalyticsDashboard()));
         velocityContext.put(WEBPACK_ASSETS_SERVICE, webpackAssetsService());
-        velocityContext.put(DRAIN_MODE_SERVICE, getDrainModeService());
+        velocityContext.put(MAINTENANCE_MODE_SERVICE, getMaintenanceModeService());
         if (!SessionUtils.hasAuthenticationToken(request)) {
             return;
         }

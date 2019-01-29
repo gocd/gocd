@@ -21,7 +21,7 @@ import com.thoughtworks.go.config.update.FullConfigUpdateCommand;
 import com.thoughtworks.go.listener.ConfigChangedListener;
 import com.thoughtworks.go.listener.EntityConfigChangedListener;
 import com.thoughtworks.go.server.domain.Username;
-import com.thoughtworks.go.server.service.DrainModeService;
+import com.thoughtworks.go.server.service.MaintenanceModeService;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.serverhealth.ServerHealthState;
 import com.thoughtworks.go.util.SystemEnvironment;
@@ -48,20 +48,20 @@ public class CachedGoConfigTest {
     @Mock
     private SystemEnvironment systemEnvironment;
     @Mock
-    private DrainModeService drainModeService;
+    private MaintenanceModeService maintenanceModeService;
 
     @Before
     public void setUp() throws Exception {
         initMocks(this);
         configHolder = new GoConfigHolder(new BasicCruiseConfig(), new BasicCruiseConfig());
-        cachedGoConfig = new CachedGoConfig(serverHealthService, dataSource, mock(CachedGoPartials.class), goConfigMigrator, systemEnvironment, drainModeService);
+        cachedGoConfig = new CachedGoConfig(serverHealthService, dataSource, mock(CachedGoPartials.class), goConfigMigrator, systemEnvironment, maintenanceModeService);
         when(systemEnvironment.optimizeFullConfigSave()).thenReturn(true);
         when(dataSource.load()).thenReturn(configHolder);
     }
 
     @Test
-    public void shouldNotLoadConfigXMLDuringDrainMode() {
-        when(drainModeService.isDrainMode()).thenReturn(true);
+    public void shouldNotLoadConfigXMLDuringMaintenanceMode() {
+        when(maintenanceModeService.isMaintenanceMode()).thenReturn(true);
         cachedGoConfig.onTimer();
 
         verifyZeroInteractions(dataSource);

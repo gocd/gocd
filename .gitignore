@@ -141,10 +141,10 @@ api/api-environments-v2/out/
 api/api-environments-v2/target/
 api/api-export-v1/config/
 api/api-export-v1/out/
-api/api-server-drain-mode-v1/logs/
-api/api-server-drain-mode-v1/out/
-api/api-server-drain-mode-v1/target/
-api/api-server-drain-mode-v1/config/
+api/api-server-maintenance-mode-v1/logs/
+api/api-server-maintenance-mode-v1/out/
+api/api-server-maintenance-mode-v1/target/
+api/api-server-maintenance-mode-v1/config/
 api/api-elastic-profile-v1/out/
 api/api-elastic-profile-v1/logs/
 api/api-elastic-profile-v1/target/

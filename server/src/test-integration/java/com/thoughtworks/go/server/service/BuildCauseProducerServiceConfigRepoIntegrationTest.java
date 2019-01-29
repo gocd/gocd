@@ -101,7 +101,7 @@ public class BuildCauseProducerServiceConfigRepoIntegrationTest {
     @Autowired private PipelineScheduler buildCauseProducer;
     @Autowired private BuildCauseProducerService buildCauseProducerService;
     @Autowired private MaterialChecker materialChecker;
-    @Autowired private DrainModeService drainModeService;
+    @Autowired private MaintenanceModeService maintenanceModeService;
 
     @Autowired private MaterialUpdateCompletedTopic topic;
     @Autowired private ConfigMaterialUpdateCompletedTopic configTopic;
@@ -149,7 +149,7 @@ public class BuildCauseProducerServiceConfigRepoIntegrationTest {
                 stageService, configDbStateRepository);
         goDiskSpaceMonitor.initialize();
 
-        worker = new MaterialUpdateListener(configTopic,materialDatabaseUpdater,logger,goDiskSpaceMonitor, drainModeService);
+        worker = new MaterialUpdateListener(configTopic,materialDatabaseUpdater,logger,goDiskSpaceMonitor, maintenanceModeService);
 
         xmlWriter = new MagicalGoConfigXmlWriter(configCache, ConfigElementImplementationRegistryMother.withNoPlugins());
         configTestRepo = new ConfigTestRepo(hgRepo, xmlWriter);
@@ -267,7 +267,7 @@ public class BuildCauseProducerServiceConfigRepoIntegrationTest {
     @Test
     public void shouldNotSchedulePipelineWhenConfigAndMaterialRevisionsMismatch() throws Exception {
         // we will use this worker to force material update without updating config
-        MaterialUpdateListener byPassWorker = new MaterialUpdateListener(topic, materialDatabaseUpdater, logger, goDiskSpaceMonitor, drainModeService);
+        MaterialUpdateListener byPassWorker = new MaterialUpdateListener(topic, materialDatabaseUpdater, logger, goDiskSpaceMonitor, maintenanceModeService);
         List<Modification> mod = configTestRepo.addCodeToRepositoryAndPush("a.java", "added code file", "some java code");
         byPassWorker.onMessage(new MaterialUpdateMessage(material,123));
         //now db should have been updated, but config is still old
@@ -322,7 +322,7 @@ public class BuildCauseProducerServiceConfigRepoIntegrationTest {
     // We already let all manual triggers to bypass revision match check
     public void shouldSchedulePipelineWhenConfigAndMaterialRevisionsMismatch_AndManuallyTriggered() throws Exception {
         // we will use this worker to force material update without updating config
-        MaterialUpdateListener byPassWorker = new MaterialUpdateListener(topic, materialDatabaseUpdater, logger, goDiskSpaceMonitor, drainModeService);
+        MaterialUpdateListener byPassWorker = new MaterialUpdateListener(topic, materialDatabaseUpdater, logger, goDiskSpaceMonitor, maintenanceModeService);
         List<Modification> lastPush = configTestRepo.addCodeToRepositoryAndPush("a.java", "added code file", "some java code");
         byPassWorker.onMessage(new MaterialUpdateMessage(material,123));
         //now db should have been updated, but config is still old

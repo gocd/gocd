@@ -21,7 +21,7 @@ import com.thoughtworks.go.server.messaging.GoMessageChannel;
 import com.thoughtworks.go.server.messaging.GoMessageQueue;
 import com.thoughtworks.go.server.perf.MDUPerformanceLogger;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
-import com.thoughtworks.go.server.service.DrainModeService;
+import com.thoughtworks.go.server.service.MaintenanceModeService;
 import com.thoughtworks.go.server.service.MaterialExpansionService;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
@@ -36,7 +36,7 @@ public class MaterialUpdateListenerFactory {
     private MaterialUpdateQueue queue;
     private ConfigMaterialUpdateQueue configQueue;
     private DependencyMaterialUpdateQueue dependencyMaterialQueue;
-    private DrainModeService drainModeService;
+    private MaintenanceModeService maintenanceModeService;
     private ConfigMaterialPostUpdateQueue configMaterialPostUpdateQueue;
     private SystemEnvironment systemEnvironment;
     private final ServerHealthService serverHealthService;
@@ -65,7 +65,7 @@ public class MaterialUpdateListenerFactory {
                                          MaterialExpansionService materialExpansionService,
                                          MDUPerformanceLogger mduPerformanceLogger,
                                          DependencyMaterialUpdateQueue dependencyMaterialQueue,
-                                         DrainModeService drainModeService,
+                                         MaintenanceModeService maintenanceModeService,
                                          ConfigMaterialPostUpdateQueue configMaterialPostUpdateQueue) {
         this.topic = topic;
         this.queue = queue;
@@ -82,7 +82,7 @@ public class MaterialUpdateListenerFactory {
         this.materialExpansionService = materialExpansionService;
         this.mduPerformanceLogger = mduPerformanceLogger;
         this.dependencyMaterialQueue = dependencyMaterialQueue;
-        this.drainModeService = drainModeService;
+        this.maintenanceModeService = maintenanceModeService;
         this.configMaterialPostUpdateQueue = configMaterialPostUpdateQueue;
     }
 
@@ -107,6 +107,6 @@ public class MaterialUpdateListenerFactory {
     private void createWorker(GoMessageQueue<MaterialUpdateMessage> queue, GoMessageChannel<MaterialUpdateCompletedMessage> topic) {
         MaterialDatabaseUpdater updater = new MaterialDatabaseUpdater(materialRepository, serverHealthService, transactionTemplate, dependencyMaterialUpdater, scmMaterialUpdater,
                 packageMaterialUpdater, pluggableSCMMaterialUpdater, materialExpansionService);
-        queue.addListener(new MaterialUpdateListener(topic, updater, mduPerformanceLogger, diskSpaceMonitor, drainModeService));
+        queue.addListener(new MaterialUpdateListener(topic, updater, mduPerformanceLogger, diskSpaceMonitor, maintenanceModeService));
     }
 }

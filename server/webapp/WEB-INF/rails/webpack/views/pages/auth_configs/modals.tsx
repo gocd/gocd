@@ -28,7 +28,7 @@ import {MessageType} from "views/components/flash_message";
 import {Size} from "views/components/modal";
 import {EntityModal} from "views/components/modal/entity_modal";
 import {AuthConfigModalBody} from "views/pages/auth_configs/auth_config_modal_body";
-import {Message} from "views/pages/drain_mode";
+import {Message} from "views/pages/maintenance_mode";
 
 abstract class AuthConfigModal extends EntityModal<AuthConfig> {
   protected readonly originalEntityId: string;

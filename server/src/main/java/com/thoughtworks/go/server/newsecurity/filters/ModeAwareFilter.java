@@ -17,7 +17,7 @@
 package com.thoughtworks.go.server.newsecurity.filters;
 
 import com.thoughtworks.go.server.newsecurity.filters.helpers.ServerUnavailabilityResponse;
-import com.thoughtworks.go.server.service.DrainModeService;
+import com.thoughtworks.go.server.service.MaintenanceModeService;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
@@ -41,22 +41,22 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 public class ModeAwareFilter implements Filter {
     private static final Logger LOGGER = LoggerFactory.getLogger("GO_MODE_AWARE_FILTER");
     private final SystemEnvironment systemEnvironment;
-    private DrainModeService drainModeService;
+    private MaintenanceModeService maintenanceModeService;
 
-    private static final OrRequestMatcher ALLOWED_DRAIN_MODE_REQUEST_MATCHER = new OrRequestMatcher(
+    private static final OrRequestMatcher ALLOWED_MAINTENANCE_MODE_REQUEST_MATCHER = new OrRequestMatcher(
             new AntPathRequestMatcher("/remoting/**"),
             new AntPathRequestMatcher("/agent-websocket/**"),
             new AntPathRequestMatcher("/api/backups", "POST", true),
             new AntPathRequestMatcher("/admin/backup", "POST", true),
             new RegexRequestMatcher("/api/stages/[0-9]*/cancel", "POST", true),
             new RegexRequestMatcher("/api/stages/.*/.*/cancel", "POST", true),
-            new AntPathRequestMatcher("/api/admin/drain_mode/*")
+            new AntPathRequestMatcher("/api/admin/maintenance_mode/*")
     );
 
     @Autowired
-    public ModeAwareFilter(SystemEnvironment systemEnvironment, DrainModeService drainModeService) {
+    public ModeAwareFilter(SystemEnvironment systemEnvironment, MaintenanceModeService maintenanceModeService) {
         this.systemEnvironment = systemEnvironment;
-        this.drainModeService = drainModeService;
+        this.maintenanceModeService = maintenanceModeService;
     }
 
     @Override
@@ -71,9 +71,9 @@ public class ModeAwareFilter implements Filter {
         if (blockBecauseInactive((HttpServletRequest) servletRequest)) {
             LOGGER.warn("Got a non-GET request: {} while server is in inactive state (Secondary)", servletRequest);
             ((HttpServletResponse) servletResponse).sendRedirect(systemEnvironment.getWebappContextPath() + "/errors/inactive");
-        } else if (blockBecauseDrainMode((HttpServletRequest) servletRequest)) {
-            LOGGER.warn("Got a non-GET request: {} while server is in drain state (Maintenance mode)", servletRequest);
-            String jsonMessage = "server is in drain state (Maintenance mode), please try later.";
+        } else if (blockBecauseMaintenanceMode((HttpServletRequest) servletRequest)) {
+            LOGGER.info("Got a non-GET request: {} while server is in maintenance state", servletRequest);
+            String jsonMessage = "Server is in maintenance mode, please try later.";
             String htmlResponse = generateHTMLResponse();
             new ServerUnavailabilityResponse((HttpServletRequest) servletRequest, (HttpServletResponse) servletResponse, jsonMessage, htmlResponse).render();
         } else {
@@ -82,26 +82,27 @@ public class ModeAwareFilter implements Filter {
     }
 
     String generateHTMLResponse() throws IOException {
-        String path = "server_in_drain_mode.html";
-        InputStream resourceAsStream = getClass().getClassLoader().getResourceAsStream(path);
-        //todo: Provide additional info drain_mode approver, time and link to drain mode spa
-        return IOUtils.toString(resourceAsStream, UTF_8);
+        String path = "server_in_maintenance_mode.html";
+        try (InputStream resourceAsStream = getClass().getClassLoader().getResourceAsStream(path)) {
+            //todo: Provide additional info maintenance_mode approver, time and link to maintenance mode spa
+            return IOUtils.toString(resourceAsStream, UTF_8);
+        }
     }
 
     private boolean blockBecauseInactive(HttpServletRequest servletRequest) {
         return (!systemEnvironment.isServerActive() && !isAllowedRequest(servletRequest));
     }
 
-    private boolean blockBecauseDrainMode(HttpServletRequest servletRequest) {
+    private boolean blockBecauseMaintenanceMode(HttpServletRequest servletRequest) {
         if (isWhitelistedRequest(servletRequest) || isAllowedRequest(servletRequest)) {
             return false;
         }
 
-        return drainModeService.isDrainMode();
+        return maintenanceModeService.isMaintenanceMode();
     }
 
     private boolean isWhitelistedRequest(HttpServletRequest servletRequest) {
-        return ALLOWED_DRAIN_MODE_REQUEST_MATCHER.matches(servletRequest);
+        return ALLOWED_MAINTENANCE_MODE_REQUEST_MATCHER.matches(servletRequest);
     }
 
     private boolean isAllowedRequest(HttpServletRequest servletRequest) {

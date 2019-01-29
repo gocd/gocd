@@ -28,13 +28,13 @@ public class Routes {
         public static final String DOC = "https://api.gocd.org/#backups";
     }
 
-    public static class DrainMode {
-        public static final String BASE = "/api/admin/drain_mode";
-        public static final String SPA_BASE = "/admin/drain_mode";
+    public static class MaintenanceMode {
+        public static final String BASE = "/api/admin/maintenance_mode";
+        public static final String SPA_BASE = "/admin/maintenance_mode";
         public static final String ENABLE = "/enable";
         public static final String DISABLE = "/disable";
         public static final String INFO = "/info";
-        public static final String INFO_DOC = "https://api.gocd.org/current/#drain-mode-info";
+        public static final String INFO_DOC = "https://api.gocd.org/current/#maintenance-mode-info";
     }
 
     public static class CurrentUser {

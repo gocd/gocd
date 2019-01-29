@@ -55,7 +55,7 @@
       data-version-copyright-year="${currentVersion.copyrightYear()}"
       data-version-formatted="${currentVersion.formatted()}"
       data-version-full="${currentVersion.fullVersion()}"
-      data-is-server-in-drain-mode="${drainModeService.isDrainMode()}">
+      data-is-server-in-maintenance-mode="${maintenanceModeService.isMaintenanceMode()}">
 <div class="page-wrap">
   <header id="app-menu">
   </header>

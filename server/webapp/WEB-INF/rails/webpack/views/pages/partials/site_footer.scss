@@ -15,8 +15,8 @@
  */
 @import "../../global/common";
 
-$drain-mode-banner-height: 54px;
-$drain-mode-banner-message-font-size: 17px;
+$maintenance-mode-banner-height: 54px;
+$maintenance-mode-banner-message-font-size: 17px;
 
 .footer-warning-banner {
   position:       fixed;
@@ -25,11 +25,11 @@ $drain-mode-banner-message-font-size: 17px;
   width:          100%;
   bottom:         11px;
   left:           0;
-  height:         $drain-mode-banner-height;
-  line-height:    $drain-mode-banner-height;
+  height:         $maintenance-mode-banner-height;
+  line-height:    $maintenance-mode-banner-height;
   text-align:     center;
   vertical-align: middle;
-  font-size:      $drain-mode-banner-message-font-size;
+  font-size:      $maintenance-mode-banner-message-font-size;
 }
 
 .footer {

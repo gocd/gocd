@@ -22,7 +22,7 @@
 #* @vtlvariable name="goUpdateCheckEnabled" type="boolean" *#
 #* @vtlvariable name="railsAssetsService" type="com.thoughtworks.go.server.service.RailsAssetsService" *#
 #* @vtlvariable name="securityService" type="com.thoughtworks.go.server.service.SecurityService" *#
-#* @vtlvariable name="drainModeService" type="com.thoughtworks.go.server.service.DrainModeService" *#
+#* @vtlvariable name="maintenanceModeService" type="com.thoughtworks.go.server.service.MaintenanceModeService" *#
 #* @vtlvariable name="toggles" type="com.thoughtworks.go.server.service.support.toggle.Toggles" *#
 #* @vtlvariable name="viewTitle" type="java.lang.String" *#
 #* @vtlvariable name="webpackAssetsService" type="com.thoughtworks.go.server.service.WebpackAssetsService" *#

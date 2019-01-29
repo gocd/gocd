@@ -35,7 +35,7 @@ import com.thoughtworks.go.server.materials.postcommit.PostCommitHookImplementer
 import com.thoughtworks.go.server.materials.postcommit.PostCommitHookMaterialType;
 import com.thoughtworks.go.server.materials.postcommit.PostCommitHookMaterialTypeResolver;
 import com.thoughtworks.go.server.perf.MDUPerformanceLogger;
-import com.thoughtworks.go.server.service.DrainModeService;
+import com.thoughtworks.go.server.service.MaintenanceModeService;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.MaterialConfigConverter;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
@@ -81,7 +81,7 @@ public class MaterialUpdateServiceTest {
     private SystemEnvironment systemEnvironment;
     private MaterialConfigConverter materialConfigConverter;
     private DependencyMaterialUpdateQueue dependencyMaterialUpdateQueue;
-    private DrainModeService drainModeService;
+    private MaintenanceModeService maintenanceModeService;
 
     @Before
     public void setUp() throws Exception {
@@ -98,10 +98,10 @@ public class MaterialUpdateServiceTest {
         materialConfigConverter = mock(MaterialConfigConverter.class);
         MDUPerformanceLogger mduPerformanceLogger = mock(MDUPerformanceLogger.class);
         dependencyMaterialUpdateQueue = mock(DependencyMaterialUpdateQueue.class);
-        drainModeService = mock(DrainModeService.class);
+        maintenanceModeService = mock(MaintenanceModeService.class);
 
         service = new MaterialUpdateService(queue, configQueue, completed, watchList, goConfigService, systemEnvironment,
-                serverHealthService, postCommitHookMaterialType, mduPerformanceLogger, materialConfigConverter, dependencyMaterialUpdateQueue, drainModeService);
+                serverHealthService, postCommitHookMaterialType, mduPerformanceLogger, materialConfigConverter, dependencyMaterialUpdateQueue, maintenanceModeService);
 
         service.registerMaterialSources(scmMaterialSource);
         service.registerMaterialUpdateCompleteListener(scmMaterialSource);
@@ -136,8 +136,8 @@ public class MaterialUpdateServiceTest {
     }
 
     @Test
-    public void shouldNotSendMaterialUpdateMessageForAllSchedulableMaterials_onTimerWhenServerIsInDrainMode() throws Exception {
-        when(drainModeService.isDrainMode()).thenReturn(true);
+    public void shouldNotSendMaterialUpdateMessageForAllSchedulableMaterials_onTimerWhenServerIsInMaintenanceMode() throws Exception {
+        when(maintenanceModeService.isMaintenanceMode()).thenReturn(true);
         when(scmMaterialSource.materialsForUpdate()).thenReturn(new HashSet<>(Arrays.asList(svnMaterial)));
 
         service.onTimer();

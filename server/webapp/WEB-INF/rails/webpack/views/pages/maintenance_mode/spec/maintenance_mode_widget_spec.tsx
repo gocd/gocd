@@ -39,7 +39,7 @@ describe("Maintenance Mode Widget", () => {
   });
 
   it("should add a link to the maintenance mode documentation", () => {
-    const expectedLink = "https://docs.gocd.org/advanced_usage/maintenance_mode.html";
+    const expectedLink = "https://docs.gocd.org/current/advanced_usage/maintenance_mode.html";
     const expectedText = "Learn more..";
 
     expect($root.find("a")[0].href).toBe(expectedLink);

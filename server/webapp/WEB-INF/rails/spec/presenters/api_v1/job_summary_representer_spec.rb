@@ -25,7 +25,7 @@ describe ApiV1::JobSummaryRepresenter do
 
     expect(actual_json).to have_links(:doc)
 
-    expect(actual_json).to have_link(:doc).with_url('https://api.gocd.org/#jobs')
+    expect(actual_json).to have_link(:doc).with_url(com.thoughtworks.go.CurrentGoCDVersion.apiDocsUrl '#jobs')
 
     actual_json.delete(:_links)
     expect(actual_json).to eq(job_hash(job_instance))

@@ -23,7 +23,7 @@ describe ApiV1::Config::PluginSettingsRepresenter do
       presenter = ApiV1::Config::PluginSettingsRepresenter.new({plugin_settings: plugin_settings(plugin_info), plugin_info: plugin_info})
       actual_json = presenter.to_hash(url_builder: UrlBuilder.new)
       expect(actual_json).to have_link(:self).with_url(UrlBuilder.new.apiv1_admin_plugin_setting_url(plugin_id: 'foo.bar'))
-      expect(actual_json).to have_link(:doc).with_url('https://api.gocd.org/#plugin-settings')
+      expect(actual_json).to have_link(:doc).with_url(com.thoughtworks.go.CurrentGoCDVersion.apiDocsUrl '#plugin-settings')
       expect(actual_json).to have_link(:find).with_url('http://test.host/api/admin/plugin_settings/:plugin_id')
       actual_json.delete(:_links)
 

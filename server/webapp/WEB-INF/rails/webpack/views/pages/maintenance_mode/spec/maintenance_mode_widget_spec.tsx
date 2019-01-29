@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import {docsUrl} from "gen/gocd_version";
 import * as m from "mithril";
 import {MaintenanceModeWidget} from "views/pages/maintenance_mode/maintenance_mode_widget";
 import {TestData} from "views/pages/maintenance_mode/spec/test_data";
@@ -39,7 +40,7 @@ describe("Maintenance Mode Widget", () => {
   });
 
   it("should add a link to the maintenance mode documentation", () => {
-    const expectedLink = "https://docs.gocd.org/current/advanced_usage/maintenance_mode.html";
+    const expectedLink = docsUrl("/advanced_usage/maintenance_mode.html");
     const expectedText = "Learn more..";
 
     expect($root.find("a")[0].href).toBe(expectedLink);

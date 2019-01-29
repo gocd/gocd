@@ -25,7 +25,7 @@ module ApiV1
       end
 
       link :doc do
-        'https://api.gocd.org/#pipeline-groups'
+        com.thoughtworks.go.CurrentGoCDVersion.apiDocsUrl('#pipeline-groups')
       end
 
       property :getName, as: :name

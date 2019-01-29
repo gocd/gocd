@@ -23,7 +23,7 @@ module ApiV2
       end
 
       link :doc do
-        'https://api.gocd.org/#environment-config'
+        com.thoughtworks.go.CurrentGoCDVersion.apiDocsUrl('#environment-config')
       end
 
       collection :environments, embedded: true, exec_context: :decorator, decorator: EnvironmentConfigRepresenter

@@ -5,6 +5,7 @@ import com.thoughtworks.go.spark.Routes
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
+import static com.thoughtworks.go.CurrentGoCDVersion.apiDocsUrl
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
 import static java.lang.String.format
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
@@ -27,7 +28,7 @@ class VersionRepresenterTest {
           "href": "http://test.host/go/api/version"
         ],
         "doc" : [
-          "href": "https://api.gocd.org/#version"
+          "href": apiDocsUrl('#version')
         ]
       ],
       "version"     : currentGoCDVersion.goVersion(),

@@ -16,13 +16,15 @@
 
 package com.thoughtworks.go.server.messaging;
 
-import java.util.Set;
-
 import com.thoughtworks.go.domain.AgentInstance;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.util.StringUtil;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.SystemUtil;
+
+import java.util.Set;
+
+import static com.thoughtworks.go.CurrentGoCDVersion.docsUrl;
 
 public class EmailMessageDrafter {
     private static final String LOW_ARTIFACTS_DISK_SPACE_EMAIL =
@@ -32,7 +34,7 @@ public class EmailMessageDrafter {
                     + "When the available space goes below %sMb, Go will stop scheduling. "
                     + "Please ensure enough space is available. You can read more about Go's artifacts repository, "
                     + "including our recommendation to create a separate partition for it at "
-                    + "https://docs.gocd.org/current/installation/configuring_server_details.html\n";
+                    + docsUrl("/installation/configuring_server_details.html") + "\n";
 
     private static final String NO_ARTIFACTS_DISK_SPACE_EMAIL =
             "The email has been sent out automatically by the Go server at (%s) to Go administrators.\n"
@@ -41,7 +43,7 @@ public class EmailMessageDrafter {
                     + "because it has less than %sMb of disk space available at %s to store artifacts. "
                     + "Please ensure enough space is available. You can read more about Go's artifacts repository, "
                     + "including our recommendation to create a separate partition for it at "
-                    + "https://docs.gocd.org/current/installation/configuring_server_details.html\n";
+                    + docsUrl("/installation/configuring_server_details.html") + "\n";
 
     private static final String LOW_DATABASE_DISK_SPACE_EMAIL =
             "The email has been sent out automatically by the Go server at (%s) to Go administrators.\n"

@@ -20,12 +20,13 @@ import com.google.common.net.UrlEscapers;
 import org.apache.commons.lang3.text.StrSubstitutor;
 
 import static com.google.common.collect.ImmutableMap.of;
+import static com.thoughtworks.go.CurrentGoCDVersion.apiDocsUrl;
 
 public class Routes {
 
     public static class Backups {
         public static final String BASE = "/api/backups";
-        public static final String DOC = "https://api.gocd.org/#backups";
+        public static final String DOC = apiDocsUrl("#backups");
     }
 
     public static class MaintenanceMode {
@@ -34,7 +35,7 @@ public class Routes {
         public static final String ENABLE = "/enable";
         public static final String DISABLE = "/disable";
         public static final String INFO = "/info";
-        public static final String INFO_DOC = "https://api.gocd.org/current/#maintenance-mode-info";
+        public static final String INFO_DOC = apiDocsUrl("#maintenance-mode-info");
     }
 
     public static class CurrentUser {
@@ -69,7 +70,7 @@ public class Routes {
         public static final String TRIGGER_UPDATE_PATH = "/:id/trigger_update";
 
         public static final String BASE = "/api/admin/config_repos";
-        public static final String DOC = "https://api.gocd.org/#config-repos";
+        public static final String DOC = apiDocsUrl("#config-repos");
 
         public static final String INDEX_PATH = "";
         public static final String REPO_PATH = "/:id";
@@ -99,7 +100,7 @@ public class Routes {
     public static class Roles {
         public static final String BASE = "/api/admin/security/roles";
         public static final String SPA_BASE = "/admin/security/roles";
-        public static final String DOC = "https://api.gocd.org/#roles";
+        public static final String DOC = apiDocsUrl("#roles");
         public static final String NAME_PATH = "/:role_name";
 
         public static String find() {
@@ -113,7 +114,7 @@ public class Routes {
 
     public static class SystemAdmins {
         public static final String BASE = "/api/admin/security/system_admins";
-        public static final String DOC = "https://api.gocd.org/#system_admins";
+        public static final String DOC = apiDocsUrl("#system_admins");
 
     }
 
@@ -151,7 +152,7 @@ public class Routes {
     }
 
     public static class EnvironmentConfig {
-        public static final String DOC = "https://api.gocd.org/current/#environment-config";
+        public static final String DOC = apiDocsUrl("#environment-config");
         static final String NAME = "/api/admin/environments/:name";
 
         public static String name(String name) {
@@ -167,6 +168,7 @@ public class Routes {
         public static String find() {
             return BASE + NAME;
         }
+
         public static String name(String name) {
             return BASE + NAME.replaceAll(":name", name);
         }
@@ -257,7 +259,7 @@ public class Routes {
     }
 
     public static class UserSummary {
-        public static final String DOC = "https://api.gocd.org/#users";
+        public static final String DOC = apiDocsUrl("#users");
         public static final String CURRENT_USER = "/api/current_user";
         public static final String BASE = "/api/users/";
 
@@ -272,7 +274,7 @@ public class Routes {
 
     public static class UserSearch {
         public static final String BASE = "/api/user_search";
-        public static final String DOC = "https://api.gocd.org/#user-search";
+        public static final String DOC = apiDocsUrl("#user-search");
 
         public static String self(String searchTerm) {
             return StrSubstitutor.replace(BASE + "?q=${searchTerm}", of("searchTerm", UrlEscapers.urlFormParameterEscaper().escape(searchTerm)));
@@ -286,7 +288,7 @@ public class Routes {
     public static class ArtifactStoreConfig {
         public static final String BASE = "/api/admin/artifact_stores";
         public static final String ID = "/:id";
-        public static final String DOC = "https://api.gocd.org/current/#artifact_stores";
+        public static final String DOC = apiDocsUrl("#artifact_stores");
 
         public static String find() {
             return BASE + ID;
@@ -300,7 +302,7 @@ public class Routes {
     public static class PipelineConfig {
         public static final String BASE = "/api/admin/pipelines";
         public static final String NAME = "/:pipeline_name";
-        public static final String DOC = "https://api.gocd.org/#pipeline-config";
+        public static final String DOC = apiDocsUrl("#pipeline-config");
 
         public static String find() {
             return BASE + NAME;
@@ -314,7 +316,7 @@ public class Routes {
     public static class PipelineTemplateConfig {
         public static final String BASE = "/api/admin/templates";
         public static final String NAME = "/:template_name";
-        public static final String DOC = "https://api.gocd.org/#template-config";
+        public static final String DOC = apiDocsUrl("#template-config");
 
         public static String find() {
             return BASE + NAME;
@@ -329,7 +331,7 @@ public class Routes {
         public static final String BASE = "/api/elastic/profiles";
         public static final String INTERNAL_BASE = "/api/internal/elastic/profiles";
         public static final String ID = "/:profile_id";
-        public static final String DOC = "https://api.gocd.org/current/#elastic-agent-profiles";
+        public static final String DOC = apiDocsUrl("#elastic-agent-profiles");
         public static final String USAGES = "/usages";
 
         public static String find() {
@@ -344,7 +346,7 @@ public class Routes {
     public static class AgentsAPI {
         public static final String BASE = "/api/agents";
         public static final String UUID = "/:uuid";
-        public static final String DOC = "https://api.gocd.org/current/#agents";
+        public static final String DOC = apiDocsUrl("#agents");
 
         public static String find() {
             return BASE + UUID;
@@ -410,9 +412,9 @@ public class Routes {
         public static final String SPA_BASE = "/kitchen-sink";
     }
 
-    public class Version {
+    public static class Version {
         public static final String BASE = "/api/version";
-        public static final String DOC = "https://api.gocd.org/#version";
+        public static final String DOC = apiDocsUrl("#version");
         public static final String COMMIT_URL = "https://github.com/gocd/gocd/commit/";
     }
 
@@ -420,11 +422,11 @@ public class Routes {
         public static final String SPA_BASE = "/admin/security/auth_configs";
     }
 
-    public class Users {
+    public static class Users {
         public static final String BASE = "/api/users";
         public static final String USER_NAME = "/:login_name";
         public static final String SPA_BASE = "/admin/users";
-        public static final String DOC = "https://api.gocd.org/#users";
+        public static final String DOC = apiDocsUrl("#users");
         public static final String USER_STATE = "/operations/state";
     }
 

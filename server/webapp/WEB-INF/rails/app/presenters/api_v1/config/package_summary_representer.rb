@@ -24,12 +24,12 @@ module ApiV1
       end
 
       link :doc do |opts|
-        'https://api.gocd.org/#packages'
+        com.thoughtworks.go.CurrentGoCDVersion.apiDocsUrl('#packages')
       end
 
       link :find do |opts|
         opts[:url_builder].apiv1_admin_package_url(package_id: '__package_id__').gsub(/__package_id__/, ':package_id')
-      end 
+      end
 
       property :name
       property :id

@@ -22,6 +22,7 @@ import com.thoughtworks.go.config.CaseInsensitiveString
 import com.thoughtworks.go.config.EnvironmentConfig
 import org.junit.jupiter.api.Test
 
+import static com.thoughtworks.go.CurrentGoCDVersion.apiDocsUrl
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
 
@@ -63,7 +64,7 @@ class EnvironmentsRepresenterTest {
               [
                 "_links": [
                   "doc": [
-                    "href": "https://api.gocd.org/current/#agents"
+                    "href": apiDocsUrl("#agents")
                   ],
                   "find": [
                     "href": "/api/agents/:uuid"
@@ -77,7 +78,7 @@ class EnvironmentsRepresenterTest {
               [
                 "_links": [
                   "doc": [
-                    "href": "https://api.gocd.org/current/#agents"
+                    "href": apiDocsUrl("#agents")
                   ],
                   "find": [
                     "href": "/api/agents/:uuid"

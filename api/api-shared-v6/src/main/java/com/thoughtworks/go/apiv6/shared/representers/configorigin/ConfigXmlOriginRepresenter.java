@@ -17,9 +17,10 @@
 package com.thoughtworks.go.apiv6.shared.representers.configorigin;
 
 import com.thoughtworks.go.api.base.OutputWriter;
-import com.thoughtworks.go.config.remote.ConfigOrigin;
 import com.thoughtworks.go.config.remote.FileConfigOrigin;
 import com.thoughtworks.go.spark.Routes;
+
+import static com.thoughtworks.go.CurrentGoCDVersion.apiDocsUrl;
 
 // This representer is only for serialization.
 
@@ -28,7 +29,7 @@ public class ConfigXmlOriginRepresenter {
   public static void toJSON(OutputWriter jsonWriter, FileConfigOrigin fileConfigOrigin) {
     jsonWriter.addLinks(linksWriter -> linksWriter
         .addLink("self", Routes.ConfigView.SELF)
-        .addAbsoluteLink("doc", "https://api.gocd.org/current/#get-configuration"));
+        .addAbsoluteLink("doc", apiDocsUrl("#get-configuration")));
     jsonWriter.add("type", "gocd");
   }
 }

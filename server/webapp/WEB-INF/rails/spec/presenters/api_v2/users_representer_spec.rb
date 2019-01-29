@@ -26,7 +26,7 @@ describe ApiV2::UsersRepresenter do
     expect(actual_json).to have_links(:self, :doc, :current_user)
 
     expect(actual_json).to have_link(:self).with_url('http://test.host/api/users')
-    expect(actual_json).to have_link(:doc).with_url('https://api.gocd.org/#users')
+    expect(actual_json).to have_link(:doc).with_url(com.thoughtworks.go.CurrentGoCDVersion.apiDocsUrl '#users')
     expect(actual_json).to have_link(:current_user).with_url('http://test.host/api/current_user')
 
     expect(actual_json.fetch(:_embedded)).to eq({ :users => [ApiV2::UserRepresenter.new(user).to_hash(url_builder: UrlBuilder.new)] })

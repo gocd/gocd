@@ -25,20 +25,21 @@ import com.thoughtworks.go.config.StageConfig
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
+import static com.thoughtworks.go.CurrentGoCDVersion.apiDocsUrl
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
 import static org.junit.jupiter.api.Assertions.assertEquals
 
 
 class TemplateConfigRepresenterTest {
-  
+
   private PipelineTemplateConfig pipelineTemplateConfig;
-  
+
   @BeforeEach
   void setUp() {
     pipelineTemplateConfig = new PipelineTemplateConfig(new CaseInsensitiveString('some-template'), new StageConfig(new CaseInsensitiveString('stage'), new JobConfigs(new JobConfig(new CaseInsensitiveString('job')))))
   }
-  
+
   @Test
   void  'should render a template with hal representation'() {
     def actualJson = toObjectString({ TemplateConfigRepresenter.toJSON(it, pipelineTemplateConfig) })
@@ -61,7 +62,7 @@ class TemplateConfigRepresenterTest {
         href: 'http://test.host/go/api/admin/templates/some-template'
       ],
       doc: [
-        href: 'https://api.gocd.org/#template-config'
+        href: apiDocsUrl('#template-config')
       ],
       find: [
         href: 'http://test.host/go/api/admin/templates/:template_name'

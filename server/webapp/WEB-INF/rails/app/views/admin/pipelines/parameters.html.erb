@@ -1,5 +1,5 @@
 <h3>Parameters</h3>
-<span title="Parameters help reduce repetition within your configurations and combined with templates allow you to setup complex configurations. <a class='' href='https://docs.gocd.org/current/configuration/admin_use_parameters_in_configuration.html' target='_blank'>More...</a> " class="contextual_help has_go_tip_right">&nbsp;</span>
+<span title="Parameters help reduce repetition within your configurations and combined with templates allow you to setup complex configurations. <a class='' href='<%= docs_url 'configuration/admin_use_parameters_in_configuration.html' %>' target='_blank'>More...</a> " class="contextual_help has_go_tip_right">&nbsp;</span>
 
 <%= form_for @pipeline, :as => :pipeline, :url => pipeline_update_path(:pipeline_name => @pipeline.name(), :current_tab => 'parameters'), :html => {:method => :put, :id => "pipeline_edit_form"} do |f| %>
     <div class="fieldset">

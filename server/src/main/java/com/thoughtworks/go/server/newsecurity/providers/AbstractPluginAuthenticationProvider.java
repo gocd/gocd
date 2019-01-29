@@ -130,7 +130,7 @@ public abstract class AbstractPluginAuthenticationProvider<T extends Credentials
 
             }
         } catch (OnlyKnownUsersAllowedException e) {
-            LOGGER.info("User {} is successfully authenticated. Auto register new user is disabled. Please refer https://docs.gocd.org/{}/configuration/dev_authentication.html#controlling-user-access", e.getUsername(), CurrentGoCDVersion.getInstance().goVersion());
+            LOGGER.info("User {} is successfully authenticated. Auto register new user is disabled. Please refer {}", e.getUsername(), CurrentGoCDVersion.docsUrl("configuration/dev_authentication.html#controlling-user-access"));
             throw e;
         } catch (Exception e) {
             LOGGER.error("Error while authenticating user using auth_config: {} with the authorization plugin: {} ", authConfig.getId(), pluginId);

@@ -33,6 +33,7 @@ import org.junit.Test;
 import java.io.File;
 import java.net.URISyntaxException;
 
+import static com.thoughtworks.go.CurrentGoCDVersion.docsUrl;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.*;
@@ -128,7 +129,7 @@ public class DiskSpaceFullCheckerTest {
 
     @Test
     public void shouldFormatLowDiskSpaceWarningMailWithHelpLinksHttpAndSiteUrl() throws URISyntaxException {
-        String expectedHelpUrl = "https://docs.gocd.org/current/installation/configuring_server_details.html";
+        String expectedHelpUrl = docsUrl("/installation/configuring_server_details.html");
         ServerConfig serverConfig = new ServerConfig(null, null, new ServerSiteUrlConfig("http://test.host"), new ServerSiteUrlConfig("https://test.host"));
         CruiseConfig cruiseConfig = new BasicCruiseConfig();
         cruiseConfig.setServerConfig(serverConfig);

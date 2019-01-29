@@ -27,6 +27,7 @@ import com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings
 import com.thoughtworks.go.plugin.domain.common.PluginConfiguration
 import org.junit.jupiter.api.Test
 
+import static com.thoughtworks.go.CurrentGoCDVersion.apiDocsUrl
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
 import static org.assertj.core.api.Assertions.assertThat
@@ -62,7 +63,7 @@ class ArtifactStoreRepresenterTest {
     def expectedJson = [
       _links    : [
         self: [href: 'http://test.host/go/api/admin/artifact_stores/docker'],
-        doc : [href: 'https://api.gocd.org/current/#artifact_stores'],
+        doc : [href: apiDocsUrl('#artifact_stores')],
         find: [href: 'http://test.host/go/api/admin/artifact_stores/:id'],
       ],
       id        : 'docker',

@@ -22,7 +22,7 @@ module ApiV1
       end
 
       link :doc do
-        'https://api.gocd.org/#packages'
+        com.thoughtworks.go.CurrentGoCDVersion.apiDocsUrl('#packages')
       end
 
       collection :packages, embedded: true, exec_context: :decorator, decorator: PackageRepresenter

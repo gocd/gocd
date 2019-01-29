@@ -27,7 +27,7 @@ describe ApiV1::Dashboard::PipelineGroupRepresenter do
     actual_json = presenter.to_hash(url_builder: UrlBuilder.new)
     expect(actual_json).to have_links(:self, :doc)
     expect(actual_json).to have_link(:self).with_url('http://test.host/api/config/pipeline_groups')
-    expect(actual_json).to have_link(:doc).with_url('https://api.gocd.org/#pipeline-groups')
+    expect(actual_json).to have_link(:doc).with_url(com.thoughtworks.go.CurrentGoCDVersion.apiDocsUrl '#pipeline-groups')
     actual_json.delete(:_links)
     expect(actual_json.delete(:_embedded)[:pipelines]).to eq([expected_embedded_pipeline(pipeline_model)])
     expect(actual_json).to eq({name: 'MyPipelines'})

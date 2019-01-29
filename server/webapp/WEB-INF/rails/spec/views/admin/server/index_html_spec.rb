@@ -149,7 +149,7 @@ describe "admin/server/index.html.erb" do
 
             help_text = form_items[5].find("div[class='contextual_help has_go_tip_right']")["title"]
             expect(help_text).to start_with("This changes the protocol used to send the mail. It switches between SMTP and SMTPS")
-            expect(help_text).to include("<a class='' href='https://docs.gocd.org/current/configuration/admin_mailhost_info.html#starttls'")
+            expect(help_text).to include("<a class='' href='#{docs_url '/configuration/admin_mailhost_info.html#starttls'}'")
 
             expect(form_items[6]).to have_selector("label", :text => "From*")
             expect(form_items[6]).to have_selector("input[type='text'][name='server_configuration_form[from]']")

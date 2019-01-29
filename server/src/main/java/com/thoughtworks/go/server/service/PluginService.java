@@ -17,7 +17,6 @@
 package com.thoughtworks.go.server.service;
 
 import com.google.gson.GsonBuilder;
-import com.thoughtworks.go.CurrentGoCDVersion;
 import com.thoughtworks.go.domain.NullPlugin;
 import com.thoughtworks.go.domain.Plugin;
 import com.thoughtworks.go.i18n.LocalizedMessage;
@@ -40,6 +39,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Map;
+
+import static com.thoughtworks.go.CurrentGoCDVersion.apiDocsUrl;
 
 @Service
 public class PluginService {
@@ -90,7 +91,7 @@ public class PluginService {
                 if (plugin instanceof NullPlugin) {
                     updatePluginSettingsAndNotifyPluginSettingsChangeListeners(result, newPluginSettings);
                 } else {
-                    result.unprocessableEntity(LocalizedMessage.saveFailedWithReason(String.format("Plugin settings for the plugin `%s` already exist. In order to update the plugin settings refer the https://api.gocd.org/%s/#update-plugin-settings.", newPluginSettings.getPluginId(), CurrentGoCDVersion.getInstance().goVersion())));
+                    result.unprocessableEntity(LocalizedMessage.saveFailedWithReason(String.format("Plugin settings for the plugin `%s` already exist. In order to update the plugin settings refer the %s.", newPluginSettings.getPluginId(), apiDocsUrl("#update-plugin-settings"))));
                 }
             }
         }

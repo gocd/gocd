@@ -14,7 +14,7 @@
             <div class="form_item_block required">
                 <%= required_label(f, com.thoughtworks.go.config.PipelineConfig::LABEL_TEMPLATE, 'Label Template') -%>
                 <%= f.text_field com.thoughtworks.go.config.PipelineConfig::LABEL_TEMPLATE -%>
-                <div class="contextual_help has_go_tip_right" title="Customize the label for this pipeline. <a class='' href='https://docs.gocd.org/current/configuration/admin_use_custom_pipeline_label.html' target='_blank'>More...</a>"></div>
+                <div class="contextual_help has_go_tip_right" title="Customize the label for this pipeline. <a class='' href='<%= docs_url '/configuration/admin_use_custom_pipeline_label.html' %>' target='_blank'>More...</a>"></div>
                 <%= error_message_on(@pipeline, com.thoughtworks.go.config.PipelineConfig::LABEL_TEMPLATE, :css_class => "form_error") %>
             </div>
 
@@ -51,7 +51,7 @@
                 <div class="form_item_block timer_block">
                     <%= t.label com.thoughtworks.go.config.TimerConfig::TIMER_SPEC, 'Cron Timer Specification' -%>
                     <%= t.text_field com.thoughtworks.go.config.TimerConfig::TIMER_SPEC -%>
-                    <div class="contextual_help has_go_tip_right" title="A cron-like schedule to build the pipeline. For example to run a pipeline once every night at 10 pm on weekdays, use '0 0 22 ? * MON-FRI'. <a href='https://docs.gocd.org/current/configuration/configuration_reference.html#timer' target='_blank'>More...</a>"></div>
+                    <div class="contextual_help has_go_tip_right" title="A cron-like schedule to build the pipeline. For example to run a pipeline once every night at 10 pm on weekdays, use '0 0 22 ? * MON-FRI'. <a href='<%= docs_url '/configuration/configuration_reference.html#timer' %>' target='_blank'>More...</a>"></div>
                     <%= error_message_on(@pipeline.getTimer(), com.thoughtworks.go.config.TimerConfig::TIMER_SPEC, :css_class => "form_error") if @pipeline.getTimer() %>
                 </div>
                 <div class="form_item_block checkbox_row">

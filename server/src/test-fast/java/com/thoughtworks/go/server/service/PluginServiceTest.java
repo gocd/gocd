@@ -18,7 +18,6 @@ package com.thoughtworks.go.server.service;
 
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
-import com.thoughtworks.go.CurrentGoCDVersion;
 import com.thoughtworks.go.domain.NullPlugin;
 import com.thoughtworks.go.domain.Plugin;
 import com.thoughtworks.go.domain.config.ConfigurationKey;
@@ -57,13 +56,13 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import static com.thoughtworks.go.CurrentGoCDVersion.apiDocsUrl;
 import static com.thoughtworks.go.plugin.domain.common.PluginConstants.AUTHORIZATION_EXTENSION;
 import static com.thoughtworks.go.plugin.domain.common.PluginConstants.ELASTIC_AGENT_EXTENSION;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyMap;
-import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
@@ -349,7 +348,7 @@ public class PluginServiceTest {
 
         verify(pluginDao, times(0)).saveOrUpdate(any());
         verify(elasticAgentExtension, times(0)).notifyPluginSettingsChange(eq(elasticAgentPluginId), anyMap());
-        verify(result, times(1)).unprocessableEntity("Save failed. Plugin settings for the plugin `cd.go.elastic-agent.docker` already exist. In order to update the plugin settings refer the https://api.gocd.org/" + CurrentGoCDVersion.getInstance().goVersion() + "/#update-plugin-settings.");
+        verify(result, times(1)).unprocessableEntity("Save failed. Plugin settings for the plugin `cd.go.elastic-agent.docker` already exist. In order to update the plugin settings refer the " + apiDocsUrl("#update-plugin-settings") + ".");
         verifyNoMoreInteractions(result);
     }
 

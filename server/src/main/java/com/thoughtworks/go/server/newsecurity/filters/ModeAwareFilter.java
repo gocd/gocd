@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.server.newsecurity.filters;
 
+import com.thoughtworks.go.CurrentGoCDVersion;
 import com.thoughtworks.go.server.newsecurity.filters.helpers.ServerUnavailabilityResponse;
 import com.thoughtworks.go.server.service.MaintenanceModeService;
 import com.thoughtworks.go.util.SystemEnvironment;
@@ -85,7 +86,7 @@ public class ModeAwareFilter implements Filter {
         String path = "server_in_maintenance_mode.html";
         try (InputStream resourceAsStream = getClass().getClassLoader().getResourceAsStream(path)) {
             //todo: Provide additional info maintenance_mode approver, time and link to maintenance mode spa
-            return IOUtils.toString(resourceAsStream, UTF_8);
+            return IOUtils.toString(resourceAsStream, UTF_8).replaceAll("%docsBaseUrl%", CurrentGoCDVersion.getInstance().baseDocsUrl());
         }
     }
 

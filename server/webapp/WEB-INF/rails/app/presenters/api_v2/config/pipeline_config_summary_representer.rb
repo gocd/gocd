@@ -24,7 +24,7 @@ module ApiV2
       end
 
       link :doc do |opts|
-        'https://api.gocd.org/#pipeline-config'
+        com.thoughtworks.go.CurrentGoCDVersion.apiDocsUrl('#pipeline-config')
       end
 
       link :find do |opts|

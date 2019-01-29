@@ -29,7 +29,7 @@ module ApiV1
     end
 
     link :doc do
-      'https://api.gocd.org/#get-stage-history'
+      com.thoughtworks.go.CurrentGoCDVersion.apiDocsUrl('#get-stage-history')
     end
 
     collection :stages, embedded: true, exec_context: :decorator, decorator: StageRepresenter

@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import {GoCDVersion} from "gen/gocd_version";
 import * as m from "mithril";
 import {Attrs, SiteFooter} from "views/pages/partials/site_footer";
 
@@ -51,21 +52,17 @@ describe("SiteFooter", () => {
 
   it("should render footer", () => {
     const attrs = {
-      copyrightYear: "2000",
-      formattedVersion: "x.y.z-1234-sha",
-      fullVersion: "x.y.z-1234",
-      goVersion: "x.y.z",
       isServerInMaintenanceMode: false,
       isSupportedBrowser: true
     };
     mount(attrs);
 
-    expect($root).toContainHtml("Copyright &copy; 2000");
-    expect($root).toContainElement(`a[href="/go/assets/dependency-license-report-${attrs.fullVersion}"]`);
-    expect($root).toContainText(`GoCD Version: ${attrs.formattedVersion}`);
+    expect($root).toContainHtml(`Copyright &copy; ${GoCDVersion.copyrightYear}`);
+    expect($root).toContainElement(`a[href="/go/assets/dependency-license-report-${GoCDVersion.fullVersion}"]`);
+    expect($root).toContainText(`GoCD Version: ${GoCDVersion.formattedVersion}`);
     expect($root).not.toContainText("maintenance");
     expect(find("maintenance-mode-banner")).not.toBeInDOM();
-    expect($root).not.toContainText('unsupported browser');
+    expect($root).not.toContainText("unsupported browser");
   });
 
   it("should render maintenance mode banner", () => {
@@ -81,7 +78,7 @@ describe("SiteFooter", () => {
 
     expect(find("maintenance-mode-banner")).toBeInDOM();
     expect($root).toContainText("maintenance");
-    expect($root).not.toContainText('unsupported browser');
+    expect($root).not.toContainText("unsupported browser");
   });
 
   it("should render old browser message on IE11", () => {
@@ -98,7 +95,7 @@ describe("SiteFooter", () => {
     expect(find("maintenance-mode-banner")).not.toBeInDOM();
     expect(find("unsupported-browser-banner")).toBeInDOM();
     expect($root).not.toContainText("maintenance");
-    expect($root).toContainText('unsupported browser');
+    expect($root).toContainText("unsupported browser");
   });
 
 });

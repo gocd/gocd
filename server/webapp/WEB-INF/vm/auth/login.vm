@@ -110,7 +110,7 @@
             <div id="error-box">
               $GOCD_SECURITY_AUTHENTICATION_ERROR.replaceAll(";.*", "")
               <a target="_blank"
-                 href="https://docs.gocd.org/current/configuration/dev_authentication.html#common-errors">Help
+                 href="${currentGoCDVersion.docsUrl('/configuration/dev_authentication.html#common-errors')}">Help
                 Topic: Authentication</a>
             </div>
             <div class="ab-bg">

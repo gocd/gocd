@@ -19,6 +19,7 @@ const _ = require("lodash");
 const f = require("helpers/form_helper");
 
 import {SearchBox} from "views/components/search_box";
+import {docsUrl} from "gen/gocd_version";
 
 const FilterNameInput = {
   oncreate(vnode) {
@@ -175,7 +176,7 @@ const PersonalizationModalWidget = {
             <Tooltip vm={vm} name="include-new-pipelines">
               {"Include pipelines created since this view was last updated "}
               <f.link
-                href="https://docs.gocd.org/current/navigation/pipelines_dashboard_page.html#personalize-pipelines-view"
+                href={docsUrl("/navigation/pipelines_dashboard_page.html#personalize-pipelines-view")}
                 target="_blank">
                 More&hellip;
               </f.link>

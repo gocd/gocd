@@ -25,7 +25,7 @@ module ApiV1
         end
 
         link :doc do |opts|
-          'https://api.gocd.org/#get-configuration'
+          com.thoughtworks.go.CurrentGoCDVersion.apiDocsUrl('#get-configuration')
         end
 
         property :displayName, as: :name

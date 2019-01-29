@@ -63,11 +63,7 @@
       data-show-analytics-dashboard="$showAnalyticsDashboard"
       data-user-display-name="$principal"
       data-user-anonymous="$isAnonymousUser"
-      data-is-server-in-maintenance-mode="${maintenanceModeService.isMaintenanceMode()}"
-      data-version-go-version="$currentGoCDVersion.goVersion()"
-      data-version-copyright-year="$currentGoCDVersion.copyrightYear()"
-      data-version-formatted="${currentGoCDVersion.formatted()}"
-      data-version-full="${currentGoCDVersion.fullVersion()}">
+      data-is-server-in-maintenance-mode="${maintenanceModeService.isMaintenanceMode()}">
 <div class="page-wrap">
   <div id="body_bg">
     <div id="body_bg_highlight">

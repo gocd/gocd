@@ -22,6 +22,7 @@ import com.thoughtworks.go.config.RoleConfig
 import com.thoughtworks.go.config.RoleUser
 import org.junit.jupiter.api.Test
 
+import static com.thoughtworks.go.CurrentGoCDVersion.apiDocsUrl
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
 import static org.assertj.core.api.Assertions.assertThat
@@ -29,7 +30,7 @@ import static org.assertj.core.api.Assertions.assertThat
 class GoCDRoleConfigRepresenterTest {
   private final LinkedHashMap<String, Object> map = [
     _links    : [
-      doc : [href: 'https://api.gocd.org/#roles'],
+      doc : [href: apiDocsUrl('#roles')],
       self: [href: 'http://test.host/go/api/admin/security/roles/admins'],
       find: [href: 'http://test.host/go/api/admin/security/roles/:role_name']
     ],

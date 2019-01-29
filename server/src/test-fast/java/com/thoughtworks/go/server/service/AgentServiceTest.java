@@ -17,6 +17,7 @@
 package com.thoughtworks.go.server.service;
 
 import ch.qos.logback.classic.Level;
+import com.thoughtworks.go.CurrentGoCDVersion;
 import com.thoughtworks.go.config.AgentConfig;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.domain.AgentInstance;
@@ -116,7 +117,7 @@ public class AgentServiceTest {
                 assertThat(e.getMessage(), is(format("Agent [%s] has invalid cookie", runtimeInfo.agentInfoDebugString())));
                 assertThat(logFixture.getRawMessages(), hasItem(format("Found agent [%s] with duplicate uuid. Please check the agent installation.", runtimeInfo.agentInfoDebugString())));
                 verify(serverHealthService).update(ServerHealthState.warning(format("[%s] has duplicate unique identifier which conflicts with [%s]", runtimeInfo.agentInfoForDisplay(), original.agentInfoForDisplay()),
-                        "Please check the agent installation. Click <a href='https://docs.gocd.org/current/faq/agent_guid_issue.html' target='_blank'>here</a> for more info.",
+                        "Please check the agent installation. Click <a href='" + CurrentGoCDVersion.docsUrl("/faq/agent_guid_issue.html") + "' target='_blank'>here</a> for more info.",
                         HealthStateType.duplicateAgent(HealthStateScope.forAgent(runtimeInfo.getCookie())), Timeout.THIRTY_SECONDS));
             }
         }

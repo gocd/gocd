@@ -35,7 +35,7 @@ class Admin::ConfigurationController < AdminController
       fetch_config
       if switch_to_split_pane?(config_validity)
         flash.now[:error] = 'Someone has modified the configuration and your changes are in conflict. Please review, amend and retry.'
-        @flash_help_link = "<a class='' href='https://docs.gocd.org/current/configuration/configuration_reference.html' target='_blank'>Help Topic: Configuration</a>"
+        @flash_help_link = "<a class='' href='#{com.thoughtworks.go.CurrentGoCDVersion.docsUrl('configuration/configuration_reference.html')}' target='_blank'>Help Topic: Configuration</a>"
         @conflicted_config = GoConfig.new(params[:go_config])
         fetch_cruise_config_revision @go_config.md5
         @render_config_via_ajax = true

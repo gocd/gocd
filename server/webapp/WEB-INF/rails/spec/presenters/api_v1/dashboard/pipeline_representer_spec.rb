@@ -26,7 +26,7 @@ describe ApiV1::Dashboard::PipelineRepresenter do
 
     expect(actual_json).to have_links(:self, :doc, :settings_path, :trigger, :trigger_with_options, :unpause, :pause)
     expect(actual_json).to have_link(:self).with_url('http://test.host/api/pipelines/pipeline_name/history')
-    expect(actual_json).to have_link(:doc).with_url('https://api.gocd.org/#pipelines')
+    expect(actual_json).to have_link(:doc).with_url(com.thoughtworks.go.CurrentGoCDVersion.apiDocsUrl '#pipelines')
     expect(actual_json).to have_link(:settings_path).with_url('http://test.host/admin/pipelines/pipeline_name/general')
     expect(actual_json).to have_link(:trigger).with_url('http://test.host/go/api/pipelines/pipeline_name/schedule')
     expect(actual_json).to have_link(:trigger_with_options).with_url('http://test.host/go/api/pipelines/pipeline_name/schedule')

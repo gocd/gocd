@@ -27,7 +27,7 @@ describe ApiV1::Admin::MergedEnvironments::MergedEnvironmentConfigRepresenter do
       expect(actual_json).to have_links(:self, :find, :doc)
       expect(actual_json).to have_link(:find).with_url('http://test.host/api/admin/environments/:environment_name/merged')
       expect(actual_json).to have_link(:self).with_url('http://test.host/api/admin/environments/dev/merged')
-      expect(actual_json).to have_link(:doc).with_url('https://api.gocd.org/#merged-environment-config')
+      expect(actual_json).to have_link(:doc).with_url(com.thoughtworks.go.CurrentGoCDVersion.apiDocsUrl '#merged-environment-config')
 
       actual_json.delete(:_links)
       expect(actual_json).to eq({

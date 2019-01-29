@@ -178,7 +178,7 @@ describe Admin::ConfigurationController do
       expect(response).to render_template "split_pane"
       expect(flash.now[:error]).to eq("Someone has modified the configuration and your changes are in conflict. Please review, amend and retry.")
       expect(assigns[:errors][0]).to eq("Conflict in merging")
-      expect(assigns[:flash_help_link]).to eq("<a class='' href='https://docs.gocd.org/current/configuration/configuration_reference.html' target='_blank'>Help Topic: Configuration</a>")
+      expect(assigns[:flash_help_link]).to eq("<a class='' href='#{com.thoughtworks.go.CurrentGoCDVersion.docsUrl('/configuration/configuration_reference.html')}' target='_blank'>Help Topic: Configuration</a>")
       expect(assigns[:conflicted_config].content).to eq(submitted_copy['content'])
       expect(assigns[:conflicted_config].md5).to eq(submitted_copy['md5'])
       expect(assigns[:conflicted_config].location).to eq(submitted_copy['location'])

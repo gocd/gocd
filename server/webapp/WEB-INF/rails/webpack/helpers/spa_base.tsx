@@ -69,11 +69,6 @@ export default abstract class Page {
 
       const body: Element = document.querySelector("body") as Element;
 
-      const copyrightYear    = body.getAttribute("data-version-copyright-year") as string;
-      const goVersion        = body.getAttribute("data-version-go-version") as string;
-      const fullVersion      = body.getAttribute("data-version-full") as string;
-      const formattedVersion = body.getAttribute("data-version-formatted") as string;
-
       const showAnalyticsDashboard    = this.extractBoolean(body, "data-show-analytics-dashboard");
       const canViewAdminPage          = this.extractBoolean(body, "data-can-user-view-admin");
       const isUserAdmin               = this.extractBoolean(body, "data-is-user-admin");
@@ -84,10 +79,6 @@ export default abstract class Page {
       const userDisplayName           = body.getAttribute("data-user-display-name") || "";
 
       const footerData = {
-        copyrightYear,
-        goVersion,
-        fullVersion,
-        formattedVersion,
         isServerInMaintenanceMode,
         isSupportedBrowser: !/(MSIE|Trident)/i.test(navigator.userAgent)
       } as SiteFooterAttrs;

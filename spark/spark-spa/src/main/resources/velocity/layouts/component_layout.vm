@@ -46,10 +46,6 @@
       data-show-analytics-dashboard="${showAnalyticsDashboard}"
       data-user-display-name="${currentUser.displayName}"
       data-user-anonymous="${currentUser.anonymous}"
-      data-version-go-version="${currentVersion.goVersion()}"
-      data-version-copyright-year="${currentVersion.copyrightYear()}"
-      data-version-formatted="${currentVersion.formatted()}"
-      data-version-full="${currentVersion.fullVersion()}"
       data-is-server-in-maintenance-mode="${maintenanceModeService.isMaintenanceMode()}"
       data-meta="${meta}"
       >

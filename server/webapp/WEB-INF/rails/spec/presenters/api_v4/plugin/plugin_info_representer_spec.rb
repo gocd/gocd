@@ -30,7 +30,7 @@ describe ApiV4::Plugin::PluginInfoRepresenter do
 
       expect(actual_json).to have_links(:self, :doc, :find)
       expect(actual_json).to have_link(:self).with_url('http://test.host/api/admin/plugin_info/foo.example')
-      expect(actual_json).to have_link(:doc).with_url('https://api.gocd.org/#plugin-info')
+      expect(actual_json).to have_link(:doc).with_url(com.thoughtworks.go.CurrentGoCDVersion.apiDocsUrl '#plugin-info')
       expect(actual_json).to have_link(:find).with_url('http://test.host/api/admin/plugin_info/:plugin_id')
       actual_json.delete(:_links)
 
@@ -63,7 +63,7 @@ describe ApiV4::Plugin::PluginInfoRepresenter do
 
       expect(actual_json).to have_links(:self, :doc, :find)
       expect(actual_json).to have_link(:self).with_url('http://test.host/api/admin/plugin_info/foo.example')
-      expect(actual_json).to have_link(:doc).with_url('https://api.gocd.org/#plugin-info')
+      expect(actual_json).to have_link(:doc).with_url(com.thoughtworks.go.CurrentGoCDVersion.apiDocsUrl '#plugin-info')
       expect(actual_json).to have_link(:find).with_url('http://test.host/api/admin/plugin_info/:plugin_id')
       actual_json.delete(:_links)
 

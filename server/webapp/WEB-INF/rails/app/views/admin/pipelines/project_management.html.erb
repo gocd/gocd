@@ -21,13 +21,13 @@
                     <div class="form_item_block required">
                         <%= required_label(t, :regex, 'Pattern')-%>
                         <%= t.text_field :regex %>
-                        <div class="contextual_help has_go_tip_right" title="A regular expression to identify card or bug numbers from your checkin comments. <a class='' href='https://docs.gocd.org/current/integration/index.html' target='_blank'>More...</a>"></div>
+                        <div class="contextual_help has_go_tip_right" title="A regular expression to identify card or bug numbers from your checkin comments. <a class='' href='<%= docs_url '/integration/' %>' target='_blank'>More...</a>"></div>
                         <%= error_message_on(@pipeline.trackingTool, com.thoughtworks.go.config.TrackingTool::REGEX, :css_class => "form_error") %>
                     </div>
                     <div class="form_item_block required">
                         <%= required_label(t, :link, 'URI')-%>
                         <%= t.text_field :link %>
-                        <div class="contextual_help has_go_tip_right" title="The URI to your tracking tool. This must contain the string ${ID} which will be replaced with the number identified using the pattern. <a class='' href='https://docs.gocd.org/current/integration/go_integration.html' target='_blank'>More...</a>"></div>
+                        <div class="contextual_help has_go_tip_right" title="The URI to your tracking tool. This must contain the string ${ID} which will be replaced with the number identified using the pattern. <a class='' href='<%= docs_url '/integration/' %>' target='_blank'>More...</a>"></div>
                         <%= error_message_on(@pipeline.trackingTool, com.thoughtworks.go.config.TrackingTool::LINK, :css_class => "form_error") %>
                     </div>
                 </div>

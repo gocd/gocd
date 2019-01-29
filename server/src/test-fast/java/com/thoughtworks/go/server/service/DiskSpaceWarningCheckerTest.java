@@ -34,6 +34,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 
+import static com.thoughtworks.go.CurrentGoCDVersion.docsUrl;
 import static com.thoughtworks.go.server.service.ArtifactsDiskSpaceFullCheckerTest.mockGoConfigServiceToHaveSiteUrl;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.containsString;
@@ -101,7 +102,7 @@ public class DiskSpaceWarningCheckerTest {
 
     @Test
     public void shouldFormatLowDiskSpaceWarningMailWithHelpLinksHttpAndSiteUrl() throws URISyntaxException {
-        String expectedHelpUrl = "https://docs.gocd.org/current/installation/configuring_server_details.html";
+        String expectedHelpUrl = docsUrl("/installation/configuring_server_details.html");
 
         GoConfigService goConfigService = mockGoConfigServiceToHaveSiteUrl();
 

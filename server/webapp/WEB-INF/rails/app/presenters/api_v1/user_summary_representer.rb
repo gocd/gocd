@@ -20,7 +20,7 @@ module ApiV1
     alias_method :login_name, :represented
 
     link :doc do
-      'https://api.gocd.org/#users'
+      com.thoughtworks.go.CurrentGoCDVersion.apiDocsUrl('#users')
     end
 
     link :current_user do |opts|

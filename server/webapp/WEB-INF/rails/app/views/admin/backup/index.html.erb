@@ -18,7 +18,7 @@
     <div class="backup_storage_message information">
         <span class="info">Backups are stored in <strong class="location"><%=@backup_location-%></strong></span><br/>
 
-        To configure backups, please see <%= link_to 'backup configuration documentation', "https://docs.gocd.org/#{unformatted_version}/advanced_usage/cron_backup.html" %>
+        To configure backups, please see <%= link_to 'backup configuration documentation',  docs_url("/advanced_usage/cron_backup.html") %>
     </div>
     <div class='backup_action'>
         <%=default_button( 'Perform Backup',:id => "backup_server", :class => "primary")-%>

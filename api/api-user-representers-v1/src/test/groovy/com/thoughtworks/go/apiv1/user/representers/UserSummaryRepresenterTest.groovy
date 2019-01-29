@@ -18,6 +18,7 @@ package com.thoughtworks.go.apiv1.user.representers
 
 import org.junit.jupiter.api.Test
 
+import static com.thoughtworks.go.CurrentGoCDVersion.apiDocsUrl
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
 
@@ -31,7 +32,7 @@ class UserSummaryRepresenterTest {
       _links    : [
         self        : [href: 'http://test.host/go/api/users/jdoe'],
         find        : [href: 'http://test.host/go/api/users/:login_name'],
-        doc         : [href: 'https://api.gocd.org/#users'],
+        doc         : [href: apiDocsUrl('#users')],
         current_user: [href: 'http://test.host/go/api/current_user'],
       ],
       login_name: 'jdoe'

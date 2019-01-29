@@ -19,6 +19,8 @@ package com.thoughtworks.go.apiv4.admin.templateconfig.representers
 import com.thoughtworks.go.config.CaseInsensitiveString
 import com.thoughtworks.go.config.PipelineEditabilityInfo
 import org.junit.jupiter.api.Test
+
+import static com.thoughtworks.go.CurrentGoCDVersion.apiDocsUrl
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
 
@@ -31,7 +33,7 @@ class PipelineSummaryRepresenterTest {
     def expected = [
       _links  : [
         doc : [
-          href: "https://api.gocd.org/#pipeline-config"
+          href: apiDocsUrl("#pipeline-config")
         ],
         find: [
           href: "http://test.host/go/api/admin/pipelines/:pipeline_name"

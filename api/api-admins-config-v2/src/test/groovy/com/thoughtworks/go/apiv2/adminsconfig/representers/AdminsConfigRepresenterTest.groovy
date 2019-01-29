@@ -24,6 +24,7 @@ import com.thoughtworks.go.config.AdminsConfig
 import com.thoughtworks.go.config.CaseInsensitiveString
 import org.junit.jupiter.api.Test
 
+import static com.thoughtworks.go.CurrentGoCDVersion.apiDocsUrl
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
 import static org.assertj.core.api.Assertions.assertThat
@@ -35,7 +36,7 @@ class AdminsConfigRepresenterTest {
 
     def actualJson = toObjectString({ AdminsConfigRepresenter.toJSON(it, config) })
 
-    final LinkedHashMap<String, Object> expected = ["_links": ["doc": ["href": "https://api.gocd.org/#system_admins"], "self": ["href": "http://test.host/go/api/admin/security/system_admins"]], "roles": ["xyz"], "users": ["admin"]]
+    final LinkedHashMap<String, Object> expected = ["_links": ["doc": ["href": apiDocsUrl("#system_admins")], "self": ["href": "http://test.host/go/api/admin/security/system_admins"]], "roles": ["xyz"], "users": ["admin"]]
     assertThatJson(actualJson).isEqualTo(expected)
   }
 
@@ -49,7 +50,7 @@ class AdminsConfigRepresenterTest {
 
     def actualJson = toObjectString({ AdminsConfigRepresenter.toJSON(it, config) })
 
-    final LinkedHashMap<String, Object> expected = ["_links": ["doc": ["href": "https://api.gocd.org/#system_admins"], "self": ["href": "http://test.host/go/api/admin/security/system_admins"]], "roles": ["xyz"], "users": ["admin"], "errors": ["roles": ["Role does not exist"], "users": ["User name cannot be blank"]]]
+    final LinkedHashMap<String, Object> expected = ["_links": ["doc": ["href": apiDocsUrl("#system_admins")], "self": ["href": "http://test.host/go/api/admin/security/system_admins"]], "roles": ["xyz"], "users": ["admin"], "errors": ["roles": ["Role does not exist"], "users": ["User name cannot be blank"]]]
     assertThatJson(actualJson).isEqualTo(expected);
   }
 

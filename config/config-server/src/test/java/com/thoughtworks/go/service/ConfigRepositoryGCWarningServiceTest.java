@@ -23,6 +23,7 @@ import org.junit.Test;
 
 import java.util.List;
 
+import static com.thoughtworks.go.CurrentGoCDVersion.docsUrl;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
@@ -55,7 +56,7 @@ public class ConfigRepositoryGCWarningServiceTest {
                 "the configured threshold. As the size of config repo increases, the config save operations tend to slow down " +
                 "drastically. It is recommended that you run 'git gc' from " +
                 "'&lt;go server installation directory&gt;/db/config.git/' to address this problem. Go can do this " +
-                "automatically on a periodic basis if you enable automatic GC. <a target='_blank' href='https://docs.gocd.org/current/advanced_usage/config_repo.html'>read more...</a>";
+                "automatically on a periodic basis if you enable automatic GC. <a target='_blank' href='" + docsUrl("/advanced_usage/config_repo.html") + "'>read more...</a>";
 
         assertThat(healthStates.get(0).getDescription(), is(description));
         assertThat(healthStates.get(0).getLogLevel(), is(HealthStateLevel.WARNING));

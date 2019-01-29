@@ -26,6 +26,7 @@ import com.thoughtworks.go.plugin.domain.common.PluginConfiguration
 import com.thoughtworks.go.plugin.domain.elastic.ElasticAgentPluginInfo
 import org.junit.jupiter.api.Test
 
+import static com.thoughtworks.go.CurrentGoCDVersion.apiDocsUrl
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
 import static com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother.create
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
@@ -62,7 +63,7 @@ class ElasticProfileRepresenterTest {
     def expectedJson = [
       _links    : [
         self: [href: 'http://test.host/go/api/elastic/profiles/docker'],
-        doc : [href: 'https://api.gocd.org/current/#elastic-agent-profiles'],
+        doc : [href: apiDocsUrl('#elastic-agent-profiles')],
         find: [href: 'http://test.host/go/api/elastic/profiles/:profile_id'],
       ],
       id        : 'docker',

@@ -21,6 +21,7 @@ import com.thoughtworks.go.config.elastic.ElasticProfiles
 import com.thoughtworks.go.security.GoCipher
 import org.junit.jupiter.api.Test
 
+import static com.thoughtworks.go.CurrentGoCDVersion.apiDocsUrl
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
 import static com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother.create
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
@@ -29,7 +30,7 @@ class ElasticProfilesRepresenterTest {
   def expectedJson = [
     _links   : [
       self: [href: 'http://test.host/go/api/elastic/profiles'],
-      doc : [href: 'https://api.gocd.org/current/#elastic-agent-profiles'],
+      doc : [href: apiDocsUrl('#elastic-agent-profiles')],
       find: [href: 'http://test.host/go/api/elastic/profiles/:profile_id'],
     ],
     _embedded: [
@@ -37,7 +38,7 @@ class ElasticProfilesRepresenterTest {
         [
           _links      : [
             self: [href: 'http://test.host/go/api/elastic/profiles/docker'],
-            doc : [href: 'https://api.gocd.org/current/#elastic-agent-profiles'],
+            doc : [href: apiDocsUrl('#elastic-agent-profiles')],
             find: [href: 'http://test.host/go/api/elastic/profiles/:profile_id'],
           ],
           id          : 'docker',
@@ -52,7 +53,7 @@ class ElasticProfilesRepresenterTest {
         [
           _links      : [
             self: [href: 'http://test.host/go/api/elastic/profiles/ecs'],
-            doc : [href: 'https://api.gocd.org/current/#elastic-agent-profiles'],
+            doc : [href: apiDocsUrl('#elastic-agent-profiles')],
             find: [href: 'http://test.host/go/api/elastic/profiles/:profile_id'],
           ],
           id          : 'ecs',
@@ -74,7 +75,7 @@ class ElasticProfilesRepresenterTest {
       new ElasticProfile("docker", "cd.go.docker", create("docker-uri", false, "unix:///var/run/docker")),
       new ElasticProfile("ecs", "cd.go.ecs", create("ACCESS_KEY", true, "encrypted-key"))
     )
-    
+
     def actualJson = toObjectString({ ElasticProfilesRepresenter.toJSON(it, elasticProfiles) })
 
     assertThatJson(actualJson).isEqualTo(expectedJson)

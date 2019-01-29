@@ -1,6 +1,6 @@
 <div class="config-container">
 <h3>Environment Variables</h3>
-<span title="Environment variables defined here are set on the agents and can be used within your tasks. <a class='' href='https://docs.gocd.org/current/faq/dev_use_current_revision_in_build.html' target='_blank'>More...</a>" class="contextual_help has_go_tip_right">&nbsp;</span>
+<span title="Environment variables defined here are set on the agents and can be used within your tasks. <a class='' href='<%= docs_url '/faq/dev_use_current_revision_in_build.html' %>' target='_blank'>More...</a>" class="contextual_help has_go_tip_right">&nbsp;</span>
 <%= render :partial => "admin/shared/global_errors.html", :locals => {:scope => {}} -%>
 <%= form_for @job,
              :as => :job,
@@ -18,7 +18,7 @@
                                                                     } %>
 
     <h3>Secure Variables</h3>
-    <span title="Environment variables that are never displayed or logged in plain text. <a class='' href='https://docs.gocd.org/current/faq/dev_use_current_revision_in_build.html' target='_blank'>More...</a>" class="contextual_help has_go_tip_right">&nbsp;</span>
+    <span title="Environment variables that are never displayed or logged in plain text. <a class='' href='<%= docs_url '/faq/dev_use_current_revision_in_build.html' %>' target='_blank'>More...</a>" class="contextual_help has_go_tip_right">&nbsp;</span>
     <div class="fieldset">
         <%= render :partial => "admin/shared/name_value", :locals => {:scope => {:form => f, :collection => @job.getSecureVariables(), :collection_name => :variables, :secure => true}} %>
         <div class='clear'></div>

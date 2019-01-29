@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import {docsUrl} from "gen/gocd_version";
 import {MithrilViewComponent} from "jsx/mithril-component";
 import * as m from "mithril";
 import {MaintenanceModeInfo, RunningSystem, StageLocator} from "models/maintenance_mode/types";
@@ -63,7 +64,7 @@ export class MaintenanceModeWidget extends MithrilViewComponent<Attrs> {
           When put into maintenance mode, it is safe to restart or upgrade the GoCD server without having any running
           jobs reschedule when the server is back up.
           &nbsp;
-          <Link target="_blank" href="https://docs.gocd.org/current/advanced_usage/maintenance_mode.html">Learn more..</Link>
+          <Link target="_blank" href={docsUrl("/advanced_usage/maintenance_mode.html")}>Learn more..</Link>
         </p>
 
         <div class={styles.maintenanceModeInfo}>

@@ -36,6 +36,7 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.Mock
 
+import static com.thoughtworks.go.CurrentGoCDVersion.apiDocsUrl
 import static com.thoughtworks.go.api.base.JsonUtils.toObject
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
 import static org.junit.jupiter.api.Assertions.*
@@ -61,7 +62,7 @@ class PipelineConfigRepresenterTest {
 
       assertEquals("http://test.host/go/api/admin/pipelines/wunderbar", actualJson['_links']['self']['href'])
       assertEquals("http://test.host/go/api/admin/pipelines/:pipeline_name", actualJson['_links']['find']['href'])
-      assertEquals("https://api.gocd.org/#pipeline-config", actualJson['_links']['doc']['href'])
+      assertEquals(apiDocsUrl("#pipeline-config"), actualJson['_links']['doc']['href'])
 
       assertThatJson(actualJson).isEqualTo(pipelineHash)
     }
@@ -79,7 +80,7 @@ class PipelineConfigRepresenterTest {
             href: 'http://test.host/go/api/admin/pipelines/wunderbar'
           ],
           doc : [
-            href: 'https://api.gocd.org/#pipeline-config'
+            href: apiDocsUrl('#pipeline-config')
           ],
           find: [
             href: 'http://test.host/go/api/admin/pipelines/:pipeline_name'
@@ -95,7 +96,7 @@ class PipelineConfigRepresenterTest {
               href: 'http://test.host/go/admin/config_xml'
             ],
             doc : [
-              href: 'https://api.gocd.org/current/#get-configuration'
+              href: apiDocsUrl('#get-configuration')
             ]
           ],
           type  : 'gocd'
@@ -490,7 +491,7 @@ class PipelineConfigRepresenterTest {
           href: 'http://test.host/go/api/admin/pipelines/wunderbar'
         ],
         doc : [
-          href: 'https://api.gocd.org/#pipeline-config'
+          href: apiDocsUrl('#pipeline-config')
         ],
         find: [
           href: 'http://test.host/go/api/admin/pipelines/:pipeline_name'
@@ -506,7 +507,7 @@ class PipelineConfigRepresenterTest {
             href: 'http://test.host/go/admin/config_xml'
           ],
           doc : [
-            href: 'https://api.gocd.org/current/#get-configuration'
+            href: apiDocsUrl('#get-configuration')
           ]
         ],
         type  : 'gocd'
@@ -531,7 +532,7 @@ class PipelineConfigRepresenterTest {
           href: 'http://test.host/go/api/admin/pipelines/wunderbar'
         ],
         doc : [
-          href: 'https://api.gocd.org/#pipeline-config'
+          href: apiDocsUrl('#pipeline-config')
         ],
         find: [
           href: 'http://test.host/go/api/admin/pipelines/:pipeline_name'
@@ -546,7 +547,7 @@ class PipelineConfigRepresenterTest {
             href: 'http://test.host/go/admin/config_xml'
           ],
           doc : [
-            href: 'https://api.gocd.org/current/#get-configuration'
+            href: apiDocsUrl('#get-configuration')
           ]
         ],
         type  : 'gocd'
@@ -625,7 +626,7 @@ class PipelineConfigRepresenterTest {
           href: 'http://test.host/go/api/admin/pipelines/wunderbar'
         ],
         doc : [
-          href: 'https://api.gocd.org/#pipeline-config'
+          href: apiDocsUrl('#pipeline-config')
         ],
         find: [
           href: 'http://test.host/go/api/admin/pipelines/:pipeline_name'
@@ -641,7 +642,7 @@ class PipelineConfigRepresenterTest {
             href: 'http://test.host/go/admin/config_xml'
           ],
           doc : [
-            href: 'https://api.gocd.org/current/#get-configuration'
+            href: apiDocsUrl('#get-configuration')
           ]
         ],
         type  : 'gocd'

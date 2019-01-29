@@ -3,7 +3,7 @@
 <div class="andare">
   <div class="heading">
     <h2>
-      <%- if scope[:isNewRepo] %>Add <% else %>Edit <% end %>Package Repository<a class="help" href="https://docs.gocd.org/current/extension_points/package_repository_extension.html" target="_blank">What is a Package Repository?</a>
+      <%- if scope[:isNewRepo] %>Add <% else %>Edit <% end %>Package Repository<a class="help" href="<%= docs_url '/extension_points/package_repository_extension.html' %>" target="_blank">What is a Package Repository?</a>
     </h2>
   </div>
     <div id="package-repositories" class="layout admin-entity">

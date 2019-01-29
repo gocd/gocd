@@ -20,6 +20,7 @@ import com.thoughtworks.go.apiv1.user.representers.UserSummaryRepresenter
 import com.thoughtworks.go.server.domain.ServerBackup
 import org.junit.jupiter.api.Test
 
+import static com.thoughtworks.go.CurrentGoCDVersion.apiDocsUrl
 import static com.thoughtworks.go.api.base.JsonOutputWriter.jsonDate
 import static com.thoughtworks.go.api.base.JsonUtils.toObject
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
@@ -34,7 +35,7 @@ class BackupRepresenterTest {
 
     Map<String, Object> expectedJson = [
       _links: [
-        doc: [href: 'https://api.gocd.org/#backups']
+        doc: [href: apiDocsUrl('#backups')]
       ],
       time  : jsonDate(new Date(42)),
       path  : "/foo/bar",

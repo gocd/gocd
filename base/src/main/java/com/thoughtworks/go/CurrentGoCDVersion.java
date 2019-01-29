@@ -18,8 +18,6 @@ package com.thoughtworks.go;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Properties;
 
 public class CurrentGoCDVersion {
@@ -30,6 +28,8 @@ public class CurrentGoCDVersion {
     private final String formatted;
     private final String fullVersion;
     private final String copyrightYear;
+    private final String baseDocsUrl;
+    private final String baseApiDocsUrl;
 
     private CurrentGoCDVersion() {
         try (InputStream in = getClass().getClassLoader().getResourceAsStream("gocd-version.properties")) {
@@ -42,6 +42,8 @@ public class CurrentGoCDVersion {
             this.fullVersion = properties.getProperty("fullVersion", "unknown");
             this.copyrightYear = properties.getProperty("copyrightYear", "unknown");
             this.formatted = String.format("%s (%s-%s)", goVersion, distVersion, gitRevision);
+            this.baseDocsUrl = "https://docs.gocd.org/" + this.goVersion;
+            this.baseApiDocsUrl = "https://api.gocd.org/" + this.goVersion;
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -71,8 +73,31 @@ public class CurrentGoCDVersion {
         return fullVersion;
     }
 
+    public String baseDocsUrl() {
+        return baseDocsUrl;
+    }
+
+    public String baseApiDocsUrl() {
+        return baseApiDocsUrl;
+    }
+
     private static class SingletonHolder {
         private static final CurrentGoCDVersion INSTANCE = new CurrentGoCDVersion();
+    }
+
+    public static String docsUrl(String suffix) {
+        return SingletonHolder.INSTANCE.baseDocsUrl() + "/" + stripLeadingPrefix(suffix, "/");
+    }
+
+    public static String apiDocsUrl(String hashFragment) {
+        return SingletonHolder.INSTANCE.baseApiDocsUrl() + "/#" + stripLeadingPrefix(hashFragment, "#");
+    }
+
+    private static String stripLeadingPrefix(String suffix, String prefix) {
+        if (suffix.startsWith(prefix)) {
+            suffix = suffix.substring(1);
+        }
+        return suffix;
     }
 
     public static CurrentGoCDVersion getInstance() {

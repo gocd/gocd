@@ -284,6 +284,10 @@ module ApplicationHelper
     @@version ||= com.thoughtworks.go.CurrentGoCDVersion.getInstance().formatted()
   end
 
+  def docs_url(suffix)
+    com.thoughtworks.go.CurrentGoCDVersion.docsUrl(suffix)
+  end
+
   def full_version
     @@full_version ||= com.thoughtworks.go.CurrentGoCDVersion.getInstance().fullVersion()
   end

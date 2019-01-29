@@ -38,6 +38,6 @@ describe 'environments/index.html.erb' do
 
     render
 
-    expect(response).to have_selector("div.unused_feature a[href='https://docs.gocd.org/current/configuration/managing_environments.html']", :text => "More Information")
+    expect(response).to have_selector("div.unused_feature a[href='#{docs_url '/configuration/managing_environments.html'}']", :text => "More Information")
   end
 end

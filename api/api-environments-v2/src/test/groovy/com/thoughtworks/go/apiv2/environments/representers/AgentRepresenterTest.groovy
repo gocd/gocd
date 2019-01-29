@@ -19,6 +19,7 @@ package com.thoughtworks.go.apiv2.environments.representers
 import com.thoughtworks.go.config.EnvironmentAgentConfig
 import org.junit.jupiter.api.Test
 
+import static com.thoughtworks.go.CurrentGoCDVersion.apiDocsUrl
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
 
@@ -33,7 +34,7 @@ class AgentRepresenterTest {
     assertThatJson(json).isEqualTo([
       "_links": [
         "doc": [
-          "href": "https://api.gocd.org/current/#agents"
+          "href": apiDocsUrl("#agents")
         ],
         "find": [
           "href": "/api/agents/:uuid"

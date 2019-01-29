@@ -1,8 +1,8 @@
 <div class="gist_based_auto_complete form_item_block">
     <%= label_tag 'lookup_command', 'Lookup Commands' -%>
     <%= text_field_tag nil, nil, :placeholder => 'Enter command name or keyword', :class => "lookup_command" -%>
-    <div class="contextual_help has_go_tip_right" title="Lookup sample command snippets from your local <a class='' href='https://docs.gocd.org/current/advanced_usage/command_repository.html' target='_blank'>command repository</a>."></div>
-    <div class="error-message-for-old-args hidden">The lookup feature is only available for the <a class='' href='https://docs.gocd.org/current/advanced_usage/command_repository.html#args-style-commands' target='_blank'>new style</a> of custom commands.</div>
+    <div class="contextual_help has_go_tip_right" title="Lookup sample command snippets from your local <a class='' href='<%= docs_url '/advanced_usage/command_repository.html' %>' target='_blank'>command repository</a>."></div>
+    <div class="error-message-for-old-args hidden">The lookup feature is only available for the <a class='' href='<%= docs_url '/advanced_usage/command_repository.html#args-style-commands' %>' target='_blank'>new style</a> of custom commands.</div>
 </div>
 <div class="snippet_details hidden">
     <div class="name">

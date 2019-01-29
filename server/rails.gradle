@@ -37,6 +37,7 @@ task generateJSRoutes(type: ExecuteUnderRailsTask) {
   outputs.cacheIf { true }
   onlyIf { !project.hasProperty('fastBuild') }
   def outputDir = file("${project.railsRoot}/webpack/gen")
+  inputs.property('fullVersion', project.fullVersion)
   inputs.dir(file("${project.railsRoot}/vendor"))
   inputs.files(fileTree(dir: "${project.railsRoot}/config", includes: ['**/*.rb']))
   outputs.dir(outputDir)

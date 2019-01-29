@@ -29,7 +29,7 @@ describe ApiV1::PipelineSummaryRepresenter do
 
     expect(actual_json).to have_links(:doc)
 
-    expect(actual_json).to have_link(:doc).with_url('https://api.gocd.org/#pipelines')
+    expect(actual_json).to have_link(:doc).with_url(com.thoughtworks.go.CurrentGoCDVersion.apiDocsUrl '#pipelines')
 
     actual_json.delete(:_links)
     expect(actual_json).to eq(pipeline_hash(pipeline_instance))

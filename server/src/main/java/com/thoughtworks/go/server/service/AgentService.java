@@ -50,6 +50,7 @@ import org.springframework.util.LinkedMultiValueMap;
 
 import java.util.*;
 
+import static com.thoughtworks.go.CurrentGoCDVersion.docsUrl;
 import static java.lang.String.format;
 
 
@@ -282,7 +283,7 @@ public class AgentService {
             LOGGER.warn("Found agent [{}] with duplicate uuid. Please check the agent installation.", info.agentInfoDebugString());
             serverHealthService.update(
                     ServerHealthState.warning(format("[%s] has duplicate unique identifier which conflicts with [%s]", info.agentInfoForDisplay(), findAgentAndRefreshStatus(info.getUUId()).agentInfoForDisplay()),
-                            "Please check the agent installation. Click <a href='https://docs.gocd.org/current/faq/agent_guid_issue.html' target='_blank'>here</a> for more info.",
+                            "Please check the agent installation. Click <a href='" + docsUrl("/faq/agent_guid_issue.html") + "' target='_blank'>here</a> for more info.",
                             HealthStateType.duplicateAgent(HealthStateScope.forAgent(info.getCookie())), Timeout.THIRTY_SECONDS));
             throw new AgentWithDuplicateUUIDException(format("Agent [%s] has invalid cookie", info.agentInfoDebugString()));
         }

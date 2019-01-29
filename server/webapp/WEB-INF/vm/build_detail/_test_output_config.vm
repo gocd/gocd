@@ -31,4 +31,4 @@
 &lt;/job&gt;
 </pre>
 <br/>
-<p><a href="https://docs.gocd.org/current/configuration/managing_artifacts_and_reports.html" target='_blank' class="obvious_link">Help Topic: Managing Artifacts and Reports</a></p>
+<p><a href="${currentGoCDVersion.docsUrl('/configuration/managing_artifacts_and_reports.html')}" target='_blank' class="obvious_link">Help Topic: Managing Artifacts and Reports</a></p>

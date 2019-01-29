@@ -16,12 +16,14 @@
 
 package com.thoughtworks.go.server.messaging;
 
+import com.thoughtworks.go.CurrentGoCDVersion;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.SystemUtil;
-import static org.hamcrest.Matchers.is;
 import org.junit.After;
-import static org.junit.Assert.assertThat;
 import org.junit.Test;
+
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
 
 public class EmailMessageDrafterTest {
     private String artifactRoot = "artifactFolder";
@@ -66,7 +68,8 @@ public class EmailMessageDrafterTest {
             + "When the available space goes below %sMb, Go will stop scheduling. "
             + "Please ensure enough space is available. You can read more about Go's artifacts repository, "
             + "including our recommendation to create a separate partition for it at "
-            + "https://docs.gocd.org/current/installation/configuring_server_details.html\n", ip, size, artifactRoot, noDiskSpaceSize);
+            + CurrentGoCDVersion.docsUrl("/installation/configuring_server_details.html") +
+                "\n", ip, size, artifactRoot, noDiskSpaceSize);
     }
 
     private String noArtifactDiskSpaceEmail(String ip, String size) {
@@ -75,6 +78,7 @@ public class EmailMessageDrafterTest {
             + "This server has stopped scheduling because it has less than %sMb of disk space available at %s to store artifacts. "
             + "Please ensure enough space is available. You can read more about Go's artifacts repository, "
             + "including our recommendation to create a separate partition for it at "
-            + "https://docs.gocd.org/current/installation/configuring_server_details.html\n", ip, size, artifactRoot);
+            + CurrentGoCDVersion.docsUrl("/installation/configuring_server_details.html") +
+                "\n", ip, size, artifactRoot);
     }
 }

@@ -12,13 +12,13 @@
             <div class="form_item">
                 <label for="server_configuration_form_site_url">Site URL</label>
                 <%= form.text_field :siteUrl, :size => 30, :maxLength => 255 %>
-                <div class="contextual_help has_go_tip_right" title="This entry will be used by Go Server to generate links for emails, feeds etc. Format: [protocol]://[host]:[port]. <a class='' href='https://docs.gocd.org/current/installation/configuring_server_details.html#configure-site-urls' target='_blank'>More...</a>"></div>
+                <div class="contextual_help has_go_tip_right" title="This entry will be used by Go Server to generate links for emails, feeds etc. Format: [protocol]://[host]:[port]. <a class='' href='<%= docs_url '/installation/configuring_server_details.html#configure-site-urls' %>' target='_blank'>More...</a>"></div>
                 <span id="site_url_error_message"></span>
             </div>
             <div class="form_item">
                 <label for="server_configuration_form_secure_site_url">Secure Site URL</label>
                 <%= form.text_field :secureSiteUrl, :size => 30, :maxLength => 255 %>
-                <div class="contextual_help has_go_tip_right" title="If you wish that your primary site URL be HTTP, but still want to have HTTPS endpoints for the features that require SSL, you can specify this attribute with a value of the base HTTPS URL. Format: https://[host]:[port].  <a class='' href='https://docs.gocd.org/current/installation/configuring_server_details.html#configure-site-urls' target='_blank'>More...</a>"></div>
+                <div class="contextual_help has_go_tip_right" title="If you wish that your primary site URL be HTTP, but still want to have HTTPS endpoints for the features that require SSL, you can specify this attribute with a value of the base HTTPS URL. Format: https://[host]:[port].  <a class='' href='<%= docs_url '/installation/configuring_server_details.html#configure-site-urls' %>' target='_blank'>More...</a>"></div>
                 <span id="secure_site_url_error_message"></span>
             </div>
         </div>
@@ -90,7 +90,7 @@
                             <%= form.check_box :tls, {}, "true", "false" %>
                             <label class="inline" for="server_configuration_form_tls">Use SMTPS</label>
                         </div>
-                        <div class="contextual_help has_go_tip_right" title="This changes the protocol used to send the mail. It switches between SMTP and SMTPS. To enable STARTLS support, for providers such as GMail and Office 365, see <a class='' href='https://docs.gocd.org/current/configuration/admin_mailhost_info.html#starttls' target='_blank'>this page in the documentation</a>."></div>
+                        <div class="contextual_help has_go_tip_right" title="This changes the protocol used to send the mail. It switches between SMTP and SMTPS. To enable STARTLS support, for providers such as GMail and Office 365, see <a class='' href='<%= docs_url '/configuration/admin_mailhost_info.html#starttls' %>' target='_blank'>this page in the documentation</a>."></div>
                     </div>
 
                     <div class="form_item">
@@ -166,7 +166,7 @@
                     <%= form.text_field :commandRepositoryLocation -%>
                 </div>
 
-                <div class="contextual_help has_go_tip_right" title="Path to <a class='' href='https://docs.gocd.org/current/advanced_usage/command_repository.html' target='_blank'>command repository</a> on Go Server. The location should be accessible to Go user."></div>
+                <div class="contextual_help has_go_tip_right" title="Path to <a class='' href='<%= docs_url '/advanced_usage/command_repository.html' %>' target='_blank'>command repository</a> on Go Server. The location should be accessible to Go user."></div>
             </div>
 
             <div class="form_item" id="lookup-command-reload">

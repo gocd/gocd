@@ -23,7 +23,7 @@ module ApiV1
       end
 
       link :doc do
-        'https://api.gocd.org/#scms'
+        com.thoughtworks.go.CurrentGoCDVersion.apiDocsUrl('#scms')
       end
 
       collection :scms, embedded: true, exec_context: :decorator, decorator: PluggableScmSummaryRepresenter

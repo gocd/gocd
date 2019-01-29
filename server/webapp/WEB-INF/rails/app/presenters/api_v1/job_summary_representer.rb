@@ -19,7 +19,7 @@ module ApiV1
     alias_method :job, :represented
 
     link :doc do |opts|
-      'https://api.gocd.org/#jobs'
+      com.thoughtworks.go.CurrentGoCDVersion.apiDocsUrl('#jobs')
     end
 
     property :getName, as: :name

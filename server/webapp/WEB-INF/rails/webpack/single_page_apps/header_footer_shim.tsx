@@ -37,11 +37,6 @@ $(() => {
       return JSON.parse(body.getAttribute(attribute) as string);
     }
 
-    const copyrightYear    = body.getAttribute("data-version-copyright-year") as string;
-    const goVersion        = body.getAttribute("data-version-go-version") as string;
-    const fullVersion      = body.getAttribute("data-version-full") as string;
-    const formattedVersion = body.getAttribute("data-version-formatted") as string;
-
     const showAnalyticsDashboard    = extractBoolean(body, "data-show-analytics-dashboard");
     const canViewAdminPage          = extractBoolean(body, "data-can-user-view-admin");
     const isUserAdmin               = extractBoolean(body, "data-is-user-admin");
@@ -52,10 +47,6 @@ $(() => {
     const userDisplayName           = body.getAttribute("data-user-display-name") || "";
 
     const footerData = {
-      copyrightYear,
-      goVersion,
-      fullVersion,
-      formattedVersion,
       isServerInMaintenanceMode,
       isSupportedBrowser: !/(MSIE|Trident)/i.test(navigator.userAgent)
     };

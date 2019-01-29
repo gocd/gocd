@@ -35,8 +35,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.function.Predicate;
 
-import static org.hamcrest.Matchers.instanceOf;
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
@@ -132,9 +131,9 @@ public class GoSslSocketConnectorTest {
         Collection<ConnectionFactory> connectionFactories = connector.getConnectionFactories();
         SslContextFactory sslContextFactory = findSslContextFactory(connectionFactories);
 
-        assertThat(sslContextFactory.getExcludeCipherSuites().length, is(1));
-        assertThat(sslContextFactory.getExcludeCipherSuites()[0], is("^.*_(MD5|SHA|SHA1)$"));
-        assertThat(sslContextFactory.getIncludeCipherSuites().length, is(0));
+        assertThat(sslContextFactory.getExcludeCipherSuites(), is(arrayWithSize(5)));
+        assertThat(sslContextFactory.getExcludeCipherSuites(), is(arrayContainingInAnyOrder("^.*_(MD5|SHA|SHA1)$", "^TLS_RSA_.*$", "^SSL_.*$", "^.*_NULL_.*$", "^.*_anon_.*$")));
+        assertThat(sslContextFactory.getIncludeCipherSuites(), is(emptyArray()));
     }
 
     @Test

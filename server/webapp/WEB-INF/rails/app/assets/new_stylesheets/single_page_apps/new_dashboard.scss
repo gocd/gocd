@@ -16,9 +16,6 @@
 // scss-lint:disable NameFormat
 // scss-lint:disable SelectorFormat
 // scss-lint:disable MergeableSelector
-
-
-
 @import 'shared/common';
 @import 'shared/autocomplete';
 @import 'shared/modal';
@@ -29,7 +26,6 @@
 @import 'pipeline_configs/personalize_views_editor';
 @import 'pipeline_configs/dashboard_view_tabs';
 @import "font-awesome-sprockets";
-
 @import "components/horizontal-tabs";
 @import "components/vertical-tabs";
 @import "components/name-value";
@@ -302,6 +298,7 @@ body {
   height:    25px;
   font-size: $pipeline_icons_size;
   color:     $icon-color;
+  cursor:    pointer;
 
   &:hover {
     color: $icon-hover-color;
@@ -428,6 +425,7 @@ body {
 
       &:first-child {
         border: 0;
+
         a {
           padding-left: 0;
         }
@@ -488,6 +486,7 @@ body {
 
   .modified_by {
     word-break: break-all;
+
     span {
       @include truncate-to-lines(2);
 
@@ -549,6 +548,7 @@ body {
       @extend %building;
 
       background: $failed;
+
       > span {
         background-color: $failed;
       }

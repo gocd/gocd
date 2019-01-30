@@ -1073,36 +1073,6 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
         return registry;
     }
 
-    public Map<String, Map> artifactIdToPluginIdForFetchPluggableArtifact(String stagePatent,
-                                                                          String currentPipelineName,
-                                                                          String currentStageName) {
-
-        final List<PipelineConfig> pipelineConfigs = stagePatent.equals("templates") ? getAllPipelineConfigs() : pipelinesForFetchArtifacts(currentPipelineName);
-        Map<String, Map> allArtifacts = new HashMap<>();
-
-        pipelineConfigs.forEach(pipelineConfig -> {
-            final String pipelineName = pipelineConfig.getName().toString();
-            final HashMap<String, Map> artifactsInPipeline = new HashMap<>();
-            allArtifacts.put(pipelineName, artifactsInPipeline);
-            final boolean isCurrentPipeline = pipelineName.equalsIgnoreCase(currentPipelineName);
-
-            final List<StageConfig> stageConfigs = isCurrentPipeline ? pipelineConfig.allStagesBefore(new CaseInsensitiveString(currentStageName)) : pipelineConfig.getStages();
-
-            stageConfigs.forEach(stageConfig -> {
-                final String stageName = stageConfig.name().toString();
-                artifactsInPipeline.put(stageName, new HashMap<String, Map>());
-                stageConfig.getJobs().forEach(jobConfig -> {
-                    artifactsInPipeline.get(stageName).put(jobConfig.name().toString(), jobConfig.artifactConfigs().getPluggableArtifactConfigs().stream().collect(toMap(PluggableArtifactConfig::getId, c -> {
-                        final ArtifactStore artifactStore = artifactStores().find(c.getStoreId());
-                        return artifactStore == null ? null : artifactStore.getPluginId();
-                    })));
-                });
-            });
-        });
-
-        return allArtifacts;
-    }
-
     public abstract class XmlPartialSaver<T> {
         protected final SAXReader reader;
         private final ConfigElementImplementationRegistry registry;

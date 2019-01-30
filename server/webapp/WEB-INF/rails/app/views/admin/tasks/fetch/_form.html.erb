@@ -46,7 +46,7 @@
 </div>
 
 <script type="text/javascript">
-  var artifactIdToPluginId = <%== com.google.gson.Gson.new.toJson(scope[:artifact_id_to_plugin_id]) %>;
+  var pipelineJson         = <%== scope[:pipeline_json] %>;
   var pluginToFetchView    = <%== com.google.gson.Gson.new.toJson(scope[:artifact_plugin_to_fetch_view]) %>;
   var currentPipelineName  = '<%= @pipeline.name() %>';
   var isFormEdited         = false;
@@ -190,16 +190,26 @@
   }
 
   function getAllArtifactsFor(pipelineName, stageName, jobName) {
-    var artifactInPipeline = artifactIdToPluginId[pipelineName];
-    if (!artifactInPipeline) {
+    var newArtifactInPipeline = pipelineJson.find(function (pipelineMap) {
+      return pipelineMap["pipeline"] == pipelineName;
+    });
+    if (!newArtifactInPipeline) {
       return null;
     }
-    var artifactInStage = artifactInPipeline[stageName];
-    if (!artifactInStage) {
+    var newArtifactInStage = newArtifactInPipeline["stages"].find(function (stageMap) {
+      return stageMap["stage"] == stageName;
+    });
+    if (!newArtifactInStage) {
       return null;
     }
 
-    return artifactInStage[jobName];
+    var newArtifactsInJob = newArtifactInStage["jobs"].find(function (jobMap) {
+      return jobMap["job"] == jobName;
+    });
+    if (!newArtifactsInJob) {
+          return null;
+    }
+    return newArtifactsInJob["artifacts"];
   }
 
   function isAnyParameterized() {
@@ -230,10 +240,6 @@
 
   function pipeline() {
     var selectedPipelineNameWithAncestor = jQuery("#task_pipelineName").val();
-    if (selectedPipelineNameWithAncestor) {
-      selectedPipelineNameWithAncestor = selectedPipelineNameWithAncestor.split("/")[0];
-    }
-
     return selectedPipelineNameWithAncestor || currentPipelineName;
   }
 

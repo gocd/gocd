@@ -82,6 +82,10 @@ public class AdminsConfigUpdateCommand implements EntityConfigUpdateCommand<Admi
         return preprocessedAdmin;
     }
 
+    public AdminsConfig getEntity() {
+        return admin;
+    }
+
     final AdminsConfig findExistingAdmin(CruiseConfig cruiseConfig) {
         return cruiseConfig.server().security().adminsConfig();
     }

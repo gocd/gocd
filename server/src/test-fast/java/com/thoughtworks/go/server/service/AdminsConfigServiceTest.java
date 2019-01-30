@@ -17,6 +17,7 @@
 package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
 import com.thoughtworks.go.config.update.AdminsConfigUpdateCommand;
 import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.server.domain.Username;
@@ -156,5 +157,30 @@ public class AdminsConfigServiceTest {
         assertThat(result.getNonExistentRoles(), hasSize(0));
 
         verify(goConfigService, times(0)).updateConfig(any(), any());
+    }
+
+    @Test
+    public void bulkUpdate_shouldAddErrorsWhenValidationFails() {
+        Username user = new Username("user");
+        AdminsConfig config = new AdminsConfig(new AdminUser("adminUser1"), new AdminUser("adminUser2"),
+                new AdminRole("adminRole1"), new AdminRole("adminRole2"));
+        config.errors().add("foo", "bar");
+        config.errors().add("baz", "bar");
+        cruiseConfig = GoConfigMother.defaultCruiseConfig();
+        cruiseConfig.server().security().setAdminsConfig(config);
+        when(goConfigService.serverConfig()).thenReturn(cruiseConfig.server());
+        cruiseConfig = GoConfigMother.defaultCruiseConfig();
+        cruiseConfig.server().security().setAdminsConfig(config);
+        when(goConfigService.serverConfig()).thenReturn(cruiseConfig.server());
+
+        doThrow(new GoConfigInvalidException(cruiseConfig, "Validation Failed."))
+                .when(goConfigService).updateConfig(any(AdminsConfigUpdateCommand.class), eq(user));
+
+        BulkUpdateAdminsResult result = adminsConfigService.bulkUpdate(user, emptyList(), emptyList(), singletonList("roleToRemove"),
+                emptyList(), "md5");
+
+        assertThat(result.isSuccessful(), is(false));
+        assertThat(result.httpCode(), is(422));
+        assertThat(result.message(), is("Validations failed for admins. Error(s): [bar]. Please correct and resubmit."));
     }
 }

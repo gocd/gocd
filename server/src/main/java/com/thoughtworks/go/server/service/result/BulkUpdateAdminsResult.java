@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.server.service.result;
 
+import com.thoughtworks.go.config.AdminsConfig;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 
 import java.util.ArrayList;
@@ -25,6 +26,7 @@ import java.util.List;
 public class BulkUpdateAdminsResult extends HttpLocalizedOperationResult {
     private List<CaseInsensitiveString> nonExistentUsers;
     private List<CaseInsensitiveString> nonExistentRoles;
+    private AdminsConfig adminsConfig;
 
     public BulkUpdateAdminsResult() {
         this.nonExistentUsers = new ArrayList<>();
@@ -39,11 +41,19 @@ public class BulkUpdateAdminsResult extends HttpLocalizedOperationResult {
         this.nonExistentRoles = new ArrayList<>(nonExistentRoles);
     }
 
+    public void setAdminsConfig(AdminsConfig adminsConfig) {
+        this.adminsConfig = adminsConfig;
+    }
+
     public List<CaseInsensitiveString> getNonExistentUsers() {
         return nonExistentUsers;
     }
 
     public List<CaseInsensitiveString> getNonExistentRoles() {
         return nonExistentRoles;
+    }
+
+    public AdminsConfig getAdminsConfig() {
+        return adminsConfig;
     }
 }

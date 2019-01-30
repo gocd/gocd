@@ -1131,43 +1131,6 @@ public class GoConfigServiceTest {
         assertThat(pipelines, not(contains(pipelineConfig2)));
     }
 
-    @Test
-    public void shouldReturnArtifactIdToPluginIdMapForUpstreamPipelines() {
-        PipelineConfig unrelatedPipeline = PipelineConfigMother.pipelineConfig("some.random.pipeline");
-        PipelineConfig upstream = PipelineConfigMother.pipelineConfigWithExternalArtifact("upstream",
-                new PluggableArtifactConfig("docker-image", "dockerhub")
-        );
-
-        PipelineConfig downstream = PipelineConfigMother.pipelineConfigWithExternalArtifact("downstream",
-                new PluggableArtifactConfig("installer", "s3")
-        );
-        downstream.add(StageConfigMother.stageConfig("stage.2"));
-        downstream.add(StageConfigMother.stageConfig("current.stage"));
-
-        downstream.addMaterialConfig(new DependencyMaterialConfig(new CaseInsensitiveString("upstream"), new CaseInsensitiveString("upstream.stage")));
-
-        CruiseConfig cruiseConfig = configWith(upstream, downstream, unrelatedPipeline);
-        cruiseConfig.getArtifactStores().add(new ArtifactStore("dockerhub", "cd.go.docker"));
-        cruiseConfig.getArtifactStores().add(new ArtifactStore("s3", "cd.go.s3"));
-
-        when(goConfigDao.load()).thenReturn(cruiseConfig);
-
-        final Map<String, Map> artifactIdToPluginId = goConfigService.artifactIdToPluginIdForFetchPluggableArtifact("pipeline", "downstream", "current.stage");
-
-        Assertions.assertThat(artifactIdToPluginId)
-                .hasSize(2)
-                .containsKey("downstream");
-
-        Assertions.assertThat((Map<String, Map>) artifactIdToPluginId.get("downstream").get("stage.2")).isEmpty();
-        Assertions.assertThat((Map<String, Map>) artifactIdToPluginId.get("downstream").get("downstream.stage"))
-                .hasSize(1)
-                .containsEntry("downstream.job", Collections.singletonMap("installer", "cd.go.s3"));
-
-        Assertions.assertThat((Map<String, Map>) artifactIdToPluginId.get("upstream").get("upstream.stage"))
-                .hasSize(1)
-                .containsEntry("upstream.job", Collections.singletonMap("docker-image", "cd.go.docker"));
-    }
-
     private PipelineConfig createPipelineConfig(String pipelineName, String stageName, String... buildNames) {
         PipelineConfig pipeline = new PipelineConfig(new CaseInsensitiveString(pipelineName), new MaterialConfigs());
         pipeline.add(new StageConfig(new CaseInsensitiveString(stageName), jobConfigs(buildNames)));

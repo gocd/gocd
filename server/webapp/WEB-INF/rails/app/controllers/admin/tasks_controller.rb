@@ -30,7 +30,6 @@ module Admin
     end
 
     def edit
-      assert_load :artifact_id_to_plugin_id, go_config_service.artifactIdToPluginIdForFetchPluggableArtifact(params[:stage_parent], params[:pipeline_name], params[:stage_name]).to_hash
       assert_load :artifact_plugin_to_fetch_view, default_plugin_info_finder.pluginIdToFetchViewTemplate()
       @task_view_model = task_view_service.getViewModel(@task, 'edit')
       assert_load :on_cancel_task_vms, task_view_service.getOnCancelTaskViewModels(@task)
@@ -40,7 +39,6 @@ module Admin
 
     def new
       type = params[:type]
-      assert_load :artifact_id_to_plugin_id, go_config_service.artifactIdToPluginIdForFetchPluggableArtifact(params[:stage_parent], params[:pipeline_name], params[:stage_name]).to_hash
       assert_load :artifact_plugin_to_fetch_view, default_plugin_info_finder.pluginIdToFetchViewTemplate()
       assert_load :task, task_view_service.taskInstanceFor(type)
       assert_load :task_view_model, task_view_service.getViewModel(@task, 'new')
@@ -62,7 +60,6 @@ module Admin
         assert_load :job, @node
         assert_load :task, @subject
         assert_load :artifact_plugin_to_fetch_view, default_plugin_info_finder.pluginIdToFetchViewTemplate()
-        assert_load :artifact_id_to_plugin_id, go_config_service.artifactIdToPluginIdForFetchPluggableArtifact(params[:stage_parent], params[:pipeline_name], params[:stage_name]).to_hash
         load_modify_task_variables
       end
     end
@@ -160,7 +157,6 @@ module Admin
         assert_load :task, @subject
         load_modify_task_variables
         assert_load :artifact_plugin_to_fetch_view, default_plugin_info_finder.pluginIdToFetchViewTemplate
-        assert_load :artifact_id_to_plugin_id, go_config_service.artifactIdToPluginIdForFetchPluggableArtifact(params[:stage_parent], params[:pipeline_name], params[:stage_name]).to_hash
       end
     end
 
@@ -197,10 +193,17 @@ module Admin
       pipeline_array = []
       graph.each do |pipeline_name, stage_graph|
         pipeline_stage_array = []
-        stage_graph.each do |stage_name, job_names|
-          jobs = job_names.map {|name| {:job => name.to_s}}
-          jobs.sort! {|one, other| one[:job] <=> other[:job]}
-          pipeline_stage_array.push({:stage => stage_name.to_s, :jobs => jobs})
+        stage_graph.each do |stage_name, job_graph|
+          job_artifact_array = []
+          job_graph.each do |job_name, artifacts_map|
+            artifact_plugin_map = {}
+            artifacts_map.each do |artifact_id, plugin_id|
+              artifact_plugin_map[artifact_id] = plugin_id
+            end
+            job_artifact_array.push({:job => job_name.to_s, :artifacts => artifact_plugin_map})
+          end
+          job_artifact_array.sort! {|one, other| one[:job] <=> other[:job]}
+          pipeline_stage_array.push({:stage => stage_name.to_s, :jobs => job_artifact_array})
         end
         pipeline_stage_array.sort! {|one, other| one[:stage] <=> other[:stage]}
         pipeline_array.push({:pipeline => pipeline_name.to_s, :stages => pipeline_stage_array})

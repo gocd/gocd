@@ -98,12 +98,12 @@ describe Admin::TasksController, "fetch task" do
 
       def pipelines_json
         [
-          {:pipeline => "", :stages => [{:stage => "stage.one", :jobs => [{:job => "dev"}]},
-                                        {:stage => "stage.two", :jobs => [{:job => "dev"}]}]},
-          {:pipeline => "parent-pipeline", :stages => [{:stage => "parent-stage", :jobs => [{:job => "job.parent.1"}]}]},
-          {:pipeline => "pipeline.name", :stages => [{:stage => "stage.one", :jobs => [{:job => "dev"}]},
-                                        {:stage => "stage.two", :jobs => [{:job => "dev"}]}]},
-          {:pipeline => "gramp-pipeline/parent-pipeline", :stages => [{:stage => "gramp-stage", :jobs => [{:job => "job.gramp.1"}, {:job => "job.gramp.2"}]}]}
+          {:pipeline => "", :stages => [{:stage => "stage.one", :jobs => [{:job => "dev", "artifacts": {}}]},
+                                        {:stage => "stage.two", :jobs => [{:job => "dev", "artifacts": {}}]}]},
+          {:pipeline => "parent-pipeline", :stages => [{:stage => "parent-stage", :jobs => [{:job => "job.parent.1", "artifacts": {}}]}]},
+          {:pipeline => "pipeline.name", :stages => [{:stage => "stage.one", :jobs => [{:job => "dev", "artifacts": {}}]},
+                                        {:stage => "stage.two", :jobs => [{:job => "dev", "artifacts": {}}]}]},
+          {:pipeline => "gramp-pipeline/parent-pipeline", :stages => [{:stage => "gramp-stage", :jobs => [{:job => "job.gramp.1", "artifacts": {}}, {:job => "job.gramp.2", "artifacts": {}}]}]}
         ].to_json
       end
     end
@@ -129,14 +129,14 @@ describe Admin::TasksController, "fetch task" do
 
       def pipelines_json
         [
-         {:pipeline => "gramp-pipeline", :stages => [{:stage => "gramp-stage", :jobs => [{:job => "job.gramp.1"}, {:job => "job.gramp.2"}]}]},
-         {:pipeline => "parent-pipeline", :stages => [{:stage => "parent-stage", :jobs => [{:job => "job.parent.1"}]}]},
-         {:pipeline => "pipeline.name", :stages => [{:stage => "stage.one", :jobs => [{:job => "dev"}]},
-                                                    {:stage => "stage.three", :jobs => [{:job => "dev"}]},
-                                                    {:stage => "stage.two", :jobs => [{:job => "dev"}]}]},
-         {:pipeline => "gramp-pipeline/parent-pipeline", :stages => [{:stage => "gramp-stage", :jobs => [{:job => "job.gramp.1"}, {:job => "job.gramp.2"}]}]},
-         {:pipeline => "parent-pipeline/pipeline.name", :stages => [{:stage => "parent-stage", :jobs => [{:job => "job.parent.1"}]}]},
-         {:pipeline => "gramp-pipeline/parent-pipeline/pipeline.name", :stages => [{:stage => "gramp-stage", :jobs => [{:job => "job.gramp.1"}, {:job => "job.gramp.2"}]}]}
+         {:pipeline => "gramp-pipeline", :stages => [{:stage => "gramp-stage", :jobs => [{:job => "job.gramp.1", "artifacts":{}}, {:job => "job.gramp.2", "artifacts":{}}]}]},
+         {:pipeline => "parent-pipeline", :stages => [{:stage => "parent-stage", :jobs => [{:job => "job.parent.1", "artifacts":{}}]}]},
+         {:pipeline => "pipeline.name", :stages => [{:stage => "stage.one", :jobs => [{:job => "dev", "artifacts":{}}]},
+                                                    {:stage => "stage.three", :jobs => [{:job => "dev", "artifacts":{}}]},
+                                                    {:stage => "stage.two", :jobs => [{:job => "dev", "artifacts":{}}]}]},
+         {:pipeline => "gramp-pipeline/parent-pipeline", :stages => [{:stage => "gramp-stage", :jobs => [{:job => "job.gramp.1", "artifacts":{}}, {:job => "job.gramp.2", "artifacts":{}}]}]},
+         {:pipeline => "parent-pipeline/pipeline.name", :stages => [{:stage => "parent-stage", :jobs => [{:job => "job.parent.1", "artifacts":{}}]}]},
+         {:pipeline => "gramp-pipeline/parent-pipeline/pipeline.name", :stages => [{:stage => "gramp-stage", :jobs => [{:job => "job.gramp.1", "artifacts":{}}, {:job => "job.gramp.2", "artifacts":{}}]}]}
         ].to_json
       end
     end

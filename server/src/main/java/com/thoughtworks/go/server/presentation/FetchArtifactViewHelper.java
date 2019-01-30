@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -57,12 +57,22 @@ public class FetchArtifactViewHelper {
         }
     }
 
-    private static final class FetchSuggestionHierarchy extends HashMap<CaseInsensitiveString, Map<CaseInsensitiveString, List<CaseInsensitiveString>>> {
-        private void addStagesToHierarchy(CaseInsensitiveString pipelineName, List<StageConfig> currentPipelineStages) {
-            Map<CaseInsensitiveString, List<CaseInsensitiveString>> stageMap = new HashMap<>();
-            for (StageConfig stg : currentPipelineStages) {
-                stageMap.put(stg.name(), stg.getJobs().names());
-            }
+    private static final class FetchSuggestionHierarchy extends HashMap<CaseInsensitiveString, Map> {
+        private void addStagesToHierarchy(CaseInsensitiveString pipelineName, List<StageConfig> currentPipelineStages, CruiseConfig cruiseConfig) {
+            Map<CaseInsensitiveString, Map> stageMap = new HashMap<>();
+            currentPipelineStages.forEach(stg -> {
+                Map<CaseInsensitiveString, Map> jobsToArtifacts = new HashMap<>();
+                stg.getJobs().forEach(job -> {
+                    List<PluggableArtifactConfig> pluggableArtifactConfigs = job.artifactConfigs().getPluggableArtifactConfigs();
+                    Map<String, String> artifactToPlugins = new HashMap<>();
+                    pluggableArtifactConfigs.forEach(pluggableArtifactConfig -> {
+                        ArtifactStore store = cruiseConfig.getArtifactStores().find(pluggableArtifactConfig.getStoreId());
+                        artifactToPlugins.put(pluggableArtifactConfig.getId(), store == null ? null : store.getPluginId());
+                    });
+                    jobsToArtifacts.put(job.name(), artifactToPlugins);
+                });
+                stageMap.put(stg.name(), jobsToArtifacts);
+            });
             put(pipelineName, stageMap);
         }
 
@@ -78,7 +88,7 @@ public class FetchArtifactViewHelper {
                         break;
                     }
                 }
-                addStagesToHierarchy(new CaseInsensitiveString(entry.pathFromAncestor()), fetchableStages);
+                addStagesToHierarchy(new CaseInsensitiveString(entry.pathFromAncestor()), fetchableStages, cruiseConfig);
                 addMaterialsToQueue(bfsQueue, pipelineConfig, entry.pathFromAncestor());
             }
         }
@@ -91,7 +101,7 @@ public class FetchArtifactViewHelper {
         if(template && !systemEnvironment.isFetchArtifactTemplateAutoSuggestEnabled()) {
             return new FetchSuggestionHierarchy();
         }
-        return fetchArtifactSuggestionsForPipeline(template ? createPipelineConfigForTemplate() : cruiseConfig.pipelineConfigByName(pipelineName));
+        return fetchArtifactSuggestionsForPipeline(template ? createPipelineConfigForTemplate() : cruiseConfig.pipelineConfigByName(pipelineName), cruiseConfig);
     }
 
     private PipelineConfig createPipelineConfigForTemplate() {
@@ -110,23 +120,22 @@ public class FetchArtifactViewHelper {
         return dummyPipeline;
     }
 
-    private FetchSuggestionHierarchy fetchArtifactSuggestionsForPipeline(PipelineConfig pipelineConfig) {
+    private FetchSuggestionHierarchy fetchArtifactSuggestionsForPipeline(PipelineConfig pipelineConfig, CruiseConfig cruiseConfig) {
         FetchSuggestionHierarchy hierarchy = new FetchSuggestionHierarchy();
         Queue<JobHierarchyQueueEntry> bfsQueue = new ArrayDeque<>();
-        addLocalUpstreamStages(hierarchy, pipelineConfig);
-        HashSet<DependencyMaterialConfig> handled = new HashSet<>();
+        addLocalUpstreamStages(hierarchy, pipelineConfig, cruiseConfig);
         addMaterialsToQueue(bfsQueue, pipelineConfig, "");
         hierarchy.populateFetchableJobHierarchyFor(bfsQueue, cruiseConfig);
         return hierarchy;
     }
 
-    private void addLocalUpstreamStages(FetchSuggestionHierarchy hierarchy, PipelineConfig pipelineConfig) {
+    private void addLocalUpstreamStages(FetchSuggestionHierarchy hierarchy, PipelineConfig pipelineConfig, CruiseConfig cruiseConfig) {
         List<StageConfig> currentPipelineStages = pipelineConfig.allStagesBefore(stageName);
         if (!currentPipelineStages.isEmpty()) {
             if (!template) {
-                hierarchy.addStagesToHierarchy(pipelineName, currentPipelineStages);
+                hierarchy.addStagesToHierarchy(pipelineName, currentPipelineStages, cruiseConfig);
             }
-            hierarchy.addStagesToHierarchy(new CaseInsensitiveString(NULL_STR), currentPipelineStages);
+            hierarchy.addStagesToHierarchy(new CaseInsensitiveString(NULL_STR), currentPipelineStages, cruiseConfig);
         }
     }
 

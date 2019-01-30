@@ -420,6 +420,30 @@ describe EnvironmentsController do
       expect(response.body).to have_selector("form input[type='checkbox'][name='environment[agents][][uuid]'][value='out-env']")
     end
 
+    it "should load existing agents as checked-disabled while editing an agent associated in config-repo" do
+      basic_environment_config = BasicEnvironmentConfig.new(CaseInsensitiveString.new(@environment_name))
+      basic_environment_config.origins = RepoConfigOrigin.new
+      basic_environment_config.addAgent("some-uuid")
+      env_from_config_repo = MergeEnvironmentConfig.new(basic_environment_config)
+      user = com.thoughtworks.go.server.domain.Username.new(CaseInsensitiveString.new('user_foo'))
+      @config_helper.addAgent("some-uuid", "some-uuid")
+      @config_helper.addAgent("out-of-env", "out-env")
+      in_env = AgentViewModel.new(AgentInstanceMother.localInstance(SystemEnvironment.new, "some-uuid", "some-uuid"), "foo-environment")
+      out_env = AgentViewModel.new(AgentInstanceMother.localInstance(SystemEnvironment.new, "out-env", "out-of-env"))
+      agents_view_model = AgentsViewModel.new(in_env, out_env)
+      expect(@environment_config_service).to receive(:getMergedEnvironmentforDisplay).with(@environment_name, an_instance_of(HttpLocalizedOperationResult)).and_return(com.thoughtworks.go.domain.ConfigElementForEdit.new(env_from_config_repo,"md5"))
+      expect(@environment_config_service).to receive(:getEnvironmentForEdit).with(@environment_name).and_return(env_from_config_repo)
+      expect(@environment_config_service).to receive(:getAllLocalPipelinesForUser).with(user).and_return([EnvironmentPipelineModel.new("foo", @environment_name), EnvironmentPipelineModel.new("bar", "another_env"), EnvironmentPipelineModel.new("baz", nil)])
+      expect(@environment_config_service).to receive(:getAllRemotePipelinesForUserInEnvironment).with(anything,anything).and_return([])
+      expect(@agent_service).to receive(:registeredAgents).and_return(agents_view_model)
+      get :edit_agents, params:{:name => "foo-environment", :no_layout => true}
+
+      expect(assigns[:environment]).to_not be_nil
+
+      expect(response.body).to have_selector("form input[type='checkbox'][name='environment[agents][][uuid]'][value='some-uuid'][checked='true']")
+      expect(response.body).to have_selector("form input[type='checkbox'][name='environment[agents][][uuid]'][value='out-env']")
+    end
+
     it "should fail agent_edit for a non existing environment" do
       allow(@environment_config_service).to receive(:getMergedEnvironmentforDisplay).with('some-non-existent-environment', an_instance_of(HttpLocalizedOperationResult)) do |env, result|
         result.badRequest("Environment 'some-non-existent-environment' not found.\n")

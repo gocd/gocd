@@ -21,10 +21,13 @@ import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
 import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
 import com.thoughtworks.go.config.update.AdminsConfigUpdateCommand;
+import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.config.Admin;
+import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.result.BulkUpdateAdminsResult;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -63,7 +66,9 @@ public class AdminsConfigService {
             goConfigService.updateConfig(command, currentUser);
         } catch (Exception e) {
             if (e instanceof GoConfigInvalidException) {
-                result.unprocessableEntity("Validation failed while updating System Admins, check errors.");
+                String adminsTag = AdminsConfig.class.getAnnotation(ConfigTag.class).value();
+                String errors = deDuplicatedErrors(((GoConfigInvalidException) e).getCruiseConfig().getAllErrors());
+                result.unprocessableEntity(LocalizedMessage.entityConfigValidationFailed(adminsTag, errors));
             } else {
                 if (!result.hasMessage()) {
                     LOGGER.error(e.getMessage(), e);
@@ -71,6 +76,12 @@ public class AdminsConfigService {
                 }
             }
         }
+    }
+
+    //Hack to remove duplicate errors. See `AdminRole.addError`
+    private String deDuplicatedErrors(List<ConfigErrors> allErrors) {
+        Set<String> errors = allErrors.stream().map(ConfigErrors::firstError).collect(Collectors.toSet());
+        return StringUtils.join(errors, ",");
     }
 
     public BulkUpdateAdminsResult bulkUpdate(Username currentUser,
@@ -92,6 +103,7 @@ public class AdminsConfigService {
         AdminsConfigUpdateCommand command = new AdminsConfigUpdateCommand(goConfigService, new AdminsConfig(existingAdmins),
                 currentUser, result, entityHashingService, md5);
         updateConfig(currentUser, result, command);
+        result.setAdminsConfig(command.getEntity());
         return result;
     }
 

@@ -27,8 +27,15 @@ public class BulkUpdateFailureResultRepresenter {
 
     public static void toJSON(OutputWriter outputWriter, BulkUpdateAdminsResult result) {
         outputWriter.add("message", result.message());
-        outputWriter.addChildList("non_existent_users", toStringList(result.getNonExistentUsers()));
-        outputWriter.addChildList("non_existent_roles", toStringList(result.getNonExistentRoles()));
+        if (result.getNonExistentUsers() != null && result.getNonExistentUsers().size() > 0) {
+            outputWriter.addChildList("non_existent_users", toStringList(result.getNonExistentUsers()));
+        }
+        if (result.getNonExistentRoles() != null && result.getNonExistentRoles().size() > 0) {
+            outputWriter.addChildList("non_existent_roles", toStringList(result.getNonExistentRoles()));
+        }
+        if (result.getAdminsConfig() != null) {
+            outputWriter.addChild("data", childWriter -> AdminsConfigRepresenter.toJSONWithoutLinks(childWriter, result.getAdminsConfig()));
+        }
     }
 
     private static List<String> toStringList(List<CaseInsensitiveString> list) {

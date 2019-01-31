@@ -24,10 +24,10 @@ import com.thoughtworks.go.api.util.GsonTransformer;
 import com.thoughtworks.go.apiv1.accessToken.representers.AccessTokenRepresenter;
 import com.thoughtworks.go.apiv1.accessToken.representers.AccessTokensRepresenter;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
-import com.thoughtworks.go.domain.AuthToken;
+import com.thoughtworks.go.domain.AccessToken;
 import com.thoughtworks.go.server.newsecurity.models.AuthenticationToken;
 import com.thoughtworks.go.server.newsecurity.utils.SessionUtils;
-import com.thoughtworks.go.server.service.AuthTokenService;
+import com.thoughtworks.go.server.service.AccessTokenService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.spring.SparkSpringController;
@@ -45,18 +45,18 @@ import static spark.Spark.*;
 public class AccessTokenControllerV1 extends ApiController implements SparkSpringController {
 
     private final ApiAuthenticationHelper apiAuthenticationHelper;
-    private AuthTokenService authTokenService;
+    private AccessTokenService AccessTokenService;
 
     @Autowired
-    public AccessTokenControllerV1(ApiAuthenticationHelper apiAuthenticationHelper, AuthTokenService authTokenService) {
+    public AccessTokenControllerV1(ApiAuthenticationHelper apiAuthenticationHelper, AccessTokenService AccessTokenService) {
         super(ApiVersion.v1);
         this.apiAuthenticationHelper = apiAuthenticationHelper;
-        this.authTokenService = authTokenService;
+        this.AccessTokenService = AccessTokenService;
     }
 
     @Override
     public String controllerBasePath() {
-        return Routes.AuthToken.BASE;
+        return Routes.AccessToken.BASE;
     }
 
     @Override
@@ -68,16 +68,16 @@ public class AccessTokenControllerV1 extends ApiController implements SparkSprin
             before("", mimeType, this.apiAuthenticationHelper::checkUserAnd403);
             before("/*", mimeType, this.apiAuthenticationHelper::checkUserAnd403);
 
-            get("", mimeType, this::getAllAuthTokens);
-            post("", mimeType, this::createAuthToken);
-            patch(String.format("%s%s/revoke", Routes.AuthToken.USERNAME, Routes.AuthToken.TOKEN_NAME), mimeType, this::revokeAuthToken);
-            get(Routes.AuthToken.TOKEN_NAME, mimeType, this::getAuthToken);
+            get("", mimeType, this::getAllAccessTokens);
+            post("", mimeType, this::createAccessToken);
+            patch(String.format("%s%s/revoke", Routes.AccessToken.USERNAME, Routes.AccessToken.TOKEN_NAME), mimeType, this::revokeAccessToken);
+            get(Routes.AccessToken.TOKEN_NAME, mimeType, this::getAccessToken);
 
             exception(RecordNotFoundException.class, this::notFound);
         });
     }
 
-    public String createAuthToken(Request request, Response response) throws Exception {
+    public String createAccessToken(Request request, Response response) throws Exception {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
 
         final JsonReader reader = GsonTransformer.getInstance().jsonReaderFrom(request.body());
@@ -85,45 +85,45 @@ public class AccessTokenControllerV1 extends ApiController implements SparkSprin
         String tokenName = reader.getString("name");
         String tokenDescription = reader.optString("description").orElse(null);
 
-        AuthToken created = authTokenService.create(tokenName, tokenDescription, currentUsername(), currentUserAuthConfigId(request), result);
+        AccessToken created = AccessTokenService.create(tokenName, tokenDescription, currentUsername(), currentUserAuthConfigId(request), result);
 
         if (result.isSuccessful()) {
-            return renderAuthToken(request, response, created, true);
+            return renderAccessToken(request, response, created, true);
         }
 
         return renderHTTPOperationResult(result, request, response);
     }
 
-    public String getAuthToken(Request request, Response response) throws Exception {
-        final AuthToken token = authTokenService.find(request.params("token_name"), currentUsername().getUsername().toString());
+    public String getAccessToken(Request request, Response response) throws Exception {
+        final AccessToken token = AccessTokenService.find(request.params("token_name"), currentUsername().getUsername().toString());
 
         if (token == null) {
             throw new RecordNotFoundException();
         }
 
-        return renderAuthToken(request, response, token, false);
+        return renderAccessToken(request, response, token, false);
     }
 
-    public String getAllAuthTokens(Request request, Response response) throws Exception {
-        List<AuthToken> allTokens = authTokenService.findAllTokensForUser(currentUsername());
+    public String getAllAccessTokens(Request request, Response response) throws Exception {
+        List<AccessToken> allTokens = AccessTokenService.findAllTokensForUser(currentUsername());
         return writerForTopLevelObject(request, response, outputWriter -> AccessTokensRepresenter.toJSON(outputWriter, allTokens));
     }
 
-    public String revokeAuthToken(Request request, Response response) throws Exception {
+    public String revokeAccessToken(Request request, Response response) throws Exception {
         String tokenName = request.params("token_name");
         String username = request.params("username");
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        authTokenService.revokeAccessToken(tokenName, username, result);
+        AccessTokenService.revokeAccessToken(tokenName, username, result);
 
         if (result.isSuccessful()) {
-            return renderAuthToken(request, response, authTokenService.find(tokenName, username), true);
+            return renderAccessToken(request, response, AccessTokenService.find(tokenName, username), true);
         }
 
         return renderHTTPOperationResult(result, request, response);
     }
 
-    private String renderAuthToken(Request request, Response response, AuthToken token, boolean includeTokenValue) throws IOException {
+    private String renderAccessToken(Request request, Response response, AccessToken token, boolean includeTokenValue) throws IOException {
         return writerForTopLevelObject(request, response, outputWriter -> AccessTokenRepresenter.toJSON(outputWriter, token, includeTokenValue));
     }
 

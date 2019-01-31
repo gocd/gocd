@@ -19,10 +19,10 @@ package com.thoughtworks.go.apiv1.accessToken
 import com.thoughtworks.go.api.SecurityTestTrait
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
 import com.thoughtworks.go.api.util.HaltApiMessages
-import com.thoughtworks.go.apiv1.authToken.representers.AccessTokenRepresenter
-import com.thoughtworks.go.apiv1.authToken.representers.AccessTokensRepresenter
+import com.thoughtworks.go.apiv1.accessToken.representers.AccessTokenRepresenter
+import com.thoughtworks.go.apiv1.accessToken.representers.AccessTokensRepresenter
 import com.thoughtworks.go.server.domain.Username
-import com.thoughtworks.go.server.service.AuthTokenService
+import com.thoughtworks.go.server.service.AccessTokenService
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult
 import com.thoughtworks.go.spark.ControllerTrait
 import com.thoughtworks.go.spark.NormalUserSecurity
@@ -34,7 +34,7 @@ import org.mockito.Mock
 import org.mockito.invocation.InvocationOnMock
 
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
-import static com.thoughtworks.go.helper.AuthTokenMother.authTokenWithName
+import static com.thoughtworks.go.helper.AccessTokenMother.accessTokenWithName
 import static org.mockito.ArgumentMatchers.any
 import static org.mockito.ArgumentMatchers.eq
 import static org.mockito.Mockito.when
@@ -42,7 +42,7 @@ import static org.mockito.MockitoAnnotations.initMocks
 
 class AccessTokenControllerV1Test implements ControllerTrait<AccessTokenControllerV1>, SecurityServiceTrait {
   @Mock
-  AuthTokenService authTokenService
+  AccessTokenService accessTokenService
 
   @BeforeEach
   void setUp() {
@@ -51,24 +51,24 @@ class AccessTokenControllerV1Test implements ControllerTrait<AccessTokenControll
 
   @Override
   AccessTokenControllerV1 createControllerInstance() {
-    return new AccessTokenControllerV1(new ApiAuthenticationHelper(securityService, goConfigService), authTokenService)
+    return new AccessTokenControllerV1(new ApiAuthenticationHelper(securityService, goConfigService), accessTokenService)
   }
 
   @Nested
   class Show {
     def tokenName = "token1"
-    def token = authTokenWithName(tokenName)
+    def token = accessTokenWithName(tokenName)
 
     @Nested
     class Security implements SecurityTestTrait, NormalUserSecurity {
       @BeforeEach
       void setUp() {
-        when(authTokenService.find(eq(tokenName), any(Username.class))).thenReturn(token)
+        when(accessTokenService.find(eq(tokenName), any(Username.class))).thenReturn(token)
       }
 
       @Override
       String getControllerMethodUnderTest() {
-        return "getAuthToken"
+        return "getAccessToken"
       }
 
       @Override
@@ -84,11 +84,11 @@ class AccessTokenControllerV1Test implements ControllerTrait<AccessTokenControll
         enableSecurity()
         loginAsAdmin()
 
-        when(authTokenService.find(eq(tokenName), any(String.class))).thenReturn(token)
+        when(accessTokenService.find(eq(tokenName), any(String.class))).thenReturn(token)
       }
 
       @Test
-      void 'should render the auth token'() {
+      void 'should render the access token'() {
         getWithApiHeader(controller.controllerPath(tokenName))
 
         assertThatResponse()
@@ -98,8 +98,8 @@ class AccessTokenControllerV1Test implements ControllerTrait<AccessTokenControll
       }
 
       @Test
-      void 'should render not found when the specified auth token does not exists'() {
-        when(authTokenService.find(eq(tokenName), any(String.class))).thenReturn(null)
+      void 'should render not found when the specified access token does not exists'() {
+        when(accessTokenService.find(eq(tokenName), any(String.class))).thenReturn(null)
 
         getWithApiHeader(controller.controllerPath(tokenName))
 
@@ -115,13 +115,13 @@ class AccessTokenControllerV1Test implements ControllerTrait<AccessTokenControll
   class Create {
     def authConfigId = 'authConfigId'
     def tokenName = "token1"
-    def token = authTokenWithName(tokenName)
+    def token = accessTokenWithName(tokenName)
 
     @Nested
     class Security implements SecurityTestTrait, NormalUserSecurity {
       @Override
       String getControllerMethodUnderTest() {
-        return "createAuthToken"
+        return "createAccessToken"
       }
 
       @Override
@@ -137,11 +137,11 @@ class AccessTokenControllerV1Test implements ControllerTrait<AccessTokenControll
         enableSecurity()
         loginAsAdmin()
 
-        when(authTokenService.create(eq(tokenName), eq(token.description), any(Username.class), eq(authConfigId), any(HttpLocalizedOperationResult.class))).thenReturn(token)
+        when(accessTokenService.create(eq(tokenName), eq(token.description), any(Username.class), eq(authConfigId), any(HttpLocalizedOperationResult.class))).thenReturn(token)
       }
 
       @Test
-      void 'should create a new auth token'() {
+      void 'should create a new access token'() {
         def requestBody = [
           name       : token.name,
           description: token.description
@@ -156,9 +156,9 @@ class AccessTokenControllerV1Test implements ControllerTrait<AccessTokenControll
       }
 
       @Test
-      void 'should create a new auth token without providing token description'() {
+      void 'should create a new access token without providing token description'() {
         token.setDescription(null)
-        when(authTokenService.create(eq(tokenName), eq(token.description), any(Username.class), eq(authConfigId), any(HttpLocalizedOperationResult.class))).thenReturn(token)
+        when(accessTokenService.create(eq(tokenName), eq(token.description), any(Username.class), eq(authConfigId), any(HttpLocalizedOperationResult.class))).thenReturn(token)
 
         def requestBody = [
           name: token.name
@@ -173,7 +173,7 @@ class AccessTokenControllerV1Test implements ControllerTrait<AccessTokenControll
       }
 
       @Test
-      void 'should fail to create a new auth token when no token name is specified'() {
+      void 'should fail to create a new access token when no token name is specified'() {
         def requestBody = [
           no_name: token.name
         ]
@@ -185,8 +185,8 @@ class AccessTokenControllerV1Test implements ControllerTrait<AccessTokenControll
       }
 
       @Test
-      void 'should show errors occurred while creating a new auth token'() {
-        when(authTokenService.create(eq(tokenName), eq(token.description), any(Username.class), eq(authConfigId), any(HttpLocalizedOperationResult.class))).then({ InvocationOnMock invocation ->
+      void 'should show errors occurred while creating a new access token'() {
+        when(accessTokenService.create(eq(tokenName), eq(token.description), any(Username.class), eq(authConfigId), any(HttpLocalizedOperationResult.class))).then({ InvocationOnMock invocation ->
           HttpLocalizedOperationResult result = invocation.getArguments().last() as HttpLocalizedOperationResult
           result.unprocessableEntity("Boom!")
         })
@@ -207,18 +207,18 @@ class AccessTokenControllerV1Test implements ControllerTrait<AccessTokenControll
 
   @Nested
   class Index {
-    def token = authTokenWithName("token1")
+    def token = accessTokenWithName("token1")
 
     @Nested
     class Security implements SecurityTestTrait, NormalUserSecurity {
       @BeforeEach
       void setUp() {
-        when(authTokenService.findAllTokensForUser(any(Username.class))).thenReturn([token])
+        when(accessTokenService.findAllTokensForUser(any(Username.class))).thenReturn([token])
       }
 
       @Override
       String getControllerMethodUnderTest() {
-        return "getAllAuthTokens"
+        return "getAllAccessTokens"
       }
 
       @Override
@@ -234,11 +234,11 @@ class AccessTokenControllerV1Test implements ControllerTrait<AccessTokenControll
         enableSecurity()
         loginAsAdmin()
 
-        when(authTokenService.findAllTokensForUser(any(Username.class))).thenReturn([token])
+        when(accessTokenService.findAllTokensForUser(any(Username.class))).thenReturn([token])
       }
 
       @Test
-      void 'should render all the auth tokens'() {
+      void 'should render all the access tokens'() {
         getWithApiHeader(controller.controllerPath())
 
         assertThatResponse()
@@ -253,13 +253,13 @@ class AccessTokenControllerV1Test implements ControllerTrait<AccessTokenControll
   class Revoke {
     def tokenName = "token1"
     def userName = "bob"
-    def token = authTokenWithName(tokenName)
+    def token = accessTokenWithName(tokenName)
 
     @Nested
     class Security implements SecurityTestTrait, NormalUserSecurity {
       @Override
       String getControllerMethodUnderTest() {
-        return "revokeAuthToken"
+        return "revokeAccessToken"
       }
 
       @Override
@@ -277,8 +277,8 @@ class AccessTokenControllerV1Test implements ControllerTrait<AccessTokenControll
       }
 
       @Test
-      void 'should revoke the auth token'() {
-        when(authTokenService.find(tokenName, userName)).thenReturn(token)
+      void 'should revoke the access token'() {
+        when(accessTokenService.find(tokenName, userName)).thenReturn(token)
         patchWithApiHeader(controller.controllerPath(userName, tokenName, 'revoke'), [:])
 
         assertThatResponse()
@@ -288,8 +288,8 @@ class AccessTokenControllerV1Test implements ControllerTrait<AccessTokenControll
       }
 
       @Test
-      void 'should show errors occurred while revoking a new auth token'() {
-        when(authTokenService.revokeAccessToken(eq(tokenName) as String, eq(userName) as String, any() as HttpLocalizedOperationResult)).then({ InvocationOnMock invocation ->
+      void 'should show errors occurred while revoking a new access token'() {
+        when(accessTokenService.revokeAccessToken(eq(tokenName) as String, eq(userName) as String, any() as HttpLocalizedOperationResult)).then({ InvocationOnMock invocation ->
           HttpLocalizedOperationResult result = invocation.getArguments().last() as HttpLocalizedOperationResult
           result.unprocessableEntity("Boom!")
         })

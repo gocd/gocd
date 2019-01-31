@@ -17,15 +17,15 @@
 package com.thoughtworks.go.apiv1.accessToken.representers;
 
 import com.thoughtworks.go.api.base.OutputWriter;
-import com.thoughtworks.go.domain.AuthToken;
+import com.thoughtworks.go.domain.AccessToken;
 import com.thoughtworks.go.spark.Routes;
 
 public class AccessTokenRepresenter {
-    public static void toJSON(OutputWriter outputWriter, AuthToken token, boolean includeTokenValue) {
+    public static void toJSON(OutputWriter outputWriter, AccessToken token, boolean includeTokenValue) {
         outputWriter.addLinks(linksWriter -> linksWriter
-                .addLink("self", Routes.AuthToken.name(token.getName()))
-                .addAbsoluteLink("doc", Routes.AuthToken.DOC)
-                .addLink("find", Routes.AuthToken.find()));
+                .addLink("self", Routes.AccessToken.name(token.getName()))
+                .addAbsoluteLink("doc", Routes.AccessToken.DOC)
+                .addLink("find", Routes.AccessToken.find()));
 
         outputWriter.add("name", token.getName())
                 .add("description", token.getDescription())

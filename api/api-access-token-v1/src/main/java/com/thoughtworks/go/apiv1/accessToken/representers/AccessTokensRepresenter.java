@@ -17,19 +17,20 @@
 package com.thoughtworks.go.apiv1.accessToken.representers;
 
 import com.thoughtworks.go.api.base.OutputWriter;
-import com.thoughtworks.go.domain.AuthToken;
+import com.thoughtworks.go.domain.AccessToken;
+import com.thoughtworks.go.domain.AccessToken;
 import com.thoughtworks.go.spark.Routes;
 
 import java.util.List;
 
 public class AccessTokensRepresenter {
-    public static void toJSON(OutputWriter outputWriter, List<AuthToken> allTokens) {
+    public static void toJSON(OutputWriter outputWriter, List<AccessToken> allTokens) {
         outputWriter.addLinks(outputLinkWriter -> outputLinkWriter
-                .addLink("self", Routes.AuthToken.BASE)
-                .addAbsoluteLink("doc", Routes.AuthToken.DOC))
+                .addLink("self", Routes.AccessToken.BASE)
+                .addAbsoluteLink("doc", Routes.AccessToken.DOC))
                 .addChild("_embedded", embeddedWriter ->
-                        embeddedWriter.addChildList("auth_tokens", authTokenWriter -> {
-                            allTokens.forEach(token -> authTokenWriter.addChild(artifactStoreWriter -> AccessTokenRepresenter.toJSON(artifactStoreWriter, token, false)));
+                        embeddedWriter.addChildList("access_tokens", AccessTokenWriter -> {
+                            allTokens.forEach(token -> AccessTokenWriter.addChild(artifactStoreWriter -> AccessTokenRepresenter.toJSON(artifactStoreWriter, token, false)));
                         })
                 );
     }

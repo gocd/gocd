@@ -22,14 +22,14 @@ import org.junit.jupiter.api.Test
 import static com.thoughtworks.go.CurrentGoCDVersion.apiDocsUrl
 import static com.thoughtworks.go.api.base.JsonOutputWriter.jsonDate
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
-import static com.thoughtworks.go.helper.AuthTokenMother.authTokenWithName
+import static com.thoughtworks.go.helper.AccessTokenMother.accessTokenWithName
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
 
 class AccessTokensRepresenterTest {
   @Test
   void 'renders the auth tokens hal representation without token value'() {
-    def token1 = authTokenWithName("token1")
-    def token2 = authTokenWithName("token2")
+    def token1 = accessTokenWithName("token1")
+    def token2 = accessTokenWithName("token2")
 
     def json = toObjectString({
       AccessTokensRepresenter.toJSON(it, [token1, token2])
@@ -38,24 +38,24 @@ class AccessTokensRepresenterTest {
     def expectedJSON = [
       "_links"   : [
         "self": [
-          "href": "http://test.host/go/api/auth_token"
+          "href": "http://test.host/go/api/access_token"
         ],
         "doc" : [
-          "href": apiDocsUrl('#auth_token')
+          "href": apiDocsUrl('#access_token')
         ],
       ],
       "_embedded": [
-        "auth_tokens": [
+        "access_tokens": [
           [
             "_links"        : [
               "self": [
-                "href": "http://test.host/go/api/auth_token/token1"
+                "href": "http://test.host/go/api/access_token/token1"
               ],
               "doc" : [
-                "href": apiDocsUrl('#auth_token')
+                "href": apiDocsUrl('#access_token')
               ],
               "find": [
-                "href": "http://test.host/go/api/auth_token/:token_name"
+                "href": "http://test.host/go/api/access_token/:token_name"
               ]
             ],
             "name"          : token1.getName(),
@@ -71,13 +71,13 @@ class AccessTokensRepresenterTest {
           [
             "_links"        : [
               "self": [
-                "href": "http://test.host/go/api/auth_token/token2"
+                "href": "http://test.host/go/api/access_token/token2"
               ],
               "doc" : [
-                "href": apiDocsUrl('#auth_token')
+                "href": apiDocsUrl('#access_token')
               ],
               "find": [
-                "href": "http://test.host/go/api/auth_token/:token_name"
+                "href": "http://test.host/go/api/access_token/:token_name"
               ]
             ],
             "name"          : token2.getName(),

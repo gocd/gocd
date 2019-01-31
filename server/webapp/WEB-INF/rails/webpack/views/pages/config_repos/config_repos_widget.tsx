@@ -125,13 +125,7 @@ class ConfigRepoWidget extends MithrilViewComponent<ShowObjectAttrs<ConfigRepo>>
         {deleteButton}
       </IconGroup>];
 
-    let lastParseRevision: m.Children;
-
     const parseInfo = vnode.attrs.obj.lastParse();
-    if (parseInfo && parseInfo.latestParsedModification && parseInfo.latestParsedModification.revision) {
-      lastParseRevision = <span class={styles.lastRevision}>Last seen revision: <code
-        class={styles.lastRevisionValue}>{parseInfo.latestParsedModification.revision}</code></span>;
-    }
 
     let maybeWarning: m.Children;
 
@@ -160,7 +154,6 @@ class ConfigRepoWidget extends MithrilViewComponent<ShowObjectAttrs<ConfigRepo>>
       <CollapsiblePanel header={<HeaderWidget repo={vnode.attrs.obj} pluginInfos={vnode.attrs.pluginInfos}/>}
                         actions={actionButtons} expanded={vnode.attrs.index === 0}>
         {maybeWarning}
-        {lastParseRevision}
         {this.latestModification(parseInfo)}
         {this.lastGoodModification(parseInfo)}
         {this.configRepoMetaConfig(vnode.attrs.obj.id(), vnode.attrs.obj.pluginId())}

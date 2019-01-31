@@ -4,6 +4,8 @@ export const goodLastParseIcon: string;
 export const lastParseErrorIcon: string;
 export const neverParsed: string;
 export const missingPluginIcon: string;
+export const goodModificationIcon: string;
+export const errorLastModificationIcon: string;
 export const lastRevision: string;
 export const lastRevisionValue: string;
 export const statusIcon: string;

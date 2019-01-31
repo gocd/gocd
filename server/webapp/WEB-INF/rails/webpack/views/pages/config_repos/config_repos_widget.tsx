@@ -161,7 +161,6 @@ class ConfigRepoWidget extends MithrilViewComponent<ShowObjectAttrs<ConfigRepo>>
                         actions={actionButtons} expanded={vnode.attrs.index === 0}>
         {maybeWarning}
         {lastParseRevision}
-
         {this.latestModification(parseInfo)}
         {this.lastGoodModification(parseInfo)}
         {this.configRepoMetaConfig(vnode.attrs.obj.id(), vnode.attrs.obj.pluginId())}
@@ -237,9 +236,10 @@ class ConfigRepoWidget extends MithrilViewComponent<ShowObjectAttrs<ConfigRepo>>
   private lastGoodModification(parseInfo: ParseInfo | null): m.Children {
     if (parseInfo && parseInfo.goodModification) {
       const attrs = this.resolveHumanReadableAttributes(parseInfo.goodModification);
-
+      const checkIcon = <span className={styles.goodModificationIcon}
+                              title={`Last parsed with revision ${parseInfo.goodModification.revision}`}/>;
       return [
-        <KeyValueTitle title={"Good Modification"} image={undefined}/>,
+        <KeyValueTitle title={"Good Modification"} image={checkIcon}/>,
         <KeyValuePair data={attrs}/>
       ];
     }
@@ -248,9 +248,17 @@ class ConfigRepoWidget extends MithrilViewComponent<ShowObjectAttrs<ConfigRepo>>
   private latestModification(parseInfo: ParseInfo | null): m.Children {
     if (parseInfo && parseInfo.latestParsedModification) {
       const attrs = this.resolveHumanReadableAttributes(parseInfo.latestParsedModification);
+      let statusIcon = styles.goodModificationIcon;
+
+      if (parseInfo.error()) {
+        attrs.set("Error", parseInfo.error());
+        statusIcon = styles.errorLastModificationIcon;
+      }
 
       return [
-        <KeyValueTitle title={"Latest Modification"} image={undefined}/>,
+        <KeyValueTitle title={"Latest Modification"}
+                       image={<span className={statusIcon}
+                                    title={`Last parsed with revision ${parseInfo.latestParsedModification.revision}`}/>}/>,
         <KeyValuePair data={attrs}/>
       ];
     }

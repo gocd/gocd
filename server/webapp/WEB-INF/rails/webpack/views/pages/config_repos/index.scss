@@ -38,6 +38,20 @@
   @include header-icon($type: $fa-var-question, $color: $icon-light-color);
 }
 
+@mixin key-pair-icon($type, $color) {
+  @include icon-after($type: $type, $color: $color, $size: 15px, $margin: 0) {
+    display: inline;
+  }
+}
+
+.good-modification-icon {
+  @include key-pair-icon($type: $fa-var-check, $color: $success-txt);
+}
+
+.error-last-modification-icon {
+  @include key-pair-icon($type: $fa-var-check, $color: $success-txt);
+}
+
 .last-revision {
   margin: 0 0 10px;
   display: inline-block;

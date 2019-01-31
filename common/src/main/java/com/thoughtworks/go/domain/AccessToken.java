@@ -20,7 +20,7 @@ import java.sql.Timestamp;
 import java.util.Date;
 import java.util.Objects;
 
-public class AuthToken extends PersistentObject {
+public class AccessToken extends PersistentObject {
     private String name;
     //this is the hashed token value
     private String value;
@@ -35,25 +35,25 @@ public class AuthToken extends PersistentObject {
     private String saltValue;
     private String authConfigId;
 
-    public AuthToken() {
+    public AccessToken() {
     }
 
-    public AuthToken(String name, String value) {
+    public AccessToken(String name, String value) {
         this.name = name;
         this.value = value;
     }
 
-    public AuthToken(String name, String value, String description) {
+    public AccessToken(String name, String value, String description) {
         this(name, value);
         this.description = description;
     }
 
-    public AuthToken(String name, String value, String description, Boolean isRevoked) {
+    public AccessToken(String name, String value, String description, Boolean isRevoked) {
         this(name, value, description);
         this.isRevoked = isRevoked;
     }
 
-    public AuthToken(String name, String value, String description, Boolean isRevoked, Date createdAt, Date lastUsed) {
+    public AccessToken(String name, String value, String description, Boolean isRevoked, Date createdAt, Date lastUsed) {
         this(name, value, description, isRevoked);
         this.createdAt = new Timestamp(createdAt.getTime());
         setLastUsed(lastUsed);
@@ -160,19 +160,19 @@ public class AuthToken extends PersistentObject {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         if (!super.equals(o)) return false;
-        AuthToken authToken = (AuthToken) o;
-        return Objects.equals(name, authToken.name) &&
-                Objects.equals(value, authToken.value) &&
-                Objects.equals(originalValue, authToken.originalValue) &&
-                Objects.equals(description, authToken.description) &&
-                Objects.equals(isRevoked, authToken.isRevoked) &&
-                Objects.equals(revokedAt, authToken.revokedAt) &&
-                Objects.equals(createdAt, authToken.createdAt) &&
-                Objects.equals(lastUsed, authToken.lastUsed) &&
-                Objects.equals(username, authToken.username) &&
-                Objects.equals(saltId, authToken.saltId) &&
-                Objects.equals(saltValue, authToken.saltValue) &&
-                Objects.equals(authConfigId, authToken.authConfigId);
+        AccessToken accessToken = (AccessToken) o;
+        return Objects.equals(name, accessToken.name) &&
+                Objects.equals(value, accessToken.value) &&
+                Objects.equals(originalValue, accessToken.originalValue) &&
+                Objects.equals(description, accessToken.description) &&
+                Objects.equals(isRevoked, accessToken.isRevoked) &&
+                Objects.equals(revokedAt, accessToken.revokedAt) &&
+                Objects.equals(createdAt, accessToken.createdAt) &&
+                Objects.equals(lastUsed, accessToken.lastUsed) &&
+                Objects.equals(username, accessToken.username) &&
+                Objects.equals(saltId, accessToken.saltId) &&
+                Objects.equals(saltValue, accessToken.saltValue) &&
+                Objects.equals(authConfigId, accessToken.authConfigId);
     }
 
     @Override
@@ -182,7 +182,7 @@ public class AuthToken extends PersistentObject {
 
     @Override
     public String toString() {
-        return "AuthToken{" +
+        return "AccessToken{" +
                 "name='" + name + '\'' +
                 ", value='" + value + '\'' +
                 ", originalValue='" + originalValue + '\'' +

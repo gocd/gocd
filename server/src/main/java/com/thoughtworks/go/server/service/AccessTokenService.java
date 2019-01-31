@@ -17,8 +17,8 @@
 package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.validation.NameTypeValidator;
-import com.thoughtworks.go.domain.AuthToken;
-import com.thoughtworks.go.server.dao.AuthTokenDao;
+import com.thoughtworks.go.domain.AccessToken;
+import com.thoughtworks.go.server.dao.AccessTokenDao;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.exceptions.InvalidAccessTokenException;
 import com.thoughtworks.go.server.exceptions.RevokedAccessTokenException;
@@ -38,20 +38,20 @@ import java.util.Date;
 import java.util.List;
 
 @Service
-public class AuthTokenService {
+public class AccessTokenService {
     private static final int DEFAULT_ITERATIONS = 4096;
     private static final int DESIRED_KEY_LENGTH = 256;
 
     private static final int SALT_LENGTH = 32;
 
-    private AuthTokenDao authTokenDao;
+    private AccessTokenDao accessTokenDao;
 
     @Autowired
-    public AuthTokenService(AuthTokenDao authTokenDao) {
-        this.authTokenDao = authTokenDao;
+    public AccessTokenService(AccessTokenDao accessTokenDao) {
+        this.accessTokenDao = accessTokenDao;
     }
 
-    public AuthToken create(String tokenName, String description, Username username, String authConfigId, HttpLocalizedOperationResult result) throws Exception {
+    public AccessToken create(String tokenName, String description, Username username, String authConfigId, HttpLocalizedOperationResult result) throws Exception {
         if (!new NameTypeValidator().isNameValid(tokenName)) {
             result.unprocessableEntity(NameTypeValidator.errorMessage("auth token", tokenName));
             return null;
@@ -67,22 +67,22 @@ public class AuthTokenService {
             return null;
         }
 
-        AuthToken tokenToCreate = getAuthTokenFor(tokenName, description, username, authConfigId);
-        authTokenDao.saveOrUpdate(tokenToCreate);
+        AccessToken tokenToCreate = getAuthTokenFor(tokenName, description, username, authConfigId);
+        accessTokenDao.saveOrUpdate(tokenToCreate);
         return tokenToCreate;
     }
 
     private boolean hasTokenWithNameForTheUser(String tokenName, Username username) {
-        return authTokenDao.findAuthToken(tokenName, username.getUsername().toString()) != null;
+        return accessTokenDao.findAccessToken(tokenName, username.getUsername().toString()) != null;
     }
 
-    AuthToken getAuthTokenFor(String tokenName, String description, Username username, String authConfigId) throws Exception {
-        AuthToken authToken = new AuthToken();
+    AccessToken getAuthTokenFor(String tokenName, String description, Username username, String authConfigId) throws Exception {
+        AccessToken accessToken = new AccessToken();
 
-        authToken.setName(tokenName);
-        authToken.setDescription(description);
-        authToken.setAuthConfigId(authConfigId);
-        authToken.setCreatedAt(new Date());
+        accessToken.setName(tokenName);
+        accessToken.setDescription(description);
+        accessToken.setAuthConfigId(authConfigId);
+        accessToken.setCreatedAt(new Date());
 
         String originalToken = generateSecureRandomString(16);
         String saltId = generateSecureRandomString(4);
@@ -90,14 +90,14 @@ public class AuthTokenService {
         String hashedToken = digestToken(originalToken, saltValue);
         String finalTokenValue = String.format("%s%s", saltId, originalToken);
 
-        authToken.setOriginalValue(finalTokenValue);
-        authToken.setSaltId(saltId);
-        authToken.setSaltValue(saltValue);
-        authToken.setValue(hashedToken);
+        accessToken.setOriginalValue(finalTokenValue);
+        accessToken.setSaltId(saltId);
+        accessToken.setSaltValue(saltValue);
+        accessToken.setValue(hashedToken);
 
-        authToken.setUsername(username.getUsername().toString());
+        accessToken.setUsername(username.getUsername().toString());
 
-        return authToken;
+        return accessToken;
     }
 
     String digestToken(String originalToken, String salt) throws Exception {
@@ -116,11 +116,11 @@ public class AuthTokenService {
         return Base64.encodeBase64String(SecureRandom.getInstance("SHA1PRNG").generateSeed(SALT_LENGTH));
     }
 
-    public AuthToken find(String tokenName, String username) {
-        return authTokenDao.findAuthToken(tokenName, username);
+    public AccessToken find(String tokenName, String username) {
+        return accessTokenDao.findAccessToken(tokenName, username);
     }
 
-    public AuthToken findByAccessToken(String actualToken) throws Exception {
+    public AccessToken findByAccessToken(String actualToken) throws Exception {
         if (actualToken.length() != 40) {
             throw new InvalidAccessTokenException();
         }
@@ -128,7 +128,7 @@ public class AuthTokenService {
         String saltId = StringUtils.substring(actualToken, 0, 8);
         String originalToken = StringUtils.substring(actualToken, 8);
 
-        AuthToken token = authTokenDao.findTokenBySaltId(saltId);
+        AccessToken token = accessTokenDao.findTokenBySaltId(saltId);
         if (token == null) {
             throw new InvalidAccessTokenException();
         }
@@ -148,25 +148,25 @@ public class AuthTokenService {
     }
 
     public void revokeAccessToken(String name, String username, HttpLocalizedOperationResult result) {
-        AuthToken fetchedAuthToken = authTokenDao.findAuthToken(name, username);
+        AccessToken fetchedAccessToken = accessTokenDao.findAccessToken(name, username);
 
-        if (fetchedAuthToken == null) {
+        if (fetchedAccessToken == null) {
             result.unprocessableEntity(String.format("Validation Failed. Access Token with name '%s' for user '%s' does not exists.", name, username));
             return;
         }
 
-        if (fetchedAuthToken.isRevoked()) {
+        if (fetchedAccessToken.isRevoked()) {
             result.unprocessableEntity(String.format("Validation Failed. Access Token with name '%s' for user '%s' has already been revoked.", name, username));
             return;
         }
 
-        fetchedAuthToken.setRevoked(true);
-        fetchedAuthToken.setRevokedAt(new Timestamp(System.currentTimeMillis()));
+        fetchedAccessToken.setRevoked(true);
+        fetchedAccessToken.setRevokedAt(new Timestamp(System.currentTimeMillis()));
 
-        authTokenDao.saveOrUpdate(fetchedAuthToken);
+        accessTokenDao.saveOrUpdate(fetchedAccessToken);
     }
 
-    public List<AuthToken> findAllTokensForUser(Username username) {
-        return authTokenDao.findAllTokensForUser(username.getUsername().toString());
+    public List<AccessToken> findAllTokensForUser(Username username) {
+        return accessTokenDao.findAllTokensForUser(username.getUsername().toString());
     }
 }

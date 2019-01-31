@@ -16,20 +16,20 @@
 
 package com.thoughtworks.go.server.dao;
 
-import com.thoughtworks.go.domain.AuthToken;
+import com.thoughtworks.go.domain.AccessToken;
 
 import java.util.List;
 
-public interface AuthTokenDao {
-    void saveOrUpdate(AuthToken authToken);
+public interface AccessTokenDao {
+    void saveOrUpdate(AccessToken accessToken);
 
-    AuthToken findAuthToken(String name, String username);
+    AccessToken findAccessToken(String name, String username);
 
-    AuthToken load(long id);
+    AccessToken load(long id);
 
     void deleteAll();
 
-    List<AuthToken> findAllTokensForUser(String toString);
+    List<AccessToken> findAllTokensForUser(String toString);
 
-    AuthToken findTokenBySaltId(String saltId);
+    AccessToken findTokenBySaltId(String saltId);
 }

@@ -16,7 +16,7 @@
 
 package com.thoughtworks.go.server.dao;
 
-import com.thoughtworks.go.domain.AuthToken;
+import com.thoughtworks.go.domain.AccessToken;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import org.hibernate.Query;
 import org.hibernate.SessionFactory;
@@ -31,40 +31,40 @@ import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import java.util.List;
 
 @Component
-public class AuthTokenSqlMapDao extends HibernateDaoSupport implements AuthTokenDao {
+public class AccessTokenSqlMapDao extends HibernateDaoSupport implements AccessTokenDao {
     private SessionFactory sessionFactory;
     private TransactionTemplate transactionTemplate;
 
     @Autowired
-    public AuthTokenSqlMapDao(SessionFactory sessionFactory,
-                              TransactionTemplate transactionTemplate) {
+    public AccessTokenSqlMapDao(SessionFactory sessionFactory,
+                                TransactionTemplate transactionTemplate) {
         this.sessionFactory = sessionFactory;
         this.transactionTemplate = transactionTemplate;
         setSessionFactory(sessionFactory);
     }
 
-    public void saveOrUpdate(final AuthToken authToken) {
+    public void saveOrUpdate(final AccessToken accessToken) {
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
             @Override
             protected void doInTransactionWithoutResult(TransactionStatus status) {
-                sessionFactory.getCurrentSession().saveOrUpdate(authToken);
+                sessionFactory.getCurrentSession().saveOrUpdate(accessToken);
             }
         });
     }
 
-    public AuthToken findAuthToken(final String tokenName, String username) {
-        return (AuthToken) transactionTemplate.execute((TransactionCallback) transactionStatus ->
+    public AccessToken findAccessToken(final String tokenName, String username) {
+        return (AccessToken) transactionTemplate.execute((TransactionCallback) transactionStatus ->
                 sessionFactory.getCurrentSession()
-                        .createCriteria(AuthToken.class)
+                        .createCriteria(AccessToken.class)
                         .add(Restrictions.eq("name", tokenName))
                         .add(Restrictions.eq("username", username))
                         .setCacheable(true).uniqueResult());
     }
 
     @Override
-    public List<AuthToken> findAllTokensForUser(String username) {
-        return (List<AuthToken>) transactionTemplate.execute((TransactionCallback) transactionStatus -> {
-            Query query = sessionFactory.getCurrentSession().createQuery("FROM AuthToken where username = :username");
+    public List<AccessToken> findAllTokensForUser(String username) {
+        return (List<AccessToken>) transactionTemplate.execute((TransactionCallback) transactionStatus -> {
+            Query query = sessionFactory.getCurrentSession().createQuery("FROM AccessToken where username = :username");
             query.setString("username", username);
             query.setCacheable(true);
             return query.list();
@@ -72,16 +72,16 @@ public class AuthTokenSqlMapDao extends HibernateDaoSupport implements AuthToken
     }
 
     @Override
-    public AuthToken findTokenBySaltId(String saltId) {
-        return (AuthToken) transactionTemplate.execute((TransactionCallback) transactionStatus ->
+    public AccessToken findTokenBySaltId(String saltId) {
+        return (AccessToken) transactionTemplate.execute((TransactionCallback) transactionStatus ->
                 sessionFactory.getCurrentSession()
-                        .createCriteria(AuthToken.class)
+                        .createCriteria(AccessToken.class)
                         .add(Restrictions.eq("saltId", saltId))
                         .setCacheable(true).uniqueResult());
     }
 
-    public AuthToken load(final long id) {
-        return (AuthToken) transactionTemplate.execute((TransactionCallback) transactionStatus -> sessionFactory.getCurrentSession().get(AuthToken.class, id));
+    public AccessToken load(final long id) {
+        return (AccessToken) transactionTemplate.execute((TransactionCallback) transactionStatus -> sessionFactory.getCurrentSession().get(AccessToken.class, id));
     }
 
     // Used only by tests
@@ -89,7 +89,7 @@ public class AuthTokenSqlMapDao extends HibernateDaoSupport implements AuthToken
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
             @Override
             protected void doInTransactionWithoutResult(TransactionStatus status) {
-                sessionFactory.getCurrentSession().createQuery("DELETE FROM AuthToken").executeUpdate();
+                sessionFactory.getCurrentSession().createQuery("DELETE FROM AccessToken").executeUpdate();
             }
         });
     }

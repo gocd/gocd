@@ -16,32 +16,32 @@
 
 package com.thoughtworks.go.helper;
 
-import com.thoughtworks.go.domain.AuthToken;
+import com.thoughtworks.go.domain.AccessToken;
 import org.apache.commons.lang3.RandomStringUtils;
 
 import java.util.Date;
 
-public class AuthTokenMother {
-    public static AuthToken authTokenWithName(String tokenName) {
+public class AccessTokenMother {
+    public static AccessToken accessTokenWithName(String tokenName) {
         String tokenValue = RandomStringUtils.randomAlphanumeric(32).toUpperCase();
         String tokenDescription = RandomStringUtils.randomAlphanumeric(512).toUpperCase();
         String saltId = RandomStringUtils.randomAlphanumeric(8).toUpperCase();
         String saltValue = RandomStringUtils.randomAlphanumeric(255).toUpperCase();
         String authConfigId = RandomStringUtils.randomAlphanumeric(255).toUpperCase();
 
-        AuthToken authToken = new AuthToken(tokenName, tokenValue, tokenDescription, false, new Date(), null);
-        authToken.setSaltId(saltId);
-        authToken.setSaltValue(saltValue);
-        authToken.setAuthConfigId(authConfigId);
-        authToken.setUsername("Bob");
+        AccessToken accessToken = new AccessToken(tokenName, tokenValue, tokenDescription, false, new Date(), null);
+        accessToken.setSaltId(saltId);
+        accessToken.setSaltValue(saltValue);
+        accessToken.setAuthConfigId(authConfigId);
+        accessToken.setUsername("Bob");
 
-        return authToken;
+        return accessToken;
     }
 
-    public static AuthToken authTokenWithNameForUser(String tokenName, String username) {
-        AuthToken authToken = authTokenWithName(tokenName);
-        authToken.setUsername(username);
+    public static AccessToken accessTokenWithNameForUser(String tokenName, String username) {
+        AccessToken accessToken = accessTokenWithName(tokenName);
+        accessToken.setUsername(username);
 
-        return authToken;
+        return accessToken;
     }
 }

@@ -70,6 +70,7 @@ public class AuthTokenControllerV1 extends ApiController implements SparkSpringC
 
             get("", mimeType, this::getAllAuthTokens);
             post("", mimeType, this::createAuthToken);
+            patch(String.format("%s%s/revoke", Routes.AuthToken.USERNAME, Routes.AuthToken.TOKEN_NAME), mimeType, this::revokeAuthToken);
             get(Routes.AuthToken.TOKEN_NAME, mimeType, this::getAuthToken);
 
             exception(RecordNotFoundException.class, this::notFound);
@@ -94,7 +95,7 @@ public class AuthTokenControllerV1 extends ApiController implements SparkSpringC
     }
 
     public String getAuthToken(Request request, Response response) throws Exception {
-        final AuthToken token = authTokenService.find(request.params("token_name"), currentUsername());
+        final AuthToken token = authTokenService.find(request.params("token_name"), currentUsername().getUsername().toString());
 
         if (token == null) {
             throw new RecordNotFoundException();
@@ -106,6 +107,20 @@ public class AuthTokenControllerV1 extends ApiController implements SparkSpringC
     public String getAllAuthTokens(Request request, Response response) throws Exception {
         List<AuthToken> allTokens = authTokenService.findAllTokensForUser(currentUsername());
         return writerForTopLevelObject(request, response, outputWriter -> AuthTokensRepresenter.toJSON(outputWriter, allTokens));
+    }
+
+    public String revokeAuthToken(Request request, Response response) throws Exception {
+        String tokenName = request.params("token_name");
+        String username = request.params("username");
+
+        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+        authTokenService.revokeAccessToken(tokenName, username, result);
+
+        if (result.isSuccessful()) {
+            return renderAuthToken(request, response, authTokenService.find(tokenName, username), true);
+        }
+
+        return renderHTTPOperationResult(result, request, response);
     }
 
     private String renderAuthToken(Request request, Response response, AuthToken token, boolean includeTokenValue) throws IOException {

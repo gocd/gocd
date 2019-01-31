@@ -20,9 +20,12 @@ import com.thoughtworks.go.domain.AuthToken;
 import com.thoughtworks.go.server.dao.AuthTokenSqlMapDao;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.domain.Username;
+import com.thoughtworks.go.server.exceptions.InvalidAccessTokenException;
+import com.thoughtworks.go.server.exceptions.RevokedAccessTokenException;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
+import org.apache.commons.lang3.RandomStringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.After;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -31,10 +34,9 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import static com.thoughtworks.go.server.newsecurity.utils.SessionUtils.currentUsername;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.*;
-import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {
@@ -75,25 +77,25 @@ public class AuthTokenServiceIntegrationTest {
 
         AuthToken createdToken = authTokenService.create(tokenName, tokenDescription, currentUsername(), authConfigId, result);
 
-        AuthToken fetchedToken = authTokenService.find(tokenName, username);
+        AuthToken fetchedToken = authTokenService.find(tokenName, username.getUsername().toString());
 
-        assertTrue(result.isSuccessful());
-        assertThat(createdToken.getName(), is(tokenName));
-        assertThat(createdToken.getDescription(), is(tokenDescription));
-        assertNotNull(createdToken.getValue());
-        assertNotNull(createdToken.getOriginalValue());
-        assertNotNull(createdToken.getCreatedAt());
-        assertNull(createdToken.getLastUsed());
-        assertFalse(createdToken.isRevoked());
+        assertThat(result.isSuccessful()).isTrue();
+        assertThat(createdToken.getName()).isEqualTo(tokenName);
+        assertThat(createdToken.getDescription()).isEqualTo(tokenDescription);
+        assertThat(createdToken.getValue()).isNotNull();
+        assertThat(createdToken.getOriginalValue()).isNotNull();
+        assertThat(createdToken.getCreatedAt()).isNotNull();
+        assertThat(createdToken.getLastUsed()).isNull();
+        assertThat(createdToken.isRevoked()).isFalse();
 
-        assertThat(fetchedToken.getValue(), is(createdToken.getValue()));
-        assertThat(fetchedToken.getName(), is(createdToken.getName()));
-        assertThat(fetchedToken.getDescription(), is(createdToken.getDescription()));
-        assertThat(fetchedToken.getCreatedAt(), is(createdToken.getCreatedAt()));
-        assertThat(fetchedToken.getLastUsed(), is(createdToken.getLastUsed()));
-        assertThat(fetchedToken.isRevoked(), is(createdToken.isRevoked()));
+        assertThat(fetchedToken.getValue()).isEqualTo(createdToken.getValue());
+        assertThat(fetchedToken.getName()).isEqualTo(createdToken.getName());
+        assertThat(fetchedToken.getDescription()).isEqualTo(createdToken.getDescription());
+        assertThat(fetchedToken.getCreatedAt()).isEqualTo(createdToken.getCreatedAt());
+        assertThat(fetchedToken.getLastUsed()).isEqualTo(createdToken.getLastUsed());
+        assertThat(fetchedToken.isRevoked()).isEqualTo(createdToken.isRevoked());
 
-        assertNull(fetchedToken.getOriginalValue());
+        assertThat(fetchedToken.getOriginalValue()).isNull();
     }
 
     @Test
@@ -103,15 +105,15 @@ public class AuthTokenServiceIntegrationTest {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
 
         authTokenService.create(tokenName, tokenDescription, currentUsername(), authConfigId, result);
-        assertTrue(result.isSuccessful());
+        assertThat(result.isSuccessful()).isTrue();
 
-        AuthToken savedToken = authTokenService.find(tokenName, username);
-        assertThat(savedToken.getName(), is(tokenName));
+        AuthToken savedToken = authTokenService.find(tokenName, username.getUsername().toString());
+        assertThat(savedToken.getName()).isEqualTo(tokenName);
 
         authTokenService.create(tokenName, tokenDescription, currentUsername(), authConfigId, result);
-        assertFalse(result.isSuccessful());
-        Assert.assertThat(result.httpCode(), is(409));
-        Assert.assertThat(result.message(), is("Validation Failed. Another auth token with name 'token1' already exists."));
+        assertThat(result.isSuccessful()).isFalse();
+        assertThat(result.httpCode()).isEqualTo(409);
+        assertThat(result.message()).isEqualTo("Validation Failed. Another auth token with name 'token1' already exists.");
     }
 
     @Test
@@ -121,13 +123,116 @@ public class AuthTokenServiceIntegrationTest {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
 
         authTokenService.create(tokenName, tokenDescription, currentUsername(), authConfigId, result);
-        assertTrue(result.isSuccessful());
+        assertThat(result.isSuccessful()).isTrue();
 
-        AuthToken savedToken = authTokenService.find(tokenName, username);
-        assertThat(savedToken.getName(), is(tokenName));
+        AuthToken savedToken = authTokenService.find(tokenName, username.getUsername().toString());
+        assertThat(savedToken.getName()).isEqualTo(tokenName);
 
         authTokenService.create(tokenName, tokenDescription, new Username("Another User"), authConfigId, result);
 
-        assertTrue(result.isSuccessful());
+        assertThat(result.isSuccessful()).isTrue();
+    }
+
+    @Test
+    public void shouldGetAccessTokenProvidedTokenValue() throws Exception {
+        String tokenName = "token1";
+        String tokenDescription = "This is my first Token";
+        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+
+        AuthToken createdToken = authTokenService.create(tokenName, tokenDescription, currentUsername(), authConfigId, result);
+        String accessTokenInString = createdToken.getOriginalValue();
+        createdToken.setOriginalValue(null);
+        AuthToken fetchedToken = authTokenService.findByAccessToken(accessTokenInString);
+
+        assertThat(createdToken).isEqualTo(fetchedToken);
+    }
+
+    @Test
+    public void shouldFailToGetAccessTokenWhenProvidedTokenLengthIsNotEqualTo40() {
+        InvalidAccessTokenException exception = assertThrows(InvalidAccessTokenException.class, () -> authTokenService.findByAccessToken("my-access-token"));
+        assertThat("Invalid Personal Access Token.").isEqualTo(exception.getMessage());
+    }
+
+    @Test
+    public void shouldFailToGetAccessTokenWhenProvidedTokenContainsInvalidSaltId() {
+        String accessToken = RandomStringUtils.randomAlphanumeric(40);
+        InvalidAccessTokenException exception = assertThrows(InvalidAccessTokenException.class, () -> authTokenService.findByAccessToken(accessToken));
+        assertThat("Invalid Personal Access Token.").isEqualTo(exception.getMessage());
+    }
+
+    @Test
+    public void shouldFailToGetAccessTokenWhenProvidedTokenHashEqualityFails() throws Exception {
+        String tokenName = "token1";
+        String tokenDescription = "This is my first Token";
+        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+
+        AuthToken createdToken = authTokenService.create(tokenName, tokenDescription, currentUsername(), authConfigId, result);
+        String accessTokenInString = createdToken.getOriginalValue();
+        //replace last 5 characters to make the current token invalid
+        String invalidAccessToken = StringUtils.replace(accessTokenInString, accessTokenInString.substring(35), "abcde");
+
+        InvalidAccessTokenException exception = assertThrows(InvalidAccessTokenException.class, () -> authTokenService.findByAccessToken(invalidAccessToken));
+        assertThat("Invalid Personal Access Token.").isEqualTo(exception.getMessage());
+    }
+
+    @Test
+    public void shouldNotGetAccessTokenProvidedTokenValueWhenTokenIsRevoked() throws Exception {
+        String tokenName = "token1";
+        String tokenDescription = "This is my first Token";
+        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+
+        AuthToken createdToken = authTokenService.create(tokenName, tokenDescription, currentUsername(), authConfigId, result);
+        authTokenService.revokeAccessToken(createdToken.getName(), currentUsername().getUsername().toString(), result);
+        String accessTokenInString = createdToken.getOriginalValue();
+
+        RevokedAccessTokenException exception = assertThrows(RevokedAccessTokenException.class, () -> authTokenService.findByAccessToken(accessTokenInString));
+        assertThat(exception.getMessage()).startsWith("Invalid Personal Access Token. Access token was revoked at: ");
+    }
+
+    @Test
+    public void shouldRevokeAnAccessToken() throws Exception {
+        String tokenName = "token1";
+        String tokenDescription = "This is my first Token";
+        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+        AuthToken createdToken = authTokenService.create(tokenName, tokenDescription, currentUsername(), authConfigId, new HttpLocalizedOperationResult());
+
+        assertThat(createdToken.isRevoked()).isFalse();
+
+        authTokenService.revokeAccessToken(tokenName, currentUsername().getUsername().toString(), result);
+        assertThat(result.isSuccessful()).isTrue();
+
+        AuthToken tokenAfterRevoking = authTokenService.find(tokenName, currentUsername().getUsername().toString());
+        assertThat(tokenAfterRevoking.isRevoked()).isTrue();
+    }
+
+    @Test
+    public void shouldFailToRevokeAnAlreadyRevokedAccessToken() throws Exception {
+        String tokenName = "token1";
+        String tokenDescription = "This is my first Token";
+        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+        AuthToken createdToken = authTokenService.create(tokenName, tokenDescription, currentUsername(), authConfigId, new HttpLocalizedOperationResult());
+
+        assertThat(createdToken.isRevoked()).isFalse();
+
+        authTokenService.revokeAccessToken(tokenName, currentUsername().getUsername().toString(), result);
+        assertThat(result.isSuccessful()).isTrue();
+
+        AuthToken tokenAfterRevoking = authTokenService.find(tokenName, currentUsername().getUsername().toString());
+        assertThat(tokenAfterRevoking.isRevoked()).isTrue();
+
+        authTokenService.revokeAccessToken(tokenName, currentUsername().getUsername().toString(), result);
+        assertThat(result.isSuccessful()).isFalse();
+
+        assertThat(result.message()).isEqualTo(String.format("Validation Failed. Access Token with name '%s' for user '%s' has already been revoked.", tokenName, currentUsername().getUsername().toString()));
+    }
+
+    @Test
+    public void shouldFailToRevokeNonExistingAccessToken() {
+        String tokenName = "token1";
+        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+
+        authTokenService.revokeAccessToken(tokenName, currentUsername().getUsername().toString(), result);
+        assertThat(result.isSuccessful()).isFalse();
+        assertThat(result.message()).isEqualTo(String.format("Validation Failed. Access Token with name '%s' for user '%s' does not exists.", tokenName, currentUsername().getUsername().toString()));
     }
 }

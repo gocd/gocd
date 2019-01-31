@@ -437,6 +437,7 @@ public class Routes {
     public static class AuthToken {
         public static final String BASE = "/api/auth_token";
         public static final String TOKEN_NAME = "/:token_name";
+        public static final String USERNAME = "/:username";
         public static final String DOC = apiDocsUrl("#auth_token");
 
         public static String find() {

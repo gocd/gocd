@@ -14,22 +14,12 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.server.dao;
+package com.thoughtworks.go.server.exceptions;
 
-import com.thoughtworks.go.domain.AuthToken;
+import java.sql.Timestamp;
 
-import java.util.List;
-
-public interface AuthTokenDao {
-    void saveOrUpdate(AuthToken authToken);
-
-    AuthToken findAuthToken(String name, String username);
-
-    AuthToken load(long id);
-
-    void deleteAll();
-
-    List<AuthToken> findAllTokensForUser(String toString);
-
-    AuthToken findTokenBySaltId(String saltId);
+public class RevokedAccessTokenException extends RuntimeException {
+    public RevokedAccessTokenException(Timestamp revokedAt) {
+        super(String.format("Invalid Personal Access Token. Access token was revoked at: %s", revokedAt));
+    }
 }

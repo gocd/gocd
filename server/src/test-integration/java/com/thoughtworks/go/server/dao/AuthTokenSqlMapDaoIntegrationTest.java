@@ -17,7 +17,6 @@
 package com.thoughtworks.go.server.dao;
 
 import com.thoughtworks.go.domain.AuthToken;
-import com.thoughtworks.go.server.cache.GoCache;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -30,11 +29,7 @@ import java.util.List;
 
 import static com.thoughtworks.go.helper.AuthTokenMother.authTokenWithName;
 import static com.thoughtworks.go.helper.AuthTokenMother.authTokenWithNameForUser;
-import static com.thoughtworks.go.server.dao.AuthTokenSqlMapDao.AUTH_TOKEN_CACHE_KEY;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {
@@ -49,8 +44,6 @@ public class AuthTokenSqlMapDaoIntegrationTest {
     @Autowired
     private DatabaseAccessHelper dbHelper;
 
-    @Autowired
-    private GoCache goCache;
     private String username;
 
     @Before
@@ -63,26 +56,25 @@ public class AuthTokenSqlMapDaoIntegrationTest {
     public void teardown() throws Exception {
         authTokenSqlMapDao.deleteAll();
         dbHelper.onTearDown();
-        goCache.clear();
     }
 
     @Test
-    public void shouldSaveUsersIntoDatabase() throws Exception {
+    public void shouldSaveUsersIntoDatabase() {
         String tokenName = "auth-token-for-apis";
         AuthToken authToken = authTokenWithName(tokenName);
 
-        authTokenSqlMapDao.save(authToken);
+        authTokenSqlMapDao.saveOrUpdate(authToken);
 
         AuthToken savedAuthToken = authTokenSqlMapDao.findAuthToken(tokenName, username);
-        assertThat(savedAuthToken, is(authToken));
-        assertThat(authTokenSqlMapDao.load(savedAuthToken.getId()), is(authToken));
+        assertThat(savedAuthToken).isEqualTo(authToken);
+        assertThat(authTokenSqlMapDao.load(savedAuthToken.getId())).isEqualTo(authToken);
     }
 
     @Test
     public void shouldReturnNullWhenNoAuthTokenFoundForTheSpecifiedName() {
         String tokenName = "auth-token-for-apis";
         AuthToken savedAuthToken = authTokenSqlMapDao.findAuthToken(tokenName, username);
-        assertNull(savedAuthToken);
+        assertThat(savedAuthToken).isNull();
     }
 
     @Test
@@ -94,61 +86,37 @@ public class AuthTokenSqlMapDaoIntegrationTest {
         String tokenName2 = "token2-created-by-Bob";
         String tokenName3 = "token2-created-by-John";
 
-        authTokenSqlMapDao.save(authTokenWithNameForUser(tokenName1, user1));
-        authTokenSqlMapDao.save(authTokenWithNameForUser(tokenName2, user1));
-        authTokenSqlMapDao.save(authTokenWithNameForUser(tokenName3, user2));
+        authTokenSqlMapDao.saveOrUpdate(authTokenWithNameForUser(tokenName1, user1));
+        authTokenSqlMapDao.saveOrUpdate(authTokenWithNameForUser(tokenName2, user1));
+        authTokenSqlMapDao.saveOrUpdate(authTokenWithNameForUser(tokenName3, user2));
 
         List<AuthToken> user1AuthTokens = authTokenSqlMapDao.findAllTokensForUser(user1);
         List<AuthToken> user2AuthTokens = authTokenSqlMapDao.findAllTokensForUser(user2);
 
-        assertThat(user1AuthTokens, hasSize(2));
-        assertThat(user2AuthTokens, hasSize(1));
+        assertThat(user1AuthTokens).hasSize(2);
+        assertThat(user2AuthTokens).hasSize(1);
 
-        assertThat(user1AuthTokens.get(0).getName(), is(tokenName1));
-        assertThat(user1AuthTokens.get(1).getName(), is(tokenName2));
+        assertThat(user1AuthTokens.get(0).getName()).isEqualTo(tokenName1);
+        assertThat(user1AuthTokens.get(1).getName()).isEqualTo(tokenName2);
 
-        assertThat(user2AuthTokens.get(0).getName(), is(tokenName3));
+        assertThat(user2AuthTokens.get(0).getName()).isEqualTo(tokenName3);
     }
 
     @Test
-    public void shouldNotPopulateCacheWhenNoAuthTokenFoundForTheSpecifiedTokenName() {
+    public void shouldLoadAccessTokenBasedOnSaltId() {
         String tokenName = "auth-token-for-apis";
-        AuthToken savedAuthToken = authTokenSqlMapDao.findAuthToken(tokenName, username);
+        AuthToken authToken = authTokenWithName(tokenName);
 
-        assertNull(savedAuthToken);
-        assertNull(goCache.get(AUTH_TOKEN_CACHE_KEY, tokenName));
+        authTokenSqlMapDao.saveOrUpdate(authToken);
+
+        AuthToken savedAuthToken = authTokenSqlMapDao.findTokenBySaltId(authToken.getSaltId());
+        assertThat(savedAuthToken).isEqualTo(authToken);
     }
 
     @Test
-    public void shouldCacheAuthTokenValueUponFirstGet() {
-        String tokenName = "auth-token-for-apis";
-        AuthToken authToken = authTokenWithNameForUser(tokenName, username);
-
-        authTokenSqlMapDao.save(authToken);
-        String cacheKey = String.format("%s_%s", username, tokenName);
-
-        assertNull(goCache.get(AUTH_TOKEN_CACHE_KEY, cacheKey));
-        AuthToken savedAuthToken = authTokenSqlMapDao.findAuthToken(tokenName, username);
-        assertThat(goCache.get(AUTH_TOKEN_CACHE_KEY, cacheKey), is(savedAuthToken));
-    }
-
-    @Test
-    public void shouldRemoveAuthTokenFromCacheUponUpdate() {
-        String tokenName = "auth-token-for-apis";
-        AuthToken authToken = authTokenWithNameForUser(tokenName, username);
-
-        authTokenSqlMapDao.save(authToken);
-
-        String cacheKey = String.format("%s_%s", username, tokenName);
-
-        assertNull(goCache.get(AUTH_TOKEN_CACHE_KEY, cacheKey));
-        AuthToken savedAuthToken = authTokenSqlMapDao.findAuthToken(tokenName, username);
-        assertThat(goCache.get(AUTH_TOKEN_CACHE_KEY, cacheKey), is(savedAuthToken));
-        assertThat(goCache.get(AUTH_TOKEN_CACHE_KEY, savedAuthToken.getValue()), is(savedAuthToken));
-
-        authTokenSqlMapDao.save(authToken);
-
-        assertNull(goCache.get(AUTH_TOKEN_CACHE_KEY, cacheKey));
-        assertNull(goCache.get(AUTH_TOKEN_CACHE_KEY, savedAuthToken.getValue()));
+    public void shouldReturnNullWhenNoAuthTokenFoundForTheSpecifiedSaltId() {
+        String saltId = "auth-token-for-apis";
+        AuthToken savedAuthToken = authTokenSqlMapDao.findTokenBySaltId(saltId);
+        assertThat(savedAuthToken).isNull();
     }
 }

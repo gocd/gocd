@@ -30,8 +30,7 @@ import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
@@ -59,9 +58,9 @@ class AuthTokenServiceTest {
         String invalidTokenName = "@#my_%_fancy_%_token#@";
         authTokenService.create(invalidTokenName, null, username, authConfigId, result);
 
-        assertFalse(result.isSuccessful());
-        assertThat(result.httpCode(), is(422));
-        assertThat(result.message(), is(String.format("Invalid auth token name '%s'. This must be alphanumeric and can contain underscores and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.", invalidTokenName)));
+        assertThat(result.isSuccessful()).isFalse();
+        assertThat(result.httpCode()).isEqualTo(422);
+        assertThat(result.message()).isEqualTo(String.format("Invalid auth token name '%s'. This must be alphanumeric and can contain underscores and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.", invalidTokenName));
 
         verifyNoMoreInteractions(authTokenDao);
     }
@@ -72,9 +71,9 @@ class AuthTokenServiceTest {
         String longerDescription = RandomStringUtils.randomAlphanumeric(1025).toUpperCase();
         authTokenService.create(tokenName, longerDescription, username, authConfigId, result);
 
-        assertFalse(result.isSuccessful());
-        assertThat(result.httpCode(), is(422));
-        assertThat(result.message(), is("Validation Failed. Auth token description can not be longer than 1024 characters."));
+        assertThat(result.isSuccessful()).isFalse();
+        assertThat(result.httpCode()).isEqualTo(422);
+        assertThat(result.message()).isEqualTo("Validation Failed. Auth token description can not be longer than 1024 characters.");
 
         verifyNoMoreInteractions(authTokenDao);
     }
@@ -85,22 +84,22 @@ class AuthTokenServiceTest {
         String longerDescription = RandomStringUtils.randomAlphanumeric(1024).toUpperCase();
         authTokenService.create(tokenName, longerDescription, username, authConfigId, result);
 
-        assertTrue(result.isSuccessful());
+        assertThat(result.isSuccessful()).isTrue();
 
-        verify(authTokenDao, times(1)).save(any(AuthToken.class));
+        verify(authTokenDao, times(1)).saveOrUpdate(any(AuthToken.class));
     }
 
     @Test
-    void shouldMakeACallToSQLDaoForFetchingAuthToken() throws Exception {
+    void shouldMakeACallToSQLDaoForFetchingAuthToken() {
         String tokenName = "token1";
-        authTokenService.find(tokenName, username);
+        authTokenService.find(tokenName, username.getUsername().toString());
 
         verify(authTokenDao, times(1)).findAuthToken(tokenName, username.getUsername().toString());
         verifyNoMoreInteractions(authTokenDao);
     }
 
     @Test
-    void shouldMakeACallToSQLDaoForFetchingAllAuthTokensBelongingToAUser() throws Exception {
+    void shouldMakeACallToSQLDaoForFetchingAllAuthTokensBelongingToAUser() {
         authTokenService.findAllTokensForUser(username);
 
         verify(authTokenDao, times(1)).findAllTokensForUser(username.getUsername().toString());
@@ -116,9 +115,9 @@ class AuthTokenServiceTest {
 
         authTokenService.create(tokenName, longerDescription, username, authConfigId, result);
 
-        assertFalse(result.isSuccessful());
-        assertThat(result.httpCode(), is(409));
-        assertThat(result.message(), is("Validation Failed. Another auth token with name 'token1' already exists."));
+        assertThat(result.isSuccessful()).isFalse();
+        assertThat(result.httpCode()).isEqualTo(409);
+        assertThat(result.message()).isEqualTo("Validation Failed. Another auth token with name 'token1' already exists.");
 
         verify(authTokenDao, times(1)).findAuthToken(tokenName, username.getUsername().toString());
         verifyNoMoreInteractions(authTokenDao);
@@ -133,7 +132,7 @@ class AuthTokenServiceTest {
         SecretKey key = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256")
                 .generateSecret(new PBEKeySpec(tokenValue.toCharArray(), saltValue.getBytes(), 4096, 256));
 
-        assertThat(hashed, is(Hex.encodeHexString(key.getEncoded())));
+        assertThat(hashed).isEqualTo(Hex.encodeHexString(key.getEncoded()));
     }
 
     @Test
@@ -143,6 +142,6 @@ class AuthTokenServiceTest {
         String hashed1 = authTokenService.digestToken(tokenValue, saltValue);
         String hashed2 = authTokenService.digestToken(tokenValue, saltValue);
 
-        assertThat(hashed1, is(hashed2));
+        assertThat(hashed1).isEqualTo(hashed2);
     }
 }

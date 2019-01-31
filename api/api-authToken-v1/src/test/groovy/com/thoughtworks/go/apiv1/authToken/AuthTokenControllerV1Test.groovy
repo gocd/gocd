@@ -84,7 +84,7 @@ class AuthTokenControllerV1Test implements ControllerTrait<AuthTokenControllerV1
         enableSecurity()
         loginAsAdmin()
 
-        when(authTokenService.find(eq(tokenName), any(Username.class))).thenReturn(token)
+        when(authTokenService.find(eq(tokenName), any(String.class))).thenReturn(token)
       }
 
       @Test
@@ -99,7 +99,7 @@ class AuthTokenControllerV1Test implements ControllerTrait<AuthTokenControllerV1
 
       @Test
       void 'should render not found when the specified auth token does not exists'() {
-        when(authTokenService.find(eq(tokenName), any(Username.class))).thenReturn(null)
+        when(authTokenService.find(eq(tokenName), any(String.class))).thenReturn(null)
 
         getWithApiHeader(controller.controllerPath(tokenName))
 
@@ -245,6 +245,60 @@ class AuthTokenControllerV1Test implements ControllerTrait<AuthTokenControllerV1
           .isOk()
           .hasContentType(controller.mimeType)
           .hasBody(toObjectString({ AuthTokensRepresenter.toJSON(it, [token]) }))
+      }
+    }
+  }
+
+  @Nested
+  class Revoke {
+    def tokenName = "token1"
+    def userName = "bob"
+    def token = authTokenWithName(tokenName)
+
+    @Nested
+    class Security implements SecurityTestTrait, NormalUserSecurity {
+      @Override
+      String getControllerMethodUnderTest() {
+        return "revokeAuthToken"
+      }
+
+      @Override
+      void makeHttpCall() {
+        patchWithApiHeader(controller.controllerPath(userName, tokenName, 'revoke'), [:])
+      }
+    }
+
+    @Nested
+    class AsAdmin {
+      @BeforeEach
+      void setUp() {
+        enableSecurity()
+        loginAsAdmin()
+      }
+
+      @Test
+      void 'should revoke the auth token'() {
+        when(authTokenService.find(tokenName, userName)).thenReturn(token)
+        patchWithApiHeader(controller.controllerPath(userName, tokenName, 'revoke'), [:])
+
+        assertThatResponse()
+          .isOk()
+          .hasContentType(controller.mimeType)
+          .hasBody(toObjectString({ AuthTokenRepresenter.toJSON(it, token, true) }))
+      }
+
+      @Test
+      void 'should show errors occurred while revoking a new auth token'() {
+        when(authTokenService.revokeAccessToken(eq(tokenName) as String, eq(userName) as String, any() as HttpLocalizedOperationResult)).then({ InvocationOnMock invocation ->
+          HttpLocalizedOperationResult result = invocation.getArguments().last() as HttpLocalizedOperationResult
+          result.unprocessableEntity("Boom!")
+        })
+
+        patchWithApiHeader(controller.controllerPath(userName, tokenName, 'revoke'), [:])
+
+        assertThatResponse()
+          .isUnprocessableEntity()
+          .hasJsonMessage("Boom!")
       }
     }
   }

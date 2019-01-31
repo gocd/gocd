@@ -53,7 +53,7 @@ public class AuthTokenSqlMapDao extends HibernateDaoSupport implements AuthToken
         setSessionFactory(sessionFactory);
     }
 
-    public void saveOrUpdate(final AuthToken authToken) {
+    public void save(final AuthToken authToken) {
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
             @Override
             protected void doInTransactionWithoutResult(TransactionStatus status) {

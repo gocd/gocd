@@ -71,7 +71,7 @@ public class AuthTokenSqlMapDaoIntegrationTest {
         String tokenName = "auth-token-for-apis";
         AuthToken authToken = authTokenWithName(tokenName);
 
-        authTokenSqlMapDao.saveOrUpdate(authToken);
+        authTokenSqlMapDao.save(authToken);
 
         AuthToken savedAuthToken = authTokenSqlMapDao.findAuthToken(tokenName, username);
         assertThat(savedAuthToken, is(authToken));
@@ -94,9 +94,9 @@ public class AuthTokenSqlMapDaoIntegrationTest {
         String tokenName2 = "token2-created-by-Bob";
         String tokenName3 = "token2-created-by-John";
 
-        authTokenSqlMapDao.saveOrUpdate(authTokenWithNameForUser(tokenName1, user1));
-        authTokenSqlMapDao.saveOrUpdate(authTokenWithNameForUser(tokenName2, user1));
-        authTokenSqlMapDao.saveOrUpdate(authTokenWithNameForUser(tokenName3, user2));
+        authTokenSqlMapDao.save(authTokenWithNameForUser(tokenName1, user1));
+        authTokenSqlMapDao.save(authTokenWithNameForUser(tokenName2, user1));
+        authTokenSqlMapDao.save(authTokenWithNameForUser(tokenName3, user2));
 
         List<AuthToken> user1AuthTokens = authTokenSqlMapDao.findAllTokensForUser(user1);
         List<AuthToken> user2AuthTokens = authTokenSqlMapDao.findAllTokensForUser(user2);
@@ -124,7 +124,7 @@ public class AuthTokenSqlMapDaoIntegrationTest {
         String tokenName = "auth-token-for-apis";
         AuthToken authToken = authTokenWithNameForUser(tokenName, username);
 
-        authTokenSqlMapDao.saveOrUpdate(authToken);
+        authTokenSqlMapDao.save(authToken);
         String cacheKey = String.format("%s_%s", username, tokenName);
 
         assertNull(goCache.get(AUTH_TOKEN_CACHE_KEY, cacheKey));
@@ -137,7 +137,7 @@ public class AuthTokenSqlMapDaoIntegrationTest {
         String tokenName = "auth-token-for-apis";
         AuthToken authToken = authTokenWithNameForUser(tokenName, username);
 
-        authTokenSqlMapDao.saveOrUpdate(authToken);
+        authTokenSqlMapDao.save(authToken);
 
         String cacheKey = String.format("%s_%s", username, tokenName);
 
@@ -146,7 +146,7 @@ public class AuthTokenSqlMapDaoIntegrationTest {
         assertThat(goCache.get(AUTH_TOKEN_CACHE_KEY, cacheKey), is(savedAuthToken));
         assertThat(goCache.get(AUTH_TOKEN_CACHE_KEY, savedAuthToken.getValue()), is(savedAuthToken));
 
-        authTokenSqlMapDao.saveOrUpdate(authToken);
+        authTokenSqlMapDao.save(authToken);
 
         assertNull(goCache.get(AUTH_TOKEN_CACHE_KEY, cacheKey));
         assertNull(goCache.get(AUTH_TOKEN_CACHE_KEY, savedAuthToken.getValue()));

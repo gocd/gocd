@@ -29,8 +29,12 @@
         <property name="value"/>
         <property name="description"/>
         <property name="isRevoked"/>
+        <property name="revokedAt"/>
         <property name="createdAt"/>
         <property name="lastUsed"/>
         <property name="username"/>
+        <property name="saltId"/>
+        <property name="saltValue"/>
+        <property name="authConfigId"/>
     </class>
 </hibernate-mapping>

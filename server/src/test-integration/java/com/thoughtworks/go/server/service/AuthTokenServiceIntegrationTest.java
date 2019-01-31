@@ -52,11 +52,13 @@ public class AuthTokenServiceIntegrationTest {
     @Autowired
     AuthTokenSqlMapDao authTokenSqlMapDao;
     private Username username;
+    private String authConfigId;
 
     @Before
     public void setUp() throws Exception {
         dbHelper.onSetUp();
         username = currentUsername();
+        authConfigId = "auth-config-1";
     }
 
     @After
@@ -71,7 +73,7 @@ public class AuthTokenServiceIntegrationTest {
         String tokenDescription = "This is my first token";
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
 
-        AuthToken createdToken = authTokenService.create(tokenName, tokenDescription, currentUsername(), result);
+        AuthToken createdToken = authTokenService.create(tokenName, tokenDescription, currentUsername(), authConfigId, result);
 
         AuthToken fetchedToken = authTokenService.find(tokenName, username);
 
@@ -100,13 +102,13 @@ public class AuthTokenServiceIntegrationTest {
         String tokenDescription = "This is my first token";
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
 
-        authTokenService.create(tokenName, tokenDescription, currentUsername(), result);
+        authTokenService.create(tokenName, tokenDescription, currentUsername(), authConfigId, result);
         assertTrue(result.isSuccessful());
 
         AuthToken savedToken = authTokenService.find(tokenName, username);
         assertThat(savedToken.getName(), is(tokenName));
 
-        authTokenService.create(tokenName, tokenDescription, currentUsername(), result);
+        authTokenService.create(tokenName, tokenDescription, currentUsername(), authConfigId, result);
         assertFalse(result.isSuccessful());
         Assert.assertThat(result.httpCode(), is(409));
         Assert.assertThat(result.message(), is("Validation Failed. Another auth token with name 'token1' already exists."));
@@ -118,13 +120,13 @@ public class AuthTokenServiceIntegrationTest {
         String tokenDescription = "This is my first token";
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
 
-        authTokenService.create(tokenName, tokenDescription, currentUsername(), result);
+        authTokenService.create(tokenName, tokenDescription, currentUsername(), authConfigId, result);
         assertTrue(result.isSuccessful());
 
         AuthToken savedToken = authTokenService.find(tokenName, username);
         assertThat(savedToken.getName(), is(tokenName));
 
-        authTokenService.create(tokenName, tokenDescription, new Username("Another User"), result);
+        authTokenService.create(tokenName, tokenDescription, new Username("Another User"), authConfigId, result);
 
         assertTrue(result.isSuccessful());
     }

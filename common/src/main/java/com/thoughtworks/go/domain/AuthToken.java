@@ -16,8 +16,6 @@
 
 package com.thoughtworks.go.domain;
 
-import com.thoughtworks.go.config.CaseInsensitiveString;
-
 import java.sql.Timestamp;
 import java.util.Date;
 import java.util.Objects;
@@ -29,9 +27,13 @@ public class AuthToken extends PersistentObject {
     private String originalValue;
     private String description;
     private Boolean isRevoked = false;
+    private Timestamp revokedAt;
     private Timestamp createdAt;
     private Timestamp lastUsed;
     private String username;
+    private String saltId;
+    private String saltValue;
+    private String authConfigId;
 
     public AuthToken() {
     }
@@ -121,6 +123,38 @@ public class AuthToken extends PersistentObject {
         this.username = username;
     }
 
+    public Timestamp getRevokedAt() {
+        return revokedAt;
+    }
+
+    public void setRevokedAt(Timestamp revokedAt) {
+        this.revokedAt = revokedAt;
+    }
+
+    public String getSaltId() {
+        return saltId;
+    }
+
+    public void setSaltId(String saltId) {
+        this.saltId = saltId;
+    }
+
+    public String getSaltValue() {
+        return saltValue;
+    }
+
+    public void setSaltValue(String saltValue) {
+        this.saltValue = saltValue;
+    }
+
+    public String getAuthConfigId() {
+        return authConfigId;
+    }
+
+    public void setAuthConfigId(String authConfigId) {
+        this.authConfigId = authConfigId;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -129,15 +163,21 @@ public class AuthToken extends PersistentObject {
         AuthToken authToken = (AuthToken) o;
         return Objects.equals(name, authToken.name) &&
                 Objects.equals(value, authToken.value) &&
+                Objects.equals(originalValue, authToken.originalValue) &&
                 Objects.equals(description, authToken.description) &&
                 Objects.equals(isRevoked, authToken.isRevoked) &&
+                Objects.equals(revokedAt, authToken.revokedAt) &&
+                Objects.equals(createdAt, authToken.createdAt) &&
                 Objects.equals(lastUsed, authToken.lastUsed) &&
-                Objects.equals(createdAt, authToken.createdAt);
+                Objects.equals(username, authToken.username) &&
+                Objects.equals(saltId, authToken.saltId) &&
+                Objects.equals(saltValue, authToken.saltValue) &&
+                Objects.equals(authConfigId, authToken.authConfigId);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), name, value, description, isRevoked, lastUsed, createdAt);
+        return Objects.hash(super.hashCode(), name, value, originalValue, description, isRevoked, revokedAt, createdAt, lastUsed, username, saltId, saltValue, authConfigId);
     }
 
     @Override
@@ -145,10 +185,16 @@ public class AuthToken extends PersistentObject {
         return "AuthToken{" +
                 "name='" + name + '\'' +
                 ", value='" + value + '\'' +
+                ", originalValue='" + originalValue + '\'' +
                 ", description='" + description + '\'' +
                 ", isRevoked=" + isRevoked +
-                ", lastUsed=" + lastUsed +
+                ", revokedAt=" + revokedAt +
                 ", createdAt=" + createdAt +
+                ", lastUsed=" + lastUsed +
+                ", username='" + username + '\'' +
+                ", saltId='" + saltId + '\'' +
+                ", saltValue='" + saltValue + '\'' +
+                ", authConfigId='" + authConfigId + '\'' +
                 '}';
     }
 }

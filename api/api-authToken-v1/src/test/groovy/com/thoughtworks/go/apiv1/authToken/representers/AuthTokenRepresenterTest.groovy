@@ -19,6 +19,7 @@ package com.thoughtworks.go.apiv1.authToken.representers
 
 import org.junit.jupiter.api.Test
 
+import static com.thoughtworks.go.CurrentGoCDVersion.apiDocsUrl
 import static com.thoughtworks.go.api.base.JsonOutputWriter.jsonDate
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
 import static com.thoughtworks.go.helper.AuthTokenMother.authTokenWithName
@@ -34,25 +35,27 @@ class AuthTokenRepresenterTest {
     })
 
     def expectedJSON = [
-      "_links"     : [
+      "_links"        : [
         "self": [
           "href": "http://test.host/go/api/auth_token/token1"
         ],
         "doc" : [
-          "href": "https://api.gocd.org/#auth_token"
+          "href": apiDocsUrl('#auth_token')
         ],
         "find": [
           "href": "http://test.host/go/api/auth_token/:token_name"
         ]
       ],
-      "name"       : token.getName(),
-      "description": token.getDescription(),
-      "_meta"      : [
+      "name"          : token.getName(),
+      "description"   : token.getDescription(),
+      "auth_config_id": token.authConfigId,
+      "_meta"         : [
         "is_revoked"  : token.isRevoked(),
+        "revoked_at"  : null,
         "created_at"  : jsonDate(token.getCreatedAt()),
         "last_used_at": null
       ],
-      "token"      : token.getOriginalValue()
+      "token"         : token.getOriginalValue()
     ]
 
     assertThatJson(json).isEqualTo(expectedJSON)
@@ -67,21 +70,23 @@ class AuthTokenRepresenterTest {
     })
 
     def expectedJSON = [
-      "_links"     : [
+      "_links"        : [
         "self": [
           "href": "http://test.host/go/api/auth_token/token1"
         ],
         "doc" : [
-          "href": "https://api.gocd.org/#auth_token"
+          "href": apiDocsUrl('#auth_token')
         ],
         "find": [
           "href": "http://test.host/go/api/auth_token/:token_name"
         ]
       ],
-      "name"       : token.getName(),
-      "description": token.getDescription(),
-      "_meta"      : [
+      "name"          : token.getName(),
+      "description"   : token.getDescription(),
+      "auth_config_id": token.authConfigId,
+      "_meta"         : [
         "is_revoked"  : token.isRevoked(),
+        "revoked_at"  : null,
         "created_at"  : jsonDate(token.getCreatedAt()),
         "last_used_at": null
       ]

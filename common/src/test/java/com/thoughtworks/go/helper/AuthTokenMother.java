@@ -25,7 +25,14 @@ public class AuthTokenMother {
     public static AuthToken authTokenWithName(String tokenName) {
         String tokenValue = RandomStringUtils.randomAlphanumeric(32).toUpperCase();
         String tokenDescription = RandomStringUtils.randomAlphanumeric(512).toUpperCase();
+        String saltId = RandomStringUtils.randomAlphanumeric(8).toUpperCase();
+        String saltValue = RandomStringUtils.randomAlphanumeric(255).toUpperCase();
+        String authConfigId = RandomStringUtils.randomAlphanumeric(255).toUpperCase();
+
         AuthToken authToken = new AuthToken(tokenName, tokenValue, tokenDescription, false, new Date(), null);
+        authToken.setSaltId(saltId);
+        authToken.setSaltValue(saltValue);
+        authToken.setAuthConfigId(authConfigId);
         authToken.setUsername("Bob");
 
         return authToken;

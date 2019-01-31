@@ -21,18 +21,25 @@ import com.thoughtworks.go.domain.AuthToken;
 import com.thoughtworks.go.server.dao.AuthTokenDao;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.binary.Hex;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
+import javax.crypto.SecretKey;
+import javax.crypto.SecretKeyFactory;
+import javax.crypto.spec.PBEKeySpec;
 import java.security.SecureRandom;
 import java.util.Date;
 import java.util.List;
 
 @Service
 public class AuthTokenService {
+    private static final int DEFAULT_ITERATIONS = 4096;
+    private static final int DESIRED_KEY_LENGTH = 256;
+
+    private static final int SALT_LENGTH = 32;
+
     private AuthTokenDao authTokenDao;
 
     @Autowired
@@ -40,7 +47,7 @@ public class AuthTokenService {
         this.authTokenDao = authTokenDao;
     }
 
-    public AuthToken create(String tokenName, String description, Username username, HttpLocalizedOperationResult result) throws Exception {
+    public AuthToken create(String tokenName, String description, Username username, String authConfigId, HttpLocalizedOperationResult result) throws Exception {
         if (!new NameTypeValidator().isNameValid(tokenName)) {
             result.unprocessableEntity(NameTypeValidator.errorMessage("auth token", tokenName));
             return null;
@@ -51,48 +58,58 @@ public class AuthTokenService {
             return null;
         }
 
-        if (authTokenDao.findAuthToken(tokenName, username.getUsername().toString()) != null) {
+        if (hasTokenWithNameForTheUser(tokenName, username)) {
             result.conflict(String.format("Validation Failed. Another auth token with name '%s' already exists.", tokenName));
             return null;
         }
 
-        AuthToken tokenToCreate = getAuthTokenFor(tokenName, description, username);
-        authTokenDao.saveOrUpdate(tokenToCreate);
+        AuthToken tokenToCreate = getAuthTokenFor(tokenName, description, username, authConfigId);
+        authTokenDao.save(tokenToCreate);
         return tokenToCreate;
     }
 
-    private AuthToken getAuthTokenFor(String tokenName, String description, Username username) throws Exception {
+    private boolean hasTokenWithNameForTheUser(String tokenName, Username username) {
+        return authTokenDao.findAuthToken(tokenName, username.getUsername().toString()) != null;
+    }
+
+    AuthToken getAuthTokenFor(String tokenName, String description, Username username, String authConfigId) throws Exception {
         AuthToken authToken = new AuthToken();
 
         authToken.setName(tokenName);
         authToken.setDescription(description);
+        authToken.setAuthConfigId(authConfigId);
         authToken.setCreatedAt(new Date());
 
-        String originalToken = generateNewToken();
-        //original value needs to be there for rendering back to the user.
-        authToken.setOriginalValue(originalToken);
-        //hashed value needs to be there to persist it in the DB.
-        authToken.setValue(hashToken(originalToken));
+        String originalToken = generateSecureRandomString(16);
+        String saltId = generateSecureRandomString(4);
+        String saltValue = generateSalt();
+        String hashedToken = digestToken(originalToken, saltValue);
+        String finalTokenValue = String.format("%s%s", saltId, originalToken);
+
+        authToken.setOriginalValue(finalTokenValue);
+        authToken.setSaltId(saltId);
+        authToken.setSaltValue(saltValue);
+        authToken.setValue(hashedToken);
 
         authToken.setUsername(username.getUsername().toString());
-
-        //redundant, if not specified as the object will set it to false.But for good practice (and clarity), lets set it explicitly.
-        authToken.setLastUsed(null);
-        authToken.setRevoked(false);
 
         return authToken;
     }
 
-    public String hashToken(String originalToken) throws Exception {
-        MessageDigest md5 = MessageDigest.getInstance("SHA-256");
-        byte[] digestedToken = md5.digest(originalToken.getBytes(StandardCharsets.UTF_8));
-        return new String(Hex.encodeHex(digestedToken));
+    String digestToken(String originalToken, String salt) throws Exception {
+        SecretKeyFactory factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256");
+        SecretKey key = factory.generateSecret(new PBEKeySpec(originalToken.toCharArray(), salt.getBytes(), DEFAULT_ITERATIONS, DESIRED_KEY_LENGTH));
+        return Hex.encodeHexString(key.getEncoded());
     }
 
-    private String generateNewToken() {
-        byte randomBytes[] = new byte[24];
+    private String generateSecureRandomString(int byteLength) {
+        byte randomBytes[] = new byte[byteLength];
         new SecureRandom().nextBytes(randomBytes);
         return Hex.encodeHexString(randomBytes);
+    }
+
+    private static String generateSalt() throws Exception {
+        return Base64.encodeBase64String(SecureRandom.getInstance("SHA1PRNG").generateSeed(SALT_LENGTH));
     }
 
     public AuthToken find(String tokenName, Username username) {

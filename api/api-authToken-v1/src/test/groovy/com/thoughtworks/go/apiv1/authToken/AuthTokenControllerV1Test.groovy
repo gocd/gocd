@@ -113,6 +113,7 @@ class AuthTokenControllerV1Test implements ControllerTrait<AuthTokenControllerV1
 
   @Nested
   class Create {
+    def authConfigId = 'authConfigId'
     def tokenName = "token1"
     def token = authTokenWithName(tokenName)
 
@@ -136,7 +137,7 @@ class AuthTokenControllerV1Test implements ControllerTrait<AuthTokenControllerV1
         enableSecurity()
         loginAsAdmin()
 
-        when(authTokenService.create(eq(tokenName), eq(token.description), any(Username.class), any(HttpLocalizedOperationResult.class))).thenReturn(token)
+        when(authTokenService.create(eq(tokenName), eq(token.description), any(Username.class), eq(authConfigId), any(HttpLocalizedOperationResult.class))).thenReturn(token)
       }
 
       @Test
@@ -157,7 +158,7 @@ class AuthTokenControllerV1Test implements ControllerTrait<AuthTokenControllerV1
       @Test
       void 'should create a new auth token without providing token description'() {
         token.setDescription(null)
-        when(authTokenService.create(eq(tokenName), eq(token.description), any(Username.class), any(HttpLocalizedOperationResult.class))).thenReturn(token)
+        when(authTokenService.create(eq(tokenName), eq(token.description), any(Username.class), eq(authConfigId), any(HttpLocalizedOperationResult.class))).thenReturn(token)
 
         def requestBody = [
           name: token.name
@@ -185,7 +186,7 @@ class AuthTokenControllerV1Test implements ControllerTrait<AuthTokenControllerV1
 
       @Test
       void 'should show errors occurred while creating a new auth token'() {
-        when(authTokenService.create(eq(tokenName), eq(token.description), any(Username.class), any(HttpLocalizedOperationResult.class))).then({ InvocationOnMock invocation ->
+        when(authTokenService.create(eq(tokenName), eq(token.description), any(Username.class), eq(authConfigId), any(HttpLocalizedOperationResult.class))).then({ InvocationOnMock invocation ->
           HttpLocalizedOperationResult result = invocation.getArguments().last() as HttpLocalizedOperationResult
           result.unprocessableEntity("Boom!")
         })

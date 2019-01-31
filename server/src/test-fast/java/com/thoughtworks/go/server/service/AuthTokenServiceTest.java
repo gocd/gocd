@@ -26,7 +26,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 
-import java.security.MessageDigest;
+import javax.crypto.SecretKey;
+import javax.crypto.SecretKeyFactory;
+import javax.crypto.spec.PBEKeySpec;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.*;
@@ -40,6 +42,7 @@ class AuthTokenServiceTest {
     private AuthTokenService authTokenService;
     private HttpLocalizedOperationResult result;
     private Username username;
+    private String authConfigId;
 
     @BeforeEach
     void setUp() {
@@ -48,12 +51,13 @@ class AuthTokenServiceTest {
         result = new HttpLocalizedOperationResult();
 
         username = new Username("Bob");
+        authConfigId = "auth-config-1";
     }
 
     @Test
     void shouldValidateAuthTokenName() throws Exception {
         String invalidTokenName = "@#my_%_fancy_%_token#@";
-        authTokenService.create(invalidTokenName, null, username, result);
+        authTokenService.create(invalidTokenName, null, username, authConfigId, result);
 
         assertFalse(result.isSuccessful());
         assertThat(result.httpCode(), is(422));
@@ -66,7 +70,7 @@ class AuthTokenServiceTest {
     void shouldValidateAuthTokenDescription() throws Exception {
         String tokenName = "token1";
         String longerDescription = RandomStringUtils.randomAlphanumeric(1025).toUpperCase();
-        authTokenService.create(tokenName, longerDescription, username, result);
+        authTokenService.create(tokenName, longerDescription, username, authConfigId, result);
 
         assertFalse(result.isSuccessful());
         assertThat(result.httpCode(), is(422));
@@ -79,11 +83,11 @@ class AuthTokenServiceTest {
     void shouldMakeACallToSQLDaoForAuthTokenCreation() throws Exception {
         String tokenName = "token1";
         String longerDescription = RandomStringUtils.randomAlphanumeric(1024).toUpperCase();
-        authTokenService.create(tokenName, longerDescription, username, result);
+        authTokenService.create(tokenName, longerDescription, username, authConfigId, result);
 
         assertTrue(result.isSuccessful());
 
-        verify(authTokenDao, times(1)).saveOrUpdate(any(AuthToken.class));
+        verify(authTokenDao, times(1)).save(any(AuthToken.class));
     }
 
     @Test
@@ -110,7 +114,7 @@ class AuthTokenServiceTest {
 
         when(authTokenDao.findAuthToken(tokenName, username.getUsername().toString())).thenReturn(new AuthToken(tokenName, "value"));
 
-        authTokenService.create(tokenName, longerDescription, username, result);
+        authTokenService.create(tokenName, longerDescription, username, authConfigId, result);
 
         assertFalse(result.isSuccessful());
         assertThat(result.httpCode(), is(409));
@@ -123,20 +127,22 @@ class AuthTokenServiceTest {
     @Test
     void hashToken_shouldHashTheProvidedString() throws Exception {
         String tokenValue = "token1";
-        String hashed = authTokenService.hashToken(tokenValue);
+        String saltValue = "salt1";
+        String hashed = authTokenService.digestToken(tokenValue, saltValue);
 
-        String expectedHash = new String(Hex.encodeHex(MessageDigest.getInstance("SHA-256").digest(tokenValue.getBytes())));
-        assertThat(hashed, is(expectedHash));
+        SecretKey key = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256")
+                .generateSecret(new PBEKeySpec(tokenValue.toCharArray(), saltValue.getBytes(), 4096, 256));
+
+        assertThat(hashed, is(Hex.encodeHexString(key.getEncoded())));
     }
 
     @Test
     void hashToken_shouldGenerateTheSameHashValueForTheSameInputString() throws Exception {
         String tokenValue = "new-token";
-        String hashed1 = authTokenService.hashToken(tokenValue);
-        String hashed2 = authTokenService.hashToken(tokenValue);
+        String saltValue = "new-salt";
+        String hashed1 = authTokenService.digestToken(tokenValue, saltValue);
+        String hashed2 = authTokenService.digestToken(tokenValue, saltValue);
 
-        String expectedHash = new String(Hex.encodeHex(MessageDigest.getInstance("SHA-256").digest(tokenValue.getBytes())));
-        assertThat(hashed1, is(expectedHash));
         assertThat(hashed1, is(hashed2));
     }
 }

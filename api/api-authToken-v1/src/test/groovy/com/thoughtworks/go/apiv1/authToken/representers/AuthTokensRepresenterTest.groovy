@@ -19,6 +19,7 @@ package com.thoughtworks.go.apiv1.authToken.representers
 
 import org.junit.jupiter.api.Test
 
+import static com.thoughtworks.go.CurrentGoCDVersion.apiDocsUrl
 import static com.thoughtworks.go.api.base.JsonOutputWriter.jsonDate
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
 import static com.thoughtworks.go.helper.AuthTokenMother.authTokenWithName
@@ -40,47 +41,51 @@ class AuthTokensRepresenterTest {
           "href": "http://test.host/go/api/auth_token"
         ],
         "doc" : [
-          "href": "https://api.gocd.org/#auth_token"
+          "href": apiDocsUrl('#auth_token')
         ],
       ],
       "_embedded": [
         "auth_tokens": [
           [
-            "_links"     : [
+            "_links"        : [
               "self": [
                 "href": "http://test.host/go/api/auth_token/token1"
               ],
               "doc" : [
-                "href": "https://api.gocd.org/#auth_token"
+                "href": apiDocsUrl('#auth_token')
               ],
               "find": [
                 "href": "http://test.host/go/api/auth_token/:token_name"
               ]
             ],
-            "name"       : token1.getName(),
-            "description": token1.getDescription(),
-            "_meta"      : [
+            "name"          : token1.getName(),
+            "description"   : token1.getDescription(),
+            "auth_config_id": token1.authConfigId,
+            "_meta"         : [
               "is_revoked"  : token1.isRevoked(),
+              "revoked_at"  : null,
               "created_at"  : jsonDate(token1.getCreatedAt()),
               "last_used_at": null
             ]
           ],
           [
-            "_links"     : [
+            "_links"        : [
               "self": [
                 "href": "http://test.host/go/api/auth_token/token2"
               ],
               "doc" : [
-                "href": "https://api.gocd.org/#auth_token"
+                "href": apiDocsUrl('#auth_token')
               ],
               "find": [
                 "href": "http://test.host/go/api/auth_token/:token_name"
               ]
             ],
-            "name"       : token2.getName(),
-            "description": token2.getDescription(),
-            "_meta"      : [
+            "name"          : token2.getName(),
+            "description"   : token2.getDescription(),
+            "auth_config_id": token2.authConfigId,
+            "_meta"         : [
               "is_revoked"  : token2.isRevoked(),
+              "revoked_at"  : null,
               "created_at"  : jsonDate(token2.getCreatedAt()),
               "last_used_at": null
             ]

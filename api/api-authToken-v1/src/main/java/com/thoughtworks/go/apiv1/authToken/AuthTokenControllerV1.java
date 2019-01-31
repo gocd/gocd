@@ -25,6 +25,8 @@ import com.thoughtworks.go.apiv1.authToken.representers.AuthTokenRepresenter;
 import com.thoughtworks.go.apiv1.authToken.representers.AuthTokensRepresenter;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.domain.AuthToken;
+import com.thoughtworks.go.server.newsecurity.models.AuthenticationToken;
+import com.thoughtworks.go.server.newsecurity.utils.SessionUtils;
 import com.thoughtworks.go.server.service.AuthTokenService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.spark.Routes;
@@ -82,7 +84,7 @@ public class AuthTokenControllerV1 extends ApiController implements SparkSpringC
         String tokenName = reader.getString("name");
         String tokenDescription = reader.optString("description").orElse(null);
 
-        AuthToken created = authTokenService.create(tokenName, tokenDescription, currentUsername(), result);
+        AuthToken created = authTokenService.create(tokenName, tokenDescription, currentUsername(), currentUserAuthConfigId(request), result);
 
         if (result.isSuccessful()) {
             return renderAuthToken(request, response, created, true);
@@ -108,6 +110,11 @@ public class AuthTokenControllerV1 extends ApiController implements SparkSpringC
 
     private String renderAuthToken(Request request, Response response, AuthToken token, boolean includeTokenValue) throws IOException {
         return writerForTopLevelObject(request, response, outputWriter -> AuthTokenRepresenter.toJSON(outputWriter, token, includeTokenValue));
+    }
+
+    private String currentUserAuthConfigId(Request request) {
+        AuthenticationToken<?> authenticationToken = SessionUtils.getAuthenticationToken(request.raw());
+        return authenticationToken.getAuthConfigId();
     }
 
 }

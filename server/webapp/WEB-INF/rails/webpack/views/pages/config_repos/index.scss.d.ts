@@ -19,3 +19,4 @@ export const testConnectionInProgress: string;
 export const rotate: string;
 export const materialConfigWrapper: string;
 export const keyValueTitle: string;
+export const headerTitleText: string;

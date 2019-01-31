@@ -44,6 +44,28 @@ public class SCMs extends BaseCollection<SCM> implements Validatable {
         return stream().filter(scm -> scm.getId().equals(scmId)).findFirst().orElse(null);
     }
 
+    public boolean canAdd(final SCM scm) {
+        return findDuplicate(scm) == null &&
+                findByName(scm.getName()) == null;
+    }
+
+    public SCM findDuplicate(final SCM scm) {
+         if (find(scm.getSCMId()) != null) {
+             return find(scm.getSCMId());
+         } else if (findByFingerprint(scm.getFingerprint()) != null) {
+             return findByFingerprint(scm.getFingerprint());
+         }
+        return null;
+    }
+
+    public SCM findByFingerprint(String fingerprint) {
+        return stream().filter(scm -> scm.getFingerprint().equals(fingerprint)).findFirst().orElse(null);
+    }
+
+    public SCM findByName(final String name) {
+        return stream().filter(scm -> scm.getName().toLowerCase().equals(name.toLowerCase())).findFirst().orElse(null);
+    }
+
     @Override
     public void validate(ValidationContext validationContext) {
         validateNameUniqueness();
@@ -76,7 +98,9 @@ public class SCMs extends BaseCollection<SCM> implements Validatable {
             if (!map.containsKey(name)) {
                 map.put(name, new SCMs());
             }
-            map.get(name).add(scm);
+            if (scm.getPluginConfiguration().getId() != null) {
+                map.get(name).add(scm);
+            }
         }
 
         for (String name : map.keySet()) {
@@ -97,7 +121,10 @@ public class SCMs extends BaseCollection<SCM> implements Validatable {
             if (!map.containsKey(fingerprint)) {
                 map.put(fingerprint, new SCMs());
             }
-            map.get(fingerprint).add(scm);
+
+            if (scm.getPluginConfiguration().getId() != null) {
+                map.get(fingerprint).add(scm);
+            }
         }
 
         for (String fingerprint : map.keySet()) {

@@ -22,6 +22,8 @@ import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
 import com.thoughtworks.go.config.merge.MergePipelineConfigs;
 import com.thoughtworks.go.config.remote.*;
 import com.thoughtworks.go.domain.ConfigErrors;
+import com.thoughtworks.go.domain.config.Configuration;
+import com.thoughtworks.go.domain.config.PluginConfiguration;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.helper.*;
 import org.junit.Before;
@@ -71,6 +73,76 @@ public class MergeCruiseConfigTest extends CruiseConfigTestBase {
         cruiseConfig.merge(new ArrayList<>(Arrays.asList(partialConfigInRepo2, partialConfigInRepo1)), false);
         assertThat(cruiseConfig.getEnvironments().hasEnvironmentNamed(new CaseInsensitiveString("environment")),is(true));
         assertThat(cruiseConfig.getEnvironments().hasEnvironmentNamed(new CaseInsensitiveString("environment2_in_repo2")),is(true));
+    }
+
+    @Test
+    public void shouldHaveValidationErrorsForDuplicateValidSCMs() {
+        BasicCruiseConfig cruiseConfig = GoConfigMother.configWithPipelines("p1", "p2");
+        ConfigRepoConfig repoConfig1 = new ConfigRepoConfig(MaterialConfigsMother.gitMaterialConfig("url1"), "plugin");
+        ConfigRepoConfig repoConfig2 = new ConfigRepoConfig(MaterialConfigsMother.gitMaterialConfig("url2"), "plugin");
+        cruiseConfig.setConfigRepos(new ConfigReposConfig(repoConfig1, repoConfig2));
+        PartialConfig partialConfigInRepo1 = PartialConfigMother.withSCM("scmid",
+                "name",
+                new PluginConfiguration("plugin_id", "1"),
+                new Configuration(),
+                new FileConfigOrigin());
+        RepoConfigOrigin configOrigin = new RepoConfigOrigin(repoConfig2, "repo2_r1");
+        PartialConfig partialConfigInRepo2 = PartialConfigMother.withSCM("scmid",
+                "name",
+                new PluginConfiguration("plugin_id", "1"),
+                new Configuration(),
+                configOrigin);
+        cruiseConfig.merge(new ArrayList<>(Arrays.asList(partialConfigInRepo2, partialConfigInRepo1)), false);
+        assertThat(cruiseConfig.getSCMs().size() ,is(2));
+        assertThat(cruiseConfig.validateAfterPreprocess().size(), is(2));
+    }
+
+    @Test
+    public void shouldOnlyMergeValidSCMsWhenEditIsFalse() {
+        BasicCruiseConfig cruiseConfig = GoConfigMother.configWithPipelines("p1", "p2");
+        ConfigRepoConfig repoConfig1 = new ConfigRepoConfig(MaterialConfigsMother.gitMaterialConfig("url1"), "plugin");
+        cruiseConfig.setConfigRepos(new ConfigReposConfig(repoConfig1));
+        PartialConfig inCompleteSCM = PartialConfigMother.withSCM("scmid",
+                "name",
+                new PluginConfiguration(),
+                new Configuration(),
+                new RepoConfigOrigin(repoConfig1, "repo1_r1"));
+        RepoConfigOrigin configOrigin = new RepoConfigOrigin(repoConfig1, "repo1_r1");
+        PartialConfig completeSCM = PartialConfigMother.withSCM("scmid",
+                "name",
+                new PluginConfiguration("plugin_id", "1"),
+                new Configuration(),
+                configOrigin);
+        cruiseConfig.merge(new ArrayList<>(Arrays.asList(completeSCM, inCompleteSCM)), false);
+        assertThat(cruiseConfig.getSCMs().size() ,is(1));
+        assertThat(cruiseConfig.getSCMs().first(), is(completeSCM.getScms().first()));
+    }
+
+    @Test
+    public void shouldOnlyMergeLocalAndPlaceholderSCMsWhenEditIsTrue() {
+        BasicCruiseConfig cruiseConfig = GoConfigMother.configWithPipelines("p1", "p2");
+        ConfigRepoConfig repoConfig1 = new ConfigRepoConfig(MaterialConfigsMother.gitMaterialConfig("url1"), "plugin");
+        cruiseConfig.setConfigRepos(new ConfigReposConfig(repoConfig1));
+        PartialConfig placeholder = PartialConfigMother.withSCM("scmid",
+                "name",
+                new PluginConfiguration(),
+                new Configuration(),
+                new RepoConfigOrigin(repoConfig1, "repo1_r1"));
+        RepoConfigOrigin configOrigin = new RepoConfigOrigin(repoConfig1, "repo1_r1");
+        PartialConfig completeSCM = PartialConfigMother.withSCM("scmid",
+                "name",
+                new PluginConfiguration("plugin_id", "1"),
+                new Configuration(),
+                configOrigin);
+        PartialConfig localSCM = PartialConfigMother.withSCM("local_id",
+                "local",
+                new PluginConfiguration("plugin_id2", "1"),
+                new Configuration(),
+                new FileConfigOrigin());
+        cruiseConfig.merge(new ArrayList<>(Arrays.asList(localSCM, completeSCM, placeholder)), true);
+        assertThat(cruiseConfig.getSCMs().size() ,is(2));
+        assertThat(cruiseConfig.getSCMs().contains(placeholder.getScms().first()), is(true));
+        assertThat(cruiseConfig.getSCMs().contains(localSCM.getScms().first()), is(true));
     }
 
     @Test

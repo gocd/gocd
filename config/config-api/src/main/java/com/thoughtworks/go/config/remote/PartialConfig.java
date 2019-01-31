@@ -33,7 +33,7 @@ public class PartialConfig implements Validatable, ConfigOriginTraceable {
 
     @ConfigSubtag(label = "groups") private PipelineGroups pipelines = new PipelineGroups();
     @ConfigSubtag @SkipParameterResolution private EnvironmentsConfig environments = new EnvironmentsConfig();
-    @ConfigSubtag @SkipParameterResolution private SCMs scms = new SCMs();
+    @ConfigSubtag(label = "scms") private SCMs scms = new SCMs();
 
     private ConfigOrigin origin;
 
@@ -92,7 +92,7 @@ public class PartialConfig implements Validatable, ConfigOriginTraceable {
         }
         for(SCM scm: this.scms)
         {
-           scm.setOrigin(origins);
+           scm.setOrigins(origins);
         }
     }
 

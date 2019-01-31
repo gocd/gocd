@@ -241,24 +241,24 @@ public class GoPartialConfigIntegrationTest {
     }
 
     @Test
-    public void shouldSaveSCMs() throws Exception {
+    public void shouldSaveSCMs() {
         Configuration config = new Configuration();
         config.addNewConfigurationWithValue("url", "url", false);
         PluginConfiguration pluginConfig = new PluginConfiguration("plugin.id", "1.0");
-        PartialConfig scmPartial = PartialConfigMother.withSCM("scm_id", "name", pluginConfig, config, new RepoConfigOrigin(repoConfig1, "124"));
+        RepoConfigOrigin origin = new RepoConfigOrigin(repoConfig1, "124");
+        PartialConfig scmPartial = PartialConfigMother.withSCM("scm_id", "name", pluginConfig, config, origin);
         goPartialConfig.onSuccessPartialConfig(repoConfig1, scmPartial);
         SCMs scms = goConfigDao.loadConfigHolder().config.getSCMs();
-        SCM scm = scms.first();
+        SCM expectedSCM = new SCM("scm_id", pluginConfig, config);
+        expectedSCM.setOrigins(origin);
+        expectedSCM.setName("name");
         assertThat(scms.size(), is(1));
-        assertThat(scm.getSCMId(), is("scm_id"));
-        assertThat(scm.getName(), is("name"));
-        assertThat(scm.getPluginConfiguration(), is(pluginConfig));
-        assertThat(scm.getConfiguration(), is(config));
+        assertThat(scms.first(), is(expectedSCM));
         assertThat(cacheContainsPartial(cachedGoPartials.lastKnownPartials(), scmPartial), is(true));
     }
 
     @Test
-    public void shouldFailToSaveCRPipelineReferencingATemplateWithParams() throws Exception {
+    public void shouldFailToSaveCRPipelineReferencingATemplateWithParams() {
         configHelper.addTemplate("t1", "param1", "stage");
         goPartialConfig.onSuccessPartialConfig(repoConfig1, PartialConfigMother.withPipelineAssociatedWithTemplate("pipe-with-template", "t1", new RepoConfigOrigin(repoConfig1, "124")));
 

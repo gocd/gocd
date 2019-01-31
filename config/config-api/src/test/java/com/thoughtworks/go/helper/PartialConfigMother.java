@@ -21,6 +21,7 @@ import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
 import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
 import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
+import com.thoughtworks.go.config.remote.ConfigOrigin;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.config.remote.PartialConfig;
 import com.thoughtworks.go.config.remote.RepoConfigOrigin;
@@ -56,12 +57,12 @@ public class PartialConfigMother {
         return partialConfig;
     }
 
-    public static PartialConfig withSCM(String scmId, String name, PluginConfiguration pluginConfig, Configuration config, RepoConfigOrigin repoOrigin) {
+    public static PartialConfig withSCM(String scmId, String name, PluginConfiguration pluginConfig, Configuration config, ConfigOrigin repoOrigin) {
        SCM scm = new SCM(scmId, pluginConfig, config);
        scm.setName(name);
        PartialConfig partialConfig = new PartialConfig();
-       partialConfig.setOrigins(repoOrigin);
        partialConfig.setScms(new SCMs(scm));
+        partialConfig.setOrigins(repoOrigin);
        return partialConfig;
     }
 

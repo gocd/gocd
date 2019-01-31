@@ -51,11 +51,8 @@ import java.util.*;
 
 import static com.thoughtworks.go.config.PipelineConfig.LOCK_VALUE_LOCK_ON_FAILURE;
 import static junit.framework.TestCase.fail;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.hasItem;
-import static org.hamcrest.Matchers.instanceOf;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -771,10 +768,12 @@ public class ConfigConverterTest {
 
     @Test
     public void shouldConvertPluggableScmMaterialWithNewSCM() {
+        BasicCruiseConfig cruiseConfig = new BasicCruiseConfig();
+        cruiseConfig.setSCMs(new SCMs());
+        when(cachedGoConfig.currentConfig()).thenReturn(cruiseConfig);
         Configuration config = new Configuration();
         config.addNewConfigurationWithValue("url", "url", false);
         SCM myscm = new SCM("scmid", new PluginConfiguration("plugin_id", "1.0"), config);
-        myscm.setName("name");
 
         CRPluggableScmMaterial crPluggableScmMaterial = new CRPluggableScmMaterial("name", "scmid", "directory", filter);
         crPluggableScmMaterial.setPluginConfiguration(new CRPluginConfiguration("plugin_id", "1.0"));
@@ -784,14 +783,76 @@ public class ConfigConverterTest {
                 (PluggableSCMMaterialConfig) configConverter.toMaterialConfig(crPluggableScmMaterial, context);
 
         assertThat(pluggableSCMMaterialConfig.getName().toLower(), is("name"));
-        assertThat(pluggableSCMMaterialConfig.getSCMConfig(), is(myscm));
+        assertThat(pluggableSCMMaterialConfig.getSCMConfig().getName(), is("name"));
+        assertThat(pluggableSCMMaterialConfig.getSCMConfig().getId(), is("scmid"));
+        assertThat(pluggableSCMMaterialConfig.getSCMConfig().getFingerprint(), is(myscm.getFingerprint()));
         assertThat(pluggableSCMMaterialConfig.getScmId(), is("scmid"));
         assertThat(pluggableSCMMaterialConfig.getFolder(), is("directory"));
         assertThat(pluggableSCMMaterialConfig.getFilterAsString(), is("filter"));
     }
 
     @Test
+    public void shouldConvertPluggableScmMaterialWithADuplicateSCMFingerPrintShouldUseWhatAlreadyExists() {
+        Configuration config = new Configuration();
+        config.addNewConfigurationWithValue("url", "url", false);
+        SCM scm = new SCM("scmid", new PluginConfiguration("plugin_id", "1.0"), config);
+        scm.setName("noName");
+        SCMs scms = new SCMs(scm);
+        BasicCruiseConfig cruiseConfig = new BasicCruiseConfig();
+        cruiseConfig.setSCMs(scms);
+        when(cachedGoConfig.currentConfig()).thenReturn(cruiseConfig);
+
+        CRPluggableScmMaterial crPluggableScmMaterial = new CRPluggableScmMaterial("name", "scmid", "directory", filter);
+        crPluggableScmMaterial.setPluginConfiguration(new CRPluginConfiguration("plugin_id", "1.0"));
+        crPluggableScmMaterial.getConfiguration().add(new CRConfigurationProperty("url", "url"));
+
+        PluggableSCMMaterialConfig pluggableSCMMaterialConfig =
+                (PluggableSCMMaterialConfig) configConverter.toMaterialConfig(crPluggableScmMaterial, context);
+
+        assertThat(pluggableSCMMaterialConfig.getSCMConfig(), is(scm));
+    }
+
+    @Test
+    public void shouldConvertPluggableScmMaterialWithANewSCMDefinitionWithoutAnSCMID() {
+        BasicCruiseConfig cruiseConfig = new BasicCruiseConfig();
+        cruiseConfig.setSCMs(new SCMs());
+        when(cachedGoConfig.currentConfig()).thenReturn(cruiseConfig);
+
+        CRPluggableScmMaterial crPluggableScmMaterial = new CRPluggableScmMaterial("name", null, "directory", filter);
+        crPluggableScmMaterial.setPluginConfiguration(new CRPluginConfiguration("plugin_id", "1.0"));
+
+        PluggableSCMMaterialConfig pluggableSCMMaterialConfig =
+                (PluggableSCMMaterialConfig) configConverter.toMaterialConfig(crPluggableScmMaterial, context);
+        assertNotNull(pluggableSCMMaterialConfig.getScmId());
+    }
+
+    @Test
+    public void shouldConvertPluggableScmMaterialWithADuplicateSCMIDShouldUseWhatAlreadyExists() {
+        SCM scm = new SCM("scmid", new PluginConfiguration(), new Configuration());
+        scm.setName("noName");
+        SCMs scms = new SCMs(scm);
+        BasicCruiseConfig cruiseConfig = new BasicCruiseConfig();
+        cruiseConfig.setSCMs(scms);
+        when(cachedGoConfig.currentConfig()).thenReturn(cruiseConfig);
+
+        CRPluggableScmMaterial crPluggableScmMaterial = new CRPluggableScmMaterial("name", "scmid", "directory", filter);
+        crPluggableScmMaterial.setPluginConfiguration(new CRPluginConfiguration("plugin_id", "1.0"));
+        crPluggableScmMaterial.getConfiguration().add(new CRConfigurationProperty("url", "url"));
+
+        PluggableSCMMaterialConfig pluggableSCMMaterialConfig =
+                (PluggableSCMMaterialConfig) configConverter.toMaterialConfig(crPluggableScmMaterial, context);
+
+        assertThat(pluggableSCMMaterialConfig.getSCMConfig(), is(scm));
+    }
+
+    @Test
     public void shouldConvertPluggableScmMaterialWithNewSCMPluginVersionShouldDefaultToEmptyString() {
+        SCM s = new SCM("an_id", new PluginConfiguration(), new Configuration());
+        s.setName("aname");
+        SCMs scms = new SCMs(s);
+        BasicCruiseConfig cruiseConfig = new BasicCruiseConfig();
+        cruiseConfig.setSCMs(scms);
+        when(cachedGoConfig.currentConfig()).thenReturn(cruiseConfig);
         Configuration config = new Configuration();
         config.addNewConfigurationWithValue("url", "url", false);
         SCM myscm = new SCM("scmid", new PluginConfiguration("plugin_id", ""), config);
@@ -1739,7 +1800,6 @@ public class ConfigConverterTest {
         assertThat(result.getJob(), is("job"));
         assertThat(result.getPipelineName(), is("upstream"));
         assertThat(result.getStage(), is("stage"));
-        assertThat(result.getArtifactId(), is("artifactId"));
-        assertThat(result.getConfiguration().isEmpty(), is(true));
+        assertThat(result.getArtifactId(), is("artifactId")); assertThat(result.getConfiguration().isEmpty(), is(true));
     }
 }

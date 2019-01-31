@@ -22,6 +22,7 @@ import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.builder.ConfigurationPropertyBuilder;
 import com.thoughtworks.go.config.materials.AbstractMaterialConfig;
 import com.thoughtworks.go.config.remote.ConfigOrigin;
+import com.thoughtworks.go.config.remote.ConfigOriginTraceable;
 import com.thoughtworks.go.config.validation.NameTypeValidator;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.config.Configuration;
@@ -46,7 +47,7 @@ import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 @ConfigTag("scm")
 @ConfigReferenceCollection(collectionName = "scms", idFieldName = "id")
-public class SCM implements Serializable, Validatable {
+public class SCM implements Serializable, Validatable, ConfigOriginTraceable {
     public static final String SCM_ID = "scmId";
     public static final String NAME = "name";
     public static final String AUTO_UPDATE = "autoUpdate";
@@ -55,7 +56,7 @@ public class SCM implements Serializable, Validatable {
     public static final String ERRORS_KEY = "errors";
 
     private ConfigErrors errors = new ConfigErrors();
-    private ConfigOrigin origin;
+    private transient ConfigOrigin origin;
 
     @ConfigAttribute(value = "id", allowNull = true)
     private String id;
@@ -77,6 +78,11 @@ public class SCM implements Serializable, Validatable {
     private Configuration configuration = new Configuration();
 
     public SCM() {
+    }
+
+    public SCM(String id, String name) {
+        this.id = id;
+        this.name = name;
     }
 
     public SCM(String id, PluginConfiguration pluginConfiguration, Configuration configuration) {
@@ -335,11 +341,16 @@ public class SCM implements Serializable, Validatable {
         return "pluggable_material_" + getPluginConfiguration().getId().replaceAll("[^a-zA-Z0-9_]", "_");
     }
 
+    public boolean isLocal() {
+        return this.origin == null || this.origin.isLocal();
+    }
+
+    @Override
     public ConfigOrigin getOrigin() {
         return origin;
     }
 
-    public void setOrigin(ConfigOrigin origin) {
+    public void setOrigins(ConfigOrigin origin) {
         this.origin = origin;
     }
 }

@@ -68,6 +68,7 @@ public class ConfigConverter {
     }
 
     public PartialConfig toPartialConfig(CRParseResult crPartialConfig, PartialConfigLoadContext context) {
+        newSCMs = new SCMs();
         PartialConfig partialConfig = new PartialConfig();
         for (CREnvironment crEnvironment : crPartialConfig.getEnvironments()) {
             EnvironmentConfig environment = toEnvironmentConfig(crEnvironment);
@@ -354,8 +355,18 @@ public class ConfigConverter {
             scmConfig = getSCMs().find(id);
         } else {
             scmConfig = new SCM(id, toPluginConfiguration(pluginConfig), toConfiguration(crPluggableScmMaterial.getConfiguration()));
+            scmConfig.ensureIdExists();
             scmConfig.setName(crPluggableScmMaterial.getName());
-            newSCMs.add(scmConfig);
+            if (getSCMs().findDuplicate(scmConfig) == null) {
+                SCM duplicate = newSCMs.findDuplicate(scmConfig);
+                if (duplicate == null) {
+                    newSCMs.add(scmConfig);
+                } else {
+                    scmConfig = duplicate;
+                }
+            } else {
+                scmConfig = getSCMs().findDuplicate(scmConfig);
+            }
         }
 
         if (scmConfig == null)

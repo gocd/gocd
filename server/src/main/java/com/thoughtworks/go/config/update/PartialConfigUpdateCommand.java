@@ -47,8 +47,8 @@ public class PartialConfigUpdateCommand implements UpdateConfigCommand {
 
             for (PartialConfig partial : cruiseConfig.getPartials()) {
                 for(SCM scm : partial.getScms()) {
-                    if (cruiseConfig.getSCMs().find(scm.getSCMId()) == null) {
-                        cruiseConfig.getSCMs().add(scm);
+                    if (cruiseConfig.getSCMs().canAdd(scm)) {
+                        cruiseConfig.getSCMs().add(new SCM(scm.getId(), scm.getName()));
                     }
                 }
                 for (EnvironmentConfig environmentConfig : partial.getEnvironments()) {

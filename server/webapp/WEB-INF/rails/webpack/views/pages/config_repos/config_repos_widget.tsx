@@ -18,7 +18,7 @@ import {MithrilViewComponent} from "jsx/mithril-component";
 import * as _ from "lodash";
 import * as m from "mithril";
 import {Stream} from "mithril/stream";
-import {ConfigRepo, humanizedMaterialAttributeName, ParseInfo} from "models/config_repos/types";
+import {ConfigRepo, humanizedMaterialAttributeName, Material, ParseInfo} from "models/config_repos/types";
 import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
 import {Configuration} from "models/shared/plugin_infos_new/plugin_settings/plugin_settings";
 import {Code} from "views/components/code";
@@ -72,17 +72,39 @@ class StatusIcon extends MithrilViewComponent<{ name: string }> {
 
 class HeaderWidget extends MithrilViewComponent<HeaderWidgetAttrs> {
   view(vnode: m.Vnode<HeaderWidgetAttrs>): m.Children | void | null {
-
+    const materialUrl = this.getMaterialUrl(vnode.attrs.repo.material());
     return [
-      (
-        <KeyValueTitle image={this.pluginIcon(vnode)} title={vnode.attrs.repo.id()}/>
-      ),
-      (
-        <KeyValuePair inline={true} data={new Map([
-                                                    ["Plugin Id", vnode.attrs.repo.pluginId()]
-                                                  ])}/>
-      )
+        <KeyValueTitle image={this.pluginIcon(vnode)}
+                       title={[
+                         <div class={styles.headerTitleText}>{vnode.attrs.repo.id()}</div>,
+                         <div class={styles.headerTitleText}>{materialUrl}</div>
+                       ]}/>,
+        <div>{this.lastParseStatus(vnode.attrs.repo.lastParse())}</div>
     ];
+  }
+
+  private lastParseStatus(lastParsedCommit: ParseInfo | null) {
+    let parseStatus: m.Children = "This config repository was never parsed";
+
+    if (lastParsedCommit && lastParsedCommit.latestParsedModification) {
+      const comment = lastParsedCommit.latestParsedModification.comment;
+      const username = lastParsedCommit.latestParsedModification.username;
+      const revision = lastParsedCommit.latestParsedModification.revision;
+
+      parseStatus = (
+        <div class={styles.headerTitleText}>
+          {comment}
+          <div>{username} | {revision}</div>
+        </div>
+      );
+    }
+
+    return parseStatus;
+  }
+
+  private getMaterialUrl(material: Material) {
+    // @ts-ignore
+    return (material.type() === "p4" ? material.attributes().port : material.attributes().url);
   }
 
   private pluginIcon(vnode: m.Vnode<HeaderWidgetAttrs>) {

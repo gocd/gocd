@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.apiv1.authToken.representers;
+package com.thoughtworks.go.apiv1.accessToken.representers;
 
 import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.domain.AuthToken;
 import com.thoughtworks.go.spark.Routes;
 
-public class AuthTokenRepresenter {
+public class AccessTokenRepresenter {
     public static void toJSON(OutputWriter outputWriter, AuthToken token, boolean includeTokenValue) {
         outputWriter.addLinks(linksWriter -> linksWriter
                 .addLink("self", Routes.AuthToken.name(token.getName()))

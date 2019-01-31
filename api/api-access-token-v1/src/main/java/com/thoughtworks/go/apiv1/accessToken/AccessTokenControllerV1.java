@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.apiv1.authToken;
+package com.thoughtworks.go.apiv1.accessToken;
 
 import com.thoughtworks.go.api.ApiController;
 import com.thoughtworks.go.api.ApiVersion;
 import com.thoughtworks.go.api.representers.JsonReader;
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
 import com.thoughtworks.go.api.util.GsonTransformer;
-import com.thoughtworks.go.apiv1.authToken.representers.AuthTokenRepresenter;
-import com.thoughtworks.go.apiv1.authToken.representers.AuthTokensRepresenter;
+import com.thoughtworks.go.apiv1.accessToken.representers.AccessTokenRepresenter;
+import com.thoughtworks.go.apiv1.accessToken.representers.AccessTokensRepresenter;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.domain.AuthToken;
 import com.thoughtworks.go.server.newsecurity.models.AuthenticationToken;
@@ -42,13 +42,13 @@ import java.util.List;
 import static spark.Spark.*;
 
 @Component
-public class AuthTokenControllerV1 extends ApiController implements SparkSpringController {
+public class AccessTokenControllerV1 extends ApiController implements SparkSpringController {
 
     private final ApiAuthenticationHelper apiAuthenticationHelper;
     private AuthTokenService authTokenService;
 
     @Autowired
-    public AuthTokenControllerV1(ApiAuthenticationHelper apiAuthenticationHelper, AuthTokenService authTokenService) {
+    public AccessTokenControllerV1(ApiAuthenticationHelper apiAuthenticationHelper, AuthTokenService authTokenService) {
         super(ApiVersion.v1);
         this.apiAuthenticationHelper = apiAuthenticationHelper;
         this.authTokenService = authTokenService;
@@ -106,7 +106,7 @@ public class AuthTokenControllerV1 extends ApiController implements SparkSpringC
 
     public String getAllAuthTokens(Request request, Response response) throws Exception {
         List<AuthToken> allTokens = authTokenService.findAllTokensForUser(currentUsername());
-        return writerForTopLevelObject(request, response, outputWriter -> AuthTokensRepresenter.toJSON(outputWriter, allTokens));
+        return writerForTopLevelObject(request, response, outputWriter -> AccessTokensRepresenter.toJSON(outputWriter, allTokens));
     }
 
     public String revokeAuthToken(Request request, Response response) throws Exception {
@@ -124,7 +124,7 @@ public class AuthTokenControllerV1 extends ApiController implements SparkSpringC
     }
 
     private String renderAuthToken(Request request, Response response, AuthToken token, boolean includeTokenValue) throws IOException {
-        return writerForTopLevelObject(request, response, outputWriter -> AuthTokenRepresenter.toJSON(outputWriter, token, includeTokenValue));
+        return writerForTopLevelObject(request, response, outputWriter -> AccessTokenRepresenter.toJSON(outputWriter, token, includeTokenValue));
     }
 
     private String currentUserAuthConfigId(Request request) {

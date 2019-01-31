@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.apiv1.authToken.representers
+package com.thoughtworks.go.apiv1.accessToken.representers
 
 
 import org.junit.jupiter.api.Test
@@ -25,14 +25,14 @@ import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
 import static com.thoughtworks.go.helper.AuthTokenMother.authTokenWithName
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
 
-class AuthTokensRepresenterTest {
+class AccessTokensRepresenterTest {
   @Test
   void 'renders the auth tokens hal representation without token value'() {
     def token1 = authTokenWithName("token1")
     def token2 = authTokenWithName("token2")
 
     def json = toObjectString({
-      AuthTokensRepresenter.toJSON(it, [token1, token2])
+      AccessTokensRepresenter.toJSON(it, [token1, token2])
     })
 
     def expectedJSON = [

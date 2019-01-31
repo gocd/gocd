@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.apiv1.authToken.representers
+package com.thoughtworks.go.apiv1.accessToken.representers
 
 
 import org.junit.jupiter.api.Test
@@ -25,13 +25,13 @@ import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
 import static com.thoughtworks.go.helper.AuthTokenMother.authTokenWithName
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
 
-class AuthTokenRepresenterTest {
+class AccessTokenRepresenterTest {
   @Test
   void 'renders the auth token hal representation with token value'() {
     def token = authTokenWithName("token1")
 
     def json = toObjectString({
-      AuthTokenRepresenter.toJSON(it, token, true)
+      AccessTokenRepresenter.toJSON(it, token, true)
     })
 
     def expectedJSON = [
@@ -66,7 +66,7 @@ class AuthTokenRepresenterTest {
     def token = authTokenWithName("token1")
 
     def json = toObjectString({
-      AuthTokenRepresenter.toJSON(it, token, false)
+      AccessTokenRepresenter.toJSON(it, token, false)
     })
 
     def expectedJSON = [

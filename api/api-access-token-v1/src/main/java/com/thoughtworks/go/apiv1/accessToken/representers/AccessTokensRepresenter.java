@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.apiv1.authToken.representers;
+package com.thoughtworks.go.apiv1.accessToken.representers;
 
 import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.domain.AuthToken;
@@ -22,14 +22,14 @@ import com.thoughtworks.go.spark.Routes;
 
 import java.util.List;
 
-public class AuthTokensRepresenter {
+public class AccessTokensRepresenter {
     public static void toJSON(OutputWriter outputWriter, List<AuthToken> allTokens) {
         outputWriter.addLinks(outputLinkWriter -> outputLinkWriter
                 .addLink("self", Routes.AuthToken.BASE)
                 .addAbsoluteLink("doc", Routes.AuthToken.DOC))
                 .addChild("_embedded", embeddedWriter ->
                         embeddedWriter.addChildList("auth_tokens", authTokenWriter -> {
-                            allTokens.forEach(token -> authTokenWriter.addChild(artifactStoreWriter -> AuthTokenRepresenter.toJSON(artifactStoreWriter, token, false)));
+                            allTokens.forEach(token -> authTokenWriter.addChild(artifactStoreWriter -> AccessTokenRepresenter.toJSON(artifactStoreWriter, token, false)));
                         })
                 );
     }

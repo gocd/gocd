@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.apiv1.authToken
+package com.thoughtworks.go.apiv1.accessToken
 
 import com.thoughtworks.go.api.SecurityTestTrait
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
 import com.thoughtworks.go.api.util.HaltApiMessages
-import com.thoughtworks.go.apiv1.authToken.representers.AuthTokenRepresenter
-import com.thoughtworks.go.apiv1.authToken.representers.AuthTokensRepresenter
+import com.thoughtworks.go.apiv1.authToken.representers.AccessTokenRepresenter
+import com.thoughtworks.go.apiv1.authToken.representers.AccessTokensRepresenter
 import com.thoughtworks.go.server.domain.Username
 import com.thoughtworks.go.server.service.AuthTokenService
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult
@@ -40,7 +40,7 @@ import static org.mockito.ArgumentMatchers.eq
 import static org.mockito.Mockito.when
 import static org.mockito.MockitoAnnotations.initMocks
 
-class AuthTokenControllerV1Test implements ControllerTrait<AuthTokenControllerV1>, SecurityServiceTrait {
+class AccessTokenControllerV1Test implements ControllerTrait<AccessTokenControllerV1>, SecurityServiceTrait {
   @Mock
   AuthTokenService authTokenService
 
@@ -50,8 +50,8 @@ class AuthTokenControllerV1Test implements ControllerTrait<AuthTokenControllerV1
   }
 
   @Override
-  AuthTokenControllerV1 createControllerInstance() {
-    return new AuthTokenControllerV1(new ApiAuthenticationHelper(securityService, goConfigService), authTokenService)
+  AccessTokenControllerV1 createControllerInstance() {
+    return new AccessTokenControllerV1(new ApiAuthenticationHelper(securityService, goConfigService), authTokenService)
   }
 
   @Nested
@@ -94,7 +94,7 @@ class AuthTokenControllerV1Test implements ControllerTrait<AuthTokenControllerV1
         assertThatResponse()
           .isOk()
           .hasContentType(controller.mimeType)
-          .hasBody(toObjectString({ AuthTokenRepresenter.toJSON(it, token, false) }))
+          .hasBody(toObjectString({ AccessTokenRepresenter.toJSON(it, token, false) }))
       }
 
       @Test
@@ -152,7 +152,7 @@ class AuthTokenControllerV1Test implements ControllerTrait<AuthTokenControllerV1
         assertThatResponse()
           .isOk()
           .hasContentType(controller.mimeType)
-          .hasBody(toObjectString({ AuthTokenRepresenter.toJSON(it, token, true) }))
+          .hasBody(toObjectString({ AccessTokenRepresenter.toJSON(it, token, true) }))
       }
 
       @Test
@@ -169,7 +169,7 @@ class AuthTokenControllerV1Test implements ControllerTrait<AuthTokenControllerV1
         assertThatResponse()
           .isOk()
           .hasContentType(controller.mimeType)
-          .hasBody(toObjectString({ AuthTokenRepresenter.toJSON(it, token, true) }))
+          .hasBody(toObjectString({ AccessTokenRepresenter.toJSON(it, token, true) }))
       }
 
       @Test
@@ -244,7 +244,7 @@ class AuthTokenControllerV1Test implements ControllerTrait<AuthTokenControllerV1
         assertThatResponse()
           .isOk()
           .hasContentType(controller.mimeType)
-          .hasBody(toObjectString({ AuthTokensRepresenter.toJSON(it, [token]) }))
+          .hasBody(toObjectString({ AccessTokensRepresenter.toJSON(it, [token]) }))
       }
     }
   }
@@ -284,7 +284,7 @@ class AuthTokenControllerV1Test implements ControllerTrait<AuthTokenControllerV1
         assertThatResponse()
           .isOk()
           .hasContentType(controller.mimeType)
-          .hasBody(toObjectString({ AuthTokenRepresenter.toJSON(it, token, true) }))
+          .hasBody(toObjectString({ AccessTokenRepresenter.toJSON(it, token, true) }))
       }
 
       @Test

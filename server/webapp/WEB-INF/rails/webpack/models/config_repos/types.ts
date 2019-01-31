@@ -467,7 +467,11 @@ const HUMAN_NAMES_FOR_MATERIAL_ATTRIBUTES: { [index: string]: string } = {
   password: "Password",
   port: "Host and port",
   useTickets: "Use tickets",
-  view: "View"
+  view: "View",
+  emailAddress : "Email",
+  revision : "Revision",
+  comment : "Comment",
+  modifiedTime : "Modified Time"
 };
 
 const MATERIAL_TYPE_MAP: { [index: string]: string } = {

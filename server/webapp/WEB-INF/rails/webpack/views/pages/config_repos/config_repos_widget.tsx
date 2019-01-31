@@ -108,7 +108,7 @@ class HeaderWidget extends MithrilViewComponent<HeaderWidgetAttrs> {
 class ConfigRepoWidget extends MithrilViewComponent<ShowObjectAttrs<ConfigRepo>> {
   view(vnode: m.Vnode<ShowObjectAttrs<ConfigRepo>>): m.Children | void | null {
 
-    const materialNameAttribute = new Map([["Material", vnode.attrs.obj.material().type()]]);
+    const materialNameAttribute = new Map([["Type", vnode.attrs.obj.material().type()]]);
     const filteredAttributes    = _.reduce(vnode.attrs.obj.material().attributes(),
                                            this.resolveKeyValueForAttribute,
                                            materialNameAttribute);
@@ -175,7 +175,11 @@ class ConfigRepoWidget extends MithrilViewComponent<ShowObjectAttrs<ConfigRepo>>
                         actions={actionButtons} expanded={vnode.attrs.index === 0}>
         {maybeWarning}
         {lastParseRevision}
-        <KeyValuePair data={allAttributes}/>
+
+        {this.latestModification(parseInfo)}
+        {this.lastGoodModification(parseInfo)}
+        {this.configRepoMetaConfig(vnode.attrs.obj.id(), vnode.attrs.obj.pluginId())}
+        {this.materialConfig(allAttributes)}
       </CollapsiblePanel>
     );
   }
@@ -244,6 +248,53 @@ class ConfigRepoWidget extends MithrilViewComponent<ShowObjectAttrs<ConfigRepo>>
     }
   }
 
+  private lastGoodModification(parseInfo: ParseInfo | null): m.Children {
+    if (parseInfo && parseInfo.goodModification) {
+      const attrs = this.resolveHumanReadableAttributes(parseInfo.goodModification);
+
+      return [
+        <KeyValueTitle title={"Good Modification"} image={undefined}/>,
+        <KeyValuePair data={attrs}/>
+      ];
+    }
+  }
+
+  private latestModification(parseInfo: ParseInfo | null): m.Children {
+    if (parseInfo && parseInfo.latestParsedModification) {
+      const attrs = this.resolveHumanReadableAttributes(parseInfo.latestParsedModification);
+
+      return [
+        <KeyValueTitle title={"Latest Modification"} image={undefined}/>,
+        <KeyValuePair data={attrs}/>
+      ];
+    }
+  }
+
+  private resolveHumanReadableAttributes(obj: object) {
+    const attrs = new Map();
+    const keys = Object.keys(obj).map(humanizedMaterialAttributeName);
+    const values = Object.values(obj);
+
+    keys.forEach((key, index) => {
+      attrs.set(key, values[index]);
+    });
+
+    return attrs;
+  }
+
+  private configRepoMetaConfig(id: string, pluginId: string) {
+    return [
+      <KeyValueTitle title={"Config Repository Configurations"} image={undefined}/>,
+      <KeyValuePair data={new Map([["Id", id], ["Plugin Id", pluginId]])}/>
+    ];
+  }
+
+  private materialConfig(allAttributes: Map<string, m.Children>) {
+    return [
+      <KeyValueTitle title={"Material"} image={undefined}/>,
+      <KeyValuePair data = {allAttributes}/>
+    ];
+  }
 }
 
 export class ConfigReposWidget extends MithrilViewComponent<Attrs<ConfigRepo>> {

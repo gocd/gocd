@@ -19,6 +19,7 @@ package com.thoughtworks.go.helper;
 import com.rits.cloning.Cloner;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
+import com.thoughtworks.go.config.remote.FileConfigOrigin;
 import com.thoughtworks.go.domain.label.PipelineLabel;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
 
@@ -172,6 +173,7 @@ public class PipelineConfigMother {
         pipelineConfig.setName(pipelineName);
         pipelineConfig.setTemplateName(new CaseInsensitiveString(templateName));
         pipelineConfig.usingTemplate(new PipelineTemplateConfig(new CaseInsensitiveString(templateName), stageConfig));
+        pipelineConfig.setOrigin(new FileConfigOrigin());
 
         return pipelineConfig;
     }

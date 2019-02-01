@@ -16,24 +16,21 @@
 
 package com.thoughtworks.go.domain;
 
+import java.util.Objects;
+
 public class ElasticProfileUsage {
     private final String pipelineName;
     private final String stageName;
     private final String jobName;
     private final String templateName;
+    private final String pipelineConfigOrigin;
 
-    public ElasticProfileUsage(String pipelineName, String stageName, String jobName) {
-        this.pipelineName = pipelineName;
-        this.stageName = stageName;
-        this.jobName = jobName;
-        this.templateName = null;
-    }
-
-    public ElasticProfileUsage(String pipelineName, String stageName, String jobName, String templateName) {
+    public ElasticProfileUsage(String pipelineName, String stageName, String jobName, String templateName, String pipelineConfigOrigin) {
         this.pipelineName = pipelineName;
         this.stageName = stageName;
         this.jobName = jobName;
         this.templateName = templateName;
+        this.pipelineConfigOrigin = pipelineConfigOrigin;
     }
 
     public String getPipelineName() {
@@ -52,26 +49,25 @@ public class ElasticProfileUsage {
         return templateName;
     }
 
+    public String pipelineConfigOrigin() {
+        return pipelineConfigOrigin;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
+        if (!(o instanceof ElasticProfileUsage)) return false;
         ElasticProfileUsage that = (ElasticProfileUsage) o;
-
-        if (!pipelineName.equals(that.pipelineName)) return false;
-        if (!stageName.equals(that.stageName)) return false;
-        if (!jobName.equals(that.jobName)) return false;
-        return templateName != null ? templateName.equals(that.templateName) : that.templateName == null;
+        return Objects.equals(pipelineName, that.pipelineName) &&
+                Objects.equals(stageName, that.stageName) &&
+                Objects.equals(jobName, that.jobName) &&
+                Objects.equals(templateName, that.templateName) &&
+                Objects.equals(pipelineConfigOrigin, that.pipelineConfigOrigin);
     }
 
     @Override
     public int hashCode() {
-        int result = pipelineName.hashCode();
-        result = 31 * result + stageName.hashCode();
-        result = 31 * result + jobName.hashCode();
-        result = 31 * result + (templateName != null ? templateName.hashCode() : 0);
-        return result;
+        return Objects.hash(pipelineName, stageName, jobName, templateName, pipelineConfigOrigin);
     }
 
     @Override
@@ -81,6 +77,7 @@ public class ElasticProfileUsage {
                 ", stageName='" + stageName + '\'' +
                 ", jobName='" + jobName + '\'' +
                 ", templateName='" + templateName + '\'' +
+                ", pipelineConfigOrigin=" + pipelineConfigOrigin +
                 '}';
     }
 }

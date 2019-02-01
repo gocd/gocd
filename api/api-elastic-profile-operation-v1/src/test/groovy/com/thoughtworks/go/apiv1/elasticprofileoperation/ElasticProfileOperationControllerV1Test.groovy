@@ -77,11 +77,11 @@ class ElasticProfileOperationControllerV1Test implements SecurityServiceTrait, C
       @Test
       void 'should list jobs associated with a profile id'() {
         def elasticProfileUsages = Arrays.asList(
-          new ElasticProfileUsage("LinuxPR", "build", "compile", "linux-pr"),
-          new ElasticProfileUsage("LinuxPR", "build", "test", "linux-pr"),
+          new ElasticProfileUsage("LinuxPR", "build", "compile", "linux-pr", "config_repo"),
+          new ElasticProfileUsage("LinuxPR", "build", "test", "linux-pr", "config_repo"),
 
-          new ElasticProfileUsage("WindowsPR", "clean", "clean-dirs"),
-          new ElasticProfileUsage("WindowsPR", "clean", "clean-artifacts")
+          new ElasticProfileUsage("WindowsPR", "clean", "clean-dirs", null, "gocd"),
+          new ElasticProfileUsage("WindowsPR", "clean", "clean-artifacts", null, "gocd")
         )
 
         when(elasticProfileService.getUsageInformation("docker")).thenReturn(elasticProfileUsages)
@@ -89,11 +89,11 @@ class ElasticProfileOperationControllerV1Test implements SecurityServiceTrait, C
         getWithApiHeader(controller.controllerPath("/docker/usages"))
 
         def expectedResponse = [
-          [pipeline_name: "LinuxPR", stage_name: "build", job_name: "compile", template_name: "linux-pr"],
-          [pipeline_name: "LinuxPR", stage_name: "build", job_name: "test", template_name: "linux-pr"],
+          [pipeline_name: "LinuxPR", stage_name: "build", job_name: "compile", template_name: "linux-pr", "pipeline_config_origin": "config_repo"],
+          [pipeline_name: "LinuxPR", stage_name: "build", job_name: "test", template_name: "linux-pr", "pipeline_config_origin": "config_repo"],
 
-          [pipeline_name: "WindowsPR", stage_name: "clean", job_name: "clean-dirs"],
-          [pipeline_name: "WindowsPR", stage_name: "clean", job_name: "clean-artifacts"]
+          [pipeline_name: "WindowsPR", stage_name: "clean", job_name: "clean-dirs", "pipeline_config_origin": "gocd"],
+          [pipeline_name: "WindowsPR", stage_name: "clean", job_name: "clean-artifacts", "pipeline_config_origin": "gocd"]
         ]
 
         assertThatResponse()

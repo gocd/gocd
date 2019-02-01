@@ -116,11 +116,11 @@ class HeaderWidget extends MithrilViewComponent<HeaderWidgetAttrs> {
 
     switch (pluginInfo!.id) {
       case "yaml.config.plugin":
-        return <HeaderIcon imageUrl={yamlIcon}/>;
+        return <HeaderIcon name="config-repo-yaml-plugin-icon" imageUrl={yamlIcon}/>;
       case "json.config.plugin":
-        return <HeaderIcon imageUrl={jsonIcon}/>;
+        return <HeaderIcon name="config-repo-json-plugin-icon" imageUrl={jsonIcon}/>;
       case "cd.go.contrib.plugins.configrepo.groovy":
-        return <HeaderIcon imageUrl={groovyIcon}/>;
+        return <HeaderIcon name="config-repo-groovy-plugin-icon" imageUrl={groovyIcon}/>;
       default:
         return <HeaderIcon name="Plugin does not have an icon"/>;
     }
@@ -267,10 +267,10 @@ class ConfigRepoWidget extends MithrilViewComponent<ShowObjectAttrs<ConfigRepo>>
       const attrs     = this.resolveHumanReadableAttributes(parseInfo.goodModification);
       const checkIcon = <span className={styles.goodModificationIcon}
                               title={`Last parsed with revision ${parseInfo.goodModification.revision}`}/>;
-      return [
-        <KeyValueTitle title={"Good Modification"} image={checkIcon} inline={true}/>,
+      return <div data-test-id="config-repo-good-modification-panel">
+        <KeyValueTitle title={"Good Modification"} image={checkIcon} inline={true}/>
         <KeyValuePair data={attrs}/>
-      ];
+      </div>;
     }
   }
 
@@ -284,26 +284,26 @@ class ConfigRepoWidget extends MithrilViewComponent<ShowObjectAttrs<ConfigRepo>>
         statusIcon = styles.errorLastModificationIcon;
       }
 
-      return [
+      return <div data-test-id="config-repo-latest-modification-panel">
         <KeyValueTitle title={"Latest Modification"} inline={true}
-                       image={<span className={statusIcon} title={`Last parsed with revision ${parseInfo.latestParsedModification.revision}` }/>}/>,
+                       image={<span className={statusIcon} title={`Last parsed with revision ${parseInfo.latestParsedModification.revision}` }/>}/>
         <KeyValuePair data={attrs}/>
-      ];
+      </div>;
     }
   }
 
   private configRepoMetaConfig(id: string, pluginId: string) {
-    return [
-      <KeyValueTitle title={"Config Repository Configurations"} image={undefined}/>,
+    return <div data-test-id="config-repo-plugin-panel">
+      <KeyValueTitle title={"Config Repository Configurations"} image={undefined}/>
       <KeyValuePair data={new Map([["Id", id], ["Plugin Id", pluginId]])}/>
-    ];
+    </div>;
   }
 
   private materialConfig(allAttributes: Map<string, m.Children>) {
-    return [
-      <KeyValueTitle title={"Material"} image={undefined}/>,
+    return <div data-test-id="config-repo-material-panel">
+      <KeyValueTitle title={"Material"} image={undefined}/>
       <KeyValuePair data = {allAttributes}/>
-    ];
+    </div>;
   }
 
   private resolveHumanReadableAttributes(obj: object) {

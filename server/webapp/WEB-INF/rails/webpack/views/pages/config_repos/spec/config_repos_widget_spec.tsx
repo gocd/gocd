@@ -17,12 +17,11 @@
 import * as m from "mithril";
 import * as stream from "mithril/stream";
 import {Stream} from "mithril/stream";
-import {ConfigRepo, GitMaterialAttributes, ParseInfo} from "models/config_repos/types";
+import {ConfigRepo} from "models/config_repos/types";
 import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
 import * as simulateEvent from "simulate-event";
 import * as uuid from "uuid/v4";
 import * as headerIconStyles from "views/components/header_icon/index.scss";
-import * as keyValueStyles from "views/components/key_value_pair/index.scss";
 import {Attrs, ConfigReposWidget} from "views/pages/config_repos/config_repos_widget";
 import * as styles from "views/pages/config_repos/index.scss";
 
@@ -86,38 +85,118 @@ describe("ConfigReposWidget", () => {
       .toContainText("There are no config repositories setup. Click the \"Add\" button to add one.");
   });
 
+  describe("Should render expanded config repo panel", () => {
+
+    it("should render material details section", () => {
+      configRepos([createConfigRepo()]);
+      m.redraw();
+      const materialPanel = find("config-repo-material-panel");
+      const keyValuePair = materialPanel.children().get(1).children;
+      const title = materialPanel.children().get(0);
+
+      expect(title).toHaveText("Material");
+      expect(keyValuePair[0]).toContainText("Type");
+      expect(keyValuePair[0]).toContainText("git");
+      expect(keyValuePair[1]).toContainText("URL");
+      expect(keyValuePair[1]).toContainText("https://example.com/git");
+      expect(keyValuePair[2]).toContainText("Branch");
+      expect(keyValuePair[2]).toContainText("master");
+    });
+
+    it("should render config repository configuration details section", () => {
+      configRepos([createConfigRepo("testPlugin")]);
+      m.redraw();
+      const materialPanel = find("config-repo-plugin-panel");
+      const title = materialPanel.children().get(0) ;
+      const keyValuePair = materialPanel.children().get(1).children;
+
+      expect(title).toHaveText("Config Repository Configurations");
+      expect(keyValuePair[0]).toContainText("Id");
+      expect(keyValuePair[0]).toContainText("testPlugin");
+      expect(keyValuePair[1]).toContainText("Plugin Id");
+      expect(keyValuePair[1]).toContainText("json.config.plugin");
+    });
+
+    it("should render good modification details section", () => {
+      configRepos([createConfigRepo()]);
+      m.redraw();
+      const materialPanel = find("config-repo-good-modification-panel");
+      const icon = materialPanel.children().get(0);
+      const title = materialPanel.children().get(1);
+      const keyValuePair = materialPanel.children().get(2).children;
+
+      expect(title).toHaveText("Good Modification");
+      expect(icon).toHaveClass(styles.goodModificationIcon);
+      expect(keyValuePair[0]).toContainText("Username");
+      expect(keyValuePair[0]).toContainText("GaneshSPatil <ganeshpl@gmail.com>");
+      expect(keyValuePair[1]).toContainText("Email");
+      expect(keyValuePair[1]).toContainText("ganeshpl@gmail.com");
+      expect(keyValuePair[2]).toContainText("Revision");
+      expect(keyValuePair[2]).toContainText("1234");
+      expect(keyValuePair[3]).toContainText("Comment");
+      expect(keyValuePair[3]).toContainText("Revert \"Delete this\"\n\nThis reverts commit 9b402012ea5c24ce032c8ef4582c0a9ce2d14ade.");
+      expect(keyValuePair[4]).toContainText("Modified Time");
+      expect(keyValuePair[4]).toContainText("2019-01-11T11:24:08Z");
+    });
+
+    it("should render latest modification details section", () => {
+      configRepos([createConfigRepo()]);
+      m.redraw();
+      const materialPanel = find("config-repo-latest-modification-panel");
+      const icon = materialPanel.children().get(0);
+      const title = materialPanel.children().get(1);
+      const keyValuePair = materialPanel.children().get(2).children;
+
+      expect(title).toHaveText("Latest Modification");
+      expect(icon).toHaveClass(styles.errorLastModificationIcon);
+      expect(keyValuePair[0]).toContainText("Username");
+      expect(keyValuePair[0]).toContainText("Mahesh <mahesh@gmail.com>");
+      expect(keyValuePair[1]).toContainText("Email");
+      expect(keyValuePair[1]).toContainText("mahesh@gmail.com");
+      expect(keyValuePair[2]).toContainText("Revision");
+      expect(keyValuePair[2]).toContainText("5432");
+      expect(keyValuePair[3]).toContainText("Comment");
+      expect(keyValuePair[3]).toContainText("Revert \"Revert \"Delete this\"\"\n\nThis reverts commit 2daccbb7389e87c9eb789f6188065d344fbbb9b1.");
+      expect(keyValuePair[4]).toContainText("Modified Time");
+      expect(keyValuePair[4]).toContainText("2019-01-14T05:39:40Z");
+      expect(keyValuePair[5]).toContainText("Error");
+      expect(keyValuePair[5]).toContainText("blah!");
+    });
+  });
+
   it("should render a list of config repos", () => {
     const repo1 = createConfigRepo();
     const repo2 = createConfigRepo();
     configRepos([repo1, repo2]);
-    m.redraw();
-    const title = $root.find(`.${keyValueStyles.title}`);
-    expect(title).toHaveLength(2);
-    expect(title.get(0)).toHaveText(repo1.id());
-    expect(title.get(1)).toHaveText(repo2.id());
-  });
-
-  it("should render a material attributes and configurations", () => {
-    const repo1 = createConfigRepo();
-    configRepos([repo1]);
-    m.redraw();
-    expect($root.find(`.${keyValueStyles.title}`)).toHaveLength(1);
-    expect(find("key-value-value-url")).toContainText("https://example.com/git/");
-    expect(find("key-value-value-file-pattern")).toHaveText("*.json");
-  });
-
-  it("should render a single config repo", () => {
-    const repo = createConfigRepo();
-    (repo.lastParse() as ParseInfo).error(null);
-    configRepos([repo]);
     pluginInfos([configRepoPluginInfo()]);
     m.redraw();
-    expect($root).toContainText("Last seen revision: 1234");
-    expect(find("key-value-key-url")).toContainText(`URL`);
-    expect(find("key-value-value-url")).toContainText((repo.material().attributes() as GitMaterialAttributes).url());
-    expect(find("key-value-key-material")).toContainText(`Material`);
-    expect(find("key-value-value-material")).toContainText((repo.material().type()));
-    expect($root.find(`.${styles.goodLastParseIcon}`)).toBeInDOM();
+
+    const repoIds = find('collapse-header');
+    const repoIcons = find('config-repo-json-plugin-icon');
+
+    expect(repoIds).toHaveLength(2);
+    expect(repoIcons).toHaveLength(2);
+
+    expect(repoIds.get(0)).toContainText(repo1.id());
+    expect(repoIds.get(1)).toContainText(repo2.id());
+  });
+
+  it("should render config repos with their plugin-id, material url, commit message, username and revision in header", () => {
+    const repo1 = createConfigRepo("Repo1", "https://example.com/git/90d9f82c-bbfd-4f70-ab09-fd72dee42427");
+    const repo2 = createConfigRepo("Repo2", "https://example.com/git/0b4243ff-7431-48e1-a60e-a79b7b80b654");
+    configRepos([repo1, repo2]);
+    m.redraw();
+
+    const title = $root.find(`.${styles.headerTitleText}`);
+    expect(title).toHaveLength(6);
+
+    expect(title.get(0)).toContainText("Repo1");
+    expect(title.get(1)).toContainText("https://example.com/git/90d9f82c-bbfd-4f70-ab09-fd72dee42427");
+    expect(title.get(2)).toContainText("Revert \"Revert \"Delete this\"\"\n\nThis reverts commit 2daccbb7389e87c9eb789f6188065d344fbbb9b1.");
+    expect(title.get(2)).toContainText("Mahesh <mahesh@gmail.com> | 5432");
+
+    expect(title.get(3)).toContainText("Repo2");
+    expect(title.get(4)).toContainText("https://example.com/git/0b4243ff-7431-48e1-a60e-a79b7b80b654");
   });
 
   it("should render a warning message when plugin is missing", () => {
@@ -178,14 +257,16 @@ describe("ConfigReposWidget", () => {
     expect(onRefresh).toHaveBeenCalledWith(repo, jasmine.any(MouseEvent));
   });
 
-  function createConfigRepo(id = uuid()) {
+  function createConfigRepo(id?: string, repoId?: string) {
+    id = id || uuid();
     return ConfigRepo.fromJSON({
                                  material: {
                                    type: "git",
                                    attributes: {
-                                     url: "https://example.com/git/" + uuid(),
+                                     url: "https://example.com/git/" + (repoId || uuid()),
                                      name: "foo",
-                                     auto_update: true
+                                     auto_update: true,
+                                     branch : "master"
                                    }
                                  },
                                  configuration: [{
@@ -194,15 +275,15 @@ describe("ConfigReposWidget", () => {
                                  }],
                                  parse_info: {
                                    latest_parsed_modification: {
-                                     username: "GaneshSPatil <ganeshpl@thoughtworks.com>",
-                                     email_address: null,
-                                     revision: "1234",
+                                     username: "Mahesh <mahesh@gmail.com>",
+                                     email_address: "mahesh@gmail.com",
+                                     revision: "5432",
                                      comment: "Revert \"Revert \"Delete this\"\"\n\nThis reverts commit 2daccbb7389e87c9eb789f6188065d344fbbb9b1.",
                                      modified_time: "2019-01-14T05:39:40Z"
                                    },
                                    good_modification: {
-                                     username: "GaneshSPatil <ganeshpl@thoughtworks.com>",
-                                     email_address: null,
+                                     username: "GaneshSPatil <ganeshpl@gmail.com>",
+                                     email_address: "ganeshpl@gmail.com",
                                      revision: "1234",
                                      comment: "Revert \"Delete this\"\n\nThis reverts commit 9b402012ea5c24ce032c8ef4582c0a9ce2d14ade.",
                                      modified_time: "2019-01-11T11:24:08Z"
@@ -254,5 +335,4 @@ describe("ConfigReposWidget", () => {
 
     return PluginInfo.fromJSON(pluginInfoWithConfigRepoExtension);
   }
-
 });

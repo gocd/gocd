@@ -16,36 +16,96 @@
 
 package com.thoughtworks.go.server.messaging.activemq;
 
+import javax.jms.JMSException;
 import javax.jms.MessageConsumer;
 
+import ch.qos.logback.classic.Level;
 import com.thoughtworks.go.server.service.support.DaemonThreadStatsCollector;
 import com.thoughtworks.go.server.messaging.GoMessage;
 import com.thoughtworks.go.server.messaging.GoMessageListener;
-import static org.junit.Assert.fail;
 
+import static com.thoughtworks.go.util.LogFixture.logFixtureFor;
+
+import com.thoughtworks.go.util.LogFixture;
+import com.thoughtworks.go.util.SystemEnvironment;
+import org.junit.Before;
 import org.junit.Test;
+
+import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.Matchers.lessThan;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class JMSMessageListenerAdapterTest {
-    @Test public void shouldNotKillTheThreadWhenThereIsAnException() throws Exception {
-        MessageConsumer consumer = mock(MessageConsumer.class);
-        when(consumer.receive()).thenThrow(new RuntimeException("should swallow me"));
-        GoMessageListener mockListener = new GoMessageListener() {
+
+    private MessageConsumer consumer;
+    private GoMessageListener mockListener;
+    private SystemEnvironment systemEnvironment;
+
+    @Before
+    public void setUp() throws Exception {
+        consumer = mock(MessageConsumer.class);
+
+        systemEnvironment = mock(SystemEnvironment.class);
+
+        mockListener = new GoMessageListener() {
             public void onMessage(GoMessage message) {
                 throw new UnsupportedOperationException("not implemented yet");
             }
 
-            @Override public String toString() {
+            @Override
+            public String toString() {
                 return "test-listener";
             }
         };
-        JMSMessageListenerAdapter listenerAdapter = JMSMessageListenerAdapter.startListening(consumer, mockListener, mock(DaemonThreadStatsCollector.class));
+    }
+
+    @Test
+    public void shouldNotKillTheThreadWhenThereIsAnException() throws Exception {
+        when(consumer.receive()).thenThrow(new RuntimeException("should swallow me"));
+
+        JMSMessageListenerAdapter listenerAdapter = JMSMessageListenerAdapter.startListening(consumer, mockListener, mock(DaemonThreadStatsCollector.class), systemEnvironment);
         try {
             listenerAdapter.runImpl();
         } catch (Exception e) {
             e.printStackTrace();
-            fail("expected no exception get: " + e);
+            fail("Expected no exception. Got: " + e);
+        }
+    }
+
+    @Test
+    public void shouldBackOffForABitIfAJMSExceptionHappens() throws JMSException {
+        when(consumer.receive()).thenThrow(new JMSException("should back off for a bit after this"));
+        when(systemEnvironment.get(SystemEnvironment.JMS_LISTENER_BACKOFF_TIME)).thenReturn(3000);
+
+        try (LogFixture logFixture = logFixtureFor(JMSMessageListenerAdapter.class, Level.DEBUG)) {
+            JMSMessageListenerAdapter listenerAdapter = JMSMessageListenerAdapter.startListening(consumer, mockListener, mock(DaemonThreadStatsCollector.class), systemEnvironment);
+
+            final long startTime = System.nanoTime();
+            listenerAdapter.runImpl();
+            final long endTime = System.nanoTime();
+
+            assertTrue(logFixture.contains(Level.WARN, "Backing off for a few seconds"));
+            assertThat(endTime - startTime, greaterThan(2000 * 1000 * 1000L));
+            assertThat(endTime - startTime, lessThan(4000 * 1000 * 1000L));
+        }
+    }
+
+    @Test
+    public void shouldNotBackOffAfterNonJMSExceptionHappens() throws JMSException {
+        when(consumer.receive()).thenThrow(new RuntimeException("should NOT back off after this"));
+        when(systemEnvironment.get(SystemEnvironment.JMS_LISTENER_BACKOFF_TIME)).thenThrow(new RuntimeException("Should not have needed listener backoff time"));
+
+        try (LogFixture logFixture = logFixtureFor(JMSMessageListenerAdapter.class, Level.DEBUG)) {
+            JMSMessageListenerAdapter listenerAdapter = JMSMessageListenerAdapter.startListening(consumer, mockListener, mock(DaemonThreadStatsCollector.class), systemEnvironment);
+
+            final long startTime = System.nanoTime();
+            listenerAdapter.runImpl();
+            final long endTime = System.nanoTime();
+
+            assertFalse(logFixture.contains(Level.WARN, "Backing off for a few seconds"));
+            assertThat(endTime - startTime, lessThan(1000 * 1000 * 1000L));
         }
     }
 }

@@ -51,11 +51,12 @@ public class ActiveMqMessagingService implements MessagingService {
     private ActiveMQConnection connection;
     public ActiveMQConnectionFactory factory;
     private BrokerService broker;
+    private final SystemEnvironment systemEnvironment;
 
     @Autowired
     public ActiveMqMessagingService(DaemonThreadStatsCollector daemonThreadStatsCollector) throws Exception {
         this.daemonThreadStatsCollector = daemonThreadStatsCollector;
-        SystemEnvironment systemEnvironment = new SystemEnvironment();
+        systemEnvironment = new SystemEnvironment();
 
         broker = new BrokerService();
         broker.setBrokerName(BROKER_NAME);
@@ -90,7 +91,7 @@ public class ActiveMqMessagingService implements MessagingService {
         try {
             Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
             MessageConsumer consumer = session.createConsumer(session.createTopic(topic));
-            return JMSMessageListenerAdapter.startListening(consumer, listener, daemonThreadStatsCollector);
+            return JMSMessageListenerAdapter.startListening(consumer, listener, daemonThreadStatsCollector, systemEnvironment);
         } catch (Exception e) {
             throw bomb(e);
         }
@@ -112,7 +113,7 @@ public class ActiveMqMessagingService implements MessagingService {
         try {
             Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
             MessageConsumer consumer = session.createConsumer(session.createQueue(queueName));
-            return JMSMessageListenerAdapter.startListening(consumer, listener, daemonThreadStatsCollector);
+            return JMSMessageListenerAdapter.startListening(consumer, listener, daemonThreadStatsCollector, systemEnvironment);
         } catch (Exception e) {
             throw bomb(e);
         }

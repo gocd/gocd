@@ -19,6 +19,7 @@ package com.thoughtworks.go.server.messaging.activemq;
 import com.thoughtworks.go.server.messaging.GoMessage;
 import com.thoughtworks.go.server.messaging.GoMessageListener;
 import com.thoughtworks.go.server.service.support.DaemonThreadStatsCollector;
+import com.thoughtworks.go.util.SystemEnvironment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,13 +34,14 @@ public class JMSMessageListenerAdapter implements Runnable {
     private final MessageConsumer consumer;
     private final GoMessageListener listener;
     private final DaemonThreadStatsCollector daemonThreadStatsCollector;
+    private SystemEnvironment systemEnvironment;
     public Thread thread;
 
-    private JMSMessageListenerAdapter(MessageConsumer consumer, GoMessageListener listener, DaemonThreadStatsCollector daemonThreadStatsCollector) {
+    private JMSMessageListenerAdapter(MessageConsumer consumer, GoMessageListener listener, DaemonThreadStatsCollector daemonThreadStatsCollector, SystemEnvironment systemEnvironment) {
         this.consumer = consumer;
         this.listener = listener;
         this.daemonThreadStatsCollector = daemonThreadStatsCollector;
-
+        this.systemEnvironment = systemEnvironment;
 
         thread = new Thread(this);
         String threadNameSuffix = "MessageListener for " + listener.getClass().getSimpleName();
@@ -72,7 +74,7 @@ public class JMSMessageListenerAdapter implements Runnable {
             daemonThreadStatsCollector.captureStats(thread.getId());
             listener.onMessage((GoMessage) omessage.getObject());
         } catch (JMSException e) {
-            LOG.warn("Error receiving message. Message receiving will continue despite this error.", e);
+            slowDownAndWarnAboutPossibleProblems(e);
         } catch (Exception e) {
             LOG.error("Exception thrown in message handling by listener {}", listener, e);
         } finally {
@@ -81,9 +83,18 @@ public class JMSMessageListenerAdapter implements Runnable {
         return false;
     }
 
-    public static JMSMessageListenerAdapter startListening(MessageConsumer consumer, GoMessageListener listener, DaemonThreadStatsCollector daemonThreadStatsCollector)
+    private void slowDownAndWarnAboutPossibleProblems(JMSException e) {
+        LOG.warn("Error receiving message. Message receiving will continue despite this error. Backing off for a few seconds. This error is unexpected and should probably be reported", e);
+        try {
+            Thread.sleep(systemEnvironment.get(SystemEnvironment.JMS_LISTENER_BACKOFF_TIME));
+        } catch (InterruptedException e1) {
+            LOG.error("Failed to slow down", e1);
+        }
+    }
+
+    public static JMSMessageListenerAdapter startListening(MessageConsumer consumer, GoMessageListener listener, DaemonThreadStatsCollector daemonThreadStatsCollector, SystemEnvironment systemEnvironment)
             throws JMSException {
-        return new JMSMessageListenerAdapter(consumer, listener, daemonThreadStatsCollector);
+        return new JMSMessageListenerAdapter(consumer, listener, daemonThreadStatsCollector, systemEnvironment);
     }
 
 }

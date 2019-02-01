@@ -19,6 +19,7 @@ package com.thoughtworks.go.server.service;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.elastic.ElasticProfile;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
+import com.thoughtworks.go.config.remote.FileConfigOrigin;
 import com.thoughtworks.go.config.update.ElasticAgentProfileCreateCommand;
 import com.thoughtworks.go.config.update.ElasticAgentProfileDeleteCommand;
 import com.thoughtworks.go.config.update.ElasticAgentProfileUpdateCommand;
@@ -90,10 +91,13 @@ public class ElasticProfileService extends PluginProfilesService<ElasticProfile>
                             templateName = pipelineConfig.getTemplateName().toString();
                         }
 
-                        jobsUsingElasticProfile.add(new ElasticProfileUsage(pipelineConfig.getName().toString()
-                                , stage.name().toString()
-                                , job.name().toString()
-                                , templateName));
+                        String origin = pipelineConfig.getOrigin() instanceof FileConfigOrigin ? "gocd" : "config_repo";
+
+                        jobsUsingElasticProfile.add(new ElasticProfileUsage(pipelineConfig.getName().toString(),
+                                stage.name().toString(),
+                                job.name().toString(),
+                                templateName,
+                                origin));
                     }
                 }
             }

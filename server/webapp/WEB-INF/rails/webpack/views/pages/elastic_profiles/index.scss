@@ -17,6 +17,7 @@
 
 $collapse-icon-size: 30px;
 $icon-light-color: #e6e6e6;
+$disabled-text-color: #999;
 
 @mixin header-icon($type, $color) {
   @include icon-before($type: $type, $color: $color, $size: 25px) {
@@ -29,11 +30,13 @@ $icon-light-color: #e6e6e6;
   display:        none;
   vertical-align: middle;
   margin:         0 15px 0 -15px;
+
   img {
     width:          $collapse-icon-size;
     height:         $collapse-icon-size;
     vertical-align: middle;
   }
+
   @media (min-width: $screen-md) {
     display: inline-block;
   }
@@ -79,6 +82,30 @@ $icon-light-color: #e6e6e6;
   width:     121px;
   word-wrap: break-word;
   display:   block;
+}
+
+.disabled {
+  opacity:        0.75;
+  cursor:         not-allowed;
+  pointer-events: none;
+
+  &:hover {
+    color:      $icon-color;
+    background: $icon-bg;
+  }
+
+  a {
+    color:          $disabled-text-color;
+    cursor:         not-allowed;
+    pointer-events: none;
+  }
+}
+
+.note {
+  color:           $disabled-text-color;
+  font-size:       12px;
+  display:         flex;
+  justify-content: flex-end;
 }
 
 .spinner-wrapper {

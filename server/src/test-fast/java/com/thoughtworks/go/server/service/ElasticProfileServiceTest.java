@@ -187,8 +187,8 @@ class ElasticProfileServiceTest {
         @Test
         void shouldReturnJobsUsingElasticProfile() {
             final List<PipelineConfig> allPipelineConfigs = Arrays.asList(
-                    templateBasedPipelineWithElasticJobs("docker-template","docker", "P1", "S1", "Job1", "Job2"),
-                    pipelineWithElasticJobs( "ecs", "P3", "S1", "Job1"),
+                    templateBasedPipelineWithElasticJobs("docker-template", "docker", "P1", "S1", "Job1", "Job2"),
+                    pipelineWithElasticJobs("ecs", "P3", "S1", "Job1"),
                     createPipelineConfig("P4", "S1", "Job1", "Job2")
             );
 
@@ -197,21 +197,21 @@ class ElasticProfileServiceTest {
             assertThat(elasticProfileService.getUsageInformation("docker"))
                     .hasSize(2)
                     .contains(
-                            new ElasticProfileUsage("P1", "S1", "Job1", "docker-template"),
-                            new ElasticProfileUsage("P1", "S1", "Job2", "docker-template")
+                            new ElasticProfileUsage("P1", "S1", "Job1", "docker-template", "gocd"),
+                            new ElasticProfileUsage("P1", "S1", "Job2", "docker-template", "gocd")
                     );
 
             assertThat(elasticProfileService.getUsageInformation("ecs"))
                     .hasSize(1)
                     .contains(
-                            new ElasticProfileUsage("P3", "S1", "Job1")
+                            new ElasticProfileUsage("P3", "S1", "Job1", null, "config_repo")
                     );
         }
 
         @Test
         void shouldReturnEmptyWhenNoneOfTheJobMatchesProfileId() {
             final List<PipelineConfig> allPipelineConfigs = Arrays.asList(
-                    templateBasedPipelineWithElasticJobs("docker-template","docker", "P1", "S1", "Job1", "Job2"),
+                    templateBasedPipelineWithElasticJobs("docker-template", "docker", "P1", "S1", "Job1", "Job2"),
                     pipelineWithElasticJobs("ecs", "P3", "S1", "Job1"),
                     createPipelineConfig("P4", "S1", "Job1", "Job2")
             );

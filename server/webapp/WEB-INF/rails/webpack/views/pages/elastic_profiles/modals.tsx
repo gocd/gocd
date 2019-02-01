@@ -307,7 +307,13 @@ export class UsageElasticProfileModal extends Modal {
       <span className={styles.tableCell}>{usage.jobName()}</span>,
       UsageElasticProfileModal.anchorToSettings(usage)
     ]);
-    return (<Table headers={["Pipeline", "Stage", "Job", " "]} data={data}/>);
+    return (
+      <div>
+        <em className={styles.note}>* The `Job settings` link will be disabled when pipeline config is defined
+          externally.</em>
+        <Table headers={["Pipeline", "Stage", "Job", " "]} data={data}/>
+      </div>
+    );
   }
 
   title() {
@@ -321,6 +327,8 @@ export class UsageElasticProfileModal extends Modal {
       link = `/go/admin/templates/${usage.templateName()}/stages/${usage.stageName()}/job/${usage.jobName()}/settings`;
     }
 
-    return <span class={styles.jobSettingsLink}><a href={link}>Job Settings</a></span>;
+    return <span class={usage.isPipelineOriginLocal() ? styles.jobSettingsLink : styles.disabled}>
+      <a href={link}>Job Settings</a>
+    </span>;
   }
 }

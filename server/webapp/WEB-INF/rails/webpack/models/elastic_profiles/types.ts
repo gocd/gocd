@@ -60,6 +60,7 @@ export interface ProfileUsageJSON {
   stage_name: string;
   job_name: string;
   template_name?: string;
+  pipeline_config_origin?: string;
 }
 
 export class ProfileUsage {
@@ -67,16 +68,30 @@ export class ProfileUsage {
   jobName: Stream<string>;
   stageName: Stream<string>;
   templateName: Stream<string>;
+  pipelineConfigOrigin: Stream<string>;
 
-  constructor(pipelineName: string, stageName: string, jobName: string, templateName?: string) {
-    this.pipelineName = stream(pipelineName);
-    this.stageName    = stream(stageName);
-    this.jobName      = stream(jobName);
-    this.templateName = stream(templateName);
+  constructor(pipelineName: string,
+              stageName: string,
+              jobName: string,
+              templateName?: string,
+              pipelineConfigOrigin?: string) {
+    this.pipelineName         = stream(pipelineName);
+    this.stageName            = stream(stageName);
+    this.jobName              = stream(jobName);
+    this.templateName         = stream(templateName);
+    this.pipelineConfigOrigin = stream(pipelineConfigOrigin);
   }
 
   static fromJSON(usageJson: ProfileUsageJSON) {
-    return new ProfileUsage(usageJson.pipeline_name, usageJson.stage_name, usageJson.job_name, usageJson.template_name);
+    return new ProfileUsage(usageJson.pipeline_name,
+                            usageJson.stage_name,
+                            usageJson.job_name,
+                            usageJson.template_name,
+                            usageJson.pipeline_config_origin);
+  }
+
+  isPipelineOriginLocal() {
+    return this.pipelineConfigOrigin() === "gocd";
   }
 }
 
@@ -127,4 +142,5 @@ export class ElasticProfile implements ValidatableMixin {
     };
   }
 }
+
 applyMixins(ElasticProfile, ValidatableMixin);

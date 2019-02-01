@@ -26,22 +26,21 @@ class ElasticProfileUsageRepresenterTest {
   @Test
   void 'should serialize to json'() {
     def elasticProfileUsages = Arrays.asList(
-      new ElasticProfileUsage("LinuxPR", "build", "compile", "linux-pr"),
-      new ElasticProfileUsage("LinuxPR", "build", "tests", "linux-pr"),
+      new ElasticProfileUsage("LinuxPR", "build", "compile", "linux-pr", "gocd"),
+      new ElasticProfileUsage("LinuxPR", "build", "tests", "linux-pr", "gocd"),
 
-      new ElasticProfileUsage("WindowsPR", "clean", "clean-dirs"),
-      new ElasticProfileUsage("WindowsPR", "clean", "clean-artifacts")
+      new ElasticProfileUsage("WindowsPR", "clean", "clean-dirs", null, "config_repo"),
+      new ElasticProfileUsage("WindowsPR", "clean", "clean-artifacts", null, "config_repo")
     )
 
     def actualJsonRepresentation = ElasticProfileUsageRepresenter.toJSON(elasticProfileUsages)
 
-
     def expectedJson = [
-      [pipeline_name: "LinuxPR", stage_name: "build", job_name: "compile", template_name: "linux-pr"],
-      [pipeline_name: "LinuxPR", stage_name: "build", job_name: "tests", template_name: "linux-pr"],
+      [pipeline_name: "LinuxPR", stage_name: "build", job_name: "compile", template_name: "linux-pr", "pipeline_config_origin": "gocd"],
+      [pipeline_name: "LinuxPR", stage_name: "build", job_name: "tests", template_name: "linux-pr", "pipeline_config_origin": "gocd"],
 
-      [pipeline_name: "WindowsPR", stage_name: "clean", job_name: "clean-dirs"],
-      [pipeline_name: "WindowsPR", stage_name: "clean", job_name: "clean-artifacts"]
+      [pipeline_name: "WindowsPR", stage_name: "clean", job_name: "clean-dirs", "pipeline_config_origin": "config_repo"],
+      [pipeline_name: "WindowsPR", stage_name: "clean", job_name: "clean-artifacts", "pipeline_config_origin": "config_repo"]
     ]
 
     assertThatJson(actualJsonRepresentation).isEqualTo(expectedJson)

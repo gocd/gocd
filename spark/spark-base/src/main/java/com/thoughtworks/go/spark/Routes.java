@@ -433,4 +433,19 @@ public class Routes {
     public class ArtifactStores {
         public static final String SPA_BASE = "/admin/artifact_stores";
     }
+
+    public static class AccessToken {
+        public static final String BASE = "/api/access_token";
+        public static final String TOKEN_NAME = "/:token_name";
+        public static final String USERNAME = "/:username";
+        public static final String DOC = apiDocsUrl("#access_token");
+
+        public static String find() {
+            return BASE + TOKEN_NAME;
+        }
+
+        public static String name(String tokenName) {
+            return find().replaceAll(":token_name", tokenName);
+        }
+    }
 }

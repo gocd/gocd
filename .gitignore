@@ -93,6 +93,9 @@ api/api-admins-config-v2/logs/
 api/api-admins-config-v2/out/
 api/api-admins-config-v2/target/
 api/api-artifact-store-config-v1/config/
+api/api-access-token-v1/logs/
+api/api-access-token-v1/out/
+api/api-access-token-v1/target/
 api/api-artifact-store-config-v1/logs/
 api/api-artifact-store-config-v1/out/
 api/api-artifact-store-config-v1/target/

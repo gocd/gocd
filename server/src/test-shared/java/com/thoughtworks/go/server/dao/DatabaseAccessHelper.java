@@ -189,6 +189,7 @@ public class DatabaseAccessHelper extends HibernateDaoSupport {
         dataSet.addTable(new DefaultTable("jobAgentMetadata"));
         dataSet.addTable(new DefaultTable("DataSharingSettings"));
         dataSet.addTable(new DefaultTable("UsageDataReporting"));
+        dataSet.addTable(new DefaultTable("AccessToken"));
 
         databaseTester.setDataSet(dataSet);
     }

@@ -47,6 +47,24 @@
   </rule>
 
   <rule>
+    <name>Access Token Index and Create API</name>
+    <from>^/api/access_token(/?)$</from>
+    <to last="true">/spark/api/access_token</to>
+  </rule>
+
+  <rule>
+    <name>Spark Access Token Show API</name>
+    <from>^/api/access_token/(.*)$</from>
+    <to last="true">/spark/api/access_token/${escape:$1}</to>
+  </rule>
+
+  <rule>
+    <name>Spark Access Token Revoke API</name>
+    <from>^/api/access_token/([^/]+)/([^/]+)/revoke</from>
+    <to last="true">/spark/api/access_token/${escape:$1}/${escape:$2}/revoke</to>
+  </rule>
+
+  <rule>
     <name>users UI</name>
     <from>^/admin/users(/?)$</from>
     <run class="com.thoughtworks.go.server.SparkOrRailsToggle" method="usersPageUsingRails"/>

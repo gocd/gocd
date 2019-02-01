@@ -28,6 +28,8 @@ import org.slf4j.LoggerFactory;
 import java.io.Closeable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class LogFixture implements Closeable {
 
@@ -92,7 +94,7 @@ public class LogFixture implements Closeable {
     private class ListAppender extends AppenderBase<ILoggingEvent> {
 
         private final PatternLayoutEncoder encoder;
-        private List<ILoggingEvent> events = new ArrayList<>();
+        private Queue<ILoggingEvent> events = new ConcurrentLinkedQueue<ILoggingEvent>();
 
         ListAppender(PatternLayoutEncoder encoder) {
             this.encoder = encoder;
@@ -102,7 +104,7 @@ public class LogFixture implements Closeable {
             events.add(e);
         }
 
-        public List<ILoggingEvent> getRawEvents() {
+        Queue<ILoggingEvent> getRawEvents() {
             return events;
         }
 

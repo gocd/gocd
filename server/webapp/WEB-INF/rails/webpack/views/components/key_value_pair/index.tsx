@@ -88,13 +88,15 @@ export interface KeyValueTitleAttrs {
   title: m.Children;
   image: m.Children;
   titleTestId?: string;
+  inline?: boolean;
 }
 
 export class KeyValueTitle extends MithrilViewComponent<KeyValueTitleAttrs> {
   view(vnode: m.Vnode<KeyValueTitleAttrs>) {
+    const inlineClass = vnode.attrs.inline ? styles.titleInline : '';
     return [
       vnode.attrs.image,
-      <div data-test-id={vnode.attrs.titleTestId} className={styles.title}>{vnode.attrs.title}</div>
+      <div data-test-id={vnode.attrs.titleTestId} className={classnames(styles.title, inlineClass)}>{vnode.attrs.title}</div>
     ];
   }
 }

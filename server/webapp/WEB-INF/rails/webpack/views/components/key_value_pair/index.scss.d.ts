@@ -7,3 +7,4 @@ export const keyValueItem: string;
 export const keyValuePairInline: string;
 export const keyValueInlineItem: string;
 export const title: string;
+export const titleInline: string;

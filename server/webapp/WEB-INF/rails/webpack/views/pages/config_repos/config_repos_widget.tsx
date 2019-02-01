@@ -250,11 +250,11 @@ class ConfigRepoWidget extends MithrilViewComponent<ShowObjectAttrs<ConfigRepo>>
 
   private lastGoodModification(parseInfo: ParseInfo | null): m.Children {
     if (parseInfo && parseInfo.goodModification) {
-      const attrs = this.resolveHumanReadableAttributes(parseInfo.goodModification);
+      const attrs     = this.resolveHumanReadableAttributes(parseInfo.goodModification);
       const checkIcon = <span className={styles.goodModificationIcon}
                               title={`Last parsed with revision ${parseInfo.goodModification.revision}`}/>;
       return [
-        <KeyValueTitle title={"Good Modification"} image={checkIcon}/>,
+        <KeyValueTitle title={"Good Modification"} image={checkIcon} inline={true}/>,
         <KeyValuePair data={attrs}/>
       ];
     }
@@ -271,24 +271,11 @@ class ConfigRepoWidget extends MithrilViewComponent<ShowObjectAttrs<ConfigRepo>>
       }
 
       return [
-        <KeyValueTitle title={"Latest Modification"}
-                       image={<span className={statusIcon}
-                                    title={`Last parsed with revision ${parseInfo.latestParsedModification.revision}`}/>}/>,
+        <KeyValueTitle title={"Latest Modification"} inline={true}
+                       image={<span className={statusIcon} title={`Last parsed with revision ${parseInfo.latestParsedModification.revision}` }/>}/>,
         <KeyValuePair data={attrs}/>
       ];
     }
-  }
-
-  private resolveHumanReadableAttributes(obj: object) {
-    const attrs = new Map();
-    const keys = Object.keys(obj).map(humanizedMaterialAttributeName);
-    const values = Object.values(obj);
-
-    keys.forEach((key, index) => {
-      attrs.set(key, values[index]);
-    });
-
-    return attrs;
   }
 
   private configRepoMetaConfig(id: string, pluginId: string) {
@@ -303,6 +290,18 @@ class ConfigRepoWidget extends MithrilViewComponent<ShowObjectAttrs<ConfigRepo>>
       <KeyValueTitle title={"Material"} image={undefined}/>,
       <KeyValuePair data = {allAttributes}/>
     ];
+  }
+
+  private resolveHumanReadableAttributes(obj: object) {
+    const attrs = new Map();
+    const keys = Object.keys(obj).map(humanizedMaterialAttributeName);
+    const values = Object.values(obj);
+
+    keys.forEach((key, index) => {
+      attrs.set(key, values[index]);
+    });
+
+    return attrs;
   }
 }
 

@@ -15,7 +15,7 @@
  */
 
 import * as m from "mithril";
-import {KeyValuePair} from "views/components/key_value_pair/index";
+import {KeyValuePair, KeyValueTitle} from "views/components/key_value_pair/index";
 import * as styles from "../index.scss";
 
 describe("KeyValuePair", () => {
@@ -96,5 +96,61 @@ describe("KeyValuePair", () => {
   function unmount() {
     m.mount(root, null);
     m.redraw();
+  }
+});
+
+describe("KeyValueTitle", () => {
+  let $root: any, root: HTMLElement;
+
+  beforeEach(() => {
+    // @ts-ignore
+    [$root, root] = window.createDomElementForTest();
+  });
+
+  afterEach(unmount);
+  // @ts-ignore
+  afterEach(window.destroyDomElementForTest);
+
+  it("should render key value title", () => {
+    mount(false);
+
+    expect($root.find(`.${styles.title}`)).toContainText('A Long Descriptive Title');
+    expect($root.find(`.${styles.title}`)).not.toHaveClass(styles.titleInline);
+    expect(find('data-test-icon-span')).toContainText('Icon Goes Here');
+  });
+
+  it("should render key value title inline", () => {
+    mount(true);
+
+    expect($root.find(`.${styles.title}`)).toContainText('A Long Descriptive Title');
+    expect($root.find(`.${styles.title}`)).toHaveClass(styles.titleInline);
+    expect(find('data-test-icon-span')).toContainText('Icon Goes Here');
+  });
+
+  function data() {
+    return {
+      title: "A Long Descriptive Title",
+      image: (<span data-test-id="data-test-icon-span">Icon Goes Here</span>),
+      titleTestId: 'data-test-key-title',
+    };
+  }
+
+  function mount(inlineTitle: boolean) {
+    m.mount(root, {
+      view() {
+        return <KeyValueTitle {...data()} inline={inlineTitle}/>;
+      }
+    });
+
+    m.redraw();
+  }
+
+  function unmount() {
+    m.mount(root, null);
+    m.redraw();
+  }
+
+  function find(id: string) {
+    return $root.find(`[data-test-id='${id}']`);
   }
 });

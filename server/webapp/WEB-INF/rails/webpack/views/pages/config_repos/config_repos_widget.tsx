@@ -253,10 +253,10 @@ class ConfigRepoWidget extends MithrilViewComponent<ShowObjectAttrs<ConfigRepo>>
       const attrs     = this.resolveHumanReadableAttributes(parseInfo.goodModification);
       const checkIcon = <span className={styles.goodModificationIcon}
                               title={`Last parsed with revision ${parseInfo.goodModification.revision}`}/>;
-      return [
-        <KeyValueTitle title={"Good Modification"} image={checkIcon} inline={true}/>,
+      return <div data-test-id="config-repo-good-modification-panel">
+        <KeyValueTitle title={"Good Modification"} image={checkIcon} inline={true}/>
         <KeyValuePair data={attrs}/>
-      ];
+      </div>;
     }
   }
 
@@ -270,26 +270,26 @@ class ConfigRepoWidget extends MithrilViewComponent<ShowObjectAttrs<ConfigRepo>>
         statusIcon = styles.errorLastModificationIcon;
       }
 
-      return [
+      return <div data-test-id="config-repo-latest-modification-panel">
         <KeyValueTitle title={"Latest Modification"} inline={true}
-                       image={<span className={statusIcon} title={`Last parsed with revision ${parseInfo.latestParsedModification.revision}` }/>}/>,
+                       image={<span className={statusIcon} title={`Last parsed with revision ${parseInfo.latestParsedModification.revision}` }/>}/>
         <KeyValuePair data={attrs}/>
-      ];
+      </div>;
     }
   }
 
   private configRepoMetaConfig(id: string, pluginId: string) {
-    return [
-      <KeyValueTitle title={"Config Repository Configurations"} image={undefined}/>,
+    return <div data-test-id="config-repo-plugin-panel">
+      <KeyValueTitle title={"Config Repository Configurations"} image={undefined}/>
       <KeyValuePair data={new Map([["Id", id], ["Plugin Id", pluginId]])}/>
-    ];
+    </div>;
   }
 
   private materialConfig(allAttributes: Map<string, m.Children>) {
-    return [
-      <KeyValueTitle title={"Material"} image={undefined}/>,
+    return <div data-test-id="config-repo-material-panel">
+      <KeyValueTitle title={"Material"} image={undefined}/>
       <KeyValuePair data = {allAttributes}/>
-    ];
+    </div>;
   }
 
   private resolveHumanReadableAttributes(obj: object) {

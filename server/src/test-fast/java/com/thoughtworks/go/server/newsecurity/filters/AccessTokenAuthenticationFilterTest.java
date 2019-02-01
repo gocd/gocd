@@ -16,15 +16,20 @@
 
 package com.thoughtworks.go.server.newsecurity.filters;
 
+import com.thoughtworks.go.config.SecurityAuthConfig;
+import com.thoughtworks.go.domain.AccessToken;
+import com.thoughtworks.go.helper.AccessTokenMother;
 import com.thoughtworks.go.http.mocks.HttpRequestBuilder;
 import com.thoughtworks.go.http.mocks.MockHttpServletRequest;
 import com.thoughtworks.go.http.mocks.MockHttpServletResponse;
-import com.thoughtworks.go.server.newsecurity.models.AuthTokenCredential;
+import com.thoughtworks.go.server.exceptions.InvalidAccessTokenException;
+import com.thoughtworks.go.server.newsecurity.models.AccessTokenCredential;
 import com.thoughtworks.go.server.newsecurity.models.AuthenticationToken;
-import com.thoughtworks.go.server.newsecurity.providers.AuthTokenBasedPluginAuthenticationProvider;
+import com.thoughtworks.go.server.newsecurity.providers.AccessTokenBasedPluginAuthenticationProvider;
 import com.thoughtworks.go.server.newsecurity.utils.SessionUtils;
 import com.thoughtworks.go.server.security.userdetail.GoUserPrinciple;
-import com.thoughtworks.go.server.service.AuthTokenService;
+import com.thoughtworks.go.server.service.AccessTokenService;
+import com.thoughtworks.go.server.service.SecurityAuthConfigService;
 import com.thoughtworks.go.server.service.SecurityService;
 import com.thoughtworks.go.util.TestingClock;
 import org.junit.jupiter.api.AfterEach;
@@ -41,28 +46,36 @@ import java.io.IOException;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
-public class AuthTokenAuthenticationFilterTest {
+public class AccessTokenAuthenticationFilterTest {
     private static final String BOB = "bob";
     private static final String TOKEN = "857faf4b42fc9e324fb40b7223f2a94a";
+    private static final String PLUGIN_ID = "plugin1";
     private TestingClock clock;
     private SecurityService securityService;
-    private AuthTokenService authTokenService;
-    private AuthTokenBasedPluginAuthenticationProvider authenticationProvider;
+    private AccessTokenService accessTokenService;
+    private AccessTokenBasedPluginAuthenticationProvider authenticationProvider;
     private MockHttpServletResponse response;
     private FilterChain filterChain;
     private MockHttpServletRequest request;
-    private AuthTokenAuthenticationFilter filter;
+    private AccessTokenAuthenticationFilter filter;
+    private SecurityAuthConfigService securityAuthConfigService;
+    private AccessToken accessToken;
+    private SecurityAuthConfig authConfig;
 
     @BeforeEach
-    void setUp() {
+    void setUp() throws Exception {
         clock = new TestingClock();
         securityService = mock(SecurityService.class);
-        authTokenService = mock(AuthTokenService.class);
-        authenticationProvider = mock(AuthTokenBasedPluginAuthenticationProvider.class);
+        accessTokenService = mock(AccessTokenService.class);
+        authenticationProvider = mock(AccessTokenBasedPluginAuthenticationProvider.class);
+        securityAuthConfigService = mock(SecurityAuthConfigService.class);
         response = new MockHttpServletResponse();
         filterChain = mock(FilterChain.class);
-
-        filter = new AuthTokenAuthenticationFilter(securityService, authTokenService, authenticationProvider);
+        filter = new AccessTokenAuthenticationFilter(securityService, accessTokenService, securityAuthConfigService, authenticationProvider);
+        accessToken = AccessTokenMother.accessTokenWithNameForUser(TOKEN, BOB);
+        when(accessTokenService.findByAccessToken(TOKEN)).thenReturn(accessToken);
+        authConfig = new SecurityAuthConfig(accessToken.getAuthConfigId(), PLUGIN_ID);
+        when(securityAuthConfigService.findProfile(accessToken.getAuthConfigId())).thenReturn(authConfig);
     }
 
     @AfterEach
@@ -70,14 +83,9 @@ public class AuthTokenAuthenticationFilterTest {
         SessionUtils.unsetCurrentUser();
     }
 
-    private AuthenticationToken<AuthTokenCredential> createAuthentication(String username,
-                                                                          GrantedAuthority... grantedAuthorities) {
+    private AuthenticationToken<AccessTokenCredential> createAuthentication(String username, GrantedAuthority... grantedAuthorities) {
         final GoUserPrinciple goUserPrinciple = new GoUserPrinciple(username, username, grantedAuthorities);
-        return new AuthenticationToken<>(goUserPrinciple,
-                new AuthTokenCredential(username),
-                null,
-                clock.currentTimeMillis(),
-                null);
+        return new AuthenticationToken<>(goUserPrinciple, new AccessTokenCredential(accessToken), null, clock.currentTimeMillis(), null);
     }
 
     @Nested
@@ -143,14 +151,14 @@ public class AuthTokenAuthenticationFilterTest {
         }
 
         @Test
-        void shouldDisallowAccessWhenInvalidCredentialsAreProvided() throws ServletException, IOException {
+        void shouldDisallowAccessWhenInvalidCredentialsAreProvided() throws Exception {
             request = HttpRequestBuilder.GET("/api/blah")
                     .withBearerAuth(TOKEN)
                     .build();
 
             final HttpSession originalSession = request.getSession(true);
 
-            when(authenticationProvider.authenticate(new AuthTokenCredential(BOB), null)).thenReturn(null);
+            when(accessTokenService.findByAccessToken(TOKEN)).thenThrow(new InvalidAccessTokenException());
 
             filter.doFilter(request, response, filterChain);
 
@@ -158,20 +166,19 @@ public class AuthTokenAuthenticationFilterTest {
             assertThat(request.getSession(false)).isSameAs(originalSession);
             assertThat(SessionUtils.getAuthenticationToken(request)).isNull();
             assertThat(response.getStatus()).isEqualTo(401);
-            assertThat(response.getContentAsString()).isEqualTo("{\n  \"message\": \"Invalid auth token credential\"\n}");
+            assertThat(response.getContentAsString()).isEqualTo("{\n  \"message\": \"Invalid Personal Access Token.\"\n}");
         }
 
         @Test
-        void shouldAllowAccessWhenGoodCredentialsAreProvided() throws ServletException, IOException {
+        void shouldAllowAccessWhenGoodCredentialsAreProvided() throws Exception {
             request = HttpRequestBuilder.GET("/api/blah")
                     .withBearerAuth(TOKEN)
                     .build();
 
             final HttpSession originalSession = request.getSession(true);
-            final AuthenticationToken<AuthTokenCredential> authenticationToken = createAuthentication(BOB);
+            final AuthenticationToken<AccessTokenCredential> authenticationToken = createAuthentication(BOB);
 
-            when(authTokenService.getUsernameFromToken(TOKEN)).thenReturn(BOB);
-            when(authenticationProvider.authenticate(new AuthTokenCredential(BOB), null)).thenReturn(authenticationToken);
+            when(authenticationProvider.authenticateUser(new AccessTokenCredential(accessToken), authConfig)).thenReturn(authenticationToken);
 
             filter.doFilter(request, response, filterChain);
 

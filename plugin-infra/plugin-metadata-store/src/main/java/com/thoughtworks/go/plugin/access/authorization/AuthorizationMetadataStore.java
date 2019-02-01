@@ -77,7 +77,7 @@ public class AuthorizationMetadataStore extends MetadataStore<AuthorizationPlugi
         return pluginInfos.get(pluginId).getCapabilities().getSupportedAuthType() == SupportedAuthType.Web;
     }
 
-    public boolean doesPluginSupportTokenBasedAuthentication(String pluginId) {
+    public boolean doesPluginSupportGetUserRolesCall(String pluginId) {
         return getPluginsThatSupportsGetUserRoles().contains(pluginId);
     }
 

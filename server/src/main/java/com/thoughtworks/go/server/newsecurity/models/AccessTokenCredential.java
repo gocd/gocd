@@ -16,29 +16,38 @@
 
 package com.thoughtworks.go.server.newsecurity.models;
 
-public class AuthTokenCredential implements Credentials {
-    private String username;
+import com.thoughtworks.go.domain.AccessToken;
 
-    public AuthTokenCredential(String username) {
-        this.username = username;
+import java.util.Objects;
+
+public class AccessTokenCredential implements Credentials {
+    private AccessToken accessToken;
+
+    public AccessTokenCredential(AccessToken accessToken) {
+        this.accessToken = accessToken;
     }
 
-    public String getUsername() {
-        return username;
+    public AccessToken getAccessToken() {
+        return accessToken;
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-
-        AuthTokenCredential that = (AuthTokenCredential) o;
-
-        return username != null ? username.equals(that.username) : that.username == null;
+        AccessTokenCredential that = (AccessTokenCredential) o;
+        return Objects.equals(accessToken, that.accessToken);
     }
 
     @Override
     public int hashCode() {
-        return username != null ? username.hashCode() : 0;
+        return Objects.hash(accessToken);
+    }
+
+    @Override
+    public String toString() {
+        return "AccessTokenCredential{" +
+                "accessToken=" + accessToken +
+                '}';
     }
 }

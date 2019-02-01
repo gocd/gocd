@@ -346,7 +346,7 @@ public class AuthorizationExtensionTest {
             when(pluginManager.submitTo(eq(PLUGIN_ID), eq(AUTHORIZATION_EXTENSION), requestArgumentCaptor.capture())).thenReturn(new DefaultGoPluginApiResponse(SUCCESS_RESPONSE_CODE, responseBody));
 
 
-            AuthenticationResponse authenticationResponse = authorizationExtension.authenticateUser(PLUGIN_ID, "fooUser", Collections.singletonList(new SecurityAuthConfig("ldap", "cd.go.ldap", ConfigurationPropertyMother.create("foo", false, "bar"))), Collections.emptyList());
+            AuthenticationResponse authenticationResponse = authorizationExtension.getUserRoles(PLUGIN_ID, "fooUser", Collections.singletonList(new SecurityAuthConfig("ldap", "cd.go.ldap", ConfigurationPropertyMother.create("foo", false, "bar"))), Collections.emptyList());
 
             assertRequest(requestArgumentCaptor.getValue(), AUTHORIZATION_EXTENSION, "2.0", REQUEST_GET_USER_ROLES, requestBody);
             assertThat(authenticationResponse.getUser(), is(new User("bob", "Bob", "bob@example.com")));
@@ -357,7 +357,7 @@ public class AuthorizationExtensionTest {
         @Test
         void authenticateUser_shouldErrorOutInAbsenceOfSecurityAuthConfigs() {
             Executable codeThatShouldThrowError = () -> {
-                authorizationExtension.authenticateUser(PLUGIN_ID, "fooUser", null, null);
+                authorizationExtension.getUserRoles(PLUGIN_ID, "fooUser", null, null);
             };
 
             MissingAuthConfigsException exception = assertThrows(MissingAuthConfigsException.class, codeThatShouldThrowError);

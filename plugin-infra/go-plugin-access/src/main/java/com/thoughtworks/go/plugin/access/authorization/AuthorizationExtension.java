@@ -209,7 +209,7 @@ public class AuthorizationExtension extends AbstractExtension {
         });
     }
 
-    public AuthenticationResponse authenticateUser(String pluginId, String username, List<SecurityAuthConfig> authConfigs, List<PluginRoleConfig> roleConfigs) {
+    public AuthenticationResponse getUserRoles(String pluginId, String username, List<SecurityAuthConfig> authConfigs, List<PluginRoleConfig> roleConfigs) {
         errorOutIfEmpty(authConfigs, pluginId);
         return pluginRequestHelper.submitRequest(pluginId, REQUEST_GET_USER_ROLES, new DefaultPluginInteractionCallback<AuthenticationResponse>() {
             @Override

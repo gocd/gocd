@@ -105,7 +105,7 @@ public abstract class AbstractPluginAuthenticationProvider<T extends Credentials
                                                                         String pluginId,
                                                                         String authConfigId);
 
-    protected AuthenticationToken<T> authenticateUser(T credentials, SecurityAuthConfig authConfig) {
+    public AuthenticationToken<T> authenticateUser(T credentials, SecurityAuthConfig authConfig) {
         String pluginId = authConfig.getPluginId();
 
         try {

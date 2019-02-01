@@ -92,8 +92,8 @@ public class SessionUtilsHelper {
 
     public static GoUserPrinciple loginAs(HttpServletRequest request, String username, GrantedAuthority... grantedAuthorities) {
         final GoUserPrinciple goUserPrinciple = loginAs(username, grantedAuthorities);
-        final AuthenticationToken<AuthTokenCredential> authenticationToken = new AuthenticationToken<>(goUserPrinciple,
-                new AuthTokenCredential(goUserPrinciple.getUsername()), null, 0L, null);
+        final AuthenticationToken<AccessTokenCredential> authenticationToken = new AuthenticationToken<>(goUserPrinciple,
+                new AccessTokenCredential(null), null, 0L, null);
         SessionUtils.setAuthenticationTokenAfterRecreatingSession(authenticationToken, request);
         return goUserPrinciple;
     }

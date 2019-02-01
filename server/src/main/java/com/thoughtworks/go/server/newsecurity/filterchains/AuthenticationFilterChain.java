@@ -34,7 +34,7 @@ public class AuthenticationFilterChain extends FilterChainProxy {
             @Qualifier("reAuthenticationWithChallengeFilter") Filter reAuthenticationWithChallenge,
             @Qualifier("basicAuthenticationWithChallengeFilter") Filter basicAuthenticationWithChallengeFilter,
             @Qualifier("basicAuthenticationWithRedirectToLoginFilter") Filter basicAuthenticationWithRedirectToLoginFilter,
-            @Qualifier("authTokenAuthenticationFilter") Filter authTokenAuthenticationFilter,
+            @Qualifier("accessTokenAuthenticationFilter") Filter accessTokenAuthenticationFilter,
             @Qualifier("assumeAnonymousUserFilter") Filter assumeAnonymousUserFilter) {
         super(FilterChainBuilder.newInstance()
                 // X509 for agent remoting and agent-websocket
@@ -48,7 +48,7 @@ public class AuthenticationFilterChain extends FilterChainProxy {
                 .addFilterChain("/api/config-repository.git/**", invalidateAuthenticationOnSecurityConfigChangeFilter, assumeAnonymousUserFilter, reAuthenticationWithChallenge, basicAuthenticationWithChallengeFilter)
                 .addFilterChain("/cctray.xml", invalidateAuthenticationOnSecurityConfigChangeFilter, reAuthenticationWithChallenge, assumeAnonymousUserFilter, basicAuthenticationWithChallengeFilter)
                 .addFilterChain("/api/webhooks/*/notify", assumeAnonymousUserFilter)
-                .addFilterChain("/api/**", invalidateAuthenticationOnSecurityConfigChangeFilter, reAuthenticationWithChallenge, assumeAnonymousUserFilter, basicAuthenticationWithChallengeFilter, authTokenAuthenticationFilter)
+                .addFilterChain("/api/**", invalidateAuthenticationOnSecurityConfigChangeFilter, reAuthenticationWithChallenge, assumeAnonymousUserFilter, basicAuthenticationWithChallengeFilter, accessTokenAuthenticationFilter)
 
                 .addFilterChain("/api/version", invalidateAuthenticationOnSecurityConfigChangeFilter, reAuthenticationWithRedirectToLoginPage, assumeAnonymousUserFilter, basicAuthenticationWithRedirectToLoginFilter)
 

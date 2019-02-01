@@ -70,7 +70,7 @@ public class AccessTokenServiceIntegrationTest {
     }
 
     @Test
-    public void shouldCreateAnAuthToken() throws Exception {
+    public void shouldCreateAnAccessToken() throws Exception {
         String tokenName = "token1";
         String tokenDescription = "This is my first token";
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
@@ -99,7 +99,7 @@ public class AccessTokenServiceIntegrationTest {
     }
 
     @Test
-    public void shouldFailToCreateAuthTokenWhenOneWithTheSameNameAlreadyExists() throws Exception {
+    public void shouldFailToCreateAccessTokenWhenOneWithTheSameNameAlreadyExists() throws Exception {
         String tokenName = "token1";
         String tokenDescription = "This is my first token";
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
@@ -113,11 +113,11 @@ public class AccessTokenServiceIntegrationTest {
         accessTokenService.create(tokenName, tokenDescription, currentUsername(), authConfigId, result);
         assertThat(result.isSuccessful()).isFalse();
         assertThat(result.httpCode()).isEqualTo(409);
-        assertThat(result.message()).isEqualTo("Validation Failed. Another auth token with name 'token1' already exists.");
+        assertThat(result.message()).isEqualTo("Validation Failed. Another access token with name 'token1' already exists.");
     }
 
     @Test
-    public void shouldAllowDifferentUsersToCreateAuthTokenWhenWithSameName() throws Exception {
+    public void shouldAllowDifferentUsersToCreateAccessTokenWhenWithSameName() throws Exception {
         String tokenName = "token1";
         String tokenDescription = "This is my first token";
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();

@@ -45,13 +45,13 @@ import static spark.Spark.*;
 public class AccessTokenControllerV1 extends ApiController implements SparkSpringController {
 
     private final ApiAuthenticationHelper apiAuthenticationHelper;
-    private AccessTokenService AccessTokenService;
+    private AccessTokenService accessTokenService;
 
     @Autowired
     public AccessTokenControllerV1(ApiAuthenticationHelper apiAuthenticationHelper, AccessTokenService AccessTokenService) {
         super(ApiVersion.v1);
         this.apiAuthenticationHelper = apiAuthenticationHelper;
-        this.AccessTokenService = AccessTokenService;
+        this.accessTokenService = AccessTokenService;
     }
 
     @Override
@@ -85,7 +85,7 @@ public class AccessTokenControllerV1 extends ApiController implements SparkSprin
         String tokenName = reader.getString("name");
         String tokenDescription = reader.optString("description").orElse(null);
 
-        AccessToken created = AccessTokenService.create(tokenName, tokenDescription, currentUsername(), currentUserAuthConfigId(request), result);
+        AccessToken created = accessTokenService.create(tokenName, tokenDescription, currentUsername(), currentUserAuthConfigId(request), result);
 
         if (result.isSuccessful()) {
             return renderAccessToken(request, response, created, true);
@@ -95,7 +95,7 @@ public class AccessTokenControllerV1 extends ApiController implements SparkSprin
     }
 
     public String getAccessToken(Request request, Response response) throws Exception {
-        final AccessToken token = AccessTokenService.find(request.params("token_name"), currentUsername().getUsername().toString());
+        final AccessToken token = accessTokenService.find(request.params("token_name"), currentUsername().getUsername().toString());
 
         if (token == null) {
             throw new RecordNotFoundException();
@@ -105,7 +105,7 @@ public class AccessTokenControllerV1 extends ApiController implements SparkSprin
     }
 
     public String getAllAccessTokens(Request request, Response response) throws Exception {
-        List<AccessToken> allTokens = AccessTokenService.findAllTokensForUser(currentUsername());
+        List<AccessToken> allTokens = accessTokenService.findAllTokensForUser(currentUsername());
         return writerForTopLevelObject(request, response, outputWriter -> AccessTokensRepresenter.toJSON(outputWriter, allTokens));
     }
 
@@ -114,10 +114,10 @@ public class AccessTokenControllerV1 extends ApiController implements SparkSprin
         String username = request.params("username");
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        AccessTokenService.revokeAccessToken(tokenName, username, result);
+        accessTokenService.revokeAccessToken(tokenName, username, result);
 
         if (result.isSuccessful()) {
-            return renderAccessToken(request, response, AccessTokenService.find(tokenName, username), true);
+            return renderAccessToken(request, response, accessTokenService.find(tokenName, username), true);
         }
 
         return renderHTTPOperationResult(result, request, response);

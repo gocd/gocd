@@ -27,7 +27,7 @@ import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
 
 class AccessTokenRepresenterTest {
   @Test
-  void 'renders the auth token hal representation with token value'() {
+  void 'renders the access token hal representation with token value'() {
     def token = accessTokenWithName("token1")
 
     def json = toObjectString({

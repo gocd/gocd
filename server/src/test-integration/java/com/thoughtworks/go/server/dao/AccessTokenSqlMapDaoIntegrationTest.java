@@ -109,14 +109,14 @@ public class AccessTokenSqlMapDaoIntegrationTest {
 
         accessTokenSqlMapDao.saveOrUpdate(accessToken);
 
-        AccessToken savedAccessToken = accessTokenSqlMapDao.findTokenBySaltId(accessToken.getSaltId());
+        AccessToken savedAccessToken = accessTokenSqlMapDao.findAccessTokenBySaltId(accessToken.getSaltId());
         assertThat(savedAccessToken).isEqualTo(accessToken);
     }
 
     @Test
     public void shouldReturnNullWhenNoAccessTokenFoundForTheSpecifiedSaltId() {
         String saltId = "access-token-for-apis";
-        AccessToken savedAccessToken = accessTokenSqlMapDao.findTokenBySaltId(saltId);
+        AccessToken savedAccessToken = accessTokenSqlMapDao.findAccessTokenBySaltId(saltId);
         assertThat(savedAccessToken).isNull();
     }
 }

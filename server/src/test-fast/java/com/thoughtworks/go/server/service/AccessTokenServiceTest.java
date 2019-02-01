@@ -54,32 +54,32 @@ class AccessTokenServiceTest {
     }
 
     @Test
-    void shouldValidateAuthTokenName() throws Exception {
+    void shouldValidateAccessTokenName() throws Exception {
         String invalidTokenName = "@#my_%_fancy_%_token#@";
         accessTokenService.create(invalidTokenName, null, username, authConfigId, result);
 
         assertThat(result.isSuccessful()).isFalse();
         assertThat(result.httpCode()).isEqualTo(422);
-        assertThat(result.message()).isEqualTo(String.format("Invalid auth token name '%s'. This must be alphanumeric and can contain underscores and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.", invalidTokenName));
+        assertThat(result.message()).isEqualTo(String.format("Invalid access token name '%s'. This must be alphanumeric and can contain underscores and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.", invalidTokenName));
 
         verifyNoMoreInteractions(accessTokenDao);
     }
 
     @Test
-    void shouldValidateAuthTokenDescription() throws Exception {
+    void shouldValidateAccessTokenDescription() throws Exception {
         String tokenName = "token1";
         String longerDescription = RandomStringUtils.randomAlphanumeric(1025).toUpperCase();
         accessTokenService.create(tokenName, longerDescription, username, authConfigId, result);
 
         assertThat(result.isSuccessful()).isFalse();
         assertThat(result.httpCode()).isEqualTo(422);
-        assertThat(result.message()).isEqualTo("Validation Failed. Auth token description can not be longer than 1024 characters.");
+        assertThat(result.message()).isEqualTo("Validation Failed. Access token description can not be longer than 1024 characters.");
 
         verifyNoMoreInteractions(accessTokenDao);
     }
 
     @Test
-    void shouldMakeACallToSQLDaoForAuthTokenCreation() throws Exception {
+    void shouldMakeACallToSQLDaoForAccessTokenCreation() throws Exception {
         String tokenName = "token1";
         String longerDescription = RandomStringUtils.randomAlphanumeric(1024).toUpperCase();
         accessTokenService.create(tokenName, longerDescription, username, authConfigId, result);
@@ -90,7 +90,7 @@ class AccessTokenServiceTest {
     }
 
     @Test
-    void shouldMakeACallToSQLDaoForFetchingAuthToken() {
+    void shouldMakeACallToSQLDaoForFetchingAccessToken() {
         String tokenName = "token1";
         accessTokenService.find(tokenName, username.getUsername().toString());
 
@@ -99,7 +99,7 @@ class AccessTokenServiceTest {
     }
 
     @Test
-    void shouldMakeACallToSQLDaoForFetchingAllAuthTokensBelongingToAUser() {
+    void shouldMakeACallToSQLDaoForFetchingAllAccessTokensBelongingToAUser() {
         accessTokenService.findAllTokensForUser(username);
 
         verify(accessTokenDao, times(1)).findAllTokensForUser(username.getUsername().toString());
@@ -107,7 +107,7 @@ class AccessTokenServiceTest {
     }
 
     @Test
-    void shouldValidateExistenceOfAnotherAuthTokenWithTheSameName() throws Exception {
+    void shouldValidateExistenceOfAnotherAccessTokenWithTheSameName() throws Exception {
         String tokenName = "token1";
         String longerDescription = RandomStringUtils.randomAlphanumeric(1024).toUpperCase();
 
@@ -117,7 +117,7 @@ class AccessTokenServiceTest {
 
         assertThat(result.isSuccessful()).isFalse();
         assertThat(result.httpCode()).isEqualTo(409);
-        assertThat(result.message()).isEqualTo("Validation Failed. Another auth token with name 'token1' already exists.");
+        assertThat(result.message()).isEqualTo("Validation Failed. Another access token with name 'token1' already exists.");
 
         verify(accessTokenDao, times(1)).findAccessToken(tokenName, username.getUsername().toString());
         verifyNoMoreInteractions(accessTokenDao);

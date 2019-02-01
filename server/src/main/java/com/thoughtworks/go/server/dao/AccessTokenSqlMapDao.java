@@ -72,7 +72,7 @@ public class AccessTokenSqlMapDao extends HibernateDaoSupport implements AccessT
     }
 
     @Override
-    public AccessToken findTokenBySaltId(String saltId) {
+    public AccessToken findAccessTokenBySaltId(String saltId) {
         return (AccessToken) transactionTemplate.execute((TransactionCallback) transactionStatus ->
                 sessionFactory.getCurrentSession()
                         .createCriteria(AccessToken.class)

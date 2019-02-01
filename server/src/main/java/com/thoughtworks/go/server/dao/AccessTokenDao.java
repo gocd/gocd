@@ -31,5 +31,5 @@ public interface AccessTokenDao {
 
     List<AccessToken> findAllTokensForUser(String toString);
 
-    AccessToken findTokenBySaltId(String saltId);
+    AccessToken findAccessTokenBySaltId(String saltId);
 }

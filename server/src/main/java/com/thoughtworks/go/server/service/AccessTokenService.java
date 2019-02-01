@@ -53,21 +53,21 @@ public class AccessTokenService {
 
     public AccessToken create(String tokenName, String description, Username username, String authConfigId, HttpLocalizedOperationResult result) throws Exception {
         if (!new NameTypeValidator().isNameValid(tokenName)) {
-            result.unprocessableEntity(NameTypeValidator.errorMessage("auth token", tokenName));
+            result.unprocessableEntity(NameTypeValidator.errorMessage("access token", tokenName));
             return null;
         }
 
         if (description != null && description.length() > 1024) {
-            result.unprocessableEntity("Validation Failed. Auth token description can not be longer than 1024 characters.");
+            result.unprocessableEntity("Validation Failed. Access token description can not be longer than 1024 characters.");
             return null;
         }
 
         if (hasTokenWithNameForTheUser(tokenName, username)) {
-            result.conflict(String.format("Validation Failed. Another auth token with name '%s' already exists.", tokenName));
+            result.conflict(String.format("Validation Failed. Another access token with name '%s' already exists.", tokenName));
             return null;
         }
 
-        AccessToken tokenToCreate = getAuthTokenFor(tokenName, description, username, authConfigId);
+        AccessToken tokenToCreate = generateAccessTokenFor(tokenName, description, username, authConfigId);
         accessTokenDao.saveOrUpdate(tokenToCreate);
         return tokenToCreate;
     }
@@ -76,7 +76,7 @@ public class AccessTokenService {
         return accessTokenDao.findAccessToken(tokenName, username.getUsername().toString()) != null;
     }
 
-    AccessToken getAuthTokenFor(String tokenName, String description, Username username, String authConfigId) throws Exception {
+    private AccessToken generateAccessTokenFor(String tokenName, String description, Username username, String authConfigId) throws Exception {
         AccessToken accessToken = new AccessToken();
 
         accessToken.setName(tokenName);
@@ -107,7 +107,7 @@ public class AccessTokenService {
     }
 
     private String generateSecureRandomString(int byteLength) {
-        byte randomBytes[] = new byte[byteLength];
+        byte[] randomBytes = new byte[byteLength];
         new SecureRandom().nextBytes(randomBytes);
         return Hex.encodeHexString(randomBytes);
     }
@@ -128,7 +128,7 @@ public class AccessTokenService {
         String saltId = StringUtils.substring(actualToken, 0, 8);
         String originalToken = StringUtils.substring(actualToken, 8);
 
-        AccessToken token = accessTokenDao.findTokenBySaltId(saltId);
+        AccessToken token = accessTokenDao.findAccessTokenBySaltId(saltId);
         if (token == null) {
             throw new InvalidAccessTokenException();
         }

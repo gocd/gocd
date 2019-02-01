@@ -24,8 +24,14 @@ import com.thoughtworks.go.plugin.domain.common.PluginInfo;
 
 public class ConfigRepoPluginInfo extends PluginInfo {
 
-    public ConfigRepoPluginInfo(PluginDescriptor descriptor, Image image, PluggableInstanceSettings pluginSettings) {
+    private final Capabilities capabilities;
+
+    public ConfigRepoPluginInfo(PluginDescriptor descriptor, Image image, PluggableInstanceSettings pluginSettings, Capabilities capabilities) {
         super(descriptor, PluginConstants.CONFIG_REPO_EXTENSION, pluginSettings, image);
+        this.capabilities = capabilities;
     }
 
+    public Capabilities getCapabilities() {
+        return capabilities;
+    }
 }

@@ -23,6 +23,7 @@ import com.thoughtworks.go.plugin.domain.common.Metadata;
 import com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings;
 import com.thoughtworks.go.plugin.domain.common.PluginConfiguration;
 import com.thoughtworks.go.plugin.domain.common.PluginView;
+import com.thoughtworks.go.plugin.domain.configrepo.Capabilities;
 import com.thoughtworks.go.plugin.domain.configrepo.ConfigRepoPluginInfo;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import org.junit.Before;
@@ -53,6 +54,7 @@ public class ConfigRepoPluginInfoBuilderTest {
     public void shouldBuildPluginInfo() throws Exception {
         GoPluginDescriptor descriptor = new GoPluginDescriptor("plugin1", null, null, null, null, false);
         when(extension.getPluginSettingsView("plugin1")).thenReturn("some-html");
+        when(extension.getCapabilities("plugin1")).thenReturn(new Capabilities(true, true));
         ConfigRepoPluginInfo pluginInfo = new ConfigRepoPluginInfoBuilder(extension).pluginInfoFor(descriptor);
 
         List<PluginConfiguration> pluginConfigurations = Arrays.asList(
@@ -64,6 +66,7 @@ public class ConfigRepoPluginInfoBuilderTest {
         assertThat(pluginInfo.getDescriptor(), is(descriptor));
         assertThat(pluginInfo.getExtensionName(), is("configrepo"));
         assertThat(pluginInfo.getPluginSettings(), is(new PluggableInstanceSettings(pluginConfigurations, pluginView)));
+        assertThat(pluginInfo.getCapabilities(), is(new Capabilities(true, true)));
     }
 
     @Test

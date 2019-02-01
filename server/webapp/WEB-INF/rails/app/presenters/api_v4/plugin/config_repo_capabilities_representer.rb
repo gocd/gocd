@@ -1,5 +1,5 @@
 ##########################################################################
-# Copyright 2017 ThoughtWorks, Inc.
+# Copyright 2019 ThoughtWorks, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,15 +13,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ##########################################################################
+
 module ApiV4
   module Plugin
-    class ConfigRepoPluginInfoRepresenter < BasePluginInfoRepresenter
-      property :capabilities,
-               skip_nil: true,
-               expect_hash: true,
-               inherit: false,
-               class: com.thoughtworks.go.plugin.domain.configrepo.Capabilities,
-               decorator: ConfigRepoCapabilitiesRepresenter
+    class ConfigRepoCapabilitiesRepresenter < BaseRepresenter
+      alias_method :capabilities, :represented
+
+      property :supports_pipeline_export
+      property :supports_parse_content
     end
   end
 end

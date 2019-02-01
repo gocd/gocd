@@ -52,6 +52,7 @@
           Accept: "application/vnd.go.cd.v4+json"
         }
       }).then(function (res) {
+        debugger;
         plugins = _.filter(res.data._embedded.plugin_info, function(el) {
           return "active" === el.status.state;
         });

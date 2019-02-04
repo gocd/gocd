@@ -79,6 +79,7 @@ class HeaderWidget extends MithrilViewComponent<HeaderWidgetAttrs> {
     ];
   }
 
+  //todo: refactor
   private lastParseStatus(lastParsedCommit: ParseInfo | null) {
     let parseStatus: m.Children = "This config repository was never parsed";
 
@@ -266,7 +267,7 @@ class ConfigRepoWidget extends MithrilViewComponent<ShowObjectAttrs<ConfigRepo>>
       let statusIcon = styles.goodModificationIcon;
 
       if (parseInfo.error()) {
-        attrs.set("Error", parseInfo.error());
+        attrs.set("Error", <span class={styles.errorInParseInfo}>{parseInfo.error()}</span>);
         statusIcon = styles.errorLastModificationIcon;
       }
 

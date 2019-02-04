@@ -140,3 +140,13 @@ code {
 .header-title-text {
   font-size: 12px;
 }
+
+.error-in-parse-info {
+  color: $failed;
+}
+
+.wrapper-for-search-box {
+  display: inline-block;
+  margin-right: 10px;
+}
+

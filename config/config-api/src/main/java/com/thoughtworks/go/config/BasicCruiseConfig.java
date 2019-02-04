@@ -136,6 +136,7 @@ public class BasicCruiseConfig implements CruiseConfig {
         this.strategy = mergeStrategy;
         groups = mergeStrategy.mergePipelineConfigs();
         environments = mergeStrategy.mergeEnvironmentConfigs();
+        scms = mergeStrategy.mergeScms();
         resetAllPipelineConfigsCache();
     }
 
@@ -233,6 +234,9 @@ public class BasicCruiseConfig implements CruiseConfig {
             }
             for (PipelineConfigs pipes : groups) {
                 pipes.setOrigins(origins);
+            }
+            for (SCM scm : scms) {
+                scm.setOrigins(origin);
             }
         }
 
@@ -333,6 +337,27 @@ public class BasicCruiseConfig implements CruiseConfig {
             }
 
             return environments;
+        }
+
+        private SCMs mergeScms() {
+            SCMs scms = new SCMs();
+            scms.addAll(BasicCruiseConfig.this.scms);
+
+            for (PartialConfig part : this.parts) {
+                scms.addAll(part.getScms());
+            }
+
+            SCMs mergedScms = new SCMs();
+            for (SCM scm : scms) {
+                if (forEdit) {
+                    if (scm.isLocal()) {
+                        mergedScms.add(scm);
+                    }
+                } else {
+                    mergedScms.add(scm);
+                }
+            }
+            return mergedScms;
         }
 
         private PipelineGroups mergePipelineConfigs() {

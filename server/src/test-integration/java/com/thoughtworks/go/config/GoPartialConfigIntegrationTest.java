@@ -21,6 +21,10 @@ import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.config.remote.PartialConfig;
 import com.thoughtworks.go.config.remote.RepoConfigOrigin;
+import com.thoughtworks.go.domain.config.Configuration;
+import com.thoughtworks.go.domain.config.PluginConfiguration;
+import com.thoughtworks.go.domain.scm.SCM;
+import com.thoughtworks.go.domain.scm.SCMs;
 import com.thoughtworks.go.helper.PartialConfigMother;
 import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.serverhealth.HealthStateLevel;
@@ -237,7 +241,24 @@ public class GoPartialConfigIntegrationTest {
     }
 
     @Test
-    public void shouldFailToSaveCRPipelineReferencingATemplateWithParams() throws Exception {
+    public void shouldSaveSCMs() {
+        Configuration config = new Configuration();
+        config.addNewConfigurationWithValue("url", "url", false);
+        PluginConfiguration pluginConfig = new PluginConfiguration("plugin.id", "1.0");
+        RepoConfigOrigin origin = new RepoConfigOrigin(repoConfig1, "124");
+        PartialConfig scmPartial = PartialConfigMother.withSCM("scm_id", "name", pluginConfig, config, origin);
+        goPartialConfig.onSuccessPartialConfig(repoConfig1, scmPartial);
+        SCMs scms = goConfigDao.loadConfigHolder().config.getSCMs();
+        SCM expectedSCM = new SCM("scm_id", pluginConfig, config);
+        expectedSCM.setOrigins(origin);
+        expectedSCM.setName("name");
+        assertThat(scms.size(), is(1));
+        assertThat(scms.first(), is(expectedSCM));
+        assertThat(cacheContainsPartial(cachedGoPartials.lastKnownPartials(), scmPartial), is(true));
+    }
+
+    @Test
+    public void shouldFailToSaveCRPipelineReferencingATemplateWithParams() {
         configHelper.addTemplate("t1", "param1", "stage");
         goPartialConfig.onSuccessPartialConfig(repoConfig1, PartialConfigMother.withPipelineAssociatedWithTemplate("pipe-with-template", "t1", new RepoConfigOrigin(repoConfig1, "124")));
 

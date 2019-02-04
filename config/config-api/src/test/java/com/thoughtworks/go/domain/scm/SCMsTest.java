@@ -17,6 +17,7 @@
 package com.thoughtworks.go.domain.scm;
 
 import com.thoughtworks.go.domain.config.Configuration;
+import com.thoughtworks.go.domain.config.PluginConfiguration;
 import com.thoughtworks.go.plugin.access.scm.SCMConfigurations;
 import com.thoughtworks.go.plugin.access.scm.SCMMetadataStore;
 import com.thoughtworks.go.plugin.access.scm.SCMProperty;
@@ -136,5 +137,43 @@ public class SCMsTest {
         assertThat(scm3.errors().getAllOn(SCM.SCM_ID), is(asList(expectedErrorMessage)));
         assertThat(scm4.errors().getAllOn(SCM.SCM_ID), is(nullValue()));
         assertThat(scm5.errors().getAllOn(SCM.SCM_ID), is(asList(expectedErrorMessage)));
+    }
+
+    @Test
+    public void shouldFindFunctionallyDuplicateSCMs() {
+        Configuration config = new Configuration();
+        config.addNewConfigurationWithValue("url", "url", false);
+        PluginConfiguration pluginConfig = new PluginConfiguration("plugin_id", "1.0");
+        SCM scm1 = new SCM("scmid", pluginConfig, config);
+        scm1.setName("noName");
+        SCMs scms = new SCMs(scm1);
+
+        SCM scm2 = new SCM("scmid", new PluginConfiguration(), new Configuration());
+        SCM scm3 = new SCM("id", pluginConfig, config);
+
+        assertThat(scms.findDuplicate(scm2), is(scm1));
+        assertThat(scms.findDuplicate(scm3), is(scm1));
+    }
+
+    @Test
+    public void shouldDetermineIfAddingAnSCMWouldCreateDuplication() {
+        Configuration config = new Configuration();
+        config.addNewConfigurationWithValue("url", "url", false);
+        PluginConfiguration pluginConfig = new PluginConfiguration("plugin_id", "1.0");
+        SCM scm1 = new SCM("scmid", pluginConfig, config);
+        scm1.setName("noName");
+        SCMs scms = new SCMs(scm1);
+
+        SCM scm2 = new SCM("scmid", new PluginConfiguration(), new Configuration());
+        SCM scm3 = new SCM("id", pluginConfig, config);
+        SCM scm4 = new SCM("something", new PluginConfiguration(), new Configuration());
+        scm4.setName("noName");
+        SCM scm5 = new SCM("arbitrary", new PluginConfiguration(), new Configuration());
+        scm5.setName("aRandomName");
+
+        assertThat(scms.canAdd(scm2), is(false));
+        assertThat(scms.canAdd(scm3), is(false));
+        assertThat(scms.canAdd(scm4), is(false));
+        assertThat(scms.canAdd(scm5), is(true));
     }
 }

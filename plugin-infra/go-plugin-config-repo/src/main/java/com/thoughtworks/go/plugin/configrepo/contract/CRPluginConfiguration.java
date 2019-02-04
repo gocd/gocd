@@ -36,7 +36,7 @@ public class CRPluginConfiguration extends CRBase {
     }
 
     public String getVersion() {
-        return version;
+        return version == null ? "" : version;
     }
 
     public void setVersion(String version) {

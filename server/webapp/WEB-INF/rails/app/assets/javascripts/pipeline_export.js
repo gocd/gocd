@@ -52,14 +52,19 @@
           Accept: "application/vnd.go.cd.v4+json"
         }
       }).then(function (res) {
-        debugger;
-        plugins = _.filter(res.data._embedded.plugin_info, function(el) {
-          return "active" === el.status.state;
-        });
+        plugins = PipelineExport.filterPlugins(res.data._embedded.plugin_info);
       }).catch(function (res) {
         Flash.error(res.error.message);
       });
     };
+
+    this.filterPlugins = function filterPlugins(pluginInfos) {
+      return _.filter(pluginInfos, function(el) {
+        if ("active" === el.status.state) {
+          return (_.filter(el.extensions, function(ext) { return ext.type === "configrepo" && ext.capabilities.supports_pipeline_export } )).length
+        }
+      });
+    }
   }
 
   function createPluginListOption(p) {

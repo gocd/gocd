@@ -28,6 +28,13 @@ describe("PipelineExport", function () {
     ]);
   });
 
+  it("filterPlugins() returns only active plugins that support pipeline export", function() {
+    var plugins = PipelineExport.filterPlugins(testPluginInfos)
+
+    expect(plugins.length).toBe(1);
+    expect(plugins[0].id).toBe("pos.test.id");
+  });
+
   it("showExportOptions() displays plugin choices", function() {
     PipelineExport.showExportOptions(panel, link);
 
@@ -71,4 +78,16 @@ describe("PipelineExport", function () {
       choice.click();
     });
   });
+
+  var createPluginInfo = function(pluginId, stat, supportsExport) {
+    return {
+      id: pluginId,
+      status: { state: stat },
+      extensions: [{ type: "configrepo", capabilities: { supports_pipeline_export: supportsExport }}]
+    }
+  }
+
+  var testPluginInfos = [createPluginInfo("pos.test.id", "active", true),
+  createPluginInfo("invalid.id", "invalid", true),
+  createPluginInfo("not.support.id", "active", false)]
 });

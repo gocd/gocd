@@ -98,36 +98,10 @@ public class MergeCruiseConfigTest extends CruiseConfigTestBase {
     }
 
     @Test
-    public void shouldOnlyMergeValidSCMsWhenEditIsFalse() {
+    public void shouldOnlyMergeLocalSCMsWhenEditIsTrue() {
         BasicCruiseConfig cruiseConfig = GoConfigMother.configWithPipelines("p1", "p2");
         ConfigRepoConfig repoConfig1 = new ConfigRepoConfig(MaterialConfigsMother.gitMaterialConfig("url1"), "plugin");
         cruiseConfig.setConfigRepos(new ConfigReposConfig(repoConfig1));
-        PartialConfig inCompleteSCM = PartialConfigMother.withSCM("scmid",
-                "name",
-                new PluginConfiguration(),
-                new Configuration(),
-                new RepoConfigOrigin(repoConfig1, "repo1_r1"));
-        RepoConfigOrigin configOrigin = new RepoConfigOrigin(repoConfig1, "repo1_r1");
-        PartialConfig completeSCM = PartialConfigMother.withSCM("scmid",
-                "name",
-                new PluginConfiguration("plugin_id", "1"),
-                new Configuration(),
-                configOrigin);
-        cruiseConfig.merge(new ArrayList<>(Arrays.asList(completeSCM, inCompleteSCM)), false);
-        assertThat(cruiseConfig.getSCMs().size() ,is(1));
-        assertThat(cruiseConfig.getSCMs().first(), is(completeSCM.getScms().first()));
-    }
-
-    @Test
-    public void shouldOnlyMergeLocalAndPlaceholderSCMsWhenEditIsTrue() {
-        BasicCruiseConfig cruiseConfig = GoConfigMother.configWithPipelines("p1", "p2");
-        ConfigRepoConfig repoConfig1 = new ConfigRepoConfig(MaterialConfigsMother.gitMaterialConfig("url1"), "plugin");
-        cruiseConfig.setConfigRepos(new ConfigReposConfig(repoConfig1));
-        PartialConfig placeholder = PartialConfigMother.withSCM("scmid",
-                "name",
-                new PluginConfiguration(),
-                new Configuration(),
-                new RepoConfigOrigin(repoConfig1, "repo1_r1"));
         RepoConfigOrigin configOrigin = new RepoConfigOrigin(repoConfig1, "repo1_r1");
         PartialConfig completeSCM = PartialConfigMother.withSCM("scmid",
                 "name",
@@ -139,9 +113,8 @@ public class MergeCruiseConfigTest extends CruiseConfigTestBase {
                 new PluginConfiguration("plugin_id2", "1"),
                 new Configuration(),
                 new FileConfigOrigin());
-        cruiseConfig.merge(new ArrayList<>(Arrays.asList(localSCM, completeSCM, placeholder)), true);
-        assertThat(cruiseConfig.getSCMs().size() ,is(2));
-        assertThat(cruiseConfig.getSCMs().contains(placeholder.getScms().first()), is(true));
+        cruiseConfig.merge(new ArrayList<>(Arrays.asList(localSCM, completeSCM)), true);
+        assertThat(cruiseConfig.getSCMs().size() ,is(1));
         assertThat(cruiseConfig.getSCMs().contains(localSCM.getScms().first()), is(true));
     }
 

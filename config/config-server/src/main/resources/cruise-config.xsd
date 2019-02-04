@@ -83,7 +83,7 @@
           </xsd:unique>
         </xsd:element>
       </xsd:sequence>
-      <xsd:attribute name="schemaVersion" type="xsd:int" use="required" fixed="116"/>
+      <xsd:attribute name="schemaVersion" type="xsd:int" use="required" fixed="115"/>
     </xsd:complexType>
     <xsd:unique name="uniquePipelines">
       <xsd:selector xpath="pipelines"/>
@@ -208,8 +208,8 @@
   </xsd:complexType>
   <xsd:complexType name="scmType">
     <xsd:sequence>
-      <xsd:element name="pluginConfiguration" minOccurs="0" maxOccurs="1" type="pluginConfigurationType"/>
-      <xsd:element name="configuration" minOccurs="0" maxOccurs="1" type="configurationType"/>
+      <xsd:element name="pluginConfiguration" minOccurs="1" maxOccurs="1" type="pluginConfigurationType"/>
+      <xsd:element name="configuration" minOccurs="1" maxOccurs="1" type="configurationType"/>
     </xsd:sequence>
     <xsd:attribute type="scmIdType" name="id"/>
     <xsd:attribute type="nameType" name="name" use="required"/>

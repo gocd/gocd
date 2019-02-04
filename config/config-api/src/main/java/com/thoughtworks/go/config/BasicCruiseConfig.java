@@ -352,16 +352,9 @@ public class BasicCruiseConfig implements CruiseConfig {
                 if (forEdit) {
                     if (scm.isLocal()) {
                         mergedScms.add(scm);
-                    } else {
-                        // if not local, then only merge placeholder scms for cruisexml display
-                        if (scm.getPluginConfiguration().getId() == null) {
-                            mergedScms.add(scm);
-                        }
                     }
                 } else {
-                    if (scm.getPluginConfiguration().getId() != null) {
-                        mergedScms.add(scm);
-                    }
+                    mergedScms.add(scm);
                 }
             }
             return mergedScms;

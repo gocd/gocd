@@ -46,11 +46,6 @@ public class PartialConfigUpdateCommand implements UpdateConfigCommand {
             cruiseConfig.getPartials().add(CLONER.deepClone(partial));
 
             for (PartialConfig partial : cruiseConfig.getPartials()) {
-                for(SCM scm : partial.getScms()) {
-                    if (cruiseConfig.getSCMs().canAdd(scm)) {
-                        cruiseConfig.getSCMs().add(new SCM(scm.getId(), scm.getName()));
-                    }
-                }
                 for (EnvironmentConfig environmentConfig : partial.getEnvironments()) {
                     if (!cruiseConfig.getEnvironments().hasEnvironmentNamed(environmentConfig.name())) {
                         cruiseConfig.addEnvironment(new BasicEnvironmentConfig(environmentConfig.name()));

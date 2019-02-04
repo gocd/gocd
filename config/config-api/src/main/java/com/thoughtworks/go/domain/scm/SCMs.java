@@ -98,9 +98,7 @@ public class SCMs extends BaseCollection<SCM> implements Validatable {
             if (!map.containsKey(name)) {
                 map.put(name, new SCMs());
             }
-            if (scm.getPluginConfiguration().getId() != null) {
-                map.get(name).add(scm);
-            }
+            map.get(name).add(scm);
         }
 
         for (String name : map.keySet()) {
@@ -122,9 +120,7 @@ public class SCMs extends BaseCollection<SCM> implements Validatable {
                 map.put(fingerprint, new SCMs());
             }
 
-            if (scm.getPluginConfiguration().getId() != null) {
-                map.get(fingerprint).add(scm);
-            }
+            map.get(fingerprint).add(scm);
         }
 
         for (String fingerprint : map.keySet()) {

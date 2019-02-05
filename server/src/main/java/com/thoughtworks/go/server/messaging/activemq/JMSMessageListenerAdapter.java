@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,10 @@ package com.thoughtworks.go.server.messaging.activemq;
 import com.thoughtworks.go.server.messaging.GoMessage;
 import com.thoughtworks.go.server.messaging.GoMessageListener;
 import com.thoughtworks.go.server.service.support.DaemonThreadStatsCollector;
+import com.thoughtworks.go.serverhealth.HealthStateScope;
+import com.thoughtworks.go.serverhealth.HealthStateType;
+import com.thoughtworks.go.serverhealth.ServerHealthService;
+import com.thoughtworks.go.serverhealth.ServerHealthState;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,6 +32,10 @@ import javax.jms.Message;
 import javax.jms.MessageConsumer;
 import javax.jms.ObjectMessage;
 
+import java.io.File;
+
+import static com.thoughtworks.go.serverhealth.HealthStateScope.GLOBAL;
+
 public class JMSMessageListenerAdapter implements Runnable {
     private static final Logger LOG = LoggerFactory.getLogger(JMSMessageListenerAdapter.class);
 
@@ -35,13 +43,16 @@ public class JMSMessageListenerAdapter implements Runnable {
     private final GoMessageListener listener;
     private final DaemonThreadStatsCollector daemonThreadStatsCollector;
     private SystemEnvironment systemEnvironment;
+    private ServerHealthService serverHealthService;
     public Thread thread;
 
-    private JMSMessageListenerAdapter(MessageConsumer consumer, GoMessageListener listener, DaemonThreadStatsCollector daemonThreadStatsCollector, SystemEnvironment systemEnvironment) {
+    private JMSMessageListenerAdapter(MessageConsumer consumer, GoMessageListener listener, DaemonThreadStatsCollector daemonThreadStatsCollector,
+                                      SystemEnvironment systemEnvironment, ServerHealthService serverHealthService) {
         this.consumer = consumer;
         this.listener = listener;
         this.daemonThreadStatsCollector = daemonThreadStatsCollector;
         this.systemEnvironment = systemEnvironment;
+        this.serverHealthService = serverHealthService;
 
         thread = new Thread(this);
         String threadNameSuffix = "MessageListener for " + listener.getClass().getSimpleName();
@@ -84,7 +95,12 @@ public class JMSMessageListenerAdapter implements Runnable {
     }
 
     private void slowDownAndWarnAboutPossibleProblems(JMSException e) {
-        LOG.warn("Error receiving message. Message receiving will continue despite this error. Backing off for a few seconds. This error is unexpected and should probably be reported", e);
+        LOG.warn("Error receiving message. Message receiving will continue despite this error. Backing off for a few seconds. This error is unexpected and should be reported to https://github.com/gocd/gocd/issues", e);
+
+        serverHealthService.update(ServerHealthState.error("Message queue closed",
+                "It looks like a message queue has been closed. This is an unrecoverable error and should be reported to https://github.com/gocd/gocd/issues",
+                HealthStateType.general(GLOBAL)));
+
         try {
             Thread.sleep(systemEnvironment.get(SystemEnvironment.JMS_LISTENER_BACKOFF_TIME));
         } catch (InterruptedException e1) {
@@ -92,9 +108,9 @@ public class JMSMessageListenerAdapter implements Runnable {
         }
     }
 
-    public static JMSMessageListenerAdapter startListening(MessageConsumer consumer, GoMessageListener listener, DaemonThreadStatsCollector daemonThreadStatsCollector, SystemEnvironment systemEnvironment)
+    public static JMSMessageListenerAdapter startListening(MessageConsumer consumer, GoMessageListener listener, DaemonThreadStatsCollector daemonThreadStatsCollector, SystemEnvironment systemEnvironment, ServerHealthService serverHealthService)
             throws JMSException {
-        return new JMSMessageListenerAdapter(consumer, listener, daemonThreadStatsCollector, systemEnvironment);
+        return new JMSMessageListenerAdapter(consumer, listener, daemonThreadStatsCollector, systemEnvironment, serverHealthService);
     }
 
 }

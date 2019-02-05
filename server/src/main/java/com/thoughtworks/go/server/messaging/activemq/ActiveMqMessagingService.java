@@ -1,18 +1,18 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.server.messaging.activemq;
 
@@ -26,6 +26,7 @@ import com.thoughtworks.go.server.service.support.DaemonThreadStatsCollector;
 import com.thoughtworks.go.server.messaging.GoMessageListener;
 import com.thoughtworks.go.server.messaging.MessageSender;
 import com.thoughtworks.go.server.messaging.MessagingService;
+import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.activemq.ActiveMQConnection;
 import org.apache.activemq.ActiveMQConnectionFactory;
@@ -45,18 +46,20 @@ import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 @Component
 public class ActiveMqMessagingService implements MessagingService {
 
-    public static final String BROKER_NAME = "go-server";
-    public static final String BROKER_URL = "vm://go-server";
+    private static final String BROKER_NAME = "go-server";
+    private static final String BROKER_URL = "vm://go-server";
     private final DaemonThreadStatsCollector daemonThreadStatsCollector;
     private ActiveMQConnection connection;
     public ActiveMQConnectionFactory factory;
     private BrokerService broker;
     private final SystemEnvironment systemEnvironment;
+    private ServerHealthService serverHealthService;
 
     @Autowired
-    public ActiveMqMessagingService(DaemonThreadStatsCollector daemonThreadStatsCollector) throws Exception {
+    public ActiveMqMessagingService(DaemonThreadStatsCollector daemonThreadStatsCollector, SystemEnvironment systemEnvironment, ServerHealthService serverHealthService) throws Exception {
         this.daemonThreadStatsCollector = daemonThreadStatsCollector;
-        systemEnvironment = new SystemEnvironment();
+        this.systemEnvironment = systemEnvironment;
+        this.serverHealthService = serverHealthService;
 
         broker = new BrokerService();
         broker.setBrokerName(BROKER_NAME);
@@ -91,7 +94,7 @@ public class ActiveMqMessagingService implements MessagingService {
         try {
             Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
             MessageConsumer consumer = session.createConsumer(session.createTopic(topic));
-            return JMSMessageListenerAdapter.startListening(consumer, listener, daemonThreadStatsCollector, systemEnvironment);
+            return JMSMessageListenerAdapter.startListening(consumer, listener, daemonThreadStatsCollector, systemEnvironment, serverHealthService);
         } catch (Exception e) {
             throw bomb(e);
         }
@@ -113,7 +116,7 @@ public class ActiveMqMessagingService implements MessagingService {
         try {
             Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
             MessageConsumer consumer = session.createConsumer(session.createQueue(queueName));
-            return JMSMessageListenerAdapter.startListening(consumer, listener, daemonThreadStatsCollector, systemEnvironment);
+            return JMSMessageListenerAdapter.startListening(consumer, listener, daemonThreadStatsCollector, systemEnvironment, serverHealthService);
         } catch (Exception e) {
             throw bomb(e);
         }

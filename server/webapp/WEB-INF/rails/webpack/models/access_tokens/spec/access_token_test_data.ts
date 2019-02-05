@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {AccessTokensJSON} from "models/access_tokens/types";
+import {AccessTokenJSON, AccessTokensJSON} from "models/access_tokens/types";
 
 export class AccessTokenTestData {
   static all() {
@@ -37,7 +37,7 @@ export class AccessTokenTestData {
         created_at: "2019-02-05T06:41:58Z",
         last_used_at: "2019-02-05T07:41:58Z"
       }
-    };
+    } as AccessTokenJSON;
   }
 
   static revokedAccessToken() {
@@ -51,6 +51,6 @@ export class AccessTokenTestData {
         created_at: "2019-02-04T06:41:58Z",
         last_used_at: "2019-02-04T07:41:58Z"
       }
-    };
+    } as AccessTokenJSON;
   }
 }

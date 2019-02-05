@@ -20,9 +20,9 @@ const TimeFormatter = require("helpers/time_formatter");
 
 interface MetaJSON {
   revoked: boolean;
-  revoked_at: string;
+  revoked_at: string | null;
   created_at: string;
-  last_used_at: string;
+  last_used_at: string | null;
 }
 
 export interface AccessTokenJSON {
@@ -73,7 +73,7 @@ class Meta {
                     Meta.parseDate(json.last_used_at));
   }
 
-  private static parseDate(dateString?: string) {
+  private static parseDate(dateString: string | null) {
     if (dateString) {
       return TimeFormatter.format(dateString);
     }

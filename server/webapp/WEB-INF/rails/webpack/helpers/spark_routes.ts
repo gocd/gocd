@@ -201,4 +201,11 @@ export default class {
     return "/go/api/admin/security/system_admins";
   }
 
+  static apiAccessTokensPath() {
+    return "/go/api/access_tokens";
+  }
+
+  static apiAccessTokenRevokePath(username: string, tokenName: string) {
+    return `${this.apiAccessTokensPath()}/${username}/${tokenName}`;
+  }
 }

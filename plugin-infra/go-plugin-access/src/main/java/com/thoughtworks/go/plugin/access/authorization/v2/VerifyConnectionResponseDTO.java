@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.plugin.access.authorization.models;
+package com.thoughtworks.go.plugin.access.authorization.v2;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -25,8 +25,9 @@ import com.google.gson.annotations.SerializedName;
 import com.thoughtworks.go.plugin.access.common.handler.JSONResultMessageHandler;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationError;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
+import com.thoughtworks.go.plugin.domain.common.VerifyConnectionResponse;
 
-public class VerifyConnectionResponse {
+class VerifyConnectionResponseDTO {
     private static final Gson GSON = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
 
     @Expose
@@ -38,20 +39,20 @@ public class VerifyConnectionResponse {
 
     private ValidationResult validationResult;
 
-    public VerifyConnectionResponse(Status status, String message) {
+    public VerifyConnectionResponseDTO(Status status, String message) {
         this.status = status;
         this.message = message;
     }
 
-    public static VerifyConnectionResponse fromJSON(String json) {
-        VerifyConnectionResponse response = GSON.fromJson(json, VerifyConnectionResponse.class);
+    public static VerifyConnectionResponseDTO fromJSON(String json) {
+        VerifyConnectionResponseDTO response = GSON.fromJson(json, VerifyConnectionResponseDTO.class);
         response.validationResult = validationResult(json);
 
         return response;
     }
 
-    public com.thoughtworks.go.plugin.domain.common.VerifyConnectionResponse response() {
-        return new com.thoughtworks.go.plugin.domain.common.VerifyConnectionResponse(status.getStatus(), message, result());
+    public VerifyConnectionResponse response() {
+        return new VerifyConnectionResponse(status.getStatus(), message, result());
     }
 
     private com.thoughtworks.go.plugin.domain.common.ValidationResult result() {

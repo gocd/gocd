@@ -253,8 +253,6 @@ module JavaImports
   java_import com.thoughtworks.go.config.RoleConfig unless defined? RoleConfig
   java_import com.thoughtworks.go.config.RoleUser unless defined? RoleUser
   java_import com.thoughtworks.go.config.SecurityAuthConfig unless defined? SecurityAuthConfig
-  java_import com.thoughtworks.go.plugin.access.authorization.models.Capabilities unless defined? Capabilities
-  java_import com.thoughtworks.go.plugin.access.authorization.models.SupportedAuthType unless defined? SupportedAuthType
   java_import com.thoughtworks.go.plugin.domain.common.VerifyConnectionResponse unless defined? VerifyConnectionResponse
   java_import com.thoughtworks.go.plugin.domain.common.ValidationResult unless defined? ValidationResult
   java_import com.thoughtworks.go.plugin.domain.common.ValidationError unless defined? ValidationError

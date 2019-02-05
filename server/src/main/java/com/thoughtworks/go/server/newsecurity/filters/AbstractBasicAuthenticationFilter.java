@@ -58,17 +58,17 @@ public abstract class AbstractBasicAuthenticationFilter extends OncePerRequestFi
                 return;
             }
 
-            final UsernamePassword usernamePassword = BasicAuthHeaderExtractor.extractBasicAuthenticationCredentials(request.getHeader("Authorization"));
-            if (usernamePassword != null) {
-                LOGGER.debug("[Basic Authentication] Authorization header found for user '{}'", usernamePassword.getUsername());
+            final UsernamePassword credential = BasicAuthHeaderExtractor.extractBasicAuthenticationCredentials(request.getHeader("Authorization"));
+            if (credential != null) {
+                LOGGER.debug("[Basic Authentication] Authorization header found for user '{}'", credential.getUsername());
             }
 
             if (securityService.isSecurityEnabled()) {
                 LOGGER.debug("Security is enabled.");
-                filterWhenSecurityEnabled(request, response, filterChain, usernamePassword);
+                filterWhenSecurityEnabled(request, response, filterChain, credential);
             } else {
                 LOGGER.debug("Security is disabled.");
-                filterWhenSecurityDisabled(request, response, filterChain, usernamePassword);
+                filterWhenSecurityDisabled(request, response, filterChain, credential);
             }
         } catch (AuthenticationException e) {
             onAuthenticationFailure(request, response, e.getMessage());

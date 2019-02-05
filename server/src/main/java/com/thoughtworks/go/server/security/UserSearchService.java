@@ -69,9 +69,9 @@ public class UserSearchService {
         List<User> searchResults = new ArrayList<>();
         for (final String pluginId : store.getPluginsThatSupportsUserSearch()) {
             try {
-                List<com.thoughtworks.go.plugin.access.authorization.models.User> users = getUsersConfiguredViaPlugin(pluginId, searchText);
+                List<com.thoughtworks.go.plugin.domain.authorization.User> users = getUsersConfiguredViaPlugin(pluginId, searchText);
                 if (users != null && !users.isEmpty()) {
-                    for (com.thoughtworks.go.plugin.access.authorization.models.User user : users) {
+                    for (com.thoughtworks.go.plugin.domain.authorization.User user : users) {
                         String displayName = user.getDisplayName() == null ? "" : user.getDisplayName();
                         String emailId = user.getEmailId() == null ? "" : user.getEmailId();
                         searchResults.add(new User(user.getUsername(), displayName, emailId));
@@ -84,8 +84,8 @@ public class UserSearchService {
         userSearchModels.addAll(convertUsersToUserSearchModel(searchResults, UserSourceType.PLUGIN));
     }
 
-    private List<com.thoughtworks.go.plugin.access.authorization.models.User> getUsersConfiguredViaPlugin(String pluginId, String searchTerm) {
-        List<com.thoughtworks.go.plugin.access.authorization.models.User> users = new ArrayList<>();
+    private List<com.thoughtworks.go.plugin.domain.authorization.User> getUsersConfiguredViaPlugin(String pluginId, String searchTerm) {
+        List<com.thoughtworks.go.plugin.domain.authorization.User> users = new ArrayList<>();
         if (authorizationExtension.canHandlePlugin(pluginId)) {
             List<SecurityAuthConfig> authConfigs = goConfigService.security().securityAuthConfigs().findByPluginId(pluginId);
             users.addAll(authorizationExtension.searchUsers(pluginId, searchTerm, authConfigs));

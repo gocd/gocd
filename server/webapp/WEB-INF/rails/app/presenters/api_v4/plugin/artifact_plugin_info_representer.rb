@@ -21,7 +21,6 @@ module ApiV4
       property :capabilities,
                skip_nil: true,
                inherit: false,
-               class: com.thoughtworks.go.plugin.domain.artifact.Capabilities,
                decorator: ArtifactCapabilitiesRepresenter
 
       property :store_config_settings,

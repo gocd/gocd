@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.server.newsecurity.providers;
 
+import com.thoughtworks.go.plugin.domain.authorization.User;
 import com.thoughtworks.go.server.newsecurity.models.AuthenticationToken;
 import com.thoughtworks.go.server.newsecurity.models.Credentials;
 import org.slf4j.Logger;
@@ -26,11 +27,11 @@ import static org.apache.commons.lang3.StringUtils.isNotBlank;
 public abstract class AbstractAuthenticationProvider<T extends Credentials> {
     protected final Logger LOGGER = LoggerFactory.getLogger(getClass());
 
-    protected com.thoughtworks.go.domain.User toDomainUser(com.thoughtworks.go.plugin.access.authorization.models.User user) {
+    protected com.thoughtworks.go.domain.User toDomainUser(User user) {
         return new com.thoughtworks.go.domain.User(user.getUsername(), user.getDisplayName(), user.getEmailId());
     }
 
-    protected com.thoughtworks.go.plugin.access.authorization.models.User ensureDisplayNamePresent(com.thoughtworks.go.plugin.access.authorization.models.User user) {
+    protected User ensureDisplayNamePresent(User user) {
         if (user == null) {
             return null;
         }
@@ -39,7 +40,7 @@ public abstract class AbstractAuthenticationProvider<T extends Credentials> {
             return user;
         }
 
-        return new com.thoughtworks.go.plugin.access.authorization.models.User(user.getUsername(), user.getUsername(), user.getEmailId());
+        return new User(user.getUsername(), user.getUsername(), user.getEmailId());
     }
 
     public abstract AuthenticationToken<T> reauthenticate(AuthenticationToken<T> authenticationToken);

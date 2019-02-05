@@ -100,7 +100,7 @@ public class AuthenticationFilterChainTest {
         void shouldAuthenticateAgentUsingX509Certificate(String url) throws IOException, ServletException {
             final Registration registration = createRegistration("blah");
             final X509AuthenticationFilter x509AuthenticationFilter = new X509AuthenticationFilter(clock);
-            final AuthenticationFilterChain authenticationFilterChain = new AuthenticationFilterChain(x509AuthenticationFilter, null, null, null, null, null, null);
+            final AuthenticationFilterChain authenticationFilterChain = new AuthenticationFilterChain(x509AuthenticationFilter, null, null, null, null, null, null, null);
 
             request = HttpRequestBuilder.GET(url)
                     .withX509(registration.getChain())
@@ -121,7 +121,7 @@ public class AuthenticationFilterChainTest {
                     .build();
 
             final X509AuthenticationFilter x509AuthenticationFilter = new X509AuthenticationFilter(clock);
-            final AuthenticationFilterChain authenticationFilterChain = new AuthenticationFilterChain(x509AuthenticationFilter, null, null, null, null, null, null);
+            final AuthenticationFilterChain authenticationFilterChain = new AuthenticationFilterChain(x509AuthenticationFilter, null, null, null, null, null, null,null);
 
             authenticationFilterChain.doFilter(request, response, filterChain);
 
@@ -151,7 +151,7 @@ public class AuthenticationFilterChainTest {
 
             final Filter filter = mock(Filter.class);
 
-            final AuthenticationFilterChain authenticationFilterChain = new AuthenticationFilterChain(null, invalidateAuthenticationOnSecurityConfigChangeFilter, filter, filter, null, null, assumeAnonymousUserFilter);
+            final AuthenticationFilterChain authenticationFilterChain = new AuthenticationFilterChain(null, invalidateAuthenticationOnSecurityConfigChangeFilter, filter, filter, null, null, null, assumeAnonymousUserFilter);
 
             authenticationFilterChain.doFilter(request, response, filterChain);
 
@@ -181,6 +181,7 @@ public class AuthenticationFilterChainTest {
                     new ReAuthenticationWithChallengeFilter(securityService, systemEnvironment, clock, mock(BasicAuthenticationWithChallengeFailureResponseHandler.class), pluginAuthenticationProvider, null, null),
                     new NoOpFilter(),
                     new NoOpFilter(),
+                    new NoOpFilter(),
                     assumeAnonymousUserFilter)
                     .doFilter(request, response, filterChain);
 
@@ -196,6 +197,7 @@ public class AuthenticationFilterChainTest {
                     .build();
 
             new AuthenticationFilterChain(null, null,
+                    null,
                     null,
                     null,
                     null,
@@ -227,7 +229,7 @@ public class AuthenticationFilterChainTest {
                     new NoOpFilter(),
                     new NoOpFilter(),
                     new BasicAuthenticationWithChallengeFilter(securityService, new BasicAuthenticationWithChallengeFailureResponseHandler(securityService), pluginAuthenticationProvider),
-                    new BasicAuthenticationWithRedirectToLoginFilter(securityService, pluginAuthenticationProvider),
+                    new BasicAuthenticationWithRedirectToLoginFilter(securityService, pluginAuthenticationProvider), new NoOpFilter(),
                     assumeAnonymousUserFilter).doFilter(request, response, filterChain);
 
             verify(filterChain).doFilter(wrap(request), wrap(response));
@@ -254,6 +256,7 @@ public class AuthenticationFilterChainTest {
             request = HttpRequestBuilder.GET(url).build();
 
             new AuthenticationFilterChain(null,
+                    new NoOpFilter(),
                     new NoOpFilter(),
                     new NoOpFilter(),
                     new NoOpFilter(),
@@ -286,6 +289,7 @@ public class AuthenticationFilterChainTest {
                     new NoOpFilter(),
                     new NoOpFilter(),
                     new NoOpFilter(),
+                    null,
                     assumeAnonymousUserFilter).doFilter(request, response, filterChain);
 
             verify(filterChain).doFilter(wrap(request), wrap(response));

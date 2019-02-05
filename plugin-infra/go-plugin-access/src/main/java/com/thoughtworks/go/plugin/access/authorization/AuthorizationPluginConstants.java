@@ -16,15 +16,19 @@
 
 package com.thoughtworks.go.plugin.access.authorization;
 
+import com.thoughtworks.go.plugin.access.authorization.v1.AuthorizationMessageConverterV1;
+import com.thoughtworks.go.plugin.access.authorization.v2.AuthorizationMessageConverterV2;
+
 import java.util.Arrays;
 import java.util.List;
 
 public interface AuthorizationPluginConstants {
-    List<String> SUPPORTED_VERSIONS = Arrays.asList(AuthorizationMessageConverterV1.VERSION);
+    List<String> SUPPORTED_VERSIONS = Arrays.asList(AuthorizationMessageConverterV1.VERSION, AuthorizationMessageConverterV2.VERSION);
 
     String REQUEST_PREFIX = "go.cd.authorization";
     String REQUEST_GET_CAPABILITIES = REQUEST_PREFIX + ".get-capabilities";
     String REQUEST_GET_PLUGIN_ICON = REQUEST_PREFIX + ".get-icon";
+    String REQUEST_GET_USER_ROLES = REQUEST_PREFIX + ".get-user-roles";
 
     String _AUTH_CONFIG_METADATA = "auth-config";
     String _ROLE_CONFIG_METADATA = "role-config";

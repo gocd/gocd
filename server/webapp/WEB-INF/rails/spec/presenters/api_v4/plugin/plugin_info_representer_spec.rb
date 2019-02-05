@@ -268,7 +268,7 @@ describe ApiV4::Plugin::PluginInfoRepresenter do
 
       role_config_view = com.thoughtworks.go.plugin.domain.common.PluginView.new('role_config_view_template')
       role_config_settings = com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings.new([com.thoughtworks.go.plugin.domain.common.PluginConfiguration.new('memberOf', com.thoughtworks.go.plugin.domain.common.Metadata.new(true, false))], role_config_view)
-      capabilities = com.thoughtworks.go.plugin.domain.authorization.Capabilities.new(com.thoughtworks.go.plugin.domain.authorization.SupportedAuthType::Password, true, true)
+      capabilities = com.thoughtworks.go.plugin.domain.authorization.Capabilities.new(com.thoughtworks.go.plugin.domain.authorization.SupportedAuthType::Password, true, true, false)
 
       plugin_info = CombinedPluginInfo.new(AuthorizationPluginInfo.new(descriptor, auth_config_settings, role_config_settings, image, capabilities))
       actual_json = ApiV4::Plugin::PluginInfoRepresenter.new(plugin_info).to_hash(url_builder: UrlBuilder.new)

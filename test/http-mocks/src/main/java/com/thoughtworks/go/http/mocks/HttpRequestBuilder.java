@@ -173,6 +173,10 @@ public class HttpRequestBuilder {
         return withHeader("Authorization", "basic " + Base64.getEncoder().encodeToString((username + ":" + password).getBytes(UTF_8)));
     }
 
+    public HttpRequestBuilder withBearerAuth(String token) {
+        return withHeader("Authorization", "bearer " + token);
+    }
+
     public HttpRequestBuilder withFormData(String name, String value) {
         final String existingContentType = request.getHeader("content-type");
         if (existingContentType == null) {

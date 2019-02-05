@@ -25,6 +25,7 @@ import org.junit.Test;
 import java.util.Set;
 
 import static junit.framework.TestCase.assertFalse;
+import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
@@ -62,6 +63,14 @@ public class AuthorizationMetadataStoreTest {
         Set<AuthorizationPluginInfo> pluginsThatSupportsWebBasedAuthentication = store.getPluginsThatSupportsPasswordBasedAuthentication();
         assertThat(pluginsThatSupportsWebBasedAuthentication.size(), is(1));
         assertThat(pluginsThatSupportsWebBasedAuthentication.contains(plugin2), is(true));
+    }
+
+    @Test
+    public void shouldGetPluginsThatSupportsGetUserRolesCall() {
+        when(plugin1.getCapabilities().canGetUserRoles()).thenReturn(true);
+        Set<String> pluginsThatSupportsGetUserRoles = store.getPluginsThatSupportsGetUserRoles();
+        assertThat(pluginsThatSupportsGetUserRoles.size(), is(1));
+        assertThat(pluginsThatSupportsGetUserRoles, contains(plugin1.getDescriptor().id()));
     }
 
     @Test

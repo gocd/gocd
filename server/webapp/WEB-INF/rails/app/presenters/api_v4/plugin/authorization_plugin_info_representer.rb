@@ -36,7 +36,6 @@ module ApiV4
                skip_nil: true,
                expect_hash: true,
                inherit: false,
-               class: Capabilities,
                decorator: AuthorizationCapabilitiesRepresenter
 
     end

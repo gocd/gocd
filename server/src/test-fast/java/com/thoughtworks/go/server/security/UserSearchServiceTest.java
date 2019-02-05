@@ -19,13 +19,12 @@ package com.thoughtworks.go.server.security;
 
 import com.thoughtworks.go.ClearSingleton;
 import com.thoughtworks.go.config.SecurityConfig;
-import com.thoughtworks.go.domain.User;
-import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.plugin.access.authorization.AuthorizationExtension;
 import com.thoughtworks.go.plugin.access.authorization.AuthorizationMetadataStore;
 import com.thoughtworks.go.plugin.domain.authorization.AuthorizationPluginInfo;
 import com.thoughtworks.go.plugin.domain.authorization.Capabilities;
 import com.thoughtworks.go.plugin.domain.authorization.SupportedAuthType;
+import com.thoughtworks.go.plugin.domain.authorization.User;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import com.thoughtworks.go.presentation.UserSearchModel;
 import com.thoughtworks.go.presentation.UserSourceType;
@@ -77,7 +76,7 @@ public class UserSearchServiceTest  {
         when(authorizationExtension.searchUsers("plugin-id-1", searchTerm, Collections.emptyList())).thenReturn(asList(getPluginUser(1)));
         when(authorizationExtension.searchUsers("plugin-id-2", searchTerm, Collections.emptyList())).thenReturn(asList(getPluginUser(2), getPluginUser(3)));
         when(authorizationExtension.searchUsers("plugin-id-3", searchTerm, Collections.emptyList())).thenReturn(new ArrayList<>());
-        when(authorizationExtension.searchUsers("plugin-id-4", searchTerm, Collections.emptyList())).thenReturn(asList(new com.thoughtworks.go.plugin.access.authorization.models.User("username-" + 4, null, null)));
+        when(authorizationExtension.searchUsers("plugin-id-4", searchTerm, Collections.emptyList())).thenReturn(asList(new User("username-" + 4, null, null)));
 
         List<UserSearchModel> models = userSearchService.search(searchTerm, new HttpLocalizedOperationResult());
 
@@ -85,7 +84,7 @@ public class UserSearchServiceTest  {
                 new UserSearchModel(getUser(1), UserSourceType.PLUGIN),
                 new UserSearchModel(getUser(2), UserSourceType.PLUGIN),
                 new UserSearchModel(getUser(3), UserSourceType.PLUGIN),
-                new UserSearchModel(new User("username-" + 4, "", ""), UserSourceType.PLUGIN)
+                new UserSearchModel(new com.thoughtworks.go.domain.User ("username-" + 4, "", ""), UserSourceType.PLUGIN)
         ));
     }
 
@@ -116,18 +115,18 @@ public class UserSearchServiceTest  {
         assertThat(result.message(), is("Please use a search string that has at least two (2) letters."));
     }
 
-    private User getUser(Integer userId) {
-        return new User("username-" + userId, "display-name-" + userId, "test" + userId + "@test.com");
+    private com.thoughtworks.go.domain.User  getUser(Integer userId) {
+        return new com.thoughtworks.go.domain.User ("username-" + userId, "display-name-" + userId, "test" + userId + "@test.com");
     }
 
-    private com.thoughtworks.go.plugin.access.authorization.models.User getPluginUser(Integer userId) {
-        return new com.thoughtworks.go.plugin.access.authorization.models.User("username-" + userId, "display-name-" + userId, "test" + userId + "@test.com");
+    private User getPluginUser(Integer userId) {
+        return new User("username-" + userId, "display-name-" + userId, "test" + userId + "@test.com");
     }
 
     private void addPluginSupportingUserSearch(String pluginId) {
         AuthorizationPluginInfo pluginInfo = new AuthorizationPluginInfo(
                 new GoPluginDescriptor(pluginId, null, null, null, null, false), null, null, null,
-                new Capabilities(SupportedAuthType.Password, true, true));
+                new Capabilities(SupportedAuthType.Password, true, true, false));
         AuthorizationMetadataStore.instance().setPluginInfo(pluginInfo);
     }
 }

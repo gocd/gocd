@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,17 +14,18 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.plugin.access.authorization.models;
+package com.thoughtworks.go.plugin.access.authorization.v2;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 import com.google.gson.reflect.TypeToken;
+import com.thoughtworks.go.plugin.domain.authorization.User;
 
 import java.util.List;
 
-public class User {
+class UserDTO {
     private static final Gson GSON = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
 
     @Expose
@@ -37,7 +38,7 @@ public class User {
     @SerializedName("email")
     private String emailId;
 
-    public User(String username, String displayName, String emailId) {
+    public UserDTO(String username, String displayName, String emailId) {
         this.username = username;
         this.displayName = displayName;
         this.emailId = emailId;
@@ -72,7 +73,7 @@ public class User {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        User user = (User) o;
+        UserDTO user = (UserDTO) o;
 
         if (displayName != null ? !displayName.equals(user.displayName) : user.displayName != null) return false;
         if (emailId != null ? !emailId.equals(user.emailId) : user.emailId != null) return false;
@@ -89,8 +90,12 @@ public class User {
         return result;
     }
 
-    public static List<User> fromJSONList(String json) {
-        return GSON.fromJson(json, new TypeToken<List<User>>() {
+    public static List<UserDTO> fromJSONList(String json) {
+        return GSON.fromJson(json, new TypeToken<List<UserDTO>>() {
         }.getType());
+    }
+
+    public User toDomainModel() {
+        return new User(this.username, this.displayName, this.emailId);
     }
 }

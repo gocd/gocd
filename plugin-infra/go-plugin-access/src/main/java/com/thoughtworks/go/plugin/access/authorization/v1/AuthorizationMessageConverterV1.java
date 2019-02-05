@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,25 +14,26 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.plugin.access.authorization;
+package com.thoughtworks.go.plugin.access.authorization.v1;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.thoughtworks.go.config.PluginRoleConfig;
 import com.thoughtworks.go.config.SecurityAuthConfig;
-import com.thoughtworks.go.plugin.access.authorization.models.AuthenticationResponse;
-import com.thoughtworks.go.plugin.access.authorization.models.Capabilities;
-import com.thoughtworks.go.plugin.access.authorization.models.User;
+import com.thoughtworks.go.plugin.access.authorization.AuthorizationMessageConverter;
 import com.thoughtworks.go.plugin.access.common.handler.JSONResultMessageHandler;
 import com.thoughtworks.go.plugin.access.common.models.ImageDeserializer;
 import com.thoughtworks.go.plugin.access.common.models.PluginProfileMetadataKeys;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
+import com.thoughtworks.go.plugin.domain.authorization.AuthenticationResponse;
+import com.thoughtworks.go.plugin.domain.authorization.User;
 import com.thoughtworks.go.plugin.domain.common.PluginConfiguration;
 import com.thoughtworks.go.plugin.domain.common.VerifyConnectionResponse;
 import org.apache.commons.lang3.StringUtils;
 
 import java.lang.reflect.Type;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class AuthorizationMessageConverterV1 implements AuthorizationMessageConverter {
     public static final String VERSION = "1.0";
@@ -40,7 +41,7 @@ public class AuthorizationMessageConverterV1 implements AuthorizationMessageConv
 
     @Override
     public com.thoughtworks.go.plugin.domain.authorization.Capabilities getCapabilitiesFromResponseBody(String responseBody) {
-        return Capabilities.fromJSON(responseBody).toCapabilities();
+        return CapabilitiesDTO.fromJSON(responseBody).toDomainModel();
     }
 
     @Override
@@ -80,7 +81,7 @@ public class AuthorizationMessageConverterV1 implements AuthorizationMessageConv
 
     @Override
     public VerifyConnectionResponse getVerifyConnectionResultFromResponseBody(String responseBody) {
-        return com.thoughtworks.go.plugin.access.authorization.models.VerifyConnectionResponse.fromJSON(responseBody).response();
+        return VerifyConnectionResponseDTO.fromJSON(responseBody).response();
     }
 
     @Override
@@ -136,12 +137,12 @@ public class AuthorizationMessageConverterV1 implements AuthorizationMessageConv
 
     @Override
     public AuthenticationResponse getAuthenticatedUserFromResponseBody(String responseBody) {
-        return AuthenticationResponse.fromJSON(responseBody);
+        return AuthenticationResponseDTO.fromJSON(responseBody).toDomainModel();
     }
 
     @Override
     public List<User> getSearchUsersFromResponseBody(String responseBody) {
-        return User.fromJSONList(responseBody);
+        return UserDTO.fromJSONList(responseBody).stream().map(UserDTO::toDomainModel).collect(Collectors.toList());
     }
 
     @Override
@@ -202,6 +203,11 @@ public class AuthorizationMessageConverterV1 implements AuthorizationMessageConv
         requestMap.put("authorization_server_callback_url", authorizationServerCallbackUrl(pluginId, siteUrl));
 
         return GSON.toJson(requestMap);
+    }
+
+    @Override
+    public String authenticateUserRequestBody(String username, List<SecurityAuthConfig> authConfigs, List<PluginRoleConfig> roleConfigs) {
+        return null;
     }
 
     private String getTemplateFromResponse(String responseBody, String message) {

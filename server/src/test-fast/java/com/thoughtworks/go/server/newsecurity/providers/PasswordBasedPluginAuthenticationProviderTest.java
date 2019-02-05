@@ -24,11 +24,7 @@ import com.thoughtworks.go.domain.config.ConfigurationProperty;
 import com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother;
 import com.thoughtworks.go.plugin.access.authorization.AuthorizationExtension;
 import com.thoughtworks.go.plugin.access.authorization.AuthorizationMetadataStore;
-import com.thoughtworks.go.plugin.access.authorization.models.AuthenticationResponse;
-import com.thoughtworks.go.plugin.access.authorization.models.User;
-import com.thoughtworks.go.plugin.domain.authorization.AuthorizationPluginInfo;
-import com.thoughtworks.go.plugin.domain.authorization.Capabilities;
-import com.thoughtworks.go.plugin.domain.authorization.SupportedAuthType;
+import com.thoughtworks.go.plugin.domain.authorization.*;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import com.thoughtworks.go.server.newsecurity.models.AuthenticationToken;
 import com.thoughtworks.go.server.newsecurity.models.UsernamePassword;
@@ -389,7 +385,7 @@ class PasswordBasedPluginAuthenticationProviderTest {
     private void addPluginSupportingPasswordBasedAuthentication(String pluginId) {
         AuthorizationPluginInfo pluginInfo = new AuthorizationPluginInfo(
                 new GoPluginDescriptor(pluginId, null, null, null, null, false), null, null, null,
-                new Capabilities(SupportedAuthType.Password, true, false));
+                new Capabilities(SupportedAuthType.Password, true, false, false));
         AuthorizationMetadataStore.instance().setPluginInfo(pluginInfo);
     }
 }

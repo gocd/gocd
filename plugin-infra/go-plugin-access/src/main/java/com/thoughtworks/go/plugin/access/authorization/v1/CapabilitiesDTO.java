@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,26 +14,35 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.plugin.domain.authorization;
+package com.thoughtworks.go.plugin.access.authorization.v1;
 
-public class Capabilities {
-    private final SupportedAuthType supportedAuthType;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
+
+class CapabilitiesDTO {
+    private static final Gson GSON = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
+
+    @Expose
+    @SerializedName("supported_auth_type")
+    private final SupportedAuthTypeDTO supportedAuthType;
+
+    @Expose
+    @SerializedName("can_search")
     private final boolean canSearch;
-    private final boolean canAuthorize;
-    private final boolean canGetUserRoles;
 
-    public Capabilities(SupportedAuthType supportedAuthType, boolean canSearch, boolean canAuthorize, boolean canGetUserRoles) {
+    @Expose
+    @SerializedName("can_authorize")
+    private final boolean canAuthorize;
+
+    public CapabilitiesDTO(SupportedAuthTypeDTO supportedAuthType, boolean canSearch, boolean canAuthorize) {
         this.supportedAuthType = supportedAuthType;
         this.canSearch = canSearch;
         this.canAuthorize = canAuthorize;
-        this.canGetUserRoles = canGetUserRoles;
     }
 
-    public boolean canGetUserRoles() {
-        return canGetUserRoles;
-    }
-
-    public SupportedAuthType getSupportedAuthType() {
+    public SupportedAuthTypeDTO getSupportedAuthType() {
         return supportedAuthType;
     }
 
@@ -41,8 +50,21 @@ public class Capabilities {
         return canSearch;
     }
 
+    public String toJSON() {
+        return GSON.toJson(this);
+    }
+
+    public static CapabilitiesDTO fromJSON(String json) {
+        return GSON.fromJson(json, CapabilitiesDTO.class);
+    }
+
     public boolean canAuthorize() {
         return canAuthorize;
+    }
+
+    public com.thoughtworks.go.plugin.domain.authorization.Capabilities toDomainModel() {
+        com.thoughtworks.go.plugin.domain.authorization.SupportedAuthType supportedAuthType = com.thoughtworks.go.plugin.domain.authorization.SupportedAuthType.valueOf(this.supportedAuthType.name());
+        return new com.thoughtworks.go.plugin.domain.authorization.Capabilities(supportedAuthType, canSearch, canAuthorize, false);
     }
 
     @Override
@@ -50,11 +72,10 @@ public class Capabilities {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        Capabilities that = (Capabilities) o;
+        CapabilitiesDTO that = (CapabilitiesDTO) o;
 
         if (canSearch != that.canSearch) return false;
         if (canAuthorize != that.canAuthorize) return false;
-        if (canGetUserRoles != that.canGetUserRoles) return false;
         return supportedAuthType == that.supportedAuthType;
     }
 
@@ -63,7 +84,6 @@ public class Capabilities {
         int result = supportedAuthType != null ? supportedAuthType.hashCode() : 0;
         result = 31 * result + (canSearch ? 1 : 0);
         result = 31 * result + (canAuthorize ? 1 : 0);
-        result = 31 * result + (canGetUserRoles ? 1 : 0);
         return result;
     }
 }

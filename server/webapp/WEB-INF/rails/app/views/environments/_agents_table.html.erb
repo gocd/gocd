@@ -89,7 +89,8 @@ Util.on_load(function() {
         <tr class='agent_instance <%= get_agent_status_class(scope[:show_only_disabled],agent_in_agent_table.getStatus()) %>' id='<%= agent_in_agent_table.getUuid() %>'>
             <% agent_uuid = agent_in_agent_table.getUuid()-%>
             <% if has_operate_permission_for_agents? %>
-                <%== agent_selector(agent_uuid, scope[:selector_name], scope[:selected], scope[:environment].containsAgentRemotely(agent_uuid) ) %>
+                <%== contains_agent_remotely = scope[:environment]&.containsAgentRemotely(agent_uuid)
+                     agent_selector(agent_uuid, scope[:selector_name], scope[:selected], contains_agent_remotely) %>
             <% end %>
             <% unless scope[:exclude_columns].include?('hostname') -%>
 

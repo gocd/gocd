@@ -18,17 +18,17 @@ module AgentsHelper
 
   AgentStatus = com.thoughtworks.go.domain.AgentStatus
 
-  def agent_selector uuid, selector_name, selected_uuids, is_remote_agent
+  def agent_selector uuid, selector_name, selected_uuids, is_remote_agent=false
     "<td class='selector'>#{agent_selector_without_cell(uuid, selector_name, selected_uuids, is_remote_agent)}</td>".html_safe
   end
 
   def agent_selector_without_cell uuid, selector_name, selected_uuids, is_remote_agent
-    disabled_attr, tooltip = "", ""
+    disabled_attr, title_attr = "", ""
     if is_remote_agent
       disabled_attr = "disabled"
-      tooltip = "Agent is associated in a Config Repository"
+      title_attr = "title='Agent is associated in a Config Repository'"
     end
-    "<input #{disabled_attr} title='#{tooltip}' type='checkbox' name='#{ERB::Util.h(selector_name)}' value='#{ERB::Util.h(uuid)}' class='agent_select' #{(selected_uuids && selected_uuids.include?(uuid)) ? "checked='true'" : ""}/>".html_safe
+    "<input #{disabled_attr} #{title_attr} type='checkbox' name='#{ERB::Util.h(selector_name)}' value='#{ERB::Util.h(uuid)}' class='agent_select' #{(selected_uuids && selected_uuids.include?(uuid)) ? "checked='true'" : ""}/>".squish.html_safe
   end
 
   def cell_with_title value, klass, title = value

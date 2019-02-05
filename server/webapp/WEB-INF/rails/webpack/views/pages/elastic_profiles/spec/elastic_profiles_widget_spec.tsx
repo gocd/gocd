@@ -114,8 +114,20 @@ describe("New Elastic Profiles Widget", () => {
     });
   });
 
+  describe("StatusReport", () => {
+    it("should disable status report button when user is not an super admin", () => {
+      mount(pluginInfos, elasticProfiles, false);
+      expect(find("status-report-link").get(0)).toBeDisabled();
+    });
+
+    it("should not disable status report button when user is a super admin", () => {
+      mount(pluginInfos, elasticProfiles, true);
+      expect(find("status-report-link").get(0)).not.toBeDisabled();
+    });
+  });
+
   function mount(pluginInfos: Array<PluginInfo<Extension>>,
-                 elasticProfiles: ElasticProfiles) {
+                 elasticProfiles: ElasticProfiles, isUserAnAdmin = true) {
 
     const noop = _.noop;
 
@@ -127,7 +139,8 @@ describe("New Elastic Profiles Widget", () => {
                                  onEdit={noop}
                                  onClone={noop}
                                  onDelete={noop}
-                                 onShowUsages={noop}/>
+                                 onShowUsages={noop}
+                                 isUserAnAdmin={isUserAnAdmin}/>
         );
       }
     });

@@ -18,6 +18,8 @@ package com.thoughtworks.go.server.messaging.activemq;
 
 import com.thoughtworks.go.server.messaging.*;
 import com.thoughtworks.go.server.service.support.DaemonThreadStatsCollector;
+import com.thoughtworks.go.serverhealth.ServerHealthService;
+import com.thoughtworks.go.util.SystemEnvironment;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -44,7 +46,7 @@ public class ActiveMqTest implements GoMessageListener {
 
     @Before
     public void setUp() throws Exception {
-        messaging = new ActiveMqMessagingService(new DaemonThreadStatsCollector());
+        messaging = new ActiveMqMessagingService(new DaemonThreadStatsCollector(), new SystemEnvironment(), new ServerHealthService());
     }
 
     @After

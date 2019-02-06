@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.plugin.access.pluggabletask;
 
+import com.thoughtworks.go.plugin.access.ExtensionsRegistry;
 import com.thoughtworks.go.plugin.access.common.AbstractExtension;
 import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsConfiguration;
 import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsConstants;
@@ -38,7 +39,6 @@ import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 
-import java.util.Collections;
 import java.util.List;
 
 import static com.thoughtworks.go.plugin.domain.common.PluginConstants.PLUGGABLE_TASK_EXTENSION;
@@ -50,6 +50,8 @@ import static org.mockito.MockitoAnnotations.initMocks;
 public class TaskExtensionTest {
     @Mock
     private PluginManager pluginManager;
+    @Mock
+    private ExtensionsRegistry extensionsRegistry;
     @Mock
     private PluginSettingsJsonMessageHandler1_0 pluginSettingsJSONMessageHandler;
     @Mock
@@ -66,7 +68,7 @@ public class TaskExtensionTest {
     @Before
     public void setup() {
         initMocks(this);
-        extension = new TaskExtension(pluginManager);
+        extension = new TaskExtension(pluginManager, extensionsRegistry);
         pluginId = "plugin-id";
         when(pluginManager.resolveExtensionVersion(eq(pluginId), eq(PLUGGABLE_TASK_EXTENSION), any(List.class))).thenReturn("1.0");
 
@@ -165,7 +167,7 @@ public class TaskExtensionTest {
     @Test
     public void shouldValidateTask() {
         GoPluginApiResponse response = mock(GoPluginApiResponse.class);
-        TaskExtension jsonBasedTaskExtension = new TaskExtension(pluginManager);
+        TaskExtension jsonBasedTaskExtension = new TaskExtension(pluginManager, extensionsRegistry);
         TaskConfig taskConfig = mock(TaskConfig.class);
 
         when(response.responseCode()).thenReturn(DefaultGoApiResponse.SUCCESS_RESPONSE_CODE);

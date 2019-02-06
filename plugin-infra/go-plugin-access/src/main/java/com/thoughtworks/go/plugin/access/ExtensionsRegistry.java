@@ -1,0 +1,74 @@
+/*
+ * Copyright 2019 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.thoughtworks.go.plugin.access;
+
+import com.thoughtworks.go.plugin.access.common.settings.GoPluginExtension;
+import com.thoughtworks.go.plugin.infra.PluginManager;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.stereotype.Component;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import static java.lang.String.format;
+
+@Component
+public class ExtensionsRegistry {
+    private final Map<String, GoPluginExtension> registry = new HashMap<>();
+    private final PluginManager pluginManager;
+
+    @Autowired
+    public ExtensionsRegistry(@Lazy PluginManager pluginManager) {
+        this.pluginManager = pluginManager;
+    }
+
+    public void registerExtension(GoPluginExtension extension) {
+        registry.put(extension.extensionName(), extension);
+    }
+
+    public boolean supportsExtensionVersion(String pluginId, String extensionType) {
+        if (!registry.containsKey(extensionType)) {
+            return false;
+        }
+
+        try {
+            pluginManager.resolveExtensionVersion(pluginId, extensionType, registry.get(extensionType).goSupportedVersions());
+            return true;
+        } catch (RuntimeException e) {
+            return false;
+        }
+    }
+
+    public Set<String> allRegisteredExtensions() {
+        return registry.keySet();
+    }
+
+    public List<String> gocdSupportedExtensionVersions(String extensionType) {
+        if (!registry.containsKey(extensionType)) {
+            throw new UnsupportedExtensionException(format("Requested extension '%s' is not supported by GoCD. Supported extensions are %s.", extensionType, allRegisteredExtensions()));
+        }
+
+        return registry.get(extensionType).goSupportedVersions();
+    }
+
+    public PluginManager getPluginManager() {
+        return pluginManager;
+    }
+}

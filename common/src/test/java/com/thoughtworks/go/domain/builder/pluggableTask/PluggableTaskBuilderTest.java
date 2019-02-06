@@ -20,6 +20,7 @@ import com.thoughtworks.go.config.pluggabletask.PluggableTask;
 import com.thoughtworks.go.domain.RunIfConfigs;
 import com.thoughtworks.go.domain.builder.Builder;
 import com.thoughtworks.go.domain.config.PluginConfiguration;
+import com.thoughtworks.go.plugin.access.ExtensionsRegistry;
 import com.thoughtworks.go.plugin.access.pluggabletask.JobConsoleLoggerInternal;
 import com.thoughtworks.go.plugin.access.pluggabletask.TaskExtension;
 import com.thoughtworks.go.plugin.api.response.execution.ExecutionResult;
@@ -37,17 +38,14 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
-import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
+import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
@@ -63,6 +61,8 @@ public class PluggableTaskBuilderTest {
     @Mock
     private PluginManager pluginManager;
     @Mock
+    private ExtensionsRegistry extensionsRegistry;
+    @Mock
     private EnvironmentVariableContext variableContext;
     @Mock
     private DefaultGoPublisher goPublisher;
@@ -77,7 +77,7 @@ public class PluggableTaskBuilderTest {
         when(pluggableTask.getPluginConfiguration()).thenReturn(new PluginConfiguration(TEST_PLUGIN_ID, "1.0"));
         HashMap<String, Map<String, String>> pluginConfig = new HashMap<>();
         when(pluggableTask.configAsMap()).thenReturn(pluginConfig);
-        taskExtension = new TaskExtension(pluginManager);
+        taskExtension = new TaskExtension(pluginManager, extensionsRegistry);
     }
 
     @After

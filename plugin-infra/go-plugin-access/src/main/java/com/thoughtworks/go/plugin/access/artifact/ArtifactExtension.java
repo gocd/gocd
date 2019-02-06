@@ -20,6 +20,7 @@ import com.thoughtworks.go.config.ArtifactStore;
 import com.thoughtworks.go.domain.ArtifactPlan;
 import com.thoughtworks.go.domain.config.Configuration;
 import com.thoughtworks.go.plugin.access.DefaultPluginInteractionCallback;
+import com.thoughtworks.go.plugin.access.ExtensionsRegistry;
 import com.thoughtworks.go.plugin.access.PluginRequestHelper;
 import com.thoughtworks.go.plugin.access.artifact.model.PublishArtifactResponse;
 import com.thoughtworks.go.plugin.access.artifact.models.FetchArtifactEnvironmentVariable;
@@ -45,8 +46,8 @@ public class ArtifactExtension extends AbstractExtension {
     private final HashMap<String, ArtifactMessageConverter> messageHandlerMap = new HashMap<>();
 
     @Autowired
-    protected ArtifactExtension(PluginManager pluginManager) {
-        super(pluginManager, new PluginRequestHelper(pluginManager, SUPPORTED_VERSIONS, ARTIFACT_EXTENSION), ARTIFACT_EXTENSION);
+    protected ArtifactExtension(PluginManager pluginManager, ExtensionsRegistry extensionsRegistry) {
+        super(pluginManager, extensionsRegistry, new PluginRequestHelper(pluginManager, SUPPORTED_VERSIONS, ARTIFACT_EXTENSION), ARTIFACT_EXTENSION);
         addHandler(V1, new ArtifactMessageConverterV1(), new PluginSettingsJsonMessageHandler1_0());
         addHandler(V2, new ArtifactMessageConverterV2(), new PluginSettingsJsonMessageHandler1_0());
     }
@@ -190,7 +191,7 @@ public class ArtifactExtension extends AbstractExtension {
     }
 
     @Override
-    protected List<String> goSupportedVersions() {
+    public List<String> goSupportedVersions() {
         return SUPPORTED_VERSIONS;
     }
 

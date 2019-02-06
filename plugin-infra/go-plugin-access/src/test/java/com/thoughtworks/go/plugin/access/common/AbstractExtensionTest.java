@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.plugin.access.common;
 
+import com.thoughtworks.go.plugin.access.ExtensionsRegistry;
 import com.thoughtworks.go.plugin.access.PluginRequestHelper;
 import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsJsonMessageHandler1_0;
 import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsJsonMessageHandler2_0;
@@ -47,20 +48,21 @@ public class AbstractExtensionTest {
     private AbstractExtension extension;
     @Mock
     private PluginManager pluginManager;
+    @Mock
+    ExtensionsRegistry extensionsRegistry;
 
-    private PluginRequestHelper pluginRequestHelper;
     private String extensionName;
     private static List<String> goSupportedVersions = Arrays.asList("1.0", "2.0");
     private String pluginId;
 
     private static class TestExtension extends AbstractExtension {
 
-        protected TestExtension(PluginManager pluginManager, PluginRequestHelper pluginRequestHelper, String extensionName) {
-            super(pluginManager, pluginRequestHelper, extensionName);
+        protected TestExtension(PluginManager pluginManager, ExtensionsRegistry extensionsRegistry, PluginRequestHelper pluginRequestHelper, String extensionName) {
+            super(pluginManager, extensionsRegistry, pluginRequestHelper, extensionName);
         }
 
         @Override
-        protected List<String> goSupportedVersions() {
+        public List<String> goSupportedVersions() {
             return goSupportedVersions;
         }
     }
@@ -71,8 +73,8 @@ public class AbstractExtensionTest {
 
         pluginId = "plugin_id";
         extensionName = "testExtension";
-        pluginRequestHelper = new PluginRequestHelper(pluginManager, goSupportedVersions, extensionName);
-        extension = new TestExtension(pluginManager, pluginRequestHelper, extensionName);
+        PluginRequestHelper pluginRequestHelper = new PluginRequestHelper(pluginManager, goSupportedVersions, extensionName);
+        extension = new TestExtension(pluginManager, extensionsRegistry, pluginRequestHelper, extensionName);
 
         when(pluginManager.isPluginOfType(extensionName, pluginId)).thenReturn(true);
     }

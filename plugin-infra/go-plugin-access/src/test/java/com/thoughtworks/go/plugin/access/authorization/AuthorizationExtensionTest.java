@@ -20,6 +20,7 @@ import com.thoughtworks.go.config.PluginRoleConfig;
 import com.thoughtworks.go.config.SecurityAuthConfig;
 import com.thoughtworks.go.config.SecurityAuthConfigs;
 import com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother;
+import com.thoughtworks.go.plugin.access.ExtensionsRegistry;
 import com.thoughtworks.go.plugin.access.common.AbstractExtension;
 import com.thoughtworks.go.plugin.api.request.GoPluginApiRequest;
 import com.thoughtworks.go.plugin.api.response.DefaultGoPluginApiResponse;
@@ -59,6 +60,8 @@ public class AuthorizationExtensionTest {
 
     @Mock
     private PluginManager pluginManager;
+    @Mock
+    ExtensionsRegistry extensionsRegistry;
     private ArgumentCaptor<GoPluginApiRequest> requestArgumentCaptor;
     private AuthorizationExtension authorizationExtension;
 
@@ -68,7 +71,7 @@ public class AuthorizationExtensionTest {
         when(pluginManager.resolveExtensionVersion(PLUGIN_ID, AUTHORIZATION_EXTENSION, Arrays.asList("1.0", "2.0"))).thenReturn("1.0");
         when(pluginManager.isPluginOfType(AUTHORIZATION_EXTENSION, PLUGIN_ID)).thenReturn(true);
 
-        authorizationExtension = new AuthorizationExtension(pluginManager);
+        authorizationExtension = new AuthorizationExtension(pluginManager, extensionsRegistry);
 
         requestArgumentCaptor = ArgumentCaptor.forClass(GoPluginApiRequest.class);
     }

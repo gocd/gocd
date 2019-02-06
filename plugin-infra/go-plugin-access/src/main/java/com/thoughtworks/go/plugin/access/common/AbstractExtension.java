@@ -17,13 +17,16 @@
 package com.thoughtworks.go.plugin.access.common;
 
 import com.thoughtworks.go.plugin.access.DefaultPluginInteractionCallback;
+import com.thoughtworks.go.plugin.access.ExtensionsRegistry;
 import com.thoughtworks.go.plugin.access.PluginRequestHelper;
-import com.thoughtworks.go.plugin.access.common.settings.*;
+import com.thoughtworks.go.plugin.access.common.settings.GoPluginExtension;
+import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsConfiguration;
+import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsConstants;
+import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsJsonMessageHandler;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public abstract class AbstractExtension implements GoPluginExtension {
@@ -32,10 +35,11 @@ public abstract class AbstractExtension implements GoPluginExtension {
     private final String extensionName;
     protected Map<String, PluginSettingsJsonMessageHandler> pluginSettingsMessageHandlerMap = new HashMap<>();
 
-    protected AbstractExtension(PluginManager pluginManager, PluginRequestHelper pluginRequestHelper, String extensionName) {
+    protected AbstractExtension(PluginManager pluginManager, ExtensionsRegistry extensionsRegistry, PluginRequestHelper pluginRequestHelper, String extensionName) {
         this.pluginManager = pluginManager;
         this.pluginRequestHelper = pluginRequestHelper;
         this.extensionName = extensionName;
+        extensionsRegistry.registerExtension(this);
     }
 
     @Override
@@ -98,8 +102,6 @@ public abstract class AbstractExtension implements GoPluginExtension {
             }
         });
     }
-
-    protected abstract List<String> goSupportedVersions();
 
     public void registerHandler(String version, PluginSettingsJsonMessageHandler handler) {
         pluginSettingsMessageHandlerMap.put(version, handler);

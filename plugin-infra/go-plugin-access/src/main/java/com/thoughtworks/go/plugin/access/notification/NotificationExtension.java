@@ -17,9 +17,12 @@
 package com.thoughtworks.go.plugin.access.notification;
 
 import com.thoughtworks.go.plugin.access.DefaultPluginInteractionCallback;
+import com.thoughtworks.go.plugin.access.ExtensionsRegistry;
 import com.thoughtworks.go.plugin.access.PluginRequestHelper;
 import com.thoughtworks.go.plugin.access.common.AbstractExtension;
-import com.thoughtworks.go.plugin.access.common.settings.*;
+import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsJsonMessageHandler;
+import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsJsonMessageHandler1_0;
+import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsJsonMessageHandler2_0;
 import com.thoughtworks.go.plugin.access.notification.v1.JsonMessageHandler1_0;
 import com.thoughtworks.go.plugin.access.notification.v2.JsonMessageHandler2_0;
 import com.thoughtworks.go.plugin.access.notification.v3.JsonMessageHandler3_0;
@@ -49,8 +52,8 @@ public class NotificationExtension extends AbstractExtension {
     private Map<String, JsonMessageHandler> messageHandlerMap = new HashMap<>();
 
     @Autowired
-    public NotificationExtension(PluginManager pluginManager) {
-        super(pluginManager, new PluginRequestHelper(pluginManager, goSupportedVersions, NOTIFICATION_EXTENSION), NOTIFICATION_EXTENSION);
+    public NotificationExtension(PluginManager pluginManager, ExtensionsRegistry extensionsRegistry) {
+        super(pluginManager, extensionsRegistry, new PluginRequestHelper(pluginManager, goSupportedVersions, NOTIFICATION_EXTENSION), NOTIFICATION_EXTENSION);
 
         registerHandlers("1.0", new PluginSettingsJsonMessageHandler1_0(), new JsonMessageHandler1_0());
 
@@ -100,7 +103,7 @@ public class NotificationExtension extends AbstractExtension {
     }
 
     @Override
-    protected List<String> goSupportedVersions() {
+    public List<String> goSupportedVersions() {
         return goSupportedVersions;
     }
 }

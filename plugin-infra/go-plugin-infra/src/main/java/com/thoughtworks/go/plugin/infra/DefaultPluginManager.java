@@ -54,16 +54,16 @@ public class DefaultPluginManager implements PluginManager {
     private PluginWriter pluginWriter;
     private PluginValidator pluginValidator;
     private final Map<PluginDescriptor, Set<String>> initializedPluginsWithTheirExtensionTypes = new HashMap<>();
-    private PluginRequestProcessorRegistry requestProcesRegistry;
+    private PluginRequestProcessorRegistry requestProcessRegistry;
 
     @Autowired
     public DefaultPluginManager(DefaultPluginJarLocationMonitor monitor, DefaultPluginRegistry registry, GoPluginOSGiFramework goPluginOSGiFramework,
-                                DefaultPluginJarChangeListener defaultPluginJarChangeListener, PluginRequestProcessorRegistry requestProcesRegistry, PluginWriter pluginWriter,
+                                DefaultPluginJarChangeListener defaultPluginJarChangeListener, PluginRequestProcessorRegistry requestProcessRegistry, PluginWriter pluginWriter,
                                 PluginValidator pluginValidator, SystemEnvironment systemEnvironment) {
         this.monitor = monitor;
         this.registry = registry;
         this.defaultPluginJarChangeListener = defaultPluginJarChangeListener;
-        this.requestProcesRegistry = requestProcesRegistry;
+        this.requestProcessRegistry = requestProcessRegistry;
         this.systemEnvironment = systemEnvironment;
         bundleLocation = bundlePath();
         this.goPluginOSGiFramework = goPluginOSGiFramework;
@@ -161,7 +161,7 @@ public class DefaultPluginManager implements PluginManager {
             }
             initializedPluginsWithTheirExtensionTypes.get(pluginDescriptor).add(extensionType);
 
-            PluginAwareDefaultGoApplicationAccessor accessor = new PluginAwareDefaultGoApplicationAccessor(pluginDescriptor, requestProcesRegistry);
+            PluginAwareDefaultGoApplicationAccessor accessor = new PluginAwareDefaultGoApplicationAccessor(pluginDescriptor, requestProcessRegistry);
             plugin.initializeGoApplicationAccessor(accessor);
         }
     }
@@ -173,20 +173,24 @@ public class DefaultPluginManager implements PluginManager {
 
     @Override
     public String resolveExtensionVersion(String pluginId, String extensionType, final List<String> goSupportedExtensionVersions) {
-        String resolvedExtensionVersion = goPluginOSGiFramework.doOn(GoPlugin.class, pluginId, extensionType, (goPlugin, pluginDescriptor) -> {
-            List<String> pluginSupportedVersions = goPlugin.pluginIdentifier().getSupportedExtensionVersions();
-            String currentMaxVersion = "0";
-            for (String pluginSupportedVersion : pluginSupportedVersions) {
-                if (goSupportedExtensionVersions.contains(pluginSupportedVersion) && parseDouble(currentMaxVersion) < parseDouble(pluginSupportedVersion)) {
-                    currentMaxVersion = pluginSupportedVersion;
-                }
+        List<String> pluginSupportedVersions = getRequiredExtensionVersionsByPlugin(pluginId, extensionType);
+        String resolvedExtensionVersion = "0";
+        for (String pluginSupportedVersion : pluginSupportedVersions) {
+            if (goSupportedExtensionVersions.contains(pluginSupportedVersion) && parseDouble(resolvedExtensionVersion) < parseDouble(pluginSupportedVersion)) {
+                resolvedExtensionVersion = pluginSupportedVersion;
             }
-            return currentMaxVersion;
-        });
+        }
+
         if ("0".equals(resolvedExtensionVersion)) {
             throw new RuntimeException(String.format("Could not find matching extension version between Plugin[%s] and Go", pluginId));
         }
+
         return resolvedExtensionVersion;
+    }
+
+    @Override
+    public List<String> getRequiredExtensionVersionsByPlugin(String pluginId, String extensionType) {
+        return goPluginOSGiFramework.doOn(GoPlugin.class, pluginId, extensionType, (goPlugin, pluginDescriptor) -> goPlugin.pluginIdentifier().getSupportedExtensionVersions());
     }
 
     private void removeBundleDirectory() {

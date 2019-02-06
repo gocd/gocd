@@ -17,6 +17,7 @@
 package com.thoughtworks.go.plugin.access.packagematerial;
 
 import com.thoughtworks.go.plugin.access.DefaultPluginInteractionCallback;
+import com.thoughtworks.go.plugin.access.ExtensionsRegistry;
 import com.thoughtworks.go.plugin.access.PluginRequestHelper;
 import com.thoughtworks.go.plugin.access.common.AbstractExtension;
 import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsJsonMessageHandler1_0;
@@ -51,8 +52,8 @@ public class PackageRepositoryExtension extends AbstractExtension {
     final Map<String, JsonMessageHandler> messageHandlerMap = new HashMap<>();
 
     @Autowired
-    public PackageRepositoryExtension(PluginManager pluginManager) {
-        super(pluginManager, new PluginRequestHelper(pluginManager, goSupportedVersions, PACKAGE_MATERIAL_EXTENSION), PACKAGE_MATERIAL_EXTENSION);
+    public PackageRepositoryExtension(PluginManager pluginManager, ExtensionsRegistry extensionsRegistry) {
+        super(pluginManager, extensionsRegistry, new PluginRequestHelper(pluginManager, goSupportedVersions, PACKAGE_MATERIAL_EXTENSION), PACKAGE_MATERIAL_EXTENSION);
         registerHandler("1.0", new PluginSettingsJsonMessageHandler1_0());
         messageHandlerMap.put("1.0", new JsonMessageHandler1_0());
     }
@@ -168,7 +169,7 @@ public class PackageRepositoryExtension extends AbstractExtension {
     }
 
     @Override
-    protected List<String> goSupportedVersions() {
+    public List<String> goSupportedVersions() {
         return goSupportedVersions;
     }
 }

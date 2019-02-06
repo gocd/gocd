@@ -24,7 +24,6 @@ import com.thoughtworks.go.plugin.infra.plugininfo.*;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.ZipUtil;
 import org.apache.commons.io.FileUtils;
-import org.osgi.framework.Version;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,8 +48,7 @@ public class DefaultPluginJarChangeListener implements PluginJarChangeListener {
     private GoPluginDescriptorBuilder goPluginDescriptorBuilder;
 
     @Autowired
-    public DefaultPluginJarChangeListener(DefaultPluginRegistry registry, GoPluginOSGiManifestGenerator osgiManifestGenerator, GoPluginOSGiFramework goPluginOSGiFramework,
-                                          GoPluginDescriptorBuilder goPluginDescriptorBuilder, SystemEnvironment systemEnvironment) {
+    public DefaultPluginJarChangeListener(DefaultPluginRegistry registry, GoPluginOSGiManifestGenerator osgiManifestGenerator, GoPluginOSGiFramework goPluginOSGiFramework, GoPluginDescriptorBuilder goPluginDescriptorBuilder, SystemEnvironment systemEnvironment) {
         this.registry = registry;
         this.osgiManifestGenerator = osgiManifestGenerator;
         this.goPluginOSGiFramework = goPluginOSGiFramework;
@@ -136,12 +134,12 @@ public class DefaultPluginJarChangeListener implements PluginJarChangeListener {
 
     private void validatePluginCompatibilityWithGoCD(GoPluginDescriptor descriptor) {
         try {
-            if(!descriptor.isCurrentGocdVersionValidForThisPlugin()){
+            if (!descriptor.isCurrentGocdVersionValidForThisPlugin()) {
                 List<String> messages = Arrays.asList(String.format("Plugin with ID (%s) is not valid: Incompatible with GoCD version '%s'. Compatible version is: %s.",
                         descriptor.id(), CurrentGoCDVersion.getInstance().goVersion(), descriptor.about().targetGoVersion()));
                 descriptor.markAsInvalid(messages, null);
             }
-        } catch (IllegalArgumentException e){
+        } catch (IllegalArgumentException e) {
             List<String> messages = Arrays.asList(String.format("Plugin with ID (%s) is not valid: Incorrect target gocd version(%s) specified.", descriptor.id(), descriptor.about().targetGoVersion()));
             descriptor.markAsInvalid(messages, null);
         }

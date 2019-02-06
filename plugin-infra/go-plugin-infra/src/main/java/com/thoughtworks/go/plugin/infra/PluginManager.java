@@ -40,4 +40,6 @@ public interface PluginManager {
     boolean isPluginOfType(String extension, String pluginId);
 
     String resolveExtensionVersion(String pluginId, String extensionType, List<String> goSupportedExtensionVersions);
+
+    List<String> getRequiredExtensionVersionsByPlugin(String pluginId, String extensionType);
 }

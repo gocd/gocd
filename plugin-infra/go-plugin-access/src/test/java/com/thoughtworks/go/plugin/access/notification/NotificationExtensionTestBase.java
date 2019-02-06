@@ -19,6 +19,7 @@ package com.thoughtworks.go.plugin.access.notification;
 import com.thoughtworks.go.domain.Stage;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.domain.notificationdata.StageNotificationData;
+import com.thoughtworks.go.plugin.access.ExtensionsRegistry;
 import com.thoughtworks.go.plugin.access.common.AbstractExtension;
 import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsConfiguration;
 import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsConstants;
@@ -54,12 +55,14 @@ public abstract class NotificationExtensionTestBase {
 
     @Mock
     protected PluginManager pluginManager;
+    @Mock
+    protected ExtensionsRegistry extensionsRegistry;
 
     @Before
     public void setUp() throws Exception {
         initMocks(this);
 
-        notificationExtension = new NotificationExtension(pluginManager);
+        notificationExtension = new NotificationExtension(pluginManager, extensionsRegistry);
         notificationExtension.getPluginSettingsMessageHandlerMap().put(apiVersion(), pluginSettingsJSONMessageHandler());
         notificationExtension.getMessageHandlerMap().put(apiVersion(), jsonMessageHandler());
 
@@ -78,12 +81,12 @@ public abstract class NotificationExtensionTestBase {
     protected abstract JsonMessageHandler jsonMessageHandler();
 
     @Test
-    public void shouldExtendAbstractExtension() throws Exception {
+    public void shouldExtendAbstractExtension() {
         assertTrue(notificationExtension instanceof AbstractExtension);
     }
 
     @Test
-    public void shouldTalkToPluginToGetPluginSettingsConfiguration() throws Exception {
+    public void shouldTalkToPluginToGetPluginSettingsConfiguration() {
         PluginSettingsConfiguration deserializedResponse = new PluginSettingsConfiguration();
         when(pluginSettingsJSONMessageHandler().responseMessageForPluginSettingsConfiguration(RESPONSE_BODY)).thenReturn(deserializedResponse);
 

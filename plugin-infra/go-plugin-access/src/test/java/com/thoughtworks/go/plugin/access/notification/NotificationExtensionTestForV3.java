@@ -70,7 +70,7 @@ public class NotificationExtensionTestForV3 extends NotificationExtensionTestBas
         when(pluginManager.isPluginOfType(NOTIFICATION_EXTENSION, "pluginId")).thenReturn(true);
         when(pluginManager.submitTo(eq("pluginId"), eq(NOTIFICATION_EXTENSION), requestArgumentCaptor.capture())).thenReturn(new DefaultGoPluginApiResponse(SUCCESS_RESPONSE_CODE, ""));
 
-        NotificationExtension extension = new NotificationExtension(pluginManager);
+        NotificationExtension extension = new NotificationExtension(pluginManager, extensionsRegistry);
         extension.notifyPluginSettingsChange("pluginId", settings);
 
         assertRequest(requestArgumentCaptor.getValue(), NOTIFICATION_EXTENSION,

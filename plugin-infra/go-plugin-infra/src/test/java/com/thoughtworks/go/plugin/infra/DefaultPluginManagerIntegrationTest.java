@@ -42,7 +42,10 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = {"classpath:/applicationContext-plugin-infra.xml"})
+@ContextConfiguration(locations = {
+        "classpath:/applicationContext-plugin-infra.xml",
+        "classpath:testPluginVersionValidatorConfigurer.xml"
+})
 @DirtiesContext
 public class DefaultPluginManagerIntegrationTest {
     @ClassRule
@@ -54,9 +57,12 @@ public class DefaultPluginManagerIntegrationTest {
     private static final String PLUGIN_ID_1 = "testplugin.descriptorValidator";
     private static final String PLUGIN_TO_TEST_CLASSLOADER = "plugin.to.test.classloader";
     private static File bundleDir;
-    @Autowired DefaultPluginManager pluginManager;
-    @Autowired DefaultPluginJarChangeListener jarChangeListener;
-    @Autowired SystemEnvironment systemEnvironment;
+    @Autowired
+    DefaultPluginManager pluginManager;
+    @Autowired
+    DefaultPluginJarChangeListener jarChangeListener;
+    @Autowired
+    SystemEnvironment systemEnvironment;
 
     @BeforeClass
     public static void overrideProperties() throws IOException {

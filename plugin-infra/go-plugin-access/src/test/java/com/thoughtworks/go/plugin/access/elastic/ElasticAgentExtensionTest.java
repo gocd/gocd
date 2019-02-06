@@ -17,6 +17,7 @@
 package com.thoughtworks.go.plugin.access.elastic;
 
 import com.thoughtworks.go.domain.JobIdentifier;
+import com.thoughtworks.go.plugin.access.ExtensionsRegistry;
 import com.thoughtworks.go.plugin.access.common.AbstractExtension;
 import com.thoughtworks.go.plugin.api.request.GoPluginApiRequest;
 import com.thoughtworks.go.plugin.api.response.DefaultGoPluginApiResponse;
@@ -46,6 +47,7 @@ public class ElasticAgentExtensionTest {
     public ExpectedException thrown = ExpectedException.none();
 
     protected PluginManager pluginManager;
+    private ExtensionsRegistry extensionsRegistry;
     protected ArgumentCaptor<GoPluginApiRequest> requestArgumentCaptor;
     protected GoPluginDescriptor descriptor;
     protected ElasticAgentExtension extension;
@@ -53,9 +55,10 @@ public class ElasticAgentExtensionTest {
     @Before
     public void setUp() throws Exception {
         pluginManager = mock(PluginManager.class);
+        extensionsRegistry = mock(ExtensionsRegistry.class);
         requestArgumentCaptor = ArgumentCaptor.forClass(GoPluginApiRequest.class);
         descriptor = mock(GoPluginDescriptor.class);
-        extension = new ElasticAgentExtension(pluginManager);
+        extension = new ElasticAgentExtension(pluginManager, extensionsRegistry);
 
         when(descriptor.id()).thenReturn(PLUGIN_ID);
 
@@ -91,7 +94,7 @@ public class ElasticAgentExtensionTest {
 
     @Test
     public void shouldExtendAbstractExtension() {
-        assertTrue(new ElasticAgentExtension(pluginManager) instanceof AbstractExtension);
+        assertTrue(new ElasticAgentExtension(pluginManager, extensionsRegistry) instanceof AbstractExtension);
     }
 
     @Test
@@ -105,17 +108,6 @@ public class ElasticAgentExtensionTest {
         extension.reportJobCompletion(PLUGIN_ID, elasticAgentId, jobIdentifier);
 
         verify(pluginManager, times(1)).submitTo(eq(PLUGIN_ID), eq(ELASTIC_AGENT_EXTENSION), any(GoPluginApiRequest.class));
-    }
-
-    class ElasticAgentExtensionExposingHandlers extends ElasticAgentExtension {
-        public ElasticAgentExtensionExposingHandlers(PluginManager pluginManager) {
-            super(pluginManager);
-        }
-
-        @Override
-        public VersionedElasticAgentExtension getVersionedElasticAgentExtension(String pluginId) {
-            return super.getVersionedElasticAgentExtension(pluginId);
-        }
     }
 
     private void assertExtensionRequest(String extensionVersion, String requestName, String requestBody) {

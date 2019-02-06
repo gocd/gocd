@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.plugin.access.packagematerial;
 
+import com.thoughtworks.go.plugin.access.ExtensionsRegistry;
 import com.thoughtworks.go.plugin.access.common.AbstractExtension;
 import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsConfiguration;
 import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsConstants;
@@ -39,7 +40,10 @@ import org.mockito.Mock;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.Date;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 import static com.thoughtworks.go.plugin.domain.common.PluginConstants.PACKAGE_MATERIAL_EXTENSION;
 import static java.util.Arrays.asList;
@@ -57,6 +61,8 @@ public class PackageRepositoryExtensionTest {
     @Mock
     private PluginManager pluginManager;
     @Mock
+    private ExtensionsRegistry extensionsRegistry;
+    @Mock
     private PluginSettingsJsonMessageHandler1_0 pluginSettingsJSONMessageHandler;
     @Mock
     private JsonMessageHandler1_0 jsonMessageHandler;
@@ -71,7 +77,7 @@ public class PackageRepositoryExtensionTest {
     @Before
     public void setUp() throws Exception {
         initMocks(this);
-        extension = new PackageRepositoryExtension(pluginManager);
+        extension = new PackageRepositoryExtension(pluginManager, extensionsRegistry);
 
         pluginSettingsConfiguration = new PluginSettingsConfiguration();
 
@@ -150,6 +156,7 @@ public class PackageRepositoryExtensionTest {
         verify(pluginSettingsJSONMessageHandler).responseMessageForPluginSettingsValidation(responseBody);
         assertSame(response, deserializedResponse);
     }
+
     @Test
     public void shouldTalkToPluginToGetRepositoryConfiguration() throws Exception {
         String expectedRequestBody = null;

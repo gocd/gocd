@@ -17,18 +17,14 @@
 package com.thoughtworks.go.plugin.infra;
 
 import com.thoughtworks.go.plugin.api.GoPlugin;
-import com.thoughtworks.go.plugin.api.request.DefaultGoPluginApiRequest;
-import com.thoughtworks.go.plugin.api.response.GoPluginApiResponse;
 import com.thoughtworks.go.plugin.infra.plugininfo.DefaultPluginRegistry;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import com.thoughtworks.go.util.ReflectionUtil;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.ZipUtil;
 import org.apache.commons.io.FileUtils;
-import org.apache.felix.framework.BundleWiringImpl;
 import org.apache.felix.framework.BundleWiringImpl.BundleClassLoader;
 import org.apache.felix.framework.util.FelixConstants;
-import org.hamcrest.MatcherAssert;
 import org.junit.*;
 import org.junit.contrib.java.lang.system.RestoreSystemProperties;
 import org.junit.rules.TemporaryFolder;
@@ -47,7 +43,6 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
-import static org.mockito.ArgumentMatchers.isNotNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
@@ -63,7 +58,7 @@ public class FelixGoPluginOSGiFrameworkIntegrationTest {
     private File errorGeneratingDescriptorBundleDir;
     private File exceptionThrowingAtLoadDescriptorBundleDir;
     private File validMultipleExtensionPluginBundleDir;
-    private File pluginToTestClassloadePluginBundleDir;
+    private File pluginToTestClassloadPluginBundleDir;
     private DefaultPluginRegistry registry;
     private SystemEnvironment systemEnvironment;
 
@@ -71,7 +66,7 @@ public class FelixGoPluginOSGiFrameworkIntegrationTest {
     public void setUp() throws Exception {
         registry = new DefaultPluginRegistry();
         systemEnvironment = new SystemEnvironment();
-        pluginOSGiFramework = new FelixGoPluginOSGiFramework(registry, systemEnvironment) {
+        pluginOSGiFramework = new FelixGoPluginOSGiFramework(registry, systemEnvironment, new DummyPluginExtensionsAndVersionValidator()) {
             @Override
             protected HashMap<String, String> generateOSGiFrameworkConfig() {
                 HashMap<String, String> config = super.generateOSGiFrameworkConfig();
@@ -97,7 +92,7 @@ public class FelixGoPluginOSGiFrameworkIntegrationTest {
             validMultipleExtensionPluginBundleDir = explodeBundleIntoDirectory(zippedOSGiBundleFile, "valid-plugin-with-multiple-extensions");
         }
         try (ZipInputStream zippedOSGiBundleFile = new ZipInputStream(FileUtils.openInputStream(pathOfFileInDefaultFiles("dumb.plugin.that.responds.with.classloader.name.osgi.jar")))) {
-            pluginToTestClassloadePluginBundleDir = explodeBundleIntoDirectory(zippedOSGiBundleFile, "plugin-to-test-classloader");
+            pluginToTestClassloadPluginBundleDir = explodeBundleIntoDirectory(zippedOSGiBundleFile, "plugin-to-test-classloader");
         }
     }
 
@@ -230,8 +225,8 @@ public class FelixGoPluginOSGiFrameworkIntegrationTest {
         registry.loadPlugin(pluginDescriptor);
         assertThat(pluginDescriptor.isInvalid(), is(false));
         Bundle bundle = pluginOSGiFramework.loadPlugin(pluginDescriptor);
-        assertThat(pluginDescriptor.isInvalid(),is(true));
-        assertThat(bundle.getState(),is(Bundle.UNINSTALLED));
+        assertThat(pluginDescriptor.isInvalid(), is(true));
+        assertThat(bundle.getState(), is(Bundle.UNINSTALLED));
     }
 
     @Test
@@ -255,7 +250,7 @@ public class FelixGoPluginOSGiFrameworkIntegrationTest {
     @Test
     public void shouldSetCurrentThreadContextClassLoaderToBundleClassLoaderToAvoidDependenciesFromApplicationClassloaderMessingAroundWithThePluginBehavior() {
         systemEnvironment.setProperty("gocd.plugins.classloader.old", "false");
-        final GoPluginDescriptor descriptor = new GoPluginDescriptor("plugin.to.test.classloader", null, null, null, pluginToTestClassloadePluginBundleDir, true);
+        final GoPluginDescriptor descriptor = new GoPluginDescriptor("plugin.to.test.classloader", null, null, null, pluginToTestClassloadPluginBundleDir, true);
         Bundle bundle = pluginOSGiFramework.loadPlugin(descriptor);
         registry.loadPlugin(descriptor);
         assertThat(bundle.getState(), is(Bundle.ACTIVE));
@@ -272,7 +267,7 @@ public class FelixGoPluginOSGiFrameworkIntegrationTest {
     @Test
     public void shouldUseOldClassLoaderBehaviourWhenSystemPropertyIsSet() {
         systemEnvironment.setProperty("gocd.plugins.classloader.old", "true");
-        final GoPluginDescriptor descriptor = new GoPluginDescriptor("plugin.to.test.classloader", null, null, null, pluginToTestClassloadePluginBundleDir, true);
+        final GoPluginDescriptor descriptor = new GoPluginDescriptor("plugin.to.test.classloader", null, null, null, pluginToTestClassloadPluginBundleDir, true);
         Bundle bundle = pluginOSGiFramework.loadPlugin(descriptor);
         registry.loadPlugin(descriptor);
         assertThat(bundle.getState(), is(Bundle.ACTIVE));

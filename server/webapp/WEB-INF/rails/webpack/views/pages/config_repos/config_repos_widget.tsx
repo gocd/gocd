@@ -178,8 +178,12 @@ class ConfigRepoWidget extends MithrilViewComponent<ShowObjectAttrs<ConfigRepo>>
       );
     }
 
+    const configRepoHasErrors = vnode.attrs.obj.lastParse() && vnode.attrs.obj.lastParse()!.error();
+
     return (
-      <CollapsiblePanel header={<HeaderWidget repo={vnode.attrs.obj} pluginInfos={vnode.attrs.pluginInfos}/>}
+      <CollapsiblePanel styleClass={configRepoHasErrors ? styles.collapsePanelHeader : ""}
+                        header={<HeaderWidget repo={vnode.attrs.obj} pluginInfos={vnode.attrs.pluginInfos}/>}
+                        dataTestId={"config-repo-details-panel"}
                         actions={actionButtons} expanded={vnode.attrs.index === 0}>
         {maybeWarning}
         {this.latestModification(parseInfo)}

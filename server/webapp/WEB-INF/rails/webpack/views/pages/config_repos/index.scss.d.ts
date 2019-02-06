@@ -23,3 +23,4 @@ export const keyValueTitle: string;
 export const headerTitleText: string;
 export const errorInParseInfo: string;
 export const wrapperForSearchBox: string;
+export const collapsePanelHeader: string;

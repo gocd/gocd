@@ -150,15 +150,6 @@ public class ApplicationInitializer implements ApplicationListener<ContextRefres
             scmMaterialSource.initialize();
             dataSharingSettingsService.initialize();
             dataSharingUsageStatisticsReportingService.initialize();
-
-            if ("Y".equals(System.getProperty("delay.gocd.startup.wait.for.file", "N"))) {
-                File file = new File("/tmp/webapp");
-                while (!file.exists()) {
-                    System.err.println("Blocking server startup till file /tmp/webapp is found.");
-                    Thread.sleep(2000);
-                }
-                file.delete();
-            }
         } catch (Throwable throwable) {
             throw new RuntimeException(throwable);
         }

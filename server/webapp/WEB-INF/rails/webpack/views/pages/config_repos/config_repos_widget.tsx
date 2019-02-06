@@ -281,7 +281,7 @@ class ConfigRepoWidget extends MithrilViewComponent<ShowObjectAttrs<ConfigRepo>>
       let statusIcon = styles.goodModificationIcon;
 
       if (parseInfo.error()) {
-        attrs.set("Error", <span class={styles.errorInParseInfo}>{parseInfo.error()}</span>);
+        attrs.set("Error", <code class={styles.errorInParseInfo}>{parseInfo.error()}</code>);
         statusIcon = styles.errorLastModificationIcon;
       }
 

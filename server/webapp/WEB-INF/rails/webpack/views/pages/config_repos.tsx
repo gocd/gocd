@@ -143,7 +143,7 @@ export class ConfigReposPage extends Page<null, State> {
     const headerButtons = [
       <div class={styles.wrapperForSearchBox}>
         <SearchField property={vnode.state.searchText} onchange={() => this.search(vnode)} dataTestId={"search-box"}
-                     placeholder={"Search Config Repo"}/>
+                     placeholder="Search Config Repo"/>
       </div>,
       <Buttons.Primary onclick={vnode.state.onAdd.bind(vnode.state)}>Add</Buttons.Primary>
     ];

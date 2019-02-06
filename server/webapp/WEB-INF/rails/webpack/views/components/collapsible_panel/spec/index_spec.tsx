@@ -29,23 +29,25 @@ describe("Collapsible Panel Component", () => {
     // @ts-ignore
     [$root, root] = window.createDomElementForTest();
   });
-  beforeEach(mount);
 
   afterEach(unmount);
   // @ts-ignore
   afterEach(window.destroyDomElementForTest);
 
   it("should render expand collapsible component", () => {
+    mount();
     expect(find('collapse-header')).toContainText(pageTitle);
     expect($root.find('.collapse-content')).toBeInDOM();
   });
 
   it("should render component, collapsed by default", () => {
+    mount();
     expect(find('collapse-header')).not.toHaveClass(styles.expanded);
     expect(find('collapse-body')).toHaveClass(styles.hide);
   });
 
   it("should toggle component state on click", () => {
+    mount();
     expect(find('collapse-header')).not.toHaveClass(styles.expanded);
     expect(find('collapse-body')).toHaveClass(styles.hide);
 
@@ -62,10 +64,15 @@ describe("Collapsible Panel Component", () => {
     expect(find('collapse-body')).toHaveClass(styles.hide);
   });
 
-  function mount() {
+  it("should apply provided css class", () => {
+    mount('an-extra-style-class');
+    expect(find('collapsible-panel-wrapper')).toHaveClass('an-extra-style-class');
+  });
+
+  function mount(styleClass?: string) {
     m.mount(root, {
       view() {
-        return (<CollapsiblePanel header={pageTitle}>{body}</CollapsiblePanel>);
+        return (<CollapsiblePanel styleClass={styleClass}  dataTestId={"collapsible-panel-wrapper"} header={pageTitle}>{body}</CollapsiblePanel>);
       }
     });
 

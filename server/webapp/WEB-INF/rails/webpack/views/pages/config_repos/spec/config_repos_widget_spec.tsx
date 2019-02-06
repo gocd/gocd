@@ -230,9 +230,17 @@ describe("ConfigReposWidget", () => {
     configRepos([repo]);
     pluginInfos([configRepoPluginInfo()]);
     m.redraw();
-    debugger
     expect(find("repo-update-in-progress-icon")).toBeInDOM();
     expect(find("repo-update-in-progress-icon")).toHaveClass(styles.configRepoUpdateInProgress);
+  });
+
+  it("should render red top border to indicate error in config repo parsing", () => {
+    const repo = createConfigRepo();
+    configRepos([repo]);
+    pluginInfos([configRepoPluginInfo()]);
+    m.redraw();
+    expect(find("config-repo-details-panel")).toBeInDOM();
+    expect(find("config-repo-details-panel")).toHaveClass(styles.collapsePanelHeader);
   });
 
   it("should callback the delete function when delete button is clicked", () => {

@@ -31,6 +31,7 @@ export interface Attrs<Header, Actions> {
   header: AttributeType | string;
   error?: boolean;
   expanded?: boolean;
+  styleClass?: string;
 }
 
 export interface State {
@@ -64,7 +65,7 @@ export class CollapsiblePanel<Header, Actions> extends MithrilComponent<Attrs<He
       <div data-test-id={vnode.attrs.dataTestId}
            data-test-element-state={expandCollapseState}
            data-test-has-error={vnode.attrs.error}
-           class={classnames(styles.collapse, collapsibleClasses)}>
+           class={classnames(styles.collapse, collapsibleClasses, vnode.attrs.styleClass)}>
         <div class={classnames(styles.collapseHeader, collapsibleClasses)}
              data-test-id="collapse-header"
              onclick={vnode.state.toggle}>

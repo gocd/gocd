@@ -35,10 +35,6 @@ import {
 } from "views/pages/page_operations";
 import * as styles from "./index.scss";
 
-const yamlIcon   = require("./yaml.svg");
-const jsonIcon   = require("./json.svg");
-const groovyIcon = require("./groovy.svg");
-
 interface Operations<T> extends EditOperation<T>, DeleteOperation<T>, RefreshOperation<T> {
 }
 
@@ -87,20 +83,10 @@ class HeaderWidget extends MithrilViewComponent<HeaderWidgetAttrs> {
 
   private pluginIcon(vnode: m.Vnode<HeaderWidgetAttrs>) {
     const pluginInfo = findPluginWithId(vnode.attrs.pluginInfos(), vnode.attrs.repo.pluginId());
-
-    if (!pluginInfo) {
-      return <HeaderIcon name="Unknown plugin"/>;
-    }
-
-    switch (pluginInfo!.id) {
-      case "yaml.config.plugin":
-        return <HeaderIcon imageUrl={yamlIcon}/>;
-      case "json.config.plugin":
-        return <HeaderIcon imageUrl={jsonIcon}/>;
-      case "cd.go.contrib.plugins.configrepo.groovy":
-        return <HeaderIcon imageUrl={groovyIcon}/>;
-      default:
-        return <HeaderIcon name="Plugin does not have an icon"/>;
+    if (pluginInfo && pluginInfo.imageUrl) {
+      return <HeaderIcon name="Plugin Icon" imageUrl={pluginInfo.imageUrl}/>;
+    } else {
+      return <HeaderIcon name="Plugin does not have an icon"/>;
     }
   }
 }

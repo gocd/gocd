@@ -82,17 +82,20 @@ export class ConfigRepo implements ValidatableMixin {
                   __jsonPluginPipelinesPattern: Stream<string> = stream("");
                   __jsonPluginEnvPattern: Stream<string>       = stream("");
                   __yamlPluginPattern: Stream<string>          = stream("");
+                  materialUpdateInProgress: Stream<boolean>;
 
   constructor(id?: string,
               pluginId?: string,
               material?: Material,
               configuration?: Configuration[],
-              lastParse?: ParseInfo | null) {
+              lastParse?: ParseInfo | null,
+              materialUpdateInProgress?: boolean) {
     this.id            = stream(id);
     this.pluginId      = stream(pluginId);
     this.material      = stream(material);
     this.configuration = stream(configuration);
     this.lastParse     = stream(lastParse);
+    this.materialUpdateInProgress = stream(materialUpdateInProgress || false);
     if (configuration) {
       this.__jsonPluginPipelinesPattern = stream(ConfigRepo.findConfigurationValue(configuration,
                                                                                    ConfigRepo.PIPELINE_PATTERN));
@@ -120,7 +123,8 @@ export class ConfigRepo implements ValidatableMixin {
                                       json.plugin_id,
                                       Materials.fromJSON(json.material),
                                       configurations,
-                                      parseInfo);
+                                      parseInfo,
+                                      json.material_update_in_progress);
     configRepo.errors(new Errors(json.errors));
     return configRepo;
   }

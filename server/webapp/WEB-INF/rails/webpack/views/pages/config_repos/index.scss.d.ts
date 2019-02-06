@@ -17,6 +17,7 @@ export const testConnectionSuccess: string;
 export const testConnectionFailure: string;
 export const testConnectionInProgress: string;
 export const rotate: string;
+export const configRepoUpdateInProgress: string;
 export const materialConfigWrapper: string;
 export const keyValueTitle: string;
 export const headerTitleText: string;

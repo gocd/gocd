@@ -104,7 +104,7 @@ describe("ConfigReposWidget", () => {
     });
 
     it("should render config repository configuration details section", () => {
-      configRepos([createConfigRepo("testPlugin")]);
+      configRepos([createConfigRepo({id: "testPlugin"})]);
       m.redraw();
       const materialPanel = find("config-repo-plugin-panel");
       const title = materialPanel.children().get(0) ;
@@ -181,8 +181,8 @@ describe("ConfigReposWidget", () => {
   });
 
   it("should render config repos with their plugin-id, material url, commit message, username and revision in header", () => {
-    const repo1 = createConfigRepo("Repo1", "https://example.com/git/90d9f82c-bbfd-4f70-ab09-fd72dee42427");
-    const repo2 = createConfigRepo("Repo2", "https://example.com/git/0b4243ff-7431-48e1-a60e-a79b7b80b654");
+    const repo1 = createConfigRepo({id: "Repo1", repoId: "https://example.com/git/90d9f82c-bbfd-4f70-ab09-fd72dee42427"});
+    const repo2 = createConfigRepo({id: "Repo2", repoId: "https://example.com/git/0b4243ff-7431-48e1-a60e-a79b7b80b654"});
     configRepos([repo1, repo2]);
     m.redraw();
 
@@ -214,7 +214,6 @@ describe("ConfigReposWidget", () => {
     pluginInfos([configRepoPluginInfo()]);
     m.redraw();
     expect(find("flash-message-warning")).toHaveText("This configuration repository was never parsed.");
-    expect($root.find(`.${styles.neverParsed}`)).toBeInDOM();
   });
 
   it("should render a warning message when parsing failed and there is no latest modification", () => {
@@ -224,7 +223,16 @@ describe("ConfigReposWidget", () => {
     m.redraw();
     expect(find("flash-message-warning")).toContainText("There was an error parsing this configuration repository:");
     expect(find("flash-message-warning")).toContainText("blah!");
-    expect($root.find(`.${styles.lastParseErrorIcon}`)).toBeInDOM();
+  });
+
+  it("should render in-progress icon when material update is in progress", () => {
+    const repo = createConfigRepo({material_update_in_progress: true});
+    configRepos([repo]);
+    pluginInfos([configRepoPluginInfo()]);
+    m.redraw();
+    debugger
+    expect(find("repo-update-in-progress-icon")).toBeInDOM();
+    expect(find("repo-update-in-progress-icon")).toHaveClass(styles.configRepoUpdateInProgress);
   });
 
   it("should callback the delete function when delete button is clicked", () => {
@@ -257,13 +265,13 @@ describe("ConfigReposWidget", () => {
     expect(onRefresh).toHaveBeenCalledWith(repo, jasmine.any(MouseEvent));
   });
 
-  function createConfigRepo(id?: string, repoId?: string) {
-    id = id || uuid();
+  function createConfigRepo(overrides?: any) {
+    const parameters = { id: uuid(), repoId: uuid(), material_update_in_progress: false, ...overrides};
     return ConfigRepo.fromJSON({
                                  material: {
                                    type: "git",
                                    attributes: {
-                                     url: "https://example.com/git/" + (repoId || uuid()),
+                                     url: "https://example.com/git/" + (parameters.repoId),
                                      name: "foo",
                                      auto_update: true,
                                      branch : "master"
@@ -290,8 +298,9 @@ describe("ConfigReposWidget", () => {
                                    },
                                    error: "blah!"
                                  },
-                                 id,
-                                 plugin_id: "json.config.plugin"
+                                 id: parameters.id,
+                                 plugin_id: "json.config.plugin",
+                                 material_update_in_progress: parameters.material_update_in_progress
                                });
   }
 
@@ -315,7 +324,8 @@ describe("ConfigReposWidget", () => {
                                    error: "blah!"
                                  },
                                  id,
-                                 plugin_id: "json.config.plugin"
+                                 plugin_id: "json.config.plugin",
+                                 material_update_in_progress: false
                                });
   }
 

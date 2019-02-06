@@ -55,17 +55,6 @@ function findPluginWithId(infos: Array<PluginInfo<any>>, pluginId: string) {
   return _.find(infos, {id: pluginId});
 }
 
-class StatusIcon extends MithrilViewComponent<{ name: string }> {
-  view(vnode: m.Vnode<{ name: string }, this>) {
-    return (
-      <div className={styles.statusIcon}>
-        {vnode.children}
-      </div>
-    );
-  }
-
-}
-
 class HeaderWidget extends MithrilViewComponent<HeaderWidgetAttrs> {
   view(vnode: m.Vnode<HeaderWidgetAttrs>): m.Children | void | null {
     const materialUrl = this.getMaterialUrl(vnode.attrs.repo.material());
@@ -140,8 +129,10 @@ class ConfigRepoWidget extends MithrilViewComponent<ShowObjectAttrs<ConfigRepo>>
       <Delete data-test-id="config-repo-delete" onclick={vnode.attrs.onDelete.bind(vnode.attrs, vnode.attrs.obj)}/>
     );
 
+    const statusIcon = vnode.attrs.obj.materialUpdateInProgress() ? <span className={styles.configRepoUpdateInProgress} data-test-id="repo-update-in-progress-icon"/> : "";
+
     const actionButtons = [
-      this.statusIcon(vnode),
+      statusIcon,
       <IconGroup>
         {refreshButton}
         {editButton}
@@ -205,48 +196,6 @@ class ConfigRepoWidget extends MithrilViewComponent<ShowObjectAttrs<ConfigRepo>>
     }
     accumulator.set(renderedKey, _.isFunction(renderedValue) ? renderedValue() : renderedValue);
     return accumulator;
-  }
-
-  private statusIcon(vnode: m.Vnode<ShowObjectAttrs<ConfigRepo>>) {
-    const pluginInfo = findPluginWithId(vnode.attrs.pluginInfos(), vnode.attrs.obj.pluginId());
-
-    if (!pluginInfo) {
-      return <StatusIcon name="Unknown plugin">
-        <span className={styles.missingPluginIcon}
-              title={`This plugin is not installed or is not configured properly.`}/>
-      </StatusIcon>;
-    }
-
-    let parseInfo = vnode.attrs.obj.lastParse();
-    if (_.isEmpty(parseInfo)) {
-      return (
-        <StatusIcon name="Never Parsed">
-          <span className={styles.neverParsed}
-                title={`This configuration repository was never parsed.`}/>
-        </StatusIcon>
-      );
-    }
-
-    parseInfo = parseInfo as ParseInfo;
-    if (!parseInfo.error() && parseInfo.goodModification != null) {
-      return (
-        <StatusIcon name="Last Parse Good">
-          <span className={styles.goodLastParseIcon}
-                title={`Last parsed with revision ${parseInfo.goodModification.revision}`}/>
-        </StatusIcon>
-      );
-    } else {
-      const title: string = (parseInfo.latestParsedModification != null)
-        ? `Last parsed with revision ${parseInfo.latestParsedModification.revision}. The error was ${parseInfo.error}`
-        : `Error: ${parseInfo.error}`;
-
-      return (
-        <StatusIcon name="Last Parse Error">
-          <span className={styles.lastParseErrorIcon}
-                title={title}/>
-        </StatusIcon>
-      );
-    }
   }
 
   private lastGoodModification(parseInfo: ParseInfo | null): m.Children {

@@ -15,6 +15,8 @@
  */
 @import "../../global/common";
 
+$in-progress-icon-color: #f00;
+
 @mixin header-icon($type, $color) {
   @include icon-before($type: $type, $color: $color, $size: 25px, $margin: 0) {
     text-align: center;
@@ -96,10 +98,10 @@ code {
   margin-top: 20px;
 }
 
-@mixin test-connection-button-icon($type) {
-  @include icon-before($type: $type, $color: $icon-light-color, $size: 15px, $margin: 0) {
+@mixin test-connection-button-icon($type, $colors: $icon-light-color, $size: 5px) {
+  @include icon-before($type: $type, $color: $colors, $size: 15px, $margin: 0) {
     display: inline-block;
-    margin-right: 5px;
+    margin-right: $size;
     @content
   }
   font-size: 11px;
@@ -129,6 +131,23 @@ code {
     }
   }
 }
+
+.config-repo-update-in-progress {
+  @include test-connection-button-icon($type: $fa-var-spinner, $colors: $icon-color, $size: 15px) {
+    animation: rotate 0.8s linear infinite;
+  }
+
+  @keyframes rotate {
+    from {
+      transform: rotate(0deg);
+    }
+
+    to {
+      transform: rotate(359deg);
+    }
+  }
+}
+
 .material-config-wrapper {
   border-bottom: 1px solid $border-color;
 }

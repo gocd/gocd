@@ -31,6 +31,7 @@ export interface ConfigRepoJSON {
   configuration: any[];
   parse_info: ParseInfoJSON;
   errors?: ErrorsJSON;
+  material_update_in_progress: boolean;
 }
 
 export interface MaterialModificationJSON {

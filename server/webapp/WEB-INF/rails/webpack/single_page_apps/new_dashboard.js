@@ -111,6 +111,10 @@ $(() => {
     setTimeout(m.redraw, 0);
   });
 
+  $(window).on("popstate", () => {
+    personalizeVM.activate(currentView());
+  });
+
   function onResponse(dashboardData, message = undefined) {
     personalizeVM.etag(dashboardData['_personalization']);
     dashboard.initialize(dashboardData);

@@ -361,6 +361,7 @@ export class SearchField extends FormField<string, PlaceholderAttr> {
       <span className={classnames(styles.searchBoxWrapper)}>
       <input type="search"
              className={classnames(styles.formControl, styles.searchBoxInput)}
+             placeholder={vnode.attrs.placeholder}
              {...this.defaultAttributes(vnode.attrs)}
              {...this.bindingAttributes(vnode.attrs, "oninput", "value")}/>
       </span>

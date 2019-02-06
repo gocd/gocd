@@ -117,6 +117,8 @@ describe("ConfigReposWidget", () => {
     expect(find("key-value-value-url")).toContainText((repo.material().attributes() as GitMaterialAttributes).url());
     expect(find("key-value-key-material")).toContainText(`Material`);
     expect(find("key-value-value-material")).toContainText((repo.material().type()));
+    expect(find("plugin-icon")).toHaveLength(1);
+    expect(find("plugin-icon").get(0)).toHaveAttr("src", "http://localhost:8153/go/api/plugin_images/json.config.plugin/f787");
     expect($root.find(`.${styles.goodLastParseIcon}`)).toBeInDOM();
   });
 
@@ -215,6 +217,20 @@ describe("ConfigReposWidget", () => {
   }
 
   function configRepoPluginInfo() {
+    const links = {
+      self: {
+        href: "http://localhost:8153/go/api/admin/plugin_info/json.config.plugin"
+      },
+      doc: {
+        href: "https://api.gocd.org/#plugin-info"
+      },
+      find: {
+        href: "http://localhost:8153/go/api/admin/plugin_info/:plugin_id"
+      },
+      image: {
+        href: "http://localhost:8153/go/api/plugin_images/json.config.plugin/f787"
+      }
+    };
     const pluginInfoWithConfigRepoExtension = {
       id: "json.config.plugin",
       status: {
@@ -252,7 +268,7 @@ describe("ConfigReposWidget", () => {
       ]
     };
 
-    return PluginInfo.fromJSON(pluginInfoWithConfigRepoExtension);
+    return PluginInfo.fromJSON(pluginInfoWithConfigRepoExtension, links);
   }
 
 });

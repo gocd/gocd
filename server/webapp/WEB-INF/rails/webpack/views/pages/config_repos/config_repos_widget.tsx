@@ -170,7 +170,7 @@ class ConfigRepoWidget extends MithrilViewComponent<ShowObjectAttrs<ConfigRepo>>
       maybeWarning = (
         <FlashMessage type={MessageType.warning}>This configuration repository was never parsed.</FlashMessage>
       );
-    } else if (parseInfo && parseInfo.error()) {
+    } else if (parseInfo && parseInfo.error() && !parseInfo.latestParsedModification) {
       maybeWarning = (
         <FlashMessage type={MessageType.warning}>
           There was an error parsing this configuration repository:

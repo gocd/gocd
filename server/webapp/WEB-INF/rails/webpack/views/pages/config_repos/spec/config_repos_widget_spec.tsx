@@ -217,8 +217,8 @@ describe("ConfigReposWidget", () => {
     expect($root.find(`.${styles.neverParsed}`)).toBeInDOM();
   });
 
-  it("should render a warning message when parsing failed", () => {
-    const repo = createConfigRepo();
+  it("should render a warning message when parsing failed and there is no latest modification", () => {
+    const repo = createErrorConfigRepo();
     configRepos([repo]);
     pluginInfos([configRepoPluginInfo()]);
     m.redraw();
@@ -288,6 +288,30 @@ describe("ConfigReposWidget", () => {
                                      comment: "Revert \"Delete this\"\n\nThis reverts commit 9b402012ea5c24ce032c8ef4582c0a9ce2d14ade.",
                                      modified_time: "2019-01-11T11:24:08Z"
                                    },
+                                   error: "blah!"
+                                 },
+                                 id,
+                                 plugin_id: "json.config.plugin"
+                               });
+  }
+
+  function createErrorConfigRepo(id?: string, repoId?: string) {
+    id = id || uuid();
+    return ConfigRepo.fromJSON({
+                                 material: {
+                                   type: "git",
+                                   attributes: {
+                                     url: "https://example.com/git/" + (repoId || uuid()),
+                                     name: "foo",
+                                     auto_update: true,
+                                     branch : "master"
+                                   }
+                                 },
+                                 configuration: [{
+                                   key: "file_pattern",
+                                   value: "*.json"
+                                 }],
+                                 parse_info: {
                                    error: "blah!"
                                  },
                                  id,

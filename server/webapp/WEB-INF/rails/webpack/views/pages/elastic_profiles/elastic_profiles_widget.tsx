@@ -37,6 +37,7 @@ import {CloneOperation, DeleteOperation, EditOperation} from "views/pages/page_o
 interface Attrs extends EditOperation<ElasticProfile>, DeleteOperation<string>, CloneOperation<ElasticProfile> {
   pluginInfos: Stream<Array<PluginInfo<Extension>>>;
   elasticProfiles: ElasticProfiles;
+  isUserAnAdmin: boolean;
 
   onShowUsages: (profileId: string, event: MouseEvent) => void;
 }
@@ -91,11 +92,15 @@ export class ElasticProfilesWidget extends MithrilComponent<Attrs, {}> {
               const pluginInfo           = ElasticProfilesWidget.findPluginInfoByPluginId(vnode.attrs.pluginInfos(),
                                                                                           pluginId);
               const pluginName           = pluginInfo ? pluginInfo.about.name : undefined;
-              const statusReportButton   = this.createStatusReportButton(pluginId, pluginInfo);
               const pluginImageTag       = ElasticProfilesWidget.createImageTag(pluginInfo);
               const elasticProfileHeader = <ElasticProfilesHeaderWidget image={pluginImageTag}
                                                                         pluginId={pluginId}
                                                                         pluginName={pluginName}/>;
+              let statusReportButton;
+              if (pluginInfo && ElasticProfilesWidget.supportsStatusReport(pluginInfo)) {
+                statusReportButton = this.createStatusReportButton(pluginId, vnode.attrs.isUserAnAdmin);
+              }
+
               return (
                 <CollapsiblePanel key={pluginId} header={elasticProfileHeader} expanded={index === 0}
                                   actions={statusReportButton}>
@@ -157,16 +162,15 @@ export class ElasticProfilesWidget extends MithrilComponent<Attrs, {}> {
     return <HeaderIcon/>;
   }
 
-  private createStatusReportButton(pluginId: string, pluginInfo ?: PluginInfo<Extension>) {
-    if (pluginInfo && ElasticProfilesWidget.supportsStatusReport(pluginInfo)) {
-      const statusReportPath: string = Routes.adminStatusReportPath(pluginId);
-      return (
-        <Buttons.Secondary onclick={ElasticProfilesWidget.goToStatusReportPage.bind(this, statusReportPath)}
-                           data-test-id="status-report-link"
-                           icon={ButtonIcon.DOC}>Status Report
-        </Buttons.Secondary>
-      );
-    }
+  private createStatusReportButton(pluginId: string, isUserAnAdmin: boolean) {
+    const statusReportPath: string = Routes.adminStatusReportPath(pluginId);
+    return (
+      <Buttons.Secondary onclick={ElasticProfilesWidget.goToStatusReportPage.bind(this, statusReportPath)}
+                         data-test-id="status-report-link"
+                         icon={ButtonIcon.DOC}
+                         disabled={!isUserAnAdmin}>Status Report
+      </Buttons.Secondary>
+    );
   }
 }
 

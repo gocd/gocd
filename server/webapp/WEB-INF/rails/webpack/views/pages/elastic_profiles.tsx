@@ -151,7 +151,8 @@ export class ElasticProfilesPage extends Page<null, State> {
         onEdit={vnode.state.onEdit.bind(vnode.state)}
         onClone={vnode.state.onClone.bind(vnode.state)}
         onDelete={vnode.state.onDelete.bind(vnode.state)}
-        onShowUsages={vnode.state.onShowUsages.bind(vnode.state)}/>
+        onShowUsages={vnode.state.onShowUsages.bind(vnode.state)}
+        isUserAnAdmin={ElasticProfilesPage.isUserAnAdmin()}/>
     </div>;
   }
 
@@ -185,5 +186,10 @@ export class ElasticProfilesPage extends Page<null, State> {
         () => this.setErrorState()
       );
     });
+  }
+
+  private static isUserAnAdmin() {
+    const attribute = document.body.getAttribute("data-is-user-admin");
+    return attribute ? attribute === "true" : false;
   }
 }

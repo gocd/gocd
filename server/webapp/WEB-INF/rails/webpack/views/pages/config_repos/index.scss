@@ -161,7 +161,7 @@ code {
   overflow: hidden;
 }
 
-.error-in-parse-info {
+.parse-error-text {
   color: $failed;
 }
 
@@ -170,11 +170,11 @@ code {
   margin-right: 10px;
 }
 
-.collapse-panel-header {
+.config-repo-error-header {
   border-top: 1px solid $failed;
 }
 
-.config-repo-details-section-properties {
+.config-repo-properties {
   margin-top: 5px;
   margin-left: -4px;
 }

@@ -66,6 +66,7 @@ public class AccessTokenControllerV1 extends ApiController implements SparkSprin
             before("/*", mimeType, this::setContentType);
 
             before("", mimeType, this.apiAuthenticationHelper::checkUserAnd403);
+            before(String.format("%s%s/revoke", Routes.AccessToken.USERNAME, Routes.AccessToken.TOKEN_NAME), mimeType, this::checkCurrentUserOrAdminAnd403);
             before("/*", mimeType, this.apiAuthenticationHelper::checkUserAnd403);
 
             get("", mimeType, this::getAllAccessTokens);
@@ -75,6 +76,16 @@ public class AccessTokenControllerV1 extends ApiController implements SparkSprin
 
             exception(RecordNotFoundException.class, this::notFound);
         });
+    }
+
+    private void checkCurrentUserOrAdminAnd403(Request request, Response response) {
+        String tokenUsername = request.params("username");
+
+        if (currentUsername().getUsername().toString().equals(tokenUsername)) {
+            return;
+        }
+
+        apiAuthenticationHelper.checkAdminUserAnd403(request, response);
     }
 
     public String createAccessToken(Request request, Response response) throws Exception {

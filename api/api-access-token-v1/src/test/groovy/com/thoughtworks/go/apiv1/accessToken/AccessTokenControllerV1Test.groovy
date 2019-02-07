@@ -24,6 +24,7 @@ import com.thoughtworks.go.apiv1.accessToken.representers.AccessTokensRepresente
 import com.thoughtworks.go.server.domain.Username
 import com.thoughtworks.go.server.service.AccessTokenService
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult
+import com.thoughtworks.go.spark.AdminUserSecurity
 import com.thoughtworks.go.spark.ControllerTrait
 import com.thoughtworks.go.spark.NormalUserSecurity
 import com.thoughtworks.go.spark.SecurityServiceTrait
@@ -256,7 +257,20 @@ class AccessTokenControllerV1Test implements ControllerTrait<AccessTokenControll
     def token = accessTokenWithName(tokenName)
 
     @Nested
-    class Security implements SecurityTestTrait, NormalUserSecurity {
+    class NormalSecurity implements SecurityTestTrait, NormalUserSecurity {
+      @Override
+      String getControllerMethodUnderTest() {
+        return "revokeAccessToken"
+      }
+
+      @Override
+      void makeHttpCall() {
+        patchWithApiHeader(controller.controllerPath(currentUsername().getUsername().toString(), tokenName, 'revoke'), [:])
+      }
+    }
+
+    @Nested
+    class AdminSecurity implements SecurityTestTrait, AdminUserSecurity {
       @Override
       String getControllerMethodUnderTest() {
         return "revokeAccessToken"
@@ -267,6 +281,7 @@ class AccessTokenControllerV1Test implements ControllerTrait<AccessTokenControll
         patchWithApiHeader(controller.controllerPath(userName, tokenName, 'revoke'), [:])
       }
     }
+
 
     @Nested
     class AsAdmin {

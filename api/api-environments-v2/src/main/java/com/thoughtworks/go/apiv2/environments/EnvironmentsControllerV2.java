@@ -31,6 +31,7 @@ import com.thoughtworks.go.config.BasicEnvironmentConfig;
 import com.thoughtworks.go.config.EnvironmentConfig;
 import com.thoughtworks.go.config.exceptions.NoSuchEnvironmentException;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
+import com.thoughtworks.go.config.merge.MergeEnvironmentConfig;
 import com.thoughtworks.go.domain.ConfigElementForEdit;
 import com.thoughtworks.go.server.service.EntityHashingService;
 import com.thoughtworks.go.server.service.EnvironmentConfigService;
@@ -182,6 +183,9 @@ public class EnvironmentsControllerV2 extends ApiController implements SparkSpri
 
     @Override
     public String etagFor(EnvironmentConfig entityFromServer) {
+        if (entityFromServer instanceof MergeEnvironmentConfig) {
+            return DigestUtils.md5Hex(String.valueOf(Objects.hash(entityFromServer)));
+        }
         return entityHashingService.md5ForEntity(entityFromServer);
     }
 

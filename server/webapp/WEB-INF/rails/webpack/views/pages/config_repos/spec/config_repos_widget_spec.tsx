@@ -125,7 +125,7 @@ describe("ConfigReposWidget", () => {
       const title = materialPanel.children().get(1);
       const keyValuePair = materialPanel.children().get(2).children;
 
-      expect(title).toHaveText("Good Modification");
+      expect(title).toHaveText("Last known good commit currently being used");
       expect(icon).toHaveClass(styles.goodModificationIcon);
       expect(keyValuePair[0]).toContainText("Username");
       expect(keyValuePair[0]).toContainText("GaneshSPatil <ganeshpl@gmail.com>");
@@ -147,7 +147,8 @@ describe("ConfigReposWidget", () => {
       const title = materialPanel.children().get(1);
       const keyValuePair = materialPanel.children().get(2).children;
 
-      expect(title).toHaveText("Latest Modification");
+
+      expect(title).toHaveText("Latest commit in the repository");
       expect(icon).toHaveClass(styles.errorLastModificationIcon);
       expect(keyValuePair[0]).toContainText("Username");
       expect(keyValuePair[0]).toContainText("Mahesh <mahesh@gmail.com>");
@@ -213,7 +214,7 @@ describe("ConfigReposWidget", () => {
     configRepos([repo]);
     pluginInfos([configRepoPluginInfo()]);
     m.redraw();
-    expect(find("flash-message-warning")).toHaveText("This configuration repository was never parsed.");
+    expect(find("flash-message-alert")).toHaveText("This configuration repository was never parsed.");
   });
 
   it("should render a warning message when parsing failed and there is no latest modification", () => {
@@ -221,8 +222,8 @@ describe("ConfigReposWidget", () => {
     configRepos([repo]);
     pluginInfos([configRepoPluginInfo()]);
     m.redraw();
-    expect(find("flash-message-warning")).toContainText("There was an error parsing this configuration repository:");
-    expect(find("flash-message-warning")).toContainText("blah!");
+    expect(find("flash-message-alert")).toContainText("There was an error parsing this configuration repository:");
+    expect(find("flash-message-alert")).toContainText("blah!");
   });
 
   it("should render in-progress icon when material update is in progress", () => {

@@ -159,11 +159,11 @@ class ConfigRepoWidget extends MithrilViewComponent<ShowObjectAttrs<ConfigRepo>>
 
     if (_.isEmpty(parseInfo)) {
       maybeWarning = (
-        <FlashMessage type={MessageType.warning}>This configuration repository was never parsed.</FlashMessage>
+        <FlashMessage type={MessageType.alert}>This configuration repository was never parsed.</FlashMessage>
       );
     } else if (parseInfo && parseInfo.error() && !parseInfo.latestParsedModification) {
       maybeWarning = (
-        <FlashMessage type={MessageType.warning}>
+        <FlashMessage type={MessageType.alert}>
           There was an error parsing this configuration repository:
           <Code>{parseInfo.error}</Code>
         </FlashMessage>
@@ -222,7 +222,7 @@ class ConfigRepoWidget extends MithrilViewComponent<ShowObjectAttrs<ConfigRepo>>
       const checkIcon = <span className={styles.goodModificationIcon}
                               title={`Last parsed with revision ${parseInfo.goodModification.revision}`}/>;
       return <div data-test-id="config-repo-good-modification-panel">
-        <KeyValueTitle title={"Good Modification"} image={checkIcon} inline={true}/>
+        <KeyValueTitle title={"Last known good commit currently being used"} image={checkIcon} inline={true}/>
         <KeyValuePair data={attrs}/>
       </div>;
     }
@@ -239,7 +239,7 @@ class ConfigRepoWidget extends MithrilViewComponent<ShowObjectAttrs<ConfigRepo>>
       }
 
       return <div data-test-id="config-repo-latest-modification-panel">
-        <KeyValueTitle title={"Latest Modification"} inline={true}
+        <KeyValueTitle title={"Latest commit in the repository"} inline={true}
                        image={<span className={statusIcon} title={`Last parsed with revision ${parseInfo.latestParsedModification.revision}` }/>}/>
         <KeyValuePair data={attrs}/>
       </div>;

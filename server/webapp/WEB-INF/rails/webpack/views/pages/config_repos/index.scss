@@ -51,7 +51,7 @@ $in-progress-icon-color: #f00;
 }
 
 .error-last-modification-icon {
-  @include key-pair-icon($type: $fa-var-check, $color: $success-txt);
+  @include key-pair-icon($type: $fa-var-remove, $color: $failed);
 }
 
 .last-revision {

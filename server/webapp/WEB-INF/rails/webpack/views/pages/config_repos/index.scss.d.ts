@@ -24,3 +24,5 @@ export const headerTitleText: string;
 export const errorInParseInfo: string;
 export const wrapperForSearchBox: string;
 export const collapsePanelHeader: string;
+export const configRepoDetailsSectionProperties: string;
+export const errorMessage: string;

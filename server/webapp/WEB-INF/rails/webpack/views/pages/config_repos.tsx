@@ -119,7 +119,7 @@ export class ConfigReposPage extends Page<null, State> {
   }
 
   componentToDisplay(vnode: m.Vnode<null, State>): m.Children {
-    if (this.searchInProgress(vnode) && _.isEmpty(vnode.state.filteredObjects())) {
+    if (vnode.state.searchText() && _.isEmpty(vnode.state.filteredObjects()())) {
       return <div><FlashMessage type={MessageType.info}>No Results</FlashMessage>
       </div>;
     }
@@ -169,9 +169,6 @@ export class ConfigReposPage extends Page<null, State> {
   }
 
   refreshConfigRepos(vnode: m.Vnode<null, State>) {
-    if (this.searchInProgress(vnode)) {
-      return Promise.resolve();
-    }
     return ConfigReposCRUD.all().then((response) => this.onConfigReposAPIResponse(response, vnode));
   }
 
@@ -190,9 +187,5 @@ export class ConfigReposPage extends Page<null, State> {
         this.pageState = PageState.FAILED;
       }
     );
-  }
-
-  private searchInProgress(vnode: m.Vnode<null, State>): boolean {
-    return vnode.state.searchText() ? true : false;
   }
 }

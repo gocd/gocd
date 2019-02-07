@@ -18,7 +18,7 @@ import {MithrilViewComponent} from "jsx/mithril-component";
 import * as _ from "lodash";
 import * as m from "mithril";
 import {Stream} from "mithril/stream";
-import {ConfigRepo, humanizedMaterialAttributeName, Material, ParseInfo} from "models/config_repos/types";
+import {ConfigRepo, humanizedMaterialAttributeName, ParseInfo} from "models/config_repos/types";
 import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
 import {Configuration} from "models/shared/plugin_infos_new/plugin_settings/plugin_settings";
 import {Code} from "views/components/code";
@@ -35,7 +35,13 @@ import {
 } from "views/pages/page_operations";
 import * as styles from "./index.scss";
 
-interface Operations<T> extends EditOperation<T>, DeleteOperation<T>, RefreshOperation<T> {
+export interface SearchOperation<T> {
+  initialObjects: Stream<T[] | null>;
+  searchText: Stream<string>;
+  filteredObjects: () => Stream<T[] | null>;
+}
+
+export interface Operations<T> extends EditOperation<T>, DeleteOperation<T>, RefreshOperation<T> {
 }
 
 export interface Attrs<T> extends Operations<T>, RequiresPluginInfos {
@@ -57,7 +63,7 @@ function findPluginWithId(infos: Array<PluginInfo<any>>, pluginId: string) {
 
 class HeaderWidget extends MithrilViewComponent<HeaderWidgetAttrs> {
   view(vnode: m.Vnode<HeaderWidgetAttrs>): m.Children | void | null {
-    const materialUrl = this.getMaterialUrl(vnode.attrs.repo.material());
+    const materialUrl = vnode.attrs.repo.material().materialUrl();
     return [
         <KeyValueTitle image={this.pluginIcon(vnode)}
                        title={[
@@ -86,11 +92,6 @@ class HeaderWidget extends MithrilViewComponent<HeaderWidgetAttrs> {
     }
 
     return parseStatus;
-  }
-
-  private getMaterialUrl(material: Material) {
-    // @ts-ignore
-    return (material.type() === "p4" ? material.attributes().port : material.attributes().url);
   }
 
   private pluginIcon(vnode: m.Vnode<HeaderWidgetAttrs>) {

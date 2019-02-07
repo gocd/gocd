@@ -18,7 +18,6 @@ import {AjaxPoller} from "helpers/ajax_poller";
 import {ApiResult, ErrorResponse, SuccessResponse} from "helpers/api_request_builder";
 import * as _ from "lodash";
 import * as m from "mithril";
-import {Stream} from "mithril/stream";
 import * as stream from "mithril/stream";
 import {ConfigReposCRUD} from "models/config_repos/config_repos_crud";
 import {ConfigRepo} from "models/config_repos/types";
@@ -30,26 +29,23 @@ import {FlashMessage, MessageType} from "views/components/flash_message";
 import {SearchField} from "views/components/forms/input_fields";
 import {HeaderPanel} from "views/components/header_panel";
 import {DeleteConfirmModal} from "views/components/modal/delete_confirm_modal";
-import {Attrs, ConfigReposWidget} from "views/pages/config_repos/config_repos_widget";
+import {ConfigReposWidget, Operations, SearchOperation} from "views/pages/config_repos/config_repos_widget";
 import {EditConfigRepoModal, NewConfigRepoModal} from "views/pages/config_repos/modals";
 import {Page, PageState} from "views/pages/page";
-import {AddOperation, SaveOperation} from "views/pages/page_operations";
+import {AddOperation, RequiresPluginInfos, SaveOperation} from "views/pages/page_operations";
 import * as styles from "./config_repos/index.scss";
 
-interface State extends AddOperation<ConfigRepo>, Attrs<ConfigRepo>, SaveOperation, SearchOperation {
-}
-
-interface SearchOperation {
-  configReposCopy: Stream<ConfigRepo[] | null>;
-  searchText: Stream<string>;
+interface State extends AddOperation<ConfigRepo>, SaveOperation, Operations<ConfigRepo>, SearchOperation<ConfigRepo>, RequiresPluginInfos  {
 }
 
 export class ConfigReposPage extends Page<null, State> {
   oninit(vnode: m.Vnode<null, State>) {
-    vnode.state.objects     = stream();
-    vnode.state.pluginInfos = stream();
-    vnode.state.configReposCopy = stream();
-    vnode.state.searchText = stream();
+    vnode.state.pluginInfos    = stream();
+    vnode.state.initialObjects = stream();
+    vnode.state.searchText     = stream();
+    vnode.state.filteredObjects = () => {
+      return stream(vnode.state.initialObjects() ? vnode!.state!.initialObjects()!.filter((o) => o.matches(vnode.state.searchText())) : null);
+    };
 
     this.fetchData(vnode);
 
@@ -123,14 +119,14 @@ export class ConfigReposPage extends Page<null, State> {
   }
 
   componentToDisplay(vnode: m.Vnode<null, State>): m.Children {
-    if (this.searchInProgress(vnode) && _.isEmpty(vnode.state.objects())) {
+    if (this.searchInProgress(vnode) && _.isEmpty(vnode.state.filteredObjects())) {
       return <div><FlashMessage type={MessageType.info}>No Results</FlashMessage>
       </div>;
     }
 
     return <div>
       <FlashMessage type={this.flashMessage.type} message={this.flashMessage.message}/>
-      <ConfigReposWidget objects={vnode.state.objects}
+      <ConfigReposWidget objects={vnode.state.filteredObjects()}
                          pluginInfos={vnode.state.pluginInfos}
                          onRefresh={vnode.state.onRefresh.bind(vnode.state)}
                          onEdit={vnode.state.onEdit.bind(vnode.state)}
@@ -142,7 +138,7 @@ export class ConfigReposPage extends Page<null, State> {
   headerPanel(vnode: m.Vnode<null, State>) {
     const headerButtons = [
       <div class={styles.wrapperForSearchBox}>
-        <SearchField property={vnode.state.searchText} onchange={() => this.search(vnode)} dataTestId={"search-box"}
+        <SearchField property={vnode.state.searchText} dataTestId={"search-box"}
                      placeholder="Search Config Repo"/>
       </div>,
       <Buttons.Primary onclick={vnode.state.onAdd.bind(vnode.state)}>Add</Buttons.Primary>
@@ -152,7 +148,7 @@ export class ConfigReposPage extends Page<null, State> {
 
   fetchData(vnode: m.Vnode<null, State>) {
     const state = vnode.state;
-    state.objects(null);
+    state.initialObjects(null);
     this.pageState = PageState.LOADING;
 
     return Promise.all([PluginInfoCRUD.all({type: ExtensionType.CONFIG_REPO}), ConfigReposCRUD.all()]).then((args) => {
@@ -187,7 +183,7 @@ export class ConfigReposPage extends Page<null, State> {
     apiResponse.do(
       (successResponse) => {
         this.pageState = PageState.OK;
-        vnode.state.objects(successResponse.body);
+        vnode.state.initialObjects(successResponse.body);
       },
       (errorResponse) => {
         vnode.state.onError(errorResponse.message);
@@ -198,57 +194,5 @@ export class ConfigReposPage extends Page<null, State> {
 
   private searchInProgress(vnode: m.Vnode<null, State>): boolean {
     return vnode.state.searchText() ? true : false;
-  }
-
-  private search(vnode: m.Vnode<null, State>) {
-    if (!vnode.state.searchText()) {
-      vnode.state.objects(vnode.state.configReposCopy());
-      vnode.state.configReposCopy();
-      return;
-    }
-
-    if (!vnode.state.configReposCopy()) {
-      vnode.state.configReposCopy(vnode.state.objects());
-    }
-
-    // @ts-ignore
-    const filtered = vnode.state.configReposCopy().filter((o) => {
-      return [
-        this.pluginId,
-        this.goodRevision,
-        this.latestRevision,
-        this.materialUrl
-      ].some((getter) => getter(o) ? getter(o)!.toLowerCase().includes(vnode.state.searchText().toLowerCase()) : false);
-    });
-    vnode.state.objects(filtered);
-  }
-
-  private pluginId(o: ConfigRepo): string {
-    return o.id();
-  }
-
-  private goodRevision(o: ConfigRepo): string | null {
-    // @ts-ignore
-    if (!o.lastParse() || !o.lastParse().goodModification) {
-      return null;
-    }
-
-    // @ts-ignore
-    return o.lastParse().goodModification.revision;
-  }
-
-  private latestRevision(o: ConfigRepo): string | null {
-    // @ts-ignore
-    if (!o.lastParse() || !o.lastParse().latestParsedModification) {
-      return null;
-    }
-
-    // @ts-ignore
-    return o.lastParse().latestParsedModification.revision;
-  }
-
-  private materialUrl(o: ConfigRepo): string {
-    // @ts-ignore
-    return o.material().type() === "p4" ? o.material().attributes().port() : o.material().attributes().url();
   }
 }

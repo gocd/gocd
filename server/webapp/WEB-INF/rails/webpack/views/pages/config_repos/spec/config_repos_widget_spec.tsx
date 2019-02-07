@@ -85,14 +85,14 @@ describe("ConfigReposWidget", () => {
       .toContainText("There are no config repositories setup. Click the \"Add\" button to add one.");
   });
 
-  describe("Should render expanded config repo panel", () => {
+  describe("Expanded config repo details", () => {
 
     it("should render material details section", () => {
       configRepos([createConfigRepo()]);
       m.redraw();
       const materialPanel = find("config-repo-material-panel");
-      const keyValuePair = materialPanel.children().get(1).children;
-      const title = materialPanel.children().get(0);
+      const title         = materialPanel.children().get(0);
+      const keyValuePair  = materialPanel.children().get(1).children[0].children;
 
       expect(title).toHaveText("Material");
       expect(keyValuePair[0]).toContainText("Type");
@@ -107,8 +107,8 @@ describe("ConfigReposWidget", () => {
       configRepos([createConfigRepo({id: "testPlugin"})]);
       m.redraw();
       const materialPanel = find("config-repo-plugin-panel");
-      const title = materialPanel.children().get(0) ;
-      const keyValuePair = materialPanel.children().get(1).children;
+      const title         = materialPanel.children().get(0);
+      const keyValuePair  = materialPanel.children().get(1).children[0].children;
 
       expect(title).toHaveText("Config Repository Configurations");
       expect(keyValuePair[0]).toContainText("Id");
@@ -121,9 +121,9 @@ describe("ConfigReposWidget", () => {
       configRepos([createConfigRepo()]);
       m.redraw();
       const materialPanel = find("config-repo-good-modification-panel");
-      const icon = materialPanel.children().get(0);
-      const title = materialPanel.children().get(1);
-      const keyValuePair = materialPanel.children().get(2).children;
+      const icon          = materialPanel.children().get(0);
+      const title         = materialPanel.children().get(1);
+      const keyValuePair  = materialPanel.children().get(2).children[0].children;
 
       expect(title).toHaveText("Last known good commit currently being used");
       expect(icon).toHaveClass(styles.goodModificationIcon);
@@ -134,7 +134,8 @@ describe("ConfigReposWidget", () => {
       expect(keyValuePair[2]).toContainText("Revision");
       expect(keyValuePair[2]).toContainText("1234");
       expect(keyValuePair[3]).toContainText("Comment");
-      expect(keyValuePair[3]).toContainText("Revert \"Delete this\"\n\nThis reverts commit 9b402012ea5c24ce032c8ef4582c0a9ce2d14ade.");
+      expect(keyValuePair[3])
+        .toContainText("Revert \"Delete this\"\n\nThis reverts commit 9b402012ea5c24ce032c8ef4582c0a9ce2d14ade.");
       expect(keyValuePair[4]).toContainText("Modified Time");
       expect(keyValuePair[4]).toContainText("2019-01-11T11:24:08Z");
     });
@@ -143,10 +144,9 @@ describe("ConfigReposWidget", () => {
       configRepos([createConfigRepo()]);
       m.redraw();
       const materialPanel = find("config-repo-latest-modification-panel");
-      const icon = materialPanel.children().get(0);
-      const title = materialPanel.children().get(1);
-      const keyValuePair = materialPanel.children().get(2).children;
-
+      const icon          = materialPanel.children().get(0);
+      const title         = materialPanel.children().get(1);
+      const keyValuePair  = materialPanel.children().get(2).children[0].children;
 
       expect(title).toHaveText("Latest commit in the repository");
       expect(icon).toHaveClass(styles.errorLastModificationIcon);
@@ -157,7 +157,9 @@ describe("ConfigReposWidget", () => {
       expect(keyValuePair[2]).toContainText("Revision");
       expect(keyValuePair[2]).toContainText("5432");
       expect(keyValuePair[3]).toContainText("Comment");
-      expect(keyValuePair[3]).toContainText("Revert \"Revert \"Delete this\"\"\n\nThis reverts commit 2daccbb7389e87c9eb789f6188065d344fbbb9b1.");
+      expect(keyValuePair[3])
+        .toContainText(
+          "Revert \"Revert \"Delete this\"\"\n\nThis reverts commit 2daccbb7389e87c9eb789f6188065d344fbbb9b1.");
       expect(keyValuePair[4]).toContainText("Modified Time");
       expect(keyValuePair[4]).toContainText("2019-01-14T05:39:40Z");
       expect(keyValuePair[5]).toContainText("Error");
@@ -172,8 +174,8 @@ describe("ConfigReposWidget", () => {
     pluginInfos([configRepoPluginInfo()]);
     m.redraw();
 
-    const repoIds = find('collapse-header');
-    const repoIcons = find('config-repo-json-plugin-icon');
+    const repoIds   = find("collapse-header");
+    const repoIcons = find("config-repo-json-plugin-icon");
 
     expect(repoIds).toHaveLength(2);
     expect(repoIcons).toHaveLength(2);
@@ -182,9 +184,15 @@ describe("ConfigReposWidget", () => {
     expect(repoIds.get(1)).toContainText(repo2.id());
   });
 
-  it("should render config repos with their plugin-id, material url, commit message, username and revision in header", () => {
-    const repo1 = createConfigRepo({id: "Repo1", repoId: "https://example.com/git/90d9f82c-bbfd-4f70-ab09-fd72dee42427"});
-    const repo2 = createConfigRepo({id: "Repo2", repoId: "https://example.com/git/0b4243ff-7431-48e1-a60e-a79b7b80b654"});
+  it("should render config repo's plugin-id, material url, commit-message, username and revision in header", () => {
+    const repo1 = createConfigRepo({
+                                     id: "Repo1",
+                                     repoId: "https://example.com/git/90d9f82c-bbfd-4f70-ab09-fd72dee42427"
+                                   });
+    const repo2 = createConfigRepo({
+                                     id: "Repo2",
+                                     repoId: "https://example.com/git/0b4243ff-7431-48e1-a60e-a79b7b80b654"
+                                   });
     configRepos([repo1, repo2]);
     m.redraw();
 
@@ -193,12 +201,33 @@ describe("ConfigReposWidget", () => {
 
     expect(title.get(0)).toContainText("Repo1");
     expect(title.get(1)).toContainText("https://example.com/git/90d9f82c-bbfd-4f70-ab09-fd72dee42427");
-    expect(title.get(2)).toContainText("Revert \"Revert \"Delete this\"\"\n\nThis reverts commit 2daccbb7389e87c9eb789f6188065d344fbbb9b1.");
+    expect(title.get(2))
+      .toContainText("Revert \"Revert \"Delete this\"\"\n\nThis reverts commit 2daccbb7389e87c9eb789f6188065d...");
     expect(title.get(2)).toContainText("Mahesh <mahesh@gmail.com> | 5432");
 
     expect(title.get(3)).toContainText("Repo2");
     expect(title.get(4)).toContainText("https://example.com/git/0b4243ff-7431-48e1-a60e-a79b7b80b654");
   });
+
+  it("should render config repo's trimmed commit-message, username and revision if they are too long to fit in header",
+     () => {
+       const repo1 = createConfigRepo({
+                                        id: "Repo1",
+                                        repoId: "https://example.com/",
+                                        latestCommitMessage: "A very very long commit message which will be trimmed after 82 characters and this is being tested",
+                                        latestCommitUsername: "A_Long_username_with_a_long_long_long_long_long_text",
+                                        latestCommitRevision: "df31759540dc28f75a20f443a19b1148df31759540dc28f75a20f443a19b1148df"
+                                      });
+
+       configRepos([repo1]);
+       m.redraw();
+
+       const title = $root.find(`.${styles.headerTitleText}`);
+       expect(title.get(0)).toContainText("Repo1");
+       expect(title.get(1)).toContainText("https://example.com/");
+       expect(title.get(2)).toContainText("A very very long commit message which will be trimmed after 82 characters and thi...");
+       expect(title.get(2)).toContainText("A_Long_username_with_a_long_long_long... | df31759540dc28f75a20f443a19b1148df317...");
+     });
 
   it("should render a warning message when plugin is missing", () => {
     const repo = createConfigRepo();
@@ -218,7 +247,7 @@ describe("ConfigReposWidget", () => {
   });
 
   it("should render a warning message when parsing failed and there is no latest modification", () => {
-    const repo = createErrorConfigRepo();
+    const repo = createConfigRepoWithError();
     configRepos([repo]);
     pluginInfos([configRepoPluginInfo()]);
     m.redraw();
@@ -275,7 +304,16 @@ describe("ConfigReposWidget", () => {
   });
 
   function createConfigRepo(overrides?: any) {
-    const parameters = { id: uuid(), repoId: uuid(), material_update_in_progress: false, ...overrides};
+    const parameters = {
+      id: uuid(),
+      repoId: uuid(),
+      material_update_in_progress: false,
+      latestCommitMessage: "Revert \"Revert \"Delete this\"\"\n\nThis reverts commit 2daccbb7389e87c9eb789f6188065d344fbbb9b1.",
+      latestCommitUsername: "Mahesh <mahesh@gmail.com>",
+      latestCommitRevision: "5432",
+      ...overrides
+    };
+
     return ConfigRepo.fromJSON({
                                  material: {
                                    type: "git",
@@ -283,7 +321,7 @@ describe("ConfigReposWidget", () => {
                                      url: "https://example.com/git/" + (parameters.repoId),
                                      name: "foo",
                                      auto_update: true,
-                                     branch : "master"
+                                     branch: "master"
                                    }
                                  },
                                  configuration: [{
@@ -292,10 +330,10 @@ describe("ConfigReposWidget", () => {
                                  }],
                                  parse_info: {
                                    latest_parsed_modification: {
-                                     username: "Mahesh <mahesh@gmail.com>",
+                                     username: parameters.latestCommitUsername,
                                      email_address: "mahesh@gmail.com",
-                                     revision: "5432",
-                                     comment: "Revert \"Revert \"Delete this\"\"\n\nThis reverts commit 2daccbb7389e87c9eb789f6188065d344fbbb9b1.",
+                                     revision: parameters.latestCommitRevision,
+                                     comment: parameters.latestCommitMessage,
                                      modified_time: "2019-01-14T05:39:40Z"
                                    },
                                    good_modification: {
@@ -313,7 +351,7 @@ describe("ConfigReposWidget", () => {
                                });
   }
 
-  function createErrorConfigRepo(id?: string, repoId?: string) {
+  function createConfigRepoWithError(id?: string, repoId?: string) {
     id = id || uuid();
     return ConfigRepo.fromJSON({
                                  material: {
@@ -322,7 +360,7 @@ describe("ConfigReposWidget", () => {
                                      url: "https://example.com/git/" + (repoId || uuid()),
                                      name: "foo",
                                      auto_update: true,
-                                     branch : "master"
+                                     branch: "master"
                                    }
                                  },
                                  configuration: [{

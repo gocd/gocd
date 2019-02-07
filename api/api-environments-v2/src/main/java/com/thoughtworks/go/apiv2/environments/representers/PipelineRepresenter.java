@@ -32,6 +32,6 @@ public class PipelineRepresenter {
         String pipelineName = pipelineConfig.getName().toString();
         linksWriter.addLink("self", Routes.Pipeline.history(pipelineName))
                 .addAbsoluteLink("doc", Routes.Pipeline.DOC)
-        .addAbsoluteLink("find", Routes.PipelineConfig.find());
+                .addAbsoluteLink("find", Routes.PipelineConfig.find());
     }
 }

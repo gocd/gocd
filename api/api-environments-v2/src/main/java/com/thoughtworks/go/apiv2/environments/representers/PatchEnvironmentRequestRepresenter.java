@@ -50,9 +50,9 @@ public class PatchEnvironmentRequestRepresenter {
             envVariableToRemove.addAll(reader.readStringArrayIfPresent("remove").orElse(emptyList()));
 
             reader.readArrayIfPresent("add", array ->
-                            array.forEach(envVariable -> envVariablesToAdd
-                                    .add(EnvironmentVariableRepresenter.fromJSON(envVariable.getAsJsonObject()))
-                            ));
+                    array.forEach(envVariable -> envVariablesToAdd
+                            .add(EnvironmentVariableRepresenter.fromJSON(envVariable.getAsJsonObject()))
+                    ));
         });
 
         PatchEnvironmentRequest patchRequest = new PatchEnvironmentRequest(

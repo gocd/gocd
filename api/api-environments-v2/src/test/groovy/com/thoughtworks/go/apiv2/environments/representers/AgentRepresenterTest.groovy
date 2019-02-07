@@ -43,7 +43,7 @@ class AgentRepresenterTest {
           "href": "http://test.host/go/api/agents/agent1"
         ]
       ],
-      "uuid": "agent1"
+      "uuid"  : "agent1"
     ])
   }
 }

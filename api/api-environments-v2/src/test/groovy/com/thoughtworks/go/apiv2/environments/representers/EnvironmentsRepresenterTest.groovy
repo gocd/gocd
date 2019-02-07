@@ -49,8 +49,8 @@ class EnvironmentsRepresenterTest {
       "_embedded": [
         "environments": [
           [
-            "_links": [
-              "doc": [
+            "_links"               : [
+              "doc" : [
                 "href": "https://api.go.cd/current/#environment-config"
               ],
               "find": [
@@ -60,10 +60,10 @@ class EnvironmentsRepresenterTest {
                 "href": "http://test.host/go/api/admin/environments/env1"
               ]
             ],
-            "agents": [
+            "agents"               : [
               [
                 "_links": [
-                  "doc": [
+                  "doc" : [
                     "href": apiDocsUrl("#agents")
                   ],
                   "find": [
@@ -73,11 +73,11 @@ class EnvironmentsRepresenterTest {
                     "href": "http://test.host/go/api/agents/agent1"
                   ]
                 ],
-                "uuid": "agent1"
+                "uuid"  : "agent1"
               ],
               [
                 "_links": [
-                  "doc": [
+                  "doc" : [
                     "href": apiDocsUrl("#agents")
                   ],
                   "find": [
@@ -87,21 +87,21 @@ class EnvironmentsRepresenterTest {
                     "href": "http://test.host/go/api/agents/agent2"
                   ]
                 ],
-                "uuid": "agent2"
+                "uuid"  : "agent2"
               ]
             ],
             "environment_variables": [
               [
-                "name": "JAVA_HOME",
+                "name"  : "JAVA_HOME",
                 "secure": false,
-                "value": "/bin/java"
+                "value" : "/bin/java"
               ]
             ],
-            "name": "env1",
-            "pipelines": [
+            "name"                 : "env1",
+            "pipelines"            : [
               [
                 "_links": [
-                  "doc": [
+                  "doc" : [
                     "href": "https://api.go.cd/current/#pipelines"
                   ],
                   "find": [
@@ -111,11 +111,11 @@ class EnvironmentsRepresenterTest {
                     "href": "http://test.host/go/api/pipelines/Pipeline1/history"
                   ]
                 ],
-                "name": "Pipeline1"
+                "name"  : "Pipeline1"
               ],
               [
                 "_links": [
-                  "doc": [
+                  "doc" : [
                     "href": "https://api.go.cd/current/#pipelines"
                   ],
                   "find": [
@@ -125,13 +125,13 @@ class EnvironmentsRepresenterTest {
                     "href": "http://test.host/go/api/pipelines/Pipeline2/history"
                   ]
                 ],
-                "name": "Pipeline2"
+                "name"  : "Pipeline2"
               ]
             ]
           ],
           [
-            "_links": [
-              "doc": [
+            "_links"               : [
+              "doc" : [
                 "href": "https://api.go.cd/current/#environment-config"
               ],
               "find": [
@@ -141,19 +141,19 @@ class EnvironmentsRepresenterTest {
                 "href": "http://test.host/go/api/admin/environments/env2"
               ]
             ],
-            "agents": [],
+            "agents"               : [],
             "environment_variables": [
               [
-                "name": "GROOVY_HOME",
+                "name"  : "GROOVY_HOME",
                 "secure": false,
-                "value": "/bin/groovy"
+                "value" : "/bin/groovy"
               ]
             ],
-            "name": "env2",
-            "pipelines": [
+            "name"                 : "env2",
+            "pipelines"            : [
               [
                 "_links": [
-                  "doc": [
+                  "doc" : [
                     "href": "https://api.go.cd/current/#pipelines"
                   ],
                   "find": [
@@ -163,14 +163,14 @@ class EnvironmentsRepresenterTest {
                     "href": "http://test.host/go/api/pipelines/Pipeline3/history"
                   ]
                 ],
-                "name": "Pipeline3"
+                "name"  : "Pipeline3"
               ]
             ]
           ]
         ]
       ],
-      "_links": [
-        "doc": [
+      "_links"   : [
+        "doc" : [
           "href": "https://api.go.cd/current/#environment-config"
         ],
         "self": [
@@ -188,8 +188,8 @@ class EnvironmentsRepresenterTest {
       "_embedded": [
         "environments": []
       ],
-      "_links": [
-        "doc": [
+      "_links"   : [
+        "doc" : [
           "href": "https://api.go.cd/current/#environment-config"
         ],
         "self": [

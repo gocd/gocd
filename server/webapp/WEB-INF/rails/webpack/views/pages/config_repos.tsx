@@ -70,19 +70,19 @@ export class ConfigReposPage extends Page<null, State> {
 
       ConfigReposCRUD.triggerUpdate(repo.id()).then((result: ApiResult<any>) => {
         result.do(() => {
-          this.flashMessage.setMessage(MessageType.success, "An update was scheduled for this config repository.");
+          this.flashMessage.setMessage(MessageType.success, `An update was scheduled for '${repo.id()}' config repository.`);
         }, (err: ErrorResponse) => {
           try {
             if (err.message) {
               this.flashMessage.setMessage(MessageType.alert,
-                                           `Unable to schedule an update for this config repository. ${err.message}`);
+                                           `Unable to schedule an update for '${repo.id()}' config repository. ${err.message}`);
             } else {
               this.flashMessage.setMessage(MessageType.alert,
-                                           `Unable to schedule an update for this config repository. ${err.message}`);
+                                           `Unable to schedule an update for '${repo.id()}' config repository. ${err.message}`);
             }
           } catch (e) {
             this.flashMessage.setMessage(MessageType.alert,
-                                         `Unable to schedule an update for this config repository. ${err.message}`);
+                                         `Unable to schedule an update for '${repo.id()}' config repository. ${err.message}`);
           }
         });
       });

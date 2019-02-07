@@ -42,6 +42,7 @@ import com.thoughtworks.go.plugin.configrepo.contract.*;
 import com.thoughtworks.go.plugin.configrepo.contract.material.*;
 import com.thoughtworks.go.plugin.configrepo.contract.tasks.*;
 import com.thoughtworks.go.security.GoCipher;
+import com.thoughtworks.go.util.command.CommandLine;
 import com.thoughtworks.go.util.command.HgUrlArgument;
 import com.thoughtworks.go.util.command.UrlArgument;
 import org.apache.commons.lang3.StringUtils;

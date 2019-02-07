@@ -18,7 +18,7 @@ import {MithrilViewComponent} from "jsx/mithril-component";
 import * as _ from "lodash";
 import * as m from "mithril";
 import {Stream} from "mithril/stream";
-import {ConfigRepo, humanizedMaterialAttributeName, ParseInfo} from "models/config_repos/types";
+import {ConfigRepo, humanizedMaterialAttributeName, LastParse, ParseInfo} from "models/config_repos/types";
 import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
 import {Configuration} from "models/shared/plugin_infos_new/plugin_settings/plugin_settings";
 import {Code} from "views/components/code";
@@ -172,7 +172,7 @@ class ConfigRepoWidget extends MithrilViewComponent<ShowObjectAttrs<ConfigRepo>>
                         header={<HeaderWidget repo={vnode.attrs.obj} pluginInfos={vnode.attrs.pluginInfos}/>}
                         dataTestId={"config-repo-details-panel"}
                         actions={actionButtons} expanded={vnode.attrs.index === 0}>
-        {maybeWarning}
+        {maybeWarning ? <div class={styles.errorMessage}>{maybeWarning}</div> : null}
         {this.latestModification(parseInfo)}
         {this.lastGoodModification(parseInfo)}
         {this.configRepoMetaConfig(vnode.attrs.obj.id(), vnode.attrs.obj.pluginId())}
@@ -210,7 +210,7 @@ class ConfigRepoWidget extends MithrilViewComponent<ShowObjectAttrs<ConfigRepo>>
                               title={`Last parsed with revision ${parseInfo.goodModification.revision}`}/>;
       return <div data-test-id="config-repo-good-modification-panel">
         <KeyValueTitle title={"Last known good commit currently being used"} image={checkIcon} inline={true}/>
-        <KeyValuePair data={attrs}/>
+        <div className={styles.configRepoDetailsSectionProperties}><KeyValuePair data={attrs}/></div>
       </div>;
     }
   }
@@ -228,7 +228,7 @@ class ConfigRepoWidget extends MithrilViewComponent<ShowObjectAttrs<ConfigRepo>>
       return <div data-test-id="config-repo-latest-modification-panel">
         <KeyValueTitle title={"Latest commit in the repository"} inline={true}
                        image={<span className={statusIcon} title={`Last parsed with revision ${parseInfo.latestParsedModification.revision}` }/>}/>
-        <KeyValuePair data={attrs}/>
+        <div class={styles.configRepoDetailsSectionProperties}><KeyValuePair data={attrs}/></div>
       </div>;
     }
   }
@@ -236,14 +236,14 @@ class ConfigRepoWidget extends MithrilViewComponent<ShowObjectAttrs<ConfigRepo>>
   private configRepoMetaConfig(id: string, pluginId: string) {
     return <div data-test-id="config-repo-plugin-panel">
       <KeyValueTitle title={"Config Repository Configurations"} image={undefined}/>
-      <KeyValuePair data={new Map([["Id", id], ["Plugin Id", pluginId]])}/>
+      <div className={styles.configRepoDetailsSectionProperties}><KeyValuePair data={new Map([["Id", id], ["Plugin Id", pluginId]])}/></div>
     </div>;
   }
 
   private materialConfig(allAttributes: Map<string, m.Children>) {
     return <div data-test-id="config-repo-material-panel">
       <KeyValueTitle title={"Material"} image={undefined}/>
-      <KeyValuePair data = {allAttributes}/>
+      <div className={styles.configRepoDetailsSectionProperties}><KeyValuePair data = {allAttributes}/></div>
     </div>;
   }
 
@@ -252,10 +252,7 @@ class ConfigRepoWidget extends MithrilViewComponent<ShowObjectAttrs<ConfigRepo>>
     const keys = Object.keys(obj).map(humanizedMaterialAttributeName);
     const values = Object.values(obj);
 
-    keys.forEach((key, index) => {
-      attrs.set(key, values[index]);
-    });
-
+    keys.forEach((key, index) => attrs.set(key, values[index]));
     return attrs;
   }
 }

@@ -833,7 +833,18 @@ public class ConfigConverter {
         CRExecTask crExecTask = new CRExecTask(task.getCommand());
         crExecTask.setTimeout(task.getTimeout());
         crExecTask.setWorkingDirectory(task.workingDirectory());
-        crExecTask.setArgs(task.getArguments().stream()
+
+        Arguments arguments;
+        if (task.getArgs().isEmpty()) {
+            arguments = task.getArgList();
+        } else {
+            arguments = new Arguments();
+            for (String arg : CommandLine.translateCommandLine(task.getArgs())) {
+                arguments.add(new Argument(arg));
+            }
+        }
+
+        crExecTask.setArgs(arguments.stream()
                 .map(Argument::getValue)
                 .collect(Collectors.toList())
         );

@@ -1722,7 +1722,7 @@ public class ConfigConverterTest {
     @Test
     public void shouldConvertExecTaskWhenOldArgsAreUsed() {
         ExecTask execTask = new ExecTask("bash",
-                "1 2",
+                "1 2 \"file name\"",
                 "work");
         execTask.setConditions(new RunIfConfigs(RunIfConfig.FAILED));
         execTask.setTimeout(120L);
@@ -1732,6 +1732,7 @@ public class ConfigConverterTest {
         assertThat(result.getCommand(), is("bash"));
         assertThat(result.getArgs(), hasItem("1"));
         assertThat(result.getArgs(), hasItem("2"));
+        assertThat(result.getArgs(), hasItem("file name"));
         assertThat(result.getWorkingDirectory(), is("work"));
         assertThat(result.getTimeout(), is(120L));
         assertNull(result.getOnCancel());

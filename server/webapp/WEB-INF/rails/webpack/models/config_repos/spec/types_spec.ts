@@ -17,7 +17,7 @@
 import {
   ConfigRepo,
   GitMaterialAttributes, HgMaterialAttributes,
-  Material, P4MaterialAttributes,
+  Material, MaterialModification, P4MaterialAttributes, ParseInfo,
   SvnMaterialAttributes, TfsMaterialAttributes
 } from "models/config_repos/types";
 
@@ -77,6 +77,51 @@ describe("Config Repo Types", () => {
       expect(configRepo.material().attributes().errors().count()).toBe(4);
       expect(configRepo.material().attributes().errors().keys())
         .toEqual(["url", "projectPath", "username", "password"]);
+    });
+
+    describe("Should match against search text", () => {
+      it("should match id", () => {
+        const configRepo = createConfigRepo();
+        expect(configRepo.matches("All_Test")).toBe(true);
+      });
+
+      it("should match good revision hash", () => {
+        const configRepo = createConfigRepo();
+        expect(configRepo.matches("2cda5f702c57757")).toBe(true);
+        expect(configRepo.matches("2cda5f702c5775714c060124ff03957d")).toBe(true);
+      });
+
+      it("should match latest revision hash", () => {
+        const configRepo = createConfigRepo();
+        expect(configRepo.matches("4926940143a238f")).toBe(true);
+        expect(configRepo.matches("4926940143a238fefb7566141ba24a96")).toBe(true);
+      });
+
+      it("should match material url", () => {
+        const configRepo = createConfigRepo();
+        expect(configRepo.matches("gocd")).toBe(true);
+        expect(configRepo.matches("https://githib")).toBe(true);
+      });
+
+      it("should not match invalid search text", () => {
+        const configRepo = createConfigRepo();
+        expect(configRepo.matches("random-string")).toBe(false);
+      });
+
+      it("should match if search text is null or empty", () => {
+        const configRepo = createConfigRepo();
+        expect(configRepo.matches("")).toBe(true);
+      });
+
+      function createConfigRepo() {
+        const attributes = new GitMaterialAttributes("SomeRepo", false, "https://githib.com/gocd", "master");
+        const material = new Material("git", attributes);
+        const goodModification = new MaterialModification("developer", "dev@github.com", "2cda5f702c5775714c060124ff03957d", "Not my best work", "19:30");
+        const latestModification = new MaterialModification("jrDev", "jrDev@github.com", "4926940143a238fefb7566141ba24a96", "My first commit", "19:30");
+        const lastParse = new ParseInfo(latestModification, goodModification, null);
+
+        return new ConfigRepo("All_Test_Pipelines", "PluginId", material, [], lastParse);
+      }
     });
   });
 });

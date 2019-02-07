@@ -90,11 +90,11 @@ export class ConfigRepo implements ValidatableMixin {
               configuration?: Configuration[],
               lastParse?: ParseInfo | null,
               materialUpdateInProgress?: boolean) {
-    this.id            = stream(id);
-    this.pluginId      = stream(pluginId);
-    this.material      = stream(material);
-    this.configuration = stream(configuration);
-    this.lastParse     = stream(lastParse);
+    this.id                       = stream(id);
+    this.pluginId                 = stream(pluginId);
+    this.material                 = stream(material);
+    this.configuration            = stream(configuration);
+    this.lastParse                = stream(lastParse);
     this.materialUpdateInProgress = stream(materialUpdateInProgress || false);
     if (configuration) {
       this.__jsonPluginPipelinesPattern = stream(ConfigRepo.findConfigurationValue(configuration,
@@ -145,6 +145,23 @@ export class ConfigRepo implements ValidatableMixin {
       }
     }
     return configurations;
+  }
+
+  matches(textToMatch: string): boolean {
+    if (!textToMatch) {
+      return true;
+    }
+
+    const id             = this.id();
+    const goodRevision   = this.lastParse() && this.lastParse()!.goodModification && this.lastParse()!.goodModification!.revision;
+    const latestRevision = this.lastParse() && this.lastParse()!.latestParsedModification && this.lastParse()!.latestParsedModification!.revision;
+    const materialUrl    = this.material().materialUrl();
+    return [
+      id,
+      goodRevision,
+      latestRevision,
+      materialUrl
+    ].some((value) => value ? value.toLowerCase().includes(textToMatch.toLowerCase()) : false);
   }
 }
 
@@ -234,6 +251,11 @@ export class Material implements ValidatableMixin {
       this.type(newType);
     }
     return this.type();
+  }
+
+  materialUrl(): string {
+    // @ts-ignore
+    return this.type() === "p4" ? this.attributes().port() : this.attributes().url();
   }
 }
 
@@ -472,10 +494,10 @@ const HUMAN_NAMES_FOR_MATERIAL_ATTRIBUTES: { [index: string]: string } = {
   port: "Host and port",
   useTickets: "Use tickets",
   view: "View",
-  emailAddress : "Email",
-  revision : "Revision",
-  comment : "Comment",
-  modifiedTime : "Modified Time"
+  emailAddress: "Email",
+  revision: "Revision",
+  comment: "Comment",
+  modifiedTime: "Modified Time"
 };
 
 const MATERIAL_TYPE_MAP: { [index: string]: string } = {

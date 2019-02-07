@@ -66,6 +66,9 @@ function findPluginWithId(infos: Array<PluginInfo<any>>, pluginId: string) {
 }
 
 class HeaderWidget extends MithrilViewComponent<HeaderWidgetAttrs> {
+  private static readonly MAX_COMMIT_MSG_LENGTH: number = 84;
+  private static readonly MAX_USERNAME_AND_REVISON_LENGTH: number = 40;
+
   view(vnode: m.Vnode<HeaderWidgetAttrs>): m.Children | void | null {
     const materialUrl = vnode.attrs.repo.material().materialUrl();
     return [
@@ -82,9 +85,9 @@ class HeaderWidget extends MithrilViewComponent<HeaderWidgetAttrs> {
     let parseStatus: m.Children = "This config repository was never parsed";
 
     if (lastParsedCommit && lastParsedCommit.latestParsedModification) {
-      const comment = this.trimToLength(lastParsedCommit.latestParsedModification.comment, 84);
-      const username = this.trimToLength(lastParsedCommit.latestParsedModification.username, 40);
-      const revision = this.trimToLength(lastParsedCommit.latestParsedModification.revision, 40);
+      const comment = this.trimToLength(lastParsedCommit.latestParsedModification.comment, HeaderWidget.MAX_COMMIT_MSG_LENGTH);
+      const username = this.trimToLength(lastParsedCommit.latestParsedModification.username, HeaderWidget.MAX_USERNAME_AND_REVISON_LENGTH);
+      const revision = this.trimToLength(lastParsedCommit.latestParsedModification.revision, HeaderWidget.MAX_USERNAME_AND_REVISON_LENGTH);
 
       parseStatus = (
         <div class={styles.headerTitleText}>
@@ -189,15 +192,15 @@ class ConfigRepoWidget extends MithrilViewComponent<ShowObjectAttrs<ConfigRepo>>
     const configRepoHasErrors = maybeWarning || (vnode.attrs.obj.lastParse() && vnode.attrs.obj.lastParse()!.error());
 
     return (
-      <CollapsiblePanel styleClass={configRepoHasErrors ? styles.collapsePanelHeader : ""}
+      <CollapsiblePanel styleClass={configRepoHasErrors ? styles.configRepoErrorHeader : ""}
                         header={<HeaderWidget repo={vnode.attrs.obj} pluginInfos={vnode.attrs.pluginInfos}/>}
                         dataTestId={"config-repo-details-panel"}
                         actions={actionButtons} expanded={vnode.attrs.index === 0}>
         {maybeWarning ? <div class={styles.errorMessage}>{maybeWarning}</div> : null}
-        {this.latestModification(parseInfo)}
-        {this.lastGoodModification(parseInfo)}
-        {this.configRepoMetaConfig(vnode.attrs.obj.id(), vnode.attrs.obj.pluginId())}
-        {this.materialConfig(allAttributes)}
+        {this.latestModificationDetails(parseInfo)}
+        {this.lastGoodModificationDetails(parseInfo)}
+        {this.configRepoMetaConfigDetails(vnode.attrs.obj.id(), vnode.attrs.obj.pluginId())}
+        {this.materialConfigDetails(allAttributes)}
       </CollapsiblePanel>
     );
   }
@@ -224,47 +227,47 @@ class ConfigRepoWidget extends MithrilViewComponent<ShowObjectAttrs<ConfigRepo>>
     return accumulator;
   }
 
-  private lastGoodModification(parseInfo: ParseInfo | null): m.Children {
+  private lastGoodModificationDetails(parseInfo: ParseInfo | null): m.Children {
     if (parseInfo && parseInfo.goodModification) {
       const attrs     = this.resolveHumanReadableAttributes(parseInfo.goodModification);
       const checkIcon = <span className={styles.goodModificationIcon}
                               title={`Last parsed with revision ${parseInfo.goodModification.revision}`}/>;
       return <div data-test-id="config-repo-good-modification-panel">
         <KeyValueTitle title={"Last known good commit currently being used"} image={checkIcon} inline={true}/>
-        <div className={styles.configRepoDetailsSectionProperties}><KeyValuePair data={attrs}/></div>
+        <div className={styles.configRepoProperties}><KeyValuePair data={attrs}/></div>
       </div>;
     }
   }
 
-  private latestModification(parseInfo: ParseInfo | null): m.Children {
+  private latestModificationDetails(parseInfo: ParseInfo | null): m.Children {
     if (parseInfo && parseInfo.latestParsedModification) {
       const attrs = this.resolveHumanReadableAttributes(parseInfo.latestParsedModification);
       let statusIcon = styles.goodModificationIcon;
 
       if (parseInfo.error()) {
-        attrs.set("Error", <code class={styles.errorInParseInfo}>{parseInfo.error()}</code>);
+        attrs.set("Error", <code class={styles.parseErrorText}>{parseInfo.error()}</code>);
         statusIcon = styles.errorLastModificationIcon;
       }
 
       return <div data-test-id="config-repo-latest-modification-panel">
         <KeyValueTitle title={"Latest commit in the repository"} inline={true}
                        image={<span className={statusIcon} title={`Last parsed with revision ${parseInfo.latestParsedModification.revision}` }/>}/>
-        <div class={styles.configRepoDetailsSectionProperties}><KeyValuePair data={attrs}/></div>
+        <div class={styles.configRepoProperties}><KeyValuePair data={attrs}/></div>
       </div>;
     }
   }
 
-  private configRepoMetaConfig(id: string, pluginId: string) {
+  private configRepoMetaConfigDetails(id: string, pluginId: string) {
     return <div data-test-id="config-repo-plugin-panel">
       <KeyValueTitle title={"Config Repository Configurations"} image={undefined}/>
-      <div className={styles.configRepoDetailsSectionProperties}><KeyValuePair data={new Map([["Id", id], ["Plugin Id", pluginId]])}/></div>
+      <div className={styles.configRepoProperties}><KeyValuePair data={new Map([["Id", id], ["Plugin Id", pluginId]])}/></div>
     </div>;
   }
 
-  private materialConfig(allAttributes: Map<string, m.Children>) {
+  private materialConfigDetails(allAttributes: Map<string, m.Children>) {
     return <div data-test-id="config-repo-material-panel">
       <KeyValueTitle title={"Material"} image={undefined}/>
-      <div className={styles.configRepoDetailsSectionProperties}><KeyValuePair data = {allAttributes}/></div>
+      <div className={styles.configRepoProperties}><KeyValuePair data={allAttributes}/></div>
     </div>;
   }
 

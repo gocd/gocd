@@ -270,7 +270,7 @@ describe("ConfigReposWidget", () => {
     pluginInfos([configRepoPluginInfo()]);
     m.redraw();
     expect(find("config-repo-details-panel")).toBeInDOM();
-    expect(find("config-repo-details-panel")).toHaveClass(styles.collapsePanelHeader);
+    expect(find("config-repo-details-panel")).toHaveClass(styles.configRepoErrorHeader);
   });
 
   it("should callback the delete function when delete button is clicked", () => {

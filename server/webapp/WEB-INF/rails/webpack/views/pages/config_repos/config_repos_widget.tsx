@@ -18,7 +18,7 @@ import {MithrilViewComponent} from "jsx/mithril-component";
 import * as _ from "lodash";
 import * as m from "mithril";
 import {Stream} from "mithril/stream";
-import {ConfigRepo, humanizedMaterialAttributeName, LastParse, ParseInfo} from "models/config_repos/types";
+import {ConfigRepo, humanizedMaterialAttributeName, ParseInfo} from "models/config_repos/types";
 import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
 import {Configuration} from "models/shared/plugin_infos_new/plugin_settings/plugin_settings";
 import {Code} from "views/components/code";
@@ -67,31 +67,38 @@ class HeaderWidget extends MithrilViewComponent<HeaderWidgetAttrs> {
     return [
         <KeyValueTitle image={this.pluginIcon(vnode)}
                        title={[
-                         <div class={styles.headerTitleText}>{vnode.attrs.repo.id()}</div>,
+                         <div class={styles.headerTitleText}><b>{vnode.attrs.repo.id()}</b></div>,
                          <div class={styles.headerTitleText}>{materialUrl}</div>
                        ]}/>,
-        <div>{this.lastParseStatus(vnode.attrs.repo.lastParse())}</div>
+        <div>{this.latestCommitDetails(vnode.attrs.repo.lastParse())}</div>
     ];
   }
 
-  //todo: refactor
-  private lastParseStatus(lastParsedCommit: ParseInfo | null) {
+  private latestCommitDetails(lastParsedCommit: ParseInfo | null) {
     let parseStatus: m.Children = "This config repository was never parsed";
 
     if (lastParsedCommit && lastParsedCommit.latestParsedModification) {
-      const comment = lastParsedCommit.latestParsedModification.comment;
-      const username = lastParsedCommit.latestParsedModification.username;
-      const revision = lastParsedCommit.latestParsedModification.revision;
+      const comment = this.trimToLength(lastParsedCommit.latestParsedModification.comment, 84);
+      const username = this.trimToLength(lastParsedCommit.latestParsedModification.username, 40);
+      const revision = this.trimToLength(lastParsedCommit.latestParsedModification.revision, 40);
 
       parseStatus = (
         <div class={styles.headerTitleText}>
           {comment}
-          <div>{username} | {revision}</div>
+          <div><b>{username}</b> | {revision}</div>
         </div>
       );
     }
 
     return parseStatus;
+  }
+
+  private trimToLength(str: string, length: number): string {
+    if (length >= str.length) {
+      return str;
+    }
+
+    return str.substr(0, length - 3).concat("...");
   }
 
   private pluginIcon(vnode: m.Vnode<HeaderWidgetAttrs>) {

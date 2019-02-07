@@ -29,6 +29,7 @@ import com.thoughtworks.go.apiv2.environments.representers.EnvironmentsRepresent
 import com.thoughtworks.go.apiv2.environments.representers.PatchEnvironmentRequestRepresenter;
 import com.thoughtworks.go.config.BasicEnvironmentConfig;
 import com.thoughtworks.go.config.EnvironmentConfig;
+import com.thoughtworks.go.config.exceptions.NoSuchEnvironmentException;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.domain.ConfigElementForEdit;
 import com.thoughtworks.go.server.service.EntityHashingService;
@@ -44,7 +45,9 @@ import spark.Request;
 import spark.Response;
 
 import java.io.IOException;
-import java.util.List;
+import java.util.Collection;
+import java.util.Objects;
+import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -92,7 +95,7 @@ public class EnvironmentsControllerV2 extends ApiController implements SparkSpri
     }
 
     public String index(Request request, Response response) throws IOException {
-        List<EnvironmentConfig> environmentViewModelList = environmentConfigService.getAllMergedEnvironments();
+        Set<EnvironmentConfig> environmentViewModelList = environmentConfigService.getEnvironments();
 
         setEtagHeader(response, calculateEtag(environmentViewModelList));
 
@@ -184,9 +187,11 @@ public class EnvironmentsControllerV2 extends ApiController implements SparkSpri
 
     @Override
     public EnvironmentConfig doFetchEntityFromConfig(String name) {
-        ConfigElementForEdit<EnvironmentConfig> mergedEnvironmentforDisplay = environmentConfigService.getMergedEnvironmentforDisplay(name, new HttpLocalizedOperationResult());
-
-        return mergedEnvironmentforDisplay == null ? null : mergedEnvironmentforDisplay.getConfigElement();
+        try {
+            return environmentConfigService.getEnvironmentConfig(name);
+        } catch (NoSuchEnvironmentException e) {
+            throw new RecordNotFoundException(e);
+        }
     }
 
     @Override
@@ -212,7 +217,7 @@ public class EnvironmentsControllerV2 extends ApiController implements SparkSpri
         throw haltBecauseEntityAlreadyExists(jsonWriter(environmentConfig), "environment", environmentConfig.name().toString());
     }
 
-    private String calculateEtag(List<EnvironmentConfig> environmentConfigs) {
+    private String calculateEtag(Collection<EnvironmentConfig> environmentConfigs) {
         final String environmentConfigSegment = environmentConfigs
                 .stream()
                 .map(this::etagFor)

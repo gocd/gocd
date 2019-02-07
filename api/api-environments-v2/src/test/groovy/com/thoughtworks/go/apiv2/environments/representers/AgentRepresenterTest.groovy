@@ -33,7 +33,7 @@ class AgentRepresenterTest {
 
     assertThatJson(json).isEqualTo([
       "_links": [
-        "doc": [
+        "doc" : [
           "href": apiDocsUrl("#agents")
         ],
         "find": [

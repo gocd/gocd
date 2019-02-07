@@ -94,7 +94,7 @@ class EnvironmentsControllerV2Test implements SecurityServiceTrait, ControllerTr
         env1.addPipeline(new CaseInsensitiveString("Pipeline2"))
 
         when(entityHashingService.md5ForEntity(env1)).thenReturn("md5-hash")
-        when(environmentConfigService.getMergedEnvironmentforDisplay(eq("env1"), any(HttpLocalizedOperationResult.class))).thenReturn(new ConfigElementForEdit(env1, "md5-hash"))
+        when(environmentConfigService.getEnvironmentConfig(eq("env1"))).thenReturn(env1)
 
         getWithApiHeader(controller.controllerPath("env1"))
 
@@ -154,7 +154,7 @@ class EnvironmentsControllerV2Test implements SecurityServiceTrait, ControllerTr
         env1.addPipeline(new CaseInsensitiveString("Pipeline1"))
         env1.addPipeline(new CaseInsensitiveString("Pipeline2"))
 
-        when(environmentConfigService.getMergedEnvironmentforDisplay(anyString(), any(HttpLocalizedOperationResult.class))).thenReturn(new ConfigElementForEdit(env1, "3123abcef"))
+        when(environmentConfigService.getEnvironmentConfig(anyString())).thenReturn(env1)
         when(environmentConfigService.deleteEnvironment(eq(env1), eq(currentUsername()), any(HttpLocalizedOperationResult))).then({
           InvocationOnMock invocation ->
             HttpLocalizedOperationResult result = (HttpLocalizedOperationResult) invocation.getArguments().last()
@@ -223,14 +223,11 @@ class EnvironmentsControllerV2Test implements SecurityServiceTrait, ControllerTr
         newConfig.addPipeline(new CaseInsensitiveString("Pipeline1"))
 
         when(entityHashingService.md5ForEntity(existingConfig)).thenReturn("ffff")
-        when(environmentConfigService.getMergedEnvironmentforDisplay(
-          eq("env1"),
-          any(HttpLocalizedOperationResult))
-        ).thenReturn(new ConfigElementForEdit<>(existingConfig, "ffff"))
+        when(environmentConfigService.getEnvironmentConfig(eq("env1"))).thenReturn(existingConfig)
 
         def json = toObjectString({ EnvironmentRepresenter.toJSON(it, newConfig) })
 
-        putWithApiHeader(controller.controllerPath("env1"),['if-match': 'ffff'], json)
+        putWithApiHeader(controller.controllerPath("env1"), ['if-match': 'ffff'], json)
 
         assertThatResponse()
           .isUnprocessableEntity()
@@ -245,16 +242,13 @@ class EnvironmentsControllerV2Test implements SecurityServiceTrait, ControllerTr
         env1.addPipeline(new CaseInsensitiveString("Pipeline1"))
 
 
-        when(environmentConfigService.getMergedEnvironmentforDisplay(
-          eq("env1"),
-          any(HttpLocalizedOperationResult))
-        ).thenReturn(new ConfigElementForEdit<>(env1, "ffff"))
+        when(environmentConfigService.getEnvironmentConfig(eq("env1"))).thenReturn(env1)
 
         when(entityHashingService.md5ForEntity(env1)).thenReturn("wrong-md5")
 
         def json = toObjectString({ EnvironmentRepresenter.toJSON(it, env1) })
 
-        putWithApiHeader(controller.controllerPath("env1"),['if-match': 'ffff'], json)
+        putWithApiHeader(controller.controllerPath("env1"), ['if-match': 'ffff'], json)
 
         assertThatResponse()
           .isPreconditionFailed()
@@ -272,10 +266,7 @@ class EnvironmentsControllerV2Test implements SecurityServiceTrait, ControllerTr
 
         when(entityHashingService.md5ForEntity(env1)).thenReturn("ffff")
 
-        when(
-            environmentConfigService.getMergedEnvironmentforDisplay(eq("env1"),
-            any(HttpLocalizedOperationResult))
-        ).thenReturn(new ConfigElementForEdit<>(env1, "ffff"))
+        when(environmentConfigService.getEnvironmentConfig(eq("env1"))).thenReturn(env1)
 
         when(environmentConfigService.updateEnvironment(eq("env1"), eq(env1), eq(currentUsername()), anyString(), any(HttpLocalizedOperationResult))).then({
           InvocationOnMock invocation ->
@@ -285,7 +276,7 @@ class EnvironmentsControllerV2Test implements SecurityServiceTrait, ControllerTr
 
         def json = toObjectString({ EnvironmentRepresenter.toJSON(it, env1) })
 
-        putWithApiHeader(controller.controllerPath("env1"),['if-match': 'ffff'], json)
+        putWithApiHeader(controller.controllerPath("env1"), ['if-match': 'ffff'], json)
 
         assertThatResponse()
           .isOk()
@@ -296,7 +287,7 @@ class EnvironmentsControllerV2Test implements SecurityServiceTrait, ControllerTr
       @Test
       void 'should error out if the environment does not exist'() {
         when(environmentConfigService.getMergedEnvironmentforDisplay(eq("env1"), any(HttpLocalizedOperationResult)))
-        .then({
+          .then({
           InvocationOnMock invocation ->
             def result = (HttpLocalizedOperationResult) invocation.arguments.last()
             result.badRequest("The environment does not exist")
@@ -352,12 +343,10 @@ class EnvironmentsControllerV2Test implements SecurityServiceTrait, ControllerTr
         updatedConfig.addPipeline(new CaseInsensitiveString("Pipeline2"))
 
         when(entityHashingService.md5ForEntity(updatedConfig)).thenReturn("md5-hash")
-        when(environmentConfigService.getMergedEnvironmentforDisplay(eq("env1"), any(HttpLocalizedOperationResult)))
-          .thenReturn(new ConfigElementForEdit<>(oldConfig, "old_md5_hash"))
-        when(environmentConfigService.getMergedEnvironmentforDisplay(eq("env1"), any(HttpLocalizedOperationResult)))
-          .thenReturn(new ConfigElementForEdit<>(updatedConfig, "new_md5_hash"))
+        when(environmentConfigService.getEnvironmentConfig(eq("env1"))).thenReturn(oldConfig)
+        when(environmentConfigService.getEnvironmentConfig(eq("env1"))).thenReturn(updatedConfig)
         when(environmentConfigService.patchEnvironment(
-          eq(oldConfig), anyList(), anyList(), anyList(), anyList(),anyList(), anyList(),eq(currentUsername()), any(HttpLocalizedOperationResult))
+          eq(oldConfig), anyList(), anyList(), anyList(), anyList(), anyList(), anyList(), eq(currentUsername()), any(HttpLocalizedOperationResult))
         ).then({
           InvocationOnMock invocation ->
             HttpLocalizedOperationResult result = (HttpLocalizedOperationResult) invocation.arguments.last()
@@ -366,16 +355,16 @@ class EnvironmentsControllerV2Test implements SecurityServiceTrait, ControllerTr
 
 
         patchWithApiHeader(controller.controllerPath("env1"), [
-          "pipelines": [
-            "add": [
+          "pipelines"            : [
+            "add"   : [
               "Pipeline1", "Pipeline2"
             ],
             "remove": [
               "Pipeline3"
             ]
           ],
-          "agents": [
-            "add": [
+          "agents"               : [
+            "add"   : [
               "agent1"
             ],
             "remove": [
@@ -383,9 +372,9 @@ class EnvironmentsControllerV2Test implements SecurityServiceTrait, ControllerTr
             ]
           ],
           "environment_variables": [
-            "add": [
+            "add"   : [
               [
-                "name": "JAVA_HOME",
+                "name" : "JAVA_HOME",
                 "value": "/bin/java"
               ]
             ],
@@ -526,9 +515,9 @@ class EnvironmentsControllerV2Test implements SecurityServiceTrait, ControllerTr
 
         def env2 = new BasicEnvironmentConfig(new CaseInsensitiveString("env2"))
 
-        def listOfEnvironmentConfigs = [env1, env2]
+        def listOfEnvironmentConfigs = new HashSet([env1, env2])
 
-        when(environmentConfigService.getAllMergedEnvironments()).thenReturn(listOfEnvironmentConfigs)
+        when(environmentConfigService.getEnvironments()).thenReturn(listOfEnvironmentConfigs)
 
         getWithApiHeader(controller.controllerBasePath())
 

@@ -298,6 +298,18 @@ public class ExecTask extends AbstractTask implements CommandTask {
                 '}';
     }
 
+    public Arguments getArguments() {
+       if (args.isEmpty()) {
+           return argList;
+       }
+       Arguments arguments = new Arguments();
+       for (String arg : args.split(" ")) {
+           arguments.add(new Argument(arg));
+
+       }
+       return arguments;
+    }
+
     @Override
     public String arguments() {
         if (!args.isEmpty()) {

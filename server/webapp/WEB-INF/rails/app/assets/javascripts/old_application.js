@@ -319,7 +319,7 @@ jQuery(function () {
             jQuery('.back_to_top').fadeOut(200);
 
     });
-    jQuery('.back_to_top,.back-to-top-in-console').click(function(){
+    jQuery('#back_to_top,.back-to-top-in-console').click(function(){
         jQuery('body,html').stop(true).animate({scrollTop : 0},'fast');
     });
 });

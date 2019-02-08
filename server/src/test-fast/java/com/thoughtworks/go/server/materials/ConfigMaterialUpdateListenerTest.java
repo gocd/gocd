@@ -25,6 +25,7 @@ import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.domain.materials.Revision;
 import com.thoughtworks.go.domain.materials.TestSubprocessExecutionContext;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
+import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.MaterialService;
 import com.thoughtworks.go.server.service.materials.MaterialPoller;
 import org.junit.Before;
@@ -137,8 +138,24 @@ public class ConfigMaterialUpdateListenerTest {
         MaterialUpdateSuccessfulMessage message = new MaterialUpdateSuccessfulMessage(material, 123);
         this.configUpdater.onMessage(message);
 
-
         verify(repoConfigDataSource, times(1)).onCheckoutComplete(material.config(), folder, svnModification);
+        verify(topic, times(1)).post(message);
+    }
+
+    @Test
+    public void shouldForceUpdateConfigurationOnChangeOfConfigRepoConfig() {
+        Modification modification = new Modification("user", "commend", "em@il", new Date(), "1");
+        MaterialRevisions materialRevisions = revisions(material, modification);
+
+        when(repoConfigDataSource.getRevisionAtLastAttempt(material.config())).thenReturn("1");
+        when(repoConfigDataSource.hasConfigRepoConfigChangedSinceLastUpdate(material.config())).thenReturn(true);
+        when(materialChecker.findSpecificRevision(material, "1")).thenReturn(materialRevisions.getMaterialRevision(0));
+        when(materialRepository.findLatestModification(material)).thenReturn(materialRevisions);
+
+        MaterialUpdateSuccessfulMessage message = new MaterialUpdateSuccessfulMessage(material, 123);
+        this.configUpdater.onMessage(message);
+
+        verify(repoConfigDataSource).onCheckoutComplete(material.config(), folder, modification);
         verify(topic, times(1)).post(message);
     }
 

@@ -78,12 +78,13 @@ public class ConfigMaterialUpdateListener implements GoMessageListener<MaterialU
                 if (lastParseRevision == null) {
                     //never parsed
                     updateConfigurationFromCheckout(folder, modification, material);
-                } else if (latestModification.findRevisionFor(material.config())
-                        .hasChangedSince(lastParseRevision)) {
+                } else if (latestModification.findRevisionFor(material.config()).hasChangedSince(lastParseRevision) ||
+                        this.repoConfigDataSource.hasConfigRepoConfigChangedSinceLastUpdate(material.config())) {
                     // revision has changed. the config files might have been updated
                     updateConfigurationFromCheckout(folder, modification, material);
                 } else {
                     // revision is the same as last time, no need to parse again
+                    LOGGER.debug("[Config Material Update] Skipping parsing of Config material {} since material has no change since last parse.", material);
                 }
             }
             LOGGER.debug("[Config Material Update] Completed parsing of Config material {}.", material);

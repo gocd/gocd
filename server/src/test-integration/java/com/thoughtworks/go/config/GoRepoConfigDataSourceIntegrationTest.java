@@ -80,7 +80,7 @@ public class GoRepoConfigDataSourceIntegrationTest {
         configHelper.usingCruiseConfigDao(goConfigDao).initializeConfigFile();
         configHelper.onSetUp();
 
-        GoRepoConfigDataSource repoConfigDataSource = new GoRepoConfigDataSource(configWatchList, configPluginService, serverHealthService, configRepoService);
+        GoRepoConfigDataSource repoConfigDataSource = new GoRepoConfigDataSource(configWatchList, configPluginService, serverHealthService, configRepoService, goConfigService);
         repoConfigDataSource.registerListener(new GoPartialConfig(repoConfigDataSource, configWatchList, goConfigService, cachedGoPartials, serverHealthService));
 
         configHelper.addTemplate("t1", "param1", "stage");

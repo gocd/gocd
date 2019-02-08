@@ -22,7 +22,9 @@ import com.thoughtworks.go.config.remote.RepoConfigOrigin;
 import com.thoughtworks.go.domain.config.Configuration;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.domain.materials.Modification;
+import com.thoughtworks.go.listener.EntityConfigChangedListener;
 import com.thoughtworks.go.server.service.ConfigRepoService;
+import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.serverhealth.HealthStateScope;
 import com.thoughtworks.go.serverhealth.HealthStateType;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
@@ -34,7 +36,11 @@ import org.springframework.stereotype.Component;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+
+import static java.util.Collections.synchronizedSet;
 
 /**
  * Parses partial configurations and exposes latest configurations as soon as possible.
@@ -46,17 +52,28 @@ public class GoRepoConfigDataSource implements ChangedRepoConfigWatchListListene
     private GoConfigPluginService configPluginService;
     private GoConfigWatchList configWatchList;
     private ConfigReposMaterialParseResultManager configReposMaterialParseResultManager;
+    private GoConfigService goConfigService;
 
     private List<PartialConfigUpdateCompletedListener> listeners = new ArrayList<>();
+    private Set<ConfigRepoConfig> modifiedConfigRepoConfigsAwaitingParse = synchronizedSet(new HashSet<>());
 
     @Autowired
     public GoRepoConfigDataSource(GoConfigWatchList configWatchList, GoConfigPluginService configPluginService,
-                                  ServerHealthService healthService, ConfigRepoService configRepoService) {
-        configReposMaterialParseResultManager = new ConfigReposMaterialParseResultManager(healthService, configRepoService);
+                                  ServerHealthService healthService, ConfigRepoService configRepoService,
+                                  GoConfigService goConfigService) {
+        this.configReposMaterialParseResultManager = new ConfigReposMaterialParseResultManager(healthService, configRepoService);
         this.configPluginService = configPluginService;
         this.serverHealthService = healthService;
         this.configWatchList = configWatchList;
+        this.goConfigService = goConfigService;
+
         this.configWatchList.registerListener(this);
+        this.goConfigService.register(new EntityConfigChangedListener<ConfigRepoConfig>() {
+            @Override
+            public void onEntityConfigChange(ConfigRepoConfig entity) {
+                onConfigRepoConfigChange(entity);
+            }
+        });
     }
 
     public boolean hasListener(PartialConfigUpdateCompletedListener listener) {
@@ -75,8 +92,7 @@ public class GoRepoConfigDataSource implements ChangedRepoConfigWatchListListene
     }
 
     public PartialConfigParseResult getLastParseResult(MaterialConfig material) {
-        String fingerprint = material.getFingerprint();
-        return configReposMaterialParseResultManager.get(fingerprint);
+        return configReposMaterialParseResultManager.get(material.getFingerprint());
     }
 
     public PartialConfig latestPartialConfigForMaterial(MaterialConfig material) throws Exception {
@@ -87,6 +103,10 @@ public class GoRepoConfigDataSource implements ChangedRepoConfigWatchListListene
             throw result.getLastFailure();
 
         return result.lastGoodPartialConfig();
+    }
+
+    public boolean hasConfigRepoConfigChangedSinceLastUpdate(MaterialConfig material) {
+        return modifiedConfigRepoConfigsAwaitingParse.contains(configWatchList.getConfigRepoForMaterial(material));
     }
 
     @Override
@@ -131,6 +151,7 @@ public class GoRepoConfigDataSource implements ChangedRepoConfigWatchListListene
                 return;
             }
             try {
+                this.modifiedConfigRepoConfigsAwaitingParse.remove(repoConfig);
                 //TODO put modifications and previous partial config in context
                 // the context is just a helper for plugin.
                 PartialConfigLoadContext context = new LoadContext(repoConfig);
@@ -155,6 +176,10 @@ public class GoRepoConfigDataSource implements ChangedRepoConfigWatchListListene
                 notifyFailureListeners(repoConfig, ex);
             }
         }
+    }
+
+    protected void onConfigRepoConfigChange(ConfigRepoConfig configRepoConfig) {
+        modifiedConfigRepoConfigsAwaitingParse.add(configRepoConfig);
     }
 
     private void notifyFailureListeners(ConfigRepoConfig repoConfig, Exception ex) {

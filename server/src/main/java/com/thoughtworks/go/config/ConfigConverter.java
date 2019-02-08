@@ -42,6 +42,7 @@ import com.thoughtworks.go.plugin.configrepo.contract.*;
 import com.thoughtworks.go.plugin.configrepo.contract.material.*;
 import com.thoughtworks.go.plugin.configrepo.contract.tasks.*;
 import com.thoughtworks.go.security.GoCipher;
+import com.thoughtworks.go.util.command.CommandLine;
 import com.thoughtworks.go.util.command.HgUrlArgument;
 import com.thoughtworks.go.util.command.UrlArgument;
 import org.apache.commons.lang3.StringUtils;
@@ -833,7 +834,18 @@ public class ConfigConverter {
         CRExecTask crExecTask = new CRExecTask(task.getCommand());
         crExecTask.setTimeout(task.getTimeout());
         crExecTask.setWorkingDirectory(task.workingDirectory());
-        crExecTask.setArgs(task.getArgList().stream()
+
+        Arguments arguments;
+        if (task.getArgs().isEmpty()) {
+            arguments = task.getArgList();
+        } else {
+            arguments = new Arguments();
+            for (String arg : CommandLine.translateCommandLine(task.getArgs())) {
+                arguments.add(new Argument(arg));
+            }
+        }
+
+        crExecTask.setArgs(arguments.stream()
                 .map(Argument::getValue)
                 .collect(Collectors.toList())
         );

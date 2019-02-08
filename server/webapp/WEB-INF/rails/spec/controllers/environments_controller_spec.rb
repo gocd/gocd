@@ -440,7 +440,7 @@ describe EnvironmentsController do
 
       expect(assigns[:environment]).to_not be_nil
 
-      expect(response.body).to have_selector("form input[type='checkbox'][name='environment[agents][][uuid]'][value='some-uuid'][checked='true'][disabled][title='Agent is associated in a Config Repository']")
+      expect(response.body).to have_selector("form input[type='checkbox'][name='environment[agents][][uuid]'][value='some-uuid'][checked='true'][disabled][title='Agent is associated in a Config Repository, cannot edit']")
       expect(response.body).to have_selector("form input[type='checkbox'][name='environment[agents][][uuid]'][value='out-env']")
     end
 

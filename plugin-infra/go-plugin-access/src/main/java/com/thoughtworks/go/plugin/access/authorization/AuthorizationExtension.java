@@ -224,6 +224,25 @@ public class AuthorizationExtension extends AbstractExtension {
         });
     }
 
+    public boolean isValidUser(String pluginId, String username, SecurityAuthConfig authConfig) {
+        try {
+            return pluginRequestHelper.submitRequest(pluginId, IS_VALID_USER, new DefaultPluginInteractionCallback<Boolean>() {
+                @Override
+                public String requestBody(String resolvedExtensionVersion) {
+                    return getMessageConverter(resolvedExtensionVersion).isValidUserRequestBody(username, authConfig);
+                }
+
+                @Override
+                public Boolean onSuccess(String responseBody, Map<String, String> responseHeaders, String resolvedExtensionVersion) {
+                    return true;
+                }
+            });
+        } catch (Exception e) { //any error happened while verifying the user existence will lead to assume user does not exists.
+            return false;
+        }
+
+    }
+
     public AuthorizationMessageConverter getMessageConverter(String version) {
         return messageHandlerMap.get(version);
     }

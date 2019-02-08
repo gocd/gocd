@@ -127,12 +127,16 @@ public class AuthorizationMessageConverterV2 implements AuthorizationMessageConv
         }
 
         for (SecurityAuthConfig securityAuthConfig : authConfigs) {
-            Map<String, Object> authConfig = new HashMap<>();
-            authConfig.put("id", securityAuthConfig.getId());
-            authConfig.put("configuration", securityAuthConfig.getConfigurationAsMap(true));
-            configs.add(authConfig);
+            configs.add(getAuthConfig(securityAuthConfig));
         }
         return configs;
+    }
+
+    private Map<String, Object> getAuthConfig(SecurityAuthConfig securityAuthConfig) {
+        Map<String, Object> authConfig = new HashMap<>();
+        authConfig.put("id", securityAuthConfig.getId());
+        authConfig.put("configuration", securityAuthConfig.getConfigurationAsMap(true));
+        return authConfig;
     }
 
     @Override
@@ -201,6 +205,15 @@ public class AuthorizationMessageConverterV2 implements AuthorizationMessageConv
         Map<String, Object> requestMap = new HashMap<>();
         requestMap.put("auth_configs", getAuthConfigs(authConfigs));
         requestMap.put("authorization_server_callback_url", authorizationServerCallbackUrl(pluginId, siteUrl));
+
+        return GSON.toJson(requestMap);
+    }
+
+    @Override
+    public String isValidUserRequestBody(String username, SecurityAuthConfig authConfig) {
+        Map<String, Object> requestMap = new HashMap<>();
+        requestMap.put("username", username);
+        requestMap.put("auth_config", getAuthConfig(authConfig));
 
         return GSON.toJson(requestMap);
     }

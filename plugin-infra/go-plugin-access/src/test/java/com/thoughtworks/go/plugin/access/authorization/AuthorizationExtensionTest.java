@@ -44,6 +44,7 @@ import java.util.Collections;
 import java.util.List;
 
 import static com.thoughtworks.go.plugin.access.authorization.AuthorizationPluginConstants.*;
+import static com.thoughtworks.go.plugin.api.response.DefaultGoPluginApiResponse.BAD_REQUEST;
 import static com.thoughtworks.go.plugin.api.response.DefaultGoPluginApiResponse.SUCCESS_RESPONSE_CODE;
 import static com.thoughtworks.go.plugin.domain.common.PluginConstants.AUTHORIZATION_EXTENSION;
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson;
@@ -352,6 +353,32 @@ public class AuthorizationExtensionTest {
             assertThat(authenticationResponse.getUser(), is(new User("bob", "Bob", "bob@example.com")));
             assertThat(authenticationResponse.getRoles(), hasSize(3));
             assertThat(authenticationResponse.getRoles(), equalTo(Arrays.asList("super-admin", "view-only", "operator")));
+        }
+
+        @Test
+        public void shouldTalkToPlugin_ToCheck_isValidUser() {
+            String requestBody = "{\"auth_config\":{\"configuration\":{\"foo\":\"bar\"},\"id\":\"ldap\"},\"username\":\"fooUser\"}";
+            String responseBody = "OK";
+
+            when(pluginManager.submitTo(eq(PLUGIN_ID), eq(AUTHORIZATION_EXTENSION), requestArgumentCaptor.capture())).thenReturn(new DefaultGoPluginApiResponse(SUCCESS_RESPONSE_CODE, responseBody));
+
+            boolean isValidUser = authorizationExtension.isValidUser(PLUGIN_ID, "fooUser", new SecurityAuthConfig("ldap", "cd.go.ldap", ConfigurationPropertyMother.create("foo", false, "bar")));
+
+            assertRequest(requestArgumentCaptor.getValue(), AUTHORIZATION_EXTENSION, "2.0", IS_VALID_USER, requestBody);
+            assertThat(isValidUser, is(true));
+        }
+
+        @Test
+        public void shouldTalkToPlugin_ToCheck_isValidUser_orNot() {
+            String requestBody = "{\"auth_config\":{\"configuration\":{\"foo\":\"bar\"},\"id\":\"ldap\"},\"username\":\"fooUser\"}";
+            String responseBody = "OK";
+
+            when(pluginManager.submitTo(eq(PLUGIN_ID), eq(AUTHORIZATION_EXTENSION), requestArgumentCaptor.capture())).thenReturn(new DefaultGoPluginApiResponse(BAD_REQUEST, responseBody));
+
+            boolean isValidUser = authorizationExtension.isValidUser(PLUGIN_ID, "fooUser", new SecurityAuthConfig("ldap", "cd.go.ldap", ConfigurationPropertyMother.create("foo", false, "bar")));
+
+            assertRequest(requestArgumentCaptor.getValue(), AUTHORIZATION_EXTENSION, "2.0", IS_VALID_USER, requestBody);
+            assertThat(isValidUser, is(false));
         }
 
         @Test

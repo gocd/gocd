@@ -22,6 +22,7 @@ import com.thoughtworks.go.plugin.access.authorization.AuthorizationExtension;
 import com.thoughtworks.go.plugin.access.authorization.AuthorizationMetadataStore;
 import com.thoughtworks.go.plugin.domain.authorization.AuthenticationResponse;
 import com.thoughtworks.go.plugin.domain.authorization.User;
+import com.thoughtworks.go.server.exceptions.InvalidAccessTokenException;
 import com.thoughtworks.go.server.newsecurity.models.AccessTokenCredential;
 import com.thoughtworks.go.server.newsecurity.models.AuthenticationToken;
 import com.thoughtworks.go.server.security.AuthorityGranter;
@@ -42,8 +43,8 @@ import static java.util.Collections.singletonList;
 public class AccessTokenBasedPluginAuthenticationProvider extends AbstractPluginAuthenticationProvider<AccessTokenCredential> {
     private final AuthorizationExtension authorizationExtension;
     private final UserService userService;
-    private final AuthorizationMetadataStore store;
     private final Clock clock;
+    private AuthorizationMetadataStore store;
 
     @Autowired
     public AccessTokenBasedPluginAuthenticationProvider(AuthorizationExtension authorizationExtension,
@@ -79,13 +80,25 @@ public class AccessTokenBasedPluginAuthenticationProvider extends AbstractPlugin
                                                                AccessTokenCredential credentials,
                                                                SecurityAuthConfig authConfig,
                                                                List<PluginRoleConfig> pluginRoleConfigs) {
-        if (store.doesPluginSupportGetUserRolesCall(pluginId)) {
-            return authorizationExtension.getUserRoles(pluginId, credentials.getAccessToken().getUsername(), singletonList(authConfig), pluginRoleConfigs);
-        }
+        String username = credentials.getAccessToken().getUsername();
+        if (authorizationExtension.isValidUser(pluginId, username, authConfig)) {
+            if (store.doesPluginSupportGetUserRolesCall(pluginId)) {
+                return authorizationExtension.getUserRoles(pluginId, username, singletonList(authConfig), pluginRoleConfigs);
+            }
 
-        com.thoughtworks.go.domain.User fetched = userService.findUserByName(credentials.getAccessToken().getUsername());
-        User user = new User(fetched.getUsername().getUsername().toString(), fetched.getDisplayName(), fetched.getEmail());
-        return new AuthenticationResponse(user, Collections.emptyList());
+            com.thoughtworks.go.domain.User fetched = userService.findUserByName(username);
+            User user = new User(fetched.getUsername().getUsername().toString(), fetched.getDisplayName(), fetched.getEmail());
+            return new AuthenticationResponse(user, Collections.emptyList());
+        } else {
+            String msg = String.format("Access Token belonging to the user has either been disabled, removed or expired. ", username, pluginId, authConfig.getId());
+            throw new InvalidAccessTokenException(msg);
+        }
+    }
+
+    //used only in tests
+    @Deprecated
+    public void setStore(AuthorizationMetadataStore store) {
+        this.store = store;
     }
 
     @Override

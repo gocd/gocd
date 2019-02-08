@@ -17,6 +17,7 @@
 package com.thoughtworks.go.plugin.domain.authorization;
 
 import java.util.List;
+import java.util.Objects;
 
 public class AuthenticationResponse {
     private final User user;
@@ -33,5 +34,27 @@ public class AuthenticationResponse {
 
     public List<String> getRoles() {
         return roles;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        AuthenticationResponse that = (AuthenticationResponse) o;
+        return Objects.equals(user, that.user) &&
+                Objects.equals(roles, that.roles);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(user, roles);
+    }
+
+    @Override
+    public String toString() {
+        return "AuthenticationResponse{" +
+                "user=" + user +
+                ", roles=" + roles +
+                '}';
     }
 }

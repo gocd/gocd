@@ -218,6 +218,11 @@ public class AuthorizationMessageConverterV1 implements AuthorizationMessageConv
         return template;
     }
 
+    @Override
+    public String isValidUserRequestBody(String username, SecurityAuthConfig authConfig) {
+        throw new UnsupportedOperationException("Authorization Extension v1 does not implement is-valid-user call.");
+    }
+
     private String authorizationServerCallbackUrl(String pluginId, String siteUrl) {
         return String.format("%s/go/plugin/%s/authenticate", siteUrl, pluginId);
     }

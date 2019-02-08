@@ -47,8 +47,9 @@ import spark.Response;
 
 import java.io.IOException;
 import java.util.Collection;
+import java.util.Comparator;
+import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -96,7 +97,8 @@ public class EnvironmentsControllerV2 extends ApiController implements SparkSpri
     }
 
     public String index(Request request, Response response) throws IOException {
-        Set<EnvironmentConfig> environmentViewModelList = environmentConfigService.getEnvironments();
+        List<EnvironmentConfig> environmentViewModelList = environmentConfigService.getEnvironments().stream()
+                .sorted(Comparator.comparing(EnvironmentConfig::name)).collect(Collectors.toList());
 
         setEtagHeader(response, calculateEtag(environmentViewModelList));
 

@@ -505,24 +505,26 @@ class EnvironmentsControllerV2Test implements SecurityServiceTrait, ControllerTr
       }
 
       @Test
-      void 'should return all configured environments'() {
-        def env1 = new BasicEnvironmentConfig(new CaseInsensitiveString("env1"))
-        env1.addAgent("agent1")
-        env1.addAgent("agent2")
-        env1.addEnvironmentVariable("JAVA_HOME", "/bin/java")
-        env1.addPipeline(new CaseInsensitiveString("Pipeline1"))
-        env1.addPipeline(new CaseInsensitiveString("Pipeline2"))
+      void 'should sort environments by name and return all configured environments'() {
+        def prodEnv = new BasicEnvironmentConfig(new CaseInsensitiveString("prod"))
+        prodEnv.addAgent("agent1")
+        prodEnv.addAgent("agent2")
+        prodEnv.addEnvironmentVariable("JAVA_HOME", "/bin/java")
+        prodEnv.addPipeline(new CaseInsensitiveString("Pipeline1"))
+        prodEnv.addPipeline(new CaseInsensitiveString("Pipeline2"))
 
-        def env2 = new BasicEnvironmentConfig(new CaseInsensitiveString("env2"))
+        def devEnv = new BasicEnvironmentConfig(new CaseInsensitiveString("dev"))
+        def qaEnv = new BasicEnvironmentConfig(new CaseInsensitiveString("qa"))
 
-        def listOfEnvironmentConfigs = new HashSet([env1, env2])
+        def listOfEnvironmentConfigs = new HashSet([qaEnv, devEnv, prodEnv])
 
         when(environmentConfigService.getEnvironments()).thenReturn(listOfEnvironmentConfigs)
 
         getWithApiHeader(controller.controllerBasePath())
-
+        
+        def environmentsConfigSortedByName = new LinkedHashSet([devEnv, prodEnv, qaEnv])
         assertThatResponse()
-          .hasBodyWithJsonObject(listOfEnvironmentConfigs, EnvironmentsRepresenter)
+          .hasBodyWithJsonObject(environmentsConfigSortedByName, EnvironmentsRepresenter)
       }
 
 
@@ -542,7 +544,7 @@ class EnvironmentsControllerV2Test implements SecurityServiceTrait, ControllerTr
           ]
         ]
 
-        when(environmentConfigService.getAllMergedEnvironments()).thenReturn([])
+        when(environmentConfigService.getEnvironments()).thenReturn(new HashSet<>([]))
 
         getWithApiHeader(controller.controllerBasePath())
 

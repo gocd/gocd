@@ -53,6 +53,7 @@ public class GoRepoConfigDataSourceTest {
     private ConfigRepoService configRepoService;
 
     File folder = new File("dir");
+    private GoConfigService goConfigService;
 
     @Before
     public void setUp() {
@@ -60,6 +61,7 @@ public class GoRepoConfigDataSourceTest {
         configPluginService = mock(GoConfigPluginService.class);
         configRepoService = mock(ConfigRepoService.class);
         plugin = mock(PartialConfigProvider.class);
+        goConfigService = mock(GoConfigService.class);
         when(configPluginService.partialConfigProviderFor(any(ConfigRepoConfig.class))).thenReturn(plugin);
 
         cruiseConfig = new BasicCruiseConfig();
@@ -67,7 +69,7 @@ public class GoRepoConfigDataSourceTest {
         when(cachedGoConfig.currentConfig()).thenReturn(cruiseConfig);
 
         configWatchList = new GoConfigWatchList(cachedGoConfig, mock(GoConfigService.class));
-        repoConfigDataSource = new GoRepoConfigDataSource(configWatchList, configPluginService, serverHealthService, configRepoService);
+        repoConfigDataSource = new GoRepoConfigDataSource(configWatchList, configPluginService, serverHealthService, configRepoService, goConfigService);
 
         ScmMaterialConfig material = new GitMaterialConfig("http://my.git");
         ConfigRepoConfig configRepoConfig = new ConfigRepoConfig(material, "myplugin");
@@ -331,6 +333,38 @@ public class GoRepoConfigDataSourceTest {
         assertTrue(configWatchList.hasListener(repoConfigDataSource));
     }
 
+    @Test
+    public void shouldMaintainAListOfConfigReposWhichHaveChangedSinceLastParse() {
+        GitMaterialConfig material = new GitMaterialConfig("http://my.git");
+        ConfigRepoConfig configRepoConfig = new ConfigRepoConfig(material, "myplugin");
+        GoConfigWatchList goConfigWatchList = mock(GoConfigWatchList.class);
+        repoConfigDataSource = new GoRepoConfigDataSource(goConfigWatchList, configPluginService, serverHealthService, configRepoService, goConfigService);
+
+        when(goConfigWatchList.getConfigRepoForMaterial(material)).thenReturn(configRepoConfig);
+
+        repoConfigDataSource.onConfigRepoConfigChange(configRepoConfig);
+
+        assertTrue(repoConfigDataSource.hasConfigRepoConfigChangedSinceLastUpdate(material));
+    }
+
+    @Test
+    public void onParseOfConfigRepo_shouldUpdateTheListOfConfigReposWhichHaveChanged() {
+        GitMaterialConfig material = new GitMaterialConfig("http://my.git");
+        ConfigRepoConfig configRepoConfig = new ConfigRepoConfig(material, "myplugin");
+        GoConfigWatchList goConfigWatchList = mock(GoConfigWatchList.class);
+        repoConfigDataSource = new GoRepoConfigDataSource(goConfigWatchList, configPluginService, serverHealthService, configRepoService, goConfigService);
+
+        when(goConfigWatchList.getConfigRepoForMaterial(material)).thenReturn(configRepoConfig);
+        when(goConfigWatchList.hasConfigRepoWithFingerprint(material.getFingerprint())).thenReturn(true);
+
+        repoConfigDataSource.onConfigRepoConfigChange(configRepoConfig);
+
+        assertTrue(repoConfigDataSource.hasConfigRepoConfigChangedSinceLastUpdate(material));
+
+        repoConfigDataSource.onCheckoutComplete(material, folder, getModificationFor("7a8f"));
+
+        assertFalse(repoConfigDataSource.hasConfigRepoConfigChangedSinceLastUpdate(material));
+    }
 
     private Modification getModificationFor(String revision) {
         Modification modification = new Modification();

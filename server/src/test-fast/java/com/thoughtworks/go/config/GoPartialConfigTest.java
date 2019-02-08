@@ -69,9 +69,9 @@ public class GoPartialConfigTest {
         when(cachedGoConfig.currentConfig()).thenReturn(cruiseConfig);
 
         configWatchList = new GoConfigWatchList(cachedGoConfig, mock(GoConfigService.class));
-        repoConfigDataSource = new GoRepoConfigDataSource(configWatchList, configPluginService, serverHealthService, configRepoService);
-        cachedGoPartials = new CachedGoPartials(serverHealthService);
         goConfigService = mock(GoConfigService.class);
+        repoConfigDataSource = new GoRepoConfigDataSource(configWatchList, configPluginService, serverHealthService, configRepoService, goConfigService);
+        cachedGoPartials = new CachedGoPartials(serverHealthService);
         serverHealthService = mock(ServerHealthService.class);
 
         updateCommand = null;

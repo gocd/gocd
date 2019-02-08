@@ -33,7 +33,7 @@ class AgentRepresenterTest {
 
     assertThatJson(json).isEqualTo([
       "_links": [
-        "doc": [
+        "doc" : [
           "href": apiDocsUrl("#agents")
         ],
         "find": [
@@ -43,7 +43,7 @@ class AgentRepresenterTest {
           "href": "http://test.host/go/api/agents/agent1"
         ]
       ],
-      "uuid": "agent1"
+      "uuid"  : "agent1"
     ])
   }
 }

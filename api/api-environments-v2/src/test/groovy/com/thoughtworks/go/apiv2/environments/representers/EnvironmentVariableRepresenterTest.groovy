@@ -16,11 +16,9 @@
 
 package com.thoughtworks.go.apiv2.environments.representers
 
-
 import com.thoughtworks.go.config.EnvironmentVariableConfig
 import com.thoughtworks.go.security.GoCipher
 import org.junit.jupiter.api.Test
-
 
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
@@ -29,27 +27,27 @@ class EnvironmentVariableRepresenterTest {
 
   @Test
   void 'should serialize to JSON'() {
-    EnvironmentVariableConfig config = new EnvironmentVariableConfig("JAVA_HOME","/bin/java")
+    EnvironmentVariableConfig config = new EnvironmentVariableConfig("JAVA_HOME", "/bin/java")
 
     def json = toObjectString({ EnvironmentVariableRepresenter.toJSON(it, config) })
 
     assertThatJson(json).isEqualTo([
-      "name": "JAVA_HOME",
+      "name"  : "JAVA_HOME",
       "secure": false,
-      "value": "/bin/java"
+      "value" : "/bin/java"
     ])
   }
 
   @Test
   void 'should serialize secure environment variable to JSON'() {
-    EnvironmentVariableConfig config = new EnvironmentVariableConfig(new GoCipher(),"secret","password",true)
+    EnvironmentVariableConfig config = new EnvironmentVariableConfig(new GoCipher(), "secret", "password", true)
 
     def json = toObjectString({ EnvironmentVariableRepresenter.toJSON(it, config) })
 
     assertThatJson(json).isEqualTo([
       "encrypted_value": "****",
-      "name": "secret",
-      "secure": true
+      "name"           : "secret",
+      "secure"         : true
     ])
   }
 }

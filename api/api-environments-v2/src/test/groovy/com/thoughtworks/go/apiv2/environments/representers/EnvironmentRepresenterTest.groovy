@@ -32,8 +32,8 @@ class EnvironmentRepresenterTest {
   @Test
   void 'should de-serialize from JSON'() {
     def environmentConfig = [
-      "_links": [
-        "doc": [
+      "_links"               : [
+        "doc" : [
           "href": "https://api.go.cd/current/#environment-config"
         ],
         "find": [
@@ -43,10 +43,10 @@ class EnvironmentRepresenterTest {
           "href": "http://test.host/go/api/admin/environments/env1"
         ]
       ],
-      "agents": [
+      "agents"               : [
         [
           "_links": [
-            "doc": [
+            "doc" : [
               "href": apiDocsUrl("#agents")
             ],
             "find": [
@@ -56,11 +56,11 @@ class EnvironmentRepresenterTest {
               "href": "http://test.host/go/api/agents/agent1"
             ]
           ],
-          "uuid": "agent1"
+          "uuid"  : "agent1"
         ],
         [
           "_links": [
-            "doc": [
+            "doc" : [
               "href": apiDocsUrl("#agents")
             ],
             "find": [
@@ -70,21 +70,21 @@ class EnvironmentRepresenterTest {
               "href": "http://test.host/go/api/agents/agent2"
             ]
           ],
-          "uuid": "agent2"
+          "uuid"  : "agent2"
         ]
       ],
       "environment_variables": [
         [
-          "name": "JAVA_HOME",
+          "name"  : "JAVA_HOME",
           "secure": false,
-          "value": "/bin/java"
+          "value" : "/bin/java"
         ]
       ],
-      "name": "env1",
-      "pipelines": [
+      "name"                 : "env1",
+      "pipelines"            : [
         [
           "_links": [
-            "doc": [
+            "doc" : [
               "href": "https://api.go.cd/current/#pipelines"
             ],
             "find": [
@@ -94,11 +94,11 @@ class EnvironmentRepresenterTest {
               "href": "http://test.host/go/api/pipelines/Pipeline1/history"
             ]
           ],
-          "name": "Pipeline1"
+          "name"  : "Pipeline1"
         ],
         [
           "_links": [
-            "doc": [
+            "doc" : [
               "href": "https://api.go.cd/current/#pipelines"
             ],
             "find": [
@@ -108,7 +108,7 @@ class EnvironmentRepresenterTest {
               "href": "http://test.host/go/api/pipelines/Pipeline2/history"
             ]
           ],
-          "name": "Pipeline2"
+          "name"  : "Pipeline2"
         ]
       ]
     ]
@@ -138,8 +138,8 @@ class EnvironmentRepresenterTest {
     def json = toObjectString({ EnvironmentRepresenter.toJSON(it, env1) })
 
     def response = [
-      "_links": [
-        "doc": [
+      "_links"               : [
+        "doc" : [
           "href": "https://api.go.cd/current/#environment-config"
         ],
         "find": [
@@ -149,10 +149,10 @@ class EnvironmentRepresenterTest {
           "href": "http://test.host/go/api/admin/environments/env1"
         ]
       ],
-      "agents": [
+      "agents"               : [
         [
           "_links": [
-            "doc": [
+            "doc" : [
               "href": apiDocsUrl("#agents")
             ],
             "find": [
@@ -162,11 +162,11 @@ class EnvironmentRepresenterTest {
               "href": "http://test.host/go/api/agents/agent1"
             ]
           ],
-          "uuid": "agent1"
+          "uuid"  : "agent1"
         ],
         [
           "_links": [
-            "doc": [
+            "doc" : [
               "href": apiDocsUrl("#agents")
             ],
             "find": [
@@ -176,21 +176,21 @@ class EnvironmentRepresenterTest {
               "href": "http://test.host/go/api/agents/agent2"
             ]
           ],
-          "uuid": "agent2"
+          "uuid"  : "agent2"
         ]
       ],
       "environment_variables": [
         [
-          "name": "JAVA_HOME",
+          "name"  : "JAVA_HOME",
           "secure": false,
-          "value": "/bin/java"
+          "value" : "/bin/java"
         ]
       ],
-      "name": "env1",
-      "pipelines": [
+      "name"                 : "env1",
+      "pipelines"            : [
         [
           "_links": [
-            "doc": [
+            "doc" : [
               "href": "https://api.go.cd/current/#pipelines"
             ],
             "find": [
@@ -200,11 +200,11 @@ class EnvironmentRepresenterTest {
               "href": "http://test.host/go/api/pipelines/Pipeline1/history"
             ]
           ],
-          "name": "Pipeline1"
+          "name"  : "Pipeline1"
         ],
         [
           "_links": [
-            "doc": [
+            "doc" : [
               "href": "https://api.go.cd/current/#pipelines"
             ],
             "find": [
@@ -214,7 +214,7 @@ class EnvironmentRepresenterTest {
               "href": "http://test.host/go/api/pipelines/Pipeline2/history"
             ]
           ],
-          "name": "Pipeline2"
+          "name"  : "Pipeline2"
         ]
       ]
     ]

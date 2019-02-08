@@ -43,8 +43,8 @@ class PatchEnvironmentRequestRepresenterTest {
             "value": "https://ci.example.com/go"
           ],
           [
-            "name" : "GO_NO_SERVER_URL",
-            "value": "https://ci.example.com/go",
+            "name"  : "GO_NO_SERVER_URL",
+            "value" : "https://ci.example.com/go",
             "secure": true
           ]
         ],

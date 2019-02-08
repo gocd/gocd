@@ -19,9 +19,9 @@ package com.thoughtworks.go.apiv2.environments.representers
 import com.thoughtworks.go.config.CaseInsensitiveString
 import com.thoughtworks.go.config.EnvironmentPipelineConfig
 import org.junit.jupiter.api.Test
+
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
-
 
 class PipelineRepresenterTest {
 
@@ -35,7 +35,7 @@ class PipelineRepresenterTest {
 
     assertThatJson(json).isEqualTo([
       "_links": [
-        "doc": [
+        "doc" : [
           "href": "https://api.go.cd/current/#pipelines"
         ],
         "find": [
@@ -45,7 +45,7 @@ class PipelineRepresenterTest {
           "href": "http://test.host/go/api/pipelines/pipeline1/history"
         ]
       ],
-      "name": "pipeline1"
+      "name"  : "pipeline1"
     ])
   }
 }

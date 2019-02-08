@@ -1,5 +1,5 @@
 ##########################################################################
-# Copyright 2015 ThoughtWorks, Inc.
+# Copyright 2019 ThoughtWorks, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -44,7 +44,7 @@ module ApiV1
 
       def from_hash(data, options={})
         data = data.with_indifferent_access
-        configuration_property.deserialize(data[:key], data[:value], data[:encrypted_value])
+        configuration_property.deserialize(data[:key], data[:value].to_s, data[:encrypted_value])
         configuration_property
       end
     end

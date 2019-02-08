@@ -20,4 +20,8 @@ public class InvalidAccessTokenException extends RuntimeException {
     public InvalidAccessTokenException() {
         super("Invalid Personal Access Token.");
     }
+
+    public InvalidAccessTokenException(String msg) {
+        super(String.format("Invalid Personal Access Token. %s", msg));
+    }
 }

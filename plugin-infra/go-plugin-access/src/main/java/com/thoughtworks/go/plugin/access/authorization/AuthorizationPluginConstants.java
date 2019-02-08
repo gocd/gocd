@@ -29,6 +29,7 @@ public interface AuthorizationPluginConstants {
     String REQUEST_GET_CAPABILITIES = REQUEST_PREFIX + ".get-capabilities";
     String REQUEST_GET_PLUGIN_ICON = REQUEST_PREFIX + ".get-icon";
     String REQUEST_GET_USER_ROLES = REQUEST_PREFIX + ".get-user-roles";
+    String IS_VALID_USER = REQUEST_PREFIX + ".is-valid-user";
 
     String _AUTH_CONFIG_METADATA = "auth-config";
     String _ROLE_CONFIG_METADATA = "role-config";

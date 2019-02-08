@@ -22,6 +22,7 @@ import com.thoughtworks.go.config.PluginRoleConfig;
 import com.thoughtworks.go.config.SecurityAuthConfig;
 import com.thoughtworks.go.plugin.domain.authorization.AuthenticationResponse;
 import com.thoughtworks.go.plugin.domain.authorization.User;
+import com.thoughtworks.go.server.exceptions.InvalidAccessTokenException;
 import com.thoughtworks.go.server.newsecurity.models.AuthenticationToken;
 import com.thoughtworks.go.server.newsecurity.models.Credentials;
 import com.thoughtworks.go.server.security.AuthorityGranter;
@@ -132,6 +133,9 @@ public abstract class AbstractPluginAuthenticationProvider<T extends Credentials
             }
         } catch (OnlyKnownUsersAllowedException e) {
             LOGGER.info("User {} is successfully authenticated. Auto register new user is disabled. Please refer {}", e.getUsername(), CurrentGoCDVersion.docsUrl("configuration/dev_authentication.html#controlling-user-access"));
+            throw e;
+        } catch (InvalidAccessTokenException e) {
+            LOGGER.error("Error while authenticating user using auth_config: {} with the authorization plugin: {} ", authConfig.getId(), pluginId);
             throw e;
         } catch (Exception e) {
             LOGGER.error("Error while authenticating user using auth_config: {} with the authorization plugin: {} ", authConfig.getId(), pluginId);

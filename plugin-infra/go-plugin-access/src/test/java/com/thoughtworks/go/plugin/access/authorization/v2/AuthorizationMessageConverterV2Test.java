@@ -72,4 +72,21 @@ public class AuthorizationMessageConverterV2Test {
                 "  ]\n" +
                 "}");
     }
+
+    @Test
+    public void shouldReturnRequestBodyForDoesUserExistsRequest() {
+        SecurityAuthConfig authConfig = new SecurityAuthConfig("p1", "ldap", ConfigurationPropertyMother.create("key1", false, "value2"));
+
+        String requestBody = converter.isValidUserRequestBody("foo", authConfig);
+
+        assertThatJson(requestBody).isEqualTo("{\n" +
+                "  \"auth_config\": {\n" +
+                "      \"configuration\": {\n" +
+                "        \"key1\": \"value2\"\n" +
+                "      },\n" +
+                "      \"id\": \"p1\"\n" +
+                "    },\n" +
+                "  \"username\": \"foo\"\n" +
+                "}");
+    }
 }

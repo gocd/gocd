@@ -17,11 +17,16 @@
 package com.thoughtworks.go.plugin.infra.plugininfo;
 
 import java.util.List;
+import java.util.Map;
 
 public interface PluginRegistry {
     List<GoPluginDescriptor> plugins();
 
+    void registerExtensions(GoPluginDescriptor descriptor, Map<String, List<String>> requiredExtensionsInfoForThePlugin);
+
     void markPluginInvalid(String pluginId, List<String> message);
+
+    Map<String, List<String>> getExtensionsInfo(String pluginId);
 
     GoPluginDescriptor getPlugin(String pluginId);
 

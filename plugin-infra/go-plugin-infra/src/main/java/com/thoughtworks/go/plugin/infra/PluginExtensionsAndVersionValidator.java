@@ -44,7 +44,7 @@ public interface PluginExtensionsAndVersionValidator {
         }
 
         public String toErrorMessage() {
-            return format("Could not find matching extension version between plugin(%s) and GoCD:\n  %s", pluginId, String.join("\n  ", errors));
+            return format("Extension incompatibility detected between plugin(%s) and GoCD:\n  %s", pluginId, String.join("\n  ", errors));
         }
 
         public boolean hasError() {

@@ -16,6 +16,8 @@
 
 package com.thoughtworks.go.plugin.infra;
 
+import com.thoughtworks.go.plugin.api.GoPlugin;
+import com.thoughtworks.go.plugin.api.GoPluginIdentifier;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import com.thoughtworks.go.plugin.infra.plugininfo.PluginRegistry;
 import com.thoughtworks.go.plugin.infra.service.DefaultPluginHealthService;
@@ -26,14 +28,20 @@ import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.felix.framework.util.FelixConstants;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.osgi.framework.*;
 import org.osgi.framework.launch.Framework;
 
 import java.io.File;
 import java.util.*;
+import java.util.stream.Collectors;
 
+import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
+import static java.util.Collections.singletonMap;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.*;
@@ -60,7 +68,7 @@ class FelixGoPluginOSGiFrameworkTest {
     @BeforeEach
     void setUp() {
         initMocks(this);
-        FelixGoPluginOSGiFramework goPluginOSGiFramework = new FelixGoPluginOSGiFramework(registry, systemEnvironment, pluginExtensionsAndVersionValidator) {
+        FelixGoPluginOSGiFramework goPluginOSGiFramework = new FelixGoPluginOSGiFramework(registry, systemEnvironment) {
             @Override
             protected HashMap<String, String> generateOSGiFrameworkConfig() {
                 HashMap<String, String> config = super.generateOSGiFrameworkConfig();
@@ -70,6 +78,7 @@ class FelixGoPluginOSGiFrameworkTest {
         };
 
         spy = spy(goPluginOSGiFramework);
+        spy.setPluginExtensionsAndVersionValidator(pluginExtensionsAndVersionValidator);
         when(framework.getBundleContext()).thenReturn(bundleContext);
         when(registry.getPlugin(TEST_SYMBOLIC_NAME)).thenReturn(buildExpectedDescriptor(TEST_SYMBOLIC_NAME));
         doReturn(framework).when(spy).getFelixFramework(any());
@@ -269,6 +278,59 @@ class FelixGoPluginOSGiFrameworkTest {
     }
 
     @Test
+    void shouldRegisterExtensionInfosWithPluginRegistry() throws BundleException {
+        GoPluginDescriptor pluginDescriptor = mock(GoPluginDescriptor.class);
+        final PluginExtensionsAndVersionValidator.ValidationResult result = mock(PluginExtensionsAndVersionValidator.ValidationResult.class);
+        when(pluginDescriptor.id()).thenReturn("some-id");
+        when(pluginDescriptor.bundle()).thenReturn(bundle);
+        when(pluginDescriptor.bundleLocation()).thenReturn(new File("foo"));
+        when(bundleContext.installBundle(any(String.class))).thenReturn(bundle);
+        when(pluginExtensionsAndVersionValidator.validate(pluginDescriptor)).thenReturn(result);
+        when(result.hasError()).thenReturn(false);
+        doReturn(singletonMap("elastic-agent", singletonList("1.0"))).when(spy).getExtensionsInfoFromThePlugin("some-id");
+
+        spy.start();
+
+        spy.loadPlugin(pluginDescriptor);
+
+        InOrder inOrder = inOrder(bundle, framework, registry, pluginExtensionsAndVersionValidator);
+        inOrder.verify(framework, times(2)).getBundleContext();
+        inOrder.verify(bundle).start();
+        inOrder.verify(registry).registerExtensions(pluginDescriptor, singletonMap("elastic-agent", singletonList("1.0")));
+        inOrder.verify(pluginExtensionsAndVersionValidator).validate(pluginDescriptor);
+    }
+
+    @Nested
+    class GetExtensionsInfoFromThePlugin {
+        @Test
+        void shouldGetExtensionsInfoForThePlugin() throws Exception {
+            when(registry.getPlugin(anyString())).thenReturn(mock(GoPluginDescriptor.class));
+
+            GoPlugin firstService = mock(GoPlugin.class);
+            GoPlugin secondService = mock(GoPlugin.class);
+
+            final GoPluginIdentifier firstPluginIdentifier = mock(GoPluginIdentifier.class);
+            when(firstService.pluginIdentifier()).thenReturn(firstPluginIdentifier);
+            when(firstPluginIdentifier.getExtension()).thenReturn("elastic-agent");
+            when(firstPluginIdentifier.getSupportedExtensionVersions()).thenReturn(asList("1.0", "2.0"));
+
+            final GoPluginIdentifier secondPluginIdentifier = mock(GoPluginIdentifier.class);
+            when(secondService.pluginIdentifier()).thenReturn(secondPluginIdentifier);
+            when(secondPluginIdentifier.getExtension()).thenReturn("authorization");
+            when(secondPluginIdentifier.getSupportedExtensionVersions()).thenReturn(singletonList("1.0"));
+
+            registerService("plugin-one", firstService, secondService);
+            spy.start();
+
+            final Map<String, List<String>> info = spy.getExtensionsInfoFromThePlugin("plugin-one");
+
+            assertThat(info).hasSize(2)
+                    .containsEntry("elastic-agent", asList("1.0", "2.0"))
+                    .containsEntry("authorization", singletonList("1.0"));
+        }
+    }
+
+    @Test
     void shouldNotifyAllPluginChangeListenerOncePluginIsLoaded() throws BundleException {
         GoPluginDescriptor pluginDescriptor = mock(GoPluginDescriptor.class);
         final PluginExtensionsAndVersionValidator.ValidationResult result = mock(PluginExtensionsAndVersionValidator.ValidationResult.class);
@@ -351,15 +413,29 @@ class FelixGoPluginOSGiFrameworkTest {
         when(registry.getPlugin(pluginID)).thenReturn(buildExpectedDescriptor(pluginID));
 
         String propertyFormat = String.format("(&(%s=%s)(%s=%s))", Constants.BUNDLE_SYMBOLICNAME, pluginID, Constants.BUNDLE_CATEGORY, extension);
-        when(bundleContext.getServiceReferences(SomeInterface.class, propertyFormat)).thenReturn(Collections.singletonList(reference));
+        when(bundleContext.getServiceReferences(SomeInterface.class, propertyFormat)).thenReturn(singletonList(reference));
 
-        when(bundleContext.getServiceReferences(SomeInterface.class, null)).thenReturn(Collections.singletonList(reference));
+        when(bundleContext.getServiceReferences(SomeInterface.class, null)).thenReturn(singletonList(reference));
+    }
+
+    private void registerService(String pluginID, GoPlugin... someInterfaces) throws InvalidSyntaxException {
+        final List<ServiceReference<GoPlugin>> serviceReferences = Arrays.stream(someInterfaces).map(someInterface -> {
+            ServiceReference<GoPlugin> reference = mock(ServiceReference.class);
+            when(reference.getBundle()).thenReturn(bundle);
+            when(bundle.getSymbolicName()).thenReturn(pluginID);
+            when(bundleContext.getService(reference)).thenReturn(someInterface);
+            when(registry.getPlugin(pluginID)).thenReturn(buildExpectedDescriptor(pluginID));
+            return reference;
+        }).collect(Collectors.toList());
+
+        String propertyFormat = String.format("(&(%s=%s))", Constants.BUNDLE_SYMBOLICNAME, pluginID);
+        when(bundleContext.getServiceReferences(GoPlugin.class, propertyFormat)).thenReturn(serviceReferences);
     }
 
     private GoPluginDescriptor buildExpectedDescriptor(String pluginID) {
         return new GoPluginDescriptor(pluginID, "1",
                 new GoPluginDescriptor.About("Plugin Descriptor Validator", "1.0.1", "17.12", "Validates its own plugin descriptor",
-                        new GoPluginDescriptor.Vendor("ThoughtWorks GoCD Team", "www.thoughtworks.com"), Arrays.asList("Linux", "Windows")), null, null, true
+                        new GoPluginDescriptor.Vendor("ThoughtWorks GoCD Team", "www.thoughtworks.com"), asList("Linux", "Windows")), null, null, true
         );
     }
 

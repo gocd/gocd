@@ -35,6 +35,8 @@ public interface PluginManager {
 
     void addPluginChangeListener(PluginChangeListener pluginChangeListener);
 
+    void setPluginExtensionsAndVersionValidator(PluginExtensionsAndVersionValidator pluginExtensionsAndVersionValidator);
+
     GoPluginApiResponse submitTo(String pluginId, String extensionType, GoPluginApiRequest apiRequest);
 
     boolean isPluginOfType(String extension, String pluginId);

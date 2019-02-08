@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.server.initializers;
 
+import com.thoughtworks.go.plugin.infra.PluginExtensionsAndVersionValidator;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.ZipUtil;
@@ -41,10 +42,11 @@ public class PluginsInitializer implements Initializer {
     private ZipUtil zipUtil;
 
     @Autowired
-    public PluginsInitializer(PluginManager pluginManager, SystemEnvironment systemEnvironment, ZipUtil zipUtil) {
+    public PluginsInitializer(PluginManager pluginManager, SystemEnvironment systemEnvironment, ZipUtil zipUtil, PluginExtensionsAndVersionValidator pluginExtensionsAndVersionValidator) {
         this.pluginManager = pluginManager;
         this.systemEnvironment = systemEnvironment;
         this.zipUtil = zipUtil;
+        this.pluginManager.setPluginExtensionsAndVersionValidator(pluginExtensionsAndVersionValidator);
     }
 
     @Override

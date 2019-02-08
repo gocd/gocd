@@ -42,10 +42,7 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = {
-        "classpath:/applicationContext-plugin-infra.xml",
-        "classpath:testPluginVersionValidatorConfigurer.xml"
-})
+@ContextConfiguration(locations = {"classpath:/applicationContext-plugin-infra.xml"})
 @DirtiesContext
 public class DefaultPluginManagerIntegrationTest {
     @ClassRule
@@ -107,7 +104,7 @@ public class DefaultPluginManagerIntegrationTest {
     }
 
     @Before
-    public void setUpPluginInfrastructure() throws IOException {
+    public void setUpPluginInfrastructure() {
         try {
             pluginManager.startInfrastructure(true);
         } catch (Exception e) {
@@ -118,7 +115,7 @@ public class DefaultPluginManagerIntegrationTest {
     }
 
     @After
-    public void tearDown() throws Exception {
+    public void tearDown() {
         pluginManager.stopInfrastructure();
     }
 

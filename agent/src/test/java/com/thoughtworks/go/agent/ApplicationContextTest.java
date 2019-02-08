@@ -33,7 +33,7 @@ public class ApplicationContextTest {
     AgentController controller;
 
     @Test
-    public void shouldLoadApplicationContext() throws Exception {
+    public void shouldLoadApplicationContext() {
         assertThat(controller, is(notNullValue()));
     }
 

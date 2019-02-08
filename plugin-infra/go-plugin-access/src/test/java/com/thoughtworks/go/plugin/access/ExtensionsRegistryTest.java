@@ -17,7 +17,6 @@
 package com.thoughtworks.go.plugin.access;
 
 import com.thoughtworks.go.plugin.access.common.settings.GoPluginExtension;
-import com.thoughtworks.go.plugin.infra.PluginManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -33,8 +32,6 @@ import static org.mockito.MockitoAnnotations.initMocks;
 
 class ExtensionsRegistryTest {
     @Mock
-    private PluginManager pluginManager;
-    @Mock
     private GoPluginExtension elasticExtension;
     @Mock
     private GoPluginExtension authorizationExtension;
@@ -43,7 +40,7 @@ class ExtensionsRegistryTest {
     @BeforeEach
     void setUp() {
         initMocks(this);
-        registry = new ExtensionsRegistry(pluginManager);
+        registry = new ExtensionsRegistry();
 
         when(authorizationExtension.extensionName()).thenReturn(AUTHORIZATION_EXTENSION);
         when(authorizationExtension.goSupportedVersions()).thenReturn(Arrays.asList("1.0", "2.0"));
@@ -53,28 +50,12 @@ class ExtensionsRegistryTest {
     }
 
     @Test
-    void shouldReturnFalseWhenNoExtensionRegisteredForGivenName() {
-        assertThat(registry.supportsExtensionVersion("Some-extension", "1.0")).isFalse();
-    }
-
-    @Test
     void shouldRegisterExtensionWithSupportedVersions() {
-        when(pluginManager.resolveExtensionVersion("docker", ELASTIC_AGENT_EXTENSION, Collections.singletonList("2.0")))
-                .thenReturn("2.0");
-
         registry.registerExtension(elasticExtension);
 
-        assertThat(registry.supportsExtensionVersion("docker", ELASTIC_AGENT_EXTENSION)).isTrue();
-    }
-
-    @Test
-    void shouldReturnFalseWhenRegisteredExtensionDoesNotSupportSpecifiedVersions() {
-        when(pluginManager.resolveExtensionVersion("docker", ELASTIC_AGENT_EXTENSION, Collections.singletonList("2.0")))
-                .thenThrow(new RuntimeException("Not supported by the plugin."));
-
-        registry.registerExtension(elasticExtension);
-
-        assertThat(registry.supportsExtensionVersion("docker", ELASTIC_AGENT_EXTENSION)).isFalse();
+        assertThat(registry.allRegisteredExtensions()).hasSize(1).contains(ELASTIC_AGENT_EXTENSION);
+        assertThat(registry.gocdSupportedExtensionVersions(ELASTIC_AGENT_EXTENSION))
+                .hasSize(1).contains("2.0");
     }
 
     @Test

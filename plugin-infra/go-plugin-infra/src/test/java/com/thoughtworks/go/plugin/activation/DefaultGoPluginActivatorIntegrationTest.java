@@ -76,7 +76,7 @@ public class DefaultGoPluginActivatorIntegrationTest {
         registry = new StubOfDefaultPluginRegistry();
         PluginExtensionsAndVersionValidator pluginExtensionsAndVersionValidator = mock(PluginExtensionsAndVersionValidator.class);
         when(pluginExtensionsAndVersionValidator.validate(any())).thenReturn(new ValidationResult("foo"));
-        framework = new FelixGoPluginOSGiFramework(registry, new SystemEnvironment(), pluginExtensionsAndVersionValidator) {
+        framework = new FelixGoPluginOSGiFramework(registry, new SystemEnvironment()) {
             @Override
             protected HashMap<String, String> generateOSGiFrameworkConfig() {
                 HashMap<String, String> config = super.generateOSGiFrameworkConfig();
@@ -235,8 +235,7 @@ public class DefaultGoPluginActivatorIntegrationTest {
 
     @Test
     public void shouldRegisterOneInstanceForEachExtensionPointAnExtensionImplements() throws Exception {
-        BundleContext installedBundledContext = bundleContext(installBundleWithClasses(TestGoPluginExtensionThatImplementsTwoExtensionPoints.class,
-                DummyTestPlugin.class));
+        BundleContext installedBundledContext = bundleContext(installBundleWithClasses(TestGoPluginExtensionThatImplementsTwoExtensionPoints.class, DummyTestPlugin.class));
 
         ServiceReference<?>[] references = installedBundledContext.getServiceReferences(GoPlugin.class.getName(), null);
         String[] services = toSortedServiceClassNames(installedBundledContext, references);

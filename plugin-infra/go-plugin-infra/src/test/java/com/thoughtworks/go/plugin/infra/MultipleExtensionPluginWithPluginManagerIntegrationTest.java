@@ -42,10 +42,7 @@ import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = {
-        "classpath:/applicationContext-plugin-infra.xml",
-        "classpath:testPluginVersionValidatorConfigurer.xml"
-})
+@ContextConfiguration(locations = {"classpath:/applicationContext-plugin-infra.xml"})
 @DirtiesContext
 public class MultipleExtensionPluginWithPluginManagerIntegrationTest {
     @ClassRule

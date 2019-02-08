@@ -17,9 +17,6 @@
 package com.thoughtworks.go.plugin.access;
 
 import com.thoughtworks.go.plugin.access.common.settings.GoPluginExtension;
-import com.thoughtworks.go.plugin.infra.PluginManager;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
@@ -32,28 +29,9 @@ import static java.lang.String.format;
 @Component
 public class ExtensionsRegistry {
     private final Map<String, GoPluginExtension> registry = new HashMap<>();
-    private final PluginManager pluginManager;
-
-    @Autowired
-    public ExtensionsRegistry(@Lazy PluginManager pluginManager) {
-        this.pluginManager = pluginManager;
-    }
 
     public void registerExtension(GoPluginExtension extension) {
         registry.put(extension.extensionName(), extension);
-    }
-
-    public boolean supportsExtensionVersion(String pluginId, String extensionType) {
-        if (!registry.containsKey(extensionType)) {
-            return false;
-        }
-
-        try {
-            pluginManager.resolveExtensionVersion(pluginId, extensionType, registry.get(extensionType).goSupportedVersions());
-            return true;
-        } catch (RuntimeException e) {
-            return false;
-        }
     }
 
     public Set<String> allRegisteredExtensions() {
@@ -66,9 +44,5 @@ public class ExtensionsRegistry {
         }
 
         return registry.get(extensionType).goSupportedVersions();
-    }
-
-    public PluginManager getPluginManager() {
-        return pluginManager;
     }
 }

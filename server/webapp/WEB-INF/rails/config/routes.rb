@@ -280,12 +280,16 @@ Rails.application.routes.draw do
 
   scope :api, as: :apiv4, format: false do
     api_version(:module => 'ApiV4', header: {name: 'Accept', value: 'application/vnd.go.cd.v4+json'}) do
+      match '*url', via: :all, to: 'errors#not_found'
+    end
+  end
+
+  scope :api, as: :apiv5, format: false do
+    api_version(:module => 'ApiV5', header: {name: 'Accept', value: 'application/vnd.go.cd.v5+json'}) do
 
       namespace :admin do
         resources :plugin_info, controller: :plugin_infos, param: :id, only: [:index, :show], constraints: {id: PLUGIN_ID_FORMAT}
       end
-
-      match '*url', via: :all, to: 'errors#not_found'
     end
   end
 

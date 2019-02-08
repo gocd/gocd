@@ -45,11 +45,11 @@
 
     this.init = function init() {
       new XhrPromise({
-        url: Routes.apiv4AdminPluginInfoIndexPath() + "?type=configrepo",
+        url: Routes.apiv5AdminPluginInfoIndexPath() + "?type=configrepo",
         type: "GET",
         responseType: "json",
         headers: {
-          Accept: "application/vnd.go.cd.v4+json"
+          Accept: "application/vnd.go.cd.v5+json"
         }
       }).then(function (res) {
         plugins = PipelineExport.filterPlugins(res.data._embedded.plugin_info);

@@ -138,6 +138,10 @@ describe("ConfigReposModal", () => {
           view: {
             template: "<div class=\"form_item_block\">\n    <label>GoCD pipeline files global pattern:</label>\n    <input type=\"text\" ng-model=\"pipeline_pattern\" ng-required=\"false\" placeholder=\"**/*.gopipeline.json\"/>\n    <span class=\"form_error\" ng-show=\"GOINPUTNAME[pipeline_pattern].$error.server\">{{ GOINPUTNAME[pipeline_pattern].$error.server }}</span>\n</div>\n<div class=\"form_item_block\">\n    <label>GoCD environment files global pattern:</label>\n    <input type=\"text\" ng-model=\"environment_pattern\" ng-required=\"false\" placeholder=\"**/*.goenvironment.json\"/>\n    <span class=\"form_error\" ng-show=\"GOINPUTNAME[environment_pattern].$error.server\">{{ GOINPUTNAME[environment_pattern].$error.server }}</span>\n</div>\n"
           }
+        },
+        capabilities: {
+          supports_pipeline_export: true,
+          supports_parse_content: true
         }
       }
     ]

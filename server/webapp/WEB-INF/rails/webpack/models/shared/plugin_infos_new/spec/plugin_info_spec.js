@@ -582,6 +582,10 @@ describe('PluginInfos New', () => {
           "view": {
             "template": "config repo plugin view"
           }
+        },
+        "capabilities": {
+          "supports_pipeline_export": true,
+          "supports_parse_content": false
         }
       }
     ]
@@ -932,6 +936,9 @@ describe('PluginInfos New', () => {
       verifyBasicProperties(pluginInfo, pluginInfoWithConfigRepoExtension);
       const extension = pluginInfo.extensionOfType(ExtensionType.CONFIG_REPO);
 
+      expect(extension.capabilities.supportsPipelineExport).toBeTruthy;
+      expect(extension.capabilities.supportsParseContent).toBeFalsy;
+
       expect(extension.pluginSettings.viewTemplate()).toEqual(pluginInfoWithConfigRepoExtension.extensions[0].plugin_settings.view.template);
       expect(extension.pluginSettings.configurations().length).toEqual(1);
       const keys = extension.pluginSettings.configurations().map((config) => config.key);
@@ -940,7 +947,6 @@ describe('PluginInfos New', () => {
         secure:   false,
         required: false
       });
-
     });
   });
 

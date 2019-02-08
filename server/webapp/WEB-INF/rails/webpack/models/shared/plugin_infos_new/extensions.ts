@@ -17,6 +17,7 @@
 import {Stream} from "mithril/stream";
 import {AnalyticsCapabilities} from "./analytics_plugin_capabilities";
 import {AuthCapabilities} from "./authorization_plugin_capabilities";
+import {ConfigRepoCapabilities} from "./configrepo_plugin_capabilities";
 import {ElasticPluginCapabilities} from "./elastic_plugin_capabilities";
 import {ExtensionType} from "./extension_type";
 
@@ -141,13 +142,15 @@ export class ArtifactSettings extends Extension {
 }
 
 class ConfigRepoSettings extends Extension {
+  readonly capabilities: ConfigRepoCapabilities;
 
-  constructor(pluginSettings?: PluginSettings) {
+  constructor(capabilities: ConfigRepoCapabilities, pluginSettings?: PluginSettings) {
     super(ExtensionType.CONFIG_REPO, pluginSettings);
+    this.capabilities = capabilities;
   }
 
   static fromJSON(data: any) {
-    return new ConfigRepoSettings(PluginSettings.fromJSON(data.plugin_settings));
+    return new ConfigRepoSettings(ConfigRepoCapabilities.fromJSON(data.capabilities), PluginSettings.tryParsing(data));
   }
 }
 

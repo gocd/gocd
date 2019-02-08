@@ -580,6 +580,10 @@ describe('PluginInfos', () => {
           "view": {
             "template": "config repo plugin view"
           }
+        },
+        "capabilities": {
+          "supports_pipeline_export": true,
+          "supports_parse_content": true
         }
       }
     ]
@@ -954,7 +958,10 @@ describe('PluginInfos', () => {
     it("should deserialize", () => {
       const pluginInfo = PluginInfos.PluginInfo.fromJSON(pluginInfoWithConfigRepoExtension);
       verifyBasicProperties(pluginInfo, pluginInfoWithConfigRepoExtension);
-      expect(pluginInfo.extensions().configrepo).toEqual({});
+
+      const extensionInfo = pluginInfo.extensions().configrepo;
+      expect(extensionInfo.capabilities().supportsPipelineExport()).toBeTruthy;
+      expect(extensionInfo.capabilities().supportsParseContent()).toBeTruthy;
 
       expect(pluginInfo.pluginSettings().viewTemplate()).toEqual(pluginInfoWithConfigRepoExtension.extensions[0].plugin_settings.view.template);
       expect(pluginInfo.pluginSettings().configurations().countConfiguration()).toEqual(1);
@@ -963,7 +970,6 @@ describe('PluginInfos', () => {
         secure:   false,
         required: false
       });
-
     });
   });
 

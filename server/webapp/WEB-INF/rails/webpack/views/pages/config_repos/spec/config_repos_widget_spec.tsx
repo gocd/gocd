@@ -425,6 +425,10 @@ describe("ConfigReposWidget", () => {
             view: {
               template: "config repo plugin view"
             }
+          },
+          capabilities: {
+            supports_pipeline_export: true,
+            supports_parse_content: true
           }
         }
       ]

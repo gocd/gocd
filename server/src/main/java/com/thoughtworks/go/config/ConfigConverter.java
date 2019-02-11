@@ -41,6 +41,7 @@ import com.thoughtworks.go.domain.scm.SCMs;
 import com.thoughtworks.go.plugin.configrepo.contract.*;
 import com.thoughtworks.go.plugin.configrepo.contract.material.*;
 import com.thoughtworks.go.plugin.configrepo.contract.tasks.*;
+import com.thoughtworks.go.security.CryptoException;
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.command.CommandLine;
 import com.thoughtworks.go.util.command.HgUrlArgument;
@@ -124,7 +125,17 @@ public class ConfigConverter {
 
     public EnvironmentVariableConfig toEnvironmentVariableConfig(CREnvironmentVariable crEnvironmentVariable) {
         if (crEnvironmentVariable.hasEncryptedValue()) {
+            // encrypted value is not null or empty string
             return new EnvironmentVariableConfig(cipher, crEnvironmentVariable.getName(), crEnvironmentVariable.getEncryptedValue());
+        } else if(!crEnvironmentVariable.hasValue() && "".equals(crEnvironmentVariable.getEncryptedValue())) {
+            // encrypted value is an empty string - user wants an empty, but secure value, possibly to override at trigger-time
+            String encryptedValue = null;
+            try {
+                encryptedValue = cipher.encrypt("");
+            } catch (CryptoException e) {
+                throw new RuntimeException("Encryption of empty secure variable failed", e);
+            }
+            return new EnvironmentVariableConfig(cipher, crEnvironmentVariable.getName(), encryptedValue);
         } else {
             String value = crEnvironmentVariable.getValue();
             if(StringUtils.isBlank(value))

@@ -103,6 +103,8 @@ public class ConfigConverterTest {
         String encryptedText = "secret";
         when(goCipher.decrypt("encryptedvalue")).thenReturn(encryptedText);
         when(goCipher.encrypt("secret")).thenReturn("encryptedvalue");
+        when(goCipher.encrypt("")).thenReturn("encryptedEmptyString");
+        when(goCipher.decrypt("encryptedEmptyString")).thenReturn("");
 
         filter = new ArrayList<>();
         filter.add("filter");
@@ -136,7 +138,7 @@ public class ConfigConverterTest {
     }
 
     @Test
-    public void shouldConvertEnvironmentVariableWhenNotSecure() {
+    public void shouldConvertEnvironmentVariableToInsecureWhenValueIsNotBlank() {
         CREnvironmentVariable crEnvironmentVariable = new CREnvironmentVariable("key1", "value");
         EnvironmentVariableConfig result = configConverter.toEnvironmentVariableConfig(crEnvironmentVariable);
         assertThat(result.getValue(), is("value"));
@@ -145,20 +147,29 @@ public class ConfigConverterTest {
     }
 
     @Test
-    public void shouldConvertNullEnvironmentVariableWhenNotSecure() {
-        CREnvironmentVariable crEnvironmentVariable = new CREnvironmentVariable("key1", null);
-        EnvironmentVariableConfig result = configConverter.toEnvironmentVariableConfig(crEnvironmentVariable);
-        assertThat(result.getValue(), is(""));
-        assertThat(result.getName(), is("key1"));
-        assertThat(result.isSecure(), is(false));
-    }
-
-    @Test
-    public void shouldConvertEnvironmentVariableWhenSecure() {
+    public void shouldConvertEnvironmentVariableToSecureWhenEncryptedValueIsNotBlank() {
         CREnvironmentVariable crEnvironmentVariable = new CREnvironmentVariable("key1", null, "encryptedvalue");
         EnvironmentVariableConfig result = configConverter.toEnvironmentVariableConfig(crEnvironmentVariable);
         assertThat(result.isSecure(), is(true));
         assertThat(result.getValue(), is("secret"));
+        assertThat(result.getName(), is("key1"));
+    }
+
+    @Test
+    public void shouldConvertEnvironmentVariableToSecureWhenEncryptedValueIsEmptyString() {
+        CREnvironmentVariable crEnvironmentVariable = new CREnvironmentVariable("key1", null, "");
+        EnvironmentVariableConfig result = configConverter.toEnvironmentVariableConfig(crEnvironmentVariable);
+        assertThat(result.isSecure(), is(true));
+        assertThat(result.getValue(), is(""));
+        assertThat(result.getName(), is("key1"));
+    }
+
+    @Test
+    public void shouldConvertEnvironmentVariableToInsecureWhenValueAndEncryptedValueIsNull() {
+        CREnvironmentVariable crEnvironmentVariable = new CREnvironmentVariable("key1", null, null);
+        EnvironmentVariableConfig result = configConverter.toEnvironmentVariableConfig(crEnvironmentVariable);
+        assertThat(result.isSecure(), is(false));
+        assertThat(result.getValue(), is(""));
         assertThat(result.getName(), is("key1"));
     }
 

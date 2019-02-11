@@ -44,7 +44,6 @@ import static com.thoughtworks.go.plugin.domain.common.PluginConstants.AUTHORIZA
 
 @Component
 public class AuthorizationExtension extends AbstractExtension {
-
     private final HashMap<String, AuthorizationMessageConverter> messageHandlerMap = new HashMap<>();
 
     @Autowired
@@ -225,6 +224,11 @@ public class AuthorizationExtension extends AbstractExtension {
         });
     }
 
+    public boolean supportsPluginAPICallsRequiredForAccessToken(SecurityAuthConfig authConfig) {
+        String version = pluginManager.resolveExtensionVersion(authConfig.getPluginId(), AUTHORIZATION_EXTENSION, goSupportedVersions());
+        return !AuthorizationMessageConverterV1.VERSION.equals(version);
+    }
+
     public boolean isValidUser(String pluginId, String username, SecurityAuthConfig authConfig) {
         try {
             return pluginRequestHelper.submitRequest(pluginId, IS_VALID_USER, new DefaultPluginInteractionCallback<Boolean>() {
@@ -241,7 +245,6 @@ public class AuthorizationExtension extends AbstractExtension {
         } catch (Exception e) { //any error happened while verifying the user existence will lead to assume user does not exists.
             return false;
         }
-
     }
 
     public AuthorizationMessageConverter getMessageConverter(String version) {

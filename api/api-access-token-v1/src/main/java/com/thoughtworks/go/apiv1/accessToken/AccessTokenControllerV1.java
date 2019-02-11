@@ -23,11 +23,14 @@ import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
 import com.thoughtworks.go.api.util.GsonTransformer;
 import com.thoughtworks.go.apiv1.accessToken.representers.AccessTokenRepresenter;
 import com.thoughtworks.go.apiv1.accessToken.representers.AccessTokensRepresenter;
+import com.thoughtworks.go.config.SecurityAuthConfig;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.domain.AccessToken;
+import com.thoughtworks.go.plugin.access.authorization.AuthorizationExtension;
 import com.thoughtworks.go.server.newsecurity.models.AuthenticationToken;
 import com.thoughtworks.go.server.newsecurity.utils.SessionUtils;
 import com.thoughtworks.go.server.service.AccessTokenService;
+import com.thoughtworks.go.server.service.SecurityAuthConfigService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.spring.SparkSpringController;
@@ -46,12 +49,16 @@ public class AccessTokenControllerV1 extends ApiController implements SparkSprin
 
     private final ApiAuthenticationHelper apiAuthenticationHelper;
     private AccessTokenService accessTokenService;
+    private SecurityAuthConfigService authConfigService;
+    private AuthorizationExtension extension;
 
     @Autowired
-    public AccessTokenControllerV1(ApiAuthenticationHelper apiAuthenticationHelper, AccessTokenService AccessTokenService) {
+    public AccessTokenControllerV1(ApiAuthenticationHelper apiAuthenticationHelper, AccessTokenService AccessTokenService, SecurityAuthConfigService authConfigService, AuthorizationExtension extension) {
         super(ApiVersion.v1);
         this.apiAuthenticationHelper = apiAuthenticationHelper;
         this.accessTokenService = AccessTokenService;
+        this.authConfigService = authConfigService;
+        this.extension = extension;
     }
 
     @Override
@@ -91,12 +98,19 @@ public class AccessTokenControllerV1 extends ApiController implements SparkSprin
     public String createAccessToken(Request request, Response response) throws Exception {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
 
+        String authConfigId = currentUserAuthConfigId(request);
+        SecurityAuthConfig authConfig = authConfigService.findProfile(authConfigId);
+        if (!extension.supportsPluginAPICallsRequiredForAccessToken(authConfig)) {
+            result.unprocessableEntity(String.format("Can not create Access Token. Please upgrade '%s' plugin to use Access Token Feature.", authConfig.getPluginId()));
+            return renderHTTPOperationResult(result, request, response);
+        }
+
         final JsonReader reader = GsonTransformer.getInstance().jsonReaderFrom(request.body());
 
         String tokenName = reader.getString("name");
         String tokenDescription = reader.optString("description").orElse(null);
 
-        AccessToken created = accessTokenService.create(tokenName, tokenDescription, currentUsername(), currentUserAuthConfigId(request), result);
+        AccessToken created = accessTokenService.create(tokenName, tokenDescription, currentUsername(), authConfigId, result);
 
         if (result.isSuccessful()) {
             return renderAccessToken(request, response, created, true);

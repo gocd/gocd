@@ -21,6 +21,8 @@ import com.thoughtworks.go.config.SecurityAuthConfig;
 import com.thoughtworks.go.config.SecurityAuthConfigs;
 import com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother;
 import com.thoughtworks.go.plugin.access.ExtensionsRegistry;
+import com.thoughtworks.go.plugin.access.authorization.v1.AuthorizationMessageConverterV1;
+import com.thoughtworks.go.plugin.access.authorization.v2.AuthorizationMessageConverterV2;
 import com.thoughtworks.go.plugin.access.common.AbstractExtension;
 import com.thoughtworks.go.plugin.api.request.GoPluginApiRequest;
 import com.thoughtworks.go.plugin.api.response.DefaultGoPluginApiResponse;
@@ -89,6 +91,26 @@ public class AuthorizationExtensionTest {
         assertRequest(requestArgumentCaptor.getValue(), AUTHORIZATION_EXTENSION, "1.0", REQUEST_GET_CAPABILITIES, null);
         assertThat(capabilities.getSupportedAuthType().toString()).isEqualTo(SupportedAuthType.Password.toString());
         assertThat(capabilities.canSearch()).isEqualTo(true);
+    }
+
+    @Test
+    public void shouldReturnFalseForSupportsValidatingUserExistenceForAuthorizationExtensionV1() throws Exception {
+        String pluginId = "cd.go.ldap";
+        when(pluginManager.resolveExtensionVersion(pluginId, AUTHORIZATION_EXTENSION, SUPPORTED_VERSIONS)).thenReturn(AuthorizationMessageConverterV1.VERSION);
+        SecurityAuthConfig authConfig = new SecurityAuthConfig("ldap", pluginId, ConfigurationPropertyMother.create("url", false, "some-url"));
+
+        boolean expected = authorizationExtension.supportsPluginAPICallsRequiredForAccessToken(authConfig);
+        assertThat(expected).isFalse();
+    }
+
+    @Test
+    public void shouldReturnTrueForSupportsValidatingUserExistenceForAuthorizationExtensionV2() throws Exception {
+        String pluginId = "cd.go.ldap";
+        when(pluginManager.resolveExtensionVersion(pluginId, AUTHORIZATION_EXTENSION, SUPPORTED_VERSIONS)).thenReturn(AuthorizationMessageConverterV2.VERSION);
+        SecurityAuthConfig authConfig = new SecurityAuthConfig("ldap", pluginId, ConfigurationPropertyMother.create("url", false, "some-url"));
+
+        boolean expected = authorizationExtension.supportsPluginAPICallsRequiredForAccessToken(authConfig);
+        assertThat(expected).isTrue();
     }
 
     @Test

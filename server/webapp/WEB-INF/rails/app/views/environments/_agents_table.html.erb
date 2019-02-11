@@ -37,11 +37,17 @@ Util.on_load(function() {
             lastChecked = $this;
         });
     });
+
+  jQuery(".has_go_tip_right").tipTip({
+    activation:      "click",
+    maxWidth:        "auto",
+    edgeOffset:      10,
+    defaultPosition: "right",
+    keepAlive:       false
+  });
 })
 
 </script>
-
-<%= render :partial => 'shared/convert_tool_tips.html', :locals => {:scope => {}} %>
 <table id='agent_details' class='agents list_table <%=" sortable_table" if scope[:sortable_columns]%> selectable_table'>
     <thead>
     <tr class='agent_header'>

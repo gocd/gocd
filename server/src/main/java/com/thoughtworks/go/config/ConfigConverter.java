@@ -136,8 +136,7 @@ public class ConfigConverter {
                 throw new RuntimeException("Encryption of empty secure variable failed", e);
             }
             return new EnvironmentVariableConfig(cipher, crEnvironmentVariable.getName(), encryptedValue);
-        }
-        else {
+        } else {
             String value = crEnvironmentVariable.getValue();
             if(StringUtils.isBlank(value))
                 value = "";

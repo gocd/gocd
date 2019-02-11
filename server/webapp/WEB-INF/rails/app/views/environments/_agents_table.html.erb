@@ -9,7 +9,7 @@
 <script type="text/javascript">
 Util.on_load(function() {
     jQuery('#select_all_agents').change(function(){
-          jQuery('.agent_select').prop("checked", $(this).checked);
+          jQuery('.agent_select:not([disabled])').prop("checked", $(this).checked);
     });
 
     var lastChecked = null;

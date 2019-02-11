@@ -135,4 +135,8 @@ public class CREnvironmentVariable extends CRBase {
     public boolean hasEncryptedValue() {
         return !StringUtils.isBlank(encrypted_value);
     }
+
+    public boolean hasValue() {
+        return !StringUtils.isBlank(value);
+    }
 }

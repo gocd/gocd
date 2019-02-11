@@ -19,6 +19,7 @@ package com.thoughtworks.go.plugin.access.authorization;
 import com.thoughtworks.go.config.PluginRoleConfig;
 import com.thoughtworks.go.config.SecurityAuthConfig;
 import com.thoughtworks.go.plugin.access.DefaultPluginInteractionCallback;
+import com.thoughtworks.go.plugin.access.ExtensionsRegistry;
 import com.thoughtworks.go.plugin.access.PluginRequestHelper;
 import com.thoughtworks.go.plugin.access.authorization.v1.AuthorizationMessageConverterV1;
 import com.thoughtworks.go.plugin.access.authorization.v2.AuthorizationMessageConverterV2;
@@ -47,8 +48,8 @@ public class AuthorizationExtension extends AbstractExtension {
     private final HashMap<String, AuthorizationMessageConverter> messageHandlerMap = new HashMap<>();
 
     @Autowired
-    public AuthorizationExtension(PluginManager pluginManager) {
-        super(pluginManager, new PluginRequestHelper(pluginManager, SUPPORTED_VERSIONS, AUTHORIZATION_EXTENSION), AUTHORIZATION_EXTENSION);
+    public AuthorizationExtension(PluginManager pluginManager, ExtensionsRegistry extensionsRegistry) {
+        super(pluginManager, extensionsRegistry, new PluginRequestHelper(pluginManager, SUPPORTED_VERSIONS, AUTHORIZATION_EXTENSION), AUTHORIZATION_EXTENSION);
         addHandler(AuthorizationMessageConverterV1.VERSION, new PluginSettingsJsonMessageHandler1_0(), new AuthorizationMessageConverterV1()
         );
         addHandler(AuthorizationMessageConverterV2.VERSION, new PluginSettingsJsonMessageHandler1_0(), new AuthorizationMessageConverterV2()
@@ -284,7 +285,7 @@ public class AuthorizationExtension extends AbstractExtension {
     }
 
     @Override
-    protected List<String> goSupportedVersions() {
+    public List<String> goSupportedVersions() {
         return SUPPORTED_VERSIONS;
     }
 }

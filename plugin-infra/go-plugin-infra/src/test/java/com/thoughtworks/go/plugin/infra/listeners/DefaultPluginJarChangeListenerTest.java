@@ -17,6 +17,7 @@
 package com.thoughtworks.go.plugin.infra.listeners;
 
 import com.thoughtworks.go.plugin.infra.GoPluginOSGiFramework;
+import com.thoughtworks.go.plugin.infra.PluginExtensionsAndVersionValidator;
 import com.thoughtworks.go.plugin.infra.monitor.PluginFileDetails;
 import com.thoughtworks.go.plugin.infra.plugininfo.*;
 import com.thoughtworks.go.util.SystemEnvironment;
@@ -54,6 +55,7 @@ public class DefaultPluginJarChangeListenerTest {
     private GoPluginOSGiFramework osgiFramework;
     private SystemEnvironment systemEnvironment;
     private GoPluginDescriptorBuilder goPluginDescriptorBuilder;
+    private PluginExtensionsAndVersionValidator pluginExtensionsAndVersionValidator;
 
     @Before
     public void setUp() throws Exception {
@@ -65,6 +67,7 @@ public class DefaultPluginJarChangeListenerTest {
         osgiFramework = mock(GoPluginOSGiFramework.class);
         goPluginDescriptorBuilder = mock(GoPluginDescriptorBuilder.class);
         systemEnvironment = mock(SystemEnvironment.class);
+        pluginExtensionsAndVersionValidator = mock(PluginExtensionsAndVersionValidator.class);
         when(systemEnvironment.get(PLUGIN_ACTIVATOR_JAR_PATH)).thenReturn("defaultFiles/go-plugin-activator.jar");
         when(systemEnvironment.get(PLUGIN_BUNDLE_PATH)).thenReturn(bundleDir.getAbsolutePath());
         when(systemEnvironment.getOperatingSystemFamilyName()).thenReturn("Linux");
@@ -138,6 +141,7 @@ public class DefaultPluginJarChangeListenerTest {
         when(newDescriptor.bundleLocation()).thenReturn(explodedDirectory);
         when(newDescriptor.fileName()).thenReturn(pluginJarFileName);
         when(newDescriptor.isCurrentOSValidForThisPlugin(systemEnvironment.getOperatingSystemFamilyName())).thenReturn(true);
+        when(newDescriptor.isCurrentGocdVersionValidForThisPlugin()).thenReturn(true);
         when(goPluginDescriptorBuilder.build(pluginJarFile, true)).thenReturn(newDescriptor);
 
         when(registry.getPluginByIdOrFileName(pluginId, pluginJarFileName)).thenReturn(oldDescriptor);
@@ -167,7 +171,7 @@ public class DefaultPluginJarChangeListenerTest {
         GoPluginDescriptor descriptorOfThePluginWhichWillBeRemoved = GoPluginDescriptor.usingId("testplugin.descriptorValidator", pluginJarFile.getAbsolutePath(), removedBundleDirectory, true);
         descriptorOfThePluginWhichWillBeRemoved.setBundle(bundle);
 
-        when(registry.getPluginByIdOrFileName(null,descriptorOfThePluginWhichWillBeRemoved.fileName())).thenReturn(descriptorOfThePluginWhichWillBeRemoved);
+        when(registry.getPluginByIdOrFileName(null, descriptorOfThePluginWhichWillBeRemoved.fileName())).thenReturn(descriptorOfThePluginWhichWillBeRemoved);
         when(registry.unloadPlugin(descriptorOfThePluginWhichWillBeRemoved)).thenReturn(descriptorOfThePluginWhichWillBeRemoved);
 
         copyPluginToTheDirectory(bundleDir, PLUGIN_JAR_FILE_NAME);
@@ -250,7 +254,7 @@ public class DefaultPluginJarChangeListenerTest {
     }
 
     @Test
-    public void shouldNotReplaceBundledPluginWhenExternalPluginIsAdded() throws Exception {
+    public void shouldNotReplaceBundledPluginWhenExternalPluginIsAdded() {
         String pluginId = "external";
         String pluginJarFileName = "plugin-file-name";
         File pluginJarFile = mock(File.class);
@@ -297,7 +301,7 @@ public class DefaultPluginJarChangeListenerTest {
     }
 
     @Test
-    public void shouldNotUpdateBundledPluginWithExternalPlugin() throws Exception {
+    public void shouldNotUpdateBundledPluginWithExternalPlugin() {
         String pluginId = "plugin-id";
         String pluginJarFileName = "plugin-file-name";
         File pluginJarFile = mock(File.class);
@@ -413,6 +417,57 @@ public class DefaultPluginJarChangeListenerTest {
 
         verify(registry, times(1)).loadPlugin(descriptor);
         verify(osgiFramework, times(1)).loadPlugin(descriptor);
+    }
+
+    @Test
+    public void shouldNotLoadAPluginWhenTargetedGocdVersionIsGreaterThanCurrentGocdVersion() throws Exception {
+        File pluginJarFile = new File(pluginDir, PLUGIN_JAR_FILE_NAME);
+
+        copyPluginToTheDirectory(pluginDir, PLUGIN_JAR_FILE_NAME);
+        GoPluginDescriptor descriptor = new GoPluginDescriptor("some.old.id", "1.0", new GoPluginDescriptor.About(null, null, "9999.0.0", null, null, asList("Linux", "Mac OS X")), null,
+                new File(PLUGIN_JAR_FILE_NAME), false);
+        when(goPluginDescriptorBuilder.build(pluginJarFile, true)).thenReturn(descriptor);
+
+        listener = new DefaultPluginJarChangeListener(registry, osgiManifestGenerator, osgiFramework, goPluginDescriptorBuilder, systemEnvironment);
+        listener.pluginJarAdded(new PluginFileDetails(pluginJarFile, true));
+
+        verify(registry, times(1)).loadPlugin(descriptor);
+        verifyZeroInteractions(osgiFramework);
+
+        assertThat(descriptor.getStatus().getMessages().size(), is(1));
+        assertThat(descriptor.getStatus().getMessages().get(0),
+                is("Plugin with ID (some.old.id) is not valid: Incompatible with GoCD version '19.2.0'. Compatible version is: 9999.0.0."));
+    }
+
+    @Test
+    public void shouldNotLoadAPluginWhenTargetedGocdVersionIsIncorrect() throws Exception {
+        File pluginJarFile = new File(pluginDir, PLUGIN_JAR_FILE_NAME);
+
+        copyPluginToTheDirectory(pluginDir, PLUGIN_JAR_FILE_NAME);
+        GoPluginDescriptor descriptor = new GoPluginDescriptor("some.old.id", "1.0", new GoPluginDescriptor.About(null, null, "9999.0.0.1.2", null, null, asList("Linux", "Mac OS X")), null,
+                new File(PLUGIN_JAR_FILE_NAME), false);
+        when(goPluginDescriptorBuilder.build(pluginJarFile, true)).thenReturn(descriptor);
+
+        listener = new DefaultPluginJarChangeListener(registry, osgiManifestGenerator, osgiFramework, goPluginDescriptorBuilder, systemEnvironment);
+        listener.pluginJarAdded(new PluginFileDetails(pluginJarFile, true));
+
+        verify(registry, times(1)).loadPlugin(descriptor);
+        verifyZeroInteractions(osgiFramework);
+
+        assertThat(descriptor.getStatus().getMessages().size(), is(1));
+        assertThat(descriptor.getStatus().getMessages().get(0),
+                is("Plugin with ID (some.old.id) is not valid: Incorrect target gocd version(9999.0.0.1.2) specified."));
+    }
+
+    @Test
+    public void shouldNotLoadAPluginWhenProvidedExtensionVersionByThePluginIsNotSupportedByCurrentGoCDVersion() throws IOException, URISyntaxException {
+        File pluginJarFile = new File(pluginDir, PLUGIN_JAR_FILE_NAME);
+
+        copyPluginToTheDirectory(pluginDir, PLUGIN_JAR_FILE_NAME);
+        GoPluginDescriptor descriptor = new GoPluginDescriptor("some.old.id", "1.0", new GoPluginDescriptor.About(null, null, null, null, null, asList("Windows", "Linux")), null,
+                new File(PLUGIN_JAR_FILE_NAME), false);
+        when(systemEnvironment.getOperatingSystemFamilyName()).thenReturn("Windows");
+        when(goPluginDescriptorBuilder.build(pluginJarFile, true)).thenReturn(descriptor);
     }
 
     private void copyPluginToTheDirectory(File destinationDir, String destinationFilenameOfPlugin) throws IOException, URISyntaxException {

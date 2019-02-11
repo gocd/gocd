@@ -59,6 +59,7 @@
   <bean id="agentRegistry" class="com.thoughtworks.go.config.DefaultAgentRegistry"/>
   <bean id="subprocessLogger" class="com.thoughtworks.go.util.SubprocessLogger"/>
   <bean id="agentPluginsInitializer" class="com.thoughtworks.go.agent.AgentPluginsInitializer"/>
+  <bean id="extensionsRegistry" class="com.thoughtworks.go.plugin.access.ExtensionsRegistry"/>
   <bean id="packageRepositoryExtension"
         class="com.thoughtworks.go.plugin.access.packagematerial.PackageRepositoryExtension"/>
   <bean id="scmExtension" class="com.thoughtworks.go.plugin.access.scm.SCMExtension"/>
@@ -78,12 +79,13 @@
   <bean id="webSocketClientHandler" class="com.thoughtworks.go.agent.WebSocketClientHandler"/>
   <bean id="webSocketSessionHandler" class="com.thoughtworks.go.agent.WebSocketSessionHandler"/>
 
-  <bean id="agentControllerFactory" class="com.thoughtworks.go.agent.AgentControllerFactory" />
-  <bean id="agentController" class="com.thoughtworks.go.agent.AgentController" factory-bean="agentControllerFactory" factory-method="createInstance" />
+  <bean id="agentControllerFactory" class="com.thoughtworks.go.agent.AgentControllerFactory"/>
+  <bean id="agentController" class="com.thoughtworks.go.agent.AgentController" factory-bean="agentControllerFactory"
+        factory-method="createInstance"/>
 
-  <bean id="clock" class="com.thoughtworks.go.util.SystemTimeClock" />
+  <bean id="clock" class="com.thoughtworks.go.util.SystemTimeClock"/>
 
-  <task:scheduler id="scheduler" pool-size="3" />
+  <task:scheduler id="scheduler" pool-size="3"/>
 
   <task:scheduled-tasks scheduler="scheduler">
     <task:scheduled ref="agentController" method="loop"

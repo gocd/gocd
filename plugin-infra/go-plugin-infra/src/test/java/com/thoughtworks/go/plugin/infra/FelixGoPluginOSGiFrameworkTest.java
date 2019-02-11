@@ -16,6 +16,8 @@
 
 package com.thoughtworks.go.plugin.infra;
 
+import com.thoughtworks.go.plugin.api.GoPlugin;
+import com.thoughtworks.go.plugin.api.GoPluginIdentifier;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import com.thoughtworks.go.plugin.infra.plugininfo.PluginRegistry;
 import com.thoughtworks.go.plugin.infra.service.DefaultPluginHealthService;
@@ -24,38 +26,49 @@ import com.thoughtworks.go.plugin.internal.api.LoggingService;
 import com.thoughtworks.go.plugin.internal.api.PluginHealthService;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.felix.framework.util.FelixConstants;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
+import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.osgi.framework.*;
 import org.osgi.framework.launch.Framework;
 
 import java.io.File;
 import java.util.*;
+import java.util.stream.Collectors;
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.ArgumentMatchers.isNull;
+import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
+import static java.util.Collections.singletonMap;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
-public class FelixGoPluginOSGiFrameworkTest {
+class FelixGoPluginOSGiFrameworkTest {
     private static final String TEST_SYMBOLIC_NAME = "testplugin.descriptorValidator";
 
-    @Mock private BundleContext bundleContext;
-    @Mock private Bundle bundle;
-    @Mock private Framework framework;
-    @Mock private PluginRegistry registry;
-    @Mock private SystemEnvironment systemEnvironment;
+    @Mock
+    private BundleContext bundleContext;
+    @Mock
+    private Bundle bundle;
+    @Mock
+    private Framework framework;
+    @Mock
+    private PluginRegistry registry;
+    @Mock
+    private SystemEnvironment systemEnvironment;
+    @Mock
+    private PluginExtensionsAndVersionValidator pluginExtensionsAndVersionValidator;
     private FelixGoPluginOSGiFramework spy;
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         initMocks(this);
-        FelixGoPluginOSGiFramework goPluginOSGiFramwork = new FelixGoPluginOSGiFramework(registry, systemEnvironment) {
+        FelixGoPluginOSGiFramework goPluginOSGiFramework = new FelixGoPluginOSGiFramework(registry, systemEnvironment) {
             @Override
             protected HashMap<String, String> generateOSGiFrameworkConfig() {
                 HashMap<String, String> config = super.generateOSGiFrameworkConfig();
@@ -64,19 +77,20 @@ public class FelixGoPluginOSGiFrameworkTest {
             }
         };
 
-        spy = spy(goPluginOSGiFramwork);
+        spy = spy(goPluginOSGiFramework);
+        spy.setPluginExtensionsAndVersionValidator(pluginExtensionsAndVersionValidator);
         when(framework.getBundleContext()).thenReturn(bundleContext);
         when(registry.getPlugin(TEST_SYMBOLIC_NAME)).thenReturn(buildExpectedDescriptor(TEST_SYMBOLIC_NAME));
         doReturn(framework).when(spy).getFelixFramework(any());
     }
 
-    @After
-    public void tearDown() {
+    @AfterEach
+    void tearDown() {
         spy.stop();
     }
 
     @Test
-    public void shouldRegisterAnInstanceOfEachOfTheRequiredPluginServicesAfterOSGiFrameworkIsInitialized() {
+    void shouldRegisterAnInstanceOfEachOfTheRequiredPluginServicesAfterOSGiFrameworkIsInitialized() {
         spy.start();
 
         verify(bundleContext).registerService(eq(PluginHealthService.class), any(DefaultPluginHealthService.class), isNull(Dictionary.class));
@@ -84,7 +98,7 @@ public class FelixGoPluginOSGiFrameworkTest {
     }
 
     @Test
-    public void doOnShouldRunAnActionOnSpecifiedPluginImplementationsOfAGivenInterface() throws Exception {
+    void doOnShouldRunAnActionOnSpecifiedPluginImplementationsOfAGivenInterface() throws Exception {
         SomeInterface firstService = mock(SomeInterface.class);
         SomeInterface secondService = mock(SomeInterface.class);
 
@@ -92,12 +106,9 @@ public class FelixGoPluginOSGiFrameworkTest {
         registerService(secondService, "plugin-two", "extension-two");
         spy.start();
 
-        spy.doOn(SomeInterface.class, "plugin-two", "extension-two", new ActionWithReturn<SomeInterface, Object>() {
-            @Override
-            public Object execute(SomeInterface obj, GoPluginDescriptor pluginDescriptor) {
-                assertThat(pluginDescriptor, is(buildExpectedDescriptor("plugin-two")));
-                return obj.someMethodWithReturn();
-            }
+        spy.doOn(SomeInterface.class, "plugin-two", "extension-two", (obj, pluginDescriptor) -> {
+            assertThat(pluginDescriptor).isEqualTo(buildExpectedDescriptor("plugin-two"));
+            return obj.someMethodWithReturn();
         });
 
         verify(firstService, never()).someMethodWithReturn();
@@ -106,7 +117,7 @@ public class FelixGoPluginOSGiFrameworkTest {
     }
 
     @Test
-    public void doOnShouldThrowAnExceptionWhenThereAreMultipleServicesWithSamePluginIdAndSameExtensionType_IdeallyThisShouldNotHappenInProductionSincePluginIdIsSymbolicName() throws Exception {
+    void doOnShouldThrowAnExceptionWhenThereAreMultipleServicesWithSamePluginIdAndSameExtensionType_IdeallyThisShouldNotHappenInProductionSincePluginIdIsSymbolicName() throws Exception {
         SomeInterface firstService = mock(SomeInterface.class);
         SomeInterface secondService = mock(SomeInterface.class);
 
@@ -115,18 +126,15 @@ public class FelixGoPluginOSGiFrameworkTest {
         spy.start();
 
         try {
-            spy.doOn(SomeInterface.class, symbolicName, "test-extension", new ActionWithReturn<SomeInterface, Object>() {
-                @Override
-                public Object execute(SomeInterface obj, GoPluginDescriptor pluginDescriptor) {
-                    assertThat(pluginDescriptor, is(buildExpectedDescriptor(symbolicName)));
-                    return obj.someMethodWithReturn();
-                }
+            spy.doOn(SomeInterface.class, symbolicName, "test-extension", (obj, pluginDescriptor) -> {
+                assertThat(pluginDescriptor).isEqualTo(buildExpectedDescriptor(symbolicName));
+                return obj.someMethodWithReturn();
             });
             fail("Should throw plugin framework exception");
         } catch (GoPluginFrameworkException ex) {
-            assertThat(ex.getMessage().startsWith("More than one reference found"), is(true));
-            assertThat(ex.getMessage().contains(SomeInterface.class.getCanonicalName()), is(true));
-            assertThat(ex.getMessage().contains(symbolicName), is(true));
+            assertThat(ex.getMessage().startsWith("More than one reference found")).isTrue();
+            assertThat(ex.getMessage().contains(SomeInterface.class.getCanonicalName())).isTrue();
+            assertThat(ex.getMessage().contains(symbolicName)).isTrue();
         }
 
         verify(firstService, never()).someMethodWithReturn();
@@ -136,7 +144,7 @@ public class FelixGoPluginOSGiFrameworkTest {
     }
 
     @Test
-    public void doOnShouldThrowAnExceptionWhenNoServicesAreFoundForTheGivenFilterAndServiceReference() throws Exception {
+    void doOnShouldThrowAnExceptionWhenNoServicesAreFoundForTheGivenFilterAndServiceReference() throws Exception {
         SomeInterface firstService = mock(SomeInterface.class);
         SomeInterface secondService = mock(SomeInterface.class);
 
@@ -145,19 +153,16 @@ public class FelixGoPluginOSGiFrameworkTest {
         spy.start();
 
         try {
-            spy.doOn(SomeOtherInterface.class, symbolicName, "test-extension", new ActionWithReturn<SomeOtherInterface, Object>() {
-                @Override
-                public Object execute(SomeOtherInterface obj, GoPluginDescriptor pluginDescriptor) {
-                    assertThat(pluginDescriptor, is(buildExpectedDescriptor(symbolicName)));
-                    throw new RuntimeException("Should Not Be invoked");
-                }
+            spy.doOn(SomeOtherInterface.class, symbolicName, "test-extension", (obj, pluginDescriptor) -> {
+                assertThat(pluginDescriptor).isEqualTo(buildExpectedDescriptor(symbolicName));
+                throw new RuntimeException("Should Not Be invoked");
             });
             fail("Should throw plugin framework exception");
 
         } catch (GoPluginFrameworkException ex) {
-            assertThat(ex.getMessage().startsWith("No reference found"), is(true));
-            assertThat(ex.getMessage().contains(SomeOtherInterface.class.getCanonicalName()), is(true));
-            assertThat(ex.getMessage().contains(symbolicName), is(true));
+            assertThat(ex.getMessage().startsWith("No reference found")).isTrue();
+            assertThat(ex.getMessage().contains(SomeOtherInterface.class.getCanonicalName())).isTrue();
+            assertThat(ex.getMessage().contains(symbolicName)).isTrue();
         }
 
         verify(firstService, never()).someMethodWithReturn();
@@ -167,26 +172,26 @@ public class FelixGoPluginOSGiFrameworkTest {
     }
 
     @Test
-    public void hasReferencesShouldReturnAppropriateValueIfSpecifiedPluginImplementationsOfAGivenInterfaceIsFoundOrNotFound() throws Exception {
+    void hasReferencesShouldReturnAppropriateValueIfSpecifiedPluginImplementationsOfAGivenInterfaceIsFoundOrNotFound() throws Exception {
         SomeInterface firstService = mock(SomeInterface.class);
         SomeInterface secondService = mock(SomeInterface.class);
         spy.start();
 
         boolean reference = spy.hasReferenceFor(SomeInterface.class, secondService.toString(), "extension-two");
 
-        assertThat(reference, is(false));
+        assertThat(reference).isFalse();
 
         registerService(firstService, "plugin-one", "extension-one");
         registerService(secondService, "plugin-two", "extension-two");
 
         reference = spy.hasReferenceFor(SomeInterface.class, "plugin-two", "extension-two");
-        assertThat(reference, is(true));
+        assertThat(reference).isTrue();
 
         verifyNoMoreInteractions(firstService, secondService);
     }
 
     @Test
-    public void shouldUnloadAPlugin() throws BundleException {
+    void shouldUnloadAPlugin() throws BundleException {
         GoPluginDescriptor pluginDescriptor = mock(GoPluginDescriptor.class);
         when(pluginDescriptor.bundle()).thenReturn(bundle);
 
@@ -197,7 +202,7 @@ public class FelixGoPluginOSGiFrameworkTest {
     }
 
     @Test
-    public void shouldNotFailToUnloadAPluginWhoseBundleIsNull() {
+    void shouldNotFailToUnloadAPluginWhoseBundleIsNull() {
         GoPluginDescriptor pluginDescriptor = mock(GoPluginDescriptor.class);
         when(pluginDescriptor.bundle()).thenReturn(null);
 
@@ -209,7 +214,7 @@ public class FelixGoPluginOSGiFrameworkTest {
     }
 
     @Test
-    public void shouldNotFailToUnloadAPluginWhenAPluginUnloadListenerFails() throws BundleException {
+    void shouldNotFailToUnloadAPluginWhenAPluginUnloadListenerFails() throws BundleException {
         GoPluginDescriptor pluginDescriptor = mock(GoPluginDescriptor.class);
         when(pluginDescriptor.bundle()).thenReturn(bundle);
 
@@ -224,7 +229,7 @@ public class FelixGoPluginOSGiFrameworkTest {
     }
 
     @Test
-    public void shouldRunOtherUnloadListenersEvenIfOneFails() throws BundleException {
+    void shouldRunOtherUnloadListenersEvenIfOneFails() throws BundleException {
         GoPluginDescriptor pluginDescriptor = mock(GoPluginDescriptor.class);
         when(pluginDescriptor.bundle()).thenReturn(bundle);
 
@@ -248,7 +253,7 @@ public class FelixGoPluginOSGiFrameworkTest {
     }
 
     @Test
-    public void shouldMarkThePluginAsInvalidIfAnyExceptionOccursAfterLoad() throws BundleException {
+    void shouldMarkThePluginAsInvalidIfAnyExceptionOccursAfterLoad() throws BundleException {
         final Bundle bundle = mock(Bundle.class);
         spy.addPluginChangeListener(new PluginChangeListener() {
             @Override
@@ -268,8 +273,130 @@ public class FelixGoPluginOSGiFrameworkTest {
             spy.loadPlugin(goPluginDescriptor);
             fail("should throw exception");
         } catch (Exception e) {
-            assertTrue(goPluginDescriptor.getStatus().isInvalid());
+            assertThat(goPluginDescriptor.getStatus().isInvalid()).isTrue();
         }
+    }
+
+    @Test
+    void shouldRegisterExtensionInfosWithPluginRegistry() throws BundleException {
+        GoPluginDescriptor pluginDescriptor = mock(GoPluginDescriptor.class);
+        final PluginExtensionsAndVersionValidator.ValidationResult result = mock(PluginExtensionsAndVersionValidator.ValidationResult.class);
+        when(pluginDescriptor.id()).thenReturn("some-id");
+        when(pluginDescriptor.bundle()).thenReturn(bundle);
+        when(pluginDescriptor.bundleLocation()).thenReturn(new File("foo"));
+        when(bundleContext.installBundle(any(String.class))).thenReturn(bundle);
+        when(pluginExtensionsAndVersionValidator.validate(pluginDescriptor)).thenReturn(result);
+        when(result.hasError()).thenReturn(false);
+        doReturn(singletonMap("elastic-agent", singletonList("1.0"))).when(spy).getExtensionsInfoFromThePlugin("some-id");
+
+        spy.start();
+
+        spy.loadPlugin(pluginDescriptor);
+
+        InOrder inOrder = inOrder(bundle, framework, registry, pluginExtensionsAndVersionValidator);
+        inOrder.verify(framework, times(2)).getBundleContext();
+        inOrder.verify(bundle).start();
+        inOrder.verify(registry).registerExtensions(pluginDescriptor, singletonMap("elastic-agent", singletonList("1.0")));
+        inOrder.verify(pluginExtensionsAndVersionValidator).validate(pluginDescriptor);
+    }
+
+    @Nested
+    class GetExtensionsInfoFromThePlugin {
+        @Test
+        void shouldGetExtensionsInfoForThePlugin() throws Exception {
+            when(registry.getPlugin(anyString())).thenReturn(mock(GoPluginDescriptor.class));
+
+            GoPlugin firstService = mock(GoPlugin.class);
+            GoPlugin secondService = mock(GoPlugin.class);
+
+            final GoPluginIdentifier firstPluginIdentifier = mock(GoPluginIdentifier.class);
+            when(firstService.pluginIdentifier()).thenReturn(firstPluginIdentifier);
+            when(firstPluginIdentifier.getExtension()).thenReturn("elastic-agent");
+            when(firstPluginIdentifier.getSupportedExtensionVersions()).thenReturn(asList("1.0", "2.0"));
+
+            final GoPluginIdentifier secondPluginIdentifier = mock(GoPluginIdentifier.class);
+            when(secondService.pluginIdentifier()).thenReturn(secondPluginIdentifier);
+            when(secondPluginIdentifier.getExtension()).thenReturn("authorization");
+            when(secondPluginIdentifier.getSupportedExtensionVersions()).thenReturn(singletonList("1.0"));
+
+            registerService("plugin-one", firstService, secondService);
+            spy.start();
+
+            final Map<String, List<String>> info = spy.getExtensionsInfoFromThePlugin("plugin-one");
+
+            assertThat(info).hasSize(2)
+                    .containsEntry("elastic-agent", asList("1.0", "2.0"))
+                    .containsEntry("authorization", singletonList("1.0"));
+        }
+    }
+
+    @Test
+    void shouldNotifyAllPluginChangeListenerOncePluginIsLoaded() throws BundleException {
+        GoPluginDescriptor pluginDescriptor = mock(GoPluginDescriptor.class);
+        final PluginExtensionsAndVersionValidator.ValidationResult result = mock(PluginExtensionsAndVersionValidator.ValidationResult.class);
+        when(pluginDescriptor.bundle()).thenReturn(bundle);
+        when(pluginDescriptor.bundleLocation()).thenReturn(new File("foo"));
+        when(bundleContext.installBundle(any(String.class))).thenReturn(bundle);
+        when(pluginExtensionsAndVersionValidator.validate(pluginDescriptor)).thenReturn(result);
+        when(result.hasError()).thenReturn(false);
+
+        PluginChangeListener listener1 = mock(PluginChangeListener.class);
+        PluginChangeListener listener2 = mock(PluginChangeListener.class);
+        PluginChangeListener listener3 = mock(PluginChangeListener.class);
+
+        spy.addPluginChangeListener(listener1);
+        spy.addPluginChangeListener(listener2);
+        spy.addPluginChangeListener(listener3);
+        spy.start();
+
+        spy.loadPlugin(pluginDescriptor);
+
+        verify(listener1, times(1)).pluginLoaded(pluginDescriptor);
+        verify(listener3, times(1)).pluginLoaded(pluginDescriptor);
+        verify(listener2, times(1)).pluginLoaded(pluginDescriptor);
+
+        verify(bundle, times(1)).start();
+    }
+
+    @Test
+    void shouldMarkPluginDescriptorInvalidAndNotNotifyPluginChangeListenersWhenExtensionVersionsRequiredByThePluginIsNotSupportedByGoCD() throws BundleException {
+        GoPluginDescriptor pluginDescriptor = mock(GoPluginDescriptor.class);
+        final PluginExtensionsAndVersionValidator.ValidationResult result = mock(PluginExtensionsAndVersionValidator.ValidationResult.class);
+        when(pluginDescriptor.bundle()).thenReturn(bundle);
+        when(pluginDescriptor.bundleLocation()).thenReturn(new File("foo"));
+        when(bundleContext.installBundle(any(String.class))).thenReturn(bundle);
+        when(pluginExtensionsAndVersionValidator.validate(pluginDescriptor)).thenReturn(result);
+        when(result.hasError()).thenReturn(true);
+
+        PluginChangeListener listener1 = mock(PluginChangeListener.class);
+        PluginChangeListener listener2 = mock(PluginChangeListener.class);
+        PluginChangeListener listener3 = mock(PluginChangeListener.class);
+
+        spy.addPluginChangeListener(listener1);
+        spy.addPluginChangeListener(listener2);
+        spy.addPluginChangeListener(listener3);
+
+        spy.start();
+        spy.loadPlugin(pluginDescriptor);
+
+        verifyZeroInteractions(listener1);
+        verifyZeroInteractions(listener3);
+        verifyZeroInteractions(listener2);
+
+        verify(bundle, times(1)).start();
+        verify(pluginDescriptor).markAsInvalid(anyList(), eq(null));
+    }
+
+    @Test
+    void shouldSkipUninstallIfPluginIsPreviouslyUninstalled() throws BundleException {
+        GoPluginDescriptor pluginDescriptor = mock(GoPluginDescriptor.class);
+        when(pluginDescriptor.bundle()).thenReturn(bundle);
+        when(bundle.getState()).thenReturn(Bundle.UNINSTALLED);
+
+        spy.unloadPlugin(pluginDescriptor);
+
+        verify(bundle, never()).start();
+        verify(bundle, never()).uninstall();
     }
 
     private void registerServicesWithSameSymbolicName(String symbolicName, String extensionType, SomeInterface... someInterfaces) throws InvalidSyntaxException {
@@ -298,15 +425,29 @@ public class FelixGoPluginOSGiFrameworkTest {
         when(registry.getPlugin(pluginID)).thenReturn(buildExpectedDescriptor(pluginID));
 
         String propertyFormat = String.format("(&(%s=%s)(%s=%s))", Constants.BUNDLE_SYMBOLICNAME, pluginID, Constants.BUNDLE_CATEGORY, extension);
-        when(bundleContext.getServiceReferences(SomeInterface.class, propertyFormat)).thenReturn(Collections.singletonList(reference));
+        when(bundleContext.getServiceReferences(SomeInterface.class, propertyFormat)).thenReturn(singletonList(reference));
 
-        when(bundleContext.getServiceReferences(SomeInterface.class, null)).thenReturn(Collections.singletonList(reference));
+        when(bundleContext.getServiceReferences(SomeInterface.class, null)).thenReturn(singletonList(reference));
+    }
+
+    private void registerService(String pluginID, GoPlugin... someInterfaces) throws InvalidSyntaxException {
+        final List<ServiceReference<GoPlugin>> serviceReferences = Arrays.stream(someInterfaces).map(someInterface -> {
+            ServiceReference<GoPlugin> reference = mock(ServiceReference.class);
+            when(reference.getBundle()).thenReturn(bundle);
+            when(bundle.getSymbolicName()).thenReturn(pluginID);
+            when(bundleContext.getService(reference)).thenReturn(someInterface);
+            when(registry.getPlugin(pluginID)).thenReturn(buildExpectedDescriptor(pluginID));
+            return reference;
+        }).collect(Collectors.toList());
+
+        String propertyFormat = String.format("(&(%s=%s))", Constants.BUNDLE_SYMBOLICNAME, pluginID);
+        when(bundleContext.getServiceReferences(GoPlugin.class, propertyFormat)).thenReturn(serviceReferences);
     }
 
     private GoPluginDescriptor buildExpectedDescriptor(String pluginID) {
         return new GoPluginDescriptor(pluginID, "1",
                 new GoPluginDescriptor.About("Plugin Descriptor Validator", "1.0.1", "17.12", "Validates its own plugin descriptor",
-                        new GoPluginDescriptor.Vendor("ThoughtWorks GoCD Team", "www.thoughtworks.com"), Arrays.asList("Linux", "Windows")), null, null, true
+                        new GoPluginDescriptor.Vendor("ThoughtWorks GoCD Team", "www.thoughtworks.com"), asList("Linux", "Windows")), null, null, true
         );
     }
 

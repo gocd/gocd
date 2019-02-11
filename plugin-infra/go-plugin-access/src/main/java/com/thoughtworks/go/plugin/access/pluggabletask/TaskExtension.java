@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.plugin.access.pluggabletask;
 
+import com.thoughtworks.go.plugin.access.ExtensionsRegistry;
 import com.thoughtworks.go.plugin.access.PluginRequestHelper;
 import com.thoughtworks.go.plugin.access.common.AbstractExtension;
 import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsJsonMessageHandler1_0;
@@ -32,7 +33,6 @@ import org.springframework.stereotype.Component;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import static com.thoughtworks.go.plugin.domain.common.PluginConstants.PLUGGABLE_TASK_EXTENSION;
 
@@ -48,8 +48,8 @@ public class TaskExtension extends AbstractExtension {
     final HashMap<String, JsonBasedTaskExtensionHandler> messageHandlerMap = new HashMap<>();
 
     @Autowired
-    public TaskExtension(PluginManager pluginManager) {
-        super(pluginManager, new PluginRequestHelper(pluginManager, supportedVersions, PLUGGABLE_TASK_EXTENSION), PLUGGABLE_TASK_EXTENSION);
+    public TaskExtension(PluginManager pluginManager, ExtensionsRegistry extensionsRegistry) {
+        super(pluginManager, extensionsRegistry, new PluginRequestHelper(pluginManager, supportedVersions, PLUGGABLE_TASK_EXTENSION), PLUGGABLE_TASK_EXTENSION);
         registerHandler(JsonBasedTaskExtensionHandler_V1.VERSION, new PluginSettingsJsonMessageHandler1_0());
         messageHandlerMap.put(JsonBasedTaskExtensionHandler_V1.VERSION, new JsonBasedTaskExtensionHandler_V1());
     }
@@ -70,7 +70,7 @@ public class TaskExtension extends AbstractExtension {
     }
 
     @Override
-    protected List<String> goSupportedVersions() {
+    public List<String> goSupportedVersions() {
         return supportedVersions;
     }
 }

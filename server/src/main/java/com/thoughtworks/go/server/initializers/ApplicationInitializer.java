@@ -46,8 +46,6 @@ import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.stereotype.Component;
 
-import java.io.File;
-
 @Component
 public class ApplicationInitializer implements ApplicationListener<ContextRefreshedEvent> {
     @Autowired private CommandRepositoryInitializer commandRepositoryInitializer;

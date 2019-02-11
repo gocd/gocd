@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.plugin.infra;
 
+import com.thoughtworks.go.plugin.api.GoPlugin;
 import com.thoughtworks.go.plugin.api.GoPluginApiMarker;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import com.thoughtworks.go.plugin.infra.plugininfo.PluginRegistry;
@@ -27,6 +28,7 @@ import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.collections4.Closure;
 import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.IteratorUtils;
+import org.apache.commons.collections4.keyvalue.DefaultKeyValue;
 import org.apache.felix.framework.cache.BundleCache;
 import org.apache.felix.framework.util.FelixConstants;
 import org.osgi.framework.*;
@@ -38,13 +40,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.ServiceLoader;
+import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
+import static java.lang.String.format;
 import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
+import static java.util.stream.Collectors.toList;
 
 @Component
 public class FelixGoPluginOSGiFramework implements GoPluginOSGiFramework {
@@ -53,6 +55,7 @@ public class FelixGoPluginOSGiFramework implements GoPluginOSGiFramework {
     private Framework framework;
     private SystemEnvironment systemEnvironment;
     private Collection<PluginChangeListener> pluginChangeListeners = new ConcurrentLinkedQueue<>();
+    private PluginExtensionsAndVersionValidator pluginExtensionsAndVersionValidator;
 
     @Autowired
     public FelixGoPluginOSGiFramework(PluginRegistry registry, SystemEnvironment systemEnvironment) {
@@ -110,6 +113,19 @@ public class FelixGoPluginOSGiFramework implements GoPluginOSGiFramework {
                 handlePluginInvalidation(pluginDescriptor, bundleLocation, bundle);
                 return bundle;
             }
+
+            registry.registerExtensions(pluginDescriptor, getExtensionsInfoFromThePlugin(pluginDescriptor.id()));
+            if (pluginExtensionsAndVersionValidator != null) {
+                final PluginExtensionsAndVersionValidator.ValidationResult result = pluginExtensionsAndVersionValidator.validate(pluginDescriptor);
+
+                if (result.hasError()) {
+                    pluginDescriptor.markAsInvalid(singletonList(result.toErrorMessage()), null);
+                    LOGGER.error(format("Skipped notifying all %s because of error: %s", PluginChangeListener.class.getSimpleName(), result.toErrorMessage()));
+
+                    return bundle;
+                }
+            }
+
             IterableUtils.forEach(pluginChangeListeners, notifyPluginLoadedEvent(pluginDescriptor));
             return bundle;
         } catch (Exception e) {
@@ -121,7 +137,7 @@ public class FelixGoPluginOSGiFramework implements GoPluginOSGiFramework {
     }
 
     private void handlePluginInvalidation(GoPluginDescriptor pluginDescriptor, File bundleLocation, Bundle bundle) {
-        String failureMsg = String.format("Failed to load plugin: %s. Plugin is invalid. Reasons %s",
+        String failureMsg = format("Failed to load plugin: %s. Plugin is invalid. Reasons %s",
                 bundleLocation, pluginDescriptor.getStatus().getMessages());
         LOGGER.error(failureMsg);
         unloadPlugin(pluginDescriptor);
@@ -142,6 +158,11 @@ public class FelixGoPluginOSGiFramework implements GoPluginOSGiFramework {
             }
         }
 
+        if (bundle.getState() == Bundle.UNINSTALLED) {
+            LOGGER.info(format("Skipping plugin '%s' uninstall as it is already uninstalled.", pluginDescriptor.id()));
+            return;
+        }
+
         try {
             bundle.stop();
             bundle.uninstall();
@@ -153,6 +174,11 @@ public class FelixGoPluginOSGiFramework implements GoPluginOSGiFramework {
     @Override
     public void addPluginChangeListener(PluginChangeListener pluginChangeListener) {
         pluginChangeListeners.add(pluginChangeListener);
+    }
+
+    @Override
+    public void setPluginExtensionsAndVersionValidator(PluginExtensionsAndVersionValidator pluginExtensionsAndVersionValidator) {
+        this.pluginExtensionsAndVersionValidator = pluginExtensionsAndVersionValidator;
     }
 
     private void registerInternalServices(BundleContext bundleContext) {
@@ -214,6 +240,41 @@ public class FelixGoPluginOSGiFramework implements GoPluginOSGiFramework {
         return !matchingServiceReferences.isEmpty();
     }
 
+    @Override
+    public <T extends GoPlugin> Map<String, List<String>> getExtensionsInfoFromThePlugin(String pluginId) {
+        if (framework == null) {
+            LOGGER.warn("[Plugin Framework] Plugins are not enabled, so cannot do an action on all implementations of {}", GoPlugin.class);
+            return null;
+        }
+
+        final BundleContext bundleContext = framework.getBundleContext();
+        final Collection<ServiceReference<T>> serviceReferences = new HashSet<>(findServiceReferenceByPluginId((Class<T>) GoPlugin.class, pluginId, bundleContext));
+
+        ActionWithReturn<T, DefaultKeyValue<String, List<String>>> action = (goPlugin, descriptor) -> new DefaultKeyValue<>(goPlugin.pluginIdentifier().getExtension(), goPlugin.pluginIdentifier().getSupportedExtensionVersions());
+
+        return convertToMap(pluginId, serviceReferences.stream()
+                .map(serviceReference -> {
+                    T service = bundleContext.getService(serviceReference);
+                    return executeActionOnTheService(action, service, getDescriptorFor(serviceReference));
+                }).collect(toList()));
+    }
+
+    private Map<String, List<String>> convertToMap(String pluginId, List<DefaultKeyValue<String, List<String>>> list) {
+        if (list.isEmpty()) {
+            return Collections.emptyMap();
+        }
+
+        final Map<String, List<String>> map = new HashMap<>();
+        for (DefaultKeyValue<String, List<String>> keyValue : list) {
+            if (map.containsKey(keyValue.getKey())) {
+                LOGGER.warn(format("[Plugin Framework] Plugin '%s' has multiple implementation of the '%s' extension. Ignoring duplicates for the '%s' extension.", pluginId, keyValue.getKey(), keyValue.getKey()));
+            } else {
+                map.put(keyValue.getKey(), keyValue.getValue());
+            }
+        }
+        return map;
+    }
+
     private <T, R> R executeActionOnTheService(ActionWithReturn<T, R> action, T service, GoPluginDescriptor goPluginDescriptor) {
         try {
             if (systemEnvironment.pluginClassLoaderHasOldBehaviour()) {
@@ -233,12 +294,21 @@ public class FelixGoPluginOSGiFramework implements GoPluginOSGiFramework {
     }
 
     private <T> Collection<ServiceReference<T>> findServiceReferenceWithPluginIdAndExtensionType(Class<T> serviceReferenceClass, String pluginId, String extensionType, BundleContext bundleContext) {
-        String filterBySymbolicNameAndExtensionType = String.format("(&(%s=%s)(%s=%s))", Constants.BUNDLE_SYMBOLICNAME, pluginId, Constants.BUNDLE_CATEGORY, extensionType);
+        String filter = format("(&(%s=%s)(%s=%s))", Constants.BUNDLE_SYMBOLICNAME, pluginId, Constants.BUNDLE_CATEGORY, extensionType);
+        return getServiceReferences(serviceReferenceClass, bundleContext, filter);
+    }
+
+    private <T> Collection<ServiceReference<T>> findServiceReferenceByPluginId(Class<T> serviceReferenceClass, String pluginId, BundleContext bundleContext) {
+        String filter = format("(&(%s=%s))", Constants.BUNDLE_SYMBOLICNAME, pluginId);
+        return getServiceReferences(serviceReferenceClass, bundleContext, filter);
+    }
+
+    private <T> Collection<ServiceReference<T>> getServiceReferences(Class<T> serviceReferenceClass, BundleContext bundleContext, String filter) {
         Collection<ServiceReference<T>> matchingServiceReferences;
         try {
-            matchingServiceReferences = bundleContext.getServiceReferences(serviceReferenceClass, filterBySymbolicNameAndExtensionType);
+            matchingServiceReferences = bundleContext.getServiceReferences(serviceReferenceClass, filter);
         } catch (InvalidSyntaxException e) {
-            String message = String.format("Failed to find reference for Service Reference %s and Filter %s", serviceReferenceClass, filterBySymbolicNameAndExtensionType);
+            String message = format("Failed to find reference for Service Reference %s and Filter %s", serviceReferenceClass, filter);
             throw new GoPluginFrameworkException(message, e);
         }
         return matchingServiceReferences;
@@ -247,12 +317,12 @@ public class FelixGoPluginOSGiFramework implements GoPluginOSGiFramework {
     private <T> ServiceReference<T> validateAndGetTheOnlyReferenceWithGivenSymbolicName(Collection<ServiceReference<T>> matchingServiceReferences,
                                                                                         Class<T> serviceReference, String pluginId) {
         if (matchingServiceReferences.isEmpty()) {
-            throw new GoPluginFrameworkException(String.format("No reference found for the given Service Reference: %s and Plugin Id %s. It is likely that the plugin is missing.",
+            throw new GoPluginFrameworkException(format("No reference found for the given Service Reference: %s and Plugin Id %s. It is likely that the plugin is missing.",
                     serviceReference.getCanonicalName(), pluginId));
         }
 
         if (matchingServiceReferences.size() > 1) {
-            throw new GoPluginFrameworkException(String.format("More than one reference found for the given "
+            throw new GoPluginFrameworkException(format("More than one reference found for the given "
                     + "Service Reference: %s and Plugin Id %s; References: %s", serviceReference.getCanonicalName(), pluginId, matchingServiceReferences));
         }
 

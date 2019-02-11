@@ -22,12 +22,14 @@ import org.springframework.stereotype.Component;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 @Component
 public class DefaultPluginRegistry implements PluginRegistry {
     protected ConcurrentMap<String, GoPluginDescriptor> idToDescriptorMap = new ConcurrentHashMap<>();
+    protected ConcurrentMap<String, Map<String, List<String>>> idToExtensionsInfoMap = new ConcurrentHashMap<>();
 
     @Override
     public List<GoPluginDescriptor> plugins() {
@@ -35,14 +37,23 @@ public class DefaultPluginRegistry implements PluginRegistry {
     }
 
     public void loadPlugin(GoPluginDescriptor descriptor) {
-        if (containsKey(descriptor.id())) {
+        if (containsKey(idToDescriptorMap, descriptor.id())) {
             throw new RuntimeException("Found another plugin with ID: " + descriptor.id());
         }
         idToDescriptorMap.put(descriptor.id(), descriptor);
     }
 
-    private boolean containsKey(String id) {
-        for (String key : idToDescriptorMap.keySet()) {
+    @Override
+    public void registerExtensions(GoPluginDescriptor descriptor, Map<String, List<String>> requiredExtensionsInfoForThePlugin) {
+        if (containsKey(idToExtensionsInfoMap, descriptor.id())) {
+            throw new RuntimeException("Found another plugin with ID: " + descriptor.id());
+        }
+
+        idToExtensionsInfoMap.put(descriptor.id(), requiredExtensionsInfoForThePlugin);
+    }
+
+    private boolean containsKey(Map<String, ?> map, String id) {
+        for (String key : map.keySet()) {
             if (key.equalsIgnoreCase(id)) {
                 return true;
             }
@@ -55,11 +66,13 @@ public class DefaultPluginRegistry implements PluginRegistry {
         if (existingDescriptor == null) {
             throw new RuntimeException("Could not find existing plugin with ID: " + descriptor.id());
         }
+        idToExtensionsInfoMap.remove(descriptor.id());
         return idToDescriptorMap.remove(existingDescriptor.id());
     }
 
     public void unloadAll() {
         idToDescriptorMap.clear();
+        idToExtensionsInfoMap.clear();
     }
 
     public GoPluginDescriptor getPluginByIdOrFileName(String pluginID, final String fileName) {
@@ -74,13 +87,18 @@ public class DefaultPluginRegistry implements PluginRegistry {
     }
 
     public void markPluginInvalid(String pluginId, List<String> messages) {
-        if (pluginId == null || (!containsKey(pluginId))) {
+        if (pluginId == null || (!containsKey(this.idToDescriptorMap, pluginId))) {
             throw new RuntimeException(String.format("Invalid plugin identifier '%s'", pluginId));
         }
         GoPluginDescriptor goPluginDescriptor = idToDescriptorMap.get(pluginId);
         if (goPluginDescriptor != null) {
             goPluginDescriptor.markAsInvalid(messages, null);
         }
+    }
+
+    @Override
+    public Map<String, List<String>> getExtensionsInfo(String pluginId) {
+        return idToExtensionsInfoMap.get(pluginId);
     }
 
     @Override
@@ -91,5 +109,6 @@ public class DefaultPluginRegistry implements PluginRegistry {
     @Override
     public void clear() {
         idToDescriptorMap.clear();
+        idToExtensionsInfoMap.clear();
     }
 }

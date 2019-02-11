@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.server.initializers;
 
+import com.thoughtworks.go.plugin.infra.PluginExtensionsAndVersionValidator;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.ZipUtil;
@@ -25,7 +26,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.mockito.InOrder;
-import org.mockito.ArgumentMatchers;
 
 import java.io.File;
 import java.io.IOException;
@@ -33,8 +33,8 @@ import java.util.Collection;
 import java.util.zip.ZipInputStream;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.junit.Assert.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.*;
 
 public class PluginsInitializerTest {
@@ -46,6 +46,7 @@ public class PluginsInitializerTest {
     private File goPluginsDir;
     private PluginsInitializer pluginsInitializer;
     private PluginManager pluginManager;
+    private PluginExtensionsAndVersionValidator pluginExtensionsAndVersionValidator;
 
     @Before
     public void setUp() throws Exception {
@@ -53,7 +54,8 @@ public class PluginsInitializerTest {
         goPluginsDir = temporaryFolder.newFolder("go-plugins");
         when(systemEnvironment.get(SystemEnvironment.PLUGIN_GO_PROVIDED_PATH)).thenReturn(goPluginsDir.getAbsolutePath());
         pluginManager = mock(PluginManager.class);
-        pluginsInitializer = new PluginsInitializer(pluginManager, systemEnvironment, new ZipUtil()) {
+        pluginExtensionsAndVersionValidator = mock(PluginExtensionsAndVersionValidator.class);
+        pluginsInitializer = new PluginsInitializer(pluginManager, systemEnvironment, new ZipUtil(), pluginExtensionsAndVersionValidator) {
             @Override
             public void startDaemon() {
 
@@ -67,9 +69,14 @@ public class PluginsInitializerTest {
     }
 
     @Test
+    public void shouldRegisterPluginExtensionValidatorWithPluginManager() {
+        verify(pluginManager).setPluginExtensionsAndVersionValidator(pluginExtensionsAndVersionValidator);
+    }
+
+    @Test
     public void shouldUnzipPluginsAndRegisterZipUpdaterBeforeStartingPluginsFramework() throws IOException {
         ZipUtil zipUtil = mock(ZipUtil.class);
-        pluginsInitializer = new PluginsInitializer(pluginManager, systemEnvironment, zipUtil) {
+        pluginsInitializer = new PluginsInitializer(pluginManager, systemEnvironment, zipUtil, pluginExtensionsAndVersionValidator) {
             @Override
             public void startDaemon() {
 

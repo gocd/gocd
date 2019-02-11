@@ -17,10 +17,9 @@
 package com.thoughtworks.go.plugin.access.artifact;
 
 import com.thoughtworks.go.config.ArtifactStore;
-import com.thoughtworks.go.config.FetchPluggableArtifactTask;
 import com.thoughtworks.go.domain.ArtifactPlan;
+import com.thoughtworks.go.plugin.access.ExtensionsRegistry;
 import com.thoughtworks.go.plugin.access.artifact.model.PublishArtifactResponse;
-import com.thoughtworks.go.plugin.access.artifact.models.FetchArtifactEnvironmentVariable;
 import com.thoughtworks.go.plugin.api.request.GoPluginApiRequest;
 import com.thoughtworks.go.plugin.api.response.DefaultGoPluginApiResponse;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationError;
@@ -39,18 +38,12 @@ import org.mockito.ArgumentCaptor;
 import java.util.Collections;
 import java.util.List;
 
-import static com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother.create;
 import static com.thoughtworks.go.plugin.access.artifact.ArtifactExtensionConstants.*;
 import static com.thoughtworks.go.plugin.api.response.DefaultGoPluginApiResponse.SUCCESS_RESPONSE_CODE;
 import static com.thoughtworks.go.plugin.domain.common.PluginConstants.ARTIFACT_EXTENSION;
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.hamcrest.Matchers.hasEntry;
-import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
 public abstract class ArtifactExtensionTestBase {
@@ -58,6 +51,7 @@ public abstract class ArtifactExtensionTestBase {
     PluginManager pluginManager;
     ArtifactExtension artifactExtension;
     ArgumentCaptor<GoPluginApiRequest> requestArgumentCaptor;
+    ExtensionsRegistry extensionsRegistry;
 
     @Rule
     public ExpectedException thrown = ExpectedException.none();
@@ -67,7 +61,8 @@ public abstract class ArtifactExtensionTestBase {
     @Before
     public void setUp() throws Exception {
         pluginManager = mock(PluginManager.class);
-        artifactExtension = new ArtifactExtension(pluginManager);
+        extensionsRegistry = mock(ExtensionsRegistry.class);
+        artifactExtension = new ArtifactExtension(pluginManager, extensionsRegistry);
         requestArgumentCaptor = ArgumentCaptor.forClass(GoPluginApiRequest.class);
 
 
@@ -77,14 +72,14 @@ public abstract class ArtifactExtensionTestBase {
 
     @Test
     public void shouldGetSupportedVersions() {
-        final ArtifactExtension artifactExtension = new ArtifactExtension(null);
+        final ArtifactExtension artifactExtension = new ArtifactExtension(null, null);
 
         assertThat(artifactExtension.goSupportedVersions(), containsInAnyOrder("1.0", "2.0"));
     }
 
     @Test
     public void shouldRegisterMessageHandler() {
-        final ArtifactExtension artifactExtension = new ArtifactExtension(null);
+        final ArtifactExtension artifactExtension = new ArtifactExtension(null, null);
 
         assertTrue(artifactExtension.getMessageHandler(ArtifactMessageConverterV1.VERSION) instanceof ArtifactMessageConverterV1);
         assertTrue(artifactExtension.getMessageHandler(ArtifactMessageConverterV2.VERSION) instanceof ArtifactMessageConverterV2);

@@ -17,6 +17,7 @@
 package com.thoughtworks.go.plugin.access.analytics;
 
 import com.thoughtworks.go.plugin.access.DefaultPluginInteractionCallback;
+import com.thoughtworks.go.plugin.access.ExtensionsRegistry;
 import com.thoughtworks.go.plugin.access.PluginRequestHelper;
 import com.thoughtworks.go.plugin.access.analytics.V1.AnalyticsMessageConverterV1;
 import com.thoughtworks.go.plugin.access.analytics.V2.AnalyticsMessageConverterV2;
@@ -42,8 +43,8 @@ public class AnalyticsExtension extends AbstractExtension {
     private final HashMap<String, AnalyticsMessageConverter> messageHandlerMap = new HashMap<>();
 
     @Autowired
-    public AnalyticsExtension(PluginManager pluginManager) {
-        super(pluginManager, new PluginRequestHelper(pluginManager, SUPPORTED_VERSIONS, ANALYTICS_EXTENSION), ANALYTICS_EXTENSION);
+    public AnalyticsExtension(PluginManager pluginManager, ExtensionsRegistry extensionsRegistry) {
+        super(pluginManager, extensionsRegistry, new PluginRequestHelper(pluginManager, SUPPORTED_VERSIONS, ANALYTICS_EXTENSION), ANALYTICS_EXTENSION);
         addHandler(AnalyticsMessageConverterV1.VERSION, new PluginSettingsJsonMessageHandler2_0(), new AnalyticsMessageConverterV1()
         );
         addHandler(AnalyticsMessageConverterV2.VERSION, new PluginSettingsJsonMessageHandler2_0(), new AnalyticsMessageConverterV2()
@@ -103,7 +104,7 @@ public class AnalyticsExtension extends AbstractExtension {
     }
 
     @Override
-    protected List<String> goSupportedVersions() {
+    public List<String> goSupportedVersions() {
         return SUPPORTED_VERSIONS;
     }
 

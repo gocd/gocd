@@ -57,7 +57,7 @@ public class TestPluginOuterClass implements GoPlugin {
 
         @Override
         public GoPluginIdentifier pluginIdentifier() {
-            return new GoPluginIdentifier("some-extension-type", Collections.singletonList("1.0"));
+            return new GoPluginIdentifier("some-extension-type1", Collections.singletonList("1.0"));
         }
     }
 
@@ -75,7 +75,7 @@ public class TestPluginOuterClass implements GoPlugin {
 
         @Override
         public GoPluginIdentifier pluginIdentifier() {
-            return new GoPluginIdentifier("some-extension-type", Collections.singletonList("1.0"));
+            return new GoPluginIdentifier("some-extension-type2", Collections.singletonList("1.0"));
         }
 
         public class SecondLevelInnerClass {
@@ -94,7 +94,7 @@ public class TestPluginOuterClass implements GoPlugin {
 
                 @Override
                 public GoPluginIdentifier pluginIdentifier() {
-                    return new GoPluginIdentifier("some-extension-type", Collections.singletonList("1.0"));
+                    return new GoPluginIdentifier("some-extension-type3", Collections.singletonList("1.0"));
                 }
             }
         }
@@ -117,7 +117,7 @@ public class TestPluginOuterClass implements GoPlugin {
 
                 @Override
                 public GoPluginIdentifier pluginIdentifier() {
-                    return new GoPluginIdentifier("some-extension-type", Collections.singletonList("1.0"));
+                    return new GoPluginIdentifier("some-extension-type4", Collections.singletonList("1.0"));
                 }
             }
 

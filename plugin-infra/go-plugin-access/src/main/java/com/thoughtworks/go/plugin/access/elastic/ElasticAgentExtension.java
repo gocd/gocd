@@ -17,6 +17,7 @@
 package com.thoughtworks.go.plugin.access.elastic;
 
 import com.thoughtworks.go.domain.JobIdentifier;
+import com.thoughtworks.go.plugin.access.ExtensionsRegistry;
 import com.thoughtworks.go.plugin.access.PluginRequestHelper;
 import com.thoughtworks.go.plugin.access.common.AbstractExtension;
 import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsJsonMessageHandler1_0;
@@ -43,8 +44,8 @@ public class ElasticAgentExtension extends AbstractExtension {
     private final Map<String, VersionedElasticAgentExtension> elasticAgentExtensionMap = new HashMap<>();
 
     @Autowired
-    public ElasticAgentExtension(PluginManager pluginManager) {
-        super(pluginManager, new PluginRequestHelper(pluginManager, SUPPORTED_VERSIONS, ELASTIC_AGENT_EXTENSION), ELASTIC_AGENT_EXTENSION);
+    public ElasticAgentExtension(PluginManager pluginManager, ExtensionsRegistry extensionsRegistry) {
+        super(pluginManager, extensionsRegistry, new PluginRequestHelper(pluginManager, SUPPORTED_VERSIONS, ELASTIC_AGENT_EXTENSION), ELASTIC_AGENT_EXTENSION);
         elasticAgentExtensionMap.put(ElasticAgentExtensionV3.VERSION, new ElasticAgentExtensionV3(pluginRequestHelper));
         elasticAgentExtensionMap.put(ElasticAgentExtensionV4.VERSION, new ElasticAgentExtensionV4(pluginRequestHelper));
 
@@ -99,7 +100,7 @@ public class ElasticAgentExtension extends AbstractExtension {
     }
 
     @Override
-    protected List<String> goSupportedVersions() {
+    public List<String> goSupportedVersions() {
         return SUPPORTED_VERSIONS;
     }
 

@@ -15,6 +15,7 @@
  */
 package com.thoughtworks.go.plugin.access.configrepo;
 
+import com.thoughtworks.go.plugin.access.ExtensionsRegistry;
 import com.thoughtworks.go.plugin.access.common.AbstractExtension;
 import com.thoughtworks.go.plugin.access.configrepo.v1.JsonMessageHandler1_0;
 import com.thoughtworks.go.plugin.access.configrepo.v2.JsonMessageHandler2_0;
@@ -55,6 +56,8 @@ public class ConfigRepoExtensionTest {
     private JsonMessageHandler1_0 jsonMessageHandler1;
     @Mock
     private JsonMessageHandler2_0 jsonMessageHandler2;
+    @Mock
+    ExtensionsRegistry extensionsRegistry;
     private ConfigRepoExtension extension;
     private String responseBody = "expected-response";
     private Map<String, String> responseHeaders = new HashMap<String, String>() {
@@ -69,7 +72,7 @@ public class ConfigRepoExtensionTest {
     @Before
     public void setUp() throws Exception {
         initMocks(this);
-        extension = new ConfigRepoExtension(pluginManager);
+        extension = new ConfigRepoExtension(pluginManager, extensionsRegistry);
         extension.getMessageHandlerMap().put("1.0", jsonMessageHandler1);
         extension.getMessageHandlerMap().put("2.0", jsonMessageHandler2);
 

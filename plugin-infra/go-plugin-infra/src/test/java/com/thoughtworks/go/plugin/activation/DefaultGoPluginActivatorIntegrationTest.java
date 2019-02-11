@@ -26,6 +26,7 @@ import com.thoughtworks.go.plugin.api.annotation.Extension;
 import com.thoughtworks.go.plugin.api.request.GoPluginApiRequest;
 import com.thoughtworks.go.plugin.api.response.GoPluginApiResponse;
 import com.thoughtworks.go.plugin.infra.FelixGoPluginOSGiFramework;
+import com.thoughtworks.go.plugin.infra.PluginExtensionsAndVersionValidator;
 import com.thoughtworks.go.plugin.infra.plugininfo.DefaultPluginRegistry;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import com.thoughtworks.go.util.SystemEnvironment;
@@ -50,8 +51,12 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.zip.ZipInputStream;
 
+import static com.thoughtworks.go.plugin.infra.PluginExtensionsAndVersionValidator.ValidationResult;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class DefaultGoPluginActivatorIntegrationTest {
     @Rule
@@ -69,6 +74,8 @@ public class DefaultGoPluginActivatorIntegrationTest {
     public void setUp() throws IOException {
         tmpDir = temporaryFolder.newFolder();
         registry = new StubOfDefaultPluginRegistry();
+        PluginExtensionsAndVersionValidator pluginExtensionsAndVersionValidator = mock(PluginExtensionsAndVersionValidator.class);
+        when(pluginExtensionsAndVersionValidator.validate(any())).thenReturn(new ValidationResult("foo"));
         framework = new FelixGoPluginOSGiFramework(registry, new SystemEnvironment()) {
             @Override
             protected HashMap<String, String> generateOSGiFrameworkConfig() {
@@ -97,12 +104,12 @@ public class DefaultGoPluginActivatorIntegrationTest {
     @Test
     public void shouldNotRegisterAsAnOSGiServiceAClassImplementingGoPluginWithOnlyAOneArgConstructor() throws Exception {
         Bundle bundle = installBundleWithClasses(DummyGoPluginWithOneArgConstructorOnly.class);
-        assertThat(bundle.getState(),is(Bundle.UNINSTALLED));
+        assertThat(bundle.getState(), is(Bundle.UNINSTALLED));
         GoPluginDescriptor descriptor = registry.getPlugin(GO_TEST_DUMMY_SYMBOLIC_NAME);
         assertThat(descriptor.isInvalid(), is(true));
         String error = descriptor.getStatus().getMessages().get(0);
-        assertThat(error.contains("DummyGoPluginWithOneArgConstructorOnly"),is(true));
-        assertThat(error.contains("Make sure it and all of its parent classes have a default constructor."),is(true));
+        assertThat(error.contains("DummyGoPluginWithOneArgConstructorOnly"), is(true));
+        assertThat(error.contains("Make sure it and all of its parent classes have a default constructor."), is(true));
     }
 
     @Test
@@ -125,7 +132,7 @@ public class DefaultGoPluginActivatorIntegrationTest {
         assertThat(bundle.getState(), is(Bundle.UNINSTALLED));
         GoPluginDescriptor descriptor = registry.getPlugin(GO_TEST_DUMMY_SYMBOLIC_NAME);
         assertThat(descriptor.isInvalid(), is(true));
-        assertThat(descriptor.getStatus().getMessages().contains(NO_EXT_ERR_MSG),is(true));
+        assertThat(descriptor.getStatus().getMessages().contains(NO_EXT_ERR_MSG), is(true));
 
     }
 
@@ -182,7 +189,7 @@ public class DefaultGoPluginActivatorIntegrationTest {
     @Test
     public void shouldNotRegisterAsAnOSGiServiceAClassWhichThrowsExceptionDuringInstantiation() throws Exception {
         Bundle bundle = installBundleWithClasses(DummyTestPlugin.class, DummyGoPluginWhichThrowsAnExceptionDuringConstruction.class);
-        assertThat(bundle.getState(),is(Bundle.UNINSTALLED));
+        assertThat(bundle.getState(), is(Bundle.UNINSTALLED));
         GoPluginDescriptor descriptor = registry.getPlugin(GO_TEST_DUMMY_SYMBOLIC_NAME);
         assertThat(descriptor.isInvalid(), is(true));
         String error = descriptor.getStatus().getMessages().get(0);
@@ -228,8 +235,7 @@ public class DefaultGoPluginActivatorIntegrationTest {
 
     @Test
     public void shouldRegisterOneInstanceForEachExtensionPointAnExtensionImplements() throws Exception {
-        BundleContext installedBundledContext = bundleContext(installBundleWithClasses(TestGoPluginExtensionThatImplementsTwoExtensionPoints.class,
-                DummyTestPlugin.class));
+        BundleContext installedBundledContext = bundleContext(installBundleWithClasses(TestGoPluginExtensionThatImplementsTwoExtensionPoints.class, DummyTestPlugin.class));
 
         ServiceReference<?>[] references = installedBundledContext.getServiceReferences(GoPlugin.class.getName(), null);
         String[] services = toSortedServiceClassNames(installedBundledContext, references);
@@ -272,7 +278,7 @@ public class DefaultGoPluginActivatorIntegrationTest {
         assertThat(bundle.getState(), is(Bundle.UNINSTALLED));
         GoPluginDescriptor descriptor = registry.getPlugin(GO_TEST_DUMMY_SYMBOLIC_NAME);
         assertThat(descriptor.isInvalid(), is(true));
-        assertThat(descriptor.getStatus().getMessages().contains(NO_EXT_ERR_MSG),is(true));
+        assertThat(descriptor.getStatus().getMessages().contains(NO_EXT_ERR_MSG), is(true));
     }
 
     @Test
@@ -370,7 +376,7 @@ public class DefaultGoPluginActivatorIntegrationTest {
         return framework.loadPlugin(pluginDescriptor);
     }
 
-    private BundleContext bundleContext(Bundle bundle){
+    private BundleContext bundleContext(Bundle bundle) {
         return bundle.getBundleContext();
     }
 

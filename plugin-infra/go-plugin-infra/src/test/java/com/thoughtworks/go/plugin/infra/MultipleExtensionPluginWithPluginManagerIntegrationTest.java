@@ -55,9 +55,12 @@ public class MultipleExtensionPluginWithPluginManagerIntegrationTest {
 
     private static final String PLUGIN_ID = "valid-plugin-with-multiple-extensions";
 
-    @Autowired DefaultPluginManager pluginManager;
-    @Autowired DefaultPluginJarChangeListener jarChangeListener;
-    @Autowired SystemEnvironment systemEnvironment;
+    @Autowired
+    DefaultPluginManager pluginManager;
+    @Autowired
+    DefaultPluginJarChangeListener jarChangeListener;
+    @Autowired
+    SystemEnvironment systemEnvironment;
     private static File bundleDir;
     private static File pluginDir;
 
@@ -73,7 +76,7 @@ public class MultipleExtensionPluginWithPluginManagerIntegrationTest {
     }
 
     @Before
-    public void setUpPluginInfrastructure() throws IOException {
+    public void setUpPluginInfrastructure() {
         pluginManager.startInfrastructure(false);
 
         URL multiExtensionJar = MultipleExtensionPluginWithPluginManagerIntegrationTest.class.getClassLoader().getResource("defaultFiles/valid-plugin-with-multiple-extensions.jar");
@@ -81,7 +84,7 @@ public class MultipleExtensionPluginWithPluginManagerIntegrationTest {
     }
 
     @Test
-    public void shouldInitializeAccessorForEveryExtensionJustBeforeSendingTheFirstEverRequest() throws Exception {
+    public void shouldInitializeAccessorForEveryExtensionJustBeforeSendingTheFirstEverRequest() {
         GoPluginDescriptor plugin = pluginManager.getPluginDescriptorFor(PLUGIN_ID);
         assertThat(plugin.id(), is(PLUGIN_ID));
 

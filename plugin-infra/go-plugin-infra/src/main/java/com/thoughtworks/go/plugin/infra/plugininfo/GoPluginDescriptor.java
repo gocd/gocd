@@ -16,8 +16,10 @@
 
 package com.thoughtworks.go.plugin.infra.plugininfo;
 
+import com.thoughtworks.go.CurrentGoCDVersion;
 import com.thoughtworks.go.plugin.api.info.PluginDescriptor;
 import org.osgi.framework.Bundle;
+import org.osgi.framework.Version;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -177,6 +179,17 @@ public class GoPluginDescriptor implements PluginDescriptor {
             }
         }
         return false;
+    }
+
+    public boolean isCurrentGocdVersionValidForThisPlugin() {
+        if (about == null || about.targetGoVersion() == null) {
+            return true;
+        }
+
+        Version targetGoVersion = new Version(about.targetGoVersion());
+        Version currentGoVersion = new Version(CurrentGoCDVersion.getInstance().goVersion());
+
+        return targetGoVersion.compareTo(currentGoVersion) <= 0;
     }
 
     public static class About implements PluginDescriptor.About {

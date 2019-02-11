@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.plugin.access.scm;
 
+import com.thoughtworks.go.plugin.access.ExtensionsRegistry;
 import com.thoughtworks.go.plugin.access.common.AbstractExtension;
 import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsConfiguration;
 import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsConstants;
@@ -52,6 +53,8 @@ public class SCMExtensionTest {
     @Mock
     private PluginManager pluginManager;
     @Mock
+    private ExtensionsRegistry extensionsRegistry;
+    @Mock
     private PluginSettingsJsonMessageHandler1_0 pluginSettingsJSONMessageHandler;
     @Mock
     private JsonMessageHandler1_0 jsonMessageHandler;
@@ -68,7 +71,7 @@ public class SCMExtensionTest {
     @Before
     public void setUp() throws Exception {
         initMocks(this);
-        scmExtension = new SCMExtension(pluginManager);
+        scmExtension = new SCMExtension(pluginManager, extensionsRegistry);
         scmExtension.getPluginSettingsMessageHandlerMap().put("1.0", pluginSettingsJSONMessageHandler);
         scmExtension.getMessageHandlerMap().put("1.0", jsonMessageHandler);
 

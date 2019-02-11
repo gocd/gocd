@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.plugin.infra.listeners;
 
+import com.thoughtworks.go.CurrentGoCDVersion;
 import com.thoughtworks.go.plugin.infra.GoPluginOSGiFramework;
 import com.thoughtworks.go.plugin.infra.monitor.PluginFileDetails;
 import com.thoughtworks.go.plugin.infra.monitor.PluginJarChangeListener;
@@ -47,8 +48,7 @@ public class DefaultPluginJarChangeListener implements PluginJarChangeListener {
     private GoPluginDescriptorBuilder goPluginDescriptorBuilder;
 
     @Autowired
-    public DefaultPluginJarChangeListener(DefaultPluginRegistry registry, GoPluginOSGiManifestGenerator osgiManifestGenerator, GoPluginOSGiFramework goPluginOSGiFramework,
-                                          GoPluginDescriptorBuilder goPluginDescriptorBuilder, SystemEnvironment systemEnvironment) {
+    public DefaultPluginJarChangeListener(DefaultPluginRegistry registry, GoPluginOSGiManifestGenerator osgiManifestGenerator, GoPluginOSGiFramework goPluginOSGiFramework, GoPluginDescriptorBuilder goPluginDescriptorBuilder, SystemEnvironment systemEnvironment) {
         this.registry = registry;
         this.osgiManifestGenerator = osgiManifestGenerator;
         this.goPluginOSGiFramework = goPluginOSGiFramework;
@@ -62,6 +62,7 @@ public class DefaultPluginJarChangeListener implements PluginJarChangeListener {
         GoPluginDescriptor existingDescriptor = registry.getPluginByIdOrFileName(descriptor.id(), descriptor.fileName());
         validateIfExternalPluginRemovingBundledPlugin(descriptor, existingDescriptor);
         validatePluginCompatibilityWithCurrentOS(descriptor);
+        validatePluginCompatibilityWithGoCD(descriptor);
         addPlugin(pluginFileDetails, descriptor);
     }
 
@@ -72,6 +73,7 @@ public class DefaultPluginJarChangeListener implements PluginJarChangeListener {
         validateIfExternalPluginRemovingBundledPlugin(descriptor, existingDescriptor);
         validateIfSamePluginUpdated(descriptor, existingDescriptor);
         validatePluginCompatibilityWithCurrentOS(descriptor);
+        validatePluginCompatibilityWithGoCD(descriptor);
         removePlugin(descriptor);
         addPlugin(pluginFileDetails, descriptor);
     }
@@ -126,6 +128,19 @@ public class DefaultPluginJarChangeListener implements PluginJarChangeListener {
         if (!descriptor.isCurrentOSValidForThisPlugin(currentOS)) {
             List<String> messages = Arrays.asList(String.format("Plugin with ID (%s) is not valid: Incompatible with current operating system '%s'. Valid operating systems are: %s.",
                     descriptor.id(), currentOS, descriptor.about().targetOperatingSystems()));
+            descriptor.markAsInvalid(messages, null);
+        }
+    }
+
+    private void validatePluginCompatibilityWithGoCD(GoPluginDescriptor descriptor) {
+        try {
+            if (!descriptor.isCurrentGocdVersionValidForThisPlugin()) {
+                List<String> messages = Arrays.asList(String.format("Plugin with ID (%s) is not valid: Incompatible with GoCD version '%s'. Compatible version is: %s.",
+                        descriptor.id(), CurrentGoCDVersion.getInstance().goVersion(), descriptor.about().targetGoVersion()));
+                descriptor.markAsInvalid(messages, null);
+            }
+        } catch (IllegalArgumentException e) {
+            List<String> messages = Arrays.asList(String.format("Plugin with ID (%s) is not valid: Incorrect target gocd version(%s) specified.", descriptor.id(), descriptor.about().targetGoVersion()));
             descriptor.markAsInvalid(messages, null);
         }
     }

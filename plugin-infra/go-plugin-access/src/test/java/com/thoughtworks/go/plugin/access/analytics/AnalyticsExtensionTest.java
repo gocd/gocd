@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.plugin.access.analytics;
 
+import com.thoughtworks.go.plugin.access.ExtensionsRegistry;
 import com.thoughtworks.go.plugin.api.request.GoPluginApiRequest;
 import com.thoughtworks.go.plugin.api.response.DefaultGoPluginApiResponse;
 import com.thoughtworks.go.plugin.domain.analytics.AnalyticsData;
@@ -51,6 +52,8 @@ public class AnalyticsExtensionTest {
 
     @Mock
     private PluginManager pluginManager;
+    @Mock
+    ExtensionsRegistry extensionsRegistry;
     private ArgumentCaptor<GoPluginApiRequest> requestArgumentCaptor;
     private AnalyticsExtension analyticsExtension;
 
@@ -64,7 +67,7 @@ public class AnalyticsExtensionTest {
         when(pluginManager.resolveExtensionVersion(PLUGIN_ID, ANALYTICS_EXTENSION, Arrays.asList("1.0"))).thenReturn("1.0");
         when(pluginManager.isPluginOfType(ANALYTICS_EXTENSION, PLUGIN_ID)).thenReturn(true);
 
-        analyticsExtension = new AnalyticsExtension(pluginManager);
+        analyticsExtension = new AnalyticsExtension(pluginManager, extensionsRegistry);
         metadataStore = AnalyticsMetadataStore.instance();
 
         requestArgumentCaptor = ArgumentCaptor.forClass(GoPluginApiRequest.class);

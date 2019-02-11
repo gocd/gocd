@@ -54,9 +54,12 @@ public class DefaultPluginManagerIntegrationTest {
     private static final String PLUGIN_ID_1 = "testplugin.descriptorValidator";
     private static final String PLUGIN_TO_TEST_CLASSLOADER = "plugin.to.test.classloader";
     private static File bundleDir;
-    @Autowired DefaultPluginManager pluginManager;
-    @Autowired DefaultPluginJarChangeListener jarChangeListener;
-    @Autowired SystemEnvironment systemEnvironment;
+    @Autowired
+    DefaultPluginManager pluginManager;
+    @Autowired
+    DefaultPluginJarChangeListener jarChangeListener;
+    @Autowired
+    SystemEnvironment systemEnvironment;
 
     @BeforeClass
     public static void overrideProperties() throws IOException {
@@ -101,7 +104,7 @@ public class DefaultPluginManagerIntegrationTest {
     }
 
     @Before
-    public void setUpPluginInfrastructure() throws IOException {
+    public void setUpPluginInfrastructure() {
         try {
             pluginManager.startInfrastructure(true);
         } catch (Exception e) {
@@ -112,7 +115,7 @@ public class DefaultPluginManagerIntegrationTest {
     }
 
     @After
-    public void tearDown() throws Exception {
+    public void tearDown() {
         pluginManager.stopInfrastructure();
     }
 

@@ -30,7 +30,7 @@ class ArtifactStoresRepresenterTest {
   private final LinkedHashMap<Object, Object> expectedJson = [
     _links   : [
       self: [href: 'http://test.host/go/api/admin/artifact_stores'],
-      doc : [href: apiDocsUrl('#artifact_stores')],
+      doc : [href: apiDocsUrl('#artifact-store')],
       find: [href: 'http://test.host/go/api/admin/artifact_stores/:id'],
     ],
     _embedded: [
@@ -38,7 +38,7 @@ class ArtifactStoresRepresenterTest {
         [
           _links      : [
             self: [href: 'http://test.host/go/api/admin/artifact_stores/docker'],
-            doc : [href: apiDocsUrl('#artifact_stores')],
+            doc : [href: apiDocsUrl('#artifact-store')],
             find: [href: 'http://test.host/go/api/admin/artifact_stores/:id'],
           ],
           id          : 'docker',

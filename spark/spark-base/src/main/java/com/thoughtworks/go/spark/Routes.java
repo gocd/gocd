@@ -114,7 +114,7 @@ public class Routes {
 
     public static class SystemAdmins {
         public static final String BASE = "/api/admin/security/system_admins";
-        public static final String DOC = apiDocsUrl("#system_admins");
+        public static final String DOC = apiDocsUrl("#system-admins");
 
     }
 
@@ -288,7 +288,7 @@ public class Routes {
     public static class ArtifactStoreConfig {
         public static final String BASE = "/api/admin/artifact_stores";
         public static final String ID = "/:id";
-        public static final String DOC = apiDocsUrl("#artifact_stores");
+        public static final String DOC = apiDocsUrl("#artifact-store");
 
         public static String find() {
             return BASE + ID;
@@ -438,7 +438,7 @@ public class Routes {
         public static final String BASE = "/api/access_token";
         public static final String TOKEN_NAME = "/:token_name";
         public static final String USERNAME = "/:username";
-        public static final String DOC = apiDocsUrl("#access_token");
+        public static final String DOC = apiDocsUrl("#access-token");
 
         public static String find() {
             return BASE + TOKEN_NAME;

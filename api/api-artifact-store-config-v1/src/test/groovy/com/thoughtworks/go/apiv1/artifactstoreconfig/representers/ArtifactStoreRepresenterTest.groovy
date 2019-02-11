@@ -63,7 +63,7 @@ class ArtifactStoreRepresenterTest {
     def expectedJson = [
       _links    : [
         self: [href: 'http://test.host/go/api/admin/artifact_stores/docker'],
-        doc : [href: apiDocsUrl('#artifact_stores')],
+        doc : [href: apiDocsUrl('#artifact-store')],
         find: [href: 'http://test.host/go/api/admin/artifact_stores/:id'],
       ],
       id        : 'docker',

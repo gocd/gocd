@@ -387,6 +387,18 @@ class FelixGoPluginOSGiFrameworkTest {
         verify(pluginDescriptor).markAsInvalid(anyList(), eq(null));
     }
 
+    @Test
+    void shouldSkipUninstallIfPluginIsPreviouslyUninstalled() throws BundleException {
+        GoPluginDescriptor pluginDescriptor = mock(GoPluginDescriptor.class);
+        when(pluginDescriptor.bundle()).thenReturn(bundle);
+        when(bundle.getState()).thenReturn(Bundle.UNINSTALLED);
+
+        spy.unloadPlugin(pluginDescriptor);
+
+        verify(bundle, never()).start();
+        verify(bundle, never()).uninstall();
+    }
+
     private void registerServicesWithSameSymbolicName(String symbolicName, String extensionType, SomeInterface... someInterfaces) throws InvalidSyntaxException {
         ArrayList<ServiceReference<SomeInterface>> references = new ArrayList<>();
 

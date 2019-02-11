@@ -136,7 +136,7 @@ task createDbMigration {
           DELETE something;
 
         """
-      out.println(contents.stripIndent())
+      out.println(contents.stripIndent().trim())
     }
   }
 }

@@ -86,5 +86,13 @@
       window.setTimeout(maybeHideGlobalBackToTopButton, 50);
     });
 
+    $(".console-area").on('consoleCompleted consoleUpdated consoleInteraction', function () {
+      $(window).trigger($.Event("resetPinOnScroll"), [{
+        calcRequiredScroll: function () {
+          return $(".console-area").offset().top - $("#header").outerHeight(true) - $(".page_header").outerHeight(true);
+        }
+      }]);
+    });
+
   });
 })(jQuery);

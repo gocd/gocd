@@ -16,7 +16,6 @@
 
 package com.thoughtworks.go.domain;
 
-import java.sql.Timestamp;
 import java.util.Date;
 import java.util.Objects;
 
@@ -26,37 +25,27 @@ public class AccessToken extends PersistentObject {
     private String value;
     private String originalValue;
     private String description;
-    private Boolean isRevoked = false;
-    private Timestamp revokedAt;
-    private Timestamp createdAt;
-    private Timestamp lastUsed;
+    private boolean isRevoked;
+    private Date revokedAt;
+    private Date createdAt;
+    private Date lastUsed;
     private String username;
     private String saltId;
     private String saltValue;
     private String authConfigId;
+    private String revokeCause;
+    private String revokedBy;
 
     public AccessToken() {
     }
 
-    public AccessToken(String name, String value) {
+    public AccessToken(String name, String value, String description, boolean isRevoked, Date createdAt, Date lastUsed) {
         this.name = name;
         this.value = value;
-    }
-
-    public AccessToken(String name, String value, String description) {
-        this(name, value);
         this.description = description;
-    }
-
-    public AccessToken(String name, String value, String description, Boolean isRevoked) {
-        this(name, value, description);
         this.isRevoked = isRevoked;
-    }
-
-    public AccessToken(String name, String value, String description, Boolean isRevoked, Date createdAt, Date lastUsed) {
-        this(name, value, description, isRevoked);
-        this.createdAt = new Timestamp(createdAt.getTime());
-        setLastUsed(lastUsed);
+        this.createdAt = createdAt;
+        this.lastUsed = lastUsed;
     }
 
     public String getName() {
@@ -83,11 +72,11 @@ public class AccessToken extends PersistentObject {
         this.description = description;
     }
 
-    public Boolean isRevoked() {
+    public boolean isRevoked() {
         return isRevoked;
     }
 
-    public void setRevoked(Boolean revoked) {
+    public void setRevoked(boolean revoked) {
         isRevoked = revoked;
     }
 
@@ -96,7 +85,7 @@ public class AccessToken extends PersistentObject {
     }
 
     public void setLastUsed(Date lastUsed) {
-        this.lastUsed = lastUsed != null ? new Timestamp(lastUsed.getTime()) : null;
+        this.lastUsed = lastUsed;
     }
 
     public Date getCreatedAt() {
@@ -104,7 +93,7 @@ public class AccessToken extends PersistentObject {
     }
 
     public void setCreatedAt(Date createdAt) {
-        this.createdAt = new Timestamp(createdAt.getTime());
+        this.createdAt = createdAt;
     }
 
     public String getOriginalValue() {
@@ -123,11 +112,11 @@ public class AccessToken extends PersistentObject {
         this.username = username;
     }
 
-    public Timestamp getRevokedAt() {
+    public Date getRevokedAt() {
         return revokedAt;
     }
 
-    public void setRevokedAt(Timestamp revokedAt) {
+    public void setRevokedAt(Date revokedAt) {
         this.revokedAt = revokedAt;
     }
 
@@ -155,29 +144,54 @@ public class AccessToken extends PersistentObject {
         this.authConfigId = authConfigId;
     }
 
+    public String getRevokedBy() {
+        return revokedBy;
+    }
+
+    public void setRevokedBy(String revokedBy) {
+        this.revokedBy = revokedBy;
+    }
+
+    public String getRevokeCause() {
+        return revokeCause;
+    }
+
+    public void setRevokeCause(String revokeCause) {
+        this.revokeCause = revokeCause;
+    }
+
+    public void revoke(String username, String revokeCause, Date revokedAt) {
+        setRevoked(true);
+        setRevokedBy(username);
+        setRevokeCause(revokeCause);
+        setRevokedAt(revokedAt);
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (!(o instanceof AccessToken)) return false;
         if (!super.equals(o)) return false;
-        AccessToken accessToken = (AccessToken) o;
-        return Objects.equals(name, accessToken.name) &&
-                Objects.equals(value, accessToken.value) &&
-                Objects.equals(originalValue, accessToken.originalValue) &&
-                Objects.equals(description, accessToken.description) &&
-                Objects.equals(isRevoked, accessToken.isRevoked) &&
-                Objects.equals(revokedAt, accessToken.revokedAt) &&
-                Objects.equals(createdAt, accessToken.createdAt) &&
-                Objects.equals(lastUsed, accessToken.lastUsed) &&
-                Objects.equals(username, accessToken.username) &&
-                Objects.equals(saltId, accessToken.saltId) &&
-                Objects.equals(saltValue, accessToken.saltValue) &&
-                Objects.equals(authConfigId, accessToken.authConfigId);
+        AccessToken that = (AccessToken) o;
+        return Objects.equals(name, that.name) &&
+                Objects.equals(value, that.value) &&
+                Objects.equals(originalValue, that.originalValue) &&
+                Objects.equals(description, that.description) &&
+                Objects.equals(isRevoked, that.isRevoked) &&
+                Objects.equals(revokedAt, that.revokedAt) &&
+                Objects.equals(createdAt, that.createdAt) &&
+                Objects.equals(lastUsed, that.lastUsed) &&
+                Objects.equals(username, that.username) &&
+                Objects.equals(saltId, that.saltId) &&
+                Objects.equals(saltValue, that.saltValue) &&
+                Objects.equals(authConfigId, that.authConfigId) &&
+                Objects.equals(revokeCause, that.revokeCause) &&
+                Objects.equals(revokedBy, that.revokedBy);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), name, value, originalValue, description, isRevoked, revokedAt, createdAt, lastUsed, username, saltId, saltValue, authConfigId);
+        return Objects.hash(super.hashCode(), name, value, originalValue, description, isRevoked, revokedAt, createdAt, lastUsed, username, saltId, saltValue, authConfigId, revokeCause, revokedBy);
     }
 
     @Override
@@ -195,6 +209,9 @@ public class AccessToken extends PersistentObject {
                 ", saltId='" + saltId + '\'' +
                 ", saltValue='" + saltValue + '\'' +
                 ", authConfigId='" + authConfigId + '\'' +
+                ", revokeCause='" + revokeCause + '\'' +
+                ", revokedBy='" + revokedBy + '\'' +
                 '}';
     }
+
 }

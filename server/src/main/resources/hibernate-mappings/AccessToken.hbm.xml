@@ -36,5 +36,7 @@
         <property name="saltId"/>
         <property name="saltValue"/>
         <property name="authConfigId"/>
+        <property name="revokedBy"/>
+        <property name="revokeCause"/>
     </class>
 </hibernate-mapping>

@@ -16,10 +16,10 @@
 
 package com.thoughtworks.go.server.exceptions;
 
-import java.sql.Timestamp;
+import java.util.Date;
 
 public class RevokedAccessTokenException extends RuntimeException {
-    public RevokedAccessTokenException(Timestamp revokedAt) {
+    public RevokedAccessTokenException(Date revokedAt) {
         super(String.format("Invalid Personal Access Token. Access token was revoked at: %s", revokedAt));
     }
 }

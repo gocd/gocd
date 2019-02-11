@@ -123,9 +123,10 @@ public class AccessTokenControllerV1 extends ApiController implements SparkSprin
     public String revokeAccessToken(Request request, Response response) throws Exception {
         String tokenName = request.params("token_name");
         String username = request.params("username");
+        String revokeCause = request.queryParams("cause");
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        accessTokenService.revokeAccessToken(tokenName, username, result);
+        accessTokenService.revokeAccessToken(tokenName, username, revokeCause, result);
 
         if (result.isSuccessful()) {
             return renderAccessToken(request, response, accessTokenService.find(tokenName, username), true);

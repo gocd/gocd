@@ -38,6 +38,7 @@ import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
 import static com.thoughtworks.go.helper.AccessTokenMother.accessTokenWithName
 import static org.mockito.ArgumentMatchers.any
 import static org.mockito.ArgumentMatchers.eq
+import static org.mockito.Mockito.verify
 import static org.mockito.Mockito.when
 import static org.mockito.MockitoAnnotations.initMocks
 
@@ -294,7 +295,10 @@ class AccessTokenControllerV1Test implements ControllerTrait<AccessTokenControll
       @Test
       void 'should revoke the access token'() {
         when(accessTokenService.find(tokenName, userName)).thenReturn(token)
-        patchWithApiHeader(controller.controllerPath(userName, tokenName, 'revoke'), [:])
+
+        patchWithApiHeader(controller.controllerPath(userName, tokenName, 'revoke') + "?cause=blah", [:])
+
+        verify(accessTokenService).revokeAccessToken(eq(tokenName), eq(userName), eq("blah"), any() as HttpLocalizedOperationResult)
 
         assertThatResponse()
           .isOk()
@@ -304,7 +308,7 @@ class AccessTokenControllerV1Test implements ControllerTrait<AccessTokenControll
 
       @Test
       void 'should show errors occurred while revoking a new access token'() {
-        when(accessTokenService.revokeAccessToken(eq(tokenName) as String, eq(userName) as String, any() as HttpLocalizedOperationResult)).then({ InvocationOnMock invocation ->
+        when(accessTokenService.revokeAccessToken(eq(tokenName) as String, eq(userName) as String, any() as String, any() as HttpLocalizedOperationResult)).then({ InvocationOnMock invocation ->
           HttpLocalizedOperationResult result = invocation.getArguments().last() as HttpLocalizedOperationResult
           result.unprocessableEntity("Boom!")
         })

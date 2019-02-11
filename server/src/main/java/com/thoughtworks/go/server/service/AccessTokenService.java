@@ -23,6 +23,7 @@ import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.exceptions.InvalidAccessTokenException;
 import com.thoughtworks.go.server.exceptions.RevokedAccessTokenException;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
+import com.thoughtworks.go.util.Clock;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.lang3.StringUtils;
@@ -33,7 +34,6 @@ import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
 import java.security.SecureRandom;
-import java.sql.Timestamp;
 import java.util.Date;
 import java.util.List;
 
@@ -43,12 +43,14 @@ public class AccessTokenService {
     private static final int DESIRED_KEY_LENGTH = 256;
 
     private static final int SALT_LENGTH = 32;
+    private final Clock timeProvider;
 
     private AccessTokenDao accessTokenDao;
 
     @Autowired
-    public AccessTokenService(AccessTokenDao accessTokenDao) {
+    public AccessTokenService(AccessTokenDao accessTokenDao, Clock clock) {
         this.accessTokenDao = accessTokenDao;
+        this.timeProvider = clock;
     }
 
     public AccessToken create(String tokenName, String description, Username username, String authConfigId, HttpLocalizedOperationResult result) throws Exception {
@@ -147,7 +149,7 @@ public class AccessTokenService {
         return token;
     }
 
-    public void revokeAccessToken(String name, String username, HttpLocalizedOperationResult result) {
+    public void revokeAccessToken(String name, String username, String revokeCause, HttpLocalizedOperationResult result) {
         AccessToken fetchedAccessToken = accessTokenDao.findAccessToken(name, username);
 
         if (fetchedAccessToken == null) {
@@ -160,8 +162,7 @@ public class AccessTokenService {
             return;
         }
 
-        fetchedAccessToken.setRevoked(true);
-        fetchedAccessToken.setRevokedAt(new Timestamp(System.currentTimeMillis()));
+        fetchedAccessToken.revoke(username, revokeCause, timeProvider.currentTime());
 
         accessTokenDao.saveOrUpdate(fetchedAccessToken);
     }

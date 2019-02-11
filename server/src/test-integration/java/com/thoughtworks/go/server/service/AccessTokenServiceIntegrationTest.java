@@ -91,8 +91,8 @@ public class AccessTokenServiceIntegrationTest {
         assertThat(fetchedToken.getValue()).isEqualTo(createdToken.getValue());
         assertThat(fetchedToken.getName()).isEqualTo(createdToken.getName());
         assertThat(fetchedToken.getDescription()).isEqualTo(createdToken.getDescription());
-        assertThat(fetchedToken.getCreatedAt()).isEqualTo(createdToken.getCreatedAt());
-        assertThat(fetchedToken.getLastUsed()).isEqualTo(createdToken.getLastUsed());
+        assertThat(fetchedToken.getCreatedAt()).hasSameTimeAs(createdToken.getCreatedAt());
+        assertThat(fetchedToken.getLastUsed()).isNull();
         assertThat(fetchedToken.isRevoked()).isEqualTo(createdToken.isRevoked());
 
         assertThat(fetchedToken.getOriginalValue()).isNull();
@@ -182,7 +182,7 @@ public class AccessTokenServiceIntegrationTest {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
 
         AccessToken createdToken = accessTokenService.create(tokenName, tokenDescription, currentUsername(), authConfigId, result);
-        accessTokenService.revokeAccessToken(createdToken.getName(), currentUsername().getUsername().toString(), result);
+        accessTokenService.revokeAccessToken(createdToken.getName(), currentUsername().getUsername().toString(), null, result);
         String accessTokenInString = createdToken.getOriginalValue();
 
         RevokedAccessTokenException exception = assertThrows(RevokedAccessTokenException.class, () -> accessTokenService.findByAccessToken(accessTokenInString));
@@ -197,12 +197,14 @@ public class AccessTokenServiceIntegrationTest {
         AccessToken createdToken = accessTokenService.create(tokenName, tokenDescription, currentUsername(), authConfigId, new HttpLocalizedOperationResult());
 
         assertThat(createdToken.isRevoked()).isFalse();
+        assertThat(createdToken.getRevokeCause()).isBlank();
 
-        accessTokenService.revokeAccessToken(tokenName, currentUsername().getUsername().toString(), result);
+        accessTokenService.revokeAccessToken(tokenName, currentUsername().getUsername().toString(), "blah", result);
         assertThat(result.isSuccessful()).isTrue();
 
         AccessToken tokenAfterRevoking = accessTokenService.find(tokenName, currentUsername().getUsername().toString());
         assertThat(tokenAfterRevoking.isRevoked()).isTrue();
+        assertThat(tokenAfterRevoking.getRevokeCause()).isEqualTo("blah");
     }
 
     @Test
@@ -214,13 +216,13 @@ public class AccessTokenServiceIntegrationTest {
 
         assertThat(createdToken.isRevoked()).isFalse();
 
-        accessTokenService.revokeAccessToken(tokenName, currentUsername().getUsername().toString(), result);
+        accessTokenService.revokeAccessToken(tokenName, currentUsername().getUsername().toString(), null, result);
         assertThat(result.isSuccessful()).isTrue();
 
         AccessToken tokenAfterRevoking = accessTokenService.find(tokenName, currentUsername().getUsername().toString());
         assertThat(tokenAfterRevoking.isRevoked()).isTrue();
 
-        accessTokenService.revokeAccessToken(tokenName, currentUsername().getUsername().toString(), result);
+        accessTokenService.revokeAccessToken(tokenName, currentUsername().getUsername().toString(), null, result);
         assertThat(result.isSuccessful()).isFalse();
 
         assertThat(result.message()).isEqualTo(String.format("Validation Failed. Access Token with name '%s' for user '%s' has already been revoked.", tokenName, currentUsername().getUsername().toString()));
@@ -231,7 +233,7 @@ public class AccessTokenServiceIntegrationTest {
         String tokenName = "token1";
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
 
-        accessTokenService.revokeAccessToken(tokenName, currentUsername().getUsername().toString(), result);
+        accessTokenService.revokeAccessToken(tokenName, currentUsername().getUsername().toString(), null, result);
         assertThat(result.isSuccessful()).isFalse();
         assertThat(result.message()).isEqualTo(String.format("Validation Failed. Access Token with name '%s' for user '%s' does not exists.", tokenName, currentUsername().getUsername().toString()));
     }

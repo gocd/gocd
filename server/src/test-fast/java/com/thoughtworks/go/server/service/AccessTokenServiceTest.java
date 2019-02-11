@@ -20,6 +20,8 @@ import com.thoughtworks.go.domain.AccessToken;
 import com.thoughtworks.go.server.dao.AccessTokenDao;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
+import com.thoughtworks.go.util.Clock;
+import com.thoughtworks.go.util.TestingClock;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.lang.RandomStringUtils;
 import org.junit.jupiter.api.BeforeEach;
@@ -42,11 +44,12 @@ class AccessTokenServiceTest {
     private HttpLocalizedOperationResult result;
     private Username username;
     private String authConfigId;
+    private Clock clock = new TestingClock();
 
     @BeforeEach
     void setUp() {
         initMocks(this);
-        accessTokenService = new AccessTokenService(accessTokenDao);
+        accessTokenService = new AccessTokenService(accessTokenDao, clock);
         result = new HttpLocalizedOperationResult();
 
         username = new Username("Bob");
@@ -111,7 +114,7 @@ class AccessTokenServiceTest {
         String tokenName = "token1";
         String longerDescription = RandomStringUtils.randomAlphanumeric(1024).toUpperCase();
 
-        when(accessTokenDao.findAccessToken(tokenName, username.getUsername().toString())).thenReturn(new AccessToken(tokenName, "value"));
+        when(accessTokenDao.findAccessToken(tokenName, username.getUsername().toString())).thenReturn(new AccessToken(tokenName, "value", null, false, null, null));
 
         accessTokenService.create(tokenName, longerDescription, username, authConfigId, result);
 

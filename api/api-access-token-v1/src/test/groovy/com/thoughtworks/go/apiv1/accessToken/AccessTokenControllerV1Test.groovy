@@ -21,8 +21,12 @@ import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
 import com.thoughtworks.go.api.util.HaltApiMessages
 import com.thoughtworks.go.apiv1.accessToken.representers.AccessTokenRepresenter
 import com.thoughtworks.go.apiv1.accessToken.representers.AccessTokensRepresenter
+import com.thoughtworks.go.config.SecurityAuthConfig
+import com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother
+import com.thoughtworks.go.plugin.access.authorization.AuthorizationExtension
 import com.thoughtworks.go.server.domain.Username
 import com.thoughtworks.go.server.service.AccessTokenService
+import com.thoughtworks.go.server.service.SecurityAuthConfigService
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult
 import com.thoughtworks.go.spark.AdminUserSecurity
 import com.thoughtworks.go.spark.ControllerTrait
@@ -45,6 +49,10 @@ import static org.mockito.MockitoAnnotations.initMocks
 class AccessTokenControllerV1Test implements ControllerTrait<AccessTokenControllerV1>, SecurityServiceTrait {
   @Mock
   AccessTokenService accessTokenService
+  @Mock
+  SecurityAuthConfigService authConfigService
+  @Mock
+  AuthorizationExtension extension
 
   @BeforeEach
   void setUp() {
@@ -53,7 +61,7 @@ class AccessTokenControllerV1Test implements ControllerTrait<AccessTokenControll
 
   @Override
   AccessTokenControllerV1 createControllerInstance() {
-    return new AccessTokenControllerV1(new ApiAuthenticationHelper(securityService, goConfigService), accessTokenService)
+    return new AccessTokenControllerV1(new ApiAuthenticationHelper(securityService, goConfigService), accessTokenService, authConfigService, extension)
   }
 
   @Nested
@@ -140,6 +148,20 @@ class AccessTokenControllerV1Test implements ControllerTrait<AccessTokenControll
         loginAsAdmin()
 
         when(accessTokenService.create(eq(tokenName), eq(token.description), any(Username.class), eq(authConfigId), any(HttpLocalizedOperationResult.class))).thenReturn(token)
+        when(extension.supportsPluginAPICallsRequiredForAccessToken(any())).thenReturn(true)
+      }
+
+      @Test
+      void 'should disallow access token creation when the plugin does not support access token related API calls'() {
+        def authConfig = new SecurityAuthConfig("ldap", "plugin-ud", ConfigurationPropertyMother.create("url", false, "some-url"));
+        when(authConfigService.findProfile(any())).thenReturn(authConfig)
+        when(extension.supportsPluginAPICallsRequiredForAccessToken(authConfig)).thenReturn(false)
+
+        postWithApiHeader(controller.controllerPath(), [:])
+
+        assertThatResponse()
+          .isUnprocessableEntity()
+          .hasJsonMessage("Can not create Access Token. Please upgrade 'plugin-ud' plugin to use Access Token Feature.")
       }
 
       @Test

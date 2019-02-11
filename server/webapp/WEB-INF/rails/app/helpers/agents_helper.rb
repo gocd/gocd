@@ -19,16 +19,16 @@ module AgentsHelper
   AgentStatus = com.thoughtworks.go.domain.AgentStatus
 
   def agent_selector uuid, selector_name, selected_uuids, is_associated_through_config_repo=false
-    "<td class='selector'>#{agent_selector_without_cell(uuid, selector_name, selected_uuids, is_associated_through_config_repo)}</td>".html_safe
+    "<td class='agent_selector'>#{agent_selector_without_cell(uuid, selector_name, selected_uuids, is_associated_through_config_repo)}</td>".html_safe
   end
 
   def agent_selector_without_cell uuid, selector_name, selected_uuids, is_associated_through_config_repo
-    disabled_attr, title_attr = "", ""
+    disabled_attr, tooltip = "", ""
     if is_associated_through_config_repo
       disabled_attr = "disabled"
-      title_attr = "title='Agent is associated in a Config Repository, cannot edit'"
+      tooltip = "<span class='contextual_help has_go_tip_right agent_tooltip' title='Agent is associated in a Config Repository, cannot edit'></span>"
     end
-    "<input #{disabled_attr} #{title_attr} type='checkbox' name='#{ERB::Util.h(selector_name)}' value='#{ERB::Util.h(uuid)}' class='agent_select' #{(selected_uuids && selected_uuids.include?(uuid)) ? "checked='true'" : ""}/>".squish.html_safe
+    "#{tooltip}<input #{disabled_attr} type='checkbox' name='#{ERB::Util.h(selector_name)}' value='#{ERB::Util.h(uuid)}' class='agent_select' #{(selected_uuids && selected_uuids.include?(uuid)) ? "checked='true'" : ""}/>".squish.html_safe
   end
 
   def cell_with_title value, klass, title = value

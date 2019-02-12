@@ -21,25 +21,22 @@ import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
 import com.thoughtworks.go.api.util.HaltApiMessages
 import com.thoughtworks.go.apiv1.accessToken.representers.AccessTokenRepresenter
 import com.thoughtworks.go.apiv1.accessToken.representers.AccessTokensRepresenter
-import com.thoughtworks.go.config.SecurityAuthConfig
-import com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother
+import com.thoughtworks.go.config.exceptions.RecordNotFoundException
+import com.thoughtworks.go.config.exceptions.UnprocessableEntityException
+import com.thoughtworks.go.domain.AccessToken
 import com.thoughtworks.go.plugin.access.authorization.AuthorizationExtension
-import com.thoughtworks.go.server.domain.Username
 import com.thoughtworks.go.server.service.AccessTokenService
 import com.thoughtworks.go.server.service.SecurityAuthConfigService
-import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult
-import com.thoughtworks.go.spark.AdminUserSecurity
 import com.thoughtworks.go.spark.ControllerTrait
-import com.thoughtworks.go.spark.NormalUserSecurity
+import com.thoughtworks.go.spark.NormalUserOnlyIfSecurityEnabled
 import com.thoughtworks.go.spark.SecurityServiceTrait
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.Mock
-import org.mockito.invocation.InvocationOnMock
 
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
-import static com.thoughtworks.go.helper.AccessTokenMother.accessTokenWithName
+import static com.thoughtworks.go.apiv1.accessToken.representers.AccessTokenRepresenterTest.randomAccessToken
 import static org.mockito.ArgumentMatchers.any
 import static org.mockito.ArgumentMatchers.eq
 import static org.mockito.Mockito.verify
@@ -66,14 +63,13 @@ class AccessTokenControllerV1Test implements ControllerTrait<AccessTokenControll
 
   @Nested
   class Show {
-    def tokenName = "token1"
-    def token = accessTokenWithName(tokenName)
+    def token = randomAccessToken()
 
     @Nested
-    class Security implements SecurityTestTrait, NormalUserSecurity {
+    class Security implements SecurityTestTrait, NormalUserOnlyIfSecurityEnabled {
       @BeforeEach
       void setUp() {
-        when(accessTokenService.find(eq(tokenName), any(Username.class))).thenReturn(token)
+        when(accessTokenService.find(token.id, currentUserLoginName().toString())).thenReturn(token)
       }
 
       @Override
@@ -83,7 +79,7 @@ class AccessTokenControllerV1Test implements ControllerTrait<AccessTokenControll
 
       @Override
       void makeHttpCall() {
-        getWithApiHeader(controller.controllerPath(tokenName))
+        getWithApiHeader(controller.controllerPath(token.id))
       }
     }
 
@@ -94,24 +90,24 @@ class AccessTokenControllerV1Test implements ControllerTrait<AccessTokenControll
         enableSecurity()
         loginAsAdmin()
 
-        when(accessTokenService.find(eq(tokenName), any(String.class))).thenReturn(token)
+        when(accessTokenService.find(eq(token.id), any(String.class))).thenReturn(token)
       }
 
       @Test
       void 'should render the access token'() {
-        getWithApiHeader(controller.controllerPath(tokenName))
+        getWithApiHeader(controller.controllerPath(token.id))
 
         assertThatResponse()
           .isOk()
           .hasContentType(controller.mimeType)
-          .hasBody(toObjectString({ AccessTokenRepresenter.toJSON(it, token, false) }))
+          .hasBody(toObjectString({ AccessTokenRepresenter.toJSON(it, token) }))
       }
 
       @Test
       void 'should render not found when the specified access token does not exists'() {
-        when(accessTokenService.find(eq(tokenName), any(String.class))).thenReturn(null)
+        when(accessTokenService.find(eq(token.id), any(String.class))).thenThrow(new RecordNotFoundException("blah!"))
 
-        getWithApiHeader(controller.controllerPath(tokenName))
+        getWithApiHeader(controller.controllerPath(token.id))
 
         assertThatResponse()
           .isNotFound()
@@ -124,11 +120,9 @@ class AccessTokenControllerV1Test implements ControllerTrait<AccessTokenControll
   @Nested
   class Create {
     def authConfigId = 'authConfigId'
-    def tokenName = "token1"
-    def token = accessTokenWithName(tokenName)
 
     @Nested
-    class Security implements SecurityTestTrait, NormalUserSecurity {
+    class Security implements SecurityTestTrait, NormalUserOnlyIfSecurityEnabled {
       @Override
       String getControllerMethodUnderTest() {
         return "createAccessToken"
@@ -141,33 +135,20 @@ class AccessTokenControllerV1Test implements ControllerTrait<AccessTokenControll
     }
 
     @Nested
-    class AsAdmin {
+    class AsAuthenticatedUser {
+      def token = randomAccessToken()
+
       @BeforeEach
       void setUp() {
         enableSecurity()
-        loginAsAdmin()
+        loginAsUser()
 
-        when(accessTokenService.create(eq(tokenName), eq(token.description), any(Username.class), eq(authConfigId), any(HttpLocalizedOperationResult.class))).thenReturn(token)
-        when(extension.supportsPluginAPICallsRequiredForAccessToken(any())).thenReturn(true)
-      }
-
-      @Test
-      void 'should disallow access token creation when the plugin does not support access token related API calls'() {
-        def authConfig = new SecurityAuthConfig("ldap", "plugin-ud", ConfigurationPropertyMother.create("url", false, "some-url"));
-        when(authConfigService.findProfile(any())).thenReturn(authConfig)
-        when(extension.supportsPluginAPICallsRequiredForAccessToken(authConfig)).thenReturn(false)
-
-        postWithApiHeader(controller.controllerPath(), [:])
-
-        assertThatResponse()
-          .isUnprocessableEntity()
-          .hasJsonMessage("Can not create Access Token. Please upgrade 'plugin-ud' plugin to use Access Token Feature.")
+        when(accessTokenService.create(token.description, currentUserLoginName().toString(), authConfigId)).thenReturn(token)
       }
 
       @Test
       void 'should create a new access token'() {
         def requestBody = [
-          name       : token.name,
           description: token.description
         ]
 
@@ -176,16 +157,16 @@ class AccessTokenControllerV1Test implements ControllerTrait<AccessTokenControll
         assertThatResponse()
           .isOk()
           .hasContentType(controller.mimeType)
-          .hasBody(toObjectString({ AccessTokenRepresenter.toJSON(it, token, true) }))
+          .hasBody(toObjectString({ AccessTokenRepresenter.toJSON(it, token) }))
       }
 
       @Test
       void 'should create a new access token without providing token description'() {
-        token.setDescription(null)
-        when(accessTokenService.create(eq(tokenName), eq(token.description), any(Username.class), eq(authConfigId), any(HttpLocalizedOperationResult.class))).thenReturn(token)
+        token.description = null
+        when(accessTokenService.create(eq(token.description), eq(currentUserLoginName().toString()), eq(authConfigId))).thenReturn(token)
 
         def requestBody = [
-          name: token.name
+          description: null
         ]
 
         postWithApiHeader(controller.controllerPath(), requestBody)
@@ -193,30 +174,14 @@ class AccessTokenControllerV1Test implements ControllerTrait<AccessTokenControll
         assertThatResponse()
           .isOk()
           .hasContentType(controller.mimeType)
-          .hasBody(toObjectString({ AccessTokenRepresenter.toJSON(it, token, true) }))
-      }
-
-      @Test
-      void 'should fail to create a new access token when no token name is specified'() {
-        def requestBody = [
-          no_name: token.name
-        ]
-
-        postWithApiHeader(controller.controllerPath(), requestBody)
-
-        assertThatResponse()
-          .isUnprocessableEntity()
+          .hasBody(toObjectString({ AccessTokenRepresenter.toJSON(it, token) }))
       }
 
       @Test
       void 'should show errors occurred while creating a new access token'() {
-        when(accessTokenService.create(eq(tokenName), eq(token.description), any(Username.class), eq(authConfigId), any(HttpLocalizedOperationResult.class))).then({ InvocationOnMock invocation ->
-          HttpLocalizedOperationResult result = invocation.getArguments().last() as HttpLocalizedOperationResult
-          result.unprocessableEntity("Boom!")
-        })
+        when(accessTokenService.create(token.description, currentUserLoginName().toString(), authConfigId)).thenThrow(new UnprocessableEntityException("Boom!"))
 
         def requestBody = [
-          name       : token.name,
           description: token.description
         ]
 
@@ -224,20 +189,20 @@ class AccessTokenControllerV1Test implements ControllerTrait<AccessTokenControll
 
         assertThatResponse()
           .isUnprocessableEntity()
-          .hasJsonMessage("Boom!")
+          .hasJsonMessage("Your request could not be processed. Boom!")
       }
     }
   }
 
   @Nested
   class Index {
-    def token = accessTokenWithName("token1")
+    AccessToken.AccessTokenWithDisplayValue token = randomAccessToken()
 
     @Nested
-    class Security implements SecurityTestTrait, NormalUserSecurity {
+    class Security implements SecurityTestTrait, NormalUserOnlyIfSecurityEnabled {
       @BeforeEach
       void setUp() {
-        when(accessTokenService.findAllTokensForUser(any(Username.class))).thenReturn([token])
+        when(accessTokenService.findAllTokensForUser(currentUserLoginName().toString())).thenReturn([token])
       }
 
       @Override
@@ -258,7 +223,7 @@ class AccessTokenControllerV1Test implements ControllerTrait<AccessTokenControll
         enableSecurity()
         loginAsAdmin()
 
-        when(accessTokenService.findAllTokensForUser(any(Username.class))).thenReturn([token])
+        when(accessTokenService.findAllTokensForUser(currentUserLoginName().toString())).thenReturn([token])
       }
 
       @Test
@@ -275,12 +240,10 @@ class AccessTokenControllerV1Test implements ControllerTrait<AccessTokenControll
 
   @Nested
   class Revoke {
-    def tokenName = "token1"
-    def userName = "bob"
-    def token = accessTokenWithName(tokenName)
+    def token = randomAccessToken()
 
     @Nested
-    class NormalSecurity implements SecurityTestTrait, NormalUserSecurity {
+    class NormalSecurity implements SecurityTestTrait, NormalUserOnlyIfSecurityEnabled {
       @Override
       String getControllerMethodUnderTest() {
         return "revokeAccessToken"
@@ -288,23 +251,9 @@ class AccessTokenControllerV1Test implements ControllerTrait<AccessTokenControll
 
       @Override
       void makeHttpCall() {
-        patchWithApiHeader(controller.controllerPath(currentUsername().getUsername().toString(), tokenName, 'revoke'), [:])
+        postWithApiHeader(controller.controllerPath(token.id, 'revoke'), [:])
       }
     }
-
-    @Nested
-    class AdminSecurity implements SecurityTestTrait, AdminUserSecurity {
-      @Override
-      String getControllerMethodUnderTest() {
-        return "revokeAccessToken"
-      }
-
-      @Override
-      void makeHttpCall() {
-        patchWithApiHeader(controller.controllerPath(userName, tokenName, 'revoke'), [:])
-      }
-    }
-
 
     @Nested
     class AsAdmin {
@@ -316,30 +265,28 @@ class AccessTokenControllerV1Test implements ControllerTrait<AccessTokenControll
 
       @Test
       void 'should revoke the access token'() {
-        when(accessTokenService.find(tokenName, userName)).thenReturn(token)
+        when(accessTokenService.find(token.id, currentUserLoginName().toString())).thenReturn(token)
+        when(accessTokenService.revokeAccessToken(token.id, currentUserLoginName().toString(), "blah")).thenReturn(token)
 
-        patchWithApiHeader(controller.controllerPath(userName, tokenName, 'revoke') + "?cause=blah", [:])
+        postWithApiHeader(controller.controllerPath(token.id, 'revoke'), [cause: 'blah'])
 
-        verify(accessTokenService).revokeAccessToken(eq(tokenName), eq(userName), eq("blah"), any() as HttpLocalizedOperationResult)
+        verify(accessTokenService).revokeAccessToken(token.id, currentUserLoginName().toString(), "blah")
 
         assertThatResponse()
           .isOk()
           .hasContentType(controller.mimeType)
-          .hasBody(toObjectString({ AccessTokenRepresenter.toJSON(it, token, true) }))
+          .hasBody(toObjectString({ AccessTokenRepresenter.toJSON(it, token) }))
       }
 
       @Test
       void 'should show errors occurred while revoking a new access token'() {
-        when(accessTokenService.revokeAccessToken(eq(tokenName) as String, eq(userName) as String, any() as String, any() as HttpLocalizedOperationResult)).then({ InvocationOnMock invocation ->
-          HttpLocalizedOperationResult result = invocation.getArguments().last() as HttpLocalizedOperationResult
-          result.unprocessableEntity("Boom!")
-        })
+        when(accessTokenService.revokeAccessToken(token.id, currentUserLoginName().toString(), null)).thenThrow(new UnprocessableEntityException("Boom!"))
 
-        patchWithApiHeader(controller.controllerPath(userName, tokenName, 'revoke'), [:])
+        postWithApiHeader(controller.controllerPath(token.id, 'revoke'), [:])
 
         assertThatResponse()
           .isUnprocessableEntity()
-          .hasJsonMessage("Boom!")
+          .hasJsonMessage("Your request could not be processed. Boom!")
       }
     }
   }

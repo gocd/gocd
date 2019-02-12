@@ -112,4 +112,9 @@ public abstract class HaltApiResponses {
     public static HaltException haltBecauseOfReason(String message, Object... tokens) {
         return halt(HttpStatus.UNPROCESSABLE_ENTITY.value(), MessageJson.create(format(message, tokens)));
     }
+
+    public static HaltException haltBecauseSecurityIsNotEnabled() {
+        return halt(HttpStatus.UNPROCESSABLE_ENTITY.value(), MessageJson.create(HaltApiMessages.haltBecauseSecurityIsNotEnabled()));
+
+    }
 }

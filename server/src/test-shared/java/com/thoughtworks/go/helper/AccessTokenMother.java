@@ -14,20 +14,18 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.server.dao;
+package com.thoughtworks.go.helper;
 
 import com.thoughtworks.go.domain.AccessToken;
+import com.thoughtworks.go.util.TestingClock;
+import org.apache.commons.lang3.RandomStringUtils;
 
-import java.util.List;
+public class AccessTokenMother {
+    public static AccessToken.AccessTokenWithDisplayValue randomAccessToken() {
+        return randomAccessTokenForUser(RandomStringUtils.randomAlphabetic(32));
+    }
 
-public interface AccessTokenDao {
-    void saveOrUpdate(AccessToken accessToken);
-
-    AccessToken load(long id);
-
-    void deleteAll();
-
-    List<AccessToken> findAllTokensForUser(String username);
-
-    AccessToken findAccessTokenBySaltId(String saltId);
+    public static AccessToken.AccessTokenWithDisplayValue randomAccessTokenForUser(String username) {
+        return AccessToken.create(RandomStringUtils.randomAlphabetic(32), username, RandomStringUtils.randomAlphabetic(32), new TestingClock());
+    }
 }

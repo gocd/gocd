@@ -23,6 +23,8 @@ import com.thoughtworks.go.spark.spring.AbstractAuthenticationHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import spark.HaltException;
+import spark.Request;
+import spark.Response;
 
 @Component
 public class ApiAuthenticationHelper extends AbstractAuthenticationHelper {
@@ -33,9 +35,14 @@ public class ApiAuthenticationHelper extends AbstractAuthenticationHelper {
     }
 
     @Override
-    protected HaltException renderForbiddenResponse() throws HaltException {
+    public HaltException renderForbiddenResponse() throws HaltException {
         LOG.info("User {} attempted to perform an unauthorized action!", currentUserLoginName());
         return HaltApiResponses.haltBecauseForbidden();
     }
 
+    public void ensureSecurityEnabled(Request request, Response response) {
+        if (!securityService.isSecurityEnabled()) {
+            throw HaltApiResponses.haltBecauseSecurityIsNotEnabled();
+        }
+    }
 }

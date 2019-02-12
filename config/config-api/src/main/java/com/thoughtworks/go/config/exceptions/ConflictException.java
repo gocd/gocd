@@ -14,15 +14,10 @@
  * limitations under the License.
  */
 
-apply plugin: 'jacoco'
-apply plugin: 'groovy'
+package com.thoughtworks.go.config.exceptions;
 
-dependencies {
-  compile project(':api:api-base')
-
-  testCompile project(path: ':api:api-base', configuration: 'testOutput')
-  testCompile project(path: ':server', configuration: 'sharedTestOutput')
-
-  testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: project.versions.junit5
-  testRuntimeOnly group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: project.versions.junit5
+public class ConflictException extends RuntimeException {
+    public ConflictException(String message) {
+        super(message);
+    }
 }

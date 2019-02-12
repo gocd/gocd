@@ -63,4 +63,13 @@ trait SecurityTestTrait {
       .hasStatus(403)
       .hasJsonMessage(HaltApiMessages.forbiddenMessage())
   }
+
+  def assertDeniedBecauseSecurityDisabled() {
+    verify(controller, never())."${controllerMethodUnderTest}"(any(), any())
+
+    ((MockHttpServletResponseAssert) assertThatResponse())
+      .hasContentType(controller.mimeType)
+      .hasStatus(422)
+      .hasJsonMessage(HaltApiMessages.haltBecauseSecurityIsNotEnabled())
+  }
 }

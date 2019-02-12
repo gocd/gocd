@@ -18,7 +18,6 @@ package com.thoughtworks.go.server.newsecurity.providers;
 
 import com.thoughtworks.go.config.SecurityAuthConfig;
 import com.thoughtworks.go.domain.User;
-import com.thoughtworks.go.helper.AccessTokenMother;
 import com.thoughtworks.go.plugin.access.authorization.AuthorizationExtension;
 import com.thoughtworks.go.plugin.access.authorization.AuthorizationMetadataStore;
 import com.thoughtworks.go.plugin.domain.authorization.AuthenticationResponse;
@@ -35,6 +34,7 @@ import org.mockito.Mock;
 
 import java.util.Collections;
 
+import static com.thoughtworks.go.helper.AccessTokenMother.randomAccessToken;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -64,7 +64,7 @@ class AccessTokenBasedPluginAuthenticationProviderTest {
 
     private AccessTokenBasedPluginAuthenticationProvider provider;
     private final SecurityAuthConfig authConfig = new SecurityAuthConfig();
-    private final AccessTokenCredential credentials = new AccessTokenCredential(AccessTokenMother.accessTokenWithName(accessTokenName));
+    private final AccessTokenCredential credentials = new AccessTokenCredential(randomAccessToken());
 
     @BeforeEach
     void setUp() {

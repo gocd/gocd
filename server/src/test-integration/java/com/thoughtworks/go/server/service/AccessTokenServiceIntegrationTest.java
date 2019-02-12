@@ -16,13 +16,13 @@
 
 package com.thoughtworks.go.server.service;
 
+import com.thoughtworks.go.config.exceptions.ConflictException;
+import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.domain.AccessToken;
 import com.thoughtworks.go.server.dao.AccessTokenSqlMapDao;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
-import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.exceptions.InvalidAccessTokenException;
 import com.thoughtworks.go.server.exceptions.RevokedAccessTokenException;
-import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.After;
@@ -33,8 +33,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import static com.thoughtworks.go.server.newsecurity.utils.SessionUtils.currentUsername;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 
@@ -53,13 +53,11 @@ public class AccessTokenServiceIntegrationTest {
 
     @Autowired
     AccessTokenSqlMapDao accessTokenSqlMapDao;
-    private Username username;
     private String authConfigId;
 
     @Before
     public void setUp() throws Exception {
         dbHelper.onSetUp();
-        username = currentUsername();
         authConfigId = "auth-config-1";
     }
 
@@ -71,80 +69,36 @@ public class AccessTokenServiceIntegrationTest {
 
     @Test
     public void shouldCreateAnAccessToken() throws Exception {
-        String tokenName = "token1";
         String tokenDescription = "This is my first token";
-        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
 
-        AccessToken createdToken = accessTokenService.create(tokenName, tokenDescription, currentUsername(), authConfigId, result);
+        AccessToken.AccessTokenWithDisplayValue createdToken = accessTokenService.create(tokenDescription, "bob", authConfigId);
 
-        AccessToken fetchedToken = accessTokenService.find(tokenName, username.getUsername().toString());
+        AccessToken fetchedToken = accessTokenService.find(createdToken.getId(), "bob");
 
-        assertThat(result.isSuccessful()).isTrue();
-        assertThat(createdToken.getName()).isEqualTo(tokenName);
         assertThat(createdToken.getDescription()).isEqualTo(tokenDescription);
         assertThat(createdToken.getValue()).isNotNull();
-        assertThat(createdToken.getOriginalValue()).isNotNull();
+        assertThat(createdToken.getDisplayValue()).isNotNull();
         assertThat(createdToken.getCreatedAt()).isNotNull();
         assertThat(createdToken.getLastUsed()).isNull();
         assertThat(createdToken.isRevoked()).isFalse();
 
         assertThat(fetchedToken.getValue()).isEqualTo(createdToken.getValue());
-        assertThat(fetchedToken.getName()).isEqualTo(createdToken.getName());
         assertThat(fetchedToken.getDescription()).isEqualTo(createdToken.getDescription());
-        assertThat(fetchedToken.getCreatedAt()).hasSameTimeAs(createdToken.getCreatedAt());
+        assertThat(fetchedToken.getCreatedAt()).isEqualTo(createdToken.getCreatedAt());
         assertThat(fetchedToken.getLastUsed()).isNull();
         assertThat(fetchedToken.isRevoked()).isEqualTo(createdToken.isRevoked());
-
-        assertThat(fetchedToken.getOriginalValue()).isNull();
-    }
-
-    @Test
-    public void shouldFailToCreateAccessTokenWhenOneWithTheSameNameAlreadyExists() throws Exception {
-        String tokenName = "token1";
-        String tokenDescription = "This is my first token";
-        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-
-        accessTokenService.create(tokenName, tokenDescription, currentUsername(), authConfigId, result);
-        assertThat(result.isSuccessful()).isTrue();
-
-        AccessToken savedToken = accessTokenService.find(tokenName, username.getUsername().toString());
-        assertThat(savedToken.getName()).isEqualTo(tokenName);
-
-        accessTokenService.create(tokenName, tokenDescription, currentUsername(), authConfigId, result);
-        assertThat(result.isSuccessful()).isFalse();
-        assertThat(result.httpCode()).isEqualTo(409);
-        assertThat(result.message()).isEqualTo("Validation Failed. Another access token with name 'token1' already exists.");
-    }
-
-    @Test
-    public void shouldAllowDifferentUsersToCreateAccessTokenWhenWithSameName() throws Exception {
-        String tokenName = "token1";
-        String tokenDescription = "This is my first token";
-        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-
-        accessTokenService.create(tokenName, tokenDescription, currentUsername(), authConfigId, result);
-        assertThat(result.isSuccessful()).isTrue();
-
-        AccessToken savedToken = accessTokenService.find(tokenName, username.getUsername().toString());
-        assertThat(savedToken.getName()).isEqualTo(tokenName);
-
-        accessTokenService.create(tokenName, tokenDescription, new Username("Another User"), authConfigId, result);
-
-        assertThat(result.isSuccessful()).isTrue();
     }
 
     @Test
     public void shouldGetAccessTokenProvidedTokenValue() throws Exception {
-        String tokenName = "token1";
         String tokenDescription = "This is my first Token";
-        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
 
-        AccessToken createdToken = accessTokenService.create(tokenName, tokenDescription, currentUsername(), authConfigId, result);
-        String accessTokenInString = createdToken.getOriginalValue();
-        createdToken.setOriginalValue(null);
+        AccessToken.AccessTokenWithDisplayValue createdToken = accessTokenService.create(tokenDescription, "bob", authConfigId);
+        String accessTokenInString = createdToken.getDisplayValue();
+
         AccessToken fetchedToken = accessTokenService.findByAccessToken(accessTokenInString);
 
-        assertThat(createdToken).isEqualTo(fetchedToken);
+        assertThat(fetchedToken).isEqualTo(createdToken);
     }
 
     @Test
@@ -162,12 +116,11 @@ public class AccessTokenServiceIntegrationTest {
 
     @Test
     public void shouldFailToGetAccessTokenWhenProvidedTokenHashEqualityFails() throws Exception {
-        String tokenName = "token1";
+        long id = 42;
         String tokenDescription = "This is my first Token";
-        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
 
-        AccessToken createdToken = accessTokenService.create(tokenName, tokenDescription, currentUsername(), authConfigId, result);
-        String accessTokenInString = createdToken.getOriginalValue();
+        AccessToken.AccessTokenWithDisplayValue createdToken = accessTokenService.create(tokenDescription, "bob", authConfigId);
+        String accessTokenInString = createdToken.getDisplayValue();
         //replace last 5 characters to make the current token invalid
         String invalidAccessToken = StringUtils.replace(accessTokenInString, accessTokenInString.substring(35), "abcde");
 
@@ -177,13 +130,12 @@ public class AccessTokenServiceIntegrationTest {
 
     @Test
     public void shouldNotGetAccessTokenProvidedTokenValueWhenTokenIsRevoked() throws Exception {
-        String tokenName = "token1";
+        long id = 42;
         String tokenDescription = "This is my first Token";
-        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
 
-        AccessToken createdToken = accessTokenService.create(tokenName, tokenDescription, currentUsername(), authConfigId, result);
-        accessTokenService.revokeAccessToken(createdToken.getName(), currentUsername().getUsername().toString(), null, result);
-        String accessTokenInString = createdToken.getOriginalValue();
+        AccessToken.AccessTokenWithDisplayValue createdToken = accessTokenService.create(tokenDescription, "bob", authConfigId);
+        accessTokenService.revokeAccessToken(createdToken.getId(), "BOB", null);
+        String accessTokenInString = createdToken.getDisplayValue();
 
         RevokedAccessTokenException exception = assertThrows(RevokedAccessTokenException.class, () -> accessTokenService.findByAccessToken(accessTokenInString));
         assertThat(exception.getMessage()).startsWith("Invalid Personal Access Token. Access token was revoked at: ");
@@ -191,50 +143,42 @@ public class AccessTokenServiceIntegrationTest {
 
     @Test
     public void shouldRevokeAnAccessToken() throws Exception {
-        String tokenName = "token1";
         String tokenDescription = "This is my first Token";
-        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        AccessToken createdToken = accessTokenService.create(tokenName, tokenDescription, currentUsername(), authConfigId, new HttpLocalizedOperationResult());
+        AccessToken createdToken = accessTokenService.create(tokenDescription, "BOB", authConfigId);
 
         assertThat(createdToken.isRevoked()).isFalse();
         assertThat(createdToken.getRevokeCause()).isBlank();
 
-        accessTokenService.revokeAccessToken(tokenName, currentUsername().getUsername().toString(), "blah", result);
-        assertThat(result.isSuccessful()).isTrue();
+        accessTokenService.revokeAccessToken(createdToken.getId(), "bob", "blah");
 
-        AccessToken tokenAfterRevoking = accessTokenService.find(tokenName, currentUsername().getUsername().toString());
+        AccessToken tokenAfterRevoking = accessTokenService.find(createdToken.getId(), "bOb");
         assertThat(tokenAfterRevoking.isRevoked()).isTrue();
         assertThat(tokenAfterRevoking.getRevokeCause()).isEqualTo("blah");
     }
 
     @Test
     public void shouldFailToRevokeAnAlreadyRevokedAccessToken() throws Exception {
-        String tokenName = "token1";
         String tokenDescription = "This is my first Token";
-        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        AccessToken createdToken = accessTokenService.create(tokenName, tokenDescription, currentUsername(), authConfigId, new HttpLocalizedOperationResult());
+        AccessToken createdToken = accessTokenService.create(tokenDescription, "BOB", authConfigId);
 
         assertThat(createdToken.isRevoked()).isFalse();
 
-        accessTokenService.revokeAccessToken(tokenName, currentUsername().getUsername().toString(), null, result);
-        assertThat(result.isSuccessful()).isTrue();
+        accessTokenService.revokeAccessToken(createdToken.getId(), "bOb", null);
 
-        AccessToken tokenAfterRevoking = accessTokenService.find(tokenName, currentUsername().getUsername().toString());
+        AccessToken tokenAfterRevoking = accessTokenService.find(createdToken.getId(), "bOb");
         assertThat(tokenAfterRevoking.isRevoked()).isTrue();
 
-        accessTokenService.revokeAccessToken(tokenName, currentUsername().getUsername().toString(), null, result);
-        assertThat(result.isSuccessful()).isFalse();
-
-        assertThat(result.message()).isEqualTo(String.format("Validation Failed. Access Token with name '%s' for user '%s' has already been revoked.", tokenName, currentUsername().getUsername().toString()));
+        assertThatCode(() -> accessTokenService.revokeAccessToken(createdToken.getId(), "bOb", null))
+                .isInstanceOf(ConflictException.class)
+                .hasMessage("Access token has already been revoked!");
     }
 
     @Test
     public void shouldFailToRevokeNonExistingAccessToken() {
-        String tokenName = "token1";
-        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+        long id = 42;
 
-        accessTokenService.revokeAccessToken(tokenName, currentUsername().getUsername().toString(), null, result);
-        assertThat(result.isSuccessful()).isFalse();
-        assertThat(result.message()).isEqualTo(String.format("Validation Failed. Access Token with name '%s' for user '%s' does not exists.", tokenName, currentUsername().getUsername().toString()));
+        assertThatCode(() -> accessTokenService.revokeAccessToken(id, "bOb", null))
+                .isInstanceOf(RecordNotFoundException.class)
+                .hasMessage("Cannot locate access token with id 42");
     }
 }

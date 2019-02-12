@@ -21,13 +21,13 @@ import com.thoughtworks.go.domain.AccessToken;
 import com.thoughtworks.go.spark.Routes;
 
 public class AccessTokenRepresenter {
-    public static void toJSON(OutputWriter outputWriter, AccessToken token, boolean includeTokenValue) {
+    public static void toJSON(OutputWriter outputWriter, AccessToken token) {
         outputWriter.addLinks(linksWriter -> linksWriter
-                .addLink("self", Routes.AccessToken.name(token.getName()))
+                .addLink("self", Routes.AccessToken.find(token.getId()))
                 .addAbsoluteLink("doc", Routes.AccessToken.DOC)
                 .addLink("find", Routes.AccessToken.find()));
 
-        outputWriter.add("name", token.getName())
+        outputWriter.add("id", token.getId())
                 .add("description", token.getDescription())
                 .add("auth_config_id", token.getAuthConfigId())
                 .addChild("_meta", metaWriter -> {
@@ -37,8 +37,8 @@ public class AccessTokenRepresenter {
                             .add("last_used_at", token.getLastUsed());
                 });
 
-        if (includeTokenValue) {
-            outputWriter.add("token", token.getOriginalValue());
+        if (token instanceof AccessToken.AccessTokenWithDisplayValue) {
+            outputWriter.addIfNotNull("token", ((AccessToken.AccessTokenWithDisplayValue) token).getDisplayValue());
         }
     }
 }

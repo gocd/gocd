@@ -27,8 +27,8 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.util.List;
 
-import static com.thoughtworks.go.helper.AccessTokenMother.accessTokenWithName;
-import static com.thoughtworks.go.helper.AccessTokenMother.accessTokenWithNameForUser;
+import static com.thoughtworks.go.helper.AccessTokenMother.randomAccessToken;
+import static com.thoughtworks.go.helper.AccessTokenMother.randomAccessTokenForUser;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -44,12 +44,9 @@ public class AccessTokenSqlMapDaoIntegrationTest {
     @Autowired
     private DatabaseAccessHelper dbHelper;
 
-    private String username;
-
     @Before
     public void setup() throws Exception {
         dbHelper.onSetUp();
-        username = "Bob";
     }
 
     @After
@@ -60,20 +57,17 @@ public class AccessTokenSqlMapDaoIntegrationTest {
 
     @Test
     public void shouldSaveUsersIntoDatabase() {
-        String tokenName = "access-token-for-apis";
-        AccessToken accessToken = accessTokenWithName(tokenName);
+        AccessToken accessToken = randomAccessToken();
 
         accessTokenSqlMapDao.saveOrUpdate(accessToken);
 
-        AccessToken savedAccessToken = accessTokenSqlMapDao.findAccessToken(tokenName, username);
+        AccessToken savedAccessToken = accessTokenSqlMapDao.load(accessToken.getId());
         assertThat(savedAccessToken).isEqualTo(accessToken);
-        assertThat(accessTokenSqlMapDao.load(savedAccessToken.getId())).isEqualTo(accessToken);
     }
 
     @Test
-    public void shouldReturnNullWhenNoAccessTokenFoundForTheSpecifiedName() {
-        String tokenName = "access-token-for-apis";
-        AccessToken savedAccessToken = accessTokenSqlMapDao.findAccessToken(tokenName, username);
+    public void shouldReturnNullWhenNoAccessTokenFound() {
+        AccessToken savedAccessToken = accessTokenSqlMapDao.load(-1);
         assertThat(savedAccessToken).isNull();
     }
 
@@ -82,30 +76,24 @@ public class AccessTokenSqlMapDaoIntegrationTest {
         String user1 = "Bob";
         String user2 = "John";
 
-        String tokenName1 = "token1-created-by-Bob";
-        String tokenName2 = "token2-created-by-Bob";
-        String tokenName3 = "token2-created-by-John";
+        AccessToken token1 = randomAccessTokenForUser(user1);
+        AccessToken token2 = randomAccessTokenForUser(user1);
+        AccessToken token3 = randomAccessTokenForUser(user2);
 
-        accessTokenSqlMapDao.saveOrUpdate(accessTokenWithNameForUser(tokenName1, user1));
-        accessTokenSqlMapDao.saveOrUpdate(accessTokenWithNameForUser(tokenName2, user1));
-        accessTokenSqlMapDao.saveOrUpdate(accessTokenWithNameForUser(tokenName3, user2));
+        accessTokenSqlMapDao.saveOrUpdate(token1);
+        accessTokenSqlMapDao.saveOrUpdate(token2);
+        accessTokenSqlMapDao.saveOrUpdate(token3);
 
         List<AccessToken> user1AccessTokens = accessTokenSqlMapDao.findAllTokensForUser(user1);
         List<AccessToken> user2AccessTokens = accessTokenSqlMapDao.findAllTokensForUser(user2);
 
-        assertThat(user1AccessTokens).hasSize(2);
-        assertThat(user2AccessTokens).hasSize(1);
-
-        assertThat(user1AccessTokens.get(0).getName()).isEqualTo(tokenName1);
-        assertThat(user1AccessTokens.get(1).getName()).isEqualTo(tokenName2);
-
-        assertThat(user2AccessTokens.get(0).getName()).isEqualTo(tokenName3);
+        assertThat(user1AccessTokens).hasSize(2).containsExactlyInAnyOrder(token1, token2);
+        assertThat(user2AccessTokens).hasSize(1).containsExactlyInAnyOrder(token3);
     }
 
     @Test
     public void shouldLoadAccessTokenBasedOnSaltId() {
-        String tokenName = "access-token-for-apis";
-        AccessToken accessToken = accessTokenWithName(tokenName);
+        AccessToken accessToken = randomAccessToken();
 
         accessTokenSqlMapDao.saveOrUpdate(accessToken);
 

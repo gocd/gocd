@@ -34,6 +34,7 @@ import java.io.StringWriter;
 import java.util.Objects;
 import java.util.function.Consumer;
 
+import static com.thoughtworks.go.api.util.HaltApiMessages.forbiddenMessage;
 import static com.thoughtworks.go.api.util.HaltApiMessages.notFoundMessage;
 
 public interface ControllerMethods {
@@ -74,6 +75,11 @@ public interface ControllerMethods {
     default void notFound(Exception ex, Request req, Response res) {
         res.status(HttpStatus.NOT_FOUND.value());
         res.body(MessageJson.create(notFoundMessage()));
+    }
+
+    default void renderForbiddenResponse(Exception ex, Request req, Response res) {
+        res.status(HttpStatus.UNAUTHORIZED.value());
+        res.body(MessageJson.create(forbiddenMessage()));
     }
 
     default void setEtagHeader(Response res, String value) {

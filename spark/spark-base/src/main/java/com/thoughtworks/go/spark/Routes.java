@@ -435,17 +435,17 @@ public class Routes {
     }
 
     public static class AccessToken {
-        public static final String BASE = "/api/access_token";
-        public static final String TOKEN_NAME = "/:token_name";
-        public static final String USERNAME = "/:username";
+        public static final String BASE = "/api/access_tokens";
+        public static final String ID = "/:id";
+        public static final String REVOKE = ID + "/revoke";
         public static final String DOC = apiDocsUrl("#access-token");
 
         public static String find() {
-            return BASE + TOKEN_NAME;
+            return BASE + ID;
         }
 
-        public static String name(String tokenName) {
-            return find().replaceAll(":token_name", tokenName);
+        public static String find(long id) {
+            return find().replaceAll(":id", String.valueOf(id));
         }
     }
 }

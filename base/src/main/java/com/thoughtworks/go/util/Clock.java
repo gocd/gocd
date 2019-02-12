@@ -16,15 +16,18 @@
 
 package com.thoughtworks.go.util;
 
-import java.util.Date;
-
 import com.thoughtworks.go.utils.Timeout;
 import org.joda.time.DateTime;
+
+import java.sql.Timestamp;
+import java.util.Date;
 
 public interface Clock {
     Date currentTime();
 
     DateTime currentDateTime();
+
+    Timestamp currentTimestamp();
 
     long currentTimeMillis();
 

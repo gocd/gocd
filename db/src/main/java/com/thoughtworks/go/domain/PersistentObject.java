@@ -18,6 +18,7 @@ package com.thoughtworks.go.domain;
 
 import java.util.Comparator;
 import java.io.Serializable;
+import java.util.Objects;
 
 public abstract class PersistentObject implements Serializable {
 
@@ -47,24 +48,14 @@ public abstract class PersistentObject implements Serializable {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-
+        if (this == o) return true;
+        if (!(o instanceof PersistentObject)) return false;
         PersistentObject that = (PersistentObject) o;
-
-        if (id != that.id) {
-            return false;
-        }
-
-        return true;
+        return id == that.id;
     }
 
     @Override
     public int hashCode() {
-        return (int) (id ^ (id >>> 32));
+        return Objects.hash(id);
     }
 }

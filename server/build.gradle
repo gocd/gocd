@@ -106,6 +106,11 @@ configurations {
     transitive = false
   }
 
+  sharedTestOutput {
+    extendsFrom testRuntime
+    transitive = true
+  }
+
   compile.exclude(group: 'org.springframework', module: 'spring-support')
   runtime.exclude(group: 'org.springframework', module: 'spring-support')
 
@@ -306,6 +311,8 @@ dependencies {
     exclude(module: 'jzlib')
   }
   compileOnly project(':app-server')
+  compileOnly group: 'org.projectlombok', name: 'lombok', version: '1.18.4'
+  annotationProcessor group: 'org.projectlombok', name: 'lombok', version: '1.18.4'
   compileOnly group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: project.versions.bouncyCastle
   compileOnly group: 'org.bouncycastle', name: 'bcpkix-jdk15on', version: project.versions.bouncyCastle
   compileOnly group: 'org.eclipse.jetty.websocket', name: 'websocket-server', version: versions.jetty
@@ -1194,4 +1201,6 @@ task verifyJar {
 artifacts {
   warConfig war
   jarConfig jar
+
+  sharedTestOutput sharedTestJar
 }

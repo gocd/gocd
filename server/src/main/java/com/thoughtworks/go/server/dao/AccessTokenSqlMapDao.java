@@ -47,18 +47,9 @@ public class AccessTokenSqlMapDao extends HibernateDaoSupport implements AccessT
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
             @Override
             protected void doInTransactionWithoutResult(TransactionStatus status) {
-                sessionFactory.getCurrentSession().saveOrUpdate(accessToken);
+                sessionFactory.getCurrentSession().saveOrUpdate(AccessToken.class.getName(), accessToken);
             }
         });
-    }
-
-    public AccessToken findAccessToken(final String tokenName, String username) {
-        return (AccessToken) transactionTemplate.execute((TransactionCallback) transactionStatus ->
-                sessionFactory.getCurrentSession()
-                        .createCriteria(AccessToken.class)
-                        .add(Restrictions.eq("name", tokenName))
-                        .add(Restrictions.eq("username", username))
-                        .setCacheable(true).uniqueResult());
     }
 
     @Override

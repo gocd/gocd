@@ -14,15 +14,37 @@
  * limitations under the License.
  */
 
-apply plugin: 'jacoco'
-apply plugin: 'groovy'
+package com.thoughtworks.go.spark
 
-dependencies {
-  compile project(':api:api-base')
+import org.junit.jupiter.api.Test
 
-  testCompile project(path: ':api:api-base', configuration: 'testOutput')
-  testCompile project(path: ':server', configuration: 'sharedTestOutput')
+trait NormalUserOnlyIfSecurityEnabled {
 
-  testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: project.versions.junit5
-  testRuntimeOnly group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: project.versions.junit5
+  @Test
+  void 'should allow nobody with security disabled'() {
+    disableSecurity()
+
+    makeHttpCall()
+    assertDeniedBecauseSecurityDisabled()
+  }
+
+  @Test
+  void "should disallow anonymous users, with security enabled"() {
+    enableSecurity()
+    loginAsAnonymous()
+
+    makeHttpCall()
+
+    assertRequestForbidden()
+  }
+
+  @Test
+  void 'should allow normal users, with security enabled'() {
+    enableSecurity()
+    loginAsUser()
+
+    makeHttpCall()
+    assertRequestAllowed()
+  }
+
 }

@@ -94,4 +94,8 @@ public abstract class HaltApiMessages {
     public static String missingRequestParameter(String paramName) {
         return format("Request is missing parameter `%s`", paramName);
     }
+
+    public static String haltBecauseSecurityIsNotEnabled() {
+        return "Security must be enabled for this feature to work!";
+    }
 }

@@ -18,7 +18,6 @@ package com.thoughtworks.go.apiv1.accessToken.representers;
 
 import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.domain.AccessToken;
-import com.thoughtworks.go.domain.AccessToken;
 import com.thoughtworks.go.spark.Routes;
 
 import java.util.List;
@@ -30,7 +29,7 @@ public class AccessTokensRepresenter {
                 .addAbsoluteLink("doc", Routes.AccessToken.DOC))
                 .addChild("_embedded", embeddedWriter ->
                         embeddedWriter.addChildList("access_tokens", AccessTokenWriter -> {
-                            allTokens.forEach(token -> AccessTokenWriter.addChild(artifactStoreWriter -> AccessTokenRepresenter.toJSON(artifactStoreWriter, token, false)));
+                            allTokens.forEach(token -> AccessTokenWriter.addChild(artifactStoreWriter -> AccessTokenRepresenter.toJSON(artifactStoreWriter, token)));
                         })
                 );
     }

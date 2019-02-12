@@ -20,6 +20,7 @@ import com.thoughtworks.go.utils.Timeout;
 import org.joda.time.DateTime;
 
 import java.io.Serializable;
+import java.sql.Timestamp;
 import java.util.Date;
 
 public class SystemTimeClock implements Clock, Serializable {
@@ -29,6 +30,11 @@ public class SystemTimeClock implements Clock, Serializable {
 
     public DateTime currentDateTime() {
         return new DateTime(currentTime());
+    }
+
+    @Override
+    public Timestamp currentTimestamp() {
+        return new Timestamp(currentTimeMillis());
     }
 
     public long currentTimeMillis() {

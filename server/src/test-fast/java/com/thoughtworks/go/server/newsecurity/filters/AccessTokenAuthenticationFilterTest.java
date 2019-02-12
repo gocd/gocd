@@ -18,7 +18,6 @@ package com.thoughtworks.go.server.newsecurity.filters;
 
 import com.thoughtworks.go.config.SecurityAuthConfig;
 import com.thoughtworks.go.domain.AccessToken;
-import com.thoughtworks.go.helper.AccessTokenMother;
 import com.thoughtworks.go.http.mocks.HttpRequestBuilder;
 import com.thoughtworks.go.http.mocks.MockHttpServletRequest;
 import com.thoughtworks.go.http.mocks.MockHttpServletResponse;
@@ -43,6 +42,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
 
+import static com.thoughtworks.go.helper.AccessTokenMother.randomAccessTokenForUser;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
@@ -72,7 +72,7 @@ public class AccessTokenAuthenticationFilterTest {
         response = new MockHttpServletResponse();
         filterChain = mock(FilterChain.class);
         filter = new AccessTokenAuthenticationFilter(securityService, accessTokenService, securityAuthConfigService, authenticationProvider);
-        accessToken = AccessTokenMother.accessTokenWithNameForUser(TOKEN, BOB);
+        accessToken = randomAccessTokenForUser(BOB);
         when(accessTokenService.findByAccessToken(TOKEN)).thenReturn(accessToken);
         authConfig = new SecurityAuthConfig(accessToken.getAuthConfigId(), PLUGIN_ID);
         when(securityAuthConfigService.findProfile(accessToken.getAuthConfigId())).thenReturn(authConfig);

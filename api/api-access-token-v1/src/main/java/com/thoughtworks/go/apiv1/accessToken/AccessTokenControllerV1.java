@@ -23,15 +23,14 @@ import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
 import com.thoughtworks.go.api.util.GsonTransformer;
 import com.thoughtworks.go.apiv1.accessToken.representers.AccessTokenRepresenter;
 import com.thoughtworks.go.apiv1.accessToken.representers.AccessTokensRepresenter;
-import com.thoughtworks.go.config.SecurityAuthConfig;
+import com.thoughtworks.go.config.exceptions.ConflictException;
+import com.thoughtworks.go.config.exceptions.NotAuthorizedException;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.domain.AccessToken;
 import com.thoughtworks.go.plugin.access.authorization.AuthorizationExtension;
-import com.thoughtworks.go.server.newsecurity.models.AuthenticationToken;
 import com.thoughtworks.go.server.newsecurity.utils.SessionUtils;
 import com.thoughtworks.go.server.service.AccessTokenService;
 import com.thoughtworks.go.server.service.SecurityAuthConfigService;
-import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.spring.SparkSpringController;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -72,90 +71,60 @@ public class AccessTokenControllerV1 extends ApiController implements SparkSprin
             before("", mimeType, this::setContentType);
             before("/*", mimeType, this::setContentType);
 
+            before("", mimeType, this.apiAuthenticationHelper::ensureSecurityEnabled);
+            before("/*", mimeType, this.apiAuthenticationHelper::ensureSecurityEnabled);
+
             before("", mimeType, this.apiAuthenticationHelper::checkUserAnd403);
-            before(String.format("%s%s/revoke", Routes.AccessToken.USERNAME, Routes.AccessToken.TOKEN_NAME), mimeType, this::checkCurrentUserOrAdminAnd403);
             before("/*", mimeType, this.apiAuthenticationHelper::checkUserAnd403);
 
             get("", mimeType, this::getAllAccessTokens);
             post("", mimeType, this::createAccessToken);
-            patch(String.format("%s%s/revoke", Routes.AccessToken.USERNAME, Routes.AccessToken.TOKEN_NAME), mimeType, this::revokeAccessToken);
-            get(Routes.AccessToken.TOKEN_NAME, mimeType, this::getAccessToken);
+            post(Routes.AccessToken.REVOKE, mimeType, this::revokeAccessToken);
+            get(Routes.AccessToken.ID, mimeType, this::getAccessToken);
 
             exception(RecordNotFoundException.class, this::notFound);
+            exception(NotAuthorizedException.class, this::renderForbiddenResponse);
+            exception(ConflictException.class, this::renderForbiddenResponse);
         });
     }
 
-    private void checkCurrentUserOrAdminAnd403(Request request, Response response) {
-        String tokenUsername = request.params("username");
-
-        if (currentUsername().getUsername().toString().equals(tokenUsername)) {
-            return;
-        }
-
-        apiAuthenticationHelper.checkAdminUserAnd403(request, response);
-    }
-
     public String createAccessToken(Request request, Response response) throws Exception {
-        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-
-        String authConfigId = currentUserAuthConfigId(request);
-        SecurityAuthConfig authConfig = authConfigService.findProfile(authConfigId);
-        if (!extension.supportsPluginAPICallsRequiredForAccessToken(authConfig)) {
-            result.unprocessableEntity(String.format("Can not create Access Token. Please upgrade '%s' plugin to use Access Token Feature.", authConfig.getPluginId()));
-            return renderHTTPOperationResult(result, request, response);
-        }
-
         final JsonReader reader = GsonTransformer.getInstance().jsonReaderFrom(request.body());
 
-        String tokenName = reader.getString("name");
         String tokenDescription = reader.optString("description").orElse(null);
 
-        AccessToken created = accessTokenService.create(tokenName, tokenDescription, currentUsername(), authConfigId, result);
+        AccessToken created = accessTokenService.create(tokenDescription, currentUsernameString(), currentUserAuthConfigId(request));
 
-        if (result.isSuccessful()) {
-            return renderAccessToken(request, response, created, true);
-        }
-
-        return renderHTTPOperationResult(result, request, response);
+        return renderAccessToken(request, response, created);
     }
 
     public String getAccessToken(Request request, Response response) throws Exception {
-        final AccessToken token = accessTokenService.find(request.params("token_name"), currentUsername().getUsername().toString());
+        final AccessToken token = accessTokenService.find(Long.parseLong(request.params(":id")), currentUsernameString());
 
-        if (token == null) {
-            throw new RecordNotFoundException();
-        }
-
-        return renderAccessToken(request, response, token, false);
+        return renderAccessToken(request, response, token);
     }
 
     public String getAllAccessTokens(Request request, Response response) throws Exception {
-        List<AccessToken> allTokens = accessTokenService.findAllTokensForUser(currentUsername());
+        List<AccessToken> allTokens = accessTokenService.findAllTokensForUser(currentUsernameString());
         return writerForTopLevelObject(request, response, outputWriter -> AccessTokensRepresenter.toJSON(outputWriter, allTokens));
     }
 
     public String revokeAccessToken(Request request, Response response) throws Exception {
-        String tokenName = request.params("token_name");
-        String username = request.params("username");
-        String revokeCause = request.queryParams("cause");
+        long id = Long.parseLong(request.params(":id"));
+        final JsonReader reader = GsonTransformer.getInstance().jsonReaderFrom(request.body());
+        String revokeCause = reader.optString("cause").orElse(null);
 
-        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        accessTokenService.revokeAccessToken(tokenName, username, revokeCause, result);
+        AccessToken revokeAccessToken = accessTokenService.revokeAccessToken(id, currentUsernameString(), revokeCause);
 
-        if (result.isSuccessful()) {
-            return renderAccessToken(request, response, accessTokenService.find(tokenName, username), true);
-        }
-
-        return renderHTTPOperationResult(result, request, response);
+        return renderAccessToken(request, response, revokeAccessToken);
     }
 
-    private String renderAccessToken(Request request, Response response, AccessToken token, boolean includeTokenValue) throws IOException {
-        return writerForTopLevelObject(request, response, outputWriter -> AccessTokenRepresenter.toJSON(outputWriter, token, includeTokenValue));
+    private String renderAccessToken(Request request, Response response, AccessToken token) throws IOException {
+        return writerForTopLevelObject(request, response, outputWriter -> AccessTokenRepresenter.toJSON(outputWriter, token));
     }
 
     private String currentUserAuthConfigId(Request request) {
-        AuthenticationToken<?> authenticationToken = SessionUtils.getAuthenticationToken(request.raw());
-        return authenticationToken.getAuthConfigId();
+        return SessionUtils.getAuthenticationToken(request.raw()).getAuthConfigId();
     }
 
 }

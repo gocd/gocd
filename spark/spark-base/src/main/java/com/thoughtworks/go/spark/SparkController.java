@@ -18,20 +18,18 @@ package com.thoughtworks.go.spark;
 
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.server.domain.Username;
-import com.thoughtworks.go.server.newsecurity.models.AuthenticationToken;
 import com.thoughtworks.go.server.newsecurity.utils.SessionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.http.message.BasicNameValuePair;
 import spark.Request;
 
-import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 public interface SparkController {
-    default String controllerPath(String... paths) {
+    default String controllerPath(Object... paths) {
         if (paths == null || paths.length == 0) {
             return controllerBasePath();
         } else {
@@ -66,6 +64,10 @@ public interface SparkController {
 
     default Username currentUsername() {
         return SessionUtils.currentUsername();
+    }
+
+    default String currentUsernameString() {
+        return currentUserLoginName().toString();
     }
 
     default Long currentUserId(Request request) {

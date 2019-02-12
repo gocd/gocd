@@ -16,46 +16,47 @@
 
 package com.thoughtworks.go.apiv1.accessToken.representers
 
-
+import com.thoughtworks.go.domain.AccessToken
+import com.thoughtworks.go.spark.util.SecureRandom
+import com.thoughtworks.go.util.TestingClock
 import org.junit.jupiter.api.Test
 
 import static com.thoughtworks.go.CurrentGoCDVersion.apiDocsUrl
 import static com.thoughtworks.go.api.base.JsonOutputWriter.jsonDate
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
-import static com.thoughtworks.go.helper.AccessTokenMother.accessTokenWithName
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
 
 class AccessTokenRepresenterTest {
   @Test
   void 'renders the access token hal representation with token value'() {
-    def token = accessTokenWithName("token1")
+    AccessToken.AccessTokenWithDisplayValue token = randomAccessToken(42, false)
 
     def json = toObjectString({
-      AccessTokenRepresenter.toJSON(it, token, true)
+      AccessTokenRepresenter.toJSON(it, token)
     })
 
     def expectedJSON = [
       "_links"        : [
         "self": [
-          "href": "http://test.host/go/api/access_token/token1"
+          "href": "http://test.host/go/api/access_tokens/42"
         ],
         "doc" : [
-          "href": apiDocsUrl('#access_token')
+          "href": apiDocsUrl('#access-token')
         ],
         "find": [
-          "href": "http://test.host/go/api/access_token/:token_name"
+          "href": "http://test.host/go/api/access_tokens/:id"
         ]
       ],
-      "name"          : token.getName(),
-      "description"   : token.getDescription(),
+      "id"            : 42,
+      "description"   : token.description,
       "auth_config_id": token.authConfigId,
       "_meta"         : [
-        "is_revoked"  : token.isRevoked(),
+        "is_revoked"  : token.revoked,
         "revoked_at"  : null,
-        "created_at"  : jsonDate(token.getCreatedAt()),
+        "created_at"  : jsonDate(token.createdAt),
         "last_used_at": null
       ],
-      "token"         : token.getOriginalValue()
+      "token"         : token.displayValue
     ]
 
     assertThatJson(json).isEqualTo(expectedJSON)
@@ -63,35 +64,46 @@ class AccessTokenRepresenterTest {
 
   @Test
   void 'renders the access token metadata hal representation without token value'() {
-    def token = accessTokenWithName("token1")
+    AccessToken.AccessTokenWithDisplayValue token = randomAccessToken(42)
+    token.displayValue = null
 
     def json = toObjectString({
-      AccessTokenRepresenter.toJSON(it, token, false)
+      AccessTokenRepresenter.toJSON(it, token)
     })
 
     def expectedJSON = [
       "_links"        : [
         "self": [
-          "href": "http://test.host/go/api/access_token/token1"
+          "href": "http://test.host/go/api/access_tokens/42"
         ],
         "doc" : [
-          "href": apiDocsUrl('#access_token')
+          "href": apiDocsUrl('#access-token')
         ],
         "find": [
-          "href": "http://test.host/go/api/access_token/:token_name"
+          "href": "http://test.host/go/api/access_tokens/:id"
         ]
       ],
-      "name"          : token.getName(),
-      "description"   : token.getDescription(),
+      "id"            : 42,
+      "description"   : token.description,
       "auth_config_id": token.authConfigId,
       "_meta"         : [
-        "is_revoked"  : token.isRevoked(),
+        "is_revoked"  : token.revoked,
         "revoked_at"  : null,
-        "created_at"  : jsonDate(token.getCreatedAt()),
+        "created_at"  : jsonDate(token.createdAt),
         "last_used_at": null
       ]
     ]
 
     assertThatJson(json).isEqualTo(expectedJSON)
   }
+
+  static AccessToken.AccessTokenWithDisplayValue randomAccessToken(long id = SecureRandom.longNumber(), persisted = true) {
+    AccessToken.AccessTokenWithDisplayValue token = AccessToken.create(SecureRandom.hex(), SecureRandom.hex(), SecureRandom.hex(), new TestingClock())
+    token.id = id
+    if (persisted) {
+      token.displayValue = null
+    }
+    return token
+  }
+
 }

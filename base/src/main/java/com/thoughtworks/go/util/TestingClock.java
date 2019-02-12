@@ -16,13 +16,14 @@
 
 package com.thoughtworks.go.util;
 
+import com.thoughtworks.go.utils.Timeout;
+import org.joda.time.DateTime;
+
+import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-import java.util.ArrayList;
-
-import com.thoughtworks.go.utils.Timeout;
-import org.joda.time.DateTime;
 
 public class TestingClock implements Clock {
     private Date currentTime;
@@ -42,6 +43,11 @@ public class TestingClock implements Clock {
 
     public DateTime currentDateTime() {
         return new DateTime(currentTime);
+    }
+
+    @Override
+    public Timestamp currentTimestamp() {
+        return new Timestamp(currentTimeMillis());
     }
 
     public long currentTimeMillis() {

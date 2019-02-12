@@ -47,7 +47,10 @@ public class AccessTokenService {
 
     public AccessToken.AccessTokenWithDisplayValue create(String description, String username, String authConfigId) {
         AccessToken.AccessTokenWithDisplayValue tokenToCreate = AccessToken.create(description, username, authConfigId, timeProvider);
-        accessTokenDao.saveOrUpdate(tokenToCreate);
+        tokenToCreate.validate(null);
+        if (tokenToCreate.errors().isEmpty()) {
+            accessTokenDao.saveOrUpdate(tokenToCreate);
+        }
         return tokenToCreate;
     }
 
@@ -75,17 +78,15 @@ public class AccessTokenService {
         }
 
         String saltId = StringUtils.substring(actualToken, 0, 8);
-        String originalToken = StringUtils.substring(actualToken, 8);
 
         AccessToken token = accessTokenDao.findAccessTokenBySaltId(saltId);
         if (token == null) {
             throw new InvalidAccessTokenException();
         }
 
-        String saltValue = token.getSaltValue();
-        String digestOfUserProvidedToken = AccessToken.digestToken(originalToken, saltValue);
+        boolean isValid = token.isValidToken(actualToken);
 
-        if (!token.getValue().equals(digestOfUserProvidedToken)) {
+        if (!isValid) {
             throw new InvalidAccessTokenException();
         }
 

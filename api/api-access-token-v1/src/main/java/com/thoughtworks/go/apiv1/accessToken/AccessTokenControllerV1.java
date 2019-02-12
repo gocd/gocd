@@ -95,6 +95,9 @@ public class AccessTokenControllerV1 extends ApiController implements SparkSprin
 
         AccessToken created = accessTokenService.create(tokenDescription, currentUsernameString(), currentUserAuthConfigId(request));
 
+        if (!created.persisted()) {
+            response.status(422);
+        }
         return renderAccessToken(request, response, created);
     }
 

@@ -16,11 +16,13 @@
 
 package com.thoughtworks.go.domain;
 
+import com.thoughtworks.go.config.Validatable;
+import com.thoughtworks.go.config.ValidationContext;
 import com.thoughtworks.go.util.Clock;
 import lombok.*;
 import lombok.experimental.Accessors;
-import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.binary.Hex;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactory;
@@ -30,6 +32,8 @@ import java.security.SecureRandom;
 import java.security.spec.InvalidKeySpecException;
 import java.sql.Timestamp;
 
+import static org.apache.commons.lang3.StringUtils.isBlank;
+
 @EqualsAndHashCode(callSuper = true, doNotUseGetters = true)
 @ToString(callSuper = true)
 @Getter
@@ -37,10 +41,12 @@ import java.sql.Timestamp;
 @Accessors(chain = true)
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class AccessToken extends PersistentObject {
+public class AccessToken extends PersistentObject implements Validatable {
+
     private static final int DEFAULT_ITERATIONS = 4096;
     private static final int DESIRED_KEY_LENGTH = 256;
     private static final int SALT_LENGTH = 32;
+    private static final String KEY_ALGORITHM = "PBKDF2WithHmacSHA256";
 
     //this is the hashed token value
     private String value;
@@ -56,10 +62,13 @@ public class AccessToken extends PersistentObject {
     private String revokeCause;
     private String revokedBy;
 
+    @EqualsAndHashCode.Exclude
+    private transient ConfigErrors errors = new ConfigErrors();
+
     public static AccessTokenWithDisplayValue create(String description, String username, String authConfigId, Clock clock) {
         String originalToken = generateSecureRandomString(16);
         String saltId = generateSecureRandomString(4);
-        String saltValue = generateSalt();
+        String saltValue = generateSecureRandomString(SALT_LENGTH);
         String hashedToken = digestToken(originalToken, saltValue);
         String finalTokenValue = String.format("%s%s", saltId, originalToken);
 
@@ -80,17 +89,9 @@ public class AccessToken extends PersistentObject {
         return Hex.encodeHexString(randomBytes);
     }
 
-    private static String generateSalt() {
+    static String digestToken(String originalToken, String salt) {
         try {
-            return Base64.encodeBase64String(SecureRandom.getInstance("SHA1PRNG").generateSeed(SALT_LENGTH));
-        } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    public static String digestToken(String originalToken, String salt) {
-        try {
-            SecretKeyFactory factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256");
+            SecretKeyFactory factory = SecretKeyFactory.getInstance(KEY_ALGORITHM);
             SecretKey key = factory.generateSecret(new PBEKeySpec(originalToken.toCharArray(), salt.getBytes(), DEFAULT_ITERATIONS, DESIRED_KEY_LENGTH));
             return Hex.encodeHexString(key.getEncoded());
         } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
@@ -103,6 +104,43 @@ public class AccessToken extends PersistentObject {
                 .setRevokedBy(username)
                 .setRevokeCause(revokeCause)
                 .setRevokedAt(revokedAt);
+    }
+
+    @Override
+    public void validate(ValidationContext validationContext) {
+        if (isBlank(description)) {
+            errors.add("description", "must not be blank");
+        }
+
+        if (isBlank(username)) {
+            errors.add("username", "must not be blank");
+        }
+
+        if (isBlank(authConfigId)) {
+            errors.add("authConfigId", "must not be blank");
+        }
+
+        if (createdAt == null) {
+            errors.add("createdAt", "must not be null");
+        }
+    }
+
+    @Override
+    public ConfigErrors errors() {
+        return this.errors;
+    }
+
+    @Override
+    public void addError(String fieldName, String message) {
+        this.errors.add(fieldName, message);
+    }
+
+    public boolean isValidToken(String actualToken) {
+        String originalToken = StringUtils.substring(actualToken, 8);
+        String saltValue = getSaltValue();
+        String digestOfUserProvidedToken = digestToken(originalToken, saltValue);
+
+        return getValue().equals(digestOfUserProvidedToken);
     }
 
     @Getter

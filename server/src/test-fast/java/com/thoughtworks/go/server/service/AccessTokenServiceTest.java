@@ -123,25 +123,4 @@ class AccessTokenServiceTest {
         verifyNoMoreInteractions(accessTokenDao);
     }
 
-    @Test
-    void hashToken_shouldHashTheProvidedString() throws Exception {
-        String tokenValue = "token1";
-        String saltValue = "salt1";
-        String hashed = AccessToken.digestToken(tokenValue, saltValue);
-
-        SecretKey key = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256")
-                .generateSecret(new PBEKeySpec(tokenValue.toCharArray(), saltValue.getBytes(), 4096, 256));
-
-        assertThat(hashed).isEqualTo(Hex.encodeHexString(key.getEncoded()));
-    }
-
-    @Test
-    void hashToken_shouldGenerateTheSameHashValueForTheSameInputString() throws Exception {
-        String tokenValue = "new-token";
-        String saltValue = "new-salt";
-        String hashed1 = AccessToken.digestToken(tokenValue, saltValue);
-        String hashed2 = AccessToken.digestToken(tokenValue, saltValue);
-
-        assertThat(hashed1).isEqualTo(hashed2);
-    }
 }

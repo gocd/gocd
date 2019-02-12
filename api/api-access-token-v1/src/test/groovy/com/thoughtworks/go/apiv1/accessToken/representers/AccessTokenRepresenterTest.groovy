@@ -97,6 +97,19 @@ class AccessTokenRepresenterTest {
     assertThatJson(json).isEqualTo(expectedJSON)
   }
 
+  @Test
+  void 'renders error messages'() {
+    def token = randomAccessToken()
+    token.description = "\t"
+    token.validate(null)
+
+    def json = toObjectString({
+      AccessTokenRepresenter.toJSON(it, token)
+    })
+
+    assertThatJson(json).node("errors").isEqualTo([description: ['must not be blank']])
+  }
+
   static AccessToken.AccessTokenWithDisplayValue randomAccessToken(long id = SecureRandom.longNumber(), persisted = true) {
     AccessToken.AccessTokenWithDisplayValue token = AccessToken.create(SecureRandom.hex(), SecureRandom.hex(), SecureRandom.hex(), new TestingClock())
     token.id = id

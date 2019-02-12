@@ -17,8 +17,11 @@
 package com.thoughtworks.go.apiv1.accessToken.representers;
 
 import com.thoughtworks.go.api.base.OutputWriter;
+import com.thoughtworks.go.api.representers.ErrorGetter;
 import com.thoughtworks.go.domain.AccessToken;
 import com.thoughtworks.go.spark.Routes;
+
+import java.util.Collections;
 
 public class AccessTokenRepresenter {
     public static void toJSON(OutputWriter outputWriter, AccessToken token) {
@@ -39,6 +42,10 @@ public class AccessTokenRepresenter {
 
         if (token instanceof AccessToken.AccessTokenWithDisplayValue) {
             outputWriter.addIfNotNull("token", ((AccessToken.AccessTokenWithDisplayValue) token).getDisplayValue());
+        }
+
+        if (!token.errors().isEmpty()) {
+            outputWriter.addChild("errors", errorWriter -> new ErrorGetter(Collections.emptyMap()).toJSON(errorWriter, token));
         }
     }
 }

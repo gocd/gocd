@@ -36,16 +36,16 @@ import {
 import * as styles from "./index.scss";
 
 export interface SearchOperation<T> {
-  initialObjects: Stream<T[] | null>;
+  initialObjects: Stream<T[]>;
   searchText: Stream<string>;
-  filteredObjects: () => Stream<T[] | null>;
+  filteredObjects: () => Stream<T[]>;
 }
 
 export interface Operations<T> extends EditOperation<T>, DeleteOperation<T>, RefreshOperation<T> {
 }
 
 export interface Attrs<T> extends Operations<T>, RequiresPluginInfos {
-  objects: Stream<T[] | null>;
+  objects: Stream<T[]>;
 }
 
 interface ShowObjectAttrs<T> extends Operations<T>, RequiresPluginInfos {

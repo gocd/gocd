@@ -32,7 +32,7 @@ describe("ConfigReposWidget", () => {
   let onDelete: jasmine.Spy;
   let onEdit: jasmine.Spy;
   let onRefresh: jasmine.Spy;
-  let configRepos: Stream<ConfigRepo[] | null>;
+  let configRepos: Stream<ConfigRepo[]>;
   let pluginInfos: Stream<Array<PluginInfo<any>>>;
 
   beforeEach(() => {

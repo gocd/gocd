@@ -153,8 +153,8 @@ export class ConfigRepo implements ValidatableMixin {
     }
 
     const id             = this.id();
-    const goodRevision   = this.lastParse() && this.lastParse()!.goodModification && this.lastParse()!.goodModification!.revision;
-    const latestRevision = this.lastParse() && this.lastParse()!.latestParsedModification && this.lastParse()!.latestParsedModification!.revision;
+    const goodRevision   = this.lastParse() && this.lastParse()!.goodRevision();
+    const latestRevision = this.lastParse() && this.lastParse()!.latestRevision();
     const materialUrl    = this.material().materialUrl();
     return [
       id,
@@ -218,6 +218,18 @@ export class ParseInfo {
       const goodModification         = json.good_modification ? MaterialModification.fromJSON(json.good_modification) : null;
 
       return new ParseInfo(latestParsedModification, goodModification, json.error);
+    }
+  }
+
+  goodRevision() {
+    if (this.goodModification) {
+      return this.goodModification.revision;
+    }
+  }
+
+  latestRevision() {
+    if (this.latestParsedModification) {
+      return this.latestParsedModification.revision;
     }
   }
 }

@@ -35,16 +35,16 @@ import {Page, PageState} from "views/pages/page";
 import {AddOperation, RequiresPluginInfos, SaveOperation} from "views/pages/page_operations";
 import * as styles from "./config_repos/index.scss";
 
-interface State extends AddOperation<ConfigRepo>, SaveOperation, Operations<ConfigRepo>, SearchOperation<ConfigRepo>, RequiresPluginInfos  {
+interface State extends AddOperation<ConfigRepo>, SaveOperation, Operations<ConfigRepo>, SearchOperation<ConfigRepo>, RequiresPluginInfos {
 }
 
 export class ConfigReposPage extends Page<null, State> {
   oninit(vnode: m.Vnode<null, State>) {
-    vnode.state.pluginInfos    = stream();
-    vnode.state.initialObjects = stream();
-    vnode.state.searchText     = stream();
+    vnode.state.pluginInfos     = stream();
+    vnode.state.initialObjects  = stream();
+    vnode.state.searchText      = stream();
     vnode.state.filteredObjects = () => {
-      return stream(vnode.state.initialObjects() ? vnode!.state!.initialObjects()!.filter((o) => o.matches(vnode.state.searchText())) : null);
+      return stream(vnode.state.initialObjects().filter((o) => o.matches(vnode.state.searchText())));
     };
 
     this.fetchData(vnode);
@@ -70,7 +70,8 @@ export class ConfigReposPage extends Page<null, State> {
 
       ConfigReposCRUD.triggerUpdate(repo.id()).then((result: ApiResult<any>) => {
         result.do(() => {
-          this.flashMessage.setMessage(MessageType.success, `An update was scheduled for '${repo.id()}' config repository.`);
+          this.flashMessage.setMessage(MessageType.success,
+                                       `An update was scheduled for '${repo.id()}' config repository.`);
         }, (err: ErrorResponse) => {
           try {
             if (err.message) {
@@ -148,7 +149,7 @@ export class ConfigReposPage extends Page<null, State> {
 
   fetchData(vnode: m.Vnode<null, State>) {
     const state = vnode.state;
-    state.initialObjects(null);
+    state.initialObjects([]);
     this.pageState = PageState.LOADING;
 
     return Promise.all([PluginInfoCRUD.all({type: ExtensionType.CONFIG_REPO}), ConfigReposCRUD.all()]).then((args) => {

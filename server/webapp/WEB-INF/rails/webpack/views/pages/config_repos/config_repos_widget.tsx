@@ -167,7 +167,9 @@ class ConfigRepoWidget extends MithrilViewComponent<ShowObjectAttrs<ConfigRepo>>
 
     if (!pluginInfo) {
       maybeWarning = (
-        <FlashMessage type={MessageType.alert}>This plugin is missing.</FlashMessage>
+        <div className={styles.errorMessage}>
+          <FlashMessage type={MessageType.alert}>This plugin is missing.</FlashMessage>
+        </div>
       );
     }
 
@@ -178,7 +180,7 @@ class ConfigRepoWidget extends MithrilViewComponent<ShowObjectAttrs<ConfigRepo>>
                         header={<HeaderWidget repo={vnode.attrs.obj} pluginInfos={vnode.attrs.pluginInfos}/>}
                         dataTestId={"config-repo-details-panel"}
                         actions={actionButtons} expanded={vnode.attrs.index === 0}>
-        {maybeWarning ? <div class={styles.errorMessage}>{maybeWarning}</div> : null}
+        {maybeWarning}
         {this.latestModificationDetails(parseInfo)}
         {this.lastGoodModificationDetails(parseInfo)}
         {this.configRepoMetaConfigDetails(vnode.attrs.obj.id(), vnode.attrs.obj.pluginId())}

@@ -15,8 +15,6 @@
  */
 @import "../../global/common";
 
-$in-progress-icon-color: #f00;
-
 @mixin header-icon($type, $color) {
   @include icon-before($type: $type, $color: $color, $size: 25px, $margin: 0) {
     text-align: center;

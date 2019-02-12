@@ -109,6 +109,21 @@ class ConfigReposMaterialParseResultManagerTest {
     }
 
     @Test
+    void shouldClearModificationInCaseModificationIsSameAsOfLastParsedModificationAsHealthServiceNoLongerHasErrors() {
+        when(serverHealthService.filterByScope(any())).thenReturn(Arrays.asList());
+        String fingerprint = "repo1";
+
+        ConfigReposMaterialParseResultManager manager = new ConfigReposMaterialParseResultManager(serverHealthService, configRepoService);
+        Modification modification = modificationFor("rev1");
+        PartialConfig partialConfig = new PartialConfig();
+        manager.parseFailed(fingerprint, modification, new Exception());
+
+        assertThat(manager.get(fingerprint).isSuccessful(), is(false));
+        assertNull(manager.get(fingerprint).getLatestParsedModification());
+        assertNull(manager.get(fingerprint).lastGoodPartialConfig());
+    }
+
+    @Test
     void shouldAddAnErrorFromHealthStateWhenNoResultExistsForTheConfigRepo() {
         ServerHealthState serverHealthState = ServerHealthState.error("Error Happened!", "Boom!", HealthStateType.general(HealthStateScope.GLOBAL));
         when(serverHealthService.filterByScope(any())).thenReturn(Arrays.asList(serverHealthState));
@@ -138,6 +153,8 @@ class ConfigReposMaterialParseResultManagerTest {
 
     @Test
     void shouldAddResultForAConfigRepoMaterialUponUnsuccessfulParse() {
+        ServerHealthState serverHealthState = ServerHealthState.error("Error Happened!", "Boom!", HealthStateType.general(HealthStateScope.GLOBAL));
+        when(serverHealthService.filterByScope(any())).thenReturn(Arrays.asList(serverHealthState));
         String fingerprint = "repo1";
 
         ConfigReposMaterialParseResultManager manager = new ConfigReposMaterialParseResultManager(serverHealthService, configRepoService);
@@ -177,6 +194,9 @@ class ConfigReposMaterialParseResultManagerTest {
         Exception exception = new Exception("Boom!");
         manager.parseFailed(fingerprint, modification2, exception);
 
+        ServerHealthState serverHealthState = ServerHealthState.error("Error Happened!", "Boom!", HealthStateType.general(HealthStateScope.GLOBAL));
+        when(serverHealthService.filterByScope(any())).thenReturn(Arrays.asList(serverHealthState));
+
 
         PartialConfigParseResult parseResult = manager.get(fingerprint);
 
@@ -190,6 +210,8 @@ class ConfigReposMaterialParseResultManagerTest {
     @Test
     void shouldUpdateTheResultForAConfigRepoMaterialIfResultAlreadyExists_WhenMaterialParseIsFixed() {
         String fingerprint = "repo1";
+        ServerHealthState serverHealthState = ServerHealthState.error("Error Happened!", "Boom!", HealthStateType.general(HealthStateScope.GLOBAL));
+        when(serverHealthService.filterByScope(any())).thenReturn(Arrays.asList(serverHealthState));
 
         ConfigReposMaterialParseResultManager manager = new ConfigReposMaterialParseResultManager(serverHealthService, configRepoService);
         Modification modification = modificationFor("rev1");
@@ -204,6 +226,7 @@ class ConfigReposMaterialParseResultManagerTest {
         Modification modification2 = modificationFor("rev2");
         PartialConfig partialConfig = new PartialConfig();
         manager.parseSuccess(fingerprint, modification2, partialConfig);
+        when(serverHealthService.filterByScope(any())).thenReturn(Arrays.asList());
 
         PartialConfigParseResult parseResult = manager.get(fingerprint);
 

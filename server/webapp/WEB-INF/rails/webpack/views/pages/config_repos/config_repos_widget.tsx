@@ -81,9 +81,13 @@ class HeaderWidget extends MithrilViewComponent<HeaderWidgetAttrs> {
     let parseStatus: m.Children = "This config repository was never parsed";
 
     if (lastParsedCommit && lastParsedCommit.latestParsedModification) {
-      const comment = this.trimToLength(lastParsedCommit.latestParsedModification.comment, HeaderWidget.MAX_COMMIT_MSG_LENGTH);
-      const username = this.trimToLength(lastParsedCommit.latestParsedModification.username, HeaderWidget.MAX_USERNAME_AND_REVISON_LENGTH);
-      const revision = this.trimToLength(lastParsedCommit.latestParsedModification.revision, HeaderWidget.MAX_USERNAME_AND_REVISON_LENGTH);
+      const latestParsedModification = lastParsedCommit.latestParsedModification;
+      const comment                  = _.truncate(latestParsedModification.comment,
+                                                  {length: HeaderWidget.MAX_COMMIT_MSG_LENGTH});
+      const username                 = _.truncate(latestParsedModification.username,
+                                                  {length: HeaderWidget.MAX_USERNAME_AND_REVISON_LENGTH});
+      const revision                 = _.truncate(latestParsedModification.revision,
+                                                  {length: HeaderWidget.MAX_USERNAME_AND_REVISON_LENGTH});
 
       parseStatus = (
         <div class={styles.headerTitleText}>
@@ -94,14 +98,6 @@ class HeaderWidget extends MithrilViewComponent<HeaderWidgetAttrs> {
     }
 
     return parseStatus;
-  }
-
-  private trimToLength(str: string, length: number): string {
-    if (length >= str.length) {
-      return str;
-    }
-
-    return str.substr(0, length - 3).concat("...");
   }
 
   private pluginIcon(vnode: m.Vnode<HeaderWidgetAttrs>) {

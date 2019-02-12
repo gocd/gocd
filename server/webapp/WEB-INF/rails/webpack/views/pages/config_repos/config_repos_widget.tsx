@@ -35,11 +35,17 @@ import {
 } from "views/pages/page_operations";
 import * as styles from "./index.scss";
 
-interface Operations<T> extends EditOperation<T>, DeleteOperation<T>, RefreshOperation<T> {
+export interface SearchOperation<T> {
+  initialObjects: Stream<T[]>;
+  searchText: Stream<string>;
+  filteredObjects: () => Stream<T[]>;
+}
+
+export interface Operations<T> extends EditOperation<T>, DeleteOperation<T>, RefreshOperation<T> {
 }
 
 export interface Attrs<T> extends Operations<T>, RequiresPluginInfos {
-  objects: Stream<T[] | null>;
+  objects: Stream<T[]>;
 }
 
 interface ShowObjectAttrs<T> extends Operations<T>, RequiresPluginInfos {
@@ -55,30 +61,43 @@ function findPluginWithId(infos: Array<PluginInfo<any>>, pluginId: string) {
   return _.find(infos, {id: pluginId});
 }
 
-class StatusIcon extends MithrilViewComponent<{ name: string }> {
-  view(vnode: m.Vnode<{ name: string }, this>) {
-    return (
-      <div className={styles.statusIcon}>
-        {vnode.children}
-      </div>
-    );
+class HeaderWidget extends MithrilViewComponent<HeaderWidgetAttrs> {
+  private static readonly MAX_COMMIT_MSG_LENGTH: number = 84;
+  private static readonly MAX_USERNAME_AND_REVISON_LENGTH: number = 40;
+
+  view(vnode: m.Vnode<HeaderWidgetAttrs>): m.Children | void | null {
+    const materialUrl = vnode.attrs.repo.material().materialUrl();
+    return [
+        <KeyValueTitle image={this.pluginIcon(vnode)}
+                       title={[
+                         <div class={styles.headerTitleText}><b>{vnode.attrs.repo.id()}</b></div>,
+                         <div class={styles.headerTitleText}>{materialUrl}</div>
+                       ]}/>,
+        <div>{this.latestCommitDetails(vnode.attrs.repo.lastParse())}</div>
+    ];
   }
 
-}
+  private latestCommitDetails(lastParsedCommit: ParseInfo | null) {
+    let parseStatus: m.Children = "This config repository was never parsed";
 
-class HeaderWidget extends MithrilViewComponent<HeaderWidgetAttrs> {
-  view(vnode: m.Vnode<HeaderWidgetAttrs>): m.Children | void | null {
+    if (lastParsedCommit && lastParsedCommit.latestParsedModification) {
+      const latestParsedModification = lastParsedCommit.latestParsedModification;
+      const comment                  = _.truncate(latestParsedModification.comment,
+                                                  {length: HeaderWidget.MAX_COMMIT_MSG_LENGTH});
+      const username                 = _.truncate(latestParsedModification.username,
+                                                  {length: HeaderWidget.MAX_USERNAME_AND_REVISON_LENGTH});
+      const revision                 = _.truncate(latestParsedModification.revision,
+                                                  {length: HeaderWidget.MAX_USERNAME_AND_REVISON_LENGTH});
 
-    return [
-      (
-        <KeyValueTitle image={this.pluginIcon(vnode)} title={vnode.attrs.repo.id()}/>
-      ),
-      (
-        <KeyValuePair inline={true} data={new Map([
-                                                    ["Plugin Id", vnode.attrs.repo.pluginId()]
-                                                  ])}/>
-      )
-    ];
+      parseStatus = (
+        <div class={styles.headerTitleText}>
+          {comment}
+          <div><b>{username}</b> | {revision}</div>
+        </div>
+      );
+    }
+
+    return parseStatus;
   }
 
   private pluginIcon(vnode: m.Vnode<HeaderWidgetAttrs>) {
@@ -94,7 +113,7 @@ class HeaderWidget extends MithrilViewComponent<HeaderWidgetAttrs> {
 class ConfigRepoWidget extends MithrilViewComponent<ShowObjectAttrs<ConfigRepo>> {
   view(vnode: m.Vnode<ShowObjectAttrs<ConfigRepo>>): m.Children | void | null {
 
-    const materialNameAttribute = new Map([["Material", vnode.attrs.obj.material().type()]]);
+    const materialNameAttribute = new Map([["Type", vnode.attrs.obj.material().type()]]);
     const filteredAttributes    = _.reduce(vnode.attrs.obj.material().attributes(),
                                            this.resolveKeyValueForAttribute,
                                            materialNameAttribute);
@@ -117,31 +136,27 @@ class ConfigRepoWidget extends MithrilViewComponent<ShowObjectAttrs<ConfigRepo>>
       <Delete data-test-id="config-repo-delete" onclick={vnode.attrs.onDelete.bind(vnode.attrs, vnode.attrs.obj)}/>
     );
 
+    const statusIcon = vnode.attrs.obj.materialUpdateInProgress() ? <span className={styles.configRepoUpdateInProgress} data-test-id="repo-update-in-progress-icon"/> : "";
+
     const actionButtons = [
-      this.statusIcon(vnode),
+      statusIcon,
       <IconGroup>
         {refreshButton}
         {editButton}
         {deleteButton}
       </IconGroup>];
 
-    let lastParseRevision: m.Children;
-
     const parseInfo = vnode.attrs.obj.lastParse();
-    if (parseInfo && parseInfo.latestParsedModification && parseInfo.latestParsedModification.revision) {
-      lastParseRevision = <span class={styles.lastRevision}>Last seen revision: <code
-        class={styles.lastRevisionValue}>{parseInfo.latestParsedModification.revision}</code></span>;
-    }
 
     let maybeWarning: m.Children;
 
     if (_.isEmpty(parseInfo)) {
       maybeWarning = (
-        <FlashMessage type={MessageType.warning}>This configuration repository was never parsed.</FlashMessage>
+        <FlashMessage type={MessageType.alert}>This configuration repository was never parsed.</FlashMessage>
       );
-    } else if (parseInfo && parseInfo.error()) {
+    } else if (parseInfo && parseInfo.error() && !parseInfo.latestParsedModification) {
       maybeWarning = (
-        <FlashMessage type={MessageType.warning}>
+        <FlashMessage type={MessageType.alert}>
           There was an error parsing this configuration repository:
           <Code>{parseInfo.error}</Code>
         </FlashMessage>
@@ -152,16 +167,24 @@ class ConfigRepoWidget extends MithrilViewComponent<ShowObjectAttrs<ConfigRepo>>
 
     if (!pluginInfo) {
       maybeWarning = (
-        <FlashMessage type={MessageType.alert}>This plugin is missing.</FlashMessage>
+        <div className={styles.errorMessage}>
+          <FlashMessage type={MessageType.alert}>This plugin is missing.</FlashMessage>
+        </div>
       );
     }
 
+    const configRepoHasErrors = maybeWarning || (vnode.attrs.obj.lastParse() && vnode.attrs.obj.lastParse()!.error());
+
     return (
-      <CollapsiblePanel header={<HeaderWidget repo={vnode.attrs.obj} pluginInfos={vnode.attrs.pluginInfos}/>}
+      <CollapsiblePanel error={!!configRepoHasErrors}
+                        header={<HeaderWidget repo={vnode.attrs.obj} pluginInfos={vnode.attrs.pluginInfos}/>}
+                        dataTestId={"config-repo-details-panel"}
                         actions={actionButtons} expanded={vnode.attrs.index === 0}>
         {maybeWarning}
-        {lastParseRevision}
-        <KeyValuePair data={allAttributes}/>
+        {this.latestModificationDetails(parseInfo)}
+        {this.lastGoodModificationDetails(parseInfo)}
+        {this.configRepoMetaConfigDetails(vnode.attrs.obj.id(), vnode.attrs.obj.pluginId())}
+        {this.materialConfigDetails(allAttributes)}
       </CollapsiblePanel>
     );
   }
@@ -188,48 +211,58 @@ class ConfigRepoWidget extends MithrilViewComponent<ShowObjectAttrs<ConfigRepo>>
     return accumulator;
   }
 
-  private statusIcon(vnode: m.Vnode<ShowObjectAttrs<ConfigRepo>>) {
-    const pluginInfo = findPluginWithId(vnode.attrs.pluginInfos(), vnode.attrs.obj.pluginId());
-
-    if (!pluginInfo) {
-      return <StatusIcon name="Unknown plugin">
-        <span className={styles.missingPluginIcon}
-              title={`This plugin is not installed or is not configured properly.`}/>
-      </StatusIcon>;
-    }
-
-    let parseInfo = vnode.attrs.obj.lastParse();
-    if (_.isEmpty(parseInfo)) {
-      return (
-        <StatusIcon name="Never Parsed">
-          <span className={styles.neverParsed}
-                title={`This configuration repository was never parsed.`}/>
-        </StatusIcon>
-      );
-    }
-
-    parseInfo = parseInfo as ParseInfo;
-    if (!parseInfo.error() && parseInfo.goodModification != null) {
-      return (
-        <StatusIcon name="Last Parse Good">
-          <span className={styles.goodLastParseIcon}
-                title={`Last parsed with revision ${parseInfo.goodModification.revision}`}/>
-        </StatusIcon>
-      );
-    } else {
-      const title: string = (parseInfo.latestParsedModification != null)
-        ? `Last parsed with revision ${parseInfo.latestParsedModification.revision}. The error was ${parseInfo.error}`
-        : `Error: ${parseInfo.error}`;
-
-      return (
-        <StatusIcon name="Last Parse Error">
-          <span className={styles.lastParseErrorIcon}
-                title={title}/>
-        </StatusIcon>
-      );
+  private lastGoodModificationDetails(parseInfo: ParseInfo | null): m.Children {
+    if (parseInfo && parseInfo.goodModification) {
+      const attrs     = this.resolveHumanReadableAttributes(parseInfo.goodModification);
+      const checkIcon = <span className={styles.goodModificationIcon}
+                              title={`Last parsed with revision ${parseInfo.goodModification.revision}`}/>;
+      return <div data-test-id="config-repo-good-modification-panel">
+        <KeyValueTitle title={"Last known good commit currently being used"} image={checkIcon} inline={true}/>
+        <div className={styles.configRepoProperties}><KeyValuePair data={attrs}/></div>
+      </div>;
     }
   }
 
+  private latestModificationDetails(parseInfo: ParseInfo | null): m.Children {
+    if (parseInfo && parseInfo.latestParsedModification) {
+      const attrs = this.resolveHumanReadableAttributes(parseInfo.latestParsedModification);
+      let statusIcon = styles.goodModificationIcon;
+
+      if (parseInfo.error()) {
+        attrs.set("Error", <code class={styles.parseErrorText}>{parseInfo.error()}</code>);
+        statusIcon = styles.errorLastModificationIcon;
+      }
+
+      return <div data-test-id="config-repo-latest-modification-panel">
+        <KeyValueTitle title={"Latest commit in the repository"} inline={true}
+                       image={<span className={statusIcon} title={`Last parsed with revision ${parseInfo.latestParsedModification.revision}` }/>}/>
+        <div class={styles.configRepoProperties}><KeyValuePair data={attrs}/></div>
+      </div>;
+    }
+  }
+
+  private configRepoMetaConfigDetails(id: string, pluginId: string) {
+    return <div data-test-id="config-repo-plugin-panel">
+      <KeyValueTitle title={"Config Repository Configurations"} image={undefined}/>
+      <div className={styles.configRepoProperties}><KeyValuePair data={new Map([["Id", id], ["Plugin Id", pluginId]])}/></div>
+    </div>;
+  }
+
+  private materialConfigDetails(allAttributes: Map<string, m.Children>) {
+    return <div data-test-id="config-repo-material-panel">
+      <KeyValueTitle title={"Material"} image={undefined}/>
+      <div className={styles.configRepoProperties}><KeyValuePair data={allAttributes}/></div>
+    </div>;
+  }
+
+  private resolveHumanReadableAttributes(obj: object) {
+    const attrs = new Map();
+    const keys = Object.keys(obj).map(humanizedMaterialAttributeName);
+    const values = Object.values(obj);
+
+    keys.forEach((key, index) => attrs.set(key, values[index]));
+    return attrs;
+  }
 }
 
 export class ConfigReposWidget extends MithrilViewComponent<Attrs<ConfigRepo>> {

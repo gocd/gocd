@@ -82,17 +82,20 @@ export class ConfigRepo implements ValidatableMixin {
                   __jsonPluginPipelinesPattern: Stream<string> = stream("");
                   __jsonPluginEnvPattern: Stream<string>       = stream("");
                   __yamlPluginPattern: Stream<string>          = stream("");
+                  materialUpdateInProgress: Stream<boolean>;
 
   constructor(id?: string,
               pluginId?: string,
               material?: Material,
               configuration?: Configuration[],
-              lastParse?: ParseInfo | null) {
-    this.id            = stream(id);
-    this.pluginId      = stream(pluginId);
-    this.material      = stream(material);
-    this.configuration = stream(configuration);
-    this.lastParse     = stream(lastParse);
+              lastParse?: ParseInfo | null,
+              materialUpdateInProgress?: boolean) {
+    this.id                       = stream(id);
+    this.pluginId                 = stream(pluginId);
+    this.material                 = stream(material);
+    this.configuration            = stream(configuration);
+    this.lastParse                = stream(lastParse);
+    this.materialUpdateInProgress = stream(materialUpdateInProgress || false);
     if (configuration) {
       this.__jsonPluginPipelinesPattern = stream(ConfigRepo.findConfigurationValue(configuration,
                                                                                    ConfigRepo.PIPELINE_PATTERN));
@@ -120,7 +123,8 @@ export class ConfigRepo implements ValidatableMixin {
                                       json.plugin_id,
                                       Materials.fromJSON(json.material),
                                       configurations,
-                                      parseInfo);
+                                      parseInfo,
+                                      json.material_update_in_progress);
     configRepo.errors(new Errors(json.errors));
     return configRepo;
   }
@@ -141,6 +145,23 @@ export class ConfigRepo implements ValidatableMixin {
       }
     }
     return configurations;
+  }
+
+  matches(textToMatch: string): boolean {
+    if (!textToMatch) {
+      return true;
+    }
+
+    const id             = this.id();
+    const goodRevision   = this.lastParse() && this.lastParse()!.goodRevision();
+    const latestRevision = this.lastParse() && this.lastParse()!.latestRevision();
+    const materialUrl    = this.material().materialUrl();
+    return [
+      id,
+      goodRevision,
+      latestRevision,
+      materialUrl
+    ].some((value) => value ? value.toLowerCase().includes(textToMatch.toLowerCase()) : false);
   }
 }
 
@@ -199,6 +220,18 @@ export class ParseInfo {
       return new ParseInfo(latestParsedModification, goodModification, json.error);
     }
   }
+
+  goodRevision() {
+    if (this.goodModification) {
+      return this.goodModification.revision;
+    }
+  }
+
+  latestRevision() {
+    if (this.latestParsedModification) {
+      return this.latestParsedModification.revision;
+    }
+  }
 }
 
 class Materials {
@@ -230,6 +263,11 @@ export class Material implements ValidatableMixin {
       this.type(newType);
     }
     return this.type();
+  }
+
+  materialUrl(): string {
+    // @ts-ignore
+    return this.type() === "p4" ? this.attributes().port() : this.attributes().url();
   }
 }
 
@@ -467,7 +505,11 @@ const HUMAN_NAMES_FOR_MATERIAL_ATTRIBUTES: { [index: string]: string } = {
   password: "Password",
   port: "Host and port",
   useTickets: "Use tickets",
-  view: "View"
+  view: "View",
+  emailAddress: "Email",
+  revision: "Revision",
+  comment: "Comment",
+  modifiedTime: "Modified Time"
 };
 
 const MATERIAL_TYPE_MAP: { [index: string]: string } = {

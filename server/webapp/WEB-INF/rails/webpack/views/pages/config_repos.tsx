@@ -16,6 +16,7 @@
 
 import {AjaxPoller} from "helpers/ajax_poller";
 import {ApiResult, ErrorResponse, SuccessResponse} from "helpers/api_request_builder";
+import * as _ from "lodash";
 import * as m from "mithril";
 import * as stream from "mithril/stream";
 import {ConfigReposCRUD} from "models/config_repos/config_repos_crud";
@@ -25,21 +26,26 @@ import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
 import {PluginInfoCRUD} from "models/shared/plugin_infos_new/plugin_info_crud";
 import * as Buttons from "views/components/buttons";
 import {FlashMessage, MessageType} from "views/components/flash_message";
+import {SearchField} from "views/components/forms/input_fields";
 import {HeaderPanel} from "views/components/header_panel";
 import {DeleteConfirmModal} from "views/components/modal/delete_confirm_modal";
-import {Attrs, ConfigReposWidget} from "views/pages/config_repos/config_repos_widget";
+import {ConfigReposWidget, Operations, SearchOperation} from "views/pages/config_repos/config_repos_widget";
 import {EditConfigRepoModal, NewConfigRepoModal} from "views/pages/config_repos/modals";
 import {Page, PageState} from "views/pages/page";
-import {AddOperation, SaveOperation} from "views/pages/page_operations";
+import {AddOperation, RequiresPluginInfos, SaveOperation} from "views/pages/page_operations";
+import * as styles from "./config_repos/index.scss";
 
-interface State extends AddOperation<ConfigRepo>, Attrs<ConfigRepo>, SaveOperation {
+interface State extends AddOperation<ConfigRepo>, SaveOperation, Operations<ConfigRepo>, SearchOperation<ConfigRepo>, RequiresPluginInfos {
 }
 
 export class ConfigReposPage extends Page<null, State> {
-
   oninit(vnode: m.Vnode<null, State>) {
-    vnode.state.objects     = stream();
-    vnode.state.pluginInfos = stream();
+    vnode.state.pluginInfos     = stream();
+    vnode.state.initialObjects  = stream();
+    vnode.state.searchText      = stream();
+    vnode.state.filteredObjects = () => {
+      return stream(vnode.state.initialObjects().filter((o) => o.matches(vnode.state.searchText())));
+    };
 
     this.fetchData(vnode);
 
@@ -64,19 +70,20 @@ export class ConfigReposPage extends Page<null, State> {
 
       ConfigReposCRUD.triggerUpdate(repo.id()).then((result: ApiResult<any>) => {
         result.do(() => {
-          this.flashMessage.setMessage(MessageType.success, "An update was scheduled for this config repository.");
+          this.flashMessage.setMessage(MessageType.success,
+                                       `An update was scheduled for '${repo.id()}' config repository.`);
         }, (err: ErrorResponse) => {
           try {
             if (err.message) {
               this.flashMessage.setMessage(MessageType.alert,
-                                           `Unable to schedule an update for this config repository. ${err.message}`);
+                                           `Unable to schedule an update for '${repo.id()}' config repository. ${err.message}`);
             } else {
               this.flashMessage.setMessage(MessageType.alert,
-                                           `Unable to schedule an update for this config repository. ${err.message}`);
+                                           `Unable to schedule an update for '${repo.id()}' config repository. ${err.message}`);
             }
           } catch (e) {
             this.flashMessage.setMessage(MessageType.alert,
-                                         `Unable to schedule an update for this config repository. ${err.message}`);
+                                         `Unable to schedule an update for '${repo.id()}' config repository. ${err.message}`);
           }
         });
       });
@@ -109,14 +116,18 @@ export class ConfigReposPage extends Page<null, State> {
       });
       modal.render();
     };
-
     new AjaxPoller({repeaterFn: this.refreshConfigRepos.bind(this, vnode), initialIntervalSeconds: 10}).start();
   }
 
   componentToDisplay(vnode: m.Vnode<null, State>): m.Children {
+    if (vnode.state.searchText() && _.isEmpty(vnode.state.filteredObjects()())) {
+      return <div><FlashMessage type={MessageType.info}>No Results</FlashMessage>
+      </div>;
+    }
+
     return <div>
       <FlashMessage type={this.flashMessage.type} message={this.flashMessage.message}/>
-      <ConfigReposWidget objects={vnode.state.objects}
+      <ConfigReposWidget objects={vnode.state.filteredObjects()}
                          pluginInfos={vnode.state.pluginInfos}
                          onRefresh={vnode.state.onRefresh.bind(vnode.state)}
                          onEdit={vnode.state.onEdit.bind(vnode.state)}
@@ -127,6 +138,10 @@ export class ConfigReposPage extends Page<null, State> {
 
   headerPanel(vnode: m.Vnode<null, State>) {
     const headerButtons = [
+      <div class={styles.wrapperForSearchBox}>
+        <SearchField property={vnode.state.searchText} dataTestId={"search-box"}
+                     placeholder="Search Config Repo"/>
+      </div>,
       <Buttons.Primary onclick={vnode.state.onAdd.bind(vnode.state)}>Add</Buttons.Primary>
     ];
     return <HeaderPanel title="Config Repositories" buttons={headerButtons}/>;
@@ -134,7 +149,7 @@ export class ConfigReposPage extends Page<null, State> {
 
   fetchData(vnode: m.Vnode<null, State>) {
     const state = vnode.state;
-    state.objects(null);
+    state.initialObjects([]);
     this.pageState = PageState.LOADING;
 
     return Promise.all([PluginInfoCRUD.all({type: ExtensionType.CONFIG_REPO}), ConfigReposCRUD.all()]).then((args) => {
@@ -166,7 +181,7 @@ export class ConfigReposPage extends Page<null, State> {
     apiResponse.do(
       (successResponse) => {
         this.pageState = PageState.OK;
-        vnode.state.objects(successResponse.body);
+        vnode.state.initialObjects(successResponse.body);
       },
       (errorResponse) => {
         vnode.state.onError(errorResponse.message);

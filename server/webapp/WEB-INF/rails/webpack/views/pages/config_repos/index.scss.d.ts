@@ -23,6 +23,5 @@ export const keyValueTitle: string;
 export const headerTitleText: string;
 export const parseErrorText: string;
 export const wrapperForSearchBox: string;
-export const configRepoErrorHeader: string;
 export const configRepoProperties: string;
 export const errorMessage: string;

@@ -178,7 +178,7 @@ class ConfigRepoWidget extends MithrilViewComponent<ShowObjectAttrs<ConfigRepo>>
     const configRepoHasErrors = maybeWarning || (vnode.attrs.obj.lastParse() && vnode.attrs.obj.lastParse()!.error());
 
     return (
-      <CollapsiblePanel styleClass={configRepoHasErrors ? styles.configRepoErrorHeader : ""}
+      <CollapsiblePanel error={!!configRepoHasErrors}
                         header={<HeaderWidget repo={vnode.attrs.obj} pluginInfos={vnode.attrs.pluginInfos}/>}
                         dataTestId={"config-repo-details-panel"}
                         actions={actionButtons} expanded={vnode.attrs.index === 0}>

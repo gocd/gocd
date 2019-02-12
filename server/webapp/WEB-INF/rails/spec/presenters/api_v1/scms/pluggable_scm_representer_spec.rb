@@ -1,5 +1,5 @@
 ##########################################################################
-# Copyright 2016 ThoughtWorks, Inc.
+# Copyright 2019 ThoughtWorks, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -40,52 +40,6 @@ describe ApiV1::Scms::PluggableScmRepresenter do
     deserialized_scm = SCM.new
     ApiV1::Scms::PluggableScmRepresenter.new(deserialized_scm).from_hash(json)
     expect(deserialized_scm).to eq(@scm)
-  end
-
-  it 'should render configuration value with hal representation' do
-    actual_json   = ApiV1::Config::PluginConfigurationPropertyRepresenter.new(get_non_secure_property).to_hash(url_builder: UrlBuilder.new)
-    expect(actual_json).to eq(get_plain_text_hash)
-  end
-
-  it 'should render secure configuration value with hal representation' do
-    actual_json   = ApiV1::Config::PluginConfigurationPropertyRepresenter.new(get_secure_property).to_hash(url_builder: UrlBuilder.new)
-    expect(actual_json).to eq(secure_hash_with_encrypted_value)
-  end
-
-  it 'should convert from hash with encrypted value to Configuration Property' do
-    configuration_property    = ConfigurationProperty.new
-    presenter = ApiV1::Config::PluginConfigurationPropertyRepresenter.new(configuration_property)
-    presenter.from_hash(secure_hash_with_encrypted_value)
-    expect(configuration_property).to eq(get_secure_property)
-  end
-
-  it 'should convert from hash with clear text value to Configuration Property' do
-    configuration_property    = ConfigurationProperty.new
-    presenter = ApiV1::Config::PluginConfigurationPropertyRepresenter.new(configuration_property)
-    presenter.from_hash(get_plain_text_hash)
-    expect(configuration_property).to eq(get_non_secure_property)
-  end
-
-  def get_non_secure_property
-    ConfigurationProperty.new(ConfigurationKey.new('key'), ConfigurationValue.new('non-encrypted-value'))
-  end
-
-  def get_secure_property
-    ConfigurationProperty.new(ConfigurationKey.new('key'), EncryptedConfigurationValue.new(GoCipher.new.encrypt('confidential')))
-  end
-
-  def get_plain_text_hash
-    {
-        key:   'key',
-        value:  'non-encrypted-value'
-    }
-  end
-
-  def secure_hash_with_encrypted_value
-    {
-        key: "key",
-        encrypted_value: GoCipher.new.encrypt('confidential')
-    }
   end
 
   def json

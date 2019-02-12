@@ -40,7 +40,7 @@
 
 .agent_header th.selector {
     padding: 0 2px 0 5px;
-    text-align: center;
+    text-align: right;
 }
 
 .agent_header th.hostname {
@@ -57,5 +57,11 @@
     margin-bottom: -3px;
 }
 
+.agent_selector {
+    text-align: right;
+}
 
-
+span.contextual_help.agent_tooltip {
+    margin: 0;
+    padding: 0;
+}

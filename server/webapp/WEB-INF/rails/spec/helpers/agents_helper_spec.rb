@@ -32,16 +32,16 @@ describe AgentsHelper do
     end
 
     it "should select agent thats selected in current request" do
-      expect(agent_selector('uuid', 'selected[]', @selected)).to eq("<td class='selector'><input type='checkbox' name='selected[]' value='uuid' class='agent_select' checked='true'/></td>")
+      expect(agent_selector('uuid', 'selected[]', @selected)).to eq("<td class='agent_selector'><input type='checkbox' name='selected[]' value='uuid' class='agent_select' checked='true'/></td>")
     end
 
     it "should not select agent thats not selected in current request" do
-      expect(agent_selector('uuid1', 'selected[]', @selected)).to eq("<td class='selector'><input type='checkbox' name='selected[]' value='uuid1' class='agent_select' /></td>")
+      expect(agent_selector('uuid1', 'selected[]', @selected)).to eq("<td class='agent_selector'><input type='checkbox' name='selected[]' value='uuid1' class='agent_select' /></td>")
     end
 
     describe "when selected is not set" do
       it "should not select agent thats not selected in current request" do
-        expect(agent_selector('uuid1', 'selected[]', nil)).to eq("<td class='selector'><input type='checkbox' name='selected[]' value='uuid1' class='agent_select' /></td>")
+        expect(agent_selector('uuid1', 'selected[]', nil)).to eq("<td class='agent_selector'><input type='checkbox' name='selected[]' value='uuid1' class='agent_select' /></td>")
       end
     end
   end

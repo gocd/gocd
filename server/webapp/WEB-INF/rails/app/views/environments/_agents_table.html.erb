@@ -9,7 +9,7 @@
 <script type="text/javascript">
 Util.on_load(function() {
     jQuery('#select_all_agents').change(function(){
-          jQuery('.agent_select').prop("checked", $(this).checked);
+          jQuery('.agent_select:not([disabled])').prop("checked", $(this).checked);
     });
 
     var lastChecked = null;
@@ -37,11 +37,17 @@ Util.on_load(function() {
             lastChecked = $this;
         });
     });
+
+  jQuery(".has_go_tip_right").tipTip({
+    activation:      "click",
+    maxWidth:        "auto",
+    edgeOffset:      10,
+    defaultPosition: "right",
+    keepAlive:       false
+  });
 })
 
 </script>
-
-
 <table id='agent_details' class='agents list_table <%=" sortable_table" if scope[:sortable_columns]%> selectable_table'>
     <thead>
     <tr class='agent_header'>
@@ -89,7 +95,8 @@ Util.on_load(function() {
         <tr class='agent_instance <%= get_agent_status_class(scope[:show_only_disabled],agent_in_agent_table.getStatus()) %>' id='<%= agent_in_agent_table.getUuid() %>'>
             <% agent_uuid = agent_in_agent_table.getUuid()-%>
             <% if has_operate_permission_for_agents? %>
-                <%== agent_selector(agent_uuid, scope[:selector_name], scope[:selected]) %>
+                <%== contains_agent_remotely = scope[:environment]&.containsAgentRemotely(agent_uuid)
+                     agent_selector(agent_uuid, scope[:selector_name], scope[:selected], contains_agent_remotely) %>
             <% end %>
             <% unless scope[:exclude_columns].include?('hostname') -%>
 

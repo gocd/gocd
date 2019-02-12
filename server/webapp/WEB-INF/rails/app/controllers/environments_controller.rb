@@ -42,7 +42,7 @@ class EnvironmentsController < ApplicationController
   end
 
   def show
-    @agent_details = agent_service.filter(@environment.getLocalAgents().map(&:uuid))
+    @agent_details = agent_service.filter(@environment.getAgents().map(&:uuid))
   end
 
   def create

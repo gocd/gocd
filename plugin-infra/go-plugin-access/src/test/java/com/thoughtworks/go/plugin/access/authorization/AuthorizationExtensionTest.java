@@ -367,7 +367,7 @@ public class AuthorizationExtensionTest {
             boolean isValidUser = authorizationExtension.isValidUser(PLUGIN_ID, "fooUser", new SecurityAuthConfig("ldap", "cd.go.ldap", ConfigurationPropertyMother.create("foo", false, "bar")));
 
             assertRequest(requestArgumentCaptor.getValue(), AUTHORIZATION_EXTENSION, "2.0", IS_VALID_USER, requestBody);
-            assertThat(isValidUser, is(true));
+            assertThat(isValidUser).isTrue();
         }
 
         @Test
@@ -380,14 +380,12 @@ public class AuthorizationExtensionTest {
             boolean isValidUser = authorizationExtension.isValidUser(PLUGIN_ID, "fooUser", new SecurityAuthConfig("ldap", "cd.go.ldap", ConfigurationPropertyMother.create("foo", false, "bar")));
 
             assertRequest(requestArgumentCaptor.getValue(), AUTHORIZATION_EXTENSION, "2.0", IS_VALID_USER, requestBody);
-            assertThat(isValidUser, is(false));
+            assertThat(isValidUser).isFalse();
         }
 
         @Test
         void authenticateUser_shouldErrorOutInAbsenceOfSecurityAuthConfigs() {
-            Executable codeThatShouldThrowError = () -> {
-                authorizationExtension.getUserRoles(PLUGIN_ID, "fooUser", null, null);
-            };
+            Executable codeThatShouldThrowError = () -> authorizationExtension.getUserRoles(PLUGIN_ID, "fooUser", null, null);
 
             MissingAuthConfigsException exception = assertThrows(MissingAuthConfigsException.class, codeThatShouldThrowError);
 

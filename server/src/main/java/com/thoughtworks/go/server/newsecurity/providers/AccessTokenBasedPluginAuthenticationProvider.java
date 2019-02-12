@@ -18,7 +18,6 @@ package com.thoughtworks.go.server.newsecurity.providers;
 
 import com.thoughtworks.go.config.PluginRoleConfig;
 import com.thoughtworks.go.config.SecurityAuthConfig;
-import com.thoughtworks.go.plugin.access.authorization.AuthorizationExtension;
 import com.thoughtworks.go.plugin.access.authorization.AuthorizationMetadataStore;
 import com.thoughtworks.go.plugin.domain.authorization.AuthenticationResponse;
 import com.thoughtworks.go.plugin.domain.authorization.User;
@@ -27,6 +26,7 @@ import com.thoughtworks.go.server.newsecurity.models.AccessTokenCredential;
 import com.thoughtworks.go.server.newsecurity.models.AuthenticationToken;
 import com.thoughtworks.go.server.security.AuthorityGranter;
 import com.thoughtworks.go.server.security.userdetail.GoUserPrinciple;
+import com.thoughtworks.go.server.service.AuthorizationExtensionCacheService;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.PluginRoleService;
 import com.thoughtworks.go.server.service.UserService;
@@ -41,20 +41,20 @@ import static java.util.Collections.singletonList;
 
 @Component
 public class AccessTokenBasedPluginAuthenticationProvider extends AbstractPluginAuthenticationProvider<AccessTokenCredential> {
-    private final AuthorizationExtension authorizationExtension;
+    private final AuthorizationExtensionCacheService authorizationExtension;
     private final UserService userService;
     private final Clock clock;
     private AuthorizationMetadataStore store;
 
     @Autowired
-    public AccessTokenBasedPluginAuthenticationProvider(AuthorizationExtension authorizationExtension,
+    public AccessTokenBasedPluginAuthenticationProvider(AuthorizationExtensionCacheService authorizationExtensionCacheService,
                                                         AuthorityGranter authorityGranter,
                                                         GoConfigService goConfigService,
                                                         PluginRoleService pluginRoleService,
                                                         UserService userService,
                                                         Clock clock) {
         super(goConfigService, pluginRoleService, userService, authorityGranter);
-        this.authorizationExtension = authorizationExtension;
+        this.authorizationExtension = authorizationExtensionCacheService;
         this.userService = userService;
         this.store = AuthorizationMetadataStore.instance();
         this.clock = clock;

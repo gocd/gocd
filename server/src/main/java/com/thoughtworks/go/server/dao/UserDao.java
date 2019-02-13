@@ -33,8 +33,6 @@ public interface UserDao {
 
     long enabledUserCount();
 
-    void deleteAll();
-
     void disableUsers(List<String> usernames);
 
     void enableUsers(List<String> usernames);

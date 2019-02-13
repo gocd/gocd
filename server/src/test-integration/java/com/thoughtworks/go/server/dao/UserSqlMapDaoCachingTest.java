@@ -113,15 +113,6 @@ public class UserSqlMapDaoCachingTest {
     }
 
     @Test
-    public void shouldRemoveEnabledUserCountFromCacheWhenAllUsersAreDeleted() throws Exception {
-        makeSureThatCacheIsInitialized();
-
-        userDao.deleteAll();
-
-        assertThatEnabledUserCacheHasBeenCleared();
-    }
-
-    @Test
     public void shouldNOTRemoveEnabledUserCountFromCacheWhenFindUserHappens() throws Exception {
         makeSureThatCacheIsInitialized();
 
@@ -186,18 +177,7 @@ public class UserSqlMapDaoCachingTest {
                 stopWatch.start("enabledUserCount");
                 userDao.enabledUserCount();
                 stopWatch.stop();
-                System.out.println(stopWatch.shortSummary());
-            }
-        });
-
-        threadSafetyChecker.addOperation(new ThreadSafetyChecker.Operation() {
-            @Override
-            public void execute(int runIndex) {
-                StopWatch stopWatch = new StopWatch("deleteAll");
-                stopWatch.start("deleteAll");
-                userDao.deleteAll();
-                stopWatch.stop();
-                System.out.println(stopWatch.shortSummary());
+//                System.out.println(stopWatch.shortSummary());
             }
         });
 
@@ -208,7 +188,7 @@ public class UserSqlMapDaoCachingTest {
                 stopWatch.start("saveOrUpdate");
                 userDao.saveOrUpdate(new User("some-random-user " + runIndex));
                 stopWatch.stop();
-                System.out.println(stopWatch.shortSummary());
+//                System.out.println(stopWatch.shortSummary());
             }
         });
 
@@ -219,7 +199,7 @@ public class UserSqlMapDaoCachingTest {
                 stopWatch.start("enableUsers");
                 userDao.enableUsers(Arrays.asList("some-random-user " + runIndex));
                 stopWatch.stop();
-                System.out.println(stopWatch.shortSummary());
+//                System.out.println(stopWatch.shortSummary());
             }
         });
 

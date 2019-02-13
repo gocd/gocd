@@ -17,8 +17,8 @@
 package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.*;
-import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.Users;
+import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.exception.ValidationException;
 import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.presentation.TriStateSelection;
@@ -36,7 +36,6 @@ import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.util.TriState;
 import com.thoughtworks.go.util.comparator.AlphaAsciiCollectionComparator;
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.TransactionStatus;
@@ -69,10 +68,6 @@ public class UserService {
         this.securityService = securityService;
         this.goConfigService = goConfigService;
         this.transactionTemplate = transactionTemplate;
-    }
-
-    public void deleteAll() {
-        userDao.deleteAll();
     }
 
     public void disable(final List<String> usersToBeDisabled, LocalizedOperationResult result) {

@@ -25,11 +25,12 @@ import com.thoughtworks.go.server.exceptions.UserNotFoundException;
 import com.thoughtworks.go.server.transaction.TransactionSynchronizationManager;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import org.apache.commons.lang3.StringUtils;
-import org.hibernate.*;
+import org.hibernate.Criteria;
+import org.hibernate.Query;
+import org.hibernate.SessionFactory;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 import org.springframework.stereotype.Component;
@@ -38,7 +39,6 @@ import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionSynchronizationAdapter;
 
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -124,22 +124,6 @@ public class UserSqlMapDao extends HibernateDaoSupport implements UserDao {
 
             return value;
         }
-    }
-
-    // Used only by Twist tests
-    public void deleteAll() {
-        transactionTemplate.execute(new TransactionCallbackWithoutResult() {
-            @Override
-            protected void doInTransactionWithoutResult(TransactionStatus status) {
-                transactionSynchronizationManager.registerSynchronization(new TransactionSynchronizationAdapter() {
-                    @Override
-                    public void afterCommit() {
-                        clearEnabledUserCountFromCache();
-                    }
-                });
-                sessionFactory.getCurrentSession().createQuery("DELETE FROM User").executeUpdate();
-            }
-        });
     }
 
     public void disableUsers(List<String> usernames) {

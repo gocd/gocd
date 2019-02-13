@@ -17,7 +17,6 @@
 package com.thoughtworks.go.addon.controller;
 
 import com.thoughtworks.go.server.service.BackupService;
-import com.thoughtworks.go.server.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -27,25 +26,16 @@ import org.springframework.web.bind.annotation.ResponseBody;
 @RequestMapping(value = "/add-on/test-addon/admin")
 public class TestController {
     private final BackupService backupService;
-    private final UserService userService;
 
     @Autowired
-    public TestController(BackupService backupService, UserService userService) {
+    public TestController(BackupService backupService) {
         this.backupService = backupService;
-        this.userService = userService;
     }
 
     @RequestMapping(value = "/backups/delete")
     @ResponseBody
     public String deleteAllBackups() {
         backupService.deleteAll();
-        return "Deleted";
-    }
-
-    @RequestMapping(value = "/users/delete")
-    @ResponseBody
-    public String deleteAllUsers() {
-        userService.deleteAll();
         return "Deleted";
     }
 }

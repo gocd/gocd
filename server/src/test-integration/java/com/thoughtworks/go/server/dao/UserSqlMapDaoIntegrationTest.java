@@ -58,12 +58,10 @@ public class UserSqlMapDaoIntegrationTest {
     @Before
     public void setup() throws Exception {
         dbHelper.onSetUp();
-        userDao.deleteAll();
     }
 
     @After
     public void teardown() throws Exception {
-        userDao.deleteAll();
         dbHelper.onTearDown();
     }
 
@@ -134,19 +132,6 @@ public class UserSqlMapDaoIntegrationTest {
         User upperFirst = userDao.findUser("FIRST");
         assertThat(upperFirst.getName(), is("first"));
         assertThat(upperFirst.getId(), is(lowerFirst.getId()));
-    }
-
-
-    @Test
-    public void shouldDeleteAllUsers() {
-        User firstUser = user("first");
-        User secondUser = user("second");
-
-        userDao.saveOrUpdate(firstUser);
-        userDao.saveOrUpdate(secondUser);
-
-        userDao.deleteAll();
-        assertThat(userDao.allUsers().size(), is(0));
     }
 
     @Test

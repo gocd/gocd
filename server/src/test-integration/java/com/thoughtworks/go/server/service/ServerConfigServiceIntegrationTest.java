@@ -18,8 +18,10 @@ package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.domain.ServerSiteUrlConfig;
+import com.thoughtworks.go.domain.User;
 import com.thoughtworks.go.security.CryptoException;
 import com.thoughtworks.go.security.GoCipher;
+import com.thoughtworks.go.server.service.result.BulkUpdateUsersOperationResult;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.util.GoConfigFileHelper;
 import org.junit.After;
@@ -32,6 +34,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.stream.Collectors;
 
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
@@ -172,7 +175,7 @@ public class ServerConfigServiceIntegrationTest {
     @Test
     public void updateServerConfig_ShouldFailWhenAllowAutoLoginIsTurnedOffWithNoAdminsRemaining() throws IOException {
         configHelper.enableSecurity();
-        userService.deleteAll();
+        userService.deleteUsers(userService.allUsers().stream().map(User::getName).collect(Collectors.toList()), "admin", new BulkUpdateUsersOperationResult());
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
 
         serverConfigService.updateServerConfig(new MailHost(new GoCipher()), "artifacts", null, null, "42",

@@ -348,19 +348,6 @@ public class UserServiceIntegrationTest {
     }
 
     @Test
-    public void shouldDeleteAllUsers() {
-        UserSearchModel foo = new UserSearchModel(new User("fooUser", "Mr Foo", "foo@cruise.com"), UserSourceType.PLUGIN);
-        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        userService.create(Arrays.asList(foo), result);
-
-        assertThat(userService.allUsersForDisplay(UserService.SortableColumn.EMAIL, UserService.SortDirection.ASC).size(), is(1));
-
-        userService.deleteAll();
-
-        assertThat(userService.allUsersForDisplay(UserService.SortableColumn.EMAIL, UserService.SortDirection.ASC).size(), is(0));
-    }
-
-    @Test
     public void shouldReturnErrorMessageWhenTheLastAdminIsBeingDisabled() throws Exception {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
 

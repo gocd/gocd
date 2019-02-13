@@ -148,6 +148,8 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
     public static final GoSystemProperty<String> AGENT_EXTRA_PROPERTIES = new GoStringSystemProperty("gocd.agent.extra.properties", "");
     public static final GoSystemProperty<Integer> JMS_LISTENER_BACKOFF_TIME = new GoIntSystemProperty("go.jms.listener.backoff.time.in.milliseconds", 5000);
 
+    public static final GoSystemProperty<Integer> GO_SERVER_AUTHORIZATION_EXTENSION_CALLS_CACHE_TIMEOUT_IN_SECONDS = new GoIntSystemProperty("go.server.authorization.extension.calls.cache.timeout.in.secs", 60 * 30);
+
     /* DATABASE CONFIGURATION - Defaults are of H2 */
     public static GoSystemProperty<String> GO_DATABASE_HOST = new GoStringSystemProperty("db.host", "localhost");
     public static GoSystemProperty<String> GO_DATABASE_PORT = new GoStringSystemProperty("db.port", "");
@@ -715,6 +717,10 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
 
     public String getExternalPluginAbsolutePath() {
         return new File(get(PLUGIN_EXTERNAL_PROVIDED_PATH)).getAbsolutePath();
+    }
+
+    public static Integer getGoServerAuthorizationExtensionCallsCacheTimeoutInSeconds() {
+        return GO_SERVER_AUTHORIZATION_EXTENSION_CALLS_CACHE_TIMEOUT_IN_SECONDS.getValue();
     }
 
     public String getBundledPluginAbsolutePath() {

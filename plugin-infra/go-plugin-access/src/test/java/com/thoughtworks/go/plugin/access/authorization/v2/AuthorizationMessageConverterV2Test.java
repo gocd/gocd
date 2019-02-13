@@ -29,37 +29,35 @@ import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson;
 
-public class AuthorizationMessageConverterV2Test {
+class AuthorizationMessageConverterV2Test {
     private AuthorizationMessageConverterV2 converter;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         converter = new AuthorizationMessageConverterV2();
     }
 
     @Test
-    public void getProcessRoleConfigsResponseBody() throws Exception {
+    void getProcessRoleConfigsResponseBody() {
         String json = converter.getProcessRoleConfigsResponseBody(singletonList(new PluginRoleConfig("blackbird", "ldap", create("foo", false, "bar"))));
         assertThatJson("[{\"name\":\"blackbird\",\"configuration\":{\"foo\":\"bar\"}}]").isEqualTo(json);
     }
 
     @Test
-    public void shouldReturnRequestBodyForGetUserRolesRequest() {
-        List<SecurityAuthConfig> authConfigs = asList(new SecurityAuthConfig("p1", "ldap", ConfigurationPropertyMother.create("key1", false, "value2")));
-        List<PluginRoleConfig> roleConfigs = asList(new PluginRoleConfig("role1", "p1", ConfigurationPropertyMother.create("key2", false, "value2")));
+    void shouldReturnRequestBodyForGetUserRolesRequest() {
+        SecurityAuthConfig authConfig = new SecurityAuthConfig("p1", "ldap", create("key1", false, "value2"));
+        List<PluginRoleConfig> roleConfigs = singletonList(new PluginRoleConfig("role1", "p1", create("key2", false, "value2")));
 
 
-        String requestBody = converter.authenticateUserRequestBody("foo", authConfigs, roleConfigs);
+        String requestBody = converter.getUserRolesRequestBody("foo", authConfig, roleConfigs);
 
         assertThatJson(requestBody).isEqualTo("{\n" +
-                "  \"auth_configs\": [\n" +
-                "    {\n" +
+                "  \"auth_config\": {\n" +
                 "      \"configuration\": {\n" +
                 "        \"key1\": \"value2\"\n" +
                 "      },\n" +
                 "      \"id\": \"p1\"\n" +
-                "    }\n" +
-                "  ],\n" +
+                "    },\n" +
                 "  \"username\": \"foo\",\n" +
                 "  \"role_configs\": [\n" +
                 "    {\n" +
@@ -74,7 +72,7 @@ public class AuthorizationMessageConverterV2Test {
     }
 
     @Test
-    public void shouldReturnRequestBodyForDoesUserExistsRequest() {
+    void shouldReturnRequestBodyForDoesUserExistsRequest() {
         SecurityAuthConfig authConfig = new SecurityAuthConfig("p1", "ldap", ConfigurationPropertyMother.create("key1", false, "value2"));
 
         String requestBody = converter.isValidUserRequestBody("foo", authConfig);

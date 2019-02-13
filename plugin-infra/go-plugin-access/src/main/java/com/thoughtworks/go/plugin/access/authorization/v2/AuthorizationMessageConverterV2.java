@@ -219,6 +219,16 @@ public class AuthorizationMessageConverterV2 implements AuthorizationMessageConv
     }
 
     @Override
+    public String getUserRolesRequestBody(String username, SecurityAuthConfig authConfig, List<PluginRoleConfig> roleConfigs) {
+        Map<String, Object> requestMap = new HashMap<>();
+        requestMap.put("username", username);
+        requestMap.put("auth_config", getAuthConfig(authConfig));
+        requestMap.put("role_configs", getRoleConfigs(roleConfigs));
+
+        return GSON.toJson(requestMap);
+    }
+
+    @Override
     public String authenticateUserRequestBody(String username, List<SecurityAuthConfig> authConfigs, List<PluginRoleConfig> roleConfigs) {
         Map<String, Object> requestMap = new HashMap<>();
 

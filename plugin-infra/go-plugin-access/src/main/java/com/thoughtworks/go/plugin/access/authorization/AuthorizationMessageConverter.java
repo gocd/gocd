@@ -71,4 +71,6 @@ public interface AuthorizationMessageConverter {
     String authorizationServerUrlRequestBody(String pluginId, List<SecurityAuthConfig> authConfigs, String siteUrl);
 
     String isValidUserRequestBody(String username, SecurityAuthConfig authConfig);
+
+    String getUserRolesRequestBody(String username, SecurityAuthConfig authConfig, List<PluginRoleConfig> roleConfigs);
 }

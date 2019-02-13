@@ -35,7 +35,6 @@ import org.mockito.Mock;
 import java.util.Collections;
 
 import static com.thoughtworks.go.helper.AccessTokenMother.randomAccessToken;
-import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
@@ -82,7 +81,7 @@ class AccessTokenBasedPluginAuthenticationProviderTest {
 
         when(authorizationExtension.isValidUser(pluginId, username, authConfig)).thenReturn(true);
         when(store.doesPluginSupportGetUserRolesCall(pluginId)).thenReturn(true);
-        when(authorizationExtension.getUserRoles(pluginId, username, singletonList(authConfig), null)).thenReturn(responseToSend);
+        when(authorizationExtension.getUserRoles(pluginId, username, authConfig, null)).thenReturn(responseToSend);
 
         AuthenticationResponse actual = provider.authenticateWithExtension(pluginId, credentials, authConfig, null);
 

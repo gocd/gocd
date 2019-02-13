@@ -69,7 +69,7 @@ class AccessTokenControllerV1Test implements ControllerTrait<AccessTokenControll
     class Security implements SecurityTestTrait, NormalUserOnlyIfSecurityEnabled {
       @BeforeEach
       void setUp() {
-        when(accessTokenService.find(token.id, currentUserLoginName().toString())).thenReturn(token)
+        when(accessTokenService.find(token.id, currentUsernameString())).thenReturn(token)
       }
 
       @Override
@@ -143,7 +143,7 @@ class AccessTokenControllerV1Test implements ControllerTrait<AccessTokenControll
         enableSecurity()
         loginAsUser()
 
-        when(accessTokenService.create(token.description, currentUserLoginName().toString(), authConfigId)).thenReturn(token)
+        when(accessTokenService.create(token.description, currentUsernameString(), authConfigId)).thenReturn(token)
       }
 
       @Test
@@ -163,7 +163,7 @@ class AccessTokenControllerV1Test implements ControllerTrait<AccessTokenControll
       @Test
       void 'should create a new access token without providing token description'() {
         token.description = null
-        when(accessTokenService.create(eq(token.description), eq(currentUserLoginName().toString()), eq(authConfigId))).thenReturn(token)
+        when(accessTokenService.create(eq(token.description), eq(currentUsernameString()), eq(authConfigId))).thenReturn(token)
 
         def requestBody = [
           description: null
@@ -179,7 +179,7 @@ class AccessTokenControllerV1Test implements ControllerTrait<AccessTokenControll
 
       @Test
       void 'should show errors occurred while creating a new access token'() {
-        when(accessTokenService.create(token.description, currentUserLoginName().toString(), authConfigId)).thenThrow(new UnprocessableEntityException("Boom!"))
+        when(accessTokenService.create(token.description, currentUsernameString(), authConfigId)).thenThrow(new UnprocessableEntityException("Boom!"))
 
         def requestBody = [
           description: token.description
@@ -202,7 +202,7 @@ class AccessTokenControllerV1Test implements ControllerTrait<AccessTokenControll
     class Security implements SecurityTestTrait, NormalUserOnlyIfSecurityEnabled {
       @BeforeEach
       void setUp() {
-        when(accessTokenService.findAllTokensForUser(currentUserLoginName().toString())).thenReturn([token])
+        when(accessTokenService.findAllTokensForUser(currentUsernameString())).thenReturn([token])
       }
 
       @Override
@@ -223,7 +223,7 @@ class AccessTokenControllerV1Test implements ControllerTrait<AccessTokenControll
         enableSecurity()
         loginAsAdmin()
 
-        when(accessTokenService.findAllTokensForUser(currentUserLoginName().toString())).thenReturn([token])
+        when(accessTokenService.findAllTokensForUser(currentUsernameString())).thenReturn([token])
       }
 
       @Test
@@ -265,12 +265,12 @@ class AccessTokenControllerV1Test implements ControllerTrait<AccessTokenControll
 
       @Test
       void 'should revoke the access token'() {
-        when(accessTokenService.find(token.id, currentUserLoginName().toString())).thenReturn(token)
-        when(accessTokenService.revokeAccessToken(token.id, currentUserLoginName().toString(), "blah")).thenReturn(token)
+        when(accessTokenService.find(token.id, currentUsernameString())).thenReturn(token)
+        when(accessTokenService.revokeAccessToken(token.id, currentUsernameString(), "blah")).thenReturn(token)
 
         postWithApiHeader(controller.controllerPath(token.id, 'revoke'), [cause: 'blah'])
 
-        verify(accessTokenService).revokeAccessToken(token.id, currentUserLoginName().toString(), "blah")
+        verify(accessTokenService).revokeAccessToken(token.id, currentUsernameString(), "blah")
 
         assertThatResponse()
           .isOk()
@@ -280,7 +280,7 @@ class AccessTokenControllerV1Test implements ControllerTrait<AccessTokenControll
 
       @Test
       void 'should show errors occurred while revoking a new access token'() {
-        when(accessTokenService.revokeAccessToken(token.id, currentUserLoginName().toString(), null)).thenThrow(new UnprocessableEntityException("Boom!"))
+        when(accessTokenService.revokeAccessToken(token.id, currentUsernameString(), null)).thenThrow(new UnprocessableEntityException("Boom!"))
 
         postWithApiHeader(controller.controllerPath(token.id, 'revoke'), [:])
 

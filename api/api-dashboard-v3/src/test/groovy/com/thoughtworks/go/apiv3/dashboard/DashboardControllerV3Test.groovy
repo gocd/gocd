@@ -205,7 +205,7 @@ class DashboardControllerV3Test implements SecurityServiceTrait, ControllerTrait
 
   private String computeEtag(List<GoDashboardPipelineGroup> pipelineGroups, List<GoDashboardEnvironment> envs) {
     '"' + DigestUtils.md5Hex([
-      currentUserLoginName().toString(),
+      currentUsernameString(),
       pipelineGroups.collect { it.etag() }.join("/"),
       envs.collect { it.etag() }.join("/")
     ].join('/')) + '"'

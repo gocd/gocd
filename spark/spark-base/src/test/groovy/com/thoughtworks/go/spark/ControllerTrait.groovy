@@ -131,7 +131,7 @@ trait ControllerTrait<T extends SparkController> {
     }
 
     if (!currentUsername().isAnonymous()) {
-      final AuthenticationToken<?> newToken = new AuthenticationToken<>(SessionUtils.getCurrentUser(), new UsernamePassword(currentUserLoginName().toString(), "password"), "plugin1", System.currentTimeMillis(), "authConfigId")
+      final AuthenticationToken<?> newToken = new AuthenticationToken<>(SessionUtils.getCurrentUser(), new UsernamePassword(currentUsernameString(), "password"), "plugin1", System.currentTimeMillis(), "authConfigId")
 
       httpRequestBuilder.withSessionAttr(SessionUtils.CURRENT_USER_ID, currentUserLoginId())
       httpRequestBuilder.withSessionAttr(SessionUtils.AUTHENTICATION_TOKEN, newToken)
@@ -187,6 +187,10 @@ trait ControllerTrait<T extends SparkController> {
 
   Username currentUsername() {
     return SessionUtils.currentUsername()
+  }
+
+  String currentUsernameString() {
+    return currentUserLoginName().toString()
   }
 
   CaseInsensitiveString currentUserLoginName() {

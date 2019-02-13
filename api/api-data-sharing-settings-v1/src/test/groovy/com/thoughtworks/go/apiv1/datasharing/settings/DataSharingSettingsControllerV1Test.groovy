@@ -193,7 +193,7 @@ class DataSharingSettingsControllerV1Test implements SecurityServiceTrait, Contr
                 verify(dataSharingSettingsService).createOrUpdate(captor.capture())
                 def settingsBeingSaved = captor.getValue()
                 assertEquals(settingsBeingSaved.allowSharing(), newConsent)
-                assertEquals(settingsBeingSaved.updatedBy(), currentUsername().getUsername().toString())
+                assertEquals(settingsBeingSaved.updatedBy(), currentUsernameString())
             }
 
             @Test
@@ -222,7 +222,7 @@ class DataSharingSettingsControllerV1Test implements SecurityServiceTrait, Contr
                 verify(dataSharingSettingsService).createOrUpdate(captor.capture())
                 def settingsBeingSaved = captor.getValue()
                 assertEquals(settingsBeingSaved.allowSharing(), settings.allowSharing())
-                assertEquals(settingsBeingSaved.updatedBy(), currentUsername().getUsername().toString())
+                assertEquals(settingsBeingSaved.updatedBy(), currentUsernameString())
             }
         }
     }

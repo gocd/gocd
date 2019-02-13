@@ -47,6 +47,15 @@ public class AccessToken extends PersistentObject implements Validatable {
     private static final int DESIRED_KEY_LENGTH = 256;
     private static final int SALT_LENGTH = 32;
     private static final String KEY_ALGORITHM = "PBKDF2WithHmacSHA256";
+    private static SecureRandom SECURE_RANDOM;
+
+    static {
+        try {
+            SECURE_RANDOM = SecureRandom.getInstanceStrong();
+        } catch (NoSuchAlgorithmException e) {
+            SECURE_RANDOM = new SecureRandom();
+        }
+    }
 
     //this is the hashed token value
     private String value;
@@ -85,7 +94,7 @@ public class AccessToken extends PersistentObject implements Validatable {
 
     private static String generateSecureRandomString(int byteLength) {
         byte[] randomBytes = new byte[byteLength];
-        new SecureRandom().nextBytes(randomBytes);
+        SECURE_RANDOM.nextBytes(randomBytes);
         return Hex.encodeHexString(randomBytes);
     }
 

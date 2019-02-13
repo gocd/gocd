@@ -18,8 +18,10 @@ package com.thoughtworks.go.server.dao;
 
 import com.thoughtworks.go.domain.AccessToken;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
+import com.thoughtworks.go.util.Clock;
 import org.hibernate.Query;
 import org.hibernate.SessionFactory;
+import org.hibernate.classic.Session;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
@@ -28,18 +30,21 @@ import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 
+import java.util.Collection;
 import java.util.List;
 
 @Component
 public class AccessTokenSqlMapDao extends HibernateDaoSupport implements AccessTokenDao {
     private SessionFactory sessionFactory;
     private TransactionTemplate transactionTemplate;
+    private Clock clock;
 
     @Autowired
     public AccessTokenSqlMapDao(SessionFactory sessionFactory,
-                                TransactionTemplate transactionTemplate) {
+                                TransactionTemplate transactionTemplate, Clock clock) {
         this.sessionFactory = sessionFactory;
         this.transactionTemplate = transactionTemplate;
+        this.clock = clock;
         setSessionFactory(sessionFactory);
     }
 
@@ -71,17 +76,22 @@ public class AccessTokenSqlMapDao extends HibernateDaoSupport implements AccessT
                         .setCacheable(true).uniqueResult());
     }
 
-    public AccessToken load(final long id) {
-        return (AccessToken) transactionTemplate.execute((TransactionCallback) transactionStatus -> sessionFactory.getCurrentSession().get(AccessToken.class, id));
+    @Override
+    public void revokeTokensForUsers(Collection<String> usernames, String cause, String byWhom) {
+        transactionTemplate.execute(status -> {
+            Session currentSession = sessionFactory.getCurrentSession();
+            usernames
+                    .stream()
+                    .flatMap(username -> findAllTokensForUser(username).stream())
+                    .forEach(accessToken -> {
+                        accessToken.revoke(byWhom, cause, clock.currentTimestamp());
+                        currentSession.saveOrUpdate(accessToken);
+                    });
+            return Boolean.TRUE;
+        });
     }
 
-    // Used only by tests
-    public void deleteAll() {
-        transactionTemplate.execute(new TransactionCallbackWithoutResult() {
-            @Override
-            protected void doInTransactionWithoutResult(TransactionStatus status) {
-                sessionFactory.getCurrentSession().createQuery("DELETE FROM AccessToken").executeUpdate();
-            }
-        });
+    public AccessToken load(final long id) {
+        return (AccessToken) transactionTemplate.execute((TransactionCallback) transactionStatus -> sessionFactory.getCurrentSession().get(AccessToken.class, id));
     }
 }

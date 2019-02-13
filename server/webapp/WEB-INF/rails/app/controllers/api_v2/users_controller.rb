@@ -66,13 +66,13 @@ module ApiV2
 
     def destroy
       result = HttpLocalizedOperationResult.new
-      user_service.deleteUser(params[:login_name], result)
+      user_service.deleteUser(params[:login_name], string_username.to_s, result)
       render_http_operation_result(result)
     end
 
     def bulk_delete
       result = HttpLocalizedOperationResult.new
-      bulk_deletion_obstruct = user_service.deleteUsers(Array.wrap(params[:users]), result)
+      bulk_deletion_obstruct = user_service.deleteUsers(Array.wrap(params[:users]), string_username.to_s, result)
       if result.isSuccessful
         render_http_operation_result(result)
       elsif bulk_deletion_obstruct

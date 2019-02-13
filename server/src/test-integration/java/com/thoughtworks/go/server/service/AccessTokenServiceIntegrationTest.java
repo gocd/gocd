@@ -63,7 +63,6 @@ public class AccessTokenServiceIntegrationTest {
 
     @After
     public void tearDown() throws Exception {
-        accessTokenSqlMapDao.deleteAll();
         dbHelper.onTearDown();
     }
 

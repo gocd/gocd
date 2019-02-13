@@ -39,16 +39,14 @@ import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionSynchronizationAdapter;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Component
 public class UserSqlMapDao extends HibernateDaoSupport implements UserDao {
     private SessionFactory sessionFactory;
     private TransactionTemplate transactionTemplate;
     private GoCache goCache;
+    private final AccessTokenDao accessTokenDao;
     private final TransactionSynchronizationManager transactionSynchronizationManager;
     protected static final String ENABLED_USER_COUNT_CACHE_KEY = "ENABLED_USER_COUNT_CACHE_KEY".intern();
 
@@ -56,10 +54,11 @@ public class UserSqlMapDao extends HibernateDaoSupport implements UserDao {
     public UserSqlMapDao(SessionFactory sessionFactory,
                          TransactionTemplate transactionTemplate,
                          GoCache goCache,
-                         TransactionSynchronizationManager transactionSynchronizationManager) {
+                         AccessTokenDao accessTokenDao, TransactionSynchronizationManager transactionSynchronizationManager) {
         this.sessionFactory = sessionFactory;
         this.transactionTemplate = transactionTemplate;
         this.goCache = goCache;
+        this.accessTokenDao = accessTokenDao;
         this.transactionSynchronizationManager = transactionSynchronizationManager;
         setSessionFactory(sessionFactory);
     }
@@ -161,7 +160,7 @@ public class UserSqlMapDao extends HibernateDaoSupport implements UserDao {
     }
 
     @Override
-    public boolean deleteUser(final String username) {
+    public boolean deleteUser(final String username, String byWhom) {
         return (Boolean) transactionTemplate.execute((TransactionCallback) status -> {
             User user = findUser(username);
             if (user instanceof NullUser) {
@@ -171,17 +170,19 @@ public class UserSqlMapDao extends HibernateDaoSupport implements UserDao {
                 throw new UserEnabledException();
             }
             sessionFactory.getCurrentSession().delete(user);
+            accessTokenDao.revokeTokensForUsers(Collections.singletonList(username), "Revoked because user was deleted by " + byWhom, byWhom);
             return Boolean.TRUE;
         });
     }
 
     @Override
-    public boolean deleteUsers(List<String> userNames) {
+    public boolean deleteUsers(List<String> userNames, String byWhom) {
         return (Boolean) transactionTemplate.execute((TransactionCallback) status -> {
             String queryString = "delete from User where name in (:userNames)";
             Query query = sessionFactory.getCurrentSession().createQuery(queryString);
             query.setParameterList("userNames", userNames);
             query.executeUpdate();
+            accessTokenDao.revokeTokensForUsers(userNames, "Revoked because user was deleted by " + byWhom, byWhom);
             return Boolean.TRUE;
         });
     }

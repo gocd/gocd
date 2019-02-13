@@ -108,9 +108,9 @@ public class AccessToken extends PersistentObject implements Validatable {
         }
     }
 
-    public void revoke(String username, String revokeCause, Timestamp revokedAt) {
+    public void revoke(String revokedBy, String revokeCause, Timestamp revokedAt) {
         setRevoked(true)
-                .setRevokedBy(username)
+                .setRevokedBy(revokedBy)
                 .setRevokeCause(revokeCause)
                 .setRevokedAt(revokedAt);
     }

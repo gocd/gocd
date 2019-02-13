@@ -43,7 +43,7 @@ public interface UserDao {
 
     User load(long id);
 
-    boolean deleteUser(String username);
+    boolean deleteUser(String username, String byWhom);
 
-    boolean deleteUsers(List<String> userNames);
+    boolean deleteUsers(List<String> userNames, String byWhom);
 }

@@ -448,8 +448,8 @@ public class UserServiceTest {
     public void shouldDeleteUserSuccessfully() {
         String username = "username";
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        when(userDao.deleteUser(username)).thenReturn(true);
-        userService.deleteUser(username, result);
+        when(userDao.deleteUser(username, "currentUser")).thenReturn(true);
+        userService.deleteUser(username, "currentUser", result);
         assertThat(result.isSuccessful(), is(true));
         assertThat(result.hasMessage(), is(true));
     }
@@ -458,8 +458,8 @@ public class UserServiceTest {
     public void shouldFailWithErrorWhenDeletingAUserFails() {
         String username = "username";
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        when(userDao.deleteUser(username)).thenThrow(new UserNotFoundException());
-        userService.deleteUser(username, result);
+        when(userDao.deleteUser(username, "currentUser")).thenThrow(new UserNotFoundException());
+        userService.deleteUser(username, "currentUser", result);
         assertThat(result.isSuccessful(), is(false));
         assertThat(result.hasMessage(), is(true));
     }
@@ -476,9 +476,9 @@ public class UserServiceTest {
 
         when(userDao.findUser("john")).thenReturn(john);
         when(userDao.findUser("joan")).thenReturn(joan);
-        userService.deleteUsers(usernames, result);
+        userService.deleteUsers(usernames, "currentUser", result);
 
-        verify(userDao).deleteUsers(usernames);
+        verify(userDao).deleteUsers(usernames, "currentUser");
         assertThat(result.isSuccessful(), is(true));
         assertThat(result.message(), is("Users 'john, joan' were deleted successfully."));
     }
@@ -496,7 +496,7 @@ public class UserServiceTest {
         when(userDao.findUser("joan")).thenReturn(new NullUser());
         when(userDao.findUser("john")).thenReturn(john);
 
-        userService.deleteUsers(usernames, result);
+        userService.deleteUsers(usernames, "currentUser", result);
 
         assertThat(result.isSuccessful(), is(false));
         assertThat(result.message(), containsString("Deletion failed because some users do not exist."));
@@ -518,7 +518,7 @@ public class UserServiceTest {
         when(userDao.findUser("joan")).thenReturn(john);
         when(userDao.findUser("john")).thenReturn(joan);
 
-        userService.deleteUsers(usernames, result);
+        userService.deleteUsers(usernames, "currentUser", result);
 
         assertThat(result.isSuccessful(), is(false));
         assertThat(result.message(), is("Deletion failed because some users were enabled."));
@@ -531,7 +531,7 @@ public class UserServiceTest {
         List<String> usernames = null;
 
         BulkUpdateUsersOperationResult result = new BulkUpdateUsersOperationResult();
-        userService.deleteUsers(usernames, result);
+        userService.deleteUsers(usernames, "currentUser", result);
 
         assertThat(result.isSuccessful(), is(false));
         assertThat(result.message(), is("No users selected."));
@@ -542,7 +542,7 @@ public class UserServiceTest {
         List<String> usernames = new ArrayList<>();
 
         BulkUpdateUsersOperationResult result = new BulkUpdateUsersOperationResult();
-        userService.deleteUsers(usernames, result);
+        userService.deleteUsers(usernames, "currentUser", result);
 
         assertThat(result.isSuccessful(), is(false));
         assertThat(result.message(), is("No users selected."));
@@ -686,8 +686,8 @@ public class UserServiceTest {
     public void shouldFailWithErrorWhenDeletingAnEnabledUserFails() {
         String username = "username";
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        when(userDao.deleteUser(username)).thenThrow(new UserEnabledException());
-        userService.deleteUser(username, result);
+        when(userDao.deleteUser(username, "currentUser")).thenThrow(new UserEnabledException());
+        userService.deleteUser(username, "currentUser", result);
         assertThat(result.isSuccessful(), is(false));
         assertThat(result.hasMessage(), is(true));
     }

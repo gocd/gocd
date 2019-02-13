@@ -51,7 +51,6 @@ public class AccessTokenSqlMapDaoIntegrationTest {
 
     @After
     public void teardown() throws Exception {
-        accessTokenSqlMapDao.deleteAll();
         dbHelper.onTearDown();
     }
 

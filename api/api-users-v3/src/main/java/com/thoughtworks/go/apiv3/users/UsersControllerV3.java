@@ -149,7 +149,7 @@ public class UsersControllerV3 extends ApiController implements SparkSpringContr
     public String deleteUser(Request req, Response res) throws Exception {
         String username = req.params("login_name");
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        userService.deleteUser(username, result);
+        userService.deleteUser(username, currentUsernameString(), result);
         return renderHTTPOperationResult(result, req, res);
     }
 
@@ -174,7 +174,7 @@ public class UsersControllerV3 extends ApiController implements SparkSpringContr
         JsonReader jsonReader = GsonTransformer.getInstance().jsonReaderFrom(req.body());
         List<String> users = jsonReader.readStringArrayIfPresent("users").orElse(Collections.emptyList());
 
-        userService.deleteUsers(users, result);
+        userService.deleteUsers(users, currentUsernameString(), result);
 
         if (!result.isSuccessful()) {
             res.status(result.httpCode());

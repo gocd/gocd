@@ -17,24 +17,26 @@
 package com.thoughtworks.go.server.newsecurity.providers;
 
 import com.thoughtworks.go.config.SecurityAuthConfig;
+import com.thoughtworks.go.domain.AccessToken;
+import com.thoughtworks.go.domain.AccessToken.AccessTokenWithDisplayValue;
 import com.thoughtworks.go.domain.User;
-import com.thoughtworks.go.plugin.access.authorization.AuthorizationExtension;
 import com.thoughtworks.go.plugin.access.authorization.AuthorizationMetadataStore;
 import com.thoughtworks.go.plugin.domain.authorization.AuthenticationResponse;
 import com.thoughtworks.go.server.exceptions.InvalidAccessTokenException;
 import com.thoughtworks.go.server.newsecurity.models.AccessTokenCredential;
 import com.thoughtworks.go.server.security.AuthorityGranter;
+import com.thoughtworks.go.server.service.AuthorizationExtensionCacheService;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.PluginRoleService;
 import com.thoughtworks.go.server.service.UserService;
 import com.thoughtworks.go.util.Clock;
+import com.thoughtworks.go.util.TestingClock;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 
 import java.util.Collections;
 
-import static com.thoughtworks.go.helper.AccessTokenMother.randomAccessToken;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
@@ -43,11 +45,9 @@ import static org.mockito.MockitoAnnotations.initMocks;
 class AccessTokenBasedPluginAuthenticationProviderTest {
     private final String pluginId = "pluginId";
     private final String authConfigId = "auth-config-id";
-    private final String accessTokenName = "token1";
-
 
     @Mock
-    private AuthorizationExtension authorizationExtension;
+    private AuthorizationExtensionCacheService authorizationService;
     @Mock
     private AuthorityGranter authorityGranter;
     @Mock
@@ -63,12 +63,13 @@ class AccessTokenBasedPluginAuthenticationProviderTest {
 
     private AccessTokenBasedPluginAuthenticationProvider provider;
     private final SecurityAuthConfig authConfig = new SecurityAuthConfig();
-    private final AccessTokenCredential credentials = new AccessTokenCredential(randomAccessToken());
+    private final AccessTokenWithDisplayValue token = AccessToken.create(null, null, null, new TestingClock());
+    private final AccessTokenCredential credentials = new AccessTokenCredential(token);
 
     @BeforeEach
     void setUp() {
         initMocks(this);
-        provider = new AccessTokenBasedPluginAuthenticationProvider(authorizationExtension, authorityGranter, goConfigService, pluginRoleService, userService, clock);
+        provider = new AccessTokenBasedPluginAuthenticationProvider(authorizationService, authorityGranter, goConfigService, pluginRoleService, userService, clock);
         provider.setStore(store);
 
         authConfig.setId(authConfigId);
@@ -79,9 +80,9 @@ class AccessTokenBasedPluginAuthenticationProviderTest {
         String username = credentials.getAccessToken().getUsername();
         AuthenticationResponse responseToSend = new AuthenticationResponse(null, Collections.emptyList());
 
-        when(authorizationExtension.isValidUser(pluginId, username, authConfig)).thenReturn(true);
+        when(authorizationService.isValidUser(pluginId, username, authConfig)).thenReturn(true);
         when(store.doesPluginSupportGetUserRolesCall(pluginId)).thenReturn(true);
-        when(authorizationExtension.getUserRoles(pluginId, username, authConfig, null)).thenReturn(responseToSend);
+        when(authorizationService.getUserRoles(pluginId, username, authConfig, null)).thenReturn(responseToSend);
 
         AuthenticationResponse actual = provider.authenticateWithExtension(pluginId, credentials, authConfig, null);
 
@@ -94,7 +95,7 @@ class AccessTokenBasedPluginAuthenticationProviderTest {
         User userToOperate = new User(username);
         AuthenticationResponse responseToSend = new AuthenticationResponse(new com.thoughtworks.go.plugin.domain.authorization.User(userToOperate.getUsername().getUsername().toString(), userToOperate.getDisplayName(), userToOperate.getEmail()), Collections.emptyList());
 
-        when(authorizationExtension.isValidUser(pluginId, username, authConfig)).thenReturn(true);
+        when(authorizationService.isValidUser(pluginId, username, authConfig)).thenReturn(true);
         when(store.doesPluginSupportGetUserRolesCall(pluginId)).thenReturn(false);
         when(userService.findUserByName(username)).thenReturn(userToOperate);
 
@@ -105,7 +106,7 @@ class AccessTokenBasedPluginAuthenticationProviderTest {
 
     @Test
     void itShouldThrowErrorWhenAccessTokenBelongingTheUserDoesNotExists() {
-        when(authorizationExtension.isValidUser(pluginId, credentials.getAccessToken().getUsername(), authConfig)).thenReturn(false);
+        when(authorizationService.isValidUser(pluginId, credentials.getAccessToken().getUsername(), authConfig)).thenReturn(false);
 
         InvalidAccessTokenException exception = assertThrows(InvalidAccessTokenException.class, () -> {
             provider.authenticateWithExtension(pluginId, credentials, authConfig, null);

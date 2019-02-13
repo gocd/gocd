@@ -78,11 +78,13 @@ class AccessTokenBasedPluginAuthenticationProviderTest {
     @Test
     void shouldReturnRolesFetchedForTheUserFromThePluginForTheProvidedAuthConfig() {
         String username = credentials.getAccessToken().getUsername();
-        AuthenticationResponse responseToSend = new AuthenticationResponse(null, Collections.emptyList());
+        User userToOperate = new User(username);
+        AuthenticationResponse responseToSend = new AuthenticationResponse(new com.thoughtworks.go.plugin.domain.authorization.User(userToOperate.getUsername().getUsername().toString(), userToOperate.getDisplayName(), userToOperate.getEmail()), Collections.emptyList());
 
         when(authorizationService.isValidUser(pluginId, username, authConfig)).thenReturn(true);
         when(store.doesPluginSupportGetUserRolesCall(pluginId)).thenReturn(true);
-        when(authorizationService.getUserRoles(pluginId, username, authConfig, null)).thenReturn(responseToSend);
+        when(authorizationService.getUserRoles(pluginId, username, authConfig, null)).thenReturn(Collections.emptyList());
+        when(userService.findUserByName(username)).thenReturn(userToOperate);
 
         AuthenticationResponse actual = provider.authenticateWithExtension(pluginId, credentials, authConfig, null);
 

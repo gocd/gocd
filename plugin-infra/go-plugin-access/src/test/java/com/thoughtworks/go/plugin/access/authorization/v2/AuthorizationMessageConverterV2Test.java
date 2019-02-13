@@ -28,6 +28,7 @@ import static com.thoughtworks.go.domain.packagerepository.ConfigurationProperty
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson;
+import static org.assertj.core.api.Assertions.assertThat;
 
 class AuthorizationMessageConverterV2Test {
     private AuthorizationMessageConverterV2 converter;
@@ -86,5 +87,14 @@ class AuthorizationMessageConverterV2Test {
                 "    },\n" +
                 "  \"username\": \"foo\"\n" +
                 "}");
+    }
+
+    @Test
+    void shouldGetRolesFromGetUserRolesResponseBody() {
+        List<String> roles = converter.getUserRolesFromResponseBody("[\"blackbird\",\"admin\",\"foo\"]");
+
+        assertThat(roles)
+                .hasSize(3)
+                .contains("blackbird", "admin", "foo");
     }
 }

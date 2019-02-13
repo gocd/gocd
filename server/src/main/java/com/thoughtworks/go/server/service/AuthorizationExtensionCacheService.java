@@ -37,7 +37,7 @@ public class AuthorizationExtensionCacheService {
     private final int CACHE_EXPIRY_IN_MINUTES = SystemEnvironment.getGoServerAuthorizationExtensionCallsCacheTimeoutInSeconds() / 60;
 
     private final Cache<String, Boolean> isValidUserCache;
-    private final Cache<String, AuthenticationResponse> getUserRolesCache;
+    private final Cache<String, List<String>> getUserRolesCache;
     private final AuthorizationExtension authorizationExtension;
 
     public AuthorizationExtensionCacheService(GoConfigService goConfigService, AuthorizationExtension authorizationExtension, Ticker ticker) {
@@ -67,16 +67,16 @@ public class AuthorizationExtensionCacheService {
         return fromCache;
     }
 
-    public AuthenticationResponse getUserRoles(String pluginId, String username, SecurityAuthConfig authConfig, List<PluginRoleConfig> pluginRoleConfigs) {
+    public List<String> getUserRoles(String pluginId, String username, SecurityAuthConfig authConfig, List<PluginRoleConfig> pluginRoleConfigs) {
         String cacheKey = cacheKeyFor(pluginId, username, authConfig, pluginRoleConfigs);
-        AuthenticationResponse fromCache = getUserRolesCache.getIfPresent(cacheKey);
+        List<String> rolesFromCache = getUserRolesCache.getIfPresent(cacheKey);
 
-        if (fromCache == null) {
-            fromCache = authorizationExtension.getUserRoles(pluginId, username, authConfig, pluginRoleConfigs);
-            getUserRolesCache.put(cacheKey, fromCache);
+        if (rolesFromCache == null) {
+            rolesFromCache = authorizationExtension.getUserRoles(pluginId, username, authConfig, pluginRoleConfigs);
+            getUserRolesCache.put(cacheKey, rolesFromCache);
         }
 
-        return fromCache;
+        return rolesFromCache;
     }
 
     private String cacheKeyFor(String pluginId, String username, SecurityAuthConfig authConfig, List<PluginRoleConfig> pluginRoleConfigs) {

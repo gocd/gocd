@@ -361,24 +361,16 @@ public class AuthorizationExtensionTest {
         @Test
         void shouldTalkToPlugin_To_GetUserRoles() {
             String requestBody = "{\"auth_config\":{\"configuration\":{\"foo\":\"bar\"},\"id\":\"ldap\"},\"role_configs\":[],\"username\":\"fooUser\"}";
-            String responseBody = "{\n" +
-                    "  \"user\": {\n" +
-                    "      \"username\":\"bob\",\n" +
-                    "      \"display_name\": \"Bob\",\n" +
-                    "      \"email\": \"bob@example.com\"\n" +
-                    "  },\n" +
-                    "  \"roles\": [\"super-admin\", \"view-only\", \"operator\"] \n" +
-                    "}";
+            String responseBody = "[\"super-admin\", \"view-only\", \"operator\"]";
 
             when(pluginManager.submitTo(eq(PLUGIN_ID), eq(AUTHORIZATION_EXTENSION), requestArgumentCaptor.capture())).thenReturn(new DefaultGoPluginApiResponse(SUCCESS_RESPONSE_CODE, responseBody));
 
 
             SecurityAuthConfig authConfig = new SecurityAuthConfig("ldap", "cd.go.ldap", create("foo", false, "bar"));
-            AuthenticationResponse authenticationResponse = authorizationExtension.getUserRoles(PLUGIN_ID, "fooUser", authConfig, Collections.emptyList());
+            List<String> roles = authorizationExtension.getUserRoles(PLUGIN_ID, "fooUser", authConfig, emptyList());
 
             assertRequest(requestArgumentCaptor.getValue(), AUTHORIZATION_EXTENSION, "2.0", REQUEST_GET_USER_ROLES, requestBody);
-            assertThat(authenticationResponse.getUser()).isEqualTo(new User("bob", "Bob", "bob@example.com"));
-            assertThat(authenticationResponse.getRoles()).hasSize(3)
+            assertThat(roles).hasSize(3)
                     .contains("super-admin", "view-only", "operator");
         }
 

@@ -21,6 +21,7 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.thoughtworks.go.config.PluginRoleConfig;
 import com.thoughtworks.go.config.SecurityAuthConfig;
+import com.thoughtworks.go.listener.SecurityConfigChangeListener;
 import com.thoughtworks.go.plugin.access.authorization.AuthorizationExtension;
 import com.thoughtworks.go.plugin.domain.authorization.AuthenticationResponse;
 import com.thoughtworks.go.util.SystemEnvironment;
@@ -39,17 +40,19 @@ public class AuthorizationExtensionCacheService {
     private final Cache<String, AuthenticationResponse> getUserRolesCache;
     private final AuthorizationExtension authorizationExtension;
 
-    public AuthorizationExtensionCacheService(AuthorizationExtension authorizationExtension, Ticker ticker) {
+    public AuthorizationExtensionCacheService(GoConfigService goConfigService, AuthorizationExtension authorizationExtension, Ticker ticker) {
         this.authorizationExtension = authorizationExtension;
         isValidUserCache = CacheBuilder.newBuilder()
                 .ticker(ticker).expireAfterWrite(CACHE_EXPIRY_IN_MINUTES, TimeUnit.MINUTES).build();
         getUserRolesCache = CacheBuilder.newBuilder()
                 .ticker(ticker).expireAfterWrite(CACHE_EXPIRY_IN_MINUTES, TimeUnit.MINUTES).build();
+
+        goConfigService.register(this.securityConfigChangeListener());
     }
 
     @Autowired
-    public AuthorizationExtensionCacheService(AuthorizationExtension authorizationExtension) {
-        this(authorizationExtension, Ticker.systemTicker());
+    public AuthorizationExtensionCacheService(GoConfigService goConfigService, AuthorizationExtension authorizationExtension) {
+        this(goConfigService, authorizationExtension, Ticker.systemTicker());
     }
 
     public boolean isValidUser(String pluginId, String username, SecurityAuthConfig authConfig) {
@@ -83,5 +86,15 @@ public class AuthorizationExtensionCacheService {
 
     private String cacheKeyFor(String pluginId, String username, SecurityAuthConfig authConfig) {
         return String.format("%s##%s##%s", pluginId, username, authConfig.getId());
+    }
+
+    private SecurityConfigChangeListener securityConfigChangeListener() {
+        return new SecurityConfigChangeListener() {
+            @Override
+            public void onEntityConfigChange(Object entity) {
+                isValidUserCache.invalidateAll();
+                getUserRolesCache.invalidateAll();
+            }
+        };
     }
 }

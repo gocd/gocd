@@ -41,6 +41,7 @@ import java.util.Map;
 
 import static com.thoughtworks.go.plugin.access.authorization.AuthorizationPluginConstants.*;
 import static com.thoughtworks.go.plugin.domain.common.PluginConstants.AUTHORIZATION_EXTENSION;
+import static java.lang.String.format;
 
 @Component
 public class AuthorizationExtension extends AbstractExtension {
@@ -209,12 +210,15 @@ public class AuthorizationExtension extends AbstractExtension {
         });
     }
 
-    public AuthenticationResponse getUserRoles(String pluginId, String username, List<SecurityAuthConfig> authConfigs, List<PluginRoleConfig> roleConfigs) {
-        errorOutIfEmpty(authConfigs, pluginId);
+    public AuthenticationResponse getUserRoles(String pluginId, String username, SecurityAuthConfig authConfig, List<PluginRoleConfig> roleConfigs) {
+        if (authConfig == null) {
+            throw new MissingAuthConfigsException(format("Request '%s' requires an AuthConfig. Make sure Authconfig is configured for the plugin '%s'.", REQUEST_GET_USER_ROLES, pluginId));
+        }
+
         return pluginRequestHelper.submitRequest(pluginId, REQUEST_GET_USER_ROLES, new DefaultPluginInteractionCallback<AuthenticationResponse>() {
             @Override
             public String requestBody(String resolvedExtensionVersion) {
-                return getMessageConverter(resolvedExtensionVersion).authenticateUserRequestBody(username, authConfigs, roleConfigs);
+                return getMessageConverter(resolvedExtensionVersion).getUserRolesRequestBody(username, authConfig, roleConfigs);
             }
 
             @Override
@@ -269,7 +273,7 @@ public class AuthorizationExtension extends AbstractExtension {
 
     private void errorOutIfEmpty(List<SecurityAuthConfig> authConfigs, String pluginId) {
         if (authConfigs == null || authConfigs.isEmpty()) {
-            throw new MissingAuthConfigsException(String.format("No AuthConfigs configured for plugin: %s, Plugin would need at-least one auth_config to authenticate user.", pluginId));
+            throw new MissingAuthConfigsException(format("No AuthConfigs configured for plugin: %s, Plugin would need at-least one auth_config to authenticate user.", pluginId));
         }
     }
 

@@ -45,10 +45,12 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import static com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother.*;
 import static com.thoughtworks.go.plugin.access.authorization.AuthorizationPluginConstants.*;
 import static com.thoughtworks.go.plugin.api.response.DefaultGoPluginApiResponse.BAD_REQUEST;
 import static com.thoughtworks.go.plugin.api.response.DefaultGoPluginApiResponse.SUCCESS_RESPONSE_CODE;
 import static com.thoughtworks.go.plugin.domain.common.PluginConstants.AUTHORIZATION_EXTENSION;
+import static java.util.Collections.emptyList;
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -94,20 +96,20 @@ public class AuthorizationExtensionTest {
     }
 
     @Test
-    public void shouldReturnFalseForSupportsValidatingUserExistenceForAuthorizationExtensionV1() throws Exception {
+    void shouldReturnFalseForSupportsValidatingUserExistenceForAuthorizationExtensionV1() throws Exception {
         String pluginId = "cd.go.ldap";
         when(pluginManager.resolveExtensionVersion(pluginId, AUTHORIZATION_EXTENSION, SUPPORTED_VERSIONS)).thenReturn(AuthorizationMessageConverterV1.VERSION);
-        SecurityAuthConfig authConfig = new SecurityAuthConfig("ldap", pluginId, ConfigurationPropertyMother.create("url", false, "some-url"));
+        SecurityAuthConfig authConfig = new SecurityAuthConfig("ldap", pluginId, create("url", false, "some-url"));
 
         boolean expected = authorizationExtension.supportsPluginAPICallsRequiredForAccessToken(authConfig);
         assertThat(expected).isFalse();
     }
 
     @Test
-    public void shouldReturnTrueForSupportsValidatingUserExistenceForAuthorizationExtensionV2() throws Exception {
+    void shouldReturnTrueForSupportsValidatingUserExistenceForAuthorizationExtensionV2() throws Exception {
         String pluginId = "cd.go.ldap";
         when(pluginManager.resolveExtensionVersion(pluginId, AUTHORIZATION_EXTENSION, SUPPORTED_VERSIONS)).thenReturn(AuthorizationMessageConverterV2.VERSION);
-        SecurityAuthConfig authConfig = new SecurityAuthConfig("ldap", pluginId, ConfigurationPropertyMother.create("url", false, "some-url"));
+        SecurityAuthConfig authConfig = new SecurityAuthConfig("ldap", pluginId, create("url", false, "some-url"));
 
         boolean expected = authorizationExtension.supportsPluginAPICallsRequiredForAccessToken(authConfig);
         assertThat(expected).isTrue();
@@ -244,11 +246,11 @@ public class AuthorizationExtensionTest {
 
         when(pluginManager.submitTo(eq(PLUGIN_ID), eq(AUTHORIZATION_EXTENSION), requestArgumentCaptor.capture())).thenReturn(new DefaultGoPluginApiResponse(SUCCESS_RESPONSE_CODE, responseBody));
 
-        final PluginRoleConfig roleConfig = new PluginRoleConfig("foo", "ldap", ConfigurationPropertyMother.create("memberOf", false, "ou=some-value"));
+        final PluginRoleConfig roleConfig = new PluginRoleConfig("foo", "ldap", create("memberOf", false, "ou=some-value"));
         final List<PluginRoleConfig> pluginRoleConfigs = Collections.singletonList(roleConfig);
 
         final SecurityAuthConfigs authConfigs = new SecurityAuthConfigs();
-        authConfigs.add(new SecurityAuthConfig("ldap", "cd.go.ldap", ConfigurationPropertyMother.create("url", false, "some-url")));
+        authConfigs.add(new SecurityAuthConfig("ldap", "cd.go.ldap", create("url", false, "some-url")));
 
         AuthenticationResponse authenticationResponse = authorizationExtension.authenticateUser(PLUGIN_ID, "bob", "secret", authConfigs, pluginRoleConfigs);
 
@@ -280,7 +282,7 @@ public class AuthorizationExtensionTest {
         when(pluginManager.submitTo(eq(PLUGIN_ID), eq(AUTHORIZATION_EXTENSION), requestArgumentCaptor.capture())).thenReturn(new DefaultGoPluginApiResponse(SUCCESS_RESPONSE_CODE, responseBody));
 
         final SecurityAuthConfigs authConfigs = new SecurityAuthConfigs();
-        authConfigs.add(new SecurityAuthConfig("ldap", "cd.go.ldap", ConfigurationPropertyMother.create("url", false, "some-url")));
+        authConfigs.add(new SecurityAuthConfig("ldap", "cd.go.ldap", create("url", false, "some-url")));
 
         AuthenticationResponse authenticationResponse = authorizationExtension.authenticateUser(PLUGIN_ID, "bob", "secret", authConfigs, null);
 
@@ -317,7 +319,7 @@ public class AuthorizationExtensionTest {
         String responseBody = "[{\"username\":\"bob\",\"display_name\":\"Bob\",\"email\":\"bob@example.com\"}]";
         when(pluginManager.submitTo(eq(PLUGIN_ID), eq(AUTHORIZATION_EXTENSION), requestArgumentCaptor.capture())).thenReturn(new DefaultGoPluginApiResponse(SUCCESS_RESPONSE_CODE, responseBody));
 
-        List<User> users = authorizationExtension.searchUsers(PLUGIN_ID, "bob", Collections.singletonList(new SecurityAuthConfig("ldap", "cd.go.ldap", ConfigurationPropertyMother.create("foo", false, "bar"))));
+        List<User> users = authorizationExtension.searchUsers(PLUGIN_ID, "bob", Collections.singletonList(new SecurityAuthConfig("ldap", "cd.go.ldap", create("foo", false, "bar"))));
 
         assertRequest(requestArgumentCaptor.getValue(), AUTHORIZATION_EXTENSION, "1.0", REQUEST_SEARCH_USERS, requestBody);
         assertThat(users).hasSize(1)
@@ -338,7 +340,7 @@ public class AuthorizationExtensionTest {
                 "  \"authorization_server_callback_url\": \"http://go.site.url/go/plugin/plugin-id/authenticate\"\n" +
                 "}";
         String responseBody = "{\"authorization_server_url\":\"url_to_authorization_server\"}";
-        SecurityAuthConfig authConfig = new SecurityAuthConfig("github", "cd.go.github", ConfigurationPropertyMother.create("url", false, "some-url"));
+        SecurityAuthConfig authConfig = new SecurityAuthConfig("github", "cd.go.github", create("url", false, "some-url"));
 
         when(pluginManager.submitTo(eq(PLUGIN_ID), eq(AUTHORIZATION_EXTENSION), requestArgumentCaptor.capture())).thenReturn(new DefaultGoPluginApiResponse(SUCCESS_RESPONSE_CODE, responseBody));
 
@@ -358,7 +360,7 @@ public class AuthorizationExtensionTest {
 
         @Test
         void shouldTalkToPlugin_To_GetUserRoles() {
-            String requestBody = "{\"auth_configs\":[{\"configuration\":{\"foo\":\"bar\"},\"id\":\"ldap\"}],\"role_configs\":[],\"username\":\"fooUser\"}";
+            String requestBody = "{\"auth_config\":{\"configuration\":{\"foo\":\"bar\"},\"id\":\"ldap\"},\"role_configs\":[],\"username\":\"fooUser\"}";
             String responseBody = "{\n" +
                     "  \"user\": {\n" +
                     "      \"username\":\"bob\",\n" +
@@ -371,7 +373,8 @@ public class AuthorizationExtensionTest {
             when(pluginManager.submitTo(eq(PLUGIN_ID), eq(AUTHORIZATION_EXTENSION), requestArgumentCaptor.capture())).thenReturn(new DefaultGoPluginApiResponse(SUCCESS_RESPONSE_CODE, responseBody));
 
 
-            AuthenticationResponse authenticationResponse = authorizationExtension.getUserRoles(PLUGIN_ID, "fooUser", Collections.singletonList(new SecurityAuthConfig("ldap", "cd.go.ldap", ConfigurationPropertyMother.create("foo", false, "bar"))), Collections.emptyList());
+            SecurityAuthConfig authConfig = new SecurityAuthConfig("ldap", "cd.go.ldap", create("foo", false, "bar"));
+            AuthenticationResponse authenticationResponse = authorizationExtension.getUserRoles(PLUGIN_ID, "fooUser", authConfig, Collections.emptyList());
 
             assertRequest(requestArgumentCaptor.getValue(), AUTHORIZATION_EXTENSION, "2.0", REQUEST_GET_USER_ROLES, requestBody);
             assertThat(authenticationResponse.getUser()).isEqualTo(new User("bob", "Bob", "bob@example.com"));
@@ -380,26 +383,26 @@ public class AuthorizationExtensionTest {
         }
 
         @Test
-        public void shouldTalkToPlugin_ToCheck_isValidUser() {
+        void shouldTalkToPlugin_ToCheck_isValidUser() {
             String requestBody = "{\"auth_config\":{\"configuration\":{\"foo\":\"bar\"},\"id\":\"ldap\"},\"username\":\"fooUser\"}";
             String responseBody = "OK";
 
             when(pluginManager.submitTo(eq(PLUGIN_ID), eq(AUTHORIZATION_EXTENSION), requestArgumentCaptor.capture())).thenReturn(new DefaultGoPluginApiResponse(SUCCESS_RESPONSE_CODE, responseBody));
 
-            boolean isValidUser = authorizationExtension.isValidUser(PLUGIN_ID, "fooUser", new SecurityAuthConfig("ldap", "cd.go.ldap", ConfigurationPropertyMother.create("foo", false, "bar")));
+            boolean isValidUser = authorizationExtension.isValidUser(PLUGIN_ID, "fooUser", new SecurityAuthConfig("ldap", "cd.go.ldap", create("foo", false, "bar")));
 
             assertRequest(requestArgumentCaptor.getValue(), AUTHORIZATION_EXTENSION, "2.0", IS_VALID_USER, requestBody);
             assertThat(isValidUser).isTrue();
         }
 
         @Test
-        public void shouldTalkToPlugin_ToCheck_isValidUser_orNot() {
+        void shouldTalkToPlugin_ToCheck_isValidUser_orNot() {
             String requestBody = "{\"auth_config\":{\"configuration\":{\"foo\":\"bar\"},\"id\":\"ldap\"},\"username\":\"fooUser\"}";
             String responseBody = "OK";
 
             when(pluginManager.submitTo(eq(PLUGIN_ID), eq(AUTHORIZATION_EXTENSION), requestArgumentCaptor.capture())).thenReturn(new DefaultGoPluginApiResponse(BAD_REQUEST, responseBody));
 
-            boolean isValidUser = authorizationExtension.isValidUser(PLUGIN_ID, "fooUser", new SecurityAuthConfig("ldap", "cd.go.ldap", ConfigurationPropertyMother.create("foo", false, "bar")));
+            boolean isValidUser = authorizationExtension.isValidUser(PLUGIN_ID, "fooUser", new SecurityAuthConfig("ldap", "cd.go.ldap", create("foo", false, "bar")));
 
             assertRequest(requestArgumentCaptor.getValue(), AUTHORIZATION_EXTENSION, "2.0", IS_VALID_USER, requestBody);
             assertThat(isValidUser).isFalse();
@@ -411,7 +414,7 @@ public class AuthorizationExtensionTest {
 
             MissingAuthConfigsException exception = assertThrows(MissingAuthConfigsException.class, codeThatShouldThrowError);
 
-            assertThat(exception.getMessage()).isEqualTo("No AuthConfigs configured for plugin: plugin-id, Plugin would need at-least one auth_config to authenticate user.");
+            assertThat(exception.getMessage()).isEqualTo("Request 'go.cd.authorization.get-user-roles' requires an AuthConfig. Make sure Authconfig is configured for the plugin 'plugin-id'.");
             verifyNoMoreInteractions(pluginManager);
         }
 

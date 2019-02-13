@@ -83,7 +83,7 @@ public class AccessTokenBasedPluginAuthenticationProvider extends AbstractPlugin
         String username = credentials.getAccessToken().getUsername();
         if (authorizationExtension.isValidUser(pluginId, username, authConfig)) {
             if (store.doesPluginSupportGetUserRolesCall(pluginId)) {
-                return authorizationExtension.getUserRoles(pluginId, username, singletonList(authConfig), pluginRoleConfigs);
+                return authorizationExtension.getUserRoles(pluginId, username, authConfig, pluginRoleConfigs);
             }
 
             com.thoughtworks.go.domain.User fetched = userService.findUserByName(username);

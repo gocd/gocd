@@ -21,9 +21,11 @@ import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
 import com.thoughtworks.go.api.util.HaltApiMessages
 import com.thoughtworks.go.apiv1.accessToken.representers.AccessTokenRepresenter
 import com.thoughtworks.go.apiv1.accessToken.representers.AccessTokensRepresenter
+import com.thoughtworks.go.config.SecurityAuthConfig
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException
 import com.thoughtworks.go.config.exceptions.UnprocessableEntityException
 import com.thoughtworks.go.domain.AccessToken
+import com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother
 import com.thoughtworks.go.plugin.access.authorization.AuthorizationExtension
 import com.thoughtworks.go.server.service.AccessTokenService
 import com.thoughtworks.go.server.service.SecurityAuthConfigService
@@ -144,6 +146,7 @@ class AccessTokenControllerV1Test implements ControllerTrait<AccessTokenControll
         loginAsUser()
 
         when(accessTokenService.create(token.description, currentUsernameString(), authConfigId)).thenReturn(token)
+        when(extension.supportsPluginAPICallsRequiredForAccessToken(any())).thenReturn(true)
       }
 
       @Test
@@ -158,6 +161,19 @@ class AccessTokenControllerV1Test implements ControllerTrait<AccessTokenControll
           .isOk()
           .hasContentType(controller.mimeType)
           .hasBody(toObjectString({ AccessTokenRepresenter.toJSON(it, token) }))
+      }
+
+      @Test
+      void 'should disallow access token creation when the plugin does not support access token related API calls'() {
+        def authConfig = new SecurityAuthConfig("ldap", "plugin-id", ConfigurationPropertyMother.create("url", false, "some-url"));
+        when(authConfigService.findProfile(any())).thenReturn(authConfig)
+        when(extension.supportsPluginAPICallsRequiredForAccessToken(authConfig)).thenReturn(false)
+
+        postWithApiHeader(controller.controllerPath(), [:])
+
+        assertThatResponse()
+          .isUnprocessableEntity()
+          .hasJsonMessage("Can not create Access Token. Please upgrade 'plugin-id' plugin to use Access Token Feature.")
       }
 
       @Test

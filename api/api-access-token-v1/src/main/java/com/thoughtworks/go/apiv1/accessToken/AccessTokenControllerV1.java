@@ -21,8 +21,10 @@ import com.thoughtworks.go.api.ApiVersion;
 import com.thoughtworks.go.api.representers.JsonReader;
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
 import com.thoughtworks.go.api.util.GsonTransformer;
+import com.thoughtworks.go.api.util.MessageJson;
 import com.thoughtworks.go.apiv1.accessToken.representers.AccessTokenRepresenter;
 import com.thoughtworks.go.apiv1.accessToken.representers.AccessTokensRepresenter;
+import com.thoughtworks.go.config.SecurityAuthConfig;
 import com.thoughtworks.go.config.exceptions.ConflictException;
 import com.thoughtworks.go.config.exceptions.NotAuthorizedException;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
@@ -89,6 +91,13 @@ public class AccessTokenControllerV1 extends ApiController implements SparkSprin
     }
 
     public String createAccessToken(Request request, Response response) throws Exception {
+        String authConfigId = currentUserAuthConfigId(request);
+        SecurityAuthConfig authConfig = authConfigService.findProfile(authConfigId);
+        if (!extension.supportsPluginAPICallsRequiredForAccessToken(authConfig)) {
+            response.status(422);
+            return MessageJson.create(String.format("Can not create Access Token. Please upgrade '%s' plugin to use Access Token Feature.", authConfig.getPluginId()));
+        }
+
         final JsonReader reader = GsonTransformer.getInstance().jsonReaderFrom(request.body());
 
         String tokenDescription = reader.optString("description").orElse(null);

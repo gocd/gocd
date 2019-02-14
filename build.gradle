@@ -426,7 +426,7 @@ subprojects {
   }
 
   project.afterEvaluate {
-    tasks.withType(License) { thisTask ->
+    tasks.withType(License) { License thisTask ->
       thisTask.outputs.upToDateWhen { false }
       def sourceSetName = thisTask.name.replaceFirst('licenseFormat', '').replaceFirst('license', '')
       def mappedSourceSet = sourceSets.find { sourceSet -> sourceSet.name.toLowerCase().equals(sourceSetName.toLowerCase()) }
@@ -442,14 +442,14 @@ subprojects {
   }
 
   task testJar(type: Jar, description: "Assembles a jar archive containing the test classes.") {
-    classifier = 'tests'
+    archiveClassifier = 'tests'
     from sourceSets.test.output
   }
 
   tasks.withType(Test) { Test testTask ->
     dependsOn 'jar'
     // run tests even when inputs have not changed
-    outputs.upToDateWhen { false }
+//    outputs.upToDateWhen { false }
 
     testTask.useJUnitPlatform()
 

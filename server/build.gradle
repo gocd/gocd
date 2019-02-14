@@ -20,6 +20,7 @@ import com.thoughtworks.go.build.LicenseReport
 import com.thoughtworks.go.build.VerifyJarTask
 import groovy.json.JsonSlurper
 import org.eclipse.jgit.api.Git
+import org.gradle.util.TextUtil
 
 import java.nio.file.FileSystems
 
